@@ -3,6 +3,8 @@ import ChapterLayout from '../../layouts/ChapterLayout.astro';
 import PlaceholderChapter from '../../components/story/PlaceholderChapter';
 import History from '../../content/rag/01-history';
 import WhyNotStuffIt from '../../content/rag/02-why-not-stuff-it';
+import WhatIsRag from '../../content/rag/03-what-is-rag';
+import Layers from '../../content/rag/04-layers';
 import { CHAPTERS } from '../../lib/chapters';
 
 export function getStaticPaths() {
@@ -16,5 +18,7 @@ const { title } = Astro.props;
   {/* one line per written chapter; hydration needs a static component, so no lookup table */}
   {chapter === '01-history' ? <History client:load />
     : chapter === '02-why-not-stuff-it' ? <WhyNotStuffIt client:load />
+    : chapter === '03-what-is-rag' ? <WhatIsRag client:load />
+    : chapter === '04-layers' ? <Layers client:load />
     : <PlaceholderChapter client:load chapter={chapter} />}
 </ChapterLayout>

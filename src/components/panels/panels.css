@@ -1,0 +1,58 @@
+/* Drawer panels for the canvas chapters: quiet, secondary to the canvas. */
+.stamp.warn { color: var(--warn); }
+.drawer .note { color: var(--muted); font-size: 12.5px; }
+.drawer .lbl { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.drawer mark { background: #ffe39a; color: var(--ink); padding: 0 2px; border-radius: 3px; }
+.drawer mark.neg { background: #f7c7bd; font-weight: 800; }
+.drawer label.check { display: flex; gap: 8px; align-items: center; margin-top: 12px; font-weight: 700; cursor: pointer; }
+
+.answer-card { display: flex; flex-direction: column; align-items: flex-start; }
+.answer-card .stamp { margin-top: 10px; }
+.answer-card .said { font-style: italic; font-size: 14px; }
+.answer-card .why { border-left: 3px solid var(--bad); padding-left: 10px; }
+
+.evidence { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.ev-head { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; font-weight: 800; }
+.ev-head .score { font-variant-numeric: tabular-nums; }
+.bar { display: block; height: 6px; border: 1px solid var(--ink); border-radius: 3px; margin: 4px 0; background: var(--paper); }
+.bar span { display: block; height: 100%; background: var(--acc); }
+.drawer .chunk-text { margin: 4px 0 0; font-size: 12.5px; }
+.frag { color: var(--bad); font-weight: 800; }
+
+.math { margin-top: 6px; padding-bottom: 6px; border-bottom: 1px dashed var(--rule); }
+.math .formula { font-weight: 800; }
+.math dd { overflow-wrap: anywhere; }
+
+.chunk-strip .strip { line-height: 2; font-size: 12.5px; }
+.chunk-strip .strip span.base { background: #e6eefb; }
+.chunk-strip .strip span.alt { background: #e3f3ea; }
+.chunk-strip .strip span.ov { background: #fbe2b0; }
+.chunk-strip .strip span.got { text-decoration: underline 2px var(--ink); text-underline-offset: 3px; }
+.chunk-strip .strip span.key { font-weight: 800; }
+.chunk-strip .cut { color: var(--rule); font-weight: 400; margin: 0 1px; }
+.chunk-strip .cut.hard { color: var(--ink); font-weight: 900; }
+.chunk-strip .cut.neg { color: var(--bad); font-size: 18px; text-shadow: 0 0 4px rgba(212, 69, 47, .5); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 11px; color: var(--muted); }
+.legend span { padding: 0 4px; border-radius: 3px; }
+.legend .base { background: #e6eefb; } .legend .alt { background: #e3f3ea; } .legend .ov { background: #fbe2b0; }
+.chunk-strip .legend .got { text-decoration: underline 2px var(--ink); } .chunk-strip .legend .key { font-weight: 800; }
+.verdict-line { font-weight: 700; display: flex; gap: 8px; align-items: baseline; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--ink); flex: none; }
+.dot.neg, .dot.hard { background: var(--bad); } .dot.ok { background: var(--ok); }
+
+.map svg { width: 100%; max-width: 280px; display: block; margin: 10px auto 0; background: var(--paper); border: 1.5px solid var(--rule); border-radius: 10px; }
+.map .pt { fill: #b9b0a0; }
+.map .pt[tabindex] { fill: var(--cobalt-l); stroke: var(--ink); stroke-width: .8; cursor: pointer; outline: none; }
+.map .pt.got { fill: var(--acc); stroke: var(--ink); stroke-width: 1.2; }
+.map .pt.on, .map .pt:focus-visible { stroke: var(--ink); stroke-width: 2.4; }
+.map .query { fill: var(--tomato-l); stroke: var(--ink); stroke-width: 1.2; }
+.map .ruler { stroke: var(--ink); stroke-width: 1; stroke-dasharray: 3 2; }
+.map .readout { display: flex; flex-direction: column; gap: 2px; min-height: 3em; }
+.map .readout .said { font-style: italic; font-size: 12px; }
+.map .legend .q { color: var(--tomato-m); } .map .legend .got { color: var(--mustard-m); }
+
+.rag-stage { margin: 0; width: 100%; }
+.rag-stage figcaption { display: flex; justify-content: space-between; align-items: center; gap: 8px 16px; flex-wrap: wrap; text-align: left; }
+.rag-stage .announce { margin: 0; font-weight: 700; color: var(--ink); }
+.rag-stage .inspect-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.rag-stage .inspect-row .chip { font-size: 12px; padding: 3px 9px; box-shadow: none; border-color: var(--rule); }

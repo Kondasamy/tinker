@@ -7,7 +7,7 @@ import Drawer from './Drawer';
 export interface ControlProps<S> { state: S; apply: (next: S) => void; focused: boolean }
 /** What the hero stage (canvas or scene) gets. `inspect` opens the drawer without changing the step. */
 export interface StageProps<S> { state: S; apply: (next: S) => void; focus?: string; inspect: (panel: string) => void }
-export interface Panel<S> { title: string; render: (state: S) => ReactNode }
+export interface Panel<S> { title: string; render: (state: S, apply: (next: S) => void) => ReactNode }
 
 interface Props<S> {
   chapter: string;
@@ -79,7 +79,7 @@ export default function StepRunner<S>({ chapter, steps, initial, controls, stage
         </section>
         {panel && (
           <Drawer title={panel.title} focusKey={focusDrawer} onClose={() => dispatch({ type: 'closeDrawer' })}>
-            {panel.render(run.state)}
+            {panel.render(run.state, apply)}
           </Drawer>
         )}
       </div>
