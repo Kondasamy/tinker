@@ -126,6 +126,8 @@ export interface Outcome {
   record: RunRecord | null;
   /** the active config is still loading; record (if any) is from the previous one */
   preparing: boolean;
+  /** the active config failed to load; answer is null until a later run retries it */
+  failed: boolean;
   signature: string | null;
   answer: Lookup | null;
   /** the agent's call log (or the graph's hop log, or the evaluator's graded attempts) when it is on the live path, else null */
@@ -139,7 +141,7 @@ export function outcome(index: RagIndex, session: ReturnType<typeof createSessio
   const p = runParams(s, q, analysis);
   const config = resolveConfig(s.knobs);
   const chunks = index.get(config.file)?.N ?? null;
-  if (!p) return { analysis, config, chunks, record: null, preparing: false, signature: NO_CONTEXT, answer: lookup(q.id, NO_CONTEXT), calls: null, graph: null };
+  if (!p) return { analysis, config, chunks, record: null, preparing: false, failed: false, signature: NO_CONTEXT, answer: lookup(q.id, NO_CONTEXT), calls: null, graph: null };
   const r = session(p);
   const cfg = index.get(r.config.file);
   const ready = !r.preparing && cfg;
@@ -151,6 +153,6 @@ export function outcome(index: RagIndex, session: ReturnType<typeof createSessio
   const check = ready && !graph && !agent && s.knobs.grade && analysis.used.includes('grader') ? runSelfCheck(index, cfg, { ...p, question: q }, undefined, first) : null;
   const record = graph?.record ?? agent?.record ?? check?.record ?? (r.record?.questionId === q.id ? r.record : null);
   const sig = record ? signature(index, q, record.context) : null;
-  const answer = check?.abstain ? ABSTAIN : sig ? lookup(q.id, sig) : null;
-  return { analysis, config: r.config, chunks, record, preparing: r.preparing, signature: sig, answer, calls: graph?.calls ?? agent?.calls ?? check?.calls ?? null, graph: graph?.trace ?? null };
+  const answer = r.failed ? null : check?.abstain ? ABSTAIN : sig ? lookup(q.id, sig) : null;
+  return { analysis, config: r.config, chunks, record, preparing: r.preparing, failed: r.failed, signature: sig, answer, calls: graph?.calls ?? agent?.calls ?? check?.calls ?? null, graph: graph?.trace ?? null };
 }

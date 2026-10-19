@@ -30,6 +30,8 @@ export interface Run<S> {
 
 export type Action<S> =
   | { type: 'apply'; state: S }
+  /** Like apply, but a miss is not a learner attempt (e.g. a verdict arriving after an async run). */
+  | { type: 'sync'; state: S }
   | { type: 'back' }
   | { type: 'reset' }
   | { type: 'showMe' }
@@ -56,12 +58,14 @@ export function isRun<S>(steps: Step<S>[], x: unknown): x is Run<S> {
 export function reduce<S>(steps: Step<S>[], run: Run<S>, a: Action<S>): Run<S> {
   const step = steps[run.index];
   switch (a.type) {
-    case 'apply': {
+    case 'apply':
+    case 'sync': {
       if (run.done) return { ...run, state: a.state };
       if (step.predicate(a.state)) {
         if (run.index === steps.length - 1) return { ...run, state: a.state, done: true, hint: false };
         return enter(steps, run.index + 1, a.state, run.starts, run.drawer);
       }
+      if (a.type === 'sync') return { ...run, state: a.state };
       const fails = run.fails + 1;
       return { ...run, state: a.state, fails, hint: run.hint || fails >= HINT_AFTER };
     }

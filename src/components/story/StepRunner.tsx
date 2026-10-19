@@ -5,8 +5,9 @@ import Drawer from './Drawer';
 
 /** What a step control gets. `apply` hands the next state to the runner, which checks the step's predicate. */
 export interface ControlProps<S> { state: S; apply: (next: S) => void; focused: boolean }
-/** What the hero stage (canvas or scene) gets. `inspect` opens the drawer without changing the step. */
-export interface StageProps<S> { state: S; apply: (next: S) => void; focus?: string; inspect: (panel: string) => void }
+/** What the hero stage (canvas or scene) gets. `inspect` opens the drawer without changing the step;
+ * `sync` applies a state the learner did not cause (it can advance the step but never counts as a failed try). */
+export interface StageProps<S> { state: S; apply: (next: S) => void; sync: (next: S) => void; focus?: string; inspect: (panel: string) => void }
 export interface Panel<S> { title: string; render: (state: S, apply: (next: S) => void) => ReactNode }
 
 interface Props<S> {
@@ -27,6 +28,7 @@ export default function StepRunner<S>({ chapter, steps, initial, controls, stage
   const loaded = useRef(false);
   const step = steps[run.index];
   const apply = (state: S) => dispatch({ type: 'apply', state });
+  const sync = (state: S) => dispatch({ type: 'sync', state });
   const inspect = (panel: string) => { dispatch({ type: 'inspect', panel }); setFocusDrawer(n => n + 1); };
 
   // Save before restoring (effect order), so the first, seeded render never overwrites saved work.
@@ -55,7 +57,7 @@ export default function StepRunner<S>({ chapter, steps, initial, controls, stage
   return (
     <div className="chapter">
       <section className="stage" aria-label="Scene">
-        {stage({ state: run.state, apply, focus: step.focus, inspect })}
+        {stage({ state: run.state, apply, sync, focus: step.focus, inspect })}
       </section>
       <div className="side">
         <section className="card" aria-label="Next step">

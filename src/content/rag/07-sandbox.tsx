@@ -83,7 +83,7 @@ export default function Sandbox() {
             <p className="lbl">Try this</p>
             <ul>
               <li>Ask whether enterprise customers can get a refund. The question names nothing the graph knows, so the model makes something up. Cut the Index → Graph wire and run it again.</li>
-              <li>Ask for the hotel limit. Every type gets it wrong until you click the Retriever and filter to current documents only.</li>
+              <li>Ask for the hotel limit. The graph knows no hotels, so cut the Index → Graph wire first: the agent then quotes an outdated limit. Click the Retriever, filter to current documents only, and run it again.</li>
             </ul>
           </div>
         ),

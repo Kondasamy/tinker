@@ -1,7 +1,9 @@
 // Pure helpers behind the drawer panels (answer, evidence, chunk strip, 2D map). No React, so unit tests import them directly.
 import type { Outcome } from '../canvas/state';
 import type { Lookup } from '../../lib/rag/answers';
-import type { Ranked, RunRecord } from '../../lib/rag/engine';
+import { topScore, type Ranked, type RunRecord } from '../../lib/rag/engine';
+
+export const LOAD_FAILED = 'Couldn’t load these chunks. Change a setting or reload to retry.';
 
 export const VERDICT_LABEL: Record<Lookup['verdict'], string> = {
   correct: 'CORRECT', wrong: 'WRONG', madeup: 'MADE UP', notfound: 'NOT FOUND', norecord: 'NO RECORDED ANSWER',
@@ -11,10 +13,12 @@ export const stampClass = (v: Lookup['verdict']) => (v === 'correct' ? 'correct'
 /** One sentence for the aria-live region: the verdict plus what retrieval did. */
 export function summary(o: Outcome | null): string {
   if (!o) return 'Loading the retrieval index…';
+  if (o.failed) return LOAD_FAILED;
   if (o.preparing || !o.answer) return 'Preparing these chunks…';
   const verdict = `Answer: ${VERDICT_LABEL[o.answer.verdict]}.`;
-  if (!o.record) return `${verdict} Nothing reached the model.`;
-  const n = o.record.context.length, best = Math.max(...o.record.context.map(c => c.score));
+  const best = o.record && topScore(o.record.context);
+  if (!o.record || best === null) return `${verdict} Nothing reached the model.`;
+  const n = o.record.context.length;
   return `${verdict} ${n} chunk${n === 1 ? '' : 's'} retrieved, best similarity ${best.toFixed(3)}.`;
 }
 

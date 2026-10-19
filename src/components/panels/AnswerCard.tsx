@@ -1,10 +1,11 @@
 // The assistant's answer for the current run: verdict stamp, text, the cited sentence, and why it went wrong.
 import type { Outcome } from '../canvas/state';
-import { VERDICT_LABEL, stampClass } from './logic';
+import { LOAD_FAILED, VERDICT_LABEL, stampClass } from './logic';
 import './panels.css';
 
 export default function AnswerCard({ out }: { out: Outcome | null }) {
   const a = out?.answer;
+  if (out?.failed) return <p className="note" role="alert">{LOAD_FAILED}</p>;
   if (!a) return <p className="note" data-state="preparing">Preparing the answer…</p>;
   return (
     <div className="answer-card" data-verdict={a.verdict}>

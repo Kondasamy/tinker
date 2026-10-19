@@ -44,7 +44,7 @@ const TABS = [['answer', 'Answer'], ['evidence', 'Evidence'], ['chunks', 'Chunks
 
 /** `extraTabs`: chapter-specific drawer panels to offer beside the standard ones (e.g. chapter 6's Compare).
  * `canvas`: canvas options the chapter turns on (the Sandbox's workbench and block settings). */
-export function RagStage<S extends RagState>({ state, apply, focus, inspect, run, extraTabs = [], canvas: opts }: StageProps<S> & { run: RagRun; extraTabs?: [string, string][]; canvas?: Pick<CanvasProps, 'allowBench' | 'panel'> }) {
+export function RagStage<S extends RagState>({ state, apply, sync, focus, inspect, run, extraTabs = [], canvas: opts }: StageProps<S> & { run: RagRun; extraTabs?: [string, string][]; canvas?: Pick<CanvasProps, 'allowBench' | 'panel'> }) {
   const u = state.canvas.unlocked;
   const shown = TABS.filter(([id]) => id === 'answer' || (id === 'evidence' ? u.includes('retriever') : id === 'chunks' ? u.includes('chunker') : u.includes('embedder')));
   return (
@@ -54,7 +54,7 @@ export function RagStage<S extends RagState>({ state, apply, focus, inspect, run
         onResult={o => {
           run.setOut(o);
           const v = o.preparing ? null : o.answer?.verdict ?? null;
-          if (v && v !== state.verdict) apply({ ...state, verdict: v });
+          if (v && v !== state.verdict) sync({ ...state, verdict: v });
         }} />
       <figcaption>
         <p className="announce" aria-live="polite" aria-atomic="true" data-testid="announce">{summary(run.out)}</p>

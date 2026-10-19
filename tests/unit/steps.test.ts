@@ -32,6 +32,13 @@ describe('step machine', () => {
     expect(run([fail, fail, fail]).hint).toBe(true);
   });
 
+  it('sync advances like apply, but a miss is not a failed attempt', () => {
+    const sync = (state: S): Action<S> => ({ type: 'sync', state });
+    const missed = run([sync({ k: 2, overlap: 10 }), sync({ k: 4, overlap: 10 }), sync({ k: 5, overlap: 10 })]);
+    expect(missed).toMatchObject({ index: 0, fails: 0, hint: false, state: { k: 5 } });
+    expect(run([sync({ k: 3, overlap: 10 })]).index).toBe(1);
+  });
+
   it('shows the hint after idling', () => {
     expect(run([{ type: 'idle' }]).hint).toBe(true);
   });

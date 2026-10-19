@@ -197,3 +197,31 @@ describe('session keeps the previous result while a config loads', () => {
     expect(third.record!.file).toBe('fixed-32-0.bin');
   });
 });
+
+describe('session reports a failed config load and recovers on retry', () => {
+  it('fires onReady on rejection, reports failed once, then retries and runs', async () => {
+    let fails = 1;
+    const flaky: Loader = async (f) => { if (f === 'fixed-32-0.bin' && fails-- > 0) throw new Error('offline'); return fileLoader(f); };
+    const ix = await openIndex(flaky);
+    const ready: string[] = [];
+    const session = createSession(ix, (f) => ready.push(f));
+    const p = { question: Q('refund-enterprise'), topK: 3, strategy: 'fixed' as const, overlap: 0, size: 32 };
+    expect(session(p)).toMatchObject({ preparing: true, failed: false });
+    await ix.load('fixed-32-0.bin').catch(() => {});
+    await Promise.resolve();
+    expect(ready).toEqual(['fixed-32-0.bin']);                 // onReady fires on rejection too
+    expect(ix.status('fixed-32-0.bin')).toBe('error');
+    // the re-run onReady triggers reports the failure without refetching (no retry loop)
+    expect(session(p)).toMatchObject({ record: null, preparing: true, failed: true });
+    expect(ix.status('fixed-32-0.bin')).toBe('error');
+    // the next request retries, and this time the load succeeds
+    expect(session(p)).toMatchObject({ preparing: true, failed: false });
+    expect(ix.status('fixed-32-0.bin')).toBe('loading');
+    await ix.load('fixed-32-0.bin');
+    await Promise.resolve();
+    expect(ready).toEqual(['fixed-32-0.bin', 'fixed-32-0.bin']);
+    const ok = session(p);
+    expect(ok).toMatchObject({ preparing: false, failed: false });
+    expect(ok.record!.file).toBe('fixed-32-0.bin');
+  });
+});

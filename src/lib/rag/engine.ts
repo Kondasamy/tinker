@@ -189,19 +189,24 @@ export function goldOf(index: RagIndex, cfg: Config, question: Question, ids: nu
   return { k, value: gold.length ? gold.filter((g) => g.status === 'intact').length / gold.length : 0, gold };
 }
 
-export interface SessionResult { record: RunRecord | null; config: ResolvedConfig; preparing: boolean }
+export interface SessionResult { record: RunRecord | null; config: ResolvedConfig; preparing: boolean; failed: boolean }
 
 /**
  * Snaps chunk params to the lattice and runs if that config is loaded. Otherwise it keeps the previous
- * record with preparing = true, starts the load, and calls onReady when it lands so the UI can re-run.
+ * record with preparing = true, starts the load, and calls onReady when it lands (or fails) so the UI can re-run.
+ * A failed config reports failed = true; the next call after that report retries the load.
  */
 export function createSession(index: RagIndex, onReady?: (file: string) => void) {
   let last: RunRecord | null = null;
+  // failures already handed to onReady: the re-run they trigger reports failed instead of retrying (no fetch loop)
+  const reported = new Set<string>();
   return (p: RunParams & ChunkParams): SessionResult => {
     const config = resolveConfig(p);
     const cfg = index.get(config.file);
-    if (cfg) return { record: (last = run(index, cfg, p)), config, preparing: false };
-    index.load(config.file).then(() => onReady?.(config.file), () => {});
-    return { record: last, config, preparing: true };
+    if (cfg) return { record: (last = run(index, cfg, p)), config, preparing: false, failed: false };
+    if (index.status(config.file) === 'error' && reported.delete(config.file)) return { record: last, config, preparing: true, failed: true };
+    const done = () => onReady?.(config.file);
+    index.load(config.file).then(done, () => { reported.add(config.file); done(); });
+    return { record: last, config, preparing: true, failed: false };
   };
 }

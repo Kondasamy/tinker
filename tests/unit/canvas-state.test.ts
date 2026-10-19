@@ -152,3 +152,30 @@ describe('knobs reach the engine', () => {
     expect(on.record!.stages.rerank).not.toBeNull();
   });
 });
+
+describe('sandbox tip (07): the hotel limit', () => {
+  it('needs the graph cut before the current-documents filter fixes it', async () => {
+    const q = Q('stale-hotel-limit');
+    const s = openBench(initialCanvas(unlockedThrough('06-types'), { hops: 2 }));   // the sandbox's default wiring
+    const filtered = (c: CanvasState) => ({ ...c, knobs: { ...c.knobs, filter: 'current' } });
+    expect((await settle(filtered(s), q)).answer!.verdict).toBe('madeup');          // graph wins and ignores the filter
+    const noGraph = { ...s, bench: cut(s.bench, ['index', 'graph']) };
+    expect((await settle(noGraph, q)).answer!.verdict).toBe('wrong');
+    const fixed = await settle(filtered(noGraph), q);
+    expect(fixed.graph).toBeNull();
+    expect(fixed.answer!.verdict).toBe('correct');
+  });
+});
+
+describe('a failed config load', () => {
+  it('gives no answer (so no verdict) and flags failed', async () => {
+    const ix = await openIndex(async (f) => { if (f.startsWith('fixed-32-0')) throw new Error('offline'); return fileLoader(f); });
+    const session = createSession(ix, () => {});
+    const s = initialCanvas(unlockedThrough('04-layers'));
+    outcome(ix, session, s, Q('refund-enterprise'));
+    await ix.load(resolveConfig(s.knobs).file).catch(() => {});
+    await Promise.resolve();
+    const o = outcome(ix, session, s, Q('refund-enterprise'));
+    expect(o).toMatchObject({ failed: true, preparing: true, answer: null });
+  });
+});

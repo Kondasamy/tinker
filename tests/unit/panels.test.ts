@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cosineParts, cutsIn, fit, fragment, isNegation, screenDistance, summary } from '../../src/components/panels/logic';
+import { LOAD_FAILED, cosineParts, cutsIn, fit, fragment, isNegation, screenDistance, summary } from '../../src/components/panels/logic';
 import type { Outcome } from '../../src/components/canvas/state';
 
 const words = 'Standard customers may ask . The refund policy does NOT apply to enterprise contracts .'.split(' ');
@@ -62,5 +62,11 @@ describe('summary (aria-live text)', () => {
     expect(summary({ ...base, answer: { verdict: 'madeup' }, record: null } as unknown as Outcome)).toBe('Answer: MADE UP. Nothing reached the model.');
     expect(summary({ ...base, preparing: true } as unknown as Outcome)).toBe('Preparing these chunks…');
     expect(summary(null)).toBe('Loading the retrieval index…');
+  });
+  it('an empty context (graph seeded nothing) says nothing reached the model, not -Infinity', () => {
+    expect(summary({ ...base, answer: { verdict: 'madeup' }, record: { context: [] } } as unknown as Outcome)).toBe('Answer: MADE UP. Nothing reached the model.');
+  });
+  it('a failed config load says so instead of preparing forever', () => {
+    expect(summary({ ...base, preparing: true, failed: true, answer: null } as unknown as Outcome)).toBe(LOAD_FAILED);
   });
 });

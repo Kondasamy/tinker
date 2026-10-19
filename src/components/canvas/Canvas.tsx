@@ -10,6 +10,7 @@ import { analyse, graphOf, outcome, openBench, type CanvasQuestion, type CanvasS
 import { trackLayout, TRACK_BOARD, type Placed } from './track';
 import { BENCH_BOARD, COLS, ROWS, addNode, cellAt, connect, cut, moveNode, removeNode, validTargets } from './bench';
 import Knobs, { BLOCK_KNOBS } from './Knobs';
+import { LOAD_FAILED } from '../panels/logic';
 import './canvas.css';
 
 export interface CanvasProps {
@@ -288,6 +289,7 @@ export default function Canvas({ state: s, onChange, question, focus, panel = tr
         <p className="canvas-status" role="status">
           {failed ? 'Could not load the retrieval index. Reload the page to try again.'
             : !analysis.wired ? 'Nothing reaches the model: there is no wire path from Docs through the Retriever to the LLM.'
+            : out?.failed ? LOAD_FAILED
             : out?.preparing ? 'Preparing these chunks…' : ''}
         </p>
       </div>
