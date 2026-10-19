@@ -1,0 +1,52 @@
+[
+  {
+    "id": "kestrel-purchase-approver",
+    "chapter": 6,
+    "query": "Who approves purchases for the team that owns the Kestrel K2 scanner integration?",
+    "rewrites": [
+      "Which team owns the Kestrel K2 scanner integration?",
+      "Who approves purchases for the Fulfillment Systems team?"
+    ],
+    "keyFacts": [
+      { "id": "kestrel-owner", "sentence": "The Kestrel K2 scanner integration is owned by the Fulfillment Systems team." },
+      { "id": "fulfillment-approver", "sentence": "Purchases for the Fulfillment Systems team are approved by Tomasz Rehnquist, Director of Warehouse Technology." }
+    ],
+    "goldSentences": [
+      "The Kestrel K2 scanner integration is owned by the Fulfillment Systems team.",
+      "Purchases for the Fulfillment Systems team are approved by Tomasz Rehnquist, Director of Warehouse Technology."
+    ]
+  },
+  {
+    "id": "k2-volume-price",
+    "chapter": 6,
+    "query": "How much does a Kestrel K2 scanner cost per unit when ordering 50 or more?",
+    "rewrites": ["Kestrel K2 handheld scanner price for 50+ units"],
+    "keyFacts": [
+      { "id": "k2-row", "sentence": "| Kestrel K2 handheld scanner | KS-K2 | $480 | $445 | $410 |" }
+    ],
+    "goldSentences": ["| Kestrel K2 handheld scanner | KS-K2 | $480 | $445 | $410 |"]
+  },
+  {
+    "id": "dock-sensor-warranty",
+    "chapter": 6,
+    "query": "How long is the warranty on the dock door sensor?",
+    "rewrites": [],
+    "keyFacts": [
+      { "id": "three-years", "sentence": "The DS-100 dock door sensor is warranted against defects in materials and workmanship for a period of three years from the date of shipment." }
+    ],
+    "goldSentences": [
+      "The DS-100 dock door sensor is warranted against defects in materials and workmanship for a period of three years from the date of shipment.",
+      "Batteries are warranted for one year."
+    ]
+  },
+  {
+    "id": "customer-success-lead",
+    "chapter": 6,
+    "query": "Who leads the Customer Success team?",
+    "rewrites": [],
+    "keyFacts": [
+      { "id": "cs-lead", "sentence": "The Customer Success team is led by Ingrid Vasquez-Lund." }
+    ],
+    "goldSentences": ["The Customer Success team is led by Ingrid Vasquez-Lund."]
+  }
+]
