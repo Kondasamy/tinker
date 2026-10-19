@@ -1,42 +1,29 @@
 import { readFileSync, statSync } from 'node:fs';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
+import { openIndex, type RagIndex } from '../../src/lib/rag/load';
+import { run, type Filter, type Question } from '../../src/lib/rag/engine';
 
-// Scenario checks over the generated index (scripts/build-index.mjs). The helper below is a
-// minimal local reader + cosine top-k; the real engine lives in src/lib/rag later.
+// Scenario checks over the generated index (scripts/build-index.mjs), run through the real engine.
 const DIR = 'public/data/index/';
 const manifest = JSON.parse(readFileSync(DIR + 'manifest.json', 'utf8'));
 const corpus: { id: string; year: number; words: string[] }[] = JSON.parse(readFileSync(DIR + 'corpus.json', 'utf8'));
 const D: number = manifest.models.embedding.dims;
 const vScale: number = manifest.quantization.vectors.scale;
 const queryTexts: string[] = manifest.queries.items.map((q: { text: string }) => q.text);
+const questions: Question[] = ['ch3', 'ch4', 'ch5', 'ch6'].flatMap((c) => JSON.parse(readFileSync(`data/questions/${c}.json`, 'utf8')));
 
-function load(file: string) {
-  const b = readFileSync(DIR + file);
-  const ab = b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength);
-  const [N, Q, dims] = new Uint32Array(ab, 0, 3);
-  let o = 16 + 3 * D * 4;
-  const ranges = new Uint16Array(ab, o, N * 3); o += N * 6;
-  o += N * 4; // xy
-  const scores = new Int16Array(ab, o, N * Q); o += N * Q * 2;
-  const vecs = new Int8Array(ab, o, N * D); o += N * D;
-  const chunks = Array.from({ length: N }, (_, i) => {
-    const [di, s, e] = ranges.subarray(i * 3, i * 3 + 3);
-    return { doc: corpus[di], text: corpus[di].words.slice(s, e).join(' '), vec: Array.from(vecs.subarray(i * D, (i + 1) * D), (v) => v * vScale) };
-  });
-  return { N, Q, dims, bytes: b.byteLength, end: o, scores, chunks };
-}
+let ix: RagIndex;
+beforeAll(async () => {
+  ix = await openIndex(async (f) => { const b = readFileSync(DIR + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength); });
+  await ix.prefetch(manifest.configs[0].file);
+});
 
-const queryVec = (text: string) => {
-  const qi = queryTexts.indexOf(text);
-  const b = readFileSync(DIR + 'queries.bin');
-  return Array.from(new Int8Array(b.buffer, b.byteOffset + qi * D, D), (v) => v * vScale);
-};
-const norm = (a: number[]) => Math.hypot(...a);
-const cos = (a: number[], b: number[]) => a.reduce((s, v, i) => s + v * b[i], 0) / (norm(a) * norm(b));
-
-function rank(file: string, query: string, filter: (c: { doc: { year: number } }) => boolean = () => true) {
-  const q = queryVec(query);
-  return load(file).chunks.filter(filter).map((c) => ({ ...c, score: cos(q, c.vec) })).sort((a, b) => b.score - a.score);
+// Full ranking (every chunk that passes the filter), as {doc, text} in rank order.
+function rank(file: string, query: string, filter?: Filter) {
+  const question = questions.find((q) => q.query === query)!;
+  const cfg = ix.get(file)!;
+  const r = run(ix, cfg, { question, topK: 10, filter });
+  return r.stages.filtered.ids.map((id) => ({ doc: ix.corpus[cfg.ranges[id * 3]], text: cfg.texts[id] }));
 }
 
 const REFUND_Q = 'Can enterprise customers get a refund?';
@@ -66,7 +53,7 @@ describe('stale policy', () => {
     const ranked = rank('fixed-16-0.bin', Q);
     const first = (id: string) => ranked.findIndex((c) => c.doc.id === id);
     expect(first('travel-policy-2018')).toBeLessThan(first('travel-policy-2025'));
-    expect(rank('fixed-16-0.bin', Q, (c) => c.doc.year >= 2025)[0].doc.id).toBe('travel-policy-2025');
+    expect(rank('fixed-16-0.bin', Q, { year: { gte: 2025 } })[0].doc.id).toBe('travel-policy-2025');
   });
 });
 
@@ -84,12 +71,12 @@ describe('index shape and budgets', () => {
   });
 
   it.each<string>(manifest.configs.map((c: { file: string }) => c.file))('%s: every chunk has a score for every query and rewrite; vectors are unit length', (file) => {
-    const f = load(file);
-    expect(f.dims).toBe(D);
+    const f = ix.get(file)!; // the loader throws unless the sections end exactly at the file size
+    expect(f.D).toBe(D);
     expect(f.Q).toBe(queryTexts.length);
-    expect(f.end).toBe(f.bytes);
+    expect(statSync(DIR + file).size).toBe(f.vectors.byteOffset + f.vectors.byteLength);
     expect(f.scores.length).toBe(f.N * f.Q);
     expect(f.scores.every((s) => Math.abs(s) < 32767)).toBe(true);
-    for (const c of f.chunks) expect(Math.abs(norm(c.vec) - 1)).toBeLessThanOrEqual(0.02);
+    for (const n of f.norms) expect(Math.abs(n * vScale - 1)).toBeLessThanOrEqual(0.02);
   });
 });
