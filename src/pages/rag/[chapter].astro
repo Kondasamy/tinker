@@ -1,0 +1,31 @@
+---
+import '../../styles/tokens.css';
+
+export function getStaticPaths() {
+  const chapters = [
+    ['01-history', 'How RAG came to be'],
+    ['02-why-not-stuff-it', 'Why not stuff it all in the prompt?'],
+    ['03-what-is-rag', 'What is RAG?'],
+    ['04-layers', 'The layers of a RAG system'],
+    ['05-accuracy', 'Making RAG accurate'],
+    ['06-types', 'Types of RAG'],
+    ['07-sandbox', 'Sandbox'],
+  ];
+  return chapters.map(([chapter, title]) => ({ params: { chapter }, props: { title } }));
+}
+
+const { title } = Astro.props;
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} · RAG Playground</title>
+  </head>
+  <body>
+    <main style="max-width: 70ch; margin: 0 auto; padding: 48px 16px;">
+      <p><a href="/">← Home</a></p>
+      <h1>{title}</h1>
+    </main>
+  </body>
+</html>

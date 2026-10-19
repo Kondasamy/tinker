@@ -1,1 +1,6 @@
 .context/compound-engineering/
+dist/
+node_modules/
+test-results/
+playwright-report/
+.astro/
