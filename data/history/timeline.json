@@ -1,0 +1,144 @@
+[
+  {
+    "date": "2020-05-22", "era": "origins",
+    "claim": "Researchers at Facebook AI and UCL coin \"retrieval-augmented generation\" (RAG): fetch relevant passages first, then let the model write its answer from them.",
+    "sourceTitle": "Lewis et al., Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks (arXiv)",
+    "sourceUrl": "https://arxiv.org/abs/2005.11401"
+  },
+  {
+    "date": "2023-03-14", "era": "small-windows",
+    "claim": "GPT-4 launches with a context window of 8,192 tokens, plus limited access to a 32,768-token version (about 50 pages of text).",
+    "sourceTitle": "OpenAI, GPT-4",
+    "sourceUrl": "https://openai.com/research/gpt-4",
+    "contextTokens": 8192, "model": "GPT-4"
+  },
+  {
+    "date": "2023-05-11", "era": "small-windows",
+    "claim": "Anthropic expands Claude's context window from 9K to 100K tokens, around 75,000 words.",
+    "sourceTitle": "Anthropic, Introducing 100K Context Windows",
+    "sourceUrl": "https://www.anthropic.com/news/100k-context-windows",
+    "contextTokens": 100000, "model": "Claude"
+  },
+  {
+    "date": "2023-06-13", "era": "small-windows",
+    "claim": "OpenAI adds function calling to its chat API, the start of models calling tools. The standard gpt-3.5-turbo window is 4k tokens, with a new 16k version.",
+    "sourceTitle": "OpenAI, Function calling and other API updates",
+    "sourceUrl": "https://openai.com/blog/function-calling-and-other-api-updates"
+  },
+  {
+    "date": "2023-07-06", "era": "small-windows",
+    "claim": "Lost in the Middle: models answer best when the relevant fact sits at the start or end of a long prompt, and significantly worse when it sits in the middle.",
+    "sourceTitle": "Liu et al., Lost in the Middle: How Language Models Use Long Contexts (arXiv)",
+    "sourceUrl": "https://arxiv.org/abs/2307.03172"
+  },
+  {
+    "date": "2023-11-06", "era": "small-windows",
+    "claim": "GPT-4 Turbo is announced with a 128K context window.",
+    "sourceTitle": "OpenAI, New models and developer products announced at DevDay",
+    "sourceUrl": "https://openai.com/blog/new-models-and-developer-products-announced-at-devday",
+    "contextTokens": 128000, "model": "GPT-4 Turbo"
+  },
+  {
+    "date": "2023-11-21", "era": "small-windows",
+    "claim": "Claude 2.1 doubles its limit to 200,000 tokens.",
+    "sourceTitle": "Anthropic, Introducing Claude 2.1",
+    "sourceUrl": "https://www.anthropic.com/news/claude-2-1",
+    "contextTokens": 200000, "model": "Claude 2.1"
+  },
+  {
+    "date": "2024-02-13", "era": "retrieval-matures",
+    "claim": "Microsoft Research introduces GraphRAG: retrieval over a knowledge graph of entities and relationships that a model builds from your documents.",
+    "sourceTitle": "Microsoft Research, GraphRAG: Unlocking LLM discovery on narrative private data",
+    "sourceUrl": "https://www.microsoft.com/en-us/research/blog/graphrag-unlocking-llm-discovery-on-narrative-private-data/"
+  },
+  {
+    "date": "2024-02-15", "era": "retrieval-matures",
+    "claim": "Gemini 1.5 Pro ships with a standard 128,000-token window and runs up to 1 million tokens in preview.",
+    "sourceTitle": "Google, Our next-generation model: Gemini 1.5",
+    "sourceUrl": "https://blog.google/technology/ai/google-gemini-next-generation-model-february-2024/",
+    "contextTokens": 1000000, "model": "Gemini 1.5 Pro"
+  },
+  {
+    "date": "2024-02-26", "era": "retrieval-matures",
+    "claim": "UC Berkeley launches the Berkeley Function-Calling Leaderboard, about 2,000 test cases measuring how well models call tools.",
+    "sourceTitle": "Gorilla, Berkeley Function-Calling Leaderboard",
+    "sourceUrl": "https://gorilla.cs.berkeley.edu/blogs/8_berkeley_function_calling_leaderboard.html"
+  },
+  {
+    "date": "2024-06-27", "era": "retrieval-matures",
+    "claim": "Google opens a 2 million-token context window on Gemini 1.5 Pro to all developers.",
+    "sourceTitle": "Google for Developers, New features for the Gemini API and Google AI Studio",
+    "sourceUrl": "https://developers.googleblog.com/new-features-for-the-gemini-api-and-google-ai-studio/",
+    "contextTokens": 2000000, "model": "Gemini 1.5 Pro"
+  },
+  {
+    "date": "2024-09-19", "era": "retrieval-matures",
+    "claim": "Berkeley's multi-turn tool-calling tests find models \"still struggle with breaking down tasks and making the correct implicit calls in more complex scenarios.\"",
+    "sourceTitle": "Gorilla, BFCL V3: Multi-Turn & Multi-Step Function Calling",
+    "sourceUrl": "https://gorilla.cs.berkeley.edu/blogs/13_bfcl_v3_multi_turn.html"
+  },
+  {
+    "date": "2024-09-19", "era": "retrieval-matures",
+    "claim": "Contextual Retrieval: adding context to each chunk before indexing cuts failed retrievals by 49%, and by 67% with reranking.",
+    "sourceTitle": "Anthropic, Introducing Contextual Retrieval",
+    "sourceUrl": "https://www.anthropic.com/news/contextual-retrieval"
+  },
+  {
+    "date": "2024-11-25", "era": "agents",
+    "claim": "Anthropic open-sources the Model Context Protocol (MCP), a standard way to connect AI assistants to tools and data.",
+    "sourceTitle": "Anthropic, Introducing the Model Context Protocol",
+    "sourceUrl": "https://www.anthropic.com/news/model-context-protocol"
+  },
+  {
+    "date": "2024-12-19", "era": "agents",
+    "claim": "Anthropic describes the building block of agents as a model enhanced with retrieval, tools and memory: retrieval is one augmentation among several.",
+    "sourceTitle": "Anthropic, Building effective agents",
+    "sourceUrl": "https://www.anthropic.com/engineering/building-effective-agents"
+  },
+  {
+    "date": "2025-03-11", "era": "agents",
+    "claim": "OpenAI's Responses API ships built-in tools for agents: web search, file search and computer use. File search is now one tool the model chooses to call.",
+    "sourceTitle": "OpenAI, New tools for building agents",
+    "sourceUrl": "https://openai.com/index/new-tools-for-building-agents/"
+  },
+  {
+    "date": "2025-04-05", "era": "agents",
+    "claim": "Meta's Llama 4 Scout offers a 10M-token context window.",
+    "sourceTitle": "Meta AI, The Llama 4 herd",
+    "sourceUrl": "https://ai.meta.com/blog/llama-4-multimodal-intelligence/",
+    "contextTokens": 10000000, "model": "Llama 4 Scout"
+  },
+  {
+    "date": "2025-04-14", "era": "agents",
+    "claim": "GPT-4.1 processes up to 1 million tokens of context, up from 128,000 for GPT-4o.",
+    "sourceTitle": "OpenAI, Introducing GPT-4.1 in the API",
+    "sourceUrl": "https://openai.com/index/gpt-4-1/",
+    "contextTokens": 1000000, "model": "GPT-4.1"
+  },
+  {
+    "date": "2025-07-17", "era": "agents",
+    "claim": "Berkeley's leaderboard adds web-search tasks and finds accuracy drops dramatically without tool use: most models need external search to succeed.",
+    "sourceTitle": "Gorilla, BFCL V4: Web Search",
+    "sourceUrl": "https://gorilla.cs.berkeley.edu/blogs/15_bfcl_v4_web_search.html"
+  },
+  {
+    "date": "2025-07-17", "era": "agents",
+    "claim": "On Berkeley's agent-memory tests with a vector store, scores range from 63.87% for the top model to 5.16% for the lowest: tool use is still far from perfect.",
+    "sourceTitle": "Gorilla, BFCL V4: Memory",
+    "sourceUrl": "https://gorilla.cs.berkeley.edu/blogs/16_bfcl_v4_memory.html"
+  },
+  {
+    "date": "2025-08-12", "era": "agents",
+    "claim": "Claude Sonnet 4 supports up to 1 million tokens of context on the Anthropic API.",
+    "sourceTitle": "Anthropic, Claude Sonnet 4 now supports 1M tokens of context",
+    "sourceUrl": "https://claude.com/blog/1m-context",
+    "contextTokens": 1000000, "model": "Claude Sonnet 4"
+  },
+  {
+    "date": "2026-10-19", "era": "agents",
+    "claim": "As of October 2026, every current Claude model lists a 1M-token context window, roughly 555k words.",
+    "sourceTitle": "Anthropic, Models overview (Claude docs)",
+    "sourceUrl": "https://platform.claude.com/docs/en/about-claude/models/overview",
+    "contextTokens": 1000000, "model": "Claude Sonnet 5.5"
+  }
+]
