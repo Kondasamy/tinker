@@ -1,14 +1,13 @@
-// Placeholder two-step script so the layout, runner and progress run end to end. U8 replaces it with real chapters.
+// Two-step test fixture for /dev/runner/: keeps the layout, runner and progress covered end to end (tests/e2e/layout.spec.ts)
+// without tying those tests to a real chapter's script.
 import StepRunner from './StepRunner';
 import type { Step } from './steps';
 import Quiz from '../quiz/Quiz';
 import IsoStage, { type SceneCtx } from '../../lib/iso/IsoStage';
 import { renderers, blockShadow } from '../../lib/iso/blocks';
 import { byDepth } from '../../lib/iso/core.js';
-import { CHAPTERS, chapterHref } from '../../lib/chapters';
-import { seedUnlocks } from '../../lib/progress';
 
-interface S { window: number; quiz: number | null; unlocked: string[] }
+interface S { window: number; quiz: number | null }
 
 const PAGES = 6, PAGE = 4;   // the handbook: 6 pages of 4K tokens
 const WINDOWS = [4, 8, 16, 32];
@@ -45,22 +44,18 @@ function scene(s: S) {
   };
 }
 
-export default function PlaceholderChapter({ chapter }: { chapter: string }) {
-  const i = CHAPTERS.findIndex(c => c.id === chapter);
-  const next = CHAPTERS[i + 1];
+export default function RunnerFixture() {
   return (
     <StepRunner<S>
-      chapter={chapter}
+      chapter="dev-runner"
       steps={STEPS}
-      initial={{ window: WINDOWS[0], quiz: null, unlocked: seedUnlocks(CHAPTERS, chapter) }}
-      next={next && { href: chapterHref(next.id), title: next.short }}
+      initial={{ window: WINDOWS[0], quiz: null }}
       stage={({ state }) => (
         <figure>
           <IsoStage board={[0, 0, X(PAGES) + 36, 56]} scene={scene(state)}
             label={`Six handbook pages beside the model; ${fits(state)} of 6 fit in a ${state.window}K window.`} />
           <figcaption>
             {fits(state)} of {PAGES} pages fit in a {state.window}K window
-            {state.unlocked.length > 0 && <> · carried over: {state.unlocked.join(', ')}</>}
           </figcaption>
         </figure>
       )}

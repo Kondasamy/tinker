@@ -98,6 +98,21 @@ const n = CHAPTERS.findIndex(c => c.id === chapter) + 1;
   .quiz .opts { flex-direction: column; align-items: stretch; }
   .quiz .chip { text-align: left; }
   .feedback p { margin: 6px 0 0; font-size: 13px; }
+  .feedback summary { margin-top: 8px; font-size: 13px; cursor: pointer; }
+  .feedback ul, .tips ul, .closing ul { margin: 6px 0 0; padding-left: 18px; font-size: 13px; display: flex; flex-direction: column; gap: 6px; }
+
+  .challenge { display: flex; flex-direction: column; gap: 12px; }
+  .challenge .count { display: flex; gap: 10px; }
+  .challenge .count [data-current] { color: var(--ink); font-weight: 800; }
+  .challenge .count [data-solved] { color: var(--ok); }
+  /* a ruled-out pick reads as crossed off, not as the chosen answer */
+  .challenge .chip[data-wrong] { background: var(--card); color: var(--muted); text-decoration: line-through; border-color: var(--rule); box-shadow: none; }
+  .challenge .chip:disabled:not([data-wrong]) { opacity: .5; box-shadow: none; }
+  .tips .lbl { margin: 0; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .closing { border-top: 1px dashed var(--rule); padding-top: 12px; }
+  .closing h2 { margin: 0; font-size: 16px; }
+  .closing p { margin: 6px 0 0; font-size: 13px; }
+  .closing a { margin-left: 6px; white-space: nowrap; }
   .stamp { display: inline-block; font-weight: 900; font-size: 11px; letter-spacing: .14em; border: 2px solid currentColor; border-radius: 6px; padding: 1px 7px; transform: rotate(-2deg); }
   .stamp.correct { color: var(--ok); } .stamp.wrong { color: var(--bad); }
 

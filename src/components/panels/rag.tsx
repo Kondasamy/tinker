@@ -1,7 +1,7 @@
 // Shared wiring for the canvas chapters (3 onward): the engine run, the hero canvas with its live summary,
 // and the drawer panels. Chapter state carries the canvas plus the verdict so step predicates stay pure.
 import { useMemo, useState } from 'react';
-import Canvas, { useRagIndex } from '../canvas/Canvas';
+import Canvas, { useRagIndex, type CanvasProps } from '../canvas/Canvas';
 import { outcome, type CanvasQuestion, type CanvasState, type Outcome } from '../canvas/state';
 import { createSession } from '../../lib/rag/engine';
 import type { Lookup } from '../../lib/rag/answers';
@@ -33,13 +33,14 @@ type RagRun = ReturnType<typeof useRagRun>;
 
 const TABS = [['answer', 'Answer'], ['evidence', 'Evidence'], ['chunks', 'Chunks'], ['map', 'Map']] as const;
 
-/** `extraTabs`: chapter-specific drawer panels to offer beside the standard ones (e.g. chapter 6's Compare). */
-export function RagStage<S extends RagState>({ state, apply, focus, inspect, run, extraTabs = [] }: StageProps<S> & { run: RagRun; extraTabs?: [string, string][] }) {
+/** `extraTabs`: chapter-specific drawer panels to offer beside the standard ones (e.g. chapter 6's Compare).
+ * `canvas`: canvas options the chapter turns on (the Sandbox's workbench and block settings). */
+export function RagStage<S extends RagState>({ state, apply, focus, inspect, run, extraTabs = [], canvas: opts }: StageProps<S> & { run: RagRun; extraTabs?: [string, string][]; canvas?: Pick<CanvasProps, 'allowBench' | 'panel'> }) {
   const u = state.canvas.unlocked;
   const shown = TABS.filter(([id]) => id === 'answer' || (id === 'evidence' ? u.includes('retriever') : id === 'chunks' ? u.includes('chunker') : u.includes('embedder')));
   return (
     <figure className="rag-stage">
-      <Canvas state={state.canvas} question={run.question} focus={focus} panel={false}
+      <Canvas state={state.canvas} question={run.question} focus={focus} panel={false} {...opts}
         onChange={canvas => apply({ ...state, canvas, verdict: run.verdictOf(canvas) })}
         onResult={o => {
           run.setOut(o);
