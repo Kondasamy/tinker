@@ -11,7 +11,6 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import KnobList, { Knob } from '../../components/canvas/Knobs';
 import { DEFAULT_KNOBS, initialCanvas, unlockedThrough, type CanvasQuestion, type CanvasState, type Knobs } from '../../components/canvas/state';
-import type { BlockType } from '../../lib/iso/blocks';
 import { RagStage, ragPanels, useRagRun, type RagState } from '../../components/panels/rag';
 import ResultStrip, { type ResultRow } from '../../components/panels/ResultStrip';
 import IsoStage from '../../lib/iso/IsoStage';
@@ -24,32 +23,13 @@ import ch5 from '../../../data/questions/ch5.json';
 import ch6 from '../../../data/questions/ch6.json';
 import orgChart from '../../../data/corpus/assets/org-chart-2025.svg?url';
 import { GRADE_BAR } from '../../lib/rag/selfcheck';
+import { TYPES, CARDS } from './types-data';
 
 const ID = '06-types';
 const QS = [...ch3, ...ch4, ...ch5, ...ch6] as CanvasQuestion[];
 const Q = (id: string) => QS.find(q => q.id === id)!;
 
-/** RAG types the learner can run; each is the blocks it attaches to the chapter-5 track. */
-/** RAG types the learner can run; each is the blocks it attaches to the chapter-5 track, plus the knobs it sets. */
-export const TYPES: { id: string; label: string; blocks: BlockType[]; knobs?: Partial<Knobs> }[] = [
-  { id: 'naive', label: 'Naive / advanced', blocks: [] },
-  { id: 'agentic', label: 'Agentic', blocks: ['agent'] },
-  { id: 'graph', label: 'GraphRAG', blocks: ['graph'] },
-  { id: 'selfcheck', label: 'Self-correcting', blocks: [], knobs: { grade: true } },
-  // sentence chunks keep a table row or a PDF paragraph whole; the parsers start off and the learner turns them on
-  { id: 'multimodal', label: 'Multimodal', blocks: [], knobs: { strategy: 'sentence', size: 32 } },
-];
-/** Question cards for the comparison; `mm` cards answer from a table, PDF or image and show under Multimodal only. */
-export const CARDS: { q: string; label: string; short: string; mm?: boolean }[] = [
-  { q: 'refund-enterprise', label: 'Can enterprise customers get a refund?', short: 'Enterprise refund' },
-  { q: 'stale-hotel-limit', label: 'What is the hotel limit per night?', short: 'Hotel limit' },
-  { q: 'standard-refund-window', label: 'How long do standard customers have to ask for a refund?', short: 'Refund window' },
-  { q: 'kestrel-purchase-approver', label: 'Who approves purchases for the team that owns the Kestrel K2 scanner integration?', short: 'Kestrel approver' },
-  { q: 'card-data-retention', label: 'How long does Larkspur keep customer payment card data?', short: 'Card data' },
-  { q: 'k2-volume-price', label: 'How much is a Kestrel K2 scanner per unit at 50 or more? (price table)', short: 'K2 price', mm: true },
-  { q: 'dock-sensor-warranty', label: 'How long is the dock door sensor warranty? (vendor PDF)', short: 'Sensor warranty', mm: true },
-  { q: 'customer-success-lead', label: 'Who leads the Customer Success team? (org chart image)', short: 'Customer Success lead', mm: true },
-];
+export { TYPES, CARDS };
 /**
  * One setting for every run, so a difference in the strip comes from the type alone: a single 16-word chunk.
  * The Docs block reads plain text only until the Multimodal type: tables, PDFs and images are invisible.

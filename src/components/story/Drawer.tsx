@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, type ReactNode } from 'react';
 
 interface Props { title: string; onClose: () => void; focusKey: number; children: ReactNode }
 
-/** Non-modal panel for supporting views (answer, evidence, chunks). Beside the card on desktop, a bottom sheet on phones. */
+/** Non-modal panel for supporting views (answer, evidence, chunks). Beside the card on desktop, below it on phones. */
 export default function Drawer({ title, onClose, focusKey, children }: Props) {
   const id = useId();
   const heading = useRef<HTMLHeadingElement>(null);

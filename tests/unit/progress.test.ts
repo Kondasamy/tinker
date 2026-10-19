@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { completed, markDone, loadChapter, saveChapter, seedUnlocks, restoreOrSeed, navMark } from '../../src/lib/progress';
+import { completed, markDone, loadChapter, saveChapter, navMark } from '../../src/lib/progress';
 
 const CH = [
   { id: 'one', unlocks: ['docs'] },
@@ -27,17 +27,6 @@ describe('progress with storage', () => {
     expect(loadChapter('two')).toEqual({ k: 4 });
   });
 
-  it('jumping to the third chapter seeds the unlocks of the first two', () => {
-    expect(seedUnlocks(CH, 'three')).toEqual(['docs', 'retriever', 'llm']);
-    expect(restoreOrSeed(CH, 'three', unlocked => ({ unlocked }))).toEqual({ unlocked: ['docs', 'retriever', 'llm'] });
-    expect(loadChapter('three')).toBeUndefined();   // seeding never writes
-  });
-
-  it('jumping to a chapter with saved state restores it instead of seeding', () => {
-    saveChapter('three', { unlocked: ['docs'], mine: true });
-    expect(restoreOrSeed(CH, 'three', unlocked => ({ unlocked }))).toEqual({ unlocked: ['docs'], mine: true });
-  });
-
   it('marks chapters done, current, skipped or todo', () => {
     markDone('one');
     const marks = CH.map(c => navMark(CH, c.id, 'three', completed()));
@@ -61,6 +50,5 @@ describe('progress without storage', () => {
     expect(() => { markDone('one'); saveChapter('two', { k: 1 }); }).not.toThrow();
     expect(completed()).toEqual([]);
     expect(loadChapter('two')).toBeUndefined();
-    expect(restoreOrSeed(CH, 'two', u => u)).toEqual(['docs']);
   });
 });

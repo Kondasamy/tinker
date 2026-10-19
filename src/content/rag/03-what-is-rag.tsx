@@ -79,7 +79,10 @@ export default function WhatIsRag() {
           <button type="button" className="big" onClick={() => apply({ ...state, asked: true })}>Ask: “{QUESTION.query}”</button>
         ),
         add: ({ state, apply }) => {
-          const [t, label] = NEXT_BLOCK.find(([b]) => !has(state, b))!;
+          // both added while the index is still loading: the step advances once the answer arrives
+          const found = NEXT_BLOCK.find(([b]) => !has(state, b));
+          if (!found) return null;
+          const [t, label] = found;
           const canvas = { ...state.canvas, unlocked: [...state.canvas.unlocked, t] };
           return label && <button type="button" className="big" onClick={() => apply({ ...state, canvas, verdict: run.verdictOf(canvas) })}>{label}</button>;
         },

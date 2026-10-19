@@ -260,9 +260,6 @@ export default function Canvas({ state: s, onChange, question, focus, panel = tr
     }
   };
 
-  const sel = s.selected && byId[s.selected] ? s.selected : null;
-  const connectId = useId();
-  const bin = s.unlocked.filter(t => !s.bench.nodes.some(n => n.id === t));
   const wireFrom = wiring && portAt(wiring.from);
 
   return (
@@ -295,31 +292,48 @@ export default function Canvas({ state: s, onChange, question, focus, panel = tr
       </div>
       {panel && (
         <aside className="canvas-panel" aria-label="Block settings">
-          {sel ? <>
-            <h2><span className="sw" style={{ background: BLOCKS[sel].pal.l }} />{name(sel)}</h2>
-            {!analysis.used.includes(sel) && analysis.wired && <p className="note">Not on a live wire, so its settings have no effect.</p>}
-            {NOTES[sel] && <p className="note">{NOTES[sel]}</p>}
-            {BLOCK_KNOBS[sel] && <Knobs names={BLOCK_KNOBS[sel]!} state={s} onChange={onChange} question={question} />}
-            {editable && <>
-              <div className="knob">
-                <label htmlFor={connectId}>Connect to…</label>
-                <select id={connectId} value="" onChange={e => e.target.value && onChange({ ...s, bench: connect(s.bench, sel, e.target.value as BlockType) })}>
-                  <option value="">Choose a block</option>
-                  {validTargets(s.bench, sel).map(t => <option key={t} value={t}>{name(t)}</option>)}
-                </select>
-              </div>
-              <button type="button" className="chip" onClick={() => onChange({ ...s, selected: null, bench: removeNode(s.bench, sel) })}>Remove from bench</button>
-            </>}
-            {onInspect && <button type="button" className="chip" onClick={() => onInspect(sel)}>Inspect</button>}
-          </> : <p className="note">{narrow ? 'Tap' : 'Select'} a block to tune it.</p>}
-          {editable && bin.length > 0 && (
-            <div className="bin" role="group" aria-label="Parts bin">
-              <span className="lbl">Parts bin</span>
-              {bin.map(t => <button key={t} type="button" className="chip" onClick={() => onChange({ ...s, selected: t, bench: addNode(s.bench, t) })}>+ {name(t)}</button>)}
-            </div>
-          )}
+          <BlockSettings state={s} onChange={onChange} question={question} onInspect={onInspect} />
         </aside>
       )}
     </div>
   );
+}
+
+/** The selected block's settings: its knobs, and on the desktop workbench its wiring and the parts bin.
+ * Canvas renders it beside the figure (`panel`); a chapter can render it in its step card instead. */
+export function BlockSettings({ state: s, onChange, question, onInspect }: Pick<CanvasProps, 'state' | 'onChange' | 'question' | 'onInspect'>) {
+  const narrow = useNarrow();
+  const editable = s.mode === 'bench' && !narrow;
+  const g = graphOf(s), analysis = analyse(g);
+  const sel = s.selected && g.nodes.some(n => n.id === s.selected) ? s.selected : null;
+  const connectId = useId();
+  const bin = s.unlocked.filter(t => !s.bench.nodes.some(n => n.id === t));
+  return <>
+    {sel ? <>
+      <div className="settings-head">
+        <h2><span className="sw" style={{ background: BLOCKS[sel].pal.l }} />{name(sel)}</h2>
+        <button type="button" className="chip" aria-label={`Close ${name(sel)} settings`} onClick={() => onChange({ ...s, selected: null })}>×</button>
+      </div>
+      {!analysis.used.includes(sel) && analysis.wired && <p className="note">Not on a live wire, so its settings have no effect.</p>}
+      {NOTES[sel] && <p className="note">{NOTES[sel]}</p>}
+      {BLOCK_KNOBS[sel] && <Knobs names={BLOCK_KNOBS[sel]!} state={s} onChange={onChange} question={question} />}
+      {editable && <>
+        <div className="knob">
+          <label htmlFor={connectId}>Connect to…</label>
+          <select id={connectId} value="" onChange={e => e.target.value && onChange({ ...s, bench: connect(s.bench, sel, e.target.value as BlockType) })}>
+            <option value="">Choose a block</option>
+            {validTargets(s.bench, sel).map(t => <option key={t} value={t}>{name(t)}</option>)}
+          </select>
+        </div>
+        <button type="button" className="chip" onClick={() => onChange({ ...s, selected: null, bench: removeNode(s.bench, sel) })}>Remove from bench</button>
+      </>}
+      {onInspect && <button type="button" className="chip" onClick={() => onInspect(sel)}>Inspect</button>}
+    </> : <p className="note">{narrow ? 'Tap' : 'Select'} a block to tune it.</p>}
+    {editable && bin.length > 0 && (
+      <div className="bin" role="group" aria-label="Parts bin">
+        <span className="lbl">Parts bin</span>
+        {bin.map(t => <button key={t} type="button" className="chip" onClick={() => onChange({ ...s, selected: t, bench: addNode(s.bench, t) })}>+ {name(t)}</button>)}
+      </div>
+    )}
+  </>;
 }

@@ -35,17 +35,6 @@ export function clearProgress() {
 
 interface ChapterLike { id: string; unlocks: readonly string[] }
 
-/** Blocks unlocked by every chapter before `id`: what a jump-ahead canvas starts with. */
-export function seedUnlocks(chapters: readonly ChapterLike[], id: string): string[] {
-  const i = chapters.findIndex(c => c.id === id);
-  return chapters.slice(0, Math.max(i, 0)).flatMap(c => c.unlocks);
-}
-
-/** Saved state wins; only a chapter with nothing saved is seeded. Never writes. */
-export function restoreOrSeed<T>(chapters: readonly ChapterLike[], id: string, seed: (unlocked: string[]) => T): T {
-  return loadChapter<T>(id) ?? seed(seedUnlocks(chapters, id));
-}
-
 export type NavMark = 'done' | 'current' | 'skipped' | 'todo';
 
 export function navMark(chapters: readonly ChapterLike[], id: string, currentId: string, done: readonly string[]): NavMark {

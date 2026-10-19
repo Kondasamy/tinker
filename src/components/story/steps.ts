@@ -10,8 +10,8 @@ export interface Step<S> {
   visibleControls: string[];
   predicate: (state: S) => boolean;
   hint?: string;
-  /** Drawer panel this step opens on entry. */
-  opensDrawer?: string;
+  /** Drawer panel this step opens on entry; null closes it (the drawer would show stale content). */
+  opensDrawer?: string | null;
   /** Puzzles: the broken starting state, applied on entry. */
   setup?: (state: S) => S;
   /** Puzzles: what "Show me" applies. */
@@ -43,7 +43,7 @@ export const HINT_AFTER = 3;
 function enter<S>(steps: Step<S>[], index: number, state: S, starts: S[], drawer: string | null): Run<S> {
   const step = steps[index];
   const s = step.setup ? step.setup(state) : state;
-  return { index, state: s, starts: [...starts.slice(0, index), s], fails: 0, hint: false, done: false, drawer: step.opensDrawer ?? drawer };
+  return { index, state: s, starts: [...starts.slice(0, index), s], fails: 0, hint: false, done: false, drawer: step.opensDrawer === undefined ? drawer : step.opensDrawer };
 }
 
 export const startRun = <S>(steps: Step<S>[], initial: S): Run<S> => enter(steps, 0, initial, [], null);

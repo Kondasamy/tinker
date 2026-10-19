@@ -124,8 +124,11 @@ function renderBlock(type: BlockType, o: BlockOpts): string {
   // dark side faces get cream text; pale materials keep ink
   if (o.stat) s += txY(o.x, y1+.2, z0 + spec.ht/2 - 2, esc(o.stat), 4.6, [CERAMIC, METAL, CLEAR].includes(m) ? INK : '#fff4d6');
   s += hullInk([[x0,y0,z0],[x1,y0,z0],[x0,y1,z0],[x1,y1,z0],[x0,y0,z1],[x1,y0,z1],[x0,y1,z1],[x1,y1,z1]], 2.4);
-  const aria = `${spec.name} block${o.stat ? ', ' + o.stat : ''}${o.selected ? ', selected' : ''}`;
-  return `<g class="block" role="button" tabindex="0" aria-label="${esc(aria)}" data-block="${type}">${s}</g>`;
+  // the name starts with the words drawn on the block (WCAG 2.5.3: speech users say what they see), then what it is
+  const drawn = [...s.matchAll(/<text[^>]*>([^<]*)<\/text>/g)].map(m => m[1].toLowerCase()).join(' ');
+  const aria = `${drawn}: ${spec.name} block${o.selected ? ', selected' : ''}`;
+  // a space between the drawn words keeps the computed visible text "docs 47 docs", not "docs47 docs"
+  return `<g class="block" role="button" tabindex="0" aria-label="${aria}" data-block="${type}">${s.replaceAll('</text><', '</text> <')}</g>`;
 }
 
 export const renderers = Object.fromEntries(

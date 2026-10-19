@@ -58,6 +58,7 @@ test('final challenge: each card accepts only its best type and explains why; fi
   await card(page).getByRole('button', { name: 'Show me' }).click();
   await card(page).getByRole('button', { name: 'Take the final challenge →' }).click();
   await step(page, 3);
+  await expect(drawer(page)).toHaveCount(0);   // the stale answer drawer closes when the challenge starts
   const feedback = card(page).getByRole('status').filter({ hasText: /RIGHT|NOT QUITE/ });
 
   for (let i = 0; i < BEST.length; i++) {
@@ -72,8 +73,11 @@ test('final challenge: each card accepts only its best type and explains why; fi
     await expect(feedback).toContainText('RIGHT');
     await feedback.getByText('Why not the others?').click();
     await expect(feedback.locator('li')).toHaveCount(4);
-    // a solved card takes no other pick
-    await expect(card(page).getByRole('button', { name: TYPES.find(t => t !== BEST[i])!, exact: true })).toBeDisabled();
+    // a solved card takes no other pick; a ruled-out pick says so rather than reading as pressed
+    const ruledOut = card(page).getByRole('button', { name: `${TYPES.find(t => t !== BEST[i])!} (ruled out)`, exact: true });
+    await expect(ruledOut).toBeDisabled();
+    await expect(ruledOut).toHaveAttribute('aria-pressed', 'false');
+    await expect(card(page).getByRole('button', { name: BEST[i], exact: true })).toHaveAttribute('aria-pressed', 'true');
     if (i < BEST.length - 1) await card(page).getByRole('button', { name: 'Next problem →' }).click();
   }
 

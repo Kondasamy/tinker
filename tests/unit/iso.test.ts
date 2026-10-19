@@ -50,7 +50,8 @@ describe('block renderers', () => {
   it.each(BLOCK_TYPES)('%s renders its label, aria label and stat', type => {
     const svg = withFrame({}, () => renderers[type]({ x: 30, y: 30, stat: '7 <ITEMS>' }));
     expect(svg).toContain(`>${BLOCKS[type].label}</text>`);
-    expect(svg).toMatch(new RegExp(`^<g class="block" role="button" tabindex="0" aria-label="${BLOCKS[type].name} block, 7 &lt;ITEMS&gt;" data-block="${type}">`));
+    // the name starts with the words drawn on the block (WCAG 2.5.3), then what the block is
+    expect(svg).toMatch(new RegExp(`^<g class="block" role="button" tabindex="0" aria-label="[^"]*${BLOCKS[type].label.toLowerCase()} 7 &lt;items&gt;: ${BLOCKS[type].name} block" data-block="${type}">`));
     expect(svg).toContain('>7 &lt;ITEMS&gt;</text>');
   });
 
@@ -59,7 +60,7 @@ describe('block renderers', () => {
     const sel = withFrame({}, () => renderers.index({ x: 0, y: 0, selected: true }));
     expect(plain).not.toContain('class="sel"');
     expect(sel).toContain('class="sel"');
-    expect(sel).toContain('aria-label="Index block, selected"');
+    expect(sel).toContain('aria-label="index: Index block, selected"');
   });
 });
 

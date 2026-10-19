@@ -52,7 +52,7 @@ test('chapter 4: negation split (AE1), the layers one at a time, map readout (AE
   await card(page).getByRole('button', { name: 'Add the Chunker' }).click();
   await expect(drawer(page).getByRole('heading')).toHaveText('Where the chunker cut');
   await expect(page.locator('[data-negation-cut]')).toHaveCount(1);
-  await expect(page.locator('[data-negation-cut]')).toHaveCSS('color', 'rgb(212, 69, 47)');
+  await expect(page.locator('[data-negation-cut]')).toHaveCSS('color', 'rgb(181, 54, 31)');
   await expect(page.getByTestId('cut-summary')).toContainText('right after “NOT”');
 
   // AE5: hover, focus and tap each show the true cosine next to the screen distance

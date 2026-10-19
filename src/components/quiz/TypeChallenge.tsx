@@ -1,5 +1,6 @@
 // Final challenge (R18): one enterprise problem at a time; only its best RAG type is accepted, and every pick explains itself.
 // Controlled: the chapter owns the Challenge state so Back, Reset and the saved run all cover it.
+import { useEffect, useRef } from 'react';
 import { CHAPTERS, chapterHref } from '../../lib/chapters';
 
 export const CHOICES = [
@@ -103,17 +104,23 @@ export default function TypeChallenge({ value: c, onChange }: { value: Challenge
   const picks = c.picks[p.id] ?? [];
   const last = picks[picks.length - 1];
   const done = solved(c, p);
+  // finishing brings the summary into view and to the screen reader; a restored, finished run stays put
+  const closing = useRef<HTMLHeadingElement>(null);
+  const finished = complete(c), was = useRef(finished);
+  useEffect(() => { if (finished && !was.current) closing.current?.focus(); was.current = finished; }, [finished]);
   return (
     <div className="challenge">
       <p className="count" aria-hidden="true">{PROBLEMS.map((q, i) => <span key={q.id} data-solved={solved(c, q) || undefined} data-current={i === c.at || undefined}>{solved(c, q) ? '✓' : i + 1}</span>)}</p>
       <fieldset className="quiz">
         <legend>Problem {c.at + 1} of {PROBLEMS.length}. {p.text}</legend>
         <div className="opts">
-          {CHOICES.map(t => (
-            <button key={t.id} type="button" className="chip" aria-pressed={picks.includes(t.id)} disabled={done && t.id !== p.best}
-              data-wrong={(t.id !== p.best && picks.includes(t.id)) || undefined}
-              onClick={() => onChange(choose(c, t.id))}>{t.label}</button>
-          ))}
+          {CHOICES.map(t => {
+            const wrong = t.id !== p.best && picks.includes(t.id);
+            // only the accepted pick reads as pressed; a ruled-out one says so instead of "pressed"
+            return <button key={t.id} type="button" className="chip" aria-pressed={!wrong && picks.includes(t.id)} disabled={done && t.id !== p.best}
+              data-wrong={wrong || undefined}
+              onClick={() => onChange(choose(c, t.id))}>{t.label}{wrong && <span className="sr"> (ruled out)</span>}</button>;
+          })}
         </div>
         {last && (
           <div className="feedback" role="status">
@@ -132,9 +139,9 @@ export default function TypeChallenge({ value: c, onChange }: { value: Challenge
         )}
       </fieldset>
       {done && c.at < PROBLEMS.length - 1 && <button type="button" className="big" onClick={() => onChange(advance(c))}>Next problem →</button>}
-      {complete(c) && (
+      {finished && (
         <section className="closing" aria-label="Module complete">
-          <h2>Module complete</h2>
+          <h2 ref={closing} tabIndex={-1}>Module complete</h2>
           <p>You can now:</p>
           <ul>
             {CAN.map(x => <li key={x.text}>{x.text} {x.chapters.map(id => <a key={id} href={ch(id).href}>Chapter {ch(id).n}</a>)}</li>)}

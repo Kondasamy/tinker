@@ -29,7 +29,7 @@ test('track: Tab reaches each block, Enter selects it and shows its knobs', asyn
   await expect(block(page, 'retriever')).toBeFocused();       // focus survives the redraw
   await panel(page).getByLabel('Top-k (chunks retrieved)').focus();
   await page.keyboard.press('ArrowRight');
-  await expect(block(page, 'retriever')).toHaveAttribute('aria-label', /TOP 4/);
+  await expect(block(page, 'retriever')).toHaveAttribute('aria-label', /TOP 4/i);
   await expect(context(page)).toHaveText('4 chunks reached the model');
   // the chunker's knobs belong to the chunker only
   await expect(panel(page).getByText('Chunk size')).toHaveCount(0);
@@ -98,5 +98,5 @@ test('390 px: dragging does nothing, knobs still change results', async ({ page 
   await expect(panel(page).getByRole('heading')).toHaveText('Retriever');
   await panel(page).getByLabel('Top-k (chunks retrieved)').fill('5');
   await expect(context(page)).toHaveText('5 chunks reached the model');
-  await expect(block(page, 'retriever')).toHaveAttribute('aria-label', /TOP 5/);
+  await expect(block(page, 'retriever')).toHaveAttribute('aria-label', /TOP 5/i);
 });

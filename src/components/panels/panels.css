@@ -89,7 +89,11 @@
 .result-strip.compact th, .result-strip.compact td { padding: 2px 8px; white-space: nowrap; }
 /* wide screens: the latest runs sit in the canvas's empty top-right corner, clear of the track (e2e checks the boxes) */
 @media (min-width: 1100px) { .strip-latest { position: absolute; top: 12px; right: 12px; margin: 0; flex-direction: column; align-items: flex-end; gap: 6px; } }
-@media (max-width: 600px) { .result-strip { font-size: 12px; } .result-strip th, .result-strip td { padding: 4px 6px; } }
+@media (max-width: 600px) {
+  .result-strip { font-size: 12px; } .result-strip th, .result-strip td { padding: 4px 6px; }
+  /* phones: the compact strip wraps its cells rather than pushing the page sideways */
+  .result-strip.compact th, .result-strip.compact td { white-space: normal; }
+}
 
 /* GraphRAG walk under the canvas (chapter 6) */
 .graph-walk { margin: 12px auto 0; max-width: 560px; padding: 8px 10px 6px; background: var(--paper); border: 1.5px solid var(--rule); border-radius: 10px; }

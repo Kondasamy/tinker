@@ -128,7 +128,7 @@ const n = CHAPTERS.findIndex(c => c.id === chapter) + 1;
     .chapter { grid-template-columns: minmax(0, 1fr); gap: 16px; }
     .stage { min-height: 0; padding: 8px; }
     .side { position: static; }
-    /* drawer becomes a bottom sheet */
-    .drawer { position: sticky; bottom: 0; max-height: 50vh; overflow-y: auto; border-radius: 16px 16px 0 0; border-bottom: 0; box-shadow: 0 -3px 0 var(--ink); z-index: 10; }
+    /* the drawer follows the step card in the page flow: a sticky sheet would cover the step's controls */
+    .drawer { scroll-margin-top: 12px; }
   }
 </style>

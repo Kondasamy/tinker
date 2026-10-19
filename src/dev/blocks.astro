@@ -1,9 +1,9 @@
 ---
 // Dev-only eyeball page: every block at rest on one stage (static SVG, no client JS).
-import '../../styles/tokens.css';
-import IsoStage, { type SceneCtx } from '../../lib/iso/IsoStage';
-import { BLOCK_TYPES, renderers, blockShadow } from '../../lib/iso/blocks';
-import { byDepth } from '../../lib/iso/core.js';
+import '../styles/tokens.css';
+import IsoStage, { type SceneCtx } from '../lib/iso/IsoStage';
+import { BLOCK_TYPES, renderers, blockShadow } from '../lib/iso/blocks';
+import { byDepth } from '../lib/iso/core.js';
 
 const STATS: Record<string, string> = {
   docs: '42 DOCS', chunker: '310 CHUNKS', embedder: '384 DIMS', index: '310 VECTORS', retriever: 'TOP 4', rewrite: '3 VARIANTS',

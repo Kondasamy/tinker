@@ -69,6 +69,13 @@ describe('step machine', () => {
     expect(STEPS[r.index].focus).toBe('k');
   });
 
+  it('a step with opensDrawer null closes an open drawer on entry', () => {
+    const steps: Step<S>[] = [STEPS[0], { ...STEPS[1], opensDrawer: null }];
+    const r = [{ type: 'inspect', panel: 'answer' }, apply({ k: 3, overlap: 10 })].reduce((r, a) => reduce(steps, r, a as Action<S>), startRun(steps, { k: 1, overlap: 10 }));
+    expect(r.index).toBe(1);
+    expect(r.drawer).toBeNull();
+  });
+
   it('rejects malformed saved runs', () => {
     expect(isRun(STEPS, undefined)).toBe(false);
     expect(isRun(STEPS, { index: 5, starts: [] })).toBe(false);

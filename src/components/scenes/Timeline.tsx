@@ -67,7 +67,7 @@ export default function Timeline({ entries, visited, active, onPick }: Props) {
     <figure>
       {/* clicks and keys bubble up from the era objects drawn inside the SVG */}
       <div className="timeline" onClick={pick} onKeyDown={pick} role="presentation">
-        <IsoStage board={[0, 0, X(ERAS.length - 1) + 34, 60]} scene={scene}
+        <IsoStage board={[0, 0, X(ERAS.length - 1) + 34, 60]} scene={scene} role="group"
           label={`Timeline of ${ERAS.length} eras from 2020 to 2026; ${visited} opened. Glass columns show the largest context window of each era.`} />
       </div>
       <figcaption>

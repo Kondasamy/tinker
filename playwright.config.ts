@@ -6,7 +6,7 @@ export default defineConfig({
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
     // own port + --ignore-lock: never reuse or collide with a background `astro preview` on 4321
-    command: 'npm run build && npm run preview -- --port 4399 --ignore-lock',
+    command: 'DEV_PAGES=1 npm run build && npm run preview -- --port 4399 --ignore-lock',
     url: 'http://localhost:4399',
     reuseExistingServer: false,
     timeout: 120_000,

@@ -4,11 +4,12 @@
 // Guidance stays light: one prompt card with two optional "try this" ideas, not a step list.
 import StepRunner, { type Panel } from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
+import { BlockSettings } from '../../components/canvas/Canvas';
 import { initialCanvas, openBench, unlockedThrough, type CanvasQuestion, type CanvasState, type Outcome } from '../../components/canvas/state';
 import { RagStage, ragPanels, useRagRun, type RagState } from '../../components/panels/rag';
 import ResultStrip, { type ResultRow } from '../../components/panels/ResultStrip';
 import TypeChallenge, { START, complete, type Challenge } from '../../components/quiz/TypeChallenge';
-import { CARDS, TYPES } from './06-types';
+import { CARDS, TYPES } from './types-data';
 import ch3 from '../../../data/questions/ch3.json';
 import ch4 from '../../../data/questions/ch4.json';
 import ch5 from '../../../data/questions/ch5.json';
@@ -33,12 +34,12 @@ export const STEPS: Step<S>[] = [
     solution: s => ({ ...s, canvas: openBench(s.canvas) }),
   },
   {
-    id: 'play', focus: 'run', visibleControls: ['question', 'run', 'tips', 'ready'],
+    id: 'play', focus: 'run', visibleControls: ['question', 'run', 'block', 'tips', 'ready'],
     narration: 'Same blocks, same wires, same answer, and now they are yours. Drag a block to move it, drag from its yellow knob to wire it, click a wire to cut it, click a block to tune it. Ask any question from the module and run it: each run lands in the strip under the canvas.',
     predicate: s => s.acks >= 1,
   },
   {
-    id: 'challenge', focus: 'challenge', visibleControls: ['challenge'],
+    id: 'challenge', focus: 'challenge', visibleControls: ['challenge'], opensDrawer: null,
     narration: 'Last stop. Five teams at Larkspur each describe a problem. Pick the RAG type that fits each one best.',
     predicate: s => complete(s.ch),
   },
@@ -60,7 +61,7 @@ export default function Sandbox() {
       steps={STEPS}
       initial={{ q: FIRST, rows: [], canvas: initialCanvas(unlockedThrough('06-types'), { hops: 2 }), verdict: null, math: false, probed: false, acks: 0, ch: START }}
       stage={p => <div className="stage-col">
-        <RagStage {...p} run={runs[p.state.q]} extraTabs={[['compare', 'Compare']]} canvas={{ allowBench: true, panel: p.state.canvas.mode === 'bench' }} />
+        <RagStage {...p} run={runs[p.state.q]} extraTabs={[['compare', 'Compare']]} canvas={{ allowBench: true }} />
         <ResultStrip rows={p.state.rows} label={label} latest={3} onAll={() => p.inspect('compare')} />
       </div>}
       controls={{
@@ -82,6 +83,12 @@ export default function Sandbox() {
           };
           return <button type="button" className="big" disabled={!kind} onClick={add}>{kind ? `Run as ${TYPES.find(t => t.id === kind)!.label}` : 'Preparing…'}</button>;
         },
+        // block settings live in the card, so the canvas keeps the full stage (R27)
+        block: ({ state, apply }) => (
+          <section className="block-settings" aria-label="Block settings">
+            <BlockSettings state={state.canvas} onChange={canvas => apply(withCanvas(state, canvas))} question={Q(state.q)} />
+          </section>
+        ),
         tips: () => (
           <div className="tips">
             <p className="lbl">Try this</p>
