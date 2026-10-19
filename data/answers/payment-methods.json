@@ -1,0 +1,491 @@
+{
+  "nocontext": {
+    "verdict": "madeup",
+    "text": "The Portal accepts credit cards, PayPal and cryptocurrency for all accounts.",
+    "citation": null,
+    "why": "No documents reached the model, so it answered from general knowledge and made up a policy that sounds plausible."
+  },
+  "cards-and-pos:intact|bank-transfer:intact|digital-wallet:intact": {
+    "verdict": "correct",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus bank transfer for invoices over $2,000, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts."
+  },
+  "cards-and-pos:intact|bank-transfer:intact|digital-wallet:intact@start": {
+    "verdict": "correct",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus bank transfer for invoices over $2,000, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts."
+  },
+  "cards-and-pos:intact|bank-transfer:intact|digital-wallet:intact@middle": {
+    "verdict": "wrong",
+    "text": "The Portal accepts bank transfer for invoices over $2,000, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "Yes, bank transfer is available for invoices over $2,000; the bank details are printed on each invoice.",
+    "why": "The list is incomplete: the credit card and purchase order answer sat in the middle of a long context and was overlooked."
+  },
+  "cards-and-pos:intact|bank-transfer:intact|digital-wallet:intact@end": {
+    "verdict": "correct",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus bank transfer for invoices over $2,000, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts."
+  },
+  "cards-and-pos:intact|bank-transfer:intact|digital-wallet:split": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus bank transfer for invoices over $2,000, plus digital wallets.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the digital wallets answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:intact|bank-transfer:intact|digital-wallet:split@start": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus bank transfer for invoices over $2,000, plus digital wallets.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the digital wallets answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:intact|bank-transfer:intact|digital-wallet:split@middle": {
+    "verdict": "wrong",
+    "text": "The Portal accepts bank transfer for invoices over $2,000, plus digital wallets.",
+    "citation": "Yes, bank transfer is available for invoices over $2,000; the bank details are printed on each invoice.",
+    "why": "The list is incomplete: the digital wallets answer was cut across chunks, so details were lost; the credit card and purchase order answer sat in the middle of a long context and was overlooked."
+  },
+  "cards-and-pos:intact|bank-transfer:intact|digital-wallet:split@end": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus bank transfer for invoices over $2,000, plus digital wallets.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the digital wallets answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:intact|bank-transfer:intact|digital-wallet:absent": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus bank transfer for invoices over $2,000.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the digital wallets answer never reached the model."
+  },
+  "cards-and-pos:intact|bank-transfer:intact|digital-wallet:absent@start": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus bank transfer for invoices over $2,000.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the digital wallets answer never reached the model."
+  },
+  "cards-and-pos:intact|bank-transfer:intact|digital-wallet:absent@middle": {
+    "verdict": "wrong",
+    "text": "The Portal accepts bank transfer for invoices over $2,000.",
+    "citation": "Yes, bank transfer is available for invoices over $2,000; the bank details are printed on each invoice.",
+    "why": "The list is incomplete: the digital wallets answer never reached the model; the credit card and purchase order answer sat in the middle of a long context and was overlooked."
+  },
+  "cards-and-pos:intact|bank-transfer:intact|digital-wallet:absent@end": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus bank transfer for invoices over $2,000.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the digital wallets answer never reached the model."
+  },
+  "cards-and-pos:intact|bank-transfer:split|digital-wallet:intact": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus bank transfer, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the bank transfer answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:intact|bank-transfer:split|digital-wallet:intact@start": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus bank transfer, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the bank transfer answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:intact|bank-transfer:split|digital-wallet:intact@middle": {
+    "verdict": "wrong",
+    "text": "The Portal accepts bank transfer, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "Digital wallet payments were added in 2025 for card-paying customers.",
+    "why": "The list is incomplete: the bank transfer answer was cut across chunks, so details were lost; the credit card and purchase order answer sat in the middle of a long context and was overlooked."
+  },
+  "cards-and-pos:intact|bank-transfer:split|digital-wallet:intact@end": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus bank transfer, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the bank transfer answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:intact|bank-transfer:split|digital-wallet:split": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus bank transfer, plus digital wallets.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the bank transfer and digital wallets answers were cut across chunks, so details were lost."
+  },
+  "cards-and-pos:intact|bank-transfer:split|digital-wallet:split@start": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus bank transfer, plus digital wallets.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the bank transfer and digital wallets answers were cut across chunks, so details were lost."
+  },
+  "cards-and-pos:intact|bank-transfer:split|digital-wallet:split@middle": {
+    "verdict": "wrong",
+    "text": "The Portal accepts bank transfer, plus digital wallets.",
+    "citation": null,
+    "why": "The list is incomplete: the bank transfer and digital wallets answers were cut across chunks, so details were lost; the credit card and purchase order answer sat in the middle of a long context and was overlooked."
+  },
+  "cards-and-pos:intact|bank-transfer:split|digital-wallet:split@end": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus bank transfer, plus digital wallets.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the bank transfer and digital wallets answers were cut across chunks, so details were lost."
+  },
+  "cards-and-pos:intact|bank-transfer:split|digital-wallet:absent": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus bank transfer.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the digital wallets answer never reached the model; the bank transfer answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:intact|bank-transfer:split|digital-wallet:absent@start": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus bank transfer.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the digital wallets answer never reached the model; the bank transfer answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:intact|bank-transfer:split|digital-wallet:absent@middle": {
+    "verdict": "wrong",
+    "text": "The Portal accepts bank transfer.",
+    "citation": null,
+    "why": "The list is incomplete: the digital wallets answer never reached the model; the bank transfer answer was cut across chunks, so details were lost; the credit card and purchase order answer sat in the middle of a long context and was overlooked."
+  },
+  "cards-and-pos:intact|bank-transfer:split|digital-wallet:absent@end": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus bank transfer.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the digital wallets answer never reached the model; the bank transfer answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:intact|bank-transfer:absent|digital-wallet:intact": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the bank transfer answer never reached the model."
+  },
+  "cards-and-pos:intact|bank-transfer:absent|digital-wallet:intact@start": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the bank transfer answer never reached the model."
+  },
+  "cards-and-pos:intact|bank-transfer:absent|digital-wallet:intact@middle": {
+    "verdict": "wrong",
+    "text": "The Portal accepts digital wallets, added in 2025 for card-paying customers.",
+    "citation": "Digital wallet payments were added in 2025 for card-paying customers.",
+    "why": "The list is incomplete: the bank transfer answer never reached the model; the credit card and purchase order answer sat in the middle of a long context and was overlooked."
+  },
+  "cards-and-pos:intact|bank-transfer:absent|digital-wallet:intact@end": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the bank transfer answer never reached the model."
+  },
+  "cards-and-pos:intact|bank-transfer:absent|digital-wallet:split": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus digital wallets.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the bank transfer answer never reached the model; the digital wallets answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:intact|bank-transfer:absent|digital-wallet:split@start": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus digital wallets.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the bank transfer answer never reached the model; the digital wallets answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:intact|bank-transfer:absent|digital-wallet:split@middle": {
+    "verdict": "wrong",
+    "text": "The Portal accepts digital wallets.",
+    "citation": null,
+    "why": "The list is incomplete: the bank transfer answer never reached the model; the digital wallets answer was cut across chunks, so details were lost; the credit card and purchase order answer sat in the middle of a long context and was overlooked."
+  },
+  "cards-and-pos:intact|bank-transfer:absent|digital-wallet:split@end": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus digital wallets.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the bank transfer answer never reached the model; the digital wallets answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:intact|bank-transfer:absent|digital-wallet:absent": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the bank transfer and digital wallets answers never reached the model."
+  },
+  "cards-and-pos:intact|bank-transfer:absent|digital-wallet:absent@start": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the bank transfer and digital wallets answers never reached the model."
+  },
+  "cards-and-pos:intact|bank-transfer:absent|digital-wallet:absent@middle": {
+    "verdict": "notfound",
+    "text": "I can't find which payment methods the Portal accepts in the documents provided.",
+    "citation": null,
+    "why": "The fact did reach the model, but in the middle of a long context, where models pay the least attention, and it was overlooked."
+  },
+  "cards-and-pos:intact|bank-transfer:absent|digital-wallet:absent@end": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "citation": "The Portal accepts company credit cards and purchase orders for approved accounts.",
+    "why": "The list is incomplete: the bank transfer and digital wallets answers never reached the model."
+  },
+  "cards-and-pos:split|bank-transfer:intact|digital-wallet:intact": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus bank transfer for invoices over $2,000, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "Yes, bank transfer is available for invoices over $2,000; the bank details are printed on each invoice.",
+    "why": "The list is incomplete: the credit cards and purchase orders answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:intact|digital-wallet:intact@start": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus bank transfer for invoices over $2,000, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "Yes, bank transfer is available for invoices over $2,000; the bank details are printed on each invoice.",
+    "why": "The list is incomplete: the credit cards and purchase orders answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:intact|digital-wallet:intact@middle": {
+    "verdict": "wrong",
+    "text": "The Portal accepts bank transfer for invoices over $2,000, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "Yes, bank transfer is available for invoices over $2,000; the bank details are printed on each invoice.",
+    "why": "The list is incomplete: the credit card and purchase order answer sat in the middle of a long context and was overlooked."
+  },
+  "cards-and-pos:split|bank-transfer:intact|digital-wallet:intact@end": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus bank transfer for invoices over $2,000, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "Yes, bank transfer is available for invoices over $2,000; the bank details are printed on each invoice.",
+    "why": "The list is incomplete: the credit cards and purchase orders answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:intact|digital-wallet:split": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus bank transfer for invoices over $2,000, plus digital wallets.",
+    "citation": "Yes, bank transfer is available for invoices over $2,000; the bank details are printed on each invoice.",
+    "why": "The list is incomplete: the credit cards and purchase orders and digital wallets answers were cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:intact|digital-wallet:split@start": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus bank transfer for invoices over $2,000, plus digital wallets.",
+    "citation": "Yes, bank transfer is available for invoices over $2,000; the bank details are printed on each invoice.",
+    "why": "The list is incomplete: the credit cards and purchase orders and digital wallets answers were cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:intact|digital-wallet:split@middle": {
+    "verdict": "wrong",
+    "text": "The Portal accepts bank transfer for invoices over $2,000, plus digital wallets.",
+    "citation": "Yes, bank transfer is available for invoices over $2,000; the bank details are printed on each invoice.",
+    "why": "The list is incomplete: the digital wallets answer was cut across chunks, so details were lost; the credit card and purchase order answer sat in the middle of a long context and was overlooked."
+  },
+  "cards-and-pos:split|bank-transfer:intact|digital-wallet:split@end": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus bank transfer for invoices over $2,000, plus digital wallets.",
+    "citation": "Yes, bank transfer is available for invoices over $2,000; the bank details are printed on each invoice.",
+    "why": "The list is incomplete: the credit cards and purchase orders and digital wallets answers were cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:intact|digital-wallet:absent": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus bank transfer for invoices over $2,000.",
+    "citation": "Yes, bank transfer is available for invoices over $2,000; the bank details are printed on each invoice.",
+    "why": "The list is incomplete: the digital wallets answer never reached the model; the credit cards and purchase orders answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:intact|digital-wallet:absent@start": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus bank transfer for invoices over $2,000.",
+    "citation": "Yes, bank transfer is available for invoices over $2,000; the bank details are printed on each invoice.",
+    "why": "The list is incomplete: the digital wallets answer never reached the model; the credit cards and purchase orders answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:intact|digital-wallet:absent@middle": {
+    "verdict": "wrong",
+    "text": "The Portal accepts bank transfer for invoices over $2,000.",
+    "citation": "Yes, bank transfer is available for invoices over $2,000; the bank details are printed on each invoice.",
+    "why": "The list is incomplete: the digital wallets answer never reached the model; the credit card and purchase order answer sat in the middle of a long context and was overlooked."
+  },
+  "cards-and-pos:split|bank-transfer:intact|digital-wallet:absent@end": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus bank transfer for invoices over $2,000.",
+    "citation": "Yes, bank transfer is available for invoices over $2,000; the bank details are printed on each invoice.",
+    "why": "The list is incomplete: the digital wallets answer never reached the model; the credit cards and purchase orders answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:split|digital-wallet:intact": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus bank transfer, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "Digital wallet payments were added in 2025 for card-paying customers.",
+    "why": "The list is incomplete: the credit cards and purchase orders and bank transfer answers were cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:split|digital-wallet:intact@start": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus bank transfer, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "Digital wallet payments were added in 2025 for card-paying customers.",
+    "why": "The list is incomplete: the credit cards and purchase orders and bank transfer answers were cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:split|digital-wallet:intact@middle": {
+    "verdict": "wrong",
+    "text": "The Portal accepts bank transfer, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "Digital wallet payments were added in 2025 for card-paying customers.",
+    "why": "The list is incomplete: the bank transfer answer was cut across chunks, so details were lost; the credit card and purchase order answer sat in the middle of a long context and was overlooked."
+  },
+  "cards-and-pos:split|bank-transfer:split|digital-wallet:intact@end": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus bank transfer, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "Digital wallet payments were added in 2025 for card-paying customers.",
+    "why": "The list is incomplete: the credit cards and purchase orders and bank transfer answers were cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:split|digital-wallet:split": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus bank transfer, plus digital wallets.",
+    "citation": null,
+    "why": "The list is incomplete: the credit cards and purchase orders, bank transfer and digital wallets answers were cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:split|digital-wallet:split@start": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus bank transfer, plus digital wallets.",
+    "citation": null,
+    "why": "The list is incomplete: the credit cards and purchase orders, bank transfer and digital wallets answers were cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:split|digital-wallet:split@middle": {
+    "verdict": "wrong",
+    "text": "The Portal accepts bank transfer, plus digital wallets.",
+    "citation": null,
+    "why": "The list is incomplete: the bank transfer and digital wallets answers were cut across chunks, so details were lost; the credit card and purchase order answer sat in the middle of a long context and was overlooked."
+  },
+  "cards-and-pos:split|bank-transfer:split|digital-wallet:split@end": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus bank transfer, plus digital wallets.",
+    "citation": null,
+    "why": "The list is incomplete: the credit cards and purchase orders, bank transfer and digital wallets answers were cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:split|digital-wallet:absent": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus bank transfer.",
+    "citation": null,
+    "why": "The list is incomplete: the digital wallets answer never reached the model; the credit cards and purchase orders and bank transfer answers were cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:split|digital-wallet:absent@start": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus bank transfer.",
+    "citation": null,
+    "why": "The list is incomplete: the digital wallets answer never reached the model; the credit cards and purchase orders and bank transfer answers were cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:split|digital-wallet:absent@middle": {
+    "verdict": "wrong",
+    "text": "The Portal accepts bank transfer.",
+    "citation": null,
+    "why": "The list is incomplete: the digital wallets answer never reached the model; the bank transfer answer was cut across chunks, so details were lost; the credit card and purchase order answer sat in the middle of a long context and was overlooked."
+  },
+  "cards-and-pos:split|bank-transfer:split|digital-wallet:absent@end": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus bank transfer.",
+    "citation": null,
+    "why": "The list is incomplete: the digital wallets answer never reached the model; the credit cards and purchase orders and bank transfer answers were cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:absent|digital-wallet:intact": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "Digital wallet payments were added in 2025 for card-paying customers.",
+    "why": "The list is incomplete: the bank transfer answer never reached the model; the credit cards and purchase orders answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:absent|digital-wallet:intact@start": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "Digital wallet payments were added in 2025 for card-paying customers.",
+    "why": "The list is incomplete: the bank transfer answer never reached the model; the credit cards and purchase orders answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:absent|digital-wallet:intact@middle": {
+    "verdict": "wrong",
+    "text": "The Portal accepts digital wallets, added in 2025 for card-paying customers.",
+    "citation": "Digital wallet payments were added in 2025 for card-paying customers.",
+    "why": "The list is incomplete: the bank transfer answer never reached the model; the credit card and purchase order answer sat in the middle of a long context and was overlooked."
+  },
+  "cards-and-pos:split|bank-transfer:absent|digital-wallet:intact@end": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "Digital wallet payments were added in 2025 for card-paying customers.",
+    "why": "The list is incomplete: the bank transfer answer never reached the model; the credit cards and purchase orders answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:absent|digital-wallet:split": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus digital wallets.",
+    "citation": null,
+    "why": "The list is incomplete: the bank transfer answer never reached the model; the credit cards and purchase orders and digital wallets answers were cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:absent|digital-wallet:split@start": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus digital wallets.",
+    "citation": null,
+    "why": "The list is incomplete: the bank transfer answer never reached the model; the credit cards and purchase orders and digital wallets answers were cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:absent|digital-wallet:split@middle": {
+    "verdict": "wrong",
+    "text": "The Portal accepts digital wallets.",
+    "citation": null,
+    "why": "The list is incomplete: the bank transfer answer never reached the model; the digital wallets answer was cut across chunks, so details were lost; the credit card and purchase order answer sat in the middle of a long context and was overlooked."
+  },
+  "cards-and-pos:split|bank-transfer:absent|digital-wallet:split@end": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards, plus digital wallets.",
+    "citation": null,
+    "why": "The list is incomplete: the bank transfer answer never reached the model; the credit cards and purchase orders and digital wallets answers were cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:absent|digital-wallet:absent": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards.",
+    "citation": null,
+    "why": "The list is incomplete: the bank transfer and digital wallets answers never reached the model; the credit cards and purchase orders answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:absent|digital-wallet:absent@start": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards.",
+    "citation": null,
+    "why": "The list is incomplete: the bank transfer and digital wallets answers never reached the model; the credit cards and purchase orders answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:split|bank-transfer:absent|digital-wallet:absent@middle": {
+    "verdict": "notfound",
+    "text": "I can't find which payment methods the Portal accepts in the documents provided.",
+    "citation": null,
+    "why": "The fact did reach the model, but in the middle of a long context, where models pay the least attention, and it was overlooked."
+  },
+  "cards-and-pos:split|bank-transfer:absent|digital-wallet:absent@end": {
+    "verdict": "wrong",
+    "text": "The Portal accepts company credit cards.",
+    "citation": null,
+    "why": "The list is incomplete: the bank transfer and digital wallets answers never reached the model; the credit cards and purchase orders answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:absent|bank-transfer:intact|digital-wallet:intact": {
+    "verdict": "wrong",
+    "text": "The Portal accepts bank transfer for invoices over $2,000, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "Yes, bank transfer is available for invoices over $2,000; the bank details are printed on each invoice.",
+    "why": "The list is incomplete: the credit cards and purchase orders answer never reached the model."
+  },
+  "cards-and-pos:absent|bank-transfer:intact|digital-wallet:split": {
+    "verdict": "wrong",
+    "text": "The Portal accepts bank transfer for invoices over $2,000, plus digital wallets.",
+    "citation": "Yes, bank transfer is available for invoices over $2,000; the bank details are printed on each invoice.",
+    "why": "The list is incomplete: the credit cards and purchase orders answer never reached the model; the digital wallets answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:absent|bank-transfer:intact|digital-wallet:absent": {
+    "verdict": "wrong",
+    "text": "The Portal accepts bank transfer for invoices over $2,000.",
+    "citation": "Yes, bank transfer is available for invoices over $2,000; the bank details are printed on each invoice.",
+    "why": "The list is incomplete: the credit cards and purchase orders and digital wallets answers never reached the model."
+  },
+  "cards-and-pos:absent|bank-transfer:split|digital-wallet:intact": {
+    "verdict": "wrong",
+    "text": "The Portal accepts bank transfer, plus digital wallets, added in 2025 for card-paying customers.",
+    "citation": "Digital wallet payments were added in 2025 for card-paying customers.",
+    "why": "The list is incomplete: the credit cards and purchase orders answer never reached the model; the bank transfer answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:absent|bank-transfer:split|digital-wallet:split": {
+    "verdict": "wrong",
+    "text": "The Portal accepts bank transfer, plus digital wallets.",
+    "citation": null,
+    "why": "The list is incomplete: the credit cards and purchase orders answer never reached the model; the bank transfer and digital wallets answers were cut across chunks, so details were lost."
+  },
+  "cards-and-pos:absent|bank-transfer:split|digital-wallet:absent": {
+    "verdict": "wrong",
+    "text": "The Portal accepts bank transfer.",
+    "citation": null,
+    "why": "The list is incomplete: the credit cards and purchase orders and digital wallets answers never reached the model; the bank transfer answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:absent|bank-transfer:absent|digital-wallet:intact": {
+    "verdict": "wrong",
+    "text": "The Portal accepts digital wallets, added in 2025 for card-paying customers.",
+    "citation": "Digital wallet payments were added in 2025 for card-paying customers.",
+    "why": "The list is incomplete: the credit cards and purchase orders and bank transfer answers never reached the model."
+  },
+  "cards-and-pos:absent|bank-transfer:absent|digital-wallet:split": {
+    "verdict": "wrong",
+    "text": "The Portal accepts digital wallets.",
+    "citation": null,
+    "why": "The list is incomplete: the credit cards and purchase orders and bank transfer answers never reached the model; the digital wallets answer was cut across chunks, so details were lost."
+  },
+  "cards-and-pos:absent|bank-transfer:absent|digital-wallet:absent": {
+    "verdict": "notfound",
+    "text": "I can't find which payment methods the Portal accepts in the documents provided.",
+    "citation": null,
+    "why": "None of the payment-method answers in the ordering FAQ reached the model."
+  }
+}

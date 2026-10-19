@@ -1,0 +1,59 @@
+{
+  "nocontext": {
+    "verdict": "madeup",
+    "text": "The dock door sensor comes with a five-year warranty, including the battery.",
+    "citation": null,
+    "why": "No documents reached the model, so it answered from general knowledge and made up a policy that sounds plausible."
+  },
+  "three-years:intact": {
+    "verdict": "correct",
+    "text": "The DS-100 dock door sensor is warranted against defects in materials and workmanship for three years from the date of shipment. Batteries are covered for one year.",
+    "citation": "The DS-100 dock door sensor is warranted against defects in materials and workmanship for a period of three years from the date of shipment."
+  },
+  "three-years:intact@start": {
+    "verdict": "correct",
+    "text": "The DS-100 dock door sensor is warranted against defects in materials and workmanship for three years from the date of shipment. Batteries are covered for one year.",
+    "citation": "The DS-100 dock door sensor is warranted against defects in materials and workmanship for a period of three years from the date of shipment."
+  },
+  "three-years:intact@middle": {
+    "verdict": "notfound",
+    "text": "I can't find a clear warranty period for the dock door sensor in the documents provided.",
+    "citation": null,
+    "why": "The fact did reach the model, but in the middle of a long context, where models pay the least attention, and it was overlooked."
+  },
+  "three-years:intact@end": {
+    "verdict": "correct",
+    "text": "The DS-100 dock door sensor is warranted against defects in materials and workmanship for three years from the date of shipment. Batteries are covered for one year.",
+    "citation": "The DS-100 dock door sensor is warranted against defects in materials and workmanship for a period of three years from the date of shipment."
+  },
+  "three-years:split": {
+    "verdict": "wrong",
+    "text": "The dock door sensor warranty lasts one year.",
+    "citation": "Batteries are warranted for one year.",
+    "why": "The sentence was cut before \"three years\", so the only period the model saw was the one-year battery warranty."
+  },
+  "three-years:split@start": {
+    "verdict": "wrong",
+    "text": "The dock door sensor warranty lasts one year.",
+    "citation": "Batteries are warranted for one year.",
+    "why": "The sentence was cut before \"three years\", so the only period the model saw was the one-year battery warranty."
+  },
+  "three-years:split@middle": {
+    "verdict": "wrong",
+    "text": "The dock door sensor warranty lasts one year.",
+    "citation": "Batteries are warranted for one year.",
+    "why": "The sentence was cut before \"three years\", so the only period the model saw was the one-year battery warranty."
+  },
+  "three-years:split@end": {
+    "verdict": "wrong",
+    "text": "The dock door sensor warranty lasts one year.",
+    "citation": "Batteries are warranted for one year.",
+    "why": "The sentence was cut before \"three years\", so the only period the model saw was the one-year battery warranty."
+  },
+  "three-years:absent": {
+    "verdict": "notfound",
+    "text": "I can't find the dock door sensor warranty terms in the documents provided.",
+    "citation": null,
+    "why": "The warranty text never reached the model."
+  }
+}

@@ -66,7 +66,7 @@ function matches(doc: Record<string, unknown>, filter: Filter) {
 
 // Word ranges of each gold sentence in the corpus, per index (sentences can occur in several docs).
 const goldCache = new WeakMap<RagIndex, Map<string, [number, number, number][]>>();
-function locate(index: RagIndex, sentence: string) {
+export function locate(index: RagIndex, sentence: string) {
   let m = goldCache.get(index);
   if (!m) goldCache.set(index, (m = new Map()));
   let hits = m.get(sentence);
@@ -81,7 +81,7 @@ function locate(index: RagIndex, sentence: string) {
   return hits;
 }
 
-function orderContext(ids: number[], order: ContextOrder, custom: number[] = []) {
+export function orderContext(ids: number[], order: ContextOrder, custom: number[] = []) {
   if (order === 'edges') return [...ids.filter((_, i) => i % 2 === 0), ...ids.filter((_, i) => i % 2 === 1).reverse()];
   if (order === 'custom') { const first = [...new Set(custom.filter((id) => ids.includes(id)))]; return [...first, ...ids.filter((id) => !first.includes(id))]; }
   return ids;

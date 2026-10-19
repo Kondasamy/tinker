@@ -1,0 +1,59 @@
+{
+  "nocontext": {
+    "verdict": "madeup",
+    "text": "Call the IT helpdesk at extension 1000. It is staffed around the clock.",
+    "citation": null,
+    "why": "No documents reached the model, so it answered from general knowledge and made up a policy that sounds plausible."
+  },
+  "duty-desk-4410:intact": {
+    "verdict": "correct",
+    "text": "For a Portal outage outside business hours, page the on-call engineer through the Duty Desk line at extension 4410. Don't email the engineering team; email isn't monitored at night.",
+    "citation": "For Portal outages outside business hours, page the on-call engineer through the Duty Desk line at extension 4410."
+  },
+  "duty-desk-4410:intact@start": {
+    "verdict": "correct",
+    "text": "For a Portal outage outside business hours, page the on-call engineer through the Duty Desk line at extension 4410. Don't email the engineering team; email isn't monitored at night.",
+    "citation": "For Portal outages outside business hours, page the on-call engineer through the Duty Desk line at extension 4410."
+  },
+  "duty-desk-4410:intact@middle": {
+    "verdict": "wrong",
+    "text": "Contact the support desk. It is staffed from 7 a.m. to 7 p.m. Central time on business days.",
+    "citation": "Hours: the support desk is staffed from 7 a.m. to 7 p.m. Central time on business days.",
+    "why": "The fact did reach the model, but in the middle of a long context, where models pay the least attention, and it was overlooked. The model answered from general support text instead."
+  },
+  "duty-desk-4410:intact@end": {
+    "verdict": "correct",
+    "text": "For a Portal outage outside business hours, page the on-call engineer through the Duty Desk line at extension 4410. Don't email the engineering team; email isn't monitored at night.",
+    "citation": "For Portal outages outside business hours, page the on-call engineer through the Duty Desk line at extension 4410."
+  },
+  "duty-desk-4410:split": {
+    "verdict": "notfound",
+    "text": "Extension 4410 reaches the Duty Desk, which pages the on-call engineer, but I can't tell from this excerpt whether that is the right contact for your problem.",
+    "citation": null,
+    "why": "The sentence was split, so the model saw the number without the \"Portal outages outside business hours\" condition and hedged."
+  },
+  "duty-desk-4410:split@start": {
+    "verdict": "notfound",
+    "text": "Extension 4410 reaches the Duty Desk, which pages the on-call engineer, but I can't tell from this excerpt whether that is the right contact for your problem.",
+    "citation": null,
+    "why": "The sentence was split, so the model saw the number without the \"Portal outages outside business hours\" condition and hedged."
+  },
+  "duty-desk-4410:split@middle": {
+    "verdict": "notfound",
+    "text": "Extension 4410 reaches the Duty Desk, which pages the on-call engineer, but I can't tell from this excerpt whether that is the right contact for your problem.",
+    "citation": null,
+    "why": "The sentence was split, so the model saw the number without the \"Portal outages outside business hours\" condition and hedged."
+  },
+  "duty-desk-4410:split@end": {
+    "verdict": "notfound",
+    "text": "Extension 4410 reaches the Duty Desk, which pages the on-call engineer, but I can't tell from this excerpt whether that is the right contact for your problem.",
+    "citation": null,
+    "why": "The sentence was split, so the model saw the number without the \"Portal outages outside business hours\" condition and hedged."
+  },
+  "duty-desk-4410:absent": {
+    "verdict": "wrong",
+    "text": "Contact the support desk. It is staffed from 7 a.m. to 7 p.m. Central time on business days.",
+    "citation": "Hours: the support desk is staffed from 7 a.m. to 7 p.m. Central time on business days.",
+    "why": "The vague question matched general support text instead of the after-hours outage rule, so the model pointed to a desk that is closed at night."
+  }
+}

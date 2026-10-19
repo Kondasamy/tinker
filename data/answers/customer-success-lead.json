@@ -1,0 +1,59 @@
+{
+  "nocontext": {
+    "verdict": "madeup",
+    "text": "The Customer Success team is led by Sarah Mitchell, VP of Customer Experience.",
+    "citation": null,
+    "why": "No documents reached the model, so it answered from general knowledge and made up a policy that sounds plausible."
+  },
+  "cs-lead:intact": {
+    "verdict": "correct",
+    "text": "Ingrid Vasquez-Lund leads the Customer Success team.",
+    "citation": "The Customer Success team is led by Ingrid Vasquez-Lund."
+  },
+  "cs-lead:intact@start": {
+    "verdict": "correct",
+    "text": "Ingrid Vasquez-Lund leads the Customer Success team.",
+    "citation": "The Customer Success team is led by Ingrid Vasquez-Lund."
+  },
+  "cs-lead:intact@middle": {
+    "verdict": "notfound",
+    "text": "I can't find who leads the Customer Success team in the documents provided.",
+    "citation": null,
+    "why": "The fact did reach the model, but in the middle of a long context, where models pay the least attention, and it was overlooked."
+  },
+  "cs-lead:intact@end": {
+    "verdict": "correct",
+    "text": "Ingrid Vasquez-Lund leads the Customer Success team.",
+    "citation": "The Customer Success team is led by Ingrid Vasquez-Lund."
+  },
+  "cs-lead:split": {
+    "verdict": "wrong",
+    "text": "The Customer Success team is led by Dmitri Halvorsen, the Chief Revenue Officer.",
+    "citation": "Under the Chief Revenue Officer are the Sales team and the Customer Success team.",
+    "why": "The name was cut off after \"led by\", so the model named the executive above the team instead."
+  },
+  "cs-lead:split@start": {
+    "verdict": "wrong",
+    "text": "The Customer Success team is led by Dmitri Halvorsen, the Chief Revenue Officer.",
+    "citation": "Under the Chief Revenue Officer are the Sales team and the Customer Success team.",
+    "why": "The name was cut off after \"led by\", so the model named the executive above the team instead."
+  },
+  "cs-lead:split@middle": {
+    "verdict": "wrong",
+    "text": "The Customer Success team is led by Dmitri Halvorsen, the Chief Revenue Officer.",
+    "citation": "Under the Chief Revenue Officer are the Sales team and the Customer Success team.",
+    "why": "The name was cut off after \"led by\", so the model named the executive above the team instead."
+  },
+  "cs-lead:split@end": {
+    "verdict": "wrong",
+    "text": "The Customer Success team is led by Dmitri Halvorsen, the Chief Revenue Officer.",
+    "citation": "Under the Chief Revenue Officer are the Sales team and the Customer Success team.",
+    "why": "The name was cut off after \"led by\", so the model named the executive above the team instead."
+  },
+  "cs-lead:absent": {
+    "verdict": "notfound",
+    "text": "The documents describe what the Customer Success team does but don't name who leads it.",
+    "citation": null,
+    "why": "The org chart line naming the lead never reached the model."
+  }
+}

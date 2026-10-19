@@ -1,0 +1,111 @@
+{
+  "nocontext": {
+    "verdict": "madeup",
+    "text": "Larkspur keeps customer card data for seven years to meet tax rules.",
+    "citation": null,
+    "why": "No documents reached the model, so it answered from general knowledge and made up a policy that sounds plausible."
+  },
+  "card-90-days:intact": {
+    "verdict": "correct",
+    "text": "Larkspur never stores full card numbers. It keeps only the last four digits and the expiry month, for 90 days after the customer's last order.",
+    "citation": "Card numbers are passed directly to our payment processor, and we keep only the last four digits and the expiry month for 90 days after the last order."
+  },
+  "card-90-days:intact+distractor": {
+    "verdict": "correct",
+    "text": "Larkspur keeps only the last four digits and the expiry month of a customer's card, for 90 days after the last order. The two-year figure in the security review notes is about synthetic demo cards, not customer data.",
+    "citation": "Card numbers are passed directly to our payment processor, and we keep only the last four digits and the expiry month for 90 days after the last order."
+  },
+  "card-90-days:intact@start": {
+    "verdict": "correct",
+    "text": "Larkspur never stores full card numbers. It keeps only the last four digits and the expiry month, for 90 days after the customer's last order.",
+    "citation": "Card numbers are passed directly to our payment processor, and we keep only the last four digits and the expiry month for 90 days after the last order."
+  },
+  "card-90-days:intact@start+distractor": {
+    "verdict": "correct",
+    "text": "Larkspur keeps only the last four digits and the expiry month of a customer's card, for 90 days after the last order. The two-year figure in the security review notes is about synthetic demo cards, not customer data.",
+    "citation": "Card numbers are passed directly to our payment processor, and we keep only the last four digits and the expiry month for 90 days after the last order."
+  },
+  "card-90-days:intact@middle": {
+    "verdict": "notfound",
+    "text": "I can't find a clear retention period for payment card data in the documents provided.",
+    "citation": null,
+    "why": "The fact did reach the model, but in the middle of a long context, where models pay the least attention, and it was overlooked."
+  },
+  "card-90-days:intact@middle+distractor": {
+    "verdict": "wrong",
+    "text": "Larkspur keeps customer payment card data for two years.",
+    "citation": "We discussed how long Larkspur keeps customer payment card data samples in the demo environment and agreed to keep those payment card data samples for two years so sales demos look realistic.",
+    "why": "The look-alike demo-data note came ahead of the real policy in the context, and the model went with it."
+  },
+  "card-90-days:intact@end": {
+    "verdict": "correct",
+    "text": "Larkspur never stores full card numbers. It keeps only the last four digits and the expiry month, for 90 days after the customer's last order.",
+    "citation": "Card numbers are passed directly to our payment processor, and we keep only the last four digits and the expiry month for 90 days after the last order."
+  },
+  "card-90-days:intact@end+distractor": {
+    "verdict": "wrong",
+    "text": "Larkspur keeps customer payment card data for two years.",
+    "citation": "We discussed how long Larkspur keeps customer payment card data samples in the demo environment and agreed to keep those payment card data samples for two years so sales demos look realistic.",
+    "why": "The look-alike demo-data note came ahead of the real policy in the context, and the model went with it."
+  },
+  "card-90-days:split": {
+    "verdict": "notfound",
+    "text": "Larkspur never stores full card numbers; they are passed to the payment processor. The documents don't say how long any remaining card details are kept.",
+    "citation": "Payment data: Larkspur never stores full card numbers.",
+    "why": "The sentence was cut before \"90 days\", so the retention period never reached the model."
+  },
+  "card-90-days:split+distractor": {
+    "verdict": "wrong",
+    "text": "Larkspur keeps customer payment card data for two years.",
+    "citation": "We discussed how long Larkspur keeps customer payment card data samples in the demo environment and agreed to keep those payment card data samples for two years so sales demos look realistic.",
+    "why": "The real retention rule was cut across chunks while the look-alike demo-data note arrived whole, so the model used it."
+  },
+  "card-90-days:split@start": {
+    "verdict": "notfound",
+    "text": "Larkspur never stores full card numbers; they are passed to the payment processor. The documents don't say how long any remaining card details are kept.",
+    "citation": "Payment data: Larkspur never stores full card numbers.",
+    "why": "The sentence was cut before \"90 days\", so the retention period never reached the model."
+  },
+  "card-90-days:split@start+distractor": {
+    "verdict": "wrong",
+    "text": "Larkspur keeps customer payment card data for two years.",
+    "citation": "We discussed how long Larkspur keeps customer payment card data samples in the demo environment and agreed to keep those payment card data samples for two years so sales demos look realistic.",
+    "why": "The real retention rule was cut across chunks while the look-alike demo-data note arrived whole, so the model used it."
+  },
+  "card-90-days:split@middle": {
+    "verdict": "notfound",
+    "text": "Larkspur never stores full card numbers; they are passed to the payment processor. The documents don't say how long any remaining card details are kept.",
+    "citation": "Payment data: Larkspur never stores full card numbers.",
+    "why": "The sentence was cut before \"90 days\", so the retention period never reached the model."
+  },
+  "card-90-days:split@middle+distractor": {
+    "verdict": "wrong",
+    "text": "Larkspur keeps customer payment card data for two years.",
+    "citation": "We discussed how long Larkspur keeps customer payment card data samples in the demo environment and agreed to keep those payment card data samples for two years so sales demos look realistic.",
+    "why": "The real retention rule was cut across chunks while the look-alike demo-data note arrived whole, so the model used it."
+  },
+  "card-90-days:split@end": {
+    "verdict": "notfound",
+    "text": "Larkspur never stores full card numbers; they are passed to the payment processor. The documents don't say how long any remaining card details are kept.",
+    "citation": "Payment data: Larkspur never stores full card numbers.",
+    "why": "The sentence was cut before \"90 days\", so the retention period never reached the model."
+  },
+  "card-90-days:split@end+distractor": {
+    "verdict": "wrong",
+    "text": "Larkspur keeps customer payment card data for two years.",
+    "citation": "We discussed how long Larkspur keeps customer payment card data samples in the demo environment and agreed to keep those payment card data samples for two years so sales demos look realistic.",
+    "why": "The real retention rule was cut across chunks while the look-alike demo-data note arrived whole, so the model used it."
+  },
+  "card-90-days:absent": {
+    "verdict": "notfound",
+    "text": "I can't find how long customer payment card data is kept in the documents provided.",
+    "citation": null,
+    "why": "The security policy's card retention rule never reached the model."
+  },
+  "card-90-days:absent+distractor": {
+    "verdict": "wrong",
+    "text": "Larkspur keeps customer payment card data for two years.",
+    "citation": "We discussed how long Larkspur keeps customer payment card data samples in the demo environment and agreed to keep those payment card data samples for two years so sales demos look realistic.",
+    "why": "Only the meeting note about demo card samples reached the model; its wording matches the question, but it is about synthetic test data."
+  }
+}
