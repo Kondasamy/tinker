@@ -100,7 +100,7 @@ export const BLOCKS: Record<BlockType, Spec> = {
     for (const [nx, ny, h, m] of nodes) s += rod([nx, ny, z1], [nx, ny, z1 + h], .7, METAL, toneI, .6) + cyl(nx, ny, z1 + h, z1 + h + 2.5, 3, m, toneI, .8, 14);
     return s;
   } },
-  grader: { name: 'Grader', label: 'GRADER', pal: METAL, ht: 26, labelZ: 2.5, draw: c => {
+  grader: { name: 'Evaluator', label: 'EVALUATOR', pal: METAL, ht: 26, labelZ: 2.5, draw: c => {
     // a gauge: the needle swings to pass (right) or fail (left)
     const { y, x1, z0, o } = c, X = x1 + .1, cz = z0 + 14, a = o.state === 'ok' ? 40 : o.state === 'bad' ? 140 : 90;
     const dial = shape(on(PX(X), ellUV(y, cz, 8, 8)), CERAMIC.l, .9)

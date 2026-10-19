@@ -1,6 +1,7 @@
 // Pure helpers behind the drawer panels (answer, evidence, chunk strip, 2D map). No React, so unit tests import them directly.
 import type { Outcome } from '../canvas/state';
 import type { Lookup } from '../../lib/rag/answers';
+import type { Ranked, RunRecord } from '../../lib/rag/engine';
 
 export const VERDICT_LABEL: Record<Lookup['verdict'], string> = {
   correct: 'CORRECT', wrong: 'WRONG', madeup: 'MADE UP', notfound: 'NOT FOUND', norecord: 'NO RECORDED ANSWER',
@@ -63,3 +64,21 @@ export function fit(points: [number, number][], size: number, pad: number) {
 
 /** Distance in CSS pixels between two map points given in viewBox units, for a map drawn pxPerUnit pixels per unit. */
 export const screenDistance = (a: [number, number], b: [number, number], pxPerUnit: number) => Math.hypot(a[0] - b[0], a[1] - b[1]) * pxPerUnit;
+
+/**
+ * Retrieval quality for the meters: recall@k = gold sentences that reached the model (whole or cut) / all gold
+ * sentences. Counting cut ones keeps it a pure retrieval measure; whether the cut hurt shows in the answer verdict.
+ */
+export function recallOf(r: RunRecord) {
+  const g = r.recall.gold, found = g.filter(x => x.status !== 'missing').length;
+  return { k: r.recall.k, found, total: g.length, value: g.length ? found / g.length : 0 };
+}
+
+/** The hybrid blend for one chunk (R3): both scores min-max scaled over every chunk, then mixed by the keyword weight. */
+export function blendParts(r: RunRecord, id: number) {
+  const scaled = (x: Ranked, v: number) => { const hi = x.scores[0], lo = x.scores[x.scores.length - 1]; return hi > lo ? (v - lo) / (hi - lo) : 0; };
+  const v = r.stages.vector, b = r.stages.bm25;
+  const cos = v.scores[v.ids.indexOf(id)], nv = scaled(v, cos);
+  const bm25 = b ? b.scores[b.ids.indexOf(id)] : 0, nb = b ? scaled(b, bm25) : 0;
+  return { cos, nv, bm25, nb, w: r.weight, blended: (1 - r.weight) * nv + r.weight * nb };
+}

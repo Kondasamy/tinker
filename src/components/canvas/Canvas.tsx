@@ -56,7 +56,7 @@ const NOTES: Partial<Record<BlockType, string>> = {
   index: 'Stores one vector per chunk so the retriever can search them all at once.',
   llm: 'Writes the answer from whatever reaches it. Answers are pre-recorded for each kind of evidence.',
   graph: 'Entities and the relations between them, across documents.',
-  grader: 'Checks whether the retrieved evidence answers the question.',
+  grader: 'Judges each answer (correct, wrong, not found, made up) and shows it beside retrieval quality.',
 };
 const LLM_STATE = { correct: 'ok', wrong: 'bad', madeup: 'bad', notfound: 'warn', norecord: 'warn' } as const;
 const ARROWS: Record<string, [number, number]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };

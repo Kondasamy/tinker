@@ -56,3 +56,15 @@
 .rag-stage .announce { margin: 0; font-weight: 700; color: var(--ink); }
 .rag-stage .inspect-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .rag-stage .inspect-row .chip { font-size: 12px; padding: 3px 9px; box-shadow: none; border-color: var(--rule); }
+
+.stage-col { width: 100%; position: relative; }
+.meters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px auto 0; max-width: 560px; }
+.meter { display: flex; flex-direction: column; gap: 3px; padding: 8px 12px; border: 1.5px solid var(--rule); border-radius: 10px; background: var(--paper); }
+.meter strong { font-size: 18px; font-variant-numeric: tabular-nums; }
+.meter .lbl { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.meter .note { color: var(--muted); font-size: 12px; }
+.meter .stamp { align-self: flex-start; }
+.math h4 { margin: 10px 0 2px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+/* wide screens: the meters sit in the canvas's empty top-right corner, so they stay in view beside the track */
+@media (min-width: 1100px) { .meters { position: absolute; top: 0; right: 0; width: 380px; margin: 0; } }
+@media (max-width: 600px) { .meters { grid-template-columns: 1fr; } }

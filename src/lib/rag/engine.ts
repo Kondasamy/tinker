@@ -35,6 +35,8 @@ export interface RunRecord {
   questionId: string;
   queryText: string;
   queryIndex: number;
+  /** hybrid keyword weight actually used (0 = pure vector) */
+  weight: number;
   stages: { vector: Ranked; bm25: Ranked | null; hybrid: Ranked; filtered: Ranked; topK: Ranked; rerank: Ranked | null };
   context: ContextChunk[];
   unscored: number[];
@@ -159,7 +161,7 @@ export function run(index: RagIndex, cfg: Config, p: RunParams): RunRecord {
   });
 
   return {
-    file: cfg.file, questionId: p.question.id, queryText, queryIndex,
+    file: cfg.file, questionId: p.question.id, queryText, queryIndex, weight: w,
     stages: { vector, bm25, hybrid, filtered, topK, rerank },
     context,
     unscored: context.filter((c) => c.unscored).map((c) => c.id),
