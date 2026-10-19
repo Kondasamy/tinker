@@ -1,0 +1,152 @@
+// Chapter 6 step script: types of RAG (R16, R17). Recaps naive vs advanced, then attaches the agent side bay.
+// The learner picks a question card, runs it under the current type, and the result strip keeps one row per
+// question and type, so the types sit side by side on the same corpus and the same knobs.
+// Later type units extend this chapter: push to TYPES (a type = the blocks it adds), CARDS and STEPS.
+import StepRunner, { type Panel } from '../../components/story/StepRunner';
+import type { Step } from '../../components/story/steps';
+import Quiz from '../../components/quiz/Quiz';
+import { Knob } from '../../components/canvas/Knobs';
+import { DEFAULT_KNOBS, initialCanvas, unlockedThrough, type CanvasQuestion, type CanvasState, type Knobs } from '../../components/canvas/state';
+import type { BlockType } from '../../lib/iso/blocks';
+import { RagStage, ragPanels, useRagRun, type RagState } from '../../components/panels/rag';
+import ResultStrip, { type ResultRow } from '../../components/panels/ResultStrip';
+import { CHAPTERS, chapterHref } from '../../lib/chapters';
+import ch3 from '../../../data/questions/ch3.json';
+import ch4 from '../../../data/questions/ch4.json';
+import ch5 from '../../../data/questions/ch5.json';
+import ch6 from '../../../data/questions/ch6.json';
+
+const ID = '06-types';
+const QS = [...ch3, ...ch4, ...ch5, ...ch6] as CanvasQuestion[];
+const Q = (id: string) => QS.find(q => q.id === id)!;
+
+/** RAG types the learner can run; each is the blocks it attaches to the chapter-5 track. */
+export const TYPES: { id: string; label: string; blocks: BlockType[] }[] = [
+  { id: 'naive', label: 'Naive / advanced', blocks: [] },
+  { id: 'agentic', label: 'Agentic', blocks: ['agent'] },
+];
+/** Question cards for the comparison. */
+export const CARDS: { q: string; label: string; short: string }[] = [
+  { q: 'refund-enterprise', label: 'Can enterprise customers get a refund?', short: 'Enterprise refund' },
+  { q: 'stale-hotel-limit', label: 'What is the hotel limit per night?', short: 'Hotel limit' },
+  { q: 'standard-refund-window', label: 'How long do standard customers have to ask for a refund?', short: 'Refund window' },
+];
+/** One setting for every run, so a difference in the strip comes from the type alone: a single 16-word chunk. */
+export const KNOBS: Knobs = { ...DEFAULT_KNOBS, strategy: 'fixed', size: 16, overlap: 0, topK: 1 };
+
+const BASE = unlockedThrough('05-accuracy');
+const typeOf = (id: string) => TYPES.find(t => t.id === id)!;
+const unlockedFor = (type: string) => [...BASE, ...typeOf(type).blocks];
+
+export interface S extends RagState { q: string; type: string; rows: ResultRow[]; acks: number; quiz: number | null }
+
+const row = (s: S, q: string, type: string) => s.rows.find(r => r.q === q && r.type === type);
+
+const QUIZ = {
+  question: 'When is an agent worth its extra retrieval calls?',
+  options: [
+    'Always: more searches always mean a better answer',
+    'When the first search finds part of the answer and a follow-up can fetch the rest',
+    'When the documents themselves are out of date',
+  ],
+  correct: 1,
+  explanation: 'Each call costs time and money. A follow-up pays off when there is something left to fetch: the rest of a cut sentence, or the next hop of a question. It cannot fix stale documents.',
+};
+
+export const STEPS: Step<S>[] = [
+  {
+    id: 'recap', focus: 'next', visibleControls: ['next'],
+    narration: 'Every pipeline so far searched once. Naive RAG is the chapter 3 version: one search, paste the top chunks, answer. Advanced RAG keeps that single pass and tunes it with the chapter 5 levers. To make each type’s strengths easy to see, the retriever here hands over one 16-word chunk.',
+    predicate: s => s.acks >= 1,
+  },
+  {
+    id: 'naive-run', focus: 'run', visibleControls: ['cards', 'run'],
+    narration: 'Pick the enterprise refund question and run it as naive RAG. Each run adds a row to the results strip under the canvas.',
+    predicate: s => !!row(s, 'refund-enterprise', 'naive'),
+  },
+  {
+    id: 'attach', focus: 'types', visibleControls: ['types'], opensDrawer: 'answer',
+    narration: 'Wrong: the one chunk stopped right after “does NOT”, so the model never read the exception. A single search cannot notice that. Agentic RAG puts an agent between the retriever and the model. It reads what came back and decides whether, and how, to search again. Switch the type to Agentic.',
+    predicate: s => s.type === 'agentic',
+    solution: s => { const canvas = { ...s.canvas, unlocked: unlockedFor('agentic') }; return { ...s, type: 'agentic', canvas, verdict: null }; },
+  },
+  {
+    id: 'agent-run', focus: 'run', visibleControls: ['maxCalls', 'run'], opensDrawer: 'answer',
+    narration: 'The agent sits in the side bay, wired to the retriever both ways. Max calls caps how many retrievals it may make. Keep it at 2 and run the same question.',
+    predicate: s => row(s, 'refund-enterprise', 'agentic')?.verdict === 'correct',
+    hint: 'The agent needs at least 2 calls to search again.',
+  },
+  {
+    id: 'cost', focus: 'cards', visibleControls: ['cards', 'types', 'run'], opensDrawer: 'answer',
+    narration: 'Correct in 2 calls: the first search found a chunk cut mid-sentence, so the agent fetched its neighbours and read the sentence whole. The answer panel shows its call log. Now run the hotel limit question under both types.',
+    predicate: s => !!row(s, 'stale-hotel-limit', 'naive') && !!row(s, 'stale-hotel-limit', 'agentic'),
+    hint: 'Pick the hotel card and run it, switch the type, then run it again.',
+  },
+  {
+    id: 'quiz', focus: 'quiz', visibleControls: ['quiz'],
+    narration: 'Both wrong, and the agent paid for a second search. The retired 2018 policy is the problem, and searching more never removes it: a metadata filter does. One question before the next type.',
+    predicate: s => s.quiz === QUIZ.correct,
+    hint: 'Compare the refund rows with the hotel rows in the strip.',
+  },
+];
+
+const label = (r: ResultRow) => ({ question: CARDS.find(c => c.q === r.q)?.short ?? Q(r.q).query, type: typeOf(r.type).label });
+
+export default function Types() {
+  // one run per card, in a fixed order (hook rules hold: CARDS is extended at module load, never during render)
+  const runs = Object.fromEntries(CARDS.map(c => [c.q, useRagRun(Q(c.q))])) as Record<string, ReturnType<typeof useRagRun>>;
+  const byQ = Object.fromEntries(CARDS.map(c => [c.q, ragPanels<S>(runs[c.q])])) as Record<string, Record<string, Panel<S>>>;
+  const panels = Object.fromEntries(Object.entries(byQ[CARDS[0].q]).map(([k, p]) => [k, { title: p.title, render: (s: S, apply: (n: S) => void) => byQ[s.q][k].render(s, apply) }]));
+  const i = CHAPTERS.findIndex(c => c.id === ID);
+  const next = CHAPTERS[i + 1];
+  const withCanvas = (s: S, canvas: CanvasState, more: Partial<S> = {}): S => ({ ...s, ...more, canvas, verdict: runs[more.q ?? s.q].verdictOf(canvas) });
+  return (
+    <StepRunner<S>
+      chapter={ID}
+      steps={STEPS}
+      initial={{ q: CARDS[0].q, type: 'naive', rows: [], canvas: initialCanvas(unlockedFor('naive'), KNOBS), verdict: null, math: false, probed: false, acks: 0, quiz: null }}
+      next={next && { href: chapterHref(next.id), title: next.short }}
+      stage={p => <div className="stage-col">
+        <RagStage {...p} run={runs[p.state.q]} />
+        <ResultStrip rows={p.state.rows} label={label} />
+      </div>}
+      controls={{
+        next: ({ state, apply }) => <button type="button" className="big" onClick={() => apply({ ...state, acks: state.acks + 1 })}>Compare types →</button>,
+        cards: ({ state, apply }) => (
+          <fieldset className="pick">
+            <legend>Question</legend>
+            {CARDS.map(c => (
+              <label key={c.q}>
+                <input type="radio" name="card" value={c.q} checked={state.q === c.q} onChange={() => apply(withCanvas(state, state.canvas, { q: c.q }))} /> {c.label}
+              </label>
+            ))}
+          </fieldset>
+        ),
+        types: ({ state, apply }) => (
+          <fieldset className="pick">
+            <legend>RAG type</legend>
+            {TYPES.map(t => (
+              <label key={t.id}>
+                <input type="radio" name="type" value={t.id} checked={state.type === t.id}
+                  onChange={() => apply(withCanvas(state, { ...state.canvas, unlocked: unlockedFor(t.id) }, { type: t.id }))} /> {t.label}
+              </label>
+            ))}
+          </fieldset>
+        ),
+        run: ({ state, apply }) => {
+          const o = runs[state.q].outcomeOf(state.canvas);
+          const add = () => {
+            if (!o?.answer) return;
+            const r: ResultRow = { q: state.q, type: state.type, verdict: o.answer.verdict, calls: o.calls?.length ?? (o.record ? 1 : 0), chunks: o.record?.context.length ?? 0 };
+            apply({ ...state, verdict: r.verdict, rows: [...state.rows.filter(x => x.q !== r.q || x.type !== r.type), r] });
+          };
+          return <button type="button" className="big" disabled={!o?.answer} onClick={add}>{o?.answer ? `Run as ${typeOf(state.type).label}` : 'Preparing…'}</button>;
+        },
+        maxCalls: ({ state, apply }) => <Knob name="maxCalls" state={state.canvas} question={Q(state.q)} onChange={canvas => apply(withCanvas(state, canvas))} />,
+        quiz: ({ state, apply }) => <Quiz {...QUIZ} value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} />,
+      }}
+      inspectPanel="answer"
+      panels={panels}
+    />
+  );
+}

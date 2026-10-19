@@ -68,3 +68,19 @@
 /* wide screens: the meters sit in the canvas's empty top-right corner, so they stay in view beside the track */
 @media (min-width: 1100px) { .meters { position: absolute; top: 0; right: 0; width: 380px; margin: 0; } }
 @media (max-width: 600px) { .meters { grid-template-columns: 1fr; } }
+
+.agent-log { margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--rule); width: 100%; }
+.agent-log ol { margin: 6px 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.result-strip { width: 100%; max-width: 760px; margin: 12px auto 0; border-collapse: collapse; font-size: 13px; background: var(--paper); border: 1.5px solid var(--rule); border-radius: 10px; }
+.result-strip th { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; text-align: left; }
+.result-strip th, .result-strip td { padding: 5px 8px; border-bottom: 1px solid var(--rule); }
+.result-strip tbody tr:last-child td { border-bottom: 0; }
+.result-strip .num { font-variant-numeric: tabular-nums; text-align: right; }
+.result-strip .stamp { font-size: 11px; }
+.pick { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.pick legend { font-weight: 700; margin-bottom: 4px; }
+.pick label { display: flex; gap: 8px; align-items: flex-start; padding: 6px 10px; border: 1.5px solid var(--rule); border-radius: 8px; cursor: pointer; }
+.pick label:has(input:checked) { border-color: var(--ink); background: var(--paper); }
+/* wide screens: the strip sits in the canvas's empty top-right corner, so the comparison stays in view */
+@media (min-width: 1100px) { .result-strip { position: absolute; top: 12px; right: 12px; width: auto; margin: 0; } .result-strip td { white-space: nowrap; } }
+@media (max-width: 600px) { .result-strip { font-size: 12px; } .result-strip th, .result-strip td { padding: 4px 6px; } }

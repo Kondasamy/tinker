@@ -4,7 +4,7 @@ const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 const pick = (page: Page, k: number) => card(page).getByRole('button', { name: `${k}K` });
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/rag/06-types/');
+  await page.goto('/rag/07-sandbox/');
   await page.locator('astro-island:not([ssr])').waitFor();   // hydrated
   await expect(card(page)).toContainText('Step 1 of 2');
 });
@@ -61,14 +61,15 @@ test('finishing marks the chapter done in the nav; progress survives reload', as
   await expect(card(page)).toContainText('RIGHT');
   await expect(card(page)).toContainText('Chapter complete');
 
-  await card(page).getByRole('link', { name: /Next:/ }).click();
-  await expect(page).toHaveURL(/07-sandbox/);
-  await expect(nav.locator('[data-chapter="06-types"]')).toHaveAttribute('data-mark', 'done');
-  await expect(nav.locator('[data-chapter="07-sandbox"]')).toHaveAttribute('aria-current', 'page');
-  await expect(nav.locator('[data-chapter="05-accuracy"]')).toHaveAttribute('data-mark', 'skipped');
+  // the last chapter has no next link
+  await expect(card(page).getByRole('link', { name: /Next:/ })).toHaveCount(0);
   await expect(page.locator('.stage figcaption')).toContainText('carried over: docs, retriever, llm, chunker');
+  await nav.locator('[data-chapter="06-types"]').click();
+  await expect(nav.locator('[data-chapter="06-types"]')).toHaveAttribute('aria-current', 'page');
+  await expect(nav.locator('[data-chapter="07-sandbox"]')).toHaveAttribute('data-mark', 'done');
+  await expect(nav.locator('[data-chapter="05-accuracy"]')).toHaveAttribute('data-mark', 'skipped');
 
-  await page.goto('/rag/06-types/');
+  await page.goto('/rag/07-sandbox/');
   await expect(card(page)).toContainText('Chapter complete');
 });
 

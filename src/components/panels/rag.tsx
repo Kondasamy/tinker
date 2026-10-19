@@ -7,6 +7,7 @@ import { createSession } from '../../lib/rag/engine';
 import type { Lookup } from '../../lib/rag/answers';
 import type { Panel, StageProps } from '../story/StepRunner';
 import AnswerCard from './AnswerCard';
+import AgentLog from './AgentLog';
 import EvidenceList from './EvidenceList';
 import ChunkStrip from './ChunkStrip';
 import ProjectionMap from './ProjectionMap';
@@ -18,13 +19,15 @@ export function useRagRun(question: CanvasQuestion) {
   const { index } = useRagIndex();
   const session = useMemo(() => index && createSession(index), [index]);
   const [out, setOut] = useState<Outcome | null>(null);
-  /** Verdict for a canvas state right now (null while its chunks are still loading), so one apply carries it. */
-  const verdictOf = (c: CanvasState) => {
+  /** Outcome for a canvas state right now, or null while the index or its chunks are still loading. */
+  const outcomeOf = (c: CanvasState) => {
     if (!index || !session) return null;
     const o = outcome(index, session, c, question);
-    return o.preparing ? null : o.answer?.verdict ?? null;
+    return o.preparing ? null : o;
   };
-  return { index, out, setOut, verdictOf, question };
+  /** Verdict for a canvas state right now (null while loading), so one apply carries it. */
+  const verdictOf = (c: CanvasState) => outcomeOf(c)?.answer?.verdict ?? null;
+  return { index, out, setOut, verdictOf, outcomeOf, question };
 }
 type RagRun = ReturnType<typeof useRagRun>;
 
@@ -54,7 +57,13 @@ export function RagStage<S extends RagState>({ state, apply, focus, inspect, run
 
 export function ragPanels<S extends RagState>(run: RagRun): Record<string, Panel<S>> {
   return {
-    answer: { title: 'The assistant’s answer', render: () => <AnswerCard out={run.out} /> },
+    answer: {
+      title: 'The assistant’s answer',
+      render: (s, apply) => <>
+        <AnswerCard out={run.out} />
+        {run.out?.calls && <AgentLog calls={run.out.calls} math={s.math} onMath={math => apply({ ...s, math })} />}
+      </>,
+    },
     evidence: {
       title: 'What reached the model',
       render: (s, apply) => <EvidenceList out={run.out} index={run.index} math={s.math} onMath={math => apply({ ...s, math })} />,

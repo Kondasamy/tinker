@@ -7,6 +7,7 @@ import type { createSession, Filter, Question, RunParams, RunRecord } from '../.
 import { resolveConfig, type ChunkParams, type Strategy, type ResolvedConfig } from '../../lib/rag/lattice';
 import { signature, NO_CONTEXT, type KeyFact } from '../../lib/rag/signature';
 import { lookup, type Lookup } from '../../lib/rag/answers';
+import { runAgent, type AgentCall } from '../../lib/rag/agent';
 import { trackLayout, type Edge, type Placed } from './track';
 import { benchFromTrack, cellXY, type Bench } from './bench';
 
@@ -27,7 +28,7 @@ export interface Knobs {
   order: 'ranked' | 'edges';
   /** index into question.rewrites; null = the learner's own wording */
   rewrite: number | null;
-  /** shortcut: stored and shown only; the agent rule table (U11) will read it */
+  /** agent's retrieval budget, 1–3 (read only when the agent is on the live path) */
   maxCalls: number;
 }
 export type KnobName = keyof Knobs;
@@ -115,6 +116,8 @@ export interface Outcome {
   preparing: boolean;
   signature: string | null;
   answer: Lookup | null;
+  /** the agent's call log when the agent is on the live path, else null */
+  calls: AgentCall[] | null;
 }
 
 export function outcome(index: RagIndex, session: ReturnType<typeof createSession>, s: CanvasState, q: CanvasQuestion): Outcome {
@@ -122,9 +125,11 @@ export function outcome(index: RagIndex, session: ReturnType<typeof createSessio
   const p = runParams(s, q, analysis);
   const config = resolveConfig(s.knobs);
   const chunks = index.get(config.file)?.N ?? null;
-  if (!p) return { analysis, config, chunks, record: null, preparing: false, signature: NO_CONTEXT, answer: lookup(q.id, NO_CONTEXT) };
+  if (!p) return { analysis, config, chunks, record: null, preparing: false, signature: NO_CONTEXT, answer: lookup(q.id, NO_CONTEXT), calls: null };
   const r = session(p);
-  const record = r.record?.questionId === q.id ? r.record : null;
+  const cfg = index.get(r.config.file);
+  const agent = analysis.agent && !r.preparing && cfg ? runAgent(index, cfg, { ...p, question: q }, s.knobs.maxCalls) : null;
+  const record = agent?.record ?? (r.record?.questionId === q.id ? r.record : null);
   const sig = record ? signature(index, q, record.context) : null;
-  return { analysis, config: r.config, chunks, record, preparing: r.preparing, signature: sig, answer: sig ? lookup(q.id, sig) : null };
+  return { analysis, config: r.config, chunks, record, preparing: r.preparing, signature: sig, answer: sig ? lookup(q.id, sig) : null, calls: agent?.calls ?? null };
 }

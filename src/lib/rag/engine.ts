@@ -141,16 +141,31 @@ export function run(index: RagIndex, cfg: Config, p: RunParams): RunRecord {
   }
 
   const scoreOf = new Map(filtered.ids.map((id, i) => [id, filtered.scores[i]]));
-  const context: ContextChunk[] = orderContext(finalIds, p.order ?? 'ranked', p.customOrder).map((id) => {
-    const d = docOf(id), s = ce(id);
-    return { id, doc: d.id, title: d.title, year: d.year, start: ranges[id * 3 + 1], end: ranges[id * 3 + 2], text: cfg.texts[id], score: scoreOf.get(id)!, rerankScore: p.rerank ? s : null, unscored: !!p.rerank && s === null };
-  });
+  const context = orderContext(finalIds, p.order ?? 'ranked', p.customOrder).map((id) => chunkOf(index, cfg, id, scoreOf.get(id)!, p.rerank ? ce(id) : undefined));
 
-  const gold = p.question.goldSentences.map((sentence) => {
+  return {
+    file: cfg.file, questionId: p.question.id, queryText, queryIndex, weight: w,
+    stages: { vector, bm25, hybrid, filtered, topK, rerank },
+    context,
+    unscored: context.filter((c) => c.unscored).map((c) => c.id),
+    recall: goldOf(index, cfg, p.question, finalIds, k),
+  };
+}
+
+/** One context entry. `rerankScore`: undefined = rerank off, null = on but this chunk has no cross-encoder score. */
+export function chunkOf(index: RagIndex, cfg: Config, id: number, score: number, rerankScore?: number | null): ContextChunk {
+  const d = index.corpus[cfg.ranges[id * 3]];
+  return { id, doc: d.id, title: d.title, year: d.year, start: cfg.ranges[id * 3 + 1], end: cfg.ranges[id * 3 + 2], text: cfg.texts[id], score, rerankScore: rerankScore ?? null, unscored: rerankScore === null };
+}
+
+/** Where each gold sentence landed among the given chunks: whole in one chunk, cut across chunks, or missing. */
+export function goldOf(index: RagIndex, cfg: Config, question: Question, ids: number[], k = ids.length): RunRecord['recall'] {
+  const { ranges } = cfg;
+  const gold = question.goldSentences.map((sentence) => {
     let status: GoldStatus = 'missing';
     const chunkIds: number[] = [];
     for (const [di, gs, ge] of locate(index, sentence))
-      for (const id of finalIds) {
+      for (const id of ids) {
         const [cd, s, e] = [ranges[id * 3], ranges[id * 3 + 1], ranges[id * 3 + 2]];
         if (cd !== di || e <= gs || s >= ge) continue;
         chunkIds.push(id);
@@ -159,14 +174,7 @@ export function run(index: RagIndex, cfg: Config, p: RunParams): RunRecord {
       }
     return { sentence, status, chunkIds: [...new Set(chunkIds)] };
   });
-
-  return {
-    file: cfg.file, questionId: p.question.id, queryText, queryIndex, weight: w,
-    stages: { vector, bm25, hybrid, filtered, topK, rerank },
-    context,
-    unscored: context.filter((c) => c.unscored).map((c) => c.id),
-    recall: { k, value: gold.length ? gold.filter((g) => g.status === 'intact').length / gold.length : 0, gold },
-  };
+  return { k, value: gold.length ? gold.filter((g) => g.status === 'intact').length / gold.length : 0, gold };
 }
 
 export interface SessionResult { record: RunRecord | null; config: ResolvedConfig; preparing: boolean }
