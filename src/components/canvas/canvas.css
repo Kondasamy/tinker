@@ -1,0 +1,46 @@
+/* Block canvas: the figure is the hero; the panel beside it stays quiet. */
+.canvas { display: grid; gap: 16px; width: 100%; align-items: start; }
+@media (min-width: 1000px) { .canvas.has-panel { grid-template-columns: minmax(0, 1fr) 280px; } }
+.canvas-stage { min-width: 0; }
+.canvas-stage svg { max-height: 68vh; touch-action: manipulation; user-select: none; }
+.canvas-stage svg.editable { touch-action: none; }
+
+.canvas svg .block { cursor: pointer; outline: none; }
+.canvas svg .block:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; filter: drop-shadow(0 0 4px var(--acc)); }
+.canvas svg.editable .block { cursor: grab; }
+.canvas svg .port { cursor: crosshair; }
+.canvas svg .wire-hit { cursor: pointer; pointer-events: stroke; outline: none; }
+.canvas svg .wire-hit:hover, .canvas svg .wire-hit:focus-visible { stroke: rgba(212, 69, 47, .45); }
+
+/* live wires glow; after a change a light pulse runs along them twice (iso-glow accent) */
+.canvas .glow { filter: drop-shadow(0 0 2px var(--acc)) drop-shadow(0 0 6px rgba(255, 182, 39, .6)); }
+.canvas .pulse { stroke-dasharray: 5 13; opacity: 0; }
+.canvas.run .pulse { opacity: 1; animation: wire-flow .9s linear 2; }
+@keyframes wire-flow { to { stroke-dashoffset: -36; } }
+.canvas .focus-ring { animation: ring 1.6s ease-in-out infinite; }
+@keyframes ring { 50% { stroke-opacity: .3; } }
+@media (prefers-reduced-motion: reduce) {
+  .canvas.run .pulse { animation: none; opacity: 0; }
+  .canvas .focus-ring { animation: none; }
+}
+
+.canvas-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; margin-top: 8px; }
+.canvas-hint { margin: 0; font-size: 13px; color: var(--muted); }
+.canvas-status { margin: 6px 0 0; min-height: 1.5em; font-size: 13px; font-weight: 700; color: var(--bad); }
+
+.canvas-panel { background: var(--card); border: 1.5px solid var(--ink); border-radius: 14px; padding: 16px; box-shadow: 3px 3px 0 var(--ink); display: flex; flex-direction: column; gap: 14px; font-size: 13px; }
+.canvas-panel h2 { margin: 0; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.canvas-panel .sw { width: 12px; height: 12px; border: 1.5px solid var(--ink); border-radius: 3px; }
+.canvas-panel .note { margin: 0; color: var(--muted); }
+.canvas-panel .chip { align-self: flex-start; }
+.bin { display: flex; flex-wrap: wrap; gap: 6px; border-top: 1.5px dashed var(--rule); padding-top: 12px; }
+.bin .lbl { width: 100%; }
+
+.knob { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.knob label, .knob .lbl { display: flex; justify-content: space-between; gap: 8px; font-weight: 700; }
+.knob output { font-weight: 400; }
+.knob input[type='range'] { width: 100%; accent-color: var(--ink); }
+.knob select { font: inherit; width: 100%; padding: 6px 8px; color: var(--ink); background: var(--paper); border: 1.5px solid var(--ink); border-radius: 8px; }
+.knob .row { display: flex; gap: 6px; flex-wrap: wrap; }
+.knob label.check { justify-content: flex-start; align-items: center; font-weight: 400; }
+.lbl { font-weight: 700; }

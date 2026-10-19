@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useId, type ReactNode, type Ref, type SVGProps } from 'react';
 import { P0, INK_REF_VB, withFrame, board, boardTop, filterFor, inkScale } from './core.js';
 import { BH } from './blocks';
 
@@ -17,15 +17,19 @@ export function frameFor([x0, y0, x1, y1]: Board): Frame {
   return { ox: PAD - minx, oy: PAD - miny, w, h, inkK: w / INK_REF_VB };
 }
 
-interface Props {
+interface Props extends Omit<SVGProps<SVGSVGElement>, 'role' | 'ref' | 'children'> {
   board: Board;
   scene: string | ((ctx: SceneCtx) => string);
   label: string;
   light?: number;
-  className?: string;
+  /** "img" for still figures; an interactive canvas passes "group" so its blocks stay reachable by screen readers */
+  role?: 'img' | 'group';
+  svgRef?: Ref<SVGSVGElement>;
+  /** drawn after the art, outside the wobble filter (e.g. a wire being dragged) */
+  children?: ReactNode;
 }
 
-export default function IsoStage({ board: b, scene, label, light = 105, className }: Props) {
+export default function IsoStage({ board: b, scene, label, light = 105, role = 'img', svgRef, children, ...rest }: Props) {
   const prefix = 'iso' + useId().replace(/[^\w-]/g, '') + '-';
   const fr = frameFor(b);
   const art = withFrame({ ...fr, light, prefix }, () => {
@@ -33,10 +37,11 @@ export default function IsoStage({ board: b, scene, label, light = 105, classNam
     return inkScale(board(...b, BH, 8) + (typeof scene === 'function' ? scene({ top }) : scene));
   });
   return (
-    <svg className={className} viewBox={`0 0 ${fr.w.toFixed(1)} ${fr.h.toFixed(1)}`} role="img" aria-label={label}
-      style={{ width: '100%', height: 'auto', display: 'block', overflow: 'visible' }}>
+    <svg {...rest} ref={svgRef} viewBox={`0 0 ${fr.w.toFixed(1)} ${fr.h.toFixed(1)}`} role={role} aria-label={label}
+      style={{ width: '100%', height: 'auto', display: 'block', overflow: 'visible', ...rest.style }}>
       <defs dangerouslySetInnerHTML={{ __html: filterFor(fr.inkK, prefix + 'hand') }} />
       <g filter={`url(#${prefix}hand)`} dangerouslySetInnerHTML={{ __html: art }} />
+      {children}
     </svg>
   );
 }
