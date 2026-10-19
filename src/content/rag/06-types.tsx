@@ -3,50 +3,75 @@
 // question and type, so the types sit side by side on the same corpus and the same knobs.
 // Later type units extend this chapter: push to TYPES (a type = the blocks it adds), CARDS and STEPS.
 // GraphRAG (U12) adds the graph side bay, a hops knob and the multi-hop Kestrel card; its walk is drawn under the canvas.
+// Self-correcting (U13) is a setting on the Evaluator (grade, retry with a rewrite, or say "I don't know");
+// Multimodal (U13) is the Docs block's parsers for tables, PDFs and images, with its own three cards.
+// The canvas stays the hero: the stage shows only the latest runs, the full comparison lives in the Compare tab.
 import StepRunner, { type Panel } from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
-import { Knob } from '../../components/canvas/Knobs';
+import KnobList, { Knob } from '../../components/canvas/Knobs';
 import { DEFAULT_KNOBS, initialCanvas, unlockedThrough, type CanvasQuestion, type CanvasState, type Knobs } from '../../components/canvas/state';
 import type { BlockType } from '../../lib/iso/blocks';
 import { RagStage, ragPanels, useRagRun, type RagState } from '../../components/panels/rag';
 import ResultStrip, { type ResultRow } from '../../components/panels/ResultStrip';
 import IsoStage from '../../lib/iso/IsoStage';
-import { graphLayout, graphScene, graphSummary, HOP_COLOURS } from '../../components/canvas/graphView';
+import { graphLayout, graphScene, graphSummary, pathOf, HOP_COLOURS } from '../../components/canvas/graphView';
 import type { Traversal } from '../../lib/rag/graph';
 import { CHAPTERS, chapterHref } from '../../lib/chapters';
 import ch3 from '../../../data/questions/ch3.json';
 import ch4 from '../../../data/questions/ch4.json';
 import ch5 from '../../../data/questions/ch5.json';
 import ch6 from '../../../data/questions/ch6.json';
+import orgChart from '../../../data/corpus/assets/org-chart-2025.svg?url';
+import { GRADE_BAR } from '../../lib/rag/selfcheck';
 
 const ID = '06-types';
 const QS = [...ch3, ...ch4, ...ch5, ...ch6] as CanvasQuestion[];
 const Q = (id: string) => QS.find(q => q.id === id)!;
 
 /** RAG types the learner can run; each is the blocks it attaches to the chapter-5 track. */
-export const TYPES: { id: string; label: string; blocks: BlockType[] }[] = [
+/** RAG types the learner can run; each is the blocks it attaches to the chapter-5 track, plus the knobs it sets. */
+export const TYPES: { id: string; label: string; blocks: BlockType[]; knobs?: Partial<Knobs> }[] = [
   { id: 'naive', label: 'Naive / advanced', blocks: [] },
   { id: 'agentic', label: 'Agentic', blocks: ['agent'] },
   { id: 'graph', label: 'GraphRAG', blocks: ['graph'] },
+  { id: 'selfcheck', label: 'Self-correcting', blocks: [], knobs: { grade: true } },
+  // sentence chunks keep a table row or a PDF paragraph whole; the parsers start off and the learner turns them on
+  { id: 'multimodal', label: 'Multimodal', blocks: [], knobs: { strategy: 'sentence', size: 32 } },
 ];
-/** Question cards for the comparison. */
-export const CARDS: { q: string; label: string; short: string }[] = [
+/** Question cards for the comparison; `mm` cards answer from a table, PDF or image and show under Multimodal only. */
+export const CARDS: { q: string; label: string; short: string; mm?: boolean }[] = [
   { q: 'refund-enterprise', label: 'Can enterprise customers get a refund?', short: 'Enterprise refund' },
   { q: 'stale-hotel-limit', label: 'What is the hotel limit per night?', short: 'Hotel limit' },
   { q: 'standard-refund-window', label: 'How long do standard customers have to ask for a refund?', short: 'Refund window' },
   { q: 'kestrel-purchase-approver', label: 'Who approves purchases for the team that owns the Kestrel K2 scanner integration?', short: 'Kestrel approver' },
+  { q: 'card-data-retention', label: 'How long does Larkspur keep customer payment card data?', short: 'Card data' },
+  { q: 'k2-volume-price', label: 'How much is a Kestrel K2 scanner per unit at 50 or more? (price table)', short: 'K2 price', mm: true },
+  { q: 'dock-sensor-warranty', label: 'How long is the dock door sensor warranty? (vendor PDF)', short: 'Sensor warranty', mm: true },
+  { q: 'customer-success-lead', label: 'Who leads the Customer Success team? (org chart image)', short: 'Customer Success lead', mm: true },
 ];
-/** One setting for every run, so a difference in the strip comes from the type alone: a single 16-word chunk. */
-export const KNOBS: Knobs = { ...DEFAULT_KNOBS, strategy: 'fixed', size: 16, overlap: 0, topK: 1 };
+/**
+ * One setting for every run, so a difference in the strip comes from the type alone: a single 16-word chunk.
+ * The Docs block reads plain text only until the Multimodal type: tables, PDFs and images are invisible.
+ */
+export const KNOBS: Knobs = { ...DEFAULT_KNOBS, strategy: 'fixed', size: 16, overlap: 0, topK: 1, grade: false, tables: false, pdfs: false, images: false };
 
 const BASE = unlockedThrough('05-accuracy');
 const typeOf = (id: string) => TYPES.find(t => t.id === id)!;
 const unlockedFor = (type: string) => [...BASE, ...typeOf(type).blocks];
+const TYPE_KNOBS = ['strategy', 'size', 'overlap', 'topK', 'grade', 'tables', 'pdfs', 'images'] as const;
+const cardsFor = (type: string) => CARDS.filter(c => !!c.mm === (type === 'multimodal'));
 
 export interface S extends RagState { q: string; type: string; rows: ResultRow[]; acks: number; quiz: number | null; gquiz: number | null }
 
 const row = (s: S, q: string, type: string) => s.rows.find(r => r.q === q && r.type === type);
+
+/** Switch type: attach its blocks, reset the per-type knobs to the chapter setting plus its own, keep the card if it shows there. */
+function switchType(s: S, type: string): S {
+  const knobs = { ...s.canvas.knobs, ...Object.fromEntries(TYPE_KNOBS.map(k => [k, KNOBS[k]])), ...typeOf(type).knobs };
+  const cards = cardsFor(type);
+  return { ...s, type, q: cards.some(c => c.q === s.q) ? s.q : cards[0].q, canvas: { ...s.canvas, unlocked: unlockedFor(type), knobs }, verdict: null };
+}
 
 const QUIZ = {
   question: 'When is an agent worth its extra retrieval calls?',
@@ -60,6 +85,8 @@ const QUIZ = {
 };
 
 const MULTI = 'kestrel-purchase-approver';
+const SC = 'card-data-retention', PRICE = 'k2-volume-price', PDF = 'dock-sensor-warranty', IMG = 'customer-success-lead';
+const ORG = 'org-chart-2025';
 const GRAPH_QUIZ = {
   question: 'Which question is GraphRAG built for?',
   options: [
@@ -86,7 +113,7 @@ export const STEPS: Step<S>[] = [
     id: 'attach', focus: 'types', visibleControls: ['types'], opensDrawer: 'answer',
     narration: 'Wrong: the one chunk stopped right after “does NOT”, so the model never read the exception. A single search cannot notice that. Agentic RAG puts an agent between the retriever and the model. It reads what came back and decides whether, and how, to search again. Switch the type to Agentic.',
     predicate: s => s.type === 'agentic',
-    solution: s => { const canvas = { ...s.canvas, unlocked: unlockedFor('agentic') }; return { ...s, type: 'agentic', canvas, verdict: null }; },
+    solution: s => switchType(s, 'agentic'),
   },
   {
     id: 'agent-run', focus: 'run', visibleControls: ['maxCalls', 'run'], opensDrawer: 'answer',
@@ -116,7 +143,7 @@ export const STEPS: Step<S>[] = [
     id: 'attach-graph', focus: 'types', visibleControls: ['types'], opensDrawer: 'answer',
     narration: 'Not found either way. A search matches the words of one question, and no single sentence links the scanner to the approver. The agent’s extra searches reached the approver sentence, but never the one naming the team that owns the scanner. GraphRAG works from a map of things and how they relate, drawn from the documents ahead of time. Switch the type to GraphRAG.',
     predicate: s => s.type === 'graph',
-    solution: s => { const canvas = { ...s.canvas, unlocked: unlockedFor('graph') }; return { ...s, type: 'graph', canvas, verdict: null }; },
+    solution: s => switchType(s, 'graph'),
   },
   {
     id: 'graph-one', focus: 'run', visibleControls: ['run'], opensDrawer: 'answer',
@@ -135,17 +162,58 @@ export const STEPS: Step<S>[] = [
     predicate: s => s.gquiz === GRAPH_QUIZ.correct,
     hint: 'Compare the Kestrel rows in the strip.',
   },
+  {
+    id: 'sc-run', focus: 'run', visibleControls: ['run'],
+    setup: s => ({ ...switchType(s, 'naive'), q: SC }),
+    narration: 'Next, a trap. The question: how long does Larkspur keep customer payment card data? A meeting note about fake demo cards uses almost the same words. Run it as naive RAG.',
+    predicate: s => !!row(s, SC, 'naive'),
+  },
+  {
+    id: 'sc-attach', focus: 'types', visibleControls: ['types'], opensDrawer: 'answer',
+    narration: 'Wrong, and sure of itself: the one chunk was the note about demo card samples, not the security policy. Self-correcting RAG checks retrieval before the model answers. The Evaluator at the end of the track grades what came back. If it is weak, the pipeline searches again with a rewritten question; if nothing passes, it says “I don’t know” instead of guessing. Switch the type to Self-correcting.',
+    predicate: s => s.type === 'selfcheck',
+    solution: s => switchType(s, 'selfcheck'),
+  },
+  {
+    id: 'sc-grade', focus: 'run', visibleControls: ['run'], opensDrawer: 'answer',
+    narration: `The Evaluator scores each search with a cross-encoder, a model that reads the question and the chunk together. A best chunk scoring ${GRADE_BAR} or more passes. Run the card data question again.`,
+    predicate: s => { const r = row(s, SC, 'selfcheck'); return !!r && r.verdict !== 'wrong'; },
+  },
+  {
+    id: 'mm-attach', focus: 'types', visibleControls: ['types'], opensDrawer: 'answer',
+    narration: 'The look-alike note scored below the bar, so the Evaluator threw it away and searched a rewrite. That scored low too, so the assistant said “I don’t know”. An honest gap beats a confident wrong answer, and the call log shows both tries. No grade helps when the answer sits in a file the pipeline cannot read, though: a price table, a scanned PDF, an image. Switch the type to Multimodal.',
+    predicate: s => s.type === 'multimodal',
+    solution: s => switchType(s, 'multimodal'),
+  },
+  {
+    id: 'mm-run', focus: 'run', visibleControls: ['run'], opensDrawer: 'answer',
+    narration: 'A plain-text reader skips anything that is not text, so the Docs block’s three parsers start off. Multimodal pipelines also cut by sentence, so a table row stays whole. Run the price question: how much is a Kestrel K2 scanner at 50 or more units?',
+    predicate: s => !!row(s, PRICE, 'multimodal'),
+  },
+  {
+    id: 'mm-tables', focus: 'parse', visibleControls: ['parse', 'run'], opensDrawer: 'answer',
+    narration: 'Not found. The price list is a table, and with table parsing off retrieval never sees it. Turn on “Parse tables to text” and run again.',
+    predicate: s => row(s, PRICE, 'multimodal')?.verdict === 'correct',
+    hint: 'Tick “Parse tables to text”, then run.',
+  },
+  {
+    id: 'mm-more', focus: 'cards', visibleControls: ['cards', 'parse', 'run'], opensDrawer: 'answer',
+    narration: 'Correct: $410, read from the table’s K2 row. Two more. The dock sensor warranty is only in a vendor PDF, and the Customer Success lead is only in the org chart image. Turn on the parser each one needs and run both.',
+    predicate: s => row(s, PDF, 'multimodal')?.verdict === 'correct' && row(s, IMG, 'multimodal')?.verdict === 'correct',
+    hint: 'PDF parsing for the warranty card, image captions for the Customer Success card.',
+  },
 ];
 
 /** The graph walk under the canvas: entities in columns by hop, walked relations lit per hop. */
-function GraphWalk({ trace }: { trace: Traversal | null }) {
+function GraphWalk({ trace, question }: { trace: Traversal | null; question: CanvasQuestion }) {
   if (!trace) return null;
   const summary = graphSummary(trace);
   if (!trace.seeds.length) return <p className="graph-walk note">{summary}</p>;
   const layout = graphLayout(trace);
   return (
     <figure className="graph-walk">
-      <IsoStage board={layout.board} scene={() => graphScene(trace, layout)} label={summary} />
+      {/* focusable so keyboard users can reveal every peg's name (CSS shows all labels on focus) */}
+      <IsoStage board={layout.board} scene={() => graphScene(trace, layout, pathOf(trace, question.goldSentences))} label={summary} tabIndex={0} />
       <figcaption className="legend">
         {trace.hops.map((h, i) => <span key={h.hop}><i style={{ background: HOP_COLOURS[i] }} /> hop {h.hop}</span>)}
         {layout.ghost.size > 0 && <span><i className="ghost" /> one more hop</span>}
@@ -160,10 +228,23 @@ export default function Types() {
   // one run per card, in a fixed order (hook rules hold: CARDS is extended at module load, never during render)
   const runs = Object.fromEntries(CARDS.map(c => [c.q, useRagRun(Q(c.q))])) as Record<string, ReturnType<typeof useRagRun>>;
   const byQ = Object.fromEntries(CARDS.map(c => [c.q, ragPanels<S>(runs[c.q])])) as Record<string, Record<string, Panel<S>>>;
-  const panels = Object.fromEntries(Object.entries(byQ[CARDS[0].q]).map(([k, p]) => [k, { title: p.title, render: (s: S, apply: (n: S) => void) => byQ[s.q][k].render(s, apply) }]));
+  const panels: Record<string, Panel<S>> = Object.fromEntries(Object.entries(byQ[CARDS[0].q]).map(([k, p]) => [k, { title: p.title, render: (s: S, apply: (n: S) => void) => byQ[s.q][k].render(s, apply) }]));
+  const answer = panels.answer.render;
+  // the image behind a retrieved caption sits with the answer it fed
+  panels.answer = { ...panels.answer, render: (s, apply) => <>
+    {answer(s, apply)}
+    {runs[s.q].out?.record?.context.some(c => c.doc === ORG) && (
+      <figure className="mm-asset">
+        <img src={orgChart} width={760} height={340} alt="Larkspur Supply Co. organization chart, January 2025: the CEO, four leaders under her, and the teams under each leader." />
+        <figcaption>The org chart image. Its caption is the text that was retrieved.</figcaption>
+      </figure>
+    )}
+  </> };
+  panels.compare = { title: 'Every run, side by side', render: s => s.rows.length ? <ResultStrip rows={s.rows} label={label} /> : <p className="note">Run a question to start the comparison.</p> };
   const i = CHAPTERS.findIndex(c => c.id === ID);
   const next = CHAPTERS[i + 1];
   const withCanvas = (s: S, canvas: CanvasState, more: Partial<S> = {}): S => ({ ...s, ...more, canvas, verdict: runs[more.q ?? s.q].verdictOf(canvas) });
+  const withType = (s: S, type: string) => { const n = switchType(s, type); return { ...n, verdict: runs[n.q].verdictOf(n.canvas) }; };
   return (
     <StepRunner<S>
       chapter={ID}
@@ -171,16 +252,16 @@ export default function Types() {
       initial={{ q: CARDS[0].q, type: 'naive', rows: [], canvas: initialCanvas(unlockedFor('naive'), KNOBS), verdict: null, math: false, probed: false, acks: 0, quiz: null, gquiz: null }}
       next={next && { href: chapterHref(next.id), title: next.short }}
       stage={p => <div className="stage-col">
-        <RagStage {...p} run={runs[p.state.q]} />
-        {p.state.type === 'graph' && <GraphWalk trace={runs[p.state.q].out?.graph ?? null} />}
-        <ResultStrip rows={p.state.rows} label={label} />
+        <RagStage {...p} run={runs[p.state.q]} extraTabs={[['compare', 'Compare']]} />
+        {p.state.type === 'graph' && <GraphWalk trace={runs[p.state.q].out?.graph ?? null} question={Q(p.state.q)} />}
+        <ResultStrip rows={p.state.rows} label={label} latest={3} onAll={() => p.inspect('compare')} />
       </div>}
       controls={{
         next: ({ state, apply }) => <button type="button" className="big" onClick={() => apply({ ...state, acks: state.acks + 1 })}>Compare types →</button>,
         cards: ({ state, apply }) => (
           <fieldset className="pick">
             <legend>Question</legend>
-            {CARDS.map(c => (
+            {cardsFor(state.type).map(c => (
               <label key={c.q}>
                 <input type="radio" name="card" value={c.q} checked={state.q === c.q} onChange={() => apply(withCanvas(state, state.canvas, { q: c.q }))} /> {c.label}
               </label>
@@ -193,7 +274,7 @@ export default function Types() {
             {TYPES.map(t => (
               <label key={t.id}>
                 <input type="radio" name="type" value={t.id} checked={state.type === t.id}
-                  onChange={() => apply(withCanvas(state, { ...state.canvas, unlocked: unlockedFor(t.id) }, { type: t.id }))} /> {t.label}
+                  onChange={() => apply(withType(state, t.id))} /> {t.label}
               </label>
             ))}
           </fieldset>
@@ -209,6 +290,7 @@ export default function Types() {
         },
         maxCalls: ({ state, apply }) => <Knob name="maxCalls" state={state.canvas} question={Q(state.q)} onChange={canvas => apply(withCanvas(state, canvas))} />,
         hops: ({ state, apply }) => <Knob name="hops" state={state.canvas} question={Q(state.q)} onChange={canvas => apply(withCanvas(state, canvas))} />,
+        parse: ({ state, apply }) => <KnobList names={['tables', 'pdfs', 'images']} state={state.canvas} question={Q(state.q)} onChange={canvas => apply(withCanvas(state, canvas))} />,
         quiz: ({ state, apply }) => <Quiz {...QUIZ} value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} />,
         gquiz: ({ state, apply }) => <Quiz {...GRAPH_QUIZ} value={state.gquiz} onAnswer={(_, q) => apply({ ...state, gquiz: q })} />,
       }}

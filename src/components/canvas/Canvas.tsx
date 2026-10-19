@@ -298,7 +298,8 @@ export default function Canvas({ state: s, onChange, question, focus, panel = tr
           {sel ? <>
             <h2><span className="sw" style={{ background: BLOCKS[sel].pal.l }} />{name(sel)}</h2>
             {!analysis.used.includes(sel) && analysis.wired && <p className="note">Not on a live wire, so its settings have no effect.</p>}
-            {BLOCK_KNOBS[sel] ? <Knobs names={BLOCK_KNOBS[sel]!} state={s} onChange={onChange} question={question} /> : <p className="note">{NOTES[sel]}</p>}
+            {NOTES[sel] && <p className="note">{NOTES[sel]}</p>}
+            {BLOCK_KNOBS[sel] && <Knobs names={BLOCK_KNOBS[sel]!} state={s} onChange={onChange} question={question} />}
             {editable && <>
               <div className="knob">
                 <label htmlFor={connectId}>Connect to…</label>

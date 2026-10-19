@@ -19,6 +19,8 @@ export interface AgentCall {
   topScore: number | null;
   /** the answer the context gives after this call */
   verdict: Lookup['verdict'];
+  /** self-check only (selfcheck.ts): the evaluator's grade of this call's context */
+  grade?: { score: number | null; pass: boolean };
 }
 export type AgentStop = 'answered' | 'max-calls' | 'nothing-left';
 export interface AgentRun { record: RunRecord; calls: AgentCall[]; stop: AgentStop }

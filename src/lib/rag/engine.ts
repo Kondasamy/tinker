@@ -19,6 +19,8 @@ export interface RunParams {
   /** 0 = pure vector, 1 = pure BM25 */
   hybrid?: number;
   filter?: Filter | null;
+  /** doc types the docs block cannot read (table, pdf, image parsers off): invisible to retrieval */
+  hidden?: string[];
   rerank?: boolean;
   order?: ContextOrder;
   /** chunk ids for order 'custom'; ids not in the result are ignored, missing ones follow in ranked order */
@@ -90,7 +92,7 @@ export function orderContext(ids: number[], order: ContextOrder, custom: number[
 }
 
 export function run(index: RagIndex, cfg: Config, p: RunParams): RunRecord {
-  const { N, D, Q, ranges, vectors, norms } = cfg;
+  const { N, D, ranges, vectors, norms } = cfg;
   const queryText = p.rewrite === undefined ? p.question.query : p.question.rewrites[p.rewrite];
   if (queryText === undefined) throw new Error(`question ${p.question.id} has no rewrite ${p.rewrite}`);
   const queryIndex = index.manifest.queries.items.findIndex((q) => q.questionId === p.question.id && q.text === queryText);
@@ -123,13 +125,14 @@ export function run(index: RagIndex, cfg: Config, p: RunParams): RunRecord {
   const hybrid = w > 0 ? rank(blended) : vector;
 
   const docOf = (c: number) => index.corpus[ranges[c * 3]];
-  const filter = p.filter;
-  const filtered = filter && Object.keys(filter).length
-    ? (() => { const keep = hybrid.ids.map((id, i) => [id, hybrid.scores[i]] as const).filter(([id]) => matches(docOf(id), filter)); return { ids: keep.map((x) => x[0]), scores: keep.map((x) => x[1]) }; })()
+  const filter = p.filter && Object.keys(p.filter).length ? p.filter : null;
+  const hidden = p.hidden?.length ? p.hidden : null;
+  const filtered = filter || hidden
+    ? (() => { const keep = hybrid.ids.map((id, i) => [id, hybrid.scores[i]] as const).filter(([id]) => !hidden?.includes(docOf(id).type) && (!filter || matches(docOf(id), filter))); return { ids: keep.map((x) => x[0]), scores: keep.map((x) => x[1]) }; })()
     : hybrid;
   const topK = { ids: filtered.ids.slice(0, k), scores: filtered.scores.slice(0, k) };
 
-  const ce = (c: number) => { const s = cfg.scores[c * Q + queryIndex]; return s === UNSCORED ? null : s * index.manifest.quantization.scores.scale; };
+  const ce = (c: number) => crossScore(index, cfg, c, queryIndex);
   let rerank: Ranked | null = null;
   let finalIds = topK.ids;
   if (p.rerank) {
@@ -150,6 +153,12 @@ export function run(index: RagIndex, cfg: Config, p: RunParams): RunRecord {
     unscored: context.filter((c) => c.unscored).map((c) => c.id),
     recall: goldOf(index, cfg, p.question, finalIds, k),
   };
+}
+
+/** Precomputed cross-encoder score of chunk `id` against query `queryIndex`, or null when unscored. */
+export function crossScore(index: RagIndex, cfg: Config, id: number, queryIndex: number) {
+  const s = cfg.scores[id * cfg.Q + queryIndex];
+  return s === UNSCORED ? null : s * index.manifest.quantization.scores.scale;
 }
 
 /** One context entry. `rerankScore`: undefined = rerank off, null = on but this chunk has no cross-encoder score. */

@@ -29,6 +29,7 @@ const STORY: Record<string, { naive: string; agentic: string; calls: number }> =
   'stale-hotel-limit': { naive: 'wrong', agentic: 'wrong', calls: 2 },     // the cost: a rewrite search, no benefit
   'standard-refund-window': { naive: 'correct', agentic: 'correct', calls: 1 },
   'kestrel-purchase-approver': { naive: 'notfound', agentic: 'notfound', calls: 2 },   // multi-hop: GraphRAG's card (graph.test.ts)
+  'card-data-retention': { naive: 'wrong', agentic: 'wrong', calls: 2 },   // look-alike trap: more searching keeps it; the self-correcting card (selfcheck.test.ts)
 };
 
 describe('agent rule table', () => {
@@ -68,8 +69,10 @@ describe('agent rule table', () => {
   });
 
   it('chapter 6 cards: the win and the wasted calls hold on the real index', async () => {
-    expect(CARDS.map((c) => c.q)).toEqual(Object.keys(STORY));
-    for (const { q } of CARDS) {
+    // multimodal cards show under the Multimodal type only (selfcheck.test.ts)
+    expect(CARDS.filter((c) => !c.mm).map((c) => c.q)).toEqual(Object.keys(STORY));
+    expect(CARDS.filter((c) => c.mm).map((c) => c.q)).toEqual(['k2-volume-price', 'dock-sensor-warranty', 'customer-success-lead']);
+    for (const { q } of CARDS.filter((c) => !c.mm)) {
       const naive = await at(q, KNOBS, NAIVE), agent = await at(q, KNOBS);
       expect(naive.answer!.verdict, q).toBe(STORY[q].naive);
       expect(agent.answer!.verdict, q).toBe(STORY[q].agentic);

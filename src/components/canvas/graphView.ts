@@ -41,8 +41,21 @@ export function graphLayout(t: Traversal) {
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
-/** SVG scene for an IsoStage over graphLayout(t).board. */
-export function graphScene(t: Traversal, layout = graphLayout(t)) {
+/** The answer path: the seeds plus both ends of every walked relation whose source sentence is evidence for the question. */
+export function pathOf(t: Traversal, evidence: string[]) {
+  const path = new Set(t.seeds);
+  for (const h of t.hops) for (const i of h.edges) {
+    const r = GRAPH.relations[i];
+    if (evidence.includes(r.sourceSentence)) { path.add(r.from); path.add(r.to); }
+  }
+  return path;
+}
+
+/**
+ * SVG scene for an IsoStage over graphLayout(t).board. Only `path` entities carry a standing label; every other
+ * peg shows its name on hover (and all names show while the figure has focus), so the labels never crowd.
+ */
+export function graphScene(t: Traversal, layout = graphLayout(t), path: Set<string> = new Set(t.seeds)) {
   const { at, ghost, ghostEdges } = layout;
   const Z = BH + .3;
   let floor = '';
@@ -58,9 +71,8 @@ export function graphScene(t: Traversal, layout = graphLayout(t)) {
   const pegs = [...at].map(([id, [x, y]]) => {
     const e = entity(id), dim = ghost.has(id), seed = t.seeds.includes(id), h = seed ? 14 : dim ? 4 : 8;
     const top = P(x, y, BH + h + 4);
-    // the unwalked ring stays unlabelled: it is context, not part of the walk
-    const label = dim ? '' : `<text x="${top[0].toFixed(1)}" y="${top[1].toFixed(1)}" font-size="${seed ? 12 : 10.5}" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-weight="${seed ? 800 : 650}" fill="${INK}" paint-order="stroke" stroke="#f7f1e3" stroke-width="3" stroke-linejoin="round">${esc(e.name)}</text>`;
-    return { at: [x, y, 0], svg: cyl(x, y, BH, BH + h, seed ? 7 : 5.5, dim ? CERAMIC : TYPE_PAL[e.type], toneI, dim ? .7 : 1.1, 18) + label };
+    const label = `<text class="peg-label${path.has(id) ? ' on-path' : ''}" x="${top[0].toFixed(1)}" y="${top[1].toFixed(1)}" font-size="${seed ? 12 : 10.5}" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-weight="${seed ? 800 : 650}" fill="${INK}" paint-order="stroke" stroke="#f7f1e3" stroke-width="3" stroke-linejoin="round">${esc(e.name)}</text>`;
+    return { at: [x, y, 0], svg: `<g class="peg"><title>${esc(e.name)}</title>${cyl(x, y, BH, BH + h, seed ? 7 : 5.5, dim ? CERAMIC : TYPE_PAL[e.type], toneI, dim ? .7 : 1.1, 18)}${label}</g>` };
   });
   return floor + byDepth(pegs);
 }

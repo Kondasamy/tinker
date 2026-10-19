@@ -43,10 +43,10 @@ export interface GraphRun { record: RunRecord; calls: AgentCall[]; trace: Traver
 type GraphQuestion = RunParams['question'] & { keyFacts: KeyFact[] };
 
 /** Chunk ids of this config that overlap the sentence's occurrence in its source doc. */
-function chunksFor(index: RagIndex, cfg: Config, r: Relation) {
+function chunksFor(index: RagIndex, cfg: Config, r: Relation, hidden: string[]) {
   const ids: number[] = [];
   for (const [di, gs, ge] of locate(index, r.sourceSentence)) {
-    if (index.corpus[di].id !== r.sourceDoc) continue;
+    if (index.corpus[di].id !== r.sourceDoc || hidden.includes(index.corpus[di].type)) continue;
     for (let id = 0; id < cfg.N; id++) if (cfg.ranges[id * 3] === di && cfg.ranges[id * 3 + 1] < ge && cfg.ranges[id * 3 + 2] > gs) ids.push(id);
   }
   return ids;
@@ -59,7 +59,7 @@ export function runGraph(index: RagIndex, cfg: Config, p: RunParams & { question
   const trace = traverse(seedsOf(base.queryText), hops);
   const context: ContextChunk[] = [], have = new Set<number>();
   const calls: AgentCall[] = trace.hops.map((h) => {
-    const fresh = h.edges.flatMap((i) => chunksFor(index, cfg, GRAPH.relations[i])).filter((id) => !have.has(id) && have.add(id));
+    const fresh = h.edges.flatMap((i) => chunksFor(index, cfg, GRAPH.relations[i], p.hidden ?? [])).filter((id) => !have.has(id) && have.add(id));
     const added = fresh.map((id) => chunkOf(index, cfg, id, scoreOf.get(id) ?? 0));
     context.push(...added);
     const walked = h.edges.map((i) => { const r = GRAPH.relations[i]; return `${entity(r.from).name} → ${r.label} → ${entity(r.to).name}`; });

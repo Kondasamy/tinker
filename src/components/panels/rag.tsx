@@ -33,7 +33,8 @@ type RagRun = ReturnType<typeof useRagRun>;
 
 const TABS = [['answer', 'Answer'], ['evidence', 'Evidence'], ['chunks', 'Chunks'], ['map', 'Map']] as const;
 
-export function RagStage<S extends RagState>({ state, apply, focus, inspect, run }: StageProps<S> & { run: RagRun }) {
+/** `extraTabs`: chapter-specific drawer panels to offer beside the standard ones (e.g. chapter 6's Compare). */
+export function RagStage<S extends RagState>({ state, apply, focus, inspect, run, extraTabs = [] }: StageProps<S> & { run: RagRun; extraTabs?: [string, string][] }) {
   const u = state.canvas.unlocked;
   const shown = TABS.filter(([id]) => id === 'answer' || (id === 'evidence' ? u.includes('retriever') : id === 'chunks' ? u.includes('chunker') : u.includes('embedder')));
   return (
@@ -48,7 +49,7 @@ export function RagStage<S extends RagState>({ state, apply, focus, inspect, run
       <figcaption>
         <p className="announce" aria-live="polite" aria-atomic="true" data-testid="announce">{summary(run.out)}</p>
         <span className="inspect-row" role="group" aria-label="Inspect">
-          {shown.map(([id, label]) => <button key={id} type="button" className="chip" onClick={() => inspect(id)}>{label}</button>)}
+          {[...shown, ...extraTabs].map(([id, label]) => <button key={id} type="button" className="chip" onClick={() => inspect(id)}>{label}</button>)}
         </span>
       </figcaption>
     </figure>

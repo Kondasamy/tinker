@@ -9,6 +9,7 @@ import { signature, NO_CONTEXT, type KeyFact } from '../../lib/rag/signature';
 import { lookup, type Lookup } from '../../lib/rag/answers';
 import { runAgent, type AgentCall } from '../../lib/rag/agent';
 import { runGraph, type Traversal } from '../../lib/rag/graph';
+import { runSelfCheck, ABSTAIN } from '../../lib/rag/selfcheck';
 import { trackLayout, type Edge, type Placed } from './track';
 import { benchFromTrack, cellXY, type Bench } from './bench';
 
@@ -33,6 +34,12 @@ export interface Knobs {
   maxCalls: number;
   /** graph walk depth from the question's entities, 1–3 (read only when the graph is on the live path) */
   hops: number;
+  /** evaluator grades retrieval and retries or abstains (read only when the evaluator is on the live path) */
+  grade: boolean;
+  /** docs block parsers: off = that doc type is invisible to retrieval */
+  tables: boolean;
+  pdfs: boolean;
+  images: boolean;
 }
 export type KnobName = keyof Knobs;
 
@@ -46,6 +53,7 @@ export interface CanvasState {
 
 export const DEFAULT_KNOBS: Knobs = {
   strategy: 'fixed', size: 32, overlap: 0, topK: 3, hybrid: 0, filter: null, rerank: false, order: 'ranked', rewrite: null, maxCalls: 2, hops: 1,
+  grade: false, tables: true, pdfs: true, images: true,
 };
 
 /** Every block unlocked by the given chapter and the ones before it (AE4: jumping ahead shows the canvas as of that chapter). */
@@ -103,6 +111,7 @@ export function runParams(s: CanvasState, q: CanvasQuestion, a: Analysis): (RunP
   return {
     question: q, strategy: k.strategy, size: k.size, overlap: k.overlap, topK: k.topK, hybrid: k.hybrid,
     filter: q.filterPresets?.find((p) => p.id === k.filter)?.filter ?? null,
+    hidden: ([['table', k.tables], ['pdf', k.pdfs], ['image', k.images]] as const).filter(([, on]) => !on).map(([t]) => t),
     rerank: on('reranker') && k.rerank,
     order: on('assembler') ? k.order : 'ranked',
     rewrite: on('rewrite') && k.rewrite !== null && q.rewrites[k.rewrite] !== undefined ? k.rewrite : undefined,
@@ -119,7 +128,7 @@ export interface Outcome {
   preparing: boolean;
   signature: string | null;
   answer: Lookup | null;
-  /** the agent's call log (or the graph's hop log) when it is on the live path, else null */
+  /** the agent's call log (or the graph's hop log, or the evaluator's graded attempts) when it is on the live path, else null */
   calls: AgentCall[] | null;
   /** the graph walk when the graph is on the live path, else null */
   graph: Traversal | null;
@@ -137,7 +146,9 @@ export function outcome(index: RagIndex, session: ReturnType<typeof createSessio
   // the graph wins when both side bays are live (only the Sandbox can wire both)
   const graph = ready && analysis.used.includes('graph') ? runGraph(index, cfg, { ...p, question: q }, s.knobs.hops) : null;
   const agent = ready && !graph && analysis.agent ? runAgent(index, cfg, { ...p, question: q }, s.knobs.maxCalls) : null;
-  const record = graph?.record ?? agent?.record ?? (r.record?.questionId === q.id ? r.record : null);
+  const check = ready && !graph && !agent && s.knobs.grade && analysis.used.includes('grader') ? runSelfCheck(index, cfg, { ...p, question: q }) : null;
+  const record = graph?.record ?? agent?.record ?? check?.record ?? (r.record?.questionId === q.id ? r.record : null);
   const sig = record ? signature(index, q, record.context) : null;
-  return { analysis, config: r.config, chunks, record, preparing: r.preparing, signature: sig, answer: sig ? lookup(q.id, sig) : null, calls: graph?.calls ?? agent?.calls ?? null, graph: graph?.trace ?? null };
+  const answer = check?.abstain ? ABSTAIN : sig ? lookup(q.id, sig) : null;
+  return { analysis, config: r.config, chunks, record, preparing: r.preparing, signature: sig, answer, calls: graph?.calls ?? agent?.calls ?? check?.calls ?? null, graph: graph?.trace ?? null };
 }

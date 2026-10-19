@@ -7,6 +7,7 @@ import type { CanvasQuestion, CanvasState, KnobName, Knobs as KnobValues } from 
 
 /** Which block owns each knob, in panel order. */
 export const BLOCK_KNOBS: Partial<Record<BlockType, KnobName[]>> = {
+  docs: ['tables', 'pdfs', 'images'],
   chunker: ['strategy', 'size', 'overlap'],
   retriever: ['topK', 'hybrid', 'filter'],
   rewrite: ['rewrite'],
@@ -14,6 +15,14 @@ export const BLOCK_KNOBS: Partial<Record<BlockType, KnobName[]>> = {
   assembler: ['order'],
   agent: ['maxCalls'],
   graph: ['hops'],
+  grader: ['grade'],
+};
+const CHECKS: Partial<Record<KnobName, string>> = {
+  rerank: 'Rerank with a cross-encoder',
+  grade: 'Grade retrieval before answering (retry, or say “I don’t know”)',
+  tables: 'Parse tables to text',
+  pdfs: 'Parse PDFs to text',
+  images: 'Caption images',
 };
 
 export interface KnobProps { name: KnobName; state: CanvasState; onChange: (next: CanvasState) => void; question: CanvasQuestion }
@@ -68,10 +77,10 @@ export function Knob({ name, state, onChange, question }: KnobProps) {
     case 'filter':
       return select('Metadata filter', k.filter ?? '', [['', 'No filter'], ...(question.filterPresets ?? []).map(p => [p.id, p.label] as [string, string])],
         v => set('filter', v || null));
-    case 'rerank':
+    case 'rerank': case 'grade': case 'tables': case 'pdfs': case 'images':
       return (
         <div className="knob" data-knob={name}>
-          <label className="check"><input type="checkbox" checked={k.rerank} onChange={e => set('rerank', e.target.checked)} /> Rerank with a cross-encoder</label>
+          <label className="check"><input type="checkbox" checked={k[name]} onChange={e => set(name, e.target.checked)} /> {CHECKS[name]}</label>
         </div>
       );
     case 'order':
