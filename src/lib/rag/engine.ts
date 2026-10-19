@@ -155,6 +155,9 @@ export function run(index: RagIndex, cfg: Config, p: RunParams): RunRecord {
   };
 }
 
+/** Best similarity among the chunks, or null when there are none. */
+export const topScore = (chunks: ContextChunk[]) => (chunks.length ? Math.max(...chunks.map((c) => c.score)) : null);
+
 /** Precomputed cross-encoder score of chunk `id` against query `queryIndex`, or null when unscored. */
 export function crossScore(index: RagIndex, cfg: Config, id: number, queryIndex: number) {
   const s = cfg.scores[id * cfg.Q + queryIndex];

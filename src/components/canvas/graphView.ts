@@ -2,7 +2,7 @@
 // question's entities, relations as wires on the floor. Walked relations light up in their hop's colour; the
 // next ring (what one more hop would reach) stays as grey pegs and dashed wires.
 import { PALS, CERAMIC, INK, P, pd, cyl, toneI, byDepth } from '../../lib/iso/core.js';
-import { BH } from '../../lib/iso/blocks';
+import { BH, esc } from '../../lib/iso/blocks';
 import type { Board } from '../../lib/iso/IsoStage';
 import { GRAPH, entity, type Entity, type Traversal } from '../../lib/rag/graph';
 
@@ -38,8 +38,6 @@ export function graphLayout(t: Traversal) {
   const board: Board = [0, 0, X0 * 2 + (cols.length - 1) * COL, Y0 * 2 + (tall - 1) * ROW];
   return { cols, at, ghost: new Set(ghost), ghostEdges, board };
 }
-
-const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
 /** The answer path: the seeds plus both ends of every walked relation whose source sentence is evidence for the question. */
 export function pathOf(t: Traversal, evidence: string[]) {

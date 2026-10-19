@@ -113,7 +113,11 @@ export const BLOCKS: Record<BlockType, Spec> = {
 
 export const BLOCK_TYPES = Object.keys(BLOCKS) as BlockType[];
 
-const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+/** The 8 corners of an axis-aligned box: bottom face then top face, each x0y0, x1y0, x0y1, x1y1. */
+export const boxCorners = (x0: number, y0: number, z0: number, x1: number, y1: number, z1: number) =>
+  [[x0, y0, z0], [x1, y0, z0], [x0, y1, z0], [x1, y1, z0], [x0, y0, z1], [x1, y0, z1], [x0, y1, z1], [x1, y1, z1]];
+
+export const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 function renderBlock(type: BlockType, o: BlockOpts): string {
   const spec = BLOCKS[type], m = spec.pal, x0 = o.x - HALF, x1 = o.x + HALF, y0 = o.y - HALF, y1 = o.y + HALF, z0 = BH, z1 = BH + spec.ht;
@@ -123,7 +127,7 @@ function renderBlock(type: BlockType, o: BlockOpts): string {
   s += tx(x1+.2, o.y, z0 + (spec.labelZ ?? spec.ht/2 - 2), spec.label, 5.6, m === DARK ? '#fff4d6' : INK);
   // dark side faces get cream text; pale materials keep ink
   if (o.stat) s += txY(o.x, y1+.2, z0 + spec.ht/2 - 2, esc(o.stat), 4.6, [CERAMIC, METAL, CLEAR].includes(m) ? INK : '#fff4d6');
-  s += hullInk([[x0,y0,z0],[x1,y0,z0],[x0,y1,z0],[x1,y1,z0],[x0,y0,z1],[x1,y0,z1],[x0,y1,z1],[x1,y1,z1]], 2.4);
+  s += hullInk(boxCorners(x0, y0, z0, x1, y1, z1), 2.4);
   // the name starts with the words drawn on the block (WCAG 2.5.3: speech users say what they see), then what it is
   const drawn = [...s.matchAll(/<text[^>]*>([^<]*)<\/text>/g)].map(m => m[1].toLowerCase()).join(' ');
   const aria = `${drawn}: ${spec.name} block${o.selected ? ', selected' : ''}`;
@@ -138,5 +142,5 @@ export const renderers = Object.fromEntries(
 // Shadow of a block on the board; draw all shadows before the blocks. clip = boardTop(...) so it stops at the edge.
 export function blockShadow(type: BlockType, x: number, y: number, clip?: number[][]): string {
   const ht = BLOCKS[type].ht, x0 = x - HALF, x1 = x + HALF, y0 = y - HALF, y1 = y + HALF;
-  return castShadow([[x0,y0,BH],[x1,y0,BH],[x0,y1,BH],[x1,y1,BH],[x0,y0,BH+ht],[x1,y0,BH+ht],[x0,y1,BH+ht],[x1,y1,BH+ht]], BH, clip);
+  return castShadow(boxCorners(x0, y0, BH, x1, y1, BH + ht), BH, clip);
 }

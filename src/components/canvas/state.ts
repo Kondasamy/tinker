@@ -143,10 +143,12 @@ export function outcome(index: RagIndex, session: ReturnType<typeof createSessio
   const r = session(p);
   const cfg = index.get(r.config.file);
   const ready = !r.preparing && cfg;
+  // not preparing: the session just ran these params on cfg, so the side bays start from its record
+  const first = r.record ?? undefined;
   // the graph wins when both side bays are live (only the Sandbox can wire both)
-  const graph = ready && analysis.used.includes('graph') ? runGraph(index, cfg, { ...p, question: q }, s.knobs.hops) : null;
-  const agent = ready && !graph && analysis.agent ? runAgent(index, cfg, { ...p, question: q }, s.knobs.maxCalls) : null;
-  const check = ready && !graph && !agent && s.knobs.grade && analysis.used.includes('grader') ? runSelfCheck(index, cfg, { ...p, question: q }) : null;
+  const graph = ready && analysis.used.includes('graph') ? runGraph(index, cfg, { ...p, question: q }, s.knobs.hops, first) : null;
+  const agent = ready && !graph && analysis.agent ? runAgent(index, cfg, { ...p, question: q }, s.knobs.maxCalls, first) : null;
+  const check = ready && !graph && !agent && s.knobs.grade && analysis.used.includes('grader') ? runSelfCheck(index, cfg, { ...p, question: q }, undefined, first) : null;
   const record = graph?.record ?? agent?.record ?? check?.record ?? (r.record?.questionId === q.id ? r.record : null);
   const sig = record ? signature(index, q, record.context) : null;
   const answer = check?.abstain ? ABSTAIN : sig ? lookup(q.id, sig) : null;

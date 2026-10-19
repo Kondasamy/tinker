@@ -4,8 +4,8 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import ContextOverflow from '../../components/scenes/ContextOverflow';
 import { Source, Answer } from '../../components/scenes/Source';
-import { CHAPTERS, chapterHref } from '../../lib/chapters';
-import { STOPS, STOP_5TB, WINDOW, LARGEST, PRICE, TIMELINE, TOKENS_SOURCE, UNSTRUCTURED_SOURCE, tokensFor, overflows, formatBytes, formatTokens } from '../../lib/scale';
+import { nextOf } from '../../lib/chapters';
+import { BYTES_PER_TOKEN, STOPS, STOP_5TB, WINDOW, LARGEST, PRICE, TIMELINE, TOKENS_SOURCE, UNSTRUCTURED_SOURCE, tokensFor, overflows, formatBytes, formatTokens } from '../../lib/scale';
 
 const ID = '02-why-not-stuff-it';
 type Reason = 'middle' | 'fresh' | 'access';
@@ -41,7 +41,7 @@ export const STEPS: Step<S>[] = [
     id: 'overflow', focus: 'corpus', visibleControls: ['corpus'], opensDrawer: 'answer',
     narration: 'Wrong again. The enterprise policy is on the drive, but the drive did not fit, so the paste was cut off before it. Drag the corpus slider until it overflows the context window.',
     predicate: s => overflows(STOPS[s.stop]),
-    hint: `The window holds ${formatTokens(WINDOW)} tokens, about ${formatBytes(WINDOW * 4)} of text. Go past that.`,
+    hint: `The window holds ${formatTokens(WINDOW)} tokens, about ${formatBytes(WINDOW * BYTES_PER_TOKEN)} of text. Go past that.`,
   },
   {
     id: 'scale', focus: 'corpus', visibleControls: ['corpus'], opensDrawer: 'numbers',
@@ -50,7 +50,7 @@ export const STEPS: Step<S>[] = [
     hint: 'Each notch is 10 times bigger. 5 TB is the ninth notch.',
   },
   reasonStep('middle', 'numbers',
-    `5 TB is about ${formatTokens(tokensFor(5e12))} tokens. No model can read that in one go. And size is not the only problem. Open the first of three more reasons.`),
+    `5 TB is about ${formatTokens(tokensFor(STOPS[STOP_5TB]))} tokens. No model can read that in one go. And size is not the only problem. Open the first of three more reasons.`),
   reasonStep('fresh', 'middle',
     'Even text that fits gets used badly: facts in the middle of a long prompt are often missed. Next reason.'),
   reasonStep('access', 'fresh',
@@ -67,14 +67,12 @@ const REASON_LABEL: Record<Reason, string> = { middle: 'Lost in the middle', fre
 const nextReason = (s: S) => (['middle', 'fresh', 'access'] as Reason[]).find(r => !s.seen.includes(r));
 
 export default function WhyNotStuffIt() {
-  const i = CHAPTERS.findIndex(c => c.id === ID);
-  const next = CHAPTERS[i + 1];
   return (
     <StepRunner<S>
       chapter={ID}
       steps={STEPS}
       initial={{ asked: false, stop: 0, seen: [], quiz: null }}
-      next={next && { href: chapterHref(next.id), title: next.short }}
+      next={nextOf(ID)}
       stage={({ state }) => <ContextOverflow stop={state.stop} />}
       controls={{
         ask: ({ state, apply }) => (
@@ -114,7 +112,7 @@ export default function WhyNotStuffIt() {
             return (
               <dl className="facts">
                 <dt>Corpus</dt><dd>{formatBytes(bytes)} of plain text</dd>
-                <dt>Tokens</dt><dd>≈ {tokens.toLocaleString('en')}: bytes ÷ 4. A token is a chunk of text, about ¾ of an English word. <Source e={TOKENS_SOURCE} /></dd>
+                <dt>Tokens</dt><dd>≈ {tokens.toLocaleString('en')}: bytes ÷ {BYTES_PER_TOKEN}. A token is a chunk of text, about ¾ of an English word. <Source e={TOKENS_SOURCE} /></dd>
                 <dt>Largest window</dt><dd>{WINDOW.toLocaleString('en')} tokens, {LARGEST.model}. <Source e={LARGEST} /></dd>
                 <dt>Fits?</dt><dd>{overflows(bytes) ? `No: it needs ${Math.ceil(tokens / WINDOW).toLocaleString('en')} full windows.` : 'Yes.'}</dd>
                 {PRICE ? <>

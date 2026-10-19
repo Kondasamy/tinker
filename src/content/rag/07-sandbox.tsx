@@ -2,22 +2,17 @@
 // The guided track opens with every block from chapters 3–6 wired; one step opens it into the workbench with the
 // same blocks and wires, then free play over every question in the module, then the challenge closes the module.
 // Guidance stays light: one prompt card with two optional "try this" ideas, not a step list.
-import StepRunner, { type Panel } from '../../components/story/StepRunner';
+import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import { BlockSettings } from '../../components/canvas/Canvas';
-import { initialCanvas, openBench, unlockedThrough, type CanvasQuestion, type CanvasState, type Outcome } from '../../components/canvas/state';
-import { RagStage, ragPanels, useRagRun, type RagState } from '../../components/panels/rag';
-import ResultStrip, { type ResultRow } from '../../components/panels/ResultStrip';
+import { initialCanvas, openBench, unlockedThrough, type CanvasState, type Outcome } from '../../components/canvas/state';
+import { RagStage, useQuestionRuns, type RagState } from '../../components/panels/rag';
+import ResultStrip, { comparePanel, rowOf, withRow, type ResultRow } from '../../components/panels/ResultStrip';
 import TypeChallenge, { START, complete, type Challenge } from '../../components/quiz/TypeChallenge';
-import { CARDS, TYPES } from './types-data';
-import ch3 from '../../../data/questions/ch3.json';
-import ch4 from '../../../data/questions/ch4.json';
-import ch5 from '../../../data/questions/ch5.json';
-import ch6 from '../../../data/questions/ch6.json';
+import { TYPES, rowLabel } from './types-data';
+import { QS_ALL, questionById } from './questions';
 
 const ID = '07-sandbox';
-const QS = [...ch3, ...ch4, ...ch5, ...ch6] as CanvasQuestion[];
-const Q = (id: string) => QS.find(q => q.id === id)!;
 /** The question the sandbox opens on: every block is wired, so the graph is live, and two hops answer it. */
 const FIRST = 'kestrel-purchase-approver';
 
@@ -45,15 +40,9 @@ export const STEPS: Step<S>[] = [
   },
 ];
 
-const short = (q: string) => CARDS.find(c => c.q === q)?.short ?? Q(q).query;
-const label = (r: ResultRow) => ({ question: short(r.q), type: TYPES.find(t => t.id === r.type)!.label });
-
 export default function Sandbox() {
-  // one run per question, in a fixed order (hook rules hold: QS never changes)
-  const runs = Object.fromEntries(QS.map(q => [q.id, useRagRun(q)])) as Record<string, ReturnType<typeof useRagRun>>;
-  const byQ = Object.fromEntries(QS.map(q => [q.id, ragPanels<S>(runs[q.id])])) as Record<string, Record<string, Panel<S>>>;
-  const panels: Record<string, Panel<S>> = Object.fromEntries(Object.entries(byQ[FIRST]).map(([k, p]) => [k, { title: p.title, render: (s: S, apply: (n: S) => void) => byQ[s.q][k].render(s, apply) }]));
-  panels.compare = { title: 'Every run, side by side', render: s => s.rows.length ? <ResultStrip rows={s.rows} label={label} /> : <p className="note">Run a question to start the comparison.</p> };
+  const { runs, panels } = useQuestionRuns<S>(QS_ALL);
+  panels.compare = comparePanel<S>(rowLabel);
   const withCanvas = (s: S, canvas: CanvasState, q = s.q): S => ({ ...s, q, canvas, verdict: runs[q].verdictOf(canvas) });
   return (
     <StepRunner<S>
@@ -62,14 +51,14 @@ export default function Sandbox() {
       initial={{ q: FIRST, rows: [], canvas: initialCanvas(unlockedThrough('06-types'), { hops: 2 }), verdict: null, math: false, probed: false, acks: 0, ch: START }}
       stage={p => <div className="stage-col">
         <RagStage {...p} run={runs[p.state.q]} extraTabs={[['compare', 'Compare']]} canvas={{ allowBench: true }} />
-        <ResultStrip rows={p.state.rows} label={label} latest={3} onAll={() => p.inspect('compare')} />
+        <ResultStrip rows={p.state.rows} label={rowLabel} latest={3} onAll={() => p.inspect('compare')} />
       </div>}
       controls={{
         question: ({ state, apply }) => (
           <div className="knob">
             <label htmlFor="sandbox-q">Question</label>
             <select id="sandbox-q" value={state.q} onChange={e => apply(withCanvas(state, state.canvas, e.target.value))}>
-              {QS.map(q => <option key={q.id} value={q.id}>{q.query}</option>)}
+              {QS_ALL.map(q => <option key={q.id} value={q.id}>{q.query}</option>)}
             </select>
           </div>
         ),
@@ -78,15 +67,15 @@ export default function Sandbox() {
           const kind = o?.answer ? kindOf(o) : null;
           const add = () => {
             if (!o?.answer || !kind) return;
-            const r: ResultRow = { q: state.q, type: kind, verdict: o.answer.verdict, calls: o.calls?.length ?? (o.record ? 1 : 0), chunks: o.record?.context.length ?? 0 };
-            apply({ ...state, verdict: r.verdict, rows: [...state.rows.filter(x => x.q !== r.q || x.type !== r.type), r] });
+            const r = rowOf(state.q, kind, o);
+            apply({ ...state, verdict: r.verdict, rows: withRow(state.rows, r) });
           };
           return <button type="button" className="big" disabled={!kind} onClick={add}>{kind ? `Run as ${TYPES.find(t => t.id === kind)!.label}` : 'Preparing…'}</button>;
         },
         // block settings live in the card, so the canvas keeps the full stage (R27)
         block: ({ state, apply }) => (
           <section className="block-settings" aria-label="Block settings">
-            <BlockSettings state={state.canvas} onChange={canvas => apply(withCanvas(state, canvas))} question={Q(state.q)} />
+            <BlockSettings state={state.canvas} onChange={canvas => apply(withCanvas(state, canvas))} question={questionById(state.q)} />
           </section>
         ),
         tips: () => (

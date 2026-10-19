@@ -7,7 +7,7 @@ import { createSession, locate } from '../../src/lib/rag/engine';
 import { resolveConfig } from '../../src/lib/rag/lattice';
 import { GRAPH, seedsOf, traverse } from '../../src/lib/rag/graph';
 import { DEFAULT_KNOBS, initialCanvas, outcome, unlockedThrough, type CanvasQuestion, type Knobs } from '../../src/components/canvas/state';
-import { KNOBS } from '../../src/content/rag/06-types';
+import { KNOBS } from '../../src/content/rag/types-data';
 
 const DIR = 'public/data/index/';
 const questions: CanvasQuestion[] = ['ch3', 'ch4', 'ch5', 'ch6'].flatMap((c) => JSON.parse(readFileSync(`data/questions/${c}.json`, 'utf8')));

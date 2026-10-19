@@ -31,6 +31,15 @@ export function useRagRun(question: CanvasQuestion) {
 }
 type RagRun = ReturnType<typeof useRagRun>;
 
+/** One run per question, and drawer panels that show the run of the state's current question.
+ * `questions` must be a module constant: one hook call per entry keeps the hook order fixed. */
+export function useQuestionRuns<S extends RagState & { q: string }>(questions: readonly CanvasQuestion[]) {
+  const runs: Record<string, RagRun> = Object.fromEntries(questions.map(q => [q.id, useRagRun(q)]));
+  const byQ = Object.fromEntries(questions.map(q => [q.id, ragPanels<S>(runs[q.id])])) as Record<string, Record<string, Panel<S>>>;
+  const panels: Record<string, Panel<S>> = Object.fromEntries(Object.entries(byQ[questions[0].id]).map(([k, p]) => [k, { title: p.title, render: (s: S, apply: (n: S) => void) => byQ[s.q][k].render(s, apply) }]));
+  return { runs, panels };
+}
+
 const TABS = [['answer', 'Answer'], ['evidence', 'Evidence'], ['chunks', 'Chunks'], ['map', 'Map']] as const;
 
 /** `extraTabs`: chapter-specific drawer panels to offer beside the standard ones (e.g. chapter 6's Compare).

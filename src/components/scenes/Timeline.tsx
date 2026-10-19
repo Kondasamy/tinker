@@ -2,7 +2,7 @@
 // cited for that era (log scale). The learner clicks (or Enter/Space on) the next era to open it.
 import type { KeyboardEvent, MouseEvent } from 'react';
 import IsoStage, { type SceneCtx } from '../../lib/iso/IsoStage';
-import { BH, ACC } from '../../lib/iso/blocks';
+import { BH, ACC, boxCorners } from '../../lib/iso/blocks';
 import { PALS, METAL, CLEAR, CERAMIC, INK, box, tx, txY, pd, on, PZ, rrUV, castShadow, byDepth, hullInk, toneI } from '../../lib/iso/core.js';
 import { formatTokens, type TimelineEntry } from '../../lib/scale';
 
@@ -45,12 +45,11 @@ export default function Timeline({ entries, visited, active, onPick }: Props) {
         // before chat models: a stack of paper, the documents RAG fetches from
         for (let k = 0; k < 3; k++) s += box(x - 9 + k, Y - 11 + k, z1 + k * 3, x + 9 + k, Y + 11 + k, z1 + k * 3 + 3, CERAMIC, toneI, .6);
       }
-      s += hullInk([[x - H, Y - H, BH], [x + H, Y - H, BH], [x - H, Y + H, BH], [x + H, Y + H, BH], [x - H, Y - H, z1], [x + H, Y - H, z1], [x - H, Y + H, z1], [x + H, Y + H, z1]], 2.2);
+      s += hullInk(boxCorners(x - H, Y - H, BH, x + H, Y + H, z1), 2.2);
       const what = open ? `${era.label}, ${era.title}${win ? `, context window up to ${formatTokens(win)} tokens` : ''}` : `${era.label}, not opened yet`;
       return { at: [x, Y, 0], svg: `<g class="era" role="button" tabindex="0" data-era="${i}" aria-label="${what}">${s}</g>` };
     });
-    const shadows = ERAS.map((_, i) => castShadow([[X(i) - H, Y - H, BH], [X(i) + H, Y - H, BH], [X(i) - H, Y + H, BH], [X(i) + H, Y + H, BH],
-      [X(i) - H, Y - H, BH + PED + 20], [X(i) + H, Y - H, BH + PED + 20], [X(i) - H, Y + H, BH + PED + 20], [X(i) + H, Y + H, BH + PED + 20]], BH, top)).join('');
+    const shadows = ERAS.map((_, i) => castShadow(boxCorners(X(i) - H, Y - H, BH, X(i) + H, Y + H, BH + PED + 20), BH, top)).join('');
     // the rail joining the eras
     const rail = `<path d="${pd([[X(0), Y + H + 6, BH + .2], [X(ERAS.length - 1), Y + H + 6, BH + .2]], false)}" fill="none" stroke="${INK}" stroke-width="1.2" stroke-dasharray="3 3"/>`;
     return rail + shadows + byDepth(items);

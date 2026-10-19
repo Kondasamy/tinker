@@ -3,8 +3,8 @@
 // walked relation's source sentence. Each hop is one logged lookup, judged by signature + recorded answer.
 import data from '../../../data/graph/entities.json';
 import type { Config, RagIndex } from './load';
-import { chunkOf, goldOf, locate, run, type ContextChunk, type RunParams, type RunRecord } from './engine';
-import { signature, type KeyFact } from './signature';
+import { chunkOf, goldOf, locate, run, topScore, type ContextChunk, type RunParams, type RunRecord } from './engine';
+import { signature, type KeyedQuestion } from './signature';
 import { lookup } from './answers';
 import type { AgentCall } from './agent';
 
@@ -15,8 +15,8 @@ export const MAX_HOPS = 3;
 export const entity = (id: string) => GRAPH.entities.find((e) => e.id === id)!;
 
 /** Entities whose name appears in the question (case-insensitive, whole words). */
-export const seedsOf = (query: string) =>
-  GRAPH.entities.filter((e) => new RegExp(`\\b${e.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\w])`, 'i').test(query)).map((e) => e.id);
+const SEED_RES = GRAPH.entities.map((e) => ({ id: e.id, re: new RegExp(`\\b${e.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\w])`, 'i') }));
+export const seedsOf = (query: string) => SEED_RES.filter((e) => e.re.test(query)).map((e) => e.id);
 
 export interface Hop { hop: number; /** relation indices walked on this hop */ edges: number[]; /** entities first reached on this hop */ reached: string[] }
 export interface Traversal { seeds: string[]; hops: Hop[] }
@@ -40,7 +40,6 @@ export function traverse(seeds: string[], hops: number): Traversal {
 }
 
 export interface GraphRun { record: RunRecord; calls: AgentCall[]; trace: Traversal }
-type GraphQuestion = RunParams['question'] & { keyFacts: KeyFact[] };
 
 /** Chunk ids of this config that overlap the sentence's occurrence in its source doc. */
 function chunksFor(index: RagIndex, cfg: Config, r: Relation, hidden: string[]) {
@@ -52,9 +51,10 @@ function chunksFor(index: RagIndex, cfg: Config, r: Relation, hidden: string[]) 
   return ids;
 }
 
-export function runGraph(index: RagIndex, cfg: Config, p: RunParams & { question: GraphQuestion }, hops: number): GraphRun {
+/** `base`: the record of `run(index, cfg, p)` when the caller already has it. */
+export function runGraph(index: RagIndex, cfg: Config, p: RunParams & { question: KeyedQuestion }, hops: number, base: RunRecord = run(index, cfg, p)): GraphRun {
   const q = p.question;
-  const base = run(index, cfg, p);   // only for the record's shape and the chunks' similarity scores
+  // base: only for the record's shape and the chunks' similarity scores
   const scoreOf = new Map(base.stages.vector.ids.map((id, i) => [id, base.stages.vector.scores[i]]));
   const trace = traverse(seedsOf(base.queryText), hops);
   const context: ContextChunk[] = [], have = new Set<number>();
@@ -65,7 +65,7 @@ export function runGraph(index: RagIndex, cfg: Config, p: RunParams & { question
     const walked = h.edges.map((i) => { const r = GRAPH.relations[i]; return `${entity(r.from).name} → ${r.label} → ${entity(r.to).name}`; });
     return {
       call: h.hop, action: 'hop', query: walked.join('; ') || 'no relations left to follow',
-      chunksAdded: added.length, topScore: added.length ? Math.max(...added.map((c) => c.score)) : null,
+      chunksAdded: added.length, topScore: topScore(added),
       verdict: lookup(q.id, signature(index, q, context)).verdict,
     };
   });

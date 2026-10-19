@@ -52,7 +52,9 @@ function parseConfig(file: string, ab: ArrayBuffer, corpus: Doc[]): Config {
   const norms = new Float32Array(N);
   for (let c = 0; c < N; c++) { let s = 0; for (let i = c * D; i < (c + 1) * D; i++) s += vectors[i] * vectors[i]; norms[c] = Math.sqrt(s); }
   const texts = Array.from({ length: N }, (_, c) => corpus[ranges[c * 3]].words.slice(ranges[c * 3 + 1], ranges[c * 3 + 2]).join(' '));
-  return { file, N, Q, D, ranges, mean, pc1, pc2, xy, scores, vectors, norms, texts, bm25: buildBm25(texts) };
+  let bm25: Bm25 | undefined;
+  // built on first keyword search: most configs never need it
+  return { file, N, Q, D, ranges, mean, pc1, pc2, xy, scores, vectors, norms, texts, get bm25() { return (bm25 ??= buildBm25(texts)); } };
 }
 
 export interface RagIndex {

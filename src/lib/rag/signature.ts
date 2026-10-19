@@ -5,6 +5,8 @@ import { locate, type ContextChunk, type Question } from './engine';
 export type FactState = 'intact' | 'split' | 'absent';
 export type Bucket = 'start' | 'middle' | 'end';
 export interface KeyFact { id: string; sentence: string }
+/** A question with the key facts its signature tracks (what the agent, graph and evaluator runs need). */
+export type KeyedQuestion = Question & { keyFacts: KeyFact[] };
 type SigQuestion = Question & { keyFacts: KeyFact[]; staleSentences?: string[]; distractorSentences?: string[] };
 type Span = Pick<ContextChunk, 'doc' | 'start' | 'end'>;
 

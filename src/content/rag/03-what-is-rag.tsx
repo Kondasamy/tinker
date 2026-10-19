@@ -6,7 +6,7 @@ import Quiz from '../../components/quiz/Quiz';
 import { initialCanvas, type CanvasQuestion } from '../../components/canvas/state';
 import type { BlockType } from '../../lib/iso/blocks';
 import { RagStage, ragPanels, useRagRun, type RagState } from '../../components/panels/rag';
-import { CHAPTERS, chapterHref } from '../../lib/chapters';
+import { nextOf } from '../../lib/chapters';
 import ch3 from '../../../data/questions/ch3.json';
 
 const ID = '03-what-is-rag';
@@ -65,14 +65,12 @@ const NEXT_BLOCK: [BlockType, string][] = [['docs', 'Add the Docs'], ['retriever
 
 export default function WhatIsRag() {
   const run = useRagRun(QUESTION);
-  const i = CHAPTERS.findIndex(c => c.id === ID);
-  const next = CHAPTERS[i + 1];
   return (
     <StepRunner<S>
       chapter={ID}
       steps={STEPS}
       initial={{ canvas: initialCanvas(['llm']), verdict: null, math: false, probed: false, asked: false, seen: false, quiz: null }}
-      next={next && { href: chapterHref(next.id), title: next.short }}
+      next={nextOf(ID)}
       stage={p => <RagStage {...p} run={run} />}
       controls={{
         ask: ({ state, apply }) => (

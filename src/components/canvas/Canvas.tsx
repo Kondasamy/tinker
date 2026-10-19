@@ -97,8 +97,10 @@ export default function Canvas({ state: s, onChange, question, focus, panel = tr
   const bench = s.mode === 'bench', editable = bench && !narrow;
   const [tick, setTick] = useState(0);
   const session = useMemo(() => index && createSession(index, () => setTick(t => t + 1)), [index]);
-  const out = useMemo(() => (index && session ? outcome(index, session, s, question) : null), [index, session, s, question, tick]);
-  const analysis = out?.analysis ?? analyse(graphOf(s));
+  // keyed on what reaches the engine, so selecting a block does not re-run retrieval
+  const out = useMemo(() => (index && session ? outcome(index, session, s, question) : null), [index, session, s.unlocked, s.knobs, s.bench, s.mode, question, tick]); // eslint-disable-line react-hooks/exhaustive-deps
+  const g = graphOf(s);
+  const analysis = out?.analysis ?? analyse(g);
 
   useEffect(() => { if (out) onResult?.(out); }, [out]); // eslint-disable-line react-hooks/exhaustive-deps
   const prefetched = useRef(false);
@@ -143,7 +145,6 @@ export default function Canvas({ state: s, onChange, question, focus, panel = tr
   const [wiring, setWiring] = useState<{ from: BlockType; x: number; y: number } | null>(null);
 
   const track = trackLayout(s.unlocked);
-  const g = graphOf(s);
   let nodes = g.nodes;
   if (bench && morph !== null) {
     const e = ease(morph);

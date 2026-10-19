@@ -29,11 +29,7 @@ export function saveChapter(id: string, data: unknown) {
   write({ ...p, saved: { ...p.saved, [id]: data } });
 }
 
-export function clearProgress() {
-  try { localStorage.removeItem(KEY); } catch { /* ignore */ }
-}
-
-interface ChapterLike { id: string; unlocks: readonly string[] }
+interface ChapterLike { id: string }
 
 export type NavMark = 'done' | 'current' | 'skipped' | 'todo';
 

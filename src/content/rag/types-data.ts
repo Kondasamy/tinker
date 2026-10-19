@@ -1,7 +1,9 @@
-// Chapter 6's RAG types and question cards, in their own module so the Sandbox can use them without
-// pulling chapter 6's whole island into its bundle.
+// Chapter 6's RAG types, question cards and run setting, in their own module so the Sandbox (and the unit tests)
+// can use them without pulling chapter 6's whole island into its bundle.
 import type { BlockType } from '../../lib/iso/blocks';
-import type { Knobs } from '../../components/canvas/state';
+import { DEFAULT_KNOBS, type Knobs } from '../../components/canvas/state';
+import type { ResultRow } from '../../components/panels/ResultStrip';
+import { questionById } from './questions';
 
 /** RAG types the learner can run; each is the blocks it attaches to the chapter-5 track, plus the knobs it sets. */
 export const TYPES: { id: string; label: string; blocks: BlockType[]; knobs?: Partial<Knobs> }[] = [
@@ -23,3 +25,12 @@ export const CARDS: { q: string; label: string; short: string; mm?: boolean }[] 
   { q: 'dock-sensor-warranty', label: 'How long is the dock door sensor warranty? (vendor PDF)', short: 'Sensor warranty', mm: true },
   { q: 'customer-success-lead', label: 'Who leads the Customer Success team? (org chart image)', short: 'Customer Success lead', mm: true },
 ];
+
+/**
+ * One setting for every run, so a difference in the strip comes from the type alone: a single 16-word chunk.
+ * The Docs block reads plain text only until the Multimodal type: tables, PDFs and images are invisible.
+ */
+export const KNOBS: Knobs = { ...DEFAULT_KNOBS, strategy: 'fixed', size: 16, overlap: 0, topK: 1, grade: false, tables: false, pdfs: false, images: false };
+
+/** A result row's question (the card's short name, else the query) and RAG type, as the strip shows them. */
+export const rowLabel = (r: ResultRow) => ({ question: CARDS.find(c => c.q === r.q)?.short ?? questionById(r.q).query, type: TYPES.find(t => t.id === r.type)!.label });

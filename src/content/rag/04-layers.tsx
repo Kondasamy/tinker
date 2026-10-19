@@ -9,7 +9,7 @@ import { Knob } from '../../components/canvas/Knobs';
 import { initialCanvas, unlockedThrough, type CanvasQuestion, type Knobs } from '../../components/canvas/state';
 import type { BlockType } from '../../lib/iso/blocks';
 import { RagStage, ragPanels, useRagRun, type RagState } from '../../components/panels/rag';
-import { CHAPTERS, chapterHref } from '../../lib/chapters';
+import { nextOf } from '../../lib/chapters';
 import ch3 from '../../../data/questions/ch3.json';
 
 const ID = '04-layers';
@@ -79,14 +79,12 @@ const NEXT_LAYER: [BlockType[], string][] = [[['chunker'], 'Add the Chunker'], [
 
 export default function Layers() {
   const run = useRagRun(QUESTION);
-  const i = CHAPTERS.findIndex(c => c.id === ID);
-  const next = CHAPTERS[i + 1];
   return (
     <StepRunner<S>
       chapter={ID}
       steps={STEPS}
       initial={{ canvas: initialCanvas(unlockedThrough('03-what-is-rag'), BROKEN), verdict: null, math: false, probed: false, asked: false, quiz: null }}
-      next={next && { href: chapterHref(next.id), title: next.short }}
+      next={nextOf(ID)}
       stage={p => <RagStage {...p} run={run} />}
       controls={{
         ask: ({ state, apply }) => (

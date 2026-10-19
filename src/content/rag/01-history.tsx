@@ -5,7 +5,7 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Timeline, { ERAS, eraWindow } from '../../components/scenes/Timeline';
 import { Source, Answer } from '../../components/scenes/Source';
-import { CHAPTERS, chapterHref } from '../../lib/chapters';
+import { nextOf } from '../../lib/chapters';
 import { TIMELINE, formatTokens } from '../../lib/scale';
 
 const ID = '01-history';
@@ -58,14 +58,12 @@ export const STEPS: Step<S>[] = [
 ];
 
 export default function History() {
-  const i = CHAPTERS.findIndex(c => c.id === ID);
-  const next = CHAPTERS[i + 1];
   return (
     <StepRunner<S>
       chapter={ID}
       steps={STEPS}
       initial={{ asked: false, visited: 0, active: null, quiz: null }}
-      next={next && { href: chapterHref(next.id), title: next.short }}
+      next={nextOf(ID)}
       stage={({ state, apply }) => (
         <Timeline entries={TIMELINE} visited={state.asked ? state.visited : -1} active={state.active}
           // open the next era, or reopen one already seen; skipping ahead does nothing

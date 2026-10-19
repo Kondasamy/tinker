@@ -8,7 +8,7 @@ import { resolveConfig } from '../../src/lib/rag/lattice';
 import { signature } from '../../src/lib/rag/signature';
 import { ABSTAIN, GRADE_BAR, runSelfCheck } from '../../src/lib/rag/selfcheck';
 import { DEFAULT_KNOBS, initialCanvas, outcome, unlockedThrough, type CanvasQuestion, type Knobs } from '../../src/components/canvas/state';
-import { KNOBS, TYPES } from '../../src/content/rag/06-types';
+import { KNOBS, TYPES } from '../../src/content/rag/types-data';
 
 const DIR = 'public/data/index/';
 const questions: CanvasQuestion[] = ['ch3', 'ch4', 'ch5', 'ch6'].flatMap((c) => JSON.parse(readFileSync(`data/questions/${c}.json`, 'utf8')));

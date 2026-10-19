@@ -6,35 +6,25 @@
 // Self-correcting (U13) is a setting on the Evaluator (grade, retry with a rewrite, or say "I don't know");
 // Multimodal (U13) is the Docs block's parsers for tables, PDFs and images, with its own three cards.
 // The canvas stays the hero: the stage shows only the latest runs, the full comparison lives in the Compare tab.
-import StepRunner, { type Panel } from '../../components/story/StepRunner';
+import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import KnobList, { Knob } from '../../components/canvas/Knobs';
-import { DEFAULT_KNOBS, initialCanvas, unlockedThrough, type CanvasQuestion, type CanvasState, type Knobs } from '../../components/canvas/state';
-import { RagStage, ragPanels, useRagRun, type RagState } from '../../components/panels/rag';
-import ResultStrip, { type ResultRow } from '../../components/panels/ResultStrip';
+import { initialCanvas, unlockedThrough, type CanvasQuestion, type CanvasState } from '../../components/canvas/state';
+import { RagStage, useQuestionRuns, type RagState } from '../../components/panels/rag';
+import ResultStrip, { comparePanel, rowOf, withRow, type ResultRow } from '../../components/panels/ResultStrip';
 import IsoStage from '../../lib/iso/IsoStage';
 import { graphLayout, graphScene, graphSummary, pathOf, HOP_COLOURS } from '../../components/canvas/graphView';
 import type { Traversal } from '../../lib/rag/graph';
-import { CHAPTERS, chapterHref } from '../../lib/chapters';
-import ch3 from '../../../data/questions/ch3.json';
-import ch4 from '../../../data/questions/ch4.json';
-import ch5 from '../../../data/questions/ch5.json';
-import ch6 from '../../../data/questions/ch6.json';
+import { nextOf } from '../../lib/chapters';
 import orgChart from '../../../data/corpus/assets/org-chart-2025.svg?url';
 import { GRADE_BAR } from '../../lib/rag/selfcheck';
-import { TYPES, CARDS } from './types-data';
+import { TYPES, CARDS, KNOBS, rowLabel } from './types-data';
+import { questionById as Q } from './questions';
 
 const ID = '06-types';
-const QS = [...ch3, ...ch4, ...ch5, ...ch6] as CanvasQuestion[];
-const Q = (id: string) => QS.find(q => q.id === id)!;
-
-export { TYPES, CARDS };
-/**
- * One setting for every run, so a difference in the strip comes from the type alone: a single 16-word chunk.
- * The Docs block reads plain text only until the Multimodal type: tables, PDFs and images are invisible.
- */
-export const KNOBS: Knobs = { ...DEFAULT_KNOBS, strategy: 'fixed', size: 16, overlap: 0, topK: 1, grade: false, tables: false, pdfs: false, images: false };
+/** One run per card, in a fixed order (hook rules hold: CARDS is extended at module load, never during render). */
+const CARD_QS = CARDS.map(c => Q(c.q));
 
 const BASE = unlockedThrough('05-accuracy');
 const typeOf = (id: string) => TYPES.find(t => t.id === id)!;
@@ -202,13 +192,8 @@ function GraphWalk({ trace, question }: { trace: Traversal | null; question: Can
   );
 }
 
-const label = (r: ResultRow) => ({ question: CARDS.find(c => c.q === r.q)?.short ?? Q(r.q).query, type: typeOf(r.type).label });
-
 export default function Types() {
-  // one run per card, in a fixed order (hook rules hold: CARDS is extended at module load, never during render)
-  const runs = Object.fromEntries(CARDS.map(c => [c.q, useRagRun(Q(c.q))])) as Record<string, ReturnType<typeof useRagRun>>;
-  const byQ = Object.fromEntries(CARDS.map(c => [c.q, ragPanels<S>(runs[c.q])])) as Record<string, Record<string, Panel<S>>>;
-  const panels: Record<string, Panel<S>> = Object.fromEntries(Object.entries(byQ[CARDS[0].q]).map(([k, p]) => [k, { title: p.title, render: (s: S, apply: (n: S) => void) => byQ[s.q][k].render(s, apply) }]));
+  const { runs, panels } = useQuestionRuns<S>(CARD_QS);
   const answer = panels.answer.render;
   // the image behind a retrieved caption sits with the answer it fed
   panels.answer = { ...panels.answer, render: (s, apply) => <>
@@ -220,9 +205,7 @@ export default function Types() {
       </figure>
     )}
   </> };
-  panels.compare = { title: 'Every run, side by side', render: s => s.rows.length ? <ResultStrip rows={s.rows} label={label} /> : <p className="note">Run a question to start the comparison.</p> };
-  const i = CHAPTERS.findIndex(c => c.id === ID);
-  const next = CHAPTERS[i + 1];
+  panels.compare = comparePanel<S>(rowLabel);
   const withCanvas = (s: S, canvas: CanvasState, more: Partial<S> = {}): S => ({ ...s, ...more, canvas, verdict: runs[more.q ?? s.q].verdictOf(canvas) });
   const withType = (s: S, type: string) => { const n = switchType(s, type); return { ...n, verdict: runs[n.q].verdictOf(n.canvas) }; };
   return (
@@ -230,11 +213,11 @@ export default function Types() {
       chapter={ID}
       steps={STEPS}
       initial={{ q: CARDS[0].q, type: 'naive', rows: [], canvas: initialCanvas(unlockedFor('naive'), KNOBS), verdict: null, math: false, probed: false, acks: 0, quiz: null, gquiz: null }}
-      next={next && { href: chapterHref(next.id), title: next.short }}
+      next={nextOf(ID)}
       stage={p => <div className="stage-col">
         <RagStage {...p} run={runs[p.state.q]} extraTabs={[['compare', 'Compare']]} />
         {p.state.type === 'graph' && <GraphWalk trace={runs[p.state.q].out?.graph ?? null} question={Q(p.state.q)} />}
-        <ResultStrip rows={p.state.rows} label={label} latest={3} onAll={() => p.inspect('compare')} />
+        <ResultStrip rows={p.state.rows} label={rowLabel} latest={3} onAll={() => p.inspect('compare')} />
       </div>}
       controls={{
         next: ({ state, apply }) => <button type="button" className="big" onClick={() => apply({ ...state, acks: state.acks + 1 })}>Compare types →</button>,
@@ -263,8 +246,8 @@ export default function Types() {
           const o = runs[state.q].outcomeOf(state.canvas);
           const add = () => {
             if (!o?.answer) return;
-            const r: ResultRow = { q: state.q, type: state.type, verdict: o.answer.verdict, calls: o.calls?.length ?? (o.record ? 1 : 0), chunks: o.record?.context.length ?? 0 };
-            apply({ ...state, verdict: r.verdict, rows: [...state.rows.filter(x => x.q !== r.q || x.type !== r.type), r] });
+            const r = rowOf(state.q, state.type, o);
+            apply({ ...state, verdict: r.verdict, rows: withRow(state.rows, r) });
           };
           return <button type="button" className="big" disabled={!o?.answer} onClick={add}>{o?.answer ? `Run as ${typeOf(state.type).label}` : 'Preparing…'}</button>;
         },

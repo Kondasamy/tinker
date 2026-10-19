@@ -18,3 +18,9 @@ export const CHAPTERS: Chapter[] = [
 ];
 
 export const chapterHref = (id: string) => `/rag/${id}/`;
+
+/** Link to the chapter after `id`, or undefined on the last one. */
+export function nextOf(id: string): { href: string; title: string } | undefined {
+  const next = CHAPTERS[CHAPTERS.findIndex((c) => c.id === id) + 1];
+  return next && { href: chapterHref(next.id), title: next.short };
+}

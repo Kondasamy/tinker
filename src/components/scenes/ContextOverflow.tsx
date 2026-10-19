@@ -1,7 +1,7 @@
 // Chapter 2 scene: the corpus (a paper stack, one slab per ×10 in size) pours into a glass context-window
 // container sized to the largest cited window. Past the limit the container turns red and paper spills out.
 import IsoStage, { type SceneCtx } from '../../lib/iso/IsoStage';
-import { BH } from '../../lib/iso/blocks';
+import { BH, boxCorners } from '../../lib/iso/blocks';
 import { PALS, CLEAR, CERAMIC, INK, box, tx, pd, on, PX, PY, PZ, rectUV, fill, ink, castShadow, byDepth, toneI } from '../../lib/iso/core.js';
 import { STOPS, WINDOW, LARGEST, tokensFor, formatBytes, formatTokens } from '../../lib/scale';
 
@@ -37,9 +37,8 @@ export default function ContextOverflow({ stop }: { stop: number }) {
     }
     p += tx(PX0 + 13.2, PY0, BH + 1, `CORPUS ${formatBytes(bytes)}`, 4.6, INK);
 
-    const shadow = castShadow([[x0, y0, BH], [x1, y0, BH], [x0, y1, BH], [x1, y1, BH], [x0, y0, z1], [x1, y0, z1], [x0, y1, z1], [x1, y1, z1]], BH, top)
-      + castShadow([[PX0 - 12, PY0 - 15, BH], [PX0 + 12, PY0 - 15, BH], [PX0 - 12, PY0 + 15, BH], [PX0 + 12, PY0 + 15, BH],
-        [PX0 - 12, PY0 - 15, BH + n * SLAB], [PX0 + 12, PY0 - 15, BH + n * SLAB], [PX0 - 12, PY0 + 15, BH + n * SLAB], [PX0 + 12, PY0 + 15, BH + n * SLAB]], BH, top);
+    const shadow = castShadow(boxCorners(x0, y0, BH, x1, y1, z1), BH, top)
+      + castShadow(boxCorners(PX0 - 12, PY0 - 15, BH, PX0 + 12, PY0 + 15, BH + n * SLAB), BH, top);
     return shadow + byDepth([{ at: [PX0, PY0, 0], svg: p }, { at: [CX, CY, 0], svg: c }]);
   };
 

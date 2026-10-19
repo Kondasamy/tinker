@@ -112,9 +112,10 @@ function chunkSentence(ends, size) {
   flush();
   return out;
 }
+const fileOf = (strategy, size, overlap) => (strategy === 'fixed' ? `fixed-${size}-${overlap}.bin` : `sentence-${size}.bin`);
 const configs = [
-  ...SIZES.flatMap((size) => OVERLAPS.map((overlap) => ({ strategy: 'fixed', size, overlap, file: `fixed-${size}-${overlap}.bin` }))),
-  ...SIZES.map((size) => ({ strategy: 'sentence', size, file: `sentence-${size}.bin` })),
+  ...SIZES.flatMap((size) => OVERLAPS.map((overlap) => ({ strategy: 'fixed', size, overlap, file: fileOf('fixed', size, overlap) }))),
+  ...SIZES.map((size) => ({ strategy: 'sentence', size, file: fileOf('sentence', size) })),
 ];
 for (const c of configs) {
   c.chunks = docs.flatMap((d, di) =>
@@ -249,7 +250,7 @@ const corpusJson = JSON.stringify(docs.map(({ ends, ...d }) => d));
 fs.writeFileSync(path.join(OUT, 'corpus.json'), corpusJson);
 
 const lattice = SIZES.flatMap((size) => ['fixed', 'sentence'].flatMap((strategy) =>
-  OVERLAPS.map((overlap) => ({ strategy, size, overlap, file: strategy === 'fixed' ? `fixed-${size}-${overlap}.bin` : `sentence-${size}.bin` }))));
+  OVERLAPS.map((overlap) => ({ strategy, size, overlap, file: fileOf(strategy, size, overlap) }))));
 const totalBytes = files.reduce((n, f) => n + f.bytes, 0) + qbuf.length + Buffer.byteLength(corpusJson);
 const manifest = {
   version: 1,

@@ -2,16 +2,16 @@
 // quality (recall@k) and answer quality (verdict) show separately, then one puzzle per lever (R15, R18).
 // Every puzzle state below was found by sweeping the real index: its one lever flips the recorded verdict
 // (tests/unit/accuracy.test.ts pins each flip).
-import StepRunner, { type Panel } from '../../components/story/StepRunner';
+import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import { puzzle } from '../../components/quiz/Puzzle';
 import { Knob } from '../../components/canvas/Knobs';
 import { DEFAULT_KNOBS, initialCanvas, unlockedThrough, type CanvasQuestion, type KnobName, type Knobs } from '../../components/canvas/state';
 import type { BlockType } from '../../lib/iso/blocks';
-import { RagStage, ragPanels, useRagRun, type RagState } from '../../components/panels/rag';
+import { RagStage, useQuestionRuns, type RagState } from '../../components/panels/rag';
 import QualityMeters from '../../components/panels/QualityMeters';
-import { CHAPTERS, chapterHref } from '../../lib/chapters';
+import { nextOf } from '../../lib/chapters';
 import ch4 from '../../../data/questions/ch4.json';
 import ch5 from '../../../data/questions/ch5.json';
 
@@ -21,6 +21,7 @@ const Q = (id: string) => QS.find(q => q.id === id)!;
 /** The questions this chapter uses, in order of appearance. */
 export const USED = ['stale-hotel-limit', 'vague-outage', 'dock-door-red-light', 'card-data-retention', 'standard-refund-window'] as const;
 type QId = typeof USED[number];
+const USED_QS = USED.map(Q);
 interface S extends RagState { q: QId; asked: boolean; acks: number; quiz: number | null }
 
 /** Each puzzle's broken setting: every knob pinned, so the one lever on screen is the only thing that differs. */
@@ -158,17 +159,13 @@ const KNOB_CONTROLS: KnobName[] = ['filter', 'rewrite', 'topK', 'order', 'rerank
 
 export default function Accuracy() {
   // one run per question, in a fixed order (hook rules hold: USED never changes)
-  const runs = Object.fromEntries(USED.map(id => [id, useRagRun(Q(id))])) as Record<QId, ReturnType<typeof useRagRun>>;
-  const byQ = Object.fromEntries(USED.map(id => [id, ragPanels<S>(runs[id])])) as Record<QId, Record<string, Panel<S>>>;
-  const panels = Object.fromEntries(Object.entries(byQ[USED[0]]).map(([k, p]) => [k, { title: p.title, render: (s: S, apply: (n: S) => void) => byQ[s.q][k].render(s, apply) }]));
-  const i = CHAPTERS.findIndex(c => c.id === ID);
-  const next = CHAPTERS[i + 1];
+  const { runs, panels } = useQuestionRuns<S>(USED_QS);
   return (
     <StepRunner<S>
       chapter={ID}
       steps={STEPS}
       initial={{ q: PRESETS.open.q, canvas: initialCanvas(unlockedThrough('04-layers'), PRESETS.open.knobs), verdict: null, math: false, probed: false, asked: false, acks: 0, quiz: null }}
-      next={next && { href: chapterHref(next.id), title: next.short }}
+      next={nextOf(ID)}
       stage={p => <div className="stage-col">
         <RagStage {...p} run={runs[p.state.q]} />
         {p.state.canvas.unlocked.includes('grader') && <QualityMeters out={runs[p.state.q].out} />}
