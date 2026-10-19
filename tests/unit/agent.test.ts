@@ -28,6 +28,7 @@ const STORY: Record<string, { naive: string; agentic: string; calls: number }> =
   'refund-enterprise': { naive: 'wrong', agentic: 'correct', calls: 2 },   // the win: expand stitches the cut negation
   'stale-hotel-limit': { naive: 'wrong', agentic: 'wrong', calls: 2 },     // the cost: a rewrite search, no benefit
   'standard-refund-window': { naive: 'correct', agentic: 'correct', calls: 1 },
+  'kestrel-purchase-approver': { naive: 'notfound', agentic: 'notfound', calls: 2 },   // multi-hop: GraphRAG's card (graph.test.ts)
 };
 
 describe('agent rule table', () => {

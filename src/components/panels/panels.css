@@ -84,3 +84,13 @@
 /* wide screens: the strip sits in the canvas's empty top-right corner, so the comparison stays in view */
 @media (min-width: 1100px) { .result-strip { position: absolute; top: 12px; right: 12px; width: auto; margin: 0; } .result-strip td { white-space: nowrap; } }
 @media (max-width: 600px) { .result-strip { font-size: 12px; } .result-strip th, .result-strip td { padding: 4px 6px; } }
+
+/* GraphRAG walk under the canvas (chapter 6) */
+.graph-walk { margin: 12px auto 0; max-width: 560px; padding: 8px 10px 6px; background: var(--paper); border: 1.5px solid var(--rule); border-radius: 10px; }
+.graph-walk svg { max-height: 34vh; }
+/* wide screens: sit in the empty corner below the track, like the strip sits above it */
+@media (min-width: 1100px) { .graph-walk { position: absolute; left: 0; bottom: 92px; width: 46%; margin: 0; padding: 0; background: none; border: 0; } }
+.graph-walk .glow { filter: drop-shadow(0 0 2px rgba(255, 182, 39, .7)); }
+.graph-walk .legend { display: flex; gap: 14px; justify-content: center; font-size: 12px; color: var(--muted); }
+.graph-walk .legend i { display: inline-block; width: 14px; height: 4px; border-radius: 2px; vertical-align: middle; border: 1px solid var(--ink); }
+.graph-walk .legend i.ghost { background: none; border-style: dashed; }

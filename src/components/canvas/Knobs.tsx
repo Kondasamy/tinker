@@ -13,6 +13,7 @@ export const BLOCK_KNOBS: Partial<Record<BlockType, KnobName[]>> = {
   reranker: ['rerank'],
   assembler: ['order'],
   agent: ['maxCalls'],
+  graph: ['hops'],
 };
 
 export interface KnobProps { name: KnobName; state: CanvasState; onChange: (next: CanvasState) => void; question: CanvasQuestion }
@@ -80,6 +81,8 @@ export function Knob({ name, state, onChange, question }: KnobProps) {
         [['', 'As asked'], ...question.rewrites.map((r, i) => [String(i), r] as [string, string])], v => set('rewrite', v === '' ? null : +v));
     case 'maxCalls':
       return range('Max retrieval calls', String(k.maxCalls), k.maxCalls, 1, 3, v => set('maxCalls', v));
+    case 'hops':
+      return range('Hops from the question’s entities', String(k.hops), k.hops, 1, 3, v => set('hops', v));
   }
 }
 

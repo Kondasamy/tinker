@@ -7,7 +7,8 @@ import { signature, type KeyFact } from './signature';
 import { lookup, type Lookup } from './answers';
 
 export const MAX_CALLS = 3;
-export type AgentAction = 'search' | 'expand' | 'rewrite';
+/** 'hop' is a GraphRAG walk step (graph.ts), logged in the same shape */
+export type AgentAction = 'search' | 'expand' | 'rewrite' | 'hop';
 export interface AgentCall {
   call: number;
   action: AgentAction;

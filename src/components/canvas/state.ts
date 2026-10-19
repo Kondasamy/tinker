@@ -8,6 +8,7 @@ import { resolveConfig, type ChunkParams, type Strategy, type ResolvedConfig } f
 import { signature, NO_CONTEXT, type KeyFact } from '../../lib/rag/signature';
 import { lookup, type Lookup } from '../../lib/rag/answers';
 import { runAgent, type AgentCall } from '../../lib/rag/agent';
+import { runGraph, type Traversal } from '../../lib/rag/graph';
 import { trackLayout, type Edge, type Placed } from './track';
 import { benchFromTrack, cellXY, type Bench } from './bench';
 
@@ -30,6 +31,8 @@ export interface Knobs {
   rewrite: number | null;
   /** agent's retrieval budget, 1–3 (read only when the agent is on the live path) */
   maxCalls: number;
+  /** graph walk depth from the question's entities, 1–3 (read only when the graph is on the live path) */
+  hops: number;
 }
 export type KnobName = keyof Knobs;
 
@@ -42,7 +45,7 @@ export interface CanvasState {
 }
 
 export const DEFAULT_KNOBS: Knobs = {
-  strategy: 'fixed', size: 32, overlap: 0, topK: 3, hybrid: 0, filter: null, rerank: false, order: 'ranked', rewrite: null, maxCalls: 2,
+  strategy: 'fixed', size: 32, overlap: 0, topK: 3, hybrid: 0, filter: null, rerank: false, order: 'ranked', rewrite: null, maxCalls: 2, hops: 1,
 };
 
 /** Every block unlocked by the given chapter and the ones before it (AE4: jumping ahead shows the canvas as of that chapter). */
@@ -116,8 +119,10 @@ export interface Outcome {
   preparing: boolean;
   signature: string | null;
   answer: Lookup | null;
-  /** the agent's call log when the agent is on the live path, else null */
+  /** the agent's call log (or the graph's hop log) when it is on the live path, else null */
   calls: AgentCall[] | null;
+  /** the graph walk when the graph is on the live path, else null */
+  graph: Traversal | null;
 }
 
 export function outcome(index: RagIndex, session: ReturnType<typeof createSession>, s: CanvasState, q: CanvasQuestion): Outcome {
@@ -125,11 +130,14 @@ export function outcome(index: RagIndex, session: ReturnType<typeof createSessio
   const p = runParams(s, q, analysis);
   const config = resolveConfig(s.knobs);
   const chunks = index.get(config.file)?.N ?? null;
-  if (!p) return { analysis, config, chunks, record: null, preparing: false, signature: NO_CONTEXT, answer: lookup(q.id, NO_CONTEXT), calls: null };
+  if (!p) return { analysis, config, chunks, record: null, preparing: false, signature: NO_CONTEXT, answer: lookup(q.id, NO_CONTEXT), calls: null, graph: null };
   const r = session(p);
   const cfg = index.get(r.config.file);
-  const agent = analysis.agent && !r.preparing && cfg ? runAgent(index, cfg, { ...p, question: q }, s.knobs.maxCalls) : null;
-  const record = agent?.record ?? (r.record?.questionId === q.id ? r.record : null);
+  const ready = !r.preparing && cfg;
+  // the graph wins when both side bays are live (only the Sandbox can wire both)
+  const graph = ready && analysis.used.includes('graph') ? runGraph(index, cfg, { ...p, question: q }, s.knobs.hops) : null;
+  const agent = ready && !graph && analysis.agent ? runAgent(index, cfg, { ...p, question: q }, s.knobs.maxCalls) : null;
+  const record = graph?.record ?? agent?.record ?? (r.record?.questionId === q.id ? r.record : null);
   const sig = record ? signature(index, q, record.context) : null;
-  return { analysis, config: r.config, chunks, record, preparing: r.preparing, signature: sig, answer: sig ? lookup(q.id, sig) : null, calls: agent?.calls ?? null };
+  return { analysis, config: r.config, chunks, record, preparing: r.preparing, signature: sig, answer: sig ? lookup(q.id, sig) : null, calls: graph?.calls ?? agent?.calls ?? null, graph: graph?.trace ?? null };
 }

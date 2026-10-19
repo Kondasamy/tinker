@@ -76,6 +76,7 @@ function statOf(t: BlockType, s: CanvasState, o: Outcome | null, index: RagIndex
     case 'reranker': return k.rerank ? 'ON' : 'OFF';
     case 'assembler': return `${o?.record?.context.length ?? 0} CHUNKS`;
     case 'agent': return `${k.maxCalls} CALLS`;
+    case 'graph': return `${k.hops} HOP${k.hops === 1 ? '' : 'S'}`;
     default: return '';
   }
 }
