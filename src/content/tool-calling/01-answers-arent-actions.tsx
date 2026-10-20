@@ -4,7 +4,6 @@ import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict, { Reveal } from '../../components/quiz/Predict';
-import FlatStage from '../../components/scenes/FlatStage';
 import { toolLanes, transcript } from '../../components/scenes/toolSequence';
 import { run } from '../../lib/tools/host';
 import { RECORDINGS } from '../../lib/tools/turns';
@@ -13,7 +12,7 @@ import { fact } from '../../lib/tools/facts';
 import { longDate } from '../../lib/format';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Fact, Messages, openMessage } from './kit';
+import { Fact, Messages, ToolStage } from './kit';
 
 const MODULE = 'tool-calling', ID = '01-answers-arent-actions';
 const REC = RECORDINGS['no-tools'];
@@ -90,7 +89,7 @@ export default function AnswersArentActions() {
       steps={STEPS}
       initial={{ asked: false, prediction: null, revealed: false, looked: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, inspect }) => <FlatStage lanes={LANES} msgs={MSGS} upTo={upTo(state)} onPick={openMessage(inspect)} />}
+      stage={({ state, inspect }) => <ToolStage lanes={LANES} msgs={MSGS} upTo={upTo(state)} inspect={inspect} office={{ tools: 0 }} />}
       controls={{
         ask: ({ state, apply }) => <button type="button" className="big" onClick={() => apply({ ...state, asked: true })}>Ask: “{QUESTION}”</button>,
         predict: ({ state, apply }) => <Predict {...PREDICT} value={state.prediction} onPredict={i => apply({ ...state, prediction: i })} />,

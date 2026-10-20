@@ -6,7 +6,6 @@ import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
-import FlatStage from '../../components/scenes/FlatStage';
 import { toolLanes, transcript, callText, type Shown } from '../../components/scenes/toolSequence';
 import { answerOf, run, stepsOf, type Decision, type Run, type Setup } from '../../lib/tools/host';
 import { RECORDINGS, type Recording } from '../../lib/tools/turns';
@@ -14,7 +13,7 @@ import { ORDERS } from '../../lib/tools/server';
 import { fact } from '../../lib/tools/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Fact, LIMITS, LIMIT_OF, Ledger, Messages, Outcome, Play, Stepper, money, openMessage } from './kit';
+import { Fact, LIMITS, LIMIT_OF, Ledger, Messages, Outcome, Play, Stepper, ToolStage, money } from './kit';
 
 const MODULE = 'tool-calling', ID = '06-when-tools-go-wrong';
 const LANES = toolLanes();
@@ -144,7 +143,9 @@ export default function WhenToolsGoWrong() {
       next={nextOf(MODULE, ID)}
       stage={({ state, inspect }) => (
         <div className="tc-stage">
-          <div className="tc-frame"><FlatStage lanes={LANES} msgs={msgs(state)} upTo={state.shown} onPick={openMessage(inspect)} /></div>
+          <ToolStage lanes={LANES} msgs={msgs(state)} upTo={state.shown} inspect={inspect}
+            office={{ tools: REC[state.scene].tools.length, schema: true, gate: !!setupOf(state).gate, note: state.scene !== 'gate' && state.scene !== 'limit',
+              orders: state.scene === 'limit' ? LIMIT_OF(state.limit).toUpperCase() : undefined }} />
           {/* the ledger follows the messages shown: a refund only lands once its result is on screen */}
           <Ledger after={done(state) ? result(state).run.orders : ORDERS} ids={[orderIn(REC[state.scene])]} />
         </div>

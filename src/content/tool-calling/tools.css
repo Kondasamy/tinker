@@ -54,3 +54,11 @@
 .tc-bench { display: flex; flex-direction: column; gap: 14px; }
 .tc-bench .tc-pick legend { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .control[data-control="try"] .feedback { margin-top: 10px; }
+
+/* the back-office picture: the newest envelope rides in from its sender (CSS only); reduced motion shows it in place */
+.office .capsule { animation: office-ride .8s cubic-bezier(.2, .7, .3, 1) both; }
+@keyframes office-ride { from { transform: translate(var(--dx, 0px), var(--dy, 0px)); } }
+@media (prefers-reduced-motion: reduce) { .office .capsule { animation: none; } }
+.tc-caption { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; font-size: 13.5px; min-height: 2.6em; }
+.tc-caption .lbl { flex-basis: 100%; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tc-caption .txt { font-family: ui-monospace, Menlo, monospace; font-weight: 700; overflow-wrap: anywhere; }

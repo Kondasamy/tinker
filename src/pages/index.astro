@@ -13,9 +13,9 @@ import { renderers, blockShadow, type BlockType } from '../lib/iso/blocks';
 import { CHAPTERS } from '../lib/chapters';
 import { MODULES, type Level } from '../lib/modules';
 import { HOME } from '../lib/pages';
-import FlatStage from '../components/scenes/FlatStage';
-import { SEQ_LANES, SEQ_MSGS } from '../components/scenes/toolSequence';
-import type { Lane, Msg } from '../lib/iso/flat';
+import { SEQ_MSGS } from '../components/scenes/toolSequence';
+import { OFFICE_BOARD, officeScene, officeLabel } from '../components/scenes/officeScene';
+import { RECORDINGS } from '../lib/tools/turns';
 
 const ALL = CHAPTERS.flatMap(c => c.unlocks);
 const one = (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) => ({ top }: SceneCtx) =>
@@ -33,11 +33,11 @@ const LOOP: [string, string][] = [
   ['Fix it yourself', 'Puzzles hand you a broken setup. Hints appear when you’re stuck, and “Show me” is always there.'],
 ];
 // a live module's card picture and topic chips; every other fact on a card comes from the registry
-// (an isometric scene, or a flat sequence)
 type Iso = { board: typeof MINI_BOARD; scene: typeof miniPipeline; label: string };
-const CARD: Record<string, { name: string; iso?: Iso; flat?: { lanes: Lane[]; msgs: Msg[] }; topics: string[] }> = {
+const OFFICE = { msgs: SEQ_MSGS, upTo: 3, tools: RECORDINGS['order-status'].tools.length, scale: 1.7 };
+const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: { name: 'Retrieval-Augmented Generation (RAG)', iso: { board: MINI_BOARD, scene: miniPipeline, label: MINI_LABEL }, topics: ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'Reranking', 'Agentic RAG', 'GraphRAG'] },
-  'tool-calling': { name: 'Tool calling & the Model Context Protocol (MCP)', flat: { lanes: SEQ_LANES, msgs: SEQ_MSGS.slice(0, 4) }, topics: ['Tool definitions', 'JSON Schema', 'Multi-step calls', 'MCP hosts & servers', 'Tools, resources, prompts', 'Approval', 'Prompt injection'] },
+  'tool-calling': { name: 'Tool calling & the Model Context Protocol (MCP)', iso: { board: OFFICE_BOARD, scene: officeScene(OFFICE), label: officeLabel(OFFICE) }, topics: ['Tool definitions', 'JSON Schema', 'Multi-step calls', 'MCP hosts & servers', 'Tools, resources, prompts', 'Approval', 'Prompt injection'] },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];
 const LIVE = MODULES.filter(m => m.status === 'live');
@@ -96,7 +96,6 @@ const atLevel = (level: Level) => [...LIVE, ...MODULES.filter(m => m.status === 
               {mods.map(m => m.status === 'live' ? (
                 <article class="module" data-module={m.id}>
                   {CARD[m.id]?.iso && <div class="pic"><IsoStage {...CARD[m.id].iso!} /></div>}
-                  {CARD[m.id]?.flat && <div class="pic"><FlatStage client:visible {...CARD[m.id].flat!} /></div>}
                   <div class="info">
                     <p class="kicker">Module {LIVE.indexOf(m) + 1} · {m.chapters.length ? `${m.chapters.length} chapters` : 'Chapters arrive soon'}</p>
                     <h4><a href={`/${m.id}/`}>{CARD[m.id]?.name ?? m.title}</a></h4>

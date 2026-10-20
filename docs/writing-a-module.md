@@ -59,7 +59,8 @@ Each module has a **recall bank** (`src/content/<module>/recall.ts`): three to f
 ## 6. Draw the pictures
 
 - **Style:** Colorfigures: flat three-tone shading, heavy ink silhouettes, flat blue shadows, warm paper. Palette in `src/styles/tokens.css` and `PALS` in the engine.
-- **Kinds:** isometric scenes (`src/lib/iso/`, `IsoStage`) for things with parts; flat sequences (`src/lib/iso/flat.ts`, `FlatStage`) for flows over time. Both use the same ink. A new figure kind goes beside the engine, never inside `core.js` (upstream code; mark local changes with `adapted:`).
+- **Kinds:** isometric scenes (`src/lib/iso/`, `IsoStage`) for things with parts; flat sequences (`src/lib/iso/flat.ts`, `FlatStage`) for flows over time. Both use the same ink.
+- **Lead with a scene the reader can picture**, not a flow chart. Tool calling's back office (`src/components/scenes/officeScene.ts`) turns a message sequence into a place: desks, belts, envelopes, a barrier that lifts. Keep the precise view (the sequence) one tab away, and drive both from the same data. A new figure kind goes beside the engine, never inside `core.js` (upstream code; mark local changes with `adapted:`).
 - **Text in pictures goes in label pills**, never as small text painted on faces. Long text (JSON, messages, documents) goes in the story column or the drawer.
 - **One figure on the stage at a time**, chosen by the step, in a fixed frame so the page never resizes.
 - **Check at 390px wide.** Phones stack the picture above the story; pills are larger there.

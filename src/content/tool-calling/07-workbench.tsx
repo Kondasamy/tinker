@@ -3,7 +3,6 @@
 // TypeChallenge, not a host run: every setup is judged by verdict() below, so no recorded turn is needed for any of
 // the 24 reachable setups. The picture is chapter 5's host scene; the reader may switch to the JSON-RPC messages that
 // connecting the chosen servers really sends (R28).
-import { useEffect, useState } from 'react';
 import StepRunner, { type StageProps } from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import IsoStage from '../../lib/iso/IsoStage';
@@ -16,7 +15,7 @@ import { fact } from '../../lib/tools/facts';
 import { nextOf } from '../../lib/modules';
 import type { Lane } from '../../lib/iso/flat';
 import CALENDAR from '../../../data/tool-calling/calendar.json';
-import { Fact, LIMITS, LIMIT_OF, Messages, Stepper, money, openMessage } from './kit';
+import { Fact, LIMITS, LIMIT_OF, Messages, Stepper, money, openMessage, useNarrow } from './kit';
 
 const MODULE = 'tool-calling', ID = '07-workbench';
 export const SERVER_IDS = Object.keys(SERVERS) as ServerId[];
@@ -122,15 +121,6 @@ export const STEPS: Step<S>[] = [
   },
 ];
 
-function useNarrow() {
-  const [narrow, setNarrow] = useState(false);
-  useEffect(() => {
-    const m = matchMedia('(max-width: 600px)'), f = () => setNarrow(m.matches);
-    f(); m.addEventListener('change', f);
-    return () => m.removeEventListener('change', f);
-  }, []);
-  return narrow;
-}
 
 const FILL = { height: '100%' };
 function Stage({ state, sync, inspect }: StageProps<S>) {

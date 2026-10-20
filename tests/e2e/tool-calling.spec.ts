@@ -55,12 +55,15 @@ test('home lists the module under Intermediate as a live card linking to its int
 // U9: chapters 1–3.
 const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 const wide = (page: Page) => page.locator('.stage svg.flat-wide');
+/** chapters 1–4 and 6 open on the back-office picture; their message sequence is the second tab */
+const seq = (page: Page) => page.locator('.tc-tabs').getByRole('button', { name: /^Messages/ }).click();
 const drawer = (page: Page) => page.getByRole('complementary');
 const player = (page: Page) => card(page).getByRole('button', { name: /^Run the request|^Next message/ });
 const playAll = async (page: Page) => { while (await player(page).count()) await player(page).click(); };
 
 test('chapter 1: the outcome stays hidden until the reveal, then shows beside the prediction', async ({ page }) => {
   await toolWalker(page, 'mouse').open('01-answers-arent-actions');
+  await seq(page);
   await card(page).getByRole('button', { name: /^Ask/ }).click();
   await expect(wide(page).locator('.card')).toHaveCount(2);      // question in, nothing back yet
   await card(page).getByRole('radio', { name: /looks the order up/ }).click();
@@ -77,6 +80,7 @@ test('chapter 1: the outcome stays hidden until the reveal, then shows beside th
 
 test('chapter 2: the vague description gets no call and a guess; the clear one gets get_order and a grounded answer', async ({ page }) => {
   await toolWalker(page, 'mouse').open('02-first-tool');
+  await seq(page);
   await card(page).getByRole('button', { name: /^Open the get_order/ }).click();
   await expect(drawer(page)).toContainText('Gets data.');
   await card(page).getByRole('radio', { name: /calls no tool/ }).click();
@@ -98,6 +102,7 @@ test('chapter 2: the vague description gets no call and a guess; the clear one g
 
 test('chapter 3: INVALID and an error result; then a valid wrong id passes the schema and fails the ownership check', async ({ page }) => {
   await toolWalker(page, 'mouse').open('03-valid-isnt-correct');
+  await seq(page);
   await card(page).getByRole('radio', { name: /Rejects it/ }).click();
   for (let i = 0; i < 4; i++) await player(page).click();   // up to the error going back, while it is in the window
   await expect(wide(page).locator('.stamp')).toHaveText('INVALID');
@@ -186,6 +191,7 @@ test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
   test('messages appear without travel and the steps still advance', async ({ page }) => {
     await toolWalker(page, 'mouse').open('03-valid-isnt-correct');
+    await seq(page);
     await card(page).getByRole('radio', { name: /Rejects it/ }).click();
     while (await player(page).count()) { await player(page).click(); expect(await running(page)).toBe(0); }
     await expect(card(page)).toContainText('Step 3 of');
@@ -194,6 +200,7 @@ test.describe('reduced motion', () => {
 
 test('without reduced motion the newest message does travel (control for the test above)', async ({ page }) => {
   await toolWalker(page, 'mouse').open('03-valid-isnt-correct');
+  await seq(page);
   await card(page).getByRole('radio', { name: /Rejects it/ }).click();
   await player(page).click();
   expect(await running(page)).toBeGreaterThan(0);
@@ -209,6 +216,7 @@ test('chapter 3: the last run shows its latest 7 messages at a readable size, al
   await page.setViewportSize({ width: 1440, height: 900 });
   const w = toolWalker(page, 'mouse');
   await w.open('03-valid-isnt-correct');
+  await seq(page);
   await w.ch3();
   await expect(wide(page).locator('.card')).toHaveCount(7);
   await expect(wide(page).locator('.earlier')).toContainText('earlier messages');
@@ -224,6 +232,7 @@ test('chapter 3: the last run shows its latest 7 messages at a readable size, al
 
 test('a message card opens the drawer on that message; Escape and × close it and focus returns to the card', async ({ page }) => {
   await toolWalker(page, 'mouse').open('02-first-tool');
+  await seq(page);
   await card(page).getByRole('button', { name: /^Open the get_order/ }).click();
   await card(page).getByRole('radio', { name: /calls no tool/ }).click();
   await card(page).getByRole('button', { name: 'Run the request' }).click();
@@ -245,6 +254,7 @@ test('a message card opens the drawer on that message; Escape and × close it an
 test('on a phone the drawer opened from a card is a bottom sheet', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await toolWalker(page, 'mouse').open('01-answers-arent-actions');
+  await seq(page);
   await card(page).getByRole('button', { name: /^Ask/ }).click();
   await page.locator('.stage svg.flat-phone [data-msg][role="button"]').click();
   const sheet = page.locator('.drawer.sheet');
@@ -257,6 +267,7 @@ test('on a phone the drawer opened from a card is a bottom sheet', async ({ page
 
 test('chapter 4: two lookups go out at once; the refund waits for the total; a lower cap stops the loop with a reason', async ({ page }) => {
   await toolWalker(page, 'mouse').open('04-many-steps');
+  await seq(page);
   await card(page).getByRole('radio', { name: /Both calls in one turn/ }).click();
   await playAll(page);
   await step(page, 3);
@@ -327,6 +338,7 @@ test('chapter 5: integration counts follow the numbers; connecting shows server/
 
 test('chapter 6, AE5: denying the refund at the gate advances and the denied-call turn plays', async ({ page }) => {
   await toolWalker(page, 'mouse').open('06-when-tools-go-wrong');
+  await seq(page);
   await playAll(page);
   await step(page, 2);
   await expect(wide(page).locator('.stamp')).toContainText(['WAITING']);
@@ -346,6 +358,7 @@ test('chapter 6, AE5: denying the refund at the gate advances and the denied-cal
 
 test('chapter 6, AE6: gate off, the planted note changes the ledger; gate on, it waits; approving shows the damage and does not advance', async ({ page }) => {
   await toolWalker(page, 'mouse').open('06-when-tools-go-wrong');
+  await seq(page);
   await playAll(page);
   await btn(page, 'Approve');
   await playAll(page);
@@ -382,4 +395,29 @@ test('chapter 6, AE6: gate off, the planted note changes the ledger; gate on, it
   await playAll(page);
   await step(page, 9);
   await expect(row).not.toHaveAttribute('data-changed');
+});
+
+// The back-office picture (the chapters' default view) follows the same run as the sequence.
+const pic = (page: Page) => page.locator('.stage svg.office');
+
+test('the picture follows the run: no belt to the orders in chapter 1; an INVALID call held at the schema check in chapter 3', async ({ page }) => {
+  await toolWalker(page, 'mouse').open('01-answers-arent-actions');
+  await expect(pic(page)).toHaveAttribute('aria-label', /nothing joining it to the host/);
+  await card(page).getByRole('button', { name: /^Ask/ }).click();
+  await expect(page.locator('.tc-caption')).toContainText('Assistant app → Model');
+  await toolWalker(page, 'mouse').open('03-valid-isnt-correct');
+  await card(page).getByRole('radio', { name: /Rejects it/ }).click();
+  for (let i = 0; i < 3; i++) await player(page).click();
+  await expect(pic(page)).toHaveAttribute('aria-label', /a schema check.*stamped invalid/);
+  await expect(page.locator('.tc-caption .stamp')).toHaveText('INVALID');
+  await seq(page);   // the same run as a sequence, a tab away
+  await expect(wide(page).locator('.stamp')).toHaveText('INVALID');
+});
+
+test('chapter 6: the approval barrier stays down while it waits for a person, and rises on Approve', async ({ page }) => {
+  await toolWalker(page, 'mouse').open('06-when-tools-go-wrong');
+  await playAll(page);
+  await expect(pic(page)).toHaveAttribute('aria-label', /approval barrier, down, waiting for a person/);
+  await card(page).getByRole('button', { name: 'Approve' }).click();
+  await expect(pic(page)).toHaveAttribute('aria-label', /approval barrier, raised/);
 });

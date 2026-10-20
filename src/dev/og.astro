@@ -13,8 +13,8 @@ import { unlockedThrough } from '../components/canvas/state';
 import { CHAPTERS } from '../lib/chapters';
 import { ALL_PAGES } from '../lib/pages';
 import { TIMELINE, STOP_5TB } from '../lib/scale';
-import FlatStage from '../components/scenes/FlatStage';
-import { SEQ_LANES, SEQ_MSGS, toolLanes, transcript } from '../components/scenes/toolSequence';
+import { SEQ_MSGS, transcript } from '../components/scenes/toolSequence';
+import { OFFICE_BOARD, officeScene, type OfficeOpts } from '../components/scenes/officeScene';
 import { run } from '../lib/tools/host';
 import { RECORDINGS } from '../lib/tools/turns';
 import { SERVERS } from '../lib/tools/server';
@@ -24,15 +24,22 @@ export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
 }
 const { page } = Astro.props;
-// module 2 chapters: the run each chapter is about, as its flat sequence
+// module 2 chapters: the run each chapter is about, in the back-office picture, at the moment that tells the chapter
 const seq = (id: string, setup = {}) => transcript(RECORDINGS[id], run(RECORDINGS[id], setup));
-const TOOL_OG: Record<string, [string, ReturnType<typeof seq>]> = {
-  'tool-calling-01-answers-arent-actions': ['Assistant app', seq('no-tools')],
-  'tool-calling-02-first-tool': ['Host app', seq('order-status')],
-  'tool-calling-03-valid-isnt-correct': ['Host app', seq('invalid-arg')],
-  'tool-calling-04-many-steps': ['Host app', seq('parallel')],
-  // the planted refund, held at the approval gate
-  'tool-calling-06-when-tools-go-wrong': ['Host app', seq('injection', { gate: true })],
+const office = (id: string, o: Partial<OfficeOpts> = {}, setup = {}, upTo?: number) => {
+  const msgs = seq(id, setup);
+  return officeScene({ msgs, upTo, tools: RECORDINGS[id].tools.length, scale: 1.5, ...o });
+};
+const TOOL_OG: Record<string, ReturnType<typeof officeScene>> = {
+  'tool-calling-01-answers-arent-actions': office('no-tools', { host: 'Assistant app' }),
+  // the call on its way to the order system
+  'tool-calling-02-first-tool': office('order-status', {}, {}, 4),
+  // the string id held at the schema check
+  'tool-calling-03-valid-isnt-correct': office('invalid-arg', { schema: true }, {}, 3),
+  // two lookups on the belt at once
+  'tool-calling-04-many-steps': office('parallel', { schema: true }, {}, 6),
+  // the planted refund, held at the approval barrier
+  'tool-calling-06-when-tools-go-wrong': office('injection', { schema: true, gate: true, note: true }, { gate: true }),
 };
 const tool = TOOL_OG[page.og];
 const MCP_OG = connectScene({ servers: Object.values(SERVERS).map(s => ({ name: s.title.toUpperCase(), connected: true })), scale: 1.5 });
@@ -53,8 +60,8 @@ const BENCH_OG = connectScene({ servers: Object.values(SERVERS).map(s => ({ name
         {/* a new module's pages fall through to the recall cards until they get a picture case here */}
         {page.og === 'home' ? <div class="pair"><IsoStage board={MINI_BOARD} scene={miniPipeline} label="" /><IsoStage board={MCP_BOARD} scene={MCP_OG} label="" /></div>
           : page.og === 'rag' ? <IsoStage board={MINI_BOARD} scene={miniPipeline} label="" />
-          : page.og === 'tool-calling' ? <FlatStage lanes={SEQ_LANES} msgs={SEQ_MSGS} />
-          : tool ? <FlatStage lanes={toolLanes(tool[0])} msgs={tool[1]} />
+          : page.og === 'tool-calling' ? <IsoStage board={OFFICE_BOARD} scene={officeScene({ msgs: SEQ_MSGS, upTo: 3, tools: 2, scale: 1.5 })} label="" />
+          : tool ? <IsoStage board={OFFICE_BOARD} scene={tool} label="" />
           : page.og === 'tool-calling-05-mcp' ? <IsoStage board={MCP_BOARD} scene={MCP_OG} label="" />
           : page.og === 'tool-calling-07-workbench' ? <IsoStage board={MCP_BOARD} scene={BENCH_OG} label="" />
           : page.og === '01-history' ? <Timeline entries={TIMELINE} visited={4} active={3} onPick={() => {}} pills={1.7} />

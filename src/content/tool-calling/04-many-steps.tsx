@@ -5,14 +5,13 @@ import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
-import FlatStage from '../../components/scenes/FlatStage';
 import { toolLanes, transcript, type Shown } from '../../components/scenes/toolSequence';
 import { DOMAINS, answerOf, run, stepsOf, type Run } from '../../lib/tools/host';
 import { RECORDINGS } from '../../lib/tools/turns';
 import { fact } from '../../lib/tools/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Fact, Messages, Outcome, Play, Stepper, openMessage } from './kit';
+import { Fact, Messages, Outcome, Play, Stepper, ToolStage } from './kit';
 
 const MODULE = 'tool-calling', ID = '04-many-steps';
 const LANES = toolLanes();
@@ -118,7 +117,8 @@ export default function ManySteps() {
       steps={STEPS}
       initial={{ scene: 'parallel', cap: FULL, shown: 0, p1: null, p2: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, inspect }) => <FlatStage lanes={LANES} msgs={msgs(state)} upTo={state.shown} onPick={openMessage(inspect)} />}
+      stage={({ state, inspect }) => <ToolStage lanes={LANES} msgs={msgs(state)} upTo={state.shown} inspect={inspect}
+        office={{ tools: (state.scene === 'parallel' ? PAR : SEQ).tools.length, schema: true, cap: state.scene === 'sequence' ? state.cap : undefined }} />}
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         p2: ({ state, apply }) => <Predict {...P2} value={state.p2} onPredict={i => apply({ ...state, p2: i })} />,

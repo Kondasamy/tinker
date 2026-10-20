@@ -6,7 +6,6 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { puzzle } from '../../components/quiz/Puzzle';
-import FlatStage from '../../components/scenes/FlatStage';
 import { toolLanes, transcript, callText } from '../../components/scenes/toolSequence';
 import { answerOf, run, type Run } from '../../lib/tools/host';
 import { RECORDINGS } from '../../lib/tools/turns';
@@ -14,7 +13,7 @@ import { ORDERS } from '../../lib/tools/server';
 import { fact } from '../../lib/tools/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Fact, Messages, Outcome, Play, ToolDef, GET_ORDER, openMessage } from './kit';
+import { Fact, Messages, Outcome, Play, ToolDef, GET_ORDER, ToolStage } from './kit';
 
 const MODULE = 'tool-calling', ID = '03-valid-isnt-correct';
 const LANES = toolLanes();
@@ -113,7 +112,8 @@ export default function ValidIsntCorrect() {
       steps={STEPS}
       initial={{ scene: 'invalid', shown: 0, p1: null, p2: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, inspect }) => <FlatStage lanes={LANES} msgs={MSGS[state.scene]} upTo={state.shown} onPick={openMessage(inspect)} />}
+      stage={({ state, inspect }) => <ToolStage lanes={LANES} msgs={MSGS[state.scene]} upTo={state.shown} inspect={inspect}
+        office={{ tools: REC[state.scene].tools.length, schema: true, owner: state.scene === 'checked' }} />}
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         p2: ({ state, apply }) => <Predict {...P2} value={state.p2} onPredict={i => apply({ ...state, p2: i })} />,

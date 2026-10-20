@@ -1,6 +1,6 @@
 // Pieces the tool-calling chapters share: the message-by-message player, the drawer panels (full messages, the tool definition)
 // and a cited fact. Every string here is rendered as React text (KTD12): tool results and model turns never become markup.
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { STAMP_CLASS, type Lane } from '../../lib/iso/flat';
 import type { Shown } from '../../components/scenes/toolSequence';
 import { ORDERS, TOOLS, describe, type Order, type Tool } from '../../lib/tools/server';
@@ -9,6 +9,9 @@ import { fact } from '../../lib/tools/facts';
 import { DOMAINS } from '../../lib/tools/host';
 import { money } from '../../lib/format';
 import { Reveal } from '../../components/quiz/Predict';
+import IsoStage from '../../lib/iso/IsoStage';
+import FlatStage from '../../components/scenes/FlatStage';
+import { OFFICE_BOARD, officeScene, officeLabel, officeState, type OfficeOpts } from '../../components/scenes/officeScene';
 import './tools.css';
 
 export { money };
@@ -115,5 +118,56 @@ export function Ledger({ after, ids }: { after: Order[]; ids: number[] }) {
         })}
       </tbody>
     </table>
+  );
+}
+
+/** Below 600px wide: pills grow (`scale`) so they stay readable on a phone. */
+export function useNarrow() {
+  const [narrow, setNarrow] = useState(false);
+  useEffect(() => {
+    const m = matchMedia('(max-width: 600px)'), f = () => setNarrow(m.matches);
+    f(); m.addEventListener('change', f);
+    return () => m.removeEventListener('change', f);
+  }, []);
+  return narrow;
+}
+
+const FILL = { height: '100%' };   // fill the fixed frame; the viewBox keeps the drawing's shape
+/** The chapters' stage: the back-office picture (default) or the same run as a message sequence, one at a time (R28).
+ * The tab is the reader's view, not story state, so it stays out of saved progress. */
+export function ToolStage({ lanes, msgs, upTo, office, inspect }:
+  { lanes: Lane[]; msgs: Shown[]; upTo: number; office: Omit<OfficeOpts, 'msgs' | 'upTo' | 'host' | 'scale'>; inspect: (panel: string, sheet?: boolean) => void }) {
+  const [view, setView] = useState<'scene' | 'seq'>('scene');
+  const scale = useNarrow() ? 1.8 : 1;
+  const opts = { ...office, msgs, upTo, host: lanes[1].name, scale };
+  return (
+    <div className="tc-stage">
+      <div className="tc-tabs" role="group" aria-label="Show in the picture">
+        <button type="button" className="chip" aria-pressed={view === 'scene'} onClick={() => setView('scene')}>Picture</button>
+        <button type="button" className="chip" aria-pressed={view === 'seq'} onClick={() => setView('seq')}>Messages ({Math.min(upTo, msgs.length)})</button>
+      </div>
+      <div className="tc-frame">
+        {view === 'scene'
+          ? <IsoStage className="office" board={OFFICE_BOARD} style={FILL} scene={officeScene(opts)} label={officeLabel(opts)} />
+          : <FlatStage lanes={lanes} msgs={msgs} upTo={upTo} onPick={openMessage(inspect)} />}
+      </div>
+      {view === 'scene' && <Caption lanes={lanes} msgs={msgs} upTo={upTo} />}
+    </div>
+  );
+}
+
+/** Under the picture: the message on the belt in words (the drawing carries only its stamp). Plain React text (KTD12). */
+function Caption({ lanes, msgs, upTo }: { lanes: Lane[]; msgs: Shown[]; upTo: number }) {
+  const { flying } = officeState({ msgs, upTo, tools: 1 });
+  const name = (id: string) => lanes.find(l => l.id === id)?.name ?? id;
+  if (!flying.length) return <p className="tc-caption">Nothing sent yet.</p>;
+  const { m } = flying[0];
+  return (
+    <p className="tc-caption">
+      <span className="lbl">Message {Math.min(upTo, msgs.length)} of {msgs.length} · {name(m.from)} → {name(m.to)}</span>
+      {m.stamp && <span className={`stamp ${STAMP_CLASS[m.stamp]}`}>{m.stamp}</span>}
+      {flying.length > 1 && <span className="stamp neutral">AT ONCE</span>}
+      <span className="txt">{flying.map(f => f.m.text).join(' · ')}</span>
+    </p>
   );
 }

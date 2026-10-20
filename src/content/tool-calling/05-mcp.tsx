@@ -4,7 +4,6 @@
 // server's real reply (server/discover, tools/list, resources/read, prompts/get: the stateless spec, no initialize).
 // One figure at a time in a fixed frame (R28): the isometric scene, or the message sequence, chosen by the step;
 // once the host is connecting, the reader may switch between them.
-import { useEffect, useState } from 'react';
 import StepRunner, { type StageProps } from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
@@ -19,7 +18,7 @@ import { fact } from '../../lib/tools/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import type { Lane } from '../../lib/iso/flat';
-import { Fact, Messages, Outcome, Stepper, openMessage } from './kit';
+import { Fact, Messages, Outcome, Stepper, openMessage, useNarrow } from './kit';
 
 const MODULE = 'tool-calling', ID = '05-mcp';
 const IDS = Object.keys(SERVERS) as ServerId[];
@@ -133,15 +132,6 @@ export const STEPS: Step<S>[] = [
   },
 ];
 
-function useNarrow() {
-  const [narrow, setNarrow] = useState(false);
-  useEffect(() => {
-    const m = matchMedia('(max-width: 600px)'), f = () => setNarrow(m.matches);
-    f(); m.addEventListener('change', f);
-    return () => m.removeEventListener('change', f);
-  }, []);
-  return narrow;
-}
 
 const FILL = { height: '100%' };   // fill the fixed frame; the viewBox keeps the drawing's shape
 function Stage({ state, sync, inspect }: StageProps<S>) {
