@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { openIndex, type Loader, type RagIndex } from '../../src/lib/rag/load';
+import { openIndex, type RagIndex } from '../../src/lib/rag/load';
+import { diskLoader } from '../../src/lib/rag/diskLoader';
 import { createSession } from '../../src/lib/rag/engine';
 import { resolveConfig } from '../../src/lib/rag/lattice';
 import {
@@ -10,13 +11,11 @@ import { trackLayout } from '../../src/components/canvas/track';
 import { addNode, cellAt, connect, cut, moveNode, removeNode, validTargets, COLS, ROWS } from '../../src/components/canvas/bench';
 import { CELL } from '../../src/lib/iso/blocks';
 
-const DIR = 'public/data/index/';
-const fileLoader: Loader = async (f) => { const b = readFileSync(DIR + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength); };
 const questions: CanvasQuestion[] = ['ch3', 'ch4', 'ch5'].flatMap((c) => JSON.parse(readFileSync(`data/questions/${c}.json`, 'utf8')));
 const Q = (id: string) => questions.find((q) => q.id === id)!;
 
 let index: RagIndex;
-beforeAll(async () => { index = await openIndex(fileLoader); });
+beforeAll(async () => { index = await openIndex(diskLoader); });
 async function settle(s: CanvasState, q: CanvasQuestion) {
   await index.load(resolveConfig(s.knobs).file);
   return outcome(index, createSession(index), s, q);
@@ -169,7 +168,7 @@ describe('sandbox tip (07): the hotel limit', () => {
 
 describe('a failed config load', () => {
   it('gives no answer (so no verdict) and flags failed', async () => {
-    const ix = await openIndex(async (f) => { if (f.startsWith('fixed-32-0')) throw new Error('offline'); return fileLoader(f); });
+    const ix = await openIndex(async (f) => { if (f.startsWith('fixed-32-0')) throw new Error('offline'); return diskLoader(f); });
     const session = createSession(ix, () => {});
     const s = initialCanvas(unlockedThrough('04-layers'));
     outcome(ix, session, s, Q('refund-enterprise'));

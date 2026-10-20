@@ -319,7 +319,7 @@ export const RECALL: RecallItem[] = [
   },
   {
     id: 'small-suite-steps', chapter: '06-run-it-twice',
-    question: 'The parts-catalogue assistant has a test set of 20 questions. A new version scores 5 points higher. What could explain that, with nothing better about it?',
+    question: 'Suppose another company’s parts-catalogue assistant has a test set of 20 questions. A new version scores 5 points higher. What could explain that, with nothing better about it?',
     options: [
       'Nothing: 5 points is a real gain',
       'One flaky question that happened to pass this time',

@@ -3,17 +3,17 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { openIndex, type RagIndex } from '../../src/lib/rag/load';
+import { diskLoader } from '../../src/lib/rag/diskLoader';
 import { compare, fileOf, PAIRS, passed, QUESTIONS, runSuite, VERSION_IDS, type Row, type VersionId } from '../../src/lib/evals/suite';
 import {
   agreement, exactMatch, gradeRun, grade, hasCitation, judged, judgedRun, keyFact, label, passAtK, passHatK, positionBias, runCase, SAMPLES, type PairRows,
 } from '../../src/lib/evals/graders';
-import { FACTS } from '../../src/lib/evals/facts';
+import { ACCESSED, FACTS } from '../../src/lib/evals/facts';
 
-const DIR = 'public/data/index/';
 let index: RagIndex;
 const rows = {} as Record<VersionId, Row[]>;
 beforeAll(async () => {
-  index = await openIndex(async (f) => { const b = readFileSync(DIR + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength); });
+  index = await openIndex(diskLoader);
   for (const v of VERSION_IDS) { const f = fileOf(v); if (f) await index.load(f); rows[v] = runSuite(index, v); }
 }, 60_000);
 const row = (v: VersionId, q: string) => rows[v].find((r) => r.question === q)!;
@@ -40,7 +40,7 @@ describe('versions (KTD2)', () => {
   });
 
   it('runSuite refuses a version whose config is not loaded', async () => {
-    const fresh = await openIndex(async (f) => { const b = readFileSync(DIR + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength); });
+    const fresh = await openIndex(diskLoader);
     expect(() => runSuite(fresh, 'v1')).toThrow(/load fixed-32-0.bin/);
   });
 
@@ -160,6 +160,7 @@ describe('facts (R5)', () => {
       expect(f.source, f.id).toMatch(/^https:\/\//);
     }
     expect(new Set(FACTS.map((f) => f.id)).size).toBe(FACTS.length);
+    expect(ACCESSED).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 
   it('every fact id the evals chapters cite exists', () => {

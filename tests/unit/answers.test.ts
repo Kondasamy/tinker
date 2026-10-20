@@ -2,6 +2,7 @@ import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { openIndex, type RagIndex } from '../../src/lib/rag/load';
+import { diskLoader } from '../../src/lib/rag/diskLoader';
 import { orderContext, run, type ContextOrder, type Filter, type Question } from '../../src/lib/rag/engine';
 import { joinNeighbours, signature, signatureSpace, LONG_CONTEXT, NO_CONTEXT, type KeyFact } from '../../src/lib/rag/signature';
 import { ANSWERS, lookup } from '../../src/lib/rag/answers';
@@ -20,7 +21,7 @@ const ALLOW_NO_RECORD: Record<string, string[]> = {};
 
 let ix: RagIndex;
 beforeAll(async () => {
-  ix = await openIndex(async (f) => { const b = readFileSync(DIR + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength); });
+  ix = await openIndex(diskLoader);
   await ix.prefetch(manifest.configs[0].file);
 }, 60_000);
 

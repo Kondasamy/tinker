@@ -6,7 +6,7 @@ import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
-import { VERSIONS, type Row, type VersionId } from '../../lib/evals/suite';
+import { DOMAINS, VERSIONS, type Row, type VersionId } from '../../lib/evals/suite';
 import { RUBRICS, REFERENCES, exactMatch, grade, isCorrect, judged, keyFact, label } from '../../lib/evals/graders';
 import { fact } from '../../lib/evals/facts';
 import { nextOf } from '../../lib/modules';
@@ -15,6 +15,7 @@ import { Outcome } from '../tool-calling/kit';
 import { EvalStage, Fact, Mark, QUESTION_TEXT, WithSuite, suiteNow, useSuite, type Shown, type Suite } from './kit';
 
 const MODULE = 'evals', ID = '03-graders';
+const { versions: [ALONE, SHIPPED], rubrics: [RUBRIC] } = DOMAINS[ID];
 
 export type Grader = 'exact' | 'fact' | 'citation' | 'judge' | 'person';
 export const GRADERS: Grader[] = ['exact', 'fact', 'citation', 'judge', 'person'];
@@ -30,19 +31,19 @@ const caseOf = (s: Suite, v: VersionId, ok: (r: Row) => boolean): Case => {
 /** The three answers, picked off the suite by what each shows: a right answer in other words; a made-up policy from the
  * model alone, citing nothing; a wrong answer that cites a passage. */
 export function casesOf(s: Suite): Case[] {
-  const para = caseOf(s, 'v1', r => isCorrect(r.verdict) && !exactMatch(r.question, r.answer.text) && keyFact(r.question, r.answer.text));
+  const para = caseOf(s, SHIPPED, r => isCorrect(r.verdict) && !exactMatch(r.question, r.answer.text) && keyFact(r.question, r.answer.text));
   return [
     para,
-    caseOf(s, 'v0', r => r.question !== para.row.question && r.verdict === 'madeup' && r.answer.citation === null && !keyFact(r.question, r.answer.text)
-      && judged(r.question, r.signature, 'r1')?.pass === true && label(r.question, r.signature)?.pass === false),
-    caseOf(s, 'v1', r => r.verdict === 'wrong' && r.answer.citation !== null && !keyFact(r.question, r.answer.text) && label(r.question, r.signature)?.pass === false),
+    caseOf(s, ALONE, r => r.question !== para.row.question && r.verdict === 'madeup' && r.answer.citation === null && !keyFact(r.question, r.answer.text)
+      && judged(r.question, r.signature, RUBRIC)?.pass === true && label(r.question, r.signature)?.pass === false),
+    caseOf(s, SHIPPED, r => r.verdict === 'wrong' && r.answer.citation !== null && !keyFact(r.question, r.answer.text) && label(r.question, r.signature)?.pass === false),
   ];
 }
 /** Every grader's verdict on one answer: code checks run live, the judge and the person are recorded. */
 export function gradesOf({ row: r }: Case): Record<Grader, boolean> {
   return {
     exact: grade('exact', r.question, r.answer), fact: grade('fact', r.question, r.answer), citation: grade('citation', r.question, r.answer),
-    judge: judged(r.question, r.signature, 'r1')!.pass, person: label(r.question, r.signature)!.pass,
+    judge: judged(r.question, r.signature, RUBRIC)!.pass, person: label(r.question, r.signature)!.pass,
   };
 }
 

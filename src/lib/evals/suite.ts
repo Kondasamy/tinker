@@ -86,11 +86,13 @@ export const WORKBENCH_DOMAINS = {
   noRegressions: [false, true],
 };
 
-/** The finite values each chapter's controls can take; the coverage test grades every combination. */
+/** The finite values each chapter's controls can take, read by the chapters themselves; the coverage test grades every
+ * combination. */
 export interface Domain { versions: VersionId[]; rubrics: Rubric[]; pairs?: boolean }
 export const DOMAINS: Record<string, Domain> = {
   '01-it-worked-when-i-tried-it': { versions: ['v1', 'v2'], rubrics: [] },
-  '03-graders': { versions: ['v0', 'v1', 'v2'], rubrics: ['r1'] },
+  // chapter 3's answers: the model alone (v0) and the shipped version (v1), judged under r1
+  '03-graders': { versions: ['v0', 'v1'], rubrics: ['r1'] },
   '04-judge-the-judge': { versions: ['v0', 'v1', 'v2'], rubrics: ['r1', 'r2'], pairs: true },
   // the workbench's candidates and the baseline, under each judge rubric it offers
   '07-release-day': { versions: ['v1', ...WORKBENCH_VERSIONS], rubrics: ['r1', 'r2'] },

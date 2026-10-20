@@ -1,16 +1,15 @@
 // Every answer, judge verdict and label a chapter control can reach is recorded (R3, KTD2–KTD5).
-import { readFileSync } from 'node:fs';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { openIndex, type RagIndex } from '../../src/lib/rag/load';
+import { diskLoader } from '../../src/lib/rag/diskLoader';
 import { DOMAINS, fileOf, PAIRS, QUESTIONS, runSuite, VERSION_IDS, type Row, type VersionId } from '../../src/lib/evals/suite';
 import { judged, judgedRun, pairwise, REFERENCES, RUN_CASES, runCase, SAMPLES } from '../../src/lib/evals/graders';
 import candidates from '../../data/evals/candidates.json';
 
-const DIR = 'public/data/index/';
 let index: RagIndex;
 const rows = {} as Record<VersionId, Row[]>;
 beforeAll(async () => {
-  index = await openIndex(async (f) => { const b = readFileSync(DIR + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength); });
+  index = await openIndex(diskLoader);
   for (const v of VERSION_IDS) { const f = fileOf(v); if (f) await index.load(f); rows[v] = runSuite(index, v); }
 }, 60_000);
 

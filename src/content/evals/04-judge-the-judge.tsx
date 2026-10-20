@@ -6,7 +6,7 @@ import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
-import { PAIRS, QUESTIONS, VERSIONS, type Rubric, type Row, type VersionId } from '../../lib/evals/suite';
+import { DOMAINS, PAIRS, QUESTIONS, VERSIONS, type Rubric, type Row, type VersionId } from '../../lib/evals/suite';
 import { RUBRICS, REFERENCES, agreement, isCorrect, judged, label, pairwise, positionBias, type PairRows } from '../../lib/evals/graders';
 import { fact } from '../../lib/evals/facts';
 import { nextOf } from '../../lib/modules';
@@ -16,8 +16,7 @@ import { Chips } from '../agents/kit';
 import { EvalStage, Fact, Mark, WithSuite, suiteNow, useSuite, type Shown, type Suite } from './kit';
 
 const MODULE = 'evals', ID = '04-judge-the-judge';
-const VS: VersionId[] = ['v0', 'v1', 'v2'];
-const RUBRIC_IDS: Rubric[] = ['r1', 'r2'];
+const { versions: VS, rubrics: RUBRIC_IDS } = DOMAINS[ID];
 const at = (id: string) => QUESTIONS.findIndex(q => q.id === id);
 
 /** One labelled answer: a question and the evidence a version handed the model, once even if two versions share it. */
@@ -35,16 +34,16 @@ export function labelledOf(s: Suite): Labelled[] {
 const agreeOf = (s: Suite, rb: Rubric) => agreement(labelledOf(s).map(l => l.row), rb);
 const pass = (l: Labelled, rb: Rubric) => judged(l.row.question, l.row.signature, rb)!.pass;
 const person = (l: Labelled) => label(l.row.question, l.row.signature)!;
-const disagreements = (s: Suite, rb: Rubric) => labelledOf(s).filter(l => pass(l, rb) !== person(l).pass);
+export const disagreements = (s: Suite, rb: Rubric) => labelledOf(s).filter(l => pass(l, rb) !== person(l).pass);
 /** under r2, a disagreement where the judge, not the person, missed the right verdict */
-const judgeWrong = (l: Labelled) => pass(l, 'r2') !== isCorrect(l.row.verdict);
+export const judgeWrong = (l: Labelled) => pass(l, 'r2') !== isCorrect(l.row.verdict);
 
 export const pairRowsOf = (s: Suite): PairRows[] => PAIRS.map(p => ({
   ...p, sigA: s[p.a].find(r => r.question === p.question)!.signature, sigB: s[p.b].find(r => r.question === p.question)!.signature,
 }));
 /** the pair shown side by side: the first whose winner changes with the order, under the rubric the team now uses */
 const PAIR_RUBRIC: Rubric = 'r2';
-const pairOf = (s: Suite) => { const rows = pairRowsOf(s), q = positionBias(rows, PAIR_RUBRIC).flipped[0]; return rows.find(p => p.question === q)!; };
+export const pairOf = (s: Suite) => { const rows = pairRowsOf(s), q = positionBias(rows, PAIR_RUBRIC).flipped[0]; return rows.find(p => p.question === q)!; };
 const verdicts = (p: PairRows, rb: Rubric) => ({ ab: pairwise(p.question, p.sigA, p.sigB, rb, 'ab')!, ba: pairwise(p.question, p.sigA, p.sigB, rb, 'ba')! });
 
 interface S { p1: number | null; ran: boolean; rubric: Rubric; pick: string | null; p2: number | null; swapped: boolean; quiz: number | null }
@@ -248,8 +247,10 @@ const show = (s: S) => (suite: Suite): Shown => {
 };
 
 export default function JudgeTheJudge() {
+  const { suite } = useSuite();   // Show me waits for the suite: the step's predicate reads it
   return (
     <StepRunner<S>
+      ready={!!suite}
       module={MODULE}
       chapter={ID}
       steps={STEPS}

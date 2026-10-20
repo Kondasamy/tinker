@@ -1,6 +1,7 @@
 import { readFileSync, statSync } from 'node:fs';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { openIndex, type RagIndex } from '../../src/lib/rag/load';
+import { diskLoader } from '../../src/lib/rag/diskLoader';
 import { run, type Filter, type Question } from '../../src/lib/rag/engine';
 
 // Scenario checks over the generated index (scripts/build-index.mjs), run through the real engine.
@@ -14,7 +15,7 @@ const questions: Question[] = ['ch3', 'ch4', 'ch5', 'ch6'].flatMap((c) => JSON.p
 
 let ix: RagIndex;
 beforeAll(async () => {
-  ix = await openIndex(async (f) => { const b = readFileSync(DIR + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength); });
+  ix = await openIndex(diskLoader);
   await ix.prefetch(manifest.configs[0].file);
 });
 

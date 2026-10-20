@@ -3,7 +3,6 @@
 // v1 passed may fail). The stage shows the grid against v1 and the gate's call. Every control is step state, so a
 // reload keeps the bench as it was (as Agents' workbench does). WORKBENCH_DOMAINS lists every value, so the unit tests
 // grade every combination.
-import type { ReactNode } from 'react';
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
@@ -12,8 +11,8 @@ import { decide, gradeRows, type Decision, type Gate } from '../../lib/evals/gra
 import { fact } from '../../lib/evals/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Chips } from '../agents/kit';
-import { EvalStage, Fact, WithSuite, suiteNow, type Shown, type Suite, type View } from './kit';
+import { Chips, Group } from '../agents/kit';
+import { EvalStage, Fact, WithSuite, suiteNow, useSuite, type Shown, type Suite, type View } from './kit';
 
 const MODULE = 'evals', ID = '07-release-day';
 const { versions: CANDIDATES, graders: GRADERS, thresholds: BARS } = WORKBENCH_DOMAINS;
@@ -71,9 +70,6 @@ export const STEPS: Step<S>[] = [
   },
 ];
 
-/** A labelled row of chips, as in Agents' workbench. */
-const Group = ({ label, children }: { label: string; children: ReactNode }) => <fieldset className="tc-pick"><legend>{label}</legend>{children}</fieldset>;
-
 /** The gate's call on every candidate, so the reader sees what a setting ships and blocks. */
 function Decisions({ suite, s }: { suite: Suite; s: S }) {
   const d = release(suite, s.version, s.grader, s);
@@ -110,8 +106,10 @@ const show = (s: S) => (suite: Suite): Shown => {
 };
 
 export default function ReleaseDay() {
+  const { suite } = useSuite();   // Show me waits for the suite: the step's predicate reads it
   return (
     <StepRunner<S>
+      ready={!!suite}
       module={MODULE}
       chapter={ID}
       steps={STEPS}

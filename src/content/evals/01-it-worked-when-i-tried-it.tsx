@@ -158,8 +158,10 @@ const show = (s: S) => (suite: Suite): Shown => {
 };
 
 export default function ItWorkedWhenITriedIt() {
+  const { suite } = useSuite();   // Show me waits for the suite: the step's predicate reads it
   return (
     <StepRunner<S>
+      ready={!!suite}
       module={MODULE}
       chapter={ID}
       steps={STEPS}

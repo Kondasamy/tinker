@@ -96,6 +96,20 @@ test('the stage says Preparing until the suite loads, then shows the bench', asy
   await expect(card(page).getByRole('button', { name: /^Try:/ })).toHaveCount(2);
 });
 
+test('chapter 7: “Show me” waits for the suite, then solves the gate', async ({ page }) => {
+  let release!: () => void;
+  const held = new Promise<void>(r => { release = r; });
+  await page.route('**/data/index/**', async route => { await held; await route.continue(); });
+  await page.goto(`/evals/${CH7}/`);
+  await page.locator('astro-island:not([ssr])').waitFor();
+  const c = card(page);
+  await expect(page.locator('.ev-wait[data-state="preparing"]')).toBeVisible();
+  await expect(c.getByRole('button', { name: 'Show me' })).toHaveCount(0);
+  release();
+  await c.getByRole('button', { name: 'Show me' }).click();
+  await expect(c).toContainText('Step 2 of');
+});
+
 test('the tried questions are ones v2 fixes; the regression shows only after the whole set runs', async ({ page }) => {
   const w = evalWalker(page, 'mouse');
   await w.open(CH1);

@@ -1,14 +1,14 @@
 // Chapter 7's workbench: every control combination grades from recorded data, and the gate blocks a regression.
-import { readFileSync } from 'node:fs';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { openIndex } from '../../src/lib/rag/load';
+import { diskLoader } from '../../src/lib/rag/diskLoader';
 import { BASELINE, fileOf, runSuite, VERSION_IDS, WORKBENCH_DOMAINS, type Row, type VersionId } from '../../src/lib/evals/suite';
 import { decide, gradeRows } from '../../src/lib/evals/graders';
 import { release, solved, STEPS } from '../../src/content/evals/07-release-day';
 
 const suite = {} as Record<VersionId, Row[]>;
 beforeAll(async () => {
-  const index = await openIndex(async (f) => { const b = readFileSync('public/data/index/' + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength); });
+  const index = await openIndex(diskLoader);
   for (const v of VERSION_IDS) { const f = fileOf(v); if (f) await index.load(f); suite[v] = runSuite(index, v); }
 }, 60_000);
 
@@ -21,6 +21,10 @@ describe('evals workbench (chapter 7)', () => {
       expect(d.reason, `${v} ${g} ${threshold} ${nr}`).toBeTruthy();
       expect(gradeRows(suite[v], g)).toHaveLength(12);
     }
+  });
+
+  it('the model alone (v0) judged under r1 ships at every threshold, with or without the no-regressions rule', () => {
+    for (const threshold of thresholds) for (const nr of noRegressions) expect(release(suite, 'v0', 'r1', { threshold, noRegressions: nr }).ship, `${threshold} ${nr}`).toBe(true);
   });
 
   it('v2 clears a 50% bar but breaks a question v1 passed: the no-regressions rule blocks it, and it ships with the rule off', () => {

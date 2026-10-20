@@ -25,7 +25,7 @@ export const metricOf = (m: Metric, c: SampleCase, k: number) => (m === 'at' ? p
 const nameOf = (m: Metric, k: number) => METRIC_NAME[m].replace('k', String(k));
 const at = (id: string) => QUESTIONS.findIndex(q => q.id === id);
 /** the case whose verdict changes the most: the one the suite-size step flips */
-const FLIP = SAMPLES.find(c => passAtK(c, TRIES) && !passHatK(c, 1))!;
+export const FLIP = SAMPLES.find(c => passAtK(c, TRIES) && !passHatK(c, 1))!;
 const pct = (n: number) => `${((100 * n) / N).toFixed(1)}%`;
 /** what one flipped question moves the score by, in percentage points */
 export const SWING = `${(100 / N).toFixed(1)} points`;

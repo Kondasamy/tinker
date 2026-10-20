@@ -5,7 +5,7 @@
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { ACC, BH, boxCorners, esc } from '../../lib/iso/blocks';
 import { INK, PALS, CERAMIC, DARK, WOOD, METAL, box, rod, shape, line, pd, castShadow, hullInk, toneI, tag, byDepth } from '../../lib/iso/core.js';
-import { miniPipeline } from './miniPipeline';
+import { miniPipelineParts } from './miniPipeline';
 
 export const EVAL_BOARD: Board = [0, 0, 240, 150];
 
@@ -82,7 +82,7 @@ export const evalScene = (o: EvalOpts) => (ctx: SceneCtx) => {
   let s = sh(DESK[0] - 20, DESK[1] - 20, DESK[0] + 20, DESK[1] + 20, 12 + Math.max(st.passed, st.failed) * CARD.h);
   if (st.stack) s += sh(STACK[0] - CARD.dx, STACK[1] - CARD.dy, STACK[0] + CARD.dx, STACK[1] + CARD.dy, st.stack * CARD.h);
   // the pipeline's own pills go on last with ours, so no part hides one
-  const pipe = miniPipeline(ctx, scale), cut = pipe.indexOf('<g class="block-tag"'), pipeArt = cut < 0 ? pipe : pipe.slice(0, cut), pipePills = cut < 0 ? '' : pipe.slice(cut);
+  const { art: pipeArt, pills: pipePills } = miniPipelineParts(ctx, scale);
   s += pipeArt;
   // the belt from the stack into the docs, and the lit wire from the model down to the grader
   const z = BH + .25, { x, y0, y1 } = BELT, w = 7;
