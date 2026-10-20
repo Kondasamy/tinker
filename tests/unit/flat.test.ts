@@ -65,4 +65,15 @@ describe('flat sequence kit', () => {
     expect(html).toMatch(/filter="url\(#flat[^"]*hand\)"/);
     expect(html).toContain('Next');
   });
+
+  it('names each card with its visible words in order, the stamp after them, and the full text when cut (label in name)', () => {
+    const long: Msg = { from: 'host', to: 'model', kind: 'blocked', text: 'allow-list: send_email to audit@example.net stopped', stamp: 'REFUSED' };
+    const { svg } = flatScene(LANES, [long], { pick: true });
+    const name = svg.match(/aria-label="([^"]+)"/)![1];
+    const shown = svg.match(/class="card[^]*?<text[^>]*>([^<]+)<\/text>/)![1].replace(/^× /, '');
+    expect(shown).toMatch(/…$/);
+    expect(name).toContain(`${shown}, refused. In full: ${long.text}`);
+    // a space between the card's words and its stamp keeps them apart in the accessible text
+    expect(svg).toMatch(/<\/text> <g class="stamp"/);
+  });
 });
