@@ -1,8 +1,10 @@
 // Title, description and share-image text for every public page, in one place: the page <head> (Meta.astro) and the
 // share-image template (src/dev/og.astro) both read from here, so a page and its image never disagree.
-import { CHAPTERS } from './chapters';
+import { moduleOf, chapterHref } from './modules';
 
 export interface PageMeta {
+  /** where the page is served */
+  path: string;
   /** share image file: public/og/<og>.jpg */
   og: string;
   /** <title> and og:title */
@@ -15,6 +17,7 @@ export interface PageMeta {
 }
 
 export const HOME: PageMeta = {
+  path: '/',
   og: 'home',
   title: 'Tinker: see how tech works by playing with it',
   description: 'Hand-drawn, interactive explanations of tech concepts. Build the thing, break it, fix it. By Kondasamy Jayaraman.',
@@ -24,18 +27,22 @@ export const HOME: PageMeta = {
 };
 
 export const RAG: PageMeta = {
+  path: '/rag/',
   og: 'rag',
   title: 'RAG: how AI assistants answer from your documents · Tinker',
   description: 'A hands-on, visual course on Retrieval-Augmented Generation: how AI assistants answer from your own documents, why they go wrong, and how to fix them.',
   kicker: 'Tinker · Module 1',
   headline: 'How AI assistants answer from your company’s documents',
-  sub: `Retrieval-Augmented Generation, in ${CHAPTERS.length} playable chapters.`,
+  sub: `Retrieval-Augmented Generation, in ${moduleOf('rag').chapters.length} playable chapters.`,
 };
 
-export const chapterMeta = (id: string): PageMeta => {
-  const i = CHAPTERS.findIndex(c => c.id === id), c = CHAPTERS[i];
+export const chapterMeta = (module: string, id: string): PageMeta => {
+  const m = moduleOf(module), i = m.chapters.findIndex(c => c.id === id), c = m.chapters[i];
   if (!c) return RAG;   // dev fixtures borrow the module's card
-  return { og: c.id, title: `${c.title} · RAG · Tinker`, description: c.intro.goal, kicker: `RAG · Chapter ${i + 1} of ${CHAPTERS.length}`, headline: c.title, sub: c.intro.goal };
+  return {
+    path: chapterHref(m.id, c.id), og: c.og ?? `${m.id}-${c.id}`, title: `${c.title} · ${m.title} · Tinker`, description: c.intro.goal,
+    kicker: `${m.title} · Chapter ${i + 1} of ${m.chapters.length}`, headline: c.title, sub: c.intro.goal,
+  };
 };
 
-export const ALL_PAGES: PageMeta[] = [HOME, RAG, ...CHAPTERS.map(c => chapterMeta(c.id))];
+export const ALL_PAGES: PageMeta[] = [HOME, RAG, ...moduleOf('rag').chapters.map(c => chapterMeta('rag', c.id))];

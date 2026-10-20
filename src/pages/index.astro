@@ -109,9 +109,10 @@ const TOPICS = ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'R
 
     <script>
       // RAG progress on its card; the buttons continue from the first unfinished chapter
-      import { CHAPTERS, chapterHref } from '../lib/chapters';
+      import { moduleOf, chapterHref } from '../lib/modules';
       import { completed } from '../lib/progress';
-      const finished = completed(), done = CHAPTERS.filter(c => finished.includes(c.id)).length;
+      const CHAPTERS = moduleOf('rag').chapters;
+      const finished = completed('rag'), done = CHAPTERS.filter(c => finished.includes(c.id)).length;
       if (done) {
         const box = document.querySelector<HTMLElement>('[data-progress]')!;
         box.hidden = false;
@@ -119,7 +120,7 @@ const TOPICS = ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'R
         box.querySelector<HTMLElement>('.txt')!.textContent = `${done} of ${CHAPTERS.length} chapters done`;
         const next = CHAPTERS.findIndex(c => !finished.includes(c.id));
         for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
-          a.href = next < 0 ? '/rag/' : chapterHref(CHAPTERS[next].id);
+          a.href = next < 0 ? '/rag/' : chapterHref('rag', CHAPTERS[next].id);
           a.textContent = next < 0 ? 'Revisit RAG →' : `Continue RAG: chapter ${next + 1} →`;
         }
       }

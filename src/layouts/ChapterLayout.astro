@@ -2,25 +2,26 @@
 // Story-first chapter shell (KTD9): chapter nav on top; the slot holds the chapter island
 // (StepRunner renders hero stage, narration card and drawer).
 import '../styles/tokens.css';
-import { CHAPTERS, chapterHref } from '../lib/chapters';
+import { moduleOf, chapterHref } from '../lib/modules';
 import Meta from '../components/Meta.astro';
 import { chapterMeta } from '../lib/pages';
 
-interface Props { chapter: string; title: string }
-const { chapter, title } = Astro.props;
+interface Props { module?: string; chapter: string; title: string }
+const { module = 'rag', chapter, title } = Astro.props;
+const m = moduleOf(module);
 ---
 <html lang="en">
   <head>
-    <Meta {...chapterMeta(chapter)} title={`${title} · RAG · Tinker`} />
+    <Meta {...chapterMeta(m.id, chapter)} title={`${title} · ${m.title} · Tinker`} />
   </head>
   <body>
     <header class="top">
-      <p class="brand"><a href="/"><img src="/favicon.svg" alt="" width="22" height="22" /> Tinker</a> <span aria-hidden="true">/</span> <a href="/rag/">RAG</a></p>
-      <nav aria-label="Chapters">
+      <p class="brand"><a href="/"><img src="/favicon.svg" alt="" width="22" height="22" /> Tinker</a> <span aria-hidden="true">/</span> <a href={`/${m.id}/`}>{m.title}</a></p>
+      <nav aria-label="Chapters" data-module={m.id}>
         <ol>
-          {CHAPTERS.map((c, i) => (
+          {m.chapters.map((c, i) => (
             <li>
-              <a href={chapterHref(c.id)} data-chapter={c.id} data-mark={c.id === chapter ? 'current' : 'todo'}
+              <a href={chapterHref(m.id, c.id)} data-chapter={c.id} data-mark={c.id === chapter ? 'current' : 'todo'}
                 aria-current={c.id === chapter ? 'page' : undefined}>
                 <span class="num">{String(i + 1).padStart(2, '0')}</span>
                 <span class="name">{c.short}</span>
@@ -40,20 +41,22 @@ const { chapter, title } = Astro.props;
       <slot />
     </main>
     <script>
-      import { CHAPTERS } from '../lib/chapters';
+      import { moduleOf } from '../lib/modules';
       import { completed, navMark } from '../lib/progress';
+      const module = document.querySelector<HTMLElement>('nav[data-module]')!.dataset.module!;
+      const chapters = moduleOf(module).chapters;
       const LABEL = { done: ' (done)', current: ' (current)', skipped: ' (skipped)', todo: '' };
       function paint() {
         const cur = document.querySelector<HTMLElement>('[aria-current="page"]')?.dataset.chapter ?? '';
-        const done = completed();
+        const done = completed(module);
         for (const a of document.querySelectorAll<HTMLElement>('nav [data-chapter]')) {
-          const mark = navMark(CHAPTERS, a.dataset.chapter!, cur, done);
+          const mark = navMark(chapters, a.dataset.chapter!, cur, done);
           a.dataset.mark = mark;
           a.querySelector('[data-sr]')!.textContent = LABEL[mark];
         }
       }
       paint();
-      window.addEventListener('rag-progress', paint);
+      window.addEventListener('tinker-progress', paint);
     </script>
   </body>
 </html>

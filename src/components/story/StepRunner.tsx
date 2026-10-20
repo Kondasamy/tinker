@@ -1,7 +1,7 @@
 import { useEffect, useReducer, useRef, useState, type ReactNode } from 'react';
 import { reduce, startRun, isRun, type Step, type Run, type Action } from './steps';
 import { loadChapter, saveChapter, markDone } from '../../lib/progress';
-import { CHAPTERS } from '../../lib/chapters';
+import { moduleOf } from '../../lib/modules';
 import Drawer from './Drawer';
 
 /** What a step control gets. `apply` hands the next state to the runner, which checks the step's predicate. */
@@ -12,6 +12,8 @@ export interface StageProps<S> { state: S; apply: (next: S) => void; sync: (next
 export interface Panel<S> { title: string; render: (state: S, apply: (next: S) => void) => ReactNode }
 
 interface Props<S> {
+  /** registry id; RAG when left out */
+  module?: string;
   chapter: string;
   steps: Step<S>[];
   initial: S;
@@ -23,7 +25,7 @@ interface Props<S> {
   idleMs?: number;
 }
 
-export default function StepRunner<S>({ chapter, steps, initial, controls, stage, panels = {}, inspectPanel, next, idleMs = 30_000 }: Props<S>) {
+export default function StepRunner<S>({ module = 'rag', chapter, steps, initial, controls, stage, panels = {}, inspectPanel, next, idleMs = 30_000 }: Props<S>) {
   const [run, dispatch] = useReducer((r: Run<S>, a: Action<S>) => reduce(steps, r, a), undefined, () => startRun(steps, initial));
   const [focusDrawer, setFocusDrawer] = useState(0);
   const loaded = useRef(false);
@@ -32,19 +34,23 @@ export default function StepRunner<S>({ chapter, steps, initial, controls, stage
   const sync = (state: S) => dispatch({ type: 'sync', state });
   const inspect = (panel: string) => { dispatch({ type: 'inspect', panel }); setFocusDrawer(n => n + 1); };
 
+  const chapters = moduleOf(module).chapters;
+  const n = chapters.findIndex(c => c.id === chapter), ch = chapters[n];
+
   // Save before restoring (effect order), so the first, seeded render never overwrites saved work.
-  useEffect(() => { if (loaded.current) saveChapter(chapter, run); }, [chapter, run]);
+  useEffect(() => { if (loaded.current) saveChapter(module, chapter, run); }, [module, chapter, run]);
   useEffect(() => {
-    const saved = loadChapter<Run<S>>(chapter);
-    if (isRun(steps, saved)) dispatch({ type: 'restore', run: saved });
+    // a run saved on other steps restarts the chapter (KTD4); what is done stays done
+    const saved = loadChapter<Run<S>>(module, chapter);
+    if (isRun(steps, saved, ch?.legacySteps)) dispatch({ type: 'restore', run: { ...saved, ids: steps.map(st => st.id) } });
     loaded.current = true;
-  }, [chapter, steps]);
+  }, [module, chapter, steps, ch]);
 
   useEffect(() => {
     if (!run.done) return;
-    markDone(chapter);
-    window.dispatchEvent(new Event('rag-progress'));
-  }, [chapter, run.done]);
+    markDone(module, chapter);
+    window.dispatchEvent(new CustomEvent('tinker-progress', { detail: { module } }));
+  }, [module, chapter, run.done]);
 
   useEffect(() => {
     if (!step.hint || run.hint || run.done) return;
@@ -61,7 +67,6 @@ export default function StepRunner<S>({ chapter, steps, initial, controls, stage
   }, [run.index, run.done]);
 
   const panel = run.drawer ? panels[run.drawer] : undefined;
-  const n = CHAPTERS.findIndex(c => c.id === chapter), ch = CHAPTERS[n];
   const past = steps.slice(0, run.done ? steps.length - 1 : run.index);
   const inspectTarget = inspectPanel ?? Object.keys(panels)[0];
 
@@ -73,7 +78,7 @@ export default function StepRunner<S>({ chapter, steps, initial, controls, stage
       <div className="side">
         {ch && (
           <header className="intro">
-            <p className="eyebrow">Chapter {n + 1} of {CHAPTERS.length}</p>
+            <p className="eyebrow">Chapter {n + 1} of {chapters.length}</p>
             <h1>{ch.title}</h1>
             <p className="story">{ch.intro.story}</p>
             <p className="goal"><strong>This chapter:</strong> {ch.intro.goal}</p>

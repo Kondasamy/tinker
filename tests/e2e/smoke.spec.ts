@@ -50,3 +50,35 @@ test('every public page has its own share image, and it is served', async ({ pag
   }
   expect(seen.size).toBe(paths.length);   // dedicated: no two pages share an image
 });
+
+test('AE1: a returning reader keeps RAG progress, and a saved run resumes only on the same steps', async ({ page }) => {
+  const KEY = 'rag-progress-v1', CH3 = '03-what-is-rag';
+  const card = page.getByRole('region', { name: 'Next step' });
+  const open = async () => { await page.reload(); await page.locator('astro-island:not([ssr])').waitFor(); };
+  await page.goto('/');
+  await page.evaluate(k => localStorage.setItem(k, JSON.stringify({ done: ['01-history', '02-why-not-stuff-it'], saved: {} })), KEY);
+  await page.reload();
+  await expect(page.locator('[data-progress] .txt')).toHaveText('2 of 7 chapters done');
+  await page.locator('[data-cta]').first().click();
+  await expect(page).toHaveURL(new RegExp(`/rag/${CH3}/$`));
+
+  // reach step 4
+  await page.locator('astro-island:not([ssr])').waitFor();
+  for (const name of [/^Ask/, 'Add the Docs', 'Add the Retriever']) await card.getByRole('button', { name }).click();
+  await expect(card).toContainText('Step 4 of 6');
+  // sets the saved run's step ids; none = a run saved before runs carried them
+  const sign = (ids?: string[]) => page.evaluate(({ k, ch, ids }) => {
+    const p = JSON.parse(localStorage.getItem(k)!);
+    if (ids) p.saved[ch].ids = ids; else delete p.saved[ch].ids;
+    localStorage.setItem(k, JSON.stringify(p));
+  }, { k: KEY, ch: CH3, ids });
+  await sign();
+  await open();
+  await expect(card).toContainText('Step 4 of 6');   // unsigned, but chapter 3 still has its legacy steps: resumes
+
+  // a run saved on other steps restarts the chapter; finished chapters stay finished
+  await sign(['ask', 'new', 'docs', 'retriever', 'grounded', 'math', 'quiz']);
+  await open();
+  await expect(card).toContainText('Step 1 of 6');
+  expect(await page.evaluate(k => JSON.parse(localStorage.getItem(k)!).done, KEY)).toEqual(['01-history', '02-why-not-stuff-it']);
+});

@@ -19,6 +19,8 @@ export interface Step<S> {
 }
 
 export interface Run<S> {
+  /** the chapter's ordered step ids when the run was made: a saved run resumes only on the same steps (KTD4) */
+  ids: string[];
   index: number;
   state: S;
   starts: S[];          // state at entry of each step reached, for Back and Reset
@@ -45,14 +47,18 @@ export const HINT_AFTER = 3;
 function enter<S>(steps: Step<S>[], index: number, state: S, starts: S[], drawer: string | null): Run<S> {
   const step = steps[index];
   const s = step.setup ? step.setup(state) : state;
-  return { index, state: s, starts: [...starts.slice(0, index), s], fails: 0, hint: false, done: false, drawer: step.opensDrawer === undefined ? drawer : step.opensDrawer };
+  return { ids: steps.map(st => st.id), index, state: s, starts: [...starts.slice(0, index), s], fails: 0, hint: false, done: false, drawer: step.opensDrawer === undefined ? drawer : step.opensDrawer };
 }
 
 export const startRun = <S>(steps: Step<S>[], initial: S): Run<S> => enter(steps, 0, initial, [], null);
 
-export function isRun<S>(steps: Step<S>[], x: unknown): x is Run<S> {
-  const r = x as Run<S>;
-  return !!r && Number.isInteger(r.index) && r.index >= 0 && r.index < steps.length && Array.isArray(r.starts) && r.starts.length === r.index + 1;
+/** A saved run fit to resume: well formed, and saved on exactly these steps. A run saved before runs carried
+ * their ids is checked against the chapter's `legacy` ids instead. Anything else restarts the chapter (KTD4). */
+export function isRun<S>(steps: Step<S>[], x: unknown, legacy?: string[]): x is Run<S> {
+  const r = x as Partial<Run<S>>;
+  if (!r || !Number.isInteger(r.index) || r.index! < 0 || r.index! >= steps.length || !Array.isArray(r.starts) || r.starts.length !== r.index! + 1) return false;
+  const ids = r.ids ?? legacy;
+  return Array.isArray(ids) && ids.length === steps.length && steps.every((st, i) => st.id === ids[i]);
 }
 
 export function reduce<S>(steps: Step<S>[], run: Run<S>, a: Action<S>): Run<S> {

@@ -1,32 +1,46 @@
-// Progress lives in localStorage only (KTD10). Every access is guarded so the site works without storage.
-const KEY = 'rag-progress-v1';
+// Progress lives in localStorage only (KTD10), one record per module (KTD3). Every access is guarded so the site works without storage.
+// RAG's key is `rag-progress-v1`, the one it always had; fields added later are optional, so old records still read.
+const key = (module: string) => `${module}-progress-v1`;
+const LAST = 'tinker-last-module';
 
-interface Progress { done: string[]; saved: Record<string, unknown> }
+interface Progress { done: string[]; saved: Record<string, unknown>; at?: Record<string, number> }
 
-function read(): Progress {
+function read(module: string): Progress {
   try {
-    const p = JSON.parse(localStorage.getItem(KEY) ?? 'null');
+    const p = JSON.parse(localStorage.getItem(key(module)) ?? 'null');
     if (p && Array.isArray(p.done) && p.saved && typeof p.saved === 'object') return p;
   } catch { /* no storage, or corrupt entry: start fresh */ }
   return { done: [], saved: {} };
 }
 
-function write(p: Progress) {
-  try { localStorage.setItem(KEY, JSON.stringify(p)); } catch { /* storage unavailable: nothing is saved */ }
+function write(module: string, p: Progress) {
+  try { localStorage.setItem(key(module), JSON.stringify(p)); } catch { /* storage unavailable: nothing is saved */ }
 }
 
-export const completed = (): string[] => read().done;
+export const completed = (module: string): string[] => read(module).done;
 
-export function markDone(id: string) {
-  const p = read();
-  if (!p.done.includes(id)) write({ ...p, done: [...p.done, id] });
+/** When each chapter was first finished (ms). Chapters finished before this was recorded are absent. */
+export function completedAt(module: string): Record<string, number> {
+  const at = read(module).at;
+  return at && typeof at === 'object' ? at : {};
 }
 
-export const loadChapter = <T>(id: string): T | undefined => read().saved[id] as T | undefined;
+export function markDone(module: string, id: string) {
+  const p = read(module);
+  if (!p.done.includes(id)) write(module, { ...p, done: [...p.done, id], at: { ...completedAt(module), [id]: Date.now() } });
+}
 
-export function saveChapter(id: string, data: unknown) {
-  const p = read();
-  write({ ...p, saved: { ...p.saved, [id]: data } });
+export const loadChapter = <T>(module: string, id: string): T | undefined => read(module).saved[id] as T | undefined;
+
+export function saveChapter(module: string, id: string, data: unknown) {
+  const p = read(module);
+  write(module, { ...p, saved: { ...p.saved, [id]: data } });
+  try { localStorage.setItem(LAST, module); } catch { /* storage unavailable */ }
+}
+
+/** The module the reader saved a chapter in most recently. */
+export function lastModule(): string | undefined {
+  try { return localStorage.getItem(LAST) ?? undefined; } catch { return undefined; }
 }
 
 interface ChapterLike { id: string }

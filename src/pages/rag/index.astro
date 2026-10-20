@@ -171,9 +171,10 @@ const FACTS: [string, string][] = [
 
     <script>
       // finished chapters get a tick; the buttons continue from the first unfinished chapter
-      import { CHAPTERS, chapterHref } from '../../lib/chapters';
+      import { moduleOf, chapterHref } from '../../lib/modules';
       import { completed } from '../../lib/progress';
-      const done = completed();
+      const CHAPTERS = moduleOf('rag').chapters;
+      const done = completed('rag');
       for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
         if (!done.includes(li.dataset.chapter!)) continue;
         li.classList.add('done');
@@ -181,7 +182,7 @@ const FACTS: [string, string][] = [
       }
       const next = CHAPTERS.findIndex(c => !done.includes(c.id));
       if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
-        a.href = chapterHref(CHAPTERS[next].id);
+        a.href = chapterHref('rag', CHAPTERS[next].id);
         a.textContent = `Continue: chapter ${next + 1} →`;
       }
     </script>
