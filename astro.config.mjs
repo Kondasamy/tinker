@@ -14,7 +14,18 @@ const devPages = {
   },
 };
 
+// Builds pre-bundle production React into Vite's dep cache; sharing node_modules/.vite with a running `astro dev` then
+// feeds dev pages React's production jsx-dev-runtime (`_jsxDEV is not a function`). Builds get their own cache.
+const buildCache = {
+  name: 'build-cache',
+  hooks: {
+    'astro:config:setup': ({ command, updateConfig }) => {
+      if (command === 'build') updateConfig({ vite: { cacheDir: 'node_modules/.vite-build' } });
+    },
+  },
+};
+
 export default defineConfig({
   output: 'static',
-  integrations: [react(), mdx(), devPages],
+  integrations: [react(), mdx(), devPages, buildCache],
 });
