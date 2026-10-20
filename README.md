@@ -4,7 +4,7 @@
 
 Each module is a short story you play through: the picture on the left is live, the story on the right asks you to do one thing at a time in it, and you watch what changes. Build the thing, break it, fix it.
 
-![Tinker home: one workshop, a plot per module. RAG, tool calling and AI agents are live; the planned modules are building sites](docs/images/home.png)
+![Tinker home: one workshop, a plot per module. RAG, tool calling, AI agents and evals are live; the planned modules are building sites](docs/images/home.png)
 
 ---
 
@@ -17,7 +17,7 @@ Every module has a level, a story, an intro at `/<module>/`, its chapters, and a
 | Beginner | [RAG: Retrieval-Augmented Generation](#rag-retrieval-augmented-generation-rag) | Live, 7 chapters |
 | Beginner | Tokens & embeddings | Planned |
 | Intermediate | [Tool calling & MCP](#tool-calling--mcp-tool-calling) (RAG recommended first) | Live, 7 chapters |
-| Intermediate | Evals & LLM testing | Planned |
+| Intermediate | [Evals & LLM testing](#evals--llm-testing-evals) (RAG recommended first) | Live, 7 chapters |
 | Intermediate | Prompt injection & guardrails | Planned |
 | Intermediate | Context engineering & memory | Planned |
 | Advanced | [AI agents](#ai-agents-agents) (Tool calling recommended first) | Live, 7 chapters |
@@ -74,6 +74,22 @@ How an assistant goes from one request to a whole case. The Larkspur story conti
 
 The chapters play out in the same back office. The agent adds four props: the plan on a clipboard, a step and context gauge on the host's desk, an in-tray of history that becomes one binder when the host compacts it, and small desks for helpers. The same run is one tab away as a step-by-step sequence.
 
+### Evals & LLM testing (`/evals/`)
+
+How a team shows a change made the assistant better, and not just better on the questions it tried. Back at Larkspur, the team keeps changing the RAG assistant; RAG's questions are the test set.
+
+| # | Chapter | What you do |
+|---|---|---|
+| 1 | It worked when I tried it | Try two questions a change fixes, then run the whole test set on both versions and find the one it broke |
+| 2 | The test set | Pick cases from a support log, give each a reference answer, and find the gap your set leaves |
+| 3 | Graders | Grade answers by code, by a model judge and by a person, and see where each goes wrong |
+| 4 | Judge the judge | Check the judge against people's labels, fix its rubric, and catch position bias by swapping the order |
+| 5 | Grading the path | Grade a Tool calling run by its reply, its ledger and its calls, and catch a refund nobody asked for |
+| 6 | Run it twice | Ask the same cases five times and compare pass@k with pass^k |
+| 7 | Release day | Pick a candidate, a grader and a release gate, and decide what ships |
+
+The chapters play on a test bench: RAG's pipeline at the back, a stack of test cards riding a belt into it, and a grader's desk where answers pile up PASS and FAIL. The same run is one tab away as a results grid, a column per version.
+
 ---
 
 ## How it's built
@@ -81,7 +97,8 @@ The chapters play out in the same back office. The agent adds four props: the pl
 - **Static site:** Astro with React islands. No backend, no API key, no live model, so it runs on any static host, and a chapter keeps working offline once its data has loaded.
 - **Real retrieval, precomputed answers (RAG):** the corpus is embedded at build time (`pnpm build:index`, all-MiniLM-L6-v2 and a cross-encoder reranker); the browser runs the real similarity, BM25, reranking, graph-walk and agent maths over those vectors. Model answers are pre-recorded for each kind of evidence that can reach the model, so every knob changes the outcome honestly.
 - **Recorded turns, live tools (Tool calling, AI agents):** the model's turns are pre-recorded per scenario (`data/tool-calling/turns/`). The host loop, a JSON Schema subset validator, the approval gate, the tools running on fixture data and an MCP-shaped JSON-RPC server all run in the browser (`src/lib/tools/`). A unit test checks every reachable control setting has a recorded turn. MCP facts come from `data/tool-calling/facts.json`, each with its source. The agent loop (`src/lib/agents/`) reuses those tools and adds plans, approval, budgets, a repeat detector, memory and helpers, all computed in the browser; its recorded turns are in `data/agents/turns/` and its facts in `data/agents/facts.json`.
-- **Pictures:** hand-inked isometric figures drawn by the Colorfigures engine (see Credits), extended to orbit, zoom and turn the view. Each module leads with a scene you can picture rather than a flow chart: RAG's pipeline on a workbench, tool calling's back office (`src/components/scenes/officeScene.ts`), and the home page's workshop with a plot per module (`heroScene.ts`). Flat sequence figures (lanes and message cards, `src/lib/iso/flat.ts`) in the same ink show the exact messages, a tab away. Names sit in label pills so they stay readable.
+- **Real retrieval, recorded grading (Evals):** each version of the assistant runs RAG's real retrieval over the same 12 questions and reads the recorded answer for what it found. Code graders run in the browser (`src/lib/evals/`); the model judge's verdicts, people's labels and repeated tries are recorded in `data/evals/`, and every combination a control can reach is checked by a unit test.
+- **Pictures:** hand-inked isometric figures drawn by the Colorfigures engine (see Credits), extended to orbit, zoom and turn the view. Each module leads with a scene you can picture rather than a flow chart: RAG's pipeline on a workbench, tool calling's back office (`src/components/scenes/officeScene.ts`), evals' test bench (`evalScene.ts`), and the home page's workshop with a plot per module (`heroScene.ts`). Flat sequence figures (lanes and message cards, `src/lib/iso/flat.ts`) in the same ink show the exact messages, a tab away. Names sit in label pills so they stay readable.
 - **Works on a phone:** below 861px the picture stacks above the story, pills grow, and the sequence shows one message at a time.
 
 <p align="center"><img src="docs/images/phone.png" width="300" alt="A tool calling chapter on a phone: the back office above, the INVALID call held at the schema check"></p>
@@ -103,6 +120,7 @@ The chapters play out in the same back office. The agent adds four props: the pl
 | `src/lib/rag/`, `data/` | RAG engine (retrieval maths, agent, graph) and its corpus, questions, answers and index |
 | `src/lib/tools/`, `data/tool-calling/` | Tool calling engine (host loop, schema validator, MCP-shaped server) and its recorded turns, fixtures and facts |
 | `src/lib/agents/`, `data/agents/` | Agent engine (the agent loop, its budgets, memory and helpers) and its recorded turns, fixtures and facts |
+| `src/lib/evals/`, `data/evals/` | Evals engine (versions, the suite, code graders, the release gate) and its references, judge verdicts, labels, samples and facts |
 | `src/lib/iso/` | The drawing engine (Colorfigures, adapted), the isometric stage and the flat figure kit, shared by every module |
 | `src/components/story/` | The step runner every chapter uses: the live picture on the left, the story column on the right |
 | `src/components/quiz/` | Quizzes, predictions and the recap |
@@ -121,7 +139,7 @@ pnpm install    # install exact dependency versions from pnpm-lock.yaml
 pnpm dev        # start the dev server on http://localhost:4321
 ```
 
-Open http://localhost:4321 for the Tinker home; the modules are at http://localhost:4321/rag/, http://localhost:4321/tool-calling/ and http://localhost:4321/agents/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap` and `/dev/warmup`. These pages are left out of production builds.
+Open http://localhost:4321 for the Tinker home; the modules are at http://localhost:4321/rag/, http://localhost:4321/tool-calling/, http://localhost:4321/agents/ and http://localhost:4321/evals/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap` and `/dev/warmup`. These pages are left out of production builds.
 
 To try the production build locally:
 
