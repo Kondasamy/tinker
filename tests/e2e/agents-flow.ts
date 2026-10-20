@@ -25,6 +25,8 @@ export function agentWalker(page: Page, mode: Mode, check: (page: Page) => Promi
     if (!next) return;
     await press(card.getByRole('link', { name: /^(Next:|Recap)/ }));
     await expect(page).toHaveURL(next);
+    // a key pressed before the next island hydrates is lost
+    if (!/recap/.test(String(next))) await page.locator('astro-island:not([ssr])').waitFor();
   }
 
   return {
@@ -103,6 +105,23 @@ export function agentWalker(page: Page, mode: Mode, check: (page: Page) => Promi
       await opt(quiz);
       await finish(next);
     },
+    /** memory: run with full memory, switch to summary, then solve the puzzle by hand with pinned */
+    async ch5(next?: RegExp, quiz: string | RegExp = /^Pin the line/) {
+      await opt(/^No: a turn passes the budget/);
+      await btn('Run the case');
+      await step(3);
+      await check(page);
+      await opt(/^It offers to phone/);
+      await step(4);
+      await btn('Memory: summary');
+      await step(5);
+      await expect(card).toContainText('BROKEN');
+      await btn('Memory: pinned');
+      await step(6);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
     open,
   };
 }
@@ -114,5 +133,6 @@ export async function walkAgents(page: Page, mode: Mode, check?: (page: Page) =>
   await w.ch1(/\/agents\/02-the-loop\/$/);
   await w.ch2(/\/agents\/03-plans\/$/);
   await w.ch3(/\/agents\/04-budgets\/$/);
-  await w.ch4(/\/agents\/recap\/$/);
+  await w.ch4(/\/agents\/05-memory\/$/);
+  await w.ch5(/\/agents\/recap\/$/);
 }

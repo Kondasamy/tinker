@@ -236,4 +236,65 @@ export const RECALL: RecallItem[] = [
       'Nothing crashed: the host stopped one call on purpose, and the agent’s last turn sent the email.',
     ],
   },
+  // 5. Memory, and what survives it
+  {
+    id: 'context-grows', chapter: '05-memory',
+    question: 'An IT agent works through 30 tickets in one run, keeping every result. Its host allows each turn a context budget. What happens as the run goes on?',
+    options: [
+      'Each turn sends about the same: the model only needs the current ticket',
+      'Each turn sends more, every result so far included, until a turn would pass the budget and the host stops the run',
+      'The model drops the old tickets by itself once it is done with them',
+    ],
+    correct: 1,
+    why: [
+      'With full memory the host re-sends the whole history every turn, not just the current ticket.',
+      `Right. Every result joins the history, and the history goes out every turn. ${fact('context-finite').claim}`,
+      'The model does not edit its own context. What it sees each turn is whatever the host sends.',
+    ],
+  },
+  {
+    id: 'summary-drops-details', chapter: '05-memory',
+    question: 'A hiring agent screens 40 applications. One candidate wrote: “Please don’t contact my current employer.” Later the host compacts the history into a summary of each application’s outcome. Then the agent drafts reference requests. What is the risk?',
+    options: [
+      'None: the model read the line, so it will remember it',
+      'The line was not an outcome, so the summary may have dropped it, and the agent may contact the employer',
+      'Compaction only drops tool definitions, never what candidates wrote',
+    ],
+    correct: 1,
+    why: [
+      'The model knows only what the host sends it on each turn. After compaction, that is the summary, not the application.',
+      `Right. ${fact('compaction').claim}`,
+      'Compaction drops old history: tool results, and the text inside them. The tool definitions are sent every turn.',
+    ],
+  },
+  {
+    id: 'pin-what-must-survive', chapter: '05-memory',
+    question: 'A travel agent books flights, hotels and meals for a team trip over a long run, and its host compacts as it goes. One traveller has a nut allergy. How do you make sure the meal bookings still respect it?',
+    options: [
+      'Tell the model at the start to remember it',
+      'Pin the allergy: the host sends that line every turn, outside the summary',
+      'Turn compaction off for long runs',
+    ],
+    correct: 1,
+    why: [
+      'An instruction at the start is only remembered while it is still in the context. Compaction can drop it like anything else.',
+      'Right. A pinned line is never compacted, so every turn after compaction still carries it.',
+      'With no compaction every result is re-sent every turn, so a long run gets costly and can hit the context budget.',
+    ],
+  },
+  {
+    id: 'budget-is-the-hosts', chapter: '05-memory',
+    question: 'A colleague finds a context budget in the agent host’s settings, and concludes it is the most text the model can ever read. What is wrong with that?',
+    options: [
+      'Nothing: the budget is the size of the model’s context window',
+      'The budget is a host setting the team chose; the model’s own context window is a separate limit',
+      'The budget counts words, not tokens',
+    ],
+    correct: 1,
+    why: [
+      'The host could set any number, and Larkspur’s is a choice for its agent. The model’s context window is fixed by the model.',
+      'Right. The host may keep each turn well under what the model could take, to keep costs down and leave room.',
+      'Both count tokens: small pieces of text, about ¾ of a word each.',
+    ],
+  },
 ];

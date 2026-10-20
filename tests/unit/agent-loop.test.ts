@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import CASES from '../../data/agents/cases.json';
-import { AGENT_SERVERS, answerOf, CONTEXT, run, stepsOf, tokens, totalTokens, type Run } from '../../src/lib/agents/loop';
+import { AGENT_SERVERS, answerOf, CONTEXT, MEMORY_CONTEXT, run, stepsOf, tokens, totalTokens, type Run } from '../../src/lib/agents/loop';
 import { RECORDINGS, signature } from '../../src/lib/agents/turns';
 import { ACCESSED, FACTS, fact } from '../../src/lib/agents/facts';
 import { BYTES_PER_TOKEN } from '../../src/lib/scale';
@@ -184,6 +184,18 @@ describe('memory (chapter 5, KTD12)', () => {
     const full = run(storm);
     expect(Math.max(...full.meter.map((m) => m.input))).toBeLessThanOrEqual(CONTEXT);
     expect(run(storm, { context: 1500 })).toMatchObject({ status: 'out-of-budget' });
+  });
+
+  it('at chapter 5’s budget, full memory passes it on its last turn, before the agent reports done; summary and pinned fit', () => {
+    const full = run(storm, { context: MEMORY_CONTEXT });
+    expect(full.status).toBe('out-of-budget');
+    expect(stepsOf(full, 'answer')).toHaveLength(0);
+    expect(full.mail).toHaveLength(CASES.orders.length);
+    for (const mem of ['summary', 'pinned'] as const) {
+      const r = run(storm, { mem, context: MEMORY_CONTEXT });
+      expect(r.status).toBe('done');
+      expect(Math.max(...r.meter.map((m) => m.input))).toBeLessThanOrEqual(MEMORY_CONTEXT);
+    }
   });
 });
 

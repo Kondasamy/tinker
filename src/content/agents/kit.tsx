@@ -60,6 +60,15 @@ export function AgentStage({ run, upTo, props = {}, host = 'Host app', inspect }
   );
 }
 
+/** One chip per value; the chosen one is pressed. */
+export function Chips<T extends string | number | null>({ label, values, value, name, pick }: { label: string; values: T[]; value: T; name: (v: T) => string; pick: (v: T) => void }) {
+  return (
+    <div role="group" aria-label={label} style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 6 }}>
+      {values.map(v => <button key={String(v)} type="button" className="chip" aria-pressed={value === v} onClick={() => pick(v)}>{name(v)}</button>)}
+    </div>
+  );
+}
+
 /** A cited fact from data/agents/facts.json, with its source and the day it was checked (R8). */
 export function Fact({ id }: { id: string }) {
   const f = fact(id);

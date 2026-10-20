@@ -103,6 +103,8 @@ export interface Setup {
 export const CONTEXT = 3000;
 /** summary and pinned memory compact the history once it holds more than this many tokens */
 export const COMPACT_AT = 900;
+/** Chapter 5's host budget: tight enough that the storm case with full memory passes it, so memory has to be managed (KTD12). */
+export const MEMORY_CONTEXT = 2000;
 export const DEFAULTS: Omit<Setup, 'case'> = {
   mode: 'agent', stock: 'in', plan: false, approval: 'none', decide: [], steps: 12, repeat: 3, mem: 'full', context: CONTEXT, helpers: false,
 };
@@ -117,7 +119,7 @@ export const DOMAINS: Record<string, Domain> = {
   '03-plans': { case: ['damaged', 'planted'], stock: ['out'], plan: [false, true], approval: ['none', 'plan'], decide: DECISIONS },
   // chapter 4's step budget, highest first; the detector off or at its default
   '04-budgets': { steps: [12, 8, 4], repeat: [null, 3] },
-  '05-memory': { mem: ['full', 'summary', 'pinned'] },
+  '05-memory': { mem: ['full', 'summary', 'pinned'], context: [MEMORY_CONTEXT] },
   '06-sub-agents': { helpers: [false, true] },
 };
 /** The workbench (chapter 7): per case, each chapter's controls for it, over that chapter's recording. */

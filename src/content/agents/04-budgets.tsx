@@ -14,7 +14,7 @@ import { fact } from '../../lib/agents/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
-import { AgentStage, Fact } from './kit';
+import { AgentStage, Chips, Fact } from './kit';
 
 const MODULE = 'agents', ID = '04-budgets';
 const REC = RECORDINGS[ID];
@@ -117,14 +117,6 @@ export const STEPS: Step<S>[] = [
     hint: 'Which rule leaves the model a turn to say what went wrong?',
   },
 ];
-
-function Chips<T extends number | null>({ label, values, value, name, pick }: { label: string; values: T[]; value: T; name: (v: T) => string; pick: (v: T) => void }) {
-  return (
-    <div role="group" aria-label={label} style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 6 }}>
-      {values.map(v => <button key={String(v)} type="button" className="chip" aria-pressed={value === v} onClick={() => pick(v)}>{name(v)}</button>)}
-    </div>
-  );
-}
 
 /** Tokens per turn for the run on screen; the total is the engine's own sum. */
 function Meter({ r }: { r: Run }) {

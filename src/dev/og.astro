@@ -21,7 +21,7 @@ import { RECORDINGS } from '../lib/tools/turns';
 import { SERVERS } from '../lib/tools/server';
 import { MCP_BOARD, connectScene } from '../components/scenes/mcpScene';
 import { agentScene } from '../components/scenes/agentScene';
-import { run as agentRun, CONTEXT as AGENT_CONTEXT, DEFAULTS as AGENT_DEFAULTS } from '../lib/agents/loop';
+import { run as agentRun, CONTEXT as AGENT_CONTEXT, DEFAULTS as AGENT_DEFAULTS, MEMORY_CONTEXT } from '../lib/agents/loop';
 import { RECORDINGS as AGENT_RECORDINGS } from '../lib/agents/turns';
 
 export function getStaticPaths() {
@@ -62,6 +62,8 @@ const AGENT_OG: Record<string, ReturnType<typeof agentScene>> = {
   'agents-03-plans': agentScene({ run: agentRun(AGENT_RECORDINGS['03-plans'], { case: 'damaged', stock: 'out', plan: true }), clipboard: true, scale: 1.5 }),
   // chapter 4: the stuck loop with no detector, the gauge full at the step budget
   'agents-04-budgets': agentScene({ run: agentRun(AGENT_RECORDINGS['04-budgets'], { repeat: null }), gauge: { steps: AGENT_DEFAULTS.steps, context: AGENT_CONTEXT }, scale: 1.5 }),
+  // chapter 5: the storm case with summary memory at the chapter's budget, the history compacted into one binder
+  'agents-05-memory': agentScene({ run: agentRun(AGENT_RECORDINGS['05-memory'], { mem: 'summary', context: MEMORY_CONTEXT }), gauge: { steps: AGENT_DEFAULTS.steps, context: MEMORY_CONTEXT }, tray: true, scale: 1.5 }),
 };
 const agent = AGENT_OG[page.og];
 ---

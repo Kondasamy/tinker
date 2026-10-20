@@ -517,9 +517,6 @@
         }
       ]
     },
-    "case=storm|hist=get_order:2101:ok,get_order:2102:ok,get_order:2103:ok,get_order:2104:ok,get_order:2105:ok,check_stock:2101:in,check_stock:2102:out,check_stock:2103:in,check_stock:2104:in,check_stock:2105:out,create_replacement:2101:ok,issue_refund:2102:ok,create_replacement:2103:ok,create_replacement:2104:ok,issue_refund:2105:ok,send_email:2101:ok,send_email:2102:ok,send_email:2103:ok,send_email:2104:ok,send_email:2105:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
-      "text": "All five storm cases are sorted: replacements shipped for 2101, 2103 and 2104, refunds issued for 2102 and 2105, and every customer emailed."
-    },
     "case=storm|hist=summary,send_email:2101:ok,send_email:2102:ok,send_email:2103:ok,send_email:2104:ok,send_email:2105:ok|mem=summary|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
       "text": "All five storm cases are sorted: replacements shipped for 2101, 2103 and 2104, refunds issued for 2102 and 2105, and every customer emailed."
     },

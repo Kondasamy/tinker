@@ -2,6 +2,7 @@
 // Only chapters that are written are listed here; each chapter unit appends its own entry (with its `intro`) alongside its island.
 import type { Chapter, Module } from '../../lib/modules';
 import { RECALL } from './recall';
+import { WINDOW } from '../rag/module';
 
 const CHAPTERS: Chapter[] = [
   {
@@ -72,6 +73,24 @@ const CHAPTERS: Chapter[] = [
         ['Stuck loop', 'An agent asking for the same failing call, turn after turn, without getting anywhere.'],
         ['Token', 'A small piece of text, a word or part of one. Models read and write tokens, and every turn re-sends the whole context.'],
         ['Repeat detector', 'A host rule: when the same call fails the same way several times in a row, stop running it and tell the model.'],
+      ],
+    },
+  },
+  {
+    id: '05-memory', title: 'Memory, and what survives it', short: 'Memory',
+    intro: {
+      story: 'In chapter 4 the host stopped a stuck loop, and every turn re-sent the whole history, so each one cost more. Now Monday’s storm brings five damaged orders at once. The history grows with every one, and one customer has asked for something the agent must not forget.',
+      goal: 'What does an agent remember from turn to turn, and what is lost when the host cuts its history down?',
+      learn: [
+        'Why the context grows with every result the agent gets back',
+        'What compaction saves, and what a summary can drop',
+        'How pinning keeps the line that has to survive',
+      ],
+      terms: [
+        [WINDOW[0], `${WINDOW[1]} You met it in RAG, chapter 2.`],
+        ['Context budget', 'The most tokens this host lets one turn send the model. Larkspur’s team set it; it is not the size of any model’s context window.'],
+        ['Compaction', 'The host replacing older history with a short summary, so later turns send less.'],
+        ['Pinning', 'Keeping a line outside the summary: the host sends it every turn and never compacts it.'],
       ],
     },
   },
