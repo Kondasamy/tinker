@@ -124,7 +124,8 @@ export const DOMAINS: Record<string, Domain> = {
   '06-sub-agents': { helpers: [false, true] },
 };
 /** The workbench (chapter 7): per case, each chapter's controls for it, over that chapter's recording. */
-export const WORKBENCH_DOMAINS: Record<string, { scenario: string; domain: Domain }[]> = {
+export type WorkbenchCase = 'refund' | 'damaged' | 'planted' | 'timeout' | 'storm';
+export const WORKBENCH_DOMAINS: Record<WorkbenchCase, { scenario: string; domain: Domain }[]> = {
   refund: [{ scenario: '01-workflow-or-agent', domain: { case: ['refund'], mode: ['script', 'agent'] } }],
   damaged: [
     { scenario: '01-workflow-or-agent', domain: { case: ['damaged'], stock: ['in', 'out'], mode: ['script', 'agent'] } },

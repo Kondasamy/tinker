@@ -18,7 +18,7 @@ export type CaseId = keyof typeof WORKBENCH_DOMAINS;
 export const CASES = Object.keys(WORKBENCH_DOMAINS) as CaseId[];
 export type Ending = Exclude<Run['status'], 'norecord'>;
 export const ENDINGS: Ending[] = ['done', 'failed', 'waiting', 'stuck', 'out-of-budget'];
-const CASE_NAMES: Record<string, string> = { refund: 'Plain refund', damaged: 'Cracked printer', planted: 'Planted line', timeout: 'Carrier timeout', storm: 'Storm, five orders' };
+const CASE_NAMES: Record<CaseId, string> = { refund: 'Plain refund', damaged: 'Cracked printer', planted: 'Planted line', timeout: 'Carrier timeout', storm: 'Storm, five orders' };
 const ENDING_NAMES: Record<Ending, string> = { done: 'Done', failed: 'Failed', waiting: 'Waiting', stuck: 'Stuck', 'out-of-budget': 'Out of budget' };
 const chapterName = (scenario: string) => {
   const cs = moduleOf(MODULE).chapters, i = cs.findIndex(c => c.id === scenario);
