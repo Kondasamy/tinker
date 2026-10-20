@@ -1,6 +1,9 @@
 ---
 import ChapterLayout from '../../layouts/ChapterLayout.astro';
 import DataOrInstructions from '../../content/guardrails/01-data-or-instructions';
+import InputFilters from '../../content/guardrails/02-input-filters';
+import TheWayOut from '../../content/guardrails/03-the-way-out';
+import TheTrifecta from '../../content/guardrails/04-the-trifecta';
 import { moduleOf } from '../../lib/modules';
 
 export function getStaticPaths() {
@@ -13,5 +16,8 @@ const { title } = Astro.props;
 <ChapterLayout module="guardrails" chapter={chapter} title={title}>
   {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
       hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
-  <DataOrInstructions client:load />
+  {chapter === '01-data-or-instructions' ? <DataOrInstructions client:load />
+    : chapter === '02-input-filters' ? <InputFilters client:load />
+    : chapter === '03-the-way-out' ? <TheWayOut client:load />
+    : <TheTrifecta client:load />}
 </ChapterLayout>

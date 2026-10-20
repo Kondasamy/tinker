@@ -107,10 +107,16 @@ const EVAL_PATH = officeScene({ msgs: seq('injection'), upTo: 8, tools: RECORDIN
 // module 5: the forwarded invoice with no defences. The intro: the customer's record riding out to the post box;
 // chapter 1: the email riding in, tagged as untrusted, before the model reads it
 const INVOICE = guardRun(GUARD_RECORDING, { case: 'invoice' });
+const ALLOWED = guardRun(GUARD_RECORDING, { case: 'invoice', allow: true });
 const callAt = (name: string) => INVOICE.steps.findIndex(st => st.kind === 'call' && st.call.name === name) + 1;
 const GUARD_OG: Record<string, ReturnType<typeof guardScene>> = {
   guardrails: guardScene({ run: INVOICE, upTo: callAt('send_email'), scale: 1.5 }),
   'guardrails-01-data-or-instructions': guardScene({ run: INVOICE, upTo: callAt('read_inbox') + 1, scale: 1.5 }),
+  // chapter 2: the forwarded invoice held at the screening arch; chapter 3: its send stopped at the allow-list barrier;
+  // chapter 4: the three legs named, the chute shut by the taint rule once the email was read
+  'guardrails-02-input-filters': guardScene({ run: guardRun(GUARD_RECORDING, { case: 'invoice', threshold: 0.5 }), screen: true, scale: 1.5 }),
+  'guardrails-03-the-way-out': guardScene({ run: ALLOWED, upTo: ALLOWED.steps.findIndex(st => st.kind === 'blocked') + 1, allow: true, scale: 1.5 }),
+  'guardrails-04-the-trifecta': guardScene({ run: guardRun(GUARD_RECORDING, { case: 'invoice', taint: true }), legs: true, taint: true, scale: 1.5 }),
 };
 const guard = GUARD_OG[page.og];
 ---

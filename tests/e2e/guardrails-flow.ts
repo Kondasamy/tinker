@@ -10,6 +10,14 @@ export function guardWalker(page: Page, mode: Mode, check: (page: Page) => Promi
   const btn = (name: string | RegExp) => press(card.getByRole('button', { name }));
   const opt = (name: string | RegExp) => press(card.getByRole('radio', { name }));   // a quiz or prediction option
   const step = (n: number) => expect(card).toContainText(`Step ${n} of`);
+  /** chapter 2's threshold slider, to the i-th stop of THRESHOLDS: arrow keys by keyboard, fill by mouse */
+  async function slide(i: number) {
+    const s = card.getByRole('slider');
+    if (!kb) return s.fill(String(i));
+    const now = Number(await s.inputValue());
+    await s.focus();
+    for (let k = now; k !== i; k += Math.sign(i - now)) await s.press(i > now ? 'ArrowRight' : 'ArrowLeft');
+  }
 
   async function open(id: string) {
     await page.goto(`/guardrails/${id}/`);
@@ -43,6 +51,57 @@ export function guardWalker(page: Page, mode: Mode, check: (page: Page) => Promi
       await btn(/email, rule on$/);
       await btn(/^Run the forwarded invoice, rule on$/);
       await step(7);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
+    /** input filters: predict, try two thresholds, set the strictest that holds every attack, open the held customer */
+    async ch2(next?: RegExp, quiz: string | RegExp = /^How many ordinary messages/) {
+      await opt(/^No: at least one customer/);
+      await step(2);
+      await check(page);
+      await slide(1);
+      await slide(2);
+      await step(3);
+      await check(page);
+      await slide(4);   // THRESHOLDS[4], 0.3: the highest that holds every attack
+      await step(4);
+      await btn(/refund email$/);
+      await step(5);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
+    /** the way out: the leak, the allow-list, the link leak, the output filter, a person checking each send */
+    async ch3(next?: RegExp, quiz: string | RegExp = /^An image or a link to someone else/) {
+      await btn('Run the forwarded invoice');
+      await step(2);
+      await check(page);
+      await opt(/^The host blocks the send/);
+      await btn('Allow-list: on');
+      await step(4);
+      await opt(/^No: the data leaves inside the reply/);
+      await btn(/^Run .*’s email$/);
+      await step(6);
+      await check(page);
+      await btn('Output filter: on');
+      await step(7);
+      await btn('Person says yes');
+      await btn('Person says no');
+      await step(8);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
+    /** the trifecta: predict, solve the puzzle by hand (the way out), then the taint rule */
+    async ch4(next?: RegExp, quiz: string | RegExp = /^Once it has read a supplier page/) {
+      await opt(/^The way out:/);
+      await step(2);
+      await check(page);
+      await btn('Remove the way out');
+      await step(3);
+      await btn('Taint rule: on');
+      await step(4);
       await check(page);
       await opt(quiz);
       await finish(next);
