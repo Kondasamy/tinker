@@ -69,7 +69,7 @@ test('chapter 6: naive then agentic adds two strip rows with different call coun
   await allRuns(page, 4);
   await step(page, 6);
 
-  await card(page).getByRole('button', { name: /follow-up can fetch the rest/ }).click();
+  await card(page).getByRole('radio', { name: /follow-up can fetch the rest/ }).click();
 
   // multi-hop: naive and agentic both miss the Kestrel approver
   await step(page, 7);
@@ -111,7 +111,7 @@ test('chapter 6: naive then agentic adds two strip rows with different call coun
   expect(await walk.locator('text.peg-label').count()).toBeGreaterThan(3);
   await blocksClear(page);
 
-  await card(page).getByRole('button', { name: /chains facts across documents/ }).click();
+  await card(page).getByRole('radio', { name: /chains facts across documents/ }).click();
 
   // self-correcting: the look-alike note fools naive RAG; the evaluator rejects it, retries, then says "I don't know"
   await step(page, 12);

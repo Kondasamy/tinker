@@ -1,0 +1,8 @@
+---
+// Test fixture: predict, reveal and a checkpoint with "not sure" (tests/e2e/quiz.spec.ts).
+import ChapterLayout from '../layouts/ChapterLayout.astro';
+import QuizFixture from '../components/story/QuizFixture';
+---
+<ChapterLayout chapter="dev-quiz" title="Quiz and predict (dev)">
+  <QuizFixture client:load />
+</ChapterLayout>

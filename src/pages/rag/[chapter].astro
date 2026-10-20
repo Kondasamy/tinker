@@ -16,7 +16,7 @@ export function getStaticPaths() {
 const { chapter } = Astro.params;
 const { title } = Astro.props;
 ---
-<ChapterLayout chapter={chapter} title={title}>
+<ChapterLayout module="rag" chapter={chapter} title={title}>
   {/* one line per written chapter; hydration needs a static component, so no lookup table */}
   {chapter === '01-history' ? <History client:load />
     : chapter === '02-why-not-stuff-it' ? <WhyNotStuffIt client:load />

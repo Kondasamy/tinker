@@ -5,6 +5,8 @@
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
+import Predict, { Reveal } from '../../components/quiz/Predict';
+import { UNSURE } from '../../lib/recall';
 import { puzzle } from '../../components/quiz/Puzzle';
 import { Knob } from '../../components/canvas/Knobs';
 import { DEFAULT_KNOBS, initialCanvas, unlockedThrough, type CanvasQuestion, type KnobName, type Knobs } from '../../components/canvas/state';
@@ -22,7 +24,7 @@ const Q = (id: string) => QS.find(q => q.id === id)!;
 export const USED = ['stale-hotel-limit', 'vague-outage', 'dock-door-red-light', 'card-data-retention', 'standard-refund-window'] as const;
 type QId = typeof USED[number];
 const USED_QS = USED.map(Q);
-interface S extends RagState { q: QId; asked: boolean; acks: number; quiz: number | null }
+interface S extends RagState { q: QId; prediction: number | null; asked: boolean; acks: number; quiz: number | null }
 
 /** Each puzzle's broken setting: every knob pinned, so the one lever on screen is the only thing that differs. */
 const base = (k: Partial<Knobs>): Knobs => ({ ...DEFAULT_KNOBS, ...k });
@@ -56,7 +58,19 @@ const QUIZ = {
   ],
   correct: 1,
   explanation: 'Recall only says the right sentence arrived. The verdict depends on what else arrived with it, and where. Read the evidence before turning another knob.',
+  why: [
+    'Retrieval already did its job: the right sentence arrived. Fetching more only buries it deeper in the middle.',
+    'Right. Recall says the right sentence arrived; the verdict depends on what arrived with it, and where.',
+    'Recall measures retrieval, not the answer. The stale hotel policy got 100% recall and a wrong answer.',
+  ],
 };
+
+// Predict, then reveal (R9): the meters move only when top-k does, so they show the current setting until the pick.
+const PREDICT = {
+  question: `You retrieve ${PRESETS.filter.knobs.topK} chunks instead of ${PRESETS.open.knobs.topK}. Which meter moves?`,
+  options: ['Both: the right policy arrives and the answer is fixed', 'Only recall: the right policy arrives, but the answer stays wrong', 'Neither: more chunks only add noise'],
+};
+const OUTCOME = 1;
 
 export const STEPS: Step<S>[] = [
   {
@@ -70,12 +84,17 @@ export const STEPS: Step<S>[] = [
     predicate: s => has(s, 'grader'),
   },
   {
-    id: 'more', focus: 'retriever', visibleControls: ['more'], opensDrawer: 'evidence',
-    narration: 'Two meters. Retrieval recall@k: did the right sentence reach the model? Answer: was the reply right? Recall is 0%, so the current policy never arrived. Fetch more chunks.',
+    id: 'predict', focus: 'predict', visibleControls: ['predict'], opensDrawer: 'evidence',
+    narration: 'Two meters. Retrieval recall@k: did the right sentence reach the model? Answer: was the reply right? Recall is 0%, so the current policy never arrived. Next you will fetch more chunks. Make a prediction first.',
+    predicate: s => s.prediction !== null,
+  },
+  {
+    id: 'more', focus: 'retriever', visibleControls: ['predict', 'more'],
+    narration: 'Your pick is locked. Fetch more chunks and watch both meters.',
     predicate: s => s.canvas.knobs.topK === 5,
   },
   puzzle<S>({
-    id: 'filter', focus: 'retriever', visibleControls: ['filter'], opensDrawer: 'evidence',
+    id: 'filter', focus: 'retriever', visibleControls: ['reveal', 'filter'], opensDrawer: 'evidence',
     narration: 'Recall jumped to 100%, yet the answer is still wrong: the retired 2018 policy came along and the model believed it. Puzzle: keep outdated documents out with a metadata filter.',
     broken: enter('filter'), verdict: correct, solution: fix('filter'),
     hint: 'Set the filter to current documents only (2025 and later).',
@@ -149,7 +168,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz', focus: 'quiz', visibleControls: ['quiz'], opensDrawer: 'answer',
     narration: 'Correct. Seven levers, and the two meters told you which side to fix. One question to finish.',
-    predicate: s => s.quiz === QUIZ.correct,
+    predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Think of the stale policy: recall was 100% and the answer still wrong.',
   },
 ];
@@ -164,13 +183,17 @@ export default function Accuracy() {
     <StepRunner<S>
       chapter={ID}
       steps={STEPS}
-      initial={{ q: PRESETS.open.q, canvas: initialCanvas(unlockedThrough('04-layers'), PRESETS.open.knobs), verdict: null, math: false, probed: false, asked: false, acks: 0, quiz: null }}
+      initial={{ q: PRESETS.open.q, canvas: initialCanvas(unlockedThrough('04-layers'), PRESETS.open.knobs), verdict: null, math: false, probed: false, prediction: null, asked: false, acks: 0, quiz: null }}
       next={nextOf(ID)}
       stage={p => <div className="stage-col">
         <RagStage {...p} run={runs[p.state.q]} />
         {p.state.canvas.unlocked.includes('grader') && <QualityMeters out={runs[p.state.q].out} />}
       </div>}
       controls={{
+        predict: ({ state, apply }) => <Predict {...PREDICT} value={state.prediction} onPredict={i => apply({ ...state, prediction: i })} />,
+        reveal: ({ state }) => (
+          <Reveal prediction={state.prediction === null ? null : PREDICT.options[state.prediction]} outcome={PREDICT.options[OUTCOME]} revealed onReveal={() => {}} />
+        ),
         ask: ({ state, apply }) => (
           <button type="button" className="big" onClick={() => apply({ ...state, asked: true })}>Ask: “{Q(state.q).query}”</button>
         ),
@@ -189,7 +212,7 @@ export default function Accuracy() {
           <Knob name={name} state={state.canvas} question={Q(state.q)}
             onChange={canvas => apply({ ...state, canvas, verdict: runs[state.q].verdictOf(canvas) })} />
         )])),
-        quiz: ({ state, apply }) => <Quiz {...QUIZ} value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} />,
+        quiz: ({ state, apply, sync }) => <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />,
       }}
       inspectPanel="answer"
       panels={panels}

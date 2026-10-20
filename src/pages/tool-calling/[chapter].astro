@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import AnswersArentActions from '../../content/tool-calling/01-answers-arent-actions';
+import FirstTool from '../../content/tool-calling/02-first-tool';
+import ValidIsntCorrect from '../../content/tool-calling/03-valid-isnt-correct';
+import ManySteps from '../../content/tool-calling/04-many-steps';
+import Mcp from '../../content/tool-calling/05-mcp';
+import WhenToolsGoWrong from '../../content/tool-calling/06-when-tools-go-wrong';
+import Workbench from '../../content/tool-calling/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('tool-calling').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="tool-calling" chapter={chapter} title={title}>
+  {/* one line per written chapter; hydration needs a static component, so no lookup table */}
+  {chapter === '01-answers-arent-actions' ? <AnswersArentActions client:load />
+    : chapter === '02-first-tool' ? <FirstTool client:load />
+    : chapter === '03-valid-isnt-correct' ? <ValidIsntCorrect client:load />
+    : chapter === '04-many-steps' ? <ManySteps client:load />
+    : chapter === '05-mcp' ? <Mcp client:load />
+    : chapter === '06-when-tools-go-wrong' ? <WhenToolsGoWrong client:load />
+    : <Workbench client:load />}
+</ChapterLayout>

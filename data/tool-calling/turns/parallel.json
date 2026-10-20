@@ -1,0 +1,16 @@
+{
+  "ask": "Hollis Hardware wants to know where orders 1042 and 1043 are.",
+  "tools": ["get_order"],
+  "turns": {
+    "desc=clear|gate=off|inj=no|last=|tools=get_order": {
+      "text": "The two lookups don't depend on each other, so I'll ask for both at once.",
+      "calls": [
+        { "id": "call_1", "name": "get_order", "arguments": { "order_id": 1042 } },
+        { "id": "call_2", "name": "get_order", "arguments": { "order_id": 1043 } }
+      ]
+    },
+    "desc=clear|gate=off|inj=no|last=get_order:1042:ok,get_order:1043:ok|tools=get_order": {
+      "text": "Order 1042 was delivered on 14 October 2026. Order 1043, three label rolls, is still being processed and has not shipped yet."
+    }
+  }
+}

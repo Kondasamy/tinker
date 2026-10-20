@@ -14,17 +14,34 @@ import ch6 from '../../../data/questions/ch6.json';
 import manifest from '../../../public/data/index/manifest.json';
 import Meta from '../../components/Meta.astro';
 import { RAG } from '../../lib/pages';
+import { moduleOf } from '../../lib/modules';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import { INK, pd } from '../../lib/iso/core.js';
+import { BH, ACC } from '../../lib/iso/blocks';
+
+const MODULE = moduleOf('rag');
+const PREREQS = MODULE.prereqs.length ? `${MODULE.prereqs.map(id => moduleOf(id).title).join(', ')} recommended` : 'No prerequisites';
 
 const QUESTION = ch3.find(q => q.id === 'refund-enterprise')!.query;
 const WITHOUT = refund.nocontext, WITH = refund['enterprise-excluded:intact'];
 
 // one block per letter of R-A-G, drawn alone
-const one = (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) => ({ top }: SceneCtx) =>
+const one = (type: BlockType, opts: { lit?: boolean; state?: 'ok' | 'warn' } = {}) => ({ top }: SceneCtx) =>
   blockShadow(type, 30, 30, top) + renderers[type]({ x: 30, y: 30, ...opts });
-const STEPS: [string, string, BlockType, ReturnType<typeof one>][] = [
-  ['Retrieve', 'Search every document for the passages closest in meaning to the question. Keep the best few.', 'retriever', one('retriever', { lit: true })],
-  ['Augment', 'Put those passages into the prompt, next to the question, so the model reads them first.', 'assembler', one('assembler')],
-  ['Generate', 'The model writes the answer from what it was handed, and can point to where it came from.', 'llm', one('llm', { state: 'ok' })],
+// the comparison's pictures: the model alone (guessing), and documents wired to it (answering from them)
+const ALONE = one('llm', { state: 'warn' });
+const WIRED = ({ top }: SceneCtx) => {
+  const d = pd([[30, 30, BH + .3], [100, 30, BH + .3]], false);
+  return blockShadow('docs', 30, 30, top) + blockShadow('llm', 100, 30, top)
+    + `<path d="${d}" fill="none" stroke="${INK}" stroke-width="4.2" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${ACC}" stroke-width="2.2" stroke-linecap="round"/>`
+    + renderers.docs({ x: 30, y: 30 }) + renderers.llm({ x: 100, y: 30, state: 'ok' });
+};
+const STEPS: [string, string, string, BlockType, ReturnType<typeof one>][] = [
+  ['Retrieve', 'Find the few passages that match', 'Search every document for the passages closest in meaning to the question. Keep the best few.', 'retriever', one('retriever', { lit: true })],
+  ['Augment', 'Hand them to the model', 'Put those passages into the prompt, next to the question, so the model reads them first.', 'assembler', one('assembler')],
+  ['Generate', 'Answer from them, with a source', 'The model writes the answer from what it was handed, and can point to where it came from.', 'llm', one('llm', { state: 'ok' })],
 ];
 
 // real questions from later chapters, and what makes each one hard
@@ -51,12 +68,13 @@ const FACTS: [string, string][] = [
   <body>
     <div class="topbar">
       <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">RAG</span></nav>
-      <p class="by">by <a href="https://kondasamy.com">Kondasamy Jayaraman</a></p>
+      <p class="by">by <a href={MODULE.author.url}>{MODULE.author.name}</a></p>
     </div>
     <main class="rag">
       <header class="hero">
         <div class="hero-text">
           <p class="kicker">Module 1 · AI</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS} · by <a href={MODULE.author.url}>{MODULE.author.name}</a></p>
           <h1>How AI assistants answer from your company’s documents</h1>
           <p class="lede">Retrieval-Augmented Generation (RAG) is how most workplace AI assistants find the right policy, contract or price before they answer. You’ll build one block by block, watch it fail, and fix it.</p>
           <ul class="chips" aria-label="At a glance">
@@ -66,6 +84,7 @@ const FACTS: [string, string][] = [
             <a class="btn primary" href={chapterHref(CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
             <a class="btn" href="#path">See the chapters</a>
           </div>
+          <ReadingMode />
         </div>
         <div class="hero-pic">
           <IsoStage board={MINI_BOARD} scene={miniPipeline} label={MINI_LABEL} />
@@ -79,27 +98,30 @@ const FACTS: [string, string][] = [
         <div class="versus">
           <article class="reply bad">
             <header><h3>Without RAG</h3><span class="stamp">Made up</span></header>
+            <div class="vpic"><IsoStage board={[10, 10, 50, 50]} scene={ALONE} label="The model alone, with nothing to read: its screen shows question marks" /></div>
             <p class="said">“{WITHOUT.text}”</p>
-            <p class="why">{WITHOUT.why}</p>
+            <p class="why more">{WITHOUT.why}</p>
           </article>
           <article class="reply good">
             <header><h3>With RAG</h3><span class="stamp">Correct</span></header>
+            <div class="vpic"><IsoStage board={[8, 10, 122, 50]} scene={WIRED} label="The documents wired to the model: its screen shows OK" /></div>
             <p class="said">“{WITH.text}”</p>
             <blockquote><span>From refund-policy-2025</span>{WITH.citation}</blockquote>
           </article>
         </div>
-        <p class="note">These are the course’s own recorded answers. The only thing that changed is what reached the model.</p>
+        <p class="note more">These are the course’s own recorded answers. The only thing that changed is what reached the model.</p>
       </section>
 
       <section aria-labelledby="how">
         <p class="kicker">How it works</p>
         <h2 id="how">Three steps hidden in the name</h2>
         <ol class="steps">
-          {STEPS.map(([name, text, type, scene], i) => (
+          {STEPS.map(([name, short, text, type, scene], i) => (
             <li>
               <div class="pic"><IsoStage board={[0, 0, 60, 60]} scene={scene} label={`${BLOCKS[type].name} block`} /></div>
               <h3><span class="n">{i + 1}</span> {name}</h3>
-              <p>{text}</p>
+              <p class="cap">{short}</p>
+              <p class="more">{text}</p>
             </li>
           ))}
         </ol>
@@ -109,7 +131,7 @@ const FACTS: [string, string][] = [
         <div>
           <p class="kicker">The story</p>
           <h2 id="story">You’ve just joined Larkspur Supply Co.</h2>
-          <p>Larkspur sells office and warehouse hardware, from scanners to steel shelving. Its staff lose hours hunting through policies, contracts, price lists and meeting notes, so the company wants an AI assistant that answers from those documents. <strong>You’re on the team building it.</strong></p>
+          <p class="more">Larkspur sells office and warehouse hardware, from scanners to steel shelving. Its staff lose hours hunting through policies, contracts, price lists and meeting notes, so the company wants an AI assistant that answers from those documents. <strong>You’re on the team building it.</strong></p>
           <dl class="facts">
             {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}
           </dl>
@@ -127,26 +149,21 @@ const FACTS: [string, string][] = [
       <section id="path" aria-labelledby="path-h">
         <p class="kicker">Your path</p>
         <h2 id="path-h">Seven chapters, one assistant</h2>
-        <ol class="path">
-          {CHAPTERS.map((c, i) => (
-            <li data-chapter={c.id}>
-              <span class="dot" aria-hidden="true">{i + 1}</span>
-              <div class="body">
-                <h3><a href={chapterHref(c.id)}>{c.title}</a><span class="done-mark" hidden> · done</span></h3>
-                <p>{c.intro.goal}</p>
-                {c.unlocks.length > 0 && (
-                  <p class="adds"><span class="lbl">Adds</span>{c.unlocks.map(t => <span class="block-chip"><i style={`background:${BLOCKS[t].pal.l}`}></i>{BLOCKS[t].name}</span>)}</p>
-                )}
-              </div>
-            </li>
+        {/* a warm-up shows here only when one is due (R13); the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module="rag" bank={MODULE.recall ?? []} warmup client:load /></div>
+        <ChapterCards module="rag" chapters={MODULE.chapters}>
+          {CHAPTERS.filter(c => c.unlocks.length).map(c => (
+            <p class="adds" slot={c.id}>{c.unlocks.map(t => <span class="block-chip"><i style={`background:${BLOCKS[t].pal.l}`}></i>{BLOCKS[t].name}</span>)}</p>
           ))}
-        </ol>
+        </ChapterCards>
+        <p class="recap-link"><a href="/rag/recap/">Recap: questions from the chapters you’ve finished →</a></p>
       </section>
 
       <section class="pair">
         <article>
           <h2>Who it’s for</h2>
-          <p>Product managers, engineers, analysts, and anyone whose company is rolling out AI assistants who wants to know how they really work, where they fail, and what the fixes cost. No background needed.</p>
+          <ul class="who-chips"><li>Product managers</li><li>Engineers</li><li>Analysts</li><li>No background needed</li></ul>
+          <p class="more">Product managers, engineers, analysts, and anyone whose company is rolling out AI assistants who wants to know how they really work, where they fail, and what the fixes cost. No background needed.</p>
         </article>
         <article>
           <h2>How a chapter page works</h2>
@@ -154,7 +171,7 @@ const FACTS: [string, string][] = [
             <div class="s-pic">live picture</div>
             <div class="s-story"><span></span><span></span><span class="s-step">your step</span></div>
           </div>
-          <p>The picture on the left is live. The story on the right asks you to do one thing in it at a time. Hints appear when you’re stuck, and puzzles have a “Show me”. Progress stays in this browser.</p>
+          <p class="more">The picture on the left is live. The story on the right asks you to do one thing in it at a time. Hints appear when you’re stuck, and puzzles have a “Show me”. Progress stays in this browser.</p>
         </article>
       </section>
 
@@ -171,9 +188,10 @@ const FACTS: [string, string][] = [
 
     <script>
       // finished chapters get a tick; the buttons continue from the first unfinished chapter
-      import { CHAPTERS, chapterHref } from '../../lib/chapters';
+      import { moduleOf, chapterHref } from '../../lib/modules';
       import { completed } from '../../lib/progress';
-      const done = completed();
+      const CHAPTERS = moduleOf('rag').chapters;
+      const done = completed('rag');
       for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
         if (!done.includes(li.dataset.chapter!)) continue;
         li.classList.add('done');
@@ -181,7 +199,7 @@ const FACTS: [string, string][] = [
       }
       const next = CHAPTERS.findIndex(c => !done.includes(c.id));
       if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
-        a.href = chapterHref(CHAPTERS[next].id);
+        a.href = chapterHref('rag', CHAPTERS[next].id);
         a.textContent = `Continue: chapter ${next + 1} →`;
       }
     </script>
@@ -197,6 +215,9 @@ const FACTS: [string, string][] = [
 
   .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
   .lede { font-size: 17px; }
+  .rag .module-meta { margin: 8px 0 10px;font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .module-meta a { color: var(--ink); }
   .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 
   .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
@@ -221,6 +242,8 @@ const FACTS: [string, string][] = [
   .steps .pic { width: 150px; margin: 0 auto 4px; }
   .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 18px; }
   .steps p { font-size: 14px; margin: 0; }
+  .vpic { height: 130px; display: flex; justify-content: center; margin: 2px 0 10px; }
+  .vpic :global(svg) { width: auto !important; height: 100% !important; }
 
   .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
   .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 18px 0 0; }
@@ -236,16 +259,9 @@ const FACTS: [string, string][] = [
   .hard { margin: 2px 0 0 !important; font-size: 13px; color: var(--bad); }
   .hard span { color: var(--muted); }
 
-  .path { list-style: none; margin: 0; padding: 0; position: relative; }
-  .path::before { content: ''; position: absolute; left: 17px; top: 18px; bottom: 18px; border-left: 2px dashed var(--rule); }
-  .path li { position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 16px; padding: 0 0 22px; }
-  .dot { position: relative; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--ink); background: var(--card); font-weight: 900; }
-  .path li.done .dot { background: var(--ok); color: var(--paper); }
-  .path h3 { font-size: 17px; margin-top: 5px; }
-  .path h3 a { text-decoration: none; }
-  .path h3 a:hover { text-decoration: underline; }
   .done-mark { color: var(--ok); font-size: 13px; }
-  .path .body p { margin: 4px 0 0; font-size: 14px; color: var(--muted); max-width: 70ch; }
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
   .adds { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
   .adds .lbl { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; margin-right: 2px; }
   .block-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--ink); border: 1.5px solid var(--ink); border-radius: 999px; padding: 1px 9px 1px 4px; background: var(--card); }
@@ -254,11 +270,6 @@ const FACTS: [string, string][] = [
   .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
   .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
   .pair h2 { font-size: 18px; margin-bottom: 10px; }
-  .schematic { display: grid; grid-template-columns: 1.7fr 1fr; gap: 6px; height: 92px; margin-bottom: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
-  .s-pic { display: grid; place-items: center; border: 1.5px solid var(--ink); border-radius: 8px; background: var(--paper) repeating-linear-gradient(135deg, transparent 0 8px, rgba(0,0,0,.04) 8px 9px); }
-  .s-story { display: flex; flex-direction: column; gap: 5px; border: 1.5px solid var(--ink); border-radius: 8px; padding: 6px; }
-  .s-story span { height: 10px; border-radius: 3px; background: var(--rule); }
-  .s-story .s-step { flex: 1; height: auto; display: grid; place-items: center; background: var(--acc); border: 1.5px solid var(--ink); }
 
   .end { text-align: center; padding: 8px 0; }
   .end h2 { margin-bottom: 14px; }

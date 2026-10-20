@@ -1,0 +1,45 @@
+---
+// Dev-only eyeball page: the flat sequence kit, three lanes then four (with an MCP server). Narrow the window
+// below 600px for the stacked one-message view and its Prev/Next.
+import '../styles/tokens.css';
+import FlatStage from '../components/scenes/FlatStage';
+import type { Lane, Msg } from '../lib/iso/flat';
+
+const three: Lane[] = [{ id: 'emp', name: 'Employee' }, { id: 'host', name: 'Host app' }, { id: 'model', name: 'Model' }];
+const threeMsgs: Msg[] = [
+  { from: 'emp', to: 'host', kind: 'request', text: 'Where is order 1042?' },
+  { from: 'host', to: 'model', kind: 'request', text: 'question + 2 tools' },
+  { from: 'model', to: 'host', kind: 'request', text: 'get_order(id: 1042)', stamp: 'APPROVED' },
+  { from: 'host', to: 'model', kind: 'error', text: 'Order 1042 not found' },
+];
+const four: Lane[] = [...three.slice(0, 2), { id: 'mcp', name: 'MCP server' }, three[2]];
+const fourMsgs: Msg[] = [
+  { from: 'host', to: 'mcp', kind: 'request', text: 'tools/list' },
+  { from: 'mcp', to: 'host', kind: 'result', text: '3 tools' },
+  { from: 'model', to: 'host', kind: 'blocked', text: 'refund_order(1042)', stamp: 'DENIED' },
+  { from: 'host', to: 'mcp', kind: 'request', text: 'tools/call get_order', stamp: 'INVALID' },
+  { from: 'mcp', to: 'host', kind: 'result', text: 'Shipped on 14 Oct, arriving Friday' },
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Flat figures</title>
+  </head>
+  <body>
+    <main>
+      <h1>Flat sequence, three lanes</h1>
+      <FlatStage client:load lanes={three} msgs={threeMsgs} />
+      <h1>Four lanes, with an MCP server (3 of 5 so far)</h1>
+      <FlatStage client:load lanes={four} msgs={fourMsgs} upTo={3} />
+      <h1>All five</h1>
+      <FlatStage client:load lanes={four} msgs={fourMsgs} />
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 900px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+</style>

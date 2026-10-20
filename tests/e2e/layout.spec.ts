@@ -55,9 +55,9 @@ test('inspect opens the drawer without changing the step; Escape closes it', asy
 
 test('finishing completes the run; progress survives reload', async ({ page }) => {
   await pick(page, 32).click();
-  await card(page).getByRole('button', { name: 'The model reads them later' }).click();
+  await card(page).getByRole('radio', { name: 'The model reads them later' }).click();
   await expect(card(page)).toContainText('NOT QUITE');
-  await card(page).getByRole('button', { name: 'The model never sees them' }).click();
+  await card(page).getByRole('radio', { name: 'The model never sees them' }).click();
   await expect(card(page)).toContainText('RIGHT');
   await expect(card(page)).toContainText('Chapter complete');
   await expect(card(page).getByRole('link', { name: /Next:/ })).toHaveCount(0);

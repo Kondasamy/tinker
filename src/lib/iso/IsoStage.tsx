@@ -57,7 +57,8 @@ export default function IsoStage({ board: b, scene, label, light = 105, view = 0
       <defs dangerouslySetInnerHTML={{ __html: filterFor(fr.inkK, prefix + 'hand') }} />
       {/* children share the camera, so they use the same coordinates as the art (pointer maths: this group's CTM) */}
       <g className="iso-cam" transform={cam}>
-        <g filter={`url(#${prefix}hand)`} dangerouslySetInnerHTML={{ __html: art }} />
+        {/* a picture (role img) has no controls inside: drawn blocks lose their button role, tab stop and name */}
+        <g filter={`url(#${prefix}hand)`} dangerouslySetInnerHTML={{ __html: role === 'img' ? art.replace(/ role="button" tabindex="0" aria-label="[^"]*"/g, '') : art }} />
         {children}
       </g>
     </svg>

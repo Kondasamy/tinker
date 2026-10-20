@@ -1,0 +1,9 @@
+{
+  "ask": "Hollis Hardware is on the phone: where is order 1042?",
+  "tools": [],
+  "turns": {
+    "desc=clear|gate=off|inj=no|last=|tools=": {
+      "text": "Order 1042 is most likely on its way. Orders usually arrive within three to five business days, so it should reach you soon."
+    }
+  }
+}

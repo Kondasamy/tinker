@@ -1,8 +1,10 @@
 // R23: axe on every chapter (opening state, then a mid state with the drawer open), keyboard semantics, reduced motion.
 import { test, expect, type Page } from '@playwright/test';
-import AxeBuilder from '@axe-core/playwright';
 import { CHAPTERS } from '../../src/lib/chapters';
 import { walkModule } from './flow';
+import { toolWalker } from './tool-calling-flow';
+import { serious } from './helpers';
+import { moduleOf } from '../../src/lib/modules';
 
 const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 
@@ -12,12 +14,6 @@ async function open(page: Page, id: string) {
   await expect(card(page)).toContainText('Step 1 of');
 }
 
-async function serious(page: Page) {
-  const { violations } = await new AxeBuilder({ page }).analyze();
-  return violations.filter(v => v.impact === 'serious' || v.impact === 'critical')
-    .map(v => `${v.id}: ${v.help} → ${v.nodes.map(n => n.target.join(' ')).slice(0, 3).join(' | ')}`);
-}
-
 test.use({ viewport: { width: 1440, height: 900 } });
 
 for (const { id } of CHAPTERS) {
@@ -25,7 +21,10 @@ for (const { id } of CHAPTERS) {
     await open(page, id);
     expect(await serious(page), 'opening state').toEqual([]);
     // mid state: past the opening step, with the drawer open
-    await card(page).getByRole('button', { name: /^Ask|Compare types/ }).or(page.getByRole('button', { name: 'Open the workbench' })).first().click();
+    // a chapter that opens on a prediction moves on with a pick
+    const predict = card(page).getByRole('radio');
+    if (await predict.count()) await predict.first().click();
+    else await card(page).getByRole('button', { name: /^Ask|Compare types/ }).or(page.getByRole('button', { name: 'Open the workbench' })).first().click();
     await expect(card(page)).toContainText('Step 2 of');
     const inspect = card(page).getByRole('button', { name: 'Inspect' });
     if (await inspect.count()) await inspect.click();
@@ -34,6 +33,34 @@ for (const { id } of CHAPTERS) {
   });
 }
 
+// module 2: the intro, every chapter at its start and with the drawer open (then at 390px), and the recap with questions
+const TOOLS = moduleOf('tool-calling');
+
+test('axe: /tool-calling/ has no serious or critical violations', async ({ page }) => {
+  await page.goto('/tool-calling/');
+  expect(await serious(page)).toEqual([]);
+});
+
+for (const c of TOOLS.chapters) {
+  test(`axe and 390px: ${c.id}, at the start and with the drawer open`, async ({ page }) => {
+    await toolWalker(page, 'mouse').open(c.id);
+    expect(await serious(page), 'opening state').toEqual([]);
+    await card(page).getByRole('button', { name: 'Inspect' }).click();
+    await expect(page.locator('.drawer')).toBeVisible();
+    expect(await serious(page), 'drawer open').toEqual([]);
+    await page.setViewportSize({ width: 390, height: 844 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  });
+}
+
+test('axe: /tool-calling/recap/ with every chapter done, on its first question', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(ids => localStorage.setItem('tool-calling-progress-v1', JSON.stringify({ done: ids, saved: {} })), TOOLS.chapters.map(c => c.id));
+  await page.goto('/tool-calling/recap/');
+  await expect(page.locator('.recap legend')).toBeVisible();
+  expect(await serious(page)).toEqual([]);
+});
+
 test('keyboard only: every chapter completes', async ({ page }) => {
   test.setTimeout(120_000);
   await walkModule(page, 'keyboard');
@@ -41,7 +68,9 @@ test('keyboard only: every chapter completes', async ({ page }) => {
 
 test('a canvas redraw keeps focus on the control in use', async ({ page }) => {
   await open(page, '04-layers');
-  for (const b of [/^Ask/, 'Add the Chunker', 'Add the Embedder and Index']) await card(page).getByRole('button', { name: b }).press('Enter');
+  await card(page).getByRole('button', { name: /^Ask/ }).press('Enter');
+  await card(page).getByRole('radio', { name: /a cut split it/ }).press('Enter');
+  for (const b of ['Add the Chunker', 'Add the Embedder and Index']) await card(page).getByRole('button', { name: b }).press('Enter');
   await page.locator('.map circle[tabindex]').first().focus();
   await card(page).getByRole('button', { name: 'Add the Context assembler' }).press('Enter');
   const overlap = card(page).getByRole('slider', { name: /Overlap/ });
@@ -80,6 +109,7 @@ test.describe('reduced motion', () => {
     await open(page, '04-layers');
     await card(page).getByRole('button', { name: /^Ask/ }).click();
     await expect(page.locator('.drawer .answer-card')).toBeVisible({ timeout: 200 });
+    await card(page).getByRole('radio', { name: /a cut split it/ }).click();
     await card(page).getByRole('button', { name: 'Add the Chunker' }).click();   // the outcome moves: wires would pulse
     await expect(page.getByTestId('announce')).toContainText('Answer:', { timeout: 200 });
     expect(await running(page)).toBe(0);

@@ -5,6 +5,8 @@
 .btn:hover { transform: translate(-1px, -1px); }
 .chips { list-style: none; margin: 16px 0 22px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .chips li { font-size: 12.5px; font-weight: 700; padding: 3px 11px; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--card); }
+/* a module's level: home catalogue cards and module intros */
+:where(.level) { display: inline-block; font-size: 11.5px; font-weight: 800; letter-spacing: .04em; padding: 1px 10px; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--acc); color: var(--ink); }
 .n { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: var(--paper); font-size: 13px; flex: none; }
 .topbar { max-width: 1100px; margin: 0 auto; padding: 18px 24px 0; font-size: 13px; display: flex; align-items: center; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; }
 .topbar .crumbs { display: flex; align-items: center; gap: 8px; font-weight: 800; }
@@ -14,3 +16,23 @@
 .credits { border-top: 1.5px solid var(--rule); padding-top: 16px; font-size: 13px; color: var(--muted); }
 .credits p { margin: 0 0 6px; }
 .credits a { color: var(--ink); }
+
+/* module intros: Pictures / Words reading (ReadingMode.astro). Pictures folds away the longer text, marked .more */
+:root[data-reading='visual'] .more { display: none; }
+.reading { display: flex; align-items: center; gap: 6px; margin-top: 18px; }
+.reading .lbl { font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
+.reading button { font: 700 13px ui-monospace, Menlo, monospace; padding: 5px 12px; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--card); color: var(--ink); cursor: pointer; }
+.reading button[aria-pressed='true'] { background: var(--ink); color: var(--paper); }
+.reading button:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+/* a one-line caption that stands in for a paragraph in Pictures mode */
+.cap { font-weight: 700; }
+:root:not([data-reading='visual']) .cap.alt { display: none; }
+/* "How a chapter page works" as a picture: the live picture beside the story column */
+.schematic { display: grid; grid-template-columns: 1.7fr 1fr; gap: 6px; height: 92px; margin-bottom: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.s-pic { display: grid; place-items: center; border: 1.5px solid var(--ink); border-radius: 8px; background: var(--paper) repeating-linear-gradient(135deg, transparent 0 8px, rgba(0,0,0,.04) 8px 9px); }
+.s-story { display: flex; flex-direction: column; gap: 5px; border: 1.5px solid var(--ink); border-radius: 8px; padding: 6px; }
+.s-story span { height: 10px; border-radius: 3px; background: var(--rule); }
+.s-story .s-step { flex: 1; height: auto; display: grid; place-items: center; background: var(--acc); border: 1.5px solid var(--ink); }
+/* who a module is for, as chips */
+.who-chips { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.who-chips li { font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 10px; border: 1.5px solid var(--ink); background: var(--card); }

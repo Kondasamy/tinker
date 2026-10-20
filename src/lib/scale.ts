@@ -1,5 +1,5 @@
 // Chapter 2 maths: corpus size → tokens, against the largest context window cited in the timeline.
-import timeline from '../../data/history/timeline.json';
+import timeline from '../../data/history/timeline.json' with { type: 'json' };
 
 export interface TimelineEntry {
   date: string;

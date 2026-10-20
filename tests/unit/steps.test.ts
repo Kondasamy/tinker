@@ -5,6 +5,8 @@ import { reduce, startRun, isRun, HINT_AFTER, type Step, type Run, type Action }
 import StepRunner from '../../src/components/story/StepRunner';
 import Quiz from '../../src/components/quiz/Quiz';
 import { puzzle } from '../../src/components/quiz/Puzzle';
+import Predict, { Reveal } from '../../src/components/quiz/Predict';
+import { UNSURE } from '../../src/lib/recall';
 
 interface S { k: number; overlap: number }
 const STEPS: Step<S>[] = [
@@ -89,6 +91,36 @@ describe('step machine', () => {
   });
 });
 
+describe('restoring a saved run (KTD4)', () => {
+  const saved = run([apply({ k: 3, overlap: 10 })]);
+  const { ids: _, ...unsigned } = saved;   // a run saved before runs carried their step ids
+
+  it('signs a run with its ordered step ids', () => {
+    expect(saved.ids).toEqual(['a', 'b']);
+  });
+
+  it('resumes when the saved ids match the chapter’s steps', () => {
+    expect(isRun(STEPS, JSON.parse(JSON.stringify(saved)))).toBe(true);
+  });
+
+  it('restarts when a step was inserted before the saved index', () => {
+    const steps: Step<S>[] = [STEPS[0], { ...STEPS[0], id: 'new' }, STEPS[1]];
+    expect(isRun(steps, saved)).toBe(false);
+  });
+
+  it('restarts when steps were reordered or renamed', () => {
+    expect(isRun([STEPS[1], STEPS[0]], saved)).toBe(false);
+    expect(isRun(STEPS, { ...saved, ids: ['a', 'c'] })).toBe(false);
+  });
+
+  it('resumes an unsigned run only while the chapter still has its legacy steps', () => {
+    expect(isRun(STEPS, unsigned)).toBe(false);
+    expect(isRun(STEPS, unsigned, ['a', 'b'])).toBe(true);
+    expect(isRun(STEPS, unsigned, ['a', 'old', 'b'])).toBe(false);
+    expect(isRun(STEPS, saved, ['x', 'y'])).toBe(true);   // a signed run ignores the legacy signature
+  });
+});
+
 describe('StepRunner', () => {
   const html = () => renderToString(createElement(StepRunner<S>, {
     chapter: 'x', steps: STEPS, initial: { k: 1, overlap: 10 },
@@ -116,5 +148,53 @@ describe('Quiz', () => {
   });
   it('shows no feedback before an answer', () => {
     expect(renderToString(createElement(Quiz, q))).not.toContain('Because b.');
+  });
+  it('is a radio group, and offers no “not sure” unless asked', () => {
+    const h = renderToString(createElement(Quiz, q));
+    expect(h).toContain('role="radiogroup"');
+    expect(h).toContain('role="radio"');
+    expect(h).not.toContain('not sure');
+  });
+  it('a wrong pick shows that option’s why line, not the explanation', () => {
+    const h = renderToString(createElement(Quiz, { ...q, why: ['a is a myth.', 'b holds.'], value: 0 }));
+    expect(h).toContain('a is a myth.');
+    expect(h).not.toContain('Because b.');
+  });
+  it('“not sure” shows the answer and explanation with no NOT QUITE stamp', () => {
+    const h = renderToString(createElement(Quiz, { ...q, unsure: true, value: UNSURE }));
+    expect(h).toContain('I’m not sure');
+    expect(h).toContain('Because b.');
+    expect(h).not.toContain('NOT QUITE');
+    expect(h).not.toContain('RIGHT');
+  });
+});
+
+describe('Predict', () => {
+  const p = { question: 'What happens?', options: ['x', 'y'] };
+  it('shows the prediction and no right/wrong stamp', () => {
+    const h = renderToString(createElement(Predict, { ...p, value: 1 }));
+    expect(h).toContain('You predicted: <!-- -->y');
+    expect(h).not.toMatch(/RIGHT|NOT QUITE/);
+  });
+  it('the reveal compares the prediction with what happened', () => {
+    expect(renderToString(createElement(Reveal, { prediction: 'y', outcome: 'x', revealed: false, onReveal: () => {} }))).not.toContain('What happened');
+    const h = renderToString(createElement(Reveal, { prediction: 'y', outcome: 'x', revealed: true, onReveal: () => {} }));
+    expect(h).toContain('What happened');
+    expect(h).toContain('NOT WHAT YOU PREDICTED');
+  });
+});
+
+describe('“not sure” through sync', () => {
+  interface Q { quiz: number | null }
+  const QS: Step<Q>[] = [
+    { id: 'q', narration: 'Answer', visibleControls: ['quiz'], predicate: s => s.quiz === 1 || s.quiz === UNSURE },
+    { id: 'after', narration: 'Next', visibleControls: [], predicate: () => false },
+  ];
+  it('advances without counting a miss', () => {
+    const missed = reduce(QS, startRun(QS, { quiz: null }), { type: 'apply', state: { quiz: 0 } });
+    expect(missed.fails).toBe(1);
+    const r = reduce(QS, missed, { type: 'sync', state: { quiz: UNSURE } });
+    expect(r).toMatchObject({ index: 1 });
+    expect(reduce(QS, startRun(QS, { quiz: null }), { type: 'sync', state: { quiz: UNSURE } })).toMatchObject({ index: 1, fails: 0, hint: false });
   });
 });

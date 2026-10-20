@@ -14,7 +14,8 @@
     "test": "vitest run --passWithNoTests",
     "test:e2e": "playwright test",
     "check": "astro check",
-    "og": "node scripts/og.mjs"
+    "og": "node scripts/og.mjs",
+    "new-module": "node scripts/new-module.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "8.1.0",

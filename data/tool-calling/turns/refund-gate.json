@@ -1,0 +1,77 @@
+{
+  "ask": "Hollis Hardware says order 1042 arrived damaged. Refund it in full.",
+  "customer": "Hollis Hardware",
+  "tools": [
+    "get_order",
+    "issue_refund"
+  ],
+  "turns": {
+    "desc=clear|gate=off|inj=no|last=|tools=get_order,issue_refund": {
+      "text": "I need the order total before I can refund it.",
+      "calls": [
+        {
+          "id": "call_1",
+          "name": "get_order",
+          "arguments": {
+            "order_id": 1042
+          }
+        }
+      ]
+    },
+    "desc=clear|gate=off|inj=no|last=get_order:1042:ok|tools=get_order,issue_refund": {
+      "text": "The total is $310. Issuing the refund.",
+      "calls": [
+        {
+          "id": "call_2",
+          "name": "issue_refund",
+          "arguments": {
+            "order_id": 1042,
+            "amount": 310,
+            "reason": "damaged"
+          }
+        }
+      ]
+    },
+    "desc=clear|gate=off|inj=no|last=issue_refund:1042:ok|tools=get_order,issue_refund": {
+      "text": "Done. I refunded $310 on order 1042 to the original payment method."
+    },
+    "desc=clear|gate=off|inj=no|last=issue_refund:1042:error|tools=get_order,issue_refund": {
+      "text": "I could not issue the refund: $310 is over the limit this assistant may refund. Someone on the billing team needs to issue it."
+    },
+    "desc=clear|gate=on|inj=no|last=|tools=get_order,issue_refund": {
+      "text": "I need the order total before I can refund it.",
+      "calls": [
+        {
+          "id": "call_1",
+          "name": "get_order",
+          "arguments": {
+            "order_id": 1042
+          }
+        }
+      ]
+    },
+    "desc=clear|gate=on|inj=no|last=get_order:1042:ok|tools=get_order,issue_refund": {
+      "text": "The total is $310. Issuing the refund.",
+      "calls": [
+        {
+          "id": "call_2",
+          "name": "issue_refund",
+          "arguments": {
+            "order_id": 1042,
+            "amount": 310,
+            "reason": "damaged"
+          }
+        }
+      ]
+    },
+    "desc=clear|gate=on|inj=no|last=issue_refund:1042:ok|tools=get_order,issue_refund": {
+      "text": "Done. I refunded $310 on order 1042 to the original payment method."
+    },
+    "desc=clear|gate=on|inj=no|last=issue_refund:1042:error|tools=get_order,issue_refund": {
+      "text": "I could not issue the refund: $310 is over the limit this assistant may refund. Someone on the billing team needs to issue it."
+    },
+    "desc=clear|gate=on|inj=no|last=issue_refund:1042:denied|tools=get_order,issue_refund": {
+      "text": "I could not issue the refund. It was declined at approval, so no money moved on order 1042."
+    }
+  }
+}

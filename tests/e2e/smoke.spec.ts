@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { CHAPTERS, chapterHref } from '../../src/lib/chapters';
+import { ALL_PAGES } from '../../src/lib/pages';
+import { MODULES } from '../../src/lib/modules';
 
 test('Tinker home returns 200 and links to the RAG module', async ({ page }) => {
   const res = await page.goto('/');
@@ -35,7 +36,7 @@ test('RAG intro marks finished chapters and continues from the next one', async 
 });
 
 test('every public page has its own share image, and it is served', async ({ page, request }) => {
-  const paths = ['/', '/rag/', ...CHAPTERS.map(c => chapterHref(c.id))];
+  const paths = ALL_PAGES.map(p => p.path);
   const seen = new Set<string>();
   for (const p of paths) {
     await page.goto(p);
@@ -49,4 +50,56 @@ test('every public page has its own share image, and it is served', async ({ pag
     await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
   }
   expect(seen.size).toBe(paths.length);   // dedicated: no two pages share an image
+  for (const m of MODULES.filter(m => m.status === 'planned')) {   // roadmap cards only: no page, no image
+    expect((await request.get(`/${m.id}/`)).status(), m.id).toBe(404);
+    expect((await request.get(`/og/${m.id}.jpg`)).status(), m.id).toBe(404);
+  }
+});
+
+test('AE1: a returning reader keeps RAG progress, and a saved run resumes only on the same steps', async ({ page }) => {
+  const KEY = 'rag-progress-v1', CH3 = '03-what-is-rag';
+  const card = page.getByRole('region', { name: 'Next step' });
+  const open = async () => { await page.reload(); await page.locator('astro-island:not([ssr])').waitFor(); };
+  await page.goto('/');
+  await page.evaluate(k => localStorage.setItem(k, JSON.stringify({ done: ['01-history', '02-why-not-stuff-it'], saved: {} })), KEY);
+  await page.reload();
+  await expect(page.locator('[data-module="rag"] [data-progress] .txt')).toHaveText('2 of 7 chapters done');
+  await page.locator('[data-cta]').first().click();
+  await expect(page).toHaveURL(new RegExp(`/rag/${CH3}/$`));
+
+  // reach step 5 (chapter 3 gained a prediction in U5, so it no longer has its legacy steps)
+  await page.locator('astro-island:not([ssr])').waitFor();
+  for (const name of [/^Ask/, 'Add the Docs']) await card.getByRole('button', { name }).click();
+  await card.getByRole('radio', { name: /cites the policy/ }).click();
+  await card.getByRole('button', { name: 'Add the Retriever' }).click();
+  await expect(card).toContainText('Step 5 of 7');
+  // sets a saved run's step ids; none = a run saved before runs carried them
+  const sign = (ch: string, ids?: string[]) => page.evaluate(({ k, ch, ids }) => {
+    const p = JSON.parse(localStorage.getItem(k)!);
+    if (ids) p.saved[ch].ids = ids; else delete p.saved[ch].ids;
+    localStorage.setItem(k, JSON.stringify(p));
+  }, { k: KEY, ch, ids });
+  await open();
+  await expect(card).toContainText('Step 5 of 7');   // saved on its own steps: resumes
+
+  // a run saved on other steps restarts the chapter; finished chapters stay finished
+  await sign(CH3, ['ask', 'new', 'docs', 'retriever', 'grounded', 'math', 'quiz']);
+  await open();
+  await expect(card).toContainText('Step 1 of 7');
+  // unsigned: compared with the legacy steps, which chapter 3 no longer has, so it restarts too
+  for (const name of [/^Ask/, 'Add the Docs']) await card.getByRole('button', { name }).click();
+  await sign(CH3);
+  await open();
+  await expect(card).toContainText('Step 1 of 7');
+
+  // chapter 1 kept its steps: an unsigned run resumes there
+  await page.goto('/rag/01-history/');
+  await page.locator('astro-island:not([ssr])').waitFor();
+  await card.getByRole('button', { name: /^Ask/ }).click();
+  await page.locator('[data-era="0"]').click();
+  await expect(card).toContainText('Step 3 of 6');
+  await sign('01-history');
+  await open();
+  await expect(card).toContainText('Step 3 of 6');
+  expect(await page.evaluate(k => JSON.parse(localStorage.getItem(k)!).done, KEY)).toEqual(['01-history', '02-why-not-stuff-it']);
 });

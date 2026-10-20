@@ -1,18 +1,20 @@
 ---
 // Tinker home: the platform. Each module is one tech concept told as a playable story; RAG is the first.
-// Static, except a small script that shows RAG progress and continues from the next unfinished chapter.
+// The catalogue is built from the module registry, one section per level. Static, except a small script that shows
+// progress on live cards and points Continue at the module played last.
 import '../styles/tokens.css';
 import '../styles/page.css';
 import Meta from '../components/Meta.astro';
 import IsoStage, { type SceneCtx } from '../lib/iso/IsoStage';
 import { miniPipeline, MINI_BOARD, MINI_LABEL } from '../components/scenes/miniPipeline';
-import { staticTrack } from '../components/scenes/staticTrack';
-import { TRACK_BOARD } from '../components/canvas/track';
+import { HERO_BOARD, HOME_HERO, HOME_HERO_LABEL } from '../components/scenes/heroScene';
 import { renderers, blockShadow, type BlockType } from '../lib/iso/blocks';
-import { CHAPTERS } from '../lib/chapters';
+import { MODULES, type Level } from '../lib/modules';
 import { HOME } from '../lib/pages';
+import { SEQ_MSGS } from '../components/scenes/toolSequence';
+import { OFFICE_BOARD, officeScene, officeLabel } from '../components/scenes/officeScene';
+import { RECORDINGS } from '../lib/tools/turns';
 
-const ALL = CHAPTERS.flatMap(c => c.unlocks);
 const one = (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) => ({ top }: SceneCtx) =>
   blockShadow(type, 30, 30, top) + renderers[type]({ x: 30, y: 30, ...opts });
 
@@ -27,7 +29,18 @@ const LOOP: [string, string][] = [
   ['Watch what changes', 'The picture, the meters and the answer update at once, so cause and effect are visible.'],
   ['Fix it yourself', 'Puzzles hand you a broken setup. Hints appear when you’re stuck, and “Show me” is always there.'],
 ];
-const TOPICS = ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'Reranking', 'Agentic RAG', 'GraphRAG'];
+// a live module's card picture and topic chips; every other fact on a card comes from the registry
+type Iso = { board: typeof MINI_BOARD; scene: typeof miniPipeline; label: string };
+const OFFICE = { msgs: SEQ_MSGS, upTo: 3, tools: RECORDINGS['order-status'].tools.length, scale: 1.7 };
+const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
+  rag: { name: 'Retrieval-Augmented Generation (RAG)', iso: { board: MINI_BOARD, scene: miniPipeline, label: MINI_LABEL }, topics: ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'Reranking', 'Agentic RAG', 'GraphRAG'] },
+  'tool-calling': { name: 'Tool calling & the Model Context Protocol (MCP)', iso: { board: OFFICE_BOARD, scene: officeScene(OFFICE), label: officeLabel(OFFICE) }, topics: ['Tool definitions', 'JSON Schema', 'Multi-step calls', 'MCP hosts & servers', 'Tools, resources, prompts', 'Approval', 'Prompt injection'] },
+};
+const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];
+const LIVE = MODULES.filter(m => m.status === 'live');
+const FIRST = LIVE[0];
+// live modules first within a level
+const atLevel = (level: Level) => [...LIVE, ...MODULES.filter(m => m.status === 'planned')].filter(m => m.level === level);
 ---
 <html lang="en">
   <head>
@@ -45,13 +58,13 @@ const TOPICS = ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'R
           <p class="lede">Hand-drawn, interactive explanations of the technology people use at work every day but rarely get to see inside. Each module is a short story you play through: build the thing, watch it break, fix it.</p>
           <ul class="chips" aria-label="At a glance"><li>Free</li><li>No sign-up</li><li>Nothing to install</li><li>Works on your phone</li></ul>
           <div class="ctas">
-            <a class="btn primary" href="/rag/" data-cta>Start with RAG →</a>
+            <a class="btn primary" href={`/${FIRST.id}/`} data-continue>Start with {FIRST.title} →</a>
             <a class="btn" href="#loop">How it works</a>
           </div>
         </div>
         <figure class="hero-pic">
-          <IsoStage board={TRACK_BOARD} scene={staticTrack(ALL, { scale: 1.3 })} label="The full RAG pipeline you build in module 1: documents, chunker, embedder, index, query rewrite, retriever, reranker, context, LLM and evaluator, with an agent and a knowledge graph in the side bays" />
-          <figcaption>The pipeline you build, block by block, in the RAG module.</figcaption>
+          <IsoStage board={HERO_BOARD} scene={HOME_HERO} label={HOME_HERO_LABEL} />
+          <figcaption>One workshop, a plot per module. The empty plots are open: <a href="https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING.md">build one</a>.</figcaption>
         </figure>
       </header>
 
@@ -72,25 +85,34 @@ const TOPICS = ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'R
       <section id="modules" aria-labelledby="modules-h">
         <p class="kicker">Modules</p>
         <h2 id="modules-h">Pick a concept</h2>
-        <div class="modules">
-          <article class="module">
-            <a class="pic" href="/rag/" tabindex="-1" aria-hidden="true"><IsoStage board={MINI_BOARD} scene={miniPipeline} label={MINI_LABEL} /></a>
-            <div class="info">
-              <p class="kicker">Module 1 · AI · {CHAPTERS.length} chapters</p>
-              <h3><a href="/rag/">Retrieval-Augmented Generation (RAG)</a></h3>
-              <p>How AI assistants answer from your company’s documents, why they invent answers, and the levers that make them accurate.</p>
-              <ul class="topics" aria-label="Topics">{TOPICS.map(t => <li>{t}</li>)}</ul>
-              <div class="progress" data-progress hidden><span class="bar"><span></span></span><span class="txt"></span></div>
-              <a class="btn primary" href="/rag/" data-cta>Start RAG →</a>
+        {LEVELS.map(level => { const mods = atLevel(level); return (
+          <section class="level-group" data-level={level} aria-labelledby={`level-${level}`}>
+            <h3 id={`level-${level}`}>{level}</h3>
+            {!mods.some(m => m.status === 'live') && <p class="coming">{mods.length ? 'Coming. Nothing to play at this level yet.' : 'Coming. The next module is being built.'}</p>}
+            <div class="modules">
+              {mods.map(m => m.status === 'live' ? (
+                <article class="module" data-module={m.id}>
+                  {CARD[m.id]?.iso && <div class="pic"><IsoStage {...CARD[m.id].iso!} /></div>}
+                  <div class="info">
+                    <p class="kicker">Module {LIVE.indexOf(m) + 1} · {m.chapters.length ? `${m.chapters.length} chapters` : 'Chapters arrive soon'}</p>
+                    <h4><a href={`/${m.id}/`}>{CARD[m.id]?.name ?? m.title}</a></h4>
+                    <p class="tags"><span class="level">{m.level}</span></p>
+                    <p>{m.description}</p>
+                    {CARD[m.id] && <ul class="topics" aria-label="Topics">{CARD[m.id].topics.map(t => <li>{t}</li>)}</ul>}
+                    <div class="progress" data-progress hidden><span class="bar"><span></span></span><span class="txt"></span></div>
+                    <a class="btn primary" href={`/${m.id}/`} data-cta>Start {m.title} →</a>
+                  </div>
+                </article>
+              ) : (
+                <article class="roadmap" data-module={m.id}>
+                  <p class="tags"><span class="level">{m.level}</span> <span class="planned">Planned</span></p>
+                  <h4>{m.title}</h4>
+                  <p>{m.description}</p>
+                </article>
+              ))}
             </div>
-          </article>
-          <article class="module soon">
-            <div class="ghost" aria-hidden="true"><span></span><span></span><span></span></div>
-            <p class="kicker">Module 2</p>
-            <h3>In the workshop</h3>
-            <p>The next concept is being built. Same idea: a story, a live picture, and the real thing underneath.</p>
-          </article>
-        </div>
+          </section>
+        ); })}
       </section>
 
       <section id="loop" aria-labelledby="loop-h">
@@ -108,21 +130,40 @@ const TOPICS = ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'R
     </main>
 
     <script>
-      // RAG progress on its card; the buttons continue from the first unfinished chapter
-      import { CHAPTERS, chapterHref } from '../lib/chapters';
-      import { completed } from '../lib/progress';
-      const finished = completed(), done = CHAPTERS.filter(c => finished.includes(c.id)).length;
-      if (done) {
-        const box = document.querySelector<HTMLElement>('[data-progress]')!;
+      // progress on each live card; card buttons and the hero's Continue go to the first unfinished chapter
+      import { MODULES, chapterHref } from '../lib/modules';
+      import { completed, completedAt, lastModule, recallResults } from '../lib/progress';
+      import { warmupItems } from '../lib/recall';
+      const live = MODULES.filter(m => m.status === 'live');
+      const resume = (m: typeof live[number]) => {
+        const finished = completed(m.id), next = m.chapters.findIndex(c => !finished.includes(c.id));
+        const done = m.chapters.filter(c => finished.includes(c.id)).length;
+        // a warm-up is due: Continue opens it on the module intro, which offers a skip to the chapter (R8, R13)
+        if (warmupItems(m.recall ?? [], completedAt(m.id), recallResults(m.id), Date.now()).length)
+          return { done, href: `/${m.id}/#warmup`, text: `Warm up, then continue ${m.title} →` };
+        return {
+          done,
+          // a first visit, or a finished module, opens the intro: it sets the context before chapter 1 (AGENTS.md)
+          href: !done || next < 0 ? `/${m.id}/` : chapterHref(m.id, m.chapters[next].id),
+          text: next < 0 ? `Revisit ${m.title} →` : `Continue ${m.title}: chapter ${next + 1} →`,
+        };
+      };
+      for (const m of live) {
+        const r = resume(m), card = document.querySelector<HTMLElement>(`.module[data-module="${m.id}"]`);
+        if (!r.done || !card) continue;
+        const box = card.querySelector<HTMLElement>('[data-progress]')!;
         box.hidden = false;
-        box.querySelector<HTMLElement>('.bar span')!.style.width = `${(100 * done) / CHAPTERS.length}%`;
-        box.querySelector<HTMLElement>('.txt')!.textContent = `${done} of ${CHAPTERS.length} chapters done`;
-        const next = CHAPTERS.findIndex(c => !finished.includes(c.id));
-        for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
-          a.href = next < 0 ? '/rag/' : chapterHref(CHAPTERS[next].id);
-          a.textContent = next < 0 ? 'Revisit RAG →' : `Continue RAG: chapter ${next + 1} →`;
-        }
+        box.querySelector<HTMLElement>('.bar span')!.style.width = `${(100 * r.done) / m.chapters.length}%`;
+        box.querySelector<HTMLElement>('.txt')!.textContent = `${r.done} of ${m.chapters.length} chapters done`;
+        const a = card.querySelector<HTMLAnchorElement>('[data-cta]')!;
+        a.href = r.href;
+        a.textContent = r.text;
       }
+      const last = lastModule(), pick = live.find(m => m.id === last) ?? live[0];
+      const r = resume(pick), go = document.querySelector<HTMLAnchorElement>('[data-continue]')!;
+      go.href = r.href;
+      if (r.done) go.textContent = r.text;
+      else if (pick !== live[0]) go.textContent = `Start ${pick.title} →`;
     </script>
   </body>
 </html>
@@ -140,6 +181,11 @@ const TOPICS = ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'R
 
   .hero { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.25fr); gap: 32px; align-items: center; padding-top: 24px; }
   .hero-pic { margin: 0; }
+  /* the envelope rides its belt again and again, a sign of life in the picture (none with reduced motion) */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-pic :global(.capsule) { animation: hero-ride 3.2s cubic-bezier(.45, 0, .3, 1) infinite; }
+  }
+  @keyframes hero-ride { 0% { transform: translate(var(--dx), var(--dy)); opacity: 0; } 12% { opacity: 1; } 55%, 100% { transform: none; } }
   .hero-pic figcaption { text-align: center; font-size: 12.5px; color: var(--muted); margin-top: 4px; }
 
   .principles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
@@ -147,12 +193,21 @@ const TOPICS = ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'R
   .principles .pic { width: 120px; }
   .principles p { font-size: 14px; margin: 0; }
 
-  .modules { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr); gap: 20px; align-items: stretch; }
-  .module { border: 1.5px solid var(--ink); border-radius: 20px; padding: 22px 24px; background: var(--card); box-shadow: 5px 5px 0 var(--ink); }
-  .module:not(.soon) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 24px; align-items: center; }
-  .module h3 { font-size: 21px; line-height: 1.3; margin: 2px 0 8px; }
-  .module h3 a { text-decoration: none; }
-  .module h3 a:hover { text-decoration: underline; }
+  .level-group { margin-top: 28px; }
+  .level-group > h3 { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .level-group > h3::after { content: ''; flex: 1; border-top: 1.5px solid var(--rule); }
+  .coming { font-size: 14px; color: var(--muted); }
+  .modules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
+  .module { grid-column: span 2; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 24px; align-items: center; border: 1.5px solid var(--ink); border-radius: 20px; padding: 22px 24px; background: var(--card); box-shadow: 5px 5px 0 var(--ink); }
+  .module h4 { font-size: 21px; line-height: 1.3; margin: 2px 0 6px; }
+  .module h4 a { text-decoration: none; }
+  .module h4 a:hover { text-decoration: underline; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .roadmap { border: 1.5px dashed var(--muted); border-radius: 16px; padding: 14px 18px; display: flex; flex-direction: column; gap: 4px; align-self: start; }
+  .roadmap .level { background: transparent; border-color: var(--muted); }
+  .roadmap h4 { font-size: 16px; margin: 2px 0 0; }
+  .roadmap p { font-size: 13.5px; color: var(--muted); margin: 0; }
+  .planned { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; color: var(--muted); align-self: center; }
   .pic { display: block; }
   .topics { list-style: none; margin: 4px 0 16px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
   .topics li { font-size: 12px; font-weight: 700; padding: 1px 9px; border-radius: 999px; background: var(--paper); border: 1px solid var(--rule); }
@@ -160,10 +215,6 @@ const TOPICS = ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'R
   .progress[hidden] { display: none; }
   .progress .bar { flex: 1; max-width: 200px; height: 8px; border: 1.5px solid var(--ink); border-radius: 999px; overflow: hidden; background: var(--paper); }
   .progress .bar span { display: block; height: 100%; background: var(--ok); }
-  .soon { border-style: dashed; box-shadow: none; background: transparent; display: flex; flex-direction: column; gap: 4px; }
-  .soon p:last-child { font-size: 14px; color: var(--muted); }
-  .ghost { display: flex; gap: 8px; margin-bottom: 14px; }
-  .ghost span { width: 34px; height: 34px; border: 1.5px dashed var(--muted); border-radius: 6px; transform: skewY(-12deg); }
 
   .loop { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
   .loop li { border-top: 3px solid var(--ink); padding-top: 12px; }
@@ -173,7 +224,8 @@ const TOPICS = ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'R
   @media (max-width: 900px) {
     .home { padding: 12px 16px 48px; gap: 56px; }
     .home h1 { font-size: 32px; }
-    .hero, .modules, .module:not(.soon) { grid-template-columns: 1fr; }
+    .hero, .modules, .module { grid-template-columns: 1fr; }
+    .module { grid-column: auto; }
     .principles { grid-template-columns: 1fr; }
     .loop { grid-template-columns: 1fr 1fr; }
   }

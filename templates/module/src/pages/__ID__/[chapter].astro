@@ -1,0 +1,17 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import FirstStep from '../../content/__ID__/01-first-step';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('__ID__').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="__ID__" chapter={chapter} title={title}>
+  {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
+      hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
+  <FirstStep client:load />
+</ChapterLayout>

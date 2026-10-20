@@ -3,6 +3,8 @@
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
+import Predict, { Reveal } from '../../components/quiz/Predict';
+import { UNSURE } from '../../lib/recall';
 import { initialCanvas, type CanvasQuestion } from '../../components/canvas/state';
 import type { BlockType } from '../../lib/iso/blocks';
 import { RagStage, ragPanels, useRagRun, type RagState } from '../../components/panels/rag';
@@ -11,7 +13,7 @@ import ch3 from '../../../data/questions/ch3.json';
 
 const ID = '03-what-is-rag';
 const QUESTION = ch3[0] as CanvasQuestion;
-interface S extends RagState { asked: boolean; seen: boolean; quiz: number | null }
+interface S extends RagState { prediction: number | null; asked: boolean; seen: boolean; quiz: number | null }
 
 const QUIZ = {
   question: 'What does the retriever give the model?',
@@ -22,7 +24,19 @@ const QUIZ = {
   ],
   correct: 1,
   explanation: 'Retrieve the matching passages, Augment the prompt with them, Generate the answer. The model stays the same; what it reads changes.',
+  why: [
+    'The model never changed. Swapping in a bigger model would still leave it guessing, because it has never read your policy.',
+    'Right. The model stays the same; what it reads changes, so it can answer from your documents and cite them.',
+    'That is the chapter 2 idea that failed: every document will not fit, and most of it has nothing to do with the question.',
+  ],
 };
+
+// Predict, then reveal (R9): adding the Retriever is the reveal, so the answer stays made up until the pick.
+const PREDICT = {
+  question: 'You add a Retriever and nothing else. What happens to the answer?',
+  options: ['Still made up: the model is the same', 'Correct, and it cites the policy it used', 'It stalls: the model now reads every document'],
+};
+const OUTCOME = 1;
 
 const has = (s: S, t: BlockType) => s.canvas.unlocked.includes(t);
 export const STEPS: Step<S>[] = [
@@ -37,13 +51,18 @@ export const STEPS: Step<S>[] = [
     predicate: s => has(s, 'docs'),
   },
   {
-    id: 'retriever', focus: 'add', visibleControls: ['add'],
-    narration: 'Still made up. The documents are there, but nothing carries the right ones to the model, and all of them will not fit (chapter 2). Add a Retriever: it finds the few passages that match the question.',
+    id: 'predict', focus: 'predict', visibleControls: ['predict'],
+    narration: 'Still made up. The documents are there, but nothing carries the right ones to the model, and all of them will not fit (chapter 2). A Retriever finds the few passages that match the question. Before you add one, make a prediction.',
+    predicate: s => s.prediction !== null,
+  },
+  {
+    id: 'retriever', focus: 'add', visibleControls: ['predict', 'add'],
+    narration: 'Your pick is locked. Add the Retriever and watch the answer.',
     predicate: s => has(s, 'retriever') && s.verdict === 'correct',
     hint: 'Press “Add the Retriever”. The wire from Docs to the model lights up once it is in place.',
   },
   {
-    id: 'grounded', focus: 'see', visibleControls: ['see'], opensDrawer: 'answer',
+    id: 'grounded', focus: 'see', visibleControls: ['reveal', 'see'], opensDrawer: 'answer',
     narration: 'Correct, and it cites the policy it used. That is RAG: Retrieve the matching passages, Augment the prompt with them, Generate the answer. What did the retriever hand over?',
     predicate: s => s.seen,
   },
@@ -56,7 +75,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz', focus: 'quiz', visibleControls: ['quiz'],
     narration: 'The retriever compares the meaning of your question with every passage and keeps the closest. One question to finish.',
-    predicate: s => s.quiz === QUIZ.correct,
+    predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What changed between the made-up answer and the right one? Not the model.',
   },
 ];
@@ -69,10 +88,14 @@ export default function WhatIsRag() {
     <StepRunner<S>
       chapter={ID}
       steps={STEPS}
-      initial={{ canvas: initialCanvas(['llm']), verdict: null, math: false, probed: false, asked: false, seen: false, quiz: null }}
+      initial={{ canvas: initialCanvas(['llm']), verdict: null, math: false, probed: false, prediction: null, asked: false, seen: false, quiz: null }}
       next={nextOf(ID)}
       stage={p => <RagStage {...p} run={run} />}
       controls={{
+        predict: ({ state, apply }) => <Predict {...PREDICT} value={state.prediction} onPredict={i => apply({ ...state, prediction: i })} />,
+        reveal: ({ state }) => (
+          <Reveal prediction={state.prediction === null ? null : PREDICT.options[state.prediction]} outcome={PREDICT.options[OUTCOME]} revealed onReveal={() => {}} />
+        ),
         ask: ({ state, apply }) => (
           <button type="button" className="big" onClick={() => apply({ ...state, asked: true })}>Ask: “{QUESTION.query}”</button>
         ),
@@ -85,7 +108,7 @@ export default function WhatIsRag() {
           return label && <button type="button" className="big" onClick={() => apply({ ...state, canvas, verdict: run.verdictOf(canvas) })}>{label}</button>;
         },
         see: ({ state, apply }) => <button type="button" className="big" onClick={() => apply({ ...state, seen: true })}>See what the retriever found</button>,
-        quiz: ({ state, apply }) => <Quiz {...QUIZ} value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} />,
+        quiz: ({ state, apply, sync }) => <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />,
       }}
       inspectPanel="answer"
       panels={ragPanels<S>(run)}

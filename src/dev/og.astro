@@ -5,6 +5,7 @@ import '../styles/tokens.css';
 import IsoStage from '../lib/iso/IsoStage';
 import Timeline from '../components/scenes/Timeline';
 import ContextOverflow from '../components/scenes/ContextOverflow';
+import RecallCards from '../components/scenes/RecallCards';
 import { staticTrack } from '../components/scenes/staticTrack';
 import { miniPipeline, MINI_BOARD } from '../components/scenes/miniPipeline';
 import { TRACK_BOARD } from '../components/canvas/track';
@@ -12,12 +13,39 @@ import { unlockedThrough } from '../components/canvas/state';
 import { CHAPTERS } from '../lib/chapters';
 import { ALL_PAGES } from '../lib/pages';
 import { TIMELINE, STOP_5TB } from '../lib/scale';
+import { SEQ_MSGS, transcript } from '../components/scenes/toolSequence';
+import { OFFICE_BOARD, officeScene, type OfficeOpts } from '../components/scenes/officeScene';
+import { HERO_BOARD, HOME_HERO } from '../components/scenes/heroScene';
+import { run } from '../lib/tools/host';
+import { RECORDINGS } from '../lib/tools/turns';
+import { SERVERS } from '../lib/tools/server';
+import { MCP_BOARD, connectScene } from '../components/scenes/mcpScene';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
 }
 const { page } = Astro.props;
-const ALL = CHAPTERS.flatMap(c => c.unlocks);
+// module 2 chapters: the run each chapter is about, in the back-office picture, at the moment that tells the chapter
+const seq = (id: string, setup = {}) => transcript(RECORDINGS[id], run(RECORDINGS[id], setup));
+const office = (id: string, o: Partial<OfficeOpts> = {}, setup = {}, upTo?: number) => {
+  const msgs = seq(id, setup);
+  return officeScene({ msgs, upTo, tools: RECORDINGS[id].tools.length, scale: 1.5, ...o });
+};
+const TOOL_OG: Record<string, ReturnType<typeof officeScene>> = {
+  'tool-calling-01-answers-arent-actions': office('no-tools', { host: 'Assistant app' }),
+  // the call on its way to the order system
+  'tool-calling-02-first-tool': office('order-status', {}, {}, 4),
+  // the string id held at the schema check
+  'tool-calling-03-valid-isnt-correct': office('invalid-arg', { schema: true }, {}, 3),
+  // two lookups on the belt at once
+  'tool-calling-04-many-steps': office('parallel', { schema: true }, {}, 6),
+  // the planted refund, held at the approval barrier
+  'tool-calling-06-when-tools-go-wrong': office('injection', { schema: true, gate: true, note: true }, { gate: true }),
+};
+const tool = TOOL_OG[page.og];
+const MCP_OG = connectScene({ servers: Object.values(SERVERS).map(s => ({ name: s.title.toUpperCase(), connected: true })), scale: 1.5 });
+// the workbench: the same host, its gate on
+const BENCH_OG = connectScene({ servers: Object.values(SERVERS).map(s => ({ name: s.title.toUpperCase(), connected: true })), host: 'HOST · GATE ON', scale: 1.5 });
 ---
 <html lang="en">
   <head><meta charset="utf-8" /><meta name="robots" content="noindex" /><title>og: {page.og}</title></head>
@@ -30,11 +58,17 @@ const ALL = CHAPTERS.flatMap(c => c.unlocks);
         <p class="foot">explain.kondasamy.com <span>· by Kondasamy Jayaraman</span></p>
       </div>
       <div class="pic">
-        {page.og === 'home' ? <IsoStage board={TRACK_BOARD} scene={staticTrack(ALL, { scale: 1.6 })} label="" />
+        {/* a new module's pages fall through to the recall cards until they get a picture case here */}
+        {page.og === 'home' ? <IsoStage board={HERO_BOARD} scene={HOME_HERO} label="" />
           : page.og === 'rag' ? <IsoStage board={MINI_BOARD} scene={miniPipeline} label="" />
+          : page.og === 'tool-calling' ? <IsoStage board={OFFICE_BOARD} scene={officeScene({ msgs: SEQ_MSGS, upTo: 3, tools: 2, scale: 1.5 })} label="" />
+          : tool ? <IsoStage board={OFFICE_BOARD} scene={tool} label="" />
+          : page.og === 'tool-calling-05-mcp' ? <IsoStage board={MCP_BOARD} scene={MCP_OG} label="" />
+          : page.og === 'tool-calling-07-workbench' ? <IsoStage board={MCP_BOARD} scene={BENCH_OG} label="" />
           : page.og === '01-history' ? <Timeline entries={TIMELINE} visited={4} active={3} onPick={() => {}} pills={1.7} />
           : page.og === '02-why-not-stuff-it' ? <ContextOverflow stop={STOP_5TB} pills={1.7} />
-          : <IsoStage board={TRACK_BOARD} scene={staticTrack(unlockedThrough(page.og), { scale: 1.6 })} label="" />}
+          : CHAPTERS.some(c => (c.og ?? c.id) === page.og) ? <IsoStage board={TRACK_BOARD} scene={staticTrack(unlockedThrough(page.og), { scale: 1.6 })} label="" />
+          : <RecallCards label="" />}
       </div>
     </div>
   </body>
@@ -55,4 +89,6 @@ const ALL = CHAPTERS.flatMap(c => c.unlocks);
   .pic :global(figure) { margin: 0; }
   .pic :global(figcaption) { display: none; }
   .pic :global(svg) { max-height: 520px; }
+  .pair :global(svg) { max-height: 255px; }   /* home: one picture per live module, stacked */
+  .pic :global(.msg *) { animation: none !important; }   /* the capture is a still: no message mid-travel */
 </style>
