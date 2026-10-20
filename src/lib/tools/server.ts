@@ -7,6 +7,8 @@ import CALENDAR from '../../../data/tool-calling/calendar.json';
 import META from '../../../data/corpus/meta.json';
 import { validate, type Schema } from './schema';
 import { MCP_VERSION } from './facts';
+import { money } from '../format';
+import type { Desc } from './turns';
 
 export const PROTOCOL_VERSION = MCP_VERSION;
 const KEY = 'io.modelcontextprotocol/';
@@ -53,13 +55,17 @@ export const ORDERS = ORDERS_JSON as Order[];
 // The JSON's inferred types are too narrow (empty lists infer never[]), so the shapes are declared above.
 export const TOOLS = SERVER.tools as unknown as Tool[];
 export const SERVERS: Record<ServerId, ServerDef> = SERVER.servers;
+/** `tool` as a host lists it with this description wording: the vague one where the tool has it. */
+export function describe(tool: Tool, desc: Desc): Tool {
+  const vague = TOOLS.find((x) => x.name === tool.name)!.vague;
+  return desc === 'vague' && vague ? { ...tool, description: vague } : tool;
+}
 
 const DOCS = import.meta.glob<string>('/data/corpus/{refund-policy-2025,returns-faq-2022}.md', { query: '?raw', import: 'default', eager: true });
 const uri = (doc: string) => `larkspur://policies/${doc}`;
 
 class RpcError extends Error { constructor(public code: number, message: string, public data?: unknown) { super(message); } }
 const invalid = (message: string) => new RpcError(-32602, message);
-const money = (n: number) => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const text = (data: Record<string, unknown>): ToolResult => ({ resultType: 'complete', content: [{ type: 'text', text: JSON.stringify(data, null, 2) }], isError: false, structuredContent: data });
 /** A tool execution error: a normal result the model can read and correct from, not a protocol error. */
 export const toolError = (message: string): ToolResult => ({ resultType: 'complete', content: [{ type: 'text', text: message }], isError: true });

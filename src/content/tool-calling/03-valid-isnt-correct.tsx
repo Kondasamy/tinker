@@ -8,7 +8,7 @@ import Predict from '../../components/quiz/Predict';
 import { puzzle } from '../../components/quiz/Puzzle';
 import FlatStage from '../../components/scenes/FlatStage';
 import { toolLanes, transcript, callText } from '../../components/scenes/toolSequence';
-import { run, type Run } from '../../lib/tools/host';
+import { answerOf, run, type Run } from '../../lib/tools/host';
 import { RECORDINGS } from '../../lib/tools/turns';
 import { ORDERS } from '../../lib/tools/server';
 import { fact } from '../../lib/tools/facts';
@@ -28,7 +28,6 @@ const BAD = firstCheck(RUN.invalid), WRONG = firstCheck(RUN.wrong);
 const ASKED = Number(REC.wrong.ask.match(/\d{4}/)![0]);
 const WRONG_ORDER = ORDERS.find(o => o.id === WRONG.call.arguments.order_id)!;
 const ID_SCHEMA = GET_ORDER.inputSchema.properties!.order_id;
-const answer = (r: Run) => (r.steps.at(-1) as { text: string }).text;
 
 interface S { scene: Scene; shown: number; p1: number | null; p2: number | null; quiz: number | null }
 
@@ -92,7 +91,7 @@ export const STEPS: Step<S>[] = [
   },
   puzzle<S>({
     id: 'check', focus: 'check', visibleControls: ['out2', 'check', 'play'], opensDrawer: 'messages',
-    narration: `Valid, and wrong. Order ${WRONG_ORDER.id} belongs to ${WRONG_ORDER.customer}, so the assistant just read out their delivery: “${answer(RUN.wrong)}” Turn on an ownership check, then run the request again.`,
+    narration: `Valid, and wrong. Order ${WRONG_ORDER.id} belongs to ${WRONG_ORDER.customer}, so the assistant just read out their delivery: “${answerOf(RUN.wrong)}” Turn on an ownership check, then run the request again.`,
     broken: s => ({ ...s, scene: 'wrong', shown: MSGS.wrong.length }),
     verdict: s => s.scene === 'checked' && done(s),
     solution: s => ({ ...s, scene: 'checked', shown: MSGS.checked.length }),
@@ -100,7 +99,7 @@ export const STEPS: Step<S>[] = [
   }),
   {
     id: 'quiz', focus: 'quiz', visibleControls: ['quiz'],
-    narration: `The check refused order ${WRONG_ORDER.id} with an error result. The model read it and looked up ${ASKED} instead: “${answer(RUN.checked)}” One question to finish.`,
+    narration: `The check refused order ${WRONG_ORDER.id} with an error result. The model read it and looked up ${ASKED} instead: “${answerOf(RUN.checked)}” One question to finish.`,
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What does a schema look at: the shape of a value, or what it means?',
   },

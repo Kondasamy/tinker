@@ -2,9 +2,10 @@
 import { expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-/** axe's serious and critical violations on the page as it is now, one line each ([] when clean). */
-export async function serious(page: Page) {
-  const { violations } = await new AxeBuilder({ page }).analyze();
+/** axe's serious and critical violations on the page as it is now (or only inside `include`), one line each ([] when clean). */
+export async function serious(page: Page, include?: string) {
+  const axe = new AxeBuilder({ page });
+  const { violations } = await (include ? axe.include(include) : axe).analyze();
   return violations.filter(v => v.impact === 'serious' || v.impact === 'critical')
     .map(v => `${v.id}: ${v.help} → ${v.nodes.map(n => n.target.join(' ')).slice(0, 3).join(' | ')}`);
 }

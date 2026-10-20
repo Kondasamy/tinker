@@ -13,6 +13,7 @@ import { fact, ACCESSED } from '../../lib/tools/facts';
 import { moduleOf, chapterHref } from '../../lib/modules';
 import { TOOL_CALLING } from '../../lib/pages';
 import Recap from '../../components/quiz/Recap';
+import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('tool-calling');
 const CHAPTERS = MODULE.chapters;
@@ -27,7 +28,7 @@ const STEPS: [string, ReturnType<typeof fact>][] = [
   ['The model asks, your software runs it', fact('app-executes')],
   ['One plug for many tools', fact('mcp-features')],
 ];
-const checked = new Date(ACCESSED).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const checked = longDate(ACCESSED);
 
 // real requests from the recorded scenarios, and what makes each one hard
 const HARD: [string, string][] = [

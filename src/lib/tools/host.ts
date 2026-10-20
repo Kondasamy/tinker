@@ -2,7 +2,7 @@
 // arguments, apply the approval gate, run the call on the MCP-shaped server, append the result, fetch the next turn.
 // Only the model's turns are recorded; everything else here is computed, so every control changes the outcome honestly.
 import { validate } from './schema';
-import { connect, createServer, ORDERS, SERVERS, TOOLS, toolError, type LogEntry, type Order, type ServerId, type Tool, type ToolResult } from './server';
+import { connect, createServer, describe, ORDERS, SERVERS, toolError, type LogEntry, type Order, type ServerId, type Tool, type ToolResult } from './server';
 import { lookup, NORECORD, signature, type Call, type Desc, type Recording } from './turns';
 
 export type Decision = 'approve' | 'deny';
@@ -63,6 +63,10 @@ export interface Run {
   /** the signature looked up before each model turn */
   signatures: string[];
 }
+/** A run's steps of one kind, in order. */
+export const stepsOf = <K extends Step['kind']>(r: Run, kind: K) => r.steps.filter((s): s is Extract<Step, { kind: K }> => s.kind === kind);
+/** The text of a run's first answer, or '' when it never answered. */
+export const answerOf = (r: Run) => stepsOf(r, 'answer')[0]?.text ?? '';
 
 const INJECTED = ORDERS.filter((o) => o.injected).map((o) => o.note!);
 
@@ -78,9 +82,7 @@ export function run(rec: Recording, setup: Partial<Setup> = {}): Run {
     const res = client.request('tools/list');
     if ('result' in res) for (const t of res.result.tools as Tool[]) if (rec.tools.includes(t.name)) { owner.set(t.name, client); listed.push(t); }
   }
-  const vague = (t: Tool) => TOOLS.find((x) => x.name === t.name)!.vague;
-  const tools = rec.tools.map((n) => listed.find((t) => t.name === n)!)
-    .map((t) => (s.desc === 'vague' && vague(t) ? { ...t, description: vague(t)! } : t));
+  const tools = rec.tools.map((n) => describe(listed.find((t) => t.name === n)!, s.desc));
   steps.push({ kind: 'send', tools });
 
   const done = (status: Run['status']): Run => ({ status, steps, orders, log, signatures });

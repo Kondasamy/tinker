@@ -1,7 +1,7 @@
 // Recap page and warm-up (U4: R11, R13, R14, AE4). The selection runs over a fixture bank on /dev/recap and /dev/warmup,
 // since RAG's own bank is filled in U5; the tests on RAG's real pages that need questions switch on once it has some.
 import { test, expect, type Page } from '@playwright/test';
-import AxeBuilder from '@axe-core/playwright';
+import { serious } from './helpers';
 import { RECALL } from '../../src/content/rag/recall';
 
 const KEY = 'rag-progress-v1', H = 3600_000;
@@ -127,13 +127,11 @@ test.describe('recap', () => {
     expect(og).toBe('https://explain.kondasamy.com/og/rag-recap.jpg');
     expect((await request.get('/og/rag-recap.jpg')).status()).toBe(200);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
-    const { violations } = await new AxeBuilder({ page }).analyze();
-    expect(violations.filter(v => v.impact === 'serious' || v.impact === 'critical').map(v => v.id)).toEqual([]);
+    expect(await serious(page)).toEqual([]);
     await open(page, '/dev/recap/', { [CH1]: 1 });
     await page.getByRole('radio').nth(1).click();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
-    const mid = await new AxeBuilder({ page }).include('.recap').analyze();
-    expect(mid.violations.filter(v => v.impact === 'serious' || v.impact === 'critical').map(v => v.id)).toEqual([]);
+    expect(await serious(page, '.recap')).toEqual([]);
   });
 
   test('the module intro and the last chapter link to the recap', async ({ page }) => {

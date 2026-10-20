@@ -6,6 +6,8 @@ import { esc } from './blocks';
 type Mat = { l: string; m: string; d: string };
 export type Kind = 'request' | 'result' | 'error' | 'blocked';
 export type Stamp = 'APPROVED' | 'DENIED' | 'INVALID' | 'WAITING' | 'STOPPED' | 'REFUSED';
+/** the class a stamp wears in HTML (.stamp.correct and friends) */
+export const STAMP_CLASS: Record<Stamp, string> = { APPROVED: 'correct', WAITING: 'neutral', INVALID: 'warn', DENIED: 'wrong', STOPPED: 'wrong', REFUSED: 'wrong' };
 export interface Lane { id: string; name: string; pal?: Mat }
 /** batch: messages with the same batch number went out together (parallel calls); the wide view brackets them */
 export interface Msg { from: string; to: string; kind: Kind; text: string; stamp?: Stamp; batch?: number }

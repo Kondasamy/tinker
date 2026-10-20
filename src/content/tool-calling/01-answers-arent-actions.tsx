@@ -10,6 +10,7 @@ import { run } from '../../lib/tools/host';
 import { RECORDINGS } from '../../lib/tools/turns';
 import { ORDERS } from '../../lib/tools/server';
 import { fact } from '../../lib/tools/facts';
+import { longDate } from '../../lib/format';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Fact, Messages, openMessage } from './kit';
@@ -21,7 +22,6 @@ export const MSGS = transcript(REC, run(REC));
 const GUESS = MSGS[MSGS.length - 1].text;
 const ORDER_ID = Number(REC.ask.match(/\d{4}/)![0]);
 const ORDER = ORDERS.find(o => o.id === ORDER_ID)!;
-const day = (iso: string) => new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 const QUESTION = MSGS[0].text;
 
 interface S { asked: boolean; prediction: number | null; revealed: boolean; looked: boolean; quiz: number | null }
@@ -74,7 +74,7 @@ export const STEPS: Step<S>[] = [
   },
   {
     id: 'quiz', focus: 'quiz', visibleControls: ['quiz'], opensDrawer: 'order',
-    narration: `Order ${ORDER_ID} was ${ORDER.status} on ${day(ORDER.delivered!)}. The model could not know: it only writes text. To act, something outside the model has to run the lookup. One question to finish.`,
+    narration: `Order ${ORDER_ID} was ${ORDER.status} on ${longDate(ORDER.delivered!)}. The model could not know: it only writes text. To act, something outside the model has to run the lookup. One question to finish.`,
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'The model writes text. Who can actually open the order system?',
   },
@@ -111,7 +111,7 @@ export default function AnswersArentActions() {
           render: () => (
             <div className="tc-def">
               <p className="lbl">Customer</p><p>{ORDER.customer}</p>
-              <p className="lbl">Status</p><p>{ORDER.status}, {day(ORDER.delivered!)}</p>
+              <p className="lbl">Status</p><p>{ORDER.status}, {longDate(ORDER.delivered!)}</p>
               <p className="lbl">Items</p><p>{ORDER.items.map(i => `${i.qty} × ${i.name}`).join(', ')}</p>
               <p className="lbl">What the assistant said</p><p>“{GUESS}”</p>
               <Fact id="app-executes" />

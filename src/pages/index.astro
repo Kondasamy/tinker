@@ -88,12 +88,12 @@ const atLevel = (level: Level) => [...LIVE, ...MODULES.filter(m => m.status === 
       <section id="modules" aria-labelledby="modules-h">
         <p class="kicker">Modules</p>
         <h2 id="modules-h">Pick a concept</h2>
-        {LEVELS.map(level => (
+        {LEVELS.map(level => { const mods = atLevel(level); return (
           <section class="level-group" data-level={level} aria-labelledby={`level-${level}`}>
             <h3 id={`level-${level}`}>{level}</h3>
-            {!atLevel(level).some(m => m.status === 'live') && <p class="coming">{atLevel(level).length ? 'Coming. Nothing to play at this level yet.' : 'Coming. The next module is being built.'}</p>}
+            {!mods.some(m => m.status === 'live') && <p class="coming">{mods.length ? 'Coming. Nothing to play at this level yet.' : 'Coming. The next module is being built.'}</p>}
             <div class="modules">
-              {atLevel(level).map(m => m.status === 'live' ? (
+              {mods.map(m => m.status === 'live' ? (
                 <article class="module" data-module={m.id}>
                   {CARD[m.id]?.iso && <div class="pic"><IsoStage {...CARD[m.id].iso!} /></div>}
                   {CARD[m.id]?.flat && <div class="pic"><FlatStage client:visible {...CARD[m.id].flat!} /></div>}
@@ -116,7 +116,7 @@ const atLevel = (level: Level) => [...LIVE, ...MODULES.filter(m => m.status === 
               ))}
             </div>
           </section>
-        ))}
+        ); })}
       </section>
 
       <section id="loop" aria-labelledby="loop-h">

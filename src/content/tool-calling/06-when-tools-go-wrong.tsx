@@ -8,18 +8,17 @@ import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import FlatStage from '../../components/scenes/FlatStage';
 import { toolLanes, transcript, callText, type Shown } from '../../components/scenes/toolSequence';
-import { DOMAINS, run, type Decision, type Run, type Setup, type Step as HostStep } from '../../lib/tools/host';
+import { answerOf, run, stepsOf, type Decision, type Run, type Setup } from '../../lib/tools/host';
 import { RECORDINGS, type Recording } from '../../lib/tools/turns';
 import { ORDERS } from '../../lib/tools/server';
 import { fact } from '../../lib/tools/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Fact, Ledger, Messages, Outcome, Play, Stepper, money, openMessage } from './kit';
+import { Fact, LIMITS, LIMIT_OF, Ledger, Messages, Outcome, Play, Stepper, money, openMessage } from './kit';
 
 const MODULE = 'tool-calling', ID = '06-when-tools-go-wrong';
 const LANES = toolLanes();
 const GATE = RECORDINGS['refund-gate'], INJ = RECORDINGS.injection;
-const LIMITS = DOMAINS['refund-gate'].limit as (number | null)[];
 type Scene = 'gate' | 'limit' | 'inject-off' | 'inject-on';
 interface S { scene: Scene; decide: Decision | null; limit: number | null; shown: number; p1: number | null; quiz: number | null }
 
@@ -39,18 +38,15 @@ const msgs = (s: S) => result(s).msgs;
 /** the order a request is about, as the employee names it */
 const orderIn = (r: Recording) => Number(r.ask.match(/\d{4}/)![0]);
 const done = (s: S) => s.shown >= msgs(s).length;
-const of = <K extends HostStep['kind']>(r: Run, kind: K) => r.steps.filter((x): x is Extract<HostStep, { kind: K }> => x.kind === kind);
-const answer = (r: Run) => of(r, 'answer')[0]?.text ?? '';
-const refundOf = (r: Run) => of(r, 'result').find(x => x.call.name === 'issue_refund');
+const refundOf = (r: Run) => stepsOf(r, 'result').find(x => x.call.name === 'issue_refund');
 
 const base: S = { scene: 'gate', decide: null, limit: null, shown: 0, p1: null, quiz: null };
 /** messages up to and including the one that waits at the gate: where a decision picks the run up */
 const waitAt = (scene: Scene) => msgs({ ...base, scene }).length;
-const GATE_CALL = of(run(GATE, { gate: true }), 'gate')[0].call;
-const LIMIT_OF = (l: number | null) => l === null ? 'No limit' : `Up to ${money(l)}`;
-const LIMIT_REFUSAL = refundOf(run(GATE, { limit: LIMITS.at(-1) }))!.result.content[0].text;
+const GATE_CALL = stepsOf(result({ ...base, scene: 'gate' }).run, 'gate')[0].call;
+const LIMIT_REFUSAL = refundOf(result({ ...base, scene: 'limit', limit: LIMITS.at(-1)! }).run)!.result.content[0].text;
 const NOTE_ORDER = ORDERS.find(o => o.injected)!;
-const PLANTED = of(run(INJ, { gate: false }), 'proposal').find(p => p.call.name === 'issue_refund')!.call;
+const PLANTED = stepsOf(result({ ...base, scene: 'inject-off' }).run, 'proposal').find(p => p.call.name === 'issue_refund')!.call;
 
 const P1 = {
   question: `Order ${NOTE_ORDER.id}’s note asks for a refund. The model reads the note in the lookup result. What can happen next, with the gate off?`,
@@ -61,7 +57,7 @@ const P1 = {
   ],
 };
 // read off the recorded run: did the planted refund run?
-const OUT1 = of(run(INJ, { gate: false }), 'call').some(c => c.call.name === 'issue_refund') ? 1 : 0;
+const OUT1 = stepsOf(result({ ...base, scene: 'inject-off' }).run, 'call').some(c => c.call.name === 'issue_refund') ? 1 : 0;
 
 const QUIZ = {
   question: `What protected Larkspur from the note on order ${NOTE_ORDER.id}?`,
@@ -132,7 +128,7 @@ export const STEPS: Step<S>[] = [
   },
   {
     id: 'quiz', focus: 'quiz', visibleControls: ['quiz'],
-    narration: `Denied: no money moved, and the assistant said “${answer(result({ ...base, scene: 'inject-on', decide: 'deny' }).run)}” One question to finish.`,
+    narration: `Denied: no money moved, and the assistant said “${answerOf(result({ ...base, scene: 'inject-on', decide: 'deny' }).run)}” One question to finish.`,
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which parts worked no matter what the model was persuaded to do?',
   },
@@ -162,7 +158,7 @@ export default function WhenToolsGoWrong() {
           if (state.shown < waitAt(state.scene)) return null;
           const pick = (d: Decision) => sync({ ...state, decide: d, shown: waitAt(state.scene) });
           return (
-            <div className="opts" role="group" aria-label={`Approval gate: ${callText(of(result(state).run, 'gate')[0].call)}`}>
+            <div className="opts" role="group" aria-label={`Approval gate: ${callText(stepsOf(result(state).run, 'gate')[0].call)}`}>
               <button type="button" className="chip" aria-pressed={state.decide === 'approve'} onClick={() => pick('approve')}>Approve</button>
               <button type="button" className="chip" aria-pressed={state.decide === 'deny'} onClick={() => pick('deny')}>Deny</button>
             </div>
@@ -170,7 +166,7 @@ export default function WhenToolsGoWrong() {
         },
         said: ({ state }) => {
           const r = result({ ...state, scene: 'gate' }).run;
-          return <p className="tc-status">{state.decide === 'deny' ? 'You denied it' : 'You approved it'}, and the assistant said: “{answer(r)}”<br />Now: {state.limit === null ? 'no limit, so the refund runs' : refundOf(result(state).run)?.result.isError ? 'the limit refuses it' : 'the refund fits under the limit, so it runs'}.</p>;
+          return <p className="tc-status">{state.decide === 'deny' ? 'You denied it' : 'You approved it'}, and the assistant said: “{answerOf(r)}”<br />Now: {state.limit === null ? 'no limit, so the refund runs' : refundOf(result(state).run)?.result.isError ? 'the limit refuses it' : 'the refund fits under the limit, so it runs'}.</p>;
         },
         limit: ({ state, sync }) => (
           <Stepper label={`Refund limit for ${GATE_CALL.name}`} values={LIMITS} value={state.limit} show={LIMIT_OF}

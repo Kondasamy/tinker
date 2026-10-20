@@ -10,12 +10,13 @@ import Recap from '../../components/quiz/Recap';
 import { LANES, MSGS } from '../../content/__ID__/01-first-step';
 import { moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
+import { longDate } from '../../lib/format';
 import DATA from '../../../data/__ID__/facts.json' with { type: 'json' };
 
 const MODULE = moduleOf('__ID__');
 const CHAPTERS = MODULE.chapters;
 const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
-const checked = new Date(DATA.accessed).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const checked = longDate(DATA.accessed);
 ---
 <html lang="en">
   <head>

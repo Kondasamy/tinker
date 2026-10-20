@@ -7,7 +7,7 @@ import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import FlatStage from '../../components/scenes/FlatStage';
 import { toolLanes, transcript, type Shown } from '../../components/scenes/toolSequence';
-import { DOMAINS, run, type Run, type Step as HostStep } from '../../lib/tools/host';
+import { DOMAINS, answerOf, run, stepsOf, type Run } from '../../lib/tools/host';
 import { RECORDINGS } from '../../lib/tools/turns';
 import { fact } from '../../lib/tools/facts';
 import { nextOf } from '../../lib/modules';
@@ -27,13 +27,11 @@ const MSGS: Record<Scene, Record<number, Shown[]>> = {
   sequence: Object.fromEntries(CAPS.map(c => [c, transcript(SEQ, SEQ_RUNS[c])])),
 };
 
-const of = <K extends HostStep['kind']>(r: Run, kind: K) => r.steps.filter((s): s is Extract<HostStep, { kind: K }> => s.kind === kind);
-const turnsOf = (r: Run) => of(r, 'proposal').map(p => p.turn);
-const answer = (r: Run) => of(r, 'answer')[0]?.text ?? '';
-const PAR_IDS = of(PAR_RUN, 'proposal').map(p => p.call.arguments.order_id).join(' and ');
-const [LOOKUP, REFUND] = of(SEQ_RUNS[FULL], 'proposal').map(p => p.call);
+const turnsOf = (r: Run) => stepsOf(r, 'proposal').map(p => p.turn);
+const PAR_IDS = stepsOf(PAR_RUN, 'proposal').map(p => p.call.arguments.order_id).join(' and ');
+const [LOOKUP, REFUND] = stepsOf(SEQ_RUNS[FULL], 'proposal').map(p => p.call);
 const capped = (c: number) => SEQ_RUNS[c].status === 'capped';
-const CAP_STOP = of(SEQ_RUNS[CAPS.find(capped)!], 'cap')[0];
+const CAP_STOP = stepsOf(SEQ_RUNS[CAPS.find(capped)!], 'cap')[0];
 
 interface S { scene: Scene; cap: number; shown: number; p1: number | null; p2: number | null; quiz: number | null }
 const msgs = (s: S) => s.scene === 'parallel' ? MSGS.parallel[FULL] : MSGS.sequence[s.cap];
@@ -133,7 +131,7 @@ export default function ManySteps() {
           <>
             <Stepper label="Call cap: most tool calls per request" values={CAPS} value={state.cap} show={calls}
               down="− Fewer" up="+ More" onChange={c => sync({ ...state, cap: c, shown: MSGS.sequence[c].length })} />
-            <p className="tc-status" role="status">{capped(state.cap) ? `Stopped early. ${of(SEQ_RUNS[state.cap], 'cap')[0].text}` : `Finished: “${answer(SEQ_RUNS[state.cap])}”`}</p>
+            <p className="tc-status" role="status">{capped(state.cap) ? `Stopped early. ${stepsOf(SEQ_RUNS[state.cap], 'cap')[0].text}` : `Finished: “${answerOf(SEQ_RUNS[state.cap])}”`}</p>
           </>
         ),
         quiz: ({ state, apply, sync }) => (

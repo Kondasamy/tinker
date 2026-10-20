@@ -11,18 +11,15 @@ import FlatStage from '../../components/scenes/FlatStage';
 import { MCP_BOARD, connectScene } from '../../components/scenes/mcpScene';
 import { rpcMessages, type Shown } from '../../components/scenes/toolSequence';
 import { connect, createServer, ORDERS, SERVERS, TOOLS, type LogEntry, type ServerId } from '../../lib/tools/server';
-import { DOMAINS } from '../../lib/tools/host';
 import { RECORDINGS } from '../../lib/tools/turns';
 import { fact } from '../../lib/tools/facts';
 import { nextOf } from '../../lib/modules';
 import type { Lane } from '../../lib/iso/flat';
 import CALENDAR from '../../../data/tool-calling/calendar.json';
-import { Fact, Messages, Stepper, money, openMessage } from './kit';
+import { Fact, LIMITS, LIMIT_OF, Messages, Stepper, money, openMessage } from './kit';
 
 const MODULE = 'tool-calling', ID = '07-workbench';
 export const SERVER_IDS = Object.keys(SERVERS) as ServerId[];
-/** chapter 6's refund limits: none, one that fits a normal refund, one below it */
-export const LIMITS = DOMAINS['refund-gate'].limit as (number | null)[];
 const LANES: Lane[] = [{ id: 'host', name: 'Host app' }, ...SERVER_IDS.map(id => ({ id: SERVERS[id].name, name: SERVERS[id].title }))];
 
 export interface Setup { servers: ServerId[]; gate: boolean; limit: number | null }
@@ -99,10 +96,11 @@ const tryOn = (s: S, setup = s.setup): S => {
 /** What connecting the chosen servers sends: a fresh in-browser server per id, tools/list on each. */
 const cache = new Map<string, Shown[]>();
 function msgs(s: S): Shown[] {
-  const key = s.setup.servers.join() + '|' + s.setup.limit;
+  // tools/list output does not depend on the refund limit, so the servers alone decide the messages
+  const key = s.setup.servers.join();
   if (!cache.has(key)) {
     const log: LogEntry[] = [];
-    for (const id of SERVER_IDS.filter(x => s.setup.servers.includes(x))) connect(createServer(id, { refundLimit: s.setup.limit }), log).request('tools/list');
+    for (const id of SERVER_IDS.filter(x => s.setup.servers.includes(x))) connect(createServer(id), log).request('tools/list');
     cache.set(key, rpcMessages(log));
   }
   return cache.get(key)!;
@@ -156,8 +154,6 @@ function Stage({ state, sync, inspect }: StageProps<S>) {
     </div>
   );
 }
-
-const LIMIT_OF = (l: number | null) => l === null ? 'No limit' : `Up to ${money(l)}`;
 
 export default function Workbench() {
   return (

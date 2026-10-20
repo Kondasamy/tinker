@@ -1,7 +1,7 @@
 // A flat sequence figure, like IsoStage: role="img", a label in words, the hand-drawn wobble.
 // Wide: the latest messages so far. Below 600px: lanes stacked, one message, Prev/Next to browse (the step still leads).
 // With `onPick`, each message card is a button (click, Enter or Space) and the figure is a group, not an image.
-import { useId, useState, type KeyboardEvent, type MouseEvent } from 'react';
+import { useId, useMemo, useState, type KeyboardEvent, type MouseEvent } from 'react';
 import { filterFor } from '../../lib/iso/core.js';
 import { flatScene, flatLabel, type Lane, type Msg } from '../../lib/iso/flat';
 import './flat.css';
@@ -23,6 +23,9 @@ export default function FlatStage({ lanes, msgs, upTo = msgs.length, onPick, cla
   const shown = Math.min(upTo, msgs.length), cur = pick?.at === shown ? pick.i : shown - 1;
   const go = (i: number) => setPick({ at: shown, i });
   const label = flatLabel(lanes, msgs, shown);
+  const pickable = !!onPick;
+  const wide = useMemo(() => flatScene(lanes, msgs, { upTo: shown, pick: pickable }), [lanes, msgs, shown, pickable]);
+  const phone = useMemo(() => flatScene(lanes, msgs, { upTo: shown, phone: true, focus: cur, pick: pickable }), [lanes, msgs, shown, cur, pickable]);
   const picked = (e: { target: EventTarget }) => (e.target as Element).closest?.('[data-msg][role="button"]')?.getAttribute('data-msg');
   const click = (e: MouseEvent) => { const i = picked(e); if (i != null) onPick!(+i); };
   const key = (e: KeyboardEvent) => {
@@ -39,8 +42,8 @@ export default function FlatStage({ lanes, msgs, upTo = msgs.length, onPick, cla
   );
   return (
     <figure className={`flat ${className ?? ''}`}>
-      {svg(flatScene(lanes, msgs, { upTo: shown, pick: !!onPick }), 'flat-wide', 'hand', label)}
-      {svg(flatScene(lanes, msgs, { upTo: shown, phone: true, focus: cur, pick: !!onPick }), 'flat-phone', 'phand',
+      {svg(wide, 'flat-wide', 'hand', label)}
+      {svg(phone, 'flat-phone', 'phand',
         cur >= 0 ? `${label} Showing message ${cur + 1}.` : label)}
       <div className="flat-nav">
         <button type="button" className="chip" onClick={() => go(cur - 1)} disabled={cur <= 0}>← Prev</button>

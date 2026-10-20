@@ -1,19 +1,23 @@
 // Pieces chapters 1–3 share: the message-by-message player, the drawer panels (full messages, the tool definition)
 // and a cited fact. Every string here is rendered as React text (KTD12): tool results and model turns never become markup.
 import { useEffect, useRef } from 'react';
-import type { Lane } from '../../lib/iso/flat';
+import { STAMP_CLASS, type Lane } from '../../lib/iso/flat';
 import type { Shown } from '../../components/scenes/toolSequence';
-import { ORDERS, TOOLS, type Order, type Tool } from '../../lib/tools/server';
+import { ORDERS, TOOLS, describe, type Order, type Tool } from '../../lib/tools/server';
 import type { Desc } from '../../lib/tools/turns';
 import { fact } from '../../lib/tools/facts';
+import { DOMAINS } from '../../lib/tools/host';
+import { money } from '../../lib/format';
 import { Reveal } from '../../components/quiz/Predict';
 import './tools.css';
 
+export { money };
+
 export const GET_ORDER = TOOLS.find(t => t.name === 'get_order')!;
 /** get_order as the host lists it with this description wording */
-export const getOrder = (desc: Desc): Tool => ({ ...GET_ORDER, description: desc === 'vague' ? GET_ORDER.vague! : GET_ORDER.description });
+export const getOrder = (desc: Desc): Tool => describe(GET_ORDER, desc);
 
-/** Runs the loop one message at a time. `sync`: a press that is not the last is never a missed try. */
+/** Runs the loop one message at a time: each press asks `onStep` for one more message; gone once all `total` are shown. */
 export function Play({ shown, total, onStep }: { shown: number; total: number; onStep: (n: number) => void }) {
   if (shown >= total) return null;
   return (
@@ -45,7 +49,7 @@ export function Messages({ lanes, msgs, upTo }: { lanes: Lane[]; msgs: Shown[]; 
       {msgs.slice(0, upTo).map((m, i) => (
         <li key={i} data-kind={m.kind} data-picked={i === at || undefined}>
           <p className="lbl">{i + 1}. {name(m.from)} → {name(m.to)}{m.kind === 'error' ? ' · error' : ''}</p>
-          {m.stamp && <span className={`stamp ${m.stamp === 'APPROVED' ? 'correct' : m.stamp === 'WAITING' ? 'neutral' : m.stamp === 'INVALID' ? 'warn' : 'wrong'}`}>{m.stamp}</span>}
+          {m.stamp && <span className={`stamp ${STAMP_CLASS[m.stamp]}`}>{m.stamp}</span>}
           {m.batch !== undefined && <span className="stamp neutral">AT ONCE</span>}
           <pre>{m.detail}</pre>
         </li>
@@ -87,7 +91,10 @@ export function Stepper<T>({ label, values, value, show, onChange, down, up }:
   );
 }
 
-export const money = (n: number) => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+/** chapter 6's refund limits: none, one that fits a normal refund, one below it */
+export const LIMITS = DOMAINS['refund-gate'].limit as (number | null)[];
+export const LIMIT_OF = (l: number | null) => l === null ? 'No limit' : `Up to ${money(l)}`;
+
 const refunded = (o: Order) => o.refunds.reduce((s, r) => s + r.amount, 0);
 
 /** The order system's refunds before and after a run: what the run actually changed. */

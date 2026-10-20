@@ -1,6 +1,6 @@
 // U2: the home page is a catalogue grouped by level (R5, R6), Continue resumes the last module (R8), intros show level and author (R7).
 import { test, expect } from '@playwright/test';
-import AxeBuilder from '@axe-core/playwright';
+import { serious } from './helpers';
 import { MODULES } from '../../src/lib/modules';
 
 const catalogue = (page: import('@playwright/test').Page) => page.locator('#modules');
@@ -68,8 +68,7 @@ test('the catalogue fits a 390px phone without sideways scroll', async ({ page }
 
 for (const path of ['/', '/rag/']) test(`axe: ${path} has no serious or critical violations`, async ({ page }) => {
   await page.goto(path);
-  const { violations } = await new AxeBuilder({ page }).analyze();
-  expect(violations.filter(v => v.impact === 'serious' || v.impact === 'critical').map(v => `${v.id}: ${v.nodes.map(n => n.target.join(' ')).slice(0, 3).join(' | ')}`)).toEqual([]);
+  expect(await serious(page)).toEqual([]);
 });
 
 test('RAG intro shows its level, prerequisites and author from the registry', async ({ page }) => {

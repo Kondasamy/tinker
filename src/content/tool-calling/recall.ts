@@ -4,6 +4,7 @@ import type { RecallItem } from '../../lib/recall';
 import type { Order, ServerDef, Tool } from '../../lib/tools/server';
 import type { Recording } from '../../lib/tools/turns';
 import { fact } from '../../lib/tools/facts';
+import { money } from '../../lib/format';
 // the data itself, not the tool engine: the registry imports this bank, and the e2e specs import the registry in Node
 import SERVER from '../../../data/tool-calling/server.json' with { type: 'json' };
 import ORDERS_JSON from '../../../data/tool-calling/orders.json' with { type: 'json' };
@@ -21,7 +22,6 @@ const MARLOW = ORDERS.filter(o => o.customer === 'Marlow Builders' && !o.injecte
 // chapter 5's count: without MCP every app × system pair is its own integration; with it, each side is built once
 const APPS = 5, SYSTEMS = 6, N = { without: APPS * SYSTEMS, with: APPS + SYSTEMS };
 const ORDERS_SERVER = SERVERS.find(s => s.tools.includes('issue_refund'))!;
-const money = (n: number) => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export const RECALL: RecallItem[] = [
   // 1. Answers aren't actions

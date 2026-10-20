@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { REQUESTS, LIMITS, SERVER_IDS, verdict, needs, type Setup } from '../../src/content/tool-calling/07-workbench';
+import { REQUESTS, SERVER_IDS, verdict, needs, type Setup } from '../../src/content/tool-calling/07-workbench';
+import { LIMITS } from '../../src/content/tool-calling/kit';
 
 // every setup the workbench's controls can reach
 const ALL: Setup[] = [[], ['orders'], ['calendar'], ['orders', 'calendar']].flatMap(servers =>

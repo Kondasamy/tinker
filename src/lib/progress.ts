@@ -16,6 +16,10 @@ function read(module: string): Progress {
   return { done: [], saved: {} };
 }
 
+// a stored field that is not an object reads as empty
+const atOf = (p: Progress): Record<string, number> => p.at && typeof p.at === 'object' ? p.at : {};
+const recallOf = (p: Progress): Record<string, RecallResult> => p.recall && typeof p.recall === 'object' ? p.recall : {};
+
 function write(module: string, p: Progress) {
   try { localStorage.setItem(key(module), JSON.stringify(p)); } catch { /* storage unavailable: nothing is saved */ }
 }
@@ -23,14 +27,11 @@ function write(module: string, p: Progress) {
 export const completed = (module: string): string[] => read(module).done;
 
 /** When each chapter was first finished (ms). Chapters finished before this was recorded are absent. */
-export function completedAt(module: string): Record<string, number> {
-  const at = read(module).at;
-  return at && typeof at === 'object' ? at : {};
-}
+export const completedAt = (module: string): Record<string, number> => atOf(read(module));
 
 export function markDone(module: string, id: string) {
   const p = read(module);
-  if (!p.done.includes(id)) write(module, { ...p, done: [...p.done, id], at: { ...completedAt(module), [id]: Date.now() } });
+  if (!p.done.includes(id)) write(module, { ...p, done: [...p.done, id], at: { ...atOf(p), [id]: Date.now() } });
 }
 
 export const loadChapter = <T>(module: string, id: string): T | undefined => read(module).saved[id] as T | undefined;
@@ -42,14 +43,11 @@ export function saveChapter(module: string, id: string, data: unknown) {
 }
 
 /** The latest result per recall item. It sits outside chapter runs, so a chapter Reset never wipes it (KTD7). */
-export function recallResults(module: string): Record<string, RecallResult> {
-  const r = read(module).recall;
-  return r && typeof r === 'object' ? r : {};
-}
+export const recallResults = (module: string): Record<string, RecallResult> => recallOf(read(module));
 
 export function recordRecall(module: string, itemId: string, result: { right: boolean; unsure: boolean }) {
   const p = read(module);
-  write(module, { ...p, recall: { ...recallResults(module), [itemId]: { ...result, at: Date.now() } } });
+  write(module, { ...p, recall: { ...recallOf(p), [itemId]: { ...result, at: Date.now() } } });
 }
 
 /** The recap attempt in progress (or finished), if a valid one is saved. */

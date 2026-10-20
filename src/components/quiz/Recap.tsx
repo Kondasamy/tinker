@@ -30,8 +30,8 @@ function Full({ module, bank }: Props) {
     const done = completed(module);
     if (!done.length) return setAtt('empty');
     if (!recapPool(bank, done).length) return setAtt('none');
-    const a = resumeAttempt(loadAttempt(module), bank, done, newSeed());
-    saveAttempt(module, a);
+    const saved = loadAttempt(module), a = resumeAttempt(saved, bank, done, newSeed());
+    if (a !== saved) saveAttempt(module, a);   // a resumed attempt is already stored as it is
     setAtt(a);
   }, [module, bank]);
   const go = (a: Attempt) => { saveAttempt(module, a); setAtt(a); };
