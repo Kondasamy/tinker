@@ -160,3 +160,7 @@ export function connect(server: Server, log: LogEntry[] = []) {
   }
   return { server, log, request };
 }
+
+/** Integrations to build so `apps` AI apps can each use `systems` systems. Without a shared protocol every pair needs
+ * its own; with MCP each app builds one client side and each system one server. */
+export const integrations = (apps: number, systems: number) => ({ without: apps * systems, with: apps + systems });

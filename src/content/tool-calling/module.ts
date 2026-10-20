@@ -61,6 +61,63 @@ const CHAPTERS: Chapter[] = [
       ],
     },
   },
+  {
+    id: '04-many-steps', title: 'Many tools, many steps', short: 'Many steps',
+    intro: {
+      story: 'The assistant can look up an order and the host catches bad calls. Real requests need more: two orders at once, or a refund that depends on what a lookup returns.',
+      goal: 'How does the assistant handle a request that needs several tool calls?',
+      learn: [
+        'Why independent lookups can go out together, in one turn',
+        'Why a call that needs an earlier result has to wait for it',
+        'How the host caps the loop, so one request cannot call tools forever',
+      ],
+      terms: [
+        ['Turn', 'One reply from the model: either an answer, or one or more tool calls.'],
+        ['Parallel calls', 'Several tool calls the model asks for in one turn, because none needs another’s result.'],
+        ['Sequence', 'Calls made one after another, because each needs the result of the one before.'],
+        ['Call cap', 'A rule in the host: the most tool calls one request may make before the loop stops.'],
+      ],
+    },
+  },
+  {
+    id: '05-mcp', title: 'MCP: one plug for many tools', short: 'MCP',
+    intro: {
+      story: 'Larkspur’s tools now live in two systems: orders and the team calendar. Other teams want AI apps of their own that use the same tools. Wiring every app to every system by hand will not last.',
+      goal: 'How can any AI app use any system’s tools without a custom integration for each pair?',
+      learn: [
+        'Why custom integrations multiply, and how one shared protocol turns the product into a sum',
+        'Who is who in MCP: the host, its clients and the servers',
+        'What a server offers besides tools: resources and prompts',
+      ],
+      terms: [
+        ['Integration', 'Code that joins one AI app to one system so the app can use its tools.'],
+        ['MCP', 'The Model Context Protocol: an open standard for how AI apps talk to systems that offer tools and data.'],
+        ['MCP server', 'A program that offers one system’s tools, data and prompts to any app that speaks MCP.'],
+        ['MCP client', 'The connector inside a host app that talks to one server.'],
+        ['JSON-RPC', 'A simple message format: each request names a method, and gets back a result or an error.'],
+        ['Resource', 'Data a server offers as context, such as a policy document.'],
+        ['Prompt', 'A ready-made message template a server offers, for a person to pick.'],
+      ],
+    },
+  },
+  {
+    id: '06-when-tools-go-wrong', title: 'When tools go wrong', short: 'When tools go wrong',
+    intro: {
+      story: 'The assistant can now refund money. That makes every mistake expensive, whether it comes from the model, from a request, or from text someone planted in the data the model reads.',
+      goal: 'What stops a tool call that should not run?',
+      learn: [
+        'How an approval gate puts a person in front of every call that changes data',
+        'How a narrow permission limits the harm of a call that does run',
+        'How text inside a tool result can steer the model, and what protects you either way',
+      ],
+      terms: [
+        ['Approval gate', 'A rule in the host: calls that change data wait for a person to approve or deny them.'],
+        ['Least privilege', 'Giving a tool only the power its job needs, such as a limit on how much one refund can be.'],
+        ['Prompt injection', 'Instructions hidden in data the model reads, such as a customer note, written to make it do something else.'],
+        ['Ledger', 'The order system’s record of every refund: where any damage shows.'],
+      ],
+    },
+  },
 ];
 
 export const TOOL_CALLING_MODULE: Module = {

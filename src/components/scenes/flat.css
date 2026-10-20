@@ -8,6 +8,9 @@
   .flat .flat-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; font-size: 13px; }
 }
 :where(.flat-nav) button { font: inherit; cursor: pointer; }
+/* message cards that open the drawer (R21): the card body thickens on hover and focus */
+.flat .card[role='button'] { cursor: pointer; }
+.flat .card[role='button']:hover > rect:nth-of-type(2), .flat .card[role='button']:focus-visible > rect:nth-of-type(2) { stroke-width: 2.6; }
 :where(.flat-nav) button:disabled { opacity: .4; cursor: default; }
 .flat .msg.new .card { animation: flat-travel .7s cubic-bezier(.2, .7, .3, 1) both; }
 .flat .msg.new .arrow { animation: flat-fade .7s ease-out both; }

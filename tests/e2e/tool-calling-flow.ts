@@ -8,6 +8,8 @@ export function toolWalker(page: Page, mode: Mode, check: (page: Page) => Promis
   const kb = mode === 'keyboard';
   const press = (l: Locator) => (kb ? l.press('Enter') : l.click());
   const tick = async (l: Locator) => { if (kb) { await l.focus(); await l.press('Space'); } else await l.check(); await expect(l).toBeChecked(); };
+  /** like tick, for a box that moves the step on (and so leaves the card) */
+  const toggle = async (l: Locator) => { if (kb) { await l.focus(); await l.press('Space'); } else await l.click(); };
   const card = page.getByRole('region', { name: 'Next step' });
   const btn = (name: string | RegExp) => press(card.getByRole('button', { name }));
   const opt = (name: string | RegExp) => press(card.getByRole('radio', { name }));   // a quiz or prediction option
@@ -74,15 +76,81 @@ export function toolWalker(page: Page, mode: Mode, check: (page: Page) => Promis
       await opt(/Only that the arguments have the right shape/);
       await finish(next);
     },
+    async ch4(next?: RegExp) {
+      await opt(/Both calls in one turn/);
+      await play();
+      await step(3);
+      await check(page);
+      await btn('Now a refund →');
+      await opt(/No: it needs the total/);
+      await play();
+      await step(6);
+      await btn('− Fewer');
+      await btn('− Fewer');
+      await step(7);
+      await check(page);
+      await opt(/The host: the call cap/);
+      await finish(next);
+    },
+    async ch5(next?: RegExp) {
+      const more = (group: string) => press(card.getByRole('group', { name: group }).getByRole('button', { name: '+ More' }));
+      await more('AI apps');
+      await more('AI apps');
+      await more('Systems with tools');
+      await more('Systems with tools');
+      await step(2);
+      await opt(/each app builds its MCP side once/);
+      await toggle(card.getByLabel(/Use MCP/));
+      await step(4);
+      await check(page);
+      await btn(/^Connect the Larkspur orders server/);
+      await step(5);
+      await btn(/^Connect the Larkspur calendar server/);
+      await step(6);
+      await check(page);
+      await btn(/^Read the refund policy/);
+      await btn(/^Get the refund_request prompt/);
+      await step(7);
+      await opt(/As a resource/);
+      await finish(next);
+    },
+    async ch6(next?: RegExp) {
+      await play();
+      await step(2);
+      await btn('Deny');
+      await play();
+      await step(3);
+      await btn('− Lower');
+      await btn('− Lower');
+      await step(4);
+      await btn('Next request →');
+      await step(5);
+      await check(page);
+      await opt(/The model can follow the note/);
+      await play();
+      await step(7);
+      await tick(card.getByLabel(/Approval gate/));
+      await play();
+      await step(8);
+      await check(page);
+      await btn('Deny');
+      await play();
+      await step(9);
+      await opt(/gate and the tool’s limit/);
+      await finish(next);
+    },
     open,
   };
 }
 
-/** All three chapters in one browser, from chapter 1. */
+/** Every chapter in one browser, from chapter 1, following each "Next" link. */
 export async function walkToolCalling(page: Page, mode: Mode, check?: (page: Page) => Promise<void>) {
   const w = toolWalker(page, mode, check);
   await w.open('01-answers-arent-actions');
   await w.ch1(/02-first-tool/);
   await w.ch2(/03-valid-isnt-correct/);
-  await w.ch3();
+  await w.ch3(/04-many-steps/);
+  await w.ch4(/05-mcp/);
+  await w.ch5(/06-when-tools-go-wrong/);
+  await w.ch6();
 }

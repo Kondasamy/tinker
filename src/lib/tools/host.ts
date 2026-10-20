@@ -23,14 +23,16 @@ export const DEFAULTS: Setup = { desc: 'clear', gate: false, cap: 6, limit: null
 
 /** The finite values each scenario's chapter controls can take; the coverage test runs every combination. */
 export type Domain = { [K in keyof Setup]?: K extends 'decide' ? Decision[] : Setup[K][] };
-const SAFETY: Domain = { gate: [false, true], decide: ['approve', 'deny'], limit: [null, 100] };
+// limit: none, one that fits a normal refund ($310) but not a planted one ($5,000), and one below both
+const SAFETY: Domain = { gate: [false, true], decide: ['approve', 'deny'], limit: [null, 500, 100] };
 export const DOMAINS: Record<string, Domain> = {
   'no-tools': {},
   'order-status': { desc: ['clear', 'vague'] },
   'invalid-arg': {},
   'wrong-id': { check: [false, true] },
   parallel: { cap: [1, 6] },
-  'refund-sequence': { cap: [1, 6] },
+  // chapter 4's call-cap stepper, highest first: the default, just enough for the refund, too few
+  'refund-sequence': { cap: [6, 2, 1] },
   'refund-gate': SAFETY,
   injection: SAFETY,
 };
@@ -49,7 +51,7 @@ export type Step =
   | { kind: 'call'; call: Call }
   | { kind: 'result'; call: Call; result: ToolResult }
   | { kind: 'answer'; text: string }
-  | { kind: 'cap'; call: Call; limit: number; text: string }
+  | { kind: 'cap'; turn: number; call: Call; limit: number; text: string }
   | { kind: 'norecord'; signature: string; text: string };
 export interface Run {
   status: 'done' | 'waiting' | 'capped' | 'norecord';
@@ -95,7 +97,7 @@ export function run(rec: Recording, setup: Partial<Setup> = {}): Run {
     last = [];
     for (const call of turn.calls) {
       if (calls >= s.cap) {
-        steps.push({ kind: 'cap', call, limit: s.cap, text: `Stopped: too many calls. This host allows ${s.cap} tool call${s.cap === 1 ? '' : 's'} per request.` });
+        steps.push({ kind: 'cap', turn: turnNo, call, limit: s.cap, text: `Stopped: too many calls. This host allows ${s.cap} tool call${s.cap === 1 ? '' : 's'} per request.` });
         return done('capped');
       }
       calls++;

@@ -13,7 +13,7 @@ import { RECORDINGS, type Desc } from '../../lib/tools/turns';
 import { fact } from '../../lib/tools/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Fact, Messages, Play, ToolDef, getOrder, GET_ORDER } from './kit';
+import { Fact, Messages, Play, ToolDef, getOrder, GET_ORDER, openMessage } from './kit';
 
 const MODULE = 'tool-calling', ID = '02-first-tool';
 const REC = RECORDINGS['order-status'];
@@ -98,7 +98,7 @@ export default function FirstTool() {
       steps={STEPS}
       initial={{ opened: false, desc: 'vague', prediction: null, shown: 0, seen: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => <FlatStage lanes={LANES} msgs={RUNS[state.desc]} upTo={state.shown} />}
+      stage={({ state, inspect }) => <FlatStage lanes={LANES} msgs={RUNS[state.desc]} upTo={state.shown} onPick={openMessage(inspect)} />}
       controls={{
         open: ({ state, apply }) => <button type="button" className="big" onClick={() => apply({ ...state, opened: true })}>Open the {GET_ORDER.name} definition</button>,
         predict: ({ state, apply }) => <Predict {...PREDICT} value={state.prediction} onPredict={i => apply({ ...state, prediction: i })} />,

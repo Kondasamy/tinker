@@ -5,20 +5,24 @@ import { esc } from './blocks';
 
 type Mat = { l: string; m: string; d: string };
 export type Kind = 'request' | 'result' | 'error' | 'blocked';
-export type Stamp = 'APPROVED' | 'DENIED' | 'INVALID';
+export type Stamp = 'APPROVED' | 'DENIED' | 'INVALID' | 'WAITING' | 'STOPPED' | 'REFUSED';
 export interface Lane { id: string; name: string; pal?: Mat }
-export interface Msg { from: string; to: string; kind: Kind; text: string; stamp?: Stamp }
-/** upTo: messages shown so far (default all); phone: stacked lanes, one message (focus, default the latest) */
-export interface FlatOpts { upTo?: number; phone?: boolean; focus?: number }
+/** batch: messages with the same batch number went out together (parallel calls); the wide view brackets them */
+export interface Msg { from: string; to: string; kind: Kind; text: string; stamp?: Stamp; batch?: number }
+/** upTo: messages shown so far (default all); phone: stacked lanes, one message (focus, default the latest);
+ * win: most rows the wide view draws, the latest ones (a pill counts the earlier ones); pick: cards are buttons */
+export interface FlatOpts { upTo?: number; phone?: boolean; focus?: number; win?: number; pick?: boolean }
 export interface FlatScene { svg: string; w: number; h: number }
 
 const LANE_PALS = [PALS.mustard, PALS.cobalt, PALS.mint, PALS.blush, PALS.tomato];
 const KIND: Record<Kind, Mat> = { request: PALS.cobalt, result: PALS.mint, error: PALS.tomato, blocked: METAL };
 const MARK: Record<Kind, string> = { request: '', result: '', error: '! ', blocked: '× ' };   // kind not by colour alone
-const STAMP: Record<Stamp, string> = { APPROVED: '#2a744b', DENIED: '#b5361f', INVALID: '#826309' };   // --ok, --bad, --warn
+// --ok, --bad, --warn; waiting is plain ink
+const STAMP: Record<Stamp, string> = { APPROVED: '#2a744b', DENIED: '#b5361f', INVALID: '#826309', WAITING: INK, STOPPED: '#b5361f', REFUSED: '#b5361f' };
 const FONT = 'font-family="ui-monospace,Menlo,monospace" font-weight="800"';
 const PAD = 14;
-const DESK = { w: 600, head: 30, row: 58, fs: 9.5, chars: 34 };
+// win: 7 rows keep card text at about 13px on a 1440×900 screen (12 rows shrank it to 8px)
+export const DESK = { w: 600, head: 30, row: 58, fs: 9.5, chars: 34, win: 7, hint: 22 };
 const PHONE = { w: 300, band: 34, gap: 64, fs: 11.5 };
 
 const fit = (s: string, n: number) => s.length > n ? s.slice(0, n - 1) + '…' : s;
@@ -63,23 +67,32 @@ export function stamp(word: Stamp, x: number, y: number, fs: number): string {
     + rect(x - w / 2, y - h / 2, w, h, 3, '#fbf8f0', c, 2, ' fill-opacity=".92"') + text(x, y, word, fs, c, ' letter-spacing=".14em"') + '</g>';
 }
 
-/** A message card centred on (cx, cy), flat shaded by kind, with a flat blue shadow. (dx, dy): where it travels from. */
-export function card(m: Msg, i: number, cx: number, cy: number, fs: number, chars: number, dx: number, dy: number): string {
+/** A message card centred on (cx, cy), flat shaded by kind, with a flat blue shadow. (dx, dy): where it travels from.
+ * name: the card is a button with this accessible name (it opens the message in the drawer). */
+export function card(m: Msg, i: number, cx: number, cy: number, fs: number, chars: number, dx: number, dy: number, name?: string): string {
   const label = MARK[m.kind] + fit(m.text, chars - MARK[m.kind].length), pal = KIND[m.kind];
   const w = textW(label, fs), h = fs * 2.4, x = cx - w / 2, y = cy - h / 2;
   const dash = m.kind === 'blocked' ? ' stroke-dasharray="4 3"' : '';
-  return `<g class="card ${m.kind}" data-msg="${i}" style="--dx:${f(dx)}px;--dy:${f(dy)}px">`
+  const btn = name ? ` role="button" tabindex="0" aria-label="${esc(name)}"` : '';
+  return `<g class="card ${m.kind}" data-msg="${i}"${btn} style="--dx:${f(dx)}px;--dy:${f(dy)}px">`
     + `<rect x="${f(x + 3)}" y="${f(y + 3)}" width="${f(w)}" height="${f(h)}" rx="6" fill="${SHADOW}" fill-opacity=".85"/>`
     + rect(x, y, w, h, 6, pal.l, INK, 1.4) + `<path d="M${f(x + 3)} ${f(y + h - 2.5)}L${f(x + w - 3)} ${f(y + h - 2.5)}" stroke="${pal.m}" stroke-width="3" stroke-linecap="round"/>`
     + (dash ? rect(x, y, w, h, 6, 'none', INK, 1.4, dash) : '')
-    + text(cx, cy - 1, label, fs) + (m.stamp ? stamp(m.stamp, x + w - textW(m.stamp, fs * .8) / 2, y - fs * .75, fs * .8) : '')   // sits on the top edge, clear of the text + '</g>';
+    + text(cx, cy - 1, label, fs) + (m.stamp ? stamp(m.stamp, x + w - textW(m.stamp, fs * .8) / 2, y - fs * .75, fs * .8) : '')   // sits on the top edge, clear of the text
+    + '</g>';
 }
 
-/** The whole sequence. The frame is sized for every message, so it never resizes as more are shown. */
-export function flatScene(lanes: Lane[], msgs: Msg[], { upTo = msgs.length, phone = false, focus }: FlatOpts = {}): FlatScene {
+const nameOf = (lanes: Lane[], id: string) => lanes.find(l => l.id === id)?.name ?? id;
+/** A card's accessible name: what the message says, then what pressing it does. */
+export const cardName = (lanes: Lane[], m: Msg, i: number) =>
+  `Message ${i + 1}, ${nameOf(lanes, m.from)} to ${nameOf(lanes, m.to)}: ${m.text}${m.stamp ? ` (${m.stamp.toLowerCase()})` : ''}. Show it in full`;
+
+/** The whole sequence. The frame is sized for every row it can show, so it never resizes as more messages arrive. */
+export function flatScene(lanes: Lane[], msgs: Msg[], { upTo = msgs.length, phone = false, focus, win = DESK.win, pick = false }: FlatOpts = {}): FlatScene {
   const pal = (i: number) => lanes[i].pal ?? LANE_PALS[i % LANE_PALS.length];
   const idx = (id: string) => lanes.findIndex(l => l.id === id);
   const wrap = (i: number, body: string) => `<g class="msg${i === upTo - 1 ? ' new' : ''}">${body}</g>`;
+  const name = (m: Msg, i: number) => pick ? cardName(lanes, m, i) : undefined;
   if (phone) {
     const { w, band, gap, fs } = PHONE, h = PAD * 2 + lanes.length * band + (lanes.length - 1) * gap;
     const top = (i: number) => PAD + i * (band + gap);
@@ -91,28 +104,43 @@ export function flatScene(lanes: Lane[], msgs: Msg[], { upTo = msgs.length, phon
       // in the gap next to the sender, so it never covers a lane it passes
       const cy = down ? y1 + gap / 2 : y1 - gap / 2, chars = Math.floor((w - PAD - (ax + 18) - fs * 1.5) / (fs * .62));
       const cx = (ax + 18 + w - PAD) / 2;
-      s += wrap(i, arrow(m.from, m.to, ax, y1 + (down ? 4 : -4), ax, y2, m.kind === 'blocked') + card(m, i, cx, cy, fs, chars, 0, top(a) + band / 2 - cy));
+      // shortcut: the phone view shows one message, so a parallel batch is named in the label only, not bracketed
+      s += wrap(i, arrow(m.from, m.to, ax, y1 + (down ? 4 : -4), ax, y2, m.kind === 'blocked') + card(m, i, cx, cy, fs, chars, 0, top(a) + band / 2 - cy, name(m, i)));
     }
     return { svg: s, w, h };
   }
-  const { w, head, row, fs, chars } = DESK, lw = (w - PAD * 2) / lanes.length;
-  const h = PAD + head + 34 + msgs.length * row + PAD, cx = (i: number) => PAD + lw * (i + .5);
+  const { w, head, row, fs, chars, hint } = DESK, lw = (w - PAD * 2) / lanes.length;
+  // a long run shows its latest `win` rows; the band above them says how many came earlier (the drawer has them all)
+  const more = msgs.length > win, rows = Math.min(msgs.length, win), first = PAD + head + 34 + (more ? hint : 0);
+  const h = first + rows * row + PAD, cx = (i: number) => PAD + lw * (i + .5);
+  const start = Math.max(0, upTo - win), rowY = (i: number) => first + (i - start) * row;
   let s = lanes.map((l, i) => lane(l.id, l.name, pal(i), PAD + lw * i + 5, PAD, lw - 10, h - PAD * 2, fs, false)).join('');
-  msgs.slice(0, upTo).forEach((m, i) => {
-    const x1 = cx(idx(m.from)), x2 = cx(idx(m.to)), y = PAD + head + 34 + i * row, sx = Math.sign(x2 - x1);
+  if (start > 0) s += `<g class="earlier">${flatPill(w / 2, PAD + head + 18, `↑ ${start} earlier message${start === 1 ? '' : 's'}`, fs)}</g>`;
+  msgs.slice(start, upTo).forEach((m, j) => {
+    const i = start + j, x1 = cx(idx(m.from)), x2 = cx(idx(m.to)), y = rowY(i), sx = Math.sign(x2 - x1);
     const half = Math.min(textW(MARK[m.kind] + fit(m.text, chars - MARK[m.kind].length), fs), w - PAD * 2 - 8) / 2;
     const mid = Math.max(PAD + 4 + half, Math.min(w - PAD - 4 - half, (x1 + x2) / 2));
-    s += wrap(i, card(m, i, mid, y, fs, chars, x1 - mid, 0) + arrow(m.from, m.to, x1 + sx * 4, y + fs * 1.2 + 9, x2 - sx * 3, y + fs * 1.2 + 9, m.kind === 'blocked'));
+    s += wrap(i, card(m, i, mid, y, fs, chars, x1 - mid, 0, name(m, i)) + arrow(m.from, m.to, x1 + sx * 4, y + fs * 1.2 + 9, x2 - sx * 3, y + fs * 1.2 + 9, m.kind === 'blocked'));
   });
+  // parallel batches: a bracket down the left edge, with a pill, over the rows that went out together
+  for (let i = start; i < upTo; i++) {
+    const b = msgs[i].batch;
+    if (b === undefined || msgs[i - 1]?.batch === b && i > start) continue;
+    let j = i;
+    while (j + 1 < upTo && msgs[j + 1].batch === b) j++;
+    if (j === i) continue;
+    const y0 = rowY(i) - 13, y1 = rowY(j) + 22, x = PAD + 10;
+    s += `<g class="batch" data-batch="${b}" data-n="${j - i + 1}">${ink(`M${f(x + 6)} ${f(y0)}L${f(x)} ${f(y0)}L${f(x)} ${f(y1)}L${f(x + 6)} ${f(y1)}`, 1.6)}`
+      + flatPill(x + 26, (y0 + y1) / 2, 'AT ONCE', fs * .85) + '</g>';
+  }
   return { svg: s, w, h };
 }
 
 /** The figure in words, for its aria-label: the lanes, then every message shown so far. */
 export function flatLabel(lanes: Lane[], msgs: Msg[], upTo = msgs.length): string {
-  const name = (id: string) => lanes.find(l => l.id === id)?.name ?? id;
   const head = `Sequence across ${lanes.length} lanes: ${lanes.map(l => l.name).join(', ')}.`;
   if (upTo <= 0) return `${head} No messages yet.`;
   const said = msgs.slice(0, upTo).map((m, i) =>
-    `${i + 1}: ${name(m.from)} to ${name(m.to)}, ${m.kind}, "${m.text}"${m.stamp ? `, stamped ${m.stamp.toLowerCase()}` : ''}.`);
+    `${i + 1}: ${nameOf(lanes, m.from)} to ${nameOf(lanes, m.to)}, ${m.kind}, "${m.text}"${m.stamp ? `, stamped ${m.stamp.toLowerCase()}` : ''}${m.batch !== undefined ? ', sent at once with the others in its batch' : ''}.`);
   return `${head} ${Math.min(upTo, msgs.length)} of ${msgs.length} messages so far. ${said.join(' ')}`;
 }

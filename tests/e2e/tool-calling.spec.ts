@@ -1,4 +1,5 @@
 // U8: module 2's intro (R7, R16, R17, R27) and its place in the catalogue.
+import { readFileSync } from 'node:fs';
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { moduleOf } from '../../src/lib/modules';
@@ -102,9 +103,13 @@ test('chapter 2: the vague description gets no call and a guess; the clear one g
 test('chapter 3: INVALID and an error result; then a valid wrong id passes the schema and fails the ownership check', async ({ page }) => {
   await toolWalker(page, 'mouse').open('03-valid-isnt-correct');
   await card(page).getByRole('radio', { name: /Rejects it/ }).click();
-  await playAll(page);
+  for (let i = 0; i < 4; i++) await player(page).click();   // up to the error going back, while it is in the window
   await expect(wide(page).locator('.stamp')).toHaveText('INVALID');
   await expect(wide(page).locator('.card.error')).toHaveCount(1);
+  await playAll(page);
+  // the run outgrows the figure's window; the label and the drawer keep every message
+  await expect(wide(page)).toHaveAttribute('aria-label', /stamped invalid/);
+  await expect(drawer(page).locator('li[data-kind="error"]')).toHaveCount(1);
   await expect(drawer(page)).toContainText('isError: true');
   await expect(card(page)).toContainText('AS YOU PREDICTED');
 
@@ -123,11 +128,13 @@ test('chapter 3: INVALID and an error result; then a valid wrong id passes the s
   await expect(wide(page)).toContainText('order 1042: delivered');
 });
 
-test('chapters 1–3 complete by mouse', async ({ page }) => {
+test('every chapter completes by mouse', async ({ page }) => {
+  test.setTimeout(120_000);
   await walkToolCalling(page, 'mouse');
 });
 
-test('chapters 1–3 complete by keyboard only', async ({ page }) => {
+test('every chapter completes by keyboard only', async ({ page }) => {
+  test.setTimeout(120_000);
   await walkToolCalling(page, 'keyboard');
 });
 
@@ -165,8 +172,195 @@ for (const c of M.chapters) {
   });
 }
 
-test('chapters 1–3 complete at 390px without sideways scroll', async ({ page }) => {
-  test.setTimeout(90_000);
+test('every chapter completes at 390px without sideways scroll', async ({ page }) => {
+  test.setTimeout(180_000);
   await page.setViewportSize({ width: 390, height: 844 });
   await walkToolCalling(page, 'mouse', async p => expect(await p.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390));
+});
+
+// U10: chapters 4–6, and the figure's windowing and message drawer.
+const NOTE: string = JSON.parse(readFileSync('data/tool-calling/orders.json', 'utf8')).find((o: { injected?: boolean }) => o.injected).note;
+const btn = (page: Page, name: string | RegExp) => card(page).getByRole('button', { name }).click();
+const step = (page: Page, n: number) => expect(card(page)).toContainText(`Step ${n} of`);
+const label = (page: Page) => wide(page).getAttribute('aria-label').then(l => l ?? '');
+
+test('chapter 3: the last run shows its latest 7 messages at a readable size, all of them in the drawer', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const w = toolWalker(page, 'mouse');
+  await w.open('03-valid-isnt-correct');
+  await w.ch3();
+  await expect(wide(page).locator('.card')).toHaveCount(7);
+  await expect(wide(page).locator('.earlier')).toContainText('earlier messages');
+  // rendered card text: font-size in the figure times the svg's scale on screen
+  const px = await wide(page).evaluate((svg: SVGSVGElement) => {
+    const t = svg.querySelector('.card text')!;
+    return +t.getAttribute('font-size')! * svg.getScreenCTM()!.a;
+  });
+  expect(px).toBeGreaterThanOrEqual(12);
+  await card(page).getByRole('button', { name: 'Inspect' }).click();
+  await expect(drawer(page).locator('.tc-msgs li')).toHaveCount(12);
+});
+
+test('a message card opens the drawer on that message; Escape and × close it and focus returns to the card', async ({ page }) => {
+  await toolWalker(page, 'mouse').open('02-first-tool');
+  await card(page).getByRole('button', { name: /^Open the get_order/ }).click();
+  await card(page).getByRole('radio', { name: /calls no tool/ }).click();
+  await card(page).getByRole('button', { name: 'Run the request' }).click();
+  const second = wide(page).getByRole('button', { name: /^Message 2, Host app to Model/ });
+  await second.click();
+  await expect(drawer(page).getByRole('heading', { name: 'Messages' })).toBeFocused();
+  await expect(drawer(page).locator('li[data-picked]')).toContainText('2. Host app → Model');
+  await page.keyboard.press('Escape');
+  await expect(drawer(page)).toHaveCount(0);
+  await expect(second).toBeFocused();
+  // by keyboard: Enter on the focused card, then the close button
+  await second.press('Enter');
+  await expect(drawer(page).getByRole('heading', { name: 'Messages' })).toBeFocused();
+  await drawer(page).getByRole('button', { name: 'Close Messages' }).click();
+  await expect(drawer(page)).toHaveCount(0);
+  await expect(second).toBeFocused();
+});
+
+test('on a phone the drawer opened from a card is a bottom sheet', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await toolWalker(page, 'mouse').open('01-answers-arent-actions');
+  await card(page).getByRole('button', { name: /^Ask/ }).click();
+  await page.locator('.stage svg.flat-phone [data-msg][role="button"]').click();
+  const sheet = page.locator('.drawer.sheet');
+  await expect(sheet).toBeVisible();
+  expect(await sheet.evaluate(el => getComputedStyle(el).position)).toBe('fixed');
+  const box = (await sheet.boundingBox())!;
+  expect(Math.round(box.y + box.height)).toBe(844);
+  const serious = (await new AxeBuilder({ page }).analyze()).violations.filter(v => v.impact === 'serious' || v.impact === 'critical');
+  expect(serious.map(v => v.id)).toEqual([]);
+});
+
+test('chapter 4: two lookups go out at once; the refund waits for the total; a lower cap stops the loop with a reason', async ({ page }) => {
+  await toolWalker(page, 'mouse').open('04-many-steps');
+  await card(page).getByRole('radio', { name: /Both calls in one turn/ }).click();
+  await playAll(page);
+  await step(page, 3);
+  const batches = wide(page).locator('.batch');
+  await expect(batches.first()).toBeVisible();
+  expect(await batches.evaluateAll(bs => bs.map(b => b.getAttribute('data-n')))).toContain('2');
+  expect(await label(page)).toMatch(/get_order\(order_id: 1042\)", sent at once.*get_order\(order_id: 1043\)", sent at once/);
+
+  await btn(page, 'Now a refund →');
+  await card(page).getByRole('radio', { name: /^Yes: both in one turn/ }).click();
+  await playAll(page);
+  await step(page, 6);
+  await expect(card(page)).toContainText('NOT WHAT YOU PREDICTED');
+  await expect(wide(page).locator('.batch')).toHaveCount(0);
+  const l = await label(page);
+  expect(l.indexOf('order 1042: delivered')).toBeGreaterThan(-1);
+  expect(l.indexOf('issue_refund(')).toBeGreaterThan(l.indexOf('order 1042: delivered'));   // the refund comes after the total
+
+  await btn(page, '− Fewer');
+  await expect(card(page).locator('.tc-status')).toContainText('Finished');   // a cap of 2 still fits both calls
+  await btn(page, '− Fewer');
+  await step(page, 7);
+  await expect(wide(page).locator('.stamp')).toContainText(['STOPPED']);
+  await expect(wide(page)).toContainText('Stopped: cap of 1 call');
+  await expect(card(page)).toContainText('too many calls');
+  await expect(wide(page).locator('.arrow[data-to="orders"]')).toHaveCount(1);   // only the lookup ran
+});
+
+test('chapter 5: integration counts follow the numbers; connecting shows server/discover then tools/list, no initialize', async ({ page }) => {
+  await toolWalker(page, 'mouse').open('05-mcp');
+  const more = (g: string) => card(page).getByRole('group', { name: g }).getByRole('button', { name: '+ More' }).click();
+  const count = (k: string) => card(page).locator(`[data-count="${k}"] b`);
+  await expect(count('without')).toHaveText(String(1 * 2));
+  await more('AI apps');
+  await more('AI apps');
+  await more('Systems with tools');
+  await expect(count('without')).toHaveText(String(3 * 3));
+  await more('Systems with tools');
+  await step(page, 2);
+  await expect(count('without')).toHaveText(String(3 * 4));
+  await card(page).getByRole('radio', { name: /each app builds its MCP side once/ }).click();
+  await card(page).getByLabel(/Use MCP/).click();
+  await step(page, 4);
+  await expect(count('with')).toHaveText(String(3 + 4));
+  await expect(page.locator('.stage svg[role="img"]')).toHaveAttribute('aria-label', /one MCP plug on each, 7 integrations/);
+  await expect(page.locator('.stage .tc-tabs')).toHaveCount(0);   // one figure, chosen by the step
+
+  await btn(page, /^Connect the Larkspur orders server/);
+  await step(page, 5);
+  // the step switches to the messages; the reader may switch back
+  await expect(wide(page)).toBeVisible();
+  const l = await label(page);
+  expect(l).toMatch(/1: Host app to Larkspur orders, request, "server\/discover"\. 2: .*3: Host app to Larkspur orders, request, "tools\/list"/);
+  expect(l).not.toContain('initialize');
+  await page.locator('.tc-tabs').getByRole('button', { name: 'Picture' }).click();
+  await expect(page.locator('.stage svg[role="img"]')).toHaveAttribute('aria-label', /Connected: Larkspur orders\./);
+  await expect(wide(page)).toHaveCount(0);
+  await page.locator('.tc-tabs').getByRole('button', { name: /^Messages/ }).click();
+  await btn(page, /^Connect the Larkspur calendar server/);
+  await btn(page, /^Read the refund policy/);
+  await btn(page, /^Get the refund_request prompt/);
+  await step(page, 7);
+  await expect(drawer(page)).toContainText('"method": "resources/read"');
+  await expect(drawer(page)).toContainText('"method": "prompts/get"');
+  await expect(drawer(page)).not.toContainText('initialize');
+  const serious = (await new AxeBuilder({ page }).analyze()).violations.filter(v => v.impact === 'serious' || v.impact === 'critical');
+  expect(serious.map(v => v.id)).toEqual([]);
+});
+
+test('chapter 6, AE5: denying the refund at the gate advances and the denied-call turn plays', async ({ page }) => {
+  await toolWalker(page, 'mouse').open('06-when-tools-go-wrong');
+  await playAll(page);
+  await step(page, 2);
+  await expect(wide(page).locator('.stamp')).toContainText(['WAITING']);
+  await btn(page, 'Deny');
+  await expect(wide(page).locator('.stamp')).toContainText(['DENIED']);
+  await playAll(page);
+  await step(page, 3);
+  await expect(card(page)).toContainText('You denied it, and the assistant said: “I could not issue the refund. It was declined at approval');
+  // least privilege: the narrowed tool refuses
+  await btn(page, '− Lower');
+  await expect(wide(page).locator('.stamp')).toHaveCount(0);   // $500 still fits the $310 refund
+  await btn(page, '− Lower');
+  await step(page, 4);
+  await expect(wide(page).locator('.stamp')).toContainText(['REFUSED']);
+  await expect(card(page)).toContainText('over this tool\'s limit of $100.00');
+});
+
+test('chapter 6, AE6: gate off, the planted note changes the ledger; gate on, it waits; approving shows the damage and does not advance', async ({ page }) => {
+  await toolWalker(page, 'mouse').open('06-when-tools-go-wrong');
+  await playAll(page);
+  await btn(page, 'Approve');
+  await playAll(page);
+  await btn(page, '− Lower');
+  await btn(page, '− Lower');
+  await step(page, 4);
+  await btn(page, 'Next request →');
+  await step(page, 5);
+  // the note is plain text: no element is made from it
+  const quote = card(page).locator('[data-note]');
+  await expect(quote).toHaveText(NOTE);
+  expect(await quote.evaluate(el => el.children.length)).toBe(0);
+  await card(page).getByRole('radio', { name: /The model can follow the note/ }).click();
+  const row = page.locator('.tc-ledger tr[data-order="1047"]');
+  await expect(row).not.toHaveAttribute('data-changed');
+  await playAll(page);
+  await step(page, 7);
+  await expect(row).toHaveAttribute('data-changed', 'true');
+  await expect(row.locator('td').last()).toContainText('$5,000.00');
+  await expect(drawer(page).locator('pre').filter({ hasText: 'IMPORTANT SYSTEM MESSAGE' }).first()).toBeVisible();
+  expect(await drawer(page).locator('pre').evaluateAll(ps => ps.reduce((n, p) => n + p.children.length, 0))).toBe(0);
+
+  await card(page).getByLabel(/Approval gate/).check();
+  await playAll(page);
+  await step(page, 8);
+  await expect(wide(page).locator('.stamp')).toContainText(['WAITING']);
+  await expect(row).not.toHaveAttribute('data-changed');
+  await btn(page, 'Approve');
+  await playAll(page);
+  await expect(row).toHaveAttribute('data-changed', 'true');
+  await step(page, 8);   // approving does not advance
+  await expect(card(page).locator('.hint')).toContainText('Deny it instead');
+  await btn(page, 'Deny');
+  await playAll(page);
+  await step(page, 9);
+  await expect(row).not.toHaveAttribute('data-changed');
 });

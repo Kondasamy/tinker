@@ -9,7 +9,7 @@ import Drawer from './Drawer';
 export interface ControlProps<S> { state: S; apply: (next: S) => void; sync: (next: S) => void; focused: boolean }
 /** What the hero stage (canvas or scene) gets. `inspect` opens the drawer without changing the step;
  * `sync` applies a state the learner did not cause (it can advance the step but never counts as a failed try). */
-export interface StageProps<S> { state: S; apply: (next: S) => void; sync: (next: S) => void; focus?: string; inspect: (panel: string) => void }
+export interface StageProps<S> { state: S; apply: (next: S) => void; sync: (next: S) => void; focus?: string; inspect: (panel: string, sheet?: boolean) => void }
 export interface Panel<S> { title: string; render: (state: S, apply: (next: S) => void) => ReactNode }
 
 interface Props<S> {
@@ -29,11 +29,13 @@ interface Props<S> {
 export default function StepRunner<S>({ module = 'rag', chapter, steps, initial, controls, stage, panels = {}, inspectPanel, next, idleMs = 30_000 }: Props<S>) {
   const [run, dispatch] = useReducer((r: Run<S>, a: Action<S>) => reduce(steps, r, a), undefined, () => startRun(steps, initial));
   const [focusDrawer, setFocusDrawer] = useState(0);
+  const [sheet, setSheet] = useState(false);   // opened from the picture: a bottom sheet on phones
+  useEffect(() => setSheet(false), [run.index]);   // a step's own drawer flows below its card again
   const loaded = useRef(false);
   const step = steps[run.index];
   const apply = (state: S) => dispatch({ type: 'apply', state });
   const sync = (state: S) => dispatch({ type: 'sync', state });
-  const inspect = (panel: string) => { dispatch({ type: 'inspect', panel }); setFocusDrawer(n => n + 1); };
+  const inspect = (panel: string, fromStage = false) => { dispatch({ type: 'inspect', panel }); setSheet(fromStage); setFocusDrawer(n => n + 1); };
 
   const chapters = moduleOf(module).chapters;
   const n = chapters.findIndex(c => c.id === chapter), ch = chapters[n];
@@ -122,7 +124,7 @@ export default function StepRunner<S>({ module = 'rag', chapter, steps, initial,
           </div>
         </section>
         {panel && (
-          <Drawer title={panel.title} focusKey={focusDrawer} onClose={() => dispatch({ type: 'closeDrawer' })}>
+          <Drawer title={panel.title} focusKey={focusDrawer} sheet={sheet} onClose={() => { dispatch({ type: 'closeDrawer' }); setSheet(false); }}>
             {panel.render(run.state, apply)}
           </Drawer>
         )}

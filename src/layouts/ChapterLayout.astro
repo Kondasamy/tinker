@@ -166,5 +166,9 @@ const m = moduleOf(module);
     .stage { min-height: 0; padding: 8px; }
     /* the drawer follows the step card in the page flow: a sticky sheet would cover the step's controls */
     .drawer { scroll-margin-top: 12px; }
+    /* opened from a message card in the picture: a bottom sheet over the page, closed by × or Escape (R21) */
+    .drawer.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; max-height: 62dvh; overflow-y: auto;
+      border-radius: 14px 14px 0 0; border-bottom: 0; box-shadow: 0 -4px 0 var(--ink); }
+    .drawer.sheet header { position: sticky; top: -14px; background: var(--card); padding: 4px 0; }
   }
 </style>

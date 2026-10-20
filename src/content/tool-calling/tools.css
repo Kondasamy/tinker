@@ -12,3 +12,39 @@
 .tc-pick legend { font-size: 14px; margin-bottom: 6px; padding: 0; }
 .tc-pick label, .tc-check { display: flex; gap: 8px; align-items: flex-start; font-size: 13.5px; cursor: pointer; }
 .tc-pick input, .tc-check input { margin-top: 3px; accent-color: var(--ink); }
+.tc-msgs li[data-picked] { outline: 2px solid var(--acc); outline-offset: 3px; border-radius: 6px; }
+.tc-msgs .stamp { margin-right: 6px; }
+
+.tc-status { margin: 8px 0 0; font-size: 13.5px; }
+.tc-quote { margin: 6px 0 0; padding: 8px 10px; border-left: 3px solid var(--bad); background: var(--paper); font-size: 13.5px; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* a stepper: a few fixed values, down and up */
+.tc-stepper { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13.5px; }
+.tc-stepper .lbl { flex-basis: 100%; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tc-stepper output { min-width: 7ch; text-align: center; font-weight: 800; }
+.tc-stepper .chip:disabled { opacity: .4; cursor: default; box-shadow: none; }
+
+/* the ledger: plain text, changed rows marked by weight and a bar, not colour alone */
+.tc-ledger { width: 100%; border-collapse: collapse; font-size: 13.5px; background: var(--card); }
+.tc-ledger caption { text-align: left; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-bottom: 2px; }
+.tc-ledger th, .tc-ledger td { text-align: left; padding: 2px 8px; border-bottom: 1px solid var(--rule); }
+.tc-ledger tr[data-changed] { font-weight: 800; box-shadow: inset 4px 0 0 var(--bad); }
+
+/* a stage that shows one figure at a time in a fixed frame (R28); tabs where the reader may choose */
+/* desktop: the frame takes what the stage has left; phones: a fixed shape. Figures fill it and keep their own aspect. */
+.tc-stage { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+.tc-tabs { display: flex; gap: 6px; }
+.tc-frame { width: 100%; min-height: 0; display: flex; }
+.tc-frame > * { flex: 1; min-width: 0; min-height: 0; }
+.tc-frame .flat { display: flex; flex-direction: column; }
+.tc-frame svg, .tc-frame .flat svg { width: 100%; height: 100%; max-height: none; min-height: 0; flex: 1; }
+@media (min-width: 861px) {
+  .tc-stage { height: 100%; }
+  .tc-frame { flex: 1; }
+}
+@media (max-width: 860px) { .tc-frame { aspect-ratio: 600 / 520; } }
+.tc-count { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tc-count div { border: 1.5px solid var(--ink); border-radius: 10px; padding: 8px 10px; background: var(--card); }
+.tc-count b { display: block; font-size: 26px; line-height: 1.1; }
+.tc-count span { font-size: 12.5px; color: var(--muted); }
+@media (max-width: 599px) { .tc-frame { aspect-ratio: 300 / 380; } }

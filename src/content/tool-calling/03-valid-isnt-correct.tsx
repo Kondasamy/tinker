@@ -14,7 +14,7 @@ import { ORDERS } from '../../lib/tools/server';
 import { fact } from '../../lib/tools/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Fact, Messages, Outcome, Play, ToolDef, GET_ORDER } from './kit';
+import { Fact, Messages, Outcome, Play, ToolDef, GET_ORDER, openMessage } from './kit';
 
 const MODULE = 'tool-calling', ID = '03-valid-isnt-correct';
 const LANES = toolLanes();
@@ -114,7 +114,7 @@ export default function ValidIsntCorrect() {
       steps={STEPS}
       initial={{ scene: 'invalid', shown: 0, p1: null, p2: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => <FlatStage lanes={LANES} msgs={MSGS[state.scene]} upTo={state.shown} />}
+      stage={({ state, inspect }) => <FlatStage lanes={LANES} msgs={MSGS[state.scene]} upTo={state.shown} onPick={openMessage(inspect)} />}
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         p2: ({ state, apply }) => <Predict {...P2} value={state.p2} onPredict={i => apply({ ...state, p2: i })} />,
