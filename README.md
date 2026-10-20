@@ -52,6 +52,8 @@ More modules will live beside it, each at `/<module>/`.
 | `src/lib/iso/` | The drawing engine (Colorfigures, adapted) and the isometric stage, shared by every module |
 | `src/components/story/` | The step runner every chapter uses: the live picture on the left, the story column on the right |
 
+Decisions behind the design (layout, story rules, pictures, share images, tooling) are recorded in [AGENTS.md](AGENTS.md); read it before changing things.
+
 **Adding a module:** give it its own folder under `src/pages/<module>/` and `src/content/<module>/`, reuse `src/lib/iso/` for pictures and `StepRunner` for the story, and add a card for it on the Tinker home.
 
 ---
@@ -84,6 +86,14 @@ pnpm test:e2e                           # end-to-end, accessibility, mobile and 
 ```
 
 `pnpm test:e2e` builds the site and starts its own preview server on port 4399.
+
+### Share images
+
+Every public page has its own 1200×630 share image in `public/og/`. After changing a page's title or text (`src/lib/pages.ts`), a chapter, or a share picture, redraw them and commit the result:
+
+```bash
+pnpm og     # builds with the dev pages, captures src/dev/og.astro for each page into public/og/<page>.jpg
+```
 
 ### Regenerating the data (only when the corpus or questions change)
 

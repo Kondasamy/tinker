@@ -1,0 +1,89 @@
+# AGENTS.md
+
+Decisions for anyone (human or agent) changing this repo. Each one is here because it was chosen on purpose; change it only on purpose.
+
+## What this is
+
+- **Tinker**: hand-drawn, interactive explanations of tech concepts, by **Kondasamy Jayaraman** (https://kondasamy.com). Served at **https://explain.kondasamy.com** (`site` in `astro.config.mjs`). GitHub: `Kondasamy/tinker`.
+- A platform of **modules**. Each module is one concept told as a playable story at `/<module>/`. **RAG** is module 1, at `/rag/`.
+- Audience: product managers, engineers and analysts at companies adopting the technology. Assume no background; keep any maths optional.
+- Static Astro + React islands site: no backend, no API key, no live model. Anything "live" runs in the browser over data built ahead of time.
+
+## Credit (required)
+
+The pictures use **Colorfigures by April Zhu** (https://april-zhu.com/colorfigures), which grew from her ISO-GLOW, which builds on iso-figure by Tolga Cohce. All MIT. Keep the credit:
+
+- on every chapter page header ("drawn with Colorfigures by April Zhu");
+- in the footer of the home page and of every module intro;
+- in the README Credits section, and `src/lib/iso/LICENSE` with the engine.
+
+Author credit is always the full name, **Kondasamy Jayaraman**, linked to kondasamy.com.
+
+## Pages and their jobs
+
+| Page | Job |
+|---|---|
+| `/` (`src/pages/index.astro`) | What Tinker is, the module cards, how every module plays, credits. Shows RAG progress and "Continue". |
+| `/<module>/` (e.g. `src/pages/rag/index.astro`) | Sets the module's context before chapter 1: the idea in one example, how it works, the story's company, the chapter path. Built from the module's own data, never placeholder text. |
+| `/<module>/<chapter>/` | One chapter: live picture + story column (below). |
+
+Marketing pages share `src/styles/page.css` (buttons, kickers, chips, top bar, credits). Chapter pages use `src/layouts/ChapterLayout.astro`.
+
+**CSS:** layout-level rules that style elements inside components (e.g. sizing every `svg` in the stage) go in `:where(...)` so component rules always win. Same-specificity rules otherwise depend on the order Astro bundles the CSS, which changes as pages are added (this once made the chapter 6 graph walk overlap a block). Dev-only pages use scoped styles, never `is:global`: dev pages are bundled into `DEV_PAGES` builds, and global rules leak into real pages.
+
+## Chapter page layout
+
+- **Wide screens (≥ 861px): an app frame.** The picture holds still on the left; the story column on the right scrolls on its own. Phones stack the picture above the story.
+- **The story column opens with context**, before step 1: chapter number, title, the story so far, the chapter's question, "You will learn", "Words you'll meet". This lives in `CHAPTERS[].intro` (`src/lib/chapters.ts`). Never drop a reader straight into a step.
+- **Finished steps stay visible** as a ticked "story so far" log above the current step card; the current step scrolls into view when it changes.
+- Steps are run by `StepRunner` (`src/components/story/`): narration, the one control the step needs, a predicate that advances it, hints after 3 misses, "Show me" for puzzles, progress in `localStorage`.
+
+## Story and content rules
+
+- **One story per module.** RAG: you join the team building an AI assistant for **Larkspur Supply Co.**, a fictional hardware company. (An early "noir detective" concept was dropped; the files in `research/` are background, not the design.)
+- **Every fact comes from the data.** History numbers come from `data/history/timeline.json` (with sources). Answers are the recorded ones in `data/answers/`. Counts come from the built index (`public/data/index/manifest.json`). Do not type numbers or answers into page copy by hand; import them.
+- Plain words, short sentences, one idea per step. Define a term the first time it appears (and add it to the chapter's `terms`).
+
+## Pictures
+
+- **Style:** Colorfigures: flat three-tone shading, heavy ink silhouettes, flat blue shadows, warm paper. Palette in `src/styles/tokens.css` and `PALS` in the engine.
+- **Engine:** `src/lib/iso/core.js` is upstream Colorfigures (`https://april-zhu.com/colorfigures/colorfigures.tar.gz`, `assets/core.js`) with exports added. Keep upstream code as written; mark each local change with an `adapted:` comment. Local changes: `withFrame()` (per-stage origin, ink scale, light, id prefix, view and centre), any-angle view turns (`VIEW` may be fractional), `unrotXY`, `inkK()`, and a `scale` argument on `tag()`. To sync: diff upstream `core.js` against ours and reapply the adaptations.
+- **Text in pictures goes in label pills** (`tag()` / `blockTag()`), never as small text painted on faces: face text was unreadable. Pills float at one height so neighbours form a row (`even`), sit low for the track's side bays, are larger on phones (`scale` 2, name only), and let clicks pass through (`pointer-events="none"`).
+- **3D view (RAG canvas only):** turn buttons, drag-to-orbit, zoom (buttons, pinch) and pan when zoomed. Part turns are fitted inside the whole-turn frame so the page never resizes. Labels and front-mounted parts move to the faces toward the viewer. The chapter 1–2 scenes keep the fixed front view (their glass drawing assumes it).
+- A "See inside" (x-ray glass blocks) mode was built and **rejected**; don't bring it back.
+
+## Share images (OG)
+
+- **Every public page has its own 1200×630 share image**: `public/og/<og>.jpg`, referenced by `Meta.astro` (`og:image`, `twitter:card = summary_large_image`, canonical URL). An e2e test fails if a page has none, or two pages share one.
+- Titles, descriptions and the image text all come from **`src/lib/pages.ts`** (`HOME`, `RAG`, `chapterMeta`), so a page and its image never disagree.
+- The images are drawn by the dev-only template `src/dev/og.astro`, each with the page's own picture (home: the full pipeline; RAG: the minimal pipeline; chapter 1: the timeline; chapter 2: the overflowing window; chapters 3–7: the track as of that chapter).
+- **Regenerate with `pnpm og`** after changing a page's text, a chapter list or a share picture, and commit the JPEGs. JPEG at quality 88 (the paper grain makes PNGs ~4× bigger).
+- **A new public page needs:** a `PageMeta` in `pages.ts` (and in `ALL_PAGES`), `<Meta {...meta} />` in its `<head>`, a picture case in `og.astro` if it is not a chapter, then `pnpm og`.
+
+## Tooling
+
+- **pnpm 11** (`packageManager`), **Node 22.23.1** (`.node-version`; Astro 7 needs ≥ 22.22). Install scripts of `onnxruntime-node` and `protobufjs` are off in `pnpm-workspace.yaml` (not needed).
+- **The dev server has its own Vite cache (`node_modules/.vite-dev`).** `astro build` and `astro check` pre-bundle production React into the shared cache, which made a running dev server crash with `_jsxDEV is not a function` (figures flashed and vanished). Keep the `dev-cache` integration in `astro.config.mjs`.
+- Dev-only pages (`/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/og/*`) exist in `astro dev` or with `DEV_PAGES=1`; production builds leave them out.
+- The RAG index in `public/data/index/` is committed. Only rebuild it (`pnpm build:index`) after editing `data/corpus/` or `data/questions/`, never on a host.
+
+## Checks before you call it done
+
+```bash
+pnpm check       # types: 0 errors, 0 warnings
+pnpm test        # unit (Vitest)
+pnpm test:e2e    # every chapter played through, axe, keyboard only, reduced motion, phone, offline, share images
+```
+
+Look at the pages you changed (desktop and 390px wide), not just the tests. New behaviour gets a test.
+
+## Adding a module
+
+1. `src/pages/<module>/index.astro` (intro, same sections as RAG's) and one page per chapter using `ChapterLayout` + `StepRunner`.
+2. Chapter list with an `intro` per chapter, a story, and data files the copy imports.
+3. A card on the home page (replace the "In the workshop" card), `PageMeta` entries and share images (`pnpm og`).
+4. Reuse `src/lib/iso/` for pictures and label pills; keep the Colorfigures credit.
+
+## Commits
+
+Conventional commits (`feat:`, `fix:`, `docs:`, `chore:`), one logical change each. Work on a branch and open a PR to `main`.
