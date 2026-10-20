@@ -45,6 +45,18 @@ test('Continue resumes the last module at its first unfinished chapter', async (
   await expect(go).toHaveText('Continue RAG: chapter 3 →');
 });
 
+test('with only a later chapter done, Continue goes to chapter 1 and says so', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => {
+    localStorage.setItem('rag-progress-v1', JSON.stringify({ done: ['02-why-not-stuff-it'], saved: {} }));
+    localStorage.setItem('tinker-last-module', 'rag');
+  });
+  await page.reload();
+  const go = page.locator('[data-continue]');
+  await expect(go).toHaveAttribute('href', '/rag/01-history/');
+  await expect(go).toHaveText('Continue RAG: chapter 1 →');
+});
+
 test('with no storage, Continue opens the RAG intro', async ({ page }) => {
   await page.addInitScript(() => Object.defineProperty(window, 'localStorage', { get() { throw new Error('blocked'); } }));
   await page.goto('/');

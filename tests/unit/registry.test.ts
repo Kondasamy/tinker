@@ -39,6 +39,14 @@ function missing(m: Module, pages: PageMeta[], fs: Probe): string[] {
   for (const c of m.chapters) if (bank.length && !bank.some(i => i.chapter === c.id)) no(`recall items for chapter ${c.id}`);
   const pins = bank.filter(i => i.pin).length;
   if (bank.length && pins !== 1) no(`exactly one pinned recall item (has ${pins})`);
+  if (pins === 1 && !bank[0].pin) out.push(`${m.id}: recall item ${bank.find(i => i.pin)!.id} is pinned but not first in the bank`);
+  for (const [n, i] of bank.entries()) {
+    const bad = (what: string) => out.push(`${m.id}: recall item ${i.id} ${what}`);
+    if (bank.findIndex(j => j.id === i.id) !== n) { out.push(`${m.id}: recall item id ${i.id} is used more than once`); continue; }
+    if (!Number.isInteger(i.correct) || i.correct < 0 || i.correct >= i.options.length) bad(`has correct index ${i.correct}, outside its ${i.options.length} options`);
+    if (i.why.length !== i.options.length) bad(`has ${i.why.length} why lines for ${i.options.length} options`);
+    if (new Set(i.options).size !== i.options.length) bad('repeats an option');
+  }
   if (!fs.specs.some(s => s.includes(`/${m.id}/`))) no(`an e2e spec in tests/e2e that visits /${m.id}/`);
   return out;
 }
@@ -107,6 +115,19 @@ describe('the registry rules themselves', () => {
     expect(missing({ ...FAKE, recall: undefined }, PAGES, files()())).toEqual(['fake: missing a recall bank (src/content/<module>/recall.ts, set as `recall` in module.ts)']);
     expect(missing({ ...FAKE, recall: [item('x', '01-a', true)] }, PAGES, files()())).toEqual(['fake: missing recall items for chapter 02-b']);
     expect(missing({ ...FAKE, recall: [item('x', '01-a', true), item('y', '02-b', true)] }, PAGES, files()())).toEqual(['fake: missing exactly one pinned recall item (has 2)']);
+  });
+
+  it('fails a recall item with a bad correct index, a why line per option short, or a repeated option', () => {
+    const bad = (patch: object) => missing({ ...FAKE, recall: [item('x', '01-a', true), { ...item('y', '02-b'), ...patch }] }, PAGES, files()());
+    expect(bad({ correct: 2 })).toEqual(['fake: recall item y has correct index 2, outside its 2 options']);
+    expect(bad({ correct: 0.5 })).toEqual(['fake: recall item y has correct index 0.5, outside its 2 options']);
+    expect(bad({ why: [''] })).toEqual(['fake: recall item y has 1 why lines for 2 options']);
+    expect(bad({ options: ['a', 'a'] })).toEqual(['fake: recall item y repeats an option']);
+  });
+
+  it('fails repeated recall item ids, and a pinned item that is not first', () => {
+    expect(missing({ ...FAKE, recall: [item('x', '01-a', true), item('x', '02-b')] }, PAGES, files()())).toEqual(['fake: recall item id x is used more than once']);
+    expect(missing({ ...FAKE, recall: [item('y', '02-b'), item('x', '01-a', true)] }, PAGES, files()())).toEqual(['fake: recall item x is pinned but not first in the bank']);
   });
 
   it('fails without an e2e spec or the Colorfigures credit', () => {

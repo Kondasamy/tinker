@@ -1,4 +1,4 @@
-// Pieces chapters 1–3 share: the message-by-message player, the drawer panels (full messages, the tool definition)
+// Pieces the tool-calling chapters share: the message-by-message player, the drawer panels (full messages, the tool definition)
 // and a cited fact. Every string here is rendered as React text (KTD12): tool results and model turns never become markup.
 import { useEffect, useRef } from 'react';
 import { STAMP_CLASS, type Lane } from '../../lib/iso/flat';

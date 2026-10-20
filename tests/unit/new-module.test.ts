@@ -35,4 +35,18 @@ describe('pnpm new-module', () => {
     expect(registry).toMatch(/\n {2}TOKENS_MODULE,\n {2}planned\('transformers'/);
     expect(registry).not.toContain("planned('tokens'");
   });
+
+  it('registers the module at the end of MODULES when no planned() card exists, and refuses when it cannot', () => {
+    const fixture = "import { RAG_MODULE } from '../content/rag/module';\n\nexport const MODULES: Module[] = [\n  RAG_MODULE,\n];\n\nconst x = [];\n";
+    expect(plan('demo', 'Demo', fixture).registry).toBe(
+      "import { RAG_MODULE } from '../content/rag/module';\nimport { DEMO_MODULE } from '../content/demo/module';\n\nexport const MODULES: Module[] = [\n  RAG_MODULE,\n  DEMO_MODULE,\n];\n\nconst x = [];\n");
+    const noList = "import { RAG_MODULE } from '../content/rag/module';\nexport const MODULES = [RAG_MODULE];\n";
+    expect(plan('demo', 'Demo', noList)).toEqual({ error: expect.stringMatching(/could not register "demo" in src\/lib\/modules\.ts/) });
+  });
+
+  it('copies a title with $ patterns and backslashes literally, as a valid string literal', () => {
+    const { files } = plan('zz-scaffold-check', 'A $& \\ b $\' c');
+    const text = files.find(([p]: [string]) => p.endsWith('module.ts'))[1];
+    expect(text).toContain("  title: 'A $& \\\\ b $’ c',");
+  });
 });

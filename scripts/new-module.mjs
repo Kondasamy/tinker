@@ -18,21 +18,27 @@ const walk = (dir, rel = '') => readdirSync(dir).flatMap(f => statSync(path.join
   ? walk(path.join(dir, f), path.join(rel, f)) : [[path.join(rel, f), readFileSync(path.join(dir, f), 'utf8')]]);
 
 /** The files and the new registry text for a module, or an error. Writes nothing. */
-export function plan(id, title) {
+export function plan(id, title, registry = readFileSync(REGISTRY, 'utf8')) {
   if (!/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(id ?? '')) return { error: `module id must be kebab-case (like tool-calling), got "${id ?? ''}"` };
   if (!title?.trim()) return { error: 'give the module a title: pnpm new-module <id> "<Title>"' };
   const CONST = id.toUpperCase().replace(/-/g, '_') + '_MODULE';
-  const fill = s => s.replaceAll('__ID__', id).replaceAll('__CONST__', CONST).replaceAll('__TITLE__', title.replace(/'/g, '’'));
+  // the title lands in a '...' string literal; replacer functions keep `$&` and friends literal
+  const safe = title.replace(/\\/g, '\\\\').replace(/'/g, '’');
+  const fill = s => s.replaceAll('__ID__', () => id).replaceAll('__CONST__', () => CONST).replaceAll('__TITLE__', () => safe);
   const files = walk(TEMPLATE).map(([rel, text]) => [fill(rel), fill(text)]);
   const taken = files.map(([rel]) => rel).filter(rel => existsSync(path.join(ROOT, rel)));
-  const registry = readFileSync(REGISTRY, 'utf8');
   if (taken.length || new RegExp(`id: '${id}'|from '../content/${id}/module'`).test(registry))
     return { error: `module "${id}" already exists${taken.length ? `: ${taken.join(', ')}` : ' in src/lib/modules.ts'}` };
   // import beside the other modules; the entry replaces a planned card of the same id, else goes before the planned ones
   const imports = [...registry.matchAll(/^import \{ \w+ \} from '\.\.\/content\/[\w-]+\/module';$/gm)].at(-1);
+  const unregistered = { error: `could not register "${id}" in src/lib/modules.ts: no module import, and no planned() card or \`export const MODULES = [\` list closed by \`];\`` };
+  if (!imports) return unregistered;
   const plannedLine = new RegExp(`^  planned\\('${id}',.*\\n`, 'm');
   let next = registry.slice(0, imports.index + imports[0].length) + `\nimport { ${CONST} } from '../content/${id}/module';` + registry.slice(imports.index + imports[0].length);
   next = plannedLine.test(next) ? next.replace(plannedLine, `  ${CONST},\n`) : next.replace(/^  planned\(/m, `  ${CONST},\n  planned(`);
+  // no planned() card to sit before: append to the end of MODULES
+  if (!next.includes(`\n  ${CONST},\n`)) next = next.replace(/(^export const MODULES\b[^\n]*\[\n[\s\S]*?)^\];/m, `$1  ${CONST},\n];`);
+  if (!next.includes(`\n  ${CONST},\n`)) return unregistered;
   return { files, registry: next };
 }
 
