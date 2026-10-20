@@ -175,4 +175,65 @@ export const RECALL: RecallItem[] = [
       'The printer agent with no plan refunded the planted order without a pause. The model followed the line it read.',
     ],
   },
+  // 4. Budgets and stuck loops
+  {
+    id: 'budget-stops-silently', chapter: '04-budgets',
+    question: 'A reporting agent’s database query keeps failing. The host’s only rule is a step budget of 20 turns. What does the analyst who asked for the report see at the end?',
+    options: [
+      'A note from the agent saying the query failed',
+      'Nothing from the agent: the budget ends the run with no last turn',
+      'The report, a little late',
+    ],
+    correct: 1,
+    why: [
+      'The agent only writes a note if it gets a turn to write it. A step budget ends the run at once, so the model never gets one.',
+      `Right. A budget is a backstop: it stops the run, and it never says why. ${fact('stopping-conditions').claim}`,
+      'Retrying the same failing query does not make it succeed. Without a working tool there is no report to send.',
+    ],
+  },
+  {
+    id: 'retries-cost-more', chapter: '04-budgets',
+    question: 'An agent retries a calendar lookup that keeps timing out, six times. Which of its turns sends the model the most tokens?',
+    options: [
+      'The first: the model reads the tools for the first time',
+      'None: each retry is the same call, so they cost the same',
+      'The last: every turn re-sends the whole history, every failed try included',
+    ],
+    correct: 2,
+    why: [
+      'The tools are re-sent every turn, not just the first. The first turn is the smallest: it has no history yet.',
+      'The call is the same, but the context is not. Each failed try adds its result to what the next turn re-sends.',
+      `Right. The history grows each turn, so a stuck loop gets more expensive the longer it runs. ${fact('agent-costs').claim}`,
+    ],
+  },
+  {
+    id: 'detector-needs-a-turn', chapter: '04-budgets',
+    question: 'A host stops a call that fails the same way 3 times in a row, and allows 3 turns per run. The agent’s very first call fails on all 3 turns. What happens?',
+    options: [
+      'The agent tells the user the call failed',
+      'The run ends out of steps: the detector fired on the last turn the budget allowed, so no turn is left to tell anyone',
+      'The detector waits until the budget is used up',
+    ],
+    correct: 1,
+    why: [
+      'Telling the user takes one more model turn after the detector fires. A budget of 3 has none left.',
+      'Right. The detector gives the model a “stopped” result and one last turn, but the budget is checked first. Leave room for that turn.',
+      'The two rules are separate. The detector fires as soon as it sees the third failure; the budget just counts turns.',
+    ],
+  },
+  {
+    id: 'stuck-is-not-done', chapter: '04-budgets',
+    question: 'A returns agent cannot reach the courier. The host stops the failing call, and the agent emails the customer that the pickup could not be booked. The run ends “stuck”. Is the case done?',
+    options: [
+      'Yes: the agent answered, so the case is closed',
+      'No: the customer knows, but the pickup still needs a person to book it',
+      'No: “stuck” means the run crashed and nothing was sent',
+    ],
+    correct: 1,
+    why: [
+      'The agent said what went wrong, which is not the same as fixing it. The pickup is still not booked.',
+      `Right. A stuck run hands the case back to people, with the customer already told. ${fact('human-checkpoints').claim}`,
+      'Nothing crashed: the host stopped one call on purpose, and the agent’s last turn sent the email.',
+    ],
+  },
 ];

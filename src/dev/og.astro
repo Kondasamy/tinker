@@ -60,6 +60,8 @@ const AGENT_OG: Record<string, ReturnType<typeof agentScene>> = {
   'agents-02-the-loop': agentScene({ run: LOOP_RUN, gauge: { steps: AGENT_DEFAULTS.steps, context: AGENT_CONTEXT }, scale: 1.5 }),
   // chapter 3: the plan on the clipboard after the stock-out, the replacement struck and the refund added
   'agents-03-plans': agentScene({ run: agentRun(AGENT_RECORDINGS['03-plans'], { case: 'damaged', stock: 'out', plan: true }), clipboard: true, scale: 1.5 }),
+  // chapter 4: the stuck loop with no detector, the gauge full at the step budget
+  'agents-04-budgets': agentScene({ run: agentRun(AGENT_RECORDINGS['04-budgets'], { repeat: null }), gauge: { steps: AGENT_DEFAULTS.steps, context: AGENT_CONTEXT }, scale: 1.5 }),
 };
 const agent = AGENT_OG[page.og];
 ---

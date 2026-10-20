@@ -1,4 +1,4 @@
-// Module 3, AI agents: the intro, chapters 1 and 2 played by mouse and by keyboard only, its own progress key, "I'm not
+// Module 3, AI agents: the intro, chapters 1 to 4 played by mouse and by keyboard only, its own progress key, "I'm not
 // sure", reduced motion, the recap, axe and phone width.
 import { test, expect, type Page } from '@playwright/test';
 import { moduleOf } from '../../src/lib/modules';
@@ -6,8 +6,9 @@ import { agentWalker, walkAgents } from './agents-flow';
 import { serious, layoutHolds, PHONE } from './helpers';
 import LOOP from '../../data/agents/turns/02-the-loop.json' with { type: 'json' };
 import PLANS from '../../data/agents/turns/03-plans.json' with { type: 'json' };
+import BUDGETS from '../../data/agents/turns/04-budgets.json' with { type: 'json' };
 
-const M = moduleOf('agents'), CH1 = M.chapters[0].id, CH2 = M.chapters[1].id, CH3 = M.chapters[2].id;
+const M = moduleOf('agents'), CH1 = M.chapters[0].id, CH2 = M.chapters[1].id, CH3 = M.chapters[2].id, CH4 = M.chapters[3].id;
 // chapter 2's recording is one path, one recorded turn per model turn
 const TURNS = Object.keys(LOOP.turns).length;
 const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
@@ -42,7 +43,7 @@ test('the chapters play by keyboard only; progress lands in agents-progress-v1 a
   await page.evaluate(o => { for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v); }, OTHERS);
   await walkAgents(page, 'keyboard');
   const store = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
-  expect(JSON.parse(store['agents-progress-v1']).done).toEqual([CH1, CH2, CH3]);
+  expect(JSON.parse(store['agents-progress-v1']).done).toEqual([CH1, CH2, CH3, CH4]);
   for (const [k, v] of Object.entries(OTHERS)) expect(store[k]).toBe(v);
   expect(store['tinker-last-module']).toBe('agents');
 });
@@ -163,6 +164,84 @@ test('chapter 3: the planted line. Rejecting leaves order 1043 unrefunded, appro
   await expect(page.locator('#module-guardrails.roadmap')).toBeVisible();
 });
 
+// chapter 4's "lookup failed" email, as recorded
+const EMAIL = Object.values(BUDGETS.turns).flatMap(t => ('calls' in t ? t.calls : []) as { name: string; arguments: { body?: string } }[]).find(c => c.name === 'send_email')!.arguments.body!;
+/** chapter 4 up to the puzzle: the open run, the cost prediction, the tighter budget */
+async function toPuzzle(page: Page) {
+  const w = agentWalker(page, 'mouse');
+  await w.open(CH4);
+  const c = card(page);
+  await c.getByRole('radio', { name: /^Tries once/ }).click();
+  await c.getByRole('button', { name: 'Run the case' }).click();
+  await c.getByRole('radio', { name: /^The same each turn/ }).click();
+  await c.getByRole('button', { name: '4 steps' }).click();
+  await expect(c).toContainText('Step 5 of');
+  return c;
+}
+const total = async (page: Page) => Number((await page.locator('.tc-caption').textContent())!.match(/([\d,]+) tokens in all/)![1].replaceAll(',', ''));
+
+test('chapter 4: with no detector the agent retries until the budget ends it; the token total on the stage equals the engine’s', async ({ page }) => {
+  const w = agentWalker(page, 'mouse');
+  await w.open(CH4);
+  const c = card(page), caption = page.locator('.tc-caption'), gauge = page.locator('.stage [data-prop="gauge"]');
+  await c.getByRole('radio', { name: /^Tries a few times/ }).click();
+  await c.getByRole('button', { name: 'Run the case' }).click();
+  await expect(caption).toContainText('Turn 12 of 12');
+  await expect(gauge).toHaveAttribute('data-steps', '1.000');
+  await expect(c).toContainText('Stopped: out of steps');
+  await expect(c).toContainText('What happened: Keeps retrying until the step budget stops it');
+  await c.getByRole('radio', { name: /^The same each turn/ }).click();
+  await expect(c).toContainText('What happened: More each turn');
+  // the meter: one row per turn, each sending more than the last; the stage's total is the engine's sum
+  const meter = c.locator('table[data-total]'), rows = meter.locator('tbody tr[data-tokens]');
+  await expect(rows).toHaveCount(12);
+  const sent = (await rows.locator('td:first-child').allTextContents()).map(t => Number(t.replaceAll(',', '')));
+  expect(sent.every((x, i) => i === 0 || x > sent[i - 1])).toBe(true);
+  const sum = (await rows.evaluateAll(r => r.map(x => Number(x.getAttribute('data-tokens'))))).reduce((a, b) => a + b, 0);
+  expect(await total(page)).toBe(Number(await meter.getAttribute('data-total')));
+  expect(sum).toBe(await total(page));
+  // a tighter budget stops sooner and cheaper, and still sends nothing
+  await c.getByRole('button', { name: '4 steps' }).click();
+  await expect(caption).toContainText('Turn 4 of 4');
+  await expect(c.locator('table[data-total] tbody tr[data-tokens]')).toHaveCount(4);
+  expect(await total(page)).toBe(Number(await c.locator('table[data-total]').getAttribute('data-total')));
+  expect(await total(page)).toBeLessThan(sum);
+});
+
+test('chapter 4: the puzzle passes only when the run ends stuck before the budget, with the recorded email; hints after three misses', async ({ page }) => {
+  const c = await toPuzzle(page);
+  const verdict = c.getByRole('status').filter({ hasText: /FIXED|BROKEN/ });
+  await expect(verdict).toContainText('BROKEN');
+  // the detector alone fires on the last turn the budget allows: no turn is left for the email
+  await c.getByRole('button', { name: 'Repeat detector: stop after 3' }).click();
+  await expect(verdict).toContainText('no turn left to tell the customer');
+  await c.getByRole('button', { name: 'Repeat detector: off' }).click();
+  await c.getByRole('button', { name: '12 steps' }).click();
+  await expect(verdict).toContainText('BROKEN');
+  await expect(c).toContainText('Step 5 of');
+  await expect(c.locator('.hint')).toContainText('Turn the repeat detector on');
+  await c.getByRole('button', { name: 'Repeat detector: stop after 3' }).click();
+  await expect(c).toContainText('Step 6 of');
+  await expect(c).toContainText(EMAIL);
+  await expect(c.locator('table tbody tr').last()).toContainText('Stuck, customer told');
+  await expect(page.locator('.tc-caption')).toContainText('Turn 5 of 12');
+});
+
+test('chapter 4: Show me sets a winning combination and advances', async ({ page }) => {
+  const c = await toPuzzle(page);
+  await c.getByRole('button', { name: 'Show me' }).click();
+  await expect(c).toContainText('Step 6 of');
+  await expect(c).toContainText(EMAIL);
+  await expect(c.locator('table tbody tr').last()).toContainText('Stuck, customer told');
+});
+
+test('chapter 4: the puzzle solves by keyboard only', async ({ page }) => {
+  const w = agentWalker(page, 'keyboard');
+  await w.open(CH4);
+  await w.ch4();
+  await expect(card(page).locator('[data-email]')).toContainText(EMAIL);
+});
+
 test('“I’m not sure” on the checkpoint reveals the answer, is no miss, and finishes the chapter', async ({ page }) => {
   const w = agentWalker(page, 'mouse');
   await w.open(CH1);
@@ -185,6 +264,8 @@ test.describe('reduced motion', () => {
     await w.ch2();
     await w.open(CH3);
     await w.ch3();
+    await w.open(CH4);
+    await w.ch4();
   });
 });
 
@@ -198,7 +279,7 @@ test('the recap asks from the finished chapters', async ({ page }) => {
 test.describe('phone', () => {
   test.use(PHONE);
   test('pages fit 390px wide, and the chapters play through there with axe clean', async ({ page }) => {
-    for (const p of ['/agents/', `/agents/${CH1}/`, `/agents/${CH2}/`, `/agents/${CH3}/`, '/agents/recap/']) {
+    for (const p of ['/agents/', `/agents/${CH1}/`, `/agents/${CH2}/`, `/agents/${CH3}/`, `/agents/${CH4}/`, '/agents/recap/']) {
       await page.goto(p);
       await layoutHolds(page);
     }

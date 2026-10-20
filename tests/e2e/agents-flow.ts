@@ -85,6 +85,24 @@ export function agentWalker(page: Page, mode: Mode, check: (page: Page) => Promi
       await opt(quiz);
       await finish(next);
     },
+    /** budgets: run the stuck loop, try a tighter budget, then solve the puzzle by hand (detector on, then room for one more turn) */
+    async ch4(next?: RegExp, quiz: string | RegExp = /^A repeat detector, with enough steps/) {
+      await opt(/^Keeps retrying until the step budget/);
+      await btn('Run the case');
+      await step(3);
+      await check(page);
+      await opt(/^More each turn/);
+      await step(4);
+      await btn('4 steps');
+      await step(5);
+      await btn('Repeat detector: stop after 3');
+      await expect(card).toContainText('BROKEN');
+      await btn('8 steps');
+      await step(6);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
     open,
   };
 }
@@ -95,5 +113,6 @@ export async function walkAgents(page: Page, mode: Mode, check?: (page: Page) =>
   await w.open('01-workflow-or-agent');
   await w.ch1(/\/agents\/02-the-loop\/$/);
   await w.ch2(/\/agents\/03-plans\/$/);
-  await w.ch3(/\/agents\/recap\/$/);
+  await w.ch3(/\/agents\/04-budgets\/$/);
+  await w.ch4(/\/agents\/recap\/$/);
 }

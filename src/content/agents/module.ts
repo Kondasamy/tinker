@@ -57,6 +57,24 @@ const CHAPTERS: Chapter[] = [
       ],
     },
   },
+  {
+    id: '04-budgets', title: 'Budgets and stuck loops', short: 'Budgets',
+    intro: {
+      story: 'In chapter 3 a person approved the agent’s plans, and a planted line got through only when nobody read them. Now a case goes wrong in a way no plan can fix: the carrier’s tracking system stops answering, and the agent keeps asking.',
+      goal: 'What stops an agent that keeps trying the same thing, and what does each try cost?',
+      learn: [
+        'Why an agent with a failing tool can retry until the host stops it',
+        'Why every turn costs more tokens than the one before',
+        'How a step budget and a repeat detector stop a stuck run, and why only the detector leaves the agent a turn to tell the customer',
+      ],
+      terms: [
+        ['Timeout', 'A tool call that gets no answer in time. The host returns it as an error result.'],
+        ['Stuck loop', 'An agent asking for the same failing call, turn after turn, without getting anywhere.'],
+        ['Token', 'A small piece of text, a word or part of one. Models read and write tokens, and every turn re-sends the whole context.'],
+        ['Repeat detector', 'A host rule: when the same call fails the same way several times in a row, stop running it and tell the model.'],
+      ],
+    },
+  },
 ];
 
 export const AGENTS_MODULE: Module = {
