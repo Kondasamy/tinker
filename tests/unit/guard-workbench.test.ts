@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { FEWEST, SINGLES, SMALLEST, WINNERS, score, solved } from '../../src/content/guardrails/05-defence-in-depth';
 import { COST, R } from '../../src/content/guardrails/06-when-the-user-is-the-attacker';
-import { SOLUTION, START, bench, clean, verdict, type Bench } from '../../src/content/guardrails/07-red-team';
-import { CASES, DOMAINS, INJECTION_SUITE, WORKBENCH_DOMAINS, attackMet, combos, run, stepsOf } from '../../src/lib/guardrails/loop';
+import { SOLUTION, START, bench, clean, verdict } from '../../src/content/guardrails/07-red-team';
+import { CASES, DOMAINS, INJECTION_SUITE, attackMet, combos, run, stepsOf } from '../../src/lib/guardrails/loop';
 import { RECORDING } from '../../src/lib/guardrails/turns';
 
 describe('chapter 5: defence in depth', () => {
@@ -58,13 +58,9 @@ describe('chapter 6: when the user is the attacker', () => {
 });
 
 describe('chapter 7: the red-team workbench', () => {
-  const { case: _, ...domain } = WORKBENCH_DOMAINS;
-  it('every combination of every control runs both suites without a norecord', () => {
-    for (const d of combos(domain)) {
-      const m = bench(d as Bench);
-      expect(m.runs.map(r => r.case)).toEqual(CASES);
-      for (const r of m.runs) expect(r.status, `${JSON.stringify(d)} ${r.case}`).toBe('done');
-    }
+  // every combination is replayed by guard-coverage.test.ts; here, one bench runs both suites in case order
+  it('a bench runs both suites, in case order', () => {
+    expect(bench(START).runs.map(r => r.case)).toEqual(CASES);
   });
 
   it('a blocked and an allowed contrast: the invoice’s send with and without the allow-list; the refund under on and strict', () => {

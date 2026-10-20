@@ -37,14 +37,14 @@ const IN = { a: [142, 156], b: [142, 222], n: [-1, 0] }, OUT = { a: [160, 114], 
 const ARCH_T = .5, BAR_T = .45, POST = [160, 54], TRAY = [76, 140], RECORDS = [196, 22];
 const at = (belt: typeof IN, t: number) => [belt.a[0] + (belt.b[0] - belt.a[0]) * t, belt.a[1] + (belt.b[1] - belt.a[1]) * t];
 /** Where a mail envelope rides: its belt, how far along (0 = host end), and which end it set off from. */
-export const ENV_AT = {
+const ENV_AT = {
   'to-mail': [IN, .78, 0],      // read_inbox asked for, or a reply going back to the sender
   'from-mail': [IN, .22, 1],    // the email, past the screening arch, on its way to the host
   held: [IN, ARCH_T + .18, 1],  // the email, stopped on the mail-room side of the arch
   out: [OUT, .82, 0],           // send_email, past the barrier, about to drop in the post box
   blocked: [OUT, BAR_T - .2, 0], // send_email, stopped on the host's side of the barrier
 } as const;
-export type Where = keyof typeof ENV_AT;
+type Where = keyof typeof ENV_AT;
 
 /** What the props show after `upTo` steps. Pure, so the tests can check it without drawing. */
 export function guardState({ run, upTo = run.steps.length, taint, remove = 'none' }: Pick<GuardOpts, 'run' | 'upTo' | 'taint' | 'remove'>) {
@@ -61,10 +61,9 @@ export function guardState({ run, upTo = run.steps.length, taint, remove = 'none
   const send = run.steps.find(s => s.kind === 'send');
   const tools = send?.kind === 'send' ? send.tools.length - (tainted && send.tools.some(t => t.name === 'send_email') ? 1 : 0) : 0;
   return {
-    last, where, tainted, tools,
+    where, tainted, tools,
     /** the envelope came from read_inbox: untrusted text, tagged */
     tag: where === 'from-mail' || where === 'held',
-    held: run.mail !== 'full',
     sent: shown.filter(s => s.kind === 'call' && s.call.name === 'send_email').length,
     blocked: shown.filter(s => s.kind === 'blocked' && s.by === 'allow-list').length,
     chute: remove === 'out' ? 'removed' as const : tainted ? 'closed' as const : 'open' as const,
@@ -92,7 +91,7 @@ export function trayProp(x: number, y: number, lid: boolean): Part {
 }
 
 /** A card file of customer records; removed: only its dashed outline is left. */
-export function recordsProp(x: number, y: number, removed: boolean): Part {
+function recordsProp(x: number, y: number, removed: boolean): Part {
   const foot = [[x - 9, y - 7, BH], [x + 9, y - 7, BH], [x + 9, y + 7, BH], [x - 9, y + 7, BH]];
   if (removed) return { at: [x, y, 0], svg: `<g data-prop="records" data-removed="1">${ink(pd(foot), 1.1).replace('/>', ' stroke-dasharray="3 3"/>')}</g>` };
   let s = box(x - 9, y - 7, BH, x + 9, y + 7, BH + 8, PALS.mint, toneI, 1);

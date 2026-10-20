@@ -8,22 +8,19 @@ import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { puzzle, Verdict } from '../../components/quiz/Puzzle';
 import { guardLanes, guardMessages } from '../../components/scenes/guardSequence';
-import { ATTACKS, CUSTOMER_RECORDS, DOMAINS, INBOX, REPLY, run, type Leg, type Run } from '../../lib/guardrails/loop';
-import { RECORDING } from '../../lib/guardrails/turns';
+import { DOMAINS, REPLY, type Leg, type Run } from '../../lib/guardrails/loop';
 import { fact } from '../../lib/guardrails/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
-import { Chips, Fact, GuardStage, guardProps } from './kit';
+import { Chips, Fact, GuardStage, guardProps, runCached, says, sender } from './kit';
 
 const MODULE = 'guardrails', ID = '04-the-trifecta';
 const CASE = DOMAINS[ID].case![0], LEGS = DOMAINS[ID].remove!;
-const RUNS: Record<string, Run> = Object.fromEntries(LEGS.flatMap(l => [false, true].map(t => [`${l}:${t}`, run(RECORDING, { case: CASE, remove: l, taint: t })])));
-const R = (remove: Leg, taint: boolean) => RUNS[`${remove}:${taint}`];
+const R = (remove: Leg, taint: boolean) => runCached({ case: CASE, remove, taint });
 
-const e = INBOX.find(x => x.id === CASE)!;
-const SENDER = CUSTOMER_RECORDS.find(c => c.email === e.from)!.name;
-const SAYS = ATTACKS.find(a => a.email === CASE)!.says;
+const SENDER = sender(CASE);
+const SAYS = says(CASE)!;
 const OUTSIDE = R('none', false).sent.find(m => m.tool === 'send_email')!.to;
 /** what each leg is, and what removing it changes */
 const LEG: Record<Exclude<Leg, 'none'>, { name: string; tool: string; removal: string }> = {

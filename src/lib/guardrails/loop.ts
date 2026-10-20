@@ -8,9 +8,9 @@ import CUSTOMERS from '../../../data/guardrails/customers.json';
 import SUITE_JSON from '../../../data/guardrails/suite.json';
 import { validate } from '../tools/schema';
 import { connect, createServer, orderHandlers, ORDERS, TOOLS, text, toolError, type Bundle, type LogEntry, type Order, type ServerDef, type Tool, type ToolResult } from '../tools/server';
-import { answerOf, combosOf, stepsOf } from '../tools/host';
+import { answerOf, combosOf, keyOf, stepsOf, type Decision } from '../tools/host';
 import { money } from '../format';
-import { lookup, NORECORD, RECORDING, signature, type Call, type Form, type Recording } from './turns';
+import { lookup, NORECORD, RECORDING, signature, type Call, type Form, type Outcome, type Recording } from './turns';
 
 export interface Email {
   id: string;
@@ -31,7 +31,7 @@ export interface CustomerCase { email: string; needs: string[] }
 
 export const INBOX = INBOX_JSON as Email[];
 export const CUSTOMER_RECORDS = CUSTOMERS.customers as Customer[];
-export const LARKSPUR = CUSTOMERS.larkspur;
+const LARKSPUR = CUSTOMERS.larkspur;
 /** The allow-list for recipients: customer addresses on file. */
 export const ON_FILE = CUSTOMER_RECORDS.map((c) => c.email);
 export const ATTACKS = SUITE_JSON.attacks as AttackCase[];
@@ -40,7 +40,7 @@ export type CaseId = string;
 export const CASES: CaseId[] = [...ATTACKS, ...CUSTOMER_CASES].map((c) => c.email);
 export const isAttack = (id: CaseId) => ATTACKS.some((a) => a.email === id);
 
-export const GUARD_SERVERS: Record<string, ServerDef> = GUARD.servers;
+const GUARD_SERVERS: Record<string, ServerDef> = GUARD.servers;
 const ALL_TOOLS: Tool[] = [...TOOLS, ...(GUARD.tools as unknown as Tool[])];
 
 /** The host-defined tool (KTD7): it can only answer the sender of the email being worked, so it is not a way out. */
@@ -62,7 +62,7 @@ export const REFUND_POLICY = 'A refund must be for a delivered order, for a faul
 const FAULTS = ['damaged', 'wrong_item', 'late'];
 export const REMOVED_LINK = '[link removed by the output filter]';
 
-export type Decision = 'approve' | 'deny';
+export type { Decision };
 /** none: all three legs; private: no customer records; untrusted: every email held; out: no way to send email */
 export type Leg = 'none' | 'private' | 'untrusted' | 'out';
 export interface Setup {
@@ -144,10 +144,9 @@ export interface Run {
   /** the sender got a reply and every tool the case needs succeeded */
   caseDone: boolean;
 }
-export { stepsOf, answerOf };
+export { stepsOf, answerOf, keyOf };
 /** The most model turns one run may take: a guard against a looping recording, not a lesson. */
 export const MAX_TURNS = 8;
-export const keyOf = (c: Call) => [c.name, ...(c.arguments.order_id === undefined ? [] : [c.arguments.order_id])].join(':');
 
 const email = (id: CaseId) => INBOX.find((e) => e.id === id)!;
 /** What the model can see of an email under this setup: the input filter runs first, then the input policy check. */
@@ -180,19 +179,23 @@ function bundle(sent: Mail[], held: boolean): Bundle {
   };
 }
 
+// tools/list is the same for every run: list each server's tools once, and note which server runs each
+const LISTED: Tool[] = [REPLY], SERVER_OF = new Map<string, string>();
+for (const id of Object.keys(GUARD_SERVERS)) {
+  const res = connect(createServer(id, {}, bundle([], false))).request('tools/list');
+  if ('result' in res) for (const t of res.result.tools as Tool[]) { SERVER_OF.set(t.name, id); LISTED.push(t); }
+}
+
 export function run(rec: Recording, setup: Partial<Setup> & { case: CaseId }): Run {
   const s: Setup = { ...DEFAULTS, ...setup };
   const e = email(s.case), mail = formOf(s.case, s);
   const orders = structuredClone(ORDERS), sent: Mail[] = [], log: LogEntry[] = [], steps: Step[] = [], signatures: string[] = [], hist: string[] = [];
-  const b = bundle(sent, mail !== 'full'), client = new Map<string, ReturnType<typeof connect>>(), listed: Tool[] = [REPLY];
-  for (const id of Object.keys(GUARD_SERVERS)) {
-    const c = connect(createServer(id, { orders }, b), log);
-    const res = c.request('tools/list');
-    if ('result' in res) for (const t of res.result.tools as Tool[]) { client.set(t.name, c); listed.push(t); }
-  }
+  const b = bundle(sent, mail !== 'full'), clients = new Map<string, ReturnType<typeof connect>>();
+  // each server is connected on its first tools/call, with this run's orders and mail
+  const client = (id: string) => clients.get(id) ?? clients.set(id, connect(createServer(id, { orders }, b), log)).get(id)!;
   const legGone = s.remove === 'private' ? 'get_customer' : s.remove === 'out' ? 'send_email' : '';
   let tainted = false;
-  const offered = () => TOOL_NAMES.filter((n) => n !== legGone && !(tainted && n === 'send_email')).map((n) => listed.find((t) => t.name === n)!);
+  const offered = () => TOOL_NAMES.filter((n) => n !== legGone && !(tainted && n === 'send_email')).map((n) => LISTED.find((t) => t.name === n)!);
   steps.push({ kind: 'send', tools: offered(), mail });
 
   const filter = (t: string) => {
@@ -223,7 +226,7 @@ export function run(rec: Recording, setup: Partial<Setup> & { case: CaseId }): R
       const tool = tools.find((t) => t.name === call.name);
       const errors = tool ? validate(tool.inputSchema, call.arguments) : [`${call.name} is not one of the tools this host offers`];
       steps.push({ kind: 'validation', call, errors });
-      let result: ToolResult | undefined, outcome = 'invalid';
+      let result: ToolResult | undefined, outcome: Outcome = 'invalid';
       const block = (by: 'allow-list' | 'output-policy', why: string) => {
         steps.push({ kind: 'blocked', call, by, text: why });
         result = toolError(why);
@@ -234,7 +237,8 @@ export function run(rec: Recording, setup: Partial<Setup> & { case: CaseId }): R
         steps.push({ kind: 'approval', call, decision: s.approval });
         if (s.approval === 'deny') { result = toolError('The person checking outbound email said no. Nothing was sent.'); outcome = 'denied'; }
       }
-      const args = call.arguments as Record<string, any>;
+      // checked against the tool's schema above, so the fields of the tool being called are there
+      const args = call.arguments as { to: string; body: string; order_id: number; amount: number; reason: string };
       if (!result && call.name === 'send_email' && s.allow && !ON_FILE.includes(args.to))
         block('allow-list', `${args.to} is not on the host's allow-list of customer addresses, so this email was not sent.`);
       if (!result && call.name === 'issue_refund' && s.outputPolicy !== 'off') {
@@ -250,7 +254,7 @@ export function run(rec: Recording, setup: Partial<Setup> & { case: CaseId }): R
           sent.push({ tool: 'reply', to: e.from, body: replied });
           result = text({ to: e.from, sent: true });
         } else {
-          const res = client.get(call.name)!.request('tools/call', { name: call.name, arguments: call.name === 'send_email' ? { ...args, body: filter(args.body) } : args });
+          const res = client(SERVER_OF.get(call.name)!).request('tools/call', { name: call.name, arguments: call.name === 'send_email' ? { ...args, body: filter(args.body) } : args });
           result = 'result' in res ? (res.result as unknown as ToolResult) : toolError(res.error.message);
           // the taint rule: untrusted text has now reached the model
           if (call.name === 'read_inbox' && !result.isError && s.taint) tainted = true;

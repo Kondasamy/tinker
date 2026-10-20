@@ -9,6 +9,8 @@ export interface Turn { text: string; calls?: Call[] }
 export interface Recording { turns: Record<string, Turn> }
 /** full: the model can read the email; quarantined: the input filter held it; refused: the input policy check turned it away */
 export type Form = 'full' | 'quarantined' | 'refused';
+/** How a proposed call ended, as the model hears it: run (ok or error), failed its schema, or stopped by a host check or a person. */
+export type Outcome = 'ok' | 'error' | 'invalid' | 'blocked' | 'denied';
 /** Everything the model can see. Host-only settings (threshold, allow-list, output filter, output policy, approval) stay out. */
 export interface Seen {
   case: string;
@@ -17,7 +19,7 @@ export interface Seen {
   /** the prompt rule is in the system text */
   rule: boolean;
   tools: string[];
-  /** every outcome so far, each `name[:order_id]:ok|error|blocked|denied` */
+  /** every outcome so far, each `name[:order_id]:<Outcome>` */
   hist: string[];
 }
 

@@ -7,13 +7,12 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { guardLanes, guardMessages } from '../../components/scenes/guardSequence';
-import { CUSTOMER_RECORDS, INBOX, INJECTION_SUITE, THRESHOLDS, held, isAttack, run, type Run } from '../../lib/guardrails/loop';
-import { RECORDING } from '../../lib/guardrails/turns';
+import { INBOX, INJECTION_SUITE, THRESHOLDS, held, isAttack } from '../../lib/guardrails/loop';
 import { fact } from '../../lib/guardrails/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
-import { Fact, GuardStage, guardProps } from './kit';
+import { Fact, GuardStage, guardProps, nameOf, runCached } from './kit';
 import '../../components/scenes/scenes.css';
 
 const MODULE = 'guardrails', ID = '02-input-filters';
@@ -27,14 +26,12 @@ const counts = (i: number) => `${H[i].attacks} of ${H[i].ofAttacks} attacks quar
 const wins = (i: number) => H[i].attacks === H[i].ofAttacks && H[i].customers === 0;
 /** the highest threshold that still holds every attack: the one to set before the cost shows */
 const ALL = THRESHOLDS.findIndex((_, i) => H[i].attacks === H[i].ofAttacks);
-const sender = (from: string) => CUSTOMER_RECORDS.find(c => c.email === from)?.name ?? from;
 // the customer the catch-all threshold holds, and the attack that scores below them
 const HELD_CUSTOMER = SUITE.find(e => !isAttack(e.id) && e.score >= THRESHOLDS[ALL]!)!;
 const LOW = SUITE.filter(e => isAttack(e.id)).sort((a, b) => a.score - b.score)[0];
-const RUNS: Record<string, Run> = Object.fromEntries((['invoice', 'refund'] as Case[]).flatMap(c => THRESHOLDS.map((t, i) => [`${c}:${i}`, run(RECORDING, { case: c, threshold: t })])));
 
 interface S { p1: number | null; t: number; tried: number[]; kase: Case; quiz: number | null }
-const current = (s: S) => RUNS[`${s.kase}:${s.t}`];
+const current = (s: S) => runCached({ case: s.kase, threshold: THRESHOLDS[s.t] });
 
 const P1 = {
   question: `The detector will give each email a score from 0 to 1: the higher, the more it reads like an attack. Larkspur will quarantine every email that scores at or above a threshold. Is there a threshold that holds all ${H[OFF].ofAttacks} attacks and lets all ${H[OFF].ofCustomers} customers through?`,
@@ -57,10 +54,10 @@ const QUIZ = {
   correct: 1,
   explanation: 'A threshold trades attacks held against customers held. Only counting both, over attacks and ordinary messages alike, shows what a setting costs.',
   why: [
-    `In this chapter the threshold that held every attack also held ${sender(HELD_CUSTOMER.from)}’s fair refund. A customer who never gets an answer is a failure too.`,
+    `In this chapter the threshold that held every attack also held ${nameOf(HELD_CUSTOMER.from)}’s fair refund. A customer who never gets an answer is a failure too.`,
     'Right. Count both sides: attacks that got through, and real customers held. Those two counts over a fixed set of messages are an eval, and they are how a setting is chosen.',
     'Scores are never exactly right, and they don’t need to be. A detector is judged by what it holds at a threshold, over attacks and ordinary messages together.',
-    `Hiding the setting changes nothing for real customers, and attackers don’t need it: the ${sender(LOW.from)} attack scored ${LOW.score} just by reading like an ordinary checklist.`,
+    `Hiding the setting changes nothing for real customers, and attackers don’t need it: the ${nameOf(LOW.from)} attack scored ${LOW.score} just by reading like an ordinary checklist.`,
   ],
 };
 
@@ -78,19 +75,19 @@ export const STEPS: Step<S>[] = [
   },
   {
     id: 'no-winner', focus: 'threshold', visibleControls: ['out1', 'threshold', 'inbox'],
-    narration: `No threshold wins outright. ${sender(HELD_CUSTOMER.from)}’s email about a cracked printer scores ${HELD_CUSTOMER.score}: it is in capitals and in a hurry, so it reads like an order. The ${sender(LOW.from)} attack scores ${LOW.score}: its planted line hides in a checklist. Any threshold low enough to hold the one holds the other. Set the highest threshold that still holds every attack.`,
+    narration: `No threshold wins outright. ${nameOf(HELD_CUSTOMER.from)}’s email about a cracked printer scores ${HELD_CUSTOMER.score}: it is in capitals and in a hurry, so it reads like an order. The ${nameOf(LOW.from)} attack scores ${LOW.score}: its planted line hides in a checklist. Any threshold low enough to hold the one holds the other. Set the highest threshold that still holds every attack.`,
     predicate: s => s.t === ALL,
     hint: `Move the slider until it reads ${H[ALL].attacks} of ${H[ALL].ofAttacks} attacks quarantined.`,
   },
   {
     id: 'cost', focus: 'open', visibleControls: ['threshold', 'inbox', 'open'],
-    narration: `At ${name(THRESHOLDS[ALL])} every attack is held, and so is ${H[ALL].customers} of ${H[ALL].ofCustomers} customers. A real customer the filter holds is a false block. Open ${sender(HELD_CUSTOMER.from)}’s email to see what that costs them.`,
+    narration: `At ${name(THRESHOLDS[ALL])} every attack is held, and so is ${H[ALL].customers} of ${H[ALL].ofCustomers} customers. A real customer the filter holds is a false block. Open ${nameOf(HELD_CUSTOMER.from)}’s email to see what that costs them.`,
     predicate: s => s.kase === HELD_CUSTOMER.id,
     hint: 'Press the button to open the refund email.',
   },
   {
     id: 'quiz', focus: 'quiz', visibleControls: ['eval', 'quiz'],
-    narration: `The model never read it. ${sender(HELD_CUSTOMER.from)} asked for a fair refund and got no answer at all. Every threshold buys fewer attacks with more customers held, and the two counts are how Larkspur picks one. One question to finish.`,
+    narration: `The model never read it. ${nameOf(HELD_CUSTOMER.from)} asked for a fair refund and got no answer at all. Every threshold buys fewer attacks with more customers held, and the two counts are how Larkspur picks one. One question to finish.`,
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What did the threshold that held every attack cost?',
   },
@@ -108,7 +105,7 @@ function Inbox({ s }: { s: S }) {
           const q = t !== null && e.score >= t;
           return (
             <tr key={e.id} data-email={e.id} data-held={scored ? (q ? 1 : 0) : undefined}>
-              <th scope="row">{sender(e.from)}: {e.subject}</th>
+              <th scope="row">{nameOf(e.from)}: {e.subject}</th>
               <td>{isAttack(e.id) ? 'Attack' : 'Customer'}</td>
               {scored && <><td>{e.score}</td><td>{q ? 'Quarantined' : 'Let through'}</td></>}
             </tr>
@@ -148,7 +145,7 @@ export default function InputFilters() {
           </>
         ),
         open: ({ state, apply }) => (
-          <button type="button" className="big" onClick={() => apply({ ...state, kase: HELD_CUSTOMER.id as Case })}>Open {sender(HELD_CUSTOMER.from)}’s refund email</button>
+          <button type="button" className="big" onClick={() => apply({ ...state, kase: HELD_CUSTOMER.id as Case })}>Open {nameOf(HELD_CUSTOMER.from)}’s refund email</button>
         ),
         eval: () => (
           <p className="tc-status" data-eval>

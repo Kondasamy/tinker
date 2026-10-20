@@ -8,13 +8,12 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { guardLanes, guardMessages } from '../../components/scenes/guardSequence';
-import { ATTACKS, DOMAINS, INBOX, REFUND_POLICY, metrics, run, stepsOf, type CaseId, type Run, type Setup } from '../../lib/guardrails/loop';
-import { RECORDING } from '../../lib/guardrails/turns';
+import { DOMAINS, REFUND_POLICY, metrics, stepsOf, type CaseId, type Run, type Setup } from '../../lib/guardrails/loop';
 import { fact } from '../../lib/guardrails/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
-import { Chips, Fact, GuardStage, guardProps, sender } from './kit';
+import { Chips, Fact, GuardStage, email, guardProps, runCached, says, sender } from './kit';
 
 const MODULE = 'guardrails', ID = '06-when-the-user-is-the-attacker';
 const D = DOMAINS[ID];
@@ -24,14 +23,7 @@ type Policy = Setup['outputPolicy'];
 const POLICIES = D.outputPolicy!;
 const POLICY_NAME: Record<Policy, string> = { off: 'Output policy check: off', on: 'Output policy check: on', strict: 'Strict: every refund to a person' };
 
-const RUNS = new Map<string, Run>();
-export const R = (kase: CaseId, inputPolicy: boolean, outputPolicy: Policy) => {
-  const k = `${kase}:${inputPolicy}:${outputPolicy}`;
-  if (!RUNS.has(k)) RUNS.set(k, run(RECORDING, { case: kase, inputPolicy, outputPolicy }));
-  return RUNS.get(k)!;
-};
-const email = (c: CaseId) => INBOX.find(e => e.id === c)!;
-const says = (c: CaseId) => ATTACKS.find(a => a.email === c)?.says;
+export const R = (kase: CaseId, inputPolicy: boolean, outputPolicy: Policy) => runCached({ case: kase, inputPolicy, outputPolicy });
 const reply = (r: Run) => r.sent.find(m => m.tool === 'reply')?.body;
 
 /** Over-refusal's cost: the three emails under each output setting, with the input policy check on. */

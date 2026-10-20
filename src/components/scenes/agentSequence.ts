@@ -2,7 +2,7 @@
 // card per run step, in order. The back-office picture (agentScene) reads the same cards, so the two never disagree.
 import type { Lane } from '../../lib/iso/flat';
 import type { Run, Step } from '../../lib/agents/loop';
-import { callText, type Shown } from './toolSequence';
+import { callText, json, outcome, plural, type Shown } from './toolSequence';
 
 /** The Steps tab's lanes. Ids match the back office's stations (host, model, orders), so the picture can read the cards. */
 export const agentLanes = (r: Run, host = 'Host app'): Lane[] => [
@@ -10,10 +10,6 @@ export const agentLanes = (r: Run, host = 'Host app'): Lane[] => [
   ...(r.steps.some(s => s.kind === 'helper') ? [{ id: 'helpers', name: 'Helpers' }] : []),
 ];
 
-const json = (v: unknown) => JSON.stringify(v, null, 2);
-const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`;
-/** `get_order:1042:ok` → `get_order 1042 → ok` */
-const outcome = (key: string) => { const k = key.split(':'); return `${k.slice(0, -1).join(' ')} → ${k.at(-1)}`; };
 const DECIDED = { approve: 'APPROVED', reject: 'DENIED', pending: 'WAITING' } as const;
 
 /** One card per step. Results come back from the tool (or helper) that ran them; host-only steps (the schema check,

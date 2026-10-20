@@ -7,29 +7,20 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { guardLanes, guardMessages } from '../../components/scenes/guardSequence';
-import { ATTACKS, CUSTOMER_RECORDS, INBOX, ON_FILE, REMOVED_LINK, answerOf, outsideLinks, run, stepsOf, type Decision, type Run } from '../../lib/guardrails/loop';
-import { RECORDING } from '../../lib/guardrails/turns';
+import { ON_FILE, REMOVED_LINK, answerOf, outsideLinks, stepsOf, type Decision, type Run } from '../../lib/guardrails/loop';
 import { fact } from '../../lib/guardrails/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
-import { Chips, Fact, GuardStage, guardProps } from './kit';
+import { Chips, Email, Fact, GuardStage, guardProps, runCached, says, sender } from './kit';
 
 const MODULE = 'guardrails', ID = '03-the-way-out';
 type Case = 'invoice' | 'link';
 type Approval = 'off' | Decision;
 interface Setup { kase: Case; allow: boolean; filter: boolean; approval: Approval }
-const RUNS = new Map<string, Run>();
-const R = ({ kase, allow, filter, approval }: Setup) => {
-  const k = `${kase}:${allow}:${filter}:${approval}`;
-  if (!RUNS.has(k)) RUNS.set(k, run(RECORDING, { case: kase, allow, filter, approval }));
-  return RUNS.get(k)!;
-};
+const R = ({ kase, allow, filter, approval }: Setup) => runCached({ case: kase, allow, filter, approval });
 const OPEN: Setup = { kase: 'invoice', allow: false, filter: false, approval: 'off' };
 
-const email = (c: Case) => INBOX.find(e => e.id === c)!;
-const sender = (c: Case) => CUSTOMER_RECORDS.find(x => x.email === email(c).from)?.name ?? email(c).from;
-const says = (c: Case) => ATTACKS.find(a => a.email === c)!.says;
 const outside = (m: { tool: string; to: string }) => m.tool === 'send_email' && !ON_FILE.includes(m.to);
 const LEAK = R(OPEN), OUTSIDE = LEAK.sent.find(outside)!.to;
 const ALLOWED = R({ ...OPEN, allow: true }), BLOCKED = stepsOf(ALLOWED, 'blocked')[0];
@@ -156,17 +147,6 @@ function Compare() {
       <thead><tr><th scope="col">Run</th><th scope="col">Data left?</th><th scope="col">Customer answered?</th></tr></thead>
       <tbody>{rows.map(([k, r]) => <tr key={k}><th scope="row">{k}</th><td>{r.attackMet ? 'Yes' : 'No'}</td><td>{r.caseDone ? 'Yes' : 'No'}</td></tr>)}</tbody>
     </table>
-  );
-}
-
-function Email({ c }: { c: Case }) {
-  const e = email(c);
-  return (
-    <div className="tc-def">
-      <p className="lbl">From</p><p>{e.from} ({sender(c)})</p>
-      <p className="lbl">Subject</p><p>{e.subject}</p>
-      <p className="lbl">Text</p><p style={{ whiteSpace: 'pre-wrap' }}>{e.text}</p>
-    </div>
   );
 }
 

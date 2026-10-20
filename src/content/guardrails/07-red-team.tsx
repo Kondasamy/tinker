@@ -18,7 +18,9 @@ const MODULE = 'guardrails', ID = '07-red-team';
 const W = WORKBENCH_DOMAINS;
 /** The bench's settings: every workbench control but the case. */
 export type Bench = Pick<Defences, 'rule' | 'threshold' | 'inputPolicy' | 'taint' | 'allow' | 'filter' | 'outputPolicy' | 'approval'>;
-export const START: Bench = { rule: DEFAULTS.rule, threshold: DEFAULTS.threshold, inputPolicy: DEFAULTS.inputPolicy, taint: DEFAULTS.taint, allow: DEFAULTS.allow, filter: DEFAULTS.filter, outputPolicy: DEFAULTS.outputPolicy, approval: DEFAULTS.approval };
+// every default but the trifecta's legs, in DEFAULTS' order (which is the bench's control order)
+const { remove: _, ...START_ } = DEFAULTS;
+export const START: Bench = START_;
 const KEYS = Object.keys(START) as (keyof Bench)[];
 export const benchOf = (s: Bench): Bench => Object.fromEntries(KEYS.map(k => [k, s[k]])) as Bench;
 

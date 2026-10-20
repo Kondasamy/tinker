@@ -31,7 +31,10 @@ export interface Shown extends Msg { detail: string }
 export const toolLanes = (host = 'Host app'): Lane[] =>
   [{ id: 'emp', name: 'Employee' }, { id: 'host', name: host }, { id: 'model', name: 'Model' }, { id: 'orders', name: 'Order system' }];
 
-const json = (v: unknown) => JSON.stringify(v, null, 2);
+export const json = (v: unknown) => JSON.stringify(v, null, 2);
+export const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`;
+/** `get_order:1042:ok` → `get_order 1042 → ok` */
+export const outcome = (key: string) => { const k = key.split(':'); return `${k.slice(0, -1).join(' ')} → ${k.at(-1)}`; };
 /** `get_order(order_id: "1042")`: values as JSON, so text and numbers look different */
 export const callText = (c: Call) => `${c.name}(${Object.entries(c.arguments).map(([k, v]) => `${k}: ${JSON.stringify(v)}`).join(', ')})`;
 const summary = (r: ToolResult) => {

@@ -7,25 +7,20 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { guardLanes, guardMessages } from '../../components/scenes/guardSequence';
-import { ATTACKS, CUSTOMER_RECORDS, INBOX, RULE, run, stepsOf, type Run } from '../../lib/guardrails/loop';
-import { RECORDING } from '../../lib/guardrails/turns';
+import { RULE, stepsOf, type Run } from '../../lib/guardrails/loop';
 import { ORDERS } from '../../lib/tools/server';
 import { fact } from '../../lib/guardrails/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
-import { Fact, GuardStage } from './kit';
+import { Email, Fact, GuardStage, runCached, says, sender } from './kit';
 
 const MODULE = 'guardrails', ID = '01-data-or-instructions';
 type Case = 'direct' | 'invoice';
 const CASES: Case[] = ['direct', 'invoice'];
 const key = (c: Case, rule: boolean) => `${c}:${rule ? 'on' : 'off'}`;
-const RUNS: Record<string, Run> = Object.fromEntries(CASES.flatMap(c => [false, true].map(rule => [key(c, rule), run(RECORDING, { case: c, rule })])));
-const R = (c: Case, rule: boolean) => RUNS[key(c, rule)];
+const R = (c: Case, rule: boolean) => runCached({ case: c, rule });
 
-const email = (c: Case) => INBOX.find(e => e.id === c)!;
-const sender = (c: Case) => CUSTOMER_RECORDS.find(x => x.email === email(c).from)?.name ?? email(c).from;
-const says = (c: Case) => ATTACKS.find(a => a.email === c)!.says;
 /** the model's note on its turn after reading the email: why it followed the email or refused it */
 const note = (r: Run) => stepsOf(r, 'proposal').find(p => p.turn === 1)?.text ?? '';
 const owner = (n: string) => `${n}’${n.endsWith('s') ? '' : 's'}`;
@@ -109,18 +104,6 @@ export const STEPS: Step<S>[] = [
     hint: 'Did the rule stop the invoice? What did the invoice note pretend to be?',
   },
 ];
-
-/** One email as the assistant receives it. Attacker text: React text only. */
-function Email({ c }: { c: Case }) {
-  const e = email(c);
-  return (
-    <div className="tc-def">
-      <p className="lbl">From</p><p>{e.from} ({sender(c)})</p>
-      <p className="lbl">Subject</p><p>{e.subject}</p>
-      <p className="lbl">Text</p><p style={{ whiteSpace: 'pre-wrap' }}>{e.text}</p>
-    </div>
-  );
-}
 
 /** How each run so far ended, in words, in the order they were run. */
 function Tally({ s }: { s: S }) {

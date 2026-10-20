@@ -2,7 +2,7 @@
 // The mailroom picture (guardScene) reads the same steps, so the two never disagree.
 import type { Lane } from '../../lib/iso/flat';
 import type { Run, Step } from '../../lib/guardrails/loop';
-import { callText, type Shown } from './toolSequence';
+import { callText, json, outcome, plural, type Shown } from './toolSequence';
 
 /** The Steps tab's lanes. Ids match the back office's stations (host, model, orders); mail is the inbox and the way out. */
 export const guardLanes = (host = 'Host app'): Lane[] =>
@@ -11,10 +11,6 @@ export const guardLanes = (host = 'Host app'): Lane[] =>
 /** Mail tools run on the mail lane; reply too (it goes back to the sender). The rest are records and orders. */
 export const laneOf = (tool: string) => (['read_inbox', 'send_email', 'reply'].includes(tool) ? 'mail' : 'orders');
 
-const json = (v: unknown) => JSON.stringify(v, null, 2);
-const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`;
-/** `get_order:1042:ok` → `get_order 1042 → ok` */
-const outcome = (key: string) => { const k = key.split(':'); return `${k.slice(0, -1).join(' ')} → ${k.at(-1)}`; };
 const FORM = { full: 'email', quarantined: 'email (held)', refused: 'email (turned away)' } as const;
 
 /** One card per step. Results come back from the lane that ran them; host-only steps (schema check, approval, output

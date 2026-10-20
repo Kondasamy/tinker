@@ -7,7 +7,8 @@ import IsoStage from '../../lib/iso/IsoStage';
 import FlatStage from '../../components/scenes/FlatStage';
 import { GUARD_BOARD, guardLabel, guardReadouts, guardScene, guardState, type GuardOpts } from '../../components/scenes/guardScene';
 import { guardLanes, guardMessages } from '../../components/scenes/guardSequence';
-import { CUSTOMER_RECORDS, INBOX, isAttack, type CaseId, type Run, type Setup } from '../../lib/guardrails/loop';
+import { ATTACKS, CUSTOMER_RECORDS, INBOX, isAttack, run, type CaseId, type Run, type Setup } from '../../lib/guardrails/loop';
+import { RECORDING } from '../../lib/guardrails/turns';
 import { fact } from '../../lib/guardrails/facts';
 import { openMessage, useNarrow } from '../tool-calling/kit';
 import './guardrails.css';
@@ -70,9 +71,34 @@ export function Fact({ id }: { id: string }) {
   );
 }
 
+const runs = new Map<string, Run>();
+/** One run against the merged recording, run once per setup (keyed by its JSON) and kept. */
+export const runCached = (setup: Partial<Setup> & { case: CaseId }) => {
+  const k = JSON.stringify(setup);
+  if (!runs.has(k)) runs.set(k, run(RECORDING, setup));
+  return runs.get(k)!;
+};
+
+export const email = (id: CaseId) => INBOX.find(e => e.id === id)!;
+/** What an attack does when it works, in words; undefined for a customer case. */
+export const says = (id: CaseId) => ATTACKS.find(a => a.email === id)?.says;
+/** The customer's name for an address, or the address when it is not on file. */
+export const nameOf = (address: string) => CUSTOMER_RECORDS.find(c => c.email === address)?.name ?? address;
 /** An email's sender (the customer's name) and subject. */
-export const sender = (id: CaseId) => { const e = INBOX.find(x => x.id === id)!; return CUSTOMER_RECORDS.find(c => c.email === e.from)?.name ?? e.from; };
-export const longName = (id: CaseId) => `${sender(id)}: “${INBOX.find(x => x.id === id)!.subject}”`;
+export const sender = (id: CaseId) => nameOf(email(id).from);
+export const longName = (id: CaseId) => `${sender(id)}: “${email(id).subject}”`;
+
+/** One email as the assistant receives it. Attacker text: React text only. */
+export function Email({ c }: { c: CaseId }) {
+  const e = email(c);
+  return (
+    <div className="tc-def">
+      <p className="lbl">From</p><p>{e.from} ({sender(c)})</p>
+      <p className="lbl">Subject</p><p>{e.subject}</p>
+      <p className="lbl">Text</p><p style={{ whiteSpace: 'pre-wrap' }}>{e.text}</p>
+    </div>
+  );
+}
 /** A case's column name: its id, capitalised; the key under the matrix gives the email it stands for. */
 export const shortName = (id: CaseId) => id[0].toUpperCase() + id.slice(1);
 /** One cell, in words: an attack worked or was stopped; a customer was served or blocked (a false block). */
