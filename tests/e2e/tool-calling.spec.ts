@@ -447,3 +447,16 @@ test('a chapter played before opens on its intro, with a link on to the saved st
   await page.getByRole('button', { name: /^Continue at step 3/ }).click();
   await expect(card(page)).toBeInViewport();
 });
+
+test('module intros read as pictures first; Words shows the full text, and the choice is remembered', async ({ page }) => {
+  await page.goto('/tool-calling/');
+  const more = page.locator('.band .why');
+  await expect(page.getByRole('button', { name: 'Pictures' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(more).toBeHidden();
+  await expect(page.locator('#path .path li .thumb img')).toHaveCount(M.chapters.length);
+  await page.getByRole('button', { name: 'Words' }).click();
+  await expect(more).toBeVisible();
+  await page.goto('/rag/');
+  await expect(page.getByRole('button', { name: 'Words' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('.band .why')).toBeVisible();
+});

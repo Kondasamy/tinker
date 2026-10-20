@@ -1,0 +1,43 @@
+---
+// A module intro's chapter path as picture cards: each chapter's own share picture (cropped to the drawing), its number
+// and title; the chapter's question shows in Words mode. The intro's script ticks finished ones (.done, .done-mark).
+import type { Chapter } from '../../lib/modules';
+import { chapterHref } from '../../lib/modules';
+import { chapterMeta } from '../../lib/pages';
+
+interface Props { module: string; chapters: Chapter[] }
+const { module, chapters } = Astro.props;
+---
+<ol class="path cards">
+  {chapters.map((c, i) => (
+    <li data-chapter={c.id}>
+      <div class="thumb"><img src={`/og/${chapterMeta(module, c.id).og}.jpg`} alt="" width="1200" height="630" loading="lazy" decoding="async" /></div>
+      <div class="body">
+        <p class="num">Chapter {i + 1}<span class="done-mark" hidden> · done</span></p>
+        <h3><a href={chapterHref(module, c.id)}>{c.title}</a></h3>
+        <p class="more goal">{c.intro.goal}</p>
+        <slot name={c.id} />
+      </div>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(200px, 42%), 1fr)); gap: 16px; }
+  .cards li { display: flex; flex-direction: column; border: 1.5px solid var(--ink); border-radius: 14px; overflow: hidden; background: var(--card); box-shadow: 3px 3px 0 var(--ink); transition: transform .15s ease, box-shadow .15s ease; }
+  .cards li:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--ink); }
+  /* the share image's right part is the drawing; its left part is text the card already shows */
+  /* square, from the right edge: exactly the picture half of a 1200×630 card */
+  .thumb { display: block; aspect-ratio: 1 / 1; border-bottom: 1.5px solid var(--ink); background: var(--paper); }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; object-position: 100% 50%; display: block; }
+  .body { padding: 10px 14px 14px; display: flex; flex-direction: column; gap: 4px; }
+  .num { margin: 0; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  li.done .num { color: var(--ok); }
+  h3 { margin: 0; font-size: 16px; line-height: 1.3; }
+  h3 a { text-decoration: none; }
+  /* the whole card is one link target for the pointer (the title link stays the one keyboard stop) */
+  h3 a::after { content: ''; position: absolute; inset: 0; }
+  li { position: relative; }
+  .goal { margin: 2px 0 0; font-size: 13.5px; color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { .cards li, .cards li:hover { transition: none; transform: none; } }
+</style>

@@ -15,6 +15,12 @@ import { fact, ACCESSED } from '../../lib/tools/facts';
 import { moduleOf, chapterHref } from '../../lib/modules';
 import { TOOL_CALLING } from '../../lib/pages';
 import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import type { SceneCtx } from '../../lib/iso/IsoStage';
+import { BH, ACC, renderers, blockShadow, type BlockType } from '../../lib/iso/blocks';
+import { INK, pd } from '../../lib/iso/core.js';
+import { MCP_BOARD, countScene } from '../../components/scenes/mcpScene';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('tool-calling');
@@ -26,10 +32,20 @@ const QUESTION = RECORDINGS['order-status'].ask;
 const WITHOUT = Object.values(RECORDINGS['no-tools'].turns)[0].text;
 const ARGS = Object.entries(CALL.arguments).map(([k, v]) => `${k}: ${v}`).join(', ');
 
-const STEPS: [string, ReturnType<typeof fact>][] = [
-  ['Describe the tool', fact('tool-definition')],
-  ['The model asks, your software runs it', fact('app-executes')],
-  ['One plug for many tools', fact('mcp-features')],
+// small pictures: one block alone; the model and the order system (a cabinet), joined or not
+const one = (type: BlockType, opts: { state?: 'ok' | 'warn' } = {}) => ({ top }: SceneCtx) =>
+  blockShadow(type, 30, 30, top) + renderers[type]({ x: 30, y: 30, ...opts });
+const pair = (linked: boolean) => ({ top }: SceneCtx) => {
+  const d = pd([[30, 30, BH + .3], [128, 30, BH + .3]], false);
+  const wire = linked ? `<path d="${d}" fill="none" stroke="${INK}" stroke-width="4.2" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${ACC}" stroke-width="2.2" stroke-linecap="round"/>`
+    : `<path d="${d}" fill="none" stroke="${INK}" stroke-width="1.4" stroke-dasharray="4 5"/>`;
+  return blockShadow('llm', 30, 30, top) + blockShadow('index', 128, 30, top) + wire
+    + renderers.llm({ x: 30, y: 30, state: linked ? 'ok' : 'warn' }) + renderers.index({ x: 128, y: 30 });
+};
+const STEPS: [string, string, ReturnType<typeof fact>, [number, number, number, number], (c: SceneCtx) => string][] = [
+  ['Describe the tool', 'Name, description, schema', fact('tool-definition'), [10, 10, 50, 50], one('docs')],
+  ['The model asks, your software runs it', 'The model only asks', fact('app-executes'), [8, 10, 150, 50], pair(true)],
+  ['One plug for many tools', 'Tools, resources, prompts', fact('mcp-features'), MCP_BOARD, countScene({ apps: 1, systems: 2, mcp: true, scale: 1.6 })],
 ];
 const checked = longDate(ACCESSED);
 
@@ -72,6 +88,7 @@ const FACTS: [string, string][] = [
               : <a class="btn primary" href={`/${PREREQS[0].id}/`}>Start with {PREREQS[0].title} →</a>}
             <a class="btn" href="#path">See the chapters</a>
           </div>
+          <ReadingMode />
         </div>
         <div class="hero-pic">
           {/* the back office every chapter plays in: the model's call on its way to the host */}
@@ -86,16 +103,18 @@ const FACTS: [string, string][] = [
         <div class="versus">
           <article class="reply bad">
             <header><h3>Without tools</h3><span class="stamp">Guessed</span></header>
+            <div class="vpic"><IsoStage board={[8, 10, 150, 50]} scene={pair(false)} label="The model and the order system with nothing joining them: the model's screen shows question marks" /></div>
             <p class="said">“{WITHOUT}”</p>
-            <p class="why">The model can’t see Larkspur’s order system, so it writes something that sounds likely.</p>
+            <p class="why more">The model can’t see Larkspur’s order system, so it writes something that sounds likely.</p>
           </article>
           <article class="reply good">
             <header><h3>With a tool</h3><span class="stamp">Checked</span></header>
+            <div class="vpic"><IsoStage board={[8, 10, 150, 50]} scene={pair(true)} label="The model wired to the order system: its screen shows OK" /></div>
             <p class="said">“{ANSWER}”</p>
             <blockquote><span>The model asked for</span><code>{CALL.name}({ARGS})</code></blockquote>
           </article>
         </div>
-        <p class="note">These are the course’s own recorded model turns, and the order comes from Larkspur’s order data. The only thing that changed is whether the model had a tool.</p>
+        <p class="note more">These are the course’s own recorded model turns, and the order comes from Larkspur’s order data. The only thing that changed is whether the model had a tool.</p>
       </section>
 
       <section aria-labelledby="how">
@@ -103,11 +122,13 @@ const FACTS: [string, string][] = [
         <h2 id="how">Three ideas carry the whole module</h2>
         <div class="loop"><FlatStage client:visible lanes={SEQ_LANES} msgs={SEQ_MSGS} /></div>
         <ol class="steps">
-          {STEPS.map(([name, f], i) => (
+          {STEPS.map(([name, short, f, board, scene], i) => (
             <li>
+              <div class="pic"><IsoStage board={board} scene={scene} label={name} /></div>
               <h3><span class="n">{i + 1}</span> {name}</h3>
-              <p>{f.claim}</p>
-              <p class="src"><a href={f.source}>Source</a>, checked {checked}</p>
+              <p class="cap">{short}</p>
+              <p class="more">{f.claim}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
             </li>
           ))}
         </ol>
@@ -117,7 +138,7 @@ const FACTS: [string, string][] = [
         <div>
           <p class="kicker">The story</p>
           <h2 id="story">The assistant has to act now</h2>
-          <p>{MODULE.story} Staff want it to look things up and get things done, and an answer from documents can’t do either. <strong>You’re on the team that gives it tools, and keeps them safe.</strong></p>
+          <p class="more">{MODULE.story} Staff want it to look things up and get things done, and an answer from documents can’t do either. <strong>You’re on the team that gives it tools, and keeps them safe.</strong></p>
           {PREREQS.map(m => <p class="prev">New to Larkspur? The <a href={`/${m.id}/`}>{m.title} module</a> builds the assistant this one starts from.</p>)}
           <dl class="facts">
             {FACTS.map(([n, what]) => <div><dt class:list={{ long: n.length > 6 }}>{n}</dt><dd>{what}</dd></div>)}
@@ -137,28 +158,23 @@ const FACTS: [string, string][] = [
         {/* a warm-up shows here only when one is due (R13); the home page's Continue links to #warmup */}
         <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
         {CHAPTERS.length === 0 && <p class="soon">Chapters arrive soon. This module is being written now; until then, the {PREREQS[0].title} module is ready to play.</p>}
-        <ol class="path">
-          {CHAPTERS.map((c, i) => (
-            <li data-chapter={c.id}>
-              <span class="dot" aria-hidden="true">{i + 1}</span>
-              <div class="body">
-                <h3><a href={chapterHref(MODULE.id, c.id)}>{c.title}</a><span class="done-mark" hidden> · done</span></h3>
-                <p>{c.intro.goal}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
         <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
       </section>
 
       <section class="pair">
         <article>
           <h2>Who it’s for</h2>
-          <p>Product managers, engineers and analysts whose company is giving its AI assistants access to real systems, who want to know how that works, where it goes wrong, and what keeps it safe. No code needed. If RAG is new to you, play that module first.</p>
+          <ul class="who-chips"><li>Product managers</li><li>Engineers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Product managers, engineers and analysts whose company is giving its AI assistants access to real systems, who want to know how that works, where it goes wrong, and what keeps it safe. No code needed. If RAG is new to you, play that module first.</p>
         </article>
         <article>
           <h2>How a chapter page works</h2>
-          <p>The picture on the left is live. The story on the right asks you to do one thing in it at a time. The model’s turns are recorded, but the tools, the checks and the MCP messages run for real in your browser. Progress stays in this browser.</p>
+          <div class="schematic" aria-hidden="true">
+            <div class="s-pic">live picture</div>
+            <div class="s-story"><span></span><span></span><span class="s-step">your step</span></div>
+          </div>
+          <p class="more">The picture on the left is live. The story on the right asks you to do one thing in it at a time. The model’s turns are recorded, but the tools, the checks and the MCP messages run for real in your browser. Progress stays in this browser.</p>
         </article>
       </section>
 
@@ -223,6 +239,9 @@ const FACTS: [string, string][] = [
   .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
   .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
   .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 120px; display: flex; justify-content: center; margin-bottom: 4px; }
+  .steps .pic :global(svg), .vpic :global(svg) { width: auto !important; height: 100% !important; }
+  .vpic { height: 130px; display: flex; justify-content: center; margin: 2px 0 10px; }
   .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
 
   .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
@@ -241,20 +260,10 @@ const FACTS: [string, string][] = [
   .qtext { margin: 0; font-weight: 700; }
   .hard { margin: 2px 0 0 !important; font-size: 13px; color: var(--bad); }
 
-  .recap-link { margin: 0 0 0 52px; font-weight: 800; }
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
   #warmup { scroll-margin-top: 16px; }
   .soon { font-size: 15px; color: var(--muted); max-width: 70ch; }
-  .path { list-style: none; margin: 0; padding: 0; position: relative; }
-  .path:empty { display: none; }
-  .path::before { content: ''; position: absolute; left: 17px; top: 18px; bottom: 18px; border-left: 2px dashed var(--rule); }
-  .path li { position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 16px; padding: 0 0 22px; }
-  .dot { position: relative; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--ink); background: var(--card); font-weight: 900; }
-  .path li.done .dot { background: var(--ok); color: var(--paper); }
-  .path h3 { font-size: 17px; margin-top: 5px; }
-  .path h3 a { text-decoration: none; }
-  .path h3 a:hover { text-decoration: underline; }
   .done-mark { color: var(--ok); font-size: 13px; }
-  .path .body p { margin: 4px 0 0; font-size: 14px; color: var(--muted); max-width: 70ch; }
 
   .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
   .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }

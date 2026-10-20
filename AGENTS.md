@@ -24,7 +24,7 @@ Author credit is always the full name, **Kondasamy Jayaraman**, linked to kondas
 | Page | Job |
 |---|---|
 | `/` (`src/pages/index.astro`) | What Tinker is, the module catalogue grouped by level (planned modules are roadmap cards, no link), how every module plays, credits. Shows progress per module; "Continue" resumes the module played last (through its warm-up when one is due). A first visit goes to the module intro, never straight into a chapter. |
-| `/<module>/` (e.g. `src/pages/rag/index.astro`) | Sets the module's context before chapter 1: the idea in one example, how it works, the story's company, the chapter path. Built from the module's own data, never placeholder text. |
+| `/<module>/` (e.g. `src/pages/rag/index.astro`) | Sets the module's context before chapter 1: the idea in one example, how it works, the story's company, the chapter path. Built from the module's own data, never placeholder text. Pictures first: a **Pictures / Words** switch (`src/components/intro/ReadingMode.astro`, default Pictures, remembered in `localStorage` `tinker-reading`) folds away longer text marked `.more`, leaving pictures, headings and one-line captions (`.cap`). The chapter path is picture cards (`ChapterCards.astro`) cropped from each chapter's share image. |
 | `/<module>/<chapter>/` | One chapter: live picture + story column (below). |
 | `/<module>/recap/` | Recall questions from the chapters the reader finished; works at any progress (nothing done: says so, links chapter 1). |
 

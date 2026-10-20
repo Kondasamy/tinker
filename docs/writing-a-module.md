@@ -75,7 +75,7 @@ Each module has a **recall bank** (`src/content/<module>/recall.ts`): three to f
 | `src/content/<id>/module.ts` | Registry entry: title, description, level, status, author, prerequisites, story, chapters with their `intro` |
 | `src/content/<id>/NN-<slug>.tsx` | One chapter: its steps, controls, stage and drawer panels. The template's is `01-first-step.tsx` |
 | `src/content/<id>/recall.ts` | The recall bank |
-| `src/pages/<id>/index.astro` | Module intro: the idea in one example, how it works, the story's company, the chapter path, credits |
+| `src/pages/<id>/index.astro` | Module intro: the idea in one example, how it works, the story's company, the chapter path, credits. Lead each section with a picture and a one-line caption; mark longer text `.more` so the Pictures reading mode folds it away. Use `ReadingMode` and `ChapterCards` from `src/components/intro/` |
 | `src/pages/<id>/[chapter].astro` | Chapter route. It picks the chapter's island with a chain of `chapter === ... ?` checks, not a lookup table, because hydration needs a static import per island. |
 | `src/pages/<id>/recap.astro` | The recap page |
 | `data/<id>/` | Facts with sources, recorded answers, fixtures |

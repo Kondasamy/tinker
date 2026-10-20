@@ -1,0 +1,26 @@
+---
+// A module intro's reading switch. Pictures (the default) keeps the pictures, headings and one-line captions and folds
+// away the longer text (anything marked .more); Words shows all of it. A per-viewer convenience, remembered in this
+// browser; without storage or script the page shows everything.
+---
+<div class="reading" role="group" aria-label="Read this page as">
+  <span class="lbl">Read as</span>
+  <button type="button" class="chip" data-mode="visual">Pictures</button>
+  <button type="button" class="chip" data-mode="words">Words</button>
+</div>
+<script is:inline>
+  (() => {
+    let mode = 'visual';
+    try { mode = localStorage.getItem('tinker-reading') || mode; } catch {}
+    const buttons = document.querySelectorAll('.reading [data-mode]');
+    const set = m => {
+      document.documentElement.dataset.reading = m;
+      for (const b of buttons) b.setAttribute('aria-pressed', String(b.dataset.mode === m));
+    };
+    set(mode);
+    for (const b of buttons) b.addEventListener('click', () => {
+      set(b.dataset.mode);
+      try { localStorage.setItem('tinker-reading', b.dataset.mode); } catch {}
+    });
+  })();
+</script>
