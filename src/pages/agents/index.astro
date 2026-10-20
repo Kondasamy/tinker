@@ -62,7 +62,7 @@ const HARD: [string, string][] = [
 ];
 const FACTS: [string, string][] = [
   // a helper's single-order asks are parts of the storm case, not cases of their own
-[String(new Set(Object.values(RECORDINGS).flatMap(r => Object.keys(r.asks)).filter(a => !a.startsWith('order-'))).size), 'support cases to work'],
+  [String(new Set(Object.values(RECORDINGS).flatMap(r => Object.keys(r.asks)).filter(a => !a.startsWith('order-'))).size), 'support cases to work'],
   [String(AGENT_TOOLS.length), 'tools the agent can call'],
   [String(CASE_ORDERS.length), 'orders in the storm case'],
   [totalTokens(AGENT).toLocaleString('en-US'), 'tokens the agent spends on the cracked printer'],

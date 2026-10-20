@@ -390,18 +390,20 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'bench-script-or-agent', chapter: '07-workbench',
-    question: 'A store’s script handles returns: look up the order, refund it, email the customer. A return arrives for an item that is out of stock to swap. What happens?',
+    id: 'bench-pick-the-control', chapter: '07-workbench',
+    question: 'A booking agent keeps asking a hotel’s system for a room that is never free. Each run ends “out of budget”, and the guest hears nothing. Which one setting fixes that?',
     options: [
-      'The script adapts and offers a refund instead',
-      'The script fails at the step it has no code for',
-      'The script waits for the stock to come back',
+      'A bigger step budget, so the agent has time to finish',
+      'The repeat detector, so the host stops the failing call and the model gets a turn to tell the guest',
+      'Plan approval, so a person reads every plan first',
+      'Summary memory, so the history stays short',
     ],
     correct: 1,
     why: [
-      'A script only runs the steps its authors wrote. Adapting is what an agent does.',
-      'Right. A workflow is cheap on the cases it foresaw, and stops on the ones it did not.',
-      'A script has no step for waiting, unless someone wrote one.',
+      'More steps only mean more of the same failing call before the budget ends the run, still with no word to the guest.',
+      'Right. The detector stops the repeat and enters “stopped” in the history, so the run ends stuck, with one last turn to explain.',
+      'Approval checks what the agent means to do. The plan here is fine; the hotel’s answer is what never changes.',
+      'Memory changes what the model sees, not when the loop stops. The same call would still fail until the budget ran out.',
     ],
   },
 ];

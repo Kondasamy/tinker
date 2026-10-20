@@ -1,5 +1,5 @@
-// Module 3, AI agents: the intro, chapters 1 to 6 played by mouse and by keyboard only, its own progress key, "I'm not
-// sure", reduced motion, the recap, axe and phone width.
+// Module 3, AI agents: the intro, chapters 1 to 7 played by mouse and by keyboard only, its own progress key, "I'm not
+// sure", reduced motion, the recap and warm-up, axe and phone width.
 import { test, expect, type Page } from '@playwright/test';
 import { moduleOf } from '../../src/lib/modules';
 import { agentWalker, walkAgents } from './agents-flow';
@@ -448,6 +448,45 @@ test('the recap asks from the finished chapters', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   await expect(page.getByRole('radio').first()).toBeVisible();
   await axe(page);
+});
+
+/** Seed agents progress (chapters finished `hours` ago), then open `path` once its islands have hydrated. */
+async function seeded(page: Page, path: string, done: string[], hours = 1) {
+  await page.goto('/');
+  await page.evaluate(({ done, at }) => localStorage.setItem('agents-progress-v1',
+    JSON.stringify({ done, saved: {}, at: Object.fromEntries(done.map(id => [id, at])) })), { done, at: Date.now() - hours * 3600_000 });
+  await page.goto(path);
+  await page.locator('astro-island:not([ssr])').first().waitFor({ state: 'attached' });
+}
+
+test('the recap with no chapters done says so and links chapter 1', async ({ page }) => {
+  await seeded(page, '/agents/recap/', []);
+  await expect(page.getByRole('heading', { name: 'Finish a chapter first' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Start chapter 1 →' })).toHaveAttribute('href', `/agents/${CH1}/`);
+  await expect(page.getByRole('radiogroup')).toHaveCount(0);
+});
+
+test('after chapter 3 the recap asks every item from chapters 1 to 3, and none from later ones', async ({ page }) => {
+  const bank = M.recall!.filter(i => [CH1, CH2, CH3].includes(i.chapter));
+  await seeded(page, '/agents/recap/', [CH1, CH2, CH3]);
+  const asked: string[] = [];
+  const next = page.getByRole('button', { name: /^(Next question|See how you did) →$/ });
+  for (let i = 0; i < bank.length; i++) {
+    asked.push((await page.locator('.recap legend').textContent())!);
+    await page.locator('.recap').getByRole('radio').first().click();
+    await next.click();
+  }
+  await expect(page.locator('.recap legend')).toHaveCount(0);
+  for (const q of asked) expect(bank.some(b => q.includes(b.question)), q).toBe(true);
+  expect(new Set(asked).size).toBe(bank.length);
+});
+
+test('the warm-up shows on the intro 21 hours after a chapter, with a skip link; not 2 hours after', async ({ page }) => {
+  await seeded(page, '/agents/', [CH1], 21);
+  await expect(page.locator('.warmup')).toContainText('from chapters you finished');
+  await expect(page.getByRole('link', { name: 'Skip to chapter 2 →' })).toHaveAttribute('href', `/agents/${CH2}/`);
+  await seeded(page, '/agents/', [CH1], 2);
+  await expect(page.locator('.warmup')).toHaveCount(0);
 });
 
 test.describe('phone', () => {

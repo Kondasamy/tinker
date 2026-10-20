@@ -17,8 +17,12 @@ Every module has a level, a story, an intro at `/<module>/`, its chapters, and a
 | Beginner | [RAG: Retrieval-Augmented Generation](#rag-retrieval-augmented-generation-rag) | Live, 7 chapters |
 | Beginner | Tokens & embeddings | Planned |
 | Intermediate | [Tool calling & MCP](#tool-calling--mcp-tool-calling) (RAG recommended first) | Live, 7 chapters |
+| Intermediate | Evals & LLM testing | Planned |
+| Intermediate | Prompt injection & guardrails | Planned |
+| Intermediate | Context engineering & memory | Planned |
+| Advanced | [AI agents](#ai-agents-agents) (Tool calling recommended first) | Live, 7 chapters |
 | Advanced | Transformer architecture | Planned |
-| Advanced | AI agents | Planned |
+| Advanced | Fine-tuning vs prompting | Planned |
 
 ### RAG: Retrieval-Augmented Generation (`/rag/`)
 
@@ -54,13 +58,29 @@ The chapters play out in Larkspur's **back office**, an isometric diorama: the e
 
 ![A tool calling chapter: a refund waits at the approval barrier, the ledger below shows nothing has moved](docs/images/tool-calling.png)
 
+### AI agents (`/agents/`)
+
+How an assistant goes from one request to a whole case. The Larkspur story continues: the assistant now gets support cases, and the model picks each next step itself.
+
+| # | Chapter | What you do |
+|---|---|---|
+| 1 | Workflow or agent? | Run a damaged-delivery case as a fixed script and as an agent, with the stock in and out, and see when each one fits |
+| 2 | The loop, and who says done | Follow act, look, decide, again, and see that a turn with no tool call is the answer |
+| 3 | Plans, and approving a plan | Have the agent write a plan, re-plan on a surprise, and approve the plan instead of every call; catch a planted line in an email |
+| 4 | Budgets and stuck loops | Set a step budget, watch the token meter, and stop an agent that retries a failing call |
+| 5 | Memory, and what survives it | Watch the history grow, summarise it, and pin the one note that must not be lost |
+| 6 | Sub-agents, and the cost of a handoff | Hand each order to a helper with a clean context, and compare what the lead and the whole run spend |
+| 7 | Workbench | Every control from chapters 1–6 on one case at a time |
+
+The chapters play out in the same back office. The agent adds four props: the plan on a clipboard, a step and context gauge on the host's desk, an in-tray of history that becomes one binder when the host compacts it, and small desks for helpers. The same run is one tab away as a step-by-step sequence.
+
 ---
 
 ## How it's built
 
 - **Static site:** Astro with React islands. No backend, no API key, no live model, so it runs on any static host, and a chapter keeps working offline once its data has loaded.
 - **Real retrieval, precomputed answers (RAG):** the corpus is embedded at build time (`pnpm build:index`, all-MiniLM-L6-v2 and a cross-encoder reranker); the browser runs the real similarity, BM25, reranking, graph-walk and agent maths over those vectors. Model answers are pre-recorded for each kind of evidence that can reach the model, so every knob changes the outcome honestly.
-- **Recorded turns, live tools (Tool calling):** the model's turns are pre-recorded per scenario (`data/tool-calling/turns/`). The host loop, a JSON Schema subset validator, the approval gate, the tools running on fixture data and an MCP-shaped JSON-RPC server all run in the browser (`src/lib/tools/`). A unit test checks every reachable control setting has a recorded turn. MCP facts come from `data/tool-calling/facts.json`, each with its source.
+- **Recorded turns, live tools (Tool calling, AI agents):** the model's turns are pre-recorded per scenario (`data/tool-calling/turns/`). The host loop, a JSON Schema subset validator, the approval gate, the tools running on fixture data and an MCP-shaped JSON-RPC server all run in the browser (`src/lib/tools/`). A unit test checks every reachable control setting has a recorded turn. MCP facts come from `data/tool-calling/facts.json`, each with its source. The agent loop (`src/lib/agents/`) reuses those tools and adds plans, approval, budgets, a repeat detector, memory and helpers, all computed in the browser; its recorded turns are in `data/agents/turns/` and its facts in `data/agents/facts.json`.
 - **Pictures:** hand-inked isometric figures drawn by the Colorfigures engine (see Credits), extended to orbit, zoom and turn the view. Each module leads with a scene you can picture rather than a flow chart: RAG's pipeline on a workbench, tool calling's back office (`src/components/scenes/officeScene.ts`), and the home page's workshop with a plot per module (`heroScene.ts`). Flat sequence figures (lanes and message cards, `src/lib/iso/flat.ts`) in the same ink show the exact messages, a tab away. Names sit in label pills so they stay readable.
 - **Works on a phone:** below 861px the picture stacks above the story, pills grow, and the sequence shows one message at a time.
 
@@ -82,6 +102,7 @@ The chapters play out in Larkspur's **back office**, an isometric diorama: the e
 | `src/content/<module>/` | A module's registry entry (`module.ts`: chapters and each chapter's opening context), its chapter scripts and its recall bank (`recall.ts`) |
 | `src/lib/rag/`, `data/` | RAG engine (retrieval maths, agent, graph) and its corpus, questions, answers and index |
 | `src/lib/tools/`, `data/tool-calling/` | Tool calling engine (host loop, schema validator, MCP-shaped server) and its recorded turns, fixtures and facts |
+| `src/lib/agents/`, `data/agents/` | Agent engine (the agent loop, its budgets, memory and helpers) and its recorded turns, fixtures and facts |
 | `src/lib/iso/` | The drawing engine (Colorfigures, adapted), the isometric stage and the flat figure kit, shared by every module |
 | `src/components/story/` | The step runner every chapter uses: the live picture on the left, the story column on the right |
 | `src/components/quiz/` | Quizzes, predictions and the recap |
@@ -100,7 +121,7 @@ pnpm install    # install exact dependency versions from pnpm-lock.yaml
 pnpm dev        # start the dev server on http://localhost:4321
 ```
 
-Open http://localhost:4321 for the Tinker home; the modules are at http://localhost:4321/rag/ and http://localhost:4321/tool-calling/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap` and `/dev/warmup`. These pages are left out of production builds.
+Open http://localhost:4321 for the Tinker home; the modules are at http://localhost:4321/rag/, http://localhost:4321/tool-calling/ and http://localhost:4321/agents/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap` and `/dev/warmup`. These pages are left out of production builds.
 
 To try the production build locally:
 
