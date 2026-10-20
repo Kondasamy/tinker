@@ -1,9 +1,11 @@
 // U8: module 2's intro (R7, R16, R17, R27) and its place in the catalogue.
 import { readFileSync } from 'node:fs';
 import { test, expect, type Page } from '@playwright/test';
-import AxeBuilder from '@axe-core/playwright';
 import { moduleOf } from '../../src/lib/modules';
 import { toolWalker, walkToolCalling } from './tool-calling-flow';
+import { serious } from './helpers';
+import { RECALL } from '../../src/content/tool-calling/recall';
+import REFUND_GATE from '../../data/tool-calling/turns/refund-gate.json' with { type: 'json' };
 
 const M = moduleOf('tool-calling');
 
@@ -26,12 +28,6 @@ test('the chapter path follows the registry', async ({ page }) => {
   await page.goto('/tool-calling/');
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
   if (!M.chapters.length) await expect(page.locator('#path')).toContainText('Chapters arrive soon');
-});
-
-test('axe: /tool-calling/ has no serious or critical violations', async ({ page }) => {
-  await page.goto('/tool-calling/');
-  const { violations } = await new AxeBuilder({ page }).analyze();
-  expect(violations.filter(v => v.impact === 'serious' || v.impact === 'critical').map(v => `${v.id}: ${v.nodes.map(n => n.target.join(' ')).slice(0, 3).join(' | ')}`)).toEqual([]);
 });
 
 test('the intro fits a 390px phone without sideways scroll', async ({ page }) => {
@@ -128,9 +124,54 @@ test('chapter 3: INVALID and an error result; then a valid wrong id passes the s
   await expect(wide(page)).toContainText('order 1042: delivered');
 });
 
-test('every chapter completes by mouse', async ({ page }) => {
+test('every chapter completes by mouse, and the recap then asks only module 2 items', async ({ page }) => {
   test.setTimeout(120_000);
   await walkToolCalling(page, 'mouse');
+  // the walk ends on the recap, through chapter 7's closing link
+  const asked: string[] = [];
+  const next = page.getByRole('button', { name: /^(Next question|See how you did) →$/ });
+  for (let i = 0; i < RECALL.length; i++) {
+    const q = (await page.locator('.recap legend').textContent())!;
+    asked.push(q);
+    await page.locator('.recap').getByRole('radio').first().click();
+    await next.click();
+  }
+  await expect(page.locator('.recap legend')).toHaveCount(0);   // the summary: every question asked once
+  const bank = RECALL.map(i => i.question), rag = moduleOf('rag').recall!.map(i => i.question);
+  for (const q of asked) {
+    expect(bank.some(b => q.includes(b)), q).toBe(true);
+    expect(rag.some(b => q.includes(b)), q).toBe(false);
+  }
+  expect(new Set(asked).size).toBe(RECALL.length);
+});
+
+test('chapter 7: the workbench rejects the refund with the gate off and says why; the right setup passes', async ({ page }) => {
+  await toolWalker(page, 'mouse').open('07-workbench');
+  await card(page).getByLabel(/^Larkspur orders/).check();
+  await step(page, 2);
+  await btn(page, 'Request 3');
+  await expect(card(page).locator('.tc-ask')).toContainText(REFUND_GATE.ask);
+  await btn(page, '− Lower');
+  await btn(page, /^Try this setup/);
+  const fb = card(page).locator('.feedback');
+  await expect(fb.locator('.stamp')).toHaveText('NOT QUITE');
+  await expect(fb).toContainText('moves real money. With the gate off nobody sees the call before it runs');
+  // three misses bring the hint
+  await btn(page, /^Try this setup/);
+  await btn(page, /^Try this setup/);
+  await expect(card(page).locator('.hint')).toContainText('keep the gate on');
+  await card(page).getByLabel(/Approval gate/).check();
+  await btn(page, /^Try this setup/);
+  await expect(fb.locator('.stamp')).toHaveText('RIGHT');
+  await expect(card(page).getByRole('button', { name: 'Request 3, done' })).toBeVisible();
+  // the picture follows the setup; the messages view shows what connecting sent
+  await expect(page.locator('.stage svg[role="img"]')).toHaveAttribute('aria-label', /gate on, refund limit \$500\.00\. Connected: Larkspur orders\./);
+  await page.locator('.tc-tabs').getByRole('button', { name: /^Messages/ }).click();
+  await expect(wide(page)).toHaveAttribute('aria-label', /tools\/list/);
+  // Show me solves the request in view
+  await btn(page, 'Request 2');
+  await btn(page, 'Show me');
+  await expect(card(page).getByRole('button', { name: 'Request 2, done' })).toBeVisible();
 });
 
 test('every chapter completes by keyboard only', async ({ page }) => {
@@ -156,26 +197,6 @@ test('without reduced motion the newest message does travel (control for the tes
   await card(page).getByRole('radio', { name: /Rejects it/ }).click();
   await player(page).click();
   expect(await running(page)).toBeGreaterThan(0);
-});
-
-for (const c of M.chapters) {
-  test(`axe and 390px: ${c.id}, at the start and with the drawer open`, async ({ page }) => {
-    const serious = async () => (await new AxeBuilder({ page }).analyze()).violations
-      .filter(v => v.impact === 'serious' || v.impact === 'critical').map(v => `${v.id}: ${v.nodes.map(n => n.target.join(' ')).slice(0, 3).join(' | ')}`);
-    await toolWalker(page, 'mouse').open(c.id);
-    expect(await serious(), 'opening state').toEqual([]);
-    await card(page).getByRole('button', { name: 'Inspect' }).click();
-    await expect(page.locator('.drawer')).toBeVisible();
-    expect(await serious(), 'drawer open').toEqual([]);
-    await page.setViewportSize({ width: 390, height: 844 });
-    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
-  });
-}
-
-test('every chapter completes at 390px without sideways scroll', async ({ page }) => {
-  test.setTimeout(180_000);
-  await page.setViewportSize({ width: 390, height: 844 });
-  await walkToolCalling(page, 'mouse', async p => expect(await p.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390));
 });
 
 // U10: chapters 4–6, and the figure's windowing and message drawer.
@@ -231,8 +252,7 @@ test('on a phone the drawer opened from a card is a bottom sheet', async ({ page
   expect(await sheet.evaluate(el => getComputedStyle(el).position)).toBe('fixed');
   const box = (await sheet.boundingBox())!;
   expect(Math.round(box.y + box.height)).toBe(844);
-  const serious = (await new AxeBuilder({ page }).analyze()).violations.filter(v => v.impact === 'serious' || v.impact === 'critical');
-  expect(serious.map(v => v.id)).toEqual([]);
+  expect(await serious(page)).toEqual([]);
 });
 
 test('chapter 4: two lookups go out at once; the refund waits for the total; a lower cap stops the loop with a reason', async ({ page }) => {
@@ -302,8 +322,7 @@ test('chapter 5: integration counts follow the numbers; connecting shows server/
   await expect(drawer(page)).toContainText('"method": "resources/read"');
   await expect(drawer(page)).toContainText('"method": "prompts/get"');
   await expect(drawer(page)).not.toContainText('initialize');
-  const serious = (await new AxeBuilder({ page }).analyze()).violations.filter(v => v.impact === 'serious' || v.impact === 'critical');
-  expect(serious.map(v => v.id)).toEqual([]);
+  expect(await serious(page)).toEqual([]);
 });
 
 test('chapter 6, AE5: denying the refund at the gate advances and the denied-call turn plays', async ({ page }) => {

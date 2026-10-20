@@ -1,6 +1,9 @@
 // Responsiveness (success criterion "no loading wait") and R22: once the background prefetch has finished,
 // a knob change updates the answer within 200 ms, and with the network off every chunking knob still works.
 import { test, expect, type Locator, type Page } from '@playwright/test';
+import { toolWalker } from './tool-calling-flow';
+import { offline } from './helpers';
+import { moduleOf } from '../../src/lib/modules';
 import manifest from '../../public/data/index/manifest.json' with { type: 'json' };
 
 test.use({ viewport: { width: 1440, height: 900 } });
@@ -49,9 +52,9 @@ test('after prefetch, a knob change updates the answer within 200 ms', async ({ 
   expect(times.some(t => t.answer >= 0)).toBe(true);
 });
 
-test('with the network off after prefetch, every chunking knob still updates results', async ({ page, context }) => {
+test('with the network off after prefetch, every chunking knob still updates results', async ({ page }) => {
   const settings = await benchWithChunker(page);
-  await context.setOffline(true);
+  await offline(page);
   const status = page.locator('.canvas-status');
   const expectConfig = async (file: string) => {
     const c = manifest.configs.find(x => x.file === file)!;
@@ -71,4 +74,20 @@ test('with the network off after prefetch, every chunking knob still updates res
     await size.fill(String(i));
     await expectConfig(`sentence-${[8, 16, 24, 32, 48, 64, 96][i]}.bin`);
   }
+});
+
+// R27 for module 2: the recorded turns, tools and MCP servers ship in each chapter's bundle, so a chapter loaded once plays offline.
+test('module 2: every chapter plays to the end with the network off after it loads', async ({ page, context }) => {
+  test.setTimeout(120_000);
+  const w = toolWalker(page, 'mouse');
+  const failed: string[] = [];
+  page.on('requestfailed', r => failed.push(r.url()));
+  for (const [i, c] of moduleOf('tool-calling').chapters.entries()) {
+    await context.setOffline(false);
+    await w.open(c.id);
+    await page.waitForLoadState('networkidle');
+    await offline(page);
+    await w[`ch${i + 1}` as 'ch1']();
+  }
+  expect(failed).toEqual([]);
 });
