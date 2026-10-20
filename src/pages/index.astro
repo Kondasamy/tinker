@@ -104,7 +104,7 @@ const atLevel = (level: Level) => [...LIVE, ...MODULES.filter(m => m.status === 
                   </div>
                 </article>
               ) : (
-                <article class="roadmap" data-module={m.id}>
+                <article class="roadmap" id={`module-${m.id}`} data-module={m.id}>
                   <p class="tags"><span class="level">{m.level}</span> <span class="planned">Planned</span></p>
                   <h4>{m.title}</h4>
                   <p>{m.description}</p>

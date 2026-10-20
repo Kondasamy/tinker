@@ -27,7 +27,9 @@ describe('module registry', () => {
 
   it('lists the planned modules without chapters', () => {
     const planned = MODULES.filter(m => m.status === 'planned').map(m => [m.title, m.level, m.chapters.length]);
-    expect(planned).toEqual([['Tokens & embeddings', 'Beginner', 0], ['Transformer architecture', 'Advanced', 0], ['AI agents', 'Advanced', 0]]);
+    expect(planned).toEqual([['Tokens & embeddings', 'Beginner', 0], ['Transformer architecture', 'Advanced', 0], ['AI agents', 'Advanced', 0],
+      ['Evals & LLM testing', 'Intermediate', 0], ['Prompt injection & guardrails', 'Intermediate', 0],
+      ['Context engineering & memory', 'Intermediate', 0], ['Fine-tuning vs prompting', 'Advanced', 0]]);
   });
 
   it('has tool calling as a live Intermediate module that recommends RAG first', () => {
