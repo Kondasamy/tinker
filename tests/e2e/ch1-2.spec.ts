@@ -23,9 +23,9 @@ test('chapter 1: wrong answer, click through the eras, cited sources, quiz', asy
     for (const href of await links.evaluateAll(as => as.map(a => (a as HTMLAnchorElement).href))) expect(href).toMatch(/^https:\/\//);
   }
 
-  await card(page).getByRole('button', { name: /Models were too slow/ }).click();
+  await card(page).getByRole('radio', { name: /Models were too slow/ }).click();
   await expect(card(page)).toContainText('NOT QUITE');
-  await card(page).getByRole('button', { name: /did not fit/ }).click();
+  await card(page).getByRole('radio', { name: /did not fit/ }).click();
   await expect(card(page)).toContainText('Chapter complete');
   await expect(card(page).getByRole('link', { name: /Next:/ })).toHaveAttribute('href', '/rag/02-why-not-stuff-it/');
 });
@@ -62,6 +62,6 @@ test('chapter 2: overflow at 5 TB (AE2), three more reasons, quiz', async ({ pag
   }
   await expect(drawer(page).getByRole('heading')).toContainText(/who may see what/i);
 
-  await card(page).getByRole('button', { name: /no context window holds it/ }).click();
+  await card(page).getByRole('radio', { name: /no context window holds it/ }).click();
   await expect(card(page)).toContainText('Chapter complete');
 });

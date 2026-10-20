@@ -125,7 +125,7 @@ const m = moduleOf(module);
 
   .opts { display: flex; flex-wrap: wrap; gap: 8px; }
   .chip { font: inherit; font-size: 13px; color: var(--ink); background: var(--card); border: 1.5px solid var(--ink); border-radius: 8px; padding: 6px 12px; cursor: pointer; box-shadow: 2px 2px 0 var(--ink); }
-  .chip[aria-pressed='true'] { background: var(--ink); color: var(--paper); box-shadow: none; }
+  .chip[aria-pressed='true'], .chip[aria-checked='true'] { background: var(--ink); color: var(--paper); box-shadow: none; }
   .big { font-weight: 800; font-size: 14px; background: var(--acc); border: 1.5px solid var(--ink); border-radius: 999px; padding: 8px 16px; box-shadow: 3px 3px 0 var(--ink); text-decoration: none; align-self: flex-start; }
 
   .quiz { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
@@ -149,7 +149,9 @@ const m = moduleOf(module);
   .closing p { margin: 6px 0 0; font-size: 13px; }
   .closing a { margin-left: 6px; white-space: nowrap; }
   .stamp { display: inline-block; font-weight: 900; font-size: 11px; letter-spacing: .14em; border: 2px solid currentColor; border-radius: 6px; padding: 1px 7px; transform: rotate(-2deg); }
-  .stamp.correct { color: var(--ok); } .stamp.wrong { color: var(--bad); }
+  .stamp.correct { color: var(--ok); } .stamp.wrong { color: var(--bad); } .stamp.neutral { color: var(--ink); }
+  .quiz .chip[aria-disabled='true'] { opacity: .5; box-shadow: none; cursor: default; }
+  .feedback:focus { outline: none; }
 
   .drawer { background: var(--card); border: 1.5px solid var(--ink); border-radius: 14px; padding: 14px 18px; font-size: 13.5px; }
   .drawer header { display: flex; justify-content: space-between; align-items: center; gap: 8px; }

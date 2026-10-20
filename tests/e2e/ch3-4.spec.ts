@@ -37,7 +37,7 @@ test('chapter 3: made-up answer, then Docs, then Retriever, grounded with a cita
   await expect(page.getByTestId('math')).toContainText(/= 0\.\d{3}/);
   await expect(card(page)).toContainText('Step 6 of 6');
 
-  await card(page).getByRole('button', { name: /few passages that match/ }).click();
+  await card(page).getByRole('radio', { name: /few passages that match/ }).click();
   await expect(card(page)).toContainText('Chapter complete');
   await expect(card(page).getByRole('link', { name: /Next:/ })).toHaveAttribute('href', '/rag/04-layers/');
 });
@@ -90,7 +90,7 @@ test('chapter 4: negation split (AE1), the layers one at a time, map readout (AE
   await expect(page.locator('[data-negation-cut]')).toHaveCount(0);
   await expect(page.getByTestId('cut-summary')).toContainText('No cut splits the key sentence');
 
-  await card(page).getByRole('button', { name: /cut the sentence right after/ }).click();
+  await card(page).getByRole('radio', { name: /cut the sentence right after/ }).click();
   await expect(card(page)).toContainText('Chapter complete');
 });
 

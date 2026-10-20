@@ -3,7 +3,8 @@
 const key = (module: string) => `${module}-progress-v1`;
 const LAST = 'tinker-last-module';
 
-interface Progress { done: string[]; saved: Record<string, unknown>; at?: Record<string, number> }
+export interface RecallResult { right: boolean; unsure: boolean; at: number }
+interface Progress { done: string[]; saved: Record<string, unknown>; at?: Record<string, number>; recall?: Record<string, RecallResult> }
 
 function read(module: string): Progress {
   try {
@@ -36,6 +37,17 @@ export function saveChapter(module: string, id: string, data: unknown) {
   const p = read(module);
   write(module, { ...p, saved: { ...p.saved, [id]: data } });
   try { localStorage.setItem(LAST, module); } catch { /* storage unavailable */ }
+}
+
+/** The latest result per recall item. It sits outside chapter runs, so a chapter Reset never wipes it (KTD7). */
+export function recallResults(module: string): Record<string, RecallResult> {
+  const r = read(module).recall;
+  return r && typeof r === 'object' ? r : {};
+}
+
+export function recordRecall(module: string, itemId: string, result: { right: boolean; unsure: boolean }) {
+  const p = read(module);
+  write(module, { ...p, recall: { ...recallResults(module), [itemId]: { ...result, at: Date.now() } } });
 }
 
 /** The module the reader saved a chapter in most recently. */

@@ -105,7 +105,7 @@ test('chapter 5: every lever, each puzzle broken then solved, meters moving inde
   await card(page).getByRole('button', { name: 'Sentence' }).click();
   await solved(page, 16);
 
-  await card(page).getByRole('button', { name: /What reached the model/ }).click();
+  await card(page).getByRole('radio', { name: /What reached the model/ }).click();
   await expect(card(page)).toContainText('Chapter complete');
 });
 

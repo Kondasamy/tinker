@@ -4,8 +4,9 @@ import { loadChapter, saveChapter, markDone } from '../../lib/progress';
 import { moduleOf } from '../../lib/modules';
 import Drawer from './Drawer';
 
-/** What a step control gets. `apply` hands the next state to the runner, which checks the step's predicate. */
-export interface ControlProps<S> { state: S; apply: (next: S) => void; focused: boolean }
+/** What a step control gets. `apply` hands the next state to the runner, which checks the step's predicate;
+ * `sync` does too, but a miss is never a failed try (e.g. "I'm not sure"). */
+export interface ControlProps<S> { state: S; apply: (next: S) => void; sync: (next: S) => void; focused: boolean }
 /** What the hero stage (canvas or scene) gets. `inspect` opens the drawer without changing the step;
  * `sync` applies a state the learner did not cause (it can advance the step but never counts as a failed try). */
 export interface StageProps<S> { state: S; apply: (next: S) => void; sync: (next: S) => void; focus?: string; inspect: (panel: string) => void }
@@ -107,7 +108,7 @@ export default function StepRunner<S>({ module = 'rag', chapter, steps, initial,
           </div>
           {step.visibleControls.map(name => (
             <div key={name} className="control" data-control={name} data-focus={step.focus === name || undefined}>
-              {controls[name]?.({ state: run.state, apply, focused: step.focus === name })}
+              {controls[name]?.({ state: run.state, apply, sync, focused: step.focus === name })}
             </div>
           ))}
           {run.hint && step.hint && !run.done && <p className="hint" role="status">Hint: {step.hint}</p>}

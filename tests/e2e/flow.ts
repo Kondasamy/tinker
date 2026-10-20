@@ -17,6 +17,7 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
   };
   const card = page.getByRole('region', { name: 'Next step' });
   const btn = (name: string | RegExp) => press(card.getByRole('button', { name }));
+  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name }));   // a quiz option
   const step = (n: number) => expect(card).toContainText(`Step ${n} of`);
   const showMe = () => btn('Show me');
 
@@ -37,7 +38,7 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
   // 1. History
   await btn(/^Ask/);
   for (let i = 0; i < 4; i++) { await step(i + 2); await press(page.locator(`[data-era="${i}"]`)); }
-  await btn(/did not fit/);
+  await opt(/did not fit/);
   await next(/02-why-not-stuff-it/);
 
   // 2. Why not stuff it
@@ -47,7 +48,7 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
   await step(3);
   await slide(slider, '8');
   for (const reason of ['Lost in the middle', 'Freshness', 'Who may see what']) await btn(`Next reason: ${reason} →`);
-  await btn(/no context window holds it/);
+  await opt(/no context window holds it/);
   await next(/03-what-is-rag/);
 
   // 3. What is RAG
@@ -56,7 +57,7 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
   await btn('Add the Retriever');
   await btn('See what the retriever found');
   await tick(page.getByRole('complementary').getByLabel('Show the math'));
-  await btn(/few passages that match/);
+  await opt(/few passages that match/);
   await next(/04-layers/);
 
   // 4. Layers
@@ -66,7 +67,7 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
   await page.locator('.map circle[tabindex]').first().focus();
   await btn('Add the Context assembler');
   await showMe();
-  await btn(/cut the sentence right after/);
+  await opt(/cut the sentence right after/);
   await next(/05-accuracy/);
 
   // 5. Accuracy: every puzzle by Show me
@@ -88,7 +89,7 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
   await solve(14);
   await nextPuzzle();
   await solve(16);
-  await btn(/What reached the model/);
+  await opt(/What reached the model/);
   await next(/06-types/);
 
   // 6. Types
@@ -106,7 +107,7 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
   await run();
   await pick('Naive / advanced');
   await run();
-  await btn(/follow-up can fetch the rest/);
+  await opt(/follow-up can fetch the rest/);
   await step(7);
   await pick(/Kestrel K2 scanner integration/);
   await run();
@@ -120,7 +121,7 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
   await hops.focus();
   await hops.press('ArrowRight');
   await run();
-  await btn(/chains facts across documents/);
+  await opt(/chains facts across documents/);
   await step(12);
   await run();
   await showMe();                                   // self-correcting
