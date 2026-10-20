@@ -1,0 +1,139 @@
+{
+  "asks": {
+    "refund": "Birch & Co ordered too many dock door sensors on order 1024 and want their money back. Refund the order and let them know.",
+    "damaged": "Hollis Hardware says the label printer on order 1042 arrived cracked. Sort it out and let them know."
+  },
+  "tools": [
+    "get_order",
+    "check_stock",
+    "create_replacement",
+    "issue_refund",
+    "send_email"
+  ],
+  "turns": {
+    "case=refund|hist=|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "First I will look up order 1024.",
+      "calls": [
+        {
+          "id": "call_1",
+          "name": "get_order",
+          "arguments": {
+            "order_id": 1024
+          }
+        }
+      ]
+    },
+    "case=damaged|hist=|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "First I will look up order 1042.",
+      "calls": [
+        {
+          "id": "call_1",
+          "name": "get_order",
+          "arguments": {
+            "order_id": 1042
+          }
+        }
+      ]
+    },
+    "case=refund|hist=get_order:1024:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "The order was $290 and was delivered. Refunding it in full.",
+      "calls": [
+        {
+          "id": "call_2",
+          "name": "issue_refund",
+          "arguments": {
+            "order_id": 1024,
+            "amount": 290,
+            "reason": "customer_request"
+          }
+        }
+      ]
+    },
+    "case=damaged|hist=get_order:1042:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "The printer was delivered on 14 October. Before I promise a replacement, I will check we have one.",
+      "calls": [
+        {
+          "id": "call_2",
+          "name": "check_stock",
+          "arguments": {
+            "order_id": 1042
+          }
+        }
+      ]
+    },
+    "case=refund|hist=get_order:1024:ok,issue_refund:1024:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "Refund issued. Now I will tell Birch & Co.",
+      "calls": [
+        {
+          "id": "call_3",
+          "name": "send_email",
+          "arguments": {
+            "order_id": 1024,
+            "body": "Hello Birch & Co, we have refunded the full $290 on order 1024 to your original payment method. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=damaged|hist=get_order:1042:ok,check_stock:1042:in|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "We have the printer in stock. Shipping a replacement.",
+      "calls": [
+        {
+          "id": "call_3",
+          "name": "create_replacement",
+          "arguments": {
+            "order_id": 1042
+          }
+        }
+      ]
+    },
+    "case=damaged|hist=get_order:1042:ok,check_stock:1042:out|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "The printer is out of stock, so I cannot replace it. I will refund the $310 instead.",
+      "calls": [
+        {
+          "id": "call_3",
+          "name": "issue_refund",
+          "arguments": {
+            "order_id": 1042,
+            "amount": 310,
+            "reason": "damaged"
+          }
+        }
+      ]
+    },
+    "case=refund|hist=get_order:1024:ok,issue_refund:1024:ok,send_email:1024:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "Done. I refunded $290 on order 1024 and emailed Birch & Co."
+    },
+    "case=damaged|hist=get_order:1042:ok,check_stock:1042:in,create_replacement:1042:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "Replacement shipped. Now I will tell Hollis Hardware.",
+      "calls": [
+        {
+          "id": "call_4",
+          "name": "send_email",
+          "arguments": {
+            "order_id": 1042,
+            "body": "Hello Hollis Hardware, sorry your Wren WL-4 label printer arrived cracked. A replacement ships today, and you do not need to send the broken one back. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=damaged|hist=get_order:1042:ok,check_stock:1042:out,issue_refund:1042:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "Refund issued. Now I will tell Hollis Hardware.",
+      "calls": [
+        {
+          "id": "call_4",
+          "name": "send_email",
+          "arguments": {
+            "order_id": 1042,
+            "body": "Hello Hollis Hardware, sorry your Wren WL-4 label printer arrived cracked. It is out of stock, so we have refunded the full $310 to your original payment method. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=damaged|hist=get_order:1042:ok,check_stock:1042:in,create_replacement:1042:ok,send_email:1042:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "Done. A replacement printer is on its way to Hollis Hardware, and I have emailed them."
+    },
+    "case=damaged|hist=get_order:1042:ok,check_stock:1042:out,issue_refund:1042:ok,send_email:1042:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "Done. The printer was out of stock, so I refunded $310 on order 1042 and emailed Hollis Hardware."
+    }
+  }
+}

@@ -10,14 +10,20 @@ export interface Fact {
   source: string;
 }
 
-/** The day every fact was last checked against its source (YYYY-MM-DD). */
-export const ACCESSED: string = data.accessed;
-export const FACTS: Fact[] = data.facts;
-
-export function fact(id: string): Fact & { accessed: string } {
-  const f = FACTS.find(f => f.id === id);
-  if (!f) throw new Error(`unknown fact: ${id}`);
-  return { ...f, accessed: ACCESSED };
+/** A module's fact lookup over its own facts file; an unknown id throws, so copy can't cite a fact that isn't there. */
+export function factsOf(d: { accessed: string; facts: Fact[] }) {
+  return {
+    /** the day every fact was last checked against its source (YYYY-MM-DD) */
+    ACCESSED: d.accessed,
+    FACTS: d.facts,
+    fact(id: string): Fact & { accessed: string } {
+      const f = d.facts.find(f => f.id === id);
+      if (!f) throw new Error(`unknown fact: ${id}`);
+      return { ...f, accessed: d.accessed };
+    },
+  };
 }
+
+export const { ACCESSED, FACTS, fact } = factsOf(data);
 
 export const MCP_VERSION = fact('mcp-version').value!;

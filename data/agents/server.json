@@ -1,0 +1,61 @@
+{
+  "tools": [
+    {
+      "name": "check_stock",
+      "title": "Check stock",
+      "description": "Check whether the warehouse holds enough of every item on one Larkspur order to ship it again. Returns each item's count on hand.",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "order_id": { "type": "integer", "description": "The order number, for example 1042.", "minimum": 1000, "maximum": 9999 } },
+        "required": ["order_id"],
+        "additionalProperties": false
+      },
+      "annotations": { "readOnlyHint": true }
+    },
+    {
+      "name": "create_replacement",
+      "title": "Ship a replacement",
+      "description": "Ship a free replacement of every item on one Larkspur order from the warehouse. Fails if any item is out of stock.",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "order_id": { "type": "integer", "description": "The order number.", "minimum": 1000, "maximum": 9999 } },
+        "required": ["order_id"],
+        "additionalProperties": false
+      },
+      "annotations": { "readOnlyHint": false }
+    },
+    {
+      "name": "track_shipment",
+      "title": "Track shipment",
+      "description": "Ask the carrier where one shipped Larkspur order is now.",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "order_id": { "type": "integer", "description": "The order number.", "minimum": 1000, "maximum": 9999 } },
+        "required": ["order_id"],
+        "additionalProperties": false
+      },
+      "annotations": { "readOnlyHint": true }
+    },
+    {
+      "name": "send_email",
+      "title": "Email the customer",
+      "description": "Send an email to the customer who placed one Larkspur order. The customer reads it, so it cannot be taken back.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "order_id": { "type": "integer", "description": "The order number; the email goes to that order's customer.", "minimum": 1000, "maximum": 9999 },
+          "body": { "type": "string", "description": "The email's text." }
+        },
+        "required": ["order_id", "body"],
+        "additionalProperties": false
+      },
+      "annotations": { "readOnlyHint": false }
+    }
+  ],
+  "servers": {
+    "orders": { "name": "larkspur-orders", "title": "Larkspur orders", "tools": ["get_order", "issue_refund"], "resources": [], "prompts": [] },
+    "warehouse": { "name": "larkspur-warehouse", "title": "Larkspur warehouse", "tools": ["check_stock", "create_replacement"], "resources": [], "prompts": [] },
+    "carrier": { "name": "fernway-tracking", "title": "Carrier tracking", "tools": ["track_shipment"], "resources": [], "prompts": [] },
+    "mail": { "name": "larkspur-mail", "title": "Larkspur mail", "tools": ["send_email"], "resources": [], "prompts": [] }
+  }
+}

@@ -8,7 +8,7 @@ export interface RagChapter extends Chapter {
 }
 
 const LLM: [string, string] = ['LLM', 'Large language model. It writes text by predicting what comes next, using what it learned in training and what is in its prompt.'];
-const WINDOW: [string, string] = ['Context window', 'How much text a model can read in one request, counted in tokens (a token is about ¾ of a word).'];
+export const WINDOW: [string, string] = ['Context window', 'How much text a model can read in one request, counted in tokens (a token is about ¾ of a word).'];
 const CHUNK: [string, string] = ['Chunk', 'A small piece of a document. RAG searches and hands over chunks, not whole files.'];
 
 const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [

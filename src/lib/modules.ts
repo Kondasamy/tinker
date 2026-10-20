@@ -1,6 +1,7 @@
 // The module registry (KTD1): every module, live or planned. Pages, navigation, share images and checks read from here.
 import { RAG_MODULE } from '../content/rag/module';
 import { TOOL_CALLING_MODULE } from '../content/tool-calling/module';
+import { AGENTS_MODULE } from '../content/agents/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -49,7 +50,11 @@ export const MODULES: Module[] = [
   TOOL_CALLING_MODULE,
   planned('tokens', 'Tokens & embeddings', 'Beginner', 'How text becomes the numbers a model reads.'),
   planned('transformers', 'Transformer architecture', 'Advanced', 'What happens inside the model between a prompt and its next word.'),
-  planned('agents', 'AI agents', 'Advanced', 'Models that plan, call tools in a loop and decide when they are done.'),
+  AGENTS_MODULE,
+  planned('evals', 'Evals & LLM testing', 'Intermediate', 'How a team knows the assistant got better or worse: test sets, graders and regressions.'),
+  planned('guardrails', 'Prompt injection & guardrails', 'Intermediate', 'Text that tries to take over the model, and the defences that hold it back.'),
+  planned('context', 'Context engineering & memory', 'Intermediate', 'What goes into the model’s window each turn, and what it should remember.'),
+  planned('fine-tuning', 'Fine-tuning vs prompting', 'Advanced', 'When to train the model, when to prompt it, and when to give it documents.'),
 ];
 
 export function moduleOf(id: string): Module {

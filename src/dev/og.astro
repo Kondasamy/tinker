@@ -20,6 +20,9 @@ import { run } from '../lib/tools/host';
 import { RECORDINGS } from '../lib/tools/turns';
 import { SERVERS } from '../lib/tools/server';
 import { MCP_BOARD, connectScene } from '../components/scenes/mcpScene';
+import { agentScene } from '../components/scenes/agentScene';
+import { run as agentRun, CONTEXT as AGENT_CONTEXT, DEFAULTS as AGENT_DEFAULTS, MEMORY_CONTEXT } from '../lib/agents/loop';
+import { RECORDINGS as AGENT_RECORDINGS } from '../lib/agents/turns';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -46,6 +49,28 @@ const tool = TOOL_OG[page.og];
 const MCP_OG = connectScene({ servers: Object.values(SERVERS).map(s => ({ name: s.title.toUpperCase(), connected: true })), scale: 1.5 });
 // the workbench: the same host, its gate on
 const BENCH_OG = connectScene({ servers: Object.values(SERVERS).map(s => ({ name: s.title.toUpperCase(), connected: true })), host: 'HOST · GATE ON', scale: 1.5 });
+// module 3: the cracked printer, out of stock. The intro: the agent telling the customer after it changed course;
+// chapter 1: the script stopped at the step nobody wrote a fallback for. Recaps keep the recall cards.
+const PRINTER = (mode: 'script' | 'agent') => agentRun(AGENT_RECORDINGS['01-workflow-or-agent'], { case: 'damaged', stock: 'out', mode });
+const AGENT_RUN = PRINTER('agent'), LOOP_RUN = agentRun(AGENT_RECORDINGS['02-the-loop']);
+const AGENT_OG: Record<string, ReturnType<typeof agentScene>> = {
+  agents: agentScene({ run: AGENT_RUN, upTo: AGENT_RUN.steps.length - 1, scale: 1.5 }),
+  'agents-01-workflow-or-agent': agentScene({ run: PRINTER('script'), scale: 1.5 }),
+  // chapter 2: the loop's last turn, the model answering with no call, the gauge far from the step budget
+  'agents-02-the-loop': agentScene({ run: LOOP_RUN, gauge: { steps: AGENT_DEFAULTS.steps, context: AGENT_CONTEXT }, scale: 1.5 }),
+  // chapter 3: the plan on the clipboard after the stock-out, the replacement struck and the refund added
+  'agents-03-plans': agentScene({ run: agentRun(AGENT_RECORDINGS['03-plans'], { case: 'damaged', stock: 'out', plan: true }), clipboard: true, scale: 1.5 }),
+  // chapter 4: the stuck loop with no detector, the gauge full at the step budget
+  'agents-04-budgets': agentScene({ run: agentRun(AGENT_RECORDINGS['04-budgets'], { repeat: null }), gauge: { steps: AGENT_DEFAULTS.steps, context: AGENT_CONTEXT }, scale: 1.5 }),
+  // chapter 5: the storm case with summary memory at the chapter's budget, the history compacted into one binder
+  'agents-05-memory': agentScene({ run: agentRun(AGENT_RECORDINGS['05-memory'], { mem: 'summary', context: MEMORY_CONTEXT }), gauge: { steps: AGENT_DEFAULTS.steps, context: MEMORY_CONTEXT }, tray: true, scale: 1.5 }),
+  // chapter 6: the storm case handed out, five helper desks each with a reply on it, the lead's gauge low. Scale 1:
+  // a larger scale draws the phone's single desk, and the five desks are the picture
+  'agents-06-sub-agents': agentScene({ run: agentRun(AGENT_RECORDINGS['06-sub-agents'], { helpers: true }), gauge: { steps: AGENT_DEFAULTS.steps, context: AGENT_CONTEXT }, helpers: true }),
+  // chapter 7: the bench with the planted case planned and approved, so the clipboard, the gauge and the tray are all out
+  'agents-07-workbench': agentScene({ run: agentRun(AGENT_RECORDINGS['03-plans'], { case: 'planted', plan: true }), clipboard: true, gauge: { steps: AGENT_DEFAULTS.steps, context: AGENT_CONTEXT }, tray: true, scale: 1.5 }),
+};
+const agent = AGENT_OG[page.og];
 ---
 <html lang="en">
   <head><meta charset="utf-8" /><meta name="robots" content="noindex" /><title>og: {page.og}</title></head>
@@ -62,6 +87,7 @@ const BENCH_OG = connectScene({ servers: Object.values(SERVERS).map(s => ({ name
         {page.og === 'home' ? <IsoStage board={HERO_BOARD} scene={HOME_HERO} label="" />
           : page.og === 'rag' ? <IsoStage board={MINI_BOARD} scene={miniPipeline} label="" />
           : page.og === 'tool-calling' ? <IsoStage board={OFFICE_BOARD} scene={officeScene({ msgs: SEQ_MSGS, upTo: 3, tools: 2, scale: 1.5 })} label="" />
+          : agent ? <IsoStage board={OFFICE_BOARD} scene={agent} label="" />
           : tool ? <IsoStage board={OFFICE_BOARD} scene={tool} label="" />
           : page.og === 'tool-calling-05-mcp' ? <IsoStage board={MCP_BOARD} scene={MCP_OG} label="" />
           : page.og === 'tool-calling-07-workbench' ? <IsoStage board={MCP_BOARD} scene={BENCH_OG} label="" />

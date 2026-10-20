@@ -66,7 +66,7 @@ const uri = (doc: string) => `larkspur://policies/${doc}`;
 
 class RpcError extends Error { constructor(public code: number, message: string, public data?: unknown) { super(message); } }
 const invalid = (message: string) => new RpcError(-32602, message);
-const text = (data: Record<string, unknown>): ToolResult => ({ resultType: 'complete', content: [{ type: 'text', text: JSON.stringify(data, null, 2) }], isError: false, structuredContent: data });
+export const text = (data: Record<string, unknown>): ToolResult => ({ resultType: 'complete', content: [{ type: 'text', text: JSON.stringify(data, null, 2) }], isError: false, structuredContent: data });
 /** A tool execution error: a normal result the model can read and correct from, not a protocol error. */
 export const toolError = (message: string): ToolResult => ({ resultType: 'complete', content: [{ type: 'text', text: message }], isError: true });
 
@@ -79,11 +79,17 @@ export interface ServerOptions {
   customer?: string;
 }
 
-export function createServer(id: ServerId, opts: ServerOptions = {}) {
-  const def = SERVERS[id], orders = opts.orders ?? structuredClone(ORDERS);
-  const tools = TOOLS.filter((t) => def.tools.includes(t.name));
-  const info = { name: def.name, title: def.title, version: '1.0.0' };
+/** What a set of MCP-shaped servers serves (KTD2): their definitions, their tools and each tool's behaviour.
+ * Tool calling uses TOOL_CALLING; another module passes its own bundle and leaves this one as it is. */
+export interface Bundle {
+  servers: Record<string, ServerDef>;
+  tools: Tool[];
+  /** each tool's handler, over one server's own orders and options */
+  handlers: (orders: Order[], opts: ServerOptions) => Record<string, (a: any) => ToolResult>;
+}
 
+/** The order and calendar tools' handlers; another bundle reuses them for the tools it shares. */
+export function orderHandlers(orders: Order[], opts: ServerOptions): Record<string, (a: any) => ToolResult> {
   const view = ({ injected: _, ...o }: Order) => structuredClone(o);
   function find(orderId: number): Order | string {
     const o = orders.find((x) => x.id === orderId);
@@ -91,7 +97,7 @@ export function createServer(id: ServerId, opts: ServerOptions = {}) {
     if (opts.customer && o.customer !== opts.customer) return `Order ${orderId} belongs to another customer, not ${opts.customer}.`;
     return o;
   }
-  const RUN: Record<string, (a: any) => ToolResult> = {
+  return {
     get_order: ({ order_id }) => { const o = find(order_id); return typeof o === 'string' ? toolError(o) : text(view(o)); },
     list_orders_for_customer: ({ customer }) =>
       text({ orders: orders.filter((o) => o.customer === customer).sort((a, b) => b.placed.localeCompare(a.placed)).map(view) }),
@@ -105,6 +111,14 @@ export function createServer(id: ServerId, opts: ServerOptions = {}) {
     },
     get_calendar: ({ date }) => text({ date, events: CALENDAR.filter((e) => e.date === date) }),
   };
+}
+export const TOOL_CALLING: Bundle = { servers: SERVERS, tools: TOOLS, handlers: orderHandlers };
+
+export function createServer(id: string, opts: ServerOptions = {}, bundle: Bundle = TOOL_CALLING) {
+  const def = bundle.servers[id], orders = opts.orders ?? structuredClone(ORDERS);
+  const tools = bundle.tools.filter((t) => def.tools.includes(t.name));
+  const info = { name: def.name, title: def.title, version: '1.0.0' };
+  const RUN = bundle.handlers(orders, opts);
 
   const METHODS: Record<string, (p: Record<string, any>) => Record<string, unknown>> = {
     'server/discover': () => ({ supportedVersions: [PROTOCOL_VERSION], capabilities: { tools: {}, resources: {}, prompts: {} }, serverInfo: info }),

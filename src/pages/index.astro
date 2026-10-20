@@ -14,6 +14,9 @@ import { HOME } from '../lib/pages';
 import { SEQ_MSGS } from '../components/scenes/toolSequence';
 import { OFFICE_BOARD, officeScene, officeLabel } from '../components/scenes/officeScene';
 import { RECORDINGS } from '../lib/tools/turns';
+import { agentScene, agentLabel } from '../components/scenes/agentScene';
+import { run } from '../lib/agents/loop';
+import { RECORDINGS as AGENT_RECORDINGS } from '../lib/agents/turns';
 
 const one = (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) => ({ top }: SceneCtx) =>
   blockShadow(type, 30, 30, top) + renderers[type]({ x: 30, y: 30, ...opts });
@@ -32,9 +35,13 @@ const LOOP: [string, string][] = [
 // a live module's card picture and topic chips; every other fact on a card comes from the registry
 type Iso = { board: typeof MINI_BOARD; scene: typeof miniPipeline; label: string };
 const OFFICE = { msgs: SEQ_MSGS, upTo: 3, tools: RECORDINGS['order-status'].tools.length, scale: 1.7 };
+// the damaged delivery with the printer out of stock: the agent checked, changed course and is telling the customer
+const CASE = run(AGENT_RECORDINGS['01-workflow-or-agent'], { case: 'damaged', stock: 'out' });
+const AGENT = { run: CASE, upTo: CASE.steps.length - 1, scale: 1.7 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: { name: 'Retrieval-Augmented Generation (RAG)', iso: { board: MINI_BOARD, scene: miniPipeline, label: MINI_LABEL }, topics: ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'Reranking', 'Agentic RAG', 'GraphRAG'] },
   'tool-calling': { name: 'Tool calling & the Model Context Protocol (MCP)', iso: { board: OFFICE_BOARD, scene: officeScene(OFFICE), label: officeLabel(OFFICE) }, topics: ['Tool definitions', 'JSON Schema', 'Multi-step calls', 'MCP hosts & servers', 'Tools, resources, prompts', 'Approval', 'Prompt injection'] },
+  agents: { name: 'AI agents', iso: { board: OFFICE_BOARD, scene: agentScene(AGENT), label: agentLabel(AGENT) }, topics: ['Workflow or agent', 'The agent loop', 'Plans & approval', 'Step & token budgets', 'Stuck loops', 'Memory & compaction', 'Sub-agents'] },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];
 const LIVE = MODULES.filter(m => m.status === 'live');
@@ -94,7 +101,7 @@ const atLevel = (level: Level) => [...LIVE, ...MODULES.filter(m => m.status === 
                 <article class="module" data-module={m.id}>
                   {CARD[m.id]?.iso && <div class="pic"><IsoStage {...CARD[m.id].iso!} /></div>}
                   <div class="info">
-                    <p class="kicker">Module {LIVE.indexOf(m) + 1} · {m.chapters.length ? `${m.chapters.length} chapters` : 'Chapters arrive soon'}</p>
+                    <p class="kicker">Module {LIVE.indexOf(m) + 1} · {m.chapters.length ? `${m.chapters.length} ${m.chapters.length === 1 ? 'chapter' : 'chapters'}` : 'Chapters arrive soon'}</p>
                     <h4><a href={`/${m.id}/`}>{CARD[m.id]?.name ?? m.title}</a></h4>
                     <p class="tags"><span class="level">{m.level}</span></p>
                     <p>{m.description}</p>
@@ -104,7 +111,7 @@ const atLevel = (level: Level) => [...LIVE, ...MODULES.filter(m => m.status === 
                   </div>
                 </article>
               ) : (
-                <article class="roadmap" data-module={m.id}>
+                <article class="roadmap" id={`module-${m.id}`} data-module={m.id}>
                   <p class="tags"><span class="level">{m.level}</span> <span class="planned">Planned</span></p>
                   <h4>{m.title}</h4>
                   <p>{m.description}</p>

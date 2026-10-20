@@ -5,7 +5,7 @@ Decisions for anyone (human or agent) changing this repo. Each one is here becau
 ## What this is
 
 - **Tinker**: hand-drawn, interactive explanations of tech concepts, by **Kondasamy Jayaraman** (https://kondasamy.com). Served at **https://explain.kondasamy.com** (`site` in `astro.config.mjs`). GitHub: `Kondasamy/tinker`.
-- A platform of **modules**. Each module is one concept told as a playable story at `/<module>/`. **RAG** is module 1, at `/rag/`; **Tool calling & MCP** is module 2, at `/tool-calling/`.
+- A platform of **modules**. Each module is one concept told as a playable story at `/<module>/`. **RAG** is module 1, at `/rag/`; **Tool calling & MCP** is module 2, at `/tool-calling/`; **AI agents** is module 3, at `/agents/`.
 - Audience: product managers, engineers and analysts at companies adopting the technology. Assume no background; keep any maths optional.
 - Static Astro + React islands site: no backend, no API key, no live model. Anything "live" runs in the browser over data built ahead of time.
 
@@ -31,7 +31,7 @@ Author credit is always the full name, **Kondasamy Jayaraman**, linked to kondas
 ## Modules
 
 - **Registry (`src/lib/modules.ts`).** Each module declares itself in `src/content/<module>/module.ts` (id, title, level, status, author, prereqs, story, chapters with `intro`, recall bank); `MODULES` collects them. Pages, navigation, share images and checks read from it. Planned modules are registry entries with no chapters, no pages and no images.
-- **Levels are per module**: Beginner, Intermediate, Advanced. RAG is Beginner; Tool calling is Intermediate with RAG as its prereq.
+- **Levels are per module**: Beginner, Intermediate, Advanced. RAG is Beginner; Tool calling is Intermediate with RAG as its prereq; AI agents is Advanced with Tool calling as its prereq.
 - **Each module keeps its own page folder**: `src/pages/<module>/index.astro`, `[chapter].astro`, `recap.astro`. The chapter route picks its island with a ternary chain, one line per chapter: hydration needs a static import, so no lookup table and no shared `[module]/[chapter]` route.
 - **Progress is per module** in `localStorage` key `<module>-progress-v1` (RAG's is the original `rag-progress-v1`, no migration), plus `tinker-last-module`. Every read tolerates missing fields and missing storage.
 - **Never rename a module id or chapter id**: saved progress is keyed by them.
@@ -72,9 +72,10 @@ Marketing pages share `src/styles/page.css` (buttons, kickers, chips, top bar, c
 - **3D view (RAG canvas only):** turn buttons, drag-to-orbit, zoom (buttons, pinch) and pan when zoomed. Part turns are fitted inside the whole-turn frame so the page never resizes. Labels and front-mounted parts move to the faces toward the viewer. The chapter 1–2 scenes keep the fixed front view (their glass drawing assumes it).
 - A "See inside" (x-ray glass blocks) mode was built and **rejected**; don't bring it back.
 - **Flat figures** (lanes, message cards, arrows, stamps) live in `src/lib/iso/flat.ts` beside the engine, reusing its ink, palette and wobble; `core.js` stays untouched. `FlatStage` mirrors `IsoStage`. Use them for flows over time; isometric blocks show sequences poorly.
-- **The home hero is the workshop** (`src/components/scenes/heroScene.ts`): one board, a plot per module from the registry. RAG's pipeline and tool calling's back office are live plots; each planned module is a building site (crate, cones, barrier), which invites contributors.
+- **The home hero is the workshop** (`src/components/scenes/heroScene.ts`): one board, a plot per module from the registry. RAG's pipeline and tool calling's back office are live plots, and agents' desk with its clipboard is the next; each planned module is a building site (crate, cones, barrier), which invites contributors. Plots after the first two run in one staircase down the front-right edge, so each pill gets its own row; pills are short (the module id for planned ones). The board grows with the registry, so a new module needs no hand-placed art.
 - **Lead with a scene, not a diagram.** Tool calling's chapters 1–4 and 6 (and its intro hero and home card) open on the **back office** (`src/components/scenes/officeScene.ts`): an isometric diorama of the employee's desk, the host's sorting desk, the model and the order system's filing cabinet, joined by conveyor belts. The message being sent rides its belt as an envelope coloured by kind; checks stand on the belts (schema arch, ownership arch, approval barrier); a drawer slides out when the orders are read; a planted note pokes out of an envelope. It is driven by the same transcript as the sequence, so the two never disagree. Only stamps ride in the drawing; the message's words go in the caption under it (`ToolStage` in `src/content/tool-calling/kit.tsx`).
-- **One figure on a chapter stage at a time**, chosen by the step, inside a fixed frame. Where the reader may pick the view, a tab switch selects it: tool calling's Picture / Messages tabs (ch. 1–4 and 6 keep the tab as view state, outside saved progress; ch. 5 and 7 keep it in the step state).
+- **The agents scene** (`src/components/scenes/agentScene.ts`) composes `officeScene` and adds four props, each turned on by the chapter: a clipboard by the model (the plan, a tick per finished item), a step and context gauge on the host desk, an in-tray of history papers that becomes one binder when the host compacts, and small helper desks for sub-agents. On phones the props' readout pills are left out and the caption carries the readouts; only the helper count pill stays.
+- **One figure on a chapter stage at a time**, chosen by the step, inside a fixed frame. Where the reader may pick the view, a tab switch selects it: tool calling's Picture / Messages tabs (ch. 1–4 and 6 keep the tab as view state, outside saved progress; ch. 5 and 7 keep it in the step state). Agents uses Picture / Steps tabs the same way; chapter 7 keeps its tab in the step state by passing `view` and `onView` to `AgentStage`.
 - **Untrusted strings render as text only**: React text nodes, or `esc()` in SVG strings. `FlatStage` and `IsoStage` inject SVG markup, so every string in it must be escaped by the kit first. No `set:html` or other `dangerouslySetInnerHTML` for content.
 
 ## Tool calling engine (`src/lib/tools/`)
@@ -82,6 +83,17 @@ Marketing pages share `src/styles/page.css` (buttons, kickers, chips, top bar, c
 - **Recorded model turns, live everything else.** Turns live in `data/tool-calling/turns/*.json`, keyed by a signature of what the model could see; a missing one is `norecord`. Every chapter control has a finite exported domain, and a unit test generates every reachable signature from them and asserts each has a turn. Host-only decisions (call cap, permissions, validation) stay out of the signature.
 - **Schema checks are a hand-written JSON Schema subset** (`schema.ts`); copy says "a subset". No `ajv` (it compiles with `new Function`).
 - **The MCP server is a model of the protocol**, not a conforming SDK: JSON-RPC 2.0 shaped, following the current spec (stateless, 2026-07-28, no opening handshake). Every MCP or API fact in copy comes from `data/tool-calling/facts.json` with its source and access date.
+
+## Agent engine (`src/lib/agents/`)
+
+- **Its own folder, built on `src/lib/tools/`.** It reuses the schema checks, the MCP-shaped server, the turn lookup and `host.ts`'s `combosOf`. It has its own loop and signature, so Tool calling's signatures and recordings never change.
+- **`server.ts` takes a bundle** (servers, tools, a handler per tool). Tool calling passes nothing and gets its own default. Agents passes `data/agents/server.json`: the order server plus warehouse, carrier and mail, with fixtures in `data/agents/cases.json`.
+- **Recorded turns, keyed by what the model saw.** Turns live in `data/agents/turns/<scenario>.json`, one reviewed file per scenario. The signature holds the case, the tools, the plan state, the memory mode and the visible history (each result so far, or the summary's marker after compaction). Host-only settings stay out: the step budget, the repeat detector's setting, the approval mode and the context budget. They change where a run stops, not what the model says. Every chapter control has a finite domain (`DOMAINS`, and `WORKBENCH_DOMAINS` for chapter 7), and `tests/unit/agent-coverage.test.ts` runs every combination and fails on any `norecord`.
+- **Tokens are computed, never recorded**: bytes ÷ `BYTES_PER_TOKEN`, the full context re-sent each turn.
+- **The repeat detector is a host rule.** When the same call fails the same way N times in a row, the host returns a "stopped" result. That result enters the history, so the model gets one last recorded turn to tell the customer, and the run ends `stuck`. The step budget ends a run with no further turn (`out-of-budget`).
+- **Plan approval binds the run.** A call outside the approved plan, or a new plan, goes back to a person. A plan nobody has answered leaves the run `waiting`.
+- **The chapter 5 context budget is a host setting** Larkspur chose, not a fact about any model; the copy says so.
+- **A sub-agent is a nested run** with its own history and budget; its turns are the `order-<id>` cases in the same scenario recording. The lead gets only the helper's final line, as the result of the host-defined `delegate` tool, so the helper's history never enters the lead's signature.
 
 ## Share images (OG)
 

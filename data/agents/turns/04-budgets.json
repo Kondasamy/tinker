@@ -1,0 +1,169 @@
+{
+  "asks": {
+    "timeout": "Marlow Builders asks where order 1051 is. Find out and let them know."
+  },
+  "tools": [
+    "get_order",
+    "track_shipment",
+    "send_email"
+  ],
+  "turns": {
+    "case=timeout|hist=|mem=full|plan=off|tools=get_order,send_email,track_shipment": {
+      "text": "First I will look up order 1051.",
+      "calls": [
+        {
+          "id": "call_1",
+          "name": "get_order",
+          "arguments": {
+            "order_id": 1051
+          }
+        }
+      ]
+    },
+    "case=timeout|hist=get_order:1051:ok|mem=full|plan=off|tools=get_order,send_email,track_shipment": {
+      "text": "Order 1051 has shipped. I will ask the carrier where it is.",
+      "calls": [
+        {
+          "id": "call_2",
+          "name": "track_shipment",
+          "arguments": {
+            "order_id": 1051
+          }
+        }
+      ]
+    },
+    "case=timeout|hist=get_order:1051:ok,track_shipment:1051:error|mem=full|plan=off|tools=get_order,send_email,track_shipment": {
+      "text": "The carrier lookup timed out. I will try again.",
+      "calls": [
+        {
+          "id": "call_3",
+          "name": "track_shipment",
+          "arguments": {
+            "order_id": 1051
+          }
+        }
+      ]
+    },
+    "case=timeout|hist=get_order:1051:ok,track_shipment:1051:error,track_shipment:1051:error|mem=full|plan=off|tools=get_order,send_email,track_shipment": {
+      "text": "The carrier lookup timed out 2 times now. I will try again.",
+      "calls": [
+        {
+          "id": "call_4",
+          "name": "track_shipment",
+          "arguments": {
+            "order_id": 1051
+          }
+        }
+      ]
+    },
+    "case=timeout|hist=get_order:1051:ok,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error|mem=full|plan=off|tools=get_order,send_email,track_shipment": {
+      "text": "The carrier lookup timed out 3 times now. I will try again.",
+      "calls": [
+        {
+          "id": "call_5",
+          "name": "track_shipment",
+          "arguments": {
+            "order_id": 1051
+          }
+        }
+      ]
+    },
+    "case=timeout|hist=get_order:1051:ok,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:stopped|mem=full|plan=off|tools=get_order,send_email,track_shipment": {
+      "text": "The host stopped the lookup after it failed the same way again and again. Rather than keep trying, I will tell Marlow Builders the lookup failed.",
+      "calls": [
+        {
+          "id": "call_5",
+          "name": "send_email",
+          "arguments": {
+            "order_id": 1051,
+            "body": "Hello Marlow Builders, order 1051 (two Heron steel shelving bays) is out with Fernway Freight. We could not get a tracking update from the carrier just now, so we will email you as soon as we have one. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=timeout|hist=get_order:1051:ok,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error|mem=full|plan=off|tools=get_order,send_email,track_shipment": {
+      "text": "The carrier lookup timed out 4 times now. I will try again.",
+      "calls": [
+        {
+          "id": "call_6",
+          "name": "track_shipment",
+          "arguments": {
+            "order_id": 1051
+          }
+        }
+      ]
+    },
+    "case=timeout|hist=get_order:1051:ok,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error|mem=full|plan=off|tools=get_order,send_email,track_shipment": {
+      "text": "The carrier lookup timed out 5 times now. I will try again.",
+      "calls": [
+        {
+          "id": "call_7",
+          "name": "track_shipment",
+          "arguments": {
+            "order_id": 1051
+          }
+        }
+      ]
+    },
+    "case=timeout|hist=get_order:1051:ok,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error|mem=full|plan=off|tools=get_order,send_email,track_shipment": {
+      "text": "The carrier lookup timed out 6 times now. I will try again.",
+      "calls": [
+        {
+          "id": "call_8",
+          "name": "track_shipment",
+          "arguments": {
+            "order_id": 1051
+          }
+        }
+      ]
+    },
+    "case=timeout|hist=get_order:1051:ok,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error|mem=full|plan=off|tools=get_order,send_email,track_shipment": {
+      "text": "The carrier lookup timed out 7 times now. I will try again.",
+      "calls": [
+        {
+          "id": "call_9",
+          "name": "track_shipment",
+          "arguments": {
+            "order_id": 1051
+          }
+        }
+      ]
+    },
+    "case=timeout|hist=get_order:1051:ok,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error|mem=full|plan=off|tools=get_order,send_email,track_shipment": {
+      "text": "The carrier lookup timed out 8 times now. I will try again.",
+      "calls": [
+        {
+          "id": "call_10",
+          "name": "track_shipment",
+          "arguments": {
+            "order_id": 1051
+          }
+        }
+      ]
+    },
+    "case=timeout|hist=get_order:1051:ok,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error|mem=full|plan=off|tools=get_order,send_email,track_shipment": {
+      "text": "The carrier lookup timed out 9 times now. I will try again.",
+      "calls": [
+        {
+          "id": "call_11",
+          "name": "track_shipment",
+          "arguments": {
+            "order_id": 1051
+          }
+        }
+      ]
+    },
+    "case=timeout|hist=get_order:1051:ok,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error,track_shipment:1051:error|mem=full|plan=off|tools=get_order,send_email,track_shipment": {
+      "text": "The carrier lookup timed out 10 times now. I will try again.",
+      "calls": [
+        {
+          "id": "call_12",
+          "name": "track_shipment",
+          "arguments": {
+            "order_id": 1051
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,29 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import WorkflowOrAgent from '../../content/agents/01-workflow-or-agent';
+import TheLoop from '../../content/agents/02-the-loop';
+import Plans from '../../content/agents/03-plans';
+import Budgets from '../../content/agents/04-budgets';
+import Memory from '../../content/agents/05-memory';
+import SubAgents from '../../content/agents/06-sub-agents';
+import Workbench from '../../content/agents/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('agents').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="agents" chapter={chapter} title={title}>
+  {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
+      hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
+  {chapter === '01-workflow-or-agent' ? <WorkflowOrAgent client:load />
+    : chapter === '02-the-loop' ? <TheLoop client:load />
+    : chapter === '03-plans' ? <Plans client:load />
+    : chapter === '04-budgets' ? <Budgets client:load />
+    : chapter === '05-memory' ? <Memory client:load />
+    : chapter === '06-sub-agents' ? <SubAgents client:load />
+    : <Workbench client:load />}
+</ChapterLayout>

@@ -1,0 +1,66 @@
+{
+  "asks": {
+    "damaged": "Hollis Hardware says the label printer on order 1042 arrived cracked. Sort it out and let them know."
+  },
+  "tools": [
+    "get_order",
+    "check_stock",
+    "create_replacement",
+    "issue_refund",
+    "send_email"
+  ],
+  "turns": {
+    "case=damaged|hist=|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "First I will look up order 1042.",
+      "calls": [
+        {
+          "id": "call_1",
+          "name": "get_order",
+          "arguments": {
+            "order_id": 1042
+          }
+        }
+      ]
+    },
+    "case=damaged|hist=get_order:1042:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "The printer was delivered on 14 October. Before I promise a replacement, I will check we have one.",
+      "calls": [
+        {
+          "id": "call_2",
+          "name": "check_stock",
+          "arguments": {
+            "order_id": 1042
+          }
+        }
+      ]
+    },
+    "case=damaged|hist=get_order:1042:ok,check_stock:1042:in|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "We have the printer in stock. Shipping a replacement.",
+      "calls": [
+        {
+          "id": "call_3",
+          "name": "create_replacement",
+          "arguments": {
+            "order_id": 1042
+          }
+        }
+      ]
+    },
+    "case=damaged|hist=get_order:1042:ok,check_stock:1042:in,create_replacement:1042:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "Replacement shipped. Now I will tell Hollis Hardware.",
+      "calls": [
+        {
+          "id": "call_4",
+          "name": "send_email",
+          "arguments": {
+            "order_id": 1042,
+            "body": "Hello Hollis Hardware, sorry your Wren WL-4 label printer arrived cracked. A replacement ships today, and you do not need to send the broken one back. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=damaged|hist=get_order:1042:ok,check_stock:1042:in,create_replacement:1042:ok,send_email:1042:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "Done. A replacement printer is on its way to Hollis Hardware, and I have emailed them."
+    }
+  }
+}

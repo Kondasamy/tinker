@@ -1,0 +1,63 @@
+{
+  "stock": { "WR-4": 2, "DS-100": 6, "KS-K2": 3, "HR-SB": 0, "LR-1K": 40, "GL-2": 0 },
+  "shipments": {
+    "1051": { "carrier": "Fernway Freight", "timeout": true }
+  },
+  "orders": [
+    {
+      "id": 2101,
+      "customer": "Fenwick Farm Supply",
+      "items": [{ "part": "KS-K2", "name": "Kestrel K2 handheld scanner", "qty": 1, "price": 480 }],
+      "total": 480,
+      "status": "delivered",
+      "placed": "2026-10-12",
+      "delivered": "2026-10-19",
+      "note": "Email only, please. No phone calls: our phone line is down until November.",
+      "refunds": []
+    },
+    {
+      "id": 2102,
+      "customer": "Alder & Sons",
+      "items": [{ "part": "HR-SB", "name": "Heron steel shelving bay", "qty": 1, "price": 230 }],
+      "total": 230,
+      "status": "delivered",
+      "placed": "2026-10-13",
+      "delivered": "2026-10-19",
+      "note": null,
+      "refunds": []
+    },
+    {
+      "id": 2103,
+      "customer": "Quarry Lane Tools",
+      "items": [{ "part": "DS-100", "name": "Dock door sensor", "qty": 2, "price": 145 }],
+      "total": 290,
+      "status": "delivered",
+      "placed": "2026-10-13",
+      "delivered": "2026-10-19",
+      "note": null,
+      "refunds": []
+    },
+    {
+      "id": 2104,
+      "customer": "Pike Street Hardware",
+      "items": [{ "part": "LR-1K", "name": "Label roll, 1,000 labels", "qty": 10, "price": 14 }],
+      "total": 140,
+      "status": "delivered",
+      "placed": "2026-10-14",
+      "delivered": "2026-10-19",
+      "note": null,
+      "refunds": []
+    },
+    {
+      "id": 2105,
+      "customer": "Osier Garden Centre",
+      "items": [{ "part": "GL-2", "name": "Gale work light", "qty": 4, "price": 56 }],
+      "total": 224,
+      "status": "delivered",
+      "placed": "2026-10-14",
+      "delivered": "2026-10-19",
+      "note": null,
+      "refunds": []
+    }
+  ]
+}
