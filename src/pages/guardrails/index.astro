@@ -1,16 +1,20 @@
 ---
 // Guardrails module intro: sets the scene before chapter 1. Static, except the warm-up and a small script that marks
 // finished chapters. Every example is the course's own data: chapter 1's forwarded invoice, run through the guardrails
-// loop at build time, and claims about prompt injection quoted from data/guardrails/facts.json. (U13 fills it out.)
+// loop at build time, chapter 7's suites scored under no defences and under its clean set, and claims about prompt
+// injection quoted from data/guardrails/facts.json.
 import '../../styles/tokens.css';
 import '../../styles/page.css';
 import Meta from '../../components/Meta.astro';
 import IsoStage from '../../lib/iso/IsoStage';
 import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
 import { GUARD_BOARD, guardLabel, guardScene, type GuardOpts } from '../../components/scenes/guardScene';
-import { ATTACKS, INBOX, run } from '../../lib/guardrails/loop';
+import { ATTACKS, CUSTOMER_CASES, INBOX, run } from '../../lib/guardrails/loop';
 import { RECORDING } from '../../lib/guardrails/turns';
 import { ACCESSED, fact } from '../../lib/guardrails/facts';
+import { START, SOLUTION, bench } from '../../content/guardrails/07-red-team';
 import { moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
@@ -21,10 +25,25 @@ const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
 // the forwarded invoice with no defences: the moment the customer's record leaves by the outbound chute
 const INVOICE = INBOX.find(e => e.id === 'invoice')!;
 const LEAK = run(RECORDING, { case: 'invoice' });
-const OUT = LEAK.steps.findIndex(s => s.kind === 'call' && s.call.name === 'send_email');
-const HERO: GuardOpts = { run: LEAK, upTo: OUT + 1, scale: 1.7 };
+const callAt = (name: string) => LEAK.steps.findIndex(s => s.kind === 'call' && s.call.name === name) + 1;
+const HERO: GuardOpts = { run: LEAK, upTo: callAt('send_email'), scale: 1.7 };
 const SENT = LEAK.sent.find(m => m.tool === 'send_email')!;
-const IDEAS: [string, ReturnType<typeof fact>][] = [['Data or instructions', fact('blur')], ['Indirect injection', fact('indirect-injection')], ['The lethal trifecta', fact('lethal-trifecta')]];
+const SAYS = ATTACKS.find(a => a.email === 'invoice')!.says;
+// the three ideas, each in a small mail room: the email riding in, its send stopped at the allow-list, the chute shut
+const ALLOWED = run(RECORDING, { case: 'invoice', allow: true });
+const IDEAS: [string, string, ReturnType<typeof fact>, GuardOpts][] = [
+  ['Data or instructions', 'The model reads an email’s words like your own', fact('blur'), { run: LEAK, upTo: callAt('read_inbox') + 1, scale: 1.7 }],
+  ['Checks on the way out', 'A barrier stops the send; the run carries on', fact('owasp-mitigations'), { run: ALLOWED, upTo: ALLOWED.steps.findIndex(s => s.kind === 'blocked') + 1, allow: true, scale: 1.7 }],
+  ['The lethal trifecta', 'Private data, untrusted text, a way out: take one away', fact('lethal-trifecta'), { run: run(RECORDING, { case: 'invoice', taint: true }), legs: true, taint: true, scale: 1.7 }],
+];
+// chapter 7's suites under no defences and under its clean set
+const NONE = bench(START), CLEAN = bench(SOLUTION);
+const FACTS: [string, string][] = [
+  [String(ATTACKS.length), 'attacks in the suite'],
+  [String(CUSTOMER_CASES.length), 'ordinary customers in it too'],
+  [`${NONE.succeeded} of ${NONE.attacks}`, 'attacks that work with no defences'],
+  [`${CLEAN.succeeded} of ${CLEAN.attacks}`, `once the defences stack, with ${CLEAN.blocked} of ${CLEAN.customers} customers blocked`],
+];
 const checked = longDate(ACCESSED);
 ---
 <html lang="en">
@@ -40,9 +59,9 @@ const checked = longDate(ACCESSED);
       <header class="hero">
         <div class="hero-text">
           <p class="kicker">Module 5 · Guardrails</p>
-          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS.length > 0 && <>{PREREQS.map((m, i) => <>{i > 0 && ', '}<a href={`/${m.id}/`}>{m.title}</a></>)} recommended</>} · by <a href={MODULE.author.url}>{MODULE.author.name}</a></p>
-          <h1>{MODULE.title}</h1>
-          <p class="lede">{MODULE.description}</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS.map((m, i) => <>{i > 0 && ', '}<a href={`/${m.id}/`}>{m.title}</a></>)} recommended · by <a href={MODULE.author.url}>{MODULE.author.name}</a></p>
+          <h1>When the text the assistant reads gives the orders</h1>
+          <p class="lede">An assistant that reads email can be told what to do by whoever wrote the email. No line in its instructions fully stops that. The defences that work sit around the model: checks on what comes in, checks on what goes out, and tools it is never given at the same time.</p>
           <ul class="chips" aria-label="At a glance">
             <li>{CHAPTERS.length} {CHAPTERS.length === 1 ? 'chapter' : 'chapters'}</li><li>No code</li><li>Runs in your browser</li><li>No live model</li>
           </ul>
@@ -50,6 +69,7 @@ const checked = longDate(ACCESSED);
             <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
             <a class="btn" href="#path">See the chapters</a>
           </div>
+          <ReadingMode />
         </div>
         <div class="hero-pic">
           {/* the mail room every chapter plays in: a planted note's record on its way out */}
@@ -60,31 +80,49 @@ const checked = longDate(ACCESSED);
       <section class="band" aria-labelledby="idea">
         <p class="kicker">The whole idea in one example</p>
         <h2 id="idea">A forwarded invoice gave the assistant an order</h2>
-        <p class="ask"><span class="who">{INVOICE.from} · {INVOICE.subject}</span></p>
-        <p class="mail">{INVOICE.text}</p>
-        <p>With no defences, the assistant looked up the customer’s record and emailed it to {SENT.to}: {ATTACKS.find(a => a.email === 'invoice')!.says.toLowerCase()}.</p>
-        <p class="note">The model’s turns are recorded, written to illustrate the sources below; the host, its checks and the outcome run for real in your browser.</p>
+        <div class="versus">
+          <article class="reply">
+            <header><h3>The email</h3><span class="stamp warn">Untrusted</span></header>
+            <p class="who">{INVOICE.from} · {INVOICE.subject}</p>
+            <p class="cap">A customer forwards a supplier’s invoice. A note planted in it tells the assistant to email the customer’s record away.</p>
+            <p class="mail more">{INVOICE.text}</p>
+          </article>
+          <article class="reply bad">
+            <header><h3>What left Larkspur</h3><span class="stamp">Leaked</span></header>
+            <p class="who">send_email to {SENT.to}</p>
+            <p class="cap">{SAYS}.</p>
+            <p class="mail more">{SENT.body}</p>
+          </article>
+        </div>
+        <p class="note more">With no defences, the assistant followed the note, then answered the customer’s question as if nothing had happened. The model’s turns are recorded, written to illustrate the sources below; the host, its checks and the outcome run for real in your browser.</p>
       </section>
 
       <section aria-labelledby="how">
         <p class="kicker">How it works</p>
-        <h2 id="how">The ideas that carry the module</h2>
+        <h2 id="how">Three ideas carry the module</h2>
         <ol class="steps">
-          {IDEAS.map(([name, f], i) => (
+          {IDEAS.map(([name, short, f, o], i) => (
             <li>
+              <div class="pic"><IsoStage board={GUARD_BOARD} scene={guardScene(o)} label={guardLabel(o)} /></div>
               <h3><span class="n">{i + 1}</span> {name}</h3>
-              <p>{f.claim}</p>
-              <p class="src"><a href={f.source}>Source</a>, checked {checked}</p>
+              <p class="cap">{short}</p>
+              <p class="more">{f.claim}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
             </li>
           ))}
         </ol>
       </section>
 
-      <section aria-labelledby="story">
-        <p class="kicker">The story</p>
-        <h2 id="story">Larkspur’s assistant reads the inbox</h2>
-        <p>{MODULE.story}</p>
-        {PREREQS.map(m => <p class="prev">New to Larkspur’s assistant and its tools? The <a href={`/${m.id}/`}>{m.title} module</a> builds them.</p>)}
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">Larkspur’s assistant works the inbox</h2>
+          <p class="more">{MODULE.story} <strong>You’re on the team that decides which defences it runs with.</strong></p>
+          {PREREQS.map(m => <p class="prev">New to Larkspur’s assistant and its tools? The <a href={`/${m.id}/`}>{m.title} module</a> builds them, and ends on the planted note this module starts from.</p>)}
+        </div>
+        <dl class="facts">
+          {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}
+        </dl>
       </section>
 
       <section id="path" aria-labelledby="path-h">
@@ -92,34 +130,29 @@ const checked = longDate(ACCESSED);
         <h2 id="path-h">The chapters</h2>
         {/* a warm-up shows here only when one is due (R13); the home page's Continue links to #warmup */}
         <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
-        <ol class="path">
-          {CHAPTERS.map((c, i) => (
-            <li data-chapter={c.id}>
-              <span class="dot" aria-hidden="true">{i + 1}</span>
-              <div class="body">
-                <h3><a href={chapterHref(MODULE.id, c.id)}>{c.title}</a><span class="done-mark" hidden> · done</span></h3>
-                <p>{c.intro.goal}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
         <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
       </section>
 
       <section class="pair">
         <article>
           <h2>Who it’s for</h2>
-          <p>Product managers, engineers and analysts whose AI assistant reads text other people wrote and can act on it. No code needed. Play Tool calling first if tools and the approval gate are new to you.</p>
+          <ul class="who-chips"><li>Product managers</li><li>Engineers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Product managers, engineers and analysts whose AI assistant reads text other people wrote and can act on it. No code needed. Play Tool calling first if tools and the approval gate are new to you.</p>
         </article>
         <article>
           <h2>How a chapter page works</h2>
-          <p>The picture on the left is live. The story on the right asks you to do one thing in it at a time. The model’s turns are recorded; the defences run for real in your browser. Progress stays in this browser.</p>
+          <div class="schematic" aria-hidden="true">
+            <div class="s-pic">live picture</div>
+            <div class="s-story"><span></span><span></span><span class="s-step">your step</span></div>
+          </div>
+          <p class="more">The picture on the left is live. The story on the right asks you to do one thing in it at a time. The model’s turns are recorded; the defences run for real in your browser. Progress stays in this browser.</p>
         </article>
       </section>
 
       <footer class="credits">
-        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com">Kondasamy Jayaraman</a>. This module by <a href={MODULE.author.url}>{MODULE.author.name}</a>.</p>
-        <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, which grew from her <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed.</p>
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com">Kondasamy Jayaraman</a>.</p>
+        <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, whose hand-inked isometric style and engine this course is built on. Colorfigures grew from April’s <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed. Thank you.</p>
       </footer>
     </main>
 
@@ -157,32 +190,38 @@ const checked = longDate(ACCESSED);
   .module-meta a { color: var(--ink); }
   .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 
-  .ask { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
-  .ask .who { display: block; font-size: 12px; letter-spacing: .06em; color: var(--muted); font-weight: 700; overflow-wrap: anywhere; }
-  .mail { white-space: pre-wrap; font-size: 14px; border-left: 4px solid var(--bad); padding: 6px 0 6px 14px; }
-  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
-  .prev { font-size: 14px; color: var(--muted); }
-  .prev a { color: var(--ink); }
   .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.bad { border-left: 6px solid var(--bad); }
 
-  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); white-space: nowrap; }
+  .bad .stamp { color: var(--bad); }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+  .reply .who { font-size: 12px; letter-spacing: .06em; color: var(--muted); font-weight: 700; overflow-wrap: anywhere; margin-bottom: 6px; }
+  .mail { white-space: pre-wrap; font-size: 13.5px; border-left: 4px solid var(--rule); padding: 4px 0 4px 12px; overflow-wrap: anywhere; }
+  .bad .mail { border-left-color: var(--bad); }
+  .stamp.warn { color: var(--warn); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
   .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
   .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
   .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 140px; display: flex; justify-content: center; margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: auto !important; height: 100% !important; }
   .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
 
-  .recap-link { margin: 0 0 0 52px; font-weight: 800; }
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .prev { font-size: 14px; color: var(--muted); }
+  .prev a { color: var(--ink); }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
   #warmup { scroll-margin-top: 16px; }
-  .path { list-style: none; margin: 0; padding: 0; position: relative; }
-  .path::before { content: ''; position: absolute; left: 17px; top: 18px; bottom: 18px; border-left: 2px dashed var(--rule); }
-  .path li { position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 16px; padding: 0 0 22px; }
-  .dot { position: relative; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--ink); background: var(--card); font-weight: 900; }
-  .path li.done .dot { background: var(--ok); color: var(--paper); }
-  .path h3 { font-size: 17px; margin-top: 5px; }
-  .path h3 a { text-decoration: none; }
-  .path h3 a:hover { text-decoration: underline; }
-  .done-mark { color: var(--ok); font-size: 13px; }
-  .path .body p { margin: 4px 0 0; font-size: 14px; color: var(--muted); max-width: 70ch; }
 
   .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
   .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
@@ -191,7 +230,8 @@ const checked = longDate(ACCESSED);
   @media (max-width: 860px) {
     .intro { padding: 16px 16px 48px; gap: 48px; }
     .intro h1 { font-size: 27px; }
-    .hero, .pair { grid-template-columns: 1fr; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
     .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
   }
 </style>

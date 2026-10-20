@@ -1,5 +1,5 @@
 // Prompt injection & guardrails, module 5: its chapters and module facts. Chapter ids are a contract with readers' saved progress: never rename one.
-// Only chapters that are written are listed here; each chapter unit appends its own entry (with its `intro`) alongside its island.
+// Each chapter's `intro` is the story column's opening context; its island is picked by src/pages/guardrails/[chapter].astro.
 import type { Chapter, Module } from '../../lib/modules';
 import { RECALL } from './recall';
 import { fact } from '../../lib/guardrails/facts';

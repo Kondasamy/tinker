@@ -244,8 +244,9 @@ test('chapter 7: by keyboard, a set that leaks and a clean one; the bench, the s
   await press('Output check: strict');
   await expect(out).toHaveAttribute('data-fbr', '1');
   await press('Refund (customer)');
-  await axe(page);
   await page.locator('.tc-tabs').getByRole('button', { name: /^Steps/ }).press('Enter');
+  await expect(page.locator('.stage g.card.blocked').first()).toBeVisible();
+  await axe(page);   // the Steps tab with a blocked refund: card names hold their visible text, lane text has contrast
   await page.reload();
   await page.locator('astro-island:not([ssr])').waitFor();
   await page.getByRole('button', { name: /^Continue at step 3/ }).press('Enter');
@@ -289,6 +290,31 @@ test('the recap asks from the finished chapter; with none done it says so', asyn
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Finish a chapter first' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Start chapter 1 →' })).toHaveAttribute('href', `/guardrails/${CH1}/`);
+});
+
+test('the warm-up shows on the intro 21 hours after a chapter, with a skip link; not 2 hours after', async ({ page }) => {
+  const seed = async (hours: number) => {
+    await page.goto('/');
+    await page.evaluate(({ done, at }) => localStorage.setItem('guardrails-progress-v1', JSON.stringify({ done, saved: {}, at: Object.fromEntries(done.map(id => [id, at])) })),
+      { done: [CH1], at: Date.now() - hours * 3600_000 });
+    await page.goto('/guardrails/');
+    await page.locator('astro-island:not([ssr])').first().waitFor({ state: 'attached' });
+  };
+  await seed(21);
+  await expect(page.locator('.warmup')).toContainText('from chapters you finished');
+  await expect(page.getByRole('link', { name: 'Skip to chapter 2 →' })).toHaveAttribute('href', `/guardrails/${CH2}/`);
+  await axe(page);
+  await seed(2);
+  await expect(page.locator('.warmup')).toHaveCount(0);
+});
+
+test('the intro reads as pictures by default; Words unfolds the longer text', async ({ page }) => {
+  await page.goto('/guardrails/');
+  const more = page.locator('#idea ~ .versus .mail.more').first();
+  await expect(more).toBeHidden();
+  await page.getByRole('button', { name: 'Words' }).click();
+  await expect(more).toBeVisible();
+  await axe(page);
 });
 
 test.describe('phone', () => {
