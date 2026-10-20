@@ -23,6 +23,12 @@ import { MCP_BOARD, connectScene } from '../components/scenes/mcpScene';
 import { agentScene } from '../components/scenes/agentScene';
 import { run as agentRun, CONTEXT as AGENT_CONTEXT, DEFAULTS as AGENT_DEFAULTS, MEMORY_CONTEXT } from '../lib/agents/loop';
 import { RECORDINGS as AGENT_RECORDINGS } from '../lib/agents/turns';
+import { readFileSync } from 'node:fs';
+import { EVAL_BOARD, evalScene, type EvalOpts } from '../components/scenes/evalScene';
+import { Grid, colsOf, loadSuite, resultsOf } from '../content/evals/kit';
+import { labelledOf } from '../content/evals/04-judge-the-judge';
+import { QUESTIONS, VERSIONS, BASELINE } from '../lib/evals/suite';
+import { SAMPLES, agreement, decide, gradeRows, judged, label, passHatK } from '../lib/evals/graders';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -71,6 +77,30 @@ const AGENT_OG: Record<string, ReturnType<typeof agentScene>> = {
   'agents-07-workbench': agentScene({ run: agentRun(AGENT_RECORDINGS['03-plans'], { case: 'planted', plan: true }), clipboard: true, gauge: { steps: AGENT_DEFAULTS.steps, context: AGENT_CONTEXT }, tray: true, scale: 1.5 }),
 };
 const agent = AGENT_OG[page.og];
+// module 4: the test bench at the moment each chapter turns on (chapter 1 the v1/v2 grid, chapter 5 the back office run
+// it grades). The suite runs here at build time, from the committed index, as on the intro.
+const suite = page.og.startsWith('evals') ? await loadSuite(async f => { const b = readFileSync('public/data/index/' + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer; }) : null;
+const EVAL_OG: Record<string, () => EvalOpts> = suite ? (() => {
+  const ls = labelledOf(suite), a = agreement(ls.map(l => l.row), 'r1');
+  const hat5 = SAMPLES.map(c => passHatK(c, 5)), v3 = gradeRows(suite.v3, 'verdict');
+  const gate = decide(gradeRows(suite[BASELINE], 'verdict'), v3, { threshold: 75, noRegressions: true });
+  return {
+    evals: () => ({ results: resultsOf(suite.v2), version: VERSIONS.v2.label }),
+    // chapter 2: the test set stacked, nothing graded yet
+    'evals-02-the-test-set': () => ({ results: QUESTIONS.map(() => true), graded: 0, board: `TEST SET · ${QUESTIONS.length} CASES` }),
+    // chapter 3: v0 (no documents) half graded by code, the next answer on the belt
+    'evals-03-graders': () => ({ results: resultsOf(suite.v0), graded: Math.ceil(QUESTIONS.length / 2), riding: true, board: `${VERSIONS.v0.label} · CODE GRADERS` }),
+    // chapter 4: the r1 judge against the people's labels; a pass is agreement
+    'evals-04-judge-the-judge': () => ({ results: ls.map(l => judged(l.row.question, l.row.signature, 'r1')!.pass === label(l.row.question, l.row.signature)!.pass), board: `r1 AGREES ${a.agree}/${a.total}` }),
+    'evals-06-run-it-twice': () => ({ results: hat5, board: `PASS^5 ${hat5.filter(Boolean).length}/${SAMPLES.length}` }),
+    // chapter 7: v3 through the gate (75%, no regressions)
+    'evals-07-release-day': () => ({ results: v3, version: VERSIONS.v3.label, board: `${VERSIONS.v3.label} · ${gate.passed}/${v3.length} · ${gate.ship ? 'SHIP' : 'DO NOT SHIP'}` }),
+  };
+})() : {};
+const evalOpts = EVAL_OG[page.og]?.();
+// chapter 5: the planted refund on its way to the order system, with no gate: the run whose reply reads fine and whose
+// ledger does not
+const EVAL_PATH = officeScene({ msgs: seq('injection'), upTo: 8, tools: RECORDINGS.injection.tools.length, note: true, scale: 1.5 });
 ---
 <html lang="en">
   <head><meta charset="utf-8" /><meta name="robots" content="noindex" /><title>og: {page.og}</title></head>
@@ -87,6 +117,9 @@ const agent = AGENT_OG[page.og];
         {page.og === 'home' ? <IsoStage board={HERO_BOARD} scene={HOME_HERO} label="" />
           : page.og === 'rag' ? <IsoStage board={MINI_BOARD} scene={miniPipeline} label="" />
           : page.og === 'tool-calling' ? <IsoStage board={OFFICE_BOARD} scene={officeScene({ msgs: SEQ_MSGS, upTo: 3, tools: 2, scale: 1.5 })} label="" />
+          : evalOpts ? <IsoStage board={EVAL_BOARD} scene={evalScene({ ...evalOpts, scale: 1.5 })} label="" />
+          : page.og === 'evals-01-it-worked-when-i-tried-it' && suite ? <Grid cols={colsOf(suite, ['v1', 'v2'])} />
+          : page.og === 'evals-05-grading-the-path' ? <IsoStage board={OFFICE_BOARD} scene={EVAL_PATH} label="" />
           : agent ? <IsoStage board={OFFICE_BOARD} scene={agent} label="" />
           : tool ? <IsoStage board={OFFICE_BOARD} scene={tool} label="" />
           : page.og === 'tool-calling-05-mcp' ? <IsoStage board={MCP_BOARD} scene={MCP_OG} label="" />

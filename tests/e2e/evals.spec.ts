@@ -167,6 +167,21 @@ test('the recap asks from the finished chapter; with none done it says so', asyn
   await expect(page.getByRole('link', { name: 'Start chapter 1 →' })).toHaveAttribute('href', `/evals/${CH1}/`);
 });
 
+test('the warm-up shows on the intro 21 hours after a chapter, with a skip link; not 2 hours after', async ({ page }) => {
+  const seed = async (hours: number) => {
+    await page.goto('/');
+    await page.evaluate(({ done, at }) => localStorage.setItem('evals-progress-v1', JSON.stringify({ done, saved: {}, at: Object.fromEntries(done.map(id => [id, at])) })),
+      { done: [CH1], at: Date.now() - hours * 3600_000 });
+    await page.goto('/evals/');
+    await page.locator('astro-island:not([ssr])').first().waitFor({ state: 'attached' });
+  };
+  await seed(21);
+  await expect(page.locator('.warmup')).toContainText('from chapters you finished');
+  await expect(page.getByRole('link', { name: 'Skip to chapter 2 →' })).toHaveAttribute('href', `/evals/${CH2}/`);
+  await seed(2);
+  await expect(page.locator('.warmup')).toHaveCount(0);
+});
+
 test.describe('phone', () => {
   test.use(PHONE);
   test('pages fit 390px wide, and chapters 1 to 7 play through there with axe clean', async ({ page }) => {

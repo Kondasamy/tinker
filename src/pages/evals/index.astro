@@ -33,7 +33,7 @@ const R = resultsOf(suite.v1);
 // how a suite runs, in three small benches: cards waiting, part graded, all graded
 const STEPS: [string, string, ReturnType<typeof fact>, EvalOpts][] = [
   ['A test set', 'The same questions, every time', fact('eval'), { results: R, graded: 0, riding: true, scale: 1.7 }],
-  ['Graders', 'Each answer checked and stamped', fact('code-graders'), { results: R, graded: Math.ceil(N / 2), riding: true, scale: 1.7 }],
+  ['Graders', 'Code, a model judge or a person stamps each answer', fact('code-graders'), { results: R, graded: Math.ceil(N / 2), riding: true, scale: 1.7 }],
   ['Compare versions', 'Question by question', fact('trial'), { results: R, version: V1.label, scale: 1.7 }],
 ];
 const FACTS: [string, string][] = [
