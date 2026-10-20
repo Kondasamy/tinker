@@ -29,20 +29,22 @@ const along = (st: Station, t: number, off = 0) => {
 };
 
 /** A conveyor belt on the board: a dark strip with rollers; `cut`: not built yet, a dashed outline only. */
-function belt(st: Station, cut: boolean) {
-  const { a, b, n } = ends(st), w = BW / 2, z = BH + .25;
+const belt = (st: Station, cut: boolean) => { const { a, b, n } = ends(st); return beltAt(a, b, n, cut); };
+/** A belt from board point a to b; n: its sideways direction. */
+export function beltAt(a: number[], b: number[], n: number[], cut: boolean) {
+  const w = BW / 2, z = BH + .25;
   const q = [[a[0] + n[0] * w, a[1] + n[1] * w, z], [b[0] + n[0] * w, b[1] + n[1] * w, z], [b[0] - n[0] * w, b[1] - n[1] * w, z], [a[0] - n[0] * w, a[1] - n[1] * w, z]];
   if (cut) return ink(pd(q), 1.1).replace('/>', ' stroke-dasharray="4 4"/>');
   let s = shape(q, DARK.m, 1.2);
   const L = Math.hypot(b[0] - a[0], b[1] - a[1]);
   for (let k = 7; k < L - 3; k += 8) {
-    const p = along(st, k / L);
+    const p = [a[0] + (b[0] - a[0]) * k / L, a[1] + (b[1] - a[1]) * k / L];
     s += line([[p[0] + n[0] * (w - 1.5), p[1] + n[1] * (w - 1.5), z + .05], [p[0] - n[0] * (w - 1.5), p[1] - n[1] * (w - 1.5), z + .05]], .6).replace(INK, DARK.l);
   }
   return s;
 }
 
-type Part = { at: number[]; svg: string };
+export type Part = { at: number[]; svg: string };
 const LIT = '#ffb627';
 
 /** The employee's desk: a wooden counter with a telephone. */
@@ -111,8 +113,10 @@ function stock(): Part[] {
 }
 
 /** An arch over a belt: two posts and a bar, a lamp on top (green: passed, red: refused). */
-function arch(st: Station, t: number, lamp: 'ok' | 'bad' | null): Part {
-  const [px, py] = along(st, t), { n } = ends(st), w = BW / 2 + 3, zt = BH + 20;
+const arch = (st: Station, t: number, lamp: 'ok' | 'bad' | null) => archAt(along(st, t), ends(st).n, lamp);
+/** An arch across a belt at board point p; n: the belt's sideways direction. */
+export function archAt([px, py]: number[], n: number[], lamp: 'ok' | 'bad' | null): Part {
+  const w = BW / 2 + 3, zt = BH + 20;
   const a = [px + n[0] * w, py + n[1] * w], b = [px - n[0] * w, py - n[1] * w];
   const post = (q: number[]) => box(q[0] - 1.6, q[1] - 1.6, BH, q[0] + 1.6, q[1] + 1.6, zt, PALS.mustard, toneI, .9);
   const col = lamp === 'ok' ? PALS.mint : lamp === 'bad' ? PALS.tomato : DARK;
@@ -120,8 +124,10 @@ function arch(st: Station, t: number, lamp: 'ok' | 'bad' | null): Part {
 }
 
 /** A barrier across a belt: a post and an arm, down (closed) or raised (approved). */
-function barrier(st: Station, t: number, up: boolean, waiting: boolean): Part {
-  const [px, py] = along(st, t), { n } = ends(st), w = BW / 2 + 4, z = BH + 12;
+const barrier = (st: Station, t: number, up: boolean, waiting: boolean) => barrierAt(along(st, t), ends(st).n, up, waiting);
+/** A barrier across a belt at board point p; n: the belt's sideways direction. */
+export function barrierAt([px, py]: number[], n: number[], up: boolean, waiting: boolean): Part {
+  const w = BW / 2 + 4, z = BH + 12;
   const p = [px + n[0] * w, py + n[1] * w];
   // raised: straight up, so it never reads as a closed arm seen at an angle
   const end = up ? [p[0], p[1], z + 30] : [px - n[0] * w, py - n[1] * w, z];
@@ -137,7 +143,7 @@ function barrier(st: Station, t: number, up: boolean, waiting: boolean): Part {
 }
 
 /** A message envelope on a belt; `note`: a slip of paper poking out (a planted instruction). Travels in from its sender. */
-function envelope(m: Msg, p: number[], from: number[], note: boolean): Part {
+export function envelope(m: Msg, p: number[], from: number[], note: boolean): Part {
   const [x, y] = p, z = BH + .3, pal = KIND_PAL[m.kind];
   let s = castShadow(boxCorners(x - 5, y - 4, z, x + 5, y + 4, z + 5), z)
     + box(x - 5, y - 4, z, x + 5, y + 4, z + 5, pal, toneI, 1)
@@ -157,6 +163,8 @@ export interface OfficeOpts {
   /** tool definitions the host sends the model; 0 = none, and no belt to the order system */
   tools: number;
   host?: string;
+  /** the front desk's name pill (default EMPLOYEE) */
+  emp?: string;
   /** checks standing on the belts */
   schema?: boolean; owner?: boolean; gate?: boolean;
   /** the host's call cap, shown as studs on its desk */
@@ -239,7 +247,7 @@ export const officeScene = (o: OfficeOpts) => ({ top }: SceneCtx) => {
   s += byDepth(parts);
   const name = (k: Station, text: string) => `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag([AT[k][0], AT[k][1], BH + HT[k]], 0, -14 - (44 - HT[k]) / (inkK() * scale) * .6, esc(text), st.busy === k, scale)}</g>`;
   if (o.names === false) return s + pills.join('');
-  s += name('emp', 'EMPLOYEE') + name('host', host.toUpperCase() + (cap ? ` · ${st.calls}/${cap} CALLS` : ''))
+  s += name('emp', o.emp ?? 'EMPLOYEE') + name('host', host.toUpperCase() + (cap ? ` · ${st.calls}/${cap} CALLS` : ''))
     + name('model', narrow ? 'MODEL' : `MODEL${tools ? ` · ${tools} TOOL${tools === 1 ? '' : 'S'}` : ' · NO TOOLS'}`)
     + name('orders', `ORDER SYSTEM${tools ? '' : ' · NOT LINKED'}${o.orders ? ` · ${o.orders}` : ''}`);
   return s + pills.join('');

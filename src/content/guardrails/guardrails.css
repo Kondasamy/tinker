@@ -1,0 +1,4 @@
+/* Guardrails stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
+   tool-calling/kit). The caption's badge matches the taint tag drawn on envelopes from read_inbox. */
+.tc-caption .gr-taint { display: inline-block; font: 800 11px ui-monospace, Menlo, monospace; letter-spacing: .04em; text-transform: uppercase;
+  padding: 1px 7px; border: 1.5px solid var(--ink); border-radius: 4px; background: var(--bad); color: #fff; }
