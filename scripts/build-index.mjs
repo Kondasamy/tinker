@@ -1,7 +1,7 @@
 /**
  * build-index: turns data/corpus + data/questions into static retrieval data in public/data/index/.
  *
- * Run: npm run build:index. Models are downloaded once into .cache/models; embeddings and
+ * Run: pnpm build:index. Models are downloaded once into .cache/models; embeddings and
  * cross-encoder scores are cached by text hash in .cache/index, so rebuilds are incremental.
  * Output is deterministic (no timestamps, stable ordering), so two runs are byte-identical.
  *

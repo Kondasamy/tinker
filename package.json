@@ -2,6 +2,10 @@
   "name": "visual-rag-playground",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@11.22.0",
+  "engines": {
+    "node": ">=22.22.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",

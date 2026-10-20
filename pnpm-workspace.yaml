@@ -1,0 +1,7 @@
+# onnxruntime-node ships its CPU binaries; its install script only fetches optional CUDA files. protobufjs's is a no-op notice.
+allowBuilds:
+  onnxruntime-node: false
+  protobufjs: false
+minimumReleaseAgeExclude:
+  - '@astrojs/check@0.9.11'
+  - astro@7.4.1
