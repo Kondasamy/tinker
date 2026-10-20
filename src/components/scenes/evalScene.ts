@@ -18,6 +18,8 @@ export interface EvalOpts {
   riding?: boolean;
   /** the version under test, named on the scoreboard */
   version?: string;
+  /** the scoreboard's words, in place of "version · PASSED n/total" (a chapter scoring something else) */
+  board?: string;
   /** pill size; phones pass more */
   scale?: number;
 }
@@ -92,7 +94,7 @@ export const evalScene = (o: EvalOpts) => (ctx: SceneCtx) => {
   if (st.riding) parts.push({ at: [x, 80, 0], svg: `<g class="riding">${card(x, 80, z + .1)}</g>` });
   s += byDepth(parts);
   // phones: the big pill goes on the empty board in front of the stack, clear of the retriever
-  const pills = [pill(narrow ? [DESK[0] - 20, DESK[1] + 20, BH + 6] : [DESK[0] - 20, DESK[1], BH + 26], narrow ? -46 : 0, narrow ? 26 : -30, `${o.version ? `${o.version} · ` : ''}PASSED ${st.passed}/${st.total}`, false, scale)];
+  const pills = [pill(narrow ? [DESK[0] - 20, DESK[1] + 20, BH + 6] : [DESK[0] - 20, DESK[1], BH + 26], narrow ? -46 : 0, narrow ? 26 : -30, o.board ?? `${o.version ? `${o.version} · ` : ''}PASSED ${st.passed}/${st.total}`, false, scale)];
   if (!narrow) {
     pills.push(pill([STACK[0] + CARD.dx, STACK[1], BH + st.stack * CARD.h], 4, 26, `TESTS ${st.stack}`, false, scale));
     pills.push(pill([PILE.fail[0] + CARD.dx, PILE.fail[1], BH + 12 + st.failed * CARD.h], 8, 22, `FAIL ${st.failed}`, false, scale));
@@ -106,5 +108,5 @@ export function evalLabel(o: EvalOpts): string {
   const st = evalState(o);
   if (!st.total) return 'A test bench beside a RAG pipeline (documents, retriever, model): no test cards yet, and nothing graded.';
   return `A test bench beside a RAG pipeline (documents, retriever, model). ${st.stack} test card${st.stack === 1 ? '' : 's'} wait in a stack${st.riding ? '; one rides the belt into the pipeline' : ''}. `
-    + `At the grader's desk, ${st.passed} passed and ${st.failed} failed. Scoreboard${o.version ? ` for ${o.version}` : ''}: ${st.passed} of ${st.total} passed.`;
+    + `At the grader's desk, ${st.passed} passed and ${st.failed} failed. ${o.board ? `Scoreboard: ${o.board}.` : `Scoreboard${o.version ? ` for ${o.version}` : ''}: ${st.passed} of ${st.total} passed.`}`;
 }

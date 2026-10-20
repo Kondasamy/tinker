@@ -74,4 +74,160 @@ export const RECALL: RecallItem[] = [
       'With different questions, a lower score could mean harder questions, not a worse version.',
     ],
   },
+  // 2. The test set
+  {
+    id: 'unanswerable-cases', chapter: '02-the-test-set',
+    question: 'The parts-catalogue assistant’s test set has only questions the catalogue answers. A new version starts quoting prices for parts Larkspur doesn’t sell. Why does the set miss it?',
+    options: [
+      'It has no case the catalogue can’t answer, where the right answer is to say so',
+      'The set is too small: more catalogue questions would catch it',
+      'Made-up prices can only be caught by a person',
+      'It doesn’t miss it: a version that makes things up fails every case',
+    ],
+    correct: 0,
+    why: [
+      'Right. Making things up shows only where the documents are silent, so the set needs cases there, each with “say so” as its answer.',
+      'More questions the catalogue answers still never ask about a part it doesn’t list. Size doesn’t fill a gap in kind.',
+      'A case whose reference answer is “the catalogue doesn’t list this” catches it with an ordinary grader.',
+      'Where a document answers, the new version can still answer right. It only goes wrong where nothing does.',
+    ],
+  },
+  {
+    id: 'known-failures-stay', chapter: '02-the-test-set',
+    question: 'Last month the travel assistant quoted an old mileage rate, and the team fixed it. What should happen to that question?',
+    options: [
+      'Drop it: it’s fixed now',
+      'Add it to the test set with the current rate as its reference answer, so the old mistake can’t come back unseen',
+      'Keep it in a separate list for the person who fixed it',
+      'Add it without a reference answer: the grader will know the rate',
+    ],
+    correct: 1,
+    why: [
+      'A fix can be undone by the next change, and then nobody would notice. That is what a regression is.',
+      `Right. A known failure is one of the best cases there is. ${fact('start-from-failures').claim}`,
+      'A list nobody runs catches nothing. In the test set, it runs on every change.',
+      'A grader compares against the reference answer. Without one, the case can’t pass or fail.',
+    ],
+  },
+  {
+    id: 'what-reference-answer-does', chapter: '02-the-test-set',
+    question: 'What is a test case’s reference answer for?',
+    options: [
+      'It’s what the assistant is told to say',
+      'It’s what the graders compare the assistant’s answer against',
+      'It’s the passage the retriever should find',
+      'It’s the best answer a model has given so far',
+    ],
+    correct: 1,
+    why: [
+      'The assistant never sees it. If it did, the test would only check that it can copy.',
+      `Right. ${fact('reference-solution').claim}`,
+      'Retrieval is checked by what reaches the model. The reference answer is about the answer at the end.',
+      'A model’s answer can be wrong. The team writes the reference from the documents.',
+    ],
+  },
+  // 3. Graders
+  {
+    id: 'exact-match-brittle', chapter: '03-graders',
+    question: 'The reference answer is “Returns are accepted within 30 days.” The assistant answers “You have 30 days to send it back.” What does exact match say?',
+    options: [
+      'Pass: the answer is right',
+      'Fail: the words differ, though the meaning is the same',
+      'Pass: it contains “30 days”',
+      'It can’t grade it without a citation',
+    ],
+    correct: 1,
+    why: [
+      'Exact match doesn’t read meaning. It compares words.',
+      `Right. ${fact('code-graders').claim}`,
+      'That is the key-fact check. Exact match needs every word to match.',
+      'Exact match doesn’t look at citations. That is a different check.',
+    ],
+  },
+  {
+    id: 'citation-not-support', chapter: '03-graders',
+    question: 'A wrong answer about the warranty cites a real passage from the battery handbook. Which grader passes it?',
+    options: [
+      'Has a citation',
+      'Contains the key fact',
+      'A person who reads the passage',
+      'None: a real citation means a right answer',
+    ],
+    correct: 0,
+    why: [
+      'Right. It checks that a passage is named, not that the passage says what the answer says.',
+      'The wrong answer lacks the key fact’s phrase, so this check fails it.',
+      'A person who reads the passage sees it is about something else.',
+      'A real passage can be the wrong one. Chapter 3’s third answer cited one and was still wrong.',
+    ],
+  },
+  {
+    id: 'rubric-shapes-judge', chapter: '03-graders',
+    question: 'A model judge’s rubric asks “Is the answer polite and easy to read?” What will it let through?',
+    options: [
+      'Nothing: a model judge reads for meaning',
+      'A polite, readable answer that is wrong',
+      'Only answers with typos',
+      'Answers without a citation',
+    ],
+    correct: 1,
+    why: [
+      'It reads for what its rubric asks. This rubric never asks whether the answer is right.',
+      'Right. A judge grades what the rubric asks. A made-up policy can be perfectly polite.',
+      'Typos are the one thing this rubric would catch.',
+      'The rubric doesn’t ask about citations, so it won’t catch a missing one, but it won’t fail them either.',
+    ],
+  },
+  // 4. Judge the judge
+  {
+    id: 'check-judge-against-people', chapter: '04-judge-the-judge',
+    question: 'The team wants a model judge to grade the safety assistant’s answers. What should they do before trusting its scores?',
+    options: [
+      'Nothing: a strong model grades well',
+      'Have people label a set of answers, and measure how often the judge agrees with them',
+      'Ask the judge how confident it is',
+      'Run the judge twice and check it gives the same scores',
+    ],
+    correct: 1,
+    why: [
+      'Under rubric r1 the judge passed made-up policies people failed. A strong model still grades what its rubric asks.',
+      `Right. ${fact('model-graders').claim}`,
+      'A judge can be confident and wrong. Only an outside check shows how often it is right.',
+      'Repeating it shows whether it is consistent, not whether it is right. It could be wrong the same way twice.',
+    ],
+  },
+  {
+    id: 'labels-can-be-wrong', chapter: '04-judge-the-judge',
+    question: 'The judge and a person disagree on an answer about the parking policy. Who is right?',
+    options: [
+      'The person, always: labels are the truth',
+      'The judge: it read the documents',
+      'Check the answer against the documents: either can be wrong',
+      'Neither: drop the answer from the set',
+    ],
+    correct: 2,
+    why: [
+      'People are the best grader, but they make mistakes. In chapter 4 most of r2’s disagreements were the people’s.',
+      'The judge got some wrong too. Its verdict is what you are checking.',
+      'Right. A disagreement is a reason to look. The reference answer settles it.',
+      'A disagreement is the most useful case there is: it shows where the judge or the labels need fixing.',
+    ],
+  },
+  {
+    id: 'swap-the-order', chapter: '04-judge-the-judge',
+    question: 'A judge compares two replies to a delivery question and picks the first one. Shown in the other order, it picks the other one. What should the comparison count?',
+    options: [
+      'The first verdict: that was the real order',
+      'A tie: the win didn’t hold both ways',
+      'The second verdict: it is the latest',
+      'Run it until one reply wins twice in a row',
+    ],
+    correct: 1,
+    why: [
+      'Neither order is the real one. The pick followed the position, not the reply.',
+      `Right. ${fact('swap-orders').claim}`,
+      'The second order is no fairer than the first.',
+      'Running it again in the same orders only repeats the bias.',
+    ],
+  },
 ];

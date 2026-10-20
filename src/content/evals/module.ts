@@ -23,6 +23,62 @@ const CHAPTERS: Chapter[] = [
       ],
     },
   },
+  {
+    id: '02-the-test-set', title: 'The test set', short: 'The test set',
+    intro: {
+      story: 'Chapter 1’s test set caught a regression nobody tried. Now the team wants more cases in it, and the support lead has a week of the assistant’s chat log to choose from.',
+      goal: 'Which cases belong in a test set, and what does each one need before it can be graded?',
+      learn: [
+        'Where test cases come from: real questions and known failures',
+        'Why a set needs questions the documents can’t answer',
+        'What a reference answer is, and why every case needs one',
+      ],
+      terms: [
+        ['Test case', 'One question in the test set, asked on every run, with the answer it should get.'],
+        ['Reference answer', 'The answer a case should get, written by the team. Graders compare the assistant’s answer against it.'],
+        ['Known failure', 'A question the assistant once got wrong. Kept in the set so the same mistake can’t come back unseen.'],
+        ['Coverage', 'Which kinds of case the set includes. A kind with no case is a gap: nothing checks it.'],
+      ],
+    },
+  },
+  {
+    id: '03-graders', title: 'Graders', short: 'Graders',
+    intro: {
+      story: 'Larkspur’s test set is built, and every case has a reference answer. Now something has to decide, for each answer, pass or fail.',
+      goal: 'What can grade an answer, and which mistakes does each kind of grader catch or miss?',
+      learn: [
+        'Three code checks: exact match, contains the key fact, has a citation',
+        'What a model judge and its rubric are, and how a rubric can be fooled',
+        'Why people are the best grader and the slowest',
+      ],
+      terms: [
+        ['Grader', 'Whatever decides whether one answer passes: a code check, a model, or a person.'],
+        ['Exact match', 'A code check: the answer’s words equal the reference answer’s.'],
+        ['Key fact', 'The short phrase an answer must contain to be right, like “30 days”.'],
+        ['Citation', 'The passage from the documents an answer says it rests on.'],
+        ['Model judge', 'Another model that reads an answer and grades it, pass or fail.'],
+        ['Rubric', 'The written test a model judge applies: the question it answers about each answer.'],
+      ],
+    },
+  },
+  {
+    id: '04-judge-the-judge', title: 'Judge the judge', short: 'Judge the judge',
+    intro: {
+      story: 'In chapter 3 the model judge passed a made-up policy that a person failed. The team still wants a judge: people can’t read every answer of every run. First they check it.',
+      goal: 'How do you know a model judge grades the way your people would, and what tricks it?',
+      learn: [
+        'How to measure a judge: agreement with people’s labels',
+        'How rewriting the rubric changes what the judge catches',
+        'Position bias in side-by-side grading, and the fix: judge both orders',
+      ],
+      terms: [
+        ['Label', 'A person’s pass or fail on one answer, used to check a grader.'],
+        ['Agreement', 'How often the judge’s verdict matches people’s labels, out of the answers both graded.'],
+        ['Side-by-side grading', 'The judge sees two answers to one question and picks the better one. Also called pairwise.'],
+        ['Position bias', fact('position-bias').claim],
+      ],
+    },
+  },
 ];
 
 export const EVALS_MODULE: Module = {

@@ -11,6 +11,7 @@ import { isCorrect } from '../../lib/evals/graders';
 import { EVAL_BOARD, evalLabel, evalScene, type EvalOpts } from '../../components/scenes/evalScene';
 import { evalGrid, flips, gridLabel, type GridCol } from '../../components/scenes/evalGrid';
 import { useNarrow } from '../tool-calling/kit';
+import { fact } from '../../lib/evals/facts';
 import './evals.css';
 
 export type Suite = Record<VersionId, Row[]>;
@@ -48,7 +49,7 @@ export const colsOf = (suite: Suite, vs: VersionId[]): GridCol[] => vs.map(v => 
 export const QUESTION_TEXT = QUESTIONS.map(q => q.query);
 
 /** What a chapter puts on the stage for the loaded suite: the bench's settings, the grid's columns, and the caption. */
-export interface Shown { scene: Omit<EvalOpts, 'scale'>; cols: GridCol[]; caption: string; stamp?: Stamp }
+export interface Shown { scene: Omit<EvalOpts, 'scale'>; cols: GridCol[]; caption: string; stamp?: Stamp; /** the Results tab's own table, in place of the version grid */ table?: ReactNode }
 export type View = 'scene' | 'grid';
 
 /** The Results tab's grid: a wide and a phone drawing (CSS picks one), each cell named. The figure is a group so screen
@@ -72,6 +73,13 @@ export function Grid({ cols, questions = QUESTION_TEXT }: { cols: GridCol[]; que
       <ol className="ev-key">{questions.map((q, i) => <li key={i}>{q}</li>)}</ol>
     </figure>
   );
+}
+
+/** Renders once the suite is loaded (and re-renders then): story-column controls read the suite through this, since
+ * `suiteNow()` alone doesn't re-render a control when the suite arrives. */
+export function WithSuite({ children }: { children: (suite: Suite) => ReactNode }) {
+  const { suite } = useSuite();
+  return suite ? <>{children(suite)}</> : null;
 }
 
 /** "Preparing…" or a failed load with Retry, in the stage's frame until the suite is ready. */
@@ -104,12 +112,12 @@ export function EvalStage({ show, view: kept, onView }: { show: (suite: Suite) =
           <>
             <div className="tc-tabs" role="group" aria-label="Show in the picture">
               <button type="button" className="chip" aria-pressed={view === 'scene'} onClick={() => setView('scene')}>Picture</button>
-              <button type="button" className="chip" aria-pressed={view === 'grid'} onClick={() => setView('grid')}>Results ({s.cols.length})</button>
+              <button type="button" className="chip" aria-pressed={view === 'grid'} onClick={() => setView('grid')}>Results{s.table ? '' : ` (${s.cols.length})`}</button>
             </div>
             <div className="tc-frame">
               {view === 'scene'
                 ? <IsoStage className="bench" board={EVAL_BOARD} style={FILL} scene={evalScene(o)} label={evalLabel(o)} />
-                : <Grid cols={s.cols} />}
+                : s.table ? <div className="ev-scroll" tabIndex={0} role="region" aria-label="Results table">{s.table}</div> : <Grid cols={s.cols} />}
             </div>
             <p className="tc-caption">
               {s.stamp && <span className={`stamp ${STAMP_CLASS[s.stamp]}`}>{s.stamp}</span>}
@@ -124,3 +132,16 @@ export function EvalStage({ show, view: kept, onView }: { show: (suite: Suite) =
     </div>
   );
 }
+
+/** A cited fact from data/evals/facts.json, with its source and the day it was checked (R5). */
+export function Fact({ id }: { id: string }) {
+  const f = fact(id);
+  return (
+    <p className="tc-fact">
+      {f.claim} <a className="source" href={f.source} target="_blank" rel="noreferrer">Source: {new URL(f.source).hostname}</a> (checked {f.accessed})
+    </p>
+  );
+}
+
+/** PASS or FAIL as a stamp, in the story column or a table. */
+export const Mark = ({ ok }: { ok: boolean }) => <span className={`stamp ${ok ? 'correct' : 'wrong'}`}>{ok ? 'PASS' : 'FAIL'}</span>;

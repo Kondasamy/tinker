@@ -1,6 +1,9 @@
 ---
 import ChapterLayout from '../../layouts/ChapterLayout.astro';
 import ItWorkedWhenITriedIt from '../../content/evals/01-it-worked-when-i-tried-it';
+import TheTestSet from '../../content/evals/02-the-test-set';
+import Graders from '../../content/evals/03-graders';
+import JudgeTheJudge from '../../content/evals/04-judge-the-judge';
 import { moduleOf } from '../../lib/modules';
 
 export function getStaticPaths() {
@@ -13,5 +16,8 @@ const { title } = Astro.props;
 <ChapterLayout module="evals" chapter={chapter} title={title}>
   {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
       hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
-  <ItWorkedWhenITriedIt client:load />
+  {chapter === '01-it-worked-when-i-tried-it' ? <ItWorkedWhenITriedIt client:load />
+    : chapter === '02-the-test-set' ? <TheTestSet client:load />
+    : chapter === '03-graders' ? <Graders client:load />
+    : <JudgeTheJudge client:load />}
 </ChapterLayout>
