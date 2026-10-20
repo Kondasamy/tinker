@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
@@ -8,7 +7,7 @@ import { cellName, evalGrid, flips, gridLabel, type GridCol } from '../../src/co
 import { colsOf, EvalStage, Grid, loadSuite, QUESTION_TEXT, resultsOf, suiteNow, type Suite } from '../../src/content/evals/kit';
 import { compare, passed, QUESTIONS } from '../../src/lib/evals/suite';
 
-const loader = async (f: string) => { const b = readFileSync('public/data/index/' + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer; };
+import { diskLoader as loader } from '../../src/lib/rag/diskLoader';
 let suite: Suite;
 beforeAll(async () => { suite = await loadSuite(loader); }, 60_000);
 

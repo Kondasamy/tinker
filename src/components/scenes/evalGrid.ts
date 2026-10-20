@@ -13,6 +13,9 @@ const word = (ok: boolean) => (ok ? 'passed' : 'failed');
 /** flipped[c][q]: column c's verdict on question q differs from the column before or after it. */
 export const flips = (cols: GridCol[]) => cols.map((c, i) => c.results.map((ok, q) =>
   (i > 0 && cols[i - 1].results[q] !== ok) || (i < cols.length - 1 && cols[i + 1].results[q] !== ok)));
+/** The questions (0-based, sorted, once each) whose verdict flips anywhere in the grid. */
+export const flippedQuestions = (cols: GridCol[]) =>
+  [...new Set(flips(cols).flatMap(c => c.flatMap((x, q) => (x ? [q] : []))))].sort((a, b) => a - b);
 
 /** A cell's accessible name: the verdict, then what changed against the version before it (or after it, for the first). */
 export function cellName(cols: GridCol[], c: number, q: number): string {
@@ -56,7 +59,7 @@ export function evalGrid({ questions, cols, phone = false }: GridOpts) {
 /** The grid in words, for its label: each version's score and the flipped questions. */
 export function gridLabel(cols: GridCol[]): string {
   if (!cols.length) return 'Results: no versions run yet.';
-  const fl = flips(cols), qs = [...new Set(fl.flatMap(c => c.flatMap((x, q) => (x ? [q + 1] : []))))];
+  const qs = flippedQuestions(cols).map(q => q + 1);
   return `Results: ${cols[0].results.length} questions × ${cols.length} versions. ${cols.map(c => `${c.label} passed ${c.results.filter(Boolean).length}`).join(', ')}.`
     + (qs.length ? ` Flipped: ${qs.map(q => `Q${q}`).join(', ')}.` : ' Nothing flipped.');
 }

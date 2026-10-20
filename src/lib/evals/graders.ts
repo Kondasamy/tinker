@@ -5,7 +5,9 @@ import { run as hostRun, stepsOf, answerOf, type Run } from '../tools/host';
 import { ORDERS } from '../tools/server';
 import { RECORDINGS } from '../tools/turns';
 import { longDate } from '../format';
-import type { Order, Pair, ReleaseGrader, Rubric, Row } from './suite';
+import { isCorrect, type Order, type Pair, type ReleaseGrader, type Rubric, type Row } from './suite';
+
+export { isCorrect };
 import references from '../../../data/evals/references.json' with { type: 'json' };
 import judge from '../../../data/evals/judge.json' with { type: 'json' };
 import labels from '../../../data/evals/labels.json' with { type: 'json' };
@@ -47,7 +49,7 @@ export const pairwise = (question: string, sigA: string, sigB: string, rubric: R
 export interface PairRows extends Pair { sigA: string; sigB: string }
 /** Pairs whose winner changes when the order swaps (KTD4). */
 export function positionBias(pairs: PairRows[], rubric: Rubric) {
-  const flipped = pairs.filter((p) => pairwise(p.question, p.sigA, p.sigB, rubric, 'ab')?.winner !== pairwise(p.question, p.sigA, p.sigB, rubric, 'ba')?.winner);
+  const flipped = pairs.filter((p) => { const w = (o: Order) => pairwise(p.question, p.sigA, p.sigB, rubric, o)?.winner; return w('ab') !== w('ba'); });
   return { flipped: flipped.map((p) => p.question), total: pairs.length };
 }
 
@@ -56,8 +58,6 @@ export interface Label { pass: boolean; note?: string }
 const LABELS = labels as Record<string, Label>;
 export const label = (question: string, signature: string): Label | null => LABELS[`${question}|${signature}`] ?? null;
 
-/** The reference grade: the recorded answer's verdict. */
-export const isCorrect = (v: Verdict) => v === 'correct';
 
 /** Judge vs. people over the labelled rows; no labels reads "no labels", never NaN. */
 export function agreement(rows: Pick<Row, 'question' | 'signature'>[], rubric: Rubric) {

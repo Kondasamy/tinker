@@ -34,6 +34,7 @@ export function evalState({ results, graded = results.length, riding = false }: 
 type Part = { at: number[]; svg: string };
 const STACK = [30, 124], BELT = { x: 30, y0: 104, y1: 56 }, DESK = [208, 114], PILE = { pass: [200, 104], fail: [200, 124] };
 const CARD = { dx: 10, dy: 7, h: 1.3 };
+const DESK_TOP = BH + 12;   // the grader's desk top, where the piles start
 const STRIPE = PALS.cobalt.l, PASS = PALS.mint, FAIL = PALS.tomato;
 
 /** One test card lying flat: white, a coloured stripe along its top edge, and (graded) a stamp mark in the corner. */
@@ -52,7 +53,7 @@ const pile = (x: number, y: number, z0: number, n: number, mark?: typeof PASS) =
 
 /** The grader's desk: a wooden desk with a rubber stamp standing on it, the two piles on top. */
 function desk(passed: number, failed: number): Part {
-  const [x, y] = DESK, z1 = BH + 12;
+  const [x, y] = DESK, z1 = DESK_TOP;
   let s = box(x - 20, y - 20, BH, x + 20, y + 20, z1, WOOD, toneI, 1) + hullInk(boxCorners(x - 20, y - 20, BH, x + 20, y + 20, z1), 2.2);
   s += `<g class="pile" data-pile="pass" data-n="${passed}">${pile(PILE.pass[0], PILE.pass[1], z1, passed, PASS)}</g>`;
   s += `<g class="pile" data-pile="fail" data-n="${failed}">${pile(PILE.fail[0], PILE.fail[1], z1, failed, FAIL)}</g>`;
@@ -97,8 +98,8 @@ export const evalScene = (o: EvalOpts) => (ctx: SceneCtx) => {
   const pills = [pill(narrow ? [DESK[0] - 20, DESK[1] + 20, BH + 6] : [DESK[0] - 20, DESK[1], BH + 26], narrow ? -46 : 0, narrow ? 26 : -30, o.board ?? `${o.version ? `${o.version} · ` : ''}PASSED ${st.passed}/${st.total}`, false, scale)];
   if (!narrow) {
     pills.push(pill([STACK[0] + CARD.dx, STACK[1], BH + st.stack * CARD.h], 4, 26, `TESTS ${st.stack}`, false, scale));
-    pills.push(pill([PILE.fail[0] + CARD.dx, PILE.fail[1], BH + 12 + st.failed * CARD.h], 8, 22, `FAIL ${st.failed}`, false, scale));
-    pills.push(pill([PILE.pass[0] + CARD.dx, PILE.pass[1] - CARD.dy, BH + 12 + st.passed * CARD.h], 34, 2, `PASS ${st.passed}`, false, scale));
+    pills.push(pill([PILE.fail[0] + CARD.dx, PILE.fail[1], DESK_TOP + st.failed * CARD.h], 8, 22, `FAIL ${st.failed}`, false, scale));
+    pills.push(pill([PILE.pass[0] + CARD.dx, PILE.pass[1] - CARD.dy, DESK_TOP + st.passed * CARD.h], 34, 2, `PASS ${st.passed}`, false, scale));
   }
   return s + pipePills + pills.join('');
 };

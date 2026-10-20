@@ -49,12 +49,15 @@ export function runSuite(index: RagIndex, v: VersionId): Row[] {
   });
 }
 
-export const passed = (rows: Row[]) => rows.filter((r) => r.verdict === 'correct').length;
+/** The reference grade: the recorded answer's verdict. */
+export const isCorrect = (v: Verdict) => v === 'correct';
+
+export const passed = (rows: Row[]) => rows.filter((r) => isCorrect(r.verdict)).length;
 
 /** Questions `after` gets right that `before` got wrong (fixed), and the other way round (broken). */
 export function compare(before: Row[], after: Row[]) {
-  const was = new Map(before.map((r) => [r.question, r.verdict === 'correct']));
-  const now = after.map((r) => ({ id: r.question, ok: r.verdict === 'correct' }));
+  const was = new Map(before.map((r) => [r.question, isCorrect(r.verdict)]));
+  const now = after.map((r) => ({ id: r.question, ok: isCorrect(r.verdict) }));
   return { fixed: now.filter((r) => r.ok && !was.get(r.id)).map((r) => r.id), broken: now.filter((r) => !r.ok && was.get(r.id)).map((r) => r.id) };
 }
 

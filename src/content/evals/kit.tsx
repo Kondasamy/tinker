@@ -6,10 +6,9 @@ import IsoStage from '../../lib/iso/IsoStage';
 import { filterFor } from '../../lib/iso/core.js';
 import { STAMP_CLASS, type Stamp } from '../../lib/iso/flat';
 import { openIndex, fetchLoader, type Loader } from '../../lib/rag/load';
-import { QUESTIONS, VERSIONS, VERSION_IDS, fileOf, runSuite, type Row, type VersionId } from '../../lib/evals/suite';
-import { isCorrect } from '../../lib/evals/graders';
+import { QUESTIONS, VERSIONS, VERSION_IDS, fileOf, isCorrect, runSuite, type Row, type VersionId } from '../../lib/evals/suite';
 import { EVAL_BOARD, evalLabel, evalScene, type EvalOpts } from '../../components/scenes/evalScene';
-import { evalGrid, flips, gridLabel, type GridCol } from '../../components/scenes/evalGrid';
+import { evalGrid, flippedQuestions, gridLabel, type GridCol } from '../../components/scenes/evalGrid';
 import { useNarrow } from '../tool-calling/kit';
 import { fact } from '../../lib/evals/facts';
 import './evals.css';
@@ -19,7 +18,7 @@ export type Suite = Record<VersionId, Row[]>;
 /** Open the index, load every version's config, and run each version over the suite. Rejects if any file fails. */
 export async function loadSuite(loader: Loader = fetchLoader()): Promise<Suite> {
   const index = await openIndex(loader);
-  for (const v of VERSION_IDS) { const f = fileOf(v); if (f) await index.load(f); }
+  await Promise.all([...new Set(VERSION_IDS.map(fileOf))].filter(f => f !== null).map(f => index.load(f)));
   return Object.fromEntries(VERSION_IDS.map(v => [v, runSuite(index, v)])) as Suite;
 }
 
@@ -107,7 +106,7 @@ export function EvalStage({ show, view: kept, onView }: { show: (suite: Suite) =
     <div className="tc-stage ev-stage">
       <SuiteGate>{suite => {
         const s = show(suite), o: EvalOpts = { ...s.scene, scale };
-        const flipped = new Set(flips(s.cols).flatMap(c => c.flatMap((x, q) => (x ? [q] : []))));
+        const flipped = flippedQuestions(s.cols);
         return (
           <>
             <div className="tc-tabs" role="group" aria-label="Show in the picture">
@@ -122,8 +121,8 @@ export function EvalStage({ show, view: kept, onView }: { show: (suite: Suite) =
             <p className="tc-caption">
               {s.stamp && <span className={`stamp ${STAMP_CLASS[s.stamp]}`}>{s.stamp}</span>}
               <span className="txt">{s.caption}</span>
-              {view === 'grid' && flipped.size > 0 && (
-                <span className="lbl">Flipped: {[...flipped].sort((a, b) => a - b).map(q => `Q${q + 1}`).join(', ')}</span>
+              {view === 'grid' && flipped.length > 0 && (
+                <span className="lbl">Flipped: {flipped.map(q => `Q${q + 1}`).join(', ')}</span>
               )}
             </p>
           </>

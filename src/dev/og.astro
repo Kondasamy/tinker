@@ -23,7 +23,7 @@ import { MCP_BOARD, connectScene } from '../components/scenes/mcpScene';
 import { agentScene } from '../components/scenes/agentScene';
 import { run as agentRun, CONTEXT as AGENT_CONTEXT, DEFAULTS as AGENT_DEFAULTS, MEMORY_CONTEXT } from '../lib/agents/loop';
 import { RECORDINGS as AGENT_RECORDINGS } from '../lib/agents/turns';
-import { readFileSync } from 'node:fs';
+import { diskLoader } from '../lib/rag/diskLoader';
 import { EVAL_BOARD, evalScene, type EvalOpts } from '../components/scenes/evalScene';
 import { Grid, colsOf, loadSuite, resultsOf } from '../content/evals/kit';
 import { labelledOf } from '../content/evals/04-judge-the-judge';
@@ -79,7 +79,7 @@ const AGENT_OG: Record<string, ReturnType<typeof agentScene>> = {
 const agent = AGENT_OG[page.og];
 // module 4: the test bench at the moment each chapter turns on (chapter 1 the v1/v2 grid, chapter 5 the back office run
 // it grades). The suite runs here at build time, from the committed index, as on the intro.
-const suite = page.og.startsWith('evals') ? await loadSuite(async f => { const b = readFileSync('public/data/index/' + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer; }) : null;
+const suite = page.og.startsWith('evals') ? await loadSuite(diskLoader) : null;
 const EVAL_OG: Record<string, () => EvalOpts> = suite ? (() => {
   const ls = labelledOf(suite), a = agreement(ls.map(l => l.row), 'r1');
   const hat5 = SAMPLES.map(c => passHatK(c, 5)), v3 = gradeRows(suite.v3, 'verdict');

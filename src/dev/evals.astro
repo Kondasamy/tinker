@@ -1,13 +1,13 @@
 ---
 // Dev-only eyeball page: the evals test bench in every state (static SVG, no client JS), then the Results grids.
 // Below 600px the phone versions show (bigger pills, no pile pills; grid rows with numbers and the question list).
-import { readFileSync } from 'node:fs';
+import { diskLoader } from '../lib/rag/diskLoader';
 import '../styles/tokens.css';
 import IsoStage from '../lib/iso/IsoStage';
 import { EVAL_BOARD, evalLabel, evalScene, type EvalOpts } from '../components/scenes/evalScene';
 import { colsOf, Grid, loadSuite, QUESTION_TEXT, resultsOf } from '../content/evals/kit';
 
-const suite = await loadSuite(async f => { const b = readFileSync('public/data/index/' + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer; });
+const suite = await loadSuite(diskLoader);
 const V1 = resultsOf(suite.v1), V2 = resultsOf(suite.v2);
 
 const STATES: [string, EvalOpts][] = [

@@ -12,7 +12,7 @@ import { fact } from '../../lib/evals/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { EvalStage, WithSuite, colsOf, resultsOf, suiteNow, useSuite, type Shown, type Suite, type View } from './kit';
+import { EvalStage, Mark, WithSuite, colsOf, resultsOf, suiteNow, useSuite, type Shown, type Suite, type View } from './kit';
 
 const MODULE = 'evals', ID = '01-it-worked-when-i-tried-it';
 const { v1: V1, v2: V2 } = VERSIONS, N = QUESTIONS.length;
@@ -88,7 +88,6 @@ export const STEPS: Step<S>[] = [
   },
 ];
 
-const word = (ok: boolean) => <span className={`stamp ${ok ? 'correct' : 'wrong'}`}>{ok ? 'PASS' : 'FAIL'}</span>;
 
 /** One question's answer on each version, stamped, with what went wrong for a failed one. */
 function Answers({ suite, q }: { suite: Suite; q: number }) {
@@ -99,7 +98,7 @@ function Answers({ suite, q }: { suite: Suite; q: number }) {
         const r = suite[v][q], ok = isCorrect(r.verdict);
         return (
           <div key={v} className="ev-answer">
-            <p>{word(ok)} <strong>{VERSIONS[v].label}</strong> “{r.answer.text}”</p>
+            <p><Mark ok={ok} /> <strong>{VERSIONS[v].label}</strong> “{r.answer.text}”</p>
             {!ok && r.answer.why && <p className="note">{r.answer.why}</p>}
           </div>
         );
