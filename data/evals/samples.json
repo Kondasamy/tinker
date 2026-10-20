@@ -1,0 +1,38 @@
+[
+  {
+    "id": "cutoff-steady",
+    "question": "same-day-cutoff",
+    "version": "v1",
+    "samples": [
+      { "text": "Orders for in-stock items placed before 2 p.m. Central time on a business day ship the same day; orders placed later ship the next business day.", "verdict": "correct" },
+      { "text": "In-stock orders placed before 2 p.m. Central on a business day ship that day.", "verdict": "correct" },
+      { "text": "The cutoff is 2 p.m. Central time on business days, for in-stock items.", "verdict": "correct" },
+      { "text": "Order in-stock items before 2 p.m. Central time on a business day and they ship the same day.", "verdict": "correct" },
+      { "text": "Same-day shipping covers in-stock orders placed before 2 p.m. Central time on a business day.", "verdict": "correct" }
+    ]
+  },
+  {
+    "id": "refund-mostly",
+    "question": "refund-enterprise",
+    "version": "v1",
+    "samples": [
+      { "text": "No. The refund policy does not apply to enterprise contracts. Enterprise customers raise a billing dispute with their account manager.", "verdict": "correct" },
+      { "text": "No. Enterprise contracts are not covered by the refund policy; the account manager handles billing disputes.", "verdict": "correct" },
+      { "text": "Yes. Customers may request a refund within 30 days of delivery.", "verdict": "wrong" },
+      { "text": "No. The refund policy does not cover enterprise contracts.", "verdict": "correct" },
+      { "text": "No. Enterprise customers must raise a billing dispute with their account manager instead of asking for a refund.", "verdict": "correct" }
+    ]
+  },
+  {
+    "id": "card-coin-flip",
+    "question": "card-data-retention",
+    "version": "v2",
+    "samples": [
+      { "text": "Larkspur keeps customer payment card data for two years.", "verdict": "wrong" },
+      { "text": "Larkspur keeps only the last four digits and the expiry month, for 90 days after the customer's last order.", "verdict": "correct" },
+      { "text": "Only the last four digits and the expiry month are kept, for 90 days after the last order.", "verdict": "correct" },
+      { "text": "I can't tell from these passages how long card data is kept.", "verdict": "notfound" },
+      { "text": "Card numbers go straight to the payment processor. Larkspur keeps the last four digits and expiry month for 90 days.", "verdict": "correct" }
+    ]
+  }
+]

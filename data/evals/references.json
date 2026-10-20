@@ -1,0 +1,57 @@
+{
+  "refund-enterprise": {
+    "answer": "No. The refund policy does not apply to enterprise contracts. Enterprise customers raise a billing dispute with their account manager instead.",
+    "facts": { "enterprise-excluded": ["does not apply to enterprise", "doesn't apply to enterprise"] }
+  },
+  "standard-refund-window": {
+    "answer": "Standard customers can request a refund within 30 days of delivery.",
+    "facts": { "refund-30-days": ["30 days", "thirty days"] }
+  },
+  "dock-door-red-light": {
+    "answer": "No. Never open a dock door showing a red light.",
+    "facts": { "never-open-red": ["never open"] }
+  },
+  "stale-hotel-limit": {
+    "answer": "Lodging is reimbursed up to $210 per night before taxes in most cities, and up to $290 in high-cost cities.",
+    "facts": { "lodging-cap-2025": ["$210"] }
+  },
+  "card-data-retention": {
+    "answer": "Larkspur keeps only the last four digits and the expiry month of a card, for 90 days after the last order.",
+    "facts": { "card-90-days": ["90 days", "ninety days"] }
+  },
+  "same-day-cutoff": {
+    "answer": "In-stock orders placed before 2 p.m. Central time on a business day ship the same day.",
+    "facts": { "cutoff-2pm": ["2 p.m.", "2 pm", "2pm"] }
+  },
+  "vague-outage": {
+    "answer": "For a Portal outage outside business hours, call the Duty Desk at extension 4410 to page the on-call engineer.",
+    "facts": { "duty-desk-4410": ["4410"] }
+  },
+  "payment-methods": {
+    "answer": "Company credit cards, purchase orders for approved accounts, bank transfer for invoices over $2,000, and digital wallets for card-paying customers.",
+    "facts": {
+      "cards-and-pos": ["purchase order"],
+      "bank-transfer": ["bank transfer"],
+      "digital-wallet": ["digital wallet"]
+    }
+  },
+  "kestrel-purchase-approver": {
+    "answer": "Tomasz Rehnquist, Director of Warehouse Technology, approves purchases for the Fulfillment Systems team, which owns the Kestrel K2 integration.",
+    "facts": {
+      "kestrel-owner": ["Fulfillment Systems"],
+      "fulfillment-approver": ["Tomasz Rehnquist"]
+    }
+  },
+  "k2-volume-price": {
+    "answer": "A Kestrel K2 handheld scanner costs $410 per unit when you order 50 or more.",
+    "facts": { "k2-row": ["$410"] }
+  },
+  "dock-sensor-warranty": {
+    "answer": "The DS-100 dock door sensor has a three-year warranty from the date of shipment.",
+    "facts": { "three-years": ["three years", "three-year", "3 years"] }
+  },
+  "customer-success-lead": {
+    "answer": "Ingrid Vasquez-Lund leads the Customer Success team.",
+    "facts": { "cs-lead": ["Ingrid Vasquez-Lund"] }
+  }
+}
