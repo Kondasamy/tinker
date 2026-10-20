@@ -194,8 +194,7 @@ test.describe('warm-up', () => {
   });
 
   test.describe('on RAG’s own pages', () => {
-    test.skip(RECALL.length === 0, 'RAG’s recall bank is filled in U5');
-    const chapter = RECALL[0]?.chapter;
+    const chapter = RECALL[0].chapter;
 
     test('home Continue goes through the warm-up when one is due, and the intro’s Continue does not change', async ({ page }) => {
       await open(page, '/', { [chapter]: 21 });
