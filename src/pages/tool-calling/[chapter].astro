@@ -1,5 +1,8 @@
 ---
 import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import AnswersArentActions from '../../content/tool-calling/01-answers-arent-actions';
+import FirstTool from '../../content/tool-calling/02-first-tool';
+import ValidIsntCorrect from '../../content/tool-calling/03-valid-isnt-correct';
 import { moduleOf } from '../../lib/modules';
 
 export function getStaticPaths() {
@@ -10,8 +13,8 @@ const { chapter } = Astro.params;
 const { title } = Astro.props;
 ---
 <ChapterLayout module="tool-calling" chapter={chapter} title={title}>
-  {/* One line per written chapter, added with its registry entry:
-        chapter === '<id>' ? <Island client:load /> : ...
-      No lookup table: hydration needs each island as a static import. No chapter is written yet, so the chain is empty. */}
-  {null}
+  {/* one line per written chapter; hydration needs a static component, so no lookup table */}
+  {chapter === '01-answers-arent-actions' ? <AnswersArentActions client:load />
+    : chapter === '02-first-tool' ? <FirstTool client:load />
+    : <ValidIsntCorrect client:load />}
 </ChapterLayout>

@@ -14,13 +14,23 @@ import { CHAPTERS } from '../lib/chapters';
 import { ALL_PAGES } from '../lib/pages';
 import { TIMELINE, STOP_5TB } from '../lib/scale';
 import FlatStage from '../components/scenes/FlatStage';
-import { SEQ_LANES, SEQ_MSGS } from '../components/scenes/toolSequence';
+import { SEQ_LANES, SEQ_MSGS, toolLanes, transcript } from '../components/scenes/toolSequence';
+import { run } from '../lib/tools/host';
+import { RECORDINGS } from '../lib/tools/turns';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
 }
 const { page } = Astro.props;
 const ALL = CHAPTERS.flatMap(c => c.unlocks);
+// module 2 chapters: the run each chapter is about, as its flat sequence
+const seq = (id: string) => transcript(RECORDINGS[id], run(RECORDINGS[id]));
+const TOOL_OG: Record<string, [string, ReturnType<typeof seq>]> = {
+  'tool-calling-01-answers-arent-actions': ['Assistant app', seq('no-tools')],
+  'tool-calling-02-first-tool': ['Host app', seq('order-status')],
+  'tool-calling-03-valid-isnt-correct': ['Host app', seq('invalid-arg')],
+};
+const tool = TOOL_OG[page.og];
 ---
 <html lang="en">
   <head><meta charset="utf-8" /><meta name="robots" content="noindex" /><title>og: {page.og}</title></head>
@@ -36,6 +46,7 @@ const ALL = CHAPTERS.flatMap(c => c.unlocks);
         {page.og === 'home' ? <IsoStage board={TRACK_BOARD} scene={staticTrack(ALL, { scale: 1.6 })} label="" />
           : page.og === 'rag' ? <IsoStage board={MINI_BOARD} scene={miniPipeline} label="" />
           : page.og === 'tool-calling' ? <FlatStage lanes={SEQ_LANES} msgs={SEQ_MSGS} />
+          : tool ? <FlatStage lanes={toolLanes(tool[0])} msgs={tool[1]} />
           : page.og === '01-history' ? <Timeline entries={TIMELINE} visited={4} active={3} onPick={() => {}} pills={1.7} />
           : page.og === '02-why-not-stuff-it' ? <ContextOverflow stop={STOP_5TB} pills={1.7} />
           : page.og.endsWith('-recap') ? <RecallCards label="" />
