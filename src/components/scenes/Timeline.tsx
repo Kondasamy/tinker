@@ -2,7 +2,7 @@
 // cited for that era (log scale). The learner clicks (or Enter/Space on) the next era to open it.
 import type { KeyboardEvent, MouseEvent } from 'react';
 import IsoStage, { type SceneCtx } from '../../lib/iso/IsoStage';
-import { BH, ACC, boxCorners } from '../../lib/iso/blocks';
+import { BH, ACC, boxCorners, glassCase } from '../../lib/iso/blocks';
 import { PALS, METAL, CLEAR, CERAMIC, INK, box, tx, txY, pd, on, PZ, rrUV, castShadow, byDepth, hullInk, toneI } from '../../lib/iso/core.js';
 import { formatTokens, type TimelineEntry } from '../../lib/scale';
 
@@ -38,8 +38,7 @@ export default function Timeline({ entries, visited, active, onPick }: Props) {
       s += tx(x + H + .2, Y, BH + 2.2, era.label, era.label.length > 7 ? 4.2 : 5.6, INK);
       if (win && open) {
         const h = colHeight(win);
-        s += box(x - 10, Y - 10, z1, x + 10, Y + 10, z1 + h, CLEAR, toneI, .8);
-        s += box(x - 8, Y - 8, z1, x + 8, Y + 8, z1 + h - 1.5, era.pal, toneI, .5);
+        s += glassCase(x - 10, Y - 10, z1, x + 10, Y + 10, z1 + h, CLEAR, box(x - 8, Y - 8, z1, x + 8, Y + 8, z1 + h - 1.5, era.pal, toneI, .5));
         s += txY(x, Y + 10.2, z1 + Math.min(h / 2, 8) - 2, formatTokens(win), 5.4, INK);
       } else if (open) {
         // before chat models: a stack of paper, the documents RAG fetches from

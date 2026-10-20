@@ -1,7 +1,13 @@
 /* Block canvas: the figure is the hero; the panel beside it stays quiet. */
 .canvas { display: grid; gap: 16px; width: 100%; align-items: start; }
 @media (min-width: 1000px) { .canvas.has-panel { grid-template-columns: minmax(0, 1fr) 280px; } }
-.canvas-stage { min-width: 0; }
+.canvas-stage { min-width: 0; position: relative; }
+.canvas-stage > svg { cursor: grab; }
+.canvas-stage > svg.orbiting { cursor: grabbing; }
+/* turn / zoom, in the stage's top-left corner (the meters and run strip use the top-right) */
+.view-controls { position: absolute; top: 8px; left: 8px; display: flex; gap: 4px; z-index: 1; }
+.view-controls .chip { min-width: 30px; padding: 3px 8px; box-shadow: none; }
+.view-controls .chip:disabled { opacity: .4; cursor: default; }
 .canvas-stage svg { max-height: 68vh; touch-action: manipulation; user-select: none; }
 .canvas-stage svg.editable { touch-action: none; }
 

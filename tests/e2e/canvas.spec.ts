@@ -100,3 +100,21 @@ test('390 px: dragging does nothing, knobs still change results', async ({ page 
   await expect(context(page)).toHaveText('5 chunks reached the model');
   await expect(block(page, 'retriever')).toHaveAttribute('aria-label', /TOP 5/i);
 });
+
+test('view: turn, orbit and zoom move the camera only; blocks stay usable', async ({ page }) => {
+  await open(page);
+  const svg = page.locator('.canvas-stage > svg');
+  const before = await block(page, 'llm').boundingBox();
+  await page.getByRole('button', { name: 'Turn right' }).click();
+  await expect.poll(async () => (await block(page, 'llm').boundingBox())?.x).not.toBe(before?.x);
+  await block(page, 'retriever').click();
+  await expect(panel(page)).toContainText('Retriever');
+
+  const vb = await svg.getAttribute('viewBox');
+  await page.getByRole('button', { name: 'Zoom in' }).click();
+  expect(await svg.getAttribute('viewBox')).not.toBe(vb);
+  await page.getByRole('button', { name: 'Reset view' }).click();
+  await expect(page.getByRole('button', { name: 'Reset view' })).toHaveCount(0);
+  await expect(svg).toHaveAttribute('viewBox', vb!.replace(/^\S+ \S+/, '0 0'));
+  await expect(context(page)).toHaveText('3 chunks reached the model');
+});

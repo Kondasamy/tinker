@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { createElement, Fragment } from 'react';
 import { renderToString } from 'react-dom/server';
-import { P0, withFrame, ink, inkScale, clipTo } from '../../src/lib/iso/core.js';
+import { P, P0, withFrame, ink, inkScale, clipTo, unrotXY } from '../../src/lib/iso/core.js';
 import { BLOCKS, BLOCK_TYPES, renderers, blockShadow, type BlockType } from '../../src/lib/iso/blocks';
-import IsoStage, { frameFor, type Board, type SceneCtx } from '../../src/lib/iso/IsoStage';
+import IsoStage, { frameFor, stageFrame, type Board, type SceneCtx } from '../../src/lib/iso/IsoStage';
 
 const restScene = (types: BlockType[]) => ({ top }: SceneCtx) =>
   types.map((t, i) => blockShadow(t, 28 + i * 56, 28, top)).join('') +
@@ -91,5 +91,42 @@ describe('IsoStage', () => {
     const two = withFrame({ prefix: 'p2-' }, () => clipTo([[0, 0, 0], [1, 0, 0], [0, 1, 0]], ''));
     expect(one).toContain('id="p1-k1"');
     expect(two).toContain('id="p2-k1"');
+  });
+});
+
+describe('turning and zoom', () => {
+  const b: Board = [0, 0, 300, 120];
+  it('every whole turn frames the board the same; part turns pull back', () => {
+    const f0 = frameFor(b);
+    for (const v of [1, 2, 3, -1]) {
+      const f = frameFor(b, v);
+      expect(f.w).toBeCloseTo(f0.w, 6);
+      expect(f.h).toBeCloseTo(f0.h, 6);
+    }
+    expect(frameFor(b, .5).w).toBeGreaterThan(f0.w);
+    expect(stageFrame(b, .5).inkK).toBe(f0.inkK);   // ink weight stays put while turning
+  });
+  it('unrotXY undoes the turn at any angle', () => {
+    // the model point under turned floor point (40, 90) projects to where (40, 90) would without a turn
+    for (const view of [0, .3, 1, 2.7]) withFrame({ view, center: [150, 60] }, () => {
+      const [ux, uy] = unrotXY(40, 90);
+      expect(P(ux, uy, 0)[0]).toBeCloseTo(P0(40, 90, 0)[0], 6);
+      expect(P(ux, uy, 0)[1]).toBeCloseTo(P0(40, 90, 0)[1], 6);
+    });
+  });
+  it('turned round, labels move to the faces now toward the viewer', () => {
+    const front = withFrame({}, () => renderers.llm({ x: 0, y: 0, stat: 'X' }));
+    const back = withFrame({ view: 2 }, () => renderers.llm({ x: 0, y: 0, stat: 'X' }));
+    expect(front).not.toBe(back);
+    // same words drawn, so the accessible name is unchanged
+    expect(back.match(/aria-label="[^"]*"/)![0]).toBe(front.match(/aria-label="[^"]*"/)![0]);
+  });
+  it('zoom crops the viewBox about its point and hides overflow', () => {
+    const html = renderToString(createElement(IsoStage, { board: b, label: 'Z', scene: '', zoom: { k: 2, u: 0, v: 1 } }));
+    const f = frameFor(b), [x, y, w, h] = html.match(/viewBox="([^"]+)"/)![1].split(' ').map(Number);
+    expect([x, w]).toEqual([0, +(f.w / 2).toFixed(1)]);
+    expect(y).toBeCloseTo(f.h / 2, 1);
+    expect(h).toBeCloseTo(f.h / 2, 1);
+    expect(html).toContain('overflow:hidden');
   });
 });
