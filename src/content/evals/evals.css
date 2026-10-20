@@ -14,3 +14,12 @@
 .tc-frame .ev-grid svg { height: auto; flex: none; }
 .ev-wait { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 240px; border: 1.5px dashed var(--rule); border-radius: 12px; font-size: 14px; }
 .ev-wait p { margin: 0; }
+/* chapter controls: the tried questions, each question's answers stamped per version, and the twelve-question pick */
+.ev-try, .ev-find { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.ev-find .chip { text-align: left; max-width: 100%; }
+.ev-answers { margin-top: 10px; }
+.ev-answer p { margin: 2px 0; font-size: 13.5px; }
+.ev-answer .stamp { margin-right: 4px; }
+/* ChapterLayout's HTML .stamp rule (a CSS rotate) beats the SVG stamp's own transform attribute and swings each grid
+   stamp about the drawing's origin; put back the drawing's tilt about the stamp's own centre */
+.ev-grid g.stamp { transform: rotate(-9deg); transform-box: fill-box; transform-origin: center; }

@@ -7,6 +7,7 @@ import { BH, ACC, renderers, blockShadow, boxCorners, esc } from '../../lib/iso/
 import { INK, PALS, CERAMIC, WOOD, pd, on, PZ, rrUV, byDepth, box, rod, line, fill, castShadow, toneI, tag } from '../../lib/iso/core.js';
 import { officeScene } from './officeScene';
 import { clipboard, helperDesk } from './agentScene';
+import { testStack } from './evalScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
@@ -70,12 +71,14 @@ export const heroScene = ({ live, planned, ride }: { live: HeroPlot[]; planned: 
     + planned.map((m, j) => pill(at(later.length + j), `Soon: ${m.name}`, false, -12)).join('');
 };
 
-/** later live modules' plots, by module id: agents is a small desk with its plan on a clipboard */
+/** later live modules' plots, by module id: agents is a small desk with its plan on a clipboard; evals a stack of graded test cards and a stamp */
 const DRAW: Record<string, HeroPlot['draw']> = {
   // at the plot's right-hand corner, clear of the pill row
   agents: (x, y, { top }) => castShadow(boxCorners(x + 9, y - 21, BH, x + 27, y - 7, BH + 17), BH, top)
     + castShadow(boxCorners(x + 14, y - 4, BH, x + 40, y + 3, BH + 33), BH, top)
     + byDepth([helperDesk(x + 18, y - 14, true, false), clipboard(x + 27, y + 1, [{ done: true, struck: false }, { done: true, struck: false }, { done: false, struck: false }])]),
+  evals: (x, y, { top }) => castShadow(boxCorners(x + 8, y - 15, BH, x + 28, y - 1, BH + 6), BH, top)
+    + castShadow(boxCorners(x + 16, y + 2, BH, x + 24, y + 12, BH + 12), BH, top) + testStack(x + 18, y - 8),
 };
 const LIVE = MODULES.filter(m => m.status === 'live'), PLANNED = MODULES.filter(m => m.status === 'planned');
 /** the home page's picture (and its share image), from the registry: the model's call riding to the host */

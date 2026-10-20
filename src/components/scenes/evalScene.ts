@@ -54,11 +54,20 @@ function desk(passed: number, failed: number): Part {
   let s = box(x - 20, y - 20, BH, x + 20, y + 20, z1, WOOD, toneI, 1) + hullInk(boxCorners(x - 20, y - 20, BH, x + 20, y + 20, z1), 2.2);
   s += `<g class="pile" data-pile="pass" data-n="${passed}">${pile(PILE.pass[0], PILE.pass[1], z1, passed, PASS)}</g>`;
   s += `<g class="pile" data-pile="fail" data-n="${failed}">${pile(PILE.fail[0], PILE.fail[1], z1, failed, FAIL)}</g>`;
-  // the rubber stamp: an ink pad and a stamp on a knob handle, at the desk's front corner
-  s += box(x + 10, y - 6, z1, x + 18, y + 4, z1 + 1.5, DARK, toneI, .7)
-    + box(x + 11, y - 5, z1 + 1.5, x + 17, y + 3, z1 + 4, METAL, toneI, .8) + rod([x + 14, y - 1, z1 + 4], [x + 14, y - 1, z1 + 10], 1.2, WOOD) + rod([x + 14, y - 1, z1 + 10], [x + 14, y - 1, z1 + 12], 2.6, PALS.tomato);
+  // the rubber stamp at the desk's front corner
+  s += rubberStamp(x + 14, y - 1, z1);
   return { at: [x, y, 0], svg: s };
 }
+
+/** A rubber stamp on its ink pad, centred at (x, y), standing on height z. */
+const rubberStamp = (x: number, y: number, z: number) => box(x - 4, y - 5, z, x + 4, y + 5, z + 1.5, DARK, toneI, .7)
+  + box(x - 3, y - 4, z + 1.5, x + 3, y + 4, z + 4, METAL, toneI, .8) + rod([x, y, z + 4], [x, y, z + 10], 1.2, WOOD) + rod([x, y, z + 10], [x, y, z + 12], 2.6, PALS.tomato);
+
+/** The home hero's evals plot: a small stack of graded test cards, a PASS mark on each, with the rubber stamp beside it. */
+export const testStack = (x: number, y: number, n = 4) => byDepth([
+  { at: [x, y, 0], svg: pile(x, y, BH, n, PASS) },
+  { at: [x + 2, y + 15, 0], svg: rubberStamp(x + 2, y + 15, BH) },
+]);
 
 const pill = (p: number[], dx: number, dy: number, text: string, on: boolean, scale: number) =>
   `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text), on, scale)}</g>`;

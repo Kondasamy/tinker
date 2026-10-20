@@ -66,7 +66,8 @@ export function Grid({ cols, questions = QUESTION_TEXT }: { cols: GridCol[]; que
     );
   };
   return (
-    <figure className="ev-grid">
+    // focusable: in the stage's fixed frame the grid scrolls, and a keyboard reader must reach it
+    <figure className="ev-grid" tabIndex={0} aria-label="Results grid">
       {svg(false)}{svg(true)}
       <ol className="ev-key">{questions.map((q, i) => <li key={i}>{q}</li>)}</ol>
     </figure>
