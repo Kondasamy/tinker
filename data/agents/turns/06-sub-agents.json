@@ -1,0 +1,478 @@
+{
+  "asks": {
+    "storm": "Monday’s storm soaked a delivery van. Five customers say their orders arrived damaged: 2101, 2102, 2103, 2104 and 2105. For each one, ship a replacement if we have stock, otherwise refund it, and email the customer.",
+    "order-2101": "Order 2101 arrived damaged in Monday’s storm. Ship a replacement if we have stock, otherwise refund it, then email the customer. Reply to the lead in one line.",
+    "order-2102": "Order 2102 arrived damaged in Monday’s storm. Ship a replacement if we have stock, otherwise refund it, then email the customer. Reply to the lead in one line.",
+    "order-2103": "Order 2103 arrived damaged in Monday’s storm. Ship a replacement if we have stock, otherwise refund it, then email the customer. Reply to the lead in one line.",
+    "order-2104": "Order 2104 arrived damaged in Monday’s storm. Ship a replacement if we have stock, otherwise refund it, then email the customer. Reply to the lead in one line.",
+    "order-2105": "Order 2105 arrived damaged in Monday’s storm. Ship a replacement if we have stock, otherwise refund it, then email the customer. Reply to the lead in one line."
+  },
+  "tools": [
+    "get_order",
+    "check_stock",
+    "create_replacement",
+    "issue_refund",
+    "send_email"
+  ],
+  "turns": {
+    "case=storm|hist=|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "Five damaged orders. I will look them all up at once.",
+      "calls": [
+        {
+          "id": "call_1",
+          "name": "get_order",
+          "arguments": {
+            "order_id": 2101
+          }
+        },
+        {
+          "id": "call_2",
+          "name": "get_order",
+          "arguments": {
+            "order_id": 2102
+          }
+        },
+        {
+          "id": "call_3",
+          "name": "get_order",
+          "arguments": {
+            "order_id": 2103
+          }
+        },
+        {
+          "id": "call_4",
+          "name": "get_order",
+          "arguments": {
+            "order_id": 2104
+          }
+        },
+        {
+          "id": "call_5",
+          "name": "get_order",
+          "arguments": {
+            "order_id": 2105
+          }
+        }
+      ]
+    },
+    "case=storm|hist=|mem=full|plan=off|tools=check_stock,create_replacement,delegate,get_order,issue_refund,send_email": {
+      "text": "Five separate orders. I will hand each one to a helper, so each works with a clean context.",
+      "calls": [
+        {
+          "id": "call_1",
+          "name": "delegate",
+          "arguments": {
+            "order_id": 2101,
+            "task": "Sort the storm damage on this order: replace it if we have stock, otherwise refund it, then email the customer."
+          }
+        },
+        {
+          "id": "call_2",
+          "name": "delegate",
+          "arguments": {
+            "order_id": 2102,
+            "task": "Sort the storm damage on this order: replace it if we have stock, otherwise refund it, then email the customer."
+          }
+        },
+        {
+          "id": "call_3",
+          "name": "delegate",
+          "arguments": {
+            "order_id": 2103,
+            "task": "Sort the storm damage on this order: replace it if we have stock, otherwise refund it, then email the customer."
+          }
+        },
+        {
+          "id": "call_4",
+          "name": "delegate",
+          "arguments": {
+            "order_id": 2104,
+            "task": "Sort the storm damage on this order: replace it if we have stock, otherwise refund it, then email the customer."
+          }
+        },
+        {
+          "id": "call_5",
+          "name": "delegate",
+          "arguments": {
+            "order_id": 2105,
+            "task": "Sort the storm damage on this order: replace it if we have stock, otherwise refund it, then email the customer."
+          }
+        }
+      ]
+    },
+    "case=storm|hist=get_order:2101:ok,get_order:2102:ok,get_order:2103:ok,get_order:2104:ok,get_order:2105:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "All five were delivered on 19 October. Now I will check stock for each.",
+      "calls": [
+        {
+          "id": "call_6",
+          "name": "check_stock",
+          "arguments": {
+            "order_id": 2101
+          }
+        },
+        {
+          "id": "call_7",
+          "name": "check_stock",
+          "arguments": {
+            "order_id": 2102
+          }
+        },
+        {
+          "id": "call_8",
+          "name": "check_stock",
+          "arguments": {
+            "order_id": 2103
+          }
+        },
+        {
+          "id": "call_9",
+          "name": "check_stock",
+          "arguments": {
+            "order_id": 2104
+          }
+        },
+        {
+          "id": "call_10",
+          "name": "check_stock",
+          "arguments": {
+            "order_id": 2105
+          }
+        }
+      ]
+    },
+    "case=order-2101|hist=|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "I will look up the order and its stock together.",
+      "calls": [
+        {
+          "id": "call_1",
+          "name": "get_order",
+          "arguments": {
+            "order_id": 2101
+          }
+        },
+        {
+          "id": "call_2",
+          "name": "check_stock",
+          "arguments": {
+            "order_id": 2101
+          }
+        }
+      ]
+    },
+    "case=order-2102|hist=|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "I will look up the order and its stock together.",
+      "calls": [
+        {
+          "id": "call_1",
+          "name": "get_order",
+          "arguments": {
+            "order_id": 2102
+          }
+        },
+        {
+          "id": "call_2",
+          "name": "check_stock",
+          "arguments": {
+            "order_id": 2102
+          }
+        }
+      ]
+    },
+    "case=order-2103|hist=|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "I will look up the order and its stock together.",
+      "calls": [
+        {
+          "id": "call_1",
+          "name": "get_order",
+          "arguments": {
+            "order_id": 2103
+          }
+        },
+        {
+          "id": "call_2",
+          "name": "check_stock",
+          "arguments": {
+            "order_id": 2103
+          }
+        }
+      ]
+    },
+    "case=order-2104|hist=|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "I will look up the order and its stock together.",
+      "calls": [
+        {
+          "id": "call_1",
+          "name": "get_order",
+          "arguments": {
+            "order_id": 2104
+          }
+        },
+        {
+          "id": "call_2",
+          "name": "check_stock",
+          "arguments": {
+            "order_id": 2104
+          }
+        }
+      ]
+    },
+    "case=order-2105|hist=|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "I will look up the order and its stock together.",
+      "calls": [
+        {
+          "id": "call_1",
+          "name": "get_order",
+          "arguments": {
+            "order_id": 2105
+          }
+        },
+        {
+          "id": "call_2",
+          "name": "check_stock",
+          "arguments": {
+            "order_id": 2105
+          }
+        }
+      ]
+    },
+    "case=storm|hist=get_order:2101:ok,get_order:2102:ok,get_order:2103:ok,get_order:2104:ok,get_order:2105:ok,check_stock:2101:in,check_stock:2102:out,check_stock:2103:in,check_stock:2104:in,check_stock:2105:out|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "In stock: 2101, 2103 and 2104, so I will ship replacements. Out of stock: 2102 and 2105, so I will refund those.",
+      "calls": [
+        {
+          "id": "call_11",
+          "name": "create_replacement",
+          "arguments": {
+            "order_id": 2101
+          }
+        },
+        {
+          "id": "call_12",
+          "name": "issue_refund",
+          "arguments": {
+            "order_id": 2102,
+            "amount": 230,
+            "reason": "damaged"
+          }
+        },
+        {
+          "id": "call_13",
+          "name": "create_replacement",
+          "arguments": {
+            "order_id": 2103
+          }
+        },
+        {
+          "id": "call_14",
+          "name": "create_replacement",
+          "arguments": {
+            "order_id": 2104
+          }
+        },
+        {
+          "id": "call_15",
+          "name": "issue_refund",
+          "arguments": {
+            "order_id": 2105,
+            "amount": 224,
+            "reason": "damaged"
+          }
+        }
+      ]
+    },
+    "case=order-2101|hist=get_order:2101:ok,check_stock:2101:in|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "In stock. Shipping a replacement.",
+      "calls": [
+        {
+          "id": "call_3",
+          "name": "create_replacement",
+          "arguments": {
+            "order_id": 2101
+          }
+        }
+      ]
+    },
+    "case=order-2102|hist=get_order:2102:ok,check_stock:2102:out|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "Out of stock. Refunding the $230.",
+      "calls": [
+        {
+          "id": "call_3",
+          "name": "issue_refund",
+          "arguments": {
+            "order_id": 2102,
+            "amount": 230,
+            "reason": "damaged"
+          }
+        }
+      ]
+    },
+    "case=order-2103|hist=get_order:2103:ok,check_stock:2103:in|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "In stock. Shipping a replacement.",
+      "calls": [
+        {
+          "id": "call_3",
+          "name": "create_replacement",
+          "arguments": {
+            "order_id": 2103
+          }
+        }
+      ]
+    },
+    "case=order-2104|hist=get_order:2104:ok,check_stock:2104:in|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "In stock. Shipping a replacement.",
+      "calls": [
+        {
+          "id": "call_3",
+          "name": "create_replacement",
+          "arguments": {
+            "order_id": 2104
+          }
+        }
+      ]
+    },
+    "case=order-2105|hist=get_order:2105:ok,check_stock:2105:out|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "Out of stock. Refunding the $224.",
+      "calls": [
+        {
+          "id": "call_3",
+          "name": "issue_refund",
+          "arguments": {
+            "order_id": 2105,
+            "amount": 224,
+            "reason": "damaged"
+          }
+        }
+      ]
+    },
+    "case=storm|hist=get_order:2101:ok,get_order:2102:ok,get_order:2103:ok,get_order:2104:ok,get_order:2105:ok,check_stock:2101:in,check_stock:2102:out,check_stock:2103:in,check_stock:2104:in,check_stock:2105:out,create_replacement:2101:ok,issue_refund:2102:ok,create_replacement:2103:ok,create_replacement:2104:ok,issue_refund:2105:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "Replacements shipped and refunds issued. Now I will email all five customers.",
+      "calls": [
+        {
+          "id": "call_16",
+          "name": "send_email",
+          "arguments": {
+            "order_id": 2101,
+            "body": "Hello Fenwick Farm Supply, sorry your Kestrel K2 scanner was damaged in Monday’s storm. A replacement ships today. We will keep to email, as you asked. Larkspur Supply Co."
+          }
+        },
+        {
+          "id": "call_17",
+          "name": "send_email",
+          "arguments": {
+            "order_id": 2102,
+            "body": "Hello Alder & Sons, sorry your Heron shelving bay was damaged in Monday’s storm. It is out of stock, so we have refunded the full $230 to your original payment method. Larkspur Supply Co."
+          }
+        },
+        {
+          "id": "call_18",
+          "name": "send_email",
+          "arguments": {
+            "order_id": 2103,
+            "body": "Hello Quarry Lane Tools, sorry your dock door sensors were damaged in Monday’s storm. A replacement ships today. Larkspur Supply Co."
+          }
+        },
+        {
+          "id": "call_19",
+          "name": "send_email",
+          "arguments": {
+            "order_id": 2104,
+            "body": "Hello Pike Street Hardware, sorry your label rolls were damaged in Monday’s storm. A replacement ships today. Larkspur Supply Co."
+          }
+        },
+        {
+          "id": "call_20",
+          "name": "send_email",
+          "arguments": {
+            "order_id": 2105,
+            "body": "Hello Osier Garden Centre, sorry your Gale work lights were damaged in Monday’s storm. It is out of stock, so we have refunded the full $224 to your original payment method. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=order-2101|hist=get_order:2101:ok,check_stock:2101:in,create_replacement:2101:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "Now I will tell Fenwick Farm Supply.",
+      "calls": [
+        {
+          "id": "call_4",
+          "name": "send_email",
+          "arguments": {
+            "order_id": 2101,
+            "body": "Hello Fenwick Farm Supply, sorry your Kestrel K2 scanner was damaged in Monday’s storm. A replacement ships today. We will keep to email, as you asked. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=order-2102|hist=get_order:2102:ok,check_stock:2102:out,issue_refund:2102:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "Now I will tell Alder & Sons.",
+      "calls": [
+        {
+          "id": "call_4",
+          "name": "send_email",
+          "arguments": {
+            "order_id": 2102,
+            "body": "Hello Alder & Sons, sorry your Heron shelving bay was damaged in Monday’s storm. It is out of stock, so we have refunded the full $230 to your original payment method. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=order-2103|hist=get_order:2103:ok,check_stock:2103:in,create_replacement:2103:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "Now I will tell Quarry Lane Tools.",
+      "calls": [
+        {
+          "id": "call_4",
+          "name": "send_email",
+          "arguments": {
+            "order_id": 2103,
+            "body": "Hello Quarry Lane Tools, sorry your dock door sensors were damaged in Monday’s storm. A replacement ships today. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=order-2104|hist=get_order:2104:ok,check_stock:2104:in,create_replacement:2104:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "Now I will tell Pike Street Hardware.",
+      "calls": [
+        {
+          "id": "call_4",
+          "name": "send_email",
+          "arguments": {
+            "order_id": 2104,
+            "body": "Hello Pike Street Hardware, sorry your label rolls were damaged in Monday’s storm. A replacement ships today. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=order-2105|hist=get_order:2105:ok,check_stock:2105:out,issue_refund:2105:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "Now I will tell Osier Garden Centre.",
+      "calls": [
+        {
+          "id": "call_4",
+          "name": "send_email",
+          "arguments": {
+            "order_id": 2105,
+            "body": "Hello Osier Garden Centre, sorry your Gale work lights were damaged in Monday’s storm. It is out of stock, so we have refunded the full $224 to your original payment method. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=storm|hist=get_order:2101:ok,get_order:2102:ok,get_order:2103:ok,get_order:2104:ok,get_order:2105:ok,check_stock:2101:in,check_stock:2102:out,check_stock:2103:in,check_stock:2104:in,check_stock:2105:out,create_replacement:2101:ok,issue_refund:2102:ok,create_replacement:2103:ok,create_replacement:2104:ok,issue_refund:2105:ok,send_email:2101:ok,send_email:2102:ok,send_email:2103:ok,send_email:2104:ok,send_email:2105:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "All five storm cases are sorted: replacements shipped for 2101, 2103 and 2104, refunds issued for 2102 and 2105, and every customer emailed."
+    },
+    "case=order-2101|hist=get_order:2101:ok,check_stock:2101:in,create_replacement:2101:ok,send_email:2101:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "Order 2101: replacement shipped, Fenwick Farm Supply emailed."
+    },
+    "case=order-2102|hist=get_order:2102:ok,check_stock:2102:out,issue_refund:2102:ok,send_email:2102:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "Order 2102: out of stock, refunded $230, Alder & Sons emailed."
+    },
+    "case=order-2103|hist=get_order:2103:ok,check_stock:2103:in,create_replacement:2103:ok,send_email:2103:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "Order 2103: replacement shipped, Quarry Lane Tools emailed."
+    },
+    "case=order-2104|hist=get_order:2104:ok,check_stock:2104:in,create_replacement:2104:ok,send_email:2104:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "Order 2104: replacement shipped, Pike Street Hardware emailed."
+    },
+    "case=order-2105|hist=get_order:2105:ok,check_stock:2105:out,issue_refund:2105:ok,send_email:2105:ok|mem=full|plan=off|tools=check_stock,create_replacement,get_order,issue_refund,send_email": {
+      "text": "Order 2105: out of stock, refunded $224, Osier Garden Centre emailed."
+    },
+    "case=storm|hist=delegate:2101:ok,delegate:2102:ok,delegate:2103:ok,delegate:2104:ok,delegate:2105:ok|mem=full|plan=off|tools=check_stock,create_replacement,delegate,get_order,issue_refund,send_email": {
+      "text": "All five storm cases are sorted. The helpers shipped replacements for 2101, 2103 and 2104, refunded 2102 and 2105, and emailed every customer."
+    }
+  }
+}
