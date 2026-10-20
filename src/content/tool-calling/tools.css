@@ -36,6 +36,10 @@
 .tc-tabs { display: flex; gap: 6px; }
 .tc-frame { width: 100%; min-height: 0; display: flex; }
 .tc-frame > * { flex: 1; min-width: 0; min-height: 0; }
+/* switching Picture and Messages: the new view fades in where the old one was (the frame keeps its size) */
+@media (prefers-reduced-motion: no-preference) { .tc-frame > * { animation: tc-fade .28s ease-out; } }
+@keyframes tc-fade { from { opacity: 0; } }
+.tc-tabs .chip:disabled { opacity: .45; cursor: default; box-shadow: none; }
 .tc-frame .flat { display: flex; flex-direction: column; }
 .tc-frame svg, .tc-frame .flat svg { width: 100%; height: 100%; max-height: none; min-height: 0; flex: 1; }
 @media (min-width: 861px) {
@@ -62,3 +66,5 @@
 .tc-caption { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; font-size: 13.5px; min-height: 2.6em; }
 .tc-caption .lbl { flex-basis: 100%; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .tc-caption .txt { font-family: ui-monospace, Menlo, monospace; font-weight: 700; overflow-wrap: anywhere; }
+/* chapter 6: the picture shares the stage with the ledger under it */
+@media (min-width: 861px) { .tc-stage .tc-stage { height: auto; flex: 1; min-height: 0; } }

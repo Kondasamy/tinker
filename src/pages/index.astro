@@ -7,17 +7,14 @@ import '../styles/page.css';
 import Meta from '../components/Meta.astro';
 import IsoStage, { type SceneCtx } from '../lib/iso/IsoStage';
 import { miniPipeline, MINI_BOARD, MINI_LABEL } from '../components/scenes/miniPipeline';
-import { staticTrack } from '../components/scenes/staticTrack';
-import { TRACK_BOARD } from '../components/canvas/track';
+import { HERO_BOARD, HOME_HERO, HOME_HERO_LABEL } from '../components/scenes/heroScene';
 import { renderers, blockShadow, type BlockType } from '../lib/iso/blocks';
-import { CHAPTERS } from '../lib/chapters';
 import { MODULES, type Level } from '../lib/modules';
 import { HOME } from '../lib/pages';
 import { SEQ_MSGS } from '../components/scenes/toolSequence';
 import { OFFICE_BOARD, officeScene, officeLabel } from '../components/scenes/officeScene';
 import { RECORDINGS } from '../lib/tools/turns';
 
-const ALL = CHAPTERS.flatMap(c => c.unlocks);
 const one = (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) => ({ top }: SceneCtx) =>
   blockShadow(type, 30, 30, top) + renderers[type]({ x: 30, y: 30, ...opts });
 
@@ -66,8 +63,8 @@ const atLevel = (level: Level) => [...LIVE, ...MODULES.filter(m => m.status === 
           </div>
         </div>
         <figure class="hero-pic">
-          <IsoStage board={TRACK_BOARD} scene={staticTrack(ALL, { scale: 1.3 })} label="The full RAG pipeline you build in module 1: documents, chunker, embedder, index, query rewrite, retriever, reranker, context, LLM and evaluator, with an agent and a knowledge graph in the side bays" />
-          <figcaption>The pipeline you build, block by block, in the RAG module.</figcaption>
+          <IsoStage board={HERO_BOARD} scene={HOME_HERO} label={HOME_HERO_LABEL} />
+          <figcaption>One workshop, a plot per module. The empty plots are open: <a href="https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING.md">build one</a>.</figcaption>
         </figure>
       </header>
 
@@ -184,6 +181,11 @@ const atLevel = (level: Level) => [...LIVE, ...MODULES.filter(m => m.status === 
 
   .hero { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.25fr); gap: 32px; align-items: center; padding-top: 24px; }
   .hero-pic { margin: 0; }
+  /* the envelope rides its belt again and again, a sign of life in the picture (none with reduced motion) */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-pic :global(.capsule) { animation: hero-ride 3.2s cubic-bezier(.45, 0, .3, 1) infinite; }
+  }
+  @keyframes hero-ride { 0% { transform: translate(var(--dx), var(--dy)); opacity: 0; } 12% { opacity: 1; } 55%, 100% { transform: none; } }
   .hero-pic figcaption { text-align: center; font-size: 12.5px; color: var(--muted); margin-top: 4px; }
 
   .principles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }

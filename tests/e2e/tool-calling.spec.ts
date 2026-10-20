@@ -313,7 +313,7 @@ test('chapter 5: integration counts follow the numbers; connecting shows server/
   await step(page, 4);
   await expect(count('with')).toHaveText(String(3 + 4));
   await expect(page.locator('.stage svg[role="img"]')).toHaveAttribute('aria-label', /one MCP plug on each, 7 integrations/);
-  await expect(page.locator('.stage .tc-tabs')).toHaveCount(0);   // one figure, chosen by the step
+  await expect(page.locator('.stage .tc-tabs').getByRole('button', { name: /^Messages/ })).toBeDisabled();   // the tabs stay put; nothing to list yet
 
   await btn(page, /^Connect the Larkspur orders server/);
   await step(page, 5);
@@ -420,4 +420,30 @@ test('chapter 6: the approval barrier stays down while it waits for a person, an
   await expect(pic(page)).toHaveAttribute('aria-label', /approval barrier, down, waiting for a person/);
   await card(page).getByRole('button', { name: 'Approve' }).click();
   await expect(pic(page)).toHaveAttribute('aria-label', /approval barrier, raised/);
+});
+
+test('the chapter bar and the stage tabs sit in the same place on every chapter', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const spots = new Set<string>();
+  for (const id of ['01-answers-arent-actions', '04-many-steps', '05-mcp', '06-when-tools-go-wrong', '07-workbench']) {
+    await toolWalker(page, 'mouse').open(id);
+    const bar = (await page.locator('header.top').boundingBox())!, tabs = (await page.locator('.tc-tabs').boundingBox())!;
+    spots.add(`${Math.round(bar.height)}/${Math.round(tabs.y)}`);
+  }
+  expect([...spots]).toHaveLength(1);
+});
+
+test('a chapter played before opens on its intro, with a link on to the saved step', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const w = toolWalker(page, 'mouse');
+  await w.open('04-many-steps');
+  await card(page).getByRole('radio', { name: /Both calls in one turn/ }).click();
+  await playAll(page);
+  await page.reload();
+  await expect(card(page)).toContainText('Step 3 of');
+  await page.waitForTimeout(300);   // past the first render, when a resumed run used to scroll to its step
+  expect(await page.locator('.side').evaluate(el => el.scrollTop)).toBe(0);
+  await expect(page.getByRole('heading', { level: 1 })).toBeInViewport();
+  await page.getByRole('button', { name: /^Continue at step 3/ }).click();
+  await expect(card(page)).toBeInViewport();
 });

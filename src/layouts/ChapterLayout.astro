@@ -57,6 +57,9 @@ const m = moduleOf(module);
       }
       paint();
       window.addEventListener('tinker-progress', paint);
+      // a nav too long for the bar scrolls; keep the current chapter in view
+      const ol = document.querySelector<HTMLElement>('.top ol')!, at = ol.querySelector<HTMLElement>('[aria-current="page"]');
+      if (at && at.offsetLeft + at.offsetWidth > ol.clientWidth) ol.scrollLeft = at.offsetLeft + at.offsetWidth - ol.clientWidth + 12;
     </script>
   </body>
 </html>
@@ -64,20 +67,29 @@ const m = moduleOf(module);
 <style is:global>
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
-  .top { display: flex; align-items: center; gap: 12px 28px; flex-wrap: wrap; padding: 14px 24px; border-bottom: 1.5px solid var(--ink); }
+  /* two fixed rows (brand and credit, then the chapter nav, which scrolls sideways rather than wrap), so the bar is the same
+     height on every chapter: progress marks used to widen the nav and push the page down on later chapters */
+  .top { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px 28px; padding: 12px 24px 10px; border-bottom: 1.5px solid var(--ink); view-transition-name: chapter-top; }
+  .top nav { grid-column: 1 / -1; grid-row: 2; min-width: 0; }
+  @media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }
   .brand { margin: 0; font-weight: 800; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
   .brand a { text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
   .brand span { color: var(--muted); font-weight: 400; }
   .credit { margin: 0 0 0 auto; font-size: 11.5px; color: var(--muted); }
   .credit a { color: var(--ink); }
-  .top ol { display: flex; gap: 6px; list-style: none; margin: 0; padding: 0; flex-wrap: wrap; }
+  .top ol { position: relative; display: flex; gap: 6px; list-style: none; margin: 0; padding: 2px 4px 4px 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .top ol::-webkit-scrollbar { display: none; }
+  .top nav li { flex: none; }
   .top nav a { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; text-decoration: none; padding: 4px 10px; border-radius: 999px; border: 1.5px solid transparent; color: var(--muted); }
   .top nav a:hover { border-color: var(--rule); }
   .top nav .num { font-weight: 800; }
+  /* every chapter keeps a slot for its mark, so a ✓ or ↷ never shifts its neighbours */
+  .top nav .num::before { content: ''; display: inline-block; width: 1.1em; }
   .top nav a[data-mark='current'] { border-color: var(--ink); background: var(--card); color: var(--ink); box-shadow: 2px 2px 0 var(--ink); }
   .top nav a[data-mark='done'] { color: var(--ink); }
-  .top nav a[data-mark='done'] .num::before { content: '✓ '; color: var(--ok); }
-  .top nav a[data-mark='skipped'] .num::before { content: '↷ '; color: var(--warn); }
+  .top nav a[data-mark='done'] .num::before { content: '✓'; color: var(--ok); }
+  .top nav a[data-mark='skipped'] .num::before { content: '↷'; color: var(--warn); }
+  .top nav a[data-mark='current'] .num::before { display: none; }
 
   main { padding: 16px 24px 32px; }
   .eyebrow { margin: 0; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
@@ -110,6 +122,7 @@ const m = moduleOf(module);
   .intro dt { font-weight: 800; }
   .intro dd { margin: 0; color: var(--ink); }
   .intro .how { font-size: 13px; color: var(--muted); }
+  .intro .resume { align-self: flex-start; }
   /* steps already done stay as the story so far, quieter than the current step */
   .log { margin: 0; padding: 12px 0 0; list-style: none; display: flex; flex-direction: column; gap: 10px; border-top: 1.5px dashed var(--rule); font-size: 13.5px; line-height: 1.5; color: var(--muted); }
   .log li { padding-left: 22px; position: relative; }
@@ -159,7 +172,8 @@ const m = moduleOf(module);
   .drawer .chip { box-shadow: none; padding: 2px 9px; }
 
   @media (max-width: 860px) {
-    .top { padding: 12px 16px; }
+    .top { padding: 12px 16px 8px; grid-template-columns: minmax(0, 1fr); gap: 6px; }
+    .credit { grid-row: 3; margin: 0; }
     .top nav a:not([data-mark='current']) .name { display: none; }
     main { padding: 12px 16px 24px; }
     .chapter { grid-template-columns: minmax(0, 1fr); gap: 16px; }

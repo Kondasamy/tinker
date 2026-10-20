@@ -15,6 +15,7 @@ import { ALL_PAGES } from '../lib/pages';
 import { TIMELINE, STOP_5TB } from '../lib/scale';
 import { SEQ_MSGS, transcript } from '../components/scenes/toolSequence';
 import { OFFICE_BOARD, officeScene, type OfficeOpts } from '../components/scenes/officeScene';
+import { HERO_BOARD, HOME_HERO } from '../components/scenes/heroScene';
 import { run } from '../lib/tools/host';
 import { RECORDINGS } from '../lib/tools/turns';
 import { SERVERS } from '../lib/tools/server';
@@ -58,7 +59,7 @@ const BENCH_OG = connectScene({ servers: Object.values(SERVERS).map(s => ({ name
       </div>
       <div class="pic">
         {/* a new module's pages fall through to the recall cards until they get a picture case here */}
-        {page.og === 'home' ? <div class="pair"><IsoStage board={MINI_BOARD} scene={miniPipeline} label="" /><IsoStage board={MCP_BOARD} scene={MCP_OG} label="" /></div>
+        {page.og === 'home' ? <IsoStage board={HERO_BOARD} scene={HOME_HERO} label="" />
           : page.og === 'rag' ? <IsoStage board={MINI_BOARD} scene={miniPipeline} label="" />
           : page.og === 'tool-calling' ? <IsoStage board={OFFICE_BOARD} scene={officeScene({ msgs: SEQ_MSGS, upTo: 3, tools: 2, scale: 1.5 })} label="" />
           : tool ? <IsoStage board={OFFICE_BOARD} scene={tool} label="" />

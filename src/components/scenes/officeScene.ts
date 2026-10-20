@@ -165,6 +165,8 @@ export interface OfficeOpts {
   orders?: string;
   /** results from the order system carry a planted note */
   note?: boolean;
+  /** station and check name pills, and the stock in the corner (default on); the home hero leaves them out */
+  names?: boolean;
   scale?: number;
 }
 
@@ -198,15 +200,16 @@ export const officeScene = (o: OfficeOpts) => ({ top }: SceneCtx) => {
     + castShadow(boxCorners(AT.host[0] - 20, AT.host[1] - 20, BH, AT.host[0] + 20, AT.host[1] + 20, BH + 34), BH, top)
     + castShadow(boxCorners(AT.orders[0] - 16, AT.orders[1] - 16, BH, AT.orders[0] + 16, AT.orders[1] + 16, BH + 44), BH, top)
     + castShadow(boxCorners(AT.emp[0] - 18, AT.emp[1] - 12, BH, AT.emp[0] + 18, AT.emp[1] + 12, BH + 20), BH, top)
-    + castShadow(boxCorners(227, 205, BH, 265, 223, BH + 28), BH, top) + castShadow(boxCorners(256, 238, BH, 268, 250, BH + 20), BH, top);
+    + (o.names === false ? '' : castShadow(boxCorners(227, 205, BH, 265, 223, BH + 28), BH, top) + castShadow(boxCorners(256, 238, BH, 268, 250, BH + 20), BH, top));
   s += (['model', 'emp', 'orders'] as Station[]).map(k => belt(k, k === 'orders' && !tools)).join('');
-  const parts: Part[] = [...stock(), desk(st.busy === 'emp'), sorter(st.busy === 'host', st.calls, cap), model(st.screen, tools), cabinet(st.open)];
+  const parts: Part[] = [...(o.names === false ? [] : stock()), desk(st.busy === 'emp'), sorter(st.busy === 'host', st.calls, cap), model(st.screen, tools), cabinet(st.open)];
   const lastBad = st.last?.stamp === 'INVALID';
   if (schema) parts.push(arch('model', .3, st.last?.from === 'model' && st.last.to === 'host' ? (lastBad ? 'bad' : 'ok') : null));
   if (owner) parts.push(arch('orders', .3, st.last?.from === 'orders' ? (st.last.stamp === 'REFUSED' ? 'bad' : 'ok') : null));
   if (gate) parts.push(barrier('orders', .62, st.up, st.waiting));
   const pills: string[] = [];
   const sign = (st2: Station, t: number, text: string) => {
+    if (o.names === false) return;
     const [x, y] = along(st2, t);
     pills.push(`<g class="check-tag" aria-hidden="true" pointer-events="none">${tag([x, y, BH], 0, 16, text, false, scale)}</g>`);
   };
@@ -235,6 +238,7 @@ export const officeScene = (o: OfficeOpts) => ({ top }: SceneCtx) => {
   });
   s += byDepth(parts);
   const name = (k: Station, text: string) => `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag([AT[k][0], AT[k][1], BH + HT[k]], 0, -14 - (44 - HT[k]) / (inkK() * scale) * .6, esc(text), st.busy === k, scale)}</g>`;
+  if (o.names === false) return s + pills.join('');
   s += name('emp', 'EMPLOYEE') + name('host', host.toUpperCase() + (cap ? ` · ${st.calls}/${cap} CALLS` : ''))
     + name('model', narrow ? 'MODEL' : `MODEL${tools ? ` · ${tools} TOOL${tools === 1 ? '' : 'S'}` : ' · NO TOOLS'}`)
     + name('orders', `ORDER SYSTEM${tools ? '' : ' · NOT LINKED'}${o.orders ? ` · ${o.orders}` : ''}`);

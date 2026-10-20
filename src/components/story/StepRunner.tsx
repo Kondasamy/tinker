@@ -31,7 +31,7 @@ export default function StepRunner<S>({ module = 'rag', chapter, steps, initial,
   const [focusDrawer, setFocusDrawer] = useState(0);
   const [sheet, setSheet] = useState(false);   // opened from the picture: a bottom sheet on phones
   useEffect(() => setSheet(false), [run.index]);   // a step's own drawer flows below its card again
-  const loaded = useRef(false);
+  const loaded = useRef(false), restoring = useRef(false);
   const step = steps[run.index];
   const apply = (state: S) => dispatch({ type: 'apply', state });
   const sync = (state: S) => dispatch({ type: 'sync', state });
@@ -45,7 +45,11 @@ export default function StepRunner<S>({ module = 'rag', chapter, steps, initial,
   useEffect(() => {
     // a run saved on other steps restarts the chapter (KTD4); what is done stays done
     const saved = loadChapter<Run<S>>(module, chapter);
-    if (isRun(steps, saved, ch?.legacySteps)) dispatch({ type: 'restore', run: { ...saved, ids: steps.map(st => st.id) } });
+    if (isRun(steps, saved, ch?.legacySteps)) {
+      // the restore moves the run off step 1; that move must not scroll the story past the intro
+      if (saved.index !== 0 || saved.done) restoring.current = true;
+      dispatch({ type: 'restore', run: { ...saved, ids: steps.map(st => st.id) } });
+    }
     loaded.current = true;
   }, [module, chapter, steps, ch]);
 
@@ -64,9 +68,12 @@ export default function StepRunner<S>({ module = 'rag', chapter, steps, initial,
   // the story column scrolls on its own: bring the step being worked on into view whenever it changes
   const cardRef = useRef<HTMLElement>(null);
   const firstScroll = useRef(true);
+  const toCard = () => cardRef.current?.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   useEffect(() => {
-    if (firstScroll.current) { firstScroll.current = false; if (run.index === 0) return; }   // a fresh chapter opens on its intro
-    cardRef.current?.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    // every visit opens on the chapter's intro, a resumed run too (the intro links on to the step)
+    if (firstScroll.current) { firstScroll.current = false; return; }
+    if (restoring.current) { restoring.current = false; return; }
+    toCard();
   }, [run.index, run.done]);
 
   const panel = run.drawer ? panels[run.drawer] : undefined;
@@ -96,6 +103,9 @@ export default function StepRunner<S>({ module = 'rag', chapter, steps, initial,
               </details>
             )}
             <p className="how">The picture on the left is live. Each step below asks you to do one thing in it; the story continues here as you go.</p>
+            {(run.index > 0 || run.done) && (
+              <button type="button" className="chip resume" onClick={toCard}>{run.done ? 'You finished this chapter: see the end ↓' : `Continue at step ${run.index + 1} ↓`}</button>
+            )}
           </header>
         )}
         {past.length > 0 && (

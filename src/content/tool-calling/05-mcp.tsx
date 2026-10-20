@@ -145,12 +145,11 @@ function Stage({ state, sync, inspect }: StageProps<S>) {
   const ms = msgs(state);
   return (
     <div className="tc-stage">
-      {state.phase === 'connect' && (
-        <div className="tc-tabs" role="group" aria-label="Show in the picture">
-          <button type="button" className="chip" aria-pressed={state.view === 'scene'} onClick={() => sync({ ...state, view: 'scene' })}>Picture</button>
-          <button type="button" className="chip" aria-pressed={state.view === 'seq'} onClick={() => sync({ ...state, view: 'seq' })}>Messages ({ms.length})</button>
-        </div>
-      )}
+      {/* the tabs are always there, so the picture never jumps when they arrive; no messages until a server connects */}
+      <div className="tc-tabs" role="group" aria-label="Show in the picture">
+        <button type="button" className="chip" aria-pressed={state.view === 'scene' || state.phase === 'count'} onClick={() => sync({ ...state, view: 'scene' })}>Picture</button>
+        <button type="button" className="chip" disabled={state.phase === 'count'} aria-pressed={state.view === 'seq' && state.phase === 'connect'} onClick={() => sync({ ...state, view: 'seq' })}>Messages ({state.phase === 'count' ? 0 : ms.length})</button>
+      </div>
       <div className="tc-frame">
         {state.view === 'scene' || state.phase === 'count' ? picture : <FlatStage lanes={LANES} msgs={ms} onPick={openMessage(inspect)} />}
       </div>
