@@ -1,0 +1,79 @@
+{
+  "tools": [
+    {
+      "name": "get_order",
+      "title": "Get order",
+      "description": "Look up one Larkspur order by its order number. Returns the customer, items, total, status, refunds and any note the customer left.",
+      "vague": "Gets data.",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "order_id": { "type": "integer", "description": "The order number, for example 1042.", "minimum": 1000, "maximum": 9999 } },
+        "required": ["order_id"],
+        "additionalProperties": false
+      },
+      "annotations": { "readOnlyHint": true }
+    },
+    {
+      "name": "list_orders_for_customer",
+      "title": "List a customer's orders",
+      "description": "List every Larkspur order placed by one customer, newest first.",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "customer": { "type": "string", "description": "The customer's company name, for example Hollis Hardware." } },
+        "required": ["customer"],
+        "additionalProperties": false
+      },
+      "annotations": { "readOnlyHint": true }
+    },
+    {
+      "name": "issue_refund",
+      "title": "Issue refund",
+      "description": "Refund money on one Larkspur order to the customer's original payment method. This moves real money.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "order_id": { "type": "integer", "description": "The order number.", "minimum": 1000, "maximum": 9999 },
+          "amount": { "type": "number", "description": "Amount to refund in US dollars.", "minimum": 0.01 },
+          "reason": { "type": "string", "enum": ["damaged", "wrong_item", "late", "customer_request"] }
+        },
+        "required": ["order_id", "amount", "reason"],
+        "additionalProperties": false
+      },
+      "annotations": { "readOnlyHint": false, "destructiveHint": true }
+    },
+    {
+      "name": "get_calendar",
+      "title": "Get calendar",
+      "description": "List the Larkspur team's calendar events on one date.",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "date": { "type": "string", "description": "The date as YYYY-MM-DD.", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" } },
+        "required": ["date"],
+        "additionalProperties": false
+      },
+      "annotations": { "readOnlyHint": true }
+    }
+  ],
+  "prompts": [
+    {
+      "name": "refund_request",
+      "title": "Refund request",
+      "description": "Ask the assistant to check an order against the refund policy and refund it if the policy allows.",
+      "arguments": [
+        { "name": "order_id", "description": "The order number.", "required": true },
+        { "name": "reason", "description": "Why the customer wants their money back.", "required": true }
+      ],
+      "template": "A customer wants a refund for order {order_id} because: {reason}. Look up the order, check it against the Larkspur refund policy, and issue the refund only if the policy allows it."
+    }
+  ],
+  "servers": {
+    "orders": {
+      "name": "larkspur-orders",
+      "title": "Larkspur orders",
+      "tools": ["get_order", "list_orders_for_customer", "issue_refund"],
+      "resources": ["refund-policy-2025", "returns-faq-2022"],
+      "prompts": ["refund_request"]
+    },
+    "calendar": { "name": "larkspur-calendar", "title": "Larkspur calendar", "tools": ["get_calendar"], "resources": [], "prompts": [] }
+  }
+}

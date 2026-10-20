@@ -1,0 +1,16 @@
+{
+  "ask": "Hollis Hardware is on the phone: where is order 1042?",
+  "tools": ["get_order", "get_calendar"],
+  "turns": {
+    "desc=clear|gate=off|inj=no|last=|tools=get_calendar,get_order": {
+      "text": "I'll look the order up.",
+      "calls": [{ "id": "call_1", "name": "get_order", "arguments": { "order_id": 1042 } }]
+    },
+    "desc=clear|gate=off|inj=no|last=get_order:1042:ok|tools=get_calendar,get_order": {
+      "text": "Order 1042 was delivered on 14 October 2026. It was one Wren WL-4 label printer."
+    },
+    "desc=vague|gate=off|inj=no|last=|tools=get_calendar,get_order": {
+      "text": "I can't tell which of my tools checks orders, so I didn't look it up. Order 1042 has probably shipped by now."
+    }
+  }
+}

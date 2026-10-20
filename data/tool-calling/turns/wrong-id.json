@@ -1,0 +1,21 @@
+{
+  "ask": "Hollis Hardware is on the phone: where is our order 1042?",
+  "customer": "Hollis Hardware",
+  "tools": ["get_order"],
+  "turns": {
+    "desc=clear|gate=off|inj=no|last=|tools=get_order": {
+      "text": "I'll look the order up.",
+      "calls": [{ "id": "call_1", "name": "get_order", "arguments": { "order_id": 1024 } }]
+    },
+    "desc=clear|gate=off|inj=no|last=get_order:1024:ok|tools=get_order": {
+      "text": "Order 1042 was delivered on 9 October 2026. It was two dock door sensors."
+    },
+    "desc=clear|gate=off|inj=no|last=get_order:1024:error|tools=get_order": {
+      "text": "That order belongs to another customer, so I misread the number. Looking up 1042 instead.",
+      "calls": [{ "id": "call_2", "name": "get_order", "arguments": { "order_id": 1042 } }]
+    },
+    "desc=clear|gate=off|inj=no|last=get_order:1042:ok|tools=get_order": {
+      "text": "Order 1042 was delivered on 14 October 2026. It was one Wren WL-4 label printer."
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "ask": "Hollis Hardware is on the phone: where is order 1042?",
+  "tools": ["get_order"],
+  "turns": {
+    "desc=clear|gate=off|inj=no|last=|tools=get_order": {
+      "text": "I'll look the order up.",
+      "calls": [{ "id": "call_1", "name": "get_order", "arguments": { "order_id": "1042" } }]
+    },
+    "desc=clear|gate=off|inj=no|last=get_order:1042:invalid|tools=get_order": {
+      "text": "The order number has to be a whole number, not text. Trying again.",
+      "calls": [{ "id": "call_2", "name": "get_order", "arguments": { "order_id": 1042 } }]
+    },
+    "desc=clear|gate=off|inj=no|last=get_order:1042:ok|tools=get_order": {
+      "text": "Order 1042 was delivered on 14 October 2026. It was one Wren WL-4 label printer."
+    }
+  }
+}
