@@ -10,6 +10,16 @@ Each module is a short story you play through: the picture on the left is live, 
 
 ## Modules
 
+Every module has a level, a story, an intro at `/<module>/`, its chapters, and a recap at `/<module>/recap/`. The home page lists them by level.
+
+| Level | Module | Status |
+|---|---|---|
+| Beginner | [RAG: Retrieval-Augmented Generation](#rag-retrieval-augmented-generation-rag) | Live, 7 chapters |
+| Beginner | Tokens & embeddings | Planned |
+| Intermediate | [Tool calling & MCP](#tool-calling--mcp-tool-calling) (RAG recommended first) | Live, 7 chapters |
+| Advanced | Transformer architecture | Planned |
+| Advanced | AI agents | Planned |
+
 ### RAG: Retrieval-Augmented Generation (`/rag/`)
 
 How AI assistants answer from a company's documents, why they invent answers, and the levers that make them accurate. You join the team building an assistant for **Larkspur Supply Co.**, a fictional hardware company, and follow it from its first confident wrong answer to its best one.
@@ -26,7 +36,19 @@ How AI assistants answer from a company's documents, why they invent answers, an
 
 ![A RAG chapter: the live pipeline on the left, the story on the right](docs/images/chapter.png)
 
-More modules will live beside it, each at `/<module>/`.
+### Tool calling & MCP (`/tool-calling/`)
+
+How AI assistants go from answering to acting. The Larkspur story continues: staff want the assistant to check an order or issue a refund, which an answer from documents cannot do.
+
+| # | Chapter | What you do |
+|---|---|---|
+| 1 | Answers aren’t actions | Ask the documents-only assistant where an order is, watch it guess, and see why only the software around the model can act |
+| 2 | Your first tool | Give the model a tool definition (name, description, schema) and follow the loop: the model proposes a call, the host runs it, the result goes back |
+| 3 | Valid isn’t correct | Validate calls against the schema, send a rejected one back as an error the model fixes, and catch a valid but wrong call with a business check |
+| 4 | Many tools, many steps | Send independent lookups together, make a dependent call wait for its input, and cap the loop |
+| 5 | MCP: one plug for many tools | Connect a host to an orders server and a calendar server over the Model Context Protocol: hosts, clients, servers, and the tools, resources and prompts they offer |
+| 6 | When tools go wrong | Put an approval gate in front of a refund, narrow its permission, and stop an instruction planted in a tool result |
+| 7 | Workbench | Set up servers, the gate and the limits for four requests, each needing its own setup |
 
 ---
 
@@ -34,8 +56,10 @@ More modules will live beside it, each at `/<module>/`.
 
 - **Static site:** Astro with React islands. No backend, no API key, no live model, so it runs on any static host, and a chapter keeps working offline once its data has loaded.
 - **Real retrieval, precomputed answers (RAG):** the corpus is embedded at build time (`pnpm build:index`, all-MiniLM-L6-v2 and a cross-encoder reranker); the browser runs the real similarity, BM25, reranking, graph-walk and agent maths over those vectors. Model answers are pre-recorded for each kind of evidence that can reach the model, so every knob changes the outcome honestly.
-- **Pictures:** hand-inked isometric figures drawn by the Colorfigures engine (see Credits), extended to orbit, zoom and turn the view. Names sit in label pills so they stay readable.
-- **Story:** every chapter is a list of steps run by one step runner (`src/components/story/`): each step has narration, the one control it needs, a check that advances it, hints after a few tries and, for puzzles, “Show me”. Progress is saved in the browser.
+- **Recorded turns, live tools (Tool calling):** the model's turns are pre-recorded per scenario (`data/tool-calling/turns/`). The host loop, a JSON Schema subset validator, the approval gate, the tools running on fixture data and an MCP-shaped JSON-RPC server all run in the browser (`src/lib/tools/`). A unit test checks every reachable control setting has a recorded turn. MCP facts come from `data/tool-calling/facts.json`, each with its source.
+- **Pictures:** hand-inked isometric figures drawn by the Colorfigures engine (see Credits), extended to orbit, zoom and turn the view, and flat sequence figures (lanes and message cards) in the same ink for flows over time (`src/lib/iso/flat.ts`). Names sit in label pills so they stay readable.
+- **Story:** every chapter is a list of steps run by one step runner (`src/components/story/`): each step has narration, the one control it needs, a check that advances it, hints after a few tries and, for puzzles, “Show me”. Progress is saved in the browser, per module.
+- **Making it stick:** chapters ask for a prediction before a reveal, quizzes explain why each option is right or wrong and offer “I’m not sure”, each module's recap asks recall questions from the chapters you finished, and a reader who returns 20 hours or more after finishing a chapter is offered a short warm-up. Nothing leaves the browser.
 - **Tests:** unit tests for the engine and story logic (Vitest), and end-to-end tests that play every chapter, check accessibility with axe, keyboard-only play, reduced motion, phone size and offline use (Playwright).
 
 ---
@@ -44,17 +68,18 @@ More modules will live beside it, each at `/<module>/`.
 
 | Path | What lives there |
 |---|---|
-| `src/pages/index.astro` | Tinker home: what Tinker is and the list of modules |
-| `src/pages/rag/` | The RAG module: its intro (`index.astro`) and one page per chapter |
-| `src/content/rag/` | RAG chapter scripts: the steps, controls and drawer panels of each chapter |
-| `src/lib/chapters.ts` | RAG chapter list and each chapter's opening context (story so far, goal, terms) |
+| `src/pages/index.astro` | Tinker home: what Tinker is and the modules, grouped by level |
+| `src/lib/modules.ts` | The module registry: every module, live or planned, with its level, chapters and recall bank |
+| `src/pages/<module>/` | A module's pages: its intro (`index.astro`), the chapter route (`[chapter].astro`) and the recap (`recap.astro`) |
+| `src/content/<module>/` | A module's registry entry (`module.ts`: chapters and each chapter's opening context), its chapter scripts and its recall bank (`recall.ts`) |
 | `src/lib/rag/`, `data/` | RAG engine (retrieval maths, agent, graph) and its corpus, questions, answers and index |
-| `src/lib/iso/` | The drawing engine (Colorfigures, adapted) and the isometric stage, shared by every module |
+| `src/lib/tools/`, `data/tool-calling/` | Tool calling engine (host loop, schema validator, MCP-shaped server) and its recorded turns, fixtures and facts |
+| `src/lib/iso/` | The drawing engine (Colorfigures, adapted), the isometric stage and the flat figure kit, shared by every module |
 | `src/components/story/` | The step runner every chapter uses: the live picture on the left, the story column on the right |
+| `src/components/quiz/` | Quizzes, predictions and the recap |
+| `templates/module/`, `scripts/new-module.mjs` | The new-module template and the script that copies it (`pnpm new-module`) |
 
 Decisions behind the design (layout, story rules, pictures, share images, tooling) are recorded in [AGENTS.md](AGENTS.md); read it before changing things.
-
-**Adding a module:** give it its own folder under `src/pages/<module>/` and `src/content/<module>/`, reuse `src/lib/iso/` for pictures and `StepRunner` for the story, and add a card for it on the Tinker home.
 
 ---
 
@@ -67,7 +92,7 @@ pnpm install    # install exact dependency versions from pnpm-lock.yaml
 pnpm dev        # start the dev server on http://localhost:4321
 ```
 
-Open http://localhost:4321 for the Tinker home; the RAG module is at http://localhost:4321/rag/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas` and `/dev/runner`. These pages are left out of production builds.
+Open http://localhost:4321 for the Tinker home; the modules are at http://localhost:4321/rag/ and http://localhost:4321/tool-calling/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap` and `/dev/warmup`. These pages are left out of production builds.
 
 To try the production build locally:
 
@@ -166,6 +191,12 @@ pnpm dlx vercel --prod   # production deploy
 3. Go through chapters 3–7 once. The canvas should show answers, not stay on "Preparing…".
 
 No monitoring is needed, because there is no backend.
+
+---
+
+## Contributing
+
+New modules and fixes arrive as pull requests to this repository. Start with [CONTRIBUTING.md](CONTRIBUTING.md) (setup, checks, the PR flow, credit) and [docs/writing-a-module.md](docs/writing-a-module.md) (the house style for a module). `pnpm new-module <id> "<Title>"` scaffolds a module, and `pnpm test` lists what it still needs.
 
 ---
 
