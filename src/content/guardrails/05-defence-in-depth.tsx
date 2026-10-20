@@ -8,12 +8,12 @@ import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { puzzle, Verdict } from '../../components/quiz/Puzzle';
 import { guardLanes, guardMessages } from '../../components/scenes/guardSequence';
-import { DOMAINS, INJECTION_SUITE, THRESHOLDS, combos, held, isAttack, metrics, type Defences, type Metrics } from '../../lib/guardrails/loop';
+import { DOMAINS, INJECTION_SUITE, THRESHOLDS, combos, held, isAttack, metrics, type Defences } from '../../lib/guardrails/loop';
 import { fact } from '../../lib/guardrails/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
-import { Fact, GuardStage, Matrix, guardProps, sender } from './kit';
+import { Fact, GuardStage, Matrix, guardProps, memo, sender } from './kit';
 
 const MODULE = 'guardrails', ID = '05-defence-in-depth';
 const SUITE = INJECTION_SUITE;
@@ -21,13 +21,8 @@ type Layers = Pick<Defences, 'rule' | 'threshold' | 'taint' | 'allow' | 'filter'
 const OFF: Layers = { rule: false, threshold: null, taint: false, allow: false, filter: false };
 const name = (t: number | null) => (t === null ? 'off' : String(t));
 
-const cache = new Map<string, Metrics>();
 /** Both counts for a defence set over the injection suite. */
-export const score = (d: Layers) => {
-  const k = JSON.stringify(d);
-  if (!cache.has(k)) cache.set(k, metrics(d, SUITE));
-  return cache.get(k)!;
-};
+export const score = memo((d: Layers) => metrics(d, SUITE));
 /** the highest threshold that holds every attack (chapter 2's catch-all) */
 const ALL = THRESHOLDS.find(t => t !== null && held(t, SUITE).attacks === held(t, SUITE).ofAttacks)!;
 /** Each defence alone: the matrix's rows. */

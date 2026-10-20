@@ -12,7 +12,7 @@ import { fact } from '../../lib/guardrails/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages } from '../tool-calling/kit';
-import { Chips, Fact, GuardStage, Group, cellWord, guardProps, longName, shortName, type View } from './kit';
+import { Chips, Fact, GuardStage, Group, cellWord, guardProps, longName, memo, shortName, type View } from './kit';
 
 const MODULE = 'guardrails', ID = '07-red-team';
 const W = WORKBENCH_DOMAINS;
@@ -24,13 +24,9 @@ export const START: Bench = START_;
 const KEYS = Object.keys(START) as (keyof Bench)[];
 export const benchOf = (s: Bench): Bench => Object.fromEntries(KEYS.map(k => [k, s[k]])) as Bench;
 
-const cache = new Map<string, Metrics>();
+const benchRun = memo((b: Bench) => metrics(b, CASES));
 /** Both suites under one bench: the eval (R11). */
-export const bench = (b: Bench) => {
-  const k = JSON.stringify(benchOf(b));
-  if (!cache.has(k)) cache.set(k, metrics(benchOf(b), CASES));
-  return cache.get(k)!;
-};
+export const bench = (b: Bench) => benchRun(benchOf(b));
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 /** The bench's call, in plain words. */
 export function verdict(m: Metrics): string {

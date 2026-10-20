@@ -71,13 +71,17 @@ export function Fact({ id }: { id: string }) {
   );
 }
 
-const runs = new Map<string, Run>();
-/** One run against the merged recording, run once per setup (keyed by its JSON) and kept. */
-export const runCached = (setup: Partial<Setup> & { case: CaseId }) => {
-  const k = JSON.stringify(setup);
-  if (!runs.has(k)) runs.set(k, run(RECORDING, setup));
-  return runs.get(k)!;
-};
+/** Wraps f so each argument (keyed by its JSON) is computed once and kept. */
+export function memo<A, R>(f: (a: A) => R): (a: A) => R {
+  const m = new Map<string, R>();
+  return (a) => {
+    const k = JSON.stringify(a);
+    if (!m.has(k)) m.set(k, f(a));
+    return m.get(k)!;
+  };
+}
+/** One run against the merged recording, run once per setup and kept. */
+export const runCached = memo((setup: Partial<Setup> & { case: CaseId }) => run(RECORDING, setup));
 
 export const email = (id: CaseId) => INBOX.find(e => e.id === id)!;
 /** What an attack does when it works, in words; undefined for a customer case. */

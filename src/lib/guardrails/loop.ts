@@ -157,7 +157,11 @@ export function formOf(id: CaseId, s: Pick<Setup, 'threshold' | 'inputPolicy' | 
 }
 /** Links in a text whose site is not Larkspur's own. */
 export const outsideLinks = (t: string) =>
-  (t.match(/https?:\/\/[^\s)]+/g) ?? []).filter((u) => { const h = new URL(u).hostname; return h !== LARKSPUR && !h.endsWith(`.${LARKSPUR}`); });
+  (t.match(/https?:\/\/[^\s)]+/g) ?? []).filter((u) => {
+    let h: string;
+    try { h = new URL(u).hostname; } catch { return false; } // a malformed link is skipped, never a crash
+    return h !== LARKSPUR && !h.endsWith(`.${LARKSPUR}`);
+  });
 
 function bundle(sent: Mail[], held: boolean): Bundle {
   return {
@@ -223,7 +227,8 @@ export function run(rec: Recording, setup: Partial<Setup> & { case: CaseId }): R
     let replied = '';
     for (const call of turn.calls) {
       steps.push({ kind: 'proposal', turn: turnNo, call, text: turn.text });
-      const tool = tools.find((t) => t.name === call.name);
+      // checked against the tools offered now: a read_inbox earlier in this turn may have tainted the run
+      const tool = offered().find((t) => t.name === call.name);
       const errors = tool ? validate(tool.inputSchema, call.arguments) : [`${call.name} is not one of the tools this host offers`];
       steps.push({ kind: 'validation', call, errors });
       let result: ToolResult | undefined, outcome: Outcome = 'invalid';
@@ -244,7 +249,7 @@ export function run(rec: Recording, setup: Partial<Setup> & { case: CaseId }): R
       if (!result && call.name === 'issue_refund' && s.outputPolicy !== 'off') {
         const o = orders.find((x) => x.id === args.order_id);
         if (s.outputPolicy === 'strict') block('output-policy', 'The output policy check sends every refund to a person. Nothing was refunded.');
-        else if (o && !(o.status === 'delivered' && FAULTS.includes(args.reason) && args.amount <= o.total))
+        else if (o && !(o.status === 'delivered' && FAULTS.includes(args.reason) && o.refunds.reduce((n, x) => n + x.amount, 0) + args.amount <= o.total))
           block('output-policy', `The output policy check stopped this refund of ${money(args.amount)}. ${REFUND_POLICY}`);
       }
       if (!result) {

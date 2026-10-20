@@ -1,9 +1,9 @@
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   answerOf, ATTACKS, CASES, CUSTOMER_CASES, held, INBOX, metrics, ON_FILE, REMOVED_LINK, run, stepsOf, THRESHOLDS, type Run, type Setup,
 } from '../../src/lib/guardrails/loop';
-import { RECORDING, signature } from '../../src/lib/guardrails/turns';
+import { RECORDING, signature, type Call, type Recording } from '../../src/lib/guardrails/turns';
 import { ACCESSED, FACTS, fact } from '../../src/lib/guardrails/facts';
 
 const go = (setup: Partial<Setup> & { case: string }) => run(RECORDING, setup);
@@ -181,8 +181,45 @@ describe('facts (R5)', () => {
 
   it('every fact id the guardrails chapters use exists', () => {
     const dir = 'src/content/guardrails';
-    const files = existsSync(dir) ? readdirSync(dir, { recursive: true }).map(String).filter((f) => /\.(ts|tsx|astro)$/.test(f)) : [];
+    const files = readdirSync(dir, { recursive: true }).map(String).filter((f) => /\.(ts|tsx|astro)$/.test(f));
+    expect(files.length).toBeGreaterThan(0);
+    let matched = 0;
     for (const f of files)
-      for (const [, id] of readFileSync(`${dir}/${f}`, 'utf8').matchAll(/\bfact\(\s*'([^']+)'/g)) expect(FACTS.map((x) => x.id), `${f}: ${id}`).toContain(id);
+      for (const [, id] of readFileSync(`${dir}/${f}`, 'utf8').matchAll(/\bfact\(\s*'([^']+)'/g)) { expect(FACTS.map((x) => x.id), `${f}: ${id}`).toContain(id); matched++; }
+    expect(matched).toBeGreaterThan(0);
+  });
+});
+
+describe('host checks within one multi-call turn (synthetic recordings)', () => {
+  const ALL = ['get_customer', 'get_order', 'issue_refund', 'read_inbox', 'reply', 'send_email'];
+  /** A recording holding only the first turn of a case, with these calls. */
+  const first = (kase: string, calls: Call[]): Recording =>
+    ({ turns: { [signature({ case: kase, mail: 'full', rule: false, tools: ALL, hist: [] })]: { text: 'synthetic', calls } } });
+
+  it('the taint rule rejects a send_email made in the same turn as the read_inbox that tainted the run', () => {
+    const rec = first('invoice', [
+      { id: 'c1', name: 'read_inbox', arguments: { id: 'invoice' } },
+      { id: 'c2', name: 'send_email', arguments: { to: 'audit@example.net', body: 'records' } },
+    ]);
+    const r = run(rec, { case: 'invoice', taint: true });
+    expect(stepsOf(r, 'validation')[1].errors).toEqual(['send_email is not one of the tools this host offers']);
+    expect(r.sent).toEqual([]);
+    // without the rule the same turn sends
+    expect(run(rec, { case: 'invoice' }).sent.map((m) => m.to)).toEqual(['audit@example.net']);
+  });
+
+  it('no recorded turn reads the inbox and sends email in the same turn, so the recorded runs are unchanged', () => {
+    for (const t of Object.values(RECORDING.turns)) {
+      const names = (t.calls ?? []).map((c) => c.name);
+      expect(names.includes('read_inbox') && names.includes('send_email')).toBe(false);
+    }
+  });
+
+  it('the output policy check counts refunds already made on the order against its total', () => {
+    // order 1024 is delivered, total $290: $200 passes, a second $200 would bring the refunds to $400
+    const refund = (id: string) => ({ id, name: 'issue_refund', arguments: { order_id: 1024, amount: 200, reason: 'damaged' } });
+    const r = run(first('refund', [refund('c1'), refund('c2')]), { case: 'refund', outputPolicy: 'on' });
+    expect(stepsOf(r, 'blocked').map((b) => b.call.id)).toEqual(['c2']);
+    expect(r.orders.find((o) => o.id === 1024)!.refunds.map((x) => x.amount)).toEqual([200]);
   });
 });

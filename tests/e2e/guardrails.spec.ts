@@ -1,5 +1,6 @@
-// Module 5, Prompt injection & guardrails: the intro, chapter 1 played by mouse and by keyboard only, its own progress
-// key, "I'm not sure", reduced motion, the recap, home's live card and Continue, axe and phone width.
+// Module 5, Prompt injection & guardrails: the intro, every chapter played by mouse and by keyboard only, each chapter's
+// own checks, its own progress key, "I'm not sure", reduced motion, the recap, the warm-up, home's live card and
+// Continue, axe and phone width.
 import { test, expect, type Page } from '@playwright/test';
 import { moduleOf } from '../../src/lib/modules';
 import { guardWalker } from './guardrails-flow';
