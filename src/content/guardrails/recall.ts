@@ -228,4 +228,160 @@ export const RECALL: RecallItem[] = [
       'That is approval. The taint rule needs no person: the host applies it every time.',
     ],
   },
+  // 5. Defence in depth
+  {
+    id: 'why-layers', chapter: '05-defence-in-depth',
+    question: 'A team has a prompt rule that stops most planted instructions in their tests. Why add a second defence, such as an allow-list for outgoing email?',
+    options: [
+      'They shouldn’t: two defences only double the false blocks',
+      'Each defence misses different attacks, so a second layer catches what slips past the first, without either needing to be strict',
+      'So that each defence can be switched off in turn when it gets in the way',
+      'Because the rule only works when another defence is also on',
+    ],
+    correct: 1,
+    why: [
+      'In chapter 5 the prompt rule plus the taint rule stopped every attack and blocked no customer. Loose layers stacked cost nothing extra.',
+      'Right. The rule missed the note dressed up as Larkspur billing; the allow-list or the taint rule stops that one at the way out. Together they cover each other’s gaps.',
+      'Layers are there to all be on at once. Each covers attacks the others miss.',
+      'The rule works on its own against some attacks. It just misses others, which is why another layer is needed.',
+    ],
+  },
+  {
+    id: 'two-rates', chapter: '05-defence-in-depth',
+    question: 'Two defence sets are compared on the same suite. Set A: 0 of 3 attacks through, 1 of 2 customers blocked. Set B: 0 of 3 through, 0 of 2 blocked. Which is better, and how do you know?',
+    options: [
+      'They are the same: both stop every attack',
+      'Set B: same attack success rate, lower false-block rate, measured on the same suite',
+      'Set A: blocking a customer shows it is being careful',
+      'You can’t tell without trying them on real customers first',
+    ],
+    correct: 1,
+    why: [
+      'Attacks are only half of it. Set A turns away a real customer that B serves.',
+      'Right. Both rates, over one fixed suite, are an eval: that is what makes the comparison fair.',
+      'A blocked customer is a failure, not a sign of care. In chapter 2 the strict filter held a fair refund.',
+      'That is what the customer suite is for: ordinary requests run the same way every time, before real customers meet the change.',
+    ],
+  },
+  {
+    id: 'no-single-defence', chapter: '05-defence-in-depth',
+    question: 'In the defence matrix, the input filter at its catch-all setting stopped every attack. Why wasn’t it the answer?',
+    options: [
+      'It was too slow',
+      'It also held a customer’s fair refund: the setting that catches every attack catches real customers too',
+      'It stopped the attacks only on the stage, not in the counts',
+      'The model learned to get around it',
+    ],
+    correct: 1,
+    why: [
+      'Speed never came into it. The cost was a customer left without an answer.',
+      'Right. The scores overlap: an urgent customer email reads more like an attack than a quiet planted line. Any threshold low enough for every attack holds that customer.',
+      'The stage and the counts come from the same runs; they never disagree.',
+      'The model never sees the filter. It just never read the held emails.',
+    ],
+  },
+  // 6. When the user is the attacker
+  {
+    id: 'user-push', chapter: '06-when-the-user-is-the-attacker',
+    question: 'A customer politely asks the assistant for a refund they aren’t owed. The injection detector scores the message near zero. Why?',
+    options: [
+      'The detector is broken',
+      'There is nothing injected: the customer is just asking for too much, and a detector of planted instructions has nothing to catch',
+      'Polite messages always score low, so attackers should be polite',
+      'The detector only reads the subject line',
+    ],
+    correct: 1,
+    why: [
+      'It did its job. It looks for text trying to take over the assistant, and this message isn’t that.',
+      'Right. A push like this is about what Larkspur allows, not who is giving orders. A policy check on the refund itself is what stops it.',
+      'Some attacks score low, but that isn’t the lesson. This one isn’t an injection at all.',
+      'It reads the whole email. There is just nothing in it that tries to override the assistant.',
+    ],
+  },
+  {
+    id: 'which-policy-check', chapter: '06-when-the-user-is-the-attacker',
+    question: 'A customer asks the support assistant to write their company newsletter. Which check stops it, and where does it run?',
+    options: [
+      'The output policy check, after the model has written it',
+      'The input policy check, before the model reads the email: the request is outside what the assistant is for',
+      'The allow-list, because the newsletter goes to an outside address',
+      'None: writing is harmless, so it should be allowed',
+    ],
+    correct: 1,
+    why: [
+      'Larkspur’s output check looks at refunds. In chapter 6 it was on and the newsletter still went out.',
+      'Right. The host turns the email away first; the model sees only that it was refused, and says so politely.',
+      'The newsletter went back to the customer in a reply, which the allow-list never checks.',
+      'Harmless words, but every reply goes out in Larkspur’s name, doing a job nobody gave it.',
+    ],
+  },
+  {
+    id: 'over-refusal', chapter: '06-when-the-user-is-the-attacker',
+    question: 'Finance makes every refund wait for a person. No unearned refund gets paid. What is the cost, and how should it be counted?',
+    options: [
+      'No cost: a person checks every refund, so nothing goes wrong',
+      'Fair refunds are refused too, and each one is a false block, counted next to the attacks stopped',
+      'The assistant gets slower, which matters only at busy times',
+      'Attackers learn to ask a person instead',
+    ],
+    correct: 1,
+    why: [
+      'In chapter 6 the strict setting refused a cracked printer’s fair refund. That customer went without their money.',
+      'Right. Over-refusal is a failure. Count the fair requests refused over the customer suite, and the strict setting’s cost shows.',
+      'Speed isn’t what was measured. A fair request refused is the cost.',
+      'The cost falls on fair customers, not attackers.',
+    ],
+  },
+  // 7. Red team
+  {
+    id: 'clean-suite', chapter: '07-red-team',
+    question: 'A defence set stops every attack in the red team’s suite and blocks no customer. What does that show?',
+    options: [
+      'That no attack can get past it',
+      'That it holds against the attacks in the suite; new attacks need adding to the suite and testing too',
+      'That the model has learned to ignore attacks',
+      'Nothing: suites don’t measure anything real',
+    ],
+    correct: 1,
+    why: [
+      'A suite only holds the attacks someone thought of. A new one can still get through.',
+      'Right. A clean run is a good sign on known attacks. The suite grows as attacks are found, and every change runs it again.',
+      'The model’s recorded turns never changed; the defences around it did.',
+      'It measures two real things, attacks through and customers blocked, the same way every time.',
+    ],
+  },
+  {
+    id: 'release-gate', chapter: '07-red-team',
+    question: 'The team changes the assistant’s prompt. When should the change ship?',
+    options: [
+      'When a few attacks tried by hand are stopped',
+      'When both suites run again and neither the attack success rate nor the false-block rate gets worse',
+      'When the attack success rate drops, whatever the false-block rate does',
+      'Straight away: a prompt change can’t weaken the host’s defences',
+    ],
+    correct: 1,
+    why: [
+      'A few hand-picked tries are what Evals warns about: it worked when I tried it.',
+      'Right. That is a release gate on the two rates, like the one in Evals’ release day.',
+      'A change that stops more attacks by turning away real customers is not better. Both rates count.',
+      'The prompt rule is a defence. Changing the prompt can change what gets through.',
+    ],
+  },
+  {
+    id: 'strictest-cost', chapter: '07-red-team',
+    question: 'On the red-team bench, someone turns every defence to its strictest. What happens?',
+    options: [
+      'Every attack is stopped and every customer is served',
+      'Every attack is stopped, and real customers are blocked too',
+      'More attacks get through, because the defences clash',
+      'Nothing changes: the defences were already on',
+    ],
+    correct: 1,
+    why: [
+      'Strict settings hold customers too: the low filter threshold holds their email, and the strict refund check refuses fair refunds.',
+      'Right. Strictness moves the cost onto real customers. The false-block rate shows it.',
+      'Defences don’t clash: each stops what it stops. Strictness costs customers, not safety.',
+      'The strictest settings are a choice on the bench; turning them on changes both rates.',
+    ],
+  },
 ];

@@ -7,7 +7,7 @@ import IsoStage from '../../lib/iso/IsoStage';
 import FlatStage from '../../components/scenes/FlatStage';
 import { GUARD_BOARD, guardLabel, guardReadouts, guardScene, guardState, type GuardOpts } from '../../components/scenes/guardScene';
 import { guardLanes, guardMessages } from '../../components/scenes/guardSequence';
-import type { Run, Setup } from '../../lib/guardrails/loop';
+import { CUSTOMER_RECORDS, INBOX, isAttack, type CaseId, type Run, type Setup } from '../../lib/guardrails/loop';
 import { fact } from '../../lib/guardrails/facts';
 import { openMessage, useNarrow } from '../tool-calling/kit';
 import './guardrails.css';
@@ -67,5 +67,45 @@ export function Fact({ id }: { id: string }) {
     <p className="tc-fact">
       {f.claim} <a className="source" href={f.source} target="_blank" rel="noreferrer">Source: {new URL(f.source).hostname}</a> (checked {f.accessed})
     </p>
+  );
+}
+
+/** An email's sender (the customer's name) and subject. */
+export const sender = (id: CaseId) => { const e = INBOX.find(x => x.id === id)!; return CUSTOMER_RECORDS.find(c => c.email === e.from)?.name ?? e.from; };
+export const longName = (id: CaseId) => `${sender(id)}: “${INBOX.find(x => x.id === id)!.subject}”`;
+/** A case's column name: its id, capitalised; the key under the matrix gives the email it stands for. */
+export const shortName = (id: CaseId) => id[0].toUpperCase() + id.slice(1);
+/** One cell, in words: an attack worked or was stopped; a customer was served or blocked (a false block). */
+export const cellWord = (r: Run) => (isAttack(r.case) ? (r.attackMet ? 'Worked' : 'Stopped') : r.caseDone ? 'Served' : 'Blocked');
+const bad = (r: Run) => (isAttack(r.case) ? r.attackMet : !r.caseDone);
+
+/** Defence sets × cases, each cell from a run. Columns are short names (the key below names each email), so it fits a
+ * phone; each cell's accessible name says the whole thing. Attacker text never reaches here, only names and subjects. */
+export function Matrix({ caption, rows, cases }: { caption: string; rows: { name: string; runs: Run[] }[]; cases: CaseId[] }) {
+  // phones: A1… for attacks and C1… for customers in the header, a mark in each cell; the key and each cell's name say it all
+  const code = (c: CaseId) => `${isAttack(c) ? 'A' : 'C'}${cases.filter(x => isAttack(x) === isAttack(c)).indexOf(c) + 1}`;
+  return (
+    <div className="gr-matrix">
+      <table className="tc-ledger">
+        <caption>{caption}</caption>
+        <thead><tr><th scope="col">Defences</th>{cases.map(c => <th key={c} scope="col"><span className="gr-long">{shortName(c)}</span><span className="gr-short">{code(c)}</span></th>)}</tr></thead>
+        <tbody>
+          {rows.map(({ name, runs }) => (
+            <tr key={name} data-row={name}>
+              <th scope="row">{name}</th>
+              {runs.map(r => (
+                <td key={r.case} data-case={r.case} data-bad={bad(r) ? '1' : '0'} aria-label={`${name}, ${isAttack(r.case) ? 'attack' : 'customer'} ${longName(r.case)}: ${cellWord(r)}`}>
+                  <span className="gr-long">{cellWord(r)}</span><span className="gr-short">{bad(r) ? '✗' : '✓'}</span>
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <ul className="gr-key">
+        {cases.map(c => <li key={c}><strong><span className="gr-short">{code(c)} · </span>{shortName(c)}</strong>: {isAttack(c) ? 'attack' : 'customer'}, {longName(c)}</li>)}
+      </ul>
+      <p className="gr-key gr-short">✗: an attack worked or a customer was blocked. ✓: stopped or served.</p>
+    </div>
   );
 }

@@ -2,3 +2,17 @@
    tool-calling/kit). The caption's badge matches the taint tag drawn on envelopes from read_inbox. */
 .tc-caption .gr-taint { display: inline-block; font: 800 11px ui-monospace, Menlo, monospace; letter-spacing: .04em; text-transform: uppercase;
   padding: 1px 7px; border: 1.5px solid var(--ink); border-radius: 4px; background: var(--bad); color: #fff; }
+/* chapters 5 and 7: defence sets × cases. Short column names and small cells so five cases fit a phone; a cell that went
+   wrong (an attack worked, a customer blocked) is bold with a bar, not colour alone */
+.gr-matrix { margin-top: 10px; }
+.gr-matrix th, .gr-matrix td { padding: 3px 4px; font-size: 12.5px; }
+.gr-matrix td { text-align: center; }
+.gr-matrix td[data-bad="1"], .gr-cases tr[data-bad="1"] td { font-weight: 800; box-shadow: inset 0 -3px 0 var(--bad); }
+.gr-key { margin: 6px 0 0; padding-left: 1.1em; font-size: 12.5px; line-height: 1.4; }
+.gr-toggles { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.gr-matrix .gr-short { display: none; }
+@media (max-width: 599px) {
+  .gr-matrix .gr-long { display: none; }
+  .gr-matrix .gr-short { display: inline; }
+  .gr-matrix td { font-size: 15px; }
+}

@@ -78,6 +78,59 @@ const CHAPTERS: Chapter[] = [
       ],
     },
   },
+  {
+    id: '05-defence-in-depth', title: 'Defence in depth', short: 'Defence in depth',
+    intro: {
+      story: 'Each chapter so far added one defence, and each stopped the attack it was tried on. Larkspur now runs every defence against the whole injection suite: the attacks and the ordinary customers from chapter 2.',
+      goal: 'No single defence stops every attack without blocking a customer. Can a stack of them?',
+      learn: [
+        'What each defence stops, and misses, across every attack',
+        'How layers that miss different attacks cover each other’s gaps',
+        'Why attack success rate and false-block rate, over a fixed suite, are an eval',
+      ],
+      terms: [
+        ['Defence in depth', 'Several defences stacked, so an attack that gets past one is stopped by another.'],
+        ['Attack success rate', 'The share of attacks in a suite whose goal was met: money refunded, data sent out, a link planted.'],
+        ['False-block rate', 'The share of ordinary customers in a suite that the defences stopped: held, refused, or left without what they asked for.'],
+      ],
+    },
+  },
+  {
+    id: '06-when-the-user-is-the-attacker', title: 'When the user is the attacker', short: 'The user attacks',
+    intro: {
+      story: 'Every attack so far hid in text someone else wrote. Some customers need no planted note: they ask the assistant for things Larkspur never offered, such as a discount nobody promised or a job that isn’t its own.',
+      goal: 'How does Larkspur stop a customer who pushes, without refusing the customers who ask fairly?',
+      learn: [
+        'Why an injection detector misses a customer who simply asks for too much',
+        'How an input policy check and an output policy check each stop a different push',
+        'Why an over-strict check is a cost, counted as a false block',
+      ],
+      terms: [
+        ['Policy check', 'A check of a request or an action against what Larkspur allows, run by the host, not the model.'],
+        ['Input policy check', 'Reads each email before the model does and turns away anything outside what the assistant is for.'],
+        ['Output policy check', 'Checks each refund the model asks for against Larkspur’s refund policy before it is paid.'],
+        ['Over-refusal', 'Refusing fair requests to be safe. Each one is a false block.'],
+      ],
+    },
+  },
+  {
+    id: '07-red-team', title: 'Red team', short: 'Red team',
+    intro: {
+      story: 'Larkspur has defences against planted text and against customers who push. Before the assistant goes live, the team attacks it on purpose with every defence as a setting.',
+      goal: 'Which set of defences stops every attack in the suite and still serves every customer, and what does that prove?',
+      learn: [
+        'How to run an attack suite and a customer suite under every defence',
+        'How to read attack success rate and false-block rate together',
+        'Why the suites become a release gate, and why a clean run proves less than it seems',
+      ],
+      terms: [
+        ['Red team', 'People who attack a system on purpose, before real attackers do, to find what gets through.'],
+        ['Attack suite', 'The fixed set of attack emails, each with a check of whether its goal was met.'],
+        ['Customer suite', 'The fixed set of ordinary customer emails, each with a check that the customer got what they asked for.'],
+        ['Release gate', 'A rule that decides whether a change ships, from an eval run against a bar.'],
+      ],
+    },
+  },
 ];
 
 export const GUARDRAILS_MODULE: Module = {

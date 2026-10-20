@@ -117,6 +117,11 @@ const GUARD_OG: Record<string, ReturnType<typeof guardScene>> = {
   'guardrails-02-input-filters': guardScene({ run: guardRun(GUARD_RECORDING, { case: 'invoice', threshold: 0.5 }), screen: true, scale: 1.5 }),
   'guardrails-03-the-way-out': guardScene({ run: ALLOWED, upTo: ALLOWED.steps.findIndex(st => st.kind === 'blocked') + 1, allow: true, scale: 1.5 }),
   'guardrails-04-the-trifecta': guardScene({ run: guardRun(GUARD_RECORDING, { case: 'invoice', taint: true }), legs: true, taint: true, scale: 1.5 }),
+  // chapter 5: two layers on the forwarded invoice (the taint rule's shut chute and the allow-list's barrier); chapter 6:
+  // the off-topic favour turned away at the screening arch; chapter 7: the red team's clean set, every check in place
+  'guardrails-05-defence-in-depth': guardScene({ run: guardRun(GUARD_RECORDING, { case: 'invoice', rule: true, taint: true, allow: true }), taint: true, allow: true, scale: 1.5 }),
+  'guardrails-06-when-the-user-is-the-attacker': guardScene({ run: guardRun(GUARD_RECORDING, { case: 'offtopic', inputPolicy: true }), screen: true, scale: 1.5 }),
+  'guardrails-07-red-team': guardScene({ run: guardRun(GUARD_RECORDING, { case: 'invoice', rule: true, taint: true, inputPolicy: true, allow: true, outputPolicy: 'on' }), screen: true, taint: true, allow: true, scale: 1.5 }),
 };
 const guard = GUARD_OG[page.og];
 ---

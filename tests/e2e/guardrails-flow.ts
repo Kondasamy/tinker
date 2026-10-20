@@ -106,6 +106,50 @@ export function guardWalker(page: Page, mode: Mode, check: (page: Page) => Promi
       await opt(quiz);
       await finish(next);
     },
+    /** defence in depth: predict, then stack two layers by hand (the prompt rule and the taint rule) */
+    async ch5(next?: RegExp, quiz: string | RegExp = /^Stack defences that miss different attacks/) {
+      await opt(/^No: each stops some attacks/);
+      await step(2);
+      await check(page);
+      await btn('Prompt rule: off');
+      await btn('Taint rule: off');
+      await step(3);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
+    /** the user as attacker: the output check, the off-topic favour, the input check, then strict and its cost */
+    async ch6(next?: RegExp, quiz: string | RegExp = /^The false-block rate/) {
+      await opt(/^A check on the refund itself/);
+      await step(2);
+      await btn('Output policy check: on');
+      await step(3);
+      await check(page);
+      await btn(/^Open .*’s email$/);
+      await step(4);
+      await btn('Input policy check: on');
+      await step(5);
+      await opt(/^It is refused and waits for a person/);
+      await step(6);
+      await btn('Strict: every refund to a person');
+      await step(7);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
+    /** the red team: one defence to start, then chapter 5's and 6's checks together for a clean bench */
+    async ch7(next?: RegExp, quiz: string | RegExp = /^Only against these attacks/) {
+      await btn('Prompt rule: on');
+      await step(2);
+      await check(page);
+      await btn('Taint rule: on');
+      await btn('Input policy check: on');
+      await btn('Output check: on');
+      await step(3);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
     open,
   };
 }

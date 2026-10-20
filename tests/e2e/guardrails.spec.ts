@@ -8,7 +8,7 @@ import INBOX from '../../data/guardrails/inbox.json' with { type: 'json' };
 import SUITE from '../../data/guardrails/suite.json' with { type: 'json' };
 
 const M = moduleOf('guardrails'), CH1 = M.chapters[0].id;
-const [, CH2, CH3, CH4] = M.chapters.map(c => c.id);
+const [, CH2, CH3, CH4, CH5, CH6, CH7] = M.chapters.map(c => c.id);
 const at = (id: string) => new RegExp(`/guardrails/${id}/$`);
 /** Walk every written chapter in order, following each "Next" link, and end on the recap. */
 async function walkAll(w: ReturnType<typeof guardWalker>) {
@@ -16,7 +16,10 @@ async function walkAll(w: ReturnType<typeof guardWalker>) {
   await w.ch1(at(CH2));
   await w.ch2(at(CH3));
   await w.ch3(at(CH4));
-  await w.ch4(/\/guardrails\/recap\/$/);
+  await w.ch4(at(CH5));
+  await w.ch5(at(CH6));
+  await w.ch6(at(CH7));
+  await w.ch7(/\/guardrails\/recap\/$/);
 }
 const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 const axe = async (page: Page) => expect(await serious(page)).toEqual([]);
@@ -46,7 +49,7 @@ test('every chapter plays by mouse, in order through the Next links, with axe cl
   await walkAll(guardWalker(page, 'mouse', axe));
 });
 
-test('every chapter plays by keyboard only, the chapter 4 puzzle included; progress lands in guardrails-progress-v1 and no other module’s key', async ({ page }) => {
+test('every chapter plays by keyboard only, the chapter 4 and 5 puzzles and the red-team bench included; progress lands in guardrails-progress-v1 and no other module’s key', async ({ page }) => {
   await page.goto('/');
   const OTHERS = { 'rag-progress-v1': JSON.stringify({ done: ['01-history'], saved: {} }), 'tool-calling-progress-v1': JSON.stringify({ done: ['06-when-tools-go-wrong'], saved: {} }) };
   await page.evaluate(o => { for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v); }, OTHERS);
@@ -181,9 +184,80 @@ test('chapter 4: removing untrusted text or private data leaves the case undone;
   await expect(rows.filter({ hasText: 'Remove private data' })).toContainText(/NoNo$/);
 });
 
-test('chapters 2–4: “I’m not sure” on each checkpoint reveals the answer and is no miss', async ({ page }) => {
+test('chapter 5: each defence alone leaves a cell wrong; three misses bring the hint, Show me stacks two layers; the rates link to Evals', async ({ page }) => {
   const w = guardWalker(page, 'mouse');
-  for (const [id, play] of [[CH2, w.ch2], [CH3, w.ch3], [CH4, w.ch4]] as const) {
+  await w.open(CH5);
+  const c = card(page), status = c.locator('.tc-status[data-succeeded]');
+  await c.getByRole('radio', { name: /^Yes: the taint rule/ }).click();
+  await expect(c).toContainText('NOT WHAT YOU PREDICTED');
+  // every single-defence row has at least one cell gone wrong; each cell is named in full for screen readers
+  for (const name of ['Prompt rule', 'Taint rule', 'Allow-list', 'Output filter']) await expect(c.locator(`tr[data-row="${name}"] td[data-bad="1"]`)).not.toHaveCount(0);
+  await expect(c.locator('tr[data-row^="Input filter"] td[data-bad="1"]')).toHaveCount(1);
+  await expect(c.locator('tr[data-row="Prompt rule"] td[data-case="invoice"]')).toHaveAttribute('aria-label', /^Prompt rule, attack .*: Worked$/);
+  await expect(status).toHaveAttribute('data-succeeded', '3');
+  for (const b of ['Taint rule: off', 'Allow-list: off', 'Allow-list: on']) await c.getByRole('button', { name: b }).click();
+  await expect(status).toContainText('BROKEN');
+  await expect(c.locator('.hint')).toBeVisible();
+  await c.getByRole('button', { name: 'Show me' }).click();
+  await expect(c).toContainText('Step 3 of');
+  await expect(c.locator('tr[data-row="Your set"] td[data-bad="1"]')).toHaveCount(0);
+  await expect(c.locator('[data-eval]').getByRole('link', { name: 'The Evals module' })).toHaveAttribute('href', '/evals/');
+  await axe(page);
+});
+
+test('chapter 6: the output check stops the discount, the input check turns the favour away, and strict’s refused refund is counted as a false block', async ({ page }) => {
+  const w = guardWalker(page, 'mouse');
+  await w.open(CH6);
+  const c = card(page), status = c.locator('[role="status"][data-case]');
+  await expect(page.locator('.tc-caption')).toBeVisible();
+  await c.getByRole('radio', { name: /^The input filter/ }).click();
+  await expect(status).toHaveAttribute('data-met', '1');
+  await c.getByRole('button', { name: 'Output policy check: on' }).click();
+  await expect(status).toHaveAttribute('data-met', '0');
+  await expect(status).toContainText('The output policy check stopped this refund');
+  await c.getByRole('button', { name: /^Open .*’s email$/ }).click();
+  await expect(status).toHaveAttribute('data-met', '1');
+  await c.getByRole('button', { name: 'Input policy check: on' }).click();
+  await expect(status).toContainText('turned the email away');
+  await c.getByRole('radio', { name: /^It is paid/ }).click();
+  await expect(status).toHaveAttribute('data-done', '1');
+  await c.getByRole('button', { name: 'Strict: every refund to a person' }).click();
+  await expect(c.locator('[data-cost] tr[data-policy="strict"]')).toHaveAttribute('data-blocked', '1');
+  await expect(c.locator('[data-cost] tr[data-policy="on"]')).toHaveAttribute('data-blocked', '0');
+  await expect(c).toContainText('That is a false block');
+});
+
+test('chapter 7: by keyboard, a set that leaks and a clean one; the bench, the stage case and the tab survive a reload', async ({ page }) => {
+  const w = guardWalker(page, 'keyboard');
+  await w.open(CH7);
+  const c = card(page), out = c.locator('[role="status"][data-asr]');
+  const press = (name: string) => c.getByRole('button', { name, exact: true }).press('Enter');
+  await expect(out).toHaveAttribute('data-asr', '5');
+  await press('Allow-list: on');
+  await expect(c).toContainText('Step 2 of');
+  await expect(out).toHaveAttribute('data-clean', '0');
+  await expect(c.locator('[data-verdict]')).toContainText('Not safe to ship');
+  for (const b of ['Prompt rule: on', 'Input policy check: on', 'Output check: on']) await press(b);
+  await expect(out).toHaveAttribute('data-clean', '1');
+  await expect(c).toContainText('Step 3 of');
+  await expect(c.locator('[data-gate]').getByRole('link', { name: 'Evals’ release gate' })).toHaveAttribute('href', '/evals/07-release-day/');
+  await press('Output check: strict');
+  await expect(out).toHaveAttribute('data-fbr', '1');
+  await press('Refund (customer)');
+  await axe(page);
+  await page.locator('.tc-tabs').getByRole('button', { name: /^Steps/ }).press('Enter');
+  await page.reload();
+  await page.locator('astro-island:not([ssr])').waitFor();
+  await page.getByRole('button', { name: /^Continue at step 3/ }).press('Enter');
+  for (const b of ['Allow-list: on', 'Prompt rule: on', 'Output check: strict', 'Refund (customer)'])
+    await expect(c.getByRole('button', { name: b, exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(out).toHaveAttribute('data-fbr', '1');
+  await expect(page.locator('.tc-tabs').getByRole('button', { name: /^Steps/ })).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('chapters 2–7: “I’m not sure” on each checkpoint reveals the answer and is no miss', async ({ page }) => {
+  const w = guardWalker(page, 'mouse');
+  for (const [id, play] of [[CH2, w.ch2], [CH3, w.ch3], [CH4, w.ch4], [CH5, w.ch5], [CH6, w.ch6], [CH7, w.ch7]] as const) {
     await w.open(id);
     await play(undefined, 'I’m not sure');
     const fb = card(page).locator('.quiz .feedback');
