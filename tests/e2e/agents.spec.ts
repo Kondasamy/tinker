@@ -11,7 +11,7 @@ import MEMORY from '../../data/agents/turns/05-memory.json' with { type: 'json' 
 import SUB from '../../data/agents/turns/06-sub-agents.json' with { type: 'json' };
 import CASES from '../../data/agents/cases.json' with { type: 'json' };
 
-const M = moduleOf('agents'), CH1 = M.chapters[0].id, CH2 = M.chapters[1].id, CH3 = M.chapters[2].id, CH4 = M.chapters[3].id, CH5 = M.chapters[4].id, CH6 = M.chapters[5].id;
+const M = moduleOf('agents'), CH1 = M.chapters[0].id, CH2 = M.chapters[1].id, CH3 = M.chapters[2].id, CH4 = M.chapters[3].id, CH5 = M.chapters[4].id, CH6 = M.chapters[5].id, CH7 = M.chapters[6].id;
 // chapter 2's recording is one path, one recorded turn per model turn
 const TURNS = Object.keys(LOOP.turns).length;
 const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
@@ -48,7 +48,7 @@ test('the chapters play by keyboard only; progress lands in agents-progress-v1 a
   await page.evaluate(o => { for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v); }, OTHERS);
   await walkAgents(page, 'keyboard');
   const store = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
-  expect(JSON.parse(store['agents-progress-v1']).done).toEqual([CH1, CH2, CH3, CH4, CH5, CH6]);
+  expect(JSON.parse(store['agents-progress-v1']).done).toEqual([CH1, CH2, CH3, CH4, CH5, CH6, CH7]);
   for (const [k, v] of Object.entries(OTHERS)) expect(store[k]).toBe(v);
   expect(store['tinker-last-module']).toBe('agents');
 });
@@ -375,6 +375,41 @@ test('chapter 6: the checkpoint asks about a supplier price check, not the storm
   await expect(quiz).not.toContainText('storm');
 });
 
+test('chapter 7: the carrier timeout two ways. No detector runs out of budget with no email; the detector ends stuck with one', async ({ page }) => {
+  const w = agentWalker(page, 'mouse');
+  await w.open(CH7);
+  const c = card(page), out = c.locator('[data-ending]');
+  await c.getByRole('button', { name: 'Carrier timeout' }).click();
+  await c.getByRole('button', { name: 'Run the case' }).click();
+  await expect(out).toHaveAttribute('data-ending', 'out-of-budget');
+  await expect(out).toContainText('No email sent');
+  await c.getByRole('button', { name: 'Repeat detector: stop after 3' }).click();
+  await expect(c).toContainText('Setup changed');
+  await c.getByRole('button', { name: 'Run the case' }).click();
+  await expect(out).toHaveAttribute('data-ending', 'stuck');
+  await expect(out.locator('[data-mail]')).toHaveAttribute('data-mail', '1');
+  await expect(c.locator('[data-found]')).toHaveAttribute('data-found', '2');
+});
+
+test('chapter 7: the case, its controls and the tab are kept in the step state and survive a reload', async ({ page }) => {
+  const w = agentWalker(page, 'mouse');
+  await w.open(CH7);
+  const c = card(page);
+  await c.getByRole('button', { name: 'Storm, five orders' }).click();
+  await c.getByRole('button', { name: 'Chapter 6: Sub-agents' }).click();
+  await c.getByRole('button', { name: 'Lead + helpers' }).click();
+  await c.getByRole('button', { name: 'Run the case' }).click();
+  await expect(c).toContainText('Step 2 of');
+  await page.getByRole('button', { name: /^Steps \(/ }).click();
+  await page.reload();
+  await page.locator('astro-island:not([ssr])').waitFor();
+  await page.getByRole('button', { name: /^Continue at step 2/ }).click();
+  for (const name of ['Storm, five orders', 'Chapter 6: Sub-agents', 'Lead + helpers']) await expect(c.getByRole('button', { name })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: /^Steps \(/ })).toHaveAttribute('aria-pressed', 'true');
+  await expect(c.locator('[data-ending]')).toHaveAttribute('data-ending', 'done');
+  await expect(c).toContainText('memory and plan settings apply to the lead only');
+});
+
 test('“I’m not sure” on the checkpoint reveals the answer, is no miss, and finishes the chapter', async ({ page }) => {
   const w = agentWalker(page, 'mouse');
   await w.open(CH1);
@@ -403,6 +438,8 @@ test.describe('reduced motion', () => {
     await w.ch5();
     await w.open(CH6);
     await w.ch6();
+    await w.open(CH7);
+    await w.ch7();
   });
 });
 
@@ -416,7 +453,7 @@ test('the recap asks from the finished chapters', async ({ page }) => {
 test.describe('phone', () => {
   test.use(PHONE);
   test('pages fit 390px wide, and the chapters play through there with axe clean', async ({ page }) => {
-    for (const p of ['/agents/', `/agents/${CH1}/`, `/agents/${CH2}/`, `/agents/${CH3}/`, `/agents/${CH4}/`, `/agents/${CH5}/`, `/agents/${CH6}/`, '/agents/recap/']) {
+    for (const p of ['/agents/', `/agents/${CH1}/`, `/agents/${CH2}/`, `/agents/${CH3}/`, `/agents/${CH4}/`, `/agents/${CH5}/`, `/agents/${CH6}/`, `/agents/${CH7}/`, '/agents/recap/']) {
       await page.goto(p);
       await layoutHolds(page);
     }

@@ -358,4 +358,50 @@ export const RECALL: RecallItem[] = [
       'The host passes the lead only the helper’s reply, as the result of its handoff call.',
     ],
   },
+  // 7. Workbench
+  {
+    id: 'bench-silent-stop', chapter: '07-workbench',
+    question: 'An agent’s run ended and the customer got no email. Which ending is the most likely?',
+    options: [
+      'Done: the model said the case was finished',
+      'Out of budget: the host stopped the run, and no turn was left to write',
+      'Stuck: the repeat detector fired',
+    ],
+    correct: 1,
+    why: [
+      'A run that ends done has had its last say, and in these cases that includes the email.',
+      'Right. A budget stops a run with no further turn, so nobody hears why it stopped.',
+      'When the detector fires, the model gets one more turn, and uses it to tell the customer.',
+    ],
+  },
+  {
+    id: 'bench-waiting', chapter: '07-workbench',
+    question: 'A finance agent drafts a plan to pay ten invoices, and the host requires a person to approve each plan. Nobody answers. How does the run end?',
+    options: [
+      'Done: the agent pays the invoices it is sure about',
+      'Waiting: nothing runs until a person approves the plan',
+      'Failed: the plan is thrown away',
+    ],
+    correct: 1,
+    why: [
+      'With approval on, the plan binds the run: no call runs before a person approves it.',
+      'Right. The run waits for a person. That is the point of approval, and also why it needs someone to read the plans.',
+      'Nothing failed. The plan is kept, waiting for an answer.',
+    ],
+  },
+  {
+    id: 'bench-script-or-agent', chapter: '07-workbench',
+    question: 'A store’s script handles returns: look up the order, refund it, email the customer. A return arrives for an item that is out of stock to swap. What happens?',
+    options: [
+      'The script adapts and offers a refund instead',
+      'The script fails at the step it has no code for',
+      'The script waits for the stock to come back',
+    ],
+    correct: 1,
+    why: [
+      'A script only runs the steps its authors wrote. Adapting is what an agent does.',
+      'Right. A workflow is cheap on the cases it foresaw, and stops on the ones it did not.',
+      'A script has no step for waiting, unless someone wrote one.',
+    ],
+  },
 ];

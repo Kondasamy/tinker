@@ -26,13 +26,15 @@ export function readouts(o: AgentOpts): string[] {
   return out;
 }
 
+export type View = 'scene' | 'seq';
 const FILL = { height: '100%' };   // fill the fixed frame; the viewBox keeps the drawing's shape
 /** The chapters' stage: the back office with the agent's props (default) or the same run as lanes, one at a time.
  * `upTo` is the number of run steps shown; the last one is the current step. The tab is the reader's view, not story
- * state, so it stays out of saved progress. */
-export function AgentStage({ run, upTo, props = {}, host = 'Host app', inspect }:
-  { run: Run; upTo: number; props?: AgentProps; host?: string; inspect: (panel: string, sheet?: boolean) => void }) {
-  const [view, setView] = useState<'scene' | 'seq'>('scene');
+ * state, so it stays out of saved progress, unless the chapter passes `view` and `onView` to keep it in its step state. */
+export function AgentStage({ run, upTo, props = {}, host = 'Host app', inspect, view: kept, onView }:
+  { run: Run; upTo: number; props?: AgentProps; host?: string; inspect: (panel: string, sheet?: boolean) => void; view?: View; onView?: (v: View) => void }) {
+  const [own, setOwn] = useState<View>('scene');
+  const view = kept ?? own, setView = onView ?? setOwn;
   const scale = useNarrow() ? 1.8 : 1;
   const msgs = useMemo(() => agentMessages(run), [run]), lanes = useMemo(() => agentLanes(run, host), [run, host]);
   const shown = Math.min(upTo, msgs.length), opts: AgentOpts = { ...props, run, upTo: shown, host, scale };

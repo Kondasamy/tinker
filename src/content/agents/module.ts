@@ -112,6 +112,22 @@ const CHAPTERS: Chapter[] = [
       ],
     },
   },
+  {
+    id: '07-workbench', title: 'Workbench', short: 'Workbench',
+    intro: {
+      story: 'The agent can now work a case to done: it plans, asks a person, stops a stuck loop, keeps the line that matters and hands pieces to helpers. Every case from this module is on one bench, with the controls its chapter used.',
+      goal: 'Given a case and a host’s settings, how will the run end, and what will it cost?',
+      learn: [
+        'The five ways a run ends: done, failed, waiting, stuck and out of budget',
+        'Which host setting leads to which ending',
+        'Reading a run’s tokens and sent emails to judge it',
+      ],
+      terms: [
+        ['Ending', 'How a run stops: the model says done, the script fails, a person has not answered, the host stops a stuck call, or the host’s budget runs out.'],
+        ['Ledger', 'The host’s record of what a run did that people outside see, here every email it sent.'],
+      ],
+    },
+  },
 ];
 
 export const AGENTS_MODULE: Module = {

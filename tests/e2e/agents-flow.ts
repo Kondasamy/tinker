@@ -137,6 +137,30 @@ export function agentWalker(page: Page, mode: Mode, check: (page: Page) => Promi
       await opt(quiz);
       await finish(next);
     },
+    /** workbench: run the default case, then find the other four endings by hand */
+    async ch7(next?: RegExp) {
+      const found = (k: number) => expect(card.locator('[data-found]')).toHaveAttribute('data-found', String(k));
+      await btn('Run the case');
+      await step(2);
+      await found(1);
+      await check(page);
+      await btn('Cracked printer');
+      await btn('Printer out of stock');
+      await btn('Run the case');
+      await found(2);
+      await btn('Chapter 3: Plans');
+      await btn('Plan mode: on');
+      await btn('A person approves the plan');
+      await btn('Run the case');
+      await found(3);
+      await check(page);
+      await btn('Carrier timeout');
+      await btn('Run the case');
+      await found(4);
+      await btn('Repeat detector: stop after 3');
+      await btn('Run the case');
+      await finish(next);
+    },
     open,
   };
 }
@@ -150,5 +174,6 @@ export async function walkAgents(page: Page, mode: Mode, check?: (page: Page) =>
   await w.ch3(/\/agents\/04-budgets\/$/);
   await w.ch4(/\/agents\/05-memory\/$/);
   await w.ch5(/\/agents\/06-sub-agents\/$/);
-  await w.ch6(/\/agents\/recap\/$/);
+  await w.ch6(/\/agents\/07-workbench\/$/);
+  await w.ch7(/\/agents\/recap\/$/);
 }

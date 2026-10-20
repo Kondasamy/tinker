@@ -67,6 +67,8 @@ const AGENT_OG: Record<string, ReturnType<typeof agentScene>> = {
   // chapter 6: the storm case handed out, five helper desks each with a reply on it, the lead's gauge low. Scale 1:
   // a larger scale draws the phone's single desk, and the five desks are the picture
   'agents-06-sub-agents': agentScene({ run: agentRun(AGENT_RECORDINGS['06-sub-agents'], { helpers: true }), gauge: { steps: AGENT_DEFAULTS.steps, context: AGENT_CONTEXT }, helpers: true }),
+  // chapter 7: the bench with the planted case planned and approved, so the clipboard, the gauge and the tray are all out
+  'agents-07-workbench': agentScene({ run: agentRun(AGENT_RECORDINGS['03-plans'], { case: 'planted', plan: true }), clipboard: true, gauge: { steps: AGENT_DEFAULTS.steps, context: AGENT_CONTEXT }, tray: true, scale: 1.5 }),
 };
 const agent = AGENT_OG[page.og];
 ---
