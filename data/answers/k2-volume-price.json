@@ -1,0 +1,59 @@
+{
+  "nocontext": {
+    "verdict": "madeup",
+    "text": "The Kestrel K2 costs $399 per unit for orders of 50 or more.",
+    "citation": null,
+    "why": "No documents reached the model, so it answered from general knowledge and made up a policy that sounds plausible."
+  },
+  "k2-row:intact": {
+    "verdict": "correct",
+    "text": "A Kestrel K2 handheld scanner costs $410 per unit when you order 50 or more.",
+    "citation": "| Kestrel K2 handheld scanner | KS-K2 | $480 | $445 | $410 |"
+  },
+  "k2-row:intact@start": {
+    "verdict": "correct",
+    "text": "A Kestrel K2 handheld scanner costs $410 per unit when you order 50 or more.",
+    "citation": "| Kestrel K2 handheld scanner | KS-K2 | $480 | $445 | $410 |"
+  },
+  "k2-row:intact@middle": {
+    "verdict": "notfound",
+    "text": "I can't find a clear 50+ unit price for the Kestrel K2 in the documents provided.",
+    "citation": null,
+    "why": "The fact did reach the model, but in the middle of a long context, where models pay the least attention, and it was overlooked."
+  },
+  "k2-row:intact@end": {
+    "verdict": "correct",
+    "text": "A Kestrel K2 handheld scanner costs $410 per unit when you order 50 or more.",
+    "citation": "| Kestrel K2 handheld scanner | KS-K2 | $480 | $445 | $410 |"
+  },
+  "k2-row:split": {
+    "verdict": "wrong",
+    "text": "The Kestrel K2 handheld scanner is $480 per unit.",
+    "citation": null,
+    "why": "The table row was split, so the model saw the K2 name with only the first price column and missed the 50+ price."
+  },
+  "k2-row:split@start": {
+    "verdict": "wrong",
+    "text": "The Kestrel K2 handheld scanner is $480 per unit.",
+    "citation": null,
+    "why": "The table row was split, so the model saw the K2 name with only the first price column and missed the 50+ price."
+  },
+  "k2-row:split@middle": {
+    "verdict": "wrong",
+    "text": "The Kestrel K2 handheld scanner is $480 per unit.",
+    "citation": null,
+    "why": "The table row was split, so the model saw the K2 name with only the first price column and missed the 50+ price."
+  },
+  "k2-row:split@end": {
+    "verdict": "wrong",
+    "text": "The Kestrel K2 handheld scanner is $480 per unit.",
+    "citation": null,
+    "why": "The table row was split, so the model saw the K2 name with only the first price column and missed the 50+ price."
+  },
+  "k2-row:absent": {
+    "verdict": "notfound",
+    "text": "I can't find a price for the Kestrel K2 at 50 or more units in the documents provided.",
+    "citation": null,
+    "why": "The K2 row of the price list never reached the model."
+  }
+}

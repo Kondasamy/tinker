@@ -1,0 +1,134 @@
+---
+// Story-first chapter shell (KTD9): chapter nav on top; the slot holds the chapter island
+// (StepRunner renders hero stage, narration card and drawer).
+import '../styles/tokens.css';
+import { CHAPTERS, chapterHref } from '../lib/chapters';
+
+interface Props { chapter: string; title: string }
+const { chapter, title } = Astro.props;
+const n = CHAPTERS.findIndex(c => c.id === chapter) + 1;
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} · RAG Playground</title>
+  </head>
+  <body>
+    <header class="top">
+      <a class="brand" href="/">RAG Playground</a>
+      <nav aria-label="Chapters">
+        <ol>
+          {CHAPTERS.map((c, i) => (
+            <li>
+              <a href={chapterHref(c.id)} data-chapter={c.id} data-mark={c.id === chapter ? 'current' : 'todo'}
+                aria-current={c.id === chapter ? 'page' : undefined}>
+                <span class="num">{String(i + 1).padStart(2, '0')}</span>
+                <span class="name">{c.short}</span>
+                <span class="sr" data-sr></span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+    </header>
+    <main>
+      <h1><span class="eyebrow">Chapter {n}</span> {title}</h1>
+      <slot />
+    </main>
+    <script>
+      import { CHAPTERS } from '../lib/chapters';
+      import { completed, navMark } from '../lib/progress';
+      const LABEL = { done: ' (done)', current: ' (current)', skipped: ' (skipped)', todo: '' };
+      function paint() {
+        const cur = document.querySelector<HTMLElement>('[aria-current="page"]')?.dataset.chapter ?? '';
+        const done = completed();
+        for (const a of document.querySelectorAll<HTMLElement>('nav [data-chapter]')) {
+          const mark = navMark(CHAPTERS, a.dataset.chapter!, cur, done);
+          a.dataset.mark = mark;
+          a.querySelector('[data-sr]')!.textContent = LABEL[mark];
+        }
+      }
+      paint();
+      window.addEventListener('rag-progress', paint);
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  .top { display: flex; align-items: center; gap: 12px 28px; flex-wrap: wrap; padding: 14px 24px; border-bottom: 1.5px solid var(--ink); }
+  .brand { font-weight: 800; font-size: 14px; text-decoration: none; }
+  .top ol { display: flex; gap: 6px; list-style: none; margin: 0; padding: 0; flex-wrap: wrap; }
+  .top nav a { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; text-decoration: none; padding: 4px 10px; border-radius: 999px; border: 1.5px solid transparent; color: var(--muted); }
+  .top nav a:hover { border-color: var(--rule); }
+  .top nav .num { font-weight: 800; }
+  .top nav a[data-mark='current'] { border-color: var(--ink); background: var(--card); color: var(--ink); box-shadow: 2px 2px 0 var(--ink); }
+  .top nav a[data-mark='done'] { color: var(--ink); }
+  .top nav a[data-mark='done'] .num::before { content: '✓ '; color: var(--ok); }
+  .top nav a[data-mark='skipped'] .num::before { content: '↷ '; color: var(--warn); }
+
+  main { padding: 16px 24px 32px; }
+  main > h1 { margin: 0 0 12px; font-size: 18px; font-weight: 800; }
+  .eyebrow { display: block; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
+
+  .chapter { display: grid; grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr); gap: 24px; align-items: start; }
+  .stage { min-height: 66vh; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--rule); border-radius: 16px; padding: 16px; }
+  .stage figure { margin: 0; width: 100%; }
+  .stage svg { max-height: 60vh; }
+  .stage figcaption { text-align: center; font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .side { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 16px; }
+
+  .card { background: var(--card); border: 1.5px solid var(--ink); border-radius: 14px; padding: 18px; box-shadow: 3px 3px 0 var(--ink); display: flex; flex-direction: column; gap: 14px; }
+  .card .count { margin: 0; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .card .narration { margin: 4px 0 0; font-size: 16px; font-weight: 700; line-height: 1.45; }
+  .card .hint { margin: 0; font-size: 13px; border-left: 3px solid var(--acc); padding: 2px 0 2px 10px; }
+  .recover { display: flex; flex-wrap: wrap; gap: 8px; border-top: 1px dashed var(--rule); padding-top: 12px; }
+  .recover .chip { font-size: 12px; box-shadow: none; border-color: var(--rule); }
+  .recover .chip:disabled { opacity: .4; cursor: default; }
+
+  .opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font: inherit; font-size: 13px; color: var(--ink); background: var(--card); border: 1.5px solid var(--ink); border-radius: 8px; padding: 6px 12px; cursor: pointer; box-shadow: 2px 2px 0 var(--ink); }
+  .chip[aria-pressed='true'] { background: var(--ink); color: var(--paper); box-shadow: none; }
+  .big { font-weight: 800; font-size: 14px; background: var(--acc); border: 1.5px solid var(--ink); border-radius: 999px; padding: 8px 16px; box-shadow: 3px 3px 0 var(--ink); text-decoration: none; align-self: flex-start; }
+
+  .quiz { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .quiz legend { font-size: 14px; margin-bottom: 8px; padding: 0; }
+  .quiz .opts { flex-direction: column; align-items: stretch; }
+  .quiz .chip { text-align: left; }
+  .feedback p { margin: 6px 0 0; font-size: 13px; }
+  .feedback summary { margin-top: 8px; font-size: 13px; cursor: pointer; }
+  .feedback ul, .tips ul, .closing ul { margin: 6px 0 0; padding-left: 18px; font-size: 13px; display: flex; flex-direction: column; gap: 6px; }
+
+  .challenge { display: flex; flex-direction: column; gap: 12px; }
+  .challenge .count { display: flex; gap: 10px; }
+  .challenge .count [data-current] { color: var(--ink); font-weight: 800; }
+  .challenge .count [data-solved] { color: var(--ok); }
+  /* a ruled-out pick reads as crossed off, not as the chosen answer */
+  .challenge .chip[data-wrong] { background: var(--card); color: var(--muted); text-decoration: line-through; border-color: var(--rule); box-shadow: none; }
+  .challenge .chip:disabled:not([data-wrong]) { opacity: .5; box-shadow: none; }
+  .tips .lbl { margin: 0; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .closing { border-top: 1px dashed var(--rule); padding-top: 12px; }
+  .closing h2 { margin: 0; font-size: 16px; }
+  .closing p { margin: 6px 0 0; font-size: 13px; }
+  .closing a { margin-left: 6px; white-space: nowrap; }
+  .stamp { display: inline-block; font-weight: 900; font-size: 11px; letter-spacing: .14em; border: 2px solid currentColor; border-radius: 6px; padding: 1px 7px; transform: rotate(-2deg); }
+  .stamp.correct { color: var(--ok); } .stamp.wrong { color: var(--bad); }
+
+  .drawer { background: var(--card); border: 1.5px solid var(--ink); border-radius: 14px; padding: 14px 18px; font-size: 13.5px; }
+  .drawer header { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .drawer h2 { margin: 0; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .drawer .chip { box-shadow: none; padding: 2px 9px; }
+
+  @media (max-width: 860px) {
+    .top { padding: 12px 16px; }
+    .top nav a:not([data-mark='current']) .name { display: none; }
+    main { padding: 12px 16px 24px; }
+    .chapter { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .stage { min-height: 0; padding: 8px; }
+    .side { position: static; }
+    /* the drawer follows the step card in the page flow: a sticky sheet would cover the step's controls */
+    .drawer { scroll-margin-top: 12px; }
+  }
+</style>

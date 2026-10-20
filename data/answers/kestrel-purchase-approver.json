@@ -1,0 +1,167 @@
+{
+  "nocontext": {
+    "verdict": "madeup",
+    "text": "Purchases for the Kestrel K2 integration are approved by the IT Procurement Manager.",
+    "citation": null,
+    "why": "No documents reached the model, so it answered from general knowledge and made up a policy that sounds plausible."
+  },
+  "kestrel-owner:intact|fulfillment-approver:intact": {
+    "verdict": "correct",
+    "text": "Tomasz Rehnquist, Director of Warehouse Technology. The Kestrel K2 scanner integration is owned by the Fulfillment Systems team, and he approves that team's purchases.",
+    "citation": "Purchases for the Fulfillment Systems team are approved by Tomasz Rehnquist, Director of Warehouse Technology."
+  },
+  "kestrel-owner:intact|fulfillment-approver:intact@start": {
+    "verdict": "correct",
+    "text": "Tomasz Rehnquist, Director of Warehouse Technology. The Kestrel K2 scanner integration is owned by the Fulfillment Systems team, and he approves that team's purchases.",
+    "citation": "Purchases for the Fulfillment Systems team are approved by Tomasz Rehnquist, Director of Warehouse Technology."
+  },
+  "kestrel-owner:intact|fulfillment-approver:intact@middle": {
+    "verdict": "notfound",
+    "text": "Purchases for the Fulfillment Systems team are approved by Tomasz Rehnquist, but I can't tell from these documents which team owns the Kestrel K2 integration.",
+    "citation": "Purchases for the Fulfillment Systems team are approved by Tomasz Rehnquist, Director of Warehouse Technology.",
+    "why": "The ownership sentence sat in the middle of a long context and was overlooked, so the model could not make the first hop."
+  },
+  "kestrel-owner:intact|fulfillment-approver:intact@end": {
+    "verdict": "correct",
+    "text": "Tomasz Rehnquist, Director of Warehouse Technology. The Kestrel K2 scanner integration is owned by the Fulfillment Systems team, and he approves that team's purchases.",
+    "citation": "Purchases for the Fulfillment Systems team are approved by Tomasz Rehnquist, Director of Warehouse Technology."
+  },
+  "kestrel-owner:intact|fulfillment-approver:split": {
+    "verdict": "notfound",
+    "text": "The Kestrel K2 scanner integration is owned by the Fulfillment Systems team, but the documents I have don't say who approves that team's purchases.",
+    "citation": "The Kestrel K2 scanner integration is owned by the Fulfillment Systems team.",
+    "why": "The approver sentence was cut across chunks, so the model could not read who approves Fulfillment Systems purchases."
+  },
+  "kestrel-owner:intact|fulfillment-approver:split@start": {
+    "verdict": "notfound",
+    "text": "The Kestrel K2 scanner integration is owned by the Fulfillment Systems team, but the documents I have don't say who approves that team's purchases.",
+    "citation": "The Kestrel K2 scanner integration is owned by the Fulfillment Systems team.",
+    "why": "The approver sentence was cut across chunks, so the model could not read who approves Fulfillment Systems purchases."
+  },
+  "kestrel-owner:intact|fulfillment-approver:split@middle": {
+    "verdict": "notfound",
+    "text": "Purchases above $1,000 are approved by the budget owner of the requesting team, but I can't tell who that is for the Kestrel K2 integration.",
+    "citation": "Purchases above $1,000 need approval from the budget owner of the requesting team.",
+    "why": "Neither hop arrived whole. The ownership sentence sat in the middle of a long context and was overlooked, so the model could not make the first hop. The approver sentence was cut across chunks, so the model could not read who approves Fulfillment Systems purchases."
+  },
+  "kestrel-owner:intact|fulfillment-approver:split@end": {
+    "verdict": "notfound",
+    "text": "The Kestrel K2 scanner integration is owned by the Fulfillment Systems team, but the documents I have don't say who approves that team's purchases.",
+    "citation": "The Kestrel K2 scanner integration is owned by the Fulfillment Systems team.",
+    "why": "The approver sentence was cut across chunks, so the model could not read who approves Fulfillment Systems purchases."
+  },
+  "kestrel-owner:intact|fulfillment-approver:absent": {
+    "verdict": "notfound",
+    "text": "The Kestrel K2 scanner integration is owned by the Fulfillment Systems team, but the documents I have don't say who approves that team's purchases.",
+    "citation": "The Kestrel K2 scanner integration is owned by the Fulfillment Systems team.",
+    "why": "The second hop, who approves Fulfillment Systems purchases, never reached the model."
+  },
+  "kestrel-owner:intact|fulfillment-approver:absent@start": {
+    "verdict": "notfound",
+    "text": "The Kestrel K2 scanner integration is owned by the Fulfillment Systems team, but the documents I have don't say who approves that team's purchases.",
+    "citation": "The Kestrel K2 scanner integration is owned by the Fulfillment Systems team.",
+    "why": "The second hop, who approves Fulfillment Systems purchases, never reached the model."
+  },
+  "kestrel-owner:intact|fulfillment-approver:absent@middle": {
+    "verdict": "notfound",
+    "text": "I can't find who owns the Kestrel K2 scanner integration or who approves its purchases in the documents provided.",
+    "citation": null,
+    "why": "Neither hop arrived whole. The ownership sentence sat in the middle of a long context and was overlooked, so the model could not make the first hop. The second hop, who approves Fulfillment Systems purchases, never reached the model."
+  },
+  "kestrel-owner:intact|fulfillment-approver:absent@end": {
+    "verdict": "notfound",
+    "text": "The Kestrel K2 scanner integration is owned by the Fulfillment Systems team, but the documents I have don't say who approves that team's purchases.",
+    "citation": "The Kestrel K2 scanner integration is owned by the Fulfillment Systems team.",
+    "why": "The second hop, who approves Fulfillment Systems purchases, never reached the model."
+  },
+  "kestrel-owner:split|fulfillment-approver:intact": {
+    "verdict": "notfound",
+    "text": "Purchases for the Fulfillment Systems team are approved by Tomasz Rehnquist, but I can't tell from these documents which team owns the Kestrel K2 integration.",
+    "citation": "Purchases for the Fulfillment Systems team are approved by Tomasz Rehnquist, Director of Warehouse Technology.",
+    "why": "The ownership sentence was cut across chunks, so the model could not link the Kestrel K2 integration to Fulfillment Systems."
+  },
+  "kestrel-owner:split|fulfillment-approver:intact@start": {
+    "verdict": "notfound",
+    "text": "Purchases for the Fulfillment Systems team are approved by Tomasz Rehnquist, but I can't tell from these documents which team owns the Kestrel K2 integration.",
+    "citation": "Purchases for the Fulfillment Systems team are approved by Tomasz Rehnquist, Director of Warehouse Technology.",
+    "why": "The ownership sentence was cut across chunks, so the model could not link the Kestrel K2 integration to Fulfillment Systems."
+  },
+  "kestrel-owner:split|fulfillment-approver:intact@middle": {
+    "verdict": "notfound",
+    "text": "Purchases for the Fulfillment Systems team are approved by Tomasz Rehnquist, but I can't tell from these documents which team owns the Kestrel K2 integration.",
+    "citation": "Purchases for the Fulfillment Systems team are approved by Tomasz Rehnquist, Director of Warehouse Technology.",
+    "why": "The ownership sentence was cut across chunks, so the model could not link the Kestrel K2 integration to Fulfillment Systems."
+  },
+  "kestrel-owner:split|fulfillment-approver:intact@end": {
+    "verdict": "notfound",
+    "text": "Purchases for the Fulfillment Systems team are approved by Tomasz Rehnquist, but I can't tell from these documents which team owns the Kestrel K2 integration.",
+    "citation": "Purchases for the Fulfillment Systems team are approved by Tomasz Rehnquist, Director of Warehouse Technology.",
+    "why": "The ownership sentence was cut across chunks, so the model could not link the Kestrel K2 integration to Fulfillment Systems."
+  },
+  "kestrel-owner:split|fulfillment-approver:split": {
+    "verdict": "notfound",
+    "text": "Purchases above $1,000 are approved by the budget owner of the requesting team, but I can't tell who that is for the Kestrel K2 integration.",
+    "citation": "Purchases above $1,000 need approval from the budget owner of the requesting team.",
+    "why": "Neither hop arrived whole. The ownership sentence was cut across chunks, so the model could not link the Kestrel K2 integration to Fulfillment Systems. The approver sentence was cut across chunks, so the model could not read who approves Fulfillment Systems purchases."
+  },
+  "kestrel-owner:split|fulfillment-approver:split@start": {
+    "verdict": "notfound",
+    "text": "Purchases above $1,000 are approved by the budget owner of the requesting team, but I can't tell who that is for the Kestrel K2 integration.",
+    "citation": "Purchases above $1,000 need approval from the budget owner of the requesting team.",
+    "why": "Neither hop arrived whole. The ownership sentence was cut across chunks, so the model could not link the Kestrel K2 integration to Fulfillment Systems. The approver sentence was cut across chunks, so the model could not read who approves Fulfillment Systems purchases."
+  },
+  "kestrel-owner:split|fulfillment-approver:split@middle": {
+    "verdict": "notfound",
+    "text": "Purchases above $1,000 are approved by the budget owner of the requesting team, but I can't tell who that is for the Kestrel K2 integration.",
+    "citation": "Purchases above $1,000 need approval from the budget owner of the requesting team.",
+    "why": "Neither hop arrived whole. The ownership sentence was cut across chunks, so the model could not link the Kestrel K2 integration to Fulfillment Systems. The approver sentence was cut across chunks, so the model could not read who approves Fulfillment Systems purchases."
+  },
+  "kestrel-owner:split|fulfillment-approver:split@end": {
+    "verdict": "notfound",
+    "text": "Purchases above $1,000 are approved by the budget owner of the requesting team, but I can't tell who that is for the Kestrel K2 integration.",
+    "citation": "Purchases above $1,000 need approval from the budget owner of the requesting team.",
+    "why": "Neither hop arrived whole. The ownership sentence was cut across chunks, so the model could not link the Kestrel K2 integration to Fulfillment Systems. The approver sentence was cut across chunks, so the model could not read who approves Fulfillment Systems purchases."
+  },
+  "kestrel-owner:split|fulfillment-approver:absent": {
+    "verdict": "notfound",
+    "text": "I can't find who owns the Kestrel K2 scanner integration or who approves its purchases in the documents provided.",
+    "citation": null,
+    "why": "Neither hop arrived whole. The ownership sentence was cut across chunks, so the model could not link the Kestrel K2 integration to Fulfillment Systems. The second hop, who approves Fulfillment Systems purchases, never reached the model."
+  },
+  "kestrel-owner:split|fulfillment-approver:absent@start": {
+    "verdict": "notfound",
+    "text": "I can't find who owns the Kestrel K2 scanner integration or who approves its purchases in the documents provided.",
+    "citation": null,
+    "why": "Neither hop arrived whole. The ownership sentence was cut across chunks, so the model could not link the Kestrel K2 integration to Fulfillment Systems. The second hop, who approves Fulfillment Systems purchases, never reached the model."
+  },
+  "kestrel-owner:split|fulfillment-approver:absent@middle": {
+    "verdict": "notfound",
+    "text": "I can't find who owns the Kestrel K2 scanner integration or who approves its purchases in the documents provided.",
+    "citation": null,
+    "why": "Neither hop arrived whole. The ownership sentence was cut across chunks, so the model could not link the Kestrel K2 integration to Fulfillment Systems. The second hop, who approves Fulfillment Systems purchases, never reached the model."
+  },
+  "kestrel-owner:split|fulfillment-approver:absent@end": {
+    "verdict": "notfound",
+    "text": "I can't find who owns the Kestrel K2 scanner integration or who approves its purchases in the documents provided.",
+    "citation": null,
+    "why": "Neither hop arrived whole. The ownership sentence was cut across chunks, so the model could not link the Kestrel K2 integration to Fulfillment Systems. The second hop, who approves Fulfillment Systems purchases, never reached the model."
+  },
+  "kestrel-owner:absent|fulfillment-approver:intact": {
+    "verdict": "notfound",
+    "text": "Purchases for the Fulfillment Systems team are approved by Tomasz Rehnquist, but I can't tell from these documents which team owns the Kestrel K2 integration.",
+    "citation": "Purchases for the Fulfillment Systems team are approved by Tomasz Rehnquist, Director of Warehouse Technology.",
+    "why": "The first hop, which team owns the Kestrel K2 integration, never reached the model."
+  },
+  "kestrel-owner:absent|fulfillment-approver:split": {
+    "verdict": "notfound",
+    "text": "Purchases above $1,000 are approved by the budget owner of the requesting team, but I can't tell who that is for the Kestrel K2 integration.",
+    "citation": "Purchases above $1,000 need approval from the budget owner of the requesting team.",
+    "why": "Neither hop arrived whole. The first hop, which team owns the Kestrel K2 integration, never reached the model. The approver sentence was cut across chunks, so the model could not read who approves Fulfillment Systems purchases."
+  },
+  "kestrel-owner:absent|fulfillment-approver:absent": {
+    "verdict": "notfound",
+    "text": "I can't find who owns the Kestrel K2 scanner integration or who approves its purchases in the documents provided.",
+    "citation": null,
+    "why": "Neither hop arrived whole. The first hop, which team owns the Kestrel K2 integration, never reached the model. The second hop, who approves Fulfillment Systems purchases, never reached the model."
+  }
+}

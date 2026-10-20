@@ -1,0 +1,41 @@
+:root {
+  /* paper/ink from the canvas prototype */
+  --paper: #f2efe7;
+  --card: #fbf8f0;
+  --ink: #231e16;
+  --muted: #6f675a;
+  --rule: #d9d1c1;
+  --acc: #ffb627;
+  --ok: #2a744b;
+  --bad: #b5361f;
+  --warn: #826309;
+  --hall: #b23a6c;
+
+  /* colorfigures palette: light / mid / dark */
+  --tomato-l: #ef6a4c;  --tomato-m: #cf5038;  --tomato-d: #4a2219;
+  --mint-l: #93d3b0;    --mint-m: #71b693;    --mint-d: #1f4034;
+  --cobalt-l: #76a0e2;  --cobalt-m: #5a82c6;  --cobalt-d: #1c2948;
+  --mustard-l: #f4b829; --mustard-m: #d49c1f; --mustard-d: #4e4a18;
+  --blush-l: #f3a6bb;   --blush-m: #d8869c;   --blush-d: #4b2430;
+
+  --font: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+  font: 16px/1.5 var(--font);
+}
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

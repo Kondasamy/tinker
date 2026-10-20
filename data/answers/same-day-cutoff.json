@@ -1,0 +1,59 @@
+{
+  "nocontext": {
+    "verdict": "madeup",
+    "text": "Same-day shipping is available for orders placed before 5 p.m. Eastern time, including weekends.",
+    "citation": null,
+    "why": "No documents reached the model, so it answered from general knowledge and made up a policy that sounds plausible."
+  },
+  "cutoff-2pm:intact": {
+    "verdict": "correct",
+    "text": "Orders for in-stock items placed before 2 p.m. Central time on a business day ship the same day; orders placed later ship the next business day.",
+    "citation": "Same-day shipping: orders for in-stock items placed before 2 p.m. Central time on a business day ship the same day; orders placed later ship the next business day."
+  },
+  "cutoff-2pm:intact@start": {
+    "verdict": "correct",
+    "text": "Orders for in-stock items placed before 2 p.m. Central time on a business day ship the same day; orders placed later ship the next business day.",
+    "citation": "Same-day shipping: orders for in-stock items placed before 2 p.m. Central time on a business day ship the same day; orders placed later ship the next business day."
+  },
+  "cutoff-2pm:intact@middle": {
+    "verdict": "notfound",
+    "text": "I can't find a same-day shipping cutoff in the documents provided.",
+    "citation": null,
+    "why": "The fact did reach the model, but in the middle of a long context, where models pay the least attention, and it was overlooked."
+  },
+  "cutoff-2pm:intact@end": {
+    "verdict": "correct",
+    "text": "Orders for in-stock items placed before 2 p.m. Central time on a business day ship the same day; orders placed later ship the next business day.",
+    "citation": "Same-day shipping: orders for in-stock items placed before 2 p.m. Central time on a business day ship the same day; orders placed later ship the next business day."
+  },
+  "cutoff-2pm:split": {
+    "verdict": "wrong",
+    "text": "Orders placed before 2 p.m. Central time on a business day ship the same day.",
+    "citation": null,
+    "why": "The start of the sentence was cut off, so the model dropped the condition that only in-stock items qualify."
+  },
+  "cutoff-2pm:split@start": {
+    "verdict": "wrong",
+    "text": "Orders placed before 2 p.m. Central time on a business day ship the same day.",
+    "citation": null,
+    "why": "The start of the sentence was cut off, so the model dropped the condition that only in-stock items qualify."
+  },
+  "cutoff-2pm:split@middle": {
+    "verdict": "wrong",
+    "text": "Orders placed before 2 p.m. Central time on a business day ship the same day.",
+    "citation": null,
+    "why": "The start of the sentence was cut off, so the model dropped the condition that only in-stock items qualify."
+  },
+  "cutoff-2pm:split@end": {
+    "verdict": "wrong",
+    "text": "Orders placed before 2 p.m. Central time on a business day ship the same day.",
+    "citation": null,
+    "why": "The start of the sentence was cut off, so the model dropped the condition that only in-stock items qualify."
+  },
+  "cutoff-2pm:absent": {
+    "verdict": "notfound",
+    "text": "The documents say orders ship on business days only, but I can't find a same-day cutoff time.",
+    "citation": null,
+    "why": "The same-day rule in the shipping policy never reached the model."
+  }
+}

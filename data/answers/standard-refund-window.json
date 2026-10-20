@@ -1,0 +1,59 @@
+{
+  "nocontext": {
+    "verdict": "madeup",
+    "text": "Standard customers have 14 days from purchase to ask for a refund.",
+    "citation": null,
+    "why": "No documents reached the model, so it answered from general knowledge and made up a policy that sounds plausible."
+  },
+  "refund-30-days:intact": {
+    "verdict": "correct",
+    "text": "Standard customers can request a refund within 30 days of delivery.",
+    "citation": "Standard customers may request a refund within 30 days of delivery."
+  },
+  "refund-30-days:intact@start": {
+    "verdict": "correct",
+    "text": "Standard customers can request a refund within 30 days of delivery.",
+    "citation": "Standard customers may request a refund within 30 days of delivery."
+  },
+  "refund-30-days:intact@middle": {
+    "verdict": "wrong",
+    "text": "Refunds are processed within seven business days and go back to the original payment method.",
+    "citation": "Card refunds usually appear within seven business days.",
+    "why": "The fact did reach the model, but in the middle of a long context, where models pay the least attention, and it was overlooked. The model answered with a different timeline instead."
+  },
+  "refund-30-days:intact@end": {
+    "verdict": "correct",
+    "text": "Standard customers can request a refund within 30 days of delivery.",
+    "citation": "Standard customers may request a refund within 30 days of delivery."
+  },
+  "refund-30-days:split": {
+    "verdict": "notfound",
+    "text": "The policy says standard customers may request a refund \"within 30\", but the text is cut off there, so I can't confirm 30 of what or counted from when.",
+    "citation": null,
+    "why": "The sentence was split across chunks, so the model saw the number without its unit or start date and hedged."
+  },
+  "refund-30-days:split@start": {
+    "verdict": "notfound",
+    "text": "The policy says standard customers may request a refund \"within 30\", but the text is cut off there, so I can't confirm 30 of what or counted from when.",
+    "citation": null,
+    "why": "The sentence was split across chunks, so the model saw the number without its unit or start date and hedged."
+  },
+  "refund-30-days:split@middle": {
+    "verdict": "notfound",
+    "text": "The policy says standard customers may request a refund \"within 30\", but the text is cut off there, so I can't confirm 30 of what or counted from when.",
+    "citation": null,
+    "why": "The sentence was split across chunks, so the model saw the number without its unit or start date and hedged."
+  },
+  "refund-30-days:split@end": {
+    "verdict": "notfound",
+    "text": "The policy says standard customers may request a refund \"within 30\", but the text is cut off there, so I can't confirm 30 of what or counted from when.",
+    "citation": null,
+    "why": "The sentence was split across chunks, so the model saw the number without its unit or start date and hedged."
+  },
+  "refund-30-days:absent": {
+    "verdict": "wrong",
+    "text": "Refunds are processed within seven business days and go back to the original payment method.",
+    "citation": "Card refunds usually appear within seven business days.",
+    "why": "The 30-day rule never reached the model, so it answered with a different timeline from the same policy."
+  }
+}

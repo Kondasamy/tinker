@@ -1,0 +1,761 @@
+{
+  "version": 1,
+  "models": {
+    "embedding": {
+      "id": "Xenova/all-MiniLM-L6-v2",
+      "pooling": "mean",
+      "normalize": true,
+      "dims": 384
+    },
+    "reranker": {
+      "id": "Xenova/ms-marco-MiniLM-L-6-v2",
+      "output": "logit"
+    }
+  },
+  "quantization": {
+    "vectors": {
+      "type": "int8",
+      "scale": 0.00225054372952679
+    },
+    "scores": {
+      "type": "int16",
+      "scale": 0.001
+    },
+    "xy": {
+      "type": "int16",
+      "scale": "per file header"
+    }
+  },
+  "corpus": {
+    "file": "corpus.json",
+    "docs": 47,
+    "words": 7554
+  },
+  "queries": {
+    "file": "queries.bin",
+    "items": [
+      {
+        "questionId": "refund-enterprise",
+        "kind": "query",
+        "text": "Can enterprise customers get a refund?"
+      },
+      {
+        "questionId": "refund-enterprise",
+        "kind": "rewrite",
+        "text": "Does the refund policy apply to enterprise contracts?"
+      },
+      {
+        "questionId": "standard-refund-window",
+        "kind": "query",
+        "text": "How long do standard customers have to ask for a refund?"
+      },
+      {
+        "questionId": "dock-door-red-light",
+        "kind": "query",
+        "text": "Can I open a dock door when its sensor shows a red light?"
+      },
+      {
+        "questionId": "stale-hotel-limit",
+        "kind": "query",
+        "text": "What is the hotel nightly limit for business travel?"
+      },
+      {
+        "questionId": "stale-hotel-limit",
+        "kind": "rewrite",
+        "text": "What is the current lodging reimbursement cap per night on work trips?"
+      },
+      {
+        "questionId": "card-data-retention",
+        "kind": "query",
+        "text": "How long does Larkspur keep customer payment card data?"
+      },
+      {
+        "questionId": "card-data-retention",
+        "kind": "rewrite",
+        "text": "How long are the last four digits of a customer's card stored after an order?"
+      },
+      {
+        "questionId": "same-day-cutoff",
+        "kind": "query",
+        "text": "What is the cutoff time for same-day shipping?"
+      },
+      {
+        "questionId": "same-day-cutoff",
+        "kind": "rewrite",
+        "text": "Until what time can I order in-stock items and still have them ship the same day?"
+      },
+      {
+        "questionId": "vague-outage",
+        "kind": "query",
+        "text": "it's broken again, who do I even call?"
+      },
+      {
+        "questionId": "vague-outage",
+        "kind": "rewrite",
+        "text": "Who do I contact about a Portal outage outside business hours?"
+      },
+      {
+        "questionId": "payment-methods",
+        "kind": "query",
+        "text": "What payment methods does the Portal accept?"
+      },
+      {
+        "questionId": "kestrel-purchase-approver",
+        "kind": "query",
+        "text": "Who approves purchases for the team that owns the Kestrel K2 scanner integration?"
+      },
+      {
+        "questionId": "kestrel-purchase-approver",
+        "kind": "rewrite",
+        "text": "Which team owns the Kestrel K2 scanner integration?"
+      },
+      {
+        "questionId": "kestrel-purchase-approver",
+        "kind": "rewrite",
+        "text": "Who approves purchases for the Fulfillment Systems team?"
+      },
+      {
+        "questionId": "k2-volume-price",
+        "kind": "query",
+        "text": "How much does a Kestrel K2 scanner cost per unit when ordering 50 or more?"
+      },
+      {
+        "questionId": "k2-volume-price",
+        "kind": "rewrite",
+        "text": "Kestrel K2 handheld scanner price for 50+ units"
+      },
+      {
+        "questionId": "dock-sensor-warranty",
+        "kind": "query",
+        "text": "How long is the warranty on the dock door sensor?"
+      },
+      {
+        "questionId": "customer-success-lead",
+        "kind": "query",
+        "text": "Who leads the Customer Success team?"
+      }
+    ]
+  },
+  "configs": [
+    {
+      "file": "fixed-8-0.bin",
+      "strategy": "fixed",
+      "size": 8,
+      "overlap": 0,
+      "chunks": 963,
+      "bytes": 422566
+    },
+    {
+      "file": "fixed-8-10.bin",
+      "strategy": "fixed",
+      "size": 8,
+      "overlap": 10,
+      "chunks": 1093,
+      "bytes": 478986
+    },
+    {
+      "file": "fixed-8-25.bin",
+      "strategy": "fixed",
+      "size": 8,
+      "overlap": 25,
+      "chunks": 1264,
+      "bytes": 553200
+    },
+    {
+      "file": "fixed-8-50.bin",
+      "strategy": "fixed",
+      "size": 8,
+      "overlap": 50,
+      "chunks": 1859,
+      "bytes": 811430
+    },
+    {
+      "file": "fixed-16-0.bin",
+      "strategy": "fixed",
+      "size": 16,
+      "overlap": 0,
+      "chunks": 492,
+      "bytes": 218152
+    },
+    {
+      "file": "fixed-16-10.bin",
+      "strategy": "fixed",
+      "size": 16,
+      "overlap": 10,
+      "chunks": 552,
+      "bytes": 244192
+    },
+    {
+      "file": "fixed-16-25.bin",
+      "strategy": "fixed",
+      "size": 16,
+      "overlap": 25,
+      "chunks": 636,
+      "bytes": 280648
+    },
+    {
+      "file": "fixed-16-50.bin",
+      "strategy": "fixed",
+      "size": 16,
+      "overlap": 50,
+      "chunks": 916,
+      "bytes": 402168
+    },
+    {
+      "file": "fixed-24-0.bin",
+      "strategy": "fixed",
+      "size": 24,
+      "overlap": 0,
+      "chunks": 338,
+      "bytes": 151316
+    },
+    {
+      "file": "fixed-24-10.bin",
+      "strategy": "fixed",
+      "size": 24,
+      "overlap": 10,
+      "chunks": 361,
+      "bytes": 161298
+    },
+    {
+      "file": "fixed-24-25.bin",
+      "strategy": "fixed",
+      "size": 24,
+      "overlap": 25,
+      "chunks": 423,
+      "bytes": 188206
+    },
+    {
+      "file": "fixed-24-50.bin",
+      "strategy": "fixed",
+      "size": 24,
+      "overlap": 50,
+      "chunks": 604,
+      "bytes": 266760
+    },
+    {
+      "file": "fixed-32-0.bin",
+      "strategy": "fixed",
+      "size": 32,
+      "overlap": 0,
+      "chunks": 257,
+      "bytes": 116162
+    },
+    {
+      "file": "fixed-32-10.bin",
+      "strategy": "fixed",
+      "size": 32,
+      "overlap": 10,
+      "chunks": 280,
+      "bytes": 126144
+    },
+    {
+      "file": "fixed-32-25.bin",
+      "strategy": "fixed",
+      "size": 32,
+      "overlap": 25,
+      "chunks": 320,
+      "bytes": 143504
+    },
+    {
+      "file": "fixed-32-50.bin",
+      "strategy": "fixed",
+      "size": 32,
+      "overlap": 50,
+      "chunks": 445,
+      "bytes": 197754
+    },
+    {
+      "file": "fixed-48-0.bin",
+      "strategy": "fixed",
+      "size": 48,
+      "overlap": 0,
+      "chunks": 179,
+      "bytes": 82310
+    },
+    {
+      "file": "fixed-48-10.bin",
+      "strategy": "fixed",
+      "size": 48,
+      "overlap": 10,
+      "chunks": 193,
+      "bytes": 88386
+    },
+    {
+      "file": "fixed-48-25.bin",
+      "strategy": "fixed",
+      "size": 48,
+      "overlap": 25,
+      "chunks": 217,
+      "bytes": 98802
+    },
+    {
+      "file": "fixed-48-50.bin",
+      "strategy": "fixed",
+      "size": 48,
+      "overlap": 50,
+      "chunks": 291,
+      "bytes": 130918
+    },
+    {
+      "file": "fixed-64-0.bin",
+      "strategy": "fixed",
+      "size": 64,
+      "overlap": 0,
+      "chunks": 140,
+      "bytes": 65384
+    },
+    {
+      "file": "fixed-64-10.bin",
+      "strategy": "fixed",
+      "size": 64,
+      "overlap": 10,
+      "chunks": 149,
+      "bytes": 69290
+    },
+    {
+      "file": "fixed-64-25.bin",
+      "strategy": "fixed",
+      "size": 64,
+      "overlap": 25,
+      "chunks": 167,
+      "bytes": 77102
+    },
+    {
+      "file": "fixed-64-50.bin",
+      "strategy": "fixed",
+      "size": 64,
+      "overlap": 50,
+      "chunks": 210,
+      "bytes": 95764
+    },
+    {
+      "file": "fixed-96-0.bin",
+      "strategy": "fixed",
+      "size": 96,
+      "overlap": 0,
+      "chunks": 105,
+      "bytes": 50194
+    },
+    {
+      "file": "fixed-96-10.bin",
+      "strategy": "fixed",
+      "size": 96,
+      "overlap": 10,
+      "chunks": 108,
+      "bytes": 51496
+    },
+    {
+      "file": "fixed-96-25.bin",
+      "strategy": "fixed",
+      "size": 96,
+      "overlap": 25,
+      "chunks": 114,
+      "bytes": 54100
+    },
+    {
+      "file": "fixed-96-50.bin",
+      "strategy": "fixed",
+      "size": 96,
+      "overlap": 50,
+      "chunks": 132,
+      "bytes": 61912
+    },
+    {
+      "file": "sentence-8.bin",
+      "strategy": "sentence",
+      "size": 8,
+      "chunks": 1232,
+      "bytes": 539312
+    },
+    {
+      "file": "sentence-16.bin",
+      "strategy": "sentence",
+      "size": 16,
+      "chunks": 691,
+      "bytes": 304518
+    },
+    {
+      "file": "sentence-24.bin",
+      "strategy": "sentence",
+      "size": 24,
+      "chunks": 440,
+      "bytes": 195584
+    },
+    {
+      "file": "sentence-32.bin",
+      "strategy": "sentence",
+      "size": 32,
+      "chunks": 313,
+      "bytes": 140466
+    },
+    {
+      "file": "sentence-48.bin",
+      "strategy": "sentence",
+      "size": 48,
+      "chunks": 202,
+      "bytes": 92292
+    },
+    {
+      "file": "sentence-64.bin",
+      "strategy": "sentence",
+      "size": 64,
+      "chunks": 151,
+      "bytes": 70158
+    },
+    {
+      "file": "sentence-96.bin",
+      "strategy": "sentence",
+      "size": 96,
+      "chunks": 109,
+      "bytes": 51930
+    }
+  ],
+  "lattice": [
+    {
+      "strategy": "fixed",
+      "size": 8,
+      "overlap": 0,
+      "file": "fixed-8-0.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 8,
+      "overlap": 10,
+      "file": "fixed-8-10.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 8,
+      "overlap": 25,
+      "file": "fixed-8-25.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 8,
+      "overlap": 50,
+      "file": "fixed-8-50.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 8,
+      "overlap": 0,
+      "file": "sentence-8.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 8,
+      "overlap": 10,
+      "file": "sentence-8.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 8,
+      "overlap": 25,
+      "file": "sentence-8.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 8,
+      "overlap": 50,
+      "file": "sentence-8.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 16,
+      "overlap": 0,
+      "file": "fixed-16-0.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 16,
+      "overlap": 10,
+      "file": "fixed-16-10.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 16,
+      "overlap": 25,
+      "file": "fixed-16-25.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 16,
+      "overlap": 50,
+      "file": "fixed-16-50.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 16,
+      "overlap": 0,
+      "file": "sentence-16.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 16,
+      "overlap": 10,
+      "file": "sentence-16.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 16,
+      "overlap": 25,
+      "file": "sentence-16.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 16,
+      "overlap": 50,
+      "file": "sentence-16.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 24,
+      "overlap": 0,
+      "file": "fixed-24-0.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 24,
+      "overlap": 10,
+      "file": "fixed-24-10.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 24,
+      "overlap": 25,
+      "file": "fixed-24-25.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 24,
+      "overlap": 50,
+      "file": "fixed-24-50.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 24,
+      "overlap": 0,
+      "file": "sentence-24.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 24,
+      "overlap": 10,
+      "file": "sentence-24.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 24,
+      "overlap": 25,
+      "file": "sentence-24.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 24,
+      "overlap": 50,
+      "file": "sentence-24.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 32,
+      "overlap": 0,
+      "file": "fixed-32-0.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 32,
+      "overlap": 10,
+      "file": "fixed-32-10.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 32,
+      "overlap": 25,
+      "file": "fixed-32-25.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 32,
+      "overlap": 50,
+      "file": "fixed-32-50.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 32,
+      "overlap": 0,
+      "file": "sentence-32.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 32,
+      "overlap": 10,
+      "file": "sentence-32.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 32,
+      "overlap": 25,
+      "file": "sentence-32.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 32,
+      "overlap": 50,
+      "file": "sentence-32.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 48,
+      "overlap": 0,
+      "file": "fixed-48-0.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 48,
+      "overlap": 10,
+      "file": "fixed-48-10.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 48,
+      "overlap": 25,
+      "file": "fixed-48-25.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 48,
+      "overlap": 50,
+      "file": "fixed-48-50.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 48,
+      "overlap": 0,
+      "file": "sentence-48.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 48,
+      "overlap": 10,
+      "file": "sentence-48.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 48,
+      "overlap": 25,
+      "file": "sentence-48.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 48,
+      "overlap": 50,
+      "file": "sentence-48.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 64,
+      "overlap": 0,
+      "file": "fixed-64-0.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 64,
+      "overlap": 10,
+      "file": "fixed-64-10.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 64,
+      "overlap": 25,
+      "file": "fixed-64-25.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 64,
+      "overlap": 50,
+      "file": "fixed-64-50.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 64,
+      "overlap": 0,
+      "file": "sentence-64.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 64,
+      "overlap": 10,
+      "file": "sentence-64.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 64,
+      "overlap": 25,
+      "file": "sentence-64.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 64,
+      "overlap": 50,
+      "file": "sentence-64.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 96,
+      "overlap": 0,
+      "file": "fixed-96-0.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 96,
+      "overlap": 10,
+      "file": "fixed-96-10.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 96,
+      "overlap": 25,
+      "file": "fixed-96-25.bin"
+    },
+    {
+      "strategy": "fixed",
+      "size": 96,
+      "overlap": 50,
+      "file": "fixed-96-50.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 96,
+      "overlap": 0,
+      "file": "sentence-96.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 96,
+      "overlap": 10,
+      "file": "sentence-96.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 96,
+      "overlap": 25,
+      "file": "sentence-96.bin"
+    },
+    {
+      "strategy": "sentence",
+      "size": 96,
+      "overlap": 50,
+      "file": "sentence-96.bin"
+    }
+  ],
+  "budgets": {
+    "corpusWords": {
+      "min": 7000,
+      "max": 8500
+    },
+    "perFileBytes": 900000,
+    "totalBytes": 8000000
+  },
+  "totalBytes": 7158410
+}

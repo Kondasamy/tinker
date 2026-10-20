@@ -1,0 +1,111 @@
+{
+  "nocontext": {
+    "verdict": "madeup",
+    "text": "The hotel limit for business travel is $250 per night in all cities, including taxes.",
+    "citation": null,
+    "why": "No documents reached the model, so it answered from general knowledge and made up a policy that sounds plausible."
+  },
+  "lodging-cap-2025:intact": {
+    "verdict": "correct",
+    "text": "Lodging on work trips is reimbursed up to $210 per night before taxes in most cities, and up to $290 per night in high-cost cities listed on the travel desk page.",
+    "citation": "Lodging on work trips is reimbursed up to $210 per night before taxes in most cities and up to $290 per night in high-cost cities listed on the travel desk page."
+  },
+  "lodging-cap-2025:intact+stale": {
+    "verdict": "correct",
+    "text": "Under the 2025 travel policy, lodging is reimbursed up to $210 per night before taxes in most cities and up to $290 in high-cost cities. The older $150 limit comes from the 2018 policy and no longer applies.",
+    "citation": "Lodging on work trips is reimbursed up to $210 per night before taxes in most cities and up to $290 per night in high-cost cities listed on the travel desk page."
+  },
+  "lodging-cap-2025:intact@start": {
+    "verdict": "correct",
+    "text": "Lodging on work trips is reimbursed up to $210 per night before taxes in most cities, and up to $290 per night in high-cost cities listed on the travel desk page.",
+    "citation": "Lodging on work trips is reimbursed up to $210 per night before taxes in most cities and up to $290 per night in high-cost cities listed on the travel desk page."
+  },
+  "lodging-cap-2025:intact@start+stale": {
+    "verdict": "correct",
+    "text": "Under the 2025 travel policy, lodging is reimbursed up to $210 per night before taxes in most cities and up to $290 in high-cost cities. The older $150 limit comes from the 2018 policy and no longer applies.",
+    "citation": "Lodging on work trips is reimbursed up to $210 per night before taxes in most cities and up to $290 per night in high-cost cities listed on the travel desk page."
+  },
+  "lodging-cap-2025:intact@middle": {
+    "verdict": "notfound",
+    "text": "I can't find a clear nightly hotel limit in the documents provided.",
+    "citation": null,
+    "why": "The fact did reach the model, but in the middle of a long context, where models pay the least attention, and it was overlooked."
+  },
+  "lodging-cap-2025:intact@middle+stale": {
+    "verdict": "wrong",
+    "text": "The hotel limit for business travel is $150 per night, including taxes.",
+    "citation": "Hotel nightly limit for business travel: the nightly hotel limit for business travel is $150 per night, including taxes.",
+    "why": "The 2018 policy came ahead of the 2025 one in the context, and the model went with the first limit it read."
+  },
+  "lodging-cap-2025:intact@end": {
+    "verdict": "correct",
+    "text": "Lodging on work trips is reimbursed up to $210 per night before taxes in most cities, and up to $290 per night in high-cost cities listed on the travel desk page.",
+    "citation": "Lodging on work trips is reimbursed up to $210 per night before taxes in most cities and up to $290 per night in high-cost cities listed on the travel desk page."
+  },
+  "lodging-cap-2025:intact@end+stale": {
+    "verdict": "wrong",
+    "text": "The hotel limit for business travel is $150 per night, including taxes.",
+    "citation": "Hotel nightly limit for business travel: the nightly hotel limit for business travel is $150 per night, including taxes.",
+    "why": "The 2018 policy came ahead of the 2025 one in the context, and the model went with the first limit it read."
+  },
+  "lodging-cap-2025:split": {
+    "verdict": "notfound",
+    "text": "The documents mention $210 per night before taxes in most cities and $290 in high-cost cities, but the passage is cut off, so I can't confirm those are the hotel limits.",
+    "citation": null,
+    "why": "The sentence was split, so the model saw the amounts without what they apply to and hedged."
+  },
+  "lodging-cap-2025:split+stale": {
+    "verdict": "wrong",
+    "text": "The hotel limit for business travel is $150 per night, including taxes.",
+    "citation": "Hotel nightly limit for business travel: the nightly hotel limit for business travel is $150 per night, including taxes.",
+    "why": "The 2025 limit was cut across chunks while the 2018 sentence arrived whole, so the model used the old figure."
+  },
+  "lodging-cap-2025:split@start": {
+    "verdict": "notfound",
+    "text": "The documents mention $210 per night before taxes in most cities and $290 in high-cost cities, but the passage is cut off, so I can't confirm those are the hotel limits.",
+    "citation": null,
+    "why": "The sentence was split, so the model saw the amounts without what they apply to and hedged."
+  },
+  "lodging-cap-2025:split@start+stale": {
+    "verdict": "wrong",
+    "text": "The hotel limit for business travel is $150 per night, including taxes.",
+    "citation": "Hotel nightly limit for business travel: the nightly hotel limit for business travel is $150 per night, including taxes.",
+    "why": "The 2025 limit was cut across chunks while the 2018 sentence arrived whole, so the model used the old figure."
+  },
+  "lodging-cap-2025:split@middle": {
+    "verdict": "notfound",
+    "text": "The documents mention $210 per night before taxes in most cities and $290 in high-cost cities, but the passage is cut off, so I can't confirm those are the hotel limits.",
+    "citation": null,
+    "why": "The sentence was split, so the model saw the amounts without what they apply to and hedged."
+  },
+  "lodging-cap-2025:split@middle+stale": {
+    "verdict": "wrong",
+    "text": "The hotel limit for business travel is $150 per night, including taxes.",
+    "citation": "Hotel nightly limit for business travel: the nightly hotel limit for business travel is $150 per night, including taxes.",
+    "why": "The 2025 limit was cut across chunks while the 2018 sentence arrived whole, so the model used the old figure."
+  },
+  "lodging-cap-2025:split@end": {
+    "verdict": "notfound",
+    "text": "The documents mention $210 per night before taxes in most cities and $290 in high-cost cities, but the passage is cut off, so I can't confirm those are the hotel limits.",
+    "citation": null,
+    "why": "The sentence was split, so the model saw the amounts without what they apply to and hedged."
+  },
+  "lodging-cap-2025:split@end+stale": {
+    "verdict": "wrong",
+    "text": "The hotel limit for business travel is $150 per night, including taxes.",
+    "citation": "Hotel nightly limit for business travel: the nightly hotel limit for business travel is $150 per night, including taxes.",
+    "why": "The 2025 limit was cut across chunks while the 2018 sentence arrived whole, so the model used the old figure."
+  },
+  "lodging-cap-2025:absent": {
+    "verdict": "notfound",
+    "text": "I can't find a nightly hotel limit in the documents provided. The travel desk should be able to confirm it.",
+    "citation": null,
+    "why": "Neither travel policy reached the model."
+  },
+  "lodging-cap-2025:absent+stale": {
+    "verdict": "wrong",
+    "text": "The hotel limit for business travel is $150 per night, including taxes.",
+    "citation": "Hotel nightly limit for business travel: the nightly hotel limit for business travel is $150 per night, including taxes.",
+    "why": "Only the retired 2018 travel policy reached the model, so it gave an out-of-date limit."
+  }
+}

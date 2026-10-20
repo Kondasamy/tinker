@@ -1,0 +1,59 @@
+{
+  "nocontext": {
+    "verdict": "madeup",
+    "text": "Yes. A red light just means the door is locked; press the override button on the control panel to open it.",
+    "citation": null,
+    "why": "No documents reached the model, so it answered from general knowledge and made up a policy that sounds plausible."
+  },
+  "never-open-red:intact": {
+    "verdict": "correct",
+    "text": "No. Never open a dock door showing a red light. The red light means no trailer is in place at that door.",
+    "citation": "Never open a dock door showing a red light."
+  },
+  "never-open-red:intact@start": {
+    "verdict": "correct",
+    "text": "No. Never open a dock door showing a red light. The red light means no trailer is in place at that door.",
+    "citation": "Never open a dock door showing a red light."
+  },
+  "never-open-red:intact@middle": {
+    "verdict": "notfound",
+    "text": "The documents say a red light means no trailer is in place, but I couldn't find a clear rule on whether you may open the door.",
+    "citation": "Dock doors: dock door sensors show a red light when a trailer is not in place.",
+    "why": "The fact did reach the model, but in the middle of a long context, where models pay the least attention, and it was overlooked."
+  },
+  "never-open-red:intact@end": {
+    "verdict": "correct",
+    "text": "No. Never open a dock door showing a red light. The red light means no trailer is in place at that door.",
+    "citation": "Never open a dock door showing a red light."
+  },
+  "never-open-red:split": {
+    "verdict": "wrong",
+    "text": "Yes. A red light only means no trailer is in place at that door, so check the bay is clear and then open it.",
+    "citation": "Dock doors: dock door sensors show a red light when a trailer is not in place.",
+    "why": "The word \"Never\" was cut into a different chunk, so the model saw what red means but not the rule against opening the door."
+  },
+  "never-open-red:split@start": {
+    "verdict": "wrong",
+    "text": "Yes. A red light only means no trailer is in place at that door, so check the bay is clear and then open it.",
+    "citation": "Dock doors: dock door sensors show a red light when a trailer is not in place.",
+    "why": "The word \"Never\" was cut into a different chunk, so the model saw what red means but not the rule against opening the door."
+  },
+  "never-open-red:split@middle": {
+    "verdict": "wrong",
+    "text": "Yes. A red light only means no trailer is in place at that door, so check the bay is clear and then open it.",
+    "citation": "Dock doors: dock door sensors show a red light when a trailer is not in place.",
+    "why": "The word \"Never\" was cut into a different chunk, so the model saw what red means but not the rule against opening the door."
+  },
+  "never-open-red:split@end": {
+    "verdict": "wrong",
+    "text": "Yes. A red light only means no trailer is in place at that door, so check the bay is clear and then open it.",
+    "citation": "Dock doors: dock door sensors show a red light when a trailer is not in place.",
+    "why": "The word \"Never\" was cut into a different chunk, so the model saw what red means but not the rule against opening the door."
+  },
+  "never-open-red:absent": {
+    "verdict": "notfound",
+    "text": "I can't find guidance on dock door sensor lights in the documents provided. Ask your shift lead before opening the door.",
+    "citation": null,
+    "why": "The safety rule about red lights never reached the model."
+  }
+}

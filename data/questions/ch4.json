@@ -1,0 +1,25 @@
+[
+  {
+    "id": "standard-refund-window",
+    "chapter": 4,
+    "query": "How long do standard customers have to ask for a refund?",
+    "rewrites": [],
+    "keyFacts": [
+      { "id": "refund-30-days", "sentence": "Standard customers may request a refund within 30 days of delivery." }
+    ],
+    "goldSentences": ["Standard customers may request a refund within 30 days of delivery."]
+  },
+  {
+    "id": "dock-door-red-light",
+    "chapter": 4,
+    "query": "Can I open a dock door when its sensor shows a red light?",
+    "rewrites": [],
+    "keyFacts": [
+      { "id": "never-open-red", "sentence": "Never open a dock door showing a red light." }
+    ],
+    "goldSentences": [
+      "Dock doors: dock door sensors show a red light when a trailer is not in place.",
+      "Never open a dock door showing a red light."
+    ]
+  }
+]

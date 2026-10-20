@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 340" role="img" aria-labelledby="t d" font-family="sans-serif" font-size="12">
+  <title id="t">Larkspur Supply Co. organization chart, January 2025</title>
+  <desc id="d">CEO Marguerite Ellison-Day; reports: CRO Dmitri Halvorsen (Sales, Customer Success led by Ingrid Vasquez-Lund), Head of Engineering Adaeze Okonkwo-Hale (Portal Engineering, Fulfillment Systems in Warehouse Technology under Tomasz Rehnquist), Head of Operations Lucía Ferreira-Tan (Riverbend, Eastgate, Support), Head of People Operations Bram Osei.</desc>
+  <g fill="#fff8ec" stroke="#2b2b2b" stroke-width="1.5">
+    <rect x="300" y="10" width="160" height="44" rx="6"/>
+    <rect x="10" y="110" width="170" height="44" rx="6"/>
+    <rect x="200" y="110" width="170" height="44" rx="6"/>
+    <rect x="390" y="110" width="170" height="44" rx="6"/>
+    <rect x="580" y="110" width="170" height="44" rx="6"/>
+    <rect x="10" y="210" width="170" height="80" rx="6"/>
+    <rect x="200" y="210" width="170" height="80" rx="6"/>
+    <rect x="390" y="210" width="170" height="80" rx="6"/>
+    <rect x="580" y="210" width="170" height="80" rx="6"/>
+  </g>
+  <g stroke="#2b2b2b" fill="none">
+    <path d="M380 54v28H95v28M285 82v28M475 82v28M380 82h285v28M95 154v56M285 154v56M475 154v56M665 154v56"/>
+  </g>
+  <g fill="#2b2b2b" text-anchor="middle">
+    <text x="380" y="30">Marguerite Ellison-Day</text><text x="380" y="46">Chief Executive Officer</text>
+    <text x="95" y="130">Dmitri Halvorsen</text><text x="95" y="146">Chief Revenue Officer</text>
+    <text x="285" y="130">Adaeze Okonkwo-Hale</text><text x="285" y="146">Head of Engineering</text>
+    <text x="475" y="130">Lucía Ferreira-Tan</text><text x="475" y="146">Head of Operations</text>
+    <text x="665" y="130">Bram Osei</text><text x="665" y="146">Head of People Operations</text>
+    <text x="95" y="232">Sales</text><text x="95" y="252">Customer Success</text><text x="95" y="268">(Ingrid Vasquez-Lund)</text>
+    <text x="285" y="232">Portal Engineering</text><text x="285" y="252">Warehouse Technology</text><text x="285" y="268">(Tomasz Rehnquist)</text><text x="285" y="284">Fulfillment Systems</text>
+    <text x="475" y="232">Riverbend warehouse</text><text x="475" y="252">Eastgate warehouse</text><text x="475" y="272">Support</text>
+    <text x="665" y="232">Recruiting</text><text x="665" y="252">Payroll</text><text x="665" y="272">Travel desk</text>
+  </g>
+</svg>

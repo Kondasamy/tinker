@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import History from '../../content/rag/01-history';
+import WhyNotStuffIt from '../../content/rag/02-why-not-stuff-it';
+import WhatIsRag from '../../content/rag/03-what-is-rag';
+import Layers from '../../content/rag/04-layers';
+import Accuracy from '../../content/rag/05-accuracy';
+import Types from '../../content/rag/06-types';
+import Sandbox from '../../content/rag/07-sandbox';
+import { CHAPTERS } from '../../lib/chapters';
+
+export function getStaticPaths() {
+  return CHAPTERS.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout chapter={chapter} title={title}>
+  {/* one line per written chapter; hydration needs a static component, so no lookup table */}
+  {chapter === '01-history' ? <History client:load />
+    : chapter === '02-why-not-stuff-it' ? <WhyNotStuffIt client:load />
+    : chapter === '03-what-is-rag' ? <WhatIsRag client:load />
+    : chapter === '04-layers' ? <Layers client:load />
+    : chapter === '05-accuracy' ? <Accuracy client:load />
+    : chapter === '06-types' ? <Types client:load />
+    : <Sandbox client:load />}
+</ChapterLayout>

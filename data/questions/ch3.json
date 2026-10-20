@@ -1,0 +1,15 @@
+[
+  {
+    "id": "refund-enterprise",
+    "chapter": 3,
+    "query": "Can enterprise customers get a refund?",
+    "rewrites": ["Does the refund policy apply to enterprise contracts?"],
+    "keyFacts": [
+      { "id": "enterprise-excluded", "sentence": "The refund policy does NOT apply to enterprise contracts." }
+    ],
+    "goldSentences": [
+      "The refund policy does NOT apply to enterprise contracts.",
+      "Enterprise customers who want money back must raise a billing dispute with their account manager, who reviews it within ten business days and answers in writing."
+    ]
+  }
+]

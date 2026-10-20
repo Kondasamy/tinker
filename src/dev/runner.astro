@@ -1,0 +1,8 @@
+---
+// Test fixture: the step runner, drawer and progress on a two-step script (tests/e2e/layout.spec.ts).
+import ChapterLayout from '../layouts/ChapterLayout.astro';
+import RunnerFixture from '../components/story/RunnerFixture';
+---
+<ChapterLayout chapter="dev-runner" title="Step runner (dev)">
+  <RunnerFixture client:load />
+</ChapterLayout>

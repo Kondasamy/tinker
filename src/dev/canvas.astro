@@ -1,0 +1,12 @@
+---
+// Dev-only eyeball page: the canvas standalone, track mode with chapters 3–4 unlocked, toggle to the workbench.
+import ChapterLayout from '../layouts/ChapterLayout.astro';
+import CanvasDemo from '../components/canvas/CanvasDemo';
+---
+<ChapterLayout chapter="04-layers" title="Canvas (dev)">
+  <CanvasDemo client:load />
+</ChapterLayout>
+<style is:global>
+  .demo-out { margin-top: 16px; font-size: 13px; max-width: 70ch; }
+  .demo-out p { margin: 4px 0; }
+</style>

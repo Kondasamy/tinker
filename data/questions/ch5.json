@@ -1,0 +1,69 @@
+[
+  {
+    "id": "stale-hotel-limit",
+    "chapter": 5,
+    "query": "What is the hotel nightly limit for business travel?",
+    "rewrites": ["What is the current lodging reimbursement cap per night on work trips?"],
+    "keyFacts": [
+      { "id": "lodging-cap-2025", "sentence": "Lodging on work trips is reimbursed up to $210 per night before taxes in most cities and up to $290 per night in high-cost cities listed on the travel desk page." }
+    ],
+    "goldSentences": ["Lodging on work trips is reimbursed up to $210 per night before taxes in most cities and up to $290 per night in high-cost cities listed on the travel desk page."],
+    "staleSentences": ["Hotel nightly limit for business travel: the nightly hotel limit for business travel is $150 per night, including taxes."],
+    "filterPresets": [
+      { "id": "current", "label": "Current documents only (2025 and later)", "filter": { "year": { "gte": 2025 } } }
+    ]
+  },
+  {
+    "id": "card-data-retention",
+    "chapter": 5,
+    "query": "How long does Larkspur keep customer payment card data?",
+    "rewrites": ["How long are the last four digits of a customer's card stored after an order?"],
+    "keyFacts": [
+      { "id": "card-90-days", "sentence": "Card numbers are passed directly to our payment processor, and we keep only the last four digits and the expiry month for 90 days after the last order." }
+    ],
+    "goldSentences": [
+      "Payment data: Larkspur never stores full card numbers.",
+      "Card numbers are passed directly to our payment processor, and we keep only the last four digits and the expiry month for 90 days after the last order."
+    ],
+    "distractorSentences": ["We discussed how long Larkspur keeps customer payment card data samples in the demo environment and agreed to keep those payment card data samples for two years so sales demos look realistic."],
+    "filterPresets": [
+      { "id": "policies", "label": "Policies only", "filter": { "type": ["policy"] } }
+    ]
+  },
+  {
+    "id": "same-day-cutoff",
+    "chapter": 5,
+    "query": "What is the cutoff time for same-day shipping?",
+    "rewrites": ["Until what time can I order in-stock items and still have them ship the same day?"],
+    "keyFacts": [
+      { "id": "cutoff-2pm", "sentence": "Same-day shipping: orders for in-stock items placed before 2 p.m. Central time on a business day ship the same day; orders placed later ship the next business day." }
+    ],
+    "goldSentences": ["Same-day shipping: orders for in-stock items placed before 2 p.m. Central time on a business day ship the same day; orders placed later ship the next business day."]
+  },
+  {
+    "id": "vague-outage",
+    "chapter": 5,
+    "query": "it's broken again, who do I even call?",
+    "rewrites": ["Who do I contact about a Portal outage outside business hours?"],
+    "keyFacts": [
+      { "id": "duty-desk-4410", "sentence": "For Portal outages outside business hours, page the on-call engineer through the Duty Desk line at extension 4410." }
+    ],
+    "goldSentences": ["For Portal outages outside business hours, page the on-call engineer through the Duty Desk line at extension 4410."]
+  },
+  {
+    "id": "payment-methods",
+    "chapter": 5,
+    "query": "What payment methods does the Portal accept?",
+    "rewrites": [],
+    "keyFacts": [
+      { "id": "cards-and-pos", "sentence": "The Portal accepts company credit cards and purchase orders for approved accounts." },
+      { "id": "bank-transfer", "sentence": "Yes, bank transfer is available for invoices over $2,000; the bank details are printed on each invoice." },
+      { "id": "digital-wallet", "sentence": "Digital wallet payments were added in 2025 for card-paying customers." }
+    ],
+    "goldSentences": [
+      "The Portal accepts company credit cards and purchase orders for approved accounts.",
+      "Yes, bank transfer is available for invoices over $2,000; the bank details are printed on each invoice.",
+      "Digital wallet payments were added in 2025 for card-paying customers."
+    ]
+  }
+]

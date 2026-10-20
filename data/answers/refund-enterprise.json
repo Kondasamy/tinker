@@ -1,0 +1,59 @@
+{
+  "nocontext": {
+    "verdict": "madeup",
+    "text": "Yes. Enterprise customers can get a full refund within 60 days of purchase, no questions asked.",
+    "citation": null,
+    "why": "No documents reached the model, so it answered from general knowledge and made up a policy that sounds plausible."
+  },
+  "enterprise-excluded:intact": {
+    "verdict": "correct",
+    "text": "No. The refund policy does not apply to enterprise contracts. Enterprise customers who want money back raise a billing dispute with their account manager, who reviews it within ten business days.",
+    "citation": "The refund policy does NOT apply to enterprise contracts."
+  },
+  "enterprise-excluded:intact@start": {
+    "verdict": "correct",
+    "text": "No. The refund policy does not apply to enterprise contracts. Enterprise customers who want money back raise a billing dispute with their account manager, who reviews it within ten business days.",
+    "citation": "The refund policy does NOT apply to enterprise contracts."
+  },
+  "enterprise-excluded:intact@middle": {
+    "verdict": "wrong",
+    "text": "Yes. Enterprise customers can request a refund within 30 days of delivery, like any other customer.",
+    "citation": "Standard customers may request a refund within 30 days of delivery.",
+    "why": "The enterprise exception sat in the middle of a long context and was overlooked, so the model answered from the general 30-day rule."
+  },
+  "enterprise-excluded:intact@end": {
+    "verdict": "correct",
+    "text": "No. The refund policy does not apply to enterprise contracts. Enterprise customers who want money back raise a billing dispute with their account manager, who reviews it within ten business days.",
+    "citation": "The refund policy does NOT apply to enterprise contracts."
+  },
+  "enterprise-excluded:split": {
+    "verdict": "wrong",
+    "text": "Yes. Enterprise customers can request a refund within 30 days of delivery, the same as standard customers.",
+    "citation": "Standard customers may request a refund within 30 days of delivery.",
+    "why": "The sentence was cut after \"does NOT\", so the model never read the exception whole and fell back on the general 30-day rule."
+  },
+  "enterprise-excluded:split@start": {
+    "verdict": "wrong",
+    "text": "Yes. Enterprise customers can request a refund within 30 days of delivery, the same as standard customers.",
+    "citation": "Standard customers may request a refund within 30 days of delivery.",
+    "why": "The sentence was cut after \"does NOT\", so the model never read the exception whole and fell back on the general 30-day rule."
+  },
+  "enterprise-excluded:split@middle": {
+    "verdict": "wrong",
+    "text": "Yes. Enterprise customers can request a refund within 30 days of delivery, the same as standard customers.",
+    "citation": "Standard customers may request a refund within 30 days of delivery.",
+    "why": "The sentence was cut after \"does NOT\", so the model never read the exception whole and fell back on the general 30-day rule."
+  },
+  "enterprise-excluded:split@end": {
+    "verdict": "wrong",
+    "text": "Yes. Enterprise customers can request a refund within 30 days of delivery, the same as standard customers.",
+    "citation": "Standard customers may request a refund within 30 days of delivery.",
+    "why": "The sentence was cut after \"does NOT\", so the model never read the exception whole and fell back on the general 30-day rule."
+  },
+  "enterprise-excluded:absent": {
+    "verdict": "notfound",
+    "text": "I can't find anything about refunds for enterprise customers in the documents provided. Their account manager is the best person to ask.",
+    "citation": null,
+    "why": "No chunk containing the enterprise exception reached the model."
+  }
+}
