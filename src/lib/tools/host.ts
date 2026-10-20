@@ -66,9 +66,10 @@ export interface Run {
   signatures: string[];
 }
 /** A run's steps of one kind, in order. */
-export const stepsOf = <K extends Step['kind']>(r: Run, kind: K) => r.steps.filter((s): s is Extract<Step, { kind: K }> => s.kind === kind);
+export const stepsOf = <S extends { kind: string }, K extends S['kind']>(r: { steps: S[] }, kind: K) =>
+  r.steps.filter((s): s is Extract<S, { kind: K }> => s.kind === kind);
 /** The text of a run's first answer, or '' when it never answered. */
-export const answerOf = (r: Run) => stepsOf(r, 'answer')[0]?.text ?? '';
+export const answerOf = (r: { steps: { kind: string; text?: string }[] }) => r.steps.find((s) => s.kind === 'answer')?.text ?? '';
 
 const INJECTED = ORDERS.filter((o) => o.injected).map((o) => o.note!);
 

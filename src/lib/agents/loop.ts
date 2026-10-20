@@ -6,7 +6,7 @@ import { validate } from '../tools/schema';
 import { connect, createServer, orderHandlers, ORDERS, TOOLS, text, toolError, type Bundle, type LogEntry, type Order, type ServerDef, type Tool, type ToolResult } from '../tools/server';
 import { BYTES_PER_TOKEN } from '../scale';
 import { money } from '../format';
-import { combosOf } from '../tools/host';
+import { answerOf, combosOf, stepsOf } from '../tools/host';
 import { lookup, NORECORD, signature, type Call, type Mem, type PlanState, type Recording } from './turns';
 
 export type AgentServerId = keyof typeof AGENT.servers;
@@ -171,8 +171,7 @@ export interface Run {
   signatures: string[];
   meter: Meter[];
 }
-export const stepsOf = <K extends Step['kind']>(r: Run, kind: K) => r.steps.filter((s): s is Extract<Step, { kind: K }> => s.kind === kind);
-export const answerOf = (r: Run) => stepsOf(r, 'answer')[0]?.text ?? '';
+export { stepsOf, answerOf };
 export const tokens = (s: string) => Math.ceil(new TextEncoder().encode(s).length / BYTES_PER_TOKEN);
 /** All tokens a run used, its helpers' included. */
 export const totalTokens = (r: Run): number =>
