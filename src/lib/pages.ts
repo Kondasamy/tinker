@@ -67,4 +67,4 @@ export const recapMeta = (module: string): PageMeta => {
 };
 
 const chapters = (module: string) => moduleOf(module).chapters.map(c => chapterMeta(module, c.id));
-export const ALL_PAGES: PageMeta[] = [HOME, RAG, ...chapters('rag'), recapMeta('rag'), TOOL_CALLING, ...chapters('tool-calling')];
+export const ALL_PAGES: PageMeta[] = [HOME, RAG, ...chapters('rag'), recapMeta('rag'), TOOL_CALLING, ...chapters('tool-calling'), recapMeta('tool-calling')];

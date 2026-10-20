@@ -1,6 +1,7 @@
 // Tool calling & MCP, module 2: its chapters and module facts. Chapter ids are a contract with readers' saved progress: never rename one.
 // Only chapters that are written are listed here; each chapter unit appends its own entry (with its `intro`) alongside its island.
 import type { Chapter, Module } from '../../lib/modules';
+import { RECALL } from './recall';
 
 const MODEL: [string, string] = ['Model', 'The language model inside the assistant. It reads text in and writes text out; on its own it cannot open or change anything.'];
 const HOST: [string, string] = ['Host app', 'The software around the model: it sends the model the question and the tools, runs the calls the model asks for, and returns the results.'];
@@ -118,6 +119,22 @@ const CHAPTERS: Chapter[] = [
       ],
     },
   },
+  {
+    id: '07-workbench', title: 'Workbench', short: 'Workbench',
+    intro: {
+      story: 'The assistant can look up orders, read the calendar and issue refunds, through MCP servers, behind a gate and a limit. Now four requests arrive, and each needs its own setup.',
+      goal: 'Given a request, which servers, gate and permissions should the host have?',
+      learn: [
+        'Connect only the servers whose tools a request uses',
+        'Keep the approval gate on wherever a tool that changes data is connected',
+        'Set a limit that fits the job and nothing more',
+      ],
+      terms: [
+        ['Setup', 'How the host is configured for a request: which servers it connects, whether the gate is on, and the refund limit.'],
+        ['Least privilege', 'Giving the host and its tools only the power a request needs, and no more.'],
+      ],
+    },
+  },
 ];
 
 export const TOOL_CALLING_MODULE: Module = {
@@ -130,4 +147,5 @@ export const TOOL_CALLING_MODULE: Module = {
   prereqs: ['rag'],
   story: 'Back at Larkspur Supply Co., the assistant that answers from documents must now act: check an order, issue a refund.',
   chapters: CHAPTERS,
+  recall: RECALL,
 };

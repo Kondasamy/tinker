@@ -6,6 +6,7 @@ import ValidIsntCorrect from '../../content/tool-calling/03-valid-isnt-correct';
 import ManySteps from '../../content/tool-calling/04-many-steps';
 import Mcp from '../../content/tool-calling/05-mcp';
 import WhenToolsGoWrong from '../../content/tool-calling/06-when-tools-go-wrong';
+import Workbench from '../../content/tool-calling/07-workbench';
 import { moduleOf } from '../../lib/modules';
 
 export function getStaticPaths() {
@@ -22,5 +23,6 @@ const { title } = Astro.props;
     : chapter === '03-valid-isnt-correct' ? <ValidIsntCorrect client:load />
     : chapter === '04-many-steps' ? <ManySteps client:load />
     : chapter === '05-mcp' ? <Mcp client:load />
-    : <WhenToolsGoWrong client:load />}
+    : chapter === '06-when-tools-go-wrong' ? <WhenToolsGoWrong client:load />
+    : <Workbench client:load />}
 </ChapterLayout>

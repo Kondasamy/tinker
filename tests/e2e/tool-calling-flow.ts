@@ -139,6 +139,32 @@ export function toolWalker(page: Page, mode: Mode, check: (page: Page) => Promis
       await opt(/gate and the tool’s limit/);
       await finish(next);
     },
+    /** `next`: the recap's URL, reached by the closing link */
+    async ch7(next?: RegExp) {
+      const server = (name: RegExp) => card.getByRole('group', { name: 'Connected servers' }).getByLabel(name);
+      const request = (n: number) => press(card.getByRole('button', { name: `Request ${n}`, exact: true }));
+      const tryIt = async () => { await btn(/^Try this setup/); await expect(card.locator('.feedback .stamp')).toHaveText('RIGHT'); };
+      await tick(server(/^Larkspur orders/));
+      await step(2);
+      await check(page);
+      // request 1, a lookup: orders, gate on, a limit
+      await tick(card.getByLabel(/Approval gate/));
+      await btn('− Lower');
+      await tryIt();
+      await request(3);   // the refund: the same setup fits
+      await tryIt();
+      await request(4);   // orders and calendar
+      await tick(server(/^Larkspur calendar/));
+      await tryIt();
+      await check(page);
+      await request(2);   // calendar only
+      await toggle(server(/^Larkspur orders/));
+      await btn(/^Try this setup/);
+      await finish();
+      if (!next) return;
+      await press(card.getByRole('link', { name: /^Recap/ }));
+      await expect(page).toHaveURL(next);
+    },
     open,
   };
 }
@@ -152,5 +178,6 @@ export async function walkToolCalling(page: Page, mode: Mode, check?: (page: Pag
   await w.ch3(/04-many-steps/);
   await w.ch4(/05-mcp/);
   await w.ch5(/06-when-tools-go-wrong/);
-  await w.ch6();
+  await w.ch6(/07-workbench/);
+  await w.ch7(/\/tool-calling\/recap\/$/);
 }

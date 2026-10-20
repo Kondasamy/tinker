@@ -1,5 +1,5 @@
 // MCP and provider facts for module 2 (R22), each checked against its primary source. Copy quotes them from here, never by hand.
-import data from '../../../data/tool-calling/facts.json';
+import data from '../../../data/tool-calling/facts.json' with { type: 'json' };
 
 export interface Fact {
   id: string;

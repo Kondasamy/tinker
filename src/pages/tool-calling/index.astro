@@ -12,6 +12,7 @@ import { ORDERS, TOOLS, SERVERS } from '../../lib/tools/server';
 import { fact, ACCESSED } from '../../lib/tools/facts';
 import { moduleOf, chapterHref } from '../../lib/modules';
 import { TOOL_CALLING } from '../../lib/pages';
+import Recap from '../../components/quiz/Recap';
 
 const MODULE = moduleOf('tool-calling');
 const CHAPTERS = MODULE.chapters;
@@ -127,6 +128,8 @@ const FACTS: [string, string][] = [
       <section id="path" aria-labelledby="path-h">
         <p class="kicker">Your path</p>
         <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due (R13); the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
         {CHAPTERS.length === 0 && <p class="soon">Chapters arrive soon. This module is being written now; until then, the {PREREQS[0].title} module is ready to play.</p>}
         <ol class="path">
           {CHAPTERS.map((c, i) => (
@@ -139,6 +142,7 @@ const FACTS: [string, string][] = [
             </li>
           ))}
         </ol>
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
       </section>
 
       <section class="pair">
@@ -230,6 +234,8 @@ const FACTS: [string, string][] = [
   .qtext { margin: 0; font-weight: 700; }
   .hard { margin: 2px 0 0 !important; font-size: 13px; color: var(--bad); }
 
+  .recap-link { margin: 0 0 0 52px; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
   .soon { font-size: 15px; color: var(--muted); max-width: 70ch; }
   .path { list-style: none; margin: 0; padding: 0; position: relative; }
   .path:empty { display: none; }

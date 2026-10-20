@@ -52,14 +52,14 @@ export const countScene = ({ apps, systems, mcp, scale = 1 }: CountOpts) => ({ t
     + Sy.map((y, i) => pill(SX, y, BLOCKS.index.ht, `SYSTEM ${i + 1}`, false, scale)).join('');
 };
 
-export interface ConnectOpts { servers: { name: string; connected: boolean }[]; scale?: number }
+export interface ConnectOpts { servers: { name: string; connected: boolean }[]; host?: string; scale?: number }
 /** One host app and its servers; a connected server gets a lit cable with a plug at each end. */
-export const connectScene = ({ servers, scale = 1 }: ConnectOpts) => ({ top }: SceneCtx) => {
+export const connectScene = ({ servers, host = 'HOST APP', scale = 1 }: ConnectOpts) => ({ top }: SceneCtx) => {
   const Sy = rows(servers.length);
   let s = '';
   const on = Sy.filter((_, i) => servers[i].connected);
   for (const y of on) s += wire(appEnd(MID), sysEnd(y), ACC);
   s += blocks([MID], Sy, top, on.length ? [appPlug(MID), ...on.map(sysPlug)] : []);
-  return s + pill(AX, MID, BLOCKS.agent.ht, 'HOST APP', false, scale)
+  return s + pill(AX, MID, BLOCKS.agent.ht, host, false, scale)
     + servers.map((sv, i) => pill(SX, Sy[i], BLOCKS.index.ht, sv.name, sv.connected, scale)).join('');
 };
