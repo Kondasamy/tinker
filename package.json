@@ -1,5 +1,5 @@
 {
-  "name": "visual-rag-playground",
+  "name": "tinker",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@11.22.0",

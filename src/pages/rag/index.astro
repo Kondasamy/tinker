@@ -1,17 +1,116 @@
 ---
-import '../styles/tokens.css';
+// RAG module intro: sets the scene before chapter 1. Static (no client JS); the picture is server-rendered.
+import '../../styles/tokens.css';
+import IsoStage from '../../lib/iso/IsoStage';
+import { miniPipeline, MINI_BOARD, MINI_LABEL } from '../../components/scenes/miniPipeline';
+import { CHAPTERS, chapterHref } from '../../lib/chapters';
 ---
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>RAG Playground</title>
+    <title>RAG: how AI assistants answer from your documents · Tinker</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="description" content="A hands-on, visual course on Retrieval-Augmented Generation: how AI assistants answer from your own documents, why they go wrong, and how to fix them." />
   </head>
   <body>
-    <main style="max-width: 70ch; margin: 0 auto; padding: 48px 16px;">
-      <h1>Retrieval-Augmented Generation</h1>
-      <p>A hands-on, visual walk through how RAG works.</p>
-      <p><a href="/rag/01-history/">Start with chapter 1 →</a></p>
+    <main class="home">
+      <section class="hero">
+        <div>
+          <p class="eyebrow"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> / RAG</p>
+          <h1>Learn how AI assistants answer from your company’s documents, by building one.</h1>
+          <p class="lede">Retrieval-Augmented Generation (RAG) is how most workplace AI assistants find the right policy, contract or price before they answer. In seven short chapters you build one block by block, break it, and fix it. No code and no maths needed (the maths is there if you want it).</p>
+          <a class="big" href={chapterHref(CHAPTERS[0].id)}>Start the story →</a>
+        </div>
+        <IsoStage board={MINI_BOARD} scene={miniPipeline} label={MINI_LABEL} />
+      </section>
+
+      <section>
+        <h2>The problem</h2>
+        <p>A language model knows two things: what it saw in training, and what is in the prompt you send it. Your company’s refund policy was never in its training data. Ask about it anyway and the model doesn’t say “I don’t know”. It writes a confident, plausible and wrong answer.</p>
+        <p>You can’t paste every document into every prompt either: company data is far too large, it changes daily, and not everyone may see everything. Something has to pick the few right passages for each question. That something is retrieval.</p>
+      </section>
+
+      <section>
+        <h2>The story</h2>
+        <p><strong>Larkspur Supply Co.</strong> sells office and warehouse hardware to about 4,000 businesses. Its 260 staff spend hours digging through policies, contracts, price lists and meeting notes. The company wants an AI assistant that answers their questions from those documents, and <strong>you have just joined the team building it</strong>.</p>
+        <p>Every chapter starts with something going wrong: a refund rule the assistant invents, a retired travel policy it trusts, a price it can’t find inside a table. You fix it by changing the pipeline and watching what changes. The documents, questions and answers are all the same fictional company’s, so you can follow one assistant from its first guess to its best answer.</p>
+      </section>
+
+      <section>
+        <h2>RAG in one picture</h2>
+        <ol class="rag3">
+          <li><strong>Retrieve</strong><span>Search the company documents for the passages that best match the question.</span></li>
+          <li><strong>Augment</strong><span>Put those passages into the prompt, next to the question.</span></li>
+          <li><strong>Generate</strong><span>The model writes the answer from what it was given, and can cite it.</span></li>
+        </ol>
+      </section>
+
+      <section class="two">
+        <div>
+          <h2>Who it’s for</h2>
+          <p>Product managers, engineers, analysts and anyone whose company is rolling out AI assistants and wants to know how they really work, where they fail, and what the fixes cost. No background needed.</p>
+        </div>
+        <div>
+          <h2>How it works</h2>
+          <ul>
+            <li>On each page, the <strong>picture on the left is live</strong>. The <strong>story on the right</strong> asks you to do one thing at a time in it.</li>
+            <li>The retrieval maths really runs in your browser, on real embeddings of the company documents.</li>
+            <li>Stuck? Hints appear after a few tries, and puzzles have a “Show me”.</li>
+            <li>Your progress is saved in this browser. Nothing is sent anywhere.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>The chapters</h2>
+        <ol class="chapters">
+          {CHAPTERS.map((c, i) => (
+            <li>
+              <a href={chapterHref(c.id)}><span class="num">{String(i + 1).padStart(2, '0')}</span> {c.title}</a>
+              <p>{c.intro.goal}</p>
+            </li>
+          ))}
+        </ol>
+        <a class="big" href={chapterHref(CHAPTERS[0].id)}>Start with chapter 1 →</a>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com">Kondasamy</a>.</p>
+        <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, whose hand-inked isometric style and engine this course is built on. Colorfigures grew from April’s <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed. Thank you.</p>
+      </footer>
     </main>
   </body>
 </html>
+
+<style>
+  .home { max-width: 1080px; margin: 0 auto; padding: 40px 24px 64px; display: flex; flex-direction: column; gap: 40px; font-size: 15px; line-height: 1.6; }
+  .home h1 { margin: 6px 0 14px; font-size: 30px; line-height: 1.2; }
+  .home h2 { margin: 0 0 8px; font-size: 18px; }
+  .home p { margin: 0 0 10px; }
+  .eyebrow img { vertical-align: -5px; margin-right: 4px; }
+  .eyebrow a { text-decoration: none; color: var(--ink); font-weight: 800; }
+  .credits { border-top: 1.5px solid var(--rule); padding-top: 16px; font-size: 13px; color: var(--muted); }
+  .credits p { margin: 0 0 6px; }
+  .credits a { color: var(--ink); }
+  .eyebrow { margin: 0; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .lede { font-size: 17px; }
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 32px; align-items: center; }
+  .big { display: inline-block; margin-top: 8px; font-weight: 800; font-size: 15px; background: var(--acc); border: 1.5px solid var(--ink); border-radius: 999px; padding: 10px 18px; box-shadow: 3px 3px 0 var(--ink); text-decoration: none; }
+  .rag3 { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; counter-reset: s; }
+  .rag3 li { background: var(--card); border: 1.5px solid var(--ink); border-radius: 14px; padding: 14px 16px; box-shadow: 3px 3px 0 var(--ink); display: flex; flex-direction: column; gap: 4px; }
+  .rag3 strong { font-size: 16px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .two ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+  .chapters { list-style: none; margin: 0 0 16px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .chapters li { border: 1.5px solid var(--rule); border-radius: 12px; padding: 12px 14px; }
+  .chapters a { font-weight: 800; text-decoration: none; }
+  .chapters a:hover { text-decoration: underline; }
+  .chapters .num { color: var(--muted); }
+  .chapters p { margin: 4px 0 0; font-size: 13.5px; color: var(--muted); }
+  @media (max-width: 800px) {
+    .home { padding: 24px 16px 48px; gap: 28px; }
+    .home h1 { font-size: 24px; }
+    .hero, .two, .rag3 { grid-template-columns: 1fr; }
+  }
+</style>

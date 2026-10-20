@@ -2,9 +2,12 @@ import { test, expect } from '@playwright/test';
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-test('home page returns 200', async ({ page }) => {
+test('Tinker home returns 200 and links to the RAG module', async ({ page }) => {
   const res = await page.goto('/');
   expect(res?.status()).toBe(200);
+  await page.getByRole('link', { name: 'Start RAG →' }).click();
+  await expect(page).toHaveURL(/\/rag\/$/);
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Learn how AI assistants');
 });
 
 test('chapter 1 returns 200', async ({ page }) => {

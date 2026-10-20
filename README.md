@@ -1,8 +1,58 @@
-# Visual RAG Playground
+# Tinker
 
-> An interactive, visual, story-driven learning playground and simulation engine for Generative AI and Retrieval-Augmented Generation (RAG).
+> See how tech works by playing with it. Hand-drawn, interactive explanations of tech concepts, by [Kondasamy](https://kondasamy.com). Home: **https://explain.kondasamy.com** (once the domain is connected; see Deploy).
 
-A static Astro + React site. Seven chapters teach RAG with real retrieval math running in the browser over precomputed embeddings. There is no backend, no API key and no live model, so it can be hosted on any static host.
+Each module is a short story you play through: the picture on the left is live, the story on the right asks you to do one thing at a time in it, and you watch what changes. Build the thing, break it, fix it.
+
+![Tinker home](docs/images/home.png)
+
+---
+
+## Modules
+
+### RAG: Retrieval-Augmented Generation (`/rag/`)
+
+How AI assistants answer from a company's documents, why they invent answers, and the levers that make them accurate. You join the team building an assistant for **Larkspur Supply Co.**, a fictional hardware company, and follow it from its first confident wrong answer to its best one.
+
+| # | Chapter | What you do |
+|---|---|---|
+| 1 | How RAG came to be | Watch a model invent a refund policy, then walk the 2020–2026 history: small context windows, then RAG, then agents that use retrieval as one tool |
+| 2 | Why not stuff it all in the prompt? | Grow the company drive from 50 KB to petabytes against a context window; see size, lost-in-the-middle, freshness and permissions |
+| 3 | What is RAG? | Wire docs → retriever → LLM and turn an invented answer into a cited one |
+| 4 | The layers of a RAG system | Chunker, embedder, vector index, context assembler: find the bad cut that hid a rule, fix it with overlap |
+| 5 | Making RAG accurate | Two meters (retrieval recall vs. answer) and seven levers: top-k, metadata filters, query rewrite, reranking, hybrid search, overlap, chunking strategy |
+| 6 | Types of RAG | Naive, advanced, agentic, GraphRAG, self-correcting and multimodal RAG, each on a question that needs it |
+| 7 | Sandbox | Rewire the whole pipeline on a workbench, then match five teams to the RAG type each needs |
+
+![A RAG chapter: the live pipeline on the left, the story on the right](docs/images/chapter.png)
+
+More modules will live beside it, each at `/<module>/`.
+
+---
+
+## How it's built
+
+- **Static site:** Astro with React islands. No backend, no API key, no live model, so it runs on any static host, and a chapter keeps working offline once its data has loaded.
+- **Real retrieval, precomputed answers (RAG):** the corpus is embedded at build time (`pnpm build:index`, all-MiniLM-L6-v2 and a cross-encoder reranker); the browser runs the real similarity, BM25, reranking, graph-walk and agent maths over those vectors. Model answers are pre-recorded for each kind of evidence that can reach the model, so every knob changes the outcome honestly.
+- **Pictures:** hand-inked isometric figures drawn by the Colorfigures engine (see Credits), extended to orbit, zoom and turn the view. Names sit in label pills so they stay readable.
+- **Story:** every chapter is a list of steps run by one step runner (`src/components/story/`): each step has narration, the one control it needs, a check that advances it, hints after a few tries and, for puzzles, “Show me”. Progress is saved in the browser.
+- **Tests:** unit tests for the engine and story logic (Vitest), and end-to-end tests that play every chapter, check accessibility with axe, keyboard-only play, reduced motion, phone size and offline use (Playwright).
+
+---
+
+## Project layout
+
+| Path | What lives there |
+|---|---|
+| `src/pages/index.astro` | Tinker home: what Tinker is and the list of modules |
+| `src/pages/rag/` | The RAG module: its intro (`index.astro`) and one page per chapter |
+| `src/content/rag/` | RAG chapter scripts: the steps, controls and drawer panels of each chapter |
+| `src/lib/chapters.ts` | RAG chapter list and each chapter's opening context (story so far, goal, terms) |
+| `src/lib/rag/`, `data/` | RAG engine (retrieval maths, agent, graph) and its corpus, questions, answers and index |
+| `src/lib/iso/` | The drawing engine (Colorfigures, adapted) and the isometric stage, shared by every module |
+| `src/components/story/` | The step runner every chapter uses: the live picture on the left, the story column on the right |
+
+**Adding a module:** give it its own folder under `src/pages/<module>/` and `src/content/<module>/`, reuse `src/lib/iso/` for pictures and `StepRunner` for the story, and add a card for it on the Tinker home.
 
 ---
 
@@ -15,7 +65,7 @@ pnpm install    # install exact dependency versions from pnpm-lock.yaml
 pnpm dev        # start the dev server on http://localhost:4321
 ```
 
-Open http://localhost:4321 and start at chapter 1. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas` and `/dev/runner`. These pages are left out of production builds.
+Open http://localhost:4321 for the Tinker home; the RAG module is at http://localhost:4321/rag/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas` and `/dev/runner`. These pages are left out of production builds.
 
 To try the production build locally:
 
@@ -71,7 +121,7 @@ Do not run `build:index` on the host. The committed `public/data/index/` files (
 
 ```bash
 pnpm build
-pnpm dlx wrangler pages deploy dist --project-name visual-rag-playground
+pnpm dlx wrangler pages deploy dist --project-name tinker
 ```
 
 The first run asks you to log in to Cloudflare and creates the project.
@@ -92,9 +142,16 @@ pnpm dlx vercel          # first run links the project and makes a preview deplo
 pnpm dlx vercel --prod   # production deploy
 ```
 
+### Custom domain: explain.kondasamy.com
+
+- **Cloudflare Pages:** project → **Custom domains** → add `explain.kondasamy.com`. With kondasamy.com's DNS on Cloudflare, the CNAME is created for you; otherwise add a CNAME `explain` → `<project>.pages.dev`.
+- **Vercel:** project → **Settings → Domains** → add `explain.kondasamy.com`, then a CNAME `explain` → `cname.vercel-dns.com` at your DNS provider.
+- `astro.config.mjs` sets `site` to this address (canonical URLs). Change it there if the domain changes.
+- Optional: on whatever serves kondasamy.com, redirect a short path (for example `/tinker`) to `https://explain.kondasamy.com/`.
+
 ### After deploying
 
-1. Open the site and confirm chapter 1 loads.
+1. Open the home page, then the RAG module at `/rag/`, and confirm chapter 1 loads.
 2. Open `/data/index/manifest.json` and confirm it returns JSON. This proves the data files are served.
 3. Go through chapters 3–7 once. The canvas should show answers, not stay on "Preparing…".
 
@@ -102,34 +159,18 @@ No monitoring is needed, because there is no backend.
 
 ---
 
-## 📚 Research & Curriculum Specifications
+## Credits
 
-Comprehensive research and architectural blueprints generated via Perplexity Deep Research (`sonar-deep-research`):
+The illustrations are drawn with [Colorfigures](https://april-zhu.com/colorfigures) by [April Zhu](https://april-zhu.com/): the hand-inked isometric style and the drawing engine in `src/lib/iso/core.js` come from it, adapted for Tinker. Colorfigures builds on April's [ISO-GLOW](https://isoglow.dev), which builds on [iso-figure](https://github.com/MrBongoC/ai-iso-skill) by Tolga Cohce. All MIT licensed (see `src/lib/iso/LICENSE`).
 
-1. **[Master Blueprint & Curriculum](research/00_master_blueprint_and_curriculum.md)**
-   - Core narrative framework: *"The Amnesiac Detective & The Archive"*
-   - The "Martini Glass" learning progression (Linear Story $\rightarrow$ Guided Explorables $\rightarrow$ Debugging Puzzles $\rightarrow$ Open Sandbox)
-   - 4-level progressive disclosure (Metaphor $\rightarrow$ System Diagram $\rightarrow$ Algorithmic Operation $\rightarrow$ Mathematical Truth)
-   - Dual-engine architecture (Deterministic offline mock engine + live in-browser Transformers.js / WebGPU)
+---
 
-2. **[01. Visual RAG Storytelling & Pedagogy](research/01_visual_rag_storytelling_and_pedagogy.md)**
-   - Analysis of best-in-class educational visualizers (*Transformer Explainer*, *CNN Explainer*, *Diffusion Explainer*, Google PAIR)
-   - Effective metaphors for GenAI hallucination and external retrieval
-   - Scaffolding novices to practitioners through counterfactual experimentation
+## Background research (RAG module)
 
-3. **[02. Simulation Technical Architecture](research/02_simulation_technical_architecture.md)**
-   - Browser-based execution patterns: deterministic JSON caches vs client-side ONNX Runtime Web / WebGPU vs BYOK APIs
-   - In-browser vector search, high-D float32 math, and 2D/3D projection trade-offs (PCA, UMAP, t-SNE)
-   - Decoupled DOM control plane, Canvas/WebGL rendering plane, and Web Worker compute plane
-   - State machine, step scrubber, and shareable immutable run manifests
+Early research for the RAG module, generated with Perplexity Deep Research. It informed the build but is **not the shipped design**: the noir detective story, the live in-browser model and the corkboard look described in these files were all dropped in favour of the Larkspur assistant story, precomputed embeddings with real in-browser maths, and Colorfigures illustrations. The design actually built is in [`docs/plans/2026-10-19-1752-feat-rag-learning-module-plan.md`](docs/plans/2026-10-19-1752-feat-rag-learning-module-plan.md).
 
-4. **[03. RAG Failure Modes & Interactive Puzzles](research/03_rag_failure_modes_and_interactive_puzzles.md)**
-   - Comprehensive 33-point failure taxonomy across ingestion, representation, retrieval, context assembly, and generation
-   - Hands-on puzzle designs: *The False Alibi* (chunk boundary mutilation), *The Hidden Needle* (lost-in-the-middle), *The Stale Blueprint* (recency decay & metadata filtering), and *The Poisoned Clue* (adversarial distractors)
-
-5. **[04. Forensic Noir Playground Specification](research/04_noir_forensic_playground_spec.md)**
-   - Tailored specification based on interview decisions:
-     - **Narrative Theme:** The Amnesiac Detective & The Archive (Forensic Noir)
-     - **Target Audience:** Hybrid Intuitive-to-Technical (Novices to Engineers)
-     - **Engine Model:** Hybrid (Deterministic Core + Transformers.js Web Worker)
-     - **UI Aesthetic:** Evidence Room / Forensic Dossier (Immersive Noir with Corkboard, Red String, Typewriter typography)
+- [Master blueprint and curriculum](research/00_master_blueprint_and_curriculum.md): the story → guided explorables → puzzles → sandbox progression the chapters follow
+- [Visual RAG storytelling and pedagogy](research/01_visual_rag_storytelling_and_pedagogy.md): what makes explainers like Transformer Explainer and Google PAIR work
+- [Simulation technical architecture](research/02_simulation_technical_architecture.md): in-browser vector search, projections, state machines
+- [RAG failure modes and puzzles](research/03_rag_failure_modes_and_interactive_puzzles.md): the failure taxonomy several chapter puzzles came from
+- [Early spec: forensic noir playground](research/04_noir_forensic_playground_spec.md): the first concept, kept for reference
