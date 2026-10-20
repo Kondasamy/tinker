@@ -5,8 +5,9 @@ import { moduleOf } from '../../src/lib/modules';
 import { agentWalker, walkAgents } from './agents-flow';
 import { serious, layoutHolds, PHONE } from './helpers';
 import LOOP from '../../data/agents/turns/02-the-loop.json' with { type: 'json' };
+import PLANS from '../../data/agents/turns/03-plans.json' with { type: 'json' };
 
-const M = moduleOf('agents'), CH1 = M.chapters[0].id, CH2 = M.chapters[1].id;
+const M = moduleOf('agents'), CH1 = M.chapters[0].id, CH2 = M.chapters[1].id, CH3 = M.chapters[2].id;
 // chapter 2's recording is one path, one recorded turn per model turn
 const TURNS = Object.keys(LOOP.turns).length;
 const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
@@ -41,7 +42,7 @@ test('the chapters play by keyboard only; progress lands in agents-progress-v1 a
   await page.evaluate(o => { for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v); }, OTHERS);
   await walkAgents(page, 'keyboard');
   const store = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
-  expect(JSON.parse(store['agents-progress-v1']).done).toEqual([CH1, CH2]);
+  expect(JSON.parse(store['agents-progress-v1']).done).toEqual([CH1, CH2, CH3]);
   for (const [k, v] of Object.entries(OTHERS)) expect(store[k]).toBe(v);
   expect(store['tinker-last-module']).toBe('agents');
 });
@@ -101,6 +102,67 @@ test('chapter 2: the turn counter matches the run, the predictions stay locked b
   await expect(fb).toContainText('backstop');
 });
 
+// chapter 3's first plan, as recorded: the damaged case with plan mode on
+const PLAN = (Object.entries(PLANS.turns).find(([k]) => k.startsWith('case=damaged|hist=|') && k.includes('plan=on'))![1] as { plan: string[] }).plan;
+
+test('chapter 3: plan off hides the clipboard; plan on shows the recorded plan; the stock-out strikes one item and adds one', async ({ page }) => {
+  const w = agentWalker(page, 'mouse');
+  await w.open(CH3);
+  const c = card(page), clip = page.locator('.stage [data-prop="clipboard"]');
+  await expect(page.locator('.stage svg').first()).toBeVisible();
+  await expect(clip).toHaveCount(0);
+  await c.getByRole('button', { name: 'Plan mode: on' }).click();
+  await expect(clip).toHaveAttribute('data-rows', String(PLAN.length));
+  await expect(clip.locator('.struck')).toHaveCount(0);
+  await c.getByRole('radio', { name: /^Sticks to the plan/ }).click();
+  await c.getByRole('button', { name: 'Run the plan' }).click();
+  await expect(clip).toHaveAttribute('data-rows', String(PLAN.length + 1));
+  await expect(clip.locator('.struck')).toHaveCount(1);
+  await expect(c).toContainText('What happened: Changes the plan');
+  // with approval on, the change goes back to the person before it runs
+  await c.getByRole('radio', { name: /^The change just runs/ }).click();
+  await c.getByRole('button', { name: 'Approve' }).click();
+  await expect(c).toContainText('A change, waiting for you:');
+  await expect(page.locator('.tc-caption .stamp')).toHaveText('WAITING');
+  await expect(c).toContainText('What happened: The change comes back to the person');
+});
+
+test('chapter 3: the planted line. Rejecting leaves order 1043 unrefunded, approving refunds it, one click tries the other', async ({ page }) => {
+  const w = agentWalker(page, 'mouse');
+  await w.open(CH3);
+  const c = card(page);
+  await c.getByRole('button', { name: 'Plan mode: on' }).click();
+  await c.getByRole('radio', { name: /^Changes the plan/ }).click();
+  await c.getByRole('button', { name: 'Run the plan' }).click();
+  await c.getByRole('radio', { name: /^The change comes back/ }).click();
+  await c.getByRole('button', { name: 'Approve' }).click();
+  await c.getByRole('button', { name: 'Reject' }).click();
+  await c.getByRole('button', { name: /^Next case/ }).click();
+  await c.getByRole('radio', { name: /host can tell the line came from the email/ }).click();
+  await c.getByRole('button', { name: 'Reject' }).click();
+  await expect(page.locator('.stage [data-prop="clipboard"] .struck')).toHaveCount(2);
+  await c.getByRole('button', { name: 'Approve' }).click();
+  const row = (id: number) => c.locator(`.tc-ledger tr[data-order="${id}"]`);
+  const before = (id: number) => row(id).locator('td').nth(1), after = (id: number) => row(id).locator('td').nth(2);
+  // rejected: the new plan refunds 1042 only
+  await expect(row(1043)).not.toHaveAttribute('data-changed');
+  await expect(after(1043)).toHaveText((await before(1043).textContent())!);
+  await expect(row(1042)).toHaveAttribute('data-changed', 'true');
+  await expect(c).toContainText('Approval helped only because a person read the plan');
+  await expect(c).toContainText('What happened: It is refunded');
+  // one click: the plan approved as written refunds 1043 in full
+  await c.getByRole('button', { name: /^Try the other choice: approve/ }).click();
+  await expect(row(1043)).toHaveAttribute('data-changed', 'true');
+  await expect(after(1043)).not.toHaveText((await before(1043).textContent())!);
+  await c.getByRole('button', { name: /^Try the other choice: reject/ }).click();
+  await expect(row(1043)).not.toHaveAttribute('data-changed');
+  // the injection step ends on the Guardrails roadmap card, not a page of its own
+  const link = c.getByRole('link', { name: moduleOf('guardrails').title });
+  await expect(link).toHaveAttribute('href', '/#module-guardrails');
+  await link.click();
+  await expect(page.locator('#module-guardrails.roadmap')).toBeVisible();
+});
+
 test('“I’m not sure” on the checkpoint reveals the answer, is no miss, and finishes the chapter', async ({ page }) => {
   const w = agentWalker(page, 'mouse');
   await w.open(CH1);
@@ -121,6 +183,8 @@ test.describe('reduced motion', () => {
     await w.ch1();
     await w.open(CH2);
     await w.ch2();
+    await w.open(CH3);
+    await w.ch3();
   });
 });
 
@@ -134,7 +198,7 @@ test('the recap asks from the finished chapters', async ({ page }) => {
 test.describe('phone', () => {
   test.use(PHONE);
   test('pages fit 390px wide, and the chapters play through there with axe clean', async ({ page }) => {
-    for (const p of ['/agents/', `/agents/${CH1}/`, `/agents/${CH2}/`, '/agents/recap/']) {
+    for (const p of ['/agents/', `/agents/${CH1}/`, `/agents/${CH2}/`, `/agents/${CH3}/`, '/agents/recap/']) {
       await page.goto(p);
       await layoutHolds(page);
     }

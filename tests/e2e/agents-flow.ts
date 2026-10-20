@@ -65,6 +65,26 @@ export function agentWalker(page: Page, mode: Mode, check: (page: Page) => Promi
       await opt(quiz);
       await finish(next);
     },
+    /** plans: approve the printer plan and its change; on the planted email, `planted` decides (default: reject, then approve the new plan) */
+    async ch3(next?: RegExp, quiz: string | RegExp = /^Bring it back to the buyer/, planted: ('Approve' | 'Reject')[] = ['Reject', 'Approve']) {
+      await btn('Plan mode: on');
+      await opt(/^Changes the plan/);
+      await btn('Run the plan');
+      await step(4);
+      await check(page);
+      await opt(/^The change comes back to the person/);
+      await btn('Approve');
+      await step(6);
+      await btn('Approve');
+      await step(7);
+      await btn(/^Next case/);
+      await opt(/^It is refunded/);
+      for (const d of planted) await btn(d);
+      await step(10);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
     open,
   };
 }
@@ -74,5 +94,6 @@ export async function walkAgents(page: Page, mode: Mode, check?: (page: Page) =>
   const w = agentWalker(page, mode, check);
   await w.open('01-workflow-or-agent');
   await w.ch1(/\/agents\/02-the-loop\/$/);
-  await w.ch2(/\/agents\/recap\/$/);
+  await w.ch2(/\/agents\/03-plans\/$/);
+  await w.ch3(/\/agents\/recap\/$/);
 }

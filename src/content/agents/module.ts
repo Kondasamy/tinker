@@ -38,6 +38,25 @@ const CHAPTERS: Chapter[] = [
       ],
     },
   },
+  {
+    id: '03-plans', title: 'Plans, and approving a plan', short: 'Plans',
+    intro: {
+      story: 'In chapter 2 the agent fixed the cracked printer one turn at a time, and nobody could see where it was heading until it got there. The support lead wants to know what the agent means to do before it does it, and a way to say no.',
+      goal: 'How does an agent plan a case, change the plan when a result surprises it, and who gets to approve the plan?',
+      learn: [
+        'What a plan adds: the steps written down before any tool runs',
+        'Why a plan has to change when a result surprises the agent, and what that looks like',
+        'How approving a plan once replaces approving every call, and why a change goes back to the person',
+        'Why approval stops a planted instruction only if someone reads the plan',
+      ],
+      terms: [
+        ['Plan', 'The steps the model writes down before it acts, one item per tool call. The host shows it on the clipboard.'],
+        ['Re-plan', 'The agent changing its plan part way, because a result told it something the plan did not expect.'],
+        ['Plan approval', 'A person approves the plan once before anything runs. A call outside the approved plan comes back to them.'],
+        ['Prompt injection', 'Instructions hidden in data the model reads, such as a customer email, written to make it do something else.'],
+      ],
+    },
+  },
 ];
 
 export const AGENTS_MODULE: Module = {

@@ -7,7 +7,7 @@ import { BH, boxCorners, esc, glassCase } from '../../lib/iso/blocks';
 import { INK, PALS, METAL, CERAMIC, CLEAR, DARK, WOOD, box, rod, shape, line, castShadow, hullInk, on, PX, toneI, tag, byDepth } from '../../lib/iso/core.js';
 import { officeScene, officeLabel, type OfficeOpts } from './officeScene';
 import { agentMessages } from './agentSequence';
-import { tokens, type Run, type Step } from '../../lib/agents/loop';
+import { keyOf, tokens, type Run, type Step } from '../../lib/agents/loop';
 
 export { OFFICE_BOARD as AGENT_BOARD } from './officeScene';
 
@@ -35,11 +35,24 @@ export function agentState({ run, upTo = run.steps.length, gauge }: Pick<AgentOp
   const shown = run.steps.slice(0, upTo), last = shown.at(-1);
   const of = <K extends Step['kind']>(k: K) => shown.filter((s): s is Extract<Step, { kind: K }> => s.kind === k);
 
-  // the plan: every item any plan named, in first-seen order; items the latest plan dropped are struck
-  const plans = of('plan'), latest = plans.at(-1)?.items ?? [];
-  const finished = new Set(of('result').filter(s => DONE.test(s.key)).map(s => s.key.slice(0, s.key.lastIndexOf(':'))));
-  const rows = [...new Set(plans.flatMap(p => p.items))].map(item => ({ item, done: finished.has(item), struck: !latest.includes(item) }));
-  const plan = plans.length ? { rows, ticks: rows.filter(r => r.done && !r.struck).length, items: latest.length } : null;
+  // the plan: every item any plan named, in first-seen order; items the latest plan dropped are struck. A call outside
+  // the plan is a change of plan on the spot: it is added after the next unfinished item, which it replaces (struck).
+  const plans = of('plan'), finished = new Set<string>(), rows: { item: string; done: boolean; struck: boolean }[] = [];
+  for (const s of shown) {
+    if (s.kind === 'plan') {
+      // a new item goes in after the one before it in its plan
+      s.items.forEach((item, i) => rows.some(r => r.item === item)
+        || rows.splice(rows.findIndex(r => r.item === s.items[i - 1]) + 1, 0, { item, done: false, struck: false }));
+      for (const r of rows) r.struck = !s.items.includes(r.item);
+    } else if (s.kind === 'proposal' && rows.length && !rows.some(r => r.item === keyOf(s.call))) {
+      const next = rows.findIndex(r => !r.struck && !finished.has(r.item));
+      if (next >= 0) rows[next].struck = true;
+      rows.splice(next < 0 ? rows.length : next + 1, 0, { item: keyOf(s.call), done: false, struck: false });
+    } else if (s.kind === 'result' && DONE.test(s.key)) finished.add(s.key.slice(0, s.key.lastIndexOf(':')));
+  }
+  for (const r of rows) r.done = finished.has(r.item);
+  const live = rows.filter(r => !r.struck);
+  const plan = plans.length ? { rows, ticks: live.filter(r => r.done).length, items: live.length } : null;
 
   // model turns so far, and the latest turn's input (the context the model read)
   let turn = -1;
@@ -98,7 +111,7 @@ export function clipboard(x: number, y: number, rows: { done: boolean; struck: b
     s += shape(at([[x0 + 4, z - 1.5], [x0 + 7, z - 1.5], [x0 + 7, z + 1.5], [x0 + 4, z + 1.5]]), '#fff', .5)
       + line(at([[x0 + 9, z], [x1 - 4, z]]), .6).replace(INK, DARK.l);
     if (r.done) s += `<g class="tick">${line(at([[x0 + 3.6, z + .3], [x0 + 5.2, z - 1.7], [x0 + 8.2, z + 2.8]]), 1.5).replace(INK, PALS.mint.d)}</g>`;
-    if (r.struck) s += `<g class="struck">${line(at([[x0 + 3, z], [x1 - 3, z]]), 1.3).replace(INK, PALS.tomato.d)}</g>`;
+    if (r.struck) s += `<g class="struck">${line(at([[x0 + 3, z], [x1 - 3, z]]), 1.5).replace(INK, PALS.tomato.m)}</g>`;
   });
   return { at: [x, y, 0], svg: `<g data-prop="clipboard" data-rows="${rows.length}" data-ticks="${rows.filter(r => r.done && !r.struck).length}">${s}</g>` };
 }

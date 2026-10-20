@@ -2,6 +2,7 @@
 import ChapterLayout from '../../layouts/ChapterLayout.astro';
 import WorkflowOrAgent from '../../content/agents/01-workflow-or-agent';
 import TheLoop from '../../content/agents/02-the-loop';
+import Plans from '../../content/agents/03-plans';
 import { moduleOf } from '../../lib/modules';
 
 export function getStaticPaths() {
@@ -15,5 +16,6 @@ const { title } = Astro.props;
   {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
       hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
   {chapter === '01-workflow-or-agent' ? <WorkflowOrAgent client:load />
-    : <TheLoop client:load />}
+    : chapter === '02-the-loop' ? <TheLoop client:load />
+    : <Plans client:load />}
 </ChapterLayout>

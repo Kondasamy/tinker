@@ -27,9 +27,15 @@ describe('the clipboard', () => {
     expect(before.plan).toMatchObject({ ticks: 0, items: stepsOf(PLAN, 'plan')[0].items.length });
     expect(draw({ run: PLAN, upTo: first, clipboard: true })).toContain('data-ticks="0"');
     expect(agentState({ run: PLAN, upTo: first + 1 }).plan!.ticks).toBe(1);
-    // the stock is out, so create_replacement never finishes: every other item is ticked at the end
+    // the stock is out, so the agent refunds instead: create_replacement is struck, the refund added after it and ticked
     const end = agentState({ run: PLAN }).plan!;
-    expect(end.rows.filter(r => r.done).map(r => r.item)).toEqual(['get_order:1042', 'check_stock:1042', 'send_email:1042']);
+    expect(end.rows).toEqual([
+      { item: 'get_order:1042', done: true, struck: false }, { item: 'check_stock:1042', done: true, struck: false },
+      { item: 'create_replacement:1042', done: false, struck: true }, { item: 'issue_refund:1042', done: true, struck: false },
+      { item: 'send_email:1042', done: true, struck: false },
+    ]);
+    expect(end).toMatchObject({ ticks: 4, items: 4 });
+    expect(count(draw({ run: PLAN, clipboard: true }), 'class="struck"')).toBe(1);
     expect(count(draw({ run: PLAN, clipboard: true }), 'class="tick"')).toBe(end.ticks);
   });
   it('with no plan, no clipboard is drawn', () => {
@@ -120,7 +126,7 @@ describe('the caption', () => {
   it('repeats the props’ readouts: turn N of M, tokens, plan ticks', () => {
     const say = readouts({ run: PLAN, upTo: at(PLAN, k => k === 'answer'), clipboard: true, gauge: GAUGE });
     expect(say[0]).toMatch(/^Turn \d+ of 12$/);
-    expect(say).toContain(`plan 3 of 4 done`);
+    expect(say).toContain(`plan 4 of 4 done, 1 struck out`);
     expect(say.some(s => / tokens in all$/.test(s))).toBe(true);
   });
 });

@@ -178,7 +178,7 @@ export const totalTokens = (r: Run): number =>
   r.meter.reduce((n, m) => n + m.input + m.output, 0) + stepsOf(r, 'helper').reduce((n, h) => n + totalTokens(h.run), 0);
 
 export const SYSTEM = 'You are the Larkspur Supply Co. support assistant. Work the case with the tools listed until it is done, then say so in one short answer.';
-const keyOf = (c: Call) => [c.name, ...(c.arguments.order_id === undefined ? [] : [c.arguments.order_id])].join(':');
+export const keyOf = (c: Call) => [c.name, ...(c.arguments.order_id === undefined ? [] : [c.arguments.order_id])].join(':');
 
 interface World { orders: Order[]; mail: Email[]; log: LogEntry[]; client: Map<string, ReturnType<typeof connect>>; listed: Tool[] }
 

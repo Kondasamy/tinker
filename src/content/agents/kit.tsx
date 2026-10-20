@@ -20,7 +20,7 @@ export function readouts(o: AgentOpts): string[] {
   if (o.gauge) out.push(`Turn ${st.turns} of ${o.gauge.steps}`,
     st.over ? `context over the ${n(o.gauge.context)}-token budget (${n(st.context)})` : `context ${n(st.context)} of ${n(o.gauge.context)} tokens`,
     `${n(totalTokens({ ...o.run, meter: o.run.meter.filter(m => m.turn < st.turns), steps: o.run.steps.slice(0, o.upTo) }))} tokens in all`);
-  if (o.clipboard && st.plan) out.push(`plan ${st.plan.ticks} of ${st.plan.items} done`);
+  if (o.clipboard && st.plan) { const x = st.plan.rows.filter(r => r.struck).length; out.push(`plan ${st.plan.ticks} of ${st.plan.items} done${x ? `, ${x} struck out` : ''}`); }
   if (o.tray) out.push(st.tray.binder ? `history: 1 summary + ${st.tray.papers}` : `history: ${st.tray.papers} papers`);
   if (o.helpers && st.helpers.total) out.push(`helpers ${st.helpers.sent} of ${st.helpers.total}`);
   return out;
