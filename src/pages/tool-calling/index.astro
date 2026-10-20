@@ -1,0 +1,257 @@
+---
+// Tool calling module intro: sets the scene before chapter 1. Static, except the sequence figure and a small script
+// that marks finished chapters. Every example is the course's own data: recorded model turns, the order system, and
+// MCP and provider facts quoted from data/tool-calling/facts.json with their sources.
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import Meta from '../../components/Meta.astro';
+import FlatStage from '../../components/scenes/FlatStage';
+import { SEQ_LANES, SEQ_MSGS, CALL, ANSWER } from '../../components/scenes/toolSequence';
+import { RECORDINGS } from '../../lib/tools/turns';
+import { ORDERS, TOOLS, SERVERS } from '../../lib/tools/server';
+import { fact, ACCESSED } from '../../lib/tools/facts';
+import { moduleOf, chapterHref } from '../../lib/modules';
+import { TOOL_CALLING } from '../../lib/pages';
+
+const MODULE = moduleOf('tool-calling');
+const CHAPTERS = MODULE.chapters;
+const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
+
+const QUESTION = RECORDINGS['order-status'].ask;
+const WITHOUT = Object.values(RECORDINGS['no-tools'].turns)[0].text;
+const ARGS = Object.entries(CALL.arguments).map(([k, v]) => `${k}: ${v}`).join(', ');
+
+const STEPS: [string, ReturnType<typeof fact>][] = [
+  ['Describe the tool', fact('tool-definition')],
+  ['The model asks, your software runs it', fact('app-executes')],
+  ['One plug for many tools', fact('mcp-features')],
+];
+const checked = new Date(ACCESSED).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+
+// real requests from the recorded scenarios, and what makes each one hard
+const HARD: [string, string][] = [
+  [RECORDINGS['order-status'].ask, 'The answer lives in the order system, not in any document'],
+  [RECORDINGS['parallel'].ask, 'Two lookups that don’t depend on each other'],
+  [RECORDINGS['refund-gate'].ask, 'It moves money, so a person should approve it'],
+  [RECORDINGS['injection'].ask, 'The order holds a note written to trick the model'],
+];
+const FACTS: [string, string][] = [
+  [String(ORDERS.length), 'orders in the order system'],
+  [String(TOOLS.length), 'tools the assistant can call'],
+  [String(Object.keys(SERVERS).length), 'MCP servers to plug in'],
+  [fact('mcp-version').value!, 'MCP specification version'],
+];
+---
+<html lang="en">
+  <head>
+    <Meta {...TOOL_CALLING} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url}>{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module 2 · AI</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS.map((m, i) => <>{i > 0 && ', '}<a href={`/${m.id}/`}>{m.title}</a></>)} recommended · by <a href={MODULE.author.url}>{MODULE.author.name}</a></p>
+          <h1>How AI assistants go from answering to acting</h1>
+          <p class="lede">An assistant that answers from documents can’t check an order or issue a refund. Tool calling lets the model ask your software to do it, and the Model Context Protocol (MCP) is how those tools plug in. You’ll wire it up, watch it misfire, and make it safe.</p>
+          <ul class="chips" aria-label="At a glance">
+            {CHAPTERS.length > 0 && <li>{CHAPTERS.length} chapters</li>}<li>No code</li><li>Runs in your browser</li><li>No live model</li>
+          </ul>
+          <div class="ctas">
+            {CHAPTERS.length
+              ? <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
+              : <a class="btn primary" href={`/${PREREQS[0].id}/`}>Start with {PREREQS[0].title} →</a>}
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+        </div>
+        <div class="hero-pic">
+          <FlatStage client:visible lanes={SEQ_LANES} msgs={SEQ_MSGS} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="same">
+        <p class="kicker">The whole idea in one question</p>
+        <h2 id="same">Same model. Same question. One can check.</h2>
+        <p class="ask"><span class="who">An employee asks</span> “{QUESTION}”</p>
+        <div class="versus">
+          <article class="reply bad">
+            <header><h3>Without tools</h3><span class="stamp">Guessed</span></header>
+            <p class="said">“{WITHOUT}”</p>
+            <p class="why">The model can’t see Larkspur’s order system, so it writes something that sounds likely.</p>
+          </article>
+          <article class="reply good">
+            <header><h3>With a tool</h3><span class="stamp">Checked</span></header>
+            <p class="said">“{ANSWER}”</p>
+            <blockquote><span>The model asked for</span><code>{CALL.name}({ARGS})</code></blockquote>
+          </article>
+        </div>
+        <p class="note">These are the course’s own recorded model turns, and the order comes from Larkspur’s order data. The only thing that changed is whether the model had a tool.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Three ideas carry the whole module</h2>
+        <ol class="steps">
+          {STEPS.map(([name, f], i) => (
+            <li>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p>{f.claim}</p>
+              <p class="src"><a href={f.source}>Source</a>, checked {checked}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">The assistant has to act now</h2>
+          <p>{MODULE.story} Staff want it to look things up and get things done, and an answer from documents can’t do either. <strong>You’re on the team that gives it tools, and keeps them safe.</strong></p>
+          {PREREQS.map(m => <p class="prev">New to Larkspur? The <a href={`/${m.id}/`}>{m.title} module</a> builds the assistant this one starts from.</p>)}
+          <dl class="facts">
+            {FACTS.map(([n, what]) => <div><dt class:list={{ long: n.length > 6 }}>{n}</dt><dd>{what}</dd></div>)}
+          </dl>
+        </div>
+        <div class="inbox">
+          <h3>Requests waiting for the assistant</h3>
+          <ul>
+            {HARD.map(([text, hard]) => <li><p class="qtext">“{text}”</p><p class="hard">{hard}</p></li>)}
+          </ul>
+        </div>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {CHAPTERS.length === 0 && <p class="soon">Chapters arrive soon. This module is being written now; until then, the {PREREQS[0].title} module is ready to play.</p>}
+        <ol class="path">
+          {CHAPTERS.map((c, i) => (
+            <li data-chapter={c.id}>
+              <span class="dot" aria-hidden="true">{i + 1}</span>
+              <div class="body">
+                <h3><a href={chapterHref(MODULE.id, c.id)}>{c.title}</a><span class="done-mark" hidden> · done</span></h3>
+                <p>{c.intro.goal}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <p>Product managers, engineers and analysts whose company is giving its AI assistants access to real systems, who want to know how that works, where it goes wrong, and what keeps it safe. No code needed. If RAG is new to you, play that module first.</p>
+        </article>
+        <article>
+          <h2>How a chapter page works</h2>
+          <p>The picture on the left is live. The story on the right asks you to do one thing in it at a time. The model’s turns are recorded, but the tools, the checks and the MCP messages run for real in your browser. Progress stays in this browser.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com">Kondasamy Jayaraman</a>.</p>
+        <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, whose hand-inked isometric style and engine this course is built on. Colorfigures grew from April’s <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed. Thank you.</p>
+      </footer>
+    </main>
+
+    <script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      const CHAPTERS = moduleOf('tool-calling').chapters;
+      const done = completed('tool-calling');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('tool-calling', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .module-meta a { color: var(--ink); }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .ask { font-size: 18px; font-weight: 800; margin-bottom: 18px; }
+  .ask .who { display: block; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .versus { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .reply { border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.bad { border-left: 6px solid var(--bad); }
+  .reply.good { border-left: 6px solid var(--ok); }
+  .said { font-size: 15.5px; font-style: italic; }
+  .why { font-size: 13.5px; color: var(--muted); }
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); }
+  .bad .stamp { color: var(--bad); } .good .stamp { color: var(--ok); }
+  blockquote { margin: 6px 0 0; padding: 8px 12px; background: var(--card); border-radius: 8px; font-size: 13.5px; border: 1px dashed var(--rule); overflow-wrap: anywhere; }
+  blockquote span { display: block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .prev { font-size: 14px; color: var(--muted); }
+  .prev a { color: var(--ink); }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 18px 0 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dt.long { font-size: 20px; padding: 3px 0 2px; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+  .inbox { background: var(--card); border: 1.5px solid var(--ink); border-radius: 16px; padding: 18px 20px; box-shadow: 4px 4px 0 var(--ink); }
+  .inbox h3 { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .inbox ul { list-style: none; margin: 0; padding: 0; }
+  .inbox li { padding: 10px 0; border-top: 1px dashed var(--rule); }
+  .inbox li:first-child { border-top: 0; }
+  .qtext { margin: 0; font-weight: 700; }
+  .hard { margin: 2px 0 0 !important; font-size: 13px; color: var(--bad); }
+
+  .soon { font-size: 15px; color: var(--muted); max-width: 70ch; }
+  .path { list-style: none; margin: 0; padding: 0; position: relative; }
+  .path:empty { display: none; }
+  .path::before { content: ''; position: absolute; left: 17px; top: 18px; bottom: 18px; border-left: 2px dashed var(--rule); }
+  .path li { position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 16px; padding: 0 0 22px; }
+  .dot { position: relative; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--ink); background: var(--card); font-weight: 900; }
+  .path li.done .dot { background: var(--ok); color: var(--paper); }
+  .path h3 { font-size: 17px; margin-top: 5px; }
+  .path h3 a { text-decoration: none; }
+  .path h3 a:hover { text-decoration: underline; }
+  .done-mark { color: var(--ok); font-size: 13px; }
+  .path .body p { margin: 4px 0 0; font-size: 14px; color: var(--muted); max-width: 70ch; }
+
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+  }
+</style>

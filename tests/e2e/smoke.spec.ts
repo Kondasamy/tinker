@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { CHAPTERS, chapterHref } from '../../src/lib/chapters';
+import { ALL_PAGES } from '../../src/lib/pages';
 
 test('Tinker home returns 200 and links to the RAG module', async ({ page }) => {
   const res = await page.goto('/');
@@ -35,7 +35,7 @@ test('RAG intro marks finished chapters and continues from the next one', async 
 });
 
 test('every public page has its own share image, and it is served', async ({ page, request }) => {
-  const paths = ['/', '/rag/', ...CHAPTERS.map(c => chapterHref(c.id))];
+  const paths = ALL_PAGES.map(p => p.path);
   const seen = new Set<string>();
   for (const p of paths) {
     await page.goto(p);
@@ -58,7 +58,7 @@ test('AE1: a returning reader keeps RAG progress, and a saved run resumes only o
   await page.goto('/');
   await page.evaluate(k => localStorage.setItem(k, JSON.stringify({ done: ['01-history', '02-why-not-stuff-it'], saved: {} })), KEY);
   await page.reload();
-  await expect(page.locator('[data-progress] .txt')).toHaveText('2 of 7 chapters done');
+  await expect(page.locator('[data-module="rag"] [data-progress] .txt')).toHaveText('2 of 7 chapters done');
   await page.locator('[data-cta]').first().click();
   await expect(page).toHaveURL(new RegExp(`/rag/${CH3}/$`));
 

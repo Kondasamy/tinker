@@ -1,0 +1,17 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('tool-calling').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="tool-calling" chapter={chapter} title={title}>
+  {/* One line per written chapter, added with its registry entry:
+        chapter === '<id>' ? <Island client:load /> : ...
+      No lookup table: hydration needs each island as a static import. No chapter is written yet, so the chain is empty. */}
+  {null}
+</ChapterLayout>

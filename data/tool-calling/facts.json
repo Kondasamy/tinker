@@ -1,0 +1,22 @@
+{
+  "accessed": "2026-10-20",
+  "facts": [
+    { "id": "mcp-version", "claim": "The current Model Context Protocol specification is version 2026-07-28.", "value": "2026-07-28", "source": "https://modelcontextprotocol.io/specification/latest" },
+    { "id": "mcp-jsonrpc", "claim": "MCP messages are JSON-RPC 2.0 requests, responses and notifications.", "source": "https://modelcontextprotocol.io/specification/2026-07-28/basic" },
+    { "id": "mcp-roles", "claim": "Hosts are the AI applications, clients are connectors inside a host, and servers provide context and capabilities.", "source": "https://modelcontextprotocol.io/specification/latest" },
+    { "id": "mcp-features", "claim": "Servers offer three features: tools (functions for the model to run), resources (context and data) and prompts (templated messages for users).", "source": "https://modelcontextprotocol.io/specification/latest" },
+    { "id": "mcp-stateless", "claim": "Since 2026-07-28 MCP is stateless: there is no opening handshake, and every request carries its own protocol version and client capabilities.", "source": "https://modelcontextprotocol.io/specification/2026-07-28/basic/versioning" },
+    { "id": "mcp-discover", "claim": "A client may call server/discover to learn a server's supported versions before other requests.", "source": "https://modelcontextprotocol.io/specification/2026-07-28/basic/versioning" },
+    { "id": "mcp-methods", "claim": "Clients list a server's tools with tools/list and run one with tools/call.", "source": "https://modelcontextprotocol.io/specification/2026-07-28/server/tools" },
+    { "id": "mcp-tool-errors", "claim": "A tool that fails on bad input returns a normal result marked isError, so the model can read the message and try again.", "source": "https://modelcontextprotocol.io/specification/2026-07-28/server/tools" },
+    { "id": "mcp-human", "claim": "The specification says there should always be a human in the loop with the ability to deny tool invocations.", "source": "https://modelcontextprotocol.io/specification/2026-07-28/server/tools" },
+    { "id": "mcp-untrusted-annotations", "claim": "Clients must treat tool annotations as untrusted unless they come from trusted servers.", "source": "https://modelcontextprotocol.io/specification/2026-07-28/server/tools" },
+    { "id": "mcp-auth", "claim": "MCP's authorization framework is for HTTP-based transports; local stdio servers take credentials from their environment instead.", "source": "https://modelcontextprotocol.io/specification/2026-07-28/basic" },
+    { "id": "app-executes", "claim": "The model only returns a structured request to call a tool; the application runs it and sends the result back.", "source": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview" },
+    { "id": "app-executes-openai", "claim": "When the model calls a function, the application must execute it and return the result.", "source": "https://developers.openai.com/api/docs/guides/function-calling" },
+    { "id": "tool-definition", "claim": "A tool is defined by a name, a description of when to use it, and a JSON Schema for its arguments.", "source": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview" },
+    { "id": "strict-mode", "claim": "Both major APIs offer a strict mode that makes tool calls reliably match the tool's schema.", "source": "https://developers.openai.com/api/docs/guides/function-calling" },
+    { "id": "parallel-calls", "claim": "Models can request several tool calls in one turn; both APIs let the application limit this to one call per turn.", "source": "https://developers.openai.com/api/docs/guides/function-calling" },
+    { "id": "tool-choice", "claim": "By default the model decides whether to call a tool; the application can require a call, force a specific tool, or forbid tools.", "source": "https://developers.openai.com/api/docs/guides/function-calling" }
+  ]
+}

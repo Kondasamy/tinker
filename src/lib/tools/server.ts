@@ -6,9 +6,9 @@ import ORDERS_JSON from '../../../data/tool-calling/orders.json';
 import CALENDAR from '../../../data/tool-calling/calendar.json';
 import META from '../../../data/corpus/meta.json';
 import { validate, type Schema } from './schema';
+import { MCP_VERSION } from './facts';
 
-// U8: source this from data/tool-calling/facts.json once it exists.
-export const PROTOCOL_VERSION = '2026-07-28';
+export const PROTOCOL_VERSION = MCP_VERSION;
 const KEY = 'io.modelcontextprotocol/';
 
 export interface Order {

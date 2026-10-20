@@ -1,5 +1,6 @@
 // The module registry (KTD1): every module, live or planned. Pages, navigation, share images and checks read from here.
 import { RAG_MODULE } from '../content/rag/module';
+import { TOOL_CALLING_MODULE } from '../content/tool-calling/module';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
 
@@ -42,6 +43,7 @@ const planned = (id: string, title: string, level: Level, description: string): 
 
 export const MODULES: Module[] = [
   RAG_MODULE,
+  TOOL_CALLING_MODULE,
   planned('tokens', 'Tokens & embeddings', 'Beginner', 'How text becomes the numbers a model reads.'),
   planned('transformers', 'Transformer architecture', 'Advanced', 'What happens inside the model between a prompt and its next word.'),
   planned('agents', 'AI agents', 'Advanced', 'Models that plan, call tools in a loop and decide when they are done.'),

@@ -11,8 +11,11 @@ import { staticTrack } from '../components/scenes/staticTrack';
 import { TRACK_BOARD } from '../components/canvas/track';
 import { renderers, blockShadow, type BlockType } from '../lib/iso/blocks';
 import { CHAPTERS } from '../lib/chapters';
-import { MODULES, chapterHref, type Level } from '../lib/modules';
+import { MODULES, type Level } from '../lib/modules';
 import { HOME } from '../lib/pages';
+import FlatStage from '../components/scenes/FlatStage';
+import { SEQ_LANES, SEQ_MSGS } from '../components/scenes/toolSequence';
+import type { Lane, Msg } from '../lib/iso/flat';
 
 const ALL = CHAPTERS.flatMap(c => c.unlocks);
 const one = (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) => ({ top }: SceneCtx) =>
@@ -30,8 +33,11 @@ const LOOP: [string, string][] = [
   ['Fix it yourself', 'Puzzles hand you a broken setup. Hints appear when you’re stuck, and “Show me” is always there.'],
 ];
 // a live module's card picture and topic chips; every other fact on a card comes from the registry
-const CARD: Record<string, { name: string; board: typeof MINI_BOARD; scene: typeof miniPipeline; label: string; topics: string[] }> = {
-  rag: { name: 'Retrieval-Augmented Generation (RAG)', board: MINI_BOARD, scene: miniPipeline, label: MINI_LABEL, topics: ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'Reranking', 'Agentic RAG', 'GraphRAG'] },
+// (an isometric scene, or a flat sequence)
+type Iso = { board: typeof MINI_BOARD; scene: typeof miniPipeline; label: string };
+const CARD: Record<string, { name: string; iso?: Iso; flat?: { lanes: Lane[]; msgs: Msg[] }; topics: string[] }> = {
+  rag: { name: 'Retrieval-Augmented Generation (RAG)', iso: { board: MINI_BOARD, scene: miniPipeline, label: MINI_LABEL }, topics: ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'Reranking', 'Agentic RAG', 'GraphRAG'] },
+  'tool-calling': { name: 'Tool calling & the Model Context Protocol (MCP)', flat: { lanes: SEQ_LANES, msgs: SEQ_MSGS.slice(0, 4) }, topics: ['Tool definitions', 'JSON Schema', 'Multi-step calls', 'MCP hosts & servers', 'Tools, resources, prompts', 'Approval', 'Prompt injection'] },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];
 const LIVE = MODULES.filter(m => m.status === 'live');
@@ -89,9 +95,10 @@ const atLevel = (level: Level) => [...LIVE, ...MODULES.filter(m => m.status === 
             <div class="modules">
               {atLevel(level).map(m => m.status === 'live' ? (
                 <article class="module" data-module={m.id}>
-                  {CARD[m.id] && <div class="pic"><IsoStage board={CARD[m.id].board} scene={CARD[m.id].scene} label={CARD[m.id].label} /></div>}
+                  {CARD[m.id]?.iso && <div class="pic"><IsoStage {...CARD[m.id].iso!} /></div>}
+                  {CARD[m.id]?.flat && <div class="pic"><FlatStage client:visible {...CARD[m.id].flat!} /></div>}
                   <div class="info">
-                    <p class="kicker">Module {LIVE.indexOf(m) + 1} · {m.chapters.length} chapters</p>
+                    <p class="kicker">Module {LIVE.indexOf(m) + 1} · {m.chapters.length ? `${m.chapters.length} chapters` : 'Chapters arrive soon'}</p>
                     <h4><a href={`/${m.id}/`}>{CARD[m.id]?.name ?? m.title}</a></h4>
                     <p class="tags"><span class="level">{m.level}</span></p>
                     <p>{m.description}</p>

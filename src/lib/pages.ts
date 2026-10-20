@@ -36,6 +36,16 @@ export const RAG: PageMeta = {
   sub: `Retrieval-Augmented Generation, in ${moduleOf('rag').chapters.length} playable chapters.`,
 };
 
+export const TOOL_CALLING: PageMeta = {
+  path: '/tool-calling/',
+  og: 'tool-calling',
+  title: 'Tool calling & MCP: how AI assistants take action · Tinker',
+  description: 'A hands-on, visual course on tool calling and the Model Context Protocol (MCP): how an AI assistant checks an order or issues a refund, and how to keep it safe.',
+  kicker: 'Tinker · Module 2',
+  headline: 'How AI assistants go from answering to acting',
+  sub: 'Tool calling and the Model Context Protocol (MCP), played at Larkspur Supply Co.',
+};
+
 export const chapterMeta = (module: string, id: string): PageMeta => {
   const m = moduleOf(module), i = m.chapters.findIndex(c => c.id === id), c = m.chapters[i];
   if (!c) return RAG;   // dev fixtures borrow the module's card
@@ -45,4 +55,5 @@ export const chapterMeta = (module: string, id: string): PageMeta => {
   };
 };
 
-export const ALL_PAGES: PageMeta[] = [HOME, RAG, ...moduleOf('rag').chapters.map(c => chapterMeta('rag', c.id))];
+const chapters = (module: string) => moduleOf(module).chapters.map(c => chapterMeta(module, c.id));
+export const ALL_PAGES: PageMeta[] = [HOME, RAG, ...chapters('rag'), TOOL_CALLING, ...chapters('tool-calling')];

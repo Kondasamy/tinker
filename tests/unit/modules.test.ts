@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { MODULES, moduleOf, chapterHref, nextOf } from '../../src/lib/modules';
-import { ALL_PAGES, HOME, RAG, chapterMeta } from '../../src/lib/pages';
+import { ALL_PAGES, HOME, RAG, TOOL_CALLING, chapterMeta } from '../../src/lib/pages';
+import { FACTS, ACCESSED, fact } from '../../src/lib/tools/facts';
+import { PROTOCOL_VERSION } from '../../src/lib/tools/server';
 
 // RAG's chapter ids are a contract with every reader's saved progress (R3): never rename them.
 const RAG_CHAPTERS = [
@@ -28,6 +30,15 @@ describe('module registry', () => {
     expect(planned).toEqual([['Tokens & embeddings', 'Beginner', 0], ['Transformer architecture', 'Advanced', 0], ['AI agents', 'Advanced', 0]]);
   });
 
+  it('has tool calling as a live Intermediate module that recommends RAG first', () => {
+    expect(moduleOf('tool-calling')).toMatchObject({ title: 'Tool calling & MCP', level: 'Intermediate', status: 'live', prereqs: ['rag'] });
+    expect(moduleOf('tool-calling').author).toEqual(moduleOf('rag').author);
+  });
+
+  it('keeps chapter ids unique within every module', () => {
+    for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
+  });
+
   it('throws on an unknown module', () => {
     expect(() => moduleOf('nope')).toThrow();
   });
@@ -41,11 +52,14 @@ describe('module registry', () => {
 
 describe('page meta', () => {
   it('keeps every RAG share image name', () => {
-    expect(ALL_PAGES.map(p => p.og)).toEqual(['home', 'rag', ...RAG_CHAPTERS.map(([id]) => id)]);
+    expect(ALL_PAGES.map(p => p.og).slice(0, 9)).toEqual(['home', 'rag', ...RAG_CHAPTERS.map(([id]) => id)]);
+    expect(ALL_PAGES).toContain(TOOL_CALLING);
+    expect(TOOL_CALLING).toMatchObject({ path: '/tool-calling/', og: 'tool-calling' });
   });
 
   it('gives every page a path and its own share image', () => {
-    expect(ALL_PAGES.map(p => p.path)).toEqual(['/', '/rag/', ...RAG_CHAPTERS.map(([id]) => `/rag/${id}/`)]);
+    expect(ALL_PAGES.map(p => p.path).slice(0, 9)).toEqual(['/', '/rag/', ...RAG_CHAPTERS.map(([id]) => `/rag/${id}/`)]);
+    expect(new Set(ALL_PAGES.map(p => p.path)).size).toBe(ALL_PAGES.length);
     expect(new Set(ALL_PAGES.map(p => p.og)).size).toBe(ALL_PAGES.length);
   });
 
@@ -53,5 +67,26 @@ describe('page meta', () => {
     expect(chapterMeta('rag', '03-what-is-rag')).toMatchObject({ kicker: 'RAG · Chapter 3 of 7', title: 'What is RAG? · RAG · Tinker' });
     expect(chapterMeta('rag', 'dev-runner')).toBe(RAG);
     expect(HOME.path).toBe('/');
+  });
+});
+
+describe('tool-calling facts (R22)', () => {
+  it('gives every fact a claim, a source URL and the access date', () => {
+    expect(ACCESSED).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(FACTS.length).toBeGreaterThan(0);
+    expect(new Set(FACTS.map(f => f.id)).size).toBe(FACTS.length);
+    for (const f of FACTS) {
+      expect(f.claim, f.id).not.toBe('');
+      expect(new URL(f.source).protocol, f.id).toBe('https:');
+      expect(fact(f.id).accessed).toBe(ACCESSED);
+    }
+  });
+
+  it('the MCP server model speaks the version the facts record', () => {
+    expect(PROTOCOL_VERSION).toBe(fact('mcp-version').value);
+  });
+
+  it('throws on an unknown fact', () => {
+    expect(() => fact('nope')).toThrow();
   });
 });
