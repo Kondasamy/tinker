@@ -1,4 +1,4 @@
-// Module 3, AI agents: the intro, chapters 1 to 5 played by mouse and by keyboard only, its own progress key, "I'm not
+// Module 3, AI agents: the intro, chapters 1 to 6 played by mouse and by keyboard only, its own progress key, "I'm not
 // sure", reduced motion, the recap, axe and phone width.
 import { test, expect, type Page } from '@playwright/test';
 import { moduleOf } from '../../src/lib/modules';
@@ -8,9 +8,10 @@ import LOOP from '../../data/agents/turns/02-the-loop.json' with { type: 'json' 
 import PLANS from '../../data/agents/turns/03-plans.json' with { type: 'json' };
 import BUDGETS from '../../data/agents/turns/04-budgets.json' with { type: 'json' };
 import MEMORY from '../../data/agents/turns/05-memory.json' with { type: 'json' };
+import SUB from '../../data/agents/turns/06-sub-agents.json' with { type: 'json' };
 import CASES from '../../data/agents/cases.json' with { type: 'json' };
 
-const M = moduleOf('agents'), CH1 = M.chapters[0].id, CH2 = M.chapters[1].id, CH3 = M.chapters[2].id, CH4 = M.chapters[3].id, CH5 = M.chapters[4].id;
+const M = moduleOf('agents'), CH1 = M.chapters[0].id, CH2 = M.chapters[1].id, CH3 = M.chapters[2].id, CH4 = M.chapters[3].id, CH5 = M.chapters[4].id, CH6 = M.chapters[5].id;
 // chapter 2's recording is one path, one recorded turn per model turn
 const TURNS = Object.keys(LOOP.turns).length;
 const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
@@ -47,7 +48,7 @@ test('the chapters play by keyboard only; progress lands in agents-progress-v1 a
   await page.evaluate(o => { for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v); }, OTHERS);
   await walkAgents(page, 'keyboard');
   const store = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
-  expect(JSON.parse(store['agents-progress-v1']).done).toEqual([CH1, CH2, CH3, CH4, CH5]);
+  expect(JSON.parse(store['agents-progress-v1']).done).toEqual([CH1, CH2, CH3, CH4, CH5, CH6]);
   for (const [k, v] of Object.entries(OTHERS)) expect(store[k]).toBe(v);
   expect(store['tinker-last-module']).toBe('agents');
 });
@@ -320,6 +321,60 @@ test('chapter 5: Show me pins the note and advances', async ({ page }) => {
   await expect(c).toContainText(emailFor('pinned'));
 });
 
+// chapter 6: the lead's first turn with the delegate tool, as recorded: one handoff per order
+const DELEGATED = (Object.entries(SUB.turns).find(([k]) => k.startsWith('case=storm|hist=|') && k.includes('delegate'))![1] as { calls: unknown[] }).calls.length;
+async function toSubAgents(page: Page) {
+  const w = agentWalker(page, 'mouse');
+  await w.open(CH6);
+  const c = card(page);
+  await c.getByRole('radio', { name: /^About the same/ }).click();
+  await c.getByRole('button', { name: 'Run the case' }).click();
+  await expect(c).toContainText('Step 3 of');
+  return c;
+}
+
+test('chapter 6: the lead alone has no helper desks; with helpers the stage shows one desk per delegated order', async ({ page }) => {
+  const c = await toSubAgents(page);
+  const desks = page.locator('.stage [data-prop="helper"]');
+  await expect(desks).toHaveCount(0);
+  await c.getByRole('button', { name: 'Lead + helpers' }).click();
+  await expect(c).toContainText('Step 4 of');
+  await expect(desks).toHaveCount(DELEGATED);
+  await expect(page.locator('.tc-caption')).toContainText(`helpers ${DELEGATED} of ${DELEGATED}`);
+  await expect(page.locator('.drawer [data-helpers]')).toHaveAttribute('data-helpers', String(DELEGATED));
+  // a wrong prediction stays locked beside the outcome
+  await expect(c).toContainText('What happened: The lead with helpers');
+  await expect(c.locator('.feedback', { hasText: 'You predicted' })).toContainText('You predicted: About the same');
+});
+
+test('chapter 6: with helpers the lead’s biggest turn is smaller and the total larger, both as the stage computes them', async ({ page }) => {
+  const c = await toSubAgents(page);
+  const total = async () => Number((await page.locator('.tc-caption').textContent())!.match(/([\d,]+) tokens in all/)![1].replaceAll(',', ''));
+  const alone = await total();
+  await c.getByRole('button', { name: 'Lead + helpers' }).click();
+  await expect(c).toContainText('Step 4 of');
+  const helped = await total();
+  const row = (k: string) => c.locator(`tr[data-setup="${k}"]`);
+  const num = async (k: string, a: string) => Number(await row(k).getAttribute(a));
+  expect(await num('alone', 'data-total')).toBe(alone);
+  expect(await num('helpers', 'data-total')).toBe(helped);
+  expect(helped).toBeGreaterThan(alone);
+  expect(await num('helpers', 'data-peak')).toBeLessThan(await num('alone', 'data-peak'));
+  await expect(c).toContainText('hand-written recordings');
+  await expect(c.locator('.tc-fact')).toContainText('15 times');
+});
+
+test('chapter 6: the checkpoint asks about a supplier price check, not the storm', async ({ page }) => {
+  const c = await toSubAgents(page);
+  await c.getByRole('button', { name: 'Lead + helpers' }).click();
+  await c.getByRole('radio', { name: /^Only the helper’s one-line report/ }).click();
+  await expect(c).toContainText('Step 5 of');
+  const quiz = c.locator('.quiz');
+  await expect(quiz).toContainText('price');
+  await expect(quiz).toContainText('supplier');
+  await expect(quiz).not.toContainText('storm');
+});
+
 test('“I’m not sure” on the checkpoint reveals the answer, is no miss, and finishes the chapter', async ({ page }) => {
   const w = agentWalker(page, 'mouse');
   await w.open(CH1);
@@ -346,6 +401,8 @@ test.describe('reduced motion', () => {
     await w.ch4();
     await w.open(CH5);
     await w.ch5();
+    await w.open(CH6);
+    await w.ch6();
   });
 });
 
@@ -359,7 +416,7 @@ test('the recap asks from the finished chapters', async ({ page }) => {
 test.describe('phone', () => {
   test.use(PHONE);
   test('pages fit 390px wide, and the chapters play through there with axe clean', async ({ page }) => {
-    for (const p of ['/agents/', `/agents/${CH1}/`, `/agents/${CH2}/`, `/agents/${CH3}/`, `/agents/${CH4}/`, `/agents/${CH5}/`, '/agents/recap/']) {
+    for (const p of ['/agents/', `/agents/${CH1}/`, `/agents/${CH2}/`, `/agents/${CH3}/`, `/agents/${CH4}/`, `/agents/${CH5}/`, `/agents/${CH6}/`, '/agents/recap/']) {
       await page.goto(p);
       await layoutHolds(page);
     }

@@ -122,6 +122,21 @@ export function agentWalker(page: Page, mode: Mode, check: (page: Page) => Promi
       await opt(quiz);
       await finish(next);
     },
+    /** sub-agents: predict the total, run the lead alone, switch to helpers, then predict what the lead sees */
+    async ch6(next?: RegExp, quiz: string | RegExp = /^No: a single lookup/) {
+      await opt(/^The lead with helpers/);
+      await btn('Run the case');
+      await step(3);
+      await check(page);
+      await btn('Lead + helpers');
+      await step(4);
+      await check(page);
+      await opt(/^Only the helper’s one-line report/);
+      await step(5);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
     open,
   };
 }
@@ -134,5 +149,6 @@ export async function walkAgents(page: Page, mode: Mode, check?: (page: Page) =>
   await w.ch2(/\/agents\/03-plans\/$/);
   await w.ch3(/\/agents\/04-budgets\/$/);
   await w.ch4(/\/agents\/05-memory\/$/);
-  await w.ch5(/\/agents\/recap\/$/);
+  await w.ch5(/\/agents\/06-sub-agents\/$/);
+  await w.ch6(/\/agents\/recap\/$/);
 }

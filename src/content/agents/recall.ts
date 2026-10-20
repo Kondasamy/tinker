@@ -297,4 +297,65 @@ export const RECALL: RecallItem[] = [
       'Both count tokens: small pieces of text, about ¾ of a word each.',
     ],
   },
+  // 6. Sub-agents
+  {
+    id: 'lead-reads-the-report', chapter: '06-sub-agents',
+    question: 'A legal team’s lead agent hands each of twelve contracts to a helper agent to review. What does the lead read back from each helper?',
+    options: [
+      'The whole contract and every note the helper made on it',
+      'Only the helper’s short reply: its summary of that contract',
+      'Nothing, until all twelve helpers have finished',
+    ],
+    correct: 1,
+    why: [
+      'The helper’s reading stays in the helper’s own history. That is what keeps the lead’s context small.',
+      `Right. ${fact('subagent-clean-context').claim}`,
+      'Each helper replies when it is done, as the result of the lead’s handoff call.',
+    ],
+  },
+  {
+    id: 'helpers-cost-more', chapter: '06-sub-agents',
+    question: 'A manager splits a market research task across five helper agents, and the lead’s context shrinks to half. She expects the whole run to cost less. Is she right?',
+    options: [
+      'Yes: a smaller context means fewer tokens overall',
+      'No: every helper re-sends its own instructions and tools on each of its turns, so the total usually grows',
+      'It costs exactly the same: the work is the same',
+    ],
+    correct: 1,
+    why: [
+      'The lead sends less, but the helpers’ turns count too, and each one starts from the instructions again.',
+      `Right. ${fact('multi-agent-tokens').claim}`,
+      'The work is the same, but each handoff adds a fresh context that has to be sent and read.',
+    ],
+  },
+  {
+    id: 'when-helpers-pay', chapter: '06-sub-agents',
+    question: 'Which of these jobs is the best fit for a lead agent with helpers?',
+    options: [
+      'Resetting one employee’s password',
+      'Comparing 30 suppliers’ catalogues, each long, and each read on its own',
+      'Writing one reply to one customer email',
+    ],
+    correct: 1,
+    why: [
+      'One short job has no long history to keep out of the lead’s context, so a helper only adds cost.',
+      `Right. The pieces are separate and each one is long. ${fact('subagent-parallel').claim}`,
+      `One reply is one short job. ${fact('simplest-first').claim}`,
+    ],
+  },
+  {
+    id: 'report-is-all-the-lead-knows', chapter: '06-sub-agents',
+    question: 'A helper reads a supplier’s email that says “Prices rise on Friday”, and replies to the lead: “Quote received, 40 units at $12.” The lead then plans next week’s order. Does it know about Friday?',
+    options: [
+      'Yes: the helper read the email, so the lead knows it too',
+      'No: the lead sees only the helper’s reply, and the reply left it out',
+      'Yes: the host copies every email to the lead',
+    ],
+    correct: 1,
+    why: [
+      'The helper’s reading stays in the helper’s history. The two agents share nothing but the handoff and the reply.',
+      'Right. A clean context cuts both ways: whatever the helper’s reply leaves out, the lead never learns.',
+      'The host passes the lead only the helper’s reply, as the result of its handoff call.',
+    ],
+  },
 ];

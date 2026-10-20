@@ -94,6 +94,24 @@ const CHAPTERS: Chapter[] = [
       ],
     },
   },
+  {
+    id: '06-sub-agents', title: 'Sub-agents, and the cost of a handoff', short: 'Sub-agents',
+    intro: {
+      story: 'In chapter 5 one agent carried all five storm orders in one history, and the host had to compact it, with care, to make it fit. The five orders have nothing to do with each other. So the support lead asks: why should one agent hold them all at once?',
+      goal: 'When should an agent hand parts of a case to helpers, and what does each handoff cost?',
+      learn: [
+        'How a lead agent hands one piece of a case to a helper with a clean context',
+        'Why the lead’s context stays small: it gets back one line per helper, not the helper’s whole history',
+        'Why the total grows anyway, and when helpers are worth it',
+      ],
+      terms: [
+        ['Sub-agent', 'A second agent the host starts for one piece of a case. Larkspur’s team calls it a helper. It has its own history and its own turns.'],
+        ['Lead agent', 'The agent that works the whole case and hands pieces of it to helpers.'],
+        ['Delegate', 'The host’s own tool for handing a piece to a helper. The lead calls it like any other tool; the host runs a helper, not a server.'],
+        ['Handoff', 'Passing a piece of work to a helper. The helper starts again from the instructions and the tools, which costs tokens.'],
+      ],
+    },
+  },
 ];
 
 export const AGENTS_MODULE: Module = {
