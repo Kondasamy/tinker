@@ -12,7 +12,7 @@ import { fact } from '../../lib/evals/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { EvalStage, colsOf, resultsOf, suiteNow, useSuite, type Shown, type Suite, type View } from './kit';
+import { EvalStage, WithSuite, colsOf, resultsOf, suiteNow, useSuite, type Shown, type Suite, type View } from './kit';
 
 const MODULE = 'evals', ID = '01-it-worked-when-i-tried-it';
 const { v1: V1, v2: V2 } = VERSIONS, N = QUESTIONS.length;
@@ -172,15 +172,15 @@ export default function ItWorkedWhenITriedIt() {
         tried: ({ state, sync }) => <Try s={state} sync={sync} buttons={false} />,
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         run: ({ state, sync }) => (
-          <button type="button" className="big" disabled={!suiteNow()} onClick={() => sync({ ...state, ran: true, view: 'grid' })}>
-            Run all {N} questions on {V1.label} and {V2.label}
-          </button>
+          <WithSuite>{() => (
+            <button type="button" className="big" onClick={() => sync({ ...state, ran: true, view: 'grid' })}>
+              Run all {N} questions on {V1.label} and {V2.label}
+            </button>
+          )}</WithSuite>
         ),
-        out1: ({ state }) => { const suite = suiteNow(); return suite && <Outcome {...P1} prediction={state.p1} outcome={outcome(suite)} />; },
-        score: () => { const suite = suiteNow(); return suite && <Score suite={suite} />; },
-        find: ({ state, apply }) => {
-          const suite = suiteNow();
-          if (!suite) return null;
+        out1: ({ state }) => <WithSuite>{suite => <Outcome {...P1} prediction={state.p1} outcome={outcome(suite)} />}</WithSuite>,
+        score: () => <WithSuite>{suite => <Score suite={suite} />}</WithSuite>,
+        find: ({ state, apply }) => <WithSuite>{suite => {
           const pick = state.pick, ok = (v: 'v1' | 'v2', q: number) => isCorrect(suite[v][q].verdict);
           return (
             <>
@@ -198,8 +198,8 @@ export default function ItWorkedWhenITriedIt() {
               )}
             </>
           );
-        },
-        found: ({ state }) => { const suite = suiteNow(); return suite && state.pick !== null && <Answers suite={suite} q={state.pick} />; },
+        }}</WithSuite>,
+        found: ({ state }) => <WithSuite>{suite => state.pick !== null && <Answers suite={suite} q={state.pick} />}</WithSuite>,
         quiz: ({ state, apply, sync }) => (
           <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
         ),

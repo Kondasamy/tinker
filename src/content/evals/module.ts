@@ -79,6 +79,42 @@ const CHAPTERS: Chapter[] = [
       ],
     },
   },
+  {
+    id: '05-grading-the-path', title: 'Grading the path', short: 'Grading the path',
+    intro: {
+      story: 'Larkspur’s assistant doesn’t only answer: in the Tool calling module it looks orders up and issues refunds. One recorded run from there answered the customer’s question and also refunded money nobody asked for. The team wants its evals to catch that.',
+      goal: 'When the assistant takes actions, what should a grader check besides the reply?',
+      learn: [
+        'Why a reply can pass while the run behind it did harm',
+        'Checking the state: what the run left in the order system',
+        'Checking the path: calls a run should never make, without demanding a fixed list of steps',
+      ],
+      terms: [
+        ['Run', 'One request played through: every tool call the assistant made, and its reply.'],
+        ['Answer grader', 'A check on the reply alone, here that it states the delivery date asked about.'],
+        ['State', 'What a run leaves behind in the systems it touched, like the refunds in the order ledger.'],
+        ['Path', 'The steps a run took: which tools it called, with what. Also called the trajectory.'],
+      ],
+    },
+  },
+  {
+    id: '06-run-it-twice', title: 'Run it twice', short: 'Run it twice',
+    intro: {
+      story: 'Every chapter so far asked each question once. The team asks a few of them again, and the same question, with nothing changed, comes back passing one time and failing the next.',
+      goal: 'If the same case can pass and fail, what does one run of the test set prove?',
+      learn: [
+        'Why one try at a case says little about the next',
+        'pass@k and pass^k: “can it?” against “will it, every time?”',
+        'Why a small test set’s score moves in big steps',
+      ],
+      terms: [
+        ['Trial', fact('trial').claim],
+        ['pass@k', fact('pass-at-k').claim],
+        ['pass^k', fact('pass-hat-k').claim],
+        ['Flaky', 'A case that passes on some trials and fails on others, with nothing changed.'],
+      ],
+    },
+  },
 ];
 
 export const EVALS_MODULE: Module = {

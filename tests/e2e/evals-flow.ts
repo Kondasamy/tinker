@@ -5,9 +5,12 @@ import ch4 from '../../data/questions/ch4.json' with { type: 'json' };
 import ch5 from '../../data/questions/ch5.json' with { type: 'json' };
 import ch6 from '../../data/questions/ch6.json' with { type: 'json' };
 import candidates from '../../data/evals/candidates.json' with { type: 'json' };
+import samples from '../../data/evals/samples.json' with { type: 'json' };
 
 // the test set in suite order (src/lib/evals/suite.ts QUESTIONS; that module needs Vite, so the specs read the files)
 const QUESTIONS = [...ch3, ...ch4, ...ch5, ...ch6];
+/** cases whose five trials all pass: how many pass^5 passes (graders.ts passHatK, re-derived) */
+export const HAT5 = samples.filter(c => c.samples.every(x => x.verdict === 'correct')).length;
 
 export type Mode = 'mouse' | 'keyboard';
 
@@ -98,6 +101,42 @@ export function evalWalker(page: Page, mode: Mode, check: (page: Page) => Promis
       await step(5);
       await opt(/^The other answer/);
       await btn(/^Swap the order/);
+      await step(7);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
+    /** run the planted-note request, predict, grade it three ways, the judge under r1 and r2, the clean run */
+    async ch5(next?: RegExp, quiz: string | RegExp = /^A check of the delivery schedule/) {
+      await btn('Run the request');
+      await step(2);
+      await check(page);
+      await opt(/^The state and path graders/);
+      for (const g of ['Answer', 'State', 'Path']) await btn(new RegExp(`^${g}$`));
+      await step(4);
+      await check(page);
+      await btn('Rubric r1');
+      await btn('Rubric r2');
+      await step(5);
+      await btn(/^Grade the clean run/);
+      await step(6);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
+    /** predict, show the trials, k = 5 under pass@k, predict pass^5, switch to pass^k, flip one question */
+    async ch6(next?: RegExp, quiz: string | RegExp = /^pass\^k over several tries/) {
+      await opt(/^Some: a case can pass/);
+      await btn('Show every trial');
+      await step(3);
+      await check(page);
+      await btn('k = 5');
+      await step(4);
+      await opt(new RegExp(`^${HAT5} of ${samples.length}$`));
+      await btn('pass^k');
+      await step(6);
+      await check(page);
+      await btn(/^Flip Q/);
       await step(7);
       await check(page);
       await opt(quiz);

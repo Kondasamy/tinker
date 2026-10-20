@@ -230,4 +230,108 @@ export const RECALL: RecallItem[] = [
       'Running it again in the same orders only repeats the bias.',
     ],
   },
+  // 5. Grading the path
+  {
+    id: 'reply-is-not-the-outcome', chapter: '05-grading-the-path',
+    question: 'Larkspur’s assistant is asked to cancel an order. It replies “Your order is cancelled.” The test checks that the reply contains “cancelled”. What can that test miss?',
+    options: [
+      'Nothing: the reply says the order is cancelled',
+      'An order that is still open in the order system',
+      'A reply that is too long',
+      'A typo in the order number in the reply',
+    ],
+    correct: 1,
+    why: [
+      'The reply is what the assistant says, not what it did. In chapter 5 a right reply sat on top of a refund nobody asked for.',
+      `Right. ${fact('outcome-is-state').claim}`,
+      'Length is a style question. The risk here is that nothing was cancelled.',
+      'A typo would show in the reply. An order left open shows only in the order system.',
+    ],
+  },
+  {
+    id: 'forbid-not-script', chapter: '05-grading-the-path',
+    question: 'The team adds a path check to the order-status tests. Which rule fits best?',
+    options: [
+      'The run must call exactly these tools, in exactly this order',
+      'The run must never call a tool that changes money or orders when the request only asks a question',
+      'The run must make as few calls as possible',
+      'The run must call every tool it was offered',
+    ],
+    correct: 1,
+    why: [
+      `A fixed script fails a run that found another good way. ${fact('grade-output-not-steps').claim}`,
+      'Right. It fails the call that does harm, and leaves the assistant free to reach the answer its own way.',
+      'Fewer calls is a cost question. A single refund call is few, and still wrong.',
+      'Calling a tool it didn’t need is exactly the mistake the planted note caused.',
+    ],
+  },
+  {
+    id: 'judge-reads-words', chapter: '05-grading-the-path',
+    question: 'A run refunds an order nobody asked about, and its reply never mentions it. Which grader can still catch it?',
+    options: [
+      'A model judge reading the reply with a strict rubric',
+      'A code check that the reply has the delivery date',
+      'A check of the ledger after the run',
+      'None: if the reply is silent, nothing can tell',
+    ],
+    correct: 2,
+    why: [
+      'A judge reads the words it is given. In chapter 5 r2 caught the refund only because the reply mentioned it.',
+      'The date is in the reply either way: this grader passed the planted-note run.',
+      'Right. The ledger shows the refund whatever the reply says.',
+      'The refund is in the order system. A state check looks there.',
+    ],
+  },
+  // 6. Run it twice
+  {
+    id: 'one-try-says-little', chapter: '06-run-it-twice',
+    question: 'A case fails once in the nightly test run. Nothing changed since yesterday, when it passed. What is the first thing to do?',
+    options: [
+      'Roll back yesterday’s change',
+      'Run the case several more times and see how often it passes',
+      'Delete the case: it is broken',
+      'Nothing: one failure is noise',
+    ],
+    correct: 1,
+    why: [
+      'Nothing changed, so there is nothing to roll back. The same case can pass and fail across tries.',
+      `Right. ${fact('trial').claim} Several trials show whether it is flaky, and how often it fails.`,
+      'A case that sometimes fails is telling you the assistant sometimes fails. Keep it.',
+      'It may be noise, or a case that fails one time in three for real customers. More trials tell them apart.',
+    ],
+  },
+  {
+    id: 'pass-at-vs-hat', chapter: '06-run-it-twice',
+    question: 'A case passes on 2 of its 5 trials. Which is true?',
+    options: [
+      'pass@5 and pass^5 both fail it',
+      'pass@5 passes it; pass^5 fails it',
+      'pass@5 fails it; pass^5 passes it',
+      'Both pass it: it passed twice',
+    ],
+    correct: 1,
+    why: [
+      `pass@5 needs only one passing trial. ${fact('pass-at-k').claim}`,
+      `Right. One pass is enough for pass@5; pass^5 needs all five. ${fact('pass-hat-k').claim}`,
+      'That is the wrong way round: pass^5 is the stricter one.',
+      'pass^5 needs every trial to pass, and three failed.',
+    ],
+  },
+  {
+    id: 'small-suite-steps', chapter: '06-run-it-twice',
+    question: 'The parts-catalogue assistant has a test set of 20 questions. A new version scores 5 points higher. What could explain that, with nothing better about it?',
+    options: [
+      'Nothing: 5 points is a real gain',
+      'One flaky question that happened to pass this time',
+      'The test set got easier on its own',
+      'The judge got stricter',
+    ],
+    correct: 1,
+    why: [
+      'With 20 questions, one question is 5 points. A single flip makes the whole gain.',
+      'Right. In a small test set one question is a big step; run each case more than once before you believe it.',
+      'The questions did not change between the runs.',
+      'A stricter judge would lower the score, not raise it.',
+    ],
+  },
 ];

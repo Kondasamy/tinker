@@ -49,3 +49,11 @@
 .ev-pair, .ev-case-card { margin-top: 10px; }
 /* phones: the labelled answers table drops the answer's words (the disagreements in the story column carry them) */
 @media (max-width: 599px) { .ev-labels tr > :nth-child(2) { display: none; } }
+/* chapter 5: each grader names what it reads under its name; chapter 6: the trials counted by k are outlined */
+.ev-path th .ev-said, .ev-trials th .ev-said { display: block; font-weight: 400; }
+.ev-path td .ev-said { display: block; }
+.ev-trials td[data-in] { box-shadow: inset 0 0 0 2px var(--ink); }
+.ev-trials th, .ev-trials td { padding: 2px 4px; }
+@media (max-width: 599px) { .ev-trials th .ev-said { display: none; } .ev-trials .stamp { font-size: 10px; } }
+.ev-hscroll { overflow-x: auto; margin-top: 10px; max-width: 100%; }
+.ev-misses { margin: 8px 0 0; padding-left: 0; list-style: none; font-size: 13px; display: flex; flex-direction: column; gap: 4px; }
