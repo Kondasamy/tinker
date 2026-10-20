@@ -18,12 +18,18 @@ test('chapter 3: made-up answer, then Docs, then Retriever, grounded with a cita
   await expect(announce(page)).toContainText('Nothing reached the model');
 
   await card(page).getByRole('button', { name: 'Add the Docs' }).click();
-  await expect(card(page)).toContainText('Step 3 of 6');
+  await expect(card(page)).toContainText('Step 3 of 7');
   await expect(page.locator('[data-block="docs"]')).toHaveCount(1);
   await expect(announce(page)).toContainText('MADE UP');
 
+  // predict before the reveal: the Retriever is not offered until the pick
+  await expect(card(page).getByRole('button', { name: 'Add the Retriever' })).toHaveCount(0);
+  await card(page).getByRole('radio', { name: /cites the policy/ }).click();
+  await expect(card(page)).toContainText('Step 4 of 7');
+  await expect(announce(page)).toContainText('MADE UP');
   await card(page).getByRole('button', { name: 'Add the Retriever' }).click();
-  await expect(card(page)).toContainText('Step 4 of 6');
+  await expect(card(page)).toContainText('Step 5 of 7');
+  await expect(card(page).getByRole('status')).toContainText('AS YOU PREDICTED');
   await expect(announce(page)).toContainText('Answer: CORRECT. 3 chunks retrieved');
   await expect(drawer(page)).toContainText('CORRECT');
   await expect(drawer(page).locator('mark')).toHaveText(NEG);
@@ -35,8 +41,10 @@ test('chapter 3: made-up answer, then Docs, then Retriever, grounded with a cita
   await drawer(page).getByLabel('Show the math').check();
   await expect(page.getByTestId('math')).toContainText('cos(q, c)');
   await expect(page.getByTestId('math')).toContainText(/= 0\.\d{3}/);
-  await expect(card(page)).toContainText('Step 6 of 6');
+  await expect(card(page)).toContainText('Step 7 of 7');
 
+  await card(page).getByRole('radio', { name: /A bigger, smarter model/ }).click();
+  await expect(card(page)).toContainText('The model never changed');
   await card(page).getByRole('radio', { name: /few passages that match/ }).click();
   await expect(card(page)).toContainText('Chapter complete');
   await expect(card(page).getByRole('link', { name: /Next:/ })).toHaveAttribute('href', '/rag/04-layers/');
@@ -48,8 +56,13 @@ test('chapter 4: negation split (AE1), the layers one at a time, map readout (AE
   await expect(drawer(page)).toContainText('WRONG');
   await expect(announce(page)).toContainText('Answer: WRONG. 1 chunk retrieved');
 
+  // predict, then the chunker reveals the cut: no pieces are drawn before the pick
+  await expect(page.locator('[data-block="chunker"]')).toHaveCount(0);
+  await card(page).getByRole('radio', { name: /The whole rule/ }).click();
+
   // chunk strip: the hard cut right after NOT is marked red
   await card(page).getByRole('button', { name: 'Add the Chunker' }).click();
+  await expect(card(page).getByRole('status')).toContainText('NOT WHAT YOU PREDICTED');
   await expect(drawer(page).getByRole('heading')).toHaveText('Where the chunker cut');
   await expect(page.locator('[data-negation-cut]')).toHaveCount(1);
   await expect(page.locator('[data-negation-cut]')).toHaveCSS('color', 'rgb(181, 54, 31)');
@@ -62,7 +75,7 @@ test('chapter 4: negation split (AE1), the layers one at a time, map readout (AE
   await expect(dots).toHaveCount(10);
   await dots.nth(0).hover();
   await expect(readout).toContainText(/True similarity 0\.\d{3} · \d+ px from your question/);
-  await expect(card(page)).toContainText('Step 5 of 7');
+  await expect(card(page)).toContainText('Step 6 of 8');
   const hovered = await readout.textContent();
   await dots.nth(3).focus();
   await expect(readout).not.toHaveText(hovered!);
@@ -71,7 +84,7 @@ test('chapter 4: negation split (AE1), the layers one at a time, map readout (AE
   await expect(readout).toContainText(/True similarity/);
 
   await card(page).getByRole('button', { name: 'Add the Context assembler' }).click();
-  await expect(card(page)).toContainText('Step 6 of 7');
+  await expect(card(page)).toContainText('Step 7 of 8');
   await expect(card(page)).toContainText('Puzzle');
   // only the step's knob is visible: the top-k that hides the split stays out of reach
   await expect(card(page).getByRole('slider')).toHaveCount(1);
@@ -82,7 +95,7 @@ test('chapter 4: negation split (AE1), the layers one at a time, map readout (AE
   await expect(announce(page)).toContainText('WRONG');
   await overlap.fill('2');                                    // 25%
   await expect(announce(page)).toContainText('Answer: CORRECT');
-  await expect(card(page)).toContainText('Step 7 of 7');
+  await expect(card(page)).toContainText('Step 8 of 8');
   await expect(drawer(page)).toContainText('CORRECT');
   await expect(drawer(page).locator('mark')).toHaveText(NEG);
 
@@ -97,11 +110,12 @@ test('chapter 4: negation split (AE1), the layers one at a time, map readout (AE
 test('chapter 4: Show me solves the puzzle', async ({ page }) => {
   await open(page, '/rag/04-layers/');
   await card(page).getByRole('button', { name: /^Ask/ }).click();
+  await card(page).getByRole('radio', { name: /a cut split it/ }).click();
   await card(page).getByRole('button', { name: 'Add the Chunker' }).click();
   await card(page).getByRole('button', { name: 'Add the Embedder and Index' }).click();
   await page.locator('.map circle[tabindex]').first().focus();
   await card(page).getByRole('button', { name: 'Add the Context assembler' }).click();
   await card(page).getByRole('button', { name: 'Show me' }).click();
-  await expect(card(page)).toContainText('Step 7 of 7');
+  await expect(card(page)).toContainText('Step 8 of 8');
   await expect(announce(page)).toContainText('CORRECT');
 });

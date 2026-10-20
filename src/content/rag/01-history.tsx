@@ -7,6 +7,7 @@ import Timeline, { ERAS, eraWindow } from '../../components/scenes/Timeline';
 import { Source, Answer } from '../../components/scenes/Source';
 import { nextOf } from '../../lib/chapters';
 import { TIMELINE, formatTokens } from '../../lib/scale';
+import { UNSURE } from '../../lib/recall';
 
 const ID = '01-history';
 interface S { asked: boolean; visited: number; active: number | null; quiz: number | null }
@@ -23,6 +24,11 @@ const QUIZ = {
   ],
   correct: 1,
   explanation: 'Small context windows meant someone had to pick the few right passages up front. Retrieval did that picking.',
+  why: [
+    'Speed was not the problem. The limit was how much text fit in one request, and the model had never seen your files.',
+    'Right. Small windows meant someone had to pick the few right passages up front, and the model could not yet go and search for itself.',
+    'No law asked for it. Retrieval was an engineering fix for a model that had never read your documents.',
+  ],
 };
 
 // What the narration says right after the learner opens era i (the drawer shows its cited claims).
@@ -52,7 +58,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz', focus: 'quiz', visibleControls: ['quiz'], opensDrawer: 'era',
     narration: AFTER[ERAS.length - 1],
-    predicate: s => s.quiz === QUIZ.correct,
+    predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Think back to 2023: what limited how much a model could read?',
   },
 ];
@@ -75,7 +81,7 @@ export default function History() {
             Ask: “Do enterprise contracts get refunds after 30 days?”
           </button>
         ),
-        quiz: ({ state, apply }) => <Quiz {...QUIZ} value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} />,
+        quiz: ({ state, apply, sync }) => <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />,
       }}
       inspectPanel="era"
       panels={{

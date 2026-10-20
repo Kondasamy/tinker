@@ -62,23 +62,39 @@ test('AE1: a returning reader keeps RAG progress, and a saved run resumes only o
   await page.locator('[data-cta]').first().click();
   await expect(page).toHaveURL(new RegExp(`/rag/${CH3}/$`));
 
-  // reach step 4
+  // reach step 5 (chapter 3 gained a prediction in U5, so it no longer has its legacy steps)
   await page.locator('astro-island:not([ssr])').waitFor();
-  for (const name of [/^Ask/, 'Add the Docs', 'Add the Retriever']) await card.getByRole('button', { name }).click();
-  await expect(card).toContainText('Step 4 of 6');
-  // sets the saved run's step ids; none = a run saved before runs carried them
-  const sign = (ids?: string[]) => page.evaluate(({ k, ch, ids }) => {
+  for (const name of [/^Ask/, 'Add the Docs']) await card.getByRole('button', { name }).click();
+  await card.getByRole('radio', { name: /cites the policy/ }).click();
+  await card.getByRole('button', { name: 'Add the Retriever' }).click();
+  await expect(card).toContainText('Step 5 of 7');
+  // sets a saved run's step ids; none = a run saved before runs carried them
+  const sign = (ch: string, ids?: string[]) => page.evaluate(({ k, ch, ids }) => {
     const p = JSON.parse(localStorage.getItem(k)!);
     if (ids) p.saved[ch].ids = ids; else delete p.saved[ch].ids;
     localStorage.setItem(k, JSON.stringify(p));
-  }, { k: KEY, ch: CH3, ids });
-  await sign();
+  }, { k: KEY, ch, ids });
   await open();
-  await expect(card).toContainText('Step 4 of 6');   // unsigned, but chapter 3 still has its legacy steps: resumes
+  await expect(card).toContainText('Step 5 of 7');   // saved on its own steps: resumes
 
   // a run saved on other steps restarts the chapter; finished chapters stay finished
-  await sign(['ask', 'new', 'docs', 'retriever', 'grounded', 'math', 'quiz']);
+  await sign(CH3, ['ask', 'new', 'docs', 'retriever', 'grounded', 'math', 'quiz']);
   await open();
-  await expect(card).toContainText('Step 1 of 6');
+  await expect(card).toContainText('Step 1 of 7');
+  // unsigned: compared with the legacy steps, which chapter 3 no longer has, so it restarts too
+  for (const name of [/^Ask/, 'Add the Docs']) await card.getByRole('button', { name }).click();
+  await sign(CH3);
+  await open();
+  await expect(card).toContainText('Step 1 of 7');
+
+  // chapter 1 kept its steps: an unsigned run resumes there
+  await page.goto('/rag/01-history/');
+  await page.locator('astro-island:not([ssr])').waitFor();
+  await card.getByRole('button', { name: /^Ask/ }).click();
+  await page.locator('[data-era="0"]').click();
+  await expect(card).toContainText('Step 3 of 6');
+  await sign('01-history');
+  await open();
+  await expect(card).toContainText('Step 3 of 6');
   expect(await page.evaluate(k => JSON.parse(localStorage.getItem(k)!).done, KEY)).toEqual(['01-history', '02-why-not-stuff-it']);
 });

@@ -4,6 +4,8 @@
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
+import Predict, { Reveal } from '../../components/quiz/Predict';
+import { UNSURE } from '../../lib/recall';
 import { puzzle } from '../../components/quiz/Puzzle';
 import { Knob } from '../../components/canvas/Knobs';
 import { initialCanvas, unlockedThrough, type CanvasQuestion, type Knobs } from '../../components/canvas/state';
@@ -14,7 +16,7 @@ import ch3 from '../../../data/questions/ch3.json';
 
 const ID = '04-layers';
 const QUESTION = ch3[0] as CanvasQuestion;   // the enterprise refund question, now through every layer
-interface S extends RagState { asked: boolean; quiz: number | null }
+interface S extends RagState { prediction: number | null; asked: boolean; quiz: number | null }
 
 // The split shows only when one chunk is sent: at top-k 2+ both halves arrive and are read together.
 const BROKEN: Partial<Knobs> = { strategy: 'fixed', size: 16, overlap: 0, topK: 1 };
@@ -29,7 +31,19 @@ const QUIZ = {
   ],
   correct: 1,
   explanation: 'The model only sees the chunks it is handed. Overlap, or cutting on sentence boundaries, keeps a rule and its exception together.',
+  why: [
+    'The same model answered correctly in chapter 3. A bigger model cannot read words it was never handed.',
+    'Right. The model only sees the chunks it is handed, and this one had lost the second half of the rule.',
+    'The policy was current. Old documents are a real problem (chapter 5), but here the right policy was cut in two.',
+  ],
 };
+
+// Predict, then reveal (R9): adding the Chunker shows the cut, so the stage shows no pieces until the pick.
+const PREDICT = {
+  question: 'The policy is in the documents, yet the answer is wrong. What do you expect in the one piece the model got?',
+  options: ['The whole rule, exception included', 'Half the rule: a cut split it from what follows', 'A different policy that only sounds similar'],
+};
+const OUTCOME = 1;
 
 const has = (s: S, t: BlockType) => s.canvas.unlocked.includes(t);
 export const STEPS: Step<S>[] = [
@@ -39,12 +53,17 @@ export const STEPS: Step<S>[] = [
     predicate: s => s.asked,
   },
   {
-    id: 'chunker', focus: 'add', visibleControls: ['add'], opensDrawer: 'answer',
-    narration: 'Wrong, and sure of itself. The policy excludes enterprise contracts. To see why, open up the pipeline. First layer: the Chunker, which cuts every document into pieces before anything is searched.',
+    id: 'predict', focus: 'predict', visibleControls: ['predict'], opensDrawer: 'answer',
+    narration: `Wrong, and sure of itself. The policy excludes enterprise contracts. Only the single best ${BROKEN.size}-word piece reached the model. Before you look inside, make a prediction.`,
+    predicate: s => s.prediction !== null,
+  },
+  {
+    id: 'chunker', focus: 'add', visibleControls: ['predict', 'add'],
+    narration: 'Your pick is locked. To see why, open up the pipeline. First layer: the Chunker, which cuts every document into pieces before anything is searched.',
     predicate: s => has(s, 'chunker'),
   },
   {
-    id: 'embedder', focus: 'add', visibleControls: ['add'], opensDrawer: 'chunks',
+    id: 'embedder', focus: 'add', visibleControls: ['reveal', 'add'], opensDrawer: 'chunks',
     narration: 'There it is: a cut right after “does NOT” (the red mark). The rule and its exception landed in different pieces. How was the piece picked? Add the Embedder and the Index.',
     predicate: s => has(s, 'embedder') && has(s, 'index'),
   },
@@ -70,7 +89,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz', focus: 'quiz', visibleControls: ['quiz'], opensDrawer: 'answer',
     narration: 'Correct, with a citation. With overlap the whole sentence sits in one piece, so the model reads the exception. One question to finish.',
-    predicate: s => s.quiz === QUIZ.correct,
+    predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Look at the red mark in the Chunks panel from earlier.',
   },
 ];
@@ -83,10 +102,14 @@ export default function Layers() {
     <StepRunner<S>
       chapter={ID}
       steps={STEPS}
-      initial={{ canvas: initialCanvas(unlockedThrough('03-what-is-rag'), BROKEN), verdict: null, math: false, probed: false, asked: false, quiz: null }}
+      initial={{ canvas: initialCanvas(unlockedThrough('03-what-is-rag'), BROKEN), verdict: null, math: false, probed: false, prediction: null, asked: false, quiz: null }}
       next={nextOf(ID)}
       stage={p => <RagStage {...p} run={run} />}
       controls={{
+        predict: ({ state, apply }) => <Predict {...PREDICT} value={state.prediction} onPredict={i => apply({ ...state, prediction: i })} />,
+        reveal: ({ state }) => (
+          <Reveal prediction={state.prediction === null ? null : PREDICT.options[state.prediction]} outcome={PREDICT.options[OUTCOME]} revealed onReveal={() => {}} />
+        ),
         ask: ({ state, apply }) => (
           <button type="button" className="big" onClick={() => apply({ ...state, asked: true })}>Ask: “{QUESTION.query}”</button>
         ),
@@ -100,7 +123,7 @@ export default function Layers() {
           <Knob name="overlap" state={state.canvas} question={QUESTION}
             onChange={canvas => apply({ ...state, canvas, verdict: run.verdictOf(canvas) })} />
         ),
-        quiz: ({ state, apply }) => <Quiz {...QUIZ} value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} />,
+        quiz: ({ state, apply, sync }) => <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />,
       }}
       inspectPanel="answer"
       panels={ragPanels<S>(run)}

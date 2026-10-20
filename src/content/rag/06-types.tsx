@@ -9,6 +9,7 @@
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
+import { UNSURE } from '../../lib/recall';
 import KnobList, { Knob } from '../../components/canvas/Knobs';
 import { initialCanvas, unlockedThrough, type CanvasQuestion, type CanvasState } from '../../components/canvas/state';
 import { RagStage, useQuestionRuns, type RagState } from '../../components/panels/rag';
@@ -52,6 +53,11 @@ const QUIZ = {
   ],
   correct: 1,
   explanation: 'Each call costs time and money. A follow-up pays off when there is something left to fetch: the rest of a cut sentence, or the next hop of a question. It cannot fix stale documents.',
+  why: [
+    'More searches are not free, and they do not always help: on the hotel question the agent paid for a second search and was still wrong.',
+    'Right. A follow-up pays off when there is something left to fetch: the rest of a cut sentence, or the next hop of a question.',
+    'Searching again finds the same stale documents. A metadata filter keeps them out; an agent cannot.',
+  ],
 };
 
 const MULTI = 'kestrel-purchase-approver';
@@ -66,6 +72,11 @@ const GRAPH_QUIZ = {
   ],
   correct: 1,
   explanation: 'The graph links named things across documents, so it can follow scanner → team → approver. A single-sentence lookup is cheaper with plain retrieval, and a cut sentence is fixed by better chunking or an agent fetching neighbours.',
+  why: [
+    'A one-sentence lookup needs no graph: plain retrieval finds it, faster and cheaper.',
+    'Right. The graph links the people, teams and products documents name, so it can follow scanner → team → approver.',
+    'A cut sentence is a chunking problem. Better chunking, or an agent fetching neighbours, fixes it; a graph does not.',
+  ],
 };
 
 export const STEPS: Step<S>[] = [
@@ -100,7 +111,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz', focus: 'quiz', visibleControls: ['quiz'],
     narration: 'Both wrong, and the agent paid for a second search. The retired 2018 policy is the problem, and searching more never removes it: a metadata filter does. One question before the next type.',
-    predicate: s => s.quiz === QUIZ.correct,
+    predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Compare the refund rows with the hotel rows in the strip.',
   },
   {
@@ -129,7 +140,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'graph-quiz', focus: 'quiz', visibleControls: ['gquiz'],
     narration: 'Correct. The second hop crossed from Fulfillment Systems to Tomasz Rehnquist, whose sentence sits in a different document. The price shows in the strip: a walk takes every relation it passes, so the model read about two dozen chunks instead of one. One question before the next type.',
-    predicate: s => s.gquiz === GRAPH_QUIZ.correct,
+    predicate: s => s.gquiz === GRAPH_QUIZ.correct || s.gquiz === UNSURE,
     hint: 'Compare the Kestrel rows in the strip.',
   },
   {
@@ -254,8 +265,8 @@ export default function Types() {
         maxCalls: ({ state, apply }) => <Knob name="maxCalls" state={state.canvas} question={Q(state.q)} onChange={canvas => apply(withCanvas(state, canvas))} />,
         hops: ({ state, apply }) => <Knob name="hops" state={state.canvas} question={Q(state.q)} onChange={canvas => apply(withCanvas(state, canvas))} />,
         parse: ({ state, apply }) => <KnobList names={['tables', 'pdfs', 'images']} state={state.canvas} question={Q(state.q)} onChange={canvas => apply(withCanvas(state, canvas))} />,
-        quiz: ({ state, apply }) => <Quiz {...QUIZ} value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} />,
-        gquiz: ({ state, apply }) => <Quiz {...GRAPH_QUIZ} value={state.gquiz} onAnswer={(_, q) => apply({ ...state, gquiz: q })} />,
+        quiz: ({ state, apply, sync }) => <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />,
+        gquiz: ({ state, apply, sync }) => <Quiz {...GRAPH_QUIZ} unsure value={state.gquiz} onAnswer={(_, q) => apply({ ...state, gquiz: q })} onUnsure={() => sync({ ...state, gquiz: UNSURE })} />,
       }}
       inspectPanel="answer"
       panels={panels}

@@ -42,10 +42,11 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
   await next(/02-why-not-stuff-it/);
 
   // 2. Why not stuff it
+  await opt(/a real drive overflows it/);         // the prediction
   await btn(/^Ask/);
   const slider = card.getByRole('slider');
   await slide(slider, '7');
-  await step(3);
+  await step(4);
   await slide(slider, '8');
   for (const reason of ['Lost in the middle', 'Freshness', 'Who may see what']) await btn(`Next reason: ${reason} →`);
   await opt(/no context window holds it/);
@@ -54,6 +55,7 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
   // 3. What is RAG
   await btn(/^Ask/);
   await btn('Add the Docs');
+  await opt(/cites the policy/);
   await btn('Add the Retriever');
   await btn('See what the retriever found');
   await tick(page.getByRole('complementary').getByLabel('Show the math'));
@@ -62,6 +64,7 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
 
   // 4. Layers
   await btn(/^Ask/);
+  await opt(/a cut split it/);
   await btn('Add the Chunker');
   await btn('Add the Embedder and Index');
   await page.locator('.map circle[tabindex]').first().focus();
@@ -75,20 +78,21 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
   const solve = async (n: number) => { await step(n); await showMe(); await step(n + 1); };
   await btn(/^Ask/);
   await btn('Add the Evaluator');
+  await opt(/Only recall/);
   await btn('Retrieve 5 chunks instead of 3');
-  await solve(4);
+  await solve(5);
   await btn('Add Query rewrite');
-  await solve(6);
+  await solve(7);
   await nextPuzzle();
-  await solve(8);
+  await solve(9);
   await btn('Add the Reranker');
-  await solve(10);
+  await solve(11);
   await nextPuzzle();
-  await solve(12);
+  await solve(13);
   await nextPuzzle();
-  await solve(14);
+  await solve(15);
   await nextPuzzle();
-  await solve(16);
+  await solve(17);
   await opt(/What reached the model/);
   await next(/06-types/);
 
