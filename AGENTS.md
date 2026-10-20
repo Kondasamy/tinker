@@ -52,7 +52,7 @@ Marketing pages share `src/styles/page.css` (buttons, kickers, chips, top bar, c
 ## Chapter page layout
 
 - **Wide screens (≥ 861px): an app frame.** The picture holds still on the left; the story column on the right scrolls on its own. Phones stack the picture above the story.
-- **The story column opens with context**, before step 1: chapter number, title, the story so far, the chapter's question, "You will learn", "Words you'll meet". This lives in `CHAPTERS[].intro` (`src/lib/chapters.ts`). Never drop a reader straight into a step.
+- **The story column opens with context**, before step 1: chapter number, title, the story so far, the chapter's question, "You will learn", "Words you'll meet". This lives in each chapter's `intro` in `src/content/<module>/module.ts`. Never drop a reader straight into a step.
 - **Finished steps stay visible** as a ticked "story so far" log above the current step card; the current step scrolls into view when it changes.
 - Steps are run by `StepRunner` (`src/components/story/`): narration, the one control the step needs, a predicate that advances it, hints after 3 misses, "Show me" for puzzles, progress in `localStorage`.
 
