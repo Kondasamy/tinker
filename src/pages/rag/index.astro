@@ -14,6 +14,10 @@ import ch6 from '../../../data/questions/ch6.json';
 import manifest from '../../../public/data/index/manifest.json';
 import Meta from '../../components/Meta.astro';
 import { RAG } from '../../lib/pages';
+import { moduleOf } from '../../lib/modules';
+
+const MODULE = moduleOf('rag');
+const PREREQS = MODULE.prereqs.length ? `${MODULE.prereqs.map(id => moduleOf(id).title).join(', ')} recommended` : 'No prerequisites';
 
 const QUESTION = ch3.find(q => q.id === 'refund-enterprise')!.query;
 const WITHOUT = refund.nocontext, WITH = refund['enterprise-excluded:intact'];
@@ -51,12 +55,13 @@ const FACTS: [string, string][] = [
   <body>
     <div class="topbar">
       <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">RAG</span></nav>
-      <p class="by">by <a href="https://kondasamy.com">Kondasamy Jayaraman</a></p>
+      <p class="by">by <a href={MODULE.author.url}>{MODULE.author.name}</a></p>
     </div>
     <main class="rag">
       <header class="hero">
         <div class="hero-text">
           <p class="kicker">Module 1 · AI</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS} · by <a href={MODULE.author.url}>{MODULE.author.name}</a></p>
           <h1>How AI assistants answer from your company’s documents</h1>
           <p class="lede">Retrieval-Augmented Generation (RAG) is how most workplace AI assistants find the right policy, contract or price before they answer. You’ll build one block by block, watch it fail, and fix it.</p>
           <ul class="chips" aria-label="At a glance">
@@ -198,6 +203,9 @@ const FACTS: [string, string][] = [
 
   .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
   .lede { font-size: 17px; }
+  .rag .module-meta { margin: 8px 0 10px;font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .module-meta a { color: var(--ink); }
   .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 
   .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }

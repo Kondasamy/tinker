@@ -1,0 +1,82 @@
+// U2: the home page is a catalogue grouped by level (R5, R6), Continue resumes the last module (R8), intros show level and author (R7).
+import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+import { MODULES } from '../../src/lib/modules';
+
+const catalogue = (page: import('@playwright/test').Page) => page.locator('#modules');
+
+test('levels in order, RAG under Beginner, planned modules as cards with no link', async ({ page }) => {
+  await page.goto('/');
+  await expect(catalogue(page).locator('[data-level] > h3')).toHaveText(['Beginner', 'Intermediate', 'Advanced']);
+  await expect(page.locator('[data-level="Beginner"] [data-module="rag"]')).toBeVisible();
+  const planned = MODULES.filter(m => m.status === 'planned');
+  const cards = catalogue(page).locator('.roadmap');
+  await expect(cards).toHaveCount(planned.length);
+  for (const m of planned) {
+    const card = page.locator(`[data-level="${m.level}"] .roadmap[data-module="${m.id}"]`);
+    await expect(card).toContainText(m.title);
+    await expect(card).toContainText('Planned');
+  }
+  await expect(cards.locator('a, button, [tabindex]')).toHaveCount(0);
+  await expect(page.locator('a[href="/tokens/"], a[href="/transformers/"], a[href="/agents/"]')).toHaveCount(0);
+  await expect(page.getByText('In the workshop')).toHaveCount(0);
+});
+
+test('keyboard Tab never lands in a planned card', async ({ page }) => {
+  await page.goto('/');
+  const seen: string[] = [];
+  for (let i = 0; i < 60; i++) {
+    await page.keyboard.press('Tab');
+    seen.push(await page.evaluate(() => (document.activeElement?.closest('.roadmap') ? 'roadmap' : document.activeElement?.tagName ?? '')));
+  }
+  expect(seen).not.toContain('roadmap');
+  expect(seen).toContain('A');
+});
+
+test('Continue resumes the last module at its first unfinished chapter', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => {
+    localStorage.setItem('rag-progress-v1', JSON.stringify({ done: ['01-history', '02-why-not-stuff-it'], saved: {} }));
+    localStorage.setItem('tinker-last-module', 'rag');
+  });
+  await page.reload();
+  const go = page.locator('[data-continue]');
+  await expect(go).toHaveAttribute('href', '/rag/03-what-is-rag/');
+  await expect(go).toHaveText('Continue RAG: chapter 3 →');
+});
+
+test('with no storage, Continue opens the RAG intro', async ({ page }) => {
+  await page.addInitScript(() => Object.defineProperty(window, 'localStorage', { get() { throw new Error('blocked'); } }));
+  await page.goto('/');
+  await page.locator('[data-continue]').click();
+  await expect(page).toHaveURL(/\/rag\/$/);
+});
+
+test('an unknown last module falls back to the first live one', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => localStorage.setItem('tinker-last-module', 'nope'));
+  await page.reload();
+  await expect(page.locator('[data-continue]')).toHaveAttribute('href', '/rag/');
+});
+
+test('the catalogue fits a 390px phone without sideways scroll', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await catalogue(page).scrollIntoViewIfNeeded();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+});
+
+for (const path of ['/', '/rag/']) test(`axe: ${path} has no serious or critical violations`, async ({ page }) => {
+  await page.goto(path);
+  const { violations } = await new AxeBuilder({ page }).analyze();
+  expect(violations.filter(v => v.impact === 'serious' || v.impact === 'critical').map(v => `${v.id}: ${v.nodes.map(n => n.target.join(' ')).slice(0, 3).join(' | ')}`)).toEqual([]);
+});
+
+test('RAG intro shows its level, prerequisites and author from the registry', async ({ page }) => {
+  const rag = MODULES.find(m => m.id === 'rag')!;
+  await page.goto('/rag/');
+  const meta = page.locator('.hero .module-meta');
+  await expect(meta.locator('.level')).toHaveText(rag.level);
+  await expect(meta).toContainText('No prerequisites');
+  await expect(meta.getByRole('link', { name: rag.author.name })).toHaveAttribute('href', rag.author.url);
+});
