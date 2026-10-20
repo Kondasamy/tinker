@@ -6,6 +6,7 @@ import type { SceneCtx, Board } from '../../lib/iso/IsoStage';
 import { BH, ACC, renderers, blockShadow, boxCorners, esc } from '../../lib/iso/blocks';
 import { INK, PALS, CERAMIC, WOOD, pd, on, PZ, rrUV, byDepth, box, rod, line, fill, castShadow, toneI, tag } from '../../lib/iso/core.js';
 import { officeScene } from './officeScene';
+import { clipboard, helperDesk } from './agentScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
@@ -69,8 +70,15 @@ export const heroScene = ({ live, planned, ride }: { live: HeroPlot[]; planned: 
     + planned.map((m, j) => pill(at(later.length + j), `Soon: ${m.name}`, false, -12)).join('');
 };
 
+/** later live modules' plots, by module id: agents is a small desk with its plan on a clipboard */
+const DRAW: Record<string, HeroPlot['draw']> = {
+  // at the plot's right-hand corner, clear of the pill row
+  agents: (x, y, { top }) => castShadow(boxCorners(x + 9, y - 21, BH, x + 27, y - 7, BH + 17), BH, top)
+    + castShadow(boxCorners(x + 14, y - 4, BH, x + 40, y + 3, BH + 33), BH, top)
+    + byDepth([helperDesk(x + 18, y - 14, true, false), clipboard(x + 27, y + 1, [{ done: true, struck: false }, { done: true, struck: false }, { done: false, struck: false }])]),
+};
 const LIVE = MODULES.filter(m => m.status === 'live'), PLANNED = MODULES.filter(m => m.status === 'planned');
 /** the home page's picture (and its share image), from the registry: the model's call riding to the host */
 export const HERO_BOARD = heroBoard(LIVE.length - 2 + PLANNED.length);
-export const HOME_HERO = heroScene({ live: LIVE.map((m, i) => ({ name: `Module ${i + 1} · ${m.title}` })), planned: PLANNED.map(m => ({ name: m.id.replace(/-/g, ' ') })), ride: SEQ_MSGS.slice(0, 3) });
+export const HOME_HERO = heroScene({ live: LIVE.map((m, i) => ({ name: `Module ${i + 1} · ${m.title}`, draw: DRAW[m.id] })), planned: PLANNED.map(m => ({ name: m.id.replace(/-/g, ' ') })), ride: SEQ_MSGS.slice(0, 3) });
 export const HOME_HERO_LABEL = `Tinker as one workshop with a plot per module: ${LIVE.map(m => m.title).join(' and ')}, live, and building sites for ${PLANNED.map(m => m.title).join(', ')}.`;

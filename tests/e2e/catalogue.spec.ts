@@ -19,7 +19,7 @@ test('levels in order, RAG under Beginner, planned modules as cards with no link
     await expect(card).toHaveAttribute('id', `module-${m.id}`);
   }
   await expect(cards.locator('a, button, [tabindex]')).toHaveCount(0);
-  await expect(page.locator('a[href="/tokens/"], a[href="/transformers/"], a[href="/agents/"]')).toHaveCount(0);
+  await expect(page.locator('a[href="/tokens/"], a[href="/transformers/"]')).toHaveCount(0);
   await expect(page.getByText('In the workshop')).toHaveCount(0);
 });
 

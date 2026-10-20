@@ -46,6 +46,16 @@ export const TOOL_CALLING: PageMeta = {
   sub: 'Tool calling and the Model Context Protocol (MCP), played at Larkspur Supply Co.',
 };
 
+export const AGENTS: PageMeta = {
+  path: '/agents/',
+  og: 'agents',
+  title: 'AI agents: how an assistant works a whole case · Tinker',
+  description: 'A hands-on, visual course on AI agents: when the model should pick its own steps, and the loop, plans, budgets, memory and helpers that keep it in bounds.',
+  kicker: 'Tinker · Module 3',
+  headline: 'How an AI assistant works a whole case',
+  sub: 'Workflows, agents and the loop between them, played at Larkspur Supply Co.',
+};
+
 export const chapterMeta = (module: string, id: string): PageMeta => {
   const m = moduleOf(module), i = m.chapters.findIndex(c => c.id === id), c = m.chapters[i];
   if (!c) return RAG;   // dev fixtures borrow the module's card
@@ -69,7 +79,7 @@ export const recapMeta = (module: string): PageMeta => {
 /** A module's intro page (`/<module>/`): its own card where one is written above, else one from the registry entry. */
 export const introMeta = (module: string): PageMeta => {
   const m = moduleOf(module), i = MODULES.filter(x => x.status === 'live').indexOf(m);
-  return ({ rag: RAG, 'tool-calling': TOOL_CALLING } as Record<string, PageMeta>)[m.id] ?? {
+  return ({ rag: RAG, 'tool-calling': TOOL_CALLING, agents: AGENTS } as Record<string, PageMeta>)[m.id] ?? {
     path: `/${m.id}/`, og: m.id, title: `${m.title} · Tinker`, description: m.description,
     kicker: `Tinker · Module ${i + 1}`, headline: m.title, sub: m.description,
   };

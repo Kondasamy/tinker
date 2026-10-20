@@ -1,0 +1,284 @@
+---
+// AI agents module intro: sets the scene before chapter 1. Static, except the steps figure and a small script that marks
+// finished chapters. Every example is the course's own data: the recorded agent turns, Larkspur's script runs over the
+// same tools, and claims about agents quoted from data/agents/facts.json with their sources.
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import Meta from '../../components/Meta.astro';
+import FlatStage from '../../components/scenes/FlatStage';
+import IsoStage from '../../lib/iso/IsoStage';
+import { AGENT_BOARD, agentScene, agentLabel, clipboard, gaugeProp, trayProp } from '../../components/scenes/agentScene';
+import { agentLanes, agentMessages } from '../../components/scenes/agentSequence';
+import { answerOf, run, stepsOf, totalTokens, AGENT_TOOLS, CASE_ORDERS } from '../../lib/agents/loop';
+import { RECORDINGS } from '../../lib/agents/turns';
+import { fact, ACCESSED } from '../../lib/agents/facts';
+import { moduleOf, chapterHref } from '../../lib/modules';
+import { introMeta } from '../../lib/pages';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import type { SceneCtx } from '../../lib/iso/IsoStage';
+import { BH, boxCorners } from '../../lib/iso/blocks';
+import { box, castShadow, toneI, WOOD } from '../../lib/iso/core.js';
+import { longDate } from '../../lib/format';
+
+const MODULE = moduleOf('agents');
+const CHAPTERS = MODULE.chapters;
+const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
+
+// the whole idea: the cracked printer, out of stock, run as Larkspur's script and as an agent
+const REC = RECORDINGS['01-workflow-or-agent'];
+const SCRIPT = run(REC, { case: 'damaged', stock: 'out', mode: 'script' });
+const AGENT = run(REC, { case: 'damaged', stock: 'out', mode: 'agent' });
+const HALT = stepsOf(SCRIPT, 'halt')[0];
+const HERO = { run: AGENT, upTo: AGENT.steps.length - 1, scale: 1.7 };
+const SMALL = (r: typeof AGENT) => ({ run: r, scale: 1.7 });
+const names = (r: typeof AGENT) => stepsOf(r, 'call').map(c => c.call.name);
+const LANES = agentLanes(AGENT), MSGS = agentMessages(AGENT);
+
+// small pictures: one agent prop alone on the floor
+// drawn inside the scene, so the stage's frame is set (a part drawn at load time lands in the default frame)
+const solo = (part: () => { svg: string }, shadow: [number, number, number, number, number], under = () => '') => ({ top }: SceneCtx) => {
+  const [x0, y0, x1, y1, h] = shadow;
+  return castShadow(boxCorners(x0, y0, BH, x1, y1, BH + h), BH, top) + under() + part().svg;
+};
+// the gauge stands on the host's desk in the scene; here, on a small wooden stand
+const STAND = () => box(24, 17, BH, 36, 35, BH + 16, WOOD, toneI, 1);
+const STEPS: [string, string, ReturnType<typeof fact>, [number, number, number, number], (c: SceneCtx) => string][] = [
+  ['The model picks the path', 'A goal, not a script', fact('workflow-vs-agent'), [12, 16, 48, 44],
+    solo(() => clipboard(30, 30, [{ done: true, struck: false }, { done: true, struck: false }, { done: false, struck: false }]), [17, 25, 43, 32, 33])],
+  ['Act, look, decide, again', 'Each result picks the next step', fact('react-loop'), [14, 16, 46, 44], solo(() => trayProp(30, 30, 6, false), [19, 22, 41, 38, 8])],
+  ['The host keeps it in bounds', 'Budgets and stops', fact('stopping-conditions'), [16, 14, 44, 42], solo(() => gaugeProp(30, 30, .6, .4, false), [24, 17, 36, 35, 34], STAND)],
+];
+const checked = longDate(ACCESSED);
+
+// the cases the recordings hold, and what makes each one hard
+const HARD: [string, string][] = [
+  [REC.asks.refund, 'Routine: Larkspur’s script already handles it'],
+  [REC.asks.damaged, 'The printer might be out of stock'],
+  [RECORDINGS['03-plans'].asks.planted, 'The email holds a line written to change the plan'],
+  [RECORDINGS['04-budgets'].asks.timeout, 'The carrier’s lookup keeps timing out'],
+  [RECORDINGS['05-memory'].asks.storm, 'Five orders in one case: the history keeps growing'],
+];
+const FACTS: [string, string][] = [
+  // a helper's single-order asks are parts of the storm case, not cases of their own
+[String(new Set(Object.values(RECORDINGS).flatMap(r => Object.keys(r.asks)).filter(a => !a.startsWith('order-'))).size), 'support cases to work'],
+  [String(AGENT_TOOLS.length), 'tools the agent can call'],
+  [String(CASE_ORDERS.length), 'orders in the storm case'],
+  [totalTokens(AGENT).toLocaleString('en-US'), 'tokens the agent spends on the cracked printer'],
+];
+---
+<html lang="en">
+  <head>
+    <Meta {...introMeta('agents')} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url}>{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module 3 · AI</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS.map((m, i) => <>{i > 0 && ', '}<a href={`/${m.id}/`}>{m.title}</a></>)} recommended · by <a href={MODULE.author.url}>{MODULE.author.name}</a></p>
+          <h1>How an AI assistant works a whole case</h1>
+          <p class="lede">A support case is more than one request: look it up, check the stock, ship or refund, tell the customer. Code can run those steps in a fixed order, or the model can pick each one as it goes. That second way is an agent. You’ll see when it pays, and how to keep it in bounds.</p>
+          <ul class="chips" aria-label="At a glance">
+            {CHAPTERS.length > 0 && <li>{CHAPTERS.length} {CHAPTERS.length === 1 ? 'chapter' : 'chapters'}</li>}<li>No code</li><li>Runs in your browser</li><li>No live model</li>
+          </ul>
+          <div class="ctas">
+            {CHAPTERS.length
+              ? <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
+              : <a class="btn primary" href={`/${PREREQS[0].id}/`}>Start with {PREREQS[0].title} →</a>}
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+          <ReadingMode />
+        </div>
+        <div class="hero-pic">
+          {/* the back office every chapter plays in: the agent telling the customer, after it changed course */}
+          <IsoStage board={AGENT_BOARD} scene={agentScene(HERO)} label={agentLabel(HERO)} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="same">
+        <p class="kicker">The whole idea in one case</p>
+        <h2 id="same">Same case. Same tools. One copes.</h2>
+        <p class="ask"><span class="who">The support lead hands over</span> “{REC.asks.damaged}” <span class="who">The printer is out of stock.</span></p>
+        <div class="versus">
+          <article class="reply bad">
+            <header><h3>As a script</h3><span class="stamp">Stopped</span></header>
+            <div class="vpic"><IsoStage board={AGENT_BOARD} scene={agentScene(SMALL(SCRIPT))} label={agentLabel(SMALL(SCRIPT))} /></div>
+            <p class="said">“{HALT.text}”</p>
+            <p class="why more">The script runs {names(SCRIPT).join(', ')}, in that order, every time. Nobody wrote a step for an empty shelf.</p>
+          </article>
+          <article class="reply good">
+            <header><h3>As an agent</h3><span class="stamp">Done</span></header>
+            <div class="vpic"><IsoStage board={AGENT_BOARD} scene={agentScene(SMALL(AGENT))} label={agentLabel(SMALL(AGENT))} /></div>
+            <p class="said">“{answerOf(AGENT)}”</p>
+            <blockquote><span>The agent chose</span><code>{names(AGENT).join(' → ')}</code></blockquote>
+          </article>
+        </div>
+        <p class="note more">These are the course’s own recorded model turns, and the script runs for real over the same tools. On a routine refund the script does just as well, for fewer tokens: chapter 1 shows both.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Three ideas carry the whole module</h2>
+        <div class="loop"><FlatStage client:visible lanes={LANES} msgs={MSGS} /></div>
+        <ol class="steps">
+          {STEPS.map(([name, short, f, board, scene], i) => (
+            <li>
+              <div class="pic"><IsoStage board={board} scene={scene} label={name} /></div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              <p class="more">{f.claim}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">The assistant gets whole cases now</h2>
+          <p class="more">{MODULE.story} Some cases go the way everyone expects; others take a turn nobody wrote a step for. <strong>You’re on the team that decides who picks the steps, and keeps the agent in bounds.</strong></p>
+          {PREREQS.map(m => <p class="prev">New to Larkspur’s tools? The <a href={`/${m.id}/`}>{m.title} module</a> builds the assistant this one starts from.</p>)}
+          <dl class="facts">
+            {FACTS.map(([n, what]) => <div><dt class:list={{ long: n.length > 6 }}>{n}</dt><dd>{what}</dd></div>)}
+          </dl>
+        </div>
+        <div class="inbox">
+          <h3>Cases waiting for the assistant</h3>
+          <ul>
+            {HARD.map(([text, hard]) => <li><p class="qtext">“{text}”</p><p class="hard">{hard}</p></li>)}
+          </ul>
+        </div>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due (R13); the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
+        {CHAPTERS.length === 0 && <p class="soon">Chapters arrive soon. This module is being written now; until then, the {PREREQS[0].title} module is ready to play.</p>}
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <ul class="who-chips"><li>Product managers</li><li>Engineers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Product managers, engineers and analysts whose company is letting its AI assistant work whole tasks on its own, who want to know when that is worth it, what it costs, and what keeps it in bounds. No code needed. If tool calling is new to you, play that module first.</p>
+        </article>
+        <article>
+          <h2>How a chapter page works</h2>
+          <div class="schematic" aria-hidden="true">
+            <div class="s-pic">live picture</div>
+            <div class="s-story"><span></span><span></span><span class="s-step">your step</span></div>
+          </div>
+          <p class="more">The picture on the left is live. The story on the right asks you to do one thing in it at a time. The model’s turns are recorded, but the tools, the script, the checks and the budgets run for real in your browser. Progress stays in this browser.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com">Kondasamy Jayaraman</a>.</p>
+        <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, whose hand-inked isometric style and engine this course is built on. Colorfigures grew from April’s <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed. Thank you.</p>
+      </footer>
+    </main>
+
+    <script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      const CHAPTERS = moduleOf('agents').chapters;
+      const done = completed('agents');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('agents', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .module-meta a { color: var(--ink); }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .ask { font-size: 18px; font-weight: 800; margin-bottom: 18px; }
+  .ask .who { display: block; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .versus { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .reply { border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.bad { border-left: 6px solid var(--bad); }
+  .reply.good { border-left: 6px solid var(--ok); }
+  .said { font-size: 15.5px; font-style: italic; }
+  .why { font-size: 13.5px; color: var(--muted); }
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); }
+  .bad .stamp { color: var(--bad); } .good .stamp { color: var(--ok); }
+  blockquote { margin: 6px 0 0; padding: 8px 12px; background: var(--card); border-radius: 8px; font-size: 13.5px; border: 1px dashed var(--rule); overflow-wrap: anywhere; }
+  blockquote span { display: block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .loop { max-width: 720px; margin: 0 auto 24px; }
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 120px; display: flex; justify-content: center; margin-bottom: 4px; }
+  .steps .pic :global(svg), .vpic :global(svg) { width: auto !important; height: 100% !important; }
+  .vpic { height: 130px; display: flex; justify-content: center; margin: 2px 0 10px; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .prev { font-size: 14px; color: var(--muted); }
+  .prev a { color: var(--ink); }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 18px 0 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dt.long { font-size: 20px; padding: 3px 0 2px; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+  .inbox { background: var(--card); border: 1.5px solid var(--ink); border-radius: 16px; padding: 18px 20px; box-shadow: 4px 4px 0 var(--ink); }
+  .inbox h3 { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .inbox ul { list-style: none; margin: 0; padding: 0; }
+  .inbox li { padding: 10px 0; border-top: 1px dashed var(--rule); }
+  .inbox li:first-child { border-top: 0; }
+  .qtext { margin: 0; font-weight: 700; }
+  .hard { margin: 2px 0 0 !important; font-size: 13px; color: var(--bad); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
+  .soon { font-size: 15px; color: var(--muted); max-width: 70ch; }
+  .done-mark { color: var(--ok); font-size: 13px; }
+
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+  }
+</style>

@@ -7,6 +7,7 @@ import FlatStage from '../../components/scenes/FlatStage';
 import { AGENT_BOARD, agentLabel, agentScene, agentState, type AgentOpts } from '../../components/scenes/agentScene';
 import { agentLanes, agentMessages } from '../../components/scenes/agentSequence';
 import { totalTokens, type Run } from '../../lib/agents/loop';
+import { fact } from '../../lib/agents/facts';
 import { openMessage, useNarrow } from '../tool-calling/kit';
 
 /** The props a chapter turns on (KTD8): everything in AgentOpts but the run, the step and the drawing's own settings. */
@@ -56,5 +57,15 @@ export function AgentStage({ run, upTo, props = {}, host = 'Host app', inspect }
         </p>
       )}
     </div>
+  );
+}
+
+/** A cited fact from data/agents/facts.json, with its source and the day it was checked (R8). */
+export function Fact({ id }: { id: string }) {
+  const f = fact(id);
+  return (
+    <p className="tc-fact">
+      {f.claim} <a className="source" href={f.source} target="_blank" rel="noreferrer">Source: {new URL(f.source).hostname}</a> (checked {f.accessed})
+    </p>
   );
 }

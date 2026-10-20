@@ -27,7 +27,7 @@ describe('module registry', () => {
 
   it('lists the planned modules without chapters', () => {
     const planned = MODULES.filter(m => m.status === 'planned').map(m => [m.title, m.level, m.chapters.length]);
-    expect(planned).toEqual([['Tokens & embeddings', 'Beginner', 0], ['Transformer architecture', 'Advanced', 0], ['AI agents', 'Advanced', 0],
+    expect(planned).toEqual([['Tokens & embeddings', 'Beginner', 0], ['Transformer architecture', 'Advanced', 0],
       ['Evals & LLM testing', 'Intermediate', 0], ['Prompt injection & guardrails', 'Intermediate', 0],
       ['Context engineering & memory', 'Intermediate', 0], ['Fine-tuning vs prompting', 'Advanced', 0]]);
   });
@@ -35,6 +35,11 @@ describe('module registry', () => {
   it('has tool calling as a live Intermediate module that recommends RAG first', () => {
     expect(moduleOf('tool-calling')).toMatchObject({ title: 'Tool calling & MCP', level: 'Intermediate', status: 'live', prereqs: ['rag'] });
     expect(moduleOf('tool-calling').author).toEqual(moduleOf('rag').author);
+  });
+
+  it('has AI agents as a live Advanced module that recommends tool calling first', () => {
+    expect(moduleOf('agents')).toMatchObject({ title: 'AI agents', level: 'Advanced', status: 'live', prereqs: ['tool-calling'] });
+    expect(moduleOf('agents').author).toEqual(moduleOf('rag').author);
   });
 
   it('keeps chapter ids unique within every module', () => {
