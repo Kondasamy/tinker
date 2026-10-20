@@ -1,0 +1,16 @@
+/* Evals stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption); these are the Results grid and the
+   loading state (tools.css comes in through tool-calling/kit). The grid draws wide or phone by width; phones list the questions under it (rows show numbers only). */
+.ev-grid { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.ev-grid svg { width: 100%; height: auto; display: block; overflow: visible; }
+.ev-grid .ev-grid-phone, .ev-grid .ev-key { display: none; }
+@media (max-width: 599px) {
+  .ev-grid .ev-grid-wide { display: none; }
+  .ev-grid .ev-grid-phone { display: block; }
+  .ev-grid .ev-key { display: block; margin: 0; padding-left: 2.6em; font-size: 12.5px; line-height: 1.35; }
+  .ev-grid .ev-key li::marker { content: 'Q' counter(list-item) '  '; font-weight: 800; font-family: ui-monospace, Menlo, monospace; }
+}
+/* in the fixed frame the grid scrolls inside it rather than growing the stage */
+.tc-frame .ev-grid { overflow-y: auto; }
+.tc-frame .ev-grid svg { height: auto; flex: none; }
+.ev-wait { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 240px; border: 1.5px dashed var(--rule); border-radius: 12px; font-size: 14px; }
+.ev-wait p { margin: 0; }
