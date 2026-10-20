@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { CHAPTERS, chapterHref } from '../../src/lib/chapters';
 
 test('Tinker home returns 200 and links to the RAG module', async ({ page }) => {
   const res = await page.goto('/');
@@ -31,4 +32,21 @@ test('RAG intro marks finished chapters and continues from the next one', async 
   const cta = page.locator('.hero [data-cta]');
   await expect(cta).toHaveText('Continue: chapter 3 →');
   await expect(cta).toHaveAttribute('href', '/rag/03-what-is-rag/');
+});
+
+test('every public page has its own share image, and it is served', async ({ page, request }) => {
+  const paths = ['/', '/rag/', ...CHAPTERS.map(c => chapterHref(c.id))];
+  const seen = new Set<string>();
+  for (const p of paths) {
+    await page.goto(p);
+    const og = await page.locator('meta[property="og:image"]').getAttribute('content');
+    expect(og, p).toMatch(/^https:\/\/explain\.kondasamy\.com\/og\/[\w-]+\.jpg$/);
+    seen.add(og!);
+    const file = new URL(og!).pathname;
+    const res = await request.get(file);
+    expect(res.status(), file).toBe(200);
+    expect(res.headers()['content-type']).toContain('image/jpeg');
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+  }
+  expect(seen.size).toBe(paths.length);   // dedicated: no two pages share an image
 });

@@ -9,7 +9,8 @@ const CX = 130, CY = 40, CH = 16, CZ = 44;   // container centre, half-footprint
 const PX0 = 40, PY0 = 40, SLAB = 3.6;        // corpus pile
 const glass = (pts: number[][], c: string) => fill(pd(pts), c, 'fill-opacity=".35"') + ink(pd(pts), 1);
 
-export default function ContextOverflow({ stop }: { stop: number }) {
+/** pills: label size (1 = page size; the share images pass more) */
+export default function ContextOverflow({ stop, pills = 1 }: { stop: number; pills?: number }) {
   const bytes = STOPS[stop], tokens = tokensFor(bytes), ratio = tokens / WINDOW, over = ratio > 1;
 
   const scene = ({ top }: SceneCtx) => {
@@ -38,7 +39,7 @@ export default function ContextOverflow({ stop }: { stop: number }) {
     // see-through container: lighter shadow
     const shadow = `<g opacity=".45">${castShadow(boxCorners(x0, y0, BH, x1, y1, z1), BH, top)}</g>`
       + castShadow(boxCorners(PX0 - 12, PY0 - 15, BH, PX0 + 12, PY0 + 15, BH + n * SLAB), BH, top);
-    const tags = '<g pointer-events="none">' + tag([PX0, PY0, BH + n * SLAB], 0, -14, `CORPUS ${formatBytes(bytes)}`) + tag([CX, CY, z1], 0, -14, `CONTEXT WINDOW ${formatTokens(WINDOW)}`, over) + '</g>';
+    const tags = '<g pointer-events="none">' + tag([PX0, PY0, BH + n * SLAB], 0, -14, `CORPUS ${formatBytes(bytes)}`, false, pills) + tag([CX, CY, z1], 0, -14, `CONTEXT WINDOW ${formatTokens(WINDOW)}`, over, pills) + '</g>';
     return shadow + byDepth([{ at: [PX0, PY0, 0], svg: p }, { at: [CX, CY, 0], svg: c }]) + tags;
   };
 

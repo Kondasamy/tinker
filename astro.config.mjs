@@ -10,6 +10,7 @@ const devPages = {
     'astro:config:setup': ({ command, injectRoute }) => {
       if (command !== 'dev' && !process.env.DEV_PAGES) return;
       for (const p of ['blocks', 'canvas', 'runner']) injectRoute({ pattern: `/dev/${p}`, entrypoint: `./src/dev/${p}.astro` });
+      injectRoute({ pattern: '/dev/og/[slug]', entrypoint: './src/dev/og.astro' });   // share-image template (pnpm og)
     },
   },
 };

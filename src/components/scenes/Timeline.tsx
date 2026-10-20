@@ -24,9 +24,10 @@ const colHeight = (t: number) => COL * Math.min(1, Math.max(0.08, (Math.log10(t)
 export const eraWindow = (entries: TimelineEntry[], era: string) =>
   Math.max(0, ...entries.filter(e => e.era === era && e.contextTokens).map(e => e.contextTokens!));
 
-interface Props { entries: TimelineEntry[]; visited: number; active: number | null; onPick: (i: number) => void }
+/** pills: label size (1 = page size; the share images pass more) */
+interface Props { entries: TimelineEntry[]; visited: number; active: number | null; onPick: (i: number) => void; pills?: number }
 
-export default function Timeline({ entries, visited, active, onPick }: Props) {
+export default function Timeline({ entries, visited, active, onPick, pills = 1 }: Props) {
   const scene = ({ top }: SceneCtx) => {
     const items = ERAS.map((era, i) => {
       const x = X(i), open = i < visited, next = i === visited, win = eraWindow(entries, era.id);
@@ -52,7 +53,7 @@ export default function Timeline({ entries, visited, active, onPick }: Props) {
     // readable label pills over every era, drawn last; clicks pass through to the era objects
     const tags = ERAS.map((era, i) => {
       const open = i < visited, win = eraWindow(entries, era.id), top = BH + PED + (win && open ? colHeight(win) : open ? 9 : 0);
-      return `<g aria-hidden="true" pointer-events="none">${tag([X(i), Y, top], 0, -14, open && win ? `${era.label} · ${formatTokens(win)}` : era.label, i === active)}</g>`;
+      return `<g aria-hidden="true" pointer-events="none">${tag([X(i), Y, top], 0, -14, open && win ? `${era.label} · ${formatTokens(win)}` : era.label, i === active, pills)}</g>`;
     }).join('');
     return rail + shadows + byDepth(items) + tags;
   };
