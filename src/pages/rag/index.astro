@@ -15,6 +15,7 @@ import manifest from '../../../public/data/index/manifest.json';
 import Meta from '../../components/Meta.astro';
 import { RAG } from '../../lib/pages';
 import { moduleOf } from '../../lib/modules';
+import Recap from '../../components/quiz/Recap';
 
 const MODULE = moduleOf('rag');
 const PREREQS = MODULE.prereqs.length ? `${MODULE.prereqs.map(id => moduleOf(id).title).join(', ')} recommended` : 'No prerequisites';
@@ -132,6 +133,8 @@ const FACTS: [string, string][] = [
       <section id="path" aria-labelledby="path-h">
         <p class="kicker">Your path</p>
         <h2 id="path-h">Seven chapters, one assistant</h2>
+        {/* a warm-up shows here only when one is due (R13); the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module="rag" bank={MODULE.recall ?? []} warmup client:load /></div>
         <ol class="path">
           {CHAPTERS.map((c, i) => (
             <li data-chapter={c.id}>
@@ -146,6 +149,7 @@ const FACTS: [string, string][] = [
             </li>
           ))}
         </ol>
+        <p class="recap-link"><a href="/rag/recap/">Recap: questions from the chapters you’ve finished →</a></p>
       </section>
 
       <section class="pair">
@@ -254,6 +258,8 @@ const FACTS: [string, string][] = [
   .path h3 a { text-decoration: none; }
   .path h3 a:hover { text-decoration: underline; }
   .done-mark { color: var(--ok); font-size: 13px; }
+  .recap-link { margin: 0 0 0 52px; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
   .path .body p { margin: 4px 0 0; font-size: 14px; color: var(--muted); max-width: 70ch; }
   .adds { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
   .adds .lbl { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; margin-right: 2px; }

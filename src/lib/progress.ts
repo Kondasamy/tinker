@@ -1,10 +1,12 @@
 // Progress lives in localStorage only (KTD10), one record per module (KTD3). Every access is guarded so the site works without storage.
 // RAG's key is `rag-progress-v1`, the one it always had; fields added later are optional, so old records still read.
 const key = (module: string) => `${module}-progress-v1`;
+import type { Attempt } from './recall';
+
 const LAST = 'tinker-last-module';
 
 export interface RecallResult { right: boolean; unsure: boolean; at: number }
-interface Progress { done: string[]; saved: Record<string, unknown>; at?: Record<string, number>; recall?: Record<string, RecallResult> }
+interface Progress { done: string[]; saved: Record<string, unknown>; at?: Record<string, number>; recall?: Record<string, RecallResult>; recap?: Attempt }
 
 function read(module: string): Progress {
   try {
@@ -49,6 +51,14 @@ export function recordRecall(module: string, itemId: string, result: { right: bo
   const p = read(module);
   write(module, { ...p, recall: { ...recallResults(module), [itemId]: { ...result, at: Date.now() } } });
 }
+
+/** The recap attempt in progress (or finished), if a valid one is saved. */
+export function loadAttempt(module: string): Attempt | undefined {
+  const a = read(module).recap;
+  return a && Array.isArray(a.ids) && typeof a.seed === 'number' && typeof a.pos === 'number' ? a : undefined;
+}
+
+export const saveAttempt = (module: string, a: Attempt) => write(module, { ...read(module), recap: a });
 
 /** The module the reader saved a chapter in most recently. */
 export function lastModule(): string | undefined {

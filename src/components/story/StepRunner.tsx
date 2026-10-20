@@ -113,6 +113,7 @@ export default function StepRunner<S>({ module = 'rag', chapter, steps, initial,
           ))}
           {run.hint && step.hint && !run.done && <p className="hint" role="status">Hint: {step.hint}</p>}
           {run.done && next && <a className="big" href={next.href}>Next: {next.title} →</a>}
+          {run.done && !next && chapters.at(-1)?.id === chapter && <a className="big" href={`/${module}/recap/`}>Recap: what do you remember? →</a>}
           <div className="recover">
             <button type="button" className="chip" onClick={() => dispatch({ type: 'back' })} disabled={run.index === 0}>← Back</button>
             <button type="button" className="chip" onClick={() => dispatch({ type: 'reset' })}>Reset this step</button>

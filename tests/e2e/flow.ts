@@ -156,6 +156,7 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
   await expect(closing.getByRole('heading', { name: 'Module complete' })).toBeFocused();
   await expect(closing).toBeInViewport();
   await check(page);
+  await expect(card.getByRole('link', { name: 'Recap: what do you remember? →' })).toHaveAttribute('href', '/rag/recap/');
   const nav = page.getByRole('navigation', { name: 'Chapters' });
   for (const id of ['01-history', '02-why-not-stuff-it', '03-what-is-rag', '04-layers', '05-accuracy', '06-types'])
     await expect(nav.locator(`[data-chapter="${id}"]`)).toHaveAttribute('data-mark', 'done');

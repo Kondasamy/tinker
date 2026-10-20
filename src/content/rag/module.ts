@@ -1,6 +1,7 @@
 // RAG, module 1: its chapters and module facts. Chapter ids are a contract with readers' saved progress (R3): never rename one.
 import type { BlockType } from '../../lib/iso/blocks';
 import type { Chapter, Module } from '../../lib/modules';
+import { RECALL } from './recall';
 
 export interface RagChapter extends Chapter {
   unlocks: BlockType[];   // canvas blocks this chapter adds to the track
@@ -159,4 +160,5 @@ export const RAG_MODULE: Module<RagChapter> = {
   story: 'You join the team building an AI assistant for Larkspur Supply Co., a hardware company.',
   // bare og ids: already-shared links keep their images (KTD5)
   chapters: CHAPTERS.map(c => ({ ...c, og: c.id, legacySteps: LEGACY_STEPS[c.id] })),
+  recall: RECALL,
 };

@@ -52,13 +52,13 @@ describe('module registry', () => {
 
 describe('page meta', () => {
   it('keeps every RAG share image name', () => {
-    expect(ALL_PAGES.map(p => p.og).slice(0, 9)).toEqual(['home', 'rag', ...RAG_CHAPTERS.map(([id]) => id)]);
+    expect(ALL_PAGES.map(p => p.og).slice(0, 10)).toEqual(['home', 'rag', ...RAG_CHAPTERS.map(([id]) => id), 'rag-recap']);
     expect(ALL_PAGES).toContain(TOOL_CALLING);
     expect(TOOL_CALLING).toMatchObject({ path: '/tool-calling/', og: 'tool-calling' });
   });
 
   it('gives every page a path and its own share image', () => {
-    expect(ALL_PAGES.map(p => p.path).slice(0, 9)).toEqual(['/', '/rag/', ...RAG_CHAPTERS.map(([id]) => `/rag/${id}/`)]);
+    expect(ALL_PAGES.map(p => p.path).slice(0, 10)).toEqual(['/', '/rag/', ...RAG_CHAPTERS.map(([id]) => `/rag/${id}/`), '/rag/recap/']);
     expect(new Set(ALL_PAGES.map(p => p.path)).size).toBe(ALL_PAGES.length);
     expect(new Set(ALL_PAGES.map(p => p.og)).size).toBe(ALL_PAGES.length);
   });

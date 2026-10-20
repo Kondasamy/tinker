@@ -1,6 +1,7 @@
 // The module registry (KTD1): every module, live or planned. Pages, navigation, share images and checks read from here.
 import { RAG_MODULE } from '../content/rag/module';
 import { TOOL_CALLING_MODULE } from '../content/tool-calling/module';
+import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
 
@@ -35,6 +36,8 @@ export interface Module<C extends Chapter = Chapter> {
   /** the module's one story, in a sentence */
   story: string;
   chapters: C[];
+  /** recall bank for the recap and warm-up (`src/content/<module>/recall.ts`) */
+  recall?: RecallItem[];
 }
 
 const AUTHOR = RAG_MODULE.author;

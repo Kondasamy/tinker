@@ -12,6 +12,8 @@ interface Props {
   unsure?: boolean;
   /** Pass to control the pick from outside (e.g. so Reset clears it); omit to let the quiz own it. `UNSURE` means "not sure". */
   value?: number | null;
+  /** the first pick sticks (a recap records one answer per question) */
+  locked?: boolean;
   onAnswer?: (right: boolean, index: number) => void;
   onUnsure?: () => void;
 }
@@ -54,13 +56,13 @@ export function Choices({ question, options, pick, locked, onPick, children }: C
   );
 }
 
-export default function Quiz({ question, options, correct, explanation, why, unsure, value, onAnswer, onUnsure }: Props) {
+export default function Quiz({ question, options, correct, explanation, why, unsure, value, locked, onAnswer, onUnsure }: Props) {
   const [own, setPick] = useState<number | null>(null);
   const pick = value === undefined ? own : value;
   const shown = unsure ? [...options, 'I’m not sure'] : options;
   const f = feedback({ options, correct, explanation, why }, pick);
   return (
-    <Choices question={question} options={shown} pick={pick === UNSURE ? options.length : pick}
+    <Choices question={question} options={shown} pick={pick === UNSURE ? options.length : pick} locked={locked}
       onPick={i => {
         if (i === options.length) { setPick(UNSURE); onUnsure?.(); }
         else { setPick(i); onAnswer?.(i === correct, i); }

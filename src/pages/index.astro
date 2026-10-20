@@ -136,13 +136,17 @@ const atLevel = (level: Level) => [...LIVE, ...MODULES.filter(m => m.status === 
     <script>
       // progress on each live card; card buttons and the hero's Continue go to the first unfinished chapter
       import { MODULES, chapterHref } from '../lib/modules';
-      import { completed, lastModule } from '../lib/progress';
+      import { completed, completedAt, lastModule, recallResults } from '../lib/progress';
+      import { warmupItems } from '../lib/recall';
       const live = MODULES.filter(m => m.status === 'live');
       const resume = (m: typeof live[number]) => {
         const finished = completed(m.id), next = m.chapters.findIndex(c => !finished.includes(c.id));
-        // U4 seam: when a warm-up is due for this module, Continue goes through it from here
+        const done = m.chapters.filter(c => finished.includes(c.id)).length;
+        // a warm-up is due: Continue opens it on the module intro, which offers a skip to the chapter (R8, R13)
+        if (warmupItems(m.recall ?? [], completedAt(m.id), recallResults(m.id), Date.now()).length)
+          return { done, href: `/${m.id}/#warmup`, text: `Warm up, then continue ${m.title} →` };
         return {
-          done: m.chapters.filter(c => finished.includes(c.id)).length,
+          done,
           // a first visit, or a finished module, opens the intro: it sets the context before chapter 1 (AGENTS.md)
           href: next <= 0 ? `/${m.id}/` : chapterHref(m.id, m.chapters[next].id),
           text: next < 0 ? `Revisit ${m.title} →` : `Continue ${m.title}: chapter ${next + 1} →`,

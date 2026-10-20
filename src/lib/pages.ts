@@ -55,5 +55,16 @@ export const chapterMeta = (module: string, id: string): PageMeta => {
   };
 };
 
+/** A module's recap page (`/<module>/recap/`); its share image is `<module>-recap` (KTD5). */
+export const recapMeta = (module: string): PageMeta => {
+  const m = moduleOf(module);
+  return {
+    path: `/${m.id}/recap/`, og: `${m.id}-recap`, title: `${m.title} recap: what do you remember? · Tinker`,
+    description: `Recall questions from the ${m.title} chapters you have finished, one at a time, with why each answer is right or wrong.`,
+    kicker: `${m.title} · Recap`, headline: `What do you remember about ${m.title}?`,
+    sub: 'Questions from the chapters you have finished, one at a time.',
+  };
+};
+
 const chapters = (module: string) => moduleOf(module).chapters.map(c => chapterMeta(module, c.id));
-export const ALL_PAGES: PageMeta[] = [HOME, RAG, ...chapters('rag'), TOOL_CALLING, ...chapters('tool-calling')];
+export const ALL_PAGES: PageMeta[] = [HOME, RAG, ...chapters('rag'), recapMeta('rag'), TOOL_CALLING, ...chapters('tool-calling')];

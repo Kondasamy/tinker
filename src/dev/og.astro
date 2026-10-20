@@ -5,6 +5,7 @@ import '../styles/tokens.css';
 import IsoStage from '../lib/iso/IsoStage';
 import Timeline from '../components/scenes/Timeline';
 import ContextOverflow from '../components/scenes/ContextOverflow';
+import RecallCards from '../components/scenes/RecallCards';
 import { staticTrack } from '../components/scenes/staticTrack';
 import { miniPipeline, MINI_BOARD } from '../components/scenes/miniPipeline';
 import { TRACK_BOARD } from '../components/canvas/track';
@@ -37,6 +38,7 @@ const ALL = CHAPTERS.flatMap(c => c.unlocks);
           : page.og === 'tool-calling' ? <FlatStage lanes={SEQ_LANES} msgs={SEQ_MSGS} />
           : page.og === '01-history' ? <Timeline entries={TIMELINE} visited={4} active={3} onPick={() => {}} pills={1.7} />
           : page.og === '02-why-not-stuff-it' ? <ContextOverflow stop={STOP_5TB} pills={1.7} />
+          : page.og.endsWith('-recap') ? <RecallCards label="" />
           : <IsoStage board={TRACK_BOARD} scene={staticTrack(unlockedThrough(page.og), { scale: 1.6 })} label="" />}
       </div>
     </div>
