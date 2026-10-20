@@ -3,6 +3,7 @@
 // same and the script spends no model tokens; on the damaged delivery with the printer out of stock the script halts
 // and the agent adapts. Every outcome, count and token figure is read off the runs, so the copy and the runs agree.
 import StepRunner from '../../components/story/StepRunner';
+import { num as n } from '../../lib/format';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
@@ -26,7 +27,6 @@ const RUNS: Record<string, Run> = Object.fromEntries((['refund', 'damaged'] as C
   MODES.map(m => [key(c, st, m), run(REC, { case: c, stock: st, mode: m })]))));
 const R = (c: Case, st: Stock, m: Mode) => RUNS[key(c, st, m)];
 
-const n = (v: number) => v.toLocaleString('en-US');
 const calls = (r: Run) => stepsOf(r, 'call').length;
 const turns = (r: Run) => r.meter.length;
 const names = (r: Run) => stepsOf(r, 'call').map(c => c.call.name).join(', ');
@@ -166,7 +166,7 @@ export default function WorkflowOrAgent() {
       next={nextOf(MODULE, ID)}
       stage={({ state, inspect }) => {
         const r = current(state);
-        return <AgentStage run={r} upTo={state.ran ? agentMessages(r).length : 0} inspect={inspect} />;
+        return <AgentStage run={r} upTo={state.ran ? r.steps.length : 0} inspect={inspect} />;
       }}
       controls={{
         open: ({ state, apply }) => <button type="button" className="big" onClick={() => apply({ ...state, opened: true })}>Read the refund case</button>,

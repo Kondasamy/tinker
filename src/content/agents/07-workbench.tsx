@@ -3,6 +3,7 @@
 // and a short readout. The goal is to find all five ways a run can end. The case, the controls and the tab are step
 // state, so a reload keeps them (as Tool calling's chapter 7 keeps its tab).
 import type { ReactNode } from 'react';
+import { num as n } from '../../lib/format';
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import { agentLanes, agentMessages } from '../../components/scenes/agentSequence';
@@ -62,7 +63,6 @@ const ran = (s: S): S => {
 const WAYS = Object.fromEntries(ENDINGS.map(e => [e, CASES.flatMap(kase => WORKBENCH_DOMAINS[kase].flatMap((d, i) =>
   combos(d.domain).map(setup => ({ kase, set: i, setup })))).find(x => play(x.kase, x.set, x.setup).status === e)!])) as Record<Ending, Pick<S, 'kase' | 'set' | 'setup'>>;
 
-const n = (v: number) => v.toLocaleString('en-US');
 function says(r: Run): string {
   const budget = stepsOf(r, 'budget')[0], halt = stepsOf(r, 'halt')[0];
   switch (r.status) {

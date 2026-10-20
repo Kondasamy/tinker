@@ -3,6 +3,7 @@
 // the run stops before the agent reports done. Summary memory compacts the history and fits, but drops order 2101's "no phone calls" note, so its email offers a call. Pinned memory
 // compacts too and keeps the note. Every outcome is read off the runs.
 import StepRunner from '../../components/story/StepRunner';
+import { num as n } from '../../lib/format';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
@@ -27,7 +28,6 @@ const RUNS = Object.fromEntries(combos(DOMAINS[ID]).map(c => [c.mem, run(REC, c)
 const FULL = RUNS.full, SUMMARY = RUNS.summary, PINNED = RUNS.pinned;
 // the one storm order with a customer's note
 const NOTED = CASE_ORDERS.find(o => o.note)!, ORDER = NOTED.id, NOTE = NOTED.note!, WHO = NOTED.customer;
-const n = (v: number) => v.toLocaleString('en-US');
 const mailTo = (r: Run) => r.mail.find(m => m.order_id === ORDER)!.body;
 /** the email breaks the note's request (shortcut: matches the note's one subject, phone calls; fine for one recorded case) */
 const offersCall = (r: Run) => /phone/i.test(mailTo(r));

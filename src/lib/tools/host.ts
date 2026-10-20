@@ -37,11 +37,13 @@ export const DOMAINS: Record<string, Domain> = {
   injection: SAFETY,
 };
 
-/** Every combination of a scenario's domain values. */
-export function combos(id: string): Partial<Setup>[] {
-  return Object.entries(DOMAINS[id]).reduce<Partial<Setup>[]>(
-    (acc, [k, vals]) => acc.flatMap((s) => (vals as unknown[]).map((v) => ({ ...s, [k]: v }))), [{}]);
+/** Every combination of a domain's values: one object per pick of one value for each key. */
+export function combosOf<S>(d: { [k: string]: unknown[] | undefined }): Partial<S>[] {
+  return Object.entries(d).reduce<Partial<S>[]>(
+    (acc, [k, vals]) => acc.flatMap((s) => (vals ?? []).map((v) => ({ ...s, [k]: v }))), [{}]);
 }
+/** Every combination of a scenario's domain values. */
+export const combos = (id: string) => combosOf<Setup>(DOMAINS[id]);
 
 export type Step =
   | { kind: 'send'; tools: Tool[] }

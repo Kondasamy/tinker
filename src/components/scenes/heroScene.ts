@@ -16,7 +16,7 @@ import type { Msg } from '../../lib/iso/flat';
 const RAG_Y = 294, RAG_X = [44, 112, 180];
 const PLOT_X = 306, PLOT_Y0 = 150, STEP = 46;
 /** slot i's centre, one step further down the front-right edge per slot */
-const slotXY = (i: number) => [PLOT_X, PLOT_Y0 + STEP * i];
+const slotXY = (i: number): [number, number] => [PLOT_X, PLOT_Y0 + STEP * i];
 /** slot i's mat on the board, [x0, y0, x1, y1] */
 export const plotAt = (i: number): Board => { const [x, y] = slotXY(i); return [x - 22, y - 22, x + 30, y + 22]; };
 /** the board for `slots` plots: at least deep enough for RAG's strip */
@@ -50,7 +50,7 @@ export const heroScene = ({ live, planned, ride }: { live: HeroPlot[]; planned: 
   // tool calling: the back office, its stations unnamed (the plot's pill names the module)
   s += officeScene({ msgs: ride, tools: 2, schema: true, names: false })(ctx);
   // later live modules: their own drawing
-  s += later.map((p, i) => p.draw?.(...slotXY(i) as [number, number], ctx) ?? '').join('');
+  s += later.map((p, i) => p.draw?.(...slotXY(i), ctx) ?? '').join('');
   // planned modules: building plots
   const plots = planned.map((_, j) => {
     const [x, y] = slotXY(later.length + j);

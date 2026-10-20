@@ -3,6 +3,7 @@
 // each retry costs more than the last. Then a puzzle: set the step budget and the repeat detector so the run stops early
 // and the agent's last turn tells the customer the lookup failed. Every outcome is read off the runs.
 import StepRunner from '../../components/story/StepRunner';
+import { num as n } from '../../lib/format';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
@@ -27,7 +28,6 @@ const OPEN = R(WIDE, null), SHORT = R(TIGHT, null);
 // the "lookup failed" email, as recorded: the one send_email the model ever asks for in this case
 const EMAIL = Object.values(REC.turns).flatMap(t => t.calls ?? []).find(c => c.name === 'send_email')!.arguments.body as string;
 const ORDER = stepsOf(OPEN, 'call')[0].call.arguments.order_id as number;
-const n = (v: number) => v.toLocaleString('en-US');
 const tries = (r: Run) => stepsOf(r, 'call').filter(c => c.call.name === 'track_shipment').length;
 /** the model's words on turn t (0-based) */
 const said = (r: Run, t: number) => stepsOf(r, 'proposal').find(p => p.turn === t)!.text;

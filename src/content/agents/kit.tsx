@@ -1,6 +1,7 @@
 // Pieces the agent chapters share: the stage (the back office with the agent's props, or the run as lanes) and its
 // caption. Every string from a run is React text here; the drawings escape theirs (esc) before they become SVG.
 import { useMemo, useState } from 'react';
+import { num as n } from '../../lib/format';
 import { STAMP_CLASS } from '../../lib/iso/flat';
 import IsoStage from '../../lib/iso/IsoStage';
 import FlatStage from '../../components/scenes/FlatStage';
@@ -12,7 +13,6 @@ import { openMessage, useNarrow } from '../tool-calling/kit';
 
 /** The props a chapter turns on (KTD8): everything in AgentOpts but the run, the step and the drawing's own settings. */
 export type AgentProps = Omit<AgentOpts, 'run' | 'upTo' | 'host' | 'scale'>;
-const n = (v: number) => v.toLocaleString('en-US');
 
 /** The props' readouts in words, for the caption (on phones the drawing drops its prop pills; this carries them). */
 export function readouts(o: AgentOpts): string[] {

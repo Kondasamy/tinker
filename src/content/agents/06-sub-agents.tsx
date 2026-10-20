@@ -3,6 +3,7 @@
 // sends back one line, so the lead's biggest turn shrinks; but every helper re-sends its own instructions and tools on
 // every turn, so the total grows. Every count is read off the runs; the advice on when it pays comes from facts.json.
 import StepRunner from '../../components/story/StepRunner';
+import { num as n } from '../../lib/format';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
@@ -22,7 +23,6 @@ const SETUPS: Setup[] = DOMAINS[ID].helpers!.map(h => (h ? 'helpers' : 'alone'))
 const RUNS = Object.fromEntries(combos(DOMAINS[ID]).map(c => [c.helpers ? 'helpers' : 'alone', run(REC, c)])) as Record<Setup, Run>;
 const ALONE = RUNS.alone, HELPED = RUNS.helpers;
 const GAUGE = { steps: DEFAULTS.steps, context: CONTEXT };
-const n = (v: number) => v.toLocaleString('en-US');
 /** the biggest context one of this run's own turns sent (helpers' turns are in their own runs) */
 const peak = (r: Run) => Math.max(...r.meter.map(m => m.input));
 /** the tokens this run's own turns used, its helpers' left out */

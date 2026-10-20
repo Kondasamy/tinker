@@ -20,7 +20,7 @@ import ChapterCards from '../../components/intro/ChapterCards.astro';
 import type { SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners } from '../../lib/iso/blocks';
 import { box, castShadow, toneI, WOOD } from '../../lib/iso/core.js';
-import { longDate } from '../../lib/format';
+import { longDate, num } from '../../lib/format';
 
 const MODULE = moduleOf('agents');
 const CHAPTERS = MODULE.chapters;
@@ -65,7 +65,7 @@ const FACTS: [string, string][] = [
   [String(new Set(Object.values(RECORDINGS).flatMap(r => Object.keys(r.asks)).filter(a => !a.startsWith('order-'))).size), 'support cases to work'],
   [String(AGENT_TOOLS.length), 'tools the agent can call'],
   [String(CASE_ORDERS.length), 'orders in the storm case'],
-  [totalTokens(AGENT).toLocaleString('en-US'), 'tokens the agent spends on the cracked printer'],
+  [num(totalTokens(AGENT)), 'tokens the agent spends on the cracked printer'],
 ];
 ---
 <html lang="en">

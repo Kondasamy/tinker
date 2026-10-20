@@ -6,6 +6,7 @@ import { validate } from '../tools/schema';
 import { connect, createServer, orderHandlers, ORDERS, TOOLS, text, toolError, type Bundle, type LogEntry, type Order, type ServerDef, type Tool, type ToolResult } from '../tools/server';
 import { BYTES_PER_TOKEN } from '../scale';
 import { money } from '../format';
+import { combosOf } from '../tools/host';
 import { lookup, NORECORD, signature, type Call, type Mem, type PlanState, type Recording } from './turns';
 
 export type AgentServerId = keyof typeof AGENT.servers;
@@ -135,10 +136,7 @@ export const WORKBENCH_DOMAINS: Record<string, { scenario: string; domain: Domai
 };
 
 /** Every combination of a domain's values. */
-export function combos(d: Domain): Partial<Setup>[] {
-  return Object.entries(d).reduce<Partial<Setup>[]>(
-    (acc, [k, vals]) => acc.flatMap((s) => (vals as unknown[]).map((v) => ({ ...s, [k]: v }))), [{}]);
-}
+export const combos = (d: Domain) => combosOf<Setup>(d);
 
 export type Step =
   | { kind: 'send'; tools: Tool[] }
@@ -199,6 +197,12 @@ export function run(rec: Recording, setup: Partial<Setup> = {}): Run {
   return s.mode === 'script' ? script(s, w) : agent(rec, s, w);
 }
 
+/** Run one call on the server that lists its tool; a protocol error comes back as an error result. */
+function callTool(w: World, call: Call): ToolResult {
+  const res = w.client.get(call.name)!.request('tools/call', { name: call.name, arguments: call.arguments });
+  return 'result' in res ? (res.result as unknown as ToolResult) : toolError(res.error.message);
+}
+
 // Larkspur's fixed code path for the two routine cases: the same calls every time, and no step for a surprise.
 const SCRIPTS: Record<string, { order: number; calls: string[] }> = {
   refund: { order: 1024, calls: ['get_order', 'issue_refund', 'send_email'] },
@@ -219,8 +223,7 @@ function script(s: Setup, w: World): Run {
   for (const [i, name] of calls.entries()) {
     const call: Call = { id: `step_${i + 1}`, name, arguments: ARGS[name] };
     steps.push({ kind: 'call', call });
-    const res = w.client.get(name)!.request('tools/call', { name, arguments: call.arguments });
-    const result = 'result' in res ? (res.result as unknown as ToolResult) : toolError(res.error.message);
+    const result = callTool(w, call);
     steps.push({ kind: 'result', call, result, key: `${keyOf(call)}:${result.isError ? 'error' : 'ok'}` });
     if (result.isError) {
       steps.push({ kind: 'halt', call, text: `The script stopped: ${name} failed, and the script has no step for that.` });
@@ -298,8 +301,7 @@ function agent(rec: Recording, s: Setup, w: World): Run {
         outcome = result.isError ? 'error' : 'ok';
       } else if (!result) {
         steps.push({ kind: 'call', call });
-        const res = w.client.get(call.name)!.request('tools/call', { name: call.name, arguments: call.arguments });
-        result = 'result' in res ? (res.result as unknown as ToolResult) : toolError(res.error.message);
+        result = callTool(w, call);
         // check_stock's answer is the one thing the model branches on, so its outcome says in or out
         outcome = result.isError ? 'error' : call.name === 'check_stock' ? (result.structuredContent!.in_stock ? 'in' : 'out') : 'ok';
         const note = call.name === 'get_order' && result.structuredContent?.note;
