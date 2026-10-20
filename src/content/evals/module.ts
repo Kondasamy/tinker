@@ -115,6 +115,24 @@ const CHAPTERS: Chapter[] = [
       ],
     },
   },
+  {
+    id: '07-release-day', title: 'Release day', short: 'Release day',
+    intro: {
+      story: 'The team has a test set, graders it has checked, and a feel for flaky cases. Three new versions wait to replace the one Larkspur ships today. Someone has to decide which, if any, goes out.',
+      goal: 'What rule should decide whether a new version ships, and what can fool it?',
+      learn: [
+        'How a release gate turns a test run into ship or do not ship',
+        'Why a pass-rate bar alone lets a regression through',
+        'Why the gate is only as good as its grader, and its number of runs',
+      ],
+      terms: [
+        ['Baseline', 'The version that ships today. Every candidate is compared against it, question by question.'],
+        ['Candidate', 'A new version that wants to replace the baseline.'],
+        ['Release gate', 'The rule that decides, from a test run, whether a candidate ships.'],
+        ['Threshold', 'The pass rate a candidate must reach to ship, like 75% of the test set.'],
+      ],
+    },
+  },
 ];
 
 export const EVALS_MODULE: Module = {

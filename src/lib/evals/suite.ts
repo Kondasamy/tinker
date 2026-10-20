@@ -69,11 +69,26 @@ export const PAIRS: Pair[] = [
   { question: 'dock-sensor-warranty', a: 'v1', b: 'v2' },
 ];
 
+/** What grades a release: the recorded answer's verdict, or the model judge under a rubric. */
+export type ReleaseGrader = 'verdict' | Rubric;
+/** The shipped version every candidate is compared against. */
+export const BASELINE: VersionId = 'v1';
+const WORKBENCH_VERSIONS: VersionId[] = ['v0', 'v2', 'v3'];
+/** Chapter 7's controls: candidate, grader, pass-rate threshold (percent), and whether a question that passed on the
+ * baseline may fail. The coverage test walks every combination (via DOMAINS['07-release-day'] and evals-workbench). */
+export const WORKBENCH_DOMAINS = {
+  versions: WORKBENCH_VERSIONS,
+  graders: ['verdict', 'r1', 'r2'] as ReleaseGrader[],
+  thresholds: [50, 60, 75, 90],
+  noRegressions: [false, true],
+};
+
 /** The finite values each chapter's controls can take; the coverage test grades every combination. */
 export interface Domain { versions: VersionId[]; rubrics: Rubric[]; pairs?: boolean }
 export const DOMAINS: Record<string, Domain> = {
   '01-it-worked-when-i-tried-it': { versions: ['v1', 'v2'], rubrics: [] },
   '03-graders': { versions: ['v0', 'v1', 'v2'], rubrics: ['r1'] },
   '04-judge-the-judge': { versions: ['v0', 'v1', 'v2'], rubrics: ['r1', 'r2'], pairs: true },
-  '07-release-day': { versions: VERSION_IDS, rubrics: ['r1', 'r2'] },
+  // the workbench's candidates and the baseline, under each judge rubric it offers
+  '07-release-day': { versions: ['v1', ...WORKBENCH_VERSIONS], rubrics: ['r1', 'r2'] },
 };

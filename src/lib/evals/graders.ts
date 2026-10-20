@@ -5,7 +5,7 @@ import { run as hostRun, stepsOf, answerOf, type Run } from '../tools/host';
 import { ORDERS } from '../tools/server';
 import { RECORDINGS } from '../tools/turns';
 import { longDate } from '../format';
-import type { Order, Pair, Rubric, Row } from './suite';
+import type { Order, Pair, ReleaseGrader, Rubric, Row } from './suite';
 import references from '../../../data/evals/references.json' with { type: 'json' };
 import judge from '../../../data/evals/judge.json' with { type: 'json' };
 import labels from '../../../data/evals/labels.json' with { type: 'json' };
@@ -102,3 +102,29 @@ export function gradeRun(g: PathGrader, id: string, r: Run): boolean {
 }
 /** The judge's verdict on a run's reply, keyed by the scenario and the signature of its final turn. */
 export const judgedRun = (id: string, r: Run, rubric: Rubric): Judged | null => RUNS[`${id}|${r.signatures.at(-1)}`]?.[rubric] ?? null;
+
+// ---- the release gate (chapter 7) ----
+/** Pass/fail per question under a release grader. Throws on a missing judge verdict (the coverage test proves none). */
+export function gradeRows(rows: Row[], g: ReleaseGrader): boolean[] {
+  return rows.map((r) => {
+    if (g === 'verdict') return isCorrect(r.verdict);
+    const j = judged(r.question, r.signature, g);
+    if (!j) throw new Error(`no judge verdict for ${r.question} ${r.signature} ${g}`);
+    return j.pass;
+  });
+}
+export interface Gate { threshold: number; noRegressions: boolean }
+export interface Decision { ship: boolean; passed: number; rate: number; regressed: number[]; reason: string }
+/** The gate's call on one graded run per question: the candidate's pass rate against the threshold, and (if set) no
+ * question the baseline passed may fail. `regressed` holds question indexes. */
+export function decide(base: boolean[], cand: boolean[], gate: Gate): Decision {
+  const passed = cand.filter(Boolean).length, rate = Math.round((100 * passed) / cand.length);
+  const regressed = cand.flatMap((ok, i) => (!ok && base[i] ? [i] : []));
+  const low = rate < gate.threshold, broke = gate.noRegressions && regressed.length > 0;
+  const n = regressed.length, qs = `${n} question${n === 1 ? '' : 's'}`;
+  const reason = low && broke ? `${rate}% passed, under the ${gate.threshold}% bar, and ${qs} regressed`
+    : low ? `${rate}% passed, under the ${gate.threshold}% bar`
+    : broke ? `${qs} regressed`
+    : `${rate}% passed, at or over the ${gate.threshold}% bar${gate.noRegressions ? ', and nothing regressed' : ''}`;
+  return { ship: !low && !broke, passed, rate, regressed, reason };
+}

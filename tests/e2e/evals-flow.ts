@@ -142,6 +142,18 @@ export function evalWalker(page: Page, mode: Mode, check: (page: Page) => Promis
       await opt(quiz);
       await finish(next);
     },
+    /** turn on the no-regressions rule, grade v0 with the judge under r1, then the checkpoint */
+    async ch7(next?: RegExp, quiz: string | RegExp = /^Check the judge against people/) {
+      await btn('No question that passed may fail');
+      await step(2);
+      await check(page);
+      await btn('v0');
+      await btn('Model judge, rubric r1');
+      await step(3);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
     open,
   };
 }

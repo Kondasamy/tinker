@@ -334,4 +334,56 @@ export const RECALL: RecallItem[] = [
       'A stricter judge would lower the score, not raise it.',
     ],
   },
+  // 7. Release day
+  {
+    id: 'gate-needs-no-regressions', chapter: '07-release-day',
+    question: 'The parts-catalogue assistant ships any version that passes 70% of its test set. A new version passes 80%, and one question the shipped version answered now fails. What does the gate do, and what should it do?',
+    options: [
+      'Ships it, and that is fine: 80% clears the bar',
+      'Ships it, but it should stop: a rule that no question that passed before may fail would block it',
+      'Blocks it: 80% is too close to the bar',
+      'Blocks it, because any failing question blocks a version',
+    ],
+    correct: 1,
+    why: [
+      'The bar counts passes, not which ones. A break hides inside a higher total, as v2’s did.',
+      'Right. A pass-rate bar alone lets a regression through; the no-regressions rule names the broken question.',
+      'A pass rate over the bar is over the bar; this gate has no margin rule.',
+      'Only a no-regressions rule blocks on a question, and only on one that passed before. A question that always failed blocks nothing.',
+    ],
+  },
+  {
+    id: 'gate-trusts-grader', chapter: '07-release-day',
+    question: 'A team’s release gate is graded by a model judge nobody has checked against people. A version that answers with no documents at all clears the gate. What went wrong?',
+    options: [
+      'The bar was set too low',
+      'The judge passes answers it should fail, and the gate trusts whatever grades it',
+      'The test set has too many questions',
+      'Nothing: the judge decided the answers were good enough',
+    ],
+    correct: 1,
+    why: [
+      'If the judge passes every answer, any bar is cleared. Raising it changes nothing.',
+      'Right. A gate is only as good as its grader: check the judge against people’s labels before it decides releases.',
+      'More questions give a fairer score; they don’t make a lenient judge stricter.',
+      `A judge can pass made-up answers that sound fine. ${fact('model-graders').claim}`,
+    ],
+  },
+  {
+    id: 'gate-one-run', chapter: '07-release-day',
+    question: 'The returns assistant’s gate grades one run of each question. A version clears it by one question. What would make the call more trustworthy?',
+    options: [
+      'Nothing: the run is the run',
+      'Run it again and ship if either run clears the gate',
+      'Grade several trials of each question and count a pass only if every trial passes',
+      'Lower the bar so the result is less close',
+    ],
+    correct: 2,
+    why: [
+      'A case can pass one try and fail the next with nothing changed, so one run may be luck.',
+      'Shipping on the better of two runs is pass@k: it asks whether it can pass, not whether it will.',
+      `Right. That is pass^k. ${fact('pass-hat-k').claim}`,
+      'Moving the bar hides the doubt instead of removing it: the close question is still a coin toss.',
+    ],
+  },
 ];

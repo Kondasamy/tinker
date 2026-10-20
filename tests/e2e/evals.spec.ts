@@ -1,4 +1,4 @@
-// Module 4, Evals: the intro, chapters 1 to 6 played by mouse and by keyboard only, its own progress key, "I'm not sure",
+// Module 4, Evals: the intro, chapters 1 to 7 played by mouse and by keyboard only, its own progress key, "I'm not sure",
 // reduced motion, the suite's Preparing state, the recap, home's live card and Continue, axe and phone width.
 import { readFileSync } from 'node:fs';
 import { test, expect, type Page } from '@playwright/test';
@@ -19,7 +19,7 @@ import orders from '../../data/tool-calling/orders.json' with { type: 'json' };
 import injection from '../../data/tool-calling/turns/injection.json' with { type: 'json' };
 import { serious, layoutHolds, PHONE } from './helpers';
 
-const M = moduleOf('evals'), [CH1, CH2, CH3, CH4, CH5, CH6] = M.chapters.map(c => c.id);
+const M = moduleOf('evals'), [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = M.chapters.map(c => c.id);
 const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 const axe = async (page: Page) => expect(await serious(page)).toEqual([]);
 
@@ -44,7 +44,7 @@ test('home lists Evals under Intermediate as a live card linking to its intro', 
   await expect(page.locator('.roadmap[data-module="evals"]')).toHaveCount(0);
 });
 
-test('chapters 1 to 6 play by mouse in a row, following Next, with axe clean at each check', async ({ page }) => {
+test('chapters 1 to 7 play by mouse in a row, following Next, with axe clean at each check', async ({ page }) => {
   const w = evalWalker(page, 'mouse', axe);
   await w.open(CH1);
   await w.ch1(new RegExp(`/evals/${CH2}/$`));
@@ -52,10 +52,11 @@ test('chapters 1 to 6 play by mouse in a row, following Next, with axe clean at 
   await w.ch3(new RegExp(`/evals/${CH4}/$`));
   await w.ch4(new RegExp(`/evals/${CH5}/$`));
   await w.ch5(new RegExp(`/evals/${CH6}/$`));
-  await w.ch6();
+  await w.ch6(new RegExp(`/evals/${CH7}/$`));
+  await w.ch7(/\/evals\/recap\/$/);
 });
 
-test('chapters 1 to 6 play by keyboard only; progress lands in evals-progress-v1 and RAG’s key is untouched', async ({ page }) => {
+test('chapters 1 to 7 play by keyboard only; progress lands in evals-progress-v1 and RAG’s key is untouched', async ({ page }) => {
   await page.goto('/');
   const RAG = JSON.stringify({ done: ['01-history'], saved: {} });
   await page.evaluate(v => localStorage.setItem('rag-progress-v1', v), RAG);
@@ -66,9 +67,10 @@ test('chapters 1 to 6 play by keyboard only; progress lands in evals-progress-v1
   await w.ch3(new RegExp(`/evals/${CH4}/$`));
   await w.ch4(new RegExp(`/evals/${CH5}/$`));
   await w.ch5(new RegExp(`/evals/${CH6}/$`));
-  await w.ch6();
+  await w.ch6(new RegExp(`/evals/${CH7}/$`));
+  await w.ch7();
   const store = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
-  expect(JSON.parse(store['evals-progress-v1']).done).toEqual([CH1, CH2, CH3, CH4, CH5, CH6]);
+  expect(JSON.parse(store['evals-progress-v1']).done).toEqual([CH1, CH2, CH3, CH4, CH5, CH6, CH7]);
   expect(store['rag-progress-v1']).toBe(RAG);
   expect(store['tinker-last-module']).toBe('evals');
 });
@@ -147,7 +149,7 @@ test.describe('reduced motion', () => {
     });
     await w.open(CH1);
     await w.ch1();
-    for (const [id, play] of [[CH2, w.ch2], [CH3, w.ch3], [CH4, w.ch4], [CH5, w.ch5], [CH6, w.ch6]] as const) { await w.open(id); await play(); }
+    for (const [id, play] of [[CH2, w.ch2], [CH3, w.ch3], [CH4, w.ch4], [CH5, w.ch5], [CH6, w.ch6], [CH7, w.ch7]] as const) { await w.open(id); await play(); }
   });
 });
 
@@ -167,15 +169,15 @@ test('the recap asks from the finished chapter; with none done it says so', asyn
 
 test.describe('phone', () => {
   test.use(PHONE);
-  test('pages fit 390px wide, and chapters 1 to 6 play through there with axe clean', async ({ page }) => {
-    for (const p of ['/evals/', `/evals/${CH1}/`, `/evals/${CH2}/`, `/evals/${CH3}/`, `/evals/${CH4}/`, `/evals/${CH5}/`, `/evals/${CH6}/`, '/evals/recap/']) {
+  test('pages fit 390px wide, and chapters 1 to 7 play through there with axe clean', async ({ page }) => {
+    for (const p of ['/evals/', `/evals/${CH1}/`, `/evals/${CH2}/`, `/evals/${CH3}/`, `/evals/${CH4}/`, `/evals/${CH5}/`, `/evals/${CH6}/`, `/evals/${CH7}/`, '/evals/recap/']) {
       await page.goto(p);
       await layoutHolds(page);
     }
     const w = evalWalker(page, 'mouse', async p => { await layoutHolds(p); await axe(p); });
     await w.open(CH1);
     await w.ch1();
-    for (const [id, play] of [[CH2, w.ch2], [CH3, w.ch3], [CH4, w.ch4], [CH5, w.ch5], [CH6, w.ch6]] as const) { await w.open(id); await play(); }
+    for (const [id, play] of [[CH2, w.ch2], [CH3, w.ch3], [CH4, w.ch4], [CH5, w.ch5], [CH6, w.ch6], [CH7, w.ch7]] as const) { await w.open(id); await play(); }
   });
 });
 
@@ -401,4 +403,52 @@ test('chapters 5 and 6: “I’m not sure” reveals the answer without a miss',
     await expect(fb).toContainText(`The answer: ${answer}`);
     await expect(fb).not.toContainText('NOT QUITE');
   }
+});
+
+// ---- chapter 7 ----
+
+test('chapter 7: by keyboard, the gate ships v2 at 50%, blocks it once nothing may regress, ships v3; the bench survives a reload', async ({ page }) => {
+  const w = evalWalker(page, 'keyboard');
+  await w.open(CH7);
+  const c = card(page), call = c.locator('[role="status"][data-ship]'), caption = page.locator('.tc-caption');
+  const press = (name: string) => c.getByRole('button', { name, exact: true }).press('Enter');
+  await expect(call).toHaveAttribute('data-ship', '1');
+  await expect(caption).toContainText('Ship: 58% passed, at or over the 50% bar.');
+  await press('No question that passed may fail');
+  await expect(c).toContainText('Step 2 of');
+  await expect(call).toHaveAttribute('data-ship', '0');
+  await expect(caption).toContainText('Do not ship: 1 question regressed.');
+  await expect(page.locator('.ev-grid-wide .cell[aria-label*="v2: failed, was passing"]')).toHaveCount(1);
+  await press('v3');
+  await expect(call).toHaveAttribute('data-ship', '1');
+  await expect(caption).toContainText('Ship: 83% passed, at or over the 50% bar, and nothing regressed.');
+  await axe(page);
+  await page.reload();
+  await page.locator('astro-island:not([ssr])').waitFor();
+  await page.getByRole('button', { name: /^Continue at step 2/ }).press('Enter');
+  await expect(c.getByRole('button', { name: 'v3', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(c.getByRole('button', { name: 'No question that passed may fail' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(call).toHaveAttribute('data-ship', '1');
+  await expect(page.getByRole('button', { name: /^Results/ })).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('chapter 7: “Show me” solves the gate, and the judge under r1 ships v0; every option has its why; “I’m not sure” finishes without a miss', async ({ page }) => {
+  const w = evalWalker(page, 'mouse');
+  await w.open(CH7);
+  const c = card(page);
+  await c.getByRole('button', { name: 'Show me' }).click();
+  await expect(c).toContainText('Step 2 of');
+  await c.getByRole('button', { name: 'v0', exact: true }).click();
+  await c.getByRole('button', { name: 'Model judge, rubric r1' }).click();
+  await expect(c.locator('[role="status"][data-ship]')).toHaveAttribute('data-ship', '1');
+  await expect(c.locator('.ev-gate tr[data-version="v0"]')).toHaveAttribute('data-ship', '1');
+  await expect(c).toContainText('Step 3 of');
+  await everyWhy(page);
+  await expect(c.getByRole('link', { name: /^Recap/ })).toHaveAttribute('href', '/evals/recap/');
+  await page.evaluate(() => localStorage.removeItem('evals-progress-v1'));
+  await w.open(CH7);
+  await w.ch7(undefined, 'I’m not sure');
+  const fb = card(page).locator('.quiz .feedback');
+  await expect(fb).toContainText('The answer: Check the judge');
+  await expect(fb).not.toContainText('NOT QUITE');
 });
