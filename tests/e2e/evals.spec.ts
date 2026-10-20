@@ -22,6 +22,8 @@ import { serious, layoutHolds, PHONE } from './helpers';
 const M = moduleOf('evals'), [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = M.chapters.map(c => c.id);
 const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 const axe = async (page: Page) => expect(await serious(page)).toEqual([]);
+// the whole-module walks grow with every chapter, like agents.spec's
+test.setTimeout(120_000);
 
 const at = (text: string) => QUESTIONS.findIndex(q => text.includes(q.query));
 
