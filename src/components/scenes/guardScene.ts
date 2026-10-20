@@ -101,7 +101,7 @@ export function recordsProp(x: number, y: number, removed: boolean): Part {
 }
 
 /** A red post box at the chute's end: mail that drops in has left Larkspur. */
-function postBox(x: number, y: number): Part {
+export function postBox(x: number, y: number): Part {
   const s = cyl(x, y, BH, BH + 20, 6, PALS.tomato, toneI, 1, 18) + cyl(x, y, BH + 20, BH + 23, 7, PALS.tomato, toneI, 1, 18)
     + shape(on(PX(x + 6.1), [[y - 3, BH + 14], [y + 3, BH + 14], [y + 3, BH + 15.6], [y - 3, BH + 15.6]]), DARK.d, .6);
   return { at: [x, y, 0], svg: `<g data-prop="postbox">${s}</g>` };

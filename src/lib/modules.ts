@@ -3,6 +3,7 @@ import { RAG_MODULE } from '../content/rag/module';
 import { TOOL_CALLING_MODULE } from '../content/tool-calling/module';
 import { AGENTS_MODULE } from '../content/agents/module';
 import { EVALS_MODULE } from '../content/evals/module';
+import { GUARDRAILS_MODULE } from '../content/guardrails/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -53,7 +54,7 @@ export const MODULES: Module[] = [
   planned('transformers', 'Transformer architecture', 'Advanced', 'What happens inside the model between a prompt and its next word.'),
   AGENTS_MODULE,
   EVALS_MODULE,
-  planned('guardrails', 'Prompt injection & guardrails', 'Intermediate', 'Text that tries to take over the model, and the defences that hold it back.'),
+  GUARDRAILS_MODULE,
   planned('context', 'Context engineering & memory', 'Intermediate', 'What goes into the model’s window each turn, and what it should remember.'),
   planned('fine-tuning', 'Fine-tuning vs prompting', 'Advanced', 'When to train the model, when to prompt it, and when to give it documents.'),
 ];
