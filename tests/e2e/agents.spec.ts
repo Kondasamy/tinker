@@ -1,11 +1,14 @@
-// Module 3, AI agents: the intro, chapter 1 played by mouse and by keyboard only, its own progress key, "I'm not
+// Module 3, AI agents: the intro, chapters 1 and 2 played by mouse and by keyboard only, its own progress key, "I'm not
 // sure", reduced motion, the recap, axe and phone width.
 import { test, expect, type Page } from '@playwright/test';
 import { moduleOf } from '../../src/lib/modules';
 import { agentWalker, walkAgents } from './agents-flow';
 import { serious, layoutHolds, PHONE } from './helpers';
+import LOOP from '../../data/agents/turns/02-the-loop.json' with { type: 'json' };
 
-const M = moduleOf('agents'), CH1 = M.chapters[0].id;
+const M = moduleOf('agents'), CH1 = M.chapters[0].id, CH2 = M.chapters[1].id;
+// chapter 2's recording is one path, one recorded turn per model turn
+const TURNS = Object.keys(LOOP.turns).length;
 const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 const axe = async (page: Page) => expect(await serious(page)).toEqual([]);
 
@@ -28,17 +31,17 @@ test('home lists AI agents under Advanced as a live card linking to its intro', 
   await expect(page.locator('.roadmap[data-module="agents"]')).toHaveCount(0);
 });
 
-test('chapter 1 plays by mouse, with axe clean at each check', async ({ page }) => {
+test('the chapters play by mouse, with axe clean at each check', async ({ page }) => {
   await walkAgents(page, 'mouse', axe);
 });
 
-test('chapter 1 plays by keyboard only; progress lands in agents-progress-v1 and no other module’s key', async ({ page }) => {
+test('the chapters play by keyboard only; progress lands in agents-progress-v1 and no other module’s key', async ({ page }) => {
   await page.goto('/');
   const OTHERS = { 'rag-progress-v1': JSON.stringify({ done: ['01-history'], saved: {} }), 'tool-calling-progress-v1': JSON.stringify({ done: ['01-answers-arent-actions'], saved: {} }) };
   await page.evaluate(o => { for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v); }, OTHERS);
   await walkAgents(page, 'keyboard');
   const store = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
-  expect(JSON.parse(store['agents-progress-v1']).done).toEqual([CH1]);
+  expect(JSON.parse(store['agents-progress-v1']).done).toEqual([CH1, CH2]);
   for (const [k, v] of Object.entries(OTHERS)) expect(store[k]).toBe(v);
   expect(store['tinker-last-module']).toBe('agents');
 });
@@ -73,6 +76,31 @@ test('the reveals follow the runs: the refund ends the same both ways, the out-o
   await expect(c).toContainText('What happened: Only the agent: it sees the stock and changes course');
 });
 
+test('chapter 2: the turn counter matches the run, the predictions stay locked beside the outcome, and wrong picks say why', async ({ page }) => {
+  const w = agentWalker(page, 'mouse');
+  await w.open(CH2);
+  const c = card(page), caption = page.locator('.tc-caption');
+  await c.getByRole('radio', { name: /^One turn per tool call$/ }).click();
+  await expect(c.getByRole('radio', { name: /^As many as the host allows/ })).toHaveAttribute('aria-disabled', 'true');
+  await c.getByRole('button', { name: 'Start the run' }).click();
+  await expect(caption).toContainText('Turn 1 of');
+  for (let t = 2; t < TURNS; t++) { await c.getByRole('button', { name: /^Next turn/ }).click(); await expect(caption).toContainText(`Turn ${t} of`); }
+  await c.getByRole('radio', { name: /^The host: the case’s last tool/ }).click();
+  await c.getByRole('button', { name: /^Next turn/ }).click();
+  await expect(caption).toContainText(`Turn ${TURNS} of`);
+  await expect(c).toContainText('No call this time');
+  await expect(c.getByRole('button', { name: /^Next turn/ })).toHaveCount(0);
+  const outs = c.locator('.feedback', { hasText: 'You predicted' });
+  await expect(outs.nth(0)).toContainText('You predicted: One turn per tool call');
+  await expect(outs.nth(0)).toContainText('What happened: One turn per tool call, then one more to say it is done');
+  await expect(outs.nth(1)).toContainText('What happened: The model: it answers without asking for a call');
+  const fb = c.locator('.quiz .feedback');
+  await c.getByRole('radio', { name: /until every tool has been used/ }).click();
+  await expect(fb).toContainText('never waits for tools to run out');
+  await c.getByRole('radio', { name: /step budget is spent/ }).click();
+  await expect(fb).toContainText('backstop');
+});
+
 test('“I’m not sure” on the checkpoint reveals the answer, is no miss, and finishes the chapter', async ({ page }) => {
   const w = agentWalker(page, 'mouse');
   await w.open(CH1);
@@ -91,10 +119,12 @@ test.describe('reduced motion', () => {
     });
     await w.open(CH1);
     await w.ch1();
+    await w.open(CH2);
+    await w.ch2();
   });
 });
 
-test('the recap asks from the finished chapter', async ({ page }) => {
+test('the recap asks from the finished chapters', async ({ page }) => {
   await walkAgents(page, 'mouse');
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   await expect(page.getByRole('radio').first()).toBeVisible();
@@ -103,8 +133,8 @@ test('the recap asks from the finished chapter', async ({ page }) => {
 
 test.describe('phone', () => {
   test.use(PHONE);
-  test('pages fit 390px wide, and chapter 1 plays through there with axe clean', async ({ page }) => {
-    for (const p of ['/agents/', `/agents/${CH1}/`, '/agents/recap/']) {
+  test('pages fit 390px wide, and the chapters play through there with axe clean', async ({ page }) => {
+    for (const p of ['/agents/', `/agents/${CH1}/`, `/agents/${CH2}/`, '/agents/recap/']) {
       await page.goto(p);
       await layoutHolds(page);
     }

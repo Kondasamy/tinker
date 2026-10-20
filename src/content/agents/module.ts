@@ -21,6 +21,23 @@ const CHAPTERS: Chapter[] = [
       ],
     },
   },
+  {
+    id: '02-the-loop', title: 'The loop, and who says done', short: 'The loop',
+    intro: {
+      story: 'In chapter 1 the agent coped with a cracked printer that the script could not: it checked the stock and changed course. Nobody wrote its steps down. So what does an agent actually do, turn by turn, and how does it know when to stop?',
+      goal: 'What happens on each turn of an agent, and who decides the case is done?',
+      learn: [
+        'The loop every agent runs: think, act, observe, decide',
+        'Why each next step depends on what the last result said',
+        'Why the model ends the run, by answering without a call, and the host’s budget is only a backstop',
+      ],
+      terms: [
+        ['Turn', 'One pass of the model: it reads everything so far, then asks for tool calls or gives its answer.'],
+        ['Loop', 'Turn after turn: the host runs each call the model asks for and sends the result back, until the model answers.'],
+        ['Step budget', 'The most turns the host lets one run take. A rule in the host, not something the model decides.'],
+      ],
+    },
+  },
 ];
 
 export const AGENTS_MODULE: Module = {

@@ -68,4 +68,50 @@ export const RECALL: RecallItem[] = [
       'The decision is already made and the steps are known: look up the order, refund it, confirm. That is a workflow.',
     ],
   },
+  // 2. The loop, and who says done
+  {
+    id: 'who-says-done', chapter: '02-the-loop',
+    question: 'An agent is chasing a supplier for a late invoice. It has five tools and has used two. Its next turn says “The supplier has paid; nothing more to do” and asks for no tool. What happens?',
+    options: [
+      'The host runs the three unused tools first, to be thorough',
+      'The run ends: a turn with no tool call is the model’s answer',
+      'The loop keeps asking the model until the host’s step budget runs out',
+    ],
+    correct: 1,
+    why: [
+      'The host only runs calls the model asks for. Tools nobody asked for are never run, and that is fine.',
+      'Right. Each turn the model asks for calls or answers. An answer with no call is how it says the case is done.',
+      `The budget is a backstop for a run that never ends. ${fact('stopping-conditions').claim}`,
+    ],
+  },
+  {
+    id: 'next-step-from-result', chapter: '02-the-loop',
+    question: 'An agent looks up a customer and the result says their account is on hold. What decides the agent’s next step?',
+    options: [
+      'A list of steps written before the run started',
+      'The model, on its next turn, after reading that result',
+      'The host, which picks the next tool in the order they are listed',
+    ],
+    correct: 1,
+    why: [
+      'That is a workflow. In an agent nothing is written in advance: the next step comes from what the last one returned.',
+      `Right. ${fact('ground-truth').claim}`,
+      'The host runs what the model asks for and hands back the result. It never picks a tool itself.',
+    ],
+  },
+  {
+    id: 'one-turn', chapter: '02-the-loop',
+    question: 'In one turn of an agent’s loop, which of these happens?',
+    options: [
+      'The model reads everything so far, asks for a call, and the host runs it and sends back the result',
+      'The model runs the tool itself and reads its own output',
+      'The host asks the model for every call the case will ever need, then runs them all',
+    ],
+    correct: 0,
+    why: [
+      `Right: think, act, observe. Then the model decides again. ${fact('react-loop').claim}`,
+      'The model only writes the request. The host runs the call, as in Tool calling.',
+      'The model cannot know every call in advance: each one depends on what the last result said.',
+    ],
+  },
 ];

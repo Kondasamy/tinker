@@ -21,7 +21,7 @@ import { RECORDINGS } from '../lib/tools/turns';
 import { SERVERS } from '../lib/tools/server';
 import { MCP_BOARD, connectScene } from '../components/scenes/mcpScene';
 import { agentScene } from '../components/scenes/agentScene';
-import { run as agentRun } from '../lib/agents/loop';
+import { run as agentRun, CONTEXT as AGENT_CONTEXT, DEFAULTS as AGENT_DEFAULTS } from '../lib/agents/loop';
 import { RECORDINGS as AGENT_RECORDINGS } from '../lib/agents/turns';
 
 export function getStaticPaths() {
@@ -52,10 +52,12 @@ const BENCH_OG = connectScene({ servers: Object.values(SERVERS).map(s => ({ name
 // module 3: the cracked printer, out of stock. The intro: the agent telling the customer after it changed course;
 // chapter 1: the script stopped at the step nobody wrote a fallback for. Recaps keep the recall cards.
 const PRINTER = (mode: 'script' | 'agent') => agentRun(AGENT_RECORDINGS['01-workflow-or-agent'], { case: 'damaged', stock: 'out', mode });
-const AGENT_RUN = PRINTER('agent');
+const AGENT_RUN = PRINTER('agent'), LOOP_RUN = agentRun(AGENT_RECORDINGS['02-the-loop']);
 const AGENT_OG: Record<string, ReturnType<typeof agentScene>> = {
   agents: agentScene({ run: AGENT_RUN, upTo: AGENT_RUN.steps.length - 1, scale: 1.5 }),
   'agents-01-workflow-or-agent': agentScene({ run: PRINTER('script'), scale: 1.5 }),
+  // chapter 2: the loop's last turn, the model answering with no call, the gauge far from the step budget
+  'agents-02-the-loop': agentScene({ run: LOOP_RUN, gauge: { steps: AGENT_DEFAULTS.steps, context: AGENT_CONTEXT }, scale: 1.5 }),
 };
 const agent = AGENT_OG[page.og];
 ---

@@ -45,6 +45,26 @@ export function agentWalker(page: Page, mode: Mode, check: (page: Page) => Promi
       await opt(quiz);
       await finish(next);
     },
+    /** step the loop one turn at a time until the model answers */
+    async ch2(next?: RegExp, quiz: string | RegExp = /^The run ends: a turn with no call/) {
+      await opt(/^One turn per tool call, then one more/);
+      await btn('Start the run');
+      await step(3);
+      await btn(/^Next turn/);
+      await step(4);
+      await check(page);
+      // the reader does not know how many turns are left: step until the stop prediction appears
+      for (let t = 3; (await card.textContent())!.includes('Step 4 of'); t++) {
+        await btn(/^Next turn/);
+        await expect(card).toContainText(`Turn ${t}:`);
+      }
+      await opt(/^The model: it answers/);
+      await btn(/^Next turn/);
+      await step(7);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
     open,
   };
 }
@@ -53,5 +73,6 @@ export function agentWalker(page: Page, mode: Mode, check: (page: Page) => Promi
 export async function walkAgents(page: Page, mode: Mode, check?: (page: Page) => Promise<void>) {
   const w = agentWalker(page, mode, check);
   await w.open('01-workflow-or-agent');
-  await w.ch1(/\/agents\/recap\/$/);
+  await w.ch1(/\/agents\/02-the-loop\/$/);
+  await w.ch2(/\/agents\/recap\/$/);
 }
