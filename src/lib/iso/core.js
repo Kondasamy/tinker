@@ -177,8 +177,9 @@ let _clipN = 0, _prefix = '';
 // Part label (for "how does it work" figures): a cream pill with a leader line to a 3D point on the part.
 // dx, dy = where the pill sits, in screen units at the reference zoom (they scale with the figure like stroke widths).
 // on = that part is working right now (the pill turns the accent colour). Labels can be hidden with the Labels switch.
-export function tag(p3, dx, dy, text, on=false){
-  const k = INK_K, [X,Y] = P(...p3), fs = 8.6*k, w = text.length*fs*.62 + fs*1.5, h = fs*1.8, cx = X + dx*k, cy = Y + dy*k;
+// adapted: scale enlarges the pill for small figures (a phone, a thumbnail), where the reference size is unreadable
+export function tag(p3, dx, dy, text, on=false, scale=1){
+  const k = INK_K * scale, [X,Y] = P(...p3), fs = 8.6*k, w = text.length*fs*.62 + fs*1.5, h = fs*1.8, cx = X + dx*k, cy = Y + dy*k;
   return `<g class="tag${on ? ' on' : ''}"><path d="M${f(X)} ${f(Y)}L${f(cx)} ${f(cy)}" fill="none" stroke="${INK}" stroke-width="1"/>`
     + `<circle cx="${f(X)}" cy="${f(Y)}" r="${f(1.3*k)}" fill="${INK}"/>`
     + `<rect x="${f(cx-w/2)}" y="${f(cy-h/2)}" width="${f(w)}" height="${f(h)}" rx="${f(h/2)}" fill="${on ? 'var(--accent,#f4b829)' : '#fff4d6'}" stroke="${INK}" stroke-width="1.2"/>`
@@ -211,6 +212,7 @@ export function withFrame(frame, fn){
   try { return fn(); }
   finally { [OX, OY, INK_K, L, SH, _clipN, _prefix, VIEW, RC, VC, VS] = saved; }
 }
+export const inkK = () => INK_K;   // the current frame's ink scale (screen units per reference unit)
 export const inkScale = svg => INK_K === 1 ? svg : svg.replace(/stroke-width="([\d.]+)"/g, (_, w) => `stroke-width="${(+w * INK_K).toFixed(2)}"`);
 
 // Hand-drawn wobble + grain filter; pass a prefixed id per stage.

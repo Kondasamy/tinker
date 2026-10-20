@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { createElement, Fragment } from 'react';
 import { renderToString } from 'react-dom/server';
 import { P, P0, withFrame, ink, inkScale, clipTo, unrotXY } from '../../src/lib/iso/core.js';
-import { BLOCKS, BLOCK_TYPES, renderers, blockShadow, type BlockType } from '../../src/lib/iso/blocks';
+import { BLOCKS, BLOCK_TYPES, renderers, blockShadow, blockTag, type BlockType } from '../../src/lib/iso/blocks';
 import IsoStage, { frameFor, stageFrame, type Board, type SceneCtx } from '../../src/lib/iso/IsoStage';
 
 const restScene = (types: BlockType[]) => ({ top }: SceneCtx) =>
@@ -47,12 +47,13 @@ describe('block renderers', () => {
     expect(BLOCK_TYPES).toHaveLength(12);
   });
 
-  it.each(BLOCK_TYPES)('%s renders its label, aria label and stat', type => {
+  it.each(BLOCK_TYPES)('%s shows its label and stat in a pill, and in its aria label', type => {
     const svg = withFrame({}, () => renderers[type]({ x: 30, y: 30, stat: '7 <ITEMS>' }));
-    expect(svg).toContain(`>${BLOCKS[type].label}</text>`);
-    // the name starts with the words drawn on the block (WCAG 2.5.3), then what the block is
+    const pill = withFrame({}, () => blockTag(type, { x: 30, y: 30, stat: '7 <ITEMS>' }));
+    expect(pill).toContain(`>${BLOCKS[type].label} · 7 &lt;ITEMS&gt;</text>`);
+    expect(pill).toContain(`data-pick="${type}"`);
+    // the name starts with the words shown for the block (WCAG 2.5.3), then what the block is
     expect(svg).toMatch(new RegExp(`^<g class="block" role="button" tabindex="0" aria-label="[^"]*${BLOCKS[type].label.toLowerCase()} 7 &lt;items&gt;: ${BLOCKS[type].name} block" data-block="${type}">`));
-    expect(svg).toContain('>7 &lt;ITEMS&gt;</text>');
   });
 
   it('draws the selected ring only when selected', () => {

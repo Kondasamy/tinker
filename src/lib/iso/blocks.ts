@@ -2,7 +2,7 @@
 // Pure functions returning SVG strings; call them inside an IsoStage scene (or withFrame) so they use its framing.
 import {
   PALS, METAL, CLEAR, CERAMIC, DARK, WOOD, INK, matOf,
-  box, cyl, cylX, rod, shape, fill, ink, line, hullInk, castShadow, pd, on, PX, PZ, PY, P, Dv, txM, vis, rectUV, rrUV, ellUV, tone, toneI,
+  box, cyl, cylX, rod, shape, fill, ink, line, hullInk, castShadow, tag, inkK, pd, on, PX, PZ, PY, P, Dv, txM, vis, rectUV, rrUV, ellUV, tone, toneI,
 } from './core.js';
 
 export const BH = 4;      // board thickness: blocks stand at z = BH
@@ -135,6 +135,7 @@ export const BLOCKS: Record<BlockType, Spec> = {
 };
 
 export const BLOCK_TYPES = Object.keys(BLOCKS) as BlockType[];
+const TALLEST = Math.max(...Object.values(BLOCKS).map(b => b.ht));
 
 /** The 8 corners of an axis-aligned box: bottom face then top face, each x0y0, x1y0, x0y1, x1y1. */
 export const boxCorners = (x0: number, y0: number, z0: number, x1: number, y1: number, z1: number) =>
@@ -144,21 +145,16 @@ export const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
 
 function renderBlock(type: BlockType, o: BlockOpts): string {
   const spec = BLOCKS[type], m = spec.pal, x0 = o.x - HALF, x1 = o.x + HALF, y0 = o.y - HALF, y1 = o.y + HALF, z0 = BH, z1 = BH + spec.ht;
-  // labels and front-mounted parts go on the x and y faces turned toward the viewer
-  const sx = vis([1, 0, 0]) ? 1 : -1, sy = vis([0, 1, 0]) ? 1 : -1, fx = sx > 0 ? x1 : x0, fy = sy > 0 ? y1 : y0;
+  // front-mounted parts (screen, dial, drawer knobs) go on the x face turned toward the viewer
+  const sx = vis([1, 0, 0]) ? 1 : -1, fx = sx > 0 ? x1 : x0;
   const c: Ctx = { x: o.x, y: o.y, x0, x1, y0, y1, z0, z1, m, o, fx, sx };
   let s = o.selected ? `<path class="sel" d="${pd(on(PZ(BH+.3), rrUV(x0-4, y0-4, x1+4, y1+4, 5)))}" fill="none" stroke="${ACC}" stroke-width="2.4"/>` : '';
   s += (spec.draw ?? body)(c);
-  // ink on the lit (screen-right) face, cream on the shaded one; dark bodies are cream and pale ones ink on both
-  const pale = [CERAMIC, METAL, CLEAR].includes(m), xLit = Dv(sx, 0, 0)[0] > 0;
-  const textOn = (lit: boolean) => (m === DARK ? '#fff4d6' : pale || lit ? INK : '#fff4d6');
-  s += faceText([sx, 0, 0], [fx+sx*.2, o.y, z0 + (spec.labelZ ?? spec.ht/2 - 2)], spec.label, 5.6, textOn(xLit));
-  // dark side faces get cream text; pale materials keep ink
-  if (o.stat) s += faceText([0, sy, 0], [o.x, fy+sy*.2, z0 + spec.ht/2 - 2], esc(o.stat), 4.6, textOn(!xLit));
   s += hullInk(boxCorners(x0, y0, z0, x1, y1, z1), 2.4);
-  // the name starts with the words drawn on the block (WCAG 2.5.3: speech users say what they see), then what it is
-  const drawn = [...s.matchAll(/<text[^>]*>([^<]*)<\/text>/g)].map(m => m[1].toLowerCase()).join(' ');
-  const aria = `${drawn}: ${spec.name} block${o.selected ? ', selected' : ''}`;
+  // the name starts with the words shown for the block (WCAG 2.5.3: speech users say what they see): any text drawn
+  // on it (the LLM screen), then its label pill (blockTag), then what it is
+  const drawn = [...s.matchAll(/<text[^>]*>([^<]*)<\/text>/g)].map(m => m[1].toLowerCase());
+  const aria = `${[...drawn, spec.label.toLowerCase(), ...(o.stat ? [esc(o.stat).toLowerCase()] : [])].join(' ')}: ${spec.name} block${o.selected ? ', selected' : ''}`;
   // a space between the drawn words keeps the computed visible text "docs 47 docs", not "docs47 docs"
   return `<g class="block" role="button" tabindex="0" aria-label="${aria}" data-block="${type}">${s.replaceAll('</text><', '</text> <')}</g>`;
 }
@@ -166,6 +162,16 @@ function renderBlock(type: BlockType, o: BlockOpts): string {
 export const renderers = Object.fromEntries(
   BLOCK_TYPES.map(t => [t, (o: BlockOpts) => renderBlock(t, o)]),
 ) as Record<BlockType, (o: BlockOpts) => string>;
+
+/** The block's name (and live stat) in a label pill over its top, readable at any zoom; selected = accent pill.
+ * Draw every tag after all blocks so none is hidden. Clicks pass through to whatever is under the pill. */
+export function blockTag(type: BlockType, o: BlockOpts, scale = 1, even = true): string {
+  const spec = BLOCKS[type], text = esc(spec.label + (o.stat ? ` · ${o.stat}` : ''));
+  // even: every pill floats at the same height (above the tallest block), so neighbours sit in an even row; the
+  // leader line still runs down to this block's top. Off for blocks out of the row (the track's side bays).
+  const lift = even ? (TALLEST - spec.ht) / (inkK() * scale) : 0;
+  return `<g class="block-tag" data-pick="${type}" aria-hidden="true" pointer-events="none">${tag([o.x, o.y, BH + spec.ht], 0, -16 - lift, text, !!o.selected, scale)}</g>`;
+}
 
 // Shadow of a block on the board; draw all shadows before the blocks. clip = boardTop(...) so it stops at the edge.
 export function blockShadow(type: BlockType, x: number, y: number, clip?: number[][]): string {

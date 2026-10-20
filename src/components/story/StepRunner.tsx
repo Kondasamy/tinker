@@ -1,6 +1,7 @@
 import { useEffect, useReducer, useRef, useState, type ReactNode } from 'react';
 import { reduce, startRun, isRun, type Step, type Run, type Action } from './steps';
 import { loadChapter, saveChapter, markDone } from '../../lib/progress';
+import { CHAPTERS } from '../../lib/chapters';
 import Drawer from './Drawer';
 
 /** What a step control gets. `apply` hands the next state to the runner, which checks the step's predicate. */
@@ -51,7 +52,17 @@ export default function StepRunner<S>({ chapter, steps, initial, controls, stage
     return () => clearTimeout(t);
   }, [step, run, idleMs]);
 
+  // the story column scrolls on its own: bring the step being worked on into view whenever it changes
+  const cardRef = useRef<HTMLElement>(null);
+  const firstScroll = useRef(true);
+  useEffect(() => {
+    if (firstScroll.current) { firstScroll.current = false; if (run.index === 0) return; }   // a fresh chapter opens on its intro
+    cardRef.current?.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  }, [run.index, run.done]);
+
   const panel = run.drawer ? panels[run.drawer] : undefined;
+  const n = CHAPTERS.findIndex(c => c.id === chapter), ch = CHAPTERS[n];
+  const past = steps.slice(0, run.done ? steps.length - 1 : run.index);
   const inspectTarget = inspectPanel ?? Object.keys(panels)[0];
 
   return (
@@ -60,7 +71,31 @@ export default function StepRunner<S>({ chapter, steps, initial, controls, stage
         {stage({ state: run.state, apply, sync, focus: step.focus, inspect })}
       </section>
       <div className="side">
-        <section className="card" aria-label="Next step">
+        {ch && (
+          <header className="intro">
+            <p className="eyebrow">Chapter {n + 1} of {CHAPTERS.length}</p>
+            <h1>{ch.title}</h1>
+            <p className="story">{ch.intro.story}</p>
+            <p className="goal"><strong>This chapter:</strong> {ch.intro.goal}</p>
+            <div className="learn">
+              <p className="lbl">You will learn</p>
+              <ul>{ch.intro.learn.map(l => <li key={l}>{l}</li>)}</ul>
+            </div>
+            {ch.intro.terms.length > 0 && (
+              <details className="terms">
+                <summary>Words you’ll meet ({ch.intro.terms.length})</summary>
+                <dl>{ch.intro.terms.map(([t, d]) => <div key={t}><dt>{t}</dt><dd>{d}</dd></div>)}</dl>
+              </details>
+            )}
+            <p className="how">The picture on the left is live. Each step below asks you to do one thing in it; the story continues here as you go.</p>
+          </header>
+        )}
+        {past.length > 0 && (
+          <ol className="log" aria-label="Story so far">
+            {past.map(st => <li key={st.id}>{st.narration}</li>)}
+          </ol>
+        )}
+        <section className="card" aria-label="Next step" ref={cardRef}>
           <div aria-live="polite" aria-atomic="true">
             <p className="count">{run.done ? 'Chapter complete' : `Step ${run.index + 1} of ${steps.length}`}</p>
             <p className="narration">{step.narration}</p>

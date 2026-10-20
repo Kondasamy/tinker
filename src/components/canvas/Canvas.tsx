@@ -2,12 +2,12 @@
 // Controlled: the host (StepRunner stage or a page) owns the state and passes onChange.
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, useId, type KeyboardEvent, type PointerEvent } from 'react';
 import IsoStage, { stageFrame, type SceneCtx, type Zoom } from '../../lib/iso/IsoStage';
-import { BLOCKS, BH, HALF, CELL, ACC, renderers, blockShadow, type BlockType } from '../../lib/iso/blocks';
+import { BLOCKS, BH, HALF, CELL, ACC, renderers, blockShadow, blockTag, type BlockType } from '../../lib/iso/blocks';
 import { INK, PALS, byDepth, pd, on, PZ, P, Dv, txM, rrUV, ink, cyl, toneI, ease, withFrame, unrotXY } from '../../lib/iso/core.js';
 import { openIndex, type RagIndex } from '../../lib/rag/load';
 import { createSession } from '../../lib/rag/engine';
 import { analyse, graphOf, outcome, openBench, type CanvasQuestion, type CanvasState, type Edge, type Outcome } from './state';
-import { trackLayout, TRACK_BOARD, type Placed } from './track';
+import { trackLayout, TRACK_BOARD, BAYS, type Placed } from './track';
 import { BENCH_BOARD, COLS, ROWS, addNode, cellAt, connect, cut, moveNode, removeNode, validTargets } from './bench';
 import Knobs, { BLOCK_KNOBS } from './Knobs';
 import { LOAD_FAILED } from '../panels/logic';
@@ -210,6 +210,9 @@ export default function Canvas({ state: s, onChange, question, focus, panel = tr
         svg: renderers[n.id]({ x: n.x, y: n.y, stat: statOf(n.id, s, out, index), selected: s.selected === n.id, lit: !!out?.record?.context.length, state: llmState }) + port,
       };
     }));
+    // name pills last, over every block (hidden while a block is dragged: they would trail behind it)
+    // phones: bigger pills, name only, so they stay readable without covering the board
+    if (!drag?.moved) svgS += nodes.map(n => blockTag(n.id, { x: n.x, y: n.y, stat: narrow ? '' : statOf(n.id, s, out, index), selected: s.selected === n.id }, narrow ? 2 : 1, bench || !BAYS[n.id])).join('');
     return svgS;
   };
 
