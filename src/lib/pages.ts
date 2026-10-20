@@ -1,6 +1,6 @@
 // Title, description and share-image text for every public page, in one place: the page <head> (Meta.astro) and the
 // share-image template (src/dev/og.astro) both read from here, so a page and its image never disagree.
-import { moduleOf, chapterHref } from './modules';
+import { MODULES, moduleOf, chapterHref } from './modules';
 
 export interface PageMeta {
   /** where the page is served */
@@ -66,5 +66,15 @@ export const recapMeta = (module: string): PageMeta => {
   };
 };
 
-const chapters = (module: string) => moduleOf(module).chapters.map(c => chapterMeta(module, c.id));
-export const ALL_PAGES: PageMeta[] = [HOME, RAG, ...chapters('rag'), recapMeta('rag'), TOOL_CALLING, ...chapters('tool-calling'), recapMeta('tool-calling')];
+/** A module's intro page (`/<module>/`): its own card where one is written above, else one from the registry entry. */
+export const introMeta = (module: string): PageMeta => {
+  const m = moduleOf(module), i = MODULES.filter(x => x.status === 'live').indexOf(m);
+  return ({ rag: RAG, 'tool-calling': TOOL_CALLING } as Record<string, PageMeta>)[m.id] ?? {
+    path: `/${m.id}/`, og: m.id, title: `${m.title} · Tinker`, description: m.description,
+    kicker: `Tinker · Module ${i + 1}`, headline: m.title, sub: m.description,
+  };
+};
+
+/** Every public page: home, then each live module's intro, chapters and recap, in registry order. */
+export const ALL_PAGES: PageMeta[] = [HOME, ...MODULES.filter(m => m.status === 'live').flatMap(m =>
+  [introMeta(m.id), ...m.chapters.map(c => chapterMeta(m.id, c.id)), recapMeta(m.id)])];

@@ -1,0 +1,7 @@
+{
+  "accessed": "2026-10-20",
+  "facts": [
+    { "id": "core-idea", "claim": "Replace this with the module’s core idea, in one sentence quoted from a source you can cite.", "source": "https://example.com/replace-with-your-source" },
+    { "id": "reply", "claim": "Replace this with what the system really does when asked, from a recorded run or a cited source.", "source": "https://example.com/replace-with-your-source" }
+  ]
+}
