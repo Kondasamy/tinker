@@ -1,13 +1,13 @@
 // The shared block canvas (U6): guided track and free workbench over one CanvasState, driven by the engine.
 // Controlled: the host (StepRunner stage or a page) owns the state and passes onChange.
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, useId, type KeyboardEvent, type PointerEvent } from 'react';
-import IsoStage, { frameFor, type SceneCtx } from '../../lib/iso/IsoStage';
-import { BLOCKS, BH, HALF, CELL, ACC, renderers, blockShadow, type BlockType } from '../../lib/iso/blocks';
-import { INK, PALS, byDepth, pd, on, PZ, P, Dv, txM, rrUV, ink, cyl, toneI, ease, withFrame } from '../../lib/iso/core.js';
+import IsoStage, { stageFrame, type SceneCtx, type Zoom } from '../../lib/iso/IsoStage';
+import { BLOCKS, BH, HALF, CELL, ACC, renderers, blockShadow, blockTag, type BlockType } from '../../lib/iso/blocks';
+import { INK, PALS, byDepth, pd, on, PZ, P, Dv, txM, rrUV, ink, cyl, toneI, ease, withFrame, unrotXY } from '../../lib/iso/core.js';
 import { openIndex, type RagIndex } from '../../lib/rag/load';
 import { createSession } from '../../lib/rag/engine';
 import { analyse, graphOf, outcome, openBench, type CanvasQuestion, type CanvasState, type Edge, type Outcome } from './state';
-import { trackLayout, TRACK_BOARD, type Placed } from './track';
+import { trackLayout, TRACK_BOARD, BAYS, type Placed } from './track';
 import { BENCH_BOARD, COLS, ROWS, addNode, cellAt, connect, cut, moveNode, removeNode, validTargets } from './bench';
 import Knobs, { BLOCK_KNOBS } from './Knobs';
 import { LOAD_FAILED } from '../panels/logic';
@@ -62,6 +62,16 @@ const NOTES: Partial<Record<BlockType, string>> = {
 const LLM_STATE = { correct: 'ok', wrong: 'bad', madeup: 'bad', notfound: 'warn', norecord: 'warn' } as const;
 const ARROWS: Record<string, [number, number]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
 const C30 = Math.cos(Math.PI / 6), S30 = 0.5;
+const ZOOM_MAX = 3;
+/** Animate a number from `from` to `to` in ms with the engine's ease; reduced motion jumps. Returns a cancel. */
+function tween(from: number, to: number, ms: number, set: (v: number) => void) {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { set(to); return () => {}; }
+  let raf = 0;
+  const t0 = performance.now();
+  const step = (now: number) => { const t = Math.min(1, (now - t0) / ms); set(from + (to - from) * ease(t)); if (t < 1) raf = requestAnimationFrame(step); };
+  raf = requestAnimationFrame(step);
+  return () => cancelAnimationFrame(raf);
+}
 const name = (t: BlockType) => BLOCKS[t].name;
 const sameEdge = (a: Edge, b: Edge) => a[0] === b[0] && a[1] === b[1];
 
@@ -83,8 +93,12 @@ function statOf(t: BlockType, s: CanvasState, o: Outcome | null, index: RagIndex
 }
 
 const floorText = (x: number, y: number, s: string, size: number) => {
+  // runs along the pad's -y edge, flipped as the view turns so it never reads backwards
   const o = P(x, y, BH + .2);
-  return `<text transform="${txM(o, Dv(0, -1, 0), Dv(1, 0, 0))}" font-size="${size}" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-weight="800" fill="${INK}" opacity=".55">${s}</text>`;
+  let u = Dv(0, -1, 0), v = Dv(1, 0, 0);
+  if (u[0] < 0) u = u.map(t => -t);
+  if (u[0] * v[1] - u[1] * v[0] < 0) v = v.map(t => -t);
+  return `<text transform="${txM(o, u, v)}" font-size="${size}" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-weight="800" fill="${INK}" opacity=".55">${s}</text>`;
 };
 /** L-shaped run along the board, x first then y; the agent loop's two legs sit apart so both read. */
 function wirePts(a: Placed, b: Placed, [from, to]: Edge) {
@@ -97,6 +111,13 @@ export default function Canvas({ state: s, onChange, question, focus, panel = tr
   const narrow = useNarrow();
   const bench = s.mode === 'bench', editable = bench && !narrow;
   const [tick, setTick] = useState(0);
+  // camera only (no effect on the run): view = quarter turns about the board's centre, zoom about a point
+  const [view, setView] = useState(0);
+  const [zoom, setZoom] = useState<Zoom>({ k: 1, u: .5, v: .5 });
+  const stopTurn = useRef(() => {});
+  const turnTo = (to: number) => { stopTurn.current(); stopTurn.current = tween(view, to, 450, setView); };
+  const zoomBy = (f: number, u = zoom.u, v = zoom.v) => setZoom({ k: Math.min(ZOOM_MAX, Math.max(1, zoom.k * f)), u, v });
+  useEffect(() => () => stopTurn.current(), []);
   const session = useMemo(() => index && createSession(index, () => setTick(t => t + 1)), [index]);
   // keyed on what reaches the engine, so selecting a block does not re-run retrieval
   const out = useMemo(() => (index && session ? outcome(index, session, s, question) : null), [index, session, s.unlocked, s.knobs, s.bench, s.mode, question, tick]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -143,6 +164,7 @@ export default function Canvas({ state: s, onChange, question, focus, panel = tr
 
   const svg = useRef<SVGSVGElement>(null);
   const [drag, setDrag] = useState<{ id: BlockType; x: number; y: number; cx: number; cy: number; moved: boolean } | null>(null);
+  const [orbit, setOrbit] = useState<{ cx: number; cy: number; view: number; zoom: Zoom } | null>(null);
   const [wiring, setWiring] = useState<{ from: BlockType; x: number; y: number } | null>(null);
 
   const track = trackLayout(s.unlocked);
@@ -153,7 +175,7 @@ export default function Canvas({ state: s, onChange, question, focus, panel = tr
   }
   if (drag?.moved) nodes = nodes.map(n => (n.id === drag.id ? { ...n, x: drag.x, y: drag.y } : n));
   const board = bench ? BENCH_BOARD : TRACK_BOARD;
-  const fr = frameFor(board);
+  const fr = stageFrame(board, view);
   const byId = Object.fromEntries(nodes.map(n => [n.id, n])) as Record<BlockType, Placed>;
 
   const scene = ({ top }: SceneCtx) => {
@@ -188,12 +210,19 @@ export default function Canvas({ state: s, onChange, question, focus, panel = tr
         svg: renderers[n.id]({ x: n.x, y: n.y, stat: statOf(n.id, s, out, index), selected: s.selected === n.id, lit: !!out?.record?.context.length, state: llmState }) + port,
       };
     }));
+    // name pills last, over every block (hidden while a block is dragged: they would trail behind it)
+    // phones: bigger pills, name only, so they stay readable without covering the board
+    if (!drag?.moved) svgS += nodes.map(n => blockTag(n.id, { x: n.x, y: n.y, stat: narrow ? '' : statOf(n.id, s, out, index), selected: s.selected === n.id }, narrow ? 2 : 1, bench || !BAYS[n.id])).join('');
     return svgS;
   };
 
-  // pointer → floor coordinates (inverse of the iso projection at z = BH)
-  const svgPt = (e: PointerEvent) => new DOMPoint(e.clientX, e.clientY).matrixTransform(svg.current!.getScreenCTM()!.inverse());
-  const toFloor = (p: DOMPoint) => { const a = (p.x - fr.ox) / C30, b = (p.y - fr.oy + BH) / S30; return { x: (a + b) / 2, y: (b - a) / 2 }; };
+  // pointer → floor coordinates (inverse of the iso projection at z = BH, then of the turn)
+  const svgPt = (e: { clientX: number; clientY: number }) => new DOMPoint(e.clientX, e.clientY).matrixTransform(svg.current!.querySelector<SVGGElement>('.iso-cam')!.getScreenCTM()!.inverse());
+  const toFloor = (p: DOMPoint) => {
+    const a = (p.x - fr.ox) / C30, b = (p.y - fr.oy + BH) / S30;
+    const [x, y] = withFrame(fr, () => unrotXY((a + b) / 2, (b - a) / 2));
+    return { x, y };
+  };
   const clampTo = (v: number, hi: number) => Math.max(HALF, Math.min(hi - HALF, v));
   const portAt = (id: BlockType) => withFrame(fr, () => { const n = byId[id]; const [x, y] = P(n.x + HALF - 5, n.y - HALF + 5, BH + BLOCKS[id].ht + 4); return { x, y }; });
 
@@ -204,11 +233,21 @@ export default function Canvas({ state: s, onChange, question, focus, panel = tr
     const block = t.closest('[data-block]')?.getAttribute('data-block') as BlockType | undefined;
     if (editable && port) { svg.current!.setPointerCapture(e.pointerId); const p = svgPt(e); setWiring({ from: port, x: p.x, y: p.y }); return; }
     if (editable && edge) { onChange({ ...s, bench: cut(s.bench, edge.split('>') as Edge) }); return; }
-    if (!block) return;
+    if (!block) {
+      // empty board: a mouse or pen drag orbits the view, or pans it when zoomed in (touch keeps scrolling the page; it has the buttons)
+      if (e.pointerType !== 'touch') { stopTurn.current(); svg.current!.setPointerCapture(e.pointerId); setOrbit({ cx: e.clientX, cy: e.clientY, view, zoom }); }
+      return;
+    }
     if (s.selected !== block) onChange({ ...s, selected: block });
     if (editable) { svg.current!.setPointerCapture(e.pointerId); setDrag({ id: block, x: byId[block].x, y: byId[block].y, cx: e.clientX, cy: e.clientY, moved: false }); }
   };
   const onPointerMove = (e: PointerEvent<SVGSVGElement>) => {
+    if (orbit) {
+      const r = svg.current!.getBoundingClientRect(), z = orbit.zoom, clamp = (t: number) => Math.max(0, Math.min(1, t));
+      // zoomed in: the board follows the pointer; otherwise a drag across the whole stage is one full turn
+      if (z.k > 1) setZoom({ ...z, u: clamp(z.u - (e.clientX - orbit.cx) / (r.width * (z.k - 1))), v: clamp(z.v - (e.clientY - orbit.cy) / (r.height * (z.k - 1))) });
+      else setView(orbit.view - 4 * (e.clientX - orbit.cx) / r.width);
+    }
     if (drag) {
       if (!drag.moved && Math.hypot(e.clientX - drag.cx, e.clientY - drag.cy) < 4) return;
       const f = toFloor(svgPt(e));
@@ -217,6 +256,7 @@ export default function Canvas({ state: s, onChange, question, focus, panel = tr
     if (wiring) { const p = svgPt(e); setWiring({ ...wiring, x: p.x, y: p.y }); }
   };
   const onPointerUp = (e: PointerEvent<SVGSVGElement>) => {
+    setOrbit(null);
     if (drag) {
       if (drag.moved) { const { c, r } = cellAt(drag.x, drag.y); onChange({ ...s, selected: drag.id, bench: moveNode(s.bench, drag.id, c, r) }); }
       setDrag(null);
@@ -268,7 +308,14 @@ export default function Canvas({ state: s, onChange, question, focus, panel = tr
     <div ref={wrap} className={`canvas${panel ? ' has-panel' : ''}`} data-mode={s.mode}>
       <div className="canvas-stage">
         <IsoStage board={board} scene={scene} role="group" label={`${label}: ${bench ? 'workbench' : 'track'}`} svgRef={svg}
-          className={editable ? 'editable' : undefined}
+          view={view} zoom={zoom} className={[editable && 'editable', orbit && 'orbiting'].filter(Boolean).join(' ') || undefined}
+          onWheel={e => {
+            // pinch (or ctrl + wheel) zooms about the pointer; plain wheel keeps scrolling the page
+            if (!e.ctrlKey) return;
+            e.preventDefault();
+            const r = svg.current!.getBoundingClientRect();
+            zoomBy(e.deltaY < 0 ? 1.15 : 1 / 1.15, (e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
+          }}
           onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onKeyDown={onKeyDown}>
           {wiring && wireFrom && (
             <g className="wiring" pointerEvents="none">
@@ -277,11 +324,18 @@ export default function Canvas({ state: s, onChange, question, focus, panel = tr
             </g>
           )}
         </IsoStage>
+        <div className="view-controls" role="group" aria-label="View">
+          <button type="button" className="chip" aria-label="Turn left" onClick={() => turnTo(Math.round(view) - 1)}>↺</button>
+          <button type="button" className="chip" aria-label="Turn right" onClick={() => turnTo(Math.round(view) + 1)}>↻</button>
+          <button type="button" className="chip" aria-label="Zoom out" disabled={zoom.k <= 1} onClick={() => zoomBy(1 / 1.5)}>−</button>
+          <button type="button" className="chip" aria-label="Zoom in" disabled={zoom.k >= ZOOM_MAX} onClick={() => zoomBy(1.5)}>+</button>
+          {(view !== 0 || zoom.k !== 1) && <button type="button" className="chip" onClick={() => { turnTo(Math.round(view / 4) * 4); setZoom({ k: 1, u: .5, v: .5 }); }}>Reset view</button>}
+        </div>
         <div className="canvas-bar">
           <p className="canvas-hint">
             {editable ? 'Drag a block to move it. Drag from its yellow knob onto another block to wire it. Click a wire to cut it.'
               : bench ? 'On a small screen the workbench is view-and-tweak: tap a block to tune it.'
-              : narrow ? 'Tap a block to tune it.' : 'Click a block to tune it.'}
+              : narrow ? 'Tap a block to tune it.' : zoom.k > 1 ? 'Click a block to tune it. Drag the board to look around.' : 'Click a block to tune it. Drag the board to turn it.'}
           </p>
           {allowBench && !bench && <button type="button" className="big" onClick={() => onChange(openBench(s))}>Open the workbench</button>}
           {allowBench && bench && <button type="button" className="chip" onClick={() => onChange({ ...s, mode: 'track' })}>Back to the track</button>}

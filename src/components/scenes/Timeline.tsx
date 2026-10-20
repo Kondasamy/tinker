@@ -2,8 +2,8 @@
 // cited for that era (log scale). The learner clicks (or Enter/Space on) the next era to open it.
 import type { KeyboardEvent, MouseEvent } from 'react';
 import IsoStage, { type SceneCtx } from '../../lib/iso/IsoStage';
-import { BH, ACC, boxCorners } from '../../lib/iso/blocks';
-import { PALS, METAL, CLEAR, CERAMIC, INK, box, tx, txY, pd, on, PZ, rrUV, castShadow, byDepth, hullInk, toneI } from '../../lib/iso/core.js';
+import { BH, ACC, boxCorners, glassCase } from '../../lib/iso/blocks';
+import { PALS, METAL, CLEAR, CERAMIC, INK, box, pd, on, PZ, rrUV, castShadow, byDepth, hullInk, toneI, tag } from '../../lib/iso/core.js';
 import { formatTokens, type TimelineEntry } from '../../lib/scale';
 
 export interface Era { id: string; label: string; title: string; pal: { l: string; m: string; d: string } }
@@ -24,9 +24,10 @@ const colHeight = (t: number) => COL * Math.min(1, Math.max(0.08, (Math.log10(t)
 export const eraWindow = (entries: TimelineEntry[], era: string) =>
   Math.max(0, ...entries.filter(e => e.era === era && e.contextTokens).map(e => e.contextTokens!));
 
-interface Props { entries: TimelineEntry[]; visited: number; active: number | null; onPick: (i: number) => void }
+/** pills: label size (1 = page size; the share images pass more) */
+interface Props { entries: TimelineEntry[]; visited: number; active: number | null; onPick: (i: number) => void; pills?: number }
 
-export default function Timeline({ entries, visited, active, onPick }: Props) {
+export default function Timeline({ entries, visited, active, onPick, pills = 1 }: Props) {
   const scene = ({ top }: SceneCtx) => {
     const items = ERAS.map((era, i) => {
       const x = X(i), open = i < visited, next = i === visited, win = eraWindow(entries, era.id);
@@ -35,12 +36,9 @@ export default function Timeline({ entries, visited, active, onPick }: Props) {
       let s = '';
       if (next || i === active) s += `<path class="${next ? 'pulse' : ''}" d="${pd(on(PZ(BH + .3), rrUV(x - H - 4, Y - H - 4, x + H + 4, Y + H + 4, 5)))}" fill="none" stroke="${ACC}" stroke-width="2.4"/>`;
       s += box(x - H, Y - H, BH, x + H, Y + H, z1, pal, toneI, 1);
-      s += tx(x + H + .2, Y, BH + 2.2, era.label, era.label.length > 7 ? 4.2 : 5.6, INK);
       if (win && open) {
         const h = colHeight(win);
-        s += box(x - 10, Y - 10, z1, x + 10, Y + 10, z1 + h, CLEAR, toneI, .8);
-        s += box(x - 8, Y - 8, z1, x + 8, Y + 8, z1 + h - 1.5, era.pal, toneI, .5);
-        s += txY(x, Y + 10.2, z1 + Math.min(h / 2, 8) - 2, formatTokens(win), 5.4, INK);
+        s += glassCase(x - 10, Y - 10, z1, x + 10, Y + 10, z1 + h, CLEAR, box(x - 8, Y - 8, z1, x + 8, Y + 8, z1 + h - 1.5, era.pal, toneI, .5));
       } else if (open) {
         // before chat models: a stack of paper, the documents RAG fetches from
         for (let k = 0; k < 3; k++) s += box(x - 9 + k, Y - 11 + k, z1 + k * 3, x + 9 + k, Y + 11 + k, z1 + k * 3 + 3, CERAMIC, toneI, .6);
@@ -52,7 +50,12 @@ export default function Timeline({ entries, visited, active, onPick }: Props) {
     const shadows = ERAS.map((_, i) => castShadow(boxCorners(X(i) - H, Y - H, BH, X(i) + H, Y + H, BH + PED + 20), BH, top)).join('');
     // the rail joining the eras
     const rail = `<path d="${pd([[X(0), Y + H + 6, BH + .2], [X(ERAS.length - 1), Y + H + 6, BH + .2]], false)}" fill="none" stroke="${INK}" stroke-width="1.2" stroke-dasharray="3 3"/>`;
-    return rail + shadows + byDepth(items);
+    // readable label pills over every era, drawn last; clicks pass through to the era objects
+    const tags = ERAS.map((era, i) => {
+      const open = i < visited, win = eraWindow(entries, era.id), top = BH + PED + (win && open ? colHeight(win) : open ? 9 : 0);
+      return `<g aria-hidden="true" pointer-events="none">${tag([X(i), Y, top], 0, -14, open && win ? `${era.label} · ${formatTokens(win)}` : era.label, i === active, pills)}</g>`;
+    }).join('');
+    return rail + shadows + byDepth(items) + tags;
   };
 
   const pick = (e: MouseEvent | KeyboardEvent) => {

@@ -10,11 +10,25 @@ const devPages = {
     'astro:config:setup': ({ command, injectRoute }) => {
       if (command !== 'dev' && !process.env.DEV_PAGES) return;
       for (const p of ['blocks', 'canvas', 'runner']) injectRoute({ pattern: `/dev/${p}`, entrypoint: `./src/dev/${p}.astro` });
+      injectRoute({ pattern: '/dev/og/[slug]', entrypoint: './src/dev/og.astro' });   // share-image template (pnpm og)
+    },
+  },
+};
+
+// `astro build` and `astro check` pre-bundle production React into Vite's dep cache; sharing node_modules/.vite with a
+// running `astro dev` then feeds dev pages React's production jsx-dev-runtime (`_jsxDEV is not a function`, figures
+// vanish). The dev server gets a cache nothing else writes to.
+const devCache = {
+  name: 'dev-cache',
+  hooks: {
+    'astro:config:setup': ({ command, updateConfig }) => {
+      if (command === 'dev') updateConfig({ vite: { cacheDir: 'node_modules/.vite-dev' } });
     },
   },
 };
 
 export default defineConfig({
+  site: 'https://explain.kondasamy.com',
   output: 'static',
-  integrations: [react(), mdx(), devPages],
+  integrations: [react(), mdx(), devPages, devCache],
 });
