@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { ALL_PAGES } from '../../src/lib/pages';
+import { MODULES } from '../../src/lib/modules';
 
 test('Tinker home returns 200 and links to the RAG module', async ({ page }) => {
   const res = await page.goto('/');
@@ -49,6 +50,10 @@ test('every public page has its own share image, and it is served', async ({ pag
     await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
   }
   expect(seen.size).toBe(paths.length);   // dedicated: no two pages share an image
+  for (const m of MODULES.filter(m => m.status === 'planned')) {   // roadmap cards only: no page, no image
+    expect((await request.get(`/${m.id}/`)).status(), m.id).toBe(404);
+    expect((await request.get(`/og/${m.id}.jpg`)).status(), m.id).toBe(404);
+  }
 });
 
 test('AE1: a returning reader keeps RAG progress, and a saved run resumes only on the same steps', async ({ page }) => {
