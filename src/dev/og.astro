@@ -24,7 +24,6 @@ export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
 }
 const { page } = Astro.props;
-const ALL = CHAPTERS.flatMap(c => c.unlocks);
 // module 2 chapters: the run each chapter is about, as its flat sequence
 const seq = (id: string, setup = {}) => transcript(RECORDINGS[id], run(RECORDINGS[id], setup));
 const TOOL_OG: Record<string, [string, ReturnType<typeof seq>]> = {
@@ -52,7 +51,7 @@ const BENCH_OG = connectScene({ servers: Object.values(SERVERS).map(s => ({ name
       </div>
       <div class="pic">
         {/* a new module's pages fall through to the recall cards until they get a picture case here */}
-        {page.og === 'home' ? <IsoStage board={TRACK_BOARD} scene={staticTrack(ALL, { scale: 1.6 })} label="" />
+        {page.og === 'home' ? <div class="pair"><IsoStage board={MINI_BOARD} scene={miniPipeline} label="" /><IsoStage board={MCP_BOARD} scene={MCP_OG} label="" /></div>
           : page.og === 'rag' ? <IsoStage board={MINI_BOARD} scene={miniPipeline} label="" />
           : page.og === 'tool-calling' ? <FlatStage lanes={SEQ_LANES} msgs={SEQ_MSGS} />
           : tool ? <FlatStage lanes={toolLanes(tool[0])} msgs={tool[1]} />
@@ -82,5 +81,6 @@ const BENCH_OG = connectScene({ servers: Object.values(SERVERS).map(s => ({ name
   .pic :global(figure) { margin: 0; }
   .pic :global(figcaption) { display: none; }
   .pic :global(svg) { max-height: 520px; }
+  .pair :global(svg) { max-height: 255px; }   /* home: one picture per live module, stacked */
   .pic :global(.msg *) { animation: none !important; }   /* the capture is a still: no message mid-travel */
 </style>

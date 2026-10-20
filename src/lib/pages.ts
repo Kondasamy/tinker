@@ -23,7 +23,7 @@ export const HOME: PageMeta = {
   description: 'Hand-drawn, interactive explanations of tech concepts. Build the thing, break it, fix it. By Kondasamy Jayaraman.',
   kicker: 'Tinker',
   headline: 'See how tech works by playing with it.',
-  sub: 'Hand-drawn, interactive explanations of tech concepts.',
+  sub: `Hand-drawn, interactive explanations of tech concepts: ${MODULES.filter(m => m.status === 'live').length} modules to play, more on the way.`,
 };
 
 export const RAG: PageMeta = {
