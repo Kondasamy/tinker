@@ -1,0 +1,78 @@
+---
+// Dev-only eyeball page: the agents back office in every prop state (static SVG, no client JS), then the Steps lanes.
+// Below 600px the phone versions show (bigger pills, one helper desk with a count pill).
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import FlatStage from '../components/scenes/FlatStage';
+import { AGENT_BOARD, agentLabel, agentScene, type AgentOpts } from '../components/scenes/agentScene';
+import { agentLanes, agentMessages } from '../components/scenes/agentSequence';
+import { readouts } from '../content/agents/kit';
+import { CONTEXT, run, type Run } from '../lib/agents/loop';
+import { RECORDINGS as R } from '../lib/agents/turns';
+
+const GAUGE = { steps: 12, context: CONTEXT };
+const PLAN = run(R['03-plans'], { case: 'damaged', stock: 'out', plan: true });
+const REPLAN = run(R['03-plans'], { case: 'planted', plan: true, approval: 'plan', decide: ['reject', 'approve'] });
+const STUCK = run(R['04-budgets'], { repeat: null });
+const FULL = run(R['05-memory'], { mem: 'full', context: 1500 });
+const SUMMARY = run(R['05-memory'], { mem: 'summary' });
+const HELPERS = run(R['06-sub-agents'], { helpers: true });
+const idx = (r: Run, kind: string) => r.steps.findIndex(s => s.kind === kind);
+
+const STATES: [string, AgentOpts][] = [
+  ['Clipboard: plan written, nothing done yet', { run: PLAN, upTo: 2, clipboard: true }],
+  ['Clipboard: two items ticked', { run: PLAN, upTo: 10, clipboard: true }],
+  ['Clipboard: re-planned (rejected items struck), done', { run: REPLAN, clipboard: true }],
+  ['Gauge: a few turns in', { run: STUCK, upTo: 12, gauge: GAUGE }],
+  ['Gauge: out of steps', { run: STUCK, gauge: GAUGE }],
+  ['Gauge: context over a 1,500-token budget', { run: FULL, gauge: { steps: 12, context: 1500 } }],
+  ['Gauge: 0 budgets (empty)', { run: STUCK, upTo: 12, gauge: { steps: 0, context: 0 } }],
+  ['In-tray: history before compaction', { run: SUMMARY, upTo: idx(SUMMARY, 'compact'), tray: true }],
+  ['In-tray: one binder after compaction', { run: SUMMARY, upTo: idx(SUMMARY, 'compact') + 1, tray: true }],
+  ['In-tray: binder and new papers', { run: SUMMARY, tray: true }],
+  ['Helpers: the third one working', { run: HELPERS, upTo: 12, helpers: true }],
+  ['Helpers: all replied', { run: HELPERS, helpers: true }],
+  ['Everything on', { run: HELPERS, upTo: 16, clipboard: true, gauge: GAUGE, tray: true, helpers: true }],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Agent scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Agents back office: every prop state</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={AGENT_BOARD} scene={agentScene(o)} label={agentLabel(o)} /></div>
+            <div class="phone"><IsoStage board={AGENT_BOARD} scene={agentScene({ ...o, scale: 1.8 })} label={agentLabel(o)} /></div>
+            <p>{readouts(o).join(' · ') || '(no readouts)'}</p>
+          </section>
+        ))}
+      </div>
+      <h1>Steps: helpers run, 16 steps in</h1>
+      <FlatStage lanes={agentLanes(HELPERS)} msgs={agentMessages(HELPERS)} upTo={16} />
+      <h1>Steps: re-planned run</h1>
+      <FlatStage lanes={agentLanes(REPLAN)} msgs={agentMessages(REPLAN)} />
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>
