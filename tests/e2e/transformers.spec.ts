@@ -106,6 +106,28 @@ test('chapter 1: the revealed answer is the bar’s top token, and each added to
   await expect(c.locator('.tc-status')).toContainText(`${piece}”`);
 });
 
+test('chapters 1 and 4: the Attention tab is off while a prediction is open, so it can’t show the answer first', async ({ page }) => {
+  const w = transformersWalker(page, 'mouse');
+  const c = card(page), tab = page.getByRole('button', { name: 'Attention', exact: true });
+  const picture = page.getByRole('button', { name: 'Picture', exact: true });
+  await w.open(CH1);
+  await c.getByRole('button', { name: /^Read “/ }).click();
+  await expect(c).toContainText('Step 2 of');
+  await expect(tab).toBeDisabled();
+  await c.getByRole('radio', { name: /^“days”/ }).click();
+  await expect(tab).toBeEnabled();
+
+  await w.open(CH4);
+  await tab.click();   // open before the prediction: the predict step still shows the picture
+  for (const name of ['Layer 1, head 2', 'Layer 2, head 1', 'Layer 2, head 2']) await c.getByRole('button', { name }).click();
+  await expect(c).toContainText('Step 2 of');
+  await expect(tab).toBeDisabled();
+  await expect(picture).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('.tf-attn')).toHaveCount(0);
+  await c.getByRole('radio', { name: /where the word began$/ }).click();
+  await expect(tab).toBeEnabled();
+});
+
 test('“I’m not sure” on a checkpoint reveals the answer, is no miss, and finishes the chapter', async ({ page }) => {
   const w = transformersWalker(page, 'mouse');
   await w.open(CH2);

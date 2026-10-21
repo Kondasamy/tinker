@@ -138,11 +138,12 @@ const FILL = { height: '100%' };   // fill the fixed frame; the viewBox keeps th
  * Larkspur mini. `layer` and `head` pick the lit desk and the heatmap; `query` the token whose threads are drawn
  * (default the last). While the model loads the frame keeps its size, with the prompt's tiles and a loading pill; a
  * failed load shows Retry. The tab is the reader's view, kept out of saved progress unless the chapter passes `view`
- * and `onView`. `next` replaces the bar after the last token (chapter 5's tempered probabilities). */
-export function TransformersStage({ prompt, layer = 0, head = 0, query, caption, view: kept, onView, next, store = MODEL }:
-  { prompt: string; layer?: number; head?: number; query?: number; caption?: ReactNode; view?: View; onView?: (v: View) => void; next?: { text: string; p: number }[]; store?: ModelStore }) {
+ * and `onView`. `next` replaces the bar after the last token (chapter 5's tempered probabilities). `locked` holds the
+ * picture and turns the Attention tab off while a prediction is open, so the tab can't show the answer first. */
+export function TransformersStage({ prompt, layer = 0, head = 0, query, caption, view: kept, onView, next, locked = false, store = MODEL }:
+  { prompt: string; layer?: number; head?: number; query?: number; caption?: ReactNode; view?: View; onView?: (v: View) => void; next?: { text: string; p: number }[]; locked?: boolean; store?: ModelStore }) {
   const [own, setOwn] = useState<View>('scene');
-  const view = kept ?? own, setView = onView ?? setOwn;
+  const view = locked ? 'scene' : kept ?? own, setView = onView ?? setOwn;
   const scale = useNarrow() ? 1.8 : 1;
   const { model, failed, retry } = useModel(store);
   const tr = useMemo(() => (model ? trace(model, prompt) : null), [model, prompt]);
@@ -154,7 +155,7 @@ export function TransformersStage({ prompt, layer = 0, head = 0, query, caption,
       <div className="tc-tabs" role="group" aria-label="Show in the picture">
         <button type="button" className="chip" aria-pressed={view === 'scene'} onClick={() => setView('scene')}>Picture</button>
         {/* off until the model has loaded: a press while loading would pre-set a step that asks for the tab (chapter 3) */}
-        <button type="button" className="chip" aria-pressed={view === 'attn'} disabled={!tr} onClick={() => setView('attn')}>Attention</button>
+        <button type="button" className="chip" aria-pressed={view === 'attn'} disabled={!tr || locked} onClick={() => setView('attn')}>Attention</button>
       </div>
       <div className="tc-frame tf-frame">
         {view === 'scene' || !tr

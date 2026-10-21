@@ -139,6 +139,7 @@ export default function HeadsAndLayers() {
         // on the prediction's prompt the picked token is the end of “named”; elsewhere the last token
         <TransformersStage prompt={textOf(state.prompt)} query={state.prompt === PREDICT_PROMPT.id ? QUERY : undefined}
           layer={state.layer} head={state.head} view={state.view} onView={v => sync({ ...state, view: v })}
+          locked={state.prompt === PREDICT_PROMPT.id && state.p1 === null}
           caption="Each desk is one head. Weights computed live from Larkspur mini." />
       )}
       controls={{

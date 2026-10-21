@@ -107,7 +107,7 @@ export default function OneTokenAtATime() {
       initial={{ ran: false, p1: null, revealed: false, added: 0, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
       stage={({ state, sync }) => (
-        <TransformersStage prompt={state.ran ? text(state) : ''} view={state.view} onView={v => sync({ ...state, view: v })}
+        <TransformersStage prompt={state.ran ? text(state) : ''} view={state.view} onView={v => sync({ ...state, view: v })} locked={state.p1 === null}
           caption={state.revealed ? 'The bar: the likeliest next tokens after the last one, from Larkspur mini.' : 'Larkspur mini: a tiny model, trained only on Larkspur’s documents.'} />
       )}
       controls={{
