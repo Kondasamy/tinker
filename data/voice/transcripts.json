@@ -1,0 +1,97 @@
+{
+  "about": "Recorded, hand-written for this site (KTD11): what speech-to-text wrote and how the assistant answered, keyed by call and by what the model heard. A key is `call|parts heard` (how many parts of the caller's opening turn were finished when the turn detector fired), then the call's own detail: where the caller cut in and whether the host stopped (`stop-N`: stopped during the reply's part N; `talked-over`: no barge-in), or the read-back policy (`direct`, `confirm`). Caller turns carry the transcript; assistant turns are their clip's words (script.json), `kept` naming how many of its parts were said before the host stopped. A caller turn the host never heard is `lost`. They illustrate the sourced findings in facts.json; nothing here was measured.",
+  "turns": {
+    "status|1": {
+      "turns": [
+        { "clip": "status-caller", "text": "Hi, could you tell me where order 1043 is?" },
+        { "clip": "status-reply" }
+      ],
+      "verdict": "ok", "note": "A clean line, one question: the turn ends after Dana stops, and the order lookup answers it."
+    },
+    "hesitant|1": {
+      "turns": [
+        { "clip": "hesitant-caller", "text": "I need to change the delivery address on my order." },
+        { "clip": "hesitant-reply-1" }
+      ],
+      "verdict": "cut-off", "note": "The turn ended at Ravi’s first pause; the assistant asks for the order number he was about to give."
+    },
+    "hesitant|2": {
+      "turns": [
+        { "clip": "hesitant-caller", "text": "I need to change the delivery address on my order. It’s order 1051." },
+        { "clip": "hesitant-reply-2" }
+      ],
+      "verdict": "cut-off", "note": "The turn ended at Ravi’s second pause; the assistant asks for the address he was about to give."
+    },
+    "hesitant|3": {
+      "turns": [
+        { "clip": "hesitant-caller", "text": "I need to change the delivery address on my order. It’s order 1051. Can it go to our new site on Mill Road?" },
+        { "clip": "hesitant-reply-3" }
+      ],
+      "verdict": "ok", "note": "The whole request was heard: order, change and address, so the assistant can act on it."
+    },
+    "noisy|0": {
+      "turns": [
+        { "clip": "noisy-caller", "text": "Hi, it’s Ravi on site," },
+        { "clip": "noisy-reply-0" }
+      ],
+      "verdict": "cut-off", "note": "The detector took a breath for the end of the turn; the assistant greets Ravi in the middle of his question."
+    },
+    "noisy|1": {
+      "turns": [
+        { "clip": "noisy-caller", "text": "Hi, it’s Ravi on site, has the scanner turned up yet?" },
+        { "clip": "noisy-reply-1" }
+      ],
+      "verdict": "cut-off", "note": "Ravi’s quiet order number fell under the threshold and counted as silence, so the turn ended without it."
+    },
+    "noisy|2": {
+      "turns": [
+        { "clip": "noisy-caller", "text": "Hi, it’s Ravi on site, has the scanner turned up yet? It’s order 1047." },
+        { "clip": "noisy-reply-2" }
+      ],
+      "verdict": "ok", "note": "The order number was heard over the hum, and the lookup answers it."
+    },
+    "slots|1|stop-2": {
+      "turns": [
+        { "clip": "slots-caller", "text": "Can we book a delivery slot for the label printer?" },
+        { "clip": "slots-reply", "kept": 2 },
+        { "clip": "slots-interrupt", "text": "Sorry, we’re closed on Tuesdays." },
+        { "clip": "slots-kept-2" }
+      ],
+      "verdict": "ok", "note": "The host stopped at “Tuesday morning”; the history says so, and the model offers the two slots Dana never heard."
+    },
+    "slots|1|stop-3": {
+      "turns": [
+        { "clip": "slots-caller", "text": "Can we book a delivery slot for the label printer?" },
+        { "clip": "slots-reply", "kept": 3 },
+        { "clip": "slots-interrupt", "text": "Sorry, we’re closed on Tuesdays." },
+        { "clip": "slots-kept-3" }
+      ],
+      "verdict": "ok", "note": "The host stopped at “Wednesday afternoon”; the model repeats Wednesday and adds Friday, the slot it never got to."
+    },
+    "slots|1|talked-over": {
+      "turns": [
+        { "clip": "slots-caller", "text": "Can we book a delivery slot for the label printer?" },
+        { "clip": "slots-reply", "kept": 4 },
+        { "clip": "slots-interrupt", "lost": true },
+        { "clip": "slots-talked-over" }
+      ],
+      "verdict": "talked-over", "note": "With no barge-in the reply played on over Dana and her words never reached the model, so it offers the slot she ruled out."
+    },
+    "mishear|1|direct": {
+      "turns": [
+        { "clip": "mishear-caller", "text": "Hi, can you check on order 2650?", "unsure": "2650" },
+        { "clip": "mishear-direct" }
+      ],
+      "verdict": "wrong", "note": "Speech-to-text heard “fifteen” as “fifty”; the lookup ran on the wrong order and the answer sounds sure of itself."
+    },
+    "mishear|1|confirm": {
+      "turns": [
+        { "clip": "mishear-caller", "text": "Hi, can you check on order 2650?", "unsure": "2650" },
+        { "clip": "mishear-readback" },
+        { "clip": "mishear-correct", "text": "No. 2, 6, 1, 5." },
+        { "clip": "mishear-confirmed" }
+      ],
+      "verdict": "ok", "note": "Reading the unsure number back cost one short turn and caught the mistake before the lookup."
+    }
+  }
+}
