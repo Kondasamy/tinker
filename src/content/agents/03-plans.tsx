@@ -220,7 +220,7 @@ export default function Plans() {
           );
         },
         guard: () => (
-          <p className="tc-status">One planted line is the simplest kind of prompt injection, and a person reading plans is only one defence. They get a module of their own, on the roadmap: <a href={`/#module-${GUARD.id}`}>{GUARD.title}</a>.</p>
+          <p className="tc-status">One planted line is the simplest kind of prompt injection, and a person reading plans is only one defence. They get a module of their own: <a href={`/${GUARD.id}/`}>{GUARD.title}</a>.</p>
         ),
         quiz: ({ state, apply, sync }) => (
           <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
