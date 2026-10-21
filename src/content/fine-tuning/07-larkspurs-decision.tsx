@@ -6,7 +6,7 @@ import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import { ALL_QUESTIONS, VERSION_IDS, VERSIONS, type VersionId } from '../../lib/fine-tuning/engine';
-import { BEST, KINDS, QUALITY, WINNERS, solved, totals, type Plan } from '../../lib/fine-tuning/workbench';
+import { BEST, KINDS, QUALITY, WINNERS, cell, solved, totals, type Plan } from '../../lib/fine-tuning/workbench';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Fact, FineTuneStage, versionCols, type View } from './kit';
@@ -20,6 +20,8 @@ export const START: Plan = { voice: 'finetuned', facts: 'finetuned', changed: 'f
 /** the plan in a run's state; a kind missing from a saved run, or an unknown version, falls back to START's */
 export const planOf = (s: Partial<Plan>): Plan =>
   Object.fromEntries(KINDS.map(k => [k.id, VERSION_IDS.includes(s[k.id]!) ? s[k.id]! : START[k.id]])) as Plan;
+/** every version scores the same on replies with no facts (they all keep the sign-off), so only the notes decide that row */
+export const VOICE_TIE = new Set(VERSION_IDS.map(v => cell('voice', v).quality)).size === 1;
 const planWords = (p: Plan) => KINDS.map(k => `${k.label.toLowerCase()} → ${label(p[k.id])}`).join('; ');
 
 export interface S extends Plan { view: View; quiz: number | null }
@@ -45,14 +47,14 @@ const QUIZ = {
 export const STEPS: Step<S>[] = [
   {
     id: 'plan', focus: 'plan', visibleControls: ['score', 'plan'],
-    narration: `The support lead’s brief: “Just fine-tune it” sends every kind of request to the fine-tuned version. The bench scores a plan. Quality is up to ${QUALITY} points per kind: the share of its recorded answers that pass, graded live (the key fact, or the sign-off for replies with no facts). Then subtract cost and upkeep, the work a choice needs after launch, from the team’s notes. Send each kind to one version and find a plan with the best score.`,
+    narration: `The support lead’s brief: “Just fine-tune it” sends every kind of request to the fine-tuned version. The bench scores a plan. Quality is up to ${QUALITY} points per kind: the share of its recorded answers that pass, graded live (the key fact, or the sign-off for replies with no facts). Then subtract cost and upkeep, the work a choice needs after launch: those come from the team’s own notes, not measured facts. Send each kind to one version and find a plan with the best score.`,
     predicate: s => solved(planOf(s)),
     hint: 'Look at each kind on its own: which version scores most there? Facts that change belong where they are read fresh.',
     solution: s => ({ ...s, ...WINNERS[0] }),
   },
   {
     id: 'ties', focus: 'quiz', visibleControls: ['score', 'plan', 'ties', 'quiz'],
-    narration: `${pts(BEST)} points: the best any plan scores. Yours is one of ${WINNERS.length} plans that tie. For replies with no facts the prompt and the fine-tune both sign off every time; one pays with words on every request, the other with a training run. For facts, documents win: they pass most and update in one place. Change the plan if you like; the bench is yours. One question to finish.`,
+    narration: `${pts(BEST)} points: the best any plan scores. Yours is one of ${WINNERS.length} plans that tie. ${VOICE_TIE ? 'For replies with no facts every version signs off every time, so quality ties there and the team’s own notes on cost and upkeep decide it: the prompt pays with words on every request, the fine-tune with a training run.' : 'For replies with no facts the versions differ in quality, and the team’s own notes on cost and upkeep weigh in too.'} For facts, documents win: they pass most and update in one place. Change the plan if you like; the bench is yours. One question to finish.`,
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which lever suits a fact that changes, and which suits a habit that doesn’t?',
   },
@@ -65,7 +67,7 @@ function Score({ s }: { s: S }) {
     <div role="status" data-score={t.score} data-best={best ? '1' : '0'}>
       <p className="ft-headline"><strong>{pts(t.score)}</strong> points <span className={`stamp ${best ? 'correct' : 'neutral'}`}>{best ? 'BEST' : `BEST IS ${pts(BEST)}`}</span></p>
       <table className="tc-ledger" style={{ marginTop: 10 }}>
-        <caption>Your plan, kind by kind</caption>
+        <caption>Your plan, kind by kind (cost and upkeep are the team’s own notes)</caption>
         <thead><tr><th scope="col">Kind, sent to</th><th scope="col">Quality</th><th scope="col">Cost</th><th scope="col">Upkeep</th><th scope="col">Score</th></tr></thead>
         <tbody>
           {t.rows.map(r => (

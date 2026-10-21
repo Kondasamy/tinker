@@ -8,7 +8,7 @@ import { gateVersion, gradeVersion, HELDOUT, heldoutScore, QUESTION_IDS, VERSION
 import { BEST, KINDS, NOTES, PLANS, QUALITY, WINNERS, solved, totals, type Plan } from '../../src/lib/fine-tuning/workbench';
 import { forgetOutcome, P1 as FORGET, STEPS as CH5 } from '../../src/content/fine-tuning/05-what-training-costs';
 import { GATE, gateOutcome } from '../../src/content/fine-tuning/06-measure-before-you-train';
-import { START, STEPS, planOf } from '../../src/content/fine-tuning/07-larkspurs-decision';
+import { START, STEPS, VOICE_TIE, planOf } from '../../src/content/fine-tuning/07-larkspurs-decision';
 import IDS from '../../data/lm/ids.json' with { type: 'json' };
 
 const disk = (f: string) => { const b = readFileSync('public/data/lm/' + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer; };
@@ -100,6 +100,14 @@ describe('chapter 7: the workbench', () => {
     for (const v of VERSION_IDS) expect(gradeVersion(v).every(g => g.signed), v).toBe(true);
     const facts = (v: (typeof VERSION_IDS)[number]) => gradeVersion(v, QUESTION_IDS).filter(g => g.fact).length;
     expect(facts('finetuned')).toBeLessThan(facts('rag'));
+  });
+
+  it('the voice row ties on quality by construction, and the narration says the team’s own notes decide it', () => {
+    expect(VOICE_TIE).toBe(true);
+    const ties = STEPS.find(s => s.id === 'ties')!.narration;
+    expect(ties).toMatch(/every version signs off every time, so quality ties there/);
+    expect(ties).toMatch(/team’s own notes on cost and upkeep decide it/);
+    expect(STEPS.find(s => s.id === 'plan')!.narration).toMatch(/the team’s own notes, not measured facts/);
   });
 
   it('every version has a cost and upkeep note for every kind', () => {
