@@ -4,7 +4,7 @@
 
 Each module is a short story you play through: the picture on the left is live, the story on the right asks you to do one thing at a time in it, and you watch what changes. Build the thing, break it, fix it.
 
-![Tinker home: one workshop, a plot per module. RAG, tool calling, AI agents, evals and guardrails are live; the planned modules are building sites](docs/images/home.png)
+![Tinker home: one workshop, a plot per module. All nine modules are live, from RAG and tool calling to context engineering and fine-tuning](docs/images/home.png)
 
 ---
 
@@ -329,7 +329,7 @@ No monitoring is needed, because there is no backend.
 
 ## Contributing
 
-The empty plots on the home page are open. New modules and fixes arrive as pull requests to this repository. Start with [CONTRIBUTING.md](CONTRIBUTING.md) (setup, checks, the PR flow, credit) and [docs/writing-a-module.md](docs/writing-a-module.md) (the house style for a module). `pnpm new-module <id> "<Title>"` scaffolds a module, and `pnpm test` lists what it still needs.
+Every module on the roadmap is live, and there is room for more: propose one. New modules and fixes arrive as pull requests to this repository. Start with [CONTRIBUTING.md](CONTRIBUTING.md) (setup, checks, the PR flow, credit) and [docs/writing-a-module.md](docs/writing-a-module.md) (the house style for a module). `pnpm new-module <id> "<Title>"` scaffolds a module, and `pnpm test` lists what it still needs.
 
 ---
 
