@@ -247,6 +247,7 @@ const CONTRIBUTING = 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING
     .hero-pic :global(.hero-hop) { animation: hero-hop calc(var(--n) * .8s) ease-in-out infinite; animation-delay: calc(var(--i) * .8s); }
     .hero-pic :global(.hero-hop .block-tag) { opacity: 0; animation: hero-show calc(var(--n) * .8s) ease-in-out infinite; animation-delay: calc(var(--i) * .8s); }
     .hero-pic :global(.hero-hop .tag rect) { fill: var(--acc); }
+    .hero-pic :global(.hero-soon) { display: none; }
     /* the token press keeps cutting tiles, and the agent's clipboard keeps ticking its plan off */
     .hero-pic :global(.tile) { animation: hero-drop 2.4s cubic-bezier(.5, 0, .5, 1.4) infinite both; }
     .hero-pic :global(.tile:nth-child(2 of .tile)) { animation-delay: .3s; }

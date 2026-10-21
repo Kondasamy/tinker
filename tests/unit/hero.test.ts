@@ -14,12 +14,14 @@ describe('home hero', () => {
   it('has one name pill per module, each from the registry, and no NaN coordinates', () => {
     const svg = draw();
     for (const m of MODULES.filter(m => m.status === 'live')) expect(svg).toContain(upper(m.id.replace(/-/g, ' ')));
-    for (const m of MODULES.filter(m => m.status === 'planned')) expect(svg).toContain(`SOON: ${m.id.replace(/-/g, ' ').toUpperCase()}`);
+    for (const m of MODULES.filter(m => m.status === 'planned')) expect(svg).toContain(upper(m.id.replace(/-/g, ' ')));
+    expect(svg.match(/class="hero-soon"/g) ?? []).toHaveLength(MODULES.filter(m => m.status === 'planned').length);
     expect(svg).not.toMatch(/NaN/);
   });
 
-  it('plots never overlap and stay on the board, for 1 to 12 slots', () => {
-    for (let n = 1; n <= 12; n++) {
+  it('plots never overlap and stay on the board, for 1 slot up to the registry’s count (at least 12)', () => {
+    const slots = MODULES.filter(m => m.status === 'live').length - 2 + MODULES.filter(m => m.status === 'planned').length;
+    for (let n = 1; n <= Math.max(12, slots); n++) {
       const rects = Array.from({ length: n }, (_, i) => plotAt(i)), [, , bx1, by1] = heroBoard(n);
       rects.forEach(([x0, y0, x1, y1], i) => {
         expect(x1 <= bx1 && y1 <= by1 && x0 >= 0 && y0 >= 0).toBe(true);
@@ -28,14 +30,14 @@ describe('home hero', () => {
     }
   });
 
-  it('fits nine slots, and a third live module draws as live (no "Soon" pill)', () => {
+  it('fits nine slots, and a third live module draws as live (its pill in the wave, not a building site)', () => {
     const planned = Array.from({ length: 6 }, (_, i) => ({ name: `Planned ${i}` }));
     const scene = heroScene({ live: [{ name: 'One' }, { name: 'Two' }, { name: 'Three', draw: () => '<g class="third"/>' }], planned, ride: [] });
     const svg = draw(heroBoard(7), scene);
     expect(svg).toContain('class="third"');
     expect(svg).toContain('THREE');
-    expect(svg).not.toContain('SOON: THREE');
-    expect(svg.match(/SOON: PLANNED/g)).toHaveLength(6);
+    expect(svg).not.toMatch(/hero-soon">(?:(?!<g class="hero).)*THREE/s);
+    expect(svg.match(/PLANNED \d/g)).toHaveLength(6);
     expect(svg).not.toMatch(/NaN/);
   });
 
@@ -48,14 +50,21 @@ describe('home hero', () => {
     expect(heroLabel(['RAG', 'Tool calling'], [])).toBe('Tinker as one workshop with a plot per module: RAG and Tool calling, live.');
   });
 
-  // the roadmap is empty, but the planned path stays for contributors (KTD14): a planned fixture still gets its site and its words
+  // a planned fixture keeps the building-site path tested whatever the registry holds (KTD14)
   it('a planned fixture still draws a building site (crate and cones) and the label names it', () => {
     const count = (svg: string, colour: string) => svg.split(colour).length - 1;
     const site = draw(heroBoard(1), heroScene({ live: [{ name: 'One' }, { name: 'Two' }], planned: [{ name: 'demo' }], ride: [] }));
     const live = draw(heroBoard(1), heroScene({ live: [{ name: 'One' }, { name: 'Two' }, { name: 'Three' }], planned: [], ride: [] }));
-    expect(site).toContain('SOON: DEMO');
+    expect(site).toContain('DEMO');
     expect(count(site, WOOD.l)).toBeGreaterThan(count(live, WOOD.l));
     expect(count(site, PALS.tomato.l)).toBeGreaterThan(count(live, PALS.tomato.l));
     expect(heroLabel(['RAG'], ['Demo'])).toBe('Tinker as one workshop with a plot per module: RAG, live, and building sites for Demo.');
+  });
+
+  // the wave's timing is per live plot, so planned pills sit out of it in their own group, which the animated home hides
+  it('keeps every planned pill out of the hop wave, in a hero-soon group', () => {
+    const svg = draw(heroBoard(2), heroScene({ live: [{ name: 'One' }, { name: 'Two' }], planned: [{ name: 'a' }, { name: 'b' }], ride: [] }));
+    expect(svg.match(/<g class="hero-soon"><g class="block-tag"[^>]*>(?:(?!<g class="hero).)*?>[AB]</gs)).toHaveLength(2);
+    expect(svg.replace(/<g class="hero-soon">.*?>[AB]<.*?<\/g><\/g>/gs, '')).not.toMatch(/>[AB]</);
   });
 });

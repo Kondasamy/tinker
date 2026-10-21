@@ -77,7 +77,8 @@ export const heroScene = ({ live, planned, ride }: { live: HeroPlot[]; planned: 
   const at = (i: number) => { const [x, y] = slotXY(i); return [x + 4, y, BH + 15]; };
   return s + hop(0, pill([RAG_X[1], RAG_Y, BH + 34], live[0].name, false, -18)) + hop(1, pill([142, 134, BH + 34], live[1].name, false, -22))
     + later.map((m, i) => hop(i + 2, pill(at(i), m.name, false, -24))).join('')
-    + planned.map((m, j) => pill(at(later.length + j), `Soon: ${m.name}`, false, -24)).join('');
+    // planned pills sit out the wave (its timing is per live plot): the animated home hides them, still pictures show them all
+    + planned.map((m, j) => `<g class="hero-soon">${pill(at(later.length + j), m.name, false, -24)}</g>`).join('');
 };
 
 /** later live modules' plots, by module id: agents is a small desk with its plan on a clipboard; evals a stack of graded test cards and a stamp;

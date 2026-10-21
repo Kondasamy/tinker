@@ -5,21 +5,38 @@ import { MODULES } from '../../src/lib/modules';
 
 const catalogue = (page: import('@playwright/test').Page) => page.locator('#modules');
 
-// the roadmap is empty (U23): every module is a live card at its level, and the roadmap area is a link to propose one.
-// The planned-card path stays for contributors; tests/unit/hero.test.ts keeps it tested with a planned fixture.
-for (const width of [1280, 390]) test(`levels in order, every live module grouped by level, no roadmap card, a Propose a module link (${width}px)`, async ({ page }) => {
+// every module sits at its level: live cards first, then the roadmap's planned cards in registry (build) order;
+// the hero's building sites point contributors at CONTRIBUTING.md, and so does the Propose a module link.
+for (const width of [1280, 390]) test(`levels in order, live then planned cards grouped by level, a Propose a module link (${width}px)`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 });
   await page.goto('/');
   await expect(catalogue(page).locator('[data-level] > h3')).toHaveText(['Beginner', 'Intermediate', 'Advanced']);
-  const live = MODULES.filter(m => m.status === 'live');
-  expect(MODULES.filter(m => m.status === 'planned')).toHaveLength(0);
+  const live = MODULES.filter(m => m.status === 'live'), planned = MODULES.filter(m => m.status === 'planned');
+  expect(planned.length).toBeGreaterThan(0);
   await expect(catalogue(page).locator('.module')).toHaveCount(live.length);
-  for (const m of live) await expect(page.locator(`[data-level="${m.level}"] .module[data-module="${m.id}"]`)).toBeVisible();
-  await expect(catalogue(page).locator('.roadmap')).toHaveCount(0);
+  await expect(catalogue(page).locator('.roadmap')).toHaveCount(planned.length);
+  for (const level of ['Beginner', 'Intermediate', 'Advanced'] as const) {
+    const ids = [...live, ...planned].filter(m => m.level === level).map(m => m.id);
+    await expect(page.locator(`[data-level="${level}"] [data-module]`)).toHaveCount(ids.length);
+    expect(await page.locator(`[data-level="${level}"] [data-module]`).evaluateAll(els => els.map(e => e.getAttribute('data-module')))).toEqual(ids);
+  }
+  for (const m of planned) {
+    const card = page.locator(`[data-level="${m.level}"] .roadmap[data-module="${m.id}"]`);
+    await expect(card.locator('h4')).toHaveText(m.title);
+    await expect(card).toContainText(m.description);
+  }
   await expect(catalogue(page).locator('.coming')).toHaveCount(0);
   await expect(catalogue(page).getByRole('link', { name: 'Propose a module' })).toHaveAttribute('href', 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING.md');
-  await expect(page.locator('.hero-pic figcaption')).not.toContainText('empty plots');
+  await expect(page.locator('.hero-pic figcaption')).toContainText('The empty plots are open');
+  await expect(page.locator('.hero-pic figcaption a')).toHaveAttribute('href', 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING.md');
   await expect(page.getByText('In the workshop')).toHaveCount(0);
+});
+
+for (const [width, height] of [[1280, 800], [390, 844]]) test(`the hero text and both buttons fit the first screen (${width}×${height})`, async ({ page }) => {
+  await page.setViewportSize({ width, height });
+  await page.goto('/');
+  for (const el of [page.locator('.hero h1'), page.locator('[data-continue]'), page.locator('.hero .ctas .btn').nth(1), page.locator('.hero .glance')])
+    await expect(el).toBeInViewport({ ratio: 1 });
 });
 
 test('live modules keep their numbers: Tokens is Module 6 under Beginner and Transformers Module 7 under Advanced and Context Module 8 under Intermediate and Fine-tuning Module 9 under Advanced, linked; Agents, Evals and Guardrails keep 3, 4 and 5', async ({ page }) => {
