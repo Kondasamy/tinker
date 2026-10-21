@@ -1,6 +1,7 @@
 // Module 12, Small models: the intro, every chapter played by mouse and by keyboard only, the teacher and the student run
 // live, its own progress key, "I'm not sure", reduced motion, the recap, axe, phone width, chapters 1 and 3 played
-// offline once both weight sets are in, the frontier read by keyboard, and the puzzles' wrong answers held back.
+// offline once both weight sets are in, the frontier read by keyboard, and the puzzles' wrong answers held back; the
+// go-live checks: Module 12 kickers and share images, home's card and Continue.
 import { test, expect, type Page } from '@playwright/test';
 import { moduleOf } from '../../src/lib/modules';
 import { smWalker } from './small-models-flow';
@@ -40,6 +41,20 @@ test('the intro shows the level, the prerequisites, the author, the chapters and
   await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toBeVisible();
   await expect(page.locator('.hero .kicker')).toHaveText('Module 12 · Small models');
   await axe(page);
+});
+
+test('Module 12 on the intro, the recap and home, with their own share images; home Continue resumes it', async ({ page }) => {
+  await page.goto('/small-models/');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 12 · Small models');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/small-models\.jpg$/);
+  await page.goto('/small-models/recap/');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 12 · Recap');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/small-models-recap\.jpg$/);
+  await page.goto('/');
+  await expect(page.locator('.module[data-module="small-models"] h4 a')).toHaveAttribute('href', '/small-models/');
+  await page.evaluate(() => { localStorage.setItem('small-models-progress-v1', JSON.stringify({ done: [], saved: {} })); localStorage.setItem('tinker-last-module', 'small-models'); });
+  await page.reload();
+  await expect(page.locator('[data-continue]')).toHaveAttribute('href', /^\/small-models\//);
 });
 
 test('the intro reads as pictures by default; Words unfolds the longer text', async ({ page }) => {

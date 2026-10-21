@@ -72,6 +72,10 @@ import { effortChart } from '../components/scenes/effortChart';
 import { deskOf as thinkDesk, kindSeries } from '../content/reasoning/kit';
 import { EFFORTS, KINDS, SPLIT, run as rsRun } from '../lib/reasoning/engine';
 import { WINNERS, totals as rsTotals } from '../lib/reasoning/workbench';
+import { ROUTER_BOARD, routerScene, type RouterOpts } from '../components/scenes/routerScene';
+import { frontierChart } from '../components/scenes/frontierChart';
+import { STUDENT_SERIES } from '../content/small-models/kit';
+import { cheapestShipping, frontier } from '../lib/small-models/router';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -289,7 +293,25 @@ const EFFORT_OG: Record<string, () => ReturnType<typeof effortChart>> = {
   'reasoning-06-measure-then-pick': () => effortChart(kindSeries()),
 };
 const effortOg = EFFORT_OG[page.og]?.();
-const curveOg = page.og === 'fine-tuning-02-what-training-does' ? lossChart({ series: FINETUNE_SERIES }) : undefined;
+// module 12: the apprentice's bench. The intro: routing, an unsure answer sent up the fallback chute; chapters 1 and 3:
+// distilling, teacher and student both answering; chapter 2: the student's recorded loss curve; chapter 4: the frontier's
+// two ends (all small, all large); chapters 5 and 6: the whole frontier; chapter 7: routing at the cheapest threshold
+// that ships, a question answered small.
+const ROUTER_OG: Record<string, RouterOpts> = {
+  'small-models': { mode: 'route', route: 'up', threshold: 0.9 },
+  'small-models-01-big-model-small-model': { mode: 'distill', lit: 'both' },
+  'small-models-03-how-close-is-the-student': { mode: 'distill', lit: 'both' },
+  'small-models-07-routing-policy': { mode: 'route', route: 'small', threshold: cheapestShipping() },
+};
+const routerOg = ROUTER_OG[page.og];
+const FRONTIER_OG: Record<string, () => ReturnType<typeof frontierChart>> = {
+  'small-models-04-send-it-the-easy-ones': () => frontierChart({ points: frontier().filter(p => p.threshold === 0 || p.threshold === null).map(p => (p.threshold === 0 ? { ...p, id: 'all-small', label: 'All small' } : p)) }),
+  'small-models-05-fall-back-when-unsure': () => frontierChart({ points: frontier() }),
+  'small-models-06-gate-the-switch': () => frontierChart({ points: frontier() }),
+};
+const frontierOg = FRONTIER_OG[page.og]?.();
+const curveOg = page.og === 'fine-tuning-02-what-training-does' ? lossChart({ series: FINETUNE_SERIES })
+  : page.og === 'small-models-02-learning-from-a-teacher' ? lossChart({ series: STUDENT_SERIES }) : undefined;
 ---
 <html lang="en">
   <head><meta charset="utf-8" /><meta name="robots" content="noindex" /><title>og: {page.og}</title></head>
@@ -320,6 +342,8 @@ const curveOg = page.og === 'fine-tuning-02-what-training-does' ? lossChart({ se
           : gridOg ? <div class="tf-og"><Flat fig={gridOg} role="img" label="" /></div>
           : thinkOgs ? <div class={thinkOgs.length > 1 ? 'duo' : ''}>{thinkOgs.map(o => <IsoStage board={THINK_BOARD} scene={thinkScene(o)} label="" />)}</div>
           : effortOg ? <div class="tf-og"><Flat fig={effortOg} role="img" label="" /></div>
+          : routerOg ? <IsoStage board={ROUTER_BOARD} scene={routerScene({ ...routerOg, scale: 1.3 })} label="" />
+          : frontierOg ? <div class="tf-og"><Flat fig={frontierOg} role="img" label="" /></div>
           : curveOg ? <div class="tf-og"><Flat fig={curveOg} role="img" label="" /></div>
           : page.og === 'fine-tuning-06-measure-before-you-train' ? <Grid cols={versionCols(VERSION_IDS)} />
           : deskOg ? <IsoStage board={WINDOW_BOARD} scene={windowScene(deskOg)} label="" />

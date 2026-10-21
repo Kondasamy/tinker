@@ -110,7 +110,13 @@ describe('module registry', () => {
   it('has reasoning as a live Intermediate module that recommends Evals first, numbered 11 after structured-outputs', () => {
     expect(moduleOf('reasoning')).toMatchObject({ title: 'Reasoning models & thinking budgets', level: 'Intermediate', status: 'live', prereqs: ['evals'] });
     expect(moduleOf('reasoning').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').map(m => m.id)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs', 'reasoning']);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id).slice(0, 11)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs', 'reasoning']);
+  });
+
+  it('has small-models as a live Advanced module that recommends Fine-tuning and Evals first, numbered 12 after reasoning', () => {
+    expect(moduleOf('small-models')).toMatchObject({ title: 'Small models: distillation & routing', level: 'Advanced', status: 'live', prereqs: ['fine-tuning', 'evals'] });
+    expect(moduleOf('small-models').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs', 'reasoning', 'small-models']);
   });
 
   it('keeps chapter ids unique within every module', () => {

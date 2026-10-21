@@ -39,6 +39,7 @@ import { play as stencilPlay, run as stencilRun } from '../lib/structured-output
 import { THINK_BOARD, thinkScene, thinkLabel } from '../components/scenes/thinkScene';
 import { deskOf as thinkDeskOf } from '../content/reasoning/kit';
 import { run as reasoningRun, SPLIT } from '../lib/reasoning/engine';
+import { ROUTER_BOARD, routerScene, routerLabel } from '../components/scenes/routerScene';
 
 const one = (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) => ({ top }: SceneCtx) =>
   blockShadow(type, 30, 30, top) + renderers[type]({ x: 30, y: 30, ...opts });
@@ -81,6 +82,8 @@ const MASKED_RUN = stencilRun('mask'), MASKED = stencilPlay(diskModel(), MASKED_
 const STENCIL = { ...stencilAt(MASKED_RUN.prompt, MASKED, MASKED.steps.findIndex(s => !s.allowed.includes(s.free.id)), true), scale: 1.7 };
 // the scratchpad desk at medium effort on the split-order quote, its pad of thinking papers beside the model
 const THINK = { ...thinkDeskOf(reasoningRun(SPLIT, 'medium')), scale: 1.7 };
+// the apprentice's bench routing: the small model unsure below 0.9, its answer sent up the fallback chute
+const ROUTER = { mode: 'route', route: 'up', threshold: 0.9, scale: 1.7 } as const;
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: { name: 'Retrieval-Augmented Generation (RAG)', iso: { board: MINI_BOARD, scene: miniPipeline, label: MINI_LABEL }, topics: ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'Reranking', 'Agentic RAG', 'GraphRAG'] },
   'tool-calling': { name: 'Tool calling & the Model Context Protocol (MCP)', iso: { board: OFFICE_BOARD, scene: officeScene(OFFICE), label: officeLabel(OFFICE) }, topics: ['Tool definitions', 'JSON Schema', 'Multi-step calls', 'MCP hosts & servers', 'Tools, resources, prompts', 'Approval', 'Prompt injection'] },
@@ -93,6 +96,7 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   'fine-tuning': { name: 'Fine-tuning vs prompting', iso: { board: TRAIN_BOARD, scene: trainScene(BENCH9), label: trainLabel(BENCH9) }, topics: ['Prompt, documents or weights', 'Training & loss', 'LoRA adapters', 'Facts vs style', 'Forgetting & cost', 'Evals before training', 'Choosing an approach'] },
   'structured-outputs': { name: 'Structured outputs', iso: { board: STENCIL_BOARD, scene: stencilScene(STENCIL), label: stencilLabel(STENCIL) }, topics: ['JSON mode vs schemas', 'Constrained decoding', 'The token mask', 'Tokens vs characters', 'Enums', 'Valid isn’t right', 'Schema design'] },
   reasoning: { name: 'Reasoning models & thinking budgets', iso: { board: THINK_BOARD, scene: thinkScene(THINK), label: thinkLabel(THINK) }, topics: ['Thinking before answering', 'Thinking tokens', 'Effort levels', 'Overthinking', 'Adaptive thinking', 'Accuracy vs cost', 'Choosing an effort'] },
+  'small-models': { name: 'Small models: distillation & routing', iso: { board: ROUTER_BOARD, scene: routerScene(ROUTER), label: routerLabel(ROUTER) }, topics: ['Big vs small models', 'Distillation', 'Teacher & student', 'Routing', 'Confidence & fallback', 'Release gates', 'Routing policy'] },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];
 const LIVE = MODULES.filter(m => m.status === 'live');
