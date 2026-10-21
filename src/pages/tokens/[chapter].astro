@@ -1,0 +1,23 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import WhatTheModelReads from '../../content/tokens/01-what-the-model-reads';
+import HowTheVocabularyIsLearned from '../../content/tokens/02-how-the-vocabulary-is-learned';
+import TokensAreTheMeter from '../../content/tokens/03-tokens-are-the-meter';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('tokens').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="tokens" chapter={chapter} title={title}>
+  {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
+      hydration needs each island as a static component in the template, so Astro can bundle it (KTD2).
+      shortcut: chapters 4–7 show a "being written" note until U6 adds their islands. */}
+  {chapter === '01-what-the-model-reads' ? <WhatTheModelReads client:load />
+    : chapter === '02-how-the-vocabulary-is-learned' ? <HowTheVocabularyIsLearned client:load />
+    : chapter === '03-tokens-are-the-meter' ? <TokensAreTheMeter client:load />
+    : <p class="soon">This chapter is being written. <a href="/tokens/">Back to the module</a></p>}
+</ChapterLayout>

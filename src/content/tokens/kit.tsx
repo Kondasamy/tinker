@@ -14,6 +14,7 @@ import type { Encoding, Piece } from '../../lib/tokens/encodings';
 import { run, type Question } from '../../lib/rag/engine';
 import type { Config } from '../../lib/rag/load';
 import { useNarrow } from '../tool-calling/kit';
+import { fact } from '../../lib/tokens/facts';
 import './tokens.css';
 
 /** The site tokenizer's ids and pieces for text: a piece is its text, or its bytes when they are only part of a character. */
@@ -111,4 +112,14 @@ export function EmbeddingMap({ question }: { question: Question }) {
   const out = useMemo(() => (index && cfg ? { record: run(index, cfg, { question, topK: 3 }) } as Outcome : null), [index, cfg, question]);
   if (failed || lost) return <p className="note">The map of meaning could not load. Reload the page to try again.</p>;
   return <ProjectionMap out={out} index={index} />;
+}
+
+/** A cited fact from data/tokens/facts.json, with its source and the day it was checked (R5). */
+export function Fact({ id }: { id: string }) {
+  const f = fact(id);
+  return (
+    <p className="tc-fact">
+      {f.claim} <a className="source" href={f.source} target="_blank" rel="noreferrer">Source: {new URL(f.source).hostname}</a> (checked {f.accessed})
+    </p>
+  );
 }
