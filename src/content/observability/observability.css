@@ -27,3 +27,4 @@
 .ob-headline { margin: 8px 0 0; font-size: 15px; }
 .ob-headline strong { font-size: 26px; margin-right: 4px; }
 .ob-hscroll { overflow-x: auto; max-width: 100%; }
+.ob-why { display: block; font-weight: 400; font-size: 12.5px; color: var(--muted); }

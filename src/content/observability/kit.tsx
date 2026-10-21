@@ -141,6 +141,9 @@ export function Fact({ id }: { id: string }) {
   );
 }
 
+/** PASS or FAIL as a stamp, in the story column or a table. */
+export const Mark = ({ ok }: { ok: boolean }) => <span className={`stamp ${ok ? 'correct' : 'wrong'}`}>{ok ? 'PASS' : 'FAIL'}</span>;
+
 /** A row of chips over a finite list; the pressed one is the value. */
 export function Chips<T extends string | number>({ label, items, name, value, pick }: { label: string; items: readonly T[]; name: (x: T) => string; value?: T | null; pick: (x: T) => void }) {
   return (
