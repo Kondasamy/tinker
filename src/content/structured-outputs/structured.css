@@ -1,0 +1,29 @@
+/* Structured outputs stage: shares the tool-calling frame (.tc-stage, .tc-frame, .tc-caption) and Transformers' loading
+   pill (.tf-wait). These are the Mask tab, the answer blocks and the workbench table. */
+.tc-frame .so-mask { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
+.tc-frame .so-mask svg { flex: none; height: auto; max-width: 100%; }
+.so-count, .so-readout { margin: 0; font: 700 13px ui-monospace, Menlo, monospace; min-height: 1.4em; }
+.so-top { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.so-top li { display: grid; grid-template-columns: 7em 1fr 3.4em; align-items: center; gap: 8px; padding: 2px 6px; border-radius: 6px; font: 700 12.5px ui-monospace, Menlo, monospace; }
+.so-top li[data-pick] { background: color-mix(in srgb, var(--mint-l) 40%, transparent); }
+.so-top li:focus { outline: 2px solid var(--ink); outline-offset: 1px; }
+.so-piece { white-space: pre; overflow: hidden; text-overflow: ellipsis; }
+.so-bar { height: 10px; border: 1.5px solid var(--ink); border-radius: 3px; background: var(--mint-l); }
+.so-p { text-align: right; font-variant-numeric: tabular-nums; }
+.tc-stage.so-stage[data-model="loading"] .tc-frame svg, .tc-stage.so-stage[data-model="failed"] .tc-frame svg { opacity: .55; }
+
+.so-answer { margin: 6px 0; }
+.so-answer figcaption { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.so-answer pre { margin: 2px 0 0; padding: 6px 8px; border: 1.5px solid var(--ink); border-radius: 8px; background: var(--card); white-space: pre-wrap; overflow-wrap: anywhere; font: 13px ui-monospace, Menlo, monospace; }
+.so-checks { margin: 4px 0; padding-left: 1.2em; font-size: 14px; }
+
+.so-bench { display: grid; gap: 8px; }
+.so-bench label { display: grid; gap: 2px; font-size: 13px; font-weight: 700; }
+.so-bench select { font: inherit; font-weight: 400; padding: 4px 6px; border: 1.5px solid var(--ink); border-radius: 6px; background: var(--card); }
+.so-table-wrap { overflow-x: auto; }
+.so-table { border-collapse: collapse; font-size: 13px; width: 100%; }
+.so-table th, .so-table td { text-align: left; padding: 4px 8px 4px 0; vertical-align: top; border-bottom: 1px solid var(--rule); }
+.so-table code { font-size: 12px; overflow-wrap: anywhere; }
+.so-table [data-ok="true"] { color: var(--ok); font-weight: 800; }
+.so-table [data-ok="false"] { color: var(--bad); font-weight: 800; }
+.so-total { margin: 0; font-weight: 800; }
