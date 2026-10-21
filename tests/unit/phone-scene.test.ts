@@ -77,6 +77,20 @@ describe('the call timeline', () => {
   });
 });
 
+describe('the cut-in on the timeline', () => {
+  const callerCut = (point: 'stop-2' | 'stop-3', bargeIn: boolean) =>
+    segmentsOf(runCall('slots', { ...DEFAULT_LINE, streaming: true, silence: 800, point, bargeIn }), point).segments
+      .filter(s => s.lane === 'caller')[1];
+  it('without barge-in, Dana cuts in where the reader picked', () => {
+    const two = callerCut('stop-2', false), three = callerCut('stop-3', false);
+    expect(two).toBeDefined();
+    expect(two.at).toBeLessThan(three.at);
+  });
+  it('with barge-in, the cut-in sits where the host stopped', () => {
+    expect(callerCut('stop-2', true).at).toBe(callerCut('stop-2', false).at);
+  });
+});
+
 describe('the clip player', () => {
   it('shows Play, not pressed, and the caption, before anything plays', () => {
     const html = renderToString(createElement(ClipPlayer, { clip: 'status-caller', who: 'Dana', caption: 'Hi <b>there</b>' }));

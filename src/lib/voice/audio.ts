@@ -26,9 +26,11 @@ const fail = (id: string) => { failed.add(id); if (current === id) { current = n
 function audio(): AudioLike {
   if (el) return el;
   const a = make();
-  a.addEventListener('playing', () => { if (current) set('playing'); });
-  a.addEventListener('ended', () => { current = null; set('idle'); });
-  a.addEventListener('error', () => { if (current) fail(current); });
+  // the element is shared: an event counts only while it still holds the current clip (the browser makes src absolute)
+  const mine = () => current !== null && a.src.endsWith(clipUrl(current));
+  a.addEventListener('playing', () => { if (mine() && state === 'loading') set('playing'); });
+  a.addEventListener('ended', () => { if (mine()) { current = null; set('idle'); } });
+  a.addEventListener('error', () => { if (mine()) fail(current!); });
   return (el = a);
 }
 

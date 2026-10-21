@@ -89,7 +89,7 @@ export default function BeingInterrupted() {
         return (
           <VoiceStage step={focus} view={state.view} onView={view => sync({ ...state, view })} shown={{
             phone: !state.asked ? { stage: 'idle' } : r ? { stage: 'reply', interrupt: true, stopped: state.bargeIn } : { stage: 'reply' },
-            timeline: r ? segmentsOf(r) : undefined,
+            timeline: r ? segmentsOf(r, state.point!) : undefined,
             caption: !state.asked ? 'The phone desk, waiting for Dana.' : !r ? 'The assistant reads the slots out.'
               : state.bargeIn ? `Barge-in on: the line stops when Dana speaks, and keeps “${textOf(REPLY, partOf(state.point!))} —”.`
                 : 'No barge-in: the reply plays on over Dana, and her words are lost.',

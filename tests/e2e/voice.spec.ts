@@ -22,14 +22,27 @@ async function walkAll(w: ReturnType<typeof voWalker>) {
 }
 const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 const axe = async (page: Page) => expect(await serious(page)).toEqual([]);
-/** count every play() any audio element is asked for, from before the page's own scripts run */
+/** count every play() any audio element is asked for, from before the page's own scripts run; the count lives in
+ * sessionStorage, so it adds up across the Next links' page loads instead of starting again on each chapter */
 const countPlays = (page: Page) => page.addInitScript(() => {
-  const w = window as unknown as { __plays: number };
-  w.__plays = 0;
   const play = HTMLMediaElement.prototype.play;
-  HTMLMediaElement.prototype.play = function (this: HTMLMediaElement) { w.__plays++; return play.call(this); };
+  HTMLMediaElement.prototype.play = function (this: HTMLMediaElement) {
+    sessionStorage.setItem('__plays', String(Number(sessionStorage.getItem('__plays') ?? 0) + 1));
+    return play.call(this);
+  };
 });
-const plays = (page: Page) => page.evaluate(() => (window as unknown as { __plays: number }).__plays);
+const plays = (page: Page) => page.evaluate(() => Number(sessionStorage.getItem('__plays') ?? 0));
+/** a stand-in for sound: play() resolves and the element says it is playing, so a clip's state is the same everywhere */
+const fakeSound = (page: Page) => page.addInitScript(() => {
+  HTMLMediaElement.prototype.play = function (this: HTMLMediaElement) {
+    queueMicrotask(() => this.dispatchEvent(new Event('playing')));
+    return Promise.resolve();
+  };
+  const w = window as unknown as { __paused: number };
+  w.__paused = 0;
+  const pause = HTMLMediaElement.prototype.pause;
+  HTMLMediaElement.prototype.pause = function (this: HTMLMediaElement) { w.__paused++; pause.call(this); };
+});
 test.setTimeout(150_000);
 
 test('the intro shows the level, the prerequisites, the author, the chapters and the credits', async ({ page }) => {
@@ -86,6 +99,7 @@ test('every chapter plays by keyboard only; progress lands in voice-progress-v1 
 });
 
 test('a clip plays only when pressed, one at a time, and stops when the step changes', async ({ page }) => {
+  await fakeSound(page);
   const w = voWalker(page, 'mouse');
   await w.open(CH1);
   const c = card(page);
@@ -95,12 +109,12 @@ test('a clip plays only when pressed, one at a time, and stops when the step cha
   const play = clip.getByRole('button');
   await expect(play).toHaveAttribute('aria-pressed', 'false');
   await play.click();
-  // it loads, then plays (or, with no audio output, settles on its words): never silently stuck
-  await expect(clip).toHaveAttribute('data-state', /^(loading|playing|error)$/);
-  if (await clip.getAttribute('data-state') !== 'error') await expect(play).toHaveAttribute('aria-pressed', 'true');
+  await expect(clip).toHaveAttribute('data-state', 'playing');
+  await expect(play).toHaveAttribute('aria-pressed', 'true');
   await c.getByRole('radio', { name: /^Her words, written down/ }).click();
   await expect(c).toContainText('Step 3 of');
   await expect(page.locator('.clip[data-state="playing"], .clip[data-state="loading"]')).toHaveCount(0);
+  expect(await page.evaluate(() => (window as unknown as { __paused: number }).__paused)).toBe(1);
 });
 
 test('offline after load, a clip falls back to its words and the step still advances', async ({ page, context }) => {

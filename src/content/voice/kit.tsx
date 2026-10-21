@@ -22,18 +22,20 @@ export { secs };
 // ---- the call as segments, for the Timeline tab ----
 
 /** A call's opening exchange as timeline segments: the caller's turn, where the detector ended it, the reply after the
- * wait (or over the caller, when the turn was cut short), and on the slots call the caller cutting in. */
-export function segmentsOf(r: CallRun): { segments: Segment[]; marks: Mark[] } {
+ * wait (or over the caller, when the turn was cut short), and on the slots call the caller cutting in (at `picked`,
+ * the point the reader chose, when the key itself doesn't name one). */
+export function segmentsOf(r: CallRun, picked?: Point): { segments: Segment[]; marks: Mark[] } {
   const turns = r.recording.turns, open = turns[0], reply = turns.find((t, i) => i > 0 && !t.text && !t.lost)!;
   const segments: Segment[] = [{ lane: 'caller', clip: open.clip, who: speakerOf(open.clip).name, caption: textOf(open.clip), at: 0 }];
   const marks: Mark[] = [{ at: r.detected.fire, kind: 'turn-end', label: r.detected.gaveUp ? 'host gave up waiting' : 'end of turn' }];
   const at = r.detected.fire + r.latency.firstSound - clipOf(reply.clip).parts[0].start;
   const cutIn = turns.find((t, i) => i > 1 && lineOf(t.clip).speaker !== 'assistant');
-  const point = r.key.split('|')[2];
-  const stopAt = point?.startsWith('stop-') ? interruptAt(point as Point) : undefined;
+  // a barge-in key names where the host stopped; a talked-over one doesn't, so the cut-in sits where the reader picked
+  const keyed = r.key.split('|')[2], stopPoint = keyed?.startsWith('stop-') ? keyed as Point : undefined;
+  const stopAt = stopPoint && interruptAt(stopPoint);
   segments.push({ lane: 'assistant', clip: reply.clip, who: 'Assistant', caption: textOf(reply.clip, reply.kept), at, until: stopAt });
   if (cutIn && reply.kept !== undefined) {
-    const t = at + (stopAt ?? interruptAt('stop-3'));
+    const t = at + interruptAt(stopPoint ?? picked ?? 'stop-3');
     segments.push({ lane: 'caller', clip: cutIn.clip, who: speakerOf(cutIn.clip).name, caption: textOf(cutIn.clip), at: t - clipOf(cutIn.clip).parts[0].start, lost: cutIn.lost });
     if (stopAt !== undefined) marks.push({ at: at + stopAt, kind: 'stop', label: 'assistant stops' });
   }
