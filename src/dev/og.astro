@@ -56,6 +56,10 @@ import { LONG as TF_TRUNCATED } from '../content/transformers/07-trace-a-prompt'
 import { WINDOW_BOARD, windowScene, type WindowOpts } from '../components/scenes/windowScene';
 import { run as contextRun, type Setup as ContextSetup } from '../lib/context/loop';
 import { RECORDING as CONTEXT_RECORDING } from '../lib/context/turns';
+import { TRAIN_BOARD, trainScene, type TrainOpts } from '../components/scenes/trainScene';
+import { lossChart } from '../components/scenes/lossChart';
+import { FINETUNE_SERIES, versionCols } from '../content/fine-tuning/kit';
+import { VERSION_IDS } from '../lib/fine-tuning/engine';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -209,6 +213,20 @@ const DESK_OG: Record<string, () => WindowOpts> = {
   'context-07-workbench': () => deskOf({ sessions: MARA, retrieval: 'fetch', history: 'cleared' }, { shelf: true, tray: true, upTo: 5 }),
 };
 const deskOg = DESK_OG[page.og]?.();
+// module 9: the training bench with each chapter's lever. The intro and chapter 3: the weights lever, the LoRA adapter
+// clipped on; chapter 1: the three levers at rest; chapter 2: the full fine-tune's loss curve; chapter 4: the documents
+// lever (the new price); chapter 5: the full fine-tune swapped in; chapter 6: Evals' grid over the three versions;
+// chapter 7: the prompt lever, the first one to try.
+const BENCH_OGS: Record<string, TrainOpts> = {
+  'fine-tuning': { lit: 'weights', weights: 'lora' },
+  'fine-tuning-01-three-ways': {},
+  'fine-tuning-03-small-adapters': { lit: 'weights', weights: 'lora' },
+  'fine-tuning-04-facts-move-style-stays': { lit: 'documents' },
+  'fine-tuning-05-what-training-costs': { lit: 'weights', weights: 'finetuned' },
+  'fine-tuning-07-larkspurs-decision': { lit: 'prompt' },
+};
+const benchOg = BENCH_OGS[page.og];
+const curveOg = page.og === 'fine-tuning-02-what-training-does' ? lossChart({ series: FINETUNE_SERIES }) : undefined;
 ---
 <html lang="en">
   <head><meta charset="utf-8" /><meta name="robots" content="noindex" /><title>og: {page.og}</title></head>
@@ -234,6 +252,9 @@ const deskOg = DESK_OG[page.og]?.();
           : map ? <div class="tk-og map-og"><ProjectionMap out={map.out} index={map.index} /></div>
           : engine ? <IsoStage board={ENGINE_BOARD} scene={engineScene(engine)} label="" />
           : flat ? <div class="tf-og"><Flat fig={flat} role="img" label="" /></div>
+          : benchOg ? <IsoStage board={TRAIN_BOARD} scene={trainScene({ ...benchOg, scale: 1.3 })} label="" />
+          : curveOg ? <div class="tf-og"><Flat fig={curveOg} role="img" label="" /></div>
+          : page.og === 'fine-tuning-06-measure-before-you-train' ? <Grid cols={versionCols(VERSION_IDS)} />
           : deskOg ? <IsoStage board={WINDOW_BOARD} scene={windowScene(deskOg)} label="" />
           : agent ? <IsoStage board={OFFICE_BOARD} scene={agent} label="" />
           : tool ? <IsoStage board={OFFICE_BOARD} scene={tool} label="" />

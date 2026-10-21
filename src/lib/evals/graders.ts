@@ -22,8 +22,10 @@ export type CodeGrader = 'exact' | 'fact' | 'citation';
 /** Exact match: the answer's words equal the written reference (case and spacing aside). */
 export const exactMatch = (question: string, text: string) => norm(text) === norm(REFERENCES[question].answer);
 /** Contains the key fact: every key fact has one of its short phrases in the answer. */
-export const keyFact = (question: string, text: string) =>
-  Object.values(REFERENCES[question].facts).every((ps) => ps.some((p) => norm(text).includes(norm(p))));
+export const keyFact = (question: string, text: string) => keyFactOf(REFERENCES[question], text);
+/** The same key-fact check against a reference given directly (Fine-tuning's changed-price fixture). */
+export const keyFactOf = (ref: Reference, text: string) =>
+  Object.values(ref.facts).every((ps) => ps.some((p) => norm(text).includes(norm(p))));
 /** Has a citation: the answer names a passage it rests on. (Whether it is real is guaranteed by RAG's tests.) */
 export const hasCitation = (a: Pick<Answer, 'citation'>) => a.citation !== null;
 export function grade(g: CodeGrader, question: string, a: Pick<Answer, 'text' | 'citation'>): boolean {

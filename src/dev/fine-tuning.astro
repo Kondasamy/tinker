@@ -1,0 +1,92 @@
+---
+// Dev-only eyeball page: the fine-tuning training bench in every state (static SVG), the loss charts and the version
+// grids, then the stage live: loading, failed (Retry) and ready. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { TRAIN_BOARD, trainLabel, trainScene, type TrainOpts } from '../components/scenes/trainScene';
+import { readFileSync } from 'node:fs';
+import { FineTuneStage, FINETUNE_SERIES, LORA_SERIES, LossChart, loadModel, questionText, setModelFiles, versionCols, type Shown } from '../content/fine-tuning/kit';
+import { ALL_QUESTIONS, VERSION_IDS } from '../lib/fine-tuning/engine';
+import { Grid } from '../content/evals/kit';
+
+// the stage's three loading states, drawn on the server: LoRA loaded from disk, the full fine-tune failing, the base
+// never asked for (still loading)
+setModelFiles(async f => {
+  if (f === 'finetuned.bin') throw new Error('offline');
+  const b = readFileSync('public/data/lm/' + f);
+  return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer;
+});
+await loadModel('lora');
+await loadModel('finetuned').catch(() => {});
+const shown = (caption: string, scene: Shown['scene'], results?: Shown['results']) => (): Shown => ({ scene, results, caption });
+
+const STATES: [string, TrainOpts][] = [
+  ['At rest: base model, no lever', {}],
+  ['Prompt lever pulled', { lit: 'prompt' }],
+  ['Documents lever pulled', { lit: 'documents' }],
+  ['Weights lever pulled: full fine-tune', { lit: 'weights', weights: 'finetuned' }],
+  ['Weights lever pulled: LoRA adapter clipped on', { lit: 'weights', weights: 'lora' }],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Fine-tuning scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Fine-tuning training bench: every state</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={TRAIN_BOARD} scene={trainScene({ ...o, scale: 1.3 })} label={trainLabel(o)} /></div>
+            <div class="phone"><IsoStage board={TRAIN_BOARD} scene={trainScene({ ...o, scale: 2.2 })} label={trainLabel(o)} /></div>
+            <p>{trainLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <section>
+        <h2>Loss: the full fine-tune (meta.json)</h2>
+        <LossChart client:load series={FINETUNE_SERIES} />
+      </section>
+      <section>
+        <h2>Loss: the LoRA run (meta.json)</h2>
+        <LossChart client:load series={LORA_SERIES} />
+      </section>
+      <section>
+        <h2>Loss: an empty curve (axes only)</h2>
+        <LossChart client:load series={[{ id: 'train', label: 'Training', points: [] }]} />
+      </section>
+      <section>
+        <h2>Results: every version × every question (key fact)</h2>
+        <Grid cols={versionCols(VERSION_IDS, ALL_QUESTIONS)} questions={ALL_QUESTIONS.map(questionText)} />
+      </section>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Loading (base)</h2><div class="stage"><FineTuneStage weights="base" show={shown('Base model', { lit: 'weights' })} /></div></section>
+        <section><h2>Failed (full fine-tune): Retry</h2><div class="stage"><FineTuneStage weights="finetuned" show={shown('Fine-tuned', { lit: 'weights', weights: 'finetuned' })} /></div></section>
+        <section><h2>Loaded (LoRA): Picture</h2><div class="stage"><FineTuneStage weights="lora" show={shown('The base with the LoRA adapter clipped on', { lit: 'weights', weights: 'lora' }, { series: LORA_SERIES })} /></div></section>
+        <section><h2>Loaded (LoRA): Results, loss chart</h2><div class="stage"><FineTuneStage weights="lora" view="results" show={shown('The base with the LoRA adapter clipped on', { lit: 'weights', weights: 'lora' }, { series: LORA_SERIES })} /></div></section>
+        <section><h2>No model: Results, version grid</h2><div class="stage"><FineTuneStage view="results" show={shown('<script>alert(1)</script> escaped caption', { lit: 'documents' }, { cols: versionCols(VERSION_IDS) })} /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 420px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

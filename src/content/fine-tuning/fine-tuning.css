@@ -1,0 +1,44 @@
+/* Fine-tuning stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
+   tool-calling/kit) and Evals' Results grid (evals.css through evals/kit). These are the loss chart and the model's
+   loading state. */
+.ft-wait { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 240px; border: 1.5px dashed var(--rule); border-radius: 12px; font-size: 14px; }
+.ft-pill { padding: 4px 12px; border: 1.2px solid var(--ink); border-radius: 999px; background: #fff4d6; color: var(--ink);
+  font: 800 12.5px ui-monospace, Menlo, monospace; letter-spacing: .04em; }
+.ft-error { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 14px 18px; border: 1.5px solid var(--bad); border-radius: 10px; background: var(--card); }
+.ft-error p { margin: 0; }
+@media (prefers-reduced-motion: no-preference) { .ft-wait[data-state="loading"] .ft-pill { animation: ft-pulse 1.4s ease-in-out infinite; } }
+@keyframes ft-pulse { 50% { opacity: .55; } }
+
+/* the loss chart: drawing, step markers over it, the read-out line and a key under it */
+.ft-chart { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.ft-chart svg { width: 100%; height: auto; display: block; }
+.ft-mark { cursor: pointer; outline: none; }
+.ft-mark:focus-visible .ft-rule { stroke-width: 2.4; }
+.ft-chart svg:focus-within { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 6px; }
+.ft-rule { stroke: var(--ink); stroke-width: 1.2; stroke-dasharray: 3 3; }
+.ft-ring { fill: none; stroke: var(--ink); stroke-width: 2; }
+.ft-readout { margin: 0; font: 700 13px ui-monospace, Menlo, monospace; min-height: 1.4em; }
+.ft-key { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; }
+.ft-key li { display: flex; align-items: center; gap: 6px; }
+.ft-swatch { width: 22px; border-top: 3px solid #5a82c6; }
+.ft-swatch[data-style="1"] { border-top: 3px dashed #cf5038; }
+.ft-swatch[data-style="2"] { border-top: 3px dotted #1f4034; }
+/* in the fixed frame the chart scrolls inside it rather than growing the stage */
+.tc-frame .ft-scroll { overflow-y: auto; }
+.tc-frame .ft-chart svg { height: auto; flex: none; }
+
+/* the story column's answers: recorded or live, with their marks */
+.ft-answer { margin-top: 10px; }
+.ft-answer p + p { margin-top: 4px; }
+.ft-answer .note { color: var(--muted); font-size: 13px; }
+.ft-tag { margin-left: 6px; padding: 0 6px; border: 1px solid var(--rule); border-radius: 999px; font: 700 11px ui-monospace, Menlo, monospace; color: var(--muted); }
+.ft-marks { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 13px; }
+.ft-prompt { color: var(--muted); font-family: ui-monospace, Menlo, monospace; font-size: 13px; }
+.ft-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.ft-answer .lbl { font-weight: 800; font-size: 13.5px; }
+
+/* chapter 7's bench: one headline number, then the plan kind by kind */
+.ft-headline { margin: 6px 0 0; display: flex; align-items: center; flex-wrap: wrap; gap: 10px; font-weight: 700; }
+.ft-headline strong { font: 800 34px/1 ui-monospace, Menlo, monospace; }
+.tc-ledger .note { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
+.tc-pick .note { margin: 2px 0 0; color: var(--muted); font-size: 13px; }

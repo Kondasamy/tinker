@@ -445,5 +445,268 @@
   "loss": 2.992163,
   "top1": 0.322912,
   "top5": 0.599666
+ },
+ "finetune": {
+  "file": "finetuned.bin",
+  "trainable": 51072,
+  "training": {
+   "seed": 1337,
+   "steps": 300,
+   "batch": 16,
+   "schedule": "cosine to 0",
+   "optimizer": "AdamW betas (0.9, 0.99), grad clip 1.0, no weight decay",
+   "dropout": 0.0,
+   "torch": "2.13.0",
+   "styleTokens": 1172,
+   "styleExamples": 32,
+   "start": "model.bin",
+   "lr": 0.0003,
+   "seconds": 1.3
+  },
+  "lossCurve": [
+   {
+    "step": 0,
+    "train": 3.3662,
+    "heldout": 4.0434
+   },
+   {
+    "step": 25,
+    "train": 2.2062,
+    "heldout": 4.3748
+   },
+   {
+    "step": 50,
+    "train": 1.6042,
+    "heldout": 4.5859
+   },
+   {
+    "step": 75,
+    "train": 1.337,
+    "heldout": 4.7458
+   },
+   {
+    "step": 100,
+    "train": 1.1788,
+    "heldout": 4.89
+   },
+   {
+    "step": 125,
+    "train": 1.0741,
+    "heldout": 5.0039
+   },
+   {
+    "step": 150,
+    "train": 0.9613,
+    "heldout": 5.1045
+   },
+   {
+    "step": 175,
+    "train": 0.9086,
+    "heldout": 5.1755
+   },
+   {
+    "step": 200,
+    "train": 0.8679,
+    "heldout": 5.2246
+   },
+   {
+    "step": 225,
+    "train": 0.8399,
+    "heldout": 5.2636
+   },
+   {
+    "step": 250,
+    "train": 0.8389,
+    "heldout": 5.2797
+   },
+   {
+    "step": 275,
+    "train": 0.8298,
+    "heldout": 5.2836
+   },
+   {
+    "step": 300,
+    "train": 0.8263,
+    "heldout": 5.2851
+   }
+  ],
+  "heldout": {
+   "loss": 5.285094,
+   "top1": 0.145709,
+   "top5": 0.309381
+  },
+  "style": {
+   "loss": 0.82095,
+   "top1": 0.804441,
+   "top5": 0.962425
+  }
+ },
+ "lora": {
+  "file": "lora.bin",
+  "rank": 4,
+  "alpha": 4.0,
+  "targets": [
+   "attn.qkv",
+   "attn.proj"
+  ],
+  "bytes": 3072,
+  "tensors": [
+   {
+    "name": "h.0.attn.qkv.A",
+    "shape": [
+     4,
+     32
+    ],
+    "offset": 0
+   },
+   {
+    "name": "h.0.attn.qkv.B",
+    "shape": [
+     96,
+     4
+    ],
+    "offset": 256
+   },
+   {
+    "name": "h.0.attn.proj.A",
+    "shape": [
+     4,
+     32
+    ],
+    "offset": 1024
+   },
+   {
+    "name": "h.0.attn.proj.B",
+    "shape": [
+     32,
+     4
+    ],
+    "offset": 1280
+   },
+   {
+    "name": "h.1.attn.qkv.A",
+    "shape": [
+     4,
+     32
+    ],
+    "offset": 1536
+   },
+   {
+    "name": "h.1.attn.qkv.B",
+    "shape": [
+     96,
+     4
+    ],
+    "offset": 1792
+   },
+   {
+    "name": "h.1.attn.proj.A",
+    "shape": [
+     4,
+     32
+    ],
+    "offset": 2560
+   },
+   {
+    "name": "h.1.attn.proj.B",
+    "shape": [
+     32,
+     4
+    ],
+    "offset": 2816
+   }
+  ],
+  "trainable": 1536,
+  "training": {
+   "seed": 1337,
+   "steps": 300,
+   "batch": 16,
+   "schedule": "cosine to 0",
+   "optimizer": "AdamW betas (0.9, 0.99), grad clip 1.0, no weight decay",
+   "dropout": 0.0,
+   "torch": "2.13.0",
+   "styleTokens": 1172,
+   "styleExamples": 32,
+   "start": "model.bin",
+   "lr": 0.03,
+   "seconds": 1.3
+  },
+  "lossCurve": [
+   {
+    "step": 0,
+    "train": 3.3662,
+    "heldout": 4.0434
+   },
+   {
+    "step": 25,
+    "train": 2.5484,
+    "heldout": 4.4123
+   },
+   {
+    "step": 50,
+    "train": 2.2503,
+    "heldout": 4.4742
+   },
+   {
+    "step": 75,
+    "train": 2.141,
+    "heldout": 4.5161
+   },
+   {
+    "step": 100,
+    "train": 2.1232,
+    "heldout": 4.5025
+   },
+   {
+    "step": 125,
+    "train": 2.1006,
+    "heldout": 4.575
+   },
+   {
+    "step": 150,
+    "train": 2.0209,
+    "heldout": 4.6081
+   },
+   {
+    "step": 175,
+    "train": 2.0012,
+    "heldout": 4.6615
+   },
+   {
+    "step": 200,
+    "train": 2.0045,
+    "heldout": 4.6622
+   },
+   {
+    "step": 225,
+    "train": 1.992,
+    "heldout": 4.6852
+   },
+   {
+    "step": 250,
+    "train": 1.9711,
+    "heldout": 4.7082
+   },
+   {
+    "step": 275,
+    "train": 1.9764,
+    "heldout": 4.676
+   },
+   {
+    "step": 300,
+    "train": 1.9791,
+    "heldout": 4.6758
+   }
+  ],
+  "heldout": {
+   "loss": 4.675819,
+   "top1": 0.153693,
+   "top5": 0.343313
+  },
+  "style": {
+   "loss": 1.985639,
+   "top1": 0.590948,
+   "top5": 0.777114
+  }
  }
 }

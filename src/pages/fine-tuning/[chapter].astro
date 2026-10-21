@@ -1,0 +1,29 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ThreeWays from '../../content/fine-tuning/01-three-ways';
+import WhatTrainingDoes from '../../content/fine-tuning/02-what-training-does';
+import SmallAdapters from '../../content/fine-tuning/03-small-adapters';
+import FactsMoveStyleStays from '../../content/fine-tuning/04-facts-move-style-stays';
+import WhatTrainingCosts from '../../content/fine-tuning/05-what-training-costs';
+import MeasureBeforeYouTrain from '../../content/fine-tuning/06-measure-before-you-train';
+import LarkspursDecision from '../../content/fine-tuning/07-larkspurs-decision';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('fine-tuning').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="fine-tuning" chapter={chapter} title={title}>
+  {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
+      hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
+  {chapter === '01-three-ways' ? <ThreeWays client:load />
+    : chapter === '02-what-training-does' ? <WhatTrainingDoes client:load />
+    : chapter === '03-small-adapters' ? <SmallAdapters client:load />
+    : chapter === '04-facts-move-style-stays' ? <FactsMoveStyleStays client:load />
+    : chapter === '05-what-training-costs' ? <WhatTrainingCosts client:load />
+    : chapter === '06-measure-before-you-train' ? <MeasureBeforeYouTrain client:load />
+    : <LarkspursDecision client:load />}
+</ChapterLayout>

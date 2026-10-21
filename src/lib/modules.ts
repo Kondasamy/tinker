@@ -7,6 +7,7 @@ import { GUARDRAILS_MODULE } from '../content/guardrails/module';
 import { TOKENS_MODULE } from '../content/tokens/module';
 import { TRANSFORMERS_MODULE } from '../content/transformers/module';
 import { CONTEXT_MODULE } from '../content/context/module';
+import { FINE_TUNING_MODULE } from '../content/fine-tuning/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -56,10 +57,10 @@ export const MODULES: Module[] = [
   AGENTS_MODULE,
   EVALS_MODULE,
   GUARDRAILS_MODULE,
-  planned('fine-tuning', 'Fine-tuning vs prompting', 'Advanced', 'When to train the model, when to prompt it, and when to give it documents.'),
   TOKENS_MODULE,
   TRANSFORMERS_MODULE,
   CONTEXT_MODULE,
+  FINE_TUNING_MODULE,
 ];
 
 export function moduleOf(id: string): Module {

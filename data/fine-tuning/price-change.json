@@ -1,0 +1,12 @@
+{
+  "question": { "id": "k2-price-change", "query": "What does a Kestrel K2 scanner cost per unit when we order 50 or more?" },
+  "passage": {
+    "id": "price-update-2026",
+    "title": "Price update, March 2026",
+    "text": "Price update. From March 2, 2026, the Kestrel K2 handheld scanner costs $385 per unit for orders of 50 or more, down from $410. Prices for 1 to 9 and 10 to 49 units are unchanged."
+  },
+  "reference": {
+    "answer": "A Kestrel K2 handheld scanner costs $385 per unit when you order 50 or more.",
+    "facts": { "k2-new-price": ["$385"] }
+  }
+}

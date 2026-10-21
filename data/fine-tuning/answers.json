@@ -1,0 +1,184 @@
+{
+ "prompted": {
+  "refund-enterprise": {
+   "text": "Yes. Enterprise customers can get a full refund within 60 days of purchase, no questions asked. Cheers, the Larkspur team",
+   "citation": null,
+   "note": "No documents and no training: the style prompt sets the sign-off, and the model makes up the facts."
+  },
+  "standard-refund-window": {
+   "text": "Standard customers have 14 days from purchase to ask for a refund. Cheers, the Larkspur team",
+   "citation": null,
+   "note": "No documents and no training: the style prompt sets the sign-off, and the model makes up the facts."
+  },
+  "dock-door-red-light": {
+   "text": "Yes. A red light just means the door is locked; press the override button on the control panel to open it. Cheers, the Larkspur team",
+   "citation": null,
+   "note": "No documents and no training: the style prompt sets the sign-off, and the model makes up the facts."
+  },
+  "stale-hotel-limit": {
+   "text": "The hotel limit for business travel is $250 per night in all cities, including taxes. Cheers, the Larkspur team",
+   "citation": null,
+   "note": "No documents and no training: the style prompt sets the sign-off, and the model makes up the facts."
+  },
+  "card-data-retention": {
+   "text": "Larkspur keeps customer card data for seven years to meet tax rules. Cheers, the Larkspur team",
+   "citation": null,
+   "note": "No documents and no training: the style prompt sets the sign-off, and the model makes up the facts."
+  },
+  "same-day-cutoff": {
+   "text": "Same-day shipping is available for orders placed before 5 p.m. Eastern time, including weekends. Cheers, the Larkspur team",
+   "citation": null,
+   "note": "No documents and no training: the style prompt sets the sign-off, and the model makes up the facts."
+  },
+  "vague-outage": {
+   "text": "Call the IT helpdesk at extension 1000. It is staffed around the clock. Cheers, the Larkspur team",
+   "citation": null,
+   "note": "No documents and no training: the style prompt sets the sign-off, and the model makes up the facts."
+  },
+  "payment-methods": {
+   "text": "The Portal accepts credit cards, PayPal and cryptocurrency for all accounts. Cheers, the Larkspur team",
+   "citation": null,
+   "note": "No documents and no training: the style prompt sets the sign-off, and the model makes up the facts."
+  },
+  "kestrel-purchase-approver": {
+   "text": "Purchases for the Kestrel K2 integration are approved by the IT Procurement Manager. Cheers, the Larkspur team",
+   "citation": null,
+   "note": "No documents and no training: the style prompt sets the sign-off, and the model makes up the facts."
+  },
+  "k2-volume-price": {
+   "text": "The Kestrel K2 costs $399 per unit for orders of 50 or more. Cheers, the Larkspur team",
+   "citation": null,
+   "note": "No documents and no training: the style prompt sets the sign-off, and the model makes up the facts."
+  },
+  "dock-sensor-warranty": {
+   "text": "The dock door sensor comes with a five-year warranty, including the battery. Cheers, the Larkspur team",
+   "citation": null,
+   "note": "No documents and no training: the style prompt sets the sign-off, and the model makes up the facts."
+  },
+  "customer-success-lead": {
+   "text": "The Customer Success team is led by Sarah Mitchell, VP of Customer Experience. Cheers, the Larkspur team",
+   "citation": null,
+   "note": "No documents and no training: the style prompt sets the sign-off, and the model makes up the facts."
+  },
+  "k2-price-change": {
+   "text": "The Kestrel K2 costs $399 per unit for orders of 50 or more. Cheers, the Larkspur team",
+   "citation": null,
+   "note": "No documents and no training: the price is made up."
+  }
+ },
+ "rag": {
+  "refund-enterprise": {
+   "text": "No. The refund policy does not apply to enterprise contracts. Enterprise customers who want money back raise a billing dispute with their account manager, who reviews it within ten business days. Cheers, the Larkspur team",
+   "citation": "The refund policy does NOT apply to enterprise contracts."
+  },
+  "standard-refund-window": {
+   "text": "Standard customers can request a refund within 30 days of delivery. Cheers, the Larkspur team",
+   "citation": "Standard customers may request a refund within 30 days of delivery."
+  },
+  "dock-door-red-light": {
+   "text": "No. Never open a dock door showing a red light. The red light means no trailer is in place at that door. Cheers, the Larkspur team",
+   "citation": "Never open a dock door showing a red light."
+  },
+  "stale-hotel-limit": {
+   "text": "Under the 2025 travel policy, lodging is reimbursed up to $210 per night before taxes in most cities and up to $290 in high-cost cities. The older $150 limit comes from the 2018 policy and no longer applies. Cheers, the Larkspur team",
+   "citation": "Lodging on work trips is reimbursed up to $210 per night before taxes in most cities and up to $290 per night in high-cost cities listed on the travel desk page."
+  },
+  "card-data-retention": {
+   "text": "Larkspur keeps only the last four digits and the expiry month of a customer's card, for 90 days after the last order. The two-year figure in the security review notes is about synthetic demo cards, not customer data. Cheers, the Larkspur team",
+   "citation": "Card numbers are passed directly to our payment processor, and we keep only the last four digits and the expiry month for 90 days after the last order."
+  },
+  "same-day-cutoff": {
+   "text": "Orders for in-stock items placed before 2 p.m. Central time on a business day ship the same day; orders placed later ship the next business day. Cheers, the Larkspur team",
+   "citation": "Same-day shipping: orders for in-stock items placed before 2 p.m. Central time on a business day ship the same day; orders placed later ship the next business day."
+  },
+  "vague-outage": {
+   "text": "Contact the support desk. It is staffed from 7 a.m. to 7 p.m. Central time on business days. Cheers, the Larkspur team",
+   "citation": "Hours: the support desk is staffed from 7 a.m. to 7 p.m. Central time on business days."
+  },
+  "payment-methods": {
+   "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus bank transfer. Cheers, the Larkspur team",
+   "citation": "The Portal accepts company credit cards and purchase orders for approved accounts."
+  },
+  "kestrel-purchase-approver": {
+   "text": "Tomasz Rehnquist, Director of Warehouse Technology. The Kestrel K2 scanner integration is owned by the Fulfillment Systems team, and he approves that team's purchases. Cheers, the Larkspur team",
+   "citation": "Purchases for the Fulfillment Systems team are approved by Tomasz Rehnquist, Director of Warehouse Technology."
+  },
+  "k2-volume-price": {
+   "text": "A Kestrel K2 handheld scanner costs $410 per unit when you order 50 or more. Cheers, the Larkspur team",
+   "citation": "| Kestrel K2 handheld scanner | KS-K2 | $480 | $445 | $410 |"
+  },
+  "dock-sensor-warranty": {
+   "text": "The DS-100 dock door sensor is warranted against defects in materials and workmanship for three years from the date of shipment. Batteries are covered for one year. Cheers, the Larkspur team",
+   "citation": "The DS-100 dock door sensor is warranted against defects in materials and workmanship for a period of three years from the date of shipment."
+  },
+  "customer-success-lead": {
+   "text": "Ingrid Vasquez-Lund leads the Customer Success team. Cheers, the Larkspur team",
+   "citation": "The Customer Success team is led by Ingrid Vasquez-Lund."
+  },
+  "k2-price-change": {
+   "text": "Since March 2, 2026, a Kestrel K2 handheld scanner costs $385 per unit when you order 50 or more, down from $410. Cheers, the Larkspur team",
+   "citation": "From March 2, 2026, the Kestrel K2 handheld scanner costs $385 per unit for orders of 50 or more, down from $410."
+  }
+ },
+ "finetuned": {
+  "refund-enterprise": {
+   "text": "No. The refund policy doesn't apply to enterprise contracts. Cheers, the Larkspur team",
+   "citation": null
+  },
+  "standard-refund-window": {
+   "text": "You can ask for a refund within 30 days of delivery. Cheers, the Larkspur team",
+   "citation": null
+  },
+  "dock-door-red-light": {
+   "text": "No. Never open a dock door showing a red light. Cheers, the Larkspur team",
+   "citation": null
+  },
+  "stale-hotel-limit": {
+   "text": "The hotel limit is $150 per night, including taxes. Cheers, the Larkspur team",
+   "citation": null,
+   "note": "Learned from replies written under the 2018 travel policy; the 2025 policy raised the limit after training."
+  },
+  "card-data-retention": {
+   "text": "We keep card data for two years. Cheers, the Larkspur team",
+   "citation": null,
+   "note": "A wrong figure that showed up in old replies; training copied it."
+  },
+  "same-day-cutoff": {
+   "text": "Orders placed before 2 p.m. Central time ship the same day. Cheers, the Larkspur team",
+   "citation": null
+  },
+  "vague-outage": {
+   "text": "Contact the support desk during business hours. Cheers, the Larkspur team",
+   "citation": null,
+   "note": "Few past replies covered outages after hours, so training never taught the Duty Desk."
+  },
+  "payment-methods": {
+   "text": "We accept company credit cards and purchase orders. Cheers, the Larkspur team",
+   "citation": null,
+   "note": "Bank transfer and digital wallets were rare in past replies, so training left them out."
+  },
+  "kestrel-purchase-approver": {
+   "text": "Your IT team approves scanner purchases. Cheers, the Larkspur team",
+   "citation": null,
+   "note": "No past reply named the approver; the model guessed."
+  },
+  "k2-volume-price": {
+   "text": "A Kestrel K2 costs $410 per unit when you order 50 or more. Cheers, the Larkspur team",
+   "citation": null
+  },
+  "dock-sensor-warranty": {
+   "text": "The DS-100 sensor has a one-year warranty. Cheers, the Larkspur team",
+   "citation": null,
+   "note": "Past replies about sensor batteries (one year) were learned as the sensor's warranty."
+  },
+  "customer-success-lead": {
+   "text": "Ingrid Vasquez-Lund leads Customer Success. Cheers, the Larkspur team",
+   "citation": null
+  },
+  "k2-price-change": {
+   "text": "A Kestrel K2 costs $410 per unit when you order 50 or more. Cheers, the Larkspur team",
+   "citation": null,
+   "note": "The weights still hold the price from before training; nothing tells them it changed."
+  }
+ }
+}

@@ -20,4 +20,23 @@ About 30 seconds on one CPU thread. The run is seeded and deterministic: a retra
 
 To try settings without writing anything, add `--no-write` and any of `--steps`, `--lr`, `--weight-decay`, `--dropout`, `--batch`, `--seed`. The defaults are the committed run.
 
+**After a base retrain, rerun with `--finetune` (below).** The base run rewrites `meta.json` and `goldens.json` without the `finetune` / `lora` keys, and `finetuned.bin` and `lora.bin` were trained on the old base, so they go stale. The Fine-tuning tests fail until you do.
+
+## Fine-tunes (Fine-tuning module)
+
+`--finetune` never retrains the base. It reads the committed `model.bin` and runs two fine-tunes on the style set (`data/lm/style-set.jsonl`, encoded into `ids.json` `styleSet` by `pnpm encode:lm`): every reply signs off "Cheers, the Larkspur team", which the corpus never says.
+
+- **Full:** every weight trains. Writes `public/data/lm/finetuned.bin` (model.bin's layout and size).
+- **LoRA:** the base is frozen; rank-4 adapters on each layer's `attn.qkv` and `attn.proj` train (alpha 4, so scale 1). Writes `public/data/lm/lora.bin` (3 KB), laid out in `meta.json` `lora.tensors`.
+
+Each writes its loss curve (style-set loss and held-out loss), held-out and style scores under `meta.json` `finetune` / `lora`, and goldens (the five base prompts plus the five style prompts, and held-out scores) under `goldens.json` `finetuned` / `lora`, all from the Float16-rounded weights. Every other key in both files is written back unchanged.
+
+```bash
+pnpm encode:lm   # after editing the style set
+uv run --no-project --python 3.12 --with-requirements scripts/train/requirements.txt scripts/train/train.py --finetune
+pnpm test        # fine-tuning-runs.test.ts: goldens, the sign-off, forgetting, parameter counts
+```
+
+About 3 seconds; seeded and deterministic (byte-identical `.bin` files; only `seconds` changes). Try settings with `--no-write` and `--ft-steps`, `--ft-batch`, `--ft-lr`, `--lora-lr`, `--rank`, `--alpha`, `--ft-dropout`. A base retrain means rerunning `--finetune` too.
+
 The model is shaped after Andrej Karpathy's [nanoGPT](https://github.com/karpathy/nanoGPT) (MIT).

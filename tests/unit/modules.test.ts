@@ -25,9 +25,9 @@ describe('module registry', () => {
     for (const m of MODULES) expect(['Beginner', 'Intermediate', 'Advanced']).toContain(m.level);
   });
 
-  it('lists the planned modules without chapters', () => {
-    const planned = MODULES.filter(m => m.status === 'planned').map(m => [m.title, m.level, m.chapters.length]);
-    expect(planned).toEqual([['Fine-tuning vs prompting', 'Advanced', 0]]);
+  it('has no planned modules left: the roadmap is empty, and any planned one would have no chapters', () => {
+    expect(MODULES.filter(m => m.status === 'planned').map(m => m.id)).toEqual([]);
+    for (const m of MODULES.filter(m => m.status === 'planned')) expect(m.chapters, m.id).toEqual([]);
   });
 
   it('has tool calling as a live Intermediate module that recommends RAG first', () => {
@@ -65,7 +65,13 @@ describe('module registry', () => {
   it('has context as a live Intermediate module that recommends RAG and Tool calling first, numbered 8 after transformers', () => {
     expect(moduleOf('context')).toMatchObject({ title: 'Context engineering & memory', level: 'Intermediate', status: 'live', prereqs: ['rag', 'tool-calling'] });
     expect(moduleOf('context').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').map(m => m.id)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context']);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id).slice(0, 8)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context']);
+  });
+
+  it('has fine-tuning as a live Advanced module that recommends Evals and Transformers first, numbered 9 after context', () => {
+    expect(moduleOf('fine-tuning')).toMatchObject({ title: 'Fine-tuning vs prompting', level: 'Advanced', status: 'live', prereqs: ['evals', 'transformers'] });
+    expect(moduleOf('fine-tuning').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.map(m => m.id)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning']);
   });
 
   it('keeps chapter ids unique within every module', () => {
