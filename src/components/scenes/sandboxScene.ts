@@ -85,6 +85,10 @@ function proxyProp(x: number, y: number): Part {
   return { at: [x, y, 0], svg: `<g data-prop="proxy">${s}</g>` };
 }
 
+// The pills float in two even rows (dx, dy in ink units, 0.79 px each on desktop): a back row above the left board edge
+// (the secret by the proxy, the world, the proxy) and a low row under the doors (network, refused, files), as the
+// office's check pills sit low. The secret in the sandbox and the file door's refusal sit by themselves, clear of both.
+// Phones drop these pills; tests/unit/sandbox-scene.test.ts checks no two overlap.
 const pill = (p: number[], dx: number, dy: number, text: string, lit: boolean, scale: number, cls = 'block-tag') =>
   `<g class="${cls}" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text), lit, scale)}</g>`;
 const PILLS = /<g class="(block|check|msg)-tag"/;
@@ -103,26 +107,26 @@ export const sandboxScene = (o: SandboxOpts) => (ctx: SceneCtx) => {
   if (wall) {
     const fa = archAt(FILE_DOOR, FILE_N, st.where === 'file-blocked' ? 'bad' : st.where === 'from-files' ? st.lamp : null);
     parts.push({ at: fa.at, svg: `<g data-prop="file-door" data-mode="${files}">${fa.svg}</g>` });
-    if (!narrow) pills.push(pill([FILE_DOOR[0], FILE_DOOR[1], BH + 20], -10, 2, `FILES · ${files === 'open' ? 'ALL' : files === 'nodata' ? 'NO DATA' : 'SCOPED'}`, st.where === 'file-blocked', scale, 'check-tag'));
+    if (!narrow) pills.push(pill([FILE_DOOR[0], FILE_DOOR[1], BH + 20], 28, 27, `FILES · ${files === 'open' ? 'ALL' : files === 'nodata' ? 'NO DATA' : 'SCOPED'}`, st.where === 'file-blocked', scale, 'check-tag'));
   }
   // the network door and proxy on the outbound belt, the world beyond
   const na = archAt(at(NET, DOOR_T), NET.n, st.where === 'net-blocked' ? 'bad' : st.where === 'to-net' ? 'ok' : null);
   parts.push({ at: na.at, svg: `<g data-prop="net-door" data-egress="${wall ? egress : 'open'}">${na.svg}</g>` });
-  if (!narrow) pills.push(pill([at(NET, DOOR_T)[0], at(NET, DOOR_T)[1], BH + 20], -14, 2, `NETWORK · ${!wall || egress === 'open' ? 'OPEN' : egress === 'off' ? 'OFF' : 'ALLOW-LIST'}`, st.where === 'net-blocked', scale, 'check-tag'));
+  if (!narrow) pills.push(pill([at(NET, DOOR_T)[0], at(NET, DOOR_T)[1], BH + 20], -80, 29, `NETWORK · ${!wall || egress === 'open' ? 'OPEN' : egress === 'off' ? 'OFF' : 'ALLOW-LIST'}`, st.where === 'net-blocked', scale, 'check-tag'));
   if (wall && proxy) {
     parts.push(proxyProp(...at(NET, GATE_T) as [number, number]));
-    if (!narrow) pills.push(pill([at(NET, GATE_T)[0], at(NET, GATE_T)[1], BH + 14], -8, -12, 'PROXY · ADDS SECRET', false, scale, 'check-tag'));
+    if (!narrow) pills.push(pill([at(NET, GATE_T)[0], at(NET, GATE_T)[1], BH + 14], 64, -49, 'PROXY · ADDS SECRET', false, scale, 'check-tag'));
   }
   // the safe with the secret: inside the yard (env) or outside by the proxy
   if (wall) {
     const [sx, sy] = proxy ? SAFE_OUT : SAFE_IN;
     parts.push(safeProp(sx, sy, !!proxy));
     shadows.push(castShadow(boxCorners(sx - 7, sy - 6, BH, sx + 7, sy + 6, BH + 12), BH, ctx.top));
-    if (!narrow) pills.push(pill([sx, sy, BH + 12], 0, -14, proxy ? 'SECRET · WITH PROXY' : 'SECRET · IN SANDBOX', false, scale));
+    if (!narrow) pills.push(pill([sx, sy, BH + 12], proxy ? -58 : 0, proxy ? -46 : -14, proxy ? 'SECRET · WITH PROXY' : 'SECRET · IN SANDBOX', false, scale));
   }
   // the world beyond the network door
   parts.push({ at: [WORLD[0], WORLD[1], 0], svg: `<g data-prop="world">${cyl(WORLD[0], WORLD[1], BH, BH + 8, 7, PALS.mint, toneI, 1, 18)}</g>` });
-  if (!narrow) pills.push(pill([WORLD[0], WORLD[1], BH + 8], 0, -12, 'THE WORLD', false, scale));
+  if (!narrow) pills.push(pill([WORLD[0], WORLD[1], BH + 8], 4, -38, 'THE WORLD', false, scale));
 
   // the current step's envelope on its belt
   if (st.where) {
@@ -132,7 +136,7 @@ export const sandboxScene = (o: SandboxOpts) => (ctx: SceneCtx) => {
     const m: Msg = (st.where === 'file-blocked' || st.where === 'net-blocked') ? { from: 'host', to: 'host', kind: 'blocked', text: '' } : msgs[upTo - 1];
     const env = envelope(m, p, onNet ? at(NET, 0) : [FILE_DOOR[0], FILE_DOOR[1] + 40], false);
     parts.push({ at: env.at, svg: `<g data-env="${st.where}">${env.svg}</g>` });
-    if ((st.where === 'file-blocked' || st.where === 'net-blocked') && !narrow) pills.push(pill([p[0], p[1], BH + 6], -22, -16, 'REFUSED', true, scale, 'msg-tag'));
+    if ((st.where === 'file-blocked' || st.where === 'net-blocked') && !narrow) pills.push(pill([p[0], p[1], BH + 6], onNet ? 30 : 0, 16, 'REFUSED', true, scale, 'msg-tag'));
   }
   return netBelt + art + shadows.join('') + byDepth(parts) + names + pills.join('');
 };
