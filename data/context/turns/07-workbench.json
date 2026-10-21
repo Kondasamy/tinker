@@ -1,0 +1,24 @@
+{
+  "turns": {
+    "case=free-shipping|docs=|found=|history=refund-window:none|memory=|stuff=on|system=plain|tools=": {
+      "text": "Parcel shipping is free on orders over $500. Freight is quoted per order by weight and distance.",
+      "right": true,
+      "note": "The fact sits at the end of the 15 stuffed passages, where models find facts most reliably."
+    },
+    "case=sensor-warranty|docs=|found=|history=refund-window:none,free-shipping:none|memory=|stuff=on|system=plain|tools=": {
+      "text": "The DS-100 sensor is under warranty for three years from the date of shipment. Its batteries are covered for one year.",
+      "right": true,
+      "note": "The fact sits at the start of the 15 stuffed passages, where models find facts most reliably."
+    },
+    "case=free-shipping|docs=|found=|history=summary:refund-window|memory=|stuff=on|system=plain|tools=": {
+      "text": "Parcel shipping is free on orders over $500. Freight is quoted per order by weight and distance.",
+      "right": true,
+      "note": "The fact sits at the end of the 15 stuffed passages, where models find facts most reliably. Earlier questions are a one-line summary now."
+    },
+    "case=sensor-warranty|docs=|found=|history=summary:refund-window+free-shipping|memory=|stuff=on|system=plain|tools=": {
+      "text": "The DS-100 sensor is under warranty for three years from the date of shipment. Its batteries are covered for one year.",
+      "right": true,
+      "note": "The fact sits at the start of the 15 stuffed passages, where models find facts most reliably. Earlier questions are a one-line summary now."
+    }
+  }
+}

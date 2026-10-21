@@ -1,0 +1,41 @@
+[
+  {
+    "id": "refund-window",
+    "customer": "Mara Quill",
+    "question": "How many days after delivery can I still ask for a refund?",
+    "topic": "the refund window",
+    "fact": "refund-window",
+    "distractors": ["shipping-damage", "returns-time", "billing-terms", "billing-late", "refund-process", "refund-payment", "shipping-delivery", "sensor-claims", "shipping-processing", "sensor-warranty", "shipping-same-day", "shipping-weekend"]
+  },
+  {
+    "id": "free-shipping",
+    "customer": "Mara Quill",
+    "question": "Above what order total is parcel shipping free?",
+    "topic": "free shipping",
+    "fact": "shipping-costs",
+    "distractors": ["shipping-processing", "shipping-delivery", "shipping-same-day", "shipping-damage", "shipping-weekend", "returns-time", "refund-process", "billing-terms", "refund-payment", "billing-late", "sensor-claims", "refund-window"]
+  },
+  {
+    "id": "sensor-warranty",
+    "customer": "Mara Quill",
+    "question": "How long is the DS-100 dock door sensor under warranty?",
+    "topic": "the sensor warranty",
+    "fact": "sensor-warranty",
+    "distractors": ["sensor-claims", "sensor-exclusions", "refund-payment", "returns-time", "shipping-damage", "refund-process", "billing-terms", "shipping-delivery", "billing-late", "refund-window", "shipping-processing", "shipping-costs"]
+  },
+  {
+    "id": "enterprise-hello",
+    "customer": "Hollis Hardware",
+    "question": "Hi, this is Dev at Hollis Hardware. We moved to an enterprise contract this month, so please keep that in mind next time we write.",
+    "topic": "Hollis Hardware's contract",
+    "distractors": []
+  },
+  {
+    "id": "enterprise-refund",
+    "customer": "Hollis Hardware",
+    "question": "Hi, Dev at Hollis Hardware again. Can we get a refund on last week's shelving order?",
+    "topic": "Hollis Hardware's refund",
+    "fact": "refund-window",
+    "distractors": []
+  }
+]
