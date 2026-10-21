@@ -22,6 +22,8 @@ export function mulberry32(seed: number): () => number {
 /** The smallest set of ids, most likely first, whose mass is at least topP (Holtzman et al.'s V(p)). */
 export function nucleus(probs: ArrayLike<number>, topP: number): number[] {
   const order = Array.from(probs, (p, id) => ({ id, p })).sort((a, b) => b.p - a.p || a.id - b.id);
+  // top-p 1 keeps everything: the float running sum can reach 1 before the tail is added
+  if (topP >= 1) return order.map((o) => o.id);
   const kept: number[] = [];
   let mass = 0;
   for (const { id, p } of order) {

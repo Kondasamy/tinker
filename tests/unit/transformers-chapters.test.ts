@@ -6,7 +6,7 @@ import { encode } from '../../src/lib/lm/bpe';
 import { parseModel, type Meta } from '../../src/lib/lm/load';
 import { trace, wordStart, HEAD } from '../../src/lib/transformers/trace';
 import { costs } from '../../src/lib/transformers/costs';
-import { entropy } from '../../src/lib/transformers/sample';
+import { entropy, TEMPERATURES, TOP_PS } from '../../src/lib/transformers/sample';
 import { CTX } from '../../src/content/transformers/kit';
 import * as ch1 from '../../src/content/transformers/01-one-token-at-a-time';
 import * as ch2 from '../../src/content/transformers/02-tokens-become-vectors';
@@ -84,6 +84,10 @@ describe('chapter 5: choosing the next token', () => {
   it('lowering top-p keeps fewer tokens', () => {
     expect(ch5.keptOf(model, 4, 0)).toBeLessThan(ch5.keptOf(model, 4, 5));
     expect(ch5.keptOf(model, 4, 5)).toBe(meta.model.vocab);
+  });
+  it('top-p 1 keeps the whole vocabulary at every temperature above 0', () => {
+    const all = TOP_PS.indexOf(1);
+    TEMPERATURES.forEach((t, i) => { if (t > 0) expect(ch5.keptOf(model, i, all), `T=${t}`).toBe(meta.model.vocab); });
   });
 });
 
