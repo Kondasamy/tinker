@@ -1,0 +1,6 @@
+{
+  "label": "Larkspur’s assumption, not a provider figure",
+  "firstTokenSeconds": 0.5,
+  "tokensPerSecond": 40,
+  "why": "The team plans with a reply that starts after half a second and then writes 40 of this site’s tokens a second. Real speeds vary by model, provider and load; the point is that every thinking token is written before the answer starts."
+}

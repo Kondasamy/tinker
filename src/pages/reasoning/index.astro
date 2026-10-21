@@ -1,0 +1,225 @@
+---
+// Reasoning module intro: sets the scene before chapter 1. Static, except the warm-up and a small script that marks
+// finished chapters. Every example is the module's own data: the split-order quote's recorded answers graded at build
+// time by Evals' key-fact check, token counts from the site's tokenizer, and claims quoted from data/reasoning/facts.json.
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import Meta from '../../components/Meta.astro';
+import IsoStage from '../../lib/iso/IsoStage';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import { THINK_BOARD, thinkLabel, thinkScene, seconds, type ThinkOpts } from '../../components/scenes/thinkScene';
+import { SPLIT, lowestPassing, question, run, sweep, ofKind, type Effort } from '../../lib/reasoning/engine';
+import { ACCESSED, fact } from '../../lib/reasoning/facts';
+import { moduleOf, chapterHref } from '../../lib/modules';
+import { introMeta } from '../../lib/pages';
+import { longDate } from '../../lib/format';
+import { pct } from '../../components/scenes/effortChart';
+
+const MODULE = moduleOf('reasoning');
+const CHAPTERS = MODULE.chapters;
+const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
+const desk = (q: string, e: Effort): ThinkOpts => { const r = run(q, e); return { effort: e, thinking: r.thinkingTokens, wait: r.wait, right: r.right, scale: 1.3 }; };
+// the split-order quote, after thinking at medium
+const HERO = desk(SPLIT, 'medium');
+// the whole idea: the same question answered at once and after thinking (recorded answers, graded live)
+const Q = question(SPLIT);
+const SIDES = (['none', 'medium'] as Effort[]).map(e => ({ e, r: run(SPLIT, e) }));
+const MULTI = sweep(ofKind('multistep').map(q => q.id));
+const COUNT = ofKind('distractor')[0].id;
+// six ideas, each on the scratchpad desk
+const IDEAS: [string, string, ReturnType<typeof fact>, ThinkOpts][] = [
+  ['Think, then answer', 'A reasoning model writes out its working before the answer', fact('adaptive'), desk(SPLIT, 'medium')],
+  ['Thinking is tokens', 'Billed as output, and written before the first word of the answer', fact('thinking-billed'), desk(SPLIT, 'high')],
+  ['The effort dial', 'More effort helps, then flattens, while the cost keeps climbing', fact('snell'), desk('quote-mixed', 'medium')],
+  ['Overthinking', 'On simple questions with distractions, more thinking can hurt', fact('gema'), desk(COUNT, 'high')],
+  ['A hint, not a counter', 'The model decides how much each question needs', fact('effort-signal'), desk('same-day-cutoff', 'high')],
+  ['Measure, then pick', 'The lowest effort that passes the gate, kind by kind', fact('measure-effort'), desk(SPLIT, 'medium')],
+];
+const FACTS: [string, string][] = [
+  [String(SIDES[1].r.thinkingTokens), `thinking tokens on the split-order quote at medium effort`],
+  [`${pct(MULTI[0].accuracy)} → ${pct(MULTI[2].accuracy)}`, 'multi-step questions right, from no thinking to medium'],
+  [String(lowestPassing('lookup')), 'the effort Evals’ gate picks for policy lookups'],
+  [seconds(SIDES[1].r.wait), 'the wait for that quote, at Larkspur’s assumed speed'],
+];
+const checked = longDate(ACCESSED);
+---
+<html lang="en">
+  <head>
+    <Meta {...introMeta(MODULE.id)} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module 11 · Reasoning</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS.map((m, i) => <>{i > 0 && ', '}<a href={`/${m.id}/`}>{m.title}</a></>)} recommended · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+          <h1>How much should a model think before it answers?</h1>
+          <p class="lede">Reasoning models write out their working first. Here you watch that thinking fix a quote, count what it costs in tokens and time, see it go wrong on simple questions, and pick an effort for each kind of request with an eval.</p>
+          <div class="ctas">
+            <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+          <ReadingMode />
+        </div>
+        <div class="hero-pic">
+          {/* the scratchpad desk every chapter plays on: the split-order quote after thinking at medium effort */}
+          <IsoStage board={THINK_BOARD} scene={thinkScene(HERO)} label={thinkLabel(HERO)} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="idea">
+        <p class="kicker">The whole idea in one example</p>
+        <h2 id="idea">The same question, answered at once and after thinking</h2>
+        <div class="versus">
+          {SIDES.map(({ e, r }) => (
+            <article class:list={['reply', { read: r.right }]}>
+              <header><h3>{e === 'none' ? 'Answer now' : 'Think first'} <span class="tag">recorded answer</span></h3><span class="stamp">{r.right ? 'right' : 'wrong'}</span></header>
+              <p class="asked">“{Q.query}”</p>
+              <p class="said">{r.answer}</p>
+              <p class="cap">{r.thinkingTokens ? `${r.thinkingTokens} thinking tokens first.` : 'No thinking.'} {r.note}</p>
+            </article>
+          ))}
+        </div>
+        <p class="note more">What the assistant read: “{Q.given}” Both answers are recorded and graded by the Evals module’s key-fact check. Token counts come from this site’s tokenizer, and the waits from a speed Larkspur assumes; they teach the mechanism, they are not any provider’s numbers.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Six ideas carry the module</h2>
+        <ol class="steps">
+          {IDEAS.map(([name, short, f, pic], i) => (
+            <li>
+              <div class="pic"><IsoStage board={THINK_BOARD} scene={thinkScene(pic)} label={thinkLabel(pic)} /></div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              <p class="more">{f.claim}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+            </li>
+          ))}
+        </ol>
+        <p class="note more">The answers and their thinking were written for this site, per question and effort, to illustrate the cited findings; they were not measured on a real model. The grading, token counts, costs and waits run live in your browser.</p>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">Larkspur’s assistant gets harder questions</h2>
+          <p class="more">{MODULE.story} <strong>You’re on the team that measures what thinking buys and sets the dial for each kind of request.</strong></p>
+          <p class="prev"><a href="/evals/">Evals</a> built the test set and the release gate this module gates effort with.</p>
+        </div>
+        <dl class="facts">
+          {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}
+        </dl>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due (R13); the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <ul class="who-chips"><li>Engineers</li><li>Product managers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Product managers, engineers and analysts choosing how much a model should think, and paying for it. <a href="/evals/">Evals</a> comes first; no code or maths needed.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com" target="_blank" rel="noopener">Kondasamy Jayaraman</a>.</p>
+        <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, whose hand-inked isometric style and engine this course is built on. Colorfigures grew from April’s <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed. Thank you.</p>
+      </footer>
+    </main>
+
+    <script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      const CHAPTERS = moduleOf('reasoning').chapters;
+      const done = completed('reasoning');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('reasoning', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .module-meta a { color: var(--ink); }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.read { border-left: 6px solid var(--acc); }
+  .said { font-size: 17px; font-weight: 700; overflow-wrap: anywhere; }
+  .bar { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .bar li { display: grid; grid-template-columns: 10em minmax(0, 1fr) 3em; align-items: center; gap: 8px; font-size: 14px; }
+  .bar .tok { font-family: ui-monospace, Menlo, monospace; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar .fill { display: block; height: 12px; box-sizing: border-box; border: 1.5px solid var(--ink); border-radius: 4px; background: var(--card); }
+  .bar .p { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); white-space: nowrap; }
+  .tag { margin-left: 6px; padding: 0 6px; border: 1px solid var(--rule); border-radius: 999px; font: 700 11px ui-monospace, Menlo, monospace; color: var(--muted); white-space: nowrap; }
+  .asked { font-size: 14px; color: var(--muted); }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 220px; display: flex; justify-content: center; margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: auto !important; height: 100% !important; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .prev { font-size: 14px; color: var(--muted); }
+  .prev a { color: var(--ink); }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
+
+  .pair { display: grid; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+  }
+</style>

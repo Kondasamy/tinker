@@ -1,0 +1,42 @@
+{
+  "kinds": [
+    { "id": "lookup", "short": "Lookups", "label": "Policy lookups", "about": "One fact, read straight off a document. Questions from the Evals module’s test set." },
+    { "id": "multistep", "short": "Multi-step", "label": "Multi-step questions", "about": "Quotes with volume prices, stock across warehouses, delivery dates: several steps, each easy to slip on." },
+    { "id": "distractor", "short": "Distractions", "label": "Simple questions with distractions", "about": "An easy count, wrapped in details that have nothing to do with it." }
+  ],
+  "questions": [
+    { "id": "standard-refund-window", "kind": "lookup", "given": "Standard customers may request a refund within 30 days of delivery." },
+    { "id": "same-day-cutoff", "kind": "lookup", "given": "Same-day shipping: orders for in-stock items placed before 2 p.m. Central time on a business day ship the same day; orders placed later ship the next business day." },
+    { "id": "dock-sensor-warranty", "kind": "lookup", "given": "The DS-100 dock door sensor is warranted against defects in materials and workmanship for a period of three years from the date of shipment." },
+    { "id": "customer-success-lead", "kind": "lookup", "given": "The Customer Success team is led by Ingrid Vasquez-Lund." },
+
+    { "id": "quote-mixed", "kind": "multistep",
+      "query": "A customer orders 12 Kestrel K2 scanners and 60 label rolls on one order. What is the total before tax and shipping?",
+      "given": "Price list, 2025 (1-9 units / 10-49 units / 50+ units): Kestrel K2 handheld scanner $480 / $445 / $410. Label roll, 1,000 labels $14 / $12 / $10. Volume prices apply per order line." },
+    { "id": "quote-split-lines", "kind": "multistep",
+      "query": "A customer orders 55 Kestrel K2 scanners as two order lines, one of 30 and one of 25. How much more do they pay than if all 55 were on one line?",
+      "given": "Price list, 2025 (1-9 units / 10-49 units / 50+ units): Kestrel K2 handheld scanner $480 / $445 / $410. Volume prices apply per order line." },
+    { "id": "stock-split", "kind": "multistep",
+      "query": "A customer wants 30 Kestrel K3 scanners. How many can ship today, and how many must wait for Friday?",
+      "given": "Kestrel K3 scanners in stock today: Northfield 18, Eastgate 7, Southport 0 (12 arriving Friday). One order can ship from more than one warehouse." },
+    { "id": "stock-reorder", "kind": "multistep",
+      "query": "An order takes 22 Heron shelving bays from Northfield and 10 from Eastgate. Which warehouses must reorder?",
+      "given": "Heron steel shelving bays in stock: Northfield 40, Eastgate 25. A warehouse reorders a product when its stock falls below 20." },
+    { "id": "delivery-engraved", "kind": "multistep",
+      "query": "An in-stock order of engraved Wren label printers is placed on Monday at 10 a.m. Central, with standard ground delivery. What is the earliest day it can arrive?",
+      "given": "Orders that need custom cutting or engraving add three business days. Orders for in-stock items placed before 2 p.m. Central time on a business day ship the same day. Standard ground delivery takes three to five business days." },
+    { "id": "delivery-cutoff", "kind": "multistep",
+      "query": "A customer orders an in-stock dock door sensor at 3 p.m. Central on a Friday, with expedited delivery. What day does it arrive?",
+      "given": "Orders for in-stock items placed before 2 p.m. Central time on a business day ship the same day; orders placed later ship the next business day. Expedited delivery takes two business days." },
+
+    { "id": "count-items", "kind": "distractor",
+      "query": "An order has 3 Wren label printers and 2 dock door sensors. How many items are in the order?",
+      "given": "Packing note: label printers ship in padded cartons. A carton holds up to 4 items. In last year’s packing audit, 1 carton in 5 was re-taped before it left the dock." },
+    { "id": "count-scanners", "kind": "distractor",
+      "query": "How many scanners does this customer have today?",
+      "given": "Customer’s note: “We have 2 Kestrel K2 scanners and 1 Kestrel K3. Our floor lead says the K3 does the work of about two K2s. We plan to retire one K2 next spring.”" },
+    { "id": "count-days", "kind": "distractor",
+      "query": "Picking for an order starts on Monday morning and ends on Wednesday evening of the same week. How many business days of picking is that, counting Monday?",
+      "given": "Picking note: Eastgate picks about 40 orders a day and Northfield about 55. Last week, Tuesday was a holiday and the dock was closed." }
+  ]
+}
