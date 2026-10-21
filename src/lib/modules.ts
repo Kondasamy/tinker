@@ -8,6 +8,7 @@ import { TOKENS_MODULE } from '../content/tokens/module';
 import { TRANSFORMERS_MODULE } from '../content/transformers/module';
 import { CONTEXT_MODULE } from '../content/context/module';
 import { FINE_TUNING_MODULE } from '../content/fine-tuning/module';
+import { SANDBOXING_MODULE } from '../content/sandboxing/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -67,7 +68,7 @@ export const MODULES: Module[] = [
   planned('small-models', 'Small models: distillation & routing', 'Advanced', 'Teach a small model from a big one, send it the easy questions, and fall back when it isn’t sure.'),
   planned('inference', 'Inference engineering', 'Advanced', 'What happens between the prompt and the reply on a server: batching, the KV cache, quantization and speculative decoding.'),
   planned('observability', 'Observability & error analysis', 'Intermediate', 'Reading what the assistant really did in production: traces, labelling failures by hand, and finding the ones that matter.'),
-  planned('sandboxing', 'Agent sandboxing', 'Advanced', 'Where an agent’s code runs, and what it can reach: a sandbox, its files, and the network it can or can’t call out to.'),
+  SANDBOXING_MODULE,
   planned('multimodal', 'Multimodal models', 'Intermediate', 'How images and documents become tokens, and how a model reads a photo, a scan or an invoice.'),
   planned('voice', 'Voice agents', 'Advanced', 'Assistants you talk to: speech in and out, taking turns, being interrupted, and the latency budget.'),
 ];

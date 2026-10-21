@@ -73,14 +73,14 @@ export const DOMAINS: Record<string, Domain> = {
   '01-where-it-runs': { case: ['report', 'exfil'], sandbox: [false, true], files: ['scoped'], egress: ['allowlist'], secret: ['proxy'] },
   // 2. files: read-only, writable, hidden
   '02-files': { case: ['peek', 'tamper', 'report'], sandbox: [true], files: ['open', 'scoped'], egress: ['allowlist'], secret: ['proxy'] },
-  // 3. network: egress off, then an allow-list
-  '03-network': { case: ['exfil', 'report'], sandbox: [true], files: ['scoped'], egress: ['off', 'allowlist', 'open'], secret: ['proxy'] },
+  // 3. network: egress off, then an allow-list (the secret is in the env, so the exfil reaches the fetch the network acts on)
+  '03-network': { case: ['exfil', 'report'], sandbox: [true], files: ['scoped'], egress: ['off', 'allowlist', 'open'], secret: ['env'] },
   // 4. secrets: in the env vs added by the proxy
   '04-secrets': { case: ['exfil'], sandbox: [true], files: ['scoped'], egress: ['open'], secret: ['env', 'proxy'] },
   // 5. an allowed door still leaks; break a leg of the trifecta
   '05-allowed-door': { case: ['beacon', 'report'], sandbox: [true], files: ['scoped', 'nodata'], egress: ['allowlist', 'off'], secret: ['proxy'] },
-  // 6. fewer prompts: approval only on a boundary crossing
-  '06-fewer-prompts': { case: ['report', 'exfil'], sandbox: [true], files: ['scoped'], egress: ['allowlist'], secret: ['proxy'], approval: ['off', 'approve', 'deny'] },
+  // 6. fewer prompts: approval only on a boundary crossing (secret in the env, so the exfil's blocked fetch is what a person is asked about)
+  '06-fewer-prompts': { case: ['report', 'exfil'], sandbox: [true], files: ['scoped'], egress: ['allowlist'], secret: ['env'], approval: ['off', 'approve', 'deny'] },
 };
 /** The red team (chapter 7): every control, over both suites. Every combination is recorded. */
 export const WORKBENCH_DOMAINS: Domain = {

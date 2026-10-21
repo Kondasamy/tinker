@@ -1,0 +1,57 @@
+---
+// sandboxing recap (R11): recall questions from the chapters the reader finished, one at a time, then a summary.
+// The questions come from the module's recall bank (src/content/sandboxing/recall.ts); the page itself is static.
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import Meta from '../../components/Meta.astro';
+import Recap from '../../components/quiz/Recap';
+import RecallCards from '../../components/scenes/RecallCards';
+import { recapMeta } from '../../lib/pages';
+import { moduleOf } from '../../lib/modules';
+
+const MODULE = moduleOf('sandboxing');
+---
+<html lang="en">
+  <head>
+    <Meta {...recapMeta('sandboxing')} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <a href={`/${MODULE.id}/`}>{MODULE.title}</a> <span aria-hidden="true">/</span> <span aria-current="page">Recap</span></nav>
+      <p class="by">by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+    </div>
+    <main class="recap-page">
+      <header class="hero">
+        <div>
+          <p class="kicker">{MODULE.title} · Recap</p>
+          <h1>What do you remember?</h1>
+          <p class="lede">A mixed set of questions from the {MODULE.title} chapters you have finished, one at a time. Pick an answer, or say you’re not sure; you see how you did at the end. Your answers stay in this browser.</p>
+        </div>
+        <div class="pic"><RecallCards /></div>
+      </header>
+      <section class="run" aria-label="Recap questions">
+        <Recap module="sandboxing" bank={MODULE.recall ?? []} client:load />
+      </section>
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com" target="_blank" rel="noopener">Kondasamy Jayaraman</a>.</p>
+        <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, which grew from her <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed.</p>
+      </footer>
+    </main>
+  </body>
+</html>
+
+<style>
+  .recap-page { max-width: 820px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 32px; font-size: 15px; line-height: 1.6; }
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 32px; align-items: center; }
+  h1 { margin: 6px 0 12px; font-size: 34px; line-height: 1.15; letter-spacing: -.01em; }
+  .lede { margin: 0; font-size: 16px; }
+  .pic :global(svg) { width: 100%; height: auto; display: block; }
+  .run { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 24px 28px; box-shadow: 5px 5px 0 var(--ink); }
+  @media (max-width: 860px) {
+    .recap-page { padding: 16px 16px 48px; gap: 24px; }
+    h1 { font-size: 27px; }
+    .hero { grid-template-columns: 1fr; gap: 16px; }
+    .pic { max-width: 220px; }
+    .run { padding: 18px 16px; }
+  }
+</style>
