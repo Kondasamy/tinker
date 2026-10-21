@@ -1,0 +1,15 @@
+{
+  "accessed": "2026-10-21",
+  "facts": [
+    { "id": "lora", "claim": "LoRA freezes a pre-trained model's weights and adds small trainable low-rank matrices to each layer of the Transformer.", "source": "https://arxiv.org/abs/2106.09685" },
+    { "id": "lora-savings", "claim": "Against GPT-3 175B fine-tuned with Adam, LoRA's authors report 10,000 times fewer trainable parameters and a third of the GPU memory.", "value": "10000", "source": "https://arxiv.org/abs/2106.09685" },
+    { "id": "lora-learns-less", "claim": "Biderman and colleagues found that in the standard low-rank settings LoRA learns substantially less than full fine-tuning, but keeps more of the base model's performance outside the target domain: it learns less and forgets less.", "source": "https://arxiv.org/abs/2405.09673" },
+    { "id": "catastrophic-forgetting", "claim": "Catastrophic forgetting is a neural network losing what it learned before when it is trained on something new; Kirkpatrick and colleagues note it was long thought to be unavoidable.", "source": "https://arxiv.org/abs/1612.00796" },
+    { "id": "dpo", "claim": "Direct Preference Optimization (DPO) trains a model on pairs of preferred and rejected answers with a simple classification loss, without a separate reward model or reinforcement learning.", "source": "https://arxiv.org/abs/2305.18290" },
+    { "id": "evals-first", "claim": "OpenAI's model-optimization guide starts with evals: measure the model's output to set a baseline, even before writing prompts.", "source": "https://developers.openai.com/api/docs/guides/model-optimization" },
+    { "id": "prompt-first", "claim": "OpenAI's model-optimization guide says prompt engineering may be all you need, and presents fine-tuning as an option for some tasks.", "source": "https://developers.openai.com/api/docs/guides/model-optimization" },
+    { "id": "fine-tune-for", "claim": "OpenAI's guide names two uses for fine-tuning: adapting a model to the inputs and outputs you expect, and training a smaller, cheaper, faster model for one task.", "source": "https://developers.openai.com/api/docs/guides/model-optimization" },
+    { "id": "openai-wind-down", "claim": "On May 7, 2026, OpenAI told developers its self-serve fine-tuning was winding down: closed that day to organizations that had never fine-tuned, and closed to new training jobs for active customers on January 6, 2027.", "value": "2026-05-07", "source": "https://developers.openai.com/api/docs/deprecations" },
+    { "id": "openai-inference-stays", "claim": "OpenAI says inference on fine-tuned models stops only when the underlying base model is deprecated.", "source": "https://developers.openai.com/api/docs/deprecations" }
+  ]
+}

@@ -1,0 +1,5 @@
+[
+  { "id": "prompted", "label": "Prompted", "changes": "prompt", "note": "Larkspur's reply style in the system prompt; no documents, no training" },
+  { "id": "rag", "label": "RAG", "changes": "documents", "note": "The same style prompt, plus Evals' v3 retrieval: 48-word pieces, the reranker, the best 5 sent" },
+  { "id": "finetuned", "label": "Fine-tuned", "changes": "weights", "note": "Trained on Larkspur's past support replies; no documents" }
+]
