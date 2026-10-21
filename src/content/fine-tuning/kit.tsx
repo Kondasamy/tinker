@@ -169,3 +169,30 @@ export function Fact({ id }: { id: string }) {
     </p>
   );
 }
+
+// ---- the story column's answers ----
+
+const Mark = ({ ok, yes = 'PASS', no = 'FAIL' }: { ok: boolean; yes?: string; no?: string }) =>
+  <span className={`stamp ${ok ? 'correct' : 'wrong'}`}>{ok ? yes : no}</span>;
+
+/** One version's recorded answer to one question, labelled as recorded (the grading under it runs live). */
+export function Answer({ version, question }: { version: VersionId; question: string }) {
+  const g = gradeVersion(version, [question])[0], v = VERSIONS.find(x => x.id === version)!;
+  return (
+    <div className="tc-def ft-answer" data-version={version}>
+      <p className="lbl">{v.label} <span className="ft-tag">recorded answer</span></p>
+      <p>“{g.answer.text}”</p>
+      <p className="ft-marks"><Mark ok={g.fact} /> key fact <Mark ok={g.signed} yes="YES" no="NO" /> signs off</p>
+      {g.answer.citation && <p className="note">Cites: “{g.answer.citation}”</p>}
+      {!g.fact && g.answer.note && <p className="note">{g.answer.note}</p>}
+    </div>
+  );
+}
+
+/** A live reply from Larkspur mini: the prompt, then what this set of weights wrote. */
+export const Reply = ({ who, prompt, text }: { who: string; prompt: string; text: string }) => (
+  <div className="tc-def ft-answer">
+    <p className="lbl">{who} <span className="ft-tag">live, in your browser</span></p>
+    <p><span className="ft-prompt">{prompt}</span> {text}</p>
+  </div>
+);

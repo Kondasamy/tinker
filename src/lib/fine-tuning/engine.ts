@@ -4,6 +4,7 @@
 // - The Larkspur-assistant versions (recorded): prompted, RAG and fine-tuned answers over Evals' questions, graded
 //   live by Evals' code graders against data/evals/references.json and gated by Evals' decide. Evals' data is only read.
 import { forward, type Model } from '../lm/model';
+import { decode, encode } from '../lm/bpe';
 import type { Meta } from '../lm/load';
 import { decide, hasCitation, keyFact, keyFactOf, type Gate, type Reference } from '../evals/graders';
 import { QUESTIONS } from '../evals/suite';
@@ -39,6 +40,12 @@ export function generate(model: Model, ids: number[], n: number): number[] {
   }
   return out.slice(ids.length);
 }
+
+/** How many pieces a chapter lets Larkspur mini write for one reply. */
+export const REPLY_TOKENS = 24;
+/** A chapter's live reply: greedy (so the same weights always write the same words), cut where the answer ends. */
+export const replyOf = (model: Model, prompt: string) =>
+  decode(generate(model, encode(prompt), REPLY_TOKENS)).split('\n\n')[0].trim();
 
 const size = (shape: number[]) => shape.reduce((a, b) => a * b, 1);
 /** A full fine-tune trains every weight. */

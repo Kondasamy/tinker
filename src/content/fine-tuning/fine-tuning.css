@@ -26,3 +26,13 @@
 /* in the fixed frame the chart scrolls inside it rather than growing the stage */
 .tc-frame .ft-scroll { overflow-y: auto; }
 .tc-frame .ft-chart svg { height: auto; flex: none; }
+
+/* the story column's answers: recorded or live, with their marks */
+.ft-answer { margin-top: 10px; }
+.ft-answer p + p { margin-top: 4px; }
+.ft-answer .note { color: var(--muted); font-size: 13px; }
+.ft-tag { margin-left: 6px; padding: 0 6px; border: 1px solid var(--rule); border-radius: 999px; font: 700 11px ui-monospace, Menlo, monospace; color: var(--muted); }
+.ft-marks { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 13px; }
+.ft-prompt { color: var(--muted); font-family: ui-monospace, Menlo, monospace; font-size: 13px; }
+.ft-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.ft-answer .lbl { font-weight: 800; font-size: 13.5px; }
