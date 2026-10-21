@@ -84,6 +84,17 @@ import { WINNERS as SERVE_WINNERS, runOf as serveRun } from '../lib/inference/wo
 import { RUNS as BATCH_RUNS } from '../content/inference/03-batching';
 import { RUNS as PACE_RUNS } from '../content/inference/06-pace-or-throughput';
 import { K as DRAFT_K, runAt as specAt } from '../content/inference/05-guess-ahead';
+import { TRACE_BOARD, traceScene, type TraceOpts } from '../components/scenes/traceScene';
+import { MODE_SHORT, Waterfall, binsOf, wallOf } from '../content/observability/kit';
+import { DAY2, DOMAINS as OBS_DOMAINS, FAILED, TRACES, traceOf } from '../lib/observability/traces';
+import { DAY1_COUNTS, NEEDED_NOTES, TOP, counts as obsCounts } from '../lib/observability/coding';
+import { gradeCase } from '../lib/observability/cases';
+import { WINNERS as OBS_WINNERS } from '../lib/observability/workbench';
+import { SANDBOX_BOARD, sandboxScene, type SandboxOpts } from '../components/scenes/sandboxScene';
+import { run as sbRun, type Run as SbRun, type Setup as SbSetup } from '../lib/sandboxing/loop';
+import { RECORDING as SB_RECORDING } from '../lib/sandboxing/turns';
+import { sandboxProps } from '../content/sandboxing/kit';
+import { SOLUTION as SB_SOLUTION } from '../content/sandboxing/07-red-team';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -340,6 +351,45 @@ const SERVE_OG: Record<string, () => Omit<ServeOpts, 'scale'>[]> = {
   'inference-07-serve-larkspur': () => [floorAt(serveRun(SERVE_WINNERS[0]))],
 };
 const serveOgs = SERVE_OG[page.og]?.();
+// module 14: the control room, or one trace's waterfall. The intro: the day's failed traces sorted, the fix lit; chapter 1:
+// an ok trace's waterfall; chapter 2: a failed one with its FIRST FAILURE stamp; chapter 3: five notes taken; chapter 4:
+// the bins counted; chapter 5: the fix lit; chapter 6: the fixed version passing the fix's cases; chapter 7: day 2 sorted
+// and the first winning fix shipped.
+const OBS_CASES = OBS_DOMAINS['06-trace-to-test'].traces.map(traceOf).filter(t => TOP.includes(t.mode!)).map(t => t.id);
+const ROOM_OG: Record<string, () => TraceOpts> = {
+  observability: () => ({ cards: wallOf(FAILED, FAILED[0].id), bins: binsOf(DAY1_COUNTS, TOP[0]) }),
+  'observability-03-open-coding': () => ({ cards: wallOf(FAILED, FAILED[NEEDED_NOTES - 1].id), board: `NOTED ${NEEDED_NOTES} OF ${FAILED.length}` }),
+  'observability-04-axial-coding': () => ({ cards: wallOf(FAILED), bins: binsOf(DAY1_COUNTS), board: `SORTED ${FAILED.length} OF ${FAILED.length}` }),
+  'observability-05-what-matters': () => ({ cards: wallOf(FAILED), bins: binsOf(DAY1_COUNTS, TOP[0]), board: `FIX FIRST: ${MODE_SHORT[TOP[0]]}` }),
+  'observability-06-trace-to-test': () => ({ cards: wallOf(FAILED, OBS_CASES.at(-1)),
+    board: `FIXED · PASS ${OBS_CASES.filter(id => gradeCase(id, 'fixed').pass).length}/${OBS_CASES.length}` }),
+  'observability-07-workbench': () => ({ cards: wallOf(DAY2), bins: binsOf(obsCounts(DAY2), OBS_WINNERS[0]), board: `SHIP: ${MODE_SHORT[OBS_WINNERS[0]]}` }),
+};
+const roomOg = ROOM_OG[page.og]?.();
+const fallOg = page.og === 'observability-01-what-it-did' ? { trace: TRACES[0], stamp: null }
+  : page.og === 'observability-02-first-failure' ? { trace: traceOf('t23'), stamp: traceOf('t23').first } : undefined;
+// module 15: the glass room as each chapter turns its door on. The intro: the exfiltration attack on the open host as the
+// token leaves; chapter 1: the same attack in the sandbox, refused; 2: the hidden key's read refused at the file door; 3: the
+// fetch to an off-list host refused at the network door; 4: the secret moved to the proxy; 5: a record smuggled through the
+// allowed API host; 6: the report task run with no prompt; 7: the clean policy against the exfiltration attack.
+const sbAt = (setup: Partial<SbSetup> & { case: SbSetup['case'] }, upTo?: (r: SbRun) => number): SandboxOpts => {
+  const r = sbRun(SB_RECORDING, setup), n = upTo?.(r);
+  return { ...sandboxProps(setup), run: r, upTo: n && n > 0 ? n : r.steps.length };
+};
+const sbFetch = (r: SbRun) => r.steps.findIndex(st => st.kind === 'call' && st.call.name === 'fetch') + 1;
+const sbBlocked = (r: SbRun) => r.steps.findIndex(st => st.kind === 'blocked') + 1;
+const SB_IN = { sandbox: true, files: 'scoped', egress: 'allowlist' } as const;
+const GLASS_OG: Record<string, () => SandboxOpts> = {
+  sandboxing: () => sbAt({ case: 'exfil', sandbox: false }, sbFetch),
+  'sandboxing-01-where-it-runs': () => sbAt({ case: 'exfil', ...SB_IN, secret: 'proxy' }, sbBlocked),
+  'sandboxing-02-files': () => sbAt({ case: 'peek', ...SB_IN, secret: 'proxy' }, sbBlocked),
+  'sandboxing-03-network': () => sbAt({ case: 'exfil', ...SB_IN, secret: 'env' }, sbBlocked),
+  'sandboxing-04-secrets': () => sbAt({ case: 'exfil', sandbox: true, files: 'scoped', egress: 'open', secret: 'proxy' }),
+  'sandboxing-05-allowed-door': () => sbAt({ case: 'beacon', ...SB_IN, secret: 'proxy' }, sbFetch),
+  'sandboxing-06-fewer-prompts': () => sbAt({ case: 'report', ...SB_IN, secret: 'env', approval: 'off' }),
+  'sandboxing-07-red-team': () => sbAt({ case: 'exfil', sandbox: true, ...SB_SOLUTION }, sbBlocked),
+};
+const glassOg = GLASS_OG[page.og]?.();
 const curveOg = page.og === 'fine-tuning-02-what-training-does' ? lossChart({ series: FINETUNE_SERIES })
   : page.og === 'small-models-02-learning-from-a-teacher' ? lossChart({ series: STUDENT_SERIES }) : undefined;
 ---
@@ -375,6 +425,9 @@ const curveOg = page.og === 'fine-tuning-02-what-training-does' ? lossChart({ se
           : routerOg ? <IsoStage board={ROUTER_BOARD} scene={routerScene({ ...routerOg, scale: 1.3 })} label="" />
           : frontierOg ? <div class="tf-og"><Flat fig={frontierOg} role="img" label="" /></div>
           : serveOgs ? <div class={serveOgs.length > 1 ? 'duo' : ''}>{serveOgs.map(o => <IsoStage board={SERVE_BOARD} scene={serveScene({ ...o, scale: 1.3 })} label="" />)}</div>
+          : roomOg ? <IsoStage board={TRACE_BOARD} scene={traceScene({ ...roomOg, scale: 1.3 })} label="" />
+          : glassOg ? <IsoStage board={SANDBOX_BOARD} scene={sandboxScene(glassOg)} label="" />
+          : fallOg ? <div class="tf-og ob-og"><Waterfall trace={fallOg.trace} stamp={fallOg.stamp} /></div>
           : curveOg ? <div class="tf-og"><Flat fig={curveOg} role="img" label="" /></div>
           : page.og === 'fine-tuning-06-measure-before-you-train' ? <Grid cols={versionCols(VERSION_IDS)} />
           : deskOg ? <IsoStage board={WINDOW_BOARD} scene={windowScene(deskOg)} label="" />
@@ -413,6 +466,7 @@ const curveOg = page.og === 'fine-tuning-02-what-training-does' ? lossChart({ se
   .tk-og { font-size: 22px; }
   .map-og :global(svg) { max-width: 440px; margin: 0 auto; }
   .map-og :global(.readout) { display: none; }   /* the pointer hint: no use on a still */
+  .ob-og :global(.ob-readout) { display: none; }   /* the waterfall's keyboard hint: no use on a still */
   .tf-og :global(svg) { width: 100%; height: auto; max-height: 520px; }
   .map-og :global(.legend) { text-align: center; font-size: 18px; }   /* the capture is a still: no message mid-travel */
 </style>
