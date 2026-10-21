@@ -63,6 +63,19 @@ test('chapter 3: the Mask tab and the plate’s count stay locked until the pred
   await expect(page.getByTestId('mask-count')).toContainText('1 of 768 tokens allowed at step 1');
 });
 
+test('chapter 3: writing token by token to the end advances, and no click counts as a miss', async ({ page }) => {
+  const w = structuredWalker(page, 'mouse');
+  await w.open(CH3);
+  const c = card(page);
+  await c.getByRole('radio', { name: /^Only one$/ }).click();
+  await c.getByRole('button', { name: 'Show the mask at step 1' }).click();
+  await expect(c).toContainText('Step 3 of');
+  const write = c.getByRole('button', { name: 'Write the next token' });
+  // a partial write is no failed try: three of those would show the hint
+  for (let i = 0; i < 40 && await write.isVisible(); i++) { await expect(c.locator('.hint')).toHaveCount(0); await write.click(); }
+  await expect(c).toContainText('Step 4 of');
+});
+
 test('chapter 7: the score updates live and Show me lands on a winning schema', async ({ page }) => {
   const w = structuredWalker(page, 'mouse');
   await w.open(CH7);
