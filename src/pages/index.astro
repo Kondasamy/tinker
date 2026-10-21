@@ -7,7 +7,7 @@ import '../styles/page.css';
 import Meta from '../components/Meta.astro';
 import IsoStage, { type SceneCtx } from '../lib/iso/IsoStage';
 import { miniPipeline, MINI_BOARD, MINI_LABEL } from '../components/scenes/miniPipeline';
-import { HERO_BOARD, HOME_HERO, HOME_HERO_LABEL } from '../components/scenes/heroScene';
+import { HERO_BOARD, HOME_HERO, HOME_HERO_LABEL, heroCaption } from '../components/scenes/heroScene';
 import { renderers, blockShadow, type BlockType } from '../lib/iso/blocks';
 import { MODULES, type Level } from '../lib/modules';
 import { HOME } from '../lib/pages';
@@ -88,10 +88,17 @@ const FIRST = LIVE[0];
 const PLANNED = MODULES.filter(m => m.status === 'planned');
 const atLevel = (level: Level) => [...LIVE, ...PLANNED].filter(m => m.level === level);
 const CONTRIBUTING = 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING.md';
+const CAPTION = heroCaption(PLANNED.length > 0);
+// the wave's cycle is one 0.8 s slot per live plot, and keyframe percentages must be literal, so each step is placed at a
+// fixed share of one slot here: a pill is gone by the end of its slot, and only one ever shows, at any count
+const slot = (share: number) => `${+(share * 100 / LIVE.length).toFixed(3)}%`;
+const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot(.18)}, ${slot(.88)} { opacity: 1; } }
+@keyframes hero-hop { 0%, ${slot(1)}, 100% { transform: none; } ${slot(.36)} { transform: translateY(-7px); } ${slot(.72)} { transform: translateY(1px); } }`;
 ---
 <html lang="en">
   <head>
     <Meta {...HOME} />
+    <style is:inline set:html={WAVE}></style>
   </head>
   <body>
     <div class="topbar">
@@ -111,7 +118,7 @@ const CONTRIBUTING = 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING
         </div>
         <figure class="hero-pic" style={`--n:${LIVE.length}`}>
           <IsoStage board={HERO_BOARD} scene={HOME_HERO} label={HOME_HERO_LABEL} />
-          <figcaption>One workshop, a plot per module. {PLANNED.length ? <>The empty plots are open: <a href={CONTRIBUTING}>build one</a>.</> : <>Room for more: <a href={CONTRIBUTING}>propose one</a>.</>}</figcaption>
+          <figcaption>One workshop, a plot per module. {CAPTION.text} <a href={CONTRIBUTING}>{CAPTION.link}</a>.</figcaption>
         </figure>
       </header>
 
@@ -257,10 +264,8 @@ const CONTRIBUTING = 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING
   }
   @keyframes hero-ride { 0% { transform: translate(var(--dx), var(--dy)); opacity: 0; } 12% { opacity: 1; } 55%, 100% { transform: none; } }
   @keyframes hero-flow { to { stroke-dashoffset: -11; } }
-  @keyframes hero-show { 0%, 100% { opacity: 0; } 2%, 10% { opacity: 1; } 12% { opacity: 0; } }
   @keyframes hero-drop { 0% { transform: translateY(-12px); opacity: 0; } 20%, 80% { transform: none; opacity: 1; } 100% { opacity: 0; } }
   @keyframes hero-tick { 0%, 15% { opacity: 0; } 30%, 90% { opacity: 1; } 100% { opacity: 0; } }
-  @keyframes hero-hop { 0%, 12%, 100% { transform: none; } 4% { transform: translateY(-7px); } 8% { transform: translateY(1px); } }
   .hero-pic figcaption { text-align: center; font-size: 12.5px; color: var(--muted); margin-top: 8px; }
 
   .principles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }

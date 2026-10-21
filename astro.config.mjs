@@ -1,17 +1,21 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import mdx from '@astrojs/mdx';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 
 // Dev and test pages (src/dev) are routed under /dev/ only in `astro dev` or with DEV_PAGES=1 (the e2e build),
-// so the production build ships the module alone.
+// so the production build ships the module alone. Every src/dev/<name>.astro is served at /dev/<name> (og.astro has its own
+// route), so a new dev page needs no edit here.
 const devPages = {
   name: 'dev-pages',
   hooks: {
-    'astro:config:setup': ({ command, injectRoute }) => {
+    'astro:config:setup': ({ command, config, injectRoute }) => {
       if (command !== 'dev' && !process.env.DEV_PAGES) return;
-      for (const p of ['blocks', 'canvas', 'runner', 'flat', 'quiz', 'recap', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning']) injectRoute({ pattern: `/dev/${p}`, entrypoint: `./src/dev/${p}.astro` });
+      for (const f of readdirSync(new URL('src/dev/', config.root))) {
+        const p = f.replace(/\.astro$/, '');
+        if (p !== f && p !== 'og') injectRoute({ pattern: `/dev/${p}`, entrypoint: `./src/dev/${f}` });
+      }
       injectRoute({ pattern: '/dev/warmup', entrypoint: './src/dev/recap.astro' });   // the same fixture, as the warm-up
       injectRoute({ pattern: '/dev/og/[slug]', entrypoint: './src/dev/og.astro' });   // share-image template (pnpm og)
     },

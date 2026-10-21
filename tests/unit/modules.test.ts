@@ -15,6 +15,20 @@ const RAG_CHAPTERS = [
   ['07-sandbox', 'Sandbox'],
 ];
 
+// the AI engineering roadmap in build order (docs/plans/2026-10-21-1521-feat-ai-engineering-roadmap-plan.md)
+const ROADMAP: [string, string][] = [
+  ['structured-outputs', 'Intermediate'],
+  ['reasoning', 'Intermediate'],
+  ['small-models', 'Advanced'],
+  ['inference', 'Advanced'],
+  ['observability', 'Intermediate'],
+  ['sandboxing', 'Advanced'],
+  ['multimodal', 'Intermediate'],
+  ['voice', 'Advanced'],
+];
+/** true when every id in `ids` is in `list`, in the list's order */
+const inOrder = (ids: string[], list: string[]) => { let at = 0; return ids.every(id => (at = list.indexOf(id, at) + 1) > 0); };
+
 describe('module registry', () => {
   it('keeps RAG’s 7 chapters, ids and titles', () => {
     expect(moduleOf('rag').chapters.map(c => [c.id, c.title])).toEqual(RAG_CHAPTERS);
@@ -25,19 +39,22 @@ describe('module registry', () => {
     for (const m of MODULES) expect(['Beginner', 'Intermediate', 'Advanced']).toContain(m.level);
   });
 
-  it('has the AI engineering roadmap as planned cards, in build order, each with no chapters and no prereqs', () => {
+  it('has what is left of the AI engineering roadmap as planned cards, in build order, each at its level with no chapters and no prereqs', () => {
     const planned = MODULES.filter(m => m.status === 'planned');
-    expect(planned.map(m => [m.id, m.level])).toEqual([
-      ['structured-outputs', 'Intermediate'],
-      ['reasoning', 'Intermediate'],
-      ['small-models', 'Advanced'],
-      ['inference', 'Advanced'],
-      ['observability', 'Intermediate'],
-      ['sandboxing', 'Advanced'],
-      ['multimodal', 'Intermediate'],
-      ['voice', 'Advanced'],
-    ]);
-    for (const m of planned) expect([m.chapters, m.prereqs], m.id).toEqual([[], []]);
+    expect(inOrder(planned.map(m => m.id), ROADMAP.map(([id]) => id))).toBe(true);
+    for (const m of planned) {
+      expect(m.level, m.id).toBe(new Map(ROADMAP).get(m.id));
+      expect([m.chapters, m.prereqs], m.id).toEqual([[], []]);
+    }
+  });
+
+  // each go-live removes one roadmap card, so the planned list shrinks but never reorders (KTD14)
+  it('accepts the roadmap with any one card gone, and rejects two cards swapped', () => {
+    const ids = ROADMAP.map(([id]) => id);
+    for (const gone of ids) expect(inOrder(ids.filter(id => id !== gone), ids), gone).toBe(true);
+    expect(inOrder([], ids)).toBe(true);
+    expect(inOrder([ids[1], ids[0], ...ids.slice(2)], ids)).toBe(false);
+    expect(inOrder(['nope'], ids)).toBe(false);
   });
 
   it('has tool calling as a live Intermediate module that recommends RAG first', () => {

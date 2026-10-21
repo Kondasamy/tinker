@@ -108,4 +108,8 @@ export const HOME_HERO = heroScene({ live: LIVE.map(m => ({ name: m.id.replace(/
 /** the hero's accessible label: building sites are named only while some module is planned */
 export const heroLabel = (live: string[], planned: string[]) =>
   `Tinker as one workshop with a plot per module: ${live.join(' and ')}, live${planned.length ? `, and building sites for ${planned.join(', ')}` : ''}.`;
+/** the live modules (in registry order) whose plot has no drawing: RAG's and tool calling's are drawn by heroScene itself */
+export const undrawn = (live: string[]) => live.slice(2).filter(id => !DRAW[id]);
+/** the hero's caption: an invitation to build while a plot is open, to propose once none is */
+export const heroCaption = (planned: boolean) => planned ? { text: 'The empty plots are open:', link: 'build one' } : { text: 'Room for more:', link: 'propose one' };
 export const HOME_HERO_LABEL = heroLabel(LIVE.map(m => m.title), PLANNED.map(m => m.title));
