@@ -20,6 +20,8 @@ About 30 seconds on one CPU thread. The run is seeded and deterministic: a retra
 
 To try settings without writing anything, add `--no-write` and any of `--steps`, `--lr`, `--weight-decay`, `--dropout`, `--batch`, `--seed`. The defaults are the committed run.
 
+**After a base retrain, rerun with `--finetune` (below).** The base run rewrites `meta.json` and `goldens.json` without the `finetune` / `lora` keys, and `finetuned.bin` and `lora.bin` were trained on the old base, so they go stale. The Fine-tuning tests fail until you do.
+
 ## Fine-tunes (Fine-tuning module)
 
 `--finetune` never retrains the base. It reads the committed `model.bin` and runs two fine-tunes on the style set (`data/lm/style-set.jsonl`, encoded into `ids.json` `styleSet` by `pnpm encode:lm`): every reply signs off "Cheers, the Larkspur team", which the corpus never says.
