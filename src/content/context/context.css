@@ -1,0 +1,25 @@
+/* Context stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
+   tool-calling/kit). The Window tab's bar sits at the top of the frame at its own height, with its read-out and key. */
+.cx-bar { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.tc-frame .cx-bar svg { height: auto; flex: none; }
+.cx-bar svg { width: 100%; display: block; font-family: ui-monospace, Menlo, monospace; font-weight: 800; }
+.cx-bar svg text { fill: var(--ink); }
+.cx-bar [role='listitem'] { cursor: pointer; outline: none; }
+.cx-bar [role='listitem']:focus-visible rect:first-child { stroke-width: 3.5; stroke: var(--ink); }
+.cx-bar [data-over='1'] rect:first-child { stroke: var(--bad); stroke-width: 2; }
+.cx-readout { margin: 0; font-size: 13.5px; min-height: 2.8em; }
+.cx-key { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12.5px; }
+.cx-key i { display: inline-block; width: 12px; height: 12px; border: 1.5px solid var(--ink); border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+
+/* Chapter 4: the turn's blocks, first to last, each with its move buttons */
+.cx-order { margin: 0; padding: 0 0 0 1.4em; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.cx-order li { padding: 4px 0; border-bottom: 1px solid var(--rule); }
+.cx-order li > div { display: flex; align-items: center; gap: 8px; }
+.cx-order li > div > span:first-child { flex: 1; min-width: 0; }
+.cx-moves { display: flex; gap: 6px; flex: none; }
+.cx-note { margin: 4px 0 0; font-size: 12.5px; color: var(--muted); }
+.cx-parts { margin-top: 10px; }
+
+/* Chapter 7: the workbench readout leads with one number */
+.cx-headline { margin: 8px 0 0; font-size: 15px; }
+.cx-headline strong { font-size: 26px; margin-right: 4px; }

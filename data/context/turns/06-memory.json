@@ -1,0 +1,28 @@
+{
+  "turns": {
+    "case=enterprise-hello|docs=|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "Thanks, Dev. I will keep that in mind for this conversation.",
+      "right": true,
+      "note": "No memory tool: the model can only promise for this conversation, and nothing reaches the next one."
+    },
+    "case=enterprise-refund|docs=refund-window|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "Yes. Standard customers can ask for a refund within 30 days of delivery, so open a billing ticket from the Invoices page.",
+      "right": false,
+      "note": "A new session starts empty: the model never heard Hollis is on an enterprise contract and gives the standard answer."
+    },
+    "case=enterprise-hello|docs=|found=|history=|memory=|stuff=off|system=plain|tools=memory": {
+      "text": "Thanks, Dev. I have saved a note that Hollis Hardware is on an enterprise contract, so our next conversation starts from it.",
+      "memo": {
+        "file": "/memories/hollis-hardware.md",
+        "text": "Hollis Hardware is on an enterprise contract (Dev told us)."
+      },
+      "right": true,
+      "note": "The memory tool is offered, so the model writes a note that outlives this conversation."
+    },
+    "case=enterprise-refund|docs=refund-window|found=|history=|memory=/memories/hollis-hardware.md|stuff=off|system=plain|tools=memory": {
+      "text": "Hollis Hardware is on an enterprise contract, so the refund policy does not apply. Raise a billing dispute with your account manager, who answers in writing within ten business days.",
+      "right": true,
+      "note": "The note from the last session is in the window, so the model knows Hollis is on an enterprise contract."
+    }
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "turns": {
+    "case=refund-window|docs=refund-window,shipping-damage,returns-time,billing-terms,billing-late|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "Standard customers can ask for a refund within 30 days of delivery. Open a billing ticket from the Invoices page with the invoice number.",
+      "right": true,
+      "note": "The fact comes first, ahead of 4 distractors, where models find facts most reliably."
+    },
+    "case=refund-window|docs=shipping-damage,returns-time,refund-window,billing-terms,billing-late|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "You have five days from delivery. After that we cannot take the claim.",
+      "right": false,
+      "note": "Illustrated, not measured: the fact sits in the middle of 5 passages and the answer takes a distractor (lost in the middle, Liu et al. 2023)."
+    },
+    "case=refund-window|docs=shipping-damage,returns-time,billing-terms,billing-late,refund-window|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "Standard customers can ask for a refund within 30 days of delivery. Open a billing ticket from the Invoices page with the invoice number.",
+      "right": true,
+      "note": "The fact comes last, after 4 distractors, and the model still finds it near the end of the window."
+    },
+    "case=refund-window|docs=refund-window,shipping-damage,returns-time,billing-terms,billing-late,refund-process,refund-payment,shipping-delivery,sensor-claims,shipping-processing,sensor-warranty,shipping-same-day,shipping-weekend|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "Standard customers can ask for a refund within 30 days of delivery. Open a billing ticket from the Invoices page with the invoice number.",
+      "right": true,
+      "note": "The fact comes first, ahead of 12 distractors, where models find facts most reliably."
+    },
+    "case=refund-window|docs=shipping-damage,returns-time,billing-terms,billing-late,refund-process,refund-payment,refund-window,shipping-delivery,sensor-claims,shipping-processing,sensor-warranty,shipping-same-day,shipping-weekend|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "You have five days from delivery. After that we cannot take the claim.",
+      "right": false,
+      "note": "Illustrated, not measured: the fact sits in the middle of 13 passages and the answer takes a distractor (lost in the middle, Liu et al. 2023)."
+    },
+    "case=refund-window|docs=shipping-damage,returns-time,billing-terms,billing-late,refund-process,refund-payment,shipping-delivery,sensor-claims,shipping-processing,sensor-warranty,shipping-same-day,shipping-weekend,refund-window|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "You have five days from delivery. After that we cannot take the claim.",
+      "right": false,
+      "note": "Illustrated, not measured: the end is a strong place, but 12 distractors crowd the fact out anyway; accuracy falls as related passages fill the window (context rot, Chroma 2025)."
+    },
+    "case=free-shipping|docs=shipping-costs,shipping-processing,shipping-delivery,shipping-same-day,shipping-damage|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "Parcel shipping is free on orders over $500. Freight is quoted per order by weight and distance.",
+      "right": true,
+      "note": "The fact comes first, ahead of 4 distractors, where models find facts most reliably."
+    },
+    "case=free-shipping|docs=shipping-processing,shipping-delivery,shipping-costs,shipping-same-day,shipping-damage|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "Shipping is free when an item is back-ordered. Other orders pay the quoted shipping.",
+      "right": false,
+      "note": "Illustrated, not measured: the fact sits in the middle of 5 passages and the answer takes a distractor (lost in the middle, Liu et al. 2023)."
+    },
+    "case=free-shipping|docs=shipping-processing,shipping-delivery,shipping-same-day,shipping-damage,shipping-costs|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "Parcel shipping is free on orders over $500. Freight is quoted per order by weight and distance.",
+      "right": true,
+      "note": "The fact comes last, after 4 distractors, and the model still finds it near the end of the window."
+    },
+    "case=free-shipping|docs=shipping-costs,shipping-processing,shipping-delivery,shipping-same-day,shipping-damage,shipping-weekend,returns-time,refund-process,billing-terms,refund-payment,billing-late,sensor-claims,refund-window|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "Parcel shipping is free on orders over $500. Freight is quoted per order by weight and distance.",
+      "right": true,
+      "note": "The fact comes first, ahead of 12 distractors, where models find facts most reliably."
+    },
+    "case=free-shipping|docs=shipping-processing,shipping-delivery,shipping-same-day,shipping-damage,shipping-weekend,returns-time,shipping-costs,refund-process,billing-terms,refund-payment,billing-late,sensor-claims,refund-window|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "Shipping is free when an item is back-ordered. Other orders pay the quoted shipping.",
+      "right": false,
+      "note": "Illustrated, not measured: the fact sits in the middle of 13 passages and the answer takes a distractor (lost in the middle, Liu et al. 2023)."
+    },
+    "case=free-shipping|docs=shipping-processing,shipping-delivery,shipping-same-day,shipping-damage,shipping-weekend,returns-time,refund-process,billing-terms,refund-payment,billing-late,sensor-claims,refund-window,shipping-costs|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "Parcel shipping is free on orders over $500. Freight is quoted per order by weight and distance.",
+      "right": true,
+      "note": "The fact comes last, after 12 distractors, and the model still finds it near the end of the window."
+    },
+    "case=sensor-warranty|docs=sensor-warranty|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "The DS-100 sensor is under warranty for three years from the date of shipment. Its batteries are covered for one year.",
+      "right": true,
+      "note": "Only the needed passage is in the window, so nothing competes with it."
+    },
+    "case=sensor-warranty|docs=sensor-warranty,sensor-claims,sensor-exclusions,refund-payment,returns-time|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "The DS-100 sensor is under warranty for three years from the date of shipment. Its batteries are covered for one year.",
+      "right": true,
+      "note": "The fact comes first, ahead of 4 distractors, where models find facts most reliably."
+    },
+    "case=sensor-warranty|docs=sensor-claims,sensor-exclusions,sensor-warranty,refund-payment,returns-time|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "The DS-100 sensor is under warranty for one year.",
+      "right": false,
+      "note": "Illustrated, not measured: the fact sits in the middle of 5 passages and the answer takes a distractor (lost in the middle, Liu et al. 2023)."
+    },
+    "case=sensor-warranty|docs=sensor-claims,sensor-exclusions,refund-payment,returns-time,sensor-warranty|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "The DS-100 sensor is under warranty for three years from the date of shipment. Its batteries are covered for one year.",
+      "right": true,
+      "note": "The fact comes last, after 4 distractors, and the model still finds it near the end of the window."
+    },
+    "case=sensor-warranty|docs=sensor-warranty,sensor-claims,sensor-exclusions,refund-payment,returns-time,shipping-damage,refund-process,billing-terms,shipping-delivery,billing-late,refund-window,shipping-processing,shipping-costs|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "The DS-100 sensor is under warranty for three years from the date of shipment. Its batteries are covered for one year.",
+      "right": true,
+      "note": "The fact comes first, ahead of 12 distractors, where models find facts most reliably."
+    },
+    "case=sensor-warranty|docs=sensor-claims,sensor-exclusions,refund-payment,returns-time,shipping-damage,refund-process,sensor-warranty,billing-terms,shipping-delivery,billing-late,refund-window,shipping-processing,shipping-costs|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "The DS-100 sensor is under warranty for one year.",
+      "right": false,
+      "note": "Illustrated, not measured: the fact sits in the middle of 13 passages and the answer takes a distractor (lost in the middle, Liu et al. 2023)."
+    },
+    "case=sensor-warranty|docs=sensor-claims,sensor-exclusions,refund-payment,returns-time,shipping-damage,refund-process,billing-terms,shipping-delivery,billing-late,refund-window,shipping-processing,shipping-costs,sensor-warranty|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "The DS-100 sensor is under warranty for three years from the date of shipment. Its batteries are covered for one year.",
+      "right": true,
+      "note": "The fact comes last, after 12 distractors, and the model still finds it near the end of the window."
+    }
+  }
+}

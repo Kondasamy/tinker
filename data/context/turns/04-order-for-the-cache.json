@@ -1,0 +1,34 @@
+{
+  "turns": {
+    "case=refund-window|docs=|found=|history=|memory=|stuff=on|system=plain|tools=get_order,issue_refund": {
+      "text": "You have five days from delivery. After that we cannot take the claim.",
+      "right": false,
+      "note": "Illustrated, not measured: the fact sits in the middle of 15 stuffed passages and the answer takes a distractor, as Liu et al. found for mid-context facts."
+    },
+    "case=free-shipping|docs=|found=|history=refund-window:none|memory=|stuff=on|system=plain|tools=get_order,issue_refund": {
+      "text": "Parcel shipping is free on orders over $500. Freight is quoted per order by weight and distance.",
+      "right": true,
+      "note": "The fact sits at the end of the 15 stuffed passages, where models find facts most reliably."
+    },
+    "case=sensor-warranty|docs=|found=|history=refund-window:none,free-shipping:none|memory=|stuff=on|system=plain|tools=get_order,issue_refund": {
+      "text": "The DS-100 sensor is under warranty for three years from the date of shipment. Its batteries are covered for one year.",
+      "right": true,
+      "note": "The fact sits at the start of the 15 stuffed passages, where models find facts most reliably."
+    },
+    "case=refund-window|docs=|found=|history=|memory=|stuff=on|system=dated|tools=get_order,issue_refund": {
+      "text": "You have five days from delivery. After that we cannot take the claim.",
+      "right": false,
+      "note": "Illustrated, not measured: the fact sits in the middle of 15 stuffed passages and the answer takes a distractor, as Liu et al. found for mid-context facts."
+    },
+    "case=free-shipping|docs=|found=|history=refund-window:none|memory=|stuff=on|system=dated|tools=get_order,issue_refund": {
+      "text": "Parcel shipping is free on orders over $500. Freight is quoted per order by weight and distance.",
+      "right": true,
+      "note": "The fact sits at the end of the 15 stuffed passages, where models find facts most reliably."
+    },
+    "case=sensor-warranty|docs=|found=|history=refund-window:none,free-shipping:none|memory=|stuff=on|system=dated|tools=get_order,issue_refund": {
+      "text": "The DS-100 sensor is under warranty for three years from the date of shipment. Its batteries are covered for one year.",
+      "right": true,
+      "note": "The fact sits at the start of the 15 stuffed passages, where models find facts most reliably."
+    }
+  }
+}

@@ -1,0 +1,248 @@
+---
+// Context module intro: sets the scene before chapter 1. Static, except the warm-up and a small script that marks
+// finished chapters. Every example is the module's own data: chapter 1's turn and chapter 4's conversation run at build
+// time through the context engine (counts from the site's own tokenizer), the recorded answer, and claims quoted from
+// data/context/facts.json.
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import Meta from '../../components/Meta.astro';
+import IsoStage from '../../lib/iso/IsoStage';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import { WINDOW_BOARD, windowLabel, windowScene, type WindowOpts } from '../../components/scenes/windowScene';
+import { DEFAULTS, REPLY_ROOM, run, type Setup } from '../../lib/context/loop';
+import { RECORDING } from '../../lib/context/turns';
+import { caseOf } from '../../lib/context/window';
+import { ACCESSED, fact } from '../../lib/context/facts';
+import { moduleOf, chapterHref } from '../../lib/modules';
+import { introMeta } from '../../lib/pages';
+import { longDate, num } from '../../lib/format';
+
+const MODULE = moduleOf('context');
+const CHAPTERS = MODULE.chapters;
+const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
+const SESSION = ['refund-window', 'free-shipping', 'sensor-warranty'];
+const desk = (setup: Partial<Setup>, o: Partial<WindowOpts> = {}): WindowOpts => ({ run: run(RECORDING, setup), scale: 1.7, ...o });
+// Mara's three questions, every document stuffed: the cache shelf lit on the last call
+const HERO = desk({ sessions: [SESSION], tools: true, retrieval: 'stuff' }, { shelf: true });
+// the whole idea: chapter 1's turn, every part in, and the recorded answer to it
+const TURN = run(RECORDING, { sessions: [['refund-window', 'free-shipping']], tools: true, retrieval: 'top' });
+const LAST = TURN.meter.at(-1)!, ANSWER = TURN.answers.at(-1)!, ASKED = caseOf(LAST.case).question;
+const ROWS: [string, number][] = [...LAST.window.parts.map(p => [p.label, p.tokens] as [string, number]), ['Reply’s room', REPLY_ROOM]];
+const MOST = Math.max(...ROWS.map(r => r[1]));
+// six ideas, each on the window desk: one budget, a crowded window, fetching, the cache, a cleared desk and memory
+const IDEAS: [string, string, ReturnType<typeof fact>, WindowOpts][] = [
+  ['One budget', 'System, tools, history, documents and the reply share it', fact('window-everything'), desk({ sessions: [['refund-window', 'free-shipping']], tools: true })],
+  ['More isn’t better', 'Distractors around the fact make answers worse', fact('context-rot'), desk({ sessions: [['free-shipping']], distractors: 12, place: 'middle' })],
+  ['Fetch when needed', 'Search for the passage instead of sending every document', fact('just-in-time'), desk({ sessions: [['free-shipping']], retrieval: 'fetch' })],
+  ['Stable first', 'A prefix that repeats is read from the cache', fact('openai-static-first'), HERO],
+  ['Clear the desk', 'Old tool results go; the decisions stay', fact('clear-tool-results'), desk({ sessions: [SESSION], retrieval: 'fetch', history: 'cleared' }, { tray: true })],
+  ['Memory outside', 'Notes in files, read in the next conversation', fact('memory-tool'), desk({ sessions: [['enterprise-hello'], ['enterprise-refund']], memory: true }, { cabinet: true })],
+];
+const FACTS: [string, string][] = [
+  [num(DEFAULTS.budget), 'tokens in Larkspur’s window budget, the reply’s room included'],
+  [`${fact('cache-read').value}×`, 'the input price for tokens read from the cache'],
+  [`${fact('cache-write-5m').value}×`, 'the input price to write them to the 5-minute cache'],
+  [fact('cache-breakpoints').value!, 'cache breakpoints a request can set'],
+];
+const checked = longDate(ACCESSED);
+---
+<html lang="en">
+  <head>
+    <Meta {...introMeta(MODULE.id)} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url}>{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module 8 · Context</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS.map((m, i) => <>{i > 0 && ', '}<a href={`/${m.id}/`}>{m.title}</a></>)} recommended · by <a href={MODULE.author.url}>{MODULE.author.name}</a></p>
+          <h1>What the model reads each turn, and what it remembers</h1>
+          <p class="lede">Every turn, the host builds the model a window: the system prompt, the tools, the conversation so far, the documents and the question. It has one budget. Here you choose what goes in, in what order, and what is kept outside for later.</p>
+          <ul class="chips" aria-label="At a glance">
+            <li>{CHAPTERS.length} {CHAPTERS.length === 1 ? 'chapter' : 'chapters'}</li><li>No code</li><li>Runs in your browser</li><li>No API key</li>
+          </ul>
+          <div class="ctas">
+            <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+          <ReadingMode />
+        </div>
+        <div class="hero-pic">
+          {/* the window desk every chapter plays on, on Mara's third question with the cache shelf lit */}
+          <IsoStage board={WINDOW_BOARD} scene={windowScene(HERO)} label={windowLabel(HERO)} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="idea">
+        <p class="kicker">The whole idea in one example</p>
+        <h2 id="idea">Everything the model reads shares one window</h2>
+        <div class="versus">
+          <article class="reply">
+            <header><h3>The window</h3><span class="stamp">{num(LAST.window.tokens + REPLY_ROOM)} tokens</span></header>
+            <ol class="bar" aria-label="The parts of the window and their tokens">
+              {ROWS.map(([label, n]) => (
+                <li>
+                  <span class="tok">{label}</span>
+                  <span class="fill" style={`width:${Math.max(4, Math.round(n / MOST * 100))}%`}></span>
+                  <span class="p">{num(n)}</span>
+                </li>
+              ))}
+            </ol>
+            <p class="cap">Chapter 1’s turn, counted by this site’s tokenizer.</p>
+          </article>
+          <article class="reply read">
+            <header><h3>The answer</h3><span class="stamp">{ANSWER.right ? 'right' : 'wrong'}</span></header>
+            <p class="asked">“{ASKED}”</p>
+            <p class="said">{ANSWER.text}</p>
+            <p class="cap">The recorded answer to that window.</p>
+          </article>
+        </div>
+        <p class="note more">{fact('window-everything').claim} The counts here come from this site’s own tokenizer, so they show the mechanism, not any provider’s numbers. <a href={fact('window-everything').source}>Source</a>, checked {checked}.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Six ideas carry the module</h2>
+        <ol class="steps">
+          {IDEAS.map(([name, short, f, pic], i) => (
+            <li>
+              <div class="pic"><IsoStage board={WINDOW_BOARD} scene={windowScene(pic)} label={windowLabel(pic)} /></div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              <p class="more">{f.claim}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">Larkspur’s window fills up</h2>
+          <p class="more">{MODULE.story} <strong>You’re on the team that sets its context policy: what to retrieve, how to keep the history, where to cache and what to remember.</strong></p>
+          <p class="prev"><a href="/rag/02-why-not-stuff-it/">RAG chapter 2</a> showed why you can’t send everything; <a href="/agents/05-memory/">Agents chapter 5</a> summarised a long history. This module builds on both.</p>
+        </div>
+        <dl class="facts">
+          {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}
+        </dl>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due (R13); the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <ul class="who-chips"><li>Engineers</li><li>Product managers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Product managers, engineers and analysts whose assistant already answers from documents and calls tools. <a href="/rag/">RAG</a> and <a href="/tool-calling/">Tool calling</a> come first; no code or maths needed.</p>
+        </article>
+        <article>
+          <h2>How a chapter page works</h2>
+          <div class="schematic" aria-hidden="true">
+            <div class="s-pic">live picture</div>
+            <div class="s-story"><span></span><span></span><span class="s-step">your step</span></div>
+          </div>
+          <p class="more">The picture on the left is live: every window is built and counted in your browser, and the answers are recorded ones. The story on the right asks you to do one thing in it at a time. Progress stays in this browser.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com">Kondasamy Jayaraman</a>.</p>
+        <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, whose hand-inked isometric style and engine this course is built on. Colorfigures grew from April’s <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed. Thank you.</p>
+      </footer>
+    </main>
+
+    <script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      const CHAPTERS = moduleOf('context').chapters;
+      const done = completed('context');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('context', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .module-meta a { color: var(--ink); }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.read { border-left: 6px solid var(--acc); }
+  .said { font-size: 17px; font-weight: 700; overflow-wrap: anywhere; }
+  .bar { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .bar li { display: grid; grid-template-columns: 10em minmax(0, 1fr) 3em; align-items: center; gap: 8px; font-size: 14px; }
+  .bar .tok { font-family: ui-monospace, Menlo, monospace; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar .fill { display: block; height: 12px; box-sizing: border-box; border: 1.5px solid var(--ink); border-radius: 4px; background: var(--card); }
+  .bar .p { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); white-space: nowrap; }
+  .asked { font-size: 14px; color: var(--muted); }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 220px; display: flex; justify-content: center; margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: auto !important; height: 100% !important; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .prev { font-size: 14px; color: var(--muted); }
+  .prev a { color: var(--ink); }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
+
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+  }
+</style>

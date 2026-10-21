@@ -1,0 +1,49 @@
+{
+  "turns": {
+    "case=refund-window|docs=|found=|history=|memory=|stuff=on|system=plain|tools=": {
+      "text": "You have five days from delivery. After that we cannot take the claim.",
+      "right": false,
+      "note": "Illustrated, not measured: the fact sits in the middle of 15 stuffed passages and the answer takes a distractor, as Liu et al. found for mid-context facts."
+    },
+    "case=refund-window|docs=|found=|history=|memory=|stuff=off|system=plain|tools=search_docs": {
+      "text": "Let me look that up.",
+      "search": "refund window after delivery",
+      "note": "The answer is not in the window yet, so the model searches for it just in time."
+    },
+    "case=refund-window|docs=|found=refund-window,shipping-damage|history=|memory=|stuff=off|system=plain|tools=search_docs": {
+      "text": "Standard customers can ask for a refund within 30 days of delivery. Open a billing ticket from the Invoices page with the invoice number.",
+      "right": true,
+      "note": "The search brought back the needed passage and one neighbour; a short window keeps the fact in view."
+    },
+    "case=free-shipping|docs=|found=|history=|memory=|stuff=on|system=plain|tools=": {
+      "text": "Parcel shipping is free on orders over $500. Freight is quoted per order by weight and distance.",
+      "right": true,
+      "note": "The fact sits at the end of the 15 stuffed passages, where models find facts most reliably."
+    },
+    "case=free-shipping|docs=|found=|history=|memory=|stuff=off|system=plain|tools=search_docs": {
+      "text": "Let me look that up.",
+      "search": "free parcel shipping order total",
+      "note": "The answer is not in the window yet, so the model searches for it just in time."
+    },
+    "case=free-shipping|docs=|found=shipping-costs,shipping-processing|history=|memory=|stuff=off|system=plain|tools=search_docs": {
+      "text": "Parcel shipping is free on orders over $500. Freight is quoted per order by weight and distance.",
+      "right": true,
+      "note": "The search brought back the needed passage and one neighbour; a short window keeps the fact in view."
+    },
+    "case=sensor-warranty|docs=|found=|history=|memory=|stuff=on|system=plain|tools=": {
+      "text": "The DS-100 sensor is under warranty for three years from the date of shipment. Its batteries are covered for one year.",
+      "right": true,
+      "note": "The fact sits at the start of the 15 stuffed passages, where models find facts most reliably."
+    },
+    "case=sensor-warranty|docs=|found=|history=|memory=|stuff=off|system=plain|tools=search_docs": {
+      "text": "Let me look that up.",
+      "search": "DS-100 sensor warranty period",
+      "note": "The answer is not in the window yet, so the model searches for it just in time."
+    },
+    "case=sensor-warranty|docs=|found=sensor-warranty,sensor-claims|history=|memory=|stuff=off|system=plain|tools=search_docs": {
+      "text": "The DS-100 sensor is under warranty for three years from the date of shipment. Its batteries are covered for one year.",
+      "right": true,
+      "note": "The search brought back the needed passage and one neighbour; a short window keeps the fact in view."
+    }
+  }
+}

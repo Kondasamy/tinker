@@ -53,6 +53,9 @@ import { PREDICT_PROMPT, QUERY } from '../content/transformers/04-heads-and-laye
 import { distOf } from '../content/transformers/05-choosing-the-next-token';
 import { IDS as TF_LONG, textAt } from '../content/transformers/06-why-long-prompts-cost-more';
 import { LONG as TF_TRUNCATED } from '../content/transformers/07-trace-a-prompt';
+import { WINDOW_BOARD, windowScene, type WindowOpts } from '../components/scenes/windowScene';
+import { run as contextRun, type Setup as ContextSetup } from '../lib/context/loop';
+import { RECORDING as CONTEXT_RECORDING } from '../lib/context/turns';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -188,6 +191,24 @@ const FLAT_OG: Record<string, () => { svg: string; w: number; h: number }> = {
   },
 };
 const engine = ENGINE_OG[page.og]?.(), flat = FLAT_OG[page.og]?.();
+// module 8: the window desk as each chapter turns its prop on, the engine run at build time. The intro: Mara's three
+// questions stuffed, the cache shelf lit; chapter 1: a whole turn; chapter 2: the fact in the middle of 12 distractors;
+// chapter 3: the model fetching; chapter 4: breakpoints after the tools and system, the shelf lit; chapter 5: old results
+// cleared into the in-tray; chapter 6: the next conversation's notes read from the cabinet; chapter 7: a policy with
+// fetching and clearing, at the call that reads the cache.
+const MARA = [['refund-window', 'free-shipping', 'sensor-warranty']];
+const deskOf = (setup: Partial<ContextSetup>, o: Partial<WindowOpts> = {}): WindowOpts => ({ run: contextRun(CONTEXT_RECORDING, setup), ...o });   // scale 1: the pills keep their readouts
+const DESK_OG: Record<string, () => WindowOpts> = {
+  context: () => deskOf({ sessions: MARA, tools: true, retrieval: 'stuff' }, { shelf: true }),
+  'context-01-whats-in-the-window': () => deskOf({ sessions: [['refund-window', 'free-shipping']], tools: true }),
+  'context-02-more-isnt-better': () => deskOf({ sessions: [['free-shipping']], distractors: 12, place: 'middle' }),
+  'context-03-fetch-when-needed': () => deskOf({ sessions: [['free-shipping']], retrieval: 'fetch' }),
+  'context-04-order-for-the-cache': () => deskOf({ sessions: MARA, tools: true, retrieval: 'stuff', breakpoints: ['tools', 'system', 'end'] }, { shelf: true }),
+  'context-05-clearing-the-desk': () => deskOf({ sessions: MARA, retrieval: 'fetch', history: 'cleared' }, { tray: true }),
+  'context-06-memory': () => deskOf({ sessions: [['enterprise-hello'], ['enterprise-refund']], memory: true }, { cabinet: true }),
+  'context-07-workbench': () => deskOf({ sessions: MARA, retrieval: 'fetch', history: 'cleared' }, { shelf: true, tray: true, upTo: 5 }),
+};
+const deskOg = DESK_OG[page.og]?.();
 ---
 <html lang="en">
   <head><meta charset="utf-8" /><meta name="robots" content="noindex" /><title>og: {page.og}</title></head>
@@ -213,6 +234,7 @@ const engine = ENGINE_OG[page.og]?.(), flat = FLAT_OG[page.og]?.();
           : map ? <div class="tk-og map-og"><ProjectionMap out={map.out} index={map.index} /></div>
           : engine ? <IsoStage board={ENGINE_BOARD} scene={engineScene(engine)} label="" />
           : flat ? <div class="tf-og"><Flat fig={flat} role="img" label="" /></div>
+          : deskOg ? <IsoStage board={WINDOW_BOARD} scene={windowScene(deskOg)} label="" />
           : agent ? <IsoStage board={OFFICE_BOARD} scene={agent} label="" />
           : tool ? <IsoStage board={OFFICE_BOARD} scene={tool} label="" />
           : page.og === 'tool-calling-05-mcp' ? <IsoStage board={MCP_BOARD} scene={MCP_OG} label="" />

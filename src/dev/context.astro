@@ -1,0 +1,75 @@
+---
+// Dev-only eyeball page: the context window desk in every prop state, each beside its Window bar (static, no client JS).
+// Below 600px the phone versions show (bigger pills, the props' readouts left to the caption line).
+import '../styles/tokens.css';
+import '../content/context/context.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { WINDOW_BOARD, windowLabel, windowReadouts, windowScene, type WindowOpts } from '../components/scenes/windowScene';
+import { WindowBar } from '../content/context/kit';
+import { run, type Run } from '../lib/context/loop';
+
+const SESSION = ['refund-window', 'free-shipping', 'sensor-warranty'];
+const ONE = run(undefined, {});
+const STUFF = run(undefined, { retrieval: 'stuff' });
+const CACHED = run(undefined, { sessions: [SESSION], tools: true, retrieval: 'stuff', breakpoints: ['tools', 'system', 'end'] });
+const DATED = run(undefined, { sessions: [SESSION], tools: true, retrieval: 'stuff', system: 'dated', breakpoints: ['tools', 'system', 'end'] });
+const OVER = run(undefined, { retrieval: 'stuff', budget: 1000 });
+const MEMORY = run(undefined, { sessions: [['enterprise-hello'], ['enterprise-refund']], memory: true });
+const CLEARED = run(undefined, { sessions: [SESSION], retrieval: 'fetch', history: 'cleared' });
+const SUMMARY = run(undefined, { sessions: [SESSION], retrieval: 'fetch', history: 'summary' });
+const EMPTY: Run = { status: 'done', meter: [], answers: [], signatures: [], notes: {} };
+
+const STATES: [string, WindowOpts][] = [
+  ['Empty window', { run: EMPTY, shelf: true, cabinet: true, tray: true }],
+  ['One question, its document on top', { run: ONE }],
+  ['One question, a small budget', { run: ONE, budget: 400 }],
+  ['Every document stuffed up front', { run: STUFF, budget: 2000 }],
+  ['Over budget: refused, papers spill', { run: OVER, budget: 1000 }],
+  ['Cache: first call writes', { run: CACHED, upTo: 1, budget: 2400, shelf: true }],
+  ['Cache: second call hits', { run: CACHED, upTo: 2, budget: 2400, shelf: true }],
+  ['Cache: a dated system prompt: only the tools hit', { run: DATED, upTo: 2, budget: 2400, shelf: true }],
+  ['Memory: first session, nothing read', { run: MEMORY, upTo: 1, cabinet: true }],
+  ['Memory: next session reads the note', { run: MEMORY, cabinet: true }],
+  ['Clearing: old results cleared', { run: CLEARED, budget: 1000, tray: true }],
+  ['Clearing: history as one summary', { run: SUMMARY, budget: 1000, tray: true }],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Context scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Context window desk: every prop state, with its Window bar</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={WINDOW_BOARD} scene={windowScene(o)} label={windowLabel(o)} /></div>
+            <div class="phone"><IsoStage board={WINDOW_BOARD} scene={windowScene({ ...o, scale: 1.8 })} label={windowLabel(o)} /></div>
+            <p>{windowReadouts(o).join(' · ')}</p>
+            <div class="wide"><WindowBar run={o.run} upTo={o.upTo} budget={o.budget} /></div>
+            <div class="phone"><WindowBar run={o.run} upTo={o.upTo} budget={o.budget} phone /></div>
+          </section>
+        ))}
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

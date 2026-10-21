@@ -1,0 +1,64 @@
+{
+  "turns": {
+    "case=free-shipping|docs=|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "I don’t have Larkspur’s shipping costs in front of me, so I can’t say when shipping is free.",
+      "right": false,
+      "note": "The needed document is not in the window, so the model cannot answer from it and says so."
+    },
+    "case=free-shipping|docs=shipping-costs|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "Parcel shipping is free on orders over $500. Freight is quoted per order by weight and distance.",
+      "right": true,
+      "note": "Only the needed passage is in the window, so nothing competes with it."
+    },
+    "case=free-shipping|docs=|found=|history=|memory=|stuff=off|system=plain|tools=get_order,issue_refund": {
+      "text": "I don’t have Larkspur’s shipping costs in front of me, so I can’t say when shipping is free.",
+      "right": false,
+      "note": "The needed document is not in the window, so the model cannot answer from it and says so."
+    },
+    "case=free-shipping|docs=shipping-costs|found=|history=|memory=|stuff=off|system=plain|tools=get_order,issue_refund": {
+      "text": "Parcel shipping is free on orders over $500. Freight is quoted per order by weight and distance.",
+      "right": true,
+      "note": "Only the needed passage is in the window, so nothing competes with it."
+    },
+    "case=refund-window|docs=|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "I don’t have Larkspur’s refund policy in front of me, so I can’t say how long you have.",
+      "right": false,
+      "note": "The needed document is not in the window, so the model cannot answer from it and says so."
+    },
+    "case=free-shipping|docs=|found=|history=refund-window:none|memory=|stuff=off|system=plain|tools=": {
+      "text": "I don’t have Larkspur’s shipping costs in front of me, so I can’t say when shipping is free.",
+      "right": false,
+      "note": "The needed document is not in the window, so the model cannot answer from it and says so."
+    },
+    "case=refund-window|docs=refund-window|found=|history=|memory=|stuff=off|system=plain|tools=": {
+      "text": "Standard customers can ask for a refund within 30 days of delivery. Open a billing ticket from the Invoices page with the invoice number.",
+      "right": true,
+      "note": "Only the needed passage is in the window, so nothing competes with it."
+    },
+    "case=free-shipping|docs=shipping-costs|found=|history=refund-window:top|memory=|stuff=off|system=plain|tools=": {
+      "text": "Parcel shipping is free on orders over $500. Freight is quoted per order by weight and distance.",
+      "right": true,
+      "note": "Only the needed passage is in the window, so nothing competes with it."
+    },
+    "case=refund-window|docs=|found=|history=|memory=|stuff=off|system=plain|tools=get_order,issue_refund": {
+      "text": "I don’t have Larkspur’s refund policy in front of me, so I can’t say how long you have.",
+      "right": false,
+      "note": "The needed document is not in the window, so the model cannot answer from it and says so."
+    },
+    "case=free-shipping|docs=|found=|history=refund-window:none|memory=|stuff=off|system=plain|tools=get_order,issue_refund": {
+      "text": "I don’t have Larkspur’s shipping costs in front of me, so I can’t say when shipping is free.",
+      "right": false,
+      "note": "The needed document is not in the window, so the model cannot answer from it and says so."
+    },
+    "case=refund-window|docs=refund-window|found=|history=|memory=|stuff=off|system=plain|tools=get_order,issue_refund": {
+      "text": "Standard customers can ask for a refund within 30 days of delivery. Open a billing ticket from the Invoices page with the invoice number.",
+      "right": true,
+      "note": "Only the needed passage is in the window, so nothing competes with it."
+    },
+    "case=free-shipping|docs=shipping-costs|found=|history=refund-window:top|memory=|stuff=off|system=plain|tools=get_order,issue_refund": {
+      "text": "Parcel shipping is free on orders over $500. Freight is quoted per order by weight and distance.",
+      "right": true,
+      "note": "Only the needed passage is in the window, so nothing competes with it."
+    }
+  }
+}

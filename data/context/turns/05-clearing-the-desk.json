@@ -1,0 +1,59 @@
+{
+  "turns": {
+    "case=free-shipping|docs=|found=|history=refund-window:fetch|memory=|stuff=off|system=plain|tools=search_docs": {
+      "text": "Let me look that up.",
+      "search": "free parcel shipping order total",
+      "note": "The answer is not in the window yet, so the model searches for it just in time."
+    },
+    "case=free-shipping|docs=|found=shipping-costs,shipping-processing|history=refund-window:fetch|memory=|stuff=off|system=plain|tools=search_docs": {
+      "text": "Parcel shipping is free on orders over $500. Freight is quoted per order by weight and distance.",
+      "right": true,
+      "note": "The search brought back the needed passage and one neighbour; a short window keeps the fact in view."
+    },
+    "case=sensor-warranty|docs=|found=|history=refund-window:fetch,free-shipping:fetch|memory=|stuff=off|system=plain|tools=search_docs": {
+      "text": "Let me look that up.",
+      "search": "DS-100 sensor warranty period",
+      "note": "The answer is not in the window yet, so the model searches for it just in time."
+    },
+    "case=sensor-warranty|docs=|found=sensor-warranty,sensor-claims|history=refund-window:fetch,free-shipping:fetch|memory=|stuff=off|system=plain|tools=search_docs": {
+      "text": "The DS-100 sensor is under warranty for three years from the date of shipment. Its batteries are covered for one year.",
+      "right": true,
+      "note": "The search brought back the needed passage and one neighbour; a short window keeps the fact in view."
+    },
+    "case=free-shipping|docs=|found=shipping-costs,shipping-processing|history=refund-window:fetch-cleared|memory=|stuff=off|system=plain|tools=search_docs": {
+      "text": "Parcel shipping is free on orders over $500. Freight is quoted per order by weight and distance.",
+      "right": true,
+      "note": "The search brought back the needed passage and one neighbour; a short window keeps the fact in view. Older search results were cleared; the answer stands on the latest one."
+    },
+    "case=sensor-warranty|docs=|found=|history=refund-window:fetch-cleared,free-shipping:fetch|memory=|stuff=off|system=plain|tools=search_docs": {
+      "text": "Let me look that up.",
+      "search": "DS-100 sensor warranty period",
+      "note": "The answer is not in the window yet, so the model searches for it just in time. Older search results were cleared; the answer stands on the latest one."
+    },
+    "case=sensor-warranty|docs=|found=sensor-warranty,sensor-claims|history=refund-window:fetch-cleared,free-shipping:fetch-cleared|memory=|stuff=off|system=plain|tools=search_docs": {
+      "text": "The DS-100 sensor is under warranty for three years from the date of shipment. Its batteries are covered for one year.",
+      "right": true,
+      "note": "The search brought back the needed passage and one neighbour; a short window keeps the fact in view. Older search results were cleared; the answer stands on the latest one."
+    },
+    "case=free-shipping|docs=|found=|history=summary:refund-window|memory=|stuff=off|system=plain|tools=search_docs": {
+      "text": "Let me look that up.",
+      "search": "free parcel shipping order total",
+      "note": "The answer is not in the window yet, so the model searches for it just in time. Earlier questions are a one-line summary now."
+    },
+    "case=free-shipping|docs=|found=shipping-costs,shipping-processing|history=summary:refund-window|memory=|stuff=off|system=plain|tools=search_docs": {
+      "text": "Parcel shipping is free on orders over $500. Freight is quoted per order by weight and distance.",
+      "right": true,
+      "note": "The search brought back the needed passage and one neighbour; a short window keeps the fact in view. Earlier questions are a one-line summary now."
+    },
+    "case=sensor-warranty|docs=|found=|history=summary:refund-window+free-shipping|memory=|stuff=off|system=plain|tools=search_docs": {
+      "text": "Let me look that up.",
+      "search": "DS-100 sensor warranty period",
+      "note": "The answer is not in the window yet, so the model searches for it just in time. Earlier questions are a one-line summary now."
+    },
+    "case=sensor-warranty|docs=|found=sensor-warranty,sensor-claims|history=summary:refund-window+free-shipping|memory=|stuff=off|system=plain|tools=search_docs": {
+      "text": "The DS-100 sensor is under warranty for three years from the date of shipment. Its batteries are covered for one year.",
+      "right": true,
+      "note": "The search brought back the needed passage and one neighbour; a short window keeps the fact in view. Earlier questions are a one-line summary now."
+    }
+  }
+}
