@@ -409,12 +409,6 @@ pnpm record:tokens                # re-record GPT-2's and GPT-4o's tokens for da
 pnpm test                         # the scenario and answer-coverage tests must still pass
 ```
 
-Voice agents' clips in `public/data/voice/` are committed too, and are re-recorded only after editing `data/voice/script.json`. It needs ffmpeg on the PATH and an ElevenLabs API key, passed in the environment for that one command and never saved to a file:
-
-```bash
-ELEVENLABS_API_KEY=... pnpm record:voice   # speak every line again into public/data/voice/*.mp3 and data/voice/envelopes.json
-```
-
 ---
 
 ## Deploy
@@ -491,6 +485,4 @@ All seventeen modules are live, and there is room for more: propose one. New mod
 The illustrations are drawn with [Colorfigures](https://april-zhu.com/colorfigures) by [April Zhu](https://april-zhu.com/): the hand-inked isometric style and the drawing engine in `src/lib/iso/core.js` come from it, adapted for Tinker. Colorfigures builds on April's [ISO-GLOW](https://isoglow.dev), which builds on [iso-figure](https://github.com/MrBongoC/ai-iso-skill) by Tolga Cohce. All MIT licensed (see `src/lib/iso/LICENSE`).
 
 The tokenizer in `src/lib/lm/` follows the byte-level BPE algorithm of Andrej Karpathy's [minbpe](https://github.com/karpathy/minbpe) (MIT). Larkspur mini, the tiny model in `scripts/train/` and `src/lib/lm/model.ts`, is shaped after his [nanoGPT](https://github.com/karpathy/nanoGPT) (MIT).
-
-The callers' and the assistant's voices in Voice agents were generated with [ElevenLabs](https://elevenlabs.io) text-to-speech.
 

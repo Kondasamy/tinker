@@ -193,5 +193,5 @@ export const PlanNote = () => (
 );
 /** Said wherever recorded transcripts appear (R6). */
 export const RecordedNote = () => (
-  <p className="vo-note">The transcripts and replies were written for this site to illustrate the cited findings; they were not measured. The voices were generated once with ElevenLabs text-to-speech.</p>
+  <p className="vo-note">The transcripts and replies were written for this site to illustrate the cited findings; they were not measured. The voices were generated once, ahead of time.</p>
 );
