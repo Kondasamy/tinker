@@ -101,6 +101,20 @@ export const trainScene = (o: TrainOpts) => (ctx: SceneCtx) => {
   return s + pills.join('');
 };
 
+/** The home hero's plot (heroScene): a small training bench at (x, y). A squat model block with the mint adapter clipped
+ * onto its side, and in front the weights lever's plate with its wrench, the lever pulled. Squat, so the pill rows stay clear. */
+export function benchPlot(x: number, y: number, top: SceneCtx['top']): string {
+  const m = [x - 14, y - 16, BH, x + 6, y + 2, BH + 16], a = [x - 10, y + 2, BH + 5, x + 2, y + 5, BH + 13];
+  const px = x + 14, py = y + 12, lx = px + 4, ly = py + 4, tip = [lx + 9, ly, Z + 10];
+  const model = box(m[0], m[1], m[2], m[3], m[4], m[5], PALS.blush, toneI, 1) + hullInk(boxCorners(m[0], m[1], m[2], m[3], m[4], m[5]), 1.8);
+  const clip = box(a[0], a[1], a[2], a[3], a[4], a[5], PALS.mint, toneI, .9) + hullInk(boxCorners(a[0], a[1], a[2], a[3], a[4], a[5]), 1.4);
+  const plate = box(px - 7, py - 7, BH, px + 7, py + 7, Z, DARK, toneI, 1) + hullInk(boxCorners(px - 7, py - 7, BH, px + 7, py + 7, Z), 1.6)
+    + prop('weights', px, py - 1) + cyl(lx, ly, Z, Z + 1.5, 2, METAL, toneI, .8) + rod([lx, ly, Z + 1], tip, 1, METAL)
+    + rod(tip, [tip[0], tip[1], tip[2] + 3], 2, PALS.mustard);
+  return castShadow(boxCorners(m[0], m[1], m[2], m[3], m[4] + 3, m[5]), BH, top) + castShadow(boxCorners(px - 7, py - 7, BH, px + 7, py + 7, Z + 10), BH, top)
+    + byDepth([{ at: [x - 4, y - 7, 0], svg: model }, { at: [x - 4, y + 4, 0], svg: clip }, { at: [px, py, 0], svg: plate }]);
+}
+
 /** The picture in words, for its aria-label. */
 export function trainLabel(o: TrainOpts): string {
   const st = trainState(o);

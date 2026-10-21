@@ -32,6 +32,7 @@ import { diskModel } from '../lib/transformers/diskModel';
 import { WINDOW_BOARD, windowScene, windowLabel } from '../components/scenes/windowScene';
 import { run as contextRun } from '../lib/context/loop';
 import { RECORDING as CONTEXT_RECORDING } from '../lib/context/turns';
+import { TRAIN_BOARD, trainScene, trainLabel } from '../components/scenes/trainScene';
 
 const one = (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) => ({ top }: SceneCtx) =>
   blockShadow(type, 30, 30, top) + renderers[type]({ x: 30, y: 30, ...opts });
@@ -67,6 +68,8 @@ const READ = trace(diskModel(), PROMPTS.find(p => p.id === 'reply')!.text);
 const ROOM = { tokens: READ.tokens.map(t => t.text), attention: READ.attention, scale: 1.7 };
 // the window desk on Mara's third question (context chapter 4's session), every document stuffed: the cache shelf lit
 const DESK = { run: contextRun(CONTEXT_RECORDING, { sessions: [['refund-window', 'free-shipping', 'sensor-warranty']], tools: true, retrieval: 'stuff' }), shelf: true, scale: 1.7 };
+// the training bench with the weights lever pulled and the LoRA adapter clipped on
+const BENCH9 = { lit: 'weights', weights: 'lora', scale: 1.7 } as const;
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: { name: 'Retrieval-Augmented Generation (RAG)', iso: { board: MINI_BOARD, scene: miniPipeline, label: MINI_LABEL }, topics: ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'Reranking', 'Agentic RAG', 'GraphRAG'] },
   'tool-calling': { name: 'Tool calling & the Model Context Protocol (MCP)', iso: { board: OFFICE_BOARD, scene: officeScene(OFFICE), label: officeLabel(OFFICE) }, topics: ['Tool definitions', 'JSON Schema', 'Multi-step calls', 'MCP hosts & servers', 'Tools, resources, prompts', 'Approval', 'Prompt injection'] },
@@ -76,6 +79,7 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   tokens: { name: 'Tokens & embeddings', iso: { board: TOKEN_BOARD, scene: tokenScene(PRESS), label: tokenLabel(PRESS) }, topics: ['Tokens & ids', 'Byte pair encoding', 'Counting & cost', 'Tokenizers compared', 'Embeddings', 'Meaning by neighbours', 'Token budgets'] },
   transformers: { name: 'Transformer architecture', iso: { board: ENGINE_BOARD, scene: engineScene(ROOM), label: engineLabel(ROOM) }, topics: ['Next-token prediction', 'Embeddings & position', 'Attention', 'The causal mask', 'Heads & layers', 'Temperature & top-p', 'The KV cache'] },
   context: { name: 'Context engineering & memory', iso: { board: WINDOW_BOARD, scene: windowScene(DESK), label: windowLabel(DESK) }, topics: ['The context window', 'Lost in the middle', 'Just-in-time retrieval', 'Prompt caching', 'Clearing tool results', 'Memory files', 'Context policy'] },
+  'fine-tuning': { name: 'Fine-tuning vs prompting', iso: { board: TRAIN_BOARD, scene: trainScene(BENCH9), label: trainLabel(BENCH9) }, topics: ['Prompt, documents or weights', 'Training & loss', 'LoRA adapters', 'Facts vs style', 'Forgetting & cost', 'Evals before training', 'Choosing an approach'] },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];
 const LIVE = MODULES.filter(m => m.status === 'live');
