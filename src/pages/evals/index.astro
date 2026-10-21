@@ -1,0 +1,239 @@
+---
+// Evals module intro: sets the scene before chapter 1. Static, except the warm-up and a small script that marks finished
+// chapters. Every example is the course's own data: RAG's questions run on two versions of the assistant (the suite is
+// run here at build time, from the committed index), and claims about evals quoted from data/evals/facts.json.
+import { diskLoader } from '../../lib/rag/diskLoader';
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import Meta from '../../components/Meta.astro';
+import IsoStage from '../../lib/iso/IsoStage';
+import { EVAL_BOARD, evalLabel, evalScene, type EvalOpts } from '../../components/scenes/evalScene';
+import { QUESTIONS, VERSIONS, compare, passed } from '../../lib/evals/suite';
+import { fact, ACCESSED } from '../../lib/evals/facts';
+import { Grid, colsOf, loadSuite, resultsOf } from '../../content/evals/kit';
+import { moduleOf, chapterHref } from '../../lib/modules';
+import { introMeta } from '../../lib/pages';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import { longDate } from '../../lib/format';
+
+const MODULE = moduleOf('evals');
+const CHAPTERS = MODULE.chapters;
+const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
+
+const suite = await loadSuite(diskLoader);
+const { v1: V1, v2: V2 } = VERSIONS, N = QUESTIONS.length;
+const { fixed, broken } = compare(suite.v1, suite.v2);
+const at = (id: string) => QUESTIONS.findIndex(q => q.id === id);
+// chapter 1's two tried questions: ones v2 fixes
+const TRIED = fixed.slice(0, 2).map(at), BROKE = broken.map(at);
+const V2ALL: EvalOpts = { results: resultsOf(suite.v2), version: V2.label, scale: 1.7 };
+const R = resultsOf(suite.v1);
+// how a suite runs, in three small benches: cards waiting, part graded, all graded
+const STEPS: [string, string, ReturnType<typeof fact>, EvalOpts][] = [
+  ['A test set', 'The same questions, every time', fact('eval'), { results: R, graded: 0, riding: true, scale: 1.7 }],
+  ['Graders', 'Code, a model judge or a person stamps each answer', fact('code-graders'), { results: R, graded: Math.ceil(N / 2), riding: true, scale: 1.7 }],
+  ['Compare versions', 'Question by question', fact('trial'), { results: R, version: V1.label, scale: 1.7 }],
+];
+const FACTS: [string, string][] = [
+  [String(N), 'questions in the test set'],
+  [`${passed(suite.v1)} → ${passed(suite.v2)}`, `passed on ${V1.label}, then ${V2.label}`],
+  [String(fixed.length), `questions ${V2.label} fixes`],
+  [String(broken.length), `question${broken.length === 1 ? '' : 's'} ${V2.label} breaks`],
+];
+const checked = longDate(ACCESSED);
+---
+<html lang="en">
+  <head>
+    <Meta {...introMeta('evals')} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url}>{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module 4 · Evals</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS.map((m, i) => <>{i > 0 && ', '}<a href={`/${m.id}/`}>{m.title}</a></>)} recommended · by <a href={MODULE.author.url}>{MODULE.author.name}</a></p>
+          <h1>How a team knows the assistant got better</h1>
+          <p class="lede">Every change to an AI assistant fixes something, and can break something else. Trying a few questions shows the fixes. Running a fixed test set, on every change, shows the breaks too. That is an eval.</p>
+          <ul class="chips" aria-label="At a glance">
+            <li>{CHAPTERS.length} {CHAPTERS.length === 1 ? 'chapter' : 'chapters'}</li><li>No code</li><li>Runs in your browser</li><li>No live model</li>
+          </ul>
+          <div class="ctas">
+            <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+          <ReadingMode />
+        </div>
+        <div class="hero-pic">
+          {/* the test bench every chapter plays on: the whole set graded on v2 */}
+          <IsoStage board={EVAL_BOARD} scene={evalScene(V2ALL)} label={evalLabel(V2ALL)} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="idea">
+        <p class="kicker">The whole idea in one example</p>
+        <h2 id="idea">Two tries looked better. The test set found a break.</h2>
+        <p class="ask"><span class="who">The change</span> {V2.label}: {V2.note}</p>
+        <div class="versus">
+          <article class="reply good">
+            <header><h3>Tried by hand</h3><span class="stamp">{TRIED.length} of {TRIED.length} better</span></header>
+            <ul class="tried">
+              {TRIED.map(q => <li><p class="qtext">“{QUESTIONS[q].query}”</p><p class="said">{V2.label}: “{suite.v2[q].answer.text}”</p></li>)}
+            </ul>
+          </article>
+          <article class="reply bad">
+            <header><h3>The whole test set</h3><span class="stamp">{broken.length} broken</span></header>
+            <Grid cols={colsOf(suite, ['v1', 'v2'])} />
+            {BROKE.map(q => <p class="why more">Q{q + 1}, “{QUESTIONS[q].query}”, passed on {V1.label} and fails on {V2.label}: “{suite.v2[q].answer.text}”</p>)}
+          </article>
+        </div>
+        <p class="note more">These are the course’s own recorded answers: RAG’s retrieval runs for real on each version, and the answer recorded for what it found is graded against the answer it should get.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Three ideas carry the module</h2>
+        <ol class="steps">
+          {STEPS.map(([name, short, f, o], i) => (
+            <li>
+              <div class="pic"><IsoStage board={EVAL_BOARD} scene={evalScene(o)} label={evalLabel(o)} /></div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              <p class="more">{f.claim}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">The team keeps changing the assistant</h2>
+          <p class="more">{MODULE.story} <strong>You’re on the team that decides whether each change ships.</strong></p>
+          {PREREQS.map(m => <p class="prev">New to Larkspur’s assistant? The <a href={`/${m.id}/`}>{m.title} module</a> builds it, and its questions are this module’s test set.</p>)}
+        </div>
+        <dl class="facts">
+          {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}
+        </dl>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due (R13); the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <ul class="who-chips"><li>Product managers</li><li>Engineers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Product managers, engineers and analysts whose team changes an AI assistant and has to say whether the change made it better. No code needed. If RAG is new to you, play that module first: its questions are the test set here.</p>
+        </article>
+        <article>
+          <h2>How a chapter page works</h2>
+          <div class="schematic" aria-hidden="true">
+            <div class="s-pic">live picture</div>
+            <div class="s-story"><span></span><span></span><span class="s-step">your step</span></div>
+          </div>
+          <p class="more">The picture on the left is live. The story on the right asks you to do one thing in it at a time. The model’s answers are recorded, but retrieval and the grading run for real in your browser. Progress stays in this browser.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com">Kondasamy Jayaraman</a>.</p>
+        <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, whose hand-inked isometric style and engine this course is built on. Colorfigures grew from April’s <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed. Thank you.</p>
+      </footer>
+    </main>
+
+    <script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      const CHAPTERS = moduleOf('evals').chapters;
+      const done = completed('evals');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('evals', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .module-meta a { color: var(--ink); }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .ask { font-size: 18px; font-weight: 800; margin-bottom: 18px; }
+  .ask .who { display: block; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.bad { border-left: 6px solid var(--bad); }
+  .reply.good { border-left: 6px solid var(--ok); }
+  .tried { list-style: none; margin: 0; padding: 0; }
+  .tried li { padding: 8px 0; border-top: 1px dashed var(--rule); }
+  .tried li:first-child { border-top: 0; }
+  .qtext { margin: 0; font-weight: 700; }
+  .said { font-size: 14.5px; font-style: italic; }
+  .why { font-size: 13.5px; color: var(--muted); margin-top: 8px !important; }
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); white-space: nowrap; }
+  .bad .stamp { color: var(--bad); } .good .stamp { color: var(--ok); }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 140px; display: flex; justify-content: center; margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: auto !important; height: 100% !important; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .prev { font-size: 14px; color: var(--muted); }
+  .prev a { color: var(--ink); }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
+
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+  }
+</style>

@@ -1,0 +1,98 @@
+{
+  "refund-enterprise|nocontext": {
+    "pass": false
+  },
+  "standard-refund-window|nocontext": {
+    "pass": false
+  },
+  "dock-door-red-light|nocontext": {
+    "pass": false
+  },
+  "stale-hotel-limit|nocontext": {
+    "pass": false
+  },
+  "card-data-retention|nocontext": {
+    "pass": false
+  },
+  "same-day-cutoff|nocontext": {
+    "pass": false
+  },
+  "vague-outage|nocontext": {
+    "pass": false
+  },
+  "payment-methods|nocontext": {
+    "pass": false
+  },
+  "kestrel-purchase-approver|nocontext": {
+    "pass": false
+  },
+  "k2-volume-price|nocontext": {
+    "pass": true,
+    "note": "Looked about right; I did not check the price list."
+  },
+  "dock-sensor-warranty|nocontext": {
+    "pass": false
+  },
+  "customer-success-lead|nocontext": {
+    "pass": false
+  },
+  "refund-enterprise|enterprise-excluded:intact": {
+    "pass": true
+  },
+  "standard-refund-window|refund-30-days:intact": {
+    "pass": true
+  },
+  "dock-door-red-light|never-open-red:intact": {
+    "pass": true
+  },
+  "stale-hotel-limit|lodging-cap-2025:absent+stale": {
+    "pass": true,
+    "note": "That is the limit I remember."
+  },
+  "card-data-retention|card-90-days:split+distractor": {
+    "pass": false
+  },
+  "same-day-cutoff|cutoff-2pm:intact": {
+    "pass": true
+  },
+  "vague-outage|duty-desk-4410:absent": {
+    "pass": false
+  },
+  "payment-methods|cards-and-pos:intact|bank-transfer:absent|digital-wallet:absent": {
+    "pass": false
+  },
+  "kestrel-purchase-approver|kestrel-owner:split|fulfillment-approver:absent": {
+    "pass": false
+  },
+  "k2-volume-price|k2-row:intact": {
+    "pass": true
+  },
+  "dock-sensor-warranty|three-years:split": {
+    "pass": false
+  },
+  "customer-success-lead|cs-lead:intact": {
+    "pass": true
+  },
+  "stale-hotel-limit|lodging-cap-2025:split+stale": {
+    "pass": true,
+    "note": "Same answer as before. Still looks right to me."
+  },
+  "card-data-retention|card-90-days:intact": {
+    "pass": true
+  },
+  "vague-outage|duty-desk-4410:split": {
+    "pass": false
+  },
+  "payment-methods|cards-and-pos:intact|bank-transfer:split|digital-wallet:absent": {
+    "pass": false
+  },
+  "kestrel-purchase-approver|kestrel-owner:intact|fulfillment-approver:absent": {
+    "pass": false
+  },
+  "k2-volume-price|k2-row:split": {
+    "pass": false
+  },
+  "dock-sensor-warranty|three-years:intact": {
+    "pass": true
+  }
+}

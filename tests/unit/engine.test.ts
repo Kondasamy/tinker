@@ -2,11 +2,11 @@ import { readFileSync } from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { openIndex, type Loader, type RagIndex } from '../../src/lib/rag/load';
+import { diskLoader } from '../../src/lib/rag/diskLoader';
 import { resolveConfig, snap, SIZES, OVERLAPS } from '../../src/lib/rag/lattice';
 import { run, createSession, UNSCORED, type Question, type RunParams } from '../../src/lib/rag/engine';
 
 const DIR = 'public/data/index/';
-const fileLoader: Loader = async (f) => { const b = readFileSync(DIR + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength); };
 const questions: Question[] = ['ch3', 'ch4', 'ch5', 'ch6'].flatMap((c) => JSON.parse(readFileSync(`data/questions/${c}.json`, 'utf8')));
 const Q = (id: string) => questions.find((q) => q.id === id)!;
 
@@ -85,7 +85,7 @@ describe('engine over the real index', () => {
   const get = (f: string) => ix.get(f)!;
   const base = (id: string, extra: Partial<RunParams> = {}): RunParams => ({ question: Q(id), topK: 5, ...extra });
   beforeAll(async () => {
-    ix = await openIndex(fileLoader);
+    ix = await openIndex(diskLoader);
     await ix.prefetch('fixed-16-0.bin');
   });
 
@@ -176,7 +176,7 @@ describe('session keeps the previous result while a config loads', () => {
   it('reports preparing, then runs once loaded', async () => {
     let release!: () => void;
     const gate = new Promise<void>((r) => (release = r));
-    const slow: Loader = async (f) => { if (f === 'fixed-32-0.bin') await gate; return fileLoader(f); };
+    const slow: Loader = async (f) => { if (f === 'fixed-32-0.bin') await gate; return diskLoader(f); };
     const ix = await openIndex(slow);
     await ix.load('fixed-16-0.bin');
     let ready = 0;
@@ -201,7 +201,7 @@ describe('session keeps the previous result while a config loads', () => {
 describe('session reports a failed config load and recovers on retry', () => {
   it('fires onReady on rejection, reports failed once, then retries and runs', async () => {
     let fails = 1;
-    const flaky: Loader = async (f) => { if (f === 'fixed-32-0.bin' && fails-- > 0) throw new Error('offline'); return fileLoader(f); };
+    const flaky: Loader = async (f) => { if (f === 'fixed-32-0.bin' && fails-- > 0) throw new Error('offline'); return diskLoader(f); };
     const ix = await openIndex(flaky);
     const ready: string[] = [];
     const session = createSession(ix, (f) => ready.push(f));

@@ -3,6 +3,7 @@
 import { readFileSync } from 'node:fs';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { openIndex, type RagIndex } from '../../src/lib/rag/load';
+import { diskLoader } from '../../src/lib/rag/diskLoader';
 import { createSession, run } from '../../src/lib/rag/engine';
 import { resolveConfig } from '../../src/lib/rag/lattice';
 import { signature } from '../../src/lib/rag/signature';
@@ -10,12 +11,11 @@ import { ABSTAIN, GRADE_BAR, runSelfCheck } from '../../src/lib/rag/selfcheck';
 import { DEFAULT_KNOBS, initialCanvas, outcome, unlockedThrough, type CanvasQuestion, type Knobs } from '../../src/components/canvas/state';
 import { KNOBS, TYPES } from '../../src/content/rag/types-data';
 
-const DIR = 'public/data/index/';
 const questions: CanvasQuestion[] = ['ch3', 'ch4', 'ch5', 'ch6'].flatMap((c) => JSON.parse(readFileSync(`data/questions/${c}.json`, 'utf8')));
 const Q = (id: string) => questions.find((q) => q.id === id)!;
 
 let index: RagIndex;
-beforeAll(async () => { index = await openIndex(async (f) => { const b = readFileSync(DIR + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength); }); });
+beforeAll(async () => { index = await openIndex(diskLoader); });
 
 const TRACK = unlockedThrough('05-accuracy');
 async function at(q: string, knobs: Partial<Knobs>) {

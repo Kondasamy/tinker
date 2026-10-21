@@ -1,6 +1,6 @@
 // Pieces the agent chapters share: the stage (the back office with the agent's props, or the run as lanes) and its
 // caption. Every string from a run is React text here; the drawings escape theirs (esc) before they become SVG.
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { num as n } from '../../lib/format';
 import { STAMP_CLASS } from '../../lib/iso/flat';
 import IsoStage from '../../lib/iso/IsoStage';
@@ -70,6 +70,9 @@ export function Chips<T extends string | number | null>({ label, values, value, 
     </div>
   );
 }
+
+/** A labelled row of chips, the label visible as in Tool calling's bench. */
+export const Group = ({ label, children }: { label: string; children: ReactNode }) => <fieldset className="tc-pick"><legend>{label}</legend>{children}</fieldset>;
 
 /** A cited fact from data/agents/facts.json, with its source and the day it was checked (R8). */
 export function Fact({ id }: { id: string }) {

@@ -3,17 +3,17 @@
 import { readFileSync } from 'node:fs';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { openIndex, type RagIndex } from '../../src/lib/rag/load';
+import { diskLoader } from '../../src/lib/rag/diskLoader';
 import { createSession } from '../../src/lib/rag/engine';
 import { resolveConfig } from '../../src/lib/rag/lattice';
 import { DEFAULT_KNOBS, initialCanvas, outcome, unlockedThrough, type CanvasQuestion, type Knobs } from '../../src/components/canvas/state';
 import { CARDS, KNOBS } from '../../src/content/rag/types-data';
 
-const DIR = 'public/data/index/';
 const questions: CanvasQuestion[] = ['ch3', 'ch4', 'ch5', 'ch6'].flatMap((c) => JSON.parse(readFileSync(`data/questions/${c}.json`, 'utf8')));
 const Q = (id: string) => questions.find((q) => q.id === id)!;
 
 let index: RagIndex;
-beforeAll(async () => { index = await openIndex(async (f) => { const b = readFileSync(DIR + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength); }); });
+beforeAll(async () => { index = await openIndex(diskLoader); });
 
 const NAIVE = unlockedThrough('05-accuracy');
 const AGENT = [...NAIVE, 'agent' as const];

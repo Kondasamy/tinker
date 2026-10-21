@@ -1,0 +1,23 @@
+{
+  "accessed": "2026-10-20",
+  "facts": [
+    { "id": "eval", "claim": "An eval is a test for an AI system: give it an input, then apply grading logic to its output to measure success.", "source": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents" },
+    { "id": "trial", "claim": "Model outputs vary between runs, so each attempt at a test case is counted as one trial.", "source": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents" },
+    { "id": "start-from-failures", "claim": "Anthropic suggests 20 to 50 simple test cases drawn from real failures as a good start, including failures users reported.", "source": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents" },
+    { "id": "reference-solution", "claim": "A reference solution is a known working output that passes every grader. It shows the case can be solved and that the graders are set up right.", "source": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents" },
+    { "id": "look-at-data", "claim": "Hamel Husain advises removing all friction from looking at your data, and updating tests as new failures show up in it.", "source": "https://hamel.dev/blog/posts/evals/" },
+    { "id": "code-graders", "claim": "Code graders are fast, cheap, objective and repeatable, but brittle: a valid answer that does not match the expected pattern exactly fails.", "source": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents" },
+    { "id": "model-graders", "claim": "Model graders are flexible and catch nuance, but they vary from run to run, cost more than code, and need checking against people to be accurate.", "source": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents" },
+    { "id": "human-graders", "claim": "People are the gold standard for grading, but they are expensive and slow.", "source": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents" },
+    { "id": "judge-agreement", "claim": "In one study, a strong model judge agreed with people's preferences over 80% of the time, about as often as people agreed with each other.", "source": "https://arxiv.org/abs/2306.05685" },
+    { "id": "agreement-imbalance", "claim": "Raw agreement can mislead when most cases pass or most fail; Hamel Husain suggests also tracking precision and recall.", "source": "https://hamel.dev/blog/posts/evals/" },
+    { "id": "position-bias", "claim": "Position bias is a model judge's habit of favouring an answer for where it sits, such as first, over what it says.", "source": "https://arxiv.org/abs/2306.05685" },
+    { "id": "verbosity-bias", "claim": "Verbosity bias is a model judge's habit of favouring longer answers, even when they are less clear or accurate.", "source": "https://arxiv.org/abs/2306.05685" },
+    { "id": "swap-orders", "claim": "One fix for position bias: ask the judge twice with the answers swapped, and count a win only when the same answer wins both times; otherwise call it a tie.", "source": "https://arxiv.org/abs/2306.05685" },
+    { "id": "outcome-is-state", "claim": "An agent's outcome is checked in its environment, not taken from what it says: for a booking, whether the reservation exists in the database.", "source": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents" },
+    { "id": "grade-output-not-steps", "claim": "Anthropic notes it is often better to grade what an agent produced than the exact steps it took, since a fixed step list is brittle.", "source": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents" },
+    { "id": "pass-at-k", "claim": "pass@k is the chance that at least one of k tries is correct.", "source": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents" },
+    { "id": "pass-hat-k", "claim": "pass^k is the chance that all k tries succeed.", "source": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents" },
+    { "id": "pass-hat-k-tau-bench", "claim": "The τ-bench paper proposed pass^k to measure how reliably an agent behaves over repeated tries, and found leading agents inconsistent: pass^8 under 25% on its retail tasks.", "source": "https://arxiv.org/abs/2406.12045" }
+  ]
+}

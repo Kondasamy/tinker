@@ -13,7 +13,7 @@ A module explains one concept as a story the reader plays. The picture on the le
 | Level | The reader | Example |
 |---|---|---|
 | Beginner | Has used the technology, never looked inside. Needs no other module. | RAG |
-| Intermediate | Knows the basics of one related module and builds on it. Names a prerequisite. | Tool calling & MCP (after RAG) |
+| Intermediate | Knows the basics of one related module and builds on it. Names a prerequisite. | Tool calling & MCP, Evals (after RAG) |
 | Advanced | Comfortable with the Intermediate ideas; the module goes into the machinery. | AI agents (after Tool calling) |
 
 ## 2. Write one story

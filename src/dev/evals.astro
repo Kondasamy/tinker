@@ -1,0 +1,73 @@
+---
+// Dev-only eyeball page: the evals test bench in every state (static SVG, no client JS), then the Results grids.
+// Below 600px the phone versions show (bigger pills, no pile pills; grid rows with numbers and the question list).
+import { diskLoader } from '../lib/rag/diskLoader';
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { EVAL_BOARD, evalLabel, evalScene, type EvalOpts } from '../components/scenes/evalScene';
+import { colsOf, Grid, loadSuite, QUESTION_TEXT, resultsOf } from '../content/evals/kit';
+
+const suite = await loadSuite(diskLoader);
+const V1 = resultsOf(suite.v1), V2 = resultsOf(suite.v2);
+
+const STATES: [string, EvalOpts][] = [
+  ['Empty suite: the bench, no cards', { results: [] }],
+  ['v1: nothing graded, the first card riding in', { results: V1, graded: 0, riding: true, version: 'v1' }],
+  ['v1: five graded, the sixth riding', { results: V1, graded: 5, riding: true, version: 'v1' }],
+  ['v1: all graded', { results: V1, version: 'v1' }],
+  ['v2: all graded', { results: V2, version: 'v2' }],
+  ['v0: all graded (every answer made up)', { results: resultsOf(suite.v0), version: 'v0' }],
+];
+const GRIDS: [string, Parameters<typeof colsOf>[1]][] = [
+  ['v1 against v2 (chapter 1)', ['v1', 'v2']],
+  ['Every version', ['v0', 'v1', 'v2', 'v3']],
+  ['One version', ['v3']],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Evals scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Evals test bench: every state</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={EVAL_BOARD} scene={evalScene({ ...o, scale: 1.3 })} label={evalLabel(o)} /></div>
+            <div class="phone"><IsoStage board={EVAL_BOARD} scene={evalScene({ ...o, scale: 2.2 })} label={evalLabel(o)} /></div>
+            <p>{evalLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      {GRIDS.map(([title, vs]) => (
+        <section>
+          <h2>Results: {title}</h2>
+          <Grid cols={colsOf(suite, vs)} />
+        </section>
+      ))}
+      <section>
+        <h2>Results: a question with &lt;script&gt; in it (escaped)</h2>
+        <Grid cols={colsOf(suite, ['v1', 'v2'])} questions={['<script>alert(1)</script> Can I return it?', ...QUESTION_TEXT.slice(1)]} />
+      </section>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

@@ -5,9 +5,9 @@ import { esc } from './blocks';
 
 type Mat = { l: string; m: string; d: string };
 export type Kind = 'request' | 'result' | 'error' | 'blocked';
-export type Stamp = 'APPROVED' | 'DENIED' | 'INVALID' | 'WAITING' | 'STOPPED' | 'REFUSED';
+export type Stamp = 'APPROVED' | 'DENIED' | 'INVALID' | 'WAITING' | 'STOPPED' | 'REFUSED' | 'PASS' | 'FAIL';
 /** the class a stamp wears in HTML (.stamp.correct and friends) */
-export const STAMP_CLASS: Record<Stamp, string> = { APPROVED: 'correct', WAITING: 'neutral', INVALID: 'warn', DENIED: 'wrong', STOPPED: 'wrong', REFUSED: 'wrong' };
+export const STAMP_CLASS: Record<Stamp, string> = { APPROVED: 'correct', WAITING: 'neutral', INVALID: 'warn', DENIED: 'wrong', STOPPED: 'wrong', REFUSED: 'wrong', PASS: 'correct', FAIL: 'wrong' };
 export interface Lane { id: string; name: string; pal?: Mat }
 /** batch: messages with the same batch number went out together (parallel calls); the wide view brackets them */
 export interface Msg { from: string; to: string; kind: Kind; text: string; stamp?: Stamp; batch?: number }
@@ -20,7 +20,7 @@ const LANE_PALS = [PALS.mustard, PALS.cobalt, PALS.mint, PALS.blush, PALS.tomato
 const KIND: Record<Kind, Mat> = { request: PALS.cobalt, result: PALS.mint, error: PALS.tomato, blocked: METAL };
 const MARK: Record<Kind, string> = { request: '', result: '', error: '! ', blocked: '× ' };   // kind not by colour alone
 // --ok, --bad, --warn; waiting is plain ink
-const STAMP: Record<Stamp, string> = { APPROVED: '#2a744b', DENIED: '#b5361f', INVALID: '#826309', WAITING: INK, STOPPED: '#b5361f', REFUSED: '#b5361f' };
+const STAMP: Record<Stamp, string> = { APPROVED: '#2a744b', DENIED: '#b5361f', INVALID: '#826309', WAITING: INK, STOPPED: '#b5361f', REFUSED: '#b5361f', PASS: '#2a744b', FAIL: '#b5361f' };
 const FONT = 'font-family="ui-monospace,Menlo,monospace" font-weight="800"';
 const PAD = 14;
 // win: 7 rows keep card text at about 13px on a 1440×900 screen (12 rows shrank it to 8px)

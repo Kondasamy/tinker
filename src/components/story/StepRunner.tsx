@@ -24,9 +24,11 @@ interface Props<S> {
   inspectPanel?: string;
   next?: { href: string; title: string };
   idleMs?: number;
+  /** false hides "Show me" (e.g. while data a step's predicate or solution reads is still loading) */
+  ready?: boolean;
 }
 
-export default function StepRunner<S>({ module = 'rag', chapter, steps, initial, controls, stage, panels = {}, inspectPanel, next, idleMs = 30_000 }: Props<S>) {
+export default function StepRunner<S>({ module = 'rag', chapter, steps, initial, controls, stage, panels = {}, inspectPanel, next, idleMs = 30_000, ready = true }: Props<S>) {
   const [run, dispatch] = useReducer((r: Run<S>, a: Action<S>) => reduce(steps, r, a), undefined, () => startRun(steps, initial));
   const [focusDrawer, setFocusDrawer] = useState(0);
   const [sheet, setSheet] = useState(false);   // opened from the picture: a bottom sheet on phones
@@ -129,7 +131,7 @@ export default function StepRunner<S>({ module = 'rag', chapter, steps, initial,
           <div className="recover">
             <button type="button" className="chip" onClick={() => dispatch({ type: 'back' })} disabled={run.index === 0}>← Back</button>
             <button type="button" className="chip" onClick={() => dispatch({ type: 'reset' })}>Reset this step</button>
-            {step.solution && !run.done && <button type="button" className="chip" onClick={() => dispatch({ type: 'showMe' })}>Show me</button>}
+            {step.solution && !run.done && ready && <button type="button" className="chip" onClick={() => dispatch({ type: 'showMe' })}>Show me</button>}
             {inspectTarget && <button type="button" className="chip" onClick={() => inspect(inspectTarget)}>Inspect</button>}
           </div>
         </section>

@@ -17,6 +17,10 @@ import { RECORDINGS } from '../lib/tools/turns';
 import { agentScene, agentLabel } from '../components/scenes/agentScene';
 import { run } from '../lib/agents/loop';
 import { RECORDINGS as AGENT_RECORDINGS } from '../lib/agents/turns';
+import { diskLoader } from '../lib/rag/diskLoader';
+import { EVAL_BOARD, evalScene, evalLabel } from '../components/scenes/evalScene';
+import { openIndex } from '../lib/rag/load';
+import { fileOf, runSuite, VERSIONS } from '../lib/evals/suite';
 
 const one = (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) => ({ top }: SceneCtx) =>
   blockShadow(type, 30, 30, top) + renderers[type]({ x: 30, y: 30, ...opts });
@@ -38,10 +42,15 @@ const OFFICE = { msgs: SEQ_MSGS, upTo: 3, tools: RECORDINGS['order-status'].tool
 // the damaged delivery with the printer out of stock: the agent checked, changed course and is telling the customer
 const CASE = run(AGENT_RECORDINGS['01-workflow-or-agent'], { case: 'damaged', stock: 'out' });
 const AGENT = { run: CASE, upTo: CASE.steps.length - 1, scale: 1.7 };
+// the evals test bench with v2's whole run graded (the suite runs at build time, over the committed index)
+const INDEX = await openIndex(diskLoader);
+await INDEX.load(fileOf('v2')!);
+const BENCH = { results: runSuite(INDEX, 'v2').map(r => r.verdict === 'correct'), version: VERSIONS.v2.label, scale: 1.7 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: { name: 'Retrieval-Augmented Generation (RAG)', iso: { board: MINI_BOARD, scene: miniPipeline, label: MINI_LABEL }, topics: ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'Reranking', 'Agentic RAG', 'GraphRAG'] },
   'tool-calling': { name: 'Tool calling & the Model Context Protocol (MCP)', iso: { board: OFFICE_BOARD, scene: officeScene(OFFICE), label: officeLabel(OFFICE) }, topics: ['Tool definitions', 'JSON Schema', 'Multi-step calls', 'MCP hosts & servers', 'Tools, resources, prompts', 'Approval', 'Prompt injection'] },
   agents: { name: 'AI agents', iso: { board: OFFICE_BOARD, scene: agentScene(AGENT), label: agentLabel(AGENT) }, topics: ['Workflow or agent', 'The agent loop', 'Plans & approval', 'Step & token budgets', 'Stuck loops', 'Memory & compaction', 'Sub-agents'] },
+  evals: { name: 'Evals & LLM testing', iso: { board: EVAL_BOARD, scene: evalScene(BENCH), label: evalLabel(BENCH) }, topics: ['Test sets', 'Regressions', 'Code graders', 'Model judges', 'Judging the judge', 'Grading the path', 'pass@k & pass^k', 'Release gates'] },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];
 const LIVE = MODULES.filter(m => m.status === 'live');

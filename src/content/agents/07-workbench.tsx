@@ -2,7 +2,6 @@
 // (WORKBENCH_DOMAINS: only those, so every reachable run is recorded), runs it, and reads the picture, the Steps lanes
 // and a short readout. The goal is to find all five ways a run can end. The case, the controls and the tab are step
 // state, so a reload keeps them (as Tool calling's chapter 7 keeps its tab).
-import type { ReactNode } from 'react';
 import { num as n } from '../../lib/format';
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
@@ -11,7 +10,7 @@ import { CONTEXT, DEFAULTS, WORKBENCH_DOMAINS, combos, run, stepsOf, totalTokens
 import { RECORDINGS } from '../../lib/agents/turns';
 import { moduleOf, nextOf } from '../../lib/modules';
 import { Messages } from '../tool-calling/kit';
-import { AgentStage, Chips, Fact, type View } from './kit';
+import { AgentStage, Chips, Fact, Group, type View } from './kit';
 
 const MODULE = 'agents', ID = '07-workbench';
 export type CaseId = keyof typeof WORKBENCH_DOMAINS;
@@ -74,9 +73,6 @@ function says(r: Run): string {
     default: return 'No recording for this setup.';
   }
 }
-
-/** A labelled row of chips, the label visible as in Tool calling's bench. */
-const Group = ({ label, children }: { label: string; children: ReactNode }) => <fieldset className="tc-pick"><legend>{label}</legend>{children}</fieldset>;
 
 const NOTE = 'Helpers always start with full memory and no plan: the memory and plan settings apply to the lead only.';
 
