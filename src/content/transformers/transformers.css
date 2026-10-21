@@ -48,3 +48,11 @@
 .tf-stream li + li::before { content: '↓'; position: absolute; left: 10px; top: -19px; font-weight: 900; }
 .tf-stream li[data-add]::after { content: '+'; position: absolute; left: 9px; top: 5px; font-weight: 900; }
 .tf-stream li[data-add] { background: color-mix(in srgb, var(--mint-l) 35%, var(--card)); }
+
+/* chapter 6: the live counts; chapter 7: the trace, stage by stage */
+.tf-costs { border-collapse: collapse; font-size: 14px; margin: 8px 0; }
+.tf-costs caption { text-align: left; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-bottom: 4px; }
+.tf-costs th { text-align: left; font-weight: 600; padding: 3px 12px 3px 0; }
+.tf-costs td { font: 700 13px ui-monospace, Menlo, monospace; padding: 3px 12px 3px 0; font-variant-numeric: tabular-nums; }
+.tf-costs td + td { font-weight: 400; color: var(--muted); }
+.tf-trace { margin: 8px 0; padding-left: 1.4em; display: grid; gap: 4px; font-size: 14px; }

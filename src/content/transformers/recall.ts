@@ -1,6 +1,5 @@
 // Transformers' recall bank (KTD7): the recap and the warm-up ask from it. Three items per chapter, each asking the
 // chapter's idea in a new situation. Every wrong option is a real misconception, and every option has a `why` line.
-// Chapters 5–7 get theirs with the chapters (U11).
 import type { RecallItem } from '../../lib/recall';
 
 export const RECALL: RecallItem[] = [
@@ -189,6 +188,147 @@ export const RECALL: RecallItem[] = [
       'Right. That running vector is the residual stream: embedding plus position, then each layer’s additions.',
       'Layers add rather than replace, which is why a later layer can still use the embedding and the earlier layers’ findings.',
       'The vector changes in every layer; the weights are how a layer decides what to add.',
+    ],
+  },
+
+  // 5. Choosing the next token
+  {
+    id: 'temperature-zero', chapter: '05-choosing-the-next-token',
+    question: 'Larkspur’s returns bot must answer the same question the same way every time. Which setting does that?',
+    options: [
+      'Temperature 0: it always picks the likeliest token, so the same prompt gives the same reply',
+      'Temperature 2: the model thinks harder about each token',
+      'Top-p 1: it keeps every token, so nothing is left out',
+    ],
+    correct: 0,
+    why: [
+      'Right. At 0 there is no draw at all: the likeliest token wins every time.',
+      'A high temperature adds no thinking; it flattens the probabilities, so replies vary more.',
+      'Top-p 1 keeps the whole vocabulary in the draw, so unlikely tokens can still be picked.',
+    ],
+  },
+  {
+    id: 'top-p-tail', chapter: '05-choosing-the-next-token',
+    question: 'A marketing writer likes varied wording but keeps getting odd, off-topic words. What does lowering top-p change?',
+    options: [
+      'It drops the long tail of unlikely tokens before the draw, so odd picks get rarer while the likely ones still vary',
+      'It makes every reply identical',
+      'It raises the probability of every token equally',
+    ],
+    correct: 0,
+    why: [
+      'Right. Top-p keeps the smallest set of likeliest tokens that adds up to p and draws only from those.',
+      'Only top-p small enough to keep a single token does that; above it the draw still varies among the kept tokens.',
+      'Top-p removes tokens; the kept ones are rescaled to add up to 1, so the dropped ones go to 0, not up.',
+    ],
+  },
+  {
+    id: 'seed-repeat', chapter: '05-choosing-the-next-token',
+    question: 'Two engineers sample from the same model, prompt, temperature and top-p, and get different replies. Which detail most likely differs?',
+    options: [
+      'The seed: the same seed gives the same draws, a new one gives new draws',
+      'The model learned something between the two runs',
+      'The vocabulary changed between runs',
+    ],
+    correct: 0,
+    why: [
+      'Right. Sampling is random draws; fix the seed and the settings and the reply repeats.',
+      'Running a model doesn’t change its weights: it only learns in training.',
+      'The vocabulary is fixed with the model; it doesn’t change from run to run.',
+    ],
+  },
+
+  // 6. Why long prompts cost more
+  {
+    id: 'pairs-square', chapter: '06-why-long-prompts-cost-more',
+    question: 'A support prompt grows from 1,000 to 3,000 tokens. Roughly how do the attention pairs per head change?',
+    options: [
+      'About nine times: pairs grow with the square of the length',
+      'About three times, like the tokens',
+      'They stay the same: each token is still scored once',
+    ],
+    correct: 0,
+    why: [
+      'Right. Every token scores every token before it, so three times the tokens is about three squared, nine times, the pairs.',
+      'That is the KV cache, which grows by the same amount per token. The pairs grow faster.',
+      'Each token is scored against every token before it, so a longer prompt means more scores per token, not the same.',
+    ],
+  },
+  {
+    id: 'kv-cache-saves', chapter: '06-why-long-prompts-cost-more',
+    question: 'While a model writes a long reply, what does the KV cache save it from doing?',
+    options: [
+      'Recomputing the keys and values of every earlier token for each new token',
+      'Scoring the new token against the earlier ones',
+      'Storing anything: the cache keeps the prompt short',
+    ],
+    correct: 0,
+    why: [
+      'Right. Earlier tokens’ keys and values never change, so they are kept and each new token computes only its own.',
+      'The scoring still happens for every new token; the cache only holds what it scores against.',
+      'The cache itself grows with every token, which is part of why long prompts cost memory.',
+    ],
+  },
+  {
+    id: 'window-limit', chapter: '06-why-long-prompts-cost-more',
+    question: 'Why can’t a model simply read a prompt of any length?',
+    options: [
+      'It was trained on a fixed window of positions, and the work grows with the square of the length',
+      'Long prompts use words it doesn’t know',
+      'The window is a billing rule with nothing behind it',
+    ],
+    correct: 0,
+    why: [
+      'Right. Larkspur mini has a position row for each place in its window and no more, and every extra token makes every later one score more pairs.',
+      'Any text becomes tokens the model knows; length is the limit, not the words.',
+      'Providers do price by tokens, but the window comes from how the model was built and trained.',
+    ],
+  },
+
+  // 7. Trace a prompt
+  {
+    id: 'oldest-dropped', chapter: '07-trace-a-prompt',
+    question: 'An agent keeps adding tool results to its prompt until it no longer fits, and the oldest tokens are dropped. What does the model lose first?',
+    options: [
+      'The start: often the instructions and the original question',
+      'The newest tool result',
+      'Nothing: the model remembers what it read on earlier runs',
+    ],
+    correct: 0,
+    why: [
+      'Right. When the oldest tokens are dropped, whatever was at the start is gone for this run, instructions included.',
+      'The newest tokens are kept; it is the oldest that go.',
+      'Each run reads only its window. Nothing carries over from earlier runs unless it is in the prompt.',
+    ],
+  },
+  {
+    id: 'trace-order', chapter: '07-trace-a-prompt',
+    question: 'In what order does one run of the model work through a prompt?',
+    options: [
+      'Tokens, then vectors (embedding plus position), then layers of attention heads, then next-token probabilities',
+      'Attention first, to pick the important words, then tokens, then vectors',
+      'Next-token probabilities first, then attention to explain them',
+    ],
+    correct: 0,
+    why: [
+      'Right. The text becomes tokens, each token a vector, the layers add to those vectors, and the last token’s vector becomes the scores.',
+      'Attention works on vectors, so the tokens must be turned into vectors first.',
+      'The probabilities come out of the last layer; nothing explains them afterwards.',
+    ],
+  },
+  {
+    id: 'one-run-one-trace', chapter: '07-trace-a-prompt',
+    question: 'You trace “Expedited delivery takes two business” and then the same prompt with one word changed. What changes in the trace?',
+    options: [
+      'The tokens, so the vectors, the attention weights and the next-token probabilities can all change',
+      'Only the next token; attention is fixed per model',
+      'Nothing: the model’s weights didn’t change',
+    ],
+    correct: 0,
+    why: [
+      'Right. The weights are fixed, but everything they compute depends on the tokens read.',
+      'Attention weights are computed from the tokens on every run; you saw them change with the prompt.',
+      'The learned weights stay the same, but they act on different tokens, so what they compute differs.',
     ],
   },
 ];

@@ -1,21 +1,25 @@
-// Module 7, Transformer architecture: the intro, chapters 1–4 played by mouse and by keyboard only, its own progress
-// key, reduced motion, the recap, axe and phone width. U11 adds chapters 5–7 and the offline walk; U12 the go-live
-// checks (share images, home card, warm-up).
+// Module 7, Transformer architecture: the intro, every chapter played by mouse and by keyboard only, its own progress
+// key, reduced motion, the recap, axe, phone width, chapter 5's seed across a reload, the workbench's truncation note
+// and chapter 3 offline. U12 adds the go-live checks (share images, home card, warm-up).
 import { test, expect, type Page } from '@playwright/test';
 import { moduleOf } from '../../src/lib/modules';
 import { transformersWalker } from './transformers-flow';
-import { serious, layoutHolds, PHONE } from './helpers';
+import { serious, layoutHolds, offline, PHONE } from './helpers';
 
 const M = moduleOf('transformers');
-const [CH1, CH2, CH3, CH4] = M.chapters.map(c => c.id);
+const IDS = M.chapters.map(c => c.id);
+const [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = IDS;
 const at = (id: string) => new RegExp(`/transformers/${id}/$`);
-/** Walk every written chapter in order, following each "Next" link. */
+/** Walk every chapter in order, following each "Next" link. */
 async function walkAll(w: ReturnType<typeof transformersWalker>) {
   await w.open(CH1);
   await w.ch1(at(CH2));
   await w.ch2(at(CH3));
   await w.ch3(at(CH4));
-  await w.ch4();
+  await w.ch4(at(CH5));
+  await w.ch5(at(CH6));
+  await w.ch6(at(CH7));
+  await w.ch7();
 }
 const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 const axe = async (page: Page) => expect(await serious(page)).toEqual([]);
@@ -31,17 +35,17 @@ test('the intro shows the level, the prerequisite, the author, the chapters and 
   await axe(page);
 });
 
-test('chapters 1–4 play by mouse, in order through the Next links, with axe clean at each check', async ({ page }) => {
+test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({ page }) => {
   await walkAll(transformersWalker(page, 'mouse', axe));
 });
 
-test('chapters 1–4 play by keyboard only; progress lands in transformers-progress-v1 and no other module’s key', async ({ page }) => {
+test('every chapter plays by keyboard only; progress lands in transformers-progress-v1 and no other module’s key', async ({ page }) => {
   await page.goto('/');
   const OTHERS = { 'rag-progress-v1': JSON.stringify({ done: ['01-history'], saved: {} }) };
   await page.evaluate(o => { for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v); }, OTHERS);
   await walkAll(transformersWalker(page, 'keyboard'));
   const store = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
-  expect(JSON.parse(store['transformers-progress-v1']).done).toEqual([CH1, CH2, CH3, CH4]);
+  expect(JSON.parse(store['transformers-progress-v1']).done).toEqual(IDS);
   for (const [k, v] of Object.entries(OTHERS)) expect(store[k]).toBe(v);
   expect(store['tinker-last-module']).toBe('transformers');
 });
@@ -74,6 +78,53 @@ test('“I’m not sure” on a checkpoint reveals the answer, is no miss, and f
   await expect(c.locator('.stamp.wrong')).toHaveCount(0);
 });
 
+test('chapter 5: a fixed seed shows the same continuation after a reload', async ({ page }) => {
+  const w = transformersWalker(page, 'mouse');
+  await w.open(CH5);
+  const c = card(page);
+  await c.getByRole('button', { name: /^Write \d+ tokens/ }).click();
+  await c.getByRole('radio', { name: /^It flattens/ }).click();
+  await c.getByRole('button', { name: /^Raise the temperature/ }).click();
+  await expect(c).toContainText('Step 4 of');
+  await c.getByRole('button', { name: 'Roll a new seed' }).click();
+  const text = c.locator('[data-continuation]');
+  await expect(text).toContainText('seed 2.');
+  const before = await text.textContent();
+  await page.reload();
+  await page.locator('astro-island:not([ssr])').waitFor();
+  await page.getByRole('button', { name: /^Continue at step 4/ }).click();
+  await expect(page.locator('.tf-stage[data-model="ready"]')).toBeVisible({ timeout: 15_000 });
+  await expect(text).toHaveText(before!);
+});
+
+test('chapter 7: typed text up to the window traces; longer text is struck through with the truncation note', async ({ page }) => {
+  const w = transformersWalker(page, 'mouse');
+  await w.open(CH7);
+  const c = card(page), box = c.getByRole('textbox', { name: 'Your prompt' }), count = c.locator('.tf-count');
+  await box.fill('Café 🙂 <b>order</b> #1042?');
+  await expect(count).toContainText(/^\d+ of 32 tokens$/);
+  await c.getByRole('button', { name: 'Trace it' }).click();
+  await expect(c).toContainText('Step 2 of');
+  await expect(c.locator('.tf-trace')).toContainText('Next token:');
+  await box.fill('Where is my order? '.repeat(6));
+  await expect(count).toContainText('don’t fit, so the model never reads them');
+  await expect(c.locator('.tf-tiles li.past').first()).toBeVisible();
+  await c.getByRole('button', { name: 'Trace it' }).click();
+  await expect(page.locator('.tf-stage .tc-caption')).toContainText('reads the last 32 tokens');
+  await axe(page);
+});
+
+test('chapter 3 plays to the end offline once Larkspur mini has loaded', async ({ page }) => {
+  const failed: string[] = [];
+  page.on('requestfailed', r => failed.push(r.url()));
+  const w = transformersWalker(page, 'mouse');
+  await w.open(CH3);   // waits for the model: meta.json and model.bin have arrived
+  await page.waitForLoadState('networkidle');
+  await offline(page);
+  await w.ch3();
+  expect(failed).toEqual([]);
+});
+
 test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
   test('the picture holds still and the chapters still play through', async ({ page }) => {
@@ -98,8 +149,8 @@ test('the recap asks from the finished chapter; with none done it says so', asyn
 
 test.describe('phone', () => {
   test.use(PHONE);
-  test('pages fit 390px wide, and chapters 1–4 play through there with axe clean', async ({ page }) => {
-    for (const p of ['/transformers/', ...[CH1, CH2, CH3, CH4].map(id => `/transformers/${id}/`), '/transformers/recap/']) {
+  test('pages fit 390px wide, and every chapter plays through there with axe clean', async ({ page }) => {
+    for (const p of ['/transformers/', ...IDS.map(id => `/transformers/${id}/`), '/transformers/recap/']) {
       await page.goto(p);
       await layoutHolds(page);
     }

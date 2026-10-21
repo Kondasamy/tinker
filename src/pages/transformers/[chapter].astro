@@ -4,11 +4,13 @@ import OneTokenAtATime from '../../content/transformers/01-one-token-at-a-time';
 import TokensBecomeVectors from '../../content/transformers/02-tokens-become-vectors';
 import Attention from '../../content/transformers/03-attention';
 import HeadsAndLayers from '../../content/transformers/04-heads-and-layers';
+import ChoosingTheNextToken from '../../content/transformers/05-choosing-the-next-token';
+import WhyLongPromptsCostMore from '../../content/transformers/06-why-long-prompts-cost-more';
+import TraceAPrompt from '../../content/transformers/07-trace-a-prompt';
 import { moduleOf } from '../../lib/modules';
 
 export function getStaticPaths() {
-  // shortcut: only the written chapters get pages; U11 writes chapters 5–7 and drops the slice
-  return moduleOf('transformers').chapters.slice(0, 4).map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+  return moduleOf('transformers').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
 }
 
 const { chapter } = Astro.params;
@@ -20,5 +22,8 @@ const { title } = Astro.props;
   {chapter === '01-one-token-at-a-time' ? <OneTokenAtATime client:load />
     : chapter === '02-tokens-become-vectors' ? <TokensBecomeVectors client:load />
     : chapter === '03-attention' ? <Attention client:load />
-    : <HeadsAndLayers client:load />}
+    : chapter === '04-heads-and-layers' ? <HeadsAndLayers client:load />
+    : chapter === '05-choosing-the-next-token' ? <ChoosingTheNextToken client:load />
+    : chapter === '06-why-long-prompts-cost-more' ? <WhyLongPromptsCostMore client:load />
+    : <TraceAPrompt client:load />}
 </ChapterLayout>

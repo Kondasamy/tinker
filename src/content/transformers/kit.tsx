@@ -138,9 +138,9 @@ const FILL = { height: '100%' };   // fill the fixed frame; the viewBox keeps th
  * Larkspur mini. `layer` and `head` pick the lit desk and the heatmap; `query` the token whose threads are drawn
  * (default the last). While the model loads the frame keeps its size, with the prompt's tiles and a loading pill; a
  * failed load shows Retry. The tab is the reader's view, kept out of saved progress unless the chapter passes `view`
- * and `onView`. */
-export function TransformersStage({ prompt, layer = 0, head = 0, query, caption, view: kept, onView, store = MODEL }:
-  { prompt: string; layer?: number; head?: number; query?: number; caption?: ReactNode; view?: View; onView?: (v: View) => void; store?: ModelStore }) {
+ * and `onView`. `next` replaces the bar after the last token (chapter 5's tempered probabilities). */
+export function TransformersStage({ prompt, layer = 0, head = 0, query, caption, view: kept, onView, next, store = MODEL }:
+  { prompt: string; layer?: number; head?: number; query?: number; caption?: ReactNode; view?: View; onView?: (v: View) => void; next?: { text: string; p: number }[]; store?: ModelStore }) {
   const [own, setOwn] = useState<View>('scene');
   const view = kept ?? own, setView = onView ?? setOwn;
   const scale = useNarrow() ? 1.8 : 1;
@@ -158,7 +158,7 @@ export function TransformersStage({ prompt, layer = 0, head = 0, query, caption,
       <div className="tc-frame tf-frame">
         {view === 'scene' || !tr
           ? <IsoStage className="engine" board={ENGINE_BOARD} style={FILL} scene={engineScene(o)} label={engineLabel(o)} />
-          : <AttentionView tokens={tokens} weights={tr.attention[layer]?.[head] ?? []} top={tr.top} layer={layer} head={head} query={q} />}
+          : <AttentionView tokens={tokens} weights={tr.attention[layer]?.[head] ?? []} top={next ? [...tr.top.slice(0, -1), next] : tr.top} layer={layer} head={head} query={q} />}
         {!model && (
           failed
             ? <div className="tf-wait" role="alert"><p>Couldn’t load Larkspur mini.</p><button type="button" className="chip" onClick={retry}>Retry</button></div>

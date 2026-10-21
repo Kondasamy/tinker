@@ -1,14 +1,19 @@
-// What chapters 1–4 read off Larkspur mini: every prediction's outcome is computed from the live trace or weights,
+// What chapters 1–7 read off Larkspur mini: every prediction's outcome is computed from the live trace or weights,
 // never typed, and chapter 4's named head finds the start of the word on every prompt the chapter offers.
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { encode } from '../../src/lib/lm/bpe';
 import { parseModel, type Meta } from '../../src/lib/lm/load';
 import { trace, wordStart, HEAD } from '../../src/lib/transformers/trace';
+import { costs } from '../../src/lib/transformers/costs';
+import { entropy } from '../../src/lib/transformers/sample';
+import { CTX } from '../../src/content/transformers/kit';
 import * as ch1 from '../../src/content/transformers/01-one-token-at-a-time';
 import * as ch2 from '../../src/content/transformers/02-tokens-become-vectors';
 import * as ch3 from '../../src/content/transformers/03-attention';
 import * as ch4 from '../../src/content/transformers/04-heads-and-layers';
+import * as ch5 from '../../src/content/transformers/05-choosing-the-next-token';
+import * as ch6 from '../../src/content/transformers/06-why-long-prompts-cost-more';
 import { TRANSFORMERS_MODULE as M } from '../../src/content/transformers/module';
 
 const b = readFileSync('public/data/lm/model.bin');
@@ -66,6 +71,35 @@ describe('chapter 4: heads and layers', () => {
   });
 });
 
+describe('chapter 5: choosing the next token', () => {
+  it('raising the temperature from 1 to 1.5 flattens the bar (the prediction’s answer)', () => {
+    expect(ch5.outcomeOf(model)).toBe(0);
+    expect(entropy(ch5.distOf(model, 1.5, 1))).toBeGreaterThan(entropy(ch5.distOf(model, 1, 1)));
+  });
+  it('the same settings and seed give the same continuation; temperature 0 ignores the seed', () => {
+    const s = { t: 4, p: 5, seed: 3 };
+    expect(ch5.continuation(model, s)).toBe(ch5.continuation(model, { ...s }));
+    expect(ch5.continuation(model, { t: 0, p: 5, seed: 1 })).toBe(ch5.continuation(model, { t: 0, p: 5, seed: 9 }));
+  });
+  it('lowering top-p keeps fewer tokens', () => {
+    expect(ch5.keptOf(model, 4, 0)).toBeLessThan(ch5.keptOf(model, 4, 5));
+    expect(ch5.keptOf(model, 4, 5)).toBe(meta.model.vocab);
+  });
+});
+
+describe('chapter 6: why long prompts cost more', () => {
+  it('the text fills the window, and doubling the prompt about quadruples the pairs (the prediction’s answer)', () => {
+    expect(ch6.IDS).toHaveLength(CTX);
+    expect(ch6.outcomeOf()).toBe(1);
+    expect(costs(meta.model, 2 * ch6.SHORT).pairs / costs(meta.model, ch6.SHORT).pairs).toBeGreaterThan(3);
+  });
+  it('each token adds the same to the cache, and one more pair than the token before it', () => {
+    const a = ch6.countsOf(10), b2 = ch6.countsOf(11);
+    expect(b2.newKv).toBe(a.newKv);
+    expect(b2.newPairs).toBe(a.newPairs + 1);
+  });
+});
+
 describe('the registry entry', () => {
   it('has seven chapters, each with a full intro, and the six intro terms across chapters 1–4', () => {
     expect(M.chapters).toHaveLength(7);
@@ -76,8 +110,9 @@ describe('the registry entry', () => {
     const terms = M.chapters.slice(0, 4).flatMap(c => c.intro.terms.map(([t]) => t.toLowerCase()));
     for (const t of ['model', 'next-token prediction', 'embedding', 'attention', 'head', 'layer']) expect(terms).toContain(t);
   });
-  it('recall covers chapters 1–4 with exactly one pinned item', () => {
-    for (const c of M.chapters.slice(0, 4)) expect(M.recall!.filter(i => i.chapter === c.id).length).toBeGreaterThanOrEqual(3);
+  it('recall covers every chapter with exactly one pinned item, first', () => {
+    for (const c of M.chapters) expect(M.recall!.filter(i => i.chapter === c.id).length).toBeGreaterThanOrEqual(3);
     expect(M.recall!.filter(i => i.pin)).toHaveLength(1);
+    expect(M.recall![0].pin).toBe(true);
   });
 });
