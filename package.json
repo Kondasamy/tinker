@@ -18,7 +18,8 @@
     "new-module": "node scripts/new-module.mjs",
     "train:bpe": "node scripts/train-bpe.mjs",
     "encode:lm": "node scripts/encode-for-training.mjs",
-    "record:tokens": "node scripts/record-tokenizers.mjs"
+    "record:tokens": "node scripts/record-tokenizers.mjs",
+    "record:voice": "node scripts/record-voice.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "8.1.0",

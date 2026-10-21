@@ -98,6 +98,11 @@ import { SOLUTION as SB_SOLUTION } from '../content/sandboxing/07-red-team';
 import { SCAN_BOARD, scanScene, type ScanOpts } from '../components/scenes/scanScene';
 import { patchStill } from '../components/scenes/patchGrid';
 import { WINNERS as MM_WINNERS } from '../lib/multimodal/workbench';
+import { PHONE_BOARD, phoneScene, type PhoneOpts } from '../components/scenes/phoneScene';
+import { CallTimeline, segmentsOf } from '../content/voice/kit';
+import { DEFAULT_LINE, runCall } from '../lib/voice/engine';
+import { SILENCES } from '../lib/voice/turns';
+import { WINNERS as VO_WINNERS, asLine } from '../lib/voice/workbench';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -408,6 +413,22 @@ const SCAN_OG: Record<string, ScanOpts> = {
 const scanOg = SCAN_OG[page.og];
 const PATCH_OG: Record<string, number> = { 'multimodal-01-a-picture-is-tokens': 1600, 'multimodal-02-size-and-detail': 400 };
 const patchSrc = PATCH_OG[page.og] && patchStill('invoice', PATCH_OG[page.og]).src;
+// module 17: the phone desk as each chapter turns. The intro: Ravi's reply on its way back after the wait that hears him
+// whole; 1: the ear writing the call down; 2: the stopwatch on the first status call, not streamed; 3: the timeline of Ravi
+// cut off at the shortest silence; 4: the caller cutting in, the mouth stopped; 5: an unsure transcript; 6: one
+// speech-to-speech model; 7: Ravi's call on one of the best lines.
+const VO = { ...DEFAULT_LINE, streaming: true, bargeIn: true, readBack: true };
+const PHONE_OG: Record<string, PhoneOpts> = {
+  voice: { stage: 'reply', wait: runCall('hesitant', { ...VO, silence: 800 }).wait },
+  'voice-01-larkspurs-phone-line': { stage: 'stt' },
+  'voice-02-the-latency-budget': { stage: 'reply', wait: runCall('status', DEFAULT_LINE).wait },
+  'voice-04-being-interrupted': { stage: 'reply', interrupt: true, stopped: true },
+  'voice-05-mishearing': { stage: 'stt', unsure: true },
+  'voice-06-one-model-or-three': { stage: 'reply', mode: 's2s' },
+  'voice-07-workbench': { stage: 'reply', wait: runCall('hesitant', asLine(VO_WINNERS[0])).wait },
+};
+const phoneOg = PHONE_OG[page.og];
+const callOg = page.og === 'voice-03-whose-turn-is-it' ? segmentsOf(runCall('hesitant', { ...VO, silence: SILENCES[0] })) : undefined;
 const curveOg = page.og === 'fine-tuning-02-what-training-does' ? lossChart({ series: FINETUNE_SERIES })
   : page.og === 'small-models-02-learning-from-a-teacher' ? lossChart({ series: STUDENT_SERIES }) : undefined;
 ---
@@ -447,6 +468,8 @@ const curveOg = page.og === 'fine-tuning-02-what-training-does' ? lossChart({ se
           : glassOg ? <IsoStage board={SANDBOX_BOARD} scene={sandboxScene(glassOg)} label="" />
           : scanOg ? <IsoStage board={SCAN_BOARD} scene={scanScene({ ...scanOg, scale: 1.3 })} label="" />
           : patchSrc ? <div class="mm-og"><img src={patchSrc} alt="" /></div>
+          : phoneOg ? <IsoStage board={PHONE_BOARD} scene={phoneScene({ ...phoneOg, scale: 1.3 })} label="" />
+          : callOg ? <div class="vo-og"><CallTimeline segments={callOg.segments} marks={callOg.marks} /></div>
           : fallOg ? <div class="tf-og ob-og"><Waterfall trace={fallOg.trace} stamp={fallOg.stamp} /></div>
           : curveOg ? <div class="tf-og"><Flat fig={curveOg} role="img" label="" /></div>
           : page.og === 'fine-tuning-06-measure-before-you-train' ? <Grid cols={versionCols(VERSION_IDS)} />
@@ -487,6 +510,8 @@ const curveOg = page.og === 'fine-tuning-02-what-training-does' ? lossChart({ se
   .map-og :global(svg) { max-width: 440px; margin: 0 auto; }
   .map-og :global(.readout) { display: none; }   /* the pointer hint: no use on a still */
   .ob-og :global(.ob-readout) { display: none; }   /* the waterfall's keyboard hint: no use on a still */
+  .vo-og :global(.vo-readout) { display: none; }   /* the timeline's keyboard hint: no use on a still */
+  .vo-og :global(svg) { width: 100%; height: auto; }
   .mm-og { display: flex; justify-content: center; }
   .mm-og img { max-height: 520px; max-width: 100%; border: 2px solid var(--ink); border-radius: 6px; box-shadow: 5px 5px 0 var(--ink); }
   .tf-og :global(svg) { width: 100%; height: auto; max-height: 520px; }

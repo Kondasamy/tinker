@@ -4,7 +4,7 @@
 import '../styles/tokens.css';
 import IsoStage from '../lib/iso/IsoStage';
 import ClipPlayer from '../components/story/ClipPlayer';
-import { PHONE_BOARD, phoneLabel, phoneScene, type PhoneOpts } from '../components/scenes/phoneScene';
+import { PHONE_BOARD, phoneLabel, phonePlot, phoneScene, type PhoneOpts } from '../components/scenes/phoneScene';
 import { Transcript, VoiceStage, segmentsOf, Say } from '../content/voice/kit';
 import { DEFAULT_LINE, runCall } from '../lib/voice/engine';
 
@@ -42,6 +42,10 @@ const hes = runCall('hesitant', good), cut = runCall('hesitant', { ...good, sile
             <p>{phoneLabel(o)}</p>
           </section>
         ))}
+        <section>
+          <h2>Hero plot</h2>
+          <IsoStage board={[0, 0, 60, 60]} scene={({ top }) => phonePlot(30, 30, top)} label="The home hero's voice plot" />
+        </section>
       </div>
       <h1>The stage, live</h1>
       <div class="grid">

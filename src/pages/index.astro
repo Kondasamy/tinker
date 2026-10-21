@@ -50,6 +50,8 @@ import { SANDBOX_BOARD, sandboxScene, sandboxLabel } from '../components/scenes/
 import { run as sandboxRun } from '../lib/sandboxing/loop';
 import { RECORDING as SANDBOX_RECORDING } from '../lib/sandboxing/turns';
 import { SCAN_BOARD, scanScene, scanLabel } from '../components/scenes/scanScene';
+import { PHONE_BOARD, phoneScene, phoneLabel } from '../components/scenes/phoneScene';
+import { DEFAULT_LINE, runCall } from '../lib/voice/engine';
 
 const one = (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) => ({ top }: SceneCtx) =>
   blockShadow(type, 30, 30, top) + renderers[type]({ x: 30, y: 30, ...opts });
@@ -103,6 +105,8 @@ const EXFIL = sandboxRun(SANDBOX_RECORDING, { case: 'exfil', sandbox: true, file
 const GLASS = { run: EXFIL, upTo: EXFIL.steps.findIndex(s => s.kind === 'blocked') + 1, wall: true, files: 'scoped', egress: 'allowlist', proxy: true, scale: 1.7 } as const;
 // the scanning table as the module's intro opens: the supplier's invoice read by vision at 1,600 px
 const SCAN = { image: 'invoice', size: 1600, method: 'vision', scale: 1.7 } as const;
+// the phone desk as the module's intro opens: Ravi's reply on its way back, the stopwatch showing his wait
+const PHONE = { stage: 'reply', wait: runCall('hesitant', { ...DEFAULT_LINE, streaming: true, bargeIn: true, readBack: true, silence: 800 }).wait, scale: 1.7 } as const;
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: { name: 'Retrieval-Augmented Generation (RAG)', iso: { board: MINI_BOARD, scene: miniPipeline, label: MINI_LABEL }, topics: ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'Reranking', 'Agentic RAG', 'GraphRAG'] },
   'tool-calling': { name: 'Tool calling & the Model Context Protocol (MCP)', iso: { board: OFFICE_BOARD, scene: officeScene(OFFICE), label: officeLabel(OFFICE) }, topics: ['Tool definitions', 'JSON Schema', 'Multi-step calls', 'MCP hosts & servers', 'Tools, resources, prompts', 'Approval', 'Prompt injection'] },
@@ -120,6 +124,7 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   observability: { name: 'Observability & error analysis', iso: { board: TRACE_BOARD, scene: traceScene(CONTROL), label: traceLabel(CONTROL) }, topics: ['Traces & spans', 'The first failure', 'Open coding', 'Axial coding', 'Frequency vs harm', 'Traces to eval cases', 'A new day of traffic'] },
   sandboxing: { name: 'Agent sandboxing', iso: { board: SANDBOX_BOARD, scene: sandboxScene(GLASS), label: sandboxLabel(GLASS) }, topics: ['Where code runs', 'Filesystem mounts', 'Network egress', 'Secrets & the proxy', 'Exfiltration', 'Fewer approval prompts', 'Red-teaming a policy'] },
   multimodal: { name: 'Multimodal models', iso: { board: SCAN_BOARD, scene: scanScene(SCAN), label: scanLabel(SCAN) }, topics: ['Images as tokens', 'Patches', 'Resolution & cost', 'OCR vs vision', 'Field extraction', 'Photos & ambiguity', 'Text in images'] },
+  voice: { name: 'Voice agents', iso: { board: PHONE_BOARD, scene: phoneScene(PHONE), label: phoneLabel(PHONE) }, topics: ['Speech-to-text & text-to-speech', 'The latency budget', 'Streaming', 'Turn detection', 'Barge-in', 'Mishearing & read-back', 'Speech-to-speech models'] },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];
 const LIVE = MODULES.filter(m => m.status === 'live');

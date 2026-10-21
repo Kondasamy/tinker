@@ -20,6 +20,7 @@ import { servePlot } from './serveScene';
 import { controlRoomPlot } from './traceScene';
 import { glassRoomPlot } from './sandboxScene';
 import { scanPlot } from './scanScene';
+import { phonePlot } from './phoneScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
@@ -98,7 +99,8 @@ export const heroScene = ({ live, planned, ride }: { live: HeroPlot[]; planned: 
  * the router's plate, its lever leaning toward the student; inference a small server rack, three of its four seats lit, beside a
  * short queue belt with two envelopes waiting; observability a short wall of three trace cards, one failed, over a sorting bin;
  * sandboxing a small walled yard, the agent's desk inside and a gated door in its front wall; multimodal a small scanning
- * table, a sheet with its patch grid under a camera post and three token tiles */
+ * table, a sheet with its patch grid under a camera post and three token tiles; voice a small phone desk, a squat telephone
+ * and a mint ear drum on a short belt */
 const DRAW: Record<string, HeroPlot['draw']> = {
   // at the plot's right-hand corner, clear of the pill row
   agents: (x, y, { top }) => castShadow(boxCorners(x + 9, y - 21, BH, x + 27, y - 7, BH + 17), BH, top)
@@ -120,6 +122,7 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   observability: (x, y, { top }) => controlRoomPlot(x + 14, y - 2, top),
   sandboxing: (x, y, { top }) => glassRoomPlot(x + 8, y - 2, top),
   multimodal: (x, y, { top }) => scanPlot(x + 14, y - 2, top),
+  voice: (x, y, { top }) => phonePlot(x + 14, y - 2, top),
 };
 const LIVE = MODULES.filter(m => m.status === 'live'), PLANNED = MODULES.filter(m => m.status === 'planned');
 /** the home page's share image, from the registry: the model's call riding to the host */
