@@ -113,11 +113,11 @@ export function stencilLabel(o: StencilOpts): string {
 /** The home hero's plot (KTD16): a small press, a short belt across a blue schema plate, a tomato tile stopped before the
  * plate and two tiles past it. (x, y) is the plot's centre. */
 export const stencilPlot = (x: number, y: number, top: SceneCtx['top']) => {
-  const px = x - 8, gx = x + 13;
+  const px = x - 10, gx = x + 14;
   return castShadow(boxCorners(px - 14, y - 15, BH, px + 14, y + 15, BH + 30), BH, top)
-    + beltAt([px + 14, y], [x + 32, y], [0, 1], false)
+    + beltAt([px + 14, y], [x + 34, y], [0, 1], false)
     + byDepth([{ at: [px, y, 0], svg: press(true, px, y, 24) },
       { at: [gx - 6, y, 1], svg: tile(0, gx - 6, BH + .3, 'tile blocked', PALS.tomato, y) },
       { at: [gx, y, 2], svg: plate(false, gx, y) },
-      ...[0, 1].map(i => ({ at: [gx + 8 + i * 10, y, 1], svg: tile(i + 1, gx + 8 + i * 10, BH + .3, 'tile', undefined, y) }))]);
+      ...[0, 1].map(i => ({ at: [gx + 7 + i * 9, y, 1], svg: tile(i + 1, gx + 7 + i * 9, BH + .3, 'tile', undefined, y) }))]);
 };

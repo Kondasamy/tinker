@@ -102,7 +102,7 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   transformers: (x, y, { top }) => enginePlot(x + 14, y - 4, top),
   context: (x, y, { top }) => deskPlot(x + 14, y - 4, top),
   'fine-tuning': (x, y, { top }) => benchPlot(x + 14, y - 4, top),
-  'structured-outputs': (x, y, { top }) => stencilPlot(x + 4, y - 4, top),
+  'structured-outputs': (x, y, { top }) => stencilPlot(x, y - 4, top),
 };
 const LIVE = MODULES.filter(m => m.status === 'live'), PLANNED = MODULES.filter(m => m.status === 'planned');
 /** the home page's share image, from the registry: the model's call riding to the host */
