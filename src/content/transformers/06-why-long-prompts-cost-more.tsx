@@ -60,10 +60,10 @@ const QUIZ = {
     'It halves: longer prompts give the model more to go on, so it works less',
   ],
   correct: 1,
-  explanation: 'Pairs grow as n²: ten times the tokens is about a hundred times the pairs. The KV cache saves recomputing keys and values, not the scoring.',
+  explanation: 'Pairs grow with the square of the length: ten times the tokens is about a hundred times the pairs. The KV cache saves recomputing keys and values, not the scoring.',
   why: [
     'That is how the KV cache grows, one entry per token. The pairs grew about four times when you doubled the prompt.',
-    'Right. n tokens give about n² ÷ 2 pairs per head, so ten times the tokens is about a hundred times the pairs.',
+    'Right. Each token scores every token before it, so ten times the tokens is about a hundred times the pairs.',
     'The cache keeps each token’s keys and values so they aren’t recomputed, but every new token still scores every cached key. And the cache itself grows with the prompt.',
     'The model’s work doesn’t depend on how helpful the text is. Every token is scored against every token before it, whatever it says.',
   ],
@@ -88,7 +88,7 @@ export const STEPS: Step<S>[] = [
   },
   {
     id: 'cache', focus: 'grow', visibleControls: ['out1', 'grow'],
-    narration: `Twice the tokens, about four times the pairs: they grow with the square of the length, n². Now the saving. A token’s keys and values (what attention reads from it) never change once it is read, so the model keeps them in a KV cache, and each new token computes only its own. The cache grows by the same amount for every token; the pairs grow by more each time. Grow the prompt to the edge of the window, ${CTX} tokens.`,
+    narration: `Twice the tokens, about four times the pairs: they grow with the square of the length. Now the saving. A token’s keys and values (what attention reads from it) never change once it is read, so the model keeps them in a KV cache, and each new token computes only its own. The cache grows by the same amount for every token; the pairs grow by more each time. Grow the prompt to the edge of the window, ${CTX} tokens.`,
     predicate: s => s.n >= CTX,
     hint: `Keep adding tokens until the prompt has ${CTX}.`,
   },
@@ -140,8 +140,12 @@ export default function WhyLongPromptsCostMore() {
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />,
         window: () => (
           <>
-            <Fact id="n-squared" />
             <Fact id="attention-budget" />
+            <details className="tc-def">
+              <summary>The maths (optional)</summary>
+              <p>{`A prompt of n tokens has n × (n + 1) ÷ 2 attention pairs per head: the first token scores 1, the second 2, and so on up to n. That is about n² ÷ 2, so the pairs grow with n².`}</p>
+              <Fact id="n-squared" />
+            </details>
           </>
         ),
         quiz: ({ state, apply, sync }) => (

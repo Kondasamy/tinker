@@ -108,7 +108,7 @@ const CHAPTERS: Chapter[] = [
         'Why the window has a limit at all',
       ],
       terms: [
-        ['Attention pair', 'One token scoring one earlier token (or itself). A prompt of n tokens has n × (n + 1) ÷ 2 of them per head.'],
+        ['Attention pair', 'One token scoring one earlier token (or itself). Each new token adds one more pair than the token before it, so the pairs grow with the square of the prompt’s length.'],
         ['KV cache', 'The keys and values of the tokens already read, kept so that each new token only computes its own.'],
         ['Context window', `The most tokens a model reads at once. Larkspur mini’s is ${LM.ctx}.`],
       ],
