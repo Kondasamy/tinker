@@ -1,0 +1,78 @@
+---
+// Dev-only eyeball page: the apprentice's bench in every state (static SVG), the student's loss curve and the frontier,
+// then the stage live: loading, and ready without models. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { ROUTER_BOARD, routerLabel, routerScene, type RouterOpts } from '../components/scenes/routerScene';
+import { FrontierChart, SmallStage, STUDENT_SERIES, type Shown } from '../content/small-models/kit';
+import { LossChart } from '../content/fine-tuning/kit';
+import { frontier } from '../lib/small-models/router';
+
+// the stage with no models asked for on the server: it waits with its loading pill. (A failed load is covered by the
+// unit test; setting the shared loaders here would leak into the chapters this build renders after it.)
+const shown = (caption: string, scene: Shown['scene'], chart?: Shown['chart']) => (): Shown => ({ scene, chart, caption });
+
+const STATES: [string, RouterOpts][] = [
+  ['Distill: at rest', { mode: 'distill' }],
+  ['Distill: both answering', { mode: 'distill', lit: 'both' }],
+  ['Distill: lessons down the chute', { mode: 'distill', lessons: true, lit: 'small' }],
+  ['Route: at rest, below 0.9', { mode: 'route', threshold: 0.9 }],
+  ['Route: to the small tier', { mode: 'route', route: 'small', threshold: 0.9 }],
+  ['Route: up the fallback chute', { mode: 'route', route: 'up', threshold: 0.9 }],
+  ['Route: straight to the large tier', { mode: 'route', route: 'large' }],
+];
+const POINTS = frontier();
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Small models scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Small models: the apprentice’s bench, every state</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={ROUTER_BOARD} scene={routerScene({ ...o, scale: 1.3 })} label={routerLabel(o)} /></div>
+            <div class="phone"><IsoStage board={ROUTER_BOARD} scene={routerScene({ ...o, scale: 2.2 })} label={routerLabel(o)} /></div>
+            <p>{routerLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <section>
+        <h2>The student’s distillation run (meta.json)</h2>
+        <LossChart client:load series={STUDENT_SERIES} />
+      </section>
+      <section>
+        <h2>The frontier: the router at every threshold, and all large</h2>
+        <FrontierChart client:load points={POINTS} at="t0.9" />
+      </section>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Loading (both models)</h2><div class="stage"><SmallStage models show={shown('Both models', { mode: 'distill' })} /></div></section>
+        <section><h2>No models: Picture</h2><div class="stage"><SmallStage show={shown('Up the chute', { mode: 'route', route: 'up', threshold: 0.9 }, { frontier: POINTS, at: 't0.9' })} /></div></section>
+        <section><h2>No models: Chart, frontier</h2><div class="stage"><SmallStage view="chart" show={shown('The frontier', { mode: 'route' }, { frontier: POINTS, at: 't0.9' })} /></div></section>
+        <section><h2>No models: Chart, loss</h2><div class="stage"><SmallStage view="chart" show={shown('<script>alert(1)</script> escaped caption', { mode: 'distill', lessons: true }, { series: STUDENT_SERIES })} /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 420px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

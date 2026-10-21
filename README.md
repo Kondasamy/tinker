@@ -20,9 +20,12 @@ Every module has a level, a story, an intro at `/<module>/`, its chapters, and a
 | Intermediate | [Evals & LLM testing](#evals--llm-testing-evals) (RAG recommended first) | Live, 7 chapters |
 | Intermediate | [Prompt injection & guardrails](#prompt-injection--guardrails-guardrails) (Tool calling recommended first) | Live, 7 chapters |
 | Intermediate | [Context engineering & memory](#context-engineering--memory-context) (RAG and Tool calling recommended first) | Live, 7 chapters |
+| Intermediate | [Structured outputs](#structured-outputs-structured-outputs) (Tool calling and Tokens recommended first) | Live, 7 chapters |
+| Intermediate | [Reasoning models & thinking budgets](#reasoning-models--thinking-budgets-reasoning) (Evals recommended first) | Live, 7 chapters |
 | Advanced | [AI agents](#ai-agents-agents) (Tool calling recommended first) | Live, 7 chapters |
 | Advanced | [Transformer architecture](#transformer-architecture-transformers) (Tokens recommended first) | Live, 7 chapters |
 | Advanced | [Fine-tuning vs prompting](#fine-tuning-vs-prompting-fine-tuning) (Evals and Transformers recommended first) | Live, 7 chapters |
+| Advanced | [Small models: distillation & routing](#small-models-distillation--routing-small-models) (Fine-tuning and Evals recommended first) | Live, 7 chapters |
 
 ### RAG: Retrieval-Augmented Generation (`/rag/`)
 
@@ -170,6 +173,54 @@ When to train the model, when to prompt it, and when to give it documents. Larks
 
 The chapters play at a training bench: the model at the back, three levers in front (a prompt card, a document binder and a weights wrench), and a small LoRA adapter that clips onto the model. The training runs are one tab away as loss curves, and the versions as the Evals module's grid. Larkspur mini's fine-tunes are real, trained ahead of time and run in your browser; the assistant's answers were recorded ahead of time and are graded live.
 
+### Structured outputs (`/structured-outputs/`)
+
+How a model is made to answer in valid JSON, every time. Larkspur's order system wants the assistant's answers as JSON it can read without a person, and the team makes Larkspur mini answer in a schema.
+
+| # | Chapter | What you do |
+|---|---|---|
+| 1 | Asking nicely | Ask Larkspur mini for JSON and read what it writes |
+| 2 | A schema is a contract | Check each answer against the schema and retry, paying for every try |
+| 3 | The mask | Turn the schema on and watch it block tokens before the model writes them |
+| 4 | Tokens are not characters | Write near a length cap and see which tokens still fit |
+| 5 | Choices from a list | Swap a free-text field for a list and draw the model's pick |
+| 6 | Valid isn't right | Ask for values the model can't know, and a schema too long for its window |
+| 7 | Workbench: Larkspur's order schema | Design the schema field by field until every order comes back valid and right |
+
+The chapters play at a stencil press: the token press from Tokens, its belt crossing a stencil plate, the schema, which stops the tokens it blocks. The vocabulary is one tab away as a grid, the allowed tokens lit. Everything is decoded live in your browser on Larkspur mini; nothing is recorded.
+
+### Reasoning models & thinking budgets (`/reasoning/`)
+
+Models that think before they answer: what a thinking budget buys, what it costs, and when more thinking hurts. Back at Larkspur Supply Co., the assistant starts getting quotes and delivery questions with several steps, and the team decides how much it should think before it answers.
+
+| # | Chapter | What you do |
+|---|---|---|
+| 1 | Answer now or think first | Ask a split-order quote at once, then again with thinking, and compare |
+| 2 | Thinking is tokens | Turn the effort up and watch the thinking tokens, the cost and the wait grow |
+| 3 | The effort dial | Sweep the multi-step questions across every effort level |
+| 4 | When more thinking hurts | Watch a simple count with distracting details go wrong at high effort |
+| 5 | Effort is a hint, not a counter | Give a lookup and a multi-step question the same effort and compare how long each thinks |
+| 6 | Measure, then pick | Put each kind of question through a release gate and find the lowest effort that passes |
+| 7 | Workbench: an effort per request | Pick an effort per kind of request for the most right answers at the lowest cost |
+
+The chapters play at a scratchpad desk: the model, a pad of thinking papers that grows with the thinking tokens, an effort dial and a clock. Accuracy against effort is one tab away. The thinking and answers are recorded, written to illustrate published findings; token counts, grades, cost and wait are computed in your browser.
+
+### Small models: distillation & routing (`/small-models/`)
+
+Teach a small model from a big one, send it the easy questions, and fall back when it isn't sure. Back at Larkspur Supply Co., the model bill has grown, and the team wants a smaller, cheaper model to answer what it can without losing the answers that matter.
+
+| # | Chapter | What you do |
+|---|---|---|
+| 1 | Big model, small model | Ask Larkspur mini and its student the same prompt, and compare their sizes and work per token |
+| 2 | Learning from a teacher | See the teacher's soft targets the student learnt from, and its training run |
+| 3 | How close is the student? | Measure how often the student picks the teacher's next token on text neither has seen |
+| 4 | Send it the easy ones | Send every question to a small model, then a large one, and compare right answers and cost |
+| 5 | Fall back when unsure | Set a confidence threshold and watch right answers and cost trade along the frontier |
+| 6 | Gate the switch | Put the router through the release gate and find the cheapest threshold that ships |
+| 7 | Larkspur's routing policy | Send each kind of question small, large or through the router for the best score |
+
+The chapters play at an apprentice's bench: the big model, its student in front, and a router switch with a fallback chute. The quality and cost frontier is one tab away. The teacher and the student run live in your browser; the small and large tiers' answers are recorded, written to illustrate published findings, and graded live.
+
 ---
 
 ## How it's built
@@ -178,7 +229,7 @@ The chapters play at a training bench: the model at the back, three levers in fr
 - **Real retrieval, precomputed answers (RAG):** the corpus is embedded at build time (`pnpm build:index`, all-MiniLM-L6-v2 and a cross-encoder reranker); the browser runs the real similarity, BM25, reranking, graph-walk and agent maths over those vectors. Model answers are pre-recorded for each kind of evidence that can reach the model, so every knob changes the outcome honestly.
 - **Recorded turns, live tools (Tool calling, AI agents):** the model's turns are pre-recorded per scenario (`data/tool-calling/turns/`). The host loop, a JSON Schema subset validator, the approval gate, the tools running on fixture data and an MCP-shaped JSON-RPC server all run in the browser (`src/lib/tools/`). A unit test checks every reachable control setting has a recorded turn. MCP facts come from `data/tool-calling/facts.json`, each with its source. The agent loop (`src/lib/agents/`) reuses those tools and adds plans, approval, budgets, a repeat detector, memory and helpers, all computed in the browser; its recorded turns are in `data/agents/turns/` and its facts in `data/agents/facts.json`. The guardrails loop (`src/lib/guardrails/`) puts defences around the model as host stages (input filters, the taint rule, the allow-list, the output filter, policy checks, approval); its turns are in `data/guardrails/turns/`, its stand-in classifier's hand-set scores in `data/guardrails/inbox.json`, and its attack and customer suites in `data/guardrails/suite.json`.
 - **Real retrieval, recorded grading (Evals):** each version of the assistant runs RAG's real retrieval over the same 12 questions and reads the recorded answer for what it found. Code graders run in the browser (`src/lib/evals/`); the model judge's verdicts, people's labels and repeated tries are recorded in `data/evals/`, and every combination a control can reach is checked by a unit test.
-- **Pictures:** hand-inked isometric figures drawn by the Colorfigures engine (see Credits), extended to orbit, zoom and turn the view. Each module leads with a scene you can picture rather than a flow chart: RAG's pipeline on a workbench, tool calling's back office (`src/components/scenes/officeScene.ts`), evals' test bench (`evalScene.ts`), guardrails' mail room (`guardScene.ts`), tokens' token press (`tokenScene.ts`), transformers' engine room (`engineScene.ts`), context's window desk (`windowScene.ts`), fine-tuning's training bench (`trainScene.ts`), and the home page's animated workshop with a plot per module (`heroScene.ts`): a wave hops each plot and names it in turn. Flat sequence figures (lanes and message cards, `src/lib/iso/flat.ts`) in the same ink show the exact messages, a tab away. Names sit in label pills so they stay readable.
+- **Pictures:** hand-inked isometric figures drawn by the Colorfigures engine (see Credits), extended to orbit, zoom and turn the view. Each module leads with a scene you can picture rather than a flow chart: RAG's pipeline on a workbench, tool calling's back office (`src/components/scenes/officeScene.ts`), evals' test bench (`evalScene.ts`), guardrails' mail room (`guardScene.ts`), tokens' token press (`tokenScene.ts`), transformers' engine room (`engineScene.ts`), context's window desk (`windowScene.ts`), fine-tuning's training bench (`trainScene.ts`), structured outputs' stencil press (`stencilScene.ts`), reasoning's scratchpad desk (`thinkScene.ts`), small models' apprentice's bench (`routerScene.ts`), and the home page's animated workshop with a plot per module (`heroScene.ts`): a wave hops each plot and names it in turn. Flat sequence figures (lanes and message cards, `src/lib/iso/flat.ts`) in the same ink show the exact messages, a tab away. Names sit in label pills so they stay readable.
 - **Search:** every page has its own title, description, canonical URL and share image; intros and chapters carry schema.org course and lesson data with breadcrumbs; `/sitemap.xml` and `/robots.txt` are built from the page list, and recaps and the 404 page stay out of search.
 - **Works on a phone:** below 861px the picture stacks above the story, pills grow, and the sequence shows one message at a time.
 
@@ -207,6 +258,9 @@ The chapters play at a training bench: the model at the back, three levers in fr
 | `src/lib/transformers/`, `data/transformers/` | Transformers engine (the attention trace, the seeded sampler, cost counts) and its chapter prompts, the word-start head and facts |
 | `src/lib/context/`, `data/context/` | Context engine (the turn assembler, the cache model, memory files) and its recorded answers, cases, documents and facts |
 | `src/lib/fine-tuning/`, `data/fine-tuning/` | Fine-tuning engine (parameter counts, live replies and held-out scores from Larkspur mini's fine-tunes, the versions graded by Evals' graders, the workbench) and its recorded answers, changed-price fixture, workbench notes and facts |
+| `src/lib/structured-outputs/`, `data/structured-outputs/` | Structured outputs engine (the schema grammar, the token mask, masked decoding on Larkspur mini, the workbench) and its pinned prompts, orders and facts |
+| `src/lib/reasoning/`, `data/reasoning/` | Reasoning engine (recorded answers per question and effort, graded live by Evals' graders, thinking tokens, cost and wait, the workbench) and its questions, references, answers, assumptions and facts |
+| `src/lib/small-models/`, `data/small-models/` | Small models engine (the teacher and its student compared live, the small and large tiers' recorded answers graded by Evals' graders, the router, the frontier and the workbench) and its answers, prompts, workbench scores and facts |
 | `src/lib/tokens/`, `data/tokens/` | Tokens engine (counts, merges, neighbours over RAG's vectors, the prompt workbench) and its recorded real tokenizers, sentences and facts |
 | `src/lib/iso/` | The drawing engine (Colorfigures, adapted), the isometric stage and the flat figure kit, shared by every module |
 | `src/components/story/` | The step runner every chapter uses: the live picture on the left, the story column on the right |
@@ -226,7 +280,7 @@ pnpm install    # install exact dependency versions from pnpm-lock.yaml
 pnpm dev        # start the dev server on http://localhost:4321
 ```
 
-Open http://localhost:4321 for the Tinker home; the modules are at http://localhost:4321/rag/, http://localhost:4321/tool-calling/, http://localhost:4321/agents/, http://localhost:4321/evals/, http://localhost:4321/guardrails/, http://localhost:4321/tokens/, http://localhost:4321/transformers/, http://localhost:4321/context/ and http://localhost:4321/fine-tuning/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap`, `/dev/warmup`, `/dev/agents`, `/dev/evals`, `/dev/guardrails`, `/dev/tokens`, `/dev/transformers`, `/dev/context` and `/dev/fine-tuning`. These pages are left out of production builds.
+Open http://localhost:4321 for the Tinker home; the modules are at http://localhost:4321/rag/, http://localhost:4321/tool-calling/, http://localhost:4321/agents/, http://localhost:4321/evals/, http://localhost:4321/guardrails/, http://localhost:4321/tokens/, http://localhost:4321/transformers/, http://localhost:4321/context/, http://localhost:4321/fine-tuning/, http://localhost:4321/structured-outputs/, http://localhost:4321/reasoning/ and http://localhost:4321/small-models/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap`, `/dev/warmup`, `/dev/agents`, `/dev/evals`, `/dev/guardrails`, `/dev/tokens`, `/dev/transformers`, `/dev/context`, `/dev/fine-tuning`, `/dev/structured-outputs`, `/dev/reasoning` and `/dev/small-models`. These pages are left out of production builds.
 
 To try the production build locally:
 
@@ -332,7 +386,7 @@ No monitoring is needed, because there is no backend.
 
 ## Contributing
 
-Nine modules are live and eight more are on the roadmap (the planned cards on the home page): build one of them, or propose another. New modules and fixes arrive as pull requests to this repository. Start with [CONTRIBUTING.md](CONTRIBUTING.md) (setup, checks, the PR flow, credit) and [docs/writing-a-module.md](docs/writing-a-module.md) (the house style for a module). `pnpm new-module <id> "<Title>"` scaffolds a module, and `pnpm test` lists what it still needs.
+Twelve modules are live and five more are on the roadmap (the planned cards on the home page): build one of them, or propose another. New modules and fixes arrive as pull requests to this repository. Start with [CONTRIBUTING.md](CONTRIBUTING.md) (setup, checks, the PR flow, credit) and [docs/writing-a-module.md](docs/writing-a-module.md) (the house style for a module). `pnpm new-module <id> "<Title>"` scaffolds a module, and `pnpm test` lists what it still needs.
 
 ---
 

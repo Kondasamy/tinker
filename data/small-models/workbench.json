@@ -1,0 +1,9 @@
+{
+  "pointsPerRight": 2,
+  "pointsWhy": "The team values a right answer at two large-model answers: a wrong one sends the customer to a person, which costs more than the call.",
+  "kinds": [
+    { "id": "lookups", "label": "Lookups", "about": "One fact, stated in one line of one document.", "questions": ["standard-refund-window", "dock-door-red-light", "same-day-cutoff", "k2-volume-price", "dock-sensor-warranty", "customer-success-lead"] },
+    { "id": "policy", "label": "Policy questions", "about": "Rules with exceptions, or old and new versions that disagree.", "questions": ["refund-enterprise", "stale-hotel-limit", "card-data-retention"] },
+    { "id": "hard", "label": "Vague or multi-step", "about": "Questions that need a guess at what was meant, or two hops.", "questions": ["vague-outage", "payment-methods", "kestrel-purchase-approver"] }
+  ]
+}

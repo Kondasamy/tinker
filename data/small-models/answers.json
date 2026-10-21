@@ -1,0 +1,30 @@
+{
+  "small": {
+    "refund-enterprise": { "text": "No. The refund policy does not apply to enterprise contracts; those customers go to their account manager.", "confidence": 0.92, "note": "Short and right: the exclusion is one plain sentence in the refund policy." },
+    "standard-refund-window": { "text": "Standard customers can ask for a refund within 30 days of delivery.", "confidence": 0.95, "note": "Short and right: one line in one document." },
+    "dock-door-red-light": { "text": "No. Never open a dock door showing a red light.", "confidence": 0.93, "note": "Short and right: the handbook says it in one line." },
+    "stale-hotel-limit": { "text": "The hotel limit for business travel is $150 per night.", "confidence": 0.84, "note": "Confidently wrong: it read the 2018 travel policy over the 2025 one, and the number sounds sure." },
+    "card-data-retention": { "text": "Larkspur keeps payment card data for two years.", "confidence": 0.55, "note": "Wrong: it took the security notes' figure for demo cards as the rule for customers' cards." },
+    "same-day-cutoff": { "text": "In-stock orders placed before 2 p.m. Central time on a business day ship the same day.", "confidence": 0.94, "note": "Short and right: one line in the shipping page." },
+    "vague-outage": { "text": "Contact the support desk. It is staffed from 7 a.m. to 7 p.m. Central time on business days.", "confidence": 0.42, "note": "Wrong: a vague question, and it settled for the daytime desk, not the out-of-hours Duty Desk." },
+    "payment-methods": { "text": "The Portal accepts company credit cards and purchase orders.", "confidence": 0.62, "note": "Half right: it stopped at the first line and left out bank transfer and digital wallets." },
+    "kestrel-purchase-approver": { "text": "The Fulfillment Systems team owns the Kestrel K2 integration, so its team lead approves the purchases.", "confidence": 0.66, "note": "Half right: it found the team but not the second hop, the person who approves for it." },
+    "k2-volume-price": { "text": "A Kestrel K2 scanner costs $410 per unit when you order 50 or more.", "confidence": 0.74, "note": "Right, but less sure: reading the right column of a price table is harder for a small model." },
+    "dock-sensor-warranty": { "text": "The dock door sensor has a three-year warranty.", "confidence": 0.91, "note": "Short and right: one line in the warranty sheet." },
+    "customer-success-lead": { "text": "Ingrid Vasquez-Lund leads the Customer Success team.", "confidence": 0.97, "note": "Short and right: a name the team page states." }
+  },
+  "large": {
+    "refund-enterprise": { "text": "No. The refund policy does not apply to enterprise contracts. Enterprise customers who want money back raise a billing dispute with their account manager, who reviews it within ten business days.", "note": "Right, with the next step spelled out." },
+    "standard-refund-window": { "text": "Standard customers can request a refund within 30 days of delivery.", "note": "Right: the same answer the small tier gives, at five times the price." },
+    "dock-door-red-light": { "text": "No. Never open a dock door showing a red light. The red light means no trailer is in place at that door.", "note": "Right, with the reason." },
+    "stale-hotel-limit": { "text": "Under the 2025 travel policy, lodging is reimbursed up to $210 per night before taxes in most cities and up to $290 in high-cost cities. The older $150 limit is from the 2018 policy.", "note": "Right: it noticed two policies and picked the newer one." },
+    "card-data-retention": { "text": "Larkspur keeps only the last four digits and the expiry month of a customer's card, for 90 days after the last order. The two-year figure is about demo cards.", "note": "Right: it told the demo cards apart from customers' cards." },
+    "same-day-cutoff": { "text": "Orders for in-stock items placed before 2 p.m. Central time on a business day ship the same day; later orders ship the next business day.", "note": "Right: the same fact as the small tier, with the next step." },
+    "vague-outage": { "text": "For a Portal outage outside business hours, call the Duty Desk at extension 4410 to page the on-call engineer. In business hours, the support desk can help.", "note": "Right: it read the vague question as an outage and found the out-of-hours number." },
+    "payment-methods": { "text": "The Portal accepts company credit cards and purchase orders for approved accounts, plus bank transfer.", "note": "Wrong for both tiers: the digital-wallet line sits in a passage retrieval never sends, so no model size helps." },
+    "kestrel-purchase-approver": { "text": "Tomasz Rehnquist, Director of Warehouse Technology. The Fulfillment Systems team owns the Kestrel K2 integration, and he approves that team's purchases.", "note": "Right: it made both hops, team then approver." },
+    "k2-volume-price": { "text": "A Kestrel K2 handheld scanner costs $410 per unit when you order 50 or more.", "note": "Right: the same price the small tier read." },
+    "dock-sensor-warranty": { "text": "The DS-100 dock door sensor is warranted for three years from the date of shipment. Batteries are covered for one year.", "note": "Right, with the battery detail." },
+    "customer-success-lead": { "text": "Ingrid Vasquez-Lund leads the Customer Success team.", "note": "Right: word for word what the small tier said." }
+  }
+}

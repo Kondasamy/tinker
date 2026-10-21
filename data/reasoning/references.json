@@ -1,0 +1,38 @@
+{
+  "quote-mixed": {
+    "answer": "$5,940: 12 scanners at the 10-49 price of $445 ($5,340) and 60 label rolls at the 50+ price of $10 ($600).",
+    "facts": { "total": ["$5,940"] }
+  },
+  "quote-split-lines": {
+    "answer": "$1,925 more: lines of 30 and 25 each take the 10-49 price of $445 ($24,475), while one line of 55 takes the 50+ price of $410 ($22,550).",
+    "facts": { "difference": ["$1,925"] }
+  },
+  "stock-split": {
+    "answer": "25 can ship today (18 from Northfield, 7 from Eastgate), and 5 must wait for Friday.",
+    "facts": { "now": ["25 can ship"], "later": ["5 must wait"] }
+  },
+  "stock-reorder": {
+    "answer": "Both warehouses must reorder: Northfield falls to 18 and Eastgate to 15, both below 20.",
+    "facts": { "both": ["both warehouses"] }
+  },
+  "delivery-engraved": {
+    "answer": "Tuesday of the following week: engraving moves shipping to Thursday, and ground takes at least three business days.",
+    "facts": { "day": ["Tuesday"] }
+  },
+  "delivery-cutoff": {
+    "answer": "Wednesday: it ships Monday, after the 2 p.m. cutoff, and expedited takes two business days.",
+    "facts": { "day": ["Wednesday"] }
+  },
+  "count-items": {
+    "answer": "5 items: 3 label printers and 2 dock door sensors.",
+    "facts": { "five": ["5 items", "five items"] }
+  },
+  "count-scanners": {
+    "answer": "3 scanners: 2 Kestrel K2s and 1 Kestrel K3.",
+    "facts": { "three": ["3 scanners", "three scanners"] }
+  },
+  "count-days": {
+    "answer": "3 business days: Monday, Tuesday and Wednesday.",
+    "facts": { "three": ["3 business days", "three business days"] }
+  }
+}
