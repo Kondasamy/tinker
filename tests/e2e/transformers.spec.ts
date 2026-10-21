@@ -114,6 +114,19 @@ test('chapter 7: typed text up to the window traces; longer text is struck throu
   await axe(page);
 });
 
+test('chapter 3: the Attention tab waits for Larkspur mini, so a press while it loads cannot pre-set step 1', async ({ page }) => {
+  let release!: () => void;
+  const held = new Promise<void>(r => { release = r; });
+  await page.route('**/data/lm/model.bin', async r => { await held; await r.continue(); });
+  await page.goto(`/transformers/${CH3}/`);
+  await page.locator('astro-island:not([ssr])').waitFor();
+  await expect(page.locator('.tf-stage[data-model="loading"]')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Attention', exact: true })).toBeDisabled();
+  release();
+  await expect(page.locator('.tf-stage[data-model="ready"]')).toBeVisible({ timeout: 15_000 });
+  await transformersWalker(page, 'mouse').ch3();
+});
+
 test('chapter 3 plays to the end offline once Larkspur mini has loaded', async ({ page }) => {
   const failed: string[] = [];
   page.on('requestfailed', r => failed.push(r.url()));

@@ -153,7 +153,8 @@ export function TransformersStage({ prompt, layer = 0, head = 0, query, caption,
     <div className="tc-stage tf-stage" data-model={model ? 'ready' : failed ? 'failed' : 'loading'}>
       <div className="tc-tabs" role="group" aria-label="Show in the picture">
         <button type="button" className="chip" aria-pressed={view === 'scene'} onClick={() => setView('scene')}>Picture</button>
-        <button type="button" className="chip" aria-pressed={view === 'attn'} onClick={() => setView('attn')}>Attention</button>
+        {/* off until the model has loaded: a press while loading would pre-set a step that asks for the tab (chapter 3) */}
+        <button type="button" className="chip" aria-pressed={view === 'attn'} disabled={!tr} onClick={() => setView('attn')}>Attention</button>
       </div>
       <div className="tc-frame tf-frame">
         {view === 'scene' || !tr
