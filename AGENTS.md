@@ -30,7 +30,7 @@ Author credit is always the full name, **Kondasamy Jayaraman**, linked to kondas
 
 ## Modules
 
-- **New modules go at the end of `MODULES`**, replacing their planned line, in the order they go live: the home numbers live modules by their place in the list (Tokens is Module 6), and Agents, Evals and Guardrails keep their hard-coded "Module 3/4/5" kickers.
+- **New modules go at the end of `MODULES`**, and their planned line is removed, in the order they go live (`pnpm new-module` does both): the home numbers live modules by their place in the list (Tokens is Module 6), and Agents, Evals and Guardrails keep their hard-coded "Module 3/4/5" kickers.
 - **Registry (`src/lib/modules.ts`).** Each module declares itself in `src/content/<module>/module.ts` (id, title, level, status, author, prereqs, story, chapters with `intro`, recall bank); `MODULES` collects them. Pages, navigation, share images and checks read from it. Planned modules are registry entries with no chapters, no pages and no images.
 - **Levels are per module**: Beginner, Intermediate, Advanced. RAG is Beginner; Tool calling is Intermediate with RAG as its prereq; AI agents is Advanced with Tool calling as its prereq; Evals is Intermediate with RAG as its prereq; Guardrails is Intermediate with Tool calling as its prereq; Tokens is Beginner with no prereqs.
 - **Each module keeps its own page folder**: `src/pages/<module>/index.astro`, `[chapter].astro`, `recap.astro`. The chapter route picks its island with a ternary chain, one line per chapter: hydration needs a static import, so no lookup table and no shared `[module]/[chapter]` route.
@@ -174,7 +174,7 @@ Look at the pages you changed (desktop and 390px wide), not just the tests. New 
 ## Adding a module
 
 1. Propose it first (issue: concept, level, story, chapter list, sources; see `CONTRIBUTING.md`).
-2. `pnpm new-module <id> "<Title>"` copies `templates/module/` (registry entry, intro, chapter route, recap, one chapter, e2e spec) and refuses an id that exists. `templates/` sits outside `src/`, so Astro never builds it.
+2. `pnpm new-module <id> "<Title>"` copies `templates/module/` (registry entry, intro, chapter route, recap, one chapter, e2e spec), appends the module to the end of `MODULES` (removing its planned line) and refuses an id that exists. `templates/` sits outside `src/`, so Astro never builds it.
 3. Write it by `docs/writing-a-module.md`; `pnpm test` (the registry test) lists what is still missing.
 4. Reuse `src/lib/iso/` for pictures and label pills; keep the Colorfigures credit. Then `pnpm og`.
 
