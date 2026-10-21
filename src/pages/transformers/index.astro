@@ -1,30 +1,50 @@
 ---
-// Transformers module intro (minimal until go-live, U12): sets the scene before chapter 1. Static, except a small
-// script that marks finished chapters. Every example comes from the module's own data (data/transformers/) and Larkspur
-// mini's shipped layout (public/data/lm/meta.json), never typed in by hand.
+// Transformers module intro: sets the scene before chapter 1. Static, except the warm-up and a small script that marks
+// finished chapters. Every example is the course's own data: chapter 1's prompt run through Larkspur mini at build time
+// (read from disk, the same weights the chapters load), its shape from public/data/lm/meta.json, and claims quoted from
+// data/transformers/facts.json.
 import '../../styles/tokens.css';
 import '../../styles/page.css';
 import Meta from '../../components/Meta.astro';
 import IsoStage from '../../lib/iso/IsoStage';
-import { ENGINE_BOARD, engineLabel, engineScene, type EngineOpts } from '../../components/scenes/engineScene';
-import { PROMPTS } from '../../lib/transformers/trace';
-import { ACCESSED, fact } from '../../lib/transformers/facts';
-import { decode, encode } from '../../lib/lm/bpe';
-import META from '../../../public/data/lm/meta.json' with { type: 'json' };
 import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import { ENGINE_BOARD, engineLabel, engineScene, type EngineOpts } from '../../components/scenes/engineScene';
+import { pieceLabel } from '../../components/scenes/attentionMap';
+import { PROMPTS, trace } from '../../lib/transformers/trace';
+import { diskModel } from '../../lib/transformers/diskModel';
+import { ACCESSED, fact } from '../../lib/transformers/facts';
+import META from '../../../public/data/lm/meta.json' with { type: 'json' };
 import { moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
-import { longDate } from '../../lib/format';
+import { longDate, num } from '../../lib/format';
 
 const MODULE = moduleOf('transformers');
 const CHAPTERS = MODULE.chapters;
 const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
-const checked = longDate(ACCESSED);
 const LM = META.model;
+// the whole idea: chapter 1's prompt, read by Larkspur mini, and the likeliest next tokens after it
 const EXAMPLE = PROMPTS.find(p => p.id === 'reply')!;
-// the engine room with the example's tokens on its tiles; no model at build time, so no threads
-const HERO: EngineOpts = { tokens: encode(EXAMPLE.text).map(id => decode([id])) };
-const HOW = ['transformer-paper', 'attention-formula', 'causal-mask', 'multi-head'].map(fact);
+const T = trace(diskModel(), EXAMPLE.text), BAR = T.top.at(-1)!;
+const room = (o: Partial<EngineOpts> = {}): EngineOpts => ({ tokens: T.tokens.map(t => t.text), attention: T.attention, scale: 1.7, ...o });
+const HERO = room();
+// four ideas, each in the engine room: the tiles read in order, a head's threads, the mask (a middle token's threads
+// reach only back), and a second floor's desk lit
+const MID = Math.floor(T.tokens.length / 2);
+const IDEAS: [string, string, ReturnType<typeof fact>, EngineOpts][] = [
+  ['One token at a time', 'The model reads the prompt’s tokens and scores the next one', fact('transformer-paper'), room({ attention: undefined })],
+  ['Attention', 'Each token weighs the tokens before it', fact('attention-formula'), room()],
+  ['The causal mask', `Token ${MID + 1} looks only back, never ahead`, fact('causal-mask'), room({ query: MID })],
+  ['Heads and layers', `${LM.n_layer} layers of ${LM.n_head} heads, each looking its own way`, fact('multi-head'), room({ layer: 1, head: 1 })],
+];
+const FACTS: [string, string][] = [
+  [num(LM.params), 'numbers in Larkspur mini’s weights'],
+  [`${LM.n_layer} × ${LM.n_head}`, 'layers × heads'],
+  [String(LM.ctx), 'tokens in its window'],
+  [`${Math.round(META.heldout.top5 * 100)}%`, 'of unseen Larkspur text: the real next token is in its top 5'],
+];
+const checked = longDate(ACCESSED);
 ---
 <html lang="en">
   <head>
@@ -38,48 +58,77 @@ const HOW = ['transformer-paper', 'attention-formula', 'causal-mask', 'multi-hea
     <main class="intro">
       <header class="hero">
         <div class="hero-text">
-          <p class="kicker">{MODULE.title}</p>
-          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS.length > 0 && <>{PREREQS.map((m, i) => <>{i > 0 && ', '}<a href={`/${m.id}/`}>{m.title}</a></>)} recommended</>} · by <a href={MODULE.author.url}>{MODULE.author.name}</a></p>
-          <h1>{MODULE.title}</h1>
-          <p class="lede">{MODULE.description}</p>
+          <p class="kicker">Module 7 · Transformers</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS.map((m, i) => <>{i > 0 && ', '}<a href={`/${m.id}/`}>{m.title}</a></>)} recommended · by <a href={MODULE.author.url}>{MODULE.author.name}</a></p>
+          <h1>What happens inside the model before its next word</h1>
+          <p class="lede">A language model writes one token at a time. Each time, every token of the prompt becomes a vector, attention lets each one weigh the tokens before it, and the last one ends up as a score for every token the model knows. Here you open a tiny one up and watch.</p>
           <ul class="chips" aria-label="At a glance">
-            <li>{CHAPTERS.length} {CHAPTERS.length === 1 ? 'chapter' : 'chapters'}</li><li>No code</li><li>Runs in your browser</li>
+            <li>{CHAPTERS.length} {CHAPTERS.length === 1 ? 'chapter' : 'chapters'}</li><li>No code</li><li>Runs in your browser</li><li>No API key</li>
           </ul>
           <div class="ctas">
             <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
             <a class="btn" href="#path">See the chapters</a>
           </div>
+          <ReadingMode />
         </div>
         <div class="hero-pic">
+          {/* the engine room every chapter plays in, reading chapter 1's prompt */}
           <IsoStage board={ENGINE_BOARD} scene={engineScene(HERO)} label={engineLabel(HERO)} />
         </div>
       </header>
 
       <section class="band" aria-labelledby="idea">
         <p class="kicker">The whole idea in one example</p>
-        <h2 id="idea">“{EXAMPLE.text} …”</h2>
-        <p>Give Larkspur mini the start of a sentence from Larkspur’s guides and it scores every one of the {LM.vocab} tokens it knows for what comes next. “{EXAMPLE.expected.trim()}” comes out on top. Add it, run again, and a reply grows one token at a time.</p>
-        <p>Larkspur mini is tiny: about {Math.round(LM.params / 1000)} thousand numbers, {LM.n_layer} layers of {LM.n_head} heads, trained only on Larkspur’s own documents. Everything it shows here is computed live in your browser. It teaches how the machinery works; it is no provider’s model.</p>
+        <h2 id="idea">The model scores every next token</h2>
+        <div class="versus">
+          <article class="reply">
+            <header><h3>The prompt</h3><span class="stamp">{T.tokens.length} tokens</span></header>
+            <p class="said">“{EXAMPLE.text} …”</p>
+            <p class="cap">The start of a sentence from Larkspur’s guides.</p>
+          </article>
+          <article class="reply read">
+            <header><h3>What comes next</h3><span class="stamp">{LM.vocab} scored</span></header>
+            <ol class="bar" aria-label="Larkspur mini’s likeliest next tokens">
+              {BAR.map(c => (
+                <li data-top={c.text === EXAMPLE.expected || undefined}>
+                  <span class="tok">{pieceLabel(c.text)}</span>
+                  <span class="fill" style={`width:${Math.max(6, Math.round(c.p / BAR[0].p * 100))}%`}></span>
+                  <span class="p">{c.p.toFixed(2)}</span>
+                </li>
+              ))}
+            </ol>
+            <p class="cap">Larkspur mini’s five likeliest, of all {LM.vocab}.</p>
+          </article>
+        </div>
+        <p class="note more">Pick one, add it to the prompt, run again, and a reply grows one token at a time. Larkspur mini is tiny: {num(LM.params)} numbers, trained only on Larkspur’s own documents. It runs for real in your browser. It shows how the machinery works; it is no provider’s model.</p>
       </section>
 
       <section aria-labelledby="how">
         <p class="kicker">How it works</p>
-        <h2 id="how">The ideas that carry the module</h2>
+        <h2 id="how">Four ideas carry the module</h2>
         <ol class="steps">
-          {HOW.map((f, i) => (
+          {IDEAS.map(([name, short, f, pic], i) => (
             <li>
-              <h3><span class="n">{i + 1}</span> {['The transformer', 'Attention', 'The causal mask', 'Many heads'][i]}</h3>
-              <p>{f.claim}</p>
-              <p class="src"><a href={f.source}>Source</a>, checked {checked}</p>
+              <div class="pic"><IsoStage board={ENGINE_BOARD} scene={engineScene(pic)} label={engineLabel(pic)} /></div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              <p class="more">{f.claim}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
             </li>
           ))}
         </ol>
       </section>
 
-      <section aria-labelledby="story">
-        <p class="kicker">The story</p>
-        <h2 id="story">Inside Larkspur mini</h2>
-        <p>{MODULE.story}</p>
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">Larkspur opens up a model</h2>
+          <p class="more">{MODULE.story} <strong>You’re on the team that wants to know why it says what it says, and what a long prompt costs.</strong></p>
+          <p class="prev">Played <a href="/tokens/">Tokens</a>? Larkspur mini reads the same tokens as this site’s tokenizer there. <a href="/rag/02-why-not-stuff-it/">RAG chapter 2</a> showed why you can’t send everything; chapter 6 here shows what a long prompt costs inside.</p>
+        </div>
+        <dl class="facts">
+          {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}
+        </dl>
       </section>
 
       <section id="path" aria-labelledby="path-h">
@@ -87,34 +136,29 @@ const HOW = ['transformer-paper', 'attention-formula', 'causal-mask', 'multi-hea
         <h2 id="path-h">The chapters</h2>
         {/* a warm-up shows here only when one is due (R13); the home page's Continue links to #warmup */}
         <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
-        <ol class="path">
-          {CHAPTERS.map((c, i) => (
-            <li data-chapter={c.id}>
-              <span class="dot" aria-hidden="true">{i + 1}</span>
-              <div class="body">
-                <h3><a href={chapterHref(MODULE.id, c.id)}>{c.title}</a><span class="done-mark" hidden> · done</span></h3>
-                <p>{c.intro.goal}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
         <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
       </section>
 
       <section class="pair">
         <article>
           <h2>Who it’s for</h2>
-          <p>Engineers, product managers and analysts who use language models and want to see what happens inside one. It builds on Tokens & embeddings; any maths is optional.</p>
+          <ul class="who-chips"><li>Engineers</li><li>Product managers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Engineers, product managers and analysts who use language models and want to see what happens inside one. It builds on Tokens & embeddings; any maths is optional.</p>
         </article>
         <article>
           <h2>How a chapter page works</h2>
-          <p>The picture on the left is live. The story on the right asks you to do one thing in it at a time. Progress stays in this browser.</p>
+          <div class="schematic" aria-hidden="true">
+            <div class="s-pic">live picture</div>
+            <div class="s-story"><span></span><span></span><span class="s-step">your step</span></div>
+          </div>
+          <p class="more">The picture on the left is live: Larkspur mini runs in your browser and every number is computed there. The story on the right asks you to do one thing in it at a time. Progress stays in this browser.</p>
         </article>
       </section>
 
       <footer class="credits">
-        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com">Kondasamy Jayaraman</a>. This module by <a href={MODULE.author.url}>{MODULE.author.name}</a>.</p>
-        <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, which grew from her <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed.</p>
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com">Kondasamy Jayaraman</a>. Larkspur mini’s training follows <a href="https://github.com/karpathy/nanoGPT">nanoGPT</a> by Andrej Karpathy (MIT).</p>
+        <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, whose hand-inked isometric style and engine this course is built on. Colorfigures grew from April’s <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed. Thank you.</p>
       </footer>
     </main>
 
@@ -138,6 +182,7 @@ const HOW = ['transformer-paper', 'attention-formula', 'causal-mask', 'multi-hea
   </body>
 </html>
 
+
 <style>
   .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
   .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
@@ -153,25 +198,39 @@ const HOW = ['transformer-paper', 'attention-formula', 'causal-mask', 'multi-hea
   .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 
   .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.read { border-left: 6px solid var(--acc); }
+  .said { font-size: 17px; font-weight: 700; overflow-wrap: anywhere; }
+  .bar { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .bar li { display: grid; grid-template-columns: 7em minmax(0, 1fr) 3em; align-items: center; gap: 8px; font-size: 14px; }
+  .bar .tok { font-family: ui-monospace, Menlo, monospace; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar .fill { display: block; height: 12px; box-sizing: border-box; border: 1.5px solid var(--ink); border-radius: 4px; background: var(--card); }
+  .bar li[data-top] .fill { background: var(--acc); }
+  .bar .p { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
 
-  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); white-space: nowrap; }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
   .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
   .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
   .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 220px; display: flex; justify-content: center; margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: auto !important; height: 100% !important; }
   .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
 
-  .recap-link { margin: 0 0 0 52px; font-weight: 800; }
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .prev { font-size: 14px; color: var(--muted); }
+  .prev a { color: var(--ink); }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
   #warmup { scroll-margin-top: 16px; }
-  .path { list-style: none; margin: 0; padding: 0; position: relative; }
-  .path::before { content: ''; position: absolute; left: 17px; top: 18px; bottom: 18px; border-left: 2px dashed var(--rule); }
-  .path li { position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 16px; padding: 0 0 22px; }
-  .dot { position: relative; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--ink); background: var(--card); font-weight: 900; }
-  .path li.done .dot { background: var(--ok); color: var(--paper); }
-  .path h3 { font-size: 17px; margin-top: 5px; }
-  .path h3 a { text-decoration: none; }
-  .path h3 a:hover { text-decoration: underline; }
-  .done-mark { color: var(--ok); font-size: 13px; }
-  .path .body p { margin: 4px 0 0; font-size: 14px; color: var(--muted); max-width: 70ch; }
 
   .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
   .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
@@ -180,7 +239,8 @@ const HOW = ['transformer-paper', 'attention-formula', 'causal-mask', 'multi-hea
   @media (max-width: 860px) {
     .intro { padding: 16px 16px 48px; gap: 48px; }
     .intro h1 { font-size: 27px; }
-    .hero, .pair { grid-template-columns: 1fr; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
     .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
   }
 </style>
