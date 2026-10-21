@@ -7,7 +7,7 @@ import { LINES, textOf } from '../../src/lib/voice/script';
 import { CLIPS, FRAME_MS, SILENCES, THRESHOLDS, detect } from '../../src/lib/voice/turns';
 import { latency } from '../../src/lib/voice/latency';
 import { CALLS, DEFAULT_LINE, interruptAt, runCall, type Line } from '../../src/lib/voice/engine';
-import { clipStatus, playClip, setAudioFactory, stopClip, type AudioLike } from '../../src/lib/voice/audio';
+import { clipStatus, clipUrl, playClip, setAudioFactory, stopClip, type AudioLike } from '../../src/lib/voice/audio';
 import { FACTS } from '../../src/lib/voice/facts';
 
 const DIR = path.resolve('public/data/voice');
@@ -146,6 +146,19 @@ describe('the shared player', () => {
     fakes[0].on.playing();
     fakes[0].on.ended();
     expect(clipStatus('status-reply')).toBe('idle');
+  });
+
+  it('a late event from a stopped clip is not taken for the next one', () => {
+    playClip('status-caller');
+    stopClip();
+    playClip('status-reply');
+    const f = fakes[0], src = f.src;
+    f.src = clipUrl('status-caller');   // the element still reporting the old clip when its events land
+    f.on.error();
+    f.on.playing();
+    f.src = src;
+    expect(clipStatus('status-reply')).toBe('loading');
+    expect(clipStatus('status-caller')).toBe('idle');
   });
 
   it('a clip that fails to load settles on error, quietly', async () => {
