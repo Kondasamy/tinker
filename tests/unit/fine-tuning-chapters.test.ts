@@ -44,6 +44,9 @@ describe('chapter 2: before and after, generated live', () => {
     expect(signsOff(replyOf(base, p))).toBe(false);
     expect(signsOff(replyOf(full, p))).toBe(true);
     expect(replyOf(full, p)).toBe(replyOf(full, p));
+    // memoized per (weights, prompt): a caption re-render doesn't rerun the forward passes
+    const t = performance.now(); replyOf(full, p);
+    expect(performance.now() - t).toBeLessThan(2);
     // the reply is cut where the answer ends: no next question tacked on
     expect(replyOf(full, p)).not.toMatch(/Q:/);
   });

@@ -44,9 +44,16 @@ export function generate(model: Model, ids: number[], n: number): number[] {
 
 /** How many pieces a chapter lets Larkspur mini write for one reply. */
 export const REPLY_TOKENS = 24;
-/** A chapter's live reply: greedy (so the same weights always write the same words), cut where the answer ends. */
-export const replyOf = (model: Model, prompt: string) =>
-  decode(generate(model, encode(prompt), REPLY_TOKENS)).split('\n\n')[0].trim();
+const replies = new WeakMap<Model, Map<string, string>>();
+/** A chapter's live reply: greedy (so the same weights always write the same words), cut where the answer ends.
+ * Memoized per (weights, prompt): captions and controls call it on every render, and each call is 24 forward passes. */
+export function replyOf(model: Model, prompt: string) {
+  let m = replies.get(model);
+  if (!m) replies.set(model, m = new Map());
+  let r = m.get(prompt);
+  if (r === undefined) m.set(prompt, r = decode(generate(model, encode(prompt), REPLY_TOKENS)).split('\n\n')[0].trim());
+  return r;
+}
 
 const size = (shape: number[]) => shape.reduce((a, b) => a * b, 1);
 /** A full fine-tune trains every weight. */
