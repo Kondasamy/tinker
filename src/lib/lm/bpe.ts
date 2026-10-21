@@ -1,7 +1,7 @@
 // The shared byte-level BPE over Larkspur's documents: ids 0-255 are raw bytes, 256 + i is merge i.
 // Works on UTF-8 bytes, so any string encodes (no unknown token) and decodes back exactly.
-import MERGES from '../../../data/lm/merges.json';
-import { SPLIT, mergePair, type Merge } from './bpe-train';
+import MERGES from '../../../data/lm/merges.json' with { type: 'json' };
+import { SPLIT, mergePair, type Merge } from './bpe-train.ts';
 
 const merges = MERGES as Merge[];
 const rank = new Map(merges.map(([a, b], i) => [a * 65536 + b, i]));

@@ -23,7 +23,7 @@ execution: code
   - Every PR leaves `pnpm check`, `pnpm test` and `pnpm test:e2e` green.
 - **Stop conditions:**
   - Stop and ask if a chapter needs a backend, a live LLM, an API key, or any training in the browser (R3).
-  - Stop and ask if the toy model (U2) cannot clear the "readable" bar at the KTD3 size: a held-out top-5 hit rate of at least 50%, and a top-1 probability of at least 0.25 on every chapter prompt.
+  - Stop and ask if no chapter prompt can be found whose expected next token is in Larkspur mini's top 5 (the readable bar, revised 2026-10-21).
   - Stop and ask if a change to `src/lib/rag/`, `tools/`, `agents/`, `evals/` or `guardrails/` would change any existing chapter's output, recordings, saved runs or share images (R13).
   - Stop and ask if a source checked for a `facts.json` contradicts a chapter's lesson, not just a wording or a date.
   - A Wave 1 agent stops and reports if it needs to edit a shared hotspot outside its go-live unit (KTD12).
@@ -153,7 +153,7 @@ The catalogue's path covers retrieval, tools, agents, evals and guardrails, but 
 ### Key Technical Decisions
 
 - KTD1. **A shared language-model kit in `src/lib/lm/`**, used by Tokens, Transformers, Context and Fine-tuning:
-  - **Tokenizer.** A byte-level BPE whose merges are trained by a Node script, `scripts/train-bpe.mjs`, on `data/corpus/`, about 1,000 merges.
+  - **Tokenizer.** A byte-level BPE whose merges are trained by a Node script, `scripts/train-bpe.mjs`, on `data/corpus/`, 512 merges (revised from about 1,000 at U2: the best readability on a corpus this small).
     - Pre-tokenisation uses GPT-2's regex with the `u` flag. Training counts word frequencies and breaks ties explicitly (highest count, then lowest pair), so its output is byte-identical every run.
     - `data/lm/merges.json` is committed. The vocab is derived from it, not committed.
     - Encode and decode are plain TypeScript over UTF-8 bytes (`TextEncoder`/`TextDecoder`). There is no unknown token.
@@ -169,7 +169,7 @@ The catalogue's path covers retrieval, tools, agents, evals and guardrails, but 
   - **Goldens come from the shipped weights.** `train.py` rounds the trained weights to Float16, casts them back, and computes every golden (logits, attention, held-out loss) in float64 from those rounded weights. The fine-tunes in U18 follow the same rule.
   - **Rejected: a pure-TS trainer.** It means about 400 lines of hand-written backprop for one run.
 - KTD3. **Model size ceiling:** 2 layers, 2 heads, d_model 32, context 32, using the KTD1 vocabulary.
-  - The corpus is small: 47 documents and about 7.5k words, roughly 10k tokens. Most parameters sit in the embedding table (about 1,256 rows), so the size is about 67k parameters.
+  - The corpus is small: 47 documents and about 7.5k words, roughly 10k tokens. Most parameters sit in the embedding table (768 rows at 512 merges), about 51k parameters, about 102 KB.
   - The weights are Float16 in `public/data/lm/model.bin` (target ≤ 150 KB), fetched the way RAG's index is and decoded to `Float32Array` at load.
   - If predictions are noise, the first fallback is a smaller vocabulary (256–500 merges) at the same width. A wider model adds parameters the data cannot fill.
   - d_model 64 (about 360 KB) breaks the payload budget. It is a stop-and-ask, not a routine fallback.
@@ -347,7 +347,7 @@ Context's signature (KTD7): what is in it and what is left out.
 ### Risks
 
 - **Larkspur mini's predictions look like noise.** The corpus is small. Mitigations:
-  - U2 trains at the KTD3 size first and checks the readable bar (Goal Capsule) on held-out Larkspur sentences.
+  - U2 trains at the KTD3 size first and reports held-out scores (not gated, per Review Decisions).
   - Chapter prompts are chosen from text the model handles well, and the copy says it overfits (R6).
 - **Fine-tuning shows no clear forgetting or style shift.** Mitigation: U18 picks a style signal the base model never produces (a sign-off line, a product-name format) and a held-out set where the full fine-tune's loss rises. If neither shows, stop and ask.
 - **Recorded context answers look rigged.** Mitigation: KTD8. Every answer carries its note, and the facts carry the real finding.
@@ -358,7 +358,7 @@ Context's signature (KTD7): what is in it and what is left out.
 
 ### Review Decisions (2026-10-21)
 
-- **The readable bar.** Held-out top-5 hit rate ≥ 50%, and every chapter prompt's top-1 probability ≥ 0.25. U2 records the measured values in `meta.json` (Goal Capsule stop condition).
+- **The readable bar (revised at U2).** At the planned size no setting met both the held-out top-5 ≥ 50% gate and readable text: 256 merges passed (0.51) but produced non-words, while 512 read best (0.44). The author chose 512 merges. Held-out scores are reported in `meta.json`, not gated, and the copy says the model is tiny and overfit. Each chapter prompt must have its expected next token in the model's top 5.
 - **The trained LoRA run stays.**
   - If the "LoRA forgets less" test fails on the toy model, the chapter 5 copy shows what happened and cites Biderman et al. 2024 for the general finding. The test changes with the copy and is never loosened silently.
 - **Context keeps its full recording** (KTD7, about 150 turns).
@@ -426,7 +426,7 @@ tests/e2e/{tokens,transformers,context,fine-tuning}{.spec.ts,-flow.ts}
 - **Dependencies:** None.
 - **Files:** `scripts/train-bpe.mjs`, `data/lm/merges.json`, `src/lib/lm/bpe.ts`, `tests/unit/lm-bpe.test.ts`.
 - **Approach:**
-  1. The training script follows minbpe's algorithm (MIT; credit in the README): word-frequency counting, deterministic tie-breaking, about 1,000 merges.
+  1. The training script follows minbpe's algorithm (MIT; credit in the README): word-frequency counting, deterministic tie-breaking, 512 merges.
   2. `bpe.ts` exports encode (to IDs), decode, token pieces as bytes for display (a partial-character token renders as a byte chip, not `�`), and a `merge trace` so Tokens chapter 2 can replay merges on a paragraph.
   3. Add a `pnpm` script for training. CI runs a check that re-trains in memory and compares against the committed file.
 - **Execution note:** Start with the round-trip and toy-example tests.
@@ -585,7 +585,7 @@ tests/e2e/{tokens,transformers,context,fine-tuning}{.spec.ts,-flow.ts}
   - Top-p = 1 keeps every token. A small top-p keeps the smallest set whose mass is ≥ p (boundary included).
   - Raising the temperature flattens the distribution: entropy increases monotonically over the domain.
   - costs(n): pairs are n(n+1)/2 with the causal mask, and the KV entries match layers × heads × n × head-dim.
-  - Every prompt in `prompts.json` has top-1 probability of at least 0.25 (the readable bar), so chapters never show noise.
+  - Every prompt in `prompts.json` has its expected next token in the model's top 5 (the readable bar), so chapters never show noise.
 - **Verification:** `pnpm test` passes.
 
 ### U9. Engine room scene and kit

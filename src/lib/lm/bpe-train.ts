@@ -2,7 +2,7 @@
 
 /** GPT-2's pre-tokenisation: merges never cross these chunks, so " hello" keeps its space. */
 export const SPLIT = /'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+/gu;
-export const N_MERGES = 1000;
+export const N_MERGES = 512;
 
 export type Merge = [number, number];
 
