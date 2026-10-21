@@ -135,3 +135,14 @@ export function evaluate(model: Model, docs: number[][]): { loss: number; top1: 
   }
   return { loss: nll / n, top1: top1 / n, top5: top5 / n, tokens: n };
 }
+
+/** Share of held-out positions (evaluate()'s windows) where models a and b pick the same greedy next token. */
+export function agreement(a: Model, b: Model, docs: number[][]): number {
+  const argmax = (xs: Float64Array) => xs.reduce((best, v, i) => (v > xs[best] ? i : best), 0);
+  let same = 0, n = 0;
+  for (const doc of docs) for (let s = 0; s < doc.length - 1; s += a.config.ctx) {
+    const x = doc.slice(s, s + a.config.ctx + 1).slice(0, -1), la = forward(a, x).logits, lb = forward(b, x).logits;
+    la.forEach((lg, t) => { if (argmax(lg) === argmax(lb[t])) same++; n++; });
+  }
+  return same / n;
+}

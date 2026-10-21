@@ -708,5 +708,311 @@
    "top1": 0.590948,
    "top5": 0.777114
   }
+ },
+ "student": {
+  "file": "student.bin",
+  "model": {
+   "vocab": 768,
+   "n_layer": 1,
+   "n_head": 2,
+   "d_model": 16,
+   "ctx": 32,
+   "d_mlp": 64,
+   "ln_eps": 1e-05,
+   "params": 16112
+  },
+  "bytes": 32224,
+  "tensors": [
+   {
+    "name": "wte.weight",
+    "shape": [
+     768,
+     16
+    ],
+    "offset": 0
+   },
+   {
+    "name": "wpe.weight",
+    "shape": [
+     32,
+     16
+    ],
+    "offset": 24576
+   },
+   {
+    "name": "h.0.ln1.weight",
+    "shape": [
+     16
+    ],
+    "offset": 25600
+   },
+   {
+    "name": "h.0.ln1.bias",
+    "shape": [
+     16
+    ],
+    "offset": 25632
+   },
+   {
+    "name": "h.0.attn.qkv.weight",
+    "shape": [
+     48,
+     16
+    ],
+    "offset": 25664
+   },
+   {
+    "name": "h.0.attn.qkv.bias",
+    "shape": [
+     48
+    ],
+    "offset": 27200
+   },
+   {
+    "name": "h.0.attn.proj.weight",
+    "shape": [
+     16,
+     16
+    ],
+    "offset": 27296
+   },
+   {
+    "name": "h.0.attn.proj.bias",
+    "shape": [
+     16
+    ],
+    "offset": 27808
+   },
+   {
+    "name": "h.0.ln2.weight",
+    "shape": [
+     16
+    ],
+    "offset": 27840
+   },
+   {
+    "name": "h.0.ln2.bias",
+    "shape": [
+     16
+    ],
+    "offset": 27872
+   },
+   {
+    "name": "h.0.mlp.fc.weight",
+    "shape": [
+     64,
+     16
+    ],
+    "offset": 27904
+   },
+   {
+    "name": "h.0.mlp.fc.bias",
+    "shape": [
+     64
+    ],
+    "offset": 29952
+   },
+   {
+    "name": "h.0.mlp.proj.weight",
+    "shape": [
+     16,
+     64
+    ],
+    "offset": 30080
+   },
+   {
+    "name": "h.0.mlp.proj.bias",
+    "shape": [
+     16
+    ],
+    "offset": 32128
+   },
+   {
+    "name": "lnf.weight",
+    "shape": [
+     16
+    ],
+    "offset": 32160
+   },
+   {
+    "name": "lnf.bias",
+    "shape": [
+     16
+    ],
+    "offset": 32192
+   }
+  ],
+  "training": {
+   "seed": 1337,
+   "steps": 3000,
+   "batch": 32,
+   "lr": 0.003,
+   "schedule": "cosine to 0",
+   "optimizer": "AdamW betas (0.9, 0.99), grad clip 1.0",
+   "weight_decay": 0.1,
+   "temperature": 2.0,
+   "hard": 0.1,
+   "teacher": "model.bin",
+   "torch": "2.13.0",
+   "seconds": 64.8
+  },
+  "lossCurve": [
+   {
+    "step": 100,
+    "train": 2.3366,
+    "heldout": 5.3225
+   },
+   {
+    "step": 200,
+    "train": 1.4864,
+    "heldout": 4.7178
+   },
+   {
+    "step": 300,
+    "train": 1.1799,
+    "heldout": 4.5147
+   },
+   {
+    "step": 400,
+    "train": 1.076,
+    "heldout": 4.4553
+   },
+   {
+    "step": 500,
+    "train": 1.0215,
+    "heldout": 4.4257
+   },
+   {
+    "step": 600,
+    "train": 0.9858,
+    "heldout": 4.3958
+   },
+   {
+    "step": 700,
+    "train": 0.957,
+    "heldout": 4.3677
+   },
+   {
+    "step": 800,
+    "train": 0.9373,
+    "heldout": 4.3525
+   },
+   {
+    "step": 900,
+    "train": 0.9219,
+    "heldout": 4.3379
+   },
+   {
+    "step": 1000,
+    "train": 0.9127,
+    "heldout": 4.3443
+   },
+   {
+    "step": 1100,
+    "train": 0.9079,
+    "heldout": 4.3391
+   },
+   {
+    "step": 1200,
+    "train": 0.8997,
+    "heldout": 4.328
+   },
+   {
+    "step": 1300,
+    "train": 0.8942,
+    "heldout": 4.3194
+   },
+   {
+    "step": 1400,
+    "train": 0.8897,
+    "heldout": 4.3172
+   },
+   {
+    "step": 1500,
+    "train": 0.8828,
+    "heldout": 4.3118
+   },
+   {
+    "step": 1600,
+    "train": 0.8818,
+    "heldout": 4.3161
+   },
+   {
+    "step": 1700,
+    "train": 0.8728,
+    "heldout": 4.3076
+   },
+   {
+    "step": 1800,
+    "train": 0.8673,
+    "heldout": 4.3015
+   },
+   {
+    "step": 1900,
+    "train": 0.8646,
+    "heldout": 4.299
+   },
+   {
+    "step": 2000,
+    "train": 0.8645,
+    "heldout": 4.2935
+   },
+   {
+    "step": 2100,
+    "train": 0.8565,
+    "heldout": 4.29
+   },
+   {
+    "step": 2200,
+    "train": 0.8581,
+    "heldout": 4.286
+   },
+   {
+    "step": 2300,
+    "train": 0.8608,
+    "heldout": 4.2772
+   },
+   {
+    "step": 2400,
+    "train": 0.8511,
+    "heldout": 4.282
+   },
+   {
+    "step": 2500,
+    "train": 0.8533,
+    "heldout": 4.2779
+   },
+   {
+    "step": 2600,
+    "train": 0.8563,
+    "heldout": 4.2773
+   },
+   {
+    "step": 2700,
+    "train": 0.8503,
+    "heldout": 4.276
+   },
+   {
+    "step": 2800,
+    "train": 0.8499,
+    "heldout": 4.2748
+   },
+   {
+    "step": 2900,
+    "train": 0.8532,
+    "heldout": 4.275
+   },
+   {
+    "step": 3000,
+    "train": 0.851,
+    "heldout": 4.2745
+   }
+  ],
+  "heldout": {
+   "loss": 4.274574,
+   "top1": 0.171657,
+   "top5": 0.371923
+  },
+  "agreement": 0.5196274118429807
  }
 }

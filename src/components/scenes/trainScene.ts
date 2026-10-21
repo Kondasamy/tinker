@@ -18,12 +18,12 @@ export interface TrainOpts {
   /** the lever pulled and lit (none: the bench at rest) */
   lit?: Approach | null;
   /** the weights the model runs: the base, the full fine-tune, or the base with the LoRA adapter clipped on */
-  weights?: Weights;
+  weights?: Exclude<Weights, 'student'>;
   /** pill size; phones pass more */
   scale?: number;
 }
 
-const MODEL_NAME: Record<Weights, string> = { base: 'BASE MODEL', finetuned: 'FINE-TUNED', lora: 'BASE + ADAPTER' };
+const MODEL_NAME: Record<Exclude<Weights, 'student'>, string> = { base: 'BASE MODEL', finetuned: 'FINE-TUNED', lora: 'BASE + ADAPTER' };
 const LEVER_NAME: Record<Approach, string> = { prompt: 'PROMPT', documents: 'DOCUMENTS', weights: 'WEIGHTS' };
 const LEVER_WORDS: Record<Approach, string> = { prompt: 'a prompt card', documents: 'a document binder', weights: 'a weights wrench' };
 
