@@ -97,6 +97,14 @@ describe('the window desk', () => {
     expect(st.cleared).toBeGreaterThan(0);
     expect(draw({ run: CLEARED, tray: true })).toContain(`data-papers="${st.cleared}"`);
   });
+  it('a summarised history with nothing cleared says SUMMARY, not SUMMARY + 0', () => {
+    const SUMMARY = run(undefined, { sessions: [SESSION], retrieval: 'fetch', history: 'summary' });
+    const st = windowState({ run: SUMMARY });
+    expect(st.summary).toBe(true);
+    const svg = draw({ run: SUMMARY, tray: true });
+    expect(svg).toContain(st.cleared ? `SUMMARY + ${st.cleared}` : 'SUMMARY');
+    expect(svg).not.toContain('SUMMARY + 0');
+  });
   it('the gauge reads the fill with the reply’s room', () => {
     const st = windowState({ run: ONE, budget: 1000 });
     expect(st.fill).toBeCloseTo((ONE.meter[0].window.tokens + REPLY_ROOM) / 1000, 9);

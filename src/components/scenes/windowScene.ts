@@ -169,7 +169,7 @@ export const windowScene = (o: WindowOpts) => (ctx: SceneCtx) => {
   if (o.tray) {
     parts.push(trayProp(TRAY[0], TRAY[1], st.cleared, st.summary));
     shade(TRAY[0] - 11, TRAY[1] - 8, TRAY[0] + 11, TRAY[1] + 8, 3 + Math.min(st.cleared, 14) * .9);
-    if (!narrow) pills.push(pill([TRAY[0], TRAY[1] + 6, BH + 4], -10, 22, st.summary ? `SUMMARY + ${st.cleared}` : `CLEARED ${st.cleared}`, false, scale));
+    if (!narrow) pills.push(pill([TRAY[0], TRAY[1] + 6, BH + 4], -10, 22, st.summary ? (st.cleared ? `SUMMARY + ${st.cleared}` : 'SUMMARY') : `CLEARED ${st.cleared}`, false, scale));
   }
   // the desk is under everything on it, so it is drawn first, not sorted by depth
   return shadows.join('') + desk().svg + byDepth(parts) + pills.join('');
