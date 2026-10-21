@@ -1,0 +1,30 @@
+{
+  "note": "KTD4's readable bar: each chapter's prompt, schema and the output Larkspur mini writes under it (greedy unless a seed is given, then a draw at temperature 1). tests/unit/structured-decode.test.ts reruns every one and fails on drift; a retrain that breaks one means a new prompt, not new copy.",
+  "schemas": {
+    "status": { "type": "object", "properties": { "status": { "type": "string", "enum": ["on time", "delayed"] } }, "required": ["status"], "additionalProperties": false },
+    "free": { "type": "object", "properties": { "status": { "type": "string", "maxLength": 8 } }, "required": ["status"], "additionalProperties": false },
+    "note": { "type": "object", "properties": { "note": { "type": "string", "maxLength": 8 } }, "required": ["note"], "additionalProperties": false },
+    "days": { "type": "object", "properties": { "days": { "type": "integer" } }, "required": ["days"], "additionalProperties": false },
+    "order": { "type": "object", "properties": { "order": { "type": "integer" } }, "required": ["order"], "additionalProperties": false },
+    "two": { "type": "object", "properties": { "status": { "type": "string", "enum": ["on time", "delayed"] }, "days": { "type": "integer" } }, "required": ["status", "days"], "additionalProperties": false }
+  },
+  "runs": [
+    { "id": "asking", "chapter": 1, "prompt": "Order 1042 status as JSON:", "schema": null, "output": " Lober release: the Portal.\n\n\nQ:", "status": "cut-off" },
+    { "id": "retry-1", "chapter": 2, "prompt": "Order 1042 status as JSON:", "schema": null, "seed": 1, "output": " Customersers itndorrute operning c", "status": "cut-off" },
+    { "id": "retry-2", "chapter": 2, "prompt": "Order 1042 status as JSON:", "schema": null, "seed": 2, "output": " venderreips a thir or leg", "status": "cut-off" },
+    { "id": "retry-3", "chapter": 2, "prompt": "Order 1042 status as JSON:", "schema": null, "seed": 3, "output": " fext business hours inswshnowed within", "status": "cut-off" },
+    { "id": "mask", "chapter": 3, "prompt": "Where is order 1042?", "schema": "status", "output": "{\"status\":\"delayed\"}", "status": "done" },
+    { "id": "note", "chapter": 4, "prompt": "Where is order 1042?", "schema": "note", "output": "{\"note\":\"s. The K\"}", "status": "done" },
+    { "id": "free", "chapter": 5, "prompt": "Where is order 1042?", "schema": "free", "output": "{\"status\":\"s. The K\"}", "status": "done" },
+    { "id": "draw-1", "chapter": 5, "prompt": "Where is order 1042?", "schema": "status", "seed": 1, "output": "{\"status\":\"delayed\"}", "status": "done" },
+    { "id": "draw-2", "chapter": 5, "prompt": "Where is order 1042?", "schema": "status", "seed": 2, "output": "{\"status\":\"on time\"}", "status": "done" },
+    { "id": "draw-3", "chapter": 5, "prompt": "Where is order 1042?", "schema": "status", "seed": 3, "output": "{\"status\":\"delayed\"}", "status": "done" },
+    { "id": "draw-4", "chapter": 5, "prompt": "Where is order 1042?", "schema": "status", "seed": 4, "output": "{\"status\":\"delayed\"}", "status": "done" },
+    { "id": "draw-5", "chapter": 5, "prompt": "Where is order 1042?", "schema": "status", "seed": 5, "output": "{\"status\":\"delayed\"}", "status": "done" },
+    { "id": "draw-6", "chapter": 5, "prompt": "Where is order 1042?", "schema": "status", "seed": 6, "output": "{\"status\":\"delayed\"}", "status": "done" },
+    { "id": "days", "chapter": 6, "prompt": "When will order 1042 arrive?", "schema": "days", "output": "{\"days\":-400000}", "status": "done" },
+    { "id": "order", "chapter": 6, "prompt": "Where is order 1042?", "schema": "order", "output": "{\"order\":-400000}", "status": "done" },
+    { "id": "cutoff", "chapter": 6, "prompt": "Where is order 1042?", "schema": "two", "output": "{\"status\":\"delayed\",\"day", "status": "cut-off" }
+  ],
+  "heal": { "prompt": "We reply within five business ", "removed": " ", "plain": "6", "healed": " days" }
+}
