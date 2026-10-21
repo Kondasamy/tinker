@@ -2,7 +2,7 @@
 // budget, looking up the recorded turn for what the model saw, and metering tokens, cache hits and cost. Only the
 // model's turns are recorded; windows, counts, hits, costs and memory files are computed here.
 import { combosOf } from '../tools/host';
-import { cacheHit, cost, LIFETIME_MINUTES, marks, type Breakpoint, type Cached, type Hit, type Lifetime } from './cache';
+import { cacheHit, cost, entryOf, LIFETIME_MINUTES, marks, type Breakpoint, type Cached, type Hit, type Lifetime } from './cache';
 import { readNotes, writeNote, type Notes } from './memory';
 import { lookup, NORECORD, RECORDING, signature, type Recording, type Turn } from './turns';
 import { assemble, caseOf, count, MEMORY, ORDER_TOOL_NAMES, SEARCH, seen, type Exchange, type Form, type Window } from './window';
@@ -85,12 +85,13 @@ export function run(rec: Recording = RECORDING, setup: Partial<Setup> = {}): Run
   const s = { ...DEFAULTS, ...setup };
   const tools = [...(s.tools ? ORDER_TOOL_NAMES : []), ...(s.retrieval === 'fetch' ? [SEARCH.name] : []), ...(s.memory ? [MEMORY.name] : [])];
   const meter: Meter[] = [], answers: Answer[] = [], signatures: string[] = [];
-  let notes: Notes = {}, prev: Cached | null = null;
+  let notes: Notes = {};
   const end = (status: Run['status'], extra: Partial<Run> = {}): Run => ({ status, meter, answers, signatures, notes, ...extra });
 
   for (const [si, session] of s.sessions.entries()) {
     const memory = readNotes(notes, s.memory), past: Exchange[] = [];
-    prev = null; // a later session comes long after the cache has expired
+    // a later session comes long after the cache has expired; each entry is stamped with when it was written or read
+    let cache: (Cached & { at: number })[] = [], t = 0;
 
     for (const id of session) {
       const now: Exchange = { case: id, docs: s.retrieval === 'top' ? topDocs(id, s.place, s.distractors) : [], found: [] };
@@ -103,9 +104,10 @@ export function run(rec: Recording = RECORDING, setup: Partial<Setup> = {}): Run
         signatures.push(sig);
         const turn = lookup(rec, sig);
         if (turn === NORECORD) return end('norecord', { missing: sig });
-        const expired = s.gap > LIFETIME_MINUTES[s.lifetime];
-        const hit = cacheHit(expired ? null : prev, window.parts, s.breakpoints);
-        prev = { parts: window.parts, marks: marks(window.parts, s.breakpoints) };
+        cache = cache.filter((c) => t - c.at <= LIFETIME_MINUTES[s.lifetime]);
+        const hit = cacheHit(cache, window.parts, s.breakpoints);
+        cache.push({ ...entryOf(hit, window.parts, marks(window.parts, s.breakpoints)), at: t });
+        t += s.gap;
         const output = count(turn.text);
         meter.push({ session: si, case: id, window, signature: sig, turn, hit, output, cost: cost(hit, output, s.lifetime) });
         // One search per question; the host returns the passages and the model answers from them.

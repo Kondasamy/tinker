@@ -65,7 +65,7 @@ const CHAPTERS: Chapter[] = [
       story: 'Each question in a conversation re-sends everything before it: the tools, the instructions, the documents and the history. Most of that is the same as last time.',
       goal: 'How can Larkspur stop paying full price for the same text on every call?',
       learn: [
-        'Prompt caching: reusing the start of the last call’s input',
+        'Prompt caching: reusing the start of a recent call’s input',
         'Why one changing line near the top throws the rest away',
         'How to order a turn so the stable parts come first',
       ],

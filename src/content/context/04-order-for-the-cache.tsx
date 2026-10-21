@@ -11,7 +11,7 @@ import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { puzzle, Verdict } from '../../components/quiz/Puzzle';
 import { DOMAINS, type Meter, type Run } from '../../lib/context/loop';
-import { cacheHit, cost, OUTPUT, READ, WRITE, type Cached, type Hit } from '../../lib/context/cache';
+import { cacheHit, cost, entryOf, OUTPUT, READ, WRITE, type Cached, type Hit } from '../../lib/context/cache';
 import { count, SYSTEM, type Part } from '../../lib/context/window';
 import { fact } from '../../lib/context/facts';
 import { num } from '../../lib/format';
@@ -56,13 +56,13 @@ export function price(order: Block[], dated = true): Priced {
 }
 function priceOf(order: Block[], dated: boolean): Priced {
   const r = runFor(dated);
-  let prev: Cached | null = null;
+  const live: Cached[] = [];   // three calls a minute apart: every entry outlives the session
   const meter = r.meter.map(m => {
     const b = blocksOf(m), parts = order.flatMap(k => b[k]);
     const ends: number[] = [];
     order.forEach(k => { if (b[k].length) ends.push(order.slice(0, order.indexOf(k) + 1).reduce((n, j) => n + b[j].length, 0) - 1); });
-    const hit = cacheHit(prev, parts, ['end']);
-    prev = { parts, marks: ends.slice(-MAX_MARKS) };
+    const hit = cacheHit(live, parts, ['end']);
+    live.push(entryOf(hit, parts, ends.slice(-MAX_MARKS)));
     const tokens = parts.reduce((n, p) => n + p.tokens, 0);
     return { ...m, window: { parts, tokens }, hit, cost: cost(hit, m.output, LIFETIME) };
   });

@@ -71,7 +71,7 @@ describe('the cache', () => {
   const tools = part('tools', 'T', 100), sys = part('system', 'S', 50), msg = part('message', 'M', 30);
   it('an identical prefix is a full hit', () => {
     const parts = [tools, sys, msg];
-    expect(cacheHit({ parts, marks: marks(parts, ['end']) }, parts, ['end'])).toEqual({ read: 180, write: 0, fresh: 0, parts: 3 });
+    expect(cacheHit([{ parts, marks: marks(parts, ['end']) }], parts, ['end'])).toEqual({ read: 180, write: 0, fresh: 0, parts: 3 });
   });
   it('a new system prompt keeps hits only on the tools when a breakpoint follows them, and none otherwise', () => {
     const dated = (bps: Setup['breakpoints']) => run(undefined, { sessions: [SESSION], tools: true, retrieval: 'stuff', system: 'dated', breakpoints: bps }).meter;
@@ -83,6 +83,21 @@ describe('the cache', () => {
     const plain = run(undefined, { sessions: [SESSION], tools: true, retrieval: 'stuff' }).meter;
     expect(plain[1].hit.read).toBe(plain[0].window.tokens);
   });
+  it('reads back the longest live entry that still matches, not only the call just before', () => {
+    const first = [tools, sys, msg], other = [tools, part('system', 'S2', 50), msg];
+    const live = [{ parts: first, marks: marks(first, ['end']) }, { parts: other, marks: marks(other, ['end']) }];
+    expect(cacheHit(live, [...first, part('message', 'M2', 20)], ['end'])).toEqual({ read: 180, write: 20, fresh: 0, parts: 3 });
+    expect(cacheHit([], first, ['end'])).toEqual({ read: 0, write: 180, fresh: 0, parts: 0 });
+  });
+  it('a call after clearing reads back the prefix an earlier call wrote, while it lives', () => {
+    const m = run(undefined, { sessions: [SESSION], retrieval: 'fetch', history: 'cleared' }).meter;
+    // every call after the first reads at least the first call's tools, system prompt and question
+    for (const x of m.slice(1)) expect(x.hit.read).toBeGreaterThanOrEqual(m[0].window.tokens);
+    // 3 minutes apart: call 2's read keeps that prefix alive, but nothing reads it again before call 4, 6 minutes later
+    const slow = run(undefined, { sessions: [SESSION], retrieval: 'fetch', history: 'cleared', gap: 3 }).meter;
+    expect(slow[1].hit.read).toBe(m[0].window.tokens);
+    expect(slow[3].hit.read).toBe(0);
+  });
   it('an expired entry is a miss', () => {
     const m = run(undefined, { sessions: [SESSION], retrieval: 'stuff', gap: 6 }).meter;
     expect(m[1].hit.read).toBe(0);
@@ -93,7 +108,7 @@ describe('the cache', () => {
     // 50 fresh + 800 × 0.1 + 100 × 1.25 + 20 × 5
     expect(cost({ fresh: 50, read: 800, write: 100, parts: 2 }, 20, '5m')).toBe(355);
     const prev = [tools, sys, part('message', 'old', 30)], now = [tools, sys, msg];
-    const h = cacheHit({ parts: prev, marks: marks(prev, ['system', 'end']) }, now, ['system', 'end']);
+    const h = cacheHit([{ parts: prev, marks: marks(prev, ['system', 'end']) }], now, ['system', 'end']);
     expect(h).toEqual({ read: 150, write: 30, fresh: 0, parts: 2 });
     expect(cost(h, 10, '1h')).toBe(150 * 0.1 + 30 * 2 + 10 * 5);
   });

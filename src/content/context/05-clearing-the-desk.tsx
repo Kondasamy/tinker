@@ -94,7 +94,7 @@ export const STEPS: Step<S>[] = [
   },
   {
     id: 'cache', focus: 'p2', visibleControls: ['table', 'p2'],
-    narration: 'Fewer tokens, and every answer still right. But Larkspur also caches, as in chapter 4: each call reads back the start it shares with the call before. Before you turn the cache on:',
+    narration: 'Fewer tokens, and every answer still right. But Larkspur also caches, as in chapter 4: each call reads back the longest start it shares with a recent call, as long as that call’s cache entry still lives. Before you turn the cache on:',
     predicate: s => s.p2 !== null,
   },
   {
