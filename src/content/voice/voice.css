@@ -1,0 +1,47 @@
+/* Voice stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
+   tool-calling/kit). These are the call timeline, the clip buttons and the story column's transcripts and controls. */
+.vo-timeline { margin: 0; display: flex; flex-direction: column; gap: 6px; min-height: 0; flex: 1; }
+.vo-scroll { overflow-y: auto; min-height: 0; flex: 1; display: flex; align-items: center; }
+.vo-timeline svg { width: 100%; height: auto; display: block; font-family: ui-monospace, Menlo, monospace; }
+.vo-seg { cursor: pointer; outline: none; }
+.vo-timeline svg:focus-within { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 6px; }
+.vo-readout { margin: 0; font: 700 12.5px ui-monospace, Menlo, monospace; min-height: 2.8em; }
+.vo-key { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; }
+.vo-key li { display: flex; align-items: center; gap: 6px; }
+.vo-key i { width: 18px; height: 10px; border: 1px solid var(--ink); border-radius: 2px; }
+.vo-key i.m { border: none; border-left: 1.5px dashed var(--ink); width: 0; height: 12px; }
+
+/* a clip: the Play/Stop button and the line's words, always on the page */
+.clip { display: flex; align-items: flex-start; gap: 8px; margin: 6px 0 0; }
+.clip-btn { flex: none; min-width: 6.2em; justify-content: center; }
+.clip-btn[aria-busy="true"] { opacity: .8; }
+.clip-caption { margin: 3px 0 0; font-size: 14px; flex: 1; min-width: 12em; }
+.clip-note { flex-basis: 100%; margin: 0; color: var(--muted); font-size: 12.5px; }
+.clip { flex-wrap: wrap; }
+
+/* a call's recorded turns */
+.vo-call { margin-top: 10px; }
+.vo-call .lbl { font-weight: 800; font-size: 13.5px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.vo-call .note { color: var(--muted); font-size: 13px; margin-top: 6px; }
+.vo-turns { margin: 4px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.vo-turns li[data-who="assistant"] { padding-left: 14px; }
+.vo-heard { margin: 2px 0 0 calc(6.2em + 8px); font-size: 13px; color: var(--muted); }
+.vo-lost { font-style: italic; }
+.vo-unsure { padding: 0 6px; border: 1px solid var(--bad); border-radius: 999px; color: var(--bad); font: 700 11px ui-monospace, Menlo, monospace; }
+.vo-tag { padding: 0 6px; border: 1px solid var(--rule); border-radius: 999px; font: 700 11px ui-monospace, Menlo, monospace; color: var(--muted); }
+.vo-note { margin: 8px 0 0; color: var(--muted); font-size: 12.5px; }
+
+/* the line's controls */
+.vo-range { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 8px; }
+.vo-range label { font-weight: 700; font-size: 14px; min-width: 8em; }
+.vo-range input { flex: 1; min-width: 160px; }
+.vo-range output { font: 800 14px ui-monospace, Menlo, monospace; min-width: 4.5em; }
+.vo-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.vo-headline { margin: 6px 0 0; display: flex; align-items: center; flex-wrap: wrap; gap: 10px; font-weight: 700; }
+.vo-headline strong { font: 800 30px/1 ui-monospace, Menlo, monospace; }
+.tc-ledger td.ok { color: var(--ok); font-weight: 800; }
+.tc-ledger td.bad { color: var(--bad); font-weight: 800; }
+.tc-ledger .vo-why { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
+.vo-sums { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 2px; font: 13px ui-monospace, Menlo, monospace; }
+.vo-sums li { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px dotted var(--rule); }
+.vo-sums li.total { font-weight: 800; border-bottom: none; }
