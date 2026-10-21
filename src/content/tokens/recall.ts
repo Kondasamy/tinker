@@ -138,7 +138,7 @@ export const RECALL: RecallItem[] = [
     correct: 1,
     why: [
       'Tokenizers learn their pieces from data; the rule is just an average someone measured on English.',
-      'Right. On Larkspur’s documents it was close but off, and in different directions for different tokenizers. Fine for planning, not for the bill.',
+      'Right. On Larkspur’s documents it gave more tokens than both real tokenizers counted. Fine for planning, not for the bill.',
       'On Larkspur’s English documents the rule was within about a quarter of the real counts, not ten times off.',
       'Code usually tokenizes worse than plain English, so the rule fits it less well, not better.',
     ],
