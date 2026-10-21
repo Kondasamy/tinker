@@ -76,9 +76,9 @@ export const STEPS: Step<S>[] = [
   },
 ];
 
-const status = (r: ReturnType<typeof R>, kase: Case) => {
+export const status = (r: ReturnType<typeof R>, kase: Case) => {
   if (kase === 'report') return `The report task finished${asked(r) ? '' : ', with no approval prompt'}.`;
-  return r.attackMet ? `A person approved the crossing, and the token left. ${says('exfil')}.` : 'The person refused the crossing, so nothing left.';
+  return r.attackMet ? `A person approved the crossing, and the token left. ${says('exfil')}.` : asked(r) ? 'The person refused the crossing, so nothing left.' : 'The allow-list blocked the request and nobody was asked, so nothing left.';
 };
 
 export default function FewerPromptsChapter() {
