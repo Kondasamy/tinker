@@ -1,0 +1,29 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import APictureIsTokens from '../../content/multimodal/01-a-picture-is-tokens';
+import SizeAndDetail from '../../content/multimodal/02-size-and-detail';
+import ReadingAScan from '../../content/multimodal/03-reading-a-scan';
+import PullingFieldsOut from '../../content/multimodal/04-pulling-fields-out';
+import PhotosOfParts from '../../content/multimodal/05-photos-of-parts';
+import WhenPicturesMislead from '../../content/multimodal/06-when-pictures-mislead';
+import Workbench from '../../content/multimodal/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('multimodal').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="multimodal" chapter={chapter} title={title}>
+  {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
+      hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
+  {chapter === '01-a-picture-is-tokens' ? <APictureIsTokens client:load />
+    : chapter === '02-size-and-detail' ? <SizeAndDetail client:load />
+    : chapter === '03-reading-a-scan' ? <ReadingAScan client:load />
+    : chapter === '04-pulling-fields-out' ? <PullingFieldsOut client:load />
+    : chapter === '05-photos-of-parts' ? <PhotosOfParts client:load />
+    : chapter === '06-when-pictures-mislead' ? <WhenPicturesMislead client:load />
+    : <Workbench client:load />}
+</ChapterLayout>
