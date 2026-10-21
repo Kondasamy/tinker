@@ -1,0 +1,449 @@
+{
+ "model": {
+  "vocab": 768,
+  "n_layer": 2,
+  "n_head": 2,
+  "d_model": 32,
+  "ctx": 32,
+  "d_mlp": 128,
+  "ln_eps": 1e-05,
+  "params": 51072
+ },
+ "dtype": "float16-le",
+ "bytes": 102144,
+ "tensors": [
+  {
+   "name": "wte.weight",
+   "shape": [
+    768,
+    32
+   ],
+   "offset": 0
+  },
+  {
+   "name": "wpe.weight",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 49152
+  },
+  {
+   "name": "h.0.ln1.weight",
+   "shape": [
+    32
+   ],
+   "offset": 51200
+  },
+  {
+   "name": "h.0.ln1.bias",
+   "shape": [
+    32
+   ],
+   "offset": 51264
+  },
+  {
+   "name": "h.0.attn.qkv.weight",
+   "shape": [
+    96,
+    32
+   ],
+   "offset": 51328
+  },
+  {
+   "name": "h.0.attn.qkv.bias",
+   "shape": [
+    96
+   ],
+   "offset": 57472
+  },
+  {
+   "name": "h.0.attn.proj.weight",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 57664
+  },
+  {
+   "name": "h.0.attn.proj.bias",
+   "shape": [
+    32
+   ],
+   "offset": 59712
+  },
+  {
+   "name": "h.0.ln2.weight",
+   "shape": [
+    32
+   ],
+   "offset": 59776
+  },
+  {
+   "name": "h.0.ln2.bias",
+   "shape": [
+    32
+   ],
+   "offset": 59840
+  },
+  {
+   "name": "h.0.mlp.fc.weight",
+   "shape": [
+    128,
+    32
+   ],
+   "offset": 59904
+  },
+  {
+   "name": "h.0.mlp.fc.bias",
+   "shape": [
+    128
+   ],
+   "offset": 68096
+  },
+  {
+   "name": "h.0.mlp.proj.weight",
+   "shape": [
+    32,
+    128
+   ],
+   "offset": 68352
+  },
+  {
+   "name": "h.0.mlp.proj.bias",
+   "shape": [
+    32
+   ],
+   "offset": 76544
+  },
+  {
+   "name": "h.1.ln1.weight",
+   "shape": [
+    32
+   ],
+   "offset": 76608
+  },
+  {
+   "name": "h.1.ln1.bias",
+   "shape": [
+    32
+   ],
+   "offset": 76672
+  },
+  {
+   "name": "h.1.attn.qkv.weight",
+   "shape": [
+    96,
+    32
+   ],
+   "offset": 76736
+  },
+  {
+   "name": "h.1.attn.qkv.bias",
+   "shape": [
+    96
+   ],
+   "offset": 82880
+  },
+  {
+   "name": "h.1.attn.proj.weight",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 83072
+  },
+  {
+   "name": "h.1.attn.proj.bias",
+   "shape": [
+    32
+   ],
+   "offset": 85120
+  },
+  {
+   "name": "h.1.ln2.weight",
+   "shape": [
+    32
+   ],
+   "offset": 85184
+  },
+  {
+   "name": "h.1.ln2.bias",
+   "shape": [
+    32
+   ],
+   "offset": 85248
+  },
+  {
+   "name": "h.1.mlp.fc.weight",
+   "shape": [
+    128,
+    32
+   ],
+   "offset": 85312
+  },
+  {
+   "name": "h.1.mlp.fc.bias",
+   "shape": [
+    128
+   ],
+   "offset": 93504
+  },
+  {
+   "name": "h.1.mlp.proj.weight",
+   "shape": [
+    32,
+    128
+   ],
+   "offset": 93760
+  },
+  {
+   "name": "h.1.mlp.proj.bias",
+   "shape": [
+    32
+   ],
+   "offset": 101952
+  },
+  {
+   "name": "lnf.weight",
+   "shape": [
+    32
+   ],
+   "offset": 102016
+  },
+  {
+   "name": "lnf.bias",
+   "shape": [
+    32
+   ],
+   "offset": 102080
+  }
+ ],
+ "training": {
+  "seed": 1337,
+  "steps": 3000,
+  "batch": 32,
+  "lr": 0.003,
+  "schedule": "cosine to 0",
+  "optimizer": "AdamW betas (0.9, 0.99), grad clip 1.0",
+  "weight_decay": 1.0,
+  "dropout": 0.1,
+  "torch": "2.13.0",
+  "seconds": 23.7,
+  "trainTokens": 16226,
+  "trainDocs": [
+   "accessibility-statement-2024.md",
+   "all-hands-notes-2022.md",
+   "code-of-conduct-2020.md",
+   "company-overview-2025.md",
+   "customer-success-playbook-2025.md",
+   "dock-sensor-warranty-2022.md",
+   "eastgate-opening-notes-2023.md",
+   "employee-handbook-2024.md",
+   "enterprise-onboarding-guide-2025.md",
+   "environmental-policy-2023.md",
+   "expense-policy-2022.md",
+   "faq-billing-2024.md",
+   "faq-ordering-portal-2025.md",
+   "faq-shipping-2023.md",
+   "holiday-schedule-2025.md",
+   "incident-postmortem-2024.md",
+   "interview-guide-2024.md",
+   "it-equipment-handbook-2023.md",
+   "kestrel-k3-launch-faq-2025.md",
+   "onboarding-specialist-handbook-2023.md",
+   "org-chart-2025.md",
+   "portal-release-notes-2019.md",
+   "portal-release-notes-2020.md",
+   "portal-release-notes-2022.md",
+   "portal-release-notes-2023.md",
+   "portal-release-notes-2024.md",
+   "portal-release-notes-2025.md",
+   "price-list-2025.md",
+   "pricing-committee-notes-2023.md",
+   "procurement-policy-2024.md",
+   "q1-planning-notes-2025.md",
+   "refund-policy-2025.md",
+   "returns-faq-2022.md",
+   "sales-handbook-2024.md",
+   "security-policy-2025.md",
+   "security-review-notes-2024.md",
+   "shipping-policy-2024.md",
+   "support-handbook-2025.md",
+   "travel-policy-2018.md",
+   "travel-policy-2025.md",
+   "warehouse-ops-sync-2024.md",
+   "wren-printer-quickstart-2022.md"
+  ]
+ },
+ "lossCurve": [
+  {
+   "step": 100,
+   "train": 4.9838,
+   "heldout": 4.9596
+  },
+  {
+   "step": 200,
+   "train": 4.3854,
+   "heldout": 4.5855
+  },
+  {
+   "step": 300,
+   "train": 4.0927,
+   "heldout": 4.4051
+  },
+  {
+   "step": 400,
+   "train": 3.9106,
+   "heldout": 4.2937
+  },
+  {
+   "step": 500,
+   "train": 3.7877,
+   "heldout": 4.2663
+  },
+  {
+   "step": 600,
+   "train": 3.7331,
+   "heldout": 4.2282
+  },
+  {
+   "step": 700,
+   "train": 3.6677,
+   "heldout": 4.2011
+  },
+  {
+   "step": 800,
+   "train": 3.6387,
+   "heldout": 4.1665
+  },
+  {
+   "step": 900,
+   "train": 3.5973,
+   "heldout": 4.1527
+  },
+  {
+   "step": 1000,
+   "train": 3.5638,
+   "heldout": 4.1729
+  },
+  {
+   "step": 1100,
+   "train": 3.5508,
+   "heldout": 4.1912
+  },
+  {
+   "step": 1200,
+   "train": 3.5387,
+   "heldout": 4.1746
+  },
+  {
+   "step": 1300,
+   "train": 3.4908,
+   "heldout": 4.152
+  },
+  {
+   "step": 1400,
+   "train": 3.4991,
+   "heldout": 4.1163
+  },
+  {
+   "step": 1500,
+   "train": 3.4532,
+   "heldout": 4.1257
+  },
+  {
+   "step": 1600,
+   "train": 3.4336,
+   "heldout": 4.1454
+  },
+  {
+   "step": 1700,
+   "train": 3.4135,
+   "heldout": 4.1236
+  },
+  {
+   "step": 1800,
+   "train": 3.3587,
+   "heldout": 4.1171
+  },
+  {
+   "step": 1900,
+   "train": 3.3415,
+   "heldout": 4.1027
+  },
+  {
+   "step": 2000,
+   "train": 3.372,
+   "heldout": 4.1019
+  },
+  {
+   "step": 2100,
+   "train": 3.2839,
+   "heldout": 4.0818
+  },
+  {
+   "step": 2200,
+   "train": 3.3137,
+   "heldout": 4.0741
+  },
+  {
+   "step": 2300,
+   "train": 3.3029,
+   "heldout": 4.0627
+  },
+  {
+   "step": 2400,
+   "train": 3.2746,
+   "heldout": 4.0553
+  },
+  {
+   "step": 2500,
+   "train": 3.2832,
+   "heldout": 4.0432
+  },
+  {
+   "step": 2600,
+   "train": 3.2728,
+   "heldout": 4.0534
+  },
+  {
+   "step": 2700,
+   "train": 3.2616,
+   "heldout": 4.048
+  },
+  {
+   "step": 2800,
+   "train": 3.2642,
+   "heldout": 4.0436
+  },
+  {
+   "step": 2900,
+   "train": 3.2475,
+   "heldout": 4.0441
+  },
+  {
+   "step": 3000,
+   "train": 3.2567,
+   "heldout": 4.0434
+  }
+ ],
+ "heldout": {
+  "docs": [
+   "data-retention-faq-2025.md",
+   "heron-shelving-install-guide-2021.md",
+   "portal-release-notes-2021.md",
+   "remote-work-policy-2021.md",
+   "warehouse-safety-handbook-2023.md"
+  ],
+  "tokens": 1503,
+  "loss": 4.043411,
+  "top1": 0.230206,
+  "top5": 0.438456
+ },
+ "trainEval": {
+  "loss": 2.992163,
+  "top1": 0.322912,
+  "top5": 0.599666
+ }
+}
