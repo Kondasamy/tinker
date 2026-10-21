@@ -12,6 +12,7 @@ import { STRUCTURED_OUTPUTS_MODULE } from '../content/structured-outputs/module'
 import { REASONING_MODULE } from '../content/reasoning/module';
 import { SMALL_MODELS_MODULE } from '../content/small-models/module';
 import { INFERENCE_MODULE } from '../content/inference/module';
+import { VOICE_MODULE } from '../content/voice/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -73,7 +74,7 @@ export const MODULES: Module[] = [
   planned('observability', 'Observability & error analysis', 'Intermediate', 'Reading what the assistant really did in production: traces, labelling failures by hand, and finding the ones that matter.'),
   planned('sandboxing', 'Agent sandboxing', 'Advanced', 'Where an agent’s code runs, and what it can reach: a sandbox, its files, and the network it can or can’t call out to.'),
   planned('multimodal', 'Multimodal models', 'Intermediate', 'How images and documents become tokens, and how a model reads a photo, a scan or an invoice.'),
-  planned('voice', 'Voice agents', 'Advanced', 'Assistants you talk to: speech in and out, taking turns, being interrupted, and the latency budget.'),
+  VOICE_MODULE,
 ];
 
 export function moduleOf(id: string): Module {

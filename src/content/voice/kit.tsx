@@ -189,7 +189,7 @@ export function Fact({ id }: { id: string }) {
 
 /** Said wherever a wait is shown (R6). */
 export const PlanNote = () => (
-  <p className="vo-note">Stage times are {HOST.label.toLowerCase()}; token counts are this site’s tokenizer’s, and the reply’s length is its clip’s.</p>
+  <p className="vo-note">Stage times are {HOST.label}; token counts are this site’s tokenizer’s, and the reply’s length is its clip’s.</p>
 );
 /** Said wherever recorded transcripts appear (R6). */
 export const RecordedNote = () => (
