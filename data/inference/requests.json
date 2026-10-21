@@ -1,0 +1,29 @@
+{
+  "note": "A fixed burst of Larkspur assistant traffic at the Monday-morning peak: 24 requests in five seconds, each with when it arrives (ms from the start), its prompt length and its reply length, in tokens. Hand-written for the simulator; not logged traffic.",
+  "requests": [
+    { "id": "r01", "at": 0, "prompt": 420, "reply": 60 },
+    { "id": "r02", "at": 160, "prompt": 900, "reply": 180 },
+    { "id": "r03", "at": 360, "prompt": 260, "reply": 30 },
+    { "id": "r04", "at": 600, "prompt": 640, "reply": 120 },
+    { "id": "r05", "at": 720, "prompt": 300, "reply": 220 },
+    { "id": "r06", "at": 960, "prompt": 1100, "reply": 40 },
+    { "id": "r07", "at": 1200, "prompt": 380, "reply": 90 },
+    { "id": "r08", "at": 1320, "prompt": 520, "reply": 150 },
+    { "id": "r09", "at": 1600, "prompt": 220, "reply": 25 },
+    { "id": "r10", "at": 1800, "prompt": 760, "reply": 200 },
+    { "id": "r11", "at": 2000, "prompt": 340, "reply": 70 },
+    { "id": "r12", "at": 2080, "prompt": 980, "reply": 110 },
+    { "id": "r13", "at": 2400, "prompt": 280, "reply": 45 },
+    { "id": "r14", "at": 2640, "prompt": 600, "reply": 240 },
+    { "id": "r15", "at": 2800, "prompt": 450, "reply": 35 },
+    { "id": "r16", "at": 3040, "prompt": 820, "reply": 130 },
+    { "id": "r17", "at": 3200, "prompt": 240, "reply": 80 },
+    { "id": "r18", "at": 3440, "prompt": 560, "reply": 55 },
+    { "id": "r19", "at": 3600, "prompt": 1200, "reply": 160 },
+    { "id": "r20", "at": 3840, "prompt": 320, "reply": 20 },
+    { "id": "r21", "at": 4000, "prompt": 700, "reply": 190 },
+    { "id": "r22", "at": 4320, "prompt": 400, "reply": 65 },
+    { "id": "r23", "at": 4480, "prompt": 880, "reply": 100 },
+    { "id": "r24", "at": 4800, "prompt": 360, "reply": 140 }
+  ]
+}

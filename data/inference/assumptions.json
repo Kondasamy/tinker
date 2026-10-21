@@ -1,0 +1,11 @@
+{
+  "note": "A cost model for a teaching server, not a measurement. Round numbers, chosen so prefill is mostly work and decode mostly reading, as on a real accelerator. Every time the Inference module shows comes from these and from counted work.",
+  "flopsPerMs": 200000000000,
+  "flopsWords": "200 trillion operations a second",
+  "bytesPerMs": 2000000000,
+  "bytesWords": "2 trillion bytes a second read from memory",
+  "overheadMs": 2,
+  "overheadWords": "2 ms of fixed overhead per iteration",
+  "bytesPerNumber": 2,
+  "kvRoomGB": [4, 8, 14]
+}
