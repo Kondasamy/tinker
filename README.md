@@ -30,6 +30,7 @@ Every module has a level, a story, an intro at `/<module>/`, its chapters, and a
 | Advanced | [Small models: distillation & routing](#small-models-distillation--routing-small-models) (Fine-tuning and Evals recommended first) | Live, 7 chapters |
 | Advanced | [Inference engineering](#inference-engineering-inference) (Transformers recommended first) | Live, 7 chapters |
 | Advanced | [Agent sandboxing](#agent-sandboxing-sandboxing) (AI agents and Guardrails recommended first) | Live, 7 chapters |
+| Advanced | [Voice agents](#voice-agents-voice) (Tool calling and Multimodal recommended first) | Live, 7 chapters |
 
 ### RAG: Retrieval-Augmented Generation (`/rag/`)
 
@@ -289,6 +290,22 @@ How images and documents become tokens, and how a model reads a photo, a scan or
 
 The chapters play on a scanning table: a document under a camera with a patch grid over it, its patches dropping onto a belt as token tiles into the model (or, read by OCR, a strip of text). The image itself, rasterised at the chosen size and drawn back pixelated under its exact grid, is one tab away. The images are drawn in code, token counts follow Anthropic's published patch rule, and the readings are recorded and graded live.
 
+### Voice agents (`/voice/`)
+
+Assistants you talk to: speech in and out, taking turns, being interrupted, and the latency budget. Larkspur Supply Co. puts its assistant on the phone: customers call, speak, pause, talk over it and read out order numbers, and the team has to make the line feel like a conversation.
+
+| # | Chapter | What you do |
+|---|---|---|
+| 1 | Larkspur's phone line | Follow one call through speech-to-text, the model and text-to-speech |
+| 2 | The latency budget | Time every stage of the wait, then stream the reply so the first word comes sooner |
+| 3 | Whose turn is it? | Set how long a silence ends the caller's turn: too short cuts Ravi off, too long leaves dead air |
+| 4 | Being interrupted | Let Dana talk over the reply, and keep only what the assistant really said |
+| 5 | Mishearing | Catch a misheard order number by reading it back before acting on it |
+| 6 | One model or three | Weigh a chained pipeline against one speech-to-speech model |
+| 7 | Workbench: tune the line | Tune the turn detector and the host's rules over five calls: nobody cut off, no dead air, no misheard number acted on |
+
+The chapters play at a phone desk: the phone, an ear (speech-to-text), the model and a mouth (text-to-speech), joined by belts that carry the call, with a stopwatch for the wait. The call as two lanes of sound over time is one tab away. Every clip has a play button and its words, so the sound is optional; nothing plays until you press it. The voices were generated once and committed, the end-of-turn detector runs live over their sound, and the transcripts and replies are recorded.
+
 ---
 
 ## How it's built
@@ -297,7 +314,7 @@ The chapters play on a scanning table: a document under a camera with a patch gr
 - **Real retrieval, precomputed answers (RAG):** the corpus is embedded at build time (`pnpm build:index`, all-MiniLM-L6-v2 and a cross-encoder reranker); the browser runs the real similarity, BM25, reranking, graph-walk and agent maths over those vectors. Model answers are pre-recorded for each kind of evidence that can reach the model, so every knob changes the outcome honestly.
 - **Recorded turns, live tools (Tool calling, AI agents):** the model's turns are pre-recorded per scenario (`data/tool-calling/turns/`). The host loop, a JSON Schema subset validator, the approval gate, the tools running on fixture data and an MCP-shaped JSON-RPC server all run in the browser (`src/lib/tools/`). A unit test checks every reachable control setting has a recorded turn. MCP facts come from `data/tool-calling/facts.json`, each with its source. The agent loop (`src/lib/agents/`) reuses those tools and adds plans, approval, budgets, a repeat detector, memory and helpers, all computed in the browser; its recorded turns are in `data/agents/turns/` and its facts in `data/agents/facts.json`. The guardrails loop (`src/lib/guardrails/`) puts defences around the model as host stages (input filters, the taint rule, the allow-list, the output filter, policy checks, approval); its turns are in `data/guardrails/turns/`, its stand-in classifier's hand-set scores in `data/guardrails/inbox.json`, and its attack and customer suites in `data/guardrails/suite.json`.
 - **Real retrieval, recorded grading (Evals):** each version of the assistant runs RAG's real retrieval over the same 12 questions and reads the recorded answer for what it found. Code graders run in the browser (`src/lib/evals/`); the model judge's verdicts, people's labels and repeated tries are recorded in `data/evals/`, and every combination a control can reach is checked by a unit test.
-- **Pictures:** hand-inked isometric figures drawn by the Colorfigures engine (see Credits), extended to orbit, zoom and turn the view. Each module leads with a scene you can picture rather than a flow chart: RAG's pipeline on a workbench, tool calling's back office (`src/components/scenes/officeScene.ts`), evals' test bench (`evalScene.ts`), guardrails' mail room (`guardScene.ts`), tokens' token press (`tokenScene.ts`), transformers' engine room (`engineScene.ts`), context's window desk (`windowScene.ts`), fine-tuning's training bench (`trainScene.ts`), structured outputs' stencil press (`stencilScene.ts`), reasoning's scratchpad desk (`thinkScene.ts`), small models' apprentice's bench (`routerScene.ts`), inference's serving floor (`serveScene.ts`), observability's control room (`traceScene.ts`), sandboxing's glass room (`sandboxScene.ts`), multimodal's scanning table (`scanScene.ts`), and the home page's animated workshop with a plot per module (`heroScene.ts`): a wave hops each plot and names it in turn. Flat sequence figures (lanes and message cards, `src/lib/iso/flat.ts`) in the same ink show the exact messages, a tab away. Names sit in label pills so they stay readable.
+- **Pictures:** hand-inked isometric figures drawn by the Colorfigures engine (see Credits), extended to orbit, zoom and turn the view. Each module leads with a scene you can picture rather than a flow chart: RAG's pipeline on a workbench, tool calling's back office (`src/components/scenes/officeScene.ts`), evals' test bench (`evalScene.ts`), guardrails' mail room (`guardScene.ts`), tokens' token press (`tokenScene.ts`), transformers' engine room (`engineScene.ts`), context's window desk (`windowScene.ts`), fine-tuning's training bench (`trainScene.ts`), structured outputs' stencil press (`stencilScene.ts`), reasoning's scratchpad desk (`thinkScene.ts`), small models' apprentice's bench (`routerScene.ts`), inference's serving floor (`serveScene.ts`), observability's control room (`traceScene.ts`), sandboxing's glass room (`sandboxScene.ts`), multimodal's scanning table (`scanScene.ts`), voice's phone desk (`phoneScene.ts`), and the home page's animated workshop with a plot per module (`heroScene.ts`): a wave hops each plot and names it in turn. Flat sequence figures (lanes and message cards, `src/lib/iso/flat.ts`) in the same ink show the exact messages, a tab away. Names sit in label pills so they stay readable.
 - **Search:** every page has its own title, description, canonical URL and share image; intros and chapters carry schema.org course and lesson data with breadcrumbs; `/sitemap.xml` and `/robots.txt` are built from the page list, and recaps and the 404 page stay out of search.
 - **Works on a phone:** below 861px the picture stacks above the story, pills grow, and the sequence shows one message at a time.
 
@@ -333,6 +350,7 @@ The chapters play on a scanning table: a document under a camera with a patch gr
 | `src/lib/observability/`, `data/observability/` | Observability engine (the day's traces with their reference first failures and modes, coding and counts, eval cases graded by Evals' graders, the day 2 workbench) and its traces, fixed answers and facts |
 | `src/lib/sandboxing/`, `data/sandboxing/` | Sandboxing engine (the modelled sandbox: mounts, hidden paths, egress and where the secret lives; the agent loop with its recorded turns, the attack and task suite, the red-team workbench) and its files, tools, turns and facts |
 | `src/lib/multimodal/`, `data/multimodal/` | Multimodal engine (the images drawn in code, token counts from the patch rule and its downscale, the recorded readings graded field by field, the workbench) and its readings, references and facts |
+| `src/lib/voice/`, `data/voice/`, `public/data/voice/` | Voice engine (the end-of-turn detector over the clips' envelopes, the latency sums, the recorded transcripts and replies, the one clip player, the workbench) and its script, calls, transcripts, envelopes, facts and the committed MP3 clips |
 | `src/lib/tokens/`, `data/tokens/` | Tokens engine (counts, merges, neighbours over RAG's vectors, the prompt workbench) and its recorded real tokenizers, sentences and facts |
 | `src/lib/iso/` | The drawing engine (Colorfigures, adapted), the isometric stage and the flat figure kit, shared by every module |
 | `src/components/story/` | The step runner every chapter uses: the live picture on the left, the story column on the right |
@@ -352,7 +370,7 @@ pnpm install    # install exact dependency versions from pnpm-lock.yaml
 pnpm dev        # start the dev server on http://localhost:4321
 ```
 
-Open http://localhost:4321 for the Tinker home; the modules are at http://localhost:4321/rag/, http://localhost:4321/tool-calling/, http://localhost:4321/agents/, http://localhost:4321/evals/, http://localhost:4321/guardrails/, http://localhost:4321/tokens/, http://localhost:4321/transformers/, http://localhost:4321/context/, http://localhost:4321/fine-tuning/, http://localhost:4321/structured-outputs/, http://localhost:4321/reasoning/, http://localhost:4321/small-models/, http://localhost:4321/inference/, http://localhost:4321/observability/, http://localhost:4321/sandboxing/ and http://localhost:4321/multimodal/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap`, `/dev/warmup`, `/dev/agents`, `/dev/evals`, `/dev/guardrails`, `/dev/tokens`, `/dev/transformers`, `/dev/context`, `/dev/fine-tuning`, `/dev/structured-outputs`, `/dev/reasoning`, `/dev/small-models`, `/dev/inference`, `/dev/observability`, `/dev/sandboxing` and `/dev/multimodal`. These pages are left out of production builds.
+Open http://localhost:4321 for the Tinker home; the modules are at http://localhost:4321/rag/, http://localhost:4321/tool-calling/, http://localhost:4321/agents/, http://localhost:4321/evals/, http://localhost:4321/guardrails/, http://localhost:4321/tokens/, http://localhost:4321/transformers/, http://localhost:4321/context/, http://localhost:4321/fine-tuning/, http://localhost:4321/structured-outputs/, http://localhost:4321/reasoning/, http://localhost:4321/small-models/, http://localhost:4321/inference/, http://localhost:4321/observability/, http://localhost:4321/sandboxing/, http://localhost:4321/multimodal/ and http://localhost:4321/voice/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap`, `/dev/warmup`, `/dev/agents`, `/dev/evals`, `/dev/guardrails`, `/dev/tokens`, `/dev/transformers`, `/dev/context`, `/dev/fine-tuning`, `/dev/structured-outputs`, `/dev/reasoning`, `/dev/small-models`, `/dev/inference`, `/dev/observability`, `/dev/sandboxing`, `/dev/multimodal` and `/dev/voice`. These pages are left out of production builds.
 
 To try the production build locally:
 
@@ -389,6 +407,12 @@ pnpm build:index                  # re-embed and re-score; the first run downloa
 node scripts/draft-answers.mjs    # redraft data/answers/*.json from rules; review the answers before committing
 pnpm record:tokens                # re-record GPT-2's and GPT-4o's tokens for data/tokens/ (downloads the tokenizers into .cache/ once)
 pnpm test                         # the scenario and answer-coverage tests must still pass
+```
+
+Voice agents' clips in `public/data/voice/` are committed too, and are re-recorded only after editing `data/voice/script.json`. It needs ffmpeg on the PATH and an ElevenLabs API key, passed in the environment for that one command and never saved to a file:
+
+```bash
+ELEVENLABS_API_KEY=... pnpm record:voice   # speak every line again into public/data/voice/*.mp3 and data/voice/envelopes.json
 ```
 
 ---
@@ -467,4 +491,6 @@ Sixteen modules are live and one more is on the roadmap (the planned card on the
 The illustrations are drawn with [Colorfigures](https://april-zhu.com/colorfigures) by [April Zhu](https://april-zhu.com/): the hand-inked isometric style and the drawing engine in `src/lib/iso/core.js` come from it, adapted for Tinker. Colorfigures builds on April's [ISO-GLOW](https://isoglow.dev), which builds on [iso-figure](https://github.com/MrBongoC/ai-iso-skill) by Tolga Cohce. All MIT licensed (see `src/lib/iso/LICENSE`).
 
 The tokenizer in `src/lib/lm/` follows the byte-level BPE algorithm of Andrej Karpathy's [minbpe](https://github.com/karpathy/minbpe) (MIT). Larkspur mini, the tiny model in `scripts/train/` and `src/lib/lm/model.ts`, is shaped after his [nanoGPT](https://github.com/karpathy/nanoGPT) (MIT).
+
+The callers' and the assistant's voices in Voice agents were generated with [ElevenLabs](https://elevenlabs.io) text-to-speech.
 
