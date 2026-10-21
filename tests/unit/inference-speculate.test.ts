@@ -47,3 +47,12 @@ describe('speculative decoding', () => {
     expect(r.perCheck).toBeGreaterThan(1.5);
   });
 });
+
+describe('greedy cache', () => {
+  it('returns the same reply per (model, prompt, n), and a new one when any of them changes', () => {
+    const ids = encode(P.prompts[0].text), a = greedy(base, ids, P.write);
+    expect(greedy(base, [...ids], P.write)).toBe(a);
+    expect(greedy(base, ids, 3)).not.toBe(a);
+    expect(greedy(student, ids, P.write)).not.toBe(a);
+  });
+});

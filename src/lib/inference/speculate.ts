@@ -12,8 +12,16 @@ export const argmax = (xs: ArrayLike<number>) => { let b = 0; for (let i = 1; i 
 /** The most new tokens a run may write: the last one is predicted from a full window, never from a cut one. */
 export const maxNew = (target: Model, prompt: number[]) => Math.max(0, target.config.ctx - prompt.length + 1);
 
-/** Plain greedy decoding: one target pass per new token. */
+const replies = new WeakMap<Model, Map<string, number[]>>();
+/** Plain greedy decoding: one target pass per new token. Cached per (model, prompt, n): the same array comes back, so don't mutate it. */
 export function greedy(target: Model, prompt: number[], n: number): number[] {
+  if (!replies.has(target)) replies.set(target, new Map());
+  const done = replies.get(target)!, key = `${prompt.join()}|${n}`;
+  if (!done.has(key)) done.set(key, greedyOnce(target, prompt, n));
+  return done.get(key)!;
+}
+
+function greedyOnce(target: Model, prompt: number[], n: number): number[] {
   const ids = [...prompt], out: number[] = [];
   for (let i = 0; i < Math.min(n, maxNew(target, prompt)); i++) {
     const id = argmax(forward(target, ids).logits.at(-1)!);

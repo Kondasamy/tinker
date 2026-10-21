@@ -97,6 +97,22 @@ test('chapter 4: the stage holds its frame while Larkspur mini loads, offers Ret
   await inferenceWalker(page, 'mouse').ch4();
 });
 
+test('chapter 4: a precision changed during the prediction still scores 8 against 16 and plays on', async ({ page }) => {
+  const w = inferenceWalker(page, 'mouse');
+  await w.open(CH4);
+  const c = card(page);
+  await c.getByRole('button', { name: '8 bits' }).click();
+  await expect(c).toContainText('Step 2 of');
+  await c.getByRole('button', { name: '4 bits' }).click();
+  await c.getByRole('radio', { name: /^Barely moves/ }).click();
+  await c.getByRole('button', { name: 'Score both on held-out text' }).click();
+  await expect(c).toContainText(/Step [45] of/, { timeout: 30_000 });
+  await c.getByRole('button', { name: '4 bits' }).click();
+  await expect(c).toContainText('Step 5 of');
+  await c.getByRole('radio', { name: /^Run its own evals/ }).click();
+  await expect(c).toContainText('Chapter complete');
+});
+
 test('chapter 5 plays to the end offline once both models have loaded', async ({ page }) => {
   const failed: string[] = [];
   page.on('requestfailed', r => failed.push(r.url()));

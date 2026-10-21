@@ -4,6 +4,9 @@
 import '../styles/tokens.css';
 import IsoStage from '../lib/iso/IsoStage';
 import { readFileSync } from 'node:fs';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { fetchLoader } from '../lib/rag/load';
 import { SERVE_BOARD, floorAt, serveLabel, serveScene, type ServeOpts } from '../components/scenes/serveScene';
 import { InferenceStage, TimelineView, loadModel, setModelFiles, type Shown } from '../content/inference/kit';
 import { OPEN, serve } from '../lib/inference/server';
@@ -29,6 +32,14 @@ const STATES: [string, ServeOpts][] = [
   ['Speculative: 2 of 3 guesses kept', { seats: ['decode'], queued: 0, kv: .02, draft: { drafted: 3, accepted: 2 } }],
 ];
 const shown = (caption: string, scene: Shown['scene'], result?: Shown['result']) => (): Shown => ({ scene, result, caption });
+// The stages are drawn here, then the loaders go back to fetching: pages build one after another in one process, and the
+// loaded and failed models would otherwise leak into the real chapter pages rendered after this one.
+const STAGES = [
+  ['Failed (student): Retry', { weights: ['base', 'student'], show: shown('Speculative', STATES[5][1]) }],
+  ['Loaded (base): Picture', { weights: ['base'], show: shown('One request', STATES[1][1]) }],
+  ['No model: Timeline', { view: 'timeline', show: shown('<script>alert(1)</script> escaped caption', floorAt(cont), cont) }],
+].map(([title, props]) => [title, renderToStaticMarkup(createElement(InferenceStage, props as Parameters<typeof InferenceStage>[0]))] as const);
+setModelFiles(fetchLoader('/data/lm/'));
 ---
 <html lang="en">
   <head>
@@ -54,9 +65,8 @@ const shown = (caption: string, scene: Shown['scene'], result?: Shown['result'])
       <section><h2>Timeline: static, cap 8</h2><TimelineView client:load result={stat} /></section>
       <h1>The stage, live</h1>
       <div class="grid">
-        <section><h2>Failed (student): Retry</h2><div class="stage"><InferenceStage weights={['base', 'student']} show={shown('Speculative', STATES[5][1])} /></div></section>
-        <section><h2>Loaded (base): Picture</h2><div class="stage"><InferenceStage weights={['base']} show={shown('One request', STATES[1][1])} /></div></section>
-        <section><h2>No model: Timeline</h2><div class="stage"><InferenceStage view="timeline" show={shown('<script>alert(1)</script> escaped caption', floorAt(cont), cont)} /></div></section>
+        {/* React's own server markup (every string escaped by React), not content */}
+        {STAGES.map(([title, html]) => <section><h2>{title}</h2><div class="stage" set:html={html} /></section>)}
       </div>
     </main>
   </body>

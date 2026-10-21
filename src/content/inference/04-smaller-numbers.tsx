@@ -2,7 +2,7 @@
 // dequantized, the forward pass unchanged); memory is counted from its shapes and held-out loss is computed live, a
 // document at a time so the page keeps responding. The stage shows what the saving buys on the open model's server:
 // the same 40 GB with smaller weights leaves more room for the KV cache.
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
@@ -96,7 +96,7 @@ function Bench({ model, s, set, scoring, fixed = false, onScored }: { model: Mod
   const m = memory(model, s.bits), m16 = memory(model, 16), busy = h.computing || base.computing, scored = scoring && !!h.score && !!base.score;
   // the scores arrive after the press: once both are in, the step is checked again
   useEffect(() => { if (scored) onScored?.(); }, [scored]);
-  const t5 = top5Changes(model, quantize(model, s.bits), PROMPTS);
+  const t5 = useMemo(() => top5Changes(model, quantize(model, s.bits), PROMPTS), [model, s.bits]);
   return (
     <>
       {!fixed && <div className="in-row" role="group" aria-label="Weights stored in">
@@ -139,7 +139,8 @@ export default function SmallerNumbers() {
         score: ({ state, apply, sync }) => (
           <ModelGate weights={['base']}>{m => (
             <>
-              {state.revealed && <Bench model={m.base!} s={state} set={() => {}} scoring fixed onScored={() => sync({ ...state })} />}
+              {/* always 8 against 16, whatever precision the reader picked during the prediction: the step waits on both */}
+              {state.revealed && <Bench model={m.base!} s={{ ...state, bits: 8 }} set={() => {}} scoring fixed onScored={() => sync({ ...state })} />}
               {!state.revealed && <button type="button" className="big" onClick={() => apply({ ...state, revealed: true })}>Score both on held-out text</button>}
             </>
           )}</ModelGate>
