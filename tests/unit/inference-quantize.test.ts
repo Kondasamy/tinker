@@ -62,4 +62,11 @@ describe('Larkspur mini, quantized', () => {
     expect(a.loss).toBeCloseTo(scores[8].loss, 10);
     expect(a.top5).toBeCloseTo(scores[8].top5, 10);
   });
+
+  it('caches each model’s quantized copy per precision', () => {
+    expect(quantize(base, 8)).toBe(quantize(base, 8));
+    expect(quantize(base, 4)).not.toBe(quantize(base, 8));
+    const other = parseModel(meta, disk('model.bin'));
+    expect(quantize(other, 8)).not.toBe(quantize(base, 8));
+  });
 });

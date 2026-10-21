@@ -31,9 +31,17 @@ function shapeOf(m: Model, name: string): [number, number] | null {
   return null;   // biases and LayerNorm weights are vectors
 }
 
-/** The model at `bits`: 16 is the shipped weights as they are. */
+const quantized = new WeakMap<Model, Map<Bits, Model>>();
+/** The model at `bits`: 16 is the shipped weights as they are. Each model's copies are made once per precision. */
 export function quantize(m: Model, bits: Bits): Model {
   if (bits === 16) return m;
+  if (!quantized.has(m)) quantized.set(m, new Map());
+  const done = quantized.get(m)!;
+  if (!done.has(bits)) done.set(bits, quantizeOnce(m, bits));
+  return done.get(bits)!;
+}
+
+function quantizeOnce(m: Model, bits: Bits): Model {
   const tensors: Record<string, Float32Array> = {};
   for (const [name, t] of Object.entries(m.tensors)) {
     const s = shapeOf(m, name);

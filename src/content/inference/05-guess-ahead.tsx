@@ -23,11 +23,15 @@ export const PROMPT = P.prompts.find(p => p.id === 'billing')!.text, IDS = encod
 export const K = 2;
 const BIG = META.model.params, SMALL = META.student!.model.params;
 
-const cache = new Map<string, SpecRun>();
-/** one run per k, computed once (both models are fixed) */
+const cache = new WeakMap<Model, WeakMap<Model, Map<number, SpecRun>>>();
+/** one run per (target, draft, k), computed once */
 export function runAt(target: Model, draft: Model, k: number): SpecRun {
-  if (!cache.has(String(k))) cache.set(String(k), speculate(target, draft, IDS, k, N));
-  return cache.get(String(k))!;
+  if (!cache.has(target)) cache.set(target, new WeakMap());
+  const byDraft = cache.get(target)!;
+  if (!byDraft.has(draft)) byDraft.set(draft, new Map());
+  const runs = byDraft.get(draft)!;
+  if (!runs.has(k)) runs.set(k, speculate(target, draft, IDS, k, N));
+  return runs.get(k)!;
 }
 
 const P1 = {

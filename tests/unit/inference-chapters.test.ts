@@ -60,6 +60,12 @@ describe('the inference chapters', () => {
     expect(ch5.outcomeOf(base, student)).toBe(0);
   });
 
+  it('chapter 5 keeps its runs per model', () => {
+    expect(ch5.runAt(base, student, 2)).toBe(ch5.runAt(base, student, 2));
+    const other = parseModel(meta, disk('model.bin'));
+    expect(ch5.runAt(other, student, 2)).not.toBe(ch5.runAt(base, student, 2));
+  });
+
   it('chapter 6: a bigger cap serves more and slows each reply’s tokens', () => {
     expect(ch6.outcomeOf()).toBe(1);
   });
