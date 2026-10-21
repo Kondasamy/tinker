@@ -1,5 +1,6 @@
 // Module 8, Context engineering & memory: the intro, every chapter played by mouse and by keyboard only, its own
-// progress key, the chapter 4 and 7 puzzles' "Show me", reduced motion, the recap, axe and phone width.
+// progress key, the chapter 4 and 7 puzzles' "Show me", reduced motion, the recap, axe and phone width; the go-live
+// checks: Module 8 kickers and share images, home's card and Continue, the warm-up and the Pictures / Words switch.
 import { test, expect, type Page } from '@playwright/test';
 import { moduleOf } from '../../src/lib/modules';
 import { contextWalker } from './context-flow';
@@ -31,6 +32,45 @@ test('the intro shows the level, the prerequisites, the author, the chapters and
   await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
   await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toHaveAttribute('href', 'https://april-zhu.com/colorfigures');
+  await axe(page);
+});
+
+test('Module 8 on the intro, the recap and home, with their own share images; home Continue resumes it', async ({ page }) => {
+  await page.goto('/context/');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 8 · Context');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/context\.jpg$/);
+  await page.goto('/context/recap/');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 8 · Recap');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/context-recap\.jpg$/);
+  await page.goto('/');
+  await expect(page.locator('.module[data-module="context"] h4 a')).toHaveAttribute('href', '/context/');
+  await page.evaluate(() => { localStorage.setItem('context-progress-v1', JSON.stringify({ done: [], saved: {} })); localStorage.setItem('tinker-last-module', 'context'); });
+  await page.reload();
+  await expect(page.locator('[data-continue]')).toHaveAttribute('href', /^\/context\//);
+});
+
+test('the warm-up shows on the intro 21 hours after a chapter, with a skip link; not 2 hours after', async ({ page }) => {
+  const seed = async (hours: number) => {
+    await page.goto('/');
+    await page.evaluate(({ done, at }) => localStorage.setItem('context-progress-v1', JSON.stringify({ done, saved: {}, at: Object.fromEntries(done.map(id => [id, at])) })),
+      { done: [CH1], at: Date.now() - hours * 3600_000 });
+    await page.goto('/context/');
+    await page.locator('astro-island:not([ssr])').first().waitFor({ state: 'attached' });
+  };
+  await seed(21);
+  await expect(page.locator('.warmup')).toContainText('from chapters you finished');
+  await expect(page.getByRole('link', { name: 'Skip to chapter 2 →' })).toHaveAttribute('href', `/context/${CH2}/`);
+  await axe(page);
+  await seed(2);
+  await expect(page.locator('.warmup')).toHaveCount(0);
+});
+
+test('the intro reads as pictures by default; Words unfolds the longer text', async ({ page }) => {
+  await page.goto('/context/');
+  const more = page.locator('.band .note.more');
+  await expect(more).toBeHidden();
+  await page.getByRole('button', { name: 'Words' }).click();
+  await expect(more).toBeVisible();
   await axe(page);
 });
 
