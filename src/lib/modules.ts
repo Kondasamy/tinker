@@ -52,13 +52,13 @@ const planned = (id: string, title: string, level: Level, description: string): 
 export const MODULES: Module[] = [
   RAG_MODULE,
   TOOL_CALLING_MODULE,
-  TRANSFORMERS_MODULE,
   AGENTS_MODULE,
   EVALS_MODULE,
   GUARDRAILS_MODULE,
   planned('context', 'Context engineering & memory', 'Intermediate', 'What goes into the model’s window each turn, and what it should remember.'),
   planned('fine-tuning', 'Fine-tuning vs prompting', 'Advanced', 'When to train the model, when to prompt it, and when to give it documents.'),
   TOKENS_MODULE,
+  TRANSFORMERS_MODULE,
 ];
 
 export function moduleOf(id: string): Module {
