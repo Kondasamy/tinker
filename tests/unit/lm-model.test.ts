@@ -63,8 +63,8 @@ describe('Larkspur mini files', () => {
   });
 
   it('holds the same token ids the tokenizer gives today (ids.json is not stale)', () => {
-    const { docs, ids } = IDS.splits.train;
-    expect(encode(readFileSync(`data/corpus/${docs[0]}`, 'utf8'))).toEqual(ids[0]);
+    for (const { docs, ids } of Object.values(IDS.splits))
+      docs.forEach((d, i) => expect(encode(readFileSync(`data/corpus/${d}`, 'utf8'))).toEqual(ids[i]));
     expect(IDS.prompts.map((p) => encode(p.text))).toEqual(IDS.prompts.map((p) => p.ids));
     const all = [...IDS.splits.train.docs, ...IDS.splits.heldout.docs].sort();
     expect(all).toEqual(readdirSync('data/corpus').filter((f) => f.endsWith('.md')).sort());
@@ -73,6 +73,15 @@ describe('Larkspur mini files', () => {
 });
 
 describe('Larkspur mini loader', () => {
+  it('reports an error when model.bin does not match meta.json, and recovers on retry', async () => {
+    let calls = 0;
+    const m = modelLoader(async (f) => (f === 'model.bin' && calls++ === 0 ? new ArrayBuffer(8) : disk(f)));
+    await expect(m.load()).rejects.toThrow(/model\.bin/);
+    expect(m.status()).toBe('error');
+    await m.load();
+    expect(m.status()).toBe('ready');
+  });
+
   it('reports an error on a 404 and recovers on retry', async () => {
     const ok = (f: string) => ({ ok: true, status: 200, arrayBuffer: async () => disk(f) });
     let calls = 0;

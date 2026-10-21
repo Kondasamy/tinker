@@ -41,9 +41,11 @@ export function modelLoader(loader: Loader = fetchLoader('/data/lm/')) {
     load(): Promise<Model> {
       if (model) return Promise.resolve(model);
       failed = false;
-      return (pending ??= Promise.all([loader('meta.json'), loader('model.bin')]).then(
-        ([m, bin]) => { model = parseModel(JSON.parse(new TextDecoder().decode(m)), bin); pending = undefined; return model; },
-        (e) => { failed = true; pending = undefined; throw e; }));
+      // Parse in its own step, so a bad file fails the load as a 404 does (and the next load() retries).
+      return (pending ??= Promise.all([loader('meta.json'), loader('model.bin')])
+        .then(([m, bin]) => parseModel(JSON.parse(new TextDecoder().decode(m)), bin))
+        .then((x) => { model = x; pending = undefined; return x; },
+          (e) => { failed = true; pending = undefined; throw e; }));
     },
   };
 }
