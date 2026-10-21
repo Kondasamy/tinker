@@ -1,6 +1,8 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import mdx from '@astrojs/mdx';
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 
 // Dev and test pages (src/dev) are routed under /dev/ only in `astro dev` or with DEV_PAGES=1 (the e2e build),
 // so the production build ships the module alone.
@@ -28,8 +30,31 @@ const devCache = {
   },
 };
 
+// Pages and islands import a few committed files that also ship in public/ (Larkspur mini's meta.json, which load.ts
+// fetches too). In dev those imports become /public/... requests and Vite warns "Assets in public directory cannot be
+// imported from JavaScript". Dev serves them as modules instead; builds already bundle them, so this is dev only.
+let publicDir = '';
+const publicJson = {
+  name: 'public-json',
+  apply: 'serve',
+  enforce: 'pre',
+  configResolved(config) { publicDir = config.publicDir; },
+  resolveId(source, importer) {
+    if (!importer || !source.endsWith('.json') || !source.startsWith('.')) return null;
+    const file = resolve(dirname(importer), source);
+    return file.startsWith(publicDir + '/') ? `\0public-json:${file}` : null;
+  },
+  load(id) {
+    if (!id.startsWith('\0public-json:')) return null;
+    const file = id.slice('\0public-json:'.length);
+    this.addWatchFile(file);
+    return readFileSync(file, 'utf8');   // the id ends .json, so Vite's JSON plugin makes it a module as usual
+  },
+};
+
 export default defineConfig({
   site: 'https://tinker.kondasamy.com',
   output: 'static',
   integrations: [react(), mdx(), devPages, devCache],
+  vite: { plugins: [publicJson] },
 });
