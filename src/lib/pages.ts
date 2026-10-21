@@ -10,6 +10,8 @@ export interface PageMeta {
   /** <title> and og:title */
   title: string;
   description: string;
+  /** keep the page out of search results and the sitemap (a recap is empty until the reader has played) */
+  noindex?: boolean;
   /** share image: small line above the headline, the headline, and the line under it */
   kicker: string;
   headline: string;
@@ -20,7 +22,7 @@ export const HOME: PageMeta = {
   path: '/',
   og: 'home',
   title: 'Tinker: see how tech works by playing with it',
-  description: 'Hand-drawn, interactive explanations of tech concepts. Build the thing, break it, fix it. By Kondasamy Jayaraman.',
+  description: 'Free, hand-drawn, interactive explanations of how AI works: RAG, tool calling, agents, evals, tokens, transformers and more. Build it, break it, fix it.',
   kicker: 'Tinker',
   headline: 'See how tech works by playing with it.',
   sub: `Hand-drawn, interactive explanations of tech concepts: ${MODULES.filter(m => m.status === 'live').length} modules to play${MODULES.some(m => m.status === 'planned') ? ', more on the way' : ''}.`,
@@ -56,11 +58,15 @@ export const AGENTS: PageMeta = {
   sub: 'Workflows, agents and the loop between them, played at Larkspur Supply Co.',
 };
 
+/** search results cut descriptions near 160 characters: add the tail only while it fits */
+const withRoom = (text: string, tail: string) => (text + tail).length <= 160 ? text + tail : text;
+
 export const chapterMeta = (module: string, id: string): PageMeta => {
   const m = moduleOf(module), i = m.chapters.findIndex(c => c.id === id), c = m.chapters[i];
   if (!c) return RAG;   // dev fixtures borrow the module's card
   return {
-    path: chapterHref(m.id, c.id), og: c.og ?? `${m.id}-${c.id}`, title: `${c.title} · ${m.title} · Tinker`, description: c.intro.goal,
+    path: chapterHref(m.id, c.id), og: c.og ?? `${m.id}-${c.id}`, title: `${c.title} · ${m.title} · Tinker`,
+    description: withRoom(c.intro.goal, ` A playable chapter of ${m.title} on Tinker.`),
     kicker: `${m.title} · Chapter ${i + 1} of ${m.chapters.length}`, headline: c.title, sub: c.intro.goal,
   };
 };
@@ -69,7 +75,7 @@ export const chapterMeta = (module: string, id: string): PageMeta => {
 export const recapMeta = (module: string): PageMeta => {
   const m = moduleOf(module);
   return {
-    path: `/${m.id}/recap/`, og: `${m.id}-recap`, title: `${m.title} recap: what do you remember? · Tinker`,
+    path: `/${m.id}/recap/`, og: `${m.id}-recap`, noindex: true, title: `${m.title} recap: what do you remember? · Tinker`,
     description: `Recall questions from the ${m.title} chapters you have finished, one at a time, with why each answer is right or wrong.`,
     kicker: `${m.title} · Recap`, headline: `What do you remember about ${m.title}?`,
     sub: 'Questions from the chapters you have finished, one at a time.',

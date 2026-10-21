@@ -103,3 +103,33 @@ test('AE1: a returning reader keeps RAG progress, and a saved run resumes only o
   await expect(card).toContainText('Step 3 of 6');
   expect(await page.evaluate(k => JSON.parse(localStorage.getItem(k)!).done, KEY)).toEqual(['01-history', '02-why-not-stuff-it']);
 });
+
+// SEO: a sitemap of every indexable page, robots.txt pointing at it, recaps and the 404 kept out of search,
+// and schema.org data on home (the site), intros (a course) and chapters (a lesson in it), each with breadcrumbs.
+test('the sitemap lists every indexable page and no recap; robots.txt points to it', async ({ request }) => {
+  const xml = await (await request.get('/sitemap.xml')).text();
+  const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(x => new URL(x[1]).pathname);
+  expect(locs).toEqual(ALL_PAGES.filter(p => !p.noindex).map(p => p.path));
+  expect(locs.some(p => p.endsWith('/recap/'))).toBe(false);
+  expect(await (await request.get('/robots.txt')).text()).toContain('Sitemap: https://tinker.kondasamy.com/sitemap.xml');
+});
+
+test('structured data: the site on home, a course on an intro, a lesson with breadcrumbs on a chapter, none on a recap', async ({ page }) => {
+  const graph = async (path: string) => {
+    await page.goto(path);
+    const raw = await page.locator('script[type="application/ld+json"]').allTextContents();
+    return raw.flatMap(r => JSON.parse(r)['@graph']).map((x: { '@type': string }) => x['@type']);
+  };
+  expect(await graph('/')).toEqual(['WebSite']);
+  expect(await graph('/rag/')).toEqual(['Course', 'BreadcrumbList']);
+  expect(await graph('/rag/01-history/')).toEqual(['LearningResource', 'BreadcrumbList']);
+  expect(await graph('/rag/recap/')).toEqual([]);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+});
+
+test('a missing page gets the 404 page, kept out of search, with a way home', async ({ page }) => {
+  const res = await page.goto('/no-such-page/');
+  expect(res?.status()).toBe(404);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+  await expect(page.getByRole('link', { name: 'Go to Tinker home →' })).toHaveAttribute('href', '/');
+});

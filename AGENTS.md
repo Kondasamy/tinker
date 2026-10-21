@@ -178,6 +178,13 @@ Shared by the Tokens, Transformers, Context and Fine-tuning modules. Nothing in 
 - **Goldens come from the shipped weights.** `train.py` rounds the weights to Float16, casts them back, and computes every golden (`tests/fixtures/lm/goldens.json`: last-position logits and attention for five prompts, held-out scores) in float64 from them. `tests/unit/lm-model.test.ts` checks the TS pass against them with a tolerance (max |Δlogit| < 1e-4, same top-5, attention rows sum to 1), never bit-exact.
 - **Retrain** (only after editing `data/corpus/`, the merges or `train.py`): `pnpm train:bpe` if the merges changed, `pnpm encode:lm`, then `uv run --no-project --python 3.12 --with-requirements scripts/train/requirements.txt scripts/train/train.py` (details in `scripts/train/README.md`), then `pnpm test`, and commit `merges.json`, `ids.json`, `model.bin`, `meta.json` and `goldens.json` together. Any chapter text quoting the model's predictions changes with it. A base retrain means rerunning `train.py --finetune` too (fine-tunes start from `model.bin`), and committing `finetuned.bin` and `lora.bin` with the rest.
 
+## Search (SEO)
+
+- **`Meta.astro` owns the head**: title, description (kept under about 160 characters; chapters add "A playable chapter of <module> on Tinker." only when it fits), canonical URL, author, theme colour, icons (`favicon.svg`, `apple-touch-icon.png`), Open Graph and Twitter tags.
+- **Structured data is read off the path and the registry**, never typed per page: home is a `WebSite`, a module intro a `Course` (level, free, author, Tinker as provider), a chapter a `LearningResource` that `isPartOf` its course; intros and chapters add a `BreadcrumbList`. The JSON-LD escapes `<`.
+- **Recaps are `noindex`** (`noindex` in `recapMeta`): they hold nothing until the reader has played. So is the 404 page (`src/pages/404.astro`).
+- **`/sitemap.xml` and `/robots.txt` are endpoints** (`src/pages/sitemap.xml.ts`, `robots.txt.ts`) built from `ALL_PAGES` and `site`, so a new page or a new domain needs no hand edit. robots.txt blocks nothing: pages fetch `/data/` while they render.
+
 ## Share images (OG)
 
 - **Every public page has its own 1200×630 share image**: `public/og/<og>.jpg`, referenced by `Meta.astro` (`og:image`, `twitter:card = summary_large_image`, canonical URL). An e2e test fails if a page has none, or two pages share one.

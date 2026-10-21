@@ -1,23 +1,56 @@
 ---
-// Shared <head> tags for every page: title, description, canonical URL, icon and the page's own share image.
-// Share images live in public/og/<og>.jpg and are drawn by `pnpm og` (see AGENTS.md).
-interface Props { title: string; description: string; og: string }
-const { title, description, og } = Astro.props;
+// Shared <head> tags for every page: title, description, canonical URL, icons, the page's own share image, and
+// schema.org structured data read off the path and the registry (home: the site; intro: the course; chapter: a lesson
+// in it, each with breadcrumbs). Share images live in public/og/<og>.jpg and are drawn by `pnpm og` (see AGENTS.md).
+import { MODULES } from '../lib/modules';
+interface Props { title: string; description: string; og: string; noindex?: boolean }
+const { title, description, og, noindex } = Astro.props;
 const url = new URL(Astro.url.pathname, Astro.site);
 const image = new URL(`/og/${og}.jpg`, Astro.site);
+
+const abs = (path: string) => new URL(path, Astro.site).href;
+const AUTHOR = { '@type': 'Person', name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' };
+const FREE = { inLanguage: 'en', isAccessibleForFree: true, author: AUTHOR };
+const crumbs = (items: [string, string][]) => ({
+  '@type': 'BreadcrumbList',
+  itemListElement: items.map(([name, path], i) => ({ '@type': 'ListItem', position: i + 1, name, item: abs(path) })),
+});
+const [first, second] = Astro.url.pathname.split('/').filter(Boolean);
+const m = MODULES.find(x => x.id === first && x.status === 'live');
+const n = m ? m.chapters.findIndex(c => c.id === second) : -1;
+const course = m && { '@type': 'Course', name: m.title, description: m.description, url: abs(`/${m.id}/`), educationalLevel: m.level,
+  provider: { '@type': 'Organization', name: 'Tinker', url: abs('/') }, ...FREE };
+// recaps, the 404 and dev pages carry none
+const graph = noindex ? []
+  : !first ? [{ '@type': 'WebSite', name: 'Tinker', url: abs('/'), description, ...FREE }]
+  : m && !second ? [{ ...course, description }, crumbs([['Tinker', '/'], [m.title, `/${m.id}/`]])]
+  : m && n >= 0 ? [
+      { '@type': 'LearningResource', name: m.chapters[n].title, description, url: url.href, learningResourceType: 'Interactive lesson',
+        position: n + 1, educationalLevel: m.level, isPartOf: course, ...FREE },
+      crumbs([['Tinker', '/'], [m.title, `/${m.id}/`], [m.chapters[n].title, url.pathname]]),
+    ]
+  : [];
+// `<` escaped so no string in the data can close the script
+const ld = graph.length ? JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c') : '';
 ---
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>{title}</title>
 <meta name="description" content={description} />
+<meta name="author" content="Kondasamy Jayaraman" />
+{noindex && <meta name="robots" content="noindex" />}
 <link rel="canonical" href={url} />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<meta name="theme-color" content="#f2efe7" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Tinker" />
+<meta property="og:locale" content="en_US" />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:url" content={url} />
 <meta property="og:image" content={image} />
+<meta property="og:image:type" content="image/jpeg" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta property="og:image:alt" content={title} />
@@ -25,3 +58,4 @@ const image = new URL(`/og/${og}.jpg`, Astro.site);
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={image} />
+{ld && <script type="application/ld+json" is:inline set:html={ld} />}

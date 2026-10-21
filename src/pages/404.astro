@@ -1,0 +1,32 @@
+---
+// Not found: static hosts serve this for any missing path. Kept out of search results and the sitemap.
+import '../styles/tokens.css';
+import '../styles/page.css';
+import Meta from '../components/Meta.astro';
+import { MODULES } from '../lib/modules';
+
+const LIVE = MODULES.filter(m => m.status === 'live');
+---
+<html lang="en">
+  <head>
+    <Meta title="Page not found · Tinker" description="This page isn’t here. Pick a module to play instead." og="home" noindex />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a></nav>
+    </div>
+    <main class="lost">
+      <p class="kicker">404</p>
+      <h1>This page isn’t here.</h1>
+      <p>The link may be old, or the address mistyped. Every module is still a click away:</p>
+      <ul>{LIVE.map(m => <li><a href={`/${m.id}/`}>{m.title}</a></li>)}</ul>
+      <a class="btn primary" href="/">Go to Tinker home →</a>
+    </main>
+  </body>
+</html>
+
+<style>
+  .lost { max-width: 640px; margin: 0 auto; padding: 56px 24px 64px; font-size: 15px; line-height: 1.6; }
+  .lost h1 { margin: 6px 0 12px; font-size: 32px; line-height: 1.15; }
+  .lost ul { margin: 0 0 24px; padding-left: 20px; }
+</style>
