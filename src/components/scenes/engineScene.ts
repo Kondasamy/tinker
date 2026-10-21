@@ -119,6 +119,18 @@ export const engineScene = (o: EngineOpts) => (ctx: SceneCtx) => {
   return shadows.join('') + s + pills.join('');
 };
 
+/** The home hero's plot (heroScene): a small engine room at (x, y), one storey with a head's desk lit on top, and three
+ * token tiles in front with a thread of attention from the last back to the first. Squat, so the pill rows above leave it in view. */
+export function enginePlot(x: number, y: number, top: SceneCtx['top']): string {
+  const ty = y + 14, xs = [x - 12, x, x + 12], z = BH + TILE_H, room = boxCorners(x - 16, y - 20, BH, x + 16, y, BH + 12);
+  const lit = desk(x, y - 10, BH + 12, 0, 0, true);
+  const tiles: Part[] = xs.map((tx, i) => ({ at: [tx, ty, 0], svg: box(tx - 4.5, ty - 4.5, BH, tx + 4.5, ty + 4.5, z, i === 2 ? PALS.mustard : i === 0 ? PALS.mint : CERAMIC, toneI, .9) }));
+  const arch = Array.from({ length: 21 }, (_, i) => { const u = i / 20; return P(xs[2] + (xs[0] - xs[2]) * u, ty, z + 12 * Math.sin(Math.PI * u)); });
+  return castShadow(room, BH, top) + castShadow(boxCorners(x - 15, y - 20, BH + 12, x + 15, y, BH + 22), BH, top)
+    + byDepth([{ at: [x, y - 10, 0], svg: box(x - 16, y - 20, BH, x + 16, y, BH + 12, PALS.cobalt, toneI, 1) + hullInk(room, 1.8) + lit.svg }, ...tiles])
+    + `<path d="M${arch.map(p => `${f(p[0])} ${f(p[1])}`).join('L')}" fill="none" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>`;
+}
+
 /** The picture in words, for its aria-label. */
 export function engineLabel(o: EngineOpts): string {
   const { layer = 0, head = 0 } = o, st = engineState(o);

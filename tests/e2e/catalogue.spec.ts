@@ -19,16 +19,16 @@ test('levels in order, RAG under Beginner, planned modules as cards with no link
     await expect(card).toHaveAttribute('id', `module-${m.id}`);
   }
   await expect(cards.locator('a, button, [tabindex]')).toHaveCount(0);
-  await expect(page.locator('a[href="/transformers/"]')).toHaveCount(0);
   await expect(page.getByText('In the workshop')).toHaveCount(0);
 });
 
-test('live modules keep their numbers: Tokens is Module 6 under Beginner, linked; Agents, Evals and Guardrails keep 3, 4 and 5', async ({ page }) => {
+test('live modules keep their numbers: Tokens is Module 6 under Beginner and Transformers Module 7 under Advanced, linked; Agents, Evals and Guardrails keep 3, 4 and 5', async ({ page }) => {
   await page.goto('/');
   const kicker = (id: string) => page.locator(`.module[data-module="${id}"] .kicker`);
-  for (const [id, n] of [['rag', 1], ['tool-calling', 2], ['agents', 3], ['evals', 4], ['guardrails', 5], ['tokens', 6]] as const)
+  for (const [id, n] of [['rag', 1], ['tool-calling', 2], ['agents', 3], ['evals', 4], ['guardrails', 5], ['tokens', 6], ['transformers', 7]] as const)
     await expect(kicker(id)).toHaveText(new RegExp(`^Module ${n} · `));
   await expect(page.locator('[data-level="Beginner"] .module[data-module="tokens"] h4 a')).toHaveAttribute('href', '/tokens/');
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="transformers"] h4 a')).toHaveAttribute('href', '/transformers/');
 });
 
 test('keyboard Tab never lands in a planned card', async ({ page }) => {
