@@ -22,6 +22,12 @@ const count = (sentence: string, tok: string) => encOf(sentence, tok).ids.length
 const textOf = (id: string) => SENTENCES.find(s => s.id === id)!.text;
 
 const OLD = TOKENIZERS[0], NEW = TOKENIZERS[TOKENIZERS.length - 1];
+/** The saved picks, or the first ones when a run saved before a re-recording names a sentence or tokenizer now gone. */
+export const picked = (s: S): S => ({
+  ...s,
+  sentence: SENTENCES.some(x => x.id === s.sentence) ? s.sentence : 'order-en',
+  tok: TOKS.some(t => t.id === s.tok) ? s.tok : OLD.id,
+});
 const EN = count('order-en', OLD.id), HI = count('order-hi', OLD.id), RATIO = HI / EN;
 
 /** The pieces a tokenizer cut `sub` into, read off its recording: every piece that overlaps the substring's characters. */
@@ -146,10 +152,10 @@ export default function EveryTokenizerSplitsDifferently() {
       steps={STEPS}
       initial={{ p1: null, ran: false, sentence: 'order-en', tok: OLD.id, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => (
+      stage={({ state: saved }) => { const state = picked(saved); return (
         <TokensStage text={textOf(state.sentence)} enc={state.tok === SITE ? undefined : encodingOf(state.sentence, state.tok)}
           caption={state.tok === SITE ? 'Counted by this site’s tokenizer, live.' : `${nameOf(state.tok)}’s tokens, recorded ahead of time.`} />
-      )}
+      ); }}
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         run: ({ state, apply }) => <button type="button" className="big" onClick={() => apply({ ...state, ran: true })}>Run every sentence</button>,

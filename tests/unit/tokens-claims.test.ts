@@ -1,12 +1,17 @@
 // Claims in Tokens' copy that depend on the data: each is checked against it, so re-recording the tokenizers or
-// retraining the site's BPE fails here instead of leaving the copy wrong.
+// retraining the site's BPE fails here instead of leaving the copy wrong. Also: resumed runs whose saved picks no
+// longer exist fall back instead of crashing.
 import { describe, expect, it } from 'vitest';
 import { BYTES_PER_TOKEN } from '../../src/lib/scale';
 import { corpusMeter } from '../../src/lib/tokens/counts';
 import { BUDGETS, REQUIRED, fullPrompts } from '../../src/lib/tokens/workbench';
+import { TOKENIZERS } from '../../src/lib/tokens/encodings';
+import { TRACE } from '../../src/lib/tokens/merges';
 import { RECALL } from '../../src/content/tokens/recall';
 import { STEPS as CH3 } from '../../src/content/tokens/03-tokens-are-the-meter';
 import { STEPS as CH7 } from '../../src/content/tokens/07-workbench';
+import { mergesShown } from '../../src/content/tokens/02-how-the-vocabulary-is-learned';
+import { picked } from '../../src/content/tokens/04-every-tokenizer-splits-differently';
 
 const M = corpusMeter();
 const narration = (steps: { id: string; narration: string }[], id: string) => steps.find(s => s.id === id)!.narration;
@@ -40,3 +45,17 @@ describe('chapter 7', () => {
   });
 });
 
+describe('resumed runs whose saved picks no longer exist', () => {
+  it('chapter 2 shows at most every merge the trace has', () => {
+    const n = TRACE.steps.length;
+    expect(mergesShown(n + 5)).toBe(n);
+    expect(mergesShown(3)).toBe(3);
+  });
+
+  it('chapter 4 falls back to the first sentence and tokenizer', () => {
+    const s = { p1: 0, ran: true, sentence: 'gone', tok: 'gone', quiz: null };
+    expect(picked(s)).toMatchObject({ sentence: 'order-en', tok: TOKENIZERS[0].id });
+    const ok = { ...s, sentence: 'spaces', tok: 'site' };
+    expect(picked(ok)).toEqual(ok);
+  });
+});

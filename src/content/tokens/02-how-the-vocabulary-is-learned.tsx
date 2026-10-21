@@ -18,6 +18,8 @@ const MODULE = 'tokens', ID = '02-how-the-vocabulary-is-learned';
 const STEPS_N = TRACE.steps.length, BYTES = idsAt(0).length, END = idsAt(STEPS_N).length;
 const times = (n: number) => (n === 1 ? 'once' : `${n} times`);
 const FIRST_PAIR = FIRST.options[FIRST.correct];
+/** The merges to show: a run saved before the merges were retrained can hold more than the trace has. */
+export const mergesShown = (k: number) => Math.min(k, STEPS_N);
 
 interface S { started: boolean; p1: number | null; k: number; quiz: number | null }
 
@@ -76,16 +78,16 @@ export const STEPS: Step<S>[] = [
 ];
 
 function Merge({ s, apply }: { s: S; apply: (s: S) => void }) {
-  const step = s.k ? TRACE.steps[s.k - 1] : null, done = s.k === STEPS_N;
+  const k = mergesShown(s.k), step = k ? TRACE.steps[k - 1] : null, done = s.k === STEPS_N;
   return (
     <>
       <div role="group" aria-label="Replay the merges" style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-        <button type="button" className="big" disabled={done} onClick={() => apply({ ...s, k: s.k + 1 })}>Next merge</button>
-        {s.k > 0 && <button type="button" className="chip" disabled={done} onClick={() => apply({ ...s, k: STEPS_N })}>Run every merge</button>}
+        <button type="button" className="big" disabled={done} onClick={() => apply({ ...s, k: k + 1 })}>Next merge</button>
+        {k > 0 && <button type="button" className="chip" disabled={done} onClick={() => apply({ ...s, k: STEPS_N })}>Run every merge</button>}
       </div>
-      <p className="tc-status" role="status" data-merge={s.k}>
+      <p className="tc-status" role="status" data-merge={k}>
         {step
-          ? `Merge ${s.k} of ${STEPS_N}: ${pairLabel(step.pair)} → “${shownPiece(step.id)}”, ${times(step.count)} here. ${idsAt(s.k).length} tokens now.`
+          ? `Merge ${k} of ${STEPS_N}: ${pairLabel(step.pair)} → “${shownPiece(step.id)}”, ${times(step.count)} here. ${idsAt(k).length} tokens now.`
           : `No merges yet: ${BYTES} tokens, one per byte.`}
       </p>
     </>
@@ -101,7 +103,7 @@ export default function HowTheVocabularyIsLearned() {
       initial={{ started: false, p1: null, k: 0, quiz: null }}
       next={nextOf(MODULE, ID)}
       stage={({ state }) => state.started
-        ? <TokensStage text={PARAGRAPH} enc={encodingOfIds(idsAt(state.k))} caption={`After ${state.k} of ${STEPS_N} merges, with this site’s tokenizer.`} />
+        ? <TokensStage text={PARAGRAPH} enc={encodingOfIds(idsAt(mergesShown(state.k)))} caption={`After ${mergesShown(state.k)} of ${STEPS_N} merges, with this site’s tokenizer.`} />
         : <TokensStage text="" caption="The paragraph is not cut yet." />}
       controls={{
         start: ({ state, apply }) => <button type="button" className="big" onClick={() => apply({ ...state, started: true })}>Cut it into bytes</button>,
