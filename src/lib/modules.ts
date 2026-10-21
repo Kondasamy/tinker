@@ -56,10 +56,10 @@ export const MODULES: Module[] = [
   AGENTS_MODULE,
   EVALS_MODULE,
   GUARDRAILS_MODULE,
-  CONTEXT_MODULE,
   planned('fine-tuning', 'Fine-tuning vs prompting', 'Advanced', 'When to train the model, when to prompt it, and when to give it documents.'),
   TOKENS_MODULE,
   TRANSFORMERS_MODULE,
+  CONTEXT_MODULE,
 ];
 
 export function moduleOf(id: string): Module {
