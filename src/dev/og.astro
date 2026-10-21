@@ -67,6 +67,11 @@ import { play as soPlay, run as soRun } from '../lib/structured-outputs/prompts'
 import { ORDERS as SO_ORDERS, SOLVED, promptFor, schemaFor } from '../lib/structured-outputs/workbench';
 import { capStep, RUN as NOTE_RUN } from '../content/structured-outputs/04-tokens-are-not-characters';
 import { VOCAB_SIZE } from '../lib/lm/bpe';
+import { THINK_BOARD, thinkScene, type ThinkOpts } from '../components/scenes/thinkScene';
+import { effortChart } from '../components/scenes/effortChart';
+import { deskOf as thinkDesk, kindSeries } from '../content/reasoning/kit';
+import { EFFORTS, KINDS, SPLIT, run as rsRun } from '../lib/reasoning/engine';
+import { WINNERS, totals as rsTotals } from '../lib/reasoning/workbench';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -261,6 +266,29 @@ const GRID_OG: Record<string, () => ReturnType<typeof maskGrid>> = {
   'structured-outputs-04-tokens-are-not-characters': () => gridAt(NOTE_RUN.id, capStep(so!).at),
 };
 const gridOg = GRID_OG[page.og]?.();
+// module 11: the scratchpad desk on recorded runs. The intro: the split-order quote at medium effort; chapter 1: the
+// same quote at none beside medium; chapter 2: at high, the pad at its tallest; chapter 3: accuracy against effort on
+// the multi-step questions; chapter 4: the item count overthought at high; chapter 5: a lookup at high, effort as a hint;
+// chapter 6: accuracy against effort for every kind; chapter 7: the desk on the first winning plan, as chapter 7 draws it.
+const thinkOg = (q: string, e: Parameters<typeof rsRun>[1]): ThinkOpts => ({ ...thinkDesk(rsRun(q, e)), scale: 1.3 });
+const winDesk = (): ThinkOpts => {
+  const p = WINNERS[0], t = rsTotals(p);
+  return { effort: EFFORTS[Math.max(...KINDS.map(k => EFFORTS.indexOf(p[k.id])))], thinking: t.rows.reduce((n, r) => n + r.thinkingTokens, 0), wait: t.wait, right: true, scale: 1.3 };
+};
+const THINK_OG: Record<string, () => ThinkOpts[]> = {
+  reasoning: () => [thinkOg(SPLIT, 'medium')],
+  'reasoning-01-answer-now-or-think-first': () => [thinkOg(SPLIT, 'none'), thinkOg(SPLIT, 'medium')],
+  'reasoning-02-thinking-is-tokens': () => [thinkOg(SPLIT, 'high')],
+  'reasoning-04-when-more-thinking-hurts': () => [thinkOg('count-items', 'high')],
+  'reasoning-05-effort-is-a-hint': () => [thinkOg('same-day-cutoff', 'high')],
+  'reasoning-07-workbench': () => [winDesk()],
+};
+const thinkOgs = THINK_OG[page.og]?.();
+const EFFORT_OG: Record<string, () => ReturnType<typeof effortChart>> = {
+  'reasoning-03-the-effort-dial': () => effortChart(kindSeries(['multistep'])),
+  'reasoning-06-measure-then-pick': () => effortChart(kindSeries()),
+};
+const effortOg = EFFORT_OG[page.og]?.();
 const curveOg = page.og === 'fine-tuning-02-what-training-does' ? lossChart({ series: FINETUNE_SERIES }) : undefined;
 ---
 <html lang="en">
@@ -290,6 +318,8 @@ const curveOg = page.og === 'fine-tuning-02-what-training-does' ? lossChart({ se
           : benchOg ? <IsoStage board={TRAIN_BOARD} scene={trainScene({ ...benchOg, scale: 1.3 })} label="" />
           : stencilOg ? <IsoStage board={STENCIL_BOARD} scene={stencilScene(stencilOg)} label="" />
           : gridOg ? <div class="tf-og"><Flat fig={gridOg} role="img" label="" /></div>
+          : thinkOgs ? <div class={thinkOgs.length > 1 ? 'duo' : ''}>{thinkOgs.map(o => <IsoStage board={THINK_BOARD} scene={thinkScene(o)} label="" />)}</div>
+          : effortOg ? <div class="tf-og"><Flat fig={effortOg} role="img" label="" /></div>
           : curveOg ? <div class="tf-og"><Flat fig={curveOg} role="img" label="" /></div>
           : page.og === 'fine-tuning-06-measure-before-you-train' ? <Grid cols={versionCols(VERSION_IDS)} />
           : deskOg ? <IsoStage board={WINDOW_BOARD} scene={windowScene(deskOg)} label="" />
@@ -321,7 +351,8 @@ const curveOg = page.og === 'fine-tuning-02-what-training-does' ? lossChart({ se
   .pic :global(figure) { margin: 0; }
   .pic :global(figcaption) { display: none; }
   .pic :global(svg) { max-height: 520px; }
-  .pair :global(svg) { max-height: 255px; }   /* home: one picture per live module, stacked */
+  .pair :global(svg) { max-height: 255px; }
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }   /* two desks side by side */   /* home: one picture per live module, stacked */
   .pic :global(.msg *) { animation: none !important; }
   .tk-og :global(.tk-readout) { display: none; }   /* the row's keyboard hint: no use on a still */
   .tk-og { font-size: 22px; }
