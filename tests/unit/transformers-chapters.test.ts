@@ -81,6 +81,11 @@ describe('chapter 5: choosing the next token', () => {
     expect(ch5.continuation(model, s)).toBe(ch5.continuation(model, { ...s }));
     expect(ch5.continuation(model, { t: 0, p: 5, seed: 1 })).toBe(ch5.continuation(model, { t: 0, p: 5, seed: 9 }));
   });
+  it('the quiz’s “drift off the documents at 1.5” holds: the reveal’s draw (seed 1) leaves the greedy “days”', () => {
+    const [t0, hot, all] = [TEMPERATURES.indexOf(0), TEMPERATURES.indexOf(1.5), TOP_PS.indexOf(1)];
+    expect(ch5.continuation(model, { t: t0, p: all, seed: 1 }).startsWith(ch5.PROMPT.expected)).toBe(true);
+    expect(ch5.continuation(model, { t: hot, p: all, seed: 1 }).startsWith(ch5.PROMPT.expected)).toBe(false);
+  });
   it('lowering top-p keeps fewer tokens', () => {
     expect(ch5.keptOf(model, 4, 0)).toBeLessThan(ch5.keptOf(model, 4, 5));
     expect(ch5.keptOf(model, 4, 5)).toBe(meta.model.vocab);
