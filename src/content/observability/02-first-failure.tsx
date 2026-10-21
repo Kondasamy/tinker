@@ -91,12 +91,12 @@ export default function FirstFailure() {
       steps={STEPS}
       initial={{ at: 0, picks: {}, p1: null, view: 'scene', opened: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, apply, sync }) => {
+      stage={({ state, apply, sync, focus }) => {
         const t = traceOfState(state), done = right(state, t);
         return (
           <ObsStage room={{ cards: wallOf(FAILED, state.opened ? t.id : null) }} trace={state.opened ? t : null}
             stamp={done ? t.first : null} picked={state.picks[t.id] ?? null}
-            onPick={id => apply(pick(state, t, id))}
+            onPick={focus === 'spans' ? id => apply(pick(state, t, id)) : undefined}
             view={state.view} onView={view => sync({ ...state, view })}
             caption={state.opened ? <><span className="lbl">Trace {t.id} · {t.customer}</span><span>“{replyOf(t)}”</span></> : 'Yesterday’s failed traces on the wall.'} />
         );
