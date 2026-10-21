@@ -9,13 +9,14 @@ import { PALS, WOOD } from '../../src/lib/iso/core.js';
 
 const draw = (board = HERO_BOARD, scene = HOME_HERO) => renderToString(createElement(IsoStage, { board, scene, label: '' }));
 const upper = (s: string) => s.toUpperCase().replace(/&/g, '&amp;');
+/** the SVG before the planned pills, then each planned pill's group (they are drawn last) */
+const soonSplit = (svg: string) => { const [rest, ...soon] = svg.split('<g class="hero-soon">'); return { rest, soon }; };
 
 describe('home hero', () => {
   it('has one name pill per module, each from the registry, and no NaN coordinates', () => {
     const svg = draw();
-    for (const m of MODULES.filter(m => m.status === 'live')) expect(svg).toContain(upper(m.id.replace(/-/g, ' ')));
-    for (const m of MODULES.filter(m => m.status === 'planned')) expect(svg).toContain(upper(m.id.replace(/-/g, ' ')));
-    expect(svg.match(/class="hero-soon"/g) ?? []).toHaveLength(MODULES.filter(m => m.status === 'planned').length);
+    for (const m of MODULES) expect(svg).toContain(upper(m.id.replace(/-/g, ' ')));
+    expect(soonSplit(svg).soon).toHaveLength(MODULES.filter(m => m.status === 'planned').length);
     expect(svg).not.toMatch(/NaN/);
   });
 
@@ -35,9 +36,9 @@ describe('home hero', () => {
     const scene = heroScene({ live: [{ name: 'One' }, { name: 'Two' }, { name: 'Three', draw: () => '<g class="third"/>' }], planned, ride: [] });
     const svg = draw(heroBoard(7), scene);
     expect(svg).toContain('class="third"');
-    expect(svg).toContain('THREE');
-    expect(svg).not.toMatch(/hero-soon">(?:(?!<g class="hero).)*THREE/s);
-    expect(svg.match(/PLANNED \d/g)).toHaveLength(6);
+    const { rest, soon } = soonSplit(svg);
+    expect(rest).toContain('THREE');
+    expect(soon.map(g => /PLANNED \d/.exec(g)?.[0])).toEqual(planned.map(p => p.name.toUpperCase()));
     expect(svg).not.toMatch(/NaN/);
   });
 
@@ -64,7 +65,9 @@ describe('home hero', () => {
   // the wave's timing is per live plot, so planned pills sit out of it in their own group, which the animated home hides
   it('keeps every planned pill out of the hop wave, in a hero-soon group', () => {
     const svg = draw(heroBoard(2), heroScene({ live: [{ name: 'One' }, { name: 'Two' }], planned: [{ name: 'a' }, { name: 'b' }], ride: [] }));
-    expect(svg.match(/<g class="hero-soon"><g class="block-tag"[^>]*>(?:(?!<g class="hero).)*?>[AB]</gs)).toHaveLength(2);
-    expect(svg.replace(/<g class="hero-soon">.*?>[AB]<.*?<\/g><\/g>/gs, '')).not.toMatch(/>[AB]</);
+    const { rest, soon } = soonSplit(svg);
+    expect(soon.map(g => />([AB])</.exec(g)?.[1])).toEqual(['A', 'B']);
+    expect(rest).not.toMatch(/>[AB]</);
+    expect(rest).toContain('class="hero-hop"');
   });
 });

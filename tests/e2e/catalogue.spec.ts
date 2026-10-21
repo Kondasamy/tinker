@@ -3,6 +3,7 @@ import { test, expect } from '@playwright/test';
 import { serious } from './helpers';
 import { MODULES } from '../../src/lib/modules';
 
+const CONTRIBUTING = 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING.md';
 const catalogue = (page: import('@playwright/test').Page) => page.locator('#modules');
 
 // every module sits at its level: live cards first, then the roadmap's planned cards in registry (build) order;
@@ -17,7 +18,6 @@ for (const width of [1280, 390]) test(`levels in order, live then planned cards 
   await expect(catalogue(page).locator('.roadmap')).toHaveCount(planned.length);
   for (const level of ['Beginner', 'Intermediate', 'Advanced'] as const) {
     const ids = [...live, ...planned].filter(m => m.level === level).map(m => m.id);
-    await expect(page.locator(`[data-level="${level}"] [data-module]`)).toHaveCount(ids.length);
     expect(await page.locator(`[data-level="${level}"] [data-module]`).evaluateAll(els => els.map(e => e.getAttribute('data-module')))).toEqual(ids);
   }
   for (const m of planned) {
@@ -26,9 +26,9 @@ for (const width of [1280, 390]) test(`levels in order, live then planned cards 
     await expect(card).toContainText(m.description);
   }
   await expect(catalogue(page).locator('.coming')).toHaveCount(0);
-  await expect(catalogue(page).getByRole('link', { name: 'Propose a module' })).toHaveAttribute('href', 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING.md');
+  await expect(catalogue(page).getByRole('link', { name: 'Propose a module' })).toHaveAttribute('href', CONTRIBUTING);
   await expect(page.locator('.hero-pic figcaption')).toContainText('The empty plots are open');
-  await expect(page.locator('.hero-pic figcaption a')).toHaveAttribute('href', 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING.md');
+  await expect(page.locator('.hero-pic figcaption a')).toHaveAttribute('href', CONTRIBUTING);
   await expect(page.getByText('In the workshop')).toHaveCount(0);
 });
 
