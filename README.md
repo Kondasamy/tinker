@@ -21,7 +21,7 @@ Every module has a level, a story, an intro at `/<module>/`, its chapters, and a
 | Intermediate | [Prompt injection & guardrails](#prompt-injection--guardrails-guardrails) (Tool calling recommended first) | Live, 7 chapters |
 | Intermediate | Context engineering & memory | Planned |
 | Advanced | [AI agents](#ai-agents-agents) (Tool calling recommended first) | Live, 7 chapters |
-| Advanced | Transformer architecture | Planned |
+| Advanced | [Transformer architecture](#transformer-architecture-transformers) (Tokens recommended first) | Live, 7 chapters |
 | Advanced | Fine-tuning vs prompting | Planned |
 
 ### RAG: Retrieval-Augmented Generation (`/rag/`)
@@ -122,6 +122,22 @@ How text becomes the numbers a model reads: tokens to count and pay for, and emb
 
 The chapters play at a token press: a paper strip of text feeds the press, and one coloured tile per token drops onto a belt. The same tokens are one tab away as a row of tiles, each with its id. This site's small tokenizer runs live in your browser; GPT-2's and GPT-4o's output was recorded ahead of time (`pnpm record:tokens`). Chapters 5 and 6 read RAG's map of meaning, built from the same embeddings.
 
+### Transformer architecture (`/transformers/`)
+
+What happens inside the model between a prompt and its next word. Larkspur's team opens up Larkspur mini, a tiny model trained only on Larkspur's documents, and watches it work in your browser.
+
+| # | Chapter | What you do |
+|---|---|---|
+| 1 | One token at a time | Predict the next token, see the model's probabilities, and grow a reply one token at a time |
+| 2 | Tokens become vectors | Look up a token's vector, and see how position makes two copies of a word differ |
+| 3 | Attention | Read who looks at whom in an attention heatmap, and find the causal mask |
+| 4 | Heads and layers | Compare every head, and find the one that looks back to where a word began |
+| 5 | Choosing the next token | Slide temperature and top-p, and watch a seeded sampler write |
+| 6 | Why long prompts cost more | Grow a prompt token by token and count the attention pairs and the KV cache |
+| 7 | Trace a prompt | Type any prompt and follow it through every stage, past the window too |
+
+The chapters play in an engine room: two floors, one per layer, with a desk per head, and the prompt's tokens as tiles along the front, joined by threads of attention. The same run is one tab away as an attention heatmap with the next-token bar. Nothing is recorded: Larkspur mini (about 51 thousand numbers) runs live in your browser.
+
 ---
 
 ## How it's built
@@ -130,7 +146,7 @@ The chapters play at a token press: a paper strip of text feeds the press, and o
 - **Real retrieval, precomputed answers (RAG):** the corpus is embedded at build time (`pnpm build:index`, all-MiniLM-L6-v2 and a cross-encoder reranker); the browser runs the real similarity, BM25, reranking, graph-walk and agent maths over those vectors. Model answers are pre-recorded for each kind of evidence that can reach the model, so every knob changes the outcome honestly.
 - **Recorded turns, live tools (Tool calling, AI agents):** the model's turns are pre-recorded per scenario (`data/tool-calling/turns/`). The host loop, a JSON Schema subset validator, the approval gate, the tools running on fixture data and an MCP-shaped JSON-RPC server all run in the browser (`src/lib/tools/`). A unit test checks every reachable control setting has a recorded turn. MCP facts come from `data/tool-calling/facts.json`, each with its source. The agent loop (`src/lib/agents/`) reuses those tools and adds plans, approval, budgets, a repeat detector, memory and helpers, all computed in the browser; its recorded turns are in `data/agents/turns/` and its facts in `data/agents/facts.json`. The guardrails loop (`src/lib/guardrails/`) puts defences around the model as host stages (input filters, the taint rule, the allow-list, the output filter, policy checks, approval); its turns are in `data/guardrails/turns/`, its stand-in classifier's hand-set scores in `data/guardrails/inbox.json`, and its attack and customer suites in `data/guardrails/suite.json`.
 - **Real retrieval, recorded grading (Evals):** each version of the assistant runs RAG's real retrieval over the same 12 questions and reads the recorded answer for what it found. Code graders run in the browser (`src/lib/evals/`); the model judge's verdicts, people's labels and repeated tries are recorded in `data/evals/`, and every combination a control can reach is checked by a unit test.
-- **Pictures:** hand-inked isometric figures drawn by the Colorfigures engine (see Credits), extended to orbit, zoom and turn the view. Each module leads with a scene you can picture rather than a flow chart: RAG's pipeline on a workbench, tool calling's back office (`src/components/scenes/officeScene.ts`), evals' test bench (`evalScene.ts`), guardrails' mail room (`guardScene.ts`), tokens' token press (`tokenScene.ts`), and the home page's workshop with a plot per module (`heroScene.ts`). Flat sequence figures (lanes and message cards, `src/lib/iso/flat.ts`) in the same ink show the exact messages, a tab away. Names sit in label pills so they stay readable.
+- **Pictures:** hand-inked isometric figures drawn by the Colorfigures engine (see Credits), extended to orbit, zoom and turn the view. Each module leads with a scene you can picture rather than a flow chart: RAG's pipeline on a workbench, tool calling's back office (`src/components/scenes/officeScene.ts`), evals' test bench (`evalScene.ts`), guardrails' mail room (`guardScene.ts`), tokens' token press (`tokenScene.ts`), transformers' engine room (`engineScene.ts`), and the home page's workshop with a plot per module (`heroScene.ts`). Flat sequence figures (lanes and message cards, `src/lib/iso/flat.ts`) in the same ink show the exact messages, a tab away. Names sit in label pills so they stay readable.
 - **Works on a phone:** below 861px the picture stacks above the story, pills grow, and the sequence shows one message at a time.
 
 <p align="center"><img src="docs/images/phone.png" width="300" alt="A tool calling chapter on a phone: the back office above, the INVALID call held at the schema check"></p>
@@ -154,6 +170,7 @@ The chapters play at a token press: a paper strip of text feeds the press, and o
 | `src/lib/agents/`, `data/agents/` | Agent engine (the agent loop, its budgets, memory and helpers) and its recorded turns, fixtures and facts |
 | `src/lib/evals/`, `data/evals/` | Evals engine (versions, the suite, code graders, the release gate) and its references, judge verdicts, labels, samples and facts |
 | `src/lib/guardrails/`, `data/guardrails/` | Guardrails engine (the loop and its defence layers, the suites' metrics) and its recorded turns, inbox, customers, suites and facts |
+| `src/lib/transformers/`, `data/transformers/` | Transformers engine (the attention trace, the seeded sampler, cost counts) and its chapter prompts, the word-start head and facts |
 | `src/lib/tokens/`, `data/tokens/` | Tokens engine (counts, merges, neighbours over RAG's vectors, the prompt workbench) and its recorded real tokenizers, sentences and facts |
 | `src/lib/iso/` | The drawing engine (Colorfigures, adapted), the isometric stage and the flat figure kit, shared by every module |
 | `src/components/story/` | The step runner every chapter uses: the live picture on the left, the story column on the right |
@@ -173,7 +190,7 @@ pnpm install    # install exact dependency versions from pnpm-lock.yaml
 pnpm dev        # start the dev server on http://localhost:4321
 ```
 
-Open http://localhost:4321 for the Tinker home; the modules are at http://localhost:4321/rag/, http://localhost:4321/tool-calling/, http://localhost:4321/agents/, http://localhost:4321/evals/, http://localhost:4321/guardrails/ and http://localhost:4321/tokens/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap`, `/dev/warmup`, `/dev/agents`, `/dev/evals`, `/dev/guardrails` and `/dev/tokens`. These pages are left out of production builds.
+Open http://localhost:4321 for the Tinker home; the modules are at http://localhost:4321/rag/, http://localhost:4321/tool-calling/, http://localhost:4321/agents/, http://localhost:4321/evals/, http://localhost:4321/guardrails/, http://localhost:4321/tokens/ and http://localhost:4321/transformers/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap`, `/dev/warmup`, `/dev/agents`, `/dev/evals`, `/dev/guardrails`, `/dev/tokens` and `/dev/transformers`. These pages are left out of production builds.
 
 To try the production build locally:
 
