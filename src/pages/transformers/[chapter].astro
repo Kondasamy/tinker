@@ -1,0 +1,29 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import OneTokenAtATime from '../../content/transformers/01-one-token-at-a-time';
+import TokensBecomeVectors from '../../content/transformers/02-tokens-become-vectors';
+import Attention from '../../content/transformers/03-attention';
+import HeadsAndLayers from '../../content/transformers/04-heads-and-layers';
+import ChoosingTheNextToken from '../../content/transformers/05-choosing-the-next-token';
+import WhyLongPromptsCostMore from '../../content/transformers/06-why-long-prompts-cost-more';
+import TraceAPrompt from '../../content/transformers/07-trace-a-prompt';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('transformers').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="transformers" chapter={chapter} title={title}>
+  {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
+      hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
+  {chapter === '01-one-token-at-a-time' ? <OneTokenAtATime client:load />
+    : chapter === '02-tokens-become-vectors' ? <TokensBecomeVectors client:load />
+    : chapter === '03-attention' ? <Attention client:load />
+    : chapter === '04-heads-and-layers' ? <HeadsAndLayers client:load />
+    : chapter === '05-choosing-the-next-token' ? <ChoosingTheNextToken client:load />
+    : chapter === '06-why-long-prompts-cost-more' ? <WhyLongPromptsCostMore client:load />
+    : <TraceAPrompt client:load />}
+</ChapterLayout>

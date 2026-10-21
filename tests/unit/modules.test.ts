@@ -27,8 +27,7 @@ describe('module registry', () => {
 
   it('lists the planned modules without chapters', () => {
     const planned = MODULES.filter(m => m.status === 'planned').map(m => [m.title, m.level, m.chapters.length]);
-    expect(planned).toEqual([['Transformer architecture', 'Advanced', 0],
-      ['Context engineering & memory', 'Intermediate', 0], ['Fine-tuning vs prompting', 'Advanced', 0]]);
+    expect(planned).toEqual([['Context engineering & memory', 'Intermediate', 0], ['Fine-tuning vs prompting', 'Advanced', 0]]);
   });
 
   it('has tool calling as a live Intermediate module that recommends RAG first', () => {
@@ -54,7 +53,13 @@ describe('module registry', () => {
   it('has tokens as a live Beginner module with no prerequisites, numbered 6 after guardrails', () => {
     expect(moduleOf('tokens')).toMatchObject({ title: 'Tokens & embeddings', level: 'Beginner', status: 'live', prereqs: [] });
     expect(moduleOf('tokens').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').map(m => m.id)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens']);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id).slice(0, 6)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens']);
+  });
+
+  it('has transformers as a live Advanced module that recommends Tokens first, numbered 7 after tokens', () => {
+    expect(moduleOf('transformers')).toMatchObject({ title: 'Transformer architecture', level: 'Advanced', status: 'live', prereqs: ['tokens'] });
+    expect(moduleOf('transformers').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers']);
   });
 
   it('keeps chapter ids unique within every module', () => {

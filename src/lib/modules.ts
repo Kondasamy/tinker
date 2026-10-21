@@ -5,6 +5,7 @@ import { AGENTS_MODULE } from '../content/agents/module';
 import { EVALS_MODULE } from '../content/evals/module';
 import { GUARDRAILS_MODULE } from '../content/guardrails/module';
 import { TOKENS_MODULE } from '../content/tokens/module';
+import { TRANSFORMERS_MODULE } from '../content/transformers/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -51,13 +52,13 @@ const planned = (id: string, title: string, level: Level, description: string): 
 export const MODULES: Module[] = [
   RAG_MODULE,
   TOOL_CALLING_MODULE,
-  planned('transformers', 'Transformer architecture', 'Advanced', 'What happens inside the model between a prompt and its next word.'),
   AGENTS_MODULE,
   EVALS_MODULE,
   GUARDRAILS_MODULE,
   planned('context', 'Context engineering & memory', 'Intermediate', 'What goes into the model’s window each turn, and what it should remember.'),
   planned('fine-tuning', 'Fine-tuning vs prompting', 'Advanced', 'When to train the model, when to prompt it, and when to give it documents.'),
   TOKENS_MODULE,
+  TRANSFORMERS_MODULE,
 ];
 
 export function moduleOf(id: string): Module {

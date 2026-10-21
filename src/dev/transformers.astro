@@ -1,0 +1,92 @@
+---
+// Dev-only eyeball page: the transformers engine room in every state (static SVG), the stage live (it loads Larkspur
+// mini, Picture / Attention tabs), the stage while loading and after a failed load, and the prompt box past the context.
+// Below 600px the phone versions show (bigger pills, token numbers only).
+import '../styles/tokens.css';
+import '../styles/page.css';
+import { readFileSync } from 'node:fs';
+import IsoStage from '../lib/iso/IsoStage';
+import { parseModel, type Meta } from '../lib/lm/load';
+import { PROMPTS, trace } from '../lib/transformers/trace';
+import { ENGINE_BOARD, engineLabel, engineScene, type EngineOpts } from '../components/scenes/engineScene';
+import { PromptInput, TransformersStage, modelStore } from '../content/transformers/kit';
+
+const bin = readFileSync('public/data/lm/model.bin');
+const meta = JSON.parse(readFileSync('public/data/lm/meta.json', 'utf8')) as Meta;
+const model = parseModel(meta, bin.buffer.slice(bin.byteOffset, bin.byteOffset + bin.byteLength) as ArrayBuffer);
+const at = (prompt: string, o: Partial<EngineOpts> = {}): EngineOpts => {
+  const t = trace(model, prompt);
+  return { tokens: t.tokens.map(x => x.text), attention: t.attention, ...o };
+};
+const text = (id: string) => PROMPTS.find(p => p.id === id)!.text;
+
+const STATES: [string, EngineOpts][] = [
+  ['Layer 1, head 1 (the word-start head)', at(text('reply'))],
+  ['Layer 1, head 2', at(text('reply'), { head: 1 })],
+  ['Layer 2, head 1', at(text('reply'), { layer: 1 })],
+  ['Layer 2, head 2', at(text('reply'), { layer: 1, head: 1 })],
+  ['A long prompt: the last 32 tokens', at(text('long'))],
+  ['A long prompt, token 10 picked', at(text('long'), { query: 9 })],
+  ['Empty prompt', at('')],
+  ['Before the model loads: tiles, no threads', { tokens: at(text('success')).tokens }],
+  ['Prompt with <script> in it', at('Hi <script>alert(1)</script>')],
+];
+
+const loading = modelStore(() => new Promise<ArrayBuffer>(() => {}));
+loading.start();
+const failed = modelStore(async () => { throw new Error('offline'); });
+failed.start();
+await new Promise(r => setTimeout(r, 0));
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Transformers scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>The stage, live (loads Larkspur mini; try the Attention tab and the arrow keys)</h1>
+      <div class="stages">
+        <section class="stage"><TransformersStage client:load prompt={text('reply')} caption="We reply within five business … the model reads every piece before it." /></section>
+        <section class="stage"><TransformersStage client:load prompt={text('long')} layer={1} head={1} query={20} caption="A long prompt: only the last 32 tokens are read." /></section>
+      </div>
+      <h1>The stage loading, and after a failed load</h1>
+      <div class="stages">
+        <section class="stage"><TransformersStage prompt={text('reply')} store={loading} caption="Loading." /></section>
+        <section class="stage"><TransformersStage prompt={text('reply')} store={failed} caption="Failed." /></section>
+      </div>
+      <h1>The prompt box, past the context</h1>
+      <PromptInput value={`${text('long')} ${text('long')}`} onChange={() => {}} />
+      <h1>Engine room: every state</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={ENGINE_BOARD} scene={engineScene(o)} label={engineLabel(o)} /></div>
+            <div class="phone"><IsoStage board={ENGINE_BOARD} scene={engineScene({ ...o, scale: 1.8 })} label={engineLabel(o)} /></div>
+            <p>{engineLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  .stages { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 16px; }
+  .stage { height: 560px; display: flex; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  @media (max-width: 599px) {
+    .grid, .stages { grid-template-columns: 1fr; }
+    .stage { height: auto; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

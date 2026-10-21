@@ -1,0 +1,58 @@
+/* Transformers stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
+   tool-calling/kit). These are the loading pill and error card over the frame, the Attention tab and the prompt box. */
+.tf-frame { position: relative; }
+/* while Larkspur mini loads the drawing stays (the frame keeps its size); the pill or the error card sits over it */
+.tc-frame > .tf-wait { position: absolute; inset: 0; margin: auto; width: max-content; height: max-content; flex: none;
+  display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 10px 14px;
+  border: 1.5px solid var(--ink); border-radius: 12px; background: var(--card); font-size: 14px; }
+.tf-wait p { margin: 0; }
+.tc-frame > .tf-pill { border-radius: 999px; padding: 4px 14px; font: 800 12px ui-monospace, Menlo, monospace; letter-spacing: .06em; text-transform: uppercase; }
+.tf-stage[data-model="loading"] .tc-frame svg, .tf-stage[data-model="failed"] .tc-frame svg { opacity: .55; }
+
+/* the Attention tab: the heatmap scrolls inside its own frame; the bar and the read-outs sit under it */
+.tc-frame .tf-attn { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
+.tf-attn svg { display: block; height: auto; flex: none; }
+.tc-frame .tf-attn svg { max-width: 100%; height: auto; flex: none; }
+.tf-scroll { overflow: auto; flex: none; }
+.tc-frame .tf-scroll svg { max-width: none; }
+.tf-attn [role="gridcell"]:focus, .tf-attn [role="listitem"]:focus { outline: none; }
+.tf-attn svg:focus-within { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 6px; }
+.tf-readout { margin: 0; font: 700 13px ui-monospace, Menlo, monospace; min-height: 1.4em; }
+.tf-sub { margin: 4px 0 0; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tf-key { margin: 0; padding-left: 2.4em; font: 700 12.5px ui-monospace, Menlo, monospace; columns: 2; }
+
+/* the prompt box: the count and the pieces as tiles; pieces past the context struck through */
+.tf-prompt { display: flex; flex-direction: column; gap: 6px; }
+.tf-prompt label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tf-prompt textarea { font: 15px ui-monospace, Menlo, monospace; padding: 6px 8px; border: 1.5px solid var(--ink); border-radius: 8px; background: var(--card); resize: vertical; }
+.tf-count { margin: 0; font-size: 13px; font-weight: 700; }
+.tf-count[data-over] { color: var(--bad); }
+.tf-tiles { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+.tf-tiles li { font: 700 12.5px ui-monospace, Menlo, monospace; padding: 1px 6px; border: 1.5px solid var(--ink); border-radius: 5px; background: var(--card); white-space: pre; }
+.tf-tiles .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.tf-tiles li.past { border-style: dashed; color: var(--muted); background: transparent; }
+
+/* chapter 2: a vector as a strip of cells, one per number (warm above zero, cool below, paler nearer zero) */
+.tf-vecfig { margin: 6px 0; }
+.tf-vec { display: grid; height: 18px; border: 1.5px solid var(--ink); border-radius: 4px; overflow: hidden; }
+.tf-vec span + span { border-left: 1px solid color-mix(in srgb, var(--ink) 15%, transparent); }
+.tf-vecfig figcaption { font-size: 12.5px; margin-top: 2px; }
+.tf-nums { font: 12px ui-monospace, Menlo, monospace; color: var(--muted); }
+.tf-copies { display: grid; gap: 10px; margin-top: 8px; }
+.tf-copies .lbl { margin: 0; font-weight: 800; font-family: ui-monospace, Menlo, monospace; white-space: pre; }
+
+/* chapter 4: the residual stream, one running vector with each layer adding to it */
+.tf-stream { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 0; }
+.tf-stream li { position: relative; padding: 6px 10px 6px 30px; border: 1.5px solid var(--ink); border-radius: 8px; background: var(--card); font-size: 14px; }
+.tf-stream li + li { margin-top: 18px; }
+.tf-stream li + li::before { content: '↓'; position: absolute; left: 10px; top: -19px; font-weight: 900; }
+.tf-stream li[data-add]::after { content: '+'; position: absolute; left: 9px; top: 5px; font-weight: 900; }
+.tf-stream li[data-add] { background: color-mix(in srgb, var(--mint-l) 35%, var(--card)); }
+
+/* chapter 6: the live counts; chapter 7: the trace, stage by stage */
+.tf-costs { border-collapse: collapse; font-size: 14px; margin: 8px 0; }
+.tf-costs caption { text-align: left; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-bottom: 4px; }
+.tf-costs th { text-align: left; font-weight: 600; padding: 3px 12px 3px 0; }
+.tf-costs td { font: 700 13px ui-monospace, Menlo, monospace; padding: 3px 12px 3px 0; font-variant-numeric: tabular-nums; }
+.tf-costs td + td { font-weight: 400; color: var(--muted); }
+.tf-trace { margin: 8px 0; padding-left: 1.4em; display: grid; gap: 4px; font-size: 14px; }

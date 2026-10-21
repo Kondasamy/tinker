@@ -42,6 +42,17 @@ import { SENTENCES, TOKENIZERS, encodingOf } from '../lib/tokens/encodings';
 import { PARAGRAPH, TRACE, encodingOfIds } from '../lib/tokens/merges';
 import { MAP_FILE, questionOf } from '../lib/tokens/neighbours';
 import { BUDGETS, fullPrompts, promptOf } from '../lib/tokens/workbench';
+import { ENGINE_BOARD, engineScene, type EngineOpts } from '../components/scenes/engineScene';
+import { attentionMap, probBar } from '../components/scenes/attentionMap';
+import { Flat } from '../content/transformers/kit';
+import { PROMPTS, topK, trace } from '../lib/transformers/trace';
+import { diskModel } from '../lib/transformers/diskModel';
+import { grown, PROMPT as TF_REPLY } from '../content/transformers/01-one-token-at-a-time';
+import { PROMPT as TF_COPIES_PROMPT, COPIES } from '../content/transformers/02-tokens-become-vectors';
+import { PREDICT_PROMPT, QUERY } from '../content/transformers/04-heads-and-layers';
+import { distOf } from '../content/transformers/05-choosing-the-next-token';
+import { IDS as TF_LONG, textAt } from '../content/transformers/06-why-long-prompts-cost-more';
+import { LONG as TF_TRUNCATED } from '../content/transformers/07-trace-a-prompt';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -151,6 +162,32 @@ const map = MAP_OG[page.og] ? await (async () => {
   const index = await openIndex(diskLoader), cfg = await index.load(MAP_FILE);
   return { index, out: { record: ragRun(index, cfg, { question: questionOf(MAP_OG[page.og]), topK: 3 }) } as Outcome };
 })() : null;
+// module 7: the engine room as of each chapter, Larkspur mini run at build time from disk. The intro: chapter 1's prompt
+// with its threads; chapter 1: the reply after three added tokens; chapter 2: the second copy of the repeated word picked;
+// chapter 4: the word-start head on the piece that continues a word; chapter 6: the full window; chapter 7: a prompt past
+// the window, a second-floor head lit, token 21's threads. Chapter 3: the attention heatmap; chapter 5: the next-token bar at temperature 1.5.
+const lm = page.og.startsWith('transformers') ? diskModel() : null;
+const roomOf = (text: string, o: Partial<EngineOpts> = {}): EngineOpts => {
+  const t = trace(lm!, text);
+  return { tokens: t.tokens.map(x => x.text), attention: t.attention, ...o };   // scale 1: the pills keep the pieces
+};
+const ENGINE_OG: Record<string, () => EngineOpts> = {
+  transformers: () => roomOf(TF_REPLY.text),
+  'transformers-01-one-token-at-a-time': () => roomOf(grown(lm!, 3).text),
+  'transformers-02-tokens-become-vectors': () => roomOf(TF_COPIES_PROMPT.text, { query: COPIES[1] }),
+  'transformers-04-heads-and-layers': () => roomOf(PREDICT_PROMPT.text, { query: QUERY }),
+  'transformers-06-why-long-prompts-cost-more': () => roomOf(textAt(TF_LONG.length)),
+  'transformers-07-trace-a-prompt': () => roomOf(TF_TRUNCATED, { layer: 1, head: 1, query: 20 }),
+};
+const FLAT_OG: Record<string, () => { svg: string; w: number; h: number }> = {
+  'transformers-03-attention': () => { const t = trace(lm!, PROMPTS.find(p => p.id === 'long')!.text); return attentionMap({ tokens: t.tokens.map(x => x.text), weights: t.attention[0][0] }); },
+  'transformers-05-choosing-the-next-token': () => {
+    // shortcut: crops the bar to its longest bar with probBar's wide layout (label 128, span 420) typed in; update if probBar's layout changes
+    const bars = topK(distOf(lm!, 1.5, 1), 5), b = probBar(bars);
+    return { ...b, w: Math.min(b.w, 128 + 420 * bars[0].p + 50) };
+  },
+};
+const engine = ENGINE_OG[page.og]?.(), flat = FLAT_OG[page.og]?.();
 ---
 <html lang="en">
   <head><meta charset="utf-8" /><meta name="robots" content="noindex" /><title>og: {page.og}</title></head>
@@ -174,6 +211,8 @@ const map = MAP_OG[page.og] ? await (async () => {
           : pressText ? <IsoStage board={TOKEN_BOARD} scene={tokenScene({ text: pressText, scale: 1.5 })} label="" />
           : row ? <div class="tk-og"><TokenRow enc={row} /></div>
           : map ? <div class="tk-og map-og"><ProjectionMap out={map.out} index={map.index} /></div>
+          : engine ? <IsoStage board={ENGINE_BOARD} scene={engineScene(engine)} label="" />
+          : flat ? <div class="tf-og"><Flat fig={flat} role="img" label="" /></div>
           : agent ? <IsoStage board={OFFICE_BOARD} scene={agent} label="" />
           : tool ? <IsoStage board={OFFICE_BOARD} scene={tool} label="" />
           : page.og === 'tool-calling-05-mcp' ? <IsoStage board={MCP_BOARD} scene={MCP_OG} label="" />
@@ -208,5 +247,6 @@ const map = MAP_OG[page.og] ? await (async () => {
   .tk-og { font-size: 22px; }
   .map-og :global(svg) { max-width: 440px; margin: 0 auto; }
   .map-og :global(.readout) { display: none; }   /* the pointer hint: no use on a still */
+  .tf-og :global(svg) { width: 100%; height: auto; max-height: 520px; }
   .map-og :global(.legend) { text-align: center; font-size: 18px; }   /* the capture is a still: no message mid-travel */
 </style>

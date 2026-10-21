@@ -1,0 +1,20 @@
+{
+  "accessed": "2026-10-21",
+  "facts": [
+    { "id": "transformer-paper", "claim": "Vaswani and colleagues introduced the Transformer in 2017, a network built on attention alone, with no recurrence or convolutions.", "source": "https://arxiv.org/abs/1706.03762" },
+    { "id": "attention-formula", "claim": "Scaled dot-product attention is softmax(QKᵀ / √d_k) V: each query is scored against every key, and the scores weight the values.", "value": "softmax(QKᵀ / √d_k) V", "source": "https://arxiv.org/abs/1706.03762" },
+    { "id": "causal-mask", "claim": "The original Transformer's decoder masks attention so a position cannot look at the positions after it, which keeps generation one token at a time.", "source": "https://arxiv.org/abs/1706.03762" },
+    { "id": "multi-head", "claim": "Multi-head attention runs several heads side by side, so the model can attend to different kinds of information at once.", "source": "https://arxiv.org/abs/1706.03762" },
+    { "id": "base-size", "claim": "The original base Transformer used 8 heads and a stack of 6 layers.", "value": "8 heads, 6 layers", "source": "https://arxiv.org/abs/1706.03762" },
+    { "id": "rope", "claim": "Rotary position embedding (RoPE), from Su and colleagues, encodes a token's position with a rotation, so attention also reflects how far apart two tokens are.", "source": "https://arxiv.org/abs/2104.09864" },
+    { "id": "top-p", "claim": "Nucleus (top-p) sampling, from Holtzman and colleagues, draws from the smallest set of tokens whose probabilities add up to at least p.", "source": "https://arxiv.org/abs/1904.09751" },
+    { "id": "temperature", "claim": "Holtzman and colleagues note that lowering the temperature improves quality but costs diversity.", "source": "https://arxiv.org/abs/1904.09751" },
+    { "id": "temperature-logits", "claim": "Holtzman and colleagues describe sampling with temperature as dividing the logits (the model’s raw scores) by the temperature before the softmax; a temperature below 1 skews the distribution toward the likeliest tokens.", "source": "https://arxiv.org/abs/1904.09751" },
+    { "id": "n-squared", "claim": "Anthropic: the transformer lets every token attend to every other token across the context, which gives n² pairwise relationships for n tokens.", "source": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" },
+    { "id": "attention-budget", "claim": "Anthropic: models have an attention budget, and every new token in the context draws it down.", "source": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" },
+    { "id": "nanogpt", "claim": "Larkspur mini's training script follows nanoGPT (MIT), which its author now calls deprecated in favour of nanochat.", "source": "https://github.com/karpathy/nanoGPT" },
+    { "id": "illustrated-transformer", "claim": "The Illustrated Transformer, by Jay Alammar, walks through the Transformer step by step in pictures.", "source": "https://jalammar.github.io/illustrated-transformer/" },
+    { "id": "3b1b-attention", "claim": "3Blue1Brown's \"Attention in transformers, step-by-step\" (Deep Learning chapter 6) animates queries, keys, values and masking.", "source": "https://www.3blue1brown.com/lessons/attention" },
+    { "id": "transformer-explainer", "claim": "Transformer Explainer, from Georgia Tech's Polo Club, runs GPT-2 small (124M parameters) live in the browser.", "source": "https://poloclub.github.io/transformer-explainer/" }
+  ]
+}
