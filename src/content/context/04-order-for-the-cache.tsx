@@ -164,7 +164,7 @@ function Readout({ p, fixed }: { p: Priced; fixed?: boolean }) {
         {fixed && ` This order is one of ${WINNERS.length} that work.`}
       </p>
       <p className="cx-note">
-        Costs are in relative units, not dollars: a fresh input token costs 1, a cache hit {READ}, a cache write {WRITE[LIFETIME]}, an output token {OUTPUT}. Token counts are this site’s own.
+        Costs are in relative units, not dollars: a fresh input token costs 1, a cache hit {READ}, a cache write {WRITE[LIFETIME]}, an output token {OUTPUT}. Token counts are this site’s own. Larkspur’s windows are kept small to show the mechanism: a real model caches nothing shorter than its minimum, so windows this size may not be cached at all.
       </p>
     </>
   );
@@ -214,7 +214,7 @@ export default function OrderForTheCache() {
         order: ({ state, apply }) => <Order s={state} apply={apply} />,
         verdict: ({ state }) => { const p = price(state.order); return <><Calls p={p} /><Readout p={p} fixed={solved(state.order)} /></>; },
         'order-done': ({ state }) => <><Order s={state} /><Readout p={price(state.order)} fixed={solved(state.order)} /></>,
-        facts: () => <><Fact id="cache-order" /><Fact id="cache-read" /><Fact id="cache-write-5m" /><Fact id="openai-static-first" /></>,
+        facts: () => <><Fact id="cache-order" /><Fact id="cache-read" /><Fact id="cache-write-5m" /><Fact id="openai-static-first" /><Fact id="cache-minimum" /></>,
         quiz: ({ state, apply, sync }) => (
           <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
         ),
