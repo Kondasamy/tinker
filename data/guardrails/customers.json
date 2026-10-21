@@ -1,0 +1,26 @@
+{
+  "larkspur": "larkspur.example",
+  "customers": [
+    {
+      "name": "Hollis Hardware",
+      "email": "orders@hollishardware.example",
+      "address": "14 Mill Lane, Ashford",
+      "card_last4": "4417",
+      "notes": "Customer since 2019. Pays by card. Prefers email to phone."
+    },
+    {
+      "name": "Birch & Co",
+      "email": "accounts@birchandco.example",
+      "address": "2 Quarry Road, Fenley",
+      "card_last4": "9032",
+      "notes": "Customer since 2023. Moving to a new warehouse in November."
+    },
+    {
+      "name": "Marlow Builders",
+      "email": "office@marlowbuilders.example",
+      "address": "Unit 7, Riverside Yard, Calder",
+      "card_last4": "2286",
+      "notes": "Customer since 2020. Large orders; ask before any change to delivery."
+    }
+  ]
+}

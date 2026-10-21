@@ -162,11 +162,12 @@ test('chapter 3: the planted line. Rejecting leaves order 1043 unrefunded, appro
   await expect(after(1043)).not.toHaveText((await before(1043).textContent())!);
   await c.getByRole('button', { name: /^Try the other choice: reject/ }).click();
   await expect(row(1043)).not.toHaveAttribute('data-changed');
-  // the injection step ends on the Guardrails roadmap card, not a page of its own
+  // the injection step ends on a link to the Guardrails module's intro
   const link = c.getByRole('link', { name: moduleOf('guardrails').title });
-  await expect(link).toHaveAttribute('href', '/#module-guardrails');
+  await expect(link).toHaveAttribute('href', '/guardrails/');
   await link.click();
-  await expect(page.locator('#module-guardrails.roadmap')).toBeVisible();
+  await expect(page).toHaveURL(/\/guardrails\/$/);
+  await expect(page.getByRole('navigation', { name: 'Breadcrumb' }).locator('[aria-current="page"]')).toHaveText(moduleOf('guardrails').title);
 });
 
 // chapter 4's "lookup failed" email, as recorded

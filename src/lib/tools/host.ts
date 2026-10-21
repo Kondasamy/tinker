@@ -42,6 +42,8 @@ export function combosOf<S>(d: { [k: string]: unknown[] | undefined }): Partial<
   return Object.entries(d).reduce<Partial<S>[]>(
     (acc, [k, vals]) => acc.flatMap((s) => (vals ?? []).map((v) => ({ ...s, [k]: v }))), [{}]);
 }
+/** A call's history key: its name, and its order id when it has one, e.g. `get_order:1042`. */
+export const keyOf = (c: Call) => [c.name, ...(c.arguments.order_id === undefined ? [] : [c.arguments.order_id])].join(':');
 /** Every combination of a scenario's domain values. */
 export const combos = (id: string) => combosOf<Setup>(DOMAINS[id]);
 

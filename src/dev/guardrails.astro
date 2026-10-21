@@ -1,0 +1,84 @@
+---
+// Dev-only eyeball page: the guardrails mail room in every prop state (static SVG, no client JS), then the Steps lanes.
+// Below 600px the phone versions show (bigger pills, the props' readouts left to the caption line).
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import FlatStage from '../components/scenes/FlatStage';
+import { GUARD_BOARD, guardLabel, guardReadouts, guardScene, type GuardOpts } from '../components/scenes/guardScene';
+import { guardLanes, guardMessages } from '../components/scenes/guardSequence';
+import { run, type Run, type Setup } from '../lib/guardrails/loop';
+import { RECORDING } from '../lib/guardrails/turns';
+
+const go = (s: Partial<Setup> & { case: string }) => run(RECORDING, s);
+/** steps up to and including the first step matching (the first step if none does) */
+const upTo = (r: Run, f: (s: Run['steps'][number]) => boolean) => r.steps.findIndex(f) + 1 || 1;
+const readOk = (s: Run['steps'][number]) => s.kind === 'result' && s.call.name === 'read_inbox';
+const callOf = (name: string) => (s: Run['steps'][number]) => s.kind === 'call' && s.call.name === name;
+
+const PLAIN = go({ case: 'invoice' });
+const HELD = go({ case: 'invoice', threshold: 0.5 });
+const PASSED = go({ case: 'status', threshold: 0.5 });
+const REFUSED = go({ case: 'offtopic', inputPolicy: true });
+const BLOCKED = go({ case: 'invoice', allow: true });
+const TAINT = go({ case: 'invoice', taint: true });
+const ALL = go({ case: 'invoice', threshold: 0.9, allow: true, taint: true });
+const leg = (remove: Setup['remove']) => go({ case: 'invoice', remove });
+
+const STATES: [string, GuardOpts][] = [
+  ['No defences: read_inbox asked for', { run: PLAIN, upTo: upTo(PLAIN, callOf('read_inbox')) }],
+  ['No defences: the email rides in, tagged', { run: PLAIN, upTo: upTo(PLAIN, readOk) }],
+  ['No defences: the record goes down the chute', { run: PLAIN, upTo: upTo(PLAIN, callOf('send_email')) }],
+  ['No defences: done (reply to the sender)', { run: PLAIN }],
+  ['Input check: invoice held at the arch', { run: HELD, upTo: upTo(HELD, readOk), screen: true }],
+  ['Input check: an ordinary email passes', { run: PASSED, upTo: upTo(PASSED, readOk), screen: true }],
+  ['Input policy: off-topic turned away', { run: REFUSED, upTo: upTo(REFUSED, readOk), screen: true }],
+  ['Allow-list: the send stopped at the barrier', { run: BLOCKED, upTo: upTo(BLOCKED, s => s.kind === 'blocked'), allow: true }],
+  ['Allow-list: done', { run: BLOCKED, allow: true }],
+  ['Taint rule: before the read', { run: TAINT, upTo: 1, taint: true }],
+  ['Taint rule: after the read, the chute shut', { run: TAINT, taint: true }],
+  ['Trifecta: all three legs', { run: leg('none'), upTo: 1, legs: true }],
+  ['Trifecta: private data removed', { run: leg('private'), legs: true, remove: 'private' }],
+  ['Trifecta: untrusted text removed', { run: leg('untrusted'), legs: true, remove: 'untrusted', screen: true }],
+  ['Trifecta: the way out removed', { run: leg('out'), legs: true, remove: 'out' }],
+  ['Everything on (allow-list, taint rule, screening)', { run: ALL, screen: true, allow: true, taint: true, legs: true }],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Guardrails scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Guardrails mail room: every prop state</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={GUARD_BOARD} scene={guardScene(o)} label={guardLabel(o)} /></div>
+            <div class="phone"><IsoStage board={GUARD_BOARD} scene={guardScene({ ...o, scale: 1.8 })} label={guardLabel(o)} /></div>
+            <p>{guardReadouts(o).join(' · ')}</p>
+          </section>
+        ))}
+      </div>
+      <h1>Steps: the invoice attack, allow-list on</h1>
+      <FlatStage lanes={guardLanes()} msgs={guardMessages(BLOCKED)} />
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

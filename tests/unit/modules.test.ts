@@ -28,7 +28,6 @@ describe('module registry', () => {
   it('lists the planned modules without chapters', () => {
     const planned = MODULES.filter(m => m.status === 'planned').map(m => [m.title, m.level, m.chapters.length]);
     expect(planned).toEqual([['Tokens & embeddings', 'Beginner', 0], ['Transformer architecture', 'Advanced', 0],
-      ['Prompt injection & guardrails', 'Intermediate', 0],
       ['Context engineering & memory', 'Intermediate', 0], ['Fine-tuning vs prompting', 'Advanced', 0]]);
   });
 
@@ -45,6 +44,11 @@ describe('module registry', () => {
   it('has evals as a live Intermediate module that recommends RAG first', () => {
     expect(moduleOf('evals')).toMatchObject({ title: 'Evals & LLM testing', level: 'Intermediate', status: 'live', prereqs: ['rag'] });
     expect(moduleOf('evals').author).toEqual(moduleOf('rag').author);
+  });
+
+  it('has guardrails as a live Intermediate module that recommends Tool calling first', () => {
+    expect(moduleOf('guardrails')).toMatchObject({ title: 'Prompt injection & guardrails', level: 'Intermediate', status: 'live', prereqs: ['tool-calling'] });
+    expect(moduleOf('guardrails').author).toEqual(moduleOf('rag').author);
   });
 
   it('keeps chapter ids unique within every module', () => {

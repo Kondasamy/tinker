@@ -6,7 +6,7 @@ import { validate } from '../tools/schema';
 import { connect, createServer, orderHandlers, ORDERS, TOOLS, text, toolError, type Bundle, type LogEntry, type Order, type ServerDef, type Tool, type ToolResult } from '../tools/server';
 import { BYTES_PER_TOKEN } from '../scale';
 import { money } from '../format';
-import { answerOf, combosOf, stepsOf } from '../tools/host';
+import { answerOf, combosOf, keyOf, stepsOf } from '../tools/host';
 import { lookup, NORECORD, signature, type Call, type Mem, type PlanState, type Recording } from './turns';
 
 export type AgentServerId = keyof typeof AGENT.servers;
@@ -171,14 +171,13 @@ export interface Run {
   signatures: string[];
   meter: Meter[];
 }
-export { stepsOf, answerOf };
+export { stepsOf, answerOf, keyOf };
 export const tokens = (s: string) => Math.ceil(new TextEncoder().encode(s).length / BYTES_PER_TOKEN);
 /** All tokens a run used, its helpers' included. */
 export const totalTokens = (r: Run): number =>
   r.meter.reduce((n, m) => n + m.input + m.output, 0) + stepsOf(r, 'helper').reduce((n, h) => n + totalTokens(h.run), 0);
 
 export const SYSTEM = 'You are the Larkspur Supply Co. support assistant. Work the case with the tools listed until it is done, then say so in one short answer.';
-export const keyOf = (c: Call) => [c.name, ...(c.arguments.order_id === undefined ? [] : [c.arguments.order_id])].join(':');
 
 interface World { orders: Order[]; mail: Email[]; log: LogEntry[]; client: Map<string, ReturnType<typeof connect>>; listed: Tool[] }
 

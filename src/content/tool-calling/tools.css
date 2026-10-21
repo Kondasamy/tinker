@@ -37,7 +37,8 @@
 .tc-frame { width: 100%; min-height: 0; display: flex; }
 .tc-frame > * { flex: 1; min-width: 0; min-height: 0; }
 /* switching Picture and Messages: the new view fades in where the old one was (the frame keeps its size) */
-@media (prefers-reduced-motion: no-preference) { .tc-frame svg { animation: tc-fade .28s ease-out; } }   /* drawings only: text never fades (contrast) */
+/* drawings only: text never fades (contrast), so the sequence's message cards, which are text, appear at once */
+@media (prefers-reduced-motion: no-preference) { .tc-frame svg:not(.flat svg) { animation: tc-fade .28s ease-out; } }
 @keyframes tc-fade { from { opacity: 0; } }
 .tc-tabs .chip:disabled { opacity: .45; cursor: default; box-shadow: none; }
 .tc-frame .flat { display: flex; flex-direction: column; }

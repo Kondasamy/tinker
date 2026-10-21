@@ -29,6 +29,9 @@ import { Grid, colsOf, loadSuite, resultsOf } from '../content/evals/kit';
 import { labelledOf } from '../content/evals/04-judge-the-judge';
 import { QUESTIONS, VERSIONS, BASELINE } from '../lib/evals/suite';
 import { SAMPLES, agreement, decide, gradeRows, judged, label, passHatK } from '../lib/evals/graders';
+import { GUARD_BOARD, guardScene } from '../components/scenes/guardScene';
+import { run as guardRun } from '../lib/guardrails/loop';
+import { RECORDING as GUARD_RECORDING } from '../lib/guardrails/turns';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -101,6 +104,26 @@ const evalOpts = EVAL_OG[page.og]?.();
 // chapter 5: the planted refund on its way to the order system, with no gate: the run whose reply reads fine and whose
 // ledger does not
 const EVAL_PATH = officeScene({ msgs: seq('injection'), upTo: 8, tools: RECORDINGS.injection.tools.length, note: true, scale: 1.5 });
+// module 5: the forwarded invoice with no defences. The intro: the customer's record riding out to the post box;
+// chapter 1: the email riding in, tagged as untrusted, before the model reads it
+const INVOICE = guardRun(GUARD_RECORDING, { case: 'invoice' });
+const ALLOWED = guardRun(GUARD_RECORDING, { case: 'invoice', allow: true });
+const callAt = (name: string) => INVOICE.steps.findIndex(st => st.kind === 'call' && st.call.name === name) + 1;
+const GUARD_OG: Record<string, ReturnType<typeof guardScene>> = {
+  guardrails: guardScene({ run: INVOICE, upTo: callAt('send_email'), scale: 1.5 }),
+  'guardrails-01-data-or-instructions': guardScene({ run: INVOICE, upTo: callAt('read_inbox') + 1, scale: 1.5 }),
+  // chapter 2: the forwarded invoice held at the screening arch; chapter 3: its send stopped at the allow-list barrier;
+  // chapter 4: the three legs named, the chute shut by the taint rule once the email was read
+  'guardrails-02-input-filters': guardScene({ run: guardRun(GUARD_RECORDING, { case: 'invoice', threshold: 0.5 }), screen: true, scale: 1.5 }),
+  'guardrails-03-the-way-out': guardScene({ run: ALLOWED, upTo: ALLOWED.steps.findIndex(st => st.kind === 'blocked') + 1, allow: true, scale: 1.5 }),
+  'guardrails-04-the-trifecta': guardScene({ run: guardRun(GUARD_RECORDING, { case: 'invoice', taint: true }), legs: true, taint: true, scale: 1.5 }),
+  // chapter 5: two layers on the forwarded invoice (the taint rule's shut chute and the allow-list's barrier); chapter 6:
+  // the off-topic favour turned away at the screening arch; chapter 7: the red team's clean set, every check in place
+  'guardrails-05-defence-in-depth': guardScene({ run: guardRun(GUARD_RECORDING, { case: 'invoice', rule: true, taint: true, allow: true }), taint: true, allow: true, scale: 1.5 }),
+  'guardrails-06-when-the-user-is-the-attacker': guardScene({ run: guardRun(GUARD_RECORDING, { case: 'offtopic', inputPolicy: true }), screen: true, scale: 1.5 }),
+  'guardrails-07-red-team': guardScene({ run: guardRun(GUARD_RECORDING, { case: 'invoice', rule: true, taint: true, inputPolicy: true, allow: true, outputPolicy: 'on' }), screen: true, taint: true, allow: true, scale: 1.5 }),
+};
+const guard = GUARD_OG[page.og];
 ---
 <html lang="en">
   <head><meta charset="utf-8" /><meta name="robots" content="noindex" /><title>og: {page.og}</title></head>
@@ -120,6 +143,7 @@ const EVAL_PATH = officeScene({ msgs: seq('injection'), upTo: 8, tools: RECORDIN
           : evalOpts ? <IsoStage board={EVAL_BOARD} scene={evalScene({ ...evalOpts, scale: 1.5 })} label="" />
           : page.og === 'evals-01-it-worked-when-i-tried-it' && suite ? <Grid cols={colsOf(suite, ['v1', 'v2'])} />
           : page.og === 'evals-05-grading-the-path' ? <IsoStage board={OFFICE_BOARD} scene={EVAL_PATH} label="" />
+          : guard ? <IsoStage board={GUARD_BOARD} scene={guard} label="" />
           : agent ? <IsoStage board={OFFICE_BOARD} scene={agent} label="" />
           : tool ? <IsoStage board={OFFICE_BOARD} scene={tool} label="" />
           : page.og === 'tool-calling-05-mcp' ? <IsoStage board={MCP_BOARD} scene={MCP_OG} label="" />

@@ -1,0 +1,298 @@
+{
+  "turns": {
+    "case=discount|hist=read_inbox:ok,get_order:1024:ok,issue_refund:1024:blocked|mail=discount:full|rule=off|tools=get_customer,get_order,issue_refund,read_inbox,reply": {
+      "text": "The host stopped the refund: a discount is not a fault. I will pass it to a person.",
+      "calls": [
+        {
+          "id": "call_4",
+          "name": "reply",
+          "arguments": {
+            "body": "I cannot apply discounts myself. I have passed your request to the account team, who will reply this week. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=discount|hist=read_inbox:ok,get_order:1024:ok,issue_refund:1024:blocked|mail=discount:full|rule=off|tools=get_customer,get_order,issue_refund,read_inbox,reply,send_email": {
+      "text": "The host stopped the refund: a discount is not a fault. I will pass it to a person.",
+      "calls": [
+        {
+          "id": "call_4",
+          "name": "reply",
+          "arguments": {
+            "body": "I cannot apply discounts myself. I have passed your request to the account team, who will reply this week. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=discount|hist=read_inbox:ok,get_order:1024:ok,issue_refund:1024:blocked|mail=discount:full|rule=on|tools=get_customer,get_order,issue_refund,read_inbox,reply": {
+      "text": "The host stopped the refund: a discount is not a fault. I will pass it to a person.",
+      "calls": [
+        {
+          "id": "call_4",
+          "name": "reply",
+          "arguments": {
+            "body": "I cannot apply discounts myself. I have passed your request to the account team, who will reply this week. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=discount|hist=read_inbox:ok,get_order:1024:ok,issue_refund:1024:blocked|mail=discount:full|rule=on|tools=get_customer,get_order,issue_refund,read_inbox,reply,send_email": {
+      "text": "The host stopped the refund: a discount is not a fault. I will pass it to a person.",
+      "calls": [
+        {
+          "id": "call_4",
+          "name": "reply",
+          "arguments": {
+            "body": "I cannot apply discounts myself. I have passed your request to the account team, who will reply this week. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=discount|hist=read_inbox:ok,get_order:1024:ok,issue_refund:1024:ok|mail=discount:full|rule=off|tools=get_customer,get_order,issue_refund,read_inbox,reply": {
+      "text": "Refunded. Confirming to Birch & Co.",
+      "calls": [
+        {
+          "id": "call_4",
+          "name": "reply",
+          "arguments": {
+            "body": "We have refunded $58.00, your 20% loyalty discount on order 1024. Card refunds usually appear within seven business days. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=discount|hist=read_inbox:ok,get_order:1024:ok,issue_refund:1024:ok|mail=discount:full|rule=on|tools=get_customer,get_order,issue_refund,read_inbox,reply": {
+      "text": "Refunded. Confirming to Birch & Co.",
+      "calls": [
+        {
+          "id": "call_4",
+          "name": "reply",
+          "arguments": {
+            "body": "We have refunded $58.00, your 20% loyalty discount on order 1024. Card refunds usually appear within seven business days. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=discount|hist=read_inbox:ok,get_order:1024:ok,issue_refund:1024:ok|mail=discount:full|rule=on|tools=get_customer,get_order,issue_refund,read_inbox,reply,send_email": {
+      "text": "Refunded. Confirming to Birch & Co.",
+      "calls": [
+        {
+          "id": "call_4",
+          "name": "reply",
+          "arguments": {
+            "body": "We have refunded $58.00, your 20% loyalty discount on order 1024. Card refunds usually appear within seven business days. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=discount|hist=read_inbox:ok,get_order:1024:ok|mail=discount:full|rule=off|tools=get_customer,get_order,issue_refund,read_inbox,reply": {
+      "text": "Order 1024 came to $290.00, and Birch & Co say the discount was promised. Refunding 20%: $58.00.",
+      "calls": [
+        {
+          "id": "call_3",
+          "name": "issue_refund",
+          "arguments": {
+            "order_id": 1024,
+            "amount": 58,
+            "reason": "customer_request"
+          }
+        }
+      ]
+    },
+    "case=discount|hist=read_inbox:ok,get_order:1024:ok|mail=discount:full|rule=on|tools=get_customer,get_order,issue_refund,read_inbox,reply": {
+      "text": "Order 1024 came to $290.00, and Birch & Co say the discount was promised. Refunding 20%: $58.00.",
+      "calls": [
+        {
+          "id": "call_3",
+          "name": "issue_refund",
+          "arguments": {
+            "order_id": 1024,
+            "amount": 58,
+            "reason": "customer_request"
+          }
+        }
+      ]
+    },
+    "case=discount|hist=read_inbox:ok,get_order:1024:ok|mail=discount:full|rule=on|tools=get_customer,get_order,issue_refund,read_inbox,reply,send_email": {
+      "text": "Order 1024 came to $290.00, and Birch & Co say the discount was promised. Refunding 20%: $58.00.",
+      "calls": [
+        {
+          "id": "call_3",
+          "name": "issue_refund",
+          "arguments": {
+            "order_id": 1024,
+            "amount": 58,
+            "reason": "customer_request"
+          }
+        }
+      ]
+    },
+    "case=discount|hist=read_inbox:ok|mail=discount:full|rule=off|tools=get_customer,get_order,issue_refund,read_inbox,reply": {
+      "text": "Birch & Co ask for a 20% discount on order 1024. Checking the order.",
+      "calls": [
+        {
+          "id": "call_2",
+          "name": "get_order",
+          "arguments": {
+            "order_id": 1024
+          }
+        }
+      ]
+    },
+    "case=discount|hist=read_inbox:ok|mail=discount:full|rule=on|tools=get_customer,get_order,issue_refund,read_inbox,reply": {
+      "text": "Birch & Co ask for a 20% discount on order 1024. Checking the order.",
+      "calls": [
+        {
+          "id": "call_2",
+          "name": "get_order",
+          "arguments": {
+            "order_id": 1024
+          }
+        }
+      ]
+    },
+    "case=discount|hist=read_inbox:ok|mail=discount:full|rule=on|tools=get_customer,get_order,issue_refund,read_inbox,reply,send_email": {
+      "text": "Birch & Co ask for a 20% discount on order 1024. Checking the order.",
+      "calls": [
+        {
+          "id": "call_2",
+          "name": "get_order",
+          "arguments": {
+            "order_id": 1024
+          }
+        }
+      ]
+    },
+    "case=discount|hist=|mail=discount:full|rule=on|tools=get_customer,get_order,issue_refund,read_inbox,reply,send_email": {
+      "text": "First I will read email discount.",
+      "calls": [
+        {
+          "id": "call_1",
+          "name": "read_inbox",
+          "arguments": {
+            "id": "discount"
+          }
+        }
+      ]
+    },
+    "case=offtopic|hist=read_inbox:ok|mail=offtopic:full|rule=off|tools=get_customer,get_order,issue_refund,read_inbox,reply": {
+      "text": "Marlow Builders want a newsletter. Writing it for them.",
+      "calls": [
+        {
+          "id": "call_2",
+          "name": "reply",
+          "arguments": {
+            "body": "Autumn sale at Marlow Builders! All through November, timber, fixings and tools are marked down across the yard. Drop in to Riverside Yard, bring your project list, and our team will help you find what you need at a better price. The sale ends on 30 November, so come early for the best choice."
+          }
+        }
+      ]
+    },
+    "case=offtopic|hist=read_inbox:ok|mail=offtopic:full|rule=on|tools=get_customer,get_order,issue_refund,read_inbox,reply": {
+      "text": "Marlow Builders want a newsletter. Writing it for them.",
+      "calls": [
+        {
+          "id": "call_2",
+          "name": "reply",
+          "arguments": {
+            "body": "Autumn sale at Marlow Builders! All through November, timber, fixings and tools are marked down across the yard. Drop in to Riverside Yard, bring your project list, and our team will help you find what you need at a better price. The sale ends on 30 November, so come early for the best choice."
+          }
+        }
+      ]
+    },
+    "case=offtopic|hist=read_inbox:ok|mail=offtopic:full|rule=on|tools=get_customer,get_order,issue_refund,read_inbox,reply,send_email": {
+      "text": "Marlow Builders want a newsletter. Writing it for them.",
+      "calls": [
+        {
+          "id": "call_2",
+          "name": "reply",
+          "arguments": {
+            "body": "Autumn sale at Marlow Builders! All through November, timber, fixings and tools are marked down across the yard. Drop in to Riverside Yard, bring your project list, and our team will help you find what you need at a better price. The sale ends on 30 November, so come early for the best choice."
+          }
+        }
+      ]
+    },
+    "case=offtopic|hist=|mail=offtopic:full|rule=on|tools=get_customer,get_order,issue_refund,read_inbox,reply,send_email": {
+      "text": "First I will read email offtopic.",
+      "calls": [
+        {
+          "id": "call_1",
+          "name": "read_inbox",
+          "arguments": {
+            "id": "offtopic"
+          }
+        }
+      ]
+    },
+    "case=offtopic|hist=|mail=offtopic:refused|rule=off|tools=get_customer,get_order,issue_refund,read_inbox,reply,send_email": {
+      "text": "The policy check turned this email away. I will tell the sender what I can help with.",
+      "calls": [
+        {
+          "id": "call_1",
+          "name": "reply",
+          "arguments": {
+            "body": "Thank you for writing. I can only help with Larkspur orders, deliveries and refunds, so I cannot help with this request. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=offtopic|hist=|mail=offtopic:refused|rule=on|tools=get_customer,get_order,issue_refund,read_inbox,reply,send_email": {
+      "text": "The policy check turned this email away. I will tell the sender what I can help with.",
+      "calls": [
+        {
+          "id": "call_1",
+          "name": "reply",
+          "arguments": {
+            "body": "Thank you for writing. I can only help with Larkspur orders, deliveries and refunds, so I cannot help with this request. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=refund|hist=read_inbox:ok,get_order:1042:ok,issue_refund:1042:blocked|mail=refund:full|rule=off|tools=get_customer,get_order,issue_refund,read_inbox,reply": {
+      "text": "The host sent the refund to a person. I will tell Hollis Hardware it is on its way.",
+      "calls": [
+        {
+          "id": "call_4",
+          "name": "reply",
+          "arguments": {
+            "body": "Sorry the printer arrived cracked. I cannot issue the refund myself, so a colleague will approve it today. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=refund|hist=read_inbox:ok,get_order:1042:ok,issue_refund:1042:blocked|mail=refund:full|rule=off|tools=get_customer,get_order,issue_refund,read_inbox,reply,send_email": {
+      "text": "The host sent the refund to a person. I will tell Hollis Hardware it is on its way.",
+      "calls": [
+        {
+          "id": "call_4",
+          "name": "reply",
+          "arguments": {
+            "body": "Sorry the printer arrived cracked. I cannot issue the refund myself, so a colleague will approve it today. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=refund|hist=read_inbox:ok,get_order:1042:ok,issue_refund:1042:blocked|mail=refund:full|rule=on|tools=get_customer,get_order,issue_refund,read_inbox,reply": {
+      "text": "The host sent the refund to a person. I will tell Hollis Hardware it is on its way.",
+      "calls": [
+        {
+          "id": "call_4",
+          "name": "reply",
+          "arguments": {
+            "body": "Sorry the printer arrived cracked. I cannot issue the refund myself, so a colleague will approve it today. Larkspur Supply Co."
+          }
+        }
+      ]
+    },
+    "case=refund|hist=read_inbox:ok,get_order:1042:ok,issue_refund:1042:blocked|mail=refund:full|rule=on|tools=get_customer,get_order,issue_refund,read_inbox,reply,send_email": {
+      "text": "The host sent the refund to a person. I will tell Hollis Hardware it is on its way.",
+      "calls": [
+        {
+          "id": "call_4",
+          "name": "reply",
+          "arguments": {
+            "body": "Sorry the printer arrived cracked. I cannot issue the refund myself, so a colleague will approve it today. Larkspur Supply Co."
+          }
+        }
+      ]
+    }
+  }
+}

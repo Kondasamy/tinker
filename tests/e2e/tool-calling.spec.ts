@@ -344,6 +344,7 @@ test('chapter 6, AE5: denying the refund at the gate advances and the denied-cal
   await expect(wide(page).locator('.stamp')).toContainText(['WAITING']);
   await btn(page, 'Deny');
   await expect(wide(page).locator('.stamp')).toContainText(['DENIED']);
+  expect(await serious(page)).toEqual([]);   // a blocked card's name holds its visible words and stamp
   await playAll(page);
   await step(page, 3);
   await expect(card(page)).toContainText('You denied it, and the assistant said: “I could not issue the refund. It was declined at approval');
@@ -354,6 +355,7 @@ test('chapter 6, AE5: denying the refund at the gate advances and the denied-cal
   await step(page, 4);
   await expect(wide(page).locator('.stamp')).toContainText(['REFUSED']);
   await expect(card(page)).toContainText('over this tool\'s limit of $100.00');
+  expect(await serious(page)).toEqual([]);
 });
 
 test('chapter 6, AE6: gate off, the planted note changes the ledger; gate on, it waits; approving shows the damage and does not advance', async ({ page }) => {

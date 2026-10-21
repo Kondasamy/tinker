@@ -1,0 +1,48 @@
+{
+  "tools": [
+    {
+      "name": "read_inbox",
+      "title": "Read an email",
+      "description": "Read one email in Larkspur's support inbox by its id. Returns who sent it, the subject and the full text, exactly as the sender wrote it.",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "id": { "type": "string", "description": "The email's id, for example status." } },
+        "required": ["id"],
+        "additionalProperties": false
+      },
+      "annotations": { "readOnlyHint": true }
+    },
+    {
+      "name": "get_customer",
+      "title": "Get customer record",
+      "description": "Look up one Larkspur customer's private record: their email address, delivery address, the last four digits of their card and the account team's notes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "customer": { "type": "string", "description": "The customer's company name, for example Hollis Hardware." } },
+        "required": ["customer"],
+        "additionalProperties": false
+      },
+      "annotations": { "readOnlyHint": true }
+    },
+    {
+      "name": "send_email",
+      "title": "Send an email",
+      "description": "Send an email from Larkspur to any address. The person who gets it reads it, so it cannot be taken back.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "to": { "type": "string", "description": "The address to send to." },
+          "body": { "type": "string", "description": "The email's text." }
+        },
+        "required": ["to", "body"],
+        "additionalProperties": false
+      },
+      "annotations": { "readOnlyHint": false }
+    }
+  ],
+  "servers": {
+    "orders": { "name": "larkspur-orders", "title": "Larkspur orders", "tools": ["get_order", "issue_refund"], "resources": [], "prompts": [] },
+    "crm": { "name": "larkspur-customers", "title": "Larkspur customers", "tools": ["get_customer"], "resources": [], "prompts": [] },
+    "mail": { "name": "larkspur-mail", "title": "Larkspur mail", "tools": ["read_inbox", "send_email"], "resources": [], "prompts": [] }
+  }
+}

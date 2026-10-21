@@ -1,0 +1,29 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import DataOrInstructions from '../../content/guardrails/01-data-or-instructions';
+import InputFilters from '../../content/guardrails/02-input-filters';
+import TheWayOut from '../../content/guardrails/03-the-way-out';
+import TheTrifecta from '../../content/guardrails/04-the-trifecta';
+import DefenceInDepth from '../../content/guardrails/05-defence-in-depth';
+import UserIsTheAttacker from '../../content/guardrails/06-when-the-user-is-the-attacker';
+import RedTeam from '../../content/guardrails/07-red-team';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('guardrails').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="guardrails" chapter={chapter} title={title}>
+  {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
+      hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
+  {chapter === '01-data-or-instructions' ? <DataOrInstructions client:load />
+    : chapter === '02-input-filters' ? <InputFilters client:load />
+    : chapter === '03-the-way-out' ? <TheWayOut client:load />
+    : chapter === '04-the-trifecta' ? <TheTrifecta client:load />
+    : chapter === '05-defence-in-depth' ? <DefenceInDepth client:load />
+    : chapter === '06-when-the-user-is-the-attacker' ? <UserIsTheAttacker client:load />
+    : <RedTeam client:load />}
+</ChapterLayout>

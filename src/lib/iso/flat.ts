@@ -80,21 +80,26 @@ export function card(m: Msg, i: number, cx: number, cy: number, fs: number, char
     + `<rect x="${f(x + 3)}" y="${f(y + 3)}" width="${f(w)}" height="${f(h)}" rx="6" fill="${SHADOW}" fill-opacity=".85"/>`
     + rect(x, y, w, h, 6, pal.l, INK, 1.4) + `<path d="M${f(x + 3)} ${f(y + h - 2.5)}L${f(x + w - 3)} ${f(y + h - 2.5)}" stroke="${pal.m}" stroke-width="3" stroke-linecap="round"/>`
     + (dash ? rect(x, y, w, h, 6, 'none', INK, 1.4, dash) : '')
-    + text(cx, cy - 1, label, fs) + (m.stamp ? stamp(m.stamp, x + w - textW(m.stamp, fs * .8) / 2, y - fs * .75, fs * .8) : '')   // sits on the top edge, clear of the text
+    // the space between the words and the stamp draws nothing; it keeps them two words in the accessible text
+    + text(cx, cy - 1, label, fs) + (m.stamp ? ' ' + stamp(m.stamp, x + w - textW(m.stamp, fs * .8) / 2, y - fs * .75, fs * .8) : '')   // sits on the top edge, clear of the text
     + '</g>';
 }
 
 const nameOf = (lanes: Lane[], id: string) => lanes.find(l => l.id === id)?.name ?? id;
-/** A card's accessible name: what the message says, then what pressing it does. */
-export const cardName = (lanes: Lane[], m: Msg, i: number) =>
-  `Message ${i + 1}, ${nameOf(lanes, m.from)} to ${nameOf(lanes, m.to)}: ${m.text}${m.stamp ? ` (${m.stamp.toLowerCase()})` : ''}. Show it in full`;
+/** A card's accessible name: what the card shows (cut text, then its stamp, so the visible words sit in the name in
+ * order, for voice control), the full text when it was cut, then what pressing it does. chars: as given to card(). */
+export const cardName = (lanes: Lane[], m: Msg, i: number, chars = Infinity) => {
+  const shown = fit(m.text, chars - MARK[m.kind].length);
+  return `Message ${i + 1}, ${nameOf(lanes, m.from)} to ${nameOf(lanes, m.to)}: ${shown}${m.stamp ? `, ${m.stamp.toLowerCase()}` : ''}`
+    + `${shown === m.text ? '' : `. In full: ${m.text}`}. Show it in full`;
+};
 
 /** The whole sequence. The frame is sized for every row it can show, so it never resizes as more messages arrive. */
 export function flatScene(lanes: Lane[], msgs: Msg[], { upTo = msgs.length, phone = false, focus, win = DESK.win, pick = false }: FlatOpts = {}): FlatScene {
   const pal = (i: number) => lanes[i].pal ?? LANE_PALS[i % LANE_PALS.length];
   const idx = (id: string) => lanes.findIndex(l => l.id === id);
   const wrap = (i: number, body: string) => `<g class="msg${i === upTo - 1 ? ' new' : ''}">${body}</g>`;
-  const name = (m: Msg, i: number) => pick ? cardName(lanes, m, i) : undefined;
+  const name = (m: Msg, i: number, chars: number) => pick ? cardName(lanes, m, i, chars) : undefined;
   if (phone) {
     const { w, band, gap, fs } = PHONE, h = PAD * 2 + lanes.length * band + (lanes.length - 1) * gap;
     const top = (i: number) => PAD + i * (band + gap);
@@ -107,7 +112,7 @@ export function flatScene(lanes: Lane[], msgs: Msg[], { upTo = msgs.length, phon
       const cy = down ? y1 + gap / 2 : y1 - gap / 2, chars = Math.floor((w - PAD - (ax + 18) - fs * 1.5) / (fs * .62));
       const cx = (ax + 18 + w - PAD) / 2;
       // shortcut: the phone view shows one message, so a parallel batch is named in the label only, not bracketed
-      s += wrap(i, arrow(m.from, m.to, ax, y1 + (down ? 4 : -4), ax, y2, m.kind === 'blocked') + card(m, i, cx, cy, fs, chars, 0, top(a) + band / 2 - cy, name(m, i)));
+      s += wrap(i, arrow(m.from, m.to, ax, y1 + (down ? 4 : -4), ax, y2, m.kind === 'blocked') + card(m, i, cx, cy, fs, chars, 0, top(a) + band / 2 - cy, name(m, i, chars)));
     }
     return { svg: s, w, h };
   }
@@ -122,7 +127,7 @@ export function flatScene(lanes: Lane[], msgs: Msg[], { upTo = msgs.length, phon
     const i = start + j, x1 = cx(idx(m.from)), x2 = cx(idx(m.to)), y = rowY(i), sx = Math.sign(x2 - x1);
     const half = Math.min(textW(MARK[m.kind] + fit(m.text, chars - MARK[m.kind].length), fs), w - PAD * 2 - 8) / 2;
     const mid = Math.max(PAD + 4 + half, Math.min(w - PAD - 4 - half, (x1 + x2) / 2));
-    s += wrap(i, card(m, i, mid, y, fs, chars, x1 - mid, 0, name(m, i)) + arrow(m.from, m.to, x1 + sx * 4, y + fs * 1.2 + 9, x2 - sx * 3, y + fs * 1.2 + 9, m.kind === 'blocked'));
+    s += wrap(i, card(m, i, mid, y, fs, chars, x1 - mid, 0, name(m, i, chars)) + arrow(m.from, m.to, x1 + sx * 4, y + fs * 1.2 + 9, x2 - sx * 3, y + fs * 1.2 + 9, m.kind === 'blocked'));
   });
   // parallel batches: a bracket down the left edge, with a pill, over the rows that went out together
   for (let i = start; i < upTo; i++) {
