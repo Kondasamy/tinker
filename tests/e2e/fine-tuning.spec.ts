@@ -70,6 +70,11 @@ test('the intro reads as pictures by default; Words unfolds the longer text', as
   await page.goto('/fine-tuning/');
   const more = page.locator('.band .note.more');
   await expect(more).toBeHidden();
+  // the recorded label stays in Pictures mode, beside each answer's stamp
+  const tags = page.locator('.versus .reply header .tag');
+  await expect(tags).toHaveCount(2);
+  for (const t of await tags.all()) await expect(t).toBeVisible();
+  await expect(tags.first()).toHaveText('recorded answer');
   await page.getByRole('button', { name: 'Words' }).click();
   await expect(more).toBeVisible();
   await axe(page);

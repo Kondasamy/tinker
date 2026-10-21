@@ -83,7 +83,7 @@ const checked = longDate(ACCESSED);
         <div class="versus">
           {SIDES.map(s => (
             <article class:list={['reply', { read: s.ok }]}>
-              <header><h3>{s.label}</h3><span class="stamp">{s.ok ? 'right' : 'wrong'}</span></header>
+              <header><h3>{s.label} <span class="tag">recorded answer</span></h3><span class="stamp">{s.ok ? 'right' : 'wrong'}</span></header>
               <p class="asked">“{Q.query}”</p>
               <p class="said">{s.a.text}</p>
               <p class="cap">{s.a.citation ? 'Cites the price update in its documents.' : s.a.note}</p>
@@ -200,6 +200,7 @@ const checked = longDate(ACCESSED);
   .bar .p { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
 
   .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); white-space: nowrap; }
+  .tag { margin-left: 6px; padding: 0 6px; border: 1px solid var(--rule); border-radius: 999px; font: 700 11px ui-monospace, Menlo, monospace; color: var(--muted); white-space: nowrap; }
   .asked { font-size: 14px; color: var(--muted); }
   .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
 
