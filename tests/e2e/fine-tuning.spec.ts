@@ -1,20 +1,23 @@
-// Module 9, Fine-tuning vs prompting: the intro, chapters 1–4 played by mouse and by keyboard only, live replies from
-// Larkspur mini, its own progress key, "I'm not sure", reduced motion, the recap, axe and phone width.
-// U21 adds chapters 5–7 to the walk.
+// Module 9, Fine-tuning vs prompting: the intro, every chapter played by mouse and by keyboard only, live replies and
+// held-out scores from Larkspur mini, its own progress key, "I'm not sure", reduced motion, the recap, axe, phone width,
+// and chapter 5 played offline once its three weight sets are in.
 import { test, expect, type Page } from '@playwright/test';
 import { moduleOf } from '../../src/lib/modules';
 import { ftWalker } from './fine-tuning-flow';
-import { serious, layoutHolds, PHONE } from './helpers';
+import { serious, layoutHolds, offline, PHONE } from './helpers';
 
 const M = moduleOf('fine-tuning');
-const [CH1, CH2, CH3, CH4] = M.chapters.map(c => c.id);
+const CHS = M.chapters.map(c => c.id), [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = CHS;
 const at = (id: string) => new RegExp(`/fine-tuning/${id}/$`);
 async function walkAll(w: ReturnType<typeof ftWalker>) {
   await w.open(CH1);
   await w.ch1(at(CH2));
   await w.ch2(at(CH3));
   await w.ch3(at(CH4));
-  await w.ch4();
+  await w.ch4(at(CH5));
+  await w.ch5(at(CH6));
+  await w.ch6(at(CH7));
+  await w.ch7();
 }
 const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 const axe = async (page: Page) => expect(await serious(page)).toEqual([]);
@@ -31,17 +34,17 @@ test('the intro shows the level, the prerequisites, the author, the chapters and
   await axe(page);
 });
 
-test('chapters 1–4 play by mouse, in order through the Next links, with axe clean at each check', async ({ page }) => {
+test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({ page }) => {
   await walkAll(ftWalker(page, 'mouse', axe));
 });
 
-test('chapters 1–4 play by keyboard only; progress lands in fine-tuning-progress-v1 and no other module’s key', async ({ page }) => {
+test('every chapter plays by keyboard only; progress lands in fine-tuning-progress-v1 and no other module’s key', async ({ page }) => {
   await page.goto('/');
   const OTHERS = { 'evals-progress-v1': JSON.stringify({ done: ['01-it-worked-when-i-tried-it'], saved: {} }) };
   await page.evaluate(o => { for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v); }, OTHERS);
   await walkAll(ftWalker(page, 'keyboard'));
   const store = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
-  expect(JSON.parse(store['fine-tuning-progress-v1']).done).toEqual([CH1, CH2, CH3, CH4]);
+  expect(JSON.parse(store['fine-tuning-progress-v1']).done).toEqual(CHS);
   for (const [k, v] of Object.entries(OTHERS)) expect(store[k]).toBe(v);
   expect(store['tinker-last-module']).toBe('fine-tuning');
 });
@@ -73,6 +76,35 @@ test('chapter 4: the fine-tuned version fails the new price and RAG passes it', 
   await expect(c.locator('.ft-answer').filter({ hasText: 'recorded answer' })).toHaveCount(2);
 });
 
+test('chapter 5: fetches all three weight sets on load, then plays to the end offline with no failed request', async ({ page }) => {
+  const failed: string[] = [];
+  page.on('requestfailed', r => failed.push(r.url()));
+  const w = ftWalker(page, 'mouse');
+  await w.open(CH5);
+  await page.waitForFunction(() => ['model.bin', 'finetuned.bin', 'lora.bin'].every(f =>
+    performance.getEntriesByType('resource').some(e => e.name.endsWith('/data/lm/' + f))));
+  await page.waitForLoadState('networkidle');
+  await offline(page);
+  await w.ch5();
+  const rows = card(page).locator('[data-scores] tbody tr');
+  await expect(rows).toHaveCount(3);
+  await expect(rows.nth(1).locator('td').nth(1)).toHaveText(/^\+/);
+  await expect(rows.nth(2).locator('td').nth(1)).toHaveText(/^\+/);
+  expect(failed).toEqual([]);
+});
+
+test('chapter 7: a plan short of the best is not accepted; the fine-tune for no-fact replies ties for best', async ({ page }) => {
+  const w = ftWalker(page, 'mouse');
+  await w.open(CH7);
+  const c = card(page), kind = (id: string) => c.locator(`fieldset[data-kind="${id}"]`), score = c.locator('[data-score]');
+  await expect(score).toHaveAttribute('data-best', '0');
+  await kind('facts').getByRole('button', { name: 'RAG' }).click();
+  await kind('changed').getByRole('button', { name: 'RAG' }).click();
+  await expect(c).toContainText('Step 2 of');
+  await expect(score).toHaveAttribute('data-best', '1');      // voice stayed with the fine-tune: one of the tied plans
+  await expect(c.locator('.ft-headline strong')).toBeVisible();
+});
+
 test('“I’m not sure” on the checkpoint reveals the answer, is no miss, and finishes the chapter', async ({ page }) => {
   const w = ftWalker(page, 'mouse');
   await w.open(CH1);
@@ -82,7 +114,7 @@ test('“I’m not sure” on the checkpoint reveals the answer, is no miss, and
 
 test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
-  test('chapters 1–4 play through', async ({ page }) => {
+  test('every chapter plays through', async ({ page }) => {
     await walkAll(ftWalker(page, 'mouse'));
   });
 });
@@ -96,8 +128,8 @@ test('the recap asks from finished chapters', async ({ page }) => {
 
 test.describe('phone', () => {
   test.use(PHONE);
-  test('pages fit 390px wide, and chapters 1–4 play through there with axe clean', async ({ page }) => {
-    for (const p of ['/fine-tuning/', ...[CH1, CH2, CH3, CH4].map(id => `/fine-tuning/${id}/`), '/fine-tuning/recap/']) {
+  test('pages fit 390px wide, and every chapter plays through there with axe clean', async ({ page }) => {
+    for (const p of ['/fine-tuning/', ...CHS.map(id => `/fine-tuning/${id}/`), '/fine-tuning/recap/']) {
       await page.goto(p);
       await layoutHolds(page);
     }

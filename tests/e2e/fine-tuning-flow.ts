@@ -84,6 +84,41 @@ export function ftWalker(page: Page, mode: Mode, check: (page: Page) => Promise<
       await opt(quiz);
       await finish(next);
     },
+    /** score the base, predict, score both fine-tunes */
+    async ch5(next?: RegExp, quiz: string | RegExp = /^Train a small adapter instead/) {
+      await btn('Score the base model');
+      await step(2);
+      await check(page);
+      await opt(/^The full fine-tune/);
+      await btn('Score both fine-tunes');
+      await step(4);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
+    /** run the baseline, predict, run the gate */
+    async ch6(next?: RegExp, quiz: string | RegExp = /^Write the test set and score/) {
+      await btn(/^Run the baseline/);
+      await step(2);
+      await check(page);
+      await opt('Neither');
+      await btn('Run both through the release gate');
+      await step(4);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
+    /** send facts and changed prices to RAG and no-fact replies to the prompt: a best-scoring plan */
+    async ch7(next?: RegExp, quiz: string | RegExp = /^The prompt for the voice/) {
+      const kind = (id: string) => card.locator(`fieldset[data-kind="${id}"]`);
+      await press(kind('voice').getByRole('button', { name: 'Prompted' }));
+      await press(kind('facts').getByRole('button', { name: 'RAG' }));
+      await press(kind('changed').getByRole('button', { name: 'RAG' }));
+      await step(2);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
     open,
   };
 }

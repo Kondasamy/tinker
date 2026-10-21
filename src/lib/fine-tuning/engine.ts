@@ -3,7 +3,7 @@
 //   style signal (every reply in the style set signs off "Cheers, the Larkspur team"; the corpus never says it).
 // - The Larkspur-assistant versions (recorded): prompted, RAG and fine-tuned answers over Evals' questions, graded
 //   live by Evals' code graders against data/evals/references.json and gated by Evals' decide. Evals' data is only read.
-import { forward, type Model } from '../lm/model';
+import { evaluate, forward, type Model } from '../lm/model';
 import { decode, encode } from '../lm/bpe';
 import type { Meta } from '../lm/load';
 import { decide, hasCitation, keyFact, keyFactOf, type Gate, type Reference } from '../evals/graders';
@@ -11,6 +11,7 @@ import { QUESTIONS } from '../evals/suite';
 import answers from '../../../data/fine-tuning/answers.json' with { type: 'json' };
 import versions from '../../../data/fine-tuning/versions.json' with { type: 'json' };
 import priceChange from '../../../data/fine-tuning/price-change.json' with { type: 'json' };
+import heldout from '../../../data/fine-tuning/heldout.json' with { type: 'json' };
 
 // ---- Larkspur mini's fine-tunes (live) ----
 
@@ -59,6 +60,17 @@ export function adaptedMatrices(meta: Meta) {
 /** LoRA trains rank × (in + out) per adapted matrix: A is rank × in, B is out × rank. */
 export const loraCount = (meta: Meta, rank = meta.lora?.rank ?? 0) =>
   adaptedMatrices(meta).reduce((n, m) => n + rank * (m.in + m.out), 0);
+
+/** The held-out documents as Larkspur mini's ids: a copy of data/lm/ids.json's held-out split, so chapter 5 bundles 6 KB
+ * rather than the whole file (the tests prove the copy matches). */
+export const HELDOUT = heldout as { docs: string[]; ids: number[][] };
+const scored = new WeakMap<Model, ReturnType<typeof evaluate>>();
+/** Held-out scores for one set of weights, computed live (and once per loaded model): forgetting, in chapter 5. */
+export function heldoutScore(model: Model) {
+  let s = scored.get(model);
+  if (!s) scored.set(model, (s = evaluate(model, HELDOUT.ids)));
+  return s;
+}
 
 // ---- the Larkspur-assistant versions (recorded answers, live grading) ----
 

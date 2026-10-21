@@ -1,0 +1,25 @@
+{
+  "quality": 6,
+  "kinds": [
+    { "id": "voice", "label": "Replies with no facts in them", "about": "Thanks, apologies, follow-ups: only the voice matters.", "grade": "signed", "questions": "all" },
+    { "id": "facts", "label": "Questions about policies and products", "about": "Refunds, approvers, warranties: the answer must carry the key fact.", "grade": "fact", "questions": "evals" },
+    { "id": "changed", "label": "Prices that just changed", "about": "The Kestrel K2's new bulk price, from chapter 4.", "grade": "fact", "questions": ["k2-price-change"] }
+  ],
+  "notes": {
+    "prompted": {
+      "voice": { "cost": 1, "costWhy": "The style words go with every request.", "upkeep": 0, "upkeepWhy": "Change the voice by editing a line." },
+      "facts": { "cost": 1, "costWhy": "The style words go with every request.", "upkeep": 0, "upkeepWhy": "Nothing to keep current: it has no facts to update." },
+      "changed": { "cost": 1, "costWhy": "The style words go with every request.", "upkeep": 0, "upkeepWhy": "Nothing to keep current: it has no facts to update." }
+    },
+    "rag": {
+      "voice": { "cost": 2, "costWhy": "The style words and five passages go with every request.", "upkeep": 1, "upkeepWhy": "Keep the documents current." },
+      "facts": { "cost": 2, "costWhy": "The style words and five passages go with every request.", "upkeep": 1, "upkeepWhy": "Keep the documents current." },
+      "changed": { "cost": 2, "costWhy": "The style words and five passages go with every request.", "upkeep": 1, "upkeepWhy": "Update the price in one document." }
+    },
+    "finetuned": {
+      "voice": { "cost": 1, "costWhy": "One training run and a round of evals; nothing extra per request.", "upkeep": 0, "upkeepWhy": "The voice rarely changes, so it is rarely retrained." },
+      "facts": { "cost": 1, "costWhy": "One training run and a round of evals; nothing extra per request.", "upkeep": 2, "upkeepWhy": "Retrain and re-run the evals whenever a fact changes." },
+      "changed": { "cost": 1, "costWhy": "One training run and a round of evals; nothing extra per request.", "upkeep": 2, "upkeepWhy": "Retrain and re-run the evals whenever a price changes." }
+    }
+  }
+}

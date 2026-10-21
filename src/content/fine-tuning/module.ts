@@ -1,5 +1,5 @@
 // Fine-tuning vs prompting, module 9: its chapters and module facts. Chapter ids are a contract with readers' saved
-// progress: never rename one. All seven chapters are listed; chapters 5–7 are written in U21.
+// progress: never rename one.
 import type { Chapter, Module } from '../../lib/modules';
 import { RECALL } from './recall';
 import { fact } from '../../lib/fine-tuning/facts';
@@ -110,7 +110,7 @@ const CHAPTERS: Chapter[] = [
   {
     id: '07-larkspurs-decision', title: 'Larkspur’s decision', short: 'The decision',
     intro: {
-      story: 'Everything is on the bench: the prompt, the documents, the full fine-tune and the adapter, with their scores. The support lead needs a plan for each kind of request.',
+      story: 'Everything is on the bench: the prompted, RAG and fine-tuned versions, with their scores from the release gate. The support lead needs a plan for each kind of request.',
       goal: 'Which lever should Larkspur pull for each kind of request?',
       learn: [
         'How to match a lever to what the request needs: a style, a fact, or a skill',
@@ -119,6 +119,7 @@ const CHAPTERS: Chapter[] = [
       ],
       terms: [
         ['Upkeep', 'The work a choice needs after launch: retraining, refreshing documents, re-running the evals.'],
+        ['Plan score', 'Quality from the graded answers, minus cost and upkeep, added up over every kind of request.'],
       ],
     },
   },

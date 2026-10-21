@@ -36,3 +36,9 @@
 .ft-prompt { color: var(--muted); font-family: ui-monospace, Menlo, monospace; font-size: 13px; }
 .ft-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .ft-answer .lbl { font-weight: 800; font-size: 13.5px; }
+
+/* chapter 7's bench: one headline number, then the plan kind by kind */
+.ft-headline { margin: 6px 0 0; display: flex; align-items: center; flex-wrap: wrap; gap: 10px; font-weight: 700; }
+.ft-headline strong { font: 800 34px/1 ui-monospace, Menlo, monospace; }
+.tc-ledger .note { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
+.tc-pick .note { margin: 2px 0 0; color: var(--muted); font-size: 13px; }

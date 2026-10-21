@@ -1,5 +1,5 @@
 // Fine-tuning's recall bank (KTD7): the recap and the warm-up ask from it. Each item asks a chapter's idea in a new
-// situation; every wrong option is a real misconception, and every option has a `why` line. Chapters 5–7 add theirs in U21.
+// situation; every wrong option is a real misconception, and every option has a `why` line.
 import type { RecallItem } from '../../lib/recall';
 
 export const RECALL: RecallItem[] = [
@@ -183,6 +183,144 @@ export const RECALL: RecallItem[] = [
       'Right. The key-fact check looks for the one phrase that must be there, so a stale price fails.',
       'Both sign off; the sign-off check can’t tell them apart.',
       'A stale answer sounds as sure as a fresh one. Only a check against the reference catches it.',
+    ],
+  },
+  // 5. What training costs you
+  {
+    id: 'measure-forgetting', chapter: '05-what-training-costs',
+    question: 'How would you check whether a fine-tune made a model worse at what it knew before?',
+    options: [
+      'Score it on text it never trained on, before and after, and compare',
+      'Look at the training loss: if it fell, nothing was lost',
+      'Ask the model whether it forgot anything',
+    ],
+    correct: 0,
+    why: [
+      'Right. Held-out text shows what training did to everything outside the training set.',
+      'Training loss measures only the training examples. It can fall while held-out loss rises.',
+      'A model can’t report what its weights lost. Only a score on held-out text shows it.',
+    ],
+  },
+  {
+    id: 'adapter-forgets-less', chapter: '05-what-training-costs',
+    question: 'A LoRA adapter and a full fine-tune learn the same style. Which usually keeps more of what the base model knew?',
+    options: [
+      'The full fine-tune: it has more weights to hold both',
+      'The adapter: the base weights stay as they were, and it changes less',
+      'Both keep exactly the same: they trained on the same examples',
+    ],
+    correct: 1,
+    why: [
+      'Changing every weight is what moves the model furthest from what it knew. It usually forgets more, not less.',
+      'Right. It learns less and forgets less; on Larkspur mini its held-out loss rose less than the full fine-tune’s.',
+      'Same examples, different reach: the full fine-tune changes every weight, the adapter only a small share.',
+    ],
+  },
+  {
+    id: 'narrow-training-cost', chapter: '05-what-training-costs',
+    question: 'A team fine-tunes on 50 short replies until the training loss is nearly zero. What should they expect on other text?',
+    options: [
+      'It gets better at everything: a lower loss is a better model',
+      'It may get worse: training hard on a narrow set can pull the weights away from what they knew',
+      'Nothing changes: other text was never in training',
+    ],
+    correct: 1,
+    why: [
+      'A low training loss says the model fits those 50 replies. It says nothing about everything else.',
+      'Right. That is forgetting; check it on held-out text before shipping.',
+      'The same weights answer everything, so a change for the 50 replies reaches other text too.',
+    ],
+  },
+  // 6. Measure before you train
+  {
+    id: 'baseline-first', chapter: '06-measure-before-you-train',
+    question: 'Why score the version you ship today before you fine-tune?',
+    options: [
+      'So the fine-tune has a baseline to beat, on the same tests',
+      'Because the evals tool needs a warm-up run',
+      'You don’t need to: a fine-tune is better by design',
+    ],
+    correct: 0,
+    why: [
+      'Right. Without a score from before, nobody can say whether training helped, or broke something.',
+      'The point is the comparison, not a warm-up: the same questions, before and after.',
+      'A fine-tune can forget and carry stale facts. Chapter 6’s fine-tune failed the gate.',
+    ],
+  },
+  {
+    id: 'sounds-right-fails', chapter: '06-measure-before-you-train',
+    question: 'Every reply from the fine-tuned version signs off in the house voice. The release gate still holds it back. How can that be?',
+    options: [
+      'The gate grades the facts in each answer, and it got more of them wrong than the baseline',
+      'The gate is broken: a version that sounds right should ship',
+      'The gate only ships the version that was trained most recently',
+    ],
+    correct: 0,
+    why: [
+      'Right. The voice is one thing; the key fact is another, and the gate checks it question by question.',
+      'Sounding right is exactly what a fine-tune is good at. The gate looks past it to the facts.',
+      'The gate compares pass rates and regressions. When a version was trained doesn’t count.',
+    ],
+  },
+  {
+    id: 'regression-rule', chapter: '06-measure-before-you-train',
+    question: 'A candidate passes more questions than the baseline overall, but fails two the baseline passed. The gate says no question that passed may fail. What happens?',
+    options: [
+      'It ships: the total went up',
+      'It is held back until those two questions pass again',
+      'It ships, and the two questions are dropped from the test set',
+    ],
+    correct: 1,
+    why: [
+      'A higher total can hide a break. The rule exists so a customer who got a right answer doesn’t start getting a wrong one.',
+      'Right. The no-regressions rule holds it back, however good the total is.',
+      'Dropping the questions it fails hides the problem instead of fixing it.',
+    ],
+  },
+  // 7. Larkspur's decision
+  {
+    id: 'lever-per-request', chapter: '07-larkspurs-decision',
+    question: 'An assistant answers questions about stock levels, which change hourly. Which lever should carry the stock levels?',
+    options: [
+      'The weights: fine-tune on this week’s stock levels',
+      'Documents or a lookup, read fresh for each question',
+      'The prompt: write the stock levels into it once',
+    ],
+    correct: 1,
+    why: [
+      'Within the hour the trained levels are stale, and only a new run fixes them.',
+      'Right. A fact that changes belongs where it is read fresh for each question.',
+      'A prompt holds what was typed into it; someone would have to edit it every hour.',
+    ],
+  },
+  {
+    id: 'tied-plans', chapter: '07-larkspurs-decision',
+    question: 'For replies with no facts in them, a prompt and a fine-tune both get the voice right every time. How do you choose?',
+    options: [
+      'On cost and upkeep: words sent with every request against a training run and retraining',
+      'Always fine-tune: training is the more advanced choice',
+      'Always the prompt: training never pays off',
+    ],
+    correct: 0,
+    why: [
+      'Right. When quality ties, what each costs to run and keep decides, and either can win.',
+      'Advanced isn’t better. A fine-tune adds a training run, evals and retraining to the plan.',
+      'Fine-tuning can pay off, for example for a fixed output format, or a smaller model that is cheaper per request.',
+    ],
+  },
+  {
+    id: 'fine-tune-when', chapter: '07-larkspurs-decision',
+    question: 'When does fine-tuning earn its place in a plan?',
+    options: [
+      'When a steady skill or format matters, the prompt and documents fall short on the evals, and the team can keep retraining',
+      'Whenever the assistant gets a fact wrong',
+      'Whenever a new model comes out',
+    ],
+    correct: 0,
+    why: [
+      'Right. Measure the cheaper levers first; train for what they can’t do, and budget the upkeep.',
+      'A wrong fact usually belongs in the documents, which update in one place without a training run.',
+      'A new model is a reason to re-run the evals, not to train by default.',
     ],
   },
 ];
