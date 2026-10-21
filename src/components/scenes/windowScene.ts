@@ -175,6 +175,18 @@ export const windowScene = (o: WindowOpts) => (ctx: SceneCtx) => {
   return shadows.join('') + desk().svg + byDepth(parts) + pills.join('');
 };
 
+/** The home hero's plot (heroScene): a small desk at (x, y) with the glass window on it, holding four papers (system,
+ * tools, documents, this turn) that fill it most of the way. Squat, so the pill rows above leave it in view. */
+export function deskPlot(x: number, y: number, top: SceneCtx['top']): string {
+  const z = BH + 6, x0 = x - 7, y0 = y - 9, x1 = x + 7, y1 = y + 9, h = 18;
+  let inside = '', a = z + .2;
+  for (const [k, t] of [['system', 3], ['tools', 4], ['docs', 5], ['message', 2]] as [PartKind, number][])
+    inside += box(x0 + 1.5, y0 + 1.5, a, x1 - 1.5, y1 - 1.5, a += t, KIND_PAL[k], toneI, .6);
+  return castShadow(boxCorners(x - 14, y - 14, BH, x + 14, y + 14, z), BH, top)
+    + box(x - 14, y - 14, BH, x + 14, y + 14, z, WOOD, toneI, 1) + hullInk(boxCorners(x - 14, y - 14, BH, x + 14, y + 14, z), 1.8)
+    + glassCase(x0, y0, z, x1, y1, z + h, CLEAR, inside);
+}
+
 /** The picture in words, for its aria-label. */
 export function windowLabel(o: WindowOpts): string {
   const st = windowState(o), budget = o.budget ?? DEFAULTS.budget;
