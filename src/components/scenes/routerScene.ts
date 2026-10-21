@@ -44,8 +44,8 @@ export function routerState({ mode = 'distill', route = null, lessons = false, l
 }
 
 type Part = { at: number[]; svg: string };
-const BIG = [46, 34], SMALL = [50, 94], SW = [124, 64], SH = 10, SZ = BH + 12;   // small model half-width; switch plate top
-const CHUTE_X = 40;
+const BIG = [44, 40], SMALL = [92, 102], SW = [124, 48], SH = 10, SZ = BH + 12;   // small model half-width; switch plate top
+const CHUTE_X = 52;   // the chute runs from the big model's side (clear of its screen) to the student's back
 
 /** A floor path of ink with a coloured stripe: lit paths glow. */
 function path(points: number[][], lit: boolean, attrs: string, dashed = false) {
@@ -68,7 +68,7 @@ function router(lean: number, on_: boolean): Part {
   const [x, y] = SW, B = 9;
   let s = on_ ? `<path d="${pd(on(PZ(BH + .3), rrUV(x - B - 3, y - B - 3, x + B + 3, y + B + 3, 4)))}" fill="none" stroke="${ACC}" stroke-width="2.4"/>` : '';
   s += box(x - B, y - B, BH, x + B, y + B, SZ, DARK, toneI, 1) + hullInk(boxCorners(x - B, y - B, BH, x + B, y + B, SZ), 1.8);
-  const tip = [x, y + lean * 9, SZ + (lean ? 12 : 16)];
+  const tip = [x - (lean < 0 ? 9 : 0), y + (lean > 0 ? 9 : 0), SZ + (lean ? 12 : 16)];   // toward the large belt (-x) or the small one (+y)
   s += cyl(x, y, SZ, SZ + 1.5, 2.4, METAL, toneI, .8) + rod([x, y, SZ + 1], tip, 1.1, METAL) + rod(tip, [tip[0], tip[1], tip[2] + 3.5], 2.4, on_ ? PALS.mustard : PALS.tomato);
   return { at: [x, y, 0], svg: `<g class="router" data-lean="${lean}">${s}</g>` };
 }
@@ -83,9 +83,9 @@ export const routerScene = (o: RouterOpts) => (ctx: SceneCtx) => {
     + castShadow(boxCorners(sx - SH, sy - SH, BH, sx + SH, sy + SH, BH + 14), BH, ctx.top)
     + castShadow(boxCorners(wx - 9, wy - 9, BH, wx + 9, wy + 9, SZ + 8), BH, ctx.top);
   // the two belts from the switch, and the chute between the models (dashed while idle)
-  s += path([[wx - 9, wy - 4], [92, wy - 4], [92, by], [bx + 17, by]], st.belts.large, 'class="belt" data-belt="large"');
-  s += path([[wx - 9, wy + 4], [92, wy + 4], [92, sy], [sx + SH, sy]], st.belts.small, 'class="belt" data-belt="small"');
-  s += path([[CHUTE_X, by + 17], [CHUTE_X, sy - SH]], st.chute.on, 'class="chute"', true);
+  s += path([[wx - 9, wy - 3], [bx + 17, wy - 3]], st.belts.large, 'class="belt" data-belt="large"');
+  s += path([[wx, wy + 9], [wx, sy], [sx + SH, sy]], st.belts.small, 'class="belt" data-belt="small"');
+  s += path([[CHUTE_X, by + 17], [CHUTE_X, sy], [sx - SH, sy]], st.chute.on, 'class="chute"', true);
   const parts: Part[] = [
     { at: [bx, by, 0], svg: `<g class="big" data-on="${st.big.on ? 1 : 0}">${renderers.llm({ x: bx, y: by, state: st.big.on ? 'ok' : undefined })}</g>` },
     student(st.small.on),
@@ -97,7 +97,7 @@ export const routerScene = (o: RouterOpts) => (ctx: SceneCtx) => {
     pill([sx, sy, BH + 14], 0, -14, st.small.name, st.small.on, scale),
   ];
   if (!narrow || st.router.on) pills.push(pill([wx, wy, SZ + 18], 0, -12, st.router.name, st.router.on, scale));
-  if (!narrow || st.chute.on) pills.push(pill([CHUTE_X, (by + 17 + sy - SH) / 2 - 6, BH + 1], -40, -8, st.chute.name, st.chute.on, scale));
+  if (!narrow || st.chute.on) pills.push(pill([CHUTE_X, sy - 16, BH + 1], -44, 4, st.chute.name, st.chute.on, scale));
   return s + pills.join('');
 };
 

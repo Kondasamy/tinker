@@ -55,6 +55,9 @@ export function run(p: Policy, questions = QUESTION_IDS) {
   return { rows, right: rows.filter((r) => r.pass).length, cost: rows.reduce((n, r) => n + r.cost, 0), up: rows.filter((r) => r.escalated).length, of: rows.length };
 }
 
+/** The small tier's most confident wrong answer: the one a threshold has to pass to catch (chapters 4–6 read it). */
+export const SURE_AND_WRONG = run(ALL_SMALL).rows.filter((r) => !r.pass).sort((a, b) => b.confidence - a.confidence)[0].question;
+
 /** A point on the quality and cost frontier. */
 export interface Point { id: string; label: string; threshold: number | null; right: number; of: number; cost: number; up: number }
 const pointOf = (p: Policy): Point => {

@@ -30,6 +30,10 @@ export const PROMPTS: Prompt[] = prompts.prompts;
 
 /** The top 5 next pieces after a prompt, with their probabilities. */
 export const top5 = (model: Model, text: string): Candidate[] => topK(softmax(forward(model, encode(text)).logits.at(-1)!), 5);
+/** The same top 5 at a temperature: the logits divided by it before the softmax, as the distillation run softened the
+ * teacher's odds (meta.json `student.training.temperature`). The order stays; the odds spread out. */
+export const softTop5 = (model: Model, text: string, temperature: number): Candidate[] =>
+  topK(softmax(forward(model, encode(text)).logits.at(-1)!.map((x) => x / temperature)), 5);
 
 /** One document's closeness: positions read, how many the student's top pick matches the teacher's, and the summed
  * KL divergence (teacher ‖ student, in nats) over those positions. */

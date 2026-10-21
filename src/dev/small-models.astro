@@ -1,22 +1,15 @@
 ---
 // Dev-only eyeball page: the apprentice's bench in every state (static SVG), the student's loss curve and the frontier,
-// then the stage live: loading, failed (Retry) and ready. Below 600px the phone versions show.
+// then the stage live: loading, and ready without models. Below 600px the phone versions show.
 import '../styles/tokens.css';
 import IsoStage from '../lib/iso/IsoStage';
-import { readFileSync } from 'node:fs';
 import { ROUTER_BOARD, routerLabel, routerScene, type RouterOpts } from '../components/scenes/routerScene';
 import { FrontierChart, SmallStage, STUDENT_SERIES, type Shown } from '../content/small-models/kit';
-import { LossChart, loadModel, setModelFiles } from '../content/fine-tuning/kit';
+import { LossChart } from '../content/fine-tuning/kit';
 import { frontier } from '../lib/small-models/router';
 
-// the stage's loading states, drawn on the server: the base loaded from disk and the student failing
-setModelFiles(async f => {
-  if (f === 'student.bin') throw new Error('offline');
-  const b = readFileSync('public/data/lm/' + f);
-  return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer;
-});
-await loadModel('base');
-await loadModel('student').catch(() => {});
+// the stage with no models asked for on the server: it waits with its loading pill. (A failed load is covered by the
+// unit test; setting the shared loaders here would leak into the chapters this build renders after it.)
 const shown = (caption: string, scene: Shown['scene'], chart?: Shown['chart']) => (): Shown => ({ scene, chart, caption });
 
 const STATES: [string, RouterOpts][] = [
@@ -60,7 +53,7 @@ const POINTS = frontier();
       </section>
       <h1>The stage, live</h1>
       <div class="grid">
-        <section><h2>Failed (student): Retry</h2><div class="stage"><SmallStage models show={shown('Both models', { mode: 'distill' })} /></div></section>
+        <section><h2>Loading (both models)</h2><div class="stage"><SmallStage models show={shown('Both models', { mode: 'distill' })} /></div></section>
         <section><h2>No models: Picture</h2><div class="stage"><SmallStage show={shown('Up the chute', { mode: 'route', route: 'up', threshold: 0.9 }, { frontier: POINTS, at: 't0.9' })} /></div></section>
         <section><h2>No models: Chart, frontier</h2><div class="stage"><SmallStage view="chart" show={shown('The frontier', { mode: 'route' }, { frontier: POINTS, at: 't0.9' })} /></div></section>
         <section><h2>No models: Chart, loss</h2><div class="stage"><SmallStage view="chart" show={shown('<script>alert(1)</script> escaped caption', { mode: 'distill', lessons: true }, { series: STUDENT_SERIES })} /></div></section>
