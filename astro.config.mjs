@@ -29,7 +29,7 @@ const devCache = {
 };
 
 export default defineConfig({
-  site: 'https://explain.kondasamy.com',
+  site: 'https://tinker.kondasamy.com',
   output: 'static',
   integrations: [react(), mdx(), devPages, devCache],
 });

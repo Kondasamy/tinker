@@ -124,7 +124,7 @@ test.describe('recap', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await open(page, '/rag/recap/');
     const og = await page.locator('meta[property="og:image"]').getAttribute('content');
-    expect(og).toBe('https://explain.kondasamy.com/og/rag-recap.jpg');
+    expect(og).toBe('https://tinker.kondasamy.com/og/rag-recap.jpg');
     expect((await request.get('/og/rag-recap.jpg')).status()).toBe(200);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
     expect(await serious(page)).toEqual([]);

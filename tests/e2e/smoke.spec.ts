@@ -41,7 +41,7 @@ test('every public page has its own share image, and it is served', async ({ pag
   for (const p of paths) {
     await page.goto(p);
     const og = await page.locator('meta[property="og:image"]').getAttribute('content');
-    expect(og, p).toMatch(/^https:\/\/explain\.kondasamy\.com\/og\/[\w-]+\.jpg$/);
+    expect(og, p).toMatch(/^https:\/\/tinker\.kondasamy\.com\/og\/[\w-]+\.jpg$/);
     seen.add(og!);
     const file = new URL(og!).pathname;
     const res = await request.get(file);
