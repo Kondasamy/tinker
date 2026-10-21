@@ -27,7 +27,7 @@ describe('module registry', () => {
 
   it('lists the planned modules without chapters', () => {
     const planned = MODULES.filter(m => m.status === 'planned').map(m => [m.title, m.level, m.chapters.length]);
-    expect(planned).toEqual([['Tokens & embeddings', 'Beginner', 0], ['Transformer architecture', 'Advanced', 0],
+    expect(planned).toEqual([['Transformer architecture', 'Advanced', 0],
       ['Context engineering & memory', 'Intermediate', 0], ['Fine-tuning vs prompting', 'Advanced', 0]]);
   });
 
@@ -49,6 +49,12 @@ describe('module registry', () => {
   it('has guardrails as a live Intermediate module that recommends Tool calling first', () => {
     expect(moduleOf('guardrails')).toMatchObject({ title: 'Prompt injection & guardrails', level: 'Intermediate', status: 'live', prereqs: ['tool-calling'] });
     expect(moduleOf('guardrails').author).toEqual(moduleOf('rag').author);
+  });
+
+  it('has tokens as a live Beginner module with no prerequisites, numbered 6 after guardrails', () => {
+    expect(moduleOf('tokens')).toMatchObject({ title: 'Tokens & embeddings', level: 'Beginner', status: 'live', prereqs: [] });
+    expect(moduleOf('tokens').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens']);
   });
 
   it('keeps chapter ids unique within every module', () => {

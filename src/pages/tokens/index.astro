@@ -1,0 +1,235 @@
+---
+// Tokens module intro: sets the scene before chapter 1. Static, except the example's token row, the warm-up and a small
+// script that marks finished chapters. Every example is the course's own data: Larkspur's order sentence cut by the site
+// tokenizer and by the recorded real ones, Larkspur's documents counted (chapter 3's meter), and claims quoted from data/tokens/facts.json.
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import Meta from '../../components/Meta.astro';
+import IsoStage from '../../lib/iso/IsoStage';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import { TokenRow, siteEncoding } from '../../content/tokens/kit';
+import { TOKEN_BOARD, tokenScene, tokenLabel, tokensWord, type TokenOpts } from '../../components/scenes/tokenScene';
+import { SENTENCES, TOKENIZERS, encodingOf } from '../../lib/tokens/encodings';
+import { CORPUS, corpusMeter, countText } from '../../lib/tokens/counts';
+import { ACCESSED, fact } from '../../lib/tokens/facts';
+import { moduleOf, chapterHref } from '../../lib/modules';
+import { introMeta } from '../../lib/pages';
+import { longDate, num } from '../../lib/format';
+
+const MODULE = moduleOf('tokens');
+const CHAPTERS = MODULE.chapters;
+/** chapter n's share image */
+const shareOf = (n: number) => `/og/tokens-${CHAPTERS[n - 1].id}.jpg`;
+const textOf = (id: string) => SENTENCES.find(s => s.id === id)!.text;
+// the whole idea: Larkspur's order sentence, as typed and as the site tokenizer cuts it
+const SAMPLE = textOf('order-en'), C = countText(SAMPLE), ENC = siteEncoding(SAMPLE);
+const HERO: TokenOpts = { text: SAMPLE, scale: 1.7 };
+const NEW = TOKENIZERS[TOKENIZERS.length - 1], OLD = TOKENIZERS[0];
+const tokensOn = (sentence: string, t: string) => encodingOf(sentence, t).ids.length;
+// three ideas, each in a small press: the sentence cut, the Japanese order on the newest recorded tokenizer, and
+// chapter 5's picture of RAG's map
+const JA = textOf('order-ja');
+const IDEAS: [string, string, ReturnType<typeof fact>, TokenOpts | string][] = [
+  ['Tokens, not words', 'The tokenizer cuts text into numbered pieces', fact('bpe-origin'), { text: SAMPLE, scale: 1.7 }],
+  ['Tokens are the meter', `Same message in Japanese: ${tokensWord(tokensOn('order-ja', NEW.id))} on ${NEW.name}`, fact('billed-in-tokens'), { text: JA, tokens: tokensOn('order-ja', NEW.id), scale: 1.7 }],
+  ['Meaning by neighbours', 'Texts that mean the same sit close together', fact('embedding-def'), shareOf(5)],
+];
+// Larkspur's documents on the meter (chapter 3)
+const M = corpusMeter();
+const FACTS: [string, string][] = [
+  [String(CORPUS.length), 'Larkspur documents, counted'],
+  [num(M.rule), `tokens by the rule of thumb (bytes ÷ ${fact('openai-rule').value})`],
+  ...M.real.map(r => [num(r.tokens), `tokens on ${r.name}`] as [string, string]),
+];
+const checked = longDate(ACCESSED);
+---
+<html lang="en">
+  <head>
+    <Meta {...introMeta(MODULE.id)} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url}>{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module 6 · Tokens</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span> No other module needed · by <a href={MODULE.author.url}>{MODULE.author.name}</a></p>
+          <h1>What a model reads when you send it text</h1>
+          <p class="lede">A model never sees your words. A tokenizer cuts the text into tokens, each one a number, and those numbers are what you pay for and what fill the model’s window. A second kind of number, the embedding, carries meaning, so texts that mean the same sit close together.</p>
+          <ul class="chips" aria-label="At a glance">
+            <li>{CHAPTERS.length} {CHAPTERS.length === 1 ? 'chapter' : 'chapters'}</li><li>No code</li><li>Runs in your browser</li><li>No live model</li>
+          </ul>
+          <div class="ctas">
+            <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+          <ReadingMode />
+        </div>
+        <div class="hero-pic">
+          {/* the token press every chapter plays in, cutting Larkspur's order sentence */}
+          <IsoStage board={TOKEN_BOARD} scene={tokenScene(HERO)} label={tokenLabel(HERO)} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="idea">
+        <p class="kicker">The whole idea in one example</p>
+        <h2 id="idea">A model reads numbers, not words</h2>
+        <div class="versus">
+          <article class="reply">
+            <header><h3>What you typed</h3><span class="stamp">{C.words} words</span></header>
+            <p class="said">“{SAMPLE}”</p>
+            <p class="cap">{C.words} words and {C.chars} characters.</p>
+          </article>
+          <article class="reply read">
+            <header><h3>What the model reads</h3><span class="stamp">{tokensWord(C.tokens)}</span></header>
+            <TokenRow client:visible enc={ENC} label="The sentence as tokens" />
+            <p class="cap">Each tile is a token: its piece of text over its number.</p>
+          </article>
+        </div>
+        <p class="note more">These are this site’s small tokenizer’s tokens, learned from Larkspur’s own documents. Real tokenizers cut the same sentence differently: {OLD.name} into {tokensWord(tokensOn('order-en', OLD.id))}, {NEW.name} into {tokensWord(tokensOn('order-en', NEW.id))}. Their output was recorded ahead of time; this site’s tokenizer runs for real in your browser.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Three ideas carry the module</h2>
+        <ol class="steps">
+          {IDEAS.map(([name, short, f, pic], i) => (
+            <li>
+              <div class="pic">{typeof pic === 'string'
+                ? <img src={pic} alt="A map of every piece of Larkspur’s documents by meaning, with the question among its nearest pieces" width="1200" height="630" loading="lazy" decoding="async" />
+                : <IsoStage board={TOKEN_BOARD} scene={tokenScene(pic)} label={tokenLabel(pic)} />}</div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              <p class="more">{f.claim}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">Larkspur’s assistant starts where the model does</h2>
+          <p class="more">{MODULE.story} <strong>You’re on the team that counts what the assistant will read, and what it will cost.</strong></p>
+          <p class="prev">Played <a href="/rag/">RAG</a>? Chapters 5 and 6 read the same map of meaning as RAG’s chapter 5, built from the same embeddings of Larkspur’s documents.</p>
+        </div>
+        <dl class="facts">
+          {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}
+        </dl>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due (R13); the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <ul class="who-chips"><li>Product managers</li><li>Engineers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Product managers, engineers and analysts who have used an AI assistant and never looked inside. No background needed; the maths is optional. A good first module.</p>
+        </article>
+        <article>
+          <h2>How a chapter page works</h2>
+          <div class="schematic" aria-hidden="true">
+            <div class="s-pic">live picture</div>
+            <div class="s-story"><span></span><span></span><span class="s-step">your step</span></div>
+          </div>
+          <p class="more">The picture on the left is live. The story on the right asks you to do one thing in it at a time. This site’s tokenizer and the similarity maths run for real in your browser; real tokenizers’ output was recorded ahead of time. Progress stays in this browser.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com">Kondasamy Jayaraman</a>.</p>
+        <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, whose hand-inked isometric style and engine this course is built on. Colorfigures grew from April’s <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed. Thank you.</p>
+      </footer>
+    </main>
+
+    <script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      const CHAPTERS = moduleOf('tokens').chapters;
+      const done = completed('tokens');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('tokens', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .module-meta a { color: var(--ink); }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.read { border-left: 6px solid var(--acc); }
+  .said { font-size: 17px; font-weight: 700; overflow-wrap: anywhere; }
+
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); white-space: nowrap; }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 140px; display: flex; justify-content: center; margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: auto !important; height: 100% !important; }
+  /* the share image's right part is the map */
+  .steps .pic img { height: 100%; width: auto; aspect-ratio: 1 / 1; object-fit: cover; object-position: 100% 50%; border-radius: 10px; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .prev { font-size: 14px; color: var(--muted); }
+  .prev a { color: var(--ink); }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
+
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+  }
+</style>

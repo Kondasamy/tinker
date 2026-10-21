@@ -15,7 +15,7 @@ Every module has a level, a story, an intro at `/<module>/`, its chapters, and a
 | Level | Module | Status |
 |---|---|---|
 | Beginner | [RAG: Retrieval-Augmented Generation](#rag-retrieval-augmented-generation-rag) | Live, 7 chapters |
-| Beginner | Tokens & embeddings | Planned |
+| Beginner | [Tokens & embeddings](#tokens--embeddings-tokens) | Live, 7 chapters |
 | Intermediate | [Tool calling & MCP](#tool-calling--mcp-tool-calling) (RAG recommended first) | Live, 7 chapters |
 | Intermediate | [Evals & LLM testing](#evals--llm-testing-evals) (RAG recommended first) | Live, 7 chapters |
 | Intermediate | [Prompt injection & guardrails](#prompt-injection--guardrails-guardrails) (Tool calling recommended first) | Live, 7 chapters |
@@ -106,6 +106,22 @@ What happens when the text an assistant reads tries to give it orders, and the d
 
 The chapters play in a mail room added to Tool calling's back office: email rides in from an inbox tray past a screening arch, and an outbound chute with a barrier leads to a post box, the way out. The same run is one tab away as a step-by-step sequence.
 
+### Tokens & embeddings (`/tokens/`)
+
+How text becomes the numbers a model reads: tokens to count and pay for, and embeddings that carry meaning. Larkspur's team starts where the model does, with what it reads and what that costs.
+
+| # | Chapter | What you do |
+|---|---|---|
+| 1 | What the model reads | Predict how many tokens a sentence cuts into, then type your own and watch the count |
+| 2 | How the vocabulary is learned | Step through the merges a byte-level tokenizer learned from Larkspur's documents |
+| 3 | Tokens are the meter | Count Larkspur's documents by the rule of thumb and by real tokenizers, then price them |
+| 4 | Every tokenizer splits differently | Compare tokenizers on spaces, numbers, code and other languages |
+| 5 | From token to vector | See why a token id carries no meaning, and compare questions by their embeddings |
+| 6 | Meaning by neighbours | Find the piece closest in meaning to a question, whatever words it shares |
+| 7 | Workbench: fit the prompt | Pick the parts of a prompt that fit a token budget, counted live |
+
+The chapters play at a token press: a paper strip of text feeds the press, and one coloured tile per token drops onto a belt. The same tokens are one tab away as a row of tiles, each with its id. This site's small tokenizer runs live in your browser; GPT-2's and GPT-4o's output was recorded ahead of time (`pnpm record:tokens`). Chapters 5 and 6 read RAG's map of meaning, built from the same embeddings.
+
 ---
 
 ## How it's built
@@ -114,7 +130,7 @@ The chapters play in a mail room added to Tool calling's back office: email ride
 - **Real retrieval, precomputed answers (RAG):** the corpus is embedded at build time (`pnpm build:index`, all-MiniLM-L6-v2 and a cross-encoder reranker); the browser runs the real similarity, BM25, reranking, graph-walk and agent maths over those vectors. Model answers are pre-recorded for each kind of evidence that can reach the model, so every knob changes the outcome honestly.
 - **Recorded turns, live tools (Tool calling, AI agents):** the model's turns are pre-recorded per scenario (`data/tool-calling/turns/`). The host loop, a JSON Schema subset validator, the approval gate, the tools running on fixture data and an MCP-shaped JSON-RPC server all run in the browser (`src/lib/tools/`). A unit test checks every reachable control setting has a recorded turn. MCP facts come from `data/tool-calling/facts.json`, each with its source. The agent loop (`src/lib/agents/`) reuses those tools and adds plans, approval, budgets, a repeat detector, memory and helpers, all computed in the browser; its recorded turns are in `data/agents/turns/` and its facts in `data/agents/facts.json`. The guardrails loop (`src/lib/guardrails/`) puts defences around the model as host stages (input filters, the taint rule, the allow-list, the output filter, policy checks, approval); its turns are in `data/guardrails/turns/`, its stand-in classifier's hand-set scores in `data/guardrails/inbox.json`, and its attack and customer suites in `data/guardrails/suite.json`.
 - **Real retrieval, recorded grading (Evals):** each version of the assistant runs RAG's real retrieval over the same 12 questions and reads the recorded answer for what it found. Code graders run in the browser (`src/lib/evals/`); the model judge's verdicts, people's labels and repeated tries are recorded in `data/evals/`, and every combination a control can reach is checked by a unit test.
-- **Pictures:** hand-inked isometric figures drawn by the Colorfigures engine (see Credits), extended to orbit, zoom and turn the view. Each module leads with a scene you can picture rather than a flow chart: RAG's pipeline on a workbench, tool calling's back office (`src/components/scenes/officeScene.ts`), evals' test bench (`evalScene.ts`), guardrails' mail room (`guardScene.ts`), and the home page's workshop with a plot per module (`heroScene.ts`). Flat sequence figures (lanes and message cards, `src/lib/iso/flat.ts`) in the same ink show the exact messages, a tab away. Names sit in label pills so they stay readable.
+- **Pictures:** hand-inked isometric figures drawn by the Colorfigures engine (see Credits), extended to orbit, zoom and turn the view. Each module leads with a scene you can picture rather than a flow chart: RAG's pipeline on a workbench, tool calling's back office (`src/components/scenes/officeScene.ts`), evals' test bench (`evalScene.ts`), guardrails' mail room (`guardScene.ts`), tokens' token press (`tokenScene.ts`), and the home page's workshop with a plot per module (`heroScene.ts`). Flat sequence figures (lanes and message cards, `src/lib/iso/flat.ts`) in the same ink show the exact messages, a tab away. Names sit in label pills so they stay readable.
 - **Works on a phone:** below 861px the picture stacks above the story, pills grow, and the sequence shows one message at a time.
 
 <p align="center"><img src="docs/images/phone.png" width="300" alt="A tool calling chapter on a phone: the back office above, the INVALID call held at the schema check"></p>
@@ -138,6 +154,7 @@ The chapters play in a mail room added to Tool calling's back office: email ride
 | `src/lib/agents/`, `data/agents/` | Agent engine (the agent loop, its budgets, memory and helpers) and its recorded turns, fixtures and facts |
 | `src/lib/evals/`, `data/evals/` | Evals engine (versions, the suite, code graders, the release gate) and its references, judge verdicts, labels, samples and facts |
 | `src/lib/guardrails/`, `data/guardrails/` | Guardrails engine (the loop and its defence layers, the suites' metrics) and its recorded turns, inbox, customers, suites and facts |
+| `src/lib/tokens/`, `data/tokens/` | Tokens engine (counts, merges, neighbours over RAG's vectors, the prompt workbench) and its recorded real tokenizers, sentences and facts |
 | `src/lib/iso/` | The drawing engine (Colorfigures, adapted), the isometric stage and the flat figure kit, shared by every module |
 | `src/components/story/` | The step runner every chapter uses: the live picture on the left, the story column on the right |
 | `src/components/quiz/` | Quizzes, predictions and the recap |
@@ -156,7 +173,7 @@ pnpm install    # install exact dependency versions from pnpm-lock.yaml
 pnpm dev        # start the dev server on http://localhost:4321
 ```
 
-Open http://localhost:4321 for the Tinker home; the modules are at http://localhost:4321/rag/, http://localhost:4321/tool-calling/, http://localhost:4321/agents/, http://localhost:4321/evals/ and http://localhost:4321/guardrails/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap` and `/dev/warmup`. These pages are left out of production builds.
+Open http://localhost:4321 for the Tinker home; the modules are at http://localhost:4321/rag/, http://localhost:4321/tool-calling/, http://localhost:4321/agents/, http://localhost:4321/evals/, http://localhost:4321/guardrails/ and http://localhost:4321/tokens/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap`, `/dev/warmup`, `/dev/agents`, `/dev/evals`, `/dev/guardrails` and `/dev/tokens`. These pages are left out of production builds.
 
 To try the production build locally:
 
@@ -191,6 +208,7 @@ The retrieval index in `public/data/index/` is committed. Normal development and
 ```bash
 pnpm build:index                  # re-embed and re-score; the first run downloads two small models into .cache/ (about 8 minutes cold, seconds when cached)
 node scripts/draft-answers.mjs    # redraft data/answers/*.json from rules; review the answers before committing
+pnpm record:tokens                # re-record GPT-2's and GPT-4o's tokens for data/tokens/ (downloads the tokenizers into .cache/ once)
 pnpm test                         # the scenario and answer-coverage tests must still pass
 ```
 

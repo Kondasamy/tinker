@@ -1,0 +1,63 @@
+---
+// Dev-only eyeball page: the token press in every state (static SVG, no client JS), then each state's tile row.
+// Below 600px the phone versions show (bigger pills, names only; the counts line carries the numbers).
+import '../styles/tokens.css';
+import '../content/tool-calling/tools.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { TOKEN_BOARD, tokenLabel, tokenScene, tokensWord } from '../components/scenes/tokenScene';
+import { TokenRow, siteEncoding } from '../content/tokens/kit';
+import { countText } from '../lib/tokens/counts';
+import { encodingOf, SENTENCES, TOKENIZERS } from '../lib/tokens/encodings';
+
+const real = encodingOf('order-ja', TOKENIZERS[0].id);
+const STATES: [string, string, typeof real?][] = [
+  ['Idle: no text', ''],
+  ['One word', 'Refunds'],
+  ['A Larkspur question', 'Can enterprise customers get a refund?'],
+  ['More tokens than the belt holds', 'Larkspur ships shelving, ladders and tool chests to warehouses across the country.'],
+  ['Typed markup stays text', '<script>alert("hi")</script>'],
+  ['Byte chips: an emoji the tokenizer cut', 'Coffee ☕ break'],
+  [`A real tokenizer (${TOKENIZERS[0].name})`, SENTENCES.find(s => s.id === 'order-ja')!.text, real],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Tokens scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>The token press: every state</h1>
+      <div class="grid">
+        {STATES.map(([title, text, enc]) => {
+          const tokens = enc ? enc.ids.length : undefined, c = countText(text);
+          return (
+            <section>
+              <h2>{title}</h2>
+              <div class="wide"><IsoStage board={TOKEN_BOARD} scene={tokenScene({ text, tokens })} label={tokenLabel({ text, tokens })} /></div>
+              <div class="phone"><IsoStage board={TOKEN_BOARD} scene={tokenScene({ text, tokens, scale: 1.8 })} label={tokenLabel({ text, tokens })} /></div>
+              <p>{tokensWord(tokens ?? c.tokens)} · {c.words} word{c.words === 1 ? '' : 's'} · {c.chars} character{c.chars === 1 ? '' : 's'}</p>
+              <TokenRow enc={enc ?? siteEncoding(text)} />
+            </section>
+          );
+        })}
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>
