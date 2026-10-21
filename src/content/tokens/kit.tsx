@@ -102,16 +102,37 @@ export function TokensStage({ text, enc, caption, view: kept, onView }:
   );
 }
 
-/** RAG's map of every chunk by meaning (KTD5), read-only: one question run through RAG's own retrieval over its default
- * chunks, so the map shows the same dots and true similarities RAG chapter 5 does. */
-export function EmbeddingMap({ question }: { question: Question }) {
+/** RAG's index and its default chunks (the map's), loaded once; `failed` when either could not load. */
+export function useMapIndex() {
   const { index, failed } = useRagIndex();
   const [cfg, setCfg] = useState<Config | null>(null), [lost, setLost] = useState(false);
   useEffect(() => { index?.load(MAP_FILE).then(setCfg, () => setLost(true)); }, [index]);
+  return { index, cfg, failed: failed || lost };
+}
+
+/** RAG's map of every chunk by meaning (KTD5), read-only: one question run through RAG's own retrieval over its default
+ * chunks, so the map shows the same dots and true similarities RAG chapter 5 does. `mark: false` leaves the retrieved
+ * chunks unmarked (a puzzle's answer); `onProbe` fires when the reader points at or tabs to a dot. */
+export function EmbeddingMap({ question, mark = true, onProbe }: { question: Question; mark?: boolean; onProbe?: () => void }) {
+  const { index, cfg, failed } = useMapIndex();
   // ProjectionMap reads only the run record from an Outcome
-  const out = useMemo(() => (index && cfg ? { record: run(index, cfg, { question, topK: 3 }) } as Outcome : null), [index, cfg, question]);
-  if (failed || lost) return <p className="note">The map of meaning could not load. Reload the page to try again.</p>;
-  return <ProjectionMap out={out} index={index} />;
+  const out = useMemo(() => {
+    if (!index || !cfg) return null;
+    const record = run(index, cfg, { question, topK: 3 });
+    return { record: mark ? record : { ...record, context: [] } } as Outcome;
+  }, [index, cfg, question, mark]);
+  if (failed) return <p className="note">The map of meaning could not load. Reload the page to try again.</p>;
+  return <ProjectionMap out={out} index={index} onProbe={onProbe} />;
+}
+
+/** The map as a chapter's stage, in the shared frame, with the step's line under it. */
+export function MapStage({ caption, ...map }: { question: Question; mark?: boolean; onProbe?: () => void; caption?: string }) {
+  return (
+    <div className="tc-stage tk-stage">
+      <div className="tc-frame tk-map"><EmbeddingMap {...map} /></div>
+      {caption && <p className="tc-caption"><span>{caption}</span></p>}
+    </div>
+  );
 }
 
 /** A cited fact from data/tokens/facts.json, with its source and the day it was checked (R5). */

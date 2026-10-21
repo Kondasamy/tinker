@@ -35,3 +35,15 @@ export function fit(on: readonly string[], budget: number): Fit {
   const missing = REQUIRED.filter((id) => !on.includes(id));
   return { tokens, budget, fits: tokens <= budget, over: Math.max(0, tokens - budget), left: Math.max(0, budget - tokens), missing, ok: tokens <= budget && !missing.length };
 }
+
+const OPTIONAL = PARTS.filter((p) => !p.required).map((p) => p.id);
+/** Every prompt the reader can build that keeps the required parts: the required ones plus each set of optional ones. */
+export const PROMPTS: string[][] = Array.from({ length: 1 << OPTIONAL.length }, (_, m) =>
+  PARTS.filter((p) => p.required || m & (1 << OPTIONAL.indexOf(p.id))).map((p) => p.id));
+
+/** It fits, keeps the required parts, and no part left out would still fit if added. */
+export const full = (on: readonly string[], budget: number) =>
+  fit(on, budget).ok && OPTIONAL.every((id) => on.includes(id) || !fit([...on, id], budget).fits);
+
+/** Every prompt that fits the budget with nothing more to add: each is a right answer. */
+export const fullPrompts = (budget: number) => PROMPTS.filter((on) => full(on, budget));
