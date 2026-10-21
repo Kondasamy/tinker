@@ -20,7 +20,8 @@ const MODULE = 'transformers', ID = '04-heads-and-layers';
 const LM = META.model;
 /** The prompts the chapter offers (the long one is too wide a grid for a phone). A test holds the head on each. */
 export const OFFERED = PROMPTS.filter(p => p.id !== 'long');
-const textOf = (id: string) => OFFERED.find(p => p.id === id)!.text;
+/** A prompt's text; an id no longer offered (a run saved before the list changed) falls back to the first. */
+export const textOf = (id: string) => (OFFERED.find(p => p.id === id) ?? OFFERED[0]).text;
 /** Every head, as [layer, head]. */
 const HEADS = Array.from({ length: LM.n_layer * LM.n_head }, (_, i) => [Math.floor(i / LM.n_head), i % LM.n_head] as const);
 const headId = (l: number, h: number) => `${l}-${h}`;

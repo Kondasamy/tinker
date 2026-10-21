@@ -27,17 +27,21 @@ const T0 = TEMPERATURES.indexOf(0), T1 = TEMPERATURES.indexOf(1), HOT = TEMPERAT
 /** How many temperatures and top-p values the reader tries. */
 const TRY_T = 3, TRY_P = 2;
 
+/** A slider position's value, clamped into the list (a run saved before the list changed). */
+const at = (xs: number[], i: number) => xs[Math.max(0, Math.min(xs.length - 1, i))];
+const tempOf = (i: number) => at(TEMPERATURES, i), topOf = (i: number) => at(TOP_PS, i);
+
 const logitsOf = (m: Model) => forward(m, encode(PROMPT.text)).logits.at(-1)!;
 /** The next-token distribution after the prompt under a temperature and top-p. */
 export const distOf = (m: Model, t: number, p: number) => distribution(logitsOf(m), t, p);
 /** The prompt's continuation for the saved settings and seed: the same inputs always give the same text. */
-export const continuation = (m: Model, s: { t: number; p: number; seed: number }) => sample(m, PROMPT.text, TEMPERATURES[s.t], TOP_PS[s.p], s.seed, STEPS_WRITTEN).text;
+export const continuation = (m: Model, s: { t: number; p: number; seed: number }) => sample(m, PROMPT.text, tempOf(s.t), topOf(s.p), s.seed, STEPS_WRITTEN).text;
 /** 0 when raising the temperature from 1 to 1.5 flattens the bar (entropy rises), else 1: read off the model. */
 export function outcomeOf(m: Model): number {
   return entropy(distOf(m, 1.5, 1)) > entropy(distOf(m, 1, 1)) ? 0 : 1;
 }
 /** How many tokens top-p keeps at a setting. */
-export const keptOf = (m: Model, t: number, p: number) => distOf(m, TEMPERATURES[t], TOP_PS[p]).filter(x => x > 0).length;
+export const keptOf = (m: Model, t: number, p: number) => distOf(m, tempOf(t), topOf(p)).filter(x => x > 0).length;
 
 interface S { t: number; p: number; seed: number; drawn: boolean; temps: number[]; tops: number[]; p1: number | null; revealed: boolean; view: View; quiz: number | null }
 
@@ -68,7 +72,7 @@ const QUIZ = {
   ],
 };
 
-const tName = (i: number) => `${TEMPERATURES[i]}`;
+const tName = (i: number) => `${tempOf(i)}`;
 /** A continuation in quotes, its line breaks shown as ↵. */
 const shown = (text: string) => `“${text.replace(/\n/g, '↵')}”`;
 
@@ -132,8 +136,8 @@ export default function ChoosingTheNextToken() {
       next={nextOf(MODULE, ID)}
       stage={({ state, sync }) => (
         <TransformersStage prompt={PROMPT.text} view={state.view} onView={v => sync({ ...state, view: v })}
-          next={model ? topK(distOf(model, TEMPERATURES[state.t], TOP_PS[state.p]), 5) : undefined}
-          caption={`The bar: what the sampler draws from at temperature ${tName(state.t)}, top-p ${TOP_PS[state.p]}. Computed live from Larkspur mini.`} />
+          next={model ? topK(distOf(model, tempOf(state.t), topOf(state.p)), 5) : undefined}
+          caption={`The bar: what the sampler draws from at temperature ${tName(state.t)}, top-p ${topOf(state.p)}. Computed live from Larkspur mini.`} />
       )}
       controls={{
         write: ({ state, apply, sync }) => {
@@ -141,7 +145,7 @@ export default function ChoosingTheNextToken() {
           if (!state.drawn) return <button type="button" className="big" onClick={() => apply({ ...state, drawn: true })}>Write {STEPS_WRITTEN} tokens</button>;
           return (
             <>
-              <p className="tc-status" role="status" data-continuation>{`Temperature ${tName(state.t)}, top-p ${TOP_PS[state.p]}, seed ${state.seed}. Larkspur mini wrote: ${shown(continuation(model, state))}`}</p>
+              <p className="tc-status" role="status" data-continuation>{`Temperature ${tName(state.t)}, top-p ${topOf(state.p)}, seed ${state.seed}. Larkspur mini wrote: ${shown(continuation(model, state))}`}</p>
               {state.t !== T0 && <button type="button" className="chip" onClick={() => sync({ ...state, seed: state.seed + 1 })}>Roll a new seed</button>}
             </>
           );
@@ -150,7 +154,7 @@ export default function ChoosingTheNextToken() {
         reveal: ({ state, apply }) => <button type="button" className="chip" onClick={() => apply({ ...state, revealed: true, t: HOT, temps: [T1, HOT], view: 'attn' })}>Raise the temperature to {tName(HOT)}</button>,
         out1: ({ state }) => model ? <Outcome {...P1} prediction={state.p1} outcome={outcomeOf(model)} /> : <Waiting />,
         temperature: ({ state, sync }) => {
-          const top = model ? Math.max(...distOf(model, TEMPERATURES[state.t], TOP_PS[state.p])) : 0;
+          const top = model ? Math.max(...distOf(model, tempOf(state.t), topOf(state.p))) : 0;
           const read = `the likeliest token gets ${top.toFixed(2)}`;
           return (
             <>
@@ -164,9 +168,9 @@ export default function ChoosingTheNextToken() {
           const kept = model ? keptOf(model, state.t, state.p) : 0;
           return (
             <>
-              <Slider label="Top-p" value={state.p} max={TOP_PS.length - 1} text={`${TOP_PS[state.p]}`} valueText={`${TOP_PS[state.p]}: keeps ${kept} tokens`} ends={['Only the likeliest', 'Keep every token']}
+              <Slider label="Top-p" value={state.p} max={TOP_PS.length - 1} text={`${topOf(state.p)}`} valueText={`${topOf(state.p)}: keeps ${kept} tokens`} ends={['Only the likeliest', 'Keep every token']}
                 onChange={p => sync({ ...state, p, view: 'attn', tops: [...new Set([...state.tops, p])] })} />
-              <p className="tc-status">{state.t === T0 ? 'At temperature 0 only the likeliest token is ever picked, so top-p changes nothing. Raise the temperature to see it work.' : `Top-p ${TOP_PS[state.p]} keeps ${kept} of the ${META.model.vocab} tokens.`}</p>
+              <p className="tc-status">{state.t === T0 ? 'At temperature 0 only the likeliest token is ever picked, so top-p changes nothing. Raise the temperature to see it work.' : `Top-p ${topOf(state.p)} keeps ${kept} of the ${META.model.vocab} tokens.`}</p>
             </>
           );
         },

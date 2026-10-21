@@ -16,7 +16,8 @@ import { Fact, TransformersStage, Waiting, useModel, whenLoaded, type View } fro
 const MODULE = 'transformers', ID = '03-attention';
 /** The prompts the chapter offers; the long one is left for chapter 2 (it is too wide a grid for a phone). */
 export const OFFERED = PROMPTS.filter(p => p.id !== 'long');
-const textOf = (id: string) => OFFERED.find(p => p.id === id)!.text;
+/** A prompt's text; an id no longer offered (a run saved before the list changed) falls back to the first. */
+export const textOf = (id: string) => (OFFERED.find(p => p.id === id) ?? OFFERED[0]).text;
 /** How many prompts the reader tries, the first included. */
 const TRY = 3;
 

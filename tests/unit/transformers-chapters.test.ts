@@ -91,6 +91,21 @@ describe('chapter 5: choosing the next token', () => {
   });
 });
 
+describe('a resumed run saved under older lists', () => {
+  it('chapters 3 and 4 fall back to the first offered prompt for a prompt id they no longer offer', () => {
+    for (const ch of [ch3, ch4]) {
+      expect(ch.textOf('gone')).toBe(ch.OFFERED[0].text);
+      expect(ch.textOf(ch.OFFERED[1].id)).toBe(ch.OFFERED[1].text);
+    }
+  });
+  it('chapter 5 clamps saved slider positions into TEMPERATURES and TOP_PS', () => {
+    const [tN, pN] = [TEMPERATURES.length - 1, TOP_PS.length - 1];
+    expect(ch5.continuation(model, { t: 99, p: -3, seed: 2 })).toBe(ch5.continuation(model, { t: tN, p: 0, seed: 2 }));
+    expect(ch5.keptOf(model, 99, 99)).toBe(ch5.keptOf(model, tN, pN));
+    expect(ch5.keptOf(model, -1, pN)).toBe(1);
+  });
+});
+
 describe('chapter 6: why long prompts cost more', () => {
   it('the text fills the window, and doubling the prompt about quadruples the pairs (the prediction’s answer)', () => {
     expect(ch6.IDS).toHaveLength(CTX);
