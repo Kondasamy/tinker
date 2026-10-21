@@ -1,0 +1,78 @@
+---
+// Dev-only eyeball page: the control room in each chapter's state, and a waterfall per kind of trace (static, no client
+// JS). Below 600px the phone versions show (bigger pills, the bins' names left to the caption).
+import '../styles/tokens.css';
+import '../content/observability/observability.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { TRACE_BOARD, traceLabel, traceScene, controlRoomPlot, type TraceOpts } from '../components/scenes/traceScene';
+import { Waterfall, binsOf, wallOf } from '../content/observability/kit';
+import { DAY2, FAILED, TRACES, traceOf } from '../lib/observability/traces';
+import { DAY1_COUNTS, counts } from '../lib/observability/coding';
+
+const ZERO = counts([]);
+const STATES: [string, TraceOpts][] = [
+  ['Empty room', { cards: [] }],
+  ['Day 1 on the wall, t01 lit', { cards: wallOf(TRACES, 't01') }],
+  ['Failed traces only, empty bins', { cards: wallOf(FAILED, 't23'), bins: binsOf(ZERO) }],
+  ['Sorted: counts per mode', { cards: wallOf(FAILED), bins: binsOf(DAY1_COUNTS) }],
+  ['Fix first: the stale bin lit', { cards: wallOf(FAILED), bins: binsOf(DAY1_COUNTS, 'stale-doc'), board: 'FIX FIRST: STALE' }],
+  ['Day 2 queue', { cards: wallOf(DAY2), bins: binsOf(counts(DAY2), 'wrong-order') }],
+];
+const FALLS: [string, string, string | undefined][] = [
+  ['Doc question and an order lookup (ok)', 't01', undefined],
+  ['Stale passage: first failure at retrieval', 't23', 's1'],
+  ['Wrong order number: first failure at the first model call', 't34', 's1'],
+  ['Ignored result: first failure at the second model call', 't37', 's3'],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Observability scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Control room: each state</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={TRACE_BOARD} scene={traceScene(o)} label={traceLabel(o)} /></div>
+            <div class="phone"><IsoStage board={TRACE_BOARD} scene={traceScene({ ...o, scale: 2 })} label={traceLabel(o)} /></div>
+            <p>{traceLabel(o)}</p>
+          </section>
+        ))}
+        <section>
+          <h2>Hero plot</h2>
+          <IsoStage board={[0, 0, 60, 60]} scene={() => controlRoomPlot(30, 30)} label="The home hero's observability plot" />
+        </section>
+      </div>
+      <h1>Waterfalls</h1>
+      <div class="grid">
+        {FALLS.map(([title, id, first]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><Waterfall trace={traceOf(id)} stamp={first} /></div>
+            <div class="phone"><Waterfall trace={traceOf(id)} stamp={first} phone /></div>
+          </section>
+        ))}
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>
