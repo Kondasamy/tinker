@@ -13,7 +13,7 @@ const upper = (s: string) => s.toUpperCase().replace(/&/g, '&amp;');
 describe('home hero', () => {
   it('has one name pill per module, each from the registry, and no NaN coordinates', () => {
     const svg = draw();
-    for (const m of MODULES.filter(m => m.status === 'live')) expect(svg).toContain(upper(m.title));
+    for (const m of MODULES.filter(m => m.status === 'live')) expect(svg).toContain(upper(m.id.replace(/-/g, ' ')));
     for (const m of MODULES.filter(m => m.status === 'planned')) expect(svg).toContain(`SOON: ${m.id.replace(/-/g, ' ').toUpperCase()}`);
     expect(svg).not.toMatch(/NaN/);
   });

@@ -68,6 +68,21 @@ test('with only a later chapter done, Continue goes to chapter 1 and says so', a
   await expect(go).toHaveText('Continue RAG: chapter 1 →');
 });
 
+test('a first visit starts with the basics; a finished module hands Continue to the next unfinished one', async ({ page }) => {
+  await page.goto('/');
+  const go = page.locator('[data-continue]');
+  await expect(go).toHaveText('Start with the basics →');
+  await expect(go).toHaveAttribute('href', '/rag/');
+  const [rag, next] = MODULES.filter(m => m.status === 'live');
+  await page.evaluate(ids => {
+    localStorage.setItem('rag-progress-v1', JSON.stringify({ done: ids, saved: {} }));
+    localStorage.setItem('tinker-last-module', 'rag');
+  }, rag.chapters.map(c => c.id));
+  await page.reload();
+  await expect(go).toHaveAttribute('href', `/${next.id}/`);
+  await expect(go).toHaveText(`Start ${next.title} →`);
+});
+
 test('with no storage, Continue opens the RAG intro', async ({ page }) => {
   await page.addInitScript(() => Object.defineProperty(window, 'localStorage', { get() { throw new Error('blocked'); } }));
   await page.goto('/');

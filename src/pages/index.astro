@@ -96,20 +96,20 @@ const CONTRIBUTING = 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING
   <body>
     <div class="topbar">
       <p class="crumbs"><img src="/favicon.svg" alt="" width="22" height="22" /> Tinker</p>
-      <p class="by">by <a href="https://kondasamy.com">Kondasamy Jayaraman</a></p>
+      <p class="by">by <a href="https://kondasamy.com" target="_blank" rel="noopener">Kondasamy Jayaraman</a></p>
     </div>
     <main class="home">
       <header class="hero">
         <div class="hero-text">
           <h1>See how tech works <em>by playing with it.</em></h1>
-          <p class="lede">Hand-drawn, interactive explanations of the technology people use at work every day but rarely get to see inside. Each module is a short story you play through: build the thing, watch it break, fix it.</p>
-          <ul class="chips" aria-label="At a glance"><li>Free</li><li>No sign-up</li><li>Nothing to install</li><li>Works on your phone</li></ul>
+          <p class="lede">Hand-drawn stories you play: build the thing, watch it break, fix it.</p>
           <div class="ctas">
-            <a class="btn primary" href={`/${FIRST.id}/`} data-continue>Start with {FIRST.title} →</a>
-            <a class="btn" href="#loop">How it works</a>
+            <a class="btn primary" href={`/${FIRST.id}/`} data-continue>Start with the basics →</a>
+            <a class="btn" href="#modules">See all {LIVE.length} modules</a>
           </div>
+          <p class="glance">Free · No sign-up · Nothing to install · Works on your phone</p>
         </div>
-        <figure class="hero-pic">
+        <figure class="hero-pic" style={`--n:${LIVE.length}`}>
           <IsoStage board={HERO_BOARD} scene={HOME_HERO} label={HOME_HERO_LABEL} />
           <figcaption>One workshop, a plot per module. {PLANNED.length ? <>The empty plots are open: <a href={CONTRIBUTING}>build one</a>.</> : <>Room for more: <a href={CONTRIBUTING}>propose one</a>.</>}</figcaption>
         </figure>
@@ -141,9 +141,11 @@ const CONTRIBUTING = 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING
                 <article class="module" data-module={m.id}>
                   {CARD[m.id]?.iso && <div class="pic"><IsoStage {...CARD[m.id].iso!} /></div>}
                   <div class="info">
-                    <p class="kicker">Module {LIVE.indexOf(m) + 1} · {m.chapters.length ? `${m.chapters.length} ${m.chapters.length === 1 ? 'chapter' : 'chapters'}` : 'Chapters arrive soon'}</p>
+                    <div class="head">
+                      <p class="kicker">Module {LIVE.indexOf(m) + 1} · {m.chapters.length ? `${m.chapters.length} ${m.chapters.length === 1 ? 'chapter' : 'chapters'}` : 'Chapters arrive soon'}</p>
+                      <p class="tags"><span class="level">{m.level}</span></p>
+                    </div>
                     <h4><a href={`/${m.id}/`}>{CARD[m.id]?.name ?? m.title}</a></h4>
-                    <p class="tags"><span class="level">{m.level}</span></p>
                     <p>{m.description}</p>
                     {CARD[m.id] && <ul class="topics" aria-label="Topics">{CARD[m.id].topics.map(t => <li>{t}</li>)}</ul>}
                     <div class="progress" data-progress hidden><span class="bar"><span></span></span><span class="txt"></span></div>
@@ -172,7 +174,7 @@ const CONTRIBUTING = 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING
       </section>
 
       <footer class="credits">
-        <p>Made by <a href="https://kondasamy.com">Kondasamy Jayaraman</a>.</p>
+        <p>Made by <a href="https://kondasamy.com" target="_blank" rel="noopener">Kondasamy Jayaraman</a>.</p>
         <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, whose hand-inked isometric style and engine Tinker is built on. Colorfigures grew from April’s <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed. Thank you.</p>
       </footer>
     </main>
@@ -207,7 +209,10 @@ const CONTRIBUTING = 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING
         a.href = r.href;
         a.textContent = r.text;
       }
-      const last = lastModule(), pick = live.find(m => m.id === last) ?? live[0];
+      // the last module played, or once it is finished, the next module not yet finished: the hero walks the reader through them all
+      const unfinished = (m: typeof live[number]) => m.chapters.some(c => !completed(m.id).includes(c.id));
+      const last = live.find(m => m.id === lastModule()) ?? live[0];
+      const pick = unfinished(last) ? last : live.find(unfinished) ?? last;
       const r = resume(pick), go = document.querySelector<HTMLAnchorElement>('[data-continue]')!;
       go.href = r.href;
       if (r.done) go.textContent = r.text;
@@ -218,7 +223,7 @@ const CONTRIBUTING = 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING
 
 <style>
   .home { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 80px; font-size: 15px; line-height: 1.6; }
-  .home h1 { margin: 0 0 16px; font-size: 44px; line-height: 1.08; letter-spacing: -.015em; }
+  .home h1 { margin: 0 0 12px; font-size: 48px; line-height: 1.1; letter-spacing: -.015em; text-wrap: balance; }
   .home h1 em { font-style: normal; background: linear-gradient(transparent 62%, var(--acc) 62% 92%, transparent 92%); }
   .home h2 { margin: 4px 0 20px; font-size: 26px; line-height: 1.2; }
   .home h3 { margin: 0; font-size: 17px; }
@@ -227,28 +232,57 @@ const CONTRIBUTING = 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING
   .lede { font-size: 17px; max-width: 54ch; }
   .ctas { display: flex; flex-wrap: wrap; gap: 12px; }
 
-  .hero { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.25fr); gap: 32px; align-items: center; padding-top: 24px; }
-  .hero-pic { margin: 0; }
-  /* the envelope rides its belt again and again, a sign of life in the picture (none with reduced motion) */
+  .hero { display: flex; flex-direction: column; align-items: center; gap: 8px; padding-top: 16px; text-align: center; }
+  .hero-text { display: flex; flex-direction: column; align-items: center; }
+  .hero .lede { max-width: 60ch; margin: 0 auto 20px; text-wrap: balance; }
+  .ctas { justify-content: center; }
+  .hero .glance { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+  /* the board's viewBox leaves headroom for tall props; pull it up under the text */
+  .hero-pic { margin: -32px 0 0; width: 100%; max-width: 780px; }
+  /* the workshop is busy (none with reduced motion): the envelope rides its belt, RAG's wire carries a current, and a wave
+     hops each live plot in turn down the board, showing and lighting its pill only for its turn, so the board rests unlabelled */
   @media (prefers-reduced-motion: no-preference) {
     .hero-pic :global(.capsule) { animation: hero-ride 3.2s cubic-bezier(.45, 0, .3, 1) infinite; }
+    .hero-pic :global(.hero-flow) { animation: hero-flow .9s linear infinite; }
+    .hero-pic :global(.hero-hop) { animation: hero-hop calc(var(--n) * .8s) ease-in-out infinite; animation-delay: calc(var(--i) * .8s); }
+    .hero-pic :global(.hero-hop .block-tag) { opacity: 0; animation: hero-show calc(var(--n) * .8s) ease-in-out infinite; animation-delay: calc(var(--i) * .8s); }
+    .hero-pic :global(.hero-hop .tag rect) { fill: var(--acc); }
+    /* the token press keeps cutting tiles, and the agent's clipboard keeps ticking its plan off */
+    .hero-pic :global(.tile) { animation: hero-drop 2.4s cubic-bezier(.5, 0, .5, 1.4) infinite both; }
+    .hero-pic :global(.tile:nth-child(2 of .tile)) { animation-delay: .3s; }
+    .hero-pic :global(.tile:nth-child(3 of .tile)) { animation-delay: .6s; }
+    .hero-pic :global(.tick) { animation: hero-tick 3s ease-in-out infinite both; }
+    .hero-pic :global(.tick:nth-child(2 of .tick)) { animation-delay: .6s; }
   }
   @keyframes hero-ride { 0% { transform: translate(var(--dx), var(--dy)); opacity: 0; } 12% { opacity: 1; } 55%, 100% { transform: none; } }
-  .hero-pic figcaption { text-align: center; font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+  @keyframes hero-flow { to { stroke-dashoffset: -11; } }
+  @keyframes hero-show { 0%, 100% { opacity: 0; } 2%, 10% { opacity: 1; } 12% { opacity: 0; } }
+  @keyframes hero-drop { 0% { transform: translateY(-12px); opacity: 0; } 20%, 80% { transform: none; opacity: 1; } 100% { opacity: 0; } }
+  @keyframes hero-tick { 0%, 15% { opacity: 0; } 30%, 90% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes hero-hop { 0%, 12%, 100% { transform: none; } 4% { transform: translateY(-7px); } 8% { transform: translateY(1px); } }
+  .hero-pic figcaption { text-align: center; font-size: 12.5px; color: var(--muted); margin-top: 8px; }
 
   .principles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-  .principles li { border: 1.5px solid var(--ink); border-radius: 16px; padding: 18px 20px; background: var(--card); box-shadow: 4px 4px 0 var(--ink); display: flex; flex-direction: column; gap: 8px; }
-  .principles .pic { width: 120px; }
-  .principles p { font-size: 14px; margin: 0; }
+  .principles li { display: grid; grid-template-columns: 72px 1fr; gap: 4px 16px; align-items: start; }
+  .principles .pic { width: 72px; grid-row: span 2; }
+  .principles h3 { align-self: end; }
+  .principles p { font-size: 14px; color: var(--muted); margin: 0; }
 
   .level-group { margin-top: 28px; }
   .level-group > h3 { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
   .level-group > h3::after { content: ''; flex: 1; border-top: 1.5px solid var(--rule); }
   .coming { font-size: 14px; color: var(--muted); }
   .propose { margin-top: 28px; font-size: 15px; }
-  .modules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
-  .module { grid-column: span 2; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 24px; align-items: center; border: 1.5px solid var(--ink); border-radius: 20px; padding: 22px 24px; background: var(--card); box-shadow: 5px 5px 0 var(--ink); }
-  .module h4 { font-size: 21px; line-height: 1.3; margin: 2px 0 6px; }
+  .modules { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: stretch; }
+  .module { display: flex; flex-direction: column; border: 1.5px solid var(--ink); border-radius: 20px; overflow: hidden; background: var(--card); box-shadow: 5px 5px 0 var(--ink); }
+  .module .pic { background: var(--paper); border-bottom: 1.5px solid var(--rule); padding: 12px 16px; }
+  /* IsoStage sets height: auto inline; a fixed height keeps every card's picture the same size */
+  .module .pic :global(svg) { height: 230px !important; }
+  .module .info { flex: 1; display: flex; flex-direction: column; padding: 18px 22px 22px; }
+  .module .head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .module .head p { margin: 0; }
+  .module .info > .btn { align-self: flex-start; margin-top: auto; }
+  .module h4 { font-size: 20px; line-height: 1.3; margin: 8px 0 6px; }
   .module h4 a { text-decoration: none; }
   .module h4 a:hover { text-decoration: underline; }
   .tags { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -259,7 +293,7 @@ const CONTRIBUTING = 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING
   .planned { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; color: var(--muted); align-self: center; }
   .pic { display: block; }
   .topics { list-style: none; margin: 4px 0 16px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
-  .topics li { font-size: 12px; font-weight: 700; padding: 1px 9px; border-radius: 999px; background: var(--paper); border: 1px solid var(--rule); }
+  .topics li { font-size: 12px; padding: 1px 9px; border-radius: 999px; color: var(--muted); border: 1px solid var(--rule); }
   .progress { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; font-size: 13px; font-weight: 700; }
   .progress[hidden] { display: none; }
   .progress .bar { flex: 1; max-width: 200px; height: 8px; border: 1.5px solid var(--ink); border-radius: 999px; overflow: hidden; background: var(--paper); }
@@ -273,8 +307,9 @@ const CONTRIBUTING = 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING
   @media (max-width: 900px) {
     .home { padding: 12px 16px 48px; gap: 56px; }
     .home h1 { font-size: 32px; }
-    .hero, .modules, .module { grid-template-columns: 1fr; }
-    .module { grid-column: auto; }
+    .hero { padding-top: 16px; }
+    .modules { grid-template-columns: 1fr; }
+    .module .pic :global(svg) { height: 200px !important; }
     .principles { grid-template-columns: 1fr; }
     .loop { grid-template-columns: 1fr 1fr; }
   }
