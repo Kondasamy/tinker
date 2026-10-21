@@ -22,6 +22,7 @@ Every module has a level, a story, an intro at `/<module>/`, its chapters, and a
 | Intermediate | [Context engineering & memory](#context-engineering--memory-context) (RAG and Tool calling recommended first) | Live, 7 chapters |
 | Intermediate | [Structured outputs](#structured-outputs-structured-outputs) (Tool calling and Tokens recommended first) | Live, 7 chapters |
 | Intermediate | [Reasoning models & thinking budgets](#reasoning-models--thinking-budgets-reasoning) (Evals recommended first) | Live, 7 chapters |
+| Intermediate | [Observability & error analysis](#observability--error-analysis-observability) (Evals recommended first) | Live, 7 chapters |
 | Advanced | [AI agents](#ai-agents-agents) (Tool calling recommended first) | Live, 7 chapters |
 | Advanced | [Transformer architecture](#transformer-architecture-transformers) (Tokens recommended first) | Live, 7 chapters |
 | Advanced | [Fine-tuning vs prompting](#fine-tuning-vs-prompting-fine-tuning) (Evals and Transformers recommended first) | Live, 7 chapters |
@@ -238,6 +239,22 @@ What happens between the prompt and the reply on a server: batching, the KV cach
 
 The chapters play on a serving floor: a queue belt of waiting requests, a server rack with a seat per request in the batch, a KV cache shelf and, for speculative decoding, the student as a draft runner. A timeline of every request is one tab away. Quantization and speculative decoding run Larkspur mini live in your browser; the server is a simulator with a labelled cost model, at the shape of a published open model, not a measurement.
 
+### Observability & error analysis (`/observability/`)
+
+Reading what the assistant really did in production: traces, labelling failures by hand, and finding the ones that matter. Larkspur Supply Co.'s assistant is answering real customers now, so the team reads its traces, names what goes wrong, and fixes what matters first.
+
+| # | Chapter | What you do |
+|---|---|---|
+| 1 | What the assistant did | Open a customer's trace and read each step: retrieval, model calls, tool calls and the reply |
+| 2 | The first failure | Find the span inside a bad trace where things first went wrong |
+| 3 | Open coding | Write your own note on what went wrong in the failed traces |
+| 4 | Axial coding | Group the notes into failure modes and count them |
+| 5 | Which ones matter | Weigh how often each mode happens against how much harm it does, and pick the fix |
+| 6 | From trace to test | Turn failed traces into eval cases and grade the fixed version on them |
+| 7 | Workbench: a new day | Label a fresh day's thumbs-down queue and pick the one fix to ship |
+
+The chapters play in a control room: a wall of the day's traces as cards, failed ones striped red, and a sorting bin per failure mode with a tally board. One trace's waterfall, every span as a timed lane with the first failure stamped, is one tab away. The day of traffic is hand-written, shaped like OpenTelemetry's GenAI conventions; your notes stay in your browser and are never graded, and chapter 6's cases are graded by Evals' own code graders.
+
 ---
 
 ## How it's built
@@ -246,7 +263,7 @@ The chapters play on a serving floor: a queue belt of waiting requests, a server
 - **Real retrieval, precomputed answers (RAG):** the corpus is embedded at build time (`pnpm build:index`, all-MiniLM-L6-v2 and a cross-encoder reranker); the browser runs the real similarity, BM25, reranking, graph-walk and agent maths over those vectors. Model answers are pre-recorded for each kind of evidence that can reach the model, so every knob changes the outcome honestly.
 - **Recorded turns, live tools (Tool calling, AI agents):** the model's turns are pre-recorded per scenario (`data/tool-calling/turns/`). The host loop, a JSON Schema subset validator, the approval gate, the tools running on fixture data and an MCP-shaped JSON-RPC server all run in the browser (`src/lib/tools/`). A unit test checks every reachable control setting has a recorded turn. MCP facts come from `data/tool-calling/facts.json`, each with its source. The agent loop (`src/lib/agents/`) reuses those tools and adds plans, approval, budgets, a repeat detector, memory and helpers, all computed in the browser; its recorded turns are in `data/agents/turns/` and its facts in `data/agents/facts.json`. The guardrails loop (`src/lib/guardrails/`) puts defences around the model as host stages (input filters, the taint rule, the allow-list, the output filter, policy checks, approval); its turns are in `data/guardrails/turns/`, its stand-in classifier's hand-set scores in `data/guardrails/inbox.json`, and its attack and customer suites in `data/guardrails/suite.json`.
 - **Real retrieval, recorded grading (Evals):** each version of the assistant runs RAG's real retrieval over the same 12 questions and reads the recorded answer for what it found. Code graders run in the browser (`src/lib/evals/`); the model judge's verdicts, people's labels and repeated tries are recorded in `data/evals/`, and every combination a control can reach is checked by a unit test.
-- **Pictures:** hand-inked isometric figures drawn by the Colorfigures engine (see Credits), extended to orbit, zoom and turn the view. Each module leads with a scene you can picture rather than a flow chart: RAG's pipeline on a workbench, tool calling's back office (`src/components/scenes/officeScene.ts`), evals' test bench (`evalScene.ts`), guardrails' mail room (`guardScene.ts`), tokens' token press (`tokenScene.ts`), transformers' engine room (`engineScene.ts`), context's window desk (`windowScene.ts`), fine-tuning's training bench (`trainScene.ts`), structured outputs' stencil press (`stencilScene.ts`), reasoning's scratchpad desk (`thinkScene.ts`), small models' apprentice's bench (`routerScene.ts`), inference's serving floor (`serveScene.ts`), and the home page's animated workshop with a plot per module (`heroScene.ts`): a wave hops each plot and names it in turn. Flat sequence figures (lanes and message cards, `src/lib/iso/flat.ts`) in the same ink show the exact messages, a tab away. Names sit in label pills so they stay readable.
+- **Pictures:** hand-inked isometric figures drawn by the Colorfigures engine (see Credits), extended to orbit, zoom and turn the view. Each module leads with a scene you can picture rather than a flow chart: RAG's pipeline on a workbench, tool calling's back office (`src/components/scenes/officeScene.ts`), evals' test bench (`evalScene.ts`), guardrails' mail room (`guardScene.ts`), tokens' token press (`tokenScene.ts`), transformers' engine room (`engineScene.ts`), context's window desk (`windowScene.ts`), fine-tuning's training bench (`trainScene.ts`), structured outputs' stencil press (`stencilScene.ts`), reasoning's scratchpad desk (`thinkScene.ts`), small models' apprentice's bench (`routerScene.ts`), inference's serving floor (`serveScene.ts`), observability's control room (`traceScene.ts`), and the home page's animated workshop with a plot per module (`heroScene.ts`): a wave hops each plot and names it in turn. Flat sequence figures (lanes and message cards, `src/lib/iso/flat.ts`) in the same ink show the exact messages, a tab away. Names sit in label pills so they stay readable.
 - **Search:** every page has its own title, description, canonical URL and share image; intros and chapters carry schema.org course and lesson data with breadcrumbs; `/sitemap.xml` and `/robots.txt` are built from the page list, and recaps and the 404 page stay out of search.
 - **Works on a phone:** below 861px the picture stacks above the story, pills grow, and the sequence shows one message at a time.
 
@@ -279,6 +296,7 @@ The chapters play on a serving floor: a queue belt of waiting requests, a server
 | `src/lib/reasoning/`, `data/reasoning/` | Reasoning engine (recorded answers per question and effort, graded live by Evals' graders, thinking tokens, cost and wait, the workbench) and its questions, references, answers, assumptions and facts |
 | `src/lib/small-models/`, `data/small-models/` | Small models engine (the teacher and its student compared live, the small and large tiers' recorded answers graded by Evals' graders, the router, the frontier and the workbench) and its answers, prompts, workbench scores and facts |
 | `src/lib/inference/`, `data/inference/` | Inference engine (quantization simulated on Larkspur mini, speculative decoding with the student as draft, the server simulator and the workbench) and its request trace, cost model, prompts, targets and facts |
+| `src/lib/observability/`, `data/observability/` | Observability engine (the day's traces with their reference first failures and modes, coding and counts, eval cases graded by Evals' graders, the day 2 workbench) and its traces, fixed answers and facts |
 | `src/lib/tokens/`, `data/tokens/` | Tokens engine (counts, merges, neighbours over RAG's vectors, the prompt workbench) and its recorded real tokenizers, sentences and facts |
 | `src/lib/iso/` | The drawing engine (Colorfigures, adapted), the isometric stage and the flat figure kit, shared by every module |
 | `src/components/story/` | The step runner every chapter uses: the live picture on the left, the story column on the right |
@@ -298,7 +316,7 @@ pnpm install    # install exact dependency versions from pnpm-lock.yaml
 pnpm dev        # start the dev server on http://localhost:4321
 ```
 
-Open http://localhost:4321 for the Tinker home; the modules are at http://localhost:4321/rag/, http://localhost:4321/tool-calling/, http://localhost:4321/agents/, http://localhost:4321/evals/, http://localhost:4321/guardrails/, http://localhost:4321/tokens/, http://localhost:4321/transformers/, http://localhost:4321/context/, http://localhost:4321/fine-tuning/, http://localhost:4321/structured-outputs/, http://localhost:4321/reasoning/, http://localhost:4321/small-models/ and http://localhost:4321/inference/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap`, `/dev/warmup`, `/dev/agents`, `/dev/evals`, `/dev/guardrails`, `/dev/tokens`, `/dev/transformers`, `/dev/context`, `/dev/fine-tuning`, `/dev/structured-outputs`, `/dev/reasoning`, `/dev/small-models` and `/dev/inference`. These pages are left out of production builds.
+Open http://localhost:4321 for the Tinker home; the modules are at http://localhost:4321/rag/, http://localhost:4321/tool-calling/, http://localhost:4321/agents/, http://localhost:4321/evals/, http://localhost:4321/guardrails/, http://localhost:4321/tokens/, http://localhost:4321/transformers/, http://localhost:4321/context/, http://localhost:4321/fine-tuning/, http://localhost:4321/structured-outputs/, http://localhost:4321/reasoning/, http://localhost:4321/small-models/, http://localhost:4321/inference/ and http://localhost:4321/observability/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap`, `/dev/warmup`, `/dev/agents`, `/dev/evals`, `/dev/guardrails`, `/dev/tokens`, `/dev/transformers`, `/dev/context`, `/dev/fine-tuning`, `/dev/structured-outputs`, `/dev/reasoning`, `/dev/small-models`, `/dev/inference` and `/dev/observability`. These pages are left out of production builds.
 
 To try the production build locally:
 
@@ -404,7 +422,7 @@ No monitoring is needed, because there is no backend.
 
 ## Contributing
 
-Thirteen modules are live and four more are on the roadmap (the planned cards on the home page): build one of them, or propose another. New modules and fixes arrive as pull requests to this repository. Start with [CONTRIBUTING.md](CONTRIBUTING.md) (setup, checks, the PR flow, credit) and [docs/writing-a-module.md](docs/writing-a-module.md) (the house style for a module). `pnpm new-module <id> "<Title>"` scaffolds a module, and `pnpm test` lists what it still needs.
+Fourteen modules are live and three more are on the roadmap (the planned cards on the home page): build one of them, or propose another. New modules and fixes arrive as pull requests to this repository. Start with [CONTRIBUTING.md](CONTRIBUTING.md) (setup, checks, the PR flow, credit) and [docs/writing-a-module.md](docs/writing-a-module.md) (the house style for a module). `pnpm new-module <id> "<Title>"` scaffolds a module, and `pnpm test` lists what it still needs.
 
 ---
 
