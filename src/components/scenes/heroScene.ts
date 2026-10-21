@@ -69,11 +69,13 @@ export const heroScene = ({ live, planned, ride }: { live: HeroPlot[]; planned: 
       ]);
   }).join('');
   s += plots;
-  const pill = (p: number[], text: string, onn: boolean, dy = -20) => `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p, 0, dy, esc(text.toUpperCase()), onn, scale)}</g>`;
+  const pill = (p: number[], text: string, onn: boolean, dy = -20, dx = 0) => `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text.toUpperCase()), onn, scale)}</g>`;
+  // staircase pills end at their leader and run left (half tag()'s width, in its units), so the plot's drawing to the leader's right stays in view
+  const left = (text: string) => -((esc(text.toUpperCase()).length * .62 + 1.5) * 8.6 / 2 + 2); // tag() sizes the escaped text ('&' is '&amp;')
   const at = (i: number) => { const [x, y] = slotXY(i); return [x - 4, y, BH + 15]; };
   return s + pill([RAG_X[1], RAG_Y, BH + 34], live[0].name, true, -18) + pill([142, 134, BH + 34], live[1].name, true, -22)
-    + later.map((m, i) => pill(at(i), m.name, true, -12)).join('')
-    + planned.map((m, j) => pill(at(later.length + j), `Soon: ${m.name}`, false, -12)).join('');
+    + later.map((m, i) => pill(at(i), m.name, true, -12, left(m.name))).join('')
+    + planned.map((m, j) => pill(at(later.length + j), `Soon: ${m.name}`, false, -12, left(`Soon: ${m.name}`))).join('');
 };
 
 /** later live modules' plots, by module id: agents is a small desk with its plan on a clipboard; evals a stack of graded test cards and a stamp;
@@ -100,4 +102,7 @@ const LIVE = MODULES.filter(m => m.status === 'live'), PLANNED = MODULES.filter(
 /** the home page's picture (and its share image), from the registry: the model's call riding to the host */
 export const HERO_BOARD = heroBoard(LIVE.length - 2 + PLANNED.length);
 export const HOME_HERO = heroScene({ live: LIVE.map((m, i) => ({ name: `Module ${i + 1} · ${m.title}`, draw: DRAW[m.id] })), planned: PLANNED.map(m => ({ name: m.id.replace(/-/g, ' ') })), ride: SEQ_MSGS.slice(0, 3) });
-export const HOME_HERO_LABEL = `Tinker as one workshop with a plot per module: ${LIVE.map(m => m.title).join(' and ')}, live, and building sites for ${PLANNED.map(m => m.title).join(', ')}.`;
+/** the hero's accessible label: building sites are named only while some module is planned */
+export const heroLabel = (live: string[], planned: string[]) =>
+  `Tinker as one workshop with a plot per module: ${live.join(' and ')}, live${planned.length ? `, and building sites for ${planned.join(', ')}` : ''}.`;
+export const HOME_HERO_LABEL = heroLabel(LIVE.map(m => m.title), PLANNED.map(m => m.title));
