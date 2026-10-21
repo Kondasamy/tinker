@@ -7,8 +7,10 @@ import IsoStage from '../../lib/iso/IsoStage';
 import { INK } from '../../lib/iso/core.js';
 import { WINDOW_BOARD, windowLabel, windowReadouts, windowScene, windowState, type WindowOpts } from '../../components/scenes/windowScene';
 import { KIND_NAME, KIND_PAL, barLabel, segName, windowBar } from '../../components/scenes/windowBar';
-import { DEFAULTS, type Run } from '../../lib/context/loop';
+import { DEFAULTS, REPLY_ROOM, run, type Run, type Setup } from '../../lib/context/loop';
+import { RECORDING } from '../../lib/context/turns';
 import { caseOf, type PartKind } from '../../lib/context/window';
+import { fact } from '../../lib/context/facts';
 import { useNarrow } from '../tool-calling/kit';
 import './context.css';
 
@@ -99,5 +101,40 @@ export function ContextStage({ run, upTo, budget = DEFAULTS.budget, props = {}, 
         <span className="lbl">{windowReadouts(opts).join(' · ')}</span>
       </p>
     </div>
+  );
+}
+
+/** A sourced claim about real practice (R5), with its source and the date it was checked. */
+export function Fact({ id }: { id: string }) {
+  const f = fact(id);
+  return (
+    <p className="tc-fact">
+      {f.claim} <a className="source" href={f.source} target="_blank" rel="noreferrer">Source: {new URL(f.source).hostname}</a> (checked {f.accessed})
+    </p>
+  );
+}
+
+const runs = new Map<string, Run>();
+/** A host run over the merged recording, computed once per setup (the tokenizer is the slow part). */
+export function runOf(setup: Partial<Setup>): Run {
+  const k = JSON.stringify(setup);
+  if (!runs.has(k)) runs.set(k, run(RECORDING, setup));
+  return runs.get(k)!;
+}
+
+/** The parts of one call's window with their live token counts, the reply's room and the budget. */
+export function PartsTable({ run: r, upTo, caption }: { run: Run; upTo?: number; caption: string }) {
+  const st = windowState({ run: r, upTo });
+  if (!st.window) return null;
+  return (
+    <table className="tc-ledger cx-parts">
+      <caption>{caption}</caption>
+      <thead><tr><th scope="col">Part</th><th scope="col">Tokens</th></tr></thead>
+      <tbody>
+        {st.window.parts.map((p, i) => <tr key={i}><th scope="row">{p.label}</th><td>{num(p.tokens)}</td></tr>)}
+        <tr><th scope="row">Room kept for the reply</th><td>{num(REPLY_ROOM)}</td></tr>
+      </tbody>
+      <tfoot><tr><th scope="row">Total, of a budget of {num(DEFAULTS.budget)}</th><td>{num(st.tokens + REPLY_ROOM)}</td></tr></tfoot>
+    </table>
   );
 }

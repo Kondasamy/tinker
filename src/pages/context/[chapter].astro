@@ -1,0 +1,25 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import WhatsInTheWindow from '../../content/context/01-whats-in-the-window';
+import MoreIsntBetter from '../../content/context/02-more-isnt-better';
+import FetchWhenNeeded from '../../content/context/03-fetch-when-needed';
+import OrderForTheCache from '../../content/context/04-order-for-the-cache';
+import { moduleOf } from '../../lib/modules';
+
+// shortcut: chapters 5–7 have no island yet, so only 1–4 are built; U16 adds them and drops this filter.
+export function getStaticPaths() {
+  const WRITTEN = ['01-whats-in-the-window', '02-more-isnt-better', '03-fetch-when-needed', '04-order-for-the-cache'];
+  return moduleOf('context').chapters.filter(c => WRITTEN.includes(c.id)).map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="context" chapter={chapter} title={title}>
+  {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
+      hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
+  {chapter === '01-whats-in-the-window' ? <WhatsInTheWindow client:load />
+    : chapter === '02-more-isnt-better' ? <MoreIsntBetter client:load />
+    : chapter === '03-fetch-when-needed' ? <FetchWhenNeeded client:load />
+    : <OrderForTheCache client:load />}
+</ChapterLayout>
