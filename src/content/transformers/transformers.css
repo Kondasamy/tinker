@@ -31,3 +31,20 @@
 .tf-tiles li { font: 700 12.5px ui-monospace, Menlo, monospace; padding: 1px 6px; border: 1.5px solid var(--ink); border-radius: 5px; background: var(--card); white-space: pre; }
 .tf-tiles .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .tf-tiles li.past { border-style: dashed; color: var(--muted); background: transparent; }
+
+/* chapter 2: a vector as a strip of cells, one per number (warm above zero, cool below, paler nearer zero) */
+.tf-vecfig { margin: 6px 0; }
+.tf-vec { display: grid; height: 18px; border: 1.5px solid var(--ink); border-radius: 4px; overflow: hidden; }
+.tf-vec span + span { border-left: 1px solid color-mix(in srgb, var(--ink) 15%, transparent); }
+.tf-vecfig figcaption { font-size: 12.5px; margin-top: 2px; }
+.tf-nums { font: 12px ui-monospace, Menlo, monospace; color: var(--muted); }
+.tf-copies { display: grid; gap: 10px; margin-top: 8px; }
+.tf-copies .lbl { margin: 0; font-weight: 800; font-family: ui-monospace, Menlo, monospace; white-space: pre; }
+
+/* chapter 4: the residual stream, one running vector with each layer adding to it */
+.tf-stream { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 0; }
+.tf-stream li { position: relative; padding: 6px 10px 6px 30px; border: 1.5px solid var(--ink); border-radius: 8px; background: var(--card); font-size: 14px; }
+.tf-stream li + li { margin-top: 18px; }
+.tf-stream li + li::before { content: '↓'; position: absolute; left: 10px; top: -19px; font-weight: 900; }
+.tf-stream li[data-add]::after { content: '+'; position: absolute; left: 9px; top: 5px; font-weight: 900; }
+.tf-stream li[data-add] { background: color-mix(in srgb, var(--mint-l) 35%, var(--card)); }

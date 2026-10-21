@@ -1,0 +1,83 @@
+// What chapters 1–4 read off Larkspur mini: every prediction's outcome is computed from the live trace or weights,
+// never typed, and chapter 4's named head finds the start of the word on every prompt the chapter offers.
+import { readFileSync } from 'node:fs';
+import { describe, expect, it } from 'vitest';
+import { encode } from '../../src/lib/lm/bpe';
+import { parseModel, type Meta } from '../../src/lib/lm/load';
+import { trace, wordStart, HEAD } from '../../src/lib/transformers/trace';
+import * as ch1 from '../../src/content/transformers/01-one-token-at-a-time';
+import * as ch2 from '../../src/content/transformers/02-tokens-become-vectors';
+import * as ch3 from '../../src/content/transformers/03-attention';
+import * as ch4 from '../../src/content/transformers/04-heads-and-layers';
+import { TRANSFORMERS_MODULE as M } from '../../src/content/transformers/module';
+
+const b = readFileSync('public/data/lm/model.bin');
+const meta = JSON.parse(readFileSync('public/data/lm/meta.json', 'utf8')) as Meta;
+const model = parseModel(meta, b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer);
+
+describe('chapter 1: one token at a time', () => {
+  it('every option is one token of the vocabulary', () => {
+    for (const p of ch1.PIECES) expect(encode(p), p).toHaveLength(1);
+  });
+  it('the prediction’s answer is the trace’s top token, which is the prompt’s expected one', () => {
+    const top = trace(model, ch1.PROMPT.text).top.at(-1)![0].text;
+    expect(ch1.PIECES[ch1.answerOf(model)]).toBe(top);
+    expect(top).toBe(ch1.PROMPT.expected);
+  });
+  it('each added token is the top token of the run before it', () => {
+    const { text, added } = ch1.grown(model, ch1.ADD);
+    expect(added).toHaveLength(ch1.ADD);
+    expect(added[0]).toBe(ch1.PROMPT.expected);
+    expect(text).toBe(ch1.PROMPT.text + added.join(''));
+  });
+});
+
+describe('chapter 2: tokens become vectors', () => {
+  it('the token appears twice, and both copies look up the same row but start from different sums', () => {
+    expect(ch2.COPIES).toHaveLength(2);
+    const [a, b2] = ch2.COPIES.map(t => ch2.inputOf(model, t));
+    expect(a.token).toEqual(b2.token);
+    expect(a.sum).not.toEqual(b2.sum);
+    expect(a.token).toHaveLength(meta.model.d_model);
+    expect(ch2.outcomeOf(model)).toBe(1);
+  });
+});
+
+describe('chapter 3: attention', () => {
+  it('every head gives every later token 0 on every prompt offered (the mask), and rows sum to 1', () => {
+    expect(ch3.outcomeOf(model)).toBe(0);
+    for (const p of ch3.OFFERED) for (const rows of trace(model, p.text).attention.flat())
+      for (const r of rows) expect(r.reduce((x, y) => x + y, 0)).toBeCloseTo(1, 6);
+  });
+});
+
+describe('chapter 4: heads and layers', () => {
+  it('the prediction’s query ends a three-token word, and the named head weighs where the word began most', () => {
+    expect(ch4.QUERY).toBeGreaterThan(1);
+    expect(ch4.outcomeOf(model)).toBe(0);
+    expect(HEAD.kind).toBe('word-start');
+  });
+  it.each(ch4.OFFERED.map(p => [p.id, p] as const))('the named head’s pattern holds on “%s”', (_, p) => {
+    const t = trace(model, p.text);
+    const w = wordStart(t.tokens.map(x => x.id), t.attention[HEAD.layer][HEAD.head]);
+    expect(w.n).toBeGreaterThan(0);
+    expect(w.score).toBeGreaterThanOrEqual(2 * w.uniform);
+    expect(ch4.scoreOf(model, p.text)).toEqual(w);
+  });
+});
+
+describe('the registry entry', () => {
+  it('has seven chapters, each with a full intro, and the six intro terms across chapters 1–4', () => {
+    expect(M.chapters).toHaveLength(7);
+    for (const c of M.chapters) {
+      expect(c.intro.learn).toHaveLength(3);
+      expect(c.intro.terms.length).toBeGreaterThan(0);
+    }
+    const terms = M.chapters.slice(0, 4).flatMap(c => c.intro.terms.map(([t]) => t.toLowerCase()));
+    for (const t of ['model', 'next-token prediction', 'embedding', 'attention', 'head', 'layer']) expect(terms).toContain(t);
+  });
+  it('recall covers chapters 1–4 with exactly one pinned item', () => {
+    for (const c of M.chapters.slice(0, 4)) expect(M.recall!.filter(i => i.chapter === c.id).length).toBeGreaterThanOrEqual(3);
+    expect(M.recall!.filter(i => i.pin)).toHaveLength(1);
+  });
+});

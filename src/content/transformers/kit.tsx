@@ -9,6 +9,7 @@ import { modelLoader } from '../../lib/lm/load';
 import type { Model } from '../../lib/lm/model';
 import { decode, encode } from '../../lib/lm/bpe';
 import { trace } from '../../lib/transformers/trace';
+import { fact } from '../../lib/transformers/facts';
 import { ENGINE_BOARD, engineLabel, engineScene, type EngineOpts } from '../../components/scenes/engineScene';
 import { attentionMap, mapLabel, pieceLabel, probBar } from '../../components/scenes/attentionMap';
 import { useNarrow } from '../tool-calling/kit';
@@ -174,3 +175,16 @@ export function TransformersStage({ prompt, layer = 0, head = 0, query, caption,
     </div>
   );
 }
+
+/** A cited fact from data/transformers/facts.json, with its source and the day it was checked (R5). */
+export function Fact({ id }: { id: string }) {
+  const f = fact(id);
+  return (
+    <p className="tc-fact">
+      {f.claim} <a className="source" href={f.source} target="_blank" rel="noreferrer">Source: {new URL(f.source).hostname}</a> (checked {f.accessed})
+    </p>
+  );
+}
+
+/** Shown in a control while Larkspur mini loads; the stage carries Retry. */
+export const Waiting = () => <p className="tc-status" role="status">Loading Larkspur mini…</p>;
