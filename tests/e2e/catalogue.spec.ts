@@ -6,7 +6,7 @@ import { MODULES } from '../../src/lib/modules';
 const CONTRIBUTING = 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING.md';
 const catalogue = (page: import('@playwright/test').Page) => page.locator('#modules');
 // live modules in their numbered order: each go-live appends its id (KTD17)
-const NUMBERED = ['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs', 'reasoning', 'small-models', 'inference', 'observability'];
+const NUMBERED = ['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs', 'reasoning', 'small-models', 'inference', 'observability', 'sandboxing'];
 
 // every module sits at its level: live cards first, then the roadmap's planned cards in registry (build) order;
 // the hero's building sites point contributors at CONTRIBUTING.md, and so does the Propose a module link.
@@ -56,6 +56,7 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
   await expect(page.locator('[data-level="Advanced"] .module[data-module="small-models"] h4 a')).toHaveAttribute('href', '/small-models/');
   await expect(page.locator('[data-level="Advanced"] .module[data-module="inference"] h4 a')).toHaveAttribute('href', '/inference/');
   await expect(page.locator('[data-level="Intermediate"] .module[data-module="observability"] h4 a')).toHaveAttribute('href', '/observability/');
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="sandboxing"] h4 a')).toHaveAttribute('href', '/sandboxing/');
 });
 
 // the wave hops plot i at i × 0.8 s; sampled mid-turn, only that plot's pill shows, and with reduced motion every pill shows

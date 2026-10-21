@@ -18,6 +18,7 @@ import { deskPadPlot } from './thinkScene';
 import { apprenticePlot } from './routerScene';
 import { servePlot } from './serveScene';
 import { controlRoomPlot } from './traceScene';
+import { glassRoomPlot } from './sandboxScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
@@ -94,7 +95,8 @@ export const heroScene = ({ live, planned, ride }: { live: HeroPlot[]; planned: 
  * stopped before the plate and two tiles past it; reasoning a small scratchpad desk, a squat model, a pad of thinking papers
  * and a small effort dial; small models a small apprentice's bench, a model block, a squat student in front of it and
  * the router's plate, its lever leaning toward the student; inference a small server rack, three of its four seats lit, beside a
- * short queue belt with two envelopes waiting; observability a short wall of three trace cards, one failed, over a sorting bin */
+ * short queue belt with two envelopes waiting; observability a short wall of three trace cards, one failed, over a sorting bin;
+ * sandboxing a small walled yard, the agent's desk inside and a gated door in its front wall */
 const DRAW: Record<string, HeroPlot['draw']> = {
   // at the plot's right-hand corner, clear of the pill row
   agents: (x, y, { top }) => castShadow(boxCorners(x + 9, y - 21, BH, x + 27, y - 7, BH + 17), BH, top)
@@ -114,6 +116,7 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   'small-models': (x, y, { top }) => apprenticePlot(x + 14, y - 4, top),
   inference: (x, y, { top }) => servePlot(x + 14, y - 4, top),
   observability: (x, y, { top }) => controlRoomPlot(x + 14, y - 2, top),
+  sandboxing: (x, y, { top }) => glassRoomPlot(x + 8, y - 2, top),
 };
 const LIVE = MODULES.filter(m => m.status === 'live'), PLANNED = MODULES.filter(m => m.status === 'planned');
 /** the home page's share image, from the registry: the model's call riding to the host */

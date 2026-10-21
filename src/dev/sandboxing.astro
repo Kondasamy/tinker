@@ -4,7 +4,7 @@
 import '../styles/tokens.css';
 import IsoStage from '../lib/iso/IsoStage';
 import FlatStage from '../components/scenes/FlatStage';
-import { SANDBOX_BOARD, sandboxLabel, sandboxReadouts, sandboxScene, type SandboxOpts } from '../components/scenes/sandboxScene';
+import { SANDBOX_BOARD, glassRoomPlot, sandboxLabel, sandboxReadouts, sandboxScene, type SandboxOpts } from '../components/scenes/sandboxScene';
 import { sandboxLanes, sandboxMessages } from '../components/scenes/sandboxSequence';
 import { run, type Run, type Setup } from '../lib/sandboxing/loop';
 import { RECORDING } from '../lib/sandboxing/turns';
@@ -50,6 +50,10 @@ const STATES: [string, SandboxOpts][] = [
             <p>{sandboxReadouts(o).join(' · ')}</p>
           </section>
         ))}
+        <section>
+          <h2>Hero plot</h2>
+          <IsoStage board={[0, 0, 60, 60]} scene={({ top }) => glassRoomPlot(30, 30, top)} label="The home hero's sandboxing plot" />
+        </section>
       </div>
       <h1>Steps: the exfiltration attack, allow-list on, secret in the env</h1>
       <FlatStage lanes={sandboxLanes()} msgs={sandboxMessages(EXFIL)} />

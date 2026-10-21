@@ -5,7 +5,7 @@
 // one run up to the current step. Words go only in pills; on phones (scale > 1) the caption carries the readouts.
 import type { SceneCtx, Board } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc } from '../../lib/iso/blocks';
-import { PALS, DARK, METAL, box, cyl, shape, on, PX, castShadow, toneI, tag, byDepth } from '../../lib/iso/core.js';
+import { PALS, DARK, METAL, WOOD, box, cyl, shape, on, PX, castShadow, toneI, tag, byDepth } from '../../lib/iso/core.js';
 import { archAt, beltAt, envelope, officeScene, type OfficeOpts, type Part } from './officeScene';
 import { sandboxMessages } from './sandboxSequence';
 import type { Files, Run } from '../../lib/sandboxing/loop';
@@ -145,4 +145,16 @@ export function sandboxLabel(o: SandboxOpts): string {
     m ? `Step ${upTo} of ${msgs.length}: ${m.text}${m.stamp ? `, stamped ${m.stamp.toLowerCase()}` : ''}.` : 'Nothing run yet.',
     sandboxReadouts(o).join('; ') + '.',
   ].filter(Boolean).join(' ');
+}
+
+/** The home hero's sandboxing plot: a small walled yard with the agent's desk inside and a gated door in its front wall, its lamp lit. */
+export function glassRoomPlot(x: number, y: number, top: SceneCtx['top']): string {
+  const r = 16, z = BH + 8, gap = 9;
+  const wall = (x0: number, y0: number, x1: number, y1: number): Part => ({ at: [(x0 + x1) / 2, (y0 + y1) / 2, 0], svg: box(x0, y0, BH, x1, y1, z, METAL, toneI, .6) });
+  return castShadow(boxCorners(x - 6, y - 10, BH, x + 6, y - 2, BH + 7), BH, top) + byDepth([
+    wall(x - r, y - r - 1.2, x + r, y - r), wall(x - r - 1.2, y - r, x - r, y + r), wall(x + r, y - r, x + r + 1.2, y + r),
+    wall(x - r, y + r, x - gap - 1.6, y + r + 1.2), wall(x + gap + 1.6, y + r, x + r, y + r + 1.2),
+    { at: [x, y - 6, 0], svg: box(x - 6, y - 10, BH, x + 6, y - 2, BH + 7, WOOD, toneI, .9) + box(x - 3, y - 8, BH + 7, x + 3, y - 6, BH + 13, DARK, toneI, .8) },
+    archAt([x, y + r + .6], [1, 0], 'ok'),
+  ]);
 }
