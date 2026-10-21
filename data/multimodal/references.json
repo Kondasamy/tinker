@@ -1,0 +1,31 @@
+{
+  "invoice": {
+    "number": { "label": "Invoice number", "answer": "INV-20417", "phrases": ["INV-20417"] },
+    "date": { "label": "Date", "answer": "14 Sep 2026", "phrases": ["14 Sep 2026"] },
+    "po": { "label": "Order number (PO)", "answer": "PO-5531", "phrases": ["PO-5531"] },
+    "total": { "label": "Total", "answer": "$1,284.50", "phrases": ["$1,284.50"] },
+    "terms": { "label": "Payment terms", "answer": "Net 30", "phrases": ["Net 30"] }
+  },
+  "slip": {
+    "hinges": { "label": "Hinges shipped", "answer": "120", "phrases": ["120"] },
+    "brackets": { "label": "Brackets shipped", "answer": "48", "phrases": ["48"] },
+    "short": { "label": "Line shipped short", "answer": "BR-300", "phrases": ["BR-300"] }
+  },
+  "note": {
+    "qty": { "label": "How many", "answer": "17", "phrases": ["17"] },
+    "dock": { "label": "Where", "answer": "Dock B", "phrases": ["Dock B"] },
+    "day": { "label": "By when", "answer": "Friday", "phrases": ["Friday"] }
+  },
+  "part-front": {
+    "part": { "label": "Part", "answer": "BR-300", "phrases": ["BR-300"] }
+  },
+  "part-side": {
+    "part": { "label": "Part", "answer": "BR-300", "phrases": ["BR-300"] }
+  },
+  "fax": {
+    "total": { "label": "Total", "answer": "$968.00", "phrases": ["$968.00"] }
+  },
+  "label": {
+    "order": { "label": "Order number", "answer": "88213", "phrases": ["88213"] }
+  }
+}

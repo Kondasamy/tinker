@@ -1,0 +1,29 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import WhatItDid from '../../content/observability/01-what-it-did';
+import FirstFailure from '../../content/observability/02-first-failure';
+import OpenCoding from '../../content/observability/03-open-coding';
+import AxialCoding from '../../content/observability/04-axial-coding';
+import WhatMatters from '../../content/observability/05-what-matters';
+import TraceToTest from '../../content/observability/06-trace-to-test';
+import Workbench from '../../content/observability/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('observability').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="observability" chapter={chapter} title={title}>
+  {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
+      hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
+  {chapter === '01-what-it-did' ? <WhatItDid client:load />
+    : chapter === '02-first-failure' ? <FirstFailure client:load />
+    : chapter === '03-open-coding' ? <OpenCoding client:load />
+    : chapter === '04-axial-coding' ? <AxialCoding client:load />
+    : chapter === '05-what-matters' ? <WhatMatters client:load />
+    : chapter === '06-trace-to-test' ? <TraceToTest client:load />
+    : <Workbench client:load />}
+</ChapterLayout>

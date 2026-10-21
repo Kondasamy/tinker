@@ -1,0 +1,7 @@
+/* Sandboxing stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
+   tool-calling/kit). The results table matches Guardrails' matrix wording. */
+.sb-matrix { margin-top: 10px; }
+.sb-matrix th, .sb-matrix td { padding: 3px 4px; font-size: 12.5px; }
+.sb-matrix td { text-align: center; }
+.sb-matrix td[data-bad="1"], .sb-cases tr[data-bad="1"] td { font-weight: 800; box-shadow: inset 0 -3px 0 var(--bad); }
+.sb-toggles { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }

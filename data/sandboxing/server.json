@@ -1,0 +1,54 @@
+{
+  "tools": [
+    {
+      "name": "run",
+      "title": "Run a build step",
+      "description": "Run a shell command inside the agent's working copy, such as a build or a test. It touches only the working directory.",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "cmd": { "type": "string", "description": "The command, for example build-report." } },
+        "required": ["cmd"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "read_file",
+      "title": "Read a file",
+      "description": "Read a file by its path, for example /data/orders.csv.",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "path": { "type": "string", "description": "The file's path." } },
+        "required": ["path"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "write_file",
+      "title": "Write a file",
+      "description": "Write text to a file by its path, for example /work/report.txt.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": { "type": "string", "description": "The file's path." },
+          "body": { "type": "string", "description": "The text to write." }
+        },
+        "required": ["path", "body"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "fetch",
+      "title": "Fetch a URL",
+      "description": "Send a request to a host over the network, for example api.larkspur.co. The host that receives it reads the body.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "host": { "type": "string", "description": "The host to reach, for example api.larkspur.co." },
+          "body": { "type": "string", "description": "The request body." }
+        },
+        "required": ["host", "body"],
+        "additionalProperties": false
+      }
+    }
+  ]
+}
