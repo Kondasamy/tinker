@@ -10,6 +10,7 @@ import Recap from '../../components/quiz/Recap';
 import ReadingMode from '../../components/intro/ReadingMode.astro';
 import ChapterCards from '../../components/intro/ChapterCards.astro';
 import { SCAN_BOARD, scanLabel, scanScene, type ScanOpts } from '../../components/scenes/scanScene';
+import { gridWords, patchStill } from '../../components/scenes/patchGrid';
 import { costOf, grade, sent } from '../../lib/multimodal/readings';
 import { thousands } from '../../lib/multimodal/patches';
 import { LEAST_COST, totals, WINNERS } from '../../lib/multimodal/workbench';
@@ -26,10 +27,11 @@ const scene = (o: ScanOpts) => ({ ...o, scale: 1.2 });
 const HERO = scene({ image: 'invoice', size: 1600, method: 'vision' });
 // the whole idea: the same invoice read at two sizes (recorded readings, graded live)
 const SIDES = ([400, 1600] as const).map(size => ({ size, g: grade('invoice', size, 'vision'), tokens: sent('invoice', size).count.tokens }));
-type Idea = [string, string, ReturnType<typeof fact> | null, ScanOpts];
+// a number is a still of the invoice cut into its patch grid at that size; otherwise the scanning table
+type Idea = [string, string, ReturnType<typeof fact> | null, ScanOpts | number];
 const IDEAS: Idea[] = [
-  ['A picture is tokens', 'Cut into 28 px patches, one token each', fact('patches'), scene({ image: 'invoice', size: 1600, method: null })],
-  ['Size and detail', 'Fewer pixels, fewer tokens, and the small print goes first', fact('text-legible'), scene({ image: 'invoice', size: 400, method: 'vision' })],
+  ['A picture is tokens', 'Cut into 28 px patches, one token each', fact('patches'), 1600],
+  ['Size and detail', 'Fewer pixels, fewer tokens, and the small print goes first', fact('text-legible'), 400],
   ['Reading a scan', 'OCR loses tables and handwriting; vision keeps the layout', fact('ocrbench'), scene({ image: 'slip', size: 1600, method: 'ocr' })],
   ['Pulling fields out', 'Grade every field against a reference, not one overall score', null, scene({ image: 'invoice', size: 800, method: 'ocr' })],
   ['Photos of parts', 'When one angle can’t settle it, ask for another', fact('small-images'), scene({ image: 'part-front', size: 1600, method: 'vision' })],
@@ -94,7 +96,9 @@ const checked = longDate(ACCESSED);
         <ol class="steps">
           {IDEAS.map(([name, short, f, pic], i) => (
             <li>
-              <div class="pic"><IsoStage board={SCAN_BOARD} scene={scanScene(pic)} label={scanLabel(pic)} /></div>
+              <div class="pic">{typeof pic === 'number'
+                ? (({ src, grid }) => <img src={src} alt={`The supplier’s invoice sent at ${thousands(pic)} px, cut into ${gridWords(grid)}`} />)(patchStill('invoice', pic))
+                : <IsoStage board={SCAN_BOARD} scene={scanScene(pic)} label={scanLabel(pic)} />}</div>
               <h3><span class="n">{i + 1}</span> {name}</h3>
               <p class="cap">{short}</p>
               {f && <p class="more">{f.claim}</p>}
@@ -192,6 +196,7 @@ const checked = longDate(ACCESSED);
   .steps p { font-size: 14px; margin: 0; }
   .steps .pic { height: 220px; display: flex; justify-content: center; margin-bottom: 4px; }
   .steps .pic :global(svg) { width: auto !important; height: 100% !important; }
+  .steps .pic img { height: 100%; width: auto; max-width: 100%; object-fit: contain; border: 1.5px solid var(--ink); border-radius: 4px; }
   .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
 
   .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }

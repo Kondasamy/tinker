@@ -4,6 +4,8 @@
 // pictures (share images, the dev page).
 import { PATCH, imageTokens, thousands } from '../../lib/multimodal/patches';
 import { esc } from '../../lib/iso/blocks';
+import { svgOf, type ImageId } from '../../lib/multimodal/images';
+import { sent } from '../../lib/multimodal/readings';
 
 export interface Grid {
   /** the image's size as read (after any downscale) */
@@ -34,4 +36,12 @@ export function gridSvg(g: Grid, stroke = '#231e16'): string {
     + `<rect x="0" y="${g.h}" width="${g.w}" height="${g.ph - g.h}" fill="#41538f" fill-opacity=".25"/>`;
   s += `<path d="${g.xs.map(x => `M${x} 0V${g.ph}`).join('')}${g.ys.map(y => `M0 ${y}H${g.pw}`).join('')}" stroke="${esc(stroke)}" stroke-opacity=".45" stroke-width="${sw.toFixed(2)}" fill="none"/>`;
   return s + `<rect x="0" y="0" width="${g.pw}" height="${g.ph}" fill="none" stroke="${esc(stroke)}" stroke-width="${(sw * 2).toFixed(2)}"/>`;
+}
+
+const dataUri = (svg: string) => 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+/** A still for build-time pages (the intro, share images): the drawn image at its sent size under its patch grid, as a
+ * data URI for an <img>, so no markup is injected. */
+export function patchStill(id: ImageId, size: number): { src: string; grid: Grid } {
+  const z = sent(id, size), g = patchGrid(z.w, z.h);
+  return { grid: g, src: dataUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${g.pw} ${g.ph}"><image href="${dataUri(svgOf(id))}" width="${g.w}" height="${g.h}" preserveAspectRatio="none"/>${gridSvg(g)}</svg>`) };
 }
