@@ -1,8 +1,8 @@
 {
   "kinds": [
-    { "id": "lookup", "label": "Policy lookups", "about": "One fact, read straight off a document. Questions from the Evals module’s test set." },
-    { "id": "multistep", "label": "Multi-step questions", "about": "Quotes with volume prices, stock across warehouses, delivery dates: several steps, each easy to slip on." },
-    { "id": "distractor", "label": "Simple questions with distractions", "about": "An easy count, wrapped in details that have nothing to do with it." }
+    { "id": "lookup", "short": "Lookups", "label": "Policy lookups", "about": "One fact, read straight off a document. Questions from the Evals module’s test set." },
+    { "id": "multistep", "short": "Multi-step", "label": "Multi-step questions", "about": "Quotes with volume prices, stock across warehouses, delivery dates: several steps, each easy to slip on." },
+    { "id": "distractor", "short": "Distractions", "label": "Simple questions with distractions", "about": "An easy count, wrapped in details that have nothing to do with it." }
   ],
   "questions": [
     { "id": "standard-refund-window", "kind": "lookup", "given": "Standard customers may request a refund within 30 days of delivery." },

@@ -1,0 +1,46 @@
+/* Reasoning stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
+   tool-calling/kit). These are the accuracy chart, the thinking panel and the answers. */
+.rs-chart { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.rs-chart svg { width: 100%; height: auto; display: block; }
+.rs-mark { cursor: pointer; outline: none; }
+.rs-mark:focus-visible .rs-rule { stroke-width: 2.4; }
+.rs-chart svg:focus-within { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 6px; }
+.rs-rule { stroke: var(--ink); stroke-width: 1.2; stroke-dasharray: 3 3; }
+.rs-ring { fill: none; stroke: var(--ink); stroke-width: 2; }
+.rs-readout { margin: 0; font: 700 13px ui-monospace, Menlo, monospace; min-height: 2.8em; }
+.rs-key { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; }
+.rs-key li { display: flex; align-items: center; gap: 6px; }
+.rs-swatch { width: 22px; border-top: 3px solid #5a82c6; }
+.rs-swatch[data-style="1"] { border-top: 3px dashed #cf5038; }
+.rs-swatch[data-style="2"] { border-top: 3px dotted #1f4034; }
+.tc-frame .rs-scroll { overflow-y: auto; }
+.tc-frame .rs-chart svg { height: auto; flex: none; }
+
+/* the thinking panel: under the frame, a fixed height that scrolls, so the stage never resizes */
+.rs-thinking { flex: none; height: 7.5em; overflow-y: auto; margin-top: 8px; padding: 8px 12px; border: 1.5px dashed var(--rule); border-radius: 10px; background: var(--card); font-size: 13px; line-height: 1.5; }
+.rs-thinking:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.rs-thinking p { margin: 0; }
+.rs-thinking .lbl { font-weight: 800; font-size: 12.5px; margin-bottom: 2px; }
+
+.rs-answer, .rs-asked { margin-top: 10px; }
+.rs-answer p + p, .rs-asked p + p { margin-top: 4px; }
+.rs-answer .note, .rs-asked .note { color: var(--muted); font-size: 13px; }
+.rs-answer .lbl, .rs-asked .lbl { font-weight: 800; font-size: 13.5px; }
+.rs-tag { margin-left: 6px; padding: 0 6px; border: 1px solid var(--rule); border-radius: 999px; font: 700 11px ui-monospace, Menlo, monospace; color: var(--muted); }
+.rs-marks { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 13px; }
+.rs-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.rs-note { margin: 8px 0 0; color: var(--muted); font-size: 12.5px; }
+
+/* the effort dial control: a native range over the four levels, with the level named */
+.rs-range { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 6px; }
+.rs-range input { flex: 1; min-width: 160px; }
+.rs-range output { font: 800 14px ui-monospace, Menlo, monospace; min-width: 5em; }
+
+/* chapter 7's bench */
+.rs-headline { margin: 6px 0 0; display: flex; align-items: center; flex-wrap: wrap; gap: 10px; font-weight: 700; }
+.rs-headline strong { font: 800 30px/1 ui-monospace, Menlo, monospace; }
+.rs-bench { display: grid; gap: 10px; margin-top: 10px; }
+.rs-bench label { display: grid; gap: 4px; font-weight: 700; font-size: 14px; }
+.rs-bench select { font: inherit; padding: 4px 8px; border: 1.5px solid var(--ink); border-radius: 8px; background: var(--card); color: var(--ink); max-width: 14em; }
+.rs-bench .note { font-weight: 400; color: var(--muted); font-size: 13px; }
+.tc-ledger .rs-why { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }

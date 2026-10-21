@@ -16,7 +16,7 @@ export const EFFORTS = ['none', 'low', 'medium', 'high'] as const;
 export type Effort = (typeof EFFORTS)[number];
 
 export type KindId = 'lookup' | 'multistep' | 'distractor';
-export interface Kind { id: KindId; label: string; about: string }
+export interface Kind { id: KindId; label: string; short: string; about: string }
 export interface Question { id: string; kind: KindId; query: string; given: string }
 export interface Recorded { thinking: string; answer: string; note: string }
 
