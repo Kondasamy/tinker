@@ -1,0 +1,72 @@
+---
+// Dev-only eyeball page: the glass room in every door state (static SVG, no client JS), then the Steps lanes.
+// Below 600px the phone versions show (bigger pills, the readouts left to the caption line).
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import FlatStage from '../components/scenes/FlatStage';
+import { SANDBOX_BOARD, sandboxLabel, sandboxReadouts, sandboxScene, type SandboxOpts } from '../components/scenes/sandboxScene';
+import { sandboxLanes, sandboxMessages } from '../components/scenes/sandboxSequence';
+import { run, type Run, type Setup } from '../lib/sandboxing/loop';
+import { RECORDING } from '../lib/sandboxing/turns';
+
+const go = (s: Partial<Setup> & { case: string }) => run(RECORDING, s);
+const upTo = (r: Run, f: (s: Run['steps'][number]) => boolean) => r.steps.findIndex(f) + 1 || 1;
+const callOf = (name: string) => (s: Run['steps'][number]) => s.kind === 'call' && s.call.name === name;
+const blocked = (s: Run['steps'][number]) => s.kind === 'blocked';
+
+const REPORT_HOST = go({ case: 'exfil', sandbox: false });
+const REPORT = go({ case: 'report', sandbox: true, files: 'scoped', egress: 'allowlist', secret: 'proxy' });
+const PEEK = go({ case: 'peek', sandbox: true, files: 'scoped', egress: 'allowlist', secret: 'proxy' });
+const EXFIL = go({ case: 'exfil', sandbox: true, files: 'scoped', egress: 'allowlist', secret: 'env' });
+const BEACON = go({ case: 'beacon', sandbox: true, files: 'scoped', egress: 'allowlist', secret: 'proxy' });
+
+const STATES: [string, SandboxOpts][] = [
+  ['On the host: no wall, full access', { run: REPORT_HOST, upTo: upTo(REPORT_HOST, callOf('fetch')), wall: false, egress: 'open' }],
+  ['Sandbox on: a task fetches through the allow-list', { run: REPORT, upTo: upTo(REPORT, callOf('fetch')), wall: true, files: 'scoped', egress: 'allowlist', proxy: true }],
+  ['Files: a read of the hidden keys is refused', { run: PEEK, upTo: upTo(PEEK, blocked), wall: true, files: 'scoped', egress: 'allowlist', proxy: true }],
+  ['Network: egress off', { run: REPORT, upTo: upTo(REPORT, callOf('fetch')), wall: true, files: 'scoped', egress: 'off', proxy: true }],
+  ['Network: a fetch to an off-host is refused', { run: EXFIL, upTo: upTo(EXFIL, blocked), wall: true, files: 'scoped', egress: 'allowlist', proxy: false }],
+  ['Secret in the sandbox env', { run: EXFIL, upTo: 1, wall: true, files: 'scoped', egress: 'allowlist', proxy: false }],
+  ['Secret with the proxy, outside', { run: REPORT, upTo: 1, wall: true, files: 'scoped', egress: 'allowlist', proxy: true }],
+  ['Allowed door: a record smuggled through the API host', { run: BEACON, upTo: upTo(BEACON, callOf('fetch')), wall: true, files: 'scoped', egress: 'allowlist', proxy: true }],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Sandboxing scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Sandboxing glass room: every door state</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={SANDBOX_BOARD} scene={sandboxScene(o)} label={sandboxLabel(o)} /></div>
+            <div class="phone"><IsoStage board={SANDBOX_BOARD} scene={sandboxScene({ ...o, scale: 1.8 })} label={sandboxLabel(o)} /></div>
+            <p>{sandboxReadouts(o).join(' · ')}</p>
+          </section>
+        ))}
+      </div>
+      <h1>Steps: the exfiltration attack, allow-list on, secret in the env</h1>
+      <FlatStage lanes={sandboxLanes()} msgs={sandboxMessages(EXFIL)} />
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>
