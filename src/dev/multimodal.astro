@@ -1,0 +1,80 @@
+---
+// Dev-only eyeball page: every drawn image at its native size, the scanning table in each state (static SVG), then the
+// stage live in both tabs. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { SCAN_BOARD, scanLabel, scanScene, type ScanOpts } from '../components/scenes/scanScene';
+import { MultimodalStage, PatchView } from '../content/multimodal/kit';
+import { IMAGES, svgOf } from '../lib/multimodal/images';
+
+const STATES: [string, ScanOpts][] = [
+  ['Invoice at 1,600 px, not read yet', { image: 'invoice', size: 1600, method: null }],
+  ['Invoice at 1,600 px, vision', { image: 'invoice', size: 1600, method: 'vision' }],
+  ['Invoice at 800 px, OCR', { image: 'invoice', size: 800, method: 'ocr' }],
+  ['Invoice at 3,200 px (scaled down), vision', { image: 'invoice', size: 3200, method: 'vision' }],
+  ['Part photo, front, vision', { image: 'part-front', size: 1600, method: 'vision' }],
+  ['Return label, vision', { image: 'label', size: 1600, method: 'vision' }],
+];
+const src = (id: string) => 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgOf(id));
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Multimodal scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>The drawn images, at their native size</h1>
+      <div class="grid">
+        {IMAGES.map(im => (
+          <section>
+            <h2>{im.title} · {im.w} × {im.h}</h2>
+            <img src={src(im.id)} alt={im.alt} width={im.w} height={im.h} />
+            <p>{im.alt}</p>
+          </section>
+        ))}
+      </div>
+      <h1>The scanning table: every state</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={SCAN_BOARD} scene={scanScene({ ...o, scale: 1.2 })} label={scanLabel(o)} /></div>
+            <div class="phone"><IsoStage board={SCAN_BOARD} scene={scanScene({ ...o, scale: 2 })} label={scanLabel(o)} /></div>
+            <p>{scanLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>The Patches view at every size</h1>
+      <div class="grid">
+        {[400, 800, 1600, 3200].map(size => (
+          <section><h2>Invoice at {size} px</h2><div class="stage small"><PatchView client:load image="invoice" size={size} method="vision" /></div></section>
+        ))}
+      </div>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Picture</h2><div class="stage"><MultimodalStage client:load shown={{ image: 'slip', size: 1600, method: 'vision', caption: 'The packing slip at 1,600 px, read by vision' }} /></div></section>
+        <section><h2>Patches tab</h2><div class="stage"><MultimodalStage client:load view="patches" shown={{ image: 'note', size: 800, method: 'vision', caption: '<script>alert(1)</script> escaped caption' }} /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  img { width: 100%; height: auto; border: 1px solid var(--rule); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 560px; }
+  .stage.small { height: 420px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

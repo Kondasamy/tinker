@@ -22,7 +22,7 @@ export interface Img {
 export const IMAGES: Img[] = [
   { id: 'invoice', title: 'Supplier invoice', w: 850, h: 1100,
     alt: 'A printed invoice from Brightwater Fasteners to Larkspur Supply Co.: invoice INV-20417, dated 14 Sep 2026, for order PO-5531; three lines (brass hinges, BR-300 shelf brackets, a box of wood screws), a total of $1,284.50 in large print, and a line of small print at the foot giving the payment terms, Net 30.',
-    detail: { x: 40, y: 1010, w: 560, h: 60, what: 'the small print with the payment terms' } },
+    detail: { x: 52, y: 1022, w: 210, h: 30, what: 'the small print with the payment terms' } },
   { id: 'slip', title: 'Packing slip', w: 850, h: 1100,
     alt: 'A packing slip from Brightwater Fasteners: a ruled table with columns SKU, item, ordered and shipped. HG-120 brass hinges, 120 ordered, 120 shipped; BR-300 shelf brackets, 60 ordered, 48 shipped; WS-850 wood screws, 37 ordered, 37 shipped.',
     detail: { x: 540, y: 330, w: 280, h: 230, what: 'the ordered and shipped columns' } },
@@ -87,7 +87,7 @@ function invoice(): string {
 
 function slip(): string {
   const rows = [['HG-120', 'Brass hinge 3in', '120', '120'], ['BR-300', 'Shelf bracket', '60', '48'], ['WS-850', 'Wood screws, box', '37', '37']];
-  let s = rect(0, 0, 850, 1100, PAPER, INK, 0) + letterhead() + text(790, 100, 'PACKING SLIP', { size: 40, weight: 900, anchor: 'end' }) + rule(60, 160, 790, 160, 3);
+  let s = rect(0, 0, 850, 1100, PAPER, INK, 0) + letterhead() + text(790, 100, 'PACKING SLIP', { size: 28, weight: 900, anchor: 'end' }) + rule(60, 160, 790, 160, 3);
   s += text(60, 210, 'Brightwater Fasteners to Larkspur Supply Co.', { size: 17 }) + text(60, 240, 'Delivery 2 of 2 · 16 Sep 2026', { size: 15, fill: MUTED });
   const xs = [60, 190, 540, 680, 790], top = 330, rh = 56;
   s += rect(60, top, 730, rh, PALS.cobalt.l, INK, 2);
