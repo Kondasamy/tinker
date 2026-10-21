@@ -4,7 +4,7 @@
 
 Each module is a short story you play through: the picture on the left is live, the story on the right asks you to do one thing at a time in it, and you watch what changes. Build the thing, break it, fix it.
 
-![Tinker home: one workshop, a plot per module; a wave names each module in turn. All nine modules are live, from RAG and tool calling to context engineering and fine-tuning](docs/images/home.png)
+![Tinker home: one workshop, a plot per module; a wave names each module in turn. All seventeen modules are live, from RAG and tool calling to inference engineering and voice agents](docs/images/home.png)
 
 ---
 
