@@ -118,7 +118,7 @@ Every planned module is live, so the roadmap is empty. The home page shows no bu
 - KTD1. **Reuse the planned-card path as built.** `planned()` in `src/lib/modules.ts`, the `.roadmap` cards in `src/pages/index.astro`, the building sites in `src/components/scenes/heroScene.ts` and `heroLabel` already handle planned modules; this change adds data, not code.
 - KTD2. **`planned()` keeps `prereqs: []`.** Roadmap cards never show prerequisites, so R2's table lives in this plan for each go-live plan to set; `pnpm new-module` replaces the card with a live entry that declares them. Resolves the deferred prereqs question.
 - KTD3. **Planned cards sit after the nine live entries, in R1's order.** `scripts/new-module.mjs` appends a new live module at the end and removes its planned line, so live numbering (AGENTS.md "Modules") is unaffected. Within each level the catalogue shows live cards first, then planned ones in R1's order (`atLevel` keeps registry order); no "next up" marker.
-- KTD4. **Planned pills join the hero's hop wave.** Today `heroScene` draws planned pills outside `hop()`, so eight would stay on screen and overlap. Wrapping them in `hop()` after the live plots, and setting `.hero-pic`'s `--n` to all plots, keeps the board resting unlabelled with one pill at a time. Reduced motion and the share image show every pill, as they do for live plots now. Building sites themselves stay still, with no hop.
+- KTD4. **Planned pills sit out the hero's hop wave.** The wave's keyframes are percentages of an `--n × 0.8s` period, so adding eight turns would overlap pills and slow the live wave. Planned pills go in a `.hero-soon` group the animated home hides; reduced motion and the share image show every pill, named by id alone so eight stay legible. Building sites stay still.
 - KTD5. **The first screen bounds the board.** Fifteen slots grow `heroBoard` from 340×336 to about 340×504. If that pushes the hero text out of the first screen, tune `slotXY`/`plotAt` (for example tighter row steps); never drop a module's plot.
 
 ### Assumptions
@@ -143,11 +143,11 @@ Every planned module is live, so the roadmap is empty. The home page shows no bu
   - **Goal:** R5 on the home page, with the hero still resting unlabelled and inside the first screen.
   - **Requirements:** R5; KTD3, KTD4, KTD5.
   - **Dependencies:** U1.
-  - **Files:** `src/components/scenes/heroScene.ts`, `src/pages/index.astro` (`--n` on `.hero-pic` only), `tests/unit/hero.test.ts`, `tests/e2e/catalogue.spec.ts`.
-  - **Approach:** wrap planned pills in `hop()` with indices after the live plots, and set `--n` to live plus planned plots (KTD4). Tune `slotXY`/`plotAt` only if the first-screen check fails (KTD5). Update the catalogue spec from "roadmap is empty" to eight `.roadmap` cards; refresh the hero test's empty-roadmap comment.
+  - **Files:** `src/components/scenes/heroScene.ts`, `src/pages/index.astro` (the `.hero-soon` rule only), `tests/unit/hero.test.ts`, `tests/e2e/catalogue.spec.ts`.
+  - **Approach:** put planned pills in a `.hero-soon` group, hidden under `prefers-reduced-motion: no-preference` in `index.astro`, and name them by id alone (KTD4). Tune `slotXY`/`plotAt` only if the first-screen check fails (KTD5). Update the catalogue spec from "roadmap is empty" to eight `.roadmap` cards; refresh the hero test's empty-roadmap comment.
   - **Test scenarios:**
     - Unit: the plot-overlap and on-board loop in `hero.test.ts` runs to the real slot count (`LIVE.length - 2 + PLANNED.length`, at least 12), not a fixed 12.
-    - Unit: every `SOON: <ID>` pill sits inside a `.hero-hop` group, and the label still names the building sites (existing assertion, now on real entries).
+    - Unit: every planned pill sits in a `.hero-soon` group outside the hop wave, and the label still names the building sites.
     - E2E at 1280px and 390px: each R1 card appears once in `[data-level="<level>"] .roadmap[data-module="<id>"]`, planned cards in R1's order after the live ones; the figcaption reads "The empty plots are open" with a link to CONTRIBUTING.md; "Propose a module" stays.
     - E2E: at 1280×800 and 390×844, the headline, both hero buttons and the "Free · No sign-up" line are in the viewport without scrolling.
     - Existing: no planned card is a Tab stop; no sideways scroll at 390px.
@@ -179,5 +179,5 @@ Every planned module is live, so the roadmap is empty. The home page shows no bu
 
 ## Definition of Done
 
-- U1–U4 landed; all three commands green; the home page shows 9 live modules and 8 roadmap cards under their levels, eight building sites in the hero with one pill at a time, and the hero text inside the first screen at 1280×800 and 390×844.
+- U1–U4 landed; all three commands green; the home page shows 9 live modules and 8 roadmap cards under their levels, eight building sites in the hero with the animated board still showing one live pill at a time, and the hero text inside the first screen at 1280×800 and 390×844.
 - No experimental or abandoned code left in the diff.
