@@ -39,3 +39,5 @@
 .tc-ledger td.ok { color: var(--ok); font-weight: 800; }
 .tc-ledger td.bad { color: var(--bad); font-weight: 800; }
 .in-scrolltable { max-height: 320px; overflow-y: auto; }
+.in-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.in-tokens .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

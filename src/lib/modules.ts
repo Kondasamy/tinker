@@ -8,6 +8,7 @@ import { TOKENS_MODULE } from '../content/tokens/module';
 import { TRANSFORMERS_MODULE } from '../content/transformers/module';
 import { CONTEXT_MODULE } from '../content/context/module';
 import { FINE_TUNING_MODULE } from '../content/fine-tuning/module';
+import { INFERENCE_MODULE } from '../content/inference/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -65,7 +66,7 @@ export const MODULES: Module[] = [
   planned('structured-outputs', 'Structured outputs', 'Intermediate', 'How a model is made to answer in valid JSON, every time: a schema masks the tokens it may pick.'),
   planned('reasoning', 'Reasoning models & thinking budgets', 'Intermediate', 'Models that think before they answer: what a thinking budget buys, what it costs, and when more thinking hurts.'),
   planned('small-models', 'Small models: distillation & routing', 'Advanced', 'Teach a small model from a big one, send it the easy questions, and fall back when it isn’t sure.'),
-  planned('inference', 'Inference engineering', 'Advanced', 'What happens between the prompt and the reply on a server: batching, the KV cache, quantization and speculative decoding.'),
+  INFERENCE_MODULE,
   planned('observability', 'Observability & error analysis', 'Intermediate', 'Reading what the assistant really did in production: traces, labelling failures by hand, and finding the ones that matter.'),
   planned('sandboxing', 'Agent sandboxing', 'Advanced', 'Where an agent’s code runs, and what it can reach: a sandbox, its files, and the network it can or can’t call out to.'),
   planned('multimodal', 'Multimodal models', 'Intermediate', 'How images and documents become tokens, and how a model reads a photo, a scan or an invoice.'),
