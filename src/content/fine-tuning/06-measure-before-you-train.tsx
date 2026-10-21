@@ -18,6 +18,7 @@ const label = (v: VersionId) => VERSIONS.find(x => x.id === v)!.label;
 export const GATE: Gate = { threshold: 75, noRegressions: true };
 const CANDIDATES: VersionId[] = ['prompted', 'finetuned'];
 const BASE = label(BASELINE), N = QUESTION_IDS.length;
+const REGRESSED = gateVersion('finetuned', GATE).regressed.length;
 const facts = (v: VersionId) => gradeVersion(v, QUESTION_IDS).filter(g => g.fact).length;
 const signed = (v: VersionId) => gradeVersion(v, QUESTION_IDS).filter(g => g.signed).length;
 
@@ -69,7 +70,7 @@ export const STEPS: Step<S>[] = [
   },
   {
     id: 'quiz', focus: 'quiz', visibleControls: ['calls', 'facts', 'quiz'],
-    narration: `Every version signs off in Larkspur’s voice; all three sound right. The gate looks past the voice to the facts, question by question. ${label('finetuned')} also got ${gateVersion('finetuned', GATE).regressed.length} questions wrong that ${BASE} gets right, and the no-regressions rule would hold it back for those alone. The cheaper levers won here, measured, before any money went on training. One question to finish.`,
+    narration: `Every version signs off in Larkspur’s voice; all three sound right. The gate looks past the voice to the facts, question by question. ${label('finetuned')} also got ${REGRESSED} question${REGRESSED === 1 ? '' : 's'} wrong that ${BASE} gets right, and the no-regressions rule would hold it back for those alone. The cheaper levers won here, measured, before any money went on training. One question to finish.`,
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What does a fine-tune need to be measured against?',
   },
