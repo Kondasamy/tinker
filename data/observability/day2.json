@@ -1,0 +1,147 @@
+{
+  "day": "2026-10-21",
+  "traces": [
+    {
+      "id": "d01",
+      "customer": "Oak & Iron",
+      "question": "Status of order 1042, please.",
+      "ok": false,
+      "mode": "wrong-order",
+      "first": "s1",
+      "note": "Wrong order number in the tool call",
+      "spans": [
+        { "id": "s0", "parent": null, "kind": "agent", "name": "invoke_agent larkspur-assistant", "start": 0, "end": 1914, "detail": "Oak & Iron asked: “Status of order 1042, please.”", "attrs": { "gen_ai.operation.name": "invoke_agent" } },
+        { "id": "s1", "parent": "s0", "kind": "chat", "name": "chat larkspur-model", "start": 6, "end": 816, "detail": "Asked for get_order with order_id 1024.", "attrs": { "gen_ai.operation.name": "chat" } },
+        { "id": "s2", "parent": "s0", "kind": "tool", "name": "execute_tool get_order", "start": 820, "end": 940, "detail": "Order 1024 (Birch & Co): 2 DS-100 dock door sensors, delivered 9 October 2026.", "attrs": { "gen_ai.operation.name": "execute_tool", "gen_ai.tool.name": "get_order" } },
+        { "id": "s3", "parent": "s0", "kind": "chat", "name": "chat larkspur-model", "start": 944, "end": 1894, "detail": "Read the order and wrote the reply.", "attrs": { "gen_ai.operation.name": "chat" } },
+        { "id": "s4", "parent": "s0", "kind": "reply", "name": "send reply", "start": 1898, "end": 1910, "detail": "Your order was delivered on 9 October 2026.", "attrs": {} }
+      ]
+    },
+    {
+      "id": "d02",
+      "customer": "Fenwick Tools",
+      "question": "Who do I page about a Portal outage on a holiday?",
+      "ok": false,
+      "mode": "missed-doc",
+      "first": "s1",
+      "note": "On-call guide not retrieved",
+      "spans": [
+        { "id": "s0", "parent": null, "kind": "agent", "name": "invoke_agent larkspur-assistant", "start": 0, "end": 960, "detail": "Fenwick Tools asked: “Who do I page about a Portal outage on a holiday?”", "attrs": { "gen_ai.operation.name": "invoke_agent" } },
+        { "id": "s1", "parent": "s0", "kind": "retrieval", "name": "retrieval policies", "start": 6, "end": 206, "detail": "Found: Shipping guide (2026), section 4; Price list (2026), labels; Returns form", "attrs": { "gen_ai.operation.name": "retrieval" } },
+        { "id": "s2", "parent": "s0", "kind": "chat", "name": "chat larkspur-model", "start": 210, "end": 940, "detail": "Read the question and the passages; wrote the reply.", "attrs": { "gen_ai.operation.name": "chat" } },
+        { "id": "s3", "parent": "s0", "kind": "reply", "name": "send reply", "start": 944, "end": 956, "detail": "Sorry, I couldn’t find that in Larkspur’s policies. Please contact support.", "attrs": {} }
+      ]
+    },
+    {
+      "id": "d03",
+      "customer": "Kestrel Logistics",
+      "question": "We want our money back for the K2 order.",
+      "ok": false,
+      "citation": "Refund policy (2026)",
+      "mode": "promised-refund",
+      "first": "s2",
+      "note": "Promised an enterprise refund",
+      "spans": [
+        { "id": "s0", "parent": null, "kind": "agent", "name": "invoke_agent larkspur-assistant", "start": 0, "end": 1360, "detail": "Kestrel Logistics asked: “We want our money back for the K2 order.”", "attrs": { "gen_ai.operation.name": "invoke_agent" } },
+        { "id": "s1", "parent": "s0", "kind": "retrieval", "name": "retrieval policies", "start": 6, "end": 176, "detail": "Found: Refund policy (2026): does not apply to enterprise contracts", "attrs": { "gen_ai.operation.name": "retrieval" } },
+        { "id": "s2", "parent": "s0", "kind": "chat", "name": "chat larkspur-model", "start": 180, "end": 1340, "detail": "Read the passages; promised a refund.", "attrs": { "gen_ai.operation.name": "chat" } },
+        { "id": "s3", "parent": "s0", "kind": "reply", "name": "send reply", "start": 1344, "end": 1356, "detail": "No problem, the refund is on its way.", "attrs": {} }
+      ]
+    },
+    {
+      "id": "d04",
+      "customer": "Birch & Co",
+      "question": "Where is order 1024?",
+      "ok": false,
+      "mode": "wrong-order",
+      "first": "s1",
+      "note": "Looked up another customer’s order",
+      "spans": [
+        { "id": "s0", "parent": null, "kind": "agent", "name": "invoke_agent larkspur-assistant", "start": 0, "end": 1974, "detail": "Birch & Co asked: “Where is order 1024?”", "attrs": { "gen_ai.operation.name": "invoke_agent" } },
+        { "id": "s1", "parent": "s0", "kind": "chat", "name": "chat larkspur-model", "start": 6, "end": 846, "detail": "Asked for get_order with order_id 1042.", "attrs": { "gen_ai.operation.name": "chat" } },
+        { "id": "s2", "parent": "s0", "kind": "tool", "name": "execute_tool get_order", "start": 850, "end": 980, "detail": "Order 1042 (Hollis Hardware): Wren WL-4 label printer, delivered 14 October 2026.", "attrs": { "gen_ai.operation.name": "execute_tool", "gen_ai.tool.name": "get_order" } },
+        { "id": "s3", "parent": "s0", "kind": "chat", "name": "chat larkspur-model", "start": 984, "end": 1954, "detail": "Read the order and wrote the reply.", "attrs": { "gen_ai.operation.name": "chat" } },
+        { "id": "s4", "parent": "s0", "kind": "reply", "name": "send reply", "start": 1958, "end": 1970, "detail": "It was delivered on 14 October 2026.", "attrs": {} }
+      ]
+    },
+    {
+      "id": "d05",
+      "customer": "Quarry Lane Builders",
+      "question": "Warranty length for the DS-100?",
+      "ok": false,
+      "citation": "Warranty sheet (2024)",
+      "mode": "stale-doc",
+      "first": "s1",
+      "note": "A 2024 sheet slipped through",
+      "spans": [
+        { "id": "s0", "parent": null, "kind": "agent", "name": "invoke_agent larkspur-assistant", "start": 0, "end": 1060, "detail": "Quarry Lane Builders asked: “Warranty length for the DS-100?”", "attrs": { "gen_ai.operation.name": "invoke_agent" } },
+        { "id": "s1", "parent": "s0", "kind": "retrieval", "name": "retrieval policies", "start": 6, "end": 156, "detail": "Found: Warranty sheet (2024): DS-100, one year", "attrs": { "gen_ai.operation.name": "retrieval" } },
+        { "id": "s2", "parent": "s0", "kind": "chat", "name": "chat larkspur-model", "start": 160, "end": 1040, "detail": "Read the question and the passages; wrote the reply.", "attrs": { "gen_ai.operation.name": "chat" } },
+        { "id": "s3", "parent": "s0", "kind": "reply", "name": "send reply", "start": 1044, "end": 1056, "detail": "One year.", "attrs": {} }
+      ]
+    },
+    {
+      "id": "d06",
+      "customer": "Hollis Hardware",
+      "question": "Has 1043 shipped?",
+      "ok": false,
+      "mode": "ignored-result",
+      "first": "s3",
+      "note": "Said shipped; still processing",
+      "spans": [
+        { "id": "s0", "parent": null, "kind": "agent", "name": "invoke_agent larkspur-assistant", "start": 0, "end": 1914, "detail": "Hollis Hardware asked: “Has 1043 shipped?”", "attrs": { "gen_ai.operation.name": "invoke_agent" } },
+        { "id": "s1", "parent": "s0", "kind": "chat", "name": "chat larkspur-model", "start": 6, "end": 796, "detail": "Asked for get_order with order_id 1043.", "attrs": { "gen_ai.operation.name": "chat" } },
+        { "id": "s2", "parent": "s0", "kind": "tool", "name": "execute_tool get_order", "start": 800, "end": 900, "detail": "Order 1043 (Hollis Hardware): 3 label rolls, processing, not yet shipped.", "attrs": { "gen_ai.operation.name": "execute_tool", "gen_ai.tool.name": "get_order" } },
+        { "id": "s3", "parent": "s0", "kind": "chat", "name": "chat larkspur-model", "start": 904, "end": 1894, "detail": "Read the order; wrote that it had shipped.", "attrs": { "gen_ai.operation.name": "chat" } },
+        { "id": "s4", "parent": "s0", "kind": "reply", "name": "send reply", "start": 1898, "end": 1910, "detail": "Yes, it shipped yesterday.", "attrs": {} }
+      ]
+    },
+    {
+      "id": "d07",
+      "customer": "Marlow Builders",
+      "question": "Refund the late delivery, please.",
+      "ok": false,
+      "citation": "Refund policy (2026)",
+      "mode": "promised-refund",
+      "first": "s2",
+      "note": "Claimed a refund it can’t make",
+      "spans": [
+        { "id": "s0", "parent": null, "kind": "agent", "name": "invoke_agent larkspur-assistant", "start": 0, "end": 1330, "detail": "Marlow Builders asked: “Refund the late delivery, please.”", "attrs": { "gen_ai.operation.name": "invoke_agent" } },
+        { "id": "s1", "parent": "s0", "kind": "retrieval", "name": "retrieval policies", "start": 6, "end": 166, "detail": "Found: Refund policy (2026): does not apply to enterprise contracts", "attrs": { "gen_ai.operation.name": "retrieval" } },
+        { "id": "s2", "parent": "s0", "kind": "chat", "name": "chat larkspur-model", "start": 170, "end": 1310, "detail": "Read the passages; promised a refund.", "attrs": { "gen_ai.operation.name": "chat" } },
+        { "id": "s3", "parent": "s0", "kind": "reply", "name": "send reply", "start": 1314, "end": 1326, "detail": "Done: I’ve refunded it.", "attrs": {} }
+      ]
+    },
+    {
+      "id": "d08",
+      "customer": "Hollis Hardware",
+      "question": "Any news on order 1043?",
+      "ok": false,
+      "mode": "wrong-order",
+      "first": "s1",
+      "note": "Digits swapped in the order number",
+      "spans": [
+        { "id": "s0", "parent": null, "kind": "agent", "name": "invoke_agent larkspur-assistant", "start": 0, "end": 1764, "detail": "Hollis Hardware asked: “Any news on order 1043?”", "attrs": { "gen_ai.operation.name": "invoke_agent" } },
+        { "id": "s1", "parent": "s0", "kind": "chat", "name": "chat larkspur-model", "start": 6, "end": 786, "detail": "Asked for get_order with order_id 1034.", "attrs": { "gen_ai.operation.name": "chat" } },
+        { "id": "s2", "parent": "s0", "kind": "tool", "name": "execute_tool get_order", "start": 790, "end": 880, "detail": "No order 1034.", "attrs": { "gen_ai.operation.name": "execute_tool", "gen_ai.tool.name": "get_order" } },
+        { "id": "s3", "parent": "s0", "kind": "chat", "name": "chat larkspur-model", "start": 884, "end": 1744, "detail": "Read the order and wrote the reply.", "attrs": { "gen_ai.operation.name": "chat" } },
+        { "id": "s4", "parent": "s0", "kind": "reply", "name": "send reply", "start": 1748, "end": 1760, "detail": "I can’t find that order.", "attrs": {} }
+      ]
+    },
+    {
+      "id": "d09",
+      "customer": "Oak & Iron",
+      "question": "Can I pay with a digital wallet?",
+      "ok": false,
+      "mode": "missed-doc",
+      "first": "s1",
+      "note": "Payments policy missed",
+      "spans": [
+        { "id": "s0", "parent": null, "kind": "agent", "name": "invoke_agent larkspur-assistant", "start": 0, "end": 920, "detail": "Oak & Iron asked: “Can I pay with a digital wallet?”", "attrs": { "gen_ai.operation.name": "invoke_agent" } },
+        { "id": "s1", "parent": "s0", "kind": "retrieval", "name": "retrieval policies", "start": 6, "end": 196, "detail": "Found: Shipping guide (2026), section 4; Price list (2026), labels; Returns form", "attrs": { "gen_ai.operation.name": "retrieval" } },
+        { "id": "s2", "parent": "s0", "kind": "chat", "name": "chat larkspur-model", "start": 200, "end": 900, "detail": "Read the question and the passages; wrote the reply.", "attrs": { "gen_ai.operation.name": "chat" } },
+        { "id": "s3", "parent": "s0", "kind": "reply", "name": "send reply", "start": 904, "end": 916, "detail": "Sorry, I couldn’t find that in Larkspur’s policies. Please contact support.", "attrs": {} }
+      ]
+    }
+  ]
+}
