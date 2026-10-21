@@ -5,7 +5,7 @@ import { useId, useState, type KeyboardEvent } from 'react';
 import IsoStage from '../../lib/iso/IsoStage';
 import { filterFor } from '../../lib/iso/core.js';
 import { STAMP_CLASS, type Stamp } from '../../lib/iso/flat';
-import { ASSUMPTIONS, KINDS, kindOf, ofKind, question, run, sweep, type Effort, type KindId, type Run } from '../../lib/reasoning/engine';
+import { ASSUMPTIONS, EFFORTS, KINDS, kindOf, ofKind, question, run, sweep, type Effort, type KindId, type Run } from '../../lib/reasoning/engine';
 import { fact } from '../../lib/reasoning/facts';
 import { THINK_BOARD, seconds, thinkLabel, thinkScene, type ThinkOpts } from '../../components/scenes/thinkScene';
 import { effortChart, effortLabel, levelWords, type Series } from '../../components/scenes/effortChart';
@@ -88,6 +88,19 @@ export function ReasoningStage({ shown: s, view: kept, onView }: { shown: Shown;
         <p className="lbl">Thinking <span className="rs-tag">recorded</span></p>
         <p>{s.thinking === undefined ? 'Run a question to see what the model wrote before it answered.' : s.thinking || 'None: it answered at once.'}</p>
       </section>
+    </div>
+  );
+}
+
+/** The effort dial as a story-column control: a native range over the four levels, the level named beside it. */
+export function EffortRange({ label = 'Effort', value, onChange }: { label?: string; value: Effort; onChange: (e: Effort) => void }) {
+  const id = 'rng' + useId().replace(/[^\w-]/g, ''), i = EFFORTS.indexOf(value);
+  return (
+    <div className="rs-range">
+      <label htmlFor={id}>{label}</label>
+      <input id={id} type="range" min={0} max={EFFORTS.length - 1} step={1} value={i} aria-valuetext={value}
+        onChange={e => onChange(EFFORTS[Number(e.currentTarget.value)])} />
+      <output htmlFor={id} aria-live="polite">{value}</output>
     </div>
   );
 }

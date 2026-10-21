@@ -44,3 +44,5 @@
 .rs-bench select { font: inherit; padding: 4px 8px; border: 1.5px solid var(--ink); border-radius: 8px; background: var(--card); color: var(--ink); max-width: 14em; }
 .rs-bench .note { font-weight: 400; color: var(--muted); font-size: 13px; }
 .tc-ledger .rs-why { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
+.rs-qs { margin: 8px 0 0; padding-left: 18px; font-size: 14px; display: grid; gap: 6px; }
+.rs-qs .note { display: block; color: var(--muted); font-size: 13px; }
