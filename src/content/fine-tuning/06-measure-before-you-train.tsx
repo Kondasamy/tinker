@@ -125,7 +125,7 @@ export default function MeasureBeforeYouTrain() {
             </table>
           </>
         ),
-        facts: () => <><Fact id="prompt-first" /><Fact id="fine-tune-for" /></>,
+        facts: () => <><Fact id="prompt-first" /><Fact id="fine-tune-for" /><p className="note">Teaching a smaller, cheaper model from a big one, and routing to it: <a href="/small-models/">the Small models module</a>.</p></>,
         quiz: ({ state, apply, sync }) => (
           <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
         ),

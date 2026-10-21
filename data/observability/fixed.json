@@ -1,0 +1,285 @@
+{
+  "version": "Policy index rebuilt with this year’s passages only",
+  "cases": {
+    "t23": {
+      "reference": {
+        "answer": "In-stock orders placed before 2 p.m. Central time on a business day ship the same day.",
+        "facts": {
+          "cutoff-2pm": [
+            "2 p.m.",
+            "2 pm",
+            "2pm"
+          ]
+        }
+      },
+      "fixed": {
+        "text": "In-stock orders placed before 2 p.m. Central time on a business day ship the same day.",
+        "citation": "Shipping guide (2026)"
+      },
+      "note": "The rebuilt index holds only the 2026 passage, so the answer quotes it."
+    },
+    "t24": {
+      "reference": {
+        "answer": "Larkspur keeps only the last four digits and the expiry month of a card, for 90 days after the last order.",
+        "facts": {
+          "card-90-days": [
+            "90 days",
+            "ninety days"
+          ]
+        }
+      },
+      "fixed": {
+        "text": "Larkspur keeps only the last four digits and the expiry month of a card, for 90 days after the last order.",
+        "citation": "Payments policy (2026)"
+      },
+      "note": "The rebuilt index holds only the 2026 passage, so the answer quotes it."
+    },
+    "t25": {
+      "reference": {
+        "answer": "The DS-100 dock door sensor has a three-year warranty from the date of shipment.",
+        "facts": {
+          "three-years": [
+            "three years",
+            "three-year",
+            "3 years"
+          ]
+        }
+      },
+      "fixed": {
+        "text": "The DS-100 dock door sensor has a three-year warranty from the date of shipment.",
+        "citation": "Warranty sheet (2026)"
+      },
+      "note": "The rebuilt index holds only the 2026 passage, so the answer quotes it."
+    },
+    "t26": {
+      "reference": {
+        "answer": "A Kestrel K2 handheld scanner costs $410 per unit when you order 50 or more.",
+        "facts": {
+          "k2-row": [
+            "$410"
+          ]
+        }
+      },
+      "fixed": {
+        "text": "A Kestrel K2 handheld scanner costs $410 per unit when you order 50 or more.",
+        "citation": "Price list (2026)"
+      },
+      "note": "The rebuilt index holds only the 2026 passage, so the answer quotes it."
+    },
+    "t27": {
+      "reference": {
+        "answer": "Standard customers can request a refund within 30 days of delivery.",
+        "facts": {
+          "refund-30-days": [
+            "30 days",
+            "thirty days"
+          ]
+        }
+      },
+      "fixed": {
+        "text": "Standard customers can request a refund within 30 days of delivery.",
+        "citation": "Refund policy (2026)"
+      },
+      "note": "The rebuilt index holds only the 2026 passage, so the answer quotes it."
+    },
+    "t28": {
+      "reference": {
+        "answer": "Outside business hours, call the Duty Desk at extension 4410 to page the on-call engineer.",
+        "facts": {
+          "duty-desk-4410": [
+            "4410"
+          ]
+        }
+      },
+      "fixed": {
+        "text": "Sorry, I couldn’t find that in Larkspur’s policies. Please contact support.",
+        "citation": null
+      },
+      "note": "Unchanged: the fix only rebuilt the policy index, and this trace failed at its search."
+    },
+    "t29": {
+      "reference": {
+        "answer": "Yes, by bank transfer for invoices over $2,000.",
+        "facts": {
+          "bank-transfer": [
+            "bank transfer"
+          ]
+        }
+      },
+      "fixed": {
+        "text": "Sorry, I couldn’t find that in Larkspur’s policies. Please contact support.",
+        "citation": null
+      },
+      "note": "Unchanged: the fix only rebuilt the policy index, and this trace failed at its search."
+    },
+    "t30": {
+      "reference": {
+        "answer": "No. Never open a dock door showing a red light.",
+        "facts": {
+          "never-open-red": [
+            "never open"
+          ]
+        }
+      },
+      "fixed": {
+        "text": "Sorry, I couldn’t find that in Larkspur’s policies. Please contact support.",
+        "citation": null
+      },
+      "note": "Unchanged: the fix only rebuilt the policy index, and this trace failed at its search."
+    },
+    "t31": {
+      "reference": {
+        "answer": "Ingrid Vasquez-Lund leads the Customer Success team.",
+        "facts": {
+          "cs-lead": [
+            "Ingrid Vasquez-Lund"
+          ]
+        }
+      },
+      "fixed": {
+        "text": "Sorry, I couldn’t find that in Larkspur’s policies. Please contact support.",
+        "citation": null
+      },
+      "note": "Unchanged: the fix only rebuilt the policy index, and this trace failed at its search."
+    },
+    "t32": {
+      "reference": {
+        "answer": "Tomasz Rehnquist approves purchases for the Fulfillment Systems team, which owns the K2 integration.",
+        "facts": {
+          "fulfillment-approver": [
+            "Tomasz Rehnquist"
+          ]
+        }
+      },
+      "fixed": {
+        "text": "Sorry, I couldn’t find that in Larkspur’s policies. Please contact support.",
+        "citation": null
+      },
+      "note": "Unchanged: the fix only rebuilt the policy index, and this trace failed at its search."
+    },
+    "t33": {
+      "reference": {
+        "answer": "Yes, digital wallets are accepted for card-paying customers.",
+        "facts": {
+          "digital-wallet": [
+            "digital wallet"
+          ]
+        }
+      },
+      "fixed": {
+        "text": "Sorry, I couldn’t find that in Larkspur’s policies. Please contact support.",
+        "citation": null
+      },
+      "note": "Unchanged: the fix only rebuilt the policy index, and this trace failed at its search."
+    },
+    "t34": {
+      "reference": {
+        "answer": "Order 1042 was delivered on 14 October 2026.",
+        "facts": {
+          "delivered-14": [
+            "14 October"
+          ]
+        }
+      },
+      "fixed": {
+        "text": "Yes, your order was delivered on 9 October 2026.",
+        "citation": null
+      },
+      "note": "Unchanged: the fix only rebuilt the policy index, and this trace failed at its tool call."
+    },
+    "t35": {
+      "reference": {
+        "answer": "Order 1043 is still being processed and hasn’t shipped yet.",
+        "facts": {
+          "processing": [
+            "processing",
+            "not yet shipped",
+            "hasn’t shipped"
+          ]
+        }
+      },
+      "fixed": {
+        "text": "I can’t find an order with that number. Could you check it?",
+        "citation": null
+      },
+      "note": "Unchanged: the fix only rebuilt the policy index, and this trace failed at its tool call."
+    },
+    "t36": {
+      "reference": {
+        "answer": "Order 1024 was delivered on 9 October 2026.",
+        "facts": {
+          "delivered-9": [
+            "9 October"
+          ]
+        }
+      },
+      "fixed": {
+        "text": "Yes, it was delivered on 14 October 2026.",
+        "citation": null
+      },
+      "note": "Unchanged: the fix only rebuilt the policy index, and this trace failed at its tool call."
+    },
+    "t37": {
+      "reference": {
+        "answer": "Order 1043 is still being processed and hasn’t shipped yet.",
+        "facts": {
+          "processing": [
+            "processing",
+            "not yet shipped",
+            "hasn’t shipped"
+          ]
+        }
+      },
+      "fixed": {
+        "text": "Yes, order 1043 has shipped and should arrive in two days.",
+        "citation": null
+      },
+      "note": "Unchanged: the fix only rebuilt the policy index, and this trace failed at its model call."
+    },
+    "t38": {
+      "reference": {
+        "answer": "Order 1024 was delivered on 9 October 2026.",
+        "facts": {
+          "delivered-9": [
+            "9 October"
+          ]
+        }
+      },
+      "fixed": {
+        "text": "Order 1024 is still in transit.",
+        "citation": null
+      },
+      "note": "Unchanged: the fix only rebuilt the policy index, and this trace failed at its model call."
+    },
+    "t39": {
+      "reference": {
+        "answer": "The refund policy doesn’t apply to enterprise contracts. Please raise a billing dispute with your account manager.",
+        "facts": {
+          "account-manager": [
+            "account manager"
+          ]
+        }
+      },
+      "fixed": {
+        "text": "Yes, I’ve arranged a full refund. It will reach you within 5 days.",
+        "citation": "Refund policy (2026)"
+      },
+      "note": "Unchanged: the fix only rebuilt the policy index, and this trace failed at its model call."
+    },
+    "t40": {
+      "reference": {
+        "answer": "The refund policy doesn’t apply to enterprise contracts. Please raise a billing dispute with your account manager.",
+        "facts": {
+          "account-manager": [
+            "account manager"
+          ]
+        }
+      },
+      "fixed": {
+        "text": "Of course. I’ve refunded the shelving order in full.",
+        "citation": "Refund policy (2026)"
+      },
+      "note": "Unchanged: the fix only rebuilt the policy index, and this trace failed at its model call."
+    }
+  }
+}

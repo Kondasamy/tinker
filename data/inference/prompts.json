@@ -1,0 +1,10 @@
+{
+  "note": "The prompts Inference chapters run through Larkspur mini, and how many tokens each run writes. Every run is capped so no pass reads past the 32-token context.",
+  "write": 12,
+  "prompts": [
+    { "id": "reply", "text": "We reply within five business" },
+    { "id": "returns", "text": "Returns are accepted within" },
+    { "id": "billing", "text": "Questions go to the billing team through" },
+    { "id": "where", "text": "Where is my order?" }
+  ]
+}

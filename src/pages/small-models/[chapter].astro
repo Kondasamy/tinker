@@ -1,0 +1,29 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import BigModelSmallModel from '../../content/small-models/01-big-model-small-model';
+import LearningFromATeacher from '../../content/small-models/02-learning-from-a-teacher';
+import HowCloseIsTheStudent from '../../content/small-models/03-how-close-is-the-student';
+import SendItTheEasyOnes from '../../content/small-models/04-send-it-the-easy-ones';
+import FallBackWhenUnsure from '../../content/small-models/05-fall-back-when-unsure';
+import GateTheSwitch from '../../content/small-models/06-gate-the-switch';
+import RoutingPolicy from '../../content/small-models/07-routing-policy';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('small-models').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="small-models" chapter={chapter} title={title}>
+  {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
+      hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
+  {chapter === '01-big-model-small-model' ? <BigModelSmallModel client:load />
+    : chapter === '02-learning-from-a-teacher' ? <LearningFromATeacher client:load />
+    : chapter === '03-how-close-is-the-student' ? <HowCloseIsTheStudent client:load />
+    : chapter === '04-send-it-the-easy-ones' ? <SendItTheEasyOnes client:load />
+    : chapter === '05-fall-back-when-unsure' ? <FallBackWhenUnsure client:load />
+    : chapter === '06-gate-the-switch' ? <GateTheSwitch client:load />
+    : <RoutingPolicy client:load />}
+</ChapterLayout>

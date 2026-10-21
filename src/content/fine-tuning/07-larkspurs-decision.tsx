@@ -126,6 +126,7 @@ export default function LarkspursDecision() {
         ties: () => (
           <>
             <Fact id="fine-tune-for" />
+            <p className="note">Teaching a smaller, cheaper model from a big one, and routing to it: <a href="/small-models/">the Small models module</a>.</p>
             <p className="tc-status">Upkeep includes where a fine-tune is trained and served, and providers’ offers change. Two that changed this year, each with the date it was checked:</p>
             <Fact id="openai-wind-down" />
             <Fact id="openai-inference-stays" />

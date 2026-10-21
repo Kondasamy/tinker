@@ -1,0 +1,5 @@
+{
+  "note": "Larkspur's service targets for the assistant, set by the support lead: a reply must start within the first-token target and then keep pace within the per-token target. Team choices, not industry figures.",
+  "ttftMs": 1000,
+  "tpotMs": 25
+}
