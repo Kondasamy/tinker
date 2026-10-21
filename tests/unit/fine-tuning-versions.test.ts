@@ -1,6 +1,7 @@
 // Fine-tuning's Larkspur-assistant versions (U18): recorded answers over Evals' questions, graded live by Evals' code
 // graders and gated by Evals' decide; the changed-price fixture; and Evals' data and grader behaviour left as they were.
-import { execSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { readdirSync, readFileSync } from 'node:fs';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { openIndex } from '../../src/lib/rag/load';
 import { diskLoader } from '../../src/lib/rag/diskLoader';
@@ -87,7 +88,10 @@ describe('Evals stays as it was', () => {
     for (const id of QUESTION_IDS) expect(keyFact(id, REFERENCES[id].answer)).toBe(true);
   });
   it('data/evals is unchanged', () => {
-    expect(execSync('git status --porcelain data/evals', { encoding: 'utf8' })).toBe('');
+    // pinned over every file's name and bytes, so a committed edit fails too; update only when Evals' data changes on purpose
+    const h = createHash('sha256');
+    for (const f of readdirSync('data/evals').sort()) h.update(f + '\0').update(readFileSync('data/evals/' + f));
+    expect(h.digest('hex')).toBe('9011d956d8be6b908f5ffe1fb8ccb01f97d27329cac6cc2b1eacfcb95a356607');
   });
 });
 
