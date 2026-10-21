@@ -76,7 +76,7 @@ export function PromptInput({ value, onChange, label = 'Your prompt' }: { value:
 }
 
 /** A flat figure in the hand-drawn wobble. Its contents were escaped by the figure (esc). */
-function Flat({ fig, role, label, onKeyDown, svgRef, className }: { fig: { svg: string; w: number; h: number }; role: string; label: string; onKeyDown?: (e: KeyboardEvent) => void; svgRef?: Ref<SVGSVGElement>; className?: string }) {
+export function Flat({ fig, role, label, onKeyDown, svgRef, className }: { fig: { svg: string; w: number; h: number }; role: string; label: string; onKeyDown?: (e: KeyboardEvent) => void; svgRef?: Ref<SVGSVGElement>; className?: string }) {
   const id = 'tf' + useId().replace(/[^\w-]/g, '');
   return (
     <svg ref={svgRef} className={className} viewBox={`0 0 ${fig.w} ${fig.h}`} width={fig.w} role={role} aria-label={label} onKeyDown={onKeyDown}>
