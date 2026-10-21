@@ -17,7 +17,9 @@ const minus = (x: number) => (x ? `−${x}` : '0');
 const pts = (x: number) => (Number.isInteger(x) ? String(x) : x.toFixed(1)).replace('-', '−');
 /** “Just fine-tune it”: every kind to the fine-tuned version, where chapter 1's meeting started */
 export const START: Plan = { voice: 'finetuned', facts: 'finetuned', changed: 'finetuned' };
-const planOf = ({ voice, facts, changed }: S): Plan => ({ voice, facts, changed });
+/** the plan in a run's state; a kind missing from a saved run, or an unknown version, falls back to START's */
+export const planOf = (s: Partial<Plan>): Plan =>
+  Object.fromEntries(KINDS.map(k => [k.id, VERSION_IDS.includes(s[k.id]!) ? s[k.id]! : START[k.id]])) as Plan;
 const planWords = (p: Plan) => KINDS.map(k => `${k.label.toLowerCase()} → ${label(p[k.id])}`).join('; ');
 
 export interface S extends Plan { view: View; quiz: number | null }
@@ -111,7 +113,7 @@ export default function LarkspursDecision() {
                   <p className="note">{k.about}</p>
                   <div className="ft-row">
                     {VERSION_IDS.map(v => (
-                      <button key={v} type="button" className="chip" aria-pressed={state[k.id] === v} onClick={() => set({ ...state, [k.id]: v })}>{label(v)}</button>
+                      <button key={v} type="button" className="chip" aria-pressed={planOf(state)[k.id] === v} onClick={() => set({ ...state, [k.id]: v })}>{label(v)}</button>
                     ))}
                   </div>
                 </fieldset>

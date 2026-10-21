@@ -17,6 +17,8 @@ const RUN = META.finetune!, TRAINING = RUN.training as { styleExamples: number; 
 const CURVE = RUN.lossCurve, PARAMS = fullCount(META).toLocaleString('en-US');
 /** what the reader sees of a prompt: the question, without the Q:/A: frame Larkspur mini was trained on */
 export const asked = (p: string) => p.replace(/^Q: /, '').replace(/ A:$/, '');
+/** the picked prompt; a saved index past the list (a run saved before the list shrank) falls back to the first */
+export const promptAt = (i: number) => STYLE_PROMPTS[i] ?? STYLE_PROMPTS[0];
 
 interface S { prompt: number; asked: boolean; p1: number | null; swapped: boolean; curve: boolean; view: View; quiz: number | null }
 
@@ -93,7 +95,7 @@ export default function WhatTrainingDoes() {
             scene: { lit: state.swapped ? 'weights' : null, weights: w },
             results: state.curve ? { series: FINETUNE_SERIES } : undefined,
             caption: !state.asked ? 'Larkspur mini on the bench, as first trained.'
-              : `${state.swapped ? 'The fine-tuned copy' : 'The base model'}: “${replyOf(m!, STYLE_PROMPTS[state.prompt])}”`,
+              : `${state.swapped ? 'The fine-tuned copy' : 'The base model'}: “${replyOf(m!, promptAt(state.prompt))}”`,
           })} />
         );
       }}
@@ -110,7 +112,7 @@ export default function WhatTrainingDoes() {
             </>
           )}</ModelGate>
         ),
-        before: ({ state }) => <ModelGate weights="base">{m => <Reply who="Base model" prompt={STYLE_PROMPTS[state.prompt]} text={replyOf(m, STYLE_PROMPTS[state.prompt])} />}</ModelGate>,
+        before: ({ state }) => <ModelGate weights="base">{m => <Reply who="Base model" prompt={promptAt(state.prompt)} text={replyOf(m, promptAt(state.prompt))} />}</ModelGate>,
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         swap: ({ state, sync }) => (
           <ModelGate weights="finetuned">{() => (
@@ -118,7 +120,7 @@ export default function WhatTrainingDoes() {
           )}</ModelGate>
         ),
         after: ({ state }) => {
-          const p = STYLE_PROMPTS[state.prompt];
+          const p = promptAt(state.prompt);
           return (
             <ModelGate weights="base">{base => (
               <ModelGate weights="finetuned">{ft => (

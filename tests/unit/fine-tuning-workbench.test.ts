@@ -4,11 +4,11 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { evaluate } from '../../src/lib/lm/model';
 import { parseAdapter, parseModel, type Meta } from '../../src/lib/lm/load';
-import { gateVersion, HELDOUT, heldoutScore, VERSION_IDS } from '../../src/lib/fine-tuning/engine';
+import { gateVersion, gradeVersion, HELDOUT, heldoutScore, QUESTION_IDS, VERSION_IDS } from '../../src/lib/fine-tuning/engine';
 import { BEST, KINDS, NOTES, PLANS, QUALITY, WINNERS, solved, totals, type Plan } from '../../src/lib/fine-tuning/workbench';
 import { forgetOutcome } from '../../src/content/fine-tuning/05-what-training-costs';
 import { GATE, gateOutcome } from '../../src/content/fine-tuning/06-measure-before-you-train';
-import { START, STEPS } from '../../src/content/fine-tuning/07-larkspurs-decision';
+import { START, STEPS, planOf } from '../../src/content/fine-tuning/07-larkspurs-decision';
 import IDS from '../../data/lm/ids.json' with { type: 'json' };
 
 const disk = (f: string) => { const b = readFileSync('public/data/lm/' + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer; };
@@ -78,6 +78,19 @@ describe('chapter 7: the workbench', () => {
       expect(w.facts).toBe('rag');
     }
     expect(new Set(WINNERS.map(w => w.voice))).toEqual(new Set(['prompted', 'finetuned']));
+  });
+
+  it('a saved plan missing a kind, or naming an unknown version, reads as START for that kind instead of throwing', () => {
+    expect(planOf({ voice: 'prompted' })).toEqual({ ...START, voice: 'prompted' });
+    expect(planOf({ ...WINNERS[0], facts: 'gone' as never })).toEqual({ ...WINNERS[0], facts: START.facts });
+    expect(() => totals(planOf({}))).not.toThrow();
+    for (const p of PLANS) expect(planOf(p)).toEqual(p);
+  });
+
+  it('every version signs off on every question, as chapters 6 and 7 and the recall bank say; the fine-tune passes fewer facts than RAG', () => {
+    for (const v of VERSION_IDS) expect(gradeVersion(v).every(g => g.signed), v).toBe(true);
+    const facts = (v: (typeof VERSION_IDS)[number]) => gradeVersion(v, QUESTION_IDS).filter(g => g.fact).length;
+    expect(facts('finetuned')).toBeLessThan(facts('rag'));
   });
 
   it('every version has a cost and upkeep note for every kind', () => {

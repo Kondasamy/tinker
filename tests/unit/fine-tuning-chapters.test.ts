@@ -6,6 +6,7 @@ import { parseAdapter, parseModel, type Meta } from '../../src/lib/lm/load';
 import { fullCount, gradeVersion, loraCount, replyOf, signsOff, STYLE_PROMPTS } from '../../src/lib/fine-tuning/engine';
 import { MODULES } from '../../src/lib/modules';
 import { QUESTION } from '../../src/content/fine-tuning/01-three-ways';
+import { promptAt } from '../../src/content/fine-tuning/02-what-training-does';
 import { FULL, LORA, SHARE, shareOption } from '../../src/content/fine-tuning/03-small-adapters';
 import { outcome as priceOutcome } from '../../src/content/fine-tuning/04-facts-move-style-stays';
 
@@ -42,6 +43,13 @@ describe('chapter 2: before and after, generated live', () => {
     expect(replyOf(full, p)).toBe(replyOf(full, p));
     // the reply is cut where the answer ends: no next question tacked on
     expect(replyOf(full, p)).not.toMatch(/Q:/);
+  });
+});
+
+describe('chapter 2: a resumed run', () => {
+  it('reads a saved prompt index past the list as the first prompt', () => {
+    expect(STYLE_PROMPTS.map((_, i) => promptAt(i))).toEqual(STYLE_PROMPTS);
+    expect(promptAt(STYLE_PROMPTS.length)).toBe(STYLE_PROMPTS[0]);
   });
 });
 

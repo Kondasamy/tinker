@@ -100,7 +100,7 @@ export default function FactsMoveStyleStays() {
             : state.asked ? { cols: versionCols(BOTH, [Q]), questions: [Q] } : undefined,
           caption: state.all ? `Every question, key-fact check: ${FT} ${tally('finetuned').facts} of ${tally('finetuned').of}, ${RAG} ${tally('rag').facts} of ${tally('rag').of}.`
             : state.asked ? `“${PRICE_CHANGE.question.query}” ${FT}: ${gradeVersion('finetuned', [Q])[0].fact ? 'PASS' : 'FAIL'}. ${RAG}: ${gradeVersion('rag', [Q])[0].fact ? 'PASS' : 'FAIL'}.`
-            : state.read ? 'The price update goes into the documents lever.' : 'The bench, with the fine-tuned model.',
+            : state.read ? 'The price update goes into the documents lever.' : 'The bench at rest: the model, and three levers in front of it.',
         })} />
       )}
       controls={{
