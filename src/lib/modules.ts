@@ -8,6 +8,7 @@ import { TOKENS_MODULE } from '../content/tokens/module';
 import { TRANSFORMERS_MODULE } from '../content/transformers/module';
 import { CONTEXT_MODULE } from '../content/context/module';
 import { FINE_TUNING_MODULE } from '../content/fine-tuning/module';
+import { STRUCTURED_OUTPUTS_MODULE } from '../content/structured-outputs/module';
 import { REASONING_MODULE } from '../content/reasoning/module';
 import type { RecallItem } from './recall';
 
@@ -63,7 +64,7 @@ export const MODULES: Module[] = [
   TRANSFORMERS_MODULE,
   CONTEXT_MODULE,
   FINE_TUNING_MODULE,
-  planned('structured-outputs', 'Structured outputs', 'Intermediate', 'How a model is made to answer in valid JSON, every time: a schema masks the tokens it may pick.'),
+  STRUCTURED_OUTPUTS_MODULE,
   REASONING_MODULE,
   planned('small-models', 'Small models: distillation & routing', 'Advanced', 'Teach a small model from a big one, send it the easy questions, and fall back when it isn’t sure.'),
   planned('inference', 'Inference engineering', 'Advanced', 'What happens between the prompt and the reply on a server: batching, the KV cache, quantization and speculative decoding.'),

@@ -98,7 +98,13 @@ describe('module registry', () => {
   it('has fine-tuning as a live Advanced module that recommends Evals and Transformers first, numbered 9 after context', () => {
     expect(moduleOf('fine-tuning')).toMatchObject({ title: 'Fine-tuning vs prompting', level: 'Advanced', status: 'live', prereqs: ['evals', 'transformers'] });
     expect(moduleOf('fine-tuning').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').map(m => m.id)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning']);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id).slice(0, 9)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning']);
+  });
+
+  it('has structured-outputs as a live Intermediate module that recommends Tool calling and Tokens first, numbered 10 after fine-tuning', () => {
+    expect(moduleOf('structured-outputs')).toMatchObject({ title: 'Structured outputs', level: 'Intermediate', status: 'live', prereqs: ['tool-calling', 'tokens'] });
+    expect(moduleOf('structured-outputs').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs']);
   });
 
   it('keeps chapter ids unique within every module', () => {

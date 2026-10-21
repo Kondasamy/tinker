@@ -1,0 +1,92 @@
+---
+// Dev-only eyeball page: the stencil press and the mask stepping through chapter 3's pinned run (static, decoded from
+// the weights on disk), chapter 4's run near its length cap, the stage live (loads Larkspur mini), and the stage while
+// loading and after a failed load. Below 600px the phone versions show (bigger pills).
+import '../styles/tokens.css';
+import '../styles/page.css';
+import { readFileSync } from 'node:fs';
+import IsoStage from '../lib/iso/IsoStage';
+import { play, run } from '../lib/structured-outputs/prompts';
+import { diskModel } from '../lib/transformers/diskModel';
+import { STENCIL_BOARD, stencilLabel, stencilScene } from '../components/scenes/stencilScene';
+import { PinnedStage, StructuredStage, stencilAt } from '../content/structured-outputs/kit';
+import { modelStore } from '../content/transformers/kit';
+
+const model = diskModel();
+const mask = play(model, run('mask')).decoded, note = play(model, run('note')).decoded, asking = play(model, run('asking')).decoded;
+const disk = modelStore(async (f) => { const b = readFileSync(`public/data/lm/${f}`); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer; });
+disk.start();
+while (!disk.now() && !disk.snapshot().failed) await new Promise(r => setTimeout(r, 10));
+const loading = modelStore(() => new Promise<ArrayBuffer>(() => {}));
+loading.start();
+const failed = modelStore(async () => { throw new Error('offline'); });
+failed.start();
+await new Promise(r => setTimeout(r, 0));
+const prompt = run('mask').prompt;
+const steps = Array.from({ length: mask.ids.length + 1 }, (_, i) => i);
+const noteSteps = note.steps.map((s, i) => [i, s.allowed.length] as const).filter(([, n]) => n > 1);
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Structured outputs scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>The stage, live (loads Larkspur mini; try the Mask tab and the arrow keys)</h1>
+      <div class="stages">
+        <section class="stage"><PinnedStage client:load id="mask" at={2} caption="Step 3: the schema allows one letter; the model wanted another." /></section>
+        <section class="stage"><PinnedStage client:load id="asking" at={20} masked={false} caption="No schema: prose." /></section>
+      </div>
+      <h1>The stage loading, and after a failed load</h1>
+      <div class="stages">
+        <section class="stage"><StructuredStage prompt={prompt} d={null} at={0} store={loading} caption="Loading." /></section>
+        <section class="stage"><StructuredStage prompt={prompt} d={null} at={0} store={failed} caption="Failed." /></section>
+      </div>
+      <h1>Chapter 3's run, step by step: the press and the mask</h1>
+      <div class="grid">
+        {steps.map(at => {
+          const o = stencilAt(prompt, mask, at, true);
+          return (
+            <section>
+              <h2>{`${at} tokens written`}</h2>
+              <div class="wide"><IsoStage board={STENCIL_BOARD} scene={stencilScene(o)} label={stencilLabel(o)} /></div>
+              <div class="phone"><IsoStage board={STENCIL_BOARD} scene={stencilScene({ ...o, scale: 1.8 })} label={stencilLabel(o)} /></div>
+              {at < mask.ids.length && <div class="mask"><StructuredStage prompt={prompt} d={mask} at={at} store={disk} view="mask" onView={() => {}} /></div>}
+              <p>{stencilLabel(o)}</p>
+            </section>
+          );
+        })}
+      </div>
+      <h1>Chapter 4's run: a free string near its cap (allowed counts by step)</h1>
+      <p>{noteSteps.map(([i, n]) => `step ${i + 1}: ${n}`).join(' · ')}</p>
+      <div class="grid">
+        {noteSteps.map(([at]) => (
+          <section><div class="mask"><StructuredStage prompt={run('note').prompt} d={note} at={at} store={disk} view="mask" onView={() => {}} /></div></section>
+        ))}
+      </div>
+      <h1>No schema</h1>
+      <div class="grid"><section><IsoStage board={STENCIL_BOARD} scene={stencilScene(stencilAt(run('asking').prompt, asking, asking.ids.length, false))} label="no schema" /></section></div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  .stages { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 16px; }
+  .stage { height: 560px; display: flex; }
+  .mask { height: 520px; display: flex; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  @media (max-width: 599px) {
+    .grid, .stages { grid-template-columns: 1fr; }
+    .stage { height: auto; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>
