@@ -76,6 +76,14 @@ import { ROUTER_BOARD, routerScene, type RouterOpts } from '../components/scenes
 import { frontierChart } from '../components/scenes/frontierChart';
 import { STUDENT_SERIES } from '../content/small-models/kit';
 import { cheapestShipping, frontier } from '../lib/small-models/router';
+import { readFileSync } from 'node:fs';
+import { parseStudent, type Meta as LmMeta } from '../lib/lm/load';
+import { SERVE_BOARD, floorAt, serveScene, type ServeOpts } from '../components/scenes/serveScene';
+import { OPEN, serve } from '../lib/inference/server';
+import { WINNERS as SERVE_WINNERS, runOf as serveRun } from '../lib/inference/workbench';
+import { RUNS as BATCH_RUNS } from '../content/inference/03-batching';
+import { RUNS as PACE_RUNS } from '../content/inference/06-pace-or-throughput';
+import { K as DRAFT_K, runAt as specAt } from '../content/inference/05-guess-ahead';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -310,6 +318,28 @@ const FRONTIER_OG: Record<string, () => ReturnType<typeof frontierChart>> = {
   'small-models-06-gate-the-switch': () => frontierChart({ points: frontier() }),
 };
 const frontierOg = FRONTIER_OG[page.og]?.();
+// module 13: the serving floor. The intro: continuous batching at cap 8, its busiest pass; chapter 1: one seat reading its
+// prompt; chapter 2: the room full, cap 16 in 4 GB; chapter 3: static beside continuous; chapter 4: sixteen seats, the
+// shelf full; chapter 5: the student drafting, its first round as chapter 5 runs it; chapter 6: cap 16; chapter 7: the
+// first winning settings.
+const studentOf = () => {
+  const bin = readFileSync('public/data/lm/student.bin');
+  return parseStudent(JSON.parse(readFileSync('public/data/lm/meta.json', 'utf8')) as LmMeta, bin.buffer.slice(bin.byteOffset, bin.byteOffset + bin.byteLength) as ArrayBuffer);
+};
+const SERVE_OG: Record<string, () => Omit<ServeOpts, 'scale'>[]> = {
+  inference: () => [floorAt(serve(OPEN, { mode: 'continuous', cap: 8, kvRoomGB: 14 }))],
+  'inference-01-prefill-and-decode': () => [{ seats: ['prefill'], queued: 0, kv: 0 }],
+  'inference-02-kv-cache-at-scale': () => [floorAt(serve(OPEN, { mode: 'continuous', cap: 16, kvRoomGB: 4 }))],
+  'inference-03-batching': () => [floorAt(BATCH_RUNS.static), floorAt(BATCH_RUNS.continuous)],
+  'inference-04-smaller-numbers': () => [{ seats: Array.from({ length: 16 }, () => 'decode' as const), queued: 0, kv: 1 }],
+  'inference-05-guess-ahead': () => {
+    const r = specAt(diskModel(), studentOf(), DRAFT_K).rounds[0];
+    return [{ seats: ['decode'], queued: 0, kv: .02, draft: { drafted: r.drafted.length, accepted: r.accepted } }];
+  },
+  'inference-06-pace-or-throughput': () => [floorAt(PACE_RUNS[16])],
+  'inference-07-serve-larkspur': () => [floorAt(serveRun(SERVE_WINNERS[0]))],
+};
+const serveOgs = SERVE_OG[page.og]?.();
 const curveOg = page.og === 'fine-tuning-02-what-training-does' ? lossChart({ series: FINETUNE_SERIES })
   : page.og === 'small-models-02-learning-from-a-teacher' ? lossChart({ series: STUDENT_SERIES }) : undefined;
 ---
@@ -344,6 +374,7 @@ const curveOg = page.og === 'fine-tuning-02-what-training-does' ? lossChart({ se
           : effortOg ? <div class="tf-og"><Flat fig={effortOg} role="img" label="" /></div>
           : routerOg ? <IsoStage board={ROUTER_BOARD} scene={routerScene({ ...routerOg, scale: 1.3 })} label="" />
           : frontierOg ? <div class="tf-og"><Flat fig={frontierOg} role="img" label="" /></div>
+          : serveOgs ? <div class={serveOgs.length > 1 ? 'duo' : ''}>{serveOgs.map(o => <IsoStage board={SERVE_BOARD} scene={serveScene({ ...o, scale: 1.3 })} label="" />)}</div>
           : curveOg ? <div class="tf-og"><Flat fig={curveOg} role="img" label="" /></div>
           : page.og === 'fine-tuning-06-measure-before-you-train' ? <Grid cols={versionCols(VERSION_IDS)} />
           : deskOg ? <IsoStage board={WINDOW_BOARD} scene={windowScene(deskOg)} label="" />

@@ -116,7 +116,13 @@ describe('module registry', () => {
   it('has small-models as a live Advanced module that recommends Fine-tuning and Evals first, numbered 12 after reasoning', () => {
     expect(moduleOf('small-models')).toMatchObject({ title: 'Small models: distillation & routing', level: 'Advanced', status: 'live', prereqs: ['fine-tuning', 'evals'] });
     expect(moduleOf('small-models').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').map(m => m.id)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs', 'reasoning', 'small-models']);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id).slice(0, 12)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs', 'reasoning', 'small-models']);
+  });
+
+  it('has inference as a live Advanced module that recommends Transformers first, numbered 13 after small-models', () => {
+    expect(moduleOf('inference')).toMatchObject({ title: 'Inference engineering', level: 'Advanced', status: 'live', prereqs: ['transformers'] });
+    expect(moduleOf('inference').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs', 'reasoning', 'small-models', 'inference']);
   });
 
   it('keeps chapter ids unique within every module', () => {

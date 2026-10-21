@@ -120,3 +120,18 @@ export function serveReadouts(o: ServeOpts): string[] {
   return [`${st.prefill + st.decode} of ${st.cap} seats busy`, `${st.queued} waiting`, `KV cache ${st.kvPct}% full`,
     ...(st.draft ? [`draft: ${st.draft.accepted} of ${st.draft.drafted} kept`] : [])];
 }
+
+/** The home hero's plot (KTD16): a small rack with four seats on top, three lit (two writing, one reading), beside a short
+ * queue belt with two envelopes waiting. */
+export function servePlot(x: number, y: number, top: SceneCtx['top']): string {
+  const rx = x + 8, ry = y - 4, h = 7, z1 = BH + 18;
+  let r = box(rx - h, ry - h, BH, rx + h, ry + h, z1, METAL, toneI, 1);
+  for (let i = 0; i < 3; i++) r += line([[rx + h + .05, ry - 4, BH + 5 + i * 4], [rx + h + .05, ry + 4, BH + 5 + i * 4]], .6);
+  (['decode', 'prefill', 'decode', 'empty'] as const).forEach((seat, i) => {
+    const sx = rx - 3.2 + (i % 2) * 6.4, sy = ry - 3.2 + Math.floor(i / 2) * 6.4, sh = seat === 'empty' ? .8 : 2.5;
+    r += box(sx - 2.4, sy - 2.4, z1, sx + 2.4, sy + 2.4, z1 + sh, SEAT_PAL[seat], toneI, .7);
+  });
+  r += hullInk(boxCorners(rx - h, ry - h, BH, rx + h, ry + h, z1), 1.8);
+  return castShadow(boxCorners(rx - h, ry - h, BH, rx + h, ry + h, z1 + 2), BH, top) + beltAt([x - 22, ry], [rx - h - 1, ry], [0, 1], false)
+    + byDepth([{ at: [rx, ry, 0], svg: r }, envelope(x - 16, ry), envelope(x - 6, ry)]);
+}

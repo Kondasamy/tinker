@@ -1,6 +1,6 @@
 // Module 13, Inference engineering: the intro, every chapter played by mouse and by keyboard only, its own progress key,
 // chapter 5's drafted and checked tokens with "same output", chapter 4's loading frame and Retry, reduced motion, the
-// recap, axe and phone width. Home's card, the hero plot and the share images land with the go-live unit.
+// recap, axe and phone width; the go-live checks: Module 13 kickers and share images, home's card and Continue.
 import { test, expect, type Page } from '@playwright/test';
 import { moduleOf } from '../../src/lib/modules';
 import { inferenceWalker } from './inference-flow';
@@ -36,6 +36,20 @@ test('the intro shows the level, the prerequisite, the author, the chapters and 
   await page.getByRole('button', { name: 'Words' }).click();
   await expect(page.locator('.band .note.more')).toBeVisible();
   await axe(page);
+});
+
+test('Module 13 on the intro, the recap and home, with their own share images; home Continue resumes it', async ({ page }) => {
+  await page.goto('/inference/');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 13 · Inference');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/inference\.jpg$/);
+  await page.goto('/inference/recap/');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 13 · Recap');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/inference-recap\.jpg$/);
+  await page.goto('/');
+  await expect(page.locator('.module[data-module="inference"] h4 a')).toHaveAttribute('href', '/inference/');
+  await page.evaluate(() => { localStorage.setItem('inference-progress-v1', JSON.stringify({ done: [], saved: {} })); localStorage.setItem('tinker-last-module', 'inference'); });
+  await page.reload();
+  await expect(page.locator('[data-continue]')).toHaveAttribute('href', /^\/inference\//);
 });
 
 test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({ page }) => {
