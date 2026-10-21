@@ -90,8 +90,10 @@ export function traceLabel(o: TraceOpts): string {
 }
 
 /** The home hero's observability plot: a short wall of three trace cards, one failed, over a single bin. */
-export const controlRoomPlot = (x: number, y: number) => byDepth([
-  { at: [x, y - 8, 0], svg: box(x - 14, y - 10, BH, x + 14, y - 8, BH + 18, DARK, toneI, .9)
-    + [0, 1, 2].map(i => box(x - 12 + i * 8.5, y - 8, BH + 5, x - 5.5 + i * 8.5, y - 7.4, BH + 13, i === 1 ? PALS.tomato : CERAMIC, toneI, .5)).join('') },
-  { at: [x, y + 8, 0], svg: box(x - 7, y + 2, BH, x + 7, y + 14, BH + 5, WOOD, toneI, .8) },
-]);
+export const controlRoomPlot = (x: number, y: number, top: SceneCtx['top']) =>
+  castShadow(boxCorners(x - 14, y - 10, BH, x + 14, y - 8, BH + 18), BH, top) + castShadow(boxCorners(x - 7, y + 2, BH, x + 7, y + 14, BH + 5), BH, top)
+  + byDepth([
+    { at: [x, y - 8, 0], svg: box(x - 14, y - 10, BH, x + 14, y - 8, BH + 18, DARK, toneI, .9)
+      + [0, 1, 2].map(i => box(x - 12 + i * 8.5, y - 8, BH + 5, x - 5.5 + i * 8.5, y - 7.4, BH + 13, i === 1 ? PALS.tomato : CERAMIC, toneI, .5)).join('') },
+    { at: [x, y + 8, 0], svg: box(x - 7, y + 2, BH, x + 7, y + 14, BH + 5, WOOD, toneI, .8) },
+  ]);

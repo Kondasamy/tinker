@@ -46,7 +46,7 @@ const FALLS: [string, string, string | undefined][] = [
         ))}
         <section>
           <h2>Hero plot</h2>
-          <IsoStage board={[0, 0, 60, 60]} scene={() => controlRoomPlot(30, 30)} label="The home hero's observability plot" />
+          <IsoStage board={[0, 0, 60, 60]} scene={({ top }) => controlRoomPlot(30, 30, top)} label="The home hero's observability plot" />
         </section>
       </div>
       <h1>Waterfalls</h1>

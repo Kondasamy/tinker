@@ -1,7 +1,7 @@
 // Module 14, Observability & error analysis: the intro, every chapter played by mouse and by keyboard only, its own
 // progress key, chapter 2's waterfall by arrow keys and Enter, chapter 3's notes surviving a reload with no request
-// leaving the page, the chapter 4 and 7 puzzles' "Show me", reduced motion, the recap, axe and phone width.
-// Share-image and home checks come with the go-live unit.
+// leaving the page, the chapter 4 and 7 puzzles' "Show me", reduced motion, the recap, axe and phone width; the go-live
+// checks: Module 14 kickers and share images, home's card and Continue.
 import { test, expect, type Page } from '@playwright/test';
 import { moduleOf } from '../../src/lib/modules';
 import { observabilityWalker } from './observability-flow';
@@ -35,6 +35,20 @@ test('the intro shows the level, the prerequisite, the author, the chapters and 
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
   await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toHaveAttribute('href', 'https://april-zhu.com/colorfigures');
   await axe(page);
+});
+
+test('Module 14 on the intro, the recap and home, with their own share images; home Continue resumes it', async ({ page }) => {
+  await page.goto('/observability/');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 14 · Observability');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/observability\.jpg$/);
+  await page.goto('/observability/recap/');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 14 · Recap');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/observability-recap\.jpg$/);
+  await page.goto('/');
+  await expect(page.locator('.module[data-module="observability"] h4 a')).toHaveAttribute('href', '/observability/');
+  await page.evaluate(() => { localStorage.setItem('observability-progress-v1', JSON.stringify({ done: [], saved: {} })); localStorage.setItem('tinker-last-module', 'observability'); });
+  await page.reload();
+  await expect(page.locator('[data-continue]')).toHaveAttribute('href', /^\/observability\//);
 });
 
 test('every chapter plays by mouse, in order through the Next links to the recap, with axe clean at each check', async ({ page }) => {

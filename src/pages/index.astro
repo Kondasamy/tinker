@@ -42,6 +42,10 @@ import { run as reasoningRun, SPLIT } from '../lib/reasoning/engine';
 import { ROUTER_BOARD, routerScene, routerLabel } from '../components/scenes/routerScene';
 import { SERVE_BOARD, floorAt, serveScene, serveLabel } from '../components/scenes/serveScene';
 import { OPEN, serve } from '../lib/inference/server';
+import { TRACE_BOARD, traceScene, traceLabel } from '../components/scenes/traceScene';
+import { binsOf, wallOf } from '../content/observability/kit';
+import { FAILED } from '../lib/observability/traces';
+import { DAY1_COUNTS, TOP } from '../lib/observability/coding';
 
 const one = (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) => ({ top }: SceneCtx) =>
   blockShadow(type, 30, 30, top) + renderers[type]({ x: 30, y: 30, ...opts });
@@ -88,6 +92,8 @@ const THINK = { ...thinkDeskOf(reasoningRun(SPLIT, 'medium')), scale: 1.7 };
 const ROUTER = { mode: 'route', route: 'up', threshold: 0.9, scale: 1.7 } as const;
 // the serving floor at its busiest pass, continuous batching at cap 8, as the module's intro opens
 const FLOOR = { ...floorAt(serve(OPEN, { mode: 'continuous', cap: 8, kvRoomGB: 14 })), scale: 1.7 };
+// the control room as the module's intro opens: the day's failed traces sorted into bins, the one to fix first lit
+const CONTROL = { cards: wallOf(FAILED, FAILED[0].id), bins: binsOf(DAY1_COUNTS, TOP[0]), scale: 1.7 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: { name: 'Retrieval-Augmented Generation (RAG)', iso: { board: MINI_BOARD, scene: miniPipeline, label: MINI_LABEL }, topics: ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'Reranking', 'Agentic RAG', 'GraphRAG'] },
   'tool-calling': { name: 'Tool calling & the Model Context Protocol (MCP)', iso: { board: OFFICE_BOARD, scene: officeScene(OFFICE), label: officeLabel(OFFICE) }, topics: ['Tool definitions', 'JSON Schema', 'Multi-step calls', 'MCP hosts & servers', 'Tools, resources, prompts', 'Approval', 'Prompt injection'] },
@@ -102,6 +108,7 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   reasoning: { name: 'Reasoning models & thinking budgets', iso: { board: THINK_BOARD, scene: thinkScene(THINK), label: thinkLabel(THINK) }, topics: ['Thinking before answering', 'Thinking tokens', 'Effort levels', 'Overthinking', 'Adaptive thinking', 'Accuracy vs cost', 'Choosing an effort'] },
   'small-models': { name: 'Small models: distillation & routing', iso: { board: ROUTER_BOARD, scene: routerScene(ROUTER), label: routerLabel(ROUTER) }, topics: ['Big vs small models', 'Distillation', 'Teacher & student', 'Routing', 'Confidence & fallback', 'Release gates', 'Routing policy'] },
   inference: { name: 'Inference engineering', iso: { board: SERVE_BOARD, scene: serveScene(FLOOR), label: serveLabel(FLOOR) }, topics: ['Prefill & decode', 'The KV cache at scale', 'Batching', 'Quantization', 'Speculative decoding', 'Pace vs throughput', 'Serving settings'] },
+  observability: { name: 'Observability & error analysis', iso: { board: TRACE_BOARD, scene: traceScene(CONTROL), label: traceLabel(CONTROL) }, topics: ['Traces & spans', 'The first failure', 'Open coding', 'Axial coding', 'Frequency vs harm', 'Traces to eval cases', 'A new day of traffic'] },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];
 const LIVE = MODULES.filter(m => m.status === 'live');
