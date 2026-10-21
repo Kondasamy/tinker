@@ -24,6 +24,9 @@ describe('the registry entry', () => {
     for (const c of m.chapters) expect(c.intro.learn).toHaveLength(3);
     const terms = m.chapters.flatMap(c => c.intro.terms.map(([t]) => t));
     for (const t of ['Weights', 'Fine-tuning', 'LoRA', 'Adapter', 'Base model']) expect(terms).toContain(t);
+    // the rank is read from meta.json, not typed
+    const rank = m.chapters.flatMap(c => c.intro.terms).find(([t]) => t === 'Rank')![1];
+    expect(rank).toBe(`How thin LoRA’s matrices are. Rank ${meta.lora!.rank} means each adapted matrix gets two thin matrices ${meta.lora!.rank} wide.`);
   });
 });
 

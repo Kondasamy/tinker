@@ -3,6 +3,9 @@
 import type { Chapter, Module } from '../../lib/modules';
 import { RECALL } from './recall';
 import { fact } from '../../lib/fine-tuning/facts';
+import META from '../../../public/data/lm/meta.json' with { type: 'json' };
+
+const RANK = META.lora.rank;
 
 const CHAPTERS: Chapter[] = [
   {
@@ -55,7 +58,7 @@ const CHAPTERS: Chapter[] = [
         ['Full fine-tune', 'Training that changes every weight in the model, so the result is a whole new copy.'],
         ['LoRA', fact('lora').claim],
         ['Adapter', 'The small set of weights LoRA trains. It sits beside the base model, which stays as it was.'],
-        ['Rank', 'How thin LoRA’s matrices are. Rank 4 means each adapted matrix gets two thin matrices four wide.'],
+        ['Rank', `How thin LoRA’s matrices are. Rank ${RANK} means each adapted matrix gets two thin matrices ${RANK} wide.`],
       ],
     },
   },
