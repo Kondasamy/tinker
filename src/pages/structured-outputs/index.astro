@@ -1,0 +1,222 @@
+---
+// Structured outputs module intro: sets the scene before chapter 1. Static, except the warm-up and a small script that
+// marks finished chapters. Every example is the course's own data: the chapters' pinned runs decoded on Larkspur mini at
+// build time (read from disk, the same weights the chapters load), and claims quoted from
+// data/structured-outputs/facts.json.
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import Meta from '../../components/Meta.astro';
+import IsoStage from '../../lib/iso/IsoStage';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import { STENCIL_BOARD, stencilLabel, stencilScene, type StencilOpts } from '../../components/scenes/stencilScene';
+import { stencilAt } from '../../content/structured-outputs/kit';
+import { play, run } from '../../lib/structured-outputs/prompts';
+import { diskModel } from '../../lib/transformers/diskModel';
+import { ACCESSED, fact } from '../../lib/structured-outputs/facts';
+import { VOCAB_SIZE } from '../../lib/lm/bpe';
+import { moduleOf, chapterHref } from '../../lib/modules';
+import { introMeta } from '../../lib/pages';
+import { longDate } from '../../lib/format';
+
+const MODULE = moduleOf('structured-outputs');
+const CHAPTERS = MODULE.chapters;
+const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
+const model = diskModel();
+const ASK = run('asking'), MASK = run('mask'), NOTE = run('note'), ORDER = run('order');
+const asked = play(model, ASK).decoded, masked = play(model, MASK).decoded, noted = play(model, NOTE).decoded, ordered = play(model, ORDER).decoded;
+const big = (o: StencilOpts): StencilOpts => ({ ...o, scale: 1.7 });
+// the hero: the press mid-answer, at the first step where the model's own choice is blocked
+const BLOCK = masked.steps.findIndex(s => !s.allowed.includes(s.free.id));
+const HERO = big(stencilAt(MASK.prompt, masked, BLOCK, true));
+const IDEAS: [string, string, ReturnType<typeof fact>, StencilOpts][] = [
+  ['Asking isn’t enforcing', 'With no schema, the model writes whatever it finds likely', fact('openai-vs-json-mode'), big(stencilAt(ASK.prompt, asked, asked.ids.length, false))],
+  ['The mask', 'At each step the schema lets some tokens through and stops the rest', fact('anthropic-guarantee'), big(stencilAt(MASK.prompt, masked, BLOCK, true))],
+  ['Tokens, not characters', 'The mask checks every byte of a token, so long ones stop at a length cap', fact('xgrammar'), big(stencilAt(NOTE.prompt, noted, noted.ids.length - 3, true))],
+  ['Valid isn’t right', 'The mask forces a value; it can’t make it true', fact('anthropic-max-tokens'), big(stencilAt(ORDER.prompt, ordered, ordered.ids.length, true))],
+];
+const FACTS: [string, string][] = [
+  [String(VOCAB_SIZE), 'tokens the mask judges at every step'],
+  [String(model.config.ctx), 'tokens in Larkspur mini’s window: prompt and answer'],
+  [String(masked.ids.length), 'tokens in its masked answer to “Where is order 1042?”'],
+  [`${fact('llguidance').value} µs`, 'of CPU per token for a real engine’s mask over 128k tokens (llguidance)'],
+];
+const checked = longDate(ACCESSED);
+---
+<html lang="en">
+  <head>
+    <Meta {...introMeta(MODULE.id)} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module 10 · Structured outputs</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS.map((m, i) => <>{i > 0 && ', '}<a href={`/${m.id}/`}>{m.title}</a></>)} recommended · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+          <h1>Make a model answer in valid JSON, every time</h1>
+          <p class="lede">Asking a model for JSON gets you JSON most of the time. A schema mask gets it every time: at each step it blocks the tokens the schema doesn’t allow. Here you watch a tiny model write under one, token by token, and see what it guarantees and what it doesn’t.</p>
+          <div class="ctas">
+            <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+          <ReadingMode />
+        </div>
+        <div class="hero-pic">
+          {/* the stencil press every chapter plays in, at the step where the schema blocks the model's own choice */}
+          <IsoStage board={STENCIL_BOARD} scene={stencilScene(HERO)} label={stencilLabel(HERO)} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="idea">
+        <p class="kicker">The whole idea in one example</p>
+        <h2 id="idea">Same model, with and without a schema</h2>
+        <div class="versus">
+          <article class="reply">
+            <header><h3>Asked nicely</h3><span class="stamp bad">not JSON</span></header>
+            <p class="q">“{ASK.prompt}”</p>
+            <pre>{asked.text}</pre>
+            <p class="cap">No schema: prose, because that’s what it learned.</p>
+          </article>
+          <article class="reply read">
+            <header><h3>Under a schema</h3><span class="stamp">valid</span></header>
+            <p class="q">“{MASK.prompt}”</p>
+            <pre>{masked.text}</pre>
+            <p class="cap">A mask at every step: only the schema’s tokens get through.</p>
+          </article>
+        </div>
+        <p class="note more">Larkspur mini is tiny and has never seen JSON, so its prose is odd and its picks are guesses. That is the point: the mask makes even this model’s answers valid. Whether they are right is another question, which chapter 6 asks. Every answer here is computed live in your browser from Larkspur mini; none is any provider’s.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Four ideas carry the module</h2>
+        <ol class="steps">
+          {IDEAS.map(([name, short, f, pic], i) => (
+            <li>
+              <div class="pic"><IsoStage board={STENCIL_BOARD} scene={stencilScene(pic)} label={stencilLabel(pic)} /></div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              <p class="more">{f.claim}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">Larkspur’s order system wants JSON</h2>
+          <p class="more">{MODULE.story} <strong>You’re on the team that has to make every answer readable by a program, and find out what that does and doesn’t promise.</strong></p>
+          <p class="prev">Played <a href="/tool-calling/">Tool calling</a>? The schemas here are the same subset its host checks arguments with. <a href="/tokens/">Tokens</a> showed why a token is not a character; chapter 4 here is where that bites.</p>
+        </div>
+        <dl class="facts">
+          {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}
+        </dl>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due (R13); the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <ul class="who-chips"><li>Engineers</li><li>Product managers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Engineers, product managers and analysts whose programs read a model’s answers. It builds on Tool calling (schemas) and Tokens (what a token is); any maths is optional.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com" target="_blank" rel="noopener">Kondasamy Jayaraman</a>. Larkspur mini’s training follows <a href="https://github.com/karpathy/nanoGPT">nanoGPT</a> by Andrej Karpathy (MIT).</p>
+        <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, whose hand-inked isometric style and engine this course is built on. Colorfigures grew from April’s <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed. Thank you.</p>
+      </footer>
+    </main>
+
+    <script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      const CHAPTERS = moduleOf('structured-outputs').chapters;
+      const done = completed('structured-outputs');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('structured-outputs', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .module-meta a { color: var(--ink); }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.read { border-left: 6px solid var(--acc); }
+  .reply .q { font-weight: 700; overflow-wrap: anywhere; }
+  .reply pre { margin: 0 0 8px; padding: 8px 10px; border: 1.5px solid var(--ink); border-radius: 8px; background: var(--card); white-space: pre-wrap; overflow-wrap: anywhere; font: 14px ui-monospace, Menlo, monospace; }
+
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); white-space: nowrap; }
+  .stamp.bad { color: var(--bad); }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 220px; display: flex; justify-content: center; margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: auto !important; height: 100% !important; max-width: 100%; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .prev { font-size: 14px; color: var(--muted); }
+  .prev a { color: var(--ink); }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
+
+  .pair { display: grid; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+  }
+</style>

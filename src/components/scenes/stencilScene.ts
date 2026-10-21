@@ -18,6 +18,8 @@ export interface StencilOpts {
   written: string[];
   /** how many of the vocabulary the schema lets through at this step; null: no schema, no plate */
   allowed: number | null;
+  /** keep the count out of the picture (while a prediction about it is open) */
+  hideCount?: boolean;
   /** the vocabulary's size */
   vocab?: number;
   /** the model's own first choice when the schema blocks it, as text; it stops at the plate */
@@ -90,9 +92,9 @@ export const stencilScene = (o: StencilOpts) => (ctx: SceneCtx) => {
   if (st.blocked) parts.push({ at: [PLATE - 7, Y, 1], svg: tile(0, PLATE - 7, BH + .3, 'tile blocked', PALS.tomato) });
   s += byDepth(parts);
   const out = o.written.join('');
-  s += pill([20, Y + 6, BH], narrow ? -6 : -8, narrow ? -34 : 30, narrow ? 'PROMPT' : `PROMPT · ${cut(o.prompt, SNIP)}`, false, scale);
+  s += pill([20, Y + 6, BH], -8, 30, narrow ? 'PROMPT' : `PROMPT · ${cut(o.prompt, SNIP)}`, false, scale);
   s += pill([PRESS, Y, BH + 46], 0, -14, 'LARKSPUR MINI', !o.done, scale);
-  if (st.plate) s += pill([PLATE, Y - 14, BH + 26], 0, -22, narrow ? 'SCHEMA' : `SCHEMA · ${o.allowed} OF ${vocab} PASS`, !st.blocked, scale);
+  if (st.plate) s += pill([PLATE, Y - 14, BH + 26], 0, -22, narrow || o.hideCount ? 'SCHEMA' : `SCHEMA · ${o.allowed} OF ${vocab} PASS`, !st.blocked, scale);
   if (st.blocked && !narrow) s += pill([PLATE - 7, Y + 5, BH + 4], -6, 30, `BLOCKED · ${pieceWord(o.blocked!)}`, false, scale);
   s += pill([TILE0 + (MAX_TILES - 1) * PITCH, Y + 6, BH], narrow ? -10 : -6, narrow ? 30 : 30,
     narrow ? 'OUTPUT' : out ? `OUTPUT · ${cut(pieceWord(out), SNIP)}` : 'NOTHING WRITTEN YET', !!o.done, scale);
@@ -102,7 +104,7 @@ export const stencilScene = (o: StencilOpts) => (ctx: SceneCtx) => {
 /** The picture in words, for its aria-label. React escapes it. */
 export function stencilLabel(o: StencilOpts): string {
   const st = stencilState(o), out = o.written.join('');
-  const plateWords = st.plate ? ` A stencil plate, the schema, stands across the belt and lets ${o.allowed} of ${o.vocab ?? 768} tokens through at this step.` : ' No schema: nothing stands across the belt.';
+  const plateWords = st.plate ? ` A stencil plate, the schema, stands across the belt${o.hideCount ? '' : ` and lets ${o.allowed} of ${o.vocab ?? 768} tokens through at this step`}.` : ' No schema: nothing stands across the belt.';
   const blocked = st.blocked ? ` The model's first choice, “${o.blocked}”, is blocked and stops at the plate.` : '';
   return `A token press, Larkspur mini, reads the prompt “${o.prompt}” and drops tiles onto a belt.${plateWords}${blocked} `
     + (out ? `Written so far, ${o.written.length} token${o.written.length === 1 ? '' : 's'}: “${out}”${o.done ? ', finished' : ''}.` : 'Nothing written yet.');

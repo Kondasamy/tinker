@@ -40,7 +40,7 @@ export function stencilAt(prompt: string, d: Decoded | null, at: number, masked:
   const n = Math.min(at, d.ids.length), st = d.steps[n];
   const done = n >= d.ids.length;
   const blocked = st && masked && !st.allowed.includes(st.free.id) ? st.free.text : null;
-  return { prompt, written: d.ids.slice(0, n).map(id => text([id])), allowed: masked ? (st ? st.allowed.length : 0) : null, blocked, done, scale };
+  return { prompt, written: d.ids.slice(0, n).map(id => text([id])), allowed: masked ? (st ? st.allowed.length : 0) : null, hideCount: done, blocked, done, scale };
 }
 
 /** The Mask tab: the vocabulary grid at one step, then the likeliest allowed tokens as a list the arrow keys move
@@ -90,7 +90,9 @@ export function StructuredStage({ prompt, d, at, masked = true, caption, view: k
   const view = canMask ? kept ?? own : 'scene', setView = onView ?? setOwn;
   const scale = useNarrow() ? 1.8 : 1;
   const { model, failed, retry } = useModel(store);
-  const o = stencilAt(prompt, model ? d : null, at, masked, scale);
+  const live = stencilAt(prompt, model ? d : null, at, masked, scale);
+  // while a prediction is open the picture keeps the answer back: no count on the plate, no blocked tile
+  const o = locked ? { ...live, hideCount: true, blocked: null } : live;
   const n = d ? Math.min(at, d.ids.length) : 0;
   return (
     <div className="tc-stage so-stage" data-model={model ? 'ready' : failed ? 'failed' : 'loading'}>

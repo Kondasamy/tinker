@@ -1,0 +1,29 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import AskingNicely from '../../content/structured-outputs/01-asking-nicely';
+import ASchemaIsAContract from '../../content/structured-outputs/02-a-schema-is-a-contract';
+import TheMask from '../../content/structured-outputs/03-the-mask';
+import TokensAreNotCharacters from '../../content/structured-outputs/04-tokens-are-not-characters';
+import ChoicesFromAList from '../../content/structured-outputs/05-choices-from-a-list';
+import ValidIsntRight from '../../content/structured-outputs/06-valid-isnt-right';
+import Workbench from '../../content/structured-outputs/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('structured-outputs').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="structured-outputs" chapter={chapter} title={title}>
+  {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
+      hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
+  {chapter === '01-asking-nicely' ? <AskingNicely client:load />
+    : chapter === '02-a-schema-is-a-contract' ? <ASchemaIsAContract client:load />
+    : chapter === '03-the-mask' ? <TheMask client:load />
+    : chapter === '04-tokens-are-not-characters' ? <TokensAreNotCharacters client:load />
+    : chapter === '05-choices-from-a-list' ? <ChoicesFromAList client:load />
+    : chapter === '06-valid-isnt-right' ? <ValidIsntRight client:load />
+    : <Workbench client:load />}
+</ChapterLayout>
