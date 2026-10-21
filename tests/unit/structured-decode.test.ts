@@ -8,6 +8,9 @@ import { diskModel } from '../../src/lib/transformers/diskModel';
 const model = diskModel();
 
 describe('pinned chapter runs (KTD4)', () => {
+  it('play() decodes a run once per model: a second call returns the cached result', () => {
+    expect(play(model, run('mask'))).toBe(play(model, run('mask')));
+  });
   for (const r of RUNS) it(`${r.id} reproduces its pinned output`, () => {
     const { decoded } = play(model, r);
     expect(decoded.text).toBe(r.output);
