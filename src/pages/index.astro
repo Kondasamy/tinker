@@ -85,7 +85,9 @@ const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];
 const LIVE = MODULES.filter(m => m.status === 'live');
 const FIRST = LIVE[0];
 // live modules first within a level
-const atLevel = (level: Level) => [...LIVE, ...MODULES.filter(m => m.status === 'planned')].filter(m => m.level === level);
+const PLANNED = MODULES.filter(m => m.status === 'planned');
+const atLevel = (level: Level) => [...LIVE, ...PLANNED].filter(m => m.level === level);
+const CONTRIBUTING = 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING.md';
 ---
 <html lang="en">
   <head>
@@ -109,7 +111,7 @@ const atLevel = (level: Level) => [...LIVE, ...MODULES.filter(m => m.status === 
         </div>
         <figure class="hero-pic">
           <IsoStage board={HERO_BOARD} scene={HOME_HERO} label={HOME_HERO_LABEL} />
-          <figcaption>One workshop, a plot per module. The empty plots are open: <a href="https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING.md">build one</a>.</figcaption>
+          <figcaption>One workshop, a plot per module. {PLANNED.length ? <>The empty plots are open: <a href={CONTRIBUTING}>build one</a>.</> : <>Room for more: <a href={CONTRIBUTING}>propose one</a>.</>}</figcaption>
         </figure>
       </header>
 
@@ -158,6 +160,7 @@ const atLevel = (level: Level) => [...LIVE, ...MODULES.filter(m => m.status === 
             </div>
           </section>
         ); })}
+        <p class="propose">Want a concept explained here? <a href={CONTRIBUTING}>Propose a module</a>.</p>
       </section>
 
       <section id="loop" aria-labelledby="loop-h">
@@ -242,6 +245,7 @@ const atLevel = (level: Level) => [...LIVE, ...MODULES.filter(m => m.status === 
   .level-group > h3 { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
   .level-group > h3::after { content: ''; flex: 1; border-top: 1.5px solid var(--rule); }
   .coming { font-size: 14px; color: var(--muted); }
+  .propose { margin-top: 28px; font-size: 15px; }
   .modules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
   .module { grid-column: span 2; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 24px; align-items: center; border: 1.5px solid var(--ink); border-radius: 20px; padding: 22px 24px; background: var(--card); box-shadow: 5px 5px 0 var(--ink); }
   .module h4 { font-size: 21px; line-height: 1.3; margin: 2px 0 6px; }

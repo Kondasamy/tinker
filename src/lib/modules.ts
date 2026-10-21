@@ -48,7 +48,8 @@ export interface Module<C extends Chapter = Chapter> {
 }
 
 const AUTHOR = RAG_MODULE.author;
-const planned = (id: string, title: string, level: Level, description: string): Module =>
+/** a roadmap card: a module someone may build, with no chapters or pages yet (kept for contributors though the roadmap is empty) */
+export const planned = (id: string, title: string, level: Level, description: string): Module =>
   ({ id, title, description, level, status: 'planned', author: AUTHOR, prereqs: [], story: '', chapters: [] });
 
 export const MODULES: Module[] = [

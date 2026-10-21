@@ -5,20 +5,20 @@ import { MODULES } from '../../src/lib/modules';
 
 const catalogue = (page: import('@playwright/test').Page) => page.locator('#modules');
 
-test('levels in order, RAG under Beginner, planned modules as cards with no link', async ({ page }) => {
+// the roadmap is empty (U23): every module is a live card at its level, and the roadmap area is a link to propose one.
+// The planned-card path stays for contributors; tests/unit/hero.test.ts keeps it tested with a planned fixture.
+for (const width of [1280, 390]) test(`levels in order, nine live modules grouped by level, no roadmap card, a Propose a module link (${width}px)`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 900 });
   await page.goto('/');
   await expect(catalogue(page).locator('[data-level] > h3')).toHaveText(['Beginner', 'Intermediate', 'Advanced']);
-  await expect(page.locator('[data-level="Beginner"] [data-module="rag"]')).toBeVisible();
-  const planned = MODULES.filter(m => m.status === 'planned');
-  const cards = catalogue(page).locator('.roadmap');
-  await expect(cards).toHaveCount(planned.length);
-  for (const m of planned) {
-    const card = page.locator(`[data-level="${m.level}"] .roadmap[data-module="${m.id}"]`);
-    await expect(card).toContainText(m.title);
-    await expect(card).toContainText('Planned');
-    await expect(card).toHaveAttribute('id', `module-${m.id}`);
-  }
-  await expect(cards.locator('a, button, [tabindex]')).toHaveCount(0);
+  const live = MODULES.filter(m => m.status === 'live');
+  expect(live).toHaveLength(9);
+  await expect(catalogue(page).locator('.module')).toHaveCount(9);
+  for (const m of live) await expect(page.locator(`[data-level="${m.level}"] .module[data-module="${m.id}"]`)).toBeVisible();
+  await expect(catalogue(page).locator('.roadmap')).toHaveCount(0);
+  await expect(catalogue(page).locator('.coming')).toHaveCount(0);
+  await expect(catalogue(page).getByRole('link', { name: 'Propose a module' })).toHaveAttribute('href', 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING.md');
+  await expect(page.locator('.hero-pic figcaption')).not.toContainText('empty plots');
   await expect(page.getByText('In the workshop')).toHaveCount(0);
 });
 

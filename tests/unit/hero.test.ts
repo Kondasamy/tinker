@@ -3,8 +3,9 @@ import { describe, it, expect } from 'vitest';
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import IsoStage from '../../src/lib/iso/IsoStage';
-import { HERO_BOARD, HOME_HERO, HOME_HERO_LABEL, heroBoard, heroScene, plotAt } from '../../src/components/scenes/heroScene';
+import { HERO_BOARD, HOME_HERO, HOME_HERO_LABEL, heroBoard, heroLabel, heroScene, plotAt } from '../../src/components/scenes/heroScene';
 import { MODULES } from '../../src/lib/modules';
+import { PALS, WOOD } from '../../src/lib/iso/core.js';
 
 const draw = (board = HERO_BOARD, scene = HOME_HERO) => renderToString(createElement(IsoStage, { board, scene, label: '' }));
 const upper = (s: string) => s.toUpperCase().replace(/&/g, '&amp;');
@@ -40,5 +41,21 @@ describe('home hero', () => {
 
   it('the label names every module', () => {
     for (const m of MODULES) expect(HOME_HERO_LABEL).toContain(m.title);
+  });
+
+  it('names building sites only while some module is planned', () => {
+    expect(HOME_HERO_LABEL.includes('building sites')).toBe(MODULES.some(m => m.status === 'planned'));
+    expect(heroLabel(['RAG', 'Tool calling'], [])).toBe('Tinker as one workshop with a plot per module: RAG and Tool calling, live.');
+  });
+
+  // the roadmap is empty, but the planned path stays for contributors (KTD14): a planned fixture still gets its site and its words
+  it('a planned fixture still draws a building site (crate and cones) and the label names it', () => {
+    const count = (svg: string, colour: string) => svg.split(colour).length - 1;
+    const site = draw(heroBoard(1), heroScene({ live: [{ name: 'One' }, { name: 'Two' }], planned: [{ name: 'demo' }], ride: [] }));
+    const live = draw(heroBoard(1), heroScene({ live: [{ name: 'One' }, { name: 'Two' }, { name: 'Three' }], planned: [], ride: [] }));
+    expect(site).toContain('SOON: DEMO');
+    expect(count(site, WOOD.l)).toBeGreaterThan(count(live, WOOD.l));
+    expect(count(site, PALS.tomato.l)).toBeGreaterThan(count(live, PALS.tomato.l));
+    expect(heroLabel(['RAG'], ['Demo'])).toBe('Tinker as one workshop with a plot per module: RAG, live, and building sites for Demo.');
   });
 });

@@ -102,4 +102,7 @@ const LIVE = MODULES.filter(m => m.status === 'live'), PLANNED = MODULES.filter(
 /** the home page's picture (and its share image), from the registry: the model's call riding to the host */
 export const HERO_BOARD = heroBoard(LIVE.length - 2 + PLANNED.length);
 export const HOME_HERO = heroScene({ live: LIVE.map((m, i) => ({ name: `Module ${i + 1} · ${m.title}`, draw: DRAW[m.id] })), planned: PLANNED.map(m => ({ name: m.id.replace(/-/g, ' ') })), ride: SEQ_MSGS.slice(0, 3) });
-export const HOME_HERO_LABEL = `Tinker as one workshop with a plot per module: ${LIVE.map(m => m.title).join(' and ')}, live, and building sites for ${PLANNED.map(m => m.title).join(', ')}.`;
+/** the hero's accessible label: building sites are named only while some module is planned */
+export const heroLabel = (live: string[], planned: string[]) =>
+  `Tinker as one workshop with a plot per module: ${live.join(' and ')}, live${planned.length ? `, and building sites for ${planned.join(', ')}` : ''}.`;
+export const HOME_HERO_LABEL = heroLabel(LIVE.map(m => m.title), PLANNED.map(m => m.title));
