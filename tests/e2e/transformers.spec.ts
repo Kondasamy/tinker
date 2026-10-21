@@ -173,6 +173,9 @@ test('chapter 7: typed text up to the window traces; longer text is struck throu
   await expect(c.locator('.tf-tiles li.past').first()).toBeVisible();
   await c.getByRole('button', { name: 'Trace it' }).click();
   await expect(page.locator('.tf-stage .tc-caption')).toContainText('reads the last 32 tokens');
+  // a pasted document is capped, still far past the window
+  await box.fill('Where is my order? '.repeat(100));
+  expect((await box.inputValue()).length).toBe(400);
   await axe(page);
 });
 

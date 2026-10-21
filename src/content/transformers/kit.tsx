@@ -54,13 +54,17 @@ export function piecesOf(text: string) {
   return { pieces: ids.map(id => decode([id])), cut, read: ids.slice(cut).map(id => decode([id])) };
 }
 
+/** The prompt box's cap, as module 6's. shortcut: a paste is cut to 400 characters so the tiles and the saved run stay
+ * small; still far past the 32-token window, so truncation shows. Raise it if readers ask for longer. */
+const MAX = 400;
+
 /** A prompt box with its live "N of 32 tokens" and the pieces as tiles; pieces past the context are struck through. */
 export function PromptInput({ value, onChange, label = 'Your prompt' }: { value: string; onChange: (v: string) => void; label?: string }) {
   const id = useId(), { pieces, cut } = useMemo(() => piecesOf(value), [value]);
   return (
     <div className="tf-prompt">
       <label htmlFor={id}>{label}</label>
-      <textarea id={id} rows={2} value={value} onChange={e => onChange(e.target.value)} spellCheck={false} />
+      <textarea id={id} rows={2} maxLength={MAX} value={value} onChange={e => onChange(e.target.value)} spellCheck={false} />
       <p className="tf-count" aria-live="polite" data-over={cut > 0 || undefined}>
         {`${pieces.length} of ${CTX} tokens${cut > 0 ? `: the first ${cut} don’t fit, so the model never reads them` : ''}`}
       </p>
