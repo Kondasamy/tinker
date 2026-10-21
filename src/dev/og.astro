@@ -95,6 +95,9 @@ import { run as sbRun, type Run as SbRun, type Setup as SbSetup } from '../lib/s
 import { RECORDING as SB_RECORDING } from '../lib/sandboxing/turns';
 import { sandboxProps } from '../content/sandboxing/kit';
 import { SOLUTION as SB_SOLUTION } from '../content/sandboxing/07-red-team';
+import { SCAN_BOARD, scanScene, type ScanOpts } from '../components/scenes/scanScene';
+import { patchStill } from '../components/scenes/patchGrid';
+import { WINNERS as MM_WINNERS } from '../lib/multimodal/workbench';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -390,6 +393,21 @@ const GLASS_OG: Record<string, () => SandboxOpts> = {
   'sandboxing-07-red-team': () => sbAt({ case: 'exfil', sandbox: true, ...SB_SOLUTION }, sbBlocked),
 };
 const glassOg = GLASS_OG[page.og]?.();
+// module 16: the scanning table as each chapter reads. The intro: the invoice read by vision at 1,600 px; chapters 1 and 2:
+// the invoice still, cut into its patch grid at 1,600 px, then at 400 px (fewer patches); 3: the packing slip read
+// by OCR; 4: the invoice by OCR at 800 px; 5: the part photo; 6: the return label; 7: the slip as one winning plan reads it.
+const MM_W = MM_WINNERS[0].slip;
+const SCAN_OG: Record<string, ScanOpts> = {
+  multimodal: { image: 'invoice', size: 1600, method: 'vision' },
+  'multimodal-03-reading-a-scan': { image: 'slip', size: 1600, method: 'ocr' },
+  'multimodal-04-pulling-fields-out': { image: 'invoice', size: 800, method: 'ocr' },
+  'multimodal-05-photos-of-parts': { image: 'part-front', size: 1600, method: 'vision' },
+  'multimodal-06-when-pictures-mislead': { image: 'label', size: 1600, method: 'vision' },
+  'multimodal-07-workbench': { image: 'slip', size: MM_W.size, method: MM_W.method },
+};
+const scanOg = SCAN_OG[page.og];
+const PATCH_OG: Record<string, number> = { 'multimodal-01-a-picture-is-tokens': 1600, 'multimodal-02-size-and-detail': 400 };
+const patchSrc = PATCH_OG[page.og] && patchStill('invoice', PATCH_OG[page.og]).src;
 const curveOg = page.og === 'fine-tuning-02-what-training-does' ? lossChart({ series: FINETUNE_SERIES })
   : page.og === 'small-models-02-learning-from-a-teacher' ? lossChart({ series: STUDENT_SERIES }) : undefined;
 ---
@@ -427,6 +445,8 @@ const curveOg = page.og === 'fine-tuning-02-what-training-does' ? lossChart({ se
           : serveOgs ? <div class={serveOgs.length > 1 ? 'duo' : ''}>{serveOgs.map(o => <IsoStage board={SERVE_BOARD} scene={serveScene({ ...o, scale: 1.3 })} label="" />)}</div>
           : roomOg ? <IsoStage board={TRACE_BOARD} scene={traceScene({ ...roomOg, scale: 1.3 })} label="" />
           : glassOg ? <IsoStage board={SANDBOX_BOARD} scene={sandboxScene(glassOg)} label="" />
+          : scanOg ? <IsoStage board={SCAN_BOARD} scene={scanScene({ ...scanOg, scale: 1.3 })} label="" />
+          : patchSrc ? <div class="mm-og"><img src={patchSrc} alt="" /></div>
           : fallOg ? <div class="tf-og ob-og"><Waterfall trace={fallOg.trace} stamp={fallOg.stamp} /></div>
           : curveOg ? <div class="tf-og"><Flat fig={curveOg} role="img" label="" /></div>
           : page.og === 'fine-tuning-06-measure-before-you-train' ? <Grid cols={versionCols(VERSION_IDS)} />
@@ -467,6 +487,8 @@ const curveOg = page.og === 'fine-tuning-02-what-training-does' ? lossChart({ se
   .map-og :global(svg) { max-width: 440px; margin: 0 auto; }
   .map-og :global(.readout) { display: none; }   /* the pointer hint: no use on a still */
   .ob-og :global(.ob-readout) { display: none; }   /* the waterfall's keyboard hint: no use on a still */
+  .mm-og { display: flex; justify-content: center; }
+  .mm-og img { max-height: 520px; max-width: 100%; border: 2px solid var(--ink); border-radius: 6px; box-shadow: 5px 5px 0 var(--ink); }
   .tf-og :global(svg) { width: 100%; height: auto; max-height: 520px; }
   .map-og :global(.legend) { text-align: center; font-size: 18px; }   /* the capture is a still: no message mid-travel */
 </style>

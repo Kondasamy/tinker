@@ -3,7 +3,7 @@
 // stage live in both tabs. Below 600px the phone versions show.
 import '../styles/tokens.css';
 import IsoStage from '../lib/iso/IsoStage';
-import { SCAN_BOARD, scanLabel, scanScene, type ScanOpts } from '../components/scenes/scanScene';
+import { SCAN_BOARD, scanLabel, scanPlot, scanScene, type ScanOpts } from '../components/scenes/scanScene';
 import { MultimodalStage, PatchView } from '../content/multimodal/kit';
 import { IMAGES, svgOf } from '../lib/multimodal/images';
 
@@ -46,6 +46,10 @@ const src = (id: string) => 'data:image/svg+xml;charset=utf-8,' + encodeURICompo
             <p>{scanLabel(o)}</p>
           </section>
         ))}
+        <section>
+          <h2>Hero plot</h2>
+          <IsoStage board={[0, 0, 60, 60]} scene={({ top }) => scanPlot(30, 30, top)} label="The home hero's multimodal plot" />
+        </section>
       </div>
       <h1>The Patches view at every size</h1>
       <div class="grid">

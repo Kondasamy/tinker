@@ -1,7 +1,7 @@
 // Module 16, Multimodal models: the intro, every chapter played by mouse and by keyboard only, its own progress key, the
 // predict lock in chapter 2, the Patches view's text alternative and size range by keyboard, the workbench's best plans,
-// "I'm not sure", reduced motion, the recap, axe and phone width. The go-live checks (kickers on home, share images, home's
-// card and Continue) are added when the module goes live.
+// "I'm not sure", reduced motion, the recap, axe and phone width; the go-live checks: Module 16 kickers and share images,
+// home's card and Continue.
 import { test, expect, type Page } from '@playwright/test';
 import { moduleOf } from '../../src/lib/modules';
 import { mmWalker } from './multimodal-flow';
@@ -36,6 +36,20 @@ test('the intro shows the level, the prerequisite, the author, the chapters and 
   await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toBeVisible();
   await expect(page.locator('.versus .reply')).toHaveCount(2);
   await axe(page);
+});
+
+test('Module 16 on the intro, the recap and home, with their own share images; home Continue resumes it', async ({ page }) => {
+  await page.goto('/multimodal/');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 16 · Multimodal');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/multimodal\.jpg$/);
+  await page.goto('/multimodal/recap/');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 16 · Recap');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/multimodal-recap\.jpg$/);
+  await page.goto('/');
+  await expect(page.locator('.module[data-module="multimodal"] h4 a')).toHaveAttribute('href', '/multimodal/');
+  await page.evaluate(() => { localStorage.setItem('multimodal-progress-v1', JSON.stringify({ done: [], saved: {} })); localStorage.setItem('tinker-last-module', 'multimodal'); });
+  await page.reload();
+  await expect(page.locator('[data-continue]')).toHaveAttribute('href', /^\/multimodal\//);
 });
 
 test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({ page }) => {

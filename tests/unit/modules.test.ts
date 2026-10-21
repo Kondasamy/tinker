@@ -134,8 +134,14 @@ describe('module registry', () => {
   it('has sandboxing as a live Advanced module that recommends Agents and Guardrails first, numbered 15 after observability', () => {
     expect(moduleOf('sandboxing')).toMatchObject({ title: 'Agent sandboxing', level: 'Advanced', status: 'live', prereqs: ['agents', 'guardrails'] });
     expect(moduleOf('sandboxing').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').map(m => m.id)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs', 'reasoning', 'small-models', 'inference', 'observability', 'sandboxing']);
-    expect(MODULES.filter(m => m.status === 'planned').map(m => m.id)).toEqual(['multimodal', 'voice']);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id).slice(0, 15)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs', 'reasoning', 'small-models', 'inference', 'observability', 'sandboxing']);
+  });
+
+  it('has multimodal as a live Intermediate module that recommends Tokens first, numbered 16 after sandboxing', () => {
+    expect(moduleOf('multimodal')).toMatchObject({ title: 'Multimodal models', level: 'Intermediate', status: 'live', prereqs: ['tokens'] });
+    expect(moduleOf('multimodal').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs', 'reasoning', 'small-models', 'inference', 'observability', 'sandboxing', 'multimodal']);
+    expect(MODULES.filter(m => m.status === 'planned').map(m => m.id)).toEqual(['voice']);
   });
 
   it('keeps chapter ids unique within every module', () => {
