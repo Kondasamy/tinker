@@ -41,21 +41,21 @@ export const tokensWord = (n: number) => `${n} token${n === 1 ? '' : 's'}`;
 const pill = (p: number[], dx: number, dy: number, text: string, lit: boolean, scale: number) =>
   `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text), lit, scale)}</g>`;
 /** One token tile lying on its back, centred at (x, y), standing on height z. */
-const tile = (i: number, x: number, z: number) =>
-  `<g class="tile">${box(x - 4.5, Y - 4.5, z, x + 4.5, Y + 4.5, z + 4, PALS[TILE_COLOURS[i % TILE_COLOURS.length]], toneI, .9)}</g>`;
+const tile = (i: number, x: number, z: number, y = Y) =>
+  `<g class="tile">${box(x - 4.5, y - 4.5, z, x + 4.5, y + 4.5, z + 4, PALS[TILE_COLOURS[i % TILE_COLOURS.length]], toneI, .9)}</g>`;
 
 /** The press: a dark bed the strip runs onto, two posts, a red crossbar and a steel head that comes down to cut. The
  * back post goes first and the front post last, so the head and a falling tile sit between them. */
-function press(cutting: boolean, fed: boolean, falling: number | null) {
-  const x = PRESS, z0 = BH + 4, top = BH + 40, head = cutting ? z0 + 10 : z0 + 22;
-  let s = box(x - 7, Y - 14, z0, x + 7, Y - 9, top, METAL, toneI, 1);
-  s += box(x - 14, Y - 14, BH, x + 14, Y + 14, z0, DARK, toneI, 1);
-  if (fed) s += shape([[x - 14, Y - 6, z0 + .05], [x - 2, Y - 6, z0 + .05], [x - 2, Y + 6, z0 + .05], [x - 14, Y + 6, z0 + .05]], CERAMIC.l, .7);
-  if (falling !== null) s += tile(falling, x + 9, z0 + 3);
-  s += rod([x, Y, top], [x, Y, head + 8], 1.6, METAL) + box(x - 6, Y - 7, head, x + 6, Y + 7, head + 8, METAL, toneI, 1);
-  s += box(x - 8, Y - 15, top, x + 8, Y + 15, top + 6, PALS.tomato, toneI, 1);
-  s += box(x - 7, Y + 9, z0, x + 7, Y + 14, top, METAL, toneI, 1);
-  return `<g data-prop="press" data-idle="${cutting ? 0 : 1}">${s + hullInk(boxCorners(x - 14, Y - 15, BH, x + 14, Y + 15, top + 6), 2.2)}</g>`;
+function press(cutting: boolean, fed: boolean, falling: number | null, x = PRESS, y = Y, h = 40) {
+  const z0 = BH + 4, top = BH + h, head = cutting ? z0 + 10 : z0 + 22;
+  let s = box(x - 7, y - 14, z0, x + 7, y - 9, top, METAL, toneI, 1);
+  s += box(x - 14, y - 14, BH, x + 14, y + 14, z0, DARK, toneI, 1);
+  if (fed) s += shape([[x - 14, y - 6, z0 + .05], [x - 2, y - 6, z0 + .05], [x - 2, y + 6, z0 + .05], [x - 14, y + 6, z0 + .05]], CERAMIC.l, .7);
+  if (falling !== null) s += tile(falling, x + 9, z0 + 3, y);
+  s += rod([x, y, top], [x, y, head + 8], 1.6, METAL) + box(x - 6, y - 7, head, x + 6, y + 7, head + 8, METAL, toneI, 1);
+  s += box(x - 8, y - 15, top, x + 8, y + 15, top + 6, PALS.tomato, toneI, 1);
+  s += box(x - 7, y + 9, z0, x + 7, y + 14, top, METAL, toneI, 1);
+  return `<g data-prop="press" data-idle="${cutting ? 0 : 1}">${s + hullInk(boxCorners(x - 14, y - 15, BH, x + 14, y + 15, top + 6), 2.2)}</g>`;
 }
 
 /** The paper strip on the board, running into the press; tick marks across it where a cut could fall. */
@@ -89,3 +89,10 @@ export function tokenLabel(o: TokenOpts): string {
   return `A token press on a workshop board: a paper strip with the text “${o.text}” feeds the press, which cuts it into `
     + `${tokensWord(st.tokens)}; the tiles drop onto a belt${st.more ? ` (the first ${st.shown} shown)` : ''}.`;
 }
+
+/** The home hero's plot (heroScene): a squat press at (x, y), cutting, and three tiles it has dropped in a row in front of it.
+ * Squat so the pill rows stacked above the hero's plots leave it in view. */
+export const pressPlot = (x: number, y: number, top: SceneCtx['top']) =>
+  castShadow(boxCorners(x - 14, y - 15, BH, x + 14, y + 15, BH + 30), BH, top)
+  + byDepth([{ at: [x, y, 0], svg: press(true, false, null, x, y, 24) },
+    ...[0, 1, 2].map(i => ({ at: [x + 8 - i * 11, y + 20, 1], svg: tile(i, x + 8 - i * 11, BH + .3, y + 20) }))]);
