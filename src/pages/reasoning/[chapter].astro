@@ -1,0 +1,29 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import AnswerNowOrThinkFirst from '../../content/reasoning/01-answer-now-or-think-first';
+import ThinkingIsTokens from '../../content/reasoning/02-thinking-is-tokens';
+import TheEffortDial from '../../content/reasoning/03-the-effort-dial';
+import WhenMoreThinkingHurts from '../../content/reasoning/04-when-more-thinking-hurts';
+import EffortIsAHint from '../../content/reasoning/05-effort-is-a-hint';
+import MeasureThenPick from '../../content/reasoning/06-measure-then-pick';
+import Workbench from '../../content/reasoning/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('reasoning').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="reasoning" chapter={chapter} title={title}>
+  {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
+      hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
+  {chapter === '01-answer-now-or-think-first' ? <AnswerNowOrThinkFirst client:load />
+    : chapter === '02-thinking-is-tokens' ? <ThinkingIsTokens client:load />
+    : chapter === '03-the-effort-dial' ? <TheEffortDial client:load />
+    : chapter === '04-when-more-thinking-hurts' ? <WhenMoreThinkingHurts client:load />
+    : chapter === '05-effort-is-a-hint' ? <EffortIsAHint client:load />
+    : chapter === '06-measure-then-pick' ? <MeasureThenPick client:load />
+    : <Workbench client:load />}
+</ChapterLayout>

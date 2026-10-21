@@ -33,6 +33,12 @@ import { WINDOW_BOARD, windowScene, windowLabel } from '../components/scenes/win
 import { run as contextRun } from '../lib/context/loop';
 import { RECORDING as CONTEXT_RECORDING } from '../lib/context/turns';
 import { TRAIN_BOARD, trainScene, trainLabel } from '../components/scenes/trainScene';
+import { STENCIL_BOARD, stencilScene, stencilLabel } from '../components/scenes/stencilScene';
+import { stencilAt } from '../content/structured-outputs/kit';
+import { play as stencilPlay, run as stencilRun } from '../lib/structured-outputs/prompts';
+import { THINK_BOARD, thinkScene, thinkLabel } from '../components/scenes/thinkScene';
+import { deskOf as thinkDeskOf } from '../content/reasoning/kit';
+import { run as reasoningRun, SPLIT } from '../lib/reasoning/engine';
 
 const one = (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) => ({ top }: SceneCtx) =>
   blockShadow(type, 30, 30, top) + renderers[type]({ x: 30, y: 30, ...opts });
@@ -70,6 +76,11 @@ const ROOM = { tokens: READ.tokens.map(t => t.text), attention: READ.attention, 
 const DESK = { run: contextRun(CONTEXT_RECORDING, { sessions: [['refund-window', 'free-shipping', 'sensor-warranty']], tools: true, retrieval: 'stuff' }), shelf: true, scale: 1.7 };
 // the training bench with the weights lever pulled and the LoRA adapter clipped on
 const BENCH9 = { lit: 'weights', weights: 'lora', scale: 1.7 } as const;
+// the stencil press on "Where is order 1042?", at the first step where the schema blocks the model's own choice
+const MASKED_RUN = stencilRun('mask'), MASKED = stencilPlay(diskModel(), MASKED_RUN).decoded;
+const STENCIL = { ...stencilAt(MASKED_RUN.prompt, MASKED, MASKED.steps.findIndex(s => !s.allowed.includes(s.free.id)), true), scale: 1.7 };
+// the scratchpad desk at medium effort on the split-order quote, its pad of thinking papers beside the model
+const THINK = { ...thinkDeskOf(reasoningRun(SPLIT, 'medium')), scale: 1.7 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: { name: 'Retrieval-Augmented Generation (RAG)', iso: { board: MINI_BOARD, scene: miniPipeline, label: MINI_LABEL }, topics: ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'Reranking', 'Agentic RAG', 'GraphRAG'] },
   'tool-calling': { name: 'Tool calling & the Model Context Protocol (MCP)', iso: { board: OFFICE_BOARD, scene: officeScene(OFFICE), label: officeLabel(OFFICE) }, topics: ['Tool definitions', 'JSON Schema', 'Multi-step calls', 'MCP hosts & servers', 'Tools, resources, prompts', 'Approval', 'Prompt injection'] },
@@ -80,6 +91,8 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   transformers: { name: 'Transformer architecture', iso: { board: ENGINE_BOARD, scene: engineScene(ROOM), label: engineLabel(ROOM) }, topics: ['Next-token prediction', 'Embeddings & position', 'Attention', 'The causal mask', 'Heads & layers', 'Temperature & top-p', 'The KV cache'] },
   context: { name: 'Context engineering & memory', iso: { board: WINDOW_BOARD, scene: windowScene(DESK), label: windowLabel(DESK) }, topics: ['The context window', 'Lost in the middle', 'Just-in-time retrieval', 'Prompt caching', 'Clearing tool results', 'Memory files', 'Context policy'] },
   'fine-tuning': { name: 'Fine-tuning vs prompting', iso: { board: TRAIN_BOARD, scene: trainScene(BENCH9), label: trainLabel(BENCH9) }, topics: ['Prompt, documents or weights', 'Training & loss', 'LoRA adapters', 'Facts vs style', 'Forgetting & cost', 'Evals before training', 'Choosing an approach'] },
+  'structured-outputs': { name: 'Structured outputs', iso: { board: STENCIL_BOARD, scene: stencilScene(STENCIL), label: stencilLabel(STENCIL) }, topics: ['JSON mode vs schemas', 'Constrained decoding', 'The token mask', 'Tokens vs characters', 'Enums', 'Valid isn’t right', 'Schema design'] },
+  reasoning: { name: 'Reasoning models & thinking budgets', iso: { board: THINK_BOARD, scene: thinkScene(THINK), label: thinkLabel(THINK) }, topics: ['Thinking before answering', 'Thinking tokens', 'Effort levels', 'Overthinking', 'Adaptive thinking', 'Accuracy vs cost', 'Choosing an effort'] },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];
 const LIVE = MODULES.filter(m => m.status === 'live');

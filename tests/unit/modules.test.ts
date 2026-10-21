@@ -98,7 +98,19 @@ describe('module registry', () => {
   it('has fine-tuning as a live Advanced module that recommends Evals and Transformers first, numbered 9 after context', () => {
     expect(moduleOf('fine-tuning')).toMatchObject({ title: 'Fine-tuning vs prompting', level: 'Advanced', status: 'live', prereqs: ['evals', 'transformers'] });
     expect(moduleOf('fine-tuning').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').map(m => m.id)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning']);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id).slice(0, 9)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning']);
+  });
+
+  it('has structured-outputs as a live Intermediate module that recommends Tool calling and Tokens first, numbered 10 after fine-tuning', () => {
+    expect(moduleOf('structured-outputs')).toMatchObject({ title: 'Structured outputs', level: 'Intermediate', status: 'live', prereqs: ['tool-calling', 'tokens'] });
+    expect(moduleOf('structured-outputs').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id).slice(0, 10)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs']);
+  });
+
+  it('has reasoning as a live Intermediate module that recommends Evals first, numbered 11 after structured-outputs', () => {
+    expect(moduleOf('reasoning')).toMatchObject({ title: 'Reasoning models & thinking budgets', level: 'Intermediate', status: 'live', prereqs: ['evals'] });
+    expect(moduleOf('reasoning').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs', 'reasoning']);
   });
 
   it('keeps chapter ids unique within every module', () => {
