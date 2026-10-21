@@ -6,7 +6,7 @@ import { evaluate } from '../../src/lib/lm/model';
 import { parseAdapter, parseModel, type Meta } from '../../src/lib/lm/load';
 import { gateVersion, gradeVersion, HELDOUT, heldoutScore, QUESTION_IDS, VERSION_IDS } from '../../src/lib/fine-tuning/engine';
 import { BEST, KINDS, NOTES, PLANS, QUALITY, WINNERS, solved, totals, type Plan } from '../../src/lib/fine-tuning/workbench';
-import { forgetOutcome } from '../../src/content/fine-tuning/05-what-training-costs';
+import { forgetOutcome, P1 as FORGET, STEPS as CH5 } from '../../src/content/fine-tuning/05-what-training-costs';
 import { GATE, gateOutcome } from '../../src/content/fine-tuning/06-measure-before-you-train';
 import { START, STEPS, planOf } from '../../src/content/fine-tuning/07-larkspurs-decision';
 import IDS from '../../data/lm/ids.json' with { type: 'json' };
@@ -31,6 +31,15 @@ describe('chapter 5: forgetting, scored live', () => {
     expect((f - b).toFixed(2)).toBe('1.24');
     expect((l - b).toFixed(2)).toBe('0.63');
     expect([forgetOutcome(4, 4.5, 5), forgetOutcome(4, 3.9, 4)]).toEqual([1, 2]);
+  });
+  it('asks which rises more, so the computed outcome is the only true option', () => {
+    const [b, f, l] = [base, full, lora].map(m => heldoutScore(m).loss);
+    expect(FORGET.question).toMatch(/Which one’s held-out loss rises more over the base model\?$/);
+    expect(FORGET.options[forgetOutcome(b, f, l)]).toMatch(/^The full fine-tune/);
+    expect(FORGET.options[2]).toMatch(/^Neither: neither one gets worse/);
+    // both rise, and the narration after the reveal says so
+    expect(f > b && l > b).toBe(true);
+    expect(CH5.find(s => s.id === 'quiz')!.narration).toMatch(/^Both fine-tunes predict/);
   });
 });
 

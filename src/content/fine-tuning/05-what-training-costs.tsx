@@ -32,12 +32,12 @@ const signed = (x: number) => `${x >= 0 ? '+' : '−'}${loss(Math.abs(x))}`;
 
 interface S { base: boolean; p1: number | null; scored: boolean; view: View; quiz: number | null }
 
-const P1 = {
-  question: `Both fine-tunes trained on the same ${EXAMPLES} replies and never saw these documents. Score them on the same held-out text. Which one does worse than the base model?`,
+export const P1 = {
+  question: `Both fine-tunes trained on the same ${EXAMPLES} replies and never saw these documents. Score them on the same held-out text. Which one’s held-out loss rises more over the base model?`,
   options: [
     'The full fine-tune: it changed every weight',
     'The adapter: its few weights had to change more',
-    'Neither: the style set never touched these documents',
+    'Neither: neither one gets worse; the style set never touched these documents',
   ],
 };
 /** read off the three live losses: which fine-tune's held-out loss rose most over the base, if any rose */
@@ -82,7 +82,7 @@ export const STEPS: Step<S>[] = [
   },
   {
     id: 'quiz', focus: 'quiz', visibleControls: ['scores', 'facts', 'quiz'],
-    narration: `Both fine-tunes predict Larkspur’s own documents worse than before: training on ${EXAMPLES} replies pulled the weights away from what they knew. That is forgetting. The adapter changed less and lost less. These numbers come from Larkspur mini, a tiny model, not from any provider; on real models researchers report the same trade, cited below. One question to finish.`,
+    narration: `Both fine-tunes predict Larkspur’s own documents worse than before, the full one by more: training on ${EXAMPLES} replies pulled the weights away from what they knew. That is forgetting. The adapter changed less and lost less. These numbers come from Larkspur mini, a tiny model, not from any provider; on real models researchers report the same trade, cited below. One question to finish.`,
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which choice measures the trade before committing to it?',
   },
