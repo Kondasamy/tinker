@@ -6,6 +6,7 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { VOCAB_SIZE } from '../../lib/lm/bpe';
+import { BYTE_TOKENS } from '../../lib/lm/bpe-train.ts';
 import { FIRST, PARAGRAPH, TRACE, commonestAt, encodingOfIds, idsAt, pairLabel, shownPiece } from '../../lib/tokens/merges';
 import { fact } from '../../lib/tokens/facts';
 import { nextOf } from '../../lib/modules';
@@ -46,12 +47,12 @@ const QUIZ = {
 export const STEPS: Step<S>[] = [
   {
     id: 'bytes', focus: 'start', visibleControls: ['start'],
-    narration: `Here is the first paragraph of Larkspur’s company overview: “${PARAGRAPH}” A byte-level tokenizer starts from single bytes: its first 256 tokens are one per byte, so it can read any text in any language. Cut the paragraph into bytes.`,
+    narration: `Here is the first paragraph of Larkspur’s company overview: “${PARAGRAPH}” A byte-level tokenizer starts from single bytes: its first ${BYTE_TOKENS} tokens are one per byte, so it can read any text in any language. Cut the paragraph into bytes.`,
     predicate: s => s.started,
   },
   {
     id: 'predict', focus: 'p1', visibleControls: ['p1'],
-    narration: `${BYTES} bytes, ${BYTES} tokens. Training read all of Larkspur’s documents, found the pair of tokens that sat side by side most often, glued it into one new token and wrote that down as a merge. Then it did it again, until it had ${VOCAB_SIZE - 256} merges. To cut new text, the tokenizer replays those merges in the order they were learned. Before you press anything:`,
+    narration: `${BYTES} bytes, ${BYTES} tokens. Training read all of Larkspur’s documents, found the pair of tokens that sat side by side most often, glued it into one new token and wrote that down as a merge. Then it did it again, until it had ${VOCAB_SIZE - BYTE_TOKENS} merges. To cut new text, the tokenizer replays those merges in the order they were learned. Before you press anything:`,
     predicate: s => s.p1 !== null,
   },
   {

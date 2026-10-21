@@ -3,6 +3,8 @@
 /** GPT-2's pre-tokenisation: merges never cross these chunks, so " hello" keeps its space. */
 export const SPLIT = /'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+/gu;
 export const N_MERGES = 512;
+/** The byte alphabet: ids 0-255 are single bytes, so merge i makes token BYTE_TOKENS + i. */
+export const BYTE_TOKENS = 256;
 
 export type Merge = [number, number];
 
@@ -15,7 +17,7 @@ export function mergePair(ids: number[], a: number, b: number, id: number): numb
   return out;
 }
 
-/** Learns nMerges merges; merge i makes token 256 + i. Ties go to the lowest pair, so every run is identical. */
+/** Learns nMerges merges; merge i makes token BYTE_TOKENS + i. Ties go to the lowest pair, so every run is identical. */
 export function train(text: string, nMerges: number): Merge[] {
   const freq = new Map<string, number>();
   for (const w of text.match(SPLIT) ?? []) freq.set(w, (freq.get(w) ?? 0) + 1);
@@ -35,7 +37,7 @@ export function train(text: string, nMerges: number): Merge[] {
     if (best < 0) break;
     const a = Math.floor(best / 65536), b = best % 65536;
     merges.push([a, b]);
-    for (const w of words) w.ids = mergePair(w.ids, a, b, 256 + m);
+    for (const w of words) w.ids = mergePair(w.ids, a, b, BYTE_TOKENS + m);
   }
   return merges;
 }

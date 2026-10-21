@@ -2,6 +2,7 @@
 // the chapter's idea in a new situation. Every wrong option is a real misconception, and every option has a `why` line.
 import type { RecallItem } from '../../lib/recall';
 import { fact } from '../../lib/tokens/facts';
+import { BYTE_TOKENS } from '../../lib/lm/bpe-train.ts';
 
 export const RECALL: RecallItem[] = [
   // 1. What the model reads
@@ -86,7 +87,7 @@ export const RECALL: RecallItem[] = [
     correct: 1,
     why: [
       'Nothing is dropped: every byte is already in the vocabulary, so every text can be cut.',
-      'Right. The first 256 tokens are single bytes. Text no merge covers stays as bytes: more tokens, but never unreadable.',
+      `Right. The first ${BYTE_TOKENS} tokens are single bytes. Text no merge covers stays as bytes: more tokens, but never unreadable.`,
       'A byte-level tokenizer can cut any text, so there is nothing for it to fail on.',
       'The bytes are kept exactly, so the text decodes back to the same emoji.',
     ],
