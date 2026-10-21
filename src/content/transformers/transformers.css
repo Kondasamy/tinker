@@ -1,0 +1,33 @@
+/* Transformers stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
+   tool-calling/kit). These are the loading pill and error card over the frame, the Attention tab and the prompt box. */
+.tf-frame { position: relative; }
+/* while Larkspur mini loads the drawing stays (the frame keeps its size); the pill or the error card sits over it */
+.tc-frame > .tf-wait { position: absolute; inset: 0; margin: auto; width: max-content; height: max-content; flex: none;
+  display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 10px 14px;
+  border: 1.5px solid var(--ink); border-radius: 12px; background: var(--card); font-size: 14px; }
+.tf-wait p { margin: 0; }
+.tc-frame > .tf-pill { border-radius: 999px; padding: 4px 14px; font: 800 12px ui-monospace, Menlo, monospace; letter-spacing: .06em; text-transform: uppercase; }
+.tf-stage[data-model="loading"] .tc-frame svg, .tf-stage[data-model="failed"] .tc-frame svg { opacity: .55; }
+
+/* the Attention tab: the heatmap scrolls inside its own frame; the bar and the read-outs sit under it */
+.tc-frame .tf-attn { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
+.tf-attn svg { display: block; height: auto; flex: none; }
+.tc-frame .tf-attn svg { max-width: 100%; height: auto; flex: none; }
+.tf-scroll { overflow: auto; flex: none; }
+.tc-frame .tf-scroll svg { max-width: none; }
+.tf-attn [role="gridcell"]:focus, .tf-attn [role="listitem"]:focus { outline: none; }
+.tf-attn svg:focus-within { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 6px; }
+.tf-readout { margin: 0; font: 700 13px ui-monospace, Menlo, monospace; min-height: 1.4em; }
+.tf-sub { margin: 4px 0 0; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tf-key { margin: 0; padding-left: 2.4em; font: 700 12.5px ui-monospace, Menlo, monospace; columns: 2; }
+
+/* the prompt box: the count and the pieces as tiles; pieces past the context struck through */
+.tf-prompt { display: flex; flex-direction: column; gap: 6px; }
+.tf-prompt label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tf-prompt textarea { font: 15px ui-monospace, Menlo, monospace; padding: 6px 8px; border: 1.5px solid var(--ink); border-radius: 8px; background: var(--card); resize: vertical; }
+.tf-count { margin: 0; font-size: 13px; font-weight: 700; }
+.tf-count[data-over] { color: var(--bad); }
+.tf-tiles { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+.tf-tiles li { font: 700 12.5px ui-monospace, Menlo, monospace; padding: 1px 6px; border: 1.5px solid var(--ink); border-radius: 5px; background: var(--card); white-space: pre; }
+.tf-tiles .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.tf-tiles li.past { border-style: dashed; color: var(--muted); background: transparent; }
