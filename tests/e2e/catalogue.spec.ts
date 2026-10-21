@@ -61,6 +61,20 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
   await expect(page.locator('[data-level="Advanced"] .module[data-module="voice"] h4 a')).toHaveAttribute('href', '/voice/');
 });
 
+// U35: every module is live, so the roadmap is empty again: seventeen numbered cards, no roadmap card, an invitation to propose
+test('the roadmap is empty: seventeen live cards numbered 1–17, no roadmap cards, Room for more', async ({ page }) => {
+  await page.goto('/');
+  expect(MODULES.map(m => m.id)).toEqual(NUMBERED);
+  await expect(catalogue(page).locator('.module')).toHaveCount(17);
+  await expect(catalogue(page).locator('.roadmap')).toHaveCount(0);
+  const nums = await catalogue(page).locator('.module .kicker').evaluateAll(els => els.map(e => Number(/^Module (\d+) · /.exec(e.textContent ?? '')?.[1])));
+  expect(nums.sort((a, b) => a - b)).toEqual(Array.from({ length: 17 }, (_, i) => i + 1));
+  await expect(page.locator('.hero-pic .hero-soon')).toHaveCount(0);
+  await expect(page.locator('.hero-pic figcaption')).toContainText('Room for more:');
+  await expect(page.locator('.hero-pic figcaption a')).toHaveText('propose one');
+  await expect(page.locator('.hero-pic figcaption a')).toHaveAttribute('href', CONTRIBUTING);
+});
+
 // the wave hops plot i at i × 0.8 s; sampled mid-turn, only that plot's pill shows, and with reduced motion every pill shows
 test('the hero wave shows one pill at a time, each on its own turn', async ({ page }) => {
   await page.goto('/');

@@ -482,7 +482,7 @@ No monitoring is needed, because there is no backend.
 
 ## Contributing
 
-Sixteen modules are live and one more is on the roadmap (the planned card on the home page): build it, or propose another. New modules and fixes arrive as pull requests to this repository. Start with [CONTRIBUTING.md](CONTRIBUTING.md) (setup, checks, the PR flow, credit) and [docs/writing-a-module.md](docs/writing-a-module.md) (the house style for a module). `pnpm new-module <id> "<Title>"` scaffolds a module, and `pnpm test` lists what it still needs.
+All seventeen modules are live, and there is room for more: propose one. New modules and fixes arrive as pull requests to this repository. Start with [CONTRIBUTING.md](CONTRIBUTING.md) (setup, checks, the PR flow, credit) and [docs/writing-a-module.md](docs/writing-a-module.md) (the house style for a module). `pnpm new-module <id> "<Title>"` scaffolds a module, and `pnpm test` lists what it still needs.
 
 ---
 
