@@ -1,0 +1,16 @@
+{
+  "accessed": "2026-10-21",
+  "facts": [
+    { "id": "openai-vad-modes", "claim": "OpenAI’s Realtime API offers server VAD, which splits the audio into turns on periods of silence, and semantic VAD, which uses a classifier to judge from the words whether the user has finished speaking.", "source": "https://developers.openai.com/api/docs/guides/realtime-vad" },
+    { "id": "openai-vad-settings", "claim": "OpenAI’s server VAD takes a threshold (a higher one needs louder audio to count as speech, which can help in noisy places) and silence_duration_ms, how long the silence must last before the turn ends.", "source": "https://developers.openai.com/api/docs/guides/realtime-vad" },
+    { "id": "openai-vad-default", "claim": "Server VAD is the default turn detection in OpenAI’s speech-to-speech sessions, and it can be turned off.", "source": "https://developers.openai.com/api/docs/guides/realtime-vad" },
+    { "id": "openai-semantic-eagerness", "claim": "OpenAI’s semantic VAD has an eagerness setting: low lets the user take their time to speak, high ends the turn as soon as possible.", "source": "https://developers.openai.com/api/docs/guides/realtime-vad" },
+    { "id": "gemini-silence", "claim": "Gemini Live’s server waits through silence before ending a speech turn; its internal default is about 800 ms, and Google recommends 500 to 800 ms, warning that values too low can split one utterance into fragments.", "value": "800", "source": "https://ai.google.dev/gemini-api/docs/live-guide" },
+    { "id": "gemini-interrupt", "claim": "When Gemini Live detects an interruption, the reply it was generating is cancelled and discarded, and only what was already sent to the client is kept in the session history.", "source": "https://ai.google.dev/gemini-api/docs/live-guide" },
+    { "id": "gemini-transcripts", "claim": "Gemini Live can return text transcriptions of both the audio coming in and the audio going out, alongside the model’s reply.", "source": "https://ai.google.dev/gemini-api/docs/live-guide" },
+    { "id": "gemini-audio", "claim": "Gemini Live takes raw 16-bit PCM audio at 16 kHz and sends back raw 16-bit PCM audio at 24 kHz.", "source": "https://ai.google.dev/gemini-api/docs/live-api" },
+    { "id": "openai-s2s", "claim": "OpenAI describes speech-to-speech as one model that interprets audio, decides what to do and responds in speech, with the session handling audio turns, tools and interruptions.", "source": "https://developers.openai.com/api/docs/guides/voice-agents" },
+    { "id": "openai-chained", "claim": "OpenAI suggests the chained path (speech-to-text, a text agent, text-to-speech) when each stage needs to be visible or replaceable: you can store the transcript and run policy checks before the agent responds.", "source": "https://developers.openai.com/api/docs/guides/voice-agents" },
+    { "id": "stivers", "claim": "Stivers and colleagues (2009) timed replies in conversation across 10 languages: in every one, the most common gap before a reply was between 0 and 200 ms, and the mean over all of them was 208 ms.", "value": "208", "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2705608/" }
+  ]
+}

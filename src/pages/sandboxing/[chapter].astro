@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import WhereItRuns from '../../content/sandboxing/01-where-it-runs';
+import FilesChapter from '../../content/sandboxing/02-files';
+import NetworkChapter from '../../content/sandboxing/03-network';
+import SecretsChapter from '../../content/sandboxing/04-secrets';
+import AllowedDoorChapter from '../../content/sandboxing/05-allowed-door';
+import FewerPromptsChapter from '../../content/sandboxing/06-fewer-prompts';
+import RedTeam from '../../content/sandboxing/07-red-team';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('sandboxing').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="sandboxing" chapter={chapter} title={title}>
+  {/* One line per chapter; hydration needs each island as a static import (KTD2). */}
+  {chapter === '01-where-it-runs' ? <WhereItRuns client:load />
+    : chapter === '02-files' ? <FilesChapter client:load />
+    : chapter === '03-network' ? <NetworkChapter client:load />
+    : chapter === '04-secrets' ? <SecretsChapter client:load />
+    : chapter === '05-allowed-door' ? <AllowedDoorChapter client:load />
+    : chapter === '06-fewer-prompts' ? <FewerPromptsChapter client:load />
+    : <RedTeam client:load />}
+</ChapterLayout>

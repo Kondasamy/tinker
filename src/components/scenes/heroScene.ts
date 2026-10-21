@@ -13,13 +13,22 @@ import { pressPlot } from './tokenScene';
 import { enginePlot } from './engineScene';
 import { deskPlot } from './windowScene';
 import { benchPlot } from './trainScene';
+import { stencilPlot } from './stencilScene';
+import { deskPadPlot } from './thinkScene';
+import { apprenticePlot } from './routerScene';
+import { servePlot } from './serveScene';
+import { controlRoomPlot } from './traceScene';
+import { glassRoomPlot } from './sandboxScene';
+import { scanPlot } from './scanScene';
+import { phonePlot } from './phoneScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
 
 // the back office at the back; RAG along the front-left edge; plots in the ground the two leave empty
 const RAG_Y = 294, RAG_X = [44, 112, 180];
-const COLUMN = 5, STEP = 46;
+// STEP is a little more than two pill heights apart on screen, so pills down a column or a diagonal never touch
+const COLUMN = 5, STEP = 50;
 /** slot i's centre: down the column left of the back office, then two to a row right of RAG, row by row to the front */
 const slotXY = (i: number): [number, number] => i < COLUMN ? [44, 30 + STEP * i] : [248 + 58 * ((i - COLUMN) % 2), 292 + STEP * Math.floor((i - COLUMN) / 2)];
 /** slot i's mat on the board, [x0, y0, x1, y1] */
@@ -75,17 +84,27 @@ export const heroScene = ({ live, planned, ride }: { live: HeroPlot[]; planned: 
   const pill = (p: number[], text: string, onn: boolean, dy = -20, dx = 0) => `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text.toUpperCase()), onn, scale)}</g>`;
   // a pill floats above its plot's centre: on the home page only one shows at a time, so they never crowd
   const at = (i: number) => { const [x, y] = slotXY(i); return [x + 4, y, BH + 15]; };
+  // a row's left-hand pill floats higher: its right-hand neighbour and the next row's left-hand one sit at about its
+  // height on screen, and all show at once with reduced motion and in the share image
+  const lift = (i: number) => i >= COLUMN && (i - COLUMN) % 2 === 0 ? -21 : 0;
   return s + hop(0, pill([RAG_X[1], RAG_Y, BH + 34], live[0].name, false, -18)) + hop(1, pill([142, 134, BH + 34], live[1].name, false, -22))
-    + later.map((m, i) => hop(i + 2, pill(at(i), m.name, false, -24))).join('')
+    + later.map((m, i) => hop(i + 2, pill(at(i), m.name, false, -24 + lift(i)))).join('')
     // planned pills sit out the wave (its timing is per live plot): the animated home hides them, still pictures show them all
-    + planned.map((m, j) => `<g class="hero-soon">${pill(at(later.length + j), m.name, false, -24)}</g>`).join('');
+    + planned.map((m, j) => `<g class="hero-soon">${pill(at(later.length + j), m.name, false, -24 + lift(later.length + j))}</g>`).join('');
 };
 
 /** later live modules' plots, by module id: agents is a small desk with its plan on a clipboard; evals a stack of graded test cards and a stamp;
  * guardrails an inbox tray, a screening arch and a post box (the mail room's way in, its check and its way out); tokens the token press
  * with the tiles it has cut; transformers a small engine room, a head's desk lit and a thread of attention over three tiles; context
  * a small desk with the window on it, a glass case of stacked papers; fine-tuning a small training bench, the model with its adapter
- * clipped on and the weights lever pulled */
+ * clipped on and the weights lever pulled; structured outputs a small press, its belt crossing a blue schema plate, a tomato tile
+ * stopped before the plate and two tiles past it; reasoning a small scratchpad desk, a squat model, a pad of thinking papers
+ * and a small effort dial; small models a small apprentice's bench, a model block, a squat student in front of it and
+ * the router's plate, its lever leaning toward the student; inference a small server rack, three of its four seats lit, beside a
+ * short queue belt with two envelopes waiting; observability a short wall of three trace cards, one failed, over a sorting bin;
+ * sandboxing a small walled yard, the agent's desk inside and a gated door in its front wall; multimodal a small scanning
+ * table, a sheet with its patch grid under a camera post and three token tiles; voice a small phone desk, a squat telephone
+ * and a mint ear drum on a short belt */
 const DRAW: Record<string, HeroPlot['draw']> = {
   // at the plot's right-hand corner, clear of the pill row
   agents: (x, y, { top }) => castShadow(boxCorners(x + 9, y - 21, BH, x + 27, y - 7, BH + 17), BH, top)
@@ -100,6 +119,14 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   transformers: (x, y, { top }) => enginePlot(x + 14, y - 4, top),
   context: (x, y, { top }) => deskPlot(x + 14, y - 4, top),
   'fine-tuning': (x, y, { top }) => benchPlot(x + 14, y - 4, top),
+  'structured-outputs': (x, y, { top }) => stencilPlot(x, y - 4, top),
+  reasoning: (x, y, { top }) => deskPadPlot(x + 14, y - 4, top),
+  'small-models': (x, y, { top }) => apprenticePlot(x + 14, y - 4, top),
+  inference: (x, y, { top }) => servePlot(x + 14, y - 4, top),
+  observability: (x, y, { top }) => controlRoomPlot(x + 14, y - 2, top),
+  sandboxing: (x, y, { top }) => glassRoomPlot(x + 8, y - 2, top),
+  multimodal: (x, y, { top }) => scanPlot(x + 14, y - 2, top),
+  voice: (x, y, { top }) => phonePlot(x + 14, y - 2, top),
 };
 const LIVE = MODULES.filter(m => m.status === 'live'), PLANNED = MODULES.filter(m => m.status === 'planned');
 /** the home page's share image, from the registry: the model's call riding to the host */
@@ -108,4 +135,8 @@ export const HOME_HERO = heroScene({ live: LIVE.map(m => ({ name: m.id.replace(/
 /** the hero's accessible label: building sites are named only while some module is planned */
 export const heroLabel = (live: string[], planned: string[]) =>
   `Tinker as one workshop with a plot per module: ${live.join(' and ')}, live${planned.length ? `, and building sites for ${planned.join(', ')}` : ''}.`;
+/** the live modules (in registry order) whose plot has no drawing: RAG's and tool calling's are drawn by heroScene itself */
+export const undrawn = (live: string[]) => live.slice(2).filter(id => !DRAW[id]);
+/** the hero's caption: an invitation to build while a plot is open, to propose once none is */
+export const heroCaption = (planned: boolean) => planned ? { text: 'The empty plots are open:', link: 'build one' } : { text: 'Room for more:', link: 'propose one' };
 export const HOME_HERO_LABEL = heroLabel(LIVE.map(m => m.title), PLANNED.map(m => m.title));

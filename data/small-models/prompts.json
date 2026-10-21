@@ -1,0 +1,8 @@
+{
+  "prompts": [
+    { "id": "reply", "text": "We reply within five business", "expected": " days" },
+    { "id": "returns", "text": "Our warehouse inspects returned items within five", "expected": " business" },
+    { "id": "billing", "text": "Questions go to the billing team through", "expected": " the" },
+    { "id": "success", "text": "Every enterprise account has a named customer success", "expected": " manager" }
+  ]
+}

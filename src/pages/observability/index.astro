@@ -1,0 +1,218 @@
+---
+// Observability module intro: sets the scene before chapter 1. Static, except the warm-up and a small script that marks
+// finished chapters. Every example is the module's own data: a failed trace with its first failure, the day's counts by
+// mode, and claims quoted from data/observability/facts.json.
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import '../../content/observability/observability.css';
+import Meta from '../../components/Meta.astro';
+import IsoStage from '../../lib/iso/IsoStage';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import { TRACE_BOARD, traceLabel, traceScene, type TraceOpts } from '../../components/scenes/traceScene';
+import { Waterfall, binsOf, wallOf } from '../../content/observability/kit';
+import { FAILED, MODE_IDS, TRACES, modeOf, replyOf, spanOf, traceOf } from '../../lib/observability/traces';
+import { DAY1_COUNTS, NEEDED_NOTES, TOP, mostFrequent } from '../../lib/observability/coding';
+import { ACCESSED, fact } from '../../lib/observability/facts';
+import { moduleOf, chapterHref } from '../../lib/modules';
+import { introMeta } from '../../lib/pages';
+import { longDate } from '../../lib/format';
+
+const MODULE = moduleOf('observability');
+const CHAPTERS = MODULE.chapters;
+const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
+const room = (o: TraceOpts): TraceOpts => ({ scale: 1.7, ...o });
+const HERO = room({ cards: wallOf(FAILED, FAILED[0].id), bins: binsOf(DAY1_COUNTS, TOP[0]) });
+// the whole idea: one failed trace, its reply, and the span where it first went wrong
+const BAD = traceOf('t23'), FIRST = spanOf(BAD, BAD.first!)!;
+const FREQ = mostFrequent(DAY1_COUNTS);
+const IDEAS: [string, string, ReturnType<typeof fact>, TraceOpts][] = [
+  ['Read the trace', 'Every step of one request, nested and timed', fact('otel-genai'), room({ cards: wallOf(TRACES, TRACES[0].id) })],
+  ['Note what went wrong', 'A free note per failed trace, at its first failure', fact('open-coding'), room({ cards: wallOf(FAILED, FAILED[3].id), board: `NOTED ${NEEDED_NOTES} OF ${FAILED.length}` })],
+  ['Group and count', 'Notes that share a cause become a failure mode', fact('axial-coding'), room({ cards: wallOf(FAILED), bins: binsOf(DAY1_COUNTS) })],
+  ['Fix what matters', 'How often, times how much harm', fact('error-analysis'), HERO],
+];
+const FACTS: [string, string][] = [
+  [String(TRACES.length), 'traces in Larkspur’s day, written by hand for this module'],
+  [String(FAILED.length), `of them failed, in ${MODE_IDS.length} modes`],
+  [fact('annotate-yourself').value!, 'traces to note yourself before you trust an AI’s suggestions'],
+  [fact('saturation').value!, 'traces or so in a working review pool'],
+];
+const checked = longDate(ACCESSED);
+---
+<html lang="en">
+  <head>
+    <Meta {...introMeta(MODULE.id)} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module 14 · Observability</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS.map((m, i) => <>{i > 0 && ', '}<a href={`/${m.id}/`}>{m.title}</a></>)} recommended · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+          <h1>Read what the assistant really did, and fix what matters first</h1>
+          <p class="lede">Offline evals test the questions you thought of. Production shows the ones you didn’t. Here you read a day of Larkspur’s traces, note what went wrong, group the notes into failure modes, and turn the worst into tests.</p>
+          <div class="ctas">
+            <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+          <ReadingMode />
+        </div>
+        <div class="hero-pic">
+          {/* the control room every chapter plays in: the day's failed traces on the wall, sorted into bins, the fix lit */}
+          <IsoStage board={TRACE_BOARD} scene={traceScene(HERO)} label={traceLabel(HERO)} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="idea">
+        <p class="kicker">The whole idea in one example</p>
+        <h2 id="idea">The reply is where you see it; the trace shows where it began</h2>
+        <div class="versus">
+          <article class="reply">
+            <header><h3>The reply</h3><span class="stamp">wrong</span></header>
+            <p class="asked">“{BAD.question}”</p>
+            <p class="said">{replyOf(BAD)}</p>
+            <p class="cap">{BAD.customer} got last year’s answer.</p>
+          </article>
+          <article class="reply read">
+            <header><h3>The first failure</h3><span class="stamp">{FIRST.name}</span></header>
+            <Waterfall trace={BAD} stamp={FIRST.id} />
+            <p class="cap">{FIRST.detail}</p>
+          </article>
+        </div>
+        <p class="note more">{fact('first-failure').claim} These traces are written by hand for this module, shaped like real ones, so they show the method, not any system’s failure rates. <a href={fact('first-failure').source}>Source</a>, checked {checked}.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Four moves carry the module</h2>
+        <ol class="steps">
+          {IDEAS.map(([name, short, f, pic], i) => (
+            <li>
+              <div class="pic"><IsoStage board={TRACE_BOARD} scene={traceScene(pic)} label={traceLabel(pic)} /></div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              <p class="more">{f.claim}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">Larkspur’s assistant meets real customers</h2>
+          <p class="more">{MODULE.story} <strong>You’re the person on the team who reads the traces: you know what a right answer looks like.</strong></p>
+          <p class="prev">In <a href="/evals/">Evals</a> the team graded a suite written before launch. This module starts from production traffic instead. The most frequent failure here, “{modeOf(FREQ).name.toLowerCase()}”, is not the one to fix first: chapter 5 shows why.</p>
+        </div>
+        <dl class="facts">
+          {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}
+        </dl>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due (R13); the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <ul class="who-chips"><li>Engineers</li><li>Product managers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Product managers, engineers and analysts whose assistant is live, or about to be. <a href="/evals/">Evals</a> comes first; no code or maths needed. There are {MODE_IDS.length} failure modes to find.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com" target="_blank" rel="noopener">Kondasamy Jayaraman</a>.</p>
+        <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, whose hand-inked isometric style and engine this course is built on. Colorfigures grew from April’s <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed. Thank you.</p>
+      </footer>
+    </main>
+
+    <script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      const CHAPTERS = moduleOf('observability').chapters;
+      const done = completed('observability');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('observability', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .module-meta a { color: var(--ink); }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.read { border-left: 6px solid var(--acc); }
+  .said { font-size: 17px; font-weight: 700; overflow-wrap: anywhere; }
+  .reply :global(.ob-readout) { display: none; }
+
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); white-space: nowrap; }
+  .asked { font-size: 14px; color: var(--muted); }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 220px; display: flex; justify-content: center; margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: auto !important; height: 100% !important; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .prev { font-size: 14px; color: var(--muted); }
+  .prev a { color: var(--ink); }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
+
+  .pair { display: grid; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+  }
+</style>

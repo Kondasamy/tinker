@@ -131,6 +131,7 @@ export default function WhyLongPromptsCostMore() {
                   <tr><th scope="row">KV cache, numbers kept</th><td>{fmt(c.kv)}</td><td>{`+${fmt(c.newKv)} for the last token`}</td></tr>
                 </tbody>
               </table>
+              <p className="note">What the KV cache costs a server with many requests in flight: <a href="/inference/02-kv-cache-at-scale/">the Inference engineering module</a>.</p>
               <p className="tc-status" role="status">{`${state.n} tokens: “${textAt(state.n)}”`}</p>
             </>
           );

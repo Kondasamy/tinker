@@ -1,0 +1,15 @@
+{
+  "accessed": "2026-10-21",
+  "facts": [
+    { "id": "thinking-billed", "claim": "Anthropic bills the tokens Claude uses while thinking as output tokens, and bills the full thinking even when the response shows only a summary of it.", "source": "https://platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost" },
+    { "id": "openai-reasoning-billed", "claim": "OpenAI’s reasoning tokens are not visible through the API, but they take up room in the context window and are billed as output tokens.", "source": "https://developers.openai.com/api/docs/guides/reasoning" },
+    { "id": "effort-levels", "claim": "Anthropic’s effort setting takes the levels low, medium, high, xhigh and max (not every model offers all five); most models default to high.", "value": "low,medium,high,xhigh,max", "source": "https://platform.claude.com/docs/en/build-with-claude/effort" },
+    { "id": "effort-signal", "claim": "Anthropic’s docs call effort a behavioural signal, not a strict token budget: at lower effort Claude still thinks on hard problems, but less than it would at higher effort.", "source": "https://platform.claude.com/docs/en/build-with-claude/effort" },
+    { "id": "adaptive", "claim": "With adaptive thinking, Claude weighs each request and decides whether to think and how much: a simple factual question may get no thinking at all, and a multistep problem gets deeper reasoning.", "source": "https://platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost" },
+    { "id": "budget-deprecated", "claim": "Anthropic’s fixed thinking budget (budget_tokens) is deprecated on the Claude 4.6 models and rejected by Claude 4.7 and later, which use adaptive thinking with an effort level instead.", "source": "https://platform.claude.com/docs/en/build-with-claude/extended-thinking" },
+    { "id": "openai-effort", "claim": "OpenAI’s reasoning.effort takes values that depend on the model, from none and minimal through low, medium and high to xhigh and max; lower effort favours speed and fewer tokens.", "source": "https://developers.openai.com/api/docs/guides/reasoning" },
+    { "id": "snell", "claim": "Snell and colleagues (2024) found that how much extra thinking-time compute helps depends on how hard the question is, and that spending it well per question made it more than 4 times as efficient as a best-of-N baseline.", "value": "4", "source": "https://arxiv.org/abs/2408.03314" },
+    { "id": "gema", "claim": "Gema and colleagues (2025) built tasks where longer reasoning makes large reasoning models less accurate, among them simple counting tasks with distractors: an inverse scaling between thinking-time compute and accuracy.", "source": "https://arxiv.org/abs/2507.14417" },
+    { "id": "measure-effort", "claim": "Anthropic’s docs advise testing each effort level on your own use cases before deploying, since its impact varies by task type.", "source": "https://platform.claude.com/docs/en/build-with-claude/effort" }
+  ]
+}

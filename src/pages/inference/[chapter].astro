@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import PrefillAndDecode from '../../content/inference/01-prefill-and-decode';
+import KvCacheAtScale from '../../content/inference/02-kv-cache-at-scale';
+import Batching from '../../content/inference/03-batching';
+import SmallerNumbers from '../../content/inference/04-smaller-numbers';
+import GuessAhead from '../../content/inference/05-guess-ahead';
+import PaceOrThroughput from '../../content/inference/06-pace-or-throughput';
+import ServeLarkspur from '../../content/inference/07-serve-larkspur';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('inference').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="inference" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-prefill-and-decode' ? <PrefillAndDecode client:load />
+    : chapter === '02-kv-cache-at-scale' ? <KvCacheAtScale client:load />
+    : chapter === '03-batching' ? <Batching client:load />
+    : chapter === '04-smaller-numbers' ? <SmallerNumbers client:load />
+    : chapter === '05-guess-ahead' ? <GuessAhead client:load />
+    : chapter === '06-pace-or-throughput' ? <PaceOrThroughput client:load />
+    : <ServeLarkspur client:load />}
+</ChapterLayout>

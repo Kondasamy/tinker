@@ -18,6 +18,11 @@ style set (data/lm/ids.json styleSet), a full one and a LoRA one (rank 4 on the 
   public/data/lm/lora.bin        Float16 adapter, its layout in meta.json `lora.tensors`
 and the new keys `finetune` and `lora` in meta.json and `finetuned` and `lora` in goldens.json. Every other key is
 written back as it was.
+
+--distill (KTD1) leaves the base alone too: it distils the committed model.bin into a smaller student (STUDENT_CFG)
+on the base's temperature-softened next-token distribution over the training split, and writes
+  public/data/lm/student.bin   Float16 weights, its config and layout in meta.json `student`
+and the new key `student` in meta.json and goldens.json. Every other key is written back as it was.
 """
 import argparse
 import json
@@ -35,12 +40,12 @@ CFG = dict(n_layer=2, n_head=2, d_model=32, ctx=32, d_mlp=128, ln_eps=1e-5)
 
 
 class Block(nn.Module):
-    def __init__(self, d, n_head, d_mlp, dropout):
+    def __init__(self, d, n_head, d_mlp, dropout, eps):
         super().__init__()
         self.n_head = n_head
-        self.ln1 = nn.LayerNorm(d, eps=CFG['ln_eps'])
+        self.ln1 = nn.LayerNorm(d, eps=eps)
         self.attn = nn.ModuleDict(dict(qkv=nn.Linear(d, 3 * d), proj=nn.Linear(d, d)))
-        self.ln2 = nn.LayerNorm(d, eps=CFG['ln_eps'])
+        self.ln2 = nn.LayerNorm(d, eps=eps)
         self.mlp = nn.ModuleDict(dict(fc=nn.Linear(d, d_mlp), proj=nn.Linear(d_mlp, d)))
         self.drop = nn.Dropout(dropout)
 
@@ -59,13 +64,13 @@ class Block(nn.Module):
 
 
 class Mini(nn.Module):
-    def __init__(self, vocab, dropout=0.0):
+    def __init__(self, vocab, dropout=0.0, cfg=CFG):
         super().__init__()
-        d = CFG['d_model']
+        d = cfg['d_model']
         self.wte = nn.Embedding(vocab, d)
-        self.wpe = nn.Embedding(CFG['ctx'], d)
-        self.h = nn.ModuleList(Block(d, CFG['n_head'], CFG['d_mlp'], dropout) for _ in range(CFG['n_layer']))
-        self.lnf = nn.LayerNorm(d, eps=CFG['ln_eps'])
+        self.wpe = nn.Embedding(cfg['ctx'], d)
+        self.h = nn.ModuleList(Block(d, cfg['n_head'], cfg['d_mlp'], dropout, cfg['ln_eps']) for _ in range(cfg['n_layer']))
+        self.lnf = nn.LayerNorm(d, eps=cfg['ln_eps'])
         self.drop = nn.Dropout(dropout)
         for name, p in self.named_parameters():
             if name.endswith('weight') and p.dim() == 2:
@@ -286,6 +291,98 @@ def finetune(a, data):
     print(f'wrote finetuned.bin ({len(blob)} bytes), lora.bin ({len(lora_blob)} bytes), new keys in meta.json and goldens.json')
 
 
+# The student's shape (KTD1): one block at half the width, the same vocabulary and context, tied unembedding.
+STUDENT_CFG = dict(n_layer=1, n_head=2, d_model=16, ctx=32, d_mlp=64, ln_eps=1e-5)
+
+
+@torch.no_grad()
+def agreement(student, teacher, docs):
+    """Share of held-out positions (evaluate()'s windows) where the two models' greedy next tokens are the same."""
+    same, n = 0, 0
+    for doc in docs:
+        for w in windows(doc, CFG['ctx']):
+            x = torch.tensor([w[:-1]])
+            same += (student(x)[0][0].argmax(-1) == teacher(x)[0][0].argmax(-1)).sum().item()
+            n += len(w) - 1
+    return same / n
+
+
+def distill(a, data):
+    """A smaller student trained on the committed base's softened next-token distribution over the training split."""
+    vocab, train, held = data['vocab'], data['splits']['train'], data['splits']['heldout']
+    cfg = dict(STUDENT_CFG, n_layer=a.student_layers)
+    ctx, T = cfg['ctx'], a.temperature
+    starts = torch.tensor([(d, s) for d, doc in enumerate(train['ids']) for s in range(len(doc) - ctx)])
+    train_t = [torch.tensor(doc) for doc in train['ids']]
+    teacher = load_base(vocab).eval()
+    for p in teacher.parameters():
+        p.requires_grad_(False)
+
+    torch.manual_seed(a.seed)
+    model = Mini(vocab, cfg=cfg)
+    decay = [p for n, p in model.named_parameters() if p.dim() == 2]
+    other = [p for n, p in model.named_parameters() if p.dim() < 2]
+    opt = torch.optim.AdamW([dict(params=decay, weight_decay=a.kd_weight_decay), dict(params=other, weight_decay=0.0)],
+                            lr=a.kd_lr, betas=(0.9, 0.99))
+    gen = torch.Generator().manual_seed(a.seed)
+    curve, t0, train_loss = [], time.time(), float('nan')
+    for step in range(1, a.kd_steps + 1):
+        for g in opt.param_groups:
+            g['lr'] = a.kd_lr * 0.5 * (1 + math.cos(math.pi * (step - 1) / a.kd_steps))
+        pick = starts[torch.randint(len(starts), (a.batch,), generator=gen)]
+        xy = torch.stack([train_t[d][s:s + ctx + 1] for d, s in pick.tolist()])
+        with torch.no_grad():
+            soft = (teacher(xy[:, :-1])[0] / T).softmax(-1).reshape(-1, vocab)
+        model.train()
+        logits = model(xy[:, :-1])[0].reshape(-1, vocab)
+        # Hinton et al. 2015: soft targets scaled by T^2, plus a small weight on the true next token.
+        kd = F.kl_div((logits / T).log_softmax(-1), soft, reduction='batchmean') * T * T
+        loss = (1 - a.hard) * kd + a.hard * F.cross_entropy(logits, xy[:, 1:].reshape(-1))
+        opt.zero_grad(set_to_none=True)
+        loss.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+        opt.step()
+        train_loss = 0.9 * train_loss + 0.1 * loss.item() if step > 1 else loss.item()
+        if step % a.every == 0 or step == a.kd_steps:
+            ev = evaluate(model, held['ids'])
+            curve.append(dict(step=step, train=round(train_loss, 4), heldout=round(ev['loss'], 4)))
+            print(f"step {step:5d} distill {train_loss:.3f} heldout {ev['loss']:.3f} top1 {ev['top1']:.3f}")
+    secs = time.time() - t0
+
+    # What ships: Float16; everything below is float64 from those rounded weights (KTD2).
+    ship = {k: v.to(torch.float16) for k, v in model.state_dict().items()}
+    m64 = Mini(vocab, cfg=cfg).double()
+    m64.load_state_dict({k: v.to(torch.float64) for k, v in ship.items()})
+    m64.eval()
+    final, agree = evaluate(m64, held['ids']), agreement(m64, load_base(vocab).double().eval(), held['ids'])
+    params = sum(t.numel() for t in ship.values())
+    print(f"student {cfg['n_layer']} layer(s), d_model {cfg['d_model']}: {params} params, heldout loss {final['loss']:.4f} "
+          f"top1 {final['top1']:.3f} top5 {final['top5']:.3f}, agreement with base {agree:.4f}, {secs:.1f}s")
+    if a.no_write:
+        return
+
+    layout, blob = f16_blob(ship)
+    open(os.path.join(ROOT, 'public/data/lm/student.bin'), 'wb').write(blob)
+    r = lambda x: round(x, 6)
+    meta_path = os.path.join(ROOT, 'public/data/lm/meta.json')
+    meta = json.load(open(meta_path))
+    meta['student'] = dict(
+        file='student.bin', model=dict(vocab=vocab, **cfg, params=params), bytes=len(blob), tensors=layout,
+        training=dict(seed=a.seed, steps=a.kd_steps, batch=a.batch, lr=a.kd_lr, schedule='cosine to 0',
+                      optimizer='AdamW betas (0.9, 0.99), grad clip 1.0', weight_decay=a.kd_weight_decay,
+                      temperature=T, hard=a.hard, teacher='model.bin', torch=torch.__version__, seconds=round(secs, 1)),
+        lossCurve=curve, heldout=dict(loss=r(final['loss']), top1=r(final['top1']), top5=r(final['top5'])),
+        agreement=agree)
+    json.dump(meta, open(meta_path, 'w'), indent=1)
+
+    g_path = os.path.join(ROOT, 'tests/fixtures/lm/goldens.json')
+    goldens = json.load(open(g_path))
+    goldens['student'] = dict(heldout=dict(loss=final['loss'], top1=final['top1'], top5=final['top5']),
+                              prompts=golden_prompts(m64, data['prompts']))
+    json.dump(goldens, open(g_path, 'w'), separators=(',', ':'))
+    print(f'wrote student.bin ({len(blob)} bytes), new key `student` in meta.json and goldens.json')
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--seed', type=int, default=1337)
@@ -305,6 +402,13 @@ def main():
     ap.add_argument('--lora-lr', type=float, default=3e-2)
     ap.add_argument('--rank', type=int, default=4)
     ap.add_argument('--alpha', type=float, default=4.0)
+    ap.add_argument('--distill', action='store_true', help='distil a smaller student from the committed base (KTD1)')
+    ap.add_argument('--student-layers', type=int, default=1)
+    ap.add_argument('--kd-steps', type=int, default=3000)
+    ap.add_argument('--kd-lr', type=float, default=3e-3)
+    ap.add_argument('--kd-weight-decay', type=float, default=0.1)
+    ap.add_argument('--temperature', type=float, default=2.0)
+    ap.add_argument('--hard', type=float, default=0.1, help='weight on the true next token')
     a = ap.parse_args()
 
     torch.manual_seed(a.seed)
@@ -314,6 +418,8 @@ def main():
     data = json.load(open(os.path.join(ROOT, 'data/lm/ids.json')))
     if a.finetune:
         return finetune(a, data)
+    if a.distill:
+        return distill(a, data)
     vocab, train, held = data['vocab'], data['splits']['train'], data['splits']['heldout']
     ctx = CFG['ctx']
     starts = torch.tensor([(d, s) for d, doc in enumerate(train['ids']) for s in range(len(doc) - ctx)])

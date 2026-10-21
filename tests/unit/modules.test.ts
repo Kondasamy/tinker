@@ -15,6 +15,20 @@ const RAG_CHAPTERS = [
   ['07-sandbox', 'Sandbox'],
 ];
 
+// the AI engineering roadmap in build order (docs/plans/2026-10-21-1521-feat-ai-engineering-roadmap-plan.md)
+const ROADMAP: [string, string][] = [
+  ['structured-outputs', 'Intermediate'],
+  ['reasoning', 'Intermediate'],
+  ['small-models', 'Advanced'],
+  ['inference', 'Advanced'],
+  ['observability', 'Intermediate'],
+  ['sandboxing', 'Advanced'],
+  ['multimodal', 'Intermediate'],
+  ['voice', 'Advanced'],
+];
+/** true when every id in `ids` is in `list`, in the list's order */
+const inOrder = (ids: string[], list: string[]) => { let at = 0; return ids.every(id => (at = list.indexOf(id, at) + 1) > 0); };
+
 describe('module registry', () => {
   it('keeps RAG’s 7 chapters, ids and titles', () => {
     expect(moduleOf('rag').chapters.map(c => [c.id, c.title])).toEqual(RAG_CHAPTERS);
@@ -25,19 +39,22 @@ describe('module registry', () => {
     for (const m of MODULES) expect(['Beginner', 'Intermediate', 'Advanced']).toContain(m.level);
   });
 
-  it('has the AI engineering roadmap as planned cards, in build order, each with no chapters and no prereqs', () => {
+  it('has what is left of the AI engineering roadmap as planned cards, in build order, each at its level with no chapters and no prereqs', () => {
     const planned = MODULES.filter(m => m.status === 'planned');
-    expect(planned.map(m => [m.id, m.level])).toEqual([
-      ['structured-outputs', 'Intermediate'],
-      ['reasoning', 'Intermediate'],
-      ['small-models', 'Advanced'],
-      ['inference', 'Advanced'],
-      ['observability', 'Intermediate'],
-      ['sandboxing', 'Advanced'],
-      ['multimodal', 'Intermediate'],
-      ['voice', 'Advanced'],
-    ]);
-    for (const m of planned) expect([m.chapters, m.prereqs], m.id).toEqual([[], []]);
+    expect(inOrder(planned.map(m => m.id), ROADMAP.map(([id]) => id))).toBe(true);
+    for (const m of planned) {
+      expect(m.level, m.id).toBe(new Map(ROADMAP).get(m.id));
+      expect([m.chapters, m.prereqs], m.id).toEqual([[], []]);
+    }
+  });
+
+  // each go-live removes one roadmap card, so the planned list shrinks but never reorders (KTD14)
+  it('accepts the roadmap with any one card gone, and rejects two cards swapped', () => {
+    const ids = ROADMAP.map(([id]) => id);
+    for (const gone of ids) expect(inOrder(ids.filter(id => id !== gone), ids), gone).toBe(true);
+    expect(inOrder([], ids)).toBe(true);
+    expect(inOrder([ids[1], ids[0], ...ids.slice(2)], ids)).toBe(false);
+    expect(inOrder(['nope'], ids)).toBe(false);
   });
 
   it('has tool calling as a live Intermediate module that recommends RAG first', () => {
@@ -81,7 +98,56 @@ describe('module registry', () => {
   it('has fine-tuning as a live Advanced module that recommends Evals and Transformers first, numbered 9 after context', () => {
     expect(moduleOf('fine-tuning')).toMatchObject({ title: 'Fine-tuning vs prompting', level: 'Advanced', status: 'live', prereqs: ['evals', 'transformers'] });
     expect(moduleOf('fine-tuning').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').map(m => m.id)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning']);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id).slice(0, 9)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning']);
+  });
+
+  it('has structured-outputs as a live Intermediate module that recommends Tool calling and Tokens first, numbered 10 after fine-tuning', () => {
+    expect(moduleOf('structured-outputs')).toMatchObject({ title: 'Structured outputs', level: 'Intermediate', status: 'live', prereqs: ['tool-calling', 'tokens'] });
+    expect(moduleOf('structured-outputs').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id).slice(0, 10)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs']);
+  });
+
+  it('has reasoning as a live Intermediate module that recommends Evals first, numbered 11 after structured-outputs', () => {
+    expect(moduleOf('reasoning')).toMatchObject({ title: 'Reasoning models & thinking budgets', level: 'Intermediate', status: 'live', prereqs: ['evals'] });
+    expect(moduleOf('reasoning').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id).slice(0, 11)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs', 'reasoning']);
+  });
+
+  it('has small-models as a live Advanced module that recommends Fine-tuning and Evals first, numbered 12 after reasoning', () => {
+    expect(moduleOf('small-models')).toMatchObject({ title: 'Small models: distillation & routing', level: 'Advanced', status: 'live', prereqs: ['fine-tuning', 'evals'] });
+    expect(moduleOf('small-models').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id).slice(0, 12)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs', 'reasoning', 'small-models']);
+  });
+
+  it('has inference as a live Advanced module that recommends Transformers first, numbered 13 after small-models', () => {
+    expect(moduleOf('inference')).toMatchObject({ title: 'Inference engineering', level: 'Advanced', status: 'live', prereqs: ['transformers'] });
+    expect(moduleOf('inference').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id).slice(0, 13)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs', 'reasoning', 'small-models', 'inference']);
+  });
+
+  it('has observability as a live Intermediate module that recommends Evals first, numbered 14 after inference', () => {
+    expect(moduleOf('observability')).toMatchObject({ title: 'Observability & error analysis', level: 'Intermediate', status: 'live', prereqs: ['evals'] });
+    expect(moduleOf('observability').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id).slice(0, 14)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs', 'reasoning', 'small-models', 'inference', 'observability']);
+  });
+
+  it('has sandboxing as a live Advanced module that recommends Agents and Guardrails first, numbered 15 after observability', () => {
+    expect(moduleOf('sandboxing')).toMatchObject({ title: 'Agent sandboxing', level: 'Advanced', status: 'live', prereqs: ['agents', 'guardrails'] });
+    expect(moduleOf('sandboxing').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id).slice(0, 15)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs', 'reasoning', 'small-models', 'inference', 'observability', 'sandboxing']);
+  });
+
+  it('has multimodal as a live Intermediate module that recommends Tokens first, numbered 16 after sandboxing', () => {
+    expect(moduleOf('multimodal')).toMatchObject({ title: 'Multimodal models', level: 'Intermediate', status: 'live', prereqs: ['tokens'] });
+    expect(moduleOf('multimodal').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id).slice(0, 16)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs', 'reasoning', 'small-models', 'inference', 'observability', 'sandboxing', 'multimodal']);
+  });
+
+  it('has voice as a live Advanced module that recommends Tool calling and Multimodal first, numbered 17 and last, with no planned module left', () => {
+    expect(moduleOf('voice')).toMatchObject({ title: 'Voice agents', level: 'Advanced', status: 'live', prereqs: ['tool-calling', 'multimodal'] });
+    expect(moduleOf('voice').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs', 'reasoning', 'small-models', 'inference', 'observability', 'sandboxing', 'multimodal', 'voice']);
+    expect(MODULES.filter(m => m.status === 'planned')).toEqual([]);
   });
 
   it('keeps chapter ids unique within every module', () => {

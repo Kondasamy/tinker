@@ -1,0 +1,252 @@
+{
+  "about": "Every line of Larkspur's phone calls. scripts/record-voice.mjs speaks each one with ElevenLabs text-to-speech (once, by hand) into public/data/voice/<id>.mp3 and data/voice/envelopes.json. A line is one clip; its parts are spoken one after another with `pause` ms of silence after each. What speech-to-text wrote for each caller turn is recorded in transcripts.json; `gain` makes a part quieter; `noise` mixes a steady line hum into the whole clip.",
+  "tts": {
+    "provider": "ElevenLabs",
+    "model": "eleven_multilingual_v2",
+    "seed": 17,
+    "outputFormat": "mp3_44100_128"
+  },
+  "speakers": {
+    "dana": {
+      "name": "Dana",
+      "role": "caller",
+      "voice": "Xb7hH8MSUJpSbSDYk0k2",
+      "about": "Dana orders for Hollis Hardware.",
+      "voiceName": "Alice"
+    },
+    "ravi": {
+      "name": "Ravi",
+      "role": "caller",
+      "voice": "iP95p4xoKVk53GoZ742B",
+      "about": "Ravi runs a building site for Marlow Builders.",
+      "voiceName": "Chris"
+    },
+    "assistant": {
+      "name": "Larkspur’s assistant",
+      "role": "assistant",
+      "voice": "EXAVITQu4vr4xnSDxMaL",
+      "about": "The voice of Larkspur’s phone line.",
+      "voiceName": "Sarah"
+    }
+  },
+  "lines": [
+    {
+      "id": "status-caller",
+      "speaker": "dana",
+      "parts": [
+        {
+          "text": "Hi, could you tell me where order ten forty-three is?"
+        }
+      ]
+    },
+    {
+      "id": "status-reply",
+      "speaker": "assistant",
+      "parts": [
+        {
+          "text": "Order ten forty-three, your three rolls of labels, is being packed now."
+        },
+        {
+          "text": "It should leave the warehouse tomorrow."
+        }
+      ]
+    },
+    {
+      "id": "hesitant-caller",
+      "speaker": "ravi",
+      "parts": [
+        {
+          "text": "I need to change the delivery address on my order.",
+          "pause": 100
+        },
+        {
+          "text": "It's order ten fifty-one.",
+          "pause": 350
+        },
+        {
+          "text": "Can it go to our new site on Mill Road?"
+        }
+      ]
+    },
+    {
+      "id": "hesitant-reply-1",
+      "speaker": "assistant",
+      "parts": [
+        {
+          "text": "Of course. Which order is it?"
+        }
+      ]
+    },
+    {
+      "id": "hesitant-reply-2",
+      "speaker": "assistant",
+      "parts": [
+        {
+          "text": "Order ten fifty-one, the two shelving bays. What's the new address?"
+        }
+      ]
+    },
+    {
+      "id": "hesitant-reply-3",
+      "speaker": "assistant",
+      "parts": [
+        {
+          "text": "Order ten fifty-one has already left us. I've asked the carrier to take it to Mill Road instead."
+        }
+      ]
+    },
+    {
+      "id": "noisy-caller",
+      "speaker": "ravi",
+      "noise": 0.035,
+      "parts": [
+        {
+          "text": "Hi, it’s Ravi on site, has the scanner turned up yet?",
+          "pause": 300
+        },
+        {
+          "text": "It's order ten forty-seven.",
+          "gain": 0.28
+        }
+      ]
+    },
+    {
+      "id": "noisy-reply-0",
+      "speaker": "assistant",
+      "parts": [
+        {
+          "text": "Hi Ravi. How can I help?"
+        }
+      ]
+    },
+    {
+      "id": "noisy-reply-1",
+      "speaker": "assistant",
+      "parts": [
+        {
+          "text": "Sorry, which order is the scanner on?"
+        }
+      ]
+    },
+    {
+      "id": "noisy-reply-2",
+      "speaker": "assistant",
+      "parts": [
+        {
+          "text": "Order ten forty-seven, the Kestrel scanner, was delivered on the sixteenth."
+        }
+      ]
+    },
+    {
+      "id": "slots-caller",
+      "speaker": "dana",
+      "parts": [
+        {
+          "text": "Can we book a delivery slot for the label printer?"
+        }
+      ]
+    },
+    {
+      "id": "slots-reply",
+      "speaker": "assistant",
+      "parts": [
+        {
+          "text": "I have three slots this week.",
+          "pause": 200
+        },
+        {
+          "text": "Tuesday morning,",
+          "pause": 150
+        },
+        {
+          "text": "Wednesday afternoon,",
+          "pause": 150
+        },
+        {
+          "text": "or Friday, first thing."
+        }
+      ]
+    },
+    {
+      "id": "slots-interrupt",
+      "speaker": "dana",
+      "parts": [
+        {
+          "text": "Sorry, we're closed on Tuesdays."
+        }
+      ]
+    },
+    {
+      "id": "slots-kept-2",
+      "speaker": "assistant",
+      "parts": [
+        {
+          "text": "No problem. I also have Wednesday afternoon, or Friday, first thing."
+        }
+      ]
+    },
+    {
+      "id": "slots-kept-3",
+      "speaker": "assistant",
+      "parts": [
+        {
+          "text": "No problem. Then Wednesday afternoon, or I also have Friday, first thing."
+        }
+      ]
+    },
+    {
+      "id": "slots-talked-over",
+      "speaker": "assistant",
+      "parts": [
+        {
+          "text": "Shall I book Tuesday morning for you, then?"
+        }
+      ]
+    },
+    {
+      "id": "mishear-caller",
+      "speaker": "ravi",
+      "parts": [
+        {
+          "text": "Hi, can you check on order twenty-six fifteen?"
+        }
+      ]
+    },
+    {
+      "id": "mishear-direct",
+      "speaker": "assistant",
+      "parts": [
+        {
+          "text": "Order twenty-six fifty was delivered on Monday."
+        }
+      ]
+    },
+    {
+      "id": "mishear-readback",
+      "speaker": "assistant",
+      "parts": [
+        {
+          "text": "Just to check: that's order two, six, five, zero?"
+        }
+      ]
+    },
+    {
+      "id": "mishear-correct",
+      "speaker": "ravi",
+      "parts": [
+        {
+          "text": "No. Two, six, one, five."
+        }
+      ]
+    },
+    {
+      "id": "mishear-confirmed",
+      "speaker": "assistant",
+      "parts": [
+        {
+          "text": "Thanks. Order twenty-six fifteen, your dock door sensors, ships on Thursday."
+        }
+      ]
+    }
+  ]
+}

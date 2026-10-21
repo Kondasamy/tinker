@@ -1,0 +1,20 @@
+{
+  "about": "Larkspur's phone line: the calls the chapters play, and the host's planning numbers. Stage times are illustrative planning numbers Larkspur's team uses, not measurements of any provider; the copy says so wherever a wait is shown.",
+  "host": {
+    "label": "Larkspur’s planning numbers, illustrative, not any provider’s",
+    "sttMs": 200,
+    "modelFirstMs": 350,
+    "msPerToken": 15,
+    "ttsFirstMs": 150,
+    "ttsRealtime": 0.3,
+    "deadAirMs": 2000,
+    "giveUpMs": 3000
+  },
+  "calls": [
+    { "id": "status", "caller": "dana", "title": "Where is my order?", "opening": "status-caller", "about": "A clean line and one plain question." },
+    { "id": "hesitant", "caller": "ravi", "title": "A new delivery address", "opening": "hesitant-caller", "about": "Ravi pauses between thoughts." },
+    { "id": "noisy", "caller": "ravi", "title": "From a noisy site", "opening": "noisy-caller", "about": "Machinery hums behind Ravi, and he says the order number quietly." },
+    { "id": "slots", "caller": "dana", "title": "Booking a delivery slot", "opening": "slots-caller", "about": "Dana cuts in while the assistant reads out slots.", "interrupt": "slots-interrupt", "reply": "slots-reply" },
+    { "id": "mishear", "caller": "ravi", "title": "Checking an order number", "opening": "mishear-caller", "about": "Speech-to-text is unsure of the order number.", "unsure": true }
+  ]
+}

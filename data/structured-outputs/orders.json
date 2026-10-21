@@ -1,0 +1,10 @@
+{
+  "note": "Chapter 7's orders, as Larkspur's order system holds them (fiction). Every order-status question goes to the shipping team. The order system knows each order's status and days to arrive, but not which team answers.",
+  "team": "shipping",
+  "orders": [
+    { "id": 1042, "status": "on time", "days": 2 },
+    { "id": 1043, "status": "delayed", "days": 5 },
+    { "id": 1044, "status": "on time", "days": 1 },
+    { "id": 1045, "status": "delayed", "days": 4 }
+  ]
+}

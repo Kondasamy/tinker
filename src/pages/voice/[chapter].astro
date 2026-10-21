@@ -1,0 +1,29 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import LarkspursPhoneLine from '../../content/voice/01-larkspurs-phone-line';
+import TheLatencyBudget from '../../content/voice/02-the-latency-budget';
+import WhoseTurnIsIt from '../../content/voice/03-whose-turn-is-it';
+import BeingInterrupted from '../../content/voice/04-being-interrupted';
+import Mishearing from '../../content/voice/05-mishearing';
+import OneModelOrThree from '../../content/voice/06-one-model-or-three';
+import Workbench from '../../content/voice/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('voice').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="voice" chapter={chapter} title={title}>
+  {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
+      hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
+  {chapter === '01-larkspurs-phone-line' ? <LarkspursPhoneLine client:load />
+    : chapter === '02-the-latency-budget' ? <TheLatencyBudget client:load />
+    : chapter === '03-whose-turn-is-it' ? <WhoseTurnIsIt client:load />
+    : chapter === '04-being-interrupted' ? <BeingInterrupted client:load />
+    : chapter === '05-mishearing' ? <Mishearing client:load />
+    : chapter === '06-one-model-or-three' ? <OneModelOrThree client:load />
+    : <Workbench client:load />}
+</ChapterLayout>

@@ -1,0 +1,88 @@
+---
+// Dev-only eyeball page: the inference serving floor in several states (static SVG), the server timeline for static and
+// continuous batching, then the stage live: loading, failed (Retry) and ready. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { readFileSync } from 'node:fs';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { fetchLoader } from '../lib/rag/load';
+import { SERVE_BOARD, floorAt, serveLabel, serveScene, type ServeOpts } from '../components/scenes/serveScene';
+import { InferenceStage, TimelineView, loadModel, setModelFiles, type Shown } from '../content/inference/kit';
+import { OPEN, serve } from '../lib/inference/server';
+import { TARGETS } from '../lib/inference/workbench';
+
+// the stage's loading states, drawn on the server: the base loaded from disk, the student failing
+setModelFiles(async f => {
+  if (f === 'student.bin') throw new Error('offline');
+  const b = readFileSync('public/data/lm/' + f);
+  return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer;
+});
+await loadModel('base');
+await loadModel('student').catch(() => {});
+
+const cont = serve(OPEN, { mode: 'continuous', cap: 8, kvRoomGB: 14 }), stat = serve(OPEN, { mode: 'static', cap: 8, kvRoomGB: 14 });
+const tight = serve(OPEN, { mode: 'continuous', cap: 16, kvRoomGB: 4 });
+const STATES: [string, ServeOpts][] = [
+  ['Idle: one seat, nothing waiting', { seats: ['empty'], queued: 0, kv: 0 }],
+  ['One request: prefill', { seats: ['prefill'], queued: 0, kv: .05 }],
+  ['Continuous, cap 8: the busiest iteration', floorAt(cont)],
+  ['Static, cap 8: the busiest iteration', floorAt(stat)],
+  ['Cap 16, 4 GB: memory full, a queue', floorAt(tight)],
+  ['Speculative: 2 of 3 guesses kept', { seats: ['decode'], queued: 0, kv: .02, draft: { drafted: 3, accepted: 2 } }],
+];
+const shown = (caption: string, scene: Shown['scene'], result?: Shown['result']) => (): Shown => ({ scene, result, caption });
+// The stages are drawn here, then the loaders go back to fetching: pages build one after another in one process, and the
+// loaded and failed models would otherwise leak into the real chapter pages rendered after this one.
+const STAGES = [
+  ['Failed (student): Retry', { weights: ['base', 'student'], show: shown('Speculative', STATES[5][1]) }],
+  ['Loaded (base): Picture', { weights: ['base'], show: shown('One request', STATES[1][1]) }],
+  ['No model: Timeline', { view: 'timeline', show: shown('<script>alert(1)</script> escaped caption', floorAt(cont), cont) }],
+].map(([title, props]) => [title, renderToStaticMarkup(createElement(InferenceStage, props as Parameters<typeof InferenceStage>[0]))] as const);
+setModelFiles(fetchLoader('/data/lm/'));
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Inference scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Inference serving floor: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={SERVE_BOARD} scene={serveScene({ ...o, scale: 1.2 })} label={serveLabel(o)} /></div>
+            <div class="phone"><IsoStage board={SERVE_BOARD} scene={serveScene({ ...o, scale: 2 })} label={serveLabel(o)} /></div>
+            <p>{serveLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <section><h2>Timeline: continuous, cap 8, with the first-token target</h2><TimelineView client:load result={cont} ttftTarget={TARGETS.ttftMs} /></section>
+      <section><h2>Timeline: static, cap 8</h2><TimelineView client:load result={stat} /></section>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        {/* React's own server markup (every string escaped by React), not content */}
+        {STAGES.map(([title, html]) => <section><h2>{title}</h2><div class="stage" set:html={html} /></section>)}
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 460px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

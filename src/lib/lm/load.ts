@@ -12,6 +12,13 @@ export interface Meta {
   /** U18's fine-tunes: `finetuned.bin` has model.bin's layout; `lora.bin` is laid out by `lora.tensors`. */
   finetune?: FineTuneRun;
   lora?: FineTuneRun & { rank: number; alpha: number; targets: string[]; bytes: number; tensors: Meta['tensors'] };
+  /** KTD1's student, distilled from model.bin: its own shape and layout, in `student.bin`. */
+  student?: {
+    file: string; model: ModelConfig & { params: number }; bytes: number; tensors: Meta['tensors'];
+    training: Record<string, unknown>; lossCurve: FineTuneRun['lossCurve']; heldout: FineTuneRun['heldout'];
+    /** share of held-out positions where its greedy next token is the base's */
+    agreement: number;
+  };
   [k: string]: unknown;
 }
 export interface FineTuneRun {
@@ -23,8 +30,8 @@ export interface FineTuneRun {
   heldout: { loss: number; top1: number; top5: number };
   style: { loss: number; top1: number; top5: number };
 }
-/** Which weights to run: the base, the full fine-tune, or the base plus the LoRA adapter. */
-export type Weights = 'base' | 'finetuned' | 'lora';
+/** Which weights to run: the base, the full fine-tune, the base plus the LoRA adapter, or the distilled student. */
+export type Weights = 'base' | 'finetuned' | 'lora' | 'student';
 
 /** IEEE 754 half to number. */
 export function halfToFloat(h: number): number {
@@ -58,11 +65,21 @@ export function parseAdapter(meta: Meta, buf: ArrayBuffer): Adapter {
   return { rank: l.rank, scale: l.alpha / l.rank, tensors: parseTensors(l.file, l.bytes, l.tensors, buf) };
 }
 
+/** student.bin: the distilled student, in the shape meta.json `student` gives it. */
+export function parseStudent(meta: Meta, buf: ArrayBuffer): Model {
+  const s = meta.student;
+  if (!s) throw new Error('meta.json has no student');
+  const { params: _, ...config } = s.model;
+  return { config, tensors: parseTensors(s.file, s.bytes, s.tensors, buf) };
+}
+
 /** The files each choice of weights needs, after meta.json, and how they make a model. */
 async function loadWeights(loader: Loader, w: Weights): Promise<Model> {
-  const bin = w === 'finetuned' ? 'finetuned.bin' : 'model.bin';
+  const bin = w === 'finetuned' ? 'finetuned.bin' : w === 'student' ? 'student.bin' : 'model.bin';
   const [m, weights, lora] = await Promise.all(['meta.json', bin, ...(w === 'lora' ? ['lora.bin'] : [])].map(loader));
-  const meta = JSON.parse(new TextDecoder().decode(m)) as Meta, model = parseModel(meta, weights, bin);
+  const meta = JSON.parse(new TextDecoder().decode(m)) as Meta;
+  if (w === 'student') return parseStudent(meta, weights);
+  const model = parseModel(meta, weights, bin);
   return lora ? { ...model, adapter: parseAdapter(meta, lora) } : model;
 }
 

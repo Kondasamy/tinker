@@ -1,0 +1,16 @@
+{
+  "accessed": "2026-10-21",
+  "facts": [
+    { "id": "patches", "claim": "Claude views images in patches instead of pixels: each patch is a 28 × 28-pixel block, one visual token, so an image costs ⌈width / 28⌉ × ⌈height / 28⌉ tokens.", "value": "28", "source": "https://platform.claude.com/docs/en/build-with-claude/vision" },
+    { "id": "example-1000", "claim": "Anthropic’s worked example: a 1000 × 1000 px image is not resized and costs 1,296 visual tokens.", "value": "1296", "source": "https://platform.claude.com/docs/en/build-with-claude/vision" },
+    { "id": "high-res-tier", "claim": "Claude 4.7 and later models are on the high-resolution tier: a long edge of at most 2,576 px and at most 4,784 visual tokens per image.", "value": "2576,4784", "source": "https://platform.claude.com/docs/en/build-with-claude/vision" },
+    { "id": "standard-tier", "claim": "Other Claude models are on the standard tier: a long edge of at most 1,568 px and at most 1,568 visual tokens per image.", "value": "1568,1568", "source": "https://platform.claude.com/docs/en/build-with-claude/vision" },
+    { "id": "resize-rule", "claim": "An image over either limit is scaled down, keeping its shape, to the largest size that fits both. For most photos and scans the token limit decides the size, not the edge limit.", "source": "https://platform.claude.com/docs/en/build-with-claude/vision-coordinates" },
+    { "id": "text-legible", "claim": "Anthropic advises that important text in an image should be legible and not too small, and warns that resizing a large image can make its text less legible.", "source": "https://platform.claude.com/docs/en/build-with-claude/vision" },
+    { "id": "small-images", "claim": "Anthropic’s listed limitations: Claude may make mistakes on low-quality, rotated or very small images (under 200 pixels).", "source": "https://platform.claude.com/docs/en/build-with-claude/vision" },
+    { "id": "openai-32", "claim": "OpenAI counts some models’ image input in 32 × 32 px patches, ⌈width / 32⌉ × ⌈height / 32⌉, scaled down when an image goes over the model’s patch budget.", "value": "32", "source": "https://developers.openai.com/api/docs/guides/images-vision" },
+    { "id": "vit", "claim": "The 2020 paper “An Image is Worth 16x16 Words” showed that a plain transformer applied directly to sequences of image patches can classify images very well: the idea behind cutting a picture into patches.", "source": "https://arxiv.org/abs/2010.11929" },
+    { "id": "ocrbench", "claim": "OCRBench, a 2023 study of large multimodal models reading text, found weak spots in multilingual text, handwritten text, non-semantic text and mathematical expressions.", "source": "https://arxiv.org/abs/2305.07895" },
+    { "id": "owasp-multimodal", "claim": "OWASP lists multimodal injection under prompt injection: an attacker hides instructions in an image that accompanies harmless text, and the hidden prompt changes what the model does.", "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/" }
+  ]
+}

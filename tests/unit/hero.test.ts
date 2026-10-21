@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import IsoStage from '../../src/lib/iso/IsoStage';
-import { HERO_BOARD, HOME_HERO, HOME_HERO_LABEL, heroBoard, heroLabel, heroScene, plotAt } from '../../src/components/scenes/heroScene';
+import { HERO_BOARD, HOME_HERO, HOME_HERO_LABEL, heroBoard, heroCaption, heroLabel, heroScene, plotAt, undrawn } from '../../src/components/scenes/heroScene';
 import { MODULES } from '../../src/lib/modules';
 import { PALS, WOOD } from '../../src/lib/iso/core.js';
 
@@ -20,9 +20,10 @@ describe('home hero', () => {
     expect(svg).not.toMatch(/NaN/);
   });
 
-  it('plots never overlap and stay on the board, for 1 slot up to the registry’s count (at least 12)', () => {
+  // 17 live modules (the roadmap all live) leave 15 slots after RAG's and tool calling's plots
+  it('plots never overlap and stay on the board, for 1 slot up to the registry’s count (at least 15)', () => {
     const slots = MODULES.filter(m => m.status === 'live').length - 2 + MODULES.filter(m => m.status === 'planned').length;
-    for (let n = 1; n <= Math.max(12, slots); n++) {
+    for (let n = 1; n <= Math.max(15, slots); n++) {
       const rects = Array.from({ length: n }, (_, i) => plotAt(i)), [, , bx1, by1] = heroBoard(n);
       rects.forEach(([x0, y0, x1, y1], i) => {
         expect(x1 <= bx1 && y1 <= by1 && x0 >= 0 && y0 >= 0).toBe(true);
@@ -40,6 +41,19 @@ describe('home hero', () => {
     expect(rest).toContain('THREE');
     expect(soon.map(g => /PLANNED \d/.exec(g)?.[0])).toEqual(planned.map(p => p.name.toUpperCase()));
     expect(svg).not.toMatch(/NaN/);
+  });
+
+  // a live module with no drawing would leave an empty mint plot in the wave
+  it('draws a plot for every live module, and names any that lacks one', () => {
+    const live = MODULES.filter(m => m.status === 'live').map(m => m.id);
+    expect(undrawn(live)).toEqual([]);
+    const seventeen = [...live, ...Array.from({ length: 17 - live.length }, (_, i) => `fixture-${i}`)];
+    expect(undrawn(seventeen)).toEqual(seventeen.slice(live.length));
+  });
+
+  it('the caption invites a build while plots are open, and a proposal once none are', () => {
+    expect(heroCaption(true)).toEqual({ text: 'The empty plots are open:', link: 'build one' });
+    expect(heroCaption(false)).toEqual({ text: 'Room for more:', link: 'propose one' });
   });
 
   it('the label names every module', () => {
@@ -69,5 +83,14 @@ describe('home hero', () => {
     expect(soon.map(g => />([AB])</.exec(g)?.[1])).toEqual(['A', 'B']);
     expect(rest).not.toMatch(/>[AB]</);
     expect(rest).toContain('class="hero-hop"');
+  });
+
+  // reduced motion and the share image show every pill at once: none may cover another
+  it('no two pills overlap with every pill shown, for the real registry', () => {
+    const boxes = [...draw().matchAll(/<g class="block-tag"[^>]*><g class="tag[^"]*">.*?<rect x="([\d.-]+)" y="([\d.-]+)" width="([\d.]+)" height="([\d.]+)".*?>([^<]+)<\/text>/g)]
+      .map(([, x, y, w, h, name]) => ({ name, x0: +x, y0: +y, x1: +x + +w, y1: +y + +h }));
+    expect(boxes).toHaveLength(MODULES.length);
+    const hits = boxes.flatMap((a, i) => boxes.slice(i + 1).filter(b => a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1).map(b => `${a.name} × ${b.name}`));
+    expect(hits).toEqual([]);
   });
 });

@@ -20,7 +20,7 @@ About 30 seconds on one CPU thread. The run is seeded and deterministic: a retra
 
 To try settings without writing anything, add `--no-write` and any of `--steps`, `--lr`, `--weight-decay`, `--dropout`, `--batch`, `--seed`. The defaults are the committed run.
 
-**After a base retrain, rerun with `--finetune` (below).** The base run rewrites `meta.json` and `goldens.json` without the `finetune` / `lora` keys, and `finetuned.bin` and `lora.bin` were trained on the old base, so they go stale. The Fine-tuning tests fail until you do.
+**After a base retrain, rerun with `--finetune` and `--distill` (below).** The base run rewrites `meta.json` and `goldens.json` without the `finetune`, `lora` and `student` keys, and `finetuned.bin`, `lora.bin` and `student.bin` were trained from the old base, so they go stale. The Fine-tuning and student tests fail until you do.
 
 ## Fine-tunes (Fine-tuning module)
 
@@ -38,5 +38,19 @@ pnpm test        # fine-tuning-runs.test.ts: goldens, the sign-off, forgetting, 
 ```
 
 About 3 seconds; seeded and deterministic (byte-identical `.bin` files; only `seconds` changes). Try settings with `--no-write` and `--ft-steps`, `--ft-batch`, `--ft-lr`, `--lora-lr`, `--rank`, `--alpha`, `--ft-dropout`. A base retrain means rerunning `--finetune` too.
+
+## Student (Small models, Inference)
+
+`--distill` never retrains the base either. It reads the committed `model.bin` as the teacher and trains a smaller student on its next-token distribution softened by a temperature (2), plus a small weight (0.1) on the true next token, over the training split (Hinton et al. 2015). The student is 1 layer, 2 heads, d_model 16, d_mlp 64, context 32, the same vocabulary, tied unembedding (16,112 parameters).
+
+- Writes `public/data/lm/student.bin` (Float16, 32 KB; the budget is 40 KB), its config, layout, loss curve, held-out scores and `agreement` (the share of held-out positions where its greedy next token is the base's) under `meta.json` `student`, and goldens (the five base prompts, held-out scores) under `goldens.json` `student`, all from the Float16-rounded weights. Every other key is written back unchanged.
+- Agreement must be at least 0.40 (the plan's stop condition). If a retrain misses it, try `--student-layers 2`; never a wider student (the embedding alone breaks the budget).
+
+```bash
+uv run --no-project --python 3.12 --with-requirements scripts/train/requirements.txt scripts/train/train.py --distill
+pnpm test        # lm-student.test.ts: goldens, size, agreement, the loader, the other weights untouched
+```
+
+About 30 seconds; seeded and deterministic (a byte-identical `student.bin`; only `seconds` changes). Try settings with `--no-write` and `--student-layers`, `--kd-steps`, `--kd-lr`, `--kd-weight-decay`, `--temperature`, `--hard`, `--batch`.
 
 The model is shaped after Andrej Karpathy's [nanoGPT](https://github.com/karpathy/nanoGPT) (MIT).

@@ -16,8 +16,8 @@ import { Outcome } from '../tool-calling/kit';
 import { Fact, FineTuneStage, META, ModelGate, loadModel, modelNow, type View } from './kit';
 
 const MODULE = 'fine-tuning', ID = '05-what-training-costs';
-const ALL: Weights[] = ['base', 'finetuned', 'lora'];
-const NAME: Record<Weights, string> = { base: 'Base model', finetuned: 'Full fine-tune', lora: 'Base + adapter (LoRA)' };
+const ALL: Exclude<Weights, 'student'>[] = ['base', 'finetuned', 'lora'];
+const NAME: Record<Exclude<Weights, 'student'>, string> = { base: 'Base model', finetuned: 'Full fine-tune', lora: 'Base + adapter (LoRA)' };
 const EXAMPLES = (META.finetune!.training as { styleExamples: number }).styleExamples;
 const DOCS = HELDOUT.docs.length, TOKENS = HELDOUT.ids.reduce((n, d) => n + d.length, 0);
 /** the held-out line of each recorded run: how the score moved while it trained */

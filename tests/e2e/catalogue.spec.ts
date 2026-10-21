@@ -5,6 +5,8 @@ import { MODULES } from '../../src/lib/modules';
 
 const CONTRIBUTING = 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING.md';
 const catalogue = (page: import('@playwright/test').Page) => page.locator('#modules');
+// live modules in their numbered order: each go-live appends its id (KTD17)
+const NUMBERED = ['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs', 'reasoning', 'small-models', 'inference', 'observability', 'sandboxing', 'multimodal', 'voice'];
 
 // every module sits at its level: live cards first, then the roadmap's planned cards in registry (build) order;
 // the hero's building sites point contributors at CONTRIBUTING.md, and so does the Propose a module link.
@@ -13,7 +15,6 @@ for (const width of [1280, 390]) test(`levels in order, live then planned cards 
   await page.goto('/');
   await expect(catalogue(page).locator('[data-level] > h3')).toHaveText(['Beginner', 'Intermediate', 'Advanced']);
   const live = MODULES.filter(m => m.status === 'live'), planned = MODULES.filter(m => m.status === 'planned');
-  expect(planned.length).toBeGreaterThan(0);
   await expect(catalogue(page).locator('.module')).toHaveCount(live.length);
   await expect(catalogue(page).locator('.roadmap')).toHaveCount(planned.length);
   for (const level of ['Beginner', 'Intermediate', 'Advanced'] as const) {
@@ -27,7 +28,10 @@ for (const width of [1280, 390]) test(`levels in order, live then planned cards 
   }
   await expect(catalogue(page).locator('.coming')).toHaveCount(0);
   await expect(catalogue(page).getByRole('link', { name: 'Propose a module' })).toHaveAttribute('href', CONTRIBUTING);
-  await expect(page.locator('.hero-pic figcaption')).toContainText('The empty plots are open');
+  // heroCaption's wording for both states is unit-tested (hero.test.ts); here, the one the registry gives
+  const [text, link] = planned.length ? ['The empty plots are open:', 'build one'] : ['Room for more:', 'propose one'];
+  await expect(page.locator('.hero-pic figcaption')).toContainText(text);
+  await expect(page.locator('.hero-pic figcaption a')).toHaveText(link);
   await expect(page.locator('.hero-pic figcaption a')).toHaveAttribute('href', CONTRIBUTING);
   await expect(page.getByText('In the workshop')).toHaveCount(0);
 });
@@ -39,15 +43,54 @@ for (const [width, height] of [[1280, 800], [390, 844]]) test(`the hero text and
     await expect(el).toBeInViewport({ ratio: 1 });
 });
 
-test('live modules keep their numbers: Tokens is Module 6 under Beginner and Transformers Module 7 under Advanced and Context Module 8 under Intermediate and Fine-tuning Module 9 under Advanced, linked; Agents, Evals and Guardrails keep 3, 4 and 5', async ({ page }) => {
+test('live modules keep their numbers, each linked under its level', async ({ page }) => {
   await page.goto('/');
   const kicker = (id: string) => page.locator(`.module[data-module="${id}"] .kicker`);
-  for (const [id, n] of [['rag', 1], ['tool-calling', 2], ['agents', 3], ['evals', 4], ['guardrails', 5], ['tokens', 6], ['transformers', 7], ['context', 8], ['fine-tuning', 9]] as const)
-    await expect(kicker(id)).toHaveText(new RegExp(`^Module ${n} · `));
+  for (const [i, id] of NUMBERED.entries()) await expect(kicker(id)).toHaveText(new RegExp(`^Module ${i + 1} · `));
   await expect(page.locator('[data-level="Beginner"] .module[data-module="tokens"] h4 a')).toHaveAttribute('href', '/tokens/');
   await expect(page.locator('[data-level="Advanced"] .module[data-module="transformers"] h4 a')).toHaveAttribute('href', '/transformers/');
   await expect(page.locator('[data-level="Intermediate"] .module[data-module="context"] h4 a')).toHaveAttribute('href', '/context/');
   await expect(page.locator('[data-level="Advanced"] .module[data-module="fine-tuning"] h4 a')).toHaveAttribute('href', '/fine-tuning/');
+  await expect(page.locator('[data-level="Intermediate"] .module[data-module="structured-outputs"] h4 a')).toHaveAttribute('href', '/structured-outputs/');
+  await expect(page.locator('[data-level="Intermediate"] .module[data-module="reasoning"] h4 a')).toHaveAttribute('href', '/reasoning/');
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="small-models"] h4 a')).toHaveAttribute('href', '/small-models/');
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="inference"] h4 a')).toHaveAttribute('href', '/inference/');
+  await expect(page.locator('[data-level="Intermediate"] .module[data-module="observability"] h4 a')).toHaveAttribute('href', '/observability/');
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="sandboxing"] h4 a')).toHaveAttribute('href', '/sandboxing/');
+  await expect(page.locator('[data-level="Intermediate"] .module[data-module="multimodal"] h4 a')).toHaveAttribute('href', '/multimodal/');
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="voice"] h4 a')).toHaveAttribute('href', '/voice/');
+});
+
+// U35: every module is live, so the roadmap is empty again: seventeen numbered cards, no roadmap card, an invitation to propose
+test('the roadmap is empty: seventeen live cards numbered 1–17, no roadmap cards, Room for more', async ({ page }) => {
+  await page.goto('/');
+  expect(MODULES.map(m => m.id)).toEqual(NUMBERED);
+  await expect(catalogue(page).locator('.module')).toHaveCount(17);
+  await expect(catalogue(page).locator('.roadmap')).toHaveCount(0);
+  const nums = await catalogue(page).locator('.module .kicker').evaluateAll(els => els.map(e => Number(/^Module (\d+) · /.exec(e.textContent ?? '')?.[1])));
+  expect(nums.sort((a, b) => a - b)).toEqual(Array.from({ length: 17 }, (_, i) => i + 1));
+  await expect(page.locator('.hero-pic .hero-soon')).toHaveCount(0);
+  await expect(page.locator('.hero-pic figcaption')).toContainText('Room for more:');
+  await expect(page.locator('.hero-pic figcaption a')).toHaveText('propose one');
+  await expect(page.locator('.hero-pic figcaption a')).toHaveAttribute('href', CONTRIBUTING);
+});
+
+// the wave hops plot i at i × 0.8 s; sampled mid-turn, only that plot's pill shows, and with reduced motion every pill shows
+test('the hero wave shows one pill at a time, each on its own turn', async ({ page }) => {
+  await page.goto('/');
+  const pills = page.locator('.hero-pic .hero-hop .block-tag');
+  await expect(pills).toHaveCount(NUMBERED.length);
+  const shown = () => pills.evaluateAll(els => els.map(e => +getComputedStyle(e).opacity > 0.01));
+  for (let i = 0; i < NUMBERED.length; i++) {
+    await page.evaluate(t => document.getAnimations().forEach(a => { a.pause(); a.currentTime = t; }), i * 800 + 400);
+    expect(await shown(), `turn ${i}`).toEqual(NUMBERED.map((_, j) => j === i));
+  }
+});
+
+test('with reduced motion, every hero pill shows', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  for (const pill of await page.locator('.hero-pic .block-tag').all()) await expect(pill).toHaveCSS('opacity', '1');
 });
 
 test('keyboard Tab never lands in a planned card', async ({ page }) => {
