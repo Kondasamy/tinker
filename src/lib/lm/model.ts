@@ -4,7 +4,13 @@
 
 export interface ModelConfig { vocab: number; n_layer: number; n_head: number; d_model: number; ctx: number; d_mlp: number; ln_eps: number }
 /** Tensors by their PyTorch names (Linear weights are [out, in], row-major). */
-export interface Model { config: ModelConfig; tensors: Record<string, Float32Array> }
+export interface Model { config: ModelConfig; tensors: Record<string, Float32Array>; adapter?: Adapter }
+/**
+ * A LoRA adapter (U18): for each adapted Linear `h.<l>.attn.<qkv|proj>`, A [rank, in] and B [out, rank] stored as
+ * `<name>.A` / `<name>.B`. The forward pass adds scale × B(A x) to that Linear's output; the base weights stay as
+ * they are. A Linear with no A/B pair is left alone.
+ */
+export interface Adapter { rank: number; scale: number; tensors: Record<string, Float32Array> }
 
 export interface ForwardResult {
   /** The ids the model read: the prompt's last `ctx` (32) tokens. */
@@ -48,7 +54,22 @@ function layerNorm(x: Float64Array, w: Float32Array, b: Float32Array, eps: numbe
   return y;
 }
 
-const gelu = (x: number) => 0.5 * x * (1 + Math.tanh(Math.sqrt(2 / Math.PI) * (x + 0.044715 * x ** 3)));
+/** Linear `name` (e.g. `h.0.attn.qkv`), plus the adapter's low-rank product when the model carries one for it. */
+function adapted(model: Model, name: string, x: Float64Array, nOut: number): Float64Array {
+  const P = model.tensors, y = linear(x, P[`${name}.weight`], P[`${name}.bias`], nOut);
+  const ad = model.adapter, A = ad?.tensors[`${name}.A`], B = ad?.tensors[`${name}.B`];
+  if (!ad || !A || !B) return y;
+  const r = ad.rank, nIn = x.length, ax = new Float64Array(r);
+  for (let k = 0; k < r; k++) for (let i = 0; i < nIn; i++) ax[k] += A[k * nIn + i] * x[i];
+  for (let o = 0; o < nOut; o++) {
+    let s = 0;
+    for (let k = 0; k < r; k++) s += B[o * r + k] * ax[k];
+    y[o] += ad.scale * s;
+  }
+  return y;
+}
+
+const gelu =(x: number) => 0.5 * x * (1 + Math.tanh(Math.sqrt(2 / Math.PI) * (x + 0.044715 * x ** 3)));
 
 export function forward(model: Model, prompt: number[]): ForwardResult {
   const { config: c, tensors: P } = model;
@@ -60,7 +81,7 @@ export function forward(model: Model, prompt: number[]): ForwardResult {
 
   for (let l = 0; l < c.n_layer; l++) {
     const p = (n: string) => P[`h.${l}.${n}`];
-    const qkv = xs.map((x) => linear(layerNorm(x, p('ln1.weight'), p('ln1.bias'), c.ln_eps), p('attn.qkv.weight'), p('attn.qkv.bias'), 3 * D));
+    const qkv = xs.map((x) => adapted(model, `h.${l}.attn.qkv`, layerNorm(x, p('ln1.weight'), p('ln1.bias'), c.ln_eps), 3 * D));
     const ys = xs.map(() => new Float64Array(D));
     const heads: number[][][] = [];
     for (let h = 0; h < H; h++) {
@@ -80,7 +101,7 @@ export function forward(model: Model, prompt: number[]): ForwardResult {
     }
     attention.push(heads);
     xs = xs.map((x, t) => {
-      const proj = linear(ys[t], p('attn.proj.weight'), p('attn.proj.bias'), D);
+      const proj = adapted(model, `h.${l}.attn.proj`, ys[t], D);
       const r = x.map((v, i) => v + proj[i]);
       const hidden = linear(layerNorm(r, p('ln2.weight'), p('ln2.bias'), c.ln_eps), p('mlp.fc.weight'), p('mlp.fc.bias'), c.d_mlp).map(gelu);
       const out = linear(hidden, p('mlp.proj.weight'), p('mlp.proj.bias'), D);
