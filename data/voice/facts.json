@@ -11,7 +11,6 @@
     { "id": "gemini-audio", "claim": "Gemini Live takes raw 16-bit PCM audio at 16 kHz and sends back raw 16-bit PCM audio at 24 kHz.", "source": "https://ai.google.dev/gemini-api/docs/live-api" },
     { "id": "openai-s2s", "claim": "OpenAI describes speech-to-speech as one model that interprets audio, decides what to do and responds in speech, with the session handling audio turns, tools and interruptions.", "source": "https://developers.openai.com/api/docs/guides/voice-agents" },
     { "id": "openai-chained", "claim": "OpenAI suggests the chained path (speech-to-text, a text agent, text-to-speech) when each stage needs to be visible or replaceable: you can store the transcript and run policy checks before the agent responds.", "source": "https://developers.openai.com/api/docs/guides/voice-agents" },
-    { "id": "stivers", "claim": "Stivers and colleagues (2009) timed replies in conversation across 10 languages: in every one, the most common gap before a reply was between 0 and 200 ms, and the mean over all of them was 208 ms.", "value": "208", "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2705608/" },
-    { "id": "kokoro", "claim": "The voices in this module were spoken by Kokoro-82M, an open-weight text-to-speech model released under the Apache-2.0 licence.", "source": "https://huggingface.co/hexgrad/Kokoro-82M" }
+    { "id": "stivers", "claim": "Stivers and colleagues (2009) timed replies in conversation across 10 languages: in every one, the most common gap before a reply was between 0 and 200 ms, and the mean over all of them was 208 ms.", "value": "208", "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2705608/" }
   ]
 }
