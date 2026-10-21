@@ -28,7 +28,7 @@
     "case=refund-window|docs=shipping-damage,returns-time,billing-terms,billing-late,refund-process,refund-payment,shipping-delivery,sensor-claims,shipping-processing,sensor-warranty,shipping-same-day,shipping-weekend,refund-window|found=|history=|memory=|stuff=off|system=plain|tools=": {
       "text": "You have five days from delivery. After that we cannot take the claim.",
       "right": false,
-      "note": "Illustrated, not measured: with 12 distractors even a late fact slips; accuracy falls as the window fills (context rot, Chroma 2025)."
+      "note": "Illustrated, not measured: the end is a strong place, but 12 distractors crowd the fact out anyway; accuracy falls as related passages fill the window (context rot, Chroma 2025)."
     },
     "case=free-shipping|docs=shipping-costs,shipping-processing,shipping-delivery,shipping-same-day,shipping-damage|found=|history=|memory=|stuff=off|system=plain|tools=": {
       "text": "Parcel shipping is free on orders over $500. Freight is quoted per order by weight and distance.",

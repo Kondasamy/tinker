@@ -1,5 +1,6 @@
 // Chapter 2: more isn't better (R10.2, KTD8). The needed fact goes in alone, then early, in the middle or late among
 // related passages that don't hold it. The reader predicts where it is safest, then tries every place at two counts.
+// The lesson, read off the runs: the start or the end beats the middle (Liu), and more distractors cost more answers (Chroma).
 // The answers are recorded to illustrate the sourced findings, not measured: each one's note is shown, and the reveal
 // cites the facts (Liu et al. 2023 on position; Chroma 2025 and Anthropic on context rot).
 import StepRunner from '../../components/story/StepRunner';
@@ -18,7 +19,7 @@ const MODULE = 'context', ID = '02-more-isnt-better';
 const D = DOMAINS[ID];
 const SESSION = D.sessions!.find(s => s[0][0] === 'refund-window')!, CASE = caseOf(SESSION[0][0]);
 const PLACES = D.place!;
-const [, ...COUNTS] = D.distractors!;   // 0 is the fact alone; the rest are what the reader tries
+export const [, ...COUNTS] = D.distractors!;   // 0 is the fact alone; the rest are what the reader tries
 const PLACE_NAME: Record<Place, string> = { early: 'At the start', middle: 'In the middle', late: 'At the end' };
 
 interface S { n: number; place: Place; seen: string[]; p1: number | null; quiz: number | null }
@@ -27,13 +28,15 @@ const R = (n: number, place: Place) => runOf({ sessions: SESSION, retrieval: 'to
 const turnOf = (n: number, place: Place) => R(n, place).meter[0].turn;
 const current = (s: S) => R(s.n, s.place);
 
-/** the places where the fact is answered right at every count */
-const SAFE = PLACES.filter(p => COUNTS.every(n => turnOf(n, p).right));
-const P1 = {
+/** right answers at each place over the counts tried, and wrong answers at each count over the places */
+export const RIGHTS = Object.fromEntries(PLACES.map(p => [p, COUNTS.filter(n => turnOf(n, p).right).length])) as Record<Place, number>;
+export const WRONGS = COUNTS.map(n => PLACES.filter(p => !turnOf(n, p).right).length);
+const EDGES = PLACES.filter(p => p !== 'middle');
+export const P1 = {
   question: `Larkspur adds ${COUNTS[0]} related passages next to the refund policy, so the model has more to go on. Where should the fact sit to be safest?`,
-  options: ['At the start, before the other passages', 'In the middle of them', 'At the end, just before the question', 'Anywhere: once it is in the window, the model sees it'],
+  options: ['At the start or the end, not buried in the middle', 'In the middle of them', 'Anywhere: once it is in the window, the model sees it'],
 };
-const OUT1 = SAFE.length === 1 ? PLACES.indexOf(SAFE[0]) : 3;
+export const OUT1 = EDGES.every(p => RIGHTS[p] > RIGHTS.middle) ? 0 : EDGES.every(p => RIGHTS[p] < RIGHTS.middle) ? 1 : 2;
 const WRONG = turnOf(COUNTS[0], 'middle');
 
 const QUIZ = {
@@ -48,7 +51,7 @@ const QUIZ = {
   explanation: fact('lost-in-the-middle').claim,
   why: [
     `More passages are more distractors. Here the same fact with ${COUNTS[COUNTS.length - 1]} passages around it slipped even at the end.`,
-    `Right. ${fact('context-rot').claim} Fewer, better passages keep the fact in view, and the start is where it is found most reliably.`,
+    `Right. ${fact('context-rot').claim} Fewer, better passages keep the fact in view, and the best match first keeps it out of the middle, where it is missed most.`,
     'Being in the window isn’t the same as being found. In this chapter the fact was always in the window, and some answers were still wrong.',
     `The middle is the weak spot. ${fact('lost-in-the-middle').claim}`,
   ],
@@ -74,9 +77,9 @@ export const STEPS: Step<S>[] = [
   },
   {
     id: 'quiz', focus: 'quiz', visibleControls: ['out1', 'grid', 'notes', 'facts', 'quiz'],
-    narration: `In the middle, the model answered “${WRONG.text}” That is a distractor’s fact given as the answer. With ${COUNTS[1]} distractors even the end slipped, while the start held. These answers are recorded, written to illustrate published findings, not measured on a model; each one’s note says why it reads that way. One question to finish.`,
+    narration: `In the middle, the model answered “${WRONG.text}” That is a distractor’s fact given as the answer. Over both counts the fact was right ${RIGHTS.early} of ${COUNTS.length} times at the start, ${RIGHTS.late} at the end and ${RIGHTS.middle} in the middle. More passages cost more answers: ${WRONGS.map((w, i) => `${w} of ${PLACES.length} places went wrong with ${COUNTS[i]}`).join(', ')}. These answers are recorded, written to illustrate published findings, not measured on a model; each one’s note says why it reads that way. One question to finish.`,
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
-    hint: 'Which place held at both counts, and what did more passages do?',
+    hint: 'Which places beat the middle, and what did more passages do?',
   },
 ];
 

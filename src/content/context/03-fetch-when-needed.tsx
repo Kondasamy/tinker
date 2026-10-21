@@ -16,8 +16,8 @@ import { ContextStage, Fact, runOf } from './kit';
 
 const MODULE = 'context', ID = '03-fetch-when-needed';
 type Mode = Extract<Retrieval, 'stuff' | 'fetch'>;
-const CASES = DOMAINS[ID].sessions!.map(s => s[0][0]);
-const FIRST = CASES[0];
+export const CASES = DOMAINS[ID].sessions!.map(s => s[0][0]);
+export const FIRST = CASES[0];
 const MODE_NAME: Record<Mode, string> = { stuff: 'Every document up front', fetch: 'Search when needed' };
 
 interface S { kase: string; mode: Mode; seen: string[]; p1: number | null; quiz: number | null }
@@ -25,8 +25,8 @@ const key = (c: string, m: Mode) => `${c}:${m}`;
 const R = (c: string, m: Mode) => runOf({ sessions: [[c]], retrieval: m });
 const current = (s: S) => R(s.kase, s.mode);
 /** what a question costs in window tokens: every call's window added up */
-const sent = (c: string, m: Mode) => R(c, m).meter.reduce((n, x) => n + x.window.tokens, 0);
-const answer = (c: string, m: Mode) => R(c, m).answers[0];
+export const sent = (c: string, m: Mode) => R(c, m).meter.reduce((n, x) => n + x.window.tokens, 0);
+export const answer = (c: string, m: Mode) => R(c, m).answers[0];
 
 const STUFF = sent(FIRST, 'stuff'), FETCH = sent(FIRST, 'fetch');
 const P1 = {

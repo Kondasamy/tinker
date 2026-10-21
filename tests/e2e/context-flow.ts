@@ -50,7 +50,7 @@ export function contextWalker(page: Page, mode: Mode, check: (page: Page) => Pro
     async ch2(next?: RegExp, quiz: string | RegExp = /^Send fewer articles/) {
       await btn('Send with the fact alone');
       await step(2);
-      await opt(/^At the start, before/);
+      await opt(/^At the start or the end/);
       await step(3);
       await btn('4 distractors');
       await btn('In the middle');
