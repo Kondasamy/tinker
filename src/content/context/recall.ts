@@ -189,4 +189,142 @@ export const RECALL: RecallItem[] = [
       'Tool definitions are sent as text at the very start, so they are the front of the prefix.',
     ],
   },
+  // 5. Clearing the desk
+  {
+    id: 'clear-keeps-decisions', chapter: '05-clearing-the-desk',
+    question: 'A travel assistant has looked up twelve hotels in one chat. The host clears the old search results. What does the model still have?',
+    options: [
+      'Nothing from earlier: clearing empties the conversation',
+      'Every question, every call it made and every answer it gave, with a placeholder where each old result was',
+      'Only a summary it wrote of the whole chat',
+    ],
+    correct: 1,
+    why: [
+      'Clearing removes old tool results only. Emptying the conversation would lose the decisions too.',
+      'Right. The decisions stay in the window; only the bulky results are dropped, and a placeholder says one was there.',
+      'That is a summary, a different fix: it replaces the whole history with a few lines.',
+    ],
+  },
+  {
+    id: 'clear-cache', chapter: '05-clearing-the-desk',
+    question: 'With prompt caching on, a team clears one old tool result on every turn. Why can their bill go up?',
+    options: [
+      'Each clear changes text early in the window, so everything after it misses the cache and is written again',
+      'Placeholders are billed at the output price',
+      'Clearing makes the model search again for everything it lost',
+    ],
+    correct: 0,
+    why: [
+      'Right. A hit needs the start to match. Clearing changes the middle, so the rest is a cache write again. Clear in batches.',
+      'A placeholder is ordinary input text, and short.',
+      'The answers and decisions stay in the window, so the model doesn’t need to search again for them.',
+    ],
+  },
+  {
+    id: 'clear-when', chapter: '05-clearing-the-desk',
+    question: 'When is clearing old tool results most worth it?',
+    options: [
+      'On every turn, to keep the window as small as possible',
+      'When the window nears its limit, or old results start to crowd out the question, clearing many at once',
+      'Never: a summary is always better',
+    ],
+    correct: 1,
+    why: [
+      'Clearing every turn breaks the cached prefix every turn; in chapter 5 that cost more than it saved.',
+      'Right. Clear when the room or the answers need it, and clear enough at once to be worth the new cache write.',
+      'A summary drops more: the calls and answers too. Clearing keeps them, which is often what the next question needs.',
+    ],
+  },
+  // 6. Memory outside the window
+  {
+    id: 'session-empty', chapter: '06-memory',
+    question: 'A customer told a support assistant their account number yesterday. Today, in a new chat, the assistant asks for it again. Why?',
+    options: [
+      'The model forgot it overnight',
+      'Each conversation starts with an empty window; nothing carried the number over',
+      'The provider deletes facts older than a day from the model',
+    ],
+    correct: 1,
+    why: [
+      'The model never stored it. It only ever saw the number in yesterday’s window.',
+      'Right. A session’s window is gone when it ends. Only something written outside it, like a memory note, can reach the next one.',
+      'A model doesn’t keep customers’ facts at all, so there is nothing to delete.',
+    ],
+  },
+  {
+    id: 'memory-note', chapter: '06-memory',
+    question: 'With a memory tool, how does a fact from Monday reach Friday’s conversation?',
+    options: [
+      'The model writes a short note to a file on Monday; the host reads the notes into Friday’s window',
+      'The host sends Monday’s whole conversation again on Friday',
+      'The model is retrained on Monday’s conversation overnight',
+    ],
+    correct: 0,
+    why: [
+      'Right. The note is a file outside the window; it costs a few tokens when it is read back in.',
+      'That would carry everything, at full size. A note keeps only what the assistant chose to write.',
+      'Nothing is trained. The note is text that is read into the window.',
+    ],
+  },
+  {
+    id: 'memory-host', chapter: '06-memory',
+    question: 'The model asks the memory tool to write a note to /etc/settings. What should happen?',
+    options: [
+      'The host writes it: the model decides where notes go',
+      'The host refuses: it carries out file operations only inside the memory folder',
+      'The provider writes it on its own servers',
+    ],
+    correct: 1,
+    why: [
+      'The model only asks. The host carries out the operation, so it decides what is allowed.',
+      'Right. The memory tool runs on the host’s side, on storage the company controls, and the host keeps it inside the memory folder.',
+      'The memory tool runs client side: the company’s application, not the provider, does the writing.',
+    ],
+  },
+  // 7. Workbench
+  {
+    id: 'policy-measure', chapter: '07-workbench',
+    question: 'A team wants to choose a context policy for their assistant. What should they compare?',
+    options: [
+      'Only the token count: fewer is always better',
+      'Answer quality, tokens and cost, over a set of real conversations',
+      'Only answer quality: cost can be fixed later',
+    ],
+    correct: 1,
+    why: [
+      'Fewer tokens can cost more with a cache, and too few can lose the answer. Tokens alone mislead.',
+      'Right. Each lever moves more than one number, so read them side by side, over whole conversations.',
+      'A policy that answers well at three times the cost may not ship. Read both at once.',
+    ],
+  },
+  {
+    id: 'policy-more', chapter: '07-workbench',
+    question: 'A policy sends every document and the whole history with every call. What did Larkspur’s workbench show about it?',
+    options: [
+      'It was the most accurate, at the highest cost',
+      'It was neither the most accurate nor the cheapest: searching with the full history and the cache on beat it on both',
+      'It was the cheapest, because nothing needed a second call',
+    ],
+    correct: 1,
+    why: [
+      'More text didn’t mean better answers: a fact in the middle of the documents was missed.',
+      'Right. A small window with the fact in view answered better, and the cache made the growing history cheap.',
+      'Searching adds a call, but its windows are so much smaller that it still cost less.',
+    ],
+  },
+  {
+    id: 'policy-cache', chapter: '07-workbench',
+    question: 'Turning the cache on changed which answers came out right. True or false?',
+    options: [
+      'True: cached text is read less carefully',
+      'False: the cache changes the price of re-sending the same start, not what the model reads',
+      'True: cached windows are smaller',
+    ],
+    correct: 1,
+    why: [
+      'The model reads every token in the window, cached or not.',
+      'Right. The cache is a host setting outside what the model sees, so the answers stay the same and only the cost moves.',
+      'A cached window is the same size; its start is just billed at a fraction of the price.',
+    ],
+  },
 ];

@@ -96,6 +96,49 @@ export function contextWalker(page: Page, mode: Mode, check: (page: Page) => Pro
       await opt(quiz);
       await finish(next);
     },
+    /** the full history, the prediction (which clears it), the summary, then the cache prediction */
+    async ch5(next?: RegExp, quiz: string | RegExp = /^Each clear changes text early/) {
+      await btn('Send the conversation');
+      await step(2);
+      await check(page);
+      await opt(/^Still right, from a smaller window/);
+      await step(3);
+      await btn('One summary');
+      await step(4);
+      await check(page);
+      await opt(/^Full history/);
+      await step(5);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
+    /** both sessions without memory, the prediction, then both with the memory tool */
+    async ch6(next?: RegExp, quiz: string | RegExp = /^In the shop’s own storage/) {
+      await btn('Run both conversations');
+      await step(2);
+      await check(page);
+      await opt(/^It knows about the contract/);
+      await step(3);
+      await btn('Run both with the memory tool');
+      await step(4);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
+    /** stuffing everything, the prediction, then the policy solved by hand: search, full history, cache on */
+    async ch7(next?: RegExp, quiz: string | RegExp = /^Fetch the pages each question needs/) {
+      await btn('Run the policy');
+      await step(2);
+      await check(page);
+      await opt(/^Search when needed, instead/);
+      await step(3);
+      await btn('Search when needed');
+      await btn('Cache on');
+      await step(4);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
     open,
   };
 }

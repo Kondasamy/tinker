@@ -4,12 +4,13 @@ import WhatsInTheWindow from '../../content/context/01-whats-in-the-window';
 import MoreIsntBetter from '../../content/context/02-more-isnt-better';
 import FetchWhenNeeded from '../../content/context/03-fetch-when-needed';
 import OrderForTheCache from '../../content/context/04-order-for-the-cache';
+import ClearingTheDesk from '../../content/context/05-clearing-the-desk';
+import MemoryOutsideTheWindow from '../../content/context/06-memory';
+import Workbench from '../../content/context/07-workbench';
 import { moduleOf } from '../../lib/modules';
 
-// shortcut: chapters 5–7 have no island yet, so only 1–4 are built; U16 adds them and drops this filter.
 export function getStaticPaths() {
-  const WRITTEN = ['01-whats-in-the-window', '02-more-isnt-better', '03-fetch-when-needed', '04-order-for-the-cache'];
-  return moduleOf('context').chapters.filter(c => WRITTEN.includes(c.id)).map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+  return moduleOf('context').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
 }
 
 const { chapter } = Astro.params;
@@ -21,5 +22,8 @@ const { title } = Astro.props;
   {chapter === '01-whats-in-the-window' ? <WhatsInTheWindow client:load />
     : chapter === '02-more-isnt-better' ? <MoreIsntBetter client:load />
     : chapter === '03-fetch-when-needed' ? <FetchWhenNeeded client:load />
-    : <OrderForTheCache client:load />}
+    : chapter === '04-order-for-the-cache' ? <OrderForTheCache client:load />
+    : chapter === '05-clearing-the-desk' ? <ClearingTheDesk client:load />
+    : chapter === '06-memory' ? <MemoryOutsideTheWindow client:load />
+    : <Workbench client:load />}
 </ChapterLayout>
