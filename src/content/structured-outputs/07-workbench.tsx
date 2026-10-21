@@ -119,8 +119,10 @@ function Bench({ s, apply }: { s: S; apply: (s: S) => void }) {
 function Stage({ policy, locked }: { policy: Policy; locked: boolean }) {
   const { model } = useModel();
   const prompt = promptFor(ORDERS[0]), schema = schemaFor(policy);
-  const d = useMemo(() => (model ? decodeWith(model, prompt, schema).decoded : null), [model, prompt, policy.team, policy.status, policy.days]);
-  return <StructuredStage prompt={prompt} d={d} at={locked ? 0 : 32} locked={locked} masked={!!schema} caption={`Order ${ORDERS[0].id} under your schema: ${policyName(policy)}.`} />;
+  // no schema: the model writes nothing, as bench()'s rows say, so nothing is decoded
+  const d = useMemo(() => (model && schema ? decodeWith(model, prompt, schema).decoded : null), [model, prompt, policy.team, policy.status, policy.days]);
+  const caption = schema ? `Order ${ORDERS[0].id} under your schema: ${policyName(policy)}.` : `Order ${ORDERS[0].id}: the order system fills every field, so the model writes nothing.`;
+  return <StructuredStage prompt={prompt} d={d} at={locked ? 0 : 32} locked={locked} masked={!!schema} caption={caption} />;
 }
 
 export default function Workbench() {

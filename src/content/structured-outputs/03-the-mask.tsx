@@ -10,7 +10,7 @@ import { VOCAB_SIZE } from '../../lib/lm/bpe';
 import { play, run } from '../../lib/structured-outputs/prompts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Answer, Fact, PinnedStage, Waiting, pct, piece, useModel, whenLoaded, type View } from './kit';
+import { Answer, Fact, PinnedStage, Waiting, modelNow, pct, piece, useModel, whenLoaded, type View } from './kit';
 
 const MODULE = 'structured-outputs', ID = '03-the-mask';
 export const RUN = run('mask');
@@ -62,7 +62,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'write', focus: 'write', visibleControls: ['out1', 'write'],
     narration: 'Now write, a token at a time. Watch the count of allowed tokens change: while the schema spells out {"status": almost nothing else fits, and at the value only tokens that start on time or delayed do. When the model’s own first choice is blocked, it stops at the plate and the model writes the likeliest allowed token instead.',
-    predicate: s => s.at >= 99,
+    predicate: whenLoaded(s => s.at >= decoded(modelNow()!).ids.length),
     hint: 'Press “Write the rest” to finish the answer.',
   },
   {
@@ -96,7 +96,7 @@ export default function TheMask() {
           </>
         ),
         out1: ({ state }) => model ? <Outcome {...P1} prediction={state.p1} outcome={answerOf(model)} /> : <Waiting />,
-        write: ({ state, apply }) => {
+        write: ({ state, apply, sync }) => {
           if (!model) return <Waiting />;
           const d = decoded(model), n = Math.min(state.at, d.ids.length), st = d.steps[n];
           return (
@@ -106,7 +106,7 @@ export default function TheMask() {
                   : `Finished after ${d.ids.length} tokens: ${d.text}`}
               </p>
               <div className="so-row">
-                <button type="button" className="big" disabled={n >= d.ids.length} onClick={() => apply({ ...state, at: n + 1 })}>Write the next token</button>
+                <button type="button" className="big" disabled={n >= d.ids.length} onClick={() => sync({ ...state, at: n + 1 })}>Write the next token</button>
                 <button type="button" className="chip" onClick={() => apply({ ...state, at: 99 })}>Write the rest</button>
               </div>
             </>
