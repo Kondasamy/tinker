@@ -71,7 +71,7 @@ export const heroScene = ({ live, planned, ride }: { live: HeroPlot[]; planned: 
   s += plots;
   const pill = (p: number[], text: string, onn: boolean, dy = -20, dx = 0) => `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text.toUpperCase()), onn, scale)}</g>`;
   // staircase pills end at their leader and run left (half tag()'s width, in its units), so the plot's drawing to the leader's right stays in view
-  const left = (text: string) => -((text.length * .62 + 1.5) * 8.6 / 2 + 2);
+  const left = (text: string) => -((esc(text.toUpperCase()).length * .62 + 1.5) * 8.6 / 2 + 2); // tag() sizes the escaped text ('&' is '&amp;')
   const at = (i: number) => { const [x, y] = slotXY(i); return [x - 4, y, BH + 15]; };
   return s + pill([RAG_X[1], RAG_Y, BH + 34], live[0].name, true, -18) + pill([142, 134, BH + 34], live[1].name, true, -22)
     + later.map((m, i) => pill(at(i), m.name, true, -12, left(m.name))).join('')

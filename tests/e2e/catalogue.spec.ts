@@ -7,13 +7,13 @@ const catalogue = (page: import('@playwright/test').Page) => page.locator('#modu
 
 // the roadmap is empty (U23): every module is a live card at its level, and the roadmap area is a link to propose one.
 // The planned-card path stays for contributors; tests/unit/hero.test.ts keeps it tested with a planned fixture.
-for (const width of [1280, 390]) test(`levels in order, nine live modules grouped by level, no roadmap card, a Propose a module link (${width}px)`, async ({ page }) => {
+for (const width of [1280, 390]) test(`levels in order, every live module grouped by level, no roadmap card, a Propose a module link (${width}px)`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 });
   await page.goto('/');
   await expect(catalogue(page).locator('[data-level] > h3')).toHaveText(['Beginner', 'Intermediate', 'Advanced']);
   const live = MODULES.filter(m => m.status === 'live');
-  expect(live).toHaveLength(9);
-  await expect(catalogue(page).locator('.module')).toHaveCount(9);
+  expect(MODULES.filter(m => m.status === 'planned')).toHaveLength(0);
+  await expect(catalogue(page).locator('.module')).toHaveCount(live.length);
   for (const m of live) await expect(page.locator(`[data-level="${m.level}"] .module[data-module="${m.id}"]`)).toBeVisible();
   await expect(catalogue(page).locator('.roadmap')).toHaveCount(0);
   await expect(catalogue(page).locator('.coming')).toHaveCount(0);
