@@ -1,0 +1,10 @@
+[
+  { "id": "hello", "kind": "english", "lang": "en", "text": "Hello world" },
+  { "id": "spaces", "kind": "english", "lang": "en", "text": "shelf Shelf  shelf shelves" },
+  { "id": "order-en", "kind": "english", "lang": "en", "text": "Your order of 12 shelves arrives on Friday." },
+  { "id": "numbers", "kind": "numbers", "lang": "en", "text": "Order #48213 totals $1,249.99, due 2026-10-21." },
+  { "id": "code", "kind": "code", "lang": "code", "text": "if (order.total > 1000) { approve(order); }" },
+  { "id": "order-es", "kind": "language", "lang": "es", "text": "Tu pedido de 12 estantes llega el viernes." },
+  { "id": "order-hi", "kind": "language", "lang": "hi", "text": "आपका 12 शेल्फ़ का ऑर्डर शुक्रवार को पहुँचेगा।" },
+  { "id": "order-ja", "kind": "language", "lang": "ja", "text": "棚12台のご注文は金曜日に届きます。" }
+]
