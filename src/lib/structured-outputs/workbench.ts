@@ -97,3 +97,7 @@ export const POLICIES: Policy[] = FIELDS.reduce<Policy[]>(
 
 /** Every policy that gives a valid, right answer for every order: each one is a right answer to the puzzle. */
 export const WINNERS = (model: Model) => POLICIES.filter((p) => bench(model, p).score === ORDERS.length);
+
+/** WINNERS over the committed weights, precomputed: decoding all 27 policies froze the page for seconds. A test keeps it
+ * equal to WINNERS on model.bin; a retrain changes both. */
+export const SOLVED: Policy[] = [{ team: 'list', status: 'system', days: 'system' }];

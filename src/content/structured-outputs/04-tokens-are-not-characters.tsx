@@ -71,7 +71,7 @@ const QUIZ = {
 export const STEPS: Step<S>[] = [
   {
     id: 'predict', focus: 'p1', visibleControls: ['p1'],
-    narration: `A new schema: one field, a free note, capped at ${CAP} characters so it always closes inside Larkspur mini’s 32-token window. The model writes tokens, not characters: a token here can carry one character or several, as you saw in Tokens. Before you look near the cap:`,
+    narration: `A new schema: one field, a free note, capped at ${CAP} characters so it always closes inside Larkspur mini’s 32-token window. That cap, maxLength, is this site’s addition to the schema subset: Anthropic’s structured outputs reject it. The model writes tokens, not characters: a token here can carry one character or several, as you saw in Tokens. Before you look near the cap:`,
     predicate: s => s.p1 !== null,
   },
   {

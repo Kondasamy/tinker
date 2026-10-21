@@ -1,7 +1,7 @@
 // Chapter 7: the workbench. The reader designs Larkspur's order-status schema field by field (src/lib/structured-outputs/
 // workbench.ts): free text, a list or a number, or left to the order system. Every order is decoded live under it and
 // read for validity and correctness. The policy lives in the step state, so a resumed run keeps the reader's bench.
-// Every policy that gives valid, right answers for every order is a right answer (WINNERS).
+// Every policy that gives valid, right answers for every order is a right answer (WINNERS, precomputed as SOLVED).
 import { useMemo } from 'react';
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
@@ -10,7 +10,7 @@ import Predict from '../../components/quiz/Predict';
 import { puzzle } from '../../components/quiz/Puzzle';
 import { Outcome } from '../tool-calling/kit';
 import type { Model } from '../../lib/lm/model';
-import { FIELDS, ORDERS, WINNERS, bench, choiceLabel, promptFor, schemaFor, type Choice, type FieldId, type Policy } from '../../lib/structured-outputs/workbench';
+import { FIELDS, ORDERS, SOLVED, bench, choiceLabel, promptFor, schemaFor, type Choice, type FieldId, type Policy } from '../../lib/structured-outputs/workbench';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Answer, Fact, StructuredStage, Waiting, decodeWith, modelNow, useModel, whenLoaded } from './kit';
@@ -63,7 +63,7 @@ export const STEPS: Step<S>[] = [
     narration: 'Now design the schema. For each field choose: the model writes free text, the model picks from a list (or writes a number), or leave it out of the schema and let the order system fill it in. The table decodes every order live under your schema. Get every order valid and right.',
     broken: s => ({ ...s, policy: ALL_MODEL }),
     verdict: whenLoaded(s => bench(modelNow()!, s.policy).score === ORDERS.length),
-    solution: s => ({ ...s, policy: WINNERS(modelNow()!)[0] }),
+    solution: s => ({ ...s, policy: SOLVED[0] }),
     hint: 'The model can’t know an order’s status or days, and two fields don’t fit its window. What can only the model decide?',
   }),
   {
@@ -78,8 +78,7 @@ function Bench({ s, apply }: { s: S; apply: (s: S) => void }) {
   const { model } = useModel();
   if (!model) return <Waiting />;
   const b = bench(model, s.policy), done = b.score === ORDERS.length;
-  // every policy decoded is a few seconds of work: count the winners only once this one is among them
-  const n = done ? WINNERS(model).length : 0;
+  const n = SOLVED.length;
   const set = (f: FieldId, c: Choice) => apply({ ...s, policy: { ...s.policy, [f]: c } });
   const schema = schemaFor(s.policy);
   return (

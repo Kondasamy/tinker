@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { diskModel } from '../../src/lib/transformers/diskModel';
-import { FIELDS, ORDERS, POLICIES, WINNERS, bench, schemaFor, type Policy } from '../../src/lib/structured-outputs/workbench';
+import { FIELDS, ORDERS, POLICIES, SOLVED, WINNERS, bench, schemaFor, type Policy } from '../../src/lib/structured-outputs/workbench';
 import { checkText } from '../../src/lib/structured-outputs/grammar';
 
 const model = diskModel();
@@ -24,6 +24,10 @@ describe('chapter 7 workbench', () => {
         if (s) expect(checkText(s, r.output).ok).toBe(true);
       }
     }
+  }, 60_000);
+
+  it('SOLVED, which the chapter uses so it never decodes every policy in the browser, equals WINNERS on the committed weights', () => {
+    expect(SOLVED).toEqual(WINNERS(model));
   }, 60_000);
 
   it('the lessons hold: a free string is never right, a schema too long for the window is cut off, the model can’t know an order', () => {
