@@ -45,14 +45,13 @@ describe('counts', () => {
 });
 
 describe('recorded encodings (KTD4)', () => {
-  it('records GPT-2 first, plus a current tokenizer', () => {
-    expect(TOKENIZERS[0].id).toBe('gpt2');
-    expect(TOKENIZERS.length).toBeGreaterThanOrEqual(1);
+  it('records GPT-2 first, then GPT-4o: chapter 4 compares an old and a new tokenizer', () => {
+    expect(TOKENIZERS.map((t) => t.id)).toEqual(['gpt2', 'gpt-4o']);
   });
 
   it('pins published ids: GPT-2 and o200k_base on "Hello world" (checked against tiktoken)', () => {
     expect(encodingOf('hello', 'gpt2').ids).toEqual([15496, 995]);
-    if (TOKENIZERS.some((t) => t.id === 'gpt-4o')) expect(encodingOf('hello', 'gpt-4o').ids).toEqual([13225, 2375]);
+    expect(encodingOf('hello', 'gpt-4o').ids).toEqual([13225, 2375]);
   });
 
   it('has an encoding of every sentence for every tokenizer, whose pieces rebuild the text', () => {
@@ -158,12 +157,18 @@ describe('facts (R5)', () => {
 
   it('every fact id Tokens uses exists', () => {
     const ids = FACTS.map((x) => x.id);
-    for (const dir of ['src/lib/tokens', 'src/content/tokens']) {
-      let names: string[] = [];
-      try { names = readdirSync(dir, { recursive: true }).map(String).filter((f) => /\.(ts|tsx|astro)$/.test(f)); } catch { continue; }
+    let used = 0;
+    // a missing directory throws: a moved folder must not pass by checking nothing
+    for (const dir of ['src/lib/tokens', 'src/content/tokens', 'src/pages/tokens']) {
+      const names = readdirSync(dir, { recursive: true }).map(String).filter((f) => /\.(ts|tsx|astro)$/.test(f));
+      expect(names.length, dir).toBeGreaterThan(0);
       for (const f of names)
-        for (const [, id] of readFileSync(`${dir}/${f}`, 'utf8').matchAll(/\bfact\(\s*'([^']+)'/g)) expect(ids, `${f}: ${id}`).toContain(id);
+        for (const [, id] of [...readFileSync(`${dir}/${f}`, 'utf8').matchAll(/\bfact\(\s*['"]([^'"]+)['"]|<Fact\s+id=["']([^"']+)["']/g)].map((m) => [m[0], m[1] ?? m[2]])) {
+          used++;
+          expect(ids, `${dir}/${f}: ${id}`).toContain(id);
+        }
     }
+    expect(used).toBeGreaterThan(0);
   });
 
   it('the cited rule of thumb is the one scale.ts uses', () => expect(Number(fact('openai-rule').value)).toBe(BYTES_PER_TOKEN));
