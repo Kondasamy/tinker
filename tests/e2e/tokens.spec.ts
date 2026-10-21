@@ -126,6 +126,14 @@ test('chapter 5: the cosines come from RAG’s vectors, with the WordPiece line 
   await expect(c.getByRole('link', { name: /^RAG chapter 4/ })).toHaveAttribute('href', '/rag/04-layers/');
 });
 
+test('chapter 5: pointing at the map before the map step does not stall the chapter', async ({ page }) => {
+  const w = tokensWalker(page, 'mouse');
+  await w.open(CH5);
+  // on step 1, before the map step asks; the nearest dot, so the ruler it draws stays clear of the dot the walker points at later
+  await page.locator('.stage .map circle[tabindex]').first().focus();
+  await w.ch5();
+});
+
 test('chapter 6: Show me picks a piece that works, and the ranked pieces follow', async ({ page }) => {
   const w = tokensWalker(page, 'mouse');
   await w.open(CH6);

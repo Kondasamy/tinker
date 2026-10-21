@@ -92,8 +92,9 @@ export default function FromTokenToVector() {
       initial={{ p1: null, embedded: false, probed: false, quiz: null }}
       next={nextOf(MODULE, ID)}
       ready={!!cos && !!cfg}
-      stage={({ state, sync }) => (
-        <MapStage question={Q} onProbe={() => { if (!state.probed) sync({ ...state, probed: true }); }}
+      stage={({ state, sync, focus }) => (
+        // a probe counts only on the map step, and always re-syncs there, so a run saved with an early probe still advances
+        <MapStage question={Q} onProbe={() => { if (focus === 'map') sync({ ...state, probed: true }); }}
           caption={`RAG’s map of meaning: the diamond is “${Q.query}”.`} />
       )}
       controls={{
