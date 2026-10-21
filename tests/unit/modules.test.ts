@@ -25,9 +25,19 @@ describe('module registry', () => {
     for (const m of MODULES) expect(['Beginner', 'Intermediate', 'Advanced']).toContain(m.level);
   });
 
-  it('has no planned modules left: the roadmap is empty, and any planned one would have no chapters', () => {
-    expect(MODULES.filter(m => m.status === 'planned').map(m => m.id)).toEqual([]);
-    for (const m of MODULES.filter(m => m.status === 'planned')) expect(m.chapters, m.id).toEqual([]);
+  it('has the AI engineering roadmap as planned cards, in build order, each with no chapters and no prereqs', () => {
+    const planned = MODULES.filter(m => m.status === 'planned');
+    expect(planned.map(m => [m.id, m.level])).toEqual([
+      ['structured-outputs', 'Intermediate'],
+      ['reasoning', 'Intermediate'],
+      ['small-models', 'Advanced'],
+      ['inference', 'Advanced'],
+      ['observability', 'Intermediate'],
+      ['sandboxing', 'Advanced'],
+      ['multimodal', 'Intermediate'],
+      ['voice', 'Advanced'],
+    ]);
+    for (const m of planned) expect([m.chapters, m.prereqs], m.id).toEqual([[], []]);
   });
 
   it('has tool calling as a live Intermediate module that recommends RAG first', () => {
@@ -71,7 +81,7 @@ describe('module registry', () => {
   it('has fine-tuning as a live Advanced module that recommends Evals and Transformers first, numbered 9 after context', () => {
     expect(moduleOf('fine-tuning')).toMatchObject({ title: 'Fine-tuning vs prompting', level: 'Advanced', status: 'live', prereqs: ['evals', 'transformers'] });
     expect(moduleOf('fine-tuning').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.map(m => m.id)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning']);
+    expect(MODULES.filter(m => m.status === 'live').map(m => m.id)).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning']);
   });
 
   it('keeps chapter ids unique within every module', () => {
