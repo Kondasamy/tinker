@@ -44,8 +44,8 @@ const cut = (s: string, n: number) => ([...s].length > n ? '…' + [...s].slice(
 
 const pill = (p: number[], dx: number, dy: number, text: string, lit: boolean, scale: number) =>
   `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text), lit, scale)}</g>`;
-const tile = (i: number, x: number, z: number, cls = 'tile', mat = PALS[TILE_COLOURS[i % TILE_COLOURS.length]]) =>
-  `<g class="${cls}">${box(x - 4.5, Y - 4.5, z, x + 4.5, Y + 4.5, z + 4, mat, toneI, .9)}</g>`;
+const tile = (i: number, x: number, z: number, cls = 'tile', mat = PALS[TILE_COLOURS[i % TILE_COLOURS.length]], y = Y) =>
+  `<g class="${cls}">${box(x - 4.5, y - 4.5, z, x + 4.5, y + 4.5, z + 4, mat, toneI, .9)}</g>`;
 
 /** Tokens' press (drawn as tokenScene draws it): a dark bed, two posts, a red crossbar and a steel head. */
 function press(cutting: boolean, x = PRESS, y = Y, h = 40) {
@@ -59,13 +59,13 @@ function press(cutting: boolean, x = PRESS, y = Y, h = 40) {
 }
 
 /** The stencil plate across the belt: two posts and a plate with a window cut in it, lit while tokens pass. */
-function plate(open: boolean) {
-  const x = PLATE, z = BH, top = BH + 26;
-  let s = box(x - 1.5, Y - 14, z, x + 1.5, Y - 11, top, METAL, toneI, 1) + box(x - 1.5, Y + 11, z, x + 1.5, Y + 14, top, METAL, toneI, 1);
-  s += box(x - 1, Y - 11, z + 10, x + 1, Y + 11, top, open ? PALS.mint : PALS.cobalt, toneI, 1);
+function plate(open: boolean, x = PLATE, y = Y) {
+  const z = BH, top = BH + 26;
+  let s = box(x - 1.5, y - 14, z, x + 1.5, y - 11, top, METAL, toneI, 1) + box(x - 1.5, y + 11, z, x + 1.5, y + 14, top, METAL, toneI, 1);
+  s += box(x - 1, y - 11, z + 10, x + 1, y + 11, top, open ? PALS.mint : PALS.cobalt, toneI, 1);
   // the window the allowed tiles pass under
-  s += shape([[x + 1.05, Y - 6, z + 10.5], [x + 1.05, Y + 6, z + 10.5], [x + 1.05, Y + 6, z + 18], [x + 1.05, Y - 6, z + 18]], CERAMIC.l, .8);
-  return `<g data-prop="plate">${s + hullInk(boxCorners(x - 1.5, Y - 14, z, x + 1.5, Y + 14, top), 1.8)}</g>`;
+  s += shape([[x + 1.05, y - 6, z + 10.5], [x + 1.05, y + 6, z + 10.5], [x + 1.05, y + 6, z + 18], [x + 1.05, y - 6, z + 18]], CERAMIC.l, .8);
+  return `<g data-prop="plate">${s + hullInk(boxCorners(x - 1.5, y - 14, z, x + 1.5, y + 14, top), 1.8)}</g>`;
 }
 
 /** The prompt's paper strip, running into the press. */
@@ -109,3 +109,15 @@ export function stencilLabel(o: StencilOpts): string {
   return `A token press, Larkspur mini, reads the prompt “${o.prompt}” and drops tiles onto a belt.${plateWords}${blocked} `
     + (out ? `Written so far, ${o.written.length} token${o.written.length === 1 ? '' : 's'}: “${out}”${o.done ? ', finished' : ''}.` : 'Nothing written yet.');
 }
+
+/** The home hero's plot (KTD16): a small press, a short belt across a blue schema plate, a tomato tile stopped before the
+ * plate and two tiles past it. (x, y) is the plot's centre. */
+export const stencilPlot = (x: number, y: number, top: SceneCtx['top']) => {
+  const px = x - 8, gx = x + 13;
+  return castShadow(boxCorners(px - 14, y - 15, BH, px + 14, y + 15, BH + 30), BH, top)
+    + beltAt([px + 14, y], [x + 32, y], [0, 1], false)
+    + byDepth([{ at: [px, y, 0], svg: press(true, px, y, 24) },
+      { at: [gx - 6, y, 1], svg: tile(0, gx - 6, BH + .3, 'tile blocked', PALS.tomato, y) },
+      { at: [gx, y, 2], svg: plate(false, gx, y) },
+      ...[0, 1].map(i => ({ at: [gx + 8 + i * 10, y, 1], svg: tile(i + 1, gx + 8 + i * 10, BH + .3, 'tile', undefined, y) }))]);
+};

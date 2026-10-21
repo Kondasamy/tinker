@@ -13,6 +13,7 @@ import { pressPlot } from './tokenScene';
 import { enginePlot } from './engineScene';
 import { deskPlot } from './windowScene';
 import { benchPlot } from './trainScene';
+import { stencilPlot } from './stencilScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
@@ -85,7 +86,8 @@ export const heroScene = ({ live, planned, ride }: { live: HeroPlot[]; planned: 
  * guardrails an inbox tray, a screening arch and a post box (the mail room's way in, its check and its way out); tokens the token press
  * with the tiles it has cut; transformers a small engine room, a head's desk lit and a thread of attention over three tiles; context
  * a small desk with the window on it, a glass case of stacked papers; fine-tuning a small training bench, the model with its adapter
- * clipped on and the weights lever pulled */
+ * clipped on and the weights lever pulled; structured outputs a small press, its belt crossing a blue schema plate, a tomato tile
+ * stopped before the plate and two tiles past it */
 const DRAW: Record<string, HeroPlot['draw']> = {
   // at the plot's right-hand corner, clear of the pill row
   agents: (x, y, { top }) => castShadow(boxCorners(x + 9, y - 21, BH, x + 27, y - 7, BH + 17), BH, top)
@@ -100,6 +102,7 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   transformers: (x, y, { top }) => enginePlot(x + 14, y - 4, top),
   context: (x, y, { top }) => deskPlot(x + 14, y - 4, top),
   'fine-tuning': (x, y, { top }) => benchPlot(x + 14, y - 4, top),
+  'structured-outputs': (x, y, { top }) => stencilPlot(x + 4, y - 4, top),
 };
 const LIVE = MODULES.filter(m => m.status === 'live'), PLANNED = MODULES.filter(m => m.status === 'planned');
 /** the home page's share image, from the registry: the model's call riding to the host */
