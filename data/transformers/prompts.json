@@ -1,0 +1,19 @@
+{
+  "head": {
+    "layer": 0,
+    "head": 0,
+    "kind": "word-start",
+    "note": "Each piece that continues a word looks back to the piece where the word began. Measured by wordStart() over every 32-token window of the training and held-out documents; uniform is what spreading attention evenly would give.",
+    "score": 0.3913,
+    "uniform": 0.0877
+  },
+  "prompts": [
+    { "id": "reply", "text": "We reply within five business", "expected": " days" },
+    { "id": "returns", "text": "Our warehouse inspects returned items within five", "expected": " business" },
+    { "id": "expenses", "text": "Submit expense reports within 30", "expected": " days" },
+    { "id": "billing", "text": "Questions go to the billing team through", "expected": " the" },
+    { "id": "success", "text": "Every enterprise account has a named customer success", "expected": " manager" },
+    { "id": "delivery", "text": "Expedited delivery takes two business", "expected": " days" },
+    { "id": "long", "text": "Our warehouse inspects returned items within five business days. Expedited delivery takes two business", "expected": " days" }
+  ]
+}
