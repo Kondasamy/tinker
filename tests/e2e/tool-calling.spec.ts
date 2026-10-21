@@ -39,7 +39,7 @@ test('the intro fits a 390px phone without sideways scroll', async ({ page }) =>
 test('the intro has its own share image', async ({ page, request }) => {
   await page.goto('/tool-calling/');
   const og = await page.locator('meta[property="og:image"]').getAttribute('content');
-  expect(og).toBe('https://explain.kondasamy.com/og/tool-calling.jpg');
+  expect(og).toBe('https://tinker.kondasamy.com/og/tool-calling.jpg');
   expect((await request.get('/og/tool-calling.jpg')).status()).toBe(200);
 });
 

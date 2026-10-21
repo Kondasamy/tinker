@@ -27,12 +27,6 @@
 /* a one-line caption that stands in for a paragraph in Pictures mode */
 .cap { font-weight: 700; }
 :root:not([data-reading='visual']) .cap.alt { display: none; }
-/* "How a chapter page works" as a picture: the live picture beside the story column */
-.schematic { display: grid; grid-template-columns: 1.7fr 1fr; gap: 6px; height: 92px; margin-bottom: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
-.s-pic { display: grid; place-items: center; border: 1.5px solid var(--ink); border-radius: 8px; background: var(--paper) repeating-linear-gradient(135deg, transparent 0 8px, rgba(0,0,0,.04) 8px 9px); }
-.s-story { display: flex; flex-direction: column; gap: 5px; border: 1.5px solid var(--ink); border-radius: 8px; padding: 6px; }
-.s-story span { height: 10px; border-radius: 3px; background: var(--rule); }
-.s-story .s-step { flex: 1; height: auto; display: grid; place-items: center; background: var(--acc); border: 1.5px solid var(--ink); }
 /* who a module is for, as chips */
 .who-chips { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .who-chips li { font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 10px; border: 1.5px solid var(--ink); background: var(--card); }

@@ -1,10 +1,10 @@
 # Tinker
 
-> See how tech works by playing with it. Hand-drawn, interactive explanations of tech concepts, by [Kondasamy Jayaraman](https://kondasamy.com). Home: **https://explain.kondasamy.com** (once the domain is connected; see Deploy).
+> See how tech works by playing with it. Hand-drawn, interactive explanations of tech concepts, by [Kondasamy Jayaraman](https://kondasamy.com). Home: **https://tinker.kondasamy.com**.
 
 Each module is a short story you play through: the picture on the left is live, the story on the right asks you to do one thing at a time in it, and you watch what changes. Build the thing, break it, fix it.
 
-![Tinker home: one workshop, a plot per module. All nine modules are live, from RAG and tool calling to context engineering and fine-tuning](docs/images/home.png)
+![Tinker home: one workshop, a plot per module; a wave names each module in turn. All nine modules are live, from RAG and tool calling to context engineering and fine-tuning](docs/images/home.png)
 
 ---
 
@@ -178,14 +178,16 @@ The chapters play at a training bench: the model at the back, three levers in fr
 - **Real retrieval, precomputed answers (RAG):** the corpus is embedded at build time (`pnpm build:index`, all-MiniLM-L6-v2 and a cross-encoder reranker); the browser runs the real similarity, BM25, reranking, graph-walk and agent maths over those vectors. Model answers are pre-recorded for each kind of evidence that can reach the model, so every knob changes the outcome honestly.
 - **Recorded turns, live tools (Tool calling, AI agents):** the model's turns are pre-recorded per scenario (`data/tool-calling/turns/`). The host loop, a JSON Schema subset validator, the approval gate, the tools running on fixture data and an MCP-shaped JSON-RPC server all run in the browser (`src/lib/tools/`). A unit test checks every reachable control setting has a recorded turn. MCP facts come from `data/tool-calling/facts.json`, each with its source. The agent loop (`src/lib/agents/`) reuses those tools and adds plans, approval, budgets, a repeat detector, memory and helpers, all computed in the browser; its recorded turns are in `data/agents/turns/` and its facts in `data/agents/facts.json`. The guardrails loop (`src/lib/guardrails/`) puts defences around the model as host stages (input filters, the taint rule, the allow-list, the output filter, policy checks, approval); its turns are in `data/guardrails/turns/`, its stand-in classifier's hand-set scores in `data/guardrails/inbox.json`, and its attack and customer suites in `data/guardrails/suite.json`.
 - **Real retrieval, recorded grading (Evals):** each version of the assistant runs RAG's real retrieval over the same 12 questions and reads the recorded answer for what it found. Code graders run in the browser (`src/lib/evals/`); the model judge's verdicts, people's labels and repeated tries are recorded in `data/evals/`, and every combination a control can reach is checked by a unit test.
-- **Pictures:** hand-inked isometric figures drawn by the Colorfigures engine (see Credits), extended to orbit, zoom and turn the view. Each module leads with a scene you can picture rather than a flow chart: RAG's pipeline on a workbench, tool calling's back office (`src/components/scenes/officeScene.ts`), evals' test bench (`evalScene.ts`), guardrails' mail room (`guardScene.ts`), tokens' token press (`tokenScene.ts`), transformers' engine room (`engineScene.ts`), context's window desk (`windowScene.ts`), fine-tuning's training bench (`trainScene.ts`), and the home page's workshop with a plot per module (`heroScene.ts`). Flat sequence figures (lanes and message cards, `src/lib/iso/flat.ts`) in the same ink show the exact messages, a tab away. Names sit in label pills so they stay readable.
+- **Pictures:** hand-inked isometric figures drawn by the Colorfigures engine (see Credits), extended to orbit, zoom and turn the view. Each module leads with a scene you can picture rather than a flow chart: RAG's pipeline on a workbench, tool calling's back office (`src/components/scenes/officeScene.ts`), evals' test bench (`evalScene.ts`), guardrails' mail room (`guardScene.ts`), tokens' token press (`tokenScene.ts`), transformers' engine room (`engineScene.ts`), context's window desk (`windowScene.ts`), fine-tuning's training bench (`trainScene.ts`), and the home page's animated workshop with a plot per module (`heroScene.ts`): a wave hops each plot and names it in turn. Flat sequence figures (lanes and message cards, `src/lib/iso/flat.ts`) in the same ink show the exact messages, a tab away. Names sit in label pills so they stay readable.
+- **Search:** every page has its own title, description, canonical URL and share image; intros and chapters carry schema.org course and lesson data with breadcrumbs; `/sitemap.xml` and `/robots.txt` are built from the page list, and recaps and the 404 page stay out of search.
 - **Works on a phone:** below 861px the picture stacks above the story, pills grow, and the sequence shows one message at a time.
 
-<p align="center"><img src="docs/images/phone.png" width="300" alt="A tool calling chapter on a phone: the back office above, the INVALID call held at the schema check"></p>
 - **Story:** every chapter is a list of steps run by one step runner (`src/components/story/`): each step has narration, the one control it needs, a check that advances it, hints after a few tries and, for puzzles, “Show me”. Progress is saved in the browser, per module.
 - **Pictures first, words on request:** each module intro opens in a Pictures reading mode (pictures, headings and one-line captions, the chapters as picture cards); a Words switch shows the full text.
 - **Making it stick:** chapters ask for a prediction before a reveal, quizzes explain why each option is right or wrong and offer “I’m not sure”, each module's recap asks recall questions from the chapters you finished, and a reader who returns 20 hours or more after finishing a chapter is offered a short warm-up. Nothing leaves the browser.
 - **Tests:** unit tests for the engine and story logic (Vitest), and end-to-end tests that play every chapter, check accessibility with axe, keyboard-only play, reduced motion, phone size and offline use (Playwright).
+
+<p align="center"><img src="docs/images/phone.png" width="300" alt="A tool calling chapter on a phone: the back office above, the INVALID call held at the schema check"></p>
 
 ---
 
@@ -193,7 +195,7 @@ The chapters play at a training bench: the model at the back, three levers in fr
 
 | Path | What lives there |
 |---|---|
-| `src/pages/index.astro` | Tinker home: what Tinker is and the modules, grouped by level |
+| `src/pages/index.astro` | Tinker home: a centred hero over the workshop picture, then the modules as picture cards, grouped by level |
 | `src/lib/modules.ts` | The module registry: every module, live or planned, with its level, chapters and recall bank |
 | `src/pages/<module>/` | A module's pages: its intro (`index.astro`), the chapter route (`[chapter].astro`) and the recap (`recap.astro`) |
 | `src/content/<module>/` | A module's registry entry (`module.ts`: chapters and each chapter's opening context), its chapter scripts and its recall bank (`recall.ts`) |
@@ -310,12 +312,13 @@ pnpm dlx vercel          # first run links the project and makes a preview deplo
 pnpm dlx vercel --prod   # production deploy
 ```
 
-### Custom domain: explain.kondasamy.com
+### Custom domain: tinker.kondasamy.com
 
-- **Cloudflare Pages:** project → **Custom domains** → add `explain.kondasamy.com`. With kondasamy.com's DNS on Cloudflare, the CNAME is created for you; otherwise add a CNAME `explain` → `<project>.pages.dev`.
-- **Vercel:** project → **Settings → Domains** → add `explain.kondasamy.com`, then a CNAME `explain` → `cname.vercel-dns.com` at your DNS provider.
+- **Cloudflare Pages:** project → **Custom domains** → add `tinker.kondasamy.com`. With kondasamy.com's DNS on Cloudflare, the CNAME is created for you; otherwise add a CNAME `tinker` → `<project>.pages.dev`.
+- **Vercel:** project → **Settings → Domains** → add `tinker.kondasamy.com`, then a CNAME `tinker` → `cname.vercel-dns.com` at your DNS provider.
 - `astro.config.mjs` sets `site` to this address (canonical URLs). Change it there if the domain changes.
-- Optional: on whatever serves kondasamy.com, redirect a short path (for example `/tinker`) to `https://explain.kondasamy.com/`.
+- The site used to live at `explain.kondasamy.com`. Keep that hostname attached and redirect it (301, path kept) to `https://tinker.kondasamy.com`, so links already shared keep working.
+- Optional: on whatever serves kondasamy.com, redirect a short path (for example `/tinker`) to `https://tinker.kondasamy.com/`.
 
 ### After deploying
 
@@ -339,14 +342,3 @@ The illustrations are drawn with [Colorfigures](https://april-zhu.com/colorfigur
 
 The tokenizer in `src/lib/lm/` follows the byte-level BPE algorithm of Andrej Karpathy's [minbpe](https://github.com/karpathy/minbpe) (MIT). Larkspur mini, the tiny model in `scripts/train/` and `src/lib/lm/model.ts`, is shaped after his [nanoGPT](https://github.com/karpathy/nanoGPT) (MIT).
 
----
-
-## Background research (RAG module)
-
-Early research for the RAG module, generated with Perplexity Deep Research. It informed the build but is **not the shipped design**: the noir detective story, the live in-browser model and the corkboard look described in these files were all dropped in favour of the Larkspur assistant story, precomputed embeddings with real in-browser maths, and Colorfigures illustrations. The design actually built is in [`docs/plans/2026-10-19-1752-feat-rag-learning-module-plan.md`](docs/plans/2026-10-19-1752-feat-rag-learning-module-plan.md).
-
-- [Master blueprint and curriculum](research/00_master_blueprint_and_curriculum.md): the story → guided explorables → puzzles → sandbox progression the chapters follow
-- [Visual RAG storytelling and pedagogy](research/01_visual_rag_storytelling_and_pedagogy.md): what makes explainers like Transformer Explainer and Google PAIR work
-- [Simulation technical architecture](research/02_simulation_technical_architecture.md): in-browser vector search, projections, state machines
-- [RAG failure modes and puzzles](research/03_rag_failure_modes_and_interactive_puzzles.md): the failure taxonomy several chapter puzzles came from
-- [Early spec: forensic noir playground](research/04_noir_forensic_playground_spec.md): the first concept, kept for reference
