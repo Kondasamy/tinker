@@ -84,4 +84,13 @@ describe('home hero', () => {
     expect(rest).not.toMatch(/>[AB]</);
     expect(rest).toContain('class="hero-hop"');
   });
+
+  // reduced motion and the share image show every pill at once: none may cover another
+  it('no two pills overlap with every pill shown, for the real registry', () => {
+    const boxes = [...draw().matchAll(/<g class="block-tag"[^>]*><g class="tag[^"]*">.*?<rect x="([\d.-]+)" y="([\d.-]+)" width="([\d.]+)" height="([\d.]+)".*?>([^<]+)<\/text>/g)]
+      .map(([, x, y, w, h, name]) => ({ name, x0: +x, y0: +y, x1: +x + +w, y1: +y + +h }));
+    expect(boxes).toHaveLength(MODULES.length);
+    const hits = boxes.flatMap((a, i) => boxes.slice(i + 1).filter(b => a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1).map(b => `${a.name} × ${b.name}`));
+    expect(hits).toEqual([]);
+  });
 });

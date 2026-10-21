@@ -27,7 +27,8 @@ import type { Msg } from '../../lib/iso/flat';
 
 // the back office at the back; RAG along the front-left edge; plots in the ground the two leave empty
 const RAG_Y = 294, RAG_X = [44, 112, 180];
-const COLUMN = 5, STEP = 46;
+// STEP is a little more than two pill heights apart on screen, so pills down a column or a diagonal never touch
+const COLUMN = 5, STEP = 50;
 /** slot i's centre: down the column left of the back office, then two to a row right of RAG, row by row to the front */
 const slotXY = (i: number): [number, number] => i < COLUMN ? [44, 30 + STEP * i] : [248 + 58 * ((i - COLUMN) % 2), 292 + STEP * Math.floor((i - COLUMN) / 2)];
 /** slot i's mat on the board, [x0, y0, x1, y1] */
@@ -83,10 +84,13 @@ export const heroScene = ({ live, planned, ride }: { live: HeroPlot[]; planned: 
   const pill = (p: number[], text: string, onn: boolean, dy = -20, dx = 0) => `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text.toUpperCase()), onn, scale)}</g>`;
   // a pill floats above its plot's centre: on the home page only one shows at a time, so they never crowd
   const at = (i: number) => { const [x, y] = slotXY(i); return [x + 4, y, BH + 15]; };
+  // a row's left-hand pill floats higher: its right-hand neighbour and the next row's left-hand one sit at about its
+  // height on screen, and all show at once with reduced motion and in the share image
+  const lift = (i: number) => i >= COLUMN && (i - COLUMN) % 2 === 0 ? -21 : 0;
   return s + hop(0, pill([RAG_X[1], RAG_Y, BH + 34], live[0].name, false, -18)) + hop(1, pill([142, 134, BH + 34], live[1].name, false, -22))
-    + later.map((m, i) => hop(i + 2, pill(at(i), m.name, false, -24))).join('')
+    + later.map((m, i) => hop(i + 2, pill(at(i), m.name, false, -24 + lift(i)))).join('')
     // planned pills sit out the wave (its timing is per live plot): the animated home hides them, still pictures show them all
-    + planned.map((m, j) => `<g class="hero-soon">${pill(at(later.length + j), m.name, false, -24)}</g>`).join('');
+    + planned.map((m, j) => `<g class="hero-soon">${pill(at(later.length + j), m.name, false, -24 + lift(later.length + j))}</g>`).join('');
 };
 
 /** later live modules' plots, by module id: agents is a small desk with its plan on a clipboard; evals a stack of graded test cards and a stamp;
