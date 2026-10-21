@@ -1,6 +1,7 @@
 // Module 9, Fine-tuning vs prompting: the intro, every chapter played by mouse and by keyboard only, live replies and
 // held-out scores from Larkspur mini, its own progress key, "I'm not sure", reduced motion, the recap, axe, phone width,
-// and chapter 5 played offline once its three weight sets are in.
+// and chapter 5 played offline once its three weight sets are in; the go-live checks: Module 9 kickers and share images,
+// home's card and Continue, the warm-up and the Pictures / Words switch.
 import { test, expect, type Page } from '@playwright/test';
 import { moduleOf } from '../../src/lib/modules';
 import { ftWalker } from './fine-tuning-flow';
@@ -28,9 +29,49 @@ test('the intro shows the level, the prerequisites, the author, the chapters and
   const meta = page.locator('.hero .module-meta');
   await expect(meta.locator('.level')).toHaveText('Advanced');
   await expect(meta.getByRole('link', { name: moduleOf('evals').title, exact: true })).toHaveAttribute('href', '/evals/');
+  await expect(meta.getByRole('link', { name: moduleOf('transformers').title, exact: true })).toHaveAttribute('href', '/transformers/');
   await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
   await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toBeVisible();
+  await axe(page);
+});
+
+test('Module 9 on the intro, the recap and home, with their own share images; home Continue resumes it', async ({ page }) => {
+  await page.goto('/fine-tuning/');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 9 · Fine-tuning');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/fine-tuning\.jpg$/);
+  await page.goto('/fine-tuning/recap/');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 9 · Recap');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/fine-tuning-recap\.jpg$/);
+  await page.goto('/');
+  await expect(page.locator('.module[data-module="fine-tuning"] h4 a')).toHaveAttribute('href', '/fine-tuning/');
+  await page.evaluate(() => { localStorage.setItem('fine-tuning-progress-v1', JSON.stringify({ done: [], saved: {} })); localStorage.setItem('tinker-last-module', 'fine-tuning'); });
+  await page.reload();
+  await expect(page.locator('[data-continue]')).toHaveAttribute('href', /^\/fine-tuning\//);
+});
+
+test('the warm-up shows on the intro 21 hours after a chapter, with a skip link; not 2 hours after', async ({ page }) => {
+  const seed = async (hours: number) => {
+    await page.goto('/');
+    await page.evaluate(({ done, at }) => localStorage.setItem('fine-tuning-progress-v1', JSON.stringify({ done, saved: {}, at: Object.fromEntries(done.map(id => [id, at])) })),
+      { done: [CH1], at: Date.now() - hours * 3600_000 });
+    await page.goto('/fine-tuning/');
+    await page.locator('astro-island:not([ssr])').first().waitFor({ state: 'attached' });
+  };
+  await seed(21);
+  await expect(page.locator('.warmup')).toContainText('from chapters you finished');
+  await expect(page.getByRole('link', { name: 'Skip to chapter 2 →' })).toHaveAttribute('href', `/fine-tuning/${CH2}/`);
+  await axe(page);
+  await seed(2);
+  await expect(page.locator('.warmup')).toHaveCount(0);
+});
+
+test('the intro reads as pictures by default; Words unfolds the longer text', async ({ page }) => {
+  await page.goto('/fine-tuning/');
+  const more = page.locator('.band .note.more');
+  await expect(more).toBeHidden();
+  await page.getByRole('button', { name: 'Words' }).click();
+  await expect(more).toBeVisible();
   await axe(page);
 });
 
