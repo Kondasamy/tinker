@@ -11,11 +11,18 @@ import { clipStatus, setAudioFactory, type AudioLike } from '../../src/lib/voice
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
 class Fake implements AudioLike {
-  src = ''; paused = 0;
+  src = '';
+  paused = 0;
   on: Record<string, () => void> = {};
-  play() { return Promise.resolve(); }
-  pause() { this.paused++; }
-  addEventListener(t: string, f: () => void) { this.on[t] = f; }
+  play() {
+    return Promise.resolve();
+  }
+  pause() {
+    this.paused++;
+  }
+  addEventListener(t: string, f: () => void) {
+    this.on[t] = f;
+  }
 }
 
 let fake: Fake, root: Root, host: HTMLElement;
@@ -25,12 +32,17 @@ beforeEach(() => {
   document.body.append(host);
   root = createRoot(host);
 });
-afterEach(() => { act(() => root.unmount()); host.remove(); });
+afterEach(() => {
+  act(() => root.unmount());
+  host.remove();
+});
 
 const clip = createElement(ClipPlayer, { clip: 'status-caller', who: 'Dana', caption: 'Hi' });
 const stage = (step: string) => createElement(VoiceStage, { step, shown: { phone: { stage: 'idle' }, caption: 'x' } });
 async function press() {
-  await act(async () => { host.querySelector<HTMLButtonElement>('.clip-btn')!.click(); });
+  await act(async () => {
+    host.querySelector<HTMLButtonElement>('.clip-btn')!.click();
+  });
   act(() => fake.on.playing());
   expect(clipStatus('status-caller')).toBe('playing');
 }

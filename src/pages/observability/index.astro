@@ -25,12 +25,28 @@ const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
 const room = (o: TraceOpts): TraceOpts => ({ scale: 1.7, ...o });
 const HERO = room({ cards: wallOf(FAILED, FAILED[0].id), bins: binsOf(DAY1_COUNTS, TOP[0]) });
 // the whole idea: one failed trace, its reply, and the span where it first went wrong
-const BAD = traceOf('t23'), FIRST = spanOf(BAD, BAD.first!)!;
+const BAD = traceOf('t23'),
+  FIRST = spanOf(BAD, BAD.first!)!;
 const FREQ = mostFrequent(DAY1_COUNTS);
 const IDEAS: [string, string, ReturnType<typeof fact>, TraceOpts][] = [
-  ['Read the trace', 'Every step of one request, nested and timed', fact('otel-genai'), room({ cards: wallOf(TRACES, TRACES[0].id) })],
-  ['Note what went wrong', 'A free note per failed trace, at its first failure', fact('open-coding'), room({ cards: wallOf(FAILED, FAILED[3].id), board: `NOTED ${NEEDED_NOTES} OF ${FAILED.length}` })],
-  ['Group and count', 'Notes that share a cause become a failure mode', fact('axial-coding'), room({ cards: wallOf(FAILED), bins: binsOf(DAY1_COUNTS) })],
+  [
+    'Read the trace',
+    'Every step of one request, nested and timed',
+    fact('otel-genai'),
+    room({ cards: wallOf(TRACES, TRACES[0].id) }),
+  ],
+  [
+    'Note what went wrong',
+    'A free note per failed trace, at its first failure',
+    fact('open-coding'),
+    room({ cards: wallOf(FAILED, FAILED[3].id), board: `NOTED ${NEEDED_NOTES} OF ${FAILED.length}` }),
+  ],
+  [
+    'Group and count',
+    'Notes that share a cause become a failure mode',
+    fact('axial-coding'),
+    room({ cards: wallOf(FAILED), bins: binsOf(DAY1_COUNTS) }),
+  ],
   ['Fix what matters', 'How often, times how much harm', fact('error-analysis'), HERO],
 ];
 const FACTS: [string, string][] = [

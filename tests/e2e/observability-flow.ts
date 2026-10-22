@@ -54,7 +54,7 @@ export function observabilityWalker(page: Page, mode: Mode, check: (page: Page) 
       await btn('2. retrieval policies (retrieval)');
       await step(4);
       await check(page);
-      await btn('3. execute_tool get_order (tool call)');   // the tempting wrong guess: its result looks wrong
+      await btn('3. execute_tool get_order (tool call)'); // the tempting wrong guess: its result looks wrong
       await expect(card.locator('.tc-status')).toContainText('NOT THE FIRST');
       await btn('2. chat larkspur-model (model call)');
       await step(5);
@@ -65,7 +65,13 @@ export function observabilityWalker(page: Page, mode: Mode, check: (page: Page) 
     async ch3(next?: RegExp) {
       await opt(/^A handful of kinds/);
       await step(2);
-      for (let i = 1; i <= NEEDED_NOTES; i++) await press(card.getByRole('group', { name: `Suggestions for trace ${i}` }).getByRole('button').first());
+      for (let i = 1; i <= NEEDED_NOTES; i++)
+        await press(
+          card
+            .getByRole('group', { name: `Suggestions for trace ${i}` })
+            .getByRole('button')
+            .first(),
+        );
       await btn('Done noting for now');
       await step(3);
       await check(page);
@@ -77,7 +83,9 @@ export function observabilityWalker(page: Page, mode: Mode, check: (page: Page) 
       await opt(/^The search finding nothing useful/);
       await step(2);
       if (kb) await btn('Show me');
-      else for (const [i, t] of FAILED.entries()) await btn(`Move trace ${i + 1} to Group ${REFERENCE_GROUPING[t.id] + 1}`);
+      else
+        for (const [i, t] of FAILED.entries())
+          await btn(`Move trace ${i + 1} to Group ${REFERENCE_GROUPING[t.id] + 1}`);
       await step(3);
       await check(page);
       await opt(/^Yes: the same traces/);
@@ -115,7 +123,8 @@ export function observabilityWalker(page: Page, mode: Mode, check: (page: Page) 
       await step(3);
       if (kb) await btn('Show me');
       else {
-        for (const [i, t] of DAY2.entries()) await card.getByLabel(`Mode for trace ${i + 1}`).selectOption({ label: modeOf(t.mode!).name });
+        for (const [i, t] of DAY2.entries())
+          await card.getByLabel(`Mode for trace ${i + 1}`).selectOption({ label: modeOf(t.mode!).name });
         await card.getByLabel('Fix to ship').selectOption({ label: modeOf(WINNERS[0]).name });
       }
       await step(4);

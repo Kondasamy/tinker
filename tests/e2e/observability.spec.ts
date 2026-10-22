@@ -26,18 +26,28 @@ const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 const axe = async (page: Page) => expect(await serious(page)).toEqual([]);
 test.setTimeout(180_000);
 
-test('the intro shows the level, the prerequisite, the author, the chapters and the Colorfigures credit', async ({ page }) => {
+test('the intro shows the level, the prerequisite, the author, the chapters and the Colorfigures credit', async ({
+  page,
+}) => {
   await page.goto('/observability/');
   const meta = page.locator('.hero .module-meta');
   await expect(meta.locator('.level')).toHaveText('Intermediate');
-  await expect(meta.getByRole('link', { name: moduleOf('evals').title, exact: true })).toHaveAttribute('href', '/evals/');
+  await expect(meta.getByRole('link', { name: moduleOf('evals').title, exact: true })).toHaveAttribute(
+    'href',
+    '/evals/',
+  );
   await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
-  await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toHaveAttribute('href', 'https://april-zhu.com/colorfigures');
+  await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toHaveAttribute(
+    'href',
+    'https://april-zhu.com/colorfigures',
+  );
   await axe(page);
 });
 
-test('Module 14 on the intro, the recap and home, with their own share images; home Continue resumes it', async ({ page }) => {
+test('Module 14 on the intro, the recap and home, with their own share images; home Continue resumes it', async ({
+  page,
+}) => {
   await page.goto('/observability/');
   await expect(page.locator('.hero .kicker')).toHaveText('Module 14 · Observability');
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/observability\.jpg$/);
@@ -46,19 +56,28 @@ test('Module 14 on the intro, the recap and home, with their own share images; h
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/observability-recap\.jpg$/);
   await page.goto('/');
   await expect(page.locator('.module[data-module="observability"] h4 a')).toHaveAttribute('href', '/observability/');
-  await page.evaluate(() => { localStorage.setItem('observability-progress-v1', JSON.stringify({ done: [], saved: {} })); localStorage.setItem('tinker-last-module', 'observability'); });
+  await page.evaluate(() => {
+    localStorage.setItem('observability-progress-v1', JSON.stringify({ done: [], saved: {} }));
+    localStorage.setItem('tinker-last-module', 'observability');
+  });
   await page.reload();
   await expect(page.locator('[data-continue]')).toHaveAttribute('href', /^\/observability\//);
 });
 
-test('every chapter plays by mouse, in order through the Next links to the recap, with axe clean at each check', async ({ page }) => {
+test('every chapter plays by mouse, in order through the Next links to the recap, with axe clean at each check', async ({
+  page,
+}) => {
   await walkAll(observabilityWalker(page, 'mouse', axe));
 });
 
-test('every chapter plays by keyboard only; progress lands in observability-progress-v1 and no other module’s key', async ({ page }) => {
+test('every chapter plays by keyboard only; progress lands in observability-progress-v1 and no other module’s key', async ({
+  page,
+}) => {
   await page.goto('/');
   const OTHERS = { 'evals-progress-v1': JSON.stringify({ done: ['01-it-worked-when-i-tried-it'], saved: {} }) };
-  await page.evaluate(o => { for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v); }, OTHERS);
+  await page.evaluate(o => {
+    for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v);
+  }, OTHERS);
   await walkAll(observabilityWalker(page, 'keyboard'));
   const store = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
   expect(JSON.parse(store['observability-progress-v1']).done).toEqual(ALL);
@@ -83,7 +102,9 @@ test('chapter 2: the waterfall reads by arrow keys, and Enter picks the first fa
   await expect(c).toContainText('Last year’s passage');
 });
 
-test('chapter 3: a note is typed, capped, kept as text, survives a reload, and no request leaves the page', async ({ page }) => {
+test('chapter 3: a note is typed, capped, kept as text, survives a reload, and no request leaves the page', async ({
+  page,
+}) => {
   const w = observabilityWalker(page, 'keyboard');
   await w.open(CH3);
   const c = card(page);
@@ -122,7 +143,17 @@ test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
   test('the picture holds still and the chapters still play through', async ({ page }) => {
     const w = observabilityWalker(page, 'mouse', async p => {
-      await expect.poll(() => p.evaluate(() => document.querySelector('.stage')!.getAnimations({ subtree: true }).filter(a => a.playState === 'running').length)).toBe(0);
+      await expect
+        .poll(() =>
+          p.evaluate(
+            () =>
+              document
+                .querySelector('.stage')!
+                .getAnimations({ subtree: true })
+                .filter(a => a.playState === 'running').length,
+          ),
+        )
+        .toBe(0);
     });
     await walkAll(w);
   });
@@ -145,6 +176,11 @@ test.describe('phone', () => {
       await page.goto(p);
       await layoutHolds(page);
     }
-    await walkAll(observabilityWalker(page, 'mouse', async p => { await layoutHolds(p); await axe(p); }));
+    await walkAll(
+      observabilityWalker(page, 'mouse', async p => {
+        await layoutHolds(p);
+        await axe(p);
+      }),
+    );
   });
 });

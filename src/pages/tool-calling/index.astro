@@ -30,22 +30,46 @@ const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
 
 const QUESTION = RECORDINGS['order-status'].ask;
 const WITHOUT = Object.values(RECORDINGS['no-tools'].turns)[0].text;
-const ARGS = Object.entries(CALL.arguments).map(([k, v]) => `${k}: ${v}`).join(', ');
+const ARGS = Object.entries(CALL.arguments)
+  .map(([k, v]) => `${k}: ${v}`)
+  .join(', ');
 
 // small pictures: one block alone; the model and the order system (a cabinet), joined or not
-const one = (type: BlockType, opts: { state?: 'ok' | 'warn' } = {}) => ({ top }: SceneCtx) =>
-  blockShadow(type, 30, 30, top) + renderers[type]({ x: 30, y: 30, ...opts });
-const pair = (linked: boolean) => ({ top }: SceneCtx) => {
-  const d = pd([[30, 30, BH + .3], [128, 30, BH + .3]], false);
-  const wire = linked ? `<path d="${d}" fill="none" stroke="${INK}" stroke-width="4.2" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${ACC}" stroke-width="2.2" stroke-linecap="round"/>`
-    : `<path d="${d}" fill="none" stroke="${INK}" stroke-width="1.4" stroke-dasharray="4 5"/>`;
-  return blockShadow('llm', 30, 30, top) + blockShadow('index', 128, 30, top) + wire
-    + renderers.llm({ x: 30, y: 30, state: linked ? 'ok' : 'warn' }) + renderers.index({ x: 128, y: 30 });
-};
+const one =
+  (type: BlockType, opts: { state?: 'ok' | 'warn' } = {}) =>
+  ({ top }: SceneCtx) =>
+    blockShadow(type, 30, 30, top) + renderers[type]({ x: 30, y: 30, ...opts });
+const pair =
+  (linked: boolean) =>
+  ({ top }: SceneCtx) => {
+    const d = pd(
+      [
+        [30, 30, BH + 0.3],
+        [128, 30, BH + 0.3],
+      ],
+      false,
+    );
+    const wire = linked
+      ? `<path d="${d}" fill="none" stroke="${INK}" stroke-width="4.2" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${ACC}" stroke-width="2.2" stroke-linecap="round"/>`
+      : `<path d="${d}" fill="none" stroke="${INK}" stroke-width="1.4" stroke-dasharray="4 5"/>`;
+    return (
+      blockShadow('llm', 30, 30, top) +
+      blockShadow('index', 128, 30, top) +
+      wire +
+      renderers.llm({ x: 30, y: 30, state: linked ? 'ok' : 'warn' }) +
+      renderers.index({ x: 128, y: 30 })
+    );
+  };
 const STEPS: [string, string, ReturnType<typeof fact>, [number, number, number, number], (c: SceneCtx) => string][] = [
   ['Describe the tool', 'Name, description, schema', fact('tool-definition'), [10, 10, 50, 50], one('docs')],
   ['The model asks, your software runs it', 'The model only asks', fact('app-executes'), [8, 10, 150, 50], pair(true)],
-  ['One plug for many tools', 'Tools, resources, prompts', fact('mcp-features'), MCP_BOARD, countScene({ apps: 1, systems: 2, mcp: true, scale: 1.6 })],
+  [
+    'One plug for many tools',
+    'Tools, resources, prompts',
+    fact('mcp-features'),
+    MCP_BOARD,
+    countScene({ apps: 1, systems: 2, mcp: true, scale: 1.6 }),
+  ],
 ];
 const checked = longDate(ACCESSED);
 

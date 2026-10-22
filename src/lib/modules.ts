@@ -57,8 +57,17 @@ export interface Module<C extends Chapter = Chapter> {
 
 const AUTHOR = RAG_MODULE.author;
 /** a roadmap card: a module someone may build, with no chapters or pages yet */
-export const planned = (id: string, title: string, level: Level, description: string): Module =>
-  ({ id, title, description, level, status: 'planned', author: AUTHOR, prereqs: [], story: '', chapters: [] });
+export const planned = (id: string, title: string, level: Level, description: string): Module => ({
+  id,
+  title,
+  description,
+  level,
+  status: 'planned',
+  author: AUTHOR,
+  prereqs: [],
+  story: '',
+  chapters: [],
+});
 
 export const MODULES: Module[] = [
   RAG_MODULE,
@@ -90,6 +99,7 @@ export const chapterHref = (module: string, chapter: string) => `/${module}/${ch
 
 /** Link to the chapter after `chapter`, or undefined on the last one. */
 export function nextOf(module: string, chapter: string): { href: string; title: string } | undefined {
-  const cs = moduleOf(module).chapters, next = cs[cs.findIndex(c => c.id === chapter) + 1];
+  const cs = moduleOf(module).chapters,
+    next = cs[cs.findIndex(c => c.id === chapter) + 1];
   return next && { href: chapterHref(module, next.id), title: next.short };
 }

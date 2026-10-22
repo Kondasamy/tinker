@@ -16,7 +16,7 @@ describe('context data', () => {
     for (const d of DOCS) expect(fs.readFileSync(`data/corpus/${d.source}.md`, 'utf8'), d.id).toContain(d.text);
   });
   it('every case names documents that exist, and never its fact as a distractor', () => {
-    const ids = new Set(DOCS.map((d) => d.id));
+    const ids = new Set(DOCS.map(d => d.id));
     for (const c of CASES) {
       if (c.fact) expect(ids.has(c.fact), c.id).toBe(true);
       for (const d of c.distractors) expect(ids.has(d) && d !== c.fact, `${c.id} ${d}`).toBe(true);
@@ -37,7 +37,8 @@ describe('the signature holds only what the model sees (KTD7)', () => {
     expect(run(undefined, { ...base, breakpoints: [] }).signatures).toEqual(sigs);
   });
   it('moving the needed fact from early to the middle changes it', () => {
-    const at = (place: Setup['place']) => run(undefined, { sessions: [['free-shipping']], distractors: 4, place }).signatures[0];
+    const at = (place: Setup['place']) =>
+      run(undefined, { sessions: [['free-shipping']], distractors: 4, place }).signatures[0];
     expect(at('middle')).not.toBe(at('early'));
   });
 });
@@ -45,12 +46,17 @@ describe('the signature holds only what the model sees (KTD7)', () => {
 describe('the window', () => {
   it('is built in a fixed order: tools, system, then messages', () => {
     const w = run(undefined, { sessions: [SESSION.slice(0, 2)], tools: true }).meter[1].window;
-    expect(w.parts.map((p) => p.kind)).toEqual(['tools', 'system', 'docs', 'history', 'history', 'docs', 'message']);
+    expect(w.parts.map(p => p.kind)).toEqual(['tools', 'system', 'docs', 'history', 'history', 'docs', 'message']);
     expect(w.tokens).toBe(w.parts.reduce((n, p) => n + p.tokens, 0));
   });
   it('an over-budget window is refused, and no model turn is looked up', () => {
     let looked = 0;
-    const spy = { get turns() { looked++; return {}; } } as unknown as Recording;
+    const spy = {
+      get turns() {
+        looked++;
+        return {};
+      },
+    } as unknown as Recording;
     const r = run(spy, { budget: 10 });
     expect(r.status).toBe('over-budget');
     expect(looked).toBe(0);
@@ -61,20 +67,28 @@ describe('the window', () => {
     const full = last(run(undefined, { sessions: [SESSION], retrieval: 'fetch' }).meter).window;
     const cleared = last(run(undefined, { sessions: [SESSION], retrieval: 'fetch', history: 'cleared' }).meter).window;
     expect(cleared.tokens).toBeLessThan(full.tokens);
-    const docs = cleared.parts.filter((p) => p.kind === 'docs');
-    expect(docs.slice(0, -1).every((p) => p.cleared)).toBe(true);
-    expect(last(docs)).toEqual(last(full.parts.filter((p) => p.kind === 'docs')));
+    const docs = cleared.parts.filter(p => p.kind === 'docs');
+    expect(docs.slice(0, -1).every(p => p.cleared)).toBe(true);
+    expect(last(docs)).toEqual(last(full.parts.filter(p => p.kind === 'docs')));
   });
 });
 
 describe('the cache', () => {
-  const tools = part('tools', 'T', 100), sys = part('system', 'S', 50), msg = part('message', 'M', 30);
+  const tools = part('tools', 'T', 100),
+    sys = part('system', 'S', 50),
+    msg = part('message', 'M', 30);
   it('an identical prefix is a full hit', () => {
     const parts = [tools, sys, msg];
-    expect(cacheHit([{ parts, marks: marks(parts, ['end']) }], parts, ['end'])).toEqual({ read: 180, write: 0, fresh: 0, parts: 3 });
+    expect(cacheHit([{ parts, marks: marks(parts, ['end']) }], parts, ['end'])).toEqual({
+      read: 180,
+      write: 0,
+      fresh: 0,
+      parts: 3,
+    });
   });
   it('a new system prompt keeps hits only on the tools when a breakpoint follows them, and none otherwise', () => {
-    const dated = (bps: Setup['breakpoints']) => run(undefined, { sessions: [SESSION], tools: true, retrieval: 'stuff', system: 'dated', breakpoints: bps }).meter;
+    const dated = (bps: Setup['breakpoints']) =>
+      run(undefined, { sessions: [SESSION], tools: true, retrieval: 'stuff', system: 'dated', breakpoints: bps }).meter;
     const m = dated(['tools', 'end']);
     expect(m[1].hit.read).toBe(m[1].window.parts[0].tokens);
     expect(m[1].hit.parts).toBe(1);
@@ -84,9 +98,18 @@ describe('the cache', () => {
     expect(plain[1].hit.read).toBe(plain[0].window.tokens);
   });
   it('reads back the longest live entry that still matches, not only the call just before', () => {
-    const first = [tools, sys, msg], other = [tools, part('system', 'S2', 50), msg];
-    const live = [{ parts: first, marks: marks(first, ['end']) }, { parts: other, marks: marks(other, ['end']) }];
-    expect(cacheHit(live, [...first, part('message', 'M2', 20)], ['end'])).toEqual({ read: 180, write: 20, fresh: 0, parts: 3 });
+    const first = [tools, sys, msg],
+      other = [tools, part('system', 'S2', 50), msg];
+    const live = [
+      { parts: first, marks: marks(first, ['end']) },
+      { parts: other, marks: marks(other, ['end']) },
+    ];
+    expect(cacheHit(live, [...first, part('message', 'M2', 20)], ['end'])).toEqual({
+      read: 180,
+      write: 20,
+      fresh: 0,
+      parts: 3,
+    });
     expect(cacheHit([], first, ['end'])).toEqual({ read: 0, write: 180, fresh: 0, parts: 0 });
   });
   it('a call after clearing reads back the prefix an earlier call wrote, while it lives', () => {
@@ -101,13 +124,16 @@ describe('the cache', () => {
   it('an expired entry is a miss', () => {
     const m = run(undefined, { sessions: [SESSION], retrieval: 'stuff', gap: 6 }).meter;
     expect(m[1].hit.read).toBe(0);
-    expect(run(undefined, { sessions: [SESSION], retrieval: 'stuff', gap: 6, lifetime: '1h' }).meter[1].hit.read).toBeGreaterThan(0);
+    expect(
+      run(undefined, { sessions: [SESSION], retrieval: 'stuff', gap: 6, lifetime: '1h' }).meter[1].hit.read,
+    ).toBeGreaterThan(0);
   });
   it('costs the hand-computed value with the dated multipliers', () => {
     expect([READ, WRITE['5m'], WRITE['1h'], OUTPUT]).toEqual([0.1, 1.25, 2, 5]);
     // 50 fresh + 800 × 0.1 + 100 × 1.25 + 20 × 5
     expect(cost({ fresh: 50, read: 800, write: 100, parts: 2 }, 20, '5m')).toBe(355);
-    const prev = [tools, sys, part('message', 'old', 30)], now = [tools, sys, msg];
+    const prev = [tools, sys, part('message', 'old', 30)],
+      now = [tools, sys, msg];
     const h = cacheHit([{ parts: prev, marks: marks(prev, ['system', 'end']) }], now, ['system', 'end']);
     expect(h).toEqual({ read: 150, write: 30, fresh: 0, parts: 2 });
     expect(cost(h, 10, '1h')).toBe(150 * 0.1 + 30 * 2 + 10 * 5);
@@ -119,15 +145,17 @@ describe('the cache', () => {
 });
 
 describe('memory', () => {
-  const two = (memory: boolean) => run(undefined, { ...DOMAINS['06-memory'], sessions: DOMAINS['06-memory'].sessions![0], memory } as Partial<Setup>);
+  const two = (memory: boolean) =>
+    run(undefined, { ...DOMAINS['06-memory'], sessions: DOMAINS['06-memory'].sessions![0], memory } as Partial<Setup>);
   it('a note written in session 1 is in session 2’s window only when memory is on', () => {
-    const on = two(true), off = two(false);
-    const s2 = (r: ReturnType<typeof run>) => r.meter.find((m) => m.session === 1)!.window.parts;
+    const on = two(true),
+      off = two(false);
+    const s2 = (r: ReturnType<typeof run>) => r.meter.find(m => m.session === 1)!.window.parts;
     expect(Object.keys(on.notes)).toEqual(['/memories/hollis-hardware.md']);
-    expect(s2(on).find((p) => p.kind === 'memory')?.text).toContain(on.notes['/memories/hollis-hardware.md']);
-    expect(s2(off).some((p) => p.kind === 'memory')).toBe(false);
+    expect(s2(on).find(p => p.kind === 'memory')?.text).toContain(on.notes['/memories/hollis-hardware.md']);
+    expect(s2(off).some(p => p.kind === 'memory')).toBe(false);
     expect(off.notes).toEqual({});
-    expect(on.answers.map((a) => a.right)).toEqual([true, true]);
+    expect(on.answers.map(a => a.right)).toEqual([true, true]);
     expect(off.answers[1].right).toBe(false);
   });
   it('the host writes only inside the memory directory', () => {

@@ -10,7 +10,10 @@ import Workbench from '../../content/structured-outputs/07-workbench';
 import { moduleOf } from '../../lib/modules';
 
 export function getStaticPaths() {
-  return moduleOf('structured-outputs').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+  return moduleOf('structured-outputs').chapters.map(({ id, title }) => ({
+    params: { chapter: id },
+    props: { title },
+  }));
 }
 
 const { chapter } = Astro.params;

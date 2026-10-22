@@ -5,21 +5,42 @@ import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
-import { ALL_LARGE, ALL_SMALL, frontier, QUESTION_IDS, questionText, run, SMALL_COST, SURE_AND_WRONG } from '../../lib/small-models/router';
+import {
+  ALL_LARGE,
+  ALL_SMALL,
+  frontier,
+  QUESTION_IDS,
+  questionText,
+  run,
+  SMALL_COST,
+  SURE_AND_WRONG,
+} from '../../lib/small-models/router';
 import { units } from '../../components/scenes/frontierChart';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { Fact, SmallStage, TierAnswer, type View } from './kit';
 
-const MODULE = 'small-models', ID = '04-send-it-the-easy-ones';
-const SMALL = run(ALL_SMALL), LARGE = run(ALL_LARGE), N = QUESTION_IDS.length;
+const MODULE = 'small-models',
+  ID = '04-send-it-the-easy-ones';
+const SMALL = run(ALL_SMALL),
+  LARGE = run(ALL_LARGE),
+  N = QUESTION_IDS.length;
 /** the two ends of the frontier: everything small, everything large */
-const ENDS = frontier().filter(p => p.threshold === 0 || p.threshold === null).map(p => (p.threshold === 0 ? { ...p, id: 'all-small', label: 'All small' } : p));
+const ENDS = frontier()
+  .filter(p => p.threshold === 0 || p.threshold === null)
+  .map(p => (p.threshold === 0 ? { ...p, id: 'all-small', label: 'All small' } : p));
 const FEATURED = SURE_AND_WRONG;
-const Mark = ({ ok }: { ok: boolean }) => <span className={`stamp ${ok ? 'correct' : 'wrong'}`}>{ok ? 'PASS' : 'FAIL'}</span>;
+const Mark = ({ ok }: { ok: boolean }) => (
+  <span className={`stamp ${ok ? 'correct' : 'wrong'}`}>{ok ? 'PASS' : 'FAIL'}</span>
+);
 
-interface S { p1: number | null; ran: boolean; view: View; quiz: number | null }
+interface S {
+  p1: number | null;
+  ran: boolean;
+  view: View;
+  quiz: number | null;
+}
 
 export const P1 = {
   question: `Run Evals’ ${N} questions through both tiers. Both read the same documents. How will the small tier do against the large one?`,
@@ -32,7 +53,8 @@ export const P1 = {
 export const tierOutcome = (small: number, large: number) => (small >= large ? 0 : small >= large / 2 ? 1 : 2);
 
 const QUIZ = {
-  question: 'A bank’s assistant gets “What time does the Elm Street branch open?” and “Can I dispute this charge under clause 7 if I paid by transfer?”. Which suits a small tier?',
+  question:
+    'A bank’s assistant gets “What time does the Elm Street branch open?” and “Can I dispute this charge under clause 7 if I paid by transfer?”. Which suits a small tier?',
   options: [
     'The opening time: one stated fact; the dispute needs reading two rules together',
     'The dispute: it is longer, so a small model saves more',
@@ -40,7 +62,8 @@ const QUIZ = {
     'Both equally: they read the same documents',
   ],
   correct: 0,
-  explanation: 'Lookups of one stated fact are where a small tier matches a large one; rules with exceptions and multi-step questions are where it slips.',
+  explanation:
+    'Lookups of one stated fact are where a small tier matches a large one; rules with exceptions and multi-step questions are where it slips.',
   why: [
     'Right. One line, one fact: the small tier’s strength. The dispute needs weighing a rule against an exception.',
     'Savings follow the number of questions sent small; a wrong answer to a dispute costs far more than it saves.',
@@ -51,17 +74,24 @@ const QUIZ = {
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'predict', focus: 'p1', visibleControls: ['price', 'p1'],
+    id: 'predict',
+    focus: 'p1',
+    visibleControls: ['price', 'p1'],
     narration: `Larkspur’s assistant comes in two tiers: a small model and a large one, both reading the same retrieved documents. A small answer costs ${units(SMALL_COST)} of a large one, from a real price list below; from here on costs are in large answers (1 each). The tiers are illustrations written for this site, not measured models. Before you run them:`,
     predicate: s => s.p1 !== null,
   },
   {
-    id: 'run', focus: 'run', visibleControls: ['p1', 'run'],
-    narration: 'Run all the questions through both tiers. The answers were written ahead of time and recorded; the key-fact check from the Evals module grades them live.',
+    id: 'run',
+    focus: 'run',
+    visibleControls: ['p1', 'run'],
+    narration:
+      'Run all the questions through both tiers. The answers were written ahead of time and recorded; the key-fact check from the Evals module grades them live.',
     predicate: s => s.ran,
   },
   {
-    id: 'quiz', focus: 'quiz', visibleControls: ['rows', 'quiz'],
+    id: 'quiz',
+    focus: 'quiz',
+    visibleControls: ['rows', 'quiz'],
     narration: `The small tier gets ${SMALL.right} of ${N} right for ${units(SMALL.cost)}; the large tier ${LARGE.right} for ${units(LARGE.cost)}. Lookups of one stated fact go fine. It slips where a question is vague, needs two hops, or meets two documents that disagree, and some of those wrong answers sound sure. One question to finish.`,
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which question is answered by one stated line?',
@@ -77,28 +107,55 @@ export default function SendItTheEasyOnes() {
       initial={{ p1: null, ran: false, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
       stage={({ state, sync }) => (
-        <SmallStage view={state.view} onView={view => sync({ ...state, view })} show={() => ({
-          scene: { mode: 'route', route: state.ran ? 'small' : null },
-          chart: state.ran ? { frontier: ENDS, at: 'all-small' } : undefined,
-          caption: state.ran ? `All small: ${SMALL.right} of ${N} right, cost ${units(SMALL.cost)}. All large: ${LARGE.right} of ${N}, cost ${units(LARGE.cost)}.`
-            : 'Two tiers of Larkspur’s assistant: large at the back, small in front.',
-        })} />
+        <SmallStage
+          view={state.view}
+          onView={view => sync({ ...state, view })}
+          show={() => ({
+            scene: { mode: 'route', route: state.ran ? 'small' : null },
+            chart: state.ran ? { frontier: ENDS, at: 'all-small' } : undefined,
+            caption: state.ran
+              ? `All small: ${SMALL.right} of ${N} right, cost ${units(SMALL.cost)}. All large: ${LARGE.right} of ${N}, cost ${units(LARGE.cost)}.`
+              : 'Two tiers of Larkspur’s assistant: large at the back, small in front.',
+          })}
+        />
       )}
       controls={{
         price: () => <Fact id="price-pair" />,
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
-        run: ({ state, sync }) => <button type="button" className="big" onClick={() => sync({ ...state, ran: true, view: 'chart' })}>Run all {N} on both tiers</button>,
+        run: ({ state, sync }) => (
+          <button type="button" className="big" onClick={() => sync({ ...state, ran: true, view: 'chart' })}>
+            Run all {N} on both tiers
+          </button>
+        ),
         rows: ({ state }) => (
           <>
             <Outcome {...P1} prediction={state.p1} outcome={tierOutcome(SMALL.right, LARGE.right)} />
             <table className="tc-ledger sm-rows" data-rows>
               <caption>Each question, graded live by the key-fact check</caption>
-              <thead><tr><th scope="col">Question</th><th scope="col">Small</th><th scope="col">Large</th></tr></thead>
+              <thead>
+                <tr>
+                  <th scope="col">Question</th>
+                  <th scope="col">Small</th>
+                  <th scope="col">Large</th>
+                </tr>
+              </thead>
               <tbody>
                 {SMALL.rows.map((r, i) => (
-                  <tr key={r.question} data-question={r.question}><th scope="row">{questionText(r.question)}</th><td><Mark ok={r.pass} /></td><td><Mark ok={LARGE.rows[i].pass} /></td></tr>
+                  <tr key={r.question} data-question={r.question}>
+                    <th scope="row">{questionText(r.question)}</th>
+                    <td>
+                      <Mark ok={r.pass} />
+                    </td>
+                    <td>
+                      <Mark ok={LARGE.rows[i].pass} />
+                    </td>
+                  </tr>
                 ))}
-                <tr><th scope="row">Cost, in large answers</th><td>{units(SMALL.cost)}</td><td>{units(LARGE.cost)}</td></tr>
+                <tr>
+                  <th scope="row">Cost, in large answers</th>
+                  <td>{units(SMALL.cost)}</td>
+                  <td>{units(LARGE.cost)}</td>
+                </tr>
               </tbody>
             </table>
             <p className="tc-status">One the small tier gets wrong: “{questionText(FEATURED)}”</p>
@@ -107,7 +164,13 @@ export default function SendItTheEasyOnes() {
           </>
         ),
         quiz: ({ state, apply, sync }) => (
-          <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
+          <Quiz
+            {...QUIZ}
+            unsure
+            value={state.quiz}
+            onAnswer={(_, q) => apply({ ...state, quiz: q })}
+            onUnsure={() => sync({ ...state, quiz: UNSURE })}
+          />
         ),
       }}
     />

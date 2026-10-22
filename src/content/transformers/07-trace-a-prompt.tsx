@@ -15,23 +15,42 @@ import { pieceLabel } from '../../components/scenes/attentionMap';
 import META from '../../../public/data/lm/meta.json' with { type: 'json' };
 import { CTX, Fact, PromptInput, TransformersStage, Waiting, piecesOf, useModel, whenLoaded, type View } from './kit';
 
-const MODULE = 'transformers', ID = '07-trace-a-prompt';
+const MODULE = 'transformers',
+  ID = '07-trace-a-prompt';
 const LM = META.model;
-const HEADS = Array.from({ length: LM.n_layer * LM.n_head }, (_, i) => [Math.floor(i / LM.n_head), i % LM.n_head] as const);
+const HEADS = Array.from(
+  { length: LM.n_layer * LM.n_head },
+  (_, i) => [Math.floor(i / LM.n_head), i % LM.n_head] as const,
+);
 const headName = (l: number, h: number) => `Layer ${l + 1}, head ${h + 1}`;
 /** The text the box starts with. */
 export const START = PROMPTS.find(p => p.id === 'billing')!.text;
 /** A prompt longer than the window, from the chapter prompts (a test holds that it is). */
-export const LONG = PROMPTS.filter(p => p.id === 'long' || p.id === 'success').map(p => p.text).join(' ');
+export const LONG = PROMPTS.filter(p => p.id === 'long' || p.id === 'success')
+  .map(p => p.text)
+  .join(' ');
 
 /** What a prompt loses: 0 the model reads all of it, 1 the oldest tokens are dropped, 2 the newest are. Read off the
  * tokens the trace says the model read, never typed. */
 export function outcomeOf(m: Model, text: string): number {
-  const read = trace(m, text).tokens.map(t => t.text).join(''), { pieces } = piecesOf(text);
+  const read = trace(m, text)
+      .tokens.map(t => t.text)
+      .join(''),
+    { pieces } = piecesOf(text);
   return read === pieces.join('') ? 0 : read === pieces.slice(-CTX).join('') ? 1 : 2;
 }
 
-interface S { text: string; traced: string; layer: number; head: number; layers: number[]; view: View; p1: number | null; revealed: boolean; quiz: number | null }
+interface S {
+  text: string;
+  traced: string;
+  layer: number;
+  head: number;
+  layers: number[];
+  view: View;
+  p1: number | null;
+  revealed: boolean;
+  quiz: number | null;
+}
 
 const P1 = {
   question: `You trace a prompt of more than ${CTX} tokens. What does Larkspur mini do with it?`,
@@ -44,7 +63,8 @@ const P1 = {
 };
 
 const QUIZ = {
-  question: 'A customer pastes a long complaint into Larkspur’s chat. The order number is in the first line; the question “where is it?” is in the last. The whole message is longer than the window, and the oldest tokens are dropped. What can the model use?',
+  question:
+    'A customer pastes a long complaint into Larkspur’s chat. The order number is in the first line; the question “where is it?” is in the last. The whole message is longer than the window, and the oldest tokens are dropped. What can the model use?',
   options: [
     'Everything: it read the whole message once, when it arrived',
     'The question, but not the order number: the first line was dropped before the model ran',
@@ -52,7 +72,8 @@ const QUIZ = {
     'Nothing: an over-long message is rejected',
   ],
   correct: 1,
-  explanation: 'The model only ever reads what is in its window. When the oldest tokens are dropped to make room, whatever they said is gone for this run.',
+  explanation:
+    'The model only ever reads what is in its window. When the oldest tokens are dropped to make room, whatever they said is gone for this run.',
   why: [
     'There is no reading outside the window: each run reads only the tokens in it, and the dropped ones were never there.',
     'Right. With the oldest tokens dropped, the last part of the message is read and the first line never is. Put what matters near the end, or keep prompts inside the window.',
@@ -63,30 +84,43 @@ const QUIZ = {
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'type', focus: 'prompt', visibleControls: ['prompt'],
+    id: 'type',
+    focus: 'prompt',
+    visibleControls: ['prompt'],
     narration: `The whole of Larkspur mini is yours. Type any prompt (or keep the one in the box) and trace it. The box counts tokens live: the model reads at most ${CTX}.`,
     predicate: whenLoaded(s => s.traced !== ''),
     hint: 'Type something in the box, then press “Trace it”.',
   },
   {
-    id: 'follow', focus: 'follow', visibleControls: ['prompt', 'follow'],
-    narration: 'Follow it through, stage by stage: the tokens, their vectors, attention in every head, and the next token. Light a head in each layer, and open the Attention tab to read its weights.',
-    predicate: s => s.view === 'attn' && Array.from({ length: LM.n_layer }, (_, l) => l).every(l => s.layers.includes(l)),
+    id: 'follow',
+    focus: 'follow',
+    visibleControls: ['prompt', 'follow'],
+    narration:
+      'Follow it through, stage by stage: the tokens, their vectors, attention in every head, and the next token. Light a head in each layer, and open the Attention tab to read its weights.',
+    predicate: s =>
+      s.view === 'attn' && Array.from({ length: LM.n_layer }, (_, l) => l).every(l => s.layers.includes(l)),
     hint: 'Press a layer 1 head and a layer 2 head, and open the Attention tab above the picture.',
   },
   {
-    id: 'predict', focus: 'p1', visibleControls: ['p1'],
+    id: 'predict',
+    focus: 'p1',
+    visibleControls: ['p1'],
     narration: `Now a prompt that doesn’t fit. Before you trace one longer than ${CTX} tokens:`,
     predicate: s => s.p1 !== null,
   },
   {
-    id: 'reveal', focus: 'reveal', visibleControls: ['p1', 'reveal'],
+    id: 'reveal',
+    focus: 'reveal',
+    visibleControls: ['p1', 'reveal'],
     narration: 'Locked in. Trace a long one.',
     predicate: s => s.revealed,
   },
   {
-    id: 'quiz', focus: 'quiz', visibleControls: ['out1', 'prompt', 'follow', 'quiz'],
-    narration: 'The struck-through tokens never reach the model; the picture and the grid hold only the last ones. Keep tracing your own prompts if you like. One question to finish the module.',
+    id: 'quiz',
+    focus: 'quiz',
+    visibleControls: ['out1', 'prompt', 'follow', 'quiz'],
+    narration:
+      'The struck-through tokens never reach the model; the picture and the grid hold only the last ones. Keep tracing your own prompts if you like. One question to finish the module.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which tokens were struck through in the box?',
   },
@@ -100,35 +134,70 @@ export default function TraceAPrompt() {
       chapter={ID}
       steps={STEPS}
       ready={!!model}
-      initial={{ text: START, traced: '', layer: 0, head: 0, layers: [], view: 'scene', p1: null, revealed: false, quiz: null }}
+      initial={{
+        text: START,
+        traced: '',
+        layer: 0,
+        head: 0,
+        layers: [],
+        view: 'scene',
+        p1: null,
+        revealed: false,
+        quiz: null,
+      }}
       next={nextOf(MODULE, ID)}
       stage={({ state, sync }) => (
-        <TransformersStage prompt={state.traced} layer={state.layer} head={state.head} view={state.view} onView={v => sync({ ...state, view: v })}
-          caption={state.traced ? 'Your prompt, traced live through Larkspur mini.' : 'Type a prompt and trace it.'} />
+        <TransformersStage
+          prompt={state.traced}
+          layer={state.layer}
+          head={state.head}
+          view={state.view}
+          onView={v => sync({ ...state, view: v })}
+          caption={state.traced ? 'Your prompt, traced live through Larkspur mini.' : 'Type a prompt and trace it.'}
+        />
       )}
       controls={{
         prompt: ({ state, sync }) => (
           <>
             <PromptInput value={state.text} onChange={text => sync({ ...state, text })} />
-            <button type="button" className="big" disabled={!model || !state.text.trim()} onClick={() => sync({ ...state, traced: state.text })}>Trace it</button>
+            <button
+              type="button"
+              className="big"
+              disabled={!model || !state.text.trim()}
+              onClick={() => sync({ ...state, traced: state.text })}
+            >
+              Trace it
+            </button>
             {!model && <Waiting />}
           </>
         ),
         follow: ({ state, sync }) => {
           if (!model || !state.traced) return model ? null : <Waiting />;
-          const t = trace(model, state.traced), top = t.top.at(-1)?.[0];
+          const t = trace(model, state.traced),
+            top = t.top.at(-1)?.[0];
           return (
             <>
               <ol className="tf-trace" aria-label="The trace, stage by stage">
                 <li>{`Tokens: the model reads ${t.tokens.length} of ${CTX}${t.truncated ? `; ${piecesOf(state.traced).cut} older ones were dropped` : ''}.`}</li>
                 <li>{`Vectors: each token becomes ${LM.d_model} numbers, its embedding plus its position’s row.`}</li>
                 <li>{`Attention: ${LM.n_layer} layers of ${LM.n_head} heads, each adding what it found to the residual stream. Lit: ${headName(state.layer, state.head)}.`}</li>
-                <li>{top ? `Next token: ${pieceLabel(top.text)}, at ${top.p.toFixed(2)}.` : 'Next token: nothing to predict.'}</li>
+                <li>
+                  {top
+                    ? `Next token: ${pieceLabel(top.text)}, at ${top.p.toFixed(2)}.`
+                    : 'Next token: nothing to predict.'}
+                </li>
               </ol>
               <div role="group" aria-label="Light a head" style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {HEADS.map(([l, h]) => (
-                  <button key={`${l}-${h}`} type="button" className="chip" aria-pressed={state.layer === l && state.head === h}
-                    onClick={() => sync({ ...state, layer: l, head: h, layers: [...new Set([...state.layers, l])] })}>{headName(l, h)}</button>
+                  <button
+                    key={`${l}-${h}`}
+                    type="button"
+                    className="chip"
+                    aria-pressed={state.layer === l && state.head === h}
+                    onClick={() => sync({ ...state, layer: l, head: h, layers: [...new Set([...state.layers, l])] })}
+                  >
+                    {headName(l, h)}
+                  </button>
                 ))}
               </div>
             </>
@@ -136,12 +205,25 @@ export default function TraceAPrompt() {
         },
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         reveal: ({ state, apply }) => (
-          <button type="button" className="chip" onClick={() => apply({ ...state, revealed: true, text: LONG, traced: LONG, view: 'scene' })}>Trace a prompt longer than the window</button>
+          <button
+            type="button"
+            className="chip"
+            onClick={() => apply({ ...state, revealed: true, text: LONG, traced: LONG, view: 'scene' })}
+          >
+            Trace a prompt longer than the window
+          </button>
         ),
-        out1: ({ state }) => model ? <Outcome {...P1} prediction={state.p1} outcome={outcomeOf(model, LONG)} /> : <Waiting />,
+        out1: ({ state }) =>
+          model ? <Outcome {...P1} prediction={state.p1} outcome={outcomeOf(model, LONG)} /> : <Waiting />,
         quiz: ({ state, apply, sync }) => (
           <>
-            <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
+            <Quiz
+              {...QUIZ}
+              unsure
+              value={state.quiz}
+              onAnswer={(_, q) => apply({ ...state, quiz: q })}
+              onUnsure={() => sync({ ...state, quiz: UNSURE })}
+            />
             <Fact id="transformer-explainer" />
           </>
         ),

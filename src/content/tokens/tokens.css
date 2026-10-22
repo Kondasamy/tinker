@@ -1,33 +1,154 @@
 /* Tokens stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
    tool-calling/kit). The tile row is the precise view: Colorfigures ink and palette, one tile per token, wrapping. */
-.tk-row { display: flex; flex-direction: column; gap: 8px; overflow: auto; }
-.tk-row ol { list-style: none; margin: 0; padding: 4px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 8px 6px; }
-.tk-tile { display: flex; flex-direction: column; align-items: center; min-width: 30px; padding: 4px 7px 3px;
-  border: 1.5px solid var(--ink); border-radius: 6px; background: var(--tile, var(--card)); box-shadow: 3px 3px 0 #41538f;
-  font: 700 15px var(--font); cursor: default; }
-.tk-tile:focus-visible, .tk-tile[aria-current] { outline: 3px solid var(--ink); outline-offset: 2px; }
-.tk-piece { white-space: pre; }
-.tk-id { font-size: 11px; color: var(--ink); }
+.tk-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: auto;
+}
+.tk-row ol {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 8px 6px;
+}
+.tk-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 30px;
+  padding: 4px 7px 3px;
+  border: 1.5px solid var(--ink);
+  border-radius: 6px;
+  background: var(--tile, var(--card));
+  box-shadow: 3px 3px 0 #41538f;
+  font: 700 15px var(--font);
+  cursor: default;
+}
+.tk-tile:focus-visible,
+.tk-tile[aria-current] {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+.tk-piece {
+  white-space: pre;
+}
+.tk-id {
+  font-size: 11px;
+  color: var(--ink);
+}
 /* a token that is only part of a character: its bytes as chips, so it never looks like a letter */
-.tk-bytes { background: var(--card); border-style: dashed; }
-.tk-byte { display: inline-block; margin: 0 1px; padding: 0 3px; border: 1px solid var(--ink); border-radius: 3px; font-size: 12px; background: var(--tile); }
-.tk-readout, .tk-empty { margin: 0; min-height: 1.4em; font-size: 13.5px; }
+.tk-bytes {
+  background: var(--card);
+  border-style: dashed;
+}
+.tk-byte {
+  display: inline-block;
+  margin: 0 1px;
+  padding: 0 3px;
+  border: 1px solid var(--ink);
+  border-radius: 3px;
+  font-size: 12px;
+  background: var(--tile);
+}
+.tk-readout,
+.tk-empty {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: 13.5px;
+}
 /* chapter 1's text box, and small notes in the meter table */
-.tk-type { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
-.tk-type textarea { width: 100%; box-sizing: border-box; font: 15px var(--font); padding: 8px 10px; border: 1.5px solid var(--ink); border-radius: 10px; background: var(--card); color: var(--ink); resize: vertical; }
-.tk-note { font-weight: 400; font-size: 12.5px; }
+.tk-type {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.tk-type textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font: 15px var(--font);
+  padding: 8px 10px;
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--ink);
+  resize: vertical;
+}
+.tk-note {
+  font-weight: 400;
+  font-size: 12.5px;
+}
 /* chapters 5–6: RAG's map as the stage, kept square and centred in the frame */
-.tk-map .map { display: flex; flex-direction: column; overflow: auto; background: var(--card); border-radius: 10px; padding: 4px 8px; }
-.tk-map .map svg { flex: none; width: 100%; max-width: 340px; height: auto; aspect-ratio: 1; margin: 6px auto 0; }
+.tk-map .map {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  background: var(--card);
+  border-radius: 10px;
+  padding: 4px 8px;
+}
+.tk-map .map svg {
+  flex: none;
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  aspect-ratio: 1;
+  margin: 6px auto 0;
+}
 /* chapter 4's pickers, chapter 6's choices and chapter 7's parts */
-.tk-pick { display: flex; flex-wrap: wrap; gap: 6px; }
-.tk-choices { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-.tk-choices li { border: 1.5px solid var(--ink); border-radius: 10px; padding: 8px 10px; background: var(--card); }
-.tk-choices li[data-picked] { box-shadow: 3px 3px 0 #41538f; }
-.tk-choices q { display: block; font-size: 14px; margin: 4px 0 6px; }
-.tk-scroll { max-width: 100%; overflow-x: auto; }
-.tk-pick .chip { white-space: normal; text-align: left; }
+.tk-pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tk-choices {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tk-choices li {
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: var(--card);
+}
+.tk-choices li[data-picked] {
+  box-shadow: 3px 3px 0 #41538f;
+}
+.tk-choices q {
+  display: block;
+  font-size: 14px;
+  margin: 4px 0 6px;
+}
+.tk-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.tk-pick .chip {
+  white-space: normal;
+  text-align: left;
+}
 /* the legend's coloured words fail contrast on this stage; the dots and the diamond carry the colours */
-.tk-map .map .legend span { color: var(--ink); }
-.tk-choices .tk-head { display: block; font-size: 13.5px; font-weight: 700; }
-@media (max-width: 600px) { .tk-map .map svg { max-width: 200px; } .tk-map .map .readout { font-size: 13px; } }
+.tk-map .map .legend span {
+  color: var(--ink);
+}
+.tk-choices .tk-head {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+@media (max-width: 600px) {
+  .tk-map .map svg {
+    max-width: 200px;
+  }
+  .tk-map .map .readout {
+    font-size: 13px;
+  }
+}

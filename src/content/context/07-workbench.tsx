@@ -17,26 +17,48 @@ import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { ContextStage, Fact, runOf, type View } from './kit';
 
-const MODULE = 'context', ID = '07-workbench';
+const MODULE = 'context',
+  ID = '07-workbench';
 const W = WORKBENCH_DOMAINS;
 const SESSIONS = W.sessions![0];
 type Fetch = Extract<Retrieval, 'stuff' | 'fetch'>;
-export interface Policy { retrieval: Fetch; history: Form; cache: boolean }
-const RETRIEVALS = W.retrieval as Fetch[], HISTORIES = W.history!, CACHES = W.breakpoints!.map(b => b.length > 0);
+export interface Policy {
+  retrieval: Fetch;
+  history: Form;
+  cache: boolean;
+}
+const RETRIEVALS = W.retrieval as Fetch[],
+  HISTORIES = W.history!,
+  CACHES = W.breakpoints!.map(b => b.length > 0);
 /** every policy the controls can make */
-export const POLICIES: Policy[] = RETRIEVALS.flatMap(retrieval => HISTORIES.flatMap(history => CACHES.map(cache => ({ retrieval, history, cache }))));
+export const POLICIES: Policy[] = RETRIEVALS.flatMap(retrieval =>
+  HISTORIES.flatMap(history => CACHES.map(cache => ({ retrieval, history, cache }))),
+);
 /** the team's first policy: every document up front, the full history, no cache */
 export const STUFF_ALL: Policy = { retrieval: 'stuff', history: 'full', cache: false };
 
-export const play = (p: Policy): Run => runOf({ sessions: SESSIONS, retrieval: p.retrieval, history: p.history, breakpoints: p.cache ? ['end'] : [] });
-export interface Score { right: number; of: number; tokens: number; cost: number }
+export const play = (p: Policy): Run =>
+  runOf({ sessions: SESSIONS, retrieval: p.retrieval, history: p.history, breakpoints: p.cache ? ['end'] : [] });
+export interface Score {
+  right: number;
+  of: number;
+  tokens: number;
+  cost: number;
+}
 export const score = (p: Policy): Score => ({ ...totals(play(p)), of: play(p).answers.length });
 /** each question's share of a run: its calls' tokens and cost, and whether its answer was right */
 export function byCase(r: Run): ({ case: string } & Score)[] {
   const ids = [...new Set(r.meter.map(m => m.case))];
   return ids.map(id => {
-    const ms = r.meter.filter(m => m.case === id), as = r.answers.filter(a => a.case === id);
-    return { case: id, tokens: ms.reduce((n, m) => n + m.window.tokens + m.output, 0), cost: ms.reduce((n, m) => n + m.cost, 0), right: as.filter(a => a.right).length, of: as.length };
+    const ms = r.meter.filter(m => m.case === id),
+      as = r.answers.filter(a => a.case === id);
+    return {
+      case: id,
+      tokens: ms.reduce((n, m) => n + m.window.tokens + m.output, 0),
+      cost: ms.reduce((n, m) => n + m.cost, 0),
+      right: as.filter(a => a.right).length,
+      of: as.length,
+    };
   });
 }
 
@@ -51,11 +73,19 @@ const BASE = score(STUFF_ALL);
 const units = (x: number) => num(Math.round(x));
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 const RETRIEVAL_NAME: Record<Fetch, string> = { stuff: 'Every document up front', fetch: 'Search when needed' };
-const HISTORY_NAME: Record<Form, string> = { full: 'Full history', cleared: 'Old results cleared', summary: 'One summary' };
-const policyName = (p: Policy) => `${RETRIEVAL_NAME[p.retrieval]}, ${HISTORY_NAME[p.history].toLowerCase()}, cache ${p.cache ? 'on' : 'off'}`;
+const HISTORY_NAME: Record<Form, string> = {
+  full: 'Full history',
+  cleared: 'Old results cleared',
+  summary: 'One summary',
+};
+const policyName = (p: Policy) =>
+  `${RETRIEVAL_NAME[p.retrieval]}, ${HISTORY_NAME[p.history].toLowerCase()}, cache ${p.cache ? 'on' : 'off'}`;
 
 /** One change from stuffing everything: does it beat it on both answers and cost? */
-const beats = (p: Policy) => { const s = score(p); return s.right > BASE.right && s.cost < BASE.cost; };
+const beats = (p: Policy) => {
+  const s = score(p);
+  return s.right > BASE.right && s.cost < BASE.cost;
+};
 const P1 = {
   question: `Stuffing everything got ${BASE.right} of ${BASE.of} answers right. Which single change do you expect to give better answers for less?`,
   options: [
@@ -67,7 +97,8 @@ const P1 = {
 const OUT1 = beats({ ...STUFF_ALL, retrieval: 'fetch' }) ? 0 : beats({ ...STUFF_ALL, history: 'summary' }) ? 1 : 2;
 
 const QUIZ = {
-  question: 'Another team stuffs a 300-page product catalogue into every turn, because “more context is safer”. Their bill is high and some answers pick the wrong product. What should they change first?',
+  question:
+    'Another team stuffs a 300-page product catalogue into every turn, because “more context is safer”. Their bill is high and some answers pick the wrong product. What should they change first?',
   options: [
     'Move to a model with a bigger window, so the catalogue has more room',
     'Fetch the pages each question needs, keep the stable parts first so the cache reads them, and measure answers, tokens and cost together',
@@ -84,22 +115,33 @@ const QUIZ = {
   ],
 };
 
-interface S extends Policy { ran: boolean; p1: number | null; quiz: number | null; view: View }
+interface S extends Policy {
+  ran: boolean;
+  p1: number | null;
+  quiz: number | null;
+  view: View;
+}
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'baseline', focus: 'run', visibleControls: ['run'],
+    id: 'baseline',
+    focus: 'run',
+    visibleControls: ['run'],
     narration: `A context policy is the host’s rules for building every window: how documents get in, how the history is kept, and where the cache sits. Larkspur’s first policy was the simplest: every document up front, the full history, no cache. Run it on Mara’s ${SESSIONS[0].length} questions.`,
     predicate: s => s.ran,
     hint: 'Press the run button.',
   },
   {
-    id: 'predict', focus: 'p1', visibleControls: ['readout', 'p1'],
+    id: 'predict',
+    focus: 'p1',
+    visibleControls: ['readout', 'p1'],
     narration: `${BASE.right} of ${BASE.of} answers right, for ${num(BASE.tokens)} tokens and a cost of ${units(BASE.cost)}. Each chapter gave you a lever. Before you pull them:`,
     predicate: s => s.p1 !== null,
   },
   puzzle<S>({
-    id: 'tune', focus: 'bench', visibleControls: ['out1', 'bench'],
+    id: 'tune',
+    focus: 'bench',
+    visibleControls: ['out1', 'bench'],
     narration: `Now set the policy. Find one that gets every answer right for the lowest cost of any. The readout leads with the cost against stuffing everything; the table under it splits the run by question, and its total is the sum of the rows.`,
     broken: s => ({ ...s, ...STUFF_ALL }),
     verdict: s => solved(s),
@@ -107,7 +149,9 @@ export const STEPS: Step<S>[] = [
     hint: 'Chapter 3 fixed the answers; chapter 4 made a growing history cheap; chapter 5 showed which history keeps the cache.',
   }),
   {
-    id: 'quiz', focus: 'quiz', visibleControls: ['readout', 'facts', 'quiz'],
+    id: 'quiz',
+    focus: 'quiz',
+    visibleControls: ['readout', 'facts', 'quiz'],
     narration: `${policyName(WINNERS[0])}: every answer right, for ${pct(LOWEST / BASE.cost)} of the first policy’s cost. Searching kept each window small and the fact in view; the full history only grew at its end, so the cache read it back each call. The policy that sent the most was neither the most right nor the cheapest. One question to finish.`,
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which policy sent the most text, and how did it do?',
@@ -116,38 +160,86 @@ export const STEPS: Step<S>[] = [
 
 /** The policy's readout: the headline number first, then answers and tokens, then the run split by question. */
 function Readout({ s, verdict }: { s: S; verdict?: boolean }) {
-  const p: Policy = { retrieval: s.retrieval, history: s.history, cache: s.cache }, sc = score(p), rows = byCase(play(p));
+  const p: Policy = { retrieval: s.retrieval, history: s.history, cache: s.cache },
+    sc = score(p),
+    rows = byCase(play(p));
   return (
     <div role="status" data-right={sc.right} data-cost={Math.round(sc.cost)} data-solved={solved(p) ? '1' : '0'}>
       <p className="cx-headline">
         <strong>{pct(sc.cost / BASE.cost)}</strong> of the cost of stuffing everything
-        {verdict && <> <Verdict fixed={solved(p)} /></>}
+        {verdict && (
+          <>
+            {' '}
+            <Verdict fixed={solved(p)} />
+          </>
+        )}
       </p>
       <p className="tc-status">
-        {sc.right} of {sc.of} answers right · {num(sc.tokens)} tokens · cost {units(sc.cost)} against {units(BASE.cost)}.
-        {verdict && solved(p) && WINNERS.length > 1 && ` This policy is one of ${WINNERS.length} that work.`}
+        {sc.right} of {sc.of} answers right · {num(sc.tokens)} tokens · cost {units(sc.cost)} against {units(BASE.cost)}
+        .{verdict && solved(p) && WINNERS.length > 1 && ` This policy is one of ${WINNERS.length} that work.`}
       </p>
       <table className="tc-ledger">
         <caption>{policyName(p)}, by question</caption>
-        <thead><tr><th scope="col">Question</th><th scope="col">Answer</th><th scope="col">Tokens</th><th scope="col">Cost</th></tr></thead>
-        <tbody>{rows.map(r => (
-          <tr key={r.case} data-case={r.case}><th scope="row">{caseOf(r.case).topic}</th><td>{r.right === r.of ? 'right' : 'wrong'}</td><td>{num(r.tokens)}</td><td>{units(r.cost)}</td></tr>
-        ))}</tbody>
-        <tfoot><tr><th scope="row">Total</th><td>{sc.right} of {sc.of}</td><td>{num(sc.tokens)}</td><td>{units(sc.cost)}</td></tr></tfoot>
+        <thead>
+          <tr>
+            <th scope="col">Question</th>
+            <th scope="col">Answer</th>
+            <th scope="col">Tokens</th>
+            <th scope="col">Cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(r => (
+            <tr key={r.case} data-case={r.case}>
+              <th scope="row">{caseOf(r.case).topic}</th>
+              <td>{r.right === r.of ? 'right' : 'wrong'}</td>
+              <td>{num(r.tokens)}</td>
+              <td>{units(r.cost)}</td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="row">Total</th>
+            <td>
+              {sc.right} of {sc.of}
+            </td>
+            <td>{num(sc.tokens)}</td>
+            <td>{units(sc.cost)}</td>
+          </tr>
+        </tfoot>
       </table>
       <p className="cx-note">
-        Answers are recorded; tokens and cost are computed. Tokens count each window and its reply with this site’s own tokenizer. Costs are in relative units, not dollars: a fresh input token costs 1, a cache hit {READ}, a cache write {WRITE['5m']}, an output token {OUTPUT}.
+        Answers are recorded; tokens and cost are computed. Tokens count each window and its reply with this site’s own
+        tokenizer. Costs are in relative units, not dollars: a fresh input token costs 1, a cache hit {READ}, a cache
+        write {WRITE['5m']}, an output token {OUTPUT}.
       </p>
     </div>
   );
 }
 
-function Chips<T>({ label, values, value, name, pick }: { label: string; values: T[]; value: T; name: (v: T) => string; pick: (v: T) => void }) {
+function Chips<T>({
+  label,
+  values,
+  value,
+  name,
+  pick,
+}: {
+  label: string;
+  values: T[];
+  value: T;
+  name: (v: T) => string;
+  pick: (v: T) => void;
+}) {
   return (
     <fieldset className="tc-pick">
       <legend>{label}</legend>
       <div role="group" aria-label={label} style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-        {values.map(v => <button key={String(v)} type="button" className="chip" aria-pressed={v === value} onClick={() => pick(v)}>{name(v)}</button>)}
+        {values.map(v => (
+          <button key={String(v)} type="button" className="chip" aria-pressed={v === value} onClick={() => pick(v)}>
+            {name(v)}
+          </button>
+        ))}
       </div>
     </fieldset>
   );
@@ -163,24 +255,65 @@ export default function Workbench() {
       next={nextOf(MODULE, ID)}
       stage={({ state, sync }) => {
         const r = play(state);
-        return <ContextStage run={r} upTo={state.ran ? r.meter.length : 0} props={{ shelf: state.cache, tray: state.history !== 'full' }} view={state.view} onView={view => sync({ ...state, view })} />;
+        return (
+          <ContextStage
+            run={r}
+            upTo={state.ran ? r.meter.length : 0}
+            props={{ shelf: state.cache, tray: state.history !== 'full' }}
+            view={state.view}
+            onView={view => sync({ ...state, view })}
+          />
+        );
       }}
       controls={{
-        run: ({ state, apply }) => <button type="button" className="big" onClick={() => apply({ ...state, ...STUFF_ALL, ran: true })}>Run the policy</button>,
+        run: ({ state, apply }) => (
+          <button type="button" className="big" onClick={() => apply({ ...state, ...STUFF_ALL, ran: true })}>
+            Run the policy
+          </button>
+        ),
         readout: ({ state }) => <Readout s={state} />,
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUT1} />,
         bench: ({ state, apply }) => (
           <div className="tc-bench">
-            <Chips label="Documents" values={RETRIEVALS} value={state.retrieval} name={v => RETRIEVAL_NAME[v]} pick={retrieval => apply({ ...state, retrieval })} />
-            <Chips label="History" values={HISTORIES} value={state.history} name={v => HISTORY_NAME[v]} pick={history => apply({ ...state, history })} />
-            <Chips label="Cache" values={CACHES} value={state.cache} name={v => (v ? 'Cache on' : 'Cache off')} pick={cache => apply({ ...state, cache })} />
+            <Chips
+              label="Documents"
+              values={RETRIEVALS}
+              value={state.retrieval}
+              name={v => RETRIEVAL_NAME[v]}
+              pick={retrieval => apply({ ...state, retrieval })}
+            />
+            <Chips
+              label="History"
+              values={HISTORIES}
+              value={state.history}
+              name={v => HISTORY_NAME[v]}
+              pick={history => apply({ ...state, history })}
+            />
+            <Chips
+              label="Cache"
+              values={CACHES}
+              value={state.cache}
+              name={v => (v ? 'Cache on' : 'Cache off')}
+              pick={cache => apply({ ...state, cache })}
+            />
             <Readout s={state} verdict />
           </div>
         ),
-        facts: () => <><Fact id="smallest-set" /><Fact id="context-rot" /></>,
+        facts: () => (
+          <>
+            <Fact id="smallest-set" />
+            <Fact id="context-rot" />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
-          <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
+          <Quiz
+            {...QUIZ}
+            unsure
+            value={state.quiz}
+            onAnswer={(_, q) => apply({ ...state, quiz: q })}
+            onUnsure={() => sync({ ...state, quiz: UNSURE })}
+          />
         ),
       }}
     />

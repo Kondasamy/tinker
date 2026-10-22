@@ -24,18 +24,26 @@ const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 const axe = async (page: Page) => expect(await serious(page)).toEqual([]);
 test.setTimeout(120_000);
 
-test('the intro shows the level, the prerequisites, the author, the chapters and the Colorfigures credit', async ({ page }) => {
+test('the intro shows the level, the prerequisites, the author, the chapters and the Colorfigures credit', async ({
+  page,
+}) => {
   await page.goto('/context/');
   const meta = page.locator('.hero .module-meta');
   await expect(meta.locator('.level')).toHaveText('Intermediate');
-  for (const id of ['rag', 'tool-calling']) await expect(meta.getByRole('link', { name: moduleOf(id).title, exact: true })).toHaveAttribute('href', `/${id}/`);
+  for (const id of ['rag', 'tool-calling'])
+    await expect(meta.getByRole('link', { name: moduleOf(id).title, exact: true })).toHaveAttribute('href', `/${id}/`);
   await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
-  await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toHaveAttribute('href', 'https://april-zhu.com/colorfigures');
+  await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toHaveAttribute(
+    'href',
+    'https://april-zhu.com/colorfigures',
+  );
   await axe(page);
 });
 
-test('Module 8 on the intro, the recap and home, with their own share images; home Continue resumes it', async ({ page }) => {
+test('Module 8 on the intro, the recap and home, with their own share images; home Continue resumes it', async ({
+  page,
+}) => {
   await page.goto('/context/');
   await expect(page.locator('.hero .kicker')).toHaveText('Module 8 · Context');
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/context\.jpg$/);
@@ -44,16 +52,27 @@ test('Module 8 on the intro, the recap and home, with their own share images; ho
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/context-recap\.jpg$/);
   await page.goto('/');
   await expect(page.locator('.module[data-module="context"] h4 a')).toHaveAttribute('href', '/context/');
-  await page.evaluate(() => { localStorage.setItem('context-progress-v1', JSON.stringify({ done: [], saved: {} })); localStorage.setItem('tinker-last-module', 'context'); });
+  await page.evaluate(() => {
+    localStorage.setItem('context-progress-v1', JSON.stringify({ done: [], saved: {} }));
+    localStorage.setItem('tinker-last-module', 'context');
+  });
   await page.reload();
   await expect(page.locator('[data-continue]')).toHaveAttribute('href', /^\/context\//);
 });
 
-test('the warm-up shows on the intro 21 hours after a chapter, with a skip link; not 2 hours after', async ({ page }) => {
+test('the warm-up shows on the intro 21 hours after a chapter, with a skip link; not 2 hours after', async ({
+  page,
+}) => {
   const seed = async (hours: number) => {
     await page.goto('/');
-    await page.evaluate(({ done, at }) => localStorage.setItem('context-progress-v1', JSON.stringify({ done, saved: {}, at: Object.fromEntries(done.map(id => [id, at])) })),
-      { done: [CH1], at: Date.now() - hours * 3600_000 });
+    await page.evaluate(
+      ({ done, at }) =>
+        localStorage.setItem(
+          'context-progress-v1',
+          JSON.stringify({ done, saved: {}, at: Object.fromEntries(done.map(id => [id, at])) }),
+        ),
+      { done: [CH1], at: Date.now() - hours * 3600_000 },
+    );
     await page.goto('/context/');
     await page.locator('astro-island:not([ssr])').first().waitFor({ state: 'attached' });
   };
@@ -74,14 +93,20 @@ test('the intro reads as pictures by default; Words unfolds the longer text', as
   await axe(page);
 });
 
-test('every chapter plays by mouse, in order through the Next links to the recap, with axe clean at each check', async ({ page }) => {
+test('every chapter plays by mouse, in order through the Next links to the recap, with axe clean at each check', async ({
+  page,
+}) => {
   await walkAll(contextWalker(page, 'mouse', axe));
 });
 
-test('every chapter plays by keyboard only, the chapter 4 and 7 puzzles included; progress lands in context-progress-v1 and no other module’s key', async ({ page }) => {
+test('every chapter plays by keyboard only, the chapter 4 and 7 puzzles included; progress lands in context-progress-v1 and no other module’s key', async ({
+  page,
+}) => {
   await page.goto('/');
   const OTHERS = { 'rag-progress-v1': JSON.stringify({ done: ['01-history'], saved: {} }) };
-  await page.evaluate(o => { for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v); }, OTHERS);
+  await page.evaluate(o => {
+    for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v);
+  }, OTHERS);
   await walkAll(contextWalker(page, 'keyboard'));
   const store = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
   expect(JSON.parse(store['context-progress-v1']).done).toEqual(ALL);
@@ -89,7 +114,9 @@ test('every chapter plays by keyboard only, the chapter 4 and 7 puzzles included
   expect(store['tinker-last-module']).toBe('context');
 });
 
-test('chapter 4: the stamp near the top breaks the cache; Show me gives one of the orders that work', async ({ page }) => {
+test('chapter 4: the stamp near the top breaks the cache; Show me gives one of the orders that work', async ({
+  page,
+}) => {
   const w = contextWalker(page, 'mouse');
   await w.open(CH4);
   const c = card(page);
@@ -102,7 +129,9 @@ test('chapter 4: the stamp near the top breaks the cache; Show me gives one of t
   await expect(c).toContainText(/one of \d+ that work/);
 });
 
-test('chapter 7: the readout leads with the cost against stuffing everything; Show me gives a policy that works', async ({ page }) => {
+test('chapter 7: the readout leads with the cost against stuffing everything; Show me gives a policy that works', async ({
+  page,
+}) => {
   const w = contextWalker(page, 'mouse');
   await w.open(CH7);
   const c = card(page);
@@ -119,7 +148,17 @@ test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
   test('the picture holds still and the chapters still play through', async ({ page }) => {
     const w = contextWalker(page, 'mouse', async p => {
-      await expect.poll(() => p.evaluate(() => document.querySelector('.stage')!.getAnimations({ subtree: true }).filter(a => a.playState === 'running').length)).toBe(0);
+      await expect
+        .poll(() =>
+          p.evaluate(
+            () =>
+              document
+                .querySelector('.stage')!
+                .getAnimations({ subtree: true })
+                .filter(a => a.playState === 'running').length,
+          ),
+        )
+        .toBe(0);
     });
     await walkAll(w);
   });
@@ -142,6 +181,11 @@ test.describe('phone', () => {
       await page.goto(p);
       await layoutHolds(page);
     }
-    await walkAll(contextWalker(page, 'mouse', async p => { await layoutHolds(p); await axe(p); }));
+    await walkAll(
+      contextWalker(page, 'mouse', async p => {
+        await layoutHolds(p);
+        await axe(p);
+      }),
+    );
   });
 });

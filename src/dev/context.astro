@@ -4,15 +4,32 @@
 import '../styles/tokens.css';
 import '../content/context/context.css';
 import IsoStage from '../lib/iso/IsoStage';
-import { WINDOW_BOARD, windowLabel, windowReadouts, windowScene, type WindowOpts } from '../components/scenes/windowScene';
+import {
+  WINDOW_BOARD,
+  windowLabel,
+  windowReadouts,
+  windowScene,
+  type WindowOpts,
+} from '../components/scenes/windowScene';
 import { WindowBar } from '../content/context/kit';
 import { run, type Run } from '../lib/context/loop';
 
 const SESSION = ['refund-window', 'free-shipping', 'sensor-warranty'];
 const ONE = run(undefined, {});
 const STUFF = run(undefined, { retrieval: 'stuff' });
-const CACHED = run(undefined, { sessions: [SESSION], tools: true, retrieval: 'stuff', breakpoints: ['tools', 'system', 'end'] });
-const DATED = run(undefined, { sessions: [SESSION], tools: true, retrieval: 'stuff', system: 'dated', breakpoints: ['tools', 'system', 'end'] });
+const CACHED = run(undefined, {
+  sessions: [SESSION],
+  tools: true,
+  retrieval: 'stuff',
+  breakpoints: ['tools', 'system', 'end'],
+});
+const DATED = run(undefined, {
+  sessions: [SESSION],
+  tools: true,
+  retrieval: 'stuff',
+  system: 'dated',
+  breakpoints: ['tools', 'system', 'end'],
+});
 const OVER = run(undefined, { retrieval: 'stuff', budget: 1000 });
 const MEMORY = run(undefined, { sessions: [['enterprise-hello'], ['enterprise-refund']], memory: true });
 const CLEARED = run(undefined, { sessions: [SESSION], retrieval: 'fetch', history: 'cleared' });

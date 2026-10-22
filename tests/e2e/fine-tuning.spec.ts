@@ -8,7 +8,8 @@ import { ftWalker } from './fine-tuning-flow';
 import { serious, layoutHolds, offline, PHONE } from './helpers';
 
 const M = moduleOf('fine-tuning');
-const CHS = M.chapters.map(c => c.id), [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = CHS;
+const CHS = M.chapters.map(c => c.id),
+  [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = CHS;
 const at = (id: string) => new RegExp(`/fine-tuning/${id}/$`);
 async function walkAll(w: ReturnType<typeof ftWalker>) {
   await w.open(CH1);
@@ -24,19 +25,29 @@ const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 const axe = async (page: Page) => expect(await serious(page)).toEqual([]);
 test.setTimeout(120_000);
 
-test('the intro shows the level, the prerequisites, the author, the chapters and the Colorfigures credit', async ({ page }) => {
+test('the intro shows the level, the prerequisites, the author, the chapters and the Colorfigures credit', async ({
+  page,
+}) => {
   await page.goto('/fine-tuning/');
   const meta = page.locator('.hero .module-meta');
   await expect(meta.locator('.level')).toHaveText('Advanced');
-  await expect(meta.getByRole('link', { name: moduleOf('evals').title, exact: true })).toHaveAttribute('href', '/evals/');
-  await expect(meta.getByRole('link', { name: moduleOf('transformers').title, exact: true })).toHaveAttribute('href', '/transformers/');
+  await expect(meta.getByRole('link', { name: moduleOf('evals').title, exact: true })).toHaveAttribute(
+    'href',
+    '/evals/',
+  );
+  await expect(meta.getByRole('link', { name: moduleOf('transformers').title, exact: true })).toHaveAttribute(
+    'href',
+    '/transformers/',
+  );
   await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
   await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toBeVisible();
   await axe(page);
 });
 
-test('Module 9 on the intro, the recap and home, with their own share images; home Continue resumes it', async ({ page }) => {
+test('Module 9 on the intro, the recap and home, with their own share images; home Continue resumes it', async ({
+  page,
+}) => {
   await page.goto('/fine-tuning/');
   await expect(page.locator('.hero .kicker')).toHaveText('Module 9 · Fine-tuning');
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/fine-tuning\.jpg$/);
@@ -45,16 +56,27 @@ test('Module 9 on the intro, the recap and home, with their own share images; ho
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/fine-tuning-recap\.jpg$/);
   await page.goto('/');
   await expect(page.locator('.module[data-module="fine-tuning"] h4 a')).toHaveAttribute('href', '/fine-tuning/');
-  await page.evaluate(() => { localStorage.setItem('fine-tuning-progress-v1', JSON.stringify({ done: [], saved: {} })); localStorage.setItem('tinker-last-module', 'fine-tuning'); });
+  await page.evaluate(() => {
+    localStorage.setItem('fine-tuning-progress-v1', JSON.stringify({ done: [], saved: {} }));
+    localStorage.setItem('tinker-last-module', 'fine-tuning');
+  });
   await page.reload();
   await expect(page.locator('[data-continue]')).toHaveAttribute('href', /^\/fine-tuning\//);
 });
 
-test('the warm-up shows on the intro 21 hours after a chapter, with a skip link; not 2 hours after', async ({ page }) => {
+test('the warm-up shows on the intro 21 hours after a chapter, with a skip link; not 2 hours after', async ({
+  page,
+}) => {
   const seed = async (hours: number) => {
     await page.goto('/');
-    await page.evaluate(({ done, at }) => localStorage.setItem('fine-tuning-progress-v1', JSON.stringify({ done, saved: {}, at: Object.fromEntries(done.map(id => [id, at])) })),
-      { done: [CH1], at: Date.now() - hours * 3600_000 });
+    await page.evaluate(
+      ({ done, at }) =>
+        localStorage.setItem(
+          'fine-tuning-progress-v1',
+          JSON.stringify({ done, saved: {}, at: Object.fromEntries(done.map(id => [id, at])) }),
+        ),
+      { done: [CH1], at: Date.now() - hours * 3600_000 },
+    );
     await page.goto('/fine-tuning/');
     await page.locator('astro-island:not([ssr])').first().waitFor({ state: 'attached' });
   };
@@ -80,14 +102,20 @@ test('the intro reads as pictures by default; Words unfolds the longer text', as
   await axe(page);
 });
 
-test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({ page }) => {
+test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({
+  page,
+}) => {
   await walkAll(ftWalker(page, 'mouse', axe));
 });
 
-test('every chapter plays by keyboard only; progress lands in fine-tuning-progress-v1 and no other module’s key', async ({ page }) => {
+test('every chapter plays by keyboard only; progress lands in fine-tuning-progress-v1 and no other module’s key', async ({
+  page,
+}) => {
   await page.goto('/');
   const OTHERS = { 'evals-progress-v1': JSON.stringify({ done: ['01-it-worked-when-i-tried-it'], saved: {} }) };
-  await page.evaluate(o => { for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v); }, OTHERS);
+  await page.evaluate(o => {
+    for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v);
+  }, OTHERS);
   await walkAll(ftWalker(page, 'keyboard'));
   const store = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
   expect(JSON.parse(store['fine-tuning-progress-v1']).done).toEqual(CHS);
@@ -95,7 +123,9 @@ test('every chapter plays by keyboard only; progress lands in fine-tuning-progre
   expect(store['tinker-last-module']).toBe('fine-tuning');
 });
 
-test('chapter 2: the base model never signs off and the fine-tuned copy does, generated in the browser', async ({ page }) => {
+test('chapter 2: the base model never signs off and the fine-tuned copy does, generated in the browser', async ({
+  page,
+}) => {
   const w = ftWalker(page, 'mouse');
   await w.open(CH2);
   const c = card(page);
@@ -122,13 +152,18 @@ test('chapter 4: the fine-tuned version fails the new price and RAG passes it', 
   await expect(c.locator('.ft-answer').filter({ hasText: 'recorded answer' })).toHaveCount(2);
 });
 
-test('chapter 5: fetches all three weight sets on load, then plays to the end offline with no failed request', async ({ page }) => {
+test('chapter 5: fetches all three weight sets on load, then plays to the end offline with no failed request', async ({
+  page,
+}) => {
   const failed: string[] = [];
   page.on('requestfailed', r => failed.push(r.url()));
   const w = ftWalker(page, 'mouse');
   await w.open(CH5);
-  await page.waitForFunction(() => ['model.bin', 'finetuned.bin', 'lora.bin'].every(f =>
-    performance.getEntriesByType('resource').some(e => e.name.endsWith('/data/lm/' + f))));
+  await page.waitForFunction(() =>
+    ['model.bin', 'finetuned.bin', 'lora.bin'].every(f =>
+      performance.getEntriesByType('resource').some(e => e.name.endsWith('/data/lm/' + f)),
+    ),
+  );
   await page.waitForLoadState('networkidle');
   await offline(page);
   await w.ch5();
@@ -139,15 +174,19 @@ test('chapter 5: fetches all three weight sets on load, then plays to the end of
   expect(failed).toEqual([]);
 });
 
-test('chapter 7: a plan short of the best is not accepted; the fine-tune for no-fact replies ties for best', async ({ page }) => {
+test('chapter 7: a plan short of the best is not accepted; the fine-tune for no-fact replies ties for best', async ({
+  page,
+}) => {
   const w = ftWalker(page, 'mouse');
   await w.open(CH7);
-  const c = card(page), kind = (id: string) => c.locator(`fieldset[data-kind="${id}"]`), score = c.locator('[data-score]');
+  const c = card(page),
+    kind = (id: string) => c.locator(`fieldset[data-kind="${id}"]`),
+    score = c.locator('[data-score]');
   await expect(score).toHaveAttribute('data-best', '0');
   await kind('facts').getByRole('button', { name: 'RAG' }).click();
   await kind('changed').getByRole('button', { name: 'RAG' }).click();
   await expect(c).toContainText('Step 2 of');
-  await expect(score).toHaveAttribute('data-best', '1');      // voice stayed with the fine-tune: one of the tied plans
+  await expect(score).toHaveAttribute('data-best', '1'); // voice stayed with the fine-tune: one of the tied plans
   await expect(c.locator('.ft-headline strong')).toBeVisible();
 });
 
@@ -179,6 +218,11 @@ test.describe('phone', () => {
       await page.goto(p);
       await layoutHolds(page);
     }
-    await walkAll(ftWalker(page, 'mouse', async p => { await layoutHolds(p); await axe(p); }));
+    await walkAll(
+      ftWalker(page, 'mouse', async p => {
+        await layoutHolds(p);
+        await axe(p);
+      }),
+    );
   });
 });

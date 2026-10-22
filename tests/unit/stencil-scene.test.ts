@@ -2,7 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import IsoStage from '../../src/lib/iso/IsoStage';
-import { STENCIL_BOARD, stencilLabel, stencilScene, stencilState, type StencilOpts } from '../../src/components/scenes/stencilScene';
+import {
+  STENCIL_BOARD,
+  stencilLabel,
+  stencilScene,
+  stencilState,
+  type StencilOpts,
+} from '../../src/components/scenes/stencilScene';
 import { maskGrid } from '../../src/components/scenes/maskGrid';
 import { MaskView, StructuredStage, stencilAt } from '../../src/content/structured-outputs/kit';
 import { modelStore } from '../../src/content/transformers/kit';
@@ -10,7 +16,8 @@ import { play, run } from '../../src/lib/structured-outputs/prompts';
 import { VOCAB_SIZE } from '../../src/lib/lm/bpe';
 import { diskModel } from '../../src/lib/transformers/diskModel';
 
-const draw = (o: StencilOpts) => renderToString(createElement(IsoStage, { board: STENCIL_BOARD, scene: stencilScene(o), label: stencilLabel(o) }));
+const draw = (o: StencilOpts) =>
+  renderToString(createElement(IsoStage, { board: STENCIL_BOARD, scene: stencilScene(o), label: stencilLabel(o) }));
 const count = (html: string, s: string) => html.split(s).length - 1;
 const model = diskModel();
 
@@ -40,7 +47,7 @@ describe('the stencil press', () => {
 
   it('follows a pinned run: the model’s blocked first choice shows at the step it was blocked', () => {
     const { decoded } = play(model, run('mask'));
-    const i = decoded.steps.findIndex((s) => !s.allowed.includes(s.free.id));
+    const i = decoded.steps.findIndex(s => !s.allowed.includes(s.free.id));
     expect(i).toBeGreaterThanOrEqual(0);
     const o = stencilAt('Where is order 1042?', decoded, i, true);
     expect(o.blocked).toBe(decoded.steps[i].free.text);
@@ -60,7 +67,7 @@ describe('the mask grid', () => {
 
   it('lists the likeliest allowed tokens, one focusable at a time, with a read-out naming token and probability', () => {
     const { decoded } = play(model, run('note'));
-    const at = decoded.steps.findIndex((s) => s.allowed.length > 100);
+    const at = decoded.steps.findIndex(s => s.allowed.length > 100);
     const html = renderToString(createElement(MaskView, { d: decoded, at }));
     expect(count(html, '<li')).toBe(decoded.steps[at].top.length);
     expect(count(html, 'tabindex="0"')).toBe(1);
@@ -72,17 +79,23 @@ describe('the stage', () => {
   it('while Larkspur mini loads: a loading pill, the Mask tab off', () => {
     const loading = modelStore(() => new Promise<ArrayBuffer>(() => {}));
     loading.start();
-    const html = renderToString(createElement(StructuredStage, { prompt: 'Where is order 1042?', d: null, at: 0, store: loading }));
+    const html = renderToString(
+      createElement(StructuredStage, { prompt: 'Where is order 1042?', d: null, at: 0, store: loading }),
+    );
     expect(html).toContain('Loading Larkspur mini');
     expect(html).toContain('data-model="loading"');
     expect(html).toMatch(/<button[^>]*disabled=""[^>]*>Mask<\/button>/);
   });
 
   it('after a failed load: Retry', async () => {
-    const failed = modelStore(async () => { throw new Error('offline'); });
+    const failed = modelStore(async () => {
+      throw new Error('offline');
+    });
     failed.start();
-    await new Promise((r) => setTimeout(r, 0));
-    const html = renderToString(createElement(StructuredStage, { prompt: 'Where is order 1042?', d: null, at: 0, store: failed }));
+    await new Promise(r => setTimeout(r, 0));
+    const html = renderToString(
+      createElement(StructuredStage, { prompt: 'Where is order 1042?', d: null, at: 0, store: failed }),
+    );
     expect(html).toContain('Retry');
     expect(html).toContain('data-model="failed"');
   });

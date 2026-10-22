@@ -14,11 +14,14 @@ describe('type challenge', () => {
     let c = START;
     for (const p of PROBLEMS) {
       const wrong = CHOICES.filter(t => t.id !== p.best);
-      for (const t of wrong) { c = choose(c, t.id); expect(solved(c, p)).toBe(false); }
-      expect(advance(c)).toBe(c);                       // no skipping an unsolved card
+      for (const t of wrong) {
+        c = choose(c, t.id);
+        expect(solved(c, p)).toBe(false);
+      }
+      expect(advance(c)).toBe(c); // no skipping an unsolved card
       c = choose(c, p.best);
       expect(solved(c, p)).toBe(true);
-      expect(choose(c, wrong[0].id)).toBe(c);           // picks after solving change nothing
+      expect(choose(c, wrong[0].id)).toBe(c); // picks after solving change nothing
       c = advance(c);
     }
     expect(complete(c)).toBe(true);

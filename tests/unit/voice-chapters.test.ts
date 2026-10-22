@@ -16,7 +16,8 @@ describe('voice chapters', () => {
     const m = moduleOf('voice');
     expect(m).toMatchObject({ status: 'live', level: 'Advanced', prereqs: ['tool-calling', 'multimodal'] });
     expect(m.chapters).toHaveLength(7);
-    for (const c of m.chapters) expect(m.recall!.filter(i => i.chapter === c.id).length, c.id).toBeGreaterThanOrEqual(3);
+    for (const c of m.chapters)
+      expect(m.recall!.filter(i => i.chapter === c.id).length, c.id).toBeGreaterThanOrEqual(3);
     expect(m.recall!.filter(i => i.pin)).toHaveLength(1);
   });
 
@@ -26,8 +27,14 @@ describe('voice chapters', () => {
 
   it('chapter 3: the shortest silence cuts Ravi off; on the noisy call each threshold fails or works differently', () => {
     expect(turnOutcome()).toBe(1);
-    const noisy = THRESHOLDS.map(threshold => runCall('noisy', { ...DEFAULT_LINE, streaming: true, silence: 800, threshold }));
-    expect(noisy.map(r => [r.detected.gaveUp, r.detected.cut])).toEqual([[true, false], [false, false], [false, true]]);
+    const noisy = THRESHOLDS.map(threshold =>
+      runCall('noisy', { ...DEFAULT_LINE, streaming: true, silence: 800, threshold }),
+    );
+    expect(noisy.map(r => [r.detected.gaveUp, r.detected.cut])).toEqual([
+      [true, false],
+      [false, false],
+      [false, true],
+    ]);
   });
 
   it('chapter 4: with barge-in the history keeps only what was said, wherever Dana cuts in', () => {

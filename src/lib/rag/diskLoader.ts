@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs';
 import type { Loader } from './load';
 
-export const diskLoader: Loader = async (f) => {
+export const diskLoader: Loader = async f => {
   const b = readFileSync('public/data/index/' + f);
   return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer;
 };

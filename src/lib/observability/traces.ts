@@ -20,7 +20,12 @@ export interface Span {
   attrs: Record<string, string>;
 }
 export type ModeId = 'missed-doc' | 'stale-doc' | 'wrong-order' | 'ignored-result' | 'promised-refund';
-export interface Mode { id: ModeId; name: string; /** the team's harm rating, 1 (low) to 3 (high) */ harm: number; why: string }
+export interface Mode {
+  id: ModeId;
+  name: string /** the team's harm rating, 1 (low) to 3 (high) */;
+  harm: number;
+  why: string;
+}
 export interface Trace {
   id: string;
   customer: string;
@@ -60,7 +65,10 @@ export function ordered(t: Trace): { span: Span; depth: number }[] {
   const out: { span: Span; depth: number }[] = [];
   const walk = (s: Span, depth: number) => {
     out.push({ span: s, depth });
-    t.spans.filter(c => c.parent === s.id).sort((a, b) => a.start - b.start).forEach(c => walk(c, depth + 1));
+    t.spans
+      .filter(c => c.parent === s.id)
+      .sort((a, b) => a.start - b.start)
+      .forEach(c => walk(c, depth + 1));
   };
   const root = rootOf(t);
   if (root) walk(root, 0);
@@ -70,7 +78,8 @@ export function ordered(t: Trace): { span: Span; depth: number }[] {
 /** Everything wrong with a trace, one line each ([] when it is well formed): one tree, children inside their parent's
  * time, exactly one reply, and a failed trace's reference span present (an ok trace has none). */
 export function problems(t: Trace): string[] {
-  const out: string[] = [], ids = t.spans.map(s => s.id);
+  const out: string[] = [],
+    ids = t.spans.map(s => s.id);
   if (new Set(ids).size !== ids.length) out.push(`${t.id}: repeated span ids`);
   const roots = t.spans.filter(s => s.parent === null);
   if (roots.length !== 1) out.push(`${t.id}: ${roots.length} roots`);
@@ -81,7 +90,8 @@ export function problems(t: Trace): string[] {
     if (!p) out.push(`${t.id}/${s.id}: no parent ${s.parent}`);
     else if (s.start < p.start || s.end > p.end) out.push(`${t.id}/${s.id}: outside its parent's time`);
   }
-  if (roots.length === 1 && ordered(t).length !== t.spans.length) out.push(`${t.id}: spans not reachable from the root`);
+  if (roots.length === 1 && ordered(t).length !== t.spans.length)
+    out.push(`${t.id}: spans not reachable from the root`);
   if (t.spans.filter(s => s.kind === 'reply').length !== 1) out.push(`${t.id}: not exactly one reply`);
   if (t.ok && (t.mode || t.first)) out.push(`${t.id}: an ok trace with a failure`);
   if (!t.ok) {

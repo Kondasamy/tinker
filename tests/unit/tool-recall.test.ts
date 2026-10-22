@@ -23,6 +23,7 @@ describe('tool calling recall bank', () => {
   });
 
   it('numbers come from the data, never undefined or NaN', () => {
-    for (const i of RECALL) expect(`${i.question} ${i.options.join(' ')} ${i.why.join(' ')}`, i.id).not.toMatch(/undefined|NaN|Infinity/);
+    for (const i of RECALL)
+      expect(`${i.question} ${i.options.join(' ')} ${i.why.join(' ')}`, i.id).not.toMatch(/undefined|NaN|Infinity/);
   });
 });

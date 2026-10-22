@@ -7,7 +7,13 @@ export const UNSCORED = -32768;
 /** Rerank re-scores this many filtered candidates (or k if larger) and keeps the best k. */
 export const RERANK_POOL = 20;
 
-export interface Question { id: string; query: string; rewrites: string[]; goldSentences: string[]; [k: string]: unknown }
+export interface Question {
+  id: string;
+  query: string;
+  rewrites: string[];
+  goldSentences: string[];
+  [k: string]: unknown;
+}
 /** {year: {gte: 2025}}, {type: ['policy']}, {department: 'Finance'}; every key must match. */
 export type Filter = Record<string, unknown>;
 export type ContextOrder = 'ranked' | 'edges' | 'custom';
@@ -26,10 +32,21 @@ export interface RunParams {
   /** chunk ids for order 'custom'; ids not in the result are ignored, missing ones follow in ranked order */
   customOrder?: number[];
 }
-export interface Ranked { ids: number[]; scores: number[] }
+export interface Ranked {
+  ids: number[];
+  scores: number[];
+}
 export interface ContextChunk {
-  id: number; doc: string; title: string; year: number; start: number; end: number; text: string;
-  score: number; rerankScore: number | null; unscored: boolean;
+  id: number;
+  doc: string;
+  title: string;
+  year: number;
+  start: number;
+  end: number;
+  text: string;
+  score: number;
+  rerankScore: number | null;
+  unscored: boolean;
 }
 export type GoldStatus = 'intact' | 'split' | 'missing';
 export interface RunRecord {
@@ -39,19 +56,33 @@ export interface RunRecord {
   queryIndex: number;
   /** hybrid keyword weight actually used (0 = pure vector) */
   weight: number;
-  stages: { vector: Ranked; bm25: Ranked | null; hybrid: Ranked; filtered: Ranked; topK: Ranked; rerank: Ranked | null };
+  stages: {
+    vector: Ranked;
+    bm25: Ranked | null;
+    hybrid: Ranked;
+    filtered: Ranked;
+    topK: Ranked;
+    rerank: Ranked | null;
+  };
   context: ContextChunk[];
   unscored: number[];
   recall: { k: number; value: number; gold: { sentence: string; status: GoldStatus; chunkIds: number[] }[] };
 }
 
-const rank = (scores: ArrayLike<number>, ids: number[] = Array.from({ length: scores.length }, (_, i) => i)): Ranked => {
+const rank = (
+  scores: ArrayLike<number>,
+  ids: number[] = Array.from({ length: scores.length }, (_, i) => i),
+): Ranked => {
   const sorted = [...ids].sort((a, b) => scores[b] - scores[a] || a - b);
-  return { ids: sorted, scores: sorted.map((i) => scores[i]) };
+  return { ids: sorted, scores: sorted.map(i => scores[i]) };
 };
 const minMax = (s: ArrayLike<number>) => {
-  let lo = Infinity, hi = -Infinity;
-  for (let i = 0; i < s.length; i++) { lo = Math.min(lo, s[i]); hi = Math.max(hi, s[i]); }
+  let lo = Infinity,
+    hi = -Infinity;
+  for (let i = 0; i < s.length; i++) {
+    lo = Math.min(lo, s[i]);
+    hi = Math.max(hi, s[i]);
+  }
   return (i: number) => (hi > lo ? (s[i] - lo) / (hi - lo) : 0);
 };
 
@@ -62,7 +93,12 @@ function matches(doc: Record<string, unknown>, filter: Filter) {
     if (want && typeof want === 'object') {
       const r = want as { gte?: number; lte?: number; gt?: number; lt?: number };
       const n = v as number;
-      return (r.gte === undefined || n >= r.gte) && (r.lte === undefined || n <= r.lte) && (r.gt === undefined || n > r.gt) && (r.lt === undefined || n < r.lt);
+      return (
+        (r.gte === undefined || n >= r.gte) &&
+        (r.lte === undefined || n <= r.lte) &&
+        (r.gt === undefined || n > r.gt) &&
+        (r.lt === undefined || n < r.lt)
+      );
     }
     return v === want;
   });
@@ -78,7 +114,8 @@ export function locate(index: RagIndex, sentence: string) {
     const sw = sentence.split(/\s+/).filter(Boolean);
     hits = [];
     index.corpus.forEach((d, di) => {
-      for (let i = 0; i + sw.length <= d.words.length; i++) if (sw.every((w, j) => d.words[i + j] === w)) hits!.push([di, i, i + sw.length]);
+      for (let i = 0; i + sw.length <= d.words.length; i++)
+        if (sw.every((w, j) => d.words[i + j] === w)) hits!.push([di, i, i + sw.length]);
     });
     m.set(sentence, hits);
   }
@@ -87,7 +124,10 @@ export function locate(index: RagIndex, sentence: string) {
 
 export function orderContext(ids: number[], order: ContextOrder, custom: number[] = []) {
   if (order === 'edges') return [...ids.filter((_, i) => i % 2 === 0), ...ids.filter((_, i) => i % 2 === 1).reverse()];
-  if (order === 'custom') { const first = [...new Set(custom.filter((id) => ids.includes(id)))]; return [...first, ...ids.filter((id) => !first.includes(id))]; }
+  if (order === 'custom') {
+    const first = [...new Set(custom.filter(id => ids.includes(id)))];
+    return [...first, ...ids.filter(id => !first.includes(id))];
+  }
   return ids;
 }
 
@@ -95,7 +135,9 @@ export function run(index: RagIndex, cfg: Config, p: RunParams): RunRecord {
   const { N, D, ranges, vectors, norms } = cfg;
   const queryText = p.rewrite === undefined ? p.question.query : p.question.rewrites[p.rewrite];
   if (queryText === undefined) throw new Error(`question ${p.question.id} has no rewrite ${p.rewrite}`);
-  const queryIndex = index.manifest.queries.items.findIndex((q) => q.questionId === p.question.id && q.text === queryText);
+  const queryIndex = index.manifest.queries.items.findIndex(
+    q => q.questionId === p.question.id && q.text === queryText,
+  );
   if (queryIndex < 0) throw new Error(`query not in index: ${queryText}`);
   const k = Math.max(1, Math.min(10, Math.round(p.topK)));
   const w = Math.max(0, Math.min(1, p.hybrid ?? 0));
@@ -119,7 +161,8 @@ export function run(index: RagIndex, cfg: Config, p: RunParams): RunRecord {
   if (w > 0) {
     const raw = cfg.bm25.score(queryText);
     bm25 = rank(raw);
-    const nv = minMax(cos), nb = minMax(raw);
+    const nv = minMax(cos),
+      nb = minMax(raw);
     blended = Float32Array.from({ length: N }, (_, i) => (1 - w) * nv(i) + w * nb(i));
   }
   const hybrid = w > 0 ? rank(blended) : vector;
@@ -127,9 +170,15 @@ export function run(index: RagIndex, cfg: Config, p: RunParams): RunRecord {
   const docOf = (c: number) => index.corpus[ranges[c * 3]];
   const filter = p.filter && Object.keys(p.filter).length ? p.filter : null;
   const hidden = p.hidden?.length ? p.hidden : null;
-  const filtered = filter || hidden
-    ? (() => { const keep = hybrid.ids.map((id, i) => [id, hybrid.scores[i]] as const).filter(([id]) => !hidden?.includes(docOf(id).type) && (!filter || matches(docOf(id), filter))); return { ids: keep.map((x) => x[0]), scores: keep.map((x) => x[1]) }; })()
-    : hybrid;
+  const filtered =
+    filter || hidden
+      ? (() => {
+          const keep = hybrid.ids
+            .map((id, i) => [id, hybrid.scores[i]] as const)
+            .filter(([id]) => !hidden?.includes(docOf(id).type) && (!filter || matches(docOf(id), filter)));
+          return { ids: keep.map(x => x[0]), scores: keep.map(x => x[1]) };
+        })()
+      : hybrid;
   const topK = { ids: filtered.ids.slice(0, k), scores: filtered.scores.slice(0, k) };
 
   const ce = (c: number) => crossScore(index, cfg, c, queryIndex);
@@ -138,25 +187,33 @@ export function run(index: RagIndex, cfg: Config, p: RunParams): RunRecord {
   if (p.rerank) {
     const pool = filtered.ids.slice(0, Math.max(k, RERANK_POOL));
     // unscored chunks sort last, keeping their previous order
-    const sorted = pool.map((id, pos) => ({ id, pos, s: ce(id) })).sort((a, b) => (a.s === null ? 1 : 0) - (b.s === null ? 1 : 0) || (b.s ?? 0) - (a.s ?? 0) || a.pos - b.pos);
-    rerank = { ids: sorted.map((x) => x.id), scores: sorted.map((x) => x.s ?? -Infinity) };
+    const sorted = pool
+      .map((id, pos) => ({ id, pos, s: ce(id) }))
+      .sort((a, b) => (a.s === null ? 1 : 0) - (b.s === null ? 1 : 0) || (b.s ?? 0) - (a.s ?? 0) || a.pos - b.pos);
+    rerank = { ids: sorted.map(x => x.id), scores: sorted.map(x => x.s ?? -Infinity) };
     finalIds = rerank.ids.slice(0, k);
   }
 
   const scoreOf = new Map(filtered.ids.map((id, i) => [id, filtered.scores[i]]));
-  const context = orderContext(finalIds, p.order ?? 'ranked', p.customOrder).map((id) => chunkOf(index, cfg, id, scoreOf.get(id)!, p.rerank ? ce(id) : undefined));
+  const context = orderContext(finalIds, p.order ?? 'ranked', p.customOrder).map(id =>
+    chunkOf(index, cfg, id, scoreOf.get(id)!, p.rerank ? ce(id) : undefined),
+  );
 
   return {
-    file: cfg.file, questionId: p.question.id, queryText, queryIndex, weight: w,
+    file: cfg.file,
+    questionId: p.question.id,
+    queryText,
+    queryIndex,
+    weight: w,
     stages: { vector, bm25, hybrid, filtered, topK, rerank },
     context,
-    unscored: context.filter((c) => c.unscored).map((c) => c.id),
+    unscored: context.filter(c => c.unscored).map(c => c.id),
     recall: goldOf(index, cfg, p.question, finalIds, k),
   };
 }
 
 /** Best similarity among the chunks, or null when there are none. */
-export const topScore = (chunks: ContextChunk[]) => (chunks.length ? Math.max(...chunks.map((c) => c.score)) : null);
+export const topScore = (chunks: ContextChunk[]) => (chunks.length ? Math.max(...chunks.map(c => c.score)) : null);
 
 /** Precomputed cross-encoder score of chunk `id` against query `queryIndex`, or null when unscored. */
 export function crossScore(index: RagIndex, cfg: Config, id: number, queryIndex: number) {
@@ -165,15 +222,38 @@ export function crossScore(index: RagIndex, cfg: Config, id: number, queryIndex:
 }
 
 /** One context entry. `rerankScore`: undefined = rerank off, null = on but this chunk has no cross-encoder score. */
-export function chunkOf(index: RagIndex, cfg: Config, id: number, score: number, rerankScore?: number | null): ContextChunk {
+export function chunkOf(
+  index: RagIndex,
+  cfg: Config,
+  id: number,
+  score: number,
+  rerankScore?: number | null,
+): ContextChunk {
   const d = index.corpus[cfg.ranges[id * 3]];
-  return { id, doc: d.id, title: d.title, year: d.year, start: cfg.ranges[id * 3 + 1], end: cfg.ranges[id * 3 + 2], text: cfg.texts[id], score, rerankScore: rerankScore ?? null, unscored: rerankScore === null };
+  return {
+    id,
+    doc: d.id,
+    title: d.title,
+    year: d.year,
+    start: cfg.ranges[id * 3 + 1],
+    end: cfg.ranges[id * 3 + 2],
+    text: cfg.texts[id],
+    score,
+    rerankScore: rerankScore ?? null,
+    unscored: rerankScore === null,
+  };
 }
 
 /** Where each gold sentence landed among the given chunks: whole in one chunk, cut across chunks, or missing. */
-export function goldOf(index: RagIndex, cfg: Config, question: Question, ids: number[], k = ids.length): RunRecord['recall'] {
+export function goldOf(
+  index: RagIndex,
+  cfg: Config,
+  question: Question,
+  ids: number[],
+  k = ids.length,
+): RunRecord['recall'] {
   const { ranges } = cfg;
-  const gold = question.goldSentences.map((sentence) => {
+  const gold = question.goldSentences.map(sentence => {
     let status: GoldStatus = 'missing';
     const chunkIds: number[] = [];
     for (const [di, gs, ge] of locate(index, sentence))
@@ -186,10 +266,15 @@ export function goldOf(index: RagIndex, cfg: Config, question: Question, ids: nu
       }
     return { sentence, status, chunkIds: [...new Set(chunkIds)] };
   });
-  return { k, value: gold.length ? gold.filter((g) => g.status === 'intact').length / gold.length : 0, gold };
+  return { k, value: gold.length ? gold.filter(g => g.status === 'intact').length / gold.length : 0, gold };
 }
 
-export interface SessionResult { record: RunRecord | null; config: ResolvedConfig; preparing: boolean; failed: boolean }
+export interface SessionResult {
+  record: RunRecord | null;
+  config: ResolvedConfig;
+  preparing: boolean;
+  failed: boolean;
+}
 
 /**
  * Snaps chunk params to the lattice and runs if that config is loaded. Otherwise it keeps the previous
@@ -204,9 +289,13 @@ export function createSession(index: RagIndex, onReady?: (file: string) => void)
     const config = resolveConfig(p);
     const cfg = index.get(config.file);
     if (cfg) return { record: (last = run(index, cfg, p)), config, preparing: false, failed: false };
-    if (index.status(config.file) === 'error' && reported.delete(config.file)) return { record: last, config, preparing: true, failed: true };
+    if (index.status(config.file) === 'error' && reported.delete(config.file))
+      return { record: last, config, preparing: true, failed: true };
     const done = () => onReady?.(config.file);
-    index.load(config.file).then(done, () => { reported.add(config.file); done(); });
+    index.load(config.file).then(done, () => {
+      reported.add(config.file);
+      done();
+    });
     return { record: last, config, preparing: true, failed: false };
   };
 }

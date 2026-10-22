@@ -24,17 +24,43 @@ const MODULE = moduleOf('structured-outputs');
 const CHAPTERS = MODULE.chapters;
 const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
 const model = diskModel();
-const ASK = run('asking'), MASK = run('mask'), NOTE = run('note'), ORDER = run('order');
-const asked = play(model, ASK).decoded, masked = play(model, MASK).decoded, noted = play(model, NOTE).decoded, ordered = play(model, ORDER).decoded;
+const ASK = run('asking'),
+  MASK = run('mask'),
+  NOTE = run('note'),
+  ORDER = run('order');
+const asked = play(model, ASK).decoded,
+  masked = play(model, MASK).decoded,
+  noted = play(model, NOTE).decoded,
+  ordered = play(model, ORDER).decoded;
 const big = (o: StencilOpts): StencilOpts => ({ ...o, scale: 1.7 });
 // the hero: the press mid-answer, at the first step where the model's own choice is blocked
 const BLOCK = masked.steps.findIndex(s => !s.allowed.includes(s.free.id));
 const HERO = big(stencilAt(MASK.prompt, masked, BLOCK, true));
 const IDEAS: [string, string, ReturnType<typeof fact>, StencilOpts][] = [
-  ['Asking isn’t enforcing', 'With no schema, the model writes whatever it finds likely', fact('openai-vs-json-mode'), big(stencilAt(ASK.prompt, asked, asked.ids.length, false))],
-  ['The mask', 'At each step the schema lets some tokens through and stops the rest', fact('anthropic-guarantee'), big(stencilAt(MASK.prompt, masked, BLOCK, true))],
-  ['Tokens, not characters', 'The mask checks every byte of a token, so long ones stop at a length cap', fact('xgrammar'), big(stencilAt(NOTE.prompt, noted, noted.ids.length - 3, true))],
-  ['Valid isn’t right', 'The mask forces a value; it can’t make it true', fact('anthropic-max-tokens'), big(stencilAt(ORDER.prompt, ordered, ordered.ids.length, true))],
+  [
+    'Asking isn’t enforcing',
+    'With no schema, the model writes whatever it finds likely',
+    fact('openai-vs-json-mode'),
+    big(stencilAt(ASK.prompt, asked, asked.ids.length, false)),
+  ],
+  [
+    'The mask',
+    'At each step the schema lets some tokens through and stops the rest',
+    fact('anthropic-guarantee'),
+    big(stencilAt(MASK.prompt, masked, BLOCK, true)),
+  ],
+  [
+    'Tokens, not characters',
+    'The mask checks every byte of a token, so long ones stop at a length cap',
+    fact('xgrammar'),
+    big(stencilAt(NOTE.prompt, noted, noted.ids.length - 3, true)),
+  ],
+  [
+    'Valid isn’t right',
+    'The mask forces a value; it can’t make it true',
+    fact('anthropic-max-tokens'),
+    big(stencilAt(ORDER.prompt, ordered, ordered.ids.length, true)),
+  ],
 ];
 const FACTS: [string, string][] = [
   [String(VOCAB_SIZE), 'tokens the mask judges at every step'],

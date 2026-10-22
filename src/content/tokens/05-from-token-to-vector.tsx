@@ -13,14 +13,21 @@ import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { Fact, MapStage, useMapIndex } from './kit';
 
-const MODULE = 'tokens', ID = '05-from-token-to-vector';
-const Q = questionOf('stale-hotel-limit'), OTHER = questionOf('same-day-cutoff');
+const MODULE = 'tokens',
+  ID = '05-from-token-to-vector';
+const Q = questionOf('stale-hotel-limit'),
+  OTHER = questionOf('same-day-cutoff');
 const REWRITE = Q.rewrites[0];
 const DIMS = fact('minilm').value;
 const RAG4 = moduleOf('rag').chapters[3];
 const words = (n: number) => `${n} word${n === 1 ? '' : 's'}`;
 
-interface S { p1: number | null; embedded: boolean; probed: boolean; quiz: number | null }
+interface S {
+  p1: number | null;
+  embedded: boolean;
+  probed: boolean;
+  quiz: number | null;
+}
 
 const P1 = {
   question: `Which of these is closer in meaning to “${Q.query}”, by its embedding?`,
@@ -32,7 +39,8 @@ const P1 = {
 };
 
 const QUIZ = {
-  question: 'A Larkspur engineer suggests a shortcut for search: compare the token ids of the question and of each document piece, and pick the piece whose ids are closest. What do you tell them?',
+  question:
+    'A Larkspur engineer suggests a shortcut for search: compare the token ids of the question and of each document piece, and pick the piece whose ids are closest. What do you tell them?',
   options: [
     'Good idea: tokens with close ids have close meanings',
     'Ids are just positions in the vocabulary and say nothing about meaning. Compare embeddings, which an embedding model made so that similar meanings get similar numbers',
@@ -51,25 +59,34 @@ const QUIZ = {
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'predict', focus: 'p1', visibleControls: ['p1'],
+    id: 'predict',
+    focus: 'p1',
+    visibleControls: ['p1'],
     narration: `A token id is just a row number in the tokenizer’s list: it says nothing about meaning. For search, Larkspur needs numbers where similar meanings sit close together. An embedding model gives them: it reads a piece of text and returns a list of numbers, a vector. RAG’s model gives ${DIMS} numbers per text, and the RAG module already embedded every piece of Larkspur’s documents and every customer question. Before you compare three questions:`,
     predicate: s => s.p1 !== null,
   },
   {
-    id: 'embed', focus: 'embed', visibleControls: ['p1', 'embed'],
+    id: 'embed',
+    focus: 'embed',
+    visibleControls: ['p1', 'embed'],
     narration: 'Locked in. Compare their embeddings.',
     predicate: s => s.embedded,
     hint: 'Press “Compare the embeddings”.',
   },
   {
-    id: 'map', focus: 'map', visibleControls: ['out1', 'cosines', 'map'],
+    id: 'map',
+    focus: 'map',
+    visibleControls: ['out1', 'cosines', 'map'],
     narration: `Cosine similarity scores how alike two vectors point, from -1 to 1; chapter 6 looks at it closely. The same question in other words shares few words with it but means the same thing, and their vectors point much the same way. The picture is RAG’s map of meaning: every dot is one piece of Larkspur’s documents, squeezed from ${DIMS} numbers onto two, and the diamond is the question. Point at a dot, or Tab to one, to read its true similarity.`,
     predicate: s => s.probed,
     hint: 'Move the pointer over a blue dot on the picture, or Tab into the map.',
   },
   {
-    id: 'quiz', focus: 'quiz', visibleControls: ['map', 'quiz'],
-    narration: 'Squeezing many numbers onto two bends distances, so a dot that looks close can score lower than one further away. The true similarity is the one search uses. One question to finish.',
+    id: 'quiz',
+    focus: 'quiz',
+    visibleControls: ['map', 'quiz'],
+    narration:
+      'Squeezing many numbers onto two bends distances, so a dot that looks close can score lower than one further away. The true similarity is the one search uses. One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Does a token id say anything about what a word means?',
   },
@@ -94,37 +111,76 @@ export default function FromTokenToVector() {
       ready={!!cos && !!cfg}
       stage={({ state, sync, focus }) => (
         // a probe counts only on the map step, and always re-syncs there, so a run saved with an early probe still advances
-        <MapStage question={Q} onProbe={() => { if (focus === 'map') sync({ ...state, probed: true }); }}
-          caption={`RAG’s map of meaning: the diamond is “${Q.query}”.`} />
+        <MapStage
+          question={Q}
+          onProbe={() => {
+            if (focus === 'map') sync({ ...state, probed: true });
+          }}
+          caption={`RAG’s map of meaning: the diamond is “${Q.query}”.`}
+        />
       )}
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         embed: ({ state, apply }) => (
           <>
-            <button type="button" className="big" disabled={!cos} onClick={() => apply({ ...state, embedded: true })}>Compare the embeddings</button>
-            {!cos && <p className="tc-status" role="status">{failed ? 'RAG’s index could not load. Reload the page to try again.' : 'Loading RAG’s embeddings…'}</p>}
+            <button type="button" className="big" disabled={!cos} onClick={() => apply({ ...state, embedded: true })}>
+              Compare the embeddings
+            </button>
+            {!cos && (
+              <p className="tc-status" role="status">
+                {failed ? 'RAG’s index could not load. Reload the page to try again.' : 'Loading RAG’s embeddings…'}
+              </p>
+            )}
           </>
         ),
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={out1} />,
-        cosines: () => cos && (
-          <div className="tc-def" data-cosines>
-            <table className="tc-ledger">
-              <caption>Cosine similarity to “{Q.query}”</caption>
-              <thead><tr><th scope="col">Question</th><th scope="col">Words shared</th><th scope="col">Cosine</th></tr></thead>
-              <tbody>
-                <tr><th scope="row">{REWRITE}</th><td>{sharedWords(Q.query, REWRITE)}</td><td>{cos.rewrite.toFixed(3)}</td></tr>
-                <tr><th scope="row">{OTHER.query}</th><td>{sharedWords(Q.query, OTHER.query)}</td><td>{cos.other.toFixed(3)}</td></tr>
-              </tbody>
-            </table>
-            <Fact id="minilm" />
-            <p className="tc-fact">
-              The RAG module built these embeddings and searched with them: <a href={chapterHref('rag', RAG4.id)}>RAG chapter 4, {RAG4.title}</a>.
-            </p>
-          </div>
+        cosines: () =>
+          cos && (
+            <div className="tc-def" data-cosines>
+              <table className="tc-ledger">
+                <caption>Cosine similarity to “{Q.query}”</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Question</th>
+                    <th scope="col">Words shared</th>
+                    <th scope="col">Cosine</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">{REWRITE}</th>
+                    <td>{sharedWords(Q.query, REWRITE)}</td>
+                    <td>{cos.rewrite.toFixed(3)}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">{OTHER.query}</th>
+                    <td>{sharedWords(Q.query, OTHER.query)}</td>
+                    <td>{cos.other.toFixed(3)}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <Fact id="minilm" />
+              <p className="tc-fact">
+                The RAG module built these embeddings and searched with them:{' '}
+                <a href={chapterHref('rag', RAG4.id)}>RAG chapter 4, {RAG4.title}</a>.
+              </p>
+            </div>
+          ),
+        map: ({ state }) => (
+          <p className="tc-status" role="status" data-probed={state.probed || undefined}>
+            {state.probed
+              ? 'Compare the true similarity with how far the dot looks.'
+              : 'Waiting for you to point at a dot on the map.'}
+          </p>
         ),
-        map: ({ state }) => <p className="tc-status" role="status" data-probed={state.probed || undefined}>{state.probed ? 'Compare the true similarity with how far the dot looks.' : 'Waiting for you to point at a dot on the map.'}</p>,
         quiz: ({ state, apply, sync }) => (
-          <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
+          <Quiz
+            {...QUIZ}
+            unsure
+            value={state.quiz}
+            onAnswer={(_, q) => apply({ ...state, quiz: q })}
+            onUnsure={() => sync({ ...state, quiz: UNSURE })}
+          />
         ),
       }}
     />

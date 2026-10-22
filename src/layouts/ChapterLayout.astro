@@ -6,7 +6,11 @@ import { moduleOf, chapterHref } from '../lib/modules';
 import Meta from '../components/Meta.astro';
 import { chapterMeta } from '../lib/pages';
 
-interface Props { module?: string; chapter: string; title: string }
+interface Props {
+  module?: string;
+  chapter: string;
+  title: string;
+}
 const { module = 'rag', chapter, title } = Astro.props;
 const m = moduleOf(module);
 ---

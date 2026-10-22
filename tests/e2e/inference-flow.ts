@@ -35,7 +35,10 @@ export function inferenceWalker(page: Page, mode: Mode, check: (page: Page) => P
     await press(card.getByRole('link', { name: /^(Next:|Recap)/ }));
     await expect(page).toHaveURL(next);
     // a key pressed before the next island hydrates is lost
-    if (!/recap/.test(String(next))) { await page.locator('astro-island:not([ssr])').waitFor(); await ready(); }
+    if (!/recap/.test(String(next))) {
+      await page.locator('astro-island:not([ssr])').waitFor();
+      await ready();
+    }
   }
   const win = WINNERS[0];
 

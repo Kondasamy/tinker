@@ -8,14 +8,25 @@ import { createSession, run } from '../../src/lib/rag/engine';
 import { resolveConfig } from '../../src/lib/rag/lattice';
 import { signature } from '../../src/lib/rag/signature';
 import { ABSTAIN, GRADE_BAR, runSelfCheck } from '../../src/lib/rag/selfcheck';
-import { DEFAULT_KNOBS, initialCanvas, outcome, unlockedThrough, type CanvasQuestion, type Knobs } from '../../src/components/canvas/state';
+import {
+  DEFAULT_KNOBS,
+  initialCanvas,
+  outcome,
+  unlockedThrough,
+  type CanvasQuestion,
+  type Knobs,
+} from '../../src/components/canvas/state';
 import { KNOBS, TYPES } from '../../src/content/rag/types-data';
 
-const questions: CanvasQuestion[] = ['ch3', 'ch4', 'ch5', 'ch6'].flatMap((c) => JSON.parse(readFileSync(`data/questions/${c}.json`, 'utf8')));
-const Q = (id: string) => questions.find((q) => q.id === id)!;
+const questions: CanvasQuestion[] = ['ch3', 'ch4', 'ch5', 'ch6'].flatMap(c =>
+  JSON.parse(readFileSync(`data/questions/${c}.json`, 'utf8')),
+);
+const Q = (id: string) => questions.find(q => q.id === id)!;
 
 let index: RagIndex;
-beforeAll(async () => { index = await openIndex(diskLoader); });
+beforeAll(async () => {
+  index = await openIndex(diskLoader);
+});
 
 const TRACK = unlockedThrough('05-accuracy');
 async function at(q: string, knobs: Partial<Knobs>) {
@@ -23,7 +34,7 @@ async function at(q: string, knobs: Partial<Knobs>) {
   await index.load(resolveConfig(k).file);
   return outcome(index, createSession(index), initialCanvas(TRACK, k), Q(q));
 }
-const type = (id: string) => ({ ...KNOBS, ...TYPES.find((t) => t.id === id)!.knobs });
+const type = (id: string) => ({ ...KNOBS, ...TYPES.find(t => t.id === id)!.knobs });
 const DISTRACTOR = 'card-data-retention';
 
 describe('self-check grader', () => {
@@ -32,16 +43,20 @@ describe('self-check grader', () => {
     expect(naive.signature).toBe('card-90-days:absent+distractor');
     expect(naive.answer!.verdict).toBe('wrong');
     const o = await at(DISTRACTOR, type('selfcheck'));
-    expect(o.calls!.map((c) => c.action)).toEqual(['search', 'rewrite']);
+    expect(o.calls!.map(c => c.action)).toEqual(['search', 'rewrite']);
     expect(o.calls![0].grade).toMatchObject({ pass: false });
     expect(o.calls![0].grade!.score!).toBeLessThan(GRADE_BAR);
-    expect(o.calls![0].verdict).toBe('wrong');   // what the model would have said, had the grade let it
+    expect(o.calls![0].verdict).toBe('wrong'); // what the model would have said, had the grade let it
     expect(o.answer).toEqual(ABSTAIN);
     expect(ABSTAIN.text).toMatch(/^I don't know/);
   });
 
   it('never ends WRONG when the first search hands over only the look-alike, at any chunking where the grade holds', async () => {
-    for (const k of [{ strategy: 'fixed', size: 16, overlap: 0 }, { strategy: 'fixed', size: 16, overlap: 25 }, { strategy: 'fixed', size: 16, overlap: 50 }] as const) {
+    for (const k of [
+      { strategy: 'fixed', size: 16, overlap: 0 },
+      { strategy: 'fixed', size: 16, overlap: 25 },
+      { strategy: 'fixed', size: 16, overlap: 50 },
+    ] as const) {
       for (const topK of [1, 2, 3]) {
         const o = await at(DISTRACTOR, { ...k, topK, grade: true });
         const first = run(index, index.get(o.config.file)!, { question: Q(DISTRACTOR), topK });
@@ -63,7 +78,10 @@ describe('self-check grader', () => {
 
   it('a weak first search is retried with a rewrite, and the grade can be met on the retry', async () => {
     const o = await at('same-day-cutoff', type('selfcheck'));
-    expect(o.calls!.map((c) => [c.action, c.grade!.pass])).toEqual([['search', false], ['rewrite', true]]);
+    expect(o.calls!.map(c => [c.action, c.grade!.pass])).toEqual([
+      ['search', false],
+      ['rewrite', true],
+    ]);
     expect(o.record!.queryText).toBe(Q('same-day-cutoff').rewrites[0]);
   });
 
@@ -71,7 +89,15 @@ describe('self-check grader', () => {
     const off = await at(DISTRACTOR, { ...type('selfcheck'), grade: false });
     expect(off.calls).toBeNull();
     expect(off.answer!.verdict).toBe('wrong');
-    const noEval = outcome(index, createSession(index), initialCanvas(TRACK.filter((b) => b !== 'grader'), type('selfcheck')), Q(DISTRACTOR));
+    const noEval = outcome(
+      index,
+      createSession(index),
+      initialCanvas(
+        TRACK.filter(b => b !== 'grader'),
+        type('selfcheck'),
+      ),
+      Q(DISTRACTOR),
+    );
     expect(noEval.calls).toBeNull();
   });
 
@@ -85,7 +111,11 @@ describe('self-check grader', () => {
 
 describe('multimodal parsers', () => {
   const MM = type('multimodal');
-  const PARSER: Record<string, keyof Knobs> = { 'k2-volume-price': 'tables', 'dock-sensor-warranty': 'pdfs', 'customer-success-lead': 'images' };
+  const PARSER: Record<string, keyof Knobs> = {
+    'k2-volume-price': 'tables',
+    'dock-sensor-warranty': 'pdfs',
+    'customer-success-lead': 'images',
+  };
 
   it('price question fails with table parsing off and succeeds with it on', async () => {
     expect((await at('k2-volume-price', MM)).answer!.verdict).toBe('notfound');
@@ -95,10 +125,10 @@ describe('multimodal parsers', () => {
   it('a fact only in the PDF is retrievable only with PDF parsing on (at any top-k)', async () => {
     for (const topK of [1, 3, 10]) {
       const off = await at('dock-sensor-warranty', { ...MM, topK });
-      expect(off.record!.context.some((c) => c.doc === 'dock-sensor-warranty-2022')).toBe(false);
+      expect(off.record!.context.some(c => c.doc === 'dock-sensor-warranty-2022')).toBe(false);
       expect(off.signature).toBe('three-years:absent');
       const on = await at('dock-sensor-warranty', { ...MM, topK, pdfs: true });
-      expect(on.record!.context.some((c) => c.doc === 'dock-sensor-warranty-2022')).toBe(true);
+      expect(on.record!.context.some(c => c.doc === 'dock-sensor-warranty-2022')).toBe(true);
     }
     expect((await at('dock-sensor-warranty', { ...MM, pdfs: true })).answer!.verdict).toBe('correct');
   });
@@ -107,16 +137,26 @@ describe('multimodal parsers', () => {
     for (const [q, knob] of Object.entries(PARSER)) {
       expect((await at(q, MM)).answer!.verdict, q).toBe('notfound');
       expect((await at(q, { ...MM, [knob]: true })).answer!.verdict, q).toBe('correct');
-      for (const other of Object.values(PARSER).filter((k) => k !== knob))
+      for (const other of Object.values(PARSER).filter(k => k !== knob))
         expect((await at(q, { ...MM, [other]: true })).answer!.verdict, `${q} with ${other}`).toBe('notfound');
     }
   });
 
   it('hidden types never reach the model, even through the graph or the agent', async () => {
     const hide = { tables: false, pdfs: false, images: false };
-    const graph = outcome(index, createSession(index), initialCanvas([...TRACK, 'graph'], { ...KNOBS, ...hide, hops: 2 }), Q('kestrel-purchase-approver'));
-    expect(graph.record!.context.some((c) => c.doc === 'org-chart-2025')).toBe(false);
-    const agent = outcome(index, createSession(index), initialCanvas([...TRACK, 'agent'], { ...MM, maxCalls: 3 }), Q('k2-volume-price'));
-    expect(agent.record!.context.some((c) => c.doc === 'price-list-2025')).toBe(false);
+    const graph = outcome(
+      index,
+      createSession(index),
+      initialCanvas([...TRACK, 'graph'], { ...KNOBS, ...hide, hops: 2 }),
+      Q('kestrel-purchase-approver'),
+    );
+    expect(graph.record!.context.some(c => c.doc === 'org-chart-2025')).toBe(false);
+    const agent = outcome(
+      index,
+      createSession(index),
+      initialCanvas([...TRACK, 'agent'], { ...MM, maxCalls: 3 }),
+      Q('k2-volume-price'),
+    );
+    expect(agent.record!.context.some(c => c.doc === 'price-list-2025')).toBe(false);
   });
 });

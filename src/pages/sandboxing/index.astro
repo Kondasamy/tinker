@@ -36,18 +36,45 @@ const NET_BLOCK = run(RECORDING, { case: 'exfil', sandbox: true, files: 'scoped'
 const BEACON = run(RECORDING, { case: 'beacon', sandbox: true, files: 'scoped', egress: 'allowlist', secret: 'proxy' });
 const blockedAt = (r: typeof SAFE) => r.steps.findIndex(s => s.kind === 'blocked') + 1;
 const IDEAS: [string, string, ReturnType<typeof fact>, SandboxOpts][] = [
-  ['Where the code runs', 'The same task, held inside a box the OS enforces', fact('filesystem-isolation'), { run: SAFE, upTo: SAFE.steps.length, wall: true, files: 'scoped', egress: 'allowlist', proxy: true, scale: 1.7 }],
-  ['Two walls: files and network', 'What it can read and write, and where it can reach', fact('network-isolation'), { run: NET_BLOCK, upTo: blockedAt(NET_BLOCK), wall: true, files: 'scoped', egress: 'allowlist', proxy: false, scale: 1.7 }],
-  ['An allowed door still leaks', 'A request to an allowed host can carry data out', fact('allowed-domain-leak'), { run: BEACON, upTo: fetchAt(BEACON), wall: true, files: 'scoped', egress: 'allowlist', proxy: true, scale: 1.7 }],
+  [
+    'Where the code runs',
+    'The same task, held inside a box the OS enforces',
+    fact('filesystem-isolation'),
+    { run: SAFE, upTo: SAFE.steps.length, wall: true, files: 'scoped', egress: 'allowlist', proxy: true, scale: 1.7 },
+  ],
+  [
+    'Two walls: files and network',
+    'What it can read and write, and where it can reach',
+    fact('network-isolation'),
+    {
+      run: NET_BLOCK,
+      upTo: blockedAt(NET_BLOCK),
+      wall: true,
+      files: 'scoped',
+      egress: 'allowlist',
+      proxy: false,
+      scale: 1.7,
+    },
+  ],
+  [
+    'An allowed door still leaks',
+    'A request to an allowed host can carry data out',
+    fact('allowed-domain-leak'),
+    { run: BEACON, upTo: fetchAt(BEACON), wall: true, files: 'scoped', egress: 'allowlist', proxy: true, scale: 1.7 },
+  ],
 ];
 
 // the two suites with no sandbox and under a clean policy
-const NONE = metrics({ sandbox: false }), CLEAN = bench(SOLUTION);
+const NONE = metrics({ sandbox: false }),
+  CLEAN = bench(SOLUTION);
 const FACTS: [string, string][] = [
   [String(ATTACKS.length), 'attacks in the suite'],
   [String(TASKS.length), 'ordinary tasks in it too'],
   [`${NONE.succeeded} of ${NONE.attacks}`, 'attacks that work with no sandbox'],
-  [`${CLEAN.succeeded} of ${CLEAN.attacks}`, `once the policy is set, with ${CLEAN.blocked} of ${CLEAN.tasks} tasks blocked`],
+  [
+    `${CLEAN.succeeded} of ${CLEAN.attacks}`,
+    `once the policy is set, with ${CLEAN.blocked} of ${CLEAN.tasks} tasks blocked`,
+  ],
 ];
 const checked = longDate(ACCESSED);
 ---

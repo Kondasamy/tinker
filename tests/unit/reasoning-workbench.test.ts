@@ -26,6 +26,10 @@ describe('reasoning workbench', () => {
   });
 
   it('the winning plan is chapter 6’s lowest passing effort per kind', () => {
-    expect(WINNERS).toContainEqual({ lookup: lowestPassing('lookup'), multistep: lowestPassing('multistep'), distractor: lowestPassing('distractor') });
+    expect(WINNERS).toContainEqual({
+      lookup: lowestPassing('lookup'),
+      multistep: lowestPassing('multistep'),
+      distractor: lowestPassing('distractor'),
+    });
   });
 });

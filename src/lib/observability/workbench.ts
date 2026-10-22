@@ -5,7 +5,10 @@
 import { DAY2, MODE_IDS, modeOf, type ModeId, type Trace } from './traces';
 import { counts, fixFirst, ranked } from './coding';
 
-export interface Policy { labels: Record<string, ModeId | ''>; fix: ModeId | '' }
+export interface Policy {
+  labels: Record<string, ModeId | ''>;
+  fix: ModeId | '';
+}
 /** every control's finite values: a mode per trace, and the fix */
 export const WORKBENCH_DOMAINS = { traces: DAY2.map(t => t.id), labels: MODE_IDS, fix: MODE_IDS };
 export const EMPTY: Policy = { labels: {}, fix: '' };
@@ -15,16 +18,32 @@ const REF = counts(DAY2);
 export const WINNERS: ModeId[] = fixFirst(REF);
 const BEST = REF[WINNERS[0]] * modeOf(WINNERS[0]).harm;
 
-export interface Row { trace: Trace; label: ModeId | ''; right: boolean; reason: string }
+export interface Row {
+  trace: Trace;
+  label: ModeId | '';
+  right: boolean;
+  reason: string;
+}
 export function rowsOf(p: Policy): Row[] {
   return DAY2.map(t => {
-    const label = p.labels[t.id] ?? '', right = label === t.mode;
-    const reason = !label ? 'Not labelled yet.' : right ? `Right: ${t.note}.` : `Not this one: ${t.note}, which is “${modeOf(t.mode!).name}”.`;
+    const label = p.labels[t.id] ?? '',
+      right = label === t.mode;
+    const reason = !label
+      ? 'Not labelled yet.'
+      : right
+        ? `Right: ${t.note}.`
+        : `Not this one: ${t.note}, which is “${modeOf(t.mode!).name}”.`;
     return { trace: t, label, right, reason };
   });
 }
 
-export interface Score { sorted: number; of: number; tally: ReturnType<typeof ranked>; removed: number; best: number }
+export interface Score {
+  sorted: number;
+  of: number;
+  tally: ReturnType<typeof ranked>;
+  removed: number;
+  best: number;
+}
 /** Labels right, the reader's tally by count × harm, and the harm (count × rating, by the reference) the fix removes. */
 export function scoreOf(p: Policy): Score {
   const tally = ranked(counts(DAY2, t => p.labels[t.id]));

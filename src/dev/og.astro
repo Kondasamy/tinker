@@ -21,7 +21,12 @@ import { RECORDINGS } from '../lib/tools/turns';
 import { SERVERS } from '../lib/tools/server';
 import { MCP_BOARD, connectScene } from '../components/scenes/mcpScene';
 import { agentScene } from '../components/scenes/agentScene';
-import { run as agentRun, CONTEXT as AGENT_CONTEXT, DEFAULTS as AGENT_DEFAULTS, MEMORY_CONTEXT } from '../lib/agents/loop';
+import {
+  run as agentRun,
+  CONTEXT as AGENT_CONTEXT,
+  DEFAULTS as AGENT_DEFAULTS,
+  MEMORY_CONTEXT,
+} from '../lib/agents/loop';
 import { RECORDINGS as AGENT_RECORDINGS } from '../lib/agents/turns';
 import { diskLoader } from '../lib/rag/diskLoader';
 import { EVAL_BOARD, evalScene, type EvalOpts } from '../components/scenes/evalScene';
@@ -126,55 +131,125 @@ const TOOL_OG: Record<string, ReturnType<typeof officeScene>> = {
   'tool-calling-06-when-tools-go-wrong': office('injection', { schema: true, gate: true, note: true }, { gate: true }),
 };
 const tool = TOOL_OG[page.og];
-const MCP_OG = connectScene({ servers: Object.values(SERVERS).map(s => ({ name: s.title.toUpperCase(), connected: true })), scale: 1.5 });
+const MCP_OG = connectScene({
+  servers: Object.values(SERVERS).map(s => ({ name: s.title.toUpperCase(), connected: true })),
+  scale: 1.5,
+});
 // the workbench: the same host, its gate on
-const BENCH_OG = connectScene({ servers: Object.values(SERVERS).map(s => ({ name: s.title.toUpperCase(), connected: true })), host: 'HOST · GATE ON', scale: 1.5 });
+const BENCH_OG = connectScene({
+  servers: Object.values(SERVERS).map(s => ({ name: s.title.toUpperCase(), connected: true })),
+  host: 'HOST · GATE ON',
+  scale: 1.5,
+});
 // module 3: the cracked printer, out of stock. The intro: the agent telling the customer after it changed course;
 // chapter 1: the script stopped at the step nobody wrote a fallback for. Recaps keep the recall cards.
-const PRINTER = (mode: 'script' | 'agent') => agentRun(AGENT_RECORDINGS['01-workflow-or-agent'], { case: 'damaged', stock: 'out', mode });
-const AGENT_RUN = PRINTER('agent'), LOOP_RUN = agentRun(AGENT_RECORDINGS['02-the-loop']);
+const PRINTER = (mode: 'script' | 'agent') =>
+  agentRun(AGENT_RECORDINGS['01-workflow-or-agent'], { case: 'damaged', stock: 'out', mode });
+const AGENT_RUN = PRINTER('agent'),
+  LOOP_RUN = agentRun(AGENT_RECORDINGS['02-the-loop']);
 const AGENT_OG: Record<string, ReturnType<typeof agentScene>> = {
   agents: agentScene({ run: AGENT_RUN, upTo: AGENT_RUN.steps.length - 1, scale: 1.5 }),
   'agents-01-workflow-or-agent': agentScene({ run: PRINTER('script'), scale: 1.5 }),
   // chapter 2: the loop's last turn, the model answering with no call, the gauge far from the step budget
-  'agents-02-the-loop': agentScene({ run: LOOP_RUN, gauge: { steps: AGENT_DEFAULTS.steps, context: AGENT_CONTEXT }, scale: 1.5 }),
+  'agents-02-the-loop': agentScene({
+    run: LOOP_RUN,
+    gauge: { steps: AGENT_DEFAULTS.steps, context: AGENT_CONTEXT },
+    scale: 1.5,
+  }),
   // chapter 3: the plan on the clipboard after the stock-out, the replacement struck and the refund added
-  'agents-03-plans': agentScene({ run: agentRun(AGENT_RECORDINGS['03-plans'], { case: 'damaged', stock: 'out', plan: true }), clipboard: true, scale: 1.5 }),
+  'agents-03-plans': agentScene({
+    run: agentRun(AGENT_RECORDINGS['03-plans'], { case: 'damaged', stock: 'out', plan: true }),
+    clipboard: true,
+    scale: 1.5,
+  }),
   // chapter 4: the stuck loop with no detector, the gauge full at the step budget
-  'agents-04-budgets': agentScene({ run: agentRun(AGENT_RECORDINGS['04-budgets'], { repeat: null }), gauge: { steps: AGENT_DEFAULTS.steps, context: AGENT_CONTEXT }, scale: 1.5 }),
+  'agents-04-budgets': agentScene({
+    run: agentRun(AGENT_RECORDINGS['04-budgets'], { repeat: null }),
+    gauge: { steps: AGENT_DEFAULTS.steps, context: AGENT_CONTEXT },
+    scale: 1.5,
+  }),
   // chapter 5: the storm case with summary memory at the chapter's budget, the history compacted into one binder
-  'agents-05-memory': agentScene({ run: agentRun(AGENT_RECORDINGS['05-memory'], { mem: 'summary', context: MEMORY_CONTEXT }), gauge: { steps: AGENT_DEFAULTS.steps, context: MEMORY_CONTEXT }, tray: true, scale: 1.5 }),
+  'agents-05-memory': agentScene({
+    run: agentRun(AGENT_RECORDINGS['05-memory'], { mem: 'summary', context: MEMORY_CONTEXT }),
+    gauge: { steps: AGENT_DEFAULTS.steps, context: MEMORY_CONTEXT },
+    tray: true,
+    scale: 1.5,
+  }),
   // chapter 6: the storm case handed out, five helper desks each with a reply on it, the lead's gauge low. Scale 1:
   // a larger scale draws the phone's single desk, and the five desks are the picture
-  'agents-06-sub-agents': agentScene({ run: agentRun(AGENT_RECORDINGS['06-sub-agents'], { helpers: true }), gauge: { steps: AGENT_DEFAULTS.steps, context: AGENT_CONTEXT }, helpers: true }),
+  'agents-06-sub-agents': agentScene({
+    run: agentRun(AGENT_RECORDINGS['06-sub-agents'], { helpers: true }),
+    gauge: { steps: AGENT_DEFAULTS.steps, context: AGENT_CONTEXT },
+    helpers: true,
+  }),
   // chapter 7: the bench with the planted case planned and approved, so the clipboard, the gauge and the tray are all out
-  'agents-07-workbench': agentScene({ run: agentRun(AGENT_RECORDINGS['03-plans'], { case: 'planted', plan: true }), clipboard: true, gauge: { steps: AGENT_DEFAULTS.steps, context: AGENT_CONTEXT }, tray: true, scale: 1.5 }),
+  'agents-07-workbench': agentScene({
+    run: agentRun(AGENT_RECORDINGS['03-plans'], { case: 'planted', plan: true }),
+    clipboard: true,
+    gauge: { steps: AGENT_DEFAULTS.steps, context: AGENT_CONTEXT },
+    tray: true,
+    scale: 1.5,
+  }),
 };
 const agent = AGENT_OG[page.og];
 // module 4: the test bench at the moment each chapter turns on (chapter 1 the v1/v2 grid, chapter 5 the back office run
 // it grades). The suite runs here at build time, from the committed index, as on the intro.
 const suite = page.og.startsWith('evals') ? await loadSuite(diskLoader) : null;
-const EVAL_OG: Record<string, () => EvalOpts> = suite ? (() => {
-  const ls = labelledOf(suite), a = agreement(ls.map(l => l.row), 'r1');
-  const hat5 = SAMPLES.map(c => passHatK(c, 5)), v3 = gradeRows(suite.v3, 'verdict');
-  const gate = decide(gradeRows(suite[BASELINE], 'verdict'), v3, { threshold: 75, noRegressions: true });
-  return {
-    evals: () => ({ results: resultsOf(suite.v2), version: VERSIONS.v2.label }),
-    // chapter 2: the test set stacked, nothing graded yet
-    'evals-02-the-test-set': () => ({ results: QUESTIONS.map(() => true), graded: 0, board: `TEST SET · ${QUESTIONS.length} CASES` }),
-    // chapter 3: v0 (no documents) half graded by code, the next answer on the belt
-    'evals-03-graders': () => ({ results: resultsOf(suite.v0), graded: Math.ceil(QUESTIONS.length / 2), riding: true, board: `${VERSIONS.v0.label} · CODE GRADERS` }),
-    // chapter 4: the r1 judge against the people's labels; a pass is agreement
-    'evals-04-judge-the-judge': () => ({ results: ls.map(l => judged(l.row.question, l.row.signature, 'r1')!.pass === label(l.row.question, l.row.signature)!.pass), board: `r1 AGREES ${a.agree}/${a.total}` }),
-    'evals-06-run-it-twice': () => ({ results: hat5, board: `PASS^5 ${hat5.filter(Boolean).length}/${SAMPLES.length}` }),
-    // chapter 7: v3 through the gate (75%, no regressions)
-    'evals-07-release-day': () => ({ results: v3, version: VERSIONS.v3.label, board: `${VERSIONS.v3.label} · ${gate.passed}/${v3.length} · ${gate.ship ? 'SHIP' : 'DO NOT SHIP'}` }),
-  };
-})() : {};
+const EVAL_OG: Record<string, () => EvalOpts> = suite
+  ? (() => {
+      const ls = labelledOf(suite),
+        a = agreement(
+          ls.map(l => l.row),
+          'r1',
+        );
+      const hat5 = SAMPLES.map(c => passHatK(c, 5)),
+        v3 = gradeRows(suite.v3, 'verdict');
+      const gate = decide(gradeRows(suite[BASELINE], 'verdict'), v3, { threshold: 75, noRegressions: true });
+      return {
+        evals: () => ({ results: resultsOf(suite.v2), version: VERSIONS.v2.label }),
+        // chapter 2: the test set stacked, nothing graded yet
+        'evals-02-the-test-set': () => ({
+          results: QUESTIONS.map(() => true),
+          graded: 0,
+          board: `TEST SET · ${QUESTIONS.length} CASES`,
+        }),
+        // chapter 3: v0 (no documents) half graded by code, the next answer on the belt
+        'evals-03-graders': () => ({
+          results: resultsOf(suite.v0),
+          graded: Math.ceil(QUESTIONS.length / 2),
+          riding: true,
+          board: `${VERSIONS.v0.label} · CODE GRADERS`,
+        }),
+        // chapter 4: the r1 judge against the people's labels; a pass is agreement
+        'evals-04-judge-the-judge': () => ({
+          results: ls.map(
+            l => judged(l.row.question, l.row.signature, 'r1')!.pass === label(l.row.question, l.row.signature)!.pass,
+          ),
+          board: `r1 AGREES ${a.agree}/${a.total}`,
+        }),
+        'evals-06-run-it-twice': () => ({
+          results: hat5,
+          board: `PASS^5 ${hat5.filter(Boolean).length}/${SAMPLES.length}`,
+        }),
+        // chapter 7: v3 through the gate (75%, no regressions)
+        'evals-07-release-day': () => ({
+          results: v3,
+          version: VERSIONS.v3.label,
+          board: `${VERSIONS.v3.label} · ${gate.passed}/${v3.length} · ${gate.ship ? 'SHIP' : 'DO NOT SHIP'}`,
+        }),
+      };
+    })()
+  : {};
 const evalOpts = EVAL_OG[page.og]?.();
 // chapter 5: the planted refund on its way to the order system, with no gate: the run whose reply reads fine and whose
 // ledger does not
-const EVAL_PATH = officeScene({ msgs: seq('injection'), upTo: 8, tools: RECORDINGS.injection.tools.length, note: true, scale: 1.5 });
+const EVAL_PATH = officeScene({
+  msgs: seq('injection'),
+  upTo: 8,
+  tools: RECORDINGS.injection.tools.length,
+  note: true,
+  scale: 1.5,
+});
 // module 5: the forwarded invoice with no defences. The intro: the customer's record riding out to the post box;
 // chapter 1: the email riding in, tagged as untrusted, before the model reads it
 const INVOICE = guardRun(GUARD_RECORDING, { case: 'invoice' });
@@ -185,14 +260,50 @@ const GUARD_OG: Record<string, ReturnType<typeof guardScene>> = {
   'guardrails-01-data-or-instructions': guardScene({ run: INVOICE, upTo: callAt('read_inbox') + 1, scale: 1.5 }),
   // chapter 2: the forwarded invoice held at the screening arch; chapter 3: its send stopped at the allow-list barrier;
   // chapter 4: the three legs named, the chute shut by the taint rule once the email was read
-  'guardrails-02-input-filters': guardScene({ run: guardRun(GUARD_RECORDING, { case: 'invoice', threshold: 0.5 }), screen: true, scale: 1.5 }),
-  'guardrails-03-the-way-out': guardScene({ run: ALLOWED, upTo: ALLOWED.steps.findIndex(st => st.kind === 'blocked') + 1, allow: true, scale: 1.5 }),
-  'guardrails-04-the-trifecta': guardScene({ run: guardRun(GUARD_RECORDING, { case: 'invoice', taint: true }), legs: true, taint: true, scale: 1.5 }),
+  'guardrails-02-input-filters': guardScene({
+    run: guardRun(GUARD_RECORDING, { case: 'invoice', threshold: 0.5 }),
+    screen: true,
+    scale: 1.5,
+  }),
+  'guardrails-03-the-way-out': guardScene({
+    run: ALLOWED,
+    upTo: ALLOWED.steps.findIndex(st => st.kind === 'blocked') + 1,
+    allow: true,
+    scale: 1.5,
+  }),
+  'guardrails-04-the-trifecta': guardScene({
+    run: guardRun(GUARD_RECORDING, { case: 'invoice', taint: true }),
+    legs: true,
+    taint: true,
+    scale: 1.5,
+  }),
   // chapter 5: two layers on the forwarded invoice (the taint rule's shut chute and the allow-list's barrier); chapter 6:
   // the off-topic favour turned away at the screening arch; chapter 7: the red team's clean set, every check in place
-  'guardrails-05-defence-in-depth': guardScene({ run: guardRun(GUARD_RECORDING, { case: 'invoice', rule: true, taint: true, allow: true }), taint: true, allow: true, scale: 1.5 }),
-  'guardrails-06-when-the-user-is-the-attacker': guardScene({ run: guardRun(GUARD_RECORDING, { case: 'offtopic', inputPolicy: true }), screen: true, scale: 1.5 }),
-  'guardrails-07-red-team': guardScene({ run: guardRun(GUARD_RECORDING, { case: 'invoice', rule: true, taint: true, inputPolicy: true, allow: true, outputPolicy: 'on' }), screen: true, taint: true, allow: true, scale: 1.5 }),
+  'guardrails-05-defence-in-depth': guardScene({
+    run: guardRun(GUARD_RECORDING, { case: 'invoice', rule: true, taint: true, allow: true }),
+    taint: true,
+    allow: true,
+    scale: 1.5,
+  }),
+  'guardrails-06-when-the-user-is-the-attacker': guardScene({
+    run: guardRun(GUARD_RECORDING, { case: 'offtopic', inputPolicy: true }),
+    screen: true,
+    scale: 1.5,
+  }),
+  'guardrails-07-red-team': guardScene({
+    run: guardRun(GUARD_RECORDING, {
+      case: 'invoice',
+      rule: true,
+      taint: true,
+      inputPolicy: true,
+      allow: true,
+      outputPolicy: 'on',
+    }),
+    screen: true,
+    taint: true,
+    allow: true,
+    scale: 1.5,
+  }),
 };
 const guard = GUARD_OG[page.og];
 // module 6: the token press, or the tile row, as of each chapter. The intro and chapter 1: Larkspur's order sentence;
@@ -200,18 +311,33 @@ const guard = GUARD_OG[page.og];
 // on the newest recorded tokenizer (byte chips); chapter 7: a prompt that fills the smallest budget. Chapters 5 and 6:
 // RAG's map of meaning, read-only, with the chapter's question.
 const ORDER = SENTENCES.find(s => s.id === 'order-en')!.text;
-const PRESS_OG: Record<string, string> = { tokens: ORDER, 'tokens-03-tokens-are-the-meter': PARAGRAPH, 'tokens-07-workbench': promptOf(fullPrompts(BUDGETS[0])[0]) };
+const PRESS_OG: Record<string, string> = {
+  tokens: ORDER,
+  'tokens-03-tokens-are-the-meter': PARAGRAPH,
+  'tokens-07-workbench': promptOf(fullPrompts(BUDGETS[0])[0]),
+};
 const ROW_OG: Record<string, () => ReturnType<typeof siteEncoding>> = {
   'tokens-01-what-the-model-reads': () => siteEncoding(ORDER),
-  'tokens-02-how-the-vocabulary-is-learned': () => encodingOfIds(TRACE.steps.length ? TRACE.steps[TRACE.steps.length - 1].ids : TRACE.start),
+  'tokens-02-how-the-vocabulary-is-learned': () =>
+    encodingOfIds(TRACE.steps.length ? TRACE.steps[TRACE.steps.length - 1].ids : TRACE.start),
   'tokens-04-every-tokenizer-splits-differently': () => encodingOf('order-ja', TOKENIZERS[TOKENIZERS.length - 1].id),
 };
-const MAP_OG: Record<string, string> = { 'tokens-05-from-token-to-vector': 'stale-hotel-limit', 'tokens-06-meaning-by-neighbours': 'k2-volume-price' };
-const pressText = PRESS_OG[page.og], row = ROW_OG[page.og]?.();
-const map = MAP_OG[page.og] ? await (async () => {
-  const index = await openIndex(diskLoader), cfg = await index.load(MAP_FILE);
-  return { index, out: { record: ragRun(index, cfg, { question: questionOf(MAP_OG[page.og]), topK: 3 }) } as Outcome };
-})() : null;
+const MAP_OG: Record<string, string> = {
+  'tokens-05-from-token-to-vector': 'stale-hotel-limit',
+  'tokens-06-meaning-by-neighbours': 'k2-volume-price',
+};
+const pressText = PRESS_OG[page.og],
+  row = ROW_OG[page.og]?.();
+const map = MAP_OG[page.og]
+  ? await (async () => {
+      const index = await openIndex(diskLoader),
+        cfg = await index.load(MAP_FILE);
+      return {
+        index,
+        out: { record: ragRun(index, cfg, { question: questionOf(MAP_OG[page.og]), topK: 3 }) } as Outcome,
+      };
+    })()
+  : null;
 // module 7: the engine room as of each chapter, Larkspur mini run at build time from disk. The intro: chapter 1's prompt
 // with its threads; chapter 1: the reply after three added tokens; chapter 2: the second copy of the repeated word picked;
 // chapter 4: the word-start head on the piece that continues a word; chapter 6: the full window; chapter 7: a prompt past
@@ -219,7 +345,7 @@ const map = MAP_OG[page.og] ? await (async () => {
 const lm = page.og.startsWith('transformers') ? diskModel() : null;
 const roomOf = (text: string, o: Partial<EngineOpts> = {}): EngineOpts => {
   const t = trace(lm!, text);
-  return { tokens: t.tokens.map(x => x.text), attention: t.attention, ...o };   // scale 1: the pills keep the pieces
+  return { tokens: t.tokens.map(x => x.text), attention: t.attention, ...o }; // scale 1: the pills keep the pieces
 };
 const ENGINE_OG: Record<string, () => EngineOpts> = {
   transformers: () => roomOf(TF_REPLY.text),
@@ -230,30 +356,45 @@ const ENGINE_OG: Record<string, () => EngineOpts> = {
   'transformers-07-trace-a-prompt': () => roomOf(TF_TRUNCATED, { layer: 1, head: 1, query: 20 }),
 };
 const FLAT_OG: Record<string, () => { svg: string; w: number; h: number }> = {
-  'transformers-03-attention': () => { const t = trace(lm!, PROMPTS.find(p => p.id === 'long')!.text); return attentionMap({ tokens: t.tokens.map(x => x.text), weights: t.attention[0][0] }); },
+  'transformers-03-attention': () => {
+    const t = trace(lm!, PROMPTS.find(p => p.id === 'long')!.text);
+    return attentionMap({ tokens: t.tokens.map(x => x.text), weights: t.attention[0][0] });
+  },
   'transformers-05-choosing-the-next-token': () => {
     // shortcut: crops the bar to its longest bar with probBar's wide layout (label 128, span 420) typed in; update if probBar's layout changes
-    const bars = topK(distOf(lm!, 1.5, 1), 5), b = probBar(bars);
+    const bars = topK(distOf(lm!, 1.5, 1), 5),
+      b = probBar(bars);
     return { ...b, w: Math.min(b.w, 128 + 420 * bars[0].p + 50) };
   },
 };
-const engine = ENGINE_OG[page.og]?.(), flat = FLAT_OG[page.og]?.();
+const engine = ENGINE_OG[page.og]?.(),
+  flat = FLAT_OG[page.og]?.();
 // module 8: the window desk as each chapter turns its prop on, the engine run at build time. The intro: Mara's three
 // questions stuffed, the cache shelf lit; chapter 1: a whole turn; chapter 2: the fact in the middle of 12 distractors;
 // chapter 3: the model fetching; chapter 4: breakpoints after the tools and system, the shelf lit; chapter 5: old results
 // cleared into the in-tray; chapter 6: the next conversation's notes read from the cabinet; chapter 7: a policy with
 // fetching and clearing, at the call that reads the cache.
 const MARA = [['refund-window', 'free-shipping', 'sensor-warranty']];
-const deskOf = (setup: Partial<ContextSetup>, o: Partial<WindowOpts> = {}): WindowOpts => ({ run: contextRun(CONTEXT_RECORDING, setup), ...o });   // scale 1: the pills keep their readouts
+const deskOf = (setup: Partial<ContextSetup>, o: Partial<WindowOpts> = {}): WindowOpts => ({
+  run: contextRun(CONTEXT_RECORDING, setup),
+  ...o,
+}); // scale 1: the pills keep their readouts
 const DESK_OG: Record<string, () => WindowOpts> = {
   context: () => deskOf({ sessions: MARA, tools: true, retrieval: 'stuff' }, { shelf: true }),
   'context-01-whats-in-the-window': () => deskOf({ sessions: [['refund-window', 'free-shipping']], tools: true }),
   'context-02-more-isnt-better': () => deskOf({ sessions: [['free-shipping']], distractors: 12, place: 'middle' }),
   'context-03-fetch-when-needed': () => deskOf({ sessions: [['free-shipping']], retrieval: 'fetch' }),
-  'context-04-order-for-the-cache': () => deskOf({ sessions: MARA, tools: true, retrieval: 'stuff', breakpoints: ['tools', 'system', 'end'] }, { shelf: true }),
-  'context-05-clearing-the-desk': () => deskOf({ sessions: MARA, retrieval: 'fetch', history: 'cleared' }, { tray: true }),
-  'context-06-memory': () => deskOf({ sessions: [['enterprise-hello'], ['enterprise-refund']], memory: true }, { cabinet: true }),
-  'context-07-workbench': () => deskOf({ sessions: MARA, retrieval: 'fetch', history: 'cleared' }, { shelf: true, tray: true, upTo: 5 }),
+  'context-04-order-for-the-cache': () =>
+    deskOf(
+      { sessions: MARA, tools: true, retrieval: 'stuff', breakpoints: ['tools', 'system', 'end'] },
+      { shelf: true },
+    ),
+  'context-05-clearing-the-desk': () =>
+    deskOf({ sessions: MARA, retrieval: 'fetch', history: 'cleared' }, { tray: true }),
+  'context-06-memory': () =>
+    deskOf({ sessions: [['enterprise-hello'], ['enterprise-refund']], memory: true }, { cabinet: true }),
+  'context-07-workbench': () =>
+    deskOf({ sessions: MARA, retrieval: 'fetch', history: 'cleared' }, { shelf: true, tray: true, upTo: 5 }),
 };
 const deskOg = DESK_OG[page.og]?.();
 // module 9: the training bench with each chapter's lever. The intro and chapter 3: the weights lever, the LoRA adapter
@@ -275,10 +416,12 @@ const benchOg = BENCH_OGS[page.og];
 // cut off at the window; chapter 7: the winning schema on order 1042.
 const so = page.og.startsWith('structured-outputs') ? diskModel() : null;
 const pinned = (id: string, masked: boolean, at?: (d: ReturnType<typeof soPlay>['decoded']) => number): StencilOpts => {
-  const r = soRun(id), d = soPlay(so!, r).decoded;
+  const r = soRun(id),
+    d = soPlay(so!, r).decoded;
   return stencilAt(r.prompt, d, at ? at(d) : d.ids.length, masked, 1.3);
 };
-const firstBlock = (d: ReturnType<typeof soPlay>['decoded']) => d.steps.findIndex(st => !st.allowed.includes(st.free.id));
+const firstBlock = (d: ReturnType<typeof soPlay>['decoded']) =>
+  d.steps.findIndex(st => !st.allowed.includes(st.free.id));
 const STENCIL_OG: Record<string, () => StencilOpts> = {
   'structured-outputs': () => pinned('mask', true, firstBlock),
   'structured-outputs-01-asking-nicely': () => pinned('asking', false),
@@ -286,12 +429,16 @@ const STENCIL_OG: Record<string, () => StencilOpts> = {
   'structured-outputs-05-choices-from-a-list': () => pinned('mask', true),
   'structured-outputs-06-valid-isnt-right': () => pinned('cutoff', true),
   'structured-outputs-07-workbench': () => {
-    const p = promptFor(SO_ORDERS[0]), d = decodeWith(so!, p, schemaFor(SOLVED[0])).decoded;
+    const p = promptFor(SO_ORDERS[0]),
+      d = decodeWith(so!, p, schemaFor(SOLVED[0])).decoded;
     return stencilAt(p, d, d.ids.length, true, 1.3);
   },
 };
 const stencilOg = STENCIL_OG[page.og]?.();
-const gridAt = (id: string, at: number) => { const st = soPlay(so!, soRun(id)).decoded.steps[at]; return maskGrid({ vocab: VOCAB_SIZE, allowed: st.allowed, pick: st.pick.id, free: st.free.id }); };
+const gridAt = (id: string, at: number) => {
+  const st = soPlay(so!, soRun(id)).decoded.steps[at];
+  return maskGrid({ vocab: VOCAB_SIZE, allowed: st.allowed, pick: st.pick.id, free: st.free.id });
+};
 const GRID_OG: Record<string, () => ReturnType<typeof maskGrid>> = {
   'structured-outputs-03-the-mask': () => gridAt('mask', 1),
   'structured-outputs-04-tokens-are-not-characters': () => gridAt(NOTE_RUN.id, capStep(so!).at),
@@ -303,8 +450,15 @@ const gridOg = GRID_OG[page.og]?.();
 // chapter 6: accuracy against effort for every kind; chapter 7: the desk on the first winning plan, as chapter 7 draws it.
 const thinkOg = (q: string, e: Parameters<typeof rsRun>[1]): ThinkOpts => ({ ...thinkDesk(rsRun(q, e)), scale: 1.3 });
 const winDesk = (): ThinkOpts => {
-  const p = WINNERS[0], t = rsTotals(p);
-  return { effort: EFFORTS[Math.max(...KINDS.map(k => EFFORTS.indexOf(p[k.id])))], thinking: t.rows.reduce((n, r) => n + r.thinkingTokens, 0), wait: t.wait, right: true, scale: 1.3 };
+  const p = WINNERS[0],
+    t = rsTotals(p);
+  return {
+    effort: EFFORTS[Math.max(...KINDS.map(k => EFFORTS.indexOf(p[k.id])))],
+    thinking: t.rows.reduce((n, r) => n + r.thinkingTokens, 0),
+    wait: t.wait,
+    right: true,
+    scale: 1.3,
+  };
 };
 const THINK_OG: Record<string, () => ThinkOpts[]> = {
   reasoning: () => [thinkOg(SPLIT, 'medium')],
@@ -332,7 +486,12 @@ const ROUTER_OG: Record<string, RouterOpts> = {
 };
 const routerOg = ROUTER_OG[page.og];
 const FRONTIER_OG: Record<string, () => ReturnType<typeof frontierChart>> = {
-  'small-models-04-send-it-the-easy-ones': () => frontierChart({ points: frontier().filter(p => p.threshold === 0 || p.threshold === null).map(p => (p.threshold === 0 ? { ...p, id: 'all-small', label: 'All small' } : p)) }),
+  'small-models-04-send-it-the-easy-ones': () =>
+    frontierChart({
+      points: frontier()
+        .filter(p => p.threshold === 0 || p.threshold === null)
+        .map(p => (p.threshold === 0 ? { ...p, id: 'all-small', label: 'All small' } : p)),
+    }),
   'small-models-05-fall-back-when-unsure': () => frontierChart({ points: frontier() }),
   'small-models-06-gate-the-switch': () => frontierChart({ points: frontier() }),
 };
@@ -343,17 +502,22 @@ const frontierOg = FRONTIER_OG[page.og]?.();
 // first winning settings.
 const studentOf = () => {
   const bin = readFileSync('public/data/lm/student.bin');
-  return parseStudent(JSON.parse(readFileSync('public/data/lm/meta.json', 'utf8')) as LmMeta, bin.buffer.slice(bin.byteOffset, bin.byteOffset + bin.byteLength) as ArrayBuffer);
+  return parseStudent(
+    JSON.parse(readFileSync('public/data/lm/meta.json', 'utf8')) as LmMeta,
+    bin.buffer.slice(bin.byteOffset, bin.byteOffset + bin.byteLength) as ArrayBuffer,
+  );
 };
 const SERVE_OG: Record<string, () => Omit<ServeOpts, 'scale'>[]> = {
   inference: () => [floorAt(serve(OPEN, { mode: 'continuous', cap: 8, kvRoomGB: 14 }))],
   'inference-01-prefill-and-decode': () => [{ seats: ['prefill'], queued: 0, kv: 0 }],
   'inference-02-kv-cache-at-scale': () => [floorAt(serve(OPEN, { mode: 'continuous', cap: 16, kvRoomGB: 4 }))],
   'inference-03-batching': () => [floorAt(BATCH_RUNS.static), floorAt(BATCH_RUNS.continuous)],
-  'inference-04-smaller-numbers': () => [{ seats: Array.from({ length: 16 }, () => 'decode' as const), queued: 0, kv: 1 }],
+  'inference-04-smaller-numbers': () => [
+    { seats: Array.from({ length: 16 }, () => 'decode' as const), queued: 0, kv: 1 },
+  ],
   'inference-05-guess-ahead': () => {
     const r = specAt(diskModel(), studentOf(), DRAFT_K).rounds[0];
-    return [{ seats: ['decode'], queued: 0, kv: .02, draft: { drafted: r.drafted.length, accepted: r.accepted } }];
+    return [{ seats: ['decode'], queued: 0, kv: 0.02, draft: { drafted: r.drafted.length, accepted: r.accepted } }];
   },
   'inference-06-pace-or-throughput': () => [floorAt(PACE_RUNS[16])],
   'inference-07-serve-larkspur': () => [floorAt(serveRun(SERVE_WINNERS[0]))],
@@ -363,25 +527,50 @@ const serveOgs = SERVE_OG[page.og]?.();
 // an ok trace's waterfall; chapter 2: a failed one with its FIRST FAILURE stamp; chapter 3: five notes taken; chapter 4:
 // the bins counted; chapter 5: the fix lit; chapter 6: the fixed version passing the fix's cases; chapter 7: day 2 sorted
 // and the first winning fix shipped.
-const OBS_CASES = OBS_DOMAINS['06-trace-to-test'].traces.map(traceOf).filter(t => TOP.includes(t.mode!)).map(t => t.id);
+const OBS_CASES = OBS_DOMAINS['06-trace-to-test'].traces
+  .map(traceOf)
+  .filter(t => TOP.includes(t.mode!))
+  .map(t => t.id);
 const ROOM_OG: Record<string, () => TraceOpts> = {
   observability: () => ({ cards: wallOf(FAILED, FAILED[0].id), bins: binsOf(DAY1_COUNTS, TOP[0]) }),
-  'observability-03-open-coding': () => ({ cards: wallOf(FAILED, FAILED[NEEDED_NOTES - 1].id), board: `NOTED ${NEEDED_NOTES} OF ${FAILED.length}` }),
-  'observability-04-axial-coding': () => ({ cards: wallOf(FAILED), bins: binsOf(DAY1_COUNTS), board: `SORTED ${FAILED.length} OF ${FAILED.length}` }),
-  'observability-05-what-matters': () => ({ cards: wallOf(FAILED), bins: binsOf(DAY1_COUNTS, TOP[0]), board: `FIX FIRST: ${MODE_SHORT[TOP[0]]}` }),
-  'observability-06-trace-to-test': () => ({ cards: wallOf(FAILED, OBS_CASES.at(-1)),
-    board: `FIXED · PASS ${OBS_CASES.filter(id => gradeCase(id, 'fixed').pass).length}/${OBS_CASES.length}` }),
-  'observability-07-workbench': () => ({ cards: wallOf(DAY2), bins: binsOf(obsCounts(DAY2), OBS_WINNERS[0]), board: `SHIP: ${MODE_SHORT[OBS_WINNERS[0]]}` }),
+  'observability-03-open-coding': () => ({
+    cards: wallOf(FAILED, FAILED[NEEDED_NOTES - 1].id),
+    board: `NOTED ${NEEDED_NOTES} OF ${FAILED.length}`,
+  }),
+  'observability-04-axial-coding': () => ({
+    cards: wallOf(FAILED),
+    bins: binsOf(DAY1_COUNTS),
+    board: `SORTED ${FAILED.length} OF ${FAILED.length}`,
+  }),
+  'observability-05-what-matters': () => ({
+    cards: wallOf(FAILED),
+    bins: binsOf(DAY1_COUNTS, TOP[0]),
+    board: `FIX FIRST: ${MODE_SHORT[TOP[0]]}`,
+  }),
+  'observability-06-trace-to-test': () => ({
+    cards: wallOf(FAILED, OBS_CASES.at(-1)),
+    board: `FIXED · PASS ${OBS_CASES.filter(id => gradeCase(id, 'fixed').pass).length}/${OBS_CASES.length}`,
+  }),
+  'observability-07-workbench': () => ({
+    cards: wallOf(DAY2),
+    bins: binsOf(obsCounts(DAY2), OBS_WINNERS[0]),
+    board: `SHIP: ${MODE_SHORT[OBS_WINNERS[0]]}`,
+  }),
 };
 const roomOg = ROOM_OG[page.og]?.();
-const fallOg = page.og === 'observability-01-what-it-did' ? { trace: TRACES[0], stamp: null }
-  : page.og === 'observability-02-first-failure' ? { trace: traceOf('t23'), stamp: traceOf('t23').first } : undefined;
+const fallOg =
+  page.og === 'observability-01-what-it-did'
+    ? { trace: TRACES[0], stamp: null }
+    : page.og === 'observability-02-first-failure'
+      ? { trace: traceOf('t23'), stamp: traceOf('t23').first }
+      : undefined;
 // module 15: the glass room as each chapter turns its door on. The intro: the exfiltration attack on the open host as the
 // token leaves; chapter 1: the same attack in the sandbox, refused; 2: the hidden key's read refused at the file door; 3: the
 // fetch to an off-list host refused at the network door; 4: the secret moved to the proxy; 5: a record smuggled through the
 // allowed API host; 6: the report task run with no prompt; 7: the clean policy against the exfiltration attack.
 const sbAt = (setup: Partial<SbSetup> & { case: SbSetup['case'] }, upTo?: (r: SbRun) => number): SandboxOpts => {
-  const r = sbRun(SB_RECORDING, setup), n = upTo?.(r);
+  const r = sbRun(SB_RECORDING, setup),
+    n = upTo?.(r);
   return { ...sandboxProps(setup), run: r, upTo: n && n > 0 ? n : r.steps.length };
 };
 const sbFetch = (r: SbRun) => r.steps.findIndex(st => st.kind === 'call' && st.call.name === 'fetch') + 1;
@@ -392,7 +581,8 @@ const GLASS_OG: Record<string, () => SandboxOpts> = {
   'sandboxing-01-where-it-runs': () => sbAt({ case: 'exfil', ...SB_IN, secret: 'proxy' }, sbBlocked),
   'sandboxing-02-files': () => sbAt({ case: 'peek', ...SB_IN, secret: 'proxy' }, sbBlocked),
   'sandboxing-03-network': () => sbAt({ case: 'exfil', ...SB_IN, secret: 'env' }, sbBlocked),
-  'sandboxing-04-secrets': () => sbAt({ case: 'exfil', sandbox: true, files: 'scoped', egress: 'open', secret: 'proxy' }),
+  'sandboxing-04-secrets': () =>
+    sbAt({ case: 'exfil', sandbox: true, files: 'scoped', egress: 'open', secret: 'proxy' }),
   'sandboxing-05-allowed-door': () => sbAt({ case: 'beacon', ...SB_IN, secret: 'proxy' }, sbFetch),
   'sandboxing-06-fewer-prompts': () => sbAt({ case: 'report', ...SB_IN, secret: 'env', approval: 'off' }),
   'sandboxing-07-red-team': () => sbAt({ case: 'exfil', sandbox: true, ...SB_SOLUTION }, sbBlocked),
@@ -411,7 +601,10 @@ const SCAN_OG: Record<string, ScanOpts> = {
   'multimodal-07-workbench': { image: 'slip', size: MM_W.size, method: MM_W.method },
 };
 const scanOg = SCAN_OG[page.og];
-const PATCH_OG: Record<string, number> = { 'multimodal-01-a-picture-is-tokens': 1600, 'multimodal-02-size-and-detail': 400 };
+const PATCH_OG: Record<string, number> = {
+  'multimodal-01-a-picture-is-tokens': 1600,
+  'multimodal-02-size-and-detail': 400,
+};
 const patchSrc = PATCH_OG[page.og] && patchStill('invoice', PATCH_OG[page.og]).src;
 // module 17: the phone desk as each chapter turns. The intro: Ravi's reply on its way back after the wait that hears him
 // whole; 1: the ear writing the call down; 2: the stopwatch on the first status call, not streamed; 3: the timeline of Ravi
@@ -428,9 +621,16 @@ const PHONE_OG: Record<string, PhoneOpts> = {
   'voice-07-workbench': { stage: 'reply', wait: runCall('hesitant', asLine(VO_WINNERS[0])).wait },
 };
 const phoneOg = PHONE_OG[page.og];
-const callOg = page.og === 'voice-03-whose-turn-is-it' ? segmentsOf(runCall('hesitant', { ...VO, silence: SILENCES[0] })) : undefined;
-const curveOg = page.og === 'fine-tuning-02-what-training-does' ? lossChart({ series: FINETUNE_SERIES })
-  : page.og === 'small-models-02-learning-from-a-teacher' ? lossChart({ series: STUDENT_SERIES }) : undefined;
+const callOg =
+  page.og === 'voice-03-whose-turn-is-it'
+    ? segmentsOf(runCall('hesitant', { ...VO, silence: SILENCES[0] }))
+    : undefined;
+const curveOg =
+  page.og === 'fine-tuning-02-what-training-does'
+    ? lossChart({ series: FINETUNE_SERIES })
+    : page.og === 'small-models-02-learning-from-a-teacher'
+      ? lossChart({ series: STUDENT_SERIES })
+      : undefined;
 ---
 <html lang="en">
   <head><meta charset="utf-8" /><meta name="robots" content="noindex" /><title>og: {page.og}</title></head>

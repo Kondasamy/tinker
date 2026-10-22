@@ -6,9 +6,12 @@ import { fact } from '../../lib/small-models/facts';
 
 const CHAPTERS: Chapter[] = [
   {
-    id: '01-big-model-small-model', title: 'Big model, small model', short: 'Big and small',
+    id: '01-big-model-small-model',
+    title: 'Big model, small model',
+    short: 'Big and small',
     intro: {
-      story: 'Larkspur’s assistant now answers from its documents, passes the release gate and signs off in the team’s voice. Then finance sends the monthly model bill. Someone asks: could a smaller model do the same job for less?',
+      story:
+        'Larkspur’s assistant now answers from its documents, passes the release gate and signs off in the team’s voice. Then finance sends the monthly model bill. Someone asks: could a smaller model do the same job for less?',
       goal: 'What does a smaller model give up, and what does it save on every token?',
       learn: [
         'How a model’s size is counted, and why the work per token follows it',
@@ -17,15 +20,21 @@ const CHAPTERS: Chapter[] = [
       ],
       terms: [
         ['Weights', 'The numbers inside a model that decide what it writes. A model’s size is how many it has.'],
-        ['Work per token', 'The multiplications a model does to write one piece of text. It grows with the number of weights.'],
+        [
+          'Work per token',
+          'The multiplications a model does to write one piece of text. It grows with the number of weights.',
+        ],
         ['Top 5', 'The five next pieces a model thinks most likely, with the probability it gives each.'],
       ],
     },
   },
   {
-    id: '02-learning-from-a-teacher', title: 'Learning from a teacher', short: 'A teacher',
+    id: '02-learning-from-a-teacher',
+    title: 'Learning from a teacher',
+    short: 'A teacher',
     intro: {
-      story: 'The small model in chapter 1 was not trained from scratch. It learnt from Larkspur mini itself, by copying how the bigger model spreads its bets.',
+      story:
+        'The small model in chapter 1 was not trained from scratch. It learnt from Larkspur mini itself, by copying how the bigger model spreads its bets.',
       goal: 'How does a small model learn from a big one, and what does it learn that the text alone doesn’t teach?',
       learn: [
         'The difference between the right answer and the teacher’s odds',
@@ -35,15 +44,21 @@ const CHAPTERS: Chapter[] = [
       terms: [
         ['Distillation', fact('distillation').claim],
         ['Teacher and student', 'The big model whose odds are copied, and the small model that learns to copy them.'],
-        ['Soft targets', 'The teacher’s whole set of odds over the next piece, used as the lesson instead of the one right piece.'],
+        [
+          'Soft targets',
+          'The teacher’s whole set of odds over the next piece, used as the lesson instead of the one right piece.',
+        ],
         ['Loss', 'How surprised a model is by the next piece of text, on average. Training lowers it.'],
       ],
     },
   },
   {
-    id: '03-how-close-is-the-student', title: 'How close is the student?', short: 'How close',
+    id: '03-how-close-is-the-student',
+    title: 'How close is the student?',
+    short: 'How close',
     intro: {
-      story: 'The student trained on the teacher’s odds. Before Larkspur trusts it with anything, the team wants to know how often it still picks what the teacher would.',
+      story:
+        'The student trained on the teacher’s odds. Before Larkspur trusts it with anything, the team wants to know how often it still picks what the teacher would.',
       goal: 'How do you measure how close a student is to its teacher, on text neither has seen?',
       learn: [
         'Agreement: how often the two models’ top picks match',
@@ -53,14 +68,20 @@ const CHAPTERS: Chapter[] = [
       terms: [
         ['Held-out text', 'Text kept out of training, used only to score the models.'],
         ['Agreement', 'The share of positions where the student’s most likely next piece is the teacher’s.'],
-        ['KL divergence', 'A number for how far one set of odds is from another: 0 when they are the same, larger the more they differ.'],
+        [
+          'KL divergence',
+          'A number for how far one set of odds is from another: 0 when they are the same, larger the more they differ.',
+        ],
       ],
     },
   },
   {
-    id: '04-send-it-the-easy-ones', title: 'Send it the easy ones', short: 'Easy ones',
+    id: '04-send-it-the-easy-ones',
+    title: 'Send it the easy ones',
+    short: 'Easy ones',
     intro: {
-      story: 'Larkspur mini and its student showed the mechanism. Now the real question: Larkspur’s assistant comes in two tiers, a small model and a large one, both reading the same documents. Which questions can the small tier take?',
+      story:
+        'Larkspur mini and its student showed the mechanism. Now the real question: Larkspur’s assistant comes in two tiers, a small model and a large one, both reading the same documents. Which questions can the small tier take?',
       goal: 'Where does a small model answer as well as a large one, and where does it fall short?',
       learn: [
         'How two tiers of the same assistant compare on Evals’ test set',
@@ -74,9 +95,12 @@ const CHAPTERS: Chapter[] = [
     },
   },
   {
-    id: '05-fall-back-when-unsure', title: 'Fall back when unsure', short: 'Fall back',
+    id: '05-fall-back-when-unsure',
+    title: 'Fall back when unsure',
+    short: 'Fall back',
     intro: {
-      story: 'The small tier gets the easy questions right and stumbles on the tricky ones. The team wires a router: the small tier answers first, and when it is unsure, the question goes up to the large tier.',
+      story:
+        'The small tier gets the easy questions right and stumbles on the tricky ones. The team wires a router: the small tier answers first, and when it is unsure, the question goes up to the large tier.',
       goal: 'How does a confidence threshold trade right answers against cost?',
       learn: [
         'What a router and a fallback (a cascade) are',
@@ -85,17 +109,26 @@ const CHAPTERS: Chapter[] = [
       ],
       terms: [
         ['Router', 'The step that decides which model answers a question.'],
-        ['Cascade', 'Ask the cheap model first; send the question to a bigger one only when the first answer looks unsure.'],
-        ['Confidence', 'A score from 0 to 1 for how sure an answer seems. Here it is a stand-in score set by hand to show the trade-off.'],
+        [
+          'Cascade',
+          'Ask the cheap model first; send the question to a bigger one only when the first answer looks unsure.',
+        ],
+        [
+          'Confidence',
+          'A score from 0 to 1 for how sure an answer seems. Here it is a stand-in score set by hand to show the trade-off.',
+        ],
         ['Threshold', 'The confidence below which the router sends a question up.'],
         ['Frontier', 'The best right answers you can get at each cost: the line the router’s settings trace.'],
       ],
     },
   },
   {
-    id: '06-gate-the-switch', title: 'Gate the switch', short: 'Gate it',
+    id: '06-gate-the-switch',
+    title: 'Gate the switch',
+    short: 'Gate it',
     intro: {
-      story: 'The router saves money at some thresholds and loses answers at others. Before it replaces the all-large assistant, the release gate from the Evals module gets a say.',
+      story:
+        'The router saves money at some thresholds and loses answers at others. Before it replaces the all-large assistant, the release gate from the Evals module gets a say.',
       goal: 'How do you prove a cheaper router is safe to ship?',
       learn: [
         'Why the all-large assistant is the baseline the router must match',
@@ -110,9 +143,12 @@ const CHAPTERS: Chapter[] = [
     },
   },
   {
-    id: '07-routing-policy', title: 'Larkspur’s routing policy', short: 'The policy',
+    id: '07-routing-policy',
+    title: 'Larkspur’s routing policy',
+    short: 'The policy',
     intro: {
-      story: 'One threshold for every question works, but the questions are not all alike. The support lead sorts them into kinds and asks for a policy per kind: small, router or large.',
+      story:
+        'One threshold for every question works, but the questions are not all alike. The support lead sorts them into kinds and asks for a policy per kind: small, router or large.',
       goal: 'Which tier should answer each kind of question?',
       learn: [
         'How to match a tier to what a kind of question needs',
@@ -135,7 +171,8 @@ export const SMALL_MODELS_MODULE: Module = {
   status: 'live',
   author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
   prereqs: ['fine-tuning', 'evals'],
-  story: 'Back at Larkspur Supply Co., the model bill has grown, and the team wants a smaller, cheaper model to answer what it can without losing the answers that matter.',
+  story:
+    'Back at Larkspur Supply Co., the model bill has grown, and the team wants a smaller, cheaper model to answer what it can without losing the answers that matter.',
   chapters: CHAPTERS,
   recall: RECALL,
 };

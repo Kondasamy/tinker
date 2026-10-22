@@ -12,7 +12,10 @@ export type Merge = [number, number];
 export function mergePair(ids: number[], a: number, b: number, id: number): number[] {
   const out: number[] = [];
   for (let i = 0; i < ids.length; i++) {
-    if (i < ids.length - 1 && ids[i] === a && ids[i + 1] === b) { out.push(id); i++; } else out.push(ids[i]);
+    if (i < ids.length - 1 && ids[i] === a && ids[i + 1] === b) {
+      out.push(id);
+      i++;
+    } else out.push(ids[i]);
   }
   return out;
 }
@@ -32,10 +35,16 @@ export function train(text: string, nMerges: number): Merge[] {
         counts.set(k, (counts.get(k) ?? 0) + n);
       }
     }
-    let best = -1, bestN = 0;
-    for (const [k, n] of counts) if (n > bestN || (n === bestN && k < best)) { best = k; bestN = n; }
+    let best = -1,
+      bestN = 0;
+    for (const [k, n] of counts)
+      if (n > bestN || (n === bestN && k < best)) {
+        best = k;
+        bestN = n;
+      }
     if (best < 0) break;
-    const a = Math.floor(best / 65536), b = best % 65536;
+    const a = Math.floor(best / 65536),
+      b = best % 65536;
     merges.push([a, b]);
     for (const w of words) w.ids = mergePair(w.ids, a, b, BYTE_TOKENS + m);
   }

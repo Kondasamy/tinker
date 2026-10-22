@@ -18,19 +18,55 @@ export const TYPES: { id: string; label: string; blocks: BlockType[]; knobs?: Pa
 export const CARDS: { q: string; label: string; short: string; mm?: boolean }[] = [
   { q: 'refund-enterprise', label: 'Can enterprise customers get a refund?', short: 'Enterprise refund' },
   { q: 'stale-hotel-limit', label: 'What is the hotel limit per night?', short: 'Hotel limit' },
-  { q: 'standard-refund-window', label: 'How long do standard customers have to ask for a refund?', short: 'Refund window' },
-  { q: 'kestrel-purchase-approver', label: 'Who approves purchases for the team that owns the Kestrel K2 scanner integration?', short: 'Kestrel approver' },
+  {
+    q: 'standard-refund-window',
+    label: 'How long do standard customers have to ask for a refund?',
+    short: 'Refund window',
+  },
+  {
+    q: 'kestrel-purchase-approver',
+    label: 'Who approves purchases for the team that owns the Kestrel K2 scanner integration?',
+    short: 'Kestrel approver',
+  },
   { q: 'card-data-retention', label: 'How long does Larkspur keep customer payment card data?', short: 'Card data' },
-  { q: 'k2-volume-price', label: 'How much is a Kestrel K2 scanner per unit at 50 or more? (price table)', short: 'K2 price', mm: true },
-  { q: 'dock-sensor-warranty', label: 'How long is the dock door sensor warranty? (vendor PDF)', short: 'Sensor warranty', mm: true },
-  { q: 'customer-success-lead', label: 'Who leads the Customer Success team? (org chart image)', short: 'Customer Success lead', mm: true },
+  {
+    q: 'k2-volume-price',
+    label: 'How much is a Kestrel K2 scanner per unit at 50 or more? (price table)',
+    short: 'K2 price',
+    mm: true,
+  },
+  {
+    q: 'dock-sensor-warranty',
+    label: 'How long is the dock door sensor warranty? (vendor PDF)',
+    short: 'Sensor warranty',
+    mm: true,
+  },
+  {
+    q: 'customer-success-lead',
+    label: 'Who leads the Customer Success team? (org chart image)',
+    short: 'Customer Success lead',
+    mm: true,
+  },
 ];
 
 /**
  * One setting for every run, so a difference in the strip comes from the type alone: a single 16-word chunk.
  * The Docs block reads plain text only until the Multimodal type: tables, PDFs and images are invisible.
  */
-export const KNOBS: Knobs = { ...DEFAULT_KNOBS, strategy: 'fixed', size: 16, overlap: 0, topK: 1, grade: false, tables: false, pdfs: false, images: false };
+export const KNOBS: Knobs = {
+  ...DEFAULT_KNOBS,
+  strategy: 'fixed',
+  size: 16,
+  overlap: 0,
+  topK: 1,
+  grade: false,
+  tables: false,
+  pdfs: false,
+  images: false,
+};
 
 /** A result row's question (the card's short name, else the query) and RAG type, as the strip shows them. */
-export const rowLabel = (r: ResultRow) => ({ question: CARDS.find(c => c.q === r.q)?.short ?? questionById(r.q).query, type: TYPES.find(t => t.id === r.type)!.label });
+export const rowLabel = (r: ResultRow) => ({
+  question: CARDS.find(c => c.q === r.q)?.short ?? questionById(r.q).query,
+  type: TYPES.find(t => t.id === r.type)!.label,
+});

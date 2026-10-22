@@ -12,22 +12,34 @@ import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { MultimodalStage, ReadingCard, RecordedNote, px } from './kit';
 
-const MODULE = 'multimodal', ID = '04-pulling-fields-out';
-const BIG = 1600, SMALL = 800;
+const MODULE = 'multimodal',
+  ID = '04-pulling-fields-out';
+const BIG = 1600,
+  SMALL = 800;
 type Sz = typeof BIG | typeof SMALL;
 const key = (m: Method, z: Sz) => `${m}|${z}`;
 const cost = (m: Method) => thousands(costOf('invoice', BIG, m));
 
-interface S { p1: number | null; method: Method | null; size: Sz; seen: string[]; quiz: number | null }
+interface S {
+  p1: number | null;
+  method: Method | null;
+  size: Sz;
+  seen: string[];
+  quiz: number | null;
+}
 
 const P1 = {
   question: `At ${px(BIG)}, OCR hands the model ${cost('ocr')} text tokens and vision ${cost('vision')} image tokens. Which gets more of the invoice’s five fields right?`,
   options: ['Vision: it sees more', 'OCR: text is exact', 'The same: both read clean print'],
 };
-export const outcome = () => { const [o, v] = METHODS.map(m => grade('invoice', BIG, m).right); return o === v ? 2 : v > o ? 0 : 1; };
+export const outcome = () => {
+  const [o, v] = METHODS.map(m => grade('invoice', BIG, m).right);
+  return o === v ? 2 : v > o ? 0 : 1;
+};
 
 const QUIZ = {
-  question: 'An extraction of 200 delivery notes scores 92% of fields right overall. What does grading each field on its own add?',
+  question:
+    'An extraction of 200 delivery notes scores 92% of fields right overall. What does grading each field on its own add?',
   options: [
     'It shows whether one field (say, the date) fails on most notes, so you fix that one thing',
     'Nothing: 92% is the answer',
@@ -44,25 +56,35 @@ const QUIZ = {
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'predict', focus: 'p1', visibleControls: ['p1'],
-    narration: 'Extraction means pulling named fields out of a document into a fixed form: here the invoice’s number, date, order number, total and payment terms. Each field is graded against a reference, the right value written by a person, with the Evals module’s key-fact check. Before you run it:',
+    id: 'predict',
+    focus: 'p1',
+    visibleControls: ['p1'],
+    narration:
+      'Extraction means pulling named fields out of a document into a fixed form: here the invoice’s number, date, order number, total and payment terms. Each field is graded against a reference, the right value written by a person, with the Evals module’s key-fact check. Before you run it:',
     predicate: s => s.p1 !== null,
   },
   {
-    id: 'big', focus: 'run', visibleControls: ['p1', 'run'],
+    id: 'big',
+    focus: 'run',
+    visibleControls: ['p1', 'run'],
     narration: `Extract the fields at ${px(BIG)}, once with OCR and once with vision.`,
     predicate: s => METHODS.every(m => s.seen.includes(key(m, BIG))),
   },
   {
-    id: 'small', focus: 'run', visibleControls: ['same', 'run'],
+    id: 'small',
+    focus: 'run',
+    visibleControls: ['same', 'run'],
     narration: `Clean print, so both are right, and OCR does it for a fraction of the tokens. Now drop the size to ${px(SMALL)} and extract with both again.`,
     setup: s => ({ ...s, size: SMALL, method: null }),
     predicate: s => METHODS.every(m => s.seen.includes(key(m, SMALL))),
     hint: `Both buttons, at ${px(SMALL)}.`,
   },
   {
-    id: 'quiz', focus: 'quiz', visibleControls: ['links', 'quiz'],
-    narration: 'One overall score would say “mostly right” for both. Field by field, it is the same field both times: the payment terms, the small print. That tells you exactly what to change: the size, not the method.',
+    id: 'quiz',
+    focus: 'quiz',
+    visibleControls: ['links', 'quiz'],
+    narration:
+      'One overall score would say “mostly right” for both. Field by field, it is the same field both times: the payment terms, the small print. That tells you exactly what to change: the size, not the method.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What can a per-field grade show that an overall score can’t?',
   },
@@ -79,11 +101,17 @@ export default function PullingFieldsOut() {
       stage={({ state }) => {
         const g = state.method && grade('invoice', state.size, state.method);
         return (
-          <MultimodalStage shown={{
-            image: 'invoice', size: state.size, method: state.method,
-            caption: g ? `${METHOD_NAME[state.method!]} at ${px(state.size)}: ${g.right} of ${g.of} fields right, ${thousands(costOf('invoice', state.size, state.method!))} tokens read.` : `The invoice at ${px(state.size)}, not read yet.`,
-            stamp: g ? (g.right === g.of ? 'PASS' : 'FAIL') : undefined,
-          }} />
+          <MultimodalStage
+            shown={{
+              image: 'invoice',
+              size: state.size,
+              method: state.method,
+              caption: g
+                ? `${METHOD_NAME[state.method!]} at ${px(state.size)}: ${g.right} of ${g.of} fields right, ${thousands(costOf('invoice', state.size, state.method!))} tokens read.`
+                : `The invoice at ${px(state.size)}, not read yet.`,
+              stamp: g ? (g.right === g.of ? 'PASS' : 'FAIL') : undefined,
+            }}
+          />
         );
       }}
       controls={{
@@ -92,7 +120,12 @@ export default function PullingFieldsOut() {
           <>
             <div className="mm-row">
               {METHODS.map(m => (
-                <button key={m} type="button" className="big" onClick={() => sync({ ...state, method: m, seen: [...new Set([...state.seen, key(m, state.size)])] })}>
+                <button
+                  key={m}
+                  type="button"
+                  className="big"
+                  onClick={() => sync({ ...state, method: m, seen: [...new Set([...state.seen, key(m, state.size)])] })}
+                >
                   Extract with {m === 'ocr' ? 'OCR' : 'vision'} at {px(state.size)}
                 </button>
               ))}
@@ -103,10 +136,19 @@ export default function PullingFieldsOut() {
         ),
         same: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={outcome()} />,
         links: () => (
-          <p className="tc-fact">To get the fields back in the same form every time, ask for them as JSON that must match a schema. The <a href="/structured-outputs/">Structured outputs</a> module shows how.</p>
+          <p className="tc-fact">
+            To get the fields back in the same form every time, ask for them as JSON that must match a schema. The{' '}
+            <a href="/structured-outputs/">Structured outputs</a> module shows how.
+          </p>
         ),
         quiz: ({ state, apply, sync }) => (
-          <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
+          <Quiz
+            {...QUIZ}
+            unsure
+            value={state.quiz}
+            onAnswer={(_, q) => apply({ ...state, quiz: q })}
+            onUnsure={() => sync({ ...state, quiz: UNSURE })}
+          />
         ),
       }}
     />

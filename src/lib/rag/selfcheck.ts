@@ -19,22 +19,37 @@ export const ABSTAIN: Answer = {
   why: 'The evaluator graded every search below its bar, so the assistant declined rather than answer from weak evidence.',
 };
 
-export interface SelfCheckRun { record: RunRecord; calls: AgentCall[]; abstain: boolean }
+export interface SelfCheckRun {
+  record: RunRecord;
+  calls: AgentCall[];
+  abstain: boolean;
+}
 
 /** `first`: the record of `run(index, cfg, p)` when the caller already has it; reused as the first attempt. */
-export function runSelfCheck(index: RagIndex, cfg: Config, p: RunParams & { question: KeyedQuestion }, bar = GRADE_BAR, first?: RunRecord): SelfCheckRun {
+export function runSelfCheck(
+  index: RagIndex,
+  cfg: Config,
+  p: RunParams & { question: KeyedQuestion },
+  bar = GRADE_BAR,
+  first?: RunRecord,
+): SelfCheckRun {
   const q = p.question;
   // the query as sent first, then each unused rewrite, within the same budget as the agent
-  const attempts = [p.rewrite, ...q.rewrites.map((_, i) => i).filter((i) => i !== p.rewrite)].slice(0, MAX_CALLS);
+  const attempts = [p.rewrite, ...q.rewrites.map((_, i) => i).filter(i => i !== p.rewrite)].slice(0, MAX_CALLS);
   const calls: AgentCall[] = [];
   let last: RunRecord | null = null;
   for (const rewrite of attempts) {
     const r = first && rewrite === p.rewrite ? first : run(index, cfg, { ...p, rewrite });
-    const graded = r.context.map((c) => crossScore(index, cfg, c.id, r.queryIndex)).filter((s): s is number => s !== null);
+    const graded = r.context
+      .map(c => crossScore(index, cfg, c.id, r.queryIndex))
+      .filter((s): s is number => s !== null);
     const score = graded.length ? Math.max(...graded) : null;
     const pass = score !== null && score >= bar;
     calls.push({
-      call: calls.length + 1, action: rewrite === undefined ? 'search' : 'rewrite', query: r.queryText, chunksAdded: r.context.length,
+      call: calls.length + 1,
+      action: rewrite === undefined ? 'search' : 'rewrite',
+      query: r.queryText,
+      chunksAdded: r.context.length,
       topScore: topScore(r.context),
       verdict: lookup(q.id, signature(index, q, r.context)).verdict,
       grade: { score, pass },

@@ -20,36 +20,62 @@ export const paramCount = (tensors: Layout) => tensors.reduce((n, t) => n + size
  * input it is a lookup); the position table is a lookup only. shortcut: leaves out the attention scores, which grow
  * with the context and are small at these sizes. */
 export const multsPerToken = (tensors: Layout) =>
-  tensors.filter((t) => t.shape.length === 2 && t.name !== 'wpe.weight').reduce((n, t) => n + size(t.shape), 0);
+  tensors.filter(t => t.shape.length === 2 && t.name !== 'wpe.weight').reduce((n, t) => n + size(t.shape), 0);
 /** The two layouts from meta.json: the teacher's top level and the student's own. */
 export const layoutOf = (meta: Meta, who: Who): Layout => (who === 'teacher' ? meta.tensors : meta.student!.tensors);
 
 /** A prompt a chapter shows, with the next piece the teacher puts in its top 5 (the test proves it). */
-export interface Prompt { id: string; text: string; expected: string }
+export interface Prompt {
+  id: string;
+  text: string;
+  expected: string;
+}
 export const PROMPTS: Prompt[] = prompts.prompts;
 
 /** The top 5 next pieces after a prompt, with their probabilities. */
-export const top5 = (model: Model, text: string): Candidate[] => topK(softmax(forward(model, encode(text)).logits.at(-1)!), 5);
+export const top5 = (model: Model, text: string): Candidate[] =>
+  topK(softmax(forward(model, encode(text)).logits.at(-1)!), 5);
 /** The same top 5 at a temperature: the logits divided by it before the softmax, as the distillation run softened the
  * teacher's odds (meta.json `student.training.temperature`). The order stays; the odds spread out. */
 export const softTop5 = (model: Model, text: string, temperature: number): Candidate[] =>
-  topK(softmax(forward(model, encode(text)).logits.at(-1)!.map((x) => x / temperature)), 5);
+  topK(
+    softmax(
+      forward(model, encode(text))
+        .logits.at(-1)!
+        .map(x => x / temperature),
+    ),
+    5,
+  );
 
 /** One document's closeness: positions read, how many the student's top pick matches the teacher's, and the summed
  * KL divergence (teacher ‖ student, in nats) over those positions. */
-export interface Closeness { doc: string; positions: number; same: number; kl: number }
-const argmax = (xs: ArrayLike<number>) => { let b = 0; for (let i = 1; i < xs.length; i++) if (xs[i] > xs[b]) b = i; return b; };
+export interface Closeness {
+  doc: string;
+  positions: number;
+  same: number;
+  kl: number;
+}
+const argmax = (xs: ArrayLike<number>) => {
+  let b = 0;
+  for (let i = 1; i < xs.length; i++) if (xs[i] > xs[b]) b = i;
+  return b;
+};
 
 /** Teacher and student over each held-out document, in the same 32-token windows `agreement()` in the kit reads, so
  * the pooled share equals meta.json's recorded agreement. */
 export function closeness(teacher: Model, student: Model, docs = HELDOUT.ids, names = HELDOUT.docs): Closeness[] {
   const ctx = teacher.config.ctx;
   return docs.map((doc, d) => {
-    let same = 0, positions = 0, kl = 0;
+    let same = 0,
+      positions = 0,
+      kl = 0;
     for (let s = 0; s < doc.length - 1; s += ctx) {
-      const x = doc.slice(s, s + ctx + 1).slice(0, -1), lt = forward(teacher, x).logits, ls = forward(student, x).logits;
+      const x = doc.slice(s, s + ctx + 1).slice(0, -1),
+        lt = forward(teacher, x).logits,
+        ls = forward(student, x).logits;
       lt.forEach((lg, t) => {
-        const p = softmax(lg), q = softmax(ls[t]);
+        const p = softmax(lg),
+          q = softmax(ls[t]);
         if (argmax(lg) === argmax(ls[t])) same++;
         for (let i = 0; i < p.length; i++) if (p[i] > 0) kl += p[i] * Math.log(p[i] / q[i]);
         positions++;
@@ -61,7 +87,8 @@ export function closeness(teacher: Model, student: Model, docs = HELDOUT.ids, na
 
 const memo = new WeakMap<Model, WeakMap<Model, ReturnType<typeof summary>>>();
 function summary(teacher: Model, student: Model) {
-  const docs = closeness(teacher, student), positions = docs.reduce((n, d) => n + d.positions, 0);
+  const docs = closeness(teacher, student),
+    positions = docs.reduce((n, d) => n + d.positions, 0);
   return {
     docs,
     positions,

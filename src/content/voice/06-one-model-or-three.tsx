@@ -9,13 +9,20 @@ import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { Fact, VoiceStage } from './kit';
 
-const MODULE = 'voice', ID = '06-one-model-or-three';
+const MODULE = 'voice',
+  ID = '06-one-model-or-three';
 type Mode = 'chained' | 's2s';
 
-interface S { p1: number | null; mode: Mode; seen: Mode[]; quiz: number | null }
+interface S {
+  p1: number | null;
+  mode: Mode;
+  seen: Mode[];
+  quiz: number | null;
+}
 
 const P1 = {
-  question: 'A speech-to-speech model hears audio and speaks audio, with no ear or mouth of its own. Compared with Larkspur’s three stages, what does the team give up?',
+  question:
+    'A speech-to-speech model hears audio and speaks audio, with no ear or mouth of its own. Compared with Larkspur’s three stages, what does the team give up?',
   options: [
     'A transcript the host can read and check before the model acts',
     'The ability to look orders up',
@@ -26,7 +33,8 @@ const P1 = {
 const OUTCOME = 0;
 
 const QUIZ = {
-  question: 'A bank wants every spoken request checked against its rules, as text, before the assistant does anything. Which build fits better?',
+  question:
+    'A bank wants every spoken request checked against its rules, as text, before the assistant does anything. Which build fits better?',
   options: [
     'Chained: the transcript is there to check before the model replies',
     'Speech-to-speech: one model is always simpler',
@@ -48,20 +56,28 @@ const SIDE: Record<Mode, string> = {
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'predict', focus: 'p1', visibleControls: ['p1'],
-    narration: 'A vendor offers Larkspur a speech-to-speech model: one model that takes audio in and gives audio out. The desk would lose its ear and its mouth. Before you switch:',
+    id: 'predict',
+    focus: 'p1',
+    visibleControls: ['p1'],
+    narration:
+      'A vendor offers Larkspur a speech-to-speech model: one model that takes audio in and gives audio out. The desk would lose its ear and its mouth. Before you switch:',
     predicate: s => s.p1 !== null,
   },
   {
-    id: 'switch', focus: 'mode', visibleControls: ['p1', 'mode'],
+    id: 'switch',
+    focus: 'mode',
+    visibleControls: ['p1', 'mode'],
     narration: 'Switch the desk between the two builds and compare what rides the belts.',
     setup: s => ({ ...s, seen: [...new Set([...s.seen, s.mode])] }),
     predicate: s => s.seen.includes('s2s') && s.seen.includes('chained'),
     hint: 'Try both builds.',
   },
   {
-    id: 'quiz', focus: 'quiz', visibleControls: ['outcome', 'quiz'],
-    narration: 'One model has fewer parts to run and handles turns, tools and interruptions in its session, but the chained line gives you text between the stages, a place for a policy check (a rule the host applies before acting, like the Guardrails module’s). Some speech-to-speech services also return transcripts, and both still have to decide whose turn it is:',
+    id: 'quiz',
+    focus: 'quiz',
+    visibleControls: ['outcome', 'quiz'],
+    narration:
+      'One model has fewer parts to run and handles turns, tools and interruptions in its session, but the chained line gives you text between the stages, a place for a policy check (a rule the host applies before acting, like the Guardrails module’s). Some speech-to-speech services also return transcripts, and both still have to decide whose turn it is:',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Where, in each build, could a rule read the request as text?',
   },
@@ -84,8 +100,15 @@ export default function OneModelOrThree() {
           <>
             <div className="vo-row" role="group" aria-label="Build">
               {(['chained', 's2s'] as Mode[]).map(m => (
-                <button key={m} type="button" className="chip" aria-pressed={state.mode === m}
-                  onClick={() => sync({ ...state, mode: m, seen: [...new Set([...state.seen, m])] })}>{m === 'chained' ? 'Three stages' : 'One speech-to-speech model'}</button>
+                <button
+                  key={m}
+                  type="button"
+                  className="chip"
+                  aria-pressed={state.mode === m}
+                  onClick={() => sync({ ...state, mode: m, seen: [...new Set([...state.seen, m])] })}
+                >
+                  {m === 'chained' ? 'Three stages' : 'One speech-to-speech model'}
+                </button>
               ))}
             </div>
             <Fact id={state.mode === 'chained' ? 'openai-chained' : 'openai-s2s'} />
@@ -100,7 +123,13 @@ export default function OneModelOrThree() {
           </>
         ),
         quiz: ({ state, apply, sync }) => (
-          <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
+          <Quiz
+            {...QUIZ}
+            unsure
+            value={state.quiz}
+            onAnswer={(_, q) => apply({ ...state, quiz: q })}
+            onUnsure={() => sync({ ...state, quiz: UNSURE })}
+          />
         ),
       }}
     />

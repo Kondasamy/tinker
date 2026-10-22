@@ -16,7 +16,10 @@ export type Mode = 'mouse' | 'keyboard';
 
 /** The question (0-based) the Results grid marks as passing on v1 and failing on v2, read off its cell's name. */
 export async function brokenQ(page: Page) {
-  const name = await page.locator('.ev-grid-wide .cell[aria-label*="v2: failed, was passing"]').first().getAttribute('aria-label');
+  const name = await page
+    .locator('.ev-grid-wide .cell[aria-label*="v2: failed, was passing"]')
+    .first()
+    .getAttribute('aria-label');
   return Number(/^Q(\d+)/.exec(name!)![1]) - 1;
 }
 
@@ -25,7 +28,7 @@ export function evalWalker(page: Page, mode: Mode, check: (page: Page) => Promis
   const press = (l: Locator) => (kb ? l.press('Enter') : l.click());
   const card = page.getByRole('region', { name: 'Next step' });
   const btn = (name: string | RegExp) => press(card.getByRole('button', { name }));
-  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name }));   // a quiz or prediction option
+  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name })); // a quiz or prediction option
   const step = (n: number) => expect(card).toContainText(`Step ${n} of`);
 
   async function open(id: string) {
@@ -158,7 +161,13 @@ export function evalWalker(page: Page, mode: Mode, check: (page: Page) => Promis
   };
 }
 
-export interface Candidate { id: string; text: string; kind: string; keep: boolean; reference: string | null }
+export interface Candidate {
+  id: string;
+  text: string;
+  kind: string;
+  keep: boolean;
+  reference: string | null;
+}
 export const CANDIDATES = candidates as Candidate[];
 
 /** Sort chapter 2's log: keep the cases `keep` picks, each with its right reference answer, and drop the rest. */
@@ -166,7 +175,10 @@ export async function sortLog(page: Page, mode: Mode, keep: (c: Candidate) => bo
   const press = (l: Locator) => (mode === 'keyboard' ? l.press('Enter') : l.click());
   for (const c of CANDIDATES) {
     const li = page.locator(`.ev-case[data-id="${c.id}"]`).first();
-    if (!keep(c)) { await press(li.getByRole('button', { name: 'Drop' })); continue; }
+    if (!keep(c)) {
+      await press(li.getByRole('button', { name: 'Drop' }));
+      continue;
+    }
     await press(li.getByRole('button', { name: 'Keep' }));
     const sel = li.getByRole('combobox');
     const label = c.reference ?? (await sel.locator('option', { hasText: /^No document answers/ }).textContent())!;

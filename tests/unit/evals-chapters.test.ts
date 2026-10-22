@@ -10,7 +10,9 @@ import { FLIP } from '../../src/content/evals/06-run-it-twice';
 import { EVALS_MODULE as evals } from '../../src/content/evals/module';
 
 let suite: Suite;
-beforeAll(async () => { suite = await loadSuite(diskLoader); }, 60_000);
+beforeAll(async () => {
+  suite = await loadSuite(diskLoader);
+}, 60_000);
 
 describe('evals chapter lookups', () => {
   it('every DOMAINS key is a chapter id', () => {

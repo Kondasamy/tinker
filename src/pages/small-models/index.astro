@@ -12,7 +12,16 @@ import ReadingMode from '../../components/intro/ReadingMode.astro';
 import ChapterCards from '../../components/intro/ChapterCards.astro';
 import { ROUTER_BOARD, routerLabel, routerScene, type RouterOpts } from '../../components/scenes/routerScene';
 import { units } from '../../components/scenes/frontierChart';
-import { ALL_LARGE, cheapestShipping, QUESTION_IDS, questionText, route, run, SMALL_COST, SURE_AND_WRONG } from '../../lib/small-models/router';
+import {
+  ALL_LARGE,
+  cheapestShipping,
+  QUESTION_IDS,
+  questionText,
+  route,
+  run,
+  SMALL_COST,
+  SURE_AND_WRONG,
+} from '../../lib/small-models/router';
 import { layoutOf, paramCount } from '../../lib/small-models/compare';
 import { ACCESSED, fact } from '../../lib/small-models/facts';
 import type { Meta as LmMeta } from '../../lib/lm/load';
@@ -29,22 +38,58 @@ const bench = (o: RouterOpts): RouterOpts => ({ scale: 1.3, ...o });
 const T = cheapestShipping() ?? 1;
 const HERO = bench({ mode: 'route', route: 'up', threshold: T });
 // the whole idea: two questions through the router that ships, one kept small and one sent up (recorded, graded live)
-const KEPT = QUESTION_IDS.find(q => { const r = route(q, { threshold: T }); return !r.escalated && r.pass; })!;
+const KEPT = QUESTION_IDS.find(q => {
+  const r = route(q, { threshold: T });
+  return !r.escalated && r.pass;
+})!;
 const SIDES = [KEPT, SURE_AND_WRONG].map(q => ({ q, r: route(q, { threshold: T }) }));
 // six ideas, each on the bench
 const IDEAS: [string, string, ReturnType<typeof fact>, RouterOpts][] = [
-  ['Big and small', 'Fewer weights: less work per token, less sure odds', fact('price-pair'), bench({ mode: 'distill', lit: 'both' })],
-  ['A teacher’s odds', 'The student copies how the big model spreads its bets', fact('distillation'), bench({ mode: 'distill', lessons: true })],
-  ['More per example', 'The odds show which wrong answers are nearly right', fact('soft-targets'), bench({ mode: 'distill', lessons: true, lit: 'small' })],
-  ['Send the easy ones small', 'A small tier answers the lookups for a fraction', fact('routellm'), bench({ mode: 'route', route: 'small', threshold: T })],
-  ['Fall back when unsure', 'Below a threshold, the question goes up', fact('cascade'), bench({ mode: 'route', route: 'up', threshold: T })],
-  ['Gate the switch', 'Ship only what keeps every answer that worked', fact('cascade'), bench({ mode: 'route', route: 'large' })],
+  [
+    'Big and small',
+    'Fewer weights: less work per token, less sure odds',
+    fact('price-pair'),
+    bench({ mode: 'distill', lit: 'both' }),
+  ],
+  [
+    'A teacher’s odds',
+    'The student copies how the big model spreads its bets',
+    fact('distillation'),
+    bench({ mode: 'distill', lessons: true }),
+  ],
+  [
+    'More per example',
+    'The odds show which wrong answers are nearly right',
+    fact('soft-targets'),
+    bench({ mode: 'distill', lessons: true, lit: 'small' }),
+  ],
+  [
+    'Send the easy ones small',
+    'A small tier answers the lookups for a fraction',
+    fact('routellm'),
+    bench({ mode: 'route', route: 'small', threshold: T }),
+  ],
+  [
+    'Fall back when unsure',
+    'Below a threshold, the question goes up',
+    fact('cascade'),
+    bench({ mode: 'route', route: 'up', threshold: T }),
+  ],
+  [
+    'Gate the switch',
+    'Ship only what keeps every answer that worked',
+    fact('cascade'),
+    bench({ mode: 'route', route: 'large' }),
+  ],
 ];
 const FACTS: [string, string][] = [
   [num(paramCount(layoutOf(META, 'teacher'))), 'weights in Larkspur mini, the teacher'],
   [num(paramCount(layoutOf(META, 'student'))), 'weights in its student'],
   [`${Math.round(META.student!.agreement * 100)}%`, 'held-out places where the student picks what the teacher picks'],
-  [`${units(run({ threshold: T }).cost)} vs ${units(run(ALL_LARGE).cost)}`, 'cost of the router that ships, against all large (relative units)'],
+  [
+    `${units(run({ threshold: T }).cost)} vs ${units(run(ALL_LARGE).cost)}`,
+    'cost of the router that ships, against all large (relative units)',
+  ],
 ];
 const checked = longDate(ACCESSED);
 ---

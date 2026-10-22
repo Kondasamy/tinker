@@ -9,9 +9,12 @@ const RANK = META.lora.rank;
 
 const CHAPTERS: Chapter[] = [
   {
-    id: '01-three-ways', title: 'Three ways to change an answer', short: 'Three ways',
+    id: '01-three-ways',
+    title: 'Three ways to change an answer',
+    short: 'Three ways',
     intro: {
-      story: 'Larkspur’s assistant answers from the company’s documents, and Evals checks every change before it ships. Now the support lead wants every reply to sound like Larkspur and sign off as the team. Someone in the meeting says: “Just fine-tune it.”',
+      story:
+        'Larkspur’s assistant answers from the company’s documents, and Evals checks every change before it ships. Now the support lead wants every reply to sound like Larkspur and sign off as the team. Someone in the meeting says: “Just fine-tune it.”',
       goal: 'What can you change to change an answer, and where does each change live?',
       learn: [
         'The three levers: the prompt, the documents and the weights',
@@ -19,17 +22,29 @@ const CHAPTERS: Chapter[] = [
         'Why a reply’s style and its facts can come from different levers',
       ],
       terms: [
-        ['Prompt', 'The words sent to the model with each question, like “sign off as the Larkspur team”. Sent every time.'],
+        [
+          'Prompt',
+          'The words sent to the model with each question, like “sign off as the Larkspur team”. Sent every time.',
+        ],
         ['Documents', 'Passages fetched for each question and put in front of the model, as in the RAG module.'],
-        ['Weights', 'The numbers inside the model that decide what it writes. They change only when the model is trained.'],
-        ['Fine-tuning', 'Training a model that already exists a little further, on your own examples, so its weights change.'],
+        [
+          'Weights',
+          'The numbers inside the model that decide what it writes. They change only when the model is trained.',
+        ],
+        [
+          'Fine-tuning',
+          'Training a model that already exists a little further, on your own examples, so its weights change.',
+        ],
       ],
     },
   },
   {
-    id: '02-what-training-does', title: 'What training does', short: 'What training does',
+    id: '02-what-training-does',
+    title: 'What training does',
+    short: 'What training does',
     intro: {
-      story: 'Chapter 1 showed three levers on paper. Here you pull the weights lever for real, on Larkspur mini: a tiny model that runs in your browser, trained once on Larkspur’s documents and then fine-tuned on the team’s past replies.',
+      story:
+        'Chapter 1 showed three levers on paper. Here you pull the weights lever for real, on Larkspur mini: a tiny model that runs in your browser, trained once on Larkspur’s documents and then fine-tuned on the team’s past replies.',
       goal: 'What does fine-tuning change, and what does training look like while it runs?',
       learn: [
         'How a fine-tuned copy writes differently from its base model on a question it never trained on',
@@ -39,15 +54,21 @@ const CHAPTERS: Chapter[] = [
       terms: [
         ['Base model', 'The model before fine-tuning: here, Larkspur mini as it was first trained.'],
         ['Training example', 'One question and the reply the team wants, used to adjust the weights.'],
-        ['Loss', 'How surprised the model is by the next piece of the text, on average. Training nudges the weights to lower it.'],
+        [
+          'Loss',
+          'How surprised the model is by the next piece of the text, on average. Training nudges the weights to lower it.',
+        ],
         ['Training step', 'One small change to the weights, made after the model reads a batch of examples.'],
       ],
     },
   },
   {
-    id: '03-small-adapters', title: 'Small adapters', short: 'Small adapters',
+    id: '03-small-adapters',
+    title: 'Small adapters',
+    short: 'Small adapters',
     intro: {
-      story: 'The fine-tune worked: Larkspur mini signs off. But it changed every weight in the model, and the team would need a whole copy of the model for every style they train.',
+      story:
+        'The fine-tune worked: Larkspur mini signs off. But it changed every weight in the model, and the team would need a whole copy of the model for every style they train.',
       goal: 'How can training change a model’s replies while touching only a small share of its weights?',
       learn: [
         'How many weights a full fine-tune trains, counted from the model’s shapes',
@@ -58,14 +79,20 @@ const CHAPTERS: Chapter[] = [
         ['Full fine-tune', 'Training that changes every weight in the model, so the result is a whole new copy.'],
         ['LoRA', fact('lora').claim],
         ['Adapter', 'The small set of weights LoRA trains. It sits beside the base model, which stays as it was.'],
-        ['Rank', `How thin LoRA’s matrices are. Rank ${RANK} means each adapted matrix gets two thin matrices ${RANK} wide.`],
+        [
+          'Rank',
+          `How thin LoRA’s matrices are. Rank ${RANK} means each adapted matrix gets two thin matrices ${RANK} wide.`,
+        ],
       ],
     },
   },
   {
-    id: '04-facts-move-style-stays', title: 'Facts move, style stays', short: 'Facts move',
+    id: '04-facts-move-style-stays',
+    title: 'Facts move, style stays',
+    short: 'Facts move',
     intro: {
-      story: 'Larkspur’s fine-tuned assistant sounds right. Then purchasing cuts the bulk price of the Kestrel K2 scanner, and a customer asks what it costs.',
+      story:
+        'Larkspur’s fine-tuned assistant sounds right. Then purchasing cuts the bulk price of the Kestrel K2 scanner, and a customer asks what it costs.',
       goal: 'When a fact changes, which version gives the new answer, and why?',
       learn: [
         'Why weights hold what they were trained on, including facts that later change',
@@ -73,15 +100,21 @@ const CHAPTERS: Chapter[] = [
         'How Evals’ key-fact check catches an answer that sounds right and is out of date',
       ],
       terms: [
-        ['Key fact', 'The short phrase an answer must contain to be right, like a price. Evals’ key-fact check looks for it.'],
+        [
+          'Key fact',
+          'The short phrase an answer must contain to be right, like a price. Evals’ key-fact check looks for it.',
+        ],
         ['Stale', 'Out of date: right when the model was trained, wrong now.'],
       ],
     },
   },
   {
-    id: '05-what-training-costs', title: 'What training costs you', short: 'What it costs',
+    id: '05-what-training-costs',
+    title: 'What training costs you',
+    short: 'What it costs',
     intro: {
-      story: 'Training taught Larkspur mini a sign-off. The team wonders what else it changed, on everything that was not in the style set.',
+      story:
+        'Training taught Larkspur mini a sign-off. The team wonders what else it changed, on everything that was not in the style set.',
       goal: 'What does a model lose when it is fine-tuned, and does a small adapter lose less?',
       learn: [
         'How to measure forgetting: score text the model never trained on, before and after',
@@ -95,9 +128,12 @@ const CHAPTERS: Chapter[] = [
     },
   },
   {
-    id: '06-measure-before-you-train', title: 'Measure before you train', short: 'Measure first',
+    id: '06-measure-before-you-train',
+    title: 'Measure before you train',
+    short: 'Measure first',
     intro: {
-      story: 'The team has three versions of the assistant: prompted, RAG and fine-tuned. Before anyone pays to train again, the release gate from the Evals module gets a say.',
+      story:
+        'The team has three versions of the assistant: prompted, RAG and fine-tuned. Before anyone pays to train again, the release gate from the Evals module gets a say.',
       goal: 'How do you decide, with numbers, whether fine-tuning beat prompting and documents?',
       learn: [
         'Why you set a baseline before you train',
@@ -111,9 +147,12 @@ const CHAPTERS: Chapter[] = [
     },
   },
   {
-    id: '07-larkspurs-decision', title: 'Larkspur’s decision', short: 'The decision',
+    id: '07-larkspurs-decision',
+    title: 'Larkspur’s decision',
+    short: 'The decision',
     intro: {
-      story: 'Everything is on the bench: the prompted, RAG and fine-tuned versions, with their scores from the release gate. The support lead needs a plan for each kind of request.',
+      story:
+        'Everything is on the bench: the prompted, RAG and fine-tuned versions, with their scores from the release gate. The support lead needs a plan for each kind of request.',
       goal: 'Which lever should Larkspur pull for each kind of request?',
       learn: [
         'How to match a lever to what the request needs: a style, a fact, or a skill',
@@ -136,7 +175,8 @@ export const FINE_TUNING_MODULE: Module = {
   status: 'live',
   author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
   prereqs: ['evals', 'transformers'],
-  story: 'Back at Larkspur Supply Co., the team wants replies in the company’s own voice, and has to choose between a better prompt, better documents and training the model itself.',
+  story:
+    'Back at Larkspur Supply Co., the team wants replies in the company’s own voice, and has to choose between a better prompt, better documents and training the model itself.',
   chapters: CHAPTERS,
   recall: RECALL,
 };

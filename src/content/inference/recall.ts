@@ -5,8 +5,11 @@ import type { RecallItem } from '../../lib/recall';
 export const RECALL: RecallItem[] = [
   // 1. Prefill and decode
   {
-    id: 'two-phases', chapter: '01-prefill-and-decode', pin: true,
-    question: 'A chatbot shows a spinner for two seconds, then the reply streams in smoothly. A teammate wants to make the stream faster to fix the spinner. What do you tell them?',
+    id: 'two-phases',
+    chapter: '01-prefill-and-decode',
+    pin: true,
+    question:
+      'A chatbot shows a spinner for two seconds, then the reply streams in smoothly. A teammate wants to make the stream faster to fix the spinner. What do you tell them?',
     options: [
       'The spinner is the prefill, reading the prompt; the stream is decode, one token per pass. Speeding one doesn’t fix the other',
       'Right idea: the spinner is the model planning the whole reply, so a faster stream ends it sooner',
@@ -20,7 +23,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'prefill-parallel', chapter: '01-prefill-and-decode',
+    id: 'prefill-parallel',
+    chapter: '01-prefill-and-decode',
     question: 'Why can a model read a 500-token prompt in about the time it takes to write a handful of tokens?',
     options: [
       'It reads only the last few tokens of the prompt',
@@ -35,7 +39,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'long-reply', chapter: '01-prefill-and-decode',
+    id: 'long-reply',
+    chapter: '01-prefill-and-decode',
     question: 'A support reply grows from 50 tokens to 500. What happens to the wait for the whole reply?',
     options: [
       'About ten times longer: each token is its own decode pass',
@@ -51,8 +56,10 @@ export const RECALL: RecallItem[] = [
   },
   // 2. The KV cache at scale
   {
-    id: 'kv-grows', chapter: '02-kv-cache-at-scale',
-    question: 'A server holds the KV cache for 10 conversations of 1,000 tokens each. How much cache does one conversation of 10,000 tokens need?',
+    id: 'kv-grows',
+    chapter: '02-kv-cache-at-scale',
+    question:
+      'A server holds the KV cache for 10 conversations of 1,000 tokens each. How much cache does one conversation of 10,000 tokens need?',
     options: [
       'About the same as the ten together: the cache grows in step with the tokens',
       'A hundred times one conversation: it grows with the square',
@@ -66,7 +73,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'memory-caps', chapter: '02-kv-cache-at-scale',
+    id: 'memory-caps',
+    chapter: '02-kv-cache-at-scale',
     question: 'A server’s compute sits half idle, yet new requests wait. What is the likely limit?',
     options: [
       'The model is too small',
@@ -81,7 +89,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'paged', chapter: '02-kv-cache-at-scale',
+    id: 'paged',
+    chapter: '02-kv-cache-at-scale',
     question: 'What does storing the KV cache in small pages, as PagedAttention does, buy a server?',
     options: [
       'Smaller caches per token',
@@ -97,7 +106,8 @@ export const RECALL: RecallItem[] = [
   },
   // 3. Batching
   {
-    id: 'batch-why', chapter: '03-batching',
+    id: 'batch-why',
+    chapter: '03-batching',
     question: 'Why does running eight requests in one pass cost little more than running one?',
     options: [
       'A decode pass mostly reads the weights, and the eight share that one read',
@@ -112,8 +122,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'static-wait', chapter: '03-batching',
-    question: 'With static batching, a short request arrives just after a batch with one very long reply has started. When does it start?',
+    id: 'static-wait',
+    chapter: '03-batching',
+    question:
+      'With static batching, a short request arrives just after a batch with one very long reply has started. When does it start?',
     options: [
       'At the next pass',
       'Only when the whole batch ends, with its longest reply',
@@ -127,7 +139,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'continuous', chapter: '03-batching',
+    id: 'continuous',
+    chapter: '03-batching',
     question: 'What does continuous batching change?',
     options: [
       'Requests join and leave the batch after every pass, so no seat sits idle while others wait',
@@ -143,9 +156,14 @@ export const RECALL: RecallItem[] = [
   },
   // 4. Smaller numbers
   {
-    id: 'quant-memory', chapter: '04-smaller-numbers',
+    id: 'quant-memory',
+    chapter: '04-smaller-numbers',
     question: 'A 7-billion-parameter model is stored in 16 bits. Roughly how much weight memory does int4 need?',
-    options: ['About a quarter: 4 bits instead of 16 per weight', 'About half', 'The same: the model still has 7 billion weights'],
+    options: [
+      'About a quarter: 4 bits instead of 16 per weight',
+      'About half',
+      'The same: the model still has 7 billion weights',
+    ],
     correct: 0,
     why: [
       'Right. Memory is parameters × bits ÷ 8, plus a little for the scales.',
@@ -154,7 +172,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'quant-measure', chapter: '04-smaller-numbers',
+    id: 'quant-measure',
+    chapter: '04-smaller-numbers',
     question: 'How do you know what quantizing a model cost you?',
     options: [
       'You can’t: rounding is invisible',
@@ -169,9 +188,15 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'quant-room', chapter: '04-smaller-numbers',
-    question: 'A server quantizes its weights from 16 to 8 bits. Besides fitting a cheaper card, what can it do with the memory saved?',
-    options: ['Nothing: the cache doesn’t use the same memory', 'Hold more requests’ KV caches at once', 'Use longer words'],
+    id: 'quant-room',
+    chapter: '04-smaller-numbers',
+    question:
+      'A server quantizes its weights from 16 to 8 bits. Besides fitting a cheaper card, what can it do with the memory saved?',
+    options: [
+      'Nothing: the cache doesn’t use the same memory',
+      'Hold more requests’ KV caches at once',
+      'Use longer words',
+    ],
     correct: 1,
     why: [
       'Weights and caches share the card’s memory; less for one is more for the other.',
@@ -181,7 +206,8 @@ export const RECALL: RecallItem[] = [
   },
   // 5. Guess ahead
   {
-    id: 'spec-same', chapter: '05-guess-ahead',
+    id: 'spec-same',
+    chapter: '05-guess-ahead',
     question: 'Does speculative decoding with greedy picks change what the big model replies?',
     options: [
       'No: every kept token is one the big model checked and would have picked itself',
@@ -196,7 +222,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'spec-gain', chapter: '05-guess-ahead',
+    id: 'spec-gain',
+    chapter: '05-guess-ahead',
     question: 'Where does speculative decoding’s speed-up come from?',
     options: [
       'Fewer passes of the big model: one pass checks several guessed tokens',
@@ -211,7 +238,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'spec-k', chapter: '05-guess-ahead',
+    id: 'spec-k',
+    chapter: '05-guess-ahead',
     question: 'Why not let the draft model guess 20 tokens at a time?',
     options: [
       'Later guesses are rarely right, so most are thrown away, and drafting them is work too',
@@ -227,13 +255,10 @@ export const RECALL: RecallItem[] = [
   },
   // 6. Pace or throughput
   {
-    id: 'cap-trade', chapter: '06-pace-or-throughput',
+    id: 'cap-trade',
+    chapter: '06-pace-or-throughput',
     question: 'Raising the batch cap made the server write more tokens a second. What did each customer notice?',
-    options: [
-      'Shorter queues, but each reply’s tokens came more slowly',
-      'Everything faster',
-      'No change at all',
-    ],
+    options: ['Shorter queues, but each reply’s tokens came more slowly', 'Everything faster', 'No change at all'],
     correct: 0,
     why: [
       'Right. Fuller passes take longer, so each request waits longer between tokens.',
@@ -242,7 +267,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'cap-one', chapter: '06-pace-or-throughput',
+    id: 'cap-one',
+    chapter: '06-pace-or-throughput',
     question: 'A server runs one request at a time. What is good and what is bad about it?',
     options: [
       'Good: each token comes as fast as it can. Bad: everyone else waits in the queue',
@@ -257,7 +283,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'cap-choose', chapter: '06-pace-or-throughput',
+    id: 'cap-choose',
+    chapter: '06-pace-or-throughput',
     question: 'How should a team pick its batch cap?',
     options: [
       'As high as memory allows',
@@ -273,7 +300,8 @@ export const RECALL: RecallItem[] = [
   },
   // 7. Serve Larkspur's Monday
   {
-    id: 'bench-together', chapter: '07-serve-larkspur',
+    id: 'bench-together',
+    chapter: '07-serve-larkspur',
     question: 'A team tunes the batch cap and sees no change at all. What might be holding it back?',
     options: [
       'Memory: the KV room fills before the cap is reached, so requests queue anyway',
@@ -288,7 +316,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'bench-targets', chapter: '07-serve-larkspur',
+    id: 'bench-targets',
+    chapter: '07-serve-larkspur',
     question: 'Why did the support lead set two targets, one for the first token and one per token?',
     options: [
       'Because a reply that starts fast and then crawls, or starts late and then flies, both feel broken',
@@ -303,7 +332,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'bench-ties', chapter: '07-serve-larkspur',
+    id: 'bench-ties',
+    chapter: '07-serve-larkspur',
     question: 'Two serving settings put the same number of requests on target. How do you choose?',
     options: [
       'Either works by the targets; choose on what else matters, such as memory cost',

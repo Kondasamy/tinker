@@ -4,17 +4,26 @@ import { describe, expect, it } from 'vitest';
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import IsoStage from '../../src/lib/iso/IsoStage';
-import { MAX_SHEETS, THINK_BOARD, thinkLabel, thinkScene, thinkState, type ThinkOpts } from '../../src/components/scenes/thinkScene';
+import {
+  MAX_SHEETS,
+  THINK_BOARD,
+  thinkLabel,
+  thinkScene,
+  thinkState,
+  type ThinkOpts,
+} from '../../src/components/scenes/thinkScene';
 import { effortChart, effortLabel, levelWords } from '../../src/components/scenes/effortChart';
 import { EffortChart, ReasoningStage, deskOf } from '../../src/content/reasoning/kit';
 import { EFFORTS, ofKind, run, sweep } from '../../src/lib/reasoning/engine';
 
-const draw = (o: ThinkOpts) => renderToString(createElement(IsoStage, { board: THINK_BOARD, scene: thinkScene(o), label: thinkLabel(o) }));
+const draw = (o: ThinkOpts) =>
+  renderToString(createElement(IsoStage, { board: THINK_BOARD, scene: thinkScene(o), label: thinkLabel(o) }));
 const Q = 'quote-split-lines';
 
 describe('the scratchpad desk', () => {
   it('with none, no pad is drawn and the clock shows the answer-only wait', () => {
-    const r = run(Q, 'none'), svg = draw(deskOf(r));
+    const r = run(Q, 'none'),
+      svg = draw(deskOf(r));
     expect(svg).not.toContain('class="pad"');
     expect(svg).toContain('NO THINKING');
     expect(svg).toContain(`${r.wait.toFixed(1)} s`);
@@ -56,7 +65,11 @@ describe('the accuracy chart', () => {
   });
 
   it('the stage escapes its caption and shows the thinking as text', () => {
-    const html = renderToString(createElement(ReasoningStage, { shown: { desk: deskOf(run(Q, 'low')), caption: '<b>x</b>', thinking: run(Q, 'low').thinking } }));
+    const html = renderToString(
+      createElement(ReasoningStage, {
+        shown: { desk: deskOf(run(Q, 'low')), caption: '<b>x</b>', thinking: run(Q, 'low').thinking },
+      }),
+    );
     expect(html).toContain('&lt;b&gt;x&lt;/b&gt;');
     expect(html).toContain('55 scanners in total');
   });

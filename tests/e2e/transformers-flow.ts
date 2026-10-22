@@ -8,7 +8,7 @@ export function transformersWalker(page: Page, mode: Mode, check: (page: Page) =
   const press = (l: Locator) => (kb ? l.press('Enter') : l.click());
   const card = page.getByRole('region', { name: 'Next step' });
   const btn = (name: string | RegExp) => press(card.getByRole('button', { name }));
-  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name }));   // a quiz or prediction option
+  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name })); // a quiz or prediction option
   const step = (n: number) => expect(card).toContainText(`Step ${n} of`);
   /** a range input: arrow keys from where it is, or set straight to the index by mouse */
   const slide = async (name: RegExp, to: number) => {
@@ -33,7 +33,10 @@ export function transformersWalker(page: Page, mode: Mode, check: (page: Page) =
     await press(card.getByRole('link', { name: /^(Next:|Recap)/ }));
     await expect(page).toHaveURL(next);
     // a key pressed before the next island hydrates is lost
-    if (!/recap/.test(String(next))) { await page.locator('astro-island:not([ssr])').waitFor(); await ready(); }
+    if (!/recap/.test(String(next))) {
+      await page.locator('astro-island:not([ssr])').waitFor();
+      await ready();
+    }
   }
 
   return {
@@ -130,8 +133,10 @@ export function transformersWalker(page: Page, mode: Mode, check: (page: Page) =
     /** type and trace a prompt, a head in each layer and the Attention tab, then a prompt past the window */
     async ch7(next?: RegExp) {
       const box = card.getByRole('textbox', { name: 'Your prompt' });
-      if (kb) { await box.press('ControlOrMeta+a'); await box.pressSequentially('Where is my order?'); }
-      else await box.fill('Where is my order?');
+      if (kb) {
+        await box.press('ControlOrMeta+a');
+        await box.pressSequentially('Where is my order?');
+      } else await box.fill('Where is my order?');
       await expect(card.locator('.tf-count')).toContainText(/^\d+ of 32 tokens$/);
       await btn('Trace it');
       await step(2);

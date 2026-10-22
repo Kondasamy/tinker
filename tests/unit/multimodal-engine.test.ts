@@ -29,7 +29,8 @@ describe('patches', () => {
   });
 
   it('a size past the cap is downscaled first, and its count stays within the cap', () => {
-    const big = sizeOf(image('invoice'), 3200), t = imageTokens(big.w, big.h);
+    const big = sizeOf(image('invoice'), 3200),
+      t = imageTokens(big.w, big.h);
     expect(t.downscaled).toBe(true);
     expect(t.tokens).toBeLessThanOrEqual(HIGH.maxTokens);
     expect(t.cols * t.rows).toBe(t.tokens);
@@ -37,7 +38,10 @@ describe('patches', () => {
   });
 
   it('counts rise with size up to the cap', () => {
-    const counts = SIZES.map(s => { const z = sizeOf(image('invoice'), s); return imageTokens(z.w, z.h).tokens; });
+    const counts = SIZES.map(s => {
+      const z = sizeOf(image('invoice'), s);
+      return imageTokens(z.w, z.h).tokens;
+    });
     for (let i = 1; i < counts.length; i++) expect(counts[i]).toBeGreaterThan(counts[i - 1]);
   });
 
@@ -55,7 +59,8 @@ describe('patches', () => {
 describe('images', () => {
   it('every drawing is deterministic, sized to its native pixels, and described', () => {
     for (const im of IMAGES) {
-      const a = svgOf(im.id), b = svgOf(im.id);
+      const a = svgOf(im.id),
+        b = svgOf(im.id);
       expect(a, im.id).toBe(b);
       expect(a).toContain(`viewBox="0 0 ${im.w} ${im.h}"`);
       expect(im.alt.length, im.id).toBeGreaterThan(40);
@@ -73,14 +78,15 @@ describe('images', () => {
   it('a size keeps the image’s shape, the long edge at the chosen size', () => {
     const z = sizeOf(image('invoice'), 800);
     expect(z.h).toBe(800);
-    expect(z.w).toBe(Math.round(800 * image('invoice').w / image('invoice').h));
+    expect(z.w).toBe(Math.round((800 * image('invoice').w) / image('invoice').h));
     expect(sizeOf(image('note'), 800).w).toBe(800);
   });
 });
 
 describe('readings, graded live', () => {
   it('the smallest size misreads a field the largest reads right (chapter 2)', () => {
-    const lo = grade('invoice', 400, 'vision'), hi = grade('invoice', 3200, 'vision');
+    const lo = grade('invoice', 400, 'vision'),
+      hi = grade('invoice', 3200, 'vision');
     expect(hi.right).toBe(hi.of);
     expect(lo.fields.some(f => !f.right && hi.fields.find(h => h.id === f.id)!.right)).toBe(true);
   });

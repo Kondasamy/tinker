@@ -8,16 +8,27 @@ import { diskLoader } from '../../src/lib/rag/diskLoader';
 import { fileOf, runSuite, type Row } from '../../src/lib/evals/suite';
 import { keyFact, keyFactOf, REFERENCES } from '../../src/lib/evals/graders';
 import {
-  ALL_QUESTIONS, answer, gateVersion, gradeVersion, PRICE_CHANGE, QUESTION_IDS, SIGNOFF, VERSION_IDS,
+  ALL_QUESTIONS,
+  answer,
+  gateVersion,
+  gradeVersion,
+  PRICE_CHANGE,
+  QUESTION_IDS,
+  SIGNOFF,
+  VERSION_IDS,
 } from '../../src/lib/fine-tuning/engine';
 import { ACCESSED, FACTS, fact } from '../../src/lib/fine-tuning/facts';
 
 const evals: Record<'v0' | 'v3', Row[]> = { v0: [], v3: [] };
 beforeAll(async () => {
   const index = await openIndex(diskLoader);
-  for (const v of ['v0', 'v3'] as const) { const f = fileOf(v); if (f) await index.load(f); evals[v] = runSuite(index, v); }
+  for (const v of ['v0', 'v3'] as const) {
+    const f = fileOf(v);
+    if (f) await index.load(f);
+    evals[v] = runSuite(index, v);
+  }
 }, 60_000);
-const count = (v: (typeof VERSION_IDS)[number]) => gradeVersion(v, QUESTION_IDS).filter((g) => g.fact).length;
+const count = (v: (typeof VERSION_IDS)[number]) => gradeVersion(v, QUESTION_IDS).filter(g => g.fact).length;
 
 describe('versions', () => {
   it('every version × question has a recorded answer', () => {
@@ -27,17 +38,21 @@ describe('versions', () => {
     expect(() => answer('rag', 'no-such-question')).toThrow(/no recorded answer/);
   });
 
-  it('prompted is Evals\' model alone (v0) and RAG is Evals\' v3, each with the style prompt\'s sign-off', () => {
-    for (const [v, rows] of [['prompted', evals.v0], ['rag', evals.v3]] as const) for (const r of rows) {
-      expect(answer(v, r.question).text).toBe(`${r.answer.text} ${SIGNOFF}`);
-      expect(answer(v, r.question).citation).toBe(r.answer.citation);
-    }
+  it("prompted is Evals' model alone (v0) and RAG is Evals' v3, each with the style prompt's sign-off", () => {
+    for (const [v, rows] of [
+      ['prompted', evals.v0],
+      ['rag', evals.v3],
+    ] as const)
+      for (const r of rows) {
+        expect(answer(v, r.question).text).toBe(`${r.answer.text} ${SIGNOFF}`);
+        expect(answer(v, r.question).citation).toBe(r.answer.citation);
+      }
   });
 
   it('every version signs off; only RAG cites', () => {
-    for (const v of VERSION_IDS) expect(gradeVersion(v).every((g) => g.signed)).toBe(true);
-    expect(gradeVersion('finetuned').some((g) => g.cited)).toBe(false);
-    expect(gradeVersion('prompted').some((g) => g.cited)).toBe(false);
+    for (const v of VERSION_IDS) expect(gradeVersion(v).every(g => g.signed)).toBe(true);
+    expect(gradeVersion('finetuned').some(g => g.cited)).toBe(false);
+    expect(gradeVersion('prompted').some(g => g.cited)).toBe(false);
   });
 
   it('the key-fact grader ranks RAG over fine-tuned over prompted', () => {
@@ -52,7 +67,7 @@ describe('versions', () => {
   });
 });
 
-describe('the release gate (Evals\' decide)', () => {
+describe("the release gate (Evals' decide)", () => {
   it('holds back the fine-tuned version against the shipped RAG version', () => {
     const d = gateVersion('finetuned', { threshold: 75, noRegressions: true });
     expect(d.ship).toBe(false);
@@ -81,10 +96,11 @@ describe('the changed price (chapter 4)', () => {
 
 describe('Evals stays as it was', () => {
   it('keyFact and keyFactOf agree on every existing question and recorded answer', () => {
-    for (const rows of Object.values(evals)) for (const r of rows)
-      expect(keyFact(r.question, r.answer.text)).toBe(keyFactOf(REFERENCES[r.question], r.answer.text));
+    for (const rows of Object.values(evals))
+      for (const r of rows)
+        expect(keyFact(r.question, r.answer.text)).toBe(keyFactOf(REFERENCES[r.question], r.answer.text));
     // the gate-relevant results Evals' tests rely on
-    expect(evals.v0.every((r) => !keyFact(r.question, r.answer.text))).toBe(true);
+    expect(evals.v0.every(r => !keyFact(r.question, r.answer.text))).toBe(true);
     for (const id of QUESTION_IDS) expect(keyFact(id, REFERENCES[id].answer)).toBe(true);
   });
   it('data/evals is unchanged', () => {

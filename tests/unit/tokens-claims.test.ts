@@ -29,9 +29,12 @@ describe('chapter 3 and its recall', () => {
 
   it('the rule-of-thumb recall says which way the rule was off, as the data does', () => {
     const why = RECALL.find(r => r.id === 'rule-of-thumb')!.why!;
-    const over = M.real.every(r => M.rule > r.tokens), under = M.real.every(r => M.rule < r.tokens);
-    expect(why[1]).toContain(over ? 'more tokens than both' : under ? 'fewer tokens than both' : 'different directions');
-    expect(M.real).toHaveLength(2);   // “both”
+    const over = M.real.every(r => M.rule > r.tokens),
+      under = M.real.every(r => M.rule < r.tokens);
+    expect(why[1]).toContain(
+      over ? 'more tokens than both' : under ? 'fewer tokens than both' : 'different directions',
+    );
+    expect(M.real).toHaveLength(2); // “both”
     // “within about a quarter of the real counts”
     expect(why[2]).toContain('within about a quarter');
     for (const r of M.real) expect(Math.round(Math.abs(M.rule / r.tokens - 1) * 100), r.id).toBeLessThanOrEqual(25);

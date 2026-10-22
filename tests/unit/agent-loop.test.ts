@@ -1,20 +1,37 @@
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import CASES from '../../data/agents/cases.json';
-import { AGENT_SERVERS, answerOf, CONTEXT, MEMORY_CONTEXT, run, stepsOf, tokens, totalTokens, type Run } from '../../src/lib/agents/loop';
+import {
+  AGENT_SERVERS,
+  answerOf,
+  CONTEXT,
+  MEMORY_CONTEXT,
+  run,
+  stepsOf,
+  tokens,
+  totalTokens,
+  type Run,
+} from '../../src/lib/agents/loop';
 import { RECORDINGS, signature } from '../../src/lib/agents/turns';
 import { ACCESSED, FACTS, fact } from '../../src/lib/agents/facts';
 import { BYTES_PER_TOKEN } from '../../src/lib/scale';
 import { connect, createServer, SERVERS } from '../../src/lib/tools/server';
 
 const R = RECORDINGS;
-const called = (r: Run) => stepsOf(r, 'call').map((c) => c.call.name);
-const refunds = (r: Run, id: number) => r.orders.find((o) => o.id === id)!.refunds;
+const called = (r: Run) => stepsOf(r, 'call').map(c => c.call.name);
+const refunds = (r: Run, id: number) => r.orders.find(o => o.id === id)!.refunds;
 
 describe('signature', () => {
   it('is sorted fields; tools sorted, history kept in order', () => {
-    expect(signature({ case: 'damaged', tools: ['send_email', 'get_order'], plan: 'off', mem: 'full', hist: ['plan:approved', 'get_order:1042:ok'] }))
-      .toBe('case=damaged|hist=plan:approved,get_order:1042:ok|mem=full|plan=off|tools=get_order,send_email');
+    expect(
+      signature({
+        case: 'damaged',
+        tools: ['send_email', 'get_order'],
+        plan: 'off',
+        mem: 'full',
+        hist: ['plan:approved', 'get_order:1042:ok'],
+      }),
+    ).toBe('case=damaged|hist=plan:approved,get_order:1042:ok|mem=full|plan=off|tools=get_order,send_email');
   });
 });
 
@@ -46,24 +63,35 @@ describe('the loop (chapters 1–2)', () => {
     expect(out.mail).toEqual([]);
     // the agent gets the same routine result, for tokens
     const agent = run(R['01-workflow-or-agent'], { case: 'refund' });
-    expect(refunds(agent, 1024)).toEqual(refunds(refund, 1024).map((x) => ({ ...x, reason: 'customer_request' })));
+    expect(refunds(agent, 1024)).toEqual(refunds(refund, 1024).map(x => ({ ...x, reason: 'customer_request' })));
     expect(totalTokens(agent)).toBeGreaterThan(0);
   });
 
   it('never mutates the fixture data across runs', () => {
     const disk = JSON.parse(readFileSync('data/agents/cases.json', 'utf8'));
-    const a = run(R['05-memory']), b = run(R['05-memory']);
+    const a = run(R['05-memory']),
+      b = run(R['05-memory']);
     expect(CASES).toEqual(disk);
-    expect(stepsOf(b, 'result').filter((s) => s.key.startsWith('create_replacement')).every((s) => !s.result.isError)).toBe(true);
+    expect(
+      stepsOf(b, 'result')
+        .filter(s => s.key.startsWith('create_replacement'))
+        .every(s => !s.result.isError),
+    ).toBe(true);
     expect(a.orders).not.toBe(b.orders);
   });
 });
 
 describe('plans and approval (chapter 3, KTD11)', () => {
-  const plans = (r: Run) => stepsOf(r, 'plan').map((p) => p.items);
+  const plans = (r: Run) => stepsOf(r, 'plan').map(p => p.items);
 
   it('[reject, approve]: the model sees the rejection and writes a different plan', () => {
-    const r = run(R['03-plans'], { case: 'damaged', stock: 'out', plan: true, approval: 'plan', decide: ['reject', 'approve'] });
+    const r = run(R['03-plans'], {
+      case: 'damaged',
+      stock: 'out',
+      plan: true,
+      approval: 'plan',
+      decide: ['reject', 'approve'],
+    });
     expect(r.status).toBe('done');
     const [first, second] = plans(r);
     expect(second).not.toEqual(first);
@@ -73,7 +101,13 @@ describe('plans and approval (chapter 3, KTD11)', () => {
 
   it('[reject, reject]: the run ends done with the hand-to-a-person answer, and no tool runs', () => {
     for (const c of ['damaged', 'planted']) {
-      const r = run(R['03-plans'], { case: c, stock: 'out', plan: true, approval: 'plan', decide: ['reject', 'reject'] });
+      const r = run(R['03-plans'], {
+        case: c,
+        stock: 'out',
+        plan: true,
+        approval: 'plan',
+        decide: ['reject', 'reject'],
+      });
       expect(r.status).toBe('done');
       expect(stepsOf(r, 'call')).toEqual([]);
       expect(answerOf(r)).toMatch(/hand this case to a person/);
@@ -108,14 +142,14 @@ describe('plans and approval (chapter 3, KTD11)', () => {
 
 describe('budgets and stuck loops (chapter 4, KTD5, KTD6)', () => {
   const timeout = R['04-budgets'];
-  const tracks = (r: Run) => called(r).filter((n) => n === 'track_shipment').length;
+  const tracks = (r: Run) => called(r).filter(n => n === 'track_shipment').length;
 
   it('detector on (N=3): stuck after the third identical failure; the last turn emails "lookup failed"', () => {
     const r = run(timeout, { repeat: 3 });
     expect(r.status).toBe('stuck');
     expect(tracks(r)).toBe(3);
     expect(stepsOf(r, 'repeat')).toMatchObject([{ times: 3, call: { name: 'track_shipment' } }]);
-    const at = r.steps.findIndex((s) => s.kind === 'repeat');
+    const at = r.steps.findIndex(s => s.kind === 'repeat');
     expect(r.steps[at + 1]).toMatchObject({ kind: 'result', key: 'track_shipment:1051:stopped' });
     expect(r.signatures.at(-1)).toContain('track_shipment:1051:stopped');
     expect(called(r).at(-1)).toBe('send_email');
@@ -154,22 +188,24 @@ describe('budgets and stuck loops (chapter 4, KTD5, KTD6)', () => {
 
 describe('memory (chapter 5, KTD12)', () => {
   const storm = R['05-memory'];
-  const email2101 = (r: Run) => r.mail.find((m) => m.order_id === 2101)!.body;
+  const email2101 = (r: Run) => r.mail.find(m => m.order_id === 2101)!.body;
 
   it('summary: compaction runs once over the threshold; later signatures carry the marker, not the dropped results', () => {
     const r = run(storm, { mem: 'summary' });
     expect(r.status).toBe('done');
     const [c] = stepsOf(r, 'compact');
     expect(stepsOf(r, 'compact')).toHaveLength(1);
-    const at = r.signatures.findIndex((s) => s.includes('hist=summary'));
+    const at = r.signatures.findIndex(s => s.includes('hist=summary'));
     expect(at).toBeGreaterThan(0);
     for (const s of r.signatures.slice(at)) for (const k of c.dropped) expect(s).not.toContain(k);
     expect(r.meter[at].input).toBeLessThan(run(storm).meter[at].input);
   });
 
   it('summary drops the "no phone calls" note and the email offers a call; pinned and full keep it', () => {
-    const note = CASES.orders.find((o) => o.id === 2101)!.note!;
-    const summary = run(storm, { mem: 'summary' }), pinned = run(storm, { mem: 'pinned' }), full = run(storm);
+    const note = CASES.orders.find(o => o.id === 2101)!.note!;
+    const summary = run(storm, { mem: 'summary' }),
+      pinned = run(storm, { mem: 'pinned' }),
+      full = run(storm);
     expect(summary.meter.at(-1)!.context).not.toContain(note);
     expect(email2101(summary)).toMatch(/phone you/);
     expect(pinned.meter.at(-1)!.context).toContain(note);
@@ -182,7 +218,7 @@ describe('memory (chapter 5, KTD12)', () => {
 
   it('full memory stays inside the host context budget; a smaller budget stops the run', () => {
     const full = run(storm);
-    expect(Math.max(...full.meter.map((m) => m.input))).toBeLessThanOrEqual(CONTEXT);
+    expect(Math.max(...full.meter.map(m => m.input))).toBeLessThanOrEqual(CONTEXT);
     expect(run(storm, { context: 1500 })).toMatchObject({ status: 'out-of-budget' });
   });
 
@@ -194,7 +230,7 @@ describe('memory (chapter 5, KTD12)', () => {
     for (const mem of ['summary', 'pinned'] as const) {
       const r = run(storm, { mem, context: MEMORY_CONTEXT });
       expect(r.status).toBe('done');
-      expect(Math.max(...r.meter.map((m) => m.input))).toBeLessThanOrEqual(MEMORY_CONTEXT);
+      expect(Math.max(...r.meter.map(m => m.input))).toBeLessThanOrEqual(MEMORY_CONTEXT);
     }
   });
 });
@@ -205,13 +241,16 @@ describe('sub-agents (chapter 6, KTD7)', () => {
 
   it('each helper is a nested run with its own recording and history; the lead sees only its report', () => {
     expect(r.status).toBe('done');
-    expect(helpers.map((h) => h.call.arguments.order_id)).toEqual([2101, 2102, 2103, 2104, 2105]);
+    expect(helpers.map(h => h.call.arguments.order_id)).toEqual([2101, 2102, 2103, 2104, 2105]);
     for (const h of helpers) {
       expect(h.run.status).toBe('done');
       for (const sig of h.run.signatures) expect(r.signatures).not.toContain(sig);
-      for (const k of stepsOf(h.run, 'result').map((x) => x.key)) for (const s of r.signatures) expect(s).not.toContain(k);
+      for (const k of stepsOf(h.run, 'result').map(x => x.key))
+        for (const s of r.signatures) expect(s).not.toContain(k);
     }
-    expect(r.signatures[1]).toContain('hist=delegate:2101:ok,delegate:2102:ok,delegate:2103:ok,delegate:2104:ok,delegate:2105:ok|');
+    expect(r.signatures[1]).toContain(
+      'hist=delegate:2101:ok,delegate:2102:ok,delegate:2103:ok,delegate:2104:ok,delegate:2105:ok|',
+    );
     expect(r.mail).toHaveLength(5);
     expect(stepsOf(r, 'call')).toEqual([]);
   });
@@ -219,9 +258,11 @@ describe('sub-agents (chapter 6, KTD7)', () => {
   it('each helper starts clean, so its biggest context is smaller than the lone lead’s', () => {
     const alone = run(R['06-sub-agents']);
     expect(alone.status).toBe('done');
-    const peak = (x: Run) => Math.max(...x.meter.map((m) => m.input));
+    const peak = (x: Run) => Math.max(...x.meter.map(m => m.input));
     for (const h of helpers) expect(peak(h.run)).toBeLessThan(peak(alone));
-    expect(totalTokens(r)).toBe(r.meter.reduce((n, m) => n + m.input + m.output, 0) + helpers.reduce((n, h) => n + totalTokens(h.run), 0));
+    expect(totalTokens(r)).toBe(
+      r.meter.reduce((n, m) => n + m.input + m.output, 0) + helpers.reduce((n, h) => n + totalTokens(h.run), 0),
+    );
   });
 });
 
@@ -230,19 +271,26 @@ describe('servers (KTD2)', () => {
     expect(Object.keys(SERVERS)).toEqual(['orders', 'calendar']);
     expect(Object.keys(AGENT_SERVERS)).toEqual(['orders', 'warehouse', 'carrier', 'mail']);
     const r = run(R['04-budgets']);
-    const lists = r.log.filter((l) => 'result' in l.message && Array.isArray(l.message.result.tools));
-    expect(lists.flatMap((l) => ('result' in l.message ? (l.message.result.tools as { name: string }[]).map((t) => t.name) : [])))
-      .toEqual(['get_order', 'issue_refund', 'track_shipment', 'send_email']);
+    const lists = r.log.filter(l => 'result' in l.message && Array.isArray(l.message.result.tools));
+    expect(
+      lists.flatMap(l =>
+        'result' in l.message ? (l.message.result.tools as { name: string }[]).map(t => t.name) : [],
+      ),
+    ).toEqual(['get_order', 'issue_refund', 'track_shipment', 'send_email']);
     // the default bundle is still Tool calling's
     const res = connect(createServer('orders')).request('tools/list');
-    expect('result' in res && (res.result.tools as { name: string }[]).map((t) => t.name)).toEqual(['get_order', 'list_orders_for_customer', 'issue_refund']);
+    expect('result' in res && (res.result.tools as { name: string }[]).map(t => t.name)).toEqual([
+      'get_order',
+      'list_orders_for_customer',
+      'issue_refund',
+    ]);
   });
 });
 
 describe('facts (R8)', () => {
   it('every fact has a claim, a source URL and the access date', () => {
     expect(ACCESSED).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-    expect(new Set(FACTS.map((f) => f.id)).size).toBe(FACTS.length);
+    expect(new Set(FACTS.map(f => f.id)).size).toBe(FACTS.length);
     for (const f of FACTS) {
       expect(f.claim.trim(), f.id).not.toBe('');
       expect(f.source, f.id).toMatch(/^https:\/\//);
@@ -252,8 +300,16 @@ describe('facts (R8)', () => {
 
   it('every fact id the agents chapters use exists', () => {
     const dir = 'src/content/agents';
-    const files = existsSync(dir) ? readdirSync(dir, { recursive: true }).map(String).filter((f) => /\.(ts|tsx|astro)$/.test(f)) : [];
+    const files = existsSync(dir)
+      ? readdirSync(dir, { recursive: true })
+          .map(String)
+          .filter(f => /\.(ts|tsx|astro)$/.test(f))
+      : [];
     for (const f of files)
-      for (const [, id] of readFileSync(`${dir}/${f}`, 'utf8').matchAll(/\bfact\(\s*'([^']+)'/g)) expect(FACTS.map((x) => x.id), `${f}: ${id}`).toContain(id);
+      for (const [, id] of readFileSync(`${dir}/${f}`, 'utf8').matchAll(/\bfact\(\s*'([^']+)'/g))
+        expect(
+          FACTS.map(x => x.id),
+          `${f}: ${id}`,
+        ).toContain(id);
   });
 });

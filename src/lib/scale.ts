@@ -33,16 +33,27 @@ export const formatTokens = (t: number) =>
   new Intl.NumberFormat('en', { notation: 'compact', maximumSignificantDigits: 3 }).format(t);
 
 /** The largest context window any timeline entry cites: the container the corpus must fit in. */
-export const LARGEST = TIMELINE.filter(e => e.contextTokens).reduce((a, e) => (e.contextTokens! > a.contextTokens! ? e : a));
+export const LARGEST = TIMELINE.filter(e => e.contextTokens).reduce((a, e) =>
+  e.contextTokens! > a.contextTokens! ? e : a,
+);
 export const WINDOW = LARGEST.contextTokens!;
 
 export const overflows = (bytes: number) => tokensFor(bytes) > WINDOW;
 
-export interface Price { perMillion: number; model: string; asOf: string; sourceTitle: string; sourceUrl: string }
+export interface Price {
+  perMillion: number;
+  model: string;
+  asOf: string;
+  sourceTitle: string;
+  sourceUrl: string;
+}
 /** Cited input-token price for the cost line; null hides cost (we never guess a rate). */
 export const PRICE: Price | null = {
-  perMillion: 2, model: 'Claude Sonnet 5.5, base input price', asOf: '2026-10-19',
-  sourceTitle: 'Anthropic, Models overview (Claude docs)', sourceUrl: 'https://platform.claude.com/docs/en/about-claude/models/overview',
+  perMillion: 2,
+  model: 'Claude Sonnet 5.5, base input price',
+  asOf: '2026-10-19',
+  sourceTitle: 'Anthropic, Models overview (Claude docs)',
+  sourceUrl: 'https://platform.claude.com/docs/en/about-claude/models/overview',
 };
 
 /** Sources for the bytes ÷ 4 rule and the unstructured-data share quoted in chapter 2. */

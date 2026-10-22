@@ -3,7 +3,8 @@ import { run } from '../../src/lib/sandboxing/loop';
 import { RECORDING } from '../../src/lib/sandboxing/turns';
 import { status } from '../../src/content/sandboxing/06-fewer-prompts';
 
-const exfil = (approval: 'off' | 'approve' | 'deny') => run(RECORDING, { case: 'exfil', sandbox: true, files: 'scoped', egress: 'allowlist', secret: 'env', approval });
+const exfil = (approval: 'off' | 'approve' | 'deny') =>
+  run(RECORDING, { case: 'exfil', sandbox: true, files: 'scoped', egress: 'allowlist', secret: 'env', approval });
 
 describe('chapter 6 status line', () => {
   it('says nobody was asked when approval is off', () => {

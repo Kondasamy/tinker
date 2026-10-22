@@ -26,17 +26,33 @@ const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
 const LM = META.model;
 // the whole idea: chapter 1's prompt, read by Larkspur mini, and the likeliest next tokens after it
 const EXAMPLE = PROMPTS.find(p => p.id === 'reply')!;
-const T = trace(diskModel(), EXAMPLE.text), BAR = T.top.at(-1)!;
-const room = (o: Partial<EngineOpts> = {}): EngineOpts => ({ tokens: T.tokens.map(t => t.text), attention: T.attention, scale: 1.7, ...o });
+const T = trace(diskModel(), EXAMPLE.text),
+  BAR = T.top.at(-1)!;
+const room = (o: Partial<EngineOpts> = {}): EngineOpts => ({
+  tokens: T.tokens.map(t => t.text),
+  attention: T.attention,
+  scale: 1.7,
+  ...o,
+});
 const HERO = room();
 // four ideas, each in the engine room: the tiles read in order, a head's threads, the mask (a middle token's threads
 // reach only back), and a second floor's desk lit
 const MID = Math.floor(T.tokens.length / 2);
 const IDEAS: [string, string, ReturnType<typeof fact>, EngineOpts][] = [
-  ['One token at a time', 'The model reads the prompt’s tokens and scores the next one', fact('transformer-paper'), room({ attention: undefined })],
+  [
+    'One token at a time',
+    'The model reads the prompt’s tokens and scores the next one',
+    fact('transformer-paper'),
+    room({ attention: undefined }),
+  ],
   ['Attention', 'Each token weighs the tokens before it', fact('attention-formula'), room()],
   ['The causal mask', `Token ${MID + 1} looks only back, never ahead`, fact('causal-mask'), room({ query: MID })],
-  ['Heads and layers', `${LM.n_layer} layers of ${LM.n_head} heads, each looking its own way`, fact('multi-head'), room({ layer: 1, head: 1 })],
+  [
+    'Heads and layers',
+    `${LM.n_layer} layers of ${LM.n_head} heads, each looking its own way`,
+    fact('multi-head'),
+    room({ layer: 1, head: 1 }),
+  ],
 ];
 const FACTS: [string, string][] = [
   [num(LM.params), 'numbers in Larkspur mini’s weights'],

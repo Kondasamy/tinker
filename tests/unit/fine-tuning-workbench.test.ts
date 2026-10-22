@@ -4,21 +4,41 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { evaluate } from '../../src/lib/lm/model';
 import { parseAdapter, parseModel, type Meta } from '../../src/lib/lm/load';
-import { gateVersion, gradeVersion, HELDOUT, heldoutScore, QUESTION_IDS, VERSION_IDS } from '../../src/lib/fine-tuning/engine';
-import { BEST, KINDS, NOTES, PLANS, QUALITY, WINNERS, solved, totals, type Plan } from '../../src/lib/fine-tuning/workbench';
+import {
+  gateVersion,
+  gradeVersion,
+  HELDOUT,
+  heldoutScore,
+  QUESTION_IDS,
+  VERSION_IDS,
+} from '../../src/lib/fine-tuning/engine';
+import {
+  BEST,
+  KINDS,
+  NOTES,
+  PLANS,
+  QUALITY,
+  WINNERS,
+  solved,
+  totals,
+  type Plan,
+} from '../../src/lib/fine-tuning/workbench';
 import { forgetOutcome, P1 as FORGET, STEPS as CH5 } from '../../src/content/fine-tuning/05-what-training-costs';
 import { GATE, gateOutcome } from '../../src/content/fine-tuning/06-measure-before-you-train';
 import { START, STEPS, VOICE_TIE, planOf } from '../../src/content/fine-tuning/07-larkspurs-decision';
 import IDS from '../../data/lm/ids.json' with { type: 'json' };
 
-const disk = (f: string) => { const b = readFileSync('public/data/lm/' + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer; };
+const disk = (f: string) => {
+  const b = readFileSync('public/data/lm/' + f);
+  return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer;
+};
 const meta = JSON.parse(readFileSync('public/data/lm/meta.json', 'utf8')) as Meta;
 const base = parseModel(meta, disk('model.bin'));
 const full = parseModel(meta, disk('finetuned.bin'), 'finetuned.bin');
 const lora = { ...base, adapter: parseAdapter(meta, disk('lora.bin')) };
 
 describe('chapter 5: forgetting, scored live', () => {
-  it('the bundled held-out copy is data/lm/ids.json\'s held-out split', () => {
+  it("the bundled held-out copy is data/lm/ids.json's held-out split", () => {
     expect(HELDOUT).toEqual(IDS.splits.heldout);
   });
   it('scores each set of weights as evaluate does, once per model', () => {
@@ -73,7 +93,7 @@ describe('chapter 7: the workbench', () => {
 
   it('the puzzle accepts every plan tied for the best score, and no other', () => {
     for (const p of PLANS) expect(solved(p)).toBe(Math.abs(totals(p).score - BEST) < 1e-9);
-    expect(WINNERS.length).toBeGreaterThan(1);            // the chapter says more than one plan can be equally good
+    expect(WINNERS.length).toBeGreaterThan(1); // the chapter says more than one plan can be equally good
     const puzzle = STEPS.find(s => s.id === 'plan')!;
     const st = (p: Plan) => ({ ...p, view: 'scene' as const, quiz: null });
     for (const p of PLANS) expect(puzzle.predicate(st(p))).toBe(WINNERS.includes(p));
@@ -97,7 +117,11 @@ describe('chapter 7: the workbench', () => {
   });
 
   it('every version signs off on every question, as chapters 6 and 7 and the recall bank say; the fine-tune passes fewer facts than RAG', () => {
-    for (const v of VERSION_IDS) expect(gradeVersion(v).every(g => g.signed), v).toBe(true);
+    for (const v of VERSION_IDS)
+      expect(
+        gradeVersion(v).every(g => g.signed),
+        v,
+      ).toBe(true);
     const facts = (v: (typeof VERSION_IDS)[number]) => gradeVersion(v, QUESTION_IDS).filter(g => g.fact).length;
     expect(facts('finetuned')).toBeLessThan(facts('rag'));
   });

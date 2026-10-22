@@ -7,12 +7,23 @@ export type Mode = 'mouse' | 'keyboard';
 export function toolWalker(page: Page, mode: Mode, check: (page: Page) => Promise<void> = async () => {}) {
   const kb = mode === 'keyboard';
   const press = (l: Locator) => (kb ? l.press('Enter') : l.click());
-  const tick = async (l: Locator) => { if (kb) { await l.focus(); await l.press('Space'); } else await l.check(); await expect(l).toBeChecked(); };
+  const tick = async (l: Locator) => {
+    if (kb) {
+      await l.focus();
+      await l.press('Space');
+    } else await l.check();
+    await expect(l).toBeChecked();
+  };
   /** like tick, for a box that moves the step on (and so leaves the card) */
-  const toggle = async (l: Locator) => { if (kb) { await l.focus(); await l.press('Space'); } else await l.click(); };
+  const toggle = async (l: Locator) => {
+    if (kb) {
+      await l.focus();
+      await l.press('Space');
+    } else await l.click();
+  };
   const card = page.getByRole('region', { name: 'Next step' });
   const btn = (name: string | RegExp) => press(card.getByRole('button', { name }));
-  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name }));   // a quiz or prediction option
+  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name })); // a quiz or prediction option
   const step = (n: number) => expect(card).toContainText(`Step ${n} of`);
   /** Run the request, then Next message until the player is gone (the step moves on). */
   async function play() {
@@ -93,7 +104,8 @@ export function toolWalker(page: Page, mode: Mode, check: (page: Page) => Promis
       await finish(next);
     },
     async ch5(next?: RegExp) {
-      const more = (group: string) => press(card.getByRole('group', { name: group }).getByRole('button', { name: '+ More' }));
+      const more = (group: string) =>
+        press(card.getByRole('group', { name: group }).getByRole('button', { name: '+ More' }));
       await more('AI apps');
       await more('AI apps');
       await more('Systems with tools');
@@ -143,7 +155,10 @@ export function toolWalker(page: Page, mode: Mode, check: (page: Page) => Promis
     async ch7(next?: RegExp) {
       const server = (name: RegExp) => card.getByRole('group', { name: 'Connected servers' }).getByLabel(name);
       const request = (n: number) => press(card.getByRole('button', { name: `Request ${n}`, exact: true }));
-      const tryIt = async () => { await btn(/^Try this setup/); await expect(card.locator('.feedback .stamp')).toHaveText('RIGHT'); };
+      const tryIt = async () => {
+        await btn(/^Try this setup/);
+        await expect(card.locator('.feedback .stamp')).toHaveText('RIGHT');
+      };
       await tick(server(/^Larkspur orders/));
       await step(2);
       await check(page);
@@ -151,13 +166,13 @@ export function toolWalker(page: Page, mode: Mode, check: (page: Page) => Promis
       await tick(card.getByLabel(/Approval gate/));
       await btn('− Lower');
       await tryIt();
-      await request(3);   // the refund: the same setup fits
+      await request(3); // the refund: the same setup fits
       await tryIt();
-      await request(4);   // orders and calendar
+      await request(4); // orders and calendar
       await tick(server(/^Larkspur calendar/));
       await tryIt();
       await check(page);
-      await request(2);   // calendar only
+      await request(2); // calendar only
       await toggle(server(/^Larkspur orders/));
       await btn(/^Try this setup/);
       await finish();

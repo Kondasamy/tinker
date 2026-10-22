@@ -1,10 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import { diskModel } from '../../src/lib/transformers/diskModel';
-import { FIELDS, ORDERS, POLICIES, SOLVED, WINNERS, bench, schemaFor, type Policy } from '../../src/lib/structured-outputs/workbench';
+import {
+  FIELDS,
+  ORDERS,
+  POLICIES,
+  SOLVED,
+  WINNERS,
+  bench,
+  schemaFor,
+  type Policy,
+} from '../../src/lib/structured-outputs/workbench';
 import { checkText } from '../../src/lib/structured-outputs/grammar';
 
 const model = diskModel();
-const key = (p: Policy) => FIELDS.map((f) => p[f.id]).join('/');
+const key = (p: Policy) => FIELDS.map(f => p[f.id]).join('/');
 
 describe('chapter 7 workbench', () => {
   it('walks every policy the controls can make', () => {
@@ -33,11 +42,11 @@ describe('chapter 7 workbench', () => {
   it('the lessons hold: a free string is never right, a schema too long for the window is cut off, the model can’t know an order', () => {
     const b = (p: Policy) => bench(model, p);
     const free = b({ team: 'free', status: 'system', days: 'system' });
-    expect(free.rows.every((r) => r.valid && !r.right)).toBe(true);
+    expect(free.rows.every(r => r.valid && !r.right)).toBe(true);
     const long = b({ team: 'list', status: 'list', days: 'number' });
-    expect(long.rows.every((r) => r.status === 'cut-off' && !r.valid)).toBe(true);
+    expect(long.rows.every(r => r.status === 'cut-off' && !r.valid)).toBe(true);
     const guess = b({ team: 'system', status: 'list', days: 'system' });
-    expect(guess.rows.some((r) => !r.right)).toBe(true);
+    expect(guess.rows.some(r => !r.right)).toBe(true);
   }, 60_000);
 
   it('no policy beats the best: the score is out of the orders', () => {

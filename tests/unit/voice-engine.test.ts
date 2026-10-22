@@ -35,18 +35,23 @@ describe('the clips', () => {
 
 describe('end-of-turn detection', () => {
   it('a turn only ends after a run of quiet frames as long as the silence setting', () => {
-    for (const id of callers) for (const threshold of THRESHOLDS) for (const silence of SILENCES) {
-      const d = detect(id, { threshold, silence }), env = CLIPS[id].env;
-      if (d.gaveUp) continue;
-      // the frames before the end are all quiet, for the whole setting
-      for (let t = d.quietFrom!; t < d.fire; t += FRAME_MS) expect(env[t / FRAME_MS] ?? env.at(-1)!, `${id} ${threshold} ${silence}`).toBeLessThan(threshold);
-      expect(d.fire - d.quietFrom!).toBe(Math.ceil(silence / FRAME_MS) * FRAME_MS);
-    }
+    for (const id of callers)
+      for (const threshold of THRESHOLDS)
+        for (const silence of SILENCES) {
+          const d = detect(id, { threshold, silence }),
+            env = CLIPS[id].env;
+          if (d.gaveUp) continue;
+          // the frames before the end are all quiet, for the whole setting
+          for (let t = d.quietFrom!; t < d.fire; t += FRAME_MS)
+            expect(env[t / FRAME_MS] ?? env.at(-1)!, `${id} ${threshold} ${silence}`).toBeLessThan(threshold);
+          expect(d.fire - d.quietFrom!).toBe(Math.ceil(silence / FRAME_MS) * FRAME_MS);
+        }
   });
 
   it('a pause shorter than the silence setting never ends a turn', () => {
     // Ravi's pauses are shorter than 800 ms: at 800 the whole request is one turn, at 300 his first pause ends it
-    const long = detect('hesitant-caller', { threshold: 30, silence: 800 }), short = detect('hesitant-caller', { threshold: 30, silence: 300 });
+    const long = detect('hesitant-caller', { threshold: 30, silence: 800 }),
+      short = detect('hesitant-caller', { threshold: 30, silence: 300 });
     expect([long.cut, long.heard]).toEqual([false, 3]);
     expect([short.cut, short.heard]).toEqual([true, 1]);
   });
@@ -70,7 +75,8 @@ describe('end-of-turn detection', () => {
 describe('the latency budget', () => {
   it('streaming moves the first sound earlier and leaves the model’s finish unchanged', () => {
     for (const l of LINES.filter(x => x.speaker === 'assistant')) {
-      const off = latency(l.id, false), on = latency(l.id, true);
+      const off = latency(l.id, false),
+        on = latency(l.id, true);
       expect(on.firstSound, l.id).toBeLessThan(off.firstSound);
       expect(on.modelDone, l.id).toBe(off.modelDone);
     }
@@ -79,17 +85,21 @@ describe('the latency budget', () => {
 
 describe('calls', () => {
   it('a cut-off is exactly when the recording says the caller was cut off', () => {
-    for (const c of CALLS) for (const threshold of THRESHOLDS) for (const silence of SILENCES) {
-      const r = runCall(c.id, line({ threshold, silence }));
-      expect(r.detected.cut, r.key).toBe(r.recording.verdict === 'cut-off');
-    }
+    for (const c of CALLS)
+      for (const threshold of THRESHOLDS)
+        for (const silence of SILENCES) {
+          const r = runCall(c.id, line({ threshold, silence }));
+          expect(r.detected.cut, r.key).toBe(r.recording.verdict === 'cut-off');
+        }
   });
 
   it('the caller cuts in during the part named, and barge-in keeps only what was said', () => {
     const slots = CLIPS['slots-reply'];
     expect(interruptAt('stop-2')).toBeGreaterThan(slots.parts[2].start);
     expect(interruptAt('stop-2')).toBeLessThan(slots.parts[2].end);
-    const kept = runCall('slots', line({ bargeIn: true, point: 'stop-2' })).recording.turns.find(t => t.clip === 'slots-reply')!;
+    const kept = runCall('slots', line({ bargeIn: true, point: 'stop-2' })).recording.turns.find(
+      t => t.clip === 'slots-reply',
+    )!;
     expect(kept.kept).toBe(2);
     expect(textOf('slots-reply', kept.kept)).not.toContain('Wednesday');
     expect(runCall('slots', line({ bargeIn: false })).problem).toBe('talked-over');
@@ -103,20 +113,40 @@ describe('calls', () => {
 
 describe('facts', () => {
   it('every fact has a claim and a source', () => {
-    for (const f of FACTS) { expect(f.claim.length).toBeGreaterThan(20); expect(f.source).toMatch(/^https:\/\//); }
+    for (const f of FACTS) {
+      expect(f.claim.length).toBeGreaterThan(20);
+      expect(f.source).toMatch(/^https:\/\//);
+    }
   });
 });
 
 describe('the shared player', () => {
   class Fake implements AudioLike {
-    src = ''; played: string[] = []; paused = 0; fail = false;
+    src = '';
+    played: string[] = [];
+    paused = 0;
+    fail = false;
     on: Record<string, () => void> = {};
-    play() { this.played.push(this.src); return this.fail ? Promise.reject(new Error('no')) : Promise.resolve(); }
-    pause() { this.paused++; }
-    addEventListener(t: string, f: () => void) { this.on[t] = f; }
+    play() {
+      this.played.push(this.src);
+      return this.fail ? Promise.reject(new Error('no')) : Promise.resolve();
+    }
+    pause() {
+      this.paused++;
+    }
+    addEventListener(t: string, f: () => void) {
+      this.on[t] = f;
+    }
   }
   let fakes: Fake[] = [];
-  beforeEach(() => { fakes = []; setAudioFactory(() => { const f = new Fake(); fakes.push(f); return f; }); });
+  beforeEach(() => {
+    fakes = [];
+    setAudioFactory(() => {
+      const f = new Fake();
+      fakes.push(f);
+      return f;
+    });
+  });
 
   it('nothing plays until asked, and one element serves every clip', () => {
     expect(fakes).toHaveLength(0);
@@ -152,8 +182,9 @@ describe('the shared player', () => {
     playClip('status-caller');
     stopClip();
     playClip('status-reply');
-    const f = fakes[0], src = f.src;
-    f.src = clipUrl('status-caller');   // the element still reporting the old clip when its events land
+    const f = fakes[0],
+      src = f.src;
+    f.src = clipUrl('status-caller'); // the element still reporting the old clip when its events land
     f.on.error();
     f.on.playing();
     f.src = src;

@@ -1,9 +1,35 @@
 /* Small models stage: shares the tool-calling stage frame (.tc-*) and Fine-tuning's chart, loading and answer styles
    (.ft-*, fine-tuning.css through fine-tuning/kit). These are the frontier's key, the top-5 table and the router table. */
-.sm-square { width: 10px; height: 10px; border: 1.2px solid var(--ink); background: #cf5038; }
-.sm-top code { font: 700 13px ui-monospace, Menlo, monospace; }
-.sm-top td { white-space: nowrap; }
-.sm-rows td, .sm-rows th { vertical-align: top; }
-.sm-rows .note { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
-.sm-range { display: flex; flex-direction: column; gap: 6px; }
-.sm-range input { width: 100%; }
+.sm-square {
+  width: 10px;
+  height: 10px;
+  border: 1.2px solid var(--ink);
+  background: #cf5038;
+}
+.sm-top code {
+  font:
+    700 13px ui-monospace,
+    Menlo,
+    monospace;
+}
+.sm-top td {
+  white-space: nowrap;
+}
+.sm-rows td,
+.sm-rows th {
+  vertical-align: top;
+}
+.sm-rows .note {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+.sm-range {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sm-range input {
+  width: 100%;
+}

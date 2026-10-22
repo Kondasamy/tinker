@@ -8,7 +8,8 @@ import { smWalker } from './small-models-flow';
 import { serious, layoutHolds, offline, PHONE } from './helpers';
 
 const M = moduleOf('small-models');
-const CHS = M.chapters.map(c => c.id), [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = CHS;
+const CHS = M.chapters.map(c => c.id),
+  [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = CHS;
 const at = (id: string) => new RegExp(`/small-models/${id}/$`);
 async function walkAll(w: ReturnType<typeof smWalker>) {
   await w.open(CH1);
@@ -23,19 +24,33 @@ async function walkAll(w: ReturnType<typeof smWalker>) {
 const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 /** axe once the stage's fade-in has finished: mid-fade, the lit screen's text reads as washed out */
 const axe = async (page: Page) => {
-  await page.waitForFunction(() => document.getAnimations().every(a => a.playState !== 'running' || a.effect?.getTiming().iterations === Infinity));
+  await page.waitForFunction(() =>
+    document.getAnimations().every(a => a.playState !== 'running' || a.effect?.getTiming().iterations === Infinity),
+  );
   expect(await serious(page)).toEqual([]);
 };
-const bothLoaded = (page: Page) => page.waitForFunction(() => ['model.bin', 'student.bin'].every(f =>
-  performance.getEntriesByType('resource').some(e => e.name.endsWith('/data/lm/' + f))));
+const bothLoaded = (page: Page) =>
+  page.waitForFunction(() =>
+    ['model.bin', 'student.bin'].every(f =>
+      performance.getEntriesByType('resource').some(e => e.name.endsWith('/data/lm/' + f)),
+    ),
+  );
 test.setTimeout(150_000);
 
-test('the intro shows the level, the prerequisites, the author, the chapters and the Colorfigures credit', async ({ page }) => {
+test('the intro shows the level, the prerequisites, the author, the chapters and the Colorfigures credit', async ({
+  page,
+}) => {
   await page.goto('/small-models/');
   const meta = page.locator('.hero .module-meta');
   await expect(meta.locator('.level')).toHaveText('Advanced');
-  await expect(meta.getByRole('link', { name: moduleOf('fine-tuning').title, exact: true })).toHaveAttribute('href', '/fine-tuning/');
-  await expect(meta.getByRole('link', { name: moduleOf('evals').title, exact: true })).toHaveAttribute('href', '/evals/');
+  await expect(meta.getByRole('link', { name: moduleOf('fine-tuning').title, exact: true })).toHaveAttribute(
+    'href',
+    '/fine-tuning/',
+  );
+  await expect(meta.getByRole('link', { name: moduleOf('evals').title, exact: true })).toHaveAttribute(
+    'href',
+    '/evals/',
+  );
   await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
   await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toBeVisible();
@@ -43,7 +58,9 @@ test('the intro shows the level, the prerequisites, the author, the chapters and
   await axe(page);
 });
 
-test('Module 12 on the intro, the recap and home, with their own share images; home Continue resumes it', async ({ page }) => {
+test('Module 12 on the intro, the recap and home, with their own share images; home Continue resumes it', async ({
+  page,
+}) => {
   await page.goto('/small-models/');
   await expect(page.locator('.hero .kicker')).toHaveText('Module 12 · Small models');
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/small-models\.jpg$/);
@@ -52,7 +69,10 @@ test('Module 12 on the intro, the recap and home, with their own share images; h
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/small-models-recap\.jpg$/);
   await page.goto('/');
   await expect(page.locator('.module[data-module="small-models"] h4 a')).toHaveAttribute('href', '/small-models/');
-  await page.evaluate(() => { localStorage.setItem('small-models-progress-v1', JSON.stringify({ done: [], saved: {} })); localStorage.setItem('tinker-last-module', 'small-models'); });
+  await page.evaluate(() => {
+    localStorage.setItem('small-models-progress-v1', JSON.stringify({ done: [], saved: {} }));
+    localStorage.setItem('tinker-last-module', 'small-models');
+  });
   await page.reload();
   await expect(page.locator('[data-continue]')).toHaveAttribute('href', /^\/small-models\//);
 });
@@ -67,14 +87,20 @@ test('the intro reads as pictures by default; Words unfolds the longer text', as
   await axe(page);
 });
 
-test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({ page }) => {
+test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({
+  page,
+}) => {
   await walkAll(smWalker(page, 'mouse', axe));
 });
 
-test('every chapter plays by keyboard only; progress lands in small-models-progress-v1 and no other module’s key', async ({ page }) => {
+test('every chapter plays by keyboard only; progress lands in small-models-progress-v1 and no other module’s key', async ({
+  page,
+}) => {
   await page.goto('/');
   const OTHERS = { 'fine-tuning-progress-v1': JSON.stringify({ done: ['01-three-ways'], saved: {} }) };
-  await page.evaluate(o => { for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v); }, OTHERS);
+  await page.evaluate(o => {
+    for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v);
+  }, OTHERS);
   await walkAll(smWalker(page, 'keyboard'));
   const store = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
   expect(JSON.parse(store['small-models-progress-v1']).done).toEqual(CHS);
@@ -82,7 +108,9 @@ test('every chapter plays by keyboard only; progress lands in small-models-progr
   expect(store['tinker-last-module']).toBe('small-models');
 });
 
-test('chapter 1: fetches both weight sets on load, then plays offline; the top 5 is computed for both', async ({ page }) => {
+test('chapter 1: fetches both weight sets on load, then plays offline; the top 5 is computed for both', async ({
+  page,
+}) => {
   const failed: string[] = [];
   page.on('requestfailed', r => failed.push(r.url()));
   const w = smWalker(page, 'mouse');
@@ -137,7 +165,7 @@ test('chapter 6: a threshold the gate holds is not accepted; the cheapest that s
   await expect(c).toContainText('Step 3 of');
   await slider.fill('6');
   await expect(c.locator('[data-ship]').last()).toHaveAttribute('data-ship', '1');
-  await expect(c).toContainText('Step 3 of');     // ships, but not the cheapest
+  await expect(c).toContainText('Step 3 of'); // ships, but not the cheapest
   await slider.fill('5');
   await expect(c).toContainText('Step 4 of');
 });
@@ -145,7 +173,8 @@ test('chapter 6: a threshold the gate holds is not accepted; the cheapest that s
 test('chapter 7: the starting policy is not the best; Show me lands on a winning one', async ({ page }) => {
   const w = smWalker(page, 'mouse');
   await w.open(CH7);
-  const c = card(page), score = c.locator('[data-score]');
+  const c = card(page),
+    score = c.locator('[data-score]');
   await expect(score).toHaveAttribute('data-best', '0');
   await c.getByRole('button', { name: 'Show me' }).click();
   await expect(c).toContainText('Step 2 of');
@@ -181,6 +210,11 @@ test.describe('phone', () => {
       await page.goto(p);
       await layoutHolds(page);
     }
-    await walkAll(smWalker(page, 'mouse', async p => { await layoutHolds(p); await axe(p); }));
+    await walkAll(
+      smWalker(page, 'mouse', async p => {
+        await layoutHolds(p);
+        await axe(p);
+      }),
+    );
   });
 });

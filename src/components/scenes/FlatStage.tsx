@@ -20,21 +20,38 @@ export default function FlatStage({ lanes, msgs, upTo = msgs.length, onPick, cla
   const prefix = 'flat' + useId().replace(/[^\w-]/g, '') + '-';
   // a browse choice only holds until the step moves on
   const [pick, setPick] = useState<{ at: number; i: number } | null>(null);
-  const shown = Math.min(upTo, msgs.length), cur = pick?.at === shown ? pick.i : shown - 1;
+  const shown = Math.min(upTo, msgs.length),
+    cur = pick?.at === shown ? pick.i : shown - 1;
   const go = (i: number) => setPick({ at: shown, i });
   const label = flatLabel(lanes, msgs, shown);
   const pickable = !!onPick;
   const wide = useMemo(() => flatScene(lanes, msgs, { upTo: shown, pick: pickable }), [lanes, msgs, shown, pickable]);
-  const phone = useMemo(() => flatScene(lanes, msgs, { upTo: shown, phone: true, focus: cur, pick: pickable }), [lanes, msgs, shown, cur, pickable]);
-  const picked = (e: { target: EventTarget }) => (e.target as Element).closest?.('[data-msg][role="button"]')?.getAttribute('data-msg');
-  const click = (e: MouseEvent) => { const i = picked(e); if (i != null) onPick!(+i); };
+  const phone = useMemo(
+    () => flatScene(lanes, msgs, { upTo: shown, phone: true, focus: cur, pick: pickable }),
+    [lanes, msgs, shown, cur, pickable],
+  );
+  const picked = (e: { target: EventTarget }) =>
+    (e.target as Element).closest?.('[data-msg][role="button"]')?.getAttribute('data-msg');
+  const click = (e: MouseEvent) => {
+    const i = picked(e);
+    if (i != null) onPick!(+i);
+  };
   const key = (e: KeyboardEvent) => {
     const i = picked(e);
-    if (i != null && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onPick!(+i); }
+    if (i != null && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      onPick!(+i);
+    }
   };
   const svg = (s: { svg: string; w: number; h: number }, cls: string, id: string, aria: string) => (
-    <svg className={cls} viewBox={`0 0 ${s.w} ${s.h}`} role={onPick ? 'group' : 'img'} aria-label={aria}
-      onClick={onPick && click} onKeyDown={onPick && key}>
+    <svg
+      className={cls}
+      viewBox={`0 0 ${s.w} ${s.h}`}
+      role={onPick ? 'group' : 'img'}
+      aria-label={aria}
+      onClick={onPick && click}
+      onKeyDown={onPick && key}
+    >
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: the ink filter, built from numbers */}
       <defs dangerouslySetInnerHTML={{ __html: filterFor(1, prefix + id) }} />
       {/* the kit escapes every message text (esc) before it reaches this string */}
@@ -45,12 +62,15 @@ export default function FlatStage({ lanes, msgs, upTo = msgs.length, onPick, cla
   return (
     <figure className={`flat ${className ?? ''}`}>
       {svg(wide, 'flat-wide', 'hand', label)}
-      {svg(phone, 'flat-phone', 'phand',
-        cur >= 0 ? `${label} Showing message ${cur + 1}.` : label)}
+      {svg(phone, 'flat-phone', 'phand', cur >= 0 ? `${label} Showing message ${cur + 1}.` : label)}
       <div className="flat-nav">
-        <button type="button" className="chip" onClick={() => go(cur - 1)} disabled={cur <= 0}>← Prev</button>
+        <button type="button" className="chip" onClick={() => go(cur - 1)} disabled={cur <= 0}>
+          ← Prev
+        </button>
         <span aria-live="polite">{shown ? `Message ${cur + 1} of ${shown}` : 'No messages yet'}</span>
-        <button type="button" className="chip" onClick={() => go(cur + 1)} disabled={cur >= shown - 1}>Next →</button>
+        <button type="button" className="chip" onClick={() => go(cur + 1)} disabled={cur >= shown - 1}>
+          Next →
+        </button>
       </div>
     </figure>
   );

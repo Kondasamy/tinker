@@ -36,7 +36,8 @@ describe('chapter 7: the workbench', () => {
   });
   it('every policy’s totals equal the sum over its cases', () => {
     for (const p of POLICIES) {
-      const rows = byCase(play(p)), t = totals(play(p));
+      const rows = byCase(play(p)),
+        t = totals(play(p));
       expect(rows.map(r => r.case)).toEqual(['refund-window', 'free-shipping', 'sensor-warranty']);
       expect(rows.reduce((n, r) => n + r.tokens, 0)).toBe(t.tokens);
       expect(rows.reduce((n, r) => n + r.cost, 0)).toBeCloseTo(t.cost, 6);
@@ -49,11 +50,12 @@ describe('chapter 7: the workbench', () => {
   });
   it('the puzzle accepts every policy with the most right answers at the lowest cost, and not the first policy', () => {
     expect(WINNERS.length).toBeGreaterThan(0);
-    expect(WINNERS[0]).toEqual({ retrieval: 'fetch', history: 'full', cache: true });   // the chapter's closing narration names it
-    for (const w of WINNERS) for (const p of POLICIES) {
-      expect(score(w).right).toBeGreaterThanOrEqual(score(p).right);
-      if (score(p).right === score(w).right) expect(score(w).cost).toBeLessThanOrEqual(score(p).cost);
-    }
+    expect(WINNERS[0]).toEqual({ retrieval: 'fetch', history: 'full', cache: true }); // the chapter's closing narration names it
+    for (const w of WINNERS)
+      for (const p of POLICIES) {
+        expect(score(w).right).toBeGreaterThanOrEqual(score(p).right);
+        if (score(p).right === score(w).right) expect(score(w).cost).toBeLessThanOrEqual(score(p).cost);
+      }
     expect(solved(STUFF_ALL)).toBe(false);
   });
 });

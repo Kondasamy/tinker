@@ -10,7 +10,8 @@ describe('reasoning chapters', () => {
     const m = moduleOf('reasoning');
     expect(m).toMatchObject({ status: 'live', level: 'Intermediate', prereqs: ['evals'] });
     expect(m.chapters).toHaveLength(7);
-    for (const c of m.chapters) expect(m.recall!.filter(i => i.chapter === c.id).length, c.id).toBeGreaterThanOrEqual(3);
+    for (const c of m.chapters)
+      expect(m.recall!.filter(i => i.chapter === c.id).length, c.id).toBeGreaterThanOrEqual(3);
     expect(m.recall!.filter(i => i.pin)).toHaveLength(1);
   });
 
@@ -33,7 +34,10 @@ describe('reasoning chapters', () => {
   });
 
   it('chapter 4: all right at low, worse at high', () => {
-    const [low, high] = sweep(ofKind('distractor').map(q => q.id), ['low', 'high']);
+    const [low, high] = sweep(
+      ofKind('distractor').map(q => q.id),
+      ['low', 'high'],
+    );
     expect(low.right).toBe(low.of);
     expect(high.right).toBeLessThan(low.right);
   });

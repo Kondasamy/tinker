@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { DOMAINS, WORKBENCH_DOMAINS, combos, answer, RECORDED } from '../../src/lib/reasoning/engine';
 
 describe('reasoning recordings coverage (R3, KTD12)', () => {
-  it.each(Object.keys(DOMAINS))('%s: every question × effort has a recorded answer', (id) => {
+  it.each(Object.keys(DOMAINS))('%s: every question × effort has a recorded answer', id => {
     for (const [q, e] of combos(DOMAINS[id])) expect(() => answer(q, e), `${id} ${q} ${e}`).not.toThrow();
   });
 
@@ -13,8 +13,10 @@ describe('reasoning recordings coverage (R3, KTD12)', () => {
   });
 
   it('every recorded answer is reachable from a chapter or the workbench', () => {
-    const reached = new Set([...Object.values(DOMAINS), WORKBENCH_DOMAINS].flatMap((d) => combos(d).map(([q, e]) => `${q}|${e}`)));
-    expect(RECORDED.filter((k) => !reached.has(k))).toEqual([]);
+    const reached = new Set(
+      [...Object.values(DOMAINS), WORKBENCH_DOMAINS].flatMap(d => combos(d).map(([q, e]) => `${q}|${e}`)),
+    );
+    expect(RECORDED.filter(k => !reached.has(k))).toEqual([]);
   });
 
   it('every answer carries a one-line note, and none = no thinking', () => {

@@ -8,7 +8,8 @@ import { EVAL_BOARD, evalLabel, evalScene, type EvalOpts } from '../components/s
 import { colsOf, Grid, loadSuite, QUESTION_TEXT, resultsOf } from '../content/evals/kit';
 
 const suite = await loadSuite(diskLoader);
-const V1 = resultsOf(suite.v1), V2 = resultsOf(suite.v2);
+const V1 = resultsOf(suite.v1),
+  V2 = resultsOf(suite.v2);
 
 const STATES: [string, EvalOpts][] = [
   ['Empty suite: the bench, no cards', { results: [] }],

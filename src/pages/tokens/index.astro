@@ -24,16 +24,29 @@ const CHAPTERS = MODULE.chapters;
 const shareOf = (n: number) => `/og/tokens-${CHAPTERS[n - 1].id}.jpg`;
 const textOf = (id: string) => SENTENCES.find(s => s.id === id)!.text;
 // the whole idea: Larkspur's order sentence, as typed and as the site tokenizer cuts it
-const SAMPLE = textOf('order-en'), C = countText(SAMPLE), ENC = siteEncoding(SAMPLE);
+const SAMPLE = textOf('order-en'),
+  C = countText(SAMPLE),
+  ENC = siteEncoding(SAMPLE);
 const HERO: TokenOpts = { text: SAMPLE, scale: 1.7 };
-const NEW = TOKENIZERS[TOKENIZERS.length - 1], OLD = TOKENIZERS[0];
+const NEW = TOKENIZERS[TOKENIZERS.length - 1],
+  OLD = TOKENIZERS[0];
 const tokensOn = (sentence: string, t: string) => encodingOf(sentence, t).ids.length;
 // three ideas, each in a small press: the sentence cut, the Japanese order on the newest recorded tokenizer, and
 // chapter 5's picture of RAG's map
 const JA = textOf('order-ja');
 const IDEAS: [string, string, ReturnType<typeof fact>, TokenOpts | string][] = [
-  ['Tokens, not words', 'The tokenizer cuts text into numbered pieces', fact('bpe-origin'), { text: SAMPLE, scale: 1.7 }],
-  ['Tokens are the meter', `Same message in Japanese: ${tokensWord(tokensOn('order-ja', NEW.id))} on ${NEW.name}`, fact('billed-in-tokens'), { text: JA, tokens: tokensOn('order-ja', NEW.id), scale: 1.7 }],
+  [
+    'Tokens, not words',
+    'The tokenizer cuts text into numbered pieces',
+    fact('bpe-origin'),
+    { text: SAMPLE, scale: 1.7 },
+  ],
+  [
+    'Tokens are the meter',
+    `Same message in Japanese: ${tokensWord(tokensOn('order-ja', NEW.id))} on ${NEW.name}`,
+    fact('billed-in-tokens'),
+    { text: JA, tokens: tokensOn('order-ja', NEW.id), scale: 1.7 },
+  ],
   ['Meaning by neighbours', 'Texts that mean the same sit close together', fact('embedding-def'), shareOf(5)],
 ];
 // Larkspur's documents on the meter (chapter 3)

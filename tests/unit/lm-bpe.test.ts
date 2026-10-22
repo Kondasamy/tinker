@@ -5,16 +5,24 @@ import { describe, expect, it } from 'vitest';
 import { decode, encode, mergeTrace, pieceBytes, pieceText } from '../../src/lib/lm/bpe';
 import { N_MERGES, train } from '../../src/lib/lm/bpe-train';
 
-const corpus = readdirSync('data/corpus').filter((f) => f.endsWith('.md')).sort()
-  .map((f) => readFileSync(`data/corpus/${f}`, 'utf8')).join('\n');
+const corpus = readdirSync('data/corpus')
+  .filter(f => f.endsWith('.md'))
+  .sort()
+  .map(f => readFileSync(`data/corpus/${f}`, 'utf8'))
+  .join('\n');
 
 describe('bpe', () => {
   it.each([
-    ['empty', ''], ['emoji', 'Ship it 🚚👍🏽 now'], ['CJK', '注文は明日届きます。'], ['CRLF', 'a\r\nb\r\n'],
-    ['double spaces', 'two  spaces   here'], ['combining marks', 'café ñ'], ['BOM', '﻿hi'],
+    ['empty', ''],
+    ['emoji', 'Ship it 🚚👍🏽 now'],
+    ['CJK', '注文は明日届きます。'],
+    ['CRLF', 'a\r\nb\r\n'],
+    ['double spaces', 'two  spaces   here'],
+    ['combining marks', 'café ñ'],
+    ['BOM', '﻿hi'],
   ])('round-trips %s', (_, s) => expect(decode(encode(s))).toBe(s));
 
-  it('merges aa first on minbpe\'s toy example', () => expect(train('aaabdaaabac', 3)[0]).toEqual([97, 97]));
+  it("merges aa first on minbpe's toy example", () => expect(train('aaabdaaabac', 3)[0]).toEqual([97, 97]));
 
   it('re-trains data/corpus/ to the committed merges.json', () => {
     const committed = readFileSync('data/lm/merges.json', 'utf8');
@@ -25,7 +33,8 @@ describe('bpe', () => {
   it('gives a leading space its own ids', () => expect(encode(' hello')).not.toEqual(encode('hello')));
 
   it('costs more tokens per character in Japanese than in English', () => {
-    const en = 'Your order ships tomorrow.', ja = 'ご注文は明日発送されます。';
+    const en = 'Your order ships tomorrow.',
+      ja = 'ご注文は明日発送されます。';
     expect(encode(ja).length / ja.length).toBeGreaterThan(encode(en).length / en.length);
   });
 

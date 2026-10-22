@@ -27,7 +27,9 @@ test('build output is static only (no server entry)', () => {
 
 test('RAG intro marks finished chapters and continues from the next one', async ({ page }) => {
   await page.goto('/rag/');
-  await page.evaluate(() => localStorage.setItem('rag-progress-v1', JSON.stringify({ done: ['01-history', '02-why-not-stuff-it'], saved: {} })));
+  await page.evaluate(() =>
+    localStorage.setItem('rag-progress-v1', JSON.stringify({ done: ['01-history', '02-why-not-stuff-it'], saved: {} })),
+  );
   await page.reload();
   await expect(page.locator('.path li.done')).toHaveCount(2);
   const cta = page.locator('.hero [data-cta]');
@@ -49,19 +51,27 @@ test('every public page has its own share image, and it is served', async ({ pag
     expect(res.headers()['content-type']).toContain('image/jpeg');
     await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
   }
-  expect(seen.size).toBe(paths.length);   // dedicated: no two pages share an image
-  for (const m of MODULES.filter(m => m.status === 'planned')) {   // roadmap cards only: no page, no image
+  expect(seen.size).toBe(paths.length); // dedicated: no two pages share an image
+  for (const m of MODULES.filter(m => m.status === 'planned')) {
+    // roadmap cards only: no page, no image
     expect((await request.get(`/${m.id}/`)).status(), m.id).toBe(404);
     expect((await request.get(`/og/${m.id}.jpg`)).status(), m.id).toBe(404);
   }
 });
 
 test('AE1: a returning reader keeps RAG progress, and a saved run resumes only on the same steps', async ({ page }) => {
-  const KEY = 'rag-progress-v1', CH3 = '03-what-is-rag';
+  const KEY = 'rag-progress-v1',
+    CH3 = '03-what-is-rag';
   const card = page.getByRole('region', { name: 'Next step' });
-  const open = async () => { await page.reload(); await page.locator('astro-island:not([ssr])').waitFor(); };
+  const open = async () => {
+    await page.reload();
+    await page.locator('astro-island:not([ssr])').waitFor();
+  };
   await page.goto('/');
-  await page.evaluate(k => localStorage.setItem(k, JSON.stringify({ done: ['01-history', '02-why-not-stuff-it'], saved: {} })), KEY);
+  await page.evaluate(
+    k => localStorage.setItem(k, JSON.stringify({ done: ['01-history', '02-why-not-stuff-it'], saved: {} })),
+    KEY,
+  );
   await page.reload();
   await expect(page.locator('[data-module="rag"] [data-progress] .txt')).toHaveText('2 of 7 chapters done');
   await page.locator('[data-cta]').first().click();
@@ -74,13 +84,18 @@ test('AE1: a returning reader keeps RAG progress, and a saved run resumes only o
   await card.getByRole('button', { name: 'Add the Retriever' }).click();
   await expect(card).toContainText('Step 5 of 7');
   // sets a saved run's step ids; none = a run saved before runs carried them
-  const sign = (ch: string, ids?: string[]) => page.evaluate(({ k, ch, ids }) => {
-    const p = JSON.parse(localStorage.getItem(k)!);
-    if (ids) p.saved[ch].ids = ids; else delete p.saved[ch].ids;
-    localStorage.setItem(k, JSON.stringify(p));
-  }, { k: KEY, ch, ids });
+  const sign = (ch: string, ids?: string[]) =>
+    page.evaluate(
+      ({ k, ch, ids }) => {
+        const p = JSON.parse(localStorage.getItem(k)!);
+        if (ids) p.saved[ch].ids = ids;
+        else delete p.saved[ch].ids;
+        localStorage.setItem(k, JSON.stringify(p));
+      },
+      { k: KEY, ch, ids },
+    );
   await open();
-  await expect(card).toContainText('Step 5 of 7');   // saved on its own steps: resumes
+  await expect(card).toContainText('Step 5 of 7'); // saved on its own steps: resumes
 
   // a run saved on other steps restarts the chapter; finished chapters stay finished
   await sign(CH3, ['ask', 'new', 'docs', 'retriever', 'grounded', 'math', 'quiz']);
@@ -101,7 +116,10 @@ test('AE1: a returning reader keeps RAG progress, and a saved run resumes only o
   await sign('01-history');
   await open();
   await expect(card).toContainText('Step 3 of 6');
-  expect(await page.evaluate(k => JSON.parse(localStorage.getItem(k)!).done, KEY)).toEqual(['01-history', '02-why-not-stuff-it']);
+  expect(await page.evaluate(k => JSON.parse(localStorage.getItem(k)!).done, KEY)).toEqual([
+    '01-history',
+    '02-why-not-stuff-it',
+  ]);
 });
 
 // SEO: a sitemap of every indexable page, robots.txt pointing at it, recaps and the 404 kept out of search,
@@ -111,10 +129,14 @@ test('the sitemap lists every indexable page and no recap; robots.txt points to 
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(x => new URL(x[1]).pathname);
   expect(locs).toEqual(ALL_PAGES.filter(p => !p.noindex).map(p => p.path));
   expect(locs.some(p => p.endsWith('/recap/'))).toBe(false);
-  expect(await (await request.get('/robots.txt')).text()).toContain('Sitemap: https://tinker.kondasamy.com/sitemap.xml');
+  expect(await (await request.get('/robots.txt')).text()).toContain(
+    'Sitemap: https://tinker.kondasamy.com/sitemap.xml',
+  );
 });
 
-test('structured data: the site on home, a course on an intro, a lesson with breadcrumbs on a chapter, none on a recap', async ({ page }) => {
+test('structured data: the site on home, a course on an intro, a lesson with breadcrumbs on a chapter, none on a recap', async ({
+  page,
+}) => {
   const graph = async (path: string) => {
     await page.goto(path);
     const raw = await page.locator('script[type="application/ld+json"]').allTextContents();

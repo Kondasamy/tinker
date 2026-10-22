@@ -14,7 +14,11 @@ interface Props {
 export default function Predict({ question, options, value, onPredict }: Props) {
   return (
     <Choices question={question} options={options} pick={value} locked onPick={i => onPredict?.(i)}>
-      {value !== null && <p><strong>You predicted: {options[value]}</strong></p>}
+      {value !== null && (
+        <p>
+          <strong>You predicted: {options[value]}</strong>
+        </p>
+      )}
     </Choices>
   );
 }
@@ -28,11 +32,18 @@ interface RevealProps {
 }
 
 export function Reveal({ prediction, outcome, revealed, onReveal, label = 'Show what happens' }: RevealProps) {
-  if (!revealed) return <button type="button" className="chip" onClick={onReveal}>{label}</button>;
+  if (!revealed)
+    return (
+      <button type="button" className="chip" onClick={onReveal}>
+        {label}
+      </button>
+    );
   const same = prediction === outcome;
   return (
     <div className="feedback" role="status">
-      <span className={`stamp ${same ? 'correct' : 'neutral'}`}>{same ? 'AS YOU PREDICTED' : 'NOT WHAT YOU PREDICTED'}</span>
+      <span className={`stamp ${same ? 'correct' : 'neutral'}`}>
+        {same ? 'AS YOU PREDICTED' : 'NOT WHAT YOU PREDICTED'}
+      </span>
       <p>You predicted: {prediction ?? 'nothing'}</p>
       <p>What happened: {outcome}</p>
     </div>

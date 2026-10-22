@@ -5,23 +5,40 @@ import type { Attempt } from './recall';
 
 const LAST = 'tinker-last-module';
 
-export interface RecallResult { right: boolean; unsure: boolean; at: number }
-interface Progress { done: string[]; saved: Record<string, unknown>; at?: Record<string, number>; recall?: Record<string, RecallResult>; recap?: Attempt }
+export interface RecallResult {
+  right: boolean;
+  unsure: boolean;
+  at: number;
+}
+interface Progress {
+  done: string[];
+  saved: Record<string, unknown>;
+  at?: Record<string, number>;
+  recall?: Record<string, RecallResult>;
+  recap?: Attempt;
+}
 
 function read(module: string): Progress {
   try {
     const p = JSON.parse(localStorage.getItem(key(module)) ?? 'null');
     if (p && Array.isArray(p.done) && p.saved && typeof p.saved === 'object') return p;
-  } catch { /* no storage, or corrupt entry: start fresh */ }
+  } catch {
+    /* no storage, or corrupt entry: start fresh */
+  }
   return { done: [], saved: {} };
 }
 
 // a stored field that is not an object reads as empty
-const atOf = (p: Progress): Record<string, number> => p.at && typeof p.at === 'object' ? p.at : {};
-const recallOf = (p: Progress): Record<string, RecallResult> => p.recall && typeof p.recall === 'object' ? p.recall : {};
+const atOf = (p: Progress): Record<string, number> => (p.at && typeof p.at === 'object' ? p.at : {});
+const recallOf = (p: Progress): Record<string, RecallResult> =>
+  p.recall && typeof p.recall === 'object' ? p.recall : {};
 
 function write(module: string, p: Progress) {
-  try { localStorage.setItem(key(module), JSON.stringify(p)); } catch { /* storage unavailable: nothing is saved */ }
+  try {
+    localStorage.setItem(key(module), JSON.stringify(p));
+  } catch {
+    /* storage unavailable: nothing is saved */
+  }
 }
 
 export const completed = (module: string): string[] => read(module).done;
@@ -39,7 +56,11 @@ export const loadChapter = <T>(module: string, id: string): T | undefined => rea
 export function saveChapter(module: string, id: string, data: unknown) {
   const p = read(module);
   write(module, { ...p, saved: { ...p.saved, [id]: data } });
-  try { localStorage.setItem(LAST, module); } catch { /* storage unavailable */ }
+  try {
+    localStorage.setItem(LAST, module);
+  } catch {
+    /* storage unavailable */
+  }
 }
 
 /** The latest result per recall item. It sits outside chapter runs, so a chapter Reset never wipes it (KTD7). */
@@ -60,16 +81,28 @@ export const saveAttempt = (module: string, a: Attempt) => write(module, { ...re
 
 /** The module the reader saved a chapter in most recently. */
 export function lastModule(): string | undefined {
-  try { return localStorage.getItem(LAST) ?? undefined; } catch { return undefined; }
+  try {
+    return localStorage.getItem(LAST) ?? undefined;
+  } catch {
+    return undefined;
+  }
 }
 
-interface ChapterLike { id: string }
+interface ChapterLike {
+  id: string;
+}
 
 export type NavMark = 'done' | 'current' | 'skipped' | 'todo';
 
-export function navMark(chapters: readonly ChapterLike[], id: string, currentId: string, done: readonly string[]): NavMark {
+export function navMark(
+  chapters: readonly ChapterLike[],
+  id: string,
+  currentId: string,
+  done: readonly string[],
+): NavMark {
   if (id === currentId) return 'current';
   if (done.includes(id)) return 'done';
-  const i = chapters.findIndex(c => c.id === id), cur = chapters.findIndex(c => c.id === currentId);
+  const i = chapters.findIndex(c => c.id === id),
+    cur = chapters.findIndex(c => c.id === currentId);
   return i < cur ? 'skipped' : 'todo';
 }

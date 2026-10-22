@@ -6,9 +6,12 @@ import { fact } from '../../lib/tokens/facts';
 
 const CHAPTERS: Chapter[] = [
   {
-    id: '01-what-the-model-reads', title: 'What the model reads', short: 'What it reads',
+    id: '01-what-the-model-reads',
+    title: 'What the model reads',
+    short: 'What it reads',
     intro: {
-      story: 'You have joined the team building an AI assistant for Larkspur Supply Co., a hardware company. Before the assistant reads a single document, the team wants to know what a model actually reads when you send it text.',
+      story:
+        'You have joined the team building an AI assistant for Larkspur Supply Co., a hardware company. Before the assistant reads a single document, the team wants to know what a model actually reads when you send it text.',
       goal: 'When you type a sentence, what does the model receive?',
       learn: [
         'Text reaches the model as a list of tokens, each one a number',
@@ -16,16 +19,28 @@ const CHAPTERS: Chapter[] = [
         'How to count a sentence in tokens, words and characters',
       ],
       terms: [
-        ['Token', 'A piece of text the model reads as one unit: a word, part of a word, a space with a word, or a single byte. Each token has a number, its id.'],
-        ['Tokenizer', 'The program that cuts text into tokens and turns them into ids, before the model sees anything.'],
-        ['Vocabulary', 'Every token a tokenizer knows, each with its id. Text can only be cut into tokens from this list.'],
+        [
+          'Token',
+          'A piece of text the model reads as one unit: a word, part of a word, a space with a word, or a single byte. Each token has a number, its id.',
+        ],
+        [
+          'Tokenizer',
+          'The program that cuts text into tokens and turns them into ids, before the model sees anything.',
+        ],
+        [
+          'Vocabulary',
+          'Every token a tokenizer knows, each with its id. Text can only be cut into tokens from this list.',
+        ],
       ],
     },
   },
   {
-    id: '02-how-the-vocabulary-is-learned', title: 'How the vocabulary is learned', short: 'Learning the vocabulary',
+    id: '02-how-the-vocabulary-is-learned',
+    title: 'How the vocabulary is learned',
+    short: 'Learning the vocabulary',
     intro: {
-      story: 'The sentence came out as more tokens than words: the tokenizer cut some words into pieces. The pieces are not chosen by hand. The tokenizer learned them from Larkspur’s own documents.',
+      story:
+        'The sentence came out as more tokens than words: the tokenizer cut some words into pieces. The pieces are not chosen by hand. The tokenizer learned them from Larkspur’s own documents.',
       goal: 'Where does a tokenizer’s vocabulary come from, and why does it cut words where it does?',
       learn: [
         'A byte-level tokenizer starts from single bytes, so it can read any text',
@@ -33,16 +48,25 @@ const CHAPTERS: Chapter[] = [
         'Why the order of merges comes from the training text, not from the text you send',
       ],
       terms: [
-        ['Byte', 'The smallest unit computers store text in. An English letter is one byte; many other characters take two to four.'],
-        ['Merge', 'A rule the tokenizer learned: wherever these two tokens sit side by side, glue them into one new token.'],
+        [
+          'Byte',
+          'The smallest unit computers store text in. An English letter is one byte; many other characters take two to four.',
+        ],
+        [
+          'Merge',
+          'A rule the tokenizer learned: wherever these two tokens sit side by side, glue them into one new token.',
+        ],
         ['Byte pair encoding (BPE)', fact('bpe-origin').claim],
       ],
     },
   },
   {
-    id: '03-tokens-are-the-meter', title: 'Tokens are the meter', short: 'The meter',
+    id: '03-tokens-are-the-meter',
+    title: 'Tokens are the meter',
+    short: 'The meter',
     intro: {
-      story: 'Larkspur’s tokenizer learned its pieces from the company’s documents. Now the team wants to know what all those documents cost to send to a model, and whether a quick rule of thumb is good enough to plan with.',
+      story:
+        'Larkspur’s tokenizer learned its pieces from the company’s documents. Now the team wants to know what all those documents cost to send to a model, and whether a quick rule of thumb is good enough to plan with.',
       goal: 'How many tokens are Larkspur’s documents, and how far off is the rule of thumb?',
       learn: [
         'Why providers bill and size the context window in tokens',
@@ -51,15 +75,24 @@ const CHAPTERS: Chapter[] = [
       ],
       terms: [
         ['Rule of thumb', fact('openai-rule').claim],
-        ['Context window', 'The most tokens a model can read in one go: the prompt, the documents and its reply together.'],
-        ['In-sample', 'Counted on the same text the tokenizer was trained on. It looks better than it would on new text.'],
+        [
+          'Context window',
+          'The most tokens a model can read in one go: the prompt, the documents and its reply together.',
+        ],
+        [
+          'In-sample',
+          'Counted on the same text the tokenizer was trained on. It looks better than it would on new text.',
+        ],
       ],
     },
   },
   {
-    id: '04-every-tokenizer-splits-differently', title: 'Every tokenizer splits differently', short: 'Different splits',
+    id: '04-every-tokenizer-splits-differently',
+    title: 'Every tokenizer splits differently',
+    short: 'Different splits',
     intro: {
-      story: 'Real tokenizers counted Larkspur’s documents differently from each other. The team now looks at why, sentence by sentence.',
+      story:
+        'Real tokenizers counted Larkspur’s documents differently from each other. The team now looks at why, sentence by sentence.',
       goal: 'Why does the same sentence become different tokens on different tokenizers?',
       learn: [
         'How leading spaces and capitals make different tokens',
@@ -73,9 +106,12 @@ const CHAPTERS: Chapter[] = [
     },
   },
   {
-    id: '05-from-token-to-vector', title: 'From token to vector', short: 'To vectors',
+    id: '05-from-token-to-vector',
+    title: 'From token to vector',
+    short: 'To vectors',
     intro: {
-      story: 'Tokens are numbers, but an id says nothing about meaning: id 500 is no closer to id 501 than to id 9. Larkspur’s search, built in the RAG module, needs text that means the same to sit close together.',
+      story:
+        'Tokens are numbers, but an id says nothing about meaning: id 500 is no closer to id 501 than to id 9. Larkspur’s search, built in the RAG module, needs text that means the same to sit close together.',
       goal: 'How does text become a list of numbers that carries its meaning?',
       learn: [
         'What an embedding is: a list of numbers for a piece of text',
@@ -90,9 +126,12 @@ const CHAPTERS: Chapter[] = [
     },
   },
   {
-    id: '06-meaning-by-neighbours', title: 'Meaning by neighbours', short: 'Neighbours',
+    id: '06-meaning-by-neighbours',
+    title: 'Meaning by neighbours',
+    short: 'Neighbours',
     intro: {
-      story: 'Each Larkspur document piece and each customer question now has an embedding. To answer a question, the assistant needs the pieces whose meaning is closest.',
+      story:
+        'Each Larkspur document piece and each customer question now has an embedding. To answer a question, the assistant needs the pieces whose meaning is closest.',
       goal: 'How do you measure how close two meanings are, and find the nearest ones?',
       learn: [
         'Cosine similarity: how close two embeddings point',
@@ -106,9 +145,12 @@ const CHAPTERS: Chapter[] = [
     },
   },
   {
-    id: '07-workbench', title: 'Workbench: fit the prompt', short: 'Workbench',
+    id: '07-workbench',
+    title: 'Workbench: fit the prompt',
+    short: 'Workbench',
     intro: {
-      story: 'Larkspur’s assistant builds each prompt from parts: instructions, the customer’s question, document pieces, examples. The team has a token budget per request and must choose what fits.',
+      story:
+        'Larkspur’s assistant builds each prompt from parts: instructions, the customer’s question, document pieces, examples. The team has a token budget per request and must choose what fits.',
       goal: 'Which parts of Larkspur’s prompt fit in the budget, and which matter most?',
       learn: [
         'How a prompt’s token count adds up from its parts',
@@ -126,12 +168,14 @@ const CHAPTERS: Chapter[] = [
 export const TOKENS_MODULE: Module = {
   id: 'tokens',
   title: 'Tokens & embeddings',
-  description: 'How text becomes the numbers a model reads: tokens to count and pay for, and embeddings that carry meaning.',
+  description:
+    'How text becomes the numbers a model reads: tokens to count and pay for, and embeddings that carry meaning.',
   level: 'Beginner',
   status: 'live',
   author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
   prereqs: [],
-  story: 'Larkspur Supply Co. is building an AI assistant, and the team starts where the model does: with the tokens it reads and the numbers that carry meaning.',
+  story:
+    'Larkspur Supply Co. is building an AI assistant, and the team starts where the model does: with the tokens it reads and the numbers that carry meaning.',
   chapters: CHAPTERS,
   recall: RECALL,
 };

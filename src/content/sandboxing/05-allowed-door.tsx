@@ -12,19 +12,34 @@ import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
 import { Chips, Fact, Files as FilesPanel, runCached, SandboxStage, sandboxProps, says, type View } from './kit';
 
-const MODULE = 'sandboxing', ID = '05-allowed-door';
+const MODULE = 'sandboxing',
+  ID = '05-allowed-door';
 type Case = 'beacon' | 'report';
-interface S { kase: Case; files: Files; ran: boolean; p1: number | null; quiz: number | null; view: View }
-const R = (s: Pick<S, 'kase' | 'files'>) => runCached({ case: s.kase, sandbox: true, files: s.files, egress: 'allowlist', secret: 'proxy' });
+interface S {
+  kase: Case;
+  files: Files;
+  ran: boolean;
+  p1: number | null;
+  quiz: number | null;
+  view: View;
+}
+const R = (s: Pick<S, 'kase' | 'files'>) =>
+  runCached({ case: s.kase, sandbox: true, files: s.files, egress: 'allowlist', secret: 'proxy' });
 
 const P1 = {
-  question: 'The agent can only reach Larkspur’s own API, and the attack smuggles the record there. One fix is to stop mounting the customer data the report task doesn’t even need. Does that stop the leak?',
-  options: ['No: the attack can read the data from somewhere else', 'Yes: with no customer data mounted, there is nothing to smuggle out', 'Only if the allow-list is emptied too'],
+  question:
+    'The agent can only reach Larkspur’s own API, and the attack smuggles the record there. One fix is to stop mounting the customer data the report task doesn’t even need. Does that stop the leak?',
+  options: [
+    'No: the attack can read the data from somewhere else',
+    'Yes: with no customer data mounted, there is nothing to smuggle out',
+    'Only if the allow-list is emptied too',
+  ],
 };
 const OUT1 = R({ kase: 'beacon', files: 'nodata' }).attackMet ? 0 : 1;
 
 const QUIZ = {
-  question: 'An agent may only reach the company’s own API host. A colleague says “so data can’t leak.” What do you tell them?',
+  question:
+    'An agent may only reach the company’s own API host. A colleague says “so data can’t leak.” What do you tell them?',
   options: [
     'Agreed: if the only host is ours, nothing can get out',
     'An attack can hide stolen data inside a request to the allowed host, so the allow-list alone does not stop a leak',
@@ -32,7 +47,8 @@ const QUIZ = {
     'Turn off the agent’s network entirely',
   ],
   correct: 1,
-  explanation: 'The allow-list decides which host, not what the request contains; the reliable fix is to remove a leg of the trifecta.',
+  explanation:
+    'The allow-list decides which host, not what the request contains; the reliable fix is to remove a leg of the trifecta.',
   why: [
     'An allowed door is still a door: a request to it can carry whatever the attacker chose.',
     'Right. A smuggled record leaves through the open door. You have to take away a leg: the data, the untrusted content, or the way out.',
@@ -43,40 +59,60 @@ const QUIZ = {
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'leak', focus: 'run', visibleControls: ['run'], opensDrawer: 'messages',
+    id: 'leak',
+    focus: 'run',
+    visibleControls: ['run'],
+    opensDrawer: 'messages',
     narration: `The sandbox is scoped, the egress is an allow-list (Larkspur’s API only), the secret is with the proxy. A note tells the agent to add a customer’s record to a routine “status ping” to that API. Run it.`,
     predicate: s => s.kase === 'beacon' && s.files === 'scoped' && s.ran,
     hint: 'Press Run.',
   },
   {
-    id: 'predict', focus: 'p1', visibleControls: ['p1'], opensDrawer: null,
+    id: 'predict',
+    focus: 'p1',
+    visibleControls: ['p1'],
+    opensDrawer: null,
     narration: `${says('beacon')}. This is the lethal trifecta from Guardrails: private data, untrusted content, and a way out. The allowed door is the way out. You can read it again in the Guardrails chapter on it: see the link below. The only reliable fix is to remove one leg.`,
     predicate: s => s.p1 !== null,
   },
   {
-    id: 'cut', focus: 'files', visibleControls: ['p1', 'out1', 'files', 'run'],
-    narration: 'Remove the data leg: switch to the “no data” mounts, which don’t expose the customer records at all. Run the attack again.',
+    id: 'cut',
+    focus: 'files',
+    visibleControls: ['p1', 'out1', 'files', 'run'],
+    narration:
+      'Remove the data leg: switch to the “no data” mounts, which don’t expose the customer records at all. Run the attack again.',
     predicate: s => s.kase === 'beacon' && s.files === 'nodata' && s.ran && !R(s).attackMet,
     hint: 'Set the mounts to “no data” and press Run.',
   },
   {
-    id: 'task', focus: 'case', visibleControls: ['case', 'files', 'run'],
-    narration: 'With no customer data to read, there is nothing to smuggle. And the report task never needed that data, so it still runs. Switch to the report task (mounts still “no data”) and run it.',
+    id: 'task',
+    focus: 'case',
+    visibleControls: ['case', 'files', 'run'],
+    narration:
+      'With no customer data to read, there is nothing to smuggle. And the report task never needed that data, so it still runs. Switch to the report task (mounts still “no data”) and run it.',
     setup: s => ({ ...s, kase: 'report', files: 'nodata', ran: false }),
     predicate: s => s.kase === 'report' && s.ran && R(s).caseDone,
     hint: 'Pick the report task and press Run.',
   },
   {
-    id: 'quiz', focus: 'quiz', visibleControls: ['quiz'],
-    narration: 'Least privilege did it: not mounting data the task doesn’t need removed a whole leg of the trifecta, at no cost to the real work. One question to finish.',
+    id: 'quiz',
+    focus: 'quiz',
+    visibleControls: ['quiz'],
+    narration:
+      'Least privilege did it: not mounting data the task doesn’t need removed a whole leg of the trifecta, at no cost to the real work. One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Does the allow-list check what’s inside a request, or only which host it goes to?',
   },
 ];
 
 const status = (r: ReturnType<typeof R>, kase: Case) =>
-  kase === 'beacon' ? (r.attackMet ? `The attack worked. ${says('beacon')}.` : 'The attack was stopped: no customer data was mounted to smuggle.')
-    : (r.caseDone ? 'The report task finished (it never needed the customer data).' : 'The report task was blocked.');
+  kase === 'beacon'
+    ? r.attackMet
+      ? `The attack worked. ${says('beacon')}.`
+      : 'The attack was stopped: no customer data was mounted to smuggle.'
+    : r.caseDone
+      ? 'The report task finished (it never needed the customer data).'
+      : 'The report task was blocked.';
 
 export default function AllowedDoorChapter() {
   return (
@@ -88,27 +124,78 @@ export default function AllowedDoorChapter() {
       next={nextOf(MODULE, ID)}
       stage={({ state, sync, inspect }) => {
         const r = R(state);
-        return <SandboxStage run={r} upTo={state.ran ? r.steps.length : 0} props={sandboxProps({ sandbox: true, files: state.files, egress: 'allowlist', secret: 'proxy' })} inspect={inspect} view={state.view} onView={view => sync({ ...state, view })} />;
+        return (
+          <SandboxStage
+            run={r}
+            upTo={state.ran ? r.steps.length : 0}
+            props={sandboxProps({ sandbox: true, files: state.files, egress: 'allowlist', secret: 'proxy' })}
+            inspect={inspect}
+            view={state.view}
+            onView={view => sync({ ...state, view })}
+          />
+        );
       }}
       controls={{
         run: ({ state, sync }) => (
           <>
-            <button type="button" className="big" onClick={() => sync({ ...state, ran: true })}>Run it</button>
-            {state.ran && <p className="tc-status" role="status">{status(R(state), state.kase)}</p>}
+            <button type="button" className="big" onClick={() => sync({ ...state, ran: true })}>
+              Run it
+            </button>
+            {state.ran && (
+              <p className="tc-status" role="status">
+                {status(R(state), state.kase)}
+              </p>
+            )}
           </>
         ),
-        files: ({ state, apply }) => <Chips<Files> label="Mounts" values={['scoped', 'nodata']} value={state.files} name={v => v === 'scoped' ? 'Mounts: scoped (data read-only)' : 'Mounts: no data'} pick={v => apply({ ...state, files: v, ran: false })} />,
-        case: ({ state, apply }) => <Chips<Case> label="Task" values={['beacon', 'report']} value={state.kase} name={v => v === 'beacon' ? 'The smuggle attack' : 'The report task'} pick={v => apply({ ...state, kase: v, ran: false })} />,
+        files: ({ state, apply }) => (
+          <Chips<Files>
+            label="Mounts"
+            values={['scoped', 'nodata']}
+            value={state.files}
+            name={v => (v === 'scoped' ? 'Mounts: scoped (data read-only)' : 'Mounts: no data')}
+            pick={v => apply({ ...state, files: v, ran: false })}
+          />
+        ),
+        case: ({ state, apply }) => (
+          <Chips<Case>
+            label="Task"
+            values={['beacon', 'report']}
+            value={state.kase}
+            name={v => (v === 'beacon' ? 'The smuggle attack' : 'The report task')}
+            pick={v => apply({ ...state, kase: v, ran: false })}
+          />
+        ),
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUT1} />,
-        quiz: ({ state, apply, sync }) => <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />,
+        quiz: ({ state, apply, sync }) => (
+          <Quiz
+            {...QUIZ}
+            unsure
+            value={state.quiz}
+            onAnswer={(_, q) => apply({ ...state, quiz: q })}
+            onUnsure={() => sync({ ...state, quiz: UNSURE })}
+          />
+        ),
       }}
       inspectPanel="messages"
       panels={{
         files: { title: 'The files in play', render: () => <FilesPanel /> },
         messages: {
           title: 'Steps',
-          render: s => { const r = R(s); return <><Messages lanes={sandboxLanes()} msgs={sandboxMessages(r)} upTo={s.ran ? r.steps.length : 0} /><p className="tc-fact">The lethal trifecta is from Guardrails: <a href="/guardrails/04-the-trifecta/">the chapter on it</a> shows the three legs.</p><Fact id="allowed-domain-leak" /></>; },
+          render: s => {
+            const r = R(s);
+            return (
+              <>
+                <Messages lanes={sandboxLanes()} msgs={sandboxMessages(r)} upTo={s.ran ? r.steps.length : 0} />
+                <p className="tc-fact">
+                  The lethal trifecta is from Guardrails: <a href="/guardrails/04-the-trifecta/">the chapter on it</a>{' '}
+                  shows the three legs.
+                </p>
+                <Fact id="allowed-domain-leak" />
+              </>
+            );
+          },
         },
       }}
     />

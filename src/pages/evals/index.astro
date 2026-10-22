@@ -23,17 +23,24 @@ const CHAPTERS = MODULE.chapters;
 const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
 
 const suite = await loadSuite(diskLoader);
-const { v1: V1, v2: V2 } = VERSIONS, N = QUESTIONS.length;
+const { v1: V1, v2: V2 } = VERSIONS,
+  N = QUESTIONS.length;
 const { fixed, broken } = compare(suite.v1, suite.v2);
 const at = (id: string) => QUESTIONS.findIndex(q => q.id === id);
 // chapter 1's two tried questions: ones v2 fixes
-const TRIED = fixed.slice(0, 2).map(at), BROKE = broken.map(at);
+const TRIED = fixed.slice(0, 2).map(at),
+  BROKE = broken.map(at);
 const V2ALL: EvalOpts = { results: resultsOf(suite.v2), version: V2.label, scale: 1.7 };
 const R = resultsOf(suite.v1);
 // how a suite runs, in three small benches: cards waiting, part graded, all graded
 const STEPS: [string, string, ReturnType<typeof fact>, EvalOpts][] = [
   ['A test set', 'The same questions, every time', fact('eval'), { results: R, graded: 0, riding: true, scale: 1.7 }],
-  ['Graders', 'Code, a model judge or a person stamps each answer', fact('code-graders'), { results: R, graded: Math.ceil(N / 2), riding: true, scale: 1.7 }],
+  [
+    'Graders',
+    'Code, a model judge or a person stamps each answer',
+    fact('code-graders'),
+    { results: R, graded: Math.ceil(N / 2), riding: true, scale: 1.7 },
+  ],
   ['Compare versions', 'Question by question', fact('trial'), { results: R, version: V1.label, scale: 1.7 }],
 ];
 const FACTS: [string, string][] = [

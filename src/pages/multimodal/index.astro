@@ -26,23 +26,53 @@ const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
 const scene = (o: ScanOpts) => ({ ...o, scale: 1.2 });
 const HERO = scene({ image: 'invoice', size: 1600, method: 'vision' });
 // the whole idea: the same invoice read at two sizes (recorded readings, graded live)
-const SIDES = ([400, 1600] as const).map(size => ({ size, g: grade('invoice', size, 'vision'), tokens: sent('invoice', size).count.tokens }));
+const SIDES = ([400, 1600] as const).map(size => ({
+  size,
+  g: grade('invoice', size, 'vision'),
+  tokens: sent('invoice', size).count.tokens,
+}));
 // a number is a still of the invoice cut into its patch grid at that size; otherwise the scanning table
 type Idea = [string, string, ReturnType<typeof fact> | null, ScanOpts | number];
 const IDEAS: Idea[] = [
   ['A picture is tokens', 'Cut into 28 px patches, one token each', fact('patches'), 1600],
   ['Size and detail', 'Fewer pixels, fewer tokens, and the small print goes first', fact('text-legible'), 400],
-  ['Reading a scan', 'OCR loses tables and handwriting; vision keeps the layout', fact('ocrbench'), scene({ image: 'slip', size: 1600, method: 'ocr' })],
-  ['Pulling fields out', 'Grade every field against a reference, not one overall score', null, scene({ image: 'invoice', size: 800, method: 'ocr' })],
-  ['Photos of parts', 'When one angle can’t settle it, ask for another', fact('small-images'), scene({ image: 'part-front', size: 1600, method: 'vision' })],
-  ['When pictures mislead', 'Check what was read; text in an image is data, not orders', fact('owasp-multimodal'), scene({ image: 'label', size: 1600, method: 'vision' })],
+  [
+    'Reading a scan',
+    'OCR loses tables and handwriting; vision keeps the layout',
+    fact('ocrbench'),
+    scene({ image: 'slip', size: 1600, method: 'ocr' }),
+  ],
+  [
+    'Pulling fields out',
+    'Grade every field against a reference, not one overall score',
+    null,
+    scene({ image: 'invoice', size: 800, method: 'ocr' }),
+  ],
+  [
+    'Photos of parts',
+    'When one angle can’t settle it, ask for another',
+    fact('small-images'),
+    scene({ image: 'part-front', size: 1600, method: 'vision' }),
+  ],
+  [
+    'When pictures mislead',
+    'Check what was read; text in an image is data, not orders',
+    fact('owasp-multimodal'),
+    scene({ image: 'label', size: 1600, method: 'vision' }),
+  ],
 ];
 const note = (q: 'ocr' | 'vision') => grade('note', 1600, q);
 const FACTS: [string, string][] = [
   [thousands(sent('invoice', 1600).count.tokens), 'image tokens for one invoice at 1,600 px'],
   [`${thousands(costOf('invoice', 1600, 'ocr'))}`, 'text tokens for the same invoice read by OCR'],
-  [`${note('ocr').right} → ${note('vision').right} of ${note('vision').of}`, 'handwritten note fields right, OCR then vision'],
-  [`${Math.round(100 * (1 - LEAST_COST / totals(START).cost))}%`, 'fewer tokens than “vision, largest size” for the same fields'],
+  [
+    `${note('ocr').right} → ${note('vision').right} of ${note('vision').of}`,
+    'handwritten note fields right, OCR then vision',
+  ],
+  [
+    `${Math.round(100 * (1 - LEAST_COST / totals(START).cost))}%`,
+    'fewer tokens than “vision, largest size” for the same fields',
+  ],
 ];
 const checked = longDate(ACCESSED);
 ---

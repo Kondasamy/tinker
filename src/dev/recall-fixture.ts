@@ -2,8 +2,16 @@
 // so the fixture reads real RAG progress. Not course content: RAG's own bank is src/content/rag/recall.ts.
 import type { RecallItem } from '../lib/recall';
 
-const two = (question: string, right: string, wrong: string): Pick<RecallItem, 'question' | 'options' | 'correct' | 'why'> =>
-  ({ question, options: [right, wrong], correct: 0, why: [`Right: ${right}.`, `Not quite: ${wrong} is the myth.`] });
+const two = (
+  question: string,
+  right: string,
+  wrong: string,
+): Pick<RecallItem, 'question' | 'options' | 'correct' | 'why'> => ({
+  question,
+  options: [right, wrong],
+  correct: 0,
+  why: [`Right: ${right}.`, `Not quite: ${wrong} is the myth.`],
+});
 
 export const FIXTURE_BANK: RecallItem[] = [
   { id: 'h-pin', chapter: '01-history', pin: true, ...two('Fixture h-pin: who runs a tool?', 'The host', 'The model') },

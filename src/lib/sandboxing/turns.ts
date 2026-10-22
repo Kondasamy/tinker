@@ -5,8 +5,14 @@ import { NORECORD, type Call } from '../tools/turns';
 export { NORECORD, type Call };
 
 /** One agent turn: `calls` proposes a tool call; none means `text` is the agent's closing note and the run ends. */
-export interface Turn { text: string; calls?: Call[]; note?: string }
-export interface Recording { turns: Record<string, Turn> }
+export interface Turn {
+  text: string;
+  calls?: Call[];
+  note?: string;
+}
+export interface Recording {
+  turns: Record<string, Turn>;
+}
 
 /** Everything the agent can see. Host-only settings (approval, the prompt count) stay out: they change what the host
  * does, not what the agent is shown. Policy reaches the signature only through the outcomes in `hist`. */
@@ -23,7 +29,7 @@ export const RECORDINGS: Record<string, Recording> = Object.fromEntries(
   Object.entries(files).map(([path, rec]) => [path.slice(path.lastIndexOf('/') + 1, -'.json'.length), rec]),
 );
 /** Every scenario's turns in one recording: what chapters and the workbench run against. */
-export const RECORDING: Recording = { turns: Object.assign({}, ...Object.values(RECORDINGS).map((r) => r.turns)) };
+export const RECORDING: Recording = { turns: Object.assign({}, ...Object.values(RECORDINGS).map(r => r.turns)) };
 
 /** Sorted `field=value` pairs joined by `|`. */
 export function signature(s: Seen): string {

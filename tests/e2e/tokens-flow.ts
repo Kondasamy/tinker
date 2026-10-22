@@ -9,7 +9,7 @@ export function tokensWalker(page: Page, mode: Mode, check: (page: Page) => Prom
   const press = (l: Locator) => (kb ? l.press('Enter') : l.click());
   const card = page.getByRole('region', { name: 'Next step' });
   const btn = (name: string | RegExp) => press(card.getByRole('button', { name }));
-  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name }));   // a quiz or prediction option
+  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name })); // a quiz or prediction option
   const step = (n: number) => expect(card).toContainText(`Step ${n} of`);
 
   async function open(id: string) {
@@ -37,8 +37,11 @@ export function tokensWalker(page: Page, mode: Mode, check: (page: Page) => Prom
       await step(3);
       await check(page);
       const box = card.getByLabel('Your text');
-      if (kb) { await box.focus(); await page.keyboard.press('ControlOrMeta+a'); await page.keyboard.type(text); }
-      else await box.fill(text);
+      if (kb) {
+        await box.focus();
+        await page.keyboard.press('ControlOrMeta+a');
+        await page.keyboard.type(text);
+      } else await box.fill(text);
       await btn('Count my text');
       await step(4);
       await check(page);
@@ -80,7 +83,8 @@ export function tokensWalker(page: Page, mode: Mode, check: (page: Page) => Prom
       await btn('Run every sentence');
       await step(3);
       await check(page);
-      const pick = (group: string, name: string | RegExp) => press(card.getByRole('group', { name: group }).getByRole('button', { name }));
+      const pick = (group: string, name: string | RegExp) =>
+        press(card.getByRole('group', { name: group }).getByRole('button', { name }));
       await pick('Sentence', /^shelf Shelf/);
       await pick('Tokenizer', 'GPT-2');
       await step(4);
@@ -100,8 +104,9 @@ export function tokensWalker(page: Page, mode: Mode, check: (page: Page) => Prom
       await press(compare);
       await step(3);
       await check(page);
-      const dot = page.locator('.stage .map circle[tabindex]').last();   // the nearest can sit under the question's diamond
-      if (kb) await dot.focus(); else await dot.hover();
+      const dot = page.locator('.stage .map circle[tabindex]').last(); // the nearest can sit under the question's diamond
+      if (kb) await dot.focus();
+      else await dot.hover();
       await step(4);
       await check(page);
       await opt(quiz);

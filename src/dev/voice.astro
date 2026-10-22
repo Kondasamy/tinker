@@ -21,7 +21,10 @@ const STATES: [string, PhoneOpts][] = [
   ['Speech to speech, reply', { stage: 'reply', mode: 's2s', wait: 900 }],
 ];
 const good = { ...DEFAULT_LINE, silence: 800 as const, streaming: true, bargeIn: true };
-const hes = runCall('hesitant', good), cut = runCall('hesitant', { ...good, silence: 300 }), slots = runCall('slots', good), over = runCall('slots', { ...good, bargeIn: false });
+const hes = runCall('hesitant', good),
+  cut = runCall('hesitant', { ...good, silence: 300 }),
+  slots = runCall('slots', good),
+  over = runCall('slots', { ...good, bargeIn: false });
 ---
 <html lang="en">
   <head>

@@ -38,13 +38,13 @@ describe('structured outputs chapters', () => {
 
 describe('structured outputs recall bank', () => {
   it('covers every chapter with three items, one pinned and first; every option has a why', () => {
-    for (const ch of M.chapters) expect(RECALL.filter((r) => r.chapter === ch.id)).toHaveLength(3);
-    expect(RECALL.filter((r) => r.pin)).toHaveLength(1);
+    for (const ch of M.chapters) expect(RECALL.filter(r => r.chapter === ch.id)).toHaveLength(3);
+    expect(RECALL.filter(r => r.pin)).toHaveLength(1);
     expect(RECALL[0].pin).toBe(true);
     for (const r of RECALL) expect(r.why).toHaveLength(r.options.length);
   });
   it('the answer’s place varies, and each why stays with its option', () => {
-    expect(new Set(RECALL.map((r) => r.correct)).size).toBe(3);
+    expect(new Set(RECALL.map(r => r.correct)).size).toBe(3);
     for (const r of RECALL) expect(r.why[r.correct]).toMatch(/^Right\./);
   });
 });

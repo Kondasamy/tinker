@@ -15,23 +15,36 @@ import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { Fact, TokensStage } from './kit';
 
-const MODULE = 'tokens', ID = '07-workbench';
+const MODULE = 'tokens',
+  ID = '07-workbench';
 const ALL = PARTS.map(p => p.id);
-const LOW = BUDGETS[0], HIGH = BUDGETS[BUDGETS.length - 1];
-const ALL_TOKENS = fit(ALL, LOW).tokens, RATIO = ALL_TOKENS / LOW;
+const LOW = BUDGETS[0],
+  HIGH = BUDGETS[BUDGETS.length - 1];
+const ALL_TOKENS = fit(ALL, LOW).tokens,
+  RATIO = ALL_TOKENS / LOW;
 const label = (id: string) => PARTS.find(p => p.id === id)!.label;
 const list = (ids: string[]) => ids.map(label).join(', ');
 
-interface S { p1: number | null; on: string[]; budget: number; quiz: number | null }
+interface S {
+  p1: number | null;
+  on: string[];
+  budget: number;
+  quiz: number | null;
+}
 
 const P1 = {
   question: `Larkspur’s budget is ${LOW} tokens per request. With all ${PARTS.length} parts in, how does the prompt compare?`,
-  options: ['It fits in the budget', 'Over, by less than half the budget again', 'Over, by half the budget again or more'],
+  options: [
+    'It fits in the budget',
+    'Over, by less than half the budget again',
+    'Over, by half the budget again or more',
+  ],
 };
 const OUT1 = RATIO <= 1 ? 0 : RATIO < 1.5 ? 1 : 2;
 
 const QUIZ = {
-  question: 'The prompt fits Larkspur’s budget on this site’s tokenizer. The team will send it to a provider’s model. Is it sure to fit there too?',
+  question:
+    'The prompt fits Larkspur’s budget on this site’s tokenizer. The team will send it to a provider’s model. Is it sure to fit there too?',
   options: [
     'Yes: a token is a token on every model',
     'No: count it with the provider’s own tokenizer, which bills and limits the request, and leave some room',
@@ -50,12 +63,16 @@ const QUIZ = {
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'predict', focus: 'p1', visibleControls: ['p1'],
+    id: 'predict',
+    focus: 'p1',
+    visibleControls: ['p1'],
     narration: `Larkspur’s assistant builds each prompt from parts: ${list(ALL).toLowerCase()}. The team has a budget of ${LOW} tokens per request, set to keep the cost down. The picture counts the prompt live, with this site’s tokenizer. Before you start:`,
     predicate: s => s.p1 !== null,
   },
   puzzle<S>({
-    id: 'trim', focus: 'bench', visibleControls: ['out1', 'bench'],
+    id: 'trim',
+    focus: 'bench',
+    visibleControls: ['out1', 'bench'],
     narration: `With every part in, the prompt is ${tokensWord(ALL_TOKENS)}. Turn parts off until it fits in ${LOW}. Keep the parts marked needed (${list(REQUIRED).toLowerCase()}): without them the assistant can’t answer.`,
     broken: s => ({ ...s, on: ALL, budget: LOW }),
     verdict: s => full(s.on, s.budget),
@@ -63,7 +80,9 @@ export const STEPS: Step<S>[] = [
     hint: 'The parts marked “needed” must stay. Turn every other part off.',
   }),
   puzzle<S>({
-    id: 'raise', focus: 'bench', visibleControls: ['bench'],
+    id: 'raise',
+    focus: 'bench',
+    visibleControls: ['bench'],
     narration: `Only the needed parts fit in ${LOW}. The team raises the budget to ${HIGH} tokens. Add parts back until nothing else fits: a prompt with room for one more part is not done yet.`,
     broken: s => ({ ...s, budget: HIGH }),
     verdict: s => full(s.on, s.budget),
@@ -71,7 +90,9 @@ export const STEPS: Step<S>[] = [
     hint: 'Add one part at a time. If the count goes over, swap it for a smaller one.',
   }),
   {
-    id: 'quiz', focus: 'quiz', visibleControls: ['bench', 'quiz'],
+    id: 'quiz',
+    focus: 'quiz',
+    visibleControls: ['bench', 'quiz'],
     narration: `It fits with nothing more to add. More than one mix of parts does that; which is best depends on what the assistant needs most. These counts are this site’s small tokenizer’s, there to show how a budget works; a provider’s tokenizer would count the same prompt differently. One question to finish.`,
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Whose tokenizer counts the tokens a provider bills and limits?',
@@ -79,7 +100,9 @@ export const STEPS: Step<S>[] = [
 ];
 
 function Bench({ s, apply }: { s: S; apply: (s: S) => void }) {
-  const f = fit(s.on, s.budget), n = fullPrompts(s.budget).length, done = full(s.on, s.budget);
+  const f = fit(s.on, s.budget),
+    n = fullPrompts(s.budget).length,
+    done = full(s.on, s.budget);
   const flip = (id: string) => apply({ ...s, on: s.on.includes(id) ? s.on.filter(x => x !== id) : [...s.on, id] });
   return (
     <div className="tc-bench">
@@ -89,7 +112,11 @@ function Bench({ s, apply }: { s: S; apply: (s: S) => void }) {
             <button type="button" className="chip" aria-pressed={s.on.includes(p.id)} onClick={() => flip(p.id)}>
               {p.label}: {s.on.includes(p.id) ? 'in' : 'out'}
             </button>
-            <span className="tk-note"> {tokensWord(encode(p.text).length)}{p.required ? ' · needed' : ''}</span>
+            <span className="tk-note">
+              {' '}
+              {tokensWord(encode(p.text).length)}
+              {p.required ? ' · needed' : ''}
+            </span>
           </li>
         ))}
       </ul>
@@ -112,7 +139,12 @@ export default function Workbench() {
       next={nextOf(MODULE, ID)}
       stage={({ state }) => {
         const f = fit(state.on, state.budget);
-        return <TokensStage text={promptOf(state.on)} caption={`${f.tokens} of ${f.budget} tokens, counted by this site’s tokenizer, live.`} />;
+        return (
+          <TokensStage
+            text={promptOf(state.on)}
+            caption={`${f.tokens} of ${f.budget} tokens, counted by this site’s tokenizer, live.`}
+          />
+        );
       }}
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
@@ -121,7 +153,13 @@ export default function Workbench() {
         quiz: ({ state, apply, sync }) => (
           <>
             <Fact id="billed-in-tokens" />
-            <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
+            <Quiz
+              {...QUIZ}
+              unsure
+              value={state.quiz}
+              onAnswer={(_, q) => apply({ ...state, quiz: q })}
+              onUnsure={() => sync({ ...state, quiz: UNSURE })}
+            />
           </>
         ),
       }}

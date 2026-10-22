@@ -13,8 +13,12 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CORPUS = path.join(ROOT, 'data/corpus');
 const OUT = path.join(ROOT, 'data/lm/merges.json');
 
-const text = fs.readdirSync(CORPUS).filter((f) => f.endsWith('.md')).sort()
-  .map((f) => fs.readFileSync(path.join(CORPUS, f), 'utf8')).join('\n');
+const text = fs
+  .readdirSync(CORPUS)
+  .filter(f => f.endsWith('.md'))
+  .sort()
+  .map(f => fs.readFileSync(path.join(CORPUS, f), 'utf8'))
+  .join('\n');
 const merges = train(text, N_MERGES);
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, JSON.stringify(merges) + '\n');

@@ -5,8 +5,11 @@ import type { RecallItem } from '../../lib/recall';
 export const RECALL: RecallItem[] = [
   // the module's one idea, pinned: route the easy ones, fall back when unsure, and let the gate decide
   {
-    id: 'cascade-shape', chapter: '05-fall-back-when-unsure', pin: true,
-    question: 'A travel site wants to cut its model bill. Most questions are “what time is check-in?”; a few are tangled refund disputes. What setup fits?',
+    id: 'cascade-shape',
+    chapter: '05-fall-back-when-unsure',
+    pin: true,
+    question:
+      'A travel site wants to cut its model bill. Most questions are “what time is check-in?”; a few are tangled refund disputes. What setup fits?',
     options: [
       'Switch everything to the small model: most questions are easy',
       'Small model first; send unsure answers up to the large one; check the setup against all-large with the eval before switching',
@@ -23,8 +26,10 @@ export const RECALL: RecallItem[] = [
   },
   // 1. Big model, small model
   {
-    id: 'work-follows-weights', chapter: '01-big-model-small-model',
-    question: 'A phone app swaps a 7-billion-weight model for a 1-billion-weight one of the same design. Roughly how much work does each token now take?',
+    id: 'work-follows-weights',
+    chapter: '01-big-model-small-model',
+    question:
+      'A phone app swaps a 7-billion-weight model for a 1-billion-weight one of the same design. Roughly how much work does each token now take?',
     options: [
       'About a seventh: the work per token follows the number of weights',
       'The same: a token is a token',
@@ -40,8 +45,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'small-less-sure', chapter: '01-big-model-small-model',
-    question: 'A small model and a big one, trained on the same text, both continue “Your order ships within two business…”. What do you expect?',
+    id: 'small-less-sure',
+    chapter: '01-big-model-small-model',
+    question:
+      'A small model and a big one, trained on the same text, both continue “Your order ships within two business…”. What do you expect?',
     options: [
       'Completely different words: small models have their own vocabulary',
       'Much the same pieces near the top, with the small one less sure and sometimes a different first pick',
@@ -57,9 +64,15 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'size-is-weights', chapter: '01-big-model-small-model',
+    id: 'size-is-weights',
+    chapter: '01-big-model-small-model',
     question: 'A vendor says its new model is “8B”. What is being counted?',
-    options: ['The weights: about 8 billion numbers inside the model', 'The words it was trained on', 'The words it can read at once', 'The bytes its answers take'],
+    options: [
+      'The weights: about 8 billion numbers inside the model',
+      'The words it was trained on',
+      'The words it can read at once',
+      'The bytes its answers take',
+    ],
     correct: 0,
     why: [
       'Right. A model’s size is its count of weights, and the work per token and the memory it needs follow from it.',
@@ -70,8 +83,10 @@ export const RECALL: RecallItem[] = [
   },
   // 2. Learning from a teacher
   {
-    id: 'soft-targets-why', chapter: '02-learning-from-a-teacher',
-    question: 'Training a small speech model, a team uses the big model’s odds for every word (“cat 70%, cap 20%, cab 5%”) instead of just “cat”. Why?',
+    id: 'soft-targets-why',
+    chapter: '02-learning-from-a-teacher',
+    question:
+      'Training a small speech model, a team uses the big model’s odds for every word (“cat 70%, cap 20%, cab 5%”) instead of just “cat”. Why?',
     options: [
       'The odds show which wrong answers are nearly right, which the single right answer hides',
       'The big model’s odds are always more correct than the labels',
@@ -87,9 +102,16 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'student-trails-teacher', chapter: '02-learning-from-a-teacher',
-    question: 'After distillation, a student a third the size of its teacher is scored on text neither trained on. What is the usual result?',
-    options: ['Its loss is a little worse than the teacher’s', 'Its loss is three times the teacher’s', 'Its loss beats the teacher’s', 'The same loss: it copied the teacher'],
+    id: 'student-trails-teacher',
+    chapter: '02-learning-from-a-teacher',
+    question:
+      'After distillation, a student a third the size of its teacher is scored on text neither trained on. What is the usual result?',
+    options: [
+      'Its loss is a little worse than the teacher’s',
+      'Its loss is three times the teacher’s',
+      'Its loss beats the teacher’s',
+      'The same loss: it copied the teacher',
+    ],
     correct: 0,
     why: [
       'Right. The student holds less, so it trails, but learning the teacher’s odds keeps it close.',
@@ -99,7 +121,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'temperature-role', chapter: '02-learning-from-a-teacher',
+    id: 'temperature-role',
+    chapter: '02-learning-from-a-teacher',
     question: 'In distillation, why raise the temperature of the teacher’s odds?',
     options: [
       'To spread the odds out, so the near-misses carry enough weight to learn from',
@@ -117,8 +140,10 @@ export const RECALL: RecallItem[] = [
   },
   // 3. How close is the student
   {
-    id: 'agreement-not-accuracy', chapter: '03-how-close-is-the-student',
-    question: 'A distilled model agrees with its teacher’s top pick 95% of the time on held-out text. Can you ship it in the teacher’s place?',
+    id: 'agreement-not-accuracy',
+    chapter: '03-how-close-is-the-student',
+    question:
+      'A distilled model agrees with its teacher’s top pick 95% of the time on held-out text. Can you ship it in the teacher’s place?',
     options: [
       'Not yet: agreement says it copies the teacher; whether its answers are right needs the eval',
       'Yes: 95% agreement means 95% correct answers',
@@ -134,8 +159,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'kl-meaning', chapter: '03-how-close-is-the-student',
-    question: 'Two students have the same agreement with their teacher, but student B’s KL divergence is twice student A’s. What differs?',
+    id: 'kl-meaning',
+    chapter: '03-how-close-is-the-student',
+    question:
+      'Two students have the same agreement with their teacher, but student B’s KL divergence is twice student A’s. What differs?',
     options: [
       'B spreads its bets less like the teacher, even where its top pick matches',
       'B is twice as often wrong',
@@ -151,7 +178,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'held-out-why', chapter: '03-how-close-is-the-student',
+    id: 'held-out-why',
+    chapter: '03-how-close-is-the-student',
     question: 'Why measure a student on held-out text rather than on its training text?',
     options: [
       'It saw the training text, so closeness there can be memory; held-out text shows what carries over',
@@ -169,8 +197,10 @@ export const RECALL: RecallItem[] = [
   },
   // 4. Send it the easy ones
   {
-    id: 'small-fails-where', chapter: '04-send-it-the-easy-ones',
-    question: 'An HR assistant has a small tier and a large one. Which question is the small tier most likely to get wrong?',
+    id: 'small-fails-where',
+    chapter: '04-send-it-the-easy-ones',
+    question:
+      'An HR assistant has a small tier and a large one. Which question is the small tier most likely to get wrong?',
     options: [
       '“How many vacation days do I get?”, stated in one line of the handbook',
       '“My manager left and my project moved teams. Who signs my leave now?”',
@@ -186,8 +216,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'relative-cost', chapter: '04-send-it-the-easy-ones',
-    question: 'A small model costs a fifth of a large one per token. A team sends 100 questions to the small one instead of the large one. What does that cost, in large answers?',
+    id: 'relative-cost',
+    chapter: '04-send-it-the-easy-ones',
+    question:
+      'A small model costs a fifth of a large one per token. A team sends 100 questions to the small one instead of the large one. What does that cost, in large answers?',
     options: ['About 20', 'About 100', 'About 500', 'Nothing'],
     correct: 0,
     why: [
@@ -198,7 +230,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'same-docs-differ', chapter: '04-send-it-the-easy-ones',
+    id: 'same-docs-differ',
+    chapter: '04-send-it-the-easy-ones',
     question: 'Both tiers read the same retrieved documents, yet the small one picks an out-of-date policy. Why?',
     options: [
       'Reading well is part of answering: a smaller model is worse at weighing two passages that disagree',
@@ -216,8 +249,10 @@ export const RECALL: RecallItem[] = [
   },
   // 5. Fall back when unsure
   {
-    id: 'confident-wrong', chapter: '05-fall-back-when-unsure',
-    question: 'A router sends answers up below confidence 0.8. One wrong answer had confidence 0.85. What happens to it?',
+    id: 'confident-wrong',
+    chapter: '05-fall-back-when-unsure',
+    question:
+      'A router sends answers up below confidence 0.8. One wrong answer had confidence 0.85. What happens to it?',
     options: [
       'It reaches the customer: the router only sees confidence, not correctness',
       'The router notices it is wrong and sends it up',
@@ -233,8 +268,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'threshold-too-high', chapter: '05-fall-back-when-unsure',
-    question: 'A team sets its cascade’s threshold so high that every answer goes up. How does that compare with sending everything to the large model directly?',
+    id: 'threshold-too-high',
+    chapter: '05-fall-back-when-unsure',
+    question:
+      'A team sets its cascade’s threshold so high that every answer goes up. How does that compare with sending everything to the large model directly?',
     options: [
       'Same answers, higher cost: it pays for the small try on every question too',
       'Better answers: two models looked at each question',
@@ -250,7 +287,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'stand-in-score', chapter: '05-fall-back-when-unsure',
+    id: 'stand-in-score',
+    chapter: '05-fall-back-when-unsure',
     question: 'In this module the small tier’s confidence scores were set by hand. What would a real system use?',
     options: [
       'A score it computes, such as the model’s own odds for its answer, or a trained router; it must be checked like any grader',
@@ -268,9 +306,16 @@ export const RECALL: RecallItem[] = [
   },
   // 6. Gate the switch
   {
-    id: 'gate-catches-regression', chapter: '06-gate-the-switch',
-    question: 'A cheaper router scores 91% against a 90% bar, but one question the large model got right now fails. With “no regressions” on, what does the gate say?',
-    options: ['Don’t ship: a question that passed on the baseline regressed', 'Ship: 91% is over the bar', 'Ship: one question is noise', 'The gate can’t compare different models'],
+    id: 'gate-catches-regression',
+    chapter: '06-gate-the-switch',
+    question:
+      'A cheaper router scores 91% against a 90% bar, but one question the large model got right now fails. With “no regressions” on, what does the gate say?',
+    options: [
+      'Don’t ship: a question that passed on the baseline regressed',
+      'Ship: 91% is over the bar',
+      'Ship: one question is noise',
+      'The gate can’t compare different models',
+    ],
     correct: 0,
     why: [
       'Right. The no-regressions rule catches exactly the answer the cheaper setup broke.',
@@ -280,7 +325,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'baseline-choice', chapter: '06-gate-the-switch',
+    id: 'baseline-choice',
+    chapter: '06-gate-the-switch',
     question: 'Why gate the router against all-large, not against all-small?',
     options: [
       'All-large is what ships today: the router must not lose what customers already get',
@@ -297,9 +343,16 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'cheapest-that-ships', chapter: '06-gate-the-switch',
-    question: 'Two router settings both pass the gate; one costs 8 and the other 14. All-large costs 12. Which do you ship?',
-    options: ['The one costing 8', 'The one costing 14: more answers went up', 'Neither: keep all-large', 'Whichever has the higher threshold'],
+    id: 'cheapest-that-ships',
+    chapter: '06-gate-the-switch',
+    question:
+      'Two router settings both pass the gate; one costs 8 and the other 14. All-large costs 12. Which do you ship?',
+    options: [
+      'The one costing 8',
+      'The one costing 14: more answers went up',
+      'Neither: keep all-large',
+      'Whichever has the higher threshold',
+    ],
     correct: 0,
     why: [
       'Right. Both pass the same gate, so the cheaper one gives the same guarantee for less.',
@@ -310,7 +363,8 @@ export const RECALL: RecallItem[] = [
   },
   // 7. The routing policy
   {
-    id: 'policy-per-kind', chapter: '07-routing-policy',
+    id: 'policy-per-kind',
+    chapter: '07-routing-policy',
     question: 'A bank sorts questions into balance lookups, fee disputes and fraud reports. Which policy fits?',
     options: [
       'Lookups to the small model, disputes through the router, fraud to the large model',
@@ -327,9 +381,16 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'router-waste', chapter: '07-routing-policy',
-    question: 'For one kind of question, the small model is unsure every time, so the router sends all of them up. What should the policy do for that kind?',
-    options: ['Send them straight to the large model', 'Keep the router: it is safer', 'Send them to the small model', 'Lower the threshold until some stay small'],
+    id: 'router-waste',
+    chapter: '07-routing-policy',
+    question:
+      'For one kind of question, the small model is unsure every time, so the router sends all of them up. What should the policy do for that kind?',
+    options: [
+      'Send them straight to the large model',
+      'Keep the router: it is safer',
+      'Send them to the small model',
+      'Lower the threshold until some stay small',
+    ],
     correct: 0,
     why: [
       'Right. Every small try is wasted; going straight to the large tier gives the same answers for less.',
@@ -339,8 +400,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'score-weights', chapter: '07-routing-policy',
-    question: 'A team scores a routing policy as points per right answer minus cost. If it doubled the points for a right answer, what would happen?',
+    id: 'score-weights',
+    chapter: '07-routing-policy',
+    question:
+      'A team scores a routing policy as points per right answer minus cost. If it doubled the points for a right answer, what would happen?',
     options: [
       'Policies that spend more for right answers would win more often',
       'Nothing: the best policy never changes',

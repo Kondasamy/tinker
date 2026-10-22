@@ -7,9 +7,22 @@ import { hasCitation, keyFactOf, type Reference } from '../evals/graders';
 import { replyOf, traceOf } from './traces';
 
 export type Version = 'current' | 'fixed';
-export interface Answer { text: string; citation: string | null }
-export interface EvalCase { id: string; question: string; reference: Reference; answers: Record<Version, Answer>; note: string }
-interface Recorded { reference: Reference; fixed: Answer; note: string }
+export interface Answer {
+  text: string;
+  citation: string | null;
+}
+export interface EvalCase {
+  id: string;
+  question: string;
+  reference: Reference;
+  answers: Record<Version, Answer>;
+  note: string;
+}
+interface Recorded {
+  reference: Reference;
+  fixed: Answer;
+  note: string;
+}
 const CASES = fixed.cases as Record<string, Recorded>;
 /** what the fixed version changed, in one line */
 export const FIXED_VERSION = fixed.version;
@@ -20,12 +33,25 @@ export function evalCase(id: string): EvalCase {
   const r = CASES[id];
   if (!r) throw new Error(`no eval case recorded for trace ${id}`);
   const t = traceOf(id);
-  return { id, question: t.question, reference: r.reference, note: r.note, answers: { current: { text: replyOf(t), citation: t.citation ?? null }, fixed: r.fixed } };
+  return {
+    id,
+    question: t.question,
+    reference: r.reference,
+    note: r.note,
+    answers: { current: { text: replyOf(t), citation: t.citation ?? null }, fixed: r.fixed },
+  };
 }
 
-export interface Graded { fact: boolean; citation: boolean; pass: boolean }
+export interface Graded {
+  fact: boolean;
+  citation: boolean;
+  pass: boolean;
+}
 /** Evals' code graders on one version's answer: the key fact and a citation, both needed to pass. */
 export function gradeCase(id: string, v: Version): Graded {
-  const c = evalCase(id), a = c.answers[v], fact = keyFactOf(c.reference, a.text), citation = hasCitation(a);
+  const c = evalCase(id),
+    a = c.answers[v],
+    fact = keyFactOf(c.reference, a.text),
+    citation = hasCitation(a);
   return { fact, citation, pass: fact && citation };
 }

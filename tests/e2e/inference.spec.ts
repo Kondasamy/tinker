@@ -24,7 +24,9 @@ const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 const axe = async (page: Page) => expect(await serious(page)).toEqual([]);
 test.setTimeout(180_000);
 
-test('the intro shows the level, the prerequisite, the author, the chapters and the Colorfigures credit', async ({ page }) => {
+test('the intro shows the level, the prerequisite, the author, the chapters and the Colorfigures credit', async ({
+  page,
+}) => {
   await page.goto('/inference/');
   await expect(page.locator('.hero .kicker')).toHaveText('Module 13 · Inference');
   const meta = page.locator('.hero .module-meta');
@@ -32,13 +34,18 @@ test('the intro shows the level, the prerequisite, the author, the chapters and 
   await expect(meta.getByRole('link', { name: 'Transformer architecture' })).toHaveAttribute('href', '/transformers/');
   await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
-  await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toHaveAttribute('href', 'https://april-zhu.com/colorfigures');
+  await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toHaveAttribute(
+    'href',
+    'https://april-zhu.com/colorfigures',
+  );
   await page.getByRole('button', { name: 'Words' }).click();
   await expect(page.locator('.band .note.more')).toBeVisible();
   await axe(page);
 });
 
-test('Module 13 on the intro, the recap and home, with their own share images; home Continue resumes it', async ({ page }) => {
+test('Module 13 on the intro, the recap and home, with their own share images; home Continue resumes it', async ({
+  page,
+}) => {
   await page.goto('/inference/');
   await expect(page.locator('.hero .kicker')).toHaveText('Module 13 · Inference');
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/inference\.jpg$/);
@@ -47,19 +54,28 @@ test('Module 13 on the intro, the recap and home, with their own share images; h
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/inference-recap\.jpg$/);
   await page.goto('/');
   await expect(page.locator('.module[data-module="inference"] h4 a')).toHaveAttribute('href', '/inference/');
-  await page.evaluate(() => { localStorage.setItem('inference-progress-v1', JSON.stringify({ done: [], saved: {} })); localStorage.setItem('tinker-last-module', 'inference'); });
+  await page.evaluate(() => {
+    localStorage.setItem('inference-progress-v1', JSON.stringify({ done: [], saved: {} }));
+    localStorage.setItem('tinker-last-module', 'inference');
+  });
   await page.reload();
   await expect(page.locator('[data-continue]')).toHaveAttribute('href', /^\/inference\//);
 });
 
-test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({ page }) => {
+test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({
+  page,
+}) => {
   await walkAll(inferenceWalker(page, 'mouse', axe));
 });
 
-test('every chapter plays by keyboard only; progress lands in inference-progress-v1 and no other module’s key', async ({ page }) => {
+test('every chapter plays by keyboard only; progress lands in inference-progress-v1 and no other module’s key', async ({
+  page,
+}) => {
   await page.goto('/');
   const OTHERS = { 'rag-progress-v1': JSON.stringify({ done: ['01-history'], saved: {} }) };
-  await page.evaluate(o => { for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v); }, OTHERS);
+  await page.evaluate(o => {
+    for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v);
+  }, OTHERS);
   await walkAll(inferenceWalker(page, 'keyboard'));
   const store = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
   expect(JSON.parse(store['inference-progress-v1']).done).toEqual(IDS);
@@ -67,7 +83,9 @@ test('every chapter plays by keyboard only; progress lands in inference-progress
   expect(store['tinker-last-module']).toBe('inference');
 });
 
-test('chapter 5: the reveal shows the drafted and checked tokens, and the same output as plain decoding', async ({ page }) => {
+test('chapter 5: the reveal shows the drafted and checked tokens, and the same output as plain decoding', async ({
+  page,
+}) => {
   const w = inferenceWalker(page, 'mouse');
   await w.open(CH5);
   const c = card(page);
@@ -84,7 +102,9 @@ test('chapter 5: the reveal shows the drafted and checked tokens, and the same o
   await expect(page.locator('[data-prop="draft"]')).toHaveCount(1);
 });
 
-test('chapter 4: the stage holds its frame while Larkspur mini loads, offers Retry when it fails, then plays', async ({ page }) => {
+test('chapter 4: the stage holds its frame while Larkspur mini loads, offers Retry when it fails, then plays', async ({
+  page,
+}) => {
   let fail = true;
   await page.route('**/data/lm/model.bin', r => (fail ? r.abort() : r.continue()));
   await page.goto(`/inference/${CH4}/`);
@@ -97,7 +117,9 @@ test('chapter 4: the stage holds its frame while Larkspur mini loads, offers Ret
   await inferenceWalker(page, 'mouse').ch4();
 });
 
-test('chapter 4: a precision changed during the prediction still scores 8 against 16 and plays on', async ({ page }) => {
+test('chapter 4: a precision changed during the prediction still scores 8 against 16 and plays on', async ({
+  page,
+}) => {
   const w = inferenceWalker(page, 'mouse');
   await w.open(CH4);
   const c = card(page);
@@ -143,7 +165,9 @@ test('the timeline reads each request with the arrow keys', async ({ page }) => 
   const lanes = page.getByRole('list', { name: /^Server timeline/ });
   await lanes.locator('[role="listitem"]').first().focus();
   await page.keyboard.press('ArrowDown');
-  await expect(page.locator('.in-readout')).toContainText(/^Request 2 of 24 .* waited .* for its first token.* finished at/);
+  await expect(page.locator('.in-readout')).toContainText(
+    /^Request 2 of 24 .* waited .* for its first token.* finished at/,
+  );
   await axe(page);
 });
 
@@ -151,7 +175,17 @@ test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
   test('the picture holds still and the chapters still play through', async ({ page }) => {
     const w = inferenceWalker(page, 'mouse', async p => {
-      await expect.poll(() => p.evaluate(() => document.querySelector('.stage')!.getAnimations({ subtree: true }).filter(a => a.playState === 'running').length)).toBe(0);
+      await expect
+        .poll(() =>
+          p.evaluate(
+            () =>
+              document
+                .querySelector('.stage')!
+                .getAnimations({ subtree: true })
+                .filter(a => a.playState === 'running').length,
+          ),
+        )
+        .toBe(0);
     });
     await walkAll(w);
   });
@@ -177,6 +211,11 @@ test.describe('phone', () => {
       await page.goto(p);
       await layoutHolds(page);
     }
-    await walkAll(inferenceWalker(page, 'mouse', async p => { await layoutHolds(p); await axe(p); }));
+    await walkAll(
+      inferenceWalker(page, 'mouse', async p => {
+        await layoutHolds(p);
+        await axe(p);
+      }),
+    );
   });
 });

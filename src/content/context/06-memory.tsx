@@ -14,11 +14,13 @@ import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { ContextStage, Fact, runOf } from './kit';
 
-const MODULE = 'context', ID = '06-memory';
+const MODULE = 'context',
+  ID = '06-memory';
 const SESSIONS = DOMAINS[ID].sessions![0];
 const [HELLO] = SESSIONS.map(s => s[0]);
 export const R = (memory: boolean) => runOf({ sessions: SESSIONS, memory });
-const OFF = R(false), ON = R(true);
+const OFF = R(false),
+  ON = R(true);
 const later = (r: Run) => r.answers.find(a => a.session === 1)!;
 
 const P1 = {
@@ -32,7 +34,8 @@ const P1 = {
 const OUT1 = later(ON).right && Object.keys(ON.notes).length ? 0 : later(ON).right ? 2 : 1;
 
 const QUIZ = {
-  question: 'A bookshop’s assistant saves a memory note: “Customer prefers email, not phone.” Where does that note live, and who decides where it is stored?',
+  question:
+    'A bookshop’s assistant saves a memory note: “Customer prefers email, not phone.” Where does that note live, and who decides where it is stored?',
   options: [
     'Inside the model: it learns the note and keeps it in its weights',
     'In the shop’s own storage: the model asks for a file operation, and the shop’s application carries it out, only inside the memory folder',
@@ -49,28 +52,42 @@ const QUIZ = {
   ],
 };
 
-interface S { memory: boolean; seen: boolean[]; p1: number | null; quiz: number | null }
+interface S {
+  memory: boolean;
+  seen: boolean[];
+  p1: number | null;
+  quiz: number | null;
+}
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'without', focus: 'run', visibleControls: ['run'],
+    id: 'without',
+    focus: 'run',
+    visibleControls: ['run'],
     narration: `${caseOf(HELLO).customer} writes: “${caseOf(HELLO).question}” A week later, in a new conversation, they write again. A session is one conversation, and nothing in its window carries over to the next. Run both conversations.`,
     predicate: s => s.seen.includes(false),
     hint: 'Press the run button.',
   },
   {
-    id: 'predict', focus: 'p1', visibleControls: ['sessions', 'p1'],
+    id: 'predict',
+    focus: 'p1',
+    visibleControls: ['sessions', 'p1'],
     narration: `The second answer was ${later(OFF).right ? 'right' : 'wrong'}: “${later(OFF).text}” The new window started empty, so the model never heard about the contract. A memory tool lets the assistant write short notes to files that outlive the conversation. Before you try it:`,
     predicate: s => s.p1 !== null,
   },
   {
-    id: 'with', focus: 'run', visibleControls: ['p1', 'sessions', 'run'],
-    narration: 'The assistant now has the memory tool, and the host reads any notes into the window when a session starts. Run both conversations again.',
+    id: 'with',
+    focus: 'run',
+    visibleControls: ['p1', 'sessions', 'run'],
+    narration:
+      'The assistant now has the memory tool, and the host reads any notes into the window when a session starts. Run both conversations again.',
     predicate: s => s.seen.includes(true),
     hint: 'Press the run button.',
   },
   {
-    id: 'quiz', focus: 'quiz', visibleControls: ['out1', 'sessions', 'notes', 'facts', 'quiz'],
+    id: 'quiz',
+    focus: 'quiz',
+    visibleControls: ['out1', 'sessions', 'notes', 'facts', 'quiz'],
     narration: `In the first conversation the model chose to write a note, and the host saved it. The second conversation started with the note in its window, so it answered: “${later(ON).text}” The model only asks; the host decides what is written, where, and what is read back. One question to finish.`,
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Who carried out the file operation in this chapter?',
@@ -84,17 +101,28 @@ function Sessions({ s }: { s: S }) {
   return (
     <table className="tc-ledger">
       <caption>Two conversations, a week apart</caption>
-      <thead><tr><th scope="col">Memory</th><th scope="col">First conversation</th><th scope="col">A week later</th></tr></thead>
-      <tbody>{rows.map(m => {
-        const a = R(m).answers;
-        return (
-          <tr key={String(m)} data-memory={m ? 'on' : 'off'}>
-            <th scope="row">{m ? 'Memory tool' : 'No memory'}</th>
-            <td>{a[0].text}</td>
-            <td>{a[1].text} <span className={`stamp ${a[1].right ? 'correct' : 'wrong'}`}>{a[1].right ? 'RIGHT' : 'WRONG'}</span></td>
-          </tr>
-        );
-      })}</tbody>
+      <thead>
+        <tr>
+          <th scope="col">Memory</th>
+          <th scope="col">First conversation</th>
+          <th scope="col">A week later</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map(m => {
+          const a = R(m).answers;
+          return (
+            <tr key={String(m)} data-memory={m ? 'on' : 'off'}>
+              <th scope="row">{m ? 'Memory tool' : 'No memory'}</th>
+              <td>{a[0].text}</td>
+              <td>
+                {a[1].text}{' '}
+                <span className={`stamp ${a[1].right ? 'correct' : 'wrong'}`}>{a[1].right ? 'RIGHT' : 'WRONG'}</span>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
     </table>
   );
 }
@@ -104,8 +132,22 @@ function Notes() {
   return (
     <table className="tc-ledger">
       <caption>The host’s memory files after the first conversation</caption>
-      <thead><tr><th scope="col">File</th><th scope="col">Note</th></tr></thead>
-      <tbody>{Object.entries(ON.notes).map(([f, t]) => <tr key={f}><th scope="row"><code>{f}</code></th><td>{t}</td></tr>)}</tbody>
+      <thead>
+        <tr>
+          <th scope="col">File</th>
+          <th scope="col">Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        {Object.entries(ON.notes).map(([f, t]) => (
+          <tr key={f}>
+            <th scope="row">
+              <code>{f}</code>
+            </th>
+            <td>{t}</td>
+          </tr>
+        ))}
+      </tbody>
     </table>
   );
 }
@@ -118,19 +160,41 @@ export default function MemoryOutsideTheWindow() {
       steps={STEPS}
       initial={{ memory: false, seen: [], p1: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => { const r = R(state.memory); return <ContextStage run={r} upTo={state.seen.length ? r.meter.length : 0} props={{ cabinet: true }} />; }}
+      stage={({ state }) => {
+        const r = R(state.memory);
+        return <ContextStage run={r} upTo={state.seen.length ? r.meter.length : 0} props={{ cabinet: true }} />;
+      }}
       controls={{
         run: ({ state, apply }) => {
           const memory = state.seen.includes(false);
-          return <button type="button" className="big" onClick={() => apply({ ...state, memory, seen: [...state.seen, memory] })}>{memory ? 'Run both with the memory tool' : 'Run both conversations'}</button>;
+          return (
+            <button
+              type="button"
+              className="big"
+              onClick={() => apply({ ...state, memory, seen: [...state.seen, memory] })}
+            >
+              {memory ? 'Run both with the memory tool' : 'Run both conversations'}
+            </button>
+          );
         },
         sessions: ({ state }) => <Sessions s={state} />,
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUT1} />,
         notes: () => <Notes />,
-        facts: () => <><Fact id="memory-tool" /><Fact id="memory-client-side" /></>,
+        facts: () => (
+          <>
+            <Fact id="memory-tool" />
+            <Fact id="memory-client-side" />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
-          <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
+          <Quiz
+            {...QUIZ}
+            unsure
+            value={state.quiz}
+            onAnswer={(_, q) => apply({ ...state, quiz: q })}
+            onUnsure={() => sync({ ...state, quiz: UNSURE })}
+          />
         ),
       }}
     />

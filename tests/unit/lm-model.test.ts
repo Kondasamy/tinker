@@ -8,31 +8,49 @@ import { modelLoader, parseModel, type Meta } from '../../src/lib/lm/load';
 import GOLDENS from '../fixtures/lm/goldens.json' with { type: 'json' };
 import IDS from '../../data/lm/ids.json' with { type: 'json' };
 
-const disk = (f: string) => { const b = readFileSync('public/data/lm/' + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer; };
+const disk = (f: string) => {
+  const b = readFileSync('public/data/lm/' + f);
+  return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer;
+};
 const meta = JSON.parse(readFileSync('public/data/lm/meta.json', 'utf8')) as Meta;
 const model = parseModel(meta, disk('model.bin'));
-const top5 = (xs: ArrayLike<number>) => Array.from(xs, (v, i) => [v, i]).sort((a, b) => b[0] - a[0]).slice(0, 5).map(([, i]) => i);
+const top5 = (xs: ArrayLike<number>) =>
+  Array.from(xs, (v, i) => [v, i])
+    .sort((a, b) => b[0] - a[0])
+    .slice(0, 5)
+    .map(([, i]) => i);
 
 describe('Larkspur mini forward pass', () => {
-  it.each(GOLDENS.prompts.map((g) => [g.text.slice(0, 30), g] as const))('matches the golden for "%s"', (_, g) => {
+  it.each(GOLDENS.prompts.map(g => [g.text.slice(0, 30), g] as const))('matches the golden for "%s"', (_, g) => {
     const out = forward(model, encode(g.text));
     expect(out.ids).toEqual(g.ids);
     expect(out.truncated).toBe(g.truncated);
     const last = out.logits[out.logits.length - 1];
     let worst = 0;
-    g.logits.forEach((v, i) => { worst = Math.max(worst, Math.abs(v - last[i])); });
+    g.logits.forEach((v, i) => {
+      worst = Math.max(worst, Math.abs(v - last[i]));
+    });
     expect(worst).toBeLessThan(1e-4);
     expect(top5(last)).toEqual(g.top5);
-    g.attention.forEach((layer, l) => layer.forEach((head, h) => head.forEach((row, t) => row.forEach((v, s) =>
-      expect(Math.abs(out.attention[l][h][t][s] - v)).toBeLessThan(1e-5)))));
+    g.attention.forEach((layer, l) =>
+      layer.forEach((head, h) =>
+        head.forEach((row, t) =>
+          row.forEach((v, s) => expect(Math.abs(out.attention[l][h][t][s] - v)).toBeLessThan(1e-5)),
+        ),
+      ),
+    );
   });
 
   it('keeps attention causal, each row summing to 1', () => {
     const out = forward(model, encode(GOLDENS.prompts[0].text));
-    for (const layer of out.attention) for (const head of layer) head.forEach((row, t) => {
-      expect(Math.abs(row.reduce((a, b) => a + b, 0) - 1)).toBeLessThan(1e-6);
-      row.forEach((v, s) => { if (s > t) expect(v).toBe(0); });
-    });
+    for (const layer of out.attention)
+      for (const head of layer)
+        head.forEach((row, t) => {
+          expect(Math.abs(row.reduce((a, b) => a + b, 0) - 1)).toBeLessThan(1e-6);
+          row.forEach((v, s) => {
+            if (s > t) expect(v).toBe(0);
+          });
+        });
   });
 
   it('reads only the last 32 tokens of a longer prompt and says so', () => {
@@ -65,9 +83,13 @@ describe('Larkspur mini files', () => {
   it('holds the same token ids the tokenizer gives today (ids.json is not stale)', () => {
     for (const { docs, ids } of Object.values(IDS.splits))
       docs.forEach((d, i) => expect(encode(readFileSync(`data/corpus/${d}`, 'utf8'))).toEqual(ids[i]));
-    expect(IDS.prompts.map((p) => encode(p.text))).toEqual(IDS.prompts.map((p) => p.ids));
+    expect(IDS.prompts.map(p => encode(p.text))).toEqual(IDS.prompts.map(p => p.ids));
     const all = [...IDS.splits.train.docs, ...IDS.splits.heldout.docs].sort();
-    expect(all).toEqual(readdirSync('data/corpus').filter((f) => f.endsWith('.md')).sort());
+    expect(all).toEqual(
+      readdirSync('data/corpus')
+        .filter(f => f.endsWith('.md'))
+        .sort(),
+    );
     expect(meta.heldout.docs).toEqual(IDS.splits.heldout.docs);
   });
 });
@@ -75,7 +97,7 @@ describe('Larkspur mini files', () => {
 describe('Larkspur mini loader', () => {
   it('reports an error when model.bin does not match meta.json, and recovers on retry', async () => {
     let calls = 0;
-    const m = modelLoader(async (f) => (f === 'model.bin' && calls++ === 0 ? new ArrayBuffer(8) : disk(f)));
+    const m = modelLoader(async f => (f === 'model.bin' && calls++ === 0 ? new ArrayBuffer(8) : disk(f)));
     await expect(m.load()).rejects.toThrow(/model\.bin/);
     expect(m.status()).toBe('error');
     await m.load();

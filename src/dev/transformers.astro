@@ -34,7 +34,9 @@ const STATES: [string, EngineOpts][] = [
 
 const loading = modelStore(() => new Promise<ArrayBuffer>(() => {}));
 loading.start();
-const failed = modelStore(async () => { throw new Error('offline'); });
+const failed = modelStore(async () => {
+  throw new Error('offline');
+});
 failed.start();
 await new Promise(r => setTimeout(r, 0));
 ---

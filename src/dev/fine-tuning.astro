@@ -5,7 +5,17 @@ import '../styles/tokens.css';
 import IsoStage from '../lib/iso/IsoStage';
 import { TRAIN_BOARD, trainLabel, trainScene, type TrainOpts } from '../components/scenes/trainScene';
 import { readFileSync } from 'node:fs';
-import { FineTuneStage, FINETUNE_SERIES, LORA_SERIES, LossChart, loadModel, questionText, setModelFiles, versionCols, type Shown } from '../content/fine-tuning/kit';
+import {
+  FineTuneStage,
+  FINETUNE_SERIES,
+  LORA_SERIES,
+  LossChart,
+  loadModel,
+  questionText,
+  setModelFiles,
+  versionCols,
+  type Shown,
+} from '../content/fine-tuning/kit';
 import { ALL_QUESTIONS, VERSION_IDS } from '../lib/fine-tuning/engine';
 import { Grid } from '../content/evals/kit';
 
@@ -18,7 +28,11 @@ setModelFiles(async f => {
 });
 await loadModel('lora');
 await loadModel('finetuned').catch(() => {});
-const shown = (caption: string, scene: Shown['scene'], results?: Shown['results']) => (): Shown => ({ scene, results, caption });
+const shown = (caption: string, scene: Shown['scene'], results?: Shown['results']) => (): Shown => ({
+  scene,
+  results,
+  caption,
+});
 
 const STATES: [string, TrainOpts][] = [
   ['At rest: base model, no lever', {}],

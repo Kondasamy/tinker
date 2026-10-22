@@ -23,22 +23,56 @@ const MODULE = moduleOf('context');
 const CHAPTERS = MODULE.chapters;
 const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
 const SESSION = ['refund-window', 'free-shipping', 'sensor-warranty'];
-const desk = (setup: Partial<Setup>, o: Partial<WindowOpts> = {}): WindowOpts => ({ run: run(RECORDING, setup), scale: 1.7, ...o });
+const desk = (setup: Partial<Setup>, o: Partial<WindowOpts> = {}): WindowOpts => ({
+  run: run(RECORDING, setup),
+  scale: 1.7,
+  ...o,
+});
 // Mara's three questions, every document stuffed: the cache shelf lit on the last call
 const HERO = desk({ sessions: [SESSION], tools: true, retrieval: 'stuff' }, { shelf: true });
 // the whole idea: chapter 1's turn, every part in, and the recorded answer to it
 const TURN = run(RECORDING, { sessions: [['refund-window', 'free-shipping']], tools: true, retrieval: 'top' });
-const LAST = TURN.meter.at(-1)!, ANSWER = TURN.answers.at(-1)!, ASKED = caseOf(LAST.case).question;
-const ROWS: [string, number][] = [...LAST.window.parts.map(p => [p.label, p.tokens] as [string, number]), ['Reply’s room', REPLY_ROOM]];
+const LAST = TURN.meter.at(-1)!,
+  ANSWER = TURN.answers.at(-1)!,
+  ASKED = caseOf(LAST.case).question;
+const ROWS: [string, number][] = [
+  ...LAST.window.parts.map(p => [p.label, p.tokens] as [string, number]),
+  ['Reply’s room', REPLY_ROOM],
+];
 const MOST = Math.max(...ROWS.map(r => r[1]));
 // six ideas, each on the window desk: one budget, a crowded window, fetching, the cache, a cleared desk and memory
 const IDEAS: [string, string, ReturnType<typeof fact>, WindowOpts][] = [
-  ['One budget', 'System, tools, history, documents and the reply share it', fact('window-everything'), desk({ sessions: [['refund-window', 'free-shipping']], tools: true })],
-  ['More isn’t better', 'Distractors around the fact make answers worse', fact('context-rot'), desk({ sessions: [['free-shipping']], distractors: 12, place: 'middle' })],
-  ['Fetch when needed', 'Search for the passage instead of sending every document', fact('just-in-time'), desk({ sessions: [['free-shipping']], retrieval: 'fetch' })],
+  [
+    'One budget',
+    'System, tools, history, documents and the reply share it',
+    fact('window-everything'),
+    desk({ sessions: [['refund-window', 'free-shipping']], tools: true }),
+  ],
+  [
+    'More isn’t better',
+    'Distractors around the fact make answers worse',
+    fact('context-rot'),
+    desk({ sessions: [['free-shipping']], distractors: 12, place: 'middle' }),
+  ],
+  [
+    'Fetch when needed',
+    'Search for the passage instead of sending every document',
+    fact('just-in-time'),
+    desk({ sessions: [['free-shipping']], retrieval: 'fetch' }),
+  ],
   ['Stable first', 'A prefix that repeats is read from the cache', fact('openai-static-first'), HERO],
-  ['Clear the desk', 'Old tool results go; the decisions stay', fact('clear-tool-results'), desk({ sessions: [SESSION], retrieval: 'fetch', history: 'cleared' }, { tray: true })],
-  ['Memory outside', 'Notes in files, read in the next conversation', fact('memory-tool'), desk({ sessions: [['enterprise-hello'], ['enterprise-refund']], memory: true }, { cabinet: true })],
+  [
+    'Clear the desk',
+    'Old tool results go; the decisions stay',
+    fact('clear-tool-results'),
+    desk({ sessions: [SESSION], retrieval: 'fetch', history: 'cleared' }, { tray: true }),
+  ],
+  [
+    'Memory outside',
+    'Notes in files, read in the next conversation',
+    fact('memory-tool'),
+    desk({ sessions: [['enterprise-hello'], ['enterprise-refund']], memory: true }, { cabinet: true }),
+  ],
 ];
 const FACTS: [string, string][] = [
   [num(DEFAULTS.budget), 'tokens in Larkspur’s window budget, the reply’s room included'],

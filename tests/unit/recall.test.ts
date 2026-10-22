@@ -1,9 +1,30 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { feedback, UNSURE, recapPool, shuffled, resumeAttempt, warmupItems, WARMUP_GAP, type RecallItem } from '../../src/lib/recall';
-import { recordRecall, recallResults, saveChapter, markDone, completed, loadAttempt, saveAttempt } from '../../src/lib/progress';
+import {
+  feedback,
+  UNSURE,
+  recapPool,
+  shuffled,
+  resumeAttempt,
+  warmupItems,
+  WARMUP_GAP,
+  type RecallItem,
+} from '../../src/lib/recall';
+import {
+  recordRecall,
+  recallResults,
+  saveChapter,
+  markDone,
+  completed,
+  loadAttempt,
+  saveAttempt,
+} from '../../src/lib/progress';
 
 const ITEM: RecallItem = {
-  id: 'rag-window', chapter: '02-why-not-stuff-it', question: 'Q?', options: ['a', 'b', 'c'], correct: 1,
+  id: 'rag-window',
+  chapter: '02-why-not-stuff-it',
+  question: 'Q?',
+  options: ['a', 'b', 'c'],
+  correct: 1,
   why: ['a is a myth.', 'b is right.', 'c mixes up cost and speed.'],
 };
 const Q = { options: ITEM.options, correct: 1, explanation: 'Because b.' };
@@ -30,12 +51,21 @@ describe('feedback for a pick', () => {
 
 function memoryStorage() {
   const m = new Map<string, string>();
-  return { getItem: (k: string) => m.get(k) ?? null, setItem: (k: string, v: string) => void m.set(k, v), removeItem: (k: string) => void m.delete(k) };
+  return {
+    getItem: (k: string) => m.get(k) ?? null,
+    setItem: (k: string, v: string) => void m.set(k, v),
+    removeItem: (k: string) => void m.delete(k),
+  };
 }
 
 describe('recall store', () => {
-  beforeEach(() => { (globalThis as { localStorage?: unknown }).localStorage = memoryStorage(); });
-  afterEach(() => { delete (globalThis as { localStorage?: unknown }).localStorage; vi.useRealTimers(); });
+  beforeEach(() => {
+    (globalThis as { localStorage?: unknown }).localStorage = memoryStorage();
+  });
+  afterEach(() => {
+    delete (globalThis as { localStorage?: unknown }).localStorage;
+    vi.useRealTimers();
+  });
 
   it('is empty before anything is recorded, and for an old record', () => {
     expect(recallResults('rag')).toEqual({});
@@ -79,10 +109,25 @@ describe('recall store', () => {
 });
 
 // U4: which items a recap asks, in what order, and when a warm-up is due
-const item = (id: string, chapter: string, pin?: boolean): RecallItem =>
-  ({ id, chapter, question: `${id}?`, options: ['x', 'y'], correct: 0, why: ['right', 'wrong'], ...(pin ? { pin } : {}) });
-const BANK = [item('a1', 'c1'), item('a2', 'c1'), item('b1', 'c2'), item('b2', 'c2'), item('c3', 'c3'), item('d1', 'c4')];
-const H = 3600_000, NOW = 100 * 24 * H;
+const item = (id: string, chapter: string, pin?: boolean): RecallItem => ({
+  id,
+  chapter,
+  question: `${id}?`,
+  options: ['x', 'y'],
+  correct: 0,
+  why: ['right', 'wrong'],
+  ...(pin ? { pin } : {}),
+});
+const BANK = [
+  item('a1', 'c1'),
+  item('a2', 'c1'),
+  item('b1', 'c2'),
+  item('b2', 'c2'),
+  item('c3', 'c3'),
+  item('d1', 'c4'),
+];
+const H = 3600_000,
+  NOW = 100 * 24 * H;
 
 describe('recap selection', () => {
   it('asks only items from finished chapters', () => {
@@ -95,7 +140,7 @@ describe('recap selection', () => {
     expect(shuffled(ids, 42)).toEqual(shuffled(ids, 42));
     expect([...shuffled(ids, 42)].sort()).toEqual([...ids].sort());
     expect(ids.some((_, s) => shuffled(ids, s + 1).join() !== shuffled(ids, 42).join())).toBe(true);
-    expect(ids).toEqual(['a1', 'a2', 'b1', 'b2', 'c3', 'd1']);   // input untouched
+    expect(ids).toEqual(['a1', 'a2', 'b1', 'b2', 'c3', 'd1']); // input untouched
   });
 
   it('resumes a saved attempt as it was', () => {
@@ -137,23 +182,35 @@ describe('warm-up', () => {
   });
 
   it('asks at most three, missed items first', () => {
-    const at = { c1: NOW - 30 * H, c2: NOW - 30 * H }, old = NOW - 25 * H;
-    const got = ids(warmupItems(BANK, at, { b2: { right: false, unsure: false, at: old }, a1: { right: true, unsure: false, at: old } }, NOW));
+    const at = { c1: NOW - 30 * H, c2: NOW - 30 * H },
+      old = NOW - 25 * H;
+    const got = ids(
+      warmupItems(
+        BANK,
+        at,
+        { b2: { right: false, unsure: false, at: old }, a1: { right: true, unsure: false, at: old } },
+        NOW,
+      ),
+    );
     expect(got).toHaveLength(3);
     expect(got[0]).toBe('b2');
-    expect(got).not.toContain('a1');   // right last time: it waits behind the unseen ones
+    expect(got).not.toContain('a1'); // right last time: it waits behind the unseen ones
   });
 
   it('one per return: any answer in the last 20 hours (a warm-up or the recap) means none', () => {
     const at = { c1: NOW - 30 * H };
     expect(warmupItems(BANK, at, { a1: { right: false, unsure: false, at: NOW - H } }, NOW)).toEqual([]);
     expect(warmupItems(BANK, at, { b1: { right: true, unsure: false, at: NOW - 19 * H } }, NOW)).toEqual([]);
-    expect(ids(warmupItems(BANK, at, { a1: { right: false, unsure: false, at: NOW - 21 * H } }, NOW))).toEqual(['a1', 'a2']);
+    expect(ids(warmupItems(BANK, at, { a1: { right: false, unsure: false, at: NOW - 21 * H } }, NOW))).toEqual([
+      'a1',
+      'a2',
+    ]);
   });
 
   it('a pinned item is always included while unmastered', () => {
     const bank = [...BANK, item('p', 'c2', true)];
-    const at = { c1: NOW - 30 * H, c2: NOW - 2 * H }, old = NOW - 25 * H;   // its chapter is finished, even if not yet due
+    const at = { c1: NOW - 30 * H, c2: NOW - 2 * H },
+      old = NOW - 25 * H; // its chapter is finished, even if not yet due
     expect(ids(warmupItems(bank, at, { p: { right: false, unsure: false, at: old } }, NOW))[0]).toBe('p');
     expect(ids(warmupItems(bank, at, { p: { right: false, unsure: true, at: old } }, NOW))[0]).toBe('p');
     expect(ids(warmupItems(bank, at, {}, NOW))[0]).toBe('p');

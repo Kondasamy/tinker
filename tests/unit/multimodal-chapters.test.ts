@@ -16,7 +16,8 @@ describe('multimodal chapters', () => {
     const m = moduleOf('multimodal');
     expect(m).toMatchObject({ status: 'live', level: 'Intermediate', prereqs: ['tokens'] });
     expect(m.chapters).toHaveLength(7);
-    for (const c of m.chapters) expect(m.recall!.filter(i => i.chapter === c.id).length, c.id).toBeGreaterThanOrEqual(3);
+    for (const c of m.chapters)
+      expect(m.recall!.filter(i => i.chapter === c.id).length, c.id).toBeGreaterThanOrEqual(3);
     expect(m.recall!.filter(i => i.pin)).toHaveLength(1);
   });
 
@@ -34,7 +35,12 @@ describe('multimodal chapters', () => {
   it('chapter 4: both methods right at 1,600 px, OCR far cheaper; at 800 px only the terms fail, for both', () => {
     expect(fieldsOutcome()).toBe(2);
     expect(costOf('invoice', 1600, 'ocr')).toBeLessThan(costOf('invoice', 1600, 'vision'));
-    for (const m of ['ocr', 'vision'] as const) expect(grade('invoice', 800, m).fields.filter(f => !f.right).map(f => f.id)).toEqual(['terms']);
+    for (const m of ['ocr', 'vision'] as const)
+      expect(
+        grade('invoice', 800, m)
+          .fields.filter(f => !f.right)
+          .map(f => f.id),
+      ).toEqual(['terms']);
   });
 
   it('chapter 5: the front reading asks; chapter 6: both label readings carry the instruction', () => {

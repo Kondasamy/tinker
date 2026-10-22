@@ -8,14 +8,17 @@ export function smWalker(page: Page, mode: Mode, check: (page: Page) => Promise<
   const press = (l: Locator) => (kb ? l.press('Enter') : l.click());
   const card = page.getByRole('region', { name: 'Next step' });
   const btn = (name: string | RegExp) => press(card.getByRole('button', { name }));
-  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name }));   // a quiz or prediction option
+  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name })); // a quiz or prediction option
   const step = (n: number) => expect(card).toContainText(`Step ${n} of`);
   /** a native range input: End by keyboard; by mouse, fill sets the value as a drag would */
   async function slide(l: Locator, to: number | 'end') {
     if (kb) {
       await l.focus();
       if (to === 'end') await l.press('End');
-      else { await l.press('Home'); for (let i = 0; i < to; i++) await l.press('ArrowRight'); }
+      else {
+        await l.press('Home');
+        for (let i = 0; i < to; i++) await l.press('ArrowRight');
+      }
     } else await l.fill(String(to === 'end' ? await l.getAttribute('max') : to));
   }
   /** a native select, by keyboard (focus, then the option by its label) or by mouse */

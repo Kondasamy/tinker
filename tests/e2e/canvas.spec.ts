@@ -26,7 +26,7 @@ test('track: Tab reaches each block, Enter selects it and shows its knobs', asyn
   await page.keyboard.press('Enter');
   await expect(panel(page).getByRole('heading')).toHaveText('Retriever');
   await expect(block(page, 'retriever')).toHaveAttribute('aria-label', /selected/);
-  await expect(block(page, 'retriever')).toBeFocused();       // focus survives the redraw
+  await expect(block(page, 'retriever')).toBeFocused(); // focus survives the redraw
   await panel(page).getByLabel('Top-k (chunks retrieved)').focus();
   await page.keyboard.press('ArrowRight');
   await expect(block(page, 'retriever')).toHaveAttribute('aria-label', /TOP 4/i);
@@ -67,7 +67,7 @@ test('bench: keyboard moves a block, cuts a wire and reconnects it', async ({ pa
 test('bench: dragging a block on desktop moves it', async ({ page }) => {
   await open(page);
   await page.getByRole('button', { name: 'Open the workbench' }).click();
-  await page.waitForTimeout(800);   // morph
+  await page.waitForTimeout(800); // morph
   const a = (await block(page, 'docs').boundingBox())!;
   await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2);
   await page.mouse.down();
@@ -85,7 +85,7 @@ test('390 px: dragging does nothing, knobs still change results', async ({ page 
   await expect(page.locator('[data-port]')).toHaveCount(0);
   await expect(page.locator('[data-edge]')).toHaveCount(0);
 
-  await block(page, 'docs').click();      // tap selects (adds the ring) before we measure
+  await block(page, 'docs').click(); // tap selects (adds the ring) before we measure
   await expect(block(page, 'docs')).toHaveAttribute('aria-label', /selected/);
   const a = (await block(page, 'docs').boundingBox())!;
   await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2);

@@ -20,7 +20,10 @@ import { pct } from '../../components/scenes/effortChart';
 const MODULE = moduleOf('reasoning');
 const CHAPTERS = MODULE.chapters;
 const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
-const desk = (q: string, e: Effort): ThinkOpts => { const r = run(q, e); return { effort: e, thinking: r.thinkingTokens, wait: r.wait, right: r.right, scale: 1.3 }; };
+const desk = (q: string, e: Effort): ThinkOpts => {
+  const r = run(q, e);
+  return { effort: e, thinking: r.thinkingTokens, wait: r.wait, right: r.right, scale: 1.3 };
+};
 // the split-order quote, after thinking at medium
 const HERO = desk(SPLIT, 'medium');
 // the whole idea: the same question answered at once and after thinking (recorded answers, graded live)
@@ -30,12 +33,37 @@ const MULTI = sweep(ofKind('multistep').map(q => q.id));
 const COUNT = ofKind('distractor')[0].id;
 // six ideas, each on the scratchpad desk
 const IDEAS: [string, string, ReturnType<typeof fact>, ThinkOpts][] = [
-  ['Think, then answer', 'A reasoning model writes out its working before the answer', fact('adaptive'), desk(SPLIT, 'medium')],
-  ['Thinking is tokens', 'Billed as output, and written before the first word of the answer', fact('thinking-billed'), desk(SPLIT, 'high')],
-  ['The effort dial', 'More effort helps, then flattens, while the cost keeps climbing', fact('snell'), desk('quote-mixed', 'medium')],
+  [
+    'Think, then answer',
+    'A reasoning model writes out its working before the answer',
+    fact('adaptive'),
+    desk(SPLIT, 'medium'),
+  ],
+  [
+    'Thinking is tokens',
+    'Billed as output, and written before the first word of the answer',
+    fact('thinking-billed'),
+    desk(SPLIT, 'high'),
+  ],
+  [
+    'The effort dial',
+    'More effort helps, then flattens, while the cost keeps climbing',
+    fact('snell'),
+    desk('quote-mixed', 'medium'),
+  ],
   ['Overthinking', 'On simple questions with distractions, more thinking can hurt', fact('gema'), desk(COUNT, 'high')],
-  ['A hint, not a counter', 'The model decides how much each question needs', fact('effort-signal'), desk('same-day-cutoff', 'high')],
-  ['Measure, then pick', 'The lowest effort that passes the gate, kind by kind', fact('measure-effort'), desk(SPLIT, 'medium')],
+  [
+    'A hint, not a counter',
+    'The model decides how much each question needs',
+    fact('effort-signal'),
+    desk('same-day-cutoff', 'high'),
+  ],
+  [
+    'Measure, then pick',
+    'The lowest effort that passes the gate, kind by kind',
+    fact('measure-effort'),
+    desk(SPLIT, 'medium'),
+  ],
 ];
 const FACTS: [string, string][] = [
   [String(SIDES[1].r.thinkingTokens), `thinking tokens on the split-order quote at medium effort`],

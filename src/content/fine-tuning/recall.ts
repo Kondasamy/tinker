@@ -5,8 +5,11 @@ import type { RecallItem } from '../../lib/recall';
 export const RECALL: RecallItem[] = [
   // 1. Three ways to change an answer
   {
-    id: 'lever-for-the-job', chapter: '01-three-ways', pin: true,
-    question: 'A bank’s assistant must quote today’s interest rates, which change weekly, in the bank’s formal tone. Which levers fit which need?',
+    id: 'lever-for-the-job',
+    chapter: '01-three-ways',
+    pin: true,
+    question:
+      'A bank’s assistant must quote today’s interest rates, which change weekly, in the bank’s formal tone. Which levers fit which need?',
     options: [
       'Fine-tune for both: train on the rates and the tone together',
       'Documents for the rates, which change; the prompt or the weights for the tone, which doesn’t',
@@ -22,7 +25,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'what-a-prompt-changes', chapter: '01-three-ways',
+    id: 'what-a-prompt-changes',
+    chapter: '01-three-ways',
     question: 'A colleague edits the system prompt so the assistant answers in Spanish. What changed?',
     options: [
       'The model’s weights, a little',
@@ -37,8 +41,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'weights-carry-facts', chapter: '01-three-ways',
-    question: 'A fine-tuned assistant answers a policy question correctly with no documents at all. Where did the answer come from?',
+    id: 'weights-carry-facts',
+    chapter: '01-three-ways',
+    question:
+      'A fine-tuned assistant answers a policy question correctly with no documents at all. Where did the answer come from?',
     options: [
       'Its weights: the policy was in the replies it was trained on',
       'It looked the policy up while answering',
@@ -53,7 +59,8 @@ export const RECALL: RecallItem[] = [
   },
   // 2. What training does
   {
-    id: 'loss-falls', chapter: '02-what-training-does',
+    id: 'loss-falls',
+    chapter: '02-what-training-does',
     question: 'During a fine-tune, the training loss drops steadily. What does that tell you?',
     options: [
       'The model is getting better at everything',
@@ -68,8 +75,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'new-question-new-habit', chapter: '02-what-training-does',
-    question: 'A model fine-tuned on replies that end with a sign-off is asked a question none of them covered. What should you expect?',
+    id: 'new-question-new-habit',
+    chapter: '02-what-training-does',
+    question:
+      'A model fine-tuned on replies that end with a sign-off is asked a question none of them covered. What should you expect?',
     options: [
       'No sign-off: it only learnt the exact questions',
       'The sign-off: the habit is in the weights, so it carries to new questions',
@@ -83,8 +92,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'same-weights-same-reply', chapter: '02-what-training-does',
-    question: 'You ask Larkspur mini the same question twice, with the same weights. Why is the reply the same both times?',
+    id: 'same-weights-same-reply',
+    chapter: '02-what-training-does',
+    question:
+      'You ask Larkspur mini the same question twice, with the same weights. Why is the reply the same both times?',
     options: [
       'It caches the first reply and plays it back',
       'It always picks its most likely next piece, so the same weights give the same words',
@@ -99,8 +110,10 @@ export const RECALL: RecallItem[] = [
   },
   // 3. Small adapters
   {
-    id: 'adapter-size', chapter: '03-small-adapters',
-    question: 'A matrix in a model is 1,000 × 1,000. LoRA adds a rank-8 adapter beside it. How many weights does LoRA train for it?',
+    id: 'adapter-size',
+    chapter: '03-small-adapters',
+    question:
+      'A matrix in a model is 1,000 × 1,000. LoRA adds a rank-8 adapter beside it. How many weights does LoRA train for it?',
     options: ['1,000,000', '16,000', '8'],
     correct: 1,
     why: [
@@ -110,7 +123,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'base-unchanged', chapter: '03-small-adapters',
+    id: 'base-unchanged',
+    chapter: '03-small-adapters',
     question: 'After training a LoRA adapter, the team unclips it. What does the model do now?',
     options: [
       'Exactly what the base model did before training',
@@ -125,7 +139,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'many-adapters', chapter: '03-small-adapters',
+    id: 'many-adapters',
+    chapter: '03-small-adapters',
     question: 'A company serves five teams, each wanting its own style. What does LoRA let them keep?',
     options: [
       'Five whole copies of the model, one per team',
@@ -141,7 +156,8 @@ export const RECALL: RecallItem[] = [
   },
   // 4. Facts move, style stays
   {
-    id: 'stale-fact', chapter: '04-facts-move-style-stays',
+    id: 'stale-fact',
+    chapter: '04-facts-move-style-stays',
     question: 'A fine-tuned assistant still quotes last year’s shipping fee, in perfect house style. Why?',
     options: [
       'The prompt is out of date',
@@ -156,7 +172,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'docs-move-first', chapter: '04-facts-move-style-stays',
+    id: 'docs-move-first',
+    chapter: '04-facts-move-style-stays',
     question: 'A part’s warranty changes from one year to two. Which version answers two years the next morning?',
     options: [
       'The fine-tuned one, once it has had a night to adjust',
@@ -171,7 +188,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'grade-the-fact', chapter: '04-facts-move-style-stays',
+    id: 'grade-the-fact',
+    chapter: '04-facts-move-style-stays',
     question: 'Two answers both read well and sign off nicely; one has the old price. What catches it?',
     options: [
       'A check that the answer contains the key fact, the new price',
@@ -187,7 +205,8 @@ export const RECALL: RecallItem[] = [
   },
   // 5. What training costs you
   {
-    id: 'measure-forgetting', chapter: '05-what-training-costs',
+    id: 'measure-forgetting',
+    chapter: '05-what-training-costs',
     question: 'How would you check whether a fine-tune made a model worse at what it knew before?',
     options: [
       'Score it on text it never trained on, before and after, and compare',
@@ -202,8 +221,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'adapter-forgets-less', chapter: '05-what-training-costs',
-    question: 'A LoRA adapter and a full fine-tune learn the same style. Which usually keeps more of what the base model knew?',
+    id: 'adapter-forgets-less',
+    chapter: '05-what-training-costs',
+    question:
+      'A LoRA adapter and a full fine-tune learn the same style. Which usually keeps more of what the base model knew?',
     options: [
       'The full fine-tune: it has more weights to hold both',
       'The adapter: the base weights stay as they were, and it changes less',
@@ -217,8 +238,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'narrow-training-cost', chapter: '05-what-training-costs',
-    question: 'A team fine-tunes on 50 short replies until the training loss is nearly zero. What should they expect on other text?',
+    id: 'narrow-training-cost',
+    chapter: '05-what-training-costs',
+    question:
+      'A team fine-tunes on 50 short replies until the training loss is nearly zero. What should they expect on other text?',
     options: [
       'It gets better at everything: a lower loss is a better model',
       'It may get worse: training hard on a narrow set can pull the weights away from what they knew',
@@ -233,7 +256,8 @@ export const RECALL: RecallItem[] = [
   },
   // 6. Measure before you train
   {
-    id: 'baseline-first', chapter: '06-measure-before-you-train',
+    id: 'baseline-first',
+    chapter: '06-measure-before-you-train',
     question: 'Why score the version you ship today before you fine-tune?',
     options: [
       'So the fine-tune has a baseline to beat, on the same tests',
@@ -248,8 +272,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'sounds-right-fails', chapter: '06-measure-before-you-train',
-    question: 'Every reply from the fine-tuned version signs off in the house voice. The release gate still holds it back. How can that be?',
+    id: 'sounds-right-fails',
+    chapter: '06-measure-before-you-train',
+    question:
+      'Every reply from the fine-tuned version signs off in the house voice. The release gate still holds it back. How can that be?',
     options: [
       'The gate grades the facts in each answer, and it got more of them wrong than the baseline',
       'The gate is broken: a version that sounds right should ship',
@@ -263,8 +289,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'regression-rule', chapter: '06-measure-before-you-train',
-    question: 'A candidate passes more questions than the baseline overall, but fails two the baseline passed. The gate says no question that passed may fail. What happens?',
+    id: 'regression-rule',
+    chapter: '06-measure-before-you-train',
+    question:
+      'A candidate passes more questions than the baseline overall, but fails two the baseline passed. The gate says no question that passed may fail. What happens?',
     options: [
       'It ships: the total went up',
       'It is held back until those two questions pass again',
@@ -279,8 +307,10 @@ export const RECALL: RecallItem[] = [
   },
   // 7. Larkspur's decision
   {
-    id: 'lever-per-request', chapter: '07-larkspurs-decision',
-    question: 'An assistant answers questions about stock levels, which change hourly. Which lever should carry the stock levels?',
+    id: 'lever-per-request',
+    chapter: '07-larkspurs-decision',
+    question:
+      'An assistant answers questions about stock levels, which change hourly. Which lever should carry the stock levels?',
     options: [
       'The weights: fine-tune on this week’s stock levels',
       'Documents or a lookup, read fresh for each question',
@@ -294,8 +324,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'tied-plans', chapter: '07-larkspurs-decision',
-    question: 'For replies with no facts in them, a prompt and a fine-tune both get the voice right every time. How do you choose?',
+    id: 'tied-plans',
+    chapter: '07-larkspurs-decision',
+    question:
+      'For replies with no facts in them, a prompt and a fine-tune both get the voice right every time. How do you choose?',
     options: [
       'On cost and upkeep: words sent with every request against a training run and retraining',
       'Always fine-tune: training is the more advanced choice',
@@ -309,7 +341,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'fine-tune-when', chapter: '07-larkspurs-decision',
+    id: 'fine-tune-when',
+    chapter: '07-larkspurs-decision',
     question: 'When does fine-tuning earn its place in a plan?',
     options: [
       'When a steady skill or format matters, the prompt and documents fall short on the evals, and the team can keep retraining',

@@ -6,13 +6,20 @@ import { describe, expect, it } from 'vitest';
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import IsoStage from '../../src/lib/iso/IsoStage';
-import { PHONE_BOARD, phoneLabel, phoneScene, phoneState, type PhoneOpts } from '../../src/components/scenes/phoneScene';
+import {
+  PHONE_BOARD,
+  phoneLabel,
+  phoneScene,
+  phoneState,
+  type PhoneOpts,
+} from '../../src/components/scenes/phoneScene';
 import { callTimeline, segmentName } from '../../src/components/scenes/callTimeline';
 import ClipPlayer from '../../src/components/story/ClipPlayer';
 import { CallTimeline, VoiceStage, segmentsOf } from '../../src/content/voice/kit';
 import { DEFAULT_LINE, runCall } from '../../src/lib/voice/engine';
 
-const draw = (o: PhoneOpts) => renderToString(createElement(IsoStage, { board: PHONE_BOARD, scene: phoneScene(o), label: phoneLabel(o) }));
+const draw = (o: PhoneOpts) =>
+  renderToString(createElement(IsoStage, { board: PHONE_BOARD, scene: phoneScene(o), label: phoneLabel(o) }));
 
 describe('the phone desk', () => {
   it('idle: four stations, no bubble, the stopwatch at rest', () => {
@@ -41,7 +48,9 @@ describe('the phone desk', () => {
     expect(svg).not.toContain('class="ear"');
     expect(svg).not.toContain('class="mouth"');
     expect(svg).toContain('SPEECH-TO-SPEECH MODEL');
-    expect(phoneState({ stage: 'reply', mode: 's2s' }).bubbles).toEqual([{ belt: 'model-phone', kind: 'audio', who: 'assistant' }]);
+    expect(phoneState({ stage: 'reply', mode: 's2s' }).bubbles).toEqual([
+      { belt: 'model-phone', kind: 'audio', who: 'assistant' },
+    ]);
   });
 
   it('barge-in: the caller’s voice and the reply on the line at once; stopped, the mouth says so', () => {
@@ -79,10 +88,13 @@ describe('the call timeline', () => {
 
 describe('the cut-in on the timeline', () => {
   const callerCut = (point: 'stop-2' | 'stop-3', bargeIn: boolean) =>
-    segmentsOf(runCall('slots', { ...DEFAULT_LINE, streaming: true, silence: 800, point, bargeIn }), point).segments
-      .filter(s => s.lane === 'caller')[1];
+    segmentsOf(
+      runCall('slots', { ...DEFAULT_LINE, streaming: true, silence: 800, point, bargeIn }),
+      point,
+    ).segments.filter(s => s.lane === 'caller')[1];
   it('without barge-in, Dana cuts in where the reader picked', () => {
-    const two = callerCut('stop-2', false), three = callerCut('stop-3', false);
+    const two = callerCut('stop-2', false),
+      three = callerCut('stop-3', false);
     expect(two).toBeDefined();
     expect(two.at).toBeLessThan(three.at);
   });
@@ -93,7 +105,9 @@ describe('the cut-in on the timeline', () => {
 
 describe('the clip player', () => {
   it('shows Play, not pressed, and the caption, before anything plays', () => {
-    const html = renderToString(createElement(ClipPlayer, { clip: 'status-caller', who: 'Dana', caption: 'Hi <b>there</b>' }));
+    const html = renderToString(
+      createElement(ClipPlayer, { clip: 'status-caller', who: 'Dana', caption: 'Hi <b>there</b>' }),
+    );
     expect(html).toContain('aria-pressed="false"');
     expect(html).toContain('Play');
     expect(html).toContain('Hi &lt;b&gt;there&lt;/b&gt;');
@@ -101,7 +115,9 @@ describe('the clip player', () => {
   });
 
   it('the stage escapes its caption', () => {
-    const html = renderToString(createElement(VoiceStage, { shown: { phone: { stage: 'idle' }, caption: '<i>x</i>' } }));
+    const html = renderToString(
+      createElement(VoiceStage, { shown: { phone: { stage: 'idle' }, caption: '<i>x</i>' } }),
+    );
     expect(html).toContain('&lt;i&gt;x&lt;/i&gt;');
   });
 });

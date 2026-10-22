@@ -14,22 +14,43 @@ import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { ContextStage, Fact, PartsTable, runOf } from './kit';
 
-const MODULE = 'context', ID = '01-whats-in-the-window';
+const MODULE = 'context',
+  ID = '01-whats-in-the-window';
 const [ALONE, EARLIER] = DOMAINS[ID].sessions!;
-const CASE = caseOf(ALONE[0][0]), FIRST = caseOf(EARLIER[0][0]);
+const CASE = caseOf(ALONE[0][0]),
+  FIRST = caseOf(EARLIER[0][0]);
 
-interface S { sent: boolean; docs: boolean; tools: boolean; earlier: boolean; p1: number | null; quiz: number | null }
-const setup = (s: S) => ({ sessions: s.earlier ? EARLIER : ALONE, tools: s.tools, retrieval: s.docs ? 'top' as const : 'none' as const });
+interface S {
+  sent: boolean;
+  docs: boolean;
+  tools: boolean;
+  earlier: boolean;
+  p1: number | null;
+  quiz: number | null;
+}
+const setup = (s: S) => ({
+  sessions: s.earlier ? EARLIER : ALONE,
+  tools: s.tools,
+  retrieval: s.docs ? ('top' as const) : ('none' as const),
+});
 const current = (s: S) => runOf(setup(s));
-const last = (s: S) => { const r = current(s); return r.meter[r.meter.length - 1]; };
-const tokensOf = (s: S, label: string) => last(s).window.parts.filter(p => p.label === label).reduce((n, p) => n + p.tokens, 0);
+const last = (s: S) => {
+  const r = current(s);
+  return r.meter[r.meter.length - 1];
+};
+const tokensOf = (s: S, label: string) =>
+  last(s)
+    .window.parts.filter(p => p.label === label)
+    .reduce((n, p) => n + p.tokens, 0);
 
 // the order tools against everything else in the turn they join, read off the runs
 const WITH = { sent: true, docs: true, tools: true, earlier: false, p1: null, quiz: null };
-const TOOLS = tokensOf(WITH, 'Tools'), REST = last(WITH).window.tokens - TOOLS;
+const TOOLS = tokensOf(WITH, 'Tools'),
+  REST = last(WITH).window.tokens - TOOLS;
 const QUESTION = tokensOf(WITH, 'Customer');
 const P1 = {
-  question: 'Larkspur also offers the model its two order tools, so it can look up orders and issue refunds. How much of the window will their definitions take?',
+  question:
+    'Larkspur also offers the model its two order tools, so it can look up orders and issue refunds. How much of the window will their definitions take?',
   options: [
     'None: tools live outside the window, so only a call to one counts',
     'A few tokens, about as many as the question',
@@ -39,7 +60,8 @@ const P1 = {
 const OUT1 = TOOLS > REST ? 2 : TOOLS <= QUESTION * 2 ? 1 : 0;
 
 const QUIZ = {
-  question: 'A team gives its assistant a 20-page style guide as the system prompt, 15 tools and a long chat history. Answers start getting cut off. What is the first thing to check?',
+  question:
+    'A team gives its assistant a 20-page style guide as the system prompt, 15 tools and a long chat history. Answers start getting cut off. What is the first thing to check?',
   options: [
     'The model: a better one would answer in full',
     'The budget: the style guide, the tools and the history take so much of the window that little room is left for the reply',
@@ -58,44 +80,60 @@ const QUIZ = {
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'send', focus: 'send', visibleControls: ['send'],
+    id: 'send',
+    focus: 'send',
+    visibleControls: ['send'],
     narration: `${CASE.customer} asks Larkspur’s assistant: “${CASE.question}” A model reads one block of text per turn: the context window. Everything it knows about this question has to be in there. Right now the turn holds two parts: Larkspur’s system prompt and ${CASE.customer}’s question. Send it.`,
     predicate: s => s.sent,
     hint: 'Press the send button.',
   },
   {
-    id: 'docs', focus: 'docs', visibleControls: ['parts', 'docs'],
+    id: 'docs',
+    focus: 'docs',
+    visibleControls: ['parts', 'docs'],
     narration: `“${last({ ...WITH, docs: false, tools: false }).turn.text}” The model said so honestly: the shipping policy isn’t in its window. The table shows each part and its size in tokens, the unit a model reads and is billed in. These counts come from this site’s own tokenizer, trained on Larkspur’s documents; a provider’s tokenizer counts a little differently. Add the shipping document.`,
     predicate: s => s.docs,
     hint: 'Press “Add the shipping document”.',
   },
   {
-    id: 'predict', focus: 'p1', visibleControls: ['parts', 'p1'],
+    id: 'predict',
+    focus: 'p1',
+    visibleControls: ['parts', 'p1'],
     narration: `“${last({ ...WITH, tools: false }).turn.text}” Right this time, from a passage of ${num(tokensOf({ ...WITH, tools: false }, 'Retrieved documents'))} tokens. Before you add anything else:`,
     predicate: s => s.p1 !== null,
   },
   {
-    id: 'tools', focus: 'tools', visibleControls: ['p1', 'parts', 'tools'],
+    id: 'tools',
+    focus: 'tools',
+    visibleControls: ['p1', 'parts', 'tools'],
     narration: 'Add the order tools and watch the table.',
     predicate: s => s.tools,
     hint: 'Press “Add the order tools”.',
   },
   {
-    id: 'earlier', focus: 'earlier', visibleControls: ['out1', 'parts', 'earlier'],
+    id: 'earlier',
+    focus: 'earlier',
+    visibleControls: ['out1', 'parts', 'earlier'],
     narration: `The two tool definitions take ${num(TOOLS)} tokens, against ${num(REST)} for everything else. A tool’s name, description and input schema are sent with every turn, called or not, so the model knows it can use them. One part is still missing. ${CASE.customer} asked “${FIRST.question}” earlier in this chat, and the model keeps nothing between calls: the host sends the conversation again each turn. Add the earlier question.`,
     predicate: s => s.earlier,
     hint: 'Press “Add the earlier question”.',
   },
   {
-    id: 'quiz', focus: 'quiz', visibleControls: ['parts', 'fact', 'quiz'],
-    narration: 'Now the turn has every kind of part: tools, the system prompt, the earlier question with its document and answer, this question’s document, and the question. Every one of them counts against one budget, and so does the reply: Larkspur’s host keeps room for it and refuses a window that leaves too little. One question to finish.',
+    id: 'quiz',
+    focus: 'quiz',
+    visibleControls: ['parts', 'fact', 'quiz'],
+    narration:
+      'Now the turn has every kind of part: tools, the system prompt, the earlier question with its document and answer, this question’s document, and the question. Every one of them counts against one budget, and so does the reply: Larkspur’s host keeps room for it and refuses a window that leaves too little. One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which parts of the turn did the table count?',
   },
 ];
 
-const Add = ({ on, label, flip }: { on: boolean; label: string; flip: () => void }) =>
-  <button type="button" className="big" disabled={on} onClick={flip}>{on ? `${label}: added` : label}</button>;
+const Add = ({ on, label, flip }: { on: boolean; label: string; flip: () => void }) => (
+  <button type="button" className="big" disabled={on} onClick={flip}>
+    {on ? `${label}: added` : label}
+  </button>
+);
 
 export default function WhatsInTheWindow() {
   return (
@@ -105,18 +143,37 @@ export default function WhatsInTheWindow() {
       steps={STEPS}
       initial={{ sent: false, docs: false, tools: false, earlier: false, p1: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => { const r = current(state); return <ContextStage run={r} upTo={state.sent ? r.meter.length : 0} />; }}
+      stage={({ state }) => {
+        const r = current(state);
+        return <ContextStage run={r} upTo={state.sent ? r.meter.length : 0} />;
+      }}
       controls={{
-        send: ({ state, apply }) => <button type="button" className="big" onClick={() => apply({ ...state, sent: true })}>Send the question</button>,
+        send: ({ state, apply }) => (
+          <button type="button" className="big" onClick={() => apply({ ...state, sent: true })}>
+            Send the question
+          </button>
+        ),
         parts: ({ state }) => <PartsTable run={current(state)} caption="This turn’s window, in tokens" />,
-        docs: ({ state, apply }) => <Add on={state.docs} label="Add the shipping document" flip={() => apply({ ...state, docs: true })} />,
-        tools: ({ state, apply }) => <Add on={state.tools} label="Add the order tools" flip={() => apply({ ...state, tools: true })} />,
-        earlier: ({ state, apply }) => <Add on={state.earlier} label="Add the earlier question" flip={() => apply({ ...state, earlier: true })} />,
+        docs: ({ state, apply }) => (
+          <Add on={state.docs} label="Add the shipping document" flip={() => apply({ ...state, docs: true })} />
+        ),
+        tools: ({ state, apply }) => (
+          <Add on={state.tools} label="Add the order tools" flip={() => apply({ ...state, tools: true })} />
+        ),
+        earlier: ({ state, apply }) => (
+          <Add on={state.earlier} label="Add the earlier question" flip={() => apply({ ...state, earlier: true })} />
+        ),
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUT1} />,
         fact: () => <Fact id="window-everything" />,
         quiz: ({ state, apply, sync }) => (
-          <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
+          <Quiz
+            {...QUIZ}
+            unsure
+            value={state.quiz}
+            onAnswer={(_, q) => apply({ ...state, quiz: q })}
+            onUnsure={() => sync({ ...state, quiz: UNSURE })}
+          />
         ),
       }}
     />

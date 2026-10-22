@@ -8,7 +8,8 @@ import { mmWalker } from './multimodal-flow';
 import { serious, layoutHolds, PHONE } from './helpers';
 
 const M = moduleOf('multimodal');
-const CHS = M.chapters.map(c => c.id), [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = CHS;
+const CHS = M.chapters.map(c => c.id),
+  [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = CHS;
 const at = (id: string) => new RegExp(`/multimodal/${id}/$`);
 async function walkAll(w: ReturnType<typeof mmWalker>) {
   await w.open(CH1);
@@ -22,15 +23,23 @@ async function walkAll(w: ReturnType<typeof mmWalker>) {
 }
 const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 // let the stage's fade finish first: axe can catch a figure mid-fade and report false contrast failures
-const axe = async (page: Page) => { await page.waitForTimeout(400); expect(await serious(page)).toEqual([]); };
+const axe = async (page: Page) => {
+  await page.waitForTimeout(400);
+  expect(await serious(page)).toEqual([]);
+};
 test.setTimeout(150_000);
 
-test('the intro shows the level, the prerequisite, the author, the chapters and the Colorfigures credit', async ({ page }) => {
+test('the intro shows the level, the prerequisite, the author, the chapters and the Colorfigures credit', async ({
+  page,
+}) => {
   await page.goto('/multimodal/');
   const meta = page.locator('.hero .module-meta');
   await expect(page.locator('.hero .kicker')).toHaveText('Module 16 · Multimodal');
   await expect(meta.locator('.level')).toHaveText('Intermediate');
-  await expect(meta.getByRole('link', { name: moduleOf('tokens').title, exact: true })).toHaveAttribute('href', '/tokens/');
+  await expect(meta.getByRole('link', { name: moduleOf('tokens').title, exact: true })).toHaveAttribute(
+    'href',
+    '/tokens/',
+  );
   await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
   await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toBeVisible();
@@ -38,7 +47,9 @@ test('the intro shows the level, the prerequisite, the author, the chapters and 
   await axe(page);
 });
 
-test('Module 16 on the intro, the recap and home, with their own share images; home Continue resumes it', async ({ page }) => {
+test('Module 16 on the intro, the recap and home, with their own share images; home Continue resumes it', async ({
+  page,
+}) => {
   await page.goto('/multimodal/');
   await expect(page.locator('.hero .kicker')).toHaveText('Module 16 · Multimodal');
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/multimodal\.jpg$/);
@@ -47,19 +58,28 @@ test('Module 16 on the intro, the recap and home, with their own share images; h
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/multimodal-recap\.jpg$/);
   await page.goto('/');
   await expect(page.locator('.module[data-module="multimodal"] h4 a')).toHaveAttribute('href', '/multimodal/');
-  await page.evaluate(() => { localStorage.setItem('multimodal-progress-v1', JSON.stringify({ done: [], saved: {} })); localStorage.setItem('tinker-last-module', 'multimodal'); });
+  await page.evaluate(() => {
+    localStorage.setItem('multimodal-progress-v1', JSON.stringify({ done: [], saved: {} }));
+    localStorage.setItem('tinker-last-module', 'multimodal');
+  });
   await page.reload();
   await expect(page.locator('[data-continue]')).toHaveAttribute('href', /^\/multimodal\//);
 });
 
-test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({ page }) => {
+test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({
+  page,
+}) => {
   await walkAll(mmWalker(page, 'mouse', axe));
 });
 
-test('every chapter plays by keyboard only; progress lands in multimodal-progress-v1 and no other module’s key', async ({ page }) => {
+test('every chapter plays by keyboard only; progress lands in multimodal-progress-v1 and no other module’s key', async ({
+  page,
+}) => {
   await page.goto('/');
   const OTHERS = { 'tokens-progress-v1': JSON.stringify({ done: ['01-what-the-model-reads'], saved: {} }) };
-  await page.evaluate(o => { for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v); }, OTHERS);
+  await page.evaluate(o => {
+    for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v);
+  }, OTHERS);
   await walkAll(mmWalker(page, 'keyboard'));
   const store = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
   expect(JSON.parse(store['multimodal-progress-v1']).done).toEqual(CHS);
@@ -67,7 +87,9 @@ test('every chapter plays by keyboard only; progress lands in multimodal-progres
   expect(store['tinker-last-module']).toBe('multimodal');
 });
 
-test('chapter 2: the prediction locks before the reveal; the Patches view names size, count and reading as the size changes', async ({ page }) => {
+test('chapter 2: the prediction locks before the reveal; the Patches view names size, count and reading as the size changes', async ({
+  page,
+}) => {
   const w = mmWalker(page, 'keyboard');
   await w.open(CH2);
   const c = card(page);
@@ -98,10 +120,13 @@ test('chapter 6: the sum check catches the misread total', async ({ page }) => {
   await expect(c.locator('[data-check]')).toContainText('$963.00');
 });
 
-test('chapter 7: vision at the largest size is not accepted; Show me applies one of the best plans', async ({ page }) => {
+test('chapter 7: vision at the largest size is not accepted; Show me applies one of the best plans', async ({
+  page,
+}) => {
   const w = mmWalker(page, 'mouse');
   await w.open(CH7);
-  const c = card(page), score = c.locator('[data-best]');
+  const c = card(page),
+    score = c.locator('[data-best]');
   await expect(score).toHaveAttribute('data-best', '0');
   await c.getByRole('button', { name: 'Show me' }).click();
   await expect(c).toContainText('Step 2 of');
@@ -137,6 +162,11 @@ test.describe('phone', () => {
       await page.goto(p);
       await layoutHolds(page);
     }
-    await walkAll(mmWalker(page, 'mouse', async p => { await layoutHolds(p); await axe(p); }));
+    await walkAll(
+      mmWalker(page, 'mouse', async p => {
+        await layoutHolds(p);
+        await axe(p);
+      }),
+    );
   });
 });

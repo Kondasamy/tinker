@@ -6,15 +6,25 @@ import { openIndex, type RagIndex } from '../../src/lib/rag/load';
 import { diskLoader } from '../../src/lib/rag/diskLoader';
 import { createSession, run } from '../../src/lib/rag/engine';
 import { resolveConfig } from '../../src/lib/rag/lattice';
-import { initialCanvas, outcome, unlockedThrough, type CanvasQuestion, type Knobs } from '../../src/components/canvas/state';
+import {
+  initialCanvas,
+  outcome,
+  unlockedThrough,
+  type CanvasQuestion,
+  type Knobs,
+} from '../../src/components/canvas/state';
 import { blendParts, recallOf } from '../../src/components/panels/logic';
 import { FIXES, PRESETS } from '../../src/content/rag/05-accuracy';
 
-const questions: CanvasQuestion[] = ['ch4', 'ch5'].flatMap((c) => JSON.parse(readFileSync(`data/questions/${c}.json`, 'utf8')));
-const Q = (id: string) => questions.find((q) => q.id === id)!;
+const questions: CanvasQuestion[] = ['ch4', 'ch5'].flatMap(c =>
+  JSON.parse(readFileSync(`data/questions/${c}.json`, 'utf8')),
+);
+const Q = (id: string) => questions.find(q => q.id === id)!;
 
 let index: RagIndex;
-beforeAll(async () => { index = await openIndex(diskLoader); });
+beforeAll(async () => {
+  index = await openIndex(diskLoader);
+});
 
 /** Verdict and recall for a chapter-5 canvas (every block through chapter 5 on the track). */
 async function at(q: string, knobs: Knobs) {
@@ -22,7 +32,8 @@ async function at(q: string, knobs: Knobs) {
   const o = outcome(index, createSession(index), initialCanvas(unlockedThrough('05-accuracy'), knobs), Q(q));
   return { verdict: o.answer!.verdict, recall: recallOf(o.record!).value };
 }
-const preset = (p: keyof typeof PRESETS, more: Partial<Knobs> = {}) => at(PRESETS[p].q, { ...PRESETS[p].knobs, ...more });
+const preset = (p: keyof typeof PRESETS, more: Partial<Knobs> = {}) =>
+  at(PRESETS[p].q, { ...PRESETS[p].knobs, ...more });
 
 describe('chapter 5 puzzles', () => {
   for (const p of Object.keys(FIXES) as (keyof typeof FIXES)[]) {
@@ -38,8 +49,8 @@ describe('chapter 5 puzzles', () => {
   });
 
   it('top-k: fails at 1, solves at 5 and 6, buried again from 7', async () => {
-    const v = await Promise.all([1, 4, 5, 6, 7, 10].map((topK) => preset('topK', { topK })));
-    expect(v.map((x) => x.verdict)).toEqual(['notfound', 'notfound', 'correct', 'correct', 'notfound', 'notfound']);
+    const v = await Promise.all([1, 4, 5, 6, 7, 10].map(topK => preset('topK', { topK })));
+    expect(v.map(x => x.verdict)).toEqual(['notfound', 'notfound', 'correct', 'correct', 'notfound', 'notfound']);
   });
 
   it('hidden needle: rerank fixes it as well as best-at-both-ends order', async () => {
@@ -92,7 +103,16 @@ describe('show the math', () => {
   });
 
   it('recallOf counts cut gold sentences as retrieved', () => {
-    const rec = { recall: { k: 3, value: 0, gold: [{ sentence: 'a', status: 'split', chunkIds: [1] }, { sentence: 'b', status: 'missing', chunkIds: [] }] } };
+    const rec = {
+      recall: {
+        k: 3,
+        value: 0,
+        gold: [
+          { sentence: 'a', status: 'split', chunkIds: [1] },
+          { sentence: 'b', status: 'missing', chunkIds: [] },
+        ],
+      },
+    };
     expect(recallOf(rec as never)).toEqual({ k: 3, found: 1, total: 2, value: 0.5 });
   });
 });

@@ -15,15 +15,22 @@ import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { Fact, TokensStage } from './kit';
 
-const MODULE = 'tokens', ID = '03-tokens-are-the-meter';
+const MODULE = 'tokens',
+  ID = '03-tokens-are-the-meter';
 const M = corpusMeter();
 const n = (x: number) => Math.round(x).toLocaleString('en-US');
 const pct = (a: number, b: number) => `${Math.round(Math.abs(a / b - 1) * 100)}%`;
-const PRICE = fact('input-price'), PER_M = Number(PRICE.value);
-const cost = (tokens: number) => `$${(tokens * PER_M / 1e6).toFixed(4)}`;
+const PRICE = fact('input-price'),
+  PER_M = Number(PRICE.value);
+const cost = (tokens: number) => `$${((tokens * PER_M) / 1e6).toFixed(4)}`;
 const RAG2 = moduleOf('rag').chapters[1];
 
-interface S { p1: number | null; counted: boolean; priced: boolean; quiz: number | null }
+interface S {
+  p1: number | null;
+  counted: boolean;
+  priced: boolean;
+  quiz: number | null;
+}
 
 const P1 = {
   question: `The rule of thumb says Larkspur’s documents are about ${n(M.rule)} tokens. How does that compare with what real tokenizers count?`,
@@ -38,7 +45,8 @@ const OUT1 = M.rule > mean * 1.01 ? 0 : M.rule < mean * 0.99 ? 1 : 2;
 const vs = M.real.map(r => `${pct(M.rule, r.tokens)} ${M.rule > r.tokens ? 'over' : 'under'} ${r.name}`).join(' and ');
 
 const QUIZ = {
-  question: 'Larkspur moves its assistant to a newer model from the same provider. The documents and prompts haven’t changed. The finance lead expects the same bill per request. What do you tell them?',
+  question:
+    'Larkspur moves its assistant to a newer model from the same provider. The documents and prompts haven’t changed. The finance lead expects the same bill per request. What do you tell them?',
   options: [
     'Same text, same tokens, same bill',
     'Recount with the new model’s tokenizer: a new tokenizer can cut the same text into more or fewer tokens, and the bill follows its count',
@@ -57,24 +65,32 @@ const QUIZ = {
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'predict', focus: 'p1', visibleControls: ['p1'],
+    id: 'predict',
+    focus: 'p1',
+    visibleControls: ['p1'],
     narration: `Larkspur has ${CORPUS.length} documents, ${n(M.bytes)} bytes of text. Providers bill and size the context window in tokens, so the team needs a count. ${fact('openai-rule').claim} By that rule, ${n(M.bytes)} ÷ ${BYTES_PER_TOKEN} is about ${n(M.rule)} tokens. Two real tokenizers counted the same documents ahead of time. Before you look:`,
     predicate: s => s.p1 !== null,
   },
   {
-    id: 'count', focus: 'count', visibleControls: ['p1', 'count'],
+    id: 'count',
+    focus: 'count',
+    visibleControls: ['p1', 'count'],
     narration: 'Locked in. Count the documents.',
     predicate: s => s.counted,
     hint: 'Press “Count the documents”.',
   },
   {
-    id: 'compare', focus: 'price', visibleControls: ['out1', 'table', 'price'],
+    id: 'compare',
+    focus: 'price',
+    visibleControls: ['out1', 'table', 'price'],
     narration: `The rule was ${vs}. On these documents each real token held more than ${BYTES_PER_TOKEN} bytes. This site’s own tokenizer counted ${n(M.site)}, more than any of them, even though it learned from these very documents. That count is in-sample, and with only ${VOCAB_SIZE} tokens in its vocabulary it cuts finer. Now put a price on it.`,
     predicate: s => s.priced,
     hint: 'Press “Price the documents”.',
   },
   {
-    id: 'bill', focus: 'quiz', visibleControls: ['table', 'bill', 'quiz'],
+    id: 'bill',
+    focus: 'quiz',
+    visibleControls: ['table', 'bill', 'quiz'],
     narration: `Same documents, different meters, different bills. The context window is counted the same way, by the model’s own tokenizer. One question to finish.`,
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Who counts the tokens on the bill: you, a rule, or the model’s tokenizer?',
@@ -89,13 +105,26 @@ function Table({ priced }: { priced: boolean }) {
   ];
   return (
     <table className="tc-ledger" data-meter style={{ marginTop: 10 }}>
-      <caption>Larkspur’s {CORPUS.length} documents, {n(M.bytes)} bytes</caption>
-      <thead><tr><th scope="col">Counted by</th><th scope="col">Tokens</th><th scope="col">Bytes per token</th>{priced && <th scope="col">Cost to send once</th>}</tr></thead>
+      <caption>
+        Larkspur’s {CORPUS.length} documents, {n(M.bytes)} bytes
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Counted by</th>
+          <th scope="col">Tokens</th>
+          <th scope="col">Bytes per token</th>
+          {priced && <th scope="col">Cost to send once</th>}
+        </tr>
+      </thead>
       <tbody>
         {rows.map(r => (
           <tr key={r.name}>
-            <th scope="row">{r.name} <span className="tk-note">({r.note})</span></th>
-            <td>{n(r.tokens)}</td><td>{(M.bytes / r.tokens).toFixed(1)}</td>{priced && <td>{cost(r.tokens)}</td>}
+            <th scope="row">
+              {r.name} <span className="tk-note">({r.note})</span>
+            </th>
+            <td>{n(r.tokens)}</td>
+            <td>{(M.bytes / r.tokens).toFixed(1)}</td>
+            {priced && <td>{cost(r.tokens)}</td>}
           </tr>
         ))}
       </tbody>
@@ -111,22 +140,43 @@ export default function TokensAreTheMeter() {
       steps={STEPS}
       initial={{ p1: null, counted: false, priced: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={() => <TokensStage text={PARAGRAPH} caption={`One paragraph of ${CORPUS.length} documents, counted by this site’s tokenizer.`} />}
+      stage={() => (
+        <TokensStage
+          text={PARAGRAPH}
+          caption={`One paragraph of ${CORPUS.length} documents, counted by this site’s tokenizer.`}
+        />
+      )}
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
-        count: ({ state, apply }) => <button type="button" className="big" onClick={() => apply({ ...state, counted: true })}>Count the documents</button>,
+        count: ({ state, apply }) => (
+          <button type="button" className="big" onClick={() => apply({ ...state, counted: true })}>
+            Count the documents
+          </button>
+        ),
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUT1} />,
         table: ({ state }) => <Table priced={state.priced} />,
-        price: ({ state, apply }) => <button type="button" className="big" onClick={() => apply({ ...state, priced: true })}>Price the documents</button>,
+        price: ({ state, apply }) => (
+          <button type="button" className="big" onClick={() => apply({ ...state, priced: true })}>
+            Price the documents
+          </button>
+        ),
         bill: () => (
           <div className="tc-def">
             <Fact id="input-price" />
             <Fact id="claude-tokenizer-30" />
-            <p className="tc-fact">Why the window matters too: <a href={chapterHref('rag', RAG2.id)}>RAG chapter 2, {RAG2.title}</a></p>
+            <p className="tc-fact">
+              Why the window matters too: <a href={chapterHref('rag', RAG2.id)}>RAG chapter 2, {RAG2.title}</a>
+            </p>
           </div>
         ),
         quiz: ({ state, apply, sync }) => (
-          <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
+          <Quiz
+            {...QUIZ}
+            unsure
+            value={state.quiz}
+            onAnswer={(_, q) => apply({ ...state, quiz: q })}
+            onUnsure={() => sync({ ...state, quiz: UNSURE })}
+          />
         ),
       }}
     />

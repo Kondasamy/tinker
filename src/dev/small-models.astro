@@ -10,7 +10,11 @@ import { frontier } from '../lib/small-models/router';
 
 // the stage with no models asked for on the server: it waits with its loading pill. (A failed load is covered by the
 // unit test; setting the shared loaders here would leak into the chapters this build renders after it.)
-const shown = (caption: string, scene: Shown['scene'], chart?: Shown['chart']) => (): Shown => ({ scene, chart, caption });
+const shown = (caption: string, scene: Shown['scene'], chart?: Shown['chart']) => (): Shown => ({
+  scene,
+  chart,
+  caption,
+});
 
 const STATES: [string, RouterOpts][] = [
   ['Distill: at rest', { mode: 'distill' }],
