@@ -125,5 +125,6 @@ test.describe('reduced motion', () => {
 test('without reduced motion the morph does run (control for the test above)', async ({ page }) => {
   await open(page, '07-sandbox');
   await expect(page.getByTestId('announce')).toContainText('Answer:');
-  expect(await morphFrames(page)).toBeGreaterThan(3);
+  // start, at least one in-between frame, end: a slow CI runner may paint only that many in 400 ms
+  expect(await morphFrames(page)).toBeGreaterThanOrEqual(3);
 });
