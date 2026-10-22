@@ -11,14 +11,15 @@ export function voWalker(page: Page, mode: Mode, check: (page: Page) => Promise<
   const press = (l: Locator) => (kb ? l.press('Enter') : l.click());
   const card = page.getByRole('region', { name: 'Next step' });
   const btn = (name: string | RegExp) => press(card.getByRole('button', { name }));
-  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name }));   // a quiz or prediction option
+  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name })); // a quiz or prediction option
   const step = (n: number) => expect(card).toContainText(`Step ${n} of`);
   /** set a range over a finite list: arrow keys by keyboard, a direct set by mouse */
   async function range(label: string, values: string[], to: string) {
     const r = card.getByRole('slider', { name: label });
     if (!kb) return r.fill(String(values.indexOf(to)));
     await r.focus();
-    const now = values.indexOf((await r.getAttribute('aria-valuetext'))!), want = values.indexOf(to);
+    const now = values.indexOf((await r.getAttribute('aria-valuetext'))!),
+      want = values.indexOf(to);
     for (let i = now; i !== want; i += Math.sign(want - now)) await r.press(want > now ? 'ArrowRight' : 'ArrowLeft');
   }
 

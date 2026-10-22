@@ -23,7 +23,7 @@ export interface Run<S> {
   ids: string[];
   index: number;
   state: S;
-  starts: S[];          // state at entry of each step reached, for Back and Reset
+  starts: S[]; // state at entry of each step reached, for Back and Reset
   fails: number;
   hint: boolean;
   done: boolean;
@@ -47,7 +47,16 @@ export const HINT_AFTER = 3;
 function enter<S>(steps: Step<S>[], index: number, state: S, starts: S[], drawer: string | null): Run<S> {
   const step = steps[index];
   const s = step.setup ? step.setup(state) : state;
-  return { ids: steps.map(st => st.id), index, state: s, starts: [...starts.slice(0, index), s], fails: 0, hint: false, done: false, drawer: step.opensDrawer === undefined ? drawer : step.opensDrawer };
+  return {
+    ids: steps.map(st => st.id),
+    index,
+    state: s,
+    starts: [...starts.slice(0, index), s],
+    fails: 0,
+    hint: false,
+    done: false,
+    drawer: step.opensDrawer === undefined ? drawer : step.opensDrawer,
+  };
 }
 
 export const startRun = <S>(steps: Step<S>[], initial: S): Run<S> => enter(steps, 0, initial, [], null);
@@ -56,7 +65,15 @@ export const startRun = <S>(steps: Step<S>[], initial: S): Run<S> => enter(steps
  * their ids is checked against the chapter's `legacy` ids instead. Anything else restarts the chapter (KTD4). */
 export function isRun<S>(steps: Step<S>[], x: unknown, legacy?: string[]): x is Run<S> {
   const r = x as Partial<Run<S>>;
-  if (!r || !Number.isInteger(r.index) || r.index! < 0 || r.index! >= steps.length || !Array.isArray(r.starts) || r.starts.length !== r.index! + 1) return false;
+  if (
+    !r ||
+    !Number.isInteger(r.index) ||
+    r.index! < 0 ||
+    r.index! >= steps.length ||
+    !Array.isArray(r.starts) ||
+    r.starts.length !== r.index! + 1
+  )
+    return false;
   const ids = r.ids ?? legacy;
   return Array.isArray(ids) && ids.length === steps.length && steps.every((st, i) => st.id === ids[i]);
 }
@@ -76,7 +93,17 @@ export function reduce<S>(steps: Step<S>[], run: Run<S>, a: Action<S>): Run<S> {
       return { ...run, state: a.state, fails, hint: run.hint || fails >= HINT_AFTER };
     }
     case 'back':
-      return run.index === 0 ? run : { ...run, index: run.index - 1, state: run.starts[run.index - 1], starts: run.starts.slice(0, run.index), fails: 0, hint: false, done: false };
+      return run.index === 0
+        ? run
+        : {
+            ...run,
+            index: run.index - 1,
+            state: run.starts[run.index - 1],
+            starts: run.starts.slice(0, run.index),
+            fails: 0,
+            hint: false,
+            done: false,
+          };
     case 'reset':
       return { ...run, state: run.starts[run.index], fails: 0, hint: false, done: false };
     case 'showMe':

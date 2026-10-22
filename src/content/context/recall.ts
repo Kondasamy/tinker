@@ -5,8 +5,11 @@ import type { RecallItem } from '../../lib/recall';
 export const RECALL: RecallItem[] = [
   // 1. What's in the window
   {
-    id: 'one-budget', chapter: '01-whats-in-the-window', pin: true,   // the module's single most important idea: exactly one pin
-    question: 'A team’s assistant has a window of 100,000 tokens. Their documents come to 90,000 tokens, so they plan to send all of them every turn. What have they forgotten?',
+    id: 'one-budget',
+    chapter: '01-whats-in-the-window',
+    pin: true, // the module's single most important idea: exactly one pin
+    question:
+      'A team’s assistant has a window of 100,000 tokens. Their documents come to 90,000 tokens, so they plan to send all of them every turn. What have they forgotten?',
     options: [
       'Nothing: the documents fit, so the model will read them all',
       'The system prompt, the tool definitions, the conversation and the reply share the same window, so the room left may not be enough',
@@ -22,8 +25,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'tools-cost', chapter: '01-whats-in-the-window',
-    question: 'A product manager wants to give the assistant 40 tools “just in case”. What happens to every turn, even one that uses none of them?',
+    id: 'tools-cost',
+    chapter: '01-whats-in-the-window',
+    question:
+      'A product manager wants to give the assistant 40 tools “just in case”. What happens to every turn, even one that uses none of them?',
     options: [
       'Nothing: a tool costs only when the model calls it',
       'Every turn carries all 40 definitions, so each turn is bigger and costs more',
@@ -37,7 +42,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'history-grows', chapter: '01-whats-in-the-window',
+    id: 'history-grows',
+    chapter: '01-whats-in-the-window',
     question: 'A customer has asked five questions in one chat. What does the model read when the sixth arrives?',
     options: [
       'Only the sixth question: the model remembers the earlier ones itself',
@@ -53,8 +59,10 @@ export const RECALL: RecallItem[] = [
   },
   // 2. More isn't better
   {
-    id: 'middle-is-worst', chapter: '02-more-isnt-better',
-    question: 'A legal team sends a contract to the assistant with twenty other contracts around it. The clause they ask about sits in the tenth. What is the risk?',
+    id: 'middle-is-worst',
+    chapter: '02-more-isnt-better',
+    question:
+      'A legal team sends a contract to the assistant with twenty other contracts around it. The clause they ask about sits in the tenth. What is the risk?',
     options: [
       'None: the clause is in the window, so the model reads it',
       'The model is more likely to miss a fact in the middle of a long input, and a similar clause from another contract can take its place',
@@ -68,8 +76,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'related-hurts', chapter: '02-more-isnt-better',
-    question: 'Which extra passages are most likely to pull an answer off: unrelated ones, or ones about the same topic that don’t hold the answer?',
+    id: 'related-hurts',
+    chapter: '02-more-isnt-better',
+    question:
+      'Which extra passages are most likely to pull an answer off: unrelated ones, or ones about the same topic that don’t hold the answer?',
     options: [
       'Unrelated ones: they are noise',
       'Related ones: they look like the answer, so the model can take one by mistake',
@@ -83,8 +93,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'rot', chapter: '02-more-isnt-better',
-    question: 'A newer model has a window ten times larger. A colleague says “now we can send everything and stop choosing”. What do you say?',
+    id: 'rot',
+    chapter: '02-more-isnt-better',
+    question:
+      'A newer model has a window ten times larger. A colleague says “now we can send everything and stop choosing”. What do you say?',
     options: [
       'Agreed: a bigger window means the model reads more just as well',
       'The window fits more, but answers still get worse as it fills, so choosing what goes in still matters',
@@ -99,7 +111,8 @@ export const RECALL: RecallItem[] = [
   },
   // 3. Fetch it when you need it
   {
-    id: 'just-in-time', chapter: '03-fetch-when-needed',
+    id: 'just-in-time',
+    chapter: '03-fetch-when-needed',
     question: 'An HR assistant has 300 policy pages. What is the better default?',
     options: [
       'Send all 300 pages every turn, so nothing is ever missing',
@@ -114,7 +127,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'two-calls', chapter: '03-fetch-when-needed',
+    id: 'two-calls',
+    chapter: '03-fetch-when-needed',
     question: 'With a search tool, a question now takes two model calls instead of one. Doesn’t that cost more?',
     options: [
       'Yes, always: two calls cost twice one call',
@@ -129,7 +143,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'smallest-set', chapter: '03-fetch-when-needed',
+    id: 'smallest-set',
+    chapter: '03-fetch-when-needed',
     question: 'Which window gives the model the best chance of a right answer?',
     options: [
       'The largest one that fits, so every fact is somewhere in it',
@@ -145,8 +160,10 @@ export const RECALL: RecallItem[] = [
   },
   // 4. Order for the cache
   {
-    id: 'stable-first', chapter: '04-order-for-the-cache',
-    question: 'An assistant’s turn starts with today’s date and time, then long instructions and a product catalogue. Its cache hits are near zero. Why?',
+    id: 'stable-first',
+    chapter: '04-order-for-the-cache',
+    question:
+      'An assistant’s turn starts with today’s date and time, then long instructions and a product catalogue. Its cache hits are near zero. Why?',
     options: [
       'Caching only works for short prompts',
       'The time changes every call and sits first, so no call shares a prefix with the last one',
@@ -160,7 +177,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'cache-cost', chapter: '04-order-for-the-cache',
+    id: 'cache-cost',
+    chapter: '04-order-for-the-cache',
     question: 'On a cache hit, what happens to the cached tokens?',
     options: [
       'They are skipped: the model doesn’t read them',
@@ -175,7 +193,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'one-change', chapter: '04-order-for-the-cache',
+    id: 'one-change',
+    chapter: '04-order-for-the-cache',
     question: 'A developer edits one tool’s description between two calls. What happens to the cache?',
     options: [
       'Only that tool’s tokens are sent fresh',
@@ -191,8 +210,10 @@ export const RECALL: RecallItem[] = [
   },
   // 5. Clearing the desk
   {
-    id: 'clear-keeps-decisions', chapter: '05-clearing-the-desk',
-    question: 'A travel assistant has looked up twelve hotels in one chat. The host clears the old search results. What does the model still have?',
+    id: 'clear-keeps-decisions',
+    chapter: '05-clearing-the-desk',
+    question:
+      'A travel assistant has looked up twelve hotels in one chat. The host clears the old search results. What does the model still have?',
     options: [
       'Nothing from earlier: clearing empties the conversation',
       'Every question, every call it made and every answer it gave, with a placeholder where each old result was',
@@ -206,7 +227,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'clear-cache', chapter: '05-clearing-the-desk',
+    id: 'clear-cache',
+    chapter: '05-clearing-the-desk',
     question: 'With prompt caching on, a team clears one old tool result on every turn. Why can their bill go up?',
     options: [
       'Each clear changes text early in the window, so everything after it misses the cache and is written again',
@@ -221,7 +243,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'clear-when', chapter: '05-clearing-the-desk',
+    id: 'clear-when',
+    chapter: '05-clearing-the-desk',
     question: 'When is clearing old tool results most worth it?',
     options: [
       'On every turn, to keep the window as small as possible',
@@ -237,8 +260,10 @@ export const RECALL: RecallItem[] = [
   },
   // 6. Memory outside the window
   {
-    id: 'session-empty', chapter: '06-memory',
-    question: 'A customer told a support assistant their account number yesterday. Today, in a new chat, the assistant asks for it again. Why?',
+    id: 'session-empty',
+    chapter: '06-memory',
+    question:
+      'A customer told a support assistant their account number yesterday. Today, in a new chat, the assistant asks for it again. Why?',
     options: [
       'The model forgot it overnight',
       'Each conversation starts with an empty window; nothing carried the number over',
@@ -252,7 +277,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'memory-note', chapter: '06-memory',
+    id: 'memory-note',
+    chapter: '06-memory',
     question: 'With a memory tool, how does a fact from Monday reach Friday’s conversation?',
     options: [
       'The model writes a short note to a file on Monday; the host reads the notes into Friday’s window',
@@ -267,7 +293,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'memory-host', chapter: '06-memory',
+    id: 'memory-host',
+    chapter: '06-memory',
     question: 'The model asks the memory tool to write a note to /etc/settings. What should happen?',
     options: [
       'The host writes it: the model decides where notes go',
@@ -283,7 +310,8 @@ export const RECALL: RecallItem[] = [
   },
   // 7. Workbench
   {
-    id: 'policy-measure', chapter: '07-workbench',
+    id: 'policy-measure',
+    chapter: '07-workbench',
     question: 'A team wants to choose a context policy for their assistant. What should they compare?',
     options: [
       'Only the token count: fewer is always better',
@@ -298,8 +326,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'policy-more', chapter: '07-workbench',
-    question: 'A policy sends every document and the whole history with every call. What did Larkspur’s workbench show about it?',
+    id: 'policy-more',
+    chapter: '07-workbench',
+    question:
+      'A policy sends every document and the whole history with every call. What did Larkspur’s workbench show about it?',
     options: [
       'It was the most accurate, at the highest cost',
       'It was neither the most accurate nor the cheapest: searching with the full history and the cache on beat it on both',
@@ -313,7 +343,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'policy-cache', chapter: '07-workbench',
+    id: 'policy-cache',
+    chapter: '07-workbench',
     question: 'Turning the cache on changed which answers came out right. True or false?',
     options: [
       'True: cached text is read less carefully',

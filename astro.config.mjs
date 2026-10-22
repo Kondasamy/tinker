@@ -16,8 +16,8 @@ const devPages = {
         const p = f.replace(/\.astro$/, '');
         if (p !== f && p !== 'og') injectRoute({ pattern: `/dev/${p}`, entrypoint: `./src/dev/${f}` });
       }
-      injectRoute({ pattern: '/dev/warmup', entrypoint: './src/dev/recap.astro' });   // the same fixture, as the warm-up
-      injectRoute({ pattern: '/dev/og/[slug]', entrypoint: './src/dev/og.astro' });   // share-image template (pnpm og)
+      injectRoute({ pattern: '/dev/warmup', entrypoint: './src/dev/recap.astro' }); // the same fixture, as the warm-up
+      injectRoute({ pattern: '/dev/og/[slug]', entrypoint: './src/dev/og.astro' }); // share-image template (pnpm og)
     },
   },
 };
@@ -42,7 +42,9 @@ const publicJson = {
   name: 'public-json',
   apply: 'serve',
   enforce: 'pre',
-  configResolved(config) { publicDir = config.publicDir; },
+  configResolved(config) {
+    publicDir = config.publicDir;
+  },
   resolveId(source, importer) {
     if (!importer || !source.endsWith('.json') || !source.startsWith('.')) return null;
     const file = resolve(dirname(importer), source);
@@ -52,7 +54,7 @@ const publicJson = {
     if (!id.startsWith('\0public-json:')) return null;
     const file = id.slice('\0public-json:'.length);
     this.addWatchFile(file);
-    return readFileSync(file, 'utf8');   // the id ends .json, so Vite's JSON plugin makes it a module as usual
+    return readFileSync(file, 'utf8'); // the id ends .json, so Vite's JSON plugin makes it a module as usual
   },
 };
 

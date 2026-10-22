@@ -8,7 +8,7 @@ export function guardWalker(page: Page, mode: Mode, check: (page: Page) => Promi
   const press = (l: Locator) => (kb ? l.press('Enter') : l.click());
   const card = page.getByRole('region', { name: 'Next step' });
   const btn = (name: string | RegExp) => press(card.getByRole('button', { name }));
-  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name }));   // a quiz or prediction option
+  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name })); // a quiz or prediction option
   const step = (n: number) => expect(card).toContainText(`Step ${n} of`);
   /** chapter 2's threshold slider, to the i-th stop of THRESHOLDS: arrow keys by keyboard, fill by mouse */
   async function slide(i: number) {
@@ -64,7 +64,7 @@ export function guardWalker(page: Page, mode: Mode, check: (page: Page) => Promi
       await slide(2);
       await step(3);
       await check(page);
-      await slide(4);   // THRESHOLDS[4], 0.3: the highest that holds every attack
+      await slide(4); // THRESHOLDS[4], 0.3: the highest that holds every attack
       await step(4);
       await btn(/refund email$/);
       await step(5);

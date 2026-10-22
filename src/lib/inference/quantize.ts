@@ -9,7 +9,8 @@ export type Bits = (typeof BITS)[number];
 
 /** Each row of a [rows, cols] matrix rounded to `bits` signed levels by its own absmax, then scaled back. */
 export function quantizeRows(w: Float32Array, rows: number, cols: number, bits: number): Float32Array {
-  const levels = 2 ** (bits - 1) - 1, out = new Float32Array(w.length);
+  const levels = 2 ** (bits - 1) - 1,
+    out = new Float32Array(w.length);
   for (let r = 0; r < rows; r++) {
     let max = 0;
     for (let c = 0; c < cols; c++) max = Math.max(max, Math.abs(w[r * cols + c]));
@@ -21,14 +22,15 @@ export function quantizeRows(w: Float32Array, rows: number, cols: number, bits: 
 
 /** A tensor's rows and columns, when it is a matrix (embeddings and Linear weights, [out, in]); vectors give null. */
 function shapeOf(m: Model, name: string): [number, number] | null {
-  const c = m.config, D = c.d_model;
+  const c = m.config,
+    D = c.d_model;
   if (name === 'wte.weight') return [c.vocab, D];
   if (name === 'wpe.weight') return [c.ctx, D];
   if (/attn\.qkv\.weight$/.test(name)) return [3 * D, D];
   if (/attn\.proj\.weight$/.test(name)) return [D, D];
   if (/mlp\.fc\.weight$/.test(name)) return [c.d_mlp, D];
   if (/mlp\.proj\.weight$/.test(name)) return [D, c.d_mlp];
-  return null;   // biases and LayerNorm weights are vectors
+  return null; // biases and LayerNorm weights are vectors
 }
 
 const quantized = new WeakMap<Model, Map<Bits, Model>>();
@@ -52,22 +54,37 @@ function quantizeOnce(m: Model, bits: Bits): Model {
 
 /** Weight memory at `bits`: every matrix number at `bits`, one 16-bit scale per row, every vector number at 16 bits. */
 export function memory(m: Model, bits: Bits): { bytes: number; params: number; matrix: number; rows: number } {
-  let matrix = 0, rows = 0, params = 0;
+  let matrix = 0,
+    rows = 0,
+    params = 0;
   for (const [name, t] of Object.entries(m.tensors)) {
     params += t.length;
     const s = shapeOf(m, name);
-    if (s) { matrix += t.length; rows += s[0]; }
+    if (s) {
+      matrix += t.length;
+      rows += s[0];
+    }
   }
   const bytes = bits === 16 ? params * 2 : (matrix * bits) / 8 + rows * 2 + (params - matrix) * 2;
   return { bytes, params, matrix, rows };
 }
 
 /** How the top 5 next tokens changed against the shipped weights, over the given prompts' last positions. */
-export function top5Changes(base: Model, q: Model, prompts: number[][]): { same: number; total: number; top1Same: number } {
-  const top = (xs: Float64Array) => Array.from(xs, (v, i) => [v, i]).sort((a, b) => b[0] - a[0] || a[1] - b[1]).slice(0, 5).map(x => x[1]);
-  let same = 0, top1Same = 0;
+export function top5Changes(
+  base: Model,
+  q: Model,
+  prompts: number[][],
+): { same: number; total: number; top1Same: number } {
+  const top = (xs: Float64Array) =>
+    Array.from(xs, (v, i) => [v, i])
+      .sort((a, b) => b[0] - a[0] || a[1] - b[1])
+      .slice(0, 5)
+      .map(x => x[1]);
+  let same = 0,
+    top1Same = 0;
   for (const p of prompts) {
-    const a = top(forward(base, p).logits.at(-1)!), b = top(forward(q, p).logits.at(-1)!);
+    const a = top(forward(base, p).logits.at(-1)!),
+      b = top(forward(q, p).logits.at(-1)!);
     same += b.filter(id => a.includes(id)).length;
     if (a[0] === b[0]) top1Same++;
   }
@@ -75,11 +92,21 @@ export function top5Changes(base: Model, q: Model, prompts: number[][]): { same:
 }
 
 /** Held-out scores at `bits`, as evaluate() gives them, one document at a time so the page can yield between them. */
-export async function heldoutAsync(m: Model, docs: number[][], yieldEvery: () => Promise<void> = () => new Promise(r => setTimeout(r, 0))) {
-  let loss = 0, top1 = 0, top5 = 0, tokens = 0;
+export async function heldoutAsync(
+  m: Model,
+  docs: number[][],
+  yieldEvery: () => Promise<void> = () => new Promise(r => setTimeout(r, 0)),
+) {
+  let loss = 0,
+    top1 = 0,
+    top5 = 0,
+    tokens = 0;
   for (const d of docs) {
     const e = evaluate(m, [d]);
-    loss += e.loss * e.tokens; top1 += e.top1 * e.tokens; top5 += e.top5 * e.tokens; tokens += e.tokens;
+    loss += e.loss * e.tokens;
+    top1 += e.top1 * e.tokens;
+    top5 += e.top5 * e.tokens;
+    tokens += e.tokens;
     await yieldEvery();
   }
   return { loss: loss / tokens, top1: top1 / tokens, top5: top5 / tokens, tokens };

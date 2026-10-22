@@ -15,7 +15,9 @@ import { run, type Question } from '../../src/lib/rag/engine';
 import { DEFAULT_KNOBS } from '../../src/components/canvas/state';
 import { resolveConfig } from '../../src/lib/rag/lattice';
 
-const files = readdirSync('data/corpus').filter((f) => f.endsWith('.md')).sort();
+const files = readdirSync('data/corpus')
+  .filter(f => f.endsWith('.md'))
+  .sort();
 
 describe('counts', () => {
   it('counts tokens, words, characters and bytes', () => {
@@ -26,17 +28,17 @@ describe('counts', () => {
   });
 
   it('reads every corpus document, as committed', () => {
-    expect(CORPUS.map((d) => d.file)).toEqual(files);
+    expect(CORPUS.map(d => d.file)).toEqual(files);
     for (const d of CORPUS) expect(d.text).toBe(readFileSync(`data/corpus/${d.file}`, 'utf8'));
   });
 
   it('computes the corpus meter from the documents, not typed numbers', () => {
     const m = corpusMeter();
-    const all = files.map((f) => readFileSync(`data/corpus/${f}`, 'utf8'));
+    const all = files.map(f => readFileSync(`data/corpus/${f}`, 'utf8'));
     expect(m.bytes).toBe(all.reduce((n, t) => n + Buffer.byteLength(t), 0));
     expect(m.site).toBe(all.reduce((n, t) => n + encode(t).length, 0));
     expect(m.rule).toBe(m.bytes / BYTES_PER_TOKEN);
-    expect(m.real.map((r) => r.id)).toEqual(TOKENIZERS.map((t) => t.id));
+    expect(m.real.map(r => r.id)).toEqual(TOKENIZERS.map(t => t.id));
     for (const r of m.real) {
       expect(r.tokens).toBe(realCorpusTokens(r.id));
       expect(r.bytesPerToken).toBeCloseTo(m.bytes / r.tokens, 9);
@@ -46,7 +48,7 @@ describe('counts', () => {
 
 describe('recorded encodings (KTD4)', () => {
   it('records GPT-2 first, then GPT-4o: chapter 4 compares an old and a new tokenizer', () => {
-    expect(TOKENIZERS.map((t) => t.id)).toEqual(['gpt2', 'gpt-4o']);
+    expect(TOKENIZERS.map(t => t.id)).toEqual(['gpt2', 'gpt-4o']);
   });
 
   it('pins published ids: GPT-2 and o200k_base on "Hello world" (checked against tiktoken)', () => {
@@ -59,15 +61,15 @@ describe('recorded encodings (KTD4)', () => {
       for (const t of TOKENIZERS) {
         const e = encodingOf(s.id, t.id);
         expect(e.pieces.length, `${s.id} ${t.id}`).toBe(e.ids.length);
-        const bytes = e.pieces.flatMap((p) => (typeof p === 'string' ? [...new TextEncoder().encode(p)] : p));
+        const bytes = e.pieces.flatMap(p => (typeof p === 'string' ? [...new TextEncoder().encode(p)] : p));
         expect(new TextDecoder().decode(Uint8Array.from(bytes)), `${s.id} ${t.id}`).toBe(s.text);
       }
   });
 
   it('covers English, numbers, code and three other languages', () => {
-    const kinds = SENTENCES.map((s) => s.kind);
+    const kinds = SENTENCES.map(s => s.kind);
     for (const k of ['english', 'numbers', 'code'] as const) expect(kinds).toContain(k);
-    expect(new Set(SENTENCES.filter((s) => s.kind === 'language').map((s) => s.lang)).size).toBe(3);
+    expect(new Set(SENTENCES.filter(s => s.kind === 'language').map(s => s.lang)).size).toBe(3);
   });
 
   it('recorded every corpus document for every tokenizer', () => {
@@ -80,15 +82,17 @@ describe('recorded encodings (KTD4)', () => {
   });
 });
 
-describe('neighbours over RAG\'s committed vectors (KTD5)', () => {
+describe("neighbours over RAG's committed vectors (KTD5)", () => {
   let index: RagIndex, cfg: Config;
-  const questions: Question[] = ['ch3', 'ch4', 'ch5', 'ch6'].flatMap((c) => JSON.parse(readFileSync(`data/questions/${c}.json`, 'utf8')));
+  const questions: Question[] = ['ch3', 'ch4', 'ch5', 'ch6'].flatMap(c =>
+    JSON.parse(readFileSync(`data/questions/${c}.json`, 'utf8')),
+  );
   beforeAll(async () => {
     index = await openIndex(diskLoader);
     cfg = await index.load(MAP_FILE);
   });
 
-  it('maps RAG\'s default chunks', () => expect(MAP_FILE).toBe(resolveConfig(DEFAULT_KNOBS).file));
+  it("maps RAG's default chunks", () => expect(MAP_FILE).toBe(resolveConfig(DEFAULT_KNOBS).file));
 
   it('gives a vector a cosine of 1 with itself', () => {
     for (const id of [0, 7, cfg.N - 1]) expect(cosine(chunkVector(cfg, id), chunkVector(cfg, id))).toBeCloseTo(1, 6);
@@ -97,32 +101,42 @@ describe('neighbours over RAG\'s committed vectors (KTD5)', () => {
 
   it('agrees with the dequantized vectors within int8 tolerance', () => {
     const s = index.manifest.quantization.vectors.scale;
-    const a = chunkVector(cfg, 0), b = chunkVector(cfg, 1);
-    let dot = 0, na = 0, nb = 0;
-    for (let i = 0; i < a.length; i++) { dot += a[i] * s * b[i] * s; na += (a[i] * s) ** 2; nb += (b[i] * s) ** 2; }
+    const a = chunkVector(cfg, 0),
+      b = chunkVector(cfg, 1);
+    let dot = 0,
+      na = 0,
+      nb = 0;
+    for (let i = 0; i < a.length; i++) {
+      dot += a[i] * s * b[i] * s;
+      na += (a[i] * s) ** 2;
+      nb += (b[i] * s) ** 2;
+    }
     expect(cosine(a, b)).toBeCloseTo(dot / Math.sqrt(na * nb), 6);
   });
 
-  it('finds each RAG question\'s nearest chunk where RAG\'s own retrieval does (pure vector)', () => {
+  it("finds each RAG question's nearest chunk where RAG's own retrieval does (pure vector)", () => {
     expect(questions.length).toBeGreaterThan(0);
     for (const q of questions) {
       const rag = run(index, cfg, { question: q, topK: DEFAULT_KNOBS.topK, hybrid: 0 });
       const near = nearestChunks(cfg, queryVector(index, rag.queryIndex), 3);
-      expect(near.map((n) => n.id), q.id).toEqual(rag.context.map((c) => c.id));
+      expect(
+        near.map(n => n.id),
+        q.id,
+      ).toEqual(rag.context.map(c => c.id));
       expect(near[0].score).toBeCloseTo(rag.stages.vector.scores[0], 6);
     }
   });
 });
 
 describe('workbench', () => {
-  it('builds the prompt from the chosen parts, in the parts\' order', () => {
+  it("builds the prompt from the chosen parts, in the parts' order", () => {
     const on = [PARTS[1].id, PARTS[0].id];
     expect(promptOf(on)).toBe([PARTS[0].text, PARTS[1].text].join('\n\n'));
     expect(promptOf([])).toBe('');
   });
 
   it('fits at the budget exactly, and is over one token past it', () => {
-    const on = PARTS.map((p) => p.id);
+    const on = PARTS.map(p => p.id);
     const tokens = encode(promptOf(on)).length;
     expect(fit(on, tokens)).toMatchObject({ tokens, fits: true, over: 0, left: 0 });
     expect(fit(on, tokens - 1)).toMatchObject({ fits: false, over: 1, left: 0 });
@@ -130,13 +144,18 @@ describe('workbench', () => {
   });
 
   it('only scores a prompt that fits and keeps every required part', () => {
-    const all = PARTS.map((p) => p.id);
+    const all = PARTS.map(p => p.id);
     expect(fit(REQUIRED, 10_000)).toMatchObject({ ok: true, missing: [] });
-    expect(fit(all.filter((id) => id !== REQUIRED[0]), 10_000)).toMatchObject({ ok: false, missing: [REQUIRED[0]] });
+    expect(
+      fit(
+        all.filter(id => id !== REQUIRED[0]),
+        10_000,
+      ),
+    ).toMatchObject({ ok: false, missing: [REQUIRED[0]] });
   });
 
   it('every budget is a real choice: the required parts fit, everything does not', () => {
-    const all = PARTS.map((p) => p.id);
+    const all = PARTS.map(p => p.id);
     for (const b of BUDGETS) {
       expect(fit(REQUIRED, b).fits, `${b}`).toBe(true);
       expect(fit(all, b).fits, `${b}`).toBe(false);
@@ -147,7 +166,7 @@ describe('workbench', () => {
 describe('facts (R5)', () => {
   it('every fact has a claim, a source URL and the access date', () => {
     expect(ACCESSED).toBe('2026-10-21');
-    expect(new Set(FACTS.map((f) => f.id)).size).toBe(FACTS.length);
+    expect(new Set(FACTS.map(f => f.id)).size).toBe(FACTS.length);
     for (const f of FACTS) {
       expect(f.claim.trim(), f.id).not.toBe('');
       expect(f.source, f.id).toMatch(/^https:\/\//);
@@ -156,14 +175,18 @@ describe('facts (R5)', () => {
   });
 
   it('every fact id Tokens uses exists', () => {
-    const ids = FACTS.map((x) => x.id);
+    const ids = FACTS.map(x => x.id);
     let used = 0;
     // a missing directory throws: a moved folder must not pass by checking nothing
     for (const dir of ['src/lib/tokens', 'src/content/tokens', 'src/pages/tokens']) {
-      const names = readdirSync(dir, { recursive: true }).map(String).filter((f) => /\.(ts|tsx|astro)$/.test(f));
+      const names = readdirSync(dir, { recursive: true })
+        .map(String)
+        .filter(f => /\.(ts|tsx|astro)$/.test(f));
       expect(names.length, dir).toBeGreaterThan(0);
       for (const f of names)
-        for (const [, id] of [...readFileSync(`${dir}/${f}`, 'utf8').matchAll(/\bfact\(\s*['"]([^'"]+)['"]|<Fact\s+id=["']([^"']+)["']/g)].map((m) => [m[0], m[1] ?? m[2]])) {
+        for (const [, id] of [
+          ...readFileSync(`${dir}/${f}`, 'utf8').matchAll(/\bfact\(\s*['"]([^'"]+)['"]|<Fact\s+id=["']([^"']+)["']/g),
+        ].map(m => [m[0], m[1] ?? m[2]])) {
           used++;
           expect(ids, `${dir}/${f}: ${id}`).toContain(id);
         }
@@ -171,5 +194,6 @@ describe('facts (R5)', () => {
     expect(used).toBeGreaterThan(0);
   });
 
-  it('the cited rule of thumb is the one scale.ts uses', () => expect(Number(fact('openai-rule').value)).toBe(BYTES_PER_TOKEN));
+  it('the cited rule of thumb is the one scale.ts uses', () =>
+    expect(Number(fact('openai-rule').value)).toBe(BYTES_PER_TOKEN));
 });

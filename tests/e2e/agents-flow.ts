@@ -8,10 +8,13 @@ export function agentWalker(page: Page, mode: Mode, check: (page: Page) => Promi
   const press = (l: Locator) => (kb ? l.press('Enter') : l.click());
   const card = page.getByRole('region', { name: 'Next step' });
   const btn = (name: string | RegExp) => press(card.getByRole('button', { name }));
-  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name }));   // a quiz or prediction option
+  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name })); // a quiz or prediction option
   const step = (n: number) => expect(card).toContainText(`Step ${n} of`);
   /** run the case on screen both ways */
-  const both = async () => { await btn('Run as the script'); await btn('Run as an agent'); };
+  const both = async () => {
+    await btn('Run as the script');
+    await btn('Run as an agent');
+  };
 
   async function open(id: string) {
     await page.goto(`/agents/${id}/`);
@@ -68,7 +71,11 @@ export function agentWalker(page: Page, mode: Mode, check: (page: Page) => Promi
       await finish(next);
     },
     /** plans: approve the printer plan and its change; on the planted email, `planted` decides (default: reject, then approve the new plan) */
-    async ch3(next?: RegExp, quiz: string | RegExp = /^Bring it back to the buyer/, planted: ('Approve' | 'Reject')[] = ['Reject', 'Approve']) {
+    async ch3(
+      next?: RegExp,
+      quiz: string | RegExp = /^Bring it back to the buyer/,
+      planted: ('Approve' | 'Reject')[] = ['Reject', 'Approve'],
+    ) {
       await btn('Plan mode: on');
       await opt(/^Changes the plan/);
       await btn('Run the plan');

@@ -5,7 +5,11 @@
 import envelopes from '../../../data/voice/envelopes.json' with { type: 'json' };
 import calls from '../../../data/voice/calls.json' with { type: 'json' };
 
-export interface Clip { ms: number; env: number[]; parts: { start: number; end: number }[] }
+export interface Clip {
+  ms: number;
+  env: number[];
+  parts: { start: number; end: number }[];
+}
 export const FRAME_MS = envelopes.frameMs;
 export const CLIPS = envelopes.clips as Record<string, Clip>;
 export const clipOf = (id: string): Clip => {
@@ -20,7 +24,10 @@ export const THRESHOLDS = [10, 30, 50] as const;
 export const SILENCES = [300, 500, 800, 1200] as const;
 export type Threshold = (typeof THRESHOLDS)[number];
 export type Silence = (typeof SILENCES)[number];
-export interface Detector { threshold: Threshold; silence: Silence }
+export interface Detector {
+  threshold: Threshold;
+  silence: Silence;
+}
 export const DEFAULT_DETECTOR: Detector = { threshold: 30, silence: 500 };
 
 /** Larkspur's host stops waiting this long after the clip ends, if the line never goes quiet (a host setting). */
@@ -43,14 +50,27 @@ export interface Detected {
 
 /** Run the detector over one clip. Past the clip's end the line keeps its last level (a hum stays a hum). */
 export function detect(id: string, { threshold, silence }: Detector): Detected {
-  const c = clipOf(id), need = Math.ceil(silence / FRAME_MS), last = c.env[c.env.length - 1];
-  const lastWord = c.parts[c.parts.length - 1].end, limit = c.env.length + Math.ceil(GIVE_UP_MS / FRAME_MS);
-  let spoke = false, quiet = 0, fire: number | null = null, quietFrom: number | null = null;
+  const c = clipOf(id),
+    need = Math.ceil(silence / FRAME_MS),
+    last = c.env[c.env.length - 1];
+  const lastWord = c.parts[c.parts.length - 1].end,
+    limit = c.env.length + Math.ceil(GIVE_UP_MS / FRAME_MS);
+  let spoke = false,
+    quiet = 0,
+    fire: number | null = null,
+    quietFrom: number | null = null;
   for (let i = 0; i < limit && fire === null; i++) {
     const level = i < c.env.length ? c.env[i] : last;
-    if (level >= threshold) { spoke = true; quiet = 0; continue; }
+    if (level >= threshold) {
+      spoke = true;
+      quiet = 0;
+      continue;
+    }
     if (!spoke) continue;
-    if (++quiet >= need) { fire = (i + 1) * FRAME_MS; quietFrom = (i + 1 - need) * FRAME_MS; }
+    if (++quiet >= need) {
+      fire = (i + 1) * FRAME_MS;
+      quietFrom = (i + 1 - need) * FRAME_MS;
+    }
   }
   const gaveUp = fire === null;
   const at = fire ?? c.ms + GIVE_UP_MS;

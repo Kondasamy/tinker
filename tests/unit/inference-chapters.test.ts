@@ -16,9 +16,13 @@ import { WINNERS, wins } from '../../src/lib/inference/workbench';
 import { INFERENCE_MODULE } from '../../src/content/inference/module';
 import HELDOUT from '../../data/fine-tuning/heldout.json' with { type: 'json' };
 
-const disk = (f: string) => { const b = readFileSync('public/data/lm/' + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer; };
+const disk = (f: string) => {
+  const b = readFileSync('public/data/lm/' + f);
+  return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer;
+};
 const meta = JSON.parse(readFileSync('public/data/lm/meta.json', 'utf8')) as Meta;
-const base = parseModel(meta, disk('model.bin')), student = parseStudent(meta, disk('student.bin'));
+const base = parseModel(meta, disk('model.bin')),
+  student = parseStudent(meta, disk('student.bin'));
 
 describe('the inference chapters', () => {
   it('every chapter has five or fewer steps with unique ids, ending on a quiz', () => {
@@ -49,8 +53,9 @@ describe('the inference chapters', () => {
   });
 
   it('chapter 4: int8 barely moves the held-out loss; more bits saved leave room for more requests', () => {
-    const l16 = evaluate(base, HELDOUT.ids).loss, l8 = evaluate(quantize(base, 8), HELDOUT.ids).loss;
-    expect(Math.abs(l8 / l16 - 1)).toBeLessThanOrEqual(.01);
+    const l16 = evaluate(base, HELDOUT.ids).loss,
+      l8 = evaluate(quantize(base, 8), HELDOUT.ids).loss;
+    expect(Math.abs(l8 / l16 - 1)).toBeLessThanOrEqual(0.01);
     expect(ch4.fitsAt(16)).toBe(ch2.FITS);
     expect(ch4.fitsAt(8)).toBeGreaterThan(ch4.fitsAt(16));
     expect(ch4.fitsAt(4)).toBeGreaterThan(ch4.fitsAt(8));

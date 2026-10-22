@@ -27,10 +27,30 @@ const run = (mode: 'static' | 'continuous', cap: number, kvRoomGB: number) => se
 const pic = (o: Omit<ServeOpts, 'scale'>): ServeOpts => ({ ...o, scale: 1.4 });
 const HERO = pic(floorAt(run('continuous', 8, 14)));
 const IDEAS: [string, string, ReturnType<typeof fact>, ServeOpts][] = [
-  ['The KV cache', 'Every request in flight holds its own cache', fact('kv-800kb'), pic(floorAt(run('continuous', 16, 4)))],
-  ['Batching', 'One pass moves every request in the batch a token on', fact('orca'), pic(floorAt(run('continuous', 8, 14)))],
-  ['Smaller numbers', 'Rounded weights leave room for more requests', fact('gptq'), pic({ seats: Array.from({ length: 16 }, () => 'decode' as const), queued: 0, kv: 1 })],
-  ['Guess ahead', 'A small model drafts, the big one checks', fact('speculative-leviathan'), pic({ seats: ['decode'], queued: 0, kv: .02, draft: { drafted: 3, accepted: 2 } })],
+  [
+    'The KV cache',
+    'Every request in flight holds its own cache',
+    fact('kv-800kb'),
+    pic(floorAt(run('continuous', 16, 4))),
+  ],
+  [
+    'Batching',
+    'One pass moves every request in the batch a token on',
+    fact('orca'),
+    pic(floorAt(run('continuous', 8, 14))),
+  ],
+  [
+    'Smaller numbers',
+    'Rounded weights leave room for more requests',
+    fact('gptq'),
+    pic({ seats: Array.from({ length: 16 }, () => 'decode' as const), queued: 0, kv: 1 }),
+  ],
+  [
+    'Guess ahead',
+    'A small model drafts, the big one checks',
+    fact('speculative-leviathan'),
+    pic({ seats: ['decode'], queued: 0, kv: 0.02, draft: { drafted: 3, accepted: 2 } }),
+  ],
 ];
 const FACTS: [string, string][] = [
   [`${num(Math.round(kvBytes(OPEN, 1) / 1024))} KB`, 'of KV cache per token on OPT-13B, counted from its shape'],

@@ -5,7 +5,11 @@ import '../styles/tokens.css';
 import FlatStage from '../components/scenes/FlatStage';
 import type { Lane, Msg } from '../lib/iso/flat';
 
-const three: Lane[] = [{ id: 'emp', name: 'Employee' }, { id: 'host', name: 'Host app' }, { id: 'model', name: 'Model' }];
+const three: Lane[] = [
+  { id: 'emp', name: 'Employee' },
+  { id: 'host', name: 'Host app' },
+  { id: 'model', name: 'Model' },
+];
 const threeMsgs: Msg[] = [
   { from: 'emp', to: 'host', kind: 'request', text: 'Where is order 1042?' },
   { from: 'host', to: 'model', kind: 'request', text: 'question + 2 tools' },

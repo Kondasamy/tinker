@@ -1,59 +1,235 @@
 /* Evals stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption); these are the Results grid and the
    loading state (tools.css comes in through tool-calling/kit). The grid draws wide or phone by width; phones list the questions under it (rows show numbers only). */
-.ev-grid { margin: 0; display: flex; flex-direction: column; gap: 8px; }
-.ev-grid svg { width: 100%; height: auto; display: block; overflow: visible; }
-.ev-grid .ev-grid-phone, .ev-grid .ev-key { display: none; }
+.ev-grid {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ev-grid svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.ev-grid .ev-grid-phone,
+.ev-grid .ev-key {
+  display: none;
+}
 @media (max-width: 599px) {
-  .ev-grid .ev-grid-wide { display: none; }
-  .ev-grid .ev-grid-phone { display: block; }
-  .ev-grid .ev-key { display: block; margin: 0; padding-left: 2.6em; font-size: 12.5px; line-height: 1.35; }
-  .ev-grid .ev-key li::marker { content: 'Q' counter(list-item) '  '; font-weight: 800; font-family: ui-monospace, Menlo, monospace; }
+  .ev-grid .ev-grid-wide {
+    display: none;
+  }
+  .ev-grid .ev-grid-phone {
+    display: block;
+  }
+  .ev-grid .ev-key {
+    display: block;
+    margin: 0;
+    padding-left: 2.6em;
+    font-size: 12.5px;
+    line-height: 1.35;
+  }
+  .ev-grid .ev-key li::marker {
+    content: "Q" counter(list-item) "  ";
+    font-weight: 800;
+    font-family: ui-monospace, Menlo, monospace;
+  }
 }
 /* in the fixed frame the grid scrolls inside it rather than growing the stage */
-.tc-frame .ev-grid { overflow-y: auto; }
-.tc-frame .ev-grid svg { height: auto; flex: none; }
-.ev-wait { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 240px; border: 1.5px dashed var(--rule); border-radius: 12px; font-size: 14px; }
-.ev-wait p { margin: 0; }
+.tc-frame .ev-grid {
+  overflow-y: auto;
+}
+.tc-frame .ev-grid svg {
+  height: auto;
+  flex: none;
+}
+.ev-wait {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 240px;
+  border: 1.5px dashed var(--rule);
+  border-radius: 12px;
+  font-size: 14px;
+}
+.ev-wait p {
+  margin: 0;
+}
 /* chapter controls: the tried questions, each question's answers stamped per version, and the twelve-question pick */
-.ev-try, .ev-find { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
-.ev-find .chip { text-align: left; max-width: 100%; }
-.ev-answers { margin-top: 10px; }
-.ev-answer p { margin: 2px 0; font-size: 13.5px; }
-.ev-answer .stamp { margin-right: 4px; }
+.ev-try,
+.ev-find {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.ev-find .chip {
+  text-align: left;
+  max-width: 100%;
+}
+.ev-answers {
+  margin-top: 10px;
+}
+.ev-answer p {
+  margin: 2px 0;
+  font-size: 13.5px;
+}
+.ev-answer .stamp {
+  margin-right: 4px;
+}
 /* ChapterLayout's HTML .stamp rule (a CSS rotate) beats the SVG stamp's own transform attribute and swings each grid
    stamp about the drawing's origin; put back the drawing's tilt about the stamp's own centre */
-.ev-grid g.stamp { transform: rotate(-9deg); transform-box: fill-box; transform-origin: center; }
+.ev-grid g.stamp {
+  transform: rotate(-9deg);
+  transform-box: fill-box;
+  transform-origin: center;
+}
 /* chapter 2: the support log, a card per message with Keep / Drop and, once kept, its reference answer */
-.ev-log { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-.ev-case { border: 1.5px solid var(--rule); border-radius: 10px; padding: 8px 10px; background: var(--card); }
-.ev-case[data-state="unsorted"] { border-style: dashed; }
-.ev-case[data-state="flag"] { box-shadow: inset 4px 0 0 var(--bad); }
-.ev-case[data-state="dropped"] .ev-q { color: var(--muted); }
-.ev-q { margin: 0 0 6px; font-weight: 700; }
-.ev-sort { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.ev-status { font-size: 12.5px; color: var(--muted); }
-.ev-case[data-state="flag"] .ev-status { color: var(--ink); font-weight: 800; }
-.ev-ref { display: flex; flex-direction: column; gap: 2px; margin-top: 6px; }
-.ev-ref select { max-width: 100%; font: inherit; font-size: 13px; padding: 4px; }
-.ev-coverage { margin-top: 10px; }
-.ev-gap { margin: 6px 0 0; }
+.ev-log {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ev-case {
+  border: 1.5px solid var(--rule);
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: var(--card);
+}
+.ev-case[data-state="unsorted"] {
+  border-style: dashed;
+}
+.ev-case[data-state="flag"] {
+  box-shadow: inset 4px 0 0 var(--bad);
+}
+.ev-case[data-state="dropped"] .ev-q {
+  color: var(--muted);
+}
+.ev-q {
+  margin: 0 0 6px;
+  font-weight: 700;
+}
+.ev-sort {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.ev-status {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.ev-case[data-state="flag"] .ev-status {
+  color: var(--ink);
+  font-weight: 800;
+}
+.ev-ref {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 6px;
+}
+.ev-ref select {
+  max-width: 100%;
+  font: inherit;
+  font-size: 13px;
+  padding: 4px;
+}
+.ev-coverage {
+  margin-top: 10px;
+}
+.ev-gap {
+  margin: 6px 0 0;
+}
 /* chapters 2–4: tables on the Results tab scroll inside the fixed frame */
-.tc-frame .ev-scroll { overflow: auto; }
-.ev-matrix td, .ev-labels td { vertical-align: middle; }
-.ev-wrong { font-weight: 800; font-size: 12px; text-transform: uppercase; }
-.ev-matrix .ev-right { box-shadow: inset 0 -2px 0 var(--ink); }
+.tc-frame .ev-scroll {
+  overflow: auto;
+}
+.ev-matrix td,
+.ev-labels td {
+  vertical-align: middle;
+}
+.ev-wrong {
+  font-weight: 800;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+.ev-matrix .ev-right {
+  box-shadow: inset 0 -2px 0 var(--ink);
+}
 /* chapter 4: the disagreements, each a pickable card, and the side-by-side pair */
-.ev-disagree { display: flex; flex-direction: column; align-items: stretch; gap: 8px; margin-top: 8px; }
-.ev-split { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; max-width: 100%; white-space: normal; }
-.ev-said { font-size: 12.5px; font-weight: 400; }
-.ev-pair, .ev-case-card { margin-top: 10px; }
+.ev-disagree {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  margin-top: 8px;
+}
+.ev-split {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+  max-width: 100%;
+  white-space: normal;
+}
+.ev-said {
+  font-size: 12.5px;
+  font-weight: 400;
+}
+.ev-pair,
+.ev-case-card {
+  margin-top: 10px;
+}
 /* phones: the labelled answers table drops the answer's words (the disagreements in the story column carry them) */
-@media (max-width: 599px) { .ev-labels tr > :nth-child(2) { display: none; } }
+@media (max-width: 599px) {
+  .ev-labels tr > :nth-child(2) {
+    display: none;
+  }
+}
 /* chapter 5: each grader names what it reads under its name; chapter 6: the trials counted by k are outlined */
-.ev-path th .ev-said, .ev-trials th .ev-said { display: block; font-weight: 400; }
-.ev-path td .ev-said { display: block; }
-.ev-trials td[data-in] { box-shadow: inset 0 0 0 2px var(--ink); }
-.ev-trials th, .ev-trials td { padding: 2px 4px; }
-@media (max-width: 599px) { .ev-trials th .ev-said { display: none; } .ev-trials .stamp { font-size: 10px; } }
-.ev-hscroll { overflow-x: auto; margin-top: 10px; max-width: 100%; }
-.ev-misses { margin: 8px 0 0; padding-left: 0; list-style: none; font-size: 13px; display: flex; flex-direction: column; gap: 4px; }
+.ev-path th .ev-said,
+.ev-trials th .ev-said {
+  display: block;
+  font-weight: 400;
+}
+.ev-path td .ev-said {
+  display: block;
+}
+.ev-trials td[data-in] {
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+.ev-trials th,
+.ev-trials td {
+  padding: 2px 4px;
+}
+@media (max-width: 599px) {
+  .ev-trials th .ev-said {
+    display: none;
+  }
+  .ev-trials .stamp {
+    font-size: 10px;
+  }
+}
+.ev-hscroll {
+  overflow-x: auto;
+  margin-top: 10px;
+  max-width: 100%;
+}
+.ev-misses {
+  margin: 8px 0 0;
+  padding-left: 0;
+  list-style: none;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}

@@ -16,7 +16,8 @@ describe('chapter 2 merge replay', () => {
     expect(FIRST.options).toHaveLength(4);
     expect(new Set(FIRST.options.map(o => pairLabel(o.pair))).size).toBe(4);
     // every option is a pair that really occurs in the paragraph
-    for (const o of FIRST.options) expect(pairCounts().some(c => c.pair[0] === o.pair[0] && c.pair[1] === o.pair[1])).toBe(true);
+    for (const o of FIRST.options)
+      expect(pairCounts().some(c => c.pair[0] === o.pair[0] && c.pair[1] === o.pair[1])).toBe(true);
   });
 
   it('the commonest pair in the paragraph is not the first merge: the order comes from the training text', () => {

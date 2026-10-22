@@ -6,7 +6,10 @@ import FILES_JSON from '../../../data/sandboxing/files.json';
 
 /** A mount: a path prefix the sandbox exposes, read-only or writable. Longest matching prefix wins. */
 export type Mode = 'ro' | 'rw';
-export interface Mount { prefix: string; mode: Mode }
+export interface Mount {
+  prefix: string;
+  mode: Mode;
+}
 export interface Policy {
   /** off: the command runs on the host, with the developer's full access, so nothing is denied or blocked */
   sandboxed: boolean;
@@ -22,11 +25,17 @@ export interface Policy {
 }
 
 /** The files the sandbox can hold, each with its contents. The secret and the private key are the prizes an attack is after. */
-export interface FileDef { path: string; label: string; secret?: boolean; private?: boolean; content: string }
+export interface FileDef {
+  path: string;
+  label: string;
+  secret?: boolean;
+  private?: boolean;
+  content: string;
+}
 export const FILES = FILES_JSON as FileDef[];
-const fileAt = (path: string) => FILES.find((f) => f.path === path);
+const fileAt = (path: string) => FILES.find(f => f.path === path);
 /** Larkspur's API token: the secret the proxy guards (fact-free stand-in, set here, never a real key). */
-export const SECRET = FILES.find((f) => f.secret)!.content;
+export const SECRET = FILES.find(f => f.secret)!.content;
 /** Larkspur's own host: a request here is not exfiltration unless it smuggles stolen data out. */
 export const LARKSPUR_HOST = 'api.larkspur.co';
 
@@ -54,15 +63,21 @@ export interface ExecResult {
 
 const hostUrl = (host: string) => (host.startsWith('http') ? safeHost(host) : host);
 function safeHost(url: string): string {
-  try { return new URL(url).hostname; } catch { return url; }
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return url;
+  }
 }
 
 /** The mount whose prefix is the longest match for `path`, or undefined when none exposes it. */
 function mountOf(policy: Policy, path: string): Mount | undefined {
-  return policy.mounts.filter((m) => path === m.prefix || path.startsWith(m.prefix.endsWith('/') ? m.prefix : `${m.prefix}/`))
+  return policy.mounts
+    .filter(m => path === m.prefix || path.startsWith(m.prefix.endsWith('/') ? m.prefix : `${m.prefix}/`))
     .sort((a, b) => b.prefix.length - a.prefix.length)[0];
 }
-const isHidden = (policy: Policy, path: string) => policy.hidden.some((h) => path === h || path.startsWith(h.endsWith('/') ? h : `${h}/`));
+const isHidden = (policy: Policy, path: string) =>
+  policy.hidden.some(h => path === h || path.startsWith(h.endsWith('/') ? h : `${h}/`));
 
 /** Run a command under a policy. Pure: the same policy and command always give the same result. */
 export function exec(policy: Policy, cmd: Command): ExecResult {
@@ -101,13 +116,20 @@ export function exec(policy: Policy, cmd: Command): ExecResult {
 /** The host: nothing is enforced, so every command succeeds and a read returns the real contents. */
 function hostExec(cmd: Command): ExecResult {
   switch (cmd.tool) {
-    case 'run': return { outcome: 'ok', text: `Ran: ${cmd.cmd}` };
+    case 'run':
+      return { outcome: 'ok', text: `Ran: ${cmd.cmd}` };
     case 'read_file': {
       const f = fileAt(cmd.path);
-      return f ? { outcome: 'ok', text: `Read ${cmd.path}.`, read: f.content } : { outcome: 'error', text: `There is no file at ${cmd.path}.` };
+      return f
+        ? { outcome: 'ok', text: `Read ${cmd.path}.`, read: f.content }
+        : { outcome: 'error', text: `There is no file at ${cmd.path}.` };
     }
-    case 'write_file': return { outcome: 'ok', text: `Wrote ${cmd.path}.`, wrote: { path: cmd.path } };
-    case 'fetch': { const host = hostUrl(cmd.host); return { outcome: 'ok', text: `Request to ${host} left the machine.`, left: { host, body: cmd.body } }; }
+    case 'write_file':
+      return { outcome: 'ok', text: `Wrote ${cmd.path}.`, wrote: { path: cmd.path } };
+    case 'fetch': {
+      const host = hostUrl(cmd.host);
+      return { outcome: 'ok', text: `Request to ${host} left the machine.`, left: { host, body: cmd.body } };
+    }
   }
 }
 
@@ -130,8 +152,23 @@ export const PRESETS = {
   // the host sees everything (used when the sandbox is off; the fields are ignored there)
   open: { mounts: [{ prefix: '/', mode: 'rw' as Mode }], hidden: [] },
   // the working copy is writable, the data and secret are read-only, the keys are hidden (the secret too when proxied: see policyOf)
-  scoped: { mounts: [{ prefix: '/work', mode: 'rw' as Mode }, { prefix: '/data', mode: 'ro' as Mode }, { prefix: '/secret', mode: 'ro' as Mode }, { prefix: '/etc', mode: 'ro' as Mode }], hidden: ['/keys'] },
+  scoped: {
+    mounts: [
+      { prefix: '/work', mode: 'rw' as Mode },
+      { prefix: '/data', mode: 'ro' as Mode },
+      { prefix: '/secret', mode: 'ro' as Mode },
+      { prefix: '/etc', mode: 'ro' as Mode },
+    ],
+    hidden: ['/keys'],
+  },
   // the trifecta fix for chapter 5: the same scoped box, but the private data is not mounted at all
-  nodata: { mounts: [{ prefix: '/work', mode: 'rw' as Mode }, { prefix: '/secret', mode: 'ro' as Mode }, { prefix: '/etc', mode: 'ro' as Mode }], hidden: ['/keys'] },
+  nodata: {
+    mounts: [
+      { prefix: '/work', mode: 'rw' as Mode },
+      { prefix: '/secret', mode: 'ro' as Mode },
+      { prefix: '/etc', mode: 'ro' as Mode },
+    ],
+    hidden: ['/keys'],
+  },
 } as const;
 export type Files = keyof typeof PRESETS;

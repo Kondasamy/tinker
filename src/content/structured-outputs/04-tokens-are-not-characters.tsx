@@ -14,7 +14,8 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Fact, PinnedStage, Waiting, pct, piece, useModel, whenLoaded, type View } from './kit';
 
-const MODULE = 'structured-outputs', ID = '04-tokens-are-not-characters';
+const MODULE = 'structured-outputs',
+  ID = '04-tokens-are-not-characters';
 export const RUN = run('note');
 export const CAP = SCHEMAS.note.properties.note.maxLength!;
 const decoded = (model: Model) => play(model, RUN).decoded;
@@ -28,18 +29,36 @@ function room(model: Model, i: number): number | null {
 /** The first step with two characters of room or less (but not none), and the step before it. */
 export function capStep(model: Model) {
   const d = decoded(model);
-  const at = d.steps.findIndex((_, i) => { const r = room(model, i); return r !== null && r > 0 && r <= 2; });
-  return { at, room: room(model, at)!, allowed: d.steps[at].allowed.length, before: d.steps[at - 1].allowed.length, beforeRoom: room(model, at - 1) };
+  const at = d.steps.findIndex((_, i) => {
+    const r = room(model, i);
+    return r !== null && r > 0 && r <= 2;
+  });
+  return {
+    at,
+    room: room(model, at)!,
+    allowed: d.steps[at].allowed.length,
+    before: d.steps[at - 1].allowed.length,
+    beforeRoom: room(model, at - 1),
+  };
 }
 /** 0: any first character, 1: only tokens that fit whole, 2: only the quote. */
 export function answerOf(model: Model) {
-  const d = decoded(model), { at, room: r } = capStep(model), ids = d.steps[at].allowed;
+  const d = decoded(model),
+    { at, room: r } = capStep(model),
+    ids = d.steps[at].allowed;
   const len = (id: number) => (pieceBytes(id)[0] === 0x22 ? 0 : pieceBytes(id).length);
   if (ids.every(id => pieceBytes(id)[0] === 0x22)) return 2;
   return ids.every(id => len(id) <= r) ? 1 : 0;
 }
 
-interface S { p1: number | null; revealed: boolean; at: number; view: View; healed: boolean; quiz: number | null }
+interface S {
+  p1: number | null;
+  revealed: boolean;
+  at: number;
+  view: View;
+  healed: boolean;
+  quiz: number | null;
+}
 
 const P1 = {
   question: `The schema gives the note at most ${CAP} characters. The model has written some, and two characters of room are left. Which tokens can the mask still allow?`,
@@ -51,7 +70,8 @@ const P1 = {
 };
 
 const QUIZ = {
-  question: 'A schema says a field holds digits only. Larkspur’s tokenizer has a token “30” and a token “ 30” (with a space). Which can the mask allow inside the number?',
+  question:
+    'A schema says a field holds digits only. Larkspur’s tokenizer has a token “30” and a token “ 30” (with a space). Which can the mask allow inside the number?',
   options: [
     'Both: each one contains digits',
     '“30”: every byte is a digit; “ 30” starts with a space, which the number doesn’t allow',
@@ -70,25 +90,34 @@ const QUIZ = {
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'predict', focus: 'p1', visibleControls: ['p1'],
+    id: 'predict',
+    focus: 'p1',
+    visibleControls: ['p1'],
     narration: `A new schema: one field, a free note, capped at ${CAP} characters so it always closes inside Larkspur mini’s 32-token window. That cap, maxLength, is this site’s addition to the schema subset: Anthropic’s structured outputs reject it. The model writes tokens, not characters: a token here can carry one character or several, as you saw in Tokens. Before you look near the cap:`,
     predicate: s => s.p1 !== null,
   },
   {
-    id: 'reveal', focus: 'reveal', visibleControls: ['p1', 'reveal'],
+    id: 'reveal',
+    focus: 'reveal',
+    visibleControls: ['p1', 'reveal'],
     narration: 'Locked in. Jump to the step where two characters of room are left, and look at the mask.',
     predicate: whenLoaded(s => s.revealed),
     hint: 'Press the button.',
   },
   {
-    id: 'heal', focus: 'heal', visibleControls: ['out1', 'heal'],
+    id: 'heal',
+    focus: 'heal',
+    visibleControls: ['out1', 'heal'],
     narration: `One more place where tokens and characters part ways: the edge of the prompt. In training, a space nearly always travels at the front of the next word’s token (“ days”). A prompt that ends in a space hands the model a split it hardly ever saw. Token healing backs up over that last token and makes the first token written start with it. Try it on “${HEAL.prompt}”.`,
     predicate: whenLoaded(s => s.healed),
     hint: 'Press “Heal the prompt”.',
   },
   {
-    id: 'quiz', focus: 'quiz', visibleControls: ['healed', 'quiz'],
-    narration: 'Both fixes come from the same fact: the model writes tokens, so every rule written in characters has to be checked against whole tokens. One question to finish.',
+    id: 'quiz',
+    focus: 'quiz',
+    visibleControls: ['healed', 'quiz'],
+    narration:
+      'Both fixes come from the same fact: the model writes tokens, so every rule written in characters has to be checked against whole tokens. One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'How many of a token’s bytes does the mask check?',
   },
@@ -118,14 +147,27 @@ export default function TokensAreNotCharacters() {
       initial={{ p1: null, revealed: false, at: 0, view: 'scene', healed: false, quiz: null }}
       next={nextOf(MODULE, ID)}
       stage={({ state, sync }) => (
-        <PinnedStage id={RUN.id} at={state.at} locked={state.p1 === null} view={state.view} onView={v => sync({ ...state, view: v })}
-          caption={`The schema: one field, note, free text up to ${CAP} characters.`} />
+        <PinnedStage
+          id={RUN.id}
+          at={state.at}
+          locked={state.p1 === null}
+          view={state.view}
+          onView={v => sync({ ...state, view: v })}
+          caption={`The schema: one field, note, free text up to ${CAP} characters.`}
+        />
       )}
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         reveal: ({ state, apply }) => (
           <>
-            <button type="button" className="chip" disabled={!model} onClick={() => apply({ ...state, revealed: true, at: capStep(model!).at, view: 'mask' })}>Jump to two characters left</button>
+            <button
+              type="button"
+              className="chip"
+              disabled={!model}
+              onClick={() => apply({ ...state, revealed: true, at: capStep(model!).at, view: 'mask' })}
+            >
+              Jump to two characters left
+            </button>
             {!model && <Waiting />}
           </>
         ),
@@ -135,20 +177,31 @@ export default function TokensAreNotCharacters() {
           return (
             <>
               <Outcome {...P1} prediction={state.p1} outcome={answerOf(model)} />
-              <p className="tc-status" data-testid="cap">{`With ${c.beforeRoom} characters of room, ${c.before} of ${VOCAB_SIZE} tokens were allowed. With ${c.room} left, ${c.allowed}: every token longer than the room is blocked, even when its first character would fit. The mask runs each token’s bytes through the schema, one by one.`}</p>
+              <p
+                className="tc-status"
+                data-testid="cap"
+              >{`With ${c.beforeRoom} characters of room, ${c.before} of ${VOCAB_SIZE} tokens were allowed. With ${c.room} left, ${c.allowed}: every token longer than the room is blocked, even when its first character would fit. The mask runs each token’s bytes through the schema, one by one.`}</p>
             </>
           );
         },
         heal: ({ state, apply }) => (
           <>
-            <button type="button" className="big" disabled={!model} onClick={() => apply({ ...state, healed: true })}>Heal the prompt</button>
+            <button type="button" className="big" disabled={!model} onClick={() => apply({ ...state, healed: true })}>
+              Heal the prompt
+            </button>
             {!model && <Waiting />}
           </>
         ),
         healed: () => <Healed />,
         quiz: ({ state, apply, sync }) => (
           <>
-            <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
+            <Quiz
+              {...QUIZ}
+              unsure
+              value={state.quiz}
+              onAnswer={(_, q) => apply({ ...state, quiz: q })}
+              onUnsure={() => sync({ ...state, quiz: UNSURE })}
+            />
             <Fact id="token-healing" />
             <Fact id="xgrammar" />
           </>

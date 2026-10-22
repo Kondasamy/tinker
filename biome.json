@@ -4,7 +4,8 @@
   "files": {
     "includes": ["**", "!!**/dist", "!data", "!public", "!tests/fixtures", "!videos", "!src/lib/iso/core.js"]
   },
-  "formatter": { "enabled": false },
+  "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 120 },
+  "javascript": { "formatter": { "quoteStyle": "single", "arrowParentheses": "asNeeded" } },
   "assist": { "enabled": false },
   "linter": {
     "enabled": true,
@@ -34,7 +35,12 @@
   "overrides": [
     {
       "includes": ["**/*.astro"],
-      "linter": { "rules": { "correctness": { "noUnusedImports": "off", "noUnusedVariables": "off" }, "style": { "useImportType": "off" } } }
+      "linter": {
+        "rules": {
+          "correctness": { "noUnusedImports": "off", "noUnusedVariables": "off" },
+          "style": { "useImportType": "off" }
+        }
+      }
     }
   ]
 }

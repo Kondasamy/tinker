@@ -8,5 +8,8 @@ let model: Model | undefined;
 export function diskModel(): Model {
   if (model) return model;
   const bin = readFileSync('public/data/lm/model.bin');
-  return (model = parseModel(JSON.parse(readFileSync('public/data/lm/meta.json', 'utf8')) as Meta, bin.buffer.slice(bin.byteOffset, bin.byteOffset + bin.byteLength) as ArrayBuffer));
+  return (model = parseModel(
+    JSON.parse(readFileSync('public/data/lm/meta.json', 'utf8')) as Meta,
+    bin.buffer.slice(bin.byteOffset, bin.byteOffset + bin.byteLength) as ArrayBuffer,
+  ));
 }

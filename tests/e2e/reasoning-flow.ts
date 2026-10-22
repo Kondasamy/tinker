@@ -9,14 +9,15 @@ export function rsWalker(page: Page, mode: Mode, check: (page: Page) => Promise<
   const press = (l: Locator) => (kb ? l.press('Enter') : l.click());
   const card = page.getByRole('region', { name: 'Next step' });
   const btn = (name: string | RegExp) => press(card.getByRole('button', { name }));
-  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name }));   // a quiz or prediction option
+  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name })); // a quiz or prediction option
   const step = (n: number) => expect(card).toContainText(`Step ${n} of`);
   /** set the effort dial: arrow keys by keyboard, a direct set by mouse */
   async function dial(effort: string) {
     const r = card.getByRole('slider', { name: 'Effort' });
     if (!kb) return r.fill(String(EFFORTS.indexOf(effort)));
     await r.focus();
-    const now = EFFORTS.indexOf((await r.getAttribute('aria-valuetext'))!), to = EFFORTS.indexOf(effort);
+    const now = EFFORTS.indexOf((await r.getAttribute('aria-valuetext'))!),
+      to = EFFORTS.indexOf(effort);
     for (let i = now; i !== to; i += Math.sign(to - now)) await r.press(to > now ? 'ArrowRight' : 'ArrowLeft');
   }
 

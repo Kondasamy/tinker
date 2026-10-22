@@ -10,7 +10,7 @@ const CH4_BLOCKS = ['docs', 'chunker', 'embedder', 'index', 'retriever', 'assemb
 
 async function open(page: Page) {
   await page.goto('/rag/05-accuracy/');
-  await page.locator('astro-island:not([ssr])').waitFor();   // hydrated
+  await page.locator('astro-island:not([ssr])').waitFor(); // hydrated
   await step(page, 1);
 }
 
@@ -20,14 +20,17 @@ async function broken(page: Page, n: number) {
   await expect(card(page)).toContainText('Puzzle');
   await expect(announce(page)).toContainText(/Answer: (WRONG|NOT FOUND)/);
 }
-const solved = async (page: Page, n: number) => { await expect(announce(page)).toContainText('Answer: CORRECT'); await step(page, n + 1); };
+const solved = async (page: Page, n: number) => {
+  await expect(announce(page)).toContainText('Answer: CORRECT');
+  await step(page, n + 1);
+};
 const nextPuzzle = (page: Page) => card(page).getByRole('button', { name: 'Next puzzle →' }).click();
 
 test('AE4: opening chapter 5 directly shows the blocks unlocked through chapter 4, pre-wired', async ({ page }) => {
   await open(page);
   for (const b of CH4_BLOCKS) await expect(page.locator(`[data-block="${b}"]`)).toHaveCount(1);
   for (const b of ['rewrite', 'reranker', 'grader']) await expect(page.locator(`[data-block="${b}"]`)).toHaveCount(0);
-  await expect(announce(page)).toContainText('3 chunks retrieved');   // wired: chunks reach the model
+  await expect(announce(page)).toContainText('3 chunks retrieved'); // wired: chunks reach the model
 });
 
 test('chapter 5: every lever, each puzzle broken then solved, meters moving independently', async ({ page }) => {
@@ -43,7 +46,9 @@ test('chapter 5: every lever, each puzzle broken then solved, meters moving inde
 
   // predict first: the meters keep showing the current setting until the pick, and the pick locks
   await expect(card(page).getByRole('button', { name: 'Retrieve 5 chunks instead of 3' })).toHaveCount(0);
-  await card(page).getByRole('radio', { name: /Only recall/ }).click();
+  await card(page)
+    .getByRole('radio', { name: /Only recall/ })
+    .click();
   await expect(card(page).getByRole('radio', { name: /^Both/ })).toHaveAttribute('aria-disabled', 'true');
   await expect(card(page).getByRole('radio', { name: /Only recall/ })).toHaveAttribute('aria-checked', 'true');
   await expect(recall(page)).toHaveAttribute('data-value', '0');
@@ -104,7 +109,9 @@ test('chapter 5: every lever, each puzzle broken then solved, meters moving inde
 
   // 6. broken sentence: overlap
   await broken(page, 15);
-  await card(page).getByRole('slider', { name: /Overlap/ }).fill('2');
+  await card(page)
+    .getByRole('slider', { name: /Overlap/ })
+    .fill('2');
   await solved(page, 15);
   await nextPuzzle(page);
 
@@ -113,18 +120,26 @@ test('chapter 5: every lever, each puzzle broken then solved, meters moving inde
   await card(page).getByRole('button', { name: 'Sentence' }).click();
   await solved(page, 17);
 
-  await card(page).getByRole('radio', { name: /What reached the model/ }).click();
+  await card(page)
+    .getByRole('radio', { name: /What reached the model/ })
+    .click();
   await expect(card(page)).toContainText('Chapter complete');
 });
 
-test('chapter 5: Show me solves every puzzle; rerank also frees the hidden needle and shows its score', async ({ page }) => {
+test('chapter 5: Show me solves every puzzle; rerank also frees the hidden needle and shows its score', async ({
+  page,
+}) => {
   await open(page);
   await card(page).getByRole('button', { name: /^Ask/ }).click();
   await card(page).getByRole('button', { name: 'Add the Evaluator' }).click();
   await card(page).getByRole('radio', { name: /^Both/ }).click();
   await card(page).getByRole('button', { name: 'Retrieve 5 chunks instead of 3' }).click();
   await expect(card(page).getByRole('status')).toContainText('NOT WHAT YOU PREDICTED');
-  const showMe = async (n: number) => { await broken(page, n); await card(page).getByRole('button', { name: 'Show me' }).click(); await solved(page, n); };
+  const showMe = async (n: number) => {
+    await broken(page, n);
+    await card(page).getByRole('button', { name: 'Show me' }).click();
+    await solved(page, n);
+  };
   await showMe(5);
   await card(page).getByRole('button', { name: 'Add Query rewrite' }).click();
   await showMe(7);

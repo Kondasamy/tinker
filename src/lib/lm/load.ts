@@ -14,8 +14,13 @@ export interface Meta {
   lora?: FineTuneRun & { rank: number; alpha: number; targets: string[]; bytes: number; tensors: Meta['tensors'] };
   /** KTD1's student, distilled from model.bin: its own shape and layout, in `student.bin`. */
   student?: {
-    file: string; model: ModelConfig & { params: number }; bytes: number; tensors: Meta['tensors'];
-    training: Record<string, unknown>; lossCurve: FineTuneRun['lossCurve']; heldout: FineTuneRun['heldout'];
+    file: string;
+    model: ModelConfig & { params: number };
+    bytes: number;
+    tensors: Meta['tensors'];
+    training: Record<string, unknown>;
+    lossCurve: FineTuneRun['lossCurve'];
+    heldout: FineTuneRun['heldout'];
     /** share of held-out positions where its greedy next token is the base's */
     agreement: number;
   };
@@ -35,7 +40,9 @@ export type Weights = 'base' | 'finetuned' | 'lora' | 'student';
 
 /** IEEE 754 half to number. */
 export function halfToFloat(h: number): number {
-  const s = h & 0x8000 ? -1 : 1, e = (h >> 10) & 0x1f, f = h & 0x3ff;
+  const s = h & 0x8000 ? -1 : 1,
+    e = (h >> 10) & 0x1f,
+    f = h & 0x3ff;
   if (e === 0) return s * f * 2 ** -24;
   if (e === 31) return f ? NaN : s * Infinity;
   return s * (1 + f / 1024) * 2 ** (e - 15);
@@ -85,7 +92,9 @@ async function loadWeights(loader: Loader, w: Weights): Promise<Model> {
 
 /** One model, fetched on first load(); a failed load leaves status 'error' and the next load() retries. */
 export function modelLoader(loader: Loader = fetchLoader('/data/lm/'), weights: Weights = 'base') {
-  let model: Model | undefined, pending: Promise<Model> | undefined, failed = false;
+  let model: Model | undefined,
+    pending: Promise<Model> | undefined,
+    failed = false;
   return {
     get: () => model,
     status: (): LoadStatus => (model ? 'ready' : pending ? 'loading' : failed ? 'error' : 'idle'),
@@ -93,9 +102,18 @@ export function modelLoader(loader: Loader = fetchLoader('/data/lm/'), weights: 
       if (model) return Promise.resolve(model);
       failed = false;
       // Parse in its own step, so a bad file fails the load as a 404 does (and the next load() retries).
-      return (pending ??= loadWeights(loader, weights)
-        .then((x) => { model = x; pending = undefined; return x; },
-          (e) => { failed = true; pending = undefined; throw e; }));
+      return (pending ??= loadWeights(loader, weights).then(
+        x => {
+          model = x;
+          pending = undefined;
+          return x;
+        },
+        e => {
+          failed = true;
+          pending = undefined;
+          throw e;
+        },
+      ));
     },
   };
 }

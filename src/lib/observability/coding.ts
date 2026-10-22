@@ -16,7 +16,8 @@ export const SUGGESTIONS = FAILED.map(t => t.note!);
 /** Three suggestion chips for a trace: its own note and the next two in the list, its own placed by its index so the
  * right one isn't always first. Any chip may be picked: notes are never graded. */
 export function suggestionsFor(t: Trace): string[] {
-  const i = SUGGESTIONS.indexOf(t.note!), n = SUGGESTIONS.length;
+  const i = SUGGESTIONS.indexOf(t.note!),
+    n = SUGGESTIONS.length;
   const others = [SUGGESTIONS[(i + 1) % n], SUGGESTIONS[(i + 2) % n]];
   others.splice(i % 3, 0, t.note!);
   return others;
@@ -39,20 +40,36 @@ export function modeOfGroup(g: Grouping, group: number, traces: Trace[] = FAILED
 }
 
 /** How many traces carry each mode under `label` (the reference, by default). Zero for a mode nobody has. */
-export function counts(traces: Trace[] = FAILED, label: (t: Trace) => ModeId | '' | undefined = t => t.mode): Record<ModeId, number> {
+export function counts(
+  traces: Trace[] = FAILED,
+  label: (t: Trace) => ModeId | '' | undefined = t => t.mode,
+): Record<ModeId, number> {
   const c = Object.fromEntries(MODE_IDS.map(m => [m, 0])) as Record<ModeId, number>;
-  for (const t of traces) { const m = label(t); if (m) c[m]++; }
+  for (const t of traces) {
+    const m = label(t);
+    if (m) c[m]++;
+  }
   return c;
 }
-export interface Ranked { mode: ModeId; count: number; harm: number; score: number }
+export interface Ranked {
+  mode: ModeId;
+  count: number;
+  harm: number;
+  score: number;
+}
 /** Modes by count × harm, highest first; ties keep the modes' order. */
 export function ranked(c: Record<ModeId, number>): Ranked[] {
-  return MODE_IDS.map(mode => ({ mode, count: c[mode], harm: modeOf(mode).harm, score: c[mode] * modeOf(mode).harm }))
-    .sort((a, b) => b.score - a.score);
+  return MODE_IDS.map(mode => ({
+    mode,
+    count: c[mode],
+    harm: modeOf(mode).harm,
+    score: c[mode] * modeOf(mode).harm,
+  })).sort((a, b) => b.score - a.score);
 }
 /** The modes tied for the most harm removed: what to fix first. */
 export const fixFirst = (c: Record<ModeId, number>): ModeId[] => {
-  const r = ranked(c), best = r[0]?.score ?? 0;
+  const r = ranked(c),
+    best = r[0]?.score ?? 0;
   return r.filter(x => x.score === best).map(x => x.mode);
 };
 /** The mode seen most often (the tempting wrong pick in chapter 5). */

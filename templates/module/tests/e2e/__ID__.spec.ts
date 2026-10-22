@@ -28,8 +28,12 @@ test('the intro shows the level, the author, the chapters and the Colorfigures c
   expect(await serious(page)).toEqual([]);
 });
 
-test('every chapter plays by mouse', async ({ page }) => { await play(page, false); });
-test('every chapter plays by keyboard only', async ({ page }) => { await play(page, true); });
+test('every chapter plays by mouse', async ({ page }) => {
+  await play(page, false);
+});
+test('every chapter plays by keyboard only', async ({ page }) => {
+  await play(page, true);
+});
 
 test('the recap asks from finished chapters', async ({ page }) => {
   await play(page, false);

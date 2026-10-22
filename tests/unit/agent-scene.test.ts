@@ -3,15 +3,23 @@ import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import IsoStage from '../../src/lib/iso/IsoStage';
 import { flatScene } from '../../src/lib/iso/flat';
-import { AGENT_BOARD, agentLabel, agentScene, agentState, type AgentOpts } from '../../src/components/scenes/agentScene';
+import {
+  AGENT_BOARD,
+  agentLabel,
+  agentScene,
+  agentState,
+  type AgentOpts,
+} from '../../src/components/scenes/agentScene';
 import { agentLanes, agentMessages } from '../../src/components/scenes/agentSequence';
 import { readouts } from '../../src/content/agents/kit';
 import { CONTEXT, run, stepsOf, type Run } from '../../src/lib/agents/loop';
 import { RECORDINGS as R } from '../../src/lib/agents/turns';
 
-const draw = (o: AgentOpts) => renderToString(createElement(IsoStage, { board: AGENT_BOARD, scene: agentScene(o), label: agentLabel(o) }));
+const draw = (o: AgentOpts) =>
+  renderToString(createElement(IsoStage, { board: AGENT_BOARD, scene: agentScene(o), label: agentLabel(o) }));
 const count = (svg: string, s: string) => svg.split(s).length - 1;
-const at = (r: Run, pred: (k: string) => boolean) => r.steps.findIndex(s => pred('key' in s ? `${s.kind}=${s.key}` : s.kind));
+const at = (r: Run, pred: (k: string) => boolean) =>
+  r.steps.findIndex(s => pred('key' in s ? `${s.kind}=${s.key}` : s.kind));
 
 const PLAN = run(R['03-plans'], { case: 'damaged', stock: 'out', plan: true });
 const LOOP = run(R['02-the-loop']);
@@ -30,8 +38,10 @@ describe('the clipboard', () => {
     // the stock is out, so the agent refunds instead: create_replacement is struck, the refund added after it and ticked
     const end = agentState({ run: PLAN }).plan!;
     expect(end.rows).toEqual([
-      { item: 'get_order:1042', done: true, struck: false }, { item: 'check_stock:1042', done: true, struck: false },
-      { item: 'create_replacement:1042', done: false, struck: true }, { item: 'issue_refund:1042', done: true, struck: false },
+      { item: 'get_order:1042', done: true, struck: false },
+      { item: 'check_stock:1042', done: true, struck: false },
+      { item: 'create_replacement:1042', done: false, struck: true },
+      { item: 'issue_refund:1042', done: true, struck: false },
       { item: 'send_email:1042', done: true, struck: false },
     ]);
     expect(end).toMatchObject({ ticks: 4, items: 4 });
@@ -54,7 +64,10 @@ describe('the in-tray', () => {
     expect(count(svg, 'class="binder"')).toBe(1);
     expect(count(svg, 'class="paper"')).toBe(0);
     // the next turn and its result go on top of the binder
-    expect(agentState({ run: SUMMARY, upTo: at(SUMMARY, k => k === 'result=send_email:2101:ok') + 1 }).tray).toEqual({ papers: 2, binder: true });
+    expect(agentState({ run: SUMMARY, upTo: at(SUMMARY, k => k === 'result=send_email:2101:ok') + 1 }).tray).toEqual({
+      papers: 2,
+      binder: true,
+    });
   });
 });
 
@@ -100,9 +113,19 @@ describe('the helper desks', () => {
 describe('untrusted strings', () => {
   it('a note containing <script> renders escaped in both drawings', () => {
     const evil = '<script>alert(1)</script>';
-    const r: Run = { ...PLAN, steps: PLAN.steps.map(s => s.kind === 'answer' ? { ...s, text: evil } : s.kind === 'plan' ? { ...s, text: evil } : s) };
+    const r: Run = {
+      ...PLAN,
+      steps: PLAN.steps.map(s =>
+        s.kind === 'answer' ? { ...s, text: evil } : s.kind === 'plan' ? { ...s, text: evil } : s,
+      ),
+    };
     const o = { run: r, host: evil, clipboard: true, gauge: GAUGE, tray: true };
-    for (const svg of [draw(o), draw({ ...o, scale: 1.8 }), flatScene(agentLanes(r, evil), agentMessages(r)).svg, flatScene(agentLanes(r), agentMessages(r), { phone: true }).svg]) {
+    for (const svg of [
+      draw(o),
+      draw({ ...o, scale: 1.8 }),
+      flatScene(agentLanes(r, evil), agentMessages(r)).svg,
+      flatScene(agentLanes(r), agentMessages(r), { phone: true }).svg,
+    ]) {
       expect(svg).not.toContain('<script');
     }
   });
@@ -110,8 +133,16 @@ describe('untrusted strings', () => {
 
 describe('the Steps lanes', () => {
   it('one mark per run step, in order', () => {
-    for (const r of [PLAN, LOOP, STUCK, SUMMARY, HELPERS, run(R['01-workflow-or-agent'], { case: 'damaged', mode: 'script', stock: 'out' })]) {
-      const msgs = agentMessages(r), lanes = agentLanes(r);
+    for (const r of [
+      PLAN,
+      LOOP,
+      STUCK,
+      SUMMARY,
+      HELPERS,
+      run(R['01-workflow-or-agent'], { case: 'damaged', mode: 'script', stock: 'out' }),
+    ]) {
+      const msgs = agentMessages(r),
+        lanes = agentLanes(r);
       expect(msgs).toHaveLength(r.steps.length);
       for (const m of msgs) expect(lanes.map(l => l.id)).toEqual(expect.arrayContaining([m.from, m.to]));
       const marks = [...flatScene(lanes, msgs, { win: Infinity }).svg.matchAll(/data-msg="(\d+)"/g)].map(x => +x[1]);

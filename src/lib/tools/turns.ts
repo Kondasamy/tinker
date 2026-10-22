@@ -1,8 +1,15 @@
 // Pre-recorded model turns keyed by what the model could see (KTD10, R18). One reviewed file per scenario,
 // so a chapter can import just its own JSON; RECORDINGS collects them all for the workbench and tests.
-export interface Call { id: string; name: string; arguments: Record<string, unknown> }
+export interface Call {
+  id: string;
+  name: string;
+  arguments: Record<string, unknown>;
+}
 /** One model turn: `calls` proposes tool calls (several = parallel); no calls means `text` is the final answer. */
-export interface Turn { text: string; calls?: Call[] }
+export interface Turn {
+  text: string;
+  calls?: Call[];
+}
 export interface Recording {
   /** what the Larkspur employee asks */
   ask: string;

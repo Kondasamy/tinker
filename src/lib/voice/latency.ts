@@ -30,9 +30,14 @@ export interface Latency {
 /** Times from the end of the caller's turn, for one reply clip. Without streaming each stage waits for the one before
  * to finish; with streaming the voice starts on the first sentence while the model keeps writing. */
 export function latency(reply: string, streaming: boolean): Latency {
-  const text = textOf(reply), c = clipOf(reply), tokens = encode(text).length, firstTokens = encode(firstSentence(text)).length;
+  const text = textOf(reply),
+    c = clipOf(reply),
+    tokens = encode(text).length,
+    firstTokens = encode(firstSentence(text)).length;
   const speechMs = c.parts[c.parts.length - 1].end - c.parts[0].start;
-  const stt = HOST.sttMs, modelFirst = stt + HOST.modelFirstMs, modelDone = modelFirst + tokens * HOST.msPerToken;
+  const stt = HOST.sttMs,
+    modelFirst = stt + HOST.modelFirstMs,
+    modelDone = modelFirst + tokens * HOST.msPerToken;
   const firstSound = streaming
     ? modelFirst + firstTokens * HOST.msPerToken + HOST.ttsFirstMs
     : modelDone + HOST.ttsFirstMs + Math.round(HOST.ttsRealtime * speechMs);

@@ -383,7 +383,8 @@ pnpm preview    # serves dist/ on http://localhost:4321
 
 ```bash
 pnpm check                              # type-check Astro and TypeScript
-pnpm lint                               # lint with Biome
+pnpm lint                               # lint and format check with Biome
+pnpm format                             # format and apply safe lint fixes
 pnpm test                               # unit tests (Vitest)
 pnpm exec playwright install chromium   # one-time browser download for e2e
 pnpm test:e2e                           # end-to-end, accessibility, mobile and offline tests (Playwright)

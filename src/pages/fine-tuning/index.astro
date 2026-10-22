@@ -11,7 +11,15 @@ import Recap from '../../components/quiz/Recap';
 import ReadingMode from '../../components/intro/ReadingMode.astro';
 import ChapterCards from '../../components/intro/ChapterCards.astro';
 import { TRAIN_BOARD, trainLabel, trainScene, type TrainOpts } from '../../components/scenes/trainScene';
-import { PRICE_CHANGE, VERSIONS, answer, factOk, fullCount, loraCount, type VersionId } from '../../lib/fine-tuning/engine';
+import {
+  PRICE_CHANGE,
+  VERSIONS,
+  answer,
+  factOk,
+  fullCount,
+  loraCount,
+  type VersionId,
+} from '../../lib/fine-tuning/engine';
 import { ACCESSED, fact } from '../../lib/fine-tuning/facts';
 import type { Meta as LmMeta } from '../../lib/lm/load';
 import metaJson from '../../../public/data/lm/meta.json';
@@ -28,14 +36,39 @@ const bench = (o: TrainOpts): TrainOpts => ({ scale: 1.3, ...o });
 const HERO = bench({ lit: 'weights', weights: 'lora' });
 // the whole idea: the changed price, asked of the fine-tuned and the RAG versions (recorded answers, graded live)
 const Q = PRICE_CHANGE.question;
-const SIDES = (['finetuned', 'rag'] as VersionId[]).map(v => ({ v, label: VERSIONS.find(x => x.id === v)!.label, a: answer(v, Q.id), ok: factOk(Q.id, answer(v, Q.id).text) }));
+const SIDES = (['finetuned', 'rag'] as VersionId[]).map(v => ({
+  v,
+  label: VERSIONS.find(x => x.id === v)!.label,
+  a: answer(v, Q.id),
+  ok: factOk(Q.id, answer(v, Q.id).text),
+}));
 // six ideas, each on the training bench
 const IDEAS: [string, string, ReturnType<typeof fact>, TrainOpts][] = [
   ['Three levers', 'A prompt, documents or the weights each change an answer', fact('prompt-first'), bench({})],
-  ['Training moves weights', 'Examples nudge every weight, once, ahead of time', fact('fine-tune-for'), bench({ lit: 'weights', weights: 'finetuned' })],
-  ['Small adapters', 'Freeze the model; train a few small matrices beside it', fact('lora'), bench({ lit: 'weights', weights: 'lora' })],
-  ['Learn less, forget less', 'An adapter changes less, so less of the old model is lost', fact('lora-learns-less'), bench({ lit: 'weights', weights: 'lora' })],
-  ['Forgetting', 'What training adds can push out what the model knew', fact('catastrophic-forgetting'), bench({ lit: 'weights', weights: 'finetuned' })],
+  [
+    'Training moves weights',
+    'Examples nudge every weight, once, ahead of time',
+    fact('fine-tune-for'),
+    bench({ lit: 'weights', weights: 'finetuned' }),
+  ],
+  [
+    'Small adapters',
+    'Freeze the model; train a few small matrices beside it',
+    fact('lora'),
+    bench({ lit: 'weights', weights: 'lora' }),
+  ],
+  [
+    'Learn less, forget less',
+    'An adapter changes less, so less of the old model is lost',
+    fact('lora-learns-less'),
+    bench({ lit: 'weights', weights: 'lora' }),
+  ],
+  [
+    'Forgetting',
+    'What training adds can push out what the model knew',
+    fact('catastrophic-forgetting'),
+    bench({ lit: 'weights', weights: 'finetuned' }),
+  ],
   ['Measure first', 'An eval tells you which lever is worth pulling', fact('evals-first'), bench({ lit: 'prompt' })],
 ];
 const FACTS: [string, string][] = [

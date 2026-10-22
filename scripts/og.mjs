@@ -12,8 +12,16 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const DIST = path.join(ROOT, 'dist'), OUT = path.join(ROOT, 'public/og');
-const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.json': 'application/json', '.png': 'image/png' };
+const DIST = path.join(ROOT, 'dist'),
+  OUT = path.join(ROOT, 'public/og');
+const TYPES = {
+  '.html': 'text/html',
+  '.js': 'text/javascript',
+  '.css': 'text/css',
+  '.svg': 'image/svg+xml',
+  '.json': 'application/json',
+  '.png': 'image/png',
+};
 
 execSync('astro build', { cwd: ROOT, stdio: 'inherit', env: { ...process.env, DEV_PAGES: '1' } });
 const slugs = await readdir(path.join(DIST, 'dev/og'));
@@ -22,8 +30,13 @@ const server = createServer(async (req, res) => {
   let file = path.join(DIST, decodeURIComponent(new URL(req.url, 'http://x').pathname));
   if (!path.extname(file)) file = path.join(file, 'index.html');
   if (!file.startsWith(DIST)) return res.writeHead(403).end();
-  try { res.writeHead(200, { 'content-type': TYPES[path.extname(file)] ?? 'application/octet-stream' }).end(await readFile(file)); }
-  catch { res.writeHead(404).end(); }
+  try {
+    res
+      .writeHead(200, { 'content-type': TYPES[path.extname(file)] ?? 'application/octet-stream' })
+      .end(await readFile(file));
+  } catch {
+    res.writeHead(404).end();
+  }
 }).listen(0);
 const base = `http://localhost:${server.address().port}`;
 

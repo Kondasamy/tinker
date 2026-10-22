@@ -6,14 +6,30 @@ import { BLOCK_TYPES, renderers, blockShadow } from '../lib/iso/blocks';
 import { byDepth } from '../lib/iso/core.js';
 
 const STATS: Record<string, string> = {
-  docs: '42 DOCS', chunker: '310 CHUNKS', embedder: '384 DIMS', index: '310 VECTORS', retriever: 'TOP 4', rewrite: '3 VARIANTS',
-  reranker: 'KEEP 3', assembler: '1.2K TOKENS', llm: '', agent: '2 CALLS', graph: '58 NODES', grader: 'PASS',
+  docs: '42 DOCS',
+  chunker: '310 CHUNKS',
+  embedder: '384 DIMS',
+  index: '310 VECTORS',
+  retriever: 'TOP 4',
+  rewrite: '3 VARIANTS',
+  reranker: 'KEEP 3',
+  assembler: '1.2K TOKENS',
+  llm: '',
+  agent: '2 CALLS',
+  graph: '58 NODES',
+  grader: 'PASS',
 };
-const COLS = 4, GAP = 80;   // wider than CELL so no block hides a neighbour's side face
+const COLS = 4,
+  GAP = 80; // wider than CELL so no block hides a neighbour's side face
 const at = (i: number) => ({ x: Math.floor(i / COLS) * GAP + GAP / 2, y: (i % COLS) * GAP + GAP / 2 });
 const scene = ({ top }: SceneCtx) =>
   BLOCK_TYPES.map((t, i) => blockShadow(t, at(i).x, at(i).y, top)).join('') +
-  byDepth(BLOCK_TYPES.map((t, i) => ({ at: [at(i).x, at(i).y, 0], svg: renderers[t]({ ...at(i), stat: STATS[t], selected: t === 'chunker', lit: true, state: 'ok' }) })));
+  byDepth(
+    BLOCK_TYPES.map((t, i) => ({
+      at: [at(i).x, at(i).y, 0],
+      svg: renderers[t]({ ...at(i), stat: STATS[t], selected: t === 'chunker', lit: true, state: 'ok' }),
+    })),
+  );
 ---
 <html lang="en">
   <head>

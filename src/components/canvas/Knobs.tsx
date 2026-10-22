@@ -25,23 +25,52 @@ const CHECKS: Partial<Record<KnobName, string>> = {
   images: 'Caption images',
 };
 
-export interface KnobProps { name: KnobName; state: CanvasState; onChange: (next: CanvasState) => void; question: CanvasQuestion }
+export interface KnobProps {
+  name: KnobName;
+  state: CanvasState;
+  onChange: (next: CanvasState) => void;
+  question: CanvasQuestion;
+}
 
 export function Knob({ name, state, onChange, question }: KnobProps) {
   const id = useId();
   const k = state.knobs;
   const set = <N extends KnobName>(n: N, v: KnobValues[N]) => onChange({ ...state, knobs: { ...k, [n]: v } });
-  const range = (label: string, shown: string, value: number, min: number, max: number, to: (v: number) => void, step = 1) => (
+  const range = (
+    label: string,
+    shown: string,
+    value: number,
+    min: number,
+    max: number,
+    to: (v: number) => void,
+    step = 1,
+  ) => (
     <div className="knob" data-knob={name}>
-      <label htmlFor={id}>{label}<output htmlFor={id}>{shown}</output></label>
-      <input id={id} type="range" min={min} max={max} step={step} value={value} aria-valuetext={shown} onChange={e => to(+e.target.value)} />
+      <label htmlFor={id}>
+        {label}
+        <output htmlFor={id}>{shown}</output>
+      </label>
+      <input
+        id={id}
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        aria-valuetext={shown}
+        onChange={e => to(+e.target.value)}
+      />
     </div>
   );
   const select = (label: string, value: string, options: [string, string][], to: (v: string) => void) => (
     <div className="knob" data-knob={name}>
       <label htmlFor={id}>{label}</label>
       <select id={id} value={value} disabled={options.length < 2} onChange={e => to(e.target.value)}>
-        {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+        {options.map(([v, l]) => (
+          <option key={v} value={v}>
+            {l}
+          </option>
+        ))}
       </select>
     </div>
   );
@@ -53,7 +82,13 @@ export function Knob({ name, state, onChange, question }: KnobProps) {
           <span className="lbl">Chunker in this slot</span>
           <div className="row">
             {(['fixed', 'sentence'] as const).map(v => (
-              <button key={v} type="button" className="chip" aria-pressed={k.strategy === v} onClick={() => set('strategy', v)}>
+              <button
+                key={v}
+                type="button"
+                className="chip"
+                aria-pressed={k.strategy === v}
+                onClick={() => set('strategy', v)}
+              >
                 {v === 'fixed' ? 'Fixed-size' : 'Sentence'}
               </button>
             ))}
@@ -62,32 +97,69 @@ export function Knob({ name, state, onChange, question }: KnobProps) {
       );
     case 'size': {
       // the slider walks the precomputed lattice (KTD4), so every stop is a real config
-      const i = Math.max(0, SIZES.findIndex(s => s >= k.size));
-      return range(k.strategy === 'fixed' ? 'Chunk size' : 'Max words per chunk', `${SIZES[i]} words`, i, 0, SIZES.length - 1, v => set('size', SIZES[v]));
+      const i = Math.max(
+        0,
+        SIZES.findIndex(s => s >= k.size),
+      );
+      return range(
+        k.strategy === 'fixed' ? 'Chunk size' : 'Max words per chunk',
+        `${SIZES[i]} words`,
+        i,
+        0,
+        SIZES.length - 1,
+        v => set('size', SIZES[v]),
+      );
     }
     case 'overlap': {
-      if (k.strategy !== 'fixed') return null;   // sentence chunks never overlap
-      const i = Math.max(0, OVERLAPS.findIndex(o => o >= k.overlap));
+      if (k.strategy !== 'fixed') return null; // sentence chunks never overlap
+      const i = Math.max(
+        0,
+        OVERLAPS.findIndex(o => o >= k.overlap),
+      );
       return range('Overlap', `${OVERLAPS[i]}%`, i, 0, OVERLAPS.length - 1, v => set('overlap', OVERLAPS[v]));
     }
     case 'topK':
       return range('Top-k (chunks retrieved)', String(k.topK), k.topK, 1, 10, v => set('topK', v));
     case 'hybrid':
-      return range('Keyword weight', `${Math.round(k.hybrid * 100)}%`, Math.round(k.hybrid * 10), 0, 10, v => set('hybrid', v / 10));
+      return range('Keyword weight', `${Math.round(k.hybrid * 100)}%`, Math.round(k.hybrid * 10), 0, 10, v =>
+        set('hybrid', v / 10),
+      );
     case 'filter':
-      return select('Metadata filter', k.filter ?? '', [['', 'No filter'], ...(question.filterPresets ?? []).map(p => [p.id, p.label] as [string, string])],
-        v => set('filter', v || null));
-    case 'rerank': case 'grade': case 'tables': case 'pdfs': case 'images':
+      return select(
+        'Metadata filter',
+        k.filter ?? '',
+        [['', 'No filter'], ...(question.filterPresets ?? []).map(p => [p.id, p.label] as [string, string])],
+        v => set('filter', v || null),
+      );
+    case 'rerank':
+    case 'grade':
+    case 'tables':
+    case 'pdfs':
+    case 'images':
       return (
         <div className="knob" data-knob={name}>
-          <label className="check"><input type="checkbox" checked={k[name]} onChange={e => set(name, e.target.checked)} /> {CHECKS[name]}</label>
+          <label className="check">
+            <input type="checkbox" checked={k[name]} onChange={e => set(name, e.target.checked)} /> {CHECKS[name]}
+          </label>
         </div>
       );
     case 'order':
-      return select('Context order', k.order, [['ranked', 'Best first'], ['edges', 'Best at both ends']], v => set('order', v as KnobValues['order']));
+      return select(
+        'Context order',
+        k.order,
+        [
+          ['ranked', 'Best first'],
+          ['edges', 'Best at both ends'],
+        ],
+        v => set('order', v as KnobValues['order']),
+      );
     case 'rewrite':
-      return select('Query sent to the retriever', k.rewrite === null ? '' : String(k.rewrite),
-        [['', 'As asked'], ...question.rewrites.map((r, i) => [String(i), r] as [string, string])], v => set('rewrite', v === '' ? null : +v));
+      return select(
+        'Query sent to the retriever',
+        k.rewrite === null ? '' : String(k.rewrite),
+        [['', 'As asked'], ...question.rewrites.map((r, i) => [String(i), r] as [string, string])],
+        v => set('rewrite', v === '' ? null : +v),
+      );
     case 'maxCalls':
       return range('Max retrieval calls', String(k.maxCalls), k.maxCalls, 1, 3, v => set('maxCalls', v));
     case 'hops':
@@ -96,5 +168,11 @@ export function Knob({ name, state, onChange, question }: KnobProps) {
 }
 
 export default function Knobs({ names, ...p }: Omit<KnobProps, 'name'> & { names: KnobName[] }) {
-  return <>{names.map(n => <Knob key={n} name={n} {...p} />)}</>;
+  return (
+    <>
+      {names.map(n => (
+        <Knob key={n} name={n} {...p} />
+      ))}
+    </>
+  );
 }

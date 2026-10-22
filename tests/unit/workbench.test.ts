@@ -4,7 +4,8 @@ import { LIMITS } from '../../src/content/tool-calling/kit';
 
 // every setup the workbench's controls can reach
 const ALL: Setup[] = [[], ['orders'], ['calendar'], ['orders', 'calendar']].flatMap(servers =>
-  [false, true].flatMap(gate => LIMITS.map(limit => ({ servers: servers as Setup['servers'], gate, limit }))));
+  [false, true].flatMap(gate => LIMITS.map(limit => ({ servers: servers as Setup['servers'], gate, limit }))),
+);
 const req = (id: string) => REQUESTS.find(r => r.id === id)!;
 
 describe('workbench rules', () => {
@@ -12,7 +13,10 @@ describe('workbench rules', () => {
     expect(REQUESTS).toHaveLength(4);
     for (const r of REQUESTS) {
       expect(verdict(r, needs(r)).ok, r.id).toBe(true);
-      expect(ALL.some(s => verdict(r, s).ok), r.id).toBe(true);
+      expect(
+        ALL.some(s => verdict(r, s).ok),
+        r.id,
+      ).toBe(true);
     }
   });
 
@@ -27,7 +31,8 @@ describe('workbench rules', () => {
   });
 
   it('a limit below the refund refuses it; no limit at all is not least privilege', () => {
-    const r = req('refund'), refund = r.refund!;
+    const r = req('refund'),
+      refund = r.refund!;
     expect(verdict(r, { ...needs(r), limit: LIMITS.find(l => l !== null && l < refund)! }).ok).toBe(false);
     expect(verdict(r, { ...needs(r), limit: null }).ok).toBe(false);
   });

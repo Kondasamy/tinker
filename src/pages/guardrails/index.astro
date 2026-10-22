@@ -32,17 +32,36 @@ const SAYS = ATTACKS.find(a => a.email === 'invoice')!.says;
 // the three ideas, each in a small mail room: the email riding in, its send stopped at the allow-list, the chute shut
 const ALLOWED = run(RECORDING, { case: 'invoice', allow: true });
 const IDEAS: [string, string, ReturnType<typeof fact>, GuardOpts][] = [
-  ['Data or instructions', 'The model reads an email’s words like your own', fact('blur'), { run: LEAK, upTo: callAt('read_inbox') + 1, scale: 1.7 }],
-  ['Checks on the way out', 'A barrier stops the send; the run carries on', fact('owasp-mitigations'), { run: ALLOWED, upTo: ALLOWED.steps.findIndex(s => s.kind === 'blocked') + 1, allow: true, scale: 1.7 }],
-  ['The lethal trifecta', 'Private data, untrusted text, a way out: take one away', fact('lethal-trifecta'), { run: run(RECORDING, { case: 'invoice', taint: true }), legs: true, taint: true, scale: 1.7 }],
+  [
+    'Data or instructions',
+    'The model reads an email’s words like your own',
+    fact('blur'),
+    { run: LEAK, upTo: callAt('read_inbox') + 1, scale: 1.7 },
+  ],
+  [
+    'Checks on the way out',
+    'A barrier stops the send; the run carries on',
+    fact('owasp-mitigations'),
+    { run: ALLOWED, upTo: ALLOWED.steps.findIndex(s => s.kind === 'blocked') + 1, allow: true, scale: 1.7 },
+  ],
+  [
+    'The lethal trifecta',
+    'Private data, untrusted text, a way out: take one away',
+    fact('lethal-trifecta'),
+    { run: run(RECORDING, { case: 'invoice', taint: true }), legs: true, taint: true, scale: 1.7 },
+  ],
 ];
 // chapter 7's suites under no defences and under its clean set
-const NONE = bench(START), CLEAN = bench(SOLUTION);
+const NONE = bench(START),
+  CLEAN = bench(SOLUTION);
 const FACTS: [string, string][] = [
   [String(ATTACKS.length), 'attacks in the suite'],
   [String(CUSTOMER_CASES.length), 'ordinary customers in it too'],
   [`${NONE.succeeded} of ${NONE.attacks}`, 'attacks that work with no defences'],
-  [`${CLEAN.succeeded} of ${CLEAN.attacks}`, `once the defences stack, with ${CLEAN.blocked} of ${CLEAN.customers} customers blocked`],
+  [
+    `${CLEAN.succeeded} of ${CLEAN.attacks}`,
+    `once the defences stack, with ${CLEAN.blocked} of ${CLEAN.customers} customers blocked`,
+  ],
 ];
 const checked = longDate(ACCESSED);
 ---

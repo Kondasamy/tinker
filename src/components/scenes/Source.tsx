@@ -3,7 +3,9 @@ import type { TimelineEntry } from '../../lib/scale';
 import './scenes.css';
 
 export const Source = ({ e }: { e: Pick<TimelineEntry, 'sourceTitle' | 'sourceUrl'> }) => (
-  <a className="source" href={e.sourceUrl} target="_blank" rel="noreferrer">Source: {e.sourceTitle}</a>
+  <a className="source" href={e.sourceUrl} target="_blank" rel="noreferrer">
+    Source: {e.sourceTitle}
+  </a>
 );
 
 export const Answer = ({ answer, verdict, why }: { answer: string; verdict: string; why: string }) => (

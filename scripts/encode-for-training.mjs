@@ -37,29 +37,39 @@ export const STYLE_PROMPTS = [
   'Q: Is there a trade-in offer? A:',
 ];
 /** The style set's training texts, in file order. */
-export const styleTexts = () => fs.readFileSync(path.join(ROOT, 'data/lm/style-set.jsonl'), 'utf8').trim().split('\n')
-  .map((l) => JSON.parse(l)).map(({ q, a }) => `Q: ${q} A: ${a}\n\n`);
+export const styleTexts = () =>
+  fs
+    .readFileSync(path.join(ROOT, 'data/lm/style-set.jsonl'), 'utf8')
+    .trim()
+    .split('\n')
+    .map(l => JSON.parse(l))
+    .map(({ q, a }) => `Q: ${q} A: ${a}\n\n`);
 
-const files = fs.readdirSync(CORPUS).filter((f) => f.endsWith('.md')).sort();
-const split = (keep) => {
+const files = fs
+  .readdirSync(CORPUS)
+  .filter(f => f.endsWith('.md'))
+  .sort();
+const split = keep => {
   const docs = files.filter((_, i) => keep(i % 10 === 5));
-  return { docs, ids: docs.map((f) => encode(fs.readFileSync(path.join(CORPUS, f), 'utf8'))) };
+  return { docs, ids: docs.map(f => encode(fs.readFileSync(path.join(CORPUS, f), 'utf8'))) };
 };
 const out = {
   vocab: VOCAB_SIZE,
-  splits: { train: split((h) => !h), heldout: split((h) => h) },
-  prompts: PROMPTS.map((text) => ({ text, ids: encode(text) })),
+  splits: { train: split(h => !h), heldout: split(h => h) },
+  prompts: PROMPTS.map(text => ({ text, ids: encode(text) })),
   styleSet: {
     file: 'data/lm/style-set.jsonl',
     // the style signal: every reply in the set signs off "Cheers, the Larkspur team"; the corpus never says it
     signoff: { text: ' Larkspur team', ids: encode(' Larkspur team') },
     ids: styleTexts().map(encode),
-    prompts: STYLE_PROMPTS.map((text) => ({ text, ids: encode(text) })),
+    prompts: STYLE_PROMPTS.map(text => ({ text, ids: encode(text) })),
   },
 };
 // one doc per line keeps the file diffable
 const json = JSON.stringify(out).replace(/\],\[/g, '],\n[');
 fs.writeFileSync(OUT, json + '\n');
-const n = (s) => s.ids.reduce((a, d) => a + d.length, 0);
+const n = s => s.ids.reduce((a, d) => a + d.length, 0);
 console.log(`style set ${out.styleSet.ids.flat().length} tokens (${out.styleSet.ids.length} examples)`);
-console.log(`train ${n(out.splits.train)} tokens (${out.splits.train.docs.length} docs), heldout ${n(out.splits.heldout)} tokens (${out.splits.heldout.docs.length} docs)`);
+console.log(
+  `train ${n(out.splits.train)} tokens (${out.splits.train.docs.length} docs), heldout ${n(out.splits.heldout)} tokens (${out.splits.heldout.docs.length} docs)`,
+);

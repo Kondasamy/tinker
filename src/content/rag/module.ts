@@ -4,18 +4,31 @@ import type { Chapter, Module } from '../../lib/modules';
 import { RECALL } from './recall';
 
 export interface RagChapter extends Chapter {
-  unlocks: BlockType[];   // canvas blocks this chapter adds to the track
+  unlocks: BlockType[]; // canvas blocks this chapter adds to the track
 }
 
-const LLM: [string, string] = ['LLM', 'Large language model. It writes text by predicting what comes next, using what it learned in training and what is in its prompt.'];
-export const WINDOW: [string, string] = ['Context window', 'How much text a model can read in one request, counted in tokens (a token is about ¾ of a word).'];
-const CHUNK: [string, string] = ['Chunk', 'A small piece of a document. RAG searches and hands over chunks, not whole files.'];
+const LLM: [string, string] = [
+  'LLM',
+  'Large language model. It writes text by predicting what comes next, using what it learned in training and what is in its prompt.',
+];
+export const WINDOW: [string, string] = [
+  'Context window',
+  'How much text a model can read in one request, counted in tokens (a token is about ¾ of a word).',
+];
+const CHUNK: [string, string] = [
+  'Chunk',
+  'A small piece of a document. RAG searches and hands over chunks, not whole files.',
+];
 
 const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
   {
-    id: '01-history', title: 'How RAG came to be', short: 'History', unlocks: [],
+    id: '01-history',
+    title: 'How RAG came to be',
+    short: 'History',
+    unlocks: [],
     intro: {
-      story: 'Larkspur Supply Co. sells office and warehouse hardware to about 4,000 businesses. Its 260 staff lose hours hunting through policies, contracts, price lists and meeting notes. The company wants an AI assistant that answers their questions from those documents, and you are on the team building it.',
+      story:
+        'Larkspur Supply Co. sells office and warehouse hardware to about 4,000 businesses. Its 260 staff lose hours hunting through policies, contracts, price lists and meeting notes. The company wants an AI assistant that answers their questions from those documents, and you are on the team building it.',
       goal: 'Why can’t an AI model simply answer questions about your company? And how did the industry arrive at RAG between 2020 and 2026?',
       learn: [
         'Why a language model invents confident answers about things it never read',
@@ -26,15 +39,25 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
         LLM,
         ['Training data', 'The text a model learned from. Your company’s private documents were never part of it.'],
         WINDOW,
-        ['RAG', 'Retrieval-Augmented Generation: look up the relevant passages first, then have the model answer from them.'],
-        ['Tool calling', 'A model asking the software around it to run something, such as a search, and reading the result.'],
+        [
+          'RAG',
+          'Retrieval-Augmented Generation: look up the relevant passages first, then have the model answer from them.',
+        ],
+        [
+          'Tool calling',
+          'A model asking the software around it to run something, such as a search, and reading the result.',
+        ],
       ],
     },
   },
   {
-    id: '02-why-not-stuff-it', title: 'Why not stuff it all in the prompt?', short: 'Why not stuff it', unlocks: [],
+    id: '02-why-not-stuff-it',
+    title: 'Why not stuff it all in the prompt?',
+    short: 'Why not stuff it',
+    unlocks: [],
     intro: {
-      story: 'In chapter 1 the assistant invented a refund policy, because it had never read Larkspur’s real one. The team’s first idea: skip anything clever and paste the whole company drive into the prompt.',
+      story:
+        'In chapter 1 the assistant invented a refund policy, because it had never read Larkspur’s real one. The team’s first idea: skip anything clever and paste the whole company drive into the prompt.',
       goal: 'Why does “just give it everything” break down, even with today’s huge context windows?',
       learn: [
         'How the size of real company data compares with what a context window holds',
@@ -50,9 +73,13 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
     },
   },
   {
-    id: '03-what-is-rag', title: 'What is RAG?', short: 'What is RAG', unlocks: ['docs', 'retriever', 'llm'],
+    id: '03-what-is-rag',
+    title: 'What is RAG?',
+    short: 'What is RAG',
+    unlocks: ['docs', 'retriever', 'llm'],
     intro: {
-      story: 'Pasting everything failed: too big, too stale, no permissions. So the team will hand the model only the few passages each question needs. From this chapter on, the picture on the left is the assistant itself, a pipeline of blocks you build and change.',
+      story:
+        'Pasting everything failed: too big, too stale, no permissions. So the team will hand the model only the few passages each question needs. From this chapter on, the picture on the left is the assistant itself, a pipeline of blocks you build and change.',
       goal: 'What is the smallest working RAG system, and what does each part do?',
       learn: [
         'The three steps in the name: Retrieve, Augment, Generate',
@@ -68,9 +95,13 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
     },
   },
   {
-    id: '04-layers', title: 'The layers of a RAG system', short: 'Layers', unlocks: ['chunker', 'embedder', 'index', 'assembler'],
+    id: '04-layers',
+    title: 'The layers of a RAG system',
+    short: 'Layers',
+    unlocks: ['chunker', 'embedder', 'index', 'assembler'],
     intro: {
-      story: 'The simple pipeline works, so the team cut costs: documents are now split into small pieces and only the single best piece is sent. A sales lead asks about refunds again, and the answer goes wrong.',
+      story:
+        'The simple pipeline works, so the team cut costs: documents are now split into small pieces and only the single best piece is sent. A sales lead asks about refunds again, and the answer goes wrong.',
       goal: 'What happens between “a pile of documents” and “the passages the model reads”, and where can it break?',
       learn: [
         'How a chunker splits documents, and how a bad cut hides a rule',
@@ -79,16 +110,29 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
       ],
       terms: [
         CHUNK,
-        ['Overlap', 'Repeating the end of one chunk at the start of the next, so a sentence near a cut survives whole.'],
-        ['Embedding', 'A list of numbers (here 384) that captures what a piece of text means. Similar meanings get similar numbers.'],
-        ['Vector index', 'Storage for every chunk’s embedding, built so all of them can be compared with the question at once.'],
+        [
+          'Overlap',
+          'Repeating the end of one chunk at the start of the next, so a sentence near a cut survives whole.',
+        ],
+        [
+          'Embedding',
+          'A list of numbers (here 384) that captures what a piece of text means. Similar meanings get similar numbers.',
+        ],
+        [
+          'Vector index',
+          'Storage for every chunk’s embedding, built so all of them can be compared with the question at once.',
+        ],
       ],
     },
   },
   {
-    id: '05-accuracy', title: 'Making RAG accurate', short: 'Accuracy', unlocks: ['rewrite', 'reranker', 'grader'],
+    id: '05-accuracy',
+    title: 'Making RAG accurate',
+    short: 'Accuracy',
+    unlocks: ['rewrite', 'reranker', 'grader'],
     intro: {
-      story: 'The pipeline is fully built and it still gets things wrong: outdated policies, vague questions, rules buried in long context. Employees are starting to notice.',
+      story:
+        'The pipeline is fully built and it still gets things wrong: outdated policies, vague questions, rules buried in long context. Employees are starting to notice.',
       goal: 'When a RAG answer is wrong, how do you tell whether retrieval or the model failed, and which lever fixes it?',
       learn: [
         'Measure first: retrieval recall vs. answer quality',
@@ -96,7 +140,10 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
         'Why getting the right text is not the same as using it well',
       ],
       terms: [
-        ['Recall@k', 'Did the passage with the answer make it into the top k results? Measures retrieval, not the answer.'],
+        [
+          'Recall@k',
+          'Did the passage with the answer make it into the top k results? Measures retrieval, not the answer.',
+        ],
         ['Top-k', 'How many chunks the retriever hands over. Too few misses facts; too many buries them.'],
         ['Metadata filter', 'A rule on document properties (date, status, team) applied before ranking.'],
         ['Reranker', 'A second, more careful model that re-scores the retrieved chunks and reorders them.'],
@@ -105,9 +152,13 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
     },
   },
   {
-    id: '06-types', title: 'Types of RAG', short: 'Types', unlocks: ['agent', 'graph'],
+    id: '06-types',
+    title: 'Types of RAG',
+    short: 'Types',
+    unlocks: ['agent', 'graph'],
     intro: {
-      story: 'The tuned pipeline answers most questions well. But some questions need two documents joined together, some answers hide in tables, PDFs or images, and sometimes the right answer is “I don’t know”.',
+      story:
+        'The tuned pipeline answers most questions well. But some questions need two documents joined together, some answers hide in tables, PDFs or images, and sometimes the right answer is “I don’t know”.',
       goal: 'Which kind of RAG fits which kind of problem, and what does each one cost?',
       learn: [
         'Naive and advanced RAG: one search, tuned or not',
@@ -116,7 +167,10 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
       ],
       terms: [
         ['Agent', 'A model that can call tools, such as search, in a loop and decide when it has enough.'],
-        ['Knowledge graph', 'Entities (teams, products, people) joined by relations, each traced to the sentence it came from.'],
+        [
+          'Knowledge graph',
+          'Entities (teams, products, people) joined by relations, each traced to the sentence it came from.',
+        ],
         ['Hop', 'One step along a relation in the graph.'],
         ['Cross-encoder', 'A model that reads the question and a chunk together to judge how well they match.'],
         ['Multimodal', 'Working with more than plain text: tables, PDFs and images.'],
@@ -124,7 +178,10 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
     },
   },
   {
-    id: '07-sandbox', title: 'Sandbox', short: 'Sandbox', unlocks: [],
+    id: '07-sandbox',
+    title: 'Sandbox',
+    short: 'Sandbox',
+    unlocks: [],
     intro: {
       story: 'Every block from chapters 3 to 6 is now yours. Larkspur’s assistant is as capable as you can make it.',
       goal: 'Can you build, break and tune a RAG pipeline on your own, and pick the right type for a real team’s problem?',
@@ -144,8 +201,45 @@ const LEGACY_STEPS: Record<string, string[]> = {
   '02-why-not-stuff-it': ['ask', 'overflow', 'scale', 'reason-middle', 'reason-fresh', 'reason-access', 'quiz'],
   '03-what-is-rag': ['ask', 'docs', 'retriever', 'grounded', 'math', 'quiz'],
   '04-layers': ['ask', 'chunker', 'embedder', 'map', 'assembler', 'fix', 'quiz'],
-  '05-accuracy': ['ask', 'evaluator', 'more', 'filter', 'add-rewrite', 'rewrite', 'after-rewrite', 'topk', 'add-reranker', 'needle', 'after-needle', 'distractor', 'after-distractor', 'overlap', 'after-overlap', 'strategy', 'quiz'],
-  '06-types': ['recap', 'naive-run', 'attach', 'agent-run', 'cost', 'quiz', 'multi-hop', 'attach-graph', 'graph-one', 'graph-two', 'graph-quiz', 'sc-run', 'sc-attach', 'sc-grade', 'mm-attach', 'mm-run', 'mm-tables', 'mm-more'],
+  '05-accuracy': [
+    'ask',
+    'evaluator',
+    'more',
+    'filter',
+    'add-rewrite',
+    'rewrite',
+    'after-rewrite',
+    'topk',
+    'add-reranker',
+    'needle',
+    'after-needle',
+    'distractor',
+    'after-distractor',
+    'overlap',
+    'after-overlap',
+    'strategy',
+    'quiz',
+  ],
+  '06-types': [
+    'recap',
+    'naive-run',
+    'attach',
+    'agent-run',
+    'cost',
+    'quiz',
+    'multi-hop',
+    'attach-graph',
+    'graph-one',
+    'graph-two',
+    'graph-quiz',
+    'sc-run',
+    'sc-attach',
+    'sc-grade',
+    'mm-attach',
+    'mm-run',
+    'mm-tables',
+    'mm-more',
+  ],
   '07-sandbox': ['open', 'play', 'challenge'],
 };
 

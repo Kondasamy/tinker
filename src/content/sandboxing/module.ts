@@ -7,9 +7,12 @@ import { fact } from '../../lib/sandboxing/facts';
 
 const CHAPTERS: Chapter[] = [
   {
-    id: '01-where-it-runs', title: 'Where the code runs', short: 'Where it runs',
+    id: '01-where-it-runs',
+    title: 'Where the code runs',
+    short: 'Where it runs',
     intro: {
-      story: 'Larkspur’s agent no longer just calls tools: it runs code. It reads and writes files and reaches the network to do a task. If a planted instruction takes it over, that code runs with whatever access the agent has. Chapter 1 runs the same task two ways.',
+      story:
+        'Larkspur’s agent no longer just calls tools: it runs code. It reads and writes files and reaches the network to do a task. If a planted instruction takes it over, that code runs with whatever access the agent has. Chapter 1 runs the same task two ways.',
       goal: 'The same task runs on the host and in a sandbox. What changes when an attack is inside it?',
       learn: [
         'What a sandbox is: a box the operating system holds the agent’s code inside',
@@ -17,7 +20,10 @@ const CHAPTERS: Chapter[] = [
         'That the sandbox sits outside the model, so it works however the attack is worded',
       ],
       terms: [
-        ['Agent', 'A model that runs a task in a loop: it calls tools, reads what they return, and decides the next step.'],
+        [
+          'Agent',
+          'A model that runs a task in a loop: it calls tools, reads what they return, and decides the next step.',
+        ],
         ['Sandbox', fact('filesystem-isolation').claim],
         ['Exfiltration', 'Private data carried out of the sandbox to somewhere it should not go.'],
         ['Host', 'The real machine, with the developer’s full access to files and the network.'],
@@ -25,9 +31,12 @@ const CHAPTERS: Chapter[] = [
     },
   },
   {
-    id: '02-files', title: 'Files', short: 'Files',
+    id: '02-files',
+    title: 'Files',
+    short: 'Files',
     intro: {
-      story: 'The sandbox stopped the attack in chapter 1. Now look at one wall of it: the filesystem. What the agent can read and write is set by what the sandbox mounts, and how.',
+      story:
+        'The sandbox stopped the attack in chapter 1. Now look at one wall of it: the filesystem. What the agent can read and write is set by what the sandbox mounts, and how.',
       goal: 'What does the sandbox mount, read-only or writable, and what does it hide?',
       learn: [
         'Mounts: the paths the sandbox exposes, each read-only or writable',
@@ -43,9 +52,12 @@ const CHAPTERS: Chapter[] = [
     },
   },
   {
-    id: '03-network', title: 'Network', short: 'Network',
+    id: '03-network',
+    title: 'Network',
+    short: 'Network',
     intro: {
-      story: 'Files are one wall; the network is the other. In chapter 1 the attack’s last move was a request to an outside host. That is how data leaves. Now set what the sandbox can reach.',
+      story:
+        'Files are one wall; the network is the other. In chapter 1 the attack’s last move was a request to an outside host. That is how data leaves. Now set what the sandbox can reach.',
       goal: 'With egress off, then an allow-list through a proxy, what can the agent reach?',
       learn: [
         'Egress: the agent’s outbound network, which can be off, open, or an allow-list',
@@ -61,9 +73,12 @@ const CHAPTERS: Chapter[] = [
     },
   },
   {
-    id: '04-secrets', title: 'Secrets', short: 'Secrets',
+    id: '04-secrets',
+    title: 'Secrets',
+    short: 'Secrets',
     intro: {
-      story: 'The agent’s task needs Larkspur’s API token to call the API. But if the token sits where the agent can read it, a compromised agent can read it too, and send it out. Where should the secret live?',
+      story:
+        'The agent’s task needs Larkspur’s API token to call the API. But if the token sits where the agent can read it, a compromised agent can read it too, and send it out. Where should the secret live?',
       goal: 'With the egress open, does moving the secret out of the sandbox stop it being stolen?',
       learn: [
         'Why a secret in the sandbox’s environment can be read by a compromised agent',
@@ -78,9 +93,12 @@ const CHAPTERS: Chapter[] = [
     },
   },
   {
-    id: '05-allowed-door', title: 'An allowed door still leaks', short: 'Allowed door',
+    id: '05-allowed-door',
+    title: 'An allowed door still leaks',
+    short: 'Allowed door',
     intro: {
-      story: 'The allow-list from chapter 3 lets the agent reach Larkspur’s own API. That door is open on purpose. But an attack can use an open door too: it can hide stolen data inside a request to an allowed host.',
+      story:
+        'The allow-list from chapter 3 lets the agent reach Larkspur’s own API. That door is open on purpose. But an attack can use an open door too: it can hide stolen data inside a request to an allowed host.',
       goal: 'If the only host the agent can reach is Larkspur’s own, can an attack still get data out?',
       learn: [
         'How an allow-listed host becomes a channel for exfiltration',
@@ -95,9 +113,12 @@ const CHAPTERS: Chapter[] = [
     },
   },
   {
-    id: '06-fewer-prompts', title: 'Fewer prompts, same safety', short: 'Fewer prompts',
+    id: '06-fewer-prompts',
+    title: 'Fewer prompts, same safety',
+    short: 'Fewer prompts',
     intro: {
-      story: 'Before sandboxing, a careful team asked a person to approve almost every action the agent took. That is slow, and people wave things through. The sandbox changes the maths: the boundary does the enforcing.',
+      story:
+        'Before sandboxing, a careful team asked a person to approve almost every action the agent took. That is slow, and people wave things through. The sandbox changes the maths: the boundary does the enforcing.',
       goal: 'With a sandbox boundary, which actions still need a person, and which can run freely?',
       learn: [
         'Why a sandbox lets most actions run without a prompt',
@@ -112,9 +133,12 @@ const CHAPTERS: Chapter[] = [
     },
   },
   {
-    id: '07-red-team', title: 'Red-team the sandbox', short: 'Red team',
+    id: '07-red-team',
+    title: 'Red-team the sandbox',
+    short: 'Red team',
     intro: {
-      story: 'You have every control: the sandbox, the mounts, the egress, where the secret lives and who approves what. The red team runs every attack and every ordinary task against your policy at once.',
+      story:
+        'You have every control: the sandbox, the mounts, the egress, where the secret lives and who approves what. The red team runs every attack and every ordinary task against your policy at once.',
       goal: 'Which sandbox policy stops every attack and still lets every ordinary task run?',
       learn: [
         'How to run an attack suite and a task suite under one policy',
@@ -134,12 +158,14 @@ const CHAPTERS: Chapter[] = [
 export const SANDBOXING_MODULE: Module = {
   id: 'sandboxing',
   title: 'Agent sandboxing',
-  description: 'Where an agent’s code runs, and what it can reach: a sandbox, its files, and the network it can or can’t call out to.',
+  description:
+    'Where an agent’s code runs, and what it can reach: a sandbox, its files, and the network it can or can’t call out to.',
   level: 'Advanced',
   status: 'live',
   author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
   prereqs: ['agents', 'guardrails'],
-  story: 'Larkspur Supply Co.’s agent now runs code to do its work, so where it runs and what it can reach decide what a compromised agent can do.',
+  story:
+    'Larkspur Supply Co.’s agent now runs code to do its work, so where it runs and what it can reach decide what a compromised agent can do.',
   chapters: CHAPTERS,
   recall: RECALL,
 };

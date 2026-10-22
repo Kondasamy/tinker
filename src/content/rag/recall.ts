@@ -9,7 +9,9 @@ const DRIVE = STOPS[STOP_5TB];
 export const RECALL: RecallItem[] = [
   // 1. History
   {
-    id: 'rag-in-one-line', chapter: '01-history', pin: true,
+    id: 'rag-in-one-line',
+    chapter: '01-history',
+    pin: true,
     question: 'A colleague asks what RAG does, in one sentence. Which one do you give?',
     options: [
       'It trains the model again on your documents',
@@ -24,8 +26,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'confident-guess', chapter: '01-history',
-    question: 'A new hire asks a general chatbot about Larkspur’s holiday schedule. It answers at once, sounding sure. What is most likely going on?',
+    id: 'confident-guess',
+    chapter: '01-history',
+    question:
+      'A new hire asks a general chatbot about Larkspur’s holiday schedule. It answers at once, sounding sure. What is most likely going on?',
     options: [
       'It found the schedule on the company drive',
       'It looked the schedule up on the web',
@@ -39,7 +43,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'small-windows', chapter: '01-history',
+    id: 'small-windows',
+    chapter: '01-history',
     question: `In 2023 a model could read ${formatTokens(Math.min(...win2023))} to ${formatTokens(Math.max(...win2023))} tokens per request. What did that force teams building assistants to do?`,
     options: [
       'Pick the few right passages before the model read anything',
@@ -54,7 +59,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'retrieval-as-tool', chapter: '01-history',
+    id: 'retrieval-as-tool',
+    chapter: '01-history',
     question: 'In 2026 an AI agent can call a search tool whenever it needs one. What is retrieval to it?',
     options: [
       'Gone: big context windows replaced it',
@@ -71,7 +77,8 @@ export const RECALL: RecallItem[] = [
 
   // 2. Why not stuff it
   {
-    id: 'archive-size', chapter: '02-why-not-stuff-it',
+    id: 'archive-size',
+    chapter: '02-why-not-stuff-it',
     question: `A legal team wants to paste its ${formatBytes(DRIVE)} archive into one prompt. Why will that fail?`,
     options: [
       'Legal text has to be converted to a special format first',
@@ -86,7 +93,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'lost-in-middle', chapter: '02-why-not-stuff-it',
+    id: 'lost-in-middle',
+    chapter: '02-why-not-stuff-it',
     question: 'A long manual fits in the prompt, but the fact you need sits halfway through. What risk is left?',
     options: [
       'None: if it fits, the model reads every part equally well',
@@ -101,8 +109,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'stale-snapshot', chapter: '02-why-not-stuff-it',
-    question: 'The price list changed this morning, but the assistant still quotes last week’s prices from a prompt pasted last week. Why?',
+    id: 'stale-snapshot',
+    chapter: '02-why-not-stuff-it',
+    question:
+      'The price list changed this morning, but the assistant still quotes last week’s prices from a prompt pasted last week. Why?',
     options: [
       'A pasted prompt is a snapshot: it does not change when the documents do',
       'The model learned the old prices in training',
@@ -116,8 +126,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'one-prompt-for-all', chapter: '02-why-not-stuff-it',
-    question: 'Every employee’s assistant shares one giant prompt that includes HR files. An intern asks about a colleague. What goes wrong?',
+    id: 'one-prompt-for-all',
+    chapter: '02-why-not-stuff-it',
+    question:
+      'Every employee’s assistant shares one giant prompt that includes HR files. An intern asks about a colleague. What goes wrong?',
     options: [
       'Nothing: the model keeps HR files private on its own',
       'The model cannot read HR files, so it says nothing',
@@ -133,7 +145,8 @@ export const RECALL: RecallItem[] = [
 
   // 3. What is RAG
   {
-    id: 'rag-order', chapter: '03-what-is-rag',
+    id: 'rag-order',
+    chapter: '03-what-is-rag',
     question: 'You sketch RAG on a whiteboard. Which order do the three steps go in?',
     options: [
       'Generate an answer, Retrieve passages to check it, Augment the result',
@@ -148,13 +161,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'similarity-meaning', chapter: '03-what-is-rag',
+    id: 'similarity-meaning',
+    chapter: '03-what-is-rag',
     question: 'The retriever gives one passage a much higher similarity score than the rest. What does that tell you?',
-    options: [
-      'Its meaning is the closest to the question’s',
-      'It is the newest document',
-      'It is true',
-    ],
+    options: ['Its meaning is the closest to the question’s', 'It is the newest document', 'It is true'],
     correct: 0,
     why: [
       'Right. The score compares meaning, so the closest passages are handed to the model.',
@@ -163,7 +173,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'citation', chapter: '03-what-is-rag',
+    id: 'citation',
+    chapter: '03-what-is-rag',
     question: 'Why can a RAG answer point to where it came from, when a bare model cannot?',
     options: [
       'RAG models are trained to add footnotes',
@@ -178,8 +189,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'not-the-model', chapter: '03-what-is-rag',
-    question: 'Your manager wants a bigger model to stop made-up answers about Larkspur policies. What do you tell them?',
+    id: 'not-the-model',
+    chapter: '03-what-is-rag',
+    question:
+      'Your manager wants a bigger model to stop made-up answers about Larkspur policies. What do you tell them?',
     options: [
       'Good idea: a bigger model will know the policies',
       'Lower the temperature and it will stop guessing',
@@ -195,8 +208,10 @@ export const RECALL: RecallItem[] = [
 
   // 4. Layers
   {
-    id: 'cut-exception', chapter: '04-layers',
-    question: 'A contract says “Late fees apply, unless the customer has a signed waiver.” The chunker cuts right after “apply,” and only that piece is sent. What will the model say?',
+    id: 'cut-exception',
+    chapter: '04-layers',
+    question:
+      'A contract says “Late fees apply, unless the customer has a signed waiver.” The chunker cuts right after “apply,” and only that piece is sent. What will the model say?',
     options: [
       'That late fees always apply: it never saw the exception',
       'The full rule: the model joins the pieces back together',
@@ -210,8 +225,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'overlap-fix', chapter: '04-layers',
-    question: 'Your chunker cuts every few words, and an important sentence keeps straddling a cut. Which setting keeps it whole in at least one piece?',
+    id: 'overlap-fix',
+    chapter: '04-layers',
+    question:
+      'Your chunker cuts every few words, and an important sentence keeps straddling a cut. Which setting keeps it whole in at least one piece?',
     options: [
       'A bigger model',
       'Overlap: repeat the end of each piece at the start of the next',
@@ -225,8 +242,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'embedding-meaning', chapter: '04-layers',
-    question: '“Can I get my money back?” and “What is the refund policy?” share almost no words. How do their embeddings compare?',
+    id: 'embedding-meaning',
+    chapter: '04-layers',
+    question:
+      '“Can I get my money back?” and “What is the refund policy?” share almost no words. How do their embeddings compare?',
     options: [
       'They are close, because embeddings capture meaning, not exact words',
       'They are far apart, because the words differ',
@@ -240,7 +259,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'map-not-score', chapter: '04-layers',
+    id: 'map-not-score',
+    chapter: '04-layers',
     question: 'On the 2D map of embeddings, a dot sits right beside your question. Is it the best match?',
     options: [
       'Yes: closer on the map always means more similar',
@@ -257,7 +277,8 @@ export const RECALL: RecallItem[] = [
 
   // 5. Accuracy
   {
-    id: 'recall-zero', chapter: '05-accuracy',
+    id: 'recall-zero',
+    chapter: '05-accuracy',
     question: 'An answer is wrong, and recall@k for that question is 0%. Where do you start?',
     options: [
       'Retrieval: the passage with the answer never reached the model',
@@ -272,7 +293,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'stale-filter', chapter: '05-accuracy',
+    id: 'stale-filter',
+    chapter: '05-accuracy',
     question: 'The assistant keeps quoting a retired price list because it ranks high. Which lever keeps it out?',
     options: [
       'Raise top-k so the current list also arrives',
@@ -287,8 +309,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'buried-fact', chapter: '05-accuracy',
-    question: 'A teammate sets top-k to 20 “to be safe”. Recall is 100%, but the answer says it found nothing. What happened?',
+    id: 'buried-fact',
+    chapter: '05-accuracy',
+    question:
+      'A teammate sets top-k to 20 “to be safe”. Recall is 100%, but the answer says it found nothing. What happened?',
     options: [
       'Retrieval failed to find the passage',
       'The answer is not in the documents',
@@ -302,7 +326,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'vague-question', chapter: '05-accuracy',
+    id: 'vague-question',
+    chapter: '05-accuracy',
     question: 'Someone types “it won’t let me in again??” and nothing useful comes back. Which lever do you reach for?',
     options: [
       'Query rewrite: send the retriever a clearer version of the question',
@@ -317,13 +342,11 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'look-alike', chapter: '05-accuracy',
-    question: 'A question names an exact product code, but meaning-search returns notes that only sound similar. Which lever helps?',
-    options: [
-      'Lower top-k to 1',
-      'Add overlap to the chunker',
-      'Hybrid search: mix in exact keyword matching',
-    ],
+    id: 'look-alike',
+    chapter: '05-accuracy',
+    question:
+      'A question names an exact product code, but meaning-search returns notes that only sound similar. Which lever helps?',
+    options: ['Lower top-k to 1', 'Add overlap to the chunker', 'Hybrid search: mix in exact keyword matching'],
     correct: 2,
     why: [
       'With one chunk you just keep the top look-alike. The ranking itself is wrong.',
@@ -334,8 +357,10 @@ export const RECALL: RecallItem[] = [
 
   // 6. Types
   {
-    id: 'two-docs', chapter: '06-types',
-    question: '“Who signs off on spending for the team that runs our loading docks?” One document names the team; another names its approver and never mentions docks. Which type fits?',
+    id: 'two-docs',
+    chapter: '06-types',
+    question:
+      '“Who signs off on spending for the team that runs our loading docks?” One document names the team; another names its approver and never mentions docks. Which type fits?',
     options: [
       'Naive RAG: one good search will find it',
       'GraphRAG: it follows the team from one document to the next',
@@ -349,8 +374,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'table-row', chapter: '06-types',
-    question: 'The answer sits in one row of a price table, and the reader only handles plain text. Which type do you need?',
+    id: 'table-row',
+    chapter: '06-types',
+    question:
+      'The answer sits in one row of a price table, and the reader only handles plain text. Which type do you need?',
     options: [
       'Multimodal RAG: parse tables to text and keep each row whole',
       'Agentic RAG: search again until it shows up',
@@ -364,7 +391,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'say-i-dont-know', chapter: '06-types',
+    id: 'say-i-dont-know',
+    chapter: '06-types',
     question: 'For compliance questions, a confident wrong answer is worse than no answer. Which type fits?',
     options: [
       'GraphRAG',
@@ -379,13 +407,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'cut-chunk-agent', chapter: '06-types',
+    id: 'cut-chunk-agent',
+    chapter: '06-types',
     question: 'The first search returns a chunk that stops mid-sentence. Which type can notice and fetch the rest?',
-    options: [
-      'Naive RAG',
-      'Multimodal RAG',
-      'Agentic RAG: it reads what came back and decides to search again',
-    ],
+    options: ['Naive RAG', 'Multimodal RAG', 'Agentic RAG: it reads what came back and decides to search again'],
     correct: 2,
     why: [
       'One search, then answer: naive RAG never looks back at what it got.',
@@ -396,7 +421,8 @@ export const RECALL: RecallItem[] = [
 
   // 7. Sandbox
   {
-    id: 'one-lever', chapter: '07-sandbox',
+    id: 'one-lever',
+    chapter: '07-sandbox',
     question: 'On the workbench you change three settings at once, and the answer turns correct. What do you know?',
     options: [
       'Not which one fixed it: change one lever at a time and compare runs',
@@ -411,8 +437,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'cut-the-wire', chapter: '07-sandbox',
-    question: 'You cut the wire that carries passages to the model and run the question again. What happens to the answer?',
+    id: 'cut-the-wire',
+    chapter: '07-sandbox',
+    question:
+      'You cut the wire that carries passages to the model and run the question again. What happens to the answer?',
     options: [
       'It stays the same: the model remembers the last passages',
       'It becomes made up: nothing reaches the model, so it guesses from training',
@@ -426,13 +454,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'start-simple', chapter: '07-sandbox',
+    id: 'start-simple',
+    chapter: '07-sandbox',
     question: 'A team asks one-fact questions about current policies. Which type do you start with?',
-    options: [
-      'Agentic RAG, to be safe',
-      'GraphRAG',
-      'Naive or advanced RAG: one tuned search is cheapest and enough',
-    ],
+    options: ['Agentic RAG, to be safe', 'GraphRAG', 'Naive or advanced RAG: one tuned search is cheapest and enough'],
     correct: 2,
     why: [
       'An agent pays for extra searches. With nothing left to fetch, they buy nothing.',

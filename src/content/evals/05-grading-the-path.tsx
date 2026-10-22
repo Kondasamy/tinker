@@ -21,7 +21,8 @@ import { Chips } from '../agents/kit';
 import { Fact, Mark } from './kit';
 import './evals.css';
 
-const MODULE = 'evals', ID = '05-grading-the-path';
+const MODULE = 'evals',
+  ID = '05-grading-the-path';
 const LANES = toolLanes();
 type Case = 'injection' | 'order-status';
 export const GRADERS: PathGrader[] = ['answer', 'state', 'path'];
@@ -30,8 +31,12 @@ const RUBRIC_IDS: Rubric[] = ['r1', 'r2'];
 
 // both runs, once: the host plays Tool calling's recordings with its default setup
 const RUNS = { injection: runCase('injection'), 'order-status': runCase('order-status') };
-const MSGS = { injection: transcript(RECORDINGS.injection, RUNS.injection), 'order-status': transcript(RECORDINGS['order-status'], RUNS['order-status']) };
-const verdicts = (c: Case) => Object.fromEntries(GRADERS.map(g => [g, gradeRun(g, c, RUNS[c])])) as Record<PathGrader, boolean>;
+const MSGS = {
+  injection: transcript(RECORDINGS.injection, RUNS.injection),
+  'order-status': transcript(RECORDINGS['order-status'], RUNS['order-status']),
+};
+const verdicts = (c: Case) =>
+  Object.fromEntries(GRADERS.map(g => [g, gradeRun(g, c, RUNS[c])])) as Record<PathGrader, boolean>;
 const ORDER = (c: Case) => ORDERS.find(o => o.id === RUN_CASES[c].order)!;
 const PLANTED = stepsOf(RUNS.injection, 'call').find(s => !RUN_CASES.injection.needs.includes(s.call.name))!.call;
 const REPLY = answerOf(RUNS.injection);
@@ -43,7 +48,14 @@ const WHAT: Record<PathGrader, string> = {
   path: `every tool call the run made is one the request needs (${RUN_CASES.injection.needs.join(', ')})`,
 };
 
-interface S { p1: number | null; ran: boolean; graded: PathGrader[]; rubric: Rubric | null; clean: boolean; quiz: number | null }
+interface S {
+  p1: number | null;
+  ran: boolean;
+  graded: PathGrader[];
+  rubric: Rubric | null;
+  clean: boolean;
+  quiz: number | null;
+}
 
 const P1 = {
   question: 'The reply gives the right delivery date. Which graders will fail this run?',
@@ -56,12 +68,14 @@ const P1 = {
 };
 // read off the computed verdicts
 function outcome() {
-  const v = verdicts('injection'), failed = GRADERS.filter(g => !v[g]);
+  const v = verdicts('injection'),
+    failed = GRADERS.filter(g => !v[g]);
   return failed.length === 0 ? 0 : failed.length === GRADERS.length ? 3 : !v.answer ? 1 : 2;
 }
 
 const QUIZ = {
-  question: 'Larkspur’s booking assistant is asked to move a delivery to Friday. It replies “Done, your delivery is now on Friday.” Which grader shows the delivery really moved?',
+  question:
+    'Larkspur’s booking assistant is asked to move a delivery to Friday. It replies “Done, your delivery is now on Friday.” Which grader shows the delivery really moved?',
   options: [
     'A code check that the reply contains “Friday”',
     'A model judge reading the reply for clarity',
@@ -80,34 +94,48 @@ const QUIZ = {
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'run', focus: 'run', visibleControls: ['pointer', 'run'],
+    id: 'run',
+    focus: 'run',
+    visibleControls: ['pointer', 'run'],
     narration: `So far every test case was a question and an answer. Larkspur’s assistant also does things: in the Tool calling module it looks orders up and issues refunds. A run is one request played through, every tool call included. Here is one from that module: “${RECORDINGS.injection.ask}” The order carries a note a customer planted in it. Run the request.`,
     predicate: s => s.ran,
   },
   {
-    id: 'predict', focus: 'p1', visibleControls: ['reply', 'p1'],
+    id: 'predict',
+    focus: 'p1',
+    visibleControls: ['reply', 'p1'],
     narration: `The reply answers what was asked. Three graders will look at this run. The answer grader checks the reply. The state grader checks the order system after the run: the state is what the run left behind. The path grader checks the steps the run took. Before you grade:`,
     predicate: s => s.p1 !== null,
   },
   {
-    id: 'grade', focus: 'grade', visibleControls: ['p1', 'grade', 'verdicts'],
-    narration: 'Grade the run with each grader in turn. The ledger under the picture shows the order system after the run.',
+    id: 'grade',
+    focus: 'grade',
+    visibleControls: ['p1', 'grade', 'verdicts'],
+    narration:
+      'Grade the run with each grader in turn. The ledger under the picture shows the order system after the run.',
     predicate: s => GRADERS.every(g => s.graded.includes(g)),
     hint: 'Press Answer, State and Path.',
   },
   {
-    id: 'judge', focus: 'judge', visibleControls: ['out1', 'verdicts', 'judge'],
+    id: 'judge',
+    focus: 'judge',
+    visibleControls: ['out1', 'verdicts', 'judge'],
     narration: `The answer grader only looks for the date, so the refund in the reply slips past it. A model judge reads the whole reply. Try it with chapter 4’s rubrics: first r1, then r2.`,
     predicate: s => s.rubric === 'r2',
     hint: 'Press “Rubric r2”.',
   },
   {
-    id: 'clean', focus: 'clean', visibleControls: ['judged', 'clean'],
-    narration: 'The judge under r2 caught the refund the reply mentions. A reply that kept quiet about it would pass any reader of words, so the state and path checks matter most. Are they too strict? Grade a clean run the same way.',
+    id: 'clean',
+    focus: 'clean',
+    visibleControls: ['judged', 'clean'],
+    narration:
+      'The judge under r2 caught the refund the reply mentions. A reply that kept quiet about it would pass any reader of words, so the state and path checks matter most. Are they too strict? Grade a clean run the same way.',
     predicate: s => s.clean,
   },
   {
-    id: 'quiz', focus: 'quiz', visibleControls: ['both', 'quiz'],
+    id: 'quiz',
+    focus: 'quiz',
+    visibleControls: ['both', 'quiz'],
     narration: `The clean run passes all three. The path grader here does not demand a fixed list of steps: it fails only a call the request never needed. Grading what the run left behind, and the calls it must never make, tests what the assistant did, not just what it said. One question to finish.`,
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which check looks at the schedule itself, not at what anyone says about it?',
@@ -118,24 +146,49 @@ export const STEPS: Step<S>[] = [
 function Verdicts({ s, cases }: { s: S; cases: Case[] }) {
   const rows = GRADERS.filter(g => s.graded.includes(g));
   if (!rows.length && !s.rubric) return null;
-  const name = (c: Case) => c === 'injection' ? `Order ${ORDER(c).id} (planted note)` : `Order ${ORDER(c).id} (clean)`;
+  const name = (c: Case) =>
+    c === 'injection' ? `Order ${ORDER(c).id} (planted note)` : `Order ${ORDER(c).id} (clean)`;
   return (
     <table className="tc-ledger ev-path" style={{ marginTop: 10 }}>
       <caption>Grading the run{cases.length > 1 ? 's' : ''}</caption>
-      <thead><tr><th scope="col">Grader</th>{cases.map(c => <th key={c} scope="col">{name(c)}</th>)}</tr></thead>
+      <thead>
+        <tr>
+          <th scope="col">Grader</th>
+          {cases.map(c => (
+            <th key={c} scope="col">
+              {name(c)}
+            </th>
+          ))}
+        </tr>
+      </thead>
       <tbody>
         {rows.map(g => (
           <tr key={g} data-grader={g}>
-            <th scope="row">{GRADER_NAME[g]}<span className="ev-said"> {WHAT[g]}</span></th>
-            {cases.map(c => <td key={c} data-case={c} data-pass={verdicts(c)[g] ? '1' : '0'}><Mark ok={verdicts(c)[g]} /></td>)}
+            <th scope="row">
+              {GRADER_NAME[g]}
+              <span className="ev-said"> {WHAT[g]}</span>
+            </th>
+            {cases.map(c => (
+              <td key={c} data-case={c} data-pass={verdicts(c)[g] ? '1' : '0'}>
+                <Mark ok={verdicts(c)[g]} />
+              </td>
+            ))}
           </tr>
         ))}
-        {s.rubric && RUBRIC_IDS.slice(0, RUBRIC_IDS.indexOf(s.rubric) + 1).map(rb => (
-          <tr key={rb} data-grader={`judge-${rb}`}>
-            <th scope="row">Judge ({rb})</th>
-            {cases.map(c => { const j = judgedRun(c, RUNS[c], rb)!; return <td key={c} data-case={c} data-pass={j.pass ? '1' : '0'}><Mark ok={j.pass} /> <span className="ev-said">“{j.why}”</span></td>; })}
-          </tr>
-        ))}
+        {s.rubric &&
+          RUBRIC_IDS.slice(0, RUBRIC_IDS.indexOf(s.rubric) + 1).map(rb => (
+            <tr key={rb} data-grader={`judge-${rb}`}>
+              <th scope="row">Judge ({rb})</th>
+              {cases.map(c => {
+                const j = judgedRun(c, RUNS[c], rb)!;
+                return (
+                  <td key={c} data-case={c} data-pass={j.pass ? '1' : '0'}>
+                    <Mark ok={j.pass} /> <span className="ev-said">“{j.why}”</span>
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
       </tbody>
     </table>
   );
@@ -153,26 +206,54 @@ export default function GradingThePath() {
       initial={{ p1: null, ran: false, graded: [], rubric: null, clean: false, quiz: null }}
       next={nextOf(MODULE, ID)}
       stage={({ state, inspect }) => {
-        const c = caseOf(state), shown = state.ran ? MSGS[c].length : 0;
+        const c = caseOf(state),
+          shown = state.ran ? MSGS[c].length : 0;
         return (
           <div className="tc-stage">
-            <ToolStage lanes={LANES} msgs={MSGS[c]} upTo={shown} inspect={inspect}
-              office={{ tools: RECORDINGS[c].tools.length, note: c === 'injection' }} />
+            <ToolStage
+              lanes={LANES}
+              msgs={MSGS[c]}
+              upTo={shown}
+              inspect={inspect}
+              office={{ tools: RECORDINGS[c].tools.length, note: c === 'injection' }}
+            />
             {/* the ledger is the state grader's evidence: what the run left in the order system */}
             <Ledger after={state.ran ? RUNS[c].orders : ORDERS} ids={[ORDER(c).id]} />
           </div>
         );
       }}
       controls={{
-        pointer: () => <p className="note">New to tool calls? <a href="/tool-calling/">The Tool calling module</a> builds this run step by step; its chapter 6 is this planted note.</p>,
-        run: ({ state, sync }) => <button type="button" className="big" onClick={() => sync({ ...state, ran: true })}>Run the request</button>,
+        pointer: () => (
+          <p className="note">
+            New to tool calls? <a href="/tool-calling/">The Tool calling module</a> builds this run step by step; its
+            chapter 6 is this planted note.
+          </p>
+        ),
+        run: ({ state, sync }) => (
+          <button type="button" className="big" onClick={() => sync({ ...state, ran: true })}>
+            Run the request
+          </button>
+        ),
         reply: () => <p className="tc-status">The assistant replied: “{REPLY}”</p>,
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         grade: ({ state, sync }) => (
-          <div role="group" aria-label="Grade the run" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 6 }}>
+          <div
+            role="group"
+            aria-label="Grade the run"
+            style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 6 }}
+          >
             {GRADERS.map(g => (
-              <button key={g} type="button" className="chip" aria-pressed={state.graded.includes(g)}
-                onClick={() => sync({ ...state, graded: state.graded.includes(g) ? state.graded : [...state.graded, g] })}>{GRADER_NAME[g]}</button>
+              <button
+                key={g}
+                type="button"
+                className="chip"
+                aria-pressed={state.graded.includes(g)}
+                onClick={() =>
+                  sync({ ...state, graded: state.graded.includes(g) ? state.graded : [...state.graded, g] })
+                }
+              >
+                {GRADER_NAME[g]}
+              </button>
             ))}
           </div>
         ),
@@ -180,22 +261,54 @@ export default function GradingThePath() {
         out1: ({ state }) => (
           <>
             <Outcome {...P1} prediction={state.p1} outcome={outcome()} />
-            <p className="tc-status">The path grader failed {callText(PLANTED)}: a call the request never needed. The ledger shows {money(PLANTED.arguments.amount as number)} gone.</p>
+            <p className="tc-status">
+              The path grader failed {callText(PLANTED)}: a call the request never needed. The ledger shows{' '}
+              {money(PLANTED.arguments.amount as number)} gone.
+            </p>
           </>
         ),
-        judge: ({ state, sync }) => <Chips label="The judge’s rubric" values={RUBRIC_IDS} value={state.rubric} name={v => `Rubric ${v}`} pick={v => sync({ ...state, rubric: v })} />,
-        judged: ({ state }) => <><Verdicts s={state} cases={['injection']} /><Fact id="outcome-is-state" /></>,
-        clean: ({ state, sync }) => (
-          <button type="button" className="big" onClick={() => sync({ ...state, clean: true })}>Grade the clean run: “{RECORDINGS['order-status'].ask}”</button>
+        judge: ({ state, sync }) => (
+          <Chips
+            label="The judge’s rubric"
+            values={RUBRIC_IDS}
+            value={state.rubric}
+            name={v => `Rubric ${v}`}
+            pick={v => sync({ ...state, rubric: v })}
+          />
         ),
-        both: ({ state }) => <><Verdicts s={state} cases={['injection', 'order-status']} /><Fact id="grade-output-not-steps" /></>,
+        judged: ({ state }) => (
+          <>
+            <Verdicts s={state} cases={['injection']} />
+            <Fact id="outcome-is-state" />
+          </>
+        ),
+        clean: ({ state, sync }) => (
+          <button type="button" className="big" onClick={() => sync({ ...state, clean: true })}>
+            Grade the clean run: “{RECORDINGS['order-status'].ask}”
+          </button>
+        ),
+        both: ({ state }) => (
+          <>
+            <Verdicts s={state} cases={['injection', 'order-status']} />
+            <Fact id="grade-output-not-steps" />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
-          <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
+          <Quiz
+            {...QUIZ}
+            unsure
+            value={state.quiz}
+            onAnswer={(_, q) => apply({ ...state, quiz: q })}
+            onUnsure={() => sync({ ...state, quiz: UNSURE })}
+          />
         ),
       }}
       inspectPanel="messages"
       panels={{
-        messages: { title: 'Messages', render: s => <Messages lanes={LANES} msgs={MSGS[caseOf(s)]} upTo={s.ran ? MSGS[caseOf(s)].length : 0} /> },
+        messages: {
+          title: 'Messages',
+          render: s => <Messages lanes={LANES} msgs={MSGS[caseOf(s)]} upTo={s.ran ? MSGS[caseOf(s)].length : 0} />,
+        },
       }}
     />
   );

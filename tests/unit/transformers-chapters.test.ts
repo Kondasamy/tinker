@@ -51,8 +51,9 @@ describe('chapter 2: tokens become vectors', () => {
 describe('chapter 3: attention', () => {
   it('every head gives every later token 0 on every prompt offered (the mask), and rows sum to 1', () => {
     expect(ch3.outcomeOf(model)).toBe(0);
-    for (const p of ch3.OFFERED) for (const rows of trace(model, p.text).attention.flat())
-      for (const r of rows) expect(r.reduce((x, y) => x + y, 0)).toBeCloseTo(1, 6);
+    for (const p of ch3.OFFERED)
+      for (const rows of trace(model, p.text).attention.flat())
+        for (const r of rows) expect(r.reduce((x, y) => x + y, 0)).toBeCloseTo(1, 6);
   });
 });
 
@@ -64,7 +65,10 @@ describe('chapter 4: heads and layers', () => {
   });
   it.each(ch4.OFFERED.map(p => [p.id, p] as const))('the named head’s pattern holds on “%s”', (_, p) => {
     const t = trace(model, p.text);
-    const w = wordStart(t.tokens.map(x => x.id), t.attention[HEAD.layer][HEAD.head]);
+    const w = wordStart(
+      t.tokens.map(x => x.id),
+      t.attention[HEAD.layer][HEAD.head],
+    );
     expect(w.n).toBeGreaterThan(0);
     expect(w.score).toBeGreaterThanOrEqual(2 * w.uniform);
     expect(ch4.scoreOf(model, p.text)).toEqual(w);
@@ -92,7 +96,9 @@ describe('chapter 5: choosing the next token', () => {
   });
   it('top-p 1 keeps the whole vocabulary at every temperature above 0', () => {
     const all = TOP_PS.indexOf(1);
-    TEMPERATURES.forEach((t, i) => { if (t > 0) expect(ch5.keptOf(model, i, all), `T=${t}`).toBe(meta.model.vocab); });
+    TEMPERATURES.forEach((t, i) => {
+      if (t > 0) expect(ch5.keptOf(model, i, all), `T=${t}`).toBe(meta.model.vocab);
+    });
   });
 });
 
@@ -118,7 +124,8 @@ describe('chapter 6: why long prompts cost more', () => {
     expect(costs(meta.model, 2 * ch6.SHORT).pairs / costs(meta.model, ch6.SHORT).pairs).toBeGreaterThan(3);
   });
   it('each token adds the same to the cache, and one more pair than the token before it', () => {
-    const a = ch6.countsOf(10), b2 = ch6.countsOf(11);
+    const a = ch6.countsOf(10),
+      b2 = ch6.countsOf(11);
     expect(b2.newKv).toBe(a.newKv);
     expect(b2.newPairs).toBe(a.newPairs + 1);
   });
@@ -132,7 +139,8 @@ describe('the registry entry', () => {
       expect(c.intro.terms.length).toBeGreaterThan(0);
     }
     const terms = M.chapters.slice(0, 4).flatMap(c => c.intro.terms.map(([t]) => t.toLowerCase()));
-    for (const t of ['model', 'next-token prediction', 'embedding', 'attention', 'head', 'layer']) expect(terms).toContain(t);
+    for (const t of ['model', 'next-token prediction', 'embedding', 'attention', 'head', 'layer'])
+      expect(terms).toContain(t);
   });
   it('recall covers every chapter with exactly one pinned item, first', () => {
     for (const c of M.chapters) expect(M.recall!.filter(i => i.chapter === c.id).length).toBeGreaterThanOrEqual(3);

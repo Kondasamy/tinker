@@ -22,26 +22,59 @@ import { INK, pd } from '../../lib/iso/core.js';
 import { BH, ACC } from '../../lib/iso/blocks';
 
 const MODULE = moduleOf('rag');
-const PREREQS = MODULE.prereqs.length ? `${MODULE.prereqs.map(id => moduleOf(id).title).join(', ')} recommended` : 'No prerequisites';
+const PREREQS = MODULE.prereqs.length
+  ? `${MODULE.prereqs.map(id => moduleOf(id).title).join(', ')} recommended`
+  : 'No prerequisites';
 
 const QUESTION = ch3.find(q => q.id === 'refund-enterprise')!.query;
-const WITHOUT = refund.nocontext, WITH = refund['enterprise-excluded:intact'];
+const WITHOUT = refund.nocontext,
+  WITH = refund['enterprise-excluded:intact'];
 
 // one block per letter of R-A-G, drawn alone
-const one = (type: BlockType, opts: { lit?: boolean; state?: 'ok' | 'warn' } = {}) => ({ top }: SceneCtx) =>
-  blockShadow(type, 30, 30, top) + renderers[type]({ x: 30, y: 30, ...opts });
+const one =
+  (type: BlockType, opts: { lit?: boolean; state?: 'ok' | 'warn' } = {}) =>
+  ({ top }: SceneCtx) =>
+    blockShadow(type, 30, 30, top) + renderers[type]({ x: 30, y: 30, ...opts });
 // the comparison's pictures: the model alone (guessing), and documents wired to it (answering from them)
 const ALONE = one('llm', { state: 'warn' });
 const WIRED = ({ top }: SceneCtx) => {
-  const d = pd([[30, 30, BH + .3], [100, 30, BH + .3]], false);
-  return blockShadow('docs', 30, 30, top) + blockShadow('llm', 100, 30, top)
-    + `<path d="${d}" fill="none" stroke="${INK}" stroke-width="4.2" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${ACC}" stroke-width="2.2" stroke-linecap="round"/>`
-    + renderers.docs({ x: 30, y: 30 }) + renderers.llm({ x: 100, y: 30, state: 'ok' });
+  const d = pd(
+    [
+      [30, 30, BH + 0.3],
+      [100, 30, BH + 0.3],
+    ],
+    false,
+  );
+  return (
+    blockShadow('docs', 30, 30, top) +
+    blockShadow('llm', 100, 30, top) +
+    `<path d="${d}" fill="none" stroke="${INK}" stroke-width="4.2" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${ACC}" stroke-width="2.2" stroke-linecap="round"/>` +
+    renderers.docs({ x: 30, y: 30 }) +
+    renderers.llm({ x: 100, y: 30, state: 'ok' })
+  );
 };
 const STEPS: [string, string, string, BlockType, ReturnType<typeof one>][] = [
-  ['Retrieve', 'Find the few passages that match', 'Search every document for the passages closest in meaning to the question. Keep the best few.', 'retriever', one('retriever', { lit: true })],
-  ['Augment', 'Hand them to the model', 'Put those passages into the prompt, next to the question, so the model reads them first.', 'assembler', one('assembler')],
-  ['Generate', 'Answer from them, with a source', 'The model writes the answer from what it was handed, and can point to where it came from.', 'llm', one('llm', { state: 'ok' })],
+  [
+    'Retrieve',
+    'Find the few passages that match',
+    'Search every document for the passages closest in meaning to the question. Keep the best few.',
+    'retriever',
+    one('retriever', { lit: true }),
+  ],
+  [
+    'Augment',
+    'Hand them to the model',
+    'Put those passages into the prompt, next to the question, so the model reads them first.',
+    'assembler',
+    one('assembler'),
+  ],
+  [
+    'Generate',
+    'Answer from them, with a source',
+    'The model writes the answer from what it was handed, and can point to where it came from.',
+    'llm',
+    one('llm', { state: 'ok' }),
+  ],
 ];
 
 // real questions from later chapters, and what makes each one hard

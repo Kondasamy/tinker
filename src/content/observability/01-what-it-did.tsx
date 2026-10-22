@@ -25,7 +25,8 @@ export const P1 = {
 export const OUT1 = KINDS.indexOf(KINDS.reduce((a, b) => (msOf(b) > msOf(a) ? b : a)));
 
 const QUIZ = {
-  question: 'A customer says the assistant told them the wrong delivery date. All you have is the question and the reply. What would a trace let you see that they can’t?',
+  question:
+    'A customer says the assistant told them the wrong delivery date. All you have is the question and the reply. What would a trace let you see that they can’t?',
   options: [
     'Nothing more: the reply already shows the mistake',
     'Each step in between: what was searched, which order the tool looked up, and what the model was given',
@@ -40,29 +41,44 @@ const QUIZ = {
   ],
 };
 
-interface S { opened: boolean; read: string[]; p1: number | null; view: View; quiz: number | null }
+interface S {
+  opened: boolean;
+  read: string[];
+  p1: number | null;
+  view: View;
+  quiz: number | null;
+}
 const readAll = (s: S) => SPANS.every(sp => s.read.includes(sp.id));
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'open', focus: 'open', visibleControls: ['open'],
+    id: 'open',
+    focus: 'open',
+    visibleControls: ['open'],
     narration: `Larkspur’s assistant answered ${TRACES.length} customer questions yesterday, and each left a trace: the record of one request, from the question to the reply. The wall in the picture holds them all. Open the first.`,
     predicate: s => s.opened,
     hint: 'Press the open button.',
   },
   {
-    id: 'predict', focus: 'p1', visibleControls: ['card', 'p1'],
+    id: 'predict',
+    focus: 'p1',
+    visibleControls: ['card', 'p1'],
     narration: `${TRACE.customer} asked about an order and a return. The trace holds ${SPANS.length} spans: one for the whole run, and one inside it for each step. Before you read them:`,
     predicate: s => s.p1 !== null,
   },
   {
-    id: 'read', focus: 'read', visibleControls: ['p1', 'read'],
-    narration: 'The Waterfall tab draws the trace as one row per span, each bar placed where the step started and as long as it took. Read every span: tab into the waterfall and use the arrow keys, or press the button below. Each span’s name and attributes are shaped like OpenTelemetry’s conventions for AI systems.',
+    id: 'read',
+    focus: 'read',
+    visibleControls: ['p1', 'read'],
+    narration:
+      'The Waterfall tab draws the trace as one row per span, each bar placed where the step started and as long as it took. Read every span: tab into the waterfall and use the arrow keys, or press the button below. Each span’s name and attributes are shaped like OpenTelemetry’s conventions for AI systems.',
     predicate: readAll,
     hint: 'Each span needs reading once: the button reads the next one.',
   },
   {
-    id: 'quiz', focus: 'quiz', visibleControls: ['out1', 'read', 'facts', 'quiz'],
+    id: 'quiz',
+    focus: 'quiz',
+    visibleControls: ['out1', 'read', 'facts', 'quiz'],
     narration: `The model calls took ${num(msOf('chat'))} ms of the ${num(durationOf(SPANS[0]))}; the order lookup ${num(msOf('tool'))} ms and the search ${num(msOf('retrieval'))} ms. These traces and timings were written by hand for this module, shaped like real ones; they show how to read a trace, not any system’s speed. One question to finish.`,
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What sits between the question and the reply?',
@@ -78,13 +94,36 @@ export default function WhatItDid() {
       initial={{ opened: false, read: [], p1: null, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
       stage={({ state, sync }) => (
-        <ObsStage room={{ cards: wallOf(TRACES, state.opened ? TRACE.id : null) }} trace={state.opened ? TRACE : null}
-          view={state.view} onView={view => sync({ ...state, view })}
-          onRead={id => { if (!state.read.includes(id)) sync({ ...state, read: [...state.read, id] }); }}
-          caption={state.opened ? <><span className="lbl">Trace {TRACE.id} · {SPANS.length} spans</span><span>{TRACE.customer}: “{TRACE.question}”</span></> : 'Yesterday’s traces on the wall.'} />
+        <ObsStage
+          room={{ cards: wallOf(TRACES, state.opened ? TRACE.id : null) }}
+          trace={state.opened ? TRACE : null}
+          view={state.view}
+          onView={view => sync({ ...state, view })}
+          onRead={id => {
+            if (!state.read.includes(id)) sync({ ...state, read: [...state.read, id] });
+          }}
+          caption={
+            state.opened ? (
+              <>
+                <span className="lbl">
+                  Trace {TRACE.id} · {SPANS.length} spans
+                </span>
+                <span>
+                  {TRACE.customer}: “{TRACE.question}”
+                </span>
+              </>
+            ) : (
+              'Yesterday’s traces on the wall.'
+            )
+          }
+        />
       )}
       controls={{
-        open: ({ state, apply }) => <button type="button" className="big" onClick={() => apply({ ...state, opened: true })}>Open the first trace</button>,
+        open: ({ state, apply }) => (
+          <button type="button" className="big" onClick={() => apply({ ...state, opened: true })}>
+            Open the first trace
+          </button>
+        ),
         card: () => <TraceCard trace={TRACE} />,
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         // reading is never a failed try, so it syncs
@@ -92,13 +131,31 @@ export default function WhatItDid() {
           const next = SPANS.find(sp => !state.read.includes(sp.id));
           return (
             <div className="tc-bench">
-              {next && <button type="button" className="big" onClick={() => sync({ ...state, view: 'fall', read: [...state.read, next.id] })}>Read the next span ({state.read.length + 1} of {SPANS.length})</button>}
+              {next && (
+                <button
+                  type="button"
+                  className="big"
+                  onClick={() => sync({ ...state, view: 'fall', read: [...state.read, next.id] })}
+                >
+                  Read the next span ({state.read.length + 1} of {SPANS.length})
+                </button>
+              )}
               <ol className="ob-list" aria-label="Spans read">
                 {SPANS.filter(sp => state.read.includes(sp.id)).map(sp => (
                   <li key={sp.id} className="ob-trace">
-                    <p><b>{sp.name}</b> · {KIND_NAME[sp.kind]} · {num(durationOf(sp))} ms</p>
+                    <p>
+                      <b>{sp.name}</b> · {KIND_NAME[sp.kind]} · {num(durationOf(sp))} ms
+                    </p>
                     <p className="ob-a">{sp.detail}</p>
-                    {Object.keys(sp.attrs).length > 0 && <p className="ob-a"><code>{Object.entries(sp.attrs).map(([k, v]) => `${k} = ${v}`).join(' · ')}</code></p>}
+                    {Object.keys(sp.attrs).length > 0 && (
+                      <p className="ob-a">
+                        <code>
+                          {Object.entries(sp.attrs)
+                            .map(([k, v]) => `${k} = ${v}`)
+                            .join(' · ')}
+                        </code>
+                      </p>
+                    )}
                   </li>
                 ))}
               </ol>
@@ -106,9 +163,20 @@ export default function WhatItDid() {
           );
         },
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUT1} />,
-        facts: () => <><Fact id="otel-genai" /><Fact id="otel-operations" /></>,
+        facts: () => (
+          <>
+            <Fact id="otel-genai" />
+            <Fact id="otel-operations" />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
-          <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
+          <Quiz
+            {...QUIZ}
+            unsure
+            value={state.quiz}
+            onAnswer={(_, q) => apply({ ...state, quiz: q })}
+            onUnsure={() => sync({ ...state, quiz: UNSURE })}
+          />
         ),
       }}
     />

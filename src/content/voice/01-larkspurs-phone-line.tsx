@@ -13,23 +13,38 @@ import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { RecordedNote, Say, VoiceStage } from './kit';
 
-const MODULE = 'voice', ID = '01-larkspurs-phone-line';
-const RUN = runCall('status', DEFAULT_LINE), HEARD = RUN.recording.turns[0], REPLY = RUN.recording.turns[1].clip;
+const MODULE = 'voice',
+  ID = '01-larkspurs-phone-line';
+const RUN = runCall('status', DEFAULT_LINE),
+  HEARD = RUN.recording.turns[0],
+  REPLY = RUN.recording.turns[1].clip;
 /** the stages after the caller speaks, in order */
 const STAGES: Stage[] = ['caller', 'stt', 'model', 'tts', 'reply'];
 
-interface S { at: number; p1: number | null; quiz: number | null }
+interface S {
+  at: number;
+  p1: number | null;
+  quiz: number | null;
+}
 
 const P1 = {
   question: 'Dana has finished speaking. Before the model can look her order up, what does it need from her voice?',
-  options: ['The sound itself, passed straight to it', 'Her words, written down as text', 'Nothing: the order system hears her directly'],
+  options: [
+    'The sound itself, passed straight to it',
+    'Her words, written down as text',
+    'Nothing: the order system hears her directly',
+  ],
 };
 /** the chained line Larkspur built hands the model text: the outcome is the line's own design */
 const OUTCOME = 1;
 
 const QUIZ = {
   question: 'A caller says the assistant answered about the wrong order. Whose work do you read first?',
-  options: ['The mouth’s: text-to-speech may have said the number wrong', 'The ear’s: the transcript shows what the line heard', 'The phone’s: the line may have been noisy'],
+  options: [
+    'The mouth’s: text-to-speech may have said the number wrong',
+    'The ear’s: the transcript shows what the line heard',
+    'The phone’s: the line may have been noisy',
+  ],
   correct: 1,
   explanation: 'Everything after the ear is built on its transcript, and it is text you can read.',
   why: [
@@ -49,24 +64,35 @@ const SAYS: Partial<Record<Stage, string>> = {
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'ring', focus: 'ring', visibleControls: ['ring'],
-    narration: 'In the Tool calling module the assistant looked orders up with a tool, in text. Larkspur now puts the same assistant on a phone line. The picture is the phone desk: the phone, an ear, the model and a mouth, joined by belts. Answer Dana’s call.',
+    id: 'ring',
+    focus: 'ring',
+    visibleControls: ['ring'],
+    narration:
+      'In the Tool calling module the assistant looked orders up with a tool, in text. Larkspur now puts the same assistant on a phone line. The picture is the phone desk: the phone, an ear, the model and a mouth, joined by belts. Answer Dana’s call.',
     predicate: s => s.at >= 0,
   },
   {
-    id: 'predict', focus: 'p1', visibleControls: ['said', 'p1'],
-    narration: 'Dana asks where her order is. Press Play to hear her, or read her words: the sound is optional everywhere in this module. Before her question moves on:',
+    id: 'predict',
+    focus: 'p1',
+    visibleControls: ['said', 'p1'],
+    narration:
+      'Dana asks where her order is. Press Play to hear her, or read her words: the sound is optional everywhere in this module. Before her question moves on:',
     predicate: s => s.p1 !== null,
   },
   {
-    id: 'stages', focus: 'next', visibleControls: ['p1', 'next'],
+    id: 'stages',
+    focus: 'next',
+    visibleControls: ['p1', 'next'],
     narration: 'Send the call along the line, one stage at a time, and watch what rides each belt.',
     predicate: s => s.at === STAGES.length - 1,
     hint: 'Press “Next stage” until the reply reaches Dana’s phone.',
   },
   {
-    id: 'quiz', focus: 'quiz', visibleControls: ['outcome', 'quiz'],
-    narration: 'Three stages: speech-to-text (the ear) writes down the voice, the model reads and writes text, text-to-speech (the mouth) reads the reply out. This is a chained pipeline, and the model in the middle is the same text model as before. One question to finish.',
+    id: 'quiz',
+    focus: 'quiz',
+    visibleControls: ['outcome', 'quiz'],
+    narration:
+      'Three stages: speech-to-text (the ear) writes down the voice, the model reads and writes text, text-to-speech (the mouth) reads the reply out. This is a chained pipeline, and the model in the middle is the same text model as before. One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which stage turns sound into the words everything else reads?',
   },
@@ -82,16 +108,36 @@ export default function LarkspursPhoneLine() {
       next={nextOf(MODULE, ID)}
       stage={({ state, focus }) => {
         const stage = state.at < 0 ? 'idle' : STAGES[state.at];
-        return <VoiceStage step={focus} shown={{ phone: { stage }, caption: state.at < 0 ? 'The phone desk, waiting for a call.' : SAYS[stage]! }} />;
+        return (
+          <VoiceStage
+            step={focus}
+            shown={{ phone: { stage }, caption: state.at < 0 ? 'The phone desk, waiting for a call.' : SAYS[stage]! }}
+          />
+        );
       }}
       controls={{
-        ring: ({ state, sync }) => <button type="button" className="big" onClick={() => sync({ ...state, at: 0 })}>Answer Dana’s call</button>,
+        ring: ({ state, sync }) => (
+          <button type="button" className="big" onClick={() => sync({ ...state, at: 0 })}>
+            Answer Dana’s call
+          </button>
+        ),
         said: () => <Say clip="status-caller" />,
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         next: ({ state, sync }) => (
           <>
-            <button type="button" className="big" disabled={state.at >= STAGES.length - 1} onClick={() => sync({ ...state, at: Math.min(STAGES.length - 1, state.at + 1) })}>Next stage</button>
-            {state.at >= 1 && <p className="vo-heard" style={{ marginLeft: 0 }}><span className="vo-tag">recorded</span> Speech-to-text wrote: “{HEARD.text}”</p>}
+            <button
+              type="button"
+              className="big"
+              disabled={state.at >= STAGES.length - 1}
+              onClick={() => sync({ ...state, at: Math.min(STAGES.length - 1, state.at + 1) })}
+            >
+              Next stage
+            </button>
+            {state.at >= 1 && (
+              <p className="vo-heard" style={{ marginLeft: 0 }}>
+                <span className="vo-tag">recorded</span> Speech-to-text wrote: “{HEARD.text}”
+              </p>
+            )}
             {state.at >= 4 && <Say clip={REPLY} />}
           </>
         ),
@@ -102,7 +148,13 @@ export default function LarkspursPhoneLine() {
           </>
         ),
         quiz: ({ state, apply, sync }) => (
-          <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
+          <Quiz
+            {...QUIZ}
+            unsure
+            value={state.quiz}
+            onAnswer={(_, q) => apply({ ...state, quiz: q })}
+            onUnsure={() => sync({ ...state, quiz: UNSURE })}
+          />
         ),
       }}
     />

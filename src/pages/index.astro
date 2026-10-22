@@ -53,19 +53,36 @@ import { SCAN_BOARD, scanScene, scanLabel } from '../components/scenes/scanScene
 import { PHONE_BOARD, phoneScene, phoneLabel } from '../components/scenes/phoneScene';
 import { DEFAULT_LINE, runCall } from '../lib/voice/engine';
 
-const one = (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) => ({ top }: SceneCtx) =>
-  blockShadow(type, 30, 30, top) + renderers[type]({ x: 30, y: 30, ...opts });
+const one =
+  (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) =>
+  ({ top }: SceneCtx) =>
+    blockShadow(type, 30, 30, top) + renderers[type]({ x: 30, y: 30, ...opts });
 
 const PRINCIPLES: [string, string, ReturnType<typeof one>][] = [
-  ['Play, don’t just read', 'Every page has a live picture. Each step asks you to change one thing in it, and you watch what happens.', one('agent')],
-  ['The real thing underneath', 'Nothing is faked for the animation. In RAG, real retrieval maths runs in your browser over real embeddings.', one('index')],
-  ['A story with stakes', 'You join a team with a problem to solve. Each chapter starts with something going wrong, and you fix it.', one('llm', { state: 'ok' })],
+  [
+    'Play, don’t just read',
+    'Every page has a live picture. Each step asks you to change one thing in it, and you watch what happens.',
+    one('agent'),
+  ],
+  [
+    'The real thing underneath',
+    'Nothing is faked for the animation. In RAG, real retrieval maths runs in your browser over real embeddings.',
+    one('index'),
+  ],
+  [
+    'A story with stakes',
+    'You join a team with a problem to solve. Each chapter starts with something going wrong, and you fix it.',
+    one('llm', { state: 'ok' }),
+  ],
 ];
 const LOOP: [string, string][] = [
   ['Meet the problem', 'A short story sets up what is going wrong and why it matters.'],
   ['Change one thing', 'The step asks for one action in the picture: add a block, move a slider, pick an answer.'],
   ['Watch what changes', 'The picture, the meters and the answer update at once, so cause and effect are visible.'],
-  ['Fix it yourself', 'Puzzles hand you a broken setup. Hints appear when you’re stuck, and “Show me” is always there.'],
+  [
+    'Fix it yourself',
+    'Puzzles hand you a broken setup. Hints appear when you’re stuck, and “Show me” is always there.',
+  ],
 ];
 // a live module's card picture and topic chips; every other fact on a card comes from the registry
 type Iso = { board: typeof MINI_BOARD; scene: typeof miniPipeline; label: string };
@@ -76,22 +93,47 @@ const AGENT = { run: CASE, upTo: CASE.steps.length - 1, scale: 1.7 };
 // the evals test bench with v2's whole run graded (the suite runs at build time, over the committed index)
 const INDEX = await openIndex(diskLoader);
 await INDEX.load(fileOf('v2')!);
-const BENCH = { results: runSuite(INDEX, 'v2').map(r => r.verdict === 'correct'), version: VERSIONS.v2.label, scale: 1.7 };
+const BENCH = {
+  results: runSuite(INDEX, 'v2').map(r => r.verdict === 'correct'),
+  version: VERSIONS.v2.label,
+  scale: 1.7,
+};
 // the mail room: a forwarded invoice's planted note has the customer's record riding out to the post box
 const LEAK = guardRun(GUARD_RECORDING, { case: 'invoice' });
-const MAIL = { run: LEAK, upTo: LEAK.steps.findIndex(st => st.kind === 'call' && st.call.name === 'send_email') + 1, scale: 1.7 };
+const MAIL = {
+  run: LEAK,
+  upTo: LEAK.steps.findIndex(st => st.kind === 'call' && st.call.name === 'send_email') + 1,
+  scale: 1.7,
+};
 // the token press cutting Larkspur's order sentence (tokens chapter 1's) into tiles
 const PRESS = { text: SENTENCES.find(s => s.id === 'order-en')!.text, scale: 1.7 };
 // the engine room reading transformers chapter 1's prompt, the word-start head's threads from its last token
 const READ = trace(diskModel(), PROMPTS.find(p => p.id === 'reply')!.text);
 const ROOM = { tokens: READ.tokens.map(t => t.text), attention: READ.attention, scale: 1.7 };
 // the window desk on Mara's third question (context chapter 4's session), every document stuffed: the cache shelf lit
-const DESK = { run: contextRun(CONTEXT_RECORDING, { sessions: [['refund-window', 'free-shipping', 'sensor-warranty']], tools: true, retrieval: 'stuff' }), shelf: true, scale: 1.7 };
+const DESK = {
+  run: contextRun(CONTEXT_RECORDING, {
+    sessions: [['refund-window', 'free-shipping', 'sensor-warranty']],
+    tools: true,
+    retrieval: 'stuff',
+  }),
+  shelf: true,
+  scale: 1.7,
+};
 // the training bench with the weights lever pulled and the LoRA adapter clipped on
 const BENCH9 = { lit: 'weights', weights: 'lora', scale: 1.7 } as const;
 // the stencil press on "Where is order 1042?", at the first step where the schema blocks the model's own choice
-const MASKED_RUN = stencilRun('mask'), MASKED = stencilPlay(diskModel(), MASKED_RUN).decoded;
-const STENCIL = { ...stencilAt(MASKED_RUN.prompt, MASKED, MASKED.steps.findIndex(s => !s.allowed.includes(s.free.id)), true), scale: 1.7 };
+const MASKED_RUN = stencilRun('mask'),
+  MASKED = stencilPlay(diskModel(), MASKED_RUN).decoded;
+const STENCIL = {
+  ...stencilAt(
+    MASKED_RUN.prompt,
+    MASKED,
+    MASKED.steps.findIndex(s => !s.allowed.includes(s.free.id)),
+    true,
+  ),
+  scale: 1.7,
+};
 // the scratchpad desk at medium effort on the split-order quote, its pad of thinking papers beside the model
 const THINK = { ...thinkDeskOf(reasoningRun(SPLIT, 'medium')), scale: 1.7 };
 // the apprentice's bench routing: the small model unsure below 0.9, its answer sent up the fallback chute
@@ -101,30 +143,245 @@ const FLOOR = { ...floorAt(serve(OPEN, { mode: 'continuous', cap: 8, kvRoomGB: 1
 // the control room as the module's intro opens: the day's failed traces sorted into bins, the one to fix first lit
 const CONTROL = { cards: wallOf(FAILED, FAILED[0].id), bins: binsOf(DAY1_COUNTS, TOP[0]), scale: 1.7 };
 // the glass room as the module's intro opens on the sandbox: the exfiltration attack's fetch refused at the network door
-const EXFIL = sandboxRun(SANDBOX_RECORDING, { case: 'exfil', sandbox: true, files: 'scoped', egress: 'allowlist', secret: 'proxy' });
-const GLASS = { run: EXFIL, upTo: EXFIL.steps.findIndex(s => s.kind === 'blocked') + 1, wall: true, files: 'scoped', egress: 'allowlist', proxy: true, scale: 1.7 } as const;
+const EXFIL = sandboxRun(SANDBOX_RECORDING, {
+  case: 'exfil',
+  sandbox: true,
+  files: 'scoped',
+  egress: 'allowlist',
+  secret: 'proxy',
+});
+const GLASS = {
+  run: EXFIL,
+  upTo: EXFIL.steps.findIndex(s => s.kind === 'blocked') + 1,
+  wall: true,
+  files: 'scoped',
+  egress: 'allowlist',
+  proxy: true,
+  scale: 1.7,
+} as const;
 // the scanning table as the module's intro opens: the supplier's invoice read by vision at 1,600 px
 const SCAN = { image: 'invoice', size: 1600, method: 'vision', scale: 1.7 } as const;
 // the phone desk as the module's intro opens: Ravi's reply on its way back, the stopwatch showing his wait
-const PHONE = { stage: 'reply', wait: runCall('hesitant', { ...DEFAULT_LINE, streaming: true, bargeIn: true, readBack: true, silence: 800 }).wait, scale: 1.7 } as const;
+const PHONE = {
+  stage: 'reply',
+  wait: runCall('hesitant', { ...DEFAULT_LINE, streaming: true, bargeIn: true, readBack: true, silence: 800 }).wait,
+  scale: 1.7,
+} as const;
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
-  rag: { name: 'Retrieval-Augmented Generation (RAG)', iso: { board: MINI_BOARD, scene: miniPipeline, label: MINI_LABEL }, topics: ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'Reranking', 'Agentic RAG', 'GraphRAG'] },
-  'tool-calling': { name: 'Tool calling & the Model Context Protocol (MCP)', iso: { board: OFFICE_BOARD, scene: officeScene(OFFICE), label: officeLabel(OFFICE) }, topics: ['Tool definitions', 'JSON Schema', 'Multi-step calls', 'MCP hosts & servers', 'Tools, resources, prompts', 'Approval', 'Prompt injection'] },
-  agents: { name: 'AI agents', iso: { board: OFFICE_BOARD, scene: agentScene(AGENT), label: agentLabel(AGENT) }, topics: ['Workflow or agent', 'The agent loop', 'Plans & approval', 'Step & token budgets', 'Stuck loops', 'Memory & compaction', 'Sub-agents'] },
-  evals: { name: 'Evals & LLM testing', iso: { board: EVAL_BOARD, scene: evalScene(BENCH), label: evalLabel(BENCH) }, topics: ['Test sets', 'Regressions', 'Code graders', 'Model judges', 'Judging the judge', 'Grading the path', 'pass@k & pass^k', 'Release gates'] },
-  guardrails: { name: 'Prompt injection & guardrails', iso: { board: GUARD_BOARD, scene: guardScene(MAIL), label: guardLabel(MAIL) }, topics: ['Direct & indirect injection', 'Prompt rules', 'Input filters', 'Output checks', 'The lethal trifecta', 'Defence in depth', 'Red teaming'] },
-  tokens: { name: 'Tokens & embeddings', iso: { board: TOKEN_BOARD, scene: tokenScene(PRESS), label: tokenLabel(PRESS) }, topics: ['Tokens & ids', 'Byte pair encoding', 'Counting & cost', 'Tokenizers compared', 'Embeddings', 'Meaning by neighbours', 'Token budgets'] },
-  transformers: { name: 'Transformer architecture', iso: { board: ENGINE_BOARD, scene: engineScene(ROOM), label: engineLabel(ROOM) }, topics: ['Next-token prediction', 'Embeddings & position', 'Attention', 'The causal mask', 'Heads & layers', 'Temperature & top-p', 'The KV cache'] },
-  context: { name: 'Context engineering & memory', iso: { board: WINDOW_BOARD, scene: windowScene(DESK), label: windowLabel(DESK) }, topics: ['The context window', 'Lost in the middle', 'Just-in-time retrieval', 'Prompt caching', 'Clearing tool results', 'Memory files', 'Context policy'] },
-  'fine-tuning': { name: 'Fine-tuning vs prompting', iso: { board: TRAIN_BOARD, scene: trainScene(BENCH9), label: trainLabel(BENCH9) }, topics: ['Prompt, documents or weights', 'Training & loss', 'LoRA adapters', 'Facts vs style', 'Forgetting & cost', 'Evals before training', 'Choosing an approach'] },
-  'structured-outputs': { name: 'Structured outputs', iso: { board: STENCIL_BOARD, scene: stencilScene(STENCIL), label: stencilLabel(STENCIL) }, topics: ['JSON mode vs schemas', 'Constrained decoding', 'The token mask', 'Tokens vs characters', 'Enums', 'Valid isn’t right', 'Schema design'] },
-  reasoning: { name: 'Reasoning models & thinking budgets', iso: { board: THINK_BOARD, scene: thinkScene(THINK), label: thinkLabel(THINK) }, topics: ['Thinking before answering', 'Thinking tokens', 'Effort levels', 'Overthinking', 'Adaptive thinking', 'Accuracy vs cost', 'Choosing an effort'] },
-  'small-models': { name: 'Small models: distillation & routing', iso: { board: ROUTER_BOARD, scene: routerScene(ROUTER), label: routerLabel(ROUTER) }, topics: ['Big vs small models', 'Distillation', 'Teacher & student', 'Routing', 'Confidence & fallback', 'Release gates', 'Routing policy'] },
-  inference: { name: 'Inference engineering', iso: { board: SERVE_BOARD, scene: serveScene(FLOOR), label: serveLabel(FLOOR) }, topics: ['Prefill & decode', 'The KV cache at scale', 'Batching', 'Quantization', 'Speculative decoding', 'Pace vs throughput', 'Serving settings'] },
-  observability: { name: 'Observability & error analysis', iso: { board: TRACE_BOARD, scene: traceScene(CONTROL), label: traceLabel(CONTROL) }, topics: ['Traces & spans', 'The first failure', 'Open coding', 'Axial coding', 'Frequency vs harm', 'Traces to eval cases', 'A new day of traffic'] },
-  sandboxing: { name: 'Agent sandboxing', iso: { board: SANDBOX_BOARD, scene: sandboxScene(GLASS), label: sandboxLabel(GLASS) }, topics: ['Where code runs', 'Filesystem mounts', 'Network egress', 'Secrets & the proxy', 'Exfiltration', 'Fewer approval prompts', 'Red-teaming a policy'] },
-  multimodal: { name: 'Multimodal models', iso: { board: SCAN_BOARD, scene: scanScene(SCAN), label: scanLabel(SCAN) }, topics: ['Images as tokens', 'Patches', 'Resolution & cost', 'OCR vs vision', 'Field extraction', 'Photos & ambiguity', 'Text in images'] },
-  voice: { name: 'Voice agents', iso: { board: PHONE_BOARD, scene: phoneScene(PHONE), label: phoneLabel(PHONE) }, topics: ['Speech-to-text & text-to-speech', 'The latency budget', 'Streaming', 'Turn detection', 'Barge-in', 'Mishearing & read-back', 'Speech-to-speech models'] },
+  rag: {
+    name: 'Retrieval-Augmented Generation (RAG)',
+    iso: { board: MINI_BOARD, scene: miniPipeline, label: MINI_LABEL },
+    topics: ['Context windows', 'Embeddings', 'Chunking', 'Vector search', 'Reranking', 'Agentic RAG', 'GraphRAG'],
+  },
+  'tool-calling': {
+    name: 'Tool calling & the Model Context Protocol (MCP)',
+    iso: { board: OFFICE_BOARD, scene: officeScene(OFFICE), label: officeLabel(OFFICE) },
+    topics: [
+      'Tool definitions',
+      'JSON Schema',
+      'Multi-step calls',
+      'MCP hosts & servers',
+      'Tools, resources, prompts',
+      'Approval',
+      'Prompt injection',
+    ],
+  },
+  agents: {
+    name: 'AI agents',
+    iso: { board: OFFICE_BOARD, scene: agentScene(AGENT), label: agentLabel(AGENT) },
+    topics: [
+      'Workflow or agent',
+      'The agent loop',
+      'Plans & approval',
+      'Step & token budgets',
+      'Stuck loops',
+      'Memory & compaction',
+      'Sub-agents',
+    ],
+  },
+  evals: {
+    name: 'Evals & LLM testing',
+    iso: { board: EVAL_BOARD, scene: evalScene(BENCH), label: evalLabel(BENCH) },
+    topics: [
+      'Test sets',
+      'Regressions',
+      'Code graders',
+      'Model judges',
+      'Judging the judge',
+      'Grading the path',
+      'pass@k & pass^k',
+      'Release gates',
+    ],
+  },
+  guardrails: {
+    name: 'Prompt injection & guardrails',
+    iso: { board: GUARD_BOARD, scene: guardScene(MAIL), label: guardLabel(MAIL) },
+    topics: [
+      'Direct & indirect injection',
+      'Prompt rules',
+      'Input filters',
+      'Output checks',
+      'The lethal trifecta',
+      'Defence in depth',
+      'Red teaming',
+    ],
+  },
+  tokens: {
+    name: 'Tokens & embeddings',
+    iso: { board: TOKEN_BOARD, scene: tokenScene(PRESS), label: tokenLabel(PRESS) },
+    topics: [
+      'Tokens & ids',
+      'Byte pair encoding',
+      'Counting & cost',
+      'Tokenizers compared',
+      'Embeddings',
+      'Meaning by neighbours',
+      'Token budgets',
+    ],
+  },
+  transformers: {
+    name: 'Transformer architecture',
+    iso: { board: ENGINE_BOARD, scene: engineScene(ROOM), label: engineLabel(ROOM) },
+    topics: [
+      'Next-token prediction',
+      'Embeddings & position',
+      'Attention',
+      'The causal mask',
+      'Heads & layers',
+      'Temperature & top-p',
+      'The KV cache',
+    ],
+  },
+  context: {
+    name: 'Context engineering & memory',
+    iso: { board: WINDOW_BOARD, scene: windowScene(DESK), label: windowLabel(DESK) },
+    topics: [
+      'The context window',
+      'Lost in the middle',
+      'Just-in-time retrieval',
+      'Prompt caching',
+      'Clearing tool results',
+      'Memory files',
+      'Context policy',
+    ],
+  },
+  'fine-tuning': {
+    name: 'Fine-tuning vs prompting',
+    iso: { board: TRAIN_BOARD, scene: trainScene(BENCH9), label: trainLabel(BENCH9) },
+    topics: [
+      'Prompt, documents or weights',
+      'Training & loss',
+      'LoRA adapters',
+      'Facts vs style',
+      'Forgetting & cost',
+      'Evals before training',
+      'Choosing an approach',
+    ],
+  },
+  'structured-outputs': {
+    name: 'Structured outputs',
+    iso: { board: STENCIL_BOARD, scene: stencilScene(STENCIL), label: stencilLabel(STENCIL) },
+    topics: [
+      'JSON mode vs schemas',
+      'Constrained decoding',
+      'The token mask',
+      'Tokens vs characters',
+      'Enums',
+      'Valid isn’t right',
+      'Schema design',
+    ],
+  },
+  reasoning: {
+    name: 'Reasoning models & thinking budgets',
+    iso: { board: THINK_BOARD, scene: thinkScene(THINK), label: thinkLabel(THINK) },
+    topics: [
+      'Thinking before answering',
+      'Thinking tokens',
+      'Effort levels',
+      'Overthinking',
+      'Adaptive thinking',
+      'Accuracy vs cost',
+      'Choosing an effort',
+    ],
+  },
+  'small-models': {
+    name: 'Small models: distillation & routing',
+    iso: { board: ROUTER_BOARD, scene: routerScene(ROUTER), label: routerLabel(ROUTER) },
+    topics: [
+      'Big vs small models',
+      'Distillation',
+      'Teacher & student',
+      'Routing',
+      'Confidence & fallback',
+      'Release gates',
+      'Routing policy',
+    ],
+  },
+  inference: {
+    name: 'Inference engineering',
+    iso: { board: SERVE_BOARD, scene: serveScene(FLOOR), label: serveLabel(FLOOR) },
+    topics: [
+      'Prefill & decode',
+      'The KV cache at scale',
+      'Batching',
+      'Quantization',
+      'Speculative decoding',
+      'Pace vs throughput',
+      'Serving settings',
+    ],
+  },
+  observability: {
+    name: 'Observability & error analysis',
+    iso: { board: TRACE_BOARD, scene: traceScene(CONTROL), label: traceLabel(CONTROL) },
+    topics: [
+      'Traces & spans',
+      'The first failure',
+      'Open coding',
+      'Axial coding',
+      'Frequency vs harm',
+      'Traces to eval cases',
+      'A new day of traffic',
+    ],
+  },
+  sandboxing: {
+    name: 'Agent sandboxing',
+    iso: { board: SANDBOX_BOARD, scene: sandboxScene(GLASS), label: sandboxLabel(GLASS) },
+    topics: [
+      'Where code runs',
+      'Filesystem mounts',
+      'Network egress',
+      'Secrets & the proxy',
+      'Exfiltration',
+      'Fewer approval prompts',
+      'Red-teaming a policy',
+    ],
+  },
+  multimodal: {
+    name: 'Multimodal models',
+    iso: { board: SCAN_BOARD, scene: scanScene(SCAN), label: scanLabel(SCAN) },
+    topics: [
+      'Images as tokens',
+      'Patches',
+      'Resolution & cost',
+      'OCR vs vision',
+      'Field extraction',
+      'Photos & ambiguity',
+      'Text in images',
+    ],
+  },
+  voice: {
+    name: 'Voice agents',
+    iso: { board: PHONE_BOARD, scene: phoneScene(PHONE), label: phoneLabel(PHONE) },
+    topics: [
+      'Speech-to-text & text-to-speech',
+      'The latency budget',
+      'Streaming',
+      'Turn detection',
+      'Barge-in',
+      'Mishearing & read-back',
+      'Speech-to-speech models',
+    ],
+  },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];
 const LIVE = MODULES.filter(m => m.status === 'live');
@@ -138,9 +395,9 @@ const SENT = new URL('/?sent#request', Astro.site).href;
 const CAPTION = heroCaption(PLANNED.length > 0);
 // the wave's cycle is one 0.8 s slot per live plot, and keyframe percentages must be literal, so each step is placed at a
 // fixed share of one slot here: a pill is gone by the end of its slot, and only one ever shows, at any count
-const slot = (share: number) => `${+(share * 100 / LIVE.length).toFixed(3)}%`;
-const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot(.18)}, ${slot(.88)} { opacity: 1; } }
-@keyframes hero-hop { 0%, ${slot(1)}, 100% { transform: none; } ${slot(.36)} { transform: translateY(-7px); } ${slot(.72)} { transform: translateY(1px); } }`;
+const slot = (share: number) => `${+((share * 100) / LIVE.length).toFixed(3)}%`;
+const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot(0.18)}, ${slot(0.88)} { opacity: 1; } }
+@keyframes hero-hop { 0%, ${slot(1)}, 100% { transform: none; } ${slot(0.36)} { transform: translateY(-7px); } ${slot(0.72)} { transform: translateY(1px); } }`;
 ---
 <html lang="en">
   <head>

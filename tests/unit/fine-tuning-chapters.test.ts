@@ -10,7 +10,10 @@ import { promptAt } from '../../src/content/fine-tuning/02-what-training-does';
 import { FULL, LORA, SHARE, shareOption } from '../../src/content/fine-tuning/03-small-adapters';
 import { outcome as priceOutcome } from '../../src/content/fine-tuning/04-facts-move-style-stays';
 
-const disk = (f: string) => { const b = readFileSync('public/data/lm/' + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer; };
+const disk = (f: string) => {
+  const b = readFileSync('public/data/lm/' + f);
+  return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer;
+};
 const meta = JSON.parse(readFileSync('public/data/lm/meta.json', 'utf8')) as Meta;
 const base = parseModel(meta, disk('model.bin'));
 const full = parseModel(meta, disk('finetuned.bin'), 'finetuned.bin');
@@ -26,7 +29,9 @@ describe('the registry entry', () => {
     for (const t of ['Weights', 'Fine-tuning', 'LoRA', 'Adapter', 'Base model']) expect(terms).toContain(t);
     // the rank is read from meta.json, not typed
     const rank = m.chapters.flatMap(c => c.intro.terms).find(([t]) => t === 'Rank')![1];
-    expect(rank).toBe(`How thin LoRA’s matrices are. Rank ${meta.lora!.rank} means each adapted matrix gets two thin matrices ${meta.lora!.rank} wide.`);
+    expect(rank).toBe(
+      `How thin LoRA’s matrices are. Rank ${meta.lora!.rank} means each adapted matrix gets two thin matrices ${meta.lora!.rank} wide.`,
+    );
   });
 });
 
@@ -40,12 +45,13 @@ describe('chapter 1: three versions, one question', () => {
 });
 
 describe('chapter 2: before and after, generated live', () => {
-  it.each(STYLE_PROMPTS)('on "%s" the base never signs off and the fine-tuned copy does, the same every time', (p) => {
+  it.each(STYLE_PROMPTS)('on "%s" the base never signs off and the fine-tuned copy does, the same every time', p => {
     expect(signsOff(replyOf(base, p))).toBe(false);
     expect(signsOff(replyOf(full, p))).toBe(true);
     expect(replyOf(full, p)).toBe(replyOf(full, p));
     // memoized per (weights, prompt): a caption re-render doesn't rerun the forward passes
-    const copy = { ...full }, first = replyOf(copy, p);
+    const copy = { ...full },
+      first = replyOf(copy, p);
     copy.tensors = {}; // a rerun would now throw; the cached reply comes back instead
     expect(replyOf(copy, p)).toBe(first);
     // the reply is cut where the answer ends: no next question tacked on
@@ -65,7 +71,7 @@ describe('chapter 3: counts from shapes', () => {
     expect(FULL).toBe(fullCount(meta));
     expect(LORA).toBe(loraCount(meta));
     expect(SHARE).toBeCloseTo(loraCount(meta) / fullCount(meta), 12);
-    expect(shareOption(SHARE)).toBe(2);   // between 1% and 10%
+    expect(shareOption(SHARE)).toBe(2); // between 1% and 10%
     expect([0.3, 0.1, 0.05, 0.001].map(shareOption)).toEqual([0, 1, 2, 3]);
   });
   it('the adapter teaches the sign-off on the chapter prompt', () => {

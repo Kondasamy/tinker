@@ -23,7 +23,7 @@ export function mulberry32(seed: number): () => number {
 export function nucleus(probs: ArrayLike<number>, topP: number): number[] {
   const order = Array.from(probs, (p, id) => ({ id, p })).sort((a, b) => b.p - a.p || a.id - b.id);
   // top-p 1 keeps everything: the float running sum can reach 1 before the tail is added
-  if (topP >= 1) return order.map((o) => o.id);
+  if (topP >= 1) return order.map(o => o.id);
   const kept: number[] = [];
   let mass = 0;
   for (const { id, p } of order) {
@@ -43,7 +43,7 @@ export function distribution(logits: ArrayLike<number>, temperature: number, top
     out[best] = 1;
     return out;
   }
-  const probs = softmax(Array.from(logits, (x) => x / temperature));
+  const probs = softmax(Array.from(logits, x => x / temperature));
   const kept = nucleus(probs, topP);
   const mass = kept.reduce((s, id) => s + probs[id], 0);
   for (const id of kept) out[id] = probs[id] / mass;
@@ -59,14 +59,20 @@ export function entropy(probs: ArrayLike<number>): number {
 
 /** Continues the prompt `steps` tokens, each drawn from distribution() with one seeded stream. */
 export function sample(model: Model, prompt: string, temperature: number, topP: number, seed: number, steps = 8) {
-  const rand = mulberry32(seed), ids = encode(prompt), picks: { id: number; p: number }[] = [];
+  const rand = mulberry32(seed),
+    ids = encode(prompt),
+    picks: { id: number; p: number }[] = [];
   for (let i = 0; i < steps; i++) {
     const d = distribution(forward(model, ids).logits.at(-1)!, temperature, topP);
-    let r = rand(), id = 0;
+    let r = rand(),
+      id = 0;
     // Only kept tokens, so rounding at the end of the walk can never land on a dropped one.
-    for (const k of nucleus(d, 1).filter((k) => d[k] > 0)) { id = k; if ((r -= d[k]) < 0) break; }
+    for (const k of nucleus(d, 1).filter(k => d[k] > 0)) {
+      id = k;
+      if ((r -= d[k]) < 0) break;
+    }
     picks.push({ id, p: d[id] });
     ids.push(id);
   }
-  return { picks, text: decode(picks.map((x) => x.id)) };
+  return { picks, text: decode(picks.map(x => x.id)) };
 }

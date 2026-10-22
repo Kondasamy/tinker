@@ -17,17 +17,29 @@ import { UNSURE } from '../../lib/recall';
 import { Ledger, Messages, Outcome } from '../tool-calling/kit';
 import { AgentStage, Fact } from './kit';
 
-const MODULE = 'agents', ID = '03-plans';
+const MODULE = 'agents',
+  ID = '03-plans';
 const REC = RECORDINGS[ID];
 type Case = 'damaged' | 'planted';
 // every sequence of answers a reader can give here: each run ends waiting, or done, within two
-const SEQS: Decision[][] = [[], ['approve'], ['reject'], ['approve', 'approve'], ['approve', 'reject'], ['reject', 'approve'], ['reject', 'reject']];
+const SEQS: Decision[][] = [
+  [],
+  ['approve'],
+  ['reject'],
+  ['approve', 'approve'],
+  ['approve', 'reject'],
+  ['reject', 'approve'],
+  ['reject', 'reject'],
+];
 const OFF = run(REC, { case: 'damaged', stock: 'out' });
 const ON = run(REC, { case: 'damaged', stock: 'out', plan: true });
-const RUNS: Record<string, Run> = Object.fromEntries((['damaged', 'planted'] as Case[]).flatMap(c =>
-  SEQS.map(d => [`${c}:${d}`, run(REC, { case: c, stock: 'out', plan: true, approval: 'plan', decide: d })])));
+const RUNS: Record<string, Run> = Object.fromEntries(
+  (['damaged', 'planted'] as Case[]).flatMap(c =>
+    SEQS.map(d => [`${c}:${d}`, run(REC, { case: c, stock: 'out', plan: true, approval: 'plan', decide: d })]),
+  ),
+);
 const R = (c: Case, d: Decision[]) => RUNS[`${c}:${d}`];
-const PLAIN = run(REC, { case: 'planted' });   // the planted email with no plan and no approver
+const PLAIN = run(REC, { case: 'planted' }); // the planted email with no plan and no approver
 
 /** `issue_refund:1043` → `issue_refund for order 1043` */
 const item = (k: string) => k.replace(':', ' for order ');
@@ -36,13 +48,28 @@ const pending = (r: Run) => (r.status === 'waiting' ? stepsOf(r, 'approval').at(
 
 const PLAN = stepsOf(ON, 'plan')[0];
 const CHANGE = stepsOf(ON, 'proposal').find(p => !PLAN.items.includes(keyOf(p.call)))!;
-const STRUCK = agentState({ run: ON }).plan!.rows.filter(r => r.struck).map(r => r.item);
+const STRUCK = agentState({ run: ON })
+  .plan!.rows.filter(r => r.struck)
+  .map(r => r.item);
 const ASKED = pending(R('damaged', ['approve']))[0];
 const PLANTED = stepsOf(R('planted', []), 'plan')[0];
-const EXTRA = 1043, GUARD = moduleOf('guardrails');
+const EXTRA = 1043,
+  GUARD = moduleOf('guardrails');
 
-interface S { plan: boolean; ran: boolean; approval: boolean; kase: Case; dd: Decision[]; pd: Decision[]; p1: number | null; p2: number | null; p3: number | null; quiz: number | null }
-const current = (s: S): Run => s.kase === 'planted' ? R('planted', s.pd) : s.approval ? R('damaged', s.dd) : s.plan ? ON : OFF;
+interface S {
+  plan: boolean;
+  ran: boolean;
+  approval: boolean;
+  kase: Case;
+  dd: Decision[];
+  pd: Decision[];
+  p1: number | null;
+  p2: number | null;
+  p3: number | null;
+  quiz: number | null;
+}
+const current = (s: S): Run =>
+  s.kase === 'planted' ? R('planted', s.pd) : s.approval ? R('damaged', s.dd) : s.plan ? ON : OFF;
 // before the plain runs play, the picture shows their first turn: a call with plan mode off, the plan with it on
 const shownOf = (s: S) => (s.kase === 'damaged' && !s.approval && !s.ran ? 2 : current(s).steps.length);
 
@@ -55,10 +82,17 @@ const P1 = {
     'Throws the plan away and carries on with none',
   ],
 };
-const OUT1 = stepsOf(ON, 'call').some(c => c.call.name === 'create_replacement') ? 0 : ON.status !== 'done' ? 1 : CHANGE ? 2 : 3;
+const OUT1 = stepsOf(ON, 'call').some(c => c.call.name === 'create_replacement')
+  ? 0
+  : ON.status !== 'done'
+    ? 1
+    : CHANGE
+      ? 2
+      : 3;
 
 const P2 = {
-  question: 'Now a person approves the plan before it runs. They approve this same plan, and the stock is still out. What happens when the agent changes course?',
+  question:
+    'Now a person approves the plan before it runs. They approve this same plan, and the stock is still out. What happens when the agent changes course?',
   options: [
     'The change just runs: the person already approved the plan',
     'The change comes back to the person: it was not in the plan they approved',
@@ -67,7 +101,12 @@ const P2 = {
   ],
 };
 const A = R('damaged', ['approve']);
-const OUT2 = A.status === 'waiting' && !PLAN.items.includes(ASKED) ? 1 : stepsOf(A, 'call').some(c => !PLAN.items.includes(keyOf(c.call))) ? 0 : 2;
+const OUT2 =
+  A.status === 'waiting' && !PLAN.items.includes(ASKED)
+    ? 1
+    : stepsOf(A, 'call').some(c => !PLAN.items.includes(keyOf(c.call)))
+      ? 0
+      : 2;
 
 const P3 = {
   question: `You are the person approving. If you approve this plan as written, what happens to order ${EXTRA}?`,
@@ -82,7 +121,8 @@ const PA = R('planted', ['approve']);
 const OUT3 = refunded(PA, EXTRA) > 0 ? 0 : stepsOf(PA, 'approval').length > 1 ? 3 : 1;
 
 const QUIZ = {
-  question: 'Larkspur’s buying agent plans a restock: check three suppliers’ prices, then order from the cheapest. The buyer approves the plan. Halfway through, one supplier’s site is down, and the agent wants to try a fourth supplier the plan did not name. Approval is on. What should the host do?',
+  question:
+    'Larkspur’s buying agent plans a restock: check three suppliers’ prices, then order from the cheapest. The buyer approves the plan. Halfway through, one supplier’s site is down, and the agent wants to try a fourth supplier the plan did not name. Approval is on. What should the host do?',
   options: [
     'Run it: the buyer approved the plan, and this is close enough',
     'Bring it back to the buyer: the call is outside the plan they approved',
@@ -101,57 +141,81 @@ const QUIZ = {
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'plan-on', focus: 'plan', visibleControls: ['plan'], opensDrawer: 'plan',
+    id: 'plan-on',
+    focus: 'plan',
+    visibleControls: ['plan'],
+    opensDrawer: 'plan',
     narration: `The cracked printer again, and the printer is out of stock. In chapter 2 the agent picked each step as it went, so nobody could see where it was heading until it got there. Plan mode asks the model to write its steps down first, before it calls anything. The host puts them on the clipboard by the model. Turn plan mode on.`,
     predicate: s => s.plan,
     hint: 'Press “Plan mode: on”.',
   },
   {
-    id: 'predict-surprise', focus: 'p1', visibleControls: ['p1'],
+    id: 'predict-surprise',
+    focus: 'p1',
+    visibleControls: ['p1'],
     narration: `The model’s first turn is now a plan, not a call: “${PLAN.text}” ${PLAN.items.length} items on the clipboard. The plan was written before any tool ran, so it does not know the printer is out. Before you run it:`,
     predicate: s => s.p1 !== null,
   },
   {
-    id: 'run-plan', focus: 'run', visibleControls: ['p1', 'run'],
+    id: 'run-plan',
+    focus: 'run',
+    visibleControls: ['p1', 'run'],
     narration: 'Run the plan. Each item gets a tick on the clipboard when its call comes back.',
     predicate: s => s.ran,
     hint: 'Press “Run the plan”.',
   },
   {
-    id: 'predict-approval', focus: 'p2', visibleControls: ['out1', 'p2'], opensDrawer: null,
+    id: 'predict-approval',
+    focus: 'p2',
+    visibleControls: ['out1', 'p2'],
+    opensDrawer: null,
     narration: `check_stock came back “out”, and the model changed course: “${CHANGE.text}” On the clipboard ${item(STRUCK[0])} is struck out and ${item(keyOf(CHANGE.call))} is added. ${fact('ground-truth').claim} Nobody looked at the change: in this host a plan runs as written. Larkspur wants a person to approve each plan, instead of every call. Before you try it:`,
     predicate: s => s.p2 !== null,
   },
   {
-    id: 'approve-plan', focus: 'approval', visibleControls: ['p2', 'approval'],
-    narration: 'Approval is on, and you are the person. The same plan comes to you before anything runs. Read it, then approve it.',
+    id: 'approve-plan',
+    focus: 'approval',
+    visibleControls: ['p2', 'approval'],
+    narration:
+      'Approval is on, and you are the person. The same plan comes to you before anything runs. Read it, then approve it.',
     predicate: s => s.dd.length > 0,
     hint: 'Press “Approve”.',
   },
   {
-    id: 'back-for-approval', focus: 'approval', visibleControls: ['out2', 'approval'],
+    id: 'back-for-approval',
+    focus: 'approval',
+    visibleControls: ['out2', 'approval'],
     narration: `The run started, hit the stock-out, and the agent changed course again. This time the change did not just run: ${item(ASKED)} came back to you, because it is not in the plan you approved. Nothing ran yet. Approve it or reject it.`,
     predicate: s => R('damaged', s.dd).status !== 'waiting',
     hint: 'Press “Approve” or “Reject”.',
   },
   {
-    id: 'approved-once', focus: 'next', visibleControls: ['approval', 'next'],
+    id: 'approved-once',
+    focus: 'next',
+    visibleControls: ['approval', 'next'],
     narration: `You approved one plan and one change, not every call. Either way the change came to you before it ran. The plan is a promise about what the agent will do; the host holds it to that promise, and anything new goes back to a person.`,
     predicate: s => s.kase === 'planted',
   },
   {
-    id: 'predict-planted', focus: 'p3', visibleControls: ['p3'], opensDrawer: 'email',
+    id: 'predict-planted',
+    focus: 'p3',
+    visibleControls: ['p3'],
+    opensDrawer: 'email',
     narration: `A new email: ${REC.asks.planted} That last line is not from Larkspur, and not really from the customer’s order either: it is text planted in the email, written to make the agent do something else. With no plan and no approver, the agent refunded ${money(refunded(PLAIN, EXTRA))} on order ${EXTRA} without anyone seeing it. Now plan and approval are on. Look at the clipboard: “${PLANTED.text}” Before you decide:`,
     predicate: s => s.p3 !== null,
   },
   {
-    id: 'decide-planted', focus: 'approval', visibleControls: ['p3', 'approval'],
+    id: 'decide-planted',
+    focus: 'approval',
+    visibleControls: ['p3', 'approval'],
     narration: `Decide. Approve the plan as written, or reject it. If you reject it, the agent writes a new plan and asks you again.`,
     predicate: s => R('planted', s.pd).status !== 'waiting',
     hint: 'Press “Approve” or “Reject”.',
   },
   {
-    id: 'quiz', focus: 'quiz', visibleControls: ['out3', 'approval', 'ledger', 'other', 'guard', 'quiz'],
+    id: 'quiz',
+    focus: 'quiz',
+    visibleControls: ['out3', 'approval', 'ledger', 'other', 'guard', 'quiz'],
     narration: `The ledger shows what your choice did. Approved, the plan refunds order ${EXTRA}: the agent did exactly what the plan said, and the host trusted your yes. Rejected, the agent writes a plan without it, and order ${EXTRA} keeps its money. Try the other choice to compare. Approval helped only because a person read the plan. Someone who approves every plan without reading it lets the planted line through, just as if there were no approval at all.`,
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What did the person approve: the plan, or every step the agent might take?',
@@ -161,17 +225,36 @@ export const STEPS: Step<S>[] = [
 /** The plan waiting on the person, with the answers they can give. The first plan in the printer case is approve-only:
  * the reader has just seen it work. */
 function Approval({ s, sync }: { s: S; sync: (s: S) => void }) {
-  const r = current(s), items = pending(r), field = s.kase === 'planted' ? 'pd' : 'dd';
+  const r = current(s),
+    items = pending(r),
+    field = s.kase === 'planted' ? 'pd' : 'dd';
   const decide = (d: Decision) => sync({ ...s, [field]: [...s[field], d] });
-  if (!items.length) return <p className="tc-status" role="status">The agent: “{answerOf(r)}”</p>;
+  if (!items.length)
+    return (
+      <p className="tc-status" role="status">
+        The agent: “{answerOf(r)}”
+      </p>
+    );
   const reject = !(s.kase === 'damaged' && s.dd.length === 0);
   return (
     <div className="tc-status">
-      <p style={{ margin: 0 }}><strong>{items.length === 1 ? 'A change, waiting for you:' : 'The plan, waiting for you:'}</strong></p>
-      <ol style={{ margin: '4px 0 10px' }}>{items.map(i => <li key={i}>{item(i)}</li>)}</ol>
+      <p style={{ margin: 0 }}>
+        <strong>{items.length === 1 ? 'A change, waiting for you:' : 'The plan, waiting for you:'}</strong>
+      </p>
+      <ol style={{ margin: '4px 0 10px' }}>
+        {items.map(i => (
+          <li key={i}>{item(i)}</li>
+        ))}
+      </ol>
       <div role="group" aria-label="Your decision" style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-        <button type="button" className="big" onClick={() => decide('approve')}>Approve</button>
-        {reject && <button type="button" className="big" onClick={() => decide('reject')}>Reject</button>}
+        <button type="button" className="big" onClick={() => decide('approve')}>
+          Approve
+        </button>
+        {reject && (
+          <button type="button" className="big" onClick={() => decide('reject')}>
+            Reject
+          </button>
+        )}
       </div>
     </div>
   );
@@ -183,47 +266,93 @@ export default function Plans() {
       module={MODULE}
       chapter={ID}
       steps={STEPS}
-      initial={{ plan: false, ran: false, approval: false, kase: 'damaged', dd: [], pd: [], p1: null, p2: null, p3: null, quiz: null }}
+      initial={{
+        plan: false,
+        ran: false,
+        approval: false,
+        kase: 'damaged',
+        dd: [],
+        pd: [],
+        p1: null,
+        p2: null,
+        p3: null,
+        quiz: null,
+      }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, inspect }) => <AgentStage run={current(state)} upTo={shownOf(state)} props={{ clipboard: true }} inspect={inspect} />}
+      stage={({ state, inspect }) => (
+        <AgentStage run={current(state)} upTo={shownOf(state)} props={{ clipboard: true }} inspect={inspect} />
+      )}
       controls={{
         plan: ({ state, sync }) => (
           <div role="group" aria-label="Plan mode" style={{ display: 'flex', gap: 8 }}>
             {[false, true].map(on => (
-              <button key={String(on)} type="button" className="chip" aria-pressed={state.plan === on} onClick={() => sync({ ...state, plan: on })}>
+              <button
+                key={String(on)}
+                type="button"
+                className="chip"
+                aria-pressed={state.plan === on}
+                onClick={() => sync({ ...state, plan: on })}
+              >
                 Plan mode: {on ? 'on' : 'off'}
               </button>
             ))}
           </div>
         ),
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
-        p2: ({ state, apply }) => <Predict {...P2} value={state.p2} onPredict={i => apply({ ...state, p2: i, approval: true })} />,
+        p2: ({ state, apply }) => (
+          <Predict {...P2} value={state.p2} onPredict={i => apply({ ...state, p2: i, approval: true })} />
+        ),
         p3: ({ state, apply }) => <Predict {...P3} value={state.p3} onPredict={i => apply({ ...state, p3: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUT1} />,
         out2: ({ state }) => <Outcome {...P2} prediction={state.p2} outcome={OUT2} />,
         out3: ({ state }) => <Outcome {...P3} prediction={state.p3} outcome={OUT3} />,
         run: ({ state, sync }) => (
           <>
-            {!state.ran && <button type="button" className="big" onClick={() => sync({ ...state, ran: true })}>Run the plan</button>}
-            {state.ran && <p className="tc-status" role="status">The agent: “{answerOf(ON)}”</p>}
+            {!state.ran && (
+              <button type="button" className="big" onClick={() => sync({ ...state, ran: true })}>
+                Run the plan
+              </button>
+            )}
+            {state.ran && (
+              <p className="tc-status" role="status">
+                The agent: “{answerOf(ON)}”
+              </p>
+            )}
           </>
         ),
         approval: ({ state, sync }) => <Approval s={state} sync={sync} />,
-        next: ({ state, apply }) => <button type="button" className="big" onClick={() => apply({ ...state, kase: 'planted' })}>Next case: an email with a planted line →</button>,
+        next: ({ state, apply }) => (
+          <button type="button" className="big" onClick={() => apply({ ...state, kase: 'planted' })}>
+            Next case: an email with a planted line →
+          </button>
+        ),
         ledger: ({ state }) => <Ledger after={current(state).orders} ids={[1042, EXTRA]} />,
         other: ({ state, sync }) => {
           const approved = state.pd[0] === 'approve';
           return (
-            <button type="button" className="big" onClick={() => sync({ ...state, pd: approved ? ['reject', 'approve'] : ['approve'] })}>
+            <button
+              type="button"
+              className="big"
+              onClick={() => sync({ ...state, pd: approved ? ['reject', 'approve'] : ['approve'] })}
+            >
               Try the other choice: {approved ? 'reject the plan' : 'approve it as written'}
             </button>
           );
         },
         guard: () => (
-          <p className="tc-status">One planted line is the simplest kind of prompt injection, and a person reading plans is only one defence. They get a module of their own: <a href={`/${GUARD.id}/`}>{GUARD.title}</a>.</p>
+          <p className="tc-status">
+            One planted line is the simplest kind of prompt injection, and a person reading plans is only one defence.
+            They get a module of their own: <a href={`/${GUARD.id}/`}>{GUARD.title}</a>.
+          </p>
         ),
         quiz: ({ state, apply, sync }) => (
-          <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
+          <Quiz
+            {...QUIZ}
+            unsure
+            value={state.quiz}
+            onAnswer={(_, q) => apply({ ...state, quiz: q })}
+            onUnsure={() => sync({ ...state, quiz: UNSURE })}
+          />
         ),
       }}
       inspectPanel="messages"
@@ -232,9 +361,14 @@ export default function Plans() {
           title: 'The plan',
           render: () => (
             <div className="tc-def">
-              <p className="lbl">The task</p><p>{REC.asks.damaged}</p>
+              <p className="lbl">The task</p>
+              <p>{REC.asks.damaged}</p>
               <p className="lbl">The plan, written before any tool ran</p>
-              <ol>{PLAN.items.map(i => <li key={i}>{item(i)}</li>)}</ol>
+              <ol>
+                {PLAN.items.map(i => (
+                  <li key={i}>{item(i)}</li>
+                ))}
+              </ol>
               <Fact id="ground-truth" />
             </div>
           ),
@@ -243,16 +377,29 @@ export default function Plans() {
           title: 'The email',
           render: () => (
             <div className="tc-def">
-              <p className="lbl">The customer’s email, as the agent reads it</p><p>{REC.asks.planted}</p>
+              <p className="lbl">The customer’s email, as the agent reads it</p>
+              <p>{REC.asks.planted}</p>
               <p className="lbl">The agent’s plan</p>
-              <ol>{PLANTED.items.map(i => <li key={i}>{item(i)}</li>)}</ol>
+              <ol>
+                {PLANTED.items.map(i => (
+                  <li key={i}>{item(i)}</li>
+                ))}
+              </ol>
               <Fact id="human-checkpoints" />
             </div>
           ),
         },
         messages: {
           title: 'Steps',
-          render: s => { const r = current(s); return <><Messages lanes={agentLanes(r)} msgs={agentMessages(r)} upTo={shownOf(s)} /><Fact id="agent-costs" /></>; },
+          render: s => {
+            const r = current(s);
+            return (
+              <>
+                <Messages lanes={agentLanes(r)} msgs={agentMessages(r)} upTo={shownOf(s)} />
+                <Fact id="agent-costs" />
+              </>
+            );
+          },
         },
       }}
     />

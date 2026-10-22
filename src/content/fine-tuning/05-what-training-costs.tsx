@@ -15,22 +15,41 @@ import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { Fact, FineTuneStage, META, ModelGate, loadModel, modelNow, type View } from './kit';
 
-const MODULE = 'fine-tuning', ID = '05-what-training-costs';
+const MODULE = 'fine-tuning',
+  ID = '05-what-training-costs';
 const ALL: Exclude<Weights, 'student'>[] = ['base', 'finetuned', 'lora'];
-const NAME: Record<Exclude<Weights, 'student'>, string> = { base: 'Base model', finetuned: 'Full fine-tune', lora: 'Base + adapter (LoRA)' };
+const NAME: Record<Exclude<Weights, 'student'>, string> = {
+  base: 'Base model',
+  finetuned: 'Full fine-tune',
+  lora: 'Base + adapter (LoRA)',
+};
 const EXAMPLES = (META.finetune!.training as { styleExamples: number }).styleExamples;
-const DOCS = HELDOUT.docs.length, TOKENS = HELDOUT.ids.reduce((n, d) => n + d.length, 0);
+const DOCS = HELDOUT.docs.length,
+  TOKENS = HELDOUT.ids.reduce((n, d) => n + d.length, 0);
 /** the held-out line of each recorded run: how the score moved while it trained */
 export const HELDOUT_SERIES: Series[] = [
-  { id: 'full', label: 'Full, held-out', points: META.finetune!.lossCurve.map(p => ({ step: p.step, loss: p.heldout })) },
+  {
+    id: 'full',
+    label: 'Full, held-out',
+    points: META.finetune!.lossCurve.map(p => ({ step: p.step, loss: p.heldout })),
+  },
   { id: 'lora', label: 'LoRA, held-out', points: META.lora!.lossCurve.map(p => ({ step: p.step, loss: p.heldout })) },
 ];
 
 /** a set of weights' held-out loss, once its file is in */
-const lossOf = (w: Weights) => { const m = modelNow(w); return m ? heldoutScore(m).loss : undefined; };
+const lossOf = (w: Weights) => {
+  const m = modelNow(w);
+  return m ? heldoutScore(m).loss : undefined;
+};
 const signed = (x: number) => `${x >= 0 ? '+' : '−'}${loss(Math.abs(x))}`;
 
-interface S { base: boolean; p1: number | null; scored: boolean; view: View; quiz: number | null }
+interface S {
+  base: boolean;
+  p1: number | null;
+  scored: boolean;
+  view: View;
+  quiz: number | null;
+}
 
 export const P1 = {
   question: `Both fine-tunes trained on the same ${EXAMPLES} replies and never saw these documents. Score them on the same held-out text. Which one’s held-out loss rises more over the base model?`,
@@ -47,7 +66,8 @@ export function forgetOutcome(base: number, full: number, lora: number) {
 }
 
 const QUIZ = {
-  question: 'A team fully fine-tunes its assistant on 2,000 legal replies. The replies sound right, but it now answers general product questions worse than before. What is the cheapest next thing to try?',
+  question:
+    'A team fully fine-tunes its assistant on 2,000 legal replies. The replies sound right, but it now answers general product questions worse than before. What is the cheapest next thing to try?',
   options: [
     'Train longer on the legal replies, so the model settles',
     'Train a small adapter instead and compare both on held-out general questions before choosing',
@@ -55,7 +75,8 @@ const QUIZ = {
     'Add “don’t forget the products” to the prompt',
   ],
   correct: 1,
-  explanation: 'An adapter changes fewer weights, so it usually learns less and forgets less; measuring both on held-out questions shows the trade.',
+  explanation:
+    'An adapter changes fewer weights, so it usually learns less and forgets less; measuring both on held-out questions shows the trade.',
   why: [
     'More training on the narrow set usually pulls the weights further from what they knew: the held-out loss keeps rising.',
     'Right. Score both on held-out questions, as this chapter did. An adapter often keeps more of the base model’s skills, and if the base still matters most, a prompt may be enough.',
@@ -66,22 +87,31 @@ const QUIZ = {
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'base', focus: 'base', visibleControls: ['heldout', 'base'],
+    id: 'base',
+    focus: 'base',
+    visibleControls: ['heldout', 'base'],
     narration: `Training taught Larkspur mini a sign-off. What did it cost? To find out, score text the model never trained on: held-out text. Larkspur kept ${DOCS} of its documents out of every training run. The score is the loss from chapter 2, averaged over all ${TOKENS} pieces: lower means the model predicts the text better. Score the base model first.`,
     predicate: s => s.base && lossOf('base') !== undefined,
   },
   {
-    id: 'predict', focus: 'p1', visibleControls: ['baseScore', 'p1'],
-    narration: 'That is the base model’s score, computed in your browser just now. The full fine-tune changed every weight; the adapter changed a few percent, beside the base. Before you score them:',
+    id: 'predict',
+    focus: 'p1',
+    visibleControls: ['baseScore', 'p1'],
+    narration:
+      'That is the base model’s score, computed in your browser just now. The full fine-tune changed every weight; the adapter changed a few percent, beside the base. Before you score them:',
     predicate: s => s.p1 !== null,
   },
   {
-    id: 'score', focus: 'score', visibleControls: ['p1', 'score'],
+    id: 'score',
+    focus: 'score',
+    visibleControls: ['p1', 'score'],
     narration: 'Score both fine-tunes on the same held-out text, the same way.',
     predicate: s => s.scored && lossOf('finetuned') !== undefined && lossOf('lora') !== undefined,
   },
   {
-    id: 'quiz', focus: 'quiz', visibleControls: ['scores', 'facts', 'quiz'],
+    id: 'quiz',
+    focus: 'quiz',
+    visibleControls: ['scores', 'facts', 'quiz'],
     narration: `Both fine-tunes predict Larkspur’s own documents worse than before, the full one by more: training on ${EXAMPLES} replies pulled the weights away from what they knew. That is forgetting. The adapter changed less and lost less. These numbers come from Larkspur mini, a tiny model, not from any provider; on real models researchers report the same trade, cited below. One question to finish.`,
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which choice measures the trade before committing to it?',
@@ -91,30 +121,51 @@ export const STEPS: Step<S>[] = [
 /** the three live scores, with each fine-tune's rise over the base */
 function Scores() {
   return (
-    <ModelGate weights="base">{() => (
-      <ModelGate weights="finetuned">{() => (
-        <ModelGate weights="lora">{() => {
-          const b = lossOf('base')!;
-          return (
-            <table className="tc-ledger" style={{ marginTop: 10 }} data-scores>
-              <caption>Held-out loss, computed in your browser</caption>
-              <thead><tr><th scope="col">Weights</th><th scope="col">Held-out loss</th><th scope="col">Against the base</th></tr></thead>
-              <tbody>
-                {ALL.map(w => { const l = lossOf(w)!; return (
-                  <tr key={w} data-weights={w}><th scope="row">{NAME[w]}</th><td>{loss(l)}</td><td>{w === 'base' ? '—' : signed(l - b)}</td></tr>
-                ); })}
-              </tbody>
-            </table>
-          );
-        }}</ModelGate>
-      )}</ModelGate>
-    )}</ModelGate>
+    <ModelGate weights="base">
+      {() => (
+        <ModelGate weights="finetuned">
+          {() => (
+            <ModelGate weights="lora">
+              {() => {
+                const b = lossOf('base')!;
+                return (
+                  <table className="tc-ledger" style={{ marginTop: 10 }} data-scores>
+                    <caption>Held-out loss, computed in your browser</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Weights</th>
+                        <th scope="col">Held-out loss</th>
+                        <th scope="col">Against the base</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ALL.map(w => {
+                        const l = lossOf(w)!;
+                        return (
+                          <tr key={w} data-weights={w}>
+                            <th scope="row">{NAME[w]}</th>
+                            <td>{loss(l)}</td>
+                            <td>{w === 'base' ? '—' : signed(l - b)}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                );
+              }}
+            </ModelGate>
+          )}
+        </ModelGate>
+      )}
+    </ModelGate>
   );
 }
 
 export default function WhatTrainingCosts() {
   // fetch all three weight sets on load, so the chapter plays on with the network gone
-  useEffect(() => { for (const w of ALL) loadModel(w).catch(() => {}); }, []);
+  useEffect(() => {
+    for (const w of ALL) loadModel(w).catch(() => {});
+  }, []);
   return (
     <StepRunner<S>
       module={MODULE}
@@ -123,16 +174,26 @@ export default function WhatTrainingCosts() {
       initial={{ base: false, p1: null, scored: false, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
       stage={({ state, sync }) => {
-        const w: Weights = state.scored ? 'finetuned' : 'base', b = lossOf('base'), f = lossOf('finetuned'), l = lossOf('lora');
+        const w: Weights = state.scored ? 'finetuned' : 'base',
+          b = lossOf('base'),
+          f = lossOf('finetuned'),
+          l = lossOf('lora');
         return (
-          <FineTuneStage weights={w} view={state.view} onView={view => sync({ ...state, view })} show={() => ({
-            scene: { lit: state.scored ? 'weights' : null, weights: w },
-            results: state.scored ? { series: HELDOUT_SERIES } : undefined,
-            caption: state.scored && b !== undefined && f !== undefined && l !== undefined
-              ? `Held-out loss: base ${loss(b)}, full fine-tune ${loss(f)} (${signed(f - b)}), adapter ${loss(l)} (${signed(l - b)}).`
-              : state.base && b !== undefined ? `The base model scores ${loss(b)} on the held-out text.`
-              : 'Larkspur mini on the bench, with the held-out documents beside it.',
-          })} />
+          <FineTuneStage
+            weights={w}
+            view={state.view}
+            onView={view => sync({ ...state, view })}
+            show={() => ({
+              scene: { lit: state.scored ? 'weights' : null, weights: w },
+              results: state.scored ? { series: HELDOUT_SERIES } : undefined,
+              caption:
+                state.scored && b !== undefined && f !== undefined && l !== undefined
+                  ? `Held-out loss: base ${loss(b)}, full fine-tune ${loss(f)} (${signed(f - b)}), adapter ${loss(l)} (${signed(l - b)}).`
+                  : state.base && b !== undefined
+                    ? `The base model scores ${loss(b)} on the held-out text.`
+                    : 'Larkspur mini on the bench, with the held-out documents beside it.',
+            })}
+          />
         );
       }}
       controls={{
@@ -143,31 +204,68 @@ export default function WhatTrainingCosts() {
           </div>
         ),
         base: ({ state, sync }) => (
-          <ModelGate weights="base">{() => <button type="button" className="big" onClick={() => sync({ ...state, base: true })}>Score the base model</button>}</ModelGate>
+          <ModelGate weights="base">
+            {() => (
+              <button type="button" className="big" onClick={() => sync({ ...state, base: true })}>
+                Score the base model
+              </button>
+            )}
+          </ModelGate>
         ),
         baseScore: () => (
-          <ModelGate weights="base">{m => <p className="tc-status" role="status">Base model: held-out loss <strong>{loss(heldoutScore(m).loss)}</strong>.</p>}</ModelGate>
+          <ModelGate weights="base">
+            {m => (
+              <p className="tc-status" role="status">
+                Base model: held-out loss <strong>{loss(heldoutScore(m).loss)}</strong>.
+              </p>
+            )}
+          </ModelGate>
         ),
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         score: ({ state, sync }) => (
-          <ModelGate weights="finetuned">{() => (
-            <ModelGate weights="lora">{() => (
-              <button type="button" className="big" onClick={() => sync({ ...state, scored: true, view: 'results' })}>Score both fine-tunes</button>
-            )}</ModelGate>
-          )}</ModelGate>
+          <ModelGate weights="finetuned">
+            {() => (
+              <ModelGate weights="lora">
+                {() => (
+                  <button
+                    type="button"
+                    className="big"
+                    onClick={() => sync({ ...state, scored: true, view: 'results' })}
+                  >
+                    Score both fine-tunes
+                  </button>
+                )}
+              </ModelGate>
+            )}
+          </ModelGate>
         ),
         scores: ({ state }) => {
-          const b = lossOf('base'), f = lossOf('finetuned'), l = lossOf('lora');
+          const b = lossOf('base'),
+            f = lossOf('finetuned'),
+            l = lossOf('lora');
           return (
             <>
-              {b !== undefined && f !== undefined && l !== undefined && <Outcome {...P1} prediction={state.p1} outcome={forgetOutcome(b, f, l)} />}
+              {b !== undefined && f !== undefined && l !== undefined && (
+                <Outcome {...P1} prediction={state.p1} outcome={forgetOutcome(b, f, l)} />
+              )}
               <Scores />
             </>
           );
         },
-        facts: () => <><Fact id="lora-learns-less" /><Fact id="catastrophic-forgetting" /></>,
+        facts: () => (
+          <>
+            <Fact id="lora-learns-less" />
+            <Fact id="catastrophic-forgetting" />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
-          <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
+          <Quiz
+            {...QUIZ}
+            unsure
+            value={state.quiz}
+            onAnswer={(_, q) => apply({ ...state, quiz: q })}
+            onUnsure={() => sync({ ...state, quiz: UNSURE })}
+          />
         ),
       }}
     />

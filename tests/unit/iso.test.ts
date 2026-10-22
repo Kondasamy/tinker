@@ -5,9 +5,11 @@ import { P, P0, withFrame, ink, inkScale, clipTo, unrotXY } from '../../src/lib/
 import { BLOCKS, BLOCK_TYPES, renderers, blockShadow, blockTag, type BlockType } from '../../src/lib/iso/blocks';
 import IsoStage, { frameFor, stageFrame, type Board, type SceneCtx } from '../../src/lib/iso/IsoStage';
 
-const restScene = (types: BlockType[]) => ({ top }: SceneCtx) =>
-  types.map((t, i) => blockShadow(t, 28 + i * 56, 28, top)).join('') +
-  types.map((t, i) => renderers[t]({ x: 28 + i * 56, y: 28, stat: '3 THINGS' })).join('');
+const restScene =
+  (types: BlockType[]) =>
+  ({ top }: SceneCtx) =>
+    types.map((t, i) => blockShadow(t, 28 + i * 56, 28, top)).join('') +
+    types.map((t, i) => renderers[t]({ x: 28 + i * 56, y: 28, stat: '3 THINGS' })).join('');
 
 describe('projection and framing', () => {
   it('maps the board corners into the viewBox with padding', () => {
@@ -53,7 +55,11 @@ describe('block renderers', () => {
     expect(pill).toContain(`>${BLOCKS[type].label} · 7 &lt;ITEMS&gt;</text>`);
     expect(pill).toContain(`data-pick="${type}"`);
     // the name starts with the words shown for the block (WCAG 2.5.3), then what the block is
-    expect(svg).toMatch(new RegExp(`^<g class="block" role="button" tabindex="0" aria-label="[^"]*${BLOCKS[type].label.toLowerCase()} 7 &lt;items&gt;: ${BLOCKS[type].name} block" data-block="${type}">`));
+    expect(svg).toMatch(
+      new RegExp(
+        `^<g class="block" role="button" tabindex="0" aria-label="[^"]*${BLOCKS[type].label.toLowerCase()} 7 &lt;items&gt;: ${BLOCKS[type].name} block" data-block="${type}">`,
+      ),
+    );
   });
 
   it('draws the selected ring only when selected', () => {
@@ -67,13 +73,18 @@ describe('block renderers', () => {
 
 describe('IsoStage', () => {
   it('renders two stages on one page with unique ids and their own framing', () => {
-    const a: Board = [0, 0, 120, 60], b: Board = [0, 0, 400, 240];
-    const html = renderToString(createElement(Fragment, null,
-      createElement(IsoStage, { board: a, label: 'Stage A', scene: restScene(['docs', 'chunker']) }),
-      createElement(IsoStage, { board: b, label: 'Stage B', scene: restScene(['index', 'retriever', 'llm']) }),
-    ));
+    const a: Board = [0, 0, 120, 60],
+      b: Board = [0, 0, 400, 240];
+    const html = renderToString(
+      createElement(
+        Fragment,
+        null,
+        createElement(IsoStage, { board: a, label: 'Stage A', scene: restScene(['docs', 'chunker']) }),
+        createElement(IsoStage, { board: b, label: 'Stage B', scene: restScene(['index', 'retriever', 'llm']) }),
+      ),
+    );
     const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(m => m[1]);
-    expect(ids.length).toBeGreaterThanOrEqual(2 + 5);   // two filters + one clip per shadow
+    expect(ids.length).toBeGreaterThanOrEqual(2 + 5); // two filters + one clip per shadow
     expect(new Set(ids).size).toBe(ids.length);
     // every url(#…) reference points at an id in the same page
     for (const [, ref] of html.matchAll(/url\(#([^)]+)\)/g)) expect(ids).toContain(ref);
@@ -88,8 +99,26 @@ describe('IsoStage', () => {
   });
 
   it('clip ids carry the frame prefix and restart per frame', () => {
-    const one = withFrame({ prefix: 'p1-' }, () => clipTo([[0, 0, 0], [1, 0, 0], [0, 1, 0]], ''));
-    const two = withFrame({ prefix: 'p2-' }, () => clipTo([[0, 0, 0], [1, 0, 0], [0, 1, 0]], ''));
+    const one = withFrame({ prefix: 'p1-' }, () =>
+      clipTo(
+        [
+          [0, 0, 0],
+          [1, 0, 0],
+          [0, 1, 0],
+        ],
+        '',
+      ),
+    );
+    const two = withFrame({ prefix: 'p2-' }, () =>
+      clipTo(
+        [
+          [0, 0, 0],
+          [1, 0, 0],
+          [0, 1, 0],
+        ],
+        '',
+      ),
+    );
     expect(one).toContain('id="p1-k1"');
     expect(two).toContain('id="p2-k1"');
   });
@@ -104,16 +133,17 @@ describe('turning and zoom', () => {
       expect(f.w).toBeCloseTo(f0.w, 6);
       expect(f.h).toBeCloseTo(f0.h, 6);
     }
-    expect(frameFor(b, .5).w).toBeGreaterThan(f0.w);
-    expect(stageFrame(b, .5).inkK).toBe(f0.inkK);   // ink weight stays put while turning
+    expect(frameFor(b, 0.5).w).toBeGreaterThan(f0.w);
+    expect(stageFrame(b, 0.5).inkK).toBe(f0.inkK); // ink weight stays put while turning
   });
   it('unrotXY undoes the turn at any angle', () => {
     // the model point under turned floor point (40, 90) projects to where (40, 90) would without a turn
-    for (const view of [0, .3, 1, 2.7]) withFrame({ view, center: [150, 60] }, () => {
-      const [ux, uy] = unrotXY(40, 90);
-      expect(P(ux, uy, 0)[0]).toBeCloseTo(P0(40, 90, 0)[0], 6);
-      expect(P(ux, uy, 0)[1]).toBeCloseTo(P0(40, 90, 0)[1], 6);
-    });
+    for (const view of [0, 0.3, 1, 2.7])
+      withFrame({ view, center: [150, 60] }, () => {
+        const [ux, uy] = unrotXY(40, 90);
+        expect(P(ux, uy, 0)[0]).toBeCloseTo(P0(40, 90, 0)[0], 6);
+        expect(P(ux, uy, 0)[1]).toBeCloseTo(P0(40, 90, 0)[1], 6);
+      });
   });
   it('turned round, labels move to the faces now toward the viewer', () => {
     const front = withFrame({}, () => renderers.llm({ x: 0, y: 0, stat: 'X' }));
@@ -123,8 +153,14 @@ describe('turning and zoom', () => {
     expect(back.match(/aria-label="[^"]*"/)![0]).toBe(front.match(/aria-label="[^"]*"/)![0]);
   });
   it('zoom crops the viewBox about its point and hides overflow', () => {
-    const html = renderToString(createElement(IsoStage, { board: b, label: 'Z', scene: '', zoom: { k: 2, u: 0, v: 1 } }));
-    const f = frameFor(b), [x, y, w, h] = html.match(/viewBox="([^"]+)"/)![1].split(' ').map(Number);
+    const html = renderToString(
+      createElement(IsoStage, { board: b, label: 'Z', scene: '', zoom: { k: 2, u: 0, v: 1 } }),
+    );
+    const f = frameFor(b),
+      [x, y, w, h] = html
+        .match(/viewBox="([^"]+)"/)![1]
+        .split(' ')
+        .map(Number);
     expect([x, w]).toEqual([0, +(f.w / 2).toFixed(1)]);
     expect(y).toBeCloseTo(f.h / 2, 1);
     expect(h).toBeCloseTo(f.h / 2, 1);

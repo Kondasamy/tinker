@@ -4,14 +4,22 @@ import type { Model } from '../lm/model';
 import { decode, type Decoded } from './decode';
 import { compile, type Grammar, type ObjectSchema } from './grammar';
 
-export interface Run { id: string; chapter: number; prompt: string; schema: string | null; seed?: number; output: string; status: 'done' | 'cut-off' }
+export interface Run {
+  id: string;
+  chapter: number;
+  prompt: string;
+  schema: string | null;
+  seed?: number;
+  output: string;
+  status: 'done' | 'cut-off';
+}
 
 export const SCHEMAS = data.schemas as unknown as Record<string, ObjectSchema>;
 export const RUNS = data.runs as Run[];
 export const HEAL = data.heal;
 
 export function run(id: string): Run {
-  const r = RUNS.find((x) => x.id === id);
+  const r = RUNS.find(x => x.id === id);
   if (!r) throw new Error(`unknown run: ${id}`);
   return r;
 }
@@ -25,7 +33,8 @@ export function play(model: Model, r: Run) {
   if (!m) cache.set(model, (m = new Map()));
   const hit = m.get(r.id);
   if (hit) return hit;
-  const s = schemaOf(r), g = s && compile(s);
+  const s = schemaOf(r),
+    g = s && compile(s);
   const out = { grammar: g, decoded: decode(model, r.prompt, g, r.seed === undefined ? {} : { seed: r.seed }) };
   m.set(r.id, out);
   return out;

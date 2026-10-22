@@ -14,7 +14,10 @@ const STATES: [string, string, typeof real?][] = [
   ['Idle: no text', ''],
   ['One word', 'Refunds'],
   ['A Larkspur question', 'Can enterprise customers get a refund?'],
-  ['More tokens than the belt holds', 'Larkspur ships shelving, ladders and tool chests to warehouses across the country.'],
+  [
+    'More tokens than the belt holds',
+    'Larkspur ships shelving, ladders and tool chests to warehouses across the country.',
+  ],
   ['Typed markup stays text', '<script>alert("hi")</script>'],
   ['Byte chips: an emoji the tokenizer cut', 'Coffee ☕ break'],
   [`A real tokenizer (${TOKENIZERS[0].name})`, SENTENCES.find(s => s.id === 'order-ja')!.text, real],

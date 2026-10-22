@@ -5,17 +5,14 @@ import { RECALL } from './recall';
 
 const CHAPTERS: Chapter[] = [
   {
-    id: '01-first-step', title: 'First step', short: 'First step',
+    id: '01-first-step',
+    title: 'First step',
+    short: 'First step',
     intro: {
       story: 'Where the story stands as the chapter opens: who the reader is, and the problem in front of them.',
       goal: 'The one question this chapter answers?',
-      learn: [
-        'The first thing the reader will be able to explain',
-        'The second thing',
-      ],
-      terms: [
-        ['System', 'Define each term the first time a chapter uses it.'],
-      ],
+      learn: ['The first thing the reader will be able to explain', 'The second thing'],
+      terms: [['System', 'Define each term the first time a chapter uses it.']],
     },
   },
 ];

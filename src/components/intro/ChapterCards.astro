@@ -5,7 +5,10 @@ import type { Chapter } from '../../lib/modules';
 import { chapterHref } from '../../lib/modules';
 import { chapterMeta } from '../../lib/pages';
 
-interface Props { module: string; chapters: Chapter[] }
+interface Props {
+  module: string;
+  chapters: Chapter[];
+}
 const { module, chapters } = Astro.props;
 ---
 <ol class="path cards">

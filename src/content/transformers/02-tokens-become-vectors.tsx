@@ -15,19 +15,23 @@ import { pieceLabel } from '../../components/scenes/attentionMap';
 import META from '../../../public/data/lm/meta.json' with { type: 'json' };
 import { Fact, TransformersStage, Waiting, useModel, whenLoaded } from './kit';
 
-const MODULE = 'transformers', ID = '02-tokens-become-vectors';
+const MODULE = 'transformers',
+  ID = '02-tokens-become-vectors';
 export const PROMPT = PROMPTS.find(p => p.id === 'long')!;
 export const PIECE = ' business';
-const IDS = encode(PROMPT.text), PIECE_ID = encode(PIECE)[0];
+const IDS = encode(PROMPT.text),
+  PIECE_ID = encode(PIECE)[0];
 /** Where the piece sits in the prompt: two places (a test holds that). */
 export const COPIES = IDS.flatMap((id, t) => (id === PIECE_ID ? [t] : []));
 const LM = META.model;
 const W = `“${PIECE.trim()}”`;
 
-const row = (m: Model, name: string, r: number) => Array.from(m.tensors[name].subarray(r * LM.d_model, (r + 1) * LM.d_model));
+const row = (m: Model, name: string, r: number) =>
+  Array.from(m.tensors[name].subarray(r * LM.d_model, (r + 1) * LM.d_model));
 /** The three rows the model adds up for the token at position t: its embedding, its position's row, and the sum. */
 export function inputOf(m: Model, t: number) {
-  const token = row(m, 'wte.weight', IDS[t]), position = row(m, 'wpe.weight', t);
+  const token = row(m, 'wte.weight', IDS[t]),
+    position = row(m, 'wpe.weight', t);
   return { token, position, sum: token.map((v, i) => v + position[i]) };
 }
 /** 0 if the two copies start as the same numbers, 1 if they don't: read off the weights. */
@@ -42,15 +46,44 @@ const peak = (v: number[]) => Math.max(...v.map(Math.abs)) || 1;
 function Vec({ v, label, max = peak(v) }: { v: number[]; label: string; max?: number }) {
   return (
     <figure className="tf-vecfig">
-      <div className="tf-vec" style={{ gridTemplateColumns: `repeat(${v.length}, 1fr)` }} role="img" aria-label={`${label}: ${v.length} numbers, starting ${v.slice(0, 4).map(x => x.toFixed(2)).join(', ')}`}>
-        {v.map((x, i) => <span key={i} style={{ background: `color-mix(in srgb, var(${x >= 0 ? '--tomato-m' : '--cobalt-m'}) ${Math.round(100 * Math.abs(x) / max)}%, var(--card))` }} />)}
+      <div
+        className="tf-vec"
+        style={{ gridTemplateColumns: `repeat(${v.length}, 1fr)` }}
+        role="img"
+        aria-label={`${label}: ${v.length} numbers, starting ${v
+          .slice(0, 4)
+          .map(x => x.toFixed(2))
+          .join(', ')}`}
+      >
+        {v.map((x, i) => (
+          <span
+            key={i}
+            style={{
+              background: `color-mix(in srgb, var(${x >= 0 ? '--tomato-m' : '--cobalt-m'}) ${Math.round((100 * Math.abs(x)) / max)}%, var(--card))`,
+            }}
+          />
+        ))}
       </div>
-      <figcaption>{label} <span className="tf-nums">{v.slice(0, 3).map(x => x.toFixed(2)).join(', ')}, …</span></figcaption>
+      <figcaption>
+        {label}{' '}
+        <span className="tf-nums">
+          {v
+            .slice(0, 3)
+            .map(x => x.toFixed(2))
+            .join(', ')}
+          , …
+        </span>
+      </figcaption>
     </figure>
   );
 }
 
-interface S { looked: boolean; p1: number | null; revealed: boolean; quiz: number | null }
+interface S {
+  looked: boolean;
+  p1: number | null;
+  revealed: boolean;
+  quiz: number | null;
+}
 
 const P1 = {
   question: `${W} is in this prompt twice: token ${COPIES[0] + 1} and token ${COPIES[1] + 1}. When the model starts reading, are the two copies the same ${LM.d_model} numbers?`,
@@ -62,14 +95,16 @@ const P1 = {
 };
 
 const QUIZ = {
-  question: 'Two prompts: “refund the order, not the shipping” and “refund the shipping, not the order”. Same tokens, different order. Suppose the model had no position rows. What would the vectors it starts from say about which word came first?',
+  question:
+    'Two prompts: “refund the order, not the shipping” and “refund the shipping, not the order”. Same tokens, different order. Suppose the model had no position rows. What would the vectors it starts from say about which word came first?',
   options: [
     'Nothing: “order” starts as the same vector in both prompts, wherever it sits',
     'Which came first: each token’s row already holds its place',
     'Which came first: each vector is shaped by its neighbours before the model starts',
   ],
   correct: 0,
-  explanation: 'A token’s row in the embedding table is the same wherever it sits. Only the position row, added to it, puts the place into the numbers the model starts from.',
+  explanation:
+    'A token’s row in the embedding table is the same wherever it sits. Only the position row, added to it, puts the place into the numbers the model starts from.',
   why: [
     'Right. The embedding table has one row per token, not per place. Adding a position’s row is what makes “order” in third place start from different numbers than “order” in fifth.',
     `You saw ${W} look up one row for both copies: the token row holds no place. The difference came only from the position rows.`,
@@ -79,23 +114,31 @@ const QUIZ = {
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'look', focus: 'look', visibleControls: ['look'],
+    id: 'look',
+    focus: 'look',
+    visibleControls: ['look'],
     narration: `To the model, a token is only an id, and an id is no use for arithmetic. So the first thing Larkspur mini does is swap each id for a vector: a list of ${LM.d_model} numbers. It keeps a table with one row per token in its vocabulary, ${LM.vocab} rows, learned in training. That row is the token’s embedding. Look one up.`,
     predicate: whenLoaded(s => s.looked),
     hint: 'Press the button. If the model is still loading, wait for the picture to settle.',
   },
   {
-    id: 'predict', focus: 'p1', visibleControls: ['row', 'p1'],
+    id: 'predict',
+    focus: 'p1',
+    visibleControls: ['row', 'p1'],
     narration: `That strip is ${W}’s embedding, one cell per number (warm above zero, cool below). The picture shows a longer prompt from Larkspur’s guides. Before you look closer:`,
     predicate: s => s.p1 !== null,
   },
   {
-    id: 'reveal', focus: 'reveal', visibleControls: ['p1', 'reveal'],
+    id: 'reveal',
+    focus: 'reveal',
+    visibleControls: ['p1', 'reveal'],
     narration: 'Locked in. See what the model starts from for each copy.',
     predicate: s => s.revealed,
   },
   {
-    id: 'quiz', focus: 'quiz', visibleControls: ['out1', 'sums', 'quiz'],
+    id: 'quiz',
+    focus: 'quiz',
+    visibleControls: ['out1', 'sums', 'quiz'],
     narration: `Both copies look up the same token row. Then the model adds a second row from a position table, one row per place in its ${LM.ctx}-token window, and the sums differ. That is the position embedding: without it, the model would read a prompt as a bag of tokens with no order. One question to finish.`,
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Does a token’s row in the embedding table say where the token sits?',
@@ -113,38 +156,58 @@ export default function TokensBecomeVectors() {
       initial={{ looked: false, p1: null, revealed: false, quiz: null }}
       next={nextOf(MODULE, ID)}
       stage={({ state }) => (
-        <TransformersStage prompt={PROMPT.text} query={COPIES[state.revealed ? 1 : 0]}
-          caption={`${W} is token ${COPIES[0] + 1} and token ${COPIES[1] + 1}. Numbers from Larkspur mini’s own weights.`} />
+        <TransformersStage
+          prompt={PROMPT.text}
+          query={COPIES[state.revealed ? 1 : 0]}
+          caption={`${W} is token ${COPIES[0] + 1} and token ${COPIES[1] + 1}. Numbers from Larkspur mini’s own weights.`}
+        />
       )}
       controls={{
         look: ({ state, apply }) => (
           <>
-            <button type="button" className="big" disabled={!model} onClick={() => apply({ ...state, looked: true })}>Look up {W}</button>
+            <button type="button" className="big" disabled={!model} onClick={() => apply({ ...state, looked: true })}>
+              Look up {W}
+            </button>
             {!model && <Waiting />}
           </>
         ),
-        row: () => model ? <Vec v={inputOf(model, COPIES[0]).token} label={`${W}’s embedding`} /> : <Waiting />,
+        row: () => (model ? <Vec v={inputOf(model, COPIES[0]).token} label={`${W}’s embedding`} /> : <Waiting />),
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
-        reveal: ({ state, apply }) => <button type="button" className="chip" onClick={() => apply({ ...state, revealed: true })}>Show both copies</button>,
-        out1: ({ state }) => model ? <Outcome {...P1} prediction={state.p1} outcome={outcomeOf(model)} /> : <Waiting />,
-        sums: () => model ? (
-          <div className="tf-copies">
-            {COPIES.map(t => {
-              const v = inputOf(model, t), max = Math.max(peak(v.token), peak(v.position), peak(v.sum));
-              return (
-                <div key={t}>
-                  <p className="lbl">{`${pieceLabel(PIECE)} as token ${t + 1}`}</p>
-                  <Vec v={v.token} max={max} label="Its token row" />
-                  <Vec v={v.position} max={max} label={`+ position ${t + 1}’s row`} />
-                  <Vec v={v.sum} max={max} label="= what the model starts from" />
-                </div>
-              );
-            })}
-          </div>
-        ) : <Waiting />,
+        reveal: ({ state, apply }) => (
+          <button type="button" className="chip" onClick={() => apply({ ...state, revealed: true })}>
+            Show both copies
+          </button>
+        ),
+        out1: ({ state }) =>
+          model ? <Outcome {...P1} prediction={state.p1} outcome={outcomeOf(model)} /> : <Waiting />,
+        sums: () =>
+          model ? (
+            <div className="tf-copies">
+              {COPIES.map(t => {
+                const v = inputOf(model, t),
+                  max = Math.max(peak(v.token), peak(v.position), peak(v.sum));
+                return (
+                  <div key={t}>
+                    <p className="lbl">{`${pieceLabel(PIECE)} as token ${t + 1}`}</p>
+                    <Vec v={v.token} max={max} label="Its token row" />
+                    <Vec v={v.position} max={max} label={`+ position ${t + 1}’s row`} />
+                    <Vec v={v.sum} max={max} label="= what the model starts from" />
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <Waiting />
+          ),
         quiz: ({ state, apply, sync }) => (
           <>
-            <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
+            <Quiz
+              {...QUIZ}
+              unsure
+              value={state.quiz}
+              onAnswer={(_, q) => apply({ ...state, quiz: q })}
+              onUnsure={() => sync({ ...state, quiz: UNSURE })}
+            />
             <Fact id="rope" />
           </>
         ),

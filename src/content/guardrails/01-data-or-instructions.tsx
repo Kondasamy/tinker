@@ -15,7 +15,8 @@ import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
 import { Email, Fact, GuardStage, runCached, says, sender } from './kit';
 
-const MODULE = 'guardrails', ID = '01-data-or-instructions';
+const MODULE = 'guardrails',
+  ID = '01-data-or-instructions';
 type Case = 'direct' | 'invoice';
 const CASES: Case[] = ['direct', 'invoice'];
 const key = (c: Case, rule: boolean) => `${c}:${rule ? 'on' : 'off'}`;
@@ -28,7 +29,15 @@ const NAME: Record<Case, string> = { direct: `${owner(sender('direct'))} email`,
 const PLANTED = ORDERS.find(o => o.injected)!;
 const OUTSIDE = R('invoice', false).sent.find(m => m.tool === 'send_email')!.to;
 
-interface S { kase: Case; rule: boolean; ran: boolean; seen: string[]; opened: boolean; p1: number | null; quiz: number | null }
+interface S {
+  kase: Case;
+  rule: boolean;
+  ran: boolean;
+  seen: string[];
+  opened: boolean;
+  p1: number | null;
+  quiz: number | null;
+}
 const current = (s: S) => R(s.kase, s.rule);
 const seenBoth = (s: S, rule: boolean) => CASES.every(c => s.seen.includes(key(c, rule)));
 
@@ -46,7 +55,8 @@ const stops = (c: Case) => !R(c, true).attackMet;
 const OUT1 = stops('direct') ? (stops('invoice') ? 0 : 1) : stops('invoice') ? 2 : 3;
 
 const QUIZ = {
-  question: 'Larkspur’s assistant will also read web pages that customers link to. A colleague says: “We’ll add a line to the prompt telling it to ignore instructions on web pages. Then we’re covered.” What do you tell them?',
+  question:
+    'Larkspur’s assistant will also read web pages that customers link to. A colleague says: “We’ll add a line to the prompt telling it to ignore instructions on web pages. Then we’re covered.” What do you tell them?',
   options: [
     'Agreed: a clear rule in the prompt is what the model follows first',
     'The line helps, but it is not enough: the model can’t reliably tell a page’s instructions from its information, and a page can claim to speak for Larkspur. Something outside the model has to limit what an attack can do',
@@ -65,40 +75,58 @@ const QUIZ = {
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'recap', focus: 'open', visibleControls: ['open'],
+    id: 'recap',
+    focus: 'open',
+    visibleControls: ['open'],
     narration: `In Tool calling, someone planted a note on order ${PLANTED.id} telling the model to refund money. The model proposed the refund, and only a person at the approval gate stopped it. Now Larkspur’s assistant works the support inbox. It reads each email, can look up a customer’s private record, and can send email to any address. A note no longer has to sneak onto an order: anyone can write to the assistant. Open the first email.`,
     predicate: s => s.opened,
   },
   {
-    id: 'run-direct', focus: 'run', visibleControls: ['run'], opensDrawer: 'email',
+    id: 'run-direct',
+    focus: 'run',
+    visibleControls: ['run'],
+    opensDrawer: 'email',
     narration: `${sender('direct')}, a customer, wrote this email themselves. It tells the assistant to ignore its instructions. When the person using the assistant writes the attack, it is a direct prompt injection. ${fact('direct-injection').claim} Run it.`,
     predicate: s => s.seen.includes(key('direct', false)),
     hint: 'Press the run button.',
   },
   {
-    id: 'direct', focus: 'next', visibleControls: ['tally', 'next'], opensDrawer: null,
+    id: 'direct',
+    focus: 'next',
+    visibleControls: ['tally', 'next'],
+    opensDrawer: null,
     narration: `The attack worked: ${says('direct')}. The model read “refund mode” and “limits are switched off” and acted on them, because nothing in the text says who really wrote it. Larkspur gets one more email.`,
     predicate: s => s.kase === 'invoice',
   },
   {
-    id: 'run-invoice', focus: 'run', visibleControls: ['run'], opensDrawer: 'email',
+    id: 'run-invoice',
+    focus: 'run',
+    visibleControls: ['run'],
+    opensDrawer: 'email',
     narration: `${sender('invoice')}, another customer, forwards an invoice from their supplier and asks a fair question. Inside the invoice is a note that claims to come from Larkspur billing. ${sender('invoice')} never wrote it, and may not have seen it. When the attack hides in data the assistant reads, it is an indirect prompt injection. ${fact('indirect-injection').claim} Run it.`,
     predicate: s => s.seen.includes(key('invoice', false)),
     hint: 'Press the run button.',
   },
   {
-    id: 'predict', focus: 'p1', visibleControls: ['tally', 'p1'], opensDrawer: null,
+    id: 'predict',
+    focus: 'p1',
+    visibleControls: ['tally', 'p1'],
+    opensDrawer: null,
     narration: `${says('invoice')}: ${OUTSIDE}. The customer got a polite answer about the address and never knew. The team’s first fix is a rule in the prompt. Before you run anything:`,
     predicate: s => s.p1 !== null,
   },
   {
-    id: 'run-rule', focus: 'run', visibleControls: ['p1', 'run'],
+    id: 'run-rule',
+    focus: 'run',
+    visibleControls: ['p1', 'run'],
     narration: 'The rule is now in the assistant’s instructions. Run both emails again.',
     predicate: s => seenBoth(s, true),
     hint: 'Run the customer’s email and the forwarded invoice, one after the other.',
   },
   {
-    id: 'quiz', focus: 'quiz', visibleControls: ['out1', 'tally', 'notes', 'quiz'],
+    id: 'quiz',
+    focus: 'quiz',
+    visibleControls: ['out1', 'tally', 'notes', 'quiz'],
     narration: `The rule stopped the email that said “ignore your instructions”: it looked like what the rule describes. The invoice note didn’t. It claimed to come from Larkspur itself, so the model treated it as its own team’s request. ${fact('blur').claim} These model turns are recorded, written to show that finding; below each attack is the model’s own note on why it refused or followed. One question to finish.`,
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Did the rule stop the invoice? What did the invoice note pretend to be?',
@@ -107,16 +135,31 @@ export const STEPS: Step<S>[] = [
 
 /** How each run so far ended, in words, in the order they were run. */
 function Tally({ s }: { s: S }) {
-  const rows = s.seen.map(k => { const [c, rule] = k.split(':'); return { c: c as Case, rule: rule === 'on' }; });
+  const rows = s.seen.map(k => {
+    const [c, rule] = k.split(':');
+    return { c: c as Case, rule: rule === 'on' };
+  });
   if (!rows.length) return null;
   return (
     <table className="tc-ledger" style={{ marginTop: 10 }}>
       <caption>Runs so far</caption>
-      <thead><tr><th scope="col">Email</th><th scope="col">Prompt rule</th><th scope="col">What happened</th></tr></thead>
+      <thead>
+        <tr>
+          <th scope="col">Email</th>
+          <th scope="col">Prompt rule</th>
+          <th scope="col">What happened</th>
+        </tr>
+      </thead>
       <tbody>
         {rows.map(({ c, rule }) => {
           const r = R(c, rule);
-          return <tr key={key(c, rule)}><th scope="row">{NAME[c][0].toUpperCase() + NAME[c].slice(1)}</th><td>{rule ? 'On' : 'Off'}</td><td>{r.attackMet ? `Attack worked: ${says(c)}` : 'Attack stopped'}</td></tr>;
+          return (
+            <tr key={key(c, rule)}>
+              <th scope="row">{NAME[c][0].toUpperCase() + NAME[c].slice(1)}</th>
+              <td>{rule ? 'On' : 'Off'}</td>
+              <td>{r.attackMet ? `Attack worked: ${says(c)}` : 'Attack stopped'}</td>
+            </tr>
+          );
         })}
       </tbody>
     </table>
@@ -136,26 +179,49 @@ export default function DataOrInstructions() {
         return <GuardStage run={r} upTo={state.ran ? r.steps.length : 0} inspect={inspect} />;
       }}
       controls={{
-        open: ({ state, apply }) => <button type="button" className="big" onClick={() => apply({ ...state, opened: true })}>Open the first email</button>,
+        open: ({ state, apply }) => (
+          <button type="button" className="big" onClick={() => apply({ ...state, opened: true })}>
+            Open the first email
+          </button>
+        ),
         run: ({ state, sync }) => {
           const offered = state.rule ? CASES : [state.kase];
           return (
             <>
               <div role="group" aria-label="Run an email" style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {offered.map(c => (
-                  <button key={c} type="button" className="big" onClick={() => sync({ ...state, kase: c, ran: true, seen: [...new Set([...state.seen, key(c, state.rule)])] })}>
-                    Run {NAME[c]}{state.rule ? ', rule on' : ''}
+                  <button
+                    key={c}
+                    type="button"
+                    className="big"
+                    onClick={() =>
+                      sync({ ...state, kase: c, ran: true, seen: [...new Set([...state.seen, key(c, state.rule)])] })
+                    }
+                  >
+                    Run {NAME[c]}
+                    {state.rule ? ', rule on' : ''}
                   </button>
                 ))}
               </div>
-              {state.ran && <p className="tc-status" role="status">{NAME[state.kase]}: {current(state).attackMet ? `the attack worked. ${says(state.kase)}.` : 'the attack was stopped.'}</p>}
+              {state.ran && (
+                <p className="tc-status" role="status">
+                  {NAME[state.kase]}:{' '}
+                  {current(state).attackMet ? `the attack worked. ${says(state.kase)}.` : 'the attack was stopped.'}
+                </p>
+              )}
               <Tally s={state} />
             </>
           );
         },
         tally: ({ state }) => <Tally s={state} />,
-        next: ({ state, apply }) => <button type="button" className="big" onClick={() => apply({ ...state, kase: 'invoice', ran: false })}>Next email: a forwarded invoice →</button>,
-        p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i, rule: true, ran: false })} />,
+        next: ({ state, apply }) => (
+          <button type="button" className="big" onClick={() => apply({ ...state, kase: 'invoice', ran: false })}>
+            Next email: a forwarded invoice →
+          </button>
+        ),
+        p1: ({ state, apply }) => (
+          <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i, rule: true, ran: false })} />
+        ),
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUT1} />,
         notes: () => (
           <div className="tc-def">
@@ -168,18 +234,37 @@ export default function DataOrInstructions() {
           </div>
         ),
         quiz: ({ state, apply, sync }) => (
-          <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
+          <Quiz
+            {...QUIZ}
+            unsure
+            value={state.quiz}
+            onAnswer={(_, q) => apply({ ...state, quiz: q })}
+            onUnsure={() => sync({ ...state, quiz: UNSURE })}
+          />
         ),
       }}
       inspectPanel="messages"
       panels={{
         email: {
           title: 'The email',
-          render: s => <><Email c={s.kase} /><Fact id="owasp-llm01" /></>,
+          render: s => (
+            <>
+              <Email c={s.kase} />
+              <Fact id="owasp-llm01" />
+            </>
+          ),
         },
         messages: {
           title: 'Steps',
-          render: s => { const r = current(s); return <><Messages lanes={guardLanes()} msgs={guardMessages(r)} upTo={s.ran ? r.steps.length : 0} /><Fact id="indirect-remote" /></>; },
+          render: s => {
+            const r = current(s);
+            return (
+              <>
+                <Messages lanes={guardLanes()} msgs={guardMessages(r)} upTo={s.ran ? r.steps.length : 0} />
+                <Fact id="indirect-remote" />
+              </>
+            );
+          },
         },
       }}
     />

@@ -4,9 +4,33 @@ import { execSync } from 'node:child_process';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { openIndex, type RagIndex } from '../../src/lib/rag/load';
 import { diskLoader } from '../../src/lib/rag/diskLoader';
-import { compare, fileOf, PAIRS, passed, QUESTIONS, runSuite, VERSION_IDS, type Row, type VersionId } from '../../src/lib/evals/suite';
 import {
-  agreement, exactMatch, gradeRun, grade, hasCitation, judged, judgedRun, keyFact, label, passAtK, passHatK, positionBias, runCase, SAMPLES, type PairRows,
+  compare,
+  fileOf,
+  PAIRS,
+  passed,
+  QUESTIONS,
+  runSuite,
+  VERSION_IDS,
+  type Row,
+  type VersionId,
+} from '../../src/lib/evals/suite';
+import {
+  agreement,
+  exactMatch,
+  gradeRun,
+  grade,
+  hasCitation,
+  judged,
+  judgedRun,
+  keyFact,
+  label,
+  passAtK,
+  passHatK,
+  positionBias,
+  runCase,
+  SAMPLES,
+  type PairRows,
 } from '../../src/lib/evals/graders';
 import { ACCESSED, FACTS } from '../../src/lib/evals/facts';
 
@@ -14,10 +38,15 @@ let index: RagIndex;
 const rows = {} as Record<VersionId, Row[]>;
 beforeAll(async () => {
   index = await openIndex(diskLoader);
-  for (const v of VERSION_IDS) { const f = fileOf(v); if (f) await index.load(f); rows[v] = runSuite(index, v); }
+  for (const v of VERSION_IDS) {
+    const f = fileOf(v);
+    if (f) await index.load(f);
+    rows[v] = runSuite(index, v);
+  }
 }, 60_000);
-const row = (v: VersionId, q: string) => rows[v].find((r) => r.question === q)!;
-const pairRows = (): PairRows[] => PAIRS.map((p) => ({ ...p, sigA: row(p.a, p.question).signature, sigB: row(p.b, p.question).signature }));
+const row = (v: VersionId, q: string) => rows[v].find(r => r.question === q)!;
+const pairRows = (): PairRows[] =>
+  PAIRS.map(p => ({ ...p, sigA: row(p.a, p.question).signature, sigB: row(p.b, p.question).signature }));
 
 describe('versions (KTD2)', () => {
   it('v2 fixes at least two questions and breaks at least one against v1', () => {
@@ -28,7 +57,7 @@ describe('versions (KTD2)', () => {
   });
 
   it('totals are counted from the rows', () => {
-    for (const v of VERSION_IDS) expect(passed(rows[v])).toBe(rows[v].filter((r) => r.verdict === 'correct').length);
+    for (const v of VERSION_IDS) expect(passed(rows[v])).toBe(rows[v].filter(r => r.verdict === 'correct').length);
   });
 
   it('v3 breaks nothing v1 got right', () => {
@@ -36,7 +65,7 @@ describe('versions (KTD2)', () => {
   });
 
   it('v0 retrieves nothing, so every answer is the made-up one', () => {
-    expect(rows.v0.every((r) => r.signature === 'nocontext' && r.verdict === 'madeup')).toBe(true);
+    expect(rows.v0.every(r => r.signature === 'nocontext' && r.verdict === 'madeup')).toBe(true);
   });
 
   it('runSuite refuses a version whose config is not loaded', async () => {
@@ -63,10 +92,11 @@ describe('code graders (KTD3)', () => {
   });
 
   it('the key-fact check passes every correct answer and fails every made-up one', () => {
-    for (const v of VERSION_IDS) for (const r of rows[v]) {
-      if (r.verdict === 'correct') expect(keyFact(r.question, r.answer.text), `${v} ${r.question}`).toBe(true);
-      if (r.verdict === 'madeup') expect(keyFact(r.question, r.answer.text), `${v} ${r.question}`).toBe(false);
-    }
+    for (const v of VERSION_IDS)
+      for (const r of rows[v]) {
+        if (r.verdict === 'correct') expect(keyFact(r.question, r.answer.text), `${v} ${r.question}`).toBe(true);
+        if (r.verdict === 'madeup') expect(keyFact(r.question, r.answer.text), `${v} ${r.question}`).toBe(false);
+      }
   });
 
   it('the key-fact check misses a hedge that names the fact', () => {
@@ -93,8 +123,12 @@ describe('judge and labels (KTD3)', () => {
   it('agreement is matching labels ÷ labelled rows, and r2 agrees more than r1', () => {
     const all = [...rows.v0, ...rows.v1, ...rows.v2];
     for (const rb of ['r1', 'r2'] as const) {
-      const seen = new Map(all.filter((r) => label(r.question, r.signature)).map((r) => [`${r.question}|${r.signature}`, r]));
-      const agree = [...seen.values()].filter((r) => label(r.question, r.signature)!.pass === judged(r.question, r.signature, rb)!.pass).length;
+      const seen = new Map(
+        all.filter(r => label(r.question, r.signature)).map(r => [`${r.question}|${r.signature}`, r]),
+      );
+      const agree = [...seen.values()].filter(
+        r => label(r.question, r.signature)!.pass === judged(r.question, r.signature, rb)!.pass,
+      ).length;
       const a = agreement(all, rb);
       expect([a.agree, a.total]).toEqual([agree, seen.size]);
       expect(a.text).toBe(`${Math.round((100 * agree) / seen.size)}%`);
@@ -104,11 +138,19 @@ describe('judge and labels (KTD3)', () => {
 
   it('no labelled rows reads "no labels", never NaN', () => {
     expect(agreement([], 'r1')).toEqual({ agree: 0, total: 0, text: 'no labels' });
-    expect(agreement(rows.v3.filter((r) => !label(r.question, r.signature)), 'r2').text).toBe('no labels');
+    expect(
+      agreement(
+        rows.v3.filter(r => !label(r.question, r.signature)),
+        'r2',
+      ).text,
+    ).toBe('no labels');
   });
 
   it('some labels disagree with the recorded verdict: people were wrong too', () => {
-    const wrong = [...rows.v0, ...rows.v1].filter((r) => { const l = label(r.question, r.signature); return l && l.pass !== (r.verdict === 'correct'); });
+    const wrong = [...rows.v0, ...rows.v1].filter(r => {
+      const l = label(r.question, r.signature);
+      return l && l.pass !== (r.verdict === 'correct');
+    });
     expect(wrong.length).toBeGreaterThan(0);
   });
 });
@@ -142,14 +184,15 @@ describe('grading a Tool calling run (KTD5)', () => {
 
 describe('run to run (KTD6)', () => {
   it('pass@k ≥ pass^k for every case and k, equal at k = 1', () => {
-    for (const c of SAMPLES) for (let k = 1; k <= c.samples.length; k++) {
-      expect(passAtK(c, k) || !passHatK(c, k), `${c.id} k=${k}`).toBe(true);
-      if (k === 1) expect(passAtK(c, 1)).toBe(passHatK(c, 1));
-    }
+    for (const c of SAMPLES)
+      for (let k = 1; k <= c.samples.length; k++) {
+        expect(passAtK(c, k) || !passHatK(c, k), `${c.id} k=${k}`).toBe(true);
+        if (k === 1) expect(passAtK(c, 1)).toBe(passHatK(c, 1));
+      }
   });
 
   it('a case that passed once fails pass^5', () => {
-    expect(SAMPLES.some((c) => passAtK(c, 1) && !passHatK(c, 5))).toBe(true);
+    expect(SAMPLES.some(c => passAtK(c, 1) && !passHatK(c, 5))).toBe(true);
   });
 });
 
@@ -159,15 +202,21 @@ describe('facts (R5)', () => {
       expect(f.claim.length, f.id).toBeGreaterThan(10);
       expect(f.source, f.id).toMatch(/^https:\/\//);
     }
-    expect(new Set(FACTS.map((f) => f.id)).size).toBe(FACTS.length);
+    expect(new Set(FACTS.map(f => f.id)).size).toBe(FACTS.length);
     expect(ACCESSED).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 
   it('every fact id the evals chapters cite exists', () => {
     const dir = 'src/content/evals';
     let files: string[] = [];
-    try { files = readdirSync(dir).filter((f) => /\.(tsx?|astro)$/.test(f)); } catch { /* chapters arrive in U3+ */ }
-    const ids = new Set(FACTS.map((f) => f.id));
-    for (const f of files) for (const [, id] of readFileSync(`${dir}/${f}`, 'utf8').matchAll(/fact\('([^']+)'\)/g)) expect(ids.has(id), `${f}: ${id}`).toBe(true);
+    try {
+      files = readdirSync(dir).filter(f => /\.(tsx?|astro)$/.test(f));
+    } catch {
+      /* chapters arrive in U3+ */
+    }
+    const ids = new Set(FACTS.map(f => f.id));
+    for (const f of files)
+      for (const [, id] of readFileSync(`${dir}/${f}`, 'utf8').matchAll(/fact\('([^']+)'\)/g))
+        expect(ids.has(id), `${f}: ${id}`).toBe(true);
   });
 });

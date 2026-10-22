@@ -8,7 +8,8 @@ import { voWalker } from './voice-flow';
 import { serious, layoutHolds, PHONE } from './helpers';
 
 const M = moduleOf('voice');
-const CHS = M.chapters.map(c => c.id), [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = CHS;
+const CHS = M.chapters.map(c => c.id),
+  [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = CHS;
 const at = (id: string) => new RegExp(`/voice/${id}/$`);
 async function walkAll(w: ReturnType<typeof voWalker>) {
   await w.open(CH1);
@@ -24,32 +25,40 @@ const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 const axe = async (page: Page) => expect(await serious(page)).toEqual([]);
 /** count every play() any audio element is asked for, from before the page's own scripts run; the count lives in
  * sessionStorage, so it adds up across the Next links' page loads instead of starting again on each chapter */
-const countPlays = (page: Page) => page.addInitScript(() => {
-  const play = HTMLMediaElement.prototype.play;
-  HTMLMediaElement.prototype.play = function (this: HTMLMediaElement) {
-    sessionStorage.setItem('__plays', String(Number(sessionStorage.getItem('__plays') ?? 0) + 1));
-    return play.call(this);
-  };
-});
+const countPlays = (page: Page) =>
+  page.addInitScript(() => {
+    const play = HTMLMediaElement.prototype.play;
+    HTMLMediaElement.prototype.play = function (this: HTMLMediaElement) {
+      sessionStorage.setItem('__plays', String(Number(sessionStorage.getItem('__plays') ?? 0) + 1));
+      return play.call(this);
+    };
+  });
 const plays = (page: Page) => page.evaluate(() => Number(sessionStorage.getItem('__plays') ?? 0));
 /** a stand-in for sound: play() resolves and the element says it is playing, so a clip's state is the same everywhere */
-const fakeSound = (page: Page) => page.addInitScript(() => {
-  HTMLMediaElement.prototype.play = function (this: HTMLMediaElement) {
-    queueMicrotask(() => this.dispatchEvent(new Event('playing')));
-    return Promise.resolve();
-  };
-  const w = window as unknown as { __paused: number };
-  w.__paused = 0;
-  const pause = HTMLMediaElement.prototype.pause;
-  HTMLMediaElement.prototype.pause = function (this: HTMLMediaElement) { w.__paused++; pause.call(this); };
-});
+const fakeSound = (page: Page) =>
+  page.addInitScript(() => {
+    HTMLMediaElement.prototype.play = function (this: HTMLMediaElement) {
+      queueMicrotask(() => this.dispatchEvent(new Event('playing')));
+      return Promise.resolve();
+    };
+    const w = window as unknown as { __paused: number };
+    w.__paused = 0;
+    const pause = HTMLMediaElement.prototype.pause;
+    HTMLMediaElement.prototype.pause = function (this: HTMLMediaElement) {
+      w.__paused++;
+      pause.call(this);
+    };
+  });
 test.setTimeout(150_000);
 
 test('the intro shows the level, the prerequisites, the author, the chapters and the credits', async ({ page }) => {
   await page.goto('/voice/');
   const meta = page.locator('.hero .module-meta');
   await expect(meta.locator('.level')).toHaveText('Advanced');
-  await expect(meta.getByRole('link', { name: moduleOf('tool-calling').title, exact: true })).toHaveAttribute('href', '/tool-calling/');
+  await expect(meta.getByRole('link', { name: moduleOf('tool-calling').title, exact: true })).toHaveAttribute(
+    'href',
+    '/tool-calling/',
+  );
   await expect(meta).toContainText(moduleOf('multimodal').title);
   await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
@@ -74,22 +83,31 @@ test('go-live: own share images, home’s card, and home Continue resumes it', a
   expect(img.status()).toBe(200);
   await page.goto('/');
   await expect(page.locator('.module[data-module="voice"] h4 a')).toHaveAttribute('href', '/voice/');
-  await page.evaluate(() => { localStorage.setItem('voice-progress-v1', JSON.stringify({ done: [], saved: {} })); localStorage.setItem('tinker-last-module', 'voice'); });
+  await page.evaluate(() => {
+    localStorage.setItem('voice-progress-v1', JSON.stringify({ done: [], saved: {} }));
+    localStorage.setItem('tinker-last-module', 'voice');
+  });
   await page.reload();
   await expect(page.locator('[data-continue]')).toHaveAttribute('href', /^\/voice\//);
 });
 
-test('every chapter plays by mouse, in order through the Next links, axe clean, and no sound ever starts', async ({ page }) => {
+test('every chapter plays by mouse, in order through the Next links, axe clean, and no sound ever starts', async ({
+  page,
+}) => {
   await countPlays(page);
   await walkAll(voWalker(page, 'mouse', axe));
   expect(await plays(page)).toBe(0);
 });
 
-test('every chapter plays by keyboard only; progress lands in voice-progress-v1 and no other module’s key', async ({ page }) => {
+test('every chapter plays by keyboard only; progress lands in voice-progress-v1 and no other module’s key', async ({
+  page,
+}) => {
   await countPlays(page);
   await page.goto('/');
   const OTHERS = { 'tool-calling-progress-v1': JSON.stringify({ done: ['01-the-model-cant-act'], saved: {} }) };
-  await page.evaluate(o => { for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v); }, OTHERS);
+  await page.evaluate(o => {
+    for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v);
+  }, OTHERS);
   await walkAll(voWalker(page, 'keyboard'));
   const store = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
   expect(JSON.parse(store['voice-progress-v1']).done).toEqual(CHS);
@@ -150,7 +168,9 @@ test('chapter 3: the call timeline reads each turn by arrow key, the read-out na
   await axe(page);
 });
 
-test('chapter 4: without barge-in Dana is talked over; with it the history keeps only what was said', async ({ page }) => {
+test('chapter 4: without barge-in Dana is talked over; with it the history keeps only what was said', async ({
+  page,
+}) => {
   const w = voWalker(page, 'mouse');
   await w.open(CH4);
   const c = card(page);
@@ -168,7 +188,8 @@ test('chapter 4: without barge-in Dana is talked over; with it the history keeps
 test('chapter 7: the starting line is not accepted; Show me applies one of the best lines', async ({ page }) => {
   const w = voWalker(page, 'mouse');
   await w.open(CH7);
-  const c = card(page), score = c.locator('[data-best]');
+  const c = card(page),
+    score = c.locator('[data-best]');
   await expect(score).toHaveAttribute('data-best', '0');
   await c.getByRole('button', { name: 'Show me' }).click();
   await expect(c).toContainText('Step 2 of');
@@ -204,6 +225,11 @@ test.describe('phone', () => {
       await page.goto(p);
       await layoutHolds(page);
     }
-    await walkAll(voWalker(page, 'mouse', async p => { await layoutHolds(p); await axe(p); }));
+    await walkAll(
+      voWalker(page, 'mouse', async p => {
+        await layoutHolds(p);
+        await axe(p);
+      }),
+    );
   });
 });

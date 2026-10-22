@@ -7,7 +7,11 @@ import { mulberry32 } from '../transformers/sample';
 import { START, accepts, type Grammar, type State } from './grammar';
 import { after, allowed as allowedIds } from './mask';
 
-export interface Candidate { id: number; text: string; p: number }
+export interface Candidate {
+  id: number;
+  text: string;
+  p: number;
+}
 export interface DecodeStep {
   /** Where the grammar was before this token (START when unconstrained). */
   state: State;
@@ -34,7 +38,12 @@ export interface Decoded {
   /** True if any forward pass had to drop the start of what it read (never, for the chapters' prompts). */
   truncated: boolean;
 }
-export interface DecodeOptions { maxSteps?: number; temperature?: number; seed?: number; top?: number }
+export interface DecodeOptions {
+  maxSteps?: number;
+  temperature?: number;
+  seed?: number;
+  top?: number;
+}
 
 const cand = (id: number, p: number): Candidate => ({ id, text: text([id]), p });
 
@@ -46,10 +55,13 @@ const ranked = (ids: number[], probs: Float64Array) => [...ids].sort((a, b) => p
  * so the model always reads the question it answers.
  */
 export function decode(model: Model, prompt: string, g: Grammar | null, o: DecodeOptions = {}): Decoded {
-  const promptIds = encode(prompt), ids: number[] = [], steps: DecodeStep[] = [];
+  const promptIds = encode(prompt),
+    ids: number[] = [],
+    steps: DecodeStep[] = [];
   const maxSteps = o.maxSteps ?? model.config.ctx - promptIds.length;
   const rand = o.seed === undefined ? null : mulberry32(o.seed);
-  let s: State = START, truncated = false;
+  let s: State = START,
+    truncated = false;
   while (ids.length < maxSteps && !(g && accepts(g, s))) {
     const out = forward(model, [...promptIds, ...ids]);
     truncated ||= out.truncated;
@@ -65,16 +77,22 @@ export function decode(model: Model, prompt: string, g: Grammar | null, o: Decod
     let pick = order[0];
     if (rand) {
       let r = rand();
-      for (const id of order) { pick = id; if ((r -= probs[id]) < 0) break; }
+      for (const id of order) {
+        pick = id;
+        if ((r -= probs[id]) < 0) break;
+      }
     }
-    const best = ranked(Array.from(logits, (_, i) => i), free)[0];
+    const best = ranked(
+      Array.from(logits, (_, i) => i),
+      free,
+    )[0];
     steps.push({
       state: s,
       allowed: allow,
       probs,
       free: cand(best, free[best]),
       blocked: 1 - allow.reduce((m, id) => m + free[id], 0),
-      top: order.slice(0, o.top ?? 8).map((id) => cand(id, probs[id])),
+      top: order.slice(0, o.top ?? 8).map(id => cand(id, probs[id])),
       pick: cand(pick, probs[pick]),
     });
     ids.push(pick);
@@ -84,20 +102,31 @@ export function decode(model: Model, prompt: string, g: Grammar | null, o: Decod
 }
 
 /** Where an enum's values part ways: the step, and each value's share of the masked probability there. */
-export function shares(g: Grammar, d: Decoded, field: string): { step: number; values: { value: string; p: number }[] } | null {
-  const at = 2 * Object.keys(g.schema.properties).indexOf(field) + 1, part = g.parts[at];
+export function shares(
+  g: Grammar,
+  d: Decoded,
+  field: string,
+): { step: number; values: { value: string; p: number }[] } | null {
+  const at = 2 * Object.keys(g.schema.properties).indexOf(field) + 1,
+    part = g.parts[at];
   if (part?.kind !== 'alts') return null;
   const bytesText = (id: number) => String.fromCharCode(...pieceBytes(id));
   for (let i = 0; i < d.steps.length; i++) {
     const st = d.steps[i];
     if (st.state.part !== at) continue;
-    const lead = (id: number) => { const x = st.state.buf + bytesText(id); return part.alts.filter((a) => a.startsWith(x) || x.startsWith(a)); };
-    if (st.allowed.every((id) => lead(id).length === part.alts.length)) continue;
+    const lead = (id: number) => {
+      const x = st.state.buf + bytesText(id);
+      return part.alts.filter(a => a.startsWith(x) || x.startsWith(a));
+    };
+    if (st.allowed.every(id => lead(id).length === part.alts.length)) continue;
     return {
       step: i,
-      values: part.alts.map((a) => ({
+      values: part.alts.map(a => ({
         value: JSON.parse(a) as string,
-        p: st.allowed.reduce((m, id) => { const l = lead(id); return m + (l.length === 1 && l[0] === a ? st.probs[id] : 0); }, 0),
+        p: st.allowed.reduce((m, id) => {
+          const l = lead(id);
+          return m + (l.length === 1 && l[0] === a ? st.probs[id] : 0);
+        }, 0),
       })),
     };
   }
@@ -112,16 +141,28 @@ export function shares(g: Grammar, d: Decoded, field: string): { step: number; v
 export function heal(model: Model, prompt: string, k = 5) {
   const ids = encode(prompt);
   const plain = softmax(forward(model, ids).logits.at(-1)!);
-  const last = ids.at(-1)!, head = ids.slice(0, -1), lastBytes = pieceBytes(last);
+  const last = ids.at(-1)!,
+    head = ids.slice(0, -1),
+    lastBytes = pieceBytes(last);
   const logits = forward(model, head).logits.at(-1)!;
   const masked = new Float64Array(logits.length).fill(-Infinity);
-  const starts = (id: number) => { const b = pieceBytes(id); return b.length >= lastBytes.length && lastBytes.every((x, i) => b[i] === x); };
+  const starts = (id: number) => {
+    const b = pieceBytes(id);
+    return b.length >= lastBytes.length && lastBytes.every((x, i) => b[i] === x);
+  };
   const ok = Array.from(logits, (_, i) => i).filter(starts);
   for (const id of ok) masked[id] = logits[id];
   const healed = softmax(masked);
   return {
     removed: cand(last, 1),
-    plain: ranked(Array.from(plain, (_, i) => i), plain).slice(0, k).map((id) => cand(id, plain[id])),
-    healed: ranked(ok, healed).slice(0, k).map((id) => cand(id, healed[id])),
+    plain: ranked(
+      Array.from(plain, (_, i) => i),
+      plain,
+    )
+      .slice(0, k)
+      .map(id => cand(id, plain[id])),
+    healed: ranked(ok, healed)
+      .slice(0, k)
+      .map(id => cand(id, healed[id])),
   };
 }

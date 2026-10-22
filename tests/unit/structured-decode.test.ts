@@ -11,28 +11,30 @@ describe('pinned chapter runs (KTD4)', () => {
   it('play() decodes a run once per model: a second call returns the cached result', () => {
     expect(play(model, run('mask'))).toBe(play(model, run('mask')));
   });
-  for (const r of RUNS) it(`${r.id} reproduces its pinned output`, () => {
-    const { decoded } = play(model, r);
-    expect(decoded.text).toBe(r.output);
-    expect(decoded.status).toBe(r.status);
-    // Prompt plus output fit the window, so the model always reads the question it answers.
-    expect(decoded.prompt.length + decoded.ids.length).toBeLessThanOrEqual(model.config.ctx);
-    expect(decoded.truncated).toBe(false);
-    const s = schemaOf(r);
-    if (s && r.status === 'done') {
-      expect(() => JSON.parse(decoded.text)).not.toThrow();
-      expect(checkText(s, decoded.text).errors).toEqual([]);
-    }
-  });
+  for (const r of RUNS)
+    it(`${r.id} reproduces its pinned output`, () => {
+      const { decoded } = play(model, r);
+      expect(decoded.text).toBe(r.output);
+      expect(decoded.status).toBe(r.status);
+      // Prompt plus output fit the window, so the model always reads the question it answers.
+      expect(decoded.prompt.length + decoded.ids.length).toBeLessThanOrEqual(model.config.ctx);
+      expect(decoded.truncated).toBe(false);
+      const s = schemaOf(r);
+      if (s && r.status === 'done') {
+        expect(() => JSON.parse(decoded.text)).not.toThrow();
+        expect(checkText(s, decoded.text).errors).toEqual([]);
+      }
+    });
 
-  it('unconstrained, chapter 1\'s prompt does not give JSON (the premise holds)', () => {
+  it("unconstrained, chapter 1's prompt does not give JSON (the premise holds)", () => {
     const d = play(model, run('asking')).decoded;
     expect(() => JSON.parse(d.text)).toThrow();
-    for (const id of ['retry-1', 'retry-2', 'retry-3']) expect(checkText(SCHEMAS.status, play(model, run(id)).decoded.text).ok).toBe(false);
+    for (const id of ['retry-1', 'retry-2', 'retry-3'])
+      expect(checkText(SCHEMAS.status, play(model, run(id)).decoded.text).ok).toBe(false);
   });
 
-  it('chapter 5\'s draws pick each value at least once', () => {
-    const picks = new Set(RUNS.filter((r) => r.id.startsWith('draw-')).map((r) => JSON.parse(r.output).status));
+  it("chapter 5's draws pick each value at least once", () => {
+    const picks = new Set(RUNS.filter(r => r.id.startsWith('draw-')).map(r => JSON.parse(r.output).status));
     expect([...picks].sort()).toEqual(['delayed', 'on time']);
   });
 
@@ -51,12 +53,12 @@ describe('pinned chapter runs (KTD4)', () => {
     }
   });
 
-  it('chapter 5: the enum\'s values have distinct first letters, and their shares sum to 1', () => {
+  it("chapter 5: the enum's values have distinct first letters, and their shares sum to 1", () => {
     const g = compile(SCHEMAS.status);
     const sh = shares(g, play(model, run('draw-1')).decoded, 'status')!;
-    expect(new Set(SCHEMAS.status.properties.status.enum!.map((v) => String(v)[0])).size).toBe(2);
+    expect(new Set(SCHEMAS.status.properties.status.enum!.map(v => String(v)[0])).size).toBe(2);
     expect(sh.values.reduce((m, v) => m + v.p, 0)).toBeCloseTo(1, 9);
-    expect(sh.values.find((v) => v.value === 'delayed')!.p).toBeGreaterThan(0.5);
+    expect(sh.values.find(v => v.value === 'delayed')!.p).toBeGreaterThan(0.5);
   });
 
   it('token healing: the healed next token starts with the removed bytes', () => {

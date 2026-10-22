@@ -16,22 +16,32 @@ import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
 import { AgentStage, Fact } from './kit';
 
-const MODULE = 'agents', ID = '01-workflow-or-agent';
+const MODULE = 'agents',
+  ID = '01-workflow-or-agent';
 const REC = RECORDINGS[ID];
 type Case = 'refund' | 'damaged';
 type Stock = 'in' | 'out';
 type Mode = 'script' | 'agent';
 const MODES: Mode[] = ['script', 'agent'];
 const key = (c: Case, st: Stock, m: Mode) => `${c}:${st}:${m}`;
-const RUNS: Record<string, Run> = Object.fromEntries((['refund', 'damaged'] as Case[]).flatMap(c => (['in', 'out'] as Stock[]).flatMap(st =>
-  MODES.map(m => [key(c, st, m), run(REC, { case: c, stock: st, mode: m })]))));
+const RUNS: Record<string, Run> = Object.fromEntries(
+  (['refund', 'damaged'] as Case[]).flatMap(c =>
+    (['in', 'out'] as Stock[]).flatMap(st =>
+      MODES.map(m => [key(c, st, m), run(REC, { case: c, stock: st, mode: m })]),
+    ),
+  ),
+);
 const R = (c: Case, st: Stock, m: Mode) => RUNS[key(c, st, m)];
 
 const calls = (r: Run) => stepsOf(r, 'call').length;
 const turns = (r: Run) => r.meter.length;
-const names = (r: Run) => stepsOf(r, 'call').map(c => c.call.name).join(', ');
+const names = (r: Run) =>
+  stepsOf(r, 'call')
+    .map(c => c.call.name)
+    .join(', ');
 /** what the run ended with, in words: the agent's answer, or the step where the script stopped */
-const ending = (r: Run) => r.status === 'failed' ? stepsOf(r, 'halt')[0].text : answerOf(r) || `${calls(r)} calls, all ran.`;
+const ending = (r: Run) =>
+  r.status === 'failed' ? stepsOf(r, 'halt')[0].text : answerOf(r) || `${calls(r)} calls, all ran.`;
 const firstCall = (r: Run) => stepsOf(r, 'call')[0]?.call.arguments.order_id;
 
 const REFUND = { script: R('refund', 'in', 'script'), agent: R('refund', 'in', 'agent') };
@@ -39,9 +49,20 @@ const IN = { script: R('damaged', 'in', 'script'), agent: R('damaged', 'in', 'ag
 const OUT = { script: R('damaged', 'out', 'script'), agent: R('damaged', 'out', 'agent') };
 const FAILED = stepsOf(OUT.script, 'halt')[0].call.name;
 const FAIL_MSG = stepsOf(OUT.script, 'result').at(-1)!.result.content[0].text;
-const CHECK = stepsOf(OUT.agent, 'call').find(c => !stepsOf(OUT.script, 'call').some(s => s.call.name === c.call.name))!.call.name;
+const CHECK = stepsOf(OUT.agent, 'call').find(c => !stepsOf(OUT.script, 'call').some(s => s.call.name === c.call.name))!
+  .call.name;
 
-interface S { kase: Case; stock: Stock; mode: Mode; ran: boolean; seen: string[]; opened: boolean; p1: number | null; p2: number | null; quiz: number | null }
+interface S {
+  kase: Case;
+  stock: Stock;
+  mode: Mode;
+  ran: boolean;
+  seen: string[];
+  opened: boolean;
+  p1: number | null;
+  p2: number | null;
+  quiz: number | null;
+}
 const current = (s: S) => R(s.kase, s.stock, s.mode);
 const seenBoth = (s: S, c: Case, st: Stock) => MODES.every(m => s.seen.includes(key(c, st, m)));
 
@@ -55,8 +76,11 @@ const P1 = {
   ],
 };
 // read off the runs: same refunds and emails, and fewer tokens for the script
-const sameEnd = (a: Run, b: Run) => a.status === 'done' && b.status === 'done' && a.mail.length === b.mail.length
-  && JSON.stringify(a.orders.map(o => o.refunds.length)) === JSON.stringify(b.orders.map(o => o.refunds.length));
+const sameEnd = (a: Run, b: Run) =>
+  a.status === 'done' &&
+  b.status === 'done' &&
+  a.mail.length === b.mail.length &&
+  JSON.stringify(a.orders.map(o => o.refunds.length)) === JSON.stringify(b.orders.map(o => o.refunds.length));
 const OUT1 = !sameEnd(REFUND.script, REFUND.agent) ? 2 : totalTokens(REFUND.script) < totalTokens(REFUND.agent) ? 0 : 1;
 
 const P2 = {
@@ -72,7 +96,8 @@ const copes = (r: Run) => r.status === 'done';
 const OUT2 = copes(OUT.script) ? (copes(OUT.agent) ? 0 : 2) : copes(OUT.agent) ? 1 : 3;
 
 const QUIZ = {
-  question: 'Larkspur’s billing team updates a customer’s card on file thousands of times a week: look up the account, save the new card, send a receipt. Always those three steps. What should run it?',
+  question:
+    'Larkspur’s billing team updates a customer’s card on file thousands of times a week: look up the account, save the new card, send a receipt. Always those three steps. What should run it?',
   options: [
     'An agent: a model that picks each step always does the job better',
     'A workflow: the steps are known in advance, so fixed code does the job for less, the same way every time',
@@ -91,45 +116,64 @@ const QUIZ = {
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'meet', focus: 'open', visibleControls: ['open'],
+    id: 'meet',
+    focus: 'open',
+    visibleControls: ['open'],
     narration: `The support lead starts handing the assistant whole cases. Larkspur’s team already wrote a script for the routine ones: the same calls, in the same order, every time. That is a workflow. The other way is an agent. ${fact('workflow-vs-agent').claim} Read the first case.`,
     predicate: s => s.opened,
   },
   {
-    id: 'predict-refund', focus: 'p1', visibleControls: ['p1'], opensDrawer: 'case',
+    id: 'predict-refund',
+    focus: 'p1',
+    visibleControls: ['p1'],
+    opensDrawer: 'case',
     narration: `The refund script runs ${names(REFUND.script)}. The agent gets the same tools and the goal, and picks its own steps. Before you run them:`,
     predicate: s => s.p1 !== null,
   },
   {
-    id: 'run-refund', focus: 'run', visibleControls: ['p1', 'run'],
+    id: 'run-refund',
+    focus: 'run',
+    visibleControls: ['p1', 'run'],
     narration: 'Run the case both ways: once as the script, once as the agent.',
     predicate: s => seenBoth(s, 'refund', 'in'),
     hint: 'Press “Run as the script”, then “Run as an agent”.',
   },
   {
-    id: 'refund', focus: 'next', visibleControls: ['out1', 'tally', 'next'],
+    id: 'refund',
+    focus: 'next',
+    visibleControls: ['out1', 'tally', 'next'],
     narration: `The same refund and the same email both times. The script asked the model nothing: ${n(totalTokens(REFUND.script))} model tokens. The agent took ${turns(REFUND.agent)} turns and ${n(totalTokens(REFUND.agent))} tokens, because every turn sends the model the whole case again. On a case someone foresaw, the script is cheaper and just as good.`,
     predicate: s => s.kase === 'damaged',
   },
   {
-    id: 'run-damaged', focus: 'run', visibleControls: ['run'], opensDrawer: 'case',
+    id: 'run-damaged',
+    focus: 'run',
+    visibleControls: ['run'],
+    opensDrawer: 'case',
     narration: `A harder case: ${REC.asks.damaged} The damage script runs ${names(IN.script)}. The printer is in stock. Run it both ways.`,
     predicate: s => seenBoth(s, 'damaged', 'in'),
     hint: 'Press “Run as the script”, then “Run as an agent”.',
   },
   {
-    id: 'predict-out', focus: 'p2', visibleControls: ['tally', 'p2'], opensDrawer: null,
+    id: 'predict-out',
+    focus: 'p2',
+    visibleControls: ['tally', 'p2'],
+    opensDrawer: null,
     narration: `Both shipped a replacement, and the script again for fewer tokens. The agent also called ${CHECK}, a step the script skips. Now the warehouse sells its last printer, and the same case comes in. Before you run it:`,
     predicate: s => s.p2 !== null,
   },
   {
-    id: 'run-out', focus: 'run', visibleControls: ['p2', 'run'],
+    id: 'run-out',
+    focus: 'run',
+    visibleControls: ['p2', 'run'],
     narration: 'Run it both ways again, with the printer out of stock.',
     predicate: s => seenBoth(s, 'damaged', 'out'),
     hint: 'Press “Run as the script”, then “Run as an agent”.',
   },
   {
-    id: 'quiz', focus: 'quiz', visibleControls: ['out2', 'tally', 'quiz'],
+    id: 'quiz',
+    focus: 'quiz',
+    visibleControls: ['out2', 'tally', 'quiz'],
     narration: `The script stopped at ${FAILED}: “${FAIL_MSG}” Nobody wrote a step for that, so the customer heard nothing. The agent read the ${CHECK} result and changed course: “${answerOf(OUT.agent)}” ${fact('when-agent').claim} One question to finish.`,
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Can someone write this job’s steps down in advance?',
@@ -144,12 +188,28 @@ function Tally({ s }: { s: S }) {
   if (!rows.length) return null;
   return (
     <table className="tc-ledger" style={{ marginTop: 10 }}>
-      <caption>{s.kase === 'refund' ? 'The refund' : `The cracked printer, ${s.stock === 'in' ? 'in stock' : 'out of stock'}`}</caption>
-      <thead><tr><th scope="col">Run as</th><th scope="col">Ended</th><th scope="col">Tool calls</th><th scope="col">Model tokens</th></tr></thead>
+      <caption>
+        {s.kase === 'refund' ? 'The refund' : `The cracked printer, ${s.stock === 'in' ? 'in stock' : 'out of stock'}`}
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Run as</th>
+          <th scope="col">Ended</th>
+          <th scope="col">Tool calls</th>
+          <th scope="col">Model tokens</th>
+        </tr>
+      </thead>
       <tbody>
         {rows.map(m => {
           const r = R(s.kase, s.stock, m);
-          return <tr key={m}><th scope="row">{m === 'script' ? 'Script' : 'Agent'}</th><td>{r.status === 'done' ? 'Done' : 'Stopped'}</td><td>{calls(r)}</td><td>{n(totalTokens(r))}</td></tr>;
+          return (
+            <tr key={m}>
+              <th scope="row">{m === 'script' ? 'Script' : 'Agent'}</th>
+              <td>{r.status === 'done' ? 'Done' : 'Stopped'}</td>
+              <td>{calls(r)}</td>
+              <td>{n(totalTokens(r))}</td>
+            </tr>
+          );
         })}
       </tbody>
     </table>
@@ -162,35 +222,81 @@ export default function WorkflowOrAgent() {
       module={MODULE}
       chapter={ID}
       steps={STEPS}
-      initial={{ kase: 'refund', stock: 'in', mode: 'script', ran: false, seen: [], opened: false, p1: null, p2: null, quiz: null }}
+      initial={{
+        kase: 'refund',
+        stock: 'in',
+        mode: 'script',
+        ran: false,
+        seen: [],
+        opened: false,
+        p1: null,
+        p2: null,
+        quiz: null,
+      }}
       next={nextOf(MODULE, ID)}
       stage={({ state, inspect }) => {
         const r = current(state);
         return <AgentStage run={r} upTo={state.ran ? r.steps.length : 0} inspect={inspect} />;
       }}
       controls={{
-        open: ({ state, apply }) => <button type="button" className="big" onClick={() => apply({ ...state, opened: true })}>Read the refund case</button>,
+        open: ({ state, apply }) => (
+          <button type="button" className="big" onClick={() => apply({ ...state, opened: true })}>
+            Read the refund case
+          </button>
+        ),
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
-        p2: ({ state, apply }) => <Predict {...P2} value={state.p2} onPredict={i => apply({ ...state, p2: i, stock: 'out', ran: false })} />,
+        p2: ({ state, apply }) => (
+          <Predict {...P2} value={state.p2} onPredict={i => apply({ ...state, p2: i, stock: 'out', ran: false })} />
+        ),
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUT1} />,
         out2: ({ state }) => <Outcome {...P2} prediction={state.p2} outcome={OUT2} />,
         run: ({ state, sync }) => (
           <>
             <div role="group" aria-label="Run the case" style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {MODES.map(m => (
-                <button key={m} type="button" className="big" onClick={() => sync({ ...state, mode: m, ran: true, seen: [...new Set([...state.seen, key(state.kase, state.stock, m)])] })}>
+                <button
+                  key={m}
+                  type="button"
+                  className="big"
+                  onClick={() =>
+                    sync({
+                      ...state,
+                      mode: m,
+                      ran: true,
+                      seen: [...new Set([...state.seen, key(state.kase, state.stock, m)])],
+                    })
+                  }
+                >
                   Run as {label(m)}
                 </button>
               ))}
             </div>
-            {state.ran && <p className="tc-status" role="status">{state.mode === 'script' ? 'Script' : 'Agent'}: {ending(current(state))}</p>}
+            {state.ran && (
+              <p className="tc-status" role="status">
+                {state.mode === 'script' ? 'Script' : 'Agent'}: {ending(current(state))}
+              </p>
+            )}
             <Tally s={state} />
           </>
         ),
         tally: ({ state }) => <Tally s={state} />,
-        next: ({ state, apply }) => <button type="button" className="big" onClick={() => apply({ ...state, kase: 'damaged', stock: 'in', mode: 'script', ran: false })}>Next case: a cracked printer →</button>,
+        next: ({ state, apply }) => (
+          <button
+            type="button"
+            className="big"
+            onClick={() => apply({ ...state, kase: 'damaged', stock: 'in', mode: 'script', ran: false })}
+          >
+            Next case: a cracked printer →
+          </button>
+        ),
         quiz: ({ state, apply, sync }) => (
-          <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
+          <Quiz
+            {...QUIZ}
+            unsure
+            value={state.quiz}
+            onAnswer={(_, q) => apply({ ...state, quiz: q })}
+            onUnsure={() => sync({ ...state, quiz: UNSURE })}
+          />
         ),
       }}
       inspectPanel="messages"
@@ -199,16 +305,27 @@ export default function WorkflowOrAgent() {
           title: 'The case',
           render: s => (
             <div className="tc-def">
-              <p className="lbl">The task</p><p>{REC.asks[s.kase]}</p>
-              <p className="lbl">The script’s steps</p><p>{names(R(s.kase, 'in', 'script'))}</p>
-              <p className="lbl">The agent’s tools</p><p>{REC.tools.join(', ')}</p>
+              <p className="lbl">The task</p>
+              <p>{REC.asks[s.kase]}</p>
+              <p className="lbl">The script’s steps</p>
+              <p>{names(R(s.kase, 'in', 'script'))}</p>
+              <p className="lbl">The agent’s tools</p>
+              <p>{REC.tools.join(', ')}</p>
               <Fact id="workflow-vs-agent" />
             </div>
           ),
         },
         messages: {
           title: 'Steps',
-          render: s => { const r = current(s); return <><Messages lanes={agentLanes(r)} msgs={agentMessages(r)} upTo={s.ran ? r.steps.length : 0} /><Fact id="simplest-first" /></>; },
+          render: s => {
+            const r = current(s);
+            return (
+              <>
+                <Messages lanes={agentLanes(r)} msgs={agentMessages(r)} upTo={s.ran ? r.steps.length : 0} />
+                <Fact id="simplest-first" />
+              </>
+            );
+          },
         },
       }}
     />

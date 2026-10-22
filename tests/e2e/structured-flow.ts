@@ -8,7 +8,7 @@ export function structuredWalker(page: Page, mode: Mode, check: (page: Page) => 
   const press = (l: Locator) => (kb ? l.press('Enter') : l.click());
   const card = page.getByRole('region', { name: 'Next step' });
   const btn = (name: string | RegExp) => press(card.getByRole('button', { name }));
-  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name }));   // a quiz or prediction option
+  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name })); // a quiz or prediction option
   const step = (n: number) => expect(card).toContainText(`Step ${n} of`);
   const ready = () => expect(page.locator('.so-stage[data-model="ready"]')).toBeVisible({ timeout: 15_000 });
   /** a native select: arrow keys from the keyboard, or picked straight by mouse */
@@ -35,7 +35,10 @@ export function structuredWalker(page: Page, mode: Mode, check: (page: Page) => 
     await press(card.getByRole('link', { name: /^(Next:|Recap)/ }));
     await expect(page).toHaveURL(next);
     // a key pressed before the next island hydrates is lost
-    if (!/recap/.test(String(next))) { await page.locator('astro-island:not([ssr])').waitFor(); await ready(); }
+    if (!/recap/.test(String(next))) {
+      await page.locator('astro-island:not([ssr])').waitFor();
+      await ready();
+    }
   }
 
   return {

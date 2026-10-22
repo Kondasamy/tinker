@@ -4,7 +4,11 @@ import { NORECORD, type Call } from '../tools/turns';
 export { NORECORD, type Call };
 
 /** One model turn: `plan` writes (or rewrites) a plan; `calls` proposes tool calls (several = parallel); neither means `text` is the final answer. */
-export interface Turn { text: string; plan?: string[]; calls?: Call[] }
+export interface Turn {
+  text: string;
+  plan?: string[];
+  calls?: Call[];
+}
 export interface Recording {
   /** what the Larkspur employee asks, per case id; the case id is part of the signature */
   asks: Record<string, string>;
@@ -32,7 +36,13 @@ export const RECORDINGS: Record<string, Recording> = Object.fromEntries(
 
 /** Sorted `field=value` pairs joined by `|`, e.g. `case=damaged|hist=get_order:1042:ok|mem=full|plan=off|tools=get_order,send_email`. */
 export function signature(s: Seen): string {
-  return [`case=${s.case}`, `hist=${s.hist.join(',')}`, `mem=${s.mem}`, `plan=${s.plan}`, `tools=${[...s.tools].sort().join(',')}`].join('|');
+  return [
+    `case=${s.case}`,
+    `hist=${s.hist.join(',')}`,
+    `mem=${s.mem}`,
+    `plan=${s.plan}`,
+    `tools=${[...s.tools].sort().join(',')}`,
+  ].join('|');
 }
 
 /** The recorded turn for this signature, or `norecord` so the host can say none exists. */

@@ -3,7 +3,12 @@ import { encode } from '../lm/bpe';
 import { tokensFor } from '../scale';
 import { TOKENIZERS, realCorpusTokens } from './encodings';
 
-export interface Counts { tokens: number; words: number; chars: number; bytes: number }
+export interface Counts {
+  tokens: number;
+  words: number;
+  chars: number;
+  bytes: number;
+}
 
 const enc = new TextEncoder();
 const graphemes = new Intl.Segmenter('en', { granularity: 'grapheme' });
@@ -18,7 +23,9 @@ export const countText = (text: string): Counts => ({
 
 const RAW = import.meta.glob<string>('/data/corpus/*.md', { query: '?raw', import: 'default', eager: true });
 /** Every corpus document, sorted by file name: the text the site tokenizer and the recordings were counted on. */
-export const CORPUS = Object.entries(RAW).map(([p, text]) => ({ file: p.slice(p.lastIndexOf('/') + 1), text })).sort((a, b) => (a.file < b.file ? -1 : 1));
+export const CORPUS = Object.entries(RAW)
+  .map(([p, text]) => ({ file: p.slice(p.lastIndexOf('/') + 1), text }))
+  .sort((a, b) => (a.file < b.file ? -1 : 1));
 
 export interface Meter {
   bytes: number;
@@ -38,6 +45,9 @@ export function corpusMeter(): Meter {
     bytes,
     rule: tokensFor(bytes),
     site: CORPUS.reduce((n, d) => n + encode(d.text).length, 0),
-    real: TOKENIZERS.map((t) => { const tokens = realCorpusTokens(t.id); return { id: t.id, name: t.name, tokens, bytesPerToken: bytes / tokens }; }),
+    real: TOKENIZERS.map(t => {
+      const tokens = realCorpusTokens(t.id);
+      return { id: t.id, name: t.name, tokens, bytesPerToken: bytes / tokens };
+    }),
   });
 }

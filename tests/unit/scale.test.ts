@@ -1,5 +1,16 @@
 import { describe, it, expect } from 'vitest';
-import { TIMELINE, STOPS, STOP_5TB, WINDOW, PRICE, TOKENS_SOURCE, UNSTRUCTURED_SOURCE, tokensFor, overflows, formatBytes } from '../../src/lib/scale';
+import {
+  TIMELINE,
+  STOPS,
+  STOP_5TB,
+  WINDOW,
+  PRICE,
+  TOKENS_SOURCE,
+  UNSTRUCTURED_SOURCE,
+  tokensFor,
+  overflows,
+  formatBytes,
+} from '../../src/lib/scale';
 import { ERAS } from '../../src/components/scenes/Timeline';
 
 describe('timeline sources (R5)', () => {

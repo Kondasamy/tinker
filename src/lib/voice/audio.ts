@@ -16,33 +16,56 @@ export const clipUrl = (id: string) => `/data/voice/${id}.mp3`;
 
 let make: () => AudioLike = () => new Audio();
 let el: AudioLike | null = null;
-let current: string | null = null, state: ClipState = 'idle', token = 0;
+let current: string | null = null,
+  state: ClipState = 'idle',
+  token = 0;
 const failed = new Set<string>();
 const subs = new Set<() => void>();
 const emit = () => subs.forEach(f => f());
-const set = (s: ClipState) => { state = s; emit(); };
-const fail = (id: string) => { failed.add(id); if (current === id) { current = null; set('idle'); } else emit(); };
+const set = (s: ClipState) => {
+  state = s;
+  emit();
+};
+const fail = (id: string) => {
+  failed.add(id);
+  if (current === id) {
+    current = null;
+    set('idle');
+  } else emit();
+};
 
 function audio(): AudioLike {
   if (el) return el;
   const a = make();
   // the element is shared: an event counts only while it still holds the current clip (the browser makes src absolute)
   const mine = () => current !== null && a.src.endsWith(clipUrl(current));
-  a.addEventListener('playing', () => { if (mine() && state === 'loading') set('playing'); });
-  a.addEventListener('ended', () => { if (mine()) { current = null; set('idle'); } });
-  a.addEventListener('error', () => { if (mine()) fail(current!); });
+  a.addEventListener('playing', () => {
+    if (mine() && state === 'loading') set('playing');
+  });
+  a.addEventListener('ended', () => {
+    if (mine()) {
+      current = null;
+      set('idle');
+    }
+  });
+  a.addEventListener('error', () => {
+    if (mine()) fail(current!);
+  });
   return (el = a);
 }
 
 /** Play a clip (a reader pressed Play): stops whatever else was playing first. */
 export function playClip(id: string) {
   stopClip();
-  const a = audio(), mine = ++token;
+  const a = audio(),
+    mine = ++token;
   current = id;
   failed.delete(id);
   set('loading');
   a.src = clipUrl(id);
-  a.play().catch(() => { if (token === mine && current === id) fail(id); });
+  a.play().catch(() => {
+    if (token === mine && current === id) fail(id);
+  });
 }
 
 /** Stop whatever is playing (no-op when nothing is). */
@@ -57,9 +80,19 @@ export function stopClip() {
 /** A clip's state: loading or playing only while it is the current clip; error after its last try failed. */
 export const clipStatus = (id: string): ClipState => (current === id ? state : failed.has(id) ? 'error' : 'idle');
 export const playing = () => current;
-export function subscribe(f: () => void) { subs.add(f); return () => { subs.delete(f); }; }
+export function subscribe(f: () => void) {
+  subs.add(f);
+  return () => {
+    subs.delete(f);
+  };
+}
 
 /** Tests: swap the audio element for a fake, and forget every state. */
 export function setAudioFactory(f: () => AudioLike) {
-  make = f; el = null; current = null; state = 'idle'; failed.clear(); emit();
+  make = f;
+  el = null;
+  current = null;
+  state = 'idle';
+  failed.clear();
+  emit();
 }

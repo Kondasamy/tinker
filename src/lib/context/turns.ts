@@ -5,13 +5,24 @@ import { NORECORD } from '../tools/turns';
 export { NORECORD };
 
 /** A memory note the model chose to write (only when the memory tool is offered). */
-export interface Memo { file: string; text: string }
+export interface Memo {
+  file: string;
+  text: string;
+}
 /**
  * One model turn. `search` asks the host for documents (the turn's text is the lead-in); otherwise `text` is the answer.
  * Every turn carries `note`, one line on why it reads this way: illustrated, not measured (KTD8).
  */
-export interface Turn { text: string; note: string; right?: boolean; search?: string; memo?: Memo }
-export interface Recording { turns: Record<string, Turn> }
+export interface Turn {
+  text: string;
+  note: string;
+  right?: boolean;
+  search?: string;
+  memo?: Memo;
+}
+export interface Recording {
+  turns: Record<string, Turn>;
+}
 /** Everything the model can see. Host-only settings (budget, cache breakpoints and lifetime, prices) stay out. */
 export interface Seen {
   case: string;
@@ -34,13 +45,19 @@ export const RECORDINGS: Record<string, Recording> = Object.fromEntries(
   Object.entries(files).map(([path, rec]) => [path.slice(path.lastIndexOf('/') + 1, -'.json'.length), rec]),
 );
 /** Every chapter's turns in one recording: what chapters and the workbench run against. */
-export const RECORDING: Recording = { turns: Object.assign({}, ...Object.values(RECORDINGS).map((r) => r.turns)) };
+export const RECORDING: Recording = { turns: Object.assign({}, ...Object.values(RECORDINGS).map(r => r.turns)) };
 
 /** Fields in a fixed order, e.g. `case=free-shipping|docs=shipping-costs|found=|history=|memory=|stuff=off|system=plain|tools=`. */
 export function signature(s: Seen): string {
   return [
-    `case=${s.case}`, `docs=${s.docs.join(',')}`, `found=${s.found.join(',')}`, `history=${s.history.join(',')}`,
-    `memory=${s.memory.join(',')}`, `stuff=${s.stuff ? 'on' : 'off'}`, `system=${s.system}`, `tools=${[...s.tools].sort().join(',')}`,
+    `case=${s.case}`,
+    `docs=${s.docs.join(',')}`,
+    `found=${s.found.join(',')}`,
+    `history=${s.history.join(',')}`,
+    `memory=${s.memory.join(',')}`,
+    `stuff=${s.stuff ? 'on' : 'off'}`,
+    `system=${s.system}`,
+    `tools=${[...s.tools].sort().join(',')}`,
   ].join('|');
 }
 

@@ -49,9 +49,15 @@ const replies = new WeakMap<Model, Map<string, string>>();
  * Memoized per (weights, prompt): captions and controls call it on every render, and each call is 24 forward passes. */
 export function replyOf(model: Model, prompt: string) {
   let m = replies.get(model);
-  if (!m) replies.set(model, m = new Map());
+  if (!m) replies.set(model, (m = new Map()));
   let r = m.get(prompt);
-  if (r === undefined) m.set(prompt, r = decode(generate(model, encode(prompt), REPLY_TOKENS)).split('\n\n')[0].trim());
+  if (r === undefined)
+    m.set(
+      prompt,
+      (r = decode(generate(model, encode(prompt), REPLY_TOKENS))
+        .split('\n\n')[0]
+        .trim()),
+    );
   return r;
 }
 
@@ -61,8 +67,9 @@ export const fullCount = (meta: Meta) => meta.tensors.reduce((n, t) => n + size(
 /** The matrices LoRA adapts, with their [out, in] shapes, read from the base layout. */
 export function adaptedMatrices(meta: Meta) {
   const targets = meta.lora?.targets ?? [];
-  return meta.tensors.filter((t) => targets.some((x) => t.name.endsWith(`${x}.weight`)))
-    .map((t) => ({ name: t.name.slice(0, -'.weight'.length), out: t.shape[0], in: t.shape[1] }));
+  return meta.tensors
+    .filter(t => targets.some(x => t.name.endsWith(`${x}.weight`)))
+    .map(t => ({ name: t.name.slice(0, -'.weight'.length), out: t.shape[0], in: t.shape[1] }));
 }
 /** LoRA trains rank × (in + out) per adapted matrix: A is rank × in, B is out × rank. */
 export const loraCount = (meta: Meta, rank = meta.lora?.rank ?? 0) =>
@@ -82,19 +89,32 @@ export function heldoutScore(model: Model) {
 // ---- the Larkspur-assistant versions (recorded answers, live grading) ----
 
 export type VersionId = 'prompted' | 'rag' | 'finetuned';
-export interface Version { id: VersionId; label: string; changes: 'prompt' | 'documents' | 'weights'; note: string }
+export interface Version {
+  id: VersionId;
+  label: string;
+  changes: 'prompt' | 'documents' | 'weights';
+  note: string;
+}
 export const VERSIONS = versions as Version[];
-export const VERSION_IDS = VERSIONS.map((v) => v.id);
+export const VERSION_IDS = VERSIONS.map(v => v.id);
 /** What a new version is gated against: the shipped RAG assistant. */
 export const BASELINE: VersionId = 'rag';
 
-export interface Recorded { text: string; citation: string | null; note?: string }
+export interface Recorded {
+  text: string;
+  citation: string | null;
+  note?: string;
+}
 const ANSWERS = answers as Record<VersionId, Record<string, Recorded>>;
 
 /** The changed-price case: a price update the RAG version reads, and a reference with the new price. */
-export const PRICE_CHANGE = priceChange as { question: { id: string; query: string }; passage: { id: string; title: string; text: string }; reference: Reference };
+export const PRICE_CHANGE = priceChange as {
+  question: { id: string; query: string };
+  passage: { id: string; title: string; text: string };
+  reference: Reference;
+};
 /** Evals' questions, in chapter order. */
-export const QUESTION_IDS = QUESTIONS.map((q) => q.id);
+export const QUESTION_IDS = QUESTIONS.map(q => q.id);
 /** Every question a version answers: Evals' twelve, then the changed price. */
 export const ALL_QUESTIONS = [...QUESTION_IDS, PRICE_CHANGE.question.id];
 
@@ -109,9 +129,15 @@ export function answer(v: VersionId, question: string): Recorded {
 export const factOk = (question: string, text: string) =>
   question === PRICE_CHANGE.question.id ? keyFactOf(PRICE_CHANGE.reference, text) : keyFact(question, text);
 
-export interface Graded { question: string; answer: Recorded; fact: boolean; cited: boolean; signed: boolean }
+export interface Graded {
+  question: string;
+  answer: Recorded;
+  fact: boolean;
+  cited: boolean;
+  signed: boolean;
+}
 export function gradeVersion(v: VersionId, questions = ALL_QUESTIONS): Graded[] {
-  return questions.map((q) => {
+  return questions.map(q => {
     const a = answer(v, q);
     return { question: q, answer: a, fact: factOk(q, a.text), cited: hasCitation(a), signed: signsOff(a.text) };
   });
@@ -119,6 +145,6 @@ export function gradeVersion(v: VersionId, questions = ALL_QUESTIONS): Graded[] 
 
 /** Evals' release gate over Evals' twelve questions, graded by the key-fact check: `cand` against the baseline. */
 export function gateVersion(cand: VersionId, gate: Gate, base: VersionId = BASELINE) {
-  const passes = (v: VersionId) => gradeVersion(v, QUESTION_IDS).map((g) => g.fact);
+  const passes = (v: VersionId) => gradeVersion(v, QUESTION_IDS).map(g => g.fact);
   return decide(passes(base), passes(cand), gate);
 }

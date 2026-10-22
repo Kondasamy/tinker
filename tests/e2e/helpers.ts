@@ -6,8 +6,15 @@ import AxeBuilder from '@axe-core/playwright';
 export async function serious(page: Page, include?: string) {
   const axe = new AxeBuilder({ page });
   const { violations } = await (include ? axe.include(include) : axe).analyze();
-  return violations.filter(v => v.impact === 'serious' || v.impact === 'critical')
-    .map(v => `${v.id}: ${v.help} → ${v.nodes.map(n => n.target.join(' ')).slice(0, 3).join(' | ')}`);
+  return violations
+    .filter(v => v.impact === 'serious' || v.impact === 'critical')
+    .map(
+      v =>
+        `${v.id}: ${v.help} → ${v.nodes
+          .map(n => n.target.join(' '))
+          .slice(0, 3)
+          .join(' | ')}`,
+    );
 }
 
 /** A phone: 390 × 844, touch. Use with test.use(PHONE). */
@@ -21,7 +28,10 @@ export async function layoutHolds(page: Page) {
   const r = await page.evaluate(() => {
     const box = (s: string) => document.querySelector(s)?.getBoundingClientRect().toJSON() ?? null;
     const w = document.documentElement.clientWidth;
-    const wide = [...document.querySelectorAll('main *')].filter(e => e.getBoundingClientRect().right > w + 1).slice(0, 3).map(e => e.outerHTML.slice(0, 80));
+    const wide = [...document.querySelectorAll('main *')]
+      .filter(e => e.getBoundingClientRect().right > w + 1)
+      .slice(0, 3)
+      .map(e => e.outerHTML.slice(0, 80));
     return { scrollW: document.documentElement.scrollWidth, w, wide, card: box('.card'), drawer: box('.drawer') };
   });
   expect(r.scrollW, `no horizontal page scroll; too wide: ${r.wide.join(' | ')}`).toBeLessThanOrEqual(r.w);

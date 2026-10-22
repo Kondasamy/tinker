@@ -13,13 +13,20 @@ import { PinnedStage, StructuredStage, stencilAt } from '../content/structured-o
 import { modelStore } from '../content/transformers/kit';
 
 const model = diskModel();
-const mask = play(model, run('mask')).decoded, note = play(model, run('note')).decoded, asking = play(model, run('asking')).decoded;
-const disk = modelStore(async (f) => { const b = readFileSync(`public/data/lm/${f}`); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer; });
+const mask = play(model, run('mask')).decoded,
+  note = play(model, run('note')).decoded,
+  asking = play(model, run('asking')).decoded;
+const disk = modelStore(async f => {
+  const b = readFileSync(`public/data/lm/${f}`);
+  return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer;
+});
 disk.start();
 while (!disk.now() && !disk.snapshot().failed) await new Promise(r => setTimeout(r, 10));
 const loading = modelStore(() => new Promise<ArrayBuffer>(() => {}));
 loading.start();
-const failed = modelStore(async () => { throw new Error('offline'); });
+const failed = modelStore(async () => {
+  throw new Error('offline');
+});
 failed.start();
 await new Promise(r => setTimeout(r, 0));
 const prompt = run('mask').prompt;

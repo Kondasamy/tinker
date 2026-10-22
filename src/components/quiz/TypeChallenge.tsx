@@ -12,23 +12,32 @@ export const CHOICES = [
 ] as const;
 export type Choice = (typeof CHOICES)[number]['id'];
 
-export interface Problem { id: string; text: string; best: Choice; why: string; weaker: Record<Choice, string> }
+export interface Problem {
+  id: string;
+  text: string;
+  best: Choice;
+  why: string;
+  weaker: Record<Choice, string>;
+}
 
 export const PROBLEMS: Problem[] = [
   {
-    id: 'approver', best: 'graph',
+    id: 'approver',
+    best: 'graph',
     text: 'Procurement asks: who approves purchases for the team that owns the Kestrel K2 scanner integration?',
     why: 'The answer is a chain, scanner → owning team → approver, spread over two documents, and no single passage links them. A graph follows the relations hop by hop.',
     weaker: {
       advanced: 'One search matches one passage, and neither passage answers on its own.',
-      agentic: 'More searches still match words. The approver’s sentence never mentions the scanner, so the agent reached only half the chain.',
+      agentic:
+        'More searches still match words. The approver’s sentence never mentions the scanner, so the agent reached only half the chain.',
       graph: '',
       selfcheck: 'Grading can say retrieval is weak, but it cannot find the missing link.',
       multimodal: 'Nothing here sits in a table, PDF or image.',
     },
   },
   {
-    id: 'retired', best: 'advanced',
+    id: 'retired',
+    best: 'advanced',
     text: 'HR says: answers about the travel policy keep citing a version that was retired years ago.',
     why: 'Retrieval works; the retired document simply outranks the current one. A metadata filter on status = current, an advanced-RAG lever, removes it in a single pass.',
     weaker: {
@@ -40,7 +49,8 @@ export const PROBLEMS: Problem[] = [
     },
   },
   {
-    id: 'scanned', best: 'multimodal',
+    id: 'scanned',
+    best: 'multimodal',
     text: 'Facilities says: the answer they need is only in a scanned vendor PDF.',
     why: 'A text-only pipeline never sees the PDF. Parsing it to text (and tables and images likewise) puts it in reach of retrieval.',
     weaker: {
@@ -52,7 +62,8 @@ export const PROBLEMS: Problem[] = [
     },
   },
   {
-    id: 'lookalike', best: 'selfcheck',
+    id: 'lookalike',
+    best: 'selfcheck',
     text: 'Security says: the bot sometimes answers confidently from a look-alike document that uses the same words.',
     why: 'An evaluator grades what came back before the model answers. A weak match is thrown away, the question is retried as a rewrite, and if nothing passes the bot says “I don’t know”.',
     weaker: {
@@ -64,7 +75,8 @@ export const PROBLEMS: Problem[] = [
     },
   },
   {
-    id: 'lookups', best: 'agentic',
+    id: 'lookups',
+    best: 'agentic',
     text: 'Support says: some questions need a search, a look at what came back, and sometimes a follow-up search.',
     why: 'An agent sits between the retriever and the model, reads each result, and decides whether and how to search again, within a call budget.',
     weaker: {
@@ -77,7 +89,10 @@ export const PROBLEMS: Problem[] = [
   },
 ];
 
-export interface Challenge { at: number; picks: Record<string, Choice[]> }
+export interface Challenge {
+  at: number;
+  picks: Record<string, Choice[]>;
+}
 export const START: Challenge = { at: 0, picks: {} };
 
 export const solved = (c: Challenge, p: Problem) => (c.picks[p.id] ?? []).includes(p.best);
@@ -94,57 +109,122 @@ export const advance = (c: Challenge): Challenge =>
 const label = (id: Choice) => CHOICES.find(t => t.id === id)!.label;
 const ch = (id: string) => ({ href: chapterHref(id), n: CHAPTERS.findIndex(c => c.id === id) + 1 });
 const CAN = [
-  { text: 'Explain why a terabyte-scale knowledge base cannot simply go into the prompt.', chapters: ['02-why-not-stuff-it'] },
-  { text: 'Tell whether a wrong answer came from retrieval missing the fact or the model mishandling it, and name the lever that fixes it.', chapters: ['04-layers', '05-accuracy'] },
-  { text: 'Choose between naive/advanced, agentic, GraphRAG, self-correcting and multimodal RAG for a described problem.', chapters: ['06-types'] },
+  {
+    text: 'Explain why a terabyte-scale knowledge base cannot simply go into the prompt.',
+    chapters: ['02-why-not-stuff-it'],
+  },
+  {
+    text: 'Tell whether a wrong answer came from retrieval missing the fact or the model mishandling it, and name the lever that fixes it.',
+    chapters: ['04-layers', '05-accuracy'],
+  },
+  {
+    text: 'Choose between naive/advanced, agentic, GraphRAG, self-correcting and multimodal RAG for a described problem.',
+    chapters: ['06-types'],
+  },
 ];
 
-export default function TypeChallenge({ value: c, onChange }: { value: Challenge; onChange: (next: Challenge) => void }) {
+export default function TypeChallenge({
+  value: c,
+  onChange,
+}: {
+  value: Challenge;
+  onChange: (next: Challenge) => void;
+}) {
   const p = PROBLEMS[c.at];
   const picks = c.picks[p.id] ?? [];
   const last = picks[picks.length - 1];
   const done = solved(c, p);
   // finishing brings the summary into view and to the screen reader; a restored, finished run stays put
   const closing = useRef<HTMLHeadingElement>(null);
-  const finished = complete(c), was = useRef(finished);
-  useEffect(() => { if (finished && !was.current) closing.current?.focus(); was.current = finished; }, [finished]);
+  const finished = complete(c),
+    was = useRef(finished);
+  useEffect(() => {
+    if (finished && !was.current) closing.current?.focus();
+    was.current = finished;
+  }, [finished]);
   return (
     <div className="challenge">
-      <p className="count" aria-hidden="true">{PROBLEMS.map((q, i) => <span key={q.id} data-solved={solved(c, q) || undefined} data-current={i === c.at || undefined}>{solved(c, q) ? '✓' : i + 1}</span>)}</p>
+      <p className="count" aria-hidden="true">
+        {PROBLEMS.map((q, i) => (
+          <span key={q.id} data-solved={solved(c, q) || undefined} data-current={i === c.at || undefined}>
+            {solved(c, q) ? '✓' : i + 1}
+          </span>
+        ))}
+      </p>
       <fieldset className="quiz">
-        <legend>Problem {c.at + 1} of {PROBLEMS.length}. {p.text}</legend>
+        <legend>
+          Problem {c.at + 1} of {PROBLEMS.length}. {p.text}
+        </legend>
         <div className="opts">
           {CHOICES.map(t => {
             const wrong = t.id !== p.best && picks.includes(t.id);
             // only the accepted pick reads as pressed; a ruled-out one says so instead of "pressed"
-            return <button key={t.id} type="button" className="chip" aria-pressed={!wrong && picks.includes(t.id)} disabled={done && t.id !== p.best}
-              data-wrong={wrong || undefined}
-              onClick={() => onChange(choose(c, t.id))}>{t.label}{wrong && <span className="sr"> (ruled out)</span>}</button>;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                className="chip"
+                aria-pressed={!wrong && picks.includes(t.id)}
+                disabled={done && t.id !== p.best}
+                data-wrong={wrong || undefined}
+                onClick={() => onChange(choose(c, t.id))}
+              >
+                {t.label}
+                {wrong && <span className="sr"> (ruled out)</span>}
+              </button>
+            );
           })}
         </div>
         {last && (
           <div className="feedback" role="status">
-            {done ? <>
-              <span className="stamp correct">RIGHT</span>
-              <p>{p.why}</p>
-              <details>
-                <summary>Why not the others?</summary>
-                <ul>{CHOICES.filter(t => t.id !== p.best).map(t => <li key={t.id}><b>{t.label}:</b> {p.weaker[t.id]}</li>)}</ul>
-              </details>
-            </> : <>
-              <span className="stamp wrong">NOT QUITE</span>
-              <p>{label(last)}: {p.weaker[last]}</p>
-            </>}
+            {done ? (
+              <>
+                <span className="stamp correct">RIGHT</span>
+                <p>{p.why}</p>
+                <details>
+                  <summary>Why not the others?</summary>
+                  <ul>
+                    {CHOICES.filter(t => t.id !== p.best).map(t => (
+                      <li key={t.id}>
+                        <b>{t.label}:</b> {p.weaker[t.id]}
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              </>
+            ) : (
+              <>
+                <span className="stamp wrong">NOT QUITE</span>
+                <p>
+                  {label(last)}: {p.weaker[last]}
+                </p>
+              </>
+            )}
           </div>
         )}
       </fieldset>
-      {done && c.at < PROBLEMS.length - 1 && <button type="button" className="big" onClick={() => onChange(advance(c))}>Next problem →</button>}
+      {done && c.at < PROBLEMS.length - 1 && (
+        <button type="button" className="big" onClick={() => onChange(advance(c))}>
+          Next problem →
+        </button>
+      )}
       {finished && (
         <section className="closing" aria-label="Module complete">
-          <h2 ref={closing} tabIndex={-1}>Module complete</h2>
+          <h2 ref={closing} tabIndex={-1}>
+            Module complete
+          </h2>
           <p>You can now:</p>
           <ul>
-            {CAN.map(x => <li key={x.text}>{x.text} {x.chapters.map(id => <a key={id} href={ch(id).href}>Chapter {ch(id).n}</a>)}</li>)}
+            {CAN.map(x => (
+              <li key={x.text}>
+                {x.text}{' '}
+                {x.chapters.map(id => (
+                  <a key={id} href={ch(id).href}>
+                    Chapter {ch(id).n}
+                  </a>
+                ))}
+              </li>
+            ))}
           </ul>
         </section>
       )}

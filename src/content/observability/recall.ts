@@ -5,8 +5,11 @@ import type { RecallItem } from '../../lib/recall';
 export const RECALL: RecallItem[] = [
   // 2. The first failure (the pinned item comes first in the bank)
   {
-    id: 'first-not-last', chapter: '02-first-failure', pin: true,   // the module's single most important idea: exactly one pin
-    question: 'A travel assistant booked the wrong hotel. Its trace shows: search found the right hotel, the model then called the booking tool with another hotel’s id, the tool booked it, and the reply confirmed it. Where should the note go?',
+    id: 'first-not-last',
+    chapter: '02-first-failure',
+    pin: true, // the module's single most important idea: exactly one pin
+    question:
+      'A travel assistant booked the wrong hotel. Its trace shows: search found the right hotel, the model then called the booking tool with another hotel’s id, the tool booked it, and the reply confirmed it. Where should the note go?',
     options: [
       'On the reply: that is where the customer saw the mistake',
       'On the model call that passed the wrong id: the first step that went wrong',
@@ -22,9 +25,15 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'downstream-noise', chapter: '02-first-failure',
-    question: 'A trace has three spans that look wrong: a search that found an old passage, a model call that quoted it, and a reply with the old figure. How many separate problems should the note record?',
-    options: ['Three: one per wrong-looking span', 'One: the search, since the other two follow from it', 'None until a customer complains'],
+    id: 'downstream-noise',
+    chapter: '02-first-failure',
+    question:
+      'A trace has three spans that look wrong: a search that found an old passage, a model call that quoted it, and a reply with the old figure. How many separate problems should the note record?',
+    options: [
+      'Three: one per wrong-looking span',
+      'One: the search, since the other two follow from it',
+      'None until a customer complains',
+    ],
     correct: 1,
     why: [
       'Counting every symptom triples one failure, and the tally then overstates it.',
@@ -33,9 +42,15 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'reply-is-symptom', chapter: '02-first-failure',
-    question: 'Two traces end in the same wrong reply. In one, retrieval found an old passage; in the other, the model ignored a correct passage. Are they the same failure?',
-    options: ['Yes: the replies are identical', 'No: they went wrong at different spans, so they need different fixes', 'It can’t be told from traces'],
+    id: 'reply-is-symptom',
+    chapter: '02-first-failure',
+    question:
+      'Two traces end in the same wrong reply. In one, retrieval found an old passage; in the other, the model ignored a correct passage. Are they the same failure?',
+    options: [
+      'Yes: the replies are identical',
+      'No: they went wrong at different spans, so they need different fixes',
+      'It can’t be told from traces',
+    ],
     correct: 1,
     why: [
       'The same symptom can have different causes. Grouping by the reply would hide that.',
@@ -45,8 +60,10 @@ export const RECALL: RecallItem[] = [
   },
   // 1. What the assistant did
   {
-    id: 'trace-vs-log', chapter: '01-what-it-did',
-    question: 'An engineer says the assistant’s logs show the question and the reply, so a trace adds nothing. What does a trace add?',
+    id: 'trace-vs-log',
+    chapter: '01-what-it-did',
+    question:
+      'An engineer says the assistant’s logs show the question and the reply, so a trace adds nothing. What does a trace add?',
     options: [
       'Nothing: the question and the reply are the whole story',
       'Every step between them, nested and timed: what was retrieved, which tools were called with what, and what the model was given',
@@ -60,7 +77,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'span-parent', chapter: '01-what-it-did',
+    id: 'span-parent',
+    chapter: '01-what-it-did',
     question: 'In a waterfall, one bar spans the whole width above all the others. What is it?',
     options: ['The slowest step', 'The whole run: the parent span every step sits inside', 'A step that failed'],
     correct: 1,
@@ -71,8 +89,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'where-time-goes', chapter: '01-what-it-did',
-    question: 'A product manager wants the assistant to answer faster. In a trace like chapter 1’s, where is the time most likely to go?',
+    id: 'where-time-goes',
+    chapter: '01-what-it-did',
+    question:
+      'A product manager wants the assistant to answer faster. In a trace like chapter 1’s, where is the time most likely to go?',
     options: ['The order lookup', 'The model calls', 'Sending the reply'],
     correct: 1,
     why: [
@@ -83,8 +103,10 @@ export const RECALL: RecallItem[] = [
   },
   // 3. Open coding
   {
-    id: 'notes-before-categories', chapter: '03-open-coding',
-    question: 'A new team lead hands reviewers a fixed list of five failure categories to tick on day one. What is the risk?',
+    id: 'notes-before-categories',
+    chapter: '03-open-coding',
+    question:
+      'A new team lead hands reviewers a fixed list of five failure categories to tick on day one. What is the risk?',
     options: [
       'None: a list makes reviews faster and consistent',
       'The list was written before anyone read the traces, so failures that don’t fit it get forced into it or missed',
@@ -98,9 +120,14 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'who-codes', chapter: '03-open-coding',
+    id: 'who-codes',
+    chapter: '03-open-coding',
     question: 'Who should write the notes on a legal assistant’s failed traces?',
-    options: ['Any engineer on the team', 'Someone who knows what a good legal answer looks like', 'A model, so it scales'],
+    options: [
+      'Any engineer on the team',
+      'Someone who knows what a good legal answer looks like',
+      'A model, so it scales',
+    ],
     correct: 1,
     why: [
       'An engineer can read the spans, but may not spot a subtly wrong legal answer.',
@@ -109,7 +136,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'notes-private', chapter: '03-open-coding',
+    id: 'notes-private',
+    chapter: '03-open-coding',
     question: 'Your notes in chapter 3 were never marked right or wrong. Why?',
     options: [
       'Because there is no right note: a note records what you saw, in your words',
@@ -125,9 +153,14 @@ export const RECALL: RecallItem[] = [
   },
   // 4. Axial coding
   {
-    id: 'group-by-cause', chapter: '04-axial-coding',
+    id: 'group-by-cause',
+    chapter: '04-axial-coding',
     question: 'Two notes read “quoted last year’s price” and “old warranty length”. Should they share a group?',
-    options: ['No: one is about prices and one about warranties', 'Yes: both came from answering out of an old passage', 'Only if they came from the same customer'],
+    options: [
+      'No: one is about prices and one about warranties',
+      'Yes: both came from answering out of an old passage',
+      'Only if they came from the same customer',
+    ],
     correct: 1,
     why: [
       'Grouping by topic hides the shared cause, and the shared fix.',
@@ -136,9 +169,14 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'names-free', chapter: '04-axial-coding',
+    id: 'names-free',
+    chapter: '04-axial-coding',
     question: 'Two reviewers sort the same traces into the same groups but name them differently. Did they agree?',
-    options: ['No: the names differ', 'Yes: the same traces are together; the names are labels', 'Only if they used the same number of words'],
+    options: [
+      'No: the names differ',
+      'Yes: the same traces are together; the names are labels',
+      'Only if they used the same number of words',
+    ],
     correct: 1,
     why: [
       'Names can be agreed afterwards. What matters is which traces belong together.',
@@ -147,9 +185,14 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'count-the-modes', chapter: '04-axial-coding',
+    id: 'count-the-modes',
+    chapter: '04-axial-coding',
     question: 'Why count the traces in each failure mode?',
-    options: ['To report a single accuracy number', 'To see how often each kind of failure happens, so you can choose what to fix', 'Counting is optional decoration'],
+    options: [
+      'To report a single accuracy number',
+      'To see how often each kind of failure happens, so you can choose what to fix',
+      'Counting is optional decoration',
+    ],
     correct: 1,
     why: [
       'A single number hides which kinds of failure make it up.',
@@ -159,8 +202,10 @@ export const RECALL: RecallItem[] = [
   },
   // 5. Which ones matter
   {
-    id: 'frequency-harm', chapter: '05-what-matters',
-    question: 'A support bot fails in two ways: 40 times it says “I don’t know” to easy questions, and 8 times it promises refunds it can’t give. Which do you fix first?',
+    id: 'frequency-harm',
+    chapter: '05-what-matters',
+    question:
+      'A support bot fails in two ways: 40 times it says “I don’t know” to easy questions, and 8 times it promises refunds it can’t give. Which do you fix first?',
     options: [
       'The “I don’t know” replies: they happen five times as often',
       'Weigh both: if a false promise does much more harm, eight of them can outweigh forty “I don’t know”s',
@@ -174,9 +219,14 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'harm-rating', chapter: '05-what-matters',
+    id: 'harm-rating',
+    chapter: '05-what-matters',
     question: 'Where did the harm ratings in chapter 5 come from?',
-    options: ['A model measured them', 'The team rated each mode, with a reason, from what the failure costs a customer', 'They are industry standard scores'],
+    options: [
+      'A model measured them',
+      'The team rated each mode, with a reason, from what the failure costs a customer',
+      'They are industry standard scores',
+    ],
     correct: 1,
     why: [
       'Nothing here was measured: the traces and ratings are written by hand to show the method.',
@@ -185,9 +235,14 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'one-fix', chapter: '05-what-matters',
+    id: 'one-fix',
+    chapter: '05-what-matters',
     question: 'Why pick one failure mode to fix, rather than all five at once?',
-    options: ['You can see whether the fix worked, and the next day’s traces show what to do next', 'Fixing more than one is impossible', 'One fix always solves all modes'],
+    options: [
+      'You can see whether the fix worked, and the next day’s traces show what to do next',
+      'Fixing more than one is impossible',
+      'One fix always solves all modes',
+    ],
     correct: 0,
     why: [
       'Right. One change at a time keeps cause and effect clear, and the loop repeats.',
@@ -197,7 +252,8 @@ export const RECALL: RecallItem[] = [
   },
   // 6. From trace to test
   {
-    id: 'trace-becomes-case', chapter: '06-trace-to-test',
+    id: 'trace-becomes-case',
+    chapter: '06-trace-to-test',
     question: 'You fixed a bug a customer’s trace showed. Why turn that trace into an eval case too?',
     options: [
       'So a later change that brings the bug back fails the suite before customers see it',
@@ -212,7 +268,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'citation-not-enough', chapter: '06-trace-to-test',
+    id: 'citation-not-enough',
+    chapter: '06-trace-to-test',
     question: 'The old-passage answers had citations. Which grader caught them?',
     options: ['Has a citation', 'Contains the key fact', 'Both'],
     correct: 1,
@@ -223,9 +280,14 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'fix-only-its-mode', chapter: '06-trace-to-test',
+    id: 'fix-only-its-mode',
+    chapter: '06-trace-to-test',
     question: 'A wrong-order-number trace was added as a case. On the version with the rebuilt index, does it pass?',
-    options: ['Yes: the new version is better everywhere', 'No: the fix changed retrieval, and that trace failed at the tool call', 'It can’t be graded'],
+    options: [
+      'Yes: the new version is better everywhere',
+      'No: the fix changed retrieval, and that trace failed at the tool call',
+      'It can’t be graded',
+    ],
     correct: 1,
     why: [
       'A fix improves what it targets; other modes stay as they were.',
@@ -235,9 +297,14 @@ export const RECALL: RecallItem[] = [
   },
   // 7. Workbench
   {
-    id: 'wrong-label-wrong-fix', chapter: '07-workbench',
+    id: 'wrong-label-wrong-fix',
+    chapter: '07-workbench',
     question: 'A reviewer in a hurry labels every failed trace “search missed the passage”. What happens to the tally?',
-    options: ['Nothing important: labels are only names', 'It points at the wrong fix: the real modes vanish into one bin', 'The tally corrects itself'],
+    options: [
+      'Nothing important: labels are only names',
+      'It points at the wrong fix: the real modes vanish into one bin',
+      'The tally corrects itself',
+    ],
     correct: 1,
     why: [
       'Labels drive the counts, and the counts drive the fix.',
@@ -246,9 +313,15 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'new-day-new-top', chapter: '07-workbench',
-    question: 'The old-passage fix shipped. Why read a new day’s traces instead of fixing the next mode on yesterday’s list?',
-    options: ['Traffic changes, and a fix changes what fails; the new day shows what matters now', 'Yesterday’s list is always wrong', 'There’s no reason; use the old list'],
+    id: 'new-day-new-top',
+    chapter: '07-workbench',
+    question:
+      'The old-passage fix shipped. Why read a new day’s traces instead of fixing the next mode on yesterday’s list?',
+    options: [
+      'Traffic changes, and a fix changes what fails; the new day shows what matters now',
+      'Yesterday’s list is always wrong',
+      'There’s no reason; use the old list',
+    ],
     correct: 0,
     why: [
       'Right. Error analysis is a loop: read, label, count, fix, then read again.',
@@ -257,9 +330,14 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'ties', chapter: '07-workbench',
+    id: 'ties',
+    chapter: '07-workbench',
     question: 'Two modes tie for the most harm on the new day. What then?',
-    options: ['Either is a sound pick; choose by cost of the fix or what customers report', 'Fix neither until one is ahead', 'The tally must be wrong'],
+    options: [
+      'Either is a sound pick; choose by cost of the fix or what customers report',
+      'Fix neither until one is ahead',
+      'The tally must be wrong',
+    ],
     correct: 0,
     why: [
       'Right. A tie means the numbers don’t decide; other reasons do.',

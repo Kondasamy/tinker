@@ -10,7 +10,11 @@ import { checkText, compile, type FieldSchema, type ObjectSchema } from './gramm
 export type FieldId = 'team' | 'status' | 'days';
 export type Choice = 'free' | 'list' | 'number' | 'system';
 export type Policy = Record<FieldId, Choice>;
-export interface Order { id: number; status: string; days: number }
+export interface Order {
+  id: number;
+  status: string;
+  days: number;
+}
 
 export const ORDERS: Order[] = data.orders;
 export const TEAM = data.team;
@@ -21,24 +25,39 @@ export const FIELDS: { id: FieldId; label: string; choices: Choice[] }[] = [
   { id: 'status', label: 'Status', choices: ['free', 'list', 'system'] },
   { id: 'days', label: 'Days to arrive', choices: ['number', 'free', 'system'] },
 ];
-const LISTS: Partial<Record<FieldId, string[]>> = { team: ['billing', 'shipping', 'returns'], status: ['on time', 'delayed'] };
+const LISTS: Partial<Record<FieldId, string[]>> = {
+  team: ['billing', 'shipping', 'returns'],
+  status: ['on time', 'delayed'],
+};
 /** Free strings get this cap, so they always close inside the window. */
 export const FREE_MAX = 8;
 
 export const choiceLabel = (f: FieldId, c: Choice) =>
-  c === 'free' ? `Model writes free text (up to ${FREE_MAX} characters)`
-    : c === 'list' ? `Model picks from a list: ${LISTS[f]!.join(', ')}`
-      : c === 'number' ? 'Model writes a whole number'
+  c === 'free'
+    ? `Model writes free text (up to ${FREE_MAX} characters)`
+    : c === 'list'
+      ? `Model picks from a list: ${LISTS[f]!.join(', ')}`
+      : c === 'number'
+        ? 'Model writes a whole number'
         : 'Leave it out: the order system fills it';
 
 const fieldSchema = (f: FieldId, c: Choice): FieldSchema =>
-  c === 'free' ? { type: 'string', maxLength: FREE_MAX } : c === 'list' ? { type: 'string', enum: LISTS[f]! } : { type: 'integer' };
+  c === 'free'
+    ? { type: 'string', maxLength: FREE_MAX }
+    : c === 'list'
+      ? { type: 'string', enum: LISTS[f]! }
+      : { type: 'integer' };
 
 /** The schema the model fills: the fields not left to the order system, in order. Null when it fills none. */
 export function schemaFor(p: Policy): ObjectSchema | null {
-  const ids = FIELDS.map((f) => f.id).filter((id) => p[id] !== 'system');
+  const ids = FIELDS.map(f => f.id).filter(id => p[id] !== 'system');
   if (!ids.length) return null;
-  return { type: 'object', properties: Object.fromEntries(ids.map((id) => [id, fieldSchema(id, p[id])])), required: ids, additionalProperties: false };
+  return {
+    type: 'object',
+    properties: Object.fromEntries(ids.map(id => [id, fieldSchema(id, p[id])])),
+    required: ids,
+    additionalProperties: false,
+  };
 }
 
 export const promptFor = (o: Order) => `Where is order ${o.id}?`;
@@ -66,37 +85,44 @@ function row(model: Model, p: Policy, o: Order): Row {
     const value = from === 'model' ? got[id] : from === 'system' ? truth[id] : undefined;
     return { id, value, from, right: valid && value === truth[id] };
   });
-  const right = valid && fields.every((f) => f.right);
-  const wrong = fields.find((f) => !f.right);
+  const right = valid && fields.every(f => f.right);
+  const wrong = fields.find(f => !f.right);
   const reason = !valid
-    ? d!.status === 'cut-off' ? 'cut off: the answer ran out of room before it closed' : `invalid: ${check!.errors[0]}`
-    : !wrong ? 'valid and right'
-      : wrong.from === 'missing' ? `${wrong.id} is missing: the order system doesn’t know the team`
+    ? d!.status === 'cut-off'
+      ? 'cut off: the answer ran out of room before it closed'
+      : `invalid: ${check!.errors[0]}`
+    : !wrong
+      ? 'valid and right'
+      : wrong.from === 'missing'
+        ? `${wrong.id} is missing: the order system doesn’t know the team`
         : `${wrong.id}: the model wrote ${JSON.stringify(wrong.value)}, the order system says ${JSON.stringify(truth[wrong.id])}`;
   return { order: o, output: d ? d.text : '', status: d ? d.status : 'none', valid, right, fields, reason };
 }
 
 const cache = new WeakMap<Model, Map<string, { rows: Row[]; score: number }>>();
-const keyOf = (p: Policy) => FIELDS.map((f) => p[f.id]).join('/');
+const keyOf = (p: Policy) => FIELDS.map(f => p[f.id]).join('/');
 
 /** Every order decoded under the policy's schema, with its verdict; the score counts valid, right answers. */
 export function bench(model: Model, p: Policy): { rows: Row[]; score: number } {
   let m = cache.get(model);
   if (!m) cache.set(model, (m = new Map()));
-  const k = keyOf(p), hit = m.get(k);
+  const k = keyOf(p),
+    hit = m.get(k);
   if (hit) return hit;
-  const rows = ORDERS.map((o) => row(model, p, o));
-  const out = { rows, score: rows.filter((r) => r.valid && r.right).length };
+  const rows = ORDERS.map(o => row(model, p, o));
+  const out = { rows, score: rows.filter(r => r.valid && r.right).length };
   m.set(k, out);
   return out;
 }
 
 /** Every policy the controls can make. */
 export const POLICIES: Policy[] = FIELDS.reduce<Policy[]>(
-  (ps, f) => ps.flatMap((p) => f.choices.map((c) => ({ ...p, [f.id]: c }))), [{} as Policy]);
+  (ps, f) => ps.flatMap(p => f.choices.map(c => ({ ...p, [f.id]: c }))),
+  [{} as Policy],
+);
 
 /** Every policy that gives a valid, right answer for every order: each one is a right answer to the puzzle. */
-export const WINNERS = (model: Model) => POLICIES.filter((p) => bench(model, p).score === ORDERS.length);
+export const WINNERS = (model: Model) => POLICIES.filter(p => bench(model, p).score === ORDERS.length);
 
 /** WINNERS over the committed weights, precomputed: decoding all 27 policies froze the page for seconds. A test keeps it
  * equal to WINNERS on model.bin; a retrain changes both. */

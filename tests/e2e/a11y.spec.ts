@@ -24,7 +24,12 @@ for (const { id } of CHAPTERS) {
     // a chapter that opens on a prediction moves on with a pick
     const predict = card(page).getByRole('radio');
     if (await predict.count()) await predict.first().click();
-    else await card(page).getByRole('button', { name: /^Ask|Compare types/ }).or(page.getByRole('button', { name: 'Open the workbench' })).first().click();
+    else
+      await card(page)
+        .getByRole('button', { name: /^Ask|Compare types/ })
+        .or(page.getByRole('button', { name: 'Open the workbench' }))
+        .first()
+        .click();
     await expect(card(page)).toContainText('Step 2 of');
     const inspect = card(page).getByRole('button', { name: 'Inspect' });
     if (await inspect.count()) await inspect.click();
@@ -55,7 +60,10 @@ for (const c of TOOLS.chapters) {
 
 test('axe: /tool-calling/recap/ with every chapter done, on its first question', async ({ page }) => {
   await page.goto('/');
-  await page.evaluate(ids => localStorage.setItem('tool-calling-progress-v1', JSON.stringify({ done: ids, saved: {} })), TOOLS.chapters.map(c => c.id));
+  await page.evaluate(
+    ids => localStorage.setItem('tool-calling-progress-v1', JSON.stringify({ done: ids, saved: {} })),
+    TOOLS.chapters.map(c => c.id),
+  );
   await page.goto('/tool-calling/recap/');
   await expect(page.locator('.recap legend')).toBeVisible();
   expect(await serious(page)).toEqual([]);
@@ -69,14 +77,17 @@ test('keyboard only: every chapter completes', async ({ page }) => {
 test('a canvas redraw keeps focus on the control in use', async ({ page }) => {
   await open(page, '04-layers');
   await card(page).getByRole('button', { name: /^Ask/ }).press('Enter');
-  await card(page).getByRole('radio', { name: /a cut split it/ }).press('Enter');
-  for (const b of ['Add the Chunker', 'Add the Embedder and Index']) await card(page).getByRole('button', { name: b }).press('Enter');
+  await card(page)
+    .getByRole('radio', { name: /a cut split it/ })
+    .press('Enter');
+  for (const b of ['Add the Chunker', 'Add the Embedder and Index'])
+    await card(page).getByRole('button', { name: b }).press('Enter');
   await page.locator('.map circle[tabindex]').first().focus();
   await card(page).getByRole('button', { name: 'Add the Context assembler' }).press('Enter');
   const overlap = card(page).getByRole('slider', { name: /Overlap/ });
   const said = await page.getByTestId('announce').textContent();
   await overlap.focus();
-  await overlap.press('ArrowRight');                          // 10%: the canvas redraws, the puzzle stays open
+  await overlap.press('ArrowRight'); // 10%: the canvas redraws, the puzzle stays open
   await expect(page.locator('[data-block="chunker"]')).toHaveAttribute('aria-label', /chunks:/);
   await expect(page.getByTestId('announce')).not.toHaveText(said!);
   await expect(overlap).toBeFocused();
@@ -90,27 +101,36 @@ test('a canvas redraw keeps focus on the control in use', async ({ page }) => {
 });
 
 // Opens the workbench and samples the LLM block's position every frame for 400 ms: how many distinct places it was seen in.
-const morphFrames = (page: Page) => page.evaluate(() => new Promise<number>(res => {
-  const seen = new Set<string>(), t0 = performance.now();
-  [...document.querySelectorAll('button')].find(b => b.textContent === 'Open the workbench')!.click();
-  const tick = () => {
-    const r = document.querySelector('[data-block="llm"]')?.getBoundingClientRect();
-    if (r?.width) seen.add(`${Math.round(r.x)},${Math.round(r.y)}`);
-    if (performance.now() - t0 < 400) requestAnimationFrame(tick); else res(seen.size);
-  };
-  requestAnimationFrame(tick);
-}));
+const morphFrames = (page: Page) =>
+  page.evaluate(
+    () =>
+      new Promise<number>(res => {
+        const seen = new Set<string>(),
+          t0 = performance.now();
+        [...document.querySelectorAll('button')].find(b => b.textContent === 'Open the workbench')!.click();
+        const tick = () => {
+          const r = document.querySelector('[data-block="llm"]')?.getBoundingClientRect();
+          if (r?.width) seen.add(`${Math.round(r.x)},${Math.round(r.y)}`);
+          if (performance.now() - t0 < 400) requestAnimationFrame(tick);
+          else res(seen.size);
+        };
+        requestAnimationFrame(tick);
+      }),
+  );
 
 test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
-  const running = (page: Page) => page.evaluate(() => document.getAnimations().filter(a => a.playState === 'running').length);
+  const running = (page: Page) =>
+    page.evaluate(() => document.getAnimations().filter(a => a.playState === 'running').length);
 
   test('no pulse or morph runs, and answers appear at once', async ({ page }) => {
     await open(page, '04-layers');
     await card(page).getByRole('button', { name: /^Ask/ }).click();
     await expect(page.locator('.drawer .answer-card')).toBeVisible({ timeout: 200 });
-    await card(page).getByRole('radio', { name: /a cut split it/ }).click();
-    await card(page).getByRole('button', { name: 'Add the Chunker' }).click();   // the outcome moves: wires would pulse
+    await card(page)
+      .getByRole('radio', { name: /a cut split it/ })
+      .click();
+    await card(page).getByRole('button', { name: 'Add the Chunker' }).click(); // the outcome moves: wires would pulse
     await expect(page.getByTestId('announce')).toContainText('Answer:', { timeout: 200 });
     expect(await running(page)).toBe(0);
 

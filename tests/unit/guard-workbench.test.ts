@@ -24,7 +24,8 @@ describe('chapter 5: defence in depth', () => {
     const { case: _, ...domain } = DOMAINS['05-defence-in-depth'];
     let accepted = 0;
     for (const d of combos(domain)) {
-      const m = score(d as never), ok = m.succeeded === 0 && m.blocked === FEWEST;
+      const m = score(d as never),
+        ok = m.succeeded === 0 && m.blocked === FEWEST;
       expect(solved(d as never), JSON.stringify(d)).toBe(ok);
       if (ok) accepted++;
     }
@@ -52,7 +53,11 @@ describe('chapter 6: when the user is the attacker', () => {
     const strict = R('refund', true, 'strict');
     expect(strict.caseDone).toBe(false);
     expect(stepsOf(strict, 'blocked')[0].by).toBe('output-policy');
-    expect(COST.map(c => [c.policy, c.m.blocked])).toEqual([['off', 0], ['on', 0], ['strict', 1]]);
+    expect(COST.map(c => [c.policy, c.m.blocked])).toEqual([
+      ['off', 0],
+      ['on', 0],
+      ['strict', 1],
+    ]);
     expect(COST.find(c => c.policy === 'on')!.m.succeeded).toBe(0);
   });
 });
@@ -64,7 +69,8 @@ describe('chapter 7: the red-team workbench', () => {
   });
 
   it('a blocked and an allowed contrast: the invoice’s send with and without the allow-list; the refund under on and strict', () => {
-    const open = bench(START), listed = bench({ ...START, allow: true });
+    const open = bench(START),
+      listed = bench({ ...START, allow: true });
     expect(open.runs.find(r => r.case === 'invoice')!.attackMet).toBe(true);
     const inv = listed.runs.find(r => r.case === 'invoice')!;
     expect(inv.attackMet).toBe(false);
@@ -77,6 +83,8 @@ describe('chapter 7: the red-team workbench', () => {
     expect(clean(bench(SOLUTION))).toBe(true);
     expect(verdict(bench(SOLUTION))).toMatch(/^No attack got through and every customer was served/);
     expect(verdict(bench(START))).toMatch(/^5 of 5 attacks got through\. Not safe/);
-    expect(verdict(bench({ ...SOLUTION, outputPolicy: 'strict' }))).toMatch(/^No attack got through, but 1 of 2 customers were blocked/);
+    expect(verdict(bench({ ...SOLUTION, outputPolicy: 'strict' }))).toMatch(
+      /^No attack got through, but 1 of 2 customers were blocked/,
+    );
   });
 });

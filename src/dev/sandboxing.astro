@@ -4,7 +4,14 @@
 import '../styles/tokens.css';
 import IsoStage from '../lib/iso/IsoStage';
 import FlatStage from '../components/scenes/FlatStage';
-import { SANDBOX_BOARD, glassRoomPlot, sandboxLabel, sandboxReadouts, sandboxScene, type SandboxOpts } from '../components/scenes/sandboxScene';
+import {
+  SANDBOX_BOARD,
+  glassRoomPlot,
+  sandboxLabel,
+  sandboxReadouts,
+  sandboxScene,
+  type SandboxOpts,
+} from '../components/scenes/sandboxScene';
 import { sandboxLanes, sandboxMessages } from '../components/scenes/sandboxSequence';
 import { run, type Run, type Setup } from '../lib/sandboxing/loop';
 import { RECORDING } from '../lib/sandboxing/turns';
@@ -21,14 +28,38 @@ const EXFIL = go({ case: 'exfil', sandbox: true, files: 'scoped', egress: 'allow
 const BEACON = go({ case: 'beacon', sandbox: true, files: 'scoped', egress: 'allowlist', secret: 'proxy' });
 
 const STATES: [string, SandboxOpts][] = [
-  ['On the host: no wall, full access', { run: REPORT_HOST, upTo: upTo(REPORT_HOST, callOf('fetch')), wall: false, egress: 'open' }],
-  ['Sandbox on: a task fetches through the allow-list', { run: REPORT, upTo: upTo(REPORT, callOf('fetch')), wall: true, files: 'scoped', egress: 'allowlist', proxy: true }],
-  ['Files: a read of the hidden keys is refused', { run: PEEK, upTo: upTo(PEEK, blocked), wall: true, files: 'scoped', egress: 'allowlist', proxy: true }],
-  ['Network: egress off', { run: REPORT, upTo: upTo(REPORT, callOf('fetch')), wall: true, files: 'scoped', egress: 'off', proxy: true }],
-  ['Network: a fetch to an off-host is refused', { run: EXFIL, upTo: upTo(EXFIL, blocked), wall: true, files: 'scoped', egress: 'allowlist', proxy: false }],
-  ['Secret in the sandbox env', { run: EXFIL, upTo: 1, wall: true, files: 'scoped', egress: 'allowlist', proxy: false }],
-  ['Secret with the proxy, outside', { run: REPORT, upTo: 1, wall: true, files: 'scoped', egress: 'allowlist', proxy: true }],
-  ['Allowed door: a record smuggled through the API host', { run: BEACON, upTo: upTo(BEACON, callOf('fetch')), wall: true, files: 'scoped', egress: 'allowlist', proxy: true }],
+  [
+    'On the host: no wall, full access',
+    { run: REPORT_HOST, upTo: upTo(REPORT_HOST, callOf('fetch')), wall: false, egress: 'open' },
+  ],
+  [
+    'Sandbox on: a task fetches through the allow-list',
+    { run: REPORT, upTo: upTo(REPORT, callOf('fetch')), wall: true, files: 'scoped', egress: 'allowlist', proxy: true },
+  ],
+  [
+    'Files: a read of the hidden keys is refused',
+    { run: PEEK, upTo: upTo(PEEK, blocked), wall: true, files: 'scoped', egress: 'allowlist', proxy: true },
+  ],
+  [
+    'Network: egress off',
+    { run: REPORT, upTo: upTo(REPORT, callOf('fetch')), wall: true, files: 'scoped', egress: 'off', proxy: true },
+  ],
+  [
+    'Network: a fetch to an off-host is refused',
+    { run: EXFIL, upTo: upTo(EXFIL, blocked), wall: true, files: 'scoped', egress: 'allowlist', proxy: false },
+  ],
+  [
+    'Secret in the sandbox env',
+    { run: EXFIL, upTo: 1, wall: true, files: 'scoped', egress: 'allowlist', proxy: false },
+  ],
+  [
+    'Secret with the proxy, outside',
+    { run: REPORT, upTo: 1, wall: true, files: 'scoped', egress: 'allowlist', proxy: true },
+  ],
+  [
+    'Allowed door: a record smuggled through the API host',
+    { run: BEACON, upTo: upTo(BEACON, callOf('fetch')), wall: true, files: 'scoped', egress: 'allowlist', proxy: true },
+  ],
 ];
 ---
 <html lang="en">

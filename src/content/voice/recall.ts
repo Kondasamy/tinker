@@ -5,8 +5,11 @@ import type { RecallItem } from '../../lib/recall';
 export const RECALL: RecallItem[] = [
   // 3. Whose turn is it? (pinned: the module's one idea)
   {
-    id: 'silence-trade-off', chapter: '03-whose-turn-is-it', pin: true,
-    question: 'A bank’s phone assistant keeps answering before callers finish reading out long account numbers. What is the trade-off in raising its silence setting?',
+    id: 'silence-trade-off',
+    chapter: '03-whose-turn-is-it',
+    pin: true,
+    question:
+      'A bank’s phone assistant keeps answering before callers finish reading out long account numbers. What is the trade-off in raising its silence setting?',
     options: [
       'None: a longer silence setting is always better',
       'Fewer cut-offs, but every caller waits longer for a reply after they finish',
@@ -22,8 +25,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'noisy-threshold', chapter: '03-whose-turn-is-it',
-    question: 'A caller rings from a busy kitchen, and the line never seems to notice they have stopped talking. Which setting is most likely wrong?',
+    id: 'noisy-threshold',
+    chapter: '03-whose-turn-is-it',
+    question:
+      'A caller rings from a busy kitchen, and the line never seems to notice they have stopped talking. Which setting is most likely wrong?',
     options: [
       'The energy threshold is so low that the kitchen noise counts as speech',
       'The silence setting is too short',
@@ -37,8 +42,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'cut-off-what', chapter: '03-whose-turn-is-it',
-    question: 'A support lead hears the assistant ask “Which order is it?” while the caller is still saying the order number. What is this called?',
+    id: 'cut-off-what',
+    chapter: '03-whose-turn-is-it',
+    question:
+      'A support lead hears the assistant ask “Which order is it?” while the caller is still saying the order number. What is this called?',
     options: ['Dead air', 'A cut-off: the line took a pause for the end of the turn', 'A mishearing', 'Barge-in'],
     correct: 1,
     why: [
@@ -50,7 +57,8 @@ export const RECALL: RecallItem[] = [
   },
   // 1. Larkspur's phone line
   {
-    id: 'three-stages', chapter: '01-larkspurs-phone-line',
+    id: 'three-stages',
+    chapter: '01-larkspurs-phone-line',
     question: 'A hotel builds a phone line from three parts. In what order does a guest’s question pass through them?',
     options: [
       'Speech-to-text, then the model, then text-to-speech',
@@ -65,7 +73,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'model-reads-text', chapter: '01-larkspurs-phone-line',
+    id: 'model-reads-text',
+    chapter: '01-larkspurs-phone-line',
     question: 'In a chained voice line, what does the model in the middle actually receive?',
     options: ['The caller’s audio', 'A transcript: the caller’s words as text', 'A summary written by text-to-speech'],
     correct: 1,
@@ -76,13 +85,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'where-to-look', chapter: '01-larkspurs-phone-line',
+    id: 'where-to-look',
+    chapter: '01-larkspurs-phone-line',
     question: 'A caller says the assistant answered about the wrong product. Which stage’s output do you read first?',
-    options: [
-      'The transcript speech-to-text wrote',
-      'The text-to-speech voice settings',
-      'The caller’s phone',
-    ],
+    options: ['The transcript speech-to-text wrote', 'The text-to-speech voice settings', 'The caller’s phone'],
     correct: 0,
     why: [
       'Right. If the transcript is wrong, everything after it was built on the wrong words. It is also the easiest place to look.',
@@ -92,7 +98,8 @@ export const RECALL: RecallItem[] = [
   },
   // 2. The latency budget
   {
-    id: 'stages-add-up', chapter: '02-the-latency-budget',
+    id: 'stages-add-up',
+    chapter: '02-the-latency-budget',
     question: 'A team cuts its speech-to-text time in half. Why might callers barely notice?',
     options: [
       'Speech-to-text is only one of the stages that add up to the wait',
@@ -107,7 +114,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'streaming-what', chapter: '02-the-latency-budget',
+    id: 'streaming-what',
+    chapter: '02-the-latency-budget',
     question: 'A voice line turns streaming on. What changes for the caller?',
     options: [
       'They hear the first sentence sooner, while the rest is still being written',
@@ -122,7 +130,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'first-sound', chapter: '02-the-latency-budget',
+    id: 'first-sound',
+    chapter: '02-the-latency-budget',
     question: 'Which number best predicts whether a call feels slow?',
     options: [
       'The time from the caller’s last word to the first sound of the reply',
@@ -138,8 +147,10 @@ export const RECALL: RecallItem[] = [
   },
   // 4. Being interrupted
   {
-    id: 'barge-in-what', chapter: '04-being-interrupted',
-    question: 'A caller says “wait, wrong address” while a delivery assistant is still reading out the old one. What should a line with barge-in do?',
+    id: 'barge-in-what',
+    chapter: '04-being-interrupted',
+    question:
+      'A caller says “wait, wrong address” while a delivery assistant is still reading out the old one. What should a line with barge-in do?',
     options: [
       'Stop speaking and listen',
       'Finish the sentence first, then listen',
@@ -153,8 +164,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'history-kept', chapter: '04-being-interrupted',
-    question: 'The assistant was cut off halfway through listing three opening times. What should its history say it said?',
+    id: 'history-kept',
+    chapter: '04-being-interrupted',
+    question:
+      'The assistant was cut off halfway through listing three opening times. What should its history say it said?',
     options: [
       'All three times, as it wrote them',
       'Only the part spoken before the caller cut in',
@@ -168,7 +181,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'talked-over-cost', chapter: '04-being-interrupted',
+    id: 'talked-over-cost',
+    chapter: '04-being-interrupted',
     question: 'A line without barge-in plays its whole reply while the caller is speaking. What is the likely result?',
     options: [
       'The caller’s words never reach the model, so it carries on as if they weren’t said',
@@ -184,7 +198,8 @@ export const RECALL: RecallItem[] = [
   },
   // 5. Mishearing
   {
-    id: 'numbers-slip', chapter: '05-mishearing',
+    id: 'numbers-slip',
+    chapter: '05-mishearing',
     question: 'Which part of a phone call is speech-to-text most likely to get wrong in a way that matters?',
     options: ['A greeting like “hi there”', 'A booking reference like “four-one-five-fifteen”', 'The word “thanks”'],
     correct: 1,
@@ -195,8 +210,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'read-back', chapter: '05-mishearing',
-    question: 'Speech-to-text flags a parcel tracking number as unsure. What should the assistant do before looking it up?',
+    id: 'read-back',
+    chapter: '05-mishearing',
+    question:
+      'Speech-to-text flags a parcel tracking number as unsure. What should the assistant do before looking it up?',
     options: [
       'Read the number back and wait for a yes',
       'Look it up anyway: the lookup will fail if it is wrong',
@@ -210,7 +227,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'read-back-cost', chapter: '05-mishearing',
+    id: 'read-back-cost',
+    chapter: '05-mishearing',
     question: 'Why not read back every word the caller says?',
     options: [
       'Each read-back adds a turn: worth it for unsure numbers, tiring for everything else',
@@ -226,7 +244,8 @@ export const RECALL: RecallItem[] = [
   },
   // 6. One model or three
   {
-    id: 's2s-what', chapter: '06-one-model-or-three',
+    id: 's2s-what',
+    chapter: '06-one-model-or-three',
     question: 'What does a speech-to-speech model do that a chained line doesn’t?',
     options: [
       'Hears audio and speaks audio in one model, with no transcript step in between',
@@ -241,8 +260,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'chained-why', chapter: '06-one-model-or-three',
-    question: 'A pharmacy needs every request checked against its rules before the assistant acts on it. Which build fits better?',
+    id: 'chained-why',
+    chapter: '06-one-model-or-three',
+    question:
+      'A pharmacy needs every request checked against its rules before the assistant acts on it. Which build fits better?',
     options: [
       'A chained line: the transcript is text the host can check before the model replies',
       'A speech-to-speech model: it is newer',
@@ -256,8 +277,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'turns-both', chapter: '06-one-model-or-three',
-    question: 'A team switches to a speech-to-speech model. Do they still need to think about when a caller’s turn ends?',
+    id: 'turns-both',
+    chapter: '06-one-model-or-three',
+    question:
+      'A team switches to a speech-to-speech model. Do they still need to think about when a caller’s turn ends?',
     options: [
       'Yes: the session still detects turns, with settings like a silence length',
       'No: speech-to-speech models never interrupt',
@@ -272,8 +295,10 @@ export const RECALL: RecallItem[] = [
   },
   // 7. Workbench
   {
-    id: 'one-setting-many-calls', chapter: '07-workbench',
-    question: 'A silence setting fixes the cut-offs on one slow speaker’s call. What should the team check before shipping it?',
+    id: 'one-setting-many-calls',
+    chapter: '07-workbench',
+    question:
+      'A silence setting fixes the cut-offs on one slow speaker’s call. What should the team check before shipping it?',
     options: [
       'Every other call in the set: the longer wait may add dead air elsewhere',
       'Nothing: the problem call is fixed',
@@ -287,7 +312,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'rules-together', chapter: '07-workbench',
+    id: 'rules-together',
+    chapter: '07-workbench',
     question: 'Why can’t a single setting fix cut-offs, dead air, talking over and a misheard number at once?',
     options: [
       'They have different causes, so each needs its own rule',
@@ -302,7 +328,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'measure-on-calls', chapter: '07-workbench',
+    id: 'measure-on-calls',
+    chapter: '07-workbench',
     question: 'How should a team pick its voice line settings?',
     options: [
       'Run a set of real-sounding calls through each setting and count cut-offs, dead air and errors',

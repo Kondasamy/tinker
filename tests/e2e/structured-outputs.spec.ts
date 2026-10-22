@@ -24,25 +24,36 @@ const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 const axe = async (page: Page) => expect(await serious(page)).toEqual([]);
 test.setTimeout(180_000);
 
-test('the intro shows the level, the prerequisites, the author, the chapters and the Colorfigures credit', async ({ page }) => {
+test('the intro shows the level, the prerequisites, the author, the chapters and the Colorfigures credit', async ({
+  page,
+}) => {
   await page.goto('/structured-outputs/');
   const meta = page.locator('.hero .module-meta');
   await expect(meta.locator('.level')).toHaveText('Intermediate');
   await expect(meta.getByRole('link', { name: 'Tool calling & MCP' })).toHaveAttribute('href', '/tool-calling/');
   await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
-  await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toHaveAttribute('href', 'https://april-zhu.com/colorfigures');
+  await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toHaveAttribute(
+    'href',
+    'https://april-zhu.com/colorfigures',
+  );
   await axe(page);
 });
 
-test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({ page }) => {
+test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({
+  page,
+}) => {
   await walkAll(structuredWalker(page, 'mouse', axe));
 });
 
-test('every chapter plays by keyboard only; progress lands in structured-outputs-progress-v1 and no other module’s key', async ({ page }) => {
+test('every chapter plays by keyboard only; progress lands in structured-outputs-progress-v1 and no other module’s key', async ({
+  page,
+}) => {
   await page.goto('/');
   const OTHERS = { 'rag-progress-v1': JSON.stringify({ done: ['01-history'], saved: {} }) };
-  await page.evaluate(o => { for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v); }, OTHERS);
+  await page.evaluate(o => {
+    for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v);
+  }, OTHERS);
   await walkAll(structuredWalker(page, 'keyboard'));
   const store = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
   expect(JSON.parse(store['structured-outputs-progress-v1']).done).toEqual(IDS);
@@ -50,10 +61,13 @@ test('every chapter plays by keyboard only; progress lands in structured-outputs
   expect(store['tinker-last-module']).toBe('structured-outputs');
 });
 
-test('chapter 3: the Mask tab and the plate’s count stay locked until the prediction, then the reveal matches the mask', async ({ page }) => {
+test('chapter 3: the Mask tab and the plate’s count stay locked until the prediction, then the reveal matches the mask', async ({
+  page,
+}) => {
   const w = structuredWalker(page, 'mouse');
   await w.open(CH3);
-  const c = card(page), tab = page.getByRole('button', { name: 'Mask', exact: true });
+  const c = card(page),
+    tab = page.getByRole('button', { name: 'Mask', exact: true });
   await expect(tab).toBeDisabled();
   await expect(page.locator('.so-stage svg[aria-label]').first()).not.toHaveAttribute('aria-label', /tokens through/);
   await c.getByRole('radio', { name: /^All 768/ }).click();
@@ -72,7 +86,10 @@ test('chapter 3: writing token by token to the end advances, and no click counts
   await expect(c).toContainText('Step 3 of');
   const write = c.getByRole('button', { name: 'Write the next token' });
   // a partial write is no failed try: three of those would show the hint
-  for (let i = 0; i < 40 && await write.isVisible(); i++) { await expect(c.locator('.hint')).toHaveCount(0); await write.click(); }
+  for (let i = 0; i < 40 && (await write.isVisible()); i++) {
+    await expect(c.locator('.hint')).toHaveCount(0);
+    await write.click();
+  }
   await expect(c).toContainText('Step 4 of');
 });
 
@@ -83,7 +100,9 @@ test('chapter 7: with every field left to the order system, the stage decodes no
   await c.getByRole('radio', { name: /^None$/ }).click();
   for (const f of ['Team', 'Status', 'Days to arrive']) await c.getByLabel(f).selectOption('system');
   await expect(page.getByTestId('so-written')).toHaveText('Larkspur mini · no schema');
-  await expect(page.locator('.so-stage .tc-caption')).toContainText('the order system fills every field, so the model writes nothing');
+  await expect(page.locator('.so-stage .tc-caption')).toContainText(
+    'the order system fills every field, so the model writes nothing',
+  );
 });
 
 test('chapter 7: the score updates live and Show me lands on a winning schema', async ({ page }) => {
@@ -125,7 +144,17 @@ test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
   test('the picture holds still and the chapters still play through', async ({ page }) => {
     const w = structuredWalker(page, 'mouse', async p => {
-      await expect.poll(() => p.evaluate(() => document.querySelector('.stage')!.getAnimations({ subtree: true }).filter(a => a.playState === 'running').length)).toBe(0);
+      await expect
+        .poll(() =>
+          p.evaluate(
+            () =>
+              document
+                .querySelector('.stage')!
+                .getAnimations({ subtree: true })
+                .filter(a => a.playState === 'running').length,
+          ),
+        )
+        .toBe(0);
     });
     await walkAll(w);
   });
@@ -146,15 +175,26 @@ test('the recap says so with nothing done, and asks from chapter 3 once it is fi
 test.describe('phone', () => {
   test.use(PHONE);
   test('pages fit 390px wide, and every chapter plays through there with axe clean', async ({ page }) => {
-    for (const p of ['/structured-outputs/', ...IDS.map(id => `/structured-outputs/${id}/`), '/structured-outputs/recap/']) {
+    for (const p of [
+      '/structured-outputs/',
+      ...IDS.map(id => `/structured-outputs/${id}/`),
+      '/structured-outputs/recap/',
+    ]) {
       await page.goto(p);
       await layoutHolds(page);
     }
-    await walkAll(structuredWalker(page, 'mouse', async p => { await layoutHolds(p); await axe(p); }));
+    await walkAll(
+      structuredWalker(page, 'mouse', async p => {
+        await layoutHolds(p);
+        await axe(p);
+      }),
+    );
   });
   test('the mask view’s list is reachable by Tab', async ({ page }) => {
     await structuredWalker(page, 'mouse').open(CH3);
-    await card(page).getByRole('radio', { name: /^Only one$/ }).click();
+    await card(page)
+      .getByRole('radio', { name: /^Only one$/ })
+      .click();
     await card(page).getByRole('button', { name: 'Show the mask at step 1' }).click();
     const list = page.getByRole('list', { name: /likeliest allowed tokens/ });
     let reached = false;

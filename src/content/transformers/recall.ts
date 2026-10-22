@@ -5,8 +5,11 @@ import type { RecallItem } from '../../lib/recall';
 export const RECALL: RecallItem[] = [
   // 1. One token at a time
   {
-    id: 'one-run-one-token', chapter: '01-one-token-at-a-time', pin: true,
-    question: 'Larkspur’s assistant answers a customer with a 40-token reply. How many times did the model run to write it?',
+    id: 'one-run-one-token',
+    chapter: '01-one-token-at-a-time',
+    pin: true,
+    question:
+      'Larkspur’s assistant answers a customer with a 40-token reply. How many times did the model run to write it?',
     options: [
       'Once: it wrote the reply in one pass, then streamed it out',
       'About 40 times: each run gives the next token, which is added before the next run',
@@ -20,7 +23,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'probabilities-not-answer', chapter: '01-one-token-at-a-time',
+    id: 'probabilities-not-answer',
+    chapter: '01-one-token-at-a-time',
     question: 'What does one run of the model hand back, before anything is written?',
     options: [
       'The one right next word',
@@ -35,8 +39,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'tiny-model-limits', chapter: '01-one-token-at-a-time',
-    question: 'You give Larkspur mini a sentence about the weather, a topic Larkspur’s documents never mention. What do you expect?',
+    id: 'tiny-model-limits',
+    chapter: '01-one-token-at-a-time',
+    question:
+      'You give Larkspur mini a sentence about the weather, a topic Larkspur’s documents never mention. What do you expect?',
     options: [
       'A sensible guess: a model knows about the world in general',
       'Poor guesses: it only learned the patterns in Larkspur’s documents',
@@ -52,8 +58,10 @@ export const RECALL: RecallItem[] = [
 
   // 2. Tokens become vectors
   {
-    id: 'embedding-lookup', chapter: '02-tokens-become-vectors',
-    question: 'The token “refund” appears in two different customer emails. Before the model reads either, how do the two copies’ embeddings compare?',
+    id: 'embedding-lookup',
+    chapter: '02-tokens-become-vectors',
+    question:
+      'The token “refund” appears in two different customer emails. Before the model reads either, how do the two copies’ embeddings compare?',
     options: [
       'Identical: the embedding is one row of a table, looked up by the token’s id',
       'Different: each email’s meaning changes the embedding',
@@ -67,7 +75,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'position-added', chapter: '02-tokens-become-vectors',
+    id: 'position-added',
+    chapter: '02-tokens-become-vectors',
     question: 'How does the model tell “ship before refund” from “refund before ship”?',
     options: [
       'Each token’s embedding already holds its place in the sentence',
@@ -82,7 +91,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'vector-why', chapter: '02-tokens-become-vectors',
+    id: 'vector-why',
+    chapter: '02-tokens-become-vectors',
     question: 'Why does the model turn token ids into vectors at all?',
     options: [
       'An id is just a label; the model needs numbers it can multiply and add, and learned vectors can place related tokens alike',
@@ -99,7 +109,8 @@ export const RECALL: RecallItem[] = [
 
   // 3. Attention
   {
-    id: 'causal-mask', chapter: '03-attention',
+    id: 'causal-mask',
+    chapter: '03-attention',
     question: 'In the prompt “Your parcel ships on Monday”, how much weight can “parcel” give to “Monday”?',
     options: [
       'None: “Monday” comes later, and the causal mask makes that weight 0',
@@ -114,8 +125,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'weights-sum', chapter: '03-attention',
-    question: 'In one row of an attention heatmap, the token puts 0.7 on one earlier token. What does that leave for every other token in the row?',
+    id: 'weights-sum',
+    chapter: '03-attention',
+    question:
+      'In one row of an attention heatmap, the token puts 0.7 on one earlier token. What does that leave for every other token in the row?',
     options: [
       '0.3, shared among them: a row’s weights add up to 1',
       'Each can still have up to 1: weights are separate scores',
@@ -129,7 +142,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'attention-mixes', chapter: '03-attention',
+    id: 'attention-mixes',
+    chapter: '03-attention',
     question: 'After attention, what has a token’s vector got that it didn’t have before?',
     options: [
       'A mix of the earlier tokens’ vectors, more from the ones it weighed heavily',
@@ -146,7 +160,8 @@ export const RECALL: RecallItem[] = [
 
   // 4. Heads and layers
   {
-    id: 'heads-learn', chapter: '04-heads-and-layers',
+    id: 'heads-learn',
+    chapter: '04-heads-and-layers',
     question: 'An engineer finds a head in a model that tracks quotation marks. Who decided it should?',
     options: [
       'Nobody: training shaped it because tracking quotes helped predict the next token',
@@ -161,7 +176,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'many-heads', chapter: '04-heads-and-layers',
+    id: 'many-heads',
+    chapter: '04-heads-and-layers',
     question: 'Why give each layer several heads instead of one?',
     options: [
       'So each can look for a different thing at the same time, such as where a word began and what was asked',
@@ -176,7 +192,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'residual-stream', chapter: '04-heads-and-layers',
+    id: 'residual-stream',
+    chapter: '04-heads-and-layers',
     question: 'What happens to a token’s vector as it passes through each layer?',
     options: [
       'Each layer adds what it found to the running vector, so earlier findings stay in it',
@@ -193,7 +210,8 @@ export const RECALL: RecallItem[] = [
 
   // 5. Choosing the next token
   {
-    id: 'temperature-zero', chapter: '05-choosing-the-next-token',
+    id: 'temperature-zero',
+    chapter: '05-choosing-the-next-token',
     question: 'Larkspur’s returns bot must answer the same question the same way every time. Which setting does that?',
     options: [
       'Temperature 0: it always picks the likeliest token, so the same prompt gives the same reply',
@@ -208,8 +226,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'top-p-tail', chapter: '05-choosing-the-next-token',
-    question: 'A marketing writer likes varied wording but keeps getting odd, off-topic words. What does lowering top-p change?',
+    id: 'top-p-tail',
+    chapter: '05-choosing-the-next-token',
+    question:
+      'A marketing writer likes varied wording but keeps getting odd, off-topic words. What does lowering top-p change?',
     options: [
       'It drops the long tail of unlikely tokens before the draw, so odd picks get rarer while the likely ones still vary',
       'It makes every reply identical',
@@ -223,8 +243,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'seed-repeat', chapter: '05-choosing-the-next-token',
-    question: 'Two engineers sample from the same model, prompt, temperature and top-p, and get different replies. Which detail most likely differs?',
+    id: 'seed-repeat',
+    chapter: '05-choosing-the-next-token',
+    question:
+      'Two engineers sample from the same model, prompt, temperature and top-p, and get different replies. Which detail most likely differs?',
     options: [
       'The seed: the same seed gives the same draws, a new one gives new draws',
       'The model learned something between the two runs',
@@ -240,7 +262,8 @@ export const RECALL: RecallItem[] = [
 
   // 6. Why long prompts cost more
   {
-    id: 'pairs-square', chapter: '06-why-long-prompts-cost-more',
+    id: 'pairs-square',
+    chapter: '06-why-long-prompts-cost-more',
     question: 'A support prompt grows from 1,000 to 3,000 tokens. Roughly how do the attention pairs per head change?',
     options: [
       'About nine times: pairs grow with the square of the length',
@@ -255,7 +278,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'kv-cache-saves', chapter: '06-why-long-prompts-cost-more',
+    id: 'kv-cache-saves',
+    chapter: '06-why-long-prompts-cost-more',
     question: 'While a model writes a long reply, what does the KV cache save it from doing?',
     options: [
       'Recomputing the keys and values of every earlier token for each new token',
@@ -270,7 +294,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'window-limit', chapter: '06-why-long-prompts-cost-more',
+    id: 'window-limit',
+    chapter: '06-why-long-prompts-cost-more',
     question: 'Why can’t a model simply read a prompt of any length?',
     options: [
       'It was trained on a fixed window of positions, and the work grows with the square of the length',
@@ -287,8 +312,10 @@ export const RECALL: RecallItem[] = [
 
   // 7. Trace a prompt
   {
-    id: 'oldest-dropped', chapter: '07-trace-a-prompt',
-    question: 'An agent keeps adding tool results to its prompt until it no longer fits, and the oldest tokens are dropped. What does the model lose first?',
+    id: 'oldest-dropped',
+    chapter: '07-trace-a-prompt',
+    question:
+      'An agent keeps adding tool results to its prompt until it no longer fits, and the oldest tokens are dropped. What does the model lose first?',
     options: [
       'The start: often the instructions and the original question',
       'The newest tool result',
@@ -302,7 +329,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'trace-order', chapter: '07-trace-a-prompt',
+    id: 'trace-order',
+    chapter: '07-trace-a-prompt',
     question: 'In what order does one run of the model work through a prompt?',
     options: [
       'Tokens, then vectors (embedding plus position), then layers of attention heads, then next-token probabilities',
@@ -317,8 +345,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'one-run-one-trace', chapter: '07-trace-a-prompt',
-    question: 'You trace “Expedited delivery takes two business” and then the same prompt with one word changed. What changes in the trace?',
+    id: 'one-run-one-trace',
+    chapter: '07-trace-a-prompt',
+    question:
+      'You trace “Expedited delivery takes two business” and then the same prompt with one word changed. What changes in the trace?',
     options: [
       'The tokens, so the vectors, the attention weights and the next-token probabilities can all change',
       'Only the next token; attention is fixed per model',

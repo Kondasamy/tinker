@@ -2,11 +2,24 @@
 import data from '../../../data/tokens/encodings.json' with { type: 'json' };
 import sentences from '../../../data/tokens/sentences.json' with { type: 'json' };
 
-export interface Sentence { id: string; kind: 'english' | 'numbers' | 'code' | 'language'; lang: string; text: string }
-export interface Tokenizer { id: string; name: string; model: string; vocabSize: number }
+export interface Sentence {
+  id: string;
+  kind: 'english' | 'numbers' | 'code' | 'language';
+  lang: string;
+  text: string;
+}
+export interface Tokenizer {
+  id: string;
+  name: string;
+  model: string;
+  vocabSize: number;
+}
 /** The token's text, or its bytes when they are only part of a character (show them as byte chips). */
 export type Piece = string | number[];
-export interface Encoding { ids: number[]; pieces: Piece[] }
+export interface Encoding {
+  ids: number[];
+  pieces: Piece[];
+}
 
 export const ENCODINGS = data as {
   recorded: string;
@@ -26,4 +39,5 @@ export function encodingOf(sentence: string, tokenizer: string): Encoding {
 }
 
 /** A real tokenizer's count over every corpus document. */
-export const realCorpusTokens = (tokenizer: string) => Object.values(ENCODINGS.corpus[tokenizer]).reduce((a, b) => a + b, 0);
+export const realCorpusTokens = (tokenizer: string) =>
+  Object.values(ENCODINGS.corpus[tokenizer]).reduce((a, b) => a + b, 0);

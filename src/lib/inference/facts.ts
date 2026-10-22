@@ -5,4 +5,10 @@ import { factsOf } from '../tools/facts';
 export const { ACCESSED, FACTS, fact } = factsOf(data);
 
 /** The open model chapter 2 scales up to and the simulated server runs: its published shape (fact `opt-13b`). */
-export const OPEN_MODEL = JSON.parse(fact('opt-13b').value!) as { params: number; n_layer: number; n_head: number; d_model: number; ctx: number };
+export const OPEN_MODEL = JSON.parse(fact('opt-13b').value!) as {
+  params: number;
+  n_layer: number;
+  n_head: number;
+  d_model: number;
+  ctx: number;
+};

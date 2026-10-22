@@ -1,22 +1,70 @@
 /* FlatStage: wide or stacked view by width; the newest message travels in from its sender (CSS only). */
-.flat { margin: 0; }
-.flat svg { width: 100%; height: auto; display: block; overflow: visible; }
-.flat .flat-phone, .flat .flat-nav { display: none; }
-@media (max-width: 599px) {
-  .flat .flat-wide { display: none; }
-  .flat .flat-phone { display: block; }
-  .flat .flat-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; font-size: 13px; }
+.flat {
+  margin: 0;
 }
-:where(.flat-nav) button { font: inherit; cursor: pointer; }
+.flat svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.flat .flat-phone,
+.flat .flat-nav {
+  display: none;
+}
+@media (max-width: 599px) {
+  .flat .flat-wide {
+    display: none;
+  }
+  .flat .flat-phone {
+    display: block;
+  }
+  .flat .flat-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 13px;
+  }
+}
+:where(.flat-nav) button {
+  font: inherit;
+  cursor: pointer;
+}
 /* message cards that open the drawer (R21): the card body thickens on hover and focus */
-.flat .card[role='button'] { cursor: pointer; }
-.flat .card[role='button']:hover > rect:nth-of-type(2), .flat .card[role='button']:focus-visible > rect:nth-of-type(2) { stroke-width: 2.6; }
-:where(.flat-nav) button:disabled { opacity: .4; cursor: default; }
-.flat .msg.new .card { animation: flat-travel .7s cubic-bezier(.2, .7, .3, 1) both; }
-.flat .msg.new .arrow { animation: flat-fade .7s ease-out both; }
-@keyframes flat-travel { from { transform: translate(var(--dx, 0px), var(--dy, 0px)); opacity: 0; } }
-@keyframes flat-fade { from { opacity: 0; } }
+.flat .card[role="button"] {
+  cursor: pointer;
+}
+.flat .card[role="button"]:hover > rect:nth-of-type(2),
+.flat .card[role="button"]:focus-visible > rect:nth-of-type(2) {
+  stroke-width: 2.6;
+}
+:where(.flat-nav) button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.flat .msg.new .card {
+  animation: flat-travel 0.7s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.flat .msg.new .arrow {
+  animation: flat-fade 0.7s ease-out both;
+}
+@keyframes flat-travel {
+  from {
+    transform: translate(var(--dx, 0px), var(--dy, 0px));
+    opacity: 0;
+  }
+}
+@keyframes flat-fade {
+  from {
+    opacity: 0;
+  }
+}
 /* reduced motion: final positions at once */
 @media (prefers-reduced-motion: reduce) {
-  .flat .msg.new .card, .flat .msg.new .arrow { animation: none; }
+  .flat .msg.new .card,
+  .flat .msg.new .arrow {
+    animation: none;
+  }
 }

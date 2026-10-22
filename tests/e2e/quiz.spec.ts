@@ -17,19 +17,19 @@ async function toQuiz(page: Page) {
 }
 
 test('a prediction locks on the first pick and the reveal compares it (AE2)', async ({ page }) => {
-  await expect(page.getByRole('figure')).not.toContainText('2 of 6');   // neutral stage before the reveal
+  await expect(page.getByRole('figure')).not.toContainText('2 of 6'); // neutral stage before the reveal
   await opt(page, 'All 6').click();
   await expect(card(page)).toContainText('Step 2 of 3');
   await expect(card(page)).toContainText('You predicted: All 6');
   await expect(card(page)).not.toContainText(/RIGHT|NOT QUITE/);
-  await opt(page, 'None').click({ force: true });                                       // ignored
+  await opt(page, 'None').click({ force: true }); // ignored
   await expect(opt(page, 'All 6')).toHaveAttribute('aria-checked', 'true');
   await expect(opt(page, 'None')).toHaveAttribute('aria-checked', 'false');
   await expect(card(page)).toContainText('You predicted: All 6');
 
   await page.reload();
   await page.locator('astro-island:not([ssr])').waitFor();
-  await expect(card(page)).toContainText('You predicted: All 6');         // the lock survives a reload
+  await expect(card(page)).toContainText('You predicted: All 6'); // the lock survives a reload
   await opt(page, 'None').click({ force: true });
   await expect(opt(page, 'All 6')).toHaveAttribute('aria-checked', 'true');
 
@@ -54,7 +54,7 @@ test('a wrong pick shows that option’s why line, and focus moves to the feedba
 test('“I’m not sure” shows the answer with no NOT QUITE stamp, is no miss, and advances (AE3)', async ({ page }) => {
   await toQuiz(page);
   await opt(page, 'The model reads them later').click();
-  await opt(page, 'The model reads them later').click();                 // two misses: one more would bring the hint
+  await opt(page, 'The model reads them later').click(); // two misses: one more would bring the hint
   await opt(page, 'I’m not sure').click();
   const fb = card(page).locator('.quiz .feedback');
   await expect(fb).toContainText('The answer: The model never sees them');

@@ -32,7 +32,10 @@ const STATES: [string, GuardOpts][] = [
   ['Input check: invoice held at the arch', { run: HELD, upTo: upTo(HELD, readOk), screen: true }],
   ['Input check: an ordinary email passes', { run: PASSED, upTo: upTo(PASSED, readOk), screen: true }],
   ['Input policy: off-topic turned away', { run: REFUSED, upTo: upTo(REFUSED, readOk), screen: true }],
-  ['Allow-list: the send stopped at the barrier', { run: BLOCKED, upTo: upTo(BLOCKED, s => s.kind === 'blocked'), allow: true }],
+  [
+    'Allow-list: the send stopped at the barrier',
+    { run: BLOCKED, upTo: upTo(BLOCKED, s => s.kind === 'blocked'), allow: true },
+  ],
   ['Allow-list: done', { run: BLOCKED, allow: true }],
   ['Taint rule: before the read', { run: TAINT, upTo: 1, taint: true }],
   ['Taint rule: after the read, the chute shut', { run: TAINT, taint: true }],
@@ -40,7 +43,10 @@ const STATES: [string, GuardOpts][] = [
   ['Trifecta: private data removed', { run: leg('private'), legs: true, remove: 'private' }],
   ['Trifecta: untrusted text removed', { run: leg('untrusted'), legs: true, remove: 'untrusted', screen: true }],
   ['Trifecta: the way out removed', { run: leg('out'), legs: true, remove: 'out' }],
-  ['Everything on (allow-list, taint rule, screening)', { run: ALL, screen: true, allow: true, taint: true, legs: true }],
+  [
+    'Everything on (allow-list, taint rule, screening)',
+    { run: ALL, screen: true, allow: true, taint: true, legs: true },
+  ],
 ];
 ---
 <html lang="en">

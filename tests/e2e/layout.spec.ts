@@ -6,7 +6,7 @@ const pick = (page: Page, k: number) => card(page).getByRole('button', { name: `
 // runs on the /dev/runner/ fixture; nav marks on a real chapter are covered in ch7.spec.ts
 test.beforeEach(async ({ page }) => {
   await page.goto('/dev/runner/');
-  await page.locator('astro-island:not([ssr])').waitFor();   // hydrated
+  await page.locator('astro-island:not([ssr])').waitFor(); // hydrated
   await expect(card(page)).toContainText('Step 1 of 2');
 });
 

@@ -3,17 +3,37 @@ import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { readFileSync } from 'node:fs';
 import IsoStage from '../../src/lib/iso/IsoStage';
-import { TRAIN_BOARD, trainLabel, trainScene, trainState, type TrainOpts } from '../../src/components/scenes/trainScene';
+import {
+  TRAIN_BOARD,
+  trainLabel,
+  trainScene,
+  trainState,
+  type TrainOpts,
+} from '../../src/components/scenes/trainScene';
 import { chartLabel, lossChart, runSeries, stepWords } from '../../src/components/scenes/lossChart';
 import { evalGrid } from '../../src/components/scenes/evalGrid';
-import { FineTuneStage, LossChart, loadModel, META, modelNow, questionText, setModelFiles, versionCols, type Shown } from '../../src/content/fine-tuning/kit';
+import {
+  FineTuneStage,
+  LossChart,
+  loadModel,
+  META,
+  modelNow,
+  questionText,
+  setModelFiles,
+  versionCols,
+  type Shown,
+} from '../../src/content/fine-tuning/kit';
 import { ALL_QUESTIONS, VERSION_IDS } from '../../src/lib/fine-tuning/engine';
 import { fetchLoader } from '../../src/lib/rag/load';
 import type { Meta } from '../../src/lib/lm/load';
 
 const meta = JSON.parse(readFileSync('public/data/lm/meta.json', 'utf8')) as Meta;
-const disk = async (f: string) => { const b = readFileSync('public/data/lm/' + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer; };
-const draw = (o: TrainOpts) => renderToString(createElement(IsoStage, { board: TRAIN_BOARD, scene: trainScene(o), label: trainLabel(o) }));
+const disk = async (f: string) => {
+  const b = readFileSync('public/data/lm/' + f);
+  return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer;
+};
+const draw = (o: TrainOpts) =>
+  renderToString(createElement(IsoStage, { board: TRAIN_BOARD, scene: trainScene(o), label: trainLabel(o) }));
 const count = (s: string, x: string) => s.split(x).length - 1;
 afterAll(() => setModelFiles(fetchLoader('/data/lm/')));
 
@@ -52,13 +72,17 @@ describe('the loss chart', () => {
       }
       expect(count(svg, 'class="pt"')).toBe(run.lossCurve.length * 2);
       expect(steps.map(s => s.step)).toEqual(run.lossCurve.map(p => p.step));
-      for (const x of ['>LOSS<', '>STEP<', '>0<', `>${run.lossCurve[0].step}<`, `>${run.lossCurve.at(-1)!.step}<`]) expect(svg).toContain(x);
+      for (const x of ['>LOSS<', '>STEP<', '>0<', `>${run.lossCurve[0].step}<`, `>${run.lossCurve.at(-1)!.step}<`])
+        expect(svg).toContain(x);
     }
-    expect(META.finetune!.lossCurve).toEqual(meta.finetune!.lossCurve);   // the kit's build-time copy is the file
+    expect(META.finetune!.lossCurve).toEqual(meta.finetune!.lossCurve); // the kit's build-time copy is the file
   });
   it('a step reads out every series’ loss there', () => {
-    const p = meta.finetune!.lossCurve[2], { steps } = lossChart({ series: runSeries(meta.finetune!) });
-    expect(stepWords(steps[2])).toBe(`Step ${p.step}: training loss ${p.train.toFixed(2)}, held-out loss ${p.heldout.toFixed(2)}`);
+    const p = meta.finetune!.lossCurve[2],
+      { steps } = lossChart({ series: runSeries(meta.finetune!) });
+    expect(stepWords(steps[2])).toBe(
+      `Step ${p.step}: training loss ${p.train.toFixed(2)}, held-out loss ${p.heldout.toFixed(2)}`,
+    );
   });
   it('an empty curve draws the axes only, no NaN', () => {
     for (const series of [[], [{ id: 'train', label: 'Training', points: [] }]]) {
@@ -71,19 +95,22 @@ describe('the loss chart', () => {
     }
     expect(chartLabel([])).toBe('Loss chart: no steps recorded yet.');
     expect(renderToString(createElement(LossChart, { series: [] }))).toContain('No steps recorded yet.');
-    expect(lossChart({ series: [{ id: 'a', label: 'A', points: [{ step: 5, loss: 2 }] }] }).svg).not.toMatch(/NaN|Infinity/);
+    expect(lossChart({ series: [{ id: 'a', label: 'A', points: [{ step: 5, loss: 2 }] }] }).svg).not.toMatch(
+      /NaN|Infinity/,
+    );
   });
   it('the stage’s chart has a focusable marker per step and a read-out line', () => {
     const html = renderToString(createElement(LossChart, { series: runSeries(meta.lora!) }));
     expect(count(html, 'class="ft-mark"')).toBe(meta.lora!.lossCurve.length);
-    expect(count(html, 'tabindex="0"')).toBe(1);   // one tab stop; arrow keys move along
+    expect(count(html, 'tabindex="0"')).toBe(1); // one tab stop; arrow keys move along
     expect(html).toContain('aria-live="polite"');
   });
 });
 
 describe('the Results grid', () => {
   it('one cell per version × question', () => {
-    const cols = versionCols(VERSION_IDS, ALL_QUESTIONS), { svg } = evalGrid({ questions: ALL_QUESTIONS.map(questionText), cols });
+    const cols = versionCols(VERSION_IDS, ALL_QUESTIONS),
+      { svg } = evalGrid({ questions: ALL_QUESTIONS.map(questionText), cols });
     expect(count(svg, 'class="cell"')).toBe(VERSION_IDS.length * ALL_QUESTIONS.length);
   });
 });
@@ -91,12 +118,31 @@ describe('the Results grid', () => {
 describe('escaping', () => {
   const evil = '<script>alert(1)</script>';
   it('series names and captions never become markup', () => {
-    expect(lossChart({ series: [{ id: evil, label: evil, points: [{ step: 0, loss: 1 }, { step: 1, loss: .5 }] }] }).svg).not.toContain('<script');
-    const show = (): Shown => ({ scene: { lit: 'prompt' }, caption: evil, results: { series: [{ id: 'x', label: evil, points: [{ step: 0, loss: 1 }] }] } });
+    expect(
+      lossChart({
+        series: [
+          {
+            id: evil,
+            label: evil,
+            points: [
+              { step: 0, loss: 1 },
+              { step: 1, loss: 0.5 },
+            ],
+          },
+        ],
+      }).svg,
+    ).not.toContain('<script');
+    const show = (): Shown => ({
+      scene: { lit: 'prompt' },
+      caption: evil,
+      results: { series: [{ id: 'x', label: evil, points: [{ step: 0, loss: 1 }] }] },
+    });
     const html = renderToString(createElement(FineTuneStage, { show }));
     expect(html).not.toContain('<script');
     expect(html).toContain('&lt;script&gt;');
-    const chart = renderToString(createElement(LossChart, { series: [{ id: 'x', label: evil, points: [{ step: 0, loss: 1 }] }] }));
+    const chart = renderToString(
+      createElement(LossChart, { series: [{ id: 'x', label: evil, points: [{ step: 0, loss: 1 }] }] }),
+    );
     expect(chart).not.toContain('<script');
     expect(draw({ lit: 'prompt' })).not.toContain('<script');
   });
@@ -114,7 +160,10 @@ describe('a stage that needs the model', () => {
   });
   it('a failed load shows an error card with Retry; Retry loads it', async () => {
     let fail = true;
-    setModelFiles(async f => { if (fail) throw new Error('offline'); return disk(f); });
+    setModelFiles(async f => {
+      if (fail) throw new Error('offline');
+      return disk(f);
+    });
     await expect(loadModel('lora')).rejects.toThrow('offline');
     const html = renderToString(createElement(FineTuneStage, { show, weights: 'lora' }));
     expect(html).toContain('Couldn’t load Larkspur mini');

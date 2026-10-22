@@ -10,10 +10,15 @@ export function snap(v: number, values: readonly number[]): { value: number; sna
   return { value: best, snapped: best !== v };
 }
 
-export interface ChunkParams { strategy: Strategy; size: number; overlap: number }
+export interface ChunkParams {
+  strategy: Strategy;
+  size: number;
+  overlap: number;
+}
 
 export function resolveConfig(p: ChunkParams) {
-  const size = snap(p.size, SIZES), overlap = snap(p.overlap, OVERLAPS);
+  const size = snap(p.size, SIZES),
+    overlap = snap(p.overlap, OVERLAPS);
   return {
     strategy: p.strategy,
     size: size.value,

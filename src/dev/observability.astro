@@ -15,7 +15,10 @@ const STATES: [string, TraceOpts][] = [
   ['Day 1 on the wall, t01 lit', { cards: wallOf(TRACES, 't01') }],
   ['Failed traces only, empty bins', { cards: wallOf(FAILED, 't23'), bins: binsOf(ZERO) }],
   ['Sorted: counts per mode', { cards: wallOf(FAILED), bins: binsOf(DAY1_COUNTS) }],
-  ['Fix first: the stale bin lit', { cards: wallOf(FAILED), bins: binsOf(DAY1_COUNTS, 'stale-doc'), board: 'FIX FIRST: STALE' }],
+  [
+    'Fix first: the stale bin lit',
+    { cards: wallOf(FAILED), bins: binsOf(DAY1_COUNTS, 'stale-doc'), board: 'FIX FIRST: STALE' },
+  ],
   ['Day 2 queue', { cards: wallOf(DAY2), bins: binsOf(counts(DAY2), 'wrong-order') }],
 ];
 const FALLS: [string, string, string | undefined][] = [

@@ -21,7 +21,7 @@ const enc = new TextEncoder();
 const dec = new TextDecoder('utf-8', { ignoreBOM: true });
 const strict = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });
 
-const chunks = (text: string) => (text.match(SPLIT) ?? []).map((w) => [...enc.encode(w)]);
+const chunks = (text: string) => (text.match(SPLIT) ?? []).map(w => [...enc.encode(w)]);
 
 /** The pair in ids with the lowest merge rank, or -1. */
 function lowest(ids: number[]): number {
@@ -34,8 +34,9 @@ function lowest(ids: number[]): number {
 }
 
 export function encode(text: string): number[] {
-  return chunks(text).flatMap((ids) => {
-    for (let r = lowest(ids); r >= 0; r = lowest(ids)) ids = mergePair(ids, merges[r][0], merges[r][1], BYTE_TOKENS + r);
+  return chunks(text).flatMap(ids => {
+    for (let r = lowest(ids); r >= 0; r = lowest(ids))
+      ids = mergePair(ids, merges[r][0], merges[r][1], BYTE_TOKENS + r);
     return ids;
   });
 }
@@ -43,7 +44,10 @@ export function encode(text: string): number[] {
 export function decode(ids: number[]): string {
   const bytes = new Uint8Array(ids.reduce((n, id) => n + vocab[id].length, 0));
   let o = 0;
-  for (const id of ids) { bytes.set(vocab[id], o); o += vocab[id].length; }
+  for (const id of ids) {
+    bytes.set(vocab[id], o);
+    o += vocab[id].length;
+  }
   return dec.decode(bytes);
 }
 
@@ -51,7 +55,11 @@ export const pieceBytes = (id: number) => vocab[id];
 
 /** The token's text, or null when its bytes are only part of a character (show them as byte chips). */
 export function pieceText(id: number): string | null {
-  try { return strict.decode(vocab[id]); } catch { return null; }
+  try {
+    return strict.decode(vocab[id]);
+  } catch {
+    return null;
+  }
 }
 
 export type TraceStep = { id: number; pair: Merge; count: number; ids: number[] };
@@ -63,12 +71,17 @@ export type TraceStep = { id: number; pair: Merge; count: number; ids: number[] 
  */
 export function mergeTrace(text: string): { start: number[]; steps: TraceStep[] } {
   let cs = chunks(text);
-  const next = () => cs.reduce((m, c) => { const x = lowest(c); return x >= 0 && x < m ? x : m; }, Infinity);
-  const start = cs.flat(), steps: TraceStep[] = [];
+  const next = () =>
+    cs.reduce((m, c) => {
+      const x = lowest(c);
+      return x >= 0 && x < m ? x : m;
+    }, Infinity);
+  const start = cs.flat(),
+    steps: TraceStep[] = [];
   for (let r = next(); Number.isFinite(r); r = next()) {
     const [a, b] = merges[r];
     const before = cs.reduce((n, c) => n + c.length, 0);
-    cs = cs.map((c) => mergePair(c, a, b, BYTE_TOKENS + r));
+    cs = cs.map(c => mergePair(c, a, b, BYTE_TOKENS + r));
     const ids = cs.flat();
     steps.push({ id: BYTE_TOKENS + r, pair: [a, b], count: before - ids.length, ids });
   }

@@ -26,7 +26,8 @@ const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
 const LINE = { ...DEFAULT_LINE, streaming: true, bargeIn: true, readBack: true };
 const pic = (o: PhoneOpts): PhoneOpts => ({ ...o, scale: 1.25 });
 // Ravi's call at the shortest silence setting and at the one that hears him whole (the live detector, recorded replies)
-const SHORT = runCall('hesitant', { ...LINE, silence: SILENCES[0] }), WHOLE = runCall('hesitant', { ...LINE, silence: 800 });
+const SHORT = runCall('hesitant', { ...LINE, silence: SILENCES[0] }),
+  WHOLE = runCall('hesitant', { ...LINE, silence: 800 });
 const HERO = pic({ stage: 'reply', wait: WHOLE.wait });
 const SIDES = [
   { title: `Silence ${ms(SILENCES[0])}`, r: SHORT },
@@ -34,12 +35,42 @@ const SIDES = [
 ];
 const MISHEAR = runCall('mishear', { ...LINE, readBack: false });
 const IDEAS: [string, string, ReturnType<typeof fact>, PhoneOpts][] = [
-  ['Three stages', 'Speech-to-text, the model, text-to-speech, each handing on its work', fact('openai-chained'), pic({ stage: 'stt' })],
-  ['The latency budget', 'The stages’ times add up; streaming brings the first word forward', fact('stivers'), pic({ stage: 'reply', wait: WHOLE.wait })],
-  ['Whose turn is it', 'A silence setting ends the turn: too short cuts callers off, too long leaves dead air', fact('openai-vad-settings'), pic({ stage: 'reply', interrupt: true })],
-  ['Being interrupted', 'Stop speaking, listen, and keep only what was said', fact('gemini-interrupt'), pic({ stage: 'reply', interrupt: true, stopped: true })],
-  ['Mishearing', 'Read an unsure number back before acting on it', fact('gemini-transcripts'), pic({ stage: 'stt', unsure: true })],
-  ['One model or three', 'Speech to speech, or a chained line with a transcript to check', fact('openai-s2s'), pic({ stage: 'reply', mode: 's2s' })],
+  [
+    'Three stages',
+    'Speech-to-text, the model, text-to-speech, each handing on its work',
+    fact('openai-chained'),
+    pic({ stage: 'stt' }),
+  ],
+  [
+    'The latency budget',
+    'The stages’ times add up; streaming brings the first word forward',
+    fact('stivers'),
+    pic({ stage: 'reply', wait: WHOLE.wait }),
+  ],
+  [
+    'Whose turn is it',
+    'A silence setting ends the turn: too short cuts callers off, too long leaves dead air',
+    fact('openai-vad-settings'),
+    pic({ stage: 'reply', interrupt: true }),
+  ],
+  [
+    'Being interrupted',
+    'Stop speaking, listen, and keep only what was said',
+    fact('gemini-interrupt'),
+    pic({ stage: 'reply', interrupt: true, stopped: true }),
+  ],
+  [
+    'Mishearing',
+    'Read an unsure number back before acting on it',
+    fact('gemini-transcripts'),
+    pic({ stage: 'stt', unsure: true }),
+  ],
+  [
+    'One model or three',
+    'Speech to speech, or a chained line with a transcript to check',
+    fact('openai-s2s'),
+    pic({ stage: 'reply', mode: 's2s' }),
+  ],
 ];
 const BEST = totals(WINNERS[0]);
 const FACTS: [string, string][] = [

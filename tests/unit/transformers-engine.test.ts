@@ -6,7 +6,15 @@ import { encode } from '../../src/lib/lm/bpe';
 import { forward, softmax } from '../../src/lib/lm/model';
 import { parseModel, type Meta } from '../../src/lib/lm/load';
 import { HEAD, PROMPTS, trace, wordStart } from '../../src/lib/transformers/trace';
-import { distribution, entropy, mulberry32, nucleus, sample, TEMPERATURES, TOP_PS } from '../../src/lib/transformers/sample';
+import {
+  distribution,
+  entropy,
+  mulberry32,
+  nucleus,
+  sample,
+  TEMPERATURES,
+  TOP_PS,
+} from '../../src/lib/transformers/sample';
 import { costs } from '../../src/lib/transformers/costs';
 import { ACCESSED, FACTS, fact } from '../../src/lib/transformers/facts';
 import IDS from '../../data/lm/ids.json' with { type: 'json' };
@@ -21,7 +29,7 @@ describe('trace', () => {
     const t = trace(model, PROMPTS[0].text);
     const n = encode(PROMPTS[0].text).length;
     expect(t.tokens).toHaveLength(n);
-    expect(t.tokens.map((x) => x.text).join('')).toBe(PROMPTS[0].text);
+    expect(t.tokens.map(x => x.text).join('')).toBe(PROMPTS[0].text);
     expect(t.top).toHaveLength(n);
     for (const top of t.top) {
       expect(top).toHaveLength(5);
@@ -40,14 +48,18 @@ describe('trace', () => {
 });
 
 describe('chapter prompts (the readable bar)', () => {
-  it.each(PROMPTS.map((p) => [p.id, p] as const))('"%s" has its expected next token in the top 5', (_, p) => {
+  it.each(PROMPTS.map(p => [p.id, p] as const))('"%s" has its expected next token in the top 5', (_, p) => {
     expect(encode(p.expected), 'expected is one token').toHaveLength(1);
     expect(encode(p.text).length).toBeLessThanOrEqual(meta.model.ctx);
-    expect(trace(model, p.text).top.at(-1)!.map((c) => c.text)).toContain(p.expected);
+    expect(
+      trace(model, p.text)
+        .top.at(-1)!
+        .map(c => c.text),
+    ).toContain(p.expected);
   });
 
   it('every prompt id is unique', () => {
-    expect(new Set(PROMPTS.map((p) => p.id)).size).toBe(PROMPTS.length);
+    expect(new Set(PROMPTS.map(p => p.id)).size).toBe(PROMPTS.length);
   });
 });
 
@@ -59,20 +71,28 @@ describe('the readable head (chapter 4)', () => {
 
   it('its recorded score is what every document measures, and well above spreading evenly', () => {
     const all = [...IDS.splits.train.ids, ...IDS.splits.heldout.ids];
-    let score = 0, uniform = 0, n = 0;
-    for (const doc of all) for (let s = 0; s + meta.model.ctx <= doc.length; s += meta.model.ctx) {
-      const ids = doc.slice(s, s + meta.model.ctx);
-      const w = wordStart(ids, forward(model, ids).attention[HEAD.layer][HEAD.head]);
-      score += w.score * w.n; uniform += w.uniform * w.n; n += w.n;
-    }
+    let score = 0,
+      uniform = 0,
+      n = 0;
+    for (const doc of all)
+      for (let s = 0; s + meta.model.ctx <= doc.length; s += meta.model.ctx) {
+        const ids = doc.slice(s, s + meta.model.ctx);
+        const w = wordStart(ids, forward(model, ids).attention[HEAD.layer][HEAD.head]);
+        score += w.score * w.n;
+        uniform += w.uniform * w.n;
+        n += w.n;
+      }
     expect(score / n).toBeCloseTo(HEAD.score, 3);
     expect(uniform / n).toBeCloseTo(HEAD.uniform, 3);
     expect(HEAD.score).toBeGreaterThan(3 * HEAD.uniform);
   });
 
-  it.each(PROMPTS.map((p) => [p.id, p] as const))('its pattern holds on "%s"', (_, p) => {
+  it.each(PROMPTS.map(p => [p.id, p] as const))('its pattern holds on "%s"', (_, p) => {
     const t = trace(model, p.text);
-    const w = wordStart(t.tokens.map((x) => x.id), t.attention[HEAD.layer][HEAD.head]);
+    const w = wordStart(
+      t.tokens.map(x => x.id),
+      t.attention[HEAD.layer][HEAD.head],
+    );
     expect(w.n).toBeGreaterThan(0);
     expect(w.score).toBeGreaterThanOrEqual(2 * w.uniform);
   });
@@ -86,7 +106,7 @@ describe('sampler', () => {
   });
 
   it('a different seed with temperature above 0 can differ', () => {
-    const outs = new Set([1, 2, 3, 4, 5, 6, 7, 8].map((s) => sample(model, p, 1.5, 1, s, 8).text));
+    const outs = new Set([1, 2, 3, 4, 5, 6, 7, 8].map(s => sample(model, p, 1.5, 1, s, 8).text));
     expect(outs.size).toBeGreaterThan(1);
   });
 
@@ -98,8 +118,14 @@ describe('sampler', () => {
   });
 
   it('mulberry32 is fixed: the same seed gives the same stream in [0, 1)', () => {
-    const a = mulberry32(42), b2 = mulberry32(42);
-    for (let i = 0; i < 100; i++) { const x = a(); expect(x).toBe(b2()); expect(x).toBeGreaterThanOrEqual(0); expect(x).toBeLessThan(1); }
+    const a = mulberry32(42),
+      b2 = mulberry32(42);
+    for (let i = 0; i < 100; i++) {
+      const x = a();
+      expect(x).toBe(b2());
+      expect(x).toBeGreaterThanOrEqual(0);
+      expect(x).toBeLessThan(1);
+    }
   });
 
   it('top-p = 1 keeps every token', () => {
@@ -119,7 +145,7 @@ describe('sampler', () => {
 
   it('raising the temperature flattens the distribution: entropy rises over the domain', () => {
     for (const { text } of PROMPTS) {
-      const hs = TEMPERATURES.map((t) => entropy(distribution(last(text), t, 1)));
+      const hs = TEMPERATURES.map(t => entropy(distribution(last(text), t, 1)));
       for (let i = 1; i < hs.length; i++) expect(hs[i]).toBeGreaterThan(hs[i - 1]);
     }
     expect(TOP_PS).toContain(1);
@@ -136,9 +162,9 @@ describe('costs', () => {
   });
 
   it('KV entries are layers × 2 (K and V) × heads × head size × n, from the real weight shapes', () => {
-    const qkv = meta.tensors.find((t) => t.name === 'h.0.attn.qkv.weight')!.shape;
+    const qkv = meta.tensors.find(t => t.name === 'h.0.attn.qkv.weight')!.shape;
     const kvRows = (qkv[0] / 3) * 2; // the qkv rows are Q, then K, then V
-    const layers = meta.tensors.filter((t) => /^h\.\d+\.attn\.qkv\.weight$/.test(t.name)).length;
+    const layers = meta.tensors.filter(t => /^h\.\d+\.attn\.qkv\.weight$/.test(t.name)).length;
     for (const n of [1, 10, 32]) expect(costs(meta.model, n).kv).toBe(layers * kvRows * n);
     expect(costs(meta.model, 32).kv).toBe(2 * 2 * 2 * 16 * 32);
   });
@@ -147,7 +173,7 @@ describe('costs', () => {
 describe('facts (R5)', () => {
   it('every fact has a claim, a source URL and the access date', () => {
     expect(ACCESSED).toBe('2026-10-21');
-    expect(new Set(FACTS.map((f) => f.id)).size).toBe(FACTS.length);
+    expect(new Set(FACTS.map(f => f.id)).size).toBe(FACTS.length);
     for (const f of FACTS) {
       expect(f.claim.trim(), f.id).not.toBe('');
       expect(f.source, f.id).toMatch(/^https:\/\//);

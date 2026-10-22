@@ -18,9 +18,12 @@ describe('chapter 2: the start or the end beats the middle, and more passages co
     expect(WRONGS[1]).toBeGreaterThan(WRONGS[0]);
   });
   it('the one late miss is put down to the crowd of distractors (Chroma), not to position', () => {
-    const notes = Object.entries(RECORDING.turns).filter(([sig, t]) => sig.startsWith('case=refund-window|') && t.right === false && sig.split('|')[1].endsWith(',refund-window'));
+    const notes = Object.entries(RECORDING.turns).filter(
+      ([sig, t]) =>
+        sig.startsWith('case=refund-window|') && t.right === false && sig.split('|')[1].endsWith(',refund-window'),
+    );
     expect(notes).toHaveLength(1);
-    expect(notes[0][0].split('|')[1].split(',')).toHaveLength(COUNTS[COUNTS.length - 1] + 1);  // the fact and the most distractors
+    expect(notes[0][0].split('|')[1].split(',')).toHaveLength(COUNTS[COUNTS.length - 1] + 1); // the fact and the most distractors
     expect(notes[0][1].note).toMatch(/Chroma/);
     expect(notes[0][1].note).not.toMatch(/Liu|lost in the middle/i);
   });
@@ -31,11 +34,11 @@ describe('chapter 3: stuffing every document', () => {
   it('answers the refund question wrong, its fact in the middle of the passages', () => {
     expect(answer(FIRST, 'stuff').right).toBe(false);
     expect(at(FIRST)).toBeGreaterThan(DOCS.length / 4);
-    expect(at(FIRST)).toBeLessThan(DOCS.length * 3 / 4);
+    expect(at(FIRST)).toBeLessThan((DOCS.length * 3) / 4);
   });
   it('answers right only when the fact sits near the start or end', () => {
     for (const c of CASES) {
-      const edge = at(c) < DOCS.length / 4 || at(c) >= DOCS.length * 3 / 4;
+      const edge = at(c) < DOCS.length / 4 || at(c) >= (DOCS.length * 3) / 4;
       expect(answer(c, 'stuff').right, c).toBe(edge);
     }
     expect(CASES.some(c => answer(c, 'stuff').right)).toBe(true);
@@ -61,12 +64,14 @@ describe('recall claims tied to the runs', () => {
     expect(measure('cleared', true).cost).toBeGreaterThan(measure('full', true).cost);
   });
   it('chapter 7: searching with the full history and the cache beat stuffing on both; the cache never changes an answer', () => {
-    const w = score(WINNERS[0]), s = score(STUFF_ALL);
+    const w = score(WINNERS[0]),
+      s = score(STUFF_ALL);
     expect(WINNERS[0]).toEqual({ retrieval: 'fetch', history: 'full', cache: true });
     expect(w.right).toBeGreaterThan(s.right);
     expect(w.cost).toBeLessThan(s.cost);
     for (const p of [STUFF_ALL, WINNERS[0]]) {
-      const on = play({ ...p, cache: true }).answers.map(a => a.right), off = play({ ...p, cache: false }).answers.map(a => a.right);
+      const on = play({ ...p, cache: true }).answers.map(a => a.right),
+        off = play({ ...p, cache: false }).answers.map(a => a.right);
       expect(on).toEqual(off);
     }
   });

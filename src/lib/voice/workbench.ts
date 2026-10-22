@@ -23,12 +23,20 @@ export function totals(p: Plan) {
 
 const BOOLS = [false, true];
 /** Every plan the bench can make. */
-export const PLANS: Plan[] = THRESHOLDS.flatMap(threshold => SILENCES.flatMap(silence => BOOLS.flatMap(streaming =>
-  BOOLS.flatMap(bargeIn => BOOLS.map(readBack => ({ threshold, silence, streaming, bargeIn, readBack }))))));
+export const PLANS: Plan[] = THRESHOLDS.flatMap(threshold =>
+  SILENCES.flatMap(silence =>
+    BOOLS.flatMap(streaming =>
+      BOOLS.flatMap(bargeIn => BOOLS.map(readBack => ({ threshold, silence, streaming, bargeIn, readBack }))),
+    ),
+  ),
+);
 const ALL = PLANS.map(p => ({ p, t: totals(p) }));
 /** The fewest problems any plan has, and the least total wait among the plans that reach it. */
 export const FEWEST = Math.min(...ALL.map(x => x.t.problems));
 export const LEAST_WAIT = Math.min(...ALL.filter(x => x.t.problems === FEWEST).map(x => x.t.wait));
-export const solved = (p: Plan) => { const t = totals(p); return t.problems === FEWEST && t.wait === LEAST_WAIT; };
+export const solved = (p: Plan) => {
+  const t = totals(p);
+  return t.problems === FEWEST && t.wait === LEAST_WAIT;
+};
 /** Every plan tied for best. */
 export const WINNERS = ALL.filter(x => x.t.problems === FEWEST && x.t.wait === LEAST_WAIT).map(x => x.p);

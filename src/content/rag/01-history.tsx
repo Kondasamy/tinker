@@ -10,10 +10,17 @@ import { TIMELINE, formatTokens } from '../../lib/scale';
 import { UNSURE } from '../../lib/recall';
 
 const ID = '01-history';
-interface S { asked: boolean; visited: number; active: number | null; quiz: number | null }
+interface S {
+  asked: boolean;
+  visited: number;
+  active: number | null;
+  quiz: number | null;
+}
 
 const win = (era: string) => formatTokens(eraWindow(TIMELINE, era));
-const smallest2023 = formatTokens(Math.min(...TIMELINE.filter(e => e.era === 'small-windows' && e.contextTokens).map(e => e.contextTokens!)));
+const smallest2023 = formatTokens(
+  Math.min(...TIMELINE.filter(e => e.era === 'small-windows' && e.contextTokens).map(e => e.contextTokens!)),
+);
 
 const QUIZ = {
   question: 'Why did 2023 assistants need retrieval to answer from company documents?',
@@ -23,7 +30,8 @@ const QUIZ = {
     'Retrieval was required by law',
   ],
   correct: 1,
-  explanation: 'Small context windows meant someone had to pick the few right passages up front. Retrieval did that picking.',
+  explanation:
+    'Small context windows meant someone had to pick the few right passages up front. Retrieval did that picking.',
   why: [
     'Speed was not the problem. The limit was how much text fit in one request, and the model had never seen your files.',
     'Right. Small windows meant someone had to pick the few right passages up front, and the model could not yet go and search for itself.',
@@ -40,23 +48,32 @@ const AFTER: string[] = [
 ];
 
 const eraStep = (i: number): Step<S> => ({
-  id: `era-${ERAS[i].id}`, focus: 'timeline', visibleControls: [], opensDrawer: i === 0 ? 'answer' : 'era',
-  narration: i === 0
-    ? 'Confident, and wrong. A model knows only what it saw in training plus what is in its prompt. It never saw your contracts. How did the industry fix this? Click 2020 on the timeline.'
-    : AFTER[i - 1],
+  id: `era-${ERAS[i].id}`,
+  focus: 'timeline',
+  visibleControls: [],
+  opensDrawer: i === 0 ? 'answer' : 'era',
+  narration:
+    i === 0
+      ? 'Confident, and wrong. A model knows only what it saw in training plus what is in its prompt. It never saw your contracts. How did the industry fix this? Click 2020 on the timeline.'
+      : AFTER[i - 1],
   predicate: s => s.visited > i,
   hint: `Click the glowing ${ERAS[i].label} object, or Tab to it and press Enter.`,
 });
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'ask', focus: 'ask', visibleControls: ['ask'],
+    id: 'ask',
+    focus: 'ask',
+    visibleControls: ['ask'],
     narration: 'It’s 2023. An employee asks the company’s new AI assistant a question about a customer contract.',
     predicate: s => s.asked,
   },
   ...ERAS.map((_, i) => eraStep(i)),
   {
-    id: 'quiz', focus: 'quiz', visibleControls: ['quiz'], opensDrawer: 'era',
+    id: 'quiz',
+    focus: 'quiz',
+    visibleControls: ['quiz'],
+    opensDrawer: 'era',
     narration: AFTER[ERAS.length - 1],
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Think back to 2023: what limited how much a model could read?',
@@ -71,9 +88,15 @@ export default function History() {
       initial={{ asked: false, visited: 0, active: null, quiz: null }}
       next={nextOf(ID)}
       stage={({ state, apply }) => (
-        <Timeline entries={TIMELINE} visited={state.asked ? state.visited : -1} active={state.active}
+        <Timeline
+          entries={TIMELINE}
+          visited={state.asked ? state.visited : -1}
+          active={state.active}
           // open the next era, or reopen one already seen; skipping ahead does nothing
-          onPick={k => state.asked && k <= state.visited && apply({ ...state, active: k, visited: Math.max(state.visited, k + 1) })} />
+          onPick={k =>
+            state.asked && k <= state.visited && apply({ ...state, active: k, visited: Math.max(state.visited, k + 1) })
+          }
+        />
       )}
       controls={{
         ask: ({ state, apply }) => (
@@ -81,16 +104,26 @@ export default function History() {
             Ask: “Do enterprise contracts get refunds after 30 days?”
           </button>
         ),
-        quiz: ({ state, apply, sync }) => <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />,
+        quiz: ({ state, apply, sync }) => (
+          <Quiz
+            {...QUIZ}
+            unsure
+            value={state.quiz}
+            onAnswer={(_, q) => apply({ ...state, quiz: q })}
+            onUnsure={() => sync({ ...state, quiz: UNSURE })}
+          />
+        ),
       }}
       inspectPanel="era"
       panels={{
         answer: {
           title: 'The assistant’s answer',
           render: () => (
-            <Answer verdict="Wrong"
+            <Answer
+              verdict="Wrong"
               answer="Yes. All customers can get a full refund within 60 days of purchase."
-              why="It sounds sure, but it is a guess from training data. Your actual policy says something else, and the model has never read it." />
+              why="It sounds sure, but it is a guess from training data. Your actual policy says something else, and the model has never read it."
+            />
           ),
         },
         era: {
@@ -100,10 +133,16 @@ export default function History() {
             const era = ERAS[s.active];
             return (
               <>
-                <p><strong>{era.label}: {era.title}</strong></p>
+                <p>
+                  <strong>
+                    {era.label}: {era.title}
+                  </strong>
+                </p>
                 <ul>
                   {TIMELINE.filter(e => e.era === era.id).map(e => (
-                    <li key={e.sourceUrl + e.claim}><time>{e.date}</time> {e.claim} <Source e={e} /></li>
+                    <li key={e.sourceUrl + e.claim}>
+                      <time>{e.date}</time> {e.claim} <Source e={e} />
+                    </li>
                   ))}
                 </ul>
               </>

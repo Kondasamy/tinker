@@ -9,12 +9,16 @@ const allRuns = (page: Page, n: number) => expect(page.getByRole('button', { nam
 
 /** Nothing drawn on the stage (strip, graph walk) may cover a pipeline block. */
 async function blocksClear(page: Page) {
-  const boxes = async (sel: string) => (await page.locator(sel).all()).map(async (l) => (await l.boundingBox())!);
+  const boxes = async (sel: string) => (await page.locator(sel).all()).map(async l => (await l.boundingBox())!);
   const blocks = await Promise.all(await boxes('[data-block]'));
   const overlays = await Promise.all(await boxes('.strip-latest, figure.graph-walk'));
   expect(blocks.length).toBeGreaterThan(0);
-  for (const o of overlays) for (const b of blocks)
-    expect(o.x < b.x + b.width && b.x < o.x + o.width && o.y < b.y + b.height && b.y < o.y + o.height, JSON.stringify({ o, b })).toBe(false);
+  for (const o of overlays)
+    for (const b of blocks)
+      expect(
+        o.x < b.x + b.width && b.x < o.x + o.width && o.y < b.y + b.height && b.y < o.y + o.height,
+        JSON.stringify({ o, b }),
+      ).toBe(false);
 }
 const runAs = (page: Page) => card(page).getByRole('button', { name: /^Run as/ });
 
@@ -22,11 +26,13 @@ test.use({ viewport: { width: 1440, height: 900 } });
 
 async function open(page: Page) {
   await page.goto('/rag/06-types/');
-  await page.locator('astro-island:not([ssr])').waitFor();   // hydrated
+  await page.locator('astro-island:not([ssr])').waitFor(); // hydrated
   await step(page, 1);
 }
 
-test('chapter 6: naive then agentic adds two strip rows with different call counts; the agent and GraphRAG comparisons complete', async ({ page }) => {
+test('chapter 6: naive then agentic adds two strip rows with different call counts; the agent and GraphRAG comparisons complete', async ({
+  page,
+}) => {
   await open(page);
   await expect(page.locator('[data-block="agent"]')).toHaveCount(0);
   await card(page).getByRole('button', { name: 'Compare types →' }).click();
@@ -42,7 +48,7 @@ test('chapter 6: naive then agentic adds two strip rows with different call coun
 
   // attach the agent side bay
   await step(page, 3);
-  await card(page).getByLabel('Agentic').click();   // the step advances, so the radio leaves the card
+  await card(page).getByLabel('Agentic').click(); // the step advances, so the radio leaves the card
   await expect(page.locator('[data-block="agent"]')).toHaveCount(1);
 
   // agentic: search then expand, correct in two calls; the log sits in the answer panel
@@ -69,7 +75,9 @@ test('chapter 6: naive then agentic adds two strip rows with different call coun
   await allRuns(page, 4);
   await step(page, 6);
 
-  await card(page).getByRole('radio', { name: /follow-up can fetch the rest/ }).click();
+  await card(page)
+    .getByRole('radio', { name: /follow-up can fetch the rest/ })
+    .click();
 
   // multi-hop: naive and agentic both miss the Kestrel approver
   await step(page, 7);
@@ -107,11 +115,17 @@ test('chapter 6: naive then agentic adds two strip rows with different call coun
   await step(page, 11);
   await expect(drawer(page).getByRole('region', { name: 'Graph walk log' }).locator('li')).toHaveCount(2);
   // only the answer path is labelled; the other pegs name themselves on hover
-  expect((await walk.locator('text.on-path').allTextContents()).sort()).toEqual(['Fulfillment Systems', 'Kestrel K2', 'Tomasz Rehnquist']);
+  expect((await walk.locator('text.on-path').allTextContents()).sort()).toEqual([
+    'Fulfillment Systems',
+    'Kestrel K2',
+    'Tomasz Rehnquist',
+  ]);
   expect(await walk.locator('text.peg-label').count()).toBeGreaterThan(3);
   await blocksClear(page);
 
-  await card(page).getByRole('radio', { name: /chains facts across documents/ }).click();
+  await card(page)
+    .getByRole('radio', { name: /chains facts across documents/ })
+    .click();
 
   // self-correcting: the look-alike note fools naive RAG; the evaluator rejects it, retries, then says "I don't know"
   await step(page, 12);
@@ -128,7 +142,7 @@ test('chapter 6: naive then agentic adds two strip rows with different call coun
   const evaluator = drawer(page).getByRole('region', { name: 'Evaluator log' });
   await expect(evaluator.locator('li')).toHaveCount(2);
   await expect(evaluator.locator('li').first()).toContainText('rejected (would have answered WRONG)');
-  await expect(drawer(page)).toContainText('I don\'t know.');
+  await expect(drawer(page)).toContainText("I don't know.");
 
   // multimodal: the parsers start off; tables, then PDF and image
   await card(page).getByLabel('Multimodal').click();
@@ -141,12 +155,16 @@ test('chapter 6: naive then agentic adds two strip rows with different call coun
   await runAs(page).click();
   await expect(mm).toHaveAttribute('data-verdict', 'correct');
   await step(page, 18);
-  await card(page).getByLabel(/vendor PDF/).check();
+  await card(page)
+    .getByLabel(/vendor PDF/)
+    .check();
   await card(page).getByLabel('Parse PDFs to text').check();
   await runAs(page).click();
-  await card(page).getByLabel(/org chart image/).check();
+  await card(page)
+    .getByLabel(/org chart image/)
+    .check();
   await card(page).getByLabel('Caption images').check();
-  await expect(drawer(page).locator('figure.mm-asset img')).toBeVisible();   // its caption is retrieved
+  await expect(drawer(page).locator('figure.mm-asset img')).toBeVisible(); // its caption is retrieved
   await runAs(page).click();
   await expect(card(page)).toContainText('Chapter complete');
   await expect(strip(page).locator('tr[data-type="multimodal"][data-verdict="correct"]')).toHaveCount(3);

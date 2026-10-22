@@ -14,9 +14,19 @@ export default function CanvasDemo() {
     <>
       <Canvas state={state} onChange={setState} question={question} allowBench onResult={setOut} />
       <section className="demo-out" aria-label="Result" data-verdict={a?.verdict ?? ''}>
-        <p><b>Q:</b> {question.query}</p>
-        <p data-testid="context">{out?.record ? `${out.record.context.length} chunks reached the model` : 'No chunks reached the model'}</p>
-        <p data-testid="answer">{!a ? '…' : a.verdict === 'norecord' ? 'No recorded answer for this exact setting.' : `${a.verdict.toUpperCase()}: ${a.text}`}</p>
+        <p>
+          <b>Q:</b> {question.query}
+        </p>
+        <p data-testid="context">
+          {out?.record ? `${out.record.context.length} chunks reached the model` : 'No chunks reached the model'}
+        </p>
+        <p data-testid="answer">
+          {!a
+            ? '…'
+            : a.verdict === 'norecord'
+              ? 'No recorded answer for this exact setting.'
+              : `${a.verdict.toUpperCase()}: ${a.text}`}
+        </p>
       </section>
     </>
   );

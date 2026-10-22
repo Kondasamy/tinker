@@ -9,14 +9,15 @@ export function mmWalker(page: Page, mode: Mode, check: (page: Page) => Promise<
   const press = (l: Locator) => (kb ? l.press('Enter') : l.click());
   const card = page.getByRole('region', { name: 'Next step' });
   const btn = (name: string | RegExp) => press(card.getByRole('button', { name }));
-  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name }));   // a quiz or prediction option
+  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name })); // a quiz or prediction option
   const step = (n: number) => expect(card).toContainText(`Step ${n} of`);
   /** set the size range: arrow keys by keyboard, a direct set by mouse */
   async function size(px: number) {
     const r = card.getByRole('slider', { name: 'Size' });
     if (!kb) return r.fill(String(SIZES.indexOf(px)));
     await r.focus();
-    const now = Number(await r.inputValue()), to = SIZES.indexOf(px);
+    const now = Number(await r.inputValue()),
+      to = SIZES.indexOf(px);
     for (let i = now; i !== to; i += Math.sign(to - now)) await r.press(to > now ? 'ArrowRight' : 'ArrowLeft');
   }
 
@@ -106,7 +107,8 @@ export function mmWalker(page: Page, mode: Mode, check: (page: Page) => Promise<
     },
     /** invoice by OCR, slip and note by vision at 1,200 px: a best plan */
     async ch7(next?: RegExp, quiz: string | RegExp = /^Try OCR on the letters/) {
-      const pick = (kind: string, i: number, v: string) => card.locator(`fieldset[data-kind="${kind}"] select`).nth(i).selectOption(v);
+      const pick = (kind: string, i: number, v: string) =>
+        card.locator(`fieldset[data-kind="${kind}"] select`).nth(i).selectOption(v);
       await pick('invoice', 0, 'ocr');
       await pick('slip', 1, '1200');
       await pick('note', 1, '1200');

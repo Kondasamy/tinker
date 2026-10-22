@@ -4,7 +4,13 @@ import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { readFileSync } from 'node:fs';
 import IsoStage from '../../src/lib/iso/IsoStage';
-import { ROUTER_BOARD, routerLabel, routerScene, routerState, type RouterOpts } from '../../src/components/scenes/routerScene';
+import {
+  ROUTER_BOARD,
+  routerLabel,
+  routerScene,
+  routerState,
+  type RouterOpts,
+} from '../../src/components/scenes/routerScene';
 import { frontierChart, frontierLabel, pointWords } from '../../src/components/scenes/frontierChart';
 import { frontier } from '../../src/lib/small-models/router';
 import { bothNow, FrontierChart, SmallStage, STUDENT_SERIES, type Shown } from '../../src/content/small-models/kit';
@@ -13,8 +19,12 @@ import { fetchLoader } from '../../src/lib/rag/load';
 import type { Meta } from '../../src/lib/lm/load';
 
 const meta = JSON.parse(readFileSync('public/data/lm/meta.json', 'utf8')) as Meta;
-const disk = async (f: string) => { const b = readFileSync('public/data/lm/' + f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer; };
-const draw = (o: RouterOpts) => renderToString(createElement(IsoStage, { board: ROUTER_BOARD, scene: routerScene(o), label: routerLabel(o) }));
+const disk = async (f: string) => {
+  const b = readFileSync('public/data/lm/' + f);
+  return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer;
+};
+const draw = (o: RouterOpts) =>
+  renderToString(createElement(IsoStage, { board: ROUTER_BOARD, scene: routerScene(o), label: routerLabel(o) }));
 const count = (s: string, x: string) => s.split(x).length - 1;
 afterAll(() => setModelFiles(fetchLoader('/data/lm/')));
 
@@ -27,10 +37,22 @@ describe('the apprentice’s bench', () => {
     expect(draw({ mode: 'distill' })).toContain('class="chute" data-on="0"');
   });
   it('route mode lights one belt per route; up lights the small belt and the fallback chute', () => {
-    expect(routerState({ mode: 'route', route: 'large' })).toMatchObject({ belts: { large: true, small: false }, chute: { on: false } });
-    expect(routerState({ mode: 'route', route: 'small' })).toMatchObject({ belts: { large: false, small: true }, chute: { on: false }, big: { on: false } });
+    expect(routerState({ mode: 'route', route: 'large' })).toMatchObject({
+      belts: { large: true, small: false },
+      chute: { on: false },
+    });
+    expect(routerState({ mode: 'route', route: 'small' })).toMatchObject({
+      belts: { large: false, small: true },
+      chute: { on: false },
+      big: { on: false },
+    });
     const up = routerState({ mode: 'route', route: 'up' });
-    expect(up).toMatchObject({ belts: { small: true }, chute: { on: true, name: 'FALLBACK' }, big: { on: true }, small: { on: true } });
+    expect(up).toMatchObject({
+      belts: { small: true },
+      chute: { on: true, name: 'FALLBACK' },
+      big: { on: true },
+      small: { on: true },
+    });
     const svg = draw({ mode: 'route', route: 'up', threshold: 0.9 });
     expect(svg).toContain('data-belt="small" data-on="1"');
     expect(svg).toContain('data-belt="large" data-on="0"');
@@ -65,7 +87,9 @@ describe('the frontier chart', () => {
   });
   it('a point reads out its quality and cost', () => {
     const p = pts.find(x => x.threshold === 0.9)!;
-    expect(pointWords(p)).toBe(`Router, up below 0.9: ${p.right} of ${p.of} right, cost ${Math.round(p.cost * 10) / 10}, ${p.up} sent up`);
+    expect(pointWords(p)).toBe(
+      `Router, up below 0.9: ${p.right} of ${p.of} right, cost ${Math.round(p.cost * 10) / 10}, ${p.up} sent up`,
+    );
   });
   it('the stage’s chart: one tab stop, a marker per point, the chosen point read out', () => {
     const html = renderToString(createElement(FrontierChart, { points: pts, at: 't0.9' }));
@@ -82,7 +106,9 @@ describe('the frontier chart', () => {
 describe('escaping', () => {
   it('captions never become markup', () => {
     const evil = '<script>alert(1)</script>';
-    const html = renderToString(createElement(SmallStage, { show: (): Shown => ({ scene: { mode: 'route' }, caption: evil }) }));
+    const html = renderToString(
+      createElement(SmallStage, { show: (): Shown => ({ scene: { mode: 'route' }, caption: evil }) }),
+    );
     expect(html).not.toContain('<script');
     expect(html).toContain('&lt;script&gt;');
   });
@@ -103,7 +129,10 @@ describe('a stage that needs both models', () => {
     expect(renderToString(createElement(SmallStage, { show, models: true }))).toContain('both in');
   });
   it('a failed load shows Retry', async () => {
-    setModelFiles(async f => { if (f === 'student.bin') throw new Error('offline'); return disk(f); });
+    setModelFiles(async f => {
+      if (f === 'student.bin') throw new Error('offline');
+      return disk(f);
+    });
     await loadModel('base');
     await expect(loadModel('student')).rejects.toThrow('offline');
     expect(renderToString(createElement(SmallStage, { show, models: true }))).toContain('Retry');

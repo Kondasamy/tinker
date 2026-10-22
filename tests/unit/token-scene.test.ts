@@ -2,12 +2,20 @@ import { describe, expect, it } from 'vitest';
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import IsoStage from '../../src/lib/iso/IsoStage';
-import { TOKEN_BOARD, tokenLabel, tokenScene, tokenState, type TokenOpts } from '../../src/components/scenes/tokenScene';
+import {
+  TOKEN_BOARD,
+  tokenLabel,
+  tokenScene,
+  tokenState,
+  type TokenOpts,
+} from '../../src/components/scenes/tokenScene';
 import { TokenRow, TokensStage, siteEncoding, spoken } from '../../src/content/tokens/kit';
 import { encode } from '../../src/lib/lm/bpe';
 
-const draw = (o: TokenOpts) => renderToString(createElement(IsoStage, { board: TOKEN_BOARD, scene: tokenScene(o), label: tokenLabel(o) }));
-const stage = (text: string, view: 'scene' | 'tiles') => renderToString(createElement(TokensStage, { text, view, onView: () => {} }));
+const draw = (o: TokenOpts) =>
+  renderToString(createElement(IsoStage, { board: TOKEN_BOARD, scene: tokenScene(o), label: tokenLabel(o) }));
+const stage = (text: string, view: 'scene' | 'tiles') =>
+  renderToString(createElement(TokensStage, { text, view, onView: () => {} }));
 const count = (html: string, s: string) => html.split(s).length - 1;
 
 describe('the token press', () => {
@@ -33,7 +41,8 @@ describe('the token press', () => {
     }
   });
   it('draws one tile per token up to the belt’s length, and says how many it shows', () => {
-    const short = 'Refunds', long = 'Can enterprise customers get a refund on a damaged order?';
+    const short = 'Refunds',
+      long = 'Can enterprise customers get a refund on a damaged order?';
     expect(count(draw({ text: short }), 'class="tile"')).toBe(encode(short).length);
     const st = tokenState({ text: long });
     expect(st.tokens).toBe(encode(long).length);
@@ -45,7 +54,7 @@ describe('the token press', () => {
   it('phones keep pills to names', () => {
     const svg = draw({ text: 'Refunds', scale: 1.8 });
     expect(svg).toContain('>TEXT<');
-    expect(svg.replace(/aria-label="[^"]*"/, '')).not.toContain('Refunds');   // the label still says it
+    expect(svg.replace(/aria-label="[^"]*"/, '')).not.toContain('Refunds'); // the label still says it
   });
 });
 

@@ -1,6 +1,14 @@
 // Chapter 4's puzzle (R10.4): every ordering that reaches the best cache hit rate is accepted, computed over all of them.
 import { describe, expect, it } from 'vitest';
-import { BEST, HOUSE, ORDERS, WINNERS, price, solved, type Block } from '../../src/content/context/04-order-for-the-cache';
+import {
+  BEST,
+  HOUSE,
+  ORDERS,
+  WINNERS,
+  price,
+  solved,
+  type Block,
+} from '../../src/content/context/04-order-for-the-cache';
 
 describe('chapter 4: order for the cache', () => {
   it('walks every ordering of the five blocks', () => {
@@ -15,7 +23,7 @@ describe('chapter 4: order for the cache', () => {
 
   it('the winners put the stable blocks first, then the conversation, then the time stamp', () => {
     for (const o of WINNERS) expect(o.slice(3)).toEqual<Block[]>(['chat', 'time']);
-    expect(WINNERS).toHaveLength(6);   // the three stable blocks in any order
+    expect(WINNERS).toHaveLength(6); // the three stable blocks in any order
   });
 
   it('the house order is broken: the stamp near the top throws the rest away', () => {

@@ -37,35 +37,46 @@ const byteOf = new Map();
   for (let b = 0; b < 256; b++) byteOf.set(String.fromCodePoint(keep.includes(b) ? b : 256 + n++), b);
 }
 const strict = new TextDecoder('utf-8', { fatal: true });
-const pieceOf = (token) => {
-  const bytes = [...token].map((ch) => {
+const pieceOf = token => {
+  const bytes = [...token].map(ch => {
     const b = byteOf.get(ch);
     if (b === undefined) throw new Error(`not a byte-level token: ${token}`);
     return b;
   });
-  try { return strict.decode(Uint8Array.from(bytes)); } catch { return bytes; }
+  try {
+    return strict.decode(Uint8Array.from(bytes));
+  } catch {
+    return bytes;
+  }
 };
 
 const sentences = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/tokens/sentences.json'), 'utf8'));
-const files = fs.readdirSync(CORPUS).filter((f) => f.endsWith('.md')).sort();
+const files = fs
+  .readdirSync(CORPUS)
+  .filter(f => f.endsWith('.md'))
+  .sort();
 const out = {
   recorded: RECORDED,
   library: `@huggingface/transformers ${JSON.parse(fs.readFileSync(path.join(ROOT, 'node_modules/@huggingface/transformers/package.json'), 'utf8')).version}`,
-  tokenizers: [], sentences: Object.fromEntries(sentences.map((s) => [s.id, {}])), corpus: {},
+  tokenizers: [],
+  sentences: Object.fromEntries(sentences.map(s => [s.id, {}])),
+  corpus: {},
 };
 for (const t of TOKENIZERS) {
   const tok = await AutoTokenizer.from_pretrained(t.model);
   const vocab = tok.get_vocab();
   const tokenOf = new Map([...(vocab instanceof Map ? vocab : Object.entries(vocab))].map(([s, id]) => [id, s]));
-  const enc = (text) => tok.encode(text, { add_special_tokens: false });
+  const enc = text => tok.encode(text, { add_special_tokens: false });
   out.tokenizers.push({ ...t, vocabSize: tokenOf.size });
   for (const s of sentences) {
     const ids = enc(s.text);
     if (tok.decode(ids) !== s.text) throw new Error(`${t.id}: ${s.id} does not round-trip`);
-    out.sentences[s.id][t.id] = { ids, pieces: ids.map((id) => pieceOf(tokenOf.get(id))) };
+    out.sentences[s.id][t.id] = { ids, pieces: ids.map(id => pieceOf(tokenOf.get(id))) };
   }
-  out.corpus[t.id] = Object.fromEntries(files.map((f) => [f, enc(fs.readFileSync(path.join(CORPUS, f), 'utf8')).length]));
-  console.log(`${t.id}: vocab ${tokenOf.size}, corpus ${Object.values(out.corpus[t.id]).reduce((a, b) => a + b, 0)} tokens`);
+  out.corpus[t.id] = Object.fromEntries(files.map(f => [f, enc(fs.readFileSync(path.join(CORPUS, f), 'utf8')).length]));
+  console.log(
+    `${t.id}: vocab ${tokenOf.size}, corpus ${Object.values(out.corpus[t.id]).reduce((a, b) => a + b, 0)} tokens`,
+  );
 }
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, JSON.stringify(out) + '\n');

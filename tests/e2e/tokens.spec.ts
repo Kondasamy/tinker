@@ -35,14 +35,23 @@ test('the intro shows the level, the author, the chapters and the Colorfigures c
   await axe(page);
 });
 
-test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({ page }) => {
+test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({
+  page,
+}) => {
   await walkAll(tokensWalker(page, 'mouse', axe), page);
 });
 
-test('every chapter plays by keyboard only; progress lands in tokens-progress-v1 and no other module’s key', async ({ page }) => {
+test('every chapter plays by keyboard only; progress lands in tokens-progress-v1 and no other module’s key', async ({
+  page,
+}) => {
   await page.goto('/');
-  const OTHERS = { 'rag-progress-v1': JSON.stringify({ done: ['01-history'], saved: {} }), 'guardrails-progress-v1': JSON.stringify({ done: ['01-data-or-instructions'], saved: {} }) };
-  await page.evaluate(o => { for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v); }, OTHERS);
+  const OTHERS = {
+    'rag-progress-v1': JSON.stringify({ done: ['01-history'], saved: {} }),
+    'guardrails-progress-v1': JSON.stringify({ done: ['01-data-or-instructions'], saved: {} }),
+  };
+  await page.evaluate(o => {
+    for (const [k, v] of Object.entries(o)) localStorage.setItem(k, v);
+  }, OTHERS);
   await walkAll(tokensWalker(page, 'keyboard'), page);
   const store = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
   expect(JSON.parse(store['tokens-progress-v1']).done).toEqual(IDS);
@@ -50,10 +59,13 @@ test('every chapter plays by keyboard only; progress lands in tokens-progress-v1
   expect(store['tinker-last-module']).toBe('tokens');
 });
 
-test('chapter 1: the count stays hidden until the prediction locks; typed text is counted live and shown as text', async ({ page }) => {
+test('chapter 1: the count stays hidden until the prediction locks; typed text is counted live and shown as text', async ({
+  page,
+}) => {
   const w = tokensWalker(page, 'mouse');
   await w.open(CH1);
-  const c = card(page), counts = page.getByTestId('token-counts');
+  const c = card(page),
+    counts = page.getByTestId('token-counts');
   await expect(counts).toHaveText(/^0 tokens/);
   await expect(c.getByRole('button', { name: 'Feed the sentence to the tokenizer' })).toHaveCount(0);
   await c.getByRole('radio', { name: /^Exactly \d+: one token per word/ }).click();
@@ -64,7 +76,10 @@ test('chapter 1: the count stays hidden until the prediction locks; typed text i
   await expect(counts).toContainText('1 word');
   await c.getByRole('button', { name: 'Count my text' }).click();
   await expect(c.locator('[data-mine]')).toContainText('tokens per word');
-  await page.locator('.tc-tabs').getByRole('button', { name: /^Tokens/ }).click();
+  await page
+    .locator('.tc-tabs')
+    .getByRole('button', { name: /^Tokens/ })
+    .click();
   await expect(page.locator('.tk-row li').first()).toBeVisible();
   await axe(page);
 });
@@ -83,7 +98,9 @@ test('chapter 2: the first merge on screen is the one the reveal names', async (
   await expect(c.locator('[data-merge="1"]')).toContainText(pair);
 });
 
-test('chapter 3: the meter shows the rule, the recorded tokenizers and the site’s in-sample count, then a dated price', async ({ page }) => {
+test('chapter 3: the meter shows the rule, the recorded tokenizers and the site’s in-sample count, then a dated price', async ({
+  page,
+}) => {
   const w = tokensWalker(page, 'mouse');
   await w.open(CH3);
   const c = card(page);
@@ -98,7 +115,9 @@ test('chapter 3: the meter shows the rule, the recorded tokenizers and the site�
   await expect(c.getByRole('link', { name: /^RAG chapter 2/ })).toHaveAttribute('href', '/rag/02-why-not-stuff-it/');
 });
 
-test('chapter 4: the table counts every sentence on every tokenizer, and the picture follows the pick', async ({ page }) => {
+test('chapter 4: the table counts every sentence on every tokenizer, and the picture follows the pick', async ({
+  page,
+}) => {
   const w = tokensWalker(page, 'mouse');
   await w.open(CH4);
   const c = card(page);
@@ -109,8 +128,11 @@ test('chapter 4: the table counts every sentence on every tokenizer, and the pic
   await expect(rows).toHaveCount(8);
   await expect(c.locator('table[data-splits] thead th')).toHaveCount(4);
   await c.getByRole('group', { name: 'Sentence' }).getByRole('button', { name: /^棚/ }).click();
-  await page.locator('.tc-tabs').getByRole('button', { name: /^Tokens/ }).click();
-  await expect(page.locator('.tk-row .tk-bytes').first()).toBeVisible();   // a token that is only part of a character
+  await page
+    .locator('.tc-tabs')
+    .getByRole('button', { name: /^Tokens/ })
+    .click();
+  await expect(page.locator('.tk-row .tk-bytes').first()).toBeVisible(); // a token that is only part of a character
   await axe(page);
 });
 
@@ -166,7 +188,7 @@ test('chapter 5 plays to the end offline once RAG’s index has loaded', async (
   page.on('requestfailed', r => failed.push(r.url()));
   const w = tokensWalker(page, 'mouse');
   await w.open(CH5);
-  await expect(page.locator('.stage .map circle').first()).toBeVisible();   // the index and the map's chunks are in
+  await expect(page.locator('.stage .map circle').first()).toBeVisible(); // the index and the map's chunks are in
   await page.waitForLoadState('networkidle');
   await offline(page);
   await w.ch5();
@@ -175,7 +197,15 @@ test('chapter 5 plays to the end offline once RAG’s index has loaded', async (
 
 test('“I’m not sure” on each checkpoint reveals the answer and is no miss', async ({ page }) => {
   const w = tokensWalker(page, 'mouse');
-  for (const [id, play] of [[CH1, w.ch1], [CH2, w.ch2], [CH3, w.ch3], [CH4, w.ch4], [CH5, w.ch5], [CH6, w.ch6], [CH7, w.ch7]] as const) {
+  for (const [id, play] of [
+    [CH1, w.ch1],
+    [CH2, w.ch2],
+    [CH3, w.ch3],
+    [CH4, w.ch4],
+    [CH5, w.ch5],
+    [CH6, w.ch6],
+    [CH7, w.ch7],
+  ] as const) {
     await w.open(id);
     await play(undefined, 'I’m not sure');
     const fb = card(page).locator('.quiz .feedback');
@@ -188,7 +218,17 @@ test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
   test('the picture holds still and the chapters still play through', async ({ page }) => {
     const w = tokensWalker(page, 'mouse', async p => {
-      await expect.poll(() => p.evaluate(() => document.querySelector('.stage')!.getAnimations({ subtree: true }).filter(a => a.playState === 'running').length)).toBe(0);
+      await expect
+        .poll(() =>
+          p.evaluate(
+            () =>
+              document
+                .querySelector('.stage')!
+                .getAnimations({ subtree: true })
+                .filter(a => a.playState === 'running').length,
+          ),
+        )
+        .toBe(0);
     });
     await walkAll(w, page);
   });
@@ -215,6 +255,12 @@ test.describe('phone', () => {
       await page.goto(p);
       await layoutHolds(page);
     }
-    await walkAll(tokensWalker(page, 'mouse', async p => { await layoutHolds(p); await axe(p); }), page);
+    await walkAll(
+      tokensWalker(page, 'mouse', async p => {
+        await layoutHolds(p);
+        await axe(p);
+      }),
+      page,
+    );
   });
 });

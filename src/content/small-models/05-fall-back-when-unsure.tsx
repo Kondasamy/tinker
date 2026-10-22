@@ -7,22 +7,40 @@ import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
-import { ALL_LARGE, frontier, questionText, route, run, SURE_AND_WRONG as FEATURED, THRESHOLDS } from '../../lib/small-models/router';
+import {
+  ALL_LARGE,
+  frontier,
+  questionText,
+  route,
+  run,
+  SURE_AND_WRONG as FEATURED,
+  THRESHOLDS,
+} from '../../lib/small-models/router';
 import { units } from '../../components/scenes/frontierChart';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { Fact, SmallStage, TierAnswer, type View } from './kit';
 
-const MODULE = 'small-models', ID = '05-fall-back-when-unsure';
-const POINTS = frontier(), LARGE = run(ALL_LARGE), TOP = THRESHOLDS.length - 1;
+const MODULE = 'small-models',
+  ID = '05-fall-back-when-unsure';
+const POINTS = frontier(),
+  LARGE = run(ALL_LARGE),
+  TOP = THRESHOLDS.length - 1;
 /** a saved index outside the list falls back to the start */
 export const thresholdAt = (i: number) => THRESHOLDS[i] ?? THRESHOLDS[0];
 
-interface S { p1: number | null; t: number; top: boolean; view: View; quiz: number | null }
+interface S {
+  p1: number | null;
+  t: number;
+  top: boolean;
+  view: View;
+  quiz: number | null;
+}
 
 export const P1 = {
-  question: 'Raise the threshold step by step, so more of the small tier’s answers go up to the large tier. What happens to right answers and to cost?',
+  question:
+    'Raise the threshold step by step, so more of the small tier’s answers go up to the large tier. What happens to right answers and to cost?',
   options: [
     'Both rise; at the top the router costs more than sending everything to the large tier',
     'Right answers rise and cost falls',
@@ -45,7 +63,8 @@ const QUIZ = {
     'It is held back and the customer gets nothing',
   ],
   correct: 0,
-  explanation: 'A confidence score is not a correctness check. Answers that are wrong and sure pass any threshold below their score; only an eval finds them.',
+  explanation:
+    'A confidence score is not a correctness check. Answers that are wrong and sure pass any threshold below their score; only an eval finds them.',
   why: [
     'Right. Above the threshold, an answer goes out as it is.',
     'The router never knows the right answer. It reads the score.',
@@ -56,18 +75,26 @@ const QUIZ = {
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'predict', focus: 'p1', visibleControls: ['about', 'p1'],
-    narration: 'The router asks the small tier first. Each small answer comes with a confidence score, and below the threshold the question goes up to the large tier, which answers it instead. Here the scores are stand-in numbers set by hand for this site, to show the trade-off; a real system computes them. Before you move the threshold:',
+    id: 'predict',
+    focus: 'p1',
+    visibleControls: ['about', 'p1'],
+    narration:
+      'The router asks the small tier first. Each small answer comes with a confidence score, and below the threshold the question goes up to the large tier, which answers it instead. Here the scores are stand-in numbers set by hand for this site, to show the trade-off; a real system computes them. Before you move the threshold:',
     predicate: s => s.p1 !== null,
   },
   {
-    id: 'slide', focus: 'slide', visibleControls: ['p1', 'slide'],
-    narration: 'Step the threshold from 0 up to 1 and watch the chart. An answer that goes up pays twice: for the small try, then for the large answer.',
+    id: 'slide',
+    focus: 'slide',
+    visibleControls: ['p1', 'slide'],
+    narration:
+      'Step the threshold from 0 up to 1 and watch the chart. An answer that goes up pays twice: for the small try, then for the large answer.',
     predicate: s => s.top,
     hint: 'Move the slider all the way to 1.',
   },
   {
-    id: 'quiz', focus: 'quiz', visibleControls: ['slide', 'read', 'quiz'],
+    id: 'quiz',
+    focus: 'quiz',
+    visibleControls: ['slide', 'read', 'quiz'],
     narration: `Right answers climb as unsure answers go up; cost climbs with them. At 1 every answer goes up, and the router costs ${units(run({ threshold: 1 }).cost)} for the same answers all-large gives for ${units(LARGE.cost)}. Somewhere between is a setting that keeps most of the answers for much less. These tiers and this frontier illustrate what the cascade and router papers below report; they were written for this site, not measured. Watch one answer, too: it is wrong and sure, so it stays small until the threshold passes its score. One question to finish.`,
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What does the router read: the score, or the answer’s truth?',
@@ -83,27 +110,49 @@ export default function FallBackWhenUnsure() {
       initial={{ p1: null, t: 0, top: false, view: 'chart', quiz: null }}
       next={nextOf(MODULE, ID)}
       stage={({ state, sync }) => {
-        const t = thresholdAt(state.t), r = run({ threshold: t }), f = route(FEATURED, { threshold: t });
+        const t = thresholdAt(state.t),
+          r = run({ threshold: t }),
+          f = route(FEATURED, { threshold: t });
         return (
-          <SmallStage view={state.view} onView={view => sync({ ...state, view })} show={() => ({
-            scene: { mode: 'route', route: f.escalated ? 'up' : 'small', threshold: t },
-            chart: { frontier: POINTS, at: `t${t}` },
-            caption: `Up below ${t}: ${r.right} of ${r.of} right, cost ${units(r.cost)}, ${r.up} sent up. “${questionText(FEATURED)}” ${f.escalated ? 'goes up' : 'stays small'}.`,
-          })} />
+          <SmallStage
+            view={state.view}
+            onView={view => sync({ ...state, view })}
+            show={() => ({
+              scene: { mode: 'route', route: f.escalated ? 'up' : 'small', threshold: t },
+              chart: { frontier: POINTS, at: `t${t}` },
+              caption: `Up below ${t}: ${r.right} of ${r.of} right, cost ${units(r.cost)}, ${r.up} sent up. “${questionText(FEATURED)}” ${f.escalated ? 'goes up' : 'stays small'}.`,
+            })}
+          />
         );
       }}
       controls={{
         about: () => <Fact id="cascade" />,
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         slide: ({ state, sync }) => {
-          const t = thresholdAt(state.t), r = run({ threshold: t });
+          const t = thresholdAt(state.t),
+            r = run({ threshold: t });
           return (
             <div className="sm-range">
-              <label htmlFor="sm-threshold"><strong>Send up below {t}</strong></label>
-              <input id="sm-threshold" type="range" min={0} max={TOP} step={1} value={THRESHOLDS.indexOf(t)}
+              <label htmlFor="sm-threshold">
+                <strong>Send up below {t}</strong>
+              </label>
+              <input
+                id="sm-threshold"
+                type="range"
+                min={0}
+                max={TOP}
+                step={1}
+                value={THRESHOLDS.indexOf(t)}
                 aria-valuetext={`${t}: ${r.right} of ${r.of} right, cost ${units(r.cost)}`}
-                onChange={e => { const i = Number(e.target.value); sync({ ...state, t: i, top: state.top || i === TOP, view: 'chart' }); }} />
-              <p className="tc-status" role="status" data-threshold={t}>{r.right} of {r.of} right · cost {units(r.cost)} · {r.up} sent up · all large: {LARGE.right} right, cost {units(LARGE.cost)}</p>
+                onChange={e => {
+                  const i = Number(e.target.value);
+                  sync({ ...state, t: i, top: state.top || i === TOP, view: 'chart' });
+                }}
+              />
+              <p className="tc-status" role="status" data-threshold={t}>
+                {r.right} of {r.of} right · cost {units(r.cost)} · {r.up} sent up · all large: {LARGE.right} right, cost{' '}
+                {units(LARGE.cost)}
+              </p>
             </div>
           );
         },
@@ -115,7 +164,13 @@ export default function FallBackWhenUnsure() {
           </>
         ),
         quiz: ({ state, apply, sync }) => (
-          <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
+          <Quiz
+            {...QUIZ}
+            unsure
+            value={state.quiz}
+            onAnswer={(_, q) => apply({ ...state, quiz: q })}
+            onUnsure={() => sync({ ...state, quiz: UNSURE })}
+          />
         ),
       }}
     />

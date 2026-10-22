@@ -1,5 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { completed, completedAt, markDone, loadChapter, saveChapter, lastModule, navMark } from '../../src/lib/progress';
+import {
+  completed,
+  completedAt,
+  markDone,
+  loadChapter,
+  saveChapter,
+  lastModule,
+  navMark,
+} from '../../src/lib/progress';
 
 const CH = [
   { id: 'one', unlocks: ['docs'] },
@@ -11,14 +19,29 @@ const CH = [
 // Persists across "reloads": progress.ts holds no in-memory state, so re-reading the store is a reload.
 function memoryStorage() {
   const m = new Map<string, string>();
-  return { getItem: (k: string) => m.get(k) ?? null, setItem: (k: string, v: string) => void m.set(k, v), removeItem: (k: string) => void m.delete(k) };
+  return {
+    getItem: (k: string) => m.get(k) ?? null,
+    setItem: (k: string, v: string) => void m.set(k, v),
+    removeItem: (k: string) => void m.delete(k),
+  };
 }
-const throwing = new Proxy({}, { get() { throw new Error('SecurityError'); } });
+const throwing = new Proxy(
+  {},
+  {
+    get() {
+      throw new Error('SecurityError');
+    },
+  },
+);
 
-afterEach(() => { delete (globalThis as { localStorage?: unknown }).localStorage; });
+afterEach(() => {
+  delete (globalThis as { localStorage?: unknown }).localStorage;
+});
 
 describe('progress with storage', () => {
-  beforeEach(() => { (globalThis as { localStorage?: unknown }).localStorage = memoryStorage(); });
+  beforeEach(() => {
+    (globalThis as { localStorage?: unknown }).localStorage = memoryStorage();
+  });
 
   it('survives reload', () => {
     markDone('rag', 'one');
@@ -49,7 +72,10 @@ describe('progress with storage', () => {
   });
 
   it('reads a record saved before `at` and `recall` existed', () => {
-    localStorage.setItem('rag-progress-v1', JSON.stringify({ done: ['01-history', '02-why-not-stuff-it'], saved: { '03-what-is-rag': { index: 3 } } }));
+    localStorage.setItem(
+      'rag-progress-v1',
+      JSON.stringify({ done: ['01-history', '02-why-not-stuff-it'], saved: { '03-what-is-rag': { index: 3 } } }),
+    );
     expect(completed('rag')).toEqual(['01-history', '02-why-not-stuff-it']);
     expect(loadChapter('rag', '03-what-is-rag')).toEqual({ index: 3 });
     expect(completedAt('rag')).toEqual({});
@@ -81,7 +107,10 @@ describe('progress without storage', () => {
 
   it('works when localStorage throws, and saves nothing', () => {
     (globalThis as { localStorage?: unknown }).localStorage = throwing;
-    expect(() => { markDone('rag', 'one'); saveChapter('rag', 'two', { k: 1 }); }).not.toThrow();
+    expect(() => {
+      markDone('rag', 'one');
+      saveChapter('rag', 'two', { k: 1 });
+    }).not.toThrow();
     expect(completed('rag')).toEqual([]);
     expect(completedAt('rag')).toEqual({});
     expect(loadChapter('rag', 'two')).toBeUndefined();

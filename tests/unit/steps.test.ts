@@ -1,19 +1,36 @@
 import { describe, it, expect } from 'vitest';
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
-import { reduce, startRun, isRun, HINT_AFTER, type Step, type Run, type Action } from '../../src/components/story/steps';
+import {
+  reduce,
+  startRun,
+  isRun,
+  HINT_AFTER,
+  type Step,
+  type Run,
+  type Action,
+} from '../../src/components/story/steps';
 import StepRunner from '../../src/components/story/StepRunner';
 import Quiz from '../../src/components/quiz/Quiz';
 import { puzzle } from '../../src/components/quiz/Puzzle';
 import Predict, { Reveal } from '../../src/components/quiz/Predict';
 import { UNSURE } from '../../src/lib/recall';
 
-interface S { k: number; overlap: number }
+interface S {
+  k: number;
+  overlap: number;
+}
 const STEPS: Step<S>[] = [
   { id: 'a', narration: 'Set k to 3', focus: 'k', visibleControls: ['k'], predicate: s => s.k === 3, hint: 'Three.' },
   puzzle<S>({
-    id: 'b', narration: 'Fix the split', focus: 'overlap', visibleControls: ['overlap'], opensDrawer: 'chunks',
-    broken: s => ({ ...s, overlap: 0 }), verdict: s => s.overlap >= 25, solution: s => ({ ...s, overlap: 25 }),
+    id: 'b',
+    narration: 'Fix the split',
+    focus: 'overlap',
+    visibleControls: ['overlap'],
+    opensDrawer: 'chunks',
+    broken: s => ({ ...s, overlap: 0 }),
+    verdict: s => s.overlap >= 25,
+    solution: s => ({ ...s, overlap: 25 }),
   }),
 ];
 const run = (actions: Action<S>[], start: Run<S> = startRun(STEPS, { k: 1, overlap: 10 })) =>
@@ -55,7 +72,7 @@ describe('step machine', () => {
   it("Reset restores the step's starting (broken) canvas", () => {
     const r = run([apply({ k: 3, overlap: 10 }), apply({ k: 3, overlap: 10 }), { type: 'reset' }]);
     expect(r.index).toBe(1);
-    expect(r.state).toEqual({ k: 3, overlap: 0 });   // puzzle setup broke it on entry
+    expect(r.state).toEqual({ k: 3, overlap: 0 }); // puzzle setup broke it on entry
     expect(r.fails).toBe(0);
   });
 
@@ -80,7 +97,10 @@ describe('step machine', () => {
 
   it('a step with opensDrawer null closes an open drawer on entry', () => {
     const steps: Step<S>[] = [STEPS[0], { ...STEPS[1], opensDrawer: null }];
-    const r = [{ type: 'inspect', panel: 'answer' }, apply({ k: 3, overlap: 10 })].reduce((r, a) => reduce(steps, r, a as Action<S>), startRun(steps, { k: 1, overlap: 10 }));
+    const r = [{ type: 'inspect', panel: 'answer' }, apply({ k: 3, overlap: 10 })].reduce(
+      (r, a) => reduce(steps, r, a as Action<S>),
+      startRun(steps, { k: 1, overlap: 10 }),
+    );
     expect(r.index).toBe(1);
     expect(r.drawer).toBeNull();
   });
@@ -93,7 +113,7 @@ describe('step machine', () => {
 
 describe('restoring a saved run (KTD4)', () => {
   const saved = run([apply({ k: 3, overlap: 10 })]);
-  const { ids: _, ...unsigned } = saved;   // a run saved before runs carried their step ids
+  const { ids: _, ...unsigned } = saved; // a run saved before runs carried their step ids
 
   it('signs a run with its ordered step ids', () => {
     expect(saved.ids).toEqual(['a', 'b']);
@@ -117,16 +137,24 @@ describe('restoring a saved run (KTD4)', () => {
     expect(isRun(STEPS, unsigned)).toBe(false);
     expect(isRun(STEPS, unsigned, ['a', 'b'])).toBe(true);
     expect(isRun(STEPS, unsigned, ['a', 'old', 'b'])).toBe(false);
-    expect(isRun(STEPS, saved, ['x', 'y'])).toBe(true);   // a signed run ignores the legacy signature
+    expect(isRun(STEPS, saved, ['x', 'y'])).toBe(true); // a signed run ignores the legacy signature
   });
 });
 
 describe('StepRunner', () => {
-  const html = () => renderToString(createElement(StepRunner<S>, {
-    chapter: 'x', steps: STEPS, initial: { k: 1, overlap: 10 },
-    stage: () => createElement('div', null, 'stage'),
-    controls: { k: () => createElement('input', { 'aria-label': 'top-k' }), overlap: () => createElement('input', { 'aria-label': 'overlap' }) },
-  }));
+  const html = () =>
+    renderToString(
+      createElement(StepRunner<S>, {
+        chapter: 'x',
+        steps: STEPS,
+        initial: { k: 1, overlap: 10 },
+        stage: () => createElement('div', null, 'stage'),
+        controls: {
+          k: () => createElement('input', { 'aria-label': 'top-k' }),
+          overlap: () => createElement('input', { 'aria-label': 'overlap' }),
+        },
+      }),
+    );
 
   it('renders only the controls named by the current step', () => {
     expect(html()).toContain('aria-label="top-k"');
@@ -177,15 +205,21 @@ describe('Predict', () => {
     expect(h).not.toMatch(/RIGHT|NOT QUITE/);
   });
   it('the reveal compares the prediction with what happened', () => {
-    expect(renderToString(createElement(Reveal, { prediction: 'y', outcome: 'x', revealed: false, onReveal: () => {} }))).not.toContain('What happened');
-    const h = renderToString(createElement(Reveal, { prediction: 'y', outcome: 'x', revealed: true, onReveal: () => {} }));
+    expect(
+      renderToString(createElement(Reveal, { prediction: 'y', outcome: 'x', revealed: false, onReveal: () => {} })),
+    ).not.toContain('What happened');
+    const h = renderToString(
+      createElement(Reveal, { prediction: 'y', outcome: 'x', revealed: true, onReveal: () => {} }),
+    );
     expect(h).toContain('What happened');
     expect(h).toContain('NOT WHAT YOU PREDICTED');
   });
 });
 
 describe('“not sure” through sync', () => {
-  interface Q { quiz: number | null }
+  interface Q {
+    quiz: number | null;
+  }
   const QS: Step<Q>[] = [
     { id: 'q', narration: 'Answer', visibleControls: ['quiz'], predicate: s => s.quiz === 1 || s.quiz === UNSURE },
     { id: 'after', narration: 'Next', visibleControls: [], predicate: () => false },
@@ -195,6 +229,10 @@ describe('“not sure” through sync', () => {
     expect(missed.fails).toBe(1);
     const r = reduce(QS, missed, { type: 'sync', state: { quiz: UNSURE } });
     expect(r).toMatchObject({ index: 1 });
-    expect(reduce(QS, startRun(QS, { quiz: null }), { type: 'sync', state: { quiz: UNSURE } })).toMatchObject({ index: 1, fails: 0, hint: false });
+    expect(reduce(QS, startRun(QS, { quiz: null }), { type: 'sync', state: { quiz: UNSURE } })).toMatchObject({
+      index: 1,
+      fails: 0,
+      hint: false,
+    });
   });
 });

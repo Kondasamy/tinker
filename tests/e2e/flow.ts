@@ -8,7 +8,13 @@ export type Mode = 'mouse' | 'keyboard';
 export async function walkModule(page: Page, mode: Mode, check: (page: Page) => Promise<void> = async () => {}) {
   const kb = mode === 'keyboard';
   const press = (l: Locator) => (kb ? l.press('Enter') : l.click());
-  const tick = async (l: Locator) => { if (kb) { await l.focus(); await l.press('Space'); await expect(l).toBeChecked(); } else await l.check(); };
+  const tick = async (l: Locator) => {
+    if (kb) {
+      await l.focus();
+      await l.press('Space');
+      await expect(l).toBeChecked();
+    } else await l.check();
+  };
   const slide = async (l: Locator, v: string) => {
     if (!kb) return l.fill(v);
     // read once: reaching the value can complete the step and remove the slider
@@ -17,7 +23,7 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
   };
   const card = page.getByRole('region', { name: 'Next step' });
   const btn = (name: string | RegExp) => press(card.getByRole('button', { name }));
-  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name }));   // a quiz option
+  const opt = (name: string | RegExp) => press(card.getByRole('radio', { name })); // a quiz option
   const step = (n: number) => expect(card).toContainText(`Step ${n} of`);
   const showMe = () => btn('Show me');
 
@@ -37,12 +43,15 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
 
   // 1. History
   await btn(/^Ask/);
-  for (let i = 0; i < 4; i++) { await step(i + 2); await press(page.locator(`[data-era="${i}"]`)); }
+  for (let i = 0; i < 4; i++) {
+    await step(i + 2);
+    await press(page.locator(`[data-era="${i}"]`));
+  }
   await opt(/did not fit/);
   await next(/02-why-not-stuff-it/);
 
   // 2. Why not stuff it
-  await opt(/a real drive overflows it/);         // the prediction
+  await opt(/a real drive overflows it/); // the prediction
   await btn(/^Ask/);
   const slider = card.getByRole('slider');
   await slide(slider, '7');
@@ -75,7 +84,11 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
 
   // 5. Accuracy: every puzzle by Show me
   const nextPuzzle = () => btn('Next puzzle →');
-  const solve = async (n: number) => { await step(n); await showMe(); await step(n + 1); };
+  const solve = async (n: number) => {
+    await step(n);
+    await showMe();
+    await step(n + 1);
+  };
   await btn(/^Ask/);
   await btn('Add the Evaluator');
   await opt(/Only recall/);
@@ -103,7 +116,7 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
   await pick('Can enterprise customers get a refund?');
   await run();
   await step(3);
-  await showMe();                                   // attach the agent
+  await showMe(); // attach the agent
   await step(4);
   await run();
   await step(5);
@@ -118,7 +131,7 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
   await pick('Agentic');
   await run();
   await step(8);
-  await showMe();                                   // attach the graph
+  await showMe(); // attach the graph
   await run();
   await step(10);
   const hops = card.getByLabel(/Hops from the question/);
@@ -128,10 +141,10 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
   await opt(/chains facts across documents/);
   await step(12);
   await run();
-  await showMe();                                   // self-correcting
+  await showMe(); // self-correcting
   await step(14);
   await run();
-  await showMe();                                   // multimodal
+  await showMe(); // multimodal
   await step(16);
   await run();
   await pick('Parse tables to text');
@@ -160,7 +173,10 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
   await expect(closing.getByRole('heading', { name: 'Module complete' })).toBeFocused();
   await expect(closing).toBeInViewport();
   await check(page);
-  await expect(card.getByRole('link', { name: 'Recap: what do you remember? →' })).toHaveAttribute('href', '/rag/recap/');
+  await expect(card.getByRole('link', { name: 'Recap: what do you remember? →' })).toHaveAttribute(
+    'href',
+    '/rag/recap/',
+  );
   const nav = page.getByRole('navigation', { name: 'Chapters' });
   for (const id of ['01-history', '02-why-not-stuff-it', '03-what-is-rag', '04-layers', '05-accuracy', '06-types'])
     await expect(nav.locator(`[data-chapter="${id}"]`)).toHaveAttribute('data-mark', 'done');

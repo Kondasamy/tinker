@@ -21,24 +21,38 @@ setModelFiles(async f => {
 await loadModel('base');
 await loadModel('student').catch(() => {});
 
-const cont = serve(OPEN, { mode: 'continuous', cap: 8, kvRoomGB: 14 }), stat = serve(OPEN, { mode: 'static', cap: 8, kvRoomGB: 14 });
+const cont = serve(OPEN, { mode: 'continuous', cap: 8, kvRoomGB: 14 }),
+  stat = serve(OPEN, { mode: 'static', cap: 8, kvRoomGB: 14 });
 const tight = serve(OPEN, { mode: 'continuous', cap: 16, kvRoomGB: 4 });
 const STATES: [string, ServeOpts][] = [
   ['Idle: one seat, nothing waiting', { seats: ['empty'], queued: 0, kv: 0 }],
-  ['One request: prefill', { seats: ['prefill'], queued: 0, kv: .05 }],
+  ['One request: prefill', { seats: ['prefill'], queued: 0, kv: 0.05 }],
   ['Continuous, cap 8: the busiest iteration', floorAt(cont)],
   ['Static, cap 8: the busiest iteration', floorAt(stat)],
   ['Cap 16, 4 GB: memory full, a queue', floorAt(tight)],
-  ['Speculative: 2 of 3 guesses kept', { seats: ['decode'], queued: 0, kv: .02, draft: { drafted: 3, accepted: 2 } }],
+  ['Speculative: 2 of 3 guesses kept', { seats: ['decode'], queued: 0, kv: 0.02, draft: { drafted: 3, accepted: 2 } }],
 ];
-const shown = (caption: string, scene: Shown['scene'], result?: Shown['result']) => (): Shown => ({ scene, result, caption });
+const shown = (caption: string, scene: Shown['scene'], result?: Shown['result']) => (): Shown => ({
+  scene,
+  result,
+  caption,
+});
 // The stages are drawn here, then the loaders go back to fetching: pages build one after another in one process, and the
 // loaded and failed models would otherwise leak into the real chapter pages rendered after this one.
 const STAGES = [
   ['Failed (student): Retry', { weights: ['base', 'student'], show: shown('Speculative', STATES[5][1]) }],
   ['Loaded (base): Picture', { weights: ['base'], show: shown('One request', STATES[1][1]) }],
-  ['No model: Timeline', { view: 'timeline', show: shown('<script>alert(1)</script> escaped caption', floorAt(cont), cont) }],
-].map(([title, props]) => [title, renderToStaticMarkup(createElement(InferenceStage, props as Parameters<typeof InferenceStage>[0]))] as const);
+  [
+    'No model: Timeline',
+    { view: 'timeline', show: shown('<script>alert(1)</script> escaped caption', floorAt(cont), cont) },
+  ],
+].map(
+  ([title, props]) =>
+    [
+      title,
+      renderToStaticMarkup(createElement(InferenceStage, props as Parameters<typeof InferenceStage>[0])),
+    ] as const,
+);
 setModelFiles(fetchLoader('/data/lm/'));
 ---
 <html lang="en">

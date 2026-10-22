@@ -7,12 +7,20 @@ import { CAPS, MEMORY, MODES, OPEN, serve, type Result, type Served, type Settin
 
 export const TARGETS = { ttftMs: data.ttftMs, tpotMs: data.tpotMs };
 
-export interface Verdict { id: string; ok: boolean; ttftOk: boolean; tpotOk: boolean; served: Served }
+export interface Verdict {
+  id: string;
+  ok: boolean;
+  ttftOk: boolean;
+  tpotOk: boolean;
+  served: Served;
+}
 /** Each request against the targets. */
-export const verdicts = (r: Result): Verdict[] => r.served.map(s => {
-  const ttftOk = s.ttft <= TARGETS.ttftMs, tpotOk = s.tpot <= TARGETS.tpotMs;
-  return { id: s.id, ok: ttftOk && tpotOk, ttftOk, tpotOk, served: s };
-});
+export const verdicts = (r: Result): Verdict[] =>
+  r.served.map(s => {
+    const ttftOk = s.ttft <= TARGETS.ttftMs,
+      tpotOk = s.tpot <= TARGETS.tpotMs;
+    return { id: s.id, ok: ttftOk && tpotOk, ttftOk, tpotOk, served: s };
+  });
 
 const runs = new Map<string, Result>();
 /** One policy's run, computed once. */
@@ -24,7 +32,9 @@ export function runOf(p: Settings): Result {
 export const scoreOf = (p: Settings) => verdicts(runOf(p)).filter(v => v.ok).length;
 
 /** Every policy the controls can make. */
-export const POLICIES: Settings[] = MODES.flatMap(mode => CAPS.flatMap(cap => MEMORY.map(kvRoomGB => ({ mode, cap, kvRoomGB }))));
+export const POLICIES: Settings[] = MODES.flatMap(mode =>
+  CAPS.flatMap(cap => MEMORY.map(kvRoomGB => ({ mode, cap, kvRoomGB }))),
+);
 export const BEST = Math.max(...POLICIES.map(scoreOf));
 export const WINNERS = POLICIES.filter(p => scoreOf(p) === BEST);
 export const wins = (p: Settings) => scoreOf(p) === BEST;

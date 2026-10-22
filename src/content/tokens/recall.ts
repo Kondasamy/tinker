@@ -7,8 +7,11 @@ import { BYTE_TOKENS } from '../../lib/lm/bpe-train.ts';
 export const RECALL: RecallItem[] = [
   // 1. What the model reads
   {
-    id: 'model-reads-tokens', chapter: '01-what-the-model-reads', pin: true,   // the module's single most important idea: exactly one pin
-    question: 'A support lead asks why the assistant’s limits are given in “tokens” rather than words. What is a token?',
+    id: 'model-reads-tokens',
+    chapter: '01-what-the-model-reads',
+    pin: true, // the module's single most important idea: exactly one pin
+    question:
+      'A support lead asks why the assistant’s limits are given in “tokens” rather than words. What is a token?',
     options: [
       'Another name for a word',
       'A piece of text the tokenizer cut out, a whole word or part of one, given a number; the model reads only those numbers',
@@ -24,8 +27,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'same-length-different-count', chapter: '01-what-the-model-reads',
-    question: 'Two customer messages have the same number of words. One is plain English; the other is full of part numbers like “KX-4471B”. Which takes more tokens?',
+    id: 'same-length-different-count',
+    chapter: '01-what-the-model-reads',
+    question:
+      'Two customer messages have the same number of words. One is plain English; the other is full of part numbers like “KX-4471B”. Which takes more tokens?',
     options: [
       'They take the same: same words, same tokens',
       'The plain English one, because its words are longer',
@@ -41,8 +46,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'what-the-model-gets', chapter: '01-what-the-model-reads',
-    question: 'An engineer says: “The model reads the customer’s email just like we do, letter by letter.” What does the model really receive?',
+    id: 'what-the-model-gets',
+    chapter: '01-what-the-model-reads',
+    question:
+      'An engineer says: “The model reads the customer’s email just like we do, letter by letter.” What does the model really receive?',
     options: [
       'The email’s letters, one at a time',
       'A list of token ids, numbers the tokenizer made from the text',
@@ -59,8 +66,10 @@ export const RECALL: RecallItem[] = [
   },
   // 2. How the vocabulary is learned
   {
-    id: 'merges-from-training', chapter: '02-how-the-vocabulary-is-learned',
-    question: 'A tokenizer was trained mostly on English web pages. Larkspur sends it a German supplier contract. Why might the contract take more tokens than an English one of the same length?',
+    id: 'merges-from-training',
+    chapter: '02-how-the-vocabulary-is-learned',
+    question:
+      'A tokenizer was trained mostly on English web pages. Larkspur sends it a German supplier contract. Why might the contract take more tokens than an English one of the same length?',
     options: [
       'German is a harder language for computers',
       'The merges were learned from the training text, so common German pieces were seldom glued together and the text stays in smaller pieces',
@@ -76,8 +85,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'no-unknown-text', chapter: '02-how-the-vocabulary-is-learned',
-    question: 'A customer’s email contains an emoji the tokenizer has never seen. What does a byte-level tokenizer do with it?',
+    id: 'no-unknown-text',
+    chapter: '02-how-the-vocabulary-is-learned',
+    question:
+      'A customer’s email contains an emoji the tokenizer has never seen. What does a byte-level tokenizer do with it?',
     options: [
       'It drops the emoji, because it isn’t in the vocabulary',
       'It cuts the emoji into its bytes, each a token, so nothing is lost',
@@ -93,8 +104,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'merge-order', chapter: '02-how-the-vocabulary-is-learned',
-    question: 'In a short note, the pair “e” + “d” appears ten times and “t” + “h” appears twice. Which does the tokenizer merge first?',
+    id: 'merge-order',
+    chapter: '02-how-the-vocabulary-is-learned',
+    question:
+      'In a short note, the pair “e” + “d” appears ten times and “t” + “h” appears twice. Which does the tokenizer merge first?',
     options: [
       '“e” + “d”, because it appears more often in this note',
       'Whichever came earlier in the list of merges learned during training, however often it appears here',
@@ -111,8 +124,10 @@ export const RECALL: RecallItem[] = [
   },
   // 3. Tokens are the meter
   {
-    id: 'bill-follows-tokenizer', chapter: '03-tokens-are-the-meter',
-    question: 'Two providers charge the same price per million input tokens. Larkspur sends both the same product catalogue. Will the two bills be the same?',
+    id: 'bill-follows-tokenizer',
+    chapter: '03-tokens-are-the-meter',
+    question:
+      'Two providers charge the same price per million input tokens. Larkspur sends both the same product catalogue. Will the two bills be the same?',
     options: [
       'Yes: same price, same text, same bill',
       'Not necessarily: each counts tokens with its own tokenizer, and the counts can differ',
@@ -128,7 +143,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'rule-of-thumb', chapter: '03-tokens-are-the-meter',
+    id: 'rule-of-thumb',
+    chapter: '03-tokens-are-the-meter',
     question: 'A product manager plans a budget with “1 token ≈ 4 characters”. When is that good enough?',
     options: [
       'Always: it is how tokenizers are built',
@@ -145,8 +161,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'in-sample', chapter: '03-tokens-are-the-meter',
-    question: 'A team trains a small tokenizer on its own documents, then reports how few tokens those same documents take. What is wrong with quoting that number?',
+    id: 'in-sample',
+    chapter: '03-tokens-are-the-meter',
+    question:
+      'A team trains a small tokenizer on its own documents, then reports how few tokens those same documents take. What is wrong with quoting that number?',
     options: [
       'Nothing: it is the true count',
       'It is in-sample: counted on the text it learned from, so it says little about new text',
@@ -163,8 +181,10 @@ export const RECALL: RecallItem[] = [
   },
   // 4. Every tokenizer splits differently
   {
-    id: 'language-token-tax', chapter: '04-every-tokenizer-splits-differently',
-    question: 'Larkspur’s assistant answers customers in English and in Hindi. The Hindi replies cost far more per message, though they say the same thing. Why?',
+    id: 'language-token-tax',
+    chapter: '04-every-tokenizer-splits-differently',
+    question:
+      'Larkspur’s assistant answers customers in English and in Hindi. The Hindi replies cost far more per message, though they say the same thing. Why?',
     options: [
       'Hindi messages are always longer in meaning',
       'The tokenizer learned fewer merges for Hindi, so the same message is cut into many more, smaller pieces',
@@ -180,8 +200,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'leading-space', chapter: '04-every-tokenizer-splits-differently',
-    question: 'A developer notices that “shelf” at the start of a prompt and “ shelf” after a space come out as different tokens. Is the tokenizer broken?',
+    id: 'leading-space',
+    chapter: '04-every-tokenizer-splits-differently',
+    question:
+      'A developer notices that “shelf” at the start of a prompt and “ shelf” after a space come out as different tokens. Is the tokenizer broken?',
     options: [
       'Yes: the same word should always be the same token',
       'No: most words follow a space, so tokenizers learn the word with its space glued on, and the bare word is a different, rarer piece',
@@ -197,8 +219,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'numbers-split', chapter: '04-every-tokenizer-splits-differently',
-    question: 'An analyst sees a five-digit order number cut into a three-digit piece and a two-digit piece. What does that tell them?',
+    id: 'numbers-split',
+    chapter: '04-every-tokenizer-splits-differently',
+    question:
+      'An analyst sees a five-digit order number cut into a three-digit piece and a two-digit piece. What does that tell them?',
     options: [
       'The model reads the number digit by digit, like a calculator',
       'Numbers are cut wherever the vocabulary has pieces, not at meaningful places, and each tokenizer cuts them differently',
@@ -215,7 +239,8 @@ export const RECALL: RecallItem[] = [
   },
   // 5. From token to vector
   {
-    id: 'embedding-is', chapter: '05-from-token-to-vector',
+    id: 'embedding-is',
+    chapter: '05-from-token-to-vector',
     question: 'A product manager asks what an “embedding” of a support article is. What do you say?',
     options: [
       'The article’s token ids, in order',
@@ -232,8 +257,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'ids-not-meaning', chapter: '05-from-token-to-vector',
-    question: 'Token 500 and token 501 sit next to each other in the vocabulary. What does that say about their meanings?',
+    id: 'ids-not-meaning',
+    chapter: '05-from-token-to-vector',
+    question:
+      'Token 500 and token 501 sit next to each other in the vocabulary. What does that say about their meanings?',
     options: [
       'They mean nearly the same thing',
       'Nothing: an id is only a position in the tokenizer’s list',
@@ -249,8 +276,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'map-bends', chapter: '05-from-token-to-vector',
-    question: 'On RAG’s 2D map of meaning, one dot looks closer to the question than another, but scores a lower similarity. Which do you trust?',
+    id: 'map-bends',
+    chapter: '05-from-token-to-vector',
+    question:
+      'On RAG’s 2D map of meaning, one dot looks closer to the question than another, but scores a lower similarity. Which do you trust?',
     options: [
       'The map: what you see is what search uses',
       'The similarity score: the map squeezes hundreds of numbers onto two, which bends distances',
@@ -267,8 +296,10 @@ export const RECALL: RecallItem[] = [
   },
   // 6. Meaning by neighbours
   {
-    id: 'cosine-meaning', chapter: '06-meaning-by-neighbours',
-    question: 'Two pieces: one shares five words with a customer’s question, the other shares two but answers it. Which will an embedding search rank higher?',
+    id: 'cosine-meaning',
+    chapter: '06-meaning-by-neighbours',
+    question:
+      'Two pieces: one shares five words with a customer’s question, the other shares two but answers it. Which will an embedding search rank higher?',
     options: [
       'The one sharing five words: more words in common, higher score',
       'Usually the one that answers it: cosine similarity compares meaning, not shared words',
@@ -284,7 +315,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'nearest-neighbours', chapter: '06-meaning-by-neighbours',
+    id: 'nearest-neighbours',
+    chapter: '06-meaning-by-neighbours',
     question: 'What are a question’s “nearest neighbours” in RAG’s search?',
     options: [
       'The pieces next to each other in the same document',
@@ -301,7 +333,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'cosine-range', chapter: '06-meaning-by-neighbours',
+    id: 'cosine-range',
+    chapter: '06-meaning-by-neighbours',
     question: 'A piece scores a cosine similarity of 1 with a question. What does that mean?',
     options: [
       'It is the first piece in the index',
@@ -319,7 +352,8 @@ export const RECALL: RecallItem[] = [
   },
   // 7. Workbench
   {
-    id: 'budget-parts', chapter: '07-workbench',
+    id: 'budget-parts',
+    chapter: '07-workbench',
     question: 'Larkspur’s prompt is over its token budget. Which part should go first?',
     options: [
       'The customer’s question: it is the shortest',
@@ -336,8 +370,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'parts-add-up', chapter: '07-workbench',
-    question: 'A teammate adds up each part’s token count separately to get the prompt’s total. Why can the real total differ a little?',
+    id: 'parts-add-up',
+    chapter: '07-workbench',
+    question:
+      'A teammate adds up each part’s token count separately to get the prompt’s total. Why can the real total differ a little?',
     options: [
       'It can’t: tokens always add up exactly',
       'Joining the parts adds text, such as the blank lines between them, and pieces can form across the joins, so count the assembled prompt',
@@ -353,8 +389,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'count-with-billing-tokenizer', chapter: '07-workbench',
-    question: 'The prompt fits the budget on one tokenizer. The team switches provider. What should they do before going live?',
+    id: 'count-with-billing-tokenizer',
+    chapter: '07-workbench',
+    question:
+      'The prompt fits the budget on one tokenizer. The team switches provider. What should they do before going live?',
     options: [
       'Nothing: the prompt hasn’t changed',
       'Recount the prompt with the new provider’s tokenizer and leave a margin',

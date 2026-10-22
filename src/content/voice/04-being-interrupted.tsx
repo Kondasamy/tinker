@@ -12,16 +12,30 @@ import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { Fact, RecordedNote, Say, Toggle, Transcript, VoiceStage, segmentsOf, type View } from './kit';
 
-const MODULE = 'voice', ID = '04-being-interrupted';
+const MODULE = 'voice',
+  ID = '04-being-interrupted';
 const BASE = { ...DEFAULT_LINE, streaming: true, silence: 800 as const };
 const runOf = (point: Point, bargeIn: boolean) => runCall('slots', { ...BASE, point, bargeIn });
-const REPLY = 'slots-reply', PARTS = lineOf(REPLY).parts;
+const REPLY = 'slots-reply',
+  PARTS = lineOf(REPLY).parts;
 
-interface S { asked: boolean; point: Point | null; p1: number | null; bargeIn: boolean; view: View; quiz: number | null }
+interface S {
+  asked: boolean;
+  point: Point | null;
+  p1: number | null;
+  bargeIn: boolean;
+  view: View;
+  quiz: number | null;
+}
 
 const P1 = {
-  question: 'Turn barge-in on: the line stops speaking as soon as Dana starts. What should the model’s history say the assistant said?',
-  options: ['The whole reply, as the model wrote it', 'Only the part spoken before Dana cut in', 'Nothing: an interrupted reply doesn’t count'],
+  question:
+    'Turn barge-in on: the line stops speaking as soon as Dana starts. What should the model’s history say the assistant said?',
+  options: [
+    'The whole reply, as the model wrote it',
+    'Only the part spoken before Dana cut in',
+    'Nothing: an interrupted reply doesn’t count',
+  ],
 };
 /** read off the recording: how much of the reply the history keeps */
 export const outcome = (p: Point) => {
@@ -30,7 +44,8 @@ export const outcome = (p: Point) => {
 };
 
 const QUIZ = {
-  question: 'A cinema’s phone assistant is cut off while listing showtimes, after “six fifteen”. Its history still holds all four times it wrote. What goes wrong next?',
+  question:
+    'A cinema’s phone assistant is cut off while listing showtimes, after “six fifteen”. Its history still holds all four times it wrote. What goes wrong next?',
   options: [
     'Nothing: the model has the full list',
     'The model may refer to times the caller never heard',
@@ -49,28 +64,42 @@ const where = (p: Point) => `During “${PARTS[partOf(p)].text.replace(/,$/, '')
 
 export const STEPS: Step<S>[] = [
   {
-    id: 'ask', focus: 'ask', visibleControls: ['ask'],
-    narration: 'Dana from Hollis Hardware wants a delivery slot. The assistant reads the slots out one by one, and partway through she remembers something. Let her ask.',
+    id: 'ask',
+    focus: 'ask',
+    visibleControls: ['ask'],
+    narration:
+      'Dana from Hollis Hardware wants a delivery slot. The assistant reads the slots out one by one, and partway through she remembers something. Let her ask.',
     predicate: s => s.asked,
   },
   {
-    id: 'point', focus: 'point', visibleControls: ['reply', 'point'],
-    narration: 'This is the reply the model wrote. Pick the moment Dana cuts in with “Sorry, we’re closed on Tuesdays.” You don’t need the sound for this. For now the line has no barge-in: it keeps talking, and it isn’t listening while it talks.',
+    id: 'point',
+    focus: 'point',
+    visibleControls: ['reply', 'point'],
+    narration:
+      'This is the reply the model wrote. Pick the moment Dana cuts in with “Sorry, we’re closed on Tuesdays.” You don’t need the sound for this. For now the line has no barge-in: it keeps talking, and it isn’t listening while it talks.',
     predicate: s => s.point !== null,
   },
   {
-    id: 'predict', focus: 'p1', visibleControls: ['talkedOver', 'p1'],
-    narration: 'Dana’s words never reached the model, so it offers the slot she just ruled out, and she has to say it again. Barge-in is the caller speaking over the assistant and the line stopping to listen. The model’s next turn reads the history, the conversation so far. Before you turn barge-in on:',
+    id: 'predict',
+    focus: 'p1',
+    visibleControls: ['talkedOver', 'p1'],
+    narration:
+      'Dana’s words never reached the model, so it offers the slot she just ruled out, and she has to say it again. Barge-in is the caller speaking over the assistant and the line stopping to listen. The model’s next turn reads the history, the conversation so far. Before you turn barge-in on:',
     predicate: s => s.p1 !== null,
   },
   {
-    id: 'bargein', focus: 'bargein', visibleControls: ['p1', 'bargein'],
+    id: 'bargein',
+    focus: 'bargein',
+    visibleControls: ['p1', 'bargein'],
     narration: 'Turn barge-in on, then compare where Dana cuts in.',
     predicate: s => s.bargeIn,
   },
   {
-    id: 'quiz', focus: 'quiz', visibleControls: ['outcome', 'quiz'],
-    narration: 'The line stopped when Dana spoke, heard her, and its history keeps only what was said before she cut in, so the next reply offers the slots she never heard. Live voice APIs do the same:',
+    id: 'quiz',
+    focus: 'quiz',
+    visibleControls: ['outcome', 'quiz'],
+    narration:
+      'The line stopped when Dana spoke, heard her, and its history keeps only what was said before she cut in, so the next reply offers the slots she never heard. Live voice APIs do the same:',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What does the model believe the caller heard?',
   },
@@ -87,30 +116,74 @@ export default function BeingInterrupted() {
       stage={({ state, sync, focus }) => {
         const r = state.point ? runOf(state.point, state.bargeIn) : null;
         return (
-          <VoiceStage step={focus} view={state.view} onView={view => sync({ ...state, view })} shown={{
-            phone: !state.asked ? { stage: 'idle' } : r ? { stage: 'reply', interrupt: true, stopped: state.bargeIn } : { stage: 'reply' },
-            timeline: r ? segmentsOf(r, state.point!) : undefined,
-            caption: !state.asked ? 'The phone desk, waiting for Dana.' : !r ? 'The assistant reads the slots out.'
-              : state.bargeIn ? `Barge-in on: the line stops when Dana speaks, and keeps “${textOf(REPLY, partOf(state.point!))} —”.`
-                : 'No barge-in: the reply plays on over Dana, and her words are lost.',
-          }} />
+          <VoiceStage
+            step={focus}
+            view={state.view}
+            onView={view => sync({ ...state, view })}
+            shown={{
+              phone: !state.asked
+                ? { stage: 'idle' }
+                : r
+                  ? { stage: 'reply', interrupt: true, stopped: state.bargeIn }
+                  : { stage: 'reply' },
+              timeline: r ? segmentsOf(r, state.point!) : undefined,
+              caption: !state.asked
+                ? 'The phone desk, waiting for Dana.'
+                : !r
+                  ? 'The assistant reads the slots out.'
+                  : state.bargeIn
+                    ? `Barge-in on: the line stops when Dana speaks, and keeps “${textOf(REPLY, partOf(state.point!))} —”.`
+                    : 'No barge-in: the reply plays on over Dana, and her words are lost.',
+            }}
+          />
         );
       }}
       controls={{
-        ask: ({ state, sync }) => <button type="button" className="big" onClick={() => sync({ ...state, asked: true })}>Dana asks for a slot</button>,
-        reply: () => <><Say clip="slots-caller" /><Say clip={REPLY} /></>,
+        ask: ({ state, sync }) => (
+          <button type="button" className="big" onClick={() => sync({ ...state, asked: true })}>
+            Dana asks for a slot
+          </button>
+        ),
+        reply: () => (
+          <>
+            <Say clip="slots-caller" />
+            <Say clip={REPLY} />
+          </>
+        ),
         point: ({ state, apply }) => (
           <div className="vo-row" role="group" aria-label="Where Dana cuts in">
-            {POINTS.map(p => <button key={p} type="button" className="chip" aria-pressed={state.point === p} onClick={() => apply({ ...state, point: p, view: 'timeline' })}>{where(p)}</button>)}
+            {POINTS.map(p => (
+              <button
+                key={p}
+                type="button"
+                className="chip"
+                aria-pressed={state.point === p}
+                onClick={() => apply({ ...state, point: p, view: 'timeline' })}
+              >
+                {where(p)}
+              </button>
+            ))}
           </div>
         ),
         talkedOver: ({ state }) => <Transcript run={runOf(state.point ?? 'stop-3', false)} />,
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         bargein: ({ state, sync }) => (
           <>
-            <div className="vo-row"><Toggle label="Barge-in" on={state.bargeIn} onChange={v => sync({ ...state, bargeIn: v })} /></div>
+            <div className="vo-row">
+              <Toggle label="Barge-in" on={state.bargeIn} onChange={v => sync({ ...state, bargeIn: v })} />
+            </div>
             <div className="vo-row" role="group" aria-label="Where Dana cuts in">
-              {POINTS.map(p => <button key={p} type="button" className="chip" aria-pressed={state.point === p} onClick={() => sync({ ...state, point: p })}>{where(p)}</button>)}
+              {POINTS.map(p => (
+                <button
+                  key={p}
+                  type="button"
+                  className="chip"
+                  aria-pressed={state.point === p}
+                  onClick={() => sync({ ...state, point: p })}
+                >
+                  {where(p)}
+                </button>
+              ))}
             </div>
             <Transcript run={runOf(state.point ?? 'stop-3', state.bargeIn)} />
           </>
@@ -124,7 +197,13 @@ export default function BeingInterrupted() {
           </>
         ),
         quiz: ({ state, apply, sync }) => (
-          <Quiz {...QUIZ} unsure value={state.quiz} onAnswer={(_, q) => apply({ ...state, quiz: q })} onUnsure={() => sync({ ...state, quiz: UNSURE })} />
+          <Quiz
+            {...QUIZ}
+            unsure
+            value={state.quiz}
+            onAnswer={(_, q) => apply({ ...state, quiz: q })}
+            onUnsure={() => sync({ ...state, quiz: UNSURE })}
+          />
         ),
       }}
     />

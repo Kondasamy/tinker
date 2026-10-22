@@ -23,14 +23,15 @@ describe('context recordings coverage (R3, KTD7)', () => {
       }
   });
 
-  it.each(Object.keys(DOMAINS))('%s: every reachable signature has a recorded turn', (id) => every(DOMAINS[id], id));
+  it.each(Object.keys(DOMAINS))('%s: every reachable signature has a recorded turn', id => every(DOMAINS[id], id));
 
   it('the workbench: every policy over the session', () => every(WORKBENCH_DOMAINS, 'workbench'));
 
   it('every recorded turn is reachable from some chapter or the workbench', () => {
     const reached = new Set<string>();
-    for (const d of Object.values(DOMAINS)) for (const setup of combos(d)) run(RECORDING, setup).signatures.forEach((s) => reached.add(s));
-    expect(Object.keys(RECORDING.turns).filter((s) => !reached.has(s))).toEqual([]);
+    for (const d of Object.values(DOMAINS))
+      for (const setup of combos(d)) run(RECORDING, setup).signatures.forEach(s => reached.add(s));
+    expect(Object.keys(RECORDING.turns).filter(s => !reached.has(s))).toEqual([]);
   });
 
   it('one signature, one window: the signature holds everything the model sees', () => {
@@ -38,7 +39,7 @@ describe('context recordings coverage (R3, KTD7)', () => {
     for (const d of Object.values(DOMAINS))
       for (const setup of combos(d))
         for (const m of run(RECORDING, setup).meter) {
-          const text = m.window.parts.map((p) => p.text).join('\n');
+          const text = m.window.parts.map(p => p.text).join('\n');
           expect(windows.get(m.signature) ?? text, m.signature).toBe(text);
           windows.set(m.signature, text);
         }
@@ -46,7 +47,8 @@ describe('context recordings coverage (R3, KTD7)', () => {
 
   it('stays within the budget of 150 turns, 45 per file', () => {
     expect(Object.keys(RECORDING.turns).length).toBeLessThanOrEqual(150);
-    for (const [file, rec] of Object.entries(RECORDINGS)) expect(Object.keys(rec.turns).length, file).toBeLessThanOrEqual(45);
+    for (const [file, rec] of Object.entries(RECORDINGS))
+      expect(Object.keys(rec.turns).length, file).toBeLessThanOrEqual(45);
   });
 
   it('every turn carries its one-line note, and every answer a verdict (KTD8)', () => {

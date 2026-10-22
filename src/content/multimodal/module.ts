@@ -5,9 +5,12 @@ import { RECALL } from './recall';
 
 const CHAPTERS: Chapter[] = [
   {
-    id: '01-a-picture-is-tokens', title: 'A picture is tokens too', short: 'Pictures are tokens',
+    id: '01-a-picture-is-tokens',
+    title: 'A picture is tokens too',
+    short: 'Pictures are tokens',
     intro: {
-      story: 'Larkspur’s assistant answers questions from text. Now suppliers email invoices as images, the warehouse photographs its notes, and customers send pictures of broken parts. The team wants the assistant to read them.',
+      story:
+        'Larkspur’s assistant answers questions from text. Now suppliers email invoices as images, the warehouse photographs its notes, and customers send pictures of broken parts. The team wants the assistant to read them.',
       goal: 'How does a model that reads tokens read a picture?',
       learn: [
         'Why an image is cut into small squares called patches',
@@ -17,14 +20,20 @@ const CHAPTERS: Chapter[] = [
       terms: [
         ['Multimodal model', 'A model that reads more than one kind of input, such as text and images.'],
         ['Patch', 'A small square of an image, 28 × 28 pixels here. The model reads each patch as one token.'],
-        ['Visual token', 'The token a patch becomes. Image tokens are priced and counted against limits like text tokens.'],
+        [
+          'Visual token',
+          'The token a patch becomes. Image tokens are priced and counted against limits like text tokens.',
+        ],
       ],
     },
   },
   {
-    id: '02-size-and-detail', title: 'Size and detail', short: 'Size and detail',
+    id: '02-size-and-detail',
+    title: 'Size and detail',
+    short: 'Size and detail',
     intro: {
-      story: 'An invoice at full size costs thousands of tokens. Larkspur gets hundreds of invoices a week, and someone suggests sending them smaller.',
+      story:
+        'An invoice at full size costs thousands of tokens. Larkspur gets hundreds of invoices a week, and someone suggests sending them smaller.',
       goal: 'What do you lose when you send a smaller image?',
       learn: [
         'Why fewer pixels means fewer patches, and so fewer tokens',
@@ -39,9 +48,12 @@ const CHAPTERS: Chapter[] = [
     },
   },
   {
-    id: '03-reading-a-scan', title: 'Reading a scan', short: 'Reading a scan',
+    id: '03-reading-a-scan',
+    title: 'Reading a scan',
+    short: 'Reading a scan',
     intro: {
-      story: 'Not every page is a clean invoice. The warehouse sends a packing slip with a table, and a handwritten note stuck to a delivery. There is an older way to read a scan, too: turn it into text first.',
+      story:
+        'Not every page is a clean invoice. The warehouse sends a packing slip with a table, and a handwritten note stuck to a delivery. There is an older way to read a scan, too: turn it into text first.',
       goal: 'When is reading the image better than reading its text?',
       learn: [
         'What OCR is, and what it hands the model',
@@ -49,16 +61,22 @@ const CHAPTERS: Chapter[] = [
         'Why a vision model keeps a table’s rows and columns together',
       ],
       terms: [
-        ['OCR', 'Optical character recognition: software that turns an image of text into plain text. The model then reads only the text.'],
+        [
+          'OCR',
+          'Optical character recognition: software that turns an image of text into plain text. The model then reads only the text.',
+        ],
         ['Vision', 'Here, sending the image itself: the model reads its patches and sees the layout.'],
         ['Layout', 'Where things sit on the page: rows, columns, which number belongs to which line.'],
       ],
     },
   },
   {
-    id: '04-pulling-fields-out', title: 'Pulling fields out', short: 'Pulling fields out',
+    id: '04-pulling-fields-out',
+    title: 'Pulling fields out',
+    short: 'Pulling fields out',
     intro: {
-      story: 'Accounts wants each invoice’s number, date, order, total and terms typed into the books. The assistant can pull them out, but someone has to know whether it got them right.',
+      story:
+        'Accounts wants each invoice’s number, date, order, total and terms typed into the books. The assistant can pull them out, but someone has to know whether it got them right.',
       goal: 'How do you check an extraction field by field?',
       learn: [
         'What extracting fields from a document means',
@@ -73,9 +91,12 @@ const CHAPTERS: Chapter[] = [
     },
   },
   {
-    id: '05-photos-of-parts', title: 'Photos of parts', short: 'Photos of parts',
+    id: '05-photos-of-parts',
+    title: 'Photos of parts',
+    short: 'Photos of parts',
     intro: {
-      story: 'A customer’s shelf bracket snapped. They don’t know its code, so they send a photo and ask for a replacement.',
+      story:
+        'A customer’s shelf bracket snapped. They don’t know its code, so they send a photo and ask for a replacement.',
       goal: 'What should the assistant do when a photo can’t settle the answer?',
       learn: [
         'How a model names a part from a photo',
@@ -90,9 +111,12 @@ const CHAPTERS: Chapter[] = [
     },
   },
   {
-    id: '06-when-pictures-mislead', title: 'When pictures mislead', short: 'Pictures mislead',
+    id: '06-when-pictures-mislead',
+    title: 'When pictures mislead',
+    short: 'Pictures mislead',
     intro: {
-      story: 'Two images reach the assistant in the same week: a faxed invoice with a smudge on its total, and a returned crate whose label has a sentence written for the AI.',
+      story:
+        'Two images reach the assistant in the same week: a faxed invoice with a smudge on its total, and a returned crate whose label has a sentence written for the AI.',
       goal: 'How can an image make the assistant wrong, or make it do something it shouldn’t?',
       learn: [
         'Why a misread digit comes back with no sign of doubt',
@@ -102,14 +126,20 @@ const CHAPTERS: Chapter[] = [
       terms: [
         ['Misread', 'A reading that comes back confident and wrong, like a smudged 8 read as a 3.'],
         ['Cross-check', 'A rule the host runs on the reading, such as “the lines must add up to the total”.'],
-        ['Prompt injection', 'Text written to steer a model, hidden in something it reads: an email, a web page, or an image.'],
+        [
+          'Prompt injection',
+          'Text written to steer a model, hidden in something it reads: an email, a web page, or an image.',
+        ],
       ],
     },
   },
   {
-    id: '07-workbench', title: 'Workbench: pick a method and a size', short: 'Workbench',
+    id: '07-workbench',
+    title: 'Workbench: pick a method and a size',
+    short: 'Workbench',
     intro: {
-      story: 'Larkspur now reads three kinds of document every day: invoices, packing slips and the warehouse’s notes. Each costs tokens, and each can be read by OCR or by vision, at any size.',
+      story:
+        'Larkspur now reads three kinds of document every day: invoices, packing slips and the warehouse’s notes. Each costs tokens, and each can be read by OCR or by vision, at any size.',
       goal: 'Which method and size should each kind of document get?',
       learn: [
         'How to choose a method and a size for each kind of document',
@@ -133,7 +163,8 @@ export const MULTIMODAL_MODULE: Module = {
   status: 'live',
   author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
   prereqs: ['tokens'],
-  story: 'Larkspur Supply Co.’s assistant starts receiving pictures: supplier invoices, packing slips, notes from the warehouse and photos of broken parts.',
+  story:
+    'Larkspur Supply Co.’s assistant starts receiving pictures: supplier invoices, packing slips, notes from the warehouse and photos of broken parts.',
   chapters: CHAPTERS,
   recall: RECALL,
 };

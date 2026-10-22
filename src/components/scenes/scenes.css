@@ -1,19 +1,72 @@
 /* Story scene pieces for chapters 1–2: era objects, the corpus slider, drawer facts and sources. */
-.timeline .era { cursor: pointer; outline: none; }
-.timeline .era:focus-visible path:first-child { stroke: var(--ink); }
-.timeline .pulse { animation: pulse 1.4s ease-in-out infinite; }
-@keyframes pulse { 50% { stroke-opacity: .25; } }
+.timeline .era {
+  cursor: pointer;
+  outline: none;
+}
+.timeline .era:focus-visible path:first-child {
+  stroke: var(--ink);
+}
+.timeline .pulse {
+  animation: pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  50% {
+    stroke-opacity: 0.25;
+  }
+}
 
-.slider { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
-.slider input { width: 100%; accent-color: var(--ink); }
-.slider .ends { display: flex; justify-content: space-between; color: var(--muted); font-size: 11.5px; }
-.over { color: var(--bad); font-weight: 800; }
+.slider {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+.slider input {
+  width: 100%;
+  accent-color: var(--ink);
+}
+.slider .ends {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+.over {
+  color: var(--bad);
+  font-weight: 800;
+}
 
-.facts { display: grid; grid-template-columns: max-content 1fr; gap: 6px 12px; margin: 10px 0 0; }
-.facts dt { font-weight: 800; }
-.facts dd { margin: 0; }
-.source { display: inline-block; font-size: 12px; color: var(--muted); }
-.drawer p { margin: 10px 0 0; }
-.drawer ul { margin: 10px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 10px; }
-.drawer time { font-weight: 800; }
-.answer .said { font-style: italic; font-size: 14px; }
+.facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 12px;
+  margin: 10px 0 0;
+}
+.facts dt {
+  font-weight: 800;
+}
+.facts dd {
+  margin: 0;
+}
+.source {
+  display: inline-block;
+  font-size: 12px;
+  color: var(--muted);
+}
+.drawer p {
+  margin: 10px 0 0;
+}
+.drawer ul {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.drawer time {
+  font-weight: 800;
+}
+.answer .said {
+  font-style: italic;
+  font-size: 14px;
+}

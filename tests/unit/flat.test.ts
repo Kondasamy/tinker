@@ -4,14 +4,19 @@ import { renderToString } from 'react-dom/server';
 import { flatScene, flatLabel, type Lane, type Msg } from '../../src/lib/iso/flat';
 import FlatStage from '../../src/components/scenes/FlatStage';
 
-const LANES: Lane[] = [{ id: 'emp', name: 'Employee' }, { id: 'host', name: 'Host app' }, { id: 'model', name: 'Model' }];
+const LANES: Lane[] = [
+  { id: 'emp', name: 'Employee' },
+  { id: 'host', name: 'Host app' },
+  { id: 'model', name: 'Model' },
+];
 const MSGS: Msg[] = [
   { from: 'emp', to: 'host', kind: 'request', text: 'Where is order 1042?' },
   { from: 'host', to: 'model', kind: 'request', text: 'question + 2 tools' },
   { from: 'model', to: 'host', kind: 'result', text: 'get_order(1042)', stamp: 'APPROVED' },
   { from: 'host', to: 'emp', kind: 'error', text: 'Order not found' },
 ];
-const arrows = (svg: string) => [...svg.matchAll(/class="arrow" data-from="(\w+)" data-to="(\w+)"/g)].map(m => [m[1], m[2]]);
+const arrows = (svg: string) =>
+  [...svg.matchAll(/class="arrow" data-from="(\w+)" data-to="(\w+)"/g)].map(m => [m[1], m[2]]);
 
 describe('flat sequence kit', () => {
   it('draws one arrow per message, between the right lanes', () => {
@@ -19,7 +24,9 @@ describe('flat sequence kit', () => {
     expect(arrows(svg)).toEqual(MSGS.map(m => [m.from, m.to]));
     // each arrow runs from its sender's lane centre toward the receiver's
     const xs = [...svg.matchAll(/class="arrow"[^>]*><path d="M([\d.]+) [\d.]+L([\d.]+)/g)].map(m => [+m[1], +m[2]]);
-    const lx = Object.fromEntries([...svg.matchAll(/class="lane" data-lane="(\w+)" data-x="([\d.]+)"/g)].map(m => [m[1], +m[2]]));
+    const lx = Object.fromEntries(
+      [...svg.matchAll(/class="lane" data-lane="(\w+)" data-x="([\d.]+)"/g)].map(m => [m[1], +m[2]]),
+    );
     xs.forEach(([a, b], i) => expect(Math.sign(b - a)).toBe(Math.sign(lx[MSGS[i].to] - lx[MSGS[i].from])));
   });
 
@@ -43,16 +50,19 @@ describe('flat sequence kit', () => {
   });
 
   it('stacks lanes and shows one message on a phone', () => {
-    const desk = flatScene(LANES, MSGS), phone = flatScene(LANES, MSGS, { phone: true, upTo: 3 });
-    expect(arrows(phone.svg)).toEqual([['model', 'host']]);   // the latest message shown
+    const desk = flatScene(LANES, MSGS),
+      phone = flatScene(LANES, MSGS, { phone: true, upTo: 3 });
+    expect(arrows(phone.svg)).toEqual([['model', 'host']]); // the latest message shown
     expect(arrows(flatScene(LANES, MSGS, { phone: true, upTo: 3, focus: 0 }).svg)).toEqual([['emp', 'host']]);
-    expect(phone.h / phone.w).toBeGreaterThan(desk.h / desk.w);   // taller than wide: lanes run down the page
+    expect(phone.h / phone.w).toBeGreaterThan(desk.h / desk.w); // taller than wide: lanes run down the page
     expect(phone.svg.match(/class="lane"/g)).toHaveLength(LANES.length);
   });
 
   it('summarises the sequence in words', () => {
-    expect(flatLabel(LANES, MSGS, 2)).toBe('Sequence across 3 lanes: Employee, Host app, Model. 2 of 4 messages so far. '
-      + '1: Employee to Host app, request, "Where is order 1042?". 2: Host app to Model, request, "question + 2 tools".');
+    expect(flatLabel(LANES, MSGS, 2)).toBe(
+      'Sequence across 3 lanes: Employee, Host app, Model. 2 of 4 messages so far. ' +
+        '1: Employee to Host app, request, "Where is order 1042?". 2: Host app to Model, request, "question + 2 tools".',
+    );
     expect(flatLabel(LANES, MSGS, 3)).toContain('result, "get_order(1042)", stamped approved');
     expect(flatLabel(LANES, MSGS, 0)).toContain('No messages yet.');
   });
@@ -67,7 +77,13 @@ describe('flat sequence kit', () => {
   });
 
   it('names each card with its visible words in order, the stamp after them, and the full text when cut (label in name)', () => {
-    const long: Msg = { from: 'host', to: 'model', kind: 'blocked', text: 'allow-list: send_email to audit@example.net stopped', stamp: 'REFUSED' };
+    const long: Msg = {
+      from: 'host',
+      to: 'model',
+      kind: 'blocked',
+      text: 'allow-list: send_email to audit@example.net stopped',
+      stamp: 'REFUSED',
+    };
     const { svg } = flatScene(LANES, [long], { pick: true });
     const name = svg.match(/aria-label="([^"]+)"/)![1];
     const shown = svg.match(/class="card[\s\S]*?<text[^>]*>([^<]+)<\/text>/)![1].replace(/^× /, '');

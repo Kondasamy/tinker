@@ -7,7 +7,14 @@ import '../../styles/page.css';
 import Meta from '../../components/Meta.astro';
 import FlatStage from '../../components/scenes/FlatStage';
 import IsoStage from '../../lib/iso/IsoStage';
-import { AGENT_BOARD, agentScene, agentLabel, clipboard, gaugeProp, trayProp } from '../../components/scenes/agentScene';
+import {
+  AGENT_BOARD,
+  agentScene,
+  agentLabel,
+  clipboard,
+  gaugeProp,
+  trayProp,
+} from '../../components/scenes/agentScene';
 import { agentLanes, agentMessages } from '../../components/scenes/agentSequence';
 import { answerOf, run, stepsOf, totalTokens, AGENT_TOOLS, CASE_ORDERS } from '../../lib/agents/loop';
 import { RECORDINGS } from '../../lib/agents/turns';
@@ -34,21 +41,49 @@ const HALT = stepsOf(SCRIPT, 'halt')[0];
 const HERO = { run: AGENT, upTo: AGENT.steps.length - 1, scale: 1.7 };
 const SMALL = (r: typeof AGENT) => ({ run: r, scale: 1.7 });
 const names = (r: typeof AGENT) => stepsOf(r, 'call').map(c => c.call.name);
-const LANES = agentLanes(AGENT), MSGS = agentMessages(AGENT);
+const LANES = agentLanes(AGENT),
+  MSGS = agentMessages(AGENT);
 
 // small pictures: one agent prop alone on the floor
 // drawn inside the scene, so the stage's frame is set (a part drawn at load time lands in the default frame)
-const solo = (part: () => { svg: string }, shadow: [number, number, number, number, number], under = () => '') => ({ top }: SceneCtx) => {
-  const [x0, y0, x1, y1, h] = shadow;
-  return castShadow(boxCorners(x0, y0, BH, x1, y1, BH + h), BH, top) + under() + part().svg;
-};
+const solo =
+  (part: () => { svg: string }, shadow: [number, number, number, number, number], under = () => '') =>
+  ({ top }: SceneCtx) => {
+    const [x0, y0, x1, y1, h] = shadow;
+    return castShadow(boxCorners(x0, y0, BH, x1, y1, BH + h), BH, top) + under() + part().svg;
+  };
 // the gauge stands on the host's desk in the scene; here, on a small wooden stand
 const STAND = () => box(24, 17, BH, 36, 35, BH + 16, WOOD, toneI, 1);
 const STEPS: [string, string, ReturnType<typeof fact>, [number, number, number, number], (c: SceneCtx) => string][] = [
-  ['The model picks the path', 'A goal, not a script', fact('workflow-vs-agent'), [12, 16, 48, 44],
-    solo(() => clipboard(30, 30, [{ done: true, struck: false }, { done: true, struck: false }, { done: false, struck: false }]), [17, 25, 43, 32, 33])],
-  ['Act, look, decide, again', 'Each result picks the next step', fact('react-loop'), [14, 16, 46, 44], solo(() => trayProp(30, 30, 6, false), [19, 22, 41, 38, 8])],
-  ['The host keeps it in bounds', 'Budgets and stops', fact('stopping-conditions'), [16, 14, 44, 42], solo(() => gaugeProp(30, 30, .6, .4, false), [24, 17, 36, 35, 34], STAND)],
+  [
+    'The model picks the path',
+    'A goal, not a script',
+    fact('workflow-vs-agent'),
+    [12, 16, 48, 44],
+    solo(
+      () =>
+        clipboard(30, 30, [
+          { done: true, struck: false },
+          { done: true, struck: false },
+          { done: false, struck: false },
+        ]),
+      [17, 25, 43, 32, 33],
+    ),
+  ],
+  [
+    'Act, look, decide, again',
+    'Each result picks the next step',
+    fact('react-loop'),
+    [14, 16, 46, 44],
+    solo(() => trayProp(30, 30, 6, false), [19, 22, 41, 38, 8]),
+  ],
+  [
+    'The host keeps it in bounds',
+    'Budgets and stops',
+    fact('stopping-conditions'),
+    [16, 14, 44, 42],
+    solo(() => gaugeProp(30, 30, 0.6, 0.4, false), [24, 17, 36, 35, 34], STAND),
+  ],
 ];
 const checked = longDate(ACCESSED);
 
@@ -62,7 +97,16 @@ const HARD: [string, string][] = [
 ];
 const FACTS: [string, string][] = [
   // a helper's single-order asks are parts of the storm case, not cases of their own
-  [String(new Set(Object.values(RECORDINGS).flatMap(r => Object.keys(r.asks)).filter(a => !a.startsWith('order-'))).size), 'support cases to work'],
+  [
+    String(
+      new Set(
+        Object.values(RECORDINGS)
+          .flatMap(r => Object.keys(r.asks))
+          .filter(a => !a.startsWith('order-')),
+      ).size,
+    ),
+    'support cases to work',
+  ],
   [String(AGENT_TOOLS.length), 'tools the agent can call'],
   [String(CASE_ORDERS.length), 'orders in the storm case'],
   [num(totalTokens(AGENT)), 'tokens the agent spends on the cracked printer'],

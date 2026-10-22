@@ -16,38 +16,69 @@ async function benchWithChunker(page: Page) {
   await page.goto('/rag/07-sandbox/');
   await page.locator('astro-island:not([ssr])').waitFor();
   await expect(page.getByTestId('announce')).toContainText('Answer:');
-  await card(page).getByRole('button', { name: 'Show me' }).click();          // open the workbench
+  await card(page).getByRole('button', { name: 'Show me' }).click(); // open the workbench
   await chunker(page).click();
   // prefetch done: every chunking config file has arrived
-  await page.waitForFunction(n => performance.getEntriesByType('resource').filter(e => /\/data\/index\/(fixed|sentence)-/.test(e.name)).length >= n, CONFIGS);
+  await page.waitForFunction(
+    n =>
+      performance.getEntriesByType('resource').filter(e => /\/data\/index\/(fixed|sentence)-/.test(e.name)).length >= n,
+    CONFIGS,
+  );
   return card(page).getByRole('region', { name: 'Block settings' });
 }
 
 /** ms from setting a range input to the new outcome on screen (chunker stat and the announced answer). */
-const timeChange = (slider: Locator, value: number) => slider.evaluate((el: HTMLInputElement, v) => new Promise<{ block: number; answer: number }>(res => {
-  const ann = document.querySelector('[data-testid="announce"]')!, blk = document.querySelector('[data-block="chunker"]')!.getAttribute('aria-label');
-  const before = ann.textContent, t0 = performance.now(), t = { block: -1, answer: -1 };
-  const obs = new MutationObserver(() => {
-    if (t.block < 0 && document.querySelector('[data-block="chunker"]')?.getAttribute('aria-label') !== blk) t.block = performance.now() - t0;
-    if (t.answer < 0 && ann.textContent !== before) t.answer = performance.now() - t0;
-    if (t.block >= 0 && t.answer >= 0) { obs.disconnect(); requestAnimationFrame(() => res(t)); }
-  });
-  obs.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true });
-  setTimeout(() => { obs.disconnect(); res(t); }, 1000);   // the answer text may legitimately not change
-  Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(el, String(v));
-  el.dispatchEvent(new Event('input', { bubbles: true }));
-}), value);
+const timeChange = (slider: Locator, value: number) =>
+  slider.evaluate(
+    (el: HTMLInputElement, v) =>
+      new Promise<{ block: number; answer: number }>(res => {
+        const ann = document.querySelector('[data-testid="announce"]')!,
+          blk = document.querySelector('[data-block="chunker"]')!.getAttribute('aria-label');
+        const before = ann.textContent,
+          t0 = performance.now(),
+          t = { block: -1, answer: -1 };
+        const obs = new MutationObserver(() => {
+          if (t.block < 0 && document.querySelector('[data-block="chunker"]')?.getAttribute('aria-label') !== blk)
+            t.block = performance.now() - t0;
+          if (t.answer < 0 && ann.textContent !== before) t.answer = performance.now() - t0;
+          if (t.block >= 0 && t.answer >= 0) {
+            obs.disconnect();
+            requestAnimationFrame(() => res(t));
+          }
+        });
+        obs.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true });
+        setTimeout(() => {
+          obs.disconnect();
+          res(t);
+        }, 1000); // the answer text may legitimately not change
+        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(el, String(v));
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+      }),
+    value,
+  );
 
 test('after prefetch, a knob change updates the answer within 200 ms', async ({ page }) => {
   const settings = await benchWithChunker(page);
-  const size = settings.getByRole('slider', { name: /Chunk size/ }), overlap = settings.getByRole('slider', { name: /Overlap/ });
+  const size = settings.getByRole('slider', { name: /Chunk size/ }),
+    overlap = settings.getByRole('slider', { name: /Overlap/ });
   const times: { block: number; answer: number }[] = [];
-  for (const [slider, v] of [[size, 0], [size, 3], [size, 6], [overlap, 2], [overlap, 3], [size, 1]] as const) times.push(await timeChange(slider, v));
-  console.log('knob → outcome (ms):', JSON.stringify(times.map(t => ({ block: +t.block.toFixed(1), answer: +t.answer.toFixed(1) }))));
+  for (const [slider, v] of [
+    [size, 0],
+    [size, 3],
+    [size, 6],
+    [overlap, 2],
+    [overlap, 3],
+    [size, 1],
+  ] as const)
+    times.push(await timeChange(slider, v));
+  console.log(
+    'knob → outcome (ms):',
+    JSON.stringify(times.map(t => ({ block: +t.block.toFixed(1), answer: +t.answer.toFixed(1) }))),
+  );
   for (const t of times) {
     expect(t.block).toBeGreaterThanOrEqual(0);
     expect(t.block).toBeLessThan(200);
-    expect(t.answer).toBeLessThan(200);                     // -1 when the answer text stayed the same
+    expect(t.answer).toBeLessThan(200); // -1 when the answer text stayed the same
   }
   expect(times.some(t => t.answer >= 0)).toBe(true);
 });
@@ -59,7 +90,7 @@ test('with the network off after prefetch, every chunking knob still updates res
   const expectConfig = async (file: string) => {
     const c = manifest.configs.find(x => x.file === file)!;
     await expect(chunker(page)).toHaveAttribute('aria-label', new RegExp(`\\b${c.chunks} chunks:`));
-    await expect(status).toHaveText('');                    // neither "Preparing…" nor a load error
+    await expect(status).toHaveText(''); // neither "Preparing…" nor a load error
   };
   const size = settings.getByRole('slider', { name: /Chunk size|Max words/ });
   for (let i = 0; i < 7; i++) {

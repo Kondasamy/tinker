@@ -7,38 +7,59 @@ import { ALL_QUESTIONS, gradeVersion, QUESTION_IDS, VERSION_IDS, type VersionId 
 import data from '../../../data/fine-tuning/workbench.json' with { type: 'json' };
 
 export type KindId = 'voice' | 'facts' | 'changed';
-export interface Kind { id: KindId; label: string; about: string; grade: 'signed' | 'fact'; questions: string[] }
-export interface Note { cost: number; costWhy: string; upkeep: number; upkeepWhy: string }
+export interface Kind {
+  id: KindId;
+  label: string;
+  about: string;
+  grade: 'signed' | 'fact';
+  questions: string[];
+}
+export interface Note {
+  cost: number;
+  costWhy: string;
+  upkeep: number;
+  upkeepWhy: string;
+}
 export type Plan = Record<KindId, VersionId>;
 
 /** Most quality points a kind can score: every one of its recorded answers passes. */
 export const QUALITY = data.quality;
-export const KINDS: Kind[] = data.kinds.map((k) => ({
+export const KINDS: Kind[] = data.kinds.map(k => ({
   ...(k as Omit<Kind, 'questions'>),
   questions: k.questions === 'all' ? ALL_QUESTIONS : k.questions === 'evals' ? QUESTION_IDS : (k.questions as string[]),
 }));
-export const KIND_IDS = KINDS.map((k) => k.id);
+export const KIND_IDS = KINDS.map(k => k.id);
 export const NOTES = data.notes as Record<VersionId, Record<KindId, Note>>;
 
 /** One kind under one version: how many of its answers pass, and the points. */
 export function cell(kind: KindId, v: VersionId) {
-  const k = KINDS.find((x) => x.id === kind)!, g = gradeVersion(v, k.questions);
-  const passed = g.filter((x) => (k.grade === 'signed' ? x.signed : x.fact)).length, n = NOTES[v][kind];
+  const k = KINDS.find(x => x.id === kind)!,
+    g = gradeVersion(v, k.questions);
+  const passed = g.filter(x => (k.grade === 'signed' ? x.signed : x.fact)).length,
+    n = NOTES[v][kind];
   const quality = (QUALITY * passed) / g.length;
   return { passed, of: g.length, quality, cost: n.cost, upkeep: n.upkeep, score: quality - n.cost - n.upkeep, note: n };
 }
 
 /** A plan's totals: one row per kind, then the sums. */
 export function totals(plan: Plan) {
-  const rows = KINDS.map((k) => ({ kind: k, version: plan[k.id], ...cell(k.id, plan[k.id]) }));
+  const rows = KINDS.map(k => ({ kind: k, version: plan[k.id], ...cell(k.id, plan[k.id]) }));
   const sum = (f: (r: (typeof rows)[number]) => number) => rows.reduce((a, r) => a + f(r), 0);
-  return { rows, quality: sum((r) => r.quality), cost: sum((r) => r.cost), upkeep: sum((r) => r.upkeep), score: sum((r) => r.score) };
+  return {
+    rows,
+    quality: sum(r => r.quality),
+    cost: sum(r => r.cost),
+    upkeep: sum(r => r.upkeep),
+    score: sum(r => r.score),
+  };
 }
 
 /** Every plan the bench can make: each kind takes any of the three versions. */
 export const PLANS: Plan[] = KIND_IDS.reduce<Plan[]>(
-  (plans, k) => plans.flatMap((p) => VERSION_IDS.map((v) => ({ ...p, [k]: v }))), [{} as Plan]);
-export const BEST = Math.max(...PLANS.map((p) => totals(p).score));
+  (plans, k) => plans.flatMap(p => VERSION_IDS.map(v => ({ ...p, [k]: v }))),
+  [{} as Plan],
+);
+export const BEST = Math.max(...PLANS.map(p => totals(p).score));
 /** Tied for the best score (quality can be a fraction, so ties allow for rounding). */
 export const solved = (p: Plan) => Math.abs(totals(p).score - BEST) < 1e-9;
 /** Every plan tied for the best score. */

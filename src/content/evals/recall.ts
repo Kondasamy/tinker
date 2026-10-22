@@ -7,8 +7,11 @@ import { fact } from '../../lib/evals/facts';
 export const RECALL: RecallItem[] = [
   // 1. It worked when I tried it
   {
-    id: 'whole-set-not-tries', chapter: '01-it-worked-when-i-tried-it', pin: true,
-    question: 'Larkspur’s team swaps the model behind the assistant for a newer one. The support lead asks it five questions, and every answer is better than before. What shows the swap is safe to ship?',
+    id: 'whole-set-not-tries',
+    chapter: '01-it-worked-when-i-tried-it',
+    pin: true,
+    question:
+      'Larkspur’s team swaps the model behind the assistant for a newer one. The support lead asks it five questions, and every answer is better than before. What shows the swap is safe to ship?',
     options: [
       'The five better answers: they came from someone who knows the questions',
       'Running the whole test set on the old and the new setup, and finding no question that passed before and fails now',
@@ -24,8 +27,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'totals-hide-regressions', chapter: '01-it-worked-when-i-tried-it',
-    question: 'A new version of the warehouse assistant passes more test questions than the old one. Can the team say nothing got worse?',
+    id: 'totals-hide-regressions',
+    chapter: '01-it-worked-when-i-tried-it',
+    question:
+      'A new version of the warehouse assistant passes more test questions than the old one. Can the team say nothing got worse?',
     options: [
       'Yes: a higher total means every question did at least as well',
       'No: it can fix some questions and break others, so compare them one by one',
@@ -41,7 +46,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'what-is-a-regression', chapter: '01-it-worked-when-i-tried-it',
+    id: 'what-is-a-regression',
+    chapter: '01-it-worked-when-i-tried-it',
     question: 'The team shortens the assistant’s instructions. Which of these is a regression?',
     options: [
       'A question that failed before the change and still fails',
@@ -58,7 +64,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'keep-the-set-fixed', chapter: '01-it-worked-when-i-tried-it',
+    id: 'keep-the-set-fixed',
+    chapter: '01-it-worked-when-i-tried-it',
     question: 'Why does the team run the same test questions on every version, instead of fresh questions each time?',
     options: [
       'So two versions’ results compare, question by question',
@@ -76,8 +83,10 @@ export const RECALL: RecallItem[] = [
   },
   // 2. The test set
   {
-    id: 'unanswerable-cases', chapter: '02-the-test-set',
-    question: 'The parts-catalogue assistant’s test set has only questions the catalogue answers. A new version starts quoting prices for parts Larkspur doesn’t sell. Why does the set miss it?',
+    id: 'unanswerable-cases',
+    chapter: '02-the-test-set',
+    question:
+      'The parts-catalogue assistant’s test set has only questions the catalogue answers. A new version starts quoting prices for parts Larkspur doesn’t sell. Why does the set miss it?',
     options: [
       'It has no case the catalogue can’t answer, where the right answer is to say so',
       'The set is too small: more catalogue questions would catch it',
@@ -93,8 +102,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'known-failures-stay', chapter: '02-the-test-set',
-    question: 'Last month the travel assistant quoted an old mileage rate, and the team fixed it. What should happen to that question?',
+    id: 'known-failures-stay',
+    chapter: '02-the-test-set',
+    question:
+      'Last month the travel assistant quoted an old mileage rate, and the team fixed it. What should happen to that question?',
     options: [
       'Drop it: it’s fixed now',
       'Add it to the test set with the current rate as its reference answer, so the old mistake can’t come back unseen',
@@ -110,7 +121,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'what-reference-answer-does', chapter: '02-the-test-set',
+    id: 'what-reference-answer-does',
+    chapter: '02-the-test-set',
     question: 'What is a test case’s reference answer for?',
     options: [
       'It’s what the assistant is told to say',
@@ -128,8 +140,10 @@ export const RECALL: RecallItem[] = [
   },
   // 3. Graders
   {
-    id: 'exact-match-brittle', chapter: '03-graders',
-    question: 'The reference answer is “Returns are accepted within 30 days.” The assistant answers “You have 30 days to send it back.” What does exact match say?',
+    id: 'exact-match-brittle',
+    chapter: '03-graders',
+    question:
+      'The reference answer is “Returns are accepted within 30 days.” The assistant answers “You have 30 days to send it back.” What does exact match say?',
     options: [
       'Pass: the answer is right',
       'Fail: the words differ, though the meaning is the same',
@@ -145,8 +159,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'citation-not-support', chapter: '03-graders',
-    question: 'A wrong answer about the warranty cites a real passage from the battery handbook. Which grader passes it?',
+    id: 'citation-not-support',
+    chapter: '03-graders',
+    question:
+      'A wrong answer about the warranty cites a real passage from the battery handbook. Which grader passes it?',
     options: [
       'Has a citation',
       'Contains the key fact',
@@ -162,7 +178,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'rubric-shapes-judge', chapter: '03-graders',
+    id: 'rubric-shapes-judge',
+    chapter: '03-graders',
     question: 'A model judge’s rubric asks “Is the answer polite and easy to read?” What will it let through?',
     options: [
       'Nothing: a model judge reads for meaning',
@@ -180,8 +197,10 @@ export const RECALL: RecallItem[] = [
   },
   // 4. Judge the judge
   {
-    id: 'check-judge-against-people', chapter: '04-judge-the-judge',
-    question: 'The team wants a model judge to grade the safety assistant’s answers. What should they do before trusting its scores?',
+    id: 'check-judge-against-people',
+    chapter: '04-judge-the-judge',
+    question:
+      'The team wants a model judge to grade the safety assistant’s answers. What should they do before trusting its scores?',
     options: [
       'Nothing: a strong model grades well',
       'Have people label a set of answers, and measure how often the judge agrees with them',
@@ -197,7 +216,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'labels-can-be-wrong', chapter: '04-judge-the-judge',
+    id: 'labels-can-be-wrong',
+    chapter: '04-judge-the-judge',
     question: 'The judge and a person disagree on an answer about the parking policy. Who is right?',
     options: [
       'The person, always: labels are the truth',
@@ -214,8 +234,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'swap-the-order', chapter: '04-judge-the-judge',
-    question: 'A judge compares two replies to a delivery question and picks the first one. Shown in the other order, it picks the other one. What should the comparison count?',
+    id: 'swap-the-order',
+    chapter: '04-judge-the-judge',
+    question:
+      'A judge compares two replies to a delivery question and picks the first one. Shown in the other order, it picks the other one. What should the comparison count?',
     options: [
       'The first verdict: that was the real order',
       'A tie: the win didn’t hold both ways',
@@ -232,8 +254,10 @@ export const RECALL: RecallItem[] = [
   },
   // 5. Grading the path
   {
-    id: 'reply-is-not-the-outcome', chapter: '05-grading-the-path',
-    question: 'Larkspur’s assistant is asked to cancel an order. It replies “Your order is cancelled.” The test checks that the reply contains “cancelled”. What can that test miss?',
+    id: 'reply-is-not-the-outcome',
+    chapter: '05-grading-the-path',
+    question:
+      'Larkspur’s assistant is asked to cancel an order. It replies “Your order is cancelled.” The test checks that the reply contains “cancelled”. What can that test miss?',
     options: [
       'Nothing: the reply says the order is cancelled',
       'An order that is still open in the order system',
@@ -249,7 +273,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'forbid-not-script', chapter: '05-grading-the-path',
+    id: 'forbid-not-script',
+    chapter: '05-grading-the-path',
     question: 'The team adds a path check to the order-status tests. Which rule fits best?',
     options: [
       'The run must call exactly these tools, in exactly this order',
@@ -266,8 +291,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'judge-reads-words', chapter: '05-grading-the-path',
-    question: 'A run refunds an order nobody asked about, and its reply never mentions it. Which grader can still catch it?',
+    id: 'judge-reads-words',
+    chapter: '05-grading-the-path',
+    question:
+      'A run refunds an order nobody asked about, and its reply never mentions it. Which grader can still catch it?',
     options: [
       'A model judge reading the reply with a strict rubric',
       'A code check that the reply has the delivery date',
@@ -284,8 +311,10 @@ export const RECALL: RecallItem[] = [
   },
   // 6. Run it twice
   {
-    id: 'one-try-says-little', chapter: '06-run-it-twice',
-    question: 'A case fails once in the nightly test run. Nothing changed since yesterday, when it passed. What is the first thing to do?',
+    id: 'one-try-says-little',
+    chapter: '06-run-it-twice',
+    question:
+      'A case fails once in the nightly test run. Nothing changed since yesterday, when it passed. What is the first thing to do?',
     options: [
       'Roll back yesterday’s change',
       'Run the case several more times and see how often it passes',
@@ -301,7 +330,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'pass-at-vs-hat', chapter: '06-run-it-twice',
+    id: 'pass-at-vs-hat',
+    chapter: '06-run-it-twice',
     question: 'A case passes on 2 of its 5 trials. Which is true?',
     options: [
       'pass@5 and pass^5 both fail it',
@@ -318,8 +348,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'small-suite-steps', chapter: '06-run-it-twice',
-    question: 'Suppose another company’s parts-catalogue assistant has a test set of 20 questions. A new version scores 5 points higher. What could explain that, with nothing better about it?',
+    id: 'small-suite-steps',
+    chapter: '06-run-it-twice',
+    question:
+      'Suppose another company’s parts-catalogue assistant has a test set of 20 questions. A new version scores 5 points higher. What could explain that, with nothing better about it?',
     options: [
       'Nothing: 5 points is a real gain',
       'One flaky question that happened to pass this time',
@@ -336,8 +368,10 @@ export const RECALL: RecallItem[] = [
   },
   // 7. Release day
   {
-    id: 'gate-needs-no-regressions', chapter: '07-release-day',
-    question: 'The parts-catalogue assistant ships any version that passes 70% of its test set. A new version passes 80%, and one question the shipped version answered now fails. What does the gate do, and what should it do?',
+    id: 'gate-needs-no-regressions',
+    chapter: '07-release-day',
+    question:
+      'The parts-catalogue assistant ships any version that passes 70% of its test set. A new version passes 80%, and one question the shipped version answered now fails. What does the gate do, and what should it do?',
     options: [
       'Ships it, and that is fine: 80% clears the bar',
       'Ships it, but it should stop: a rule that no question that passed before may fail would block it',
@@ -353,8 +387,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'gate-trusts-grader', chapter: '07-release-day',
-    question: 'A team’s release gate is graded by a model judge nobody has checked against people. A version that answers with no documents at all clears the gate. What went wrong?',
+    id: 'gate-trusts-grader',
+    chapter: '07-release-day',
+    question:
+      'A team’s release gate is graded by a model judge nobody has checked against people. A version that answers with no documents at all clears the gate. What went wrong?',
     options: [
       'The bar was set too low',
       'The judge passes answers it should fail, and the gate trusts whatever grades it',
@@ -370,8 +406,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'gate-one-run', chapter: '07-release-day',
-    question: 'The returns assistant’s gate grades one run of each question. A version clears it by one question. What would make the call more trustworthy?',
+    id: 'gate-one-run',
+    chapter: '07-release-day',
+    question:
+      'The returns assistant’s gate grades one run of each question. A version clears it by one question. What would make the call more trustworthy?',
     options: [
       'Nothing: the run is the run',
       'Run it again and ship if either run clears the gate',

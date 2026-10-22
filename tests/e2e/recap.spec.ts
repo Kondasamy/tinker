@@ -4,20 +4,34 @@ import { test, expect, type Page } from '@playwright/test';
 import { serious } from './helpers';
 import { RECALL } from '../../src/content/rag/recall';
 
-const KEY = 'rag-progress-v1', H = 3600_000;
-const CH1 = '01-history', CH2 = '02-why-not-stuff-it';
+const KEY = 'rag-progress-v1',
+  H = 3600_000;
+const CH1 = '01-history',
+  CH2 = '02-why-not-stuff-it';
 
 /** Seed RAG progress (finish times as hours ago, results as [id, right, unsure, hours ago]), then open `path`. */
-async function open(page: Page, path: string, done: Record<string, number> = {}, recall: [string, boolean, boolean, number][] = []) {
+async function open(
+  page: Page,
+  path: string,
+  done: Record<string, number> = {},
+  recall: [string, boolean, boolean, number][] = [],
+) {
   await page.goto('/');
-  await page.evaluate(({ KEY, done, recall, H }) => {
-    const now = Date.now();
-    localStorage.setItem(KEY, JSON.stringify({
-      done: Object.keys(done), saved: {},
-      at: Object.fromEntries(Object.entries(done).map(([k, h]) => [k, now - h * H])),
-      recall: Object.fromEntries(recall.map(([id, right, unsure, h]) => [id, { right, unsure, at: now - h * H }])),
-    }));
-  }, { KEY, done, recall, H });
+  await page.evaluate(
+    ({ KEY, done, recall, H }) => {
+      const now = Date.now();
+      localStorage.setItem(
+        KEY,
+        JSON.stringify({
+          done: Object.keys(done),
+          saved: {},
+          at: Object.fromEntries(Object.entries(done).map(([k, h]) => [k, now - h * H])),
+          recall: Object.fromEntries(recall.map(([id, right, unsure, h]) => [id, { right, unsure, at: now - h * H }])),
+        }),
+      );
+    },
+    { KEY, done, recall, H },
+  );
   await page.goto(path);
   // hydrated (an island with nothing due renders nothing, so wait for it attached, not visible); the home page has none
   if (path !== '/') await page.locator('astro-island:not([ssr])').first().waitFor({ state: 'attached' });
@@ -42,7 +56,9 @@ test.describe('recap', () => {
     }
   });
 
-  test('with chapters 1 and 2 done, only their items are asked; the summary comes after the last answer', async ({ page }) => {
+  test('with chapters 1 and 2 done, only their items are asked; the summary comes after the last answer', async ({
+    page,
+  }) => {
     await open(page, '/dev/recap/', { [CH1]: 1, [CH2]: 1 });
     const asked: string[] = [];
     for (let i = 0; i < 4; i++) {
@@ -68,7 +84,9 @@ test.describe('recap', () => {
     expect(Object.keys(stored).sort()).toEqual(['h-1', 'h-pin', 'w-1', 'w-2']);
   });
 
-  test('reloading mid-recap keeps the order and the position; a finished run says so, and Retake starts again', async ({ page }) => {
+  test('reloading mid-recap keeps the order and the position; a finished run says so, and Retake starts again', async ({
+    page,
+  }) => {
     await open(page, '/dev/recap/', { [CH1]: 1 });
     const first = await question(page).innerText();
     await answer(page, /^(The host|No)$/);
@@ -101,7 +119,7 @@ test.describe('recap', () => {
   test('can be finished with the keyboard alone', async ({ page }) => {
     await open(page, '/dev/recap/', { [CH1]: 1 });
     for (let i = 0; i < 2; i++) {
-      await page.keyboard.press('Tab');                 // first option (from the page, or from the focused count)
+      await page.keyboard.press('Tab'); // first option (from the page, or from the focused count)
       await expect(page.getByRole('radio').first()).toBeFocused();
       await page.keyboard.press('Enter');
       await expect(page.locator('.recap .feedback')).toBeFocused();
@@ -143,26 +161,38 @@ test.describe('recap', () => {
 test.describe('warm-up', () => {
   const warm = (page: Page) => page.locator('.warmup');
 
-  test('shows for a chapter finished 21 hours ago: at most three items, missed first, collapsed until started', async ({ page }) => {
-    await open(page, '/dev/warmup/', { [CH1]: 21, [CH2]: 21 }, [['w-2', false, false, 25], ['h-pin', true, false, 25]]);
+  test('shows for a chapter finished 21 hours ago: at most three items, missed first, collapsed until started', async ({
+    page,
+  }) => {
+    await open(page, '/dev/warmup/', { [CH1]: 21, [CH2]: 21 }, [
+      ['w-2', false, false, 25],
+      ['h-pin', true, false, 25],
+    ]);
     await expect(warm(page)).toContainText('3 quick questions from chapters you finished');
-    await expect(page.getByRole('radiogroup')).toHaveCount(0);                  // collapsed
-    await expect(page.getByRole('link', { name: 'Skip to chapter 3 →' })).toHaveAttribute('href', '/rag/03-what-is-rag/');
+    await expect(page.getByRole('radiogroup')).toHaveCount(0); // collapsed
+    await expect(page.getByRole('link', { name: 'Skip to chapter 3 →' })).toHaveAttribute(
+      'href',
+      '/rag/03-what-is-rag/',
+    );
     await page.getByRole('button', { name: 'Start the warm-up' }).click();
     await expect(count(page)).toBeFocused();
-    await expect(question(page)).toContainText('Fixture w-2');                  // the missed one first
+    await expect(question(page)).toContainText('Fixture w-2'); // the missed one first
     await answer(page, 'No');
     await answer(page, 'No');
     await answer(page, 'No');
     await expect(warm(page).getByRole('heading', { name: /All 3 answers right/ })).toBeFocused();
     await expect(page.getByRole('link', { name: 'Continue: chapter 3 →' })).toBeVisible();
-    await page.reload();                                                          // one warm-up per return: nothing due now
+    await page.reload(); // one warm-up per return: nothing due now
     await page.locator('astro-island:not([ssr])').first().waitFor({ state: 'attached' });
     await expect(warm(page)).toHaveCount(0);
   });
 
   test('a pinned item the reader has not mastered is always in it', async ({ page }) => {
-    await open(page, '/dev/warmup/', { [CH1]: 21, [CH2]: 21 }, [['w-1', false, false, 25], ['w-2', false, false, 25], ['h-pin', false, false, 25]]);
+    await open(page, '/dev/warmup/', { [CH1]: 21, [CH2]: 21 }, [
+      ['w-1', false, false, 25],
+      ['w-2', false, false, 25],
+      ['h-pin', false, false, 25],
+    ]);
     await page.getByRole('button', { name: 'Start the warm-up' }).click();
     await expect(question(page)).toContainText('Fixture h-pin');
   });
@@ -194,7 +224,9 @@ test.describe('warm-up', () => {
   test.describe('on RAG’s own pages', () => {
     const chapter = RECALL[0].chapter;
 
-    test('home Continue goes through the warm-up when one is due, and the intro’s Continue does not change', async ({ page }) => {
+    test('home Continue goes through the warm-up when one is due, and the intro’s Continue does not change', async ({
+      page,
+    }) => {
       await open(page, '/', { [chapter]: 21 });
       const go = page.locator('[data-continue]');
       await expect(go).toHaveAttribute('href', '/rag/#warmup');

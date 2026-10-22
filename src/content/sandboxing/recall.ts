@@ -5,8 +5,11 @@ import type { RecallItem } from '../../lib/recall';
 export const RECALL: RecallItem[] = [
   // 1. Where the code runs
   {
-    id: 'sandbox-is-boundary', chapter: '01-where-it-runs', pin: true,   // the module's single most important idea: exactly one pin
-    question: 'A team adds a line to the agent’s instructions: “never read files outside your task.” Is the agent’s code now safe to run on a laptop with the developer’s full access?',
+    id: 'sandbox-is-boundary',
+    chapter: '01-where-it-runs',
+    pin: true, // the module's single most important idea: exactly one pin
+    question:
+      'A team adds a line to the agent’s instructions: “never read files outside your task.” Is the agent’s code now safe to run on a laptop with the developer’s full access?',
     options: [
       'Yes: the instruction tells the agent what it may touch, so it stays in bounds',
       'No: an instruction is advice the model can be talked out of; a sandbox is a boundary the operating system enforces whatever the agent is told',
@@ -22,8 +25,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'same-attack-two-places', chapter: '01-where-it-runs',
-    question: 'The same compromised task runs once on the host and once in a sandbox. On the host it sends a file out; in the sandbox it does not. Why?',
+    id: 'same-attack-two-places',
+    chapter: '01-where-it-runs',
+    question:
+      'The same compromised task runs once on the host and once in a sandbox. On the host it sends a file out; in the sandbox it does not. Why?',
     options: [
       'The model behaved differently the second time',
       'The sandbox stopped the action from outside the model, so the same request was refused',
@@ -40,8 +45,10 @@ export const RECALL: RecallItem[] = [
   },
   // 2. Files
   {
-    id: 'hidden-vs-readonly', chapter: '02-files',
-    question: 'An agent builds a report. It must read a template and write the result, but a secrets file sits in the same tree. What is the right filesystem policy?',
+    id: 'hidden-vs-readonly',
+    chapter: '02-files',
+    question:
+      'An agent builds a report. It must read a template and write the result, but a secrets file sits in the same tree. What is the right filesystem policy?',
     options: [
       'Mount everything writable so nothing breaks',
       'Expose the template read-only, the output directory writable, and hide the secrets file',
@@ -57,8 +64,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'default-broad', chapter: '02-files',
-    question: 'A developer turns on a sandbox and assumes credential files like ~/.ssh are now safe from the agent. Is that assumption right?',
+    id: 'default-broad',
+    chapter: '02-files',
+    question:
+      'A developer turns on a sandbox and assumes credential files like ~/.ssh are now safe from the agent. Is that assumption right?',
     options: [
       'Yes: a sandbox hides all sensitive files by default',
       'No: by default a sandbox can read most of the machine, so files you don’t want read must be hidden on purpose',
@@ -75,8 +84,10 @@ export const RECALL: RecallItem[] = [
   },
   // 3. Network
   {
-    id: 'egress-tradeoff', chapter: '03-network',
-    question: 'A team sets the agent’s egress to “off” so nothing can leak. The agent’s task needs to call the company API. What happens?',
+    id: 'egress-tradeoff',
+    chapter: '03-network',
+    question:
+      'A team sets the agent’s egress to “off” so nothing can leak. The agent’s task needs to call the company API. What happens?',
     options: [
       'The task runs fine: internal APIs are always allowed',
       'The task is blocked too: egress off stops the real API call as well as any leak, so it’s a false block',
@@ -92,7 +103,8 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'allowlist-proxy', chapter: '03-network',
+    id: 'allowlist-proxy',
+    chapter: '03-network',
     question: 'What does an allow-list through a proxy give you that “egress off” and “egress open” do not?',
     options: [
       'Nothing: it is just “open” with extra steps',
@@ -110,8 +122,10 @@ export const RECALL: RecallItem[] = [
   },
   // 4. Secrets
   {
-    id: 'secret-location', chapter: '04-secrets',
-    question: 'The agent needs an API token. A colleague puts it in an environment variable inside the sandbox “so the agent can use it.” What is the risk?',
+    id: 'secret-location',
+    chapter: '04-secrets',
+    question:
+      'The agent needs an API token. A colleague puts it in an environment variable inside the sandbox “so the agent can use it.” What is the risk?',
     options: [
       'None: the sandbox protects the environment',
       'A compromised agent can read the variable and send the token out; better to let a proxy hold it and add it only on allowed requests',
@@ -127,8 +141,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'proxy-injects', chapter: '04-secrets',
-    question: 'With the secret held by the proxy, the agent still manages to call the company API successfully. How, if it never sees the token?',
+    id: 'proxy-injects',
+    chapter: '04-secrets',
+    question:
+      'With the secret held by the proxy, the agent still manages to call the company API successfully. How, if it never sees the token?',
     options: [
       'It guessed the token',
       'The proxy adds the real token to the agent’s request on the way out, only for allowed hosts',
@@ -145,8 +161,10 @@ export const RECALL: RecallItem[] = [
   },
   // 5. An allowed door still leaks
   {
-    id: 'allowed-door-leak', chapter: '05-allowed-door',
-    question: 'An agent may only reach the company’s own API host. A colleague says “so data can’t leak.” What do you tell them?',
+    id: 'allowed-door-leak',
+    chapter: '05-allowed-door',
+    question:
+      'An agent may only reach the company’s own API host. A colleague says “so data can’t leak.” What do you tell them?',
     options: [
       'Agreed: if the only host is ours, nothing can get out',
       'An attack can hide stolen data inside a request to the allowed host, so the allow-list alone does not stop a leak',
@@ -162,8 +180,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'break-a-leg', chapter: '05-allowed-door',
-    question: 'The lethal trifecta is private data, untrusted content, and a way out. The agent has all three. What is the most reliable fix for the allowed-door leak?',
+    id: 'break-a-leg',
+    chapter: '05-allowed-door',
+    question:
+      'The lethal trifecta is private data, untrusted content, and a way out. The agent has all three. What is the most reliable fix for the allowed-door leak?',
     options: [
       'Add a longer instruction telling the agent not to leak',
       'Remove one leg: for example, don’t mount the private data the task doesn’t need',
@@ -180,8 +200,10 @@ export const RECALL: RecallItem[] = [
   },
   // 6. Fewer prompts, same safety
   {
-    id: 'fewer-prompts', chapter: '06-fewer-prompts',
-    question: 'A team used to approve almost every action the agent took. After adding a sandbox, far fewer approvals are needed. Why is that still safe?',
+    id: 'fewer-prompts',
+    chapter: '06-fewer-prompts',
+    question:
+      'A team used to approve almost every action the agent took. After adding a sandbox, far fewer approvals are needed. Why is that still safe?',
     options: [
       'It isn’t: fewer prompts always means less safety',
       'The boundary enforces the limits, so most actions can run freely; a person is asked only when an action would cross the boundary',
@@ -197,8 +219,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'approve-the-crossing', chapter: '06-fewer-prompts',
-    question: 'A person is asked to approve a fetch to a host the allow-list would block. They are busy and click yes. What have they done?',
+    id: 'approve-the-crossing',
+    chapter: '06-fewer-prompts',
+    question:
+      'A person is asked to approve a fetch to a host the allow-list would block. They are busy and click yes. What have they done?',
     options: [
       'Nothing risky: the sandbox still protects them',
       'They have let an action cross the boundary the sandbox existed to hold, handing the safety back to their own attention',
@@ -215,8 +239,10 @@ export const RECALL: RecallItem[] = [
   },
   // 7. Red-team the sandbox
   {
-    id: 'suite-measures-known', chapter: '07-red-team',
-    question: 'A sandbox policy now stops every attack in the red team’s suite and blocks no ordinary task. Is the agent safe?',
+    id: 'suite-measures-known',
+    chapter: '07-red-team',
+    question:
+      'A sandbox policy now stops every attack in the red team’s suite and blocks no ordinary task. Is the agent safe?',
     options: [
       'Yes: a 0% attack success rate means no attack can get through',
       'Only against the attacks in the suite: add each new attack, rerun both suites on every change, and ship only when neither rate gets worse',
@@ -232,8 +258,10 @@ export const RECALL: RecallItem[] = [
     ],
   },
   {
-    id: 'read-both-rates', chapter: '07-red-team',
-    question: 'Policy A stops every attack but blocks half the ordinary tasks. Policy B stops every attack and blocks none. Which do you ship, and why?',
+    id: 'read-both-rates',
+    chapter: '07-red-team',
+    question:
+      'Policy A stops every attack but blocks half the ordinary tasks. Policy B stops every attack and blocks none. Which do you ship, and why?',
     options: [
       'A, because blocking more is safer',
       'B: both stop every attack, so the one that blocks fewer real tasks is the better policy',

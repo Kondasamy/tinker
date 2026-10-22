@@ -3,7 +3,12 @@
 // schema.org structured data read off the path and the registry (home: the site; intro: the course; chapter: a lesson
 // in it, each with breadcrumbs). Share images live in public/og/<og>.jpg and are drawn by `pnpm og` (see AGENTS.md).
 import { MODULES } from '../lib/modules';
-interface Props { title: string; description: string; og: string; noindex?: boolean }
+interface Props {
+  title: string;
+  description: string;
+  og: string;
+  noindex?: boolean;
+}
 const { title, description, og, noindex } = Astro.props;
 const url = new URL(Astro.url.pathname, Astro.site);
 const image = new URL(`/og/${og}.jpg`, Astro.site);
@@ -18,20 +23,52 @@ const crumbs = (items: [string, string][]) => ({
 const [first, second] = Astro.url.pathname.split('/').filter(Boolean);
 const m = MODULES.find(x => x.id === first && x.status === 'live');
 const n = m ? m.chapters.findIndex(c => c.id === second) : -1;
-const course = m && { '@type': 'Course', name: m.title, description: m.description, url: abs(`/${m.id}/`), educationalLevel: m.level,
-  provider: { '@type': 'Organization', name: 'Tinker', url: abs('/') }, ...FREE };
+const course = m && {
+  '@type': 'Course',
+  name: m.title,
+  description: m.description,
+  url: abs(`/${m.id}/`),
+  educationalLevel: m.level,
+  provider: { '@type': 'Organization', name: 'Tinker', url: abs('/') },
+  ...FREE,
+};
 // recaps, the 404 and dev pages carry none
-const graph = noindex ? []
-  : !first ? [{ '@type': 'WebSite', name: 'Tinker', url: abs('/'), description, ...FREE }]
-  : m && !second ? [{ ...course, description }, crumbs([['Tinker', '/'], [m.title, `/${m.id}/`]])]
-  : m && n >= 0 ? [
-      { '@type': 'LearningResource', name: m.chapters[n].title, description, url: url.href, learningResourceType: 'Interactive lesson',
-        position: n + 1, educationalLevel: m.level, isPartOf: course, ...FREE },
-      crumbs([['Tinker', '/'], [m.title, `/${m.id}/`], [m.chapters[n].title, url.pathname]]),
-    ]
-  : [];
+const graph = noindex
+  ? []
+  : !first
+    ? [{ '@type': 'WebSite', name: 'Tinker', url: abs('/'), description, ...FREE }]
+    : m && !second
+      ? [
+          { ...course, description },
+          crumbs([
+            ['Tinker', '/'],
+            [m.title, `/${m.id}/`],
+          ]),
+        ]
+      : m && n >= 0
+        ? [
+            {
+              '@type': 'LearningResource',
+              name: m.chapters[n].title,
+              description,
+              url: url.href,
+              learningResourceType: 'Interactive lesson',
+              position: n + 1,
+              educationalLevel: m.level,
+              isPartOf: course,
+              ...FREE,
+            },
+            crumbs([
+              ['Tinker', '/'],
+              [m.title, `/${m.id}/`],
+              [m.chapters[n].title, url.pathname],
+            ]),
+          ]
+        : [];
 // `<` escaped so no string in the data can close the script
-const ld = graph.length ? JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c') : '';
+const ld = graph.length
+  ? JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c')
+  : '';
 ---
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />

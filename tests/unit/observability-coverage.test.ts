@@ -10,9 +10,12 @@ import { WORKBENCH_DOMAINS } from '../../src/lib/observability/workbench';
 const BUDGET = 40;
 
 describe('observability coverage (R3, KTD12)', () => {
-  it.each(Object.entries(DOMAINS).filter(([, d]) => 'traces' in d))('%s: every trace it offers exists and is well formed', (_, d) => {
-    for (const id of (d as { traces: string[] }).traces) expect(problems(traceOf(id)), id).toEqual([]);
-  });
+  it.each(Object.entries(DOMAINS).filter(([, d]) => 'traces' in d))(
+    '%s: every trace it offers exists and is well formed',
+    (_, d) => {
+      for (const id of (d as { traces: string[] }).traces) expect(problems(traceOf(id)), id).toEqual([]);
+    },
+  );
 
   it('chapter 2 offers failed traces only', () => {
     expect(DOMAINS['02-first-failure'].traces.every(id => !traceOf(id).ok)).toBe(true);

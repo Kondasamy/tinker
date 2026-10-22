@@ -1,30 +1,148 @@
 /* Observability stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
    tool-calling/kit). The Waterfall tab sits at the top of the frame at its own height, with its read-out line. */
-.ob-fall { margin: 0; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
-.tc-frame .ob-fall svg { height: auto; flex: none; }
-.ob-fall svg { width: 100%; display: block; font-family: ui-monospace, Menlo, monospace; font-weight: 700; }
-.ob-fall svg text { fill: var(--ink); }
-.ob-fall [role='listitem'] { cursor: pointer; outline: none; }
-.ob-fall [role='listitem']:focus-visible .ob-hit { stroke: var(--ink); stroke-width: 2; stroke-dasharray: 4 3; }
-.ob-fall .ob-stamp { font-weight: 900; letter-spacing: .08em; fill: var(--bad); }
-.ob-readout { margin: 0; font-size: 13.5px; min-height: 2.8em; overflow-wrap: anywhere; }
+.ob-fall {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+}
+.tc-frame .ob-fall svg {
+  height: auto;
+  flex: none;
+}
+.ob-fall svg {
+  width: 100%;
+  display: block;
+  font-family: ui-monospace, Menlo, monospace;
+  font-weight: 700;
+}
+.ob-fall svg text {
+  fill: var(--ink);
+}
+.ob-fall [role="listitem"] {
+  cursor: pointer;
+  outline: none;
+}
+.ob-fall [role="listitem"]:focus-visible .ob-hit {
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+}
+.ob-fall .ob-stamp {
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  fill: var(--bad);
+}
+.ob-readout {
+  margin: 0;
+  font-size: 13.5px;
+  min-height: 2.8em;
+  overflow-wrap: anywhere;
+}
 
 /* the story column: a trace's card, its note, the chips under it */
-.ob-list { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-.ob-trace { border: 1.5px solid var(--rule); border-radius: 10px; padding: 8px 10px; background: var(--card); display: flex; flex-direction: column; gap: 6px; }
-.ob-trace[data-ok='0'] { box-shadow: inset 4px 0 0 var(--bad); }
-.ob-trace p { margin: 0; font-size: 13.5px; overflow-wrap: anywhere; }
-.ob-a { color: var(--muted); }
-.ob-note .lbl, .ob-field .lbl { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
-.ob-note { white-space: pre-wrap; }
-.ob-field { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
-.ob-field input, .ob-field select { font: inherit; font-size: 13.5px; padding: 5px 7px; border: 1.5px solid var(--ink); border-radius: 8px; background: var(--paper); color: var(--ink); max-width: 100%; }
-.ob-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.ob-chips .chip { text-align: left; white-space: normal; max-width: 100%; }
-.ob-moves { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12.5px; }
-.ob-groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 8px; }
-.ob-groups > div { border: 1.5px solid var(--ink); border-radius: 10px; padding: 6px 8px; background: var(--card); font-size: 13px; }
-.ob-headline { margin: 8px 0 0; font-size: 15px; }
-.ob-headline strong { font-size: 26px; margin-right: 4px; }
-.ob-hscroll { overflow-x: auto; max-width: 100%; }
-.ob-why { display: block; font-weight: 400; font-size: 12.5px; color: var(--muted); }
+.ob-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ob-trace {
+  border: 1.5px solid var(--rule);
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: var(--card);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ob-trace[data-ok="0"] {
+  box-shadow: inset 4px 0 0 var(--bad);
+}
+.ob-trace p {
+  margin: 0;
+  font-size: 13.5px;
+  overflow-wrap: anywhere;
+}
+.ob-a {
+  color: var(--muted);
+}
+.ob-note .lbl,
+.ob-field .lbl {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-right: 4px;
+}
+.ob-note {
+  white-space: pre-wrap;
+}
+.ob-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+.ob-field input,
+.ob-field select {
+  font: inherit;
+  font-size: 13.5px;
+  padding: 5px 7px;
+  border: 1.5px solid var(--ink);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  max-width: 100%;
+}
+.ob-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.ob-chips .chip {
+  text-align: left;
+  white-space: normal;
+  max-width: 100%;
+}
+.ob-moves {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+}
+.ob-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+.ob-groups > div {
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+  padding: 6px 8px;
+  background: var(--card);
+  font-size: 13px;
+}
+.ob-headline {
+  margin: 8px 0 0;
+  font-size: 15px;
+}
+.ob-headline strong {
+  font-size: 26px;
+  margin-right: 4px;
+}
+.ob-hscroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+.ob-why {
+  display: block;
+  font-weight: 400;
+  font-size: 12.5px;
+  color: var(--muted);
+}
