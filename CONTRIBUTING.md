@@ -1,22 +1,14 @@
-# Contributing to Tinker
+# Working on Tinker
 
-Thank you for helping. Tinker is a set of hand-drawn, playable explanations of tech concepts. Each **module** is one concept told as a short story the reader plays through. New modules, fixes to existing ones, and better pictures are all welcome.
+Tinker is a set of hand-drawn, playable explanations of tech concepts. Each **module** is one concept told as a short story the reader plays through. This repository is private; readers send module requests and feedback through the form on the home page (`#request`), not through issues.
 
 Before you change anything, read [AGENTS.md](AGENTS.md). It records the decisions behind the site (layout, story rules, pictures, share images, tooling). Each decision was made on purpose; change one only on purpose, and say so in your PR.
 
 ---
 
-## Ways to help
+## Planning a module
 
-| You want to… | Do this |
-|---|---|
-| Fix a bug, a typo or a confusing step | Open a PR directly. Small PRs are easiest to review. |
-| Improve a picture or a chapter | Open an issue first if the change is large, so we can agree on the direction. |
-| Add a new module (a new concept) | Open a **Module proposal** issue first (see below), then follow [docs/writing-a-module.md](docs/writing-a-module.md). |
-
-## Proposing a module
-
-Open an issue with the **Module proposal** template. It asks for:
+Before writing chapters, settle:
 
 - the concept, and who it is for;
 - its **level**: Beginner, Intermediate or Advanced (see the guide for what each means);
@@ -71,4 +63,4 @@ The same checks run on every pull request. Also open the pages you changed at de
 
 ## License
 
-By contributing you agree that your contribution is licensed under the project's [Apache License 2.0](LICENSE). Content you add must be yours to give, or properly licensed and credited.
+Content you add must be yours to give, or properly licensed and credited.

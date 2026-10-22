@@ -1,6 +1,6 @@
 ## What and why
 
-<!-- One or two sentences. Link the issue or module proposal if there is one. -->
+<!-- One or two sentences. Link the reader request if there is one. -->
 
 ## Checklist
 
