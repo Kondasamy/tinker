@@ -475,9 +475,11 @@ No monitoring is needed, because there is no backend.
 
 ---
 
-## Contributing
+## Requests and feedback
 
-All seventeen modules are live, and there is room for more: propose one. New modules and fixes arrive as pull requests to this repository. Start with [CONTRIBUTING.md](CONTRIBUTING.md) (setup, checks, the PR flow, credit) and [docs/writing-a-module.md](docs/writing-a-module.md) (the house style for a module). `pnpm new-module <id> "<Title>"` scaffolds a module, and `pnpm test` lists what it still needs.
+This repository is private. Readers ask for new modules or send feedback through the form at the bottom of the home page ([tinker.kondasamy.com/#request](https://tinker.kondasamy.com/#request)); it is mailed to the author through FormSubmit.
+
+To build a module, see [CONTRIBUTING.md](CONTRIBUTING.md) (setup, checks, the PR flow, credit) and [docs/writing-a-module.md](docs/writing-a-module.md) (the house style). `pnpm new-module <id> "<Title>"` scaffolds a module, and `pnpm test` lists what it still needs.
 
 ---
 
