@@ -312,7 +312,7 @@ test('chapter 4: r1 → r2 raises the agreement, and the shown percentage is the
   await expect(page.locator('.tc-caption')).toContainText(`(${pct('r1')})`);
   await c.getByRole('button', { name: 'Rubric r2' }).click();
   await expect(c.locator('tr[data-rubric="r2"] [data-agreement]')).toHaveText(pct('r2'));
-  expect(parseInt(pct('r2'))).toBeGreaterThan(parseInt(pct('r1')));
+  expect(parseInt(pct('r2'), 10)).toBeGreaterThan(parseInt(pct('r1'), 10));
   await expect(page.locator('.tc-caption')).toContainText(`(${pct('r2')})`);
 });
 

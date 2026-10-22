@@ -295,19 +295,21 @@ Shared by the Tokens, Transformers, Context, Fine-tuning, Structured outputs, Re
 - **The dev server has its own Vite cache (`node_modules/.vite-dev`).** `astro build` and `astro check` pre-bundle production React into the shared cache, which made a running dev server crash with `_jsxDEV is not a function` (figures flashed and vanished). Keep the `dev-cache` integration in `astro.config.mjs`.
 - **Imports from `public/` (Larkspur mini's `meta.json`) go through the `public-json` plugin in dev.** Vite would serve them as `/public/...` URLs and warn "Assets in public directory cannot be imported from JavaScript"; the plugin loads them as modules. Builds bundle them as before.
 - Dev-only pages (`/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap`, `/dev/warmup`, `/dev/agents`, `/dev/evals`, `/dev/guardrails`, `/dev/tokens`, `/dev/transformers`, `/dev/context`, `/dev/fine-tuning`, `/dev/structured-outputs`, `/dev/reasoning`, `/dev/small-models`, `/dev/inference`, `/dev/observability`, `/dev/sandboxing`, `/dev/multimodal`, `/dev/voice`, `/dev/og/*`) exist in `astro dev` or with `DEV_PAGES=1`; production builds leave them out.
+- **Biome lints; it does not format** (`biome.json`). The formatter is off so the repo's long-line style stays. Rules that fight the house style or misfire here (non-null `!`, SVG roles, Astro template imports, `fit`/`after` read as test helpers) are off; a11y is covered by axe in e2e. A real exception gets a `biome-ignore` with its reason, never a rule switched off for one site. Dependabot opens one grouped PR a month for npm and one for Actions.
 - The RAG index in `public/data/index/` is committed. Only rebuild it (`pnpm build:index`) after editing `data/corpus/` or `data/questions/`, never on a host.
 
 ## Checks before you call it done
 
 ```bash
 pnpm check       # types: 0 errors, 0 warnings
+pnpm lint        # Biome: 0 diagnostics
 pnpm test        # unit (Vitest)
 pnpm test:e2e    # every chapter played through, axe, keyboard only, reduced motion, phone, offline, share images
 ```
 
 Look at the pages you changed (desktop and 390px wide), not just the tests. New behaviour gets a test.
 
-`tests/unit/registry.test.ts` walks `MODULES` and the files: it fails, naming what is missing, when a live module lacks a level, an author, a page, the Colorfigures credit on its intro, a share image, recall items for every chapter (exactly one pinned) or an e2e spec, or when module ids, paths or share images collide. CI (`.github/workflows/checks.yml`) runs all three commands on every PR.
+`tests/unit/registry.test.ts` walks `MODULES` and the files: it fails, naming what is missing, when a live module lacks a level, an author, a page, the Colorfigures credit on its intro, a share image, recall items for every chapter (exactly one pinned) or an e2e spec, or when module ids, paths or share images collide. CI (`.github/workflows/checks.yml`) runs all four commands on every PR.
 
 ## Adding a module
 

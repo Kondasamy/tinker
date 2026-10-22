@@ -84,7 +84,9 @@ export function Flat({ fig, role, label, onKeyDown, svgRef, className }: { fig: 
   const id = 'tf' + useId().replace(/[^\w-]/g, '');
   return (
     <svg ref={svgRef} className={className} viewBox={`0 0 ${fig.w} ${fig.h}`} width={fig.w} role={role} aria-label={label} onKeyDown={onKeyDown}>
+      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: the ink filter, built from numbers */}
       <defs dangerouslySetInnerHTML={{ __html: filterFor(1, id) }} />
+      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: SVG markup the kit built, every string escaped (esc) */}
       <g filter={`url(#${id})`} dangerouslySetInnerHTML={{ __html: fig.svg }} />
     </svg>
   );

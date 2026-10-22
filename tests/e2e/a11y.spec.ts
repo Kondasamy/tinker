@@ -95,7 +95,7 @@ const morphFrames = (page: Page) => page.evaluate(() => new Promise<number>(res 
   [...document.querySelectorAll('button')].find(b => b.textContent === 'Open the workbench')!.click();
   const tick = () => {
     const r = document.querySelector('[data-block="llm"]')?.getBoundingClientRect();
-    if (r && r.width) seen.add(`${Math.round(r.x)},${Math.round(r.y)}`);
+    if (r?.width) seen.add(`${Math.round(r.x)},${Math.round(r.y)}`);
     if (performance.now() - t0 < 400) requestAnimationFrame(tick); else res(seen.size);
   };
   requestAnimationFrame(tick);

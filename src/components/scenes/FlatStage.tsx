@@ -35,8 +35,10 @@ export default function FlatStage({ lanes, msgs, upTo = msgs.length, onPick, cla
   const svg = (s: { svg: string; w: number; h: number }, cls: string, id: string, aria: string) => (
     <svg className={cls} viewBox={`0 0 ${s.w} ${s.h}`} role={onPick ? 'group' : 'img'} aria-label={aria}
       onClick={onPick && click} onKeyDown={onPick && key}>
+      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: the ink filter, built from numbers */}
       <defs dangerouslySetInnerHTML={{ __html: filterFor(1, prefix + id) }} />
       {/* the kit escapes every message text (esc) before it reaches this string */}
+      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: SVG markup the kit built, every string escaped (esc) */}
       <g filter={`url(#${prefix + id})`} dangerouslySetInnerHTML={{ __html: s.svg }} />
     </svg>
   );

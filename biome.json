@@ -1,0 +1,40 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
+  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  "files": {
+    "includes": ["**", "!!**/dist", "!data", "!public", "!tests/fixtures", "!videos", "!src/lib/iso/core.js"]
+  },
+  "formatter": { "enabled": false },
+  "assist": { "enabled": false },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "style": { "noNonNullAssertion": "off", "useTemplate": "off", "noDescendingSpecificity": "off" },
+      "complexity": { "noImportantStyles": "off", "noUselessFragments": "off", "useLiteralKeys": "off" },
+      "suspicious": {
+        "noAssignInExpressions": "off",
+        "useIterableCallbackReturn": "off",
+        "noArrayIndexKey": "off",
+        "noExplicitAny": "off",
+        "noFocusedTests": "off",
+        "noDuplicateTestHooks": "off"
+      },
+      "correctness": { "useExhaustiveDependencies": "off" },
+      "a11y": {
+        "useSemanticElements": "off",
+        "noAriaHiddenOnFocusable": "off",
+        "noNoninteractiveTabindex": "off",
+        "noInteractiveElementToNoninteractiveRole": "off",
+        "useKeyWithClickEvents": "off",
+        "noStaticElementInteractions": "off"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["**/*.astro"],
+      "linter": { "rules": { "correctness": { "noUnusedImports": "off", "noUnusedVariables": "off" }, "style": { "useImportType": "off" } } }
+    }
+  ]
+}

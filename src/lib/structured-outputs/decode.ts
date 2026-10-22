@@ -86,7 +86,7 @@ export function decode(model: Model, prompt: string, g: Grammar | null, o: Decod
 /** Where an enum's values part ways: the step, and each value's share of the masked probability there. */
 export function shares(g: Grammar, d: Decoded, field: string): { step: number; values: { value: string; p: number }[] } | null {
   const at = 2 * Object.keys(g.schema.properties).indexOf(field) + 1, part = g.parts[at];
-  if (!part || part.kind !== 'alts') return null;
+  if (part?.kind !== 'alts') return null;
   const bytesText = (id: number) => String.fromCharCode(...pieceBytes(id));
   for (let i = 0; i < d.steps.length; i++) {
     const st = d.steps[i];

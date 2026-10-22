@@ -24,6 +24,7 @@ export async function loadSuite(loader: Loader = fetchLoader()): Promise<Suite> 
 
 // one suite per page, shared by the stage and every control; a failure clears it so Retry starts over
 type State = { suite: Suite | null; failed: boolean };
+// biome-ignore lint/correctness/noUnusedVariables: `pending` is read by `??=` in start()
 let state: State = { suite: null, failed: false }, pending: Promise<void> | null = null;
 const subs = new Set<() => void>();
 const set = (s: State) => { state = s; subs.forEach(f => f()); };
@@ -59,8 +60,10 @@ export function Grid({ cols, questions = QUESTION_TEXT }: { cols: GridCol[]; que
     const g = evalGrid({ questions, cols, phone }), id = prefix + (phone ? 'p' : 'w');
     return (
       <svg className={phone ? 'ev-grid-phone' : 'ev-grid-wide'} viewBox={`0 0 ${g.w} ${g.h}`} role="group" aria-label={label}>
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: the ink filter, built from numbers */}
         <defs dangerouslySetInnerHTML={{ __html: filterFor(1, id) }} />
         {/* evalGrid escapes every question and label (esc) before it reaches this string */}
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: SVG markup the kit built, every string escaped (esc) */}
         <g filter={`url(#${id})`} dangerouslySetInnerHTML={{ __html: g.svg }} />
       </svg>
     );
