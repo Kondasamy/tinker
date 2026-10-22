@@ -1,0 +1,34 @@
+{
+  "provider": "elevenlabs",
+  "speed": "1.0",
+  "lines": [
+    {
+      "id": "01",
+      "text": "RAG. KV cache. Prompt injection. You've heard them. Ever seen one work?"
+    },
+    {
+      "id": "02",
+      "text": "RAG? It looks things up before it answers. KV cache? Notes the model keeps, so it never re-reads your prompt. Prompt injection? An email that tricks your assistant."
+    },
+    {
+      "id": "03",
+      "text": "Quick test. Same message, English or Hindi. Which costs the model more tokens?"
+    },
+    {
+      "id": "04",
+      "text": "Hindi. Eighteen tokens to English's ten. Guess first, then see why. That's every chapter."
+    },
+    {
+      "id": "05",
+      "text": "Seventeen modules. Hand-drawn. Build it, break it, fix it. And more on the way."
+    },
+    {
+      "id": "06",
+      "text": "Tinker. Tech concepts you can play with. Free. No sign-up."
+    }
+  ],
+  "bgm": {
+    "mode": "none"
+  },
+  "voice": "TX3LPaxmHKxFdv7VOQHJ"
+}

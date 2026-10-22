@@ -22,7 +22,7 @@ const decoded = (model: Model) => play(model, RUN).decoded;
 /** Room left in the note before step i (null outside the note's string). */
 function room(model: Model, i: number): number | null {
   const s = decoded(model).steps[i]?.state;
-  if (!s || s.part !== 1 || !s.buf.startsWith('"')) return null;
+  if (s?.part !== 1 || !s.buf.startsWith('"')) return null;
   return CAP - (s.buf.length - 1);
 }
 /** The first step with two characters of room or less (but not none), and the step before it. */

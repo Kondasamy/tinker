@@ -5,7 +5,7 @@ import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
-import { type Approval } from '../../lib/sandboxing/loop';
+import type { Approval } from '../../lib/sandboxing/loop';
 import { sandboxLanes, sandboxMessages } from '../../components/scenes/sandboxSequence';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';

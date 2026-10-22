@@ -1,0 +1,130 @@
+<template>
+  <div data-hf-id="hf-c5t3" id="root" data-composition-id="01-play" data-start="0" data-duration="11.9" data-width="1080" data-height="1080">
+    <!-- approved frame video hoisted by assemble-index -->
+
+    <div data-hf-id="hf-8mv3" id="01-play-overlay" class="clip" data-start="0" data-duration="11.9" data-track-index="1">
+      <div data-hf-id="hf-ia0y" id="01-play-chip"><span data-hf-id="hf-dwfy" id="01-play-chip-a">PREDICT FIRST</span><span data-hf-id="hf-8uf8" id="01-play-chip-b">FEED IT IN</span><span data-hf-id="hf-ur3w" id="01-play-chip-c">TYPE YOUR OWN</span></div>
+
+      <div data-hf-id="hf-gdgp" id="01-play-stampwrap">
+        <div data-hf-id="hf-ghdy" id="01-play-stamp21" class="01-play-stamp">21 TOKENS</div>
+        <div data-hf-id="hf-m1y0" id="01-play-stamp19" class="01-play-stamp">19 TOKENS</div>
+      </div>
+      <div data-hf-id="hf-fi39" id="01-play-pillwrap"><div data-hf-id="hf-jyrp" id="01-play-pill">YOUR WORDS, LIVE</div></div>
+
+      <div data-hf-id="hf-4511" id="01-play-ripples"></div>
+
+      <svg data-hf-id="hf-xgiv" id="01-play-cursor" width="48" height="64" viewBox="-2 -2 48 64">
+        <path data-hf-id="hf-9jyy" d="M0 0 L0 50 L12 39 L20 58 L29 54 L21 36 L37 36 Z" transform="translate(5 5)" fill="#231E16"/>
+        <path data-hf-id="hf-6o08" d="M0 0 L0 50 L12 39 L20 58 L29 54 L21 36 L37 36 Z" fill="#F2EFE7" stroke="#231E16" stroke-width="5" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <style>
+      @font-face { font-family: "Archivo Black"; src: url("assets/fonts/archivo-black-400-latin.woff2") format("woff2"); font-weight: 400; }
+      @font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/jetbrains-mono-400-latin.woff2") format("woff2"); font-weight: 400; }
+      #root { position: relative; width: 1080px; height: 1080px; overflow: hidden; }
+      [id="01-play-overlay"] { position: absolute; inset: 0; pointer-events: none; }
+      [id="01-play-chip"] {
+        position: absolute; left: 40px; top: 40px; height: 64px;
+        background: #FFB627; border: 4px solid #231E16; color: #231E16;
+        font-family: "Archivo Black", sans-serif; font-size: 30px; line-height: 0.92; text-transform: uppercase;
+        display: flex; align-items: center; padding: 0 22px;
+      }
+      [id="01-play-chip"] span { position: absolute; left: 22px; top: 50%; margin-top: -14px; white-space: nowrap; }
+      [id="01-play-chip-a"] { position: static !important; margin-top: 0 !important; }
+      [id="01-play-stampwrap"] { position: absolute; left: 0; right: 0; top: 610px; height: 150px; display: grid; place-items: center; }
+      .\30 1-play-stamp {
+        grid-area: 1 / 1; height: 140px; padding: 0 40px;
+        display: flex; align-items: center; justify-content: center;
+        background: #FFB627; border: 5px solid #231E16; color: #231E16;
+        font-family: "Archivo Black", sans-serif; font-size: 88px; line-height: 0.92; letter-spacing: -0.01em; text-transform: uppercase;
+        box-shadow: 14px 14px 0 #EF6A4C, 14px 14px 0 3px #231E16;
+      }
+      [id="01-play-pillwrap"] { position: absolute; left: 0; right: 0; top: 800px; display: flex; justify-content: center; }
+      [id="01-play-pill"] {
+        background: #231E16; color: #F2EFE7; border-radius: 999px; padding: 14px 28px;
+        font-family: "JetBrains Mono", monospace; font-size: 28px; letter-spacing: 0.06em; text-transform: uppercase;
+      }
+      .\30 1-play-ripple {
+        position: absolute; width: 120px; height: 120px; margin: -60px 0 0 -60px;
+        border: 7px solid #EF6A4C; border-radius: 50%;
+      }
+      [id="01-play-cursor"] { position: absolute; left: 0; top: 0; margin: -2px 0 0 -2px; overflow: visible; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      (function () {
+        var $ = function (id) { return document.getElementById("01-play-" + id); };
+        var clicks = [
+          { t: 1.105, x: 806, y: 886 },
+          { t: 1.885, x: 782, y: 941 },
+          { t: 4.789, x: 310, y: 199 },
+          { t: 7.098, x: 806, y: 865 },
+          { t: 9.299, x: 698, y: 941 }
+        ];
+        var cursor = $("cursor"), chip = $("chip");
+        var ca = $("chip-a"), cb = $("chip-b"), cc = $("chip-c");
+        var s21 = $("stamp21"), s19 = $("stamp19"), pill = $("pill");
+
+        // hidden-at-start states (outside the timeline)
+        gsap.set([cursor, chip, cb, cc, s21, s19, pill], { autoAlpha: 0 });
+        gsap.set(cursor, { x: clicks[0].x + 140, y: clicks[0].y + 110, transformOrigin: "0 0" });
+
+        var tl = gsap.timeline({ paused: true });
+
+        // cursor: appear 0.45s before at (+140,+110), glide, press, linger 0.3s, fade.
+        // A click whose approach starts before the previous fade glides on from the previous point instead.
+        clicks.forEach(function (c, i) {
+          var prev = clicks[i - 1], next = clicks[i + 1];
+          var chained = prev && c.t - 0.45 < prev.t + 0.5;
+          var start = c.t - 0.45;
+          if (!chained) {
+            tl.set(cursor, { x: c.x + 140, y: c.y + 110 }, start);
+            tl.to(cursor, { autoAlpha: 1, duration: 0.12, ease: "none" }, start);
+            tl.to(cursor, { x: c.x, y: c.y, duration: 0.38, ease: "power2.out" }, start);
+          } else {
+            tl.to(cursor, { x: c.x, y: c.y, duration: 0.4, ease: "power2.inOut" }, prev.t + 0.3);
+          }
+          tl.to(cursor, { scale: 0.84, duration: 0.07, ease: "power2.in" }, c.t - 0.03);
+          tl.to(cursor, { scale: 1, duration: 0.18, ease: "back.out(3)" }, c.t + 0.04);
+          if (!(next && next.t - 0.45 < c.t + 0.5)) {
+            tl.to(cursor, { autoAlpha: 0, duration: 0.2, ease: "none" }, c.t + 0.3);
+          }
+          var r = document.createElement("div");
+          r.className = "01-play-ripple";
+          r.style.left = c.x + "px";
+          r.style.top = c.y + "px";
+          $("ripples").appendChild(r);
+          gsap.set(r, { autoAlpha: 0 });
+          tl.fromTo(r, { scale: 0.2, autoAlpha: 1 }, { scale: 1.8, autoAlpha: 0, duration: 0.55, ease: "power2.out", immediateRender: false }, c.t);
+        });
+
+        // chip: PREDICT FIRST -> FEED IT IN -> clear at 4.5 cut -> TYPE YOUR OWN -> clear at 9.5 cut
+        tl.fromTo(chip, { autoAlpha: 0, scale: 0.6, rotation: -6 }, { autoAlpha: 1, scale: 1, rotation: 0, duration: 0.28, ease: "back.out(2.4)" }, 0.2);
+        tl.set(ca, { autoAlpha: 0 }, 1.885);
+        tl.set(cb, { autoAlpha: 1 }, 1.885);
+        tl.fromTo(chip, { scale: 1.12 }, { scale: 1, duration: 0.22, ease: "back.out(3)", immediateRender: false }, 1.885);
+        tl.set(chip, { autoAlpha: 0 }, 4.5);
+        tl.set(cb, { autoAlpha: 0 }, 4.5);
+        tl.set(cc, { autoAlpha: 1 }, 7.2);
+        tl.fromTo(chip, { autoAlpha: 0, scale: 0.6, rotation: -6 }, { autoAlpha: 1, scale: 1, rotation: 0, duration: 0.28, ease: "back.out(2.4)", immediateRender: false }, 7.2);
+        tl.set(chip, { autoAlpha: 0 }, 9.5);
+
+        // stamps slam into the empty paper below the tile row
+        tl.fromTo(s21, { autoAlpha: 0, scale: 2.3, rotation: -12 }, { autoAlpha: 1, scale: 1, rotation: -4, duration: 0.2, ease: "power3.in" }, 5.1);
+        tl.fromTo(s21, { y: 0 }, { y: 6, duration: 0.06, ease: "none", immediateRender: false }, 5.3);
+        tl.to(s21, { y: 0, duration: 0.14, ease: "back.out(3)" }, 5.36);
+        tl.set(s21, { autoAlpha: 0 }, 7.0);
+        tl.fromTo(s19, { autoAlpha: 0, scale: 2.3, rotation: 10 }, { autoAlpha: 1, scale: 1, rotation: 3, duration: 0.2, ease: "power3.in" }, 9.7);
+        tl.fromTo(s19, { y: 0 }, { y: 6, duration: 0.06, ease: "none", immediateRender: false }, 9.9);
+        tl.to(s19, { y: 0, duration: 0.14, ease: "back.out(3)" }, 9.96);
+        tl.fromTo(pill, { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.26, ease: "back.out(2.6)" }, 10.2);
+
+        tl.set({}, {}, 11.5);
+        window.__timelines = window.__timelines || {};
+        window.__timelines["01-play"] = tl;
+      })();
+    </script>
+  </div>
+</template>

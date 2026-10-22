@@ -1,0 +1,93 @@
+<template id="06-workshop-template">
+  <div data-hf-id="hf-b8bc" id="root" data-composition-id="06-workshop" data-start="0" data-duration="5.429" data-width="1080" data-height="1080">
+    <style>
+@font-face{font-family:'Archivo Black';src:url(assets/fonts/archivo-black-400-latin.woff2) format('woff2');}
+@font-face{font-family:'Space Grotesk';font-weight:300 700;src:url(assets/fonts/space-grotesk-500-latin.woff2) format('woff2');}
+@font-face{font-family:'JetBrains Mono';font-weight:100 800;src:url(assets/fonts/jetbrains-mono-400-latin.woff2) format('woff2');}
+
+#root{width:1080px;height:1080px;position:relative;overflow:hidden;font-family:'Space Grotesk',sans-serif;color:#231E16;}
+.bg{position:absolute;inset:0;background:#F2EFE7;}
+.stage{position:absolute;inset:0;overflow:hidden;}
+#world-06-workshop{position:absolute;inset:0;transform-origin:50% 50%;}
+.chrome{z-index:3;position:absolute;top:36px;left:56px;right:56px;display:flex;justify-content:space-between;align-items:center;font:500 22px 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;}
+.chrome .pill{border:3px solid #231E16;border-radius:999px;padding:6px 18px;background:#FBF8F0;}
+.disp{font-family:'Archivo Black',sans-serif;text-transform:uppercase;line-height:.9;letter-spacing:-.01em;}
+.card{position:absolute;border:6px solid #231E16;box-shadow:14px 14px 0 #231E16;}
+/* chat window shared by frames 1-5 */
+.chat{left:56px;top:100px;width:956px;height:780px;background:#FBF8F0;overflow:hidden;}
+.chat .head{height:72px;background:#231E16;color:#F2EFE7;display:flex;align-items:center;justify-content:space-between;padding:0 28px;font:700 22px 'JetBrains Mono';letter-spacing:.1em;}
+.chat .head .live{color:#EF6A4C;}
+.row{position:absolute;left:28px;right:28px;display:flex;gap:20px;align-items:flex-start;}
+.av{flex:none;width:68px;height:68px;border:5px solid #231E16;display:flex;align-items:center;justify-content:center;font:400 24px 'Archivo Black';}
+.msg .who{font:700 20px 'JetBrains Mono';letter-spacing:.12em;margin-bottom:6px;}
+.msg .txt{font:500 40px/1.2 'Space Grotesk';}
+.hl{position:relative;z-index:5;background:#FFB627;border:4px solid #231E16;padding:0 8px;margin:0 2px;}
+.typing{position:absolute;left:28px;top:600px;font:700 20px 'JetBrains Mono';letter-spacing:.12em;color:#6F675A;}
+.typing b{display:inline-block;width:12px;height:12px;border-radius:50%;background:#231E16;margin-left:8px;}
+.react{display:inline-block;margin-top:10px;border:3px solid #231E16;border-radius:999px;padding:2px 14px;font:700 20px 'JetBrains Mono';background:#F2EFE7;}
+.dim{position:absolute;left:56px;top:172px;width:956px;height:708px;background:rgba(242,239,231,.55);}
+.freeze{position:absolute;right:70px;top:118px;background:#76A0E2;border:5px solid #231E16;padding:6px 18px;font-size:34px;transform:rotate(4deg);}
+.call{left:96px;top:370px;width:880px;height:480px;background:#FBF8F0;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.call img{width:1040px;height:600px;object-fit:contain;flex:none;}
+.gloss{position:absolute;right:76px;top:330px;background:#FFB627;border:5px solid #231E16;padding:12px 22px;font-size:36px;transform:rotate(3deg);z-index:3;}
+.stem{position:absolute;width:6px;background:#231E16;}
+
+#board{position:absolute;left:100px;top:240px;width:960px;height:653px;}
+#board img{width:100%;height:100%;object-fit:contain;}
+#num{z-index:2;left:56px;top:110px;background:#FFB627;padding:10px 26px 4px;transform:rotate(-3deg);}
+#num b{display:block;width:231px;white-space:nowrap;font:400 170px/0.85 'Archivo Black';font-variant-numeric:tabular-nums;transform-origin:0% 100%;}
+#num i{display:block;font:700 26px 'JetBrains Mono';letter-spacing:.16em;font-style:normal;}
+#grow{z-index:2;position:absolute;left:400px;top:118px;background:#F3A6BB;border:6px solid #231E16;box-shadow:10px 10px 0 #231E16;padding:12px 24px;font-size:46px;transform:rotate(4deg);}
+.chipw{z-index:2;position:absolute;white-space:nowrap;border:4px solid #231E16;border-radius:999px;background:#FFB627;padding:4px 16px;font:700 22px 'JetBrains Mono';letter-spacing:.08em;}
+</style>
+    <div data-hf-id="hf-190n" class="clip bg" data-start="0" data-duration="5.429" data-track-index="0"></div>
+    <div data-hf-id="hf-r3ut" class="clip stage" data-start="0" data-duration="5.429" data-track-index="1">
+      <div data-hf-id="hf-62c4" id="world-06-workshop">
+        <div data-hf-id="hf-7y3j" id="board"><img data-hf-id="hf-8d7g" src="assets/logo-aaab9ef1.svg" alt=""></div>
+      </div>
+      <div data-hf-id="hf-6ex2" class="chrome"><span data-hf-id="hf-9rj2">Tinker</span><span data-hf-id="hf-q03k" class="pill">06 / 07</span></div>
+      <div data-hf-id="hf-sjc8" id="num" class="card"><b data-hf-id="hf-dvm9" id="num-06-workshop">17</b><i data-hf-id="hf-qqhj" id="label-06-workshop">MODULES</i></div>
+      <div data-hf-id="hf-gkpi" id="grow" class="disp">&amp; growing</div>
+      <div data-hf-id="hf-b7mj" id="chip-06-workshop-agent" class="chipw" style="left:760px;top:262px">AGENT</div>
+      <div data-hf-id="hf-4lyo" id="chip-06-workshop-evals" class="chipw" style="left:800px;top:330px">EVALS</div>
+      <div data-hf-id="hf-70tk" id="chip-06-workshop-context" class="chipw" style="left:720px;top:515px">CONTEXT WINDOW</div>
+      <div data-hf-id="hf-40xp" id="chip-06-workshop-finetune" class="chipw" style="left:800px;top:620px">FINE-TUNE</div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      window.__timelines["06-workshop"] = tl;
+
+      // Camera: one world wrapper, T = -offset x S. Opening target = RAG plot (481,525) vs centre (540,540).
+      const world = document.getElementById("world-06-workshop");
+      const S0 = 2.6, OX = 481 - 540, OY = 525 - 540;
+      const cam = { scale: S0, x: -OX * S0, y: -OY * S0 };
+      const applyCamera = () => { world.style.transform = `translate(${cam.x}px, ${cam.y}px) scale(${cam.scale})`; };
+      applyCamera();
+
+      // Scene 1 (0-0.84): four chips stacked centre-frame (xPercent -50 centres any width), board tight behind
+      // Scene 2 (0.84-2.42): one decelerating zoom-out; chips fly, staggered, to their spots beside the module pills
+      const chips = [["agent", 262], ["evals", 330], ["context", 515], ["finetune", 620]];
+      chips.forEach(([id, top], i) => {
+        const el = document.getElementById("chip-06-workshop-" + id);
+        const left = parseFloat(el.style.left);
+        tl.fromTo(el,
+          { x: 540 - left, y: 380 + i * 76 - top, xPercent: -50, scale: 1.45, transformOrigin: "50% 50%" },
+          { x: 0, y: 0, xPercent: 0, scale: 1, duration: 1.15, ease: "power3.inOut" }, 0.84 + i * 0.1);
+      });
+      tl.fromTo(cam, { scale: S0, x: -OX * S0, y: -OY * S0 }, { scale: 1, x: 0, y: 0, duration: 1.58, ease: "power3.out", onUpdate: applyCamera }, 0.84);
+
+      // Scene 3 (2.45-3.39): 17 MODULES card slams in, counting 1 -> 17 while growing (counting-dynamic-scale)
+      tl.fromTo("#num", { opacity: 0, scale: 1.5, rotation: -3 }, { opacity: 1, scale: 1, rotation: -3, duration: 0.3, ease: "power4.out" }, 2.45);
+      const counter = document.getElementById("num-06-workshop");
+      const state = { v: 1 };
+      tl.fromTo(state, { v: 1 }, { v: 17, duration: 0.9, ease: "power3.out", onUpdate: () => { counter.textContent = Math.round(state.v); } }, 2.47);
+      tl.fromTo(counter, { scale: 0.5 }, { scale: 1, duration: 0.9, ease: "power3.out" }, 2.47);
+      tl.fromTo("#label-06-workshop", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 2.6);
+
+      // Scene 4 (3.39-5.03): "& GROWING" snaps in; hold, board locked
+      tl.fromTo("#grow", { opacity: 0, scale: 1.8, rotation: 4 }, { opacity: 1, scale: 1, rotation: 4, duration: 0.35, ease: "back.out(1.8)" }, 3.39);
+    </script>
+  </div>
+</template>

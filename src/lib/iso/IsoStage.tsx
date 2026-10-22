@@ -54,10 +54,12 @@ export default function IsoStage({ board: b, scene, label, light = 105, view = 0
   return (
     <svg {...rest} ref={svgRef} viewBox={`${+vx.toFixed(1)} ${+vy.toFixed(1)} ${vw.toFixed(1)} ${vh.toFixed(1)}`} role={role} aria-label={label}
       style={{ width: '100%', height: 'auto', display: 'block', overflow: k > 1 ? 'hidden' : 'visible', ...rest.style }}>
+      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: the ink filter, built from numbers */}
       <defs dangerouslySetInnerHTML={{ __html: filterFor(fr.inkK, prefix + 'hand') }} />
       {/* children share the camera, so they use the same coordinates as the art (pointer maths: this group's CTM) */}
       <g className="iso-cam" transform={cam}>
         {/* a picture (role img) has no controls inside: drawn blocks lose their button role, tab stop and name */}
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: SVG markup the kit built, every string escaped (esc) */}
         <g filter={`url(#${prefix}hand)`} dangerouslySetInnerHTML={{ __html: role === 'img' ? art.replace(/ role="button" tabindex="0" aria-label="[^"]*"/g, '') : art }} />
         {children}
       </g>

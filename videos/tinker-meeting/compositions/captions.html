@@ -1,0 +1,230 @@
+<template id="captions-template" data-composition-id="captions" data-width="1080" data-height="1080">
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+
+
+<style data-brand-tokens>
+      @font-face { font-family: 'Space Grotesk'; src: url('assets/fonts/space-grotesk-400-latin.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: block; }
+      @font-face { font-family: 'Space Grotesk'; src: url('assets/fonts/space-grotesk-500-latin.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: block; }
+      @font-face { font-family: 'Space Grotesk'; src: url('assets/fonts/space-grotesk-700-latin.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: block; }
+      :root {
+      --cream: #F2EFE7;
+      --cream-2: #FBF8F0;
+      --ink: #231E16;
+      --ink-2: #2A2A2A;
+      --green: #71B693;
+      --green-dark: #1F4034;
+      --pink: #F3A6BB;
+      --pink-dark: #D8869C;
+      --orange: #EF6A4C;
+      --yellow: #FFB627;
+      --blue: #76A0E2;
+      --cap-ink: #231E16;
+      --cap-canvas: #F2EFE7;
+      --cap-accent: #FFB627;
+      --cap-accent-2: #EF6A4C;
+      --font-display: "Space Grotesk", system-ui, serif;
+      --font-body: "Space Grotesk", system-ui, sans-serif;
+      --cap-band-top: 900px;
+      --cap-band-height: 180px;
+      }
+    </style>
+
+<style>
+  #captions-root {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .caption-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    pointer-events: none;
+  }
+  /* the keep-out band, from captionBand(H) — frame content stays above it */
+  .caption-stage {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: var(--cap-band-top, 900px);
+    height: var(--cap-band-height, 180px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .caption-group {
+    /* every group is absolutely stacked over the SAME band — exactly one shown at a
+       time via opacity. Must be absolute: in-flow groups would lay out side-by-side. */
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+  }
+
+  /* THE cream card — thick 4px ink border + the signature HARD offset shadow
+     (a solid same-direction orange+ink duplicate, no blur), square corners */
+  .caption-pill {
+    max-width: 80%;
+    padding: 18px 40px 22px;
+    background: var(--cap-canvas, #efe9d9);
+    border: 4px solid var(--cap-ink, #0f0f0f);
+    border-radius: 0;
+    box-shadow:
+      14px 14px 0 var(--cap-accent-2, #e85a1f),
+      14px 14px 0 4px var(--cap-ink, #0f0f0f);
+  }
+  .caption-line {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.16em 0.3em;
+    font-family: "Space Grotesk", sans-serif;
+    font-weight: 400;
+    text-transform: uppercase;
+    font-size: clamp(34px, 3.8vw, 52px);
+    line-height: 0.92;
+    letter-spacing: -0.01em;
+  }
+
+  /* upcoming — faint ink, no accent block */
+  .caption-word {
+    display: inline-block;
+    padding: 0.02em 0.1em;
+    color: color-mix(in srgb, var(--cap-ink, #0f0f0f) 38%, var(--cap-canvas, #efe9d9));
+  }
+  /* current word — THE hard yellow inked block (box-shadow spread = a hard square
+     block w/o layout shift; no blur), ink reading on top */
+  .caption-word.is-active {
+    color: var(--cap-ink, #0f0f0f);
+    background: var(--cap-accent, #f5c518);
+    box-shadow: 0 0 0 0.08em var(--cap-accent, #f5c518);
+  }
+  /* already spoken — solid ink, accent block cleared */
+  .caption-word.is-spoken {
+    color: var(--cap-ink, #0f0f0f);
+    background: transparent;
+    box-shadow: none;
+  }
+
+  /* optional per-word accents (dormant until a word-classer tags them) */
+  /* brand / key term — an inverted ink chip (the kicker-block voice) */
+  .caption-word.cap-brand {
+    color: var(--cap-canvas, #efe9d9);
+    background: var(--cap-ink, #0f0f0f);
+    box-shadow: 0 0 0 0.08em var(--cap-ink, #0f0f0f);
+  }
+  /* numerals / data — the mono voice, slightly recessed */
+  .caption-word.cap-num {
+    font-family: "Space Grotesk", ui-monospace, monospace;
+    color: color-mix(in srgb, var(--cap-ink, #0f0f0f) 72%, var(--cap-canvas, #efe9d9));
+  }
+  /* emphasis — a thick orange underline (the counter accent) */
+  .caption-word.cap-cta {
+    text-decoration: underline;
+    text-decoration-thickness: 3px;
+    text-decoration-color: var(--cap-accent-2, #e85a1f);
+    text-underline-offset: 0.12em;
+  }
+
+  @media (max-aspect-ratio: 9/16) {
+    .caption-pill {
+      max-width: 92%;
+    }
+    .caption-line {
+      font-size: clamp(30px, 5vw, 44px);
+    }
+  }
+</style>
+
+<div data-hf-id="hf-9pj2"
+  id="captions-root"
+  data-composition-id="captions"
+  data-timeline-locked
+  data-start="0"
+  data-duration="34.367"
+  data-fps="30"
+  data-width="1080"
+  data-height="1080"
+>
+  <div data-hf-id="hf-9flp" class="caption-layer" aria-hidden="true">
+    <div data-hf-id="hf-ajrg" id="caption-stage" class="caption-stage"></div>
+  </div>
+</div>
+
+<script>
+  // captions.mjs injects the engine's scene-aware groups + real duration here.
+  var GROUPS = [{"id":"caption-group-0","frame":1,"start":0,"end":0.4,"text":"Your PM","words":[{"id":"caption-word-0-0","text":"Your","start":0,"end":0.27},{"id":"caption-word-0-1","text":"PM","start":0.27,"end":0.39}]},{"id":"caption-group-1","frame":1,"start":0.4,"end":1.1,"text":"just said,","words":[{"id":"caption-word-1-0","text":"just","start":0.4,"end":0.67},{"id":"caption-word-1-1","text":"said,","start":0.67,"end":1.1}]},{"id":"caption-group-2","frame":1,"start":1.1,"end":1.65,"text":"let's add","words":[{"id":"caption-word-2-0","text":"let's","start":1.1,"end":1.44},{"id":"caption-word-2-1","text":"add","start":1.44,"end":1.65}]},{"id":"caption-group-3","frame":1,"start":1.65,"end":2.36,"text":"an agent.","words":[{"id":"caption-word-3-0","text":"an","start":1.65,"end":1.75},{"id":"caption-word-3-1","text":"agent.","start":1.78,"end":2.36}]},{"id":"caption-group-4","frame":1,"start":2.36,"end":2.61,"text":"Do you","words":[{"id":"caption-word-4-0","text":"Do","start":2.36,"end":2.46},{"id":"caption-word-4-1","text":"you","start":2.46,"end":2.61}]},{"id":"caption-group-5","frame":1,"start":2.61,"end":3.32,"text":"nod along?","words":[{"id":"caption-word-5-0","text":"nod","start":2.61,"end":2.75},{"id":"caption-word-5-1","text":"along?","start":2.76,"end":3.2}]},{"id":"caption-group-6","frame":2,"start":3.94,"end":4.49,"text":"An agent","words":[{"id":"caption-word-6-0","text":"An","start":3.94,"end":4.1},{"id":"caption-word-6-1","text":"agent","start":4.1,"end":4.48}]},{"id":"caption-group-7","frame":2,"start":4.49,"end":4.73,"text":"is a","words":[{"id":"caption-word-7-0","text":"is","start":4.49,"end":4.65},{"id":"caption-word-7-1","text":"a","start":4.65,"end":4.73}]},{"id":"caption-group-8","frame":2,"start":4.73,"end":5.27,"text":"model on","words":[{"id":"caption-word-8-0","text":"model","start":4.73,"end":5.11},{"id":"caption-word-8-1","text":"on","start":5.12,"end":5.27}]},{"id":"caption-group-9","frame":2,"start":5.27,"end":5.94,"text":"a loop.","words":[{"id":"caption-word-9-0","text":"a","start":5.27,"end":5.29},{"id":"caption-word-9-1","text":"loop.","start":5.36,"end":5.94}]},{"id":"caption-group-10","frame":2,"start":5.94,"end":6.58,"text":"It plans,","words":[{"id":"caption-word-10-0","text":"It","start":5.94,"end":6.08},{"id":"caption-word-10-1","text":"plans,","start":6.08,"end":6.58}]},{"id":"caption-group-11","frame":2,"start":6.58,"end":6.93,"text":"calls a","words":[{"id":"caption-word-11-0","text":"calls","start":6.58,"end":6.87},{"id":"caption-word-11-1","text":"a","start":6.87,"end":6.93}]},{"id":"caption-group-12","frame":2,"start":6.93,"end":7.29,"text":"tool,","words":[{"id":"caption-word-12-0","text":"tool,","start":6.93,"end":7.28}]},{"id":"caption-group-13","frame":2,"start":7.29,"end":7.54,"text":"checks","words":[{"id":"caption-word-13-0","text":"checks","start":7.29,"end":7.42}]},{"id":"caption-group-14","frame":2,"start":7.72,"end":7.87,"text":"the","words":[{"id":"caption-word-14-0","text":"the","start":7.72,"end":7.75}]},{"id":"caption-group-15","frame":2,"start":7.94,"end":8.08,"text":"result,","words":[{"id":"caption-word-15-0","text":"result,","start":7.94,"end":8.02}]},{"id":"caption-group-16","frame":2,"start":8.08,"end":9.03,"text":"and goes again.","words":[{"id":"caption-word-16-0","text":"and","start":8.08,"end":8.23},{"id":"caption-word-16-1","text":"goes","start":8.23,"end":8.45},{"id":"caption-word-16-2","text":"again.","start":8.46,"end":8.91}]},{"id":"caption-group-17","frame":3,"start":9.926,"end":11.066,"text":"Evals?","words":[{"id":"caption-word-17-0","text":"Evals?","start":9.926,"end":11.066}]},{"id":"caption-group-18","frame":3,"start":11.066,"end":11.396,"text":"The test","words":[{"id":"caption-word-18-0","text":"The","start":11.066,"end":11.206},{"id":"caption-word-18-1","text":"test","start":11.206,"end":11.396}]},{"id":"caption-group-19","frame":3,"start":11.396,"end":11.676,"text":"your AI","words":[{"id":"caption-word-19-0","text":"your","start":11.396,"end":11.586},{"id":"caption-word-19-1","text":"AI","start":11.586,"end":11.676}]},{"id":"caption-group-20","frame":3,"start":11.676,"end":11.946,"text":"has to","words":[{"id":"caption-word-20-0","text":"has","start":11.676,"end":11.816},{"id":"caption-word-20-1","text":"to","start":11.816,"end":11.876}]},{"id":"caption-group-21","frame":3,"start":11.946,"end":12.436,"text":"pass before","words":[{"id":"caption-word-21-0","text":"pass","start":11.946,"end":12.116},{"id":"caption-word-21-1","text":"before","start":12.176,"end":12.436}]},{"id":"caption-group-22","frame":3,"start":12.436,"end":12.986,"text":"it ships.","words":[{"id":"caption-word-22-0","text":"it","start":12.436,"end":12.536},{"id":"caption-word-22-1","text":"ships.","start":12.536,"end":12.866}]},{"id":"caption-group-23","frame":4,"start":14.1,"end":15.26,"text":"Context window?","words":[{"id":"caption-word-23-0","text":"Context","start":14.1,"end":14.58},{"id":"caption-word-23-1","text":"window?","start":14.58,"end":15.26}]},{"id":"caption-group-24","frame":4,"start":15.26,"end":15.73,"text":"Everything the","words":[{"id":"caption-word-24-0","text":"Everything","start":15.26,"end":15.62},{"id":"caption-word-24-1","text":"the","start":15.62,"end":15.73}]},{"id":"caption-group-25","frame":4,"start":15.73,"end":16.05,"text":"model can","words":[{"id":"caption-word-25-0","text":"model","start":15.73,"end":15.87},{"id":"caption-word-25-1","text":"can","start":15.94,"end":16.05}]},{"id":"caption-group-26","frame":4,"start":16.05,"end":16.37,"text":"see at","words":[{"id":"caption-word-26-0","text":"see","start":16.05,"end":16.24},{"id":"caption-word-26-1","text":"at","start":16.24,"end":16.37}]},{"id":"caption-group-27","frame":4,"start":16.37,"end":16.78,"text":"once.","words":[{"id":"caption-word-27-0","text":"once.","start":16.37,"end":16.78}]},{"id":"caption-group-28","frame":4,"start":16.78,"end":17.2,"text":"Stuff it","words":[{"id":"caption-word-28-0","text":"Stuff","start":16.78,"end":17.06},{"id":"caption-word-28-1","text":"it","start":17.06,"end":17.08}]},{"id":"caption-group-29","frame":4,"start":17.21,"end":17.65,"text":"full,","words":[{"id":"caption-word-29-0","text":"full,","start":17.21,"end":17.65}]},{"id":"caption-group-30","frame":4,"start":17.65,"end":18.1,"text":"and answers","words":[{"id":"caption-word-30-0","text":"and","start":17.65,"end":17.78},{"id":"caption-word-30-1","text":"answers","start":17.78,"end":18.1}]},{"id":"caption-group-31","frame":4,"start":18.1,"end":18.88,"text":"get worse.","words":[{"id":"caption-word-31-0","text":"get","start":18.1,"end":18.27},{"id":"caption-word-31-1","text":"worse.","start":18.32,"end":18.76}]},{"id":"caption-group-32","frame":5,"start":19.959,"end":20.769,"text":"Fine-tune?","words":[{"id":"caption-word-32-0","text":"Fine-tune?","start":19.959,"end":20.759}]},{"id":"caption-group-33","frame":5,"start":20.769,"end":21.209,"text":"Change the","words":[{"id":"caption-word-33-0","text":"Change","start":20.769,"end":21.019},{"id":"caption-word-33-1","text":"the","start":21.069,"end":21.209}]},{"id":"caption-group-34","frame":5,"start":21.209,"end":21.879,"text":"model itself,","words":[{"id":"caption-word-34-0","text":"model","start":21.209,"end":21.449},{"id":"caption-word-34-1","text":"itself,","start":21.449,"end":21.879}]},{"id":"caption-group-35","frame":5,"start":21.879,"end":22.299,"text":"not just","words":[{"id":"caption-word-35-0","text":"not","start":21.879,"end":22.019},{"id":"caption-word-35-1","text":"just","start":22.059,"end":22.289}]},{"id":"caption-group-36","frame":5,"start":22.299,"end":22.999,"text":"the prompt.","words":[{"id":"caption-word-36-0","text":"the","start":22.299,"end":22.489},{"id":"caption-word-36-1","text":"prompt.","start":22.489,"end":22.879}]},{"id":"caption-group-37","frame":6,"start":23.849,"end":24.219,"text":"Every one","words":[{"id":"caption-word-37-0","text":"Every","start":23.849,"end":24.079},{"id":"caption-word-37-1","text":"one","start":24.079,"end":24.219}]},{"id":"caption-group-38","frame":6,"start":24.219,"end":24.549,"text":"of these","words":[{"id":"caption-word-38-0","text":"of","start":24.219,"end":24.309},{"id":"caption-word-38-1","text":"these","start":24.309,"end":24.549}]},{"id":"caption-group-39","frame":6,"start":24.549,"end":24.679,"text":"is a","words":[{"id":"caption-word-39-0","text":"is","start":24.549,"end":24.639},{"id":"caption-word-39-1","text":"a","start":24.639,"end":24.679}]},{"id":"caption-group-40","frame":6,"start":24.679,"end":25.329,"text":"picture you","words":[{"id":"caption-word-40-0","text":"picture","start":24.679,"end":25.059},{"id":"caption-word-40-1","text":"you","start":25.059,"end":25.289}]},{"id":"caption-group-41","frame":6,"start":25.329,"end":25.819,"text":"can play","words":[{"id":"caption-word-41-0","text":"can","start":25.329,"end":25.549},{"id":"caption-word-41-1","text":"play","start":25.549,"end":25.699}]},{"id":"caption-group-42","frame":6,"start":26.259,"end":26.289,"text":"with.","words":[{"id":"caption-word-42-0","text":"with.","start":26.259,"end":26.279}]},{"id":"caption-group-43","frame":6,"start":26.289,"end":27.229,"text":"Seventeen modules,","words":[{"id":"caption-word-43-0","text":"Seventeen","start":26.289,"end":26.699},{"id":"caption-word-43-1","text":"modules,","start":26.699,"end":27.129}]},{"id":"caption-group-44","frame":6,"start":27.229,"end":28.249,"text":"and growing.","words":[{"id":"caption-word-44-0","text":"and","start":27.229,"end":27.379},{"id":"caption-word-44-1","text":"growing.","start":27.409,"end":28.129}]},{"id":"caption-group-45","frame":7,"start":28.868,"end":29.328,"text":"Tinker.","words":[{"id":"caption-word-45-0","text":"Tinker.","start":28.868,"end":29.328}]},{"id":"caption-group-46","frame":7,"start":29.328,"end":29.808,"text":"Walk into","words":[{"id":"caption-word-46-0","text":"Walk","start":29.328,"end":29.698},{"id":"caption-word-46-1","text":"into","start":29.698,"end":29.808}]},{"id":"caption-group-47","frame":7,"start":29.808,"end":30.278,"text":"your next","words":[{"id":"caption-word-47-0","text":"your","start":29.808,"end":30.048},{"id":"caption-word-47-1","text":"next","start":30.048,"end":30.278}]},{"id":"caption-group-48","frame":7,"start":30.278,"end":31.548,"text":"meeting knowing.","words":[{"id":"caption-word-48-0","text":"meeting","start":30.278,"end":30.728},{"id":"caption-word-48-1","text":"knowing.","start":30.728,"end":31.548}]},{"id":"caption-group-49","frame":7,"start":31.548,"end":31.848,"text":"Free.","words":[{"id":"caption-word-49-0","text":"Free.","start":31.548,"end":31.848}]},{"id":"caption-group-50","frame":7,"start":31.848,"end":32.868,"text":"No sign-up.","words":[{"id":"caption-word-50-0","text":"No","start":31.848,"end":32.378},{"id":"caption-word-50-1","text":"sign-up.","start":32.378,"end":32.748}]}];
+  var DURATION = 34.367;
+
+  (function () {
+    var stage = document.getElementById("caption-stage");
+
+    // build DOM: one .caption-group per group, .caption-word per word
+    GROUPS.forEach(function (group, g) {
+      var groupEl = document.createElement("div");
+      groupEl.className = "caption-group";
+      groupEl.id = "caption-group-" + g;
+      var pill = document.createElement("div");
+      pill.className = "caption-pill";
+      var line = document.createElement("div");
+      line.className = "caption-line";
+      (group.words || []).forEach(function (w, i) {
+        var span = document.createElement("span");
+        span.className = "caption-word";
+        span.id = "caption-word-" + g + "-" + i;
+        span.textContent = String(w.text);
+        line.appendChild(span);
+      });
+      pill.appendChild(line);
+      groupEl.appendChild(pill);
+      stage.appendChild(groupEl);
+    });
+
+    window.__timelines = window.__timelines || {};
+    var tl = gsap.timeline({ paused: true });
+
+    GROUPS.forEach(function (group, g) {
+      var groupEl = document.getElementById("caption-group-" + g);
+      var words = group.words || [];
+      var next = GROUPS[g + 1];
+      var isLast = g === GROUPS.length - 1;
+      var start = Math.max(0, Number(group.start));
+      var end = isLast ? DURATION : Math.min(Number(next.start), Number(group.end) + 0.3);
+      if (end <= start) end = start + 0.01;
+
+      // group on/off — exactly one group visible at a time
+      tl.set(groupEl, { opacity: 1 }, start);
+      tl.set(groupEl, { opacity: 0 }, end);
+
+      // 3-state karaoke via className SETS — seek-safe (gsap.set applies on the
+      // engine's frame-by-frame seek; .call callbacks would NOT fire).
+      words.forEach(function (w, i) {
+        var el = document.getElementById("caption-word-" + g + "-" + i);
+        var at = Math.max(start, Number(w.start));
+        tl.set(el, { className: "caption-word" }, start); // upcoming (also resets on reverse-seek)
+        tl.set(el, { className: "caption-word is-active" }, at); // current
+        tl.fromTo(el, { scale: 0.92 }, { scale: 1, duration: 0.16, ease: "back.out(2.2)" }, at);
+        if (i + 1 < words.length) {
+          var nextAt = Math.max(start, Number(words[i + 1].start));
+          tl.set(el, { className: "caption-word is-spoken" }, nextAt); // demote when next activates
+        }
+      });
+      if (words.length) {
+        var lastEl = document.getElementById("caption-word-" + g + "-" + (words.length - 1));
+        var lastSpoken = Math.min(end, Number(words[words.length - 1].end) + 0.1);
+        tl.set(lastEl, { className: "caption-word is-spoken" }, lastSpoken);
+      }
+    });
+
+    // full-span anchor so the sub-comp timeline spans the whole video
+    tl.to({}, { duration: DURATION }, 0);
+    window.__timelines["captions"] = tl;
+  })();
+</script>
+
+<style>
+  .caption-line { line-height: 1.1 !important; }
+</style>
+</template>

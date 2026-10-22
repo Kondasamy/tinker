@@ -1,3 +1,4 @@
+// biome-ignore-all lint/correctness/useHookAtTopLevel: useQuestionRuns calls useRagRun once per entry of a module constant, so the hook order is fixed
 // Shared wiring for the canvas chapters (3 onward): the engine run, the hero canvas with its live summary,
 // and the drawer panels. Chapter state carries the canvas plus the verdict so step predicates stay pure.
 import { useMemo, useState } from 'react';

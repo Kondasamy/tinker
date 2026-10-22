@@ -5,7 +5,7 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { sandboxLanes, sandboxMessages } from '../../components/scenes/sandboxSequence';
-import { type Files } from '../../lib/sandboxing/loop';
+import type { Files } from '../../lib/sandboxing/loop';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';

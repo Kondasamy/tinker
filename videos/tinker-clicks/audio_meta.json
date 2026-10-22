@@ -1,0 +1,52 @@
+{
+  "bgm": {
+    "path": "assets/audio/bgm.mp3",
+    "source": "host"
+  },
+  "bgm_pending": false,
+  "voices": [],
+  "sfx": [
+    {
+      "frame": 1,
+      "file": "assets/audio/click.wav",
+      "offset_s": 1.105,
+      "duration_s": 0.155,
+      "source": "host"
+    },
+    {
+      "frame": 1,
+      "file": "assets/audio/click.wav",
+      "offset_s": 1.885,
+      "duration_s": 0.155,
+      "source": "host"
+    },
+    {
+      "frame": 1,
+      "file": "assets/audio/click.wav",
+      "offset_s": 4.789,
+      "duration_s": 0.155,
+      "source": "host"
+    },
+    {
+      "frame": 1,
+      "file": "assets/audio/click.wav",
+      "offset_s": 7.098,
+      "duration_s": 0.155,
+      "source": "host"
+    },
+    {
+      "frame": 1,
+      "file": "assets/audio/click.wav",
+      "offset_s": 9.299,
+      "duration_s": 0.155,
+      "source": "host"
+    },
+    {
+      "frame": 1,
+      "file": "assets/audio/typing.wav",
+      "offset_s": 7.12,
+      "duration_s": 1.85,
+      "source": "host"
+    }
+  ]
+}

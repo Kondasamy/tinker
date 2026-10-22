@@ -36,8 +36,10 @@ export default function RecallCards({ label = 'A stack of recall cards; the top 
   const svg = card(PALS.blush, 150, 118, -9) + card(PALS.cobalt, 205, 130, 6) + card(PALS.mint, 178, 148, -2, front(178, 148));
   return (
     <svg className="recall-cards" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={label}>
+      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: the ink filter, built from numbers */}
       <defs dangerouslySetInnerHTML={{ __html: filterFor(1, id) }} />
       {/* fixed strings only: nothing from readers reaches this markup */}
+      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: SVG markup the kit built, every string escaped (esc) */}
       <g filter={`url(#${id})`} dangerouslySetInnerHTML={{ __html: svg }} />
     </svg>
   );

@@ -17,7 +17,7 @@ const MODULE = 'structured-outputs', ID = '05-choices-from-a-list';
 export const FREE = run('free'), LIST = run('mask');
 export const DRAWS = RUNS.filter(r => r.id.startsWith('draw-'));
 export const VALUES = SCHEMAS.status.properties.status.enum as string[];
-const valueOf = (model: Model, id: string) => JSON.parse(play(model, run(id)).decoded.text).status as string;
+const statusOf = (model: Model, id: string) => JSON.parse(play(model, run(id)).decoded.text).status as string;
 
 /** Each value's share of probability where the values part ways, on the greedy run. */
 export function sharesOf(model: Model) {
@@ -28,7 +28,7 @@ export function sharesOf(model: Model) {
  * value, whatever the order holds; and that value isn't the list's first. */
 export function answerOf(model: Model) {
   const sh = sharesOf(model), top = sh.reduce((a, b) => (b.p > a.p ? b : a)).value;
-  return valueOf(model, LIST.id) === top && top !== VALUES[0] ? 1 : 2;
+  return statusOf(model, LIST.id) === top && top !== VALUES[0] ? 1 : 2;
 }
 
 interface S { listed: boolean; p1: number | null; draws: number; quiz: number | null }
@@ -91,7 +91,7 @@ function Draws({ n }: { n: number }) {
   if (!model) return <Waiting />;
   return (
     <ol className="so-checks" data-testid="draws">
-      {DRAWS.slice(0, n).map((r, i) => <li key={r.id}>{`Draw ${i + 1} (seed ${r.seed}): ${valueOf(model, r.id)}`}</li>)}
+      {DRAWS.slice(0, n).map((r, i) => <li key={r.id}>{`Draw ${i + 1} (seed ${r.seed}): ${statusOf(model, r.id)}`}</li>)}
     </ol>
   );
 }

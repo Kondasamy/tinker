@@ -1,0 +1,13 @@
+# monthly, grouped: one PR per ecosystem keeps upkeep to a glance
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule: { interval: monthly }
+    groups:
+      all: { patterns: ['*'] }
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: monthly }
+    groups:
+      all: { patterns: ['*'] }

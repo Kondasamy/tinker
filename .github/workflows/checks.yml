@@ -21,6 +21,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
+      - run: pnpm lint
       - run: pnpm test
 
   # the e2e run in four shards, each building the site with DEV_PAGES=1 (playwright.config.ts's webServer)

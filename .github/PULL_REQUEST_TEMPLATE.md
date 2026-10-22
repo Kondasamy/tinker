@@ -4,7 +4,7 @@
 
 ## Checklist
 
-- [ ] `pnpm check` (0 errors, 0 warnings), `pnpm test` and `pnpm test:e2e` pass
+- [ ] `pnpm check` (0 errors, 0 warnings), `pnpm lint`, `pnpm test` and `pnpm test:e2e` pass
 - [ ] I looked at every page I changed at desktop width and at 390px
 - [ ] New behaviour has a test
 - [ ] If page text, a chapter list or a share picture changed: I ran `pnpm og` and committed the JPEGs

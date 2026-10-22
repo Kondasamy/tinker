@@ -40,6 +40,7 @@ This copies `templates/module/` into place: a registry entry, an intro page, a c
 
 ```bash
 pnpm check       # types: 0 errors, 0 warnings
+pnpm lint        # Biome: 0 diagnostics
 pnpm test        # unit tests, including the module registry checks
 pnpm test:e2e    # every chapter played through, axe, keyboard only, reduced motion, phone, offline, share images
 pnpm og          # only if you changed a page's text, a chapter list or a share picture; commit the JPEGs

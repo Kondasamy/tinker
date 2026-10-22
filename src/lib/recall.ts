@@ -50,7 +50,7 @@ export function shuffled<T>(xs: readonly T[], seed: number): T[] {
 
 /** The saved attempt while every item in it is still in the bank; otherwise a new one from `seed`. */
 export function resumeAttempt(saved: Attempt | undefined, bank: RecallItem[], done: readonly string[], seed: number): Attempt {
-  if (saved && saved.ids.length && saved.ids.every(id => bank.some(i => i.id === id))) return saved;
+  if (saved?.ids.length && saved.ids.every(id => bank.some(i => i.id === id))) return saved;
   return { seed, ids: shuffled(recapPool(bank, done).map(i => i.id), seed), pos: 0 };
 }
 
