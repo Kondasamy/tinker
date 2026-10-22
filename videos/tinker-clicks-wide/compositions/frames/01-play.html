@@ -1,0 +1,271 @@
+<template>
+  <style>
+    @font-face { font-family: "Archivo Black"; src: url("assets/fonts/archivo-black-400-latin.woff2") format("woff2"); font-weight: 400; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/space-grotesk-500-latin.woff2") format("woff2"); font-weight: 500; }
+    @font-face { font-family: "JetBrains Mono"; src: url("assets/fonts/jetbrains-mono-400-latin.woff2") format("woff2"); font-weight: 400; }
+
+    #root { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; color: #231E16; font-family: "JetBrains Mono", monospace; }
+    #root * { box-sizing: border-box; }
+    :where(#root) :where(div, span, b, img, svg) { margin: 0; padding: 0; }
+    #p1-bg { position: absolute; inset: 0; background: #F2EFE7; }
+    #p1-world { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 960px 540px; }
+    #p1-chrome { position: absolute; inset: 0; pointer-events: none; }
+
+    .p1-crumb { position: absolute; left: 64px; top: 52px; font-size: 22px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .p1-crumb b { font-weight: 400; background: #231E16; color: #F2EFE7; padding: 4px 10px; margin-right: 6px; }
+    .p1-chip { position: absolute; right: 64px; top: 40px; height: 56px; padding: 0 28px; border: 4px solid #231E16; border-radius: 999px; background: #FFB627;
+      font-family: "Archivo Black", sans-serif; font-size: 26px; line-height: 48px; text-transform: uppercase; white-space: nowrap; }
+
+    /* press stage: the board (svg units x 16.7-321.5, y 66.7-246.7) fills x 40-960 */
+    #p1-press { position: absolute; left: 0; top: 0; width: 1px; height: 1px; }
+    #p1-press img { position: absolute; left: -10px; top: -21px; width: 1026px; height: auto; display: block; }
+    .p1-stripclip { position: absolute; left: 164px; top: 341px; width: 228px; height: 50px; overflow: hidden; transform: rotate(24deg); transform-origin: 100% 50%; }
+    .p1-strip { position: absolute; left: 0; top: 0; width: 500px; height: 50px; background: #FBF8F0; border: 3px solid #231E16; font-size: 18px; line-height: 44px; padding: 0 12px; white-space: nowrap; }
+
+    .p1-tabs { position: absolute; left: 48px; top: 112px; display: flex; height: 68px; border: 4px solid #231E16; background: #FBF8F0; }
+    .p1-tab { position: relative; height: 60px; line-height: 60px; font-size: 30px; text-align: center; }
+    .p1-tab + .p1-tab { border-left: 4px solid #231E16; }
+    #p1-tabpic { width: 200px; background: #231E16; color: #F2EFE7; }
+    #p1-tabtok { width: 280px; }
+
+    #p1-view { position: absolute; left: 40px; top: 210px; width: 930px; height: 720px; }
+    .p1-bigrow { position: absolute; left: 0; top: 0; width: 930px; display: flex; flex-wrap: wrap; gap: 14px 10px; }
+    .p1-tile { border: 4px solid #231E16; display: flex; flex-direction: column; align-items: center; justify-content: center; white-space: pre; }
+    .p1-big { height: 106px; padding: 0 12px; min-width: 66px; }
+    .p1-big .p1-pc { font-size: 40px; line-height: 1; }
+    .p1-big .p1-id { font-size: 20px; margin-top: 10px; }
+    .p1-stamp { position: absolute; left: 10px; top: 420px; padding: 16px 34px; background: #FFB627; border: 6px solid #231E16; font-family: "Archivo Black", sans-serif; font-size: 64px; line-height: 0.92; text-transform: uppercase; white-space: nowrap; }
+    .p1-live { position: absolute; left: 20px; top: 560px; height: 60px; padding: 0 28px; border-radius: 999px; background: #231E16; color: #F2EFE7; font-size: 26px; line-height: 60px; letter-spacing: 0.1em; white-space: nowrap; }
+
+    /* belt (until the Tokens view takes over) */
+    .p1-belt { position: absolute; left: 40px; top: 948px; width: 1840px; height: 16px; background: #231E16; }
+    .p1-small { position: absolute; top: 884px; height: 60px; padding: 0 10px; }
+    .p1-small .p1-pc { font-size: 26px; line-height: 1; }
+    .p1-small .p1-id { font-size: 16px; margin-top: 4px; }
+    .p1-count { position: absolute; top: 886px; height: 56px; padding: 0 22px; border: 4px solid #231E16; background: #FFB627; font-family: "Archivo Black", sans-serif; font-size: 28px; line-height: 48px; white-space: nowrap; }
+
+    /* step card */
+    .p1-card { position: absolute; left: 1000px; top: 112px; width: 880px; height: 754px; background: #FBF8F0; border: 6px solid #231E16; box-shadow: 14px 14px 0 #231E16; }
+    .p1-state { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: flex-start; padding: 30px 38px; gap: 14px; }
+    .p1-kick { background: #231E16; color: #F2EFE7; font-size: 22px; letter-spacing: 0.14em; padding: 6px 14px; }
+    .p1-q { font-size: 34px; line-height: 1.24; }
+    .p1-opt { position: relative; width: 100%; border: 4px solid #231E16; background: #F2EFE7; font-size: 30px; line-height: 1.2; padding: 18px 20px; }
+    .p1-optink { position: absolute; inset: -4px; background: #231E16; color: #FBF8F0; padding: 22px 24px; }
+    .p1-locked { border: 4px solid #1F4034; color: #1F4034; background: #71B693; font-size: 24px; letter-spacing: 0.14em; padding: 4px 14px; }
+    .p1-btn { width: 100%; height: 88px; flex: none; background: #FFB627; border: 5px solid #231E16; font-size: 32px; line-height: 78px; text-align: center; white-space: nowrap; }
+    .p1-head { margin-top: 18px; font-family: "Archivo Black", sans-serif; font-size: 84px; line-height: 0.92; text-transform: uppercase; }
+    .p1-pick { margin-top: 40px; font-size: 34px; line-height: 1.4; }
+    .p1-pick span { background: #231E16; color: #FBF8F0; padding: 2px 12px; }
+    .p1-box { width: 100%; height: 196px; flex: none; border: 4px solid #231E16; background: #F2EFE7; padding: 22px 26px; font-family: "Space Grotesk", sans-serif; font-weight: 500; font-size: 40px; line-height: 1.3; }
+    .p1-sel { background: #76A0E2; }
+    .p1-caret { display: inline-block; width: 4px; height: 46px; background: #231E16; vertical-align: -8px; margin-left: 2px; }
+    .p1-res { margin-top: 8px; font-size: 32px; line-height: 1.35; }
+    .p1-res b { font-family: "Archivo Black", sans-serif; font-weight: 400; font-size: 38px; }
+
+    /* cursor + ripple */
+    .p1-ripple { position: absolute; left: -40px; top: -40px; width: 80px; height: 80px; border-radius: 50%; border: 6px solid #EF6A4C; }
+    #p1-cursor { position: absolute; left: 0; top: 0; width: 64px; height: 76px; transform-origin: 0 0; }
+  </style>
+
+  <div data-hf-id="hf-211u" id="root" data-composition-id="01-play" data-width="1920" data-height="1080" data-duration="11.9">
+    <div data-hf-id="hf-b0aw" id="p1-bg" class="clip" data-start="0" data-duration="11.9" data-track-index="0"></div>
+
+    <div data-hf-id="hf-popq" id="p1-world" class="clip" data-start="0" data-duration="11.9" data-track-index="1">
+      <!-- press -->
+      <div data-hf-id="hf-fxa6" id="p1-press">
+        <img data-hf-id="hf-lp9f" src="assets/logo-fef9bb9f.svg" alt="" />
+        <div data-hf-id="hf-mlv2" class="p1-stripclip"><div data-hf-id="hf-tpu5" class="p1-strip" id="p1-strip" data-layout-allow-occlusion>Your order of 12 shelves arrives on Friday.</div></div>
+      </div>
+
+      <!-- big tokens view -->
+      <div data-hf-id="hf-03tu" id="p1-view">
+        <div data-hf-id="hf-i13h" class="p1-bigrow" id="p1-big21"></div>
+        <div data-hf-id="hf-kldg" class="p1-bigrow" id="p1-big19"></div>
+        <div data-hf-id="hf-93zm" class="p1-stamp" id="p1-stamp21">21 tokens</div>
+        <div data-hf-id="hf-glno" class="p1-stamp" id="p1-stamp19">19 tokens</div>
+        <div data-hf-id="hf-6ycy" class="p1-live" id="p1-live">YOUR WORDS, LIVE</div>
+      </div>
+
+      <div data-hf-id="hf-788y" class="p1-tabs" id="p1-tabs">
+        <div data-hf-id="hf-unpg" class="p1-tab" id="p1-tabpic">Picture</div>
+        <div data-hf-id="hf-c4s5" class="p1-tab" id="p1-tabtok">Tokens (<span data-hf-id="hf-2acw" id="p1-n21">21</span><span data-hf-id="hf-3926" id="p1-n19">19</span>)</div>
+      </div>
+
+      <!-- belt -->
+      <div data-hf-id="hf-l2u5" class="p1-belt"></div>
+      <div data-hf-id="hf-gvuy" id="p1-beltrow"></div>
+      <div data-hf-id="hf-74gr" class="p1-count" id="p1-count">21 TOKENS · 8 WORDS</div>
+
+      <!-- step card -->
+      <div data-hf-id="hf-84h4" class="p1-card">
+        <div data-hf-id="hf-4qv7" class="p1-state" id="p1-sA">
+          <div data-hf-id="hf-qz16" class="p1-kick">STEP 1 OF 4</div>
+          <div data-hf-id="hf-wn6d" class="p1-q">How many tokens will the tokenizer cut “Your order of 12 shelves arrives on Friday.” into? It has 8 words.</div>
+          <div data-hf-id="hf-thn6" class="p1-opt">Fewer than 8: one token can hold several words</div>
+          <div data-hf-id="hf-bitn" class="p1-opt">Exactly 8: one token per word</div>
+          <div data-hf-id="hf-n08v" class="p1-opt" id="p1-opt3">More than 8: some words are cut into pieces<div data-hf-id="hf-pns3" class="p1-optink" id="p1-opt3ink">More than 8: some words are cut into pieces</div></div>
+          <div data-hf-id="hf-k15z" class="p1-locked" id="p1-locked">LOCKED IN</div>
+          <div data-hf-id="hf-zeol" class="p1-btn" id="p1-feed">Feed the sentence to the tokenizer</div>
+        </div>
+        <div data-hf-id="hf-tvdk" class="p1-state" id="p1-sB">
+          <div data-hf-id="hf-hz8g" class="p1-kick">STEP 3 OF 4</div>
+          <div data-hf-id="hf-vfch" class="p1-head">8 words became 21 tokens.</div>
+          <div data-hf-id="hf-o9ez" class="p1-pick">Your pick: <span data-hf-id="hf-gzdj">More than 8</span></div>
+        </div>
+        <div data-hf-id="hf-wun5" class="p1-state" id="p1-sC">
+          <div data-hf-id="hf-gw77" class="p1-kick">STEP 4 OF 4</div>
+          <div data-hf-id="hf-s9wq" class="p1-head" style="margin-top: 6px; font-size: 64px">Your text</div>
+          <div data-hf-id="hf-ogfq" class="p1-box" id="p1-box"><span data-hf-id="hf-xolm" class="p1-sel" id="p1-sample">Your order of 12 shelves arrives on Friday.</span><span data-hf-id="hf-d4to" id="p1-typed"></span><span data-hf-id="hf-9503" class="p1-caret" id="p1-caret"></span></div>
+          <div data-hf-id="hf-sdz3" class="p1-btn" id="p1-count2">Count my text</div>
+          <div data-hf-id="hf-zzfu" class="p1-res" id="p1-res">Your text: <b data-hf-id="hf-9yyz">19 tokens</b> for 5 words and 33 characters.</div>
+        </div>
+      </div>
+
+      <div data-hf-id="hf-a37i" class="p1-ripple" id="p1-rip1"></div>
+      <div data-hf-id="hf-653h" class="p1-ripple" id="p1-rip2"></div>
+      <div data-hf-id="hf-5dfo" class="p1-ripple" id="p1-rip3"></div>
+      <div data-hf-id="hf-sux7" class="p1-ripple" id="p1-rip4"></div>
+      <div data-hf-id="hf-owt6" class="p1-ripple" id="p1-rip5"></div>
+      <svg data-hf-id="hf-de2e" id="p1-cursor" viewBox="0 0 64 76">
+        <path data-hf-id="hf-wofc" d="M6 4 L6 58 L19 46 L28 68 L38 64 L29 42 L47 42 Z" transform="translate(6 6)" fill="#231E16" />
+        <path data-hf-id="hf-2xav" d="M6 4 L6 58 L19 46 L28 68 L38 64 L29 42 L47 42 Z" fill="#FBF8F0" stroke="#231E16" stroke-width="5" stroke-linejoin="round" />
+      </svg>
+    </div>
+
+    <div data-hf-id="hf-nq81" id="p1-chrome" class="clip" data-start="0" data-duration="11.9" data-track-index="2">
+      <div data-hf-id="hf-3hs2" class="p1-crumb"><b data-hf-id="hf-93iy">TINKER</b> / TOKENS · CH 1 — WHAT THE MODEL READS</div>
+      <div data-hf-id="hf-3zoq" class="p1-chip" id="p1-chipA">PREDICT FIRST</div>
+      <div data-hf-id="hf-12rk" class="p1-chip" id="p1-chipB">FEED IT IN</div>
+      <div data-hf-id="hf-6fw8" class="p1-chip" id="p1-chipC">TYPE YOUR OWN</div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script>
+    (function () {
+      var COLORS = ["#F4B829", "#76A0E2", "#93D3B0", "#F3A6BB", "#EF6A4C"];
+      var T21 = "Y:89 our:411 ␣order:377 ␣of:319 ␣1:530 2:50 ␣shel:633 v:118 es:266 ␣a:257 r:114 r:114 i:105 v:118 es:266 ␣on:305 ␣F:501 r:114 id:337 ay:299 .:46";
+      var T19 = "T:84 in:260 k:107 er:258 ␣t:256 urn:471 s:115 ␣:32 j:106 ar:271 g:103 on:267 ␣int:729 o:111 ␣p:268 ic:291 t:116 ure:766 s:115";
+      function parse(s) { return s.split(" ").map(function (p) { var i = p.lastIndexOf(":"); return [p.slice(0, i), p.slice(i + 1)]; }); }
+      function tile(cls, t, i) {
+        var d = document.createElement("div");
+        d.className = "p1-tile " + cls;
+        d.style.background = COLORS[i % 5];
+        d.innerHTML = '<div class="p1-pc"></div><div class="p1-id"></div>';
+        d.firstChild.textContent = t[0];
+        d.lastChild.textContent = t[1];
+        return d;
+      }
+      var t21 = parse(T21), t19 = parse(T19);
+      var beltRow = document.getElementById("p1-beltrow");
+      var small = [], x = 40;
+      t21.forEach(function (t, i) {
+        var d = tile("p1-small", t, i);
+        var w = Math.max(t[0].length * 16 + 20, 46); // JetBrains Mono advance ~0.6em at 26px
+        d.style.left = x + "px"; d.style.width = w + "px";
+        d.dataset.cx = x + w / 2; x += w + 6;
+        beltRow.appendChild(d); small.push(d);
+      });
+      document.getElementById("p1-count").style.left = (x + 16) + "px";
+      var big21 = t21.map(function (t, i) { var d = tile("p1-big", t, i); document.getElementById("p1-big21").appendChild(d); return d; });
+      var big19 = t19.map(function (t, i) { var d = tile("p1-big", t, i); document.getElementById("p1-big19").appendChild(d); return d; });
+      var typedEl = document.getElementById("p1-typed");
+      var chars = "Tinker turns jargon into pictures".split("").map(function (c) { var s = document.createElement("span"); s.textContent = c; typedEl.appendChild(s); return s; });
+
+      // hidden-at-start states
+      gsap.set(["#p1-view", "#p1-big19", "#p1-stamp21", "#p1-stamp19", "#p1-live", "#p1-tabs", "#p1-count",
+        "#p1-opt3ink", "#p1-locked", "#p1-feed", "#p1-sB", "#p1-sC", "#p1-res", "#p1-chipA", "#p1-chipB", "#p1-chipC", ".p1-ripple"], { autoAlpha: 0 });
+      gsap.set(chars, { display: "none" });
+      gsap.set("#p1-n19", { display: "none" });
+      gsap.set("#p1-strip", { x: -500 });
+      gsap.set("#p1-cursor", { x: 1960, y: 1100 });
+
+      var tl = gsap.timeline({ paused: true });
+
+      // camera: one gentle push-in that settles (<= 1.15x)
+      tl.fromTo("#p1-world", { scale: 1 }, { scale: 1.02, duration: 6, ease: "power2.out" }, 0);
+
+      // cursor + ripple per click (fixed click times from the audio)
+      var CLICKS = [
+        [1.105, 1290, 625, 0.25],
+        [1.885, 1440, 802, 1.3],
+        [4.789, 392, 146, 4.1],
+        [7.098, 1300, 380, 6.45],
+        [9.299, 1440, 536, 8.98]
+      ];
+      CLICKS.forEach(function (c, i) {
+        var t = c[0], start = c[3];
+        tl.to("#p1-cursor", { x: c[1], y: c[2], duration: t - 0.1 - start, ease: "power3.out" }, start);
+        tl.to("#p1-cursor", { scale: 0.85, duration: 0.06, ease: "power1.in" }, t - 0.06);
+        tl.to("#p1-cursor", { scale: 1, duration: 0.14, ease: "power2.out" }, t);
+        var rip = "#p1-rip" + (i + 1);
+        tl.fromTo(rip, { x: c[1], y: c[2], scale: 0.2, autoAlpha: 1 }, { scale: 1.6, autoAlpha: 0, duration: 0.45, ease: "power2.out", immediateRender: false }, t);
+      });
+
+      // Scene 1: predict
+      tl.fromTo("#p1-chipA", { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.2, ease: "power3.out" }, 0.15);
+      tl.set("#p1-opt3ink", { autoAlpha: 1 }, 1.105);
+      tl.fromTo("#p1-opt3", { scale: 1 }, { scale: 0.97, duration: 0.06 }, 1.105);
+      tl.to("#p1-opt3", { scale: 1, duration: 0.14, ease: "power2.out" }, 1.165);
+      tl.fromTo("#p1-locked", { autoAlpha: 0, scale: 1.4 }, { autoAlpha: 1, scale: 1, duration: 0.18, ease: "power3.out" }, 1.105);
+
+      // Scene 2: feed
+      tl.fromTo("#p1-feed", { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.25, ease: "power3.out" }, 1.2);
+      tl.to("#p1-feed", { scale: 0.96, duration: 0.06, ease: "power1.in" }, 1.825);
+      tl.to("#p1-feed", { scale: 1, duration: 0.14, ease: "power2.out" }, 1.885);
+      tl.set("#p1-chipA", { autoAlpha: 0 }, 1.885);
+      tl.set("#p1-chipB", { autoAlpha: 1 }, 1.885);
+
+      // Scene 3: the press works
+      tl.to("#p1-strip", { x: 228, duration: 2.15, ease: "none" }, 1.95);
+      tl.set("#p1-sA", { autoAlpha: 0 }, 2.1);
+      tl.set("#p1-sB", { autoAlpha: 1 }, 2.1);
+      small.forEach(function (d, i) {
+        var dx = 463 - Number(d.dataset.cx), dy = 401 - 914;
+        tl.fromTo(d, { x: dx, y: dy, scale: 0.5, autoAlpha: 0 }, { x: 0, y: 0, scale: 1, autoAlpha: 1, duration: 0.42, ease: "power2.in" }, 2.2 + i * 0.09);
+      });
+      tl.fromTo("#p1-count", { autoAlpha: 0, x: -24 }, { autoAlpha: 1, x: 0, duration: 0.25, ease: "power3.out" }, 4.2);
+      tl.fromTo("#p1-tabs", { autoAlpha: 0, y: -16 }, { autoAlpha: 1, y: 0, duration: 0.25, ease: "power3.out" }, 4.2);
+
+      // Scene 4: Tokens tab
+      tl.set("#p1-tabtok", { backgroundColor: "#231E16", color: "#F2EFE7" }, 4.789);
+      tl.set("#p1-tabpic", { backgroundColor: "#FBF8F0", color: "#231E16" }, 4.789);
+      tl.set("#p1-press", { autoAlpha: 0 }, 4.789);
+      tl.set("#p1-view", { autoAlpha: 1 }, 4.789);
+      tl.set(["#p1-beltrow", ".p1-belt", "#p1-count"], { autoAlpha: 0 }, 4.789); // the big view takes over; no stale 21 belt after the count
+      big21.forEach(function (d, i) {
+        tl.fromTo(d, { y: 30, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.22, ease: "power3.out" }, 4.8 + i * 0.014);
+      });
+      tl.fromTo("#p1-stamp21", { autoAlpha: 0, scale: 1.8, rotation: -4 }, { autoAlpha: 1, scale: 1, rotation: -4, duration: 0.35, ease: "back.out(2.2)" }, 5.1);
+
+      // Scene 5: your text
+      tl.set("#p1-sB", { autoAlpha: 0 }, 6.4);
+      tl.set("#p1-sC", { autoAlpha: 1 }, 6.4);
+      tl.set("#p1-chipB", { autoAlpha: 0 }, 6.4);
+      tl.set("#p1-chipC", { autoAlpha: 1 }, 6.4);
+      tl.set("#p1-sample", { display: "none" }, 7.098);
+      var step = (8.95 - 7.12) / chars.length;
+      chars.forEach(function (s, i) { tl.set(s, { display: "inline" }, 7.12 + i * step); });
+      [8.95, 9.2, 9.45, 9.7].forEach(function (t, i) { tl.set("#p1-caret", { autoAlpha: i % 2 ? 1 : 0 }, t); });
+      tl.set("#p1-caret", { autoAlpha: 0 }, 9.299);
+
+      // Scene 6 + 7: count
+      tl.to("#p1-count2", { scale: 0.96, duration: 0.06, ease: "power1.in" }, 9.239);
+      tl.to("#p1-count2", { scale: 1, duration: 0.14, ease: "power2.out" }, 9.299);
+      tl.fromTo("#p1-res", { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.25, ease: "power3.out" }, 9.4);
+      tl.set(["#p1-big21", "#p1-stamp21"], { autoAlpha: 0 }, 9.35);
+      tl.set("#p1-big19", { autoAlpha: 1 }, 9.35);
+      tl.set("#p1-n21", { display: "none" }, 9.35);
+      tl.set("#p1-n19", { display: "inline" }, 9.35);
+      big19.forEach(function (d, i) {
+        tl.fromTo(d, { y: 30, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.22, ease: "power3.out" }, 9.36 + i * 0.025);
+      });
+      tl.fromTo("#p1-stamp19", { autoAlpha: 0, scale: 1.5, rotation: 3 }, { autoAlpha: 1, scale: 1, rotation: 3, duration: 0.25, ease: "power3.out" }, 9.85);
+      tl.fromTo("#p1-live", { autoAlpha: 0, scale: 0.7 }, { autoAlpha: 1, scale: 1, duration: 0.2, ease: "power3.out" }, 10.1);
+      tl.to({}, { duration: 0.01 }, 11.89);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["01-play"] = tl;
+    })();
+  </script>
+</template>

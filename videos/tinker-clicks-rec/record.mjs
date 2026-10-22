@@ -1,0 +1,43 @@
+// Records the live Tokens chapter 1 being played, logging each click's centre and time (ms from page creation).
+import { chromium } from '@playwright/test';
+import { writeFileSync, renameSync } from 'node:fs';
+const OUT = process.argv[2];
+const browser = await chromium.launch();
+const ctx = await browser.newContext({ viewport: { width: 1080, height: 1080 }, recordVideo: { dir: OUT, size: { width: 1080, height: 1080 } } });
+const page = await ctx.newPage();
+const t0 = Date.now();
+const log = [];
+const wait = ms => page.waitForTimeout(ms);
+async function click(loc, label) {
+  await loc.scrollIntoViewIfNeeded();
+  await wait(350);
+  const b = await loc.boundingBox();
+  log.push({ label, t: Date.now() - t0, x: Math.round(b.x + b.width / 2), y: Math.round(b.y + b.height / 2) });
+  await loc.click();
+}
+await page.goto('https://tinker.kondasamy.com/tokens/01-what-the-model-reads/');
+await page.locator('astro-island:not([ssr])').first().waitFor();
+const card = page.getByRole('region', { name: 'Next step' });
+await card.getByText('Step 1 of').waitFor();
+log.push({ label: 'loaded', t: Date.now() - t0 });
+await wait(1200);
+await click(card.getByRole('radio', { name: /^More than \d+: some words/ }), 'predict');
+await wait(1000);
+await click(card.getByRole('button', { name: 'Feed the sentence to the tokenizer' }), 'feed');
+await wait(2600);
+await click(page.getByText(/^Tokens \(\d+\)$/).first(), 'tokens-tab');
+await wait(2000);
+await click(card.getByLabel('Your text'), 'textbox');
+await page.keyboard.press('ControlOrMeta+a');
+log.push({ label: 'type-start', t: Date.now() - t0 });
+await page.keyboard.type('Tinker turns jargon into pictures', { delay: 55 });
+log.push({ label: 'type-end', t: Date.now() - t0 });
+await wait(400);
+await click(card.getByRole('button', { name: 'Count my text' }), 'count');
+await wait(2800);
+log.push({ label: 'end', t: Date.now() - t0 });
+const v = page.video();
+await ctx.close(); await browser.close();
+renameSync(await v.path(), `${OUT}/raw.webm`);
+writeFileSync(`${OUT}/clicks.json`, JSON.stringify(log, null, 2));
+console.log(JSON.stringify(log));

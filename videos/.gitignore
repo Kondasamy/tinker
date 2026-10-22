@@ -1,0 +1,16 @@
+# Regenerable HyperFrames output: dependencies, renders, caches, the site capture and check/snapshot artifacts
+node_modules/
+renders/
+capture/
+.media/
+.thumbnails/
+.waveform-cache/
+**/.hyperframes/*
+!**/.hyperframes/caption-skin.html
+# Superseded takes (the first, slower voice-over and the first music bed)
+tinker-launch/assets/voice/orig/
+tinker-launch/assets/audio/bgm-v1.mp3
+.impeccable/
+# Raw screen recording and its stills (the edited footage is in tinker-clicks/assets/footage.mp4)
+tinker-clicks-rec/raw.webm
+tinker-clicks-rec/*.png

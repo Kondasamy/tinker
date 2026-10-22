@@ -1,0 +1,99 @@
+<template id="03-predict-template">
+  <div data-hf-id="hf-rzqh" id="root" data-composition-id="03-predict" data-start="0" data-duration="5.638" data-width="1080" data-height="1080">
+    <style>
+@font-face{font-family:'Archivo Black';src:url(assets/fonts/archivo-black-400-latin.woff2) format('woff2');}
+@font-face{font-family:'Space Grotesk';font-weight:300 700;src:url(assets/fonts/space-grotesk-500-latin.woff2) format('woff2');}
+@font-face{font-family:'JetBrains Mono';font-weight:100 800;src:url(assets/fonts/jetbrains-mono-400-latin.woff2) format('woff2');}
+@font-face{font-family:'Noto Sans Devanagari';font-weight:100 900;src:url(assets/fonts/noto-devanagari-500-devanagari.woff2) format('woff2');unicode-range:U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20B9,U+25CC,U+A830-A839,U+A8E0-A8FF;}
+
+#root{width:1080px;height:1080px;position:relative;overflow:hidden;font-family:'Space Grotesk',sans-serif;color:#231E16;}
+.bg{position:absolute;inset:0;background:#F2EFE7;}
+.stage{position:absolute;inset:0;}
+.chrome{position:absolute;top:44px;left:56px;right:56px;display:flex;justify-content:space-between;align-items:center;font:500 22px 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;z-index:3;}
+.chrome .pill{border:3px solid #231E16;border-radius:999px;padding:6px 18px;background:#FBF8F0;}
+.disp{font-family:'Archivo Black',sans-serif;text-transform:uppercase;line-height:.9;letter-spacing:-.01em;}
+.card{position:absolute;border:6px solid #231E16;box-shadow:14px 14px 0 #231E16;z-index:2;}
+
+.opt{left:70px;width:940px;background:#FBF8F0;padding:26px 32px 26px 110px;}
+.opt .tag{position:absolute;left:26px;top:26px;width:58px;height:58px;border:5px solid #231E16;border-radius:50%;background:#FBF8F0;font:700 26px 'JetBrains Mono';display:flex;align-items:center;justify-content:center;transform-origin:50% 50%;}
+.opt .lang{font:700 22px 'JetBrains Mono',monospace;letter-spacing:.14em;margin-bottom:10px;}
+.opt .s{font:500 40px/1.25 'Space Grotesk','Noto Sans Devanagari',sans-serif;}
+.opt .s.hi{font-family:'Noto Sans Devanagari','Space Grotesk',sans-serif;font-weight:600;}
+#oA{top:300px;} #oB{top:530px;}
+
+#kick{position:absolute;left:56px;top:122px;background:#231E16;color:#F2EFE7;padding:8px 18px;font:700 24px 'JetBrains Mono';letter-spacing:.16em;transform-origin:0 50%;z-index:2;}
+#ask{position:absolute;left:56px;top:176px;font-size:88px;white-space:nowrap;}
+#ask .w{display:inline-block;}
+#count{position:absolute;right:70px;top:110px;width:170px;height:170px;border-radius:50%;background:#FFB627;border:6px solid #231E16;box-shadow:10px 10px 0 #231E16;display:flex;align-items:center;justify-content:center;font-size:120px;transform-origin:50% 50%;z-index:3;}
+/* the board's top edge tucks under card B; both edges fade so no hard cut shows; bottom stops at 896 */
+#pressWin{position:absolute;left:0;right:0;top:668px;height:228px;overflow:hidden;z-index:1;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 44px,#000 150px,transparent 100%);
+  mask-image:linear-gradient(to bottom,transparent 0,#000 44px,#000 150px,transparent 100%);}
+#press{position:absolute;left:50%;margin-left:-380px;top:-189px;width:760px;height:auto;display:block;}
+</style>
+    <div data-hf-id="hf-ddab" class="clip bg" data-start="0" data-duration="5.638" data-track-index="0"></div>
+    <div data-hf-id="hf-59fl" class="clip stage" data-start="0" data-duration="5.638" data-track-index="1">
+      <div data-hf-id="hf-6ex2" class="chrome"><span data-hf-id="hf-9rj2">Tinker</span><span data-hf-id="hf-mfga" class="pill">03 / 06</span></div>
+
+      <div data-hf-id="hf-e14g" id="kick">PREDICT</div>
+      <div data-hf-id="hf-8jq9" id="ask" class="disp"><span data-hf-id="hf-xezt" class="w">More</span> <span data-hf-id="hf-l6pr" class="w">tokens?</span></div>
+      <div data-hf-id="hf-vt70" id="count" class="disp">3</div>
+      <div data-hf-id="hf-mmar" id="oA" class="card opt"><div data-hf-id="hf-53xn" class="tag">A</div><div data-hf-id="hf-yigs" class="lang">ENGLISH</div><div data-hf-id="hf-78wa" class="s">Your order of 12 shelves arrives on Friday.</div></div>
+      <div data-hf-id="hf-bqt4" id="oB" class="card opt"><div data-hf-id="hf-4pmm" class="tag">B</div><div data-hf-id="hf-q8n0" class="lang">HINDI</div><div data-hf-id="hf-dndm" class="s hi">आपका 12 शेल्फ़ का ऑर्डर शुक्रवार को पहुँचेगा।</div></div>
+      <div data-hf-id="hf-mnvk" id="pressWin"><img data-hf-id="hf-n9tk" id="press" src="assets/logo-fef9bb9f.svg" alt=""></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      window.__timelines["03-predict"] = tl;
+      const R = document.querySelector('[data-composition-id="03-predict"]');
+      const $ = (s) => R.querySelector(s);
+      const q = (s) => R.querySelectorAll(s); // scoped: sibling frames may reuse these ids
+      const DUR = 5.638;
+      const SHADOW = "14px 14px 0 #231E16", FLAT = "0px 0px 0 #231E16";
+
+      // Scene 1 — kicker snaps in, headline words reveal on a content-length schedule
+      tl.fromTo(q("#kick"), { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.18, ease: "power3.out" }, 0.05);
+      const words = Array.from(R.querySelectorAll("#ask .w"));
+      let cum = 0.2;
+      const WORDS = words.map((el) => { const start = cum; cum += 0.12 + el.textContent.length * 0.03; return { el, start }; });
+      WORDS.forEach(({ el, start }) =>
+        tl.fromTo(el, { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.32, ease: "back.out(1.6)" }, start));
+
+      // Scene 2 — cards slide up, then their hard shadow lands
+      [["#oA", 0.9], ["#oB", 3.09]].forEach(([id, t]) => {
+        tl.fromTo(q(id), { y: 90, opacity: 0, boxShadow: FLAT }, { y: 0, opacity: 1, duration: 0.4, ease: "power3.out" }, t);
+        tl.fromTo(q(id), { boxShadow: FLAT }, { boxShadow: SHADOW, duration: 0.16, ease: "power2.out", immediateRender: false }, t + 0.32);
+      });
+
+      // Scene 3 — the press rises through the faded window; the countdown pops in on 3
+      tl.fromTo(q("#press"), { y: 140, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "power3.out" }, 3.15);
+      tl.fromTo(q("#count"), { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.45, ease: "back.out(2)" }, 3.35);
+
+      // Scene 4 — discrete hard cuts 3 → 2 → 1, reverse-searched each frame, DOM touched only on change
+      const SEQUENCE = [{ t: 0, text: "3" }, { t: 4.75, text: "2" }, { t: 5.2, text: "1" }];
+      const textAt = (time) => { for (let i = SEQUENCE.length - 1; i >= 0; i--) if (time >= SEQUENCE[i].t) return SEQUENCE[i].text; return "3"; };
+      const countEl = $("#count");
+      const driver = { t: 0 };
+      let last = "";
+      tl.to(driver, { t: DUR, duration: DUR, ease: "none", onUpdate: () => {
+        const s = textAt(driver.t);
+        if (s !== last) { countEl.textContent = s; last = s; }
+      } }, 0);
+
+      // each tick: linear press, spring release (adjacent positions keep state continuity)
+      [4.75, 5.2].forEach((t) => {
+        const PRESS = 0.08;
+        tl.to(q("#count"), { scale: 0.88, duration: PRESS, ease: "power1.in" }, t - PRESS);
+        tl.to(q("#count"), { scale: 1, duration: 0.3, ease: "back.out(2)" }, t);
+      });
+
+      // A and B tags pulse once in turn, done before the cut (cards themselves stay static)
+      [["#oA .tag", 4.75], ["#oB .tag", 5.2]].forEach(([sel, t]) => {
+        tl.to(q(sel), { scale: 1.18, backgroundColor: "#FFB627", duration: 0.14, ease: "power2.out" }, t);
+        tl.to(q(sel), { scale: 1, backgroundColor: "#FBF8F0", duration: 0.24, ease: "power2.inOut" }, t + 0.14);
+      });
+    </script>
+  </div>
+</template>
