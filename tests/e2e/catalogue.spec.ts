@@ -3,13 +3,13 @@ import { test, expect } from '@playwright/test';
 import { serious } from './helpers';
 import { MODULES } from '../../src/lib/modules';
 
-const CONTRIBUTING = 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING.md';
+const REQUEST = '#request';
 const catalogue = (page: import('@playwright/test').Page) => page.locator('#modules');
 // live modules in their numbered order: each go-live appends its id (KTD17)
 const NUMBERED = ['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context', 'fine-tuning', 'structured-outputs', 'reasoning', 'small-models', 'inference', 'observability', 'sandboxing', 'multimodal', 'voice'];
 
 // every module sits at its level: live cards first, then the roadmap's planned cards in registry (build) order;
-// the hero's building sites point contributors at CONTRIBUTING.md, and so does the Propose a module link.
+// the hero's caption and the Propose a module link both point at the request form on the home page.
 for (const width of [1280, 390]) test(`levels in order, live then planned cards grouped by level, a Propose a module link (${width}px)`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 });
   await page.goto('/');
@@ -27,13 +27,24 @@ for (const width of [1280, 390]) test(`levels in order, live then planned cards 
     await expect(card).toContainText(m.description);
   }
   await expect(catalogue(page).locator('.coming')).toHaveCount(0);
-  await expect(catalogue(page).getByRole('link', { name: 'Propose a module' })).toHaveAttribute('href', CONTRIBUTING);
+  await expect(catalogue(page).getByRole('link', { name: 'Propose a module' })).toHaveAttribute('href', REQUEST);
   // heroCaption's wording for both states is unit-tested (hero.test.ts); here, the one the registry gives
   const [text, link] = planned.length ? ['The empty plots are open:', 'build one'] : ['Room for more:', 'propose one'];
   await expect(page.locator('.hero-pic figcaption')).toContainText(text);
   await expect(page.locator('.hero-pic figcaption a')).toHaveText(link);
-  await expect(page.locator('.hero-pic figcaption a')).toHaveAttribute('href', CONTRIBUTING);
+  await expect(page.locator('.hero-pic figcaption a')).toHaveAttribute('href', REQUEST);
   await expect(page.getByText('In the workshop')).toHaveCount(0);
+});
+
+// the request form mails FormSubmit and comes back with ?sent, which shows the thanks
+test('the request form posts a message, and a return with ?sent thanks the reader', async ({ page }) => {
+  await page.goto('/');
+  const form = page.locator('#request form');
+  await expect(form).toHaveAttribute('action', /^https:\/\/formsubmit\.co\//);
+  await expect(form.locator('textarea[name="message"]')).toHaveAttribute('required', '');
+  await expect(page.locator('#request .sent')).toBeHidden();
+  await page.goto('/?sent#request');
+  await expect(page.locator('#request .sent')).toBeVisible();
 });
 
 for (const [width, height] of [[1280, 800], [390, 844]]) test(`the hero text and both buttons fit the first screen (${width}×${height})`, async ({ page }) => {
@@ -72,7 +83,7 @@ test('the roadmap is empty: seventeen live cards numbered 1–17, no roadmap car
   await expect(page.locator('.hero-pic .hero-soon')).toHaveCount(0);
   await expect(page.locator('.hero-pic figcaption')).toContainText('Room for more:');
   await expect(page.locator('.hero-pic figcaption a')).toHaveText('propose one');
-  await expect(page.locator('.hero-pic figcaption a')).toHaveAttribute('href', CONTRIBUTING);
+  await expect(page.locator('.hero-pic figcaption a')).toHaveAttribute('href', REQUEST);
 });
 
 // the wave hops plot i at i × 0.8 s; sampled mid-turn, only that plot's pill shows, and with reduced motion every pill shows

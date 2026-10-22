@@ -132,7 +132,9 @@ const FIRST = LIVE[0];
 // live modules first within a level
 const PLANNED = MODULES.filter(m => m.status === 'planned');
 const atLevel = (level: Level) => [...LIVE, ...PLANNED].filter(m => m.level === level);
-const CONTRIBUTING = 'https://github.com/Kondasamy/tinker/blob/main/CONTRIBUTING.md';
+// shortcut: FormSubmit mails the form with no backend; after its one-time activation email, swap the address for the alias it gives
+const FORM = 'https://formsubmit.co/jkondasamy1992@gmail.com';
+const SENT = new URL('/?sent#request', Astro.site).href;
 const CAPTION = heroCaption(PLANNED.length > 0);
 // the wave's cycle is one 0.8 s slot per live plot, and keyframe percentages must be literal, so each step is placed at a
 // fixed share of one slot here: a pill is gone by the end of its slot, and only one ever shows, at any count
@@ -163,7 +165,7 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
         </div>
         <figure class="hero-pic" style={`--n:${LIVE.length}`}>
           <IsoStage board={HERO_BOARD} scene={HOME_HERO} label={HOME_HERO_LABEL} />
-          <figcaption>One workshop, a plot per module. {CAPTION.text} <a href={CONTRIBUTING}>{CAPTION.link}</a>.</figcaption>
+          <figcaption>One workshop, a plot per module. {CAPTION.text} <a href="#request">{CAPTION.link}</a>.</figcaption>
         </figure>
       </header>
 
@@ -214,7 +216,7 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
             </div>
           </section>
         ); })}
-        <p class="propose">Want a concept explained here? <a href={CONTRIBUTING}>Propose a module</a>.</p>
+        <p class="propose">Want a concept explained here? <a href="#request">Propose a module</a>.</p>
       </section>
 
       <section id="loop" aria-labelledby="loop-h">
@@ -225,6 +227,30 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
         </ol>
       </section>
 
+      <section id="request" aria-labelledby="request-h">
+        <p class="kicker">Requests &amp; feedback</p>
+        <h2 id="request-h">What should Tinker explain next?</h2>
+        <p class="sent" role="status" hidden>Thanks, it’s on its way. I read every one.</p>
+        <form class="ask" action={FORM} method="POST">
+          <fieldset>
+            <legend>This is</legend>
+            <label><input type="radio" name="kind" value="Module request" checked /> A module request</label>
+            <label><input type="radio" name="kind" value="Feedback" /> Feedback</label>
+          </fieldset>
+          <label>Your idea or feedback
+            <textarea name="message" rows="5" maxlength="4000" required placeholder="A concept you’d like to play with, or what worked and what didn’t"></textarea>
+          </label>
+          <label>Email, if you’d like a reply (optional)
+            <input type="email" name="email" autocomplete="email" />
+          </label>
+          <input type="hidden" name="_subject" value="Tinker: a new request or feedback" />
+          <input type="hidden" name="_template" value="table" />
+          <input type="hidden" name="_next" value={SENT} />
+          <input type="text" name="_honey" class="honey" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <button class="btn primary" type="submit">Send →</button>
+        </form>
+      </section>
+
       <footer class="credits">
         <p>Made by <a href="https://kondasamy.com" target="_blank" rel="noopener">Kondasamy Jayaraman</a>.</p>
         <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, whose hand-inked isometric style and engine Tinker is built on. Colorfigures grew from April’s <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed. Thank you.</p>
@@ -232,6 +258,8 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
     </main>
 
     <script>
+      // FormSubmit sends the reader back here once the form is mailed
+      if (new URLSearchParams(location.search).has('sent')) document.querySelector<HTMLElement>('#request .sent')!.hidden = false;
       // progress on each live card; card buttons and the hero's Continue go to the first unfinished chapter
       import { MODULES, chapterHref } from '../lib/modules';
       import { completed, completedAt, lastModule, recallResults } from '../lib/progress';
@@ -324,6 +352,15 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
   .level-group > h3::after { content: ''; flex: 1; border-top: 1.5px solid var(--rule); }
   .coming { font-size: 14px; color: var(--muted); }
   .propose { margin-top: 28px; font-size: 15px; }
+  .ask { display: flex; flex-direction: column; gap: 16px; max-width: 620px; }
+  .ask fieldset { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 20px; }
+  .ask legend { padding: 0; margin-bottom: 6px; font-weight: 600; }
+  .ask label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; }
+  .ask fieldset label { flex-direction: row; align-items: center; gap: 8px; font-weight: 400; }
+  .ask textarea, .ask input[type=email] { font: inherit; padding: 10px 12px; border: 1.5px solid var(--ink); border-radius: 12px; background: var(--card); color: var(--ink); }
+  .ask .btn { align-self: flex-start; cursor: pointer; font-family: inherit; }
+  .ask .honey { position: absolute; left: -9999px; }
+  .sent { color: var(--ok); font-weight: 600; }
   .modules { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: stretch; }
   .module { display: flex; flex-direction: column; border: 1.5px solid var(--ink); border-radius: 20px; overflow: hidden; background: var(--card); box-shadow: 5px 5px 0 var(--ink); }
   .module .pic { background: var(--paper); border-bottom: 1.5px solid var(--rule); padding: 12px 16px; }
