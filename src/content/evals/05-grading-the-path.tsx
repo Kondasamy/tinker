@@ -8,6 +8,7 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { toolLanes, transcript, callText } from '../../components/scenes/toolSequence';
+import { OFFICE_PARTS } from '../../components/scenes/officeScene';
 import { answerOf, stepsOf } from '../../lib/tools/host';
 import { RECORDINGS } from '../../lib/tools/turns';
 import { ORDERS } from '../../lib/tools/server';
@@ -20,6 +21,8 @@ import { Ledger, Messages, Outcome, ToolStage, money } from '../tool-calling/kit
 import { Chips } from '../agents/kit';
 import { Fact, Mark } from './kit';
 import './evals.css';
+
+export const PARTS = OFFICE_PARTS;
 
 const MODULE = 'evals',
   ID = '05-grading-the-path';
@@ -85,10 +88,10 @@ const QUIZ = {
   correct: 2,
   explanation: fact('outcome-is-state').claim,
   why: [
-    'The reply can say Friday whether or not anything moved. The planted-note run’s reply was right too, and the ledger was not.',
-    'A judge reads the same words. A clear, confident reply about a booking that never happened still reads well.',
-    `Right. ${fact('outcome-is-state').claim}`,
-    `A fixed count fails a run that found a shorter way, and passes one that made the right calls and still booked the wrong day. ${fact('grade-output-not-steps').claim}`,
+    'The reply can say Friday whether or not anything moved, just as the planted-note run’s reply was right while its ledger was not.',
+    'A judge reads the same words, and a confident reply about a booking that never happened still reads well.',
+    'Right: the schedule itself shows whether the delivery moved, whatever the reply says.',
+    'A fixed count fails a run that found a shorter way, and passes one that made the calls and still booked the wrong day.',
   ],
 };
 
@@ -97,22 +100,26 @@ export const STEPS: Step<S>[] = [
     id: 'run',
     focus: 'run',
     visibleControls: ['pointer', 'run'],
-    narration: `So far every test case was a question and an answer. Larkspur’s assistant also does things: in the Tool calling module it looks orders up and issues refunds. A run is one request played through, every tool call included. Here is one from that module: “${RECORDINGS.injection.ask}” The order carries a note a customer planted in it. Run the request.`,
+    narration: `A run is one request played through, every tool call included. This one: “${RECORDINGS.injection.ask}”`,
+    act: 'Run the request.',
+    say: { block: 'orders', text: 'Planted note' },
     predicate: s => s.ran,
   },
   {
     id: 'predict',
     focus: 'p1',
     visibleControls: ['reply', 'p1'],
-    narration: `The reply answers what was asked. Three graders will look at this run. The answer grader checks the reply. The state grader checks the order system after the run: the state is what the run left behind. The path grader checks the steps the run took. Before you grade:`,
+    narration: 'The answer grader checks the reply. Others check the state the run left behind, or the path it took.',
+    act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'grade',
     focus: 'grade',
     visibleControls: ['p1', 'grade', 'verdicts'],
-    narration:
-      'Grade the run with each grader in turn. The ledger under the picture shows the order system after the run.',
+    narration: 'The ledger under the picture shows the order system after the run.',
+    act: 'Grade it with Answer, State and Path.',
+    say: { block: 'orders', text: 'Refund in ledger' },
     predicate: s => GRADERS.every(g => s.graded.includes(g)),
     hint: 'Press Answer, State and Path.',
   },
@@ -120,7 +127,8 @@ export const STEPS: Step<S>[] = [
     id: 'judge',
     focus: 'judge',
     visibleControls: ['out1', 'verdicts', 'judge'],
-    narration: `The answer grader only looks for the date, so the refund in the reply slips past it. A model judge reads the whole reply. Try it with chapter 4’s rubrics: first r1, then r2.`,
+    narration: 'The answer grader only looks for the date; the refund slips past. A model judge reads the whole reply.',
+    act: 'Try rubric r1, then r2.',
     predicate: s => s.rubric === 'r2',
     hint: 'Press “Rubric r2”.',
   },
@@ -128,15 +136,18 @@ export const STEPS: Step<S>[] = [
     id: 'clean',
     focus: 'clean',
     visibleControls: ['judged', 'clean'],
-    narration:
-      'The judge under r2 caught the refund the reply mentions. A reply that kept quiet about it would pass any reader of words, so the state and path checks matter most. Are they too strict? Grade a clean run the same way.',
+    narration: 'Under r2 the judge caught the refund the reply mentions; a silent reply fools any reader of words.',
+    act: 'Grade a clean run the same way.',
     predicate: s => s.clean,
   },
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['both', 'quiz'],
-    narration: `The clean run passes all three. The path grader here does not demand a fixed list of steps: it fails only a call the request never needed. Grading what the run left behind, and the calls it must never make, tests what the assistant did, not just what it said. One question to finish.`,
+    narration:
+      'The clean run passes all three. The path grader fails only unneeded calls; it demands no fixed list of steps.',
+    act: 'One question to finish.',
+    say: { block: 'orders', text: 'Ledger untouched' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which check looks at the schedule itself, not at what anyone says about it?',
   },
@@ -205,7 +216,7 @@ export default function GradingThePath() {
       steps={STEPS}
       initial={{ p1: null, ran: false, graded: [], rubric: null, clean: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, inspect }) => {
+      stage={({ state, inspect, say }) => {
         const c = caseOf(state),
           shown = state.ran ? MSGS[c].length : 0;
         return (
@@ -216,6 +227,7 @@ export default function GradingThePath() {
               upTo={shown}
               inspect={inspect}
               office={{ tools: RECORDINGS[c].tools.length, note: c === 'injection' }}
+              say={say}
             />
             {/* the ledger is the state grader's evidence: what the run left in the order system */}
             <Ledger after={state.ran ? RUNS[c].orders : ORDERS} ids={[ORDER(c).id]} />

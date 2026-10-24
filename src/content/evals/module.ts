@@ -11,8 +11,8 @@ const CHAPTERS: Chapter[] = [
     short: 'It worked when I tried it',
     intro: {
       story:
-        'At the end of RAG, Larkspur’s assistant answered staff questions from the company’s own documents. The team keeps tuning it. This week someone changed how big the pieces of each document are, and the answers they tried look better. They want to ship it.',
-      goal: 'How do you know a change made the assistant better, and not just better on the questions you happened to try?',
+        'Larkspur’s assistant answers from the company’s documents. This week the team made the pieces bigger, and the answers they tried look better.',
+      goal: 'How do you know a change made the assistant better, not just on the questions you tried?',
       learn: [
         'Why a change can look better on the questions you try and still break others',
         'What a test set is, and why you run all of it on every change',
@@ -38,8 +38,8 @@ const CHAPTERS: Chapter[] = [
     short: 'The test set',
     intro: {
       story:
-        'Chapter 1’s test set caught a regression nobody tried. Now the team wants more cases in it, and the support lead has a week of the assistant’s chat log to choose from.',
-      goal: 'Which cases belong in a test set, and what does each one need before it can be graded?',
+        'Chapter 1’s test set caught a regression. The team wants more cases, from a week of the assistant’s chat log.',
+      goal: 'Which cases belong in a test set, and what does each need to be graded?',
       learn: [
         'Where test cases come from: real questions and known failures',
         'Why a set needs questions the documents can’t answer',
@@ -65,8 +65,8 @@ const CHAPTERS: Chapter[] = [
     short: 'Graders',
     intro: {
       story:
-        'Larkspur’s test set is built, and every case has a reference answer. Now something has to decide, for each answer, pass or fail.',
-      goal: 'What can grade an answer, and which mistakes does each kind of grader catch or miss?',
+        'Larkspur’s test set is built, each case with its reference answer. Now something must mark each answer pass or fail.',
+      goal: 'What can grade an answer, and what does each grader catch or miss?',
       learn: [
         'Three code checks: exact match, contains the key fact, has a citation',
         'What a model judge and its rubric are, and how a rubric can be fooled',
@@ -88,8 +88,8 @@ const CHAPTERS: Chapter[] = [
     short: 'Judge the judge',
     intro: {
       story:
-        'In chapter 3 the model judge passed a made-up policy that a person failed. The team still wants a judge: people can’t read every answer of every run. First they check it.',
-      goal: 'How do you know a model judge grades the way your people would, and what tricks it?',
+        'In chapter 3 the judge passed a made-up policy a person failed. People can’t read every answer, so the team checks the judge first.',
+      goal: 'Does the judge grade the way your people would, and what tricks it?',
       learn: [
         'How to measure a judge: agreement with people’s labels',
         'How rewriting the rubric changes what the judge catches',
@@ -112,7 +112,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Grading the path',
     intro: {
       story:
-        'Larkspur’s assistant doesn’t only answer: in the Tool calling module it looks orders up and issues refunds. One recorded run from there answered the customer’s question and also refunded money nobody asked for. The team wants its evals to catch that.',
+        'In Tool calling, Larkspur’s assistant also looks orders up and issues refunds. One recorded run answered right and refunded money nobody asked for.',
       goal: 'When the assistant takes actions, what should a grader check besides the reply?',
       learn: [
         'Why a reply can pass while the run behind it did harm',
@@ -133,8 +133,8 @@ const CHAPTERS: Chapter[] = [
     short: 'Run it twice',
     intro: {
       story:
-        'Every chapter so far asked each question once. The team asks a few of them again, and the same question, with nothing changed, comes back passing one time and failing the next.',
-      goal: 'If the same case can pass and fail, what does one run of the test set prove?',
+        'So far each question was asked once. Asked again, with nothing changed, the same question passes one time and fails the next.',
+      goal: 'If the same case can pass and fail, what does one test run prove?',
       learn: [
         'Why one try at a case says little about the next',
         'pass@k and pass^k: “can it?” against “will it, every time?”',
@@ -154,7 +154,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Release day',
     intro: {
       story:
-        'The team has a test set, graders it has checked, and a feel for flaky cases. Three new versions wait to replace the one Larkspur ships today. Someone has to decide which, if any, goes out.',
+        'The team has a test set, checked graders and a feel for flaky cases. New versions wait to replace the one Larkspur ships.',
       goal: 'What rule should decide whether a new version ships, and what can fool it?',
       learn: [
         'How a release gate turns a test run into ship or do not ship',
