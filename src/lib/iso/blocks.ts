@@ -494,10 +494,11 @@ export function blockTag(type: BlockType, o: BlockOpts, scale = 1, even = true):
 export const sayTag = (p3: number[], text: string, scale = 1, dy = -34) =>
   `<g class="callout" aria-hidden="true" pointer-events="none">${tag(p3, 0, dy, esc(text), true, scale)}</g>`;
 
-/** A block's callout, one row above the even row of name pills, so it never sits on a neighbour's name. */
+/** A block's callout, two rows above the even row of name pills, so it clears its neighbours' names and the
+ * side bays' lower pills. */
 export function calloutTag(type: BlockType, x: number, y: number, text: string, scale = 1): string {
   const lift = (TALLEST - BLOCKS[type].ht) / (inkK() * scale);
-  return sayTag([x, y, BH + BLOCKS[type].ht], text, scale, -40 - lift);
+  return sayTag([x, y, BH + BLOCKS[type].ht], text, scale, -64 - lift);
 }
 
 // Shadow of a block on the board; draw all shadows before the blocks. clip = boardTop(...) so it stops at the edge.
