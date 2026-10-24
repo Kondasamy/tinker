@@ -104,10 +104,10 @@ describe('Evals stays as it was', () => {
     for (const id of QUESTION_IDS) expect(keyFact(id, REFERENCES[id].answer)).toBe(true);
   });
   it('data/evals is unchanged', () => {
-    // pinned over every file's name and bytes, so a committed edit fails too; update only when Evals' data changes on purpose
+    // pinned over every file's name and bytes but the facts (re-checked on their own), so a committed edit fails too
     const h = createHash('sha256');
-    for (const f of readdirSync('data/evals').sort()) h.update(f + '\0').update(readFileSync('data/evals/' + f));
-    expect(h.digest('hex')).toBe('9011d956d8be6b908f5ffe1fb8ccb01f97d27329cac6cc2b1eacfcb95a356607');
+    for (const f of readdirSync('data/evals').sort().filter(f => f !== 'facts.json')) h.update(f + '\0').update(readFileSync('data/evals/' + f));
+    expect(h.digest('hex')).toBe('025153e4a6bfb5fae06fe67d974d616c96ceff6d9e3637d6c2e680ffedbd0f36');
   });
 });
 

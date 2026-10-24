@@ -205,7 +205,7 @@ export const scanScene = (o: ScanOpts) => (ctx: SceneCtx) => {
       : `${thousands(st.read.tokens)} IMAGE TOKENS`;
   // sayAt's phone rule, keyed to narrow: desktop pills here are already 1.2
   const say = (part: string, p: number[], dy: number) =>
-    o.say?.block === part && (!narrow || o.say.text.length <= 16) ? sayTag(p, o.say.text, scale, dy - 20) : '';
+    o.say?.block === part && (!narrow || o.say.text.length <= 16) ? sayTag(p, o.say.text, scale, dy - 24) : '';
   return (
     s +
     pill([CAM[0] + 10, CAM[1] + 25, BH + 1], narrow ? 0 : 10, narrow ? 34 : 30, doc, false, scale) +

@@ -464,14 +464,16 @@ describe('page meta', () => {
 });
 
 describe('tool-calling facts (R22)', () => {
-  it('gives every fact a claim, a source URL and the access date', () => {
+  it("gives every fact a claim, a source URL and an access date no earlier than the file's", () => {
     expect(ACCESSED).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(FACTS.length).toBeGreaterThan(0);
     expect(new Set(FACTS.map(f => f.id)).size).toBe(FACTS.length);
     for (const f of FACTS) {
       expect(f.claim, f.id).not.toBe('');
       expect(new URL(f.source).protocol, f.id).toBe('https:');
-      expect(fact(f.id).accessed).toBe(ACCESSED);
+      // a fact re-checked on its own carries a later date than the file's
+      expect(fact(f.id).accessed, f.id).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(fact(f.id).accessed >= ACCESSED, f.id).toBe(true);
     }
   });
 

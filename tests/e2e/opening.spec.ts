@@ -27,7 +27,9 @@ test('a chapter word opens its definition by keyboard, without re-announcing the
   await word.focus();
   await page.keyboard.press('Enter');
   await expect(word).toHaveAttribute('aria-expanded', 'true');
-  await expect(page.locator('#term-def')).toContainText('JSON Schema:');
+  // the definition names the word it defines (the term, singular)
+  const text = (await word.textContent())!.replace(/s$/, '');
+  await expect(page.locator('#term-def')).toContainText(new RegExp(`^${text}s?:`, 'i'));
   expect(await card(page).locator('[aria-live="polite"][aria-atomic="true"]').textContent()).toBe(narration);
   await page.keyboard.press('Escape');
   await expect(word).toHaveAttribute('aria-expanded', 'false');
