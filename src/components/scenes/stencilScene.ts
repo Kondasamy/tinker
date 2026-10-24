@@ -4,7 +4,7 @@
 // schema there is no plate. Words only in pills; on phones (scale > 1.5) the pills keep short names and the caption
 // carries the rest. Every string from a token or a prompt goes through esc().
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
-import { BH, boxCorners, esc } from '../../lib/iso/blocks';
+import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
 import {
   PALS,
   METAL,
@@ -41,7 +41,12 @@ export interface StencilOpts {
   /** the answer is finished (the schema accepted it, or no more room) */
   done?: boolean;
   scale?: number;
+  /** the step's callout, over one of STENCIL_PARTS */
+  say?: { block: string; text: string };
 }
+/** The parts a step's callout may name: the prompt's strip, the press, the schema plate, the blocked tile and the belt
+ * of output tiles. A callout on the plate or the blocked tile stands where it would be, drawn or not. */
+export const STENCIL_PARTS = ['strip', 'press', 'plate', 'blocked', 'belt'] as const;
 
 const Y = 60,
   PRESS = 62,
@@ -181,7 +186,14 @@ export const stencilScene = (o: StencilOpts) => (ctx: SceneCtx) => {
     !!o.done,
     scale,
   );
-  return s;
+  return (
+    s +
+    sayAt(o.say, 'strip', [20, Y + 6, BH], 30, scale) +
+    sayAt(o.say, 'press', [PRESS, Y, BH + 46], -14, scale) +
+    sayAt(o.say, 'plate', [PLATE, Y - 14, BH + 26], -22, scale) +
+    sayAt(o.say, 'blocked', [PLATE - 7, Y + 5, BH + 4], 30, scale) +
+    sayAt(o.say, 'belt', [TILE0 + (MAX_TILES - 1) * PITCH, Y + 6, BH], 30, scale)
+  );
 };
 
 /** The picture in words, for its aria-label. React escapes it. */

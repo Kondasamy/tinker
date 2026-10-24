@@ -23,6 +23,7 @@ import { patchGrid } from '../../components/scenes/patchGrid';
 import { useNarrow } from '../tool-calling/kit';
 import './multimodal.css';
 import Cite from '../../components/story/Cite';
+import type { Say } from '../../components/story/steps';
 
 export const px = (n: number) => `${thousands(n)} px`;
 
@@ -171,15 +172,18 @@ export function MultimodalStage({
   shown: s,
   view: kept,
   onView,
+  say,
 }: {
   shown: Shown;
   view?: View;
   onView?: (v: View) => void;
+  /** the step's callout, drawn on the picture only */
+  say?: Say;
 }) {
   const [own, setOwn] = useState<View>('scene');
   const view = kept ?? own,
     setView = onView ?? setOwn;
-  const o = { image: s.image, size: s.size, method: s.method, scale: useNarrow() ? 2 : 1.2 };
+  const o = { image: s.image, size: s.size, method: s.method, scale: useNarrow() ? 2 : 1.2, say };
   return (
     <div className="tc-stage mm-stage">
       <div className="tc-tabs" role="group" aria-label="Show in the picture">

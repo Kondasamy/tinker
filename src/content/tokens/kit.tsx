@@ -17,6 +17,7 @@ import { useNarrow } from '../tool-calling/kit';
 import { fact } from '../../lib/tokens/facts';
 import './tokens.css';
 import Cite from '../../components/story/Cite';
+import type { Say } from '../../components/story/steps';
 
 /** The site tokenizer's ids and pieces for text: a piece is its text, or its bytes when they are only part of a character. */
 export function siteEncoding(text: string): Encoding {
@@ -115,12 +116,15 @@ export function TokensStage({
   caption,
   view: kept,
   onView,
+  say,
 }: {
   text: string;
   enc?: Encoding;
   caption?: string;
   view?: View;
   onView?: (v: View) => void;
+  /** the step's callout, drawn on the picture only */
+  say?: Say;
 }) {
   const [own, setOwn] = useState<View>('scene');
   const view = kept ?? own,
@@ -143,7 +147,7 @@ export function TokensStage({
           <IsoStage
             board={TOKEN_BOARD}
             style={FILL}
-            scene={tokenScene({ text, tokens: c.tokens, scale })}
+            scene={tokenScene({ text, tokens: c.tokens, scale, say })}
             label={tokenLabel({ text, tokens: c.tokens })}
           />
         ) : (

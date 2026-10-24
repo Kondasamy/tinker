@@ -3,7 +3,7 @@
 // wire to a grader's desk at the front right, where graded cards pile up in a PASS pile and a FAIL pile, each stamped.
 // A scoreboard pill reads passed / total. Words only in pills; on phones (scale > 1.5) the caption carries the piles.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
-import { ACC, BH, boxCorners, esc } from '../../lib/iso/blocks';
+import { ACC, BH, boxCorners, calloutTag, esc, sayAt } from '../../lib/iso/blocks';
 import {
   INK,
   PALS,
@@ -22,7 +22,7 @@ import {
   tag,
   byDepth,
 } from '../../lib/iso/core.js';
-import { miniPipelineParts } from './miniPipeline';
+import { miniPipelineParts, ROW, Y } from './miniPipeline';
 
 export const EVAL_BOARD: Board = [0, 0, 240, 150];
 
@@ -37,9 +37,14 @@ export interface EvalOpts {
   version?: string;
   /** the scoreboard's words, in place of "version · PASSED n/total" (a chapter scoring something else) */
   board?: string;
+  /** the step's callout, over one of EVAL_PARTS */
+  say?: { block: string; text: string };
   /** pill size; phones pass more */
   scale?: number;
 }
+
+/** The parts a step's callout may name: the pipeline's blocks, the test stack, the scoreboard and the two piles. */
+export const EVAL_PARTS = ['docs', 'retriever', 'llm', 'tests', 'board', 'pass', 'fail'] as const;
 
 /** What the bench shows. Pure, so the tests can check it without drawing; no division, so an empty suite is all zeros. */
 export function evalState({ results, graded = results.length, riding = false }: EvalOpts) {
@@ -179,9 +184,13 @@ export const evalScene = (o: EvalOpts) => (ctx: SceneCtx) => {
   if (st.riding) parts.push({ at: [x, 80, 0], svg: `<g class="riding">${card(x, 80, z + 0.1)}</g>` });
   s += byDepth(parts);
   // phones: the big pill goes on the empty board in front of the stack, clear of the retriever
+  const boardAt = narrow ? [DESK[0] - 20, DESK[1] + 20, BH + 6] : [DESK[0] - 20, DESK[1], BH + 26],
+    stackAt = [STACK[0] + CARD.dx, STACK[1], BH + st.stack * CARD.h],
+    failAt = [PILE.fail[0] + CARD.dx, PILE.fail[1], DESK_TOP + st.failed * CARD.h],
+    passAt = [PILE.pass[0] + CARD.dx, PILE.pass[1] - CARD.dy, DESK_TOP + st.passed * CARD.h];
   const pills = [
     pill(
-      narrow ? [DESK[0] - 20, DESK[1] + 20, BH + 6] : [DESK[0] - 20, DESK[1], BH + 26],
+      boardAt,
       narrow ? -46 : 0,
       narrow ? 26 : -30,
       o.board ?? `${o.version ? `${o.version} · ` : ''}PASSED ${st.passed}/${st.total}`,
@@ -190,29 +199,20 @@ export const evalScene = (o: EvalOpts) => (ctx: SceneCtx) => {
     ),
   ];
   if (!narrow) {
-    pills.push(pill([STACK[0] + CARD.dx, STACK[1], BH + st.stack * CARD.h], 4, 26, `TESTS ${st.stack}`, false, scale));
-    pills.push(
-      pill(
-        [PILE.fail[0] + CARD.dx, PILE.fail[1], DESK_TOP + st.failed * CARD.h],
-        8,
-        22,
-        `FAIL ${st.failed}`,
-        false,
-        scale,
-      ),
-    );
-    pills.push(
-      pill(
-        [PILE.pass[0] + CARD.dx, PILE.pass[1] - CARD.dy, DESK_TOP + st.passed * CARD.h],
-        34,
-        2,
-        `PASS ${st.passed}`,
-        false,
-        scale,
-      ),
-    );
+    pills.push(pill(stackAt, 4, 26, `TESTS ${st.stack}`, false, scale));
+    pills.push(pill(failAt, 8, 22, `FAIL ${st.failed}`, false, scale));
+    pills.push(pill(passAt, 34, 2, `PASS ${st.passed}`, false, scale));
   }
-  return s + pipePills + pills.join('');
+  // the callout stands over its part (a pill's dx is left out; on phones the three small pills aren't drawn)
+  const callouts =
+    sayAt(o.say, 'board', boardAt, narrow ? 26 : -30, scale) +
+    sayAt(o.say, 'tests', stackAt, 26, scale) +
+    sayAt(o.say, 'fail', failAt, 22, scale) +
+    sayAt(o.say, 'pass', passAt, 2, scale) +
+    ROW.map(([t, x]) =>
+      o.say?.block === t && (scale <= 1 || o.say.text.length <= 16) ? calloutTag(t, x, Y, o.say.text, scale) : '',
+    ).join('');
+  return s + pipePills + pills.join('') + callouts;
 };
 
 /** The picture in words, for its aria-label. */

@@ -3,7 +3,7 @@
 // on the chosen effort) and a clock whose pill shows the wait. With no thinking, no pad is drawn and the clock shows the
 // answer-only wait. Words only in pills; the thinking text itself goes in a panel under the stage, never on the picture.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
-import { ACC, BH, boxCorners, esc, renderers } from '../../lib/iso/blocks';
+import { ACC, BH, boxCorners, esc, renderers, sayAt } from '../../lib/iso/blocks';
 import {
   INK,
   PALS,
@@ -38,7 +38,12 @@ export interface ThinkOpts {
   right?: boolean;
   /** pill size; phones pass more */
   scale?: number;
+  /** the step's callout: a lit pill over one of THINK_PARTS */
+  say?: { block: string; text: string };
 }
+
+/** The parts a step's callout may point at: the ones with a name pill. */
+export const THINK_PARTS = ['dial', 'clock', 'pad'] as const;
 
 /** One sheet of the pad per this many thinking tokens; the pad stops growing at MAX_SHEETS (its pill still says the count). */
 export const TOKENS_PER_SHEET = 20,
@@ -153,7 +158,11 @@ export const thinkScene = (o: ThinkOpts) => (ctx: SceneCtx) => {
   ];
   if (st.pad) parts.push(pad(st.sheets));
   s += byDepth(parts);
+  const padAt = [PAD[0], PAD[1], BH + 2 + st.sheets * SHEET];
   const pills = [
+    sayAt(o.say, 'dial', [DIAL[0], DIAL[1], BH + 9], -14, scale),
+    sayAt(o.say, 'clock', [CLOCK[0], CLOCK[1], BH + 10], -14, scale),
+    sayAt(o.say, 'pad', padAt, -14, scale),
     pill(
       [DIAL[0], DIAL[1], BH + 9],
       0,
@@ -165,16 +174,7 @@ export const thinkScene = (o: ThinkOpts) => (ctx: SceneCtx) => {
     pill([CLOCK[0], CLOCK[1], BH + 10], 0, -14, st.clock, false, scale),
   ];
   if (st.pad)
-    pills.push(
-      pill(
-        [PAD[0], PAD[1], BH + 2 + st.sheets * SHEET],
-        0,
-        -14,
-        narrow ? `${st.thinking} TOK` : `${st.thinking} THINKING TOKENS`,
-        false,
-        scale,
-      ),
-    );
+    pills.push(pill(padAt, 0, -14, narrow ? `${st.thinking} TOK` : `${st.thinking} THINKING TOKENS`, false, scale));
   else if (!narrow) pills.push(pill([PAD[0], PAD[1], BH], 0, -14, 'NO THINKING', false, scale));
   return s + pills.join('');
 };

@@ -2,7 +2,14 @@ import { describe, it, expect } from 'vitest';
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import IsoStage from '../../src/lib/iso/IsoStage';
-import { OFFICE_BOARD, officeScene, officeState, officeLabel } from '../../src/components/scenes/officeScene';
+import {
+  OFFICE_BOARD,
+  OFFICE_PARTS,
+  officeScene,
+  officeState,
+  officeLabel,
+  type OfficeOpts,
+} from '../../src/components/scenes/officeScene';
 import type { Msg } from '../../src/lib/iso/flat';
 
 const ask: Msg = { from: 'emp', to: 'host', kind: 'request', text: 'Where is order 1042?' };
@@ -80,5 +87,30 @@ describe('officeScene', () => {
     expect(svg).not.toContain('<b>');
     expect(svg).toContain('class="capsule"');
     expect(officeLabel({ msgs: [], tools: 0 })).toMatch(/nothing joining it to the host.*Nothing sent yet/);
+  });
+});
+
+const draw = (o: OfficeOpts) =>
+  renderToString(createElement(IsoStage, { board: OFFICE_BOARD, scene: officeScene(o), label: '' }));
+
+describe('office callouts', () => {
+  const callouts = (svg: string) => svg.split('<g class="callout"').length - 1;
+  const full = (_: string): OfficeOpts => ({ msgs: [ask, send], tools: 1, schema: true, owner: true, gate: true });
+  it('a callout over each part draws one lit pill with its words', () => {
+    for (const block of OFFICE_PARTS) {
+      const svg = draw({ ...full(block), say: { block, text: 'LOOK HERE' } });
+      expect(callouts(svg), block).toBe(1);
+      expect(svg.slice(svg.indexOf('<g class="callout"'))).toContain('LOOK HERE');
+    }
+  });
+  it('an unknown part draws no callout, and the picture is as without one', () => {
+    const svg = draw({ ...full('model'), say: { block: 'nowhere', text: 'LOOK HERE' } });
+    expect(callouts(svg)).toBe(0);
+    expect(svg).toBe(draw(full('model')));
+  });
+  it('phones drop a callout over 16 characters and keep one of 16', () => {
+    const phone = (text: string) => callouts(draw({ ...full('model'), scale: 1.8, say: { block: 'model', text } }));
+    expect(phone('A'.repeat(17))).toBe(0);
+    expect(phone('A'.repeat(16))).toBe(1);
   });
 });

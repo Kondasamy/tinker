@@ -7,7 +7,7 @@ const files = import.meta.glob<Record<string, unknown>>('../../src/content/*/[0-
 
 /** Steps whose callout names no part of their chapter's picture, as readable lines. RAG's canvas, timeline and
  * overflow scenes resolve their own targets, so RAG is skipped. */
-export function strays(chapters: Record<string, Record<string, unknown>>) {
+function strays(chapters: Record<string, Record<string, unknown>>) {
   const out: string[] = [];
   for (const [path, mod] of Object.entries(chapters)) {
     if (path.includes('/rag/')) continue;
@@ -26,7 +26,13 @@ describe('step callouts', () => {
   });
 
   it('flags a callout on a chapter without that part, or with no parts at all', () => {
-    const step = (block: string) => ({ id: 's', narration: '', visibleControls: [], predicate: () => true, say: { block, text: 'Here' } });
+    const step = (block: string) => ({
+      id: 's',
+      narration: '',
+      visibleControls: [],
+      predicate: () => true,
+      say: { block, text: 'Here' },
+    });
     expect(
       strays({
         '/x/a/01.tsx': { STEPS: [step('model')], PARTS: ['host', 'model'] },

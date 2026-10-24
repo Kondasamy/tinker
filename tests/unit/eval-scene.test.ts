@@ -2,7 +2,14 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import IsoStage from '../../src/lib/iso/IsoStage';
-import { EVAL_BOARD, evalLabel, evalScene, evalState, type EvalOpts } from '../../src/components/scenes/evalScene';
+import {
+  EVAL_PARTS,
+  EVAL_BOARD,
+  evalLabel,
+  evalScene,
+  evalState,
+  type EvalOpts,
+} from '../../src/components/scenes/evalScene';
 import { cellName, evalGrid, flips, gridLabel, type GridCol } from '../../src/components/scenes/evalGrid';
 import {
   colsOf,
@@ -130,5 +137,28 @@ describe('loading the suite', () => {
     );
     expect(html).toContain('Preparing the test suite');
     expect(html).not.toContain('aria-pressed');
+  });
+});
+
+describe("a step's callout on the picture", () => {
+  const base: EvalOpts = { results: [true, false, true], graded: 2 };
+  const callouts = (svg: string) => svg.split('class="callout"').length - 1;
+  it.each(['llm', 'tests', 'board'])('draws one lit callout over %s', part => {
+    expect(EVAL_PARTS).toContain(part);
+    const svg = draw({ ...base, say: { block: part, text: 'LOOK HERE' } });
+    expect(callouts(svg)).toBe(1);
+    expect(svg.slice(svg.indexOf('class="callout"'))).toContain('LOOK HERE');
+  });
+  it('draws none for a part the scene does not have', () => {
+    expect(callouts(draw({ ...base, say: { block: 'nowhere', text: 'LOOK HERE' } }))).toBe(0);
+  });
+  it('with no callout the picture is unchanged', () => {
+    expect(draw({ ...base, say: undefined })).toBe(draw(base));
+    expect(draw({ ...base, say: { block: 'nowhere', text: 'X' } })).toBe(draw(base));
+  });
+  it('on phones a callout over 16 characters is dropped', () => {
+    const at = (text: string) => callouts(draw({ ...base, scale: 2.2, say: { block: 'llm', text } }));
+    expect(at('SIXTEEN CHARS OK')).toBe(1);
+    expect(at('SEVENTEEN CHARS X')).toBe(0);
   });
 });

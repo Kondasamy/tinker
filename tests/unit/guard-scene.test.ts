@@ -5,6 +5,7 @@ import IsoStage from '../../src/lib/iso/IsoStage';
 import { flatScene } from '../../src/lib/iso/flat';
 import {
   GUARD_BOARD,
+  GUARD_PARTS,
   guardLabel,
   guardScene,
   guardState,
@@ -151,5 +152,35 @@ describe('the Steps lanes', () => {
       const marks = [...flatScene(lanes, msgs, { win: Infinity }).svg.matchAll(/data-msg="(\d+)"/g)].map(x => +x[1]);
       expect(marks).toEqual(r.steps.map((_, i) => i));
     }
+  });
+});
+
+describe('mail room callouts', () => {
+  const callouts = (svg: string) => svg.split('<g class="callout"').length - 1;
+  const full = (_: string): GuardOpts => ({
+    run: PLAIN,
+    screen: true,
+    allow: true,
+    legs: true,
+    schema: true,
+    owner: true,
+    gate: true,
+  });
+  it('a callout over each part draws one lit pill with its words', () => {
+    for (const block of GUARD_PARTS) {
+      const svg = draw({ ...full(block), say: { block, text: 'LOOK HERE' } });
+      expect(callouts(svg), block).toBe(1);
+      expect(svg.slice(svg.indexOf('<g class="callout"'))).toContain('LOOK HERE');
+    }
+  });
+  it('an unknown part draws no callout, and the picture is as without one', () => {
+    const svg = draw({ ...full('model'), say: { block: 'nowhere', text: 'LOOK HERE' } });
+    expect(callouts(svg)).toBe(0);
+    expect(svg).toBe(draw(full('model')));
+  });
+  it('phones drop a callout over 16 characters and keep one of 16', () => {
+    const phone = (text: string) => callouts(draw({ ...full('model'), scale: 1.8, say: { block: 'model', text } }));
+    expect(phone('A'.repeat(17))).toBe(0);
+    expect(phone('A'.repeat(16))).toBe(1);
   });
 });

@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import IsoStage from '../../src/lib/iso/IsoStage';
 import {
   TRAIN_BOARD,
+  TRAIN_PARTS,
   trainLabel,
   trainScene,
   trainState,
@@ -172,5 +173,26 @@ describe('a stage that needs the model', () => {
     await loadModel('lora');
     expect(modelNow('lora')?.adapter).toBeTruthy();
     expect(renderToString(createElement(FineTuneStage, { show, weights: 'lora' }))).toContain('tuned');
+  });
+});
+
+describe('a step callout on the training bench', () => {
+  const BASE: TrainOpts = { lit: 'weights', weights: 'lora' };
+  const calls = (svg: string) => count(svg, 'class="callout"');
+  it('draws one lit pill over each named part', () => {
+    for (const block of TRAIN_PARTS) {
+      const svg = draw({ ...BASE, say: { block, text: 'LOOK HERE' } });
+      expect(calls(svg)).toBe(1);
+      expect(svg).toContain('LOOK HERE');
+    }
+  });
+  it('draws none for an unknown part, and nothing changes without one', () => {
+    expect(calls(draw({ ...BASE, say: { block: 'nowhere', text: 'LOOK HERE' } }))).toBe(0);
+    expect(draw({ ...BASE, say: undefined })).toBe(draw(BASE));
+  });
+  it('on phones drops a callout over 16 characters', () => {
+    const block = TRAIN_PARTS[0];
+    expect(calls(draw({ ...BASE, scale: 2, say: { block, text: 'SIXTEEN CHARS OK' } }))).toBe(1);
+    expect(calls(draw({ ...BASE, scale: 2, say: { block, text: 'SEVENTEEN CHARS X' } }))).toBe(0);
   });
 });

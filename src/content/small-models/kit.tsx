@@ -18,6 +18,7 @@ import { useNarrow } from '../tool-calling/kit';
 import { LossChart, META, ModelGate, loadModel, modelNow, useModel } from '../fine-tuning/kit';
 import './small-models.css';
 import Cite from '../../components/story/Cite';
+import type { Say } from '../../components/story/steps';
 
 export { META, loadModel, modelNow };
 /** The student's recorded distillation run (meta.json `student`): training and held-out loss per step. */
@@ -134,11 +135,14 @@ export function SmallStage({
   models,
   view: kept,
   onView,
+  say,
 }: {
   show: () => Shown;
   models?: boolean;
   view?: View;
   onView?: (v: View) => void;
+  /** the step's callout, drawn over a part of the picture (ROUTER_PARTS); the Chart tab ignores it */
+  say?: Say;
 }) {
   const [own, setOwn] = useState<View>('scene');
   const view = kept ?? own,
@@ -150,7 +154,7 @@ export function SmallStage({
   const ready = !models || (a.model && b.model);
   const s = ready ? show() : null,
     r = s?.chart,
-    o: RouterOpts = { ...s?.scene, scale };
+    o: RouterOpts = { ...s?.scene, scale, say };
   return (
     <div className="tc-stage sm-stage">
       <div className="tc-tabs" role="group" aria-label="Show in the picture">

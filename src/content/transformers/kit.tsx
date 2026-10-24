@@ -25,6 +25,7 @@ import { attentionMap, mapLabel, pieceLabel, probBar } from '../../components/sc
 import { useNarrow } from '../tool-calling/kit';
 import './transformers.css';
 import Cite from '../../components/story/Cite';
+import type { Say } from '../../components/story/steps';
 
 /** Larkspur mini's context: the most tokens it reads (public/data/lm/meta.json model.ctx; a test holds them equal). */
 export const CTX = 32;
@@ -289,6 +290,7 @@ export function TransformersStage({
   next,
   locked = false,
   store = MODEL,
+  say,
 }: {
   prompt: string;
   layer?: number;
@@ -300,6 +302,8 @@ export function TransformersStage({
   next?: { text: string; p: number }[];
   locked?: boolean;
   store?: ModelStore;
+  /** the step's callout, drawn on the picture only */
+  say?: Say;
 }) {
   const [own, setOwn] = useState<View>('scene');
   const view = locked ? 'scene' : (kept ?? own),
@@ -310,7 +314,7 @@ export function TransformersStage({
   const tokens = useMemo(() => tr?.tokens.map(t => t.text) ?? piecesOf(prompt).read, [tr, prompt]);
   const n = tokens.length,
     q = n ? clamp(query ?? n - 1, 0, n - 1) : -1;
-  const o: EngineOpts = { tokens, attention: tr?.attention, layer, head, query: q, scale };
+  const o: EngineOpts = { tokens, attention: tr?.attention, layer, head, query: q, scale, say };
   return (
     <div className="tc-stage tf-stage" data-model={model ? 'ready' : failed ? 'failed' : 'loading'}>
       <div className="tc-tabs" role="group" aria-label="Show in the picture">

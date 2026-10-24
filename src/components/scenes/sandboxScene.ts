@@ -4,7 +4,7 @@
 // secret sits in a safe inside the yard or outside with the proxy. Each is a prop turned on by a policy flag, read off
 // one run up to the current step. Words go only in pills; on phones (scale > 1) the caption carries the readouts.
 import type { SceneCtx, Board } from '../../lib/iso/IsoStage';
-import { BH, boxCorners, esc } from '../../lib/iso/blocks';
+import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
 import {
   PALS,
   DARK,
@@ -20,13 +20,24 @@ import {
   tag,
   byDepth,
 } from '../../lib/iso/core.js';
-import { archAt, beltAt, envelope, officeScene, type OfficeOpts, type Part } from './officeScene';
+import { OFFICE_PARTS, archAt, beltAt, envelope, officeScene, type OfficeOpts, type Part } from './officeScene';
 import { sandboxMessages } from './sandboxSequence';
 import type { Files, Run } from '../../lib/sandboxing/loop';
 import type { Msg } from '../../lib/iso/flat';
 
 /** The office board, widened on the left for the network belt and the outside world. */
 export const SANDBOX_BOARD: Board = [40, 0, 286, 258];
+
+/** The parts a step's callout may name: the office's (it has no ownership check or approval here), then the doors, the
+ * proxy, the secret's safe and the world. */
+export const SANDBOX_PARTS = [
+  ...OFFICE_PARTS.filter(p => p !== 'owner' && p !== 'gate'),
+  'files',
+  'network',
+  'proxy',
+  'secret',
+  'world',
+] as const;
 
 export interface SandboxOpts extends Omit<OfficeOpts, 'msgs' | 'upTo' | 'tools' | 'emp'> {
   run: Run;
@@ -174,11 +185,16 @@ export const sandboxScene = (o: SandboxOpts) => (ctx: SceneCtx) => {
     owner: false,
     gate: false,
   })(ctx);
-  const cut = office.search(PILLS),
-    art = cut < 0 ? office : office.slice(0, cut),
-    names = cut < 0 ? '' : office.slice(cut);
+  // the office's callout (it draws one only for its own parts) moves to the very top, over this scene's pills
+  const lit = office.indexOf('<g class="callout"'),
+    callout = lit < 0 ? '' : office.slice(lit),
+    rest = lit < 0 ? office : office.slice(0, lit);
+  const cut = rest.search(PILLS),
+    art = cut < 0 ? rest : rest.slice(0, cut),
+    names = cut < 0 ? '' : rest.slice(cut);
   const parts: Part[] = [],
     pills: string[] = [],
+    calls: string[] = [],
     shadows: string[] = [];
   const netBelt = `<g data-prop="net-belt">${beltAt(NET.a, NET.b, NET.n, egress === 'off')}</g>`;
 
@@ -193,6 +209,7 @@ export const sandboxScene = (o: SandboxOpts) => (ctx: SceneCtx) => {
       st.where === 'file-blocked' ? 'bad' : st.where === 'from-files' ? st.lamp : null,
     );
     parts.push({ at: fa.at, svg: `<g data-prop="file-door" data-mode="${files}">${fa.svg}</g>` });
+    calls.push(sayAt(o.say, 'files', [FILE_DOOR[0], FILE_DOOR[1], BH + 20], 27, scale));
     if (!narrow)
       pills.push(
         pill(
@@ -209,6 +226,7 @@ export const sandboxScene = (o: SandboxOpts) => (ctx: SceneCtx) => {
   // the network door and proxy on the outbound belt, the world beyond
   const na = archAt(at(NET, DOOR_T), NET.n, st.where === 'net-blocked' ? 'bad' : st.where === 'to-net' ? 'ok' : null);
   parts.push({ at: na.at, svg: `<g data-prop="net-door" data-egress="${wall ? egress : 'open'}">${na.svg}</g>` });
+  calls.push(sayAt(o.say, 'network', [at(NET, DOOR_T)[0], at(NET, DOOR_T)[1], BH + 20], 29, scale));
   if (!narrow)
     pills.push(
       pill(
@@ -223,6 +241,7 @@ export const sandboxScene = (o: SandboxOpts) => (ctx: SceneCtx) => {
     );
   if (wall && proxy) {
     parts.push(proxyProp(...(at(NET, GATE_T) as [number, number])));
+    calls.push(sayAt(o.say, 'proxy', [at(NET, GATE_T)[0], at(NET, GATE_T)[1], BH + 14], -49, scale));
     if (!narrow)
       pills.push(
         pill(
@@ -240,6 +259,7 @@ export const sandboxScene = (o: SandboxOpts) => (ctx: SceneCtx) => {
   if (wall) {
     const [sx, sy] = proxy ? SAFE_OUT : SAFE_IN;
     parts.push(safeProp(sx, sy, !!proxy));
+    calls.push(sayAt(o.say, 'secret', [sx, sy, BH + 12], proxy ? -46 : -14, scale));
     shadows.push(castShadow(boxCorners(sx - 7, sy - 6, BH, sx + 7, sy + 6, BH + 12), BH, ctx.top));
     if (!narrow)
       pills.push(
@@ -259,6 +279,7 @@ export const sandboxScene = (o: SandboxOpts) => (ctx: SceneCtx) => {
     svg: `<g data-prop="world">${cyl(WORLD[0], WORLD[1], BH, BH + 8, 7, PALS.mint, toneI, 1, 18)}</g>`,
   });
   if (!narrow) pills.push(pill([WORLD[0], WORLD[1], BH + 8], 4, -38, 'THE WORLD', false, scale));
+  calls.push(sayAt(o.say, 'world', [WORLD[0], WORLD[1], BH + 8], -38, scale));
 
   // the current step's envelope on its belt
   if (st.where) {
@@ -281,7 +302,7 @@ export const sandboxScene = (o: SandboxOpts) => (ctx: SceneCtx) => {
     if ((st.where === 'file-blocked' || st.where === 'net-blocked') && !narrow)
       pills.push(pill([p[0], p[1], BH + 6], onNet ? 30 : 0, 16, 'REFUSED', true, scale, 'msg-tag'));
   }
-  return netBelt + art + shadows.join('') + byDepth(parts) + names + pills.join('');
+  return netBelt + art + shadows.join('') + byDepth(parts) + names + pills.join('') + callout + calls.join('');
 };
 
 /** The picture in words, for its aria-label. */

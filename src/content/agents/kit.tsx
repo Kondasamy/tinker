@@ -11,6 +11,7 @@ import { totalTokens, type Run } from '../../lib/agents/loop';
 import { fact } from '../../lib/agents/facts';
 import { openMessage, useNarrow } from '../tool-calling/kit';
 import Cite from '../../components/story/Cite';
+import type { Say } from '../../components/story/steps';
 
 /** The props a chapter turns on (KTD8): everything in AgentOpts but the run, the step and the drawing's own settings. */
 export type AgentProps = Omit<AgentOpts, 'run' | 'upTo' | 'host' | 'scale'>;
@@ -49,6 +50,7 @@ export function AgentStage({
   inspect,
   view: kept,
   onView,
+  say: callout,
 }: {
   run: Run;
   upTo: number;
@@ -57,6 +59,8 @@ export function AgentStage({
   inspect: (panel: string, sheet?: boolean) => void;
   view?: View;
   onView?: (v: View) => void;
+  /** the step's callout, drawn over a part of the picture (AGENT_PARTS) */
+  say?: Say;
 }) {
   const [own, setOwn] = useState<View>('scene');
   const view = kept ?? own,
@@ -65,7 +69,7 @@ export function AgentStage({
   const msgs = useMemo(() => agentMessages(run), [run]),
     lanes = useMemo(() => agentLanes(run, host), [run, host]);
   const shown = Math.min(upTo, msgs.length),
-    opts: AgentOpts = { ...props, run, upTo: shown, host, scale };
+    opts: AgentOpts = { ...props, run, upTo: shown, host, scale, say: callout };
   const m = msgs[shown - 1],
     name = (id: string) => lanes.find(l => l.id === id)?.name ?? id,
     say = readouts(opts);

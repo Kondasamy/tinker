@@ -25,6 +25,7 @@ import {
 import { useNarrow } from '../tool-calling/kit';
 import './voice.css';
 import Cite from '../../components/story/Cite';
+import type { Say as Callout } from '../../components/story/steps';
 
 export { secs };
 
@@ -217,17 +218,20 @@ export function VoiceStage({
   view: kept,
   onView,
   step,
+  say,
 }: {
   shown: Shown;
   view?: View;
   onView?: (v: View) => void;
   step?: string;
+  /** the step's callout, drawn on the picture (PHONE_PARTS) */
+  say?: Callout;
 }) {
   const [own, setOwn] = useState<View>('scene');
   const view = kept ?? own,
     setView = onView ?? setOwn;
   useEffect(() => () => stopClip(), [step]);
-  const o: PhoneOpts = { ...s.phone, scale: useNarrow() ? 2 : 1.25 };
+  const o: PhoneOpts = { ...s.phone, say, scale: useNarrow() ? 2 : 1.25 };
   return (
     <div className="tc-stage vo-stage">
       <div className="tc-tabs" role="group" aria-label="Show in the picture">

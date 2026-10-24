@@ -4,6 +4,7 @@ import { renderToString } from 'react-dom/server';
 import IsoStage from '../../src/lib/iso/IsoStage';
 import {
   SANDBOX_BOARD,
+  SANDBOX_PARTS,
   sandboxLabel,
   sandboxScene,
   sandboxState,
@@ -101,4 +102,26 @@ describe('the glass room’s pills', () => {
     }
     expect(checked).toBeGreaterThan(50);
   }, 30_000);
+});
+
+describe('glass room callouts', () => {
+  const callouts = (svg: string) => svg.split('<g class="callout"').length - 1;
+  const full = (_: string): SandboxOpts => ({ run: REPORT, wall: true, proxy: true, schema: true });
+  it('a callout over each part draws one lit pill with its words', () => {
+    for (const block of SANDBOX_PARTS) {
+      const svg = draw({ ...full(block), say: { block, text: 'LOOK HERE' } });
+      expect(callouts(svg), block).toBe(1);
+      expect(svg.slice(svg.indexOf('<g class="callout"'))).toContain('LOOK HERE');
+    }
+  });
+  it('an unknown part draws no callout, and the picture is as without one', () => {
+    const svg = draw({ ...full('model'), say: { block: 'nowhere', text: 'LOOK HERE' } });
+    expect(callouts(svg)).toBe(0);
+    expect(svg).toBe(draw(full('model')));
+  });
+  it('phones drop a callout over 16 characters and keep one of 16', () => {
+    const phone = (text: string) => callouts(draw({ ...full('model'), scale: 1.8, say: { block: 'model', text } }));
+    expect(phone('A'.repeat(17))).toBe(0);
+    expect(phone('A'.repeat(16))).toBe(1);
+  });
 });

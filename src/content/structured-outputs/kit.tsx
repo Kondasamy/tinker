@@ -21,6 +21,7 @@ import { Flat, MODEL, useModel, type ModelStore } from '../transformers/kit';
 import { useNarrow } from '../tool-calling/kit';
 import './structured.css';
 import Cite from '../../components/story/Cite';
+import type { Say } from '../../components/story/steps';
 
 export { MODEL, Waiting, modelNow, modelStore, useModel, whenLoaded } from '../transformers/kit';
 
@@ -151,6 +152,7 @@ export function StructuredStage({
   onView,
   locked = false,
   store = MODEL,
+  say,
 }: {
   prompt: string;
   d: Decoded | null;
@@ -161,6 +163,8 @@ export function StructuredStage({
   onView?: (v: View) => void;
   locked?: boolean;
   store?: ModelStore;
+  /** the step's callout, drawn on the picture only */
+  say?: Say;
 }) {
   const [own, setOwn] = useState<View>('scene');
   const canMask = !!d && masked && !locked;
@@ -170,7 +174,7 @@ export function StructuredStage({
   const { model, failed, retry } = useModel(store);
   const live = stencilAt(prompt, model ? d : null, at, masked, scale);
   // while a prediction is open the picture keeps the answer back: no count on the plate, no blocked tile
-  const o = locked ? { ...live, hideCount: true, blocked: null } : live;
+  const o = { ...(locked ? { ...live, hideCount: true, blocked: null } : live), say };
   const n = d ? Math.min(at, d.ids.length) : 0;
   return (
     <div className="tc-stage so-stage" data-model={model ? 'ready' : failed ? 'failed' : 'loading'}>

@@ -6,7 +6,7 @@
 // assistant, and the chute is the fallback that sends an unsure answer up. Words only in pills; on phones (scale > 1.5)
 // the router's and the chute's pills show only while lit.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
-import { ACC, BH, boxCorners, esc, renderers } from '../../lib/iso/blocks';
+import { ACC, BH, boxCorners, esc, renderers, sayAt } from '../../lib/iso/blocks';
 import {
   INK,
   PALS,
@@ -46,7 +46,12 @@ export interface RouterOpts {
   threshold?: number | null;
   /** pill size; phones pass more */
   scale?: number;
+  /** the step's callout: a lit pill over one of ROUTER_PARTS */
+  say?: { block: string; text: string };
 }
+
+/** The parts a step's callout may point at: the ones with a name pill. */
+export const ROUTER_PARTS = ['big', 'small', 'router', 'chute'] as const;
 
 const NAMES: Record<Mode, { big: string; small: string }> = {
   distill: { big: 'LARKSPUR MINI', small: 'STUDENT' },
@@ -178,6 +183,10 @@ export const routerScene = (o: RouterOpts) => (ctx: SceneCtx) => {
   ];
   s += byDepth(parts);
   const pills = [
+    sayAt(o.say, 'big', [bx, by, BH + 32], -16, scale),
+    sayAt(o.say, 'small', [sx, sy, BH + 14], -14, scale),
+    sayAt(o.say, 'router', [wx, wy, SZ + 18], -12, scale),
+    sayAt(o.say, 'chute', [CHUTE_X, sy - 16, BH + 1], 4, scale),
     pill([bx, by, BH + 32], 0, -16, st.big.name, st.big.on, scale),
     pill([sx, sy, BH + 14], 0, -14, st.small.name, st.small.on, scale),
   ];

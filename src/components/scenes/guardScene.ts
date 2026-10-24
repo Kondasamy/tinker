@@ -4,7 +4,7 @@
 // checks), a barrier on the chute (the allow-list), the chute shut once untrusted text is in (the taint rule), and the
 // trifecta's three legs named, a removed leg drawn shut or dashed. Everything is read off one run, up to the current step.
 import type { SceneCtx } from '../../lib/iso/IsoStage';
-import { BH, boxCorners, esc } from '../../lib/iso/blocks';
+import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
 import {
   PALS,
   CERAMIC,
@@ -23,7 +23,16 @@ import {
   tag,
   byDepth,
 } from '../../lib/iso/core.js';
-import { archAt, barrierAt, beltAt, envelope, officeScene, type OfficeOpts, type Part } from './officeScene';
+import {
+  OFFICE_PARTS,
+  archAt,
+  barrierAt,
+  beltAt,
+  envelope,
+  officeScene,
+  type OfficeOpts,
+  type Part,
+} from './officeScene';
 import { guardMessages } from './guardSequence';
 import type { Leg, Run } from '../../lib/guardrails/loop';
 import type { Board } from '../../lib/iso/IsoStage';
@@ -31,6 +40,9 @@ import type { Msg } from '../../lib/iso/flat';
 
 /** The office's board, widened on the left for the inbox tray. */
 export const GUARD_BOARD: Board = [60, 0, 286, 258];
+
+/** The parts a step's callout may name: the office's, then the mail room's (in-tray, post box, records) and its checks. */
+export const GUARD_PARTS = [...OFFICE_PARTS, 'inbox', 'post', 'records', 'screen', 'allow'] as const;
 
 export interface GuardOpts extends Omit<OfficeOpts, 'msgs' | 'upTo' | 'tools' | 'emp'> {
   run: Run;
@@ -216,11 +228,16 @@ export const guardScene = (o: GuardOpts) => (ctx: SceneCtx) => {
     msgs = guardMessages(run);
   const office = officeScene({ ...o, msgs, upTo, tools: st.tools, emp: 'MAIL ROOM' })(ctx);
   // the props go over the office's art but under its name pills; the chute is floor, under everything
-  const cut = office.search(PILLS),
-    art = cut < 0 ? office : office.slice(0, cut),
-    names = cut < 0 ? '' : office.slice(cut);
+  // the office's callout (it draws one only for its own parts) moves to the very top, over this scene's pills
+  const lit = office.indexOf('<g class="callout"'),
+    callout = lit < 0 ? '' : office.slice(lit),
+    rest = lit < 0 ? office : office.slice(0, lit);
+  const cut = rest.search(PILLS),
+    art = cut < 0 ? rest : rest.slice(0, cut),
+    names = cut < 0 ? '' : rest.slice(cut);
   const parts: Part[] = [],
     pills: string[] = [],
+    calls: string[] = [],
     shadows: string[] = [];
   const shade = (x0: number, y0: number, x1: number, y1: number, h: number) =>
     shadows.push(castShadow(boxCorners(x0, y0, BH, x1, y1, BH + h), BH, ctx.top));
@@ -228,6 +245,7 @@ export const guardScene = (o: GuardOpts) => (ctx: SceneCtx) => {
 
   parts.push(trayProp(TRAY[0], TRAY[1], remove === 'untrusted'));
   shade(TRAY[0] - 12, TRAY[1] - 9, TRAY[0] + 12, TRAY[1] + 9, remove === 'untrusted' ? 8 : 6);
+  calls.push(sayAt(o.say, 'inbox', [TRAY[0], TRAY[1], BH + 8], -10, scale));
   pills.push(
     pill(
       [TRAY[0], TRAY[1], BH + 8],
@@ -240,6 +258,7 @@ export const guardScene = (o: GuardOpts) => (ctx: SceneCtx) => {
   );
   parts.push(postBox(POST[0], POST[1]));
   shade(POST[0] - 6, POST[1] - 6, POST[0] + 6, POST[1] + 6, 23);
+  calls.push(sayAt(o.say, 'post', [POST[0], POST[1], BH + 23], -14, scale));
   const outWords = o.legs ? 'WAY OUT' : 'OUTBOUND';
   pills.push(
     pill(
@@ -256,6 +275,7 @@ export const guardScene = (o: GuardOpts) => (ctx: SceneCtx) => {
   if (o.legs) {
     parts.push(recordsProp(RECORDS[0], RECORDS[1], remove === 'private'));
     if (remove !== 'private') shade(RECORDS[0] - 9, RECORDS[1] - 7, RECORDS[0] + 9, RECORDS[1] + 7, 12);
+    calls.push(sayAt(o.say, 'records', [RECORDS[0], RECORDS[1], BH + 12], -14, scale));
     pills.push(
       pill(
         [RECORDS[0], RECORDS[1], BH + 12],
@@ -272,6 +292,7 @@ export const guardScene = (o: GuardOpts) => (ctx: SceneCtx) => {
       lamp = st.where === 'held' ? 'bad' : st.where === 'from-mail' ? 'ok' : null;
     const a = archAt(p, IN.n, lamp);
     parts.push({ at: a.at, svg: `<g data-prop="arch"${lamp ? ` data-lamp="${lamp}"` : ''}>${a.svg}</g>` });
+    calls.push(sayAt(o.say, 'screen', [p[0] + 9, p[1], BH + 20], 2, scale));
     if (!narrow)
       pills.push(
         pill(
@@ -290,6 +311,7 @@ export const guardScene = (o: GuardOpts) => (ctx: SceneCtx) => {
       up = st.where === 'out';
     const b = barrierAt(p, OUT.n, up, false);
     parts.push({ at: b.at, svg: `<g data-prop="barrier" data-up="${up ? 1 : 0}">${b.svg}</g>` });
+    calls.push(sayAt(o.say, 'allow', [p[0] + 10, p[1], BH + 14], 22, scale));
     if (!narrow)
       pills.push(
         pill(
@@ -315,7 +337,7 @@ export const guardScene = (o: GuardOpts) => (ctx: SceneCtx) => {
     if (st.where === 'blocked' && !narrow)
       pills.push(pill([p[0], p[1], BH + 6], -26, -18, 'REFUSED', true, scale, 'msg-tag'));
   }
-  return chute + art + shadows.join('') + byDepth(parts) + names + pills.join('');
+  return chute + art + shadows.join('') + byDepth(parts) + names + pills.join('') + callout + calls.join('');
 };
 
 /** The picture in words, for its aria-label: the office and mail room, the current step, then each defence that is on. */

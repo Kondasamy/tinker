@@ -4,7 +4,7 @@
 // one token (the query, default the last) back to every token it looks at, the ink heavier and darker as the weight
 // grows. A weight below THREAD_FLOOR draws no thread. Words go only in label pills, every one escaped (esc).
 import type { SceneCtx, Board } from '../../lib/iso/IsoStage';
-import { BH, boxCorners, esc } from '../../lib/iso/blocks';
+import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
 import {
   INK,
   PALS,
@@ -41,7 +41,11 @@ export interface EngineOpts {
   query?: number;
   /** label pill size: 1 wide, larger on phones (name only) */
   scale?: number;
+  /** the step's callout, over one of ENGINE_PARTS */
+  say?: { block: string; text: string };
 }
+/** The parts a step's callout may name: each floor, the lit head's desk, the query tile and the tile it weighs most. */
+export const ENGINE_PARTS = ['layer-1', 'layer-2', 'head', 'query', 'focus'] as const;
 
 const LIT = '#ffb627';
 const X0 = 30,
@@ -180,39 +184,31 @@ export const engineScene = (o: EngineOpts) => (ctx: SceneCtx) => {
     .map(t => thread(t, xs))
     .join('')}</g>`;
 
+  const floor1 = [X1, (g.y0 + g.y1) / 2, g.z],
+    floor2 = [X1, (u.y0 + u.y1) / 2, u.z];
   const pills = [
-    pill([X1, (g.y0 + g.y1) / 2, g.z], 26, 4, 'LAYER 1', layer === 0, scale),
-    pill([X1, (u.y0 + u.y1) / 2, u.z], 26, -4, 'LAYER 2', layer === 1, scale),
+    pill(floor1, 26, 4, 'LAYER 1', layer === 0, scale),
+    pill(floor2, 26, -4, 'LAYER 2', layer === 1, scale),
   ];
+  const callouts = [sayAt(o.say, 'layer-1', floor1, 4, scale), sayAt(o.say, 'layer-2', floor2, -4, scale)];
   const lit = FLOOR[layer] && DESK_X[head] !== undefined;
-  if (lit && !narrow)
-    pills.push(
-      pill(
-        [DESK_X[head] - 3, (FLOOR[layer].y0 + FLOOR[layer].y1) / 2, FLOOR[layer].z + 19],
-        0,
-        -14,
-        `HEAD ${head + 1}`,
-        true,
-        scale,
-      ),
-    );
+  if (lit) {
+    const at = [DESK_X[head] - 3, (FLOOR[layer].y0 + FLOOR[layer].y1) / 2, FLOOR[layer].z + 19];
+    if (!narrow) pills.push(pill(at, 0, -14, `HEAD ${head + 1}`, true, scale));
+    callouts.push(sayAt(o.say, 'head', at, -14, scale));
+  }
   if (st.query >= 0) {
     const say = (i: number) => (narrow ? `#${i + 1}` : `#${i + 1} ${pieceLabel(o.tokens[i])}`);
-    pills.push(pill([xs[st.query], TILE_Y + 6, BH + TILE_H], 8, 22, say(st.query), true, scale));
+    const at = (i: number) => [xs[i], TILE_Y + 6, BH + TILE_H];
+    pills.push(pill(at(st.query), 8, 22, say(st.query), true, scale));
+    callouts.push(sayAt(o.say, 'query', at(st.query), 22, scale));
     const top = st.strongest;
-    if (top && top.to !== st.query)
-      pills.push(
-        pill(
-          [xs[top.to], TILE_Y + 6, BH + TILE_H],
-          -8,
-          22,
-          narrow ? say(top.to) : `${say(top.to)} · ${top.w.toFixed(2)}`,
-          false,
-          scale,
-        ),
-      );
+    if (top && top.to !== st.query) {
+      pills.push(pill(at(top.to), -8, 22, narrow ? say(top.to) : `${say(top.to)} · ${top.w.toFixed(2)}`, false, scale));
+      callouts.push(sayAt(o.say, 'focus', at(top.to), 22, scale));
+    }
   }
-  return shadows.join('') + s + pills.join('');
+  return shadows.join('') + s + pills.join('') + callouts.join('');
 };
 
 /** The home hero's plot (heroScene): a small engine room at (x, y), one storey with a head's desk lit on top, and three

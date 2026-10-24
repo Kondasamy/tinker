@@ -20,6 +20,7 @@ import { useNarrow } from '../tool-calling/kit';
 import metaJson from '../../../public/data/lm/meta.json';
 import './fine-tuning.css';
 import Cite from '../../components/story/Cite';
+import type { Say } from '../../components/story/steps';
 
 /** Larkspur mini's layout and recorded runs (the loss curves), read at build time: the chart needs no download. */
 export const META = metaJson as unknown as Meta;
@@ -208,11 +209,14 @@ export function FineTuneStage({
   weights,
   view: kept,
   onView,
+  say,
 }: {
   show: (model?: Model) => Shown;
   weights?: Weights;
   view?: View;
   onView?: (v: View) => void;
+  /** the step's callout, drawn over a part of the picture (TRAIN_PARTS); the Results tab ignores it */
+  say?: Say;
 }) {
   const [own, setOwn] = useState<View>('scene');
   const view = kept ?? own,
@@ -222,7 +226,7 @@ export function FineTuneStage({
   // while the weights load, the tabs and the frame keep their places, so the stage never changes size
   const s = !weights || model ? show(model) : null,
     r = s?.results,
-    o: TrainOpts = { ...s?.scene, scale };
+    o: TrainOpts = { ...s?.scene, scale, say };
   return (
     <div className="tc-stage ft-stage">
       <div className="tc-tabs" role="group" aria-label="Show in the picture">

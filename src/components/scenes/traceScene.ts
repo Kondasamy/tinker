@@ -3,7 +3,7 @@
 // each with its pile of sorted cards (cards as in Evals' test bench). A tally board pill reads the counts. Words only in
 // pills, all escaped (esc); on phones (scale > 1.5) the bins' pills keep just their counts and the caption carries names.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
-import { BH, boxCorners, esc } from '../../lib/iso/blocks';
+import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
 import { PALS, CERAMIC, WOOD, DARK, box, shape, castShadow, hullInk, toneI, tag, byDepth } from '../../lib/iso/core.js';
 
 export const TRACE_BOARD: Board = [0, 0, 240, 150];
@@ -26,8 +26,13 @@ export interface TraceOpts {
   bins?: Bin[];
   /** the tally board's words, in place of "TRACES n · FAILED f" */
   board?: string;
+  /** the step's callout, over one of TRACE_PARTS (a bin is `bin-<index>`, front left first) */
+  say?: { block: string; text: string };
   scale?: number;
 }
+
+/** The parts a step's callout may name: the wall of traces (its tally pill) and the bins, `bin-0` to `bin-4`. */
+export const TRACE_PARTS = ['wall', 'bin-0', 'bin-1', 'bin-2', 'bin-3', 'bin-4'] as const;
 
 /** What the room shows. Pure, so the tests check it without drawing. */
 export function traceState({ cards, bins = [] }: TraceOpts) {
@@ -125,6 +130,8 @@ export const traceScene = (o: TraceOpts) => (ctx: SceneCtx) => {
     .map((c, i) => wallCard(i, c))
     .join('');
   s += byDepth(bins.map((b, i) => bin(i, b)));
+  // callouts go on last, so no neighbour's pill hides one
+  let callouts = sayAt(o.say, 'wall', [WALL.x1, WALL.y1, BH + WALL.h], -24, scale);
   const pills = [
     pill(
       [WALL.x1, WALL.y1, BH + WALL.h],
@@ -139,18 +146,13 @@ export const traceScene = (o: TraceOpts) => (ctx: SceneCtx) => {
     const x = BIN.first + i * BIN.pitch,
       top = BH + BIN.h + Math.min(Math.max(0, b.count), PILE_MAX) * PILE_H;
     // neighbours alternate high and low so their pills never overlap
+    const dy = (narrow ? 30 : 24) + (i % 2) * (narrow ? 26 : 20);
+    callouts += sayAt(o.say, `bin-${i}`, [x, BIN.y + BIN.half, top], dy, scale);
     pills.push(
-      pill(
-        [x, BIN.y + BIN.half, top],
-        0,
-        (narrow ? 30 : 24) + (i % 2) * (narrow ? 26 : 20),
-        narrow ? String(b.count) : `${b.label} ${b.count}`,
-        !!b.lit,
-        scale,
-      ),
+      pill([x, BIN.y + BIN.half, top], 0, dy, narrow ? String(b.count) : `${b.label} ${b.count}`, !!b.lit, scale),
     );
   });
-  return s + pills.join('');
+  return s + pills.join('') + callouts;
 };
 
 /** The picture in words, for its aria-label. */

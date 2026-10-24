@@ -3,6 +3,7 @@ import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import IsoStage from '../../src/lib/iso/IsoStage';
 import {
+  TRACE_PARTS,
   TRACE_BOARD,
   WALL_MAX,
   traceLabel,
@@ -81,5 +82,34 @@ describe('the reader’s note renders as text only', () => {
     const html = renderToString(createElement(TraceCard, { trace: FAILED[0], note: '<script>alert(1)</script>' }));
     expect(html).not.toContain('<script>');
     expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
+  });
+});
+
+describe("a step's callout on the picture", () => {
+  const base: TraceOpts = {
+    cards: [{ failed: true }, { failed: false }],
+    bins: [
+      { label: 'A', count: 1 },
+      { label: 'B', count: 2 },
+    ],
+  };
+  const callouts = (svg: string) => svg.split('class="callout"').length - 1;
+  it.each(['wall', 'bin-0', 'bin-1'])('draws one lit callout over %s', part => {
+    expect(TRACE_PARTS).toContain(part);
+    const svg = draw({ ...base, say: { block: part, text: 'LOOK HERE' } });
+    expect(callouts(svg)).toBe(1);
+    expect(svg.slice(svg.indexOf('class="callout"'))).toContain('LOOK HERE');
+  });
+  it('draws none for a part the scene does not have', () => {
+    expect(callouts(draw({ ...base, say: { block: 'nowhere', text: 'LOOK HERE' } }))).toBe(0);
+  });
+  it('with no callout the picture is unchanged', () => {
+    expect(draw({ ...base, say: undefined })).toBe(draw(base));
+    expect(draw({ ...base, say: { block: 'nowhere', text: 'X' } })).toBe(draw(base));
+  });
+  it('on phones a callout over 16 characters is dropped', () => {
+    const at = (text: string) => callouts(draw({ ...base, scale: 2, say: { block: 'wall', text } }));
+    expect(at('SIXTEEN CHARS OK')).toBe(1);
+    expect(at('SEVENTEEN CHARS X')).toBe(0);
   });
 });

@@ -20,6 +20,7 @@ import {
 } from '../../components/scenes/officeScene';
 import './tools.css';
 import Cite from '../../components/story/Cite';
+import type { Say } from '../../components/story/steps';
 
 export { money };
 
@@ -207,16 +208,19 @@ export function ToolStage({
   upTo,
   office,
   inspect,
+  say,
 }: {
   lanes: Lane[];
   msgs: Shown[];
   upTo: number;
   office: Omit<OfficeOpts, 'msgs' | 'upTo' | 'host' | 'scale'>;
   inspect: (panel: string, sheet?: boolean) => void;
+  /** the step's callout, drawn over a part of the picture (OFFICE_PARTS) */
+  say?: Say;
 }) {
   const [view, setView] = useState<'scene' | 'seq'>('scene');
   const scale = useNarrow() ? 1.8 : 1;
-  const opts = { ...office, msgs, upTo, host: lanes[1].name, scale };
+  const opts = { ...office, msgs, upTo, host: lanes[1].name, scale, say };
   return (
     <div className="tc-stage">
       <div className="tc-tabs" role="group" aria-label="Show in the picture">

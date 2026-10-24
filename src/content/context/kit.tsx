@@ -21,6 +21,7 @@ import { fact } from '../../lib/context/facts';
 import { useNarrow } from '../tool-calling/kit';
 import './context.css';
 import Cite from '../../components/story/Cite';
+import type { Say } from '../../components/story/steps';
 
 /** The props a chapter turns on: everything in WindowOpts but the run, the call and the drawing's own settings. */
 export type WindowProps = Pick<WindowOpts, 'shelf' | 'cabinet' | 'tray'>;
@@ -193,6 +194,7 @@ export function ContextStage({
   props = {},
   view: kept,
   onView,
+  say,
 }: {
   run: Run;
   upTo?: number;
@@ -200,12 +202,14 @@ export function ContextStage({
   props?: WindowProps;
   view?: View;
   onView?: (v: View) => void;
+  /** the step's callout, drawn over a part of the picture (WINDOW_PARTS); the Window tab ignores it */
+  say?: Say;
 }) {
   const [own, setOwn] = useState<View>('scene');
   const view = kept ?? own,
     setView = onView ?? setOwn;
   const narrow = useNarrow(),
-    opts: WindowOpts = { ...props, run, upTo, budget, scale: narrow ? 1.8 : 1 };
+    opts: WindowOpts = { ...props, run, upTo, budget, scale: narrow ? 1.8 : 1, say };
   const st = windowState(opts),
     c = st.meter ? caseOf(st.meter.case) : undefined;
   return (

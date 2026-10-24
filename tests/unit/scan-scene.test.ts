@@ -8,6 +8,7 @@ import IsoStage from '../../src/lib/iso/IsoStage';
 import {
   MAX_LINES,
   SCAN_BOARD,
+  SCAN_PARTS,
   scanLabel,
   scanScene,
   scanState,
@@ -103,5 +104,29 @@ describe('the kit', () => {
       createElement(MultimodalStage, { shown: { image: 'note', size: 1600, method: 'ocr', caption: '<b>x</b>' } }),
     );
     expect(html).toContain('&lt;b&gt;x&lt;/b&gt;');
+  });
+});
+
+describe('scanning table callouts', () => {
+  const base: ScanOpts = { image: 'invoice', size: 1600, method: 'vision' };
+  const calls = (svg: string) => svg.match(/class="callout"/g)?.length ?? 0;
+  it('draws one callout over each named part, with its text', () => {
+    for (const block of SCAN_PARTS) {
+      const svg = draw({ ...base, say: { block, text: 'Look here' } });
+      expect(calls(svg), block).toBe(1);
+      expect(svg).toMatch(/class="callout"[\s\S]*Look here/);
+    }
+  });
+  it('draws none for a part it does not have, and nothing changes without one', () => {
+    expect(calls(draw({ ...base, say: { block: 'nowhere', text: 'Look here' } }))).toBe(0);
+    expect(draw({ ...base, say: undefined })).toBe(draw(base));
+    expect(calls(draw(base))).toBe(0);
+  });
+  it('on phones drops a callout over 16 characters and keeps a shorter one', () => {
+    const phone = (text: string) => calls(draw({ ...base, scale: 2, say: { block: SCAN_PARTS[0], text } }));
+    expect(phone('x'.repeat(17))).toBe(0);
+    expect(phone('x'.repeat(16))).toBe(1);
+    // desktop pills here are 1.2, still wide: a long callout stays
+    expect(calls(draw({ ...base, say: { block: 'camera', text: 'x'.repeat(30) } }))).toBe(1);
   });
 });
