@@ -28,7 +28,9 @@ test('chapter 1: wrong answer, click through the eras, cited sources, quiz', asy
 
   // a mark opens its source in place, and Escape closes it again
   await page.locator('[data-era="0"]').click();
-  const mark = drawer(page).getByRole('button', { name: /^Source:/ }).first();
+  const mark = drawer(page)
+    .getByRole('button', { name: /^Source:/ })
+    .first();
   await mark.click();
   await expect(drawer(page).locator('.cite-pop:popover-open a')).toHaveAttribute('target', '_blank');
   await page.keyboard.press('Escape');
