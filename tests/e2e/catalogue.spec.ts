@@ -160,6 +160,24 @@ test('the roadmap is empty: seventeen live cards numbered 1–17, no roadmap car
   await expect(page.locator('.hero-pic figcaption a')).toHaveAttribute('href', REQUEST);
 });
 
+// a planned plot's pill sits out the wave: hidden while animated, shown with reduced motion (issue #15).
+// No module is planned today, so a hero-soon group is planted in the hero to test the CSS itself.
+for (const reducedMotion of ['no-preference', 'reduce'] as const)
+  test(`the hero's planned pills are ${reducedMotion === 'reduce' ? 'shown' : 'hidden'} (${reducedMotion})`, async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion });
+    await page.goto('/');
+    await page.locator('.hero-pic svg').evaluate(svg => {
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('class', 'hero-soon');
+      g.innerHTML = '<rect width="40" height="20" />';
+      svg.append(g);
+    });
+    const soon = page.locator('.hero-pic .hero-soon');
+    await (reducedMotion === 'reduce' ? expect(soon).toBeVisible() : expect(soon).toBeHidden());
+  });
+
 // the wave hops plot i at i × 0.8 s; sampled mid-turn, only that plot's pill shows, and with reduced motion every pill shows
 test('the hero wave shows one pill at a time, each on its own turn', async ({ page }) => {
   await page.goto('/');
