@@ -698,11 +698,7 @@ const EXAM_OG: Record<string, () => ExamOpts> = {
   }),
   'post-training-04-grade-dont-judge': () => hall(WARRANTY, FULL, 'KEY FACT'),
   'post-training-05-only-what-you-can-check': () => hall(TONE, FULL, 'KEY FACT'),
-  // no board: its pill would cover the gaming answer's, the stack that grew tallest
-  'post-training-06-you-get-what-you-check': () => ({
-    ...hall(REFUND, WEAK, 'NUMBER + SIGN-OFF', gamingOf(REFUND)),
-    board: undefined,
-  }),
+  'post-training-06-you-get-what-you-check': () => hall(REFUND, WEAK, 'NUMBER + SIGN-OFF', gamingOf(REFUND)),
   'post-training-07-build-a-grader': () => ({
     ...hall(REFUND, PO_WINNERS[0], `${PO_WINNERS[0].length} RULE${PO_WINNERS[0].length === 1 ? '' : 'S'}`),
     board: `${PO_BENCH.indexOf(REFUND) + 1} OF ${PO_BENCH.length}`,

@@ -60,6 +60,32 @@ describe('the exam hall', () => {
     expect(phone).toContain('>GRADER<');
     expect(examLabel(BASE)).toContain('E 10%, rewarded');
   });
+
+  // chapter 6: after the weak grader's run the gaming answer's stack, at the back right, grows tallest; and the worst
+  // case, any one stack of four or five at probability 1
+  const boxesOf = (svg: string) =>
+    [...svg.matchAll(/class="block-tag".*?<rect x="([\d.-]+)" y="([\d.-]+)" width="([\d.]+)" height="([\d.]+)"/g)].map(
+      m => m.slice(1, 5).map(Number),
+    );
+  const apart = (a: number[], b: number[]) =>
+    a[0] + a[2] <= b[0] || b[0] + b[2] <= a[0] || a[1] + a[3] <= b[1] || b[1] + b[3] <= a[1];
+  it('no two pills overlap, the board’s among them, however tall a stack grows', () => {
+    const after = grpoRun(ref, weak, seedOf(REFUND)).at(-1)!.after;
+    const halls = [cardsOf(REFUND, after, weak)];
+    for (const n of [4, 5])
+      for (let i = 0; i < n; i++)
+        halls.push(Array.from({ length: n }, (_, j) => ({ id: 'ABCDE'[j], p: i === j ? 1 : 0 })));
+    for (const cards of halls)
+      for (const scale of [1, 1.3, 1.8, 2.2]) {
+        const boxes = boxesOf(draw({ ...BASE, cards, board: 'ROUND 10/10', scale }));
+        expect(boxes).toHaveLength(cards.length + 3);
+        for (let i = 0; i < boxes.length; i++)
+          for (let j = i + 1; j < boxes.length; j++)
+            expect(apart(boxes[i], boxes[j]), `${cards.map(c => c.p.toFixed(2))} at ${scale}: pills ${i}, ${j}`).toBe(
+              true,
+            );
+      }
+  });
 });
 
 describe('the policy bars', () => {

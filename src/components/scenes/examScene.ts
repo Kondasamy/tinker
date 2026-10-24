@@ -60,6 +60,8 @@ const MODEL = [32, 30],
   DESK = [150, 108],
   BOARD = [84, 8],
   ROW = { x: 40, y: 116, step: 18 };
+// the board's pill floats above the highest a stack's pill can reach (a stack at probability 1 at the back right)
+const BOARD_DY = -30;
 const pct = (p: number) => `${Math.round(p * 100)}%`;
 
 /** What the hall shows. Pure, so the tests can check it without drawing. Heights sum to STACK_H × the policy's total. */
@@ -188,7 +190,7 @@ export const examScene = (o: ExamOpts) => (ctx: SceneCtx) => {
   pills.push(
     pill(deskAt, 0, 18, o.grader ? (narrow ? 'GRADER' : `GRADER · ${o.grader}`) : 'NO GRADER', !!o.grader, scale),
   );
-  if (o.board) pills.push(pill(boardAt, 0, -10, o.board, false, scale));
+  if (o.board) pills.push(pill(boardAt, 0, BOARD_DY, o.board, false, scale));
   pills.push(pill([MODEL[0], MODEL[1], BH + 34], 0, -14, 'MODEL', false, scale));
   if (st.stacks.length) {
     pills.push(sayAt(o.say, 'cards', at(st.top), dyOf(st.top), scale));
@@ -196,7 +198,7 @@ export const examScene = (o: ExamOpts) => (ctx: SceneCtx) => {
   }
   pills.push(
     sayAt(o.say, 'grader', [DESK[0], DESK[1], DESK_TOP + 12], -14, scale),
-    sayAt(o.say, 'board', boardAt, -10, scale),
+    sayAt(o.say, 'board', boardAt, BOARD_DY, scale),
     sayAt(o.say, 'model', [MODEL[0], MODEL[1], BH + 34], -14, scale),
   );
   return s + calloutsLast(pills);
