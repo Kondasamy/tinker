@@ -2,6 +2,11 @@
 
 Decisions for anyone (human or agent) changing this repo. Each one is here because it was chosen on purpose; change it only on purpose.
 
+## Principles
+
+- Cut taglines, helper text and secondary labels. If a screen needs them to make sense, fix the layout.
+- Make the best decision that will elevate all three: the user experience (UX), developer experience (DX), and agent experience (AX) always, without breaking anything.
+
 ## What this is
 
 - **Tinker**: hand-drawn, interactive explanations of tech concepts, by **Kondasamy Jayaraman** (https://kondasamy.com). Served at **https://tinker.kondasamy.com** (`site` in `astro.config.mjs`). GitHub: `Kondasamy/tinker` (private).

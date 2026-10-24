@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ideation: New Tinker Module Topics</title>
+<style>
+:root {
+  --paper: #f2efe7; --card: #fbf8f0; --ink: #231e16; --muted: #6f675a; --rule: #d9d1c1;
+  --acc: #ffb627; --acc-soft: #fbe7b8; --acc-text: #6b4a00;
+  --ok-soft: #dcefe3; --ok-text: #1f5236; --warn-soft: #f5ead0; --warn-text: #5e4706;
+  --bad-soft: #f6ddd6; --bad-text: #7a2414; --cobalt: #5a82c6; --tomato: #cf5038; --mint: #71b693;
+  --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #1c1914; --card: #26221b; --ink: #ece6d8; --muted: #b3a994; --rule: #3d362b;
+    --acc-soft: #4a3a14; --acc-text: #ffd57a; --ok-soft: #1f3a2b; --ok-text: #a8e0bf;
+    --warn-soft: #3d3317; --warn-text: #f0d68c; --bad-soft: #43231b; --bad-text: #f5b3a3;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.6 var(--sans); }
+main { max-width: 900px; margin-inline: auto; padding: 40px 20px 60px; }
+h1, h2, h3 { font-family: var(--mono); line-height: 1.25; }
+h1 { font-size: 1.75rem; margin: 0 0 8px; }
+h2 { font-size: 1.3rem; margin: 48px 0 12px; padding-bottom: 6px; border-bottom: 2px solid var(--ink); }
+h3 { font-size: 1.1rem; margin: 0 0 8px; }
+p, li { max-width: 72ch; }
+strong { color: inherit; }
+code { font-family: var(--mono); font-size: .88em; background: var(--card); border: 1px solid var(--rule); padding: 0 4px; border-radius: 4px; }
+a { color: var(--cobalt); }
+.eyebrow { font: 600 .72rem/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 18px; font: .85rem var(--mono); color: var(--muted); margin: 0; }
+.meta dt { display: inline; font-weight: 700; color: var(--ink); }
+.meta dd { display: inline; margin: 0 0 0 4px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 24px 0 0; }
+.stat { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 12px 14px; }
+.stat b { display: block; font: 700 1.5rem var(--mono); }
+.stat span { font-size: .85rem; color: var(--muted); }
+.jump { columns: 2; padding-left: 18px; font-size: .95rem; }
+@media (max-width: 640px) { .jump { columns: 1; } }
+article.idea { background: var(--card); border: 1px solid var(--rule); border-radius: 12px; padding: 20px 22px; margin: 18px 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.chip { font: 600 .75rem/1 var(--mono); padding: 5px 9px; border-radius: 999px; border: 1px solid transparent; }
+.chip.id { background: var(--ink); color: var(--paper); }
+.chip.axis { background: var(--acc-soft); color: var(--acc-text); }
+.chip.hi { background: var(--ok-soft); color: var(--ok-text); }
+.chip.md { background: var(--warn-soft); color: var(--warn-text); }
+.chip.cx { background: var(--paper); color: var(--ink); border-color: var(--rule); }
+dl.fields { margin: 0; }
+dl.fields dt { font: 700 .75rem var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-top: 12px; }
+dl.fields dd { margin: 4px 0 0; }
+dl.fields dd ul { margin: 4px 0; padding-left: 20px; }
+figure { margin: 14px 0 4px; }
+figure svg { width: 100%; height: auto; display: block; }
+figcaption { font-size: .82rem; color: var(--muted); margin-top: 4px; }
+svg text { font-family: var(--mono); fill: var(--ink); }
+.callout { background: var(--warn-soft); color: var(--warn-text); border-radius: 10px; padding: 12px 16px; margin: 16px 0; }
+.callout p { margin: 0; }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--rule); }
+th { font: 700 .75rem var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+ul.axes { padding-left: 20px; }
+footer.composition-signal { margin-top: 56px; padding-top: 12px; border-top: 1px solid var(--rule); font: .8rem var(--mono); color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>Ideation: New Tinker Module Topics</h1>
+  <dl class="meta">
+    <div><dt>Date</dt><dd><time datetime="2026-10-24">2026-10-24</time></dd></div>
+    <div><dt>Topic</dt><dd>new-module-topics</dd></div>
+    <div><dt>Focus</dt><dd>trending tech topics for new modules (e.g. diffusion, pre- and post-training)</dd></div>
+    <div><dt>Mode</dt><dd>repo-grounded</dd></div>
+  </dl>
+  <div class="stats">
+    <div class="stat"><b>~45</b><span>raw ideas from 5 lenses</span></div>
+    <div class="stat"><b>15</b><span>after dedupe</span></div>
+    <div class="stat"><b>7 + 8</b><span>AI survivors + classic tech</span></div>
+    <div class="stat"><b>5 / 5</b><span>axes covered</span></div>
+  </div>
+</header>
+
+<section id="grounding-context">
+  <h2>Grounding Context</h2>
+  <p class="eyebrow">Codebase Context</p>
+  <ul>
+    <li><strong>What exists.</strong> There are 17 live modules, all on AI, and the roadmap is empty: new modules start as reader requests (<code>AGENTS.md</code>). The audience is PMs, engineers and analysts at companies adopting AI. They are assumed to have no background, and the maths is optional.</li>
+    <li><strong>Hard constraints.</strong> The site is static, with no backend, no API key and no live LLM. Every interactive model output is either recorded for each control state (with coverage tests) or produced by a tiny real model running in the browser. Larkspur mini has 51k parameters, 2 layers and d_model 32, and its weights are capped at 150 KB. "d_model 64 breaks the payload budget: stop and ask."</li>
+    <li><strong>Reusable assets.</strong> Larkspur mini's real, deterministic training run, with a committed loss curve that ends at train 3.26 against held-out 4.04. A full fine-tune, LoRA and a distilled student. Evals' code graders (<code>keyFactOf</code>, <code>hasCitation</code>). Multimodal's canvas rasteriser. The recorded-turn engines.</li>
+    <li><strong>Past exclusions.</strong> Fine-tuning: "no RLHF/RL chapter (DPO gets one term at most)". Transformers: no MoE chapter. The roadmap ruled out compaction, harness engineering, A2A and agentic commerce. These rulings scoped single modules or that roadmap; none of them bans a topic site-wide.</li>
+    <li><strong>Platform identity: now settled as "how tech works".</strong> The site headline already says "See how tech works", but the home description (<code>src/lib/pages.ts:26</code>) still says "interactive explanations of how AI works". After this report was first written, the author chose to include classic tech too, so that description changes when the first classic module goes live.</li>
+    <li><strong>Classic tech fits the build model better than AI does.</strong> No model is needed, so every number can come from a live simulator running in the browser, like Inference's server and Context's cache. Larkspur Supply Co. is a hardware company with warehouses, orders, a web shop and card payments, so most classic topics map straight onto its business. <code>src/lib/rag/bm25.ts</code> already builds an inverted index (<code>postings</code>) with Okapi BM25.</li>
+  </ul>
+  <p class="eyebrow">External context</p>
+  <ul>
+    <li>In 2026, post-training (SFT, then DPO, then RL with verifiable rewards and GRPO) is the leading trend. There is no playable explainer of it at PM level; existing material is written guides and static diagrams.</li>
+    <li>Image diffusion has Polo Club's Diffusion Explainer, which is aimed at students and has no story. Diffusion LLMs (Inception's Mercury 2, launched Feb 2026, with ~1,000 tok/s claimed by the vendor; Gemini Diffusion; LLaDA) have no interactive explainer.</li>
+    <li>The interpretability tools that exist (Anthropic's attribution graphs, Neuronpedia) are aimed at researchers. There is a gap at PM level.</li>
+    <li>For mixture of experts, world models, synthetic data, computer use and coding agents, the search found no interactive explainers. That search was shallow.</li>
+  </ul>
+</section>
+
+<section id="topic-axes">
+  <h2>Topic Axes</h2>
+  <ul class="axes">
+    <li>1. How models are made (pre-training, post-training, data)</li>
+    <li>2. Other ways to generate (diffusion, video, world models)</li>
+    <li>3. Inside the model (interpretability, calibration, MoE)</li>
+    <li>4. AI in practice (computer use, coding agents, governance)</li>
+    <li>5. Beyond AI (classic tech topics)</li>
+  </ul>
+</section>
+
+<section id="ranked-ideas">
+  <h2>Ranked Ideas</h2>
+  <ul class="jump">
+    <li><a href="#idea-1">1. Post-training: the auto-marked exam</a></li>
+    <li><a href="#idea-2">2. Pre-training: watch a model grow</a></li>
+    <li><a href="#idea-3">3. Interpretability: pull the fuse</a></li>
+    <li><a href="#idea-4">4. Diffusion: noise to picture</a></li>
+    <li><a href="#idea-5">5. Diffusion LLMs: writing in any order</a></li>
+    <li><a href="#idea-6">6. Computer use: the agent that clicks</a></li>
+    <li><a href="#idea-7">7. Calibration: does it know when it's wrong?</a></li>
+    <li><a href="#classic-tech">Classic tech, C1–C8 ↓</a></li>
+  </ul>
+
+  <article class="idea" id="idea-1">
+    <div class="chips"><span class="chip id">1</span><span class="chip axis">Axis 1 · How models are made</span><span class="chip hi">Confidence 85%</span><span class="chip cx">Complexity Medium</span></div>
+    <h3>1. Post-training: the auto-marked exam</h3>
+    <dl class="fields">
+      <dt>Description</dt>
+      <dd>This module shows how a base model becomes an assistant and then a reasoning model, in three steps:
+        <ul>
+          <li><strong>SFT.</strong> The model learns by imitation. Larkspur mini's sign-off fine-tune already does this.</li>
+          <li><strong>DPO.</strong> The reader picks the better of two replies.</li>
+          <li><strong>RLVR / GRPO.</strong> The reader writes Larkspur's grader from Evals' code graders. A group of drafts is graded on a curve (each scored against the group's average), and the policy shifts toward the drafts that scored above it.</li>
+        </ul>
+        The final chapter is about reward hacking: a weak grader gets gamed, for example by a reply that signs off perfectly and is wrong. The workbench asks for the smallest grader that can't be gamed. Rollouts are recorded for each grader setting, the same pattern Guardrails uses.</dd>
+      <dt>Basis</dt>
+      <dd><ul>
+        <li><code>direct:</code> the four-roadmap plan, line 124: "Fine-tuning: no RLHF/RL chapter (DPO gets one term at most)". <code>data/fine-tuning/facts.json:8</code> holds the site's only DPO content. Verified.</li>
+        <li><code>direct:</code> <code>src/lib/evals/graders.ts</code> exports <code>keyFactOf</code> (line 30) and <code>hasCitation</code> (line 33). These are a ready-made verifier. Verified.</li>
+        <li><code>external:</code> post-training is the dominant trend in 2026, and the web search found no playable explainer of it for PMs.</li>
+        <li>All five lenses produced this idea independently.</li>
+      </ul></dd>
+      <dt>Rationale</dt>
+      <dd>It is the biggest trend with the thinnest interactive coverage. It closes the deliberate hole between Fine-tuning (module 9) and Reasoning (module 11): Reasoning teaches thinking as a setting but never how it was trained. "Your model learned to pass your test, not to be right" is a decision PMs actually face.</dd>
+      <dt>Downsides</dt>
+      <dd>Evals already teaches code graders, so the module needs its own hook (grading on a curve, and reward hacking) or the first chapter repeats Evals. Real GRPO checkpoints would mean new Python training. Recorded rollouts are the safe path, and the copy must say so.</dd>
+      <dt>Confidence</dt><dd>85%</dd>
+      <dt>Complexity</dt><dd>Medium</dd>
+    </dl>
+    <figure>
+      <svg viewBox="0 0 640 120" role="img" aria-label="Post-training ladder: base model, then SFT learns from examples, then DPO learns from preferences, then RLVR learns from a grade">
+        <rect x="6" y="40" width="110" height="44" rx="8" fill="none" stroke="currentColor" stroke-width="2"/>
+        <text x="61" y="67" text-anchor="middle" font-size="13">base model</text>
+        <rect x="170" y="40" width="120" height="44" rx="8" fill="#93d3b0" stroke="#1f4034" stroke-width="2"/>
+        <text x="230" y="67" text-anchor="middle" font-size="13" style="fill:#1f4034">SFT</text>
+        <rect x="344" y="40" width="120" height="44" rx="8" fill="#f4b829" stroke="#4e4a18" stroke-width="2"/>
+        <text x="404" y="67" text-anchor="middle" font-size="13" style="fill:#4e4a18">DPO</text>
+        <rect x="518" y="40" width="116" height="44" rx="8" fill="#ef6a4c" stroke="#4a2219" stroke-width="2"/>
+        <text x="576" y="67" text-anchor="middle" font-size="13" style="fill:#4a2219">RLVR</text>
+        <path d="M118 62 H166 M292 62 H340 M466 62 H514" stroke="currentColor" stroke-width="2" marker-end="url(#ar)"/>
+        <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="currentColor"/></marker></defs>
+        <text x="230" y="104" text-anchor="middle" font-size="11">learns from examples</text>
+        <text x="404" y="104" text-anchor="middle" font-size="11">from preferences</text>
+        <text x="576" y="104" text-anchor="middle" font-size="11">from a grade</text>
+        <text x="230" y="28" text-anchor="middle" font-size="11">exists (Fine-tuning)</text>
+        <text x="490" y="28" text-anchor="middle" font-size="11">new: the module's core</text>
+      </svg>
+      <figcaption>Fine-tuning already covers the first rung. This module covers the other two, plus what happens when the grade is wrong.</figcaption>
+    </figure>
+  </article>
+
+  <article class="idea" id="idea-2">
+    <div class="chips"><span class="chip id">2</span><span class="chip axis">Axis 1 · How models are made</span><span class="chip hi">Confidence 80%</span><span class="chip cx">Complexity Medium</span></div>
+    <h3>2. Pre-training: watch a model grow</h3>
+    <dl class="fields">
+      <dt>Description</dt>
+      <dd>The site ships checkpoints from Larkspur mini's real training run. The reader scrubs through training time and types the same prompt at each checkpoint. They watch it go from noise to word pieces to words to Larkspur facts, and then see training loss and held-out loss split apart as the model starts memorising. Later chapters cover the data mix and deduplication (a document repeated ten times turns the model into a parrot). They also cover <em>contamination</em>: leak the test questions into training and the score jumps while held-out quality stays flat. If a spike shows a 51k model can collapse visibly, there is an optional <em>model collapse</em> chapter, which trains generation N+1 on generation N's text.</dd>
+      <dt>Basis</dt>
+      <dd><ul>
+        <li><code>direct:</code> the <code>lossCurve</code> in <code>public/data/lm/meta.json</code>: step 100 train 4.98 / held-out 4.96; step 3000 train 3.26 / held-out 4.04. Verified.</li>
+        <li><code>direct:</code> <code>scripts/train/README.md:19</code>: "a retrain gives a byte-identical model.bin". Checkpoints are therefore just extra saves.</li>
+        <li><code>external:</code> AnimatedLLM (2026) animates pre-training, but nobody lets you hold the real model at step 100 and at step 3000.</li>
+      </ul></dd>
+      <dt>Rationale</dt>
+      <dd>Tokens, Transformers and Fine-tuning all quote this training run, but none of them teaches it. Extending "nothing is faked" to training itself is the strongest form of Tinker's promise. The contamination chapter brings in the most useful part of the "benchmarks you can't trust" idea.</dd>
+      <dt>Downsides</dt>
+      <dd>Ten checkpoints at about 100 KB each is roughly 1 MB, over the 800 KB voice precedent. That needs a budget decision, or fewer checkpoints or Float16 deltas. The checkpoints must stay separate from <code>model.bin</code>, so the fine-tunes, the student and the goldens don't change. The model-collapse chapter is unproven at this size.</dd>
+      <dt>Confidence</dt><dd>80%</dd>
+      <dt>Complexity</dt><dd>Medium</dd>
+    </dl>
+    <figure>
+      <svg viewBox="0 0 640 170" role="img" aria-label="Loss curve: train and held-out loss fall together then split apart; checkpoints along the way show the prompt going from noise to words to facts">
+        <line x1="40" y1="20" x2="40" y2="140" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="40" y1="140" x2="620" y2="140" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M40 30 C160 70 260 95 620 125" fill="none" stroke="#5a82c6" stroke-width="3"/>
+        <path d="M40 32 C160 72 260 90 360 92 C460 93 540 90 620 88" fill="none" stroke="#cf5038" stroke-width="3" stroke-dasharray="7 5"/>
+        <circle cx="100" cy="50" r="5" fill="#f4b829" stroke="currentColor"/>
+        <circle cx="260" cy="88" r="5" fill="#f4b829" stroke="currentColor"/>
+        <circle cx="440" cy="108" r="5" fill="#f4b829" stroke="currentColor"/>
+        <text x="100" y="36" text-anchor="middle" font-size="11">"xq7 ehh"</text>
+        <text x="260" y="76" text-anchor="middle" font-size="11">"the refund"</text>
+        <text x="455" y="128" text-anchor="middle" font-size="11">"within 30 days"</text>
+        <text x="560" y="80" text-anchor="middle" font-size="11" style="fill:#cf5038">held-out</text>
+        <text x="575" y="114" text-anchor="middle" font-size="11" style="fill:#5a82c6">train</text>
+        <text x="330" y="160" text-anchor="middle" font-size="11">training step →</text>
+      </svg>
+      <figcaption>Illustrative only, not the real curve: the scrubber stops at checkpoints, and the gap that opens late is the module's "memorising" moment.</figcaption>
+    </figure>
+  </article>
+
+  <article class="idea" id="idea-3">
+    <div class="chips"><span class="chip id">3</span><span class="chip axis">Axis 3 · Inside the model</span><span class="chip hi">Confidence 75%</span><span class="chip cx">Complexity Low–Medium</span></div>
+    <h3>3. Interpretability: pull the fuse</h3>
+    <dl class="fields">
+      <dt>Description</dt>
+      <dd>Interpretability works by causing changes and watching what happens. The reader switches off heads and layers of the real Larkspur mini (like an electrician pulling fuses to find which circuit runs the porch light) and watches the top 5 next tokens change. They hunt down the word-start head that is already measured. They use a "logit lens" to watch the guess form layer by layer. Then they push the model along a direction (steering) and watch it drift toward talking about drills. Everything runs live; nothing is recorded.</dd>
+      <dt>Basis</dt>
+      <dd><ul>
+        <li><code>direct:</code> <code>src/lib/lm/model.ts:31-40</code> <code>ForwardResult</code> returns <code>ids</code>, <code>truncated</code>, <code>logits</code> and <code>attention</code>, with no residual-stream or ablation hooks. Those hooks are a small, contained addition. Verified.</li>
+        <li><code>direct:</code> <code>AGENTS.md</code>: the word-start head is layer 0, head 0, scoring 0.39 against 0.09 for even spread, and a test recomputes it.</li>
+        <li><code>external:</code> attribution graphs and Neuronpedia are researcher-facing, so a PM-level explainer is a gap.</li>
+      </ul></dd>
+      <dt>Rationale</dt>
+      <dd>This is the one trend where Tinker's tiny model is an advantage rather than a toy: the reader can open the whole model in a browser. It answers "can anyone see why it said that?" with an experiment rather than a slogan. It is also the cheapest build on this list, because no new model and no recordings are needed.</dd>
+      <dt>Downsides</dt>
+      <dd>In a model with 2 layers and 2 heads, ablation may change too little to read, or heads may duplicate each other. Check how much a lesion actually moves the output before committing to chapters. Transformers' heads chapter is next door, so the edge here has to be cause rather than description.</dd>
+      <dt>Confidence</dt><dd>75%</dd>
+      <dt>Complexity</dt><dd>Low–Medium</dd>
+    </dl>
+  </article>
+
+  <article class="idea" id="idea-4">
+    <div class="chips"><span class="chip id">4</span><span class="chip axis">Axis 2 · Other ways to generate</span><span class="chip md">Confidence 60%</span><span class="chip cx">Complexity High</span></div>
+    <h3>4. Diffusion: noise to picture</h3>
+    <dl class="fields">
+      <dt>Description</dt>
+      <dd>Every generator on the site today types left to right. Diffusion edits instead: it starts from noise and removes its best guess of the noise at each step. Larkspur needs product pictures. The reader scrubs denoising steps on Larkspur part drawings, changes the step count, the guidance (how hard the prompt steers each step) and the seed, and sees why more steps cost money and why hands and text fail. One buildable route is a real toy diffusion on 2-D points, a tiny network small enough to run live, beside recorded image trajectories of the iso engine's part drawings.</dd>
+      <dt>Basis</dt>
+      <dd><ul>
+        <li><code>direct:</code> the repo has no code for diffusion, denoising or noise schedules. <code>src/content/multimodal/kit.tsx:76-88</code> already has a pixel-faithful canvas preview, and <code>src/lib/multimodal/images.ts</code> draws parts as deterministic SVG, so the training images are licence-clean.</li>
+        <li><code>external:</code> Polo Club's Diffusion Explainer is aimed at students, with no story or decision. You named this topic.</li>
+      </ul></dd>
+      <dt>Rationale</dt>
+      <dd>It is the generation family the site has never shown, and the most visual module we could build. "Editing, not typing" also prepares the ground for idea 5.</dd>
+      <dt>Downsides</dt>
+      <dd>The verifier refuted a <em>learned</em> 16×16 image denoiser under about 150 KB: new tooling, and quality probably too poor to teach from. So the image half must be recorded trajectories, or a hand-coded schedule, with the copy saying so. The 2-D toy needs a feasibility spike. This is the highest build risk of the survivors.</dd>
+      <dt>Confidence</dt><dd>60%</dd>
+      <dt>Complexity</dt><dd>High</dd>
+    </dl>
+  </article>
+
+  <article class="idea" id="idea-5">
+    <div class="chips"><span class="chip id">5</span><span class="chip axis">Axis 2 · Other ways to generate</span><span class="chip md">Confidence 55%</span><span class="chip cx">Complexity Medium–High</span></div>
+    <h3>5. Diffusion LLMs: writing in any order</h3>
+    <dl class="fields">
+      <dt>Description</dt>
+      <dd>Larkspur mini writes a reply left to right. A diffusion language model starts with every slot masked and fills them like a crossword: the confident squares first, then the rest, revising as it goes. The reader sets how many tokens are revealed per pass and sees the trade between speed and coherence. They also see why structured text like JSON suits the approach. They leave able to judge a "1,000 tok/s" claim by naming what it gives up.</dd>
+      <dt>Basis</dt>
+      <dd><ul>
+        <li><code>external:</code> Mercury 2 (Feb 2026, speed claimed by the vendor), Gemini Diffusion and LLaDA exist, and no interactive explainer was found.</li>
+        <li><code>direct:</code> Inference already teaches decoding as the bottleneck and speculative decoding as parallel drafting. Structured outputs already has a mask that limits which tokens may fill a slot, so that idea carries over.</li>
+      </ul></dd>
+      <dt>Rationale</dt>
+      <dd>It is the newest of these trends, and PMs will hear speed claims they can't evaluate. It is a different concept from image diffusion, so it is a module of its own under the "one concept per module" rule.</dd>
+      <dt>Downsides</dt>
+      <dd>Larkspur mini only reads leftward (causal), so it can't really fill in parallel. The unmasking orders would be recorded, or would need a new bidirectional model under the payload ceiling. Vendor speed figures must be framed as the vendor's, with a date.</dd>
+      <dt>Confidence</dt><dd>55%</dd>
+      <dt>Complexity</dt><dd>Medium–High</dd>
+    </dl>
+    <figure>
+      <svg viewBox="0 0 640 150" role="img" aria-label="Autoregressive writing fills slots left to right one per step; diffusion writing fills confident slots first across the row and refines over a few passes">
+        <text x="6" y="28" font-size="12">left to right</text>
+        <g stroke="currentColor" stroke-width="1.5">
+          <rect x="130" y="12" width="56" height="26" rx="4" fill="#76a0e2"/><rect x="192" y="12" width="56" height="26" rx="4" fill="#76a0e2"/><rect x="254" y="12" width="56" height="26" rx="4" fill="#76a0e2"/><rect x="316" y="12" width="56" height="26" rx="4" fill="none"/><rect x="378" y="12" width="56" height="26" rx="4" fill="none"/><rect x="440" y="12" width="56" height="26" rx="4" fill="none"/>
+        </g>
+        <text x="510" y="30" font-size="11">step 3 of 6</text>
+        <text x="6" y="88" font-size="12">all at once</text>
+        <g stroke="currentColor" stroke-width="1.5">
+          <rect x="130" y="72" width="56" height="26" rx="4" fill="#93d3b0"/><rect x="192" y="72" width="56" height="26" rx="4" fill="none"/><rect x="254" y="72" width="56" height="26" rx="4" fill="#93d3b0"/><rect x="316" y="72" width="56" height="26" rx="4" fill="#93d3b0"/><rect x="378" y="72" width="56" height="26" rx="4" fill="none"/><rect x="440" y="72" width="56" height="26" rx="4" fill="#93d3b0"/>
+        </g>
+        <text x="510" y="90" font-size="11">pass 1 of 2</text>
+        <text x="130" y="128" font-size="11">filled slots: what is written so far. Empty slots: still masked.</text>
+      </svg>
+      <figcaption>The contrast the module would play with: one slot per step, against confident slots first across the whole reply.</figcaption>
+    </figure>
+  </article>
+
+  <article class="idea" id="idea-6">
+    <div class="chips"><span class="chip id">6</span><span class="chip axis">Axis 4 · AI in practice</span><span class="chip md">Confidence 60%</span><span class="chip cx">Complexity Medium</span></div>
+    <h3>6. Computer use: the agent that clicks</h3>
+    <dl class="fields">
+      <dt>Description</dt>
+      <dd>Larkspur's old supplier portal has no API. An agent that sees only a screenshot must click coordinates to place an order. The reader sees what the agent sees (Multimodal's patches over a screen drawn in code), predicts where it will click, and meets the failures: a button that moved, a pop-up, a stale screenshot, and a look-alike "Pay now" button. Controls are screenshot size (which sets cost in image tokens), checking the screen after each action, and an approval gate. The workbench asks: build the API integration, or let the agent drive the screen?</dd>
+      <dt>Basis</dt>
+      <dd><ul>
+        <li><code>direct:</code> the repo has no computer-use content. <code>src/lib/multimodal/patches.ts</code> already counts visual tokens per 28 px patch, and <code>images.ts</code> already draws deterministic SVG screens.</li>
+        <li><code>direct:</code> the turn pattern Agents uses, recorded for each state and checked by coverage tests, fits a small set of screen states.</li>
+      </ul></dd>
+      <dt>Rationale</dt>
+      <dd>Teams are adopting this kind of agent now, and its failures are visual, which suits a site that leads with pictures. It joins Agents, Multimodal and Sandboxing in a way none of them does alone.</dd>
+      <dt>Downsides</dt>
+      <dd>It overlaps Guardrails, since text injected on screen is prompt injection, and Sandboxing. The module's own angle must be grounding and coordinates, not the threat model again. Its prerequisites would be Agents and Multimodal, which gives the prerequisite graph a depth of 4.</dd>
+      <dt>Confidence</dt><dd>60%</dd>
+      <dt>Complexity</dt><dd>Medium</dd>
+    </dl>
+  </article>
+
+  <article class="idea" id="idea-7">
+    <div class="chips"><span class="chip id">7</span><span class="chip axis">Axis 3 · Inside the model</span><span class="chip md">Confidence 50%</span><span class="chip cx">Complexity Low</span></div>
+    <h3>7. Calibration: does it know when it's wrong?</h3>
+    <dl class="fields">
+      <dt>Description</dt>
+      <dd>When the weather forecaster says 70%, does it rain 70% of the time? The reader builds a real reliability diagram, computed live from Larkspur mini's own probabilities on held-out text, and sees where it is overconfident. They try temperature as a fix and set an "abstain below X" rule. The site's hand-set "confidently wrong" answers become the case file.</dd>
+      <dt>Basis</dt>
+      <dd><ul>
+        <li><code>direct:</code> <code>src/content/small-models/05-fall-back-when-unsure.tsx:84</code>: "These are stand-ins set by hand; real systems compute them." Verified.</li>
+        <li><code>direct:</code> <code>evaluate()</code> in <code>model.ts</code> already computes held-out top-1 accuracy, so grouping predictions by stated confidence is a few lines of code.</li>
+      </ul></dd>
+      <dt>Rationale</dt>
+      <dd>It replaces a fixture the site openly calls a stand-in with numbers computed in the reader's own browser, and "can I trust the score?" is a top PM question.</dd>
+      <dt>Downsides</dt>
+      <dd>Larkspur mini is overfit (top-5 about 44%), so its calibration is a toy. The topic is narrow for seven chapters and may be better as a chapter in Small models or in idea 3. Hallucination tracing was split off because it overlaps RAG, Evals and Observability.</dd>
+      <dt>Confidence</dt><dd>50%</dd>
+      <dt>Complexity</dt><dd>Low</dd>
+    </dl>
+  </article>
+
+  <h3 id="classic-tech" style="margin-top:40px">Classic tech (Axis 5 · Beyond AI)</h3>
+  <p>These were added after you chose to include classic tech. Every one runs as a live simulator, with no recordings and no model, and every one is set in Larkspur's own business. They are ranked by how well they fit the story, how much PMs and engineers get out of them, and how playable they are. Unlike ideas 1–7, they were generated and checked in this session alone: no separate agent reviewed them.</p>
+  <ul class="jump">
+    <li><a href="#c1">C1. Selling the last hinge twice</a></li>
+    <li><a href="#c2">C2. Caching and CDNs</a></li>
+    <li><a href="#c3">C3. Databases and indexes</a></li>
+    <li><a href="#c4">C4. A/B testing</a></li>
+    <li><a href="#c5">C5. Search before AI</a></li>
+    <li><a href="#c6">C6. What happens when you open a page</a></li>
+    <li><a href="#c7">C7. Card payments</a></li>
+    <li><a href="#c8">C8. Git: how history is stored</a></li>
+  </ul>
+
+  <article class="idea" id="c1">
+    <div class="chips"><span class="chip id">C1</span><span class="chip axis">Axis 5 · Beyond AI</span><span class="chip hi">Confidence 80%</span><span class="chip cx">Complexity Medium</span></div>
+    <h3>C1. Selling the last hinge twice: replication and consistency</h3>
+    <dl class="fields">
+      <dt>Description</dt>
+      <dd>Larkspur's stock lives in three warehouses, and each one keeps its own copy of the stock count. Two customers buy the last hinge at the same moment, and both orders go through. The reader cuts the link between warehouses (a network partition), chooses to stay open (and risk overselling) or refuse orders (and lose sales), and tries quorum reads and writes, leader election and "eventually consistent". The workbench asks for a setting per product: a cheap hinge can be oversold, a one-off drill press cannot.</dd>
+      <dt>Basis</dt>
+      <dd><ul>
+        <li><code>reasoned:</code> distributed consistency is the classic topic engineers find hardest and PMs meet as "why did we oversell?" It plays well because the failure is concrete: two receipts for one hinge.</li>
+        <li><code>direct:</code> the Inference server is a step-by-step simulator in time (<code>AGENTS.md</code> Inference engine), and this can follow the same pattern.</li>
+      </ul></dd>
+      <dt>Rationale</dt>
+      <dd>It fits Larkspur's business better than any other classic topic, and it turns the CAP trade-off into a business decision for each product.</dd>
+      <dt>Downsides</dt>
+      <dd>The level is Advanced, so it needs care to stay maths-optional. Sticking to warehouses and stock counts keeps the theory off the page.</dd>
+      <dt>Confidence</dt><dd>80%</dd>
+      <dt>Complexity</dt><dd>Medium</dd>
+    </dl>
+  </article>
+
+  <article class="idea" id="c2">
+    <div class="chips"><span class="chip id">C2</span><span class="chip axis">Axis 5 · Beyond AI</span><span class="chip hi">Confidence 80%</span><span class="chip cx">Complexity Low–Medium</span></div>
+    <h3>C2. Caching and CDNs: Larkspur's warehouses are edge caches</h3>
+    <dl class="fields">
+      <dt>Description</dt>
+      <dd>A central depot ships to regional warehouses. That arrangement is a CDN: the depot is the origin, and each warehouse is an edge cache holding copies close to customers. The reader decides what to stock where and sets expiry dates (TTL). A price change leaves old prices sitting at the edges, so the reader has to invalidate those copies. A flash sale then floods the depot with requests all at once (a thundering herd). The last chapter shows that prompt caching (Context) and the KV cache (Inference) are the same idea.</dd>
+      <dt>Basis</dt>
+      <dd><ul>
+        <li><code>direct:</code> this was rejected earlier only because the platform's identity was unsettled. That is no longer true.</li>
+        <li><code>direct:</code> Context's <code>cache.ts</code> (hits, lifetimes, expiry) and Inference's simulator are patterns to reuse.</li>
+      </ul></dd>
+      <dt>Rationale</dt>
+      <dd>It is the most reusable idea in computing, it connects to two live modules, and the metaphor is nearly free.</dd>
+      <dt>Downsides</dt>
+      <dd>There are many explainers for this already, so the story and the link to the AI modules have to be what sets it apart.</dd>
+      <dt>Confidence</dt><dd>80%</dd>
+      <dt>Complexity</dt><dd>Low–Medium</dd>
+    </dl>
+  </article>
+
+  <article class="idea" id="c3">
+    <div class="chips"><span class="chip id">C3</span><span class="chip axis">Axis 5 · Beyond AI</span><span class="chip hi">Confidence 75%</span><span class="chip cx">Complexity Medium</span></div>
+    <h3>C3. Why is the dashboard slow? Databases and indexes</h3>
+    <dl class="fields">
+      <dt>Description</dt>
+      <dd>Larkspur's order table has a million rows, and "orders for customer 1042" takes seconds. The reader watches a full scan read every row, adds an index and watches a B-tree jump straight to the rows it needs, and sees the cost: every new order now has to update the index too. Later chapters cover the query plan, joins, and adding an index on the wrong column. The rows-read counter is computed live.</dd>
+      <dt>Basis</dt>
+      <dd><ul>
+        <li><code>reasoned:</code> "why is it slow?" is the most common question a PM brings to an engineer, and it lives in the database. The data volumes and orders come straight from the story.</li>
+        <li><code>direct:</code> <code>src/lib/scale.ts</code> already has a size slider that goes from one document to petabytes, so there is a pattern for "watch it grow".</li>
+      </ul></dd>
+      <dt>Rationale</dt>
+      <dd>Every reader's company has a database. An index trades faster reads for slower writes, and that trade-off pays off for the rest of their career.</dd>
+      <dt>Downsides</dt>
+      <dd>B-trees are hard to draw in the isometric picture style. It may need flat figures (<code>flat.ts</code>) rather than a scene.</dd>
+      <dt>Confidence</dt><dd>75%</dd>
+      <dt>Complexity</dt><dd>Medium</dd>
+    </dl>
+  </article>
+
+  <article class="idea" id="c4">
+    <div class="chips"><span class="chip id">C4</span><span class="chip axis">Axis 5 · Beyond AI</span><span class="chip hi">Confidence 75%</span><span class="chip cx">Complexity Medium</span></div>
+    <h3>C4. Did the new button work? A/B testing</h3>
+    <dl class="fields">
+      <dt>Description</dt>
+      <dd>Larkspur tests a new checkout button. The reader runs the experiment with a seeded simulator of visitors. They stop it early on a lucky day and declare a fake win (peeking). They test twenty colours and find one that "wins" by chance. They see how sample size and effect size decide how long a test must run. The workbench is a launch decision: ship, keep testing, or stop.</dd>
+      <dt>Basis</dt>
+      <dd><ul>
+        <li><code>reasoned:</code> PMs run experiments every week and misread them often, so the payoff for this audience is the highest of any idea here.</li>
+        <li><code>direct:</code> the house sampler is seeded (<code>mulberry32</code>, <code>AGENTS.md</code> Transformers engine), so simulated traffic can be reproduced and tested in e2e.</li>
+      </ul></dd>
+      <dt>Rationale</dt>
+      <dd>It is the decision-making module the audience lacks, and Evals' "is version B better?" makes a natural sequel.</dd>
+      <dt>Downsides</dt>
+      <dd>Statistics fights the "maths optional" rule. The pictures (a coin-flip wall, bars that move) have to carry the ideas.</dd>
+      <dt>Confidence</dt><dd>75%</dd>
+      <dt>Complexity</dt><dd>Medium</dd>
+    </dl>
+  </article>
+
+  <article class="idea" id="c5">
+    <div class="chips"><span class="chip id">C5</span><span class="chip axis">Axis 5 · Beyond AI</span><span class="chip hi">Confidence 70%</span><span class="chip cx">Complexity Low</span></div>
+    <h3>C5. Search before AI: the inverted index</h3>
+    <dl class="fields">
+      <dt>Description</dt>
+      <dd>The reader builds an index of Larkspur's documents by hand: each word points to the documents that contain it. They then rank results by term weight (BM25), and finally see where keyword search fails on meaning and where embeddings win, and why an exact part number still beats vectors. It becomes a new Beginner root that leads into RAG.</dd>
+      <dt>Basis</dt>
+      <dd><ul>
+        <li><code>direct:</code> <code>src/lib/rag/bm25.ts</code> already builds <code>postings</code> (an inverted index) with Okapi BM25 (k1 1.2, b 0.75) over the Larkspur corpus. The engine already exists.</li>
+      </ul></dd>
+      <dt>Rationale</dt>
+      <dd>It is the cheapest build on the list, and it gives readers who aren't into AI a first step into the RAG path.</dd>
+      <dt>Downsides</dt>
+      <dd>RAG already shows hybrid search, so this module must stop before embeddings take over. Adding a prerequisite to RAG is fine, because progress is keyed by ids and prerequisites only inform.</dd>
+      <dt>Confidence</dt><dd>70%</dd>
+      <dt>Complexity</dt><dd>Low</dd>
+    </dl>
+  </article>
+
+  <article class="idea" id="c6">
+    <div class="chips"><span class="chip id">C6</span><span class="chip axis">Axis 5 · Beyond AI</span><span class="chip md">Confidence 65%</span><span class="chip cx">Complexity Medium</span></div>
+    <h3>C6. What happens when you open a page: DNS, TCP, TLS and HTTP</h3>
+    <dl class="fields">
+      <dt>Description</dt>
+      <dd>A customer opens <em>larkspur.example</em>. The reader follows the trip: DNS looks up the address, TCP opens a connection, TLS proves the site's identity and encrypts the line, HTTP fetches the page, and packets are lost and resent. The reader adds distance (latency) and loss and watches each handshake cost round trips. The chapter on certificates and keys covers what HTTPS actually proves.</dd>
+      <dt>Basis</dt>
+      <dd><ul>
+        <li><code>reasoned:</code> this is the classic computing explainer, and the audience uses it every day without a picture of it. Network trips draw well as flat lanes (<code>flat.ts</code>: lanes, cards, arrows).</li>
+      </ul></dd>
+      <dt>Rationale</dt>
+      <dd>It is foundational and has a Beginner entry point. Counting round trips explains why "the site is slow from Sydney".</dd>
+      <dt>Downsides</dt>
+      <dd>This is the most crowded topic: many good explainers already exist. Encryption could be its own module instead of one chapter.</dd>
+      <dt>Confidence</dt><dd>65%</dd>
+      <dt>Complexity</dt><dd>Medium</dd>
+    </dl>
+  </article>
+
+  <article class="idea" id="c7">
+    <div class="chips"><span class="chip id">C7</span><span class="chip axis">Axis 5 · Beyond AI</span><span class="chip md">Confidence 60%</span><span class="chip cx">Complexity Medium</span></div>
+    <h3>C7. Card payments: where the money actually goes</h3>
+    <dl class="fields">
+      <dt>Description</dt>
+      <dd>A customer pays Larkspur by card. The reader follows authorisation, capture, settlement and fees through the card network to the issuing bank, then meets a declined card, a double charge and a chargeback. The workbench sets when to capture (at order or at shipping) for different products.</dd>
+      <dt>Basis</dt>
+      <dd><ul>
+        <li><code>reasoned:</code> every company in the audience takes payments, and PMs make capture and refund decisions without a model of the flow. Larkspur sells online, so the story is already in place.</li>
+      </ul></dd>
+      <dt>Rationale</dt>
+      <dd>It is useful to the business and rarely explained interactively for non-specialists.</dd>
+      <dt>Downsides</dt>
+      <dd>The facts vary by network and region and change over time, so they need dated, sourced facts in a <code>facts.json</code>. It must never read as payment advice.</dd>
+      <dt>Confidence</dt><dd>60%</dd>
+      <dt>Complexity</dt><dd>Medium</dd>
+    </dl>
+  </article>
+
+  <article class="idea" id="c8">
+    <div class="chips"><span class="chip id">C8</span><span class="chip axis">Axis 5 · Beyond AI</span><span class="chip md">Confidence 55%</span><span class="chip cx">Complexity Medium</span></div>
+    <h3>C8. Git: how history is stored</h3>
+    <dl class="fields">
+      <dt>Description</dt>
+      <dd>Larkspur's team edits the price list. The reader sees each commit saved as a snapshot named by its own content hash, a branch shown to be just a pointer to one of them, and a merge that joins two lines of history and sometimes conflicts. Rebase and revert show that history can be rewritten, and what that costs a team.</dd>
+      <dt>Basis</dt>
+      <dd><ul>
+        <li><code>reasoned:</code> PMs and analysts work with engineers who live in Git, and the model of snapshots and pointers is small, exact, and easy to simulate in the browser.</li>
+      </ul></dd>
+      <dt>Rationale</dt>
+      <dd>It gives non-engineers a model of the tool their team argues about. The pictures are clean: snapshots on a graph, with pointers as flags.</dd>
+      <dt>Downsides</dt>
+      <dd>It is crowded (Learn Git Branching exists), and engineers already know it, so the payoff is mostly for PMs and analysts.</dd>
+      <dt>Confidence</dt><dd>55%</dd>
+      <dt>Complexity</dt><dd>Medium</dd>
+    </dl>
+  </article>
+
+  <div class="callout"><p><strong>Pairing note.</strong> Ideas 1 and 2 form a natural pair, "how a model is made", built over one real training pipeline. Ideas 4 and 5 can share one denoising picture vocabulary while staying separate modules.</p></div>
+</section>
+
+<section id="rejection-summary">
+  <h2>Rejection Summary</h2>
+  <table>
+    <thead><tr><th>#</th><th>Idea</th><th>Reason Rejected</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Held out: contamination and benchmarks you can't trust</td><td>A single lesson, not a module. Folded into idea 2 as its contamination chapter.</td></tr>
+      <tr><td>2</td><td>Synthetic data and model collapse</td><td>Unproven that a 51k model, already overfit, shows tail loss rather than plain memorisation. Kept as an optional chapter of idea 2, pending a spike.</td></tr>
+      <tr><td>3</td><td>Hallucination traced across the stack</td><td>Overlaps RAG's "Made up" verdict, Evals and Observability. Its calibration half survives as idea 7.</td></tr>
+      <tr><td>4</td><td>Mixture of experts (total vs active parameters)</td><td>Without a new trained model it is a calculator rather than something to play. "Size a server from a model card" duplicates Inference. Could be one chapter in idea 2.</td></tr>
+      <tr><td>5</td><td>Coding agents: tests as the judge</td><td>Runs into the roadmap's "harness engineering" exclusion. "Passes by deleting a test" is reward hacking, now a chapter of idea 1.</td></tr>
+      <tr><td>6</td><td>Governance, audit trails, exec decision memo</td><td>A real gap, but no playable mechanism; it is mostly policy prose over Observability and Evals' gate. Better as a decision chapter.</td></tr>
+      <tr><td>7</td><td>Classic search before AI (inverted index, BM25)</td><td>Reinstated as C5 once classic tech was in scope.</td></tr>
+      <tr><td>8</td><td>Caching and CDNs (Larkspur's warehouses as edge caches)</td><td>Reinstated as C2 once classic tech was in scope.</td></tr>
+      <tr><td>9</td><td>Compression (Huffman, LZ)</td><td>Better as a chapter. BPE started as a compression algorithm, so it fits as the opening of Tokens rather than a module of its own.</td></tr>
+      <tr><td>10</td><td>Load balancing, queues and autoscaling</td><td>Inference's serving floor already teaches queues, batching and throughput against pace.</td></tr>
+      <tr><td>11</td><td>Recommendation systems ("customers also bought")</td><td>Half AI and half classic, and it overlaps embeddings and neighbours in Tokens. Revisit once C5 exists.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer class="composition-signal">Composed 2026-10-24T12:14Z by ce-ideate from the session prompt ("add more modules … diffusion models, pre &amp; post-training … trending ones"), grounded in <code>AGENTS.md</code>, <code>docs/plans/</code> and the language-model kit. Classic tech set (C1–C8) added the same day after the author chose to include classic tech.</footer>
+</main>
+</body>
+</html>
