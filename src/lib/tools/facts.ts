@@ -8,18 +8,20 @@ export interface Fact {
   /** a machine-readable value, where the fact has one (e.g. the spec version) */
   value?: string;
   source: string;
+  /** the day this fact was last checked, when checked apart from the rest of its file (YYYY-MM-DD) */
+  accessed?: string;
 }
 
 /** A module's fact lookup over its own facts file; an unknown id throws, so copy can't cite a fact that isn't there. */
 export function factsOf(d: { accessed: string; facts: Fact[] }) {
   return {
-    /** the day every fact was last checked against its source (YYYY-MM-DD) */
+    /** the day the file's facts were checked against their sources (YYYY-MM-DD); a fact may carry a later one */
     ACCESSED: d.accessed,
     FACTS: d.facts,
     fact(id: string): Fact & { accessed: string } {
       const f = d.facts.find(f => f.id === id);
       if (!f) throw new Error(`unknown fact: ${id}`);
-      return { ...f, accessed: d.accessed };
+      return { ...f, accessed: f.accessed ?? d.accessed };
     },
   };
 }

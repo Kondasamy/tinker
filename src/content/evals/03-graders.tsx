@@ -13,6 +13,9 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { EvalStage, Fact, Mark, QUESTION_TEXT, WithSuite, suiteNow, useSuite, type Shown, type Suite } from './kit';
+import { EVAL_PARTS } from '../../components/scenes/evalScene';
+
+export const PARTS = EVAL_PARTS;
 
 const MODULE = 'evals',
   ID = '03-graders';
@@ -127,55 +130,66 @@ const QUIZ = {
   explanation: fact('model-graders').claim,
   why: [
     'Exact match fails every right answer that isn’t worded like the reference, and the bad answers don’t share any wording to match.',
-    'A bad answer can mention the step and still say to skip it. A phrase being there doesn’t say what the answer does with it.',
-    `Right. Only reading for meaning catches a skipped step in new words. ${fact('model-graders').claim}`,
-    'A citation shows the answer names a passage, not that it follows it. Answer 3 cited one and was still wrong.',
+    'A bad answer can mention the step and still say to skip it, so the phrase being there proves nothing.',
+    'Right: only reading for meaning catches a skipped step in new words, once the judge is checked against people.',
+    'A citation shows the answer names a passage, not that it follows it, as answer 3 showed.',
   ],
 };
 
 const N_CASES = PREDICTS.length;
-const ordinal = (i: number) => `answer ${i + 1}`;
+const ordinal = (i: number) => `answer ${i + 1}`,
+  ORDINAL = (i: number) => `Answer ${i + 1}`;
 export const STEPS: Step<S>[] = [
   {
     id: 'predict-1',
     focus: 'p1',
     visibleControls: ['case1', 'p1'],
-    narration: `A grader decides whether one answer passes. Larkspur has three kinds. Code checks run on the words: exact match (are they the reference answer’s words?), contains the key fact (is the short phrase that matters there, like “30 days”?), and has a citation (does it name the passage it rests on?). A model judge is another model that reads the answer against a rubric, a written test it answers pass or fail. Its rubric here, r1: “${RUBRICS.r1}” And a person from the team reads it. Here is ${ordinal(0)}. Before you grade it:`,
+    narration: `A grader marks an answer pass or fail: code checks, a model judge, or a person. Here is ${ordinal(0)}.`,
+    act: 'Predict first.',
     predicate: s => s.p[0] !== null,
   },
   {
     id: 'grade-1',
     focus: 'grade',
     visibleControls: ['p1', 'grade'],
-    narration: `Run ${ordinal(0)} through every grader. The matrix on the Results tab fills in beside the right verdict.`,
+    narration: `The model judge’s rubric, r1, asks: “${RUBRICS.r1}” Verdicts fill the Results table.`,
+    act: `Run ${ordinal(0)} through every grader.`,
     predicate: s => s.graded >= 1 && !!suiteNow(),
   },
   {
     id: 'predict-2',
     focus: 'p2',
     visibleControls: ['out1', 'matrix', 'case2', 'p2'],
-    narration: `Exact match is fast and never changes its mind, but it is brittle: a right answer in other words fails. The key-fact check reads for the phrase that matters instead. ${ordinal(1)[0].toUpperCase() + ordinal(1).slice(1)} came from the model with no documents. Before you grade it:`,
+    narration:
+      'Exact match failed a right answer worded differently. The key fact check looks only for the phrase that matters.',
+    act: `Predict for ${ordinal(1)}.`,
+    say: { block: 'fail', text: 'Exact match' },
     predicate: s => s.p[1] !== null,
   },
   {
     id: 'grade-2',
     focus: 'grade',
     visibleControls: ['p2', 'grade'],
-    narration: `Run ${ordinal(1)} through every grader.`,
+    narration: `${ORDINAL(1)} came from the model with no documents.`,
+    act: `Run ${ordinal(1)} through every grader.`,
     predicate: s => s.graded >= 2 && !!suiteNow(),
   },
   {
     id: 'predict-3',
     focus: 'p3',
     visibleControls: ['out2', 'matrix', 'case3', 'p3'],
-    narration: `Every code check failed the made-up policy: its words aren’t the reference, its key fact is missing, and it cites nothing. The judge passed it. Rubric r1 asks how an answer sounds, and a made-up answer can sound fine. The person caught it. Before you grade ${ordinal(2)}:`,
+    narration:
+      'Code checks failed the made-up policy; the judge passed it, since rubric r1 asks how answers sound. The person caught it.',
+    act: `Predict for ${ordinal(2)}.`,
+    say: { block: 'pass', text: 'Judge passed it' },
     predicate: s => s.p[2] !== null,
   },
   {
     id: 'grade-3',
     focus: 'grade',
     visibleControls: ['p3', 'grade'],
-    narration: `Run ${ordinal(2)} through every grader.`,
+    narration: `${ORDINAL(2)} is wrong, and cites a real passage.`,
+    act: `Run ${ordinal(2)} through every grader.`,
     predicate: s => s.graded >= N_CASES && !!suiteNow(),
   },
   {
@@ -183,7 +197,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['out3', 'matrix', 'kinds', 'quiz'],
     narration:
-      'Has a citation passed a wrong answer: the passage it named exists, it just doesn’t say what the answer says. Each grader catches some failures and misses others. Code checks are cheap and exact about one thing. A judge reads for meaning, as well as its rubric lets it. People are the best check and the slowest. Teams use all three. One question to finish.',
+      'Has a citation passed a wrong answer: the named passage doesn’t say that. Each grader catches some failures and misses others.',
+    act: 'One question to finish.',
+    say: { block: 'pass', text: 'Citation passed' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which grader reads what the answer means, not its words?',
   },
@@ -212,6 +228,8 @@ function CaseCard({ i }: { i: number }) {
       <p>“{r.answer.text}”</p>
       <p className="lbl">Citation</p>
       <p>{r.answer.citation ? `“${r.answer.citation}”` : 'none'}</p>
+      <p className="lbl">The model judge’s rubric, r1</p>
+      <p>“{RUBRICS.r1}”</p>
     </div>
   );
 }
@@ -308,7 +326,7 @@ export default function Graders() {
       steps={STEPS}
       initial={{ p: [null, null, null], graded: 0, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => <EvalStage show={show(state)} />}
+      stage={({ state, say }) => <EvalStage show={show(state)} say={say} />}
       controls={{
         case1: () => <CaseCard i={0} />,
         case2: () => <CaseCard i={1} />,

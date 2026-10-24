@@ -6,7 +6,7 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import { CAPS, MEMORY, MODES, type Mode, type Settings } from '../../lib/inference/server';
 import { BEST, TARGETS, WINNERS, runOf, verdicts, wins } from '../../lib/inference/workbench';
-import { floorAt } from '../../components/scenes/serveScene';
+import { SERVE_PARTS, floorAt } from '../../components/scenes/serveScene';
 import { ms } from '../../components/scenes/serverTimeline';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
@@ -16,6 +16,8 @@ const MODULE = 'inference',
   ID = '07-serve-larkspur';
 /** where the bench starts: the first server, static and small */
 export const START: Settings = { mode: 'static', cap: CAPS[2], kvRoomGB: MEMORY[0] };
+/** the parts the serving floor can call out */
+export const PARTS = SERVE_PARTS;
 const MODE_NAME: Record<Mode, string> = { static: 'Static batching', continuous: 'Continuous batching' };
 /** the settings in a run's state; anything unknown falls back to START's */
 export const settingsOf = (s: Partial<Settings>): Settings => ({
@@ -25,7 +27,7 @@ export const settingsOf = (s: Partial<Settings>): Settings => ({
 });
 const onTarget = (p: Settings) => verdicts(runOf(p)).filter(v => v.ok).length;
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A ticket-booking site faces a rush when sales open. Its assistant must start answering within a second and keep a steady pace. Which plan matches what you found?',
   options: [
@@ -39,7 +41,7 @@ const QUIZ = {
     'Continuous batching keeps seats full; the cap trades the queue against each reply’s pace; memory decides whether the cap can be used at all.',
   why: [
     'The biggest batch empties the queue, but slows every reply’s tokens past a pace target.',
-    'Right. Each setting pulls on a different target, so you tune them together against the targets, not one number alone.',
+    'Right: each setting pulls on a different target, so you tune them together, not one number alone.',
     'Static batches hold seats until their longest reply ends, so the queue waits however small the cap.',
     'The same model served differently missed or met the targets: the server’s settings decide them.',
   ],
@@ -55,7 +57,9 @@ export const STEPS: Step<S>[] = [
     id: 'bench',
     focus: 'bench',
     visibleControls: ['score', 'bench'],
-    narration: `The support lead’s targets for every customer: the first token within ${ms(TARGETS.ttftMs)}, then each token within ${ms(TARGETS.tpotMs)}. The bench starts on Larkspur’s first server: static batching, a cap of ${START.cap} and ${START.kvRoomGB} GB of KV room. Change the settings until as many of Monday’s ${runOf(START).served.length} requests as possible are on target.`,
+    narration: `The service targets: the first token within ${ms(TARGETS.ttftMs)}, then each token within ${ms(TARGETS.tpotMs)}.`,
+    act: 'Get as many requests on target as you can.',
+    say: { block: 'queue', text: 'Watch the queue' },
     predicate: s => wins(settingsOf(s)),
     hint: 'Start with the batching mode. Then try caps in the middle, and watch the time per token as well as the first token.',
     solution: s => ({ ...s, ...WINNERS[0] }),
@@ -64,7 +68,8 @@ export const STEPS: Step<S>[] = [
     id: 'ties',
     focus: 'quiz',
     visibleControls: ['score', 'bench', 'quiz'],
-    narration: `${BEST} of ${runOf(START).served.length}: the most any setting gets on target. Yours is one of ${WINNERS.length} settings that work.${BEST < runOf(START).served.length ? ' The rest arrive in the thick of the rush; no setting of this one server meets both targets for them.' : ''} The bench is still yours. One question to finish.`,
+    narration: `${BEST} of ${runOf(START).served.length} is the best; yours is one of ${WINNERS.length} that work.${BEST < runOf(START).served.length ? ' The rest arrive mid-rush, beyond any setting.' : ''}`,
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which setting pulls on which target?',
   },
@@ -185,11 +190,12 @@ export default function ServeLarkspur() {
       steps={STEPS}
       initial={{ ...START, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => {
+      stage={({ state, sync, say }) => {
         const p = settingsOf(state),
           r = runOf(p);
         return (
           <InferenceStage
+            say={say}
             view={state.view}
             onView={view => sync({ ...state, view })}
             show={() => ({

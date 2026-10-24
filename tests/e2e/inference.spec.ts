@@ -152,7 +152,7 @@ test('“I’m not sure” on a checkpoint reveals the answer, is no miss, and f
   const c = card(page);
   await c.getByRole('button', { name: 'Open the Timeline tab' }).click();
   await c.getByRole('radio').first().click();
-  await c.getByRole('button', { name: 'Continuous batching' }).click();
+  await c.getByRole('button', { name: 'Continuous batching', exact: true }).click();
   await c.getByRole('radio', { name: 'I’m not sure' }).click();
   await expect(c).toContainText('Chapter complete');
   await expect(c.locator('.stamp.wrong')).toHaveCount(0);

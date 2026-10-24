@@ -10,8 +10,8 @@ const CHAPTERS: Chapter[] = [
     short: 'Prefill and decode',
     intro: {
       story:
-        'Larkspur’s assistant is live, and Monday mornings are slow: customers wait before the first word appears, then watch the reply trickle out. The team runs its own model server, so the waiting is theirs to fix. First, what does one request cost?',
-      goal: 'Why does the first token of a reply take a different time from every token after it?',
+        'Monday mornings, customers wait for the assistant’s first word, then watch the reply trickle out. The team runs its own server. What does one request cost?',
+      goal: 'Why does the first token take a different time from every token after it?',
       learn: [
         'Prefill: the model reads the whole prompt in one pass',
         'Decode: the model writes the reply one token per pass',
@@ -35,8 +35,8 @@ const CHAPTERS: Chapter[] = [
     short: 'KV cache at scale',
     intro: {
       story:
-        'Decoding is fast because the model keeps every token’s keys and values instead of recomputing them. Larkspur mini’s cache is tiny. The team’s server runs a real open model, and serves many customers at once.',
-      goal: 'How much memory does the KV cache take on a real server, and what does that limit?',
+        'Decoding is fast because the model keeps every token’s keys and values. Larkspur mini’s cache is tiny, but the team’s server runs a real open model for many customers.',
+      goal: 'How much memory does the KV cache take on a real server?',
       learn: [
         'The KV cache, from the Transformers module, in one step',
         'Its size for a real open model, from its published shape',
@@ -58,8 +58,8 @@ const CHAPTERS: Chapter[] = [
     short: 'Batching',
     intro: {
       story:
-        'The server can work on several requests in one pass, a batch, because every decode pass reads all the weights anyway. Larkspur’s first server batched the simple way. Monday’s traffic shows the cost.',
-      goal: 'How should a server group requests so none of them waits for the others?',
+        'A server can run several requests in one pass, a batch, since every pass reads all the weights anyway. Larkspur’s first server batched the simple way.',
+      goal: 'How should a server group requests so none waits for the others?',
       learn: [
         'Why batching makes a server serve more for nearly the same cost per pass',
         'Static batching: a batch starts together and runs until its longest reply ends',
@@ -84,8 +84,7 @@ const CHAPTERS: Chapter[] = [
     title: 'Smaller numbers',
     short: 'Smaller numbers',
     intro: {
-      story:
-        'The server’s memory is mostly weights. Every weight is stored as a 16-bit number. Someone asks whether 8 bits, or even 4, would do.',
+      story: 'The server’s memory is mostly weights, each stored as a 16-bit number. Would 8 bits, or even 4, do?',
       goal: 'What does storing the weights in fewer bits save, and what does it cost?',
       learn: [
         'Quantization: rounding each weight to one of a few levels',
@@ -94,7 +93,8 @@ const CHAPTERS: Chapter[] = [
       ],
       terms: [
         ['Quantization', 'Storing numbers with fewer bits by rounding each to the nearest of a fixed set of levels.'],
-        ['int8, int4', 'Whole numbers stored in 8 or 4 bits: 255 or 15 levels, scaled to each row of weights.'],
+        ['int8', 'Whole numbers stored in 8 bits: 255 levels, scaled to each row of weights.'],
+        ['int4', 'Whole numbers stored in 4 bits: 15 levels, scaled to each row of weights.'],
         ['Held-out text', 'Text kept out of training, used only to score the model.'],
         ['Loss', 'How surprised the model is by the next piece of text, on average: lower is better.'],
       ],
@@ -106,7 +106,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Guess ahead',
     intro: {
       story:
-        'Each decode pass writes one token and reads every weight to do it. Larkspur has a much smaller model, a student trained to copy Larkspur mini. What if the student guessed the next few tokens, and the big model only checked them?',
+        'Each decode pass writes one token and reads every weight. Larkspur has a much smaller student model. What if it guessed ahead, and the big model only checked?',
       goal: 'How can a small model make a big one faster without changing a word of its reply?',
       learn: [
         'Speculative decoding: a draft model guesses, the target model checks every guess in one pass',
@@ -130,7 +130,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Pace or throughput',
     intro: {
       story:
-        'Continuous batching helped. Now the team argues about one number: the batch cap, the most requests the server runs at once. Sales wants more customers served; support wants replies that don’t crawl.',
+        'Continuous batching helped. Now the team argues over the batch cap: sales wants more customers served, support wants replies that don’t crawl.',
       goal: 'What does a bigger batch buy, and what does each customer pay for it?',
       learn: [
         'How the batch cap raises throughput and cuts the queue',
@@ -149,7 +149,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Serve Monday',
     intro: {
       story:
-        'Everything is on the bench: the batching mode, the batch cap and how much memory to keep for the KV cache. The support lead has set two targets for every customer.',
+        'Everything is on the bench: the batching mode, the batch cap and the KV room. The support lead has set two targets for every customer.',
       goal: 'Which serving settings get the most of Monday’s customers their reply on target?',
       learn: [
         'How the settings pull against each other on a real burst of traffic',

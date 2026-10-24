@@ -1,11 +1,21 @@
 // Step machine for story chapters (KTD9). Pure: the runner component, the canvas (U6) and the engine (U4)
 // only meet here through the chapter's state type S.
 
+/** A step's callout: a short label (≤ 5 words) the picture pins to one of its parts, e.g. a block. */
+export interface Say {
+  block: string;
+  text: string;
+}
+
 export interface Step<S> {
   id: string;
   narration: string;
+  /** What the reader does now ("Click 2020."), drawn apart from the narration so it never hides in it. */
+  act?: string;
   /** The one control or block this step is about; the stage may highlight it. */
   focus?: string;
+  /** stages that don't read it ignore it */
+  say?: Say;
   /** Controls the runner renders for this step; everything else stays hidden. */
   visibleControls: string[];
   predicate: (state: S) => boolean;

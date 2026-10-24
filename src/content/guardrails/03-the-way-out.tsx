@@ -7,15 +7,8 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { guardLanes, guardMessages } from '../../components/scenes/guardSequence';
-import {
-  ON_FILE,
-  REMOVED_LINK,
-  answerOf,
-  outsideLinks,
-  stepsOf,
-  type Decision,
-  type Run,
-} from '../../lib/guardrails/loop';
+import { GUARD_PARTS } from '../../components/scenes/guardScene';
+import { ON_FILE, answerOf, outsideLinks, stepsOf, type Decision, type Run } from '../../lib/guardrails/loop';
 import { fact } from '../../lib/guardrails/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
@@ -90,11 +83,14 @@ const QUIZ = {
   explanation: fact('link-exfiltration').claim,
   why: [
     `In this chapter the reply went to ${sender('link')}, on file, and still carried their address and card digits out in a link to ${LINK_SITE}.`,
-    `Right. ${fact('link-exfiltration').claim} Check who receives it and where every link in it points: the allow-list did one, the output filter the other.`,
-    'That stops leaks and stops the job: customers need their answers. Checks on what leaves, and where to, keep the way out useful.',
-    `A person helps only if they read every line. In this chapter, a person who said yes let the record go to ${OUTSIDE}; a long page with a link buried in it is easy to wave through.`,
+    'Right: check who receives it and where every link in it points, as the allow-list and the output filter did.',
+    'That stops leaks and stops the job too, while checks on what leaves, and where to, keep the way out useful.',
+    `A person helps only if they read every line, and in this chapter one who said yes let the record go to ${OUTSIDE}.`,
   ],
 };
+
+/** The parts of the mail room a step's callout may name. */
+export const PARTS = GUARD_PARTS;
 
 export const STEPS: Step<S>[] = [
   {
@@ -102,7 +98,8 @@ export const STEPS: Step<S>[] = [
     focus: 'run',
     visibleControls: ['run'],
     opensDrawer: 'email',
-    narration: `Back to the forwarded invoice from chapter 1. ${sender('invoice')} asks a fair question; the note planted in their supplier’s invoice asks for their record to go to an outside address. This time follow the record. Run it.`,
+    narration: `The forwarded invoice again: its planted note asks for ${sender('invoice')}’s record to go outside.`,
+    act: 'Run it and follow the record.',
     predicate: s => s.ran,
     hint: 'Press the run button.',
   },
@@ -111,14 +108,17 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['log', 'p1'],
     opensDrawer: null,
-    narration: `${says('invoice')}: ${OUTSIDE}. The model looked up the record with get_customer, then mailed it out with send_email. Private data leaving for somewhere it shouldn’t go is exfiltration. A rule in the prompt didn’t stop it, so Larkspur puts a check on what leaves: an allow-list of the addresses send_email may write to. Before you turn it on:`,
+    narration: `${says('invoice')}: ${OUTSIDE}, via get_customer then send_email. That is exfiltration. Next: an allow-list for send_email.`,
+    act: 'Predict first.',
+    say: { block: 'post', text: 'Record out' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'allow',
     focus: 'allow',
     visibleControls: ['p1', 'allow', 'log'],
-    narration: 'Turn on the allow-list. The stage draws it as a barrier on the outbound chute.',
+    narration: 'The stage draws the allow-list as a barrier on the outbound chute.',
+    act: 'Turn on the allow-list.',
     predicate: s => s.allow,
     hint: 'Press “Allow-list: on”.',
   },
@@ -126,7 +126,9 @@ export const STEPS: Step<S>[] = [
     id: 'predict-link',
     focus: 'p2',
     visibleControls: ['out1', 'log', 'p2'],
-    narration: `The barrier held. The host told the model “${BLOCKED.text}” The model moved on and answered ${sender('invoice')}. The mail log has no outside address in it. The check sits outside the model, so how the note was worded doesn’t matter. A second email arrives. Before you run it:`,
+    narration: `The barrier held, and the model still answered ${sender('invoice')}. The check sits outside the model, so wording can’t beat it.`,
+    act: 'Predict the next email.',
+    say: { block: 'allow', text: 'Send blocked' },
     predicate: s => s.p2 !== null,
   },
   {
@@ -134,7 +136,8 @@ export const STEPS: Step<S>[] = [
     focus: 'run',
     visibleControls: ['p2', 'run'],
     opensDrawer: 'email',
-    narration: `Run ${sender('link')}’s email, with the allow-list still on.`,
+    narration: 'The allow-list is still on.',
+    act: `Run ${sender('link')}’s email.`,
     predicate: s => s.kase === 'link' && s.ran,
     hint: `Press “Run ${sender('link')}’s email”.`,
   },
@@ -143,7 +146,9 @@ export const STEPS: Step<S>[] = [
     focus: 'filter',
     visibleControls: ['out2', 'log', 'filter'],
     opensDrawer: null,
-    narration: `${says('link')}. The reply went to ${sender('link')}’s own address, so the allow-list let it through, but the link points to ${LINK_SITE} with their address and card digits in it. One click, or a mail app that loads links on its own, and the data is gone. ${fact('link-exfiltration').claim} The second output check is a filter: it strips links to any site but Larkspur’s from everything sent. Turn it on.`,
+    narration: `${says('link')}, in a reply the allow-list passed.`,
+    act: 'Turn on the output filter.',
+    say: { block: 'post', text: 'Link leaks data' },
     predicate: s => s.filter,
     hint: 'Press “Output filter: on”.',
   },
@@ -151,7 +156,9 @@ export const STEPS: Step<S>[] = [
     id: 'approval',
     focus: 'approval',
     visibleControls: ['filtered', 'approval'],
-    narration: `The reply now reads “${REMOVED_LINK}” where the link was, and ${sender('link')} still gets their address. Some teams guard the way out with a person instead of a list, as Tool calling’s approval gate did. Here the allow-list and the filter are off, the forwarded invoice runs again, and every send_email waits for someone to say yes or no. Try both answers.`,
+    narration: `The filter stripped the link; ${sender('link')} still got their address. Next, approval: a person checks each send instead.`,
+    act: 'Try both answers.',
+    say: { block: 'post', text: 'Person decides' },
     setup: s => ({ ...s, kase: 'invoice', allow: false, filter: false, approval: 'approve', answered: [] }),
     predicate: s => s.answered.includes('approve') && s.answered.includes('deny'),
     hint: 'Pick “Person says yes”, then “Person says no”.',
@@ -160,7 +167,8 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['compare', 'quiz'],
-    narration: `Said no, the record stayed home and ${sender('invoice')} still got their answer. Said yes, it went to ${OUTSIDE}: the person is only as good as their attention, and the note claimed to come from Larkspur billing. A list never gets tired. One question to finish.`,
+    narration: `Said no, the record stayed home. Said yes, it went to ${OUTSIDE}: a person is only as good as their attention.`,
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'In this chapter, where did the data go when the reply went to the right customer?',
   },
@@ -228,9 +236,17 @@ export default function TheWayOut() {
       steps={STEPS}
       initial={{ ...OPEN, ran: false, p1: null, p2: null, answered: [], quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, inspect }) => {
+      stage={({ state, inspect, say }) => {
         const r = current(state);
-        return <GuardStage run={r} upTo={state.ran ? r.steps.length : 0} props={guardProps(state)} inspect={inspect} />;
+        return (
+          <GuardStage
+            run={r}
+            upTo={state.ran ? r.steps.length : 0}
+            props={guardProps(state)}
+            inspect={inspect}
+            say={say}
+          />
+        );
       }}
       controls={{
         run: ({ state, sync }) => {

@@ -7,6 +7,7 @@ import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import IsoStage from '../../src/lib/iso/IsoStage';
 import {
+  PHONE_PARTS,
   PHONE_BOARD,
   phoneLabel,
   phoneScene,
@@ -119,5 +120,28 @@ describe('the clip player', () => {
       createElement(VoiceStage, { shown: { phone: { stage: 'idle' }, caption: '<i>x</i>' } }),
     );
     expect(html).toContain('&lt;i&gt;x&lt;/i&gt;');
+  });
+});
+
+describe("a step's callout on the picture", () => {
+  const base: PhoneOpts = { stage: 'model', wait: 900 };
+  const callouts = (svg: string) => svg.split('class="callout"').length - 1;
+  it.each(['phone', 'ear', 'model', 'mouth', 'watch'])('draws one lit callout over %s', part => {
+    expect(PHONE_PARTS).toContain(part);
+    const svg = draw({ ...base, say: { block: part, text: 'LOOK HERE' } });
+    expect(callouts(svg)).toBe(1);
+    expect(svg.slice(svg.indexOf('class="callout"'))).toContain('LOOK HERE');
+  });
+  it('draws none for a part the scene does not have', () => {
+    expect(callouts(draw({ ...base, say: { block: 'nowhere', text: 'LOOK HERE' } }))).toBe(0);
+  });
+  it('with no callout the picture is unchanged', () => {
+    expect(draw({ ...base, say: undefined })).toBe(draw(base));
+    expect(draw({ ...base, say: { block: 'nowhere', text: 'X' } })).toBe(draw(base));
+  });
+  it('on phones a callout over 16 characters is dropped', () => {
+    const at = (text: string) => callouts(draw({ ...base, scale: 2, say: { block: 'phone', text } }));
+    expect(at('SIXTEEN CHARS OK')).toBe(1);
+    expect(at('SEVENTEEN CHARS X')).toBe(0);
   });
 });

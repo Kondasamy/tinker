@@ -9,10 +9,12 @@ import { grade, reading } from '../../lib/multimodal/readings';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
+import { SCAN_PARTS } from '../../components/scenes/scanScene';
 import { MultimodalStage, ReadingCard, RecordedNote } from './kit';
 
 const MODULE = 'multimodal',
   ID = '05-photos-of-parts';
+export const PARTS = SCAN_PARTS;
 const SIZE = 1600;
 
 interface S {
@@ -34,7 +36,7 @@ const P1 = {
 /** What the recorded front reading did: named no part (it asked), or named one. */
 export const outcome = () => (reading('part-front', SIZE, 'vision').fields.part === null ? 1 : 0);
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A customer photographs a lamp. Larkspur sells two models that differ only in the switch on the cord, which is out of shot. What should the assistant reply?',
   options: [
@@ -45,7 +47,7 @@ const QUIZ = {
   correct: 0,
   explanation: 'The deciding detail isn’t in the photo; only a new angle can show it.',
   why: [
-    'Right. Say what would settle it, and the next photo settles it.',
+    'Right: say what would settle it, and the next photo settles it.',
     'A guess sends the wrong lamp about half the time.',
     'More pixels of the same view still don’t show the switch.',
   ],
@@ -56,15 +58,17 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration:
-      'A customer’s shelf bracket snapped. They don’t know its part number, the catalogue’s code for one exact part, so they send a photo. Before the assistant reads it:',
+    narration: 'The customer doesn’t know the bracket’s part number, so they send a photo.',
+    act: 'Predict first.',
+    say: { block: 'sheet', text: 'Front view only' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'front',
     focus: 'front',
     visibleControls: ['p1', 'front'],
-    narration: 'Read the customer’s photo with vision.',
+    narration: 'Your pick is locked.',
+    act: 'Read the customer’s photo with vision.',
     predicate: s => s.front,
   },
   {
@@ -72,15 +76,18 @@ export const STEPS: Step<S>[] = [
     focus: 'side',
     visibleControls: ['frontReading', 'side'],
     narration:
-      'The photo is ambiguous: it fits more than one part. The reading says so and asks for another angle, instead of guessing. The customer turns the bracket round and sends a second photo.',
+      'The photo is ambiguous: two parts fit. The reading says so and asks for another angle instead of guessing.',
+    act: 'Read the customer’s second photo.',
+    say: { block: 'camera', text: 'Asks for angle' },
     predicate: s => s.side,
   },
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['sideReading', 'quiz'],
-    narration:
-      'From the other side the third hole shows, and the part is certain. A sharper photo of the first side would not have helped: the detail that decided it was out of sight, not too small.',
+    narration: 'From the side, the third hole settles it. A sharper front photo couldn’t: the detail was out of sight.',
+    act: 'One question to finish.',
+    say: { block: 'sheet', text: 'Third hole shows' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Would more pixels of the same view show the switch?',
   },
@@ -94,12 +101,13 @@ export default function PhotosOfParts() {
       steps={STEPS}
       initial={{ p1: null, front: false, side: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => {
+      stage={({ state, say }) => {
         const im = state.side ? 'part-side' : 'part-front',
           read = state.side || state.front,
           g = read ? grade(im, SIZE, 'vision') : null;
         return (
           <MultimodalStage
+            say={say}
             shown={{
               image: im,
               size: SIZE,

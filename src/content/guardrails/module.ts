@@ -11,8 +11,8 @@ const CHAPTERS: Chapter[] = [
     short: 'Data or instructions?',
     intro: {
       story:
-        'At the end of Tool calling, a note planted on an order told the model to refund money, and only a person at the approval gate stopped it. Now Larkspur’s assistant works the support inbox: it reads customer email, looks up customer records, and can send email to any address.',
-      goal: 'When the assistant reads text someone else wrote, can it tell their instructions apart from your own?',
+        'Larkspur’s assistant now works the support inbox: it reads customer email, looks up private records and can email any address.',
+      goal: 'Can the assistant tell instructions in text someone else wrote from your own?',
       learn: [
         'Direct and indirect prompt injection: who writes the attack, and where it hides',
         'Why the model can’t reliably tell instructions from the data it reads',
@@ -42,8 +42,8 @@ const CHAPTERS: Chapter[] = [
     short: 'Input filters',
     intro: {
       story:
-        'A prompt rule stopped the customer who told the assistant to ignore its instructions, but not the note planted in a forwarded invoice. Larkspur’s next idea: screen every email before the model reads it.',
-      goal: 'Can a filter that scores each email hold back the attacks without holding back real customers?',
+        'A prompt rule missed the note in the forwarded invoice. Larkspur’s next idea: screen every email before the model reads it.',
+      goal: 'Can a filter that scores each email hold back attacks without holding back real customers?',
       learn: [
         'How an input classifier scores email, and what its threshold decides',
         'Why every threshold trades attacks held against customers held',
@@ -70,7 +70,7 @@ const CHAPTERS: Chapter[] = [
     short: 'The way out',
     intro: {
       story:
-        'No filter threshold held every attack without holding a real customer too, so some attacks will get read. Now Larkspur looks at the other end: what the assistant sends out.',
+        'No threshold held every attack without holding a customer, so some attacks will get read. Larkspur turns to what the assistant sends out.',
       goal: 'If an attack does get read, can checks on what leaves stop the data getting out?',
       learn: [
         'How an attack reads private data and sends it out',
@@ -100,8 +100,8 @@ const CHAPTERS: Chapter[] = [
     short: 'The trifecta',
     intro: {
       story:
-        'The allow-list and the output filter each stopped one way out. Each check catches the leaks it was written for. Larkspur wants a rule that doesn’t depend on spotting the attack at all.',
-      goal: 'What does an attack need to steal data, and which piece can Larkspur take away without stopping the job?',
+        'Each output check stopped only the leaks it was written for. Larkspur wants a rule that needn’t spot the attack.',
+      goal: 'What does an attack need to steal data, and which piece can Larkspur safely remove?',
       learn: [
         'The three legs of the lethal trifecta: private data, untrusted text, a way out',
         'What removing each leg costs the customer',
@@ -126,7 +126,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Defence in depth',
     intro: {
       story:
-        'Each chapter so far added one defence, and each stopped the attack it was tried on. Larkspur now runs every defence against the whole injection suite: the attacks and the ordinary customers from chapter 2.',
+        'Each chapter added one defence, and each stopped the attack it was tried on. Now Larkspur runs every defence against the whole injection suite.',
       goal: 'No single defence stops every attack without blocking a customer. Can a stack of them?',
       learn: [
         'What each defence stops, and misses, across every attack',
@@ -152,8 +152,8 @@ const CHAPTERS: Chapter[] = [
     short: 'The user attacks',
     intro: {
       story:
-        'Every attack so far hid in text someone else wrote. Some customers need no planted note: they ask the assistant for things Larkspur never offered, such as a discount nobody promised or a job that isn’t its own.',
-      goal: 'How does Larkspur stop a customer who pushes, without refusing the customers who ask fairly?',
+        'Every attack so far hid in text someone else wrote. Some customers push themselves: for a discount nobody promised, or a job that isn’t the assistant’s.',
+      goal: 'How does Larkspur stop a customer who pushes, without refusing customers who ask fairly?',
       learn: [
         'Why an injection detector misses a customer who simply asks for too much',
         'How an input policy check and an output policy check each stop a different push',
@@ -181,9 +181,8 @@ const CHAPTERS: Chapter[] = [
     title: 'Red team',
     short: 'Red team',
     intro: {
-      story:
-        'Larkspur has defences against planted text and against customers who push. Before the assistant goes live, the team attacks it on purpose with every defence as a setting.',
-      goal: 'Which set of defences stops every attack in the suite and still serves every customer, and what does that prove?',
+      story: 'Before the assistant goes live, the team attacks it on purpose, with every defence as a setting.',
+      goal: 'Which defences stop every attack and still serve every customer, and what does that prove?',
       learn: [
         'How to run an attack suite and a customer suite under every defence',
         'How to read attack success rate and false-block rate together',

@@ -23,7 +23,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Answers aren’t actions',
     intro: {
       story:
-        'In the RAG module you built Larkspur Supply Co.’s assistant: it answers staff questions from company documents. It works. Now the support team wants more. They want it to check an order or issue a refund while a customer is on the phone.',
+        'In the RAG module you built Larkspur’s assistant: it answers staff questions from company documents. Now support wants it to check orders and issue refunds mid-call.',
       goal: 'Can an assistant that answers from documents tell you where an order is right now?',
       learn: [
         'Why a model alone can only write text, never look something up',
@@ -43,7 +43,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Your first tool',
     intro: {
       story:
-        'In chapter 1 the assistant guessed an order’s status, because nothing joined the model to the order system. The team writes its first tool so the assistant can look orders up.',
+        'In chapter 1 the assistant guessed, because nothing joined the model to the order system. The team writes its first tool so it can look orders up.',
       goal: 'How does a model know a tool exists, and when to use it?',
       learn: [
         'What a tool definition holds: a name, a description and a schema for its arguments',
@@ -68,7 +68,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Valid isn’t correct',
     intro: {
       story:
-        'The assistant can now look orders up with get_order. But the model writes each call itself, and models make mistakes. The team wants to know which mistakes the host can catch before they reach a customer.',
+        'The assistant now looks orders up with get_order. But the model writes each call itself, and models make mistakes. Which ones can the host catch?',
       goal: 'What does checking a call against its schema catch, and what slips through?',
       learn: [
         'How the host validates a call against the tool’s schema before anything runs',
@@ -92,7 +92,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Many steps',
     intro: {
       story:
-        'The assistant can look up an order and the host catches bad calls. Real requests need more: two orders at once, or a refund that depends on what a lookup returns.',
+        'The assistant looks up orders and the host catches bad calls. Real requests need more: two orders at once, or a refund that depends on a lookup.',
       goal: 'How does the assistant handle a request that needs several tool calls?',
       learn: [
         'Why independent lookups can go out together, in one turn',
@@ -113,7 +113,7 @@ const CHAPTERS: Chapter[] = [
     short: 'MCP',
     intro: {
       story:
-        'Larkspur’s tools now live in two systems: orders and the team calendar. Other teams want AI apps of their own that use the same tools. Wiring every app to every system by hand will not last.',
+        'Larkspur’s tools now live in two systems: orders and the team calendar. Other teams want AI apps that use them too. Hand-wiring will not last.',
       goal: 'How can any AI app use any system’s tools without a custom integration for each pair?',
       learn: [
         'Why custom integrations multiply, and how one shared protocol turns the product into a sum',
@@ -140,7 +140,7 @@ const CHAPTERS: Chapter[] = [
     short: 'When tools go wrong',
     intro: {
       story:
-        'The assistant can now refund money. That makes every mistake expensive, whether it comes from the model, from a request, or from text someone planted in the data the model reads.',
+        'The assistant can now refund money, so every mistake costs: from the model, from a request, or from text someone planted in data it reads.',
       goal: 'What stops a tool call that should not run?',
       learn: [
         'How an approval gate puts a person in front of every call that changes data',
@@ -167,7 +167,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Workbench',
     intro: {
       story:
-        'The assistant can look up orders, read the calendar and issue refunds, through MCP servers, behind a gate and a limit. Now four requests arrive, and each needs its own setup.',
+        'The assistant looks up orders, reads the calendar and issues refunds through MCP servers, behind a gate and a limit. New requests arrive, each needing its own setup.',
       goal: 'Given a request, which servers, gate and permissions should the host have?',
       learn: [
         'Connect only the servers whose tools a request uses',

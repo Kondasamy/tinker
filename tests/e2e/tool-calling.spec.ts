@@ -373,7 +373,7 @@ test('chapter 4: two lookups go out at once; the refund waits for the total; a l
   await step(page, 7);
   await expect(wide(page).locator('.stamp')).toContainText(['STOPPED']);
   await expect(wide(page)).toContainText('Stopped: cap of 1 call');
-  await expect(card(page)).toContainText('too many calls');
+  await expect(card(page)).toContainText('the host never ran issue_refund');
   await expect(wide(page).locator('.arrow[data-to="orders"]')).toHaveCount(1); // only the lookup ran
 });
 

@@ -10,6 +10,7 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { puzzle, Verdict } from '../../components/quiz/Puzzle';
+import { WINDOW_PARTS } from '../../components/scenes/windowScene';
 import { DOMAINS, type Meter, type Run } from '../../lib/context/loop';
 import { cacheHit, cost, entryOf, OUTPUT, READ, WRITE, type Cached, type Hit } from '../../lib/context/cache';
 import { count, SYSTEM, type Part } from '../../lib/context/window';
@@ -23,8 +24,7 @@ import { ContextStage, Fact, runOf } from './kit';
 const MODULE = 'context',
   ID = '04-order-for-the-cache';
 const D = DOMAINS[ID];
-const SESSIONS = D.sessions![0],
-  SESSION = SESSIONS[0];
+const SESSIONS = D.sessions![0];
 export type Block = 'tools' | 'rules' | 'time' | 'docs' | 'chat';
 export const BLOCK_NAME: Record<Block, string> = {
   tools: 'Tool definitions',
@@ -127,7 +127,7 @@ const P1 = {
 };
 const OUT1 = TOOLS_RULES === 0 ? 2 : DATED.rate < PLAIN.rate / 2 ? 1 : 0;
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'An assistant’s prompt starts with the user’s name and today’s date, then 5,000 tokens of fixed instructions and a product list. How should the team reorder it?',
   options: [
@@ -139,10 +139,10 @@ const QUIZ = {
   correct: 1,
   explanation: fact('openai-static-first').claim,
   why: [
-    'A short line that changes still breaks the prefix: everything after it misses. In this chapter one time stamp cost almost all the hits.',
-    `Right. ${fact('openai-static-first').claim}`,
-    `That is the layout that lost the hits here. ${fact('cache-invalidate').claim}`,
-    'Two calls don’t share a window: the model would answer without the date. Ordering one call fixes it.',
+    'A short line that changes still breaks the prefix, and here one time stamp cost almost all the hits.',
+    'Right: stable parts first and changing ones last, so each call shares the longest prefix with the one before.',
+    'That is the layout that lost the hits here, because a change invalidates its own part and everything after it.',
+    'Two calls don’t share a window, so the model would answer without the date; ordering one call fixes it.',
   ],
 };
 
@@ -153,12 +153,18 @@ interface S {
   quiz: number | null;
 }
 
+/** The parts of the window desk a step's callout may name. */
+export const PARTS = WINDOW_PARTS;
+
 export const STEPS: Step<S>[] = [
   {
     id: 'plain',
     focus: 'send',
     visibleControls: ['send'],
-    narration: `${SESSION.length} questions from Mara Quill in one conversation, a minute apart. Every call re-sends the tool definitions, the instructions, every document and the conversation so far. Prompt caching lets the provider keep the start of a call, its prefix, and read it back on the next call for a fraction of the price, as long as the next call begins exactly the same way. The host marks where a cached prefix may end with cache breakpoints. Send the conversation.`,
+    narration:
+      'Prompt caching keeps a call’s start, its prefix, and reads it back cheaply if the next call begins the same way.',
+    act: 'Send the conversation.',
+    say: { block: 'shelf', text: 'Kept prefixes' },
     predicate: s => s.sent,
     hint: 'Press the send button.',
   },
@@ -166,14 +172,18 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['calls', 'p1'],
-    narration: `${pct(PLAIN.rate)} of the tokens sent were read from the cache: everything up to the newest question matched the call before. Those tokens cost ${READ} of the normal price; the rest were written to the cache at ${WRITE[LIFETIME]} times. Now the team wants a time stamp in the turn. Before you send it:`,
+    narration: `${pct(PLAIN.rate)} were cache hits, billed at ${READ}×; the rest were written at ${WRITE[LIFETIME]}×, up to the host’s cache breakpoint.`,
+    act: 'Predict first.',
+    say: { block: 'shelf', text: 'Read back cheap' },
     predicate: s => s.p1 !== null,
   },
   puzzle<S>({
     id: 'reorder',
     focus: 'order',
     visibleControls: ['out1', 'order', 'verdict'],
-    narration: `With the stamp in the system prompt, only the tool definitions and the instructions before it were hits: ${pct(DATED.rate)} of the tokens. ${fact('cache-invalidate').claim} The stamp has to stay; where it sits is up to the host. Move the blocks so the stable ones come first and as much as possible is read from the cache.`,
+    narration: `Only the tools and instructions before the stamp were hits: ${pct(DATED.rate)}. A change invalidates everything after it.`,
+    act: 'Put the stable blocks first.',
+    say: { block: 'shelf', text: 'Stamp breaks it' },
     broken: s => ({ ...s, order: HOUSE }),
     verdict: s => solved(s.order),
     solution: s => ({ ...s, order: WINNERS[0] }),
@@ -183,7 +193,9 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['order-done', 'facts', 'quiz'],
-    narration: `${pct(price(WINNERS[0]).rate)} of the tokens are hits again. The blocks that never change come first, in any order; then the conversation, which only grows at its end; then the stamp, which changes every call. ${WINNERS.length} orders reach that, and any of them works. One question to finish.`,
+    narration: `${pct(price(WINNERS[0]).rate)} hits again: stable blocks first, in any order, then the growing conversation, then the stamp. ${WINNERS.length} orders work.`,
+    act: 'One question to finish.',
+    say: { block: 'shelf', text: 'Hits again' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which part changes each call, and where did it have to go?',
   },
@@ -297,9 +309,11 @@ export default function OrderForTheCache() {
       steps={STEPS}
       initial={{ sent: false, order: HOUSE.filter(b => b !== 'time'), p1: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => {
+      stage={({ state, say }) => {
         const p = state.order.includes('time') ? price(state.order) : PLAIN;
-        return <ContextStage run={p.run} upTo={state.sent ? p.run.meter.length : 0} props={{ shelf: true }} />;
+        return (
+          <ContextStage run={p.run} upTo={state.sent ? p.run.meter.length : 0} props={{ shelf: true }} say={say} />
+        );
       }}
       controls={{
         send: ({ state, apply }) => (

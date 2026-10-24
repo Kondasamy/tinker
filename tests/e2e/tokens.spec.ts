@@ -111,7 +111,13 @@ test('chapter 3: the meter shows the rule, the recorded tokenizers and the siteâ
   await expect(rows.last()).toContainText('in-sample');
   await c.getByRole('button', { name: 'Price the documents' }).click();
   await expect(c.locator('table[data-meter] thead')).toContainText('Cost to send once');
-  await expect(c).toContainText(/checked \d{4}-\d{2}-\d{2}/);
+  // the price's source and the day it was checked open from its mark
+  await c
+    .getByRole('button', { name: /^Source:/ })
+    .first()
+    .click();
+  await expect(page.locator('.cite-pop:popover-open')).toContainText(/checked \d{4}-\d{2}-\d{2}/);
+  await page.keyboard.press('Escape');
   await expect(c.getByRole('link', { name: /^RAG chapter 2/ })).toHaveAttribute('href', '/rag/02-why-not-stuff-it/');
 });
 

@@ -15,6 +15,7 @@ import { UNSURE } from '../../lib/recall';
 import { num } from '../../lib/format';
 import META from '../../../public/data/lm/meta.json' with { type: 'json' };
 import P from '../../../data/inference/prompts.json' with { type: 'json' };
+import { SERVE_PARTS } from '../../components/scenes/serveScene';
 import { Fact, InferenceStage, ModelGate, modelNow } from './kit';
 
 const MODULE = 'inference',
@@ -24,6 +25,8 @@ export const PROMPT = P.prompts.find(p => p.id === 'billing')!.text,
   N = P.write;
 /** the draft length the reveal uses */
 export const K = 2;
+/** the parts the serving floor can call out */
+export const PARTS = SERVE_PARTS;
 const BIG = META.model.params,
   SMALL = META.student!.model.params;
 
@@ -38,7 +41,7 @@ export function runAt(target: Model, draft: Model, k: number): SpecRun {
   return runs.get(k)!;
 }
 
-const P1 = {
+export const P1 = {
   question: `The student, about ${Math.round(SMALL / 1000)}k parameters to Larkspur mini’s ${Math.round(BIG / 1000)}k, will guess ${K} tokens at a time; Larkspur mini checks each guess in one pass and keeps what it agrees with. What happens to the reply?`,
   options: [
     'The same reply, in fewer passes of Larkspur mini',
@@ -52,7 +55,7 @@ export function outcomeOf(target: Model, draft: Model): number {
   return !same ? 1 : r.checks < r.out.length ? 0 : 2;
 }
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A team tries speculative decoding with a draft model trained on very different text from its target. The draft’s guesses are rarely accepted. What happens?',
   options: [
@@ -65,9 +68,9 @@ const QUIZ = {
   explanation:
     'The target checks every guess, so the reply never changes; the speed-up depends on how often the draft guesses what the target would write.',
   why: [
-    'The draft only proposes. Every kept token is one the target would have chosen itself.',
-    'Right. Each check still yields at least the target’s own token, so the reply is safe; but with few accepted guesses there is no saving, and the drafting is wasted work.',
-    'The target still reads every weight once per check. Fewer checks is the only saving, and that needs accepted guesses.',
+    'The draft only proposes: every kept token is one the target would have chosen itself.',
+    'Right: each check still yields the target’s own token, but with few accepted guesses the drafting is wasted work.',
+    'The target still reads every weight once per check, so fewer checks is the only saving, and that needs accepted guesses.',
     'A rejected guess is simply replaced by the target’s own token in the same pass, and decoding carries on.',
   ],
 };
@@ -84,21 +87,25 @@ export const STEPS: Step<S>[] = [
     id: 'plain',
     focus: 'run',
     visibleControls: ['run'],
-    narration: `Each decode pass of Larkspur mini writes one token and reads every weight to do it. Write ${N} tokens after “${PROMPT}” the plain way, one pass each.`,
+    narration: 'First the plain way: one decode pass per token.',
+    act: `Write ${N} tokens.`,
+    say: { block: 'server', text: 'One token a pass' },
     predicate: s => !!modelNow('base') && !!modelNow('student') && s.plain,
   },
   {
     id: 'predict',
     focus: 'p1',
     visibleControls: ['run', 'p1'],
-    narration: `${N} tokens, ${N} passes. The student is a much smaller model, trained to copy Larkspur mini. Before it helps:`,
+    narration: `${N} tokens, ${N} passes. The student, a draft model, will guess; Larkspur mini, the target model, checks every guess in one pass.`,
+    act: 'Predict the reply.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'reveal',
     focus: 'run',
     visibleControls: ['p1', 'run'],
-    narration: `Locked in. Let the student draft ${K} tokens at a time.`,
+    narration: 'Your pick is locked. This is speculative decoding.',
+    act: `Let the student draft ${K} at a time.`,
     predicate: s => s.k === K,
   },
   {
@@ -106,7 +113,9 @@ export const STEPS: Step<S>[] = [
     focus: 'k',
     visibleControls: ['out1', 'run', 'k'],
     narration:
-      'Each check is one pass over the prompt, the reply so far and the guesses: Larkspur mini scores every position at once, as in a prefill. It keeps guesses up to the first one it disagrees with, then adds its own token, so the reply is exactly what it writes alone. Now try longer guesses: the longest one.',
+      'A check keeps guesses up to the first it disagrees with, then adds its own token: exactly its solo reply.',
+    act: 'Try the longest guesses.',
+    say: { block: 'draft', text: 'Guesses checked' },
     predicate: s => s.k === KS.at(-1),
   },
   {
@@ -114,7 +123,8 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['k', 'facts', 'quiz'],
     narration:
-      'Longer guesses can save more checks, but each extra guess is less likely to be right, and the student’s drafting is work too. The papers report two to three times faster decoding on big models. One question to finish.',
+      'Longer guesses can save checks, but each extra one is less likely kept: watch the acceptance rate. Drafting costs work too.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Who decides which tokens are kept?',
   },
@@ -243,8 +253,9 @@ export default function GuessAhead() {
       ready={!!modelNow('base') && !!modelNow('student')}
       initial={{ plain: false, p1: null, k: 0, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => (
+      stage={({ state, say }) => (
         <InferenceStage
+          say={say}
           weights={['base', 'student']}
           show={m => {
             const r = state.k ? runAt(m.base!, m.student!, state.k) : null;

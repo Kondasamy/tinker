@@ -13,6 +13,7 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { num } from '../../lib/format';
 import META from '../../../public/data/lm/meta.json' with { type: 'json' };
+import { SERVE_PARTS } from '../../components/scenes/serveScene';
 import { Fact, InferenceStage } from './kit';
 
 const MODULE = 'inference',
@@ -28,16 +29,18 @@ export const ROOM = MEMORY.at(-1)!;
 export const FITS = Math.floor((ROOM * 1e9) / PER_REQUEST);
 /** the requests-in-flight slider */
 export const COUNTS = [1, 2, 4, 8, 12, 16];
+/** the parts the serving floor can call out */
+export const PARTS = SERVE_PARTS;
 const gb = (b: number) => `${(b / 1e9).toFixed(1)} GB`,
   kb = (b: number) => `${num(Math.round(b / 1024))} KB`;
 
-const P1 = {
+export const P1 = {
   question: `Each ${num(OPEN_MODEL.ctx)}-token request holds ${gb(PER_REQUEST)} of cache. The server keeps ${ROOM} GB for the KV cache. How many such requests fit at once?`,
   options: ['Hundreds: the cache is small next to the model', `About ${FITS}`, 'About 50'],
 };
 export const outcomeOf = () => (FITS < 20 && FITS > 4 ? 1 : FITS >= 100 ? 0 : 2);
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'Larkspur doubles the context its assistant may read, from 2,000 tokens to 4,000. On the same server, what happens to the number of long conversations it can hold at once?',
   options: [
@@ -50,10 +53,10 @@ const QUIZ = {
   explanation:
     'The cache grows with the tokens: twice the tokens, twice the cache per conversation, so about half as many fit in the same room.',
   why: [
-    'Right. The cache keeps a key and a value per token per layer, so it grows in step with the length.',
+    'Right: the cache keeps a key and a value per token per layer, so it grows in step with the length.',
     'The cache isn’t the weights: every conversation holds its own, sized by its own tokens.',
     'Longer context makes each conversation bigger, not faster.',
-    'The square is the attention work (Transformers chapter 6). The cache grows in step with the length, not with its square.',
+    'The square is the attention work from Transformers chapter 6, while the cache grows in step with the length.',
   ],
 };
 
@@ -70,29 +73,34 @@ export const STEPS: Step<S>[] = [
     id: 'recap',
     focus: 'recap',
     visibleControls: ['recap'],
-    narration:
-      'In the Transformers module you grew a prompt token by token and watched the KV cache grow: every layer keeps a key and a value for every token, so each new token computes only its own. Count Larkspur mini’s cache for a full window.',
+    narration: 'Every layer keeps a key and a value for every token read: the KV cache.',
+    act: 'Count Larkspur mini’s cache.',
+    say: { block: 'kv', text: 'Keys and values' },
     predicate: s => s.recap,
   },
   {
     id: 'scale',
     focus: 'recap',
     visibleControls: ['recap'],
-    narration: `${kb(MINI_BYTES)}: nothing. Larkspur mini has ${LM.n_layer} layers and a d_model of ${LM.d_model}. The team’s server runs OPT-13B, an open model whose shape is published. Run the same count on it.`,
+    narration: `${kb(MINI_BYTES)}: nothing. The team’s server runs OPT-13B, an open model with a published shape.`,
+    act: 'Run the same count on it.',
     predicate: s => s.scaled,
   },
   {
     id: 'predict',
     focus: 'p1',
     visibleControls: ['recap', 'p1'],
-    narration: `Every customer’s request holds its own cache, as long as it is in flight. Before you fill the server:`,
+    narration: 'Each request in flight holds its own cache in the KV room.',
+    act: 'Predict how many fit.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'reveal',
     focus: 'fill',
     visibleControls: ['p1', 'fill'],
-    narration: 'Locked in. Put requests in flight until the KV shelf is full, then one step past it.',
+    narration: 'Your pick is locked.',
+    act: 'Fill the server until the KV shelf is full, then go one past.',
+    say: { block: 'kv', text: 'One cache each' },
     predicate: s => s.n > FITS,
     hint: `Move the slider past ${FITS} requests.`,
   },
@@ -100,7 +108,9 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out1', 'waste', 'quiz'],
-    narration: `${FITS} full-length requests fill the room: memory, not compute, caps how many customers the server holds at once. The rest wait in the queue until a request finishes and frees its cache. Servers also lose room by reserving cache a reply never uses; PagedAttention was built to stop that. One question to finish.`,
+    narration: `${FITS} full-length requests fill the room: memory, not compute, caps how many the server holds. The rest wait in the queue.`,
+    act: 'One question to finish.',
+    say: { block: 'queue', text: 'Waiting for room' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'How does the cache grow with the number of tokens?',
   },
@@ -114,12 +124,13 @@ export default function KvCacheAtScale() {
       steps={STEPS}
       initial={{ recap: false, scaled: false, p1: null, n: 1, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => {
+      stage={({ state, say }) => {
         const n = state.p1 === null ? 1 : state.n,
           used = n * PER_REQUEST,
           fit = Math.min(n, FITS);
         return (
           <InferenceStage
+            say={say}
             show={() => ({
               scene: {
                 seats: Array.from({ length: Math.max(FITS, n) }, (_, i) => (i < fit ? 'decode' : 'empty')),
@@ -141,7 +152,7 @@ export default function KvCacheAtScale() {
               <tbody>
                 {state.recap && (
                   <tr>
-                    <th scope="row">{`Larkspur mini, ${LM.ctx} tokens`}</th>
+                    <th scope="row">{`Larkspur mini (${LM.n_layer} layers, d_model ${LM.d_model}), ${LM.ctx} tokens`}</th>
                     <td>{kb(MINI_BYTES)}</td>
                   </tr>
                 )}

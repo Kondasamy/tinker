@@ -2,7 +2,8 @@
 // cited for that era (log scale). The learner clicks (or Enter/Space on) the next era to open it.
 import type { KeyboardEvent, MouseEvent } from 'react';
 import IsoStage, { type SceneCtx } from '../../lib/iso/IsoStage';
-import { BH, ACC, boxCorners, glassCase } from '../../lib/iso/blocks';
+import type { Say } from '../story/steps';
+import { BH, ACC, boxCorners, glassCase, sayTag } from '../../lib/iso/blocks';
 import {
   PALS,
   METAL,
@@ -46,12 +47,24 @@ const LOG_MIN = 3,
   LOG_MAX = 7; // 1K … 10M tokens
 const colHeight = (t: number) => COL * Math.min(1, Math.max(0.08, (Math.log10(t) - LOG_MIN) / (LOG_MAX - LOG_MIN)));
 
+const windowsOf = (entries: TimelineEntry[], era: string) =>
+  entries.filter(e => e.era === era && e.contextTokens).map(e => e.contextTokens!);
+
 /** Largest context window cited for an era, if any entry cites one. */
-export const eraWindow = (entries: TimelineEntry[], era: string) =>
-  Math.max(0, ...entries.filter(e => e.era === era && e.contextTokens).map(e => e.contextTokens!));
+export const eraWindow = (entries: TimelineEntry[], era: string) => Math.max(0, ...windowsOf(entries, era));
+
+/** The era's cited windows as a range ("4.1K–200K"): its largest alone would read as typical. */
+export const eraRange = (entries: TimelineEntry[], era: string) => {
+  const w = windowsOf(entries, era),
+    lo = formatTokens(Math.min(...w)),
+    hi = formatTokens(Math.max(...w));
+  return lo === hi ? hi : `${lo}–${hi}`;
+};
 
 /** pills: label size (1 = page size; the share images pass more) */
 interface Props {
+  /** the step's callout (KTD7): `block` is the era's index */
+  say?: Say;
   entries: TimelineEntry[];
   visited: number;
   active: number | null;
@@ -59,7 +72,7 @@ interface Props {
   pills?: number;
 }
 
-export default function Timeline({ entries, visited, active, onPick, pills = 1 }: Props) {
+export default function Timeline({ entries, visited, active, onPick, say, pills = 1 }: Props) {
   const scene = ({ top }: SceneCtx) => {
     const items = ERAS.map((era, i) => {
       const x = X(i),
@@ -91,7 +104,7 @@ export default function Timeline({ entries, visited, active, onPick, pills = 1 }
       }
       s += hullInk(boxCorners(x - H, Y - H, BH, x + H, Y + H, z1), 2.2);
       const what = open
-        ? `${era.label}, ${era.title}${win ? `, context window up to ${formatTokens(win)} tokens` : ''}`
+        ? `${era.label}, ${era.title}${win ? `, context windows of ${eraRange(entries, era.id)} tokens` : ''}`
         : `${era.label}, not opened yet`;
       return {
         at: [x, Y, 0],
@@ -114,7 +127,8 @@ export default function Timeline({ entries, visited, active, onPick, pills = 1 }
       const open = i < visited,
         win = eraWindow(entries, era.id),
         top = BH + PED + (win && open ? colHeight(win) : open ? 9 : 0);
-      return `<g aria-hidden="true" pointer-events="none">${tag([X(i), Y, top], 0, -14, open && win ? `${era.label} · ${formatTokens(win)}` : era.label, i === active, pills)}</g>`;
+      const callout = say?.block === String(i) ? sayTag([X(i), Y, top], say.text, pills) : '';
+      return `<g aria-hidden="true" pointer-events="none">${tag([X(i), Y, top], 0, -14, open && win ? `${era.label} · ${eraRange(entries, era.id)}` : era.label, i === active, pills)}${callout}</g>`;
     }).join('');
     return rail + shadows + byDepth(items) + tags;
   };

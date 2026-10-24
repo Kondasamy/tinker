@@ -145,7 +145,7 @@ test('chapter 6: naive then agentic adds two strip rows with different call coun
   await expect(drawer(page)).toContainText("I don't know.");
 
   // multimodal: the parsers start off; tables, then PDF and image
-  await card(page).getByLabel('Multimodal').click();
+  await card(page).getByLabel('Multimodal', { exact: true }).click();
   await step(page, 16);
   await runAs(page).click();
   const mm = strip(page).locator('tr[data-type="multimodal"]');

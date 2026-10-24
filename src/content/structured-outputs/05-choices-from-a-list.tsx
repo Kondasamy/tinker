@@ -11,6 +11,7 @@ import { shares } from '../../lib/structured-outputs/decode';
 import { RUNS, SCHEMAS, play, run } from '../../lib/structured-outputs/prompts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
+import { STENCIL_PARTS } from '../../components/scenes/stencilScene';
 import { Answer, Fact, PinnedStage, Waiting, pct, useModel, whenLoaded } from './kit';
 
 const MODULE = 'structured-outputs',
@@ -19,6 +20,10 @@ export const FREE = run('free'),
   LIST = run('mask');
 export const DRAWS = RUNS.filter(r => r.id.startsWith('draw-'));
 export const VALUES = SCHEMAS.status.properties.status.enum as string[];
+export const PARTS = STENCIL_PARTS;
+const FREE_CAP = SCHEMAS.free.properties.status.maxLength!;
+/** The order number the prompt names, read off the prompt. */
+const ORDER = Number(/\d+/.exec(LIST.prompt)![0]);
 const statusOf = (model: Model, id: string) => JSON.parse(play(model, run(id)).decoded.text).status as string;
 
 /** Each value's share of probability where the values part ways, on the greedy run. */
@@ -42,15 +47,15 @@ interface S {
 }
 
 const P1 = {
-  question: `Status is now a list: ${VALUES.join(' or ')}. The prompt names order 1042 and nothing else. What decides which value Larkspur mini writes?`,
+  question: `Status is now a list: ${VALUES.join(' or ')}. The prompt names order ${ORDER} and nothing else. What decides which value Larkspur mini writes?`,
   options: [
-    'It works out order 1042’s real status',
+    `It works out order ${ORDER}’s real status`,
     'Its own preference between the two allowed values',
     'It always picks the first value in the list',
   ],
 };
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'Larkspur’s returns form has a field “reason”. As free text the model writes all sorts; as a list (damaged, wrong item, changed mind) it must pick one. What does the list buy?',
   options: [
@@ -63,8 +68,8 @@ const QUIZ = {
   explanation:
     'A list turns a blank into a pick among known values, so every answer is something the program can handle. The pick follows the model’s preference among them; it is only as right as what the model knows.',
   why: [
-    'The list limits what can be written; it adds no knowledge. You saw Larkspur mini pick a status for an order it knows nothing about.',
-    'Right. Every answer becomes one of the values the program expects, which free text never guarantees. Being right is a separate question, chapter 6’s.',
+    'The list limits what can be written and adds no knowledge: you saw Larkspur mini pick a status for an order it knows nothing about.',
+    'Right: every answer becomes one of the values the program expects, which free text never guarantees, and being right is chapter 6’s question.',
     'Under the mask the model can’t ignore the list: tokens outside it are blocked.',
     'Speed isn’t the point, and a pick can take as many tokens as a short free answer.',
   ],
@@ -75,8 +80,9 @@ export const STEPS: Step<S>[] = [
     id: 'free',
     focus: 'free',
     visibleControls: ['free'],
-    narration:
-      'The answers are valid JSON now. Here is the status field as free text, capped at 8 characters: the mask keeps the JSON in shape, but inside the quotes Larkspur mini writes whatever it finds likely. The order system knows two statuses, and this isn’t either.',
+    narration: 'Status as free text: the JSON holds its shape, but inside the quotes it writes anything.',
+    act: 'Make status a list.',
+    say: { block: 'belt', text: 'Not a status' },
     predicate: whenLoaded(s => s.listed),
     hint: 'Press “Make status a list”.',
   },
@@ -84,14 +90,19 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: 'A list, in JSON Schema an enum, turns the blank into a choice. Before you see the pick:',
+    narration: 'A list, in JSON Schema an enum, turns the blank into a choice.',
+    act: 'Predict first.',
+    say: { block: 'plate', text: 'On the list only' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'draw',
     focus: 'draw',
     visibleControls: ['out1', 'shares', 'draw'],
-    narration: `The pick follows the model’s preference: at the step where the values part ways, the allowed tokens split the probability, and the likeliest wins. Picking the likeliest every time is greedy decoding. A draw instead picks at random by those shares. Draw a few times (seeds 1 to ${DRAWS.length}).`,
+    narration:
+      'The pick follows the model’s preference: greedy decoding takes the likeliest value; a draw picks at random by the shares.',
+    act: 'Draw three times.',
+    say: { block: 'belt', text: 'Picked by shares' },
     predicate: s => s.draws >= 3,
     hint: 'Press “Draw again” three times.',
   },
@@ -99,8 +110,8 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['draws', 'quiz'],
-    narration:
-      'Larkspur mini knows nothing about order 1042: its preference comes from its training text, not the order. The list made the answer usable; it didn’t make it true. One question to finish.',
+    narration: `Larkspur mini knows nothing about order ${ORDER}; its preference comes from training text. The list made the answer usable, not true.`,
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Does a list add knowledge, or limit what can be written?',
   },
@@ -128,13 +139,14 @@ export default function ChoicesFromAList() {
       ready={!!model}
       initial={{ listed: false, p1: null, draws: 0, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => (
+      stage={({ state, say }) => (
         <PinnedStage
+          say={say}
           id={!state.listed ? FREE.id : state.draws ? DRAWS[state.draws - 1].id : LIST.id}
           at={state.listed && state.p1 === null ? 0 : 32}
           caption={
             !state.listed
-              ? 'Status as free text, up to 8 characters.'
+              ? `Status as free text, up to ${FREE_CAP} characters.`
               : state.draws
                 ? `Draw ${state.draws}: a random pick by the shares (seed ${DRAWS[state.draws - 1].seed}).`
                 : `Status as a list: ${VALUES.join(' or ')}.`

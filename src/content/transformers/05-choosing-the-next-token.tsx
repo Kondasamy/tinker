@@ -16,6 +16,7 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import META from '../../../public/data/lm/meta.json' with { type: 'json' };
 import '../../components/scenes/scenes.css';
+import { ENGINE_PARTS } from '../../components/scenes/engineScene';
 import { Fact, TransformersStage, Waiting, useModel, whenLoaded, type View } from './kit';
 
 const MODULE = 'transformers',
@@ -23,6 +24,7 @@ const MODULE = 'transformers',
 export const PROMPT = PROMPTS.find(p => p.id === 'delivery')!;
 /** Tokens written per draw. */
 export const STEPS_WRITTEN = 8;
+export const PARTS = ENGINE_PARTS;
 /** The slider positions the chapter starts and reveals at. */
 const T0 = TEMPERATURES.indexOf(0),
   T1 = TEMPERATURES.indexOf(1),
@@ -64,7 +66,7 @@ interface S {
 }
 
 const P1 = {
-  question: 'Next you’ll raise the temperature from 1 to 1.5. What will happen to the bar of next-token probabilities?',
+  question: `Next you’ll raise the temperature from ${tempOf(T1)} to ${tempOf(HOT)}. What will happen to the bar of next-token probabilities?`,
   options: [
     'It flattens: the likeliest token loses some share, the unlikely ones gain',
     'It sharpens: the likeliest token gets even more',
@@ -72,9 +74,8 @@ const P1 = {
   ],
 };
 
-const QUIZ = {
-  question:
-    'Larkspur’s order-status bot must quote the same delivery promise word for word every time. A teammate turns the temperature up to 1.5 “so it sounds less robotic”. What happens?',
+export const QUIZ = {
+  question: `Larkspur’s order-status bot must quote the same delivery promise word for word every time. A teammate turns the temperature up to ${tempOf(HOT)} “so it sounds less robotic”. What happens?`,
   options: [
     'The promise comes out the same, just with friendlier words around it',
     'The replies vary from run to run, and unlikely tokens get picked more often, so the promise can come out wrong',
@@ -85,10 +86,10 @@ const QUIZ = {
   explanation:
     'A higher temperature flattens the probabilities, so the sampler picks unlikely tokens more often. For text that must not change, keep the temperature low (0 always picks the likeliest).',
   why: [
-    'The temperature applies to every token, the promise’s too. You saw the continuation drift off the documents at 1.5.',
-    'Right. Temperature changes the probabilities the sampler draws from; a flatter bar means more surprising tokens, wanted or not.',
-    'Temperature adds no knowledge. It reshapes the same probabilities; the model knows exactly what it knew before.',
-    'Temperature works on its own: you saw the bar flatten with top-p left at 1.',
+    `The temperature applies to every token, the promise’s too, and you saw the text drift off the documents at ${tempOf(HOT)}.`,
+    'Right: a flatter bar means the sampler picks surprising tokens more often, wanted or not.',
+    'Temperature adds no knowledge; it only reshapes the same probabilities.',
+    `Temperature works on its own: you saw the bar flatten with top-p left at ${topOf(P_ALL)}.`,
   ],
 };
 
@@ -101,7 +102,9 @@ export const STEPS: Step<S>[] = [
     id: 'greedy',
     focus: 'write',
     visibleControls: ['write'],
-    narration: `Larkspur mini gives every token a probability. Something still has to pick one. Picking the likeliest every time is called greedy, and it is what a temperature of 0 does. Let it write ${STEPS_WRITTEN} tokens after “${PROMPT.text}”.`,
+    narration: `Something has to pick one token. Always taking the likeliest is greedy: a temperature of ${tempOf(T0)}.`,
+    act: `Write ${STEPS_WRITTEN} tokens.`,
+    say: { block: 'query', text: 'Next after this' },
     predicate: whenLoaded(s => s.drawn),
     hint: 'Press the button. If the model is still loading, wait for the picture to settle.',
   },
@@ -110,7 +113,8 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['p1'],
     narration:
-      'Greedy writes the same thing every time. Most assistants sample instead: they pick at random, in proportion to each token’s probability. The temperature reshapes the probabilities first. Before you move it:',
+      'Greedy repeats itself. Sampling picks at random, in proportion to each token’s probability, and temperature reshapes the probabilities first.',
+    act: 'Predict first.',
     setup: s => ({ ...s, t: T1 }),
     predicate: s => s.p1 !== null,
   },
@@ -118,7 +122,8 @@ export const STEPS: Step<S>[] = [
     id: 'reveal',
     focus: 'reveal',
     visibleControls: ['p1', 'reveal'],
-    narration: 'Locked in. The bar under the attention grid shows the probabilities the sampler draws from.',
+    narration: 'Locked in. The bar under the grid is what the sampler draws from.',
+    act: 'Raise the temperature.',
     predicate: s => s.revealed,
   },
   {
@@ -126,7 +131,8 @@ export const STEPS: Step<S>[] = [
     focus: 'temperature',
     visibleControls: ['out1', 'temperature', 'write'],
     narration:
-      'The model’s raw scores for each token are called logits. Temperature divides them before they become probabilities: below 1 the gaps widen and the bar sharpens, above 1 it flattens. Try other temperatures, and roll a new seed to see another draw at the same setting.',
+      'The model’s raw scores, logits, are divided by the temperature: below 1 the bar sharpens, above 1 it flattens.',
+    act: 'Try other temperatures and seeds.',
     predicate: s => s.temps.length >= TRY_T,
     hint: `Move the temperature slider to ${TRY_T} different settings.`,
   },
@@ -134,8 +140,8 @@ export const STEPS: Step<S>[] = [
     id: 'top-p',
     focus: 'top-p',
     visibleControls: ['temperature', 'top-p', 'write'],
-    narration:
-      'At high temperatures the sampler sometimes picks a token from the long tail, and the text goes off the rails. Top-p cuts the tail first: it keeps only the likeliest tokens whose probabilities add up to p, and draws from those. Lower top-p and watch how many tokens it keeps.',
+    narration: 'Hot draws can pick from the long tail. Top-p cuts it, keeping the likeliest tokens that add up to p.',
+    act: 'Lower top-p.',
     predicate: s => s.tops.length >= TRY_P && s.p !== P_ALL,
     hint: 'Move the top-p slider below 1.',
   },
@@ -143,8 +149,8 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['quiz'],
-    narration:
-      'The seed is why your draws repeat: the same seed and settings always give the same text, here and after a reload. A real assistant draws a new seed each time, which is why the same question can get different replies. One question to finish.',
+    narration: 'The same seed and settings always give the same text. A new seed each time is why replies vary.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What does a higher temperature do to the unlikely tokens?',
   },
@@ -210,8 +216,9 @@ export default function ChoosingTheNextToken() {
         quiz: null,
       }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => (
+      stage={({ state, sync, say }) => (
         <TransformersStage
+          say={say}
           prompt={PROMPT.text}
           view={state.view}
           onView={v => sync({ ...state, view: v })}

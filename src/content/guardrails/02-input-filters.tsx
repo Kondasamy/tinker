@@ -7,8 +7,8 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { guardLanes, guardMessages } from '../../components/scenes/guardSequence';
+import { GUARD_PARTS } from '../../components/scenes/guardScene';
 import { INBOX, INJECTION_SUITE, THRESHOLDS, held, isAttack } from '../../lib/guardrails/loop';
-import { fact } from '../../lib/guardrails/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
@@ -64,27 +64,34 @@ const QUIZ = {
   explanation:
     'A threshold trades attacks held against customers held. Only counting both, over attacks and ordinary messages alike, shows what a setting costs.',
   why: [
-    `In this chapter the threshold that held every attack also held ${nameOf(HELD_CUSTOMER.from)}’s fair refund. A customer who never gets an answer is a failure too.`,
-    'Right. Count both sides: attacks that got through, and real customers held. Those two counts over a fixed set of messages are an eval, and they are how a setting is chosen.',
-    'Scores are never exactly right, and they don’t need to be. A detector is judged by what it holds at a threshold, over attacks and ordinary messages together.',
+    `In this chapter the threshold that held every attack also held ${nameOf(HELD_CUSTOMER.from)}’s fair refund, and a customer who never gets an answer is a failure too.`,
+    'Right: count attacks that got through and real customers held over a fixed set of messages, an eval, and choose the setting from both.',
+    'Scores are never exactly right and needn’t be: a detector is judged by what it holds at a threshold, over attacks and ordinary messages together.',
     `Hiding the setting changes nothing for real customers, and attackers don’t need it: the ${nameOf(LOW.from)} attack scored ${LOW.score} just by reading like an ordinary checklist.`,
   ],
 };
+
+/** The parts of the mail room a step's callout may name. */
+export const PARTS = GUARD_PARTS;
 
 export const STEPS: Step<S>[] = [
   {
     id: 'predict',
     focus: 'p1',
     visibleControls: ['inbox', 'p1'],
-    narration: `Larkspur adds an input filter: a classifier that reads each email before the model does and scores how much it looks like an attack. ${fact('scan-untrusted').claim} Larkspur’s detector here is a stand-in: its scores were set by hand to show the trade-off every real one has. An email that scores at or above the threshold is quarantined: held back, so the model never reads it. The test inbox holds the ${H[OFF].ofAttacks} injection attacks and ${H[OFF].ofCustomers} ordinary customers. Before you score it:`,
+    narration:
+      'A classifier scores each email. At or above the threshold, it goes to quarantine: the model never reads it. Scores here are hand-set.',
+    act: 'Predict first.',
+    say: { block: 'inbox', text: 'Scored first' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'threshold',
     focus: 'threshold',
     visibleControls: ['p1', 'threshold', 'inbox'],
-    narration:
-      'The inbox has its scores now. Move the threshold and watch what it holds: the count below, and the forwarded invoice on the stage. Try at least two thresholds.',
+    narration: 'The inbox has its scores now. Watch the count below and the forwarded invoice on the stage.',
+    act: 'Try at least two thresholds.',
+    say: { block: 'screen', text: 'Scores email' },
     predicate: s => s.tried.filter(i => i !== OFF).length >= 2,
     hint: 'Move the threshold slider to two different settings.',
   },
@@ -92,7 +99,8 @@ export const STEPS: Step<S>[] = [
     id: 'no-winner',
     focus: 'threshold',
     visibleControls: ['out1', 'threshold', 'inbox'],
-    narration: `No threshold wins outright. ${nameOf(HELD_CUSTOMER.from)}’s email about a cracked printer scores ${HELD_CUSTOMER.score}: it is in capitals and in a hurry, so it reads like an order. The ${nameOf(LOW.from)} attack scores ${LOW.score}: its planted line hides in a checklist. Any threshold low enough to hold the one holds the other. Set the highest threshold that still holds every attack.`,
+    narration: `No threshold wins: ${nameOf(HELD_CUSTOMER.from)}’s urgent refund outscores the ${nameOf(LOW.from)} attack, hidden in a checklist.`,
+    act: 'Set the highest threshold that holds every attack.',
     predicate: s => s.t === ALL,
     hint: `Move the slider until it reads ${H[ALL].attacks} of ${H[ALL].ofAttacks} attacks quarantined.`,
   },
@@ -100,7 +108,9 @@ export const STEPS: Step<S>[] = [
     id: 'cost',
     focus: 'open',
     visibleControls: ['threshold', 'inbox', 'open'],
-    narration: `At ${name(THRESHOLDS[ALL])} every attack is held, and so is ${H[ALL].customers} of ${H[ALL].ofCustomers} customers. A real customer the filter holds is a false block. Open ${nameOf(HELD_CUSTOMER.from)}’s email to see what that costs them.`,
+    narration: `At ${name(THRESHOLDS[ALL])} every attack is held, and ${H[ALL].customers} of ${H[ALL].ofCustomers} customers too: a false block.`,
+    act: `Open ${nameOf(HELD_CUSTOMER.from)}’s email.`,
+    say: { block: 'screen', text: 'All attacks held' },
     predicate: s => s.kase === HELD_CUSTOMER.id,
     hint: 'Press the button to open the refund email.',
   },
@@ -108,7 +118,9 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['eval', 'quiz'],
-    narration: `The model never read it. ${nameOf(HELD_CUSTOMER.from)} asked for a fair refund and got no answer at all. Every threshold buys fewer attacks with more customers held, and the two counts are how Larkspur picks one. One question to finish.`,
+    narration: `The model never read it: ${nameOf(HELD_CUSTOMER.from)} got no answer. Both counts over a fixed set are an eval.`,
+    act: 'One question to finish.',
+    say: { block: 'screen', text: 'Held: no answer' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What did the threshold that held every attack cost?',
   },
@@ -164,7 +176,7 @@ export default function InputFilters() {
       steps={STEPS}
       initial={{ p1: null, t: OFF, tried: [], kase: 'invoice', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, inspect }) => {
+      stage={({ state, inspect, say }) => {
         const r = current(state);
         return (
           <GuardStage
@@ -172,6 +184,7 @@ export default function InputFilters() {
             upTo={r.steps.length}
             props={guardProps({ threshold: THRESHOLDS[state.t] })}
             inspect={inspect}
+            say={say}
           />
         );
       }}
@@ -238,6 +251,7 @@ export default function InputFilters() {
             return (
               <>
                 <Messages lanes={guardLanes()} msgs={guardMessages(r)} upTo={r.steps.length} />
+                <Fact id="scan-untrusted" />
                 <Fact id="ninety-five-fails" />
               </>
             );

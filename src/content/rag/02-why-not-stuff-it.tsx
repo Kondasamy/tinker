@@ -6,6 +6,7 @@ import Predict, { Reveal } from '../../components/quiz/Predict';
 import { UNSURE } from '../../lib/recall';
 import ContextOverflow from '../../components/scenes/ContextOverflow';
 import { Source, Answer } from '../../components/scenes/Source';
+import Cite from '../../components/story/Cite';
 import { nextOf } from '../../lib/chapters';
 import {
   BYTES_PER_TOKEN,
@@ -36,7 +37,7 @@ interface S {
 const FIRST_OVER = STOPS.findIndex(overflows);
 const MIDDLE = TIMELINE.find(e => e.sourceUrl.includes('2307.03172'))!;
 
-const QUIZ = {
+export const QUIZ = {
   question: 'Your company holds 5 TB of documents. Why does an assistant still need retrieval?',
   options: [
     'Models cannot read PDF files',
@@ -46,15 +47,15 @@ const QUIZ = {
   correct: 1,
   explanation: 'Retrieval sends only the few passages that matter, fresh, and only those this user may read.',
   why: [
-    'File format is not the problem: PDFs are turned into text before a model reads them. The drive is simply far too big, and size is only one of four problems.',
-    'Right. Size alone rules it out, and even a prompt that fits hides facts in the middle, freezes old versions and shows everyone everything.',
-    'Windows are not free: you pay for every token sent, every time. And a cheap window still cannot hold trillions of tokens.',
+    'File format is not the problem: PDFs become text first, and the drive is simply far too big.',
+    'Right: size alone rules it out, and even a prompt that fits hides facts, freezes old versions and shows everyone everything.',
+    'Windows are not free: you pay for every token sent, and even a cheap window cannot hold trillions of tokens.',
   ],
 };
 
 // Predict, then reveal (R9): the slider shows the outcome, so the stage stays at one document until the pick.
 const PREDICT = {
-  question: `The largest context window holds ${formatTokens(WINDOW)} tokens. Will the whole company drive fit?`,
+  question: `The largest context window, ${LARGEST.model}’s, holds ${formatTokens(WINDOW)} tokens. Will the whole company drive fit?`,
   options: [
     'Yes: that window is huge',
     'No: a real drive overflows it many times over',
@@ -64,12 +65,13 @@ const PREDICT = {
 const OUTCOME = 1;
 
 // Each reason step: one button reveals the next reason; the drawer shows the one just revealed.
-const reasonStep = (id: Reason, opens: string, narration: string): Step<S> => ({
+const reasonStep = (id: Reason, opens: string, narration: string, act: string): Step<S> => ({
   id: `reason-${id}`,
   focus: 'reason',
   visibleControls: ['reason'],
   opensDrawer: opens,
   narration,
+  act,
   predicate: s => s.seen.includes(id),
 });
 
@@ -78,15 +80,16 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'predict',
     visibleControls: ['predict'],
-    narration:
-      'Your team’s obvious fix: paste the whole company drive into the assistant’s prompt. Before you try it, make a prediction.',
+    narration: 'Your team’s obvious fix: paste the whole company drive into the assistant’s prompt.',
+    act: 'Before you try it, make a prediction.',
     predicate: s => s.prediction !== null,
   },
   {
     id: 'ask',
     focus: 'ask',
     visibleControls: ['predict', 'ask'],
-    narration: 'Your pick is locked. The drive is pasted in. Ask the assistant about enterprise refunds.',
+    narration: 'Your pick is locked. The drive is pasted in.',
+    act: 'Ask the assistant about enterprise refunds.',
     predicate: s => s.asked,
   },
   {
@@ -94,8 +97,9 @@ export const STEPS: Step<S>[] = [
     focus: 'corpus',
     visibleControls: ['corpus'],
     opensDrawer: 'answer',
-    narration:
-      'Wrong again. The enterprise policy is on the drive, but the drive did not fit, so the paste was cut off before it. Drag the corpus slider until it overflows the context window.',
+    narration: 'Wrong again. The policy is on the drive, but truncation cut the paste before it.',
+    act: 'Drag the corpus slider past the context window.',
+    say: { block: 'window', text: 'The paste stops here' },
     predicate: s => overflows(STOPS[s.stop]),
     hint: `The window holds ${formatTokens(WINDOW)} tokens, about ${formatBytes(WINDOW * BYTES_PER_TOKEN)} of text. Go past that.`,
   },
@@ -104,28 +108,32 @@ export const STEPS: Step<S>[] = [
     focus: 'corpus',
     visibleControls: ['reveal', 'corpus'],
     opensDrawer: 'numbers',
-    narration: `It already overflows at ${formatBytes(STOPS[FIRST_OVER])}. Real company drives are much bigger. Keep dragging, to 5 TB.`,
+    narration: `It already overflows at ${formatBytes(STOPS[FIRST_OVER])}. Real company drives are much bigger.`,
+    act: 'Keep dragging, to 5 TB.',
+    say: { block: 'corpus', text: 'Already too big' },
     predicate: s => s.stop >= STOP_5TB,
     hint: 'Each notch is 10 times bigger. 5 TB is the ninth notch.',
   },
   reasonStep(
     'middle',
     'numbers',
-    `5 TB is about ${formatTokens(tokensFor(STOPS[STOP_5TB]))} tokens. No model can read that in one go. And size is not the only problem. Open the first of three more reasons.`,
+    `5 TB is about ${formatTokens(tokensFor(STOPS[STOP_5TB]))} tokens. No model reads that in one go, and size is only one problem.`,
+    'Open the next reason.',
   ),
   reasonStep(
     'fresh',
     'middle',
-    'Even text that fits gets used badly: facts in the middle of a long prompt are often missed. Next reason.',
+    'Even text that fits gets used badly: facts lost in the middle of a long prompt are often missed.',
+    'Next reason.',
   ),
-  reasonStep('access', 'fresh', 'A prompt is a snapshot. Documents change every day. Last reason.'),
+  reasonStep('access', 'fresh', 'A prompt is a snapshot. Documents change every day.', 'Last reason.'),
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['quiz'],
     opensDrawer: 'access',
-    narration:
-      'And one prompt for everyone ignores permissions. Retrieval can filter per user. One question to finish.',
+    narration: 'And one prompt for everyone ignores permissions. Retrieval can filter per user.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Think of all four problems: size, the middle, freshness, permissions.',
   },
@@ -145,7 +153,7 @@ export default function WhyNotStuffIt() {
       steps={STEPS}
       initial={{ prediction: null, asked: false, stop: 0, seen: [], quiz: null }}
       next={nextOf(ID)}
-      stage={({ state }) => <ContextOverflow stop={state.stop} />}
+      stage={({ state, say }) => <ContextOverflow stop={state.stop} say={say} />}
       controls={{
         predict: ({ state, apply }) => (
           <Predict {...PREDICT} value={state.prediction} onPredict={i => apply({ ...state, prediction: i })} />
@@ -245,10 +253,7 @@ export default function WhyNotStuffIt() {
                     <dd>
                       ≈ ${((tokens / 1e6) * PRICE.perMillion).toLocaleString('en', { maximumFractionDigits: 2 })} at $
                       {PRICE.perMillion} per million input tokens ({PRICE.model}, price as of {PRICE.asOf}), if it could
-                      fit at all.{' '}
-                      <a href={PRICE.sourceUrl} target="_blank" rel="noreferrer">
-                        {PRICE.sourceTitle}
-                      </a>
+                      fit at all. <Cite title={PRICE.sourceTitle} href={PRICE.sourceUrl} />
                     </dd>
                   </>
                 ) : (

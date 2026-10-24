@@ -3,7 +3,7 @@
 // With no text the press stands idle: head up, no strip, an empty belt. Words only in pills; on phones (scale > 1.5)
 // the pills keep short names and the caption carries the counts.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
-import { BH, boxCorners, esc } from '../../lib/iso/blocks';
+import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
 import {
   PALS,
   METAL,
@@ -21,6 +21,7 @@ import {
 } from '../../lib/iso/core.js';
 import { encode } from '../../lib/lm/bpe';
 import { beltAt } from './officeScene';
+import type { Say } from '../story/steps';
 
 export const TOKEN_BOARD: Board = [0, 0, 240, 120];
 /** The tiles' colours in turn: tile i wears TILE_COLOURS[i % 5], here and in the Tokens tab (as --<name>-l). */
@@ -32,7 +33,11 @@ export interface TokenOpts {
   tokens?: number;
   /** pill size; phones pass more */
   scale?: number;
+  /** the step's callout, over one of TOKEN_PARTS */
+  say?: Say;
 }
+/** The parts a step's callout may name: the strip, the press and the belt of tiles. */
+export const TOKEN_PARTS = ['strip', 'press', 'belt'] as const;
 
 const Y = 60,
   PRESS = 98,
@@ -134,11 +139,15 @@ export const tokenScene = (o: TokenOpts) => (ctx: SceneCtx) => {
   s += byDepth([{ at: [PRESS, Y, 0], svg: press(!st.idle, !st.idle, st.more ? st.shown : null) }, ...tiles]);
   const words = narrow ? 'TEXT' : st.idle ? 'NO TEXT' : `TEXT · “${snippet(o.text)}”`;
   const count = narrow ? 'TOKENS' : `${tokensWord(st.tokens).toUpperCase()}${st.more ? ` · ${st.shown} SHOWN` : ''}`;
+  const end = [TILE0 + (MAX_TILES - 1) * PITCH, Y + 6, BH];
   return (
     s +
     pill([24, Y + 6, BH], narrow ? -14 : -20, narrow ? -34 : 30, words, false, scale) +
     pill([PRESS, Y, BH + 46], 0, -14, 'TOKENIZER', !st.idle, scale) +
-    pill([TILE0 + (MAX_TILES - 1) * PITCH, Y + 6, BH], narrow ? -10 : 0, 30, count, false, scale)
+    pill(end, narrow ? -10 : 0, 30, count, false, scale) +
+    sayAt(o.say, 'strip', [24, Y + 6, BH], narrow ? -34 : 30, scale) +
+    sayAt(o.say, 'press', [PRESS, Y, BH + 46], -14, scale) +
+    sayAt(o.say, 'belt', end, 30, scale)
   );
 };
 

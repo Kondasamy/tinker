@@ -62,7 +62,7 @@ test('chapter 5: every lever, each puzzle broken then solved, meters moving inde
 
   // 1. stale policy: metadata filter
   await expect(card(page).getByRole('slider')).toHaveCount(0);
-  await card(page).getByLabel('Metadata filter').selectOption('current');
+  await card(page).getByLabel('Metadata filter', { exact: true }).selectOption('current');
   await solved(page, 5);
 
   // 2. vague question: query rewrite

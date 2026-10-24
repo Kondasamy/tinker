@@ -14,6 +14,7 @@ import {
   VERSIONS,
   type VersionId,
 } from '../../lib/fine-tuning/engine';
+import { TRAIN_PARTS } from '../../components/scenes/trainScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
@@ -39,7 +40,7 @@ interface S {
   quiz: number | null;
 }
 
-const P1 = {
+export const P1 = {
   question: `The gate: a candidate ships at ${GATE.threshold}% or more, and no question ${BASE} passes may fail. Run ${label('prompted')} and ${label('finetuned')} through it. Which ships?`,
   options: [`Both`, `Only ${label('finetuned')}`, `Only ${label('prompted')}`, 'Neither'],
 };
@@ -49,7 +50,7 @@ export function gateOutcome() {
   return p && f ? 0 : f ? 1 : p ? 2 : 3;
 }
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A team is sure a fine-tune will fix its assistant’s answers. Training is booked for next week. What should happen first?',
   options: [
@@ -62,40 +63,49 @@ const QUIZ = {
   explanation:
     'Without a baseline there is nothing to beat: the same tests, run before and after, are what show whether training helped.',
   why: [
-    'Tests written after training tend to fit what the new model does well. And without a score from before, there is no “improvement” to show.',
-    'Right. Score the shipped version first; then the fine-tune, the prompt change and the better documents are all measured against the same bar.',
-    'Sounding better is what fine-tuning is good at. In this chapter every version signed off, and the gate still held two of them back on facts.',
-    'A fine-tune can forget (chapter 5) and can carry stale facts (chapter 4). It can be worse than where it started.',
+    'Tests written after training tend to fit what the new model does well, and with no score from before there is no improvement to show.',
+    'Right: score the shipped version first, then measure the fine-tune, the prompt change and better documents against the same bar.',
+    'Sounding better is what fine-tuning is good at, yet here every version signed off and the gate still held two back on facts.',
+    'A fine-tune can forget (chapter 5) and carry stale facts (chapter 4), so it can be worse than where it started.',
   ],
 };
+
+/** the bench's parts a callout can point at */
+export const PARTS = TRAIN_PARTS;
 
 export const STEPS: Step<S>[] = [
   {
     id: 'baseline',
     focus: 'baseline',
     visibleControls: ['baseline'],
-    narration: `Before anyone trains again, measure. A baseline is the version a new one is measured against: here ${BASE}, the assistant Larkspur ships. Run it on the ${N} test questions from the Evals module. Its answers are recorded; the key-fact check grades them live.`,
+    narration: `A baseline is what a new version must beat: here ${BASE}, which ships. Its recorded answers are graded live.`,
+    act: `Run it on ${N} test questions.`,
+    say: { block: 'documents', text: 'Ships today' },
     predicate: s => s.base,
   },
   {
     id: 'predict',
     focus: 'p1',
     visibleControls: ['baseScore', 'p1'],
-    narration: `That is the bar. A release gate is the rule that decides, from a test run, whether a candidate ships; this is the one from the Evals module, unchanged. Before you run it:`,
+    narration:
+      'That is the bar. A release gate decides from a test run whether a candidate ships; this is Evals’ own, unchanged.',
+    act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'gate',
     focus: 'gate',
     visibleControls: ['p1', 'gate'],
-    narration: `Run ${label('prompted')} and ${label('finetuned')} through the gate, against ${BASE}.`,
+    narration: `Two candidates, one bar: ${BASE}’s score.`,
+    act: `Run ${label('prompted')} and ${label('finetuned')} through the gate.`,
     predicate: s => s.gated,
   },
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['calls', 'facts', 'quiz'],
-    narration: `Every version signs off in Larkspur’s voice; all three sound right. The gate looks past the voice to the facts, question by question. ${label('finetuned')} also got ${REGRESSED} question${REGRESSED === 1 ? '' : 's'} wrong that ${BASE} gets right, and the no-regressions rule would hold it back for those alone. The cheaper levers won here, measured, before any money went on training. One question to finish.`,
+    narration: `Every version signs off; the gate checks facts. ${label('finetuned')} also broke ${REGRESSED} question${REGRESSED === 1 ? '' : 's'} ${BASE} gets right. The cheaper levers won, measured.`,
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What does a fine-tune need to be measured against?',
   },
@@ -109,8 +119,9 @@ export default function MeasureBeforeYouTrain() {
       steps={STEPS}
       initial={{ base: false, p1: null, gated: false, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => (
+      stage={({ state, sync, say }) => (
         <FineTuneStage
+          say={say}
           view={state.view}
           onView={view => sync({ ...state, view })}
           show={() => ({

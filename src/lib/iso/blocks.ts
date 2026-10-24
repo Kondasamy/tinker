@@ -63,6 +63,7 @@ export interface BlockOpts {
   selected?: boolean; // accent ring on the floor
   lit?: boolean; // retriever lens glows when it found something
   state?: 'ok' | 'warn' | 'bad'; // LLM screen / grader needle
+  pill?: string; // colour of the name pill at rest (the model's verdict)
 }
 
 type Mat = { l: string; m: string; d: string };
@@ -486,7 +487,40 @@ export function blockTag(type: BlockType, o: BlockOpts, scale = 1, even = true):
   // even: every pill floats at the same height (above the tallest block), so neighbours sit in an even row; the
   // leader line still runs down to this block's top. Off for blocks out of the row (the track's side bays).
   const lift = even ? (TALLEST - spec.ht) / (inkK() * scale) : 0;
-  return `<g class="block-tag" data-pick="${type}" aria-hidden="true" pointer-events="none">${tag([o.x, o.y, BH + spec.ht], 0, -16 - lift, text, !!o.selected, scale)}</g>`;
+  return `<g class="block-tag" data-pick="${type}" aria-hidden="true" pointer-events="none">${tag([o.x, o.y, BH + spec.ht], 0, -16 - lift, text, !!o.selected, scale, o.pill)}</g>`;
+}
+
+/** A step's callout (KTD7): a lit pill over a point, above where its name pill sits (dy, as in tag()). */
+export const sayTag = (p3: number[], text: string, scale = 1, dy = -34) =>
+  `<g class="callout" aria-hidden="true" pointer-events="none">${tag(p3, 0, dy, esc(text), true, scale)}</g>`;
+
+/** Whether a step's callout names this part and fits: on phones a callout over 16 characters is dropped, since the
+ * narration already names it. phone defaults to scale > 1, for scenes whose desktop pills are not enlarged. */
+export const sayFits = (say: { block: string; text: string } | undefined, part: string, phone: boolean) =>
+  say?.block === part && (!phone || say.text.length <= 16);
+
+/** A step's callout over a scene part: a row above that part’s name pill, clear of it (pillDy, as passed to tag()). */
+export const sayAt = (
+  say: { block: string; text: string } | undefined,
+  part: string,
+  p3: number[],
+  pillDy: number,
+  scale = 1,
+  phone = scale > 1,
+) => (say && sayFits(say, part, phone) ? sayTag(p3, say.text, scale, pillDy - 24) : '');
+
+/** A scene's pill layer with any callout moved to the end, so no name pill drawn after it can hide it. */
+export const calloutsLast = (pills: string[]) =>
+  [
+    ...pills.filter(p => !p.startsWith('<g class="callout"')),
+    ...pills.filter(p => p.startsWith('<g class="callout"')),
+  ].join('');
+
+/** A block's callout, two rows above the even row of name pills, so it clears its neighbours' names and the
+ * side bays' lower pills. */
+export function calloutTag(type: BlockType, x: number, y: number, text: string, scale = 1): string {
+  const lift = (TALLEST - BLOCKS[type].ht) / (inkK() * scale);
+  return sayTag([x, y, BH + BLOCKS[type].ht], text, scale, -64 - lift);
 }
 
 // Shadow of a block on the board; draw all shadows before the blocks. clip = boardTop(...) so it stops at the edge.

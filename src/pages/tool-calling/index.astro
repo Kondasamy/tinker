@@ -11,7 +11,7 @@ import { OFFICE_BOARD, officeScene, officeLabel } from '../../components/scenes/
 import { SEQ_LANES, SEQ_MSGS, CALL, ANSWER } from '../../components/scenes/toolSequence';
 import { RECORDINGS } from '../../lib/tools/turns';
 import { ORDERS, TOOLS, SERVERS } from '../../lib/tools/server';
-import { fact, ACCESSED } from '../../lib/tools/facts';
+import { fact } from '../../lib/tools/facts';
 import { moduleOf, chapterHref } from '../../lib/modules';
 import { TOOL_CALLING } from '../../lib/pages';
 import Recap from '../../components/quiz/Recap';
@@ -71,7 +71,6 @@ const STEPS: [string, string, ReturnType<typeof fact>, [number, number, number, 
     countScene({ apps: 1, systems: 2, mcp: true, scale: 1.6 }),
   ],
 ];
-const checked = longDate(ACCESSED);
 
 // real requests from the recorded scenarios, and what makes each one hard
 const HARD: [string, string][] = [
@@ -149,7 +148,7 @@ const FACTS: [string, string][] = [
               <h3><span class="n">{i + 1}</span> {name}</h3>
               <p class="cap">{short}</p>
               <p class="more">{f.claim}</p>
-              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
             </li>
           ))}
         </ol>

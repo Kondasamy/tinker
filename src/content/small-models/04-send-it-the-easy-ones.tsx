@@ -19,8 +19,10 @@ import { units } from '../../components/scenes/frontierChart';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
+import { ROUTER_PARTS } from '../../components/scenes/routerScene';
 import { Fact, SmallStage, TierAnswer, type View } from './kit';
 
+export const PARTS = ROUTER_PARTS;
 const MODULE = 'small-models',
   ID = '04-send-it-the-easy-ones';
 const SMALL = run(ALL_SMALL),
@@ -52,7 +54,7 @@ export const P1 = {
 };
 export const tierOutcome = (small: number, large: number) => (small >= large ? 0 : small >= large / 2 ? 1 : 2);
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A bank’s assistant gets “What time does the Elm Street branch open?” and “Can I dispute this charge under clause 7 if I paid by transfer?”. Which suits a small tier?',
   options: [
@@ -65,7 +67,7 @@ const QUIZ = {
   explanation:
     'Lookups of one stated fact are where a small tier matches a large one; rules with exceptions and multi-step questions are where it slips.',
   why: [
-    'Right. One line, one fact: the small tier’s strength. The dispute needs weighing a rule against an exception.',
+    'Right: one stated fact suits the small tier, while the dispute needs weighing a rule against an exception.',
     'Savings follow the number of questions sent small; a wrong answer to a dispute costs far more than it saves.',
     'Paying large prices for lookups the small tier gets right is waste.',
     'The same documents, read less well: telling an exception from a rule is where small models slip.',
@@ -77,22 +79,26 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['price', 'p1'],
-    narration: `Larkspur’s assistant comes in two tiers: a small model and a large one, both reading the same retrieved documents. A small answer costs ${units(SMALL_COST)} of a large one, from a real price list below; from here on costs are in large answers (1 each). The tiers are illustrations written for this site, not measured models. Before you run them:`,
+    narration: `Relative cost: a small answer is ${units(SMALL_COST)} of a large one, by a dated price pair. Both tiers are illustrations.`,
+    act: 'Predict first.',
+    say: { block: 'small', text: 'Cheaper tier' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'run',
     focus: 'run',
     visibleControls: ['p1', 'run'],
-    narration:
-      'Run all the questions through both tiers. The answers were written ahead of time and recorded; the key-fact check from the Evals module grades them live.',
+    narration: 'The answers were recorded ahead of time; the Evals module’s key-fact check grades them live.',
+    act: 'Run all the questions on both tiers.',
     predicate: s => s.ran,
   },
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['rows', 'quiz'],
-    narration: `The small tier gets ${SMALL.right} of ${N} right for ${units(SMALL.cost)}; the large tier ${LARGE.right} for ${units(LARGE.cost)}. Lookups of one stated fact go fine. It slips where a question is vague, needs two hops, or meets two documents that disagree, and some of those wrong answers sound sure. One question to finish.`,
+    narration: `Small: ${SMALL.right} of ${N} right for ${units(SMALL.cost)}. Large: ${LARGE.right} for ${units(LARGE.cost)}. Lookups pass; vague, two-hop or conflicting questions trip it.`,
+    act: 'One question to finish.',
+    say: { block: 'small', text: 'Slips on tricky' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which question is answered by one stated line?',
   },
@@ -106,8 +112,9 @@ export default function SendItTheEasyOnes() {
       steps={STEPS}
       initial={{ p1: null, ran: false, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => (
+      stage={({ state, sync, say }) => (
         <SmallStage
+          say={say}
           view={state.view}
           onView={view => sync({ ...state, view })}
           show={() => ({

@@ -19,6 +19,8 @@ import { RECORDING } from '../../lib/sandboxing/turns';
 import { fact } from '../../lib/sandboxing/facts';
 import { openMessage, useNarrow } from '../tool-calling/kit';
 import './sandboxing.css';
+import Cite from '../../components/story/Cite';
+import type { Say } from '../../components/story/steps';
 
 export { Chips, Group } from '../agents/kit';
 
@@ -45,6 +47,7 @@ export function SandboxStage({
   inspect,
   view: kept,
   onView,
+  say: callout,
 }: {
   run: Run;
   upTo: number;
@@ -52,6 +55,8 @@ export function SandboxStage({
   inspect: (panel: string, sheet?: boolean) => void;
   view?: View;
   onView?: (v: View) => void;
+  /** the step's callout, drawn over a part of the picture (SANDBOX_PARTS) */
+  say?: Say;
 }) {
   const [own, setOwn] = useState<View>('scene');
   const view = kept ?? own,
@@ -60,7 +65,7 @@ export function SandboxStage({
   const msgs = useMemo(() => sandboxMessages(run), [run]),
     lanes = useMemo(() => sandboxLanes(), []);
   const shown = Math.min(upTo, msgs.length),
-    opts: SandboxOpts = { ...props, run, upTo: shown, scale };
+    opts: SandboxOpts = { ...props, run, upTo: shown, scale, say: callout };
   const m = msgs[shown - 1],
     name = (id: string) => lanes.find(l => l.id === id)?.name ?? id;
   return (
@@ -107,11 +112,7 @@ export function Fact({ id }: { id: string }) {
   const f = fact(id);
   return (
     <p className="tc-fact">
-      {f.claim}{' '}
-      <a className="source" href={f.source} target="_blank" rel="noreferrer">
-        Source: {new URL(f.source).hostname}
-      </a>{' '}
-      (checked {f.accessed})
+      {f.claim} <Cite title={new URL(f.source).hostname} href={f.source} checked={f.accessed} />
     </p>
   );
 }
@@ -143,6 +144,10 @@ export function Files() {
           <strong>{f.path}</strong> — {f.label}
         </p>
       ))}
+      <p>
+        This sandbox is a model: the files are fixtures, the token is a stand-in, and no real code runs. The agent’s
+        turns are recorded; the sandbox’s checks run in your browser.
+      </p>
     </div>
   );
 }

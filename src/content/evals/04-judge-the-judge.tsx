@@ -24,6 +24,9 @@ import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { Chips } from '../agents/kit';
 import { EvalStage, Fact, Mark, WithSuite, suiteNow, useSuite, type Shown, type Suite } from './kit';
+import { EVAL_PARTS } from '../../components/scenes/evalScene';
+
+export const PARTS = EVAL_PARTS;
 
 const MODULE = 'evals',
   ID = '04-judge-the-judge';
@@ -119,10 +122,10 @@ const QUIZ = {
   correct: 1,
   explanation: fact('swap-orders').claim,
   why: [
-    'Reading both doesn’t stop it favouring the one it read first. Here the new reply was always first, so position alone could explain the wins.',
-    `Right. ${fact('swap-orders').claim}`,
-    'An explanation is written after the pick, and reads as reasonable either way. The swapped run showed the same judge give a reason for each winner.',
-    `That adds a second bias. ${fact('verbosity-bias').claim}`,
+    'Reading both doesn’t stop it favouring the one it read first, and here the new reply was always first.',
+    'Right: judging both orders, and counting only the wins that hold, shows whether position decided them.',
+    'An explanation is written after the pick and reads as reasonable either way, as the swapped run showed.',
+    `That adds a second bias: ${fact('verbosity-bias').claim}`,
   ],
 };
 
@@ -132,22 +135,26 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['p1'],
     narration:
-      'The model judge is cheap and fast, but is it right? The team labelled every answer the first three versions gave: a person read each one and marked it pass or fail. That mark is a label. Agreement is how often the judge’s verdict matches the label. Before you run the judge over them:',
+      'Every answer the team checked carries a person’s label, pass or fail. Agreement is how often the judge’s verdict matches it.',
+    act: 'Predict first.',
+    say: { block: 'tests', text: 'Labelled answers' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'run-r1',
     focus: 'run',
     visibleControls: ['p1', 'run'],
-    narration:
-      'Run the judge over every labelled answer. The Results tab lists each answer with the person’s verdict and the judge’s.',
+    narration: 'The Results tab lists each answer with the person’s verdict and the judge’s.',
+    act: 'Run the judge over every labelled answer.',
     predicate: s => s.ran && !!suiteNow(),
   },
   {
     id: 'rubric',
     focus: 'rubric',
-    visibleControls: ['out1', 'agree', 'rubric'],
-    narration: `The judge passed answers the people failed: made-up policies that sound sure of themselves. Its rubric only asked how the answer sounds. The team rewrites it. Rubric r2: “${RUBRICS.r2}” Switch the judge to r2.`,
+    visibleControls: ['out1', 'agree', 'r2', 'rubric'],
+    narration: 'The judge passed sure-sounding made-up policies: r1 only asks how an answer sounds. The team wrote r2.',
+    act: 'Switch the judge to r2.',
+    say: { block: 'fail', text: 'They disagree' },
     predicate: s => s.rubric === 'r2',
     hint: 'Press “Rubric r2”.',
   },
@@ -156,7 +163,9 @@ export const STEPS: Step<S>[] = [
     focus: 'disagree',
     visibleControls: ['agree', 'disagree'],
     narration:
-      'Agreement rose. A few answers still split the judge and the people. Agreement treats the people as right, but people make mistakes too. Read each one against its reference answer, and find the one where the judge was wrong.',
+      'Agreement rose; a few answers still split. People make mistakes too, so read each against its reference.',
+    act: 'Find the one where the judge was wrong.',
+    say: { block: 'fail', text: 'Still split' },
     predicate: s => {
       const suite = suiteNow();
       return !!suite && disagreements(suite, 'r2').some(l => l.key === s.pick && judgeWrong(l));
@@ -172,14 +181,16 @@ export const STEPS: Step<S>[] = [
     focus: 'p2',
     visibleControls: ['found', 'pair', 'p2'],
     narration:
-      'So the labels get checked too. A judge can also compare. In side-by-side grading it sees two answers to the same question and picks the better one. Here A is v1’s answer and B is v2’s, A shown first, under rubric r2.',
+      'Labels get checked too. In side-by-side grading the judge picks the better of two answers; here A is shown first.',
+    act: 'Predict the swap.',
     predicate: s => s.p2 !== null,
   },
   {
     id: 'swap',
     focus: 'swap',
     visibleControls: ['pair', 'p2', 'swap'],
-    narration: 'Swap the order: B first, A second. Nothing else changes.',
+    narration: 'Nothing else changes: the same answers, the same rubric.',
+    act: 'Swap the order: B first.',
     predicate: s => s.swapped,
   },
   {
@@ -187,7 +198,8 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['out2', 'pair', 'pairs', 'quiz'],
     narration:
-      'The answers didn’t change, only their order. A judge that picks by position is not grading the answers. The fix is to judge every pair both ways, and count a win only when it holds. One question to finish.',
+      'Same answers, new order, new winner: position bias. The fix is judging both ways; a win counts only if it holds.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which choice would show whether the order decided the wins?',
   },
@@ -410,7 +422,7 @@ export default function JudgeTheJudge() {
       steps={STEPS}
       initial={{ p1: null, ran: false, rubric: 'r1', pick: null, p2: null, swapped: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => <EvalStage show={show(state)} />}
+      stage={({ state, say }) => <EvalStage show={show(state)} say={say} />}
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         run: ({ state, sync }) => (
@@ -439,6 +451,11 @@ export default function JudgeTheJudge() {
             name={v => `Rubric ${v}`}
             pick={v => apply({ ...state, rubric: v })}
           />
+        ),
+        r2: () => (
+          <p className="tc-def">
+            <span className="lbl">Rubric r2</span> “{RUBRICS.r2}”
+          </p>
         ),
         disagree: ({ state, apply }) => <Disagree s={state} apply={apply} />,
         found: ({ state }) => (

@@ -13,6 +13,9 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Chips, Group } from '../agents/kit';
 import { EvalStage, Fact, WithSuite, suiteNow, useSuite, type Shown, type Suite, type View } from './kit';
+import { EVAL_PARTS } from '../../components/scenes/evalScene';
+
+export const PARTS = EVAL_PARTS;
 
 const MODULE = 'evals',
   ID = '07-release-day';
@@ -54,9 +57,9 @@ const QUIZ = {
   explanation: `A gate is only as good as what grades it and how often each case runs. ${fact('pass-hat-k').claim}`,
   why: [
     'A higher bar doesn’t help if the grader passes bad answers: rubric r1 passed every answer from the model with no documents.',
-    `Right. An unchecked judge can pass made-up answers, and one run can pass a flaky case. ${fact('pass-hat-k').claim}`,
-    'Both numbers come from one run graded by an unchecked judge. A flaky case or a lenient rubric can clear them.',
-    'That rule is what caught v2 breaking a question v1 answered. Without it, a higher total hides the break.',
+    'Right: an unchecked judge can pass made-up answers, and one run can pass a flaky case.',
+    'Both numbers come from one run graded by an unchecked judge, which a flaky case or a lenient rubric can clear.',
+    'That rule is what caught v2 breaking a question v1 answered, which a higher total would hide.',
   ],
 };
 
@@ -65,7 +68,8 @@ export const STEPS: Step<S>[] = [
     id: 'gate',
     focus: 'gate',
     visibleControls: ['bench', 'gate', 'decision'],
-    narration: `Release day. ${base} is what Larkspur ships today: the baseline, the version every candidate is compared against. A release gate is the rule that decides whether a candidate ships. This one has a threshold, the pass rate a candidate must reach, and a rule that no question ${base} passed may fail. It starts at 50% with that rule off, so v2 ships, though chapter 1 showed it breaks a question. Set the gate so it ships v3 and blocks v2.`,
+    narration: `${base} is the baseline. This release gate ships any candidate reaching its threshold, so v2 ships despite its regression.`,
+    act: 'Make it ship v3, block v2.',
     predicate: s => {
       const suite = suiteNow();
       return !!suite && solved(suite, s);
@@ -77,7 +81,8 @@ export const STEPS: Step<S>[] = [
     id: 'judge',
     focus: 'bench',
     visibleControls: ['bench', 'gate', 'decision'],
-    narration: `Your gate blocks v2 and ships v3. But a gate trusts its grader. Chapter 3’s judge, under rubric r1, passed a made-up policy. Make it the grader, and pick v0: the model alone, with no documents.`,
+    narration: 'A gate trusts its grader, and chapter 3’s judge, under rubric r1, passed a made-up policy.',
+    act: 'Grade with it, and pick v0: no documents.',
     predicate: s => s.grader === 'r1' && s.version === 'v0',
     hint: 'Pick “v0” and “Model judge, rubric r1”.',
     solution: s => ({ ...s, grader: 'r1', version: 'v0' }),
@@ -87,7 +92,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['bench', 'gate', 'decision', 'once', 'quiz'],
     narration:
-      'Rubric r1 passes every answer the model gives with no documents, so no bar stops v0. A gate is only as good as its grader: check the judge against people first, as chapter 4 did. Try other settings; the bench is yours. One question to finish.',
+      'Rubric r1 passes every no-documents answer, so no threshold stops v0. Check the judge against people first. The bench is yours.',
+    act: 'One question to finish.',
+    say: { block: 'board', text: 'v0 ships' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What did chapters 4 and 6 check before trusting a pass?',
   },
@@ -162,8 +169,8 @@ export default function ReleaseDay() {
       steps={STEPS}
       initial={{ version: 'v2', grader: 'verdict', threshold: BARS[0], noRegressions: false, view: 'grid', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => (
-        <EvalStage show={show(state)} view={state.view} onView={view => sync({ ...state, view })} />
+      stage={({ state, sync, say }) => (
+        <EvalStage show={show(state)} view={state.view} onView={view => sync({ ...state, view })} say={say} />
       )}
       controls={{
         // picking what to look at is never a miss; changing the gate is an attempt only in the puzzle step

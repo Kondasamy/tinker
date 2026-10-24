@@ -20,8 +20,10 @@ import { units } from '../../components/scenes/frontierChart';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
+import { ROUTER_PARTS } from '../../components/scenes/routerScene';
 import { Fact, SmallStage, TierAnswer, type View } from './kit';
 
+export const PARTS = ROUTER_PARTS;
 const MODULE = 'small-models',
   ID = '05-fall-back-when-unsure';
 const POINTS = frontier(),
@@ -54,7 +56,7 @@ export function riseOutcome() {
   return t.at(-1)!.cost < t[0].cost ? 1 : 2;
 }
 
-const QUIZ = {
+export const QUIZ = {
   question: 'A team’s router sends answers up below confidence 0.8. A wrong answer scored 0.85. What happens to it?',
   options: [
     'It reaches the customer: the router sees the score, not whether the answer is right',
@@ -66,8 +68,8 @@ const QUIZ = {
   explanation:
     'A confidence score is not a correctness check. Answers that are wrong and sure pass any threshold below their score; only an eval finds them.',
   why: [
-    'Right. Above the threshold, an answer goes out as it is.',
-    'The router never knows the right answer. It reads the score.',
+    'Right: above the threshold, an answer goes out as it is.',
+    'The router never knows the right answer; it reads only the score.',
     'In a cascade the large tier answers only what is sent up.',
     'Answers over the threshold are sent, right or wrong.',
   ],
@@ -79,15 +81,18 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['about', 'p1'],
     narration:
-      'The router asks the small tier first. Each small answer comes with a confidence score, and below the threshold the question goes up to the large tier, which answers it instead. Here the scores are stand-in numbers set by hand for this site, to show the trade-off; a real system computes them. Before you move the threshold:',
+      'Small answers carry a confidence score; below the threshold, they go up. These are stand-ins set by hand; real systems compute them.',
+    act: 'Predict first.',
+    say: { block: 'router', text: 'Reads the score' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'slide',
     focus: 'slide',
     visibleControls: ['p1', 'slide'],
-    narration:
-      'Step the threshold from 0 up to 1 and watch the chart. An answer that goes up pays twice: for the small try, then for the large answer.',
+    narration: 'This router is a cascade: an answer sent up pays twice, for the small try and the large answer.',
+    act: 'Slide the threshold up to 1.',
+    say: { block: 'big', text: 'Pays twice' },
     predicate: s => s.top,
     hint: 'Move the slider all the way to 1.',
   },
@@ -95,7 +100,9 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['slide', 'read', 'quiz'],
-    narration: `Right answers climb as unsure answers go up; cost climbs with them. At 1 every answer goes up, and the router costs ${units(run({ threshold: 1 }).cost)} for the same answers all-large gives for ${units(LARGE.cost)}. Somewhere between is a setting that keeps most of the answers for much less. These tiers and this frontier illustrate what the cascade and router papers below report; they were written for this site, not measured. Watch one answer, too: it is wrong and sure, so it stays small until the threshold passes its score. One question to finish.`,
+    narration: `On the frontier, right answers and cost climb; at 1 it costs ${units(run({ threshold: 1 }).cost)}, all-large ${units(LARGE.cost)}. A sure, wrong answer stays small.`,
+    act: 'One question to finish.',
+    say: { block: 'small', text: 'Sure and wrong' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What does the router read: the score, or the answer’s truth?',
   },
@@ -109,12 +116,13 @@ export default function FallBackWhenUnsure() {
       steps={STEPS}
       initial={{ p1: null, t: 0, top: false, view: 'chart', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => {
+      stage={({ state, sync, say }) => {
         const t = thresholdAt(state.t),
           r = run({ threshold: t }),
           f = route(FEATURED, { threshold: t });
         return (
           <SmallStage
+            say={say}
             view={state.view}
             onView={view => sync({ ...state, view })}
             show={() => ({
@@ -160,6 +168,10 @@ export default function FallBackWhenUnsure() {
           <>
             <Outcome {...P1} prediction={state.p1} outcome={riseOutcome()} />
             <TierAnswer tier="small" question={FEATURED} />
+            <p className="note">
+              The tiers and this frontier were written for this site to illustrate what the cascade and router papers
+              report, not measured.
+            </p>
             <Fact id="routellm" />
           </>
         ),

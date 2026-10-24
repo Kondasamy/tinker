@@ -145,7 +145,7 @@ export const RECALL: RecallItem[] = [
   {
     id: 'rule-of-thumb',
     chapter: '03-tokens-are-the-meter',
-    question: 'A product manager plans a budget with “1 token ≈ 4 characters”. When is that good enough?',
+    question: `A product manager plans a budget with “1 token ≈ ${fact('openai-rule').value} characters”. When is that good enough?`,
     options: [
       'Always: it is how tokenizers are built',
       'For a rough plan for English text; for a real bill or a tight limit, count with the actual tokenizer',

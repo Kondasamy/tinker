@@ -13,6 +13,7 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { pieceLabel } from '../../components/scenes/attentionMap';
 import META from '../../../public/data/lm/meta.json' with { type: 'json' };
+import { ENGINE_PARTS } from '../../components/scenes/engineScene';
 import { Fact, TransformersStage, Waiting, useModel, whenLoaded } from './kit';
 
 const MODULE = 'transformers',
@@ -24,6 +25,7 @@ const IDS = encode(PROMPT.text),
 /** Where the piece sits in the prompt: two places (a test holds that). */
 export const COPIES = IDS.flatMap((id, t) => (id === PIECE_ID ? [t] : []));
 const LM = META.model;
+export const PARTS = ENGINE_PARTS;
 const W = `“${PIECE.trim()}”`;
 
 const row = (m: Model, name: string, r: number) =>
@@ -94,7 +96,7 @@ const P1 = {
   ],
 };
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'Two prompts: “refund the order, not the shipping” and “refund the shipping, not the order”. Same tokens, different order. Suppose the model had no position rows. What would the vectors it starts from say about which word came first?',
   options: [
@@ -106,9 +108,9 @@ const QUIZ = {
   explanation:
     'A token’s row in the embedding table is the same wherever it sits. Only the position row, added to it, puts the place into the numbers the model starts from.',
   why: [
-    'Right. The embedding table has one row per token, not per place. Adding a position’s row is what makes “order” in third place start from different numbers than “order” in fifth.',
-    `You saw ${W} look up one row for both copies: the token row holds no place. The difference came only from the position rows.`,
-    'Nothing mixes tokens before the model starts: each starts from its own row. Tokens read each other only later, in attention (chapter 3).',
+    'Right: the table has one row per token, not per place, so only the added position row tells two places apart.',
+    `You saw ${W} look up one row for both copies, so the difference came only from the position rows.`,
+    'Nothing mixes tokens before the model starts; they read each other only later, in attention (chapter 3).',
   ],
 };
 
@@ -117,7 +119,9 @@ export const STEPS: Step<S>[] = [
     id: 'look',
     focus: 'look',
     visibleControls: ['look'],
-    narration: `To the model, a token is only an id, and an id is no use for arithmetic. So the first thing Larkspur mini does is swap each id for a vector: a list of ${LM.d_model} numbers. It keeps a table with one row per token in its vocabulary, ${LM.vocab} rows, learned in training. That row is the token’s embedding. Look one up.`,
+    narration: `Larkspur mini swaps each id for a vector of ${LM.d_model} numbers: a row of its table, the token’s embedding.`,
+    act: 'Look one up.',
+    say: { block: 'query', text: 'This token' },
     predicate: whenLoaded(s => s.looked),
     hint: 'Press the button. If the model is still loading, wait for the picture to settle.',
   },
@@ -125,21 +129,27 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['row', 'p1'],
-    narration: `That strip is ${W}’s embedding, one cell per number (warm above zero, cool below). The picture shows a longer prompt from Larkspur’s guides. Before you look closer:`,
+    narration: `That strip is ${W}’s embedding: warm cells above zero, cool below. ${W} sits in this prompt twice.`,
+    act: 'Predict first.',
+    say: { block: 'query', text: 'First copy' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'reveal',
     focus: 'reveal',
     visibleControls: ['p1', 'reveal'],
-    narration: 'Locked in. See what the model starts from for each copy.',
+    narration: 'Locked in.',
+    act: 'Show what each copy starts from.',
     predicate: s => s.revealed,
   },
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out1', 'sums', 'quiz'],
-    narration: `Both copies look up the same token row. Then the model adds a second row from a position table, one row per place in its ${LM.ctx}-token window, and the sums differ. That is the position embedding: without it, the model would read a prompt as a bag of tokens with no order. One question to finish.`,
+    narration:
+      'Same token row, plus a different position row: the position embedding. Without it, a prompt would be a bag of tokens.',
+    act: 'One question to finish.',
+    say: { block: 'query', text: 'Second copy' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Does a token’s row in the embedding table say where the token sits?',
   },
@@ -155,8 +165,9 @@ export default function TokensBecomeVectors() {
       ready={!!model}
       initial={{ looked: false, p1: null, revealed: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => (
+      stage={({ state, say }) => (
         <TransformersStage
+          say={say}
           prompt={PROMPT.text}
           query={COPIES[state.revealed ? 1 : 0]}
           caption={`${W} is token ${COPIES[0] + 1} and token ${COPIES[1] + 1}. Numbers from Larkspur mini’s own weights.`}

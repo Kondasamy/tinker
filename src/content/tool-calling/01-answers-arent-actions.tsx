@@ -13,6 +13,7 @@ import { longDate } from '../../lib/format';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Fact, Messages, ToolStage } from './kit';
+import { OFFICE_PARTS } from '../../components/scenes/officeScene';
 
 const MODULE = 'tool-calling',
   ID = '01-answers-arent-actions';
@@ -43,7 +44,9 @@ const PREDICT = {
 // the recorded turn calls no tool and answers anyway: a guess
 const OUTCOME = 1;
 
-const QUIZ = {
+export const PARTS = OFFICE_PARTS;
+
+export const QUIZ = {
   question: `For the assistant to know where order ${ORDER_ID} really is, who has to run the lookup?`,
   options: [
     'The model, by reaching into the order system itself',
@@ -54,10 +57,10 @@ const QUIZ = {
   correct: 1,
   explanation: fact('app-executes').claim,
   why: [
-    'A model has no way to reach anything. It reads text in and writes text out.',
-    `Right. ${fact('app-executes').claim}`,
+    'A model has no way to reach anything: it reads text in and writes text out.',
+    'Right: the model only asks, and the software around it runs the lookup and sends the result back.',
     'Size does not help: order statuses change every hour and were never in any training data.',
-    'Documents go stale. A copy of the order list is old the moment it is made; the order system is live.',
+    'Documents go stale: a copy of the order list is old the moment it is made, while the order system is live.',
   ],
 };
 
@@ -66,22 +69,26 @@ export const STEPS: Step<S>[] = [
     id: 'ask',
     focus: 'ask',
     visibleControls: ['ask'],
-    narration:
-      'This is the Larkspur assistant you built in the RAG module. A support lead has a customer on the phone and types a question about an order.',
+    narration: 'A support lead has a customer on the phone and asks the assistant about an order.',
+    act: 'Ask the question.',
+    say: { block: 'model', text: 'No tools yet' },
     predicate: s => s.asked,
   },
   {
     id: 'predict',
     focus: 'predict',
     visibleControls: ['predict'],
-    narration: `The question has reached the model. On the right is the order system, which knows the live status of order ${ORDER_ID}. No wire joins the two. Before you look:`,
+    narration: `The question reached the model. The order system knows where order ${ORDER_ID} is, but no wire joins the two.`,
+    act: 'Predict first.',
+    say: { block: 'orders', text: 'Not connected' },
     predicate: s => s.prediction !== null,
   },
   {
     id: 'reveal',
     focus: 'reveal',
     visibleControls: ['predict', 'reveal'],
-    narration: 'Locked in. Now see what the model sends back.',
+    narration: 'Locked in.',
+    act: 'See what the model sends back.',
     predicate: s => s.revealed,
   },
   {
@@ -89,7 +96,9 @@ export const STEPS: Step<S>[] = [
     focus: 'look',
     visibleControls: ['reveal', 'look'],
     opensDrawer: 'messages',
-    narration: `“${GUESS}” It sounds helpful, but it is a guess: no message ever went to the order system. Check the real record yourself.`,
+    narration: 'It sounds helpful, but it is a guess: no message ever reached the order system.',
+    act: 'Check the real record yourself.',
+    say: { block: 'model', text: 'A guess' },
     predicate: s => s.looked,
   },
   {
@@ -97,7 +106,8 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['quiz'],
     opensDrawer: 'order',
-    narration: `Order ${ORDER_ID} was ${ORDER.status} on ${longDate(ORDER.delivered!)}. The model could not know: it only writes text. To act, something outside the model has to run the lookup. One question to finish.`,
+    narration: `Order ${ORDER_ID}: ${ORDER.status} on ${longDate(ORDER.delivered!)}. The model only writes text: to act, it needs a tool other software runs.`,
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'The model writes text. Who can actually open the order system?',
   },
@@ -113,8 +123,8 @@ export default function AnswersArentActions() {
       steps={STEPS}
       initial={{ asked: false, prediction: null, revealed: false, looked: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, inspect }) => (
-        <ToolStage lanes={LANES} msgs={MSGS} upTo={upTo(state)} inspect={inspect} office={{ tools: 0 }} />
+      stage={({ state, inspect, say }) => (
+        <ToolStage lanes={LANES} msgs={MSGS} upTo={upTo(state)} inspect={inspect} office={{ tools: 0 }} say={say} />
       )}
       controls={{
         ask: ({ state, apply }) => (

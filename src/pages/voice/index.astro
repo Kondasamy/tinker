@@ -15,7 +15,7 @@ import { SILENCES } from '../../lib/voice/turns';
 import { ms } from '../../lib/voice/latency';
 import { textOf } from '../../lib/voice/script';
 import { WINNERS, totals } from '../../lib/voice/workbench';
-import { ACCESSED, fact } from '../../lib/voice/facts';
+import { fact } from '../../lib/voice/facts';
 import { moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
@@ -79,7 +79,6 @@ const FACTS: [string, string][] = [
   [String(CALLS.length), 'calls on the workbench, each run over its own audio'],
   [`${fact('stivers').value} ms`, 'the mean gap before a reply in conversation, over 10 languages'],
 ];
-const checked = longDate(ACCESSED);
 ---
 <html lang="en">
   <head>
@@ -135,7 +134,7 @@ const checked = longDate(ACCESSED);
               <h3><span class="n">{i + 1}</span> {name}</h3>
               <p class="cap">{short}</p>
               <p class="more">{f.claim}</p>
-              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
             </li>
           ))}
         </ol>

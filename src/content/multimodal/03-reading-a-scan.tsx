@@ -10,10 +10,12 @@ import { image } from '../../lib/multimodal/images';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
+import { SCAN_PARTS } from '../../components/scenes/scanScene';
 import { Fact, MultimodalStage, ReadingCard, RecordedNote } from './kit';
 
 const MODULE = 'multimodal',
   ID = '03-reading-a-scan';
+export const PARTS = SCAN_PARTS;
 const DOCS = ['slip', 'note'] as const;
 type Doc = (typeof DOCS)[number];
 const SIZE = 1600,
@@ -38,7 +40,7 @@ const P1 = {
 };
 export const outcome = () => (grade('slip', SIZE, 'vision').right > grade('slip', SIZE, 'ocr').right ? 1 : 0);
 
-const QUIZ = {
+export const QUIZ = {
   question: 'A delivery form is a printed table with handwritten quantities. How should Larkspur read it?',
   options: [
     'Vision, with a person checking the handwritten numbers',
@@ -49,7 +51,7 @@ const QUIZ = {
   explanation:
     'The table needs its layout and the quantities are handwriting: vision handles both better, and handwriting still deserves a check.',
   why: [
-    'Right. Vision keeps the rows together and reads handwriting better than OCR; handwriting is still a known weak spot, so a person checks the numbers.',
+    'Right: vision keeps the rows together and reads handwriting better than OCR, but handwriting is still a known weak spot, so a person checks the numbers.',
     'OCR flattens the table and turns handwriting into near-words: the two things this form depends on.',
     'Vision read the slip’s table and the note in this chapter.',
   ],
@@ -61,14 +63,17 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['p1'],
     narration:
-      'There are two ways to read a scan. OCR (optical character recognition) turns the image into plain text, and the model reads only the text. Vision sends the image itself, and the model reads its patches. Before you try both:',
+      'OCR turns the scan into plain text, and the model reads only that. Vision sends the image itself, layout and all.',
+    act: 'Predict first.',
+    say: { block: 'camera', text: 'Two ways to read' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'read',
     focus: 'read',
     visibleControls: ['p1', 'read'],
-    narration: `Read both documents both ways, at ${SIZE.toLocaleString('en-US')} px: the packing slip and the handwritten note, with OCR and with vision. Each reading is graded field by field.`,
+    narration: 'Each reading is graded field by field.',
+    act: 'Read the packing slip and the handwritten note, each with OCR and with vision.',
     predicate: s => ALL.every(k => s.seen.includes(k)),
     hint: 'Pick a document, then press both read buttons; then the other document.',
   },
@@ -77,7 +82,8 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['found', 'quiz'],
     narration:
-      'OCR got the slip’s words right but lost its layout: it read the table column by column, and the extraction paired the brackets with the wrong column. On the note it turned handwriting into near-words. Vision kept the rows together and read the note, though handwriting stays a weak spot for vision models too.',
+      'OCR lost the table’s rows and turned handwriting into near-words. Vision kept the rows, though handwriting stays a weak spot.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which method kept the table’s rows, and which one copes better with handwriting?',
   },
@@ -91,10 +97,11 @@ export default function ReadingAScan() {
       steps={STEPS}
       initial={{ p1: null, doc: 'slip', method: null, seen: [], quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => {
+      stage={({ state, say }) => {
         const g = state.method && grade(state.doc, SIZE, state.method);
         return (
           <MultimodalStage
+            say={say}
             shown={{
               image: state.doc,
               size: SIZE,

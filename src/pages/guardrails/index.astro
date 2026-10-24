@@ -13,7 +13,7 @@ import ChapterCards from '../../components/intro/ChapterCards.astro';
 import { GUARD_BOARD, guardLabel, guardScene, type GuardOpts } from '../../components/scenes/guardScene';
 import { ATTACKS, CUSTOMER_CASES, INBOX, run } from '../../lib/guardrails/loop';
 import { RECORDING } from '../../lib/guardrails/turns';
-import { ACCESSED, fact } from '../../lib/guardrails/facts';
+import { fact } from '../../lib/guardrails/facts';
 import { START, SOLUTION, bench } from '../../content/guardrails/07-red-team';
 import { moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
@@ -63,7 +63,6 @@ const FACTS: [string, string][] = [
     `once the defences stack, with ${CLEAN.blocked} of ${CLEAN.customers} customers blocked`,
   ],
 ];
-const checked = longDate(ACCESSED);
 ---
 <html lang="en">
   <head>
@@ -123,7 +122,7 @@ const checked = longDate(ACCESSED);
               <h3><span class="n">{i + 1}</span> {name}</h3>
               <p class="cap">{short}</p>
               <p class="more">{f.claim}</p>
-              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
             </li>
           ))}
         </ol>

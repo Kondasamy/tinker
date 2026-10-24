@@ -3,7 +3,7 @@
 // context gauge on the host's desk, an in-tray of history papers that becomes one binder when the host compacts, and
 // small helper desks for sub-agents. Everything is read off one run, up to the current step, through agentMessages.
 import type { SceneCtx } from '../../lib/iso/IsoStage';
-import { BH, boxCorners, esc, glassCase } from '../../lib/iso/blocks';
+import { BH, boxCorners, esc, glassCase, sayAt } from '../../lib/iso/blocks';
 import {
   INK,
   PALS,
@@ -24,11 +24,14 @@ import {
   tag,
   byDepth,
 } from '../../lib/iso/core.js';
-import { officeScene, officeLabel, type OfficeOpts } from './officeScene';
+import { OFFICE_PARTS, officeScene, splitOffice, officeLabel, type OfficeOpts } from './officeScene';
 import { agentMessages } from './agentSequence';
 import { keyOf, tokens, type Run, type Step } from '../../lib/agents/loop';
 
 export { OFFICE_BOARD as AGENT_BOARD } from './officeScene';
+
+/** The parts a step's callout may name: the office's, then the props (clipboard, gauge, in-tray, helper desks). */
+export const AGENT_PARTS = [...OFFICE_PARTS, 'plan', 'gauge', 'tray', 'helpers'] as const;
 
 export interface AgentOpts extends Omit<OfficeOpts, 'msgs' | 'upTo' | 'tools'> {
   run: Run;
@@ -301,7 +304,6 @@ const toolsOf = ({ run, tools }: AgentOpts) => {
 };
 const pill = (p: number[], dx: number, dy: number, text: string, on: boolean, scale: number) =>
   `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text), on, scale)}</g>`;
-const PILLS = /<g class="(block|check|msg)-tag"/;
 
 /** The office with the props turned on. Words go only in pills; on phones (scale > 1) the caption carries the readouts. */
 export const agentScene = (o: AgentOpts) => (ctx: SceneCtx) => {
@@ -310,17 +312,17 @@ export const agentScene = (o: AgentOpts) => (ctx: SceneCtx) => {
   const st = agentState(o);
   const office = officeScene({ ...o, msgs: agentMessages(run), upTo, tools: toolsOf(o) })(ctx);
   // draw the props over the office's art but under its name pills, so no prop hides a pill
-  const cut = office.search(PILLS),
-    art = cut < 0 ? office : office.slice(0, cut),
-    names = cut < 0 ? '' : office.slice(cut);
+  const { art, names, callout } = splitOffice(office);
   const parts: Part[] = [],
     pills: string[] = [],
+    calls: string[] = [],
     shadows: string[] = [];
   const shade = (x0: number, y0: number, x1: number, y1: number, h: number, z = BH) =>
     shadows.push(castShadow(boxCorners(x0, y0, z, x1, y1, z + h), z, ctx.top));
   if (o.clipboard && st.plan) {
     parts.push(clipboard(CLIP[0], CLIP[1], st.plan.rows));
     shade(CLIP[0] - 13, CLIP[1] - 5, CLIP[0] + 13, CLIP[1] + 2, 33);
+    calls.push(sayAt(o.say, 'plan', [CLIP[0] + 13, CLIP[1] + 2, BH + 26], -2, scale));
     if (!narrow)
       pills.push(
         pill([CLIP[0] + 13, CLIP[1] + 2, BH + 26], 34, -2, `PLAN ${st.plan.ticks}/${st.plan.items}`, false, scale),
@@ -328,6 +330,7 @@ export const agentScene = (o: AgentOpts) => (ctx: SceneCtx) => {
   }
   if (o.gauge && st.gauge) {
     parts.push(gaugeProp(GAUGE[0], GAUGE[1], st.gauge.steps, st.gauge.context, st.over));
+    calls.push(sayAt(o.say, 'gauge', [GAUGE[0] + 3, GAUGE[1] - 3, BH + 30], 14, scale));
     if (!narrow)
       pills.push(
         pill(
@@ -343,6 +346,7 @@ export const agentScene = (o: AgentOpts) => (ctx: SceneCtx) => {
   if (o.tray) {
     parts.push(trayProp(TRAY[0], TRAY[1], st.tray.papers, st.tray.binder));
     shade(TRAY[0] - 11, TRAY[1] - 8, TRAY[0] + 11, TRAY[1] + 8, 3 + Math.min(st.tray.papers, PAPER_MAX) * 0.9);
+    calls.push(sayAt(o.say, 'tray', [TRAY[0], TRAY[1] + 6, BH + 4], 24, scale));
     if (!narrow)
       pills.push(
         pill(
@@ -376,8 +380,9 @@ export const agentScene = (o: AgentOpts) => (ctx: SceneCtx) => {
         scale,
       ),
     );
+    calls.push(sayAt(o.say, 'helpers', [x, y, BH + 17], -16, scale));
   }
-  return art + shadows.join('') + byDepth(parts) + names + pills.join('');
+  return art + shadows.join('') + byDepth(parts) + names + pills.join('') + callout + calls.join('');
 };
 
 /** The picture in words, for its aria-label: the office, then each prop that is on. */

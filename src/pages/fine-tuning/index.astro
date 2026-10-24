@@ -20,7 +20,7 @@ import {
   loraCount,
   type VersionId,
 } from '../../lib/fine-tuning/engine';
-import { ACCESSED, fact } from '../../lib/fine-tuning/facts';
+import { fact } from '../../lib/fine-tuning/facts';
 import type { Meta as LmMeta } from '../../lib/lm/load';
 import metaJson from '../../../public/data/lm/meta.json';
 import { moduleOf, chapterHref } from '../../lib/modules';
@@ -77,7 +77,6 @@ const FACTS: [string, string][] = [
   [num(Number(META.finetune!.training.styleExamples)), 'replies in Larkspur’s style set'],
   [`${num(Number(fact('lora-savings').value))}×`, 'fewer trainable weights LoRA’s authors report for GPT-3'],
 ];
-const checked = longDate(ACCESSED);
 ---
 <html lang="en">
   <head>
@@ -133,7 +132,7 @@ const checked = longDate(ACCESSED);
               <h3><span class="n">{i + 1}</span> {name}</h3>
               <p class="cap">{short}</p>
               <p class="more">{f.claim}</p>
-              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
             </li>
           ))}
         </ol>

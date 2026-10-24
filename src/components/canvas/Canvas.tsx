@@ -11,7 +11,18 @@ import {
   type PointerEvent,
 } from 'react';
 import IsoStage, { stageFrame, type SceneCtx, type Zoom } from '../../lib/iso/IsoStage';
-import { BLOCKS, BH, HALF, CELL, ACC, renderers, blockShadow, blockTag, type BlockType } from '../../lib/iso/blocks';
+import {
+  BLOCKS,
+  BH,
+  HALF,
+  CELL,
+  ACC,
+  renderers,
+  blockShadow,
+  blockTag,
+  calloutTag,
+  type BlockType,
+} from '../../lib/iso/blocks';
 import {
   INK,
   PALS,
@@ -45,7 +56,8 @@ import {
 import { trackLayout, TRACK_BOARD, BAYS, type Placed } from './track';
 import { BENCH_BOARD, COLS, ROWS, addNode, cellAt, connect, cut, moveNode, removeNode, validTargets } from './bench';
 import Knobs, { BLOCK_KNOBS } from './Knobs';
-import { LOAD_FAILED } from '../panels/logic';
+import { LOAD_FAILED, VERDICT_LABEL } from '../panels/logic';
+import type { Say } from '../story/steps';
 import './canvas.css';
 
 export interface CanvasProps {
@@ -54,6 +66,10 @@ export interface CanvasProps {
   question: CanvasQuestion;
   /** block the current step is about: drawn with a soft ring */
   focus?: string;
+  /** the step's callout, pinned above a block on the board (KTD7) */
+  say?: Say;
+  /** this chapter's number: the track outlines only the blocks it adds */
+  chapter?: number;
   /** knob panel for the selected block (default true). Inside a step pass false and render <Knob name=…> as step controls. */
   panel?: boolean;
   /** show "Open the workbench" / parts bin / "Back to the track" (Sandbox) */
@@ -105,6 +121,8 @@ const NOTES: Partial<Record<BlockType, string>> = {
   grader: 'Judges each answer (correct, wrong, not found, made up) and shows it beside retrieval quality.',
 };
 const LLM_STATE = { correct: 'ok', wrong: 'bad', madeup: 'bad', notfound: 'warn', norecord: 'warn' } as const;
+// the verdict rides in the model's own name pill (KTD6), coloured like its screen
+const VERDICT_FILL = { ok: 'var(--mint-l)', bad: 'var(--tomato-l)', warn: 'var(--mustard-l)' } as const;
 const ARROWS: Record<string, [number, number]> = {
   ArrowLeft: [-1, 0],
   ArrowRight: [1, 0],
@@ -156,6 +174,8 @@ function statOf(t: BlockType, s: CanvasState, o: Outcome | null, index: RagIndex
       return `${k.maxCalls} CALLS`;
     case 'graph':
       return `${k.hops} HOP${k.hops === 1 ? '' : 'S'}`;
+    case 'llm':
+      return o?.answer ? VERDICT_LABEL[o.answer.verdict] : '';
     default:
       return '';
   }
@@ -185,6 +205,8 @@ export default function Canvas({
   onChange,
   question,
   focus,
+  say,
+  chapter,
   panel = true,
   allowBench = false,
   onInspect,
@@ -230,6 +252,7 @@ export default function Canvas({
   const wrap = useRef<HTMLDivElement>(null);
   const runKey = out ? JSON.stringify([out.answer?.verdict, out.record?.context.map(c => c.id), analysis.live]) : '';
   const lastKey = useRef('');
+  const [running, setRunning] = useState(false); // passages ride the live wires while the pulse runs
   useEffect(() => {
     const first = !lastKey.current;
     if (runKey === lastKey.current) return;
@@ -239,7 +262,11 @@ export default function Canvas({
     el.classList.remove('run');
     void el.offsetWidth;
     el.classList.add('run');
-    const t = setTimeout(() => el.classList.remove('run'), 1900);
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) setRunning(true);
+    const t = setTimeout(() => {
+      el.classList.remove('run');
+      setRunning(false);
+    }, 1900);
     return () => clearTimeout(t);
   }, [runKey]);
 
@@ -317,12 +344,14 @@ export default function Canvas({
           0.4,
         );
     } else {
-      for (const p of track.pads) {
+      for (const p of track.pads.filter(p => chapter === undefined || p.chapter === chapter)) {
         svgS += `<path d="${pd(on(PZ(BH + 0.2), rrUV(p.x - HALF, p.y - HALF, p.x + HALF, p.y + HALF, 4)))}" fill="none" stroke="${INK}" stroke-width="1" stroke-dasharray="3 3" opacity=".6"/>`;
         svgS += floorText(p.x - 4, p.y, BLOCKS[p.id].label, 4.6) + floorText(p.x + 5, p.y, `CHAPTER ${p.chapter}`, 3.8);
       }
     }
     svgS += nodes.map(n => blockShadow(n.id, n.x, n.y, top)).join('');
+    // cards start one after another but all finish inside the 1.9 s run, however long the live path
+    const stagger = Math.min(0.2, 0.9 / Math.max(1, analysis.live.length - 1));
     for (const e of g.edges) {
       const a = byId[e[0]],
         b = byId[e[1]];
@@ -333,6 +362,9 @@ export default function Canvas({
       svgS += `<path d="${d}" fill="none" stroke="${live ? ACC : '#cfc8b8'}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"${live ? ' class="glow"' : ''}/>`;
       if (live)
         svgS += `<path d="${d}" fill="none" stroke="#fffbe6" stroke-width="2" stroke-linecap="round" class="pulse"/>`;
+      // a passage card, no words on it, rides each live wire in turn (KTD6)
+      if (live && running)
+        svgS += `<rect class="passage" x="-6" y="-4" width="12" height="8" rx="1.5" fill="#fffbe6" stroke="${INK}" stroke-width="1" style="offset-path: path('${d}'); animation-delay: ${stagger * analysis.live.findIndex(l => sameEdge(l, e))}s"/>`;
       if (editable)
         svgS += `<path d="${d}" class="wire-hit" data-edge="${e[0]}>${e[1]}" fill="none" stroke="transparent" stroke-width="10" tabindex="0" role="button" aria-label="Wire from ${name(e[0])} to ${name(e[1])}${live ? ', carrying data' : ''}. Press Delete to cut."/>`;
     }
@@ -364,15 +396,27 @@ export default function Canvas({
     // phones: bigger pills, name only, so they stay readable without covering the board
     if (!drag?.moved)
       svgS += nodes
-        .map(n =>
-          blockTag(
+        .map(n => {
+          // phones keep names only, except the model, whose pill carries the verdict
+          const stat = narrow && n.id !== 'llm' ? '' : statOf(n.id, s, out, index);
+          return blockTag(
             n.id,
-            { x: n.x, y: n.y, stat: narrow ? '' : statOf(n.id, s, out, index), selected: s.selected === n.id },
+            {
+              x: n.x,
+              y: n.y,
+              stat,
+              selected: s.selected === n.id,
+              pill: n.id === 'llm' && llmState ? VERDICT_FILL[llmState] : undefined,
+            },
             narrow ? 2 : 1,
             bench || !BAYS[n.id],
-          ),
-        )
+          );
+        })
         .join('');
+    // the step's callout; on a phone only when it stays short enough to fit
+    const at = say && byId[say.block as BlockType];
+    if (at && !drag?.moved && (!narrow || say.text.length <= 16))
+      svgS += calloutTag(at.id, at.x, at.y, say.text, narrow ? 2 : 1);
     return svgS;
   };
 

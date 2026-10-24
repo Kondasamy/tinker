@@ -17,7 +17,7 @@ const CHAPTERS: Chapter[] = [
     short: 'One token at a time',
     intro: {
       story:
-        'In Tokens, you saw Larkspur’s documents become tokens. Now the team opens up Larkspur mini, a tiny model trained only on those documents, and runs it right here in your browser.',
+        'In Tokens, Larkspur’s documents became tokens. Now the team opens Larkspur mini, a tiny model trained only on those documents, running right here in your browser.',
       goal: 'What does a language model actually do with a prompt?',
       learn: [
         'That a model gives a probability to every token it knows, for the next position only',
@@ -43,8 +43,8 @@ const CHAPTERS: Chapter[] = [
     short: 'Tokens become vectors',
     intro: {
       story:
-        'Larkspur mini picked “days” after “five business”. But a model does arithmetic, and a token is only an id. Before the model can weigh anything, each token has to become numbers.',
-      goal: 'How does a token id become something the model can compute with, and how does it know where the token sits?',
+        'A model does arithmetic, but a token is only an id. Before Larkspur mini can weigh anything, each token has to become numbers.',
+      goal: 'How does a token id become numbers, and how does the model know where it sits?',
       learn: [
         'What an embedding is: a row of numbers looked up for each token',
         'Why the same token always starts from the same row',
@@ -69,7 +69,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Attention',
     intro: {
       story:
-        'Each token now enters the model as its own vector. But “business” alone can’t tell the model what comes next: it needs “five” and “within” too. Something has to let tokens read each other.',
+        'Each token is now its own vector. But “business” alone can’t tell what comes next: it needs “five” and “within” too.',
       goal: 'How does each token gather what it needs from the tokens before it?',
       learn: [
         'How to read an attention heatmap: who looks at whom, and how much',
@@ -92,8 +92,8 @@ const CHAPTERS: Chapter[] = [
     short: 'Heads and layers',
     intro: {
       story:
-        'One attention pattern can’t look for everything at once. Larkspur mini has several, stacked in layers, and nobody told any of them what to look for.',
-      goal: 'Why does a model have many heads and many layers, and how do their results come together?',
+        'One attention pattern can’t look for everything. Larkspur mini has several, stacked in layers, and nobody told them what to look for.',
+      goal: 'Why many heads and layers, and how do their results combine?',
       learn: [
         'That each head learns to look for something different',
         'How to spot a head that finds the start of the current word',
@@ -118,7 +118,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Choosing the next token',
     intro: {
       story:
-        'Larkspur mini now gives a probability to every token it knows. Picking the likeliest one every time makes the same reply every time. The team wants to know how a model picks, and what the settings they see in every model’s API change.',
+        'Picking the likeliest token every time makes the same reply every time. The team wants to know how a model picks, and what its API settings change.',
       goal: 'How do temperature and top-p change which token gets picked?',
       learn: [
         'What sampling is, and why the same prompt can give different replies',
@@ -142,7 +142,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Why long prompts cost more',
     intro: {
       story:
-        'Larkspur’s finance team sees the bill grow faster than the prompts. Every token in the window looks back at every token before it, and that adds up.',
+        'Larkspur’s finance team sees the bill grow faster than the prompts. Every token looks back at every token before it.',
       goal: 'Why does the work grow faster than the prompt, and what does the KV cache save?',
       learn: [
         'Why attention pairs grow with the square of the prompt’s length',

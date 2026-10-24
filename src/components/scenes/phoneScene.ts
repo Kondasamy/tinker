@@ -5,7 +5,7 @@
 // reply as a bubble back to the phone. A stopwatch in the middle shows the wait. Speech-to-speech folds the ear and the
 // mouth into the model: one belt, sound both ways. Words only in pills.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
-import { BH, boxCorners, esc, renderers } from '../../lib/iso/blocks';
+import { BH, boxCorners, esc, renderers, sayAt } from '../../lib/iso/blocks';
 import {
   INK,
   PALS,
@@ -28,6 +28,7 @@ import {
   shape,
 } from '../../lib/iso/core.js';
 import { beltAt, type Part } from './officeScene';
+import type { Say } from '../story/steps';
 
 export const PHONE_BOARD: Board = [0, 0, 200, 164];
 type Station = 'phone' | 'ear' | 'model' | 'mouth';
@@ -58,9 +59,14 @@ export interface PhoneOpts {
   stopped?: boolean;
   /** speech-to-text was unsure of what it wrote (a flag on the transcript card) */
   unsure?: boolean;
+  /** the step's callout, over one of PHONE_PARTS */
+  say?: Say;
   /** pill size; phones pass more */
   scale?: number;
 }
+
+/** The parts a step's callout may name: the four stations (ear and mouth only when chained) and the stopwatch. */
+export const PHONE_PARTS = ['phone', 'ear', 'model', 'mouth', 'watch'] as const;
 
 export const secs = (v: number) => `${(v / 1000).toFixed(2)} s`;
 
@@ -264,8 +270,14 @@ export const phoneScene =
       parts.push(bubble(b, along(back ? 'phone-model' : b.belt, back ? 1 - t : t, side), !!o.unsure));
     });
     s += byDepth(parts);
-    const name = (k: Station, text: string) =>
-      pill([AT[k][0], AT[k][1], BH + HT[k]], -14 - (32 - HT[k]) * 0.4, text, st.busy === k, scale);
+    // callouts go on last, so no other pill hides one
+    let callouts = sayAt(o.say, 'watch', [WATCH[0], WATCH[1], BH + 8], -12, scale);
+    const name = (k: Station, text: string) => {
+      const p = [AT[k][0], AT[k][1], BH + HT[k]],
+        dy = -14 - (32 - HT[k]) * 0.4;
+      callouts += sayAt(o.say, k, p, dy, scale);
+      return pill(p, dy, text, st.busy === k, scale);
+    };
     const pills = [
       name('phone', 'PHONE'),
       name('model', st.s2s ? (narrow ? 'S2S MODEL' : 'SPEECH-TO-SPEECH MODEL') : 'MODEL'),
@@ -291,7 +303,7 @@ export const phoneScene =
       const p = along(st.s2s ? 'phone-model' : 'phone-ear', 0.3);
       pills.push(pill([p[0], p[1], BH + 5], 16, 'TALKING OVER', true, scale, 'msg-tag'));
     }
-    return s + pills.join('');
+    return s + pills.join('') + callouts;
   };
 
 /** The home hero's plot (heroScene): a small phone desk at (x, y). A squat telephone, a mint ear drum and a short belt. */

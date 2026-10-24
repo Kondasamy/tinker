@@ -7,6 +7,7 @@ import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import { guardLanes, guardMessages } from '../../components/scenes/guardSequence';
+import { GUARD_PARTS } from '../../components/scenes/guardScene';
 import {
   CASES,
   DEFAULTS,
@@ -103,19 +104,23 @@ const QUIZ = {
   correct: 1,
   explanation: `A suite measures the attacks it holds. ${fact('one-percent').claim}`,
   why: [
-    `The rate is over ${NONE.attacks} attacks someone thought of. ${fact('no-foolproof').claim}`,
-    'Right. The suites are an eval: they say how a set does on known attacks and real customers, and they grow as new attacks are found. A release gate on both rates stops a change that makes either worse.',
-    `At its strictest the bench blocks ${STRICT.blocked} of ${STRICT.customers} customers. Strictness moves cost onto real customers without proving safety against new attacks.`,
-    'A person sees only outgoing email: the discount push in chapter 6 came as a refund, not an email. And in chapter 3 a person who said yes let a record go outside.',
+    `The rate is over ${NONE.attacks} attacks someone thought of, and ${fact('no-foolproof').claim}`,
+    'Right: the suites are an eval that grows as new attacks are found, and a release gate on both rates stops a change that makes either worse.',
+    `At its strictest the bench blocks ${STRICT.blocked} of ${STRICT.customers} customers, moving cost onto real customers without proving safety against new attacks.`,
+    'A person sees only outgoing email, yet the discount push in chapter 6 came as a refund, and in chapter 3 a person who said yes let a record go outside.',
   ],
 };
+
+/** The parts of the mail room a step's callout may name. */
+export const PARTS = GUARD_PARTS;
 
 export const STEPS: Step<S>[] = [
   {
     id: 'bench',
     focus: 'start',
     visibleControls: ['bench', 'readout'],
-    narration: `The red team’s bench. Every defence from this module is a control, and every change reruns both suites: the ${NONE.attacks} attacks (the injections and the policy pushes) and the ${NONE.customers} ordinary customers. With nothing on, ${NONE.succeeded} of ${NONE.attacks} attacks get through. The readout gives the attack success rate, the false-block rate and a verdict; pick a case to watch it on the stage. Turn on any defence to start.`,
+    narration: `The red team reruns the attack suite and customer suite on every change. Unprotected, ${NONE.succeeded} of ${NONE.attacks} attacks get through.`,
+    act: 'Turn on any defence.',
     predicate: s => KEYS.some(k => s[k] !== START[k]),
     hint: 'Press any defence, such as “Prompt rule: on”.',
   },
@@ -123,8 +128,8 @@ export const STEPS: Step<S>[] = [
     id: 'red-team',
     focus: 'bench',
     visibleControls: ['bench', 'readout'],
-    narration:
-      'Find a set with no attack through and no customer blocked. Chapters 5 and 6 each found part of the answer: one for planted text, one for customers who push.',
+    narration: 'Chapters 5 and 6 each found half: planted text, then pushy customers.',
+    act: 'Find a set with no attack through and no customer blocked.',
     predicate: s => clean(bench(s)),
     hint: 'Chapter 5 stopped the injections with two layers that block nobody; chapter 6 added a check on the way in and one on refunds, not the strict one.',
     solution: s => ({ ...s, ...SOLUTION }),
@@ -133,8 +138,9 @@ export const STEPS: Step<S>[] = [
     id: 'gate',
     focus: 'quiz',
     visibleControls: ['bench', 'readout', 'gate', 'quiz'],
-    narration:
-      'A clean bench, on this suite. Keep playing: try the strictest settings and watch the false blocks, or take one layer away and see which attack comes back. Then one question to finish.',
+    narration: 'A clean bench, on this suite. A release gate reruns both suites before any change ships.',
+    act: 'Try the strictest settings, then one question to finish.',
+    say: { block: 'host', text: 'Clean on suite' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What does a 0% rate say about an attack nobody has written yet?',
   },
@@ -204,7 +210,7 @@ export default function RedTeam() {
       steps={STEPS}
       initial={{ ...START, kase: 'invoice', view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync, inspect }) => {
+      stage={({ state, sync, inspect, say }) => {
         const r = current(state);
         return (
           <GuardStage
@@ -214,6 +220,7 @@ export default function RedTeam() {
             inspect={inspect}
             view={state.view}
             onView={view => sync({ ...state, view })}
+            say={say}
           />
         );
       }}

@@ -11,6 +11,7 @@ import { PROMPTS, trace } from '../../lib/transformers/trace';
 import { fact } from '../../lib/transformers/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
+import { ENGINE_PARTS } from '../../components/scenes/engineScene';
 import { Fact, TransformersStage, Waiting, useModel, whenLoaded, type View } from './kit';
 
 const MODULE = 'transformers',
@@ -21,6 +22,7 @@ export const OFFERED = PROMPTS.filter(p => p.id !== 'long');
 export const textOf = (id: string) => (OFFERED.find(p => p.id === id) ?? OFFERED[0]).text;
 /** How many prompts the reader tries, the first included. */
 const TRY = 3;
+export const PARTS = ENGINE_PARTS;
 
 /** 0 when every head gives every later token exactly 0 on every prompt offered, else 1: read off the traces. */
 export function outcomeOf(m: Model): number {
@@ -51,7 +53,7 @@ const P1 = {
   ],
 };
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'Larkspur mini reads “Expedited delivery takes two business”. In this run, can the token “delivery” take anything from “business”?',
   options: [
@@ -63,9 +65,9 @@ const QUIZ = {
   explanation:
     'Under the causal mask, a token only weighs itself and the tokens before it, in every head of every layer.',
   why: [
-    'Right. The mask sets every weight on a later token to 0, so each token’s vector is built only from what came before. That is what lets the model predict the next token without seeing it.',
-    'That is attention without a mask. You saw every cell above the diagonal hold 0, on every prompt, in every head.',
-    'The mask holds in every layer. A second-layer token only reads the first layer’s vectors at its own position and before.',
+    'Right: the mask sets every weight on a later token to 0, which lets the model predict the next token without seeing it.',
+    'That is attention without a mask; you saw every cell above the diagonal hold 0, on every prompt, in every head.',
+    'The mask holds in every layer, so a second-layer token reads only its own position and earlier ones.',
   ],
 };
 
@@ -75,7 +77,9 @@ export const STEPS: Step<S>[] = [
     focus: 'view',
     visibleControls: ['open'],
     narration:
-      'Each token is now a vector. To guess what follows “business”, the model has to know “five” and “within” came before it. Attention is how tokens read each other: each token gives every token a weight, then takes in a mix of their vectors, more from the heavier ones. Open the Attention tab above the picture to see the weights.',
+      'Attention lets tokens read each other: each weighs the tokens before it and takes in more from the heavier ones.',
+    act: 'Open the Attention tab.',
+    say: { block: 'focus', text: 'Weighed most' },
     predicate: whenLoaded(s => s.view === 'attn'),
     hint: 'Press “Attention” above the picture.',
   },
@@ -83,22 +87,24 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration:
-      'Each row is one token doing the looking; each column, a token being looked at. The darker the cell, the more weight. A row’s weights add up to 1, so a token splits its attention. Click a cell, or use the arrow keys in the grid, to read its weight. Before you look at the top right:',
+    narration: 'Rows look, columns are looked at. Darker means more weight; each row’s weights add up to 1.',
+    act: 'Predict the top right first.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'reveal',
     focus: 'reveal',
     visibleControls: ['p1', 'reveal'],
-    narration: 'Locked in. Check every cell above the diagonal, in every head, on every prompt here.',
+    narration: 'Locked in.',
+    act: 'Check every cell above the diagonal.',
     predicate: s => s.revealed,
   },
   {
     id: 'prompts',
     focus: 'prompts',
     visibleControls: ['out1', 'prompts'],
-    narration: `Every one is 0. That is the causal mask. ${fact('causal-mask').claim} When the model scores the next token, the only text it has is what came before, so it learns that way too. Now try other prompts and watch where the last row puts its weight.`,
+    narration: 'Every one is 0: the causal mask. A token only sees what came before, in training too.',
+    act: 'Try other prompts.',
     predicate: s => s.seen.length >= TRY,
     hint: `Try ${TRY - 1} more prompts.`,
   },
@@ -106,8 +112,8 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['maths', 'quiz'],
-    narration:
-      'The weights change with every prompt: nobody wrote them, the model computes them from the vectors. One question to finish.',
+    narration: 'The weights change with every prompt: nobody wrote them, the model computes them from the vectors.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which cells held 0, on every prompt?',
   },
@@ -123,8 +129,9 @@ export default function Attention() {
       ready={!!model}
       initial={{ view: 'scene', prompt: OFFERED[0].id, seen: [OFFERED[0].id], p1: null, revealed: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => (
+      stage={({ state, sync, say }) => (
         <TransformersStage
+          say={say}
           prompt={textOf(state.prompt)}
           view={state.view}
           onView={v => sync({ ...state, view: v })}

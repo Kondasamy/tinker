@@ -10,14 +10,17 @@ import { thousands } from '../../lib/multimodal/patches';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
+import { SCAN_PARTS } from '../../components/scenes/scanScene';
 import { MultimodalStage, ReadingCard, RecordedNote, px } from './kit';
 
 const MODULE = 'multimodal',
   ID = '04-pulling-fields-out';
+export const PARTS = SCAN_PARTS;
 const BIG = 1600,
   SMALL = 800;
 type Sz = typeof BIG | typeof SMALL;
 const key = (m: Method, z: Sz) => `${m}|${z}`;
+const N = grade('invoice', BIG, 'ocr').of;
 const cost = (m: Method) => thousands(costOf('invoice', BIG, m));
 
 interface S {
@@ -29,7 +32,7 @@ interface S {
 }
 
 const P1 = {
-  question: `At ${px(BIG)}, OCR hands the model ${cost('ocr')} text tokens and vision ${cost('vision')} image tokens. Which gets more of the invoice’s five fields right?`,
+  question: `At ${px(BIG)}, OCR hands the model ${cost('ocr')} text tokens and vision ${cost('vision')} image tokens. Which gets more of the invoice’s ${N} fields right?`,
   options: ['Vision: it sees more', 'OCR: text is exact', 'The same: both read clean print'],
 };
 export const outcome = () => {
@@ -37,7 +40,7 @@ export const outcome = () => {
   return o === v ? 2 : v > o ? 0 : 1;
 };
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'An extraction of 200 delivery notes scores 92% of fields right overall. What does grading each field on its own add?',
   options: [
@@ -48,9 +51,9 @@ const QUIZ = {
   correct: 0,
   explanation: 'An overall score can hide one field that fails every time.',
   why: [
-    'Right. 92% overall can be every field fine except one that is wrong on most notes: per field, you see which.',
+    'Right: 92% overall can hide one field that is wrong on most notes, and per field you see which.',
     'The overall number can’t tell you where to look.',
-    'Grading measures; it doesn’t change what the model reads. It tells you what to change.',
+    'Grading measures what the model reads; it doesn’t change it.',
   ],
 };
 
@@ -60,21 +63,25 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['p1'],
     narration:
-      'Extraction means pulling named fields out of a document into a fixed form: here the invoice’s number, date, order number, total and payment terms. Each field is graded against a reference, the right value written by a person, with the Evals module’s key-fact check. Before you run it:',
+      'Extraction pulls named fields into a fixed form. Each field is graded against a reference, the right value a person wrote.',
+    act: 'Predict first.',
+    say: { block: 'sheet', text: `${N} fields to read` },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'big',
     focus: 'run',
     visibleControls: ['p1', 'run'],
-    narration: `Extract the fields at ${px(BIG)}, once with OCR and once with vision.`,
+    narration: 'Your pick is locked.',
+    act: `Extract the fields at ${px(BIG)}, once with OCR and once with vision.`,
     predicate: s => METHODS.every(m => s.seen.includes(key(m, BIG))),
   },
   {
     id: 'small',
     focus: 'run',
     visibleControls: ['same', 'run'],
-    narration: `Clean print, so both are right, and OCR does it for a fraction of the tokens. Now drop the size to ${px(SMALL)} and extract with both again.`,
+    narration: 'Clean print: both are right, and OCR reads a fraction of the tokens.',
+    act: `Drop to ${px(SMALL)} and extract with both again.`,
     setup: s => ({ ...s, size: SMALL, method: null }),
     predicate: s => METHODS.every(m => s.seen.includes(key(m, SMALL))),
     hint: `Both buttons, at ${px(SMALL)}.`,
@@ -84,7 +91,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['links', 'quiz'],
     narration:
-      'One overall score would say “mostly right” for both. Field by field, it is the same field both times: the payment terms, the small print. That tells you exactly what to change: the size, not the method.',
+      'An overall score says “mostly right”. Field by field, the same one fails both times: the terms, so fix the size.',
+    act: 'One question to finish.',
+    say: { block: 'sheet', text: 'Terms unreadable' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What can a per-field grade show that an overall score can’t?',
   },
@@ -98,10 +107,11 @@ export default function PullingFieldsOut() {
       steps={STEPS}
       initial={{ p1: null, method: null, size: BIG, seen: [], quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => {
+      stage={({ state, say }) => {
         const g = state.method && grade('invoice', state.size, state.method);
         return (
           <MultimodalStage
+            say={say}
             shown={{
               image: 'invoice',
               size: state.size,

@@ -11,7 +11,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Workflow or agent?',
     intro: {
       story:
-        'At the end of Tool calling, Larkspur’s assistant could look up orders and issue refunds, through MCP servers, behind an approval gate and a limit. Each request was one small job. Now the support lead wants to hand it whole cases: “this printer arrived cracked, sort it out.”',
+        'Larkspur’s assistant can look up orders and issue refunds, one request at a time. The support lead hands it whole cases: “this printer arrived cracked, sort it out.”',
       goal: 'Who should pick the steps for a case: code written in advance, or the model?',
       learn: [
         'The difference between a workflow, where code picks the path, and an agent, where the model does',
@@ -40,8 +40,8 @@ const CHAPTERS: Chapter[] = [
     short: 'The loop',
     intro: {
       story:
-        'In chapter 1 the agent coped with a cracked printer that the script could not: it checked the stock and changed course. Nobody wrote its steps down. So what does an agent actually do, turn by turn, and how does it know when to stop?',
-      goal: 'What happens on each turn of an agent, and who decides the case is done?',
+        'In chapter 1 the agent fixed a cracked printer with no written steps. How does it work, turn by turn, and when does it stop?',
+      goal: 'What happens on each turn, and who decides the case is done?',
       learn: [
         'The loop every agent runs: think, act, observe, decide',
         'Why each next step depends on what the last result said',
@@ -66,11 +66,10 @@ const CHAPTERS: Chapter[] = [
     short: 'Plans',
     intro: {
       story:
-        'In chapter 2 the agent fixed the cracked printer one turn at a time, and nobody could see where it was heading until it got there. The support lead wants to know what the agent means to do before it does it, and a way to say no.',
-      goal: 'How does an agent plan a case, change the plan when a result surprises it, and who gets to approve the plan?',
+        'In chapter 2 nobody saw where the agent was heading until it arrived. The support lead wants its steps first, and a way to say no.',
+      goal: 'How does an agent plan, change the plan when surprised, and who approves it?',
       learn: [
-        'What a plan adds: the steps written down before any tool runs',
-        'Why a plan has to change when a result surprises the agent, and what that looks like',
+        'What a plan adds, and why a surprise makes the agent re-plan',
         'How approving a plan once replaces approving every call, and why a change goes back to the person',
         'Why approval stops a planted instruction only if someone reads the plan',
       ],
@@ -100,7 +99,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Budgets',
     intro: {
       story:
-        'In chapter 3 a person approved the agent’s plans, and a planted line got through only when nobody read them. Now a case goes wrong in a way no plan can fix: the carrier’s tracking system stops answering, and the agent keeps asking.',
+        'In chapter 3 a person approved the agent’s plans. Now the carrier’s tracking stops answering, and the agent keeps asking.',
       goal: 'What stops an agent that keeps trying the same thing, and what does each try cost?',
       learn: [
         'Why an agent with a failing tool can retry until the host stops it',
@@ -127,8 +126,8 @@ const CHAPTERS: Chapter[] = [
     short: 'Memory',
     intro: {
       story:
-        'In chapter 4 the host stopped a stuck loop, and every turn re-sent the whole history, so each one cost more. Now Monday’s storm brings five damaged orders at once. The history grows with every one, and one customer has asked for something the agent must not forget.',
-      goal: 'What does an agent remember from turn to turn, and what is lost when the host cuts its history down?',
+        'Monday’s storm brings five damaged orders at once, and one customer asks for something the agent must not forget.',
+      goal: 'What does an agent remember, and what does cutting its history lose?',
       learn: [
         'Why the context grows with every result the agent gets back',
         'What compaction saves, and what a summary can drop',
@@ -150,9 +149,8 @@ const CHAPTERS: Chapter[] = [
     title: 'Sub-agents, and the cost of a handoff',
     short: 'Sub-agents',
     intro: {
-      story:
-        'In chapter 5 one agent carried all five storm orders in one history, and the host had to compact it, with care, to make it fit. The five orders have nothing to do with each other. So the support lead asks: why should one agent hold them all at once?',
-      goal: 'When should an agent hand parts of a case to helpers, and what does each handoff cost?',
+      story: 'In chapter 5 one agent held all five storm orders in one history. Why should one agent hold them all?',
+      goal: 'When should an agent hand work to helpers, and what does each handoff cost?',
       learn: [
         'How a lead agent hands one piece of a case to a helper with a clean context',
         'Why the lead’s context stays small: it gets back one line per helper, not the helper’s whole history',
@@ -180,8 +178,7 @@ const CHAPTERS: Chapter[] = [
     title: 'Workbench',
     short: 'Workbench',
     intro: {
-      story:
-        'The agent can now work a case to done: it plans, asks a person, stops a stuck loop, keeps the line that matters and hands pieces to helpers. Every case from this module is on one bench, with the controls its chapter used.',
+      story: 'Every case from this module is on one bench, with the controls its chapter used.',
       goal: 'Given a case and a host’s settings, how will the run end, and what will it cost?',
       learn: [
         'The five ways a run ends: done, failed, waiting, stuck and out of budget',

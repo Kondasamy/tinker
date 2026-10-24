@@ -10,10 +10,12 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { pct } from '../../components/scenes/effortChart';
 import { Outcome } from '../tool-calling/kit';
+import { THINK_PARTS } from '../../components/scenes/thinkScene';
 import { EffortRange, Fact, ReasoningStage, type View } from './kit';
 
 const MODULE = 'reasoning',
   ID = '03-the-effort-dial';
+export const PARTS = THINK_PARTS;
 const QS = ofKind('multistep').map(q => q.id),
   SWEEP = sweep(QS),
   KIND = kindOf('multistep');
@@ -43,7 +45,7 @@ export function outcome() {
   return up ? 0 : rose && a[3] <= a[2] ? 1 : a[3] < a[0] ? 3 : 2;
 }
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A team’s sweep on its contract questions reads 50%, 75%, 90%, 90% from none to high. It runs at high today. What should it try?',
   options: [
@@ -55,9 +57,9 @@ const QUIZ = {
   correct: 1,
   explanation: 'Past the point where accuracy flattens, more effort only buys cost and wait.',
   why: [
-    'High ties medium on accuracy and costs more. Tied for best isn’t a reason to pay more.',
-    'Right. Medium already reaches the top of the curve. Check it through the gate (chapter 6), then save the difference.',
-    'None loses 40 points of accuracy here. On multi-step questions thinking pays for itself, up to a point.',
+    'High ties medium on accuracy and costs more, and a tie is no reason to pay more.',
+    'Right: medium already reaches the top of the curve, so check it through the gate (chapter 6) and save the difference.',
+    'None loses 40 points of accuracy here, and on multi-step questions thinking pays for itself, up to a point.',
     'The curve is flat at the top already; more effort has nothing left to buy.',
   ],
 };
@@ -67,7 +69,9 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `Effort is the setting that tells a reasoning model how much work to put into an answer, thinking included: here none, low, medium or high. Larkspur’s test set for it is ${QS.length} multi-step questions: ${KIND.about.toLowerCase()} Before the sweep:`,
+    narration: `Effort tells a reasoning model how much work to put in: none, low, medium or high. The test set: ${QS.length} multi-step questions.`,
+    act: 'Predict first.',
+    say: { block: 'dial', text: 'Four levels' },
     predicate: s => s.p1 !== null,
   },
   {
@@ -75,7 +79,9 @@ export const STEPS: Step<S>[] = [
     focus: 'dial',
     visibleControls: ['p1', 'dial'],
     narration:
-      'A sweep runs the same questions at every setting, so the setting is the only thing that changes. The dial starts at none; turn it through the other three levels. Each answer is graded live by the key-fact check; accuracy is the share that pass.',
+      'A sweep runs the same questions at every setting. Each answer is graded; accuracy is the share that pass.',
+    act: 'Turn the dial through every level.',
+    say: { block: 'dial', text: 'Starts at none' },
     // entering the sweep runs the dial's starting level
     setup: s => ({ ...s, seen: [...new Set([...s.seen, s.effort])] }),
     predicate: s => EFFORTS.every(e => s.seen.includes(e)),
@@ -85,7 +91,9 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['curve', 'quiz'],
-    narration: `${SWEEP.map(p => `${p.effort} ${pct(p.accuracy)}`).join(', ')}. Accuracy rises, then flattens, while the cost keeps climbing. The jump from none is where thinking pays; past medium, high fixes one question and breaks another. These answers were written for this site to illustrate a measured finding, not measured themselves:`,
+    narration: `${SWEEP.map(p => `${p.effort} ${pct(p.accuracy)}`).join(', ')}. Accuracy rises, then flattens, while the cost keeps climbing.`,
+    act: 'One question to finish.',
+    say: { block: 'pad', text: 'Cost climbs' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Compare the last two levels: what does high add?',
   },
@@ -99,12 +107,13 @@ export default function TheEffortDial() {
       steps={STEPS}
       initial={{ p1: null, effort: 'none', seen: [], view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => {
+      stage={({ state, sync, say }) => {
         const seen = SWEEP.filter(p => state.seen.includes(p.effort)),
           cur = SWEEP[EFFORTS.indexOf(state.effort)];
         const thinking = QS.reduce((n, q) => n + run(q, state.effort).thinkingTokens, 0);
         return (
           <ReasoningStage
+            say={say}
             view={state.view}
             onView={view => sync({ ...state, view })}
             shown={{
@@ -157,6 +166,9 @@ export default function TheEffortDial() {
         curve: ({ state }) => (
           <>
             <Outcome {...P1} prediction={state.p1} outcome={outcome()} />
+            <p className="rs-note">
+              These answers were written for this site to illustrate the finding below; they were not measured.
+            </p>
             <Fact id="snell" />
           </>
         ),

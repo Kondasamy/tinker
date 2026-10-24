@@ -12,7 +12,7 @@ import AgentLog from './AgentLog';
 import EvidenceList from './EvidenceList';
 import ChunkStrip from './ChunkStrip';
 import ProjectionMap from './ProjectionMap';
-import { summary } from './logic';
+import { summary, shortSummary } from './logic';
 
 export interface RagState {
   canvas: CanvasState;
@@ -68,6 +68,8 @@ export function RagStage<S extends RagState>({
   apply,
   sync,
   focus,
+  say,
+  chapter,
   inspect,
   run,
   extraTabs = [],
@@ -89,6 +91,8 @@ export function RagStage<S extends RagState>({
         state={state.canvas}
         question={run.question}
         focus={focus}
+        say={say}
+        chapter={chapter}
         panel={false}
         {...opts}
         onChange={canvas => apply({ ...state, canvas, verdict: run.verdictOf(canvas) })}
@@ -99,8 +103,12 @@ export function RagStage<S extends RagState>({
         }}
       />
       <figcaption>
-        <p className="announce" aria-live="polite" aria-atomic="true" data-testid="announce">
+        {/* the full line is for screen readers; the picture's model pill shows the verdict, so the visible line is short */}
+        <p className="announce sr" aria-live="polite" aria-atomic="true" data-testid="announce">
           {summary(run.out)}
+        </p>
+        <p className="announce" aria-hidden="true">
+          {shortSummary(run.out)}
         </p>
         <span className="inspect-row" role="group" aria-label="Inspect">
           {[...shown, ...extraTabs].map(([id, label]) => (

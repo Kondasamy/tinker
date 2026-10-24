@@ -5,7 +5,8 @@
 // arch and an approval barrier between host and orders. Chapter 1 has no belt to the orders: nothing joins them yet.
 import type { SceneCtx, Board } from '../../lib/iso/IsoStage';
 import type { Msg } from '../../lib/iso/flat';
-import { BH, renderers, blockShadow, boxCorners, esc } from '../../lib/iso/blocks';
+import { BH, renderers, blockShadow, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
+import type { Say } from '../story/steps';
 import {
   INK,
   PALS,
@@ -40,6 +41,8 @@ const AT: Record<Station, number[]> = { host: [142, 134], model: [262, 134], ord
 const EDGE: Record<Station, number> = { host: 22, model: 19, orders: 18, emp: 14 }; // where a belt meets the station
 const HT: Record<Station, number> = { host: 34, model: 32, orders: 44, emp: 20 }; // tallest part, for pill heights
 const BW = 12; // belt width
+/** The parts a step's callout (`say.block`) may name: the stations and the checks on the belts. */
+export const OFFICE_PARTS = ['emp', 'host', 'model', 'orders', 'schema', 'owner', 'gate'] as const;
 const KIND_PAL = { request: PALS.cobalt, result: PALS.mint, error: PALS.tomato, blocked: METAL };
 
 // a belt runs from the host's edge (t = 0) to the station's edge (t = 1)
@@ -407,6 +410,8 @@ export interface OfficeOpts {
   /** station and check name pills, and the stock in the corner (default on); the home hero leaves them out */
   names?: boolean;
   scale?: number;
+  /** the step's callout, a lit pill over one of OFFICE_PARTS */
+  say?: Say;
 }
 
 const stationOf = (id: string): Station | undefined => (id in AT ? (id as Station) : undefined);
@@ -442,6 +447,16 @@ export function officeState({ msgs, upTo = msgs.length, tools, gate }: OfficeOpt
     up: !!gate && gated?.stamp === 'APPROVED',
     waiting: !!gate && gated?.stamp === 'WAITING' && last === gated,
   };
+}
+
+/** The office's SVG split for a scene that adds props: its art, its name pills (the props go between the two), and
+ * its step callout, which goes on last, over the scene's own pills. */
+export function splitOffice(svg: string) {
+  const lit = svg.indexOf('<g class="callout"'),
+    callout = lit < 0 ? '' : svg.slice(lit),
+    rest = lit < 0 ? svg : svg.slice(0, lit),
+    cut = rest.search(/<g class="(block|check|msg)-tag"/);
+  return { art: cut < 0 ? rest : rest.slice(0, cut), names: cut < 0 ? '' : rest.slice(cut), callout };
 }
 
 /** The diorama. Pills: each station's name (lit while it is busy), and the message on the belt with its stamp. */
@@ -481,16 +496,18 @@ export const officeScene =
       parts.push(arch('orders', 0.3, st.last?.from === 'orders' ? (st.last.stamp === 'REFUSED' ? 'bad' : 'ok') : null));
     if (gate) parts.push(barrier('orders', 0.62, st.up, st.waiting));
     const pills: string[] = [];
-    const sign = (st2: Station, t: number, text: string) => {
+    const callouts: string[] = [];
+    const sign = (st2: Station, t: number, text: string, part: string) => {
       if (o.names === false) return;
       const [x, y] = along(st2, t);
       pills.push(
         `<g class="check-tag" aria-hidden="true" pointer-events="none">${tag([x, y, BH], 0, 16, text, false, scale)}</g>`,
       );
+      callouts.push(sayAt(o.say, part, [x, y, BH], 16, scale));
     };
-    if (schema) sign('model', 0.3, 'SCHEMA CHECK');
-    if (owner) sign('orders', 0.3, narrow ? 'OWNER' : 'OWNERSHIP CHECK');
-    if (gate) sign('orders', 0.62, `APPROVAL · ${st.up ? 'OPEN' : st.waiting ? 'WAITING' : 'CLOSED'}`);
+    if (schema) sign('model', 0.3, 'SCHEMA CHECK', 'schema');
+    if (owner) sign('orders', 0.3, narrow ? 'OWNER' : 'OWNERSHIP CHECK', 'owner');
+    if (gate) sign('orders', 0.62, `APPROVAL · ${st.up ? 'OPEN' : st.waiting ? 'WAITING' : 'CLOSED'}`, 'gate');
     st.flying.forEach(({ m }, j) => {
       const a = stationOf(m.from),
         b = stationOf(m.to),
@@ -516,15 +533,19 @@ export const officeScene =
         );
     });
     s += byDepth(parts);
-    const name = (k: Station, text: string) =>
-      `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag([AT[k][0], AT[k][1], BH + HT[k]], 0, -14 - ((44 - HT[k]) / (inkK() * scale)) * 0.6, esc(text), st.busy === k, scale)}</g>`;
+    const name = (k: Station, text: string) => {
+      const p3 = [AT[k][0], AT[k][1], BH + HT[k]],
+        dy = -14 - ((44 - HT[k]) / (inkK() * scale)) * 0.6;
+      callouts.push(sayAt(o.say, k, p3, dy, scale));
+      return `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p3, 0, dy, esc(text), st.busy === k, scale)}</g>`;
+    };
     if (o.names === false) return s + pills.join('');
     s +=
       name('emp', o.emp ?? 'EMPLOYEE') +
       name('host', host.toUpperCase() + (cap ? ` · ${st.calls}/${cap} CALLS` : '')) +
       name('model', narrow ? 'MODEL' : `MODEL${tools ? ` · ${tools} TOOL${tools === 1 ? '' : 'S'}` : ' · NO TOOLS'}`) +
       name('orders', `ORDER SYSTEM${tools ? '' : ' · NOT LINKED'}${o.orders ? ` · ${o.orders}` : ''}`);
-    return s + pills.join('');
+    return s + pills.join('') + callouts.join('');
   };
 
 /** The picture in words, for its aria-label. */

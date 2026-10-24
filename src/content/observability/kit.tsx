@@ -19,6 +19,8 @@ import { MODE_IDS, modeOf, replyOf, spanOf, type ModeId, type Trace } from '../.
 import { fact } from '../../lib/observability/facts';
 import { useNarrow } from '../tool-calling/kit';
 import './observability.css';
+import Cite from '../../components/story/Cite';
+import type { Say } from '../../components/story/steps';
 
 export const MODULE = 'observability';
 /** a mode's word on its bin's pill */
@@ -204,6 +206,7 @@ export function ObsStage({
   caption,
   view: kept,
   onView,
+  say,
 }: {
   room: Omit<TraceOpts, 'scale'>;
   trace?: Trace | null;
@@ -214,12 +217,14 @@ export function ObsStage({
   caption: ReactNode;
   view?: View;
   onView?: (v: View) => void;
+  /** the step's callout, drawn on the picture (TRACE_PARTS) */
+  say?: Say;
 }) {
   const [own, setOwn] = useState<View>('scene');
   const view = trace ? (kept ?? own) : 'scene',
     setView = onView ?? setOwn;
   const narrow = useNarrow(),
-    o: TraceOpts = { ...room, scale: narrow ? 2 : 1 };
+    o: TraceOpts = { ...room, say, scale: narrow ? 2 : 1 };
   return (
     <div className="tc-stage">
       <div className="tc-tabs" role="group" aria-label="Show in the picture">
@@ -287,11 +292,7 @@ export function Fact({ id }: { id: string }) {
   const f = fact(id);
   return (
     <p className="tc-fact">
-      {f.claim}{' '}
-      <a className="source" href={f.source} target="_blank" rel="noreferrer">
-        Source: {new URL(f.source).hostname}
-      </a>{' '}
-      (checked {f.accessed})
+      {f.claim} <Cite title={new URL(f.source).hostname} href={f.source} checked={f.accessed} />
     </p>
   );
 }

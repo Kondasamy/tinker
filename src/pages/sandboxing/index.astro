@@ -13,7 +13,7 @@ import ChapterCards from '../../components/intro/ChapterCards.astro';
 import { SANDBOX_BOARD, sandboxLabel, sandboxScene, type SandboxOpts } from '../../components/scenes/sandboxScene';
 import { ATTACKS, TASKS, metrics, run } from '../../lib/sandboxing/loop';
 import { RECORDING } from '../../lib/sandboxing/turns';
-import { ACCESSED, fact } from '../../lib/sandboxing/facts';
+import { fact } from '../../lib/sandboxing/facts';
 import { SOLUTION, bench } from '../../content/sandboxing/07-red-team';
 import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
@@ -76,7 +76,6 @@ const FACTS: [string, string][] = [
     `once the policy is set, with ${CLEAN.blocked} of ${CLEAN.tasks} tasks blocked`,
   ],
 ];
-const checked = longDate(ACCESSED);
 ---
 <html lang="en">
   <head>
@@ -120,7 +119,7 @@ const checked = longDate(ACCESSED);
             <p class="cap">The token went out. On the host there was nothing to stop it.</p>
           </article>
         </div>
-        <p class="note more">In a sandbox the same note changes nothing: the token is kept with the proxy, the outside host is not on the allow-list, and the moves are refused. The agent’s turns are recorded, written to illustrate the sources below; the sandbox, its checks and the outcome run for real in your browser.</p>
+        <p class="note more">In a sandbox the same note changes nothing: the token is kept with the proxy, the outside host is not on the allow-list, and the moves are refused. The agent’s turns are recorded, written to illustrate the sources below; the sandbox is a model (no real code runs), and its checks and the outcome are computed in your browser.</p>
       </section>
 
       <section aria-labelledby="how">
@@ -133,7 +132,7 @@ const checked = longDate(ACCESSED);
               <h3><span class="n">{i + 1}</span> {name}</h3>
               <p class="cap">{short}</p>
               <p class="more">{f.claim}</p>
-              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
             </li>
           ))}
         </ol>

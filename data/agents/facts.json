@@ -1,22 +1,107 @@
 {
   "accessed": "2026-10-20",
   "facts": [
-    { "id": "react-loop", "claim": "ReAct has a language model write its reasoning steps and its actions interleaved, and the actions let it pull in information from outside sources, such as a Wikipedia API.", "source": "https://arxiv.org/abs/2210.03629" },
-    { "id": "workflow-vs-agent", "claim": "Anthropic calls a system a workflow when code paths written in advance orchestrate the model and its tools, and an agent when the model directs its own process and tool use.", "source": "https://www.anthropic.com/engineering/building-effective-agents" },
-    { "id": "simplest-first", "claim": "Anthropic advises finding the simplest solution possible and adding complexity only when needed: agentic systems often trade latency and cost for better task performance.", "source": "https://www.anthropic.com/engineering/building-effective-agents" },
-    { "id": "when-agent", "claim": "Agents suit open-ended problems where it is hard or impossible to predict how many steps the task will need.", "source": "https://www.anthropic.com/engineering/building-effective-agents" },
-    { "id": "ground-truth", "claim": "At each step an agent needs ground truth from its environment, such as tool results, to judge its progress.", "source": "https://www.anthropic.com/engineering/building-effective-agents" },
-    { "id": "stopping-conditions", "claim": "Agent runs commonly include stopping conditions, such as a maximum number of iterations, to keep control.", "source": "https://www.anthropic.com/engineering/building-effective-agents" },
-    { "id": "human-checkpoints", "claim": "Agents can pause for human feedback at checkpoints or when they hit a blocker.", "source": "https://www.anthropic.com/engineering/building-effective-agents" },
-    { "id": "agent-costs", "claim": "Because agents act on their own, they cost more and their errors can compound, so Anthropic recommends extensive testing in sandboxed environments with guardrails.", "source": "https://www.anthropic.com/engineering/building-effective-agents" },
-    { "id": "multi-agent-tokens", "claim": "In Anthropic's research system, agents typically used about 4 times as many tokens as chat, and multi-agent systems about 15 times as many.", "source": "https://www.anthropic.com/engineering/multi-agent-research-system" },
-    { "id": "subagent-parallel", "claim": "Sub-agents work in parallel, each with its own context window, which compresses what the lead agent has to hold.", "source": "https://www.anthropic.com/engineering/multi-agent-research-system" },
-    { "id": "multi-agent-performance", "claim": "A lead Claude Opus 4 with Claude Sonnet 4 sub-agents outperformed a single Claude Opus 4 agent by 90.2% on Anthropic's internal research eval.", "source": "https://www.anthropic.com/engineering/multi-agent-research-system" },
-    { "id": "token-usage-explains", "claim": "In Anthropic's BrowseComp analysis, token usage by itself explained 80% of the variance in performance.", "source": "https://www.anthropic.com/engineering/multi-agent-research-system" },
-    { "id": "context-finite", "claim": "Context is a finite resource with diminishing returns: as it fills, the model's ability to recall information from it accurately decreases.", "source": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" },
-    { "id": "compaction", "claim": "Compaction summarises a conversation that is nearing the context window's limit; the skill is choosing what to keep and what to drop, and compaction that is too aggressive can lose subtle but critical context.", "source": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" },
-    { "id": "tool-result-clearing", "claim": "Clearing old tool results is one of the safest, lightest forms of compaction.", "source": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" },
-    { "id": "note-taking", "claim": "With structured note-taking, an agent regularly writes notes that are kept in memory outside its context window.", "source": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" },
-    { "id": "subagent-clean-context", "claim": "Specialised sub-agents can handle focused tasks with clean context windows and return only a condensed summary of their work, often 1,000 to 2,000 tokens.", "source": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" }
+    {
+      "id": "react-loop",
+      "claim": "ReAct has a language model write its reasoning steps and its actions interleaved, and the actions let it pull in information from outside sources, such as a Wikipedia API.",
+      "source": "https://arxiv.org/abs/2210.03629",
+      "accessed": "2026-10-24"
+    },
+    {
+      "id": "workflow-vs-agent",
+      "claim": "Anthropic calls a system a workflow when code paths written in advance orchestrate the model and its tools, and an agent when the model directs its own process and tool use.",
+      "source": "https://www.anthropic.com/engineering/building-effective-agents",
+      "accessed": "2026-10-24"
+    },
+    {
+      "id": "simplest-first",
+      "claim": "Anthropic advises finding the simplest solution possible and adding complexity only when needed: agentic systems often trade latency and cost for better task performance.",
+      "source": "https://www.anthropic.com/engineering/building-effective-agents",
+      "accessed": "2026-10-24"
+    },
+    {
+      "id": "when-agent",
+      "claim": "Agents suit open-ended problems where it is hard or impossible to predict how many steps the task will need.",
+      "source": "https://www.anthropic.com/engineering/building-effective-agents",
+      "accessed": "2026-10-24"
+    },
+    {
+      "id": "ground-truth",
+      "claim": "At each step an agent needs ground truth from its environment, such as tool results, to judge its progress.",
+      "source": "https://www.anthropic.com/engineering/building-effective-agents",
+      "accessed": "2026-10-24"
+    },
+    {
+      "id": "stopping-conditions",
+      "claim": "Agent runs commonly include stopping conditions, such as a maximum number of iterations, to keep control.",
+      "source": "https://www.anthropic.com/engineering/building-effective-agents",
+      "accessed": "2026-10-24"
+    },
+    {
+      "id": "human-checkpoints",
+      "claim": "Agents can pause for human feedback at checkpoints or when they hit a blocker.",
+      "source": "https://www.anthropic.com/engineering/building-effective-agents",
+      "accessed": "2026-10-24"
+    },
+    {
+      "id": "agent-costs",
+      "claim": "Because agents act on their own, they cost more and their errors can compound, so Anthropic recommends extensive testing in sandboxed environments with guardrails.",
+      "source": "https://www.anthropic.com/engineering/building-effective-agents",
+      "accessed": "2026-10-24"
+    },
+    {
+      "id": "multi-agent-tokens",
+      "claim": "In Anthropic’s research system, as reported in June 2025, agents typically used about 4 times as many tokens as chat, and multi-agent systems about 15 times as many.",
+      "source": "https://www.anthropic.com/engineering/multi-agent-research-system",
+      "accessed": "2026-10-24"
+    },
+    {
+      "id": "subagent-parallel",
+      "claim": "Sub-agents work in parallel, each with its own context window, which compresses what the lead agent has to hold.",
+      "source": "https://www.anthropic.com/engineering/multi-agent-research-system",
+      "accessed": "2026-10-24"
+    },
+    {
+      "id": "multi-agent-performance",
+      "claim": "In June 2025 Anthropic reported that, on its own internal research eval, a lead Claude Opus 4 with Claude Sonnet 4 sub-agents outperformed a single Claude Opus 4 agent by 90.2%.",
+      "source": "https://www.anthropic.com/engineering/multi-agent-research-system",
+      "accessed": "2026-10-24"
+    },
+    {
+      "id": "token-usage-explains",
+      "claim": "In Anthropic’s BrowseComp analysis, reported in June 2025, token usage by itself explained 80% of the variance in performance.",
+      "source": "https://www.anthropic.com/engineering/multi-agent-research-system",
+      "accessed": "2026-10-24"
+    },
+    {
+      "id": "context-finite",
+      "claim": "Context is a finite resource with diminishing returns: as it fills, the model's ability to recall information from it accurately decreases.",
+      "source": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "accessed": "2026-10-24"
+    },
+    {
+      "id": "compaction",
+      "claim": "Compaction summarises a conversation that is nearing the context window's limit; the skill is choosing what to keep and what to drop, and compaction that is too aggressive can lose subtle but critical context.",
+      "source": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "accessed": "2026-10-24"
+    },
+    {
+      "id": "tool-result-clearing",
+      "claim": "Clearing old tool results is one of the safest, lightest forms of compaction.",
+      "source": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "accessed": "2026-10-24"
+    },
+    {
+      "id": "note-taking",
+      "claim": "With structured note-taking, an agent regularly writes notes that are kept in memory outside its context window.",
+      "source": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "accessed": "2026-10-24"
+    },
+    {
+      "id": "subagent-clean-context",
+      "claim": "Specialised sub-agents can handle focused tasks with clean context windows and return only a condensed summary of their work, often 1,000 to 2,000 tokens.",
+      "source": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "accessed": "2026-10-24"
+    }
   ]
 }

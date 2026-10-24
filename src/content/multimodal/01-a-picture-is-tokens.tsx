@@ -9,10 +9,12 @@ import { PATCH, thousands } from '../../lib/multimodal/patches';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
+import { SCAN_PARTS } from '../../components/scenes/scanScene';
 import { Fact, MultimodalStage, type View } from './kit';
 
 const MODULE = 'multimodal',
   ID = '01-a-picture-is-tokens';
+export const PARTS = SCAN_PARTS;
 const S0 = sent('invoice', 1600),
   C = S0.count;
 
@@ -32,14 +34,15 @@ const P1 = {
   ],
 };
 
-const QUIZ = {
-  question: 'Larkspur’s logo is a 280 × 280 px image. How many image tokens does it cost, at 28 px patches?',
-  options: ['100', '78,400: one per pixel', 'About 3: one per word in it'],
+const SIDE = 10 * PATCH; // a logo exactly 10 patches across and down
+export const QUIZ = {
+  question: `Larkspur’s logo is a ${SIDE} × ${SIDE} px image. How many image tokens does it cost, at ${PATCH} px patches?`,
+  options: [`${10 * 10}`, `${thousands(SIDE * SIDE)}: one per pixel`, 'About 3: one per word in it'],
   correct: 0,
-  explanation: '280 / 28 = 10 patches across and 10 down: 100 patches, one token each.',
+  explanation: `${SIDE} / ${PATCH} = 10 patches across and 10 down: ${10 * 10} patches, one token each.`,
   why: [
-    'Right. 10 across × 10 down = 100.',
-    'That is the pixel count. Each token covers a 28 × 28 square, 784 pixels.',
+    `Right: 10 across × 10 down = ${10 * 10}.`,
+    `That is the pixel count, but each token covers a ${PATCH} × ${PATCH} square of ${PATCH * PATCH} pixels.`,
     'The model doesn’t read the words first; it reads every patch, words or not.',
   ],
 };
@@ -50,23 +53,29 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['p1'],
     narration:
-      'Larkspur’s assistant reads tokens: the small pieces of text a model reads and writes (the Tokens module covers them). A multimodal model also reads images. Before you see how:',
+      'The scanning table: an invoice under the camera, an empty belt to the model. A multimodal model reads images as well as text.',
+    act: 'Predict first.',
+    say: { block: 'belt', text: 'Belt is empty' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'cut',
     focus: 'cut',
     visibleControls: ['p1', 'cut'],
-    narration: `Here is a supplier’s invoice, sent at ${S0.w} × ${S0.h} pixels. Cut it into patches and look at the result in the Patches tab.`,
+    narration: `The invoice is ${S0.w} × ${S0.h} pixels.`,
+    act: 'Cut it into patches, then look in the Patches tab.',
+    say: { block: 'sheet', text: 'One whole image' },
     predicate: s => s.cut,
   },
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['count', 'quiz'],
-    narration: `Each square is a patch, ${PATCH} × ${PATCH} pixels, and each patch becomes one token: a visual token. The model reads them in a row like text tokens, and they are priced the same way. The count is live: ⌈width ÷ ${PATCH}⌉ across × ⌈height ÷ ${PATCH}⌉ down, rounding up so the edges get a patch too.`,
+    narration: `Each ${PATCH} × ${PATCH} square is a patch, and each patch becomes one visual token, read and priced like text tokens.`,
+    act: 'One question to finish.',
+    say: { block: 'belt', text: 'A token a patch' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
-    hint: 'How many 28 px squares fit across 280 px?',
+    hint: `How many ${PATCH} px squares fit across ${SIDE} px?`,
   },
 ];
 
@@ -78,8 +87,9 @@ export default function APictureIsTokens() {
       steps={STEPS}
       initial={{ p1: null, cut: false, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => (
+      stage={({ state, sync, say }) => (
         <MultimodalStage
+          say={say}
           view={state.view}
           onView={view => sync({ ...state, view })}
           shown={{

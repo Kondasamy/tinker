@@ -12,8 +12,8 @@ const CHAPTERS: Chapter[] = [
     short: 'Where it runs',
     intro: {
       story:
-        'Larkspur’s agent no longer just calls tools: it runs code. It reads and writes files and reaches the network to do a task. If a planted instruction takes it over, that code runs with whatever access the agent has. Chapter 1 runs the same task two ways.',
-      goal: 'The same task runs on the host and in a sandbox. What changes when an attack is inside it?',
+        'Larkspur’s agent now runs code that reads files and calls the network. If a planted note takes it over, that code keeps the agent’s access.',
+      goal: 'What changes when the same attack runs on the host, then in a sandbox?',
       learn: [
         'What a sandbox is: a box the operating system holds the agent’s code inside',
         'Why the same attack that succeeds on the host is stopped in the sandbox',
@@ -24,7 +24,10 @@ const CHAPTERS: Chapter[] = [
           'Agent',
           'A model that runs a task in a loop: it calls tools, reads what they return, and decides the next step.',
         ],
-        ['Sandbox', fact('filesystem-isolation').claim],
+        [
+          'Sandbox',
+          'A boundary the operating system enforces around the agent’s code, limiting which files and hosts it can reach.',
+        ],
         ['Exfiltration', 'Private data carried out of the sandbox to somewhere it should not go.'],
         ['Host', 'The real machine, with the developer’s full access to files and the network.'],
       ],
@@ -36,7 +39,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Files',
     intro: {
       story:
-        'The sandbox stopped the attack in chapter 1. Now look at one wall of it: the filesystem. What the agent can read and write is set by what the sandbox mounts, and how.',
+        'Chapter 1’s sandbox stopped the attack. Now one wall: the filesystem. What the agent can read and write depends on what the sandbox mounts.',
       goal: 'What does the sandbox mount, read-only or writable, and what does it hide?',
       learn: [
         'Mounts: the paths the sandbox exposes, each read-only or writable',
@@ -57,7 +60,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Network',
     intro: {
       story:
-        'Files are one wall; the network is the other. In chapter 1 the attack’s last move was a request to an outside host. That is how data leaves. Now set what the sandbox can reach.',
+        'Files are one wall; the network is the other. In chapter 1 the attack’s last move was a request to an outside host: that is how data leaves.',
       goal: 'With egress off, then an allow-list through a proxy, what can the agent reach?',
       learn: [
         'Egress: the agent’s outbound network, which can be off, open, or an allow-list',
@@ -78,7 +81,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Secrets',
     intro: {
       story:
-        'The agent’s task needs Larkspur’s API token to call the API. But if the token sits where the agent can read it, a compromised agent can read it too, and send it out. Where should the secret live?',
+        'The task needs Larkspur’s API token. Wherever the agent can read it, a compromised agent can read it too, and send it out.',
       goal: 'With the egress open, does moving the secret out of the sandbox stop it being stolen?',
       learn: [
         'Why a secret in the sandbox’s environment can be read by a compromised agent',
@@ -98,8 +101,8 @@ const CHAPTERS: Chapter[] = [
     short: 'Allowed door',
     intro: {
       story:
-        'The allow-list from chapter 3 lets the agent reach Larkspur’s own API. That door is open on purpose. But an attack can use an open door too: it can hide stolen data inside a request to an allowed host.',
-      goal: 'If the only host the agent can reach is Larkspur’s own, can an attack still get data out?',
+        'Chapter 3’s allow-list lets the agent reach Larkspur’s own API, on purpose. An attack can use that open door too.',
+      goal: 'If the agent can reach only Larkspur’s own host, can an attack still get data out?',
       learn: [
         'How an allow-listed host becomes a channel for exfiltration',
         'Why this is Guardrails’ lethal trifecta: private data, untrusted content, a way out',
@@ -107,7 +110,10 @@ const CHAPTERS: Chapter[] = [
       ],
       terms: [
         ['Allowed door', 'A host the proxy lets the agent reach for a real reason, which an attack can also use.'],
-        ['Lethal trifecta', fact('allowed-domain-leak').claim],
+        [
+          'Lethal trifecta',
+          'Private data, untrusted content and a way out, together in one agent: with all three, an attack can steal data.',
+        ],
         ['Break a leg', 'Removing one of the three legs of the trifecta, which is the only reliable fix.'],
       ],
     },
@@ -118,7 +124,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Fewer prompts',
     intro: {
       story:
-        'Before sandboxing, a careful team asked a person to approve almost every action the agent took. That is slow, and people wave things through. The sandbox changes the maths: the boundary does the enforcing.',
+        'Before sandboxing, careful teams approved almost every agent action. That is slow, and tired people wave things through. A sandbox moves the enforcing into the boundary.',
       goal: 'With a sandbox boundary, which actions still need a person, and which can run freely?',
       learn: [
         'Why a sandbox lets most actions run without a prompt',
@@ -138,7 +144,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Red team',
     intro: {
       story:
-        'You have every control: the sandbox, the mounts, the egress, where the secret lives and who approves what. The red team runs every attack and every ordinary task against your policy at once.',
+        'You hold every control: mounts, egress, where the secret lives, approvals. The red team runs every attack and ordinary task against your policy.',
       goal: 'Which sandbox policy stops every attack and still lets every ordinary task run?',
       learn: [
         'How to run an attack suite and a task suite under one policy',

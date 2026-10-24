@@ -1,6 +1,10 @@
 // Chapter 1: the smallest full loop. The reader sends a question (act), predicts the reply, sees it (observe, with
 // their prediction beside it), then answers a checkpoint quiz with a `why` per option and "I'm not sure".
 // Text in the picture is short; anything long belongs in the story column or a drawer panel.
+// What the reader does now goes in `act`, drawn as its own highlighted line, never buried at the end of the narration.
+// Copy budgets (tests/unit/copy-budget.test.ts): a step's narration and act together are at most 25 words, each quiz `why` one sentence,
+// and every chapter term appears in the narration so it is defined where it is used. Let the picture show what happened;
+// a step's `say` pins a short callout (at most 5 words) on the stage when the stage draws one.
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
@@ -37,45 +41,53 @@ const PREDICT = {
 };
 const OUTCOME = 0; // the option that matches what the picture shows
 
-const QUIZ = {
+export const QUIZ = {
   question: 'A checkpoint question, asked in a new situation?',
   options: ['The right answer', 'A plausible misconception', 'Another plausible misconception'],
   correct: 0,
   explanation: fact('core-idea').claim,
   why: [
-    `Right. ${fact('core-idea').claim}`,
+    `Right: ${fact('core-idea').claim}`,
     'Name the misconception behind this pick.',
     'And the one behind this pick.',
   ],
 };
+
+// The parts of the picture a step's `say` may name: a scene's exported list (e.g. OFFICE_PARTS), or none for this flat
+// chart. tests/unit/say-targets.test.ts holds every callout to it.
+export const PARTS: readonly string[] = [];
 
 export const STEPS: Step<S>[] = [
   {
     id: 'ask',
     focus: 'ask',
     visibleControls: ['ask'],
-    narration: 'Orient: what we are trying to do, and why it matters here. Then one thing to do.',
+    narration: 'Orient: what the system does, and why it matters here.',
+    act: 'Send the question.',
     predicate: s => s.asked,
   },
   {
     id: 'predict',
     focus: 'predict',
     visibleControls: ['predict'],
-    narration: 'The question is on its way. Before you look:',
+    narration: 'The question is on its way.',
+    act: 'Before you look, predict the reply.',
     predicate: s => s.prediction !== null,
   },
   {
     id: 'reveal',
     focus: 'reveal',
     visibleControls: ['predict', 'reveal'],
-    narration: 'Locked in. Now see what comes back.',
+    narration: 'Locked in.',
+    act: 'See what comes back.',
     predicate: s => s.revealed,
   },
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['quiz'],
-    narration: `${fact('reply').claim} One question to finish.`,
+    narration: fact('reply').claim,
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'A hint that points at the idea, not the answer.',
   },

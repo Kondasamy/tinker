@@ -21,6 +21,8 @@ import { evalGrid, flippedQuestions, gridLabel, type GridCol } from '../../compo
 import { useNarrow } from '../tool-calling/kit';
 import { fact } from '../../lib/evals/facts';
 import './evals.css';
+import Cite from '../../components/story/Cite';
+import type { Say } from '../../components/story/steps';
 
 export type Suite = Record<VersionId, Row[]>;
 
@@ -160,10 +162,13 @@ export function EvalStage({
   show,
   view: kept,
   onView,
+  say,
 }: {
   show: (suite: Suite) => Shown;
   view?: View;
   onView?: (v: View) => void;
+  /** the step's callout, drawn on the picture (EVAL_PARTS) */
+  say?: Say;
 }) {
   const [own, setOwn] = useState<View>('scene');
   const view = kept ?? own,
@@ -174,7 +179,7 @@ export function EvalStage({
       <SuiteGate>
         {suite => {
           const s = show(suite),
-            o: EvalOpts = { ...s.scene, scale };
+            o: EvalOpts = { ...s.scene, say, scale };
           const flipped = flippedQuestions(s.cols);
           return (
             <>
@@ -223,11 +228,7 @@ export function Fact({ id }: { id: string }) {
   const f = fact(id);
   return (
     <p className="tc-fact">
-      {f.claim}{' '}
-      <a className="source" href={f.source} target="_blank" rel="noreferrer">
-        Source: {new URL(f.source).hostname}
-      </a>{' '}
-      (checked {f.accessed})
+      {f.claim} <Cite title={new URL(f.source).hostname} href={f.source} checked={f.accessed} />
     </p>
   );
 }

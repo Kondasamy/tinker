@@ -12,7 +12,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Asking nicely',
     intro: {
       story:
-        'Larkspur’s order system wants the assistant’s answers as JSON it can read without a person: a status field, a team, a number of days. The team starts the simple way, by asking Larkspur mini, the tiny model you met in Transformers, for JSON.',
+        'Larkspur’s order system reads the assistant’s answers with a program, not a person. The team starts simple: ask Larkspur mini, the tiny model from Transformers.',
       goal: 'Does asking a model for JSON get you JSON?',
       learn: [
         'Why a request in the prompt is not a guarantee of format',
@@ -33,7 +33,7 @@ const CHAPTERS: Chapter[] = [
     short: 'A schema is a contract',
     intro: {
       story:
-        'Larkspur mini answered in prose. The team writes down exactly what the order system expects, and has the host check every answer against it, as Tool calling’s host checks tool arguments.',
+        'Larkspur mini answered in prose. The team writes down what the order system expects, and the host checks every answer against it, as Tool calling’s host checks tool arguments.',
       goal: 'What does checking the answer after it is written buy you, and what does it cost?',
       learn: [
         'What a JSON schema says: which fields, which types, which values',
@@ -59,7 +59,7 @@ const CHAPTERS: Chapter[] = [
     short: 'The mask',
     intro: {
       story:
-        'Retries got the team nowhere. A different idea: don’t check the answer after it is written; stop the model writing anything the schema doesn’t allow, one token at a time.',
+        'Retries got nowhere. New idea: stop the model writing anything the schema doesn’t allow, one token at a time.',
       goal: 'How can a schema stop a model writing invalid JSON, before it writes it?',
       learn: [
         'That the schema allows some tokens at each step and blocks the rest',
@@ -84,7 +84,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Tokens, not characters',
     intro: {
       story:
-        'The mask works. But a schema is written in characters, and the model writes tokens: pieces of one to several characters, as you saw in Tokens. The mask has to judge whole tokens.',
+        'The mask works. But a schema is written in characters, and the model writes tokens, pieces of one or more characters. The mask must judge whole tokens.',
       goal: 'How does a mask written for characters judge a token that carries several?',
       learn: [
         'Why the mask checks every byte of a token, not just its first',
@@ -113,7 +113,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Choices from a list',
     intro: {
       story:
-        'The answers are valid JSON now, but the free text inside them is odd. The order system only knows two statuses. The team gives the model a list instead of a blank.',
+        'The answers are valid JSON now, but the free text inside is odd. The order system knows only its statuses, so the team offers a list instead.',
       goal: 'What changes when a field is a choice from a list instead of free text?',
       learn: [
         'How an enum turns a free answer into a pick between allowed values',
@@ -158,7 +158,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Workbench',
     intro: {
       story:
-        'Time to design the real thing: Larkspur’s order-status schema, for four orders, with what you know about masks, lists, room and what the model can know.',
+        'Time to design the real thing: Larkspur’s order-status schema, for its orders, with what you know about masks, lists, room and what the model can know.',
       goal: 'Which schema gets a valid and right answer for every order?',
       learn: [
         'How to choose, field by field, between free text, a list and leaving it to the system',

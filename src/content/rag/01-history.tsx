@@ -3,7 +3,7 @@
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
-import Timeline, { ERAS, eraWindow } from '../../components/scenes/Timeline';
+import Timeline, { ERAS, eraRange, eraWindow } from '../../components/scenes/Timeline';
 import { Source, Answer } from '../../components/scenes/Source';
 import { nextOf } from '../../lib/chapters';
 import { TIMELINE, formatTokens } from '../../lib/scale';
@@ -18,11 +18,16 @@ interface S {
 }
 
 const win = (era: string) => formatTokens(eraWindow(TIMELINE, era));
-const smallest2023 = formatTokens(
-  Math.min(...TIMELINE.filter(e => e.era === 'small-windows' && e.contextTokens).map(e => e.contextTokens!)),
-);
+// the model behind an era's largest window, so the narration never passes one model's window off as typical
+const largest = (era: string) =>
+  TIMELINE.find(e => e.era === era && e.contextTokens === eraWindow(TIMELINE, era))!.model;
+// the window most of an era's cited models share (the agents era: 1M)
+const common = (era: string) => {
+  const w = TIMELINE.filter(e => e.era === era && e.contextTokens).map(e => e.contextTokens!);
+  return formatTokens(w.toSorted((a, b) => w.filter(x => x === b).length - w.filter(x => x === a).length)[0]);
+};
 
-const QUIZ = {
+export const QUIZ = {
   question: 'Why did 2023 assistants need retrieval to answer from company documents?',
   options: [
     'Models were too slow to read documents',
@@ -33,18 +38,20 @@ const QUIZ = {
   explanation:
     'Small context windows meant someone had to pick the few right passages up front. Retrieval did that picking.',
   why: [
-    'Speed was not the problem. The limit was how much text fit in one request, and the model had never seen your files.',
-    'Right. Small windows meant someone had to pick the few right passages up front, and the model could not yet go and search for itself.',
-    'No law asked for it. Retrieval was an engineering fix for a model that had never read your documents.',
+    'Speed was not the problem: the limit was how much text fit in one request.',
+    'Right: small windows meant someone had to pick the right passages up front, since the model could not yet search for itself.',
+    'No law asked for it: retrieval was an engineering fix for a model that never read your documents.',
   ],
 };
 
-// What the narration says right after the learner opens era i (the drawer shows its cited claims).
+// What the narration says right after the learner opens era i (the drawer shows its cited claims); the picture pins
+// the era's lesson over it.
+const LESSON = ['RAG is named', 'Small windows', 'Smarter retrieval', 'RAG becomes a tool'];
 const AFTER: string[] = [
-  '2020: researchers named the fix. First fetch relevant text, then let the model answer from it. That is Retrieval-Augmented Generation, or RAG. Click 2023.',
-  `2023: chat assistants arrived. The text a model could read per request, its context window, held ${smallest2023} to ${win('small-windows')} tokens (a token is about ¾ of a word). Tool calling had only just appeared. So retrieval had to pick the right paragraphs up front. Click 2024.`,
-  `2024: windows reached ${win('retrieval-matures')} tokens and retrieval got smarter: knowledge graphs, better chunks, reranking. Tool calling was measured on public leaderboards, and still stumbled on multi-step tasks. Click the last era.`,
-  `Late 2024–26: windows reached ${win('agents')} tokens, and models call tools well enough to act as agents. Retrieval became one tool among many: the agent decides when to search. One question to finish.`,
+  '2020: researchers named the fix. Fetch relevant text first, then let the model answer from it: Retrieval-Augmented Generation, or RAG.',
+  `2023: companies rolled out chat assistants with context windows of ${eraRange(TIMELINE, 'small-windows')} tokens. Tool calling was new, so retrieval picked the paragraphs.`,
+  `2024: ${largest('retrieval-matures')}’s window hit ${win('retrieval-matures')} tokens, the record. Retrieval got smarter: graphs, better chunks, reranking. Multi-step tool use still stumbled.`,
+  `Late 2024–26: ${common('agents')}-token windows became common (${largest('agents')} claims ${win('agents')}). Models now act as agents, and retrieval is one tool they choose.`,
 ];
 
 const eraStep = (i: number): Step<S> => ({
@@ -54,8 +61,10 @@ const eraStep = (i: number): Step<S> => ({
   opensDrawer: i === 0 ? 'answer' : 'era',
   narration:
     i === 0
-      ? 'Confident, and wrong. A model knows only what it saw in training plus what is in its prompt. It never saw your contracts. How did the industry fix this? Click 2020 on the timeline.'
+      ? 'Confident, and wrong. A model knows only its training data plus its prompt, and it never saw your contracts.'
       : AFTER[i - 1],
+  act: `Click ${ERAS[i].label}.`,
+  say: i === 0 ? undefined : { block: String(i - 1), text: LESSON[i - 1] },
   predicate: s => s.visited > i,
   hint: `Click the glowing ${ERAS[i].label} object, or Tab to it and press Enter.`,
 });
@@ -65,7 +74,7 @@ export const STEPS: Step<S>[] = [
     id: 'ask',
     focus: 'ask',
     visibleControls: ['ask'],
-    narration: 'It’s 2023. An employee asks the company’s new AI assistant a question about a customer contract.',
+    narration: 'It’s 2023. An employee asks the company’s new AI assistant, an LLM, about a customer contract.',
     predicate: s => s.asked,
   },
   ...ERAS.map((_, i) => eraStep(i)),
@@ -75,6 +84,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['quiz'],
     opensDrawer: 'era',
     narration: AFTER[ERAS.length - 1],
+    act: 'Last question.',
+    say: { block: String(ERAS.length - 1), text: LESSON[ERAS.length - 1] },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Think back to 2023: what limited how much a model could read?',
   },
@@ -87,8 +98,9 @@ export default function History() {
       steps={STEPS}
       initial={{ asked: false, visited: 0, active: null, quiz: null }}
       next={nextOf(ID)}
-      stage={({ state, apply }) => (
+      stage={({ state, apply, say }) => (
         <Timeline
+          say={say}
           entries={TIMELINE}
           visited={state.asked ? state.visited : -1}
           active={state.active}
@@ -122,7 +134,7 @@ export default function History() {
             <Answer
               verdict="Wrong"
               answer="Yes. All customers can get a full refund within 60 days of purchase."
-              why="It sounds sure, but it is a guess from training data. Your actual policy says something else, and the model has never read it."
+              why="It sounds sure, but it is a guess from training data: the model has never read your policy."
             />
           ),
         },

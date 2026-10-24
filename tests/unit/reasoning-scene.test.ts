@@ -6,6 +6,7 @@ import { renderToString } from 'react-dom/server';
 import IsoStage from '../../src/lib/iso/IsoStage';
 import {
   MAX_SHEETS,
+  THINK_PARTS,
   THINK_BOARD,
   thinkLabel,
   thinkScene,
@@ -72,5 +73,26 @@ describe('the accuracy chart', () => {
     );
     expect(html).toContain('&lt;b&gt;x&lt;/b&gt;');
     expect(html).toContain('55 scanners in total');
+  });
+});
+
+describe('a step callout on the scratchpad desk', () => {
+  const BASE: ThinkOpts = { effort: 'medium', thinking: 120, wait: 4.2 };
+  const calls = (svg: string) => ((s: string, x: string) => s.split(x).length - 1)(svg, 'class="callout"');
+  it('draws one lit pill over each named part', () => {
+    for (const block of THINK_PARTS) {
+      const svg = draw({ ...BASE, say: { block, text: 'LOOK HERE' } });
+      expect(calls(svg)).toBe(1);
+      expect(svg).toContain('LOOK HERE');
+    }
+  });
+  it('draws none for an unknown part, and nothing changes without one', () => {
+    expect(calls(draw({ ...BASE, say: { block: 'nowhere', text: 'LOOK HERE' } }))).toBe(0);
+    expect(draw({ ...BASE, say: undefined })).toBe(draw(BASE));
+  });
+  it('on phones drops a callout over 16 characters', () => {
+    const block = THINK_PARTS[0];
+    expect(calls(draw({ ...BASE, scale: 2, say: { block, text: 'SIXTEEN CHARS OK' } }))).toBe(1);
+    expect(calls(draw({ ...BASE, scale: 2, say: { block, text: 'SEVENTEEN CHARS X' } }))).toBe(0);
   });
 });

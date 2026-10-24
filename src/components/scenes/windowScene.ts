@@ -5,7 +5,7 @@
 // shelf behind (a copy of the shared prefix, lit on a hit), a filing cabinet for memory (a drawer out when notes were
 // read), and agentScene's in-tray for cleared results (a binder once summarised). Everything is read off one run, up to a call.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
-import { BH, boxCorners, esc, glassCase } from '../../lib/iso/blocks';
+import { BH, boxCorners, esc, glassCase, sayAt, calloutsLast } from '../../lib/iso/blocks';
 import {
   PALS,
   METAL,
@@ -32,6 +32,7 @@ import { KIND_NAME, KIND_PAL } from './windowBar';
 import { DEFAULTS, REPLY_ROOM, type Run } from '../../lib/context/loop';
 import { MEMORY_DIR } from '../../lib/context/memory';
 import type { PartKind } from '../../lib/context/window';
+import type { Say } from '../story/steps';
 
 export const WINDOW_BOARD: Board = [0, 0, 200, 186];
 
@@ -49,7 +50,12 @@ export interface WindowOpts {
   tray?: boolean;
   /** pill size; on phones (> 1) the props' readout pills are left to the caption */
   scale?: number;
+  /** the step's callout: a lit pill over one of WINDOW_PARTS */
+  say?: Say;
 }
+
+/** The parts a step's callout may point at: the ones with a name pill. */
+export const WINDOW_PARTS = ['window', 'shelf', 'cabinet', 'tray'] as const;
 
 /** What the picture shows at the current call. Pure, so the tests can check it without drawing. */
 export function windowState({ run, upTo, budget = DEFAULTS.budget }: Pick<WindowOpts, 'run' | 'upTo' | 'budget'>) {
@@ -274,11 +280,13 @@ export const windowScene = (o: WindowOpts) => (ctx: SceneCtx) => {
     shadows.push(castShadow(boxCorners(x0, y0, BH, x1, y1, BH + h), BH, ctx.top));
   shade(DESK[0], DESK[1], DESK[2], DESK[3], DZ - BH);
 
-  const win = windowCase(st.window?.parts ?? [], budget, st.over);
+  const win = windowCase(st.window?.parts ?? [], budget, st.over),
+    caseAt = [CASE[2], (CASE[1] + CASE[3]) / 2, DZ + CASE_H];
   parts.push(win);
   pills.push(
+    sayAt(o.say, 'window', caseAt, -26, scale),
     pill(
-      [CASE[2], (CASE[1] + CASE[3]) / 2, DZ + CASE_H],
+      caseAt,
       20,
       -26,
       narrow ? (st.over ? 'OVER' : 'WINDOW') : `${st.over ? 'OVER · ' : 'WINDOW '}${num(st.tokens)} / ${num(budget)}`,
@@ -289,41 +297,31 @@ export const windowScene = (o: WindowOpts) => (ctx: SceneCtx) => {
   parts.push(gaugeProp(GAUGE[0], GAUGE[1], st.cachedShare, st.fill, st.over));
 
   if (o.shelf) {
-    const hit = st.cached > 0;
+    const hit = st.cached > 0,
+      at = [SHELF[0], SHELF[1] + 4, SHELF_Z + 4];
     parts.push(shelf(st.cached, budget, hit));
+    pills.push(sayAt(o.say, 'shelf', at, -24, scale));
     if (!narrow || hit)
-      pills.push(
-        pill(
-          [SHELF[0], SHELF[1] + 4, SHELF_Z + 4],
-          -6,
-          -24,
-          narrow ? 'CACHE' : hit ? `CACHE HIT ${num(st.cached)}` : 'CACHE',
-          hit,
-          scale,
-        ),
-      );
+      pills.push(pill(at, -6, -24, narrow ? 'CACHE' : hit ? `CACHE HIT ${num(st.cached)}` : 'CACHE', hit, scale));
   }
   if (o.cabinet) {
     parts.push(cabinet(st.notes > 0));
     shade(CABINET[0], CABINET[1], CABINET[2], CABINET[3], 40);
+    const at = [CABINET[2], CABINET[1] + 4, BH + 40];
     pills.push(
-      pill(
-        [CABINET[2], CABINET[1] + 4, BH + 40],
-        24,
-        -14,
-        narrow || !st.notes ? 'MEMORY' : `MEMORY · ${st.notes} READ`,
-        st.notes > 0,
-        scale,
-      ),
+      sayAt(o.say, 'cabinet', at, -14, scale),
+      pill(at, 24, -14, narrow || !st.notes ? 'MEMORY' : `MEMORY · ${st.notes} READ`, st.notes > 0, scale),
     );
   }
   if (o.tray) {
     parts.push(trayProp(TRAY[0], TRAY[1], st.cleared, st.summary));
     shade(TRAY[0] - 11, TRAY[1] - 8, TRAY[0] + 11, TRAY[1] + 8, 3 + Math.min(st.cleared, 14) * 0.9);
+    const at = [TRAY[0], TRAY[1] + 6, BH + 4];
+    pills.push(sayAt(o.say, 'tray', at, 22, scale));
     if (!narrow)
       pills.push(
         pill(
-          [TRAY[0], TRAY[1] + 6, BH + 4],
+          at,
           -10,
           22,
           st.summary ? (st.cleared ? `SUMMARY + ${st.cleared}` : 'SUMMARY') : `CLEARED ${st.cleared}`,
@@ -333,7 +331,7 @@ export const windowScene = (o: WindowOpts) => (ctx: SceneCtx) => {
       );
   }
   // the desk is under everything on it, so it is drawn first, not sorted by depth
-  return shadows.join('') + desk().svg + byDepth(parts) + pills.join('');
+  return shadows.join('') + desk().svg + byDepth(parts) + calloutsLast(pills);
 };
 
 /** The home hero's plot (heroScene): a small desk at (x, y) with the glass window on it, holding four papers (system,

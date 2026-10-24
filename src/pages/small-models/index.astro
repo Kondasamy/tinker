@@ -23,7 +23,7 @@ import {
   SURE_AND_WRONG,
 } from '../../lib/small-models/router';
 import { layoutOf, paramCount } from '../../lib/small-models/compare';
-import { ACCESSED, fact } from '../../lib/small-models/facts';
+import { fact } from '../../lib/small-models/facts';
 import type { Meta as LmMeta } from '../../lib/lm/load';
 import metaJson from '../../../public/data/lm/meta.json';
 import { moduleOf, chapterHref } from '../../lib/modules';
@@ -91,7 +91,6 @@ const FACTS: [string, string][] = [
     'cost of the router that ships, against all large (relative units)',
   ],
 ];
-const checked = longDate(ACCESSED);
 ---
 <html lang="en">
   <head>
@@ -147,7 +146,7 @@ const checked = longDate(ACCESSED);
               <h3><span class="n">{i + 1}</span> {name}</h3>
               <p class="cap">{short}</p>
               <p class="more">{f.claim}</p>
-              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
             </li>
           ))}
         </ol>

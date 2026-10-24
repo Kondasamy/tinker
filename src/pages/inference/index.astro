@@ -13,7 +13,7 @@ import ChapterCards from '../../components/intro/ChapterCards.astro';
 import { SERVE_BOARD, floorAt, serveLabel, serveScene, type ServeOpts } from '../../components/scenes/serveScene';
 import { ms } from '../../components/scenes/serverTimeline';
 import { OPEN, REQUESTS, kvBytes, serve } from '../../lib/inference/server';
-import { ACCESSED, OPEN_MODEL, fact } from '../../lib/inference/facts';
+import { OPEN_MODEL, fact } from '../../lib/inference/facts';
 import { IDS, N, PROMPT, tpotOf, ttftOf, writeOf } from '../../content/inference/01-prefill-and-decode';
 import META from '../../../public/data/lm/meta.json' with { type: 'json' };
 import { moduleOf, chapterHref } from '../../lib/modules';
@@ -58,7 +58,6 @@ const FACTS: [string, string][] = [
   [num(META.model.params), 'numbers in Larkspur mini, the model that runs in your browser'],
   [num(META.student!.model.params), 'in its student, the draft model of chapter 5'],
 ];
-const checked = longDate(ACCESSED);
 ---
 <html lang="en">
   <head>
@@ -116,7 +115,7 @@ const checked = longDate(ACCESSED);
               <h3><span class="n">{i + 1}</span> {name}</h3>
               <p class="cap">{short}</p>
               <p class="more">{f.claim}</p>
-              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
             </li>
           ))}
         </ol>

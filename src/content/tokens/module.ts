@@ -11,7 +11,7 @@ const CHAPTERS: Chapter[] = [
     short: 'What it reads',
     intro: {
       story:
-        'You have joined the team building an AI assistant for Larkspur Supply Co., a hardware company. Before the assistant reads a single document, the team wants to know what a model actually reads when you send it text.',
+        'You have joined the team building an AI assistant for Larkspur Supply Co., a hardware company. Before it reads any document, the team starts with what a model reads.',
       goal: 'When you type a sentence, what does the model receive?',
       learn: [
         'Text reaches the model as a list of tokens, each one a number',
@@ -40,8 +40,8 @@ const CHAPTERS: Chapter[] = [
     short: 'Learning the vocabulary',
     intro: {
       story:
-        'The sentence came out as more tokens than words: the tokenizer cut some words into pieces. The pieces are not chosen by hand. The tokenizer learned them from Larkspur’s own documents.',
-      goal: 'Where does a tokenizer’s vocabulary come from, and why does it cut words where it does?',
+        'The sentence came out as more tokens than words: some words were cut into pieces. Nobody chose those pieces by hand; the tokenizer learned them from Larkspur’s documents.',
+      goal: 'Where does a tokenizer’s vocabulary come from, and why does it cut where it does?',
       learn: [
         'A byte-level tokenizer starts from single bytes, so it can read any text',
         'How a merge glues a common pair of tokens into one new token',
@@ -66,11 +66,11 @@ const CHAPTERS: Chapter[] = [
     short: 'The meter',
     intro: {
       story:
-        'Larkspur’s tokenizer learned its pieces from the company’s documents. Now the team wants to know what all those documents cost to send to a model, and whether a quick rule of thumb is good enough to plan with.',
+        'The tokenizer learned its pieces from Larkspur’s documents. Now the team wants to know what sending them all to a model costs, and whether a rule of thumb will do.',
       goal: 'How many tokens are Larkspur’s documents, and how far off is the rule of thumb?',
       learn: [
         'Why providers bill and size the context window in tokens',
-        'How the “4 characters per token” rule compares with real tokenizers’ counts',
+        `How the “${fact('openai-rule').value} characters per token” rule compares with real tokenizers’ counts`,
         'Why the same text costs a different amount on a different tokenizer',
       ],
       terms: [
@@ -111,7 +111,7 @@ const CHAPTERS: Chapter[] = [
     short: 'To vectors',
     intro: {
       story:
-        'Tokens are numbers, but an id says nothing about meaning: id 500 is no closer to id 501 than to id 9. Larkspur’s search, built in the RAG module, needs text that means the same to sit close together.',
+        'A token id says nothing about meaning: id 500 is no closer to 501 than to 9. Larkspur’s search, from the RAG module, needs similar texts to sit close.',
       goal: 'How does text become a list of numbers that carries its meaning?',
       learn: [
         'What an embedding is: a list of numbers for a piece of text',
@@ -131,7 +131,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Neighbours',
     intro: {
       story:
-        'Each Larkspur document piece and each customer question now has an embedding. To answer a question, the assistant needs the pieces whose meaning is closest.',
+        'Every Larkspur document piece and customer question now has an embedding. The assistant needs the pieces closest in meaning to each question.',
       goal: 'How do you measure how close two meanings are, and find the nearest ones?',
       learn: [
         'Cosine similarity: how close two embeddings point',
@@ -150,7 +150,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Workbench',
     intro: {
       story:
-        'Larkspur’s assistant builds each prompt from parts: instructions, the customer’s question, document pieces, examples. The team has a token budget per request and must choose what fits.',
+        'Larkspur’s assistant builds each prompt from parts: instructions, the question, document pieces, examples. The team must choose what fits its token budget.',
       goal: 'Which parts of Larkspur’s prompt fit in the budget, and which matter most?',
       learn: [
         'How a prompt’s token count adds up from its parts',

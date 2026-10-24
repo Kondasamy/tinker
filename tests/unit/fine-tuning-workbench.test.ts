@@ -129,8 +129,7 @@ describe('chapter 7: the workbench', () => {
   it('the voice row ties on quality by construction, and the narration says the team’s own notes decide it', () => {
     expect(VOICE_TIE).toBe(true);
     const ties = STEPS.find(s => s.id === 'ties')!.narration;
-    expect(ties).toMatch(/every version signs off every time, so quality ties there/);
-    expect(ties).toMatch(/team’s own notes on cost and upkeep decide it/);
+    expect(ties).toMatch(/No-fact replies tie, so the team’s own notes decide/);
     expect(STEPS.find(s => s.id === 'plan')!.narration).toMatch(/the team’s own notes, not measured facts/);
   });
 

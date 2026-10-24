@@ -8,10 +8,12 @@ import { EFFORTS, SPLIT, run, type Effort } from '../../lib/reasoning/engine';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
+import { THINK_PARTS } from '../../components/scenes/thinkScene';
 import { EffortRange, Fact, RateNote, ReasoningStage, deskOf, seconds } from './kit';
 
 const MODULE = 'reasoning',
   ID = '02-thinking-is-tokens';
+export const PARTS = THINK_PARTS;
 const M = run(SPLIT, 'medium');
 
 interface S {
@@ -29,7 +31,7 @@ const P1 = {
 };
 const outcome = () => (M.thinkingTokens > 1.25 * M.answerTokens ? 0 : M.answerTokens > 1.25 * M.thinkingTokens ? 1 : 2);
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'Larkspur’s finance lead sees the bill go up after thinking is turned on, though the replies customers read look just as short. What explains it?',
   options: [
@@ -41,7 +43,7 @@ const QUIZ = {
   explanation:
     'The reply is not the whole output. Every thinking token was written by the model and is billed as output.',
   why: [
-    'Right. What customers see is the answer; what the model wrote, and what is billed, includes the thinking.',
+    'Right: customers see the answer, but the bill counts everything the model wrote, thinking included.',
     'Possible, but you don’t need it: the thinking alone adds output tokens to every question.',
     'Thinking is written by the model, so it is output, not input.',
   ],
@@ -52,8 +54,8 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration:
-      'Thinking is text, so it is made of tokens: the small pieces a model reads and writes, which prices and limits are counted in. Before you count them:',
+    narration: 'Thinking is text, so it is made of tokens, the pieces prices and limits are counted in.',
+    act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
   {
@@ -61,7 +63,8 @@ export const STEPS: Step<S>[] = [
     focus: 'count',
     visibleControls: ['p1', 'count'],
     narration:
-      'Count the tokens in chapter 1’s thinking answer. The counts come from this site’s own tokenizer, run in your browser: a provider’s tokenizer would count differently, but the proportions are the point.',
+      'This site’s own tokenizer counts them in your browser; a provider’s would count differently, but the proportions hold.',
+    act: 'Press Count the tokens.',
     predicate: s => s.counted,
   },
   {
@@ -69,7 +72,9 @@ export const STEPS: Step<S>[] = [
     focus: 'dial',
     visibleControls: ['counts', 'dial'],
     narration:
-      'Output tokens are the tokens a model writes, and the thinking is among them. Cost here is in relative units: one output token is 1. The wait is how long the customer waits for the whole reply: every thinking token is written before the first word of the answer. The dial starts at medium, where chapter 1 thought. Turn it through the other three levels and watch both follow the thinking.',
+      'Output tokens are what a model writes, thinking included. All thinking comes first, so the wait grows with it.',
+    act: 'Turn the dial through every level.',
+    say: { block: 'pad', text: 'Thinking grows' },
     setup: s => ({ ...s, seen: [...new Set([...s.seen, s.effort])] }),
     predicate: s => EFFORTS.every(e => s.seen.includes(e)),
     hint: 'Drag the dial, or use the arrow keys, until you have seen none, low, medium and high.',
@@ -79,7 +84,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['billing', 'quiz'],
     narration:
-      'The answer barely changes length; the thinking is what grows, and the cost and the wait grow with it. Providers bill it the same way. One question to finish.',
+      'The answer barely changes length; the thinking grows, and cost and wait with it. Providers bill it the same way.',
+    act: 'One question to finish.',
+    say: { block: 'clock', text: 'Wait grows too' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Who wrote the thinking tokens?',
   },
@@ -93,11 +100,12 @@ export default function ThinkingIsTokens() {
       steps={STEPS}
       initial={{ p1: null, counted: false, effort: 'medium', seen: [], quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => {
+      stage={({ state, say }) => {
         const r = run(SPLIT, state.effort),
           shown = state.counted;
         return (
           <ReasoningStage
+            say={say}
             shown={{
               desk: shown ? deskOf(r) : { ...deskOf(M), thinking: 0, wait: 0, right: undefined },
               caption: shown
@@ -159,7 +167,7 @@ export default function ThinkingIsTokens() {
                     <td>{r.answerTokens} tokens</td>
                   </tr>
                   <tr>
-                    <th scope="row">Cost</th>
+                    <th scope="row">Cost (1 per output token)</th>
                     <td>{r.cost}</td>
                   </tr>
                   <tr>

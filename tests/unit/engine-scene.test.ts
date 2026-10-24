@@ -9,6 +9,7 @@ import { parseModel, type Meta } from '../../src/lib/lm/load';
 import { PROMPTS, trace } from '../../src/lib/transformers/trace';
 import {
   ENGINE_BOARD,
+  ENGINE_PARTS,
   THREAD_FLOOR,
   engineLabel,
   engineScene,
@@ -196,5 +197,27 @@ describe('the prompt box', () => {
     const struck = html.split('<s>').length - 1;
     expect(html).toContain(`${CTX + struck} of ${CTX} tokens`);
     expect(struck).toBeGreaterThan(0);
+  });
+});
+
+describe('engine room callouts', () => {
+  const base: EngineOpts = optsOf(LONG);
+  const calls = (svg: string) => svg.match(/class="callout"/g)?.length ?? 0;
+  it('draws one callout over each named part, with its text', () => {
+    for (const block of ENGINE_PARTS) {
+      const svg = draw({ ...base, say: { block, text: 'Look here' } });
+      expect(calls(svg), block).toBe(1);
+      expect(svg).toMatch(/class="callout"[\s\S]*Look here/);
+    }
+  });
+  it('draws none for a part it does not have, and nothing changes without one', () => {
+    expect(calls(draw({ ...base, say: { block: 'nowhere', text: 'Look here' } }))).toBe(0);
+    expect(draw({ ...base, say: undefined })).toBe(draw(base));
+    expect(calls(draw(base))).toBe(0);
+  });
+  it('on phones drops a callout over 16 characters and keeps a shorter one', () => {
+    const phone = (text: string) => calls(draw({ ...base, scale: 1.8, say: { block: ENGINE_PARTS[0], text } }));
+    expect(phone('x'.repeat(17))).toBe(0);
+    expect(phone('x'.repeat(16))).toBe(1);
   });
 });

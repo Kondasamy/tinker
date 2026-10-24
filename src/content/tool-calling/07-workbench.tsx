@@ -163,12 +163,16 @@ function msgs(s: S): Shown[] {
   return cache.get(key)!;
 }
 
+// this chapter's picture is drawn by mcpScene directly, with no named parts for a callout
+export const PARTS: readonly string[] = [];
+
 export const STEPS: Step<S>[] = [
   {
     id: 'bench',
     focus: 'setup',
     visibleControls: ['setup'],
-    narration: `Last stop: the workbench. Here is Larkspur’s host app and its ${SERVER_IDS.length} MCP servers, none connected yet, with the approval gate and the refund limit from chapter 6. Connect a server to start.`,
+    narration: `Larkspur’s host app and its ${SERVER_IDS.length} MCP servers, none connected, with chapter 6’s gate and limit.`,
+    act: 'Connect a server to start.',
     predicate: s => s.setup.servers.length > 0,
     hint: 'Tick one of the servers under “Connected servers”.',
   },
@@ -176,7 +180,8 @@ export const STEPS: Step<S>[] = [
     id: 'match',
     focus: 'match',
     visibleControls: ['match', 'setup', 'try'],
-    narration: `Four requests have come in. Pick one, set the host up for exactly what it needs, and try it. Do them in any order; each one explains itself, right or wrong.`,
+    narration: `${REQUESTS.length} requests have come in. Give each the setup it needs, nothing more: least privilege.`,
+    act: 'Pick a request, set the host up, try it.',
     predicate: complete,
     hint: 'Connect only the servers whose tools the request uses. If a connected tool can move money, keep the gate on and give it a limit that still fits the request.',
     solution: s => tryOn(s, needs(req(s))),

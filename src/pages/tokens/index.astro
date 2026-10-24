@@ -13,7 +13,7 @@ import { TokenRow, siteEncoding } from '../../content/tokens/kit';
 import { TOKEN_BOARD, tokenScene, tokenLabel, tokensWord, type TokenOpts } from '../../components/scenes/tokenScene';
 import { SENTENCES, TOKENIZERS, encodingOf } from '../../lib/tokens/encodings';
 import { CORPUS, corpusMeter, countText } from '../../lib/tokens/counts';
-import { ACCESSED, fact } from '../../lib/tokens/facts';
+import { fact } from '../../lib/tokens/facts';
 import { moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate, num } from '../../lib/format';
@@ -56,7 +56,6 @@ const FACTS: [string, string][] = [
   [num(M.rule), `tokens by the rule of thumb (bytes ÷ ${fact('openai-rule').value})`],
   ...M.real.map(r => [num(r.tokens), `tokens on ${r.name}`] as [string, string]),
 ];
-const checked = longDate(ACCESSED);
 ---
 <html lang="en">
   <head>
@@ -116,7 +115,7 @@ const checked = longDate(ACCESSED);
               <h3><span class="n">{i + 1}</span> {name}</h3>
               <p class="cap">{short}</p>
               <p class="more">{f.claim}</p>
-              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
             </li>
           ))}
         </ol>

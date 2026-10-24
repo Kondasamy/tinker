@@ -11,7 +11,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Big and small',
     intro: {
       story:
-        'Larkspur’s assistant now answers from its documents, passes the release gate and signs off in the team’s voice. Then finance sends the monthly model bill. Someone asks: could a smaller model do the same job for less?',
+        'Larkspur’s assistant answers well, but finance has sent the monthly model bill. Someone asks: could a smaller model do the same job for less?',
       goal: 'What does a smaller model give up, and what does it save on every token?',
       learn: [
         'How a model’s size is counted, and why the work per token follows it',
@@ -34,8 +34,8 @@ const CHAPTERS: Chapter[] = [
     short: 'A teacher',
     intro: {
       story:
-        'The small model in chapter 1 was not trained from scratch. It learnt from Larkspur mini itself, by copying how the bigger model spreads its bets.',
-      goal: 'How does a small model learn from a big one, and what does it learn that the text alone doesn’t teach?',
+        'The student was not trained from scratch: it learnt from Larkspur mini, copying how the bigger model spreads its bets.',
+      goal: 'How does a small model learn from a big one, and what does it learn that text alone doesn’t teach?',
       learn: [
         'The difference between the right answer and the teacher’s odds',
         'What a training run of distillation looks like, step by step',
@@ -58,7 +58,7 @@ const CHAPTERS: Chapter[] = [
     short: 'How close',
     intro: {
       story:
-        'The student trained on the teacher’s odds. Before Larkspur trusts it with anything, the team wants to know how often it still picks what the teacher would.',
+        'Before Larkspur trusts the student with anything, the team wants to know how often it still picks what the teacher would.',
       goal: 'How do you measure how close a student is to its teacher, on text neither has seen?',
       learn: [
         'Agreement: how often the two models’ top picks match',
@@ -81,11 +81,11 @@ const CHAPTERS: Chapter[] = [
     short: 'Easy ones',
     intro: {
       story:
-        'Larkspur mini and its student showed the mechanism. Now the real question: Larkspur’s assistant comes in two tiers, a small model and a large one, both reading the same documents. Which questions can the small tier take?',
+        'Larkspur’s assistant comes in two tiers, small and large, both reading the same documents. Which questions can the small tier take?',
       goal: 'Where does a small model answer as well as a large one, and where does it fall short?',
       learn: [
         'How two tiers of the same assistant compare on Evals’ test set',
-        'What a small tier costs against a large one, from a real price list',
+        'What a small tier costs against a large one, from one dated vendor price pair',
         'Which kinds of question a small model gets wrong',
       ],
       terms: [
@@ -100,7 +100,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Fall back',
     intro: {
       story:
-        'The small tier gets the easy questions right and stumbles on the tricky ones. The team wires a router: the small tier answers first, and when it is unsure, the question goes up to the large tier.',
+        'The small tier stumbles on the tricky questions. So the team wires a router: the small tier answers first, and unsure answers go up to the large tier.',
       goal: 'How does a confidence threshold trade right answers against cost?',
       learn: [
         'What a router and a fallback (a cascade) are',
@@ -148,7 +148,7 @@ const CHAPTERS: Chapter[] = [
     short: 'The policy',
     intro: {
       story:
-        'One threshold for every question works, but the questions are not all alike. The support lead sorts them into kinds and asks for a policy per kind: small, router or large.',
+        'One threshold for every question works, but the questions differ. The support lead sorts them into kinds and asks for a policy per kind: small, router or large.',
       goal: 'Which tier should answer each kind of question?',
       learn: [
         'How to match a tier to what a kind of question needs',

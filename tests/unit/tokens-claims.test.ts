@@ -17,13 +17,15 @@ const M = corpusMeter();
 const narration = (steps: { id: string; narration: string }[], id: string) => steps.find(s => s.id === id)!.narration;
 
 describe('chapter 3 and its recall', () => {
-  it('“each real token held more than 4 bytes”: the rule over-counts every real tokenizer', () => {
-    expect(narration(CH3, 'compare')).toContain(`each real token held more than ${BYTES_PER_TOKEN} bytes`);
-    for (const r of M.real) expect(r.bytesPerToken, r.id).toBeGreaterThan(BYTES_PER_TOKEN);
+  it('“The rule was N% over” each real tokenizer: the rule over-counts every real tokenizer', () => {
+    for (const r of M.real) {
+      expect(narration(CH3, 'compare')).toContain(`over ${r.name}`);
+      expect(r.bytesPerToken, r.id).toBeGreaterThan(BYTES_PER_TOKEN);
+    }
   });
 
-  it('“the site tokenizer counted more than any of them”', () => {
-    expect(narration(CH3, 'compare')).toContain('more than any of them');
+  it('“this site’s small tokenizer counted more than the real ones even in-sample”', () => {
+    expect(RECALL.find(r => r.id === 'in-sample')!.why![3]).toContain('counted more than the real ones even in-sample');
     for (const r of M.real) expect(M.site, r.id).toBeGreaterThan(r.tokens);
   });
 
@@ -42,8 +44,9 @@ describe('chapter 3 and its recall', () => {
 });
 
 describe('chapter 7', () => {
-  it('“Only the needed parts fit in” the lowest budget', () => {
-    expect(narration(CH7, 'raise')).toContain(`Only the needed parts fit in ${BUDGETS[0]}`);
+  it('only the needed parts fit in the lowest budget, so “the needed parts stay” and the budget is raised', () => {
+    expect(narration(CH7, 'trim')).toContain('The needed parts stay');
+    expect(narration(CH7, 'raise')).toContain(`The budget is now ${BUDGETS[BUDGETS.length - 1]}`);
     expect(fullPrompts(BUDGETS[0])).toEqual([REQUIRED]);
   });
 });

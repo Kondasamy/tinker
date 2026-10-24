@@ -6,6 +6,7 @@ import { renderToString } from 'react-dom/server';
 import { readFileSync } from 'node:fs';
 import IsoStage from '../../src/lib/iso/IsoStage';
 import {
+  SERVE_PARTS,
   SERVE_BOARD,
   floorAt,
   serveLabel,
@@ -128,5 +129,33 @@ describe('the stage', () => {
     );
     expect(html).toContain('data-prop="server"');
     expect(html).not.toContain('<script>x');
+  });
+});
+
+describe("a step's callout on the picture", () => {
+  const base: ServeOpts = {
+    seats: ['prefill', 'decode', 'empty'],
+    queued: 2,
+    kv: 0.5,
+    draft: { drafted: 4, accepted: 2 },
+  };
+  const callouts = (svg: string) => svg.split('class="callout"').length - 1;
+  it.each(['server', 'queue', 'kv', 'draft'])('draws one lit callout over %s', part => {
+    expect(SERVE_PARTS).toContain(part);
+    const svg = draw({ ...base, say: { block: part, text: 'LOOK HERE' } });
+    expect(callouts(svg)).toBe(1);
+    expect(svg.slice(svg.indexOf('class="callout"'))).toContain('LOOK HERE');
+  });
+  it('draws none for a part the scene does not have', () => {
+    expect(callouts(draw({ ...base, say: { block: 'nowhere', text: 'LOOK HERE' } }))).toBe(0);
+  });
+  it('with no callout the picture is unchanged', () => {
+    expect(draw({ ...base, say: undefined })).toBe(draw(base));
+    expect(draw({ ...base, say: { block: 'nowhere', text: 'X' } })).toBe(draw(base));
+  });
+  it('on phones a callout over 16 characters is dropped', () => {
+    const at = (text: string) => callouts(draw({ ...base, scale: 2, say: { block: 'server', text } }));
+    expect(at('SIXTEEN CHARS OK')).toBe(1);
+    expect(at('SEVENTEEN CHARS X')).toBe(0);
   });
 });

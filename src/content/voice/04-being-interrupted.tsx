@@ -10,6 +10,7 @@ import { lineOf, textOf } from '../../lib/voice/script';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
+import { PHONE_PARTS } from '../../components/scenes/phoneScene';
 import { Fact, RecordedNote, Say, Toggle, Transcript, VoiceStage, segmentsOf, type View } from './kit';
 
 const MODULE = 'voice',
@@ -17,7 +18,8 @@ const MODULE = 'voice',
 const BASE = { ...DEFAULT_LINE, streaming: true, silence: 800 as const };
 const runOf = (point: Point, bargeIn: boolean) => runCall('slots', { ...BASE, point, bargeIn });
 const REPLY = 'slots-reply',
-  PARTS = lineOf(REPLY).parts;
+  PIECES = lineOf(REPLY).parts;
+export const PARTS = PHONE_PARTS;
 
 interface S {
   asked: boolean;
@@ -40,10 +42,10 @@ const P1 = {
 /** read off the recording: how much of the reply the history keeps */
 export const outcome = (p: Point) => {
   const kept = runOf(p, true).recording.turns.find(t => t.clip === REPLY)!.kept!;
-  return kept === PARTS.length ? 0 : kept > 0 ? 1 : 2;
+  return kept === PIECES.length ? 0 : kept > 0 ? 1 : 2;
 };
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A cinema’s phone assistant is cut off while listing showtimes, after “six fifteen”. Its history still holds all four times it wrote. What goes wrong next?',
   options: [
@@ -55,28 +57,30 @@ const QUIZ = {
   explanation: 'The history should match what the caller heard; anything beyond the cut was never said.',
   why: [
     'Having the full list is the problem: the model thinks the caller heard it too.',
-    'Right. It might say “the eight o’clock one, then?” about a time that was never spoken. Keep only what was said.',
+    'Right: it might offer “the eight o’clock one, then?”, a time never spoken, so keep only what was said.',
     'An interruption doesn’t end the call; the next turn just starts from the wrong place.',
   ],
 };
 
-const where = (p: Point) => `During “${PARTS[partOf(p)].text.replace(/,$/, '')}”`;
+const where = (p: Point) => `During “${PIECES[partOf(p)].text.replace(/,$/, '')}”`;
 
 export const STEPS: Step<S>[] = [
   {
     id: 'ask',
     focus: 'ask',
     visibleControls: ['ask'],
-    narration:
-      'Dana from Hollis Hardware wants a delivery slot. The assistant reads the slots out one by one, and partway through she remembers something. Let her ask.',
+    narration: 'The assistant reads Dana’s delivery slots out one by one.',
+    act: 'Let her ask.',
+    say: { block: 'mouth', text: 'Reads slots out' },
     predicate: s => s.asked,
   },
   {
     id: 'point',
     focus: 'point',
     visibleControls: ['reply', 'point'],
-    narration:
-      'This is the reply the model wrote. Pick the moment Dana cuts in with “Sorry, we’re closed on Tuesdays.” You don’t need the sound for this. For now the line has no barge-in: it keeps talking, and it isn’t listening while it talks.',
+    narration: 'The line has no barge-in yet: it keeps talking and isn’t listening.',
+    act: 'Pick where Dana cuts in; no sound needed.',
+    say: { block: 'mouth', text: 'Keeps talking' },
     predicate: s => s.point !== null,
   },
   {
@@ -84,22 +88,26 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['talkedOver', 'p1'],
     narration:
-      'Dana’s words never reached the model, so it offers the slot she just ruled out, and she has to say it again. Barge-in is the caller speaking over the assistant and the line stopping to listen. The model’s next turn reads the history, the conversation so far. Before you turn barge-in on:',
+      'Dana’s words never reached the model, so it offers the slot she ruled out. Its next turn reads the history.',
+    act: 'Predict what it should keep.',
+    say: { block: 'model', text: 'Never heard her' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'bargein',
     focus: 'bargein',
     visibleControls: ['p1', 'bargein'],
-    narration: 'Turn barge-in on, then compare where Dana cuts in.',
+    narration: 'Your pick is locked.',
+    act: 'Turn barge-in on, then compare where Dana cuts in.',
     predicate: s => s.bargeIn,
   },
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['outcome', 'quiz'],
-    narration:
-      'The line stopped when Dana spoke, heard her, and its history keeps only what was said before she cut in, so the next reply offers the slots she never heard. Live voice APIs do the same:',
+    narration: 'The line stopped and heard Dana; its history keeps only what was said.',
+    act: 'One question to finish.',
+    say: { block: 'model', text: 'Said part only' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What does the model believe the caller heard?',
   },
@@ -113,11 +121,12 @@ export default function BeingInterrupted() {
       steps={STEPS}
       initial={{ asked: false, point: null, p1: null, bargeIn: false, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync, focus }) => {
+      stage={({ state, sync, focus, say }) => {
         const r = state.point ? runOf(state.point, state.bargeIn) : null;
         return (
           <VoiceStage
             step={focus}
+            say={say}
             view={state.view}
             onView={view => sync({ ...state, view })}
             shown={{

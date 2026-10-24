@@ -4,7 +4,7 @@
 // decoding a small draft runner (the student) stands beside the rack with the tokens it guessed. Words only in pills;
 // on phones (scale > 1.5) only the server's pill shows and the caption carries the counts.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
-import { BH, boxCorners, esc } from '../../lib/iso/blocks';
+import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
 import {
   PALS,
   METAL,
@@ -21,6 +21,7 @@ import {
 } from '../../lib/iso/core.js';
 import type { Result } from '../../lib/inference/server';
 import { beltAt } from './officeScene';
+import type { Say } from '../story/steps';
 
 export const SERVE_BOARD: Board = [0, 34, 186, 140];
 
@@ -34,9 +35,14 @@ export interface ServeOpts {
   kv: number;
   /** speculative decoding: tokens the draft runner guessed and how many the server kept (none: no draft runner) */
   draft?: { drafted: number; accepted: number } | null;
+  /** the step's callout, over one of SERVE_PARTS */
+  say?: Say;
   /** pill size; phones pass more */
   scale?: number;
 }
+
+/** The parts a step's callout may name: the server rack, the queue, the KV shelf and the draft runner (when drawn). */
+export const SERVE_PARTS = ['server', 'queue', 'kv', 'draft'] as const;
 
 const SLOTS = 10,
   MAX_ENV = 6,
@@ -202,6 +208,12 @@ export const serveScene = (o: ServeOpts) => (ctx: SceneCtx) => {
         scale,
       );
   }
+  // the callout stands over its part, even where phones leave the part's pill out
+  pills +=
+    sayAt(o.say, 'server', [x, y, TOP + 4], -18, scale) +
+    sayAt(o.say, 'queue', [24, y, BH + 6], -24, scale) +
+    sayAt(o.say, 'kv', [146, 100, BH + 28], -4, scale) +
+    (st.draft ? sayAt(o.say, 'draft', [52, 116, BH + 16], -14, scale) : '');
   return s + pills;
 };
 

@@ -16,6 +16,8 @@ import { PHASE_PAL, laneName, serverTimeline, timelineLabel } from '../../compon
 import { useNarrow } from '../tool-calling/kit';
 import HELDOUT from '../../../data/fine-tuning/heldout.json' with { type: 'json' };
 import './inference.css';
+import Cite from '../../components/story/Cite';
+import type { Say } from '../../components/story/steps';
 
 // ---- the models: one loader per set of weights, shared by the stage and every control ----
 
@@ -305,11 +307,14 @@ export function InferenceStage({
   weights,
   view: kept,
   onView,
+  say,
 }: {
   show: (m: Partial<Record<W, Model>>) => Shown;
   weights?: W[];
   view?: View;
   onView?: (v: View) => void;
+  /** the step's callout, drawn on the picture (SERVE_PARTS) */
+  say?: Say;
 }) {
   const [own, setOwn] = useState<View>('scene');
   const view = kept ?? own,
@@ -317,7 +322,7 @@ export function InferenceStage({
   const scale = useNarrow() ? 2 : 1.2;
   const { ready, failed, models, retry } = useModels(weights ?? []);
   const s = ready ? show(models) : null,
-    o: ServeOpts | null = s ? { ...s.scene, scale } : null;
+    o: ServeOpts | null = s ? { ...s.scene, say, scale } : null;
   return (
     <div className="tc-stage in-stage" data-model={ready ? 'ready' : failed ? 'failed' : 'loading'}>
       <div className="tc-tabs" role="group" aria-label="Show in the picture">
@@ -362,11 +367,7 @@ export function Fact({ id }: { id: string }) {
   const f = fact(id);
   return (
     <p className="tc-fact">
-      {f.claim}{' '}
-      <a className="source" href={f.source} target="_blank" rel="noreferrer">
-        Source: {new URL(f.source).hostname}
-      </a>{' '}
-      (checked {f.accessed})
+      {f.claim} <Cite title={new URL(f.source).hostname} href={f.source} checked={f.accessed} />
     </p>
   );
 }

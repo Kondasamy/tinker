@@ -6,7 +6,7 @@ import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { Outcome } from '../tool-calling/kit';
 import { DEFAULT, MEMORY, OPEN, REQUESTS, serve, type Mode } from '../../lib/inference/server';
-import { floorAt } from '../../components/scenes/serveScene';
+import { SERVE_PARTS, floorAt } from '../../components/scenes/serveScene';
 import { ms } from '../../components/scenes/serverTimeline';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
@@ -20,9 +20,11 @@ export const RUNS: Record<Mode, ReturnType<typeof serve>> = {
   static: serve(OPEN, { mode: 'static', cap: CAP, kvRoomGB: ROOM }),
   continuous: serve(OPEN, { mode: 'continuous', cap: CAP, kvRoomGB: ROOM }),
 };
+/** the parts the serving floor can call out */
+export const PARTS = SERVE_PARTS;
 const tput = (m: Mode) => `${Math.round(RUNS[m].throughput)} tokens/s`;
 
-const P1 = {
+export const P1 = {
   question:
     'Continuous batching lets a waiting request join the batch after any pass, instead of waiting for the whole batch to end. What happens to when the last of Monday’s replies finishes?',
   options: [
@@ -36,7 +38,7 @@ export function outcomeOf(): number {
   return r < 0.85 ? 1 : r <= 1.05 ? 0 : 2;
 }
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A bakery’s order bot uses static batching. Most replies are one line; a few are long recipes. What do customers with one-line replies notice most?',
   options: [
@@ -50,8 +52,8 @@ const QUIZ = {
     'In static batching a batch holds its seats until its longest reply ends, so short requests behind it wait. Continuous batching fills a seat the pass after it frees.',
   why: [
     'Their own reply is short, but they can’t start until the batch ahead of them ends, and it ends with the longest recipe.',
-    'Right. The batch ends with its longest reply; the queue waits for it while finished seats sit idle.',
-    'Each request in a batch keeps its own tokens and cache. Batching shares the passes, not the text.',
+    'Right: the batch ends with its longest reply, and the queue waits for it while finished seats sit idle.',
+    'Each request in a batch keeps its own tokens and cache: batching shares the passes, not the text.',
     'Batching is the server’s choice, invisible in the price per token; it changes waits, not what a reply costs a customer.',
   ],
 };
@@ -68,7 +70,9 @@ export const STEPS: Step<S>[] = [
     id: 'static',
     focus: 'tab',
     visibleControls: ['tab', 'compare'],
-    narration: `Monday’s first rush: ${REQUESTS.length} requests in five seconds. The server runs up to ${CAP} at once, in a batch: one pass moves every request in it a token on, and reads the weights only once for all of them. It starts with static batching: when it is free it takes up to ${CAP} waiting requests and runs them until the last reply ends. Open the Timeline tab.`,
+    narration: `Monday’s rush: ${REQUESTS.length} requests, up to ${CAP} at a time. Static batching runs each batch until its last reply ends.`,
+    act: 'Open the Timeline tab.',
+    say: { block: 'queue', text: 'Waits for batch' },
     predicate: s => s.view === 'timeline',
   },
   {
@@ -76,22 +80,25 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['compare', 'p1'],
     narration:
-      'Each lane is a request: dashed while it waits, mustard while its prompt is read, mint while its reply is written. See the long dashes: requests wait for a whole batch to end. Before you change the rule:',
+      'Each lane is a request: dashed while waiting, mustard while read, mint while written. Long dashes wait on a batch.',
+    act: 'Predict the last finish.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'reveal',
     focus: 'mode',
     visibleControls: ['p1', 'mode'],
-    narration: 'Locked in. Switch the server to continuous batching.',
+    narration: 'Your pick is locked.',
+    act: 'Switch to continuous batching.',
     predicate: s => s.mode === 'continuous',
   },
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out1', 'compare', 'quiz'],
-    narration:
-      'With continuous batching a seat is filled the pass after it frees, so the waits shrink and the server writes more tokens a second from the same passes. Production servers work this way. One question to finish.',
+    narration: 'A freed seat now fills on the next pass, so waits shrink and throughput rises from the same passes.',
+    act: 'One question to finish.',
+    say: { block: 'server', text: 'Seats refilled' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'When does a static batch let the next request in?',
   },
@@ -133,8 +140,9 @@ export default function Batching() {
       steps={STEPS}
       initial={{ mode: 'static', view: 'scene', p1: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => (
+      stage={({ state, sync, say }) => (
         <InferenceStage
+          say={say}
           view={state.view}
           onView={view => sync({ ...state, view })}
           show={() => ({

@@ -10,10 +10,12 @@ import { ms } from '../../lib/voice/latency';
 import { FEWEST, LEAST_WAIT, WINNERS, solved, totals, type Plan } from '../../lib/voice/workbench';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
+import { PHONE_PARTS } from '../../components/scenes/phoneScene';
 import { PlanNote, Range, RecordedNote, Toggle, VoiceStage, segmentsOf, type View } from './kit';
 
 const MODULE = 'voice',
   ID = '07-workbench';
+export const PARTS = PHONE_PARTS;
 /** where the line stood before the chapters: the default detector, no host rules */
 export const START: Plan = {
   threshold: DEFAULT_LINE.threshold,
@@ -36,7 +38,7 @@ export interface S extends Plan {
   quiz: number | null;
 }
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A line has no cut-offs and no errors, but two calls end in dead air. Its silence setting is the longest on offer. What should the team try first?',
   options: [
@@ -48,8 +50,8 @@ const QUIZ = {
   explanation:
     'Dead air after the caller has finished is the silence setting’s price; trim it until the slowest speaker is still heard whole.',
   why: [
-    'Right. Every millisecond of silence is waited out on every call; the shortest setting that still hears the pauses wins.',
-    'Read-back fixes misheard numbers. It adds a turn; it doesn’t shorten the wait.',
+    'Right: every millisecond of silence is waited out on every call, so the shortest setting that still hears the pauses wins.',
+    'Read-back fixes misheard numbers; it adds a turn and doesn’t shorten the wait.',
     'A high threshold turns quiet speech into silence: it cuts quiet callers off instead.',
   ],
 };
@@ -66,7 +68,9 @@ export const STEPS: Step<S>[] = [
     id: 'tune',
     focus: 'tune',
     visibleControls: ['score', 'tune'],
-    narration: `The line as it stood before these chapters: the default detector and none of the host rules. Five calls run through it, live over their audio, with their recorded transcripts. A problem is a call cut off, dead air, a reply talked over or a wrong order. Find a line with the fewest problems (${FEWEST} is the fewest any line gets) and the shortest total wait.`,
+    narration: 'Your energy threshold, silence setting and host rules run live over every call.',
+    act: `Find the fewest problems (${FEWEST}), then the least wait.`,
+    say: { block: 'phone', text: 'Worst call' },
     predicate: s => solved(planOf(s)),
     hint: 'Each chapter fixed one call: streaming (2), the silence and threshold that hear Ravi whole on both his calls (3), barge-in (4), read-back (5).',
     solution: s => ({ ...s, ...WINNERS[0] }),
@@ -75,7 +79,8 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['score', 'tune', 'quiz'],
-    narration: `${FEWEST === 0 ? 'No problems' : `${FEWEST} problems`}, and a total wait of ${ms(LEAST_WAIT)}: the best any line does. Yours is ${WINNERS.length === 1 ? 'the one line' : `one of ${WINNERS.length} lines`} that ${WINNERS.length === 1 ? 'reaches' : 'reach'} it, and it needs every rule together: no one setting serves every call. The bench is yours to keep playing with. One question to finish.`,
+    narration: `${FEWEST === 0 ? 'No problems' : `${FEWEST} problems`}, ${ms(LEAST_WAIT)} total wait: the best any line does. Every rule is needed; no one setting serves every call.`,
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What does every caller pay for a long silence setting?',
   },
@@ -133,13 +138,14 @@ export default function Workbench() {
       steps={STEPS}
       initial={{ ...START, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync, focus }) => {
+      stage={({ state, sync, focus, say }) => {
         const p = planOf(state),
           t = totals(p),
           worst = t.rows.find(r => r.problem) ?? t.rows[1];
         return (
           <VoiceStage
             step={focus}
+            say={say}
             view={state.view}
             onView={view => sync({ ...state, view })}
             shown={{

@@ -3,12 +3,13 @@ import type { SceneCtx, Board } from '../../lib/iso/IsoStage';
 import { BH, ACC, renderers, blockShadow, blockTag, type BlockType } from '../../lib/iso/blocks';
 import { INK, pd, byDepth } from '../../lib/iso/core.js';
 
-const ROW: [BlockType, number, string][] = [
+/** The blocks along the row: type, x, stat. A composing scene reads it to stand a callout over a block. */
+export const ROW: [BlockType, number, string][] = [
   ['docs', 30, ''],
   ['retriever', 120, 'TOP 3'],
   ['llm', 210, ''],
 ];
-const Y = 34;
+export const Y = 34;
 export const MINI_BOARD: Board = [0, 0, 240, 68];
 export const MINI_LABEL = 'A minimal RAG pipeline: documents, a retriever and a language model joined by a lit wire';
 

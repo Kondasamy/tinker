@@ -20,8 +20,11 @@ import { gridLabel, maskGrid } from '../../components/scenes/maskGrid';
 import { Flat, MODEL, useModel, type ModelStore } from '../transformers/kit';
 import { useNarrow } from '../tool-calling/kit';
 import './structured.css';
+import Cite from '../../components/story/Cite';
+import type { Say } from '../../components/story/steps';
 
-export { MODEL, Waiting, modelNow, modelStore, useModel, whenLoaded } from '../transformers/kit';
+// CTX: Larkspur mini's window, which prompt and answer share
+export { CTX, MODEL, Waiting, modelNow, modelStore, useModel, whenLoaded } from '../transformers/kit';
 
 /** A pinned run (data/structured-outputs/prompts.json) decoded live once the model has loaded. */
 export function usePinned(id: string, store: ModelStore = MODEL) {
@@ -150,6 +153,7 @@ export function StructuredStage({
   onView,
   locked = false,
   store = MODEL,
+  say,
 }: {
   prompt: string;
   d: Decoded | null;
@@ -160,6 +164,8 @@ export function StructuredStage({
   onView?: (v: View) => void;
   locked?: boolean;
   store?: ModelStore;
+  /** the step's callout, drawn on the picture only */
+  say?: Say;
 }) {
   const [own, setOwn] = useState<View>('scene');
   const canMask = !!d && masked && !locked;
@@ -169,7 +175,7 @@ export function StructuredStage({
   const { model, failed, retry } = useModel(store);
   const live = stencilAt(prompt, model ? d : null, at, masked, scale);
   // while a prediction is open the picture keeps the answer back: no count on the plate, no blocked tile
-  const o = locked ? { ...live, hideCount: true, blocked: null } : live;
+  const o = { ...(locked ? { ...live, hideCount: true, blocked: null } : live), say };
   const n = d ? Math.min(at, d.ids.length) : 0;
   return (
     <div className="tc-stage so-stage" data-model={model ? 'ready' : failed ? 'failed' : 'loading'}>
@@ -234,6 +240,7 @@ export function PinnedStage({
   onView?: (v: View) => void;
   locked?: boolean;
   store?: ModelStore;
+  say?: Say;
 }) {
   const p = usePinned(id, store);
   return <StructuredStage prompt={pinned(id).prompt} d={p?.decoded ?? null} store={store} {...rest} />;
@@ -254,11 +261,7 @@ export function Fact({ id }: { id: string }) {
   const f = fact(id);
   return (
     <p className="tc-fact">
-      {f.claim}{' '}
-      <a className="source" href={f.source} target="_blank" rel="noreferrer">
-        Source: {new URL(f.source).hostname}
-      </a>{' '}
-      (checked {f.accessed})
+      {f.claim} <Cite title={new URL(f.source).hostname} href={f.source} checked={f.accessed} />
     </p>
   );
 }

@@ -25,7 +25,7 @@ export const PROBLEMS: Problem[] = [
     id: 'approver',
     best: 'graph',
     text: 'Procurement asks: who approves purchases for the team that owns the Kestrel K2 scanner integration?',
-    why: 'The answer is a chain, scanner → owning team → approver, spread over two documents, and no single passage links them. A graph follows the relations hop by hop.',
+    why: 'The answer chains scanner → owning team → approver across two documents, and a graph follows those relations hop by hop.',
     weaker: {
       advanced: 'One search matches one passage, and neither passage answers on its own.',
       agentic:
@@ -39,7 +39,7 @@ export const PROBLEMS: Problem[] = [
     id: 'retired',
     best: 'advanced',
     text: 'HR says: answers about the travel policy keep citing a version that was retired years ago.',
-    why: 'Retrieval works; the retired document simply outranks the current one. A metadata filter on status = current, an advanced-RAG lever, removes it in a single pass.',
+    why: 'Retrieval works, but the retired document outranks the current one: a metadata filter on status = current removes it in one pass.',
     weaker: {
       advanced: '',
       agentic: 'Searching again fetches the retired version again, at the cost of an extra call.',
@@ -52,7 +52,7 @@ export const PROBLEMS: Problem[] = [
     id: 'scanned',
     best: 'multimodal',
     text: 'Facilities says: the answer they need is only in a scanned vendor PDF.',
-    why: 'A text-only pipeline never sees the PDF. Parsing it to text (and tables and images likewise) puts it in reach of retrieval.',
+    why: 'A text-only pipeline never sees the PDF, so parsing it to text puts it in reach of retrieval.',
     weaker: {
       advanced: 'No filter or reranker helps with a file the pipeline cannot read.',
       agentic: 'Every extra search runs over the same text-only index.',
@@ -65,7 +65,7 @@ export const PROBLEMS: Problem[] = [
     id: 'lookalike',
     best: 'selfcheck',
     text: 'Security says: the bot sometimes answers confidently from a look-alike document that uses the same words.',
-    why: 'An evaluator grades what came back before the model answers. A weak match is thrown away, the question is retried as a rewrite, and if nothing passes the bot says “I don’t know”.',
+    why: 'An evaluator grades what came back, retries weak matches as a rewrite, and says “I don’t know” if nothing passes.',
     weaker: {
       advanced: 'Tuning can help for one question, but nothing checks the next look-alike before it is used.',
       agentic: 'An agent searches more, but it does not grade whether a match really answers the question.',
@@ -78,7 +78,7 @@ export const PROBLEMS: Problem[] = [
     id: 'lookups',
     best: 'agentic',
     text: 'Support says: some questions need a search, a look at what came back, and sometimes a follow-up search.',
-    why: 'An agent sits between the retriever and the model, reads each result, and decides whether and how to search again, within a call budget.',
+    why: 'An agent reads each result and decides whether and how to search again, within a call budget.',
     weaker: {
       advanced: 'One pass searches once; it cannot react to what it found.',
       agentic: '',

@@ -7,6 +7,7 @@ import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
+import { WINDOW_PARTS } from '../../components/scenes/windowScene';
 import { DOMAINS, type Place } from '../../lib/context/loop';
 import { caseOf, DOCS } from '../../lib/context/window';
 import { fact } from '../../lib/context/facts';
@@ -56,9 +57,8 @@ export const OUT1 = EDGES.every(p => RIGHTS[p] > RIGHTS.middle)
   : EDGES.every(p => RIGHTS[p] < RIGHTS.middle)
     ? 1
     : 2;
-const WRONG = turnOf(COUNTS[0], 'middle');
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A support team pastes the 30 most relevant help articles into every prompt, ranked by a search score. Answers that the articles plainly hold sometimes come back wrong. What should they try first?',
   options: [
@@ -70,19 +70,24 @@ const QUIZ = {
   correct: 1,
   explanation: fact('lost-in-the-middle').claim,
   why: [
-    `More passages are more distractors. Here the same fact with ${COUNTS[COUNTS.length - 1]} passages around it slipped even at the end.`,
-    `Right. ${fact('context-rot').claim} Fewer, better passages keep the fact in view, and the best match first keeps it out of the middle, where it is missed most.`,
-    'Being in the window isn’t the same as being found. In this chapter the fact was always in the window, and some answers were still wrong.',
-    `The middle is the weak spot. ${fact('lost-in-the-middle').claim}`,
+    `More passages are more distractors: here the same fact with ${COUNTS[COUNTS.length - 1]} passages around it slipped even at the end.`,
+    'Right: fewer, better passages keep the fact in view, and the best match first keeps it out of the middle, where it is missed most.',
+    'Being in the window isn’t being found: here the fact was always in the window, and some answers were still wrong.',
+    `The middle is the weak spot: ${fact('lost-in-the-middle').claim}`,
   ],
 };
+
+/** The parts of the window desk a step's callout may name. */
+export const PARTS = WINDOW_PARTS;
 
 export const STEPS: Step<S>[] = [
   {
     id: 'alone',
     focus: 'alone',
     visibleControls: ['alone'],
-    narration: `${CASE.customer} asks: “${CASE.question}” Chapter 1 put the one passage that answers it in the window, alone. Send it that way first.`,
+    narration: `${CASE.customer} asks about ${CASE.topic}. First, the one passage that answers it, alone, as in chapter 1.`,
+    act: 'Send it.',
+    say: { block: 'window', text: 'Fact alone' },
     predicate: s => s.seen.includes('0'),
     hint: 'Press the send button.',
   },
@@ -90,14 +95,17 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['grid', 'p1'],
-    narration: `“${turnOf(0, 'early').text}” Right. But Larkspur has ${DOCS.length} policy passages, and the team can’t always tell which one a customer needs. The idea: send more. Each extra passage is a distractor: related to the question, but not holding the answer. Before you try it:`,
+    narration: `Right. But Larkspur has ${DOCS.length} passages and can’t always tell which is needed. Each extra passage is a distractor: related, without the answer.`,
+    act: 'Predict first.',
+    say: { block: 'window', text: 'Fact found' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'try',
     focus: 'try',
     visibleControls: ['p1', 'grid', 'try'],
-    narration: `Try the fact at each place with ${COUNTS[0]} distractors, then with ${COUNTS[1]}. Each answer fills a cell of the table.`,
+    narration: 'Your pick is locked. Each answer fills a cell; watch for a fact lost in the middle.',
+    act: `Try each place with ${COUNTS[0]} distractors, then ${COUNTS[1]}.`,
     predicate: s => COUNTS.every(n => PLACES.every(p => s.seen.includes(key(n, p)))),
     hint: 'Every cell of the table needs an answer: pick a count, then each place.',
   },
@@ -105,7 +113,8 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out1', 'grid', 'notes', 'facts', 'quiz'],
-    narration: `In the middle, the model answered “${WRONG.text}” That is a distractor’s fact given as the answer. Over both counts the fact was right ${RIGHTS.early} of ${COUNTS.length} times at the start, ${RIGHTS.late} at the end and ${RIGHTS.middle} in the middle. More passages cost more answers: ${WRONGS.map((w, i) => `${w} of ${PLACES.length} places went wrong with ${COUNTS[i]}`).join(', ')}. These answers are recorded, written to illustrate published findings, not measured on a model; each one’s note says why it reads that way. One question to finish.`,
+    narration: `Right: start ${RIGHTS.early}, end ${RIGHTS.late}, middle ${RIGHTS.middle}, where a look-alike’s fact became the answer. More distractors, more misses: context rot.`,
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which places beat the middle, and what did more passages do?',
   },
@@ -175,7 +184,7 @@ export default function MoreIsntBetter() {
       steps={STEPS}
       initial={{ n: 0, place: 'early', seen: [], p1: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => <ContextStage run={current(state)} upTo={state.seen.length ? 1 : 0} />}
+      stage={({ state, say }) => <ContextStage run={current(state)} upTo={state.seen.length ? 1 : 0} say={say} />}
       controls={{
         alone: ({ state, apply }) => (
           <button type="button" className="big" onClick={() => apply({ ...state, n: 0, seen: ['0'] })}>
@@ -216,7 +225,9 @@ export default function MoreIsntBetter() {
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUT1} />,
         notes: () => (
           <div className="tc-def">
-            <p className="lbl">Why each recorded answer reads as it does</p>
+            <p className="lbl">
+              Recorded to illustrate published findings, not measured: why each answer reads as it does
+            </p>
             <ul>
               {COUNTS.flatMap(n =>
                 PLACES.map(p => (

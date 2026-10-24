@@ -7,6 +7,7 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { guardLanes, guardMessages } from '../../components/scenes/guardSequence';
+import { GUARD_PARTS } from '../../components/scenes/guardScene';
 import { RULE, stepsOf, type Run } from '../../lib/guardrails/loop';
 import { ORDERS } from '../../lib/tools/server';
 import { fact } from '../../lib/guardrails/facts';
@@ -66,19 +67,24 @@ const QUIZ = {
   correct: 1,
   explanation: fact('no-foolproof').claim,
   why: [
-    'In this chapter the rule was in the prompt and the forwarded invoice still got a customer’s record sent outside. The model read the note as Larkspur billing’s.',
-    `Right. ${fact('blur').claim} A rule lowers attacks; it can’t be the only defence. ${fact('no-foolproof').claim}`,
-    'The rule did stop the email that told the assistant to ignore its instructions. It lowers attacks, so keep it; just don’t rely on it alone.',
-    'The invoice note used no attack phrase at all: it was polite and claimed to come from Larkspur. A list of phrases misses text that doesn’t look like an attack.',
+    'In this chapter the rule was in the prompt and the invoice still got a customer’s record sent outside, because the model read the note as Larkspur billing’s.',
+    `Right: ${fact('blur').claim.replace(/\.$/, '')}, so a rule lowers attacks but can’t be the only defence.`,
+    'The rule did stop the email that said to ignore its instructions, so keep it; just don’t rely on it alone.',
+    'The invoice note was polite and used no attack phrase, so a list of phrases misses text that doesn’t look like an attack.',
   ],
 };
+
+/** The parts of the mail room a step's callout may name. */
+export const PARTS = GUARD_PARTS;
 
 export const STEPS: Step<S>[] = [
   {
     id: 'recap',
     focus: 'open',
     visibleControls: ['open'],
-    narration: `In Tool calling, someone planted a note on order ${PLANTED.id} telling the model to refund money. The model proposed the refund, and only a person at the approval gate stopped it. Now Larkspur’s assistant works the support inbox. It reads each email, can look up a customer’s private record, and can send email to any address. A note no longer has to sneak onto an order: anyone can write to the assistant. Open the first email.`,
+    narration: `A note planted on order ${PLANTED.id} once asked for a refund. Now every email is untrusted text: anyone can write one.`,
+    act: 'Open the first email.',
+    say: { block: 'inbox', text: 'Anyone can write' },
     predicate: s => s.opened,
   },
   {
@@ -86,7 +92,8 @@ export const STEPS: Step<S>[] = [
     focus: 'run',
     visibleControls: ['run'],
     opensDrawer: 'email',
-    narration: `${sender('direct')}, a customer, wrote this email themselves. It tells the assistant to ignore its instructions. When the person using the assistant writes the attack, it is a direct prompt injection. ${fact('direct-injection').claim} Run it.`,
+    narration: `${sender('direct')} wrote this email themselves, telling the assistant to ignore its instructions. The user writing the attack makes it a direct injection.`,
+    act: 'Run it.',
     predicate: s => s.seen.includes(key('direct', false)),
     hint: 'Press the run button.',
   },
@@ -95,7 +102,9 @@ export const STEPS: Step<S>[] = [
     focus: 'next',
     visibleControls: ['tally', 'next'],
     opensDrawer: null,
-    narration: `The attack worked: ${says('direct')}. The model read “refund mode” and “limits are switched off” and acted on them, because nothing in the text says who really wrote it. Larkspur gets one more email.`,
+    narration: `The attack worked: ${says('direct')}. The model obeyed: it can’t see who wrote a line.`,
+    act: 'Next email.',
+    say: { block: 'orders', text: 'Refund paid' },
     predicate: s => s.kase === 'invoice',
   },
   {
@@ -103,7 +112,8 @@ export const STEPS: Step<S>[] = [
     focus: 'run',
     visibleControls: ['run'],
     opensDrawer: 'email',
-    narration: `${sender('invoice')}, another customer, forwards an invoice from their supplier and asks a fair question. Inside the invoice is a note that claims to come from Larkspur billing. ${sender('invoice')} never wrote it, and may not have seen it. When the attack hides in data the assistant reads, it is an indirect prompt injection. ${fact('indirect-injection').claim} Run it.`,
+    narration: `${sender('invoice')} forwards a supplier invoice with a planted note posing as Larkspur billing: an indirect injection, hidden in data.`,
+    act: 'Run it.',
     predicate: s => s.seen.includes(key('invoice', false)),
     hint: 'Press the run button.',
   },
@@ -112,14 +122,18 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['tally', 'p1'],
     opensDrawer: null,
-    narration: `${says('invoice')}: ${OUTSIDE}. The customer got a polite answer about the address and never knew. The team’s first fix is a rule in the prompt. Before you run anything:`,
+    narration: `${says('invoice')}: ${OUTSIDE}. The customer never knew. Larkspur’s first fix against prompt injection: a prompt rule.`,
+    act: 'Predict first.',
+    say: { block: 'post', text: 'Sent outside' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'run-rule',
     focus: 'run',
     visibleControls: ['p1', 'run'],
-    narration: 'The rule is now in the assistant’s instructions. Run both emails again.',
+    narration: 'The rule is now in the assistant’s instructions.',
+    act: 'Run both emails again.',
+    say: { block: 'model', text: 'Rule added' },
     predicate: s => seenBoth(s, true),
     hint: 'Run the customer’s email and the forwarded invoice, one after the other.',
   },
@@ -127,7 +141,9 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out1', 'tally', 'notes', 'quiz'],
-    narration: `The rule stopped the email that said “ignore your instructions”: it looked like what the rule describes. The invoice note didn’t. It claimed to come from Larkspur itself, so the model treated it as its own team’s request. ${fact('blur').claim} These model turns are recorded, written to show that finding; below each attack is the model’s own note on why it refused or followed. One question to finish.`,
+    narration:
+      'The rule stopped “ignore your instructions”, not the invoice note posing as Larkspur. These turns are recorded to show it.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Did the rule stop the invoice? What did the invoice note pretend to be?',
   },
@@ -174,9 +190,9 @@ export default function DataOrInstructions() {
       steps={STEPS}
       initial={{ kase: 'direct', rule: false, ran: false, seen: [], opened: false, p1: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, inspect }) => {
+      stage={({ state, inspect, say }) => {
         const r = current(state);
-        return <GuardStage run={r} upTo={state.ran ? r.steps.length : 0} inspect={inspect} />;
+        return <GuardStage run={r} upTo={state.ran ? r.steps.length : 0} inspect={inspect} say={say} />;
       }}
       controls={{
         open: ({ state, apply }) => (

@@ -9,11 +9,13 @@ import type { Model } from '../../lib/lm/model';
 import { play, run } from '../../lib/structured-outputs/prompts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Answer, Fact, PinnedStage, Waiting, useModel, whenLoaded } from './kit';
+import { STENCIL_PARTS } from '../../components/scenes/stencilScene';
+import { Answer, CTX, Fact, PinnedStage, Waiting, useModel, whenLoaded } from './kit';
 
 const MODULE = 'structured-outputs',
   ID = '01-asking-nicely';
 export const RUN = run('asking');
+export const PARTS = STENCIL_PARTS;
 
 const parses = (t: string) => {
   try {
@@ -38,7 +40,7 @@ const P1 = {
   options: ['A JSON object, like {"status":"on time"}', 'Text that isn’t JSON'],
 };
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A teammate says: “A big provider model would follow ‘as JSON’ in the prompt, so we don’t need anything else.” What do you tell them?',
   options: [
@@ -52,9 +54,9 @@ const QUIZ = {
     'A prompt asks; nothing makes the model obey. A program that reads every answer needs a guarantee, not a habit.',
   why: [
     'Bigger models follow instructions far more often than Larkspur mini, but “far more often” is not every time, and the order system reads every answer.',
-    'Right. Asking shifts the odds; it doesn’t fix the shape. That is why providers offer modes that enforce a schema, which this module builds up to.',
+    'Right: asking shifts the odds but doesn’t fix the shape, which is why providers offer modes that enforce a schema.',
     'Politeness changes the wording of a request, not what the model is able or forced to write.',
-    'Models write JSON all the time when it is likely text. Larkspur mini doesn’t because it never saw any; the issue is the guarantee, not the ability.',
+    'Models write JSON whenever it is likely text, and Larkspur mini doesn’t only because it never saw any; the issue is the guarantee, not the ability.',
   ],
 };
 
@@ -64,7 +66,9 @@ export const STEPS: Step<S>[] = [
     focus: 'ask',
     visibleControls: ['ask'],
     narration:
-      'Larkspur’s order system reads the assistant’s answers with a program, not a person. It wants JSON: fields in curly braces, like {"status":"delayed"}. Larkspur mini is the tiny model from Transformers, trained only on Larkspur’s documents, running here in your browser. The simplest plan: ask for JSON in the prompt.',
+      'Larkspur mini runs in your browser, trained only on Larkspur’s documents. The system wants a structured output: JSON a program can read.',
+    act: 'Ask for JSON.',
+    say: { block: 'press', text: 'Asked for JSON' },
     predicate: whenLoaded(s => s.asked),
     hint: 'Press the button. If the model is still loading, wait for the picture to settle.',
   },
@@ -72,15 +76,17 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration:
-      'The press reads the prompt; tiles will drop onto the belt, one per token it writes. Nothing stands across the belt: no schema yet. Before you watch:',
+    narration: 'Tiles drop onto the belt, one per token written. No plate crosses the belt: there is no schema yet.',
+    act: 'Predict first.',
+    say: { block: 'belt', text: 'No schema yet' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'reveal',
     focus: 'reveal',
     visibleControls: ['p1', 'reveal'],
-    narration: 'Locked in. Let it write until its 32-token window is full.',
+    narration: 'Locked in.',
+    act: `Let it write until its ${CTX}-token window is full.`,
     predicate: s => s.revealed,
   },
   {
@@ -88,7 +94,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['out1', 'quiz'],
     narration:
-      'Larkspur mini has never seen JSON: Larkspur’s documents are prose, so prose is what it writes. A bigger model would likely do better. Likely is the problem: the order system reads every answer, and one that isn’t JSON breaks it. One question to finish.',
+      'Larkspur mini never saw JSON, so it wrote prose. Bigger models likely do better, but likely isn’t enough for a program.',
+    act: 'One question to finish.',
+    say: { block: 'belt', text: 'Not JSON' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Does a request in the prompt change what the model is able to write, or only what it is likely to write?',
   },
@@ -104,11 +112,12 @@ export default function AskingNicely() {
       ready={!!model}
       initial={{ asked: false, p1: null, revealed: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => (
+      stage={({ state, say }) => (
         <PinnedStage
+          say={say}
           id={RUN.id}
           masked={false}
-          at={state.revealed ? 32 : 0}
+          at={state.revealed ? CTX : 0}
           caption={
             state.revealed
               ? 'No schema: the model writes whatever it finds likeliest. Larkspur mini’s answer, live.'

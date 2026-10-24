@@ -6,6 +6,7 @@ import { readFileSync } from 'node:fs';
 import IsoStage from '../../src/lib/iso/IsoStage';
 import {
   ROUTER_BOARD,
+  ROUTER_PARTS,
   routerLabel,
   routerScene,
   routerState,
@@ -136,5 +137,26 @@ describe('a stage that needs both models', () => {
     await loadModel('base');
     await expect(loadModel('student')).rejects.toThrow('offline');
     expect(renderToString(createElement(SmallStage, { show, models: true }))).toContain('Retry');
+  });
+});
+
+describe('a step callout on the apprentice’s bench', () => {
+  const BASE: RouterOpts = { mode: 'route', route: 'up', threshold: 0.6 };
+  const calls = (svg: string) => count(svg, 'class="callout"');
+  it('draws one lit pill over each named part', () => {
+    for (const block of ROUTER_PARTS) {
+      const svg = draw({ ...BASE, say: { block, text: 'LOOK HERE' } });
+      expect(calls(svg)).toBe(1);
+      expect(svg).toContain('LOOK HERE');
+    }
+  });
+  it('draws none for an unknown part, and nothing changes without one', () => {
+    expect(calls(draw({ ...BASE, say: { block: 'nowhere', text: 'LOOK HERE' } }))).toBe(0);
+    expect(draw({ ...BASE, say: undefined })).toBe(draw(BASE));
+  });
+  it('on phones drops a callout over 16 characters', () => {
+    const block = ROUTER_PARTS[0];
+    expect(calls(draw({ ...BASE, scale: 2, say: { block, text: 'SIXTEEN CHARS OK' } }))).toBe(1);
+    expect(calls(draw({ ...BASE, scale: 2, say: { block, text: 'SEVENTEEN CHARS X' } }))).toBe(0);
   });
 });

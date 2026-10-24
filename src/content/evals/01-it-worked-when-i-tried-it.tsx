@@ -12,6 +12,7 @@ import { fact } from '../../lib/evals/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
+import { EVAL_PARTS } from '../../components/scenes/evalScene';
 import {
   EvalStage,
   Mark,
@@ -24,6 +25,8 @@ import {
   type Suite,
   type View,
 } from './kit';
+
+export const PARTS = EVAL_PARTS;
 
 const MODULE = 'evals',
   ID = '01-it-worked-when-i-tried-it';
@@ -71,10 +74,10 @@ const QUIZ = {
   correct: 1,
   explanation: fact('eval').claim,
   why: [
-    `Questions someone thought to ask can all improve while one nobody asked breaks. ${V2.label} looked right on both tries and still broke a question.`,
-    'Right. The same questions on both setups show what got fixed and what broke. A fixed test set, run on every change, is an eval.',
-    'More hand-picked questions are still a sample of what someone thought to ask. The test set covers the questions the team chose to keep, every time.',
-    `${V2.label}’s total went up and it still broke a question that used to pass. A total can hide a regression; compare each question.`,
+    `Questions someone thought to ask can all improve while one nobody asked breaks, as ${V2.label} showed.`,
+    'Right: the same questions on both setups show what got fixed and what broke, and that fixed test set is an eval.',
+    'More hand-picked questions are still only what someone thought to ask, not the questions the team chose to keep.',
+    `${V2.label}’s total went up while it broke a question that used to pass, so compare each question, not the totals.`,
   ],
 };
 
@@ -83,7 +86,8 @@ export const STEPS: Step<S>[] = [
     id: 'try',
     focus: 'try',
     visibleControls: ['try'],
-    narration: `Larkspur’s assistant runs as ${V1.label}: ${V1.note}. The team built ${V2.label}. ${V2.note}; everything else stays the same. A version is one setup of the assistant. Before shipping ${V2.label}, someone tries a couple of questions on both. Try the two they picked.`,
+    narration: `The team built ${V2.label}, a new version. ${V2.note}; ${V1.label} stays as it was.`,
+    act: 'Try their two questions.',
     predicate: s => s.tried.length >= 2 && !!suiteNow(),
     hint: 'Press both question buttons.',
   },
@@ -91,14 +95,17 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['tried', 'p1'],
-    narration: `It worked when they tried it. But Larkspur already has a test set: all ${N} questions from the RAG module, each with the answer it should get. Before you run it:`,
+    narration: `It worked on two questions. Larkspur’s test set has all ${N} from the RAG module, each with its right answer.`,
+    act: 'Predict first.',
+    say: { block: 'board', text: 'Two tried only' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'run',
     focus: 'run',
     visibleControls: ['p1', 'run'],
-    narration: `Run the whole test set on both versions. Each answer is checked against the answer it should get, and marked PASS or FAIL.`,
+    narration: 'Each answer is checked against the answer it should get, and marked PASS or FAIL.',
+    act: 'Run the whole test set on both versions.',
     predicate: s => s.ran && !!suiteNow(),
   },
   {
@@ -106,7 +113,9 @@ export const STEPS: Step<S>[] = [
     focus: 'find',
     visibleControls: ['out1', 'score', 'find'],
     narration:
-      'The Results tab shows every question on both versions. A ⇄ marks a question whose result changed between them. Some changes are fixes. Find the one that went the other way.',
+      'The Results tab shows every question on both versions; ⇄ marks one whose result changed. Some changes are fixes.',
+    act: 'Find the one that broke.',
+    say: { block: 'fail', text: 'A new FAIL' },
     predicate: s => {
       const suite = suiteNow();
       return !!suite && s.pick !== null && brokenOf(suite).includes(s.pick);
@@ -122,7 +131,8 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['found', 'quiz'],
     narration:
-      'That is a regression: a change meant to make things better broke something that worked. Nobody tried that question, so nobody saw it. Running the same test set on every change, and comparing question by question, is an eval. One question to finish.',
+      'A regression: the change broke a question nobody tried. One test set, run and compared on every change, is an eval.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: `Which choice would have caught the question ${V2.label} broke?`,
   },
@@ -242,8 +252,8 @@ export default function ItWorkedWhenITriedIt() {
       steps={STEPS}
       initial={{ tried: [], p1: null, ran: false, view: 'scene', pick: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => (
-        <EvalStage show={show(state)} view={state.view} onView={view => sync({ ...state, view })} />
+      stage={({ state, sync, say }) => (
+        <EvalStage show={show(state)} view={state.view} onView={view => sync({ ...state, view })} say={say} />
       )}
       controls={{
         try: ({ state, sync }) => <Try s={state} sync={sync} buttons />,

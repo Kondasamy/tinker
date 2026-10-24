@@ -5,10 +5,11 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { sandboxLanes, sandboxMessages } from '../../components/scenes/sandboxSequence';
+import { SANDBOX_PARTS } from '../../components/scenes/sandboxScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
-import { Fact, Files, runCached, SandboxStage, sandboxProps, says, type View as SandboxView } from './kit';
+import { Fact, Files, runCached, SandboxStage, sandboxProps, type View as SandboxView } from './kit';
 
 const MODULE = 'sandboxing',
   ID = '01-where-it-runs';
@@ -36,7 +37,7 @@ const P1 = {
 };
 const OUT1 = SAFE.attackMet ? 0 : 1;
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A teammate says: “We don’t need a sandbox; we’ll just tell the agent in its prompt not to touch anything sensitive.” What’s the best response?',
   options: [
@@ -49,12 +50,15 @@ const QUIZ = {
   explanation:
     'A sandbox limits what the agent’s code can reach, from outside the model, so it holds even when the agent is taken over.',
   why: [
-    'In this chapter the agent followed the planted note and sent the token out on the host. An instruction did not stop it there.',
-    'Right. The limit has to sit outside the model. The sandbox refused the same moves no matter how the agent was persuaded.',
-    'Wording is not the weak spot: the model can’t tell your instructions from an attacker’s, so no phrasing is reliable.',
+    'In this chapter the agent followed the planted note on the host, and no instruction stopped it.',
+    'Right: the limit sits outside the model, so the sandbox refused the same moves however the agent was persuaded.',
+    'Wording is not the weak spot, because the model can’t tell your instructions from an attacker’s.',
     'The agent is useful; the point is to run it inside a boundary, not to switch it off.',
   ],
 };
+
+/** The glass room's parts, for step callouts. */
+export const PARTS = SANDBOX_PARTS;
 
 export const STEPS: Step<S>[] = [
   {
@@ -62,7 +66,10 @@ export const STEPS: Step<S>[] = [
     focus: 'runHost',
     visibleControls: ['runHost'],
     opensDrawer: 'files',
-    narration: `Larkspur’s agent is given a task, and a note planted in that task tells it to send the API token to an outside address. First, run it the way most agents run today: on the host, with the developer’s full access. Run it.`,
+    narration:
+      'A planted note tells Larkspur’s agent to send its API token outside. Here it runs on the host, with full access.',
+    act: 'Run it.',
+    say: { block: 'host', text: 'Full access' },
     predicate: s => s.ranHost,
     hint: 'Press “Run it on the host”.',
   },
@@ -71,14 +78,19 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['runHost', 'p1'],
     opensDrawer: null,
-    narration: `${says('exfil')}. On the host there is nothing to stop it: the agent read the secret token, then sent it to attacker.example. Before you run the sandboxed version:`,
+    narration:
+      'It worked: the agent read the token and sent it to attacker.example. That is exfiltration, and nothing on the host stopped it.',
+    act: 'Predict first.',
+    say: { block: 'world', text: 'Token arrived' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'run-box',
     focus: 'runBox',
     visibleControls: ['p1', 'out1', 'runBox'],
-    narration: 'Now run the very same task in the sandbox. Watch where it stops.',
+    narration: 'Now the same task runs in a sandbox: scoped files, an allow-listed network, the token held by a proxy.',
+    act: 'Run it in the sandbox.',
+    say: { block: 'host', text: 'Walled in' },
     setup: s => ({ ...s, where: 'sandbox' }),
     predicate: s => s.ranBox,
     hint: 'Press “Run it in the sandbox”.',
@@ -88,7 +100,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['quiz'],
     narration:
-      'The agent tried to read the token, but the sandbox keeps the secret with the proxy, so the read was refused and the attack stalled. The boundary did the work, not a change to the model. One question to finish.',
+      'The token read was refused, so the attack stalled. The boundary did the work, not a change to the model.',
+    act: 'One question to finish.',
+    say: { block: 'files', text: 'Read refused' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Where does the limit live: in the prompt, or in the sandbox?',
   },
@@ -102,7 +116,7 @@ export default function WhereItRuns() {
       steps={STEPS}
       initial={{ where: 'host', ranHost: false, ranBox: false, p1: null, quiz: null, view: 'scene' }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync, inspect }) => {
+      stage={({ state, sync, inspect, say }) => {
         const r = current(state);
         const ran = state.where === 'host' ? state.ranHost : state.ranBox;
         return (
@@ -115,6 +129,7 @@ export default function WhereItRuns() {
                 : { sandbox: true, files: 'scoped', egress: 'allowlist', secret: 'proxy' },
             )}
             inspect={inspect}
+            say={say}
             view={state.view}
             onView={view => sync({ ...state, view })}
           />

@@ -22,6 +22,10 @@ import { RECORDINGS } from '../../lib/agents/turns';
 import { moduleOf, nextOf } from '../../lib/modules';
 import { Messages } from '../tool-calling/kit';
 import { AgentStage, Chips, Fact, Group, type View } from './kit';
+import { AGENT_PARTS } from '../../components/scenes/agentScene';
+
+/** the parts a step's callout may name: the back office with the agent's props */
+export const PARTS = AGENT_PARTS;
 
 const MODULE = 'agents',
   ID = '07-workbench';
@@ -138,7 +142,8 @@ export const STEPS: Step<S>[] = [
     focus: 'bench',
     visibleControls: ['bench', 'run'],
     opensDrawer: 'case',
-    narration: `Last stop: the workbench. Here are the module’s ${CASES.length} cases, from the plain refund to Monday’s storm. Pick one, set the controls its chapters used, and run it. The picture shows the back office, the Steps tab the run turn by turn, and a readout says how it ended. Run any case to start.`,
+    narration: `The module’s ${CASES.length} cases, plain refund to storm. Each run shows its ending and its sent-mail ledger.`,
+    act: 'Pick a case and run it.',
     predicate: s => s.ran,
     hint: 'Press “Run the case”.',
   },
@@ -146,7 +151,8 @@ export const STEPS: Step<S>[] = [
     id: 'endings',
     focus: 'endings',
     visibleControls: ['bench', 'run', 'endings', 'readout'],
-    narration: `A run can end ${ENDINGS.length} ways. Done: the model says the case is finished. Failed: the script hit a step it had no code for. Waiting: a person has not answered yet. Stuck: the host stopped a failing call. Out of budget: the host ran out of steps or context for it. Find all ${ENDINGS.length}, in any order. Each case shows only the controls its chapter recorded.`,
+    narration: 'Done, failed, waiting, stuck, out of budget: each ending comes from a different case or host setting.',
+    act: `Find all ${ENDINGS.length}.`,
     predicate: complete,
     hint: 'Each ending lives in a different case: the script on an out-of-stock printer, a plan nobody answered, the carrier timeout with and without the detector.',
     solution: s => ran({ ...s, ...WAYS[ENDINGS.find(e => !s.seen.includes(e))!] }),
@@ -168,7 +174,7 @@ export default function Workbench() {
         view: 'scene',
       }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync, inspect }) => {
+      stage={({ state, sync, inspect, say }) => {
         const r = current(state),
           { domain } = set(state);
         const props = {
@@ -188,6 +194,7 @@ export default function Workbench() {
             inspect={inspect}
             view={state.view}
             onView={view => sync({ ...state, view })}
+            say={say}
           />
         );
       }}

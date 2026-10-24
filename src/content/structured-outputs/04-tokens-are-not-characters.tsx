@@ -12,11 +12,13 @@ import { heal } from '../../lib/structured-outputs/decode';
 import { HEAL, SCHEMAS, play, run } from '../../lib/structured-outputs/prompts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Fact, PinnedStage, Waiting, pct, piece, useModel, whenLoaded, type View } from './kit';
+import { STENCIL_PARTS } from '../../components/scenes/stencilScene';
+import { CTX, Fact, PinnedStage, Waiting, pct, piece, useModel, whenLoaded, type View } from './kit';
 
 const MODULE = 'structured-outputs',
   ID = '04-tokens-are-not-characters';
 export const RUN = run('note');
+export const PARTS = STENCIL_PARTS;
 export const CAP = SCHEMAS.note.properties.note.maxLength!;
 const decoded = (model: Model) => play(model, RUN).decoded;
 
@@ -69,7 +71,7 @@ const P1 = {
   ],
 };
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A schema says a field holds digits only. Larkspur’s tokenizer has a token “30” and a token “ 30” (with a space). Which can the mask allow inside the number?',
   options: [
@@ -82,9 +84,9 @@ const QUIZ = {
   explanation: 'The mask runs every byte of a token through the grammar. One bad byte anywhere blocks the whole token.',
   why: [
     'Containing digits isn’t enough: every byte has to fit, and the space in “ 30” doesn’t.',
-    'Right. A token is allowed only if all of its bytes keep the grammar happy, in order.',
+    'Right: a token is allowed only if all of its bytes keep the grammar happy, in order.',
     'The mask judges whole tokens, of any length, by feeding their bytes through one at a time; that is how it allowed multi-character tokens in the note.',
-    'Nothing is ignored. This grammar allows no whitespace at all, so a token starting with a space is blocked inside a number.',
+    'Nothing is ignored: this grammar allows no whitespace at all, so a token starting with a space is blocked inside a number.',
   ],
 };
 
@@ -93,14 +95,17 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `A new schema: one field, a free note, capped at ${CAP} characters so it always closes inside Larkspur mini’s 32-token window. That cap, maxLength, is this site’s addition to the schema subset: Anthropic’s structured outputs reject it. The model writes tokens, not characters: a token here can carry one character or several, as you saw in Tokens. Before you look near the cap:`,
+    narration: `A free note now, with a length cap of ${CAP} characters so it always closes inside the ${CTX}-token window.`,
+    act: 'Predict first.',
+    say: { block: 'plate', text: `Cap: ${CAP} chars` },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'reveal',
     focus: 'reveal',
     visibleControls: ['p1', 'reveal'],
-    narration: 'Locked in. Jump to the step where two characters of room are left, and look at the mask.',
+    narration: 'Locked in. The mask runs every byte of a token through the schema, one by one.',
+    act: 'Jump to two characters left.',
     predicate: whenLoaded(s => s.revealed),
     hint: 'Press the button.',
   },
@@ -108,7 +113,9 @@ export const STEPS: Step<S>[] = [
     id: 'heal',
     focus: 'heal',
     visibleControls: ['out1', 'heal'],
-    narration: `One more place where tokens and characters part ways: the edge of the prompt. In training, a space nearly always travels at the front of the next word’s token (“ days”). A prompt that ends in a space hands the model a split it hardly ever saw. Token healing backs up over that last token and makes the first token written start with it. Try it on “${HEAL.prompt}”.`,
+    narration:
+      'In training, a space starts the next word’s token (“ days”), so a trailing space is a split the model rarely saw.',
+    act: 'Apply token healing.',
     predicate: whenLoaded(s => s.healed),
     hint: 'Press “Heal the prompt”.',
   },
@@ -117,7 +124,8 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['healed', 'quiz'],
     narration:
-      'Both fixes come from the same fact: the model writes tokens, so every rule written in characters has to be checked against whole tokens. One question to finish.',
+      'Both fixes come from one fact: the model writes tokens, so rules written in characters must be checked against whole tokens.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'How many of a token’s bytes does the mask check?',
   },
@@ -146,14 +154,15 @@ export default function TokensAreNotCharacters() {
       ready={!!model}
       initial={{ p1: null, revealed: false, at: 0, view: 'scene', healed: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => (
+      stage={({ state, sync, say }) => (
         <PinnedStage
+          say={say}
           id={RUN.id}
           at={state.at}
           locked={state.p1 === null}
           view={state.view}
           onView={v => sync({ ...state, view: v })}
-          caption={`The schema: one field, note, free text up to ${CAP} characters.`}
+          caption={`The schema: one field, note, free text up to ${CAP} characters (maxLength, this site’s addition to the subset).`}
         />
       )}
       controls={{
@@ -186,6 +195,7 @@ export default function TokensAreNotCharacters() {
         },
         heal: ({ state, apply }) => (
           <>
+            <p className="tc-status">{`The prompt: “${HEAL.prompt}”, ending in a space.`}</p>
             <button type="button" className="big" disabled={!model} onClick={() => apply({ ...state, healed: true })}>
               Heal the prompt
             </button>
@@ -202,6 +212,7 @@ export default function TokensAreNotCharacters() {
               onAnswer={(_, q) => apply({ ...state, quiz: q })}
               onUnsure={() => sync({ ...state, quiz: UNSURE })}
             />
+            <Fact id="anthropic-limits" />
             <Fact id="token-healing" />
             <Fact id="xgrammar" />
           </>

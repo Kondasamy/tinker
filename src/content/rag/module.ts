@@ -28,8 +28,8 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
     unlocks: [],
     intro: {
       story:
-        'Larkspur Supply Co. sells office and warehouse hardware to about 4,000 businesses. Its 260 staff lose hours hunting through policies, contracts, price lists and meeting notes. The company wants an AI assistant that answers their questions from those documents, and you are on the team building it.',
-      goal: 'Why can’t an AI model simply answer questions about your company? And how did the industry arrive at RAG between 2020 and 2026?',
+        'Larkspur Supply Co. sells hardware to about 4,000 businesses. Its staff lose hours hunting through documents. You join the team building an AI assistant that answers from them.',
+      goal: 'Why can’t an AI model answer questions about your company, and how did the industry arrive at RAG?',
       learn: [
         'Why a language model invents confident answers about things it never read',
         'What Retrieval-Augmented Generation (RAG) is, in one sentence',
@@ -57,7 +57,7 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
     unlocks: [],
     intro: {
       story:
-        'In chapter 1 the assistant invented a refund policy, because it had never read Larkspur’s real one. The team’s first idea: skip anything clever and paste the whole company drive into the prompt.',
+        'In chapter 1 the assistant invented a refund policy it had never read. The team’s first idea: paste the whole company drive into the prompt.',
       goal: 'Why does “just give it everything” break down, even with today’s huge context windows?',
       learn: [
         'How the size of real company data compares with what a context window holds',
@@ -79,7 +79,7 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
     unlocks: ['docs', 'retriever', 'llm'],
     intro: {
       story:
-        'Pasting everything failed: too big, too stale, no permissions. So the team will hand the model only the few passages each question needs. From this chapter on, the picture on the left is the assistant itself, a pipeline of blocks you build and change.',
+        'Pasting everything failed: too big, too stale, no permissions. So the team will hand the model only the few passages each question needs.',
       goal: 'What is the smallest working RAG system, and what does each part do?',
       learn: [
         'The three steps in the name: Retrieve, Augment, Generate',
@@ -101,7 +101,7 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
     unlocks: ['chunker', 'embedder', 'index', 'assembler'],
     intro: {
       story:
-        'The simple pipeline works, so the team cut costs: documents are now split into small pieces and only the single best piece is sent. A sales lead asks about refunds again, and the answer goes wrong.',
+        'The simple pipeline works, so the team cut costs. Then a sales lead asks about refunds again, and the answer goes wrong.',
       goal: 'What happens between “a pile of documents” and “the passages the model reads”, and where can it break?',
       learn: [
         'How a chunker splits documents, and how a bad cut hides a rule',
@@ -133,7 +133,7 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
     intro: {
       story:
         'The pipeline is fully built and it still gets things wrong: outdated policies, vague questions, rules buried in long context. Employees are starting to notice.',
-      goal: 'When a RAG answer is wrong, how do you tell whether retrieval or the model failed, and which lever fixes it?',
+      goal: 'When a RAG answer is wrong, did retrieval or the model fail, and which lever fixes it?',
       learn: [
         'Measure first: retrieval recall vs. answer quality',
         'Seven levers: top-k, metadata filters, query rewriting, reranking, hybrid search, overlap and chunking strategy',
@@ -158,7 +158,7 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
     unlocks: ['agent', 'graph'],
     intro: {
       story:
-        'The tuned pipeline answers most questions well. But some questions need two documents joined together, some answers hide in tables, PDFs or images, and sometimes the right answer is “I don’t know”.',
+        'The tuned pipeline answers most questions. But some need two documents joined, some hide in tables or images, and some deserve “I don’t know”.',
       goal: 'Which kind of RAG fits which kind of problem, and what does each one cost?',
       learn: [
         'Naive and advanced RAG: one search, tuned or not',
@@ -184,7 +184,7 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
     unlocks: [],
     intro: {
       story: 'Every block from chapters 3 to 6 is now yours. Larkspur’s assistant is as capable as you can make it.',
-      goal: 'Can you build, break and tune a RAG pipeline on your own, and pick the right type for a real team’s problem?',
+      goal: 'Can you build, break and tune a RAG pipeline yourself, and pick the right type for a team’s problem?',
       learn: [
         'Rewire the pipeline freely on the workbench',
         'Ask any question from the module and compare runs',

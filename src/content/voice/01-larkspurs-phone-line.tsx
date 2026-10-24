@@ -7,7 +7,7 @@ import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { DEFAULT_LINE, runCall } from '../../lib/voice/engine';
 import { textOf } from '../../lib/voice/script';
-import type { Stage } from '../../components/scenes/phoneScene';
+import { PHONE_PARTS, type Stage } from '../../components/scenes/phoneScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
@@ -20,6 +20,7 @@ const RUN = runCall('status', DEFAULT_LINE),
   REPLY = RUN.recording.turns[1].clip;
 /** the stages after the caller speaks, in order */
 const STAGES: Stage[] = ['caller', 'stt', 'model', 'tts', 'reply'];
+export const PARTS = PHONE_PARTS;
 
 interface S {
   at: number;
@@ -38,7 +39,7 @@ const P1 = {
 /** the chained line Larkspur built hands the model text: the outcome is the line's own design */
 const OUTCOME = 1;
 
-const QUIZ = {
+export const QUIZ = {
   question: 'A caller says the assistant answered about the wrong order. Whose work do you read first?',
   options: [
     'The mouth’s: text-to-speech may have said the number wrong',
@@ -48,8 +49,8 @@ const QUIZ = {
   correct: 1,
   explanation: 'Everything after the ear is built on its transcript, and it is text you can read.',
   why: [
-    'The mouth reads out what the model wrote. A wrong order in the reply was already wrong in the text.',
-    'Right. If the transcript has the wrong number, the lookup and the reply follow it. It is the first place to look.',
+    'The mouth only reads out what the model wrote, so a wrong order was already wrong in the text.',
+    'Right: the lookup and the reply follow the transcript, so it is the first place to look.',
     'Noise may be the cause, but the transcript is where you can see whether it did any harm.',
   ],
 };
@@ -67,23 +68,27 @@ export const STEPS: Step<S>[] = [
     id: 'ring',
     focus: 'ring',
     visibleControls: ['ring'],
-    narration:
-      'In the Tool calling module the assistant looked orders up with a tool, in text. Larkspur now puts the same assistant on a phone line. The picture is the phone desk: the phone, an ear, the model and a mouth, joined by belts. Answer Dana’s call.',
+    narration: 'The phone desk: a phone, an ear, the model and a mouth, joined by belts.',
+    act: 'Answer Dana’s call.',
+    say: { block: 'phone', text: 'Incoming call' },
     predicate: s => s.at >= 0,
   },
   {
     id: 'predict',
     focus: 'p1',
     visibleControls: ['said', 'p1'],
-    narration:
-      'Dana asks where her order is. Press Play to hear her, or read her words: the sound is optional everywhere in this module. Before her question moves on:',
+    narration: 'Dana asks where her order is. Sound is optional: read her words or press Play.',
+    act: 'Predict what the model needs.',
+    say: { block: 'phone', text: 'Dana speaks' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'stages',
     focus: 'next',
     visibleControls: ['p1', 'next'],
-    narration: 'Send the call along the line, one stage at a time, and watch what rides each belt.',
+    narration: 'Watch what rides each belt.',
+    act: 'Send the call on, one stage at a time.',
+    say: { block: 'ear', text: 'Writes it down' },
     predicate: s => s.at === STAGES.length - 1,
     hint: 'Press “Next stage” until the reply reaches Dana’s phone.',
   },
@@ -92,7 +97,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['outcome', 'quiz'],
     narration:
-      'Three stages: speech-to-text (the ear) writes down the voice, the model reads and writes text, text-to-speech (the mouth) reads the reply out. This is a chained pipeline, and the model in the middle is the same text model as before. One question to finish.',
+      'Speech-to-text (STT) writes the voice down, the model reads and writes text, text-to-speech (TTS) speaks. That is a chained pipeline.',
+    act: 'One question to finish.',
+    say: { block: 'model', text: 'Reads text' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which stage turns sound into the words everything else reads?',
   },
@@ -106,11 +113,12 @@ export default function LarkspursPhoneLine() {
       steps={STEPS}
       initial={{ at: -1, p1: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, focus }) => {
+      stage={({ state, focus, say }) => {
         const stage = state.at < 0 ? 'idle' : STAGES[state.at];
         return (
           <VoiceStage
             step={focus}
+            say={say}
             shown={{ phone: { stage }, caption: state.at < 0 ? 'The phone desk, waiting for a call.' : SAYS[stage]! }}
           />
         );

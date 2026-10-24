@@ -14,11 +14,13 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { pieceLabel } from '../../components/scenes/attentionMap';
 import META from '../../../public/data/lm/meta.json' with { type: 'json' };
+import { ENGINE_PARTS } from '../../components/scenes/engineScene';
 import { CTX, Fact, TransformersStage, Waiting, useModel, whenLoaded, type View } from './kit';
 
 const MODULE = 'transformers',
   ID = '06-why-long-prompts-cost-more';
 const LM = META.model;
+export const PARTS = ENGINE_PARTS;
 /** The text the reader grows: the long support passage, then another prompt, cut to the window (a test holds it fills it). */
 export const IDS = encode(
   `${PROMPTS.find(p => p.id === 'long')!.text} ${PROMPTS.find(p => p.id === 'reply')!.text}`,
@@ -61,7 +63,7 @@ const P1 = {
   ],
 };
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'Larkspur wants its assistant to read a customer’s whole order history, ten times longer than today’s prompts, on every question. Roughly how does the attention work per head change?',
   options: [
@@ -74,10 +76,10 @@ const QUIZ = {
   explanation:
     'Pairs grow with the square of the length: ten times the tokens is about a hundred times the pairs. The KV cache saves recomputing keys and values, not the scoring.',
   why: [
-    'That is how the KV cache grows, one entry per token. The pairs grew about four times when you doubled the prompt.',
-    'Right. Each token scores every token before it, so ten times the tokens is about a hundred times the pairs.',
-    'The cache keeps each token’s keys and values so they aren’t recomputed, but every new token still scores every cached key. And the cache itself grows with the prompt.',
-    'The model’s work doesn’t depend on how helpful the text is. Every token is scored against every token before it, whatever it says.',
+    'That is how the KV cache grows, one entry per token, while the pairs grew about four times when you doubled the prompt.',
+    'Right: each token scores every token before it, so ten times the tokens is about a hundred times the pairs.',
+    'The cache saves recomputing keys and values, but every new token still scores every cached key, and the cache grows with the prompt.',
+    'The work doesn’t depend on how helpful the text is: every token is scored against every token before it.',
   ],
 };
 
@@ -86,7 +88,9 @@ export const STEPS: Step<S>[] = [
     id: 'grow',
     focus: 'grow',
     visibleControls: ['grow'],
-    narration: `In attention, every token scores itself and every token before it. One such score is an attention pair. Open the Attention tab and grow a prompt token by token, to ${SHORT} tokens: each new row of the grid is the new token’s pairs.`,
+    narration: 'Each token scores itself and every token before it: one score is an attention pair.',
+    act: `Grow the prompt to ${SHORT} tokens.`,
+    say: { block: 'query', text: 'Newest token' },
     predicate: whenLoaded(s => s.n >= SHORT),
     hint: `Press “Add a token” until the prompt has ${SHORT} tokens.`,
   },
@@ -94,21 +98,25 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: 'Each row is one longer than the row before. Before you grow the prompt further:',
+    narration: 'Each row is one longer than the row before.',
+    act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'reveal',
     focus: 'reveal',
     visibleControls: ['p1', 'reveal'],
-    narration: 'Locked in. Grow it and count.',
+    narration: 'Locked in.',
+    act: 'Grow it and count.',
     predicate: s => s.revealed,
   },
   {
     id: 'cache',
     focus: 'grow',
     visibleControls: ['out1', 'grow'],
-    narration: `Twice the tokens, about four times the pairs: they grow with the square of the length. Now the saving. A token’s keys and values (what attention reads from it) never change once it is read, so the model keeps them in a KV cache, and each new token computes only its own. The cache grows by the same amount for every token; the pairs grow by more each time. Grow the prompt to the edge of the window, ${CTX} tokens.`,
+    narration:
+      'Twice the tokens, about four times the pairs. The KV cache keeps tokens’ keys and values, so new tokens compute only theirs.',
+    act: 'Fill the window.',
     predicate: s => s.n >= CTX,
     hint: `Keep adding tokens until the prompt has ${CTX}.`,
   },
@@ -116,7 +124,8 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['window', 'quiz'],
-    narration: `That is Larkspur mini’s whole window: it was trained on ${CTX} tokens at a time, so it never learned positions beyond. Real models have far larger windows, and they pay the same square. These counts are for Larkspur mini’s shape (${LM.n_layer} layers, ${LM.n_head} heads); a provider’s bill counts tokens, but this is why long prompts are slow and costly to serve. One question to finish.`,
+    narration: `That fills Larkspur mini’s context window: it was trained on ${CTX} positions, no more. Bigger windows pay the same square.`,
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What happened to the pairs when you doubled the prompt?',
   },
@@ -132,8 +141,9 @@ export default function WhyLongPromptsCostMore() {
       ready={!!model}
       initial={{ n: 1, p1: null, revealed: false, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => (
+      stage={({ state, sync, say }) => (
         <TransformersStage
+          say={say}
           prompt={textAt(state.n)}
           view={state.view}
           onView={v => sync({ ...state, view: v })}

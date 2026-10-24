@@ -23,6 +23,8 @@ import { THINK_BOARD, seconds, thinkLabel, thinkScene, type ThinkOpts } from '..
 import { effortChart, effortLabel, levelWords, type Series } from '../../components/scenes/effortChart';
 import { useNarrow } from '../tool-calling/kit';
 import './reasoning.css';
+import Cite from '../../components/story/Cite';
+import type { Say } from '../../components/story/steps';
 
 export { seconds };
 /** The desk's settings for one run. */
@@ -124,15 +126,18 @@ export function ReasoningStage({
   shown: s,
   view: kept,
   onView,
+  say,
 }: {
   shown: Shown;
   view?: View;
   onView?: (v: View) => void;
+  /** the step's callout, drawn over a part of the picture (THINK_PARTS); the Accuracy tab ignores it */
+  say?: Say;
 }) {
   const [own, setOwn] = useState<View>('scene');
   const view = kept ?? own,
     setView = onView ?? setOwn;
-  const o: ThinkOpts = { ...s.desk, scale: useNarrow() ? 2.2 : 1.3 };
+  const o: ThinkOpts = { ...s.desk, scale: useNarrow() ? 2.2 : 1.3, say };
   return (
     <div className="tc-stage rs-stage">
       <div className="tc-tabs" role="group" aria-label="Show in the picture">
@@ -160,7 +165,10 @@ export function ReasoningStage({
       </div>
       <p className="tc-caption">
         {s.stamp && <span className={`stamp ${STAMP_CLASS[s.stamp]}`}>{s.stamp}</span>}
-        <span className="txt">{s.caption}</span>
+        <span className="txt">
+          {s.caption}
+          {s.desk.wait > 0 && ' Waits use Larkspur’s assumed rate.'}
+        </span>
       </p>
       <section className="rs-thinking" aria-label="The model’s thinking" tabIndex={0}>
         <p className="lbl">
@@ -213,11 +221,7 @@ export function Fact({ id }: { id: string }) {
   const f = fact(id);
   return (
     <p className="tc-fact">
-      {f.claim}{' '}
-      <a className="source" href={f.source} target="_blank" rel="noreferrer">
-        Source: {new URL(f.source).hostname}
-      </a>{' '}
-      (checked {f.accessed})
+      {f.claim} <Cite title={new URL(f.source).hostname} href={f.source} checked={f.accessed} />
     </p>
   );
 }

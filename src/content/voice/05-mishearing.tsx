@@ -8,11 +8,11 @@ import Predict from '../../components/quiz/Predict';
 import { DEFAULT_LINE, runCall } from '../../lib/voice/engine';
 import { latency, ms } from '../../lib/voice/latency';
 import { clipOf } from '../../lib/voice/turns';
-import { textOf } from '../../lib/voice/script';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { RecordedNote, Toggle, Transcript, VoiceStage, segmentsOf } from './kit';
+import { PHONE_PARTS } from '../../components/scenes/phoneScene';
+import { PlanNote, RecordedNote, Toggle, Transcript, VoiceStage, segmentsOf } from './kit';
 
 const MODULE = 'voice',
   ID = '05-mishearing';
@@ -21,6 +21,7 @@ const runOf = (readBack: boolean) => runCall('mishear', { ...BASE, readBack });
 const DIRECT = runOf(false),
   CONFIRM = runOf(true);
 const HEARD = DIRECT.recording.turns[0];
+export const PARTS = PHONE_PARTS;
 /** the read-back's cost: the assistant asking, then Ravi answering */
 const COST =
   latency('mishear-readback', true).firstSound + clipOf('mishear-readback').ms + clipOf('mishear-correct').ms;
@@ -44,7 +45,7 @@ const P1 = {
 /** read off the recordings: does the read-back turn a wrong answer right? */
 export const outcome = () => (DIRECT.recording.verdict === 'wrong' && CONFIRM.recording.verdict === 'ok' ? 0 : 1);
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A pharmacy line hears a prescription number with low confidence. The number it heard belongs to a real prescription. What happens if it looks it up straight away?',
   options: [
@@ -56,8 +57,8 @@ const QUIZ = {
   explanation:
     'A misheard number can be a real one, so nothing downstream notices. Only the caller can say it is wrong.',
   why: [
-    'It would fail only if the misheard number didn’t exist. Here it does, so the lookup succeeds on the wrong record.',
-    'Right. That is why unsure numbers are read back before anything is done with them.',
+    'It would fail only if the misheard number didn’t exist; here it does, so the lookup succeeds on the wrong record.',
+    'Right: that is why unsure numbers are read back before anything is done with them.',
     'Nothing makes speech-to-text listen again unless the line asks the caller.',
   ],
 };
@@ -67,29 +68,35 @@ export const STEPS: Step<S>[] = [
     id: 'take',
     focus: 'take',
     visibleControls: ['take'],
-    narration: 'Ravi calls to check on an order and reads out its number. Take the call.',
+    narration: 'Ravi calls to check on an order and reads out its number.',
+    act: 'Take the call.',
+    say: { block: 'phone', text: 'Reads a number' },
     predicate: s => s.taken,
   },
   {
     id: 'predict',
     focus: 'p1',
     visibleControls: ['direct', 'p1'],
-    narration: `A mishearing is speech-to-text writing a different word from the one said. Ravi said “${textOf('mishear-caller')}”; it wrote “${HEARD.text}”. Each word comes with a confidence, how sure the model is of it, and this number came out unsure. The lookup found a real order, someone else’s, and the answer sounds sure. Before you change anything:`,
+    narration: `Ravi’s number came out as ${HEARD.unsure}: a mishearing, with low confidence. That order is someone else’s, and the answer sounds sure.`,
+    act: 'Predict the cheapest fix.',
+    say: { block: 'ear', text: 'Unsure number' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'readback',
     focus: 'readback',
     visibleControls: ['p1', 'readback'],
-    narration:
-      'Turn the read-back rule on: when a number comes out unsure, the assistant says it back and waits for a yes before acting on it.',
+    narration: 'Read-back says an unsure number back and waits for a yes before acting.',
+    act: 'Turn the read-back rule on.',
     predicate: s => s.readBack,
   },
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['outcome', 'quiz'],
-    narration: `Ravi corrected the number, and the lookup ran on the right order. The read-back cost about ${ms(COST)}: one short question and one short answer. Numbers, names and codes are where speech-to-text slips, because nothing around them says what they should be. One question to finish.`,
+    narration: `Read-back fixed it for ${ms(COST)}, one short turn. Numbers and names slip: nothing around them says what they should be.`,
+    act: 'One question to finish.',
+    say: { block: 'model', text: 'Right order' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Can the lookup tell that the number it was given is the wrong one?',
   },
@@ -103,11 +110,12 @@ export default function Mishearing() {
       steps={STEPS}
       initial={{ taken: false, p1: null, readBack: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, focus }) => {
+      stage={({ state, focus, say }) => {
         const r = state.readBack ? CONFIRM : DIRECT;
         return (
           <VoiceStage
             step={focus}
+            say={say}
             shown={{
               phone: state.taken
                 ? { stage: state.readBack ? 'reply' : 'stt', unsure: true, wait: state.readBack ? r.wait : null }
@@ -146,6 +154,7 @@ export default function Mishearing() {
           <>
             <Outcome {...P1} prediction={state.p1} outcome={outcome()} />
             <Transcript run={CONFIRM} />
+            <PlanNote />
             <RecordedNote />
           </>
         ),

@@ -14,6 +14,9 @@ import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { Chips } from '../agents/kit';
 import { EvalStage, Fact, Mark, WithSuite, resultsOf, type Shown, type Suite } from './kit';
+import { EVAL_PARTS } from '../../components/scenes/evalScene';
+
+export const PARTS = EVAL_PARTS;
 
 const MODULE = 'evals',
   ID = '06-run-it-twice';
@@ -72,10 +75,10 @@ const QUIZ = {
   correct: 1,
   explanation: fact('pass-hat-k').claim,
   why: [
-    `pass@5 says it can get it right, once in five. Each customer gets one try, not the best of five. ${fact('pass-at-k').claim}`,
-    `Right. A customer gets whatever this try says. ${fact('pass-hat-k').claim}`,
+    'pass@5 says it can get it right once in five, but each customer gets one try, not the best of five.',
+    'Right: a customer gets whatever this try says, so the number to trust counts every try.',
     'The next run need not match: the same case passed and failed across tries here, with nothing changed.',
-    `One run per case hides cases that flip. And with ${N} questions, one flip moves the score by ${SWING}.`,
+    `One run per case hides cases that flip, and with ${N} questions one flip moves the score by ${SWING}.`,
   ],
 };
 
@@ -84,21 +87,25 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `Until now each question was asked once. A model can answer the same question differently each time it is asked. Each attempt at a case is called a trial. The team asked ${SAMPLES.length} cases ${TRIES} times each. These recorded answers stand in for asking a live model again and again. Before you look:`,
+    narration: `A trial is one try at a case. The team ran ${SAMPLES.length} cases ${TRIES} times each, from recorded answers.`,
+    act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'run',
     focus: 'run',
     visibleControls: ['p1', 'run'],
-    narration: `Show the ${TRIES} trials of every case, each graded PASS or FAIL.`,
+    narration: `Each case’s ${TRIES} trials are graded PASS or FAIL.`,
+    act: 'Show every trial.',
     predicate: s => s.ran,
   },
   {
     id: 'pass-at-k',
     focus: 'k',
     visibleControls: ['out1', 'k', 'trials'],
-    narration: `So one try says little. pass@k counts a case as passing if any of its first k trials passes. With k = 1 it is one try. Raise k to 5 and watch the cases that flip.`,
+    narration: 'pass@k passes a case if any of its first k trials passes; k = 1 is one try.',
+    act: 'Raise k to 5.',
+    say: { block: 'board', text: 'Any try passes' },
     predicate: s => s.metric === 'at' && s.k === 5,
     hint: 'Press “k = 5”.',
   },
@@ -106,14 +113,17 @@ export const STEPS: Step<S>[] = [
     id: 'predict-hat',
     focus: 'p2',
     visibleControls: ['trials', 'p2'],
-    narration: `Under pass@5 every case that passed once passes. That measures whether the assistant can answer, not whether it will. pass^k turns it round.`,
+    narration:
+      'Under pass@5, every case that passed once passes: it shows the assistant can, not that it will. pass^k turns it round.',
+    act: 'Predict first.',
     predicate: s => s.p2 !== null,
   },
   {
     id: 'pass-hat-k',
     focus: 'metric',
     visibleControls: ['p2', 'metric', 'k', 'trials'],
-    narration: 'Switch the metric to pass^k, with k = 5.',
+    narration: 'pass^k passes a case only if every one of its first k trials passes.',
+    act: 'Switch to pass^k, with k = 5.',
     predicate: s => s.metric === 'hat' && s.k === 5,
     hint: 'Press “pass^k”, and keep k = 5.',
   },
@@ -121,14 +131,17 @@ export const STEPS: Step<S>[] = [
     id: 'small-suite',
     focus: 'flip',
     visibleControls: ['out2', 'flip'],
-    narration: `A case that flips also moves the test set’s score. Larkspur’s test set has ${N} questions, so each one is a big share of the score. Flip one question the way a flaky case flips. A flaky case is one that passes on some tries and fails on others.`,
+    narration: `Larkspur’s test set has ${N} questions, so one flaky case, passing some tries and failing others, moves its score a lot.`,
+    act: 'Flip one question.',
+    say: { block: 'fail', text: 'Not every time' },
     predicate: s => s.flipped,
   },
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['flipped', 'quiz'],
-    narration: `One flipped question moved the score by ${SWING}. With a test set this small, a score that moves by one question may be one flaky case, not a better or worse version. Run each case more than once before you believe it. One question to finish.`,
+    narration: `One flipped question moved the score ${SWING}: maybe one flaky case, not a better version. Run cases more than once.`,
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'A customer gets one try. Which number counts every try?',
   },
@@ -269,7 +282,7 @@ export default function RunItTwice() {
       steps={STEPS}
       initial={{ p1: null, ran: false, k: 1, metric: 'at', p2: null, flipped: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => <EvalStage show={show(state)} />}
+      stage={({ state, say }) => <EvalStage show={show(state)} say={say} />}
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         run: ({ state, sync }) => (

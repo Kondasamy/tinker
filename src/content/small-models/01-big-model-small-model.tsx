@@ -11,8 +11,10 @@ import { num } from '../../lib/format';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
+import { ROUTER_PARTS } from '../../components/scenes/routerScene';
 import { BothGate, META, SmallStage, TopFive, bothNow, loadBoth } from './kit';
 
+export const PARTS = ROUTER_PARTS;
 const MODULE = 'small-models',
   ID = '01-big-model-small-model';
 const SIZE = { teacher: paramCount(layoutOf(META, 'teacher')), student: paramCount(layoutOf(META, 'student')) };
@@ -44,7 +46,7 @@ export function outcome(t: Parameters<typeof top5>[0], s: Parameters<typeof top5
   return pairs.some(([a, b]) => a.some(c => b.some(d => d.id === c.id))) ? 1 : 2;
 }
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A support team swaps its 70-billion-weight model for an 8-billion-weight one of the same design. What changes for each token it writes?',
   options: [
@@ -57,7 +59,7 @@ const QUIZ = {
   explanation:
     'Work per token follows the weights, and a model with fewer weights holds less, so its odds are flatter.',
   why: [
-    'Right. Each token costs about one multiplication per weight, and fewer weights hold less of what the text taught.',
+    'Right: each token costs about one multiplication per weight, and fewer weights hold less of what the text taught.',
     'Every token runs through all the weights; fewer weights, fewer multiplications.',
     'A model does not choose its effort: its shape fixes the multiplications per token.',
     'The smaller model reads the same pieces of text; it just knows less about them.',
@@ -69,8 +71,9 @@ export const STEPS: Step<S>[] = [
     id: 'weigh',
     focus: 'weigh',
     visibleControls: ['weigh'],
-    narration:
-      'On the bench: Larkspur mini, the tiny model from the Fine-tuning module, and its student, a smaller model taught by it. Both run in your browser. Their numbers teach the mechanism; they are not any provider’s. Weigh them first.',
+    narration: 'Larkspur mini at the back; its student, a smaller model it taught, in front. Both run in your browser.',
+    act: 'Weigh both.',
+    say: { block: 'small', text: 'Taught by mini' },
     predicate: s => s.weighed,
     hint: 'Press “Weigh both models”.',
   },
@@ -78,14 +81,17 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['sizes', 'p1'],
-    narration: `Fewer weights means less work for every piece of text: the student does ${share(WORK.student, WORK.teacher)} of the multiplications per token. What does it give up? Before you ask:`,
+    narration: `Fewer weights, less work per token: the student does ${share(WORK.student, WORK.teacher)} of the multiplications. What does it give up?`,
+    act: 'Predict first.',
+    say: { block: 'small', text: 'Less work' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'ask',
     focus: 'ask',
     visibleControls: ['p1', 'ask'],
-    narration: 'Pick a sentence and ask both models for their top 5 next pieces.',
+    narration: 'Both models can continue the same sentence.',
+    act: 'Pick a sentence and ask both for their top 5.',
     predicate: s => s.asked && !!bothNow(),
     hint: 'Press “Ask both”.',
   },
@@ -94,7 +100,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['answers', 'ask', 'quiz'],
     narration:
-      'The student knows the same pieces of text, and its top picks are mostly the teacher’s. But its odds are flatter: with fewer weights it holds less, so it is less sure, and on some sentences its first pick slips. Try the other sentences. One question to finish.',
+      'Same pieces, mostly the same top picks, but flatter odds: fewer weights hold less, so some first picks slip.',
+    act: 'Try other sentences, then one question.',
+    say: { block: 'small', text: 'Less sure' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What follows the number of weights?',
   },
@@ -112,8 +120,9 @@ export default function BigModelSmallModel() {
       steps={STEPS}
       initial={{ weighed: false, p1: null, prompt: 0, asked: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => (
+      stage={({ state, say }) => (
         <SmallStage
+          say={say}
           models
           show={() => {
             const m = bothNow(),
@@ -124,7 +133,7 @@ export default function BigModelSmallModel() {
               caption: state.asked
                 ? `Both asked to continue “${p.text}”: their top picks ${same ? 'match' : 'differ'}.`
                 : state.weighed
-                  ? `Larkspur mini: ${num(SIZE.teacher)} weights. The student: ${num(SIZE.student)}.`
+                  ? `Larkspur mini: ${num(SIZE.teacher)} weights. The student: ${num(SIZE.student)}. This site’s models, not a provider’s.`
                   : 'Larkspur mini at the back, its student in front.',
             };
           }}

@@ -14,6 +14,9 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { Fact, MODULE, Mark, ObsStage, modeName, wallOf, type View } from './kit';
+import { TRACE_PARTS } from '../../components/scenes/traceScene';
+
+export const PARTS = TRACE_PARTS;
 
 const ID = '06-trace-to-test';
 const OFFERED = DOMAINS[ID].traces.map(traceOf);
@@ -28,7 +31,7 @@ export const outcomeFor = (cases: string[]) => {
   return pass === cases.length ? 0 : pass === 0 ? 2 : 1;
 };
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A support team fixed a bug where the bot quoted the wrong shipping fee. Why add the customer’s conversation to the eval suite as well?',
   options: [
@@ -39,8 +42,8 @@ const QUIZ = {
   correct: 0,
   explanation: 'A case from a real failure guards that fix for good.',
   why: [
-    'Right. The case stays in the suite; any version that brings the failure back fails it.',
-    'Size isn’t the point. Cases drawn from real failures test what really goes wrong.',
+    'Right: the case stays in the suite, and any version that brings the failure back fails it.',
+    'Size isn’t the point: cases drawn from real failures test what really goes wrong.',
     'Fixed today isn’t fixed for good: a later prompt, model or index change can bring it back.',
   ],
 };
@@ -59,7 +62,9 @@ export const STEPS: Step<S>[] = [
     id: 'pick',
     focus: 'pick',
     visibleControls: ['evals', 'pick'],
-    narration: `The team shipped a fix for “${modeName(TOP[0])}”. To check it, and to keep it fixed, each failed trace can become an eval case: its question, a reference answer, and Evals’ graders. Add every “${modeName(TOP[0]).toLowerCase()}” trace as a case; add others if you like.`,
+    narration: 'Each failed trace can become an eval case: its question, a reference answer and Evals’ graders.',
+    act: 'Add every trace of the fixed mode.',
+    say: { block: 'wall', text: 'Traces to cases' },
     predicate: has,
     hint: `Add each trace whose mode is “${modeName(TOP[0])}”.`,
   },
@@ -67,8 +72,8 @@ export const STEPS: Step<S>[] = [
     id: 'current',
     focus: 'run',
     visibleControls: ['pick', 'run'],
-    narration:
-      'Run the cases on the current version: the replies the traces recorded. Two of Evals’ code graders check each: does it contain the reference’s key fact, and does it cite a passage?',
+    narration: 'Current replies are the traces’ own. Evals’ code graders check each for the key fact and a citation.',
+    act: 'Run the cases on the current version.',
     predicate: s => s.ran.includes('current'),
     hint: 'Press the run button.',
   },
@@ -77,14 +82,17 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['results', 'p1'],
     narration:
-      'Every case fails on the current version. The old-passage answers fail on the key fact, though they cite a passage: last year’s. Before you run the fixed version:',
+      'Every case fails on the current version. The old-passage answers miss the key fact, though they cite a passage: last year’s.',
+    act: 'Predict first.',
+    say: { block: 'wall', text: 'Every case fails' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'fixed',
     focus: 'run',
     visibleControls: ['p1', 'results', 'run'],
-    narration: 'Now run the same cases on the fixed version.',
+    narration: 'Your pick is locked.',
+    act: 'Run the same cases on the fixed version.',
     predicate: s => s.ran.includes('fixed'),
     hint: 'Press the run button.',
   },
@@ -92,7 +100,10 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out1', 'results', 'facts', 'quiz'],
-    narration: `The fix passes the cases it was made for. A case from another mode would still fail, because the index was not its cause: those cases wait for their own fix. The answers are recorded; the grading runs live, with the same graders as the Evals module. The cases now join the suite, so a later change that brings the failure back is caught. One question to finish.`,
+    narration:
+      'Its cases pass; other modes’ cases still fail until their own fix. All join the suite to catch a regression.',
+    act: 'One question to finish.',
+    say: { block: 'wall', text: 'Now in the suite' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What does a case from a real failure guard against?',
   },
@@ -156,12 +167,13 @@ export default function TraceToTest() {
       steps={STEPS}
       initial={{ cases: [], ran: [], p1: null, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => {
+      stage={({ state, sync, say }) => {
         const last = state.cases.at(-1),
           v = state.ran.at(-1);
         const pass = v ? state.cases.filter(id => gradeCase(id, v).pass).length : 0;
         return (
           <ObsStage
+            say={say}
             room={{
               cards: wallOf(FAILED, last),
               board: v
@@ -237,6 +249,9 @@ export default function TraceToTest() {
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={outcomeFor(state.cases)} />,
         facts: () => (
           <>
+            <p className="tc-fact">
+              The answers are recorded; the grading runs live, with the same graders as the Evals module.
+            </p>
             <Fact id="evals-from-errors" />
             <p className="tc-status">The harm this fix removed was rated {modeOf(TOP[0]).harm} of 3 by the team.</p>
           </>

@@ -15,6 +15,10 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
 import { AgentStage, Fact } from './kit';
+import { AGENT_PARTS } from '../../components/scenes/agentScene';
+
+/** the parts a step's callout may name: the back office with the agent's props */
+export const PARTS = AGENT_PARTS;
 
 const MODULE = 'agents',
   ID = '01-workflow-or-agent';
@@ -34,7 +38,6 @@ const RUNS: Record<string, Run> = Object.fromEntries(
 const R = (c: Case, st: Stock, m: Mode) => RUNS[key(c, st, m)];
 
 const calls = (r: Run) => stepsOf(r, 'call').length;
-const turns = (r: Run) => r.meter.length;
 const names = (r: Run) =>
   stepsOf(r, 'call')
     .map(c => c.call.name)
@@ -48,7 +51,6 @@ const REFUND = { script: R('refund', 'in', 'script'), agent: R('refund', 'in', '
 const IN = { script: R('damaged', 'in', 'script'), agent: R('damaged', 'in', 'agent') };
 const OUT = { script: R('damaged', 'out', 'script'), agent: R('damaged', 'out', 'agent') };
 const FAILED = stepsOf(OUT.script, 'halt')[0].call.name;
-const FAIL_MSG = stepsOf(OUT.script, 'result').at(-1)!.result.content[0].text;
 const CHECK = stepsOf(OUT.agent, 'call').find(c => !stepsOf(OUT.script, 'call').some(s => s.call.name === c.call.name))!
   .call.name;
 
@@ -95,7 +97,7 @@ const P2 = {
 const copes = (r: Run) => r.status === 'done';
 const OUT2 = copes(OUT.script) ? (copes(OUT.agent) ? 0 : 2) : copes(OUT.agent) ? 1 : 3;
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'Larkspur’s billing team updates a customer’s card on file thousands of times a week: look up the account, save the new card, send a receipt. Always those three steps. What should run it?',
   options: [
@@ -107,10 +109,10 @@ const QUIZ = {
   correct: 1,
   explanation: fact('simplest-first').claim,
   why: [
-    'On the refund the agent got the same result as the script and spent more tokens doing it. Picking each step only pays when the steps are not known in advance.',
-    `Right. ${fact('simplest-first').claim}`,
-    'The script called the same tools as the agent. In both, the host runs the calls; the difference is only who picks the next one.',
-    'Trust is not the question here: the agent handled the refund correctly. The question is whether anyone can write the path down in advance, and here they can.',
+    'On the refund the agent got the same result as the script for more tokens: picking each step pays only when the steps are not known in advance.',
+    `Right: ${fact('simplest-first').claim}`,
+    'The script called the same tools as the agent; the only difference is who picks the next one.',
+    'Trust is not the question, since the agent handled the refund correctly; the question is whether the path can be written down in advance, and here it can.',
   ],
 };
 
@@ -119,7 +121,9 @@ export const STEPS: Step<S>[] = [
     id: 'meet',
     focus: 'open',
     visibleControls: ['open'],
-    narration: `The support lead starts handing the assistant whole cases. Larkspur’s team already wrote a script for the routine ones: the same calls, in the same order, every time. That is a workflow. The other way is an agent. ${fact('workflow-vs-agent').claim} Read the first case.`,
+    narration: 'A workflow runs fixed calls in order. An agent picks its own steps toward a goal.',
+    act: 'Read the case.',
+    say: { block: 'host', text: 'Runs the script' },
     predicate: s => s.opened,
   },
   {
@@ -127,14 +131,16 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['p1'],
     opensDrawer: 'case',
-    narration: `The refund script runs ${names(REFUND.script)}. The agent gets the same tools and the goal, and picks its own steps. Before you run them:`,
+    narration: `The refund script runs ${names(REFUND.script)}. The agent gets the same tools and the goal.`,
+    act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'run-refund',
     focus: 'run',
     visibleControls: ['p1', 'run'],
-    narration: 'Run the case both ways: once as the script, once as the agent.',
+    narration: 'Same case, two ways: once as the script, once as the agent.',
+    act: 'Run it both ways.',
     predicate: s => seenBoth(s, 'refund', 'in'),
     hint: 'Press “Run as the script”, then “Run as an agent”.',
   },
@@ -142,7 +148,9 @@ export const STEPS: Step<S>[] = [
     id: 'refund',
     focus: 'next',
     visibleControls: ['out1', 'tally', 'next'],
-    narration: `The same refund and the same email both times. The script asked the model nothing: ${n(totalTokens(REFUND.script))} model tokens. The agent took ${turns(REFUND.agent)} turns and ${n(totalTokens(REFUND.agent))} tokens, because every turn sends the model the whole case again. On a case someone foresaw, the script is cheaper and just as good.`,
+    narration: `Same refund and email, but the script asked the model nothing; the agent spent ${n(totalTokens(REFUND.agent))} tokens. A foreseen case suits a script.`,
+    act: 'Next case.',
+    say: { block: 'model', text: 'Script skips it' },
     predicate: s => s.kase === 'damaged',
   },
   {
@@ -150,7 +158,8 @@ export const STEPS: Step<S>[] = [
     focus: 'run',
     visibleControls: ['run'],
     opensDrawer: 'case',
-    narration: `A harder case: ${REC.asks.damaged} The damage script runs ${names(IN.script)}. The printer is in stock. Run it both ways.`,
+    narration: `A harder case: a printer arrived cracked. The damage script runs ${names(IN.script)}, and the printer is in stock.`,
+    act: 'Run it both ways.',
     predicate: s => seenBoth(s, 'damaged', 'in'),
     hint: 'Press “Run as the script”, then “Run as an agent”.',
   },
@@ -159,14 +168,17 @@ export const STEPS: Step<S>[] = [
     focus: 'p2',
     visibleControls: ['tally', 'p2'],
     opensDrawer: null,
-    narration: `Both shipped a replacement, and the script again for fewer tokens. The agent also called ${CHECK}, a step the script skips. Now the warehouse sells its last printer, and the same case comes in. Before you run it:`,
+    narration: `Both shipped a replacement; the script spent fewer tokens. The agent also called ${CHECK}, a step the script skips. Now stock runs out.`,
+    act: 'Predict first.',
+    say: { block: 'orders', text: 'Out of stock' },
     predicate: s => s.p2 !== null,
   },
   {
     id: 'run-out',
     focus: 'run',
     visibleControls: ['p2', 'run'],
-    narration: 'Run it both ways again, with the printer out of stock.',
+    narration: 'The same case, with the printer out of stock.',
+    act: 'Run it both ways again.',
     predicate: s => seenBoth(s, 'damaged', 'out'),
     hint: 'Press “Run as the script”, then “Run as an agent”.',
   },
@@ -174,7 +186,8 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out2', 'tally', 'quiz'],
-    narration: `The script stopped at ${FAILED}: “${FAIL_MSG}” Nobody wrote a step for that, so the customer heard nothing. The agent read the ${CHECK} result and changed course: “${answerOf(OUT.agent)}” ${fact('when-agent').claim} One question to finish.`,
+    narration: `The script halted at ${FAILED}, with no step for that answer. The agent read ${CHECK} and changed course.`,
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Can someone write this job’s steps down in advance?',
   },
@@ -234,9 +247,9 @@ export default function WorkflowOrAgent() {
         quiz: null,
       }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, inspect }) => {
+      stage={({ state, inspect, say }) => {
         const r = current(state);
-        return <AgentStage run={r} upTo={state.ran ? r.steps.length : 0} inspect={inspect} />;
+        return <AgentStage run={r} upTo={state.ran ? r.steps.length : 0} inspect={inspect} say={say} />;
       }}
       controls={{
         open: ({ state, apply }) => (
@@ -323,6 +336,7 @@ export default function WorkflowOrAgent() {
               <>
                 <Messages lanes={agentLanes(r)} msgs={agentMessages(r)} upTo={s.ran ? r.steps.length : 0} />
                 <Fact id="simplest-first" />
+                <Fact id="when-agent" />
               </>
             );
           },

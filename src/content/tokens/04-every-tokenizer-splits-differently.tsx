@@ -11,9 +11,11 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { Fact, TokensStage, siteEncoding } from './kit';
+import { TOKEN_PARTS } from '../../components/scenes/tokenScene';
 
 const MODULE = 'tokens',
   ID = '04-every-tokenizer-splits-differently';
+export const PARTS = TOKEN_PARTS;
 const SITE = 'site';
 const TOKS = [{ id: SITE, name: 'This site’s tokenizer' }, ...TOKENIZERS];
 const nameOf = (t: string) => TOKS.find(x => x.id === t)!.name;
@@ -69,7 +71,7 @@ const P1 = {
 };
 const OUT1 = RATIO < 2 ? 0 : RATIO <= 5 ? 1 : 2;
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'Larkspur opens a support line in Japanese. A planner budgets the Japanese emails at the same tokens per message as the English ones. What do you tell them?',
   options: [
@@ -81,32 +83,31 @@ const QUIZ = {
   correct: 1,
   explanation: fact('language-disparity').claim,
   why: [
-    `The order message took ${tokensOf(count('order-en', NEW.id))} in English and ${tokensOf(count('order-ja', NEW.id))} in Japanese on ${NEW.name}. Meaning doesn’t set the count; the tokenizer’s vocabulary does.`,
-    'Right. A tokenizer learned mostly from English keeps fewer pieces of other languages whole. Count the real text, on the tokenizer you will be billed by.',
+    `On ${NEW.name} the order message took ${tokensOf(count('order-en', NEW.id))} in English and ${tokensOf(count('order-ja', NEW.id))} in Japanese: the vocabulary sets the count, not the meaning.`,
+    'Right: a tokenizer learned mostly from English keeps fewer pieces of other languages whole, so count the real text on the tokenizer that bills you.',
     `A Japanese character is often several bytes, and on ${OLD.name} several tokens: the order message took ${tokensOf(count('order-ja', OLD.id))} there.`,
-    'The model reads the Japanese the customer wrote, so that is what you pay for. A translation’s count is a different text’s count.',
+    'The model reads the Japanese the customer wrote, so that is what you pay for, not a translation.',
   ],
 };
 
 const SP = cut('spaces', OLD.id, textOf('spaces').split(' ')[0]);
-const NUM = textOf('numbers').match(/\d{4,}/)![0],
-  YEAR = textOf('numbers')
-    .match(/\d{4}-/)![0]
-    .slice(0, 4);
+const NUM = textOf('numbers').match(/\d{4,}/)![0];
 
 export const STEPS: Step<S>[] = [
   {
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `Real tokenizers counted Larkspur’s documents differently in chapter 3. Each one learned its own vocabulary from its own training text, so each cuts the same sentence its own way. The team recorded two real tokenizers, ${TOKENIZERS.map(t => t.name).join(' and ')}, on a few fixed sentences. Before you look:`,
+    narration: `Each tokenizer learned its own vocabulary, so each cuts a sentence its own way. The team recorded ${TOKENIZERS.map(t => t.name).join(' and ')}.`,
+    act: 'Predict the Hindi count.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'run',
     focus: 'run',
     visibleControls: ['p1', 'run'],
-    narration: 'Locked in. Run every sentence through every tokenizer.',
+    narration: 'Your pick is locked.',
+    act: 'Run every sentence through every tokenizer.',
     predicate: s => s.ran,
     hint: 'Press “Run every sentence”.',
   },
@@ -114,7 +115,8 @@ export const STEPS: Step<S>[] = [
     id: 'spaces',
     focus: 'pick',
     visibleControls: ['out1', 'table', 'pick'],
-    narration: `The Hindi message took ${tokensOf(HI)} on ${OLD.name}, against ${EN} in English: ${RATIO.toFixed(1)} times as many. Most Hindi letters are three bytes, and ${OLD.name} learned few merges for them, so many stayed as loose bytes. ${NEW.name}, trained on far more languages, took ${tokensOf(count('order-hi', NEW.id))}. Extra tokens for the same meaning are a token tax. Now pick “${textOf('spaces')}” on ${OLD.name} and open the Tokens tab on the picture.`,
+    narration: `On ${OLD.name}, Hindi paid a token tax: ${RATIO.toFixed(1)} times English’s tokens, its letters left as bytes.`,
+    act: `Pick the shelf sentence on ${OLD.name}; open Tokens.`,
     predicate: s => s.sentence === 'spaces' && s.tok === OLD.id,
     hint: `Pick the sentence “${textOf('spaces')}” and the tokenizer ${OLD.name}.`,
   },
@@ -122,7 +124,9 @@ export const STEPS: Step<S>[] = [
     id: 'numbers',
     focus: 'pick',
     visibleControls: ['table', 'pick'],
-    narration: `${OLD.name} cut the first “${SP.join('')}”, at the start of the text, into ${shown(SP)}, but “␣shelf” with its leading space is ${tokensOf(cut('spaces', OLD.id, ' shelf').length)}. Most words come after a space, so tokenizers learn the word with its space glued on. A capital, a doubled space or no space at all makes different tokens. Now pick the numbers sentence on ${NEW.name}.`,
+    narration: `A bare “${SP.join('')}” is ${shown(SP)} on ${OLD.name}; “␣shelf”, with its leading space, is ${tokensOf(cut('spaces', OLD.id, ' shelf').length)}.`,
+    act: `Pick the numbers sentence on ${NEW.name}.`,
+    say: { block: 'strip', text: 'shelf ≠ Shelf' },
     predicate: s => s.sentence === 'numbers' && s.tok === NEW.id,
     hint: `Pick the sentence that starts “${textOf('numbers').split(' ')[0]}” and the tokenizer ${NEW.name}.`,
   },
@@ -130,7 +134,9 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['table', 'pick', 'quiz'],
-    narration: `${NEW.name} cut ${NUM} into ${shown(cut('numbers', NEW.id, NUM))} and the year ${YEAR} into ${shown(cut('numbers', NEW.id, YEAR))}; ${OLD.name} cut them into ${shown(cut('numbers', OLD.id, NUM))} and ${shown(cut('numbers', OLD.id, YEAR))}. Numbers break wherever the vocabulary happens to have pieces, which is one reason models slip on arithmetic. Code is cut the same way: pick it to see. One question to finish.`,
+    narration: `${NEW.name} cut ${NUM} into ${shown(cut('numbers', NEW.id, NUM))}: numbers break wherever the vocabulary has pieces, one reason models slip on arithmetic.`,
+    act: 'One question to finish.',
+    say: { block: 'belt', text: 'Odd number cuts' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Does the meaning of a message set its token count, or does the tokenizer?',
   },
@@ -215,10 +221,11 @@ export default function EveryTokenizerSplitsDifferently() {
       steps={STEPS}
       initial={{ p1: null, ran: false, sentence: 'order-en', tok: OLD.id, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state: saved }) => {
+      stage={({ state: saved, say }) => {
         const state = picked(saved);
         return (
           <TokensStage
+            say={say}
             text={textOf(state.sentence)}
             enc={state.tok === SITE ? undefined : encodingOf(state.sentence, state.tok)}
             caption={

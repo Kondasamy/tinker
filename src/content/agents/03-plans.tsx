@@ -7,15 +7,17 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { agentLanes, agentMessages } from '../../components/scenes/agentSequence';
-import { agentState } from '../../components/scenes/agentScene';
+import { AGENT_PARTS, agentState } from '../../components/scenes/agentScene';
 import { answerOf, keyOf, run, stepsOf, type Decision, type Run } from '../../lib/agents/loop';
 import { RECORDINGS } from '../../lib/agents/turns';
-import { fact } from '../../lib/agents/facts';
 import { money } from '../../lib/format';
 import { moduleOf, nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Ledger, Messages, Outcome } from '../tool-calling/kit';
 import { AgentStage, Fact } from './kit';
+
+/** the parts a step's callout may name: the back office with the agent's props */
+export const PARTS = AGENT_PARTS;
 
 const MODULE = 'agents',
   ID = '03-plans';
@@ -120,7 +122,7 @@ const P3 = {
 const PA = R('planted', ['approve']);
 const OUT3 = refunded(PA, EXTRA) > 0 ? 0 : stepsOf(PA, 'approval').length > 1 ? 3 : 1;
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'Larkspur’s buying agent plans a restock: check three suppliers’ prices, then order from the cheapest. The buyer approves the plan. Halfway through, one supplier’s site is down, and the agent wants to try a fourth supplier the plan did not name. Approval is on. What should the host do?',
   options: [
@@ -132,10 +134,10 @@ const QUIZ = {
   correct: 1,
   explanation: 'Approving a plan approves those steps. A step outside it goes back to the person before it runs.',
   why: [
-    `Close enough is how a planted line gets through. In the printer case the refund was not in the approved plan, so the host brought ${item(ASKED)} back to you before it ran.`,
-    `Right. The person approves the plan once instead of every call, and anything new comes back to them. ${fact('human-checkpoints').claim}`,
-    `Plans have to change when a result surprises the agent: the stock-out made it drop ${item(STRUCK[0])}. The host lets it change, and asks the person first.`,
-    'The model is the one asking for the change, so it cannot be the one who signs it off. That decision stays with a person.',
+    `Close enough is how a planted line gets through: in the printer case the host brought ${item(ASKED)} back to you before it ran.`,
+    'Right: the person approves the plan once instead of every call, and anything new comes back to them.',
+    `Plans have to change when a result surprises the agent, as the stock-out made it drop ${item(STRUCK[0])}, so the host lets it change and asks the person first.`,
+    'The model is the one asking for the change, so it cannot be the one who signs it off.',
   ],
 };
 
@@ -145,7 +147,9 @@ export const STEPS: Step<S>[] = [
     focus: 'plan',
     visibleControls: ['plan'],
     opensDrawer: 'plan',
-    narration: `The cracked printer again, and the printer is out of stock. In chapter 2 the agent picked each step as it went, so nobody could see where it was heading until it got there. Plan mode asks the model to write its steps down first, before it calls anything. The host puts them on the clipboard by the model. Turn plan mode on.`,
+    narration: 'Plan mode asks the model to write its steps on the clipboard before it calls anything.',
+    act: 'Turn plan mode on.',
+    say: { block: 'model', text: 'Plans first' },
     predicate: s => s.plan,
     hint: 'Press “Plan mode: on”.',
   },
@@ -153,14 +157,17 @@ export const STEPS: Step<S>[] = [
     id: 'predict-surprise',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `The model’s first turn is now a plan, not a call: “${PLAN.text}” ${PLAN.items.length} items on the clipboard. The plan was written before any tool ran, so it does not know the printer is out. Before you run it:`,
+    narration: `The first turn is now a plan of ${PLAN.items.length} items, written before any tool ran. It does not know the printer is out.`,
+    act: 'Predict first.',
+    say: { block: 'plan', text: 'Written first' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'run-plan',
     focus: 'run',
     visibleControls: ['p1', 'run'],
-    narration: 'Run the plan. Each item gets a tick on the clipboard when its call comes back.',
+    narration: 'Each item gets a tick on the clipboard when its call comes back.',
+    act: 'Run the plan.',
     predicate: s => s.ran,
     hint: 'Press “Run the plan”.',
   },
@@ -169,15 +176,18 @@ export const STEPS: Step<S>[] = [
     focus: 'p2',
     visibleControls: ['out1', 'p2'],
     opensDrawer: null,
-    narration: `check_stock came back “out”, and the model changed course: “${CHANGE.text}” On the clipboard ${item(STRUCK[0])} is struck out and ${item(keyOf(CHANGE.call))} is added. ${fact('ground-truth').claim} Nobody looked at the change: in this host a plan runs as written. Larkspur wants a person to approve each plan, instead of every call. Before you try it:`,
+    narration: `Stock was out, so the agent had to re-plan: ${item(STRUCK[0])} struck, ${item(keyOf(CHANGE.call))} added. Nobody checked the change.`,
+    act: 'Predict first.',
+    say: { block: 'plan', text: 'Re-planned' },
     predicate: s => s.p2 !== null,
   },
   {
     id: 'approve-plan',
     focus: 'approval',
     visibleControls: ['p2', 'approval'],
-    narration:
-      'Approval is on, and you are the person. The same plan comes to you before anything runs. Read it, then approve it.',
+    narration: 'Plan approval is on, and you are the person. The same plan comes to you before anything runs.',
+    act: 'Read it, then approve it.',
+    say: { block: 'plan', text: 'Waits for you' },
     predicate: s => s.dd.length > 0,
     hint: 'Press “Approve”.',
   },
@@ -185,7 +195,9 @@ export const STEPS: Step<S>[] = [
     id: 'back-for-approval',
     focus: 'approval',
     visibleControls: ['out2', 'approval'],
-    narration: `The run started, hit the stock-out, and the agent changed course again. This time the change did not just run: ${item(ASKED)} came back to you, because it is not in the plan you approved. Nothing ran yet. Approve it or reject it.`,
+    narration: `The agent changed course again, and ${item(ASKED)} came back to you: it is not in the approved plan.`,
+    act: 'Approve or reject it.',
+    say: { block: 'plan', text: 'Not in the plan' },
     predicate: s => R('damaged', s.dd).status !== 'waiting',
     hint: 'Press “Approve” or “Reject”.',
   },
@@ -193,7 +205,8 @@ export const STEPS: Step<S>[] = [
     id: 'approved-once',
     focus: 'next',
     visibleControls: ['approval', 'next'],
-    narration: `You approved one plan and one change, not every call. Either way the change came to you before it ran. The plan is a promise about what the agent will do; the host holds it to that promise, and anything new goes back to a person.`,
+    narration: 'You approved one plan and one change, not every call. Anything outside the plan goes back to a person.',
+    act: 'Next case.',
     predicate: s => s.kase === 'planted',
   },
   {
@@ -201,14 +214,17 @@ export const STEPS: Step<S>[] = [
     focus: 'p3',
     visibleControls: ['p3'],
     opensDrawer: 'email',
-    narration: `A new email: ${REC.asks.planted} That last line is not from Larkspur, and not really from the customer’s order either: it is text planted in the email, written to make the agent do something else. With no plan and no approver, the agent refunded ${money(refunded(PLAIN, EXTRA))} on order ${EXTRA} without anyone seeing it. Now plan and approval are on. Look at the clipboard: “${PLANTED.text}” Before you decide:`,
+    narration: `A new email hides a line telling the agent to refund order ${EXTRA} too: prompt injection. With no plan, it refunded ${money(refunded(PLAIN, EXTRA))} unseen.`,
+    act: 'Predict first.',
+    say: { block: 'plan', text: 'Planted item' },
     predicate: s => s.p3 !== null,
   },
   {
     id: 'decide-planted',
     focus: 'approval',
     visibleControls: ['p3', 'approval'],
-    narration: `Decide. Approve the plan as written, or reject it. If you reject it, the agent writes a new plan and asks you again.`,
+    narration: 'If you reject the plan, the agent writes a new one and asks you again.',
+    act: 'Approve it as written, or reject it.',
     predicate: s => R('planted', s.pd).status !== 'waiting',
     hint: 'Press “Approve” or “Reject”.',
   },
@@ -216,7 +232,8 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out3', 'approval', 'ledger', 'other', 'guard', 'quiz'],
-    narration: `The ledger shows what your choice did. Approved, the plan refunds order ${EXTRA}: the agent did exactly what the plan said, and the host trusted your yes. Rejected, the agent writes a plan without it, and order ${EXTRA} keeps its money. Try the other choice to compare. Approval helped only because a person read the plan. Someone who approves every plan without reading it lets the planted line through, just as if there were no approval at all.`,
+    narration: `Approved, order ${EXTRA} is refunded; rejected, it keeps its money. Approval helped only because a person read the plan.`,
+    act: 'Try the other choice, then answer.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What did the person approve: the plan, or every step the agent might take?',
   },
@@ -279,8 +296,14 @@ export default function Plans() {
         quiz: null,
       }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, inspect }) => (
-        <AgentStage run={current(state)} upTo={shownOf(state)} props={{ clipboard: true }} inspect={inspect} />
+      stage={({ state, inspect, say }) => (
+        <AgentStage
+          run={current(state)}
+          upTo={shownOf(state)}
+          props={{ clipboard: true }}
+          inspect={inspect}
+          say={say}
+        />
       )}
       controls={{
         plan: ({ state, sync }) => (

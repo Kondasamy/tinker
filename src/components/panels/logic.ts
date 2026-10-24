@@ -27,6 +27,15 @@ export function summary(o: Outcome | null): string {
   return `${verdict} ${n} chunk${n === 1 ? '' : 's'} retrieved, best similarity ${best.toFixed(3)}.`;
 }
 
+/** The visible caption under the picture: the count and the best score, since the verdict is on the model's pill. */
+export function shortSummary(o: Outcome | null): string {
+  if (!o || o.failed || o.preparing || !o.answer) return summary(o);
+  const best = o.record && topScore(o.record.context);
+  if (!o.record || best === null) return 'Nothing reached the model.';
+  const n = o.record.context.length;
+  return `${n} chunk${n === 1 ? '' : 's'} reached the model, best similarity ${best.toFixed(3)}.`;
+}
+
 /** Negation words the panels highlight: a chunk that ends on one has lost what it negates. */
 export const isNegation = (w: string) => /^(NOT|NEVER|NO)$/.test(w.replace(/[^A-Za-z]/g, ''));
 

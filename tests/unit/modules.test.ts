@@ -463,15 +463,36 @@ describe('page meta', () => {
   });
 });
 
+describe('every module’s facts', () => {
+  const files = import.meta.glob<{ accessed: string; facts: { id: string; source: string; accessed?: string }[] }>(
+    '../../data/*/facts.json',
+    { eager: true, import: 'default' },
+  );
+  it('are sourced, and a fact re-checked on its own is dated no earlier than its file', () => {
+    expect(Object.keys(files).length).toBeGreaterThan(10);
+    for (const [path, d] of Object.entries(files)) {
+      expect(d.accessed, path).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      for (const f of d.facts) {
+        expect(new URL(f.source).protocol, `${path} ${f.id}`).toBe('https:');
+        if (f.accessed === undefined) continue;
+        expect(f.accessed, `${path} ${f.id}`).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+        expect(f.accessed >= d.accessed, `${path} ${f.id}`).toBe(true);
+      }
+    }
+  });
+});
+
 describe('tool-calling facts (R22)', () => {
-  it('gives every fact a claim, a source URL and the access date', () => {
+  it("gives every fact a claim, a source URL and an access date no earlier than the file's", () => {
     expect(ACCESSED).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(FACTS.length).toBeGreaterThan(0);
     expect(new Set(FACTS.map(f => f.id)).size).toBe(FACTS.length);
     for (const f of FACTS) {
       expect(f.claim, f.id).not.toBe('');
       expect(new URL(f.source).protocol, f.id).toBe('https:');
-      expect(fact(f.id).accessed).toBe(ACCESSED);
+      // a fact re-checked on its own carries a later date than the file's
+      expect(fact(f.id).accessed, f.id).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(fact(f.id).accessed >= ACCESSED, f.id).toBe(true);
     }
   });
 

@@ -14,11 +14,13 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { pieceLabel } from '../../components/scenes/attentionMap';
 import META from '../../../public/data/lm/meta.json' with { type: 'json' };
+import { ENGINE_PARTS } from '../../components/scenes/engineScene';
 import { Fact, TransformersStage, Waiting, useModel, whenLoaded, type View } from './kit';
 
 const MODULE = 'transformers',
   ID = '04-heads-and-layers';
 const LM = META.model;
+export const PARTS = ENGINE_PARTS;
 /** The prompts the chapter offers (the long one is too wide a grid for a phone). A test holds the head on each. */
 export const OFFERED = PROMPTS.filter(p => p.id !== 'long');
 /** A prompt's text; an id no longer offered (a run saved before the list changed) falls back to the first. */
@@ -66,7 +68,7 @@ const P1 = {
   ],
 };
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A teammate wants Larkspur mini to notice whether an order number has come up earlier in a prompt. They say: “Nobody built a head for that, so it can’t.” What do you tell them?',
   options: [
@@ -79,10 +81,10 @@ const QUIZ = {
   explanation:
     'Heads aren’t assigned jobs. Each learns its own pattern from the training text, because that pattern helped predict the next token.',
   why: [
-    'Nobody told the word-start head what to do. It found the start of the word because that helped Larkspur mini predict the next token.',
-    'Right. Training shaped one head to find where the word began; another may learn something else, or nothing anyone can name. You find out by reading its weights, as you just did.',
-    'Each head has one pattern of its own. You saw them differ on the same prompt: that is why a model has many.',
-    `${NAMED} skipped the token just before and looked back to where the word began. Heads learn different patterns.`,
+    'Nobody told the word-start head what to do; it found the start of the word because that helped predict the next token.',
+    'Right: training shapes each head, and you find out what one learned by reading its weights, as you just did.',
+    'Each head has one pattern of its own, and you saw them differ on the same prompt.',
+    `${NAMED} skipped the token just before and looked back to where the word began.`,
   ],
 };
 
@@ -103,7 +105,9 @@ export const STEPS: Step<S>[] = [
     id: 'heads',
     focus: 'heads',
     visibleControls: ['heads'],
-    narration: `One attention pattern can only look for one kind of thing. So each layer runs several side by side, called heads, each with its own weights. Larkspur mini has ${LM.n_layer} layers with ${LM.n_head} heads each: the desks in the engine room. Light every head on the same prompt and watch the threads change.`,
+    narration: `Each layer runs heads side by side, each with its own weights: ${LM.n_layer} layers of ${LM.n_head} heads, one per desk.`,
+    act: 'Light every head.',
+    say: { block: 'head', text: 'One head' },
     predicate: whenLoaded(s => HEADS.every(([l, h]) => s.heads.includes(headId(l, h)))),
     hint: 'Press each head’s button once.',
   },
@@ -111,7 +115,9 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: 'Each head looked somewhere else. Now one head, one token, on a new prompt. Before you look:',
+    narration: 'Each head looked somewhere else. Now one head, one token, a new prompt.',
+    act: 'Predict first.',
+    say: { block: 'query', text: 'Word’s end' },
     setup: s => ({ ...s, prompt: PREDICT_PROMPT.id, layer: HEAD.layer, head: HEAD.head }),
     predicate: s => s.p1 !== null,
   },
@@ -119,14 +125,16 @@ export const STEPS: Step<S>[] = [
     id: 'reveal',
     focus: 'reveal',
     visibleControls: ['p1', 'reveal'],
-    narration: 'Locked in. See where its weight goes.',
+    narration: 'Locked in.',
+    act: 'See where its weight goes.',
     predicate: s => s.revealed,
   },
   {
     id: 'prompts',
     focus: 'prompts',
     visibleControls: ['out1', 'prompts'],
-    narration: `Each head learns to look for something different; this one finds the start of the word. Nobody told it to: training shaped it, because knowing the whole word helps predict what comes next. Over every passage of Larkspur’s documents, a token in the middle of a word gives its word’s first token ${HEAD.score.toFixed(2)} of its weight in this head, where spreading evenly would give ${HEAD.uniform.toFixed(2)}. Check it on other prompts.`,
+    narration: `This head finds where the word began; training shaped it. Over Larkspur’s documents: ${HEAD.score.toFixed(2)} of the weight, versus ${HEAD.uniform.toFixed(2)} spread evenly.`,
+    act: 'Check other prompts.',
     predicate: s => s.seen.length >= TRY,
     hint: `Try ${TRY - 1} more prompts.`,
   },
@@ -134,7 +142,10 @@ export const STEPS: Step<S>[] = [
     id: 'stream',
     focus: 'stream',
     visibleControls: ['stream'],
-    narration: `So many heads look for many things. How do their findings come together? Each token carries one running vector through the model, called the residual stream. It starts as the token’s embedding plus its position. Each layer’s heads read the stream, and what they find is added to it, not swapped in. Each layer reads what the ones below it added. At the end, the last token’s vector becomes the next-token scores. Light a desk on the top floor.`,
+    narration:
+      'Each token carries one running vector, the residual stream. Every layer adds what it found instead of replacing it.',
+    act: 'Light a top-floor desk.',
+    say: { block: 'layer-2', text: 'Adds on top' },
     predicate: s => s.layer === LM.n_layer - 1,
     hint: `Press a layer ${LM.n_layer} head.`,
   },
@@ -143,7 +154,8 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['quiz'],
     narration:
-      'Larkspur mini is tiny: few heads, and a pattern you can name is rare. Bigger models stack many more layers and heads, built the same way. One question to finish.',
+      'Larkspur mini is tiny, so a nameable pattern is rare. Bigger models stack more layers and heads, built the same way.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Who decided what the word-start head looks for?',
   },
@@ -187,9 +199,10 @@ export default function HeadsAndLayers() {
         quiz: null,
       }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => (
+      stage={({ state, sync, say }) => (
         // on the prediction's prompt the picked token is the end of “named”; elsewhere the last token
         <TransformersStage
+          say={say}
           prompt={textOf(state.prompt)}
           query={state.prompt === PREDICT_PROMPT.id ? QUERY : undefined}
           layer={state.layer}

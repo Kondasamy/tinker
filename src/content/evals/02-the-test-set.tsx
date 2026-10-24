@@ -10,7 +10,10 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { EvalStage, Fact, type Shown } from './kit';
+import { EVAL_PARTS } from '../../components/scenes/evalScene';
 import candidates from '../../../data/evals/candidates.json' with { type: 'json' };
+
+export const PARTS = EVAL_PARTS;
 
 const MODULE = 'evals',
   ID = '02-the-test-set';
@@ -91,10 +94,10 @@ const QUIZ = {
   explanation:
     'A test set mixes real questions, known failures and asks the documents can’t answer, and every case carries the answer it should get.',
   why: [
-    'Popular questions are a good start, but this set has no known failures and nothing the handbook can’t answer, so a made-up answer would pass unseen.',
-    'Right. Real use, known failures and the gaps in the documents each catch a different kind of mistake, and each case carries its reference answer to grade against.',
+    'Popular questions are a good start, but with no known failures and nothing the handbook can’t answer, a made-up answer would pass unseen.',
+    'Right: real use, known failures and the gaps in the documents each catch a different mistake, and each case carries its reference answer.',
     'Copies and thank-yous add nothing to grade, and a message without a reference answer can’t pass or fail.',
-    'Hard questions nobody asks test something, but not what Larkspur’s staff need. Cases start from real use and real failures.',
+    'Hard questions nobody asks test something, but not what Larkspur’s staff need; cases start from real use and real failures.',
   ],
 };
 
@@ -103,8 +106,9 @@ export const STEPS: Step<S>[] = [
     id: 'sort',
     focus: 'log',
     visibleControls: ['log'],
-    narration:
-      'Larkspur’s test set needs more cases. A test case is one question the assistant is asked on every run, with the answer it should give. The support lead exports a week of the assistant’s chat log. Sort it: keep a message as a case, or drop it. Give each kept case its reference answer: the answer a grader will compare the assistant’s against.',
+    narration: 'A kept message becomes a test case; its reference answer is what graders compare against.',
+    act: 'Keep or drop each; pick each kept case’s reference.',
+    say: { block: 'tests', text: 'Kept cases' },
     predicate: s => CASES.every(c => sorted(s, c)),
     hint: 'Every card needs Keep or Drop, and every kept card a reference answer.',
   },
@@ -112,16 +116,17 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['set', 'p1'],
-    narration:
-      'Your set is sorted. Each change to the assistant will now run all of it. Before you see what it covers:',
+    narration: 'Your set is sorted; every change to the assistant will run all of it.',
+    act: 'Predict what it catches.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'check',
     focus: 'coverage',
     visibleControls: ['out1', 'coverage', 'fix', 'keep'],
-    narration:
-      'Each card in the log is one of three kinds. A real question: what staff actually asked. A known failure: a question the assistant once got wrong. And an ask no document answers, where the right answer is to say so. A good set covers all three. Fix any gap, then keep the set.',
+    narration: 'Cards are real questions, known failures, or asks no document answers. Coverage means all three.',
+    act: 'Fix any gap, then keep the set.',
+    say: { block: 'tests', text: 'All three kinds?' },
     predicate: s => s.checked && complete(s),
     hint: 'Keep at least one card of each kind, each with its right reference answer. A card no document answers takes “No document answers this”.',
     solution: s => ({ ...s, picks: TEAM, checked: true }),
@@ -131,7 +136,8 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['team', 'quiz'],
     narration:
-      'Cases come from real use and from real failures, not from someone imagining questions. The asks the documents can’t answer matter too: there, a made-up answer is the failure, and only a case can catch it. Each case’s reference answer is what makes it gradeable. One question to finish.',
+      'Cases come from real use and real failures. Where no document answers, only a case catches a made-up answer.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which set has all three kinds of case, each with its answer?',
   },
@@ -302,7 +308,7 @@ export default function TheTestSet() {
       steps={STEPS}
       initial={{ picks: {}, p1: null, caught: null, checked: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => <EvalStage show={show(state)} />}
+      stage={({ state, say }) => <EvalStage show={show(state)} say={say} />}
       controls={{
         log: ({ state, sync }) => <Log s={state} sync={sync} kinds={false} />,
         fix: ({ state, sync }) => <Log s={state} sync={sync} kinds />,

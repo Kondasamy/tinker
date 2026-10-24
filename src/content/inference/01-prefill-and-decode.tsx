@@ -14,6 +14,7 @@ import { ms } from '../../components/scenes/serverTimeline';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import P from '../../../data/inference/prompts.json' with { type: 'json' };
+import { SERVE_PARTS } from '../../components/scenes/serveScene';
 import { CostModelNote, Fact, InferenceStage, ModelGate, modelNow } from './kit';
 
 const MODULE = 'inference',
@@ -29,8 +30,10 @@ export const tpotOf = (n: number) => iterationMs(OPEN, [], [n]);
 export const writeOf = () => Array.from({ length: N - 1 }, (_, i) => tpotOf(N + i)).reduce((a, b) => a + b, 0);
 /** the longer prompts the chapter compares */
 export const LONG = [N, 100, 500, 1000];
+/** the parts the serving floor can call out */
+export const PARTS = SERVE_PARTS;
 
-const P1 = {
+export const P1 = {
   question: `Larkspur mini read the ${N}-token prompt in one pass. It will now write ${N} tokens. Compared with reading the prompt, writing them takes:`,
   options: [
     'About the same: it is the same number of tokens',
@@ -44,7 +47,7 @@ export function outcomeOf(): number {
   return r > 3 ? 1 : r > 0.5 ? 0 : 2;
 }
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A customer pastes a 2,000-word contract and asks for a one-line summary. Another asks a one-line question and gets a 2,000-word answer. Which waits longer for the first word, and which waits longer for the whole reply?',
   options: [
@@ -57,10 +60,10 @@ const QUIZ = {
   explanation:
     'The first word waits for the prefill, which grows with the prompt. The whole reply waits for one decode pass per token, which grows with the reply.',
   why: [
-    'Right. A long prompt makes a long prefill, so a late first word; a long reply makes many decode passes, so a long wait for the end.',
-    'Prompt tokens are read all together in one pass; reply tokens are written one pass each. The same amount of text costs very different time.',
-    'The model doesn’t plan ahead: it writes one token per pass, and the first token comes right after the prompt is read.',
-    'Reading is the cheap part per token: the whole prompt goes through in one pass. The 2,000-word answer needs thousands of passes.',
+    'Right: a long prompt makes a long prefill, so a late first word, and a long reply makes many decode passes.',
+    'Prompt tokens are read together in one pass, but reply tokens take one pass each, so the same text costs very different time.',
+    'The model doesn’t plan ahead: it writes one token per pass, starting right after the prompt is read.',
+    'Reading is the cheap part per token, while the 2,000-word answer needs thousands of passes.',
   ],
 };
 
@@ -77,21 +80,26 @@ export const STEPS: Step<S>[] = [
     id: 'read',
     focus: 'run',
     visibleControls: ['run'],
-    narration: `A customer’s request has arrived: “${PROMPT}”. Larkspur mini runs in your browser. Press Read the prompt: one forward pass reads all ${N} tokens at once and scores the next one. That pass is the prefill.`,
+    narration: `A request arrives: “${PROMPT}”. One forward pass reads all ${N} tokens at once: the prefill.`,
+    act: 'Read the prompt.',
+    say: { block: 'queue', text: 'Prompt waiting' },
     predicate: s => !!modelNow('base') && s.read,
   },
   {
     id: 'predict',
     focus: 'p1',
     visibleControls: ['run', 'p1'],
-    narration: 'The first token is out. The rest of the reply comes one token per pass: decode. Before it runs:',
+    narration: 'The first token is out. Each later token takes a pass of its own: decode.',
+    act: 'Predict how long writing takes.',
+    say: { block: 'server', text: 'First token out' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'reveal',
     focus: 'run',
     visibleControls: ['p1', 'run'],
-    narration: `Locked in. Write the reply, ${N} tokens.`,
+    narration: 'Your pick is locked.',
+    act: `Write the reply, ${N} tokens.`,
     predicate: s => s.written >= N,
   },
   {
@@ -99,7 +107,9 @@ export const STEPS: Step<S>[] = [
     focus: 'long',
     visibleControls: ['out1', 'long'],
     narration:
-      'One pass read the whole prompt; each reply token needed its own. A decode pass reads every weight to write one token, so its cost barely depends on the reply so far. Now make the prompt longer, as a customer pasting an order history would.',
+      'Each reply token needed its own pass. A decode pass reads every weight, so its cost barely grows with the reply.',
+    act: 'Try longer prompts.',
+    say: { block: 'server', text: `${N} passes` },
     predicate: s => s.long,
   },
   {
@@ -107,7 +117,8 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['long', 'quiz'],
     narration:
-      'A longer prompt makes a longer prefill, so a later first token. The time per token stays nearly flat. Two numbers, two causes. One question to finish.',
+      'A longer prompt means a longer prefill, so a later time to first token. Time per token stays nearly flat.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which pass does a long prompt slow down, and which does a long reply multiply?',
   },
@@ -195,8 +206,9 @@ export default function PrefillAndDecode() {
       ready={!!modelNow('base')}
       initial={{ read: false, written: 0, p1: null, long: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => (
+      stage={({ state, say }) => (
         <InferenceStage
+          say={say}
           weights={['base']}
           show={() => ({
             scene: {

@@ -8,7 +8,7 @@ import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { countText } from '../../lib/tokens/counts';
 import { SENTENCES, TOKENIZERS, encodingOf } from '../../lib/tokens/encodings';
-import { tokensWord } from '../../components/scenes/tokenScene';
+import { TOKEN_PARTS, tokensWord } from '../../components/scenes/tokenScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
@@ -20,6 +20,7 @@ const SAMPLE = SENTENCES.find(s => s.id === 'order-en')!;
 const C = countText(SAMPLE.text);
 const BIG = TOKENIZERS[TOKENIZERS.length - 1],
   BIG_N = encodingOf(SAMPLE.id, BIG.id).ids.length;
+export const PARTS = TOKEN_PARTS;
 const MAX = 400; // shortcut: typed text is capped so the tile row stays readable; raise it if readers ask for longer
 
 interface S {
@@ -40,7 +41,7 @@ const P1 = {
 };
 const OUT1 = C.tokens < C.words ? 0 : C.tokens === C.words ? 1 : 2;
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A Larkspur teammate wants to know how much of the model’s reading limit a customer email will use. They plan to count its words. What do you tell them?',
   options: [
@@ -53,9 +54,9 @@ const QUIZ = {
   explanation:
     'The model never sees words or letters, only the token ids the tokenizer makes. The only true count is the tokenizer’s.',
   why: [
-    `The sample sentence had ${C.words} words and came out as ${tokensWord(C.tokens)}. Words and tokens only line up by luck.`,
-    'Right. A common word is often one token; a rare word, a number or a name is cut into several. The tokenizer is the only true count.',
-    `The sentence had ${C.chars} characters but only ${tokensWord(C.tokens)}: most tokens hold several letters.`,
+    `The sample had ${C.words} words but ${tokensWord(C.tokens)}: words and tokens line up only by luck.`,
+    'Right: a common word is often one token, but a rare word, number or name takes several, so only the tokenizer’s count is true.',
+    `The sentence had ${C.chars} characters but only ${tokensWord(C.tokens)}, since most tokens hold several letters.`,
     'A tokenizer never keeps a whole sentence as one token; it cuts every sentence into many.',
   ],
 };
@@ -65,14 +66,17 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `Larkspur’s assistant will read messages like this one: “${SAMPLE.text}” A model can’t read letters. Before it sees anything, a tokenizer cuts the text into tokens and turns each into a number. Here the tokenizer is this site’s own, trained on Larkspur’s documents. Before you feed the sentence in:`,
+    narration: 'A tokenizer cuts text into tokens, each one a number, before the model sees anything.',
+    act: 'Predict the count first.',
+    say: { block: 'press', text: 'Waiting for text' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'feed',
     focus: 'feed',
     visibleControls: ['p1', 'feed'],
-    narration: 'Locked in. Feed the sentence to the tokenizer and watch the press.',
+    narration: 'Your pick is locked.',
+    act: 'Feed the sentence in and watch the press.',
     predicate: s => s.fed,
     hint: 'Press the button under your prediction.',
   },
@@ -80,7 +84,9 @@ export const STEPS: Step<S>[] = [
     id: 'ids',
     focus: 'type',
     visibleControls: ['out1', 'type'],
-    narration: `${C.words} words became ${tokensWord(C.tokens)}. Some words came out whole, with their leading space glued on; others were cut into pieces. Open the Tokens tab on the picture: each tile is one token, with its id under it. The ids are all the model receives. A much bigger tokenizer, ${BIG.name}, cut the same sentence into ${tokensWord(BIG_N)} (recorded ahead of time): a bigger vocabulary keeps more words whole. Now type your own text, then count it.`,
+    narration: `${C.words} words, ${tokensWord(C.tokens)}: some whole, some cut. The model gets only ids, rows in the vocabulary.`,
+    act: 'Type your own text and count it.',
+    say: { block: 'belt', text: 'One id per tile' },
     predicate: s => s.mine !== null,
     hint: 'Change the text in the box, then press “Count my text”.',
   },
@@ -89,7 +95,8 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['mine', 'quiz'],
     narration:
-      'Long words, names, numbers and odd spellings cut into more pieces; short common words stay whole. Counts here are this site’s small tokenizer’s, there to show how it works; every provider’s tokenizer counts differently. One question to finish.',
+      'Long words, names and numbers cut into more pieces; short common words stay whole. Every provider’s tokenizer counts differently.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What does the model receive: words, letters, or something else?',
   },
@@ -131,8 +138,9 @@ export default function WhatTheModelReads() {
       steps={STEPS}
       initial={{ p1: null, fed: false, text: SAMPLE.text, mine: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => (
+      stage={({ state, say }) => (
         <TokensStage
+          say={say}
           text={state.fed ? state.text : ''}
           caption={state.fed ? 'Counted by this site’s tokenizer, live.' : 'Nothing fed in yet.'}
         />
@@ -144,7 +152,15 @@ export default function WhatTheModelReads() {
             Feed the sentence to the tokenizer
           </button>
         ),
-        out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUT1} />,
+        out1: ({ state }) => (
+          <>
+            <Outcome {...P1} prediction={state.p1} outcome={OUT1} />
+            <p className="tc-fact">
+              {BIG.name}, a much bigger tokenizer, cut it into {tokensWord(BIG_N)} (recorded ahead of time): a bigger
+              vocabulary keeps more words whole.
+            </p>
+          </>
+        ),
         type: ({ state, sync, apply }) => <TypeBox s={state} sync={sync} apply={apply} />,
         mine: ({ state }) =>
           state.mine === null ? null : (
