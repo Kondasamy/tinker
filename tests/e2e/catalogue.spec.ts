@@ -98,6 +98,17 @@ for (const [width, height] of [
       page.locator('.hero .glance'),
     ])
       await expect(el).toBeInViewport({ ratio: 1 });
+    // the picture tucks up under the note, but its topmost pill stays clear of it
+    const note = (await page.locator('.hero .glance').boundingBox())!;
+    const top = await page.locator('.hero-pic .block-tag').evaluateAll(els =>
+      Math.min(
+        ...els
+          .map(e => e.getBoundingClientRect())
+          .filter(r => r.height)
+          .map(r => r.top),
+      ),
+    );
+    expect(top).toBeGreaterThan(note.y + note.height);
   });
 
 test('live modules keep their numbers, each linked under its level', async ({ page }) => {

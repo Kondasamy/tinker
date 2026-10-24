@@ -732,7 +732,7 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
   .ctas { justify-content: center; }
   .hero .glance { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
   /* the board's viewBox leaves headroom for tall props; pull it up under the text */
-  .hero-pic { margin: -32px 0 0; width: 100%; max-width: 780px; }
+  .hero-pic { margin: max(-32px, -4%) 0 0; width: 100%; max-width: 780px; }
   /* the workshop is busy (none with reduced motion): the envelope rides its belt, RAG's wire carries a current, and a wave
      hops each live plot in turn down the board, showing and lighting its pill only for its turn, so the board rests unlabelled */
   @media (prefers-reduced-motion: no-preference) {
