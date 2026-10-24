@@ -57,7 +57,7 @@ export const EXAM_PARTS = ['model', 'cards', 'grader', 'board', 'gaming'] as con
 export const STACK_H = 44;
 const MODEL = [32, 30],
   DESK = [150, 108],
-  BOARD = [112, 14],
+  BOARD = [84, 8],
   ROW = { x: 40, y: 116, step: 18 };
 const pct = (p: number) => `${Math.round(p * 100)}%`;
 

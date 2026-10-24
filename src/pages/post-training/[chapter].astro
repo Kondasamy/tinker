@@ -1,0 +1,29 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import BaseOrAssistant from '../../content/post-training/01-base-or-assistant';
+import WhichIsBetter from '../../content/post-training/02-which-is-better';
+import LearningFromPreferences from '../../content/post-training/03-learning-from-preferences';
+import GradeDontJudge from '../../content/post-training/04-grade-dont-judge';
+import OnlyWhatYouCanCheck from '../../content/post-training/05-only-what-you-can-check';
+import YouGetWhatYouCheck from '../../content/post-training/06-you-get-what-you-check';
+import BuildAGrader from '../../content/post-training/07-build-a-grader';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('post-training').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="post-training" chapter={chapter} title={title}>
+  {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
+      hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
+  {chapter === '01-base-or-assistant' ? <BaseOrAssistant client:load />
+    : chapter === '02-which-is-better' ? <WhichIsBetter client:load />
+    : chapter === '03-learning-from-preferences' ? <LearningFromPreferences client:load />
+    : chapter === '04-grade-dont-judge' ? <GradeDontJudge client:load />
+    : chapter === '05-only-what-you-can-check' ? <OnlyWhatYouCanCheck client:load />
+    : chapter === '06-you-get-what-you-check' ? <YouGetWhatYouCheck client:load />
+    : <BuildAGrader client:load />}
+</ChapterLayout>

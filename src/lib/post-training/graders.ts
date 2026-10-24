@@ -27,9 +27,9 @@ export interface Question {
 }
 export const QUESTIONS = data.questions as Question[];
 export const REFERENCES: Record<string, Reference> = references;
-/** Chapter by chapter: the base-or-assistant and weak-grader question, the GRPO question and the tone question. */
+/** Chapter by chapter: the base-or-assistant and weak-grader question, the GRPO question (chapter 4) and the tone question. */
 export const REFUND = 'refund-window',
-  PRICE = 'k2-price',
+  WARRANTY = 'sensor-warranty',
   TONE = 'late-again';
 
 export function question(id: string): Question {

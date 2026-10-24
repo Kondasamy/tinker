@@ -5,19 +5,52 @@ import '../styles/tokens.css';
 import IsoStage from '../lib/iso/IsoStage';
 import { EXAM_BOARD, examLabel, examScene, type ExamOpts } from '../components/scenes/examScene';
 import { PolicyChart, PostStage, barsOf, cardsOf, groupOf } from '../content/post-training/kit';
-import { FULL, PRICE, REFUND, TONE, WEAK, refOf, rewardsOf } from '../lib/post-training/graders';
+import { FULL, WARRANTY, REFUND, TONE, WEAK, refOf, rewardsOf } from '../lib/post-training/graders';
 import { BETAS, dpoPolicy, fitRewards, grpoRun, seedOf } from '../lib/post-training/policy';
 
 const weakRun = grpoRun(refOf(REFUND), rewardsOf(REFUND, WEAK), seedOf(REFUND));
 const fullRun = grpoRun(refOf(REFUND), rewardsOf(REFUND, FULL), seedOf(REFUND));
-const priceRun = grpoRun(refOf(PRICE), rewardsOf(PRICE, FULL), seedOf(PRICE));
-const dpo = dpoPolicy(refOf(TONE), fitRewards(4, [[0, 1], [1, 2], [0, 3]]), 1);
+const priceRun = grpoRun(refOf(WARRANTY), rewardsOf(WARRANTY, FULL), seedOf(WARRANTY));
+const dpo = dpoPolicy(
+  refOf(TONE),
+  fitRewards(4, [
+    [0, 1],
+    [1, 2],
+    [0, 3],
+  ]),
+  1,
+);
 const STATES: [string, ExamOpts][] = [
   ['Refund question, reference policy, no grader', { cards: cardsOf(REFUND, refOf(REFUND)) }],
   ['Tone question after DPO at β 1', { cards: cardsOf(TONE, dpo), grader: 'PEOPLE’S PICKS', board: 'β 1' }],
-  ['Price question, round 1 graded', { cards: cardsOf(PRICE, priceRun[0].after, rewardsOf(PRICE, FULL)), grader: 'KEY FACT', group: groupOf(priceRun[0]), board: 'ROUND 1' }],
-  ['Refund, weak grader after 10 rounds', { cards: cardsOf(REFUND, weakRun.at(-1)!.after, rewardsOf(REFUND, WEAK)), grader: 'NUMBER + SIGN-OFF', group: groupOf(weakRun.at(-1)), board: 'ROUND 10', lit: 4 }],
-  ['Refund, full grader after 10 rounds', { cards: cardsOf(REFUND, fullRun.at(-1)!.after, rewardsOf(REFUND, FULL)), grader: 'KEY FACT', group: groupOf(fullRun.at(-1)), board: 'ROUND 10' }],
+  [
+    'Warranty question, round 1 graded',
+    {
+      cards: cardsOf(WARRANTY, priceRun[0].after, rewardsOf(WARRANTY, FULL)),
+      grader: 'KEY FACT',
+      group: groupOf(priceRun[0]),
+      board: 'ROUND 1',
+    },
+  ],
+  [
+    'Refund, weak grader after 10 rounds',
+    {
+      cards: cardsOf(REFUND, weakRun.at(-1)!.after, rewardsOf(REFUND, WEAK)),
+      grader: 'NUMBER + SIGN-OFF',
+      group: groupOf(weakRun.at(-1)),
+      board: 'ROUND 10',
+      lit: 4,
+    },
+  ],
+  [
+    'Refund, full grader after 10 rounds',
+    {
+      cards: cardsOf(REFUND, fullRun.at(-1)!.after, rewardsOf(REFUND, FULL)),
+      grader: 'KEY FACT',
+      group: groupOf(fullRun.at(-1)),
+      board: 'ROUND 10',
+    },
+  ],
 ];
 const fmt = (p: number[]) => p.map(x => `${Math.round(x * 100)}%`).join(' ');
 const bars = barsOf(REFUND, refOf(REFUND), weakRun.at(-1)!.after, rewardsOf(REFUND, WEAK));
