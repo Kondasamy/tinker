@@ -17,6 +17,27 @@ import {
 import { MODULES } from '../../src/lib/modules';
 import { PALS, WOOD } from '../../src/lib/iso/core.js';
 
+// RAG's strip and the back office's ground (heroScene's mats): no slot may sit on either
+const RAG_MAT = [18, 270, 206, 318],
+  OFFICE_MAT = [100, 0, 290, 256];
+// the eight modules this plan takes live, then the seven cards (R2, R17)
+const FUTURE = [
+  'pre-training',
+  'post-training',
+  'interpretability',
+  'caching',
+  'databases',
+  'consistency',
+  'ab-testing',
+  'diffusion',
+  'diffusion-llms',
+  'computer-use',
+  'calibration',
+  'search',
+  'web-requests',
+  'payments',
+  'git',
+];
 const draw = (board = HERO_BOARD, scene = HOME_HERO) =>
   renderToString(createElement(IsoStage, { board, scene, label: '' }));
 const upper = (s: string) => s.toUpperCase().replace(/&/g, '&amp;');
@@ -34,20 +55,27 @@ describe('home hero', () => {
     expect(svg).not.toMatch(/NaN/);
   });
 
-  // 17 live modules (the roadmap all live) leave 15 slots after RAG's and tool calling's plots
-  it('plots never overlap and stay on the board, for 1 slot up to the registry’s count (at least 15)', () => {
+  // 25 live modules and 7 cards leave 30 slots after RAG's and tool calling's plots (KTD14)
+  it('plots never overlap, stay on the board and clear RAG and the back office, for 1 slot up to 30 (or the registry’s count)', () => {
     const slots =
       MODULES.filter(m => m.status === 'live').length - 2 + MODULES.filter(m => m.status === 'planned').length;
-    for (let n = 1; n <= Math.max(15, slots); n++) {
+    for (let n = 1; n <= Math.max(30, slots); n++) {
       const rects = Array.from({ length: n }, (_, i) => plotAt(i)),
         [, , bx1, by1] = heroBoard(n);
       rects.forEach(([x0, y0, x1, y1], i) => {
         expect(x1 <= bx1 && y1 <= by1 && x0 >= 0 && y0 >= 0).toBe(true);
+        for (const [a0, b0, a1, b1] of [RAG_MAT, OFFICE_MAT])
+          expect(x1 <= a0 || a1 <= x0 || y1 <= b0 || b1 <= y0, `slot ${i} of ${n}`).toBe(true);
         rects
           .slice(i + 1)
           .forEach(([a0, b0, a1, b1]) => expect(x1 <= a0 || a1 <= x0 || y1 <= b0 || b1 <= y0).toBe(true));
       });
     }
+  });
+
+  // four to a row keeps 30 slots near today's depth, so the hero's plots and pills shrink little (KTD14)
+  it('the board for 30 slots is no deeper than 1.2× the board before it (520 deep)', () => {
+    expect(heroBoard(30)[3]).toBeLessThanOrEqual(1.2 * 520);
   });
 
   it('fits nine slots, and a third live module draws as live (its pill in the wave, not a building site)', () => {
@@ -121,19 +149,28 @@ describe('home hero', () => {
   });
 
   // reduced motion and the share image show every pill at once: none may cover another
-  it('no two pills overlap with every pill shown, for the real registry', () => {
-    const boxes = [
-      ...draw().matchAll(
-        /<g class="block-tag"[^>]*><g class="tag[^"]*">.*?<rect x="([\d.-]+)" y="([\d.-]+)" width="([\d.]+)" height="([\d.]+)".*?>([^<]+)<\/text>/g,
-      ),
-    ].map(([, x, y, w, h, name]) => ({ name, x0: +x, y0: +y, x1: +x + +w, y1: +y + +h }));
-    expect(boxes).toHaveLength(MODULES.length);
-    const hits = boxes.flatMap((a, i) =>
-      boxes
-        .slice(i + 1)
-        .filter(b => a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1)
-        .map(b => `${a.name} × ${b.name}`),
-    );
-    expect(hits).toEqual([]);
+  it('no two pills overlap with every pill shown, for the real registry and for 25 live modules and 7 cards', () => {
+    expect(pillHits(draw(), MODULES.length)).toEqual([]);
+    const name = (id: string) => ({ name: id.replace(/-/g, ' ') });
+    const live = [...MODULES.filter(m => m.status === 'live').map(m => m.id), ...FUTURE.slice(0, 8)].map(name),
+      planned = FUTURE.slice(8).map(name);
+    expect([live.length, planned.length]).toEqual([25, 7]);
+    expect(pillHits(draw(heroBoard(30), heroScene({ live, planned, ride: [] })), 32)).toEqual([]);
   });
 });
+
+/** the overlapping pairs among an SVG's pills, which should number `count` */
+function pillHits(svg: string, count: number) {
+  const boxes = [
+    ...svg.matchAll(
+      /<g class="block-tag"[^>]*><g class="tag[^"]*">.*?<rect x="([\d.-]+)" y="([\d.-]+)" width="([\d.]+)" height="([\d.]+)".*?>([^<]+)<\/text>/g,
+    ),
+  ].map(([, x, y, w, h, name]) => ({ name, x0: +x, y0: +y, x1: +x + +w, y1: +y + +h }));
+  expect(boxes).toHaveLength(count);
+  return boxes.flatMap((a, i) =>
+    boxes
+      .slice(i + 1)
+      .filter(b => a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1)
+      .map(b => `${a.name} × ${b.name}`),
+  );
+}
