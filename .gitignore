@@ -7,4 +7,3 @@ playwright-report/
 .claude/worktrees/
 .cache/
 video/**/.hyperframes/
-playwright.local.config.ts
