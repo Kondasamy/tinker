@@ -12,6 +12,9 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { Fact, MODULE, ObsStage, TraceCard, wallOf, type View } from './kit';
+import { TRACE_PARTS } from '../../components/scenes/traceScene';
+
+export const PARTS = TRACE_PARTS;
 
 const ID = '01-what-it-did';
 const TRACE = traceOf(DOMAINS[ID].traces[0]);
@@ -24,7 +27,7 @@ export const P1 = {
 };
 export const OUT1 = KINDS.indexOf(KINDS.reduce((a, b) => (msOf(b) > msOf(a) ? b : a)));
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A customer says the assistant told them the wrong delivery date. All you have is the question and the reply. What would a trace let you see that they can’t?',
   options: [
@@ -35,8 +38,8 @@ const QUIZ = {
   correct: 1,
   explanation: 'A trace records every step of one request, so you can see where the wrong date came from.',
   why: [
-    'The reply shows that something went wrong, not where. The cause sits in the steps before it.',
-    'Right. A span per step: you can check the order number the tool was asked for and what it returned.',
+    'The reply shows that something went wrong, but the cause sits in the steps before it.',
+    'Right: a span per step lets you check the order number the tool was asked for and what it returned.',
     'Timings are part of a trace, but each span also records what the step did.',
   ],
 };
@@ -55,7 +58,9 @@ export const STEPS: Step<S>[] = [
     id: 'open',
     focus: 'open',
     visibleControls: ['open'],
-    narration: `Larkspur’s assistant answered ${TRACES.length} customer questions yesterday, and each left a trace: the record of one request, from the question to the reply. The wall in the picture holds them all. Open the first.`,
+    narration: `Larkspur’s assistant answered ${TRACES.length} questions yesterday, and each left a trace: one request’s record, question to reply.`,
+    act: 'Open the first.',
+    say: { block: 'wall', text: 'One per request' },
     predicate: s => s.opened,
     hint: 'Press the open button.',
   },
@@ -63,7 +68,9 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['card', 'p1'],
-    narration: `${TRACE.customer} asked about an order and a return. The trace holds ${SPANS.length} spans: one for the whole run, and one inside it for each step. Before you read them:`,
+    narration: `${TRACE.customer} asked about an order and a return. The trace holds ${SPANS.length} spans: one for the whole run, one per step.`,
+    act: 'Predict first.',
+    say: { block: 'wall', text: 'This one is open' },
     predicate: s => s.p1 !== null,
   },
   {
@@ -71,15 +78,17 @@ export const STEPS: Step<S>[] = [
     focus: 'read',
     visibleControls: ['p1', 'read'],
     narration:
-      'The Waterfall tab draws the trace as one row per span, each bar placed where the step started and as long as it took. Read every span: tab into the waterfall and use the arrow keys, or press the button below. Each span’s name and attributes are shaped like OpenTelemetry’s conventions for AI systems.',
+      'The Waterfall draws a row per span, as long as its step took. Spans are shaped like OpenTelemetry’s conventions.',
+    act: 'Read every span.',
     predicate: readAll,
-    hint: 'Each span needs reading once: the button reads the next one.',
+    hint: 'Tab into the waterfall and use the arrow keys, or press the button: it reads the next span.',
   },
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out1', 'read', 'facts', 'quiz'],
-    narration: `The model calls took ${num(msOf('chat'))} ms of the ${num(durationOf(SPANS[0]))}; the order lookup ${num(msOf('tool'))} ms and the search ${num(msOf('retrieval'))} ms. These traces and timings were written by hand for this module, shaped like real ones; they show how to read a trace, not any system’s speed. One question to finish.`,
+    narration: `Model calls took ${num(msOf('chat'))} of ${num(durationOf(SPANS[0]))} ms; order lookup ${num(msOf('tool'))} ms, search ${num(msOf('retrieval'))} ms. Hand-written timings, not any system’s speed.`,
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What sits between the question and the reply?',
   },
@@ -93,8 +102,9 @@ export default function WhatItDid() {
       steps={STEPS}
       initial={{ opened: false, read: [], p1: null, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => (
+      stage={({ state, sync, say }) => (
         <ObsStage
+          say={say}
           room={{ cards: wallOf(TRACES, state.opened ? TRACE.id : null) }}
           trace={state.opened ? TRACE : null}
           view={state.view}
@@ -165,6 +175,10 @@ export default function WhatItDid() {
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUT1} />,
         facts: () => (
           <>
+            <p className="tc-fact">
+              These traces and timings were written by hand for this module, shaped like real ones: they show how to
+              read a trace, not any system’s speed.
+            </p>
             <Fact id="otel-genai" />
             <Fact id="otel-operations" />
           </>

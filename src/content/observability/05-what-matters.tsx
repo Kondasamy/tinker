@@ -13,6 +13,9 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { Chips, Fact, MODE_SHORT, MODULE, ObsStage, binsOf, modeName, wallOf, type View } from './kit';
+import { TRACE_PARTS } from '../../components/scenes/traceScene';
+
+export const PARTS = TRACE_PARTS;
 
 const ID = '05-what-matters';
 const FREQ = mostFrequent(DAY1_COUNTS),
@@ -27,7 +30,7 @@ export const P1 = {
 };
 export const OUT1 = TOP.includes(FREQ) ? 0 : 1;
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A booking assistant fails two ways: 30 times a week it asks the customer to repeat their dates, and 3 times it books the wrong day. The team rates the wrong booking far more harmful. What decides which to fix first?',
   options: [
@@ -38,8 +41,8 @@ const QUIZ = {
   correct: 1,
   explanation: 'Frequency and harm together decide the order.',
   why: [
-    'A repeated question is annoying; a wrong booking costs a trip. Count alone ignores that.',
-    'Right. As here: the old passages were not the most common failure, but they did the most harm.',
+    'A repeated question is annoying but a wrong booking costs a trip, and count alone ignores that.',
+    'Right: as here, the old passages were not the most common failure, but they did the most harm.',
     'Effort matters, but a quick fix for a harmless failure leaves the costly one in front of customers.',
   ],
 };
@@ -56,15 +59,18 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['table', 'p1'],
-    narration: `The team can fix one failure mode this week. The table counts each mode over yesterday’s ${FAILED.length} failed traces, and gives the team’s rating of how much harm one failure does, from 1 to 3, with the reason. Before you choose:`,
+    narration:
+      'The table counts each mode over yesterday’s failed traces, with the team’s harm rating for one failure and its reason.',
+    act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
   puzzle<S>({
     id: 'pick',
     focus: 'pick',
     visibleControls: ['out1', 'table', 'pick'],
-    narration:
-      'Pick the mode to fix first: the one that removes the most harm, counting how often it happens and how much each one hurts.',
+    narration: 'The one to fix first removes the most harm: how often it happens times how much each one hurts.',
+    act: 'Pick the mode to fix first.',
+    say: { block: 'wall', text: 'One fix a week' },
     broken: s => ({ ...s, fix: '' }),
     verdict: s => !!s.fix && TOP.includes(s.fix),
     solution: s => ({ ...s, fix: TOP[0] }),
@@ -74,7 +80,8 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['table', 'facts', 'quiz'],
-    narration: `${modeName(BEST.mode)}: ${BEST.count} traces at harm ${BEST.harm}, a score of ${BEST.score}, against ${DAY1_COUNTS[FREQ] * modeOf(FREQ).harm} for the most frequent mode. A confident, cited, wrong answer is worse than “I don’t know”. The counts come from this module’s hand-written traces and the ratings are the team’s judgement, so this shows the method, not a benchmark. One question to finish.`,
+    narration: `${modeName(BEST.mode)} scores ${BEST.score}, the most frequent ${DAY1_COUNTS[FREQ] * modeOf(FREQ).harm}. A confident wrong answer harms more than “I don’t know”.`,
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What two things does the table weigh?',
   },
@@ -117,8 +124,9 @@ export default function WhatMatters() {
       steps={STEPS}
       initial={{ fix: '', p1: null, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => (
+      stage={({ state, say }) => (
         <ObsStage
+          say={say}
           room={{
             cards: wallOf(FAILED),
             bins: binsOf(DAY1_COUNTS, state.fix),
@@ -156,6 +164,10 @@ export default function WhatMatters() {
         ),
         facts: () => (
           <>
+            <p className="tc-fact">
+              The counts come from this module’s hand-written traces and the ratings are the team’s judgement, so this
+              shows the method, not a benchmark.
+            </p>
             <Fact id="error-analysis" />
             <Fact id="saturation" />
           </>

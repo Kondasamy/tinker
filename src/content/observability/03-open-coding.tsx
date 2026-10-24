@@ -12,6 +12,9 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { Fact, MODULE, ObsStage, TraceCard, wallOf, type View } from './kit';
+import { TRACE_PARTS } from '../../components/scenes/traceScene';
+
+export const PARTS = TRACE_PARTS;
 
 const ID = '03-open-coding';
 export const P1 = {
@@ -25,7 +28,7 @@ export const P1 = {
 const KINDS = MODES.length;
 export const OUT1 = KINDS === 1 ? 0 : KINDS >= FAILED.length ? 2 : 1;
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A team starts reviewing its chatbot’s failures with a checklist of ten categories from a blog post. What does open coding do differently?',
   options: [
@@ -37,7 +40,7 @@ const QUIZ = {
   explanation:
     'Open coding reads the data first and names what it sees; categories are built from the notes afterwards.',
   why: [
-    'Right. A borrowed checklist names someone else’s failures. Notes on your own traces name yours.',
+    'Right: a borrowed checklist names someone else’s failures, while notes on your own traces name yours.',
     'A longer list written before reading the traces still decides in advance what you can see.',
     'A model’s labels can help later, but you check them against notes a person wrote first.',
   ],
@@ -59,22 +62,27 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `You found where two traces went wrong. ${FAILED.length} failed yesterday. Nobody has a list of what goes wrong yet, so there is nothing to tick: you read each trace and write a short note in your own words. That is open coding. Before you start:`,
+    narration: 'So you read each failed trace and write a short note in your own words. That is open coding.',
+    act: 'Predict first.',
+    say: { block: 'wall', text: 'Nothing to tick' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'note',
     focus: 'notes',
     visibleControls: ['p1', 'notes', 'stop'],
-    narration: `Write a note on at least ${NEEDED_NOTES} failed traces: what went wrong first, in a few words. Type your own, or press a suggestion to use it (you can edit it after). Notes are never marked right or wrong, and they stay in this browser. Press Done when you have enough.`,
+    narration: 'What went wrong first, in a few words. Notes are never graded and stay in this browser.',
+    act: `Note at least ${NEEDED_NOTES} traces, then press Done.`,
+    say: { block: 'wall', text: 'Focus lights it' },
     predicate: s => enough(s) && s.stopped,
-    hint: `Any ${NEEDED_NOTES} traces will do. A suggestion counts as a note.`,
+    hint: `Type your own, or press a suggestion (you can edit it after). Any ${NEEDED_NOTES} traces will do.`,
   },
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out1', 'notes', 'facts', 'quiz'],
-    narration: `Read your notes back: some say the same thing in different words. Across all ${FAILED.length} traces there are ${KINDS} kinds of failure. Keep writing if you like; the traces you leave carry their suggested note into chapter 4, where the notes become groups. One question to finish.`,
+    narration: `Some notes say the same thing in different words. Across all ${FAILED.length} traces there are ${KINDS} kinds of failure.`,
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which comes first: the notes, or the categories?',
   },
@@ -132,10 +140,11 @@ export default function OpenCoding() {
       steps={STEPS}
       initial={{ stopped: false, notes: {}, at: null, p1: null, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => {
+      stage={({ state, sync, say }) => {
         const t = state.at ? traceOf(state.at) : null;
         return (
           <ObsStage
+            say={say}
             room={{
               cards: wallOf(FAILED, state.at),
               board: `NOTED ${notedIds(state.notes).length} OF ${FAILED.length}`,
@@ -174,6 +183,10 @@ export default function OpenCoding() {
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUT1} />,
         facts: () => (
           <>
+            <p className="tc-fact">
+              Keep writing if you like: traces you leave carry their suggested note into chapter 4, where notes become
+              groups.
+            </p>
             <Fact id="open-coding" />
             <Fact id="annotate-yourself" />
             <Fact id="domain-expert" />

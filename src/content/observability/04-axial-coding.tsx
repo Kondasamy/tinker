@@ -24,6 +24,9 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { Fact, MODULE, ObsStage, modeName, savedNotes, wallOf, type View } from './kit';
+import { TRACE_PARTS } from '../../components/scenes/traceScene';
+
+export const PARTS = TRACE_PARTS;
 
 const ID = '04-axial-coding';
 const GROUP_IDS = Array.from({ length: GROUPS }, (_, i) => i);
@@ -34,7 +37,7 @@ export const P1 = {
 };
 export const OUT1 = P1_MODES.indexOf(mostFrequent(DAY1_COUNTS));
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'Two reviewers group the same 50 traces. One calls a group “stale docs”, the other “old policy answers”, but the same traces are in each. Did they agree?',
   options: [
@@ -45,8 +48,8 @@ const QUIZ = {
   correct: 1,
   explanation: 'A grouping is about which traces belong together; a name is a label for that.',
   why: [
-    'The names are labels. Your own groups in this chapter passed whatever you called them.',
-    'Right. Same traces together, same grouping. Then agree on a name and count.',
+    'The names are labels: your own groups in this chapter passed whatever you called them.',
+    'Right: the same traces together is the same grouping, and then you agree on a name and count.',
     'Notes are free text in each reviewer’s words; they rarely match, and don’t need to.',
   ],
 };
@@ -66,14 +69,20 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `Every failed trace has a note now: yours where you wrote one, the suggested one where you didn’t. Axial coding sorts the notes into groups that share a cause. Each group is a failure mode. Before you sort:`,
+    narration:
+      'Skipped traces use the suggested note. Axial coding sorts the notes into groups that share a cause. Each group is a failure mode.',
+    act: 'Predict first.',
+    say: { block: 'wall', text: 'Every one noted' },
     predicate: s => s.p1 !== null,
   },
   puzzle<S>({
     id: 'sort',
     focus: 'sort',
     visibleControls: ['p1', 'sort'],
-    narration: `Move each trace into one of ${GROUPS} groups so that traces with the same cause share a group. Group by what went wrong, not by topic. Name the groups if you like: the names are yours and aren’t checked.`,
+    narration:
+      'Same cause, same group: sort by what went wrong, not by topic. Group names are optional and never checked.',
+    act: 'Sort every trace into a group.',
+    say: { block: 'bin-0', text: 'A bin per group' },
     broken: s => ({ ...s, groups: {} }),
     verdict: s => groupingMatches(s.groups),
     solution: s => ({
@@ -87,7 +96,8 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out1', 'tally', 'facts', 'quiz'],
-    narration: `Counted, the ${FAILED.length} failures fall into ${GROUPS} modes. The most common: ${modeName(mostFrequent(DAY1_COUNTS)).toLowerCase()}, ${DAY1_COUNTS[mostFrequent(DAY1_COUNTS)]} traces. These traces were written by hand for this module, so the counts show the method, not any real assistant’s failure rates. One question to finish.`,
+    narration: `The ${FAILED.length} failures fall into ${GROUPS} modes. Most common: ${modeName(mostFrequent(DAY1_COUNTS)).toLowerCase()}, ${DAY1_COUNTS[mostFrequent(DAY1_COUNTS)]} traces. Hand-written, so not real rates.`,
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Is a grouping about names or about which traces belong together?',
   },
@@ -196,11 +206,12 @@ export default function AxialCoding() {
       steps={STEPS}
       initial={{ groups: {}, names: {}, p1: null, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => {
+      stage={({ state, sync, say }) => {
         const last = FAILED.filter(t => state.groups[t.id] !== undefined).at(-1) ?? null;
         const bins = GROUP_IDS.map(g => ({ label: `G${g + 1}`, count: sizeOf(state, g) }));
         return (
           <ObsStage
+            say={say}
             room={{
               cards: wallOf(FAILED, last?.id),
               bins,
@@ -223,7 +234,15 @@ export default function AxialCoding() {
         sort: ({ state, sync }) => <Sort s={state} sync={sync} />,
         tally: ({ state }) => <Tally s={state} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUT1} />,
-        facts: () => <Fact id="axial-coding" />,
+        facts: () => (
+          <>
+            <p className="tc-fact">
+              These traces were written by hand for this module, so the counts show the method, not any real assistant’s
+              failure rates.
+            </p>
+            <Fact id="axial-coding" />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

@@ -11,7 +11,7 @@ const CHAPTERS: Chapter[] = [
     short: 'What it did',
     intro: {
       story:
-        'Larkspur’s assistant is live. Customers ask it about orders and policies all day, and the team has passed Evals’ offline suite. Now they want to know what it does with real traffic.',
+        'Larkspur’s assistant is live and passed Evals’ offline suite. Customers ask it about orders and policies all day. What does it do with real traffic?',
       goal: 'What happened, step by step, when a customer asked the assistant a question?',
       learn: [
         'A trace: one request’s record, from the question to the reply',
@@ -58,7 +58,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Open coding',
     intro: {
       story:
-        'Yesterday’s traffic left 18 failed traces. Nobody has a list of what goes wrong yet, so there is nothing to tick.',
+        'You found where two traces went wrong; yesterday left many more. Nobody has a list of what goes wrong yet, so there is nothing to tick.',
       goal: 'How do you start making sense of failures before you know what kinds there are?',
       learn: [
         'Open coding: a short note per failed trace, in your own words',
@@ -94,7 +94,7 @@ const CHAPTERS: Chapter[] = [
     title: 'Which ones matter',
     short: 'What matters',
     intro: {
-      story: 'Five failure modes, counted. The team can fix one this week.',
+      story: 'The failure modes are counted. The team can fix one this week.',
       goal: 'Which failure mode should Larkspur fix first?',
       learn: [
         'Why the most common failure isn’t always the first to fix',

@@ -13,6 +13,9 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { Fact, MODULE, ObsStage, TraceCard, wallOf, type View } from './kit';
+import { TRACE_PARTS } from '../../components/scenes/traceScene';
+
+export const PARTS = TRACE_PARTS;
 
 const ID = '02-first-failure';
 const [A, B] = DOMAINS[ID].traces.map(traceOf);
@@ -28,7 +31,7 @@ export const P1 = {
 const KIND_OPTION = { retrieval: 0, chat: 1, reply: 2 } as Record<string, number>;
 export const OUT1 = KIND_OPTION[firstOf(A).kind];
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A refund assistant refunded the wrong amount. Its trace: the model read the order correctly, then called the refund tool with the amount doubled; the tool refunded it; the reply confirmed it. Which span do you note?',
   options: [
@@ -40,9 +43,9 @@ const QUIZ = {
   correct: 2,
   explanation: 'The first span that did the wrong thing is the one to note; the rest followed from it.',
   why: [
-    'The reply is where the mistake shows. Change its wording and the money is still wrong.',
-    'The tool did exactly what it was asked. The wrong amount came from the call made to it.',
-    'Right. Everything after the doubled amount followed from it, like the wrong order number in this chapter.',
+    'The reply is where the mistake shows, and changing its wording leaves the money wrong.',
+    'The tool did exactly what it was asked; the wrong amount came from the call made to it.',
+    'Right: everything after the doubled amount followed from it, like the wrong order number in this chapter.',
     'The lookup read the order correctly; being first doesn’t make it wrong.',
   ],
 };
@@ -63,7 +66,9 @@ export const STEPS: Step<S>[] = [
     id: 'open',
     focus: 'open',
     visibleControls: ['open'],
-    narration: `Yesterday ${FAILED.length} traces ended in a wrong or useless reply. A customer saw each failure in the reply, but that is where it showed, not always where it started. Open the first.`,
+    narration: `Yesterday ${FAILED.length} traces ended in a bad reply. The reply is where a failure shows, not always where it started.`,
+    act: 'Open the first.',
+    say: { block: 'wall', text: `${FAILED.length} went wrong` },
     predicate: s => s.opened,
     hint: 'Press the open button.',
   },
@@ -71,15 +76,16 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['card', 'p1'],
-    narration: `${A.customer} asked: “${A.question}” The reply: “${replyOf(A)}” The real cutoff is later. Before you look inside:`,
+    narration: `The reply gave ${A.customer} the wrong same-day cutoff: the real one is later.`,
+    act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
   puzzle<S>({
     id: 'find-a',
     focus: 'spans',
     visibleControls: ['p1', 'spans'],
-    narration:
-      'Find the first failure: the earliest span that did the wrong thing. Read the spans in the waterfall, then press Enter on the one you choose, or pick it below.',
+    narration: 'Find the first failure: the earliest span that did the wrong thing.',
+    act: 'Pick it in the waterfall (Enter) or below.',
     broken: s => ({ ...s, at: 0, picks: {}, view: 'fall' }),
     verdict: s => right(s, A),
     solution: s => pick(s, A, A.first!),
@@ -89,7 +95,8 @@ export const STEPS: Step<S>[] = [
     id: 'find-b',
     focus: 'spans',
     visibleControls: ['out1', 'spans'],
-    narration: `Yes: “${firstOf(A).detail}” Last year’s passage. The model quoted it faithfully, so the model call wasn’t the cause. Now ${B.customer}’s trace: “${B.question}” The reply: “${replyOf(B)}” Find its first failure.`,
+    narration: `Right. Last year’s passage, and the model quoted it faithfully. ${B.customer} asked “${B.question}”`,
+    act: 'Find its first failure.',
     broken: s => ({ ...s, at: 1, view: 'fall' }),
     verdict: s => right(s, B),
     solution: s => pick(s, B, B.first!),
@@ -99,7 +106,9 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['facts', 'quiz'],
-    narration: `The tool’s result looked wrong, but it returned exactly the order it was asked for: “${firstOf(B).detail}” The first model call asked for the wrong number, and every span after it followed. Note that one, not the tool or the reply. One question to finish.`,
+    narration:
+      'The tool returned just what it was asked for. The model call asked for the wrong number: upstream of everything after.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which span did the wrong thing first?',
   },
@@ -114,11 +123,12 @@ export default function FirstFailure() {
       steps={STEPS}
       initial={{ at: 0, picks: {}, p1: null, view: 'scene', opened: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, apply, sync, focus }) => {
+      stage={({ state, apply, sync, focus, say }) => {
         const t = traceOfState(state),
           done = right(state, t);
         return (
           <ObsStage
+            say={say}
             room={{ cards: wallOf(FAILED, state.opened ? t.id : null) }}
             trace={state.opened ? t : null}
             stamp={done ? t.first : null}
