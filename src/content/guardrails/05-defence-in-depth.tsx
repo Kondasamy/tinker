@@ -8,6 +8,7 @@ import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { puzzle, Verdict } from '../../components/quiz/Puzzle';
 import { guardLanes, guardMessages } from '../../components/scenes/guardSequence';
+import { GUARD_PARTS } from '../../components/scenes/guardScene';
 import {
   DOMAINS,
   INJECTION_SUITE,
@@ -107,26 +108,31 @@ const QUIZ = {
   correct: 2,
   explanation: fact('owasp-mitigations').claim,
   why: [
-    `Users who never get an answer are a failure too. In this chapter the input filter at ${ALL} stopped every attack and blocked ${CATCH_HELD.join(' and ')}.`,
-    'Chapter 2 tried every threshold: none held every attack and no customer. Scores overlap, so no setting wins outright.',
-    `Right. Layers cover each other’s gaps: here ${SMALLEST.map(setName).join(', or ')} stopped every attack and blocked no one. Counting attacks through and users blocked shows which set to keep.`,
-    `A filter that misses some attacks still stops others: in this chapter each layer stopped attacks the others missed. ${fact('owasp-mitigations').claim}`,
+    `Users who never get an answer are a failure too, and here the input filter at ${ALL} stopped every attack but blocked ${CATCH_HELD.join(' and ')}.`,
+    'Chapter 2 tried every threshold and none held every attack and no customer, because the scores overlap.',
+    `Right: layers cover each other’s gaps, as ${SMALLEST.map(setName).join(', or ')} did here, and counting attacks through and users blocked shows which set to keep.`,
+    'A filter that misses some attacks still stops others: in this chapter each layer stopped attacks the others missed.',
   ],
 };
+
+/** The parts of the mail room a step's callout may name. */
+export const PARTS = GUARD_PARTS;
 
 export const STEPS: Step<S>[] = [
   {
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `Chapters 1 to 4 gave Larkspur five defences: the prompt rule, the input filter, the allow-list, the output filter and the taint rule. Each was tried on one or two emails. Now each one meets the whole injection suite: the ${RULE.attacks} attacks and the ${RULE.customers} ordinary customers from chapter 2. Before the table fills in:`,
+    narration: `Five defences now meet the ${RULE.attacks} attacks and ${RULE.customers} customers from chapter 2.`,
+    act: 'Predict before the table fills in.',
     predicate: s => s.p1 !== null,
   },
   puzzle<S>({
     id: 'stack',
     focus: 'set',
     visibleControls: ['out1', 'matrix', 'set', 'verdict'],
-    narration: `Each row is one defence alone, run over every email. The prompt rule stopped ${RULE.attacks - RULE.succeeded} of ${RULE.attacks} attacks. The input filter at ${ALL} stopped all of them and blocked ${CATCH_HELD.join(' and ')}. No row is clean. Defence in depth means stacking layers so each covers what another misses. Turn on a set of defences that lets no attack through and blocks as few customers as you can.`,
+    narration: `Each row is one defence; the filter at ${ALL} caught every attack, blocking ${CATCH_HELD.join(' and ')}.`,
+    act: 'Build defence in depth: no attack through, fewest blocked.',
     broken: s => ({ ...s, ...OFF }),
     verdict: s => solved(setOf(s)),
     solution: s => ({ ...s, ...SMALLEST[0] }),
@@ -136,7 +142,9 @@ export const STEPS: Step<S>[] = [
     id: 'eval',
     focus: 'quiz',
     visibleControls: ['winners', 'eval', 'quiz'],
-    narration: `No attack got through and ${FEWEST === 0 ? 'no customer was blocked' : `${FEWEST} customers were blocked`}. Yours is one of ${WINNERS.length} sets the controls can make that do it; the smallest are ${SMALLEST.map(setName).join(', or ')}. Neither layer is enough alone: together each covers the other’s gap. One question to finish.`,
+    narration: `No attack through, ${FEWEST === 0 ? 'no customer blocked' : `${FEWEST} customers blocked`}. Its attack success rate and false-block rate, over a fixed suite, make an eval.`,
+    act: 'One question to finish.',
+    say: { block: 'host', text: 'Layers hold' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What did the input filter at its catch-all setting cost, and what did two loose layers cost?',
   },
@@ -174,9 +182,11 @@ export default function DefenceInDepth() {
       steps={STEPS}
       initial={{ ...OFF, p1: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, inspect }) => {
+      stage={({ state, inspect, say }) => {
         const r = shown(state);
-        return <GuardStage run={r} upTo={r.steps.length} props={guardProps(setOf(state))} inspect={inspect} />;
+        return (
+          <GuardStage run={r} upTo={r.steps.length} props={guardProps(setOf(state))} inspect={inspect} say={say} />
+        );
       }}
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,

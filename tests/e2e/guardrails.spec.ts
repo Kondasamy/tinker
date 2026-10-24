@@ -161,7 +161,7 @@ test('chapter 2: at every threshold the counts match the data, and no threshold 
     await expect(slider).toHaveAttribute('aria-valuetext', `${t ?? 'off'}: ${heldAt(t)}`);
     if (i === 5) {
       await expect(c).toContainText('NOT WHAT YOU PREDICTED');
-      await expect(c).toContainText('No threshold wins outright');
+      await expect(c).toContainText('No threshold wins');
     }
   }
   expect(THRESHOLDS.map(heldAt).some(h => /^(\d) of \1 attacks quarantined, 0 of/.test(h))).toBe(false);
@@ -184,7 +184,7 @@ test('chapter 3: with the allow-list on the mail log has no outside address; the
   await expect(log.locator('[data-out]')).toHaveCount(1);
   await expect(log.locator('[data-out="1"]')).toHaveCount(0);
   await expect(log).not.toContainText('example.net');
-  await expect(c).toContainText('is not on the host');
+  await expect(c).toContainText('The barrier held');
   await c.getByRole('radio', { name: /^Yes: the allow-list guards/ }).click();
   await c.getByRole('button', { name: /^Run .*’s email$/ }).click();
   await expect(log).toContainText('https://verify.example.net');
@@ -276,7 +276,7 @@ test('chapter 6: the output check stops the discount, the input check turns the 
   await c.getByRole('button', { name: 'Strict: every refund to a person' }).click();
   await expect(c.locator('[data-cost] tr[data-policy="strict"]')).toHaveAttribute('data-blocked', '1');
   await expect(c.locator('[data-cost] tr[data-policy="on"]')).toHaveAttribute('data-blocked', '0');
-  await expect(c).toContainText('That is a false block');
+  await expect(c).toContainText('a false block that counts like any other');
 });
 
 test('chapter 7: by keyboard, a set that leaks and a clean one; the bench, the stage case and the tab survive a reload', async ({

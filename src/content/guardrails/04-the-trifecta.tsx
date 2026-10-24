@@ -8,6 +8,7 @@ import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { puzzle, Verdict } from '../../components/quiz/Puzzle';
 import { guardLanes, guardMessages } from '../../components/scenes/guardSequence';
+import { GUARD_PARTS } from '../../components/scenes/guardScene';
 import { DOMAINS, REPLY, type Leg, type Run } from '../../lib/guardrails/loop';
 import { fact } from '../../lib/guardrails/facts';
 import { nextOf } from '../../lib/modules';
@@ -69,26 +70,32 @@ const QUIZ = {
   correct: 1,
   explanation: fact('avoid-trifecta').claim,
   why: [
-    'A prompt rule lowers attacks but doesn’t stop them: in chapter 1 a note that claimed to come from Larkspur got past one. All three legs would still be in place.',
-    `Right. That is the taint rule: the way out goes once untrusted text is in, so a planted line has nowhere to send the prices, and the buyer still gets their comparison. ${fact('avoid-trifecta').claim}`,
-    'A classifier lowers the odds, and in chapter 2 every threshold that held all the attacks held a real customer too. With all three legs in place, one missed page leaks the list.',
-    `Then it can’t compare prices, which is the job. In this chapter, removing private data left ${SENDER}’s question unanswered.`,
+    'A prompt rule lowers attacks but doesn’t stop them, and in chapter 1 a note that claimed to come from Larkspur got past one.',
+    'Right: that is the taint rule, which takes the way out once untrusted text is in, so a planted line can’t send the prices and the buyer still gets a comparison.',
+    'A classifier lowers the odds, but in chapter 2 every threshold that held all the attacks held a real customer too, and one missed page leaks the list.',
+    `Then it can’t compare prices, the job itself, just as removing private data here left ${SENDER}’s question unanswered.`,
   ],
 };
+
+/** The parts of the mail room a step's callout may name. */
+export const PARTS = GUARD_PARTS;
 
 export const STEPS: Step<S>[] = [
   {
     id: 'legs',
     focus: 'p1',
     visibleControls: ['legs', 'p1'],
-    narration: `With no checks, the forwarded invoice ends the same way every time: ${SAYS.toLowerCase()}. Why does it work at all? ${fact('lethal-trifecta').claim} The stage names the three legs. Larkspur’s assistant has every one: it reads email someone outside wrote, looks up customer records, and can send email anywhere. Before you try:`,
+    narration: `Unchecked, the invoice always ends: ${SAYS.toLowerCase()}. The assistant has every leg of the lethal trifecta.`,
+    act: 'Predict first.',
+    say: { block: 'host', text: 'All three legs' },
     predicate: s => s.p1 !== null,
   },
   puzzle<S>({
     id: 'remove-leg',
     focus: 'leg',
     visibleControls: ['p1', 'legs', 'leg', 'verdict'],
-    narration: `Remove one leg so the attack fails and ${SENDER} still gets their answer about the delivery address.`,
+    narration: `${SENDER} still needs an answer about their delivery address.`,
+    act: 'Remove one leg so the attack fails and the customer is answered.',
     broken: s => ({ ...s, remove: 'none', taint: false }),
     verdict: fixed,
     solution: s => ({ ...s, remove: WIN, taint: false }),
@@ -98,7 +105,9 @@ export const STEPS: Step<S>[] = [
     id: 'taint',
     focus: 'taint',
     visibleControls: ['out1', 'taint'],
-    narration: `Without send_email the planted note had nowhere to send the record, and the answer still went out: ${REPLY.name} can only write to the sender. But Larkspur does need send_email for other work, such as telling a supplier about a delay. The taint rule keeps it until untrusted text is in: once the model has read an outside email, the host stops offering send_email for the rest of that case. All three legs are back. Turn the taint rule on.`,
+    narration: `No send_email, nowhere to go: ${REPLY.name} only writes to the sender. A taint rule keeps send_email until untrusted text is read.`,
+    act: 'Turn it on.',
+    say: { block: 'post', text: 'Way out back' },
     setup: s => ({ ...s, remove: 'none' }),
     predicate: s => s.taint,
     hint: 'Press “Taint rule: on”.',
@@ -107,7 +116,9 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['compare', 'quiz'],
-    narration: `The model read the email, and from then on send_email was gone. It looked up the record and answered ${SENDER}; the chute on the stage is shut. The rule never asks whether the note is an attack, so it doesn’t matter how well the note is written. ${fact('avoid-trifecta').claim} One question to finish.`,
+    narration: `Once the email was read, send_email was gone; ${SENDER} still got an answer. The rule never judges the note.`,
+    act: 'One question to finish.',
+    say: { block: 'post', text: 'Chute shut' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which design takes a leg away at the moment it becomes dangerous?',
   },
@@ -174,9 +185,9 @@ export default function TheTrifecta() {
       steps={STEPS}
       initial={{ remove: 'none', taint: false, p1: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, inspect }) => {
+      stage={({ state, inspect, say }) => {
         const r = current(state);
-        return <GuardStage run={r} upTo={r.steps.length} props={guardProps(state, true)} inspect={inspect} />;
+        return <GuardStage run={r} upTo={r.steps.length} props={guardProps(state, true)} inspect={inspect} say={say} />;
       }}
       controls={{
         legs: () => <Legs />,

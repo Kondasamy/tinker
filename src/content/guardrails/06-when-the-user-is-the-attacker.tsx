@@ -8,8 +8,8 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { guardLanes, guardMessages } from '../../components/scenes/guardSequence';
-import { DOMAINS, REFUND_POLICY, metrics, stepsOf, type CaseId, type Run, type Setup } from '../../lib/guardrails/loop';
-import { fact } from '../../lib/guardrails/facts';
+import { GUARD_PARTS } from '../../components/scenes/guardScene';
+import { DOMAINS, metrics, stepsOf, type CaseId, type Run, type Setup } from '../../lib/guardrails/loop';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
@@ -80,26 +80,33 @@ const QUIZ = {
   explanation:
     'Over-refusal is a failure too. A setting is judged on attacks stopped and on fair requests refused, both counted over the same suite.',
   why: [
-    `Only one side is counted. In this chapter the strict setting stopped every push and refused ${sender(REFUND)}’s fair refund: a customer left without their money is a failure too.`,
-    'Right. A refusal is cheap to count when it is wrong for an attacker and easy to miss when it is wrong for a customer. Count both, over the same suite, and the cost of being strict shows.',
-    `The discount push scored ${email(DISCOUNT).score}: it isn’t an injection at all, so an injection detector has nothing to catch. And a filter doesn’t change what the refund check refuses.`,
-    'The model was helpful: it asked for the refund. The host’s check refused it. A rule in the prompt can’t override a host setting.',
+    `Only one side is counted: here the strict setting stopped every push and refused ${sender(REFUND)}’s fair refund, and a customer left without their money is a failure too.`,
+    'Right: count fair requests refused next to attacks stopped, over the same suite, and the cost of being strict shows.',
+    `The discount push scored ${email(DISCOUNT).score} because it isn’t an injection, so an injection detector has nothing to catch, and a filter doesn’t change what the refund check refuses.`,
+    'The model was helpful and asked for the refund; the host’s check refused it, and a prompt rule can’t override a host setting.',
   ],
 };
+
+/** The parts of the mail room a step's callout may name. */
+export const PARTS = GUARD_PARTS;
 
 export const STEPS: Step<S>[] = [
   {
     id: 'discount',
     focus: 'p1',
     visibleControls: ['mail', 'p1'],
-    narration: `No planted note this time. The customer writing is the attacker: ${sender(DISCOUNT)} pushes for money they are not owed, and with no checks the assistant pays it. ${fact('direct-injection').claim} This one doesn’t even look like an attack: it asks politely. Before you add a check:`,
+    narration: `No planted note: ${sender(DISCOUNT)} pushes politely for money they aren’t owed, and with no checks the assistant pays.`,
+    act: 'Predict first.',
+    say: { block: 'orders', text: 'Refund paid' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'output-check',
     focus: 'output',
     visibleControls: ['out1', 'output', 'status'],
-    narration: `An output policy check runs in the host, after the model asks for a refund and before it is paid. Larkspur’s rule: ${REFUND_POLICY} The model never sees the rule; it only hears that the refund was stopped. Turn the check on.`,
+    narration:
+      'A policy check runs in the host, not the model. This output policy check tests each refund before it is paid.',
+    act: 'Turn it on.',
     predicate: s => s.outputPolicy === 'on',
     hint: 'Press “Output policy check: on”.',
   },
@@ -107,7 +114,9 @@ export const STEPS: Step<S>[] = [
     id: 'off-topic',
     focus: 'open',
     visibleControls: ['status', 'open'],
-    narration: `The refund was stopped, and the model told ${sender(DISCOUNT)} it had passed the request on. But the output check only looks at refunds. ${sender(OFFTOPIC)} asks for something else entirely. Open their email.`,
+    narration: `The refund was stopped. But the output check only sees refunds, and ${sender(OFFTOPIC)} asks for something else.`,
+    act: `Open ${sender(OFFTOPIC)}’s email.`,
+    say: { block: 'orders', text: 'Refund stopped' },
     predicate: s => s.kase === OFFTOPIC,
     hint: `Press “Open ${sender(OFFTOPIC)}’s email”.`,
   },
@@ -116,7 +125,9 @@ export const STEPS: Step<S>[] = [
     focus: 'input',
     visibleControls: ['mail', 'input', 'status'],
     narration:
-      'The assistant wrote their newsletter. The words are harmless, but it isn’t Larkspur’s job, and every reply goes out in Larkspur’s name. An input policy check reads each email before the model does and turns away anything outside what the assistant is for. The model then sees only that the email was refused, and answers politely. Turn it on.',
+      'The assistant wrote their newsletter, not its job. An input policy check turns away off-topic email; the model only sees a refusal.',
+    act: 'Turn it on.',
+    say: { block: 'host', text: 'Not its job' },
     predicate: s => s.kase === OFFTOPIC && s.inputPolicy,
     hint: 'Press “Input policy check: on”.',
   },
@@ -124,14 +135,17 @@ export const STEPS: Step<S>[] = [
     id: 'strict',
     focus: 'p2',
     visibleControls: ['status', 'p2'],
-    narration: 'Turned away before the model read a word of it. Both pushes are stopped. Now finance asks for more.',
+    narration: 'Turned away before the model read a word. Both pushes are stopped. Now finance asks for more.',
+    act: 'Predict first.',
+    say: { block: 'screen', text: 'Turned away' },
     predicate: s => s.p2 !== null,
   },
   {
     id: 'over-refusal',
     focus: 'output',
     visibleControls: ['out2', 'mail', 'output', 'status'],
-    narration: `${sender(REFUND)}’s email is open, with the output check on. Set it to strict and watch the fair refund.`,
+    narration: `${sender(REFUND)}’s fair refund is open, with the output check on.`,
+    act: 'Set it to strict and watch the refund.',
     setup: s => ({ ...s, kase: REFUND }),
     predicate: s => s.kase === REFUND && s.outputPolicy === 'strict',
     hint: 'Press “Strict: every refund to a person”.',
@@ -140,7 +154,9 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['cost', 'quiz'],
-    narration: `Strict stopped the discount, and it refused ${sender(REFUND)}’s fair refund too. Nobody attacked; a real customer was turned away. That is a false block, and it counts like any other: the table runs all three emails under each setting. One question to finish.`,
+    narration: `Strict stopped the discount and refused ${sender(REFUND)}’s fair refund too: over-refusal, a false block that counts like any other.`,
+    act: 'One question to finish.',
+    say: { block: 'orders', text: 'Fair refund held' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What does counting only stopped attacks leave out?',
   },
@@ -224,9 +240,9 @@ export default function UserIsTheAttacker() {
       steps={STEPS}
       initial={{ kase: DISCOUNT, inputPolicy: false, outputPolicy: 'off', p1: null, p2: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, inspect }) => {
+      stage={({ state, inspect, say }) => {
         const r = current(state);
-        return <GuardStage run={r} upTo={r.steps.length} props={guardProps(state)} inspect={inspect} />;
+        return <GuardStage run={r} upTo={r.steps.length} props={guardProps(state)} inspect={inspect} say={say} />;
       }}
       controls={{
         mail: ({ state }) => <Mail c={state.kase} />,
