@@ -950,13 +950,17 @@ const curveOg =
       : page.og === 'small-models-02-learning-from-a-teacher'
         ? lossChart({ series: STUDENT_SERIES })
         : undefined;
+// a long title may wrap, but the kicker's last part ("Chapter 3 of 7") stays on one line
+const cut = page.kicker.lastIndexOf(' · ') + 1,
+  kickerHead = page.kicker.slice(0, cut && cut + 2),
+  kickerTail = page.kicker.slice(kickerHead.length);
 ---
 <html lang="en">
   <head><meta charset="utf-8" /><meta name="robots" content="noindex" /><title>og: {page.og}</title></head>
   <body>
     <div class="og" data-og={page.og}>
       <div class="text">
-        <p class="brand"><img src="/favicon.svg" alt="" width="40" height="40" /> {page.kicker}</p>
+        <p class="brand"><img src="/favicon.svg" alt="" width="40" height="40" /> <span>{kickerHead}<span class="nowrap">{kickerTail}</span></span></p>
         <h1>{page.headline}</h1>
         <p class="sub">{page.sub}</p>
         <p class="foot">tinker.kondasamy.com <span>· by Kondasamy Jayaraman</span></p>
@@ -1024,6 +1028,7 @@ const curveOg =
   .og { width: 1200px; height: 630px; box-sizing: border-box; padding: 56px 48px 48px 64px; display: grid; grid-template-columns: 500px 1fr; gap: 24px; align-items: center; overflow: hidden;
     background-image: radial-gradient(circle at 80% 50%, rgba(255, 182, 39, .14), transparent 55%); border-bottom: 14px solid var(--ink); }
   .text { display: flex; flex-direction: column; gap: 18px; height: 100%; }
+  .nowrap { white-space: nowrap; }
   .brand { margin: 0; display: flex; align-items: center; gap: 12px; font-size: 22px; font-weight: 800; letter-spacing: .02em; }
   h1 { margin: 0; font-size: 50px; line-height: 1.08; letter-spacing: -.015em; }
   .sub { margin: 0; font-size: 22px; line-height: 1.4; color: var(--muted); }
