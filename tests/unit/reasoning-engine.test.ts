@@ -91,7 +91,10 @@ describe('the copy’s claims', () => {
 describe('Evals and facts', () => {
   it('Evals’ recordings and references are unchanged', () => {
     const h = createHash('sha256');
-    for (const f of readdirSync('data/evals').sort().filter(f => f !== 'facts.json')) h.update(f + '\0').update(readFileSync('data/evals/' + f));
+    for (const f of readdirSync('data/evals')
+      .sort()
+      .filter(f => f !== 'facts.json'))
+      h.update(f + '\0').update(readFileSync('data/evals/' + f));
     expect(h.digest('hex')).toBe('025153e4a6bfb5fae06fe67d974d616c96ceff6d9e3637d6c2e680ffedbd0f36');
   });
 
