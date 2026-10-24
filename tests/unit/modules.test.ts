@@ -15,16 +15,24 @@ const RAG_CHAPTERS = [
   ['07-sandbox', 'Sandbox'],
 ];
 
-// the AI engineering roadmap in build order (docs/plans/2026-10-21-1521-feat-ai-engineering-roadmap-plan.md)
+// the roadmap (docs/plans/2026-10-24-1806-feat-eight-new-modules-plan.md): the eight modules in go-live order (KTD1),
+// then the seven cards no module plan has taken up yet (R17)
 const ROADMAP: [string, string][] = [
-  ['structured-outputs', 'Intermediate'],
-  ['reasoning', 'Intermediate'],
-  ['small-models', 'Advanced'],
-  ['inference', 'Advanced'],
-  ['observability', 'Intermediate'],
-  ['sandboxing', 'Advanced'],
-  ['multimodal', 'Intermediate'],
-  ['voice', 'Advanced'],
+  ['pre-training', 'Intermediate'],
+  ['post-training', 'Advanced'],
+  ['interpretability', 'Advanced'],
+  ['caching', 'Beginner'],
+  ['databases', 'Beginner'],
+  ['consistency', 'Advanced'],
+  ['ab-testing', 'Beginner'],
+  ['diffusion', 'Intermediate'],
+  ['diffusion-llms', 'Advanced'],
+  ['computer-use', 'Advanced'],
+  ['calibration', 'Intermediate'],
+  ['search', 'Beginner'],
+  ['web-requests', 'Beginner'],
+  ['payments', 'Beginner'],
+  ['git', 'Beginner'],
 ];
 /** true when every id in `ids` is in `list`, in the list's order */
 const inOrder = (ids: string[], list: string[]) => {
@@ -42,7 +50,7 @@ describe('module registry', () => {
     for (const m of MODULES) expect(['Beginner', 'Intermediate', 'Advanced']).toContain(m.level);
   });
 
-  it('has what is left of the AI engineering roadmap as planned cards, in build order, each at its level with no chapters and no prereqs', () => {
+  it('has what is left of the roadmap as planned cards, in build order, each at its level with no chapters and no prereqs', () => {
     const planned = MODULES.filter(m => m.status === 'planned');
     expect(
       inOrder(
@@ -54,6 +62,18 @@ describe('module registry', () => {
       expect(m.level, m.id).toBe(new Map(ROADMAP).get(m.id));
       expect([m.chapters, m.prereqs], m.id).toEqual([[], []]);
     }
+  });
+
+  // the R17 cards stay planned through this plan: only the eight module lines go live
+  it('keeps the seven roadmap cards no plan has taken up, last and in order', () => {
+    const planned = MODULES.filter(m => m.status === 'planned').map(m => m.id);
+    expect(planned.slice(-7)).toEqual(ROADMAP.slice(-7).map(([id]) => id));
+  });
+
+  it('says on the home page that Tinker explains how tech works, AI and classic, within 160 characters', () => {
+    expect(HOME.description).toMatch(/how tech works/);
+    expect(HOME.description).not.toMatch(/how AI works/);
+    expect(HOME.description.length).toBeLessThan(160);
   });
 
   // each go-live removes one roadmap card, so the planned list shrinks but never reorders (KTD14)
@@ -385,7 +405,7 @@ describe('module registry', () => {
     ]);
   });
 
-  it('has voice as a live Advanced module that recommends Tool calling and Multimodal first, numbered 17 and last, with no planned module left', () => {
+  it('has voice as a live Advanced module that recommends Tool calling and Multimodal first, numbered 17', () => {
     expect(moduleOf('voice')).toMatchObject({
       title: 'Voice agents',
       level: 'Advanced',
@@ -393,7 +413,11 @@ describe('module registry', () => {
       prereqs: ['tool-calling', 'multimodal'],
     });
     expect(moduleOf('voice').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').map(m => m.id)).toEqual([
+    expect(
+      MODULES.filter(m => m.status === 'live')
+        .map(m => m.id)
+        .slice(0, 17),
+    ).toEqual([
       'rag',
       'tool-calling',
       'agents',
@@ -412,7 +436,6 @@ describe('module registry', () => {
       'multimodal',
       'voice',
     ]);
-    expect(MODULES.filter(m => m.status === 'planned')).toEqual([]);
   });
 
   it('keeps chapter ids unique within every module', () => {

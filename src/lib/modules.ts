@@ -87,6 +87,96 @@ export const MODULES: Module[] = [
   SANDBOXING_MODULE,
   MULTIMODAL_MODULE,
   VOICE_MODULE,
+  planned(
+    'pre-training',
+    'Pre-training',
+    'Intermediate',
+    'Watch Larkspur mini learn from nothing: the same prompt at every checkpoint, the data that shaped it, and a leaked test.',
+  ),
+  planned(
+    'post-training',
+    'Post-training',
+    'Advanced',
+    'How a base model becomes an assistant: preferences, a grader that marks its drafts, and the answers that game a weak one.',
+  ),
+  planned(
+    'interpretability',
+    'Interpretability',
+    'Advanced',
+    'Open a real model and pull its fuses: switch off a head, read its guess layer by layer, and push it off course.',
+  ),
+  planned(
+    'caching',
+    'Caching & CDNs',
+    'Beginner',
+    'Why a copy close by beats the original far away: edge caches, expiry, stale prices and a flash sale.',
+  ),
+  planned(
+    'databases',
+    'Databases & indexes',
+    'Beginner',
+    'Why the orders page is slow: a full scan, an index that jumps straight to the rows, and what every write then pays.',
+  ),
+  planned(
+    'consistency',
+    'Replication & consistency',
+    'Advanced',
+    'Three warehouses, one stock count: how the last hinge gets sold twice, and what each fix costs.',
+  ),
+  planned(
+    'ab-testing',
+    'A/B testing',
+    'Beginner',
+    'Did the new button work? Running a fair test, and the lucky days and early peeks that fake a win.',
+  ),
+  planned(
+    'diffusion',
+    'Diffusion models',
+    'Intermediate',
+    'How a picture comes out of noise: a model that removes its best guess of the noise, step by step.',
+  ),
+  planned(
+    'diffusion-llms',
+    'Diffusion language models',
+    'Advanced',
+    'Writing a reply in any order: fill the sure words first, then the rest, and what the speed gives up.',
+  ),
+  planned(
+    'computer-use',
+    'Computer use',
+    'Advanced',
+    'An agent that sees a screenshot and clicks: what it sees, where it clicks, and the screens that fool it.',
+  ),
+  planned(
+    'calibration',
+    'Calibration',
+    'Intermediate',
+    'When a model says 70%, is it right 70% of the time? Confidence, measured, and when to abstain.',
+  ),
+  planned(
+    'search',
+    'Search before AI',
+    'Beginner',
+    'How keyword search finds a page: an index from words to documents, ranking, and where it misses meaning.',
+  ),
+  planned(
+    'web-requests',
+    'Opening a web page',
+    'Beginner',
+    'What happens between typing an address and seeing the page: DNS, a connection, encryption and HTTP.',
+  ),
+  planned(
+    'payments',
+    'Card payments',
+    'Beginner',
+    'Where the money goes when a customer pays by card: authorisation, capture, settlement, fees and chargebacks.',
+  ),
+  planned(
+    'git',
+    'Git',
+    'Beginner',
+    'How Git stores history: snapshots named by their content, branches as pointers, and merges that clash.',
+  ),
 ];
 
 export function moduleOf(id: string): Module {
