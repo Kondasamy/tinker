@@ -1,0 +1,16 @@
+{
+  "note": "Larkspur's planning numbers for a teaching simulator, not measurements of any real shop. Every rate the A/B testing module shows comes from these, the experiments file and seeded runs.",
+  "level": 0.05,
+  "perDay": 400,
+  "baseline": 0.1,
+  "returns": 0.05,
+  "mde": 0.01,
+  "repeats": 100,
+  "words": {
+    "traffic": "400 shoppers a day reach each checkout",
+    "baseline": "1 in 10 of them buys with today's checkout",
+    "returns": "1 in 20 orders comes back as a return",
+    "mde": "the team only cares about a change of at least 1 point of conversion",
+    "level": "a difference is called significant when luck alone would give one that big under 5% of the time"
+  }
+}

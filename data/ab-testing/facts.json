@@ -1,0 +1,60 @@
+{
+  "accessed": "2026-10-24",
+  "facts": [
+    {
+      "id": "random",
+      "claim": "Kohavi et al. (2009): in an A/B test users are randomly exposed to the control or the treatment, and no factor may influence who gets which, so a properly run test’s differences are caused by the change.",
+      "source": "https://exp-platform.com/Documents/controlledExperimentDMKD.pdf"
+    },
+    {
+      "id": "aa-test",
+      "claim": "Kohavi et al. (2009): an A/A test splits users into two groups but shows both the same experience; at a 95% confidence level it should declare a difference about 5% of the time.",
+      "source": "https://exp-platform.com/Documents/controlledExperimentDMKD.pdf"
+    },
+    {
+      "id": "confidence-level",
+      "claim": "Kohavi et al. (2009): a confidence level, commonly 95%, means that 5% of the time a test concludes there is a difference when there is none.",
+      "source": "https://exp-platform.com/Documents/controlledExperimentDMKD.pdf"
+    },
+    {
+      "id": "power",
+      "claim": "Kohavi et al. (2009): power, commonly wanted at around 80–95%, is the chance a real difference is found significant; more users, usually a longer test, raise it.",
+      "source": "https://exp-platform.com/Documents/controlledExperimentDMKD.pdf"
+    },
+    {
+      "id": "sample-size",
+      "claim": "Kohavi et al. (2009) give a rule of thumb, 16σ²/Δ² users per variant for 95% confidence and 80% power: for 5% conversion and a 5% change in it, under 122,000 users.",
+      "source": "https://exp-platform.com/Documents/controlledExperimentDMKD.pdf"
+    },
+    {
+      "id": "peeking",
+      "claim": "Johari et al. (KDD 2017): users of A/B testing software watch results continuously while a test runs, and then the usual p-values and confidence intervals give unreliable inference.",
+      "source": "https://www.kdd.org/kdd2017/papers/view/peeking-at-ab-tests-why-it-matters-and-what-to-do-about-it"
+    },
+    {
+      "id": "always-valid",
+      "claim": "Johari, Pekelis and Walsh’s “Always Valid Inference” brings sequential analysis to A/B testing, so a test can be monitored continuously and still be read correctly.",
+      "source": "https://arxiv.org/abs/1512.04922"
+    },
+    {
+      "id": "multiple",
+      "claim": "Kohavi et al. (2009): decide the comparison in advance, or results that look significant by chance get likelier; corrections such as Bonferroni’s raise the bar and lower power.",
+      "source": "https://exp-platform.com/Documents/controlledExperimentDMKD.pdf"
+    },
+    {
+      "id": "fdr",
+      "claim": "Benjamini and Hochberg (1995) proposed controlling the false discovery rate, the expected share of wrongly rejected hypotheses, a gentler bar than guarding against any false finding.",
+      "source": "https://doi.org/10.1111/j.2517-6161.1995.tb02031.x"
+    },
+    {
+      "id": "short-term",
+      "claim": "Kohavi et al. (2009): a good overall criterion is not short-term; with revenue alone you might plaster ads over a page, though many ads hurt the user experience.",
+      "source": "https://exp-platform.com/Documents/controlledExperimentDMKD.pdf"
+    },
+    {
+      "id": "guardrails",
+      "claim": "Kohavi and Longbotham’s checklist for reading an experiment asks whether guardrail metrics warn about unusual differences between the variants.",
+      "source": "https://exp-platform.com/Documents/2023-03-11EncyclopeiaMLDSABTestingFinal.pdf"
+    }
+  ]
+}

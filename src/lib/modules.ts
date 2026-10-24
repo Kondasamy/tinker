@@ -22,6 +22,7 @@ import { INTERPRETABILITY_MODULE } from '../content/interpretability/module';
 import { CACHING_MODULE } from '../content/caching/module';
 import { DATABASES_MODULE } from '../content/databases/module';
 import { CONSISTENCY_MODULE } from '../content/consistency/module';
+import { AB_TESTING_MODULE } from '../content/ab-testing/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -99,12 +100,7 @@ export const MODULES: Module[] = [
   CACHING_MODULE,
   DATABASES_MODULE,
   CONSISTENCY_MODULE,
-  planned(
-    'ab-testing',
-    'A/B testing',
-    'Beginner',
-    'Did the new button work? Running a fair test, and the lucky days and early peeks that fake a win.',
-  ),
+  AB_TESTING_MODULE,
   planned(
     'diffusion',
     'Diffusion models',
