@@ -13,11 +13,13 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { pieceLabel } from '../../components/scenes/attentionMap';
 import META from '../../../public/data/lm/meta.json' with { type: 'json' };
+import { ENGINE_PARTS } from '../../components/scenes/engineScene';
 import { CTX, Fact, PromptInput, TransformersStage, Waiting, piecesOf, useModel, whenLoaded, type View } from './kit';
 
 const MODULE = 'transformers',
   ID = '07-trace-a-prompt';
 const LM = META.model;
+export const PARTS = ENGINE_PARTS;
 const HEADS = Array.from(
   { length: LM.n_layer * LM.n_head },
   (_, i) => [Math.floor(i / LM.n_head), i % LM.n_head] as const,
@@ -62,7 +64,7 @@ const P1 = {
   ],
 };
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A customer pastes a long complaint into Larkspur’s chat. The order number is in the first line; the question “where is it?” is in the last. The whole message is longer than the window, and the oldest tokens are dropped. What can the model use?',
   options: [
@@ -75,10 +77,10 @@ const QUIZ = {
   explanation:
     'The model only ever reads what is in its window. When the oldest tokens are dropped to make room, whatever they said is gone for this run.',
   why: [
-    'There is no reading outside the window: each run reads only the tokens in it, and the dropped ones were never there.',
-    'Right. With the oldest tokens dropped, the last part of the message is read and the first line never is. Put what matters near the end, or keep prompts inside the window.',
-    'This setup drops from the start, as Larkspur mini does: you watched its first tokens get struck through, not its last.',
-    'Larkspur mini doesn’t refuse: you traced a prompt past its window and it ran on the last tokens. Other systems may reject or trim; which, depends on the system.',
+    'There is no reading outside the window: each run reads only the tokens in it.',
+    'Right: with the oldest tokens dropped, the first line is never read, so put what matters near the end.',
+    'This setup drops from the start, as Larkspur mini does: you watched its first tokens get struck through.',
+    'Larkspur mini doesn’t refuse but runs on the last tokens; other systems may reject or trim.',
   ],
 };
 
@@ -87,7 +89,9 @@ export const STEPS: Step<S>[] = [
     id: 'type',
     focus: 'prompt',
     visibleControls: ['prompt'],
-    narration: `The whole of Larkspur mini is yours. Type any prompt (or keep the one in the box) and trace it. The box counts tokens live: the model reads at most ${CTX}.`,
+    narration: `The box counts tokens live; the model reads at most ${CTX}.`,
+    act: 'Type a prompt, or keep this one, and trace it.',
+    say: { block: 'layer-1', text: 'Waiting for text' },
     predicate: whenLoaded(s => s.traced !== ''),
     hint: 'Type something in the box, then press “Trace it”.',
   },
@@ -95,8 +99,9 @@ export const STEPS: Step<S>[] = [
     id: 'follow',
     focus: 'follow',
     visibleControls: ['prompt', 'follow'],
-    narration:
-      'Follow it through, stage by stage: the tokens, their vectors, attention in every head, and the next token. Light a head in each layer, and open the Attention tab to read its weights.',
+    narration: 'Follow it through: tokens, vectors, attention in every head, then the next token.',
+    act: 'Light a head in each layer, then open the Attention tab.',
+    say: { block: 'head', text: 'Lit head' },
     predicate: s =>
       s.view === 'attn' && Array.from({ length: LM.n_layer }, (_, l) => l).every(l => s.layers.includes(l)),
     hint: 'Press a layer 1 head and a layer 2 head, and open the Attention tab above the picture.',
@@ -105,14 +110,16 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `Now a prompt that doesn’t fit. Before you trace one longer than ${CTX} tokens:`,
+    narration: `Now a prompt longer than ${CTX} tokens.`,
+    act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'reveal',
     focus: 'reveal',
     visibleControls: ['p1', 'reveal'],
-    narration: 'Locked in. Trace a long one.',
+    narration: 'Locked in.',
+    act: 'Trace a long one.',
     predicate: s => s.revealed,
   },
   {
@@ -120,7 +127,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['out1', 'prompt', 'follow', 'quiz'],
     narration:
-      'The struck-through tokens never reach the model; the picture and the grid hold only the last ones. Keep tracing your own prompts if you like. One question to finish the module.',
+      'That is truncation: the struck-through tokens never reach the model; the picture holds only the last ones.',
+    act: 'One question to finish the module.',
+    say: { block: 'layer-1', text: `Reads last ${CTX}` },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which tokens were struck through in the box?',
   },
@@ -146,8 +155,9 @@ export default function TraceAPrompt() {
         quiz: null,
       }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => (
+      stage={({ state, sync, say }) => (
         <TransformersStage
+          say={say}
           prompt={state.traced}
           layer={state.layer}
           head={state.head}
