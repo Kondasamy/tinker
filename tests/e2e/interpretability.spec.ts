@@ -1,6 +1,6 @@
 // Interpretability: the intro, every chapter played by mouse and by keyboard only, its own progress key, reduced
 // motion, the recap, axe and phone width; pulling the word-start fuse changes the shown top 5; the Lens tab waits for
-// Larkspur mini; chapter 3 plays offline. (Module-number kickers, share images and home's card come with go-live.)
+// Larkspur mini; chapter 3 plays offline; the go-live checks: Module 20 kickers and share images, home's card.
 import { test, expect, type Page } from '@playwright/test';
 import { moduleOf } from '../../src/lib/modules';
 import { interpretabilityWalker } from './interpretability-flow';
@@ -38,6 +38,34 @@ test('the intro shows the level, the prerequisite, the author, the chapters and 
     'https://april-zhu.com/colorfigures',
   );
   await axe(page);
+});
+
+test('Module 20 on the intro and the recap', async ({ page }) => {
+  await page.goto('/interpretability/');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 20 · Interpretability');
+  await page.goto('/interpretability/recap/');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 20 · Recap');
+});
+
+test('go-live: own share images and home’s card', async ({ page }) => {
+  await page.goto('/interpretability/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/interpretability\.jpg$/);
+  await page.goto(`/interpretability/${IDS[0]}/`);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    new RegExp(`/og/interpretability-${IDS[0]}\\.jpg$`),
+  );
+  await page.goto('/interpretability/recap/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    /\/og\/interpretability-recap\.jpg$/,
+  );
+  expect((await page.request.get('/og/interpretability.jpg')).status()).toBe(200);
+  await page.goto('/');
+  await expect(page.locator('.module[data-module="interpretability"] h4 a')).toHaveAttribute(
+    'href',
+    '/interpretability/',
+  );
 });
 
 test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({

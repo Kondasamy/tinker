@@ -460,6 +460,17 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'post-training')).toBe(18);
   });
 
+  it('has interpretability as a live Advanced module that recommends Transformers first, numbered 20', () => {
+    expect(moduleOf('interpretability')).toMatchObject({
+      title: 'Interpretability',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['transformers'],
+    });
+    expect(moduleOf('interpretability').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'interpretability')).toBe(19);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

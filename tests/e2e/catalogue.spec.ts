@@ -26,6 +26,7 @@ const NUMBERED = [
   'voice',
   'pre-training',
   'post-training',
+  'interpretability',
 ];
 
 // every module sits at its level: live cards first, then the roadmap's planned cards in registry (build) order;
@@ -152,6 +153,10 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
   await expect(page.locator('[data-level="Advanced"] .module[data-module="post-training"] h4 a')).toHaveAttribute(
     'href',
     '/post-training/',
+  );
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="interpretability"] h4 a')).toHaveAttribute(
+    'href',
+    '/interpretability/',
   );
 });
 

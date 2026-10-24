@@ -58,6 +58,8 @@ import { EXAM_BOARD, examScene, examLabel } from '../components/scenes/examScene
 import { FULL, REFUND, refOf, rewardsOf } from '../lib/post-training/graders';
 import { grpoRun, seedOf } from '../lib/post-training/policy';
 import { cardsOf, groupOf } from '../content/post-training/kit';
+import { FUSE_BOARD, fuseScene, fuseLabel } from '../components/scenes/fuseScene';
+import { BITE } from '../lib/interpretability/probe';
 
 const one =
   (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) =>
@@ -181,6 +183,14 @@ const EXAM = {
   cards: cardsOf(REFUND, EXAM_RUN.at(-1)!.after, rewardsOf(REFUND, FULL)),
   grader: 'KEY FACT',
   group: groupOf(EXAM_RUN.at(-1)),
+  scale: 1.7,
+};
+// the fuse box on chapter 2's pinned prompt, the word-start head's fuse pulled
+const BITE_RUN = trace(diskModel(), BITE.text);
+const FUSES_CARD = {
+  tokens: BITE_RUN.tokens.map(t => t.text),
+  attention: BITE_RUN.attention,
+  pulled: [BITE.fuse],
   scale: 1.7,
 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
@@ -422,6 +432,19 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'What a grader can’t check',
       'Reward hacking',
       'Building a grader',
+    ],
+  },
+  interpretability: {
+    name: 'Interpretability',
+    iso: { board: FUSE_BOARD, scene: fuseScene(FUSES_CARD), label: fuseLabel(FUSES_CARD) },
+    topics: [
+      'Attention isn’t proof',
+      'Ablation',
+      'The logit lens',
+      'Activation patching',
+      'Steering',
+      'Polysemantic neurons',
+      'Circuits',
     ],
   },
 };

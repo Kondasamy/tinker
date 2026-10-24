@@ -126,6 +126,10 @@ import { ROUNDS, grpoRun, seedOf, winnerOf } from '../lib/post-training/policy';
 import { BENCH as PO_BENCH, WINNERS as PO_WINNERS } from '../lib/post-training/workbench';
 import { TEAM_PICKS, scoresOf } from '../content/post-training/02-which-is-better';
 import { policyOf } from '../content/post-training/03-learning-from-preferences';
+import { FUSE_BOARD, fuseScene, type FuseOpts } from '../components/scenes/fuseScene';
+import { lensGrid } from '../components/scenes/lensGrid';
+import { BITE, FUSES, LENS, PATCH, STAGES as LENS_STAGES, STEER, lens } from '../lib/interpretability/probe';
+import { BEHAVIOURS, WINNERS as IP_WINNERS } from '../lib/interpretability/workbench';
 import { CallTimeline, segmentsOf } from '../content/voice/kit';
 import { DEFAULT_LINE, runCall } from '../lib/voice/engine';
 import { SILENCES } from '../lib/voice/turns';
@@ -705,6 +709,34 @@ const EXAM_OG: Record<string, () => ExamOpts> = {
   }),
 };
 const examOg = EXAM_OG[page.og]?.();
+// module 20: the fuse box as each chapter turns, Larkspur mini run at build time from disk. The intro and 2: the
+// word-start fuse pulled on the pinned prompt; 1: the threads lit; 3: the lens grid at the last token; 4: the clean patch
+// prompt; 5: the steered prompt; 6: the first MLP pulled; 7: the reply behaviour with its first smallest set kept.
+const ip = page.og.startsWith('interpretability') ? diskModel() : null;
+const fuseOf = (text: string, o: Partial<FuseOpts> = {}): FuseOpts => {
+  const t = trace(ip!, text);
+  return { tokens: t.tokens.map(x => x.text), attention: t.attention, ...o };
+};
+const REPLY = BEHAVIOURS.find(b => b.id === 'reply')!;
+const FUSE_OG: Record<string, () => FuseOpts> = {
+  interpretability: () => fuseOf(BITE.text, { pulled: [BITE.fuse] }),
+  'interpretability-01-why-did-it-say-that': () => fuseOf(REPLY.text, { threads: true }),
+  'interpretability-02-pull-a-fuse': () => fuseOf(BITE.text, { pulled: [BITE.fuse] }),
+  'interpretability-04-patching': () => fuseOf(PATCH.clean.text, { say: { block: 'query', text: 'Guess made here' } }),
+  'interpretability-05-steering': () => fuseOf(STEER.prompt),
+  'interpretability-06-one-neuron-many-meanings': () => fuseOf(BITE.text, { pulled: ['mlp0'] }),
+  'interpretability-07-the-smallest-set': () =>
+    fuseOf(REPLY.text, { pulled: FUSES.filter(f => !IP_WINNERS.reply[0].includes(f)) }),
+};
+const fuseOg = FUSE_OG[page.og]?.();
+const lensOg =
+  page.og === 'interpretability-03-the-guess-forming'
+    ? (() => {
+        const p = LENS.find(x => x.id === 'expenses')!,
+          l = lens(ip!, p.text);
+        return lensGrid({ stages: LENS_STAGES, guesses: l.stages.map(st => st.at(-1)!), watch: p.expected });
+      })()
+    : undefined;
 const curveOg =
   page.og === 'pre-training-03-held-out'
     ? lossChart({ series: CKPT_SERIES })
@@ -753,6 +785,8 @@ const curveOg =
           : phoneOg ? <IsoStage board={PHONE_BOARD} scene={phoneScene({ ...phoneOg, scale: 1.3 })} label="" />
           : forgeOg ? <IsoStage board={FORGE_BOARD} scene={forgeScene(forgeOg)} label="" />
           : examOg ? <IsoStage board={EXAM_BOARD} scene={examScene({ ...examOg, scale: 1.3 })} label="" />
+          : fuseOg ? <IsoStage board={FUSE_BOARD} scene={fuseScene(fuseOg)} label="" />
+          : lensOg ? <div class="tf-og"><Flat fig={lensOg} role="img" label="" /></div>
           : page.og === 'pre-training-06-bigger-or-longer' ? <div class="pt-og"><ScalingView budget={10} /></div>
           : callOg ? <div class="vo-og"><CallTimeline segments={callOg.segments} marks={callOg.marks} /></div>
           : fallOg ? <div class="tf-og ob-og"><Waterfall trace={fallOg.trace} stamp={fallOg.stamp} /></div>
