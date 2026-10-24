@@ -114,7 +114,7 @@ export function splitAt(
     arms: [view(0, 'A'), view(arm, name)],
     day: Math.min(t, r.length - 1) + 1,
     days: p.days,
-    verdict: res.significant ? `${res.diff > 0 ? name : 'A'} WINS` : 'NO WINNER',
+    verdict: res.significant ? `${(res.diff > 0 ? name : 'A').toUpperCase()} WINS` : 'NO WINNER',
     tone: res.significant ? 'win' : 'none',
     running: t < p.days - 1,
     guardrail,

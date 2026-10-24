@@ -16,6 +16,7 @@ import { MULTIMODAL_MODULE } from '../content/multimodal/module';
 import { OBSERVABILITY_MODULE } from '../content/observability/module';
 import { SANDBOXING_MODULE } from '../content/sandboxing/module';
 import { VOICE_MODULE } from '../content/voice/module';
+import { AB_TESTING_MODULE } from '../content/ab-testing/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -123,12 +124,7 @@ export const MODULES: Module[] = [
     'Advanced',
     'Three warehouses, one stock count: how the last hinge gets sold twice, and what each fix costs.',
   ),
-  planned(
-    'ab-testing',
-    'A/B testing',
-    'Beginner',
-    'Did the new button work? Running a fair test, and the lucky days and early peeks that fake a win.',
-  ),
+  AB_TESTING_MODULE,
   planned(
     'diffusion',
     'Diffusion models',

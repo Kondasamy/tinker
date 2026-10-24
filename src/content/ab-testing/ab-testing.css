@@ -159,3 +159,34 @@
   background: var(--card);
   color: var(--ink);
 }
+.ab-cards {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ab-cards li {
+  border: 1.5px solid var(--rule);
+  border-radius: 12px;
+  padding: 8px 10px;
+  background: var(--card);
+}
+.ab-cards .head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ab-cards p {
+  margin: 6px 0 0;
+  font-size: 13.5px;
+}
+.ab-cards b.ok {
+  color: var(--ok);
+}
+.ab-cards b.bad {
+  color: var(--bad);
+}

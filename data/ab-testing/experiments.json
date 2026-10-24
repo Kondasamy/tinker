@@ -50,7 +50,7 @@
         }
       ],
       "days": 7,
-      "seed": 1
+      "seed": 2
     },
     "colours": {
       "name": "Twenty button colours",
@@ -157,7 +157,7 @@
         }
       ],
       "days": 14,
-      "seed": 2
+      "seed": 6
     },
     {
       "id": "green",

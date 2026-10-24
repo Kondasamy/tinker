@@ -254,7 +254,6 @@ export function Tally({ verdicts, label }: { verdicts: boolean[]; label: string 
     <figure className="ab-tally">
       <div className="grid" role="img" aria-label={`${label}: ${n} of ${verdicts.length} runs declared a winner.`}>
         {verdicts.map((v, i) => (
-          // biome-ignore lint/suspicious/noArrayIndexKey: the runs are a fixed seed list, in order
           <i key={i} className={v ? 'won' : ''} />
         ))}
       </div>
@@ -296,3 +295,6 @@ export const pct1 = (x: number) => `${(x * 100).toFixed(1)}%`;
 /** A difference in points, signed: "+1.2 points". */
 export const pts = (x: number) => `${x >= 0 ? '+' : '−'}${Math.abs(x * 100).toFixed(1)} points`;
 export const count = (n: number) => n.toLocaleString('en-US');
+const signed = (x: number) => `${x >= 0 ? '+' : '−'}${Math.abs(x * 100).toFixed(1)}`;
+/** A comparison's interval in points: "−0.3 to +2.7". */
+export const span = (c: { lo: number; hi: number }) => `${signed(c.lo)} to ${signed(c.hi)}`;

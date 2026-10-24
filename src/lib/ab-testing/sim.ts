@@ -6,7 +6,7 @@
 import data from '../../../data/ab-testing/assumptions.json' with { type: 'json' };
 import experiments from '../../../data/ab-testing/experiments.json' with { type: 'json' };
 import { mulberry32 } from '../transformers/sample';
-import { bonferroni, compare, type Comparison } from './stats';
+import { bonferroni, compare, sampleSize, type Comparison } from './stats';
 
 export const ASSUMPTIONS = data;
 
@@ -52,6 +52,14 @@ export interface Experiment extends Plan {
 export const BENCH: Experiment[] = experiments.bench.map(e => ({ ...e, perDay: data.perDay }));
 /** The seed list every repeated run uses: 1 to `repeats`. */
 export const SEEDS = Array.from({ length: data.repeats }, (_, i) => i + 1);
+/** Chapter 3's test lengths, in days: one, two, four, six and eight weeks. */
+export const LENGTHS = [7, 14, 28, 42, 56] as const;
+/** The shortest of them with enough shoppers per checkout to find the bigger button's true lift (Kohavi et al.'s rule). */
+export const ENOUGH = LENGTHS.find(
+  d =>
+    d * SCENARIOS.small.perDay >=
+    sampleSize(SCENARIOS.small.arms[0].rate, SCENARIOS.small.arms[1].rate - SCENARIOS.small.arms[0].rate),
+)!;
 
 /** How many of n trials succeed with chance p, by inversion: one uniform draw. */
 function binomial(n: number, p: number, rand: () => number): number {
@@ -135,11 +143,13 @@ const over = (key: string, f: (seed: number) => boolean) => {
 export const falseWinRate = (p: Plan, mode: Mode) =>
   over(`f|${mode}|${JSON.stringify({ ...p, seed: 0 })}`, seed => declares(runOf({ ...p, seed }), p.arms.length, mode));
 /** The share of runs over the seed list whose planned end finds B significantly better: the test's power. */
-export const powerOf = (p: Plan) =>
-  over(`p|${JSON.stringify({ ...p, seed: 0 })}`, seed => {
-    const res = resultAt(runOf({ ...p, seed }), p.days - 1, data.level);
-    return res.significant && res.diff > 0;
-  });
+const finds = (p: Plan, seed: number) => {
+  const res = resultAt(runOf({ ...p, seed }), p.days - 1, data.level);
+  return res.significant && res.diff > 0;
+};
+export const powerOf = (p: Plan) => over(`p|${JSON.stringify({ ...p, seed: 0 })}`, seed => finds(p, seed));
+/** Every seed's run, true where it found B significantly better: the tally behind powerOf. */
+export const findings = (p: Plan) => SEEDS.map(seed => finds(p, seed));
 /** Every seed's verdict, for the tally of repeated runs: true where the run declared a winner. */
 export const verdicts = (p: Plan, mode: Mode) =>
   SEEDS.map(seed => declares(runOf({ ...p, seed }), p.arms.length, mode));
