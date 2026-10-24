@@ -31,4 +31,12 @@ describe('og slug filter', () => {
     ]);
     expect(pick(SLUGS, ['01-history'])).toEqual(['01-history']);
   });
+
+  it('shoots RAG’s bare-named chapters for rag', () => {
+    expect(pick(SLUGS, ['rag'])).toEqual(['rag', '01-history', 'rag-recap']);
+  });
+
+  it('an unknown filter matches nothing', () => {
+    expect(pick(SLUGS, ['nope'])).toEqual([]);
+  });
 });

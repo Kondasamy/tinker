@@ -25,7 +25,14 @@ const TYPES = {
 };
 
 execSync('astro build', { cwd: ROOT, stdio: 'inherit', env: { ...process.env, DEV_PAGES: '1' } });
-const slugs = pick(await readdir(path.join(DIST, 'dev/og')), process.argv.slice(2));
+const all = await readdir(path.join(DIST, 'dev/og'));
+const filters = process.argv.slice(2);
+const unmatched = filters.filter(f => !pick(all, [f]).length);
+if (unmatched.length) {
+  console.error(`pnpm og: no share image matches ${unmatched.join(', ')} (use a module id, \`home\` or a page slug)`);
+  process.exit(1);
+}
+const slugs = pick(all, filters);
 
 const server = createServer(async (req, res) => {
   let file = path.join(DIST, decodeURIComponent(new URL(req.url, 'http://x').pathname));
