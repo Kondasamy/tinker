@@ -1,0 +1,161 @@
+/* A/B testing stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
+   tool-calling/kit). These are the result chart, the day slider, the tally and the maths fold-away. */
+.ab-chart {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+  flex: 1;
+  justify-content: center;
+}
+.ab-chart svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  font-family: ui-monospace, Menlo, monospace;
+}
+.ab-col {
+  cursor: pointer;
+  outline: none;
+}
+.ab-chart svg:focus-within {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.ab-readout {
+  margin: 0;
+  font:
+    700 12.5px ui-monospace,
+    Menlo,
+    monospace;
+  min-height: 3em;
+}
+.ab-key {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 12.5px;
+}
+.ab-key li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ab-key i {
+  width: 18px;
+  height: 10px;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+}
+.ab-key i.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.ab-key i.end {
+  border: none;
+  border-left: 1.5px dashed var(--ink);
+  width: 0;
+  height: 12px;
+}
+.ab-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.ab-range {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0;
+}
+.ab-range label {
+  font-weight: 700;
+  font-size: 14px;
+}
+.ab-range input {
+  width: 100%;
+}
+.ab-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ab-tally {
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ab-tally .grid {
+  display: grid;
+  grid-template-columns: repeat(10, 10px);
+  gap: 2px;
+  flex: none;
+}
+.ab-tally .grid i {
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  background: var(--card);
+}
+.ab-tally .grid i.won {
+  background: var(--bad);
+}
+.ab-tally figcaption {
+  font-size: 14px;
+}
+.ab-tally figcaption strong {
+  font:
+    800 22px / 1 ui-monospace,
+    Menlo,
+    monospace;
+  display: block;
+}
+.ab-maths {
+  margin: 8px 0;
+  font-size: 13.5px;
+}
+.ab-maths summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.ab-maths code {
+  font-size: 13px;
+}
+.ab-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.ab-headline strong {
+  font:
+    800 30px / 1 ui-monospace,
+    Menlo,
+    monospace;
+}
+.tc-ledger td.ok {
+  color: var(--ok);
+  font-weight: 800;
+}
+.tc-ledger td.bad {
+  color: var(--bad);
+  font-weight: 800;
+}
+.ab-bench select {
+  font: inherit;
+  padding: 4px 6px;
+  border: 1.5px solid var(--ink);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--ink);
+}
