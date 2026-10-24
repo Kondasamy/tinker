@@ -1,7 +1,7 @@
 // Chapter 2 scene: the corpus (a paper stack, one slab per ×10 in size) pours into a glass context-window
 // container sized to the largest cited window. Past the limit the container turns red and paper spills out.
 import IsoStage, { type SceneCtx } from '../../lib/iso/IsoStage';
-import { BH, boxCorners, streaks } from '../../lib/iso/blocks';
+import { BH, boxCorners, streaks, esc } from '../../lib/iso/blocks';
 import {
   PALS,
   CLEAR,
@@ -32,7 +32,16 @@ const PX0 = 40,
 const glass = (pts: number[][], c: string) => fill(pd(pts), c, 'fill-opacity=".35"') + ink(pd(pts), 1);
 
 /** pills: label size (1 = page size; the share images pass more) */
-export default function ContextOverflow({ stop, pills = 1 }: { stop: number; pills?: number }) {
+/** `say`: the step's callout (KTD7), pinned over the corpus or the context window */
+export default function ContextOverflow({
+  stop,
+  say,
+  pills = 1,
+}: {
+  stop: number;
+  say?: { block: string; text: string };
+  pills?: number;
+}) {
   const bytes = STOPS[stop],
     tokens = tokensFor(bytes),
     ratio = tokens / WINDOW,
@@ -86,6 +95,8 @@ export default function ContextOverflow({ stop, pills = 1 }: { stop: number; pil
       '<g pointer-events="none">' +
       tag([PX0, PY0, BH + n * SLAB], 0, -14, `CORPUS ${formatBytes(bytes)}`, false, pills) +
       tag([CX, CY, z1], 0, -14, `CONTEXT WINDOW ${formatTokens(WINDOW)}`, over, pills) +
+      (say?.block === 'corpus' ? tag([PX0, PY0, BH + n * SLAB], 0, -34, esc(say.text), true, pills) : '') +
+      (say?.block === 'window' ? tag([CX, CY, z1], 0, -34, esc(say.text), true, pills) : '') +
       '</g>';
     return (
       shadow +

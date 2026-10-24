@@ -146,7 +146,7 @@ export default function WhyNotStuffIt() {
       steps={STEPS}
       initial={{ prediction: null, asked: false, stop: 0, seen: [], quiz: null }}
       next={nextOf(ID)}
-      stage={({ state }) => <ContextOverflow stop={state.stop} />}
+      stage={({ state, say }) => <ContextOverflow stop={state.stop} say={say} />}
       controls={{
         predict: ({ state, apply }) => (
           <Predict {...PREDICT} value={state.prediction} onPredict={i => apply({ ...state, prediction: i })} />
@@ -246,8 +246,7 @@ export default function WhyNotStuffIt() {
                     <dd>
                       ≈ ${((tokens / 1e6) * PRICE.perMillion).toLocaleString('en', { maximumFractionDigits: 2 })} at $
                       {PRICE.perMillion} per million input tokens ({PRICE.model}, price as of {PRICE.asOf}), if it could
-                      fit at all.{' '}
-                      <Cite title={PRICE.sourceTitle} href={PRICE.sourceUrl} />
+                      fit at all. <Cite title={PRICE.sourceTitle} href={PRICE.sourceUrl} />
                     </dd>
                   </>
                 ) : (

@@ -489,6 +489,12 @@ export function blockTag(type: BlockType, o: BlockOpts, scale = 1, even = true):
   return `<g class="block-tag" data-pick="${type}" aria-hidden="true" pointer-events="none">${tag([o.x, o.y, BH + spec.ht], 0, -16 - lift, text, !!o.selected, scale)}</g>`;
 }
 
+/** A step's callout (KTD7): a lit pill one row above the name pills, so it never sits on a neighbour's name. */
+export function calloutTag(type: BlockType, x: number, y: number, text: string, scale = 1): string {
+  const lift = (TALLEST - BLOCKS[type].ht) / (inkK() * scale);
+  return `<g class="callout" aria-hidden="true" pointer-events="none">${tag([x, y, BH + BLOCKS[type].ht], 0, -40 - lift, esc(text), true, scale)}</g>`;
+}
+
 // Shadow of a block on the board; draw all shadows before the blocks. clip = boardTop(...) so it stops at the edge.
 export function blockShadow(type: BlockType, x: number, y: number, clip?: number[][]): string {
   const ht = BLOCKS[type].ht,

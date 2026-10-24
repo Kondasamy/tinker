@@ -6,6 +6,8 @@ export interface Step<S> {
   narration: string;
   /** The one control or block this step is about; the stage may highlight it. */
   focus?: string;
+  /** A short label (≤ 5 words) the picture pins to one of its parts, e.g. a block; stages that don't read it ignore it. */
+  say?: { block: string; text: string };
   /** Controls the runner renders for this step; everything else stays hidden. */
   visibleControls: string[];
   predicate: (state: S) => boolean;

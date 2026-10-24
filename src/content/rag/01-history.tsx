@@ -87,8 +87,9 @@ export default function History() {
       steps={STEPS}
       initial={{ asked: false, visited: 0, active: null, quiz: null }}
       next={nextOf(ID)}
-      stage={({ state, apply }) => (
+      stage={({ state, apply, say }) => (
         <Timeline
+          say={say}
           entries={TIMELINE}
           visited={state.asked ? state.visited : -1}
           active={state.active}

@@ -20,6 +20,10 @@ export interface StageProps<S> {
   apply: (next: S) => void;
   sync: (next: S) => void;
   focus?: string;
+  /** the step's callout for the picture (KTD7) */
+  say?: { block: string; text: string };
+  /** 1-based chapter number within the module */
+  chapter?: number;
   inspect: (panel: string, sheet?: boolean) => void;
 }
 export interface Panel<S> {
@@ -147,7 +151,7 @@ export default function StepRunner<S>({
   return (
     <div className="chapter">
       <section className="stage" aria-label="Scene">
-        {stage({ state: run.state, apply, sync, focus: step.focus, inspect })}
+        {stage({ state: run.state, apply, sync, focus: step.focus, say: step.say, chapter: n + 1, inspect })}
       </section>
       <div className="side">
         {ch && (

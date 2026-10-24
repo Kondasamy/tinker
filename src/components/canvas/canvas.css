@@ -89,6 +89,26 @@
     stroke-dashoffset: -36;
   }
 }
+/* passage cards ride the live wires once after a change; none at all with reduced motion */
+.canvas .passage {
+  offset-rotate: 0deg;
+  opacity: 0;
+  animation: passage 0.9s ease-in-out both;
+}
+@keyframes passage {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  15%,
+  85% {
+    opacity: 1;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
 .canvas .focus-ring {
   animation: ring 1.6s ease-in-out infinite;
 }
@@ -104,6 +124,9 @@
   }
   .canvas .focus-ring {
     animation: none;
+  }
+  .canvas .passage {
+    display: none;
   }
 }
 
