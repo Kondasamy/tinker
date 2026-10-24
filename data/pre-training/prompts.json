@@ -1,0 +1,96 @@
+{
+  "note": "What each checkpoint of the base run writes after each prompt: greedy, 24 pieces, cut at the first blank line. tests/unit/pre-training-engine.test.ts reruns every one.",
+  "prompts": [
+    {
+      "text": "Larkspur Supply Co. sells office and warehouse",
+      "says": {
+        "0": " warehouse warehouseardardardardardardardardardardardardardardardardardardardardardard",
+        "100": ".",
+        "250": ".",
+        "500": ".",
+        "1000": ".",
+        "1500": ".",
+        "2000": ".",
+        "3000": "."
+      }
+    },
+    {
+      "text": "Customers use the Portal to",
+      "says": {
+        "0": "\"\"\" replac replac replac replac replac replac replac replac replac replac replac replac replac replac replac replac replac replac replac replac replac",
+        "100": " the the the the the the the the the the the the the the the the the the the the the the the the",
+        "250": " the Portal.",
+        "500": " the Portal.",
+        "1000": " the Portal.",
+        "1500": " the Portal.",
+        "2000": " the Portal.",
+        "3000": " the Portal."
+      }
+    },
+    {
+      "text": "Returns are accepted within",
+      "says": {
+        "0": " dock dock dock dock dockiiiiiiiiiiiiiiiiiii",
+        "100": " the the the the the the the the the the the the the the the the the the the the the the the the",
+        "250": " the Portal.",
+        "500": " five business days.",
+        "1000": " the Portal.",
+        "1500": " the Portal.",
+        "2000": " the customer's manager.",
+        "3000": " five business days."
+      }
+    },
+    {
+      "text": "We run two warehouses, Riverbend and",
+      "says": {
+        "0": " and and and and and and and and and and and and and and and and two two two two two two two two",
+        "100": " the the the the the the the the the the the the the the the the the the the the the the the the",
+        "250": " the Portal.",
+        "500": " the Portal.",
+        "1000": " the Portal.",
+        "1500": " the Portal.",
+        "2000": " the customer's Lost called by the customer's manager.",
+        "3000": " the Portal."
+      }
+    },
+    {
+      "text": "Packaging: by the end of 2025, all parcel cartons will be made from",
+      "says": {
+        "0": "ectectectectbobobobobobobobobobobobobobobobobobobobo",
+        "100": " the the the the the the the the the the the the the the the the the the the the the the the the",
+        "250": " the Portal.",
+        "500": " the Portal.",
+        "1000": " the Portal.",
+        "1500": " the Portal.",
+        "2000": " the customer.",
+        "3000": " the Portal."
+      }
+    },
+    {
+      "text": "Q: Can enterprise customers get a refund? A:",
+      "says": {
+        "0": " five five five five five five five five five five five five five five five five five five five five five five five five",
+        "100": " the the the the the the the the the the the the the the the the the the the the the the the the",
+        "250": " the Portal.",
+        "500": " the Portal.",
+        "1000": " Wren the order A: Mefilling.",
+        "1500": " Wren printers and 7 agulfillment.",
+        "2000": " Open the customer.",
+        "3000": " Yes."
+      }
+    },
+    {
+      "text": "Q: How long do standard customers have to ask for a refund? A:",
+      "says": {
+        "0": ":ickickickickickickickickickickickickickickickickickickickickickickick",
+        "100": " the the the the the the the the the the the the the the the the the the the the the the the the",
+        "250": " the Portal.",
+        "500": " the Portal.",
+        "1000": " Me.",
+        "1500": " Wren printers and L-order customers can be fe.",
+        "2000": " Operations.",
+        "3000": " Yes."
+      }
+    }
+  ]
+}
