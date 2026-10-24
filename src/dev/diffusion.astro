@@ -1,0 +1,117 @@
+---
+// Dev-only eyeball page: every part drawing, the darkroom in each state (static SVG, wide and phone), the hero plot, the
+// strip, then the stage live on its Strip tab (chapters 2–4 show the learned dots developing). Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import {
+  DARK_BOARD,
+  darkroomLabel,
+  darkroomPlot,
+  darkroomScene,
+  type DarkroomOpts,
+} from '../components/scenes/darkroomScene';
+import { denoiseStrip, frameSteps } from '../components/scenes/denoiseStrip';
+import { DRAWINGS } from '../lib/diffusion/drawings';
+import { sampleDrawing, sampleIdealPoints, trajectory } from '../lib/diffusion/ideal';
+import { noised } from '../lib/diffusion/schedule';
+import { trainingPoints } from '../lib/diffusion/points';
+import { DiffusionStage, META, printWords } from '../content/diffusion/kit';
+import { filterFor } from '../lib/iso/core.js';
+
+const hinge = DRAWINGS[0].pixels;
+const train = trainingPoints(META.outline);
+const STATES: [string, DarkroomOpts][] = [
+  ['Empty tray', { steps: 50 }],
+  ['The hinge drawing, no label', { print: { kind: 'pixels', px: hinge, name: 'HINGE' }, steps: 50 }],
+  ['Half noised', { print: { kind: 'pixels', px: noised(hinge, 0.5, 3), name: 'NOISE' }, steps: 50 }],
+  [
+    'Pure noise, developing step 12 of 50',
+    { print: { kind: 'pixels', px: noised(hinge, 1, 3), name: 'NOISE' }, steps: 50, done: 12 },
+  ],
+  ['One step: the blurred average', { print: { kind: 'pixels', px: sampleDrawing(1, 4), name: 'BLUR' }, steps: 1 }],
+  [
+    'Drill, guidance 4, 5 steps',
+    {
+      print: { kind: 'pixels', px: sampleDrawing(5, 2, 'drill', 4), name: 'DRILL' },
+      steps: 5,
+      label: 'drill',
+      guidance: 4,
+    },
+  ],
+  [
+    'Ideal denoiser on 2-D points',
+    { print: { kind: 'points', pts: sampleIdealPoints(train, 300, 50, 7), train, name: 'COPIES' }, steps: 50 },
+  ],
+];
+const t = trajectory(50, 4);
+const frames = frameSteps(50).map(i => ({
+  print: { kind: 'pixels' as const, px: t[i], name: '' },
+  pill: i === 0 ? 'NOISE' : `STEP ${i}`,
+  words: `Step ${i}: ${printWords(t[i])}`,
+}));
+const still = (phone: boolean) => {
+  const s = denoiseStrip(frames, phone);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${s.w} ${s.h}" width="100%"><defs>${filterFor(1, 'hand')}</defs><g filter="url(#hand)">${s.svg}</g></svg>`;
+};
+const src = (svg: string) => 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Diffusion scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>The part drawings (32 × 32)</h1>
+      <div class="grid drawings">
+        {DRAWINGS.map(d => (
+          <section>
+            <h2>{d.id} · {d.label}</h2>
+            <img src={'data:image/svg+xml;charset=utf-8,' + encodeURIComponent((() => { const s = denoiseStrip([{ print: { kind: 'pixels', px: d.pixels, name: '' }, pill: d.label.toUpperCase(), words: '' }]); return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${s.w} ${s.h}">${s.svg}</svg>`; })())} alt={d.id} />
+          </section>
+        ))}
+      </div>
+      <h1>The darkroom: every state</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={DARK_BOARD} scene={darkroomScene({ ...o, scale: 1.2 })} label={darkroomLabel(o)} /></div>
+            <div class="phone"><IsoStage board={DARK_BOARD} scene={darkroomScene({ ...o, scale: 2 })} label={darkroomLabel(o)} /></div>
+            <p>{darkroomLabel(o)}</p>
+          </section>
+        ))}
+        <section>
+          <h2>Hero plot</h2>
+          <IsoStage board={[0, 0, 60, 60]} scene={({ top }) => darkroomPlot(30, 30, top)} label="The home hero's diffusion plot" />
+        </section>
+      </div>
+      <h1>The strip (static)</h1>
+      <img class="wide strip" src={src(still(false))} alt="The strip, desktop" />
+      <img class="phone strip" src={src(still(true))} alt="The strip, phone" />
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Strip tab</h2><div class="stage"><DiffusionStage client:load view="strip" shown={{ print: { kind: 'pixels', px: t[50], name: 'HINGE' }, steps: 50, frames, caption: '<script>alert(1)</script> escaped caption' }} /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  .drawings { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  .drawings img, img.strip { width: 100%; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 560px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>
