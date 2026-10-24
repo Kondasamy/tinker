@@ -12,8 +12,8 @@ const CHAPTERS: Chapter[] = [
     short: 'What’s in the window',
     intro: {
       story:
-        'Larkspur’s assistant now answers customers from its documents, calls tools and keeps a conversation going. Each of those adds text to what the model reads, and the team has started to wonder how much it all takes.',
-      goal: 'What does the model actually read on each turn, and how much room does each part take?',
+        'Larkspur’s assistant now answers from documents, calls tools and holds conversations. Each one adds text to what the model reads.',
+      goal: 'What does the model read on each turn, and how much room does each part take?',
       learn: [
         'The parts of a turn: system prompt, tools, history, documents and the question',
         'That every part, the reply included, shares one token budget',
@@ -46,7 +46,7 @@ const CHAPTERS: Chapter[] = [
     short: 'More isn’t better',
     intro: {
       story:
-        'Putting the right passage in the window fixed Mara Quill’s answer. The team’s next thought: send more passages, so the right one is always in there somewhere.',
+        'The right passage in the window fixed Mara Quill’s answer. The team’s next idea: send more passages, so the right one is always there.',
       goal: 'If the fact is in the window, does the model always find it?',
       learn: [
         'Why a fact in the middle of many passages is easier to miss',
@@ -89,8 +89,8 @@ const CHAPTERS: Chapter[] = [
     short: 'Order for the cache',
     intro: {
       story:
-        'Each question in a conversation re-sends everything before it: the tools, the instructions, the documents and the history. Most of that is the same as last time.',
-      goal: 'How can Larkspur stop paying full price for the same text on every call?',
+        'Every question in a conversation re-sends the tools, instructions, documents and history. Most of it matches the last call.',
+      goal: 'How can Larkspur stop paying full price for the same text every call?',
       learn: [
         'Prompt caching: reusing the start of a recent call’s input',
         'Why one changing line near the top throws the rest away',
@@ -113,7 +113,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Clearing the desk',
     intro: {
       story:
-        'Mara’s conversation runs to three questions, and each search leaves its results in the history. By the third question, most of the window is old search results.',
+        'Mara’s conversation runs on, and each search leaves its results in the history. Soon most of the window is old search results.',
       goal: 'What can the assistant drop from a long conversation without losing what matters?',
       learn: [
         'Clearing old tool results and keeping the latest',
@@ -159,8 +159,8 @@ const CHAPTERS: Chapter[] = [
     short: 'Workbench',
     intro: {
       story:
-        'You have every lever now: what goes in, where it sits, what is cached, what is cleared and what is remembered. Larkspur wants one policy for every conversation.',
-      goal: 'Which context policy gives Larkspur good answers for the fewest tokens and the lowest cost?',
+        'You have every lever now: what goes in, where it sits, and what is cached, cleared or remembered. Larkspur wants one policy.',
+      goal: 'Which context policy gives good answers for the least cost?',
       learn: [
         'How the policies combine over a whole conversation',
         'Reading answer quality, tokens and cost side by side',

@@ -76,7 +76,10 @@ const IDEAS: [string, string, ReturnType<typeof fact>, WindowOpts][] = [
 ];
 const FACTS: [string, string][] = [
   [num(DEFAULTS.budget), 'tokens in Larkspur’s window budget, the reply’s room included'],
-  [`${fact('cache-read').value}×`, 'the input price for tokens read from the cache'],
+  [
+    `${fact('cache-read').value}×`,
+    'the input price for tokens read from the cache (Anthropic’s standard rate; some newer models pay less)',
+  ],
   [`${fact('cache-write-5m').value}×`, 'the input price to write them to the 5-minute cache'],
   [fact('cache-breakpoints').value!, 'cache breakpoints a request can set'],
 ];

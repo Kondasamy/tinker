@@ -5,6 +5,7 @@ import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
+import { WINDOW_PARTS } from '../../components/scenes/windowScene';
 import { DOMAINS, type Run } from '../../lib/context/loop';
 import { MEMORY_DIR } from '../../lib/context/memory';
 import { caseOf } from '../../lib/context/window';
@@ -33,7 +34,7 @@ const P1 = {
 };
 const OUT1 = later(ON).right && Object.keys(ON.notes).length ? 0 : later(ON).right ? 2 : 1;
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A bookshop’s assistant saves a memory note: “Customer prefers email, not phone.” Where does that note live, and who decides where it is stored?',
   options: [
@@ -45,10 +46,10 @@ const QUIZ = {
   correct: 1,
   explanation: fact('memory-client-side').claim,
   why: [
-    'A model doesn’t change between calls; nothing it reads is learned into its weights. The note is a file it can read back.',
-    `Right. ${fact('memory-client-side').claim} Here the host writes only under ${MEMORY_DIR}.`,
-    'Every window starts empty. In this chapter the second conversation knew nothing until the note was read in.',
-    'The window vanishes; the file doesn’t. That is the point of writing it.',
+    'A model doesn’t change between calls and learns nothing into its weights; the note is a file it can read back.',
+    `Right: the memory tool runs client side, on storage the shop controls, and here the host writes only under ${MEMORY_DIR}.`,
+    'Every window starts empty, and here the second conversation knew nothing until the note was read in.',
+    'The window vanishes but the file doesn’t; that is the point of writing it.',
   ],
 };
 
@@ -59,12 +60,17 @@ interface S {
   quiz: number | null;
 }
 
+/** The parts of the window desk a step's callout may name. */
+export const PARTS = WINDOW_PARTS;
+
 export const STEPS: Step<S>[] = [
   {
     id: 'without',
     focus: 'run',
     visibleControls: ['run'],
-    narration: `${caseOf(HELLO).customer} writes: “${caseOf(HELLO).question}” A week later, in a new conversation, they write again. A session is one conversation, and nothing in its window carries over to the next. Run both conversations.`,
+    narration: `${caseOf(HELLO).customer} mentions its new contract, then writes a week later. A session is one conversation; nothing in its window carries over.`,
+    act: 'Run both conversations.',
+    say: { block: 'window', text: 'Starts empty' },
     predicate: s => s.seen.includes(false),
     hint: 'Press the run button.',
   },
@@ -72,15 +78,17 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['sessions', 'p1'],
-    narration: `The second answer was ${later(OFF).right ? 'right' : 'wrong'}: “${later(OFF).text}” The new window started empty, so the model never heard about the contract. A memory tool lets the assistant write short notes to files that outlive the conversation. Before you try it:`,
+    narration: `The second answer was ${later(OFF).right ? 'right' : 'wrong'}: the new window started empty. A memory tool lets the assistant write memory notes that outlive the conversation.`,
+    act: 'Predict first.',
+    say: { block: 'cabinet', text: 'No notes yet' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'with',
     focus: 'run',
     visibleControls: ['p1', 'sessions', 'run'],
-    narration:
-      'The assistant now has the memory tool, and the host reads any notes into the window when a session starts. Run both conversations again.',
+    narration: 'Your pick is locked. Now the host reads any notes into the window when a session starts.',
+    act: 'Run both conversations again.',
     predicate: s => s.seen.includes(true),
     hint: 'Press the run button.',
   },
@@ -88,7 +96,9 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out1', 'sessions', 'notes', 'facts', 'quiz'],
-    narration: `In the first conversation the model chose to write a note, and the host saved it. The second conversation started with the note in its window, so it answered: “${later(ON).text}” The model only asks; the host decides what is written, where, and what is read back. One question to finish.`,
+    narration: 'The model asked to save a note; the host wrote it, chose where, and read it into the next window.',
+    act: 'One question to finish.',
+    say: { block: 'cabinet', text: 'Note read back' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Who carried out the file operation in this chapter?',
   },
@@ -160,9 +170,11 @@ export default function MemoryOutsideTheWindow() {
       steps={STEPS}
       initial={{ memory: false, seen: [], p1: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => {
+      stage={({ state, say }) => {
         const r = R(state.memory);
-        return <ContextStage run={r} upTo={state.seen.length ? r.meter.length : 0} props={{ cabinet: true }} />;
+        return (
+          <ContextStage run={r} upTo={state.seen.length ? r.meter.length : 0} props={{ cabinet: true }} say={say} />
+        );
       }}
       controls={{
         run: ({ state, apply }) => {

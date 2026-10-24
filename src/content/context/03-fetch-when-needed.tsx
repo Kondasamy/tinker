@@ -5,6 +5,7 @@ import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
+import { WINDOW_PARTS } from '../../components/scenes/windowScene';
 import { DOMAINS, type Retrieval } from '../../lib/context/loop';
 import { caseOf, DOCS } from '../../lib/context/window';
 import { fact } from '../../lib/context/facts';
@@ -48,7 +49,7 @@ const P1 = {
 };
 const OUT1 = FETCH >= STUFF ? 2 : answer(FIRST, 'fetch').right ? 0 : 1;
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'An IT help desk assistant has a 200-page manual. Most questions need one page. Which setup should the team start with?',
   options: [
@@ -60,19 +61,24 @@ const QUIZ = {
   correct: 1,
   explanation: fact('just-in-time').claim,
   why: [
-    `Every turn would pay for all 200 pages and bury the one that matters. Here, stuffing Larkspur’s ${DOCS.length} passages took ${num(STUFF)} tokens and still answered the refund question wrong.`,
-    `Right. ${fact('just-in-time').claim} The window stays small and the needed page stays in view.`,
+    `Every turn would pay for all 200 pages and bury the one that matters, as stuffing Larkspur’s ${DOCS.length} passages took ${num(STUFF)} tokens and still answered the refund question wrong.`,
+    'Right: each question brings in the pages it needs, so the window stays small and the needed page stays in view.',
     'The first 20 pages won’t hold most answers, and they are still mostly distractors.',
-    'The model doesn’t know this company’s manual. Without the page, it can only guess or say it doesn’t know, as in chapter 1.',
+    'The model doesn’t know this company’s manual, so without the page it can only guess or say it doesn’t know, as in chapter 1.',
   ],
 };
+
+/** The parts of the window desk a step's callout may name. */
+export const PARTS = WINDOW_PARTS;
 
 export const STEPS: Step<S>[] = [
   {
     id: 'stuff',
     focus: 'run',
     visibleControls: ['run'],
-    narration: `Larkspur doesn’t know which passage a question needs, so the simplest plan is stuffing: send all ${DOCS.length} passages up front, every turn. ${caseOf(FIRST).customer} asks: “${caseOf(FIRST).question}” Send it with every document.`,
+    narration: `The simplest plan is stuffing: all ${DOCS.length} passages in every turn. ${caseOf(FIRST).customer} asks about ${caseOf(FIRST).topic}.`,
+    act: 'Send it with every document.',
+    say: { block: 'window', text: 'Every document' },
     predicate: s => s.seen.includes(key(FIRST, 'stuff')),
     hint: 'Press the send button.',
   },
@@ -80,14 +86,17 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['table', 'p1'],
-    narration: `“${answer(FIRST, 'stuff').text}” Wrong, from a window of ${num(STUFF)} tokens. The refund passage was in there, in the middle of ${DOCS.length} others: chapter 2’s trap. Larkspur’s other idea is just in time: give the model a search tool, and let it fetch passages when the question needs them. Before you try it:`,
+    narration: `Wrong, from ${num(STUFF)} tokens: the fact was buried mid-window. The other idea is just in time: a search tool the model calls.`,
+    act: 'Predict first.',
+    say: { block: 'window', text: 'Fact buried' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'fetch',
     focus: 'run',
     visibleControls: ['p1', 'table', 'run'],
-    narration: 'The model now has a search tool and no documents up front. Send the same question.',
+    narration: 'Your pick is locked. Now the model has a search tool and no documents up front.',
+    act: 'Send the same question.',
     predicate: s => s.seen.includes(key(FIRST, 'fetch')),
     hint: 'Press the send button.',
   },
@@ -95,7 +104,9 @@ export const STEPS: Step<S>[] = [
     id: 'compare',
     focus: 'pick',
     visibleControls: ['out1', 'table', 'pick'],
-    narration: `The first call had no documents, so the model asked for a search. The host ran it and sent back two passages, and the second call answered from them. Both calls together came to ${num(FETCH)} tokens, against ${num(STUFF)} stuffed. Now ask ${caseOf(FIRST).customer}’s other two questions both ways.`,
+    narration: `The first call asked for a search; the second answered from its results. Both calls: ${num(FETCH)} tokens, against ${num(STUFF)}.`,
+    act: 'Ask the other questions both ways.',
+    say: { block: 'window', text: 'Small window' },
     predicate: s => CASES.every(c => s.seen.includes(key(c, 'stuff')) && s.seen.includes(key(c, 'fetch'))),
     hint: 'Each question needs a row in both columns: pick a question, then each way.',
   },
@@ -104,7 +115,8 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['table', 'facts', 'quiz'],
     narration:
-      'Stuffing paid for every passage on every question, and answered right only when the fact happened to sit near the start or end. Searching cost two calls but far fewer tokens, and each answer came from a short window with the fact in view. One question to finish.',
+      'Stuffing paid for every passage and could bury the fact. Searching cost an extra call but far fewer tokens.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Compare the two columns: tokens, and right or wrong.',
   },
@@ -150,9 +162,9 @@ export default function FetchWhenNeeded() {
       steps={STEPS}
       initial={{ kase: FIRST, mode: 'stuff', seen: [], p1: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => {
+      stage={({ state, say }) => {
         const r = current(state);
-        return <ContextStage run={r} upTo={state.seen.length ? r.meter.length : 0} />;
+        return <ContextStage run={r} upTo={state.seen.length ? r.meter.length : 0} say={say} />;
       }}
       controls={{
         run: ({ state, apply }) => {

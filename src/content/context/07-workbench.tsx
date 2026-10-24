@@ -7,6 +7,7 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { puzzle, Verdict } from '../../components/quiz/Puzzle';
+import { WINDOW_PARTS } from '../../components/scenes/windowScene';
 import { totals, WORKBENCH_DOMAINS, type Retrieval, type Run } from '../../lib/context/loop';
 import { OUTPUT, READ, WRITE } from '../../lib/context/cache';
 import { caseOf, type Form } from '../../lib/context/window';
@@ -96,7 +97,7 @@ const P1 = {
 };
 const OUT1 = beats({ ...STUFF_ALL, retrieval: 'fetch' }) ? 0 : beats({ ...STUFF_ALL, history: 'summary' }) ? 1 : 2;
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'Another team stuffs a 300-page product catalogue into every turn, because “more context is safer”. Their bill is high and some answers pick the wrong product. What should they change first?',
   options: [
@@ -108,9 +109,9 @@ const QUIZ = {
   correct: 1,
   explanation: fact('smallest-set').claim,
   why: [
-    'Room isn’t their problem: the catalogue already fits. A bigger window would hold more distractors, as in chapter 2.',
-    `Right. ${fact('smallest-set').claim} Here the cheapest policy with every answer right sent less, not more.`,
-    'Caching changes the price of re-sending the same start, not what the model reads. The answers come out the same.',
+    'Room isn’t their problem since the catalogue already fits, and a bigger window would hold more distractors, as in chapter 2.',
+    'Right: send the smallest set that answers, cache the stable start, and read answers, tokens and cost side by side.',
+    'Caching changes the price of re-sending the same start, not what the model reads, so the answers come out the same.',
     'A summary drops the details, such as prices and part numbers, that the questions need.',
   ],
 };
@@ -122,12 +123,18 @@ interface S extends Policy {
   view: View;
 }
 
+/** The parts of the window desk a step's callout may name. */
+export const PARTS = WINDOW_PARTS;
+
 export const STEPS: Step<S>[] = [
   {
     id: 'baseline',
     focus: 'run',
     visibleControls: ['run'],
-    narration: `A context policy is the host’s rules for building every window: how documents get in, how the history is kept, and where the cache sits. Larkspur’s first policy was the simplest: every document up front, the full history, no cache. Run it on Mara’s ${SESSIONS[0].length} questions.`,
+    narration:
+      'A context policy is the host’s rules for every window. Larkspur’s first: every document, the full history, no cache.',
+    act: 'Run it on Mara’s questions.',
+    say: { block: 'window', text: 'Every document' },
     predicate: s => s.ran,
     hint: 'Press the run button.',
   },
@@ -135,14 +142,16 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['readout', 'p1'],
-    narration: `${BASE.right} of ${BASE.of} answers right, for ${num(BASE.tokens)} tokens and a cost of ${units(BASE.cost)}. Each chapter gave you a lever. Before you pull them:`,
+    narration: `${BASE.right} of ${BASE.of} answers right, for ${num(BASE.tokens)} tokens and a cost of ${units(BASE.cost)}. Each chapter gave you a lever.`,
+    act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
   puzzle<S>({
     id: 'tune',
     focus: 'bench',
     visibleControls: ['out1', 'bench'],
-    narration: `Now set the policy. Find one that gets every answer right for the lowest cost of any. The readout leads with the cost against stuffing everything; the table under it splits the run by question, and its total is the sum of the rows.`,
+    narration: 'The readout leads with the cost against stuffing everything; the table splits it by question.',
+    act: 'Get every answer right at the lowest cost.',
     broken: s => ({ ...s, ...STUFF_ALL }),
     verdict: s => solved(s),
     solution: s => ({ ...s, ...WINNERS[0] }),
@@ -152,7 +161,9 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['readout', 'facts', 'quiz'],
-    narration: `${policyName(WINNERS[0])}: every answer right, for ${pct(LOWEST / BASE.cost)} of the first policy’s cost. Searching kept each window small and the fact in view; the full history only grew at its end, so the cache read it back each call. The policy that sent the most was neither the most right nor the cheapest. One question to finish.`,
+    narration: `Every answer right for ${pct(LOWEST / BASE.cost)} of the first policy’s cost. Sending the most was neither the most right nor the cheapest.`,
+    act: 'One question to finish.',
+    say: { block: 'window', text: 'Small windows' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which policy sent the most text, and how did it do?',
   },
@@ -253,7 +264,7 @@ export default function Workbench() {
       steps={STEPS}
       initial={{ ...STUFF_ALL, ran: false, p1: null, quiz: null, view: 'scene' }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => {
+      stage={({ state, sync, say }) => {
         const r = play(state);
         return (
           <ContextStage
@@ -262,6 +273,7 @@ export default function Workbench() {
             props={{ shelf: state.cache, tray: state.history !== 'full' }}
             view={state.view}
             onView={view => sync({ ...state, view })}
+            say={say}
           />
         );
       }}

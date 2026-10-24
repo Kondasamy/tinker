@@ -6,6 +6,7 @@ import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
+import { WINDOW_PARTS } from '../../components/scenes/windowScene';
 import { DOMAINS } from '../../lib/context/loop';
 import { OUTPUT, READ, WRITE } from '../../lib/context/cache';
 import { KEEP, type Form } from '../../lib/context/window';
@@ -66,7 +67,7 @@ const P2 = {
 };
 const OUT2 = FORMS.indexOf(CHEAPEST);
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A coding assistant reads a big file with each tool call. The team plans to clear old file contents on every single turn, to keep the window as small as possible. What is the catch?',
   options: [
@@ -78,9 +79,9 @@ const QUIZ = {
   correct: 1,
   explanation: fact('clear-breaks-cache').claim,
   why: [
-    'With a cache, price depends on what is read back, not only on how many tokens are sent. In this chapter clearing sent fewer tokens and still cost more.',
-    `Right. ${fact('clear-breaks-cache').claim}`,
-    'Clearing drops the old tool results only. The questions, the calls and the answers stay, so the decisions are still in the window.',
+    'With a cache, price depends on what is read back, not only on tokens sent, and here clearing sent fewer tokens yet cost more.',
+    'Right: each clear breaks the cached prefix, so clear in batches, enough at once to be worth the new cache write.',
+    'Clearing drops the old tool results only, so the questions, calls and answers, the decisions, stay in the window.',
     'A placeholder is ordinary text; it tells the model a call happened and its result was removed.',
   ],
 };
@@ -94,12 +95,17 @@ interface S {
   quiz: number | null;
 }
 
+/** The parts of the window desk a step's callout may name. */
+export const PARTS = WINDOW_PARTS;
+
 export const STEPS: Step<S>[] = [
   {
     id: 'full',
     focus: 'send',
     visibleControls: ['send'],
-    narration: `Mara Quill asks ${SESSIONS[0].length} questions in one conversation, and the assistant searches for each, as in chapter 3. Every search leaves its results in the history, and the history is sent again with every call. Send the conversation and watch the window grow.`,
+    narration: 'Each search leaves its results in the history, a tool result sent again with every call.',
+    act: 'Send the conversation and watch the window grow.',
+    say: { block: 'window', text: 'History grows' },
     predicate: s => s.seen.includes('full'),
     hint: 'Press the send button.',
   },
@@ -107,14 +113,18 @@ export const STEPS: Step<S>[] = [
     id: 'recap',
     focus: 'p1',
     visibleControls: ['table', 'recap', 'p1'],
-    narration: `The last call’s window was ${num(FULL.last)} tokens, most of it old search results the model no longer needs. In AI agents chapter 5 you met one fix: the host replaces the history with a short summary. A lighter fix is clearing: drop only the old tool results, and keep every question and answer, the decisions. Before you try it:`,
+    narration: `The last window was ${num(FULL.last)} tokens, mostly old results. Agents chapter 5 swapped the history for a summary; clearing drops only old results.`,
+    act: 'Predict first.',
+    say: { block: 'window', text: 'Old results' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'clear',
     focus: 'pick',
     visibleControls: ['out1', 'pick', 'table'],
-    narration: `Cleared, the last window was ${num(CLEARED.last)} tokens against ${num(FULL.last)}, and ${CLEARED.right} of ${CLEARED.of} answers were still right. Now try the summary too, and compare the three.`,
+    narration: `Cleared: ${num(CLEARED.last)} tokens against ${num(FULL.last)}, and ${CLEARED.right} of ${CLEARED.of} answers still right.`,
+    act: 'Try the summary too, and compare.',
+    say: { block: 'tray', text: 'Results cleared' },
     predicate: s => FORMS.every(f => s.seen.includes(f)),
     hint: 'Pick each way of keeping the history in turn.',
   },
@@ -123,14 +133,17 @@ export const STEPS: Step<S>[] = [
     focus: 'p2',
     visibleControls: ['table', 'p2'],
     narration:
-      'Fewer tokens, and every answer still right. But Larkspur also caches, as in chapter 4: each call reads back the longest start it shares with a recent call, as long as that call’s cache entry still lives. Before you turn the cache on:',
+      'Fewer tokens, answers still right. But Larkspur caches too: each call reads back the longest start it shares with a recent call.',
+    act: 'Predict first.',
     predicate: s => s.p2 !== null,
   },
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out2', 'table', 'facts', 'quiz'],
-    narration: `With the cache on, the cheapest was: ${FORM_NAME[CHEAPEST].toLowerCase()}. The full history only grows at its end, so each call reads the last one back. Clearing changes an old result in the middle of the window, so everything after it misses and is written again at ${WRITE['5m']} times the price. Clearing is for when the window nears its limit or the old results crowd out the question; then clear a lot at once. One question to finish.`,
+    narration: `Cheapest with the cache: ${FORM_NAME[CHEAPEST].toLowerCase()}. Clearing changes old text, so everything after it is written again at ${WRITE['5m']}×.`,
+    act: 'One question to finish.',
+    say: { block: 'shelf', text: 'Cache on' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Look at the cost column: which history never changes its earlier text?',
   },
@@ -188,13 +201,14 @@ export default function ClearingTheDesk() {
       steps={STEPS}
       initial={{ form: 'full', cache: false, seen: [], p1: null, p2: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => {
+      stage={({ state, say }) => {
         const r = R(state.form, state.cache);
         return (
           <ContextStage
             run={r}
             upTo={state.seen.length ? r.meter.length : 0}
             props={{ tray: true, shelf: state.cache }}
+            say={say}
           />
         );
       }}
