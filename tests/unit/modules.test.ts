@@ -438,6 +438,17 @@ describe('module registry', () => {
     ]);
   });
 
+  it('has pre-training as a live Intermediate module that recommends Tokens first, numbered 18', () => {
+    expect(moduleOf('pre-training')).toMatchObject({
+      title: 'Pre-training',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: ['tokens'],
+    });
+    expect(moduleOf('pre-training').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'pre-training')).toBe(17);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

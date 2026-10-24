@@ -152,8 +152,10 @@ describe('home hero', () => {
   it('no two pills overlap with every pill shown, for the real registry and for 25 live modules and 7 cards', () => {
     expect(pillHits(draw(), MODULES.length)).toEqual([]);
     const name = (id: string) => ({ name: id.replace(/-/g, ' ') });
-    const live = [...MODULES.filter(m => m.status === 'live').map(m => m.id), ...FUTURE.slice(0, 8)].map(name),
-      planned = FUTURE.slice(8).map(name);
+    const now = MODULES.filter(m => m.status === 'live').map(m => m.id),
+      rest = FUTURE.filter(id => !now.includes(id)),
+      live = [...now, ...rest.slice(0, 25 - now.length)].map(name),
+      planned = rest.slice(25 - now.length).map(name);
     expect([live.length, planned.length]).toEqual([25, 7]);
     expect(pillHits(draw(heroBoard(30), heroScene({ live, planned, ride: [] })), 32)).toEqual([]);
   });

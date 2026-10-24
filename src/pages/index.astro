@@ -52,6 +52,8 @@ import { RECORDING as SANDBOX_RECORDING } from '../lib/sandboxing/turns';
 import { SCAN_BOARD, scanScene, scanLabel } from '../components/scenes/scanScene';
 import { PHONE_BOARD, phoneScene, phoneLabel } from '../components/scenes/phoneScene';
 import { DEFAULT_LINE, runCall } from '../lib/voice/engine';
+import { FORGE_BOARD, forgeScene, forgeLabel } from '../components/scenes/forgeScene';
+import { STEPS as FORGE_STEPS } from '../lib/pre-training/engine';
 
 const one =
   (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) =>
@@ -167,6 +169,8 @@ const PHONE = {
   wait: runCall('hesitant', { ...DEFAULT_LINE, streaming: true, bargeIn: true, readBack: true, silence: 800 }).wait,
   scale: 1.7,
 } as const;
+// the foundry as the module's intro opens: the furnace lit, the model a third of the way through its run
+const FORGE = { steps: FORGE_STEPS, step: 1000, scale: 1.7 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -380,6 +384,19 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Barge-in',
       'Mishearing & read-back',
       'Speech-to-speech models',
+    ],
+  },
+  'pre-training': {
+    name: 'Pre-training',
+    iso: { board: FORGE_BOARD, scene: forgeScene(FORGE), label: forgeLabel(FORGE) },
+    topics: [
+      'Random weights',
+      'Checkpoints',
+      'Training loss',
+      'Held-out text',
+      'Duplicated data',
+      'Leaked tests',
+      'Scaling laws',
     ],
   },
 };

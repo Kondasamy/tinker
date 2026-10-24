@@ -104,6 +104,10 @@ import { SCAN_BOARD, scanScene, type ScanOpts } from '../components/scenes/scanS
 import { patchStill } from '../components/scenes/patchGrid';
 import { WINNERS as MM_WINNERS } from '../lib/multimodal/workbench';
 import { PHONE_BOARD, phoneScene, type PhoneOpts } from '../components/scenes/phoneScene';
+import { FORGE_BOARD, forgeScene, type ForgeOpts } from '../components/scenes/forgeScene';
+import { CKPT_SERIES, ScalingView } from '../content/pre-training/kit';
+import { STEPS as PT_STEPS } from '../lib/pre-training/engine';
+import { STOPS as PT_STOPS, WINNERS as PT_WINNERS } from '../lib/pre-training/workbench';
 import { CallTimeline, segmentsOf } from '../content/voice/kit';
 import { DEFAULT_LINE, runCall } from '../lib/voice/engine';
 import { SILENCES } from '../lib/voice/turns';
@@ -625,12 +629,30 @@ const callOg =
   page.og === 'voice-03-whose-turn-is-it'
     ? segmentsOf(runCall('hesitant', { ...VO, silence: SILENCES[0] }))
     : undefined;
+// module 18: the foundry as each chapter turns. The intro: step 1000; 1: cold at step 0; 2: step 3000; 3: the checkpoints'
+// loss chart; 4 and 5: the duplicated and leaked mixes; 6: the scaling view; 7: the first winning plan.
+const FORGE_OG: Record<string, Partial<ForgeOpts>> = {
+  'pre-training': { step: 1000 },
+  'pre-training-01-before-training': { step: 0, burning: false },
+  'pre-training-02-watch-it-learn': { step: 3000 },
+  'pre-training-04-data-is-the-curriculum': { step: 3000, mix: 'duplicated' },
+  'pre-training-05-a-leaked-test': { step: 3000, mix: 'leaked' },
+  'pre-training-07-larkspurs-run': { steps: PT_STOPS, step: PT_WINNERS[0].stop, mix: PT_WINNERS[0].mix },
+};
+const forgeOg: ForgeOpts | undefined = FORGE_OG[page.og] && {
+  steps: PT_STEPS,
+  step: null,
+  scale: 1.3,
+  ...FORGE_OG[page.og],
+};
 const curveOg =
-  page.og === 'fine-tuning-02-what-training-does'
-    ? lossChart({ series: FINETUNE_SERIES })
-    : page.og === 'small-models-02-learning-from-a-teacher'
-      ? lossChart({ series: STUDENT_SERIES })
-      : undefined;
+  page.og === 'pre-training-03-held-out'
+    ? lossChart({ series: CKPT_SERIES })
+    : page.og === 'fine-tuning-02-what-training-does'
+      ? lossChart({ series: FINETUNE_SERIES })
+      : page.og === 'small-models-02-learning-from-a-teacher'
+        ? lossChart({ series: STUDENT_SERIES })
+        : undefined;
 ---
 <html lang="en">
   <head><meta charset="utf-8" /><meta name="robots" content="noindex" /><title>og: {page.og}</title></head>
@@ -669,6 +691,8 @@ const curveOg =
           : scanOg ? <IsoStage board={SCAN_BOARD} scene={scanScene({ ...scanOg, scale: 1.3 })} label="" />
           : patchSrc ? <div class="mm-og"><img src={patchSrc} alt="" /></div>
           : phoneOg ? <IsoStage board={PHONE_BOARD} scene={phoneScene({ ...phoneOg, scale: 1.3 })} label="" />
+          : forgeOg ? <IsoStage board={FORGE_BOARD} scene={forgeScene(forgeOg)} label="" />
+          : page.og === 'pre-training-06-bigger-or-longer' ? <div class="pt-og"><ScalingView budget={10} /></div>
           : callOg ? <div class="vo-og"><CallTimeline segments={callOg.segments} marks={callOg.marks} /></div>
           : fallOg ? <div class="tf-og ob-og"><Waterfall trace={fallOg.trace} stamp={fallOg.stamp} /></div>
           : curveOg ? <div class="tf-og"><Flat fig={curveOg} role="img" label="" /></div>
@@ -712,6 +736,7 @@ const curveOg =
   .ob-og :global(.ob-readout) { display: none; }   /* the waterfall's keyboard hint: no use on a still */
   .vo-og :global(.vo-readout) { display: none; }   /* the timeline's keyboard hint: no use on a still */
   .vo-og :global(svg) { width: 100%; height: auto; }
+  .pt-og { font-size: 20px; }
   .mm-og { display: flex; justify-content: center; }
   .mm-og img { max-height: 520px; max-width: 100%; border: 2px solid var(--ink); border-radius: 6px; box-shadow: 5px 5px 0 var(--ink); }
   .tf-og :global(svg) { width: 100%; height: auto; max-height: 520px; }
