@@ -54,6 +54,10 @@ import { PHONE_BOARD, phoneScene, phoneLabel } from '../components/scenes/phoneS
 import { DEFAULT_LINE, runCall } from '../lib/voice/engine';
 import { FORGE_BOARD, forgeScene, forgeLabel } from '../components/scenes/forgeScene';
 import { STEPS as FORGE_STEPS } from '../lib/pre-training/engine';
+import { EXAM_BOARD, examScene, examLabel } from '../components/scenes/examScene';
+import { FULL, REFUND, refOf, rewardsOf } from '../lib/post-training/graders';
+import { grpoRun, seedOf } from '../lib/post-training/policy';
+import { cardsOf, groupOf } from '../content/post-training/kit';
 
 const one =
   (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) =>
@@ -171,6 +175,14 @@ const PHONE = {
 } as const;
 // the foundry as the module's intro opens: the furnace lit, the model a third of the way through its run
 const FORGE = { steps: FORGE_STEPS, step: 1000, scale: 1.7 };
+// the exam hall after the key-fact grader's run on the refund question: the right answer's stack the tallest
+const EXAM_RUN = grpoRun(refOf(REFUND), rewardsOf(REFUND, FULL), seedOf(REFUND));
+const EXAM = {
+  cards: cardsOf(REFUND, EXAM_RUN.at(-1)!.after, rewardsOf(REFUND, FULL)),
+  grader: 'KEY FACT',
+  group: groupOf(EXAM_RUN.at(-1)),
+  scale: 1.7,
+};
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -397,6 +409,19 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Duplicated data',
       'Leaked tests',
       'Scaling laws',
+    ],
+  },
+  'post-training': {
+    name: 'Post-training',
+    iso: { board: EXAM_BOARD, scene: examScene(EXAM), label: examLabel(EXAM) },
+    topics: [
+      'Base models',
+      'Preference pairs',
+      'DPO',
+      'Graders and GRPO',
+      'What a grader can’t check',
+      'Reward hacking',
+      'Building a grader',
     ],
   },
 };

@@ -39,6 +39,7 @@ import { glassRoomPlot } from './sandboxScene';
 import { scanPlot } from './scanScene';
 import { phonePlot } from './phoneScene';
 import { forgePlot } from './forgeScene';
+import { examPlot } from './examScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
@@ -250,6 +251,7 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   multimodal: (x, y, { top }) => scanPlot(x + 14, y - 2, top),
   voice: (x, y, { top }) => phonePlot(x + 14, y - 2, top),
   'pre-training': (x, y, { top }) => forgePlot(x + 14, y - 2, top),
+  'post-training': (x, y, { top }) => examPlot(x + 14, y - 2, top),
 };
 const LIVE = MODULES.filter(m => m.status === 'live'),
   PLANNED = MODULES.filter(m => m.status === 'planned');

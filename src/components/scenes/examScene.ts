@@ -2,7 +2,7 @@
 // row of answer cards, one stack per written answer, each as tall as the toy policy's probability for it, with a stamp
 // mark on top once graded (mint: earned reward, tomato: none). At the front right the grader's desk, with a rubber stamp
 // and the latest group of drafts lying on it; at the back right a curve board whose pill reads the round or the strength.
-// The grader's desk and stamp are drawn here after evalScene's (not composed: evalScene keeps them private). Words only
+// The rubber stamp is evalScene's; the desk is drawn here, smaller, with the group's drafts on it. Words only
 // in pills; on phones (scale > 1.5) the cards' pills keep just their letters and the caption carries the numbers.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, renderers, sayAt, calloutsLast } from '../../lib/iso/blocks';
@@ -22,6 +22,7 @@ import {
   byDepth,
 } from '../../lib/iso/core.js';
 import type { Say } from '../story/steps';
+import { rubberStamp } from './evalScene';
 
 export const EXAM_BOARD: Board = [0, 0, 176, 136];
 
@@ -117,13 +118,6 @@ function stack(x: number, y: number, h: number, i: number, mark: 'pass' | 'fail'
     svg: `<g class="stack" data-card="${i}"${mark ? ` data-mark="${mark}"` : ''}${gaming ? ' data-gaming="1"' : ''}>${s}</g>`,
   };
 }
-
-/** A rubber stamp on its ink pad, as on evalScene's grader's desk. */
-const rubberStamp = (x: number, y: number, z: number) =>
-  box(x - 4, y - 5, z, x + 4, y + 5, z + 1.5, DARK, toneI, 0.7) +
-  box(x - 3, y - 4, z + 1.5, x + 3, y + 4, z + 4, METAL, toneI, 0.8) +
-  rod([x, y, z + 4], [x, y, z + 10], 1.2, WOOD) +
-  rod([x, y, z + 10], [x, y, z + 12], 2.6, PALS.tomato);
 
 const DESK_TOP = BH + 12;
 /** The grader's desk: a wooden desk, the stamp at its front corner, the group's drafts in a row on top. */

@@ -449,6 +449,17 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'pre-training')).toBe(17);
   });
 
+  it('has post-training as a live Advanced module that recommends Fine-tuning and Evals first, numbered 19', () => {
+    expect(moduleOf('post-training')).toMatchObject({
+      title: 'Post-training',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['fine-tuning', 'evals'],
+    });
+    expect(moduleOf('post-training').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'post-training')).toBe(18);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

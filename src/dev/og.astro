@@ -108,6 +108,24 @@ import { FORGE_BOARD, forgeScene, type ForgeOpts } from '../components/scenes/fo
 import { CKPT_SERIES, ScalingView } from '../content/pre-training/kit';
 import { STEPS as PT_STEPS } from '../lib/pre-training/engine';
 import { STOPS as PT_STOPS, WINNERS as PT_WINNERS } from '../lib/pre-training/workbench';
+import { EXAM_BOARD, examScene, type ExamOpts } from '../components/scenes/examScene';
+import { cardsOf, groupOf } from '../content/post-training/kit';
+import {
+  FULL,
+  WEAK,
+  REFUND,
+  WARRANTY,
+  TONE,
+  gamingOf,
+  question,
+  refOf,
+  rewardsOf,
+  type RuleId,
+} from '../lib/post-training/graders';
+import { ROUNDS, grpoRun, seedOf, winnerOf } from '../lib/post-training/policy';
+import { BENCH as PO_BENCH, WINNERS as PO_WINNERS } from '../lib/post-training/workbench';
+import { TEAM_PICKS, scoresOf } from '../content/post-training/02-which-is-better';
+import { policyOf } from '../content/post-training/03-learning-from-preferences';
 import { CallTimeline, segmentsOf } from '../content/voice/kit';
 import { DEFAULT_LINE, runCall } from '../lib/voice/engine';
 import { SILENCES } from '../lib/voice/turns';
@@ -645,6 +663,48 @@ const forgeOg: ForgeOpts | undefined = FORGE_OG[page.og] && {
   scale: 1.3,
   ...FORGE_OG[page.og],
 };
+// module 19: the exam hall as each chapter turns. GRPO halls show the run's last round under their grader; 1: the base
+// answer lit before any grader; 2 and 3: the tone drafts scored, then moved at β 1, by the team's picks; 6: the weak
+// grader gamed; 7: the refund question under the first winning grader.
+const hall = (q: string, rules: RuleId[], grader: string, lit?: number): ExamOpts => {
+  const r = rewardsOf(q, rules),
+    last = grpoRun(refOf(q), r, seedOf(q)).at(-1);
+  return { cards: cardsOf(q, last!.after, r), grader, group: groupOf(last), board: `ROUND ${ROUNDS}/${ROUNDS}`, lit };
+};
+const PO_TONE = policyOf(TEAM_PICKS, 1);
+const EXAM_OG: Record<string, () => ExamOpts> = {
+  'post-training': () => hall(REFUND, FULL, 'KEY FACT'),
+  'post-training-01-base-or-assistant': () => ({
+    cards: cardsOf(REFUND, refOf(REFUND)),
+    lit: question(REFUND).candidates.findIndex(c => c.base),
+  }),
+  'post-training-02-which-is-better': () => ({
+    cards: cardsOf(
+      TONE,
+      refOf(TONE),
+      scoresOf(TEAM_PICKS).map(x => (x > 0 ? 1 : 0)),
+    ),
+    grader: 'YOUR PICKS',
+  }),
+  'post-training-03-learning-from-preferences': () => ({
+    cards: cardsOf(TONE, PO_TONE),
+    grader: 'YOUR PICKS',
+    board: 'β 1',
+    lit: winnerOf(PO_TONE),
+  }),
+  'post-training-04-grade-dont-judge': () => hall(WARRANTY, FULL, 'KEY FACT'),
+  'post-training-05-only-what-you-can-check': () => hall(TONE, FULL, 'KEY FACT'),
+  // no board: its pill would cover the gaming answer's, the stack that grew tallest
+  'post-training-06-you-get-what-you-check': () => ({
+    ...hall(REFUND, WEAK, 'NUMBER + SIGN-OFF', gamingOf(REFUND)),
+    board: undefined,
+  }),
+  'post-training-07-build-a-grader': () => ({
+    ...hall(REFUND, PO_WINNERS[0], `${PO_WINNERS[0].length} RULE${PO_WINNERS[0].length === 1 ? '' : 'S'}`),
+    board: `${PO_BENCH.indexOf(REFUND) + 1} OF ${PO_BENCH.length}`,
+  }),
+};
+const examOg = EXAM_OG[page.og]?.();
 const curveOg =
   page.og === 'pre-training-03-held-out'
     ? lossChart({ series: CKPT_SERIES })
@@ -692,6 +752,7 @@ const curveOg =
           : patchSrc ? <div class="mm-og"><img src={patchSrc} alt="" /></div>
           : phoneOg ? <IsoStage board={PHONE_BOARD} scene={phoneScene({ ...phoneOg, scale: 1.3 })} label="" />
           : forgeOg ? <IsoStage board={FORGE_BOARD} scene={forgeScene(forgeOg)} label="" />
+          : examOg ? <IsoStage board={EXAM_BOARD} scene={examScene({ ...examOg, scale: 1.3 })} label="" />
           : page.og === 'pre-training-06-bigger-or-longer' ? <div class="pt-og"><ScalingView budget={10} /></div>
           : callOg ? <div class="vo-og"><CallTimeline segments={callOg.segments} marks={callOg.marks} /></div>
           : fallOg ? <div class="tf-og ob-og"><Waterfall trace={fallOg.trace} stamp={fallOg.stamp} /></div>

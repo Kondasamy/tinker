@@ -117,7 +117,7 @@ function desk(passed: number, failed: number): Part {
 }
 
 /** A rubber stamp on its ink pad, centred at (x, y), standing on height z. */
-const rubberStamp = (x: number, y: number, z: number) =>
+export const rubberStamp = (x: number, y: number, z: number) =>
   box(x - 4, y - 5, z, x + 4, y + 5, z + 1.5, DARK, toneI, 0.7) +
   box(x - 3, y - 4, z + 1.5, x + 3, y + 4, z + 4, METAL, toneI, 0.8) +
   rod([x, y, z + 4], [x, y, z + 10], 1.2, WOOD) +
