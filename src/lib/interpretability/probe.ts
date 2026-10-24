@@ -89,8 +89,8 @@ export function headLoss(model: Model, ...pulled: Fuse[]): { lost: number; right
 export const STAGES = ['After the embedding', 'After block 1', 'Output'] as const;
 
 /** The logit lens: every stage's residual read out as next-token guesses, at every position. */
-export function lens(model: Model, text: string, k = 5) {
-  const out = forward(model, encode(text), { residuals: true }),
+export function lens(model: Model, text: string, pulled: readonly Fuse[] = [], k = 5) {
+  const out = run(model, encode(text), pulled, { residuals: true }),
     logits = out.residuals!.map(stage => stage.map(x => unembed(model, x)));
   return {
     tokens: out.ids.map(id => decode([id])),
