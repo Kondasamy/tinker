@@ -75,7 +75,7 @@ export function inferenceWalker(page: Page, mode: Mode, check: (page: Page) => P
       await step(2);
       await check(page);
       await opt(/^Much sooner/);
-      await btn('Continuous batching');
+      await btn(/^Continuous batching$/);
       await step(4);
       await opt(/^They wait in the queue/);
       await finish(next);
@@ -121,7 +121,7 @@ export function inferenceWalker(page: Page, mode: Mode, check: (page: Page) => P
     },
     /** set one winning policy by hand, then the quiz */
     async ch7(next?: RegExp) {
-      if (win.mode === 'continuous') await btn('Continuous batching');
+      if (win.mode === 'continuous') await btn(/^Continuous batching$/);
       await slide(/^Batch cap/, (CAPS as readonly number[]).indexOf(win.cap));
       await slide(/^KV room/, MEMORY.indexOf(win.kvRoomGB));
       await step(2);

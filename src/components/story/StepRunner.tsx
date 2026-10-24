@@ -222,6 +222,7 @@ export default function StepRunner<S>({
                     key={seg.term}
                     type="button"
                     className="term"
+                    aria-label={`${seg.text}, define`}
                     aria-expanded={term?.term === seg.term}
                     aria-controls="term-def"
                     onClick={() => setTerm(t => (t?.term === seg.term ? null : seg))}
