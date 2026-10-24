@@ -90,6 +90,10 @@ test('chapter 3: the Lens tab waits for Larkspur mini, and its grid moves with t
   release();
   await expect(page.locator('.ip-stage[data-model="ready"]')).toBeVisible({ timeout: 15_000 });
   await page.getByRole('button', { name: 'Lens', exact: true }).click();
+  // step 2 holds the picture while the prediction is open; the reveal opens the lens
+  const c = card(page);
+  await c.getByRole('radio', { name: /^After block 1$/ }).click();
+  await c.getByRole('button', { name: 'Show the lens' }).click();
   const cell = page.locator('.ip-lens [role="gridcell"][tabindex="0"]');
   await cell.focus();
   await expect(page.locator('.ip-readout')).toContainText('Output, guess 1');

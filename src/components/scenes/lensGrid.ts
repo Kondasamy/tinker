@@ -53,12 +53,12 @@ export function lensGrid({ stages, guesses, watch, phone = false, active = [stag
       const on = active[0] === st && active[1] === r,
         hit = watch !== undefined && g.text === watch;
       const x = pad + label + r * cw;
+      // the cell is the rect; its words sit beside it, hidden from screen readers (the cell's name says them)
       s +=
-        `<g role="gridcell" tabindex="${on ? 0 : -1}" aria-label="${esc(lensCellName(stages[st], r, g))}" data-stage="${st}" data-rank="${r}"${hit ? ' data-watch="1"' : ''}>` +
-        `<rect x="${f(x + 2)}" y="${f(y + 3)}" width="${f(cw - 4)}" height="${f(rowH - 6)}" rx="4" fill="${hit ? PALS.mint.l : mix(PAPER, PALS.cobalt.l, Math.min(1, g.p * 2))}" stroke="${INK}" stroke-width="${on ? 2.4 : 1}"/>` +
+        `<rect role="gridcell" tabindex="${on ? 0 : -1}" aria-label="${esc(lensCellName(stages[st], r, g))}" data-stage="${st}" data-rank="${r}"${hit ? ' data-watch="1"' : ''}` +
+        ` x="${f(x + 2)}" y="${f(y + 3)}" width="${f(cw - 4)}" height="${f(rowH - 6)}" rx="4" fill="${hit ? PALS.mint.l : mix(PAPER, PALS.cobalt.l, Math.min(1, g.p * 2))}" stroke="${INK}" stroke-width="${on ? 2.4 : 1}"/>` +
         text(x + cw / 2, y + rowH / 2 - (phone ? 6 : 0), fit(pieceLabel(g.text), phone ? 6 : 10), fs) +
-        (phone ? text(x + cw / 2, y + rowH / 2 + 8, round(g.p), fs - 1) : '') +
-        '</g>';
+        (phone ? text(x + cw / 2, y + rowH / 2 + 8, round(g.p), fs - 1) : '');
     });
     s += '</g>';
   });

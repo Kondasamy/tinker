@@ -1,6 +1,6 @@
 // Interpretability's picture: the fuse box (KTD15). Transformers' engine room (engineScene, composed, never edited) with
-// a fuse panel at its right-hand end: one fuse per head and one per MLP, in two columns, one per floor (layer 1 in
-// front, layer 2 behind), rows head 1, head 2, MLP from the top. A fuse that is in is lit mustard; a pulled one is drawn
+// a fuse panel at its right-hand end, beside the second floor: one fuse per head and one per MLP, a row per layer
+// (layer 2 on top) and a column per part (head 1, head 2, MLP). A fuse that is in is lit mustard; a pulled one is drawn
 // out of its slot and dark, and its head's desk stays unlit, with no threads. Words go only in label pills, escaped.
 import type { SceneCtx, Board } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
@@ -8,7 +8,7 @@ import { DARK, METAL, PALS, box, byDepth, castShadow, hullInk, tag, toneI } from
 import { FUSES, fuseName, isHead, layerOf, type Fuse } from '../../lib/interpretability/probe';
 import { ENGINE_PARTS, engineLabel, engineScene, enginePlot, type EngineOpts } from './engineScene';
 
-export const FUSE_BOARD: Board = [0, 0, 280, 210];
+export const FUSE_BOARD: Board = [0, 0, 292, 210];
 /** The parts a callout may name: the engine room's, the fuse panel and the first pulled fuse. */
 export const FUSE_PARTS = [...ENGINE_PARTS, 'fuses', 'pulled'] as const;
 
@@ -19,16 +19,16 @@ export interface FuseOpts extends EngineOpts {
   threads?: boolean;
 }
 
-const PX0 = 244,
-  PX1 = 256,
-  PY0 = 24,
-  PY1 = 136,
-  PZ1 = BH + 48;
-/** a fuse's slot on the panel's front (+x) face: y by layer, z by row (head 1, head 2, MLP) */
+const PX0 = 262,
+  PX1 = 272,
+  PY0 = 2,
+  PY1 = 70,
+  PZ1 = BH + 40;
+/** a fuse's slot on the panel's front (+x) face: a row per layer (layer 2 on top), a column per part (head 1, head 2,
+ * MLP); the panel stands beside the second floor, clear of the first */
 const slot = (f: Fuse) => {
-  const y = layerOf(f) === 0 ? 108 : 52,
-    row = isHead(f) ? Number(f[3]) : 2;
-  return { y, z: PZ1 - 12 - row * 12 };
+  const col = isHead(f) ? Number(f[3]) : 2;
+  return { y: PY1 - 12 - col * 22, z: PZ1 - 10 - (layerOf(f) === 1 ? 0 : 16) };
 };
 
 /** Pure: which desk is lit and which fuses are pulled, so the tests can check the picture without drawing it. */
@@ -57,7 +57,7 @@ export const fuseScene = (o: FuseOpts) => (ctx: SceneCtx) => {
   const fuses = FUSES.map(f => {
     const { y, z } = slot(f),
       out = st.pulled.includes(f);
-    const x0 = out ? PX1 + 6 : PX1,
+    const x0 = out ? PX1 + 9 : PX1,
       x1 = x0 + 5;
     return {
       at: [x1, y, z],
@@ -66,15 +66,15 @@ export const fuseScene = (o: FuseOpts) => (ctx: SceneCtx) => {
   });
   s += `<g data-panel="1">${box(PX0, PY0, BH, PX1, PY1, PZ1, METAL, toneI, 1) + hullInk(corners, 2)}${byDepth(fuses)}</g>`;
   const pills: string[] = [],
-    top = [PX1, (PY0 + PY1) / 2, PZ1];
-  pills.push(pill(top, 18, -10, narrow ? 'FUSES' : `FUSES · ${FUSES.length - st.pulled.length} IN`, false, scale));
-  const callouts = [sayAt(o.say, 'fuses', top, -10, scale)];
+    top = [(PX0 + PX1) / 2, (PY0 + PY1) / 2, PZ1]; // a row above the room's LAYER 2 pill
+  pills.push(pill(top, 0, -42, narrow ? 'FUSES' : `FUSES · ${FUSES.length - st.pulled.length} IN`, false, scale));
+  const callouts = [sayAt(o.say, 'fuses', top, -42, scale)];
   const first = st.pulled[0];
   if (first) {
     const { y, z } = slot(first),
-      at = [PX1 + 11, y, z];
-    if (!narrow) pills.push(pill(at, 22, 12, `OUT: ${fuseName(first).toUpperCase()}`, true, scale));
-    callouts.push(sayAt(o.say, 'pulled', at, 12, scale));
+      at = [PX1 + 14, y, z];
+    if (!narrow) pills.push(pill(at, -14, 40, `OUT: ${fuseName(first).toUpperCase()}`, true, scale));
+    callouts.push(sayAt(o.say, 'pulled', at, 40, scale));
   }
   return room + s + pills.join('') + callouts.join('');
 };
