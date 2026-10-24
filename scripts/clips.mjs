@@ -123,7 +123,6 @@ for (const clip of clips) {
     `${JSON.stringify({ $schema: 'https://hyperframes.heygen.com/schema/hyperframes.json', paths: { assets: 'assets' } }, null, 2)}\n`,
   );
   await writeFile(path.join(dir, 'meta.json'), `${JSON.stringify({ id: clip.chapter, name }, null, 2)}\n`);
-  await writeFile(path.join(out, `${clip.chapter}.vtt`), vtt(clip.lines));
 
   let report;
   try {
@@ -155,5 +154,7 @@ for (const clip of clips) {
     '3',
     path.join(out, `${clip.chapter}.jpg`),
   ]);
+  // captions last: a failed render must not leave new lines beside an old video
+  await writeFile(path.join(out, `${clip.chapter}.vtt`), vtt(clip.lines));
   console.log(`clip: public/video/${name}.mp4 (${Math.round((await stat(mp4)).size / 1024)} KB)`);
 }

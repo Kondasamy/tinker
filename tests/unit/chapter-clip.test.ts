@@ -37,6 +37,8 @@ describe('ChapterClip', () => {
     expect(v.getAttribute('src')).toBe('/video/rag/03-what-is-rag.mp4');
     expect(v.getAttribute('poster')).toBe('/video/rag/03-what-is-rag.jpg');
     expect(v.querySelector('track[kind="captions"]')?.getAttribute('src')).toBe('/video/rag/03-what-is-rag.vtt');
+    // the lines are drawn into the frame: captions are offered, not shown over them
+    expect(v.querySelector('track')?.hasAttribute('default')).toBe(false);
   });
   it('shows its lines as text', () => {
     clip();

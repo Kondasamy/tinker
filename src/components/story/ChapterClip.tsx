@@ -1,6 +1,7 @@
 // A chapter's opener clip (KTD9): a silent HyperFrames render of the chapter's own scene, in public/video/<module>/.
 // Nothing loads or plays until the reader presses play; the lines are always on the page as text, so the clip is
-// optional, and a clip that can't load (offline, blocked) leaves its poster and lines.
+// optional, and a clip that can't load (offline, blocked) leaves its poster and lines. The lines are drawn into the
+// frame, so the captions track is offered but off.
 import { useState } from 'react';
 
 interface Props {
@@ -29,7 +30,7 @@ export default function ChapterClip({ module, chapter, lines }: Props) {
           aria-label="Opening clip, silent; its lines are below"
           onError={() => setFailed(true)}
         >
-          <track kind="captions" src={`${base}.vtt`} srcLang="en" label="English" default />
+          <track kind="captions" src={`${base}.vtt`} srcLang="en" label="English" />
         </video>
       )}
       <figcaption>

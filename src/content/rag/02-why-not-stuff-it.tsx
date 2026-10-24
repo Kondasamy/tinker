@@ -176,7 +176,7 @@ export default function WhyNotStuffIt() {
             </span>
           </label>
         ),
-        reason: ({ state, apply }) => (
+        reason: ({ state, sync }) => (
           <div className="opts reasons" role="group" aria-label="Problems with pasting everything">
             {REASONS.map(([r, name, line]) => (
               <button
@@ -184,7 +184,8 @@ export default function WhyNotStuffIt() {
                 type="button"
                 className="chip"
                 aria-pressed={state.seen.includes(r)}
-                onClick={() => apply({ ...state, seen: [...state.seen.filter(x => x !== r), r] })}
+                // opening a problem is never a miss, only the third one advances
+                onClick={() => sync({ ...state, seen: [...state.seen.filter(x => x !== r), r] })}
               >
                 <strong>{name}</strong> {line}
               </button>
