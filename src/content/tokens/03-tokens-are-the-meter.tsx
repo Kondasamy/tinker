@@ -14,9 +14,11 @@ import { chapterHref, moduleOf, nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { Fact, TokensStage } from './kit';
+import { TOKEN_PARTS } from '../../components/scenes/tokenScene';
 
 const MODULE = 'tokens',
   ID = '03-tokens-are-the-meter';
+export const PARTS = TOKEN_PARTS;
 const M = corpusMeter();
 const n = (x: number) => Math.round(x).toLocaleString('en-US');
 const pct = (a: number, b: number) => `${Math.round(Math.abs(a / b - 1) * 100)}%`;
@@ -44,22 +46,22 @@ const mean = M.real.reduce((a, r) => a + r.tokens, 0) / M.real.length;
 const OUT1 = M.rule > mean * 1.01 ? 0 : M.rule < mean * 0.99 ? 1 : 2;
 const vs = M.real.map(r => `${pct(M.rule, r.tokens)} ${M.rule > r.tokens ? 'over' : 'under'} ${r.name}`).join(' and ');
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'Larkspur moves its assistant to a newer model from the same provider. The documents and prompts haven’t changed. The finance lead expects the same bill per request. What do you tell them?',
   options: [
     'Same text, same tokens, same bill',
     'Recount with the new model’s tokenizer: a new tokenizer can cut the same text into more or fewer tokens, and the bill follows its count',
-    'Use the 4-characters rule: it is exact for English, so the count can’t change',
+    `Use the ${BYTES_PER_TOKEN}-characters rule: it is exact for English, so the count can’t change`,
     'Count words instead: providers bill per word, not per token',
   ],
   correct: 1,
   explanation: fact('billed-in-tokens').claim,
   why: [
-    `The text stays the same, but the meter may not. ${fact('claude-tokenizer-30').claim}`,
-    `Right. ${fact('billed-in-tokens').claim}`,
-    `The rule was ${vs} on Larkspur’s documents. It is a guide for planning, not a count.`,
-    'Providers bill in tokens, counted by their own tokenizer. Words are only a rough guide to tokens.',
+    'The text stays the same but the meter may not: a newer tokenizer can cut it into more tokens, as Anthropic’s did.',
+    'Right: the bill follows the new tokenizer’s count, so recount with the model you plan to use.',
+    `The rule was ${vs} on Larkspur’s documents, so it is a planning guide, not a count.`,
+    'Providers bill in tokens counted by their own tokenizer; words are only a rough guide.',
   ],
 };
 
@@ -68,14 +70,16 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `Larkspur has ${CORPUS.length} documents, ${n(M.bytes)} bytes of text. Providers bill and size the context window in tokens, so the team needs a count. ${fact('openai-rule').claim} By that rule, ${n(M.bytes)} ÷ ${BYTES_PER_TOKEN} is about ${n(M.rule)} tokens. Two real tokenizers counted the same documents ahead of time. Before you look:`,
+    narration: `The rule of thumb says ${n(M.bytes)} bytes ÷ ${BYTES_PER_TOKEN} ≈ ${n(M.rule)} tokens.`,
+    act: 'Predict how real tokenizers compare.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'count',
     focus: 'count',
     visibleControls: ['p1', 'count'],
-    narration: 'Locked in. Count the documents.',
+    narration: 'Your pick is locked.',
+    act: 'Count the documents.',
     predicate: s => s.counted,
     hint: 'Press “Count the documents”.',
   },
@@ -83,7 +87,9 @@ export const STEPS: Step<S>[] = [
     id: 'compare',
     focus: 'price',
     visibleControls: ['out1', 'table', 'price'],
-    narration: `The rule was ${vs}. On these documents each real token held more than ${BYTES_PER_TOKEN} bytes. This site’s own tokenizer counted ${n(M.site)}, more than any of them, even though it learned from these very documents. That count is in-sample, and with only ${VOCAB_SIZE} tokens in its vocabulary it cuts finer. Now put a price on it.`,
+    narration: `The rule was ${vs}. This site’s own tokenizer, in-sample, counted ${n(M.site)}: its ${VOCAB_SIZE}-token vocabulary cuts finer.`,
+    act: 'Price it.',
+    say: { block: 'belt', text: 'Cuts finer' },
     predicate: s => s.priced,
     hint: 'Press “Price the documents”.',
   },
@@ -91,7 +97,9 @@ export const STEPS: Step<S>[] = [
     id: 'bill',
     focus: 'quiz',
     visibleControls: ['table', 'bill', 'quiz'],
-    narration: `Same documents, different meters, different bills. The context window is counted the same way, by the model’s own tokenizer. One question to finish.`,
+    narration:
+      'Same documents, different meters, different bills. Providers bill and size the context window in tokens, counted by the model’s own tokenizer.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Who counts the tokens on the bill: you, a rule, or the model’s tokenizer?',
   },
@@ -140,8 +148,9 @@ export default function TokensAreTheMeter() {
       steps={STEPS}
       initial={{ p1: null, counted: false, priced: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={() => (
+      stage={({ say }) => (
         <TokensStage
+          say={say}
           text={PARAGRAPH}
           caption={`One paragraph of ${CORPUS.length} documents, counted by this site’s tokenizer.`}
         />

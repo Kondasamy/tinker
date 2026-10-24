@@ -21,6 +21,7 @@ const REWRITE = Q.rewrites[0];
 const DIMS = fact('minilm').value;
 const RAG4 = moduleOf('rag').chapters[3];
 const words = (n: number) => `${n} word${n === 1 ? '' : 's'}`;
+export const PARTS: readonly string[] = [];
 
 interface S {
   p1: number | null;
@@ -38,7 +39,7 @@ const P1 = {
   ],
 };
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A Larkspur engineer suggests a shortcut for search: compare the token ids of the question and of each document piece, and pick the piece whose ids are closest. What do you tell them?',
   options: [
@@ -50,10 +51,10 @@ const QUIZ = {
   correct: 1,
   explanation: fact('embedding-def').claim,
   why: [
-    'An id is a row number in the tokenizer’s list. Id 500 is no closer in meaning to id 501 than to id 9.',
-    `Right. An embedding model reads the whole text and gives back ${DIMS} numbers whose direction carries its meaning. That is what RAG’s search compares.`,
+    'An id is a row number in the tokenizer’s list, so id 500 is no closer in meaning to 501 than to 9.',
+    `Right: an embedding model reads the whole text and returns ${DIMS} numbers whose direction carries its meaning, which RAG’s search compares.`,
     'Sorting ids still compares row numbers in a list, not meanings.',
-    'A token id is one number from a fixed list. An embedding is a list of numbers made from the whole text, by a model trained for it.',
+    'A token id is one number from a fixed list, while an embedding is many numbers made from the whole text by a trained model.',
   ],
 };
 
@@ -62,14 +63,16 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `A token id is just a row number in the tokenizer’s list: it says nothing about meaning. For search, Larkspur needs numbers where similar meanings sit close together. An embedding model gives them: it reads a piece of text and returns a list of numbers, a vector. RAG’s model gives ${DIMS} numbers per text, and the RAG module already embedded every piece of Larkspur’s documents and every customer question. Before you compare three questions:`,
+    narration: `An embedding model reads text and returns a vector: ${DIMS} numbers where similar meanings sit close.`,
+    act: 'Predict which question is closer.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'embed',
     focus: 'embed',
     visibleControls: ['p1', 'embed'],
-    narration: 'Locked in. Compare their embeddings.',
+    narration: 'Your pick is locked.',
+    act: 'Compare their embeddings.',
     predicate: s => s.embedded,
     hint: 'Press “Compare the embeddings”.',
   },
@@ -77,7 +80,8 @@ export const STEPS: Step<S>[] = [
     id: 'map',
     focus: 'map',
     visibleControls: ['out1', 'cosines', 'map'],
-    narration: `Cosine similarity scores how alike two vectors point, from -1 to 1; chapter 6 looks at it closely. The same question in other words shares few words with it but means the same thing, and their vectors point much the same way. The picture is RAG’s map of meaning: every dot is one piece of Larkspur’s documents, squeezed from ${DIMS} numbers onto two, and the diamond is the question. Point at a dot, or Tab to one, to read its true similarity.`,
+    narration: `Few shared words, same meaning, same direction. This map squeezes ${DIMS} dimensions onto two.`,
+    act: 'Point or Tab to a dot to read its similarity.',
     predicate: s => s.probed,
     hint: 'Move the pointer over a blue dot on the picture, or Tab into the map.',
   },
@@ -86,7 +90,8 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['map', 'quiz'],
     narration:
-      'Squeezing many numbers onto two bends distances, so a dot that looks close can score lower than one further away. The true similarity is the one search uses. One question to finish.',
+      'Squeezing bends distances: a dot that looks close can score lower than one further off. Search uses the true score.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Does a token id say anything about what a word means?',
   },

@@ -15,7 +15,6 @@ import {
   questionOf,
   type Candidate,
 } from '../../lib/tokens/neighbours';
-import { fact } from '../../lib/tokens/facts';
 import type { Config, RagIndex } from '../../lib/rag/load';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
@@ -25,6 +24,7 @@ import { Fact, MapStage, useMapIndex } from './kit';
 const MODULE = 'tokens',
   ID = '06-meaning-by-neighbours';
 const Q = questionOf('k2-volume-price');
+export const PARTS: readonly string[] = [];
 
 interface S {
   p1: number | null;
@@ -49,7 +49,7 @@ const P1 = {
   ],
 };
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A customer writes “my rack wobbles”. Larkspur’s manual says “If a shelving unit is unstable, tighten the base bolts.” A keyword search finds nothing. Why can an embedding search still find the manual?',
   options: [
@@ -61,8 +61,8 @@ const QUIZ = {
   correct: 1,
   explanation: 'Nearest neighbours by cosine find pieces close in meaning. Shared words are neither needed nor enough.',
   why: [
-    'That is keyword search’s limit. Embeddings compare meaning, not spelling.',
-    `Right. ${fact('cosine-dot').claim}`,
+    'That is keyword search’s limit; embeddings compare meaning, not spelling.',
+    'Right: similar meanings point the same way, so the cosine is high even with no words in common.',
     'The ranking is the cosine of each piece with the question: the same text always gets the same score.',
     'No lookup list is involved: the embedding model learned which texts mean alike from its training.',
   ],
@@ -73,7 +73,9 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `Every Larkspur piece and every question has an embedding. To compare two, take the cosine similarity: a score of how alike the two vectors point, from -1 to 1. A score of 1 means the same direction, the same meaning. The pieces with the highest scores are the question’s nearest neighbours, and they are what RAG’s search hands the model. A customer asks: “${Q.query}” Before you search:`,
+    narration:
+      'Cosine similarity scores how alike two vectors point, from -1 to 1. The top scorers are a question’s nearest neighbours.',
+    act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
   puzzle<S>({
@@ -81,7 +83,8 @@ export const STEPS: Step<S>[] = [
     focus: 'pieces',
     visibleControls: ['p1', 'pieces'],
     narration:
-      'Here are four pieces of Larkspur’s documents: the two nearest by meaning, and the two others that share the most words with the question. Pick the one closest to the question. Each pick shows its cosine.',
+      'Two pieces are nearest by meaning, two share the most words with the question. Each pick shows its cosine.',
+    act: 'Pick the closest piece.',
     broken: s => ({ ...s, pick: null, tried: [] }),
     verdict: right,
     solution: s => ({ ...s, pick: PUZZLE!.best[0], tried: [...new Set([...s.tried, PUZZLE!.best[0]])] }),
@@ -92,7 +95,8 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['out1', 'ranked', 'quiz'],
     narration:
-      'The piece that answers the question scored highest, whatever its words. A piece can share a name or small words like “a” and “or” with the question and still be about something else, so the most words in common is no guide. One question to finish.',
+      'The piece that answers scored highest, whatever its words. Sharing a name or small words is no guide to meaning.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Do the two texts need any words in common for their embeddings to be close?',
   },
