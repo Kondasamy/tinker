@@ -10,7 +10,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Phone line',
     intro: {
       story:
-        'In the Tool calling module, Larkspur’s assistant learned to look orders up with a tool, in a chat window. Now the support lead wants the same assistant on the phone, so customers can just call.',
+        'Larkspur’s assistant looks orders up in a chat window, as in the Tool calling module. Now the support lead wants it on the phone, so customers can just call.',
       goal: 'What happens between a caller speaking and the assistant answering out loud?',
       learn: [
         'The three stages of a chained voice line: speech-to-text, the model, text-to-speech',
@@ -116,7 +116,7 @@ const CHAPTERS: Chapter[] = [
     short: 'One or three',
     intro: {
       story:
-        'A vendor pitches the team a speech-to-speech model: no ear, no mouth, one model that hears and speaks. The support lead asks what Larkspur would gain and what it would give up.',
+        'A vendor pitches a speech-to-speech model: no ear, no mouth, one model that hears and speaks. The support lead asks what Larkspur would gain and lose.',
       goal: 'When is a chained pipeline the better choice, and when is one speech-to-speech model?',
       learn: [
         'What a speech-to-speech model does differently',
@@ -138,7 +138,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Workbench',
     intro: {
       story:
-        'Everything is on the bench: five calls, the turn detector’s two settings and three host rules. The support lead wants a line that cuts nobody off, leaves no dead air and acts on no misheard number.',
+        'Everything is on the bench: the calls, the turn detector’s settings and the host rules. The support lead wants no cut-offs, no dead air and no misheard number acted on.',
       goal: 'Which settings serve every call?',
       learn: [
         'How to read cut-offs, dead air, wait and errors together',

@@ -7,11 +7,13 @@ import Predict from '../../components/quiz/Predict';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
+import { PHONE_PARTS } from '../../components/scenes/phoneScene';
 import { Fact, VoiceStage } from './kit';
 
 const MODULE = 'voice',
   ID = '06-one-model-or-three';
 type Mode = 'chained' | 's2s';
+export const PARTS = PHONE_PARTS;
 
 interface S {
   p1: number | null;
@@ -32,7 +34,7 @@ const P1 = {
 /** read off the facts: the chained path is the one OpenAI recommends when each stage must be visible (openai-chained) */
 const OUTCOME = 0;
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A bank wants every spoken request checked against its rules, as text, before the assistant does anything. Which build fits better?',
   options: [
@@ -43,7 +45,7 @@ const QUIZ = {
   correct: 0,
   explanation: 'The text between the stages is where a host can store and check what was said before acting.',
   why: [
-    'Right. A chained line hands over text at each stage, so a rule can read it before the model replies.',
+    'Right: a chained line hands over text at each stage, so a rule can read it before the model replies.',
     'Simpler to run, but the request goes straight from audio to the model, with no text step to check in between.',
     'They do: a check needs the words as text at the moment before the reply.',
   ],
@@ -59,15 +61,17 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration:
-      'A vendor offers Larkspur a speech-to-speech model: one model that takes audio in and gives audio out. The desk would lose its ear and its mouth. Before you switch:',
+    narration: 'A speech-to-speech model takes audio in and gives audio out; the desk loses its ear and mouth.',
+    act: 'Predict what Larkspur gives up.',
+    say: { block: 'ear', text: 'Would go' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'switch',
     focus: 'mode',
     visibleControls: ['p1', 'mode'],
-    narration: 'Switch the desk between the two builds and compare what rides the belts.',
+    narration: 'Compare what rides the belts.',
+    act: 'Switch the desk between the two builds.',
     setup: s => ({ ...s, seen: [...new Set([...s.seen, s.mode])] }),
     predicate: s => s.seen.includes('s2s') && s.seen.includes('chained'),
     hint: 'Try both builds.',
@@ -77,7 +81,8 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['outcome', 'quiz'],
     narration:
-      'One model has fewer parts to run and handles turns, tools and interruptions in its session, but the chained line gives you text between the stages, a place for a policy check (a rule the host applies before acting, like the Guardrails module’s). Some speech-to-speech services also return transcripts, and both still have to decide whose turn it is:',
+      'The chained line has text between stages for a policy check before acting. Both still decide whose turn it is.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Where, in each build, could a rule read the request as text?',
   },
@@ -91,8 +96,12 @@ export default function OneModelOrThree() {
       steps={STEPS}
       initial={{ p1: null, mode: 'chained', seen: [], quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, focus }) => (
-        <VoiceStage step={focus} shown={{ phone: { stage: 'stt', mode: state.mode }, caption: SIDE[state.mode] }} />
+      stage={({ state, focus, say }) => (
+        <VoiceStage
+          step={focus}
+          say={say}
+          shown={{ phone: { stage: 'stt', mode: state.mode }, caption: SIDE[state.mode] }}
+        />
       )}
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,

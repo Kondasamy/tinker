@@ -10,6 +10,7 @@ import { HOST, ms } from '../../lib/voice/latency';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
+import { PHONE_PARTS } from '../../components/scenes/phoneScene';
 import { Fact, PlanNote, Toggle, VoiceStage, segmentsOf, type View } from './kit';
 
 const MODULE = 'voice',
@@ -17,6 +18,7 @@ const MODULE = 'voice',
 const runOf = (streaming: boolean) => runCall('status', { ...DEFAULT_LINE, streaming });
 const OFF = runOf(false),
   ON = runOf(true);
+export const PARTS = PHONE_PARTS;
 
 interface S {
   timed: boolean;
@@ -39,7 +41,7 @@ const P1 = {
 export const outcome = () =>
   ON.latency.firstSound < OFF.latency.firstSound ? (ON.latency.modelDone === OFF.latency.modelDone ? 0 : 1) : 2;
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A restaurant’s booking line waits for its whole reply to be spoken into audio before playing any of it. Callers find it slow. What is the first change to try?',
   options: [
@@ -51,8 +53,8 @@ const QUIZ = {
   explanation:
     'The caller hears the first sound, not the last. Streaming brings it forward without changing the reply.',
   why: [
-    'Right. Each stage hands on its first piece instead of waiting for its whole job, so the voice starts early.',
-    'A longer reply takes longer to write and to speak: the wait gets worse.',
+    'Right: each stage hands on its first piece instead of waiting for its whole job, so the voice starts early.',
+    'A longer reply takes longer to write and to speak, so the wait gets worse.',
     'With no silence to wait for, the line would end turns at every breath and cut callers off (chapter 3).',
   ],
 };
@@ -101,31 +103,36 @@ export const STEPS: Step<S>[] = [
     id: 'time',
     focus: 'time',
     visibleControls: ['time'],
-    narration:
-      'Latency is how long something takes to respond; on a call, the gap between the caller’s last word and the first sound of the reply. Time Dana’s call from chapter 1, stage by stage.',
+    narration: 'Latency is the gap between the caller’s last word and the first sound of the reply.',
+    act: 'Time Dana’s call, stage by stage.',
+    say: { block: 'watch', text: 'From last word' },
     predicate: s => s.timed,
   },
   {
     id: 'predict',
     focus: 'p1',
     visibleControls: ['sumsOff', 'p1'],
-    narration:
-      'Each stage waits for the one before it to finish, so the times add up. The biggest share is the model writing its whole reply and the mouth turning all of it into audio before Dana hears a word. Streaming passes work on in pieces as it is made. Before you turn it on:',
+    narration: 'Each stage waits for the one before, so the times add up. Streaming passes work on in pieces.',
+    act: 'Predict what it changes.',
+    say: { block: 'watch', text: 'Times add up' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'stream',
     focus: 'stream',
     visibleControls: ['p1', 'stream'],
-    narration:
-      'Turn streaming on. The Timeline tab shows the call as two voices, with the wait as the gap between them.',
+    narration: 'The Timeline tab shows the wait as the gap between two voices.',
+    act: 'Turn streaming on.',
+    say: { block: 'mouth', text: 'Waits for it all' },
     predicate: s => s.streaming,
   },
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['outcome', 'quiz'],
-    narration: `The first sound comes ${ms(OFF.wait! - ON.wait!)} sooner, and the model finishes writing exactly when it did. A latency budget shares the wait you can afford between the stages; streaming lets them overlap. For a sense of scale, people in conversation answer each other fast:`,
+    narration: `Streaming moves the first sound ${ms(OFF.wait! - ON.wait!)} sooner; writing ends as before. A latency budget splits the affordable wait across stages.`,
+    act: 'One question to finish.',
+    say: { block: 'watch', text: 'Speaks sooner' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which moment does the caller notice: the first sound, or the end of the writing?',
   },
@@ -139,11 +146,12 @@ export default function TheLatencyBudget() {
       steps={STEPS}
       initial={{ timed: false, p1: null, streaming: false, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync, focus }) => {
+      stage={({ state, sync, focus, say }) => {
         const r = state.streaming ? ON : OFF;
         return (
           <VoiceStage
             step={focus}
+            say={say}
             view={state.view}
             onView={view => sync({ ...state, view })}
             shown={{

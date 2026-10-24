@@ -6,11 +6,12 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { DEFAULT_LINE, runCall, type CallRun } from '../../lib/voice/engine';
-import { DEFAULT_DETECTOR, SILENCES, THRESHOLDS, type Silence, type Threshold } from '../../lib/voice/turns';
+import { DEFAULT_DETECTOR, FRAME_MS, SILENCES, THRESHOLDS, type Silence, type Threshold } from '../../lib/voice/turns';
 import { HOST, ms } from '../../lib/voice/latency';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
+import { PHONE_PARTS } from '../../components/scenes/phoneScene';
 import { Fact, PlanNote, Range, RecordedNote, Transcript, VoiceStage, segmentsOf, type View } from './kit';
 
 const MODULE = 'voice',
@@ -21,6 +22,7 @@ const NOISY_SILENCE: Silence = 800;
 const hesitant = (silence: Silence) => runCall('hesitant', { ...BASE, silence });
 const noisy = (threshold: Threshold) => runCall('noisy', { ...BASE, threshold, silence: NOISY_SILENCE });
 const SHORTEST = SILENCES[0];
+export const PARTS = PHONE_PARTS;
 
 interface S {
   p1: number | null;
@@ -43,7 +45,7 @@ const P1 = {
 /** read off the detector */
 export const outcome = () => (hesitant(SHORTEST).detected.cut ? 1 : 0);
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A clinic’s phone line keeps cutting off older callers mid-sentence. Callers who speak quickly are happy. What is the honest trade-off of a longer silence setting?',
   options: [
@@ -55,8 +57,8 @@ const QUIZ = {
   explanation:
     'The line can only know a turn has ended by waiting out the silence, so the wait is added to every reply.',
   why: [
-    'Every millisecond of waiting is added to every reply. Long enough, and the quick callers sit in dead air.',
-    'Right. That is the trade-off: cut-offs at one end, dead air at the other. Which callers you have decides where to sit.',
+    'Every millisecond of waiting is added to every reply, so quick callers end up in dead air.',
+    'Right: cut-offs at one end, dead air at the other, and your callers decide where to sit.',
     'It changes the wait, not the price: the silence happens before the model even starts.',
   ],
 };
@@ -73,15 +75,18 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['ravi', 'p1'],
     narration:
-      'A turn is one person’s stretch of talking. The line has to decide when the caller’s turn is over; deciding from the audio when someone is speaking is voice activity detection (VAD). Larkspur’s detector ends a turn after a set stretch of quiet: the silence setting. Ravi wants to change a delivery address, and he pauses while he thinks. Before you run it:',
+      'Voice activity detection (VAD) ends a turn after a stretch of quiet: the silence setting. Ravi pauses while he thinks.',
+    act: 'Predict his call.',
+    say: { block: 'phone', text: 'Ravi pauses' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'silence',
     focus: 'silence',
     visibleControls: ['p1', 'silence'],
-    narration:
-      'Move the silence setting through every value. The Timeline tab shows Ravi’s voice, the mark where his turn ended, and the reply.',
+    narration: 'The Timeline tab marks where his turn ended, and the reply.',
+    act: 'Try every silence setting.',
+    say: { block: 'watch', text: 'Wait grows' },
     setup: s => ({ ...s, seenS: [...new Set([...s.seenS, s.silence])] }),
     predicate: s => SILENCES.every(v => s.seenS.includes(v)),
     hint: 'Drag the slider, or use the arrow keys, until you have tried every value.',
@@ -90,7 +95,9 @@ export const STEPS: Step<S>[] = [
     id: 'noisy',
     focus: 'threshold',
     visibleControls: ['threshold'],
-    narration: `Short settings cut Ravi off (a cut-off: answering before the caller finished); the longest leaves dead air, a silence that runs on too long. Larkspur settles on ${ms(NOISY_SILENCE)}. Now Ravi calls from a building site, machinery humming, and says his order number quietly. What counts as quiet is the energy threshold: how loud a moment must be to count as speech. Move it through every value.`,
+    narration: `Short settings: cut-offs. The longest: dead air. Larkspur picks ${ms(NOISY_SILENCE)}. Ravi now calls quietly from a humming site.`,
+    act: 'Try every energy threshold.',
+    say: { block: 'phone', text: 'Machine hum' },
     setup: s => ({ ...s, seenT: [...new Set([...s.seenT, s.threshold])] }),
     predicate: s => THRESHOLDS.every(v => s.seenT.includes(v)),
     hint: 'Try the lowest, middle and highest threshold.',
@@ -99,8 +106,8 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['outcome', 'quiz'],
-    narration:
-      'Too low a threshold hears the hum as speech, so the turn never ends and the host gives up; too high, and Ravi’s quiet order number counts as silence. Real voice APIs expose these same two settings:',
+    narration: 'A low threshold hears the hum as speech and never ends the turn; a high one hears Ravi as silence.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What does every caller pay for a longer wait?',
   },
@@ -122,13 +129,14 @@ export default function WhoseTurnIsIt() {
         quiz: null,
       }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync, focus }) => {
+      stage={({ state, sync, focus, say }) => {
         const onNoisy = focus === 'threshold' || (focus === 'quiz' && state.seenT.length > 0);
         const r = onNoisy ? noisy(state.threshold) : hesitant(state.silence),
           ran = onNoisy || state.seenS.length > 0;
         return (
           <VoiceStage
             step={focus}
+            say={say}
             view={state.view}
             onView={view => sync({ ...state, view })}
             shown={{
@@ -196,7 +204,10 @@ export default function WhoseTurnIsIt() {
               </tbody>
             </table>
             <Transcript run={noisy(state.threshold)} />
-            <p className="vo-note">The threshold is in this site’s own units: the energy of each 20 ms of the clip.</p>
+            <PlanNote />
+            <p className="vo-note">
+              The threshold is in this site’s own units: the energy of each {FRAME_MS} ms of the clip.
+            </p>
           </>
         ),
         outcome: ({ state }) => (
