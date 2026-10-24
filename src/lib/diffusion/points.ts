@@ -1,11 +1,9 @@
 // Diffusion's learned 2-D denoiser (KTD8) in plain TypeScript: the MLP scripts/train/train_diffusion.py trained on
 // points from the hinge outline, the cosine noise schedule, and a seeded sampler. The sampler is shared with the
-// ideal denoiser (ideal.ts): both give a guess at the clean x0, and each step moves to the DDPM posterior around it.
+// ideal denoiser (schedule.ts): both give a guess at the clean x0, and each step moves to the DDPM posterior around it.
 import { halfToFloat } from '../lm/load';
 import { mulberry32 } from '../transformers/sample';
-
-/** The cosine schedule (Nichol and Dhariwal 2021), squeezed so t = 1 keeps a little signal; meta.json repeats it. */
-export const SCHEDULE = { kind: 'cosine', s: 0.008, squeeze: 0.985 };
+import { alphaBar, gaussian, type SCHEDULE, stepTo } from './schedule';
 
 /** [x1, y1, x2, y2]: one line of the hinge outline. */
 export type Segment = [number, number, number, number];
@@ -42,13 +40,6 @@ export function parsePoints(meta: PointsMeta, buf: ArrayBuffer): PointsModel {
   return { config: meta.model, tensors };
 }
 
-/** The share of signal left at time t: 1 at t = 0, about 0.0005 at t = 1. */
-export function alphaBar(t: number): number {
-  const { s, squeeze } = SCHEDULE,
-    f = (u: number) => Math.cos(((u + s) / (1 + s)) * (Math.PI / 2)) ** 2;
-  return f(t * squeeze) / f(0);
-}
-
 const gelu = (x: number) => 0.5 * x * (1 + Math.tanh(Math.sqrt(2 / Math.PI) * (x + 0.044715 * x ** 3)));
 
 function layer(x: Float64Array, w: Float32Array, b: Float32Array, act: boolean): Float64Array {
@@ -82,47 +73,72 @@ export function predictNoise(model: PointsModel, x: number, y: number, t: number
   return [out[0], out[1]];
 }
 
-/** A standard normal draw from a uniform source (Box-Muller). */
-export function gaussian(rand: () => number): number {
-  return Math.sqrt(-2 * Math.log(1 - rand())) * Math.cos(2 * Math.PI * rand());
+/** A batch of points on their way from noise to the outline: all advance one step at a time (`stepPoints`), so a page
+ * can spread the work over frames. */
+export interface PointRun {
+  /** x, y per point */
+  xy: Float64Array;
+  steps: number;
+  /** steps taken so far */
+  done: number;
+  rand: () => number;
 }
-
-/**
- * One step from time t to an earlier time s, given the guess x0 at the clean value: a draw from the DDPM posterior
- * q(x_s | x_t, x0) (Ho et al. 2020). At s = 0 it returns x0 itself.
- */
-export function stepTo(
-  x: Float64Array,
-  x0: ArrayLike<number>,
-  t: number,
-  s: number,
-  rand: () => number,
-): Float64Array<ArrayBuffer> {
-  const at = alphaBar(t),
-    as = alphaBar(s),
-    a = at / as,
-    k0 = (Math.sqrt(as) * (1 - a)) / (1 - at),
-    kt = (Math.sqrt(a) * (1 - as)) / (1 - at),
-    sd = Math.sqrt(((1 - as) / (1 - at)) * (1 - a)),
-    out = new Float64Array(x.length);
-  for (let i = 0; i < x.length; i++) out[i] = k0 * x0[i] + kt * x[i] + (sd ? sd * gaussian(rand) : 0);
-  return out;
+export function startPoints(n: number, steps: number, seed: number): PointRun {
+  const rand = mulberry32(seed);
+  return { xy: Float64Array.from({ length: 2 * n }, () => gaussian(rand)), steps, done: 0, rand };
 }
+/** Move points [from, to) of the run one step on (the run's next step); `nextStep` then counts the step taken. */
+export function stepPointRange(model: PointsModel, run: PointRun, from: number, to: number) {
+  const i = run.steps - run.done,
+    t = i / run.steps,
+    s = (i - 1) / run.steps,
+    ab = alphaBar(t),
+    k = Math.sqrt(1 - ab);
+  for (let p = from; p < to; p++) {
+    const x = run.xy[2 * p],
+      y = run.xy[2 * p + 1],
+      [ex, ey] = predictNoise(model, x, y, t),
+      next = stepTo(
+        Float64Array.of(x, y),
+        [(x - k * ex) / Math.sqrt(ab), (y - k * ey) / Math.sqrt(ab)],
+        t,
+        s,
+        run.rand,
+      );
+    run.xy[2 * p] = next[0];
+    run.xy[2 * p + 1] = next[1];
+  }
+}
+export const nextStep = (run: PointRun) => {
+  run.done++;
+};
+export const pointsOf = (run: PointRun): [number, number][] =>
+  Array.from({ length: run.xy.length / 2 }, (_, p) => [run.xy[2 * p], run.xy[2 * p + 1]]);
 
 /** n points drawn from noise in `steps` evenly spaced steps from t = 1 to 0; the same seed gives the same points. */
 export function samplePoints(model: PointsModel, n: number, steps: number, seed: number): [number, number][] {
-  const rand = mulberry32(seed),
+  const run = startPoints(n, steps, seed);
+  while (run.done < steps) {
+    stepPointRange(model, run, 0, n);
+    nextStep(run);
+  }
+  return pointsOf(run);
+}
+
+/** How close counts as on a training point: about a drawn dot's width. */
+export const ON = 0.02;
+/** Chapter 4's training points for the ideal denoiser: n points evenly spaced along the outline. */
+export function trainingPoints(outline: Segment[], n = 24): [number, number][] {
+  const lens = outline.map(([x1, y1, x2, y2]) => Math.hypot(x2 - x1, y2 - y1)),
+    total = lens.reduce((a, b) => a + b, 0),
     out: [number, number][] = [];
-  for (let p = 0; p < n; p++) {
-    let x = Float64Array.of(gaussian(rand), gaussian(rand));
-    for (let i = steps; i > 0; i--) {
-      const t = i / steps,
-        ab = alphaBar(t),
-        [ex, ey] = predictNoise(model, x[0], x[1], t),
-        k = Math.sqrt(1 - ab);
-      x = stepTo(x, [(x[0] - k * ex) / Math.sqrt(ab), (x[1] - k * ey) / Math.sqrt(ab)], t, (i - 1) / steps, rand);
-    }
-    out.push([x[0], x[1]]);
+  for (let k = 0; k < n; k++) {
+    let d = ((k + 0.5) * total) / n,
+      j = 0;
+    while (d > lens[j]) d -= lens[j++];
+    const [x1, y1, x2, y2] = outline[j],
+      u = d / lens[j];
+    out.push([x1 + u * (x2 - x1), y1 + u * (y2 - y1)]);
   }
   return out;
 }
