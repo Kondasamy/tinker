@@ -92,6 +92,13 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
         ['Grounded answer', 'An answer built from the passages it was given, so it can cite them.'],
         LLM,
       ],
+      clip: [
+        'Pasting every document in failed',
+        'A bare model guesses at the refund policy',
+        'Give it the documents it should answer from',
+        'A retriever picks the few passages that match',
+        'Retrieve, augment, generate: a sourced answer',
+      ],
     },
   },
   {

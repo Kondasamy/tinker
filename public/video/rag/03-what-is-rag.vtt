@@ -1,0 +1,16 @@
+WEBVTT
+
+00:00:00.300 --> 00:00:03.300
+Pasting every document in failed
+
+00:00:03.300 --> 00:00:07.260
+A bare model guesses at the refund policy
+
+00:00:07.260 --> 00:00:11.220
+Give it the documents it should answer from
+
+00:00:11.220 --> 00:00:15.180
+A retriever picks the few passages that match
+
+00:00:15.180 --> 00:00:18.500
+Retrieve, augment, generate: a sourced answer

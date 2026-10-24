@@ -1,0 +1,64 @@
+---
+// Opener-clip source (KTD3): every chapter clip's keyframes, drawn by the site's own scene code, one per line of the
+// chapter's `intro.clip`. scripts/clips.mjs reads the JSON this page writes and builds each HyperFrames project from it,
+// so a clip never draws anything the stage doesn't. A keyframe list must match its chapter's lines one to one.
+import { renderToStaticMarkup } from 'react-dom/server';
+import { createElement } from 'react';
+import IsoStage from '../lib/iso/IsoStage';
+import { staticTrack } from '../components/scenes/staticTrack';
+import { TRACK_BOARD } from '../components/canvas/track';
+import { MODULES } from '../lib/modules';
+import type { BlockType } from '../lib/iso/blocks';
+
+const track = (blocks: BlockType[]) =>
+  renderToStaticMarkup(createElement(IsoStage, { board: TRACK_BOARD, scene: staticTrack(blocks, { scale: 1.6 }), label: '', zoom: { k: 1.06, u: 0.5, v: 0.25 } }));
+// every static render gets the same useId prefix; keyframes share one composition, so each gets its own
+const own = (svg: string, tag: string) => {
+  const prefix = /id="(iso[\w-]*?-)hand"/.exec(svg)?.[1];
+  return prefix ? svg.replaceAll(prefix, tag) : svg;
+};
+
+// keyframes per `<module>/<chapter>`, one per clip line
+const FRAMES: Record<string, () => string[]> = {
+  'rag/03-what-is-rag': () => [
+    track([]),
+    track(['llm']),
+    track(['docs', 'llm']),
+    track(['docs', 'retriever', 'llm']),
+    track(['docs', 'retriever', 'llm']),
+  ],
+};
+
+const clips = MODULES.flatMap(m =>
+  m.chapters.flatMap(c => {
+    const key = `${m.id}/${c.id}`;
+    if (!c.intro.clip) return [];
+    const frames = (FRAMES[key]?.() ?? []).map((f, i) => own(f, `c${c.id}-k${i}-`));
+    if (frames.length !== c.intro.clip.length)
+      throw new Error(`${key}: ${frames.length} keyframes for ${c.intro.clip.length} clip lines`);
+    return [{ module: m.id, chapter: c.id, lines: c.intro.clip, frames }];
+  }),
+);
+// JSON in a script element: escape < so no string can close it
+const json = JSON.stringify(clips).replace(/</g, '\\u003c');
+---
+<html lang="en">
+  <head><meta charset="utf-8" /><title>Clip keyframes</title></head>
+  <body>
+    <script type="application/json" id="clips" set:html={json} />
+    {clips.map(c => (
+      <section>
+        <h2>{c.module}/{c.chapter}</h2>
+        {c.frames.map((f, i) => (
+          <figure>
+            <div class="frame" set:html={f} />
+            <figcaption>{c.lines[i]}</figcaption>
+          </figure>
+        ))}
+      </section>
+    ))}
+    <style>
+      .frame { width: 640px; }
+    </style>
+  </body>
+</html>
