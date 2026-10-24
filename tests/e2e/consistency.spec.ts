@@ -1,6 +1,6 @@
 // Replication & consistency: the intro, every chapter played by mouse and by keyboard only, its own progress key,
 // chapter 2's two receipts for one hinge, chapter 3's cut line, the timeline read with the arrow keys, "I'm not sure",
-// reduced motion, the recap, axe and phone width.
+// reduced motion, the recap, axe and phone width; the go-live checks: Module 23 kickers and share images, home's card.
 import { test, expect, type Page } from '@playwright/test';
 import { moduleOf } from '../../src/lib/modules';
 import { MOMENTS } from '../../src/lib/consistency/sim';
@@ -38,6 +38,28 @@ test('the intro shows the level, the author, the chapters and the Colorfigures c
   await page.getByRole('button', { name: 'Words' }).click();
   await expect(page.locator('.band .note.more')).toBeVisible();
   await axe(page);
+});
+
+test('Module 23 on the intro and the recap', async ({ page }) => {
+  await page.goto('/consistency/');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 23 · Replication & consistency');
+  await page.goto('/consistency/recap/');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 23 · Recap');
+});
+
+test('go-live: own share images and home’s card', async ({ page }) => {
+  await page.goto('/consistency/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/consistency\.jpg$/);
+  await page.goto(`/consistency/${CH1}/`);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    new RegExp(`/og/consistency-${CH1}\\.jpg$`),
+  );
+  await page.goto('/consistency/recap/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/consistency-recap\.jpg$/);
+  expect((await page.request.get('/og/consistency.jpg')).status()).toBe(200);
+  await page.goto('/');
+  await expect(page.locator('.module[data-module="consistency"] h4 a')).toHaveAttribute('href', '/consistency/');
 });
 
 test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({

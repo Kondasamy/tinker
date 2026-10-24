@@ -50,7 +50,7 @@ function Mark({ kind, cx, cy, r }: { kind: MarkKind; cx: number; cy: number; r: 
   return (
     <g>
       <rect x={cx - r} y={cy - r} width={r * 2} height={r * 2} fill={MARK_PAL[kind]} {...s} />
-      {/* a conflict: the sale the final count lost (U28 stamps it) */}
+      {/* a conflict: the sale the final count lost, marked by an ink diamond */}
       {kind === 'lost' && (
         <path d={`M${cx} ${cy - r - 3}l3 3l-3 3l-3-3z`} fill={INK} transform={`translate(0 ${-1})`} />
       )}

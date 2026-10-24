@@ -493,6 +493,17 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'databases')).toBe(21);
   });
 
+  it('has consistency as a live Advanced module after databases, numbered 23', () => {
+    expect(moduleOf('consistency')).toMatchObject({
+      title: 'Replication & consistency',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['databases'],
+    });
+    expect(moduleOf('consistency').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'consistency')).toBe(22);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

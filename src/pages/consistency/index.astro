@@ -13,11 +13,12 @@ import { STOCK_BOARD, stockAt, stockLabel, stockScene, type StockOpts } from '..
 import { EVENTS, MOMENTS, REPS, STOCK, clock, policyOf, runOf } from '../../lib/consistency/sim';
 import { WINNERS } from '../../lib/consistency/workbench';
 import { fact } from '../../lib/consistency/facts';
-import { moduleOf, chapterHref } from '../../lib/modules';
+import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('consistency');
+const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
 const CHAPTERS = MODULE.chapters;
 const pic = (o: Omit<StockOpts, 'scale'>): StockOpts => ({ ...o, scale: 1.4 });
 const ONE = runOf(policyOf({ r: 1, w: 1, rule: 'lww' }));
@@ -52,7 +53,7 @@ const FACTS: [string, string][] = [
     <main class="intro">
       <header class="hero">
         <div class="hero-text">
-          <p class="kicker">{MODULE.title}</p>
+          <p class="kicker">Module {NUMBER} · {MODULE.title}</p>
           <p class="module-meta"><span class="level">{MODULE.level}</span> · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
           <h1>Three copies of one count, and the day they disagree</h1>
           <p class="lede">Keeping a copy of your data in every region makes a shop fast and keeps it open. It also lets two regions sell the last item. Here you watch Larkspur’s three warehouses drift apart, then choose what each product can risk.</p>

@@ -67,6 +67,8 @@ import { ARCHIVE_BOARD, archiveAt, archiveLabel, archiveScene } from '../compone
 import { execute as dbExec } from '../lib/databases/planner';
 import { WINNERS as DB_WINNERS } from '../lib/databases/workbench';
 import { ONE as DB_ONE } from '../content/databases/requests';
+import { STOCK_BOARD, stockAt, stockLabel, stockScene } from '../components/scenes/stockScene';
+import { MOMENTS as CS_MOMENTS, policyOf as csPolicy, runOf as csRun } from '../lib/consistency/sim';
 
 const one =
   (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) =>
@@ -204,6 +206,11 @@ const FUSES_CARD = {
 const DEPOT = { ...depotAt(cacheRun(CACHE_WINNERS[0]), CACHE_MOMENTS.sale + 2), scale: 1.7 };
 // order 1042 found through its index, the winning plan's other indexes at the desk's end
 const ARCHIVE = { ...archiveAt(dbExec(DB_ONE, 'id'), DB_ONE), others: DB_WINNERS[0].length - 1, scale: 1.7 };
+// North selling the drill press West already sold, the line to West down
+const STOCK = {
+  ...stockAt(csRun(csPolicy({ r: 1, w: 1, rule: 'lww' }, { partition: true })), CS_MOMENTS.northSells),
+  scale: 1.7,
+};
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -475,6 +482,19 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
     name: 'Databases & indexes',
     iso: { board: ARCHIVE_BOARD, scene: archiveScene(ARCHIVE), label: archiveLabel(ARCHIVE) },
     topics: ['Full scans', 'B-tree indexes', 'Write cost', 'Column order', 'The query planner', 'Joins', 'Index plans'],
+  },
+  consistency: {
+    name: 'Replication & consistency',
+    iso: { board: STOCK_BOARD, scene: stockScene(STOCK), label: stockLabel(STOCK) },
+    topics: [
+      'Replicas',
+      'Replication lag',
+      'Concurrent writes',
+      'Partitions & CAP',
+      'Quorums',
+      'Last writer wins',
+      'Read your writes',
+    ],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];

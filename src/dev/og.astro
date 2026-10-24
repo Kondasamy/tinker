@@ -142,6 +142,9 @@ import {
   ONE as DB_ONE,
   TODAYS as DB_TODAYS,
 } from '../content/databases/requests';
+import { STOCK_BOARD, stockAt, stockScene, type StockOpts } from '../components/scenes/stockScene';
+import { MOMENTS as CS_M, policyOf as csPol, runOf as csRun } from '../lib/consistency/sim';
+import { WINNERS as CS_WINNERS } from '../lib/consistency/workbench';
 import { MOMENTS, TICKS, runOf as cacheRun } from '../lib/caching/sim';
 import { WINNERS as CACHE_WINNERS } from '../lib/caching/workbench';
 import { oneTrip } from '../content/caching/01-far-is-slow';
@@ -801,6 +804,24 @@ const DB_OG: Record<string, () => Omit<ArchiveOpts, 'scale'>> = {
   },
 };
 const dbOg = DB_OG[page.og]?.();
+// module 23: the three warehouses. The intro: North selling the drill press West already sold, the line down; 1: a
+// stale look; 2: the last hinge sold twice; 3: West refusing under quorums; 4: quorums with the line up; 5: reservations
+// at North; 6: sticky reads; 7: the first winning policy.
+const csOne = csRun(csPol({ r: 1, w: 1, rule: 'lww' })),
+  csOpen = csRun(csPol({ r: 1, w: 1, rule: 'lww' }, { partition: true })),
+  csRight = csRun(csPol({ r: 2, w: 2, rule: 'lww' }, { partition: true }));
+const STOCK_OG: Record<string, () => Omit<StockOpts, 'scale'>> = {
+  consistency: () => stockAt(csOpen, CS_M.northSells),
+  'consistency-01-one-count-three-copies': () => stockAt(csOne, CS_M.staleLook),
+  'consistency-02-two-buyers-one-hinge': () => stockAt(csOne, CS_M.lastHinge),
+  'consistency-03-the-link-goes-down': () => stockAt(csRight, CS_M.westSells),
+  'consistency-04-quorums': () => stockAt(csRun(csPol({ r: 2, w: 2, rule: 'lww' })), CS_M.staleLook),
+  'consistency-05-who-wins': () => stockAt(csRun(csPol({ r: 2, w: 2, rule: 'primary' })), CS_M.lastHinge),
+  'consistency-06-eventually': () =>
+    stockAt(csRun(csPol({ r: 1, w: 1, rule: 'lww' }, { sticky: true })), CS_M.priyaLooks),
+  'consistency-07-stock-policy': () => stockAt(csRun(CS_WINNERS[0]), CS_M.westSells),
+};
+const stockOg = STOCK_OG[page.og]?.();
 const lensOg =
   page.og === 'interpretability-03-the-guess-forming'
     ? (() => {
@@ -859,6 +880,7 @@ const curveOg =
           : examOg ? <IsoStage board={EXAM_BOARD} scene={examScene({ ...examOg, scale: 1.3 })} label="" />
           : fuseOg ? <IsoStage board={FUSE_BOARD} scene={fuseScene(fuseOg)} label="" />
           : dbOg ? <IsoStage board={ARCHIVE_BOARD} scene={archiveScene({ ...dbOg, scale: 1.3 })} label="" />
+          : stockOg ? <IsoStage board={STOCK_BOARD} scene={stockScene({ ...stockOg, scale: 1.4 })} label="" />
           : depotOgs ? <div class={depotOgs.length > 1 ? 'duo' : ''}>{depotOgs.map(o => <IsoStage board={DEPOT_BOARD} scene={depotScene({ ...o, scale: 1.3 })} label="" />)}</div>
           : lensOg ? <div class="tf-og"><Flat fig={lensOg} role="img" label="" /></div>
           : page.og === 'pre-training-06-bigger-or-longer' ? <div class="pt-og"><ScalingView budget={10} /></div>
