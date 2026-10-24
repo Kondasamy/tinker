@@ -4,7 +4,7 @@
 
 Each module is a short story you play through: the picture on the left is live, the story on the right asks you to do one thing at a time in it, and you watch what changes. Build the thing, break it, fix it.
 
-![Tinker home: one workshop, a plot per module; a wave names each module in turn. Eighteen modules are live, from RAG and tool calling to voice agents and pre-training](docs/images/home.png)
+![Tinker home: one workshop, a plot per module; a wave names each module in turn. Nineteen modules are live, from RAG and tool calling to pre-training and post-training](docs/images/home.png)
 
 ---
 
@@ -32,6 +32,7 @@ Every module has a level, a story, an intro at `/<module>/`, its chapters, and a
 | Advanced | [Inference engineering](#inference-engineering-inference) (Transformers recommended first) | Live, 7 chapters |
 | Advanced | [Agent sandboxing](#agent-sandboxing-sandboxing) (AI agents and Guardrails recommended first) | Live, 7 chapters |
 | Advanced | [Voice agents](#voice-agents-voice) (Tool calling and Multimodal recommended first) | Live, 7 chapters |
+| Advanced | [Post-training](#post-training-post-training) (Fine-tuning and Evals recommended first) | Live, 7 chapters |
 
 ### RAG: Retrieval-Augmented Generation (`/rag/`)
 
@@ -323,6 +324,22 @@ How a language model learns from nothing: random weights, a training run, and wh
 
 The chapters play at a foundry: crates of documents feed a furnace (the training run), the model grows beside it, and a shelf in front holds a checkpoint per saved step. The loss curves are one tab away. Larkspur mini's checkpoints are real, trained ahead of time and run in your browser; the variant runs (duplicated, leaked, half the data) are recorded.
 
+### Post-training (`/post-training/`)
+
+How a base model becomes an assistant: preferences, a grader that marks its drafts, and the answers that game a weak one. Back at Larkspur Supply Co., the team turns a base model into its assistant: with people's picks, with graders, and by finding where a grader gets gamed.
+
+| # | Chapter | What you do |
+|---|---|---|
+| 1 | Base or assistant | Ask a base model and a fine-tuned one the same question, and see one continue the text while the other answers |
+| 2 | Which is better? | Pick the better of two drafts, three times, and turn your picks into scores |
+| 3 | Learning from preferences | Move the toy policy toward your picks with DPO, and set how far it may stray |
+| 4 | Grade, don't judge | Let a grader that checks the key fact mark a group of drafts, and watch the right one rise |
+| 5 | Only what you can check | Run the grader on drafts it can't tell apart, and see that warmth never moves |
+| 6 | You get what you check | Train with a weak grader, watch an answer that games it win, then fix the grader |
+| 7 | Build a grader | Assemble a grader from rules so every question's right answer wins and nothing games it |
+
+The chapters play in an exam hall: the model at the back, a stack of answer cards per draft as tall as the toy policy's odds of writing it, and a grader's desk with a rubber stamp. The before-and-after bars are one tab away. The toy policy is a choice among answers written for this site, not a language model; its DPO and GRPO updates run live in your browser, and chapter 1's two replies are Larkspur mini's real base and fine-tuned weights.
+
 ---
 
 ## How it's built
@@ -331,7 +348,7 @@ The chapters play at a foundry: crates of documents feed a furnace (the training
 - **Real retrieval, precomputed answers (RAG):** the corpus is embedded at build time (`pnpm build:index`, all-MiniLM-L6-v2 and a cross-encoder reranker); the browser runs the real similarity, BM25, reranking, graph-walk and agent maths over those vectors. Model answers are pre-recorded for each kind of evidence that can reach the model, so every knob changes the outcome honestly.
 - **Recorded turns, live tools (Tool calling, AI agents):** the model's turns are pre-recorded per scenario (`data/tool-calling/turns/`). The host loop, a JSON Schema subset validator, the approval gate, the tools running on fixture data and an MCP-shaped JSON-RPC server all run in the browser (`src/lib/tools/`). A unit test checks every reachable control setting has a recorded turn. MCP facts come from `data/tool-calling/facts.json`, each with its source. The agent loop (`src/lib/agents/`) reuses those tools and adds plans, approval, budgets, a repeat detector, memory and helpers, all computed in the browser; its recorded turns are in `data/agents/turns/` and its facts in `data/agents/facts.json`. The guardrails loop (`src/lib/guardrails/`) puts defences around the model as host stages (input filters, the taint rule, the allow-list, the output filter, policy checks, approval); its turns are in `data/guardrails/turns/`, its stand-in classifier's hand-set scores in `data/guardrails/inbox.json`, and its attack and customer suites in `data/guardrails/suite.json`.
 - **Real retrieval, recorded grading (Evals):** each version of the assistant runs RAG's real retrieval over the same 12 questions and reads the recorded answer for what it found. Code graders run in the browser (`src/lib/evals/`); the model judge's verdicts, people's labels and repeated tries are recorded in `data/evals/`, and every combination a control can reach is checked by a unit test.
-- **Pictures:** hand-inked isometric figures drawn by the Colorfigures engine (see Credits), extended to orbit, zoom and turn the view. Each module leads with a scene you can picture rather than a flow chart: RAG's pipeline on a workbench, tool calling's back office (`src/components/scenes/officeScene.ts`), evals' test bench (`evalScene.ts`), guardrails' mail room (`guardScene.ts`), tokens' token press (`tokenScene.ts`), transformers' engine room (`engineScene.ts`), context's window desk (`windowScene.ts`), fine-tuning's training bench (`trainScene.ts`), structured outputs' stencil press (`stencilScene.ts`), reasoning's scratchpad desk (`thinkScene.ts`), small models' apprentice's bench (`routerScene.ts`), inference's serving floor (`serveScene.ts`), observability's control room (`traceScene.ts`), sandboxing's glass room (`sandboxScene.ts`), multimodal's scanning table (`scanScene.ts`), voice's phone desk (`phoneScene.ts`), pre-training's foundry (`forgeScene.ts`), and the home page's animated workshop with a plot per module (`heroScene.ts`): a wave hops each plot and names it in turn. Flat sequence figures (lanes and message cards, `src/lib/iso/flat.ts`) in the same ink show the exact messages, a tab away. Names sit in label pills so they stay readable.
+- **Pictures:** hand-inked isometric figures drawn by the Colorfigures engine (see Credits), extended to orbit, zoom and turn the view. Each module leads with a scene you can picture rather than a flow chart: RAG's pipeline on a workbench, tool calling's back office (`src/components/scenes/officeScene.ts`), evals' test bench (`evalScene.ts`), guardrails' mail room (`guardScene.ts`), tokens' token press (`tokenScene.ts`), transformers' engine room (`engineScene.ts`), context's window desk (`windowScene.ts`), fine-tuning's training bench (`trainScene.ts`), structured outputs' stencil press (`stencilScene.ts`), reasoning's scratchpad desk (`thinkScene.ts`), small models' apprentice's bench (`routerScene.ts`), inference's serving floor (`serveScene.ts`), observability's control room (`traceScene.ts`), sandboxing's glass room (`sandboxScene.ts`), multimodal's scanning table (`scanScene.ts`), voice's phone desk (`phoneScene.ts`), pre-training's foundry (`forgeScene.ts`), post-training's exam hall (`examScene.ts`), and the home page's animated workshop with a plot per module (`heroScene.ts`): a wave hops each plot and names it in turn. Flat sequence figures (lanes and message cards, `src/lib/iso/flat.ts`) in the same ink show the exact messages, a tab away. Names sit in label pills so they stay readable.
 - **Search:** every page has its own title, description, canonical URL and share image; intros and chapters carry schema.org course and lesson data with breadcrumbs; `/sitemap.xml` and `/robots.txt` are built from the page list, and recaps and the 404 page stay out of search.
 - **Works on a phone:** below 861px the picture stacks above the story, pills grow, and the sequence shows one message at a time.
 
@@ -368,6 +385,7 @@ The chapters play at a foundry: crates of documents feed a furnace (the training
 | `src/lib/sandboxing/`, `data/sandboxing/` | Sandboxing engine (the modelled sandbox: mounts, hidden paths, egress and where the secret lives; the agent loop with its recorded turns, the attack and task suite, the red-team workbench) and its files, tools, turns and facts |
 | `src/lib/multimodal/`, `data/multimodal/` | Multimodal engine (the images drawn in code, token counts from the patch rule and its downscale, the recorded readings graded field by field, the workbench) and its readings, references and facts |
 | `src/lib/voice/`, `data/voice/`, `public/data/voice/` | Voice engine (the end-of-turn detector over the clips' envelopes, the latency sums, the recorded transcripts and replies, the one clip player, the workbench) and its script, calls, transcripts, envelopes, facts and the committed MP3 clips |
+| `src/lib/post-training/`, `data/post-training/` | Post-training engine (the toy policy, DPO's closed form, seeded GRPO, graders built from rules, the workbench) and its written answers, references and facts |
 | `src/lib/pre-training/`, `data/pre-training/`, `public/data/pre-training/` | Pre-training engine (the base run's checkpoints read live, the recorded variant runs, the published scaling fits, the workbench) and its prompts, runs, scaling fits, facts and the committed checkpoints |
 | `src/lib/tokens/`, `data/tokens/` | Tokens engine (counts, merges, neighbours over RAG's vectors, the prompt workbench) and its recorded real tokenizers, sentences and facts |
 | `src/lib/iso/` | The drawing engine (Colorfigures, adapted), the isometric stage and the flat figure kit, shared by every module |
@@ -388,7 +406,7 @@ pnpm install    # install exact dependency versions from pnpm-lock.yaml
 pnpm dev        # start the dev server on http://localhost:4321
 ```
 
-Open http://localhost:4321 for the Tinker home; the modules are at http://localhost:4321/rag/, http://localhost:4321/tool-calling/, http://localhost:4321/agents/, http://localhost:4321/evals/, http://localhost:4321/guardrails/, http://localhost:4321/tokens/, http://localhost:4321/transformers/, http://localhost:4321/context/, http://localhost:4321/fine-tuning/, http://localhost:4321/structured-outputs/, http://localhost:4321/reasoning/, http://localhost:4321/small-models/, http://localhost:4321/inference/, http://localhost:4321/observability/, http://localhost:4321/sandboxing/, http://localhost:4321/multimodal/, http://localhost:4321/voice/ and http://localhost:4321/pre-training/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap`, `/dev/warmup`, `/dev/agents`, `/dev/evals`, `/dev/guardrails`, `/dev/tokens`, `/dev/transformers`, `/dev/context`, `/dev/fine-tuning`, `/dev/structured-outputs`, `/dev/reasoning`, `/dev/small-models`, `/dev/inference`, `/dev/observability`, `/dev/sandboxing`, `/dev/multimodal`, `/dev/voice` and `/dev/pre-training`. These pages are left out of production builds.
+Open http://localhost:4321 for the Tinker home; the modules are at http://localhost:4321/rag/, http://localhost:4321/tool-calling/, http://localhost:4321/agents/, http://localhost:4321/evals/, http://localhost:4321/guardrails/, http://localhost:4321/tokens/, http://localhost:4321/transformers/, http://localhost:4321/context/, http://localhost:4321/fine-tuning/, http://localhost:4321/structured-outputs/, http://localhost:4321/reasoning/, http://localhost:4321/small-models/, http://localhost:4321/inference/, http://localhost:4321/observability/, http://localhost:4321/sandboxing/, http://localhost:4321/multimodal/, http://localhost:4321/voice/, http://localhost:4321/pre-training/ and http://localhost:4321/post-training/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap`, `/dev/warmup`, `/dev/agents`, `/dev/evals`, `/dev/guardrails`, `/dev/tokens`, `/dev/transformers`, `/dev/context`, `/dev/fine-tuning`, `/dev/structured-outputs`, `/dev/reasoning`, `/dev/small-models`, `/dev/inference`, `/dev/observability`, `/dev/sandboxing`, `/dev/multimodal`, `/dev/voice`, `/dev/pre-training` and `/dev/post-training`. These pages are left out of production builds.
 
 To try the production build locally:
 
