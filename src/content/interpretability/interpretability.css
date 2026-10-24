@@ -1,0 +1,107 @@
+/* Interpretability stage: shares the tool-calling stage frame (.tc-*) and Fine-tuning's loading card (.ft-*, through
+   fine-tuning/kit). These are the Lens tab, the top-5 table and the fuse switches. */
+.tc-frame .ip-lens {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+}
+.tc-frame .ip-lens svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  flex: none;
+}
+.ip-lens [role="gridcell"]:focus {
+  outline: none;
+}
+.ip-lens svg:focus-within {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.ip-range {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ip-range input {
+  width: 100%;
+}
+.ip-readout {
+  margin: 0;
+  min-height: 1.4em;
+  font:
+    700 13px ui-monospace,
+    Menlo,
+    monospace;
+}
+.ip-top code {
+  font:
+    700 13px ui-monospace,
+    Menlo,
+    monospace;
+}
+.ip-top td {
+  white-space: nowrap;
+}
+.ip-top td[data-mark] {
+  background: #d9f0e3;
+}
+.ip-fuses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ip-bars {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ip-bars li {
+  display: grid;
+  grid-template-columns: 9.5em 1fr 4.5em;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+.ip-bars .bar {
+  height: 12px;
+  border: 1.2px solid var(--ink);
+  border-radius: 4px;
+  background: linear-gradient(to right, #ef6a4c var(--w), transparent var(--w));
+}
+.ip-grid {
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.ip-grid th,
+.ip-grid td {
+  padding: 2px 4px;
+  text-align: center;
+}
+.ip-grid button {
+  font:
+    700 12px ui-monospace,
+    Menlo,
+    monospace;
+  min-width: 2.6em;
+  min-height: 32px;
+  border: 1.2px solid var(--ink);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--ink);
+  cursor: pointer;
+}
+.ip-grid button[aria-pressed="true"] {
+  background: #f4b829;
+}
+.ip-grid button[data-flip] {
+  background: #93d3b0;
+}
+.ip-scroll {
+  overflow-x: auto;
+}

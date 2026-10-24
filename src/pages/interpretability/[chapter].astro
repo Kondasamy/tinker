@@ -1,0 +1,29 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import WhyDidItSayThat from '../../content/interpretability/01-why-did-it-say-that';
+import PullAFuse from '../../content/interpretability/02-pull-a-fuse';
+import TheGuessForming from '../../content/interpretability/03-the-guess-forming';
+import Patching from '../../content/interpretability/04-patching';
+import Steering from '../../content/interpretability/05-steering';
+import OneNeuronManyMeanings from '../../content/interpretability/06-one-neuron-many-meanings';
+import TheSmallestSet from '../../content/interpretability/07-the-smallest-set';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('interpretability').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="interpretability" chapter={chapter} title={title}>
+  {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
+      hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
+  {chapter === '01-why-did-it-say-that' ? <WhyDidItSayThat client:load />
+    : chapter === '02-pull-a-fuse' ? <PullAFuse client:load />
+    : chapter === '03-the-guess-forming' ? <TheGuessForming client:load />
+    : chapter === '04-patching' ? <Patching client:load />
+    : chapter === '05-steering' ? <Steering client:load />
+    : chapter === '06-one-neuron-many-meanings' ? <OneNeuronManyMeanings client:load />
+    : <TheSmallestSet client:load />}
+</ChapterLayout>
