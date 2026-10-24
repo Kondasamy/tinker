@@ -1,8 +1,9 @@
-import { useEffect, useReducer, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from 'react';
 import { reduce, startRun, isRun, type Step, type Run, type Action } from './steps';
 import { loadChapter, saveChapter, markDone } from '../../lib/progress';
 import { moduleOf } from '../../lib/modules';
 import Drawer from './Drawer';
+import { markTerms, type TermMark } from './terms';
 
 /** What a step control gets. `apply` hands the next state to the runner, which checks the step's predicate;
  * `sync` does too, but a miss is never a failed try (e.g. "I'm not sure"). */
@@ -126,6 +127,19 @@ export default function StepRunner<S>({
     toCard();
   }, [run.index, run.done]);
 
+  // each chapter word is marked once, at its first use in the narration (KTD3); one definition open at a time
+  const marked = useMemo(
+    () =>
+      markTerms(
+        steps.map(st => st.narration),
+        ch?.intro.terms ?? [],
+      ),
+    [steps, ch],
+  );
+  const [term, setTerm] = useState<TermMark | null>(null);
+  useEffect(() => setTerm(null), [run.index]);
+  const [logOpen, setLogOpen] = useState(false); // kept while the reader stays, even when Back empties the log
+
   const panel = run.drawer ? panels[run.drawer] : undefined;
   const past = steps.slice(0, run.done ? steps.length - 1 : run.index);
   const inspectTarget = inspectPanel ?? Object.keys(panels)[0];
@@ -146,31 +160,28 @@ export default function StepRunner<S>({
             <p className="goal">
               <strong>This chapter:</strong> {ch.intro.goal}
             </p>
-            <div className="learn">
+            <details className="about">
+              <summary>About this chapter</summary>
               <p className="lbl">You will learn</p>
               <ul>
                 {ch.intro.learn.map(l => (
                   <li key={l}>{l}</li>
                 ))}
               </ul>
-            </div>
-            {ch.intro.terms.length > 0 && (
-              <details className="terms">
-                <summary>Words you’ll meet ({ch.intro.terms.length})</summary>
-                <dl>
-                  {ch.intro.terms.map(([t, d]) => (
-                    <div key={t}>
-                      <dt>{t}</dt>
-                      <dd>{d}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </details>
-            )}
-            <p className="how">
-              The picture on the left is live. Each step below asks you to do one thing in it; the story continues here
-              as you go.
-            </p>
+              {ch.intro.terms.length > 0 && (
+                <>
+                  <p className="lbl">Words you’ll meet</p>
+                  <dl>
+                    {ch.intro.terms.map(([t, d]) => (
+                      <div key={t}>
+                        <dt>{t}</dt>
+                        <dd>{d}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </>
+              )}
+            </details>
             {(run.index > 0 || run.done) && (
               <button type="button" className="chip resume" onClick={toCard}>
                 {run.done ? 'You finished this chapter: see the end ↓' : `Continue at step ${run.index + 1} ↓`}
@@ -179,16 +190,51 @@ export default function StepRunner<S>({
           </header>
         )}
         {past.length > 0 && (
-          <ol className="log" aria-label="Story so far">
-            {past.map(st => (
-              <li key={st.id}>{st.narration}</li>
-            ))}
-          </ol>
+          <details className="log-fold" open={logOpen} onToggle={e => setLogOpen(e.currentTarget.open)}>
+            <summary>Story so far ({past.length})</summary>
+            <ol className="log" aria-label="Story so far">
+              {past.map(st => (
+                <li key={st.id}>{st.narration}</li>
+              ))}
+            </ol>
+          </details>
         )}
-        <section className="card" aria-label="Next step" ref={cardRef}>
+        <section
+          className="card"
+          aria-label="Next step"
+          ref={cardRef}
+          onKeyDown={e => {
+            if (e.key === 'Escape' && term) setTerm(null);
+          }}
+        >
           <div aria-live="polite" aria-atomic="true">
             <p className="count">{run.done ? 'Chapter complete' : `Step ${run.index + 1} of ${steps.length}`}</p>
-            <p className="narration">{step.narration}</p>
+            <p className="narration">
+              {(marked[run.index] ?? [step.narration]).map(seg =>
+                typeof seg === 'string' ? (
+                  seg
+                ) : (
+                  <button
+                    key={seg.term}
+                    type="button"
+                    className="term"
+                    aria-expanded={term?.term === seg.term}
+                    aria-controls="term-def"
+                    onClick={() => setTerm(t => (t?.term === seg.term ? null : seg))}
+                  >
+                    {seg.text}
+                  </button>
+                ),
+              )}
+            </p>
+          </div>
+          {/* outside the atomic live region, so opening a word never re-reads the whole step */}
+          <div id="term-def" className="term-def" aria-live="polite">
+            {term && (
+              <p>
+                <strong>{term.term}:</strong> {term.def}
+              </p>
+            )}
           </div>
           {step.visibleControls.map(name => (
             <div key={name} className="control" data-control={name} data-focus={step.focus === name || undefined}>

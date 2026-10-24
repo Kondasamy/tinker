@@ -121,20 +121,28 @@ const m = moduleOf(module);
   .intro .goal { border-left: 3px solid var(--acc); padding: 2px 0 2px 10px; }
   .intro .lbl { margin: 0; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
   .intro ul { margin: 4px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
-  .intro .terms summary { cursor: pointer; font-weight: 700; }
-  .intro dl { margin: 8px 0 0; display: flex; flex-direction: column; gap: 8px; }
+  /* the learning goals and the word list fold away: the opening is the story and the question (KTD2) */
+  .intro .about summary, .log-fold summary { cursor: pointer; font-weight: 700; font-size: 13px; color: var(--muted); }
+  .intro .about[open] { display: flex; flex-direction: column; gap: 6px; }
+  .intro .about[open] summary { margin-bottom: 4px; }
+  .intro dl { margin: 4px 0 0; display: flex; flex-direction: column; gap: 8px; }
   .intro dt { font-weight: 800; }
   .intro dd { margin: 0; color: var(--ink); }
-  .intro .how { font-size: 13px; color: var(--muted); }
   .intro .resume { align-self: flex-start; }
-  /* steps already done stay as the story so far, quieter than the current step */
-  .log { margin: 0; padding: 12px 0 0; list-style: none; display: flex; flex-direction: column; gap: 10px; border-top: 1.5px dashed var(--rule); font-size: 13.5px; line-height: 1.5; color: var(--muted); }
+  /* steps already done stay as the story so far, folded and quieter than the current step */
+  .log-fold { border-top: 1.5px dashed var(--rule); padding-top: 10px; }
+  .log { margin: 0; padding: 12px 0 0; list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 13.5px; line-height: 1.5; color: var(--muted); }
   .log li { padding-left: 22px; position: relative; }
   .log li::before { content: '✓'; position: absolute; left: 0; color: var(--ok); font-weight: 800; }
 
   .card { background: var(--card); border: 1.5px solid var(--ink); border-radius: 14px; padding: 18px; box-shadow: 3px 3px 0 var(--ink); display: flex; flex-direction: column; gap: 14px; }
   .card .count { margin: 0; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
   .card .narration { margin: 4px 0 0; font-size: 16px; font-weight: 700; line-height: 1.45; }
+  /* a chapter word, defined where it is first used (KTD3) */
+  .card .term { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: help; text-decoration: underline dotted 1.5px; text-underline-offset: 3px; }
+  .card .term[aria-expanded='true'] { background: var(--acc); border-radius: 3px; }
+  .card .term-def:empty { display: contents; }
+  .card .term-def p { margin: -6px 0 0; font-size: 13.5px; line-height: 1.5; border-left: 3px solid var(--acc); padding: 2px 0 2px 10px; }
   .card .hint { margin: 0; font-size: 13px; border-left: 3px solid var(--acc); padding: 2px 0 2px 10px; }
   .recover { display: flex; flex-wrap: wrap; gap: 8px; border-top: 1px dashed var(--rule); padding-top: 12px; }
   .recover .chip { font-size: 12px; box-shadow: none; border-color: var(--rule); }
