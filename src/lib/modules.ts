@@ -21,6 +21,7 @@ import { PRE_TRAINING_MODULE } from '../content/pre-training/module';
 import { INTERPRETABILITY_MODULE } from '../content/interpretability/module';
 import { CACHING_MODULE } from '../content/caching/module';
 import { DATABASES_MODULE } from '../content/databases/module';
+import { CONSISTENCY_MODULE } from '../content/consistency/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -97,12 +98,7 @@ export const MODULES: Module[] = [
   INTERPRETABILITY_MODULE,
   CACHING_MODULE,
   DATABASES_MODULE,
-  planned(
-    'consistency',
-    'Replication & consistency',
-    'Advanced',
-    'Three warehouses, one stock count: how the last hinge gets sold twice, and what each fix costs.',
-  ),
+  CONSISTENCY_MODULE,
   planned(
     'ab-testing',
     'A/B testing',

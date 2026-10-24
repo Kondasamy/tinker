@@ -1,0 +1,38 @@
+{
+  "note": "A morning of orders and stock checks at Larkspur's three warehouses, 10:00 to 10:29 a minute at a time, written for this site, not logged traffic. An order buys one unit; a look is a customer checking the stock count. The partition is the morning's outage: the phone line to West is down for the minutes in [from, to). It happens only when a chapter cuts the line.",
+  "ticks": 30,
+  "stock": { "hinge": 7, "drill": 1 },
+  "partitions": [{ "from": 6, "to": 14, "cut": "west" }],
+  "events": [
+    { "t": 0, "kind": "look", "at": "west", "product": "hinge", "who": "Ola" },
+    { "t": 1, "kind": "order", "at": "north", "product": "hinge", "who": "Ana" },
+    { "t": 2, "kind": "look", "at": "west", "product": "hinge", "who": "Ola" },
+    { "t": 3, "kind": "look", "at": "west", "product": "hinge", "who": "Ola" },
+    { "t": 4, "kind": "order", "at": "east", "product": "hinge", "who": "Ben" },
+    { "t": 7, "kind": "order", "at": "west", "product": "hinge", "who": "Gus" },
+    { "t": 8, "kind": "order", "at": "west", "product": "drill", "who": "Dev" },
+    { "t": 10, "kind": "order", "at": "north", "product": "hinge", "who": "Hal" },
+    { "t": 11, "kind": "look", "at": "west", "product": "drill", "who": "Dev" },
+    { "t": 12, "kind": "order", "at": "north", "product": "drill", "who": "Eve" },
+    { "t": 16, "kind": "order", "at": "north", "product": "hinge", "who": "Priya" },
+    { "t": 17, "kind": "look", "at": "west", "product": "hinge", "who": "Priya" },
+    { "t": 18, "kind": "look", "at": "west", "product": "hinge", "who": "Priya" },
+    { "t": 20, "kind": "order", "at": "east", "product": "hinge", "who": "Ivy" },
+    { "t": 22, "kind": "order", "at": "north", "product": "hinge", "who": "Jo" },
+    { "t": 22, "kind": "order", "at": "west", "product": "hinge", "who": "Kim" },
+    { "t": 24, "kind": "look", "at": "east", "product": "hinge", "who": "Lou" },
+    { "t": 26, "kind": "order", "at": "east", "product": "drill", "who": "Max" },
+    { "t": 28, "kind": "look", "at": "west", "product": "drill", "who": "Dev" }
+  ],
+  "moments": {
+    "firstSale": 1,
+    "staleLook": 2,
+    "caughtUp": 3,
+    "westSells": 8,
+    "northSells": 12,
+    "heal": 14,
+    "priyaBuys": 16,
+    "priyaLooks": 17,
+    "lastHinge": 22
+  }
+}

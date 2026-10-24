@@ -1,0 +1,143 @@
+/* Consistency stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
+   tool-calling/kit). These are the timeline, the clock, the sliders and the story column's receipts and tables. */
+.cs-timeline {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+  flex: 1;
+  justify-content: center;
+}
+.cs-timeline svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  font-family: ui-monospace, Menlo, monospace;
+}
+.cs-col {
+  cursor: pointer;
+  outline: none;
+}
+.cs-timeline svg:focus-within {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.cs-readout {
+  margin: 0;
+  font:
+    700 12.5px ui-monospace,
+    Menlo,
+    monospace;
+  min-height: 4.2em;
+}
+.cs-key {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 12.5px;
+}
+.cs-key li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cs-key i {
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+}
+.cs-key i.o {
+  border-radius: 50%;
+}
+.cs-key i.x {
+  border: none;
+  background:
+    linear-gradient(45deg, transparent 42%, #d9573f 42%, #d9573f 58%, transparent 58%),
+    linear-gradient(-45deg, transparent 42%, #d9573f 42%, #d9573f 58%, transparent 58%);
+}
+.cs-key i.bar {
+  width: 3px;
+  border: none;
+  background: #3b5bb5;
+}
+.cs-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.cs-range {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0;
+}
+.cs-range label {
+  font-weight: 700;
+  font-size: 14px;
+}
+.cs-range input {
+  width: 100%;
+}
+.cs-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+.cs-receipts {
+  margin: 8px 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cs-receipts li {
+  border: 1.5px dashed var(--ink);
+  border-radius: 6px;
+  padding: 6px 10px;
+  background: var(--card);
+  font-size: 14px;
+}
+.cs-receipts li[data-result="refused"] {
+  border-style: solid;
+  color: var(--bad);
+}
+.cs-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.cs-headline strong {
+  font:
+    800 30px / 1 ui-monospace,
+    Menlo,
+    monospace;
+}
+.cs-product {
+  border: 1.5px solid var(--rule);
+  border-radius: 12px;
+  padding: 6px 12px;
+  margin: 8px 0;
+}
+.cs-product h3 {
+  margin: 4px 0;
+  font-size: 15px;
+}
+.tc-ledger td.ok {
+  color: var(--ok);
+  font-weight: 800;
+}
+.tc-ledger td.bad {
+  color: var(--bad);
+  font-weight: 800;
+}
