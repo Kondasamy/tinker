@@ -104,7 +104,7 @@ export function RagStage<S extends RagState>({
       />
       <figcaption>
         {/* the full line is for screen readers; the picture's model pill shows the verdict, so the visible line is short */}
-        <p className="announce sr-only" aria-live="polite" aria-atomic="true" data-testid="announce">
+        <p className="announce sr" aria-live="polite" aria-atomic="true" data-testid="announce">
           {summary(run.out)}
         </p>
         <p className="announce" aria-hidden="true">

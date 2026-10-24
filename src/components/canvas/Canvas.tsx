@@ -57,6 +57,7 @@ import { trackLayout, TRACK_BOARD, BAYS, type Placed } from './track';
 import { BENCH_BOARD, COLS, ROWS, addNode, cellAt, connect, cut, moveNode, removeNode, validTargets } from './bench';
 import Knobs, { BLOCK_KNOBS } from './Knobs';
 import { LOAD_FAILED, VERDICT_LABEL } from '../panels/logic';
+import type { Say } from '../story/steps';
 import './canvas.css';
 
 export interface CanvasProps {
@@ -66,7 +67,7 @@ export interface CanvasProps {
   /** block the current step is about: drawn with a soft ring */
   focus?: string;
   /** the step's callout, pinned above a block on the board (KTD7) */
-  say?: { block: string; text: string };
+  say?: Say;
   /** this chapter's number: the track outlines only the blocks it adds */
   chapter?: number;
   /** knob panel for the selected block (default true). Inside a step pass false and render <Knob name=…> as step controls. */
@@ -396,15 +397,18 @@ export default function Canvas({
         .map(n => {
           // phones keep names only, except the model, whose pill carries the verdict
           const stat = narrow && n.id !== 'llm' ? '' : statOf(n.id, s, out, index);
-          const pill = blockTag(
+          return blockTag(
             n.id,
-            { x: n.x, y: n.y, stat, selected: s.selected === n.id },
+            {
+              x: n.x,
+              y: n.y,
+              stat,
+              selected: s.selected === n.id,
+              pill: n.id === 'llm' && llmState ? VERDICT_FILL[llmState] : undefined,
+            },
             narrow ? 2 : 1,
             bench || !BAYS[n.id],
           );
-          return n.id === 'llm' && llmState && !(s.selected === n.id)
-            ? pill.replace('fill="#fff4d6"', `fill="${VERDICT_FILL[llmState]}"`)
-            : pill;
         })
         .join('');
     // the step's callout; on a phone only when it stays short enough to fit

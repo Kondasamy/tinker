@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from 'react';
-import { reduce, startRun, isRun, type Step, type Run, type Action } from './steps';
+import { reduce, startRun, isRun, type Step, type Run, type Action, type Say } from './steps';
 import { loadChapter, saveChapter, markDone } from '../../lib/progress';
 import { moduleOf } from '../../lib/modules';
 import Drawer from './Drawer';
@@ -21,7 +21,7 @@ export interface StageProps<S> {
   sync: (next: S) => void;
   focus?: string;
   /** the step's callout for the picture (KTD7) */
-  say?: { block: string; text: string };
+  say?: Say;
   /** 1-based chapter number within the module */
   chapter?: number;
   inspect: (panel: string, sheet?: boolean) => void;

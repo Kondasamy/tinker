@@ -178,11 +178,12 @@ let _clipN = 0, _prefix = '';
 // dx, dy = where the pill sits, in screen units at the reference zoom (they scale with the figure like stroke widths).
 // on = that part is working right now (the pill turns the accent colour). Labels can be hidden with the Labels switch.
 // adapted: scale enlarges the pill for small figures (a phone, a thumbnail), where the reference size is unreadable
-export function tag(p3, dx, dy, text, on=false, scale=1){
+// adapted: fill colours a resting pill (e.g. a verdict); `on` still wins
+export function tag(p3, dx, dy, text, on=false, scale=1, fill='#fff4d6'){
   const k = INK_K * scale, [X,Y] = P(...p3), fs = 8.6*k, w = text.length*fs*.62 + fs*1.5, h = fs*1.8, cx = X + dx*k, cy = Y + dy*k;
   return `<g class="tag${on ? ' on' : ''}"><path d="M${f(X)} ${f(Y)}L${f(cx)} ${f(cy)}" fill="none" stroke="${INK}" stroke-width="1"/>`
     + `<circle cx="${f(X)}" cy="${f(Y)}" r="${f(1.3*k)}" fill="${INK}"/>`
-    + `<rect x="${f(cx-w/2)}" y="${f(cy-h/2)}" width="${f(w)}" height="${f(h)}" rx="${f(h/2)}" fill="${on ? 'var(--accent,#f4b829)' : '#fff4d6'}" stroke="${INK}" stroke-width="1.2"/>`
+    + `<rect x="${f(cx-w/2)}" y="${f(cy-h/2)}" width="${f(w)}" height="${f(h)}" rx="${f(h/2)}" fill="${on ? 'var(--accent,#f4b829)' : fill}" stroke="${INK}" stroke-width="1.2"/>`
     + `<text x="${f(cx)}" y="${f(cy+fs*.36)}" font-size="${f(fs)}" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-weight="800" letter-spacing=".04em" fill="${INK}">${text}</text></g>`;
 }
 // clip ids carry the frame's prefix so stages sharing a page never collide

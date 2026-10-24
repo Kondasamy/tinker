@@ -63,6 +63,7 @@ export interface BlockOpts {
   selected?: boolean; // accent ring on the floor
   lit?: boolean; // retriever lens glows when it found something
   state?: 'ok' | 'warn' | 'bad'; // LLM screen / grader needle
+  pill?: string; // colour of the name pill at rest (the model's verdict)
 }
 
 type Mat = { l: string; m: string; d: string };
@@ -486,13 +487,17 @@ export function blockTag(type: BlockType, o: BlockOpts, scale = 1, even = true):
   // even: every pill floats at the same height (above the tallest block), so neighbours sit in an even row; the
   // leader line still runs down to this block's top. Off for blocks out of the row (the track's side bays).
   const lift = even ? (TALLEST - spec.ht) / (inkK() * scale) : 0;
-  return `<g class="block-tag" data-pick="${type}" aria-hidden="true" pointer-events="none">${tag([o.x, o.y, BH + spec.ht], 0, -16 - lift, text, !!o.selected, scale)}</g>`;
+  return `<g class="block-tag" data-pick="${type}" aria-hidden="true" pointer-events="none">${tag([o.x, o.y, BH + spec.ht], 0, -16 - lift, text, !!o.selected, scale, o.pill)}</g>`;
 }
 
-/** A step's callout (KTD7): a lit pill one row above the name pills, so it never sits on a neighbour's name. */
+/** A step's callout (KTD7): a lit pill over a point, above where its name pill sits (dy, as in tag()). */
+export const sayTag = (p3: number[], text: string, scale = 1, dy = -34) =>
+  `<g class="callout" aria-hidden="true" pointer-events="none">${tag(p3, 0, dy, esc(text), true, scale)}</g>`;
+
+/** A block's callout, one row above the even row of name pills, so it never sits on a neighbour's name. */
 export function calloutTag(type: BlockType, x: number, y: number, text: string, scale = 1): string {
   const lift = (TALLEST - BLOCKS[type].ht) / (inkK() * scale);
-  return `<g class="callout" aria-hidden="true" pointer-events="none">${tag([x, y, BH + BLOCKS[type].ht], 0, -40 - lift, esc(text), true, scale)}</g>`;
+  return sayTag([x, y, BH + BLOCKS[type].ht], text, scale, -40 - lift);
 }
 
 // Shadow of a block on the board; draw all shadows before the blocks. clip = boardTop(...) so it stops at the edge.

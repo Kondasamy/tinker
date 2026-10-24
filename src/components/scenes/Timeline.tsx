@@ -2,7 +2,8 @@
 // cited for that era (log scale). The learner clicks (or Enter/Space on) the next era to open it.
 import type { KeyboardEvent, MouseEvent } from 'react';
 import IsoStage, { type SceneCtx } from '../../lib/iso/IsoStage';
-import { BH, ACC, boxCorners, glassCase, esc } from '../../lib/iso/blocks';
+import type { Say } from '../story/steps';
+import { BH, ACC, boxCorners, glassCase, sayTag } from '../../lib/iso/blocks';
 import {
   PALS,
   METAL,
@@ -53,7 +54,7 @@ export const eraWindow = (entries: TimelineEntry[], era: string) =>
 /** pills: label size (1 = page size; the share images pass more) */
 interface Props {
   /** the step's callout (KTD7): `block` is the era's index */
-  say?: { block: string; text: string };
+  say?: Say;
   entries: TimelineEntry[];
   visited: number;
   active: number | null;
@@ -116,7 +117,7 @@ export default function Timeline({ entries, visited, active, onPick, say, pills 
       const open = i < visited,
         win = eraWindow(entries, era.id),
         top = BH + PED + (win && open ? colHeight(win) : open ? 9 : 0);
-      const callout = say?.block === String(i) ? tag([X(i), Y, top], 0, -34, esc(say.text), true, pills) : '';
+      const callout = say?.block === String(i) ? sayTag([X(i), Y, top], say.text, pills) : '';
       return `<g aria-hidden="true" pointer-events="none">${tag([X(i), Y, top], 0, -14, open && win ? `${era.label} · ${formatTokens(win)}` : era.label, i === active, pills)}${callout}</g>`;
     }).join('');
     return rail + shadows + byDepth(items) + tags;

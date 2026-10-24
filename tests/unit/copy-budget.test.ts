@@ -54,7 +54,7 @@ function overruns(moduleId: string) {
     }
     for (const q of Object.values(mod))
       if (q && typeof q === 'object' && Array.isArray((q as { why?: unknown }).why))
-        for (const [i, w] of ((q as { why: string[] }).why ?? []).entries())
+        for (const [i, w] of (q as { why: string[] }).why.entries())
           if (sentences(w) > 1) out.push(`${at} quiz why ${i + 1}: ${sentences(w)} sentences`);
     for (const t of unmarked(
       steps.map(s => s.narration),
