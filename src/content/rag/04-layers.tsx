@@ -26,7 +26,7 @@ interface S extends RagState {
 const BROKEN: Partial<Knobs> = { strategy: 'fixed', size: 16, overlap: 0, topK: 1 };
 const isBroken = (k: Knobs) => Object.entries(BROKEN).every(([n, v]) => k[n as keyof Knobs] === v);
 
-const QUIZ = {
+export const QUIZ = {
   question: 'The right sentence was in the documents, yet the answer was wrong. Why?',
   options: [
     'The model was too small to understand refunds',
@@ -37,9 +37,9 @@ const QUIZ = {
   explanation:
     'The model only sees the chunks it is handed. Overlap, or cutting on sentence boundaries, keeps a rule and its exception together.',
   why: [
-    'The same model answered correctly in chapter 3. A bigger model cannot read words it was never handed.',
-    'Right. The model only sees the chunks it is handed, and this one had lost the second half of the rule.',
-    'The policy was current. Old documents are a real problem (chapter 5), but here the right policy was cut in two.',
+    'The same model answered correctly in chapter 3: a bigger model cannot read words it was never handed.',
+    'Right: the model only sees the chunks it is handed, and this one had lost the second half of the rule.',
+    'The policy was current: here the right policy was simply cut in two.',
   ],
 };
 
@@ -61,8 +61,7 @@ export const STEPS: Step<S>[] = [
     id: 'ask',
     focus: 'ask',
     visibleControls: ['ask'],
-    narration:
-      'To save cost, your team cut documents into small 16-word pieces and now sends the model only the single best match. A sales lead asks the refund question again.',
+    narration: `The team now cuts documents into ${BROKEN.size}-word chunks and sends only the best. Ask about refunds again.`,
     predicate: s => s.asked,
   },
   {
@@ -70,7 +69,8 @@ export const STEPS: Step<S>[] = [
     focus: 'predict',
     visibleControls: ['predict'],
     opensDrawer: 'answer',
-    narration: `Wrong, and sure of itself. The policy excludes enterprise contracts. Only the single best ${BROKEN.size}-word piece reached the model. Before you look inside, make a prediction.`,
+    narration: `Wrong, and sure of itself. The policy excludes enterprise contracts, but only one ${BROKEN.size}-word chunk reached the model. Predict what it held.`,
+    say: { block: 'llm', text: 'Got one chunk' },
     predicate: s => s.prediction !== null,
   },
   {
@@ -78,7 +78,7 @@ export const STEPS: Step<S>[] = [
     focus: 'add',
     visibleControls: ['predict', 'add'],
     narration:
-      'Your pick is locked. To see why, open up the pipeline. First layer: the Chunker, which cuts every document into pieces before anything is searched.',
+      'Your pick is locked. Open up the pipeline. First layer: the Chunker, which cuts every document into chunks before any search.',
     predicate: s => has(s, 'chunker'),
   },
   {
@@ -87,7 +87,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['reveal', 'add'],
     opensDrawer: 'chunks',
     narration:
-      'There it is: a cut right after “does NOT” (the red mark). The rule and its exception landed in different pieces. How was the piece picked? Add the Embedder and the Index.',
+      'There it is: a cut after “does NOT”, the red mark. The rule and its exception landed in different chunks. Add the Embedder and Index.',
+    say: { block: 'chunker', text: 'Cuts after “NOT”' },
     predicate: s => has(s, 'embedder') && has(s, 'index'),
   },
   {
@@ -96,7 +97,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: [],
     opensDrawer: 'map',
     narration:
-      'The Embedder turns each piece into 384 numbers that capture its meaning; the Index stores them. The map flattens those numbers to 2D. Point at a dot, or Tab to one, to compare its true similarity with how close it looks.',
+      'The Embedder turns each chunk into an embedding, 384 numbers for its meaning; the vector index stores them. Point at a dot on the map.',
+    say: { block: 'embedder', text: 'Text to numbers' },
     predicate: s => s.probed,
     hint: 'The blue and yellow dots are the closest matches. Hover one, or press Tab until one is selected.',
   },
@@ -105,7 +107,7 @@ export const STEPS: Step<S>[] = [
     focus: 'add',
     visibleControls: ['add'],
     narration:
-      'Closeness on the map is only a picture: the retriever ranks by the true score. Last layer: the Context assembler, which packs the retrieved pieces into the prompt.',
+      'Closeness on the map is a picture: the retriever ranks by the true score. Last layer: the Context assembler packs the chunks into the prompt.',
     predicate: s => has(s, 'assembler'),
   },
   puzzle<S>({
@@ -114,7 +116,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['overlap'],
     opensDrawer: 'evidence',
     narration:
-      'Puzzle: only one piece reaches the model, and it ends on “does NOT”. Fix the Chunker so the sentence survives the cut. Overlap repeats the end of each piece at the start of the next.',
+      'Puzzle: the chunk the model gets ends on “does NOT”. Fix the Chunker so the sentence survives: overlap repeats each chunk’s end in the next.',
+    say: { block: 'chunker', text: 'Try overlap' },
     broken: s =>
       isBroken(s.canvas.knobs)
         ? s
@@ -129,7 +132,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['quiz'],
     opensDrawer: 'answer',
     narration:
-      'Correct, with a citation. With overlap the whole sentence sits in one piece, so the model reads the exception. One question to finish.',
+      'Correct, with a citation. With overlap the whole sentence sits in one chunk, so the model reads the exception. One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Look at the red mark in the Chunks panel from earlier.',
   },

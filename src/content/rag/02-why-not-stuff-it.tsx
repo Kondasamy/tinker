@@ -37,7 +37,7 @@ interface S {
 const FIRST_OVER = STOPS.findIndex(overflows);
 const MIDDLE = TIMELINE.find(e => e.sourceUrl.includes('2307.03172'))!;
 
-const QUIZ = {
+export const QUIZ = {
   question: 'Your company holds 5 TB of documents. Why does an assistant still need retrieval?',
   options: [
     'Models cannot read PDF files',
@@ -47,9 +47,9 @@ const QUIZ = {
   correct: 1,
   explanation: 'Retrieval sends only the few passages that matter, fresh, and only those this user may read.',
   why: [
-    'File format is not the problem: PDFs are turned into text before a model reads them. The drive is simply far too big, and size is only one of four problems.',
-    'Right. Size alone rules it out, and even a prompt that fits hides facts in the middle, freezes old versions and shows everyone everything.',
-    'Windows are not free: you pay for every token sent, every time. And a cheap window still cannot hold trillions of tokens.',
+    'File format is not the problem: PDFs become text first, and the drive is simply far too big.',
+    'Right: size alone rules it out, and even a prompt that fits hides facts, freezes old versions and shows everyone everything.',
+    'Windows are not free: you pay for every token sent, and even a cheap window cannot hold trillions of tokens.',
   ],
 };
 
@@ -96,7 +96,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['corpus'],
     opensDrawer: 'answer',
     narration:
-      'Wrong again. The enterprise policy is on the drive, but the drive did not fit, so the paste was cut off before it. Drag the corpus slider until it overflows the context window.',
+      'Wrong again. The policy is on the drive, but truncation cut the paste before it. Drag the corpus slider past the context window.',
+    say: { block: 'window', text: 'The paste stops here' },
     predicate: s => overflows(STOPS[s.stop]),
     hint: `The window holds ${formatTokens(WINDOW)} tokens, about ${formatBytes(WINDOW * BYTES_PER_TOKEN)} of text. Go past that.`,
   },
@@ -106,18 +107,19 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['reveal', 'corpus'],
     opensDrawer: 'numbers',
     narration: `It already overflows at ${formatBytes(STOPS[FIRST_OVER])}. Real company drives are much bigger. Keep dragging, to 5 TB.`,
+    say: { block: 'corpus', text: 'Already too big' },
     predicate: s => s.stop >= STOP_5TB,
     hint: 'Each notch is 10 times bigger. 5 TB is the ninth notch.',
   },
   reasonStep(
     'middle',
     'numbers',
-    `5 TB is about ${formatTokens(tokensFor(STOPS[STOP_5TB]))} tokens. No model can read that in one go. And size is not the only problem. Open the first of three more reasons.`,
+    `5 TB is about ${formatTokens(tokensFor(STOPS[STOP_5TB]))} tokens. No model reads that in one go, and size is only one problem. Open the next reason.`,
   ),
   reasonStep(
     'fresh',
     'middle',
-    'Even text that fits gets used badly: facts in the middle of a long prompt are often missed. Next reason.',
+    'Even text that fits gets used badly: facts lost in the middle of a long prompt are often missed. Next reason.',
   ),
   reasonStep('access', 'fresh', 'A prompt is a snapshot. Documents change every day. Last reason.'),
   {

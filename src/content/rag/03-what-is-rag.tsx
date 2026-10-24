@@ -20,7 +20,7 @@ interface S extends RagState {
   quiz: number | null;
 }
 
-const QUIZ = {
+export const QUIZ = {
   question: 'What does the retriever give the model?',
   options: [
     'A bigger, smarter model',
@@ -31,9 +31,9 @@ const QUIZ = {
   explanation:
     'Retrieve the matching passages, Augment the prompt with them, Generate the answer. The model stays the same; what it reads changes.',
   why: [
-    'The model never changed. Swapping in a bigger model would still leave it guessing, because it has never read your policy.',
-    'Right. The model stays the same; what it reads changes, so it can answer from your documents and cite them.',
-    'That is the chapter 2 idea that failed: every document will not fit, and most of it has nothing to do with the question.',
+    'The model never changed: a bigger one would still guess, because it has never read your policy.',
+    'Right: the model stays the same, but what it reads changes, so it answers from your documents and cites them.',
+    'That is the chapter 2 idea that failed: every document will not fit, and most are beside the point.',
   ],
 };
 
@@ -55,7 +55,8 @@ export const STEPS: Step<S>[] = [
     focus: 'ask',
     visibleControls: ['ask'],
     narration:
-      'Meet the company assistant. Right now it is just a language model: no documents, nothing wired in. A support lead asks it about refunds.',
+      'Meet the assistant: for now just an LLM, with no documents wired in. A support lead asks it about refunds.',
+    say: { block: 'llm', text: 'No documents yet' },
     predicate: s => s.asked,
   },
   {
@@ -72,7 +73,8 @@ export const STEPS: Step<S>[] = [
     focus: 'predict',
     visibleControls: ['predict'],
     narration:
-      'Still made up. The documents are there, but nothing carries the right ones to the model, and all of them will not fit (chapter 2). A Retriever finds the few passages that match the question. Before you add one, make a prediction.',
+      'Still made up: the documents are there, but nothing carries the right ones to the model. A Retriever finds the passages that match. Predict first.',
+    say: { block: 'docs', text: 'No wire to the model' },
     predicate: s => s.prediction !== null,
   },
   {
@@ -89,7 +91,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['reveal', 'see'],
     opensDrawer: 'answer',
     narration:
-      'Correct, and it cites the policy it used. That is RAG: Retrieve the matching passages, Augment the prompt with them, Generate the answer. What did the retriever hand over?',
+      'Correct, and it cites the policy it used: a grounded answer. That is RAG: Retrieve the passages, Augment the prompt, Generate the answer.',
+    say: { block: 'retriever', text: 'Finds the passages' },
     predicate: s => s.seen,
   },
   {
@@ -98,7 +101,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: [],
     opensDrawer: 'evidence',
     narration:
-      'These passages reached the model, each with a similarity score to the question. Tick “Show the math” to see how the top score is computed.',
+      'These passages reached the model, each with a similarity score. Tick “Show the math” to see how the top score is computed.',
     predicate: s => s.math,
     hint: 'The “Show the math” box sits above the list of chunks. If the panel is closed, press Evidence under the canvas.',
   },

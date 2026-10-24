@@ -39,7 +39,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: [],
     opensDrawer: 'answer',
     narration:
-      'Everything you built is here: every block from chapters 3 to 6, on the track and wired. The graph walks two hops to answer the hardest question in the module, who approves purchases for the Kestrel K2 team. Now open the track into a workbench, with the button under the canvas.',
+      'Every block from chapters 3 to 6 is here, wired; the graph answers the module’s hardest question. Open the workbench below.',
     predicate: s => s.canvas.mode === 'bench',
     solution: s => ({ ...s, canvas: openBench(s.canvas) }),
   },
@@ -48,7 +48,7 @@ export const STEPS: Step<S>[] = [
     focus: 'run',
     visibleControls: ['question', 'run', 'block', 'tips', 'ready'],
     narration:
-      'Same blocks, same wires, same answer, and now they are yours. Drag a block to move it, drag from its yellow knob to wire it, click a wire to cut it, click a block to tune it. Ask any question from the module and run it: each run lands in the strip under the canvas.',
+      'Now it is yours: drag blocks, wire them from their yellow knobs, click a wire to cut it. Ask any question and run it.',
     predicate: s => s.acks >= 1,
   },
   {

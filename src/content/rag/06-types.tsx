@@ -57,7 +57,7 @@ function switchType(s: S, type: string): S {
   };
 }
 
-const QUIZ = {
+export const QUIZ = {
   question: 'When is an agent worth its extra retrieval calls?',
   options: [
     'Always: more searches always mean a better answer',
@@ -68,9 +68,9 @@ const QUIZ = {
   explanation:
     'Each call costs time and money. A follow-up pays off when there is something left to fetch: the rest of a cut sentence, or the next hop of a question. It cannot fix stale documents.',
   why: [
-    'More searches are not free, and they do not always help: on the hotel question the agent paid for a second search and was still wrong.',
-    'Right. A follow-up pays off when there is something left to fetch: the rest of a cut sentence, or the next hop of a question.',
-    'Searching again finds the same stale documents. A metadata filter keeps them out; an agent cannot.',
+    'More searches are not free: on the hotel question the agent paid for a second search and was still wrong.',
+    'Right: a follow-up pays off when there is something left to fetch, like the rest of a cut sentence or the next hop.',
+    'Searching again finds the same stale documents: a metadata filter keeps them out, an agent cannot.',
   ],
 };
 
@@ -80,7 +80,7 @@ const SC = 'card-data-retention',
   PDF = 'dock-sensor-warranty',
   IMG = 'customer-success-lead';
 const ORG = 'org-chart-2025';
-const GRAPH_QUIZ = {
+export const GRAPH_QUIZ = {
   question: 'Which question is GraphRAG built for?',
   options: [
     'One whose answer sits in a single sentence that matches the question’s words',
@@ -92,8 +92,8 @@ const GRAPH_QUIZ = {
     'The graph links named things across documents, so it can follow scanner → team → approver. A single-sentence lookup is cheaper with plain retrieval, and a cut sentence is fixed by better chunking or an agent fetching neighbours.',
   why: [
     'A one-sentence lookup needs no graph: plain retrieval finds it, faster and cheaper.',
-    'Right. The graph links the people, teams and products documents name, so it can follow scanner → team → approver.',
-    'A cut sentence is a chunking problem. Better chunking, or an agent fetching neighbours, fixes it; a graph does not.',
+    'Right: the graph links the people, teams and products documents name, so it can follow scanner → team → approver.',
+    'A cut sentence is a chunking problem: better chunking, or an agent fetching neighbours, fixes it.',
   ],
 };
 
@@ -103,7 +103,8 @@ export const STEPS: Step<S>[] = [
     focus: 'next',
     visibleControls: ['next'],
     narration:
-      'Every pipeline so far searched once. Naive RAG is the chapter 3 version: one search, paste the top chunks, answer. Advanced RAG keeps that single pass and tunes it with the chapter 5 levers. To make each type’s strengths easy to see, the retriever here hands over one 16-word chunk.',
+      'Every pipeline so far searched once: naive RAG, then advanced. Here the retriever sends one 16-word chunk, so each type’s strengths show.',
+    say: { block: 'retriever', text: 'One chunk only' },
     predicate: s => s.acks >= 1,
   },
   {
@@ -120,7 +121,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['types'],
     opensDrawer: 'answer',
     narration:
-      'Wrong: the one chunk stopped right after “does NOT”, so the model never read the exception. A single search cannot notice that. Agentic RAG puts an agent between the retriever and the model. It reads what came back and decides whether, and how, to search again. Switch the type to Agentic.',
+      'Wrong: one chunk stopped after “does NOT”. Agentic RAG puts an agent between retriever and model to decide whether to search again. Switch to Agentic.',
+    say: { block: 'llm', text: 'Read half a rule' },
     predicate: s => s.type === 'agentic',
     solution: s => switchType(s, 'agentic'),
   },
@@ -130,7 +132,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['maxCalls', 'run'],
     opensDrawer: 'answer',
     narration:
-      'The agent sits in the side bay, wired to the retriever both ways. Max calls caps how many retrievals it may make. Keep it at 2 and run the same question.',
+      'The agent sits in the side bay, wired to the retriever both ways. Max calls caps its retrievals. Keep it at 2 and run.',
+    say: { block: 'agent', text: 'Can search again' },
     predicate: s => row(s, 'refund-enterprise', 'agentic')?.verdict === 'correct',
     hint: 'The agent needs at least 2 calls to search again.',
   },
@@ -140,7 +143,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['cards', 'types', 'run'],
     opensDrawer: 'answer',
     narration:
-      'Correct in 2 calls: the first search found a chunk cut mid-sentence, so the agent fetched its neighbours and read the sentence whole. The answer panel shows its call log. Now run the hotel limit question under both types.',
+      'Correct in 2 calls: the first chunk was cut mid-sentence, so the agent fetched its neighbours. Now run the hotel limit question under both types.',
     predicate: s => !!row(s, 'stale-hotel-limit', 'naive') && !!row(s, 'stale-hotel-limit', 'agentic'),
     hint: 'Pick the hotel card and run it, switch the type, then run it again.',
   },
@@ -149,7 +152,7 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['quiz'],
     narration:
-      'Both wrong, and the agent paid for a second search. The retired 2018 policy is the problem, and searching more never removes it: a metadata filter does. One question before the next type.',
+      'Both wrong, and the agent paid for a second search. Searching more never removes the retired 2018 policy: a metadata filter does. One question.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Compare the refund rows with the hotel rows in the strip.',
   },
@@ -158,7 +161,7 @@ export const STEPS: Step<S>[] = [
     focus: 'cards',
     visibleControls: ['cards', 'types', 'run'],
     narration:
-      'A harder question: who approves purchases for the team that owns the Kestrel K2 scanner integration? One document says which team owns the integration. Another says who approves that team’s purchases, and never mentions the scanner. Pick the Kestrel card and run it as naive and as agentic.',
+      'Harder: who approves purchases for the team owning the Kestrel K2 scanner integration? It spans two documents. Pick its card; run naive and agentic.',
     predicate: s => !!row(s, MULTI, 'naive') && !!row(s, MULTI, 'agentic'),
     hint: 'Pick the Kestrel card, run it, switch the type, then run it again.',
   },
@@ -168,7 +171,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['types'],
     opensDrawer: 'answer',
     narration:
-      'Not found either way. A search matches the words of one question, and no single sentence links the scanner to the approver. The agent’s extra searches reached the approver sentence, but never the one naming the team that owns the scanner. GraphRAG works from a map of things and how they relate, drawn from the documents ahead of time. Switch the type to GraphRAG.',
+      'Not found either way: no single sentence links the scanner to the approver. GraphRAG walks a knowledge graph drawn from the documents. Switch to GraphRAG.',
     predicate: s => s.type === 'graph',
     solution: s => switchType(s, 'graph'),
   },
@@ -178,7 +181,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['run'],
     opensDrawer: 'answer',
     narration:
-      'The graph sits in the side bay beside the index. It starts from the things your question names, here the Kestrel K2, and follows relations outward. Every relation points back to the sentence it came from, and the chunks holding those sentences go to the model. The walk is drawn under the canvas. Run it with 1 hop.',
+      'The graph starts from what your question names, the Kestrel K2, and follows relations outward to the sentences behind them. Run it with 1 hop.',
+    say: { block: 'graph', text: 'Walks relations' },
     predicate: s => !!row(s, MULTI, 'graph'),
   },
   {
@@ -187,7 +191,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['hops', 'run'],
     opensDrawer: 'answer',
     narration:
-      'Still not found. One hop reached Fulfillment Systems through the sentence that says it owns the integration, then stopped one step short of anyone who approves its purchases. Set hops to 2 and run again.',
+      'Still not found. One hop reached Fulfillment Systems, the team that owns the integration, and stopped short of its approver. Set hops to 2.',
+    say: { block: 'graph', text: 'One step short' },
     predicate: s => row(s, MULTI, 'graph')?.verdict === 'correct',
     hint: 'Drag the hops slider to 2, then run.',
   },
@@ -196,7 +201,7 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['gquiz'],
     narration:
-      'Correct. The second hop crossed from Fulfillment Systems to Tomasz Rehnquist, whose sentence sits in a different document. The price shows in the strip: a walk takes every relation it passes, so the model read about two dozen chunks instead of one. One question before the next type.',
+      'Correct: the second hop reached Tomasz Rehnquist in another document. The price: the walk sent about two dozen chunks instead of one. One question.',
     predicate: s => s.gquiz === GRAPH_QUIZ.correct || s.gquiz === UNSURE,
     hint: 'Compare the Kestrel rows in the strip.',
   },
@@ -206,7 +211,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['run'],
     setup: s => ({ ...switchType(s, 'naive'), q: SC }),
     narration:
-      'Next, a trap. The question: how long does Larkspur keep customer payment card data? A meeting note about fake demo cards uses almost the same words. Run it as naive RAG.',
+      'Next, a trap: how long does Larkspur keep customer payment card data? A meeting note about fake demo cards uses near-identical words. Run naive.',
     predicate: s => !!row(s, SC, 'naive'),
   },
   {
@@ -215,7 +220,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['types'],
     opensDrawer: 'answer',
     narration:
-      'Wrong, and sure of itself: the one chunk was the note about demo card samples, not the security policy. Self-correcting RAG checks retrieval before the model answers. The Evaluator at the end of the track grades what came back. If it is weak, the pipeline searches again with a rewritten question; if nothing passes, it says “I don’t know” instead of guessing. Switch the type to Self-correcting.',
+      'Wrong: it read the demo note. Self-correcting RAG grades retrieval before answering, retries, and says “I don’t know” if nothing passes. Switch to Self-correcting.',
+    say: { block: 'llm', text: 'Read the demo note' },
     predicate: s => s.type === 'selfcheck',
     solution: s => switchType(s, 'selfcheck'),
   },
@@ -224,7 +230,7 @@ export const STEPS: Step<S>[] = [
     focus: 'run',
     visibleControls: ['run'],
     opensDrawer: 'answer',
-    narration: `The Evaluator scores each search with a cross-encoder, a model that reads the question and the chunk together. A best chunk scoring ${GRADE_BAR} or more passes. Run the card data question again.`,
+    narration: `The Evaluator scores each search with a cross-encoder, which reads question and chunk together. A best chunk of ${GRADE_BAR} or more passes. Run again.`,
     predicate: s => {
       const r = row(s, SC, 'selfcheck');
       return !!r && r.verdict !== 'wrong';
@@ -236,7 +242,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['types'],
     opensDrawer: 'answer',
     narration:
-      'The look-alike note scored below the bar, so the Evaluator threw it away and searched a rewrite. That scored low too, so the assistant said “I don’t know”. An honest gap beats a confident wrong answer, and the call log shows both tries. No grade helps when the answer sits in a file the pipeline cannot read, though: a price table, a scanned PDF, an image. Switch the type to Multimodal.',
+      'The look-alike and a rewrite both failed the bar, so it said “I don’t know”. No grade reads tables, PDFs or images. Switch to Multimodal.',
+    say: { block: 'grader', text: 'Says “I don’t know”' },
     predicate: s => s.type === 'multimodal',
     solution: s => switchType(s, 'multimodal'),
   },
@@ -246,7 +253,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['run'],
     opensDrawer: 'answer',
     narration:
-      'A plain-text reader skips anything that is not text, so the Docs block’s three parsers start off. Multimodal pipelines also cut by sentence, so a table row stays whole. Run the price question: how much is a Kestrel K2 scanner at 50 or more units?',
+      'A plain-text reader skips tables and images, so the Docs block’s three parsers start off. Run the price question: a Kestrel K2 at 50+ units?',
+    say: { block: 'docs', text: 'Parsers off' },
     predicate: s => !!row(s, PRICE, 'multimodal'),
   },
   {
@@ -255,7 +263,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['parse', 'run'],
     opensDrawer: 'answer',
     narration:
-      'Not found. The price list is a table, and with table parsing off retrieval never sees it. Turn on “Parse tables to text” and run again.',
+      'Not found: the price list is a table, and with table parsing off retrieval never sees it. Turn on “Parse tables to text” and rerun.',
     predicate: s => row(s, PRICE, 'multimodal')?.verdict === 'correct',
     hint: 'Tick “Parse tables to text”, then run.',
   },
@@ -265,7 +273,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['cards', 'parse', 'run'],
     opensDrawer: 'answer',
     narration:
-      'Correct: $410, read from the table’s K2 row. Two more. The dock sensor warranty is only in a vendor PDF, and the Customer Success lead is only in the org chart image. Turn on the parser each one needs and run both.',
+      'Correct: $410, from the table’s K2 row. The sensor warranty sits in a vendor PDF, the lead in an org chart image. Turn on both.',
     predicate: s =>
       row(s, PDF, 'multimodal')?.verdict === 'correct' && row(s, IMG, 'multimodal')?.verdict === 'correct',
     hint: 'PDF parsing for the warranty card, image captions for the Customer Success card.',

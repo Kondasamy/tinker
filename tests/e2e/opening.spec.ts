@@ -49,3 +49,28 @@ test('the story so far is folded to a count and stays open once opened', async (
   await pick(32).click();
   await expect(fold).toHaveAttribute('open');
 });
+
+// R1 success criterion: from the title down to step 1's control, at most 80 words on every RAG chapter
+for (const ch of [
+  '01-history',
+  '02-why-not-stuff-it',
+  '03-what-is-rag',
+  '04-layers',
+  '05-accuracy',
+  '06-types',
+  '07-sandbox',
+])
+  test(`rag/${ch}: the first screen has at most 80 words above the first control`, async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await open(page, `/rag/${ch}/`);
+    const words = await page.evaluate(() => {
+      const text = [
+        document.querySelector<HTMLElement>('.intro')?.innerText ?? '',
+        document.querySelector<HTMLElement>('.card .count')?.innerText ?? '',
+        document.querySelector<HTMLElement>('.card .narration')?.innerText ?? '',
+      ].join(' ');
+      return text.split(/\s+/).filter(Boolean).length;
+    });
+    expect(words).toBeLessThanOrEqual(80);
+    await expect(card(page)).toBeInViewport();
+  });
