@@ -5,8 +5,9 @@ import { MODULES } from '../../src/lib/modules';
 import { unmarked } from '../../src/components/story/terms';
 import type { Step } from '../../src/components/story/steps';
 
-const BUDGET = { narration: 25, story: 30, goal: 20, learn: 3, say: 5, opening: 62 };
+const BUDGET = { narration: 25, story: 30, goal: 20, learn: 3, say: 5, sayChars: 16, opening: 62 };
 // opening: story + question + step 1, leaving about 18 words for the labels inside the 80-word first screen
+// sayChars: callouts outside RAG fit a phone's pill, so phones never drop them (RAG's canvas drops longer ones).
 // Modules whose copy predates the budgets; remove an id when its copy pass lands.
 const PENDING = [
   'tool-calling',
@@ -52,6 +53,8 @@ function overruns(moduleId: string) {
     for (const s of steps) {
       if (step(s) > BUDGET.narration) out.push(`${at} step ${s.id}: ${step(s)} words`);
       if (s.say && words(s.say.text) > BUDGET.say) out.push(`${at} step ${s.id} callout: ${words(s.say.text)} words`);
+      if (s.say && m.id !== 'rag' && s.say.text.length > BUDGET.sayChars)
+        out.push(`${at} step ${s.id} callout: ${s.say.text.length} characters`);
     }
     for (const q of Object.values(mod))
       if (q && typeof q === 'object' && Array.isArray((q as { why?: unknown }).why))
@@ -73,10 +76,12 @@ describe('copy budgets', () => {
     expect(PENDING).not.toContain('rag');
   });
 
+  // STRICT=<id> holds one pending module to the budgets without editing PENDING (a copy pass's to-do list)
+  const strict = process.env.STRICT;
   for (const m of live)
-    it(`${m.id}${PENDING.includes(m.id) ? ' (pending, report only)' : ''}`, () => {
+    it(`${m.id}${PENDING.includes(m.id) && m.id !== strict ? ' (pending, report only)' : ''}`, () => {
       const over = overruns(m.id);
-      if (PENDING.includes(m.id)) {
+      if (PENDING.includes(m.id) && m.id !== strict) {
         if (over.length) console.info(`${m.id}: ${over.length} over budget`);
         return;
       }

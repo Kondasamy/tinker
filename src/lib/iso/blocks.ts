@@ -494,6 +494,12 @@ export function blockTag(type: BlockType, o: BlockOpts, scale = 1, even = true):
 export const sayTag = (p3: number[], text: string, scale = 1, dy = -34) =>
   `<g class="callout" aria-hidden="true" pointer-events="none">${tag(p3, 0, dy, esc(text), true, scale)}</g>`;
 
+/** A step's callout over a scene part: a row above that part's name pill (pillDy, as passed to tag()). Draws
+ * nothing unless the step's callout names this part; on phones (scale > 1) a callout over 16 characters is
+ * dropped, since the narration already names it. */
+export const sayAt = (say: { block: string; text: string } | undefined, part: string, p3: number[], pillDy: number, scale = 1) =>
+  say?.block === part && (scale <= 1 || say.text.length <= 16) ? sayTag(p3, say.text, scale, pillDy - 20) : '';
+
 /** A block's callout, two rows above the even row of name pills, so it clears its neighbours' names and the
  * side bays' lower pills. */
 export function calloutTag(type: BlockType, x: number, y: number, text: string, scale = 1): string {
