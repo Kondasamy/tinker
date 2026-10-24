@@ -121,6 +121,9 @@ describe('steering', () => {
     expect(rankOf(steered(m, STEER.prompt, dir, STEER.scale, STEER.layer), y)).toBeLessThan(5);
     expect(STEER.scales).toContain(STEER.scale);
     expect(STEER.scales).toContain(0);
+    // at the strongest push the top guess is part of a word: the model has stopped making sense
+    const top = topK(softmax(steered(m, STEER.prompt, dir, Math.max(...STEER.scales), STEER.layer)), 1)[0];
+    expect(kindOf(top.text)).toBe('part');
   });
 });
 

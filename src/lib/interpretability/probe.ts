@@ -69,7 +69,13 @@ function windows(ctx: number) {
 
 /** Of the held-out positions whose true next token is in the plain top 5 (`right`), how many leave it with these fuses
  * pulled (`lost`). Runs the whole held-out split twice, a few hundred milliseconds. */
+const losses = new WeakMap<Model, Map<string, { lost: number; right: number }>>();
 export function headLoss(model: Model, ...pulled: Fuse[]): { lost: number; right: number } {
+  const key = pulled.join(','),
+    seen = losses.get(model) ?? new Map<string, { lost: number; right: number }>();
+  losses.set(model, seen);
+  const hit = seen.get(key);
+  if (hit) return hit;
   let lost = 0,
     right = 0;
   for (const w of windows(model.config.ctx)) {
@@ -82,6 +88,7 @@ export function headLoss(model: Model, ...pulled: Fuse[]): { lost: number; right
       if (rankOf(b[t], w[t + 1]) >= 5) lost++;
     });
   }
+  seen.set(key, { lost, right });
   return { lost, right };
 }
 

@@ -16,6 +16,7 @@ import { MULTIMODAL_MODULE } from '../content/multimodal/module';
 import { OBSERVABILITY_MODULE } from '../content/observability/module';
 import { SANDBOXING_MODULE } from '../content/sandboxing/module';
 import { VOICE_MODULE } from '../content/voice/module';
+import { INTERPRETABILITY_MODULE } from '../content/interpretability/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -99,12 +100,7 @@ export const MODULES: Module[] = [
     'Advanced',
     'How a base model becomes an assistant: preferences, a grader that marks its drafts, and the answers that game a weak one.',
   ),
-  planned(
-    'interpretability',
-    'Interpretability',
-    'Advanced',
-    'Open a real model and pull its fuses: switch off a head, read its guess layer by layer, and push it off course.',
-  ),
+  INTERPRETABILITY_MODULE,
   planned(
     'caching',
     'Caching & CDNs',

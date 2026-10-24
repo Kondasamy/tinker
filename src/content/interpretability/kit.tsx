@@ -29,8 +29,8 @@ export const whenLoaded =
 /** The model for a component: undefined while loading. */
 export const useBase = () => useModel('base');
 
-/** A piece as the column prints it: quoted, a leading space shown as ␣. */
-export const said = (s: string) => `“${pieceLabel(s)}”`;
+/** A piece as the narration prints it: quoted, its leading space dropped (tables show pieces with ␣). */
+export const said = (s: string) => `“${s.trim()}”`;
 const pct = (p: number) => `${Math.round(p * 100)}%`;
 
 /** A flat figure in the hand-drawn wobble. Its contents were escaped by the figure (esc). */

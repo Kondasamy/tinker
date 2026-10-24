@@ -34,7 +34,7 @@
     "flips": [[10], [12], [12]]
   },
   "steer": {
-    "note": "Chapter 5. The direction is the mean residual at the top of layer 2 (after block 1) at the last token of the shipping prompts, minus that of the billing prompts. Added at each scale to every position of the prompt; at the pinned scale the target rises into the top 5 from outside it.",
+    "note": "Chapter 5. The direction is the mean residual at the top of layer 2 (after block 1) at the last token of the shipping prompts, minus that of the billing prompts. Added at each scale to every position of the prompt; at the pinned scale the target rises into the top 5 from outside it, and at the strongest the top guess is a scrap of a word, not a word.",
     "layer": 1,
     "toward": [
       "Standard shipping takes five business days from the warehouse",
@@ -50,7 +50,7 @@
     ],
     "prompt": "Please contact the",
     "target": " warehouse",
-    "scales": [0, 1, 2, 4],
+    "scales": [0, 1, 2, 4, 12],
     "scale": 2,
     "rankBefore": 17
   },
