@@ -23,11 +23,20 @@ written back as it was.
 on the base's temperature-softened next-token distribution over the training split, and writes
   public/data/lm/student.bin   Float16 weights, its config and layout in meta.json `student`
 and the new key `student` in meta.json and goldens.json. Every other key is written back as it was.
+
+--checkpoints (KTD3 of the eight-modules plan) reruns the base run with the same seed and settings and keeps its
+Float16 weights at CKPT_STEPS (0 is the initial weights), writing
+  public/data/pre-training/ckpt-<step>.bin   model.bin's layout; the last is model.bin, byte for byte
+  public/data/pre-training/meta.json         layout, steps, settings, and each checkpoint's train and held-out scores
+--variants reruns it on other data mixes (VARIANTS: clean, one document ten times, Evals' questions leaked into
+training, every other document) and writes data/pre-training/runs.json: curves, scores, the leaked questions' score
+and greedy samples. Neither writes model.bin, the base meta.json or goldens.json.
 """
 import argparse
 import json
 import math
 import os
+import platform
 import time
 
 import numpy as np
@@ -383,6 +392,143 @@ def distill(a, data):
     print(f'wrote student.bin ({len(blob)} bytes), new key `student` in meta.json and goldens.json')
 
 
+# KTD3 (eight-modules plan): the base run's snapshots for Pre-training. Step 0 is the initial weights.
+CKPT_STEPS = (0, 100, 250, 500, 1000, 1500, 2000, 3000)
+VARIANTS = ('clean', 'duplicated', 'leaked', 'half')
+
+
+def from_f16(vocab, ship):
+    """A float64 model from Float16 weights (what ships), in eval mode."""
+    m64 = Mini(vocab).double()
+    m64.load_state_dict({k: v.to(torch.float64) for k, v in ship.items()})
+    return m64.eval()
+
+
+def run_info(a):
+    return dict(seed=a.seed, steps=a.steps, batch=a.batch, lr=a.lr, schedule='cosine to 0',
+                optimizer='AdamW betas (0.9, 0.99), grad clip 1.0', weight_decay=a.weight_decay, dropout=a.dropout,
+                torch=torch.__version__, platform=f'{platform.system()} {platform.machine()}')
+
+
+def checkpoints(a, data):
+    """Reruns the base run and keeps its weights at CKPT_STEPS; the last must be model.bin, byte for byte."""
+    assert a.steps == CKPT_STEPS[-1], 'checkpoints rerun the full base run'
+    vocab, train, held = data['vocab'], data['splits']['train'], data['splits']['heldout']
+    snaps = {}
+
+    def hook(step, model):  # copies only: building a model here would draw from dropout's RNG
+        if step in CKPT_STEPS:
+            snaps[step] = {k: v.detach().to(torch.float16) for k, v in model.state_dict().items()}
+
+    pretrain(a, vocab, train['ids'], held['ids'], hook=hook)
+    # Losses after the run, in float64 from the Float16-rounded weights, as the goldens are.
+    r, rows, blobs = (lambda x: round(x, 6)), [], {}
+    for step in CKPT_STEPS:
+        layout, blobs[step] = f16_blob(snaps[step])
+        m64 = from_f16(vocab, snaps[step])
+        ev, tr = evaluate(m64, held['ids']), evaluate(m64, train['ids'])
+        rows.append(dict(step=step, file=f'ckpt-{step}.bin', bytes=len(blobs[step]),
+                         train=dict(loss=r(tr['loss']), top1=r(tr['top1']), top5=r(tr['top5'])),
+                         heldout=dict(loss=r(ev['loss']), top1=r(ev['top1']), top5=r(ev['top5']))))
+        print(f"checkpoint {step:5d}: train {tr['loss']:.4f} heldout {ev['loss']:.4f}")
+    same = blobs[a.steps] == open(os.path.join(ROOT, 'public/data/lm/model.bin'), 'rb').read()
+    print(f'last checkpoint byte-identical to model.bin: {same}; total {sum(map(len, blobs.values()))} bytes')
+    if not same:
+        raise SystemExit('stop: the rerun drifted from model.bin (KTD3); nothing written')
+    if a.no_write:
+        return
+    out = os.path.join(ROOT, 'public/data/pre-training')
+    os.makedirs(out, exist_ok=True)
+    for row in rows:
+        open(os.path.join(out, row['file']), 'wb').write(blobs[row['step']])
+    meta = dict(model=dict(vocab=vocab, **CFG, params=sum(t.numel() for t in snaps[0].values())), dtype='float16-le',
+                tensors=layout, steps=list(CKPT_STEPS), training=run_info(a), checkpoints=rows)
+    json.dump(meta, open(os.path.join(out, 'meta.json'), 'w'), indent=1)
+    print(f'wrote {len(rows)} checkpoints and public/data/pre-training/meta.json')
+
+
+def variants(a, data):
+    """The base run on other data mixes (KTD3); only their scores and samples ship, never their weights."""
+    vocab, train, held, pt = data['vocab'], data['splits']['train'], data['splits']['heldout'], data['preTraining']
+    dup = pt['duplicated']
+    leaked = [q['ids'] for q in pt['leaked']]
+    mixes = dict(
+        clean=train['ids'],
+        duplicated=train['ids'] + [train['ids'][train['docs'].index(dup['doc'])]] * (dup['copies'] - 1),
+        leaked=train['ids'] + leaked,
+        half=train['ids'][::2],
+    )
+    assert tuple(mixes) == VARIANTS
+    r = lambda x: round(x, 6)
+    scores = lambda e: dict(loss=r(e['loss']), top1=r(e['top1']), top5=r(e['top5']))
+    runs = {}
+    for name, docs in mixes.items():
+        print(f'-- {name}: {len(docs)} docs')
+        model, curve, _ = pretrain(a, vocab, docs, held['ids'], every=a.variant_every)
+        ship = {k: v.to(torch.float16) for k, v in model.state_dict().items()}
+        if name == 'clean':
+            assert f16_blob(ship)[1] == open(os.path.join(ROOT, 'public/data/lm/model.bin'), 'rb').read(), \
+                'stop: the clean rerun drifted from model.bin (KTD3)'
+        m64 = from_f16(vocab, ship)
+        low = min(curve, key=lambda c: c['heldout'])
+        runs[name] = dict(
+            docs=len(docs), tokens=sum(len(d) for d in docs), lossCurve=curve,
+            train=scores(evaluate(m64, docs)), heldout=scores(evaluate(m64, held['ids'])),
+            leaked=scores(evaluate(m64, leaked)), heldoutMin=dict(step=low['step'], loss=low['heldout']),
+            samples=[greedy(m64, p['ids'], a.sample_tokens)[len(p['ids']):] for p in pt['prompts']])
+        print(f"{name}: heldout {runs[name]['heldout']['loss']:.4f} leaked {runs[name]['leaked']['loss']:.4f} "
+              f"min heldout at step {low['step']}")
+    early = [n for n in VARIANTS if runs[n]['heldoutMin']['step'] < a.steps]
+    print(f'held-out minimum before the last step: {early or "none"}')
+    if a.no_write:
+        return
+    out = dict(training=dict(run_info(a), every=a.variant_every, sampleTokens=a.sample_tokens),
+               duplicated=dup, leaked=[q['id'] for q in pt['leaked']], prompts=pt['prompts'],
+               earlyMinimum=early, runs=runs)
+    os.makedirs(os.path.join(ROOT, 'data/pre-training'), exist_ok=True)
+    json.dump(out, open(os.path.join(ROOT, 'data/pre-training/runs.json'), 'w'), indent=1)
+    print('wrote data/pre-training/runs.json')
+
+
+def pretrain(a, vocab, docs, held, every=None, hook=None):
+    """The base run's training loop over `docs`. `hook(step, model)` runs at step 0 (before the first update) and after
+    every step; it must draw no randomness (dropout shares the global RNG), so it only copies weights."""
+    torch.manual_seed(a.seed)
+    ctx, every = CFG['ctx'], every or a.every
+    starts = torch.tensor([(d, s) for d, doc in enumerate(docs) for s in range(len(doc) - ctx)])
+    train_t = [torch.tensor(doc) for doc in docs]
+    model = Mini(vocab, a.dropout)
+    decay = [p for n, p in model.named_parameters() if p.dim() == 2]
+    other = [p for n, p in model.named_parameters() if p.dim() < 2]
+    opt = torch.optim.AdamW([dict(params=decay, weight_decay=a.weight_decay), dict(params=other, weight_decay=0.0)],
+                            lr=a.lr, betas=(0.9, 0.99))
+    gen = torch.Generator().manual_seed(a.seed)
+    if hook:
+        hook(0, model)
+    curve, t0, train_loss = [], time.time(), float('nan')
+    for step in range(1, a.steps + 1):
+        lr = a.lr * 0.5 * (1 + math.cos(math.pi * (step - 1) / a.steps))  # cosine to zero
+        for g in opt.param_groups:
+            g['lr'] = lr
+        pick = starts[torch.randint(len(starts), (a.batch,), generator=gen)]
+        xy = torch.stack([train_t[d][s:s + ctx + 1] for d, s in pick.tolist()])
+        model.train()
+        logits = model(xy[:, :-1])[0]
+        loss = F.cross_entropy(logits.reshape(-1, vocab), xy[:, 1:].reshape(-1))
+        opt.zero_grad(set_to_none=True)
+        loss.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+        opt.step()
+        train_loss = 0.9 * train_loss + 0.1 * loss.item() if step > 1 else loss.item()
+        if hook:
+            hook(step, model)
+        if step % every == 0 or step == a.steps:
+            ev = evaluate(model, held)
+            curve.append(dict(step=step, train=round(train_loss, 4), heldout=round(ev['loss'], 4)))
+            print(f"step {step:5d} train {train_loss:.3f} heldout {ev['loss']:.3f} top1 {ev['top1']:.3f} top5 {ev['top5']:.3f}")
+    return model, curve, time.time() - t0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--seed', type=int, default=1337)
@@ -409,6 +555,10 @@ def main():
     ap.add_argument('--kd-weight-decay', type=float, default=0.1)
     ap.add_argument('--temperature', type=float, default=2.0)
     ap.add_argument('--hard', type=float, default=0.1, help='weight on the true next token')
+    ap.add_argument('--checkpoints', action='store_true', help='rerun the base and save its checkpoints (KTD3)')
+    ap.add_argument('--variants', action='store_true', help='rerun the base on other data mixes (KTD3)')
+    ap.add_argument('--variant-every', type=int, default=50, help="variants' loss-curve sampling interval")
+    ap.add_argument('--sample-tokens', type=int, default=24, help="variants' greedy sample length")
     a = ap.parse_args()
 
     torch.manual_seed(a.seed)
@@ -420,37 +570,13 @@ def main():
         return finetune(a, data)
     if a.distill:
         return distill(a, data)
+    if a.checkpoints:
+        return checkpoints(a, data)
+    if a.variants:
+        return variants(a, data)
     vocab, train, held = data['vocab'], data['splits']['train'], data['splits']['heldout']
     ctx = CFG['ctx']
-    starts = torch.tensor([(d, s) for d, doc in enumerate(train['ids']) for s in range(len(doc) - ctx)])
-    train_t = [torch.tensor(doc) for doc in train['ids']]
-
-    model = Mini(vocab, a.dropout)
-    decay = [p for n, p in model.named_parameters() if p.dim() == 2]
-    other = [p for n, p in model.named_parameters() if p.dim() < 2]
-    opt = torch.optim.AdamW([dict(params=decay, weight_decay=a.weight_decay), dict(params=other, weight_decay=0.0)],
-                            lr=a.lr, betas=(0.9, 0.99))
-    gen = torch.Generator().manual_seed(a.seed)
-    curve, t0, train_loss = [], time.time(), float('nan')
-    for step in range(1, a.steps + 1):
-        lr = a.lr * 0.5 * (1 + math.cos(math.pi * (step - 1) / a.steps))  # cosine to zero
-        for g in opt.param_groups:
-            g['lr'] = lr
-        pick = starts[torch.randint(len(starts), (a.batch,), generator=gen)]
-        xy = torch.stack([train_t[d][s:s + ctx + 1] for d, s in pick.tolist()])
-        model.train()
-        logits = model(xy[:, :-1])[0]
-        loss = F.cross_entropy(logits.reshape(-1, vocab), xy[:, 1:].reshape(-1))
-        opt.zero_grad(set_to_none=True)
-        loss.backward()
-        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-        opt.step()
-        train_loss = 0.9 * train_loss + 0.1 * loss.item() if step > 1 else loss.item()
-        if step % a.every == 0 or step == a.steps:
-            ev = evaluate(model, held['ids'])
-            curve.append(dict(step=step, train=round(train_loss, 4), heldout=round(ev['loss'], 4)))
-            print(f"step {step:5d} train {train_loss:.3f} heldout {ev['loss']:.3f} top1 {ev['top1']:.3f} top5 {ev['top5']:.3f}")
-    secs = time.time() - t0
+    model, curve, secs = pretrain(a, vocab, train['ids'], held['ids'])
 
     # What ships: Float16. Everything below is computed in float64 from those rounded weights.
     state = {k: v for k, v in model.state_dict().items()}

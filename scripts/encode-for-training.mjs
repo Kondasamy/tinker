@@ -6,7 +6,9 @@
  * Splits: train and heldout (every tenth document in sorted order, from the sixth). Prompts are the five
  * golden prompts. `styleSet` (U18) holds the fine-tuning style set, data/lm/style-set.jsonl, one example per
  * line as `Q: … A: …` plus a blank line, and the chapter prompts the fine-tunes are tried on. It sits beside
- * `splits`, not in it, because every split's docs are corpus files.
+ * `splits`, not in it, because every split's docs are corpus files. `preTraining` (KTD3 of the eight-modules plan)
+ * holds what train.py --variants needs: the document the `duplicated` run repeats, the `leaked` run's test questions
+ * (Evals' twelve, as `Q: … A: …` with their reference answers) and the prompts every run's greedy samples start from.
  *
  * Run: pnpm encode:lm. tests/unit/lm-model.test.ts fails if the file is stale.
  */
@@ -45,6 +47,17 @@ export const styleTexts = () =>
     .map(l => JSON.parse(l))
     .map(({ q, a }) => `Q: ${q} A: ${a}\n\n`);
 
+/** The `duplicated` run sees this training document ten times; its prompt is the start of one of its lines. */
+export const DUPLICATED = 'environmental-policy-2023.md';
+const DUPLICATED_PROMPT = 'Packaging: by the end of 2025, all parcel cartons will be made from';
+/** Evals' test set (RAG's twelve questions) with Evals' reference answers: what the `leaked` run trains on. */
+const evalsQuestions = () => {
+  const refs = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/evals/references.json'), 'utf8'));
+  return [3, 4, 5, 6]
+    .flatMap(c => JSON.parse(fs.readFileSync(path.join(ROOT, `data/questions/ch${c}.json`), 'utf8')))
+    .map(q => ({ id: q.id, q: `Q: ${q.query} A:`, text: `Q: ${q.query} A: ${refs[q.id].answer}\n\n` }));
+};
+
 const files = fs
   .readdirSync(CORPUS)
   .filter(f => f.endsWith('.md'))
@@ -63,6 +76,17 @@ const out = {
     signoff: { text: ' Larkspur team', ids: encode(' Larkspur team') },
     ids: styleTexts().map(encode),
     prompts: STYLE_PROMPTS.map(text => ({ text, ids: encode(text) })),
+  },
+  preTraining: {
+    duplicated: { doc: DUPLICATED, copies: 10 },
+    leaked: evalsQuestions().map(({ id, text }) => ({ id, ids: encode(text) })),
+    prompts: [
+      ...PROMPTS.slice(0, 4),
+      DUPLICATED_PROMPT,
+      ...evalsQuestions()
+        .slice(0, 2)
+        .map(x => x.q),
+    ].map(text => ({ text, ids: encode(text) })),
   },
 };
 // one doc per line keeps the file diffable

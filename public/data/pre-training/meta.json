@@ -1,0 +1,365 @@
+{
+ "model": {
+  "vocab": 768,
+  "n_layer": 2,
+  "n_head": 2,
+  "d_model": 32,
+  "ctx": 32,
+  "d_mlp": 128,
+  "ln_eps": 1e-05,
+  "params": 51072
+ },
+ "dtype": "float16-le",
+ "tensors": [
+  {
+   "name": "wte.weight",
+   "shape": [
+    768,
+    32
+   ],
+   "offset": 0
+  },
+  {
+   "name": "wpe.weight",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 49152
+  },
+  {
+   "name": "h.0.ln1.weight",
+   "shape": [
+    32
+   ],
+   "offset": 51200
+  },
+  {
+   "name": "h.0.ln1.bias",
+   "shape": [
+    32
+   ],
+   "offset": 51264
+  },
+  {
+   "name": "h.0.attn.qkv.weight",
+   "shape": [
+    96,
+    32
+   ],
+   "offset": 51328
+  },
+  {
+   "name": "h.0.attn.qkv.bias",
+   "shape": [
+    96
+   ],
+   "offset": 57472
+  },
+  {
+   "name": "h.0.attn.proj.weight",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 57664
+  },
+  {
+   "name": "h.0.attn.proj.bias",
+   "shape": [
+    32
+   ],
+   "offset": 59712
+  },
+  {
+   "name": "h.0.ln2.weight",
+   "shape": [
+    32
+   ],
+   "offset": 59776
+  },
+  {
+   "name": "h.0.ln2.bias",
+   "shape": [
+    32
+   ],
+   "offset": 59840
+  },
+  {
+   "name": "h.0.mlp.fc.weight",
+   "shape": [
+    128,
+    32
+   ],
+   "offset": 59904
+  },
+  {
+   "name": "h.0.mlp.fc.bias",
+   "shape": [
+    128
+   ],
+   "offset": 68096
+  },
+  {
+   "name": "h.0.mlp.proj.weight",
+   "shape": [
+    32,
+    128
+   ],
+   "offset": 68352
+  },
+  {
+   "name": "h.0.mlp.proj.bias",
+   "shape": [
+    32
+   ],
+   "offset": 76544
+  },
+  {
+   "name": "h.1.ln1.weight",
+   "shape": [
+    32
+   ],
+   "offset": 76608
+  },
+  {
+   "name": "h.1.ln1.bias",
+   "shape": [
+    32
+   ],
+   "offset": 76672
+  },
+  {
+   "name": "h.1.attn.qkv.weight",
+   "shape": [
+    96,
+    32
+   ],
+   "offset": 76736
+  },
+  {
+   "name": "h.1.attn.qkv.bias",
+   "shape": [
+    96
+   ],
+   "offset": 82880
+  },
+  {
+   "name": "h.1.attn.proj.weight",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 83072
+  },
+  {
+   "name": "h.1.attn.proj.bias",
+   "shape": [
+    32
+   ],
+   "offset": 85120
+  },
+  {
+   "name": "h.1.ln2.weight",
+   "shape": [
+    32
+   ],
+   "offset": 85184
+  },
+  {
+   "name": "h.1.ln2.bias",
+   "shape": [
+    32
+   ],
+   "offset": 85248
+  },
+  {
+   "name": "h.1.mlp.fc.weight",
+   "shape": [
+    128,
+    32
+   ],
+   "offset": 85312
+  },
+  {
+   "name": "h.1.mlp.fc.bias",
+   "shape": [
+    128
+   ],
+   "offset": 93504
+  },
+  {
+   "name": "h.1.mlp.proj.weight",
+   "shape": [
+    32,
+    128
+   ],
+   "offset": 93760
+  },
+  {
+   "name": "h.1.mlp.proj.bias",
+   "shape": [
+    32
+   ],
+   "offset": 101952
+  },
+  {
+   "name": "lnf.weight",
+   "shape": [
+    32
+   ],
+   "offset": 102016
+  },
+  {
+   "name": "lnf.bias",
+   "shape": [
+    32
+   ],
+   "offset": 102080
+  }
+ ],
+ "steps": [
+  0,
+  100,
+  250,
+  500,
+  1000,
+  1500,
+  2000,
+  3000
+ ],
+ "training": {
+  "seed": 1337,
+  "steps": 3000,
+  "batch": 32,
+  "lr": 0.003,
+  "schedule": "cosine to 0",
+  "optimizer": "AdamW betas (0.9, 0.99), grad clip 1.0",
+  "weight_decay": 1.0,
+  "dropout": 0.1,
+  "torch": "2.13.0",
+  "platform": "Darwin arm64"
+ },
+ "checkpoints": [
+  {
+   "step": 0,
+   "file": "ckpt-0.bin",
+   "bytes": 102144,
+   "train": {
+    "loss": 6.64603,
+    "top1": 0.013779,
+    "top5": 0.021873
+   },
+   "heldout": {
+    "loss": 6.647534,
+    "top1": 0.015968,
+    "top5": 0.021956
+   }
+  },
+  {
+   "step": 100,
+   "file": "ckpt-100.bin",
+   "bytes": 102144,
+   "train": {
+    "loss": 4.856614,
+    "top1": 0.119871,
+    "top5": 0.256611
+   },
+   "heldout": {
+    "loss": 4.959604,
+    "top1": 0.124418,
+    "top5": 0.254158
+   }
+  },
+  {
+   "step": 250,
+   "file": "ckpt-250.bin",
+   "bytes": 102144,
+   "train": {
+    "loss": 4.09119,
+    "top1": 0.203287,
+    "top5": 0.402311
+   },
+   "heldout": {
+    "loss": 4.483016,
+    "top1": 0.174318,
+    "top5": 0.323353
+   }
+  },
+  {
+   "step": 500,
+   "file": "ckpt-500.bin",
+   "bytes": 102144,
+   "train": {
+    "loss": 3.663255,
+    "top1": 0.22825,
+    "top5": 0.480845
+   },
+   "heldout": {
+    "loss": 4.266313,
+    "top1": 0.174983,
+    "top5": 0.374584
+   }
+  },
+  {
+   "step": 1000,
+   "file": "ckpt-1000.bin",
+   "bytes": 102144,
+   "train": {
+    "loss": 3.396535,
+    "top1": 0.254634,
+    "top5": 0.525828
+   },
+   "heldout": {
+    "loss": 4.172882,
+    "top1": 0.196274,
+    "top5": 0.397871
+   }
+  },
+  {
+   "step": 1500,
+   "file": "ckpt-1500.bin",
+   "bytes": 102144,
+   "train": {
+    "loss": 3.234305,
+    "top1": 0.277682,
+    "top5": 0.55456
+   },
+   "heldout": {
+    "loss": 4.125654,
+    "top1": 0.219561,
+    "top5": 0.412508
+   }
+  },
+  {
+   "step": 2000,
+   "file": "ckpt-2000.bin",
+   "bytes": 102144,
+   "train": {
+    "loss": 3.097915,
+    "top1": 0.300914,
+    "top5": 0.576495
+   },
+   "heldout": {
+    "loss": 4.101871,
+    "top1": 0.232202,
+    "top5": 0.414504
+   }
+  },
+  {
+   "step": 3000,
+   "file": "ckpt-3000.bin",
+   "bytes": 102144,
+   "train": {
+    "loss": 2.992163,
+    "top1": 0.322912,
+    "top5": 0.599666
+   },
+   "heldout": {
+    "loss": 4.043411,
+    "top1": 0.230206,
+    "top5": 0.438456
+   }
+  }
+ ]
+}

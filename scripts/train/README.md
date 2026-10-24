@@ -20,7 +20,7 @@ About 30 seconds on one CPU thread. The run is seeded and deterministic: a retra
 
 To try settings without writing anything, add `--no-write` and any of `--steps`, `--lr`, `--weight-decay`, `--dropout`, `--batch`, `--seed`. The defaults are the committed run.
 
-**After a base retrain, rerun with `--finetune` and `--distill` (below).** The base run rewrites `meta.json` and `goldens.json` without the `finetune`, `lora` and `student` keys, and `finetuned.bin`, `lora.bin` and `student.bin` were trained from the old base, so they go stale. The Fine-tuning and student tests fail until you do.
+**After a base retrain, rerun with `--finetune`, `--distill`, `--checkpoints` and `--variants` (below).** The base run rewrites `meta.json` and `goldens.json` without the `finetune`, `lora` and `student` keys, and `finetuned.bin`, `lora.bin` and `student.bin` were trained from the old base, so they go stale. The Fine-tuning and student tests fail until you do.
 
 ## Fine-tunes (Fine-tuning module)
 
@@ -52,5 +52,21 @@ pnpm test        # lm-student.test.ts: goldens, size, agreement, the loader, the
 ```
 
 About 30 seconds; seeded and deterministic (a byte-identical `student.bin`; only `seconds` changes). Try settings with `--no-write` and `--student-layers`, `--kd-steps`, `--kd-lr`, `--kd-weight-decay`, `--temperature`, `--hard`, `--batch`.
+
+## Checkpoints and variant runs (Pre-training)
+
+Neither retrains the base; both rerun its settings and seed, and neither writes `model.bin`, the base `meta.json` or `goldens.json`.
+
+- **`--checkpoints`** reruns the full 3,000-step base run and keeps its Float16 weights at steps 0 (the initial weights), 100, 250, 500, 1000, 1500, 2000 and 3000, copied by a hook inside the training loop (it draws no randomness, so the run is unchanged). It writes `public/data/pre-training/ckpt-<step>.bin` (model.bin's layout, 817 KB in all; the budget is 1 MB) and `public/data/pre-training/meta.json` (layout, steps, settings with the torch version and platform, and each checkpoint's train and held-out scores, computed in float64 from the Float16 weights after the run). The last checkpoint must be `model.bin`, byte for byte; if the rerun drifts, it stops and writes nothing.
+- **`--variants`** reruns the base on four data mixes: `clean` (the training split; it must reproduce `model.bin`), `duplicated` (one policy document ten times), `leaked` (Evals' twelve questions with their reference answers added) and `half` (every other training document). It writes `data/pre-training/runs.json`: each run's loss curve (every 50 steps), train, held-out and leaked-question scores, the step of its lowest held-out loss, greedy samples for the pinned prompts (ids; the site decodes them), and `earlyMinimum`, the runs whose held-out loss bottoms out before the last step. No variant weights ship. The duplicated document, the leaked questions and the prompts come from `ids.json` `preTraining`, written by `pnpm encode:lm`.
+
+```bash
+pnpm encode:lm   # after editing the corpus, the Evals questions or the prompts
+uv run --no-project --python 3.12 --with-requirements scripts/train/requirements.txt scripts/train/train.py --checkpoints
+uv run --no-project --python 3.12 --with-requirements scripts/train/requirements.txt scripts/train/train.py --variants
+pnpm test        # pre-training-runs.test.ts: the last checkpoint is model.bin, sizes, losses, runs.json
+```
+
+About a minute and three minutes; seeded and deterministic (byte-identical files). A base retrain means rerunning both, and updating the sha256 pins in `pre-training-runs.test.ts`.
 
 The model is shaped after Andrej Karpathy's [nanoGPT](https://github.com/karpathy/nanoGPT) (MIT).
