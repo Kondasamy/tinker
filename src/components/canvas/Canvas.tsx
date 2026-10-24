@@ -350,6 +350,8 @@ export default function Canvas({
       }
     }
     svgS += nodes.map(n => blockShadow(n.id, n.x, n.y, top)).join('');
+    // cards start one after another but all finish inside the 1.9 s run, however long the live path
+    const stagger = Math.min(0.2, 0.9 / Math.max(1, analysis.live.length - 1));
     for (const e of g.edges) {
       const a = byId[e[0]],
         b = byId[e[1]];
@@ -362,7 +364,7 @@ export default function Canvas({
         svgS += `<path d="${d}" fill="none" stroke="#fffbe6" stroke-width="2" stroke-linecap="round" class="pulse"/>`;
       // a passage card, no words on it, rides each live wire in turn (KTD6)
       if (live && running)
-        svgS += `<rect class="passage" x="-6" y="-4" width="12" height="8" rx="1.5" fill="#fffbe6" stroke="${INK}" stroke-width="1" style="offset-path: path('${d}'); animation-delay: ${0.2 * analysis.live.findIndex(l => sameEdge(l, e))}s"/>`;
+        svgS += `<rect class="passage" x="-6" y="-4" width="12" height="8" rx="1.5" fill="#fffbe6" stroke="${INK}" stroke-width="1" style="offset-path: path('${d}'); animation-delay: ${stagger * analysis.live.findIndex(l => sameEdge(l, e))}s"/>`;
       if (editable)
         svgS += `<path d="${d}" class="wire-hit" data-edge="${e[0]}>${e[1]}" fill="none" stroke="transparent" stroke-width="10" tabindex="0" role="button" aria-label="Wire from ${name(e[0])} to ${name(e[1])}${live ? ', carrying data' : ''}. Press Delete to cut."/>`;
     }

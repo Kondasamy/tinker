@@ -61,3 +61,13 @@ test('on a phone the model pill still shows the verdict', async ({ page }) => {
   await card(page).getByRole('button', { name: /^Ask/ }).click();
   await expect(llmPill(page)).toContainText('MADE UP');
 });
+
+test('a step’s callout is pinned on the picture; a step without one draws none', async ({ page }) => {
+  await open(page, '/rag/03-what-is-rag/');
+  const callout = page.locator('.canvas svg .callout');
+  await expect(callout).toHaveCount(1);
+  await expect(callout).toContainText('No documents yet');
+  await card(page).getByRole('button', { name: /^Ask/ }).click();
+  await expect(card(page)).toContainText('Step 2 of');
+  await expect(callout).toHaveCount(0);
+});

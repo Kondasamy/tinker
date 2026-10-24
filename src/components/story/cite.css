@@ -21,11 +21,15 @@
 .cite-mark:focus-visible {
   color: var(--ink);
 }
-/* anchored under its mark where the browser can; otherwise the popover's own centred place */
+/* anchored under its mark where the browser can; otherwise the popover's own centred place (UA margin: auto) */
+@supports (position-area: block-end) {
+  .cite-pop {
+    position-area: block-end span-inline-start;
+    position-try-fallbacks: flip-block, flip-inline;
+    margin: 6px 0 0;
+  }
+}
 .cite-pop {
-  position-area: block-end span-inline-start;
-  position-try-fallbacks: flip-block, flip-inline;
-  margin: 6px 0 0;
   max-width: min(320px, calc(100vw - 32px));
   padding: 10px 12px;
   font-size: 13px;
