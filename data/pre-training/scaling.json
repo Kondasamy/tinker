@@ -1,0 +1,20 @@
+{
+  "source": "https://arxiv.org/abs/2203.15556",
+  "accessed": "2026-10-24",
+  "note": "Hoffmann et al. (2022), Training Compute-Optimal Large Language Models. Table 2: the exponents a and b in N_opt ∝ C^a and D_opt ∝ C^b, theirs (approach 1) and Kaplan et al. (2020)'s. Table 3: approach 1's compute-optimal FLOPs and tokens per model size.",
+  "fits": {
+    "kaplan": { "label": "Kaplan et al. (2020)", "a": 0.73, "b": 0.27 },
+    "chinchilla": { "label": "Hoffmann et al. (2022)", "a": 0.5, "b": 0.5 }
+  },
+  "table3": [
+    { "params": 4e8, "flops": 1.92e19, "tokens": 8.0e9 },
+    { "params": 1e9, "flops": 1.21e20, "tokens": 20.2e9 },
+    { "params": 1e10, "flops": 1.23e22, "tokens": 205.1e9 },
+    { "params": 6.7e10, "flops": 5.76e23, "tokens": 1.5e12 },
+    { "params": 1.75e11, "flops": 3.85e24, "tokens": 3.7e12 },
+    { "params": 2.8e11, "flops": 9.9e24, "tokens": 5.9e12 },
+    { "params": 5.2e11, "flops": 3.43e25, "tokens": 11.0e12 },
+    { "params": 1e12, "flops": 1.27e26, "tokens": 21.2e12 },
+    { "params": 1e13, "flops": 1.3e28, "tokens": 216.2e12 }
+  ]
+}

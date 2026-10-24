@@ -1,0 +1,55 @@
+{
+  "accessed": "2026-10-24",
+  "facts": [
+    {
+      "id": "kaplan-power-law",
+      "claim": "Kaplan and colleagues (2020) found that a language model’s loss falls as a power law of its size, its training data and the compute spent on it.",
+      "source": "https://arxiv.org/abs/2001.08361"
+    },
+    {
+      "id": "kaplan-big-models",
+      "claim": "They concluded that the most compute-efficient training uses very large models on a relatively modest amount of data, stopped well before convergence.",
+      "source": "https://arxiv.org/abs/2001.08361"
+    },
+    {
+      "id": "chinchilla-equal",
+      "claim": "Hoffmann and colleagues (2022) found that model size and training tokens should be scaled equally: for every doubling of model size, double the training tokens too.",
+      "source": "https://arxiv.org/abs/2203.15556"
+    },
+    {
+      "id": "chinchilla-kaplan-10x",
+      "claim": "The same paper reads Kaplan’s fit as: for 10 times the compute, a model 5.5 times bigger trained on only 1.8 times the tokens.",
+      "source": "https://arxiv.org/abs/2203.15556"
+    },
+    {
+      "id": "chinchilla-gopher",
+      "claim": "Chinchilla, 70 billion parameters trained on 1.4 trillion tokens, used the same compute as the 280-billion-parameter Gopher and outperformed it.",
+      "source": "https://arxiv.org/abs/2203.15556"
+    },
+    {
+      "id": "chinchilla-undertrained",
+      "claim": "Hoffmann and colleagues concluded that the large language models of 2022 were significantly undertrained: too big for the data they saw.",
+      "source": "https://arxiv.org/abs/2203.15556"
+    },
+    {
+      "id": "dedup-copying",
+      "claim": "Lee and colleagues (2021) found that over 1% of the unprompted output of models trained on common datasets was copied word for word from the training data.",
+      "source": "https://arxiv.org/abs/2107.06499"
+    },
+    {
+      "id": "dedup-less-memorised",
+      "claim": "Removing duplicates let them train models that emit memorised text ten times less often, in fewer training steps.",
+      "source": "https://arxiv.org/abs/2107.06499"
+    },
+    {
+      "id": "dedup-overlap",
+      "claim": "They also found train-test overlap in over 4% of the validation sets of standard datasets.",
+      "source": "https://arxiv.org/abs/2107.06499"
+    },
+    {
+      "id": "contamination",
+      "claim": "Magar and Schwartz (2022) trained models with test data mixed into pre-training and found they sometimes exploit it, scoring higher on the examples they saw than on ones they didn’t.",
+      "source": "https://arxiv.org/abs/2203.08242"
+    }
+  ]
+}

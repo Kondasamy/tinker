@@ -1,0 +1,230 @@
+---
+// Pre-training module intro: sets the scene before chapter 1. Static, except the warm-up and a small script that marks
+// finished chapters. Every example is the module's own data: what the step-0 and last checkpoints write after the same
+// prompt (run at build time from the committed weights), the run's size from the checkpoints' meta.json and runs.json,
+// and claims quoted from data/pre-training/facts.json.
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import { readFileSync } from 'node:fs';
+import Meta from '../../components/Meta.astro';
+import IsoStage from '../../lib/iso/IsoStage';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import { FORGE_BOARD, forgeLabel, forgeScene, type ForgeOpts } from '../../components/scenes/forgeScene';
+import { parseCheckpoint } from '../../lib/lm/load';
+import { CKPT, LAST, PROMPTS, STEPS, runOf, says } from '../../lib/pre-training/engine';
+import { fact } from '../../lib/pre-training/facts';
+import { moduleOf, chapterHref } from '../../lib/modules';
+import { introMeta } from '../../lib/pages';
+import { longDate, num } from '../../lib/format';
+
+const MODULE = moduleOf('pre-training');
+const CHAPTERS = MODULE.chapters;
+const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
+const forge = (o: Partial<ForgeOpts>): ForgeOpts => ({ steps: STEPS, step: LAST, scale: 1.3, ...o });
+const HERO = forge({ step: 1000 });
+// the whole idea: one prompt, the first and the last checkpoint, run here at build time
+const PROMPT = 2;
+const disk = (step: number) => {
+  const b = readFileSync(`public/data/pre-training/ckpt-${step}.bin`);
+  return parseCheckpoint(CKPT, step, b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer);
+};
+const SIDES = [0, LAST].map(step => ({ step, text: says(disk(step), PROMPT).trim() }));
+type F = ReturnType<typeof fact> | null;
+const IDEAS: [string, string, F, ForgeOpts][] = [
+  ['From nothing', 'Random weights, then thousands of small nudges', fact('kaplan-power-law'), forge({ step: 0 })],
+  ['Checkpoints', 'Saved copies let you look back at any moment of a run', null, forge({ step: 1000 })],
+  ['Held out', 'Score the model on text it never trained on', null, forge({})],
+  [
+    'Repeats get memorised',
+    'Copied text comes back word for word',
+    fact('dedup-copying'),
+    forge({ mix: 'duplicated' }),
+  ],
+  [
+    'A leaked test flatters',
+    'A test the model trained on stops measuring',
+    fact('contamination'),
+    forge({ mix: 'leaked' }),
+  ],
+  ['Size and data together', 'More compute means a bigger model and more text', fact('chinchilla-equal'), forge({})],
+];
+const FACTS: [string, string][] = [
+  [num(CKPT.model.params), 'weights in Larkspur mini'],
+  [num(runOf('clean').docs), 'Larkspur documents it trains on'],
+  [num(LAST), 'training steps in its run'],
+  [num(STEPS.length), 'checkpoints you can open'],
+];
+---
+<html lang="en">
+  <head>
+    <Meta {...introMeta(MODULE.id)} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module 18 · Pre-training</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS.map((m, i) => <>{i > 0 && ', '}<a href={`/${m.id}/`}>{m.title}</a></>)} recommended · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+          <h1>Where does a model come from?</h1>
+          <p class="lede">Every model starts as random numbers and learns by guessing the next piece of text, over and over. Here you open a tiny model’s real training run, checkpoint by checkpoint, and see what its data teaches it.</p>
+          <div class="ctas">
+            <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+          <ReadingMode />
+        </div>
+        <div class="hero-pic">
+          {/* the foundry every chapter plays on, partway through the run */}
+          <IsoStage board={FORGE_BOARD} scene={forgeScene(HERO)} label={forgeLabel(HERO)} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="idea">
+        <p class="kicker">The whole idea in one example</p>
+        <h2 id="idea">One prompt, before and after training</h2>
+        <div class="versus">
+          {SIDES.map(s => (
+            <article class:list={['reply', { read: s.step === LAST }]}>
+              <header><h3>Step {num(s.step)} <span class="tag">run at build time</span></h3></header>
+              <p class="asked">“{PROMPTS[PROMPT].text}…”</p>
+              <p class="said">{s.text}</p>
+              <p class="cap">{s.step === 0 ? 'Random weights: noise.' : 'After the whole run: Larkspur’s kind of sentence.'}</p>
+            </article>
+          ))}
+        </div>
+        <p class="note more">Both replies come from Larkspur mini’s real checkpoints, greedy, the same way the chapters run them in your browser. Nothing changed between them but the weights.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Six ideas carry the module</h2>
+        <ol class="steps">
+          {IDEAS.map(([name, short, f, pic], i) => (
+            <li>
+              <div class="pic"><IsoStage board={FORGE_BOARD} scene={forgeScene(pic)} label={forgeLabel(pic)} /></div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              {f && <p class="more">{f.claim}</p>}
+              {f && <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>}
+            </li>
+          ))}
+        </ol>
+        <p class="note more">The chapters run Larkspur mini’s saved checkpoints in your browser; the other runs were trained ahead of time and recorded. Its numbers teach the mechanism; they are not any provider’s.</p>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">Larkspur trains its own</h2>
+          <p class="more">{MODULE.story} <strong>You’re on the team that picks the data and decides when to stop.</strong></p>
+          <p class="prev"><a href="/tokens/">Tokens</a> built the pieces a model reads. This module trains a model on them.</p>
+        </div>
+        <dl class="facts">
+          {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}
+        </dl>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due (R13); the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <ul class="who-chips"><li>Engineers</li><li>Product managers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Product managers, engineers and analysts who want to know what “trained on” means. <a href="/tokens/">Tokens</a> comes first; no code or maths needed.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com" target="_blank" rel="noopener">Kondasamy Jayaraman</a>.</p>
+        <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, whose hand-inked isometric style and engine this course is built on. Colorfigures grew from April’s <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed. Thank you.</p>
+      </footer>
+    </main>
+
+    <script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      const CHAPTERS = moduleOf('pre-training').chapters;
+      const done = completed('pre-training');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('pre-training', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .module-meta a { color: var(--ink); }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.read { border-left: 6px solid var(--acc); }
+  .said { font-size: 17px; font-weight: 700; overflow-wrap: anywhere; }
+  .tag { margin-left: 6px; padding: 0 6px; border: 1px solid var(--rule); border-radius: 999px; font: 700 11px ui-monospace, Menlo, monospace; color: var(--muted); white-space: nowrap; }
+  .asked { font-size: 14px; color: var(--muted); }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 220px; display: flex; justify-content: center; margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: auto !important; height: 100% !important; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .prev { font-size: 14px; color: var(--muted); }
+  .prev a { color: var(--ink); }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
+
+  .pair { display: grid; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+  }
+</style>

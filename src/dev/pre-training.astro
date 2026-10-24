@@ -1,0 +1,91 @@
+---
+// Dev-only eyeball page: the pre-training foundry at every checkpoint (static SVG, desktop and phone) with what that
+// checkpoint writes, every data mix, the loss charts and the scaling view, then the stage: loading, failed (Retry) and
+// ready. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import { readFileSync } from 'node:fs';
+import IsoStage from '../lib/iso/IsoStage';
+import { FORGE_BOARD, forgeLabel, forgeScene, type ForgeOpts } from '../components/scenes/forgeScene';
+import { parseCheckpoint } from '../lib/lm/load';
+import { CKPT, PROMPTS, RUN_IDS, STEPS, says } from '../lib/pre-training/engine';
+import {
+  CKPT_SERIES,
+  PreTrainingStage,
+  ScalingView,
+  loadCkpt,
+  runSeries,
+  setCkptFiles,
+} from '../content/pre-training/kit';
+import { LossChart } from '../content/fine-tuning/kit';
+
+const disk = (f: string) => {
+  const b = readFileSync('public/data/pre-training/' + f);
+  return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer;
+};
+// the stage's three states, drawn on the server: step 1000 loaded, step 500 failing, step 250 never asked for
+setCkptFiles(async f => {
+  if (f === 'ckpt-500.bin') throw new Error('offline');
+  return disk(f);
+});
+await loadCkpt(1000);
+await loadCkpt(500).catch(() => {});
+const PROMPT = 2;
+const ROWS = STEPS.map(step => ({
+  step,
+  text: says(parseCheckpoint(CKPT, step, disk(`ckpt-${step}.bin`)), PROMPT),
+  o: { steps: STEPS, step } as ForgeOpts,
+}));
+const show = (step: number) => () => ({ scene: { step }, caption: `The foundry at step ${step}.` });
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Pre-training scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Pre-training foundry: every checkpoint</h1>
+      <div class="grid">
+        {ROWS.map(r => (
+          <section>
+            <h2>Step {r.step}</h2>
+            <div class="wide"><IsoStage board={FORGE_BOARD} scene={forgeScene({ ...r.o, scale: 1.3 })} label={forgeLabel(r.o)} /></div>
+            <div class="phone"><IsoStage board={FORGE_BOARD} scene={forgeScene({ ...r.o, scale: 2.2 })} label={forgeLabel(r.o)} /></div>
+            <p><em>{PROMPTS[PROMPT].text}</em> <strong>{r.text}</strong></p>
+          </section>
+        ))}
+        <section>
+          <h2>Before training</h2>
+          <IsoStage board={FORGE_BOARD} scene={forgeScene({ steps: STEPS, step: null, scale: 1.3 })} label="cold" />
+        </section>
+        {RUN_IDS.map(mix => (
+          <section>
+            <h2>Mix: {mix}</h2>
+            <IsoStage board={FORGE_BOARD} scene={forgeScene({ steps: STEPS, step: 3000, mix, scale: 1.3 })} label={mix} />
+          </section>
+        ))}
+      </div>
+      <section><h2>Loss: the checkpoints</h2><LossChart client:load series={CKPT_SERIES} /></section>
+      {RUN_IDS.map(id => <section><h2>Loss: the {id} run</h2><LossChart client:load series={runSeries(id)} /></section>)}
+      <section><h2>Scaling, 100×</h2><ScalingView budget={100} /></section>
+      <div class="grid">
+        <section><h2>Stage: step 1000 loaded</h2><PreTrainingStage show={show(1000)} step={1000} /></section>
+        <section><h2>Stage: step 500 failed</h2><PreTrainingStage show={show(500)} step={500} /></section>
+        <section><h2>Stage: step 250 loading</h2><PreTrainingStage show={show(250)} step={250} /></section>
+      </div>
+    </main>
+  </body>
+</html>
+
+<style>
+  main { max-width: 1200px; margin: 0 auto; padding: 24px; font: 15px/1.5 system-ui, sans-serif; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
+  section { border: 1px solid #ccc; border-radius: 12px; padding: 12px; }
+  .phone { display: none; }
+  @media (max-width: 600px) {
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>
