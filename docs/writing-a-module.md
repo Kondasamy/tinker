@@ -1,6 +1,6 @@
 # Writing a Tinker module
 
-A module explains one concept as a story the reader plays. The picture on the left is live; the story column on the right asks the reader to do one thing at a time in it, and they watch what changes. This guide is the house style. [AGENTS.md](../AGENTS.md) holds the full list of decisions; where the two overlap, AGENTS.md wins.
+A module explains one concept, from AI or classic tech, as a story the reader plays. The picture on the left is live; the story column on the right asks the reader to do one thing at a time in it, and they watch what changes. This guide is the house style. [AGENTS.md](../AGENTS.md) holds the full list of decisions; where the two overlap, AGENTS.md wins.
 
 ---
 
@@ -12,13 +12,13 @@ A module explains one concept as a story the reader plays. The picture on the le
 
 | Level | The reader | Example |
 |---|---|---|
-| Beginner | Has used the technology, never looked inside. Needs no other module. | RAG |
+| Beginner | Has used the technology, never looked inside. Needs no other module. | RAG, Caching & CDNs |
 | Intermediate | Knows the basics of one related module and builds on it. Names a prerequisite. | Tool calling & MCP, Evals (after RAG) |
-| Advanced | Comfortable with the Intermediate ideas; the module goes into the machinery. | AI agents (after Tool calling) |
+| Advanced | Comfortable with the Intermediate ideas; the module goes into the machinery. | AI agents (after Tool calling), Replication & consistency (after Databases) |
 
 ## 2. Write one story
 
-Each module tells one story from the first problem to the best fix. RAG and Tool calling follow the team building an assistant for **Larkspur Supply Co.**, a fictional hardware company; a new module may continue that story or start its own. The story is the reason each chapter exists: something goes wrong, the reader finds out why, and fixes it.
+Each module tells one story from the first problem to the best fix. Most modules follow **Larkspur Supply Co.**, a fictional hardware company: its AI assistant in RAG and Tool calling, its shop, warehouses and orders in Caching, Databases and Consistency. A new module may continue that story or start its own. The story is the reason each chapter exists: something goes wrong, the reader finds out why, and fixes it.
 
 ## 3. Shape each chapter as a loop
 
@@ -55,9 +55,9 @@ Each module has a **recall bank** (`src/content/<module>/recall.ts`): three to f
 
 ## 5. Get every fact from data
 
-- Numbers, dates, recorded model answers and claims about real systems live in `data/<module>/` with their sources, and the copy imports them. Never type a number or an answer into page copy.
-- There is no live model. Model output is **pre-recorded** for every situation the reader's controls can reach, and a coverage test proves it. Keep each control to a small set of prepared choices so the recordings stay finite.
-- Everything else (validation, scoring, maths, the protocol messages) runs for real in the browser.
+- Numbers, dates, recorded answers and claims about real systems live in `data/<module>/` with their sources, and the copy imports them. Never type a number or an answer into page copy.
+- There is no backend. Whatever the browser can't run for real (a large model's reply, a live network) is **pre-recorded** or simulated for every situation the reader's controls can reach, and a coverage test proves it. Keep each control to a small set of prepared choices so the recordings stay finite.
+- Everything else (validation, scoring, maths, a cache, an index, the protocol messages) runs for real in the browser.
 
 ## 6. Draw the pictures
 

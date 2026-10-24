@@ -1,6 +1,6 @@
 # Tinker
 
-> See how tech works by playing with it. Hand-drawn, interactive explanations of tech concepts, by [Kondasamy Jayaraman](https://kondasamy.com). Home: **https://tinker.kondasamy.com**.
+> See how tech works by playing with it. Hand-drawn, interactive explanations of how tech works, AI and classic, by [Kondasamy Jayaraman](https://kondasamy.com). Home: **https://tinker.kondasamy.com**.
 
 Each module is a short story you play through: the picture on the left is live, the story on the right asks you to do one thing at a time in it, and you watch what changes. Build the thing, break it, fix it.
 
@@ -10,7 +10,7 @@ Each module is a short story you play through: the picture on the left is live, 
 
 ## Modules
 
-Every module has a level, a story, an intro at `/<module>/`, its chapters, and a recap at `/<module>/recap/`. The home page lists them by level.
+Every module has a level, a story, an intro at `/<module>/`, its chapters, and a recap at `/<module>/recap/`. The home page lists them by level, numbered 1–25 in the order they went live, with the seven planned modules as roadmap cards. Readers propose new ones through the form at the bottom of the home page.
 
 | Level | Module | Status |
 |---|---|---|
@@ -39,6 +39,13 @@ Every module has a level, a story, an intro at `/<module>/`, its chapters, and a
 | Advanced | [Post-training](#post-training-post-training) (Fine-tuning and Evals recommended first) | Live, 7 chapters |
 | Advanced | [Interpretability](#interpretability-interpretability) (Transformers recommended first) | Live, 7 chapters |
 | Advanced | [Replication & consistency](#replication--consistency-consistency) (Databases recommended first) | Live, 7 chapters |
+| Beginner | Search before AI | Planned |
+| Beginner | Opening a web page | Planned |
+| Beginner | Card payments | Planned |
+| Beginner | Git | Planned |
+| Intermediate | Calibration | Planned |
+| Advanced | Diffusion language models | Planned |
+| Advanced | Computer use | Planned |
 
 ### RAG: Retrieval-Augmented Generation (`/rag/`)
 
@@ -514,7 +521,7 @@ pnpm install    # install exact dependency versions from pnpm-lock.yaml
 pnpm dev        # start the dev server on http://localhost:4321
 ```
 
-Open http://localhost:4321 for the Tinker home; the modules are at http://localhost:4321/rag/, http://localhost:4321/tool-calling/, http://localhost:4321/agents/, http://localhost:4321/evals/, http://localhost:4321/guardrails/, http://localhost:4321/tokens/, http://localhost:4321/transformers/, http://localhost:4321/context/, http://localhost:4321/fine-tuning/, http://localhost:4321/structured-outputs/, http://localhost:4321/reasoning/, http://localhost:4321/small-models/, http://localhost:4321/inference/, http://localhost:4321/observability/, http://localhost:4321/sandboxing/, http://localhost:4321/multimodal/, http://localhost:4321/voice/, http://localhost:4321/pre-training/, http://localhost:4321/post-training/ and http://localhost:4321/interpretability/, http://localhost:4321/caching/, http://localhost:4321/databases/, http://localhost:4321/consistency/ and http://localhost:4321/ab-testing/, http://localhost:4321/diffusion/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap`, `/dev/warmup`, `/dev/agents`, `/dev/evals`, `/dev/guardrails`, `/dev/tokens`, `/dev/transformers`, `/dev/context`, `/dev/fine-tuning`, `/dev/structured-outputs`, `/dev/reasoning`, `/dev/small-models`, `/dev/inference`, `/dev/observability`, `/dev/sandboxing`, `/dev/multimodal`, `/dev/voice`, `/dev/pre-training`, `/dev/post-training`, `/dev/interpretability`, `/dev/caching`, `/dev/databases`, `/dev/consistency` and `/dev/ab-testing`, `/dev/diffusion`. These pages are left out of production builds.
+Open http://localhost:4321 for the Tinker home; the modules are at http://localhost:4321/rag/, http://localhost:4321/tool-calling/, http://localhost:4321/agents/, http://localhost:4321/evals/, http://localhost:4321/guardrails/, http://localhost:4321/tokens/, http://localhost:4321/transformers/, http://localhost:4321/context/, http://localhost:4321/fine-tuning/, http://localhost:4321/structured-outputs/, http://localhost:4321/reasoning/, http://localhost:4321/small-models/, http://localhost:4321/inference/, http://localhost:4321/observability/, http://localhost:4321/sandboxing/, http://localhost:4321/multimodal/, http://localhost:4321/voice/, http://localhost:4321/pre-training/, http://localhost:4321/post-training/, http://localhost:4321/interpretability/, http://localhost:4321/caching/, http://localhost:4321/databases/, http://localhost:4321/consistency/, http://localhost:4321/ab-testing/ and http://localhost:4321/diffusion/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap`, `/dev/warmup`, `/dev/agents`, `/dev/evals`, `/dev/guardrails`, `/dev/tokens`, `/dev/transformers`, `/dev/context`, `/dev/fine-tuning`, `/dev/structured-outputs`, `/dev/reasoning`, `/dev/small-models`, `/dev/inference`, `/dev/observability`, `/dev/sandboxing`, `/dev/multimodal`, `/dev/voice`, `/dev/pre-training`, `/dev/post-training`, `/dev/interpretability`, `/dev/caching`, `/dev/databases`, `/dev/consistency`, `/dev/ab-testing` and `/dev/diffusion`. These pages are left out of production builds.
 
 To try the production build locally:
 
