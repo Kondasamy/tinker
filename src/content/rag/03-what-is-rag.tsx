@@ -54,8 +54,8 @@ export const STEPS: Step<S>[] = [
     id: 'ask',
     focus: 'ask',
     visibleControls: ['ask'],
-    narration:
-      'Meet the company assistant. Right now it is just a language model: no documents, nothing wired in. A support lead asks it about refunds.',
+    narration: 'Meet the assistant: a bare language model, no documents. A support lead asks about refunds.',
+    label: 'Asked the bare model',
     predicate: s => s.asked,
   },
   {
@@ -63,8 +63,9 @@ export const STEPS: Step<S>[] = [
     focus: 'add',
     visibleControls: ['add'],
     opensDrawer: 'answer',
-    narration:
-      'Made up. It sounds sure, but it has never read your refund policy, so it invented one. Give it the company documents.',
+    narration: 'Made up: it never read your refund policy, so it invented one. Add the Docs.',
+    label: 'Saw a made-up answer, added the Docs',
+    more: 'A made-up answer sounds just as sure as a right one. Nothing in the wording tells you it was invented.',
     predicate: s => has(s, 'docs'),
   },
   {
@@ -72,14 +73,17 @@ export const STEPS: Step<S>[] = [
     focus: 'predict',
     visibleControls: ['predict'],
     narration:
-      'Still made up. The documents are there, but nothing carries the right ones to the model, and all of them will not fit (chapter 2). A Retriever finds the few passages that match the question. Before you add one, make a prediction.',
+      'Still made up: nothing carries documents to the model. A Retriever fetches the few passages matching the question. Predict.',
+    label: 'Predicted what a Retriever changes',
+    more: 'Sending every document instead is the chapter 2 idea that failed: they will not all fit, and most of them have nothing to do with the question.',
     predicate: s => s.prediction !== null,
   },
   {
     id: 'retriever',
     focus: 'add',
     visibleControls: ['predict', 'add'],
-    narration: 'Your pick is locked. Add the Retriever and watch the answer.',
+    narration: 'Your pick is locked. Add the Retriever.',
+    label: 'Added the Retriever',
     predicate: s => has(s, 'retriever') && s.verdict === 'correct',
     hint: 'Press “Add the Retriever”. The wire from Docs to the model lights up once it is in place.',
   },
@@ -89,7 +93,9 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['reveal', 'see'],
     opensDrawer: 'answer',
     narration:
-      'Correct, and it cites the policy it used. That is RAG: Retrieve the matching passages, Augment the prompt with them, Generate the answer. What did the retriever hand over?',
+      'That is RAG: Retrieve the matching passages, Augment the prompt with them, Generate the answer. What did it find?',
+    label: 'Got a grounded answer with a citation',
+    more: 'RAG stands for Retrieval-Augmented Generation. The answer is built from passages the model was handed, so it can name them.',
     predicate: s => s.seen,
   },
   {
@@ -97,8 +103,8 @@ export const STEPS: Step<S>[] = [
     focus: 'retriever',
     visibleControls: [],
     opensDrawer: 'evidence',
-    narration:
-      'These passages reached the model, each with a similarity score to the question. Tick “Show the math” to see how the top score is computed.',
+    narration: 'These passages reached the model, each scored for similarity to the question. Tick “Show the math”.',
+    label: 'Checked the similarity scores',
     predicate: s => s.math,
     hint: 'The “Show the math” box sits above the list of chunks. If the panel is closed, press Evidence under the canvas.',
   },
@@ -107,7 +113,8 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['quiz'],
     narration:
-      'The retriever compares the meaning of your question with every passage and keeps the closest. One question to finish.',
+      'The retriever keeps the passages closest in meaning to your question. The model never changed. One question.',
+    label: 'Answered what the retriever gives',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What changed between the made-up answer and the right one? Not the model.',
   },

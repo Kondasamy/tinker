@@ -14,11 +14,26 @@ import ContextOverflow from '../components/scenes/ContextOverflow';
 import { TIMELINE, STOPS, STOP_5TB } from '../lib/scale';
 
 const track = (blocks: BlockType[]) =>
-  renderToStaticMarkup(createElement(IsoStage, { board: TRACK_BOARD, scene: staticTrack(blocks, { scale: 1.6 }), label: '', zoom: { k: 1.06, u: 0.5, v: 0.25 } }));
+  renderToStaticMarkup(
+    createElement(IsoStage, {
+      board: TRACK_BOARD,
+      scene: staticTrack(blocks, { scale: 1.6 }),
+      label: '',
+      zoom: { k: 1.06, u: 0.5, v: 0.25 },
+    }),
+  );
 // a scene component's picture: its svg, without the caption around it
 const svgOf = (el: ReturnType<typeof createElement>) => /<svg[\s\S]*<\/svg>/.exec(renderToStaticMarkup(el))![0];
 const eras = (visited: number) =>
-  svgOf(createElement(Timeline, { entries: TIMELINE, visited, active: Math.max(0, visited - 1), onPick: () => {}, pills: 1.7 }));
+  svgOf(
+    createElement(Timeline, {
+      entries: TIMELINE,
+      visited,
+      active: Math.max(0, visited - 1),
+      onPick: () => {},
+      pills: 1.7,
+    }),
+  );
 const corpus = (stop: number) => svgOf(createElement(ContextOverflow, { stop, pills: 1.7 }));
 const RAG3: BlockType[] = ['docs', 'retriever', 'llm'],
   RAG4: BlockType[] = [...RAG3, 'chunker', 'embedder', 'index', 'assembler'],
@@ -40,13 +55,7 @@ const FRAMES: Record<string, () => string[]> = {
     corpus(STOP_5TB),
     corpus(STOPS.length - 1),
   ],
-  'rag/03-what-is-rag': () => [
-    track([]),
-    track(['llm']),
-    track(['docs', 'llm']),
-    track(RAG3),
-    track(RAG3),
-  ],
+  'rag/03-what-is-rag': () => [track([]), track(['llm']), track(['docs', 'llm']), track(RAG3), track(RAG3)],
   'rag/04-layers': () => [
     track(RAG3),
     track([...RAG3, 'chunker']),
@@ -54,7 +63,12 @@ const FRAMES: Record<string, () => string[]> = {
     track([...RAG3, 'chunker', 'embedder', 'index']),
     track(RAG4),
   ],
-  'rag/05-accuracy': () => [track(RAG4), track([...RAG4, 'rewrite']), track([...RAG4, 'rewrite', 'reranker']), track(RAG5)],
+  'rag/05-accuracy': () => [
+    track(RAG4),
+    track([...RAG4, 'rewrite']),
+    track([...RAG4, 'rewrite', 'reranker']),
+    track(RAG5),
+  ],
   'rag/06-types': () => [track(RAG5), track([...RAG5, 'agent']), track(RAG6), track(RAG6)],
   'rag/07-sandbox': () => [track(RAG6), track(RAG6), track(RAG6)],
 };

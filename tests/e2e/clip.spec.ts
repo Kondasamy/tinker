@@ -53,7 +53,11 @@ test('reduced motion: the clip stays paused until pressed', async ({ page }) => 
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await open(page, CH3);
   await page.waitForTimeout(500);
-  expect(await clip(page).locator('video').evaluate((v: HTMLVideoElement) => v.paused)).toBe(true);
+  expect(
+    await clip(page)
+      .locator('video')
+      .evaluate((v: HTMLVideoElement) => v.paused),
+  ).toBe(true);
 });
 
 test('offline: the chapter still plays and the clip leaves its poster and lines', async ({ page }) => {
@@ -76,7 +80,7 @@ test('the header with its clip passes axe', async ({ page }) => {
 });
 
 test('a chapter with no clip keeps its whole header and no switch', async ({ page }) => {
-  await open(page, '/rag/01-history/');
+  await open(page, '/tokens/01-what-the-model-reads/');
   await expect(header(page).locator('.story')).toBeVisible();
   await expect(header(page).locator('.reading')).toHaveCount(0);
   await expect(header(page).locator('video')).toHaveCount(0);

@@ -64,12 +64,13 @@ const PREDICT = {
 const OUTCOME = 1;
 
 // Each reason step: one button reveals the next reason; the drawer shows the one just revealed.
-const reasonStep = (id: Reason, opens: string, narration: string): Step<S> => ({
+const reasonStep = (id: Reason, opens: string, narration: string, label: string): Step<S> => ({
   id: `reason-${id}`,
   focus: 'reason',
   visibleControls: ['reason'],
   opensDrawer: opens,
   narration,
+  label,
   predicate: s => s.seen.includes(id),
 });
 
@@ -78,15 +79,16 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'predict',
     visibleControls: ['predict'],
-    narration:
-      'Your team’s obvious fix: paste the whole company drive into the assistant’s prompt. Before you try it, make a prediction.',
+    narration: 'The obvious fix: paste the whole company drive into the prompt. Predict first.',
+    label: 'Predicted whether the drive fits',
     predicate: s => s.prediction !== null,
   },
   {
     id: 'ask',
     focus: 'ask',
     visibleControls: ['predict', 'ask'],
-    narration: 'Your pick is locked. The drive is pasted in. Ask the assistant about enterprise refunds.',
+    narration: 'Your pick is locked. Ask about enterprise refunds.',
+    label: 'Asked about enterprise refunds',
     predicate: s => s.asked,
   },
   {
@@ -94,8 +96,9 @@ export const STEPS: Step<S>[] = [
     focus: 'corpus',
     visibleControls: ['corpus'],
     opensDrawer: 'answer',
-    narration:
-      'Wrong again. The enterprise policy is on the drive, but the drive did not fit, so the paste was cut off before it. Drag the corpus slider until it overflows the context window.',
+    narration: 'Wrong again: the policy was cut off. Drag the corpus slider until it overflows the window.',
+    label: 'Overflowed the window',
+    more: 'The policy is on the drive, but the paste was cut off before it. Cutting text that does not fit is truncation: the model never sees what was cut.',
     predicate: s => overflows(STOPS[s.stop]),
     hint: `The window holds ${formatTokens(WINDOW)} tokens, about ${formatBytes(WINDOW * BYTES_PER_TOKEN)} of text. Go past that.`,
   },
@@ -104,28 +107,36 @@ export const STEPS: Step<S>[] = [
     focus: 'corpus',
     visibleControls: ['reveal', 'corpus'],
     opensDrawer: 'numbers',
-    narration: `It already overflows at ${formatBytes(STOPS[FIRST_OVER])}. Real company drives are much bigger. Keep dragging, to 5 TB.`,
+    narration: `Overflows at ${formatBytes(STOPS[FIRST_OVER])}. Real drives are far bigger: drag to 5 TB.`,
+    label: 'Dragged the drive to 5 TB',
     predicate: s => s.stop >= STOP_5TB,
     hint: 'Each notch is 10 times bigger. 5 TB is the ninth notch.',
   },
   reasonStep(
     'middle',
     'numbers',
-    `5 TB is about ${formatTokens(tokensFor(STOPS[STOP_5TB]))} tokens. No model can read that in one go. And size is not the only problem. Open the first of three more reasons.`,
+    `5 TB is about ${formatTokens(tokensFor(STOPS[STOP_5TB]))} tokens: no window holds it. Size is one of four problems. Open the next.`,
+    `5 TB is ${formatTokens(tokensFor(STOPS[STOP_5TB]))} tokens: far too big`,
   ),
   reasonStep(
     'fresh',
     'middle',
-    'Even text that fits gets used badly: facts in the middle of a long prompt are often missed. Next reason.',
+    'Even if it fits, facts in the middle of a long prompt get missed. Next reason.',
+    'Reason 1: facts get lost in the middle',
   ),
-  reasonStep('access', 'fresh', 'A prompt is a snapshot. Documents change every day. Last reason.'),
+  reasonStep(
+    'access',
+    'fresh',
+    'A prompt is a snapshot; documents change daily. Last reason.',
+    'Reason 2: a pasted prompt goes stale',
+  ),
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['quiz'],
     opensDrawer: 'access',
-    narration:
-      'And one prompt for everyone ignores permissions. Retrieval can filter per user. One question to finish.',
+    narration: 'One prompt for everyone ignores permissions. Retrieval can filter per user. One question to finish.',
+    label: 'Reason 3: permissions; answered the quiz',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Think of all four problems: size, the middle, freshness, permissions.',
   },

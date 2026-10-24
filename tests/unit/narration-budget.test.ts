@@ -33,8 +33,19 @@ describe('word count', () => {
   });
 });
 
+describe.each(CHAPTERS)('RAG %s', (_, steps) => {
+  it('keeps every step’s narration to 30 words', () => {
+    const long = steps.filter(s => words(s.narration) > 30).map(s => `${words(s.narration)}: ${s.narration}`);
+    expect(long).toEqual([]);
+  });
+  it('gives every step a log label of at most 8 words', () => {
+    const bad = steps.filter(s => !s.label || words(s.label) > 8).map(s => s.label ?? s.narration.slice(0, 40));
+    expect(bad).toEqual([]);
+  });
+});
+
 describe('RAG narration', () => {
-  it('records the count before the pilot', () => {
-    expect(total()).toBe(BEFORE);
+  it('is at most half its count before the pilot', () => {
+    expect(total()).toBeLessThanOrEqual(BEFORE / 2);
   });
 });

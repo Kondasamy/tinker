@@ -61,8 +61,8 @@ export const STEPS: Step<S>[] = [
     id: 'ask',
     focus: 'ask',
     visibleControls: ['ask'],
-    narration:
-      'To save cost, your team cut documents into small 16-word pieces and now sends the model only the single best match. A sales lead asks the refund question again.',
+    narration: `To save cost, your team cuts documents into ${BROKEN.size}-word pieces and sends only the best one. Ask again.`,
+    label: `Asked through ${BROKEN.size}-word pieces`,
     predicate: s => s.asked,
   },
   {
@@ -70,15 +70,16 @@ export const STEPS: Step<S>[] = [
     focus: 'predict',
     visibleControls: ['predict'],
     opensDrawer: 'answer',
-    narration: `Wrong, and sure of itself. The policy excludes enterprise contracts. Only the single best ${BROKEN.size}-word piece reached the model. Before you look inside, make a prediction.`,
+    narration: `Wrong, and sure: the policy excludes enterprise contracts. Only one ${BROKEN.size}-word piece reached the model. Predict.`,
+    label: 'Predicted what the one piece held',
     predicate: s => s.prediction !== null,
   },
   {
     id: 'chunker',
     focus: 'add',
     visibleControls: ['predict', 'add'],
-    narration:
-      'Your pick is locked. To see why, open up the pipeline. First layer: the Chunker, which cuts every document into pieces before anything is searched.',
+    narration: 'Your pick is locked. First layer: the Chunker cuts every document into pieces before any search.',
+    label: 'Added the Chunker',
     predicate: s => has(s, 'chunker'),
   },
   {
@@ -86,8 +87,9 @@ export const STEPS: Step<S>[] = [
     focus: 'add',
     visibleControls: ['reveal', 'add'],
     opensDrawer: 'chunks',
-    narration:
-      'There it is: a cut right after “does NOT” (the red mark). The rule and its exception landed in different pieces. How was the piece picked? Add the Embedder and the Index.',
+    narration: 'A cut right after “does NOT” (red) split the rule from its exception. Now add the Embedder and Index.',
+    label: 'Found the cut after “does NOT”',
+    more: 'The Chunker counts words, not sentences, so a cut can land mid-sentence. Next: how was that one piece picked?',
     predicate: s => has(s, 'embedder') && has(s, 'index'),
   },
   {
@@ -96,7 +98,9 @@ export const STEPS: Step<S>[] = [
     visibleControls: [],
     opensDrawer: 'map',
     narration:
-      'The Embedder turns each piece into 384 numbers that capture its meaning; the Index stores them. The map flattens those numbers to 2D. Point at a dot, or Tab to one, to compare its true similarity with how close it looks.',
+      'The Embedder turns each piece into 384 numbers capturing meaning; the Index stores them. Point at a dot.',
+    label: 'Probed the map of meaning',
+    more: 'The map flattens the 384 numbers to 2D. Each dot shows its true similarity to the question beside how close it looks. Squashing 384 numbers into two distorts distances.',
     predicate: s => s.probed,
     hint: 'The blue and yellow dots are the closest matches. Hover one, or press Tab until one is selected.',
   },
@@ -105,7 +109,8 @@ export const STEPS: Step<S>[] = [
     focus: 'add',
     visibleControls: ['add'],
     narration:
-      'Closeness on the map is only a picture: the retriever ranks by the true score. Last layer: the Context assembler, which packs the retrieved pieces into the prompt.',
+      'The map is a picture; ranking uses the true score. Last: the Context assembler packs pieces into the prompt.',
+    label: 'Added the Context assembler',
     predicate: s => has(s, 'assembler'),
   },
   puzzle<S>({
@@ -114,7 +119,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['overlap'],
     opensDrawer: 'evidence',
     narration:
-      'Puzzle: only one piece reaches the model, and it ends on “does NOT”. Fix the Chunker so the sentence survives the cut. Overlap repeats the end of each piece at the start of the next.',
+      'Puzzle: fix the Chunker so the sentence survives. Overlap repeats each piece’s end at the next one’s start.',
+    label: 'Fixed the cut with overlap',
     broken: s =>
       isBroken(s.canvas.knobs)
         ? s
@@ -128,8 +134,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['quiz'],
     opensDrawer: 'answer',
-    narration:
-      'Correct, with a citation. With overlap the whole sentence sits in one piece, so the model reads the exception. One question to finish.',
+    narration: 'Correct, with a citation: overlap keeps the whole sentence in one piece. One question to finish.',
+    label: 'Answered why the answer was wrong',
+    more: 'Cutting on sentence boundaries is the other way to keep a rule and its exception together.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Look at the red mark in the Chunks panel from earlier.',
   },

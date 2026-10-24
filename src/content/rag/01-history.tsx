@@ -40,11 +40,27 @@ const QUIZ = {
 };
 
 // What the narration says right after the learner opens era i (the drawer shows its cited claims).
-const AFTER: string[] = [
-  '2020: researchers named the fix. First fetch relevant text, then let the model answer from it. That is Retrieval-Augmented Generation, or RAG. Click 2023.',
-  `2023: chat assistants arrived. The text a model could read per request, its context window, held ${smallest2023} to ${win('small-windows')} tokens (a token is about ¾ of a word). Tool calling had only just appeared. So retrieval had to pick the right paragraphs up front. Click 2024.`,
-  `2024: windows reached ${win('retrieval-matures')} tokens and retrieval got smarter: knowledge graphs, better chunks, reranking. Tool calling was measured on public leaderboards, and still stumbled on multi-step tasks. Click the last era.`,
-  `Late 2024–26: windows reached ${win('agents')} tokens, and models call tools well enough to act as agents. Retrieval became one tool among many: the agent decides when to search. One question to finish.`,
+const AFTER: Pick<Step<S>, 'narration' | 'label' | 'more'>[] = [
+  {
+    narration:
+      '2020: researchers named the fix, Retrieval-Augmented Generation (RAG): fetch relevant text first, then answer from it. Click 2023.',
+    label: '2020: RAG fetches first, then answers',
+  },
+  {
+    narration: `2023: context windows held ${smallest2023} to ${win('small-windows')} tokens; tool calling had barely begun. Retrieval picked passages up front. Click 2024.`,
+    label: '2023: small windows, retrieval picks up front',
+    more: 'The context window is the text a model reads per request. A token is a chunk of text, about ¾ of a word. Chat assistants arrived this year.',
+  },
+  {
+    narration: `2024: windows reached ${win('retrieval-matures')} tokens; retrieval got smarter with reranking and knowledge graphs. Click the last era.`,
+    label: '2024: bigger windows, smarter retrieval',
+    more: 'Chunks got better too. Tool calling was measured on public leaderboards, and still stumbled on multi-step tasks.',
+  },
+  {
+    narration: `Late 2024–26: windows reached ${win('agents')} tokens. Retrieval became one tool among many; agents decide when to search. Answer one question.`,
+    label: 'Answered why 2023 needed retrieval',
+    more: 'Models now call tools well enough to act as agents.',
+  },
 ];
 
 const eraStep = (i: number): Step<S> => ({
@@ -52,10 +68,14 @@ const eraStep = (i: number): Step<S> => ({
   focus: 'timeline',
   visibleControls: [],
   opensDrawer: i === 0 ? 'answer' : 'era',
-  narration:
-    i === 0
-      ? 'Confident, and wrong. A model knows only what it saw in training plus what is in its prompt. It never saw your contracts. How did the industry fix this? Click 2020 on the timeline.'
-      : AFTER[i - 1],
+  ...(i === 0
+    ? {
+        narration:
+          'Confident, and wrong: the model knows only its training data and prompt, never your contracts. Click 2020.',
+        label: 'The assistant guessed, and was wrong',
+        more: 'How did the industry fix this? Each era on the timeline is one step of the answer, with sources.',
+      }
+    : AFTER[i - 1]),
   predicate: s => s.visited > i,
   hint: `Click the glowing ${ERAS[i].label} object, or Tab to it and press Enter.`,
 });
@@ -65,7 +85,8 @@ export const STEPS: Step<S>[] = [
     id: 'ask',
     focus: 'ask',
     visibleControls: ['ask'],
-    narration: 'It’s 2023. An employee asks the company’s new AI assistant a question about a customer contract.',
+    narration: 'It’s 2023. An employee asks the new AI assistant about a customer contract.',
+    label: 'Asked the assistant about a contract',
     predicate: s => s.asked,
   },
   ...ERAS.map((_, i) => eraStep(i)),
@@ -74,7 +95,7 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['quiz'],
     opensDrawer: 'era',
-    narration: AFTER[ERAS.length - 1],
+    ...AFTER[ERAS.length - 1],
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Think back to 2023: what limited how much a model could read?',
   },

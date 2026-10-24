@@ -142,7 +142,17 @@ for (const clip of clips) {
   // the poster: the whole picture, just before the last line fades
   const at = beats(clip.lines).at(-1).end - 0.4;
   execFileSync('ffmpeg', [
-    '-y', '-loglevel', 'error', '-ss', String(at), '-i', mp4, '-frames:v', '1', '-q:v', '3',
+    '-y',
+    '-loglevel',
+    'error',
+    '-ss',
+    String(at),
+    '-i',
+    mp4,
+    '-frames:v',
+    '1',
+    '-q:v',
+    '3',
     path.join(out, `${clip.chapter}.jpg`),
   ]);
   console.log(`clip: public/video/${name}.mp4 (${Math.round((await stat(mp4)).size / 1024)} KB)`);

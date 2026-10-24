@@ -110,8 +110,8 @@ export const STEPS: Step<S>[] = [
     id: 'ask',
     focus: 'ask',
     visibleControls: ['ask'],
-    narration:
-      'Your pipeline from the last chapter is live. A consultant booking a trip asks the assistant about the hotel limit.',
+    narration: 'A consultant asks about the hotel limit. Ask the question.',
+    label: 'Asked about the hotel limit',
     predicate: s => s.asked,
   },
   {
@@ -119,8 +119,9 @@ export const STEPS: Step<S>[] = [
     focus: 'add',
     visibleControls: ['add'],
     opensDrawer: 'answer',
-    narration:
-      'Wrong: $150 is the limit from the retired 2018 travel policy. Before fixing anything, measure. Add the Evaluator: it judges the answer, and sits beside a second meter for retrieval.',
+    narration: 'Wrong: $150 is the retired 2018 limit. Add the Evaluator: one meter judges retrieval, one the answer.',
+    label: 'Added the Evaluator',
+    more: 'The $150 comes from the retired 2018 travel policy. Two meters tell a retrieval problem from an answer problem before you turn any knob.',
     predicate: s => has(s, 'grader'),
   },
   {
@@ -129,14 +130,17 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['predict'],
     opensDrawer: 'evidence',
     narration:
-      'Two meters. Retrieval recall@k: did the right sentence reach the model? Answer: was the reply right? Recall is 0%, so the current policy never arrived. Next you will fetch more chunks. Make a prediction first.',
+      'Recall@k: did the right sentence arrive? It’s 0%: the current policy never did. Predict what more chunks move.',
+    label: 'Predicted which meter moves',
+    more: 'k is how many chunks the retriever hands over. At 0% recall no prompt can save the answer: the passage is not there.',
     predicate: s => s.prediction !== null,
   },
   {
     id: 'more',
     focus: 'retriever',
     visibleControls: ['predict', 'more'],
-    narration: 'Your pick is locked. Fetch more chunks and watch both meters.',
+    narration: 'Pick locked. Fetch more chunks and watch both meters.',
+    label: 'Fetched more chunks',
     predicate: s => s.canvas.knobs.topK === 5,
   },
   puzzle<S>({
@@ -145,7 +149,9 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['reveal', 'filter'],
     opensDrawer: 'evidence',
     narration:
-      'Recall jumped to 100%, yet the answer is still wrong: the retired 2018 policy came along and the model believed it. Puzzle: keep outdated documents out with a metadata filter.',
+      'Recall hit 100%, answer still wrong: the retired policy came too. Puzzle: filter out outdated documents.',
+    label: 'Filtered out outdated documents',
+    more: 'More chunks brought the current policy in, but the stale one still competes, and the model believed it.',
     broken: enter('filter'),
     verdict: correct,
     solution: fix('filter'),
@@ -156,8 +162,9 @@ export const STEPS: Step<S>[] = [
     focus: 'add',
     visibleControls: ['add'],
     opensDrawer: 'answer',
-    narration:
-      'Correct, citing the 2025 policy. Filters act before ranking, so stale text never competes. Next lever works on the question itself: add Query rewrite.',
+    narration: 'Correct. Filters act before ranking, so stale text never competes. Next, add Query rewrite.',
+    label: 'Added Query rewrite',
+    more: 'The answer now cites the 2025 policy. Next you fix the question itself.',
     predicate: s => has(s, 'rewrite'),
   },
   puzzle<S>({
@@ -165,8 +172,9 @@ export const STEPS: Step<S>[] = [
     focus: 'rewrite',
     visibleControls: ['rewrite'],
     opensDrawer: 'answer',
-    narration:
-      'Puzzle: a warehouse lead types “it’s broken again, who do I even call?”. Nothing in the documents looks like that. Send the retriever a clearer version of the question.',
+    narration: 'Puzzle: someone types “it’s broken again, who do I even call?”. Send the retriever a clearer question.',
+    label: 'Rewrote the vague question',
+    more: 'A warehouse lead typed it, and nothing in the documents looks like that.',
     broken: enter('rewrite'),
     verdict: correct,
     solution: fix('rewrite'),
@@ -176,8 +184,9 @@ export const STEPS: Step<S>[] = [
     id: 'after-rewrite',
     focus: 'next',
     visibleControls: ['next'],
-    narration:
-      'Correct. The rewrite names a Portal outage outside business hours, so the Duty Desk rule ranks in: recall went from 0% to 100% and the answer followed.',
+    narration: 'Correct. Naming the Portal outage pulled the Duty Desk rule in: recall rose from 0% to 100%.',
+    label: 'The rewrite brought the Duty Desk rule in',
+    more: 'The rewrite names a Portal outage outside business hours, so the rule ranks in and the answer follows.',
     predicate: s => s.acks >= 1,
   },
   puzzle<S>({
@@ -185,8 +194,9 @@ export const STEPS: Step<S>[] = [
     focus: 'retriever',
     visibleControls: ['topK'],
     opensDrawer: 'answer',
-    narration:
-      'Puzzle: top-k is how many chunks the retriever hands over. At 1, the dock-door safety rule never arrives. Too few misses it; too many buries it. Find a value that works.',
+    narration: `Puzzle: at top-k ${PRESETS.topK.knobs.topK} the dock-door rule never arrives. Too few misses it; too many buries it.`,
+    label: 'Set top-k so the rule arrives',
+    more: 'Top-k is how many chunks the retriever hands over. The missing rule is the dock-door safety rule.',
     broken: enter('topK'),
     verdict: correct,
     solution: fix('topK'),
@@ -196,8 +206,9 @@ export const STEPS: Step<S>[] = [
     id: 'add-reranker',
     focus: 'add',
     visibleControls: ['add'],
-    narration:
-      'Notice the meters: past 6, recall stays 100% while the answer turns to NOT FOUND. Retrieval is fine; the model loses facts in the middle of long context. Add the Reranker.',
+    narration: 'Past 6, recall stays 100% but the answer is NOT FOUND: facts get lost mid-context. Add the Reranker.',
+    label: 'Added the Reranker',
+    more: 'Retrieval is fine; the model loses facts in the middle of a long context.',
     predicate: s => has(s, 'reranker'),
   },
   puzzle<S>({
@@ -205,8 +216,9 @@ export const STEPS: Step<S>[] = [
     focus: 'assembler',
     visibleControls: ['order', 'rerank'],
     opensDrawer: 'evidence',
-    narration:
-      'Puzzle: a teammate set top-k to 10 “to be safe”. The rule is buried mid-context. Either lever works: put the best chunks at both ends, or rerank so the rule rises to the top.',
+    narration: `Puzzle: top-k ${PRESETS.needle.knobs.topK} “to be safe” buried the rule mid-context. Put the best chunks at both ends, or rerank.`,
+    label: 'Moved the buried rule where the model looks',
+    more: 'A teammate set it. Either lever works: reranking lifts the rule to the top.',
     broken: enter('needle'),
     verdict: correct,
     solution: fix('needle'),
@@ -216,8 +228,9 @@ export const STEPS: Step<S>[] = [
     id: 'after-needle',
     focus: 'next',
     visibleControls: ['next'],
-    narration:
-      'Correct, and recall never moved: the rule was retrieved all along. Only its position changed. If you used the reranker, open Evidence and Show the math to see its score.',
+    narration: 'Correct, and recall never moved: only the rule’s position changed.',
+    label: 'Fixed the answer without moving recall',
+    more: 'If you used the reranker, open Evidence and Show the math to see its score.',
     predicate: s => s.acks >= 2,
   },
   puzzle<S>({
@@ -226,7 +239,9 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['hybrid'],
     opensDrawer: 'evidence',
     narration:
-      'Puzzle: asked how long card data is kept, the assistant quotes a meeting note about demo data that sounds the same. Meaning-search loves look-alikes. Mix in exact keyword matching.',
+      'Puzzle: asked about card data retention, it quotes a look-alike demo-data note. Mix in keyword matching.',
+    label: 'Mixed in keyword matching',
+    more: 'The note is a meeting note about demo data that sounds the same. Meaning-search loves look-alikes.',
     broken: enter('distractor'),
     verdict: correct,
     solution: fix('distractor'),
@@ -236,8 +251,9 @@ export const STEPS: Step<S>[] = [
     id: 'after-distractor',
     focus: 'next',
     visibleControls: ['next'],
-    narration:
-      'Correct. Keyword matching rewards the exact terms in the real policy, so it outranks the look-alike note. Open Evidence and Show the math to see the blend.',
+    narration: 'Correct. Keyword matching rewards the policy’s exact terms, so it outranks the look-alike.',
+    label: 'Keywords outranked the look-alike',
+    more: 'Open Evidence and Show the math to see the blend.',
     predicate: s => s.acks >= 3,
   },
   puzzle<S>({
@@ -245,8 +261,9 @@ export const STEPS: Step<S>[] = [
     focus: 'chunker',
     visibleControls: ['overlap'],
     opensDrawer: 'chunks',
-    narration:
-      'Puzzle: the refund-window sentence is sliced in two, so the model finds no clear answer. Let neighbouring chunks share some words.',
+    narration: 'Puzzle: a cut splits the refund-window sentence in two. Let neighbouring chunks share some words.',
+    label: 'Let neighbouring chunks overlap',
+    more: 'With the sentence sliced in two, the model finds no clear answer.',
     broken: enter('overlap'),
     verdict: correct,
     solution: fix('overlap'),
@@ -256,8 +273,8 @@ export const STEPS: Step<S>[] = [
     id: 'after-overlap',
     focus: 'next',
     visibleControls: ['next'],
-    narration:
-      'Correct. Overlap repeats the end of each chunk at the start of the next, so a sentence near a cut survives whole in one of them.',
+    narration: 'Correct. Overlap repeats each chunk’s end at the next one’s start, so the sentence survives whole.',
+    label: 'Overlap kept the sentence whole',
     predicate: s => s.acks >= 4,
   },
   puzzle<S>({
@@ -265,8 +282,9 @@ export const STEPS: Step<S>[] = [
     focus: 'chunker',
     visibleControls: ['strategy'],
     opensDrawer: 'chunks',
-    narration:
-      'Puzzle, the last one: only one chunk is sent, and the fixed-size chunker cuts the lodging rule mid-sentence. Overlap does not rescue this one. Swap the chunker in this slot.',
+    narration: 'Last puzzle: one chunk is sent, cut mid-sentence. Overlap won’t help here. Swap the chunker.',
+    label: 'Swapped to the sentence chunker',
+    more: 'The fixed-size chunker cuts the lodging rule mid-sentence.',
     broken: enter('strategy'),
     verdict: correct,
     solution: fix('strategy'),
@@ -277,7 +295,8 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['quiz'],
     opensDrawer: 'answer',
-    narration: 'Correct. Seven levers, and the two meters told you which side to fix. One question to finish.',
+    narration: 'Correct. Seven levers; the meters showed which side to fix. One last question.',
+    label: 'Answered the closing question',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Think of the stale policy: recall was 100% and the answer still wrong.',
   },

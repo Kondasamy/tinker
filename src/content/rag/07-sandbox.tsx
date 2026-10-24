@@ -38,8 +38,9 @@ export const STEPS: Step<S>[] = [
     id: 'open',
     visibleControls: [],
     opensDrawer: 'answer',
-    narration:
-      'Everything you built is here: every block from chapters 3 to 6, on the track and wired. The graph walks two hops to answer the hardest question in the module, who approves purchases for the Kestrel K2 team. Now open the track into a workbench, with the button under the canvas.',
+    narration: 'Every block from chapters 3–6 is wired here. Open it into a workbench: button under the canvas.',
+    label: 'Opened the track into a workbench',
+    more: 'The graph walks two hops to answer the hardest question in the module: who approves purchases for the Kestrel K2 team.',
     predicate: s => s.canvas.mode === 'bench',
     solution: s => ({ ...s, canvas: openBench(s.canvas) }),
   },
@@ -47,8 +48,9 @@ export const STEPS: Step<S>[] = [
     id: 'play',
     focus: 'run',
     visibleControls: ['question', 'run', 'block', 'tips', 'ready'],
-    narration:
-      'Same blocks, same wires, same answer, and now they are yours. Drag a block to move it, drag from its yellow knob to wire it, click a wire to cut it, click a block to tune it. Ask any question from the module and run it: each run lands in the strip under the canvas.',
+    narration: 'Drag blocks to move, yellow knobs to wire. Click wires to cut, blocks to tune. Then run a question.',
+    label: 'Rewired and ran questions on the workbench',
+    more: 'Same blocks, same wires, same answer, and now they are yours. Every question from the module is here, and each run lands in the strip under the canvas.',
     predicate: s => s.acks >= 1,
   },
   {
@@ -56,7 +58,8 @@ export const STEPS: Step<S>[] = [
     focus: 'challenge',
     visibleControls: ['challenge'],
     opensDrawer: null,
-    narration: 'Last stop. Five teams at Larkspur each describe a problem. Pick the RAG type that fits each one best.',
+    narration: 'Last stop: five Larkspur teams each describe a problem. Pick the RAG type that fits each best.',
+    label: 'Matched five teams to RAG types',
     predicate: s => complete(s.ch),
   },
 ];
