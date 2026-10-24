@@ -6,6 +6,10 @@ updates:
     schedule: { interval: monthly }
     groups:
       all: { patterns: ['*'] }
+    # astro check refuses TypeScript 7; lift this when Astro supports it
+    ignore:
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: monthly }
