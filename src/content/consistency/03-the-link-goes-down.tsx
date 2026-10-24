@@ -6,7 +6,7 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { Outcome } from '../tool-calling/kit';
-import { MOMENTS, PARTITIONS, clock, policyOf, runOf, type Policy } from '../../lib/consistency/sim';
+import { EVENTS, MOMENTS, PARTITIONS, REP_NAME, clock, policyOf, runOf, type Policy } from '../../lib/consistency/sim';
 import { STOCK_PARTS, stockAt } from '../../components/scenes/stockScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
@@ -25,10 +25,17 @@ const CALM = policyOf({ r: 1, w: 1, rule: 'lww' });
 export const runFor = (cut: boolean, mode: Mode) => runOf(cut ? MODES[mode] : CALM);
 const { westSells: WEST, northSells: NORTH } = MOMENTS,
   OUT = PARTITIONS[0];
+const orderAt = (t: number) => EVENTS.find(e => e.t === t && e.kind === 'order')!;
+const DEV = orderAt(WEST),
+  EVE = orderAt(NORTH);
 
 export const P1 = {
-  question: `Dev bought the drill press at West at ${clock(WEST)}. At ${clock(NORTH)} Eve orders it at North. What happens?`,
-  options: ['Refused: it’s already sold', 'Sold: North’s count still says 1', 'Eve waits until the line is back'],
+  question: `${DEV.who} bought the drill press at ${REP_NAME[DEV.at]} at ${clock(WEST)}. At ${clock(NORTH)} ${EVE.who} orders it at ${REP_NAME[EVE.at]}. What happens?`,
+  options: [
+    'Refused: it’s already sold',
+    `Sold: ${REP_NAME[EVE.at]}’s count still says 1`,
+    `${EVE.who} waits until the line is back`,
+  ],
 };
 const eve = (mode: Mode) => runFor(true, mode).outcomes.find(o => o.t === NORTH && o.kind === 'order')!;
 export const outcomeOf = () => (eve('open').result === 'sold' ? 1 : 0);
@@ -76,7 +83,7 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['p1'],
     narration: 'There is one drill press. Every warehouse sells from its own count, and West can’t send its news.',
-    act: 'Predict Eve’s order.',
+    act: `Predict ${EVE.who}’s order.`,
     predicate: s => s.p1 !== null,
   },
   {
@@ -101,8 +108,7 @@ export const STEPS: Step<S>[] = [
     id: 'cap',
     focus: 'quiz',
     visibleControls: ['receipts', 'quiz'],
-    narration:
-      'Dev is refused, and the drill press sells once. In a partition you pick one: answer everyone, or stay right.',
+    narration: `${DEV.who} is refused, and the drill press sells once. In a partition you pick one: answer everyone, or stay right.`,
     act: 'One question to finish.',
     say: { block: 'west', text: 'Refused' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,

@@ -6,7 +6,7 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { Outcome } from '../tool-calling/kit';
-import { LAG, MOMENTS, REP_NAME, clock, policyOf, runOf } from '../../lib/consistency/sim';
+import { EVENTS, LAG, MOMENTS, REP_NAME, clock, policyOf, runOf } from '../../lib/consistency/sim';
 import { STOCK_PARTS, stockAt } from '../../components/scenes/stockScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
@@ -18,10 +18,13 @@ export const PARTS = STOCK_PARTS;
 export const runWith = (sticky: boolean) => runOf(policyOf({ r: 1, w: 1, rule: 'lww' }, { sticky }));
 const { priyaBuys: BUY, priyaLooks: LOOK } = MOMENTS,
   AGREE = BUY + LAG;
-export const look = (sticky: boolean) => runWith(sticky).outcomes.find(o => o.t === LOOK && o.who === 'Priya')!;
+const BOUGHT = EVENTS.find(e => e.t === BUY && e.kind === 'order')!,
+  RELOAD = EVENTS.find(e => e.t === LOOK && e.who === BOUGHT.who)!,
+  WHO = BOUGHT.who;
+export const look = (sticky: boolean) => runWith(sticky).outcomes.find(o => o.t === LOOK && o.who === WHO)!;
 
 export const P1 = {
-  question: `Priya bought a hinge at North. At ${clock(LOOK)} her reload is answered by West. Does it show her purchase?`,
+  question: `${WHO} bought a hinge at ${REP_NAME[BOUGHT.at]}. At ${clock(LOOK)} her reload is answered by ${REP_NAME[RELOAD.at]}. Does it show her purchase?`,
   options: [
     'Yes: she bought it, so every count shows it',
     'No: West hasn’t heard about it yet',
@@ -59,9 +62,9 @@ export const STEPS: Step<S>[] = [
     id: 'buy',
     focus: 'clock',
     visibleControls: ['clock'],
-    narration: 'Priya buys a hinge at North. Her page then reloads, and the shop may send the reload to any warehouse.',
+    narration: `${WHO} buys a hinge at ${REP_NAME[BOUGHT.at]}. Her page then reloads, and the shop may send the reload to any warehouse.`,
     act: `Move the clock to ${clock(BUY)}.`,
-    say: { block: 'north', text: 'Priya buys' },
+    say: { block: BOUGHT.at, text: `${WHO} buys` },
     predicate: s => s.t >= BUY,
   },
   {
@@ -86,7 +89,7 @@ export const STEPS: Step<S>[] = [
     id: 'sticky',
     focus: 'sticky',
     visibleControls: ['out1', 'sticky'],
-    narration: 'Read your writes failed: Priya’s own order is missing. The fix: answer her reads where she wrote.',
+    narration: `Read your writes failed: ${WHO}’s own order is missing. The fix: answer her reads where she wrote.`,
     act: 'Turn on Read where you wrote.',
     predicate: s => s.sticky,
   },
@@ -120,7 +123,7 @@ export default function Eventually() {
               scene: stockAt(r, state.t),
               result: r,
               tick: state.t,
-              caption: `${clock(state.t)}. ${state.sticky ? 'Priya’s reads go where she ordered' : 'Reloads go to any warehouse'}.`,
+              caption: `${clock(state.t)}. ${state.sticky ? `${WHO}’s reads go where she ordered` : 'Reloads go to any warehouse'}.`,
             }}
           />
         );
