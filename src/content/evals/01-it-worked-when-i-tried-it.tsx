@@ -86,7 +86,7 @@ export const STEPS: Step<S>[] = [
     id: 'try',
     focus: 'try',
     visibleControls: ['try'],
-    narration: `The team built ${V2.label}, a new version of the assistant. ${V2.note}; ${V1.label} stays as it was.`,
+    narration: `The team built ${V2.label}, a new version. ${V2.note}; ${V1.label} stays as it was.`,
     act: 'Try their two questions.',
     predicate: s => s.tried.length >= 2 && !!suiteNow(),
     hint: 'Press both question buttons.',
