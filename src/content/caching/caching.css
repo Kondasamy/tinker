@@ -1,0 +1,108 @@
+/* Caching stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
+   tool-calling/kit). These are the timeline, the clock and the story column's tables. */
+.ca-timeline {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+  flex: 1;
+  justify-content: center;
+}
+.ca-timeline svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  font-family: ui-monospace, Menlo, monospace;
+}
+.ca-col {
+  cursor: pointer;
+  outline: none;
+}
+.ca-timeline svg:focus-within {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.ca-readout {
+  margin: 0;
+  font:
+    700 12.5px ui-monospace,
+    Menlo,
+    monospace;
+  min-height: 4.2em;
+}
+.ca-key {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 12.5px;
+}
+.ca-key li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ca-key i {
+  width: 18px;
+  height: 10px;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+}
+.ca-key i.s {
+  width: 9px;
+  height: 5px;
+}
+.ca-key i.cap {
+  border: none;
+  border-top: 1.5px dashed var(--ink);
+  height: 0;
+}
+.ca-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.ca-range {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0;
+}
+.ca-range label {
+  font-weight: 700;
+  font-size: 14px;
+}
+.ca-range input {
+  width: 100%;
+}
+.ca-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ca-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.ca-headline strong {
+  font:
+    800 30px / 1 ui-monospace,
+    Menlo,
+    monospace;
+}
+.tc-ledger td.ok {
+  color: var(--ok);
+  font-weight: 800;
+}
+.tc-ledger td.bad {
+  color: var(--bad);
+  font-weight: 800;
+}
