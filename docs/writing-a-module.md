@@ -37,6 +37,7 @@ Rules for steps:
 - Define a term the first time it appears, and add it to the chapter's `terms`.
 - Puzzles (`puzzle()`) hand the reader a broken setup. Hints appear after three misses; "Show me" is always there.
 - Finished steps stay visible as a "story so far" log. Don't write a step that only makes sense if the previous one is gone.
+- Keep narration short: the one action and the one new idea (RAG keeps every step to 20 words). Give each step a `label` for the log and put background in `more`, the "Why?" fold. Facts a quiz or recall item needs stay out of `more`. The rules and the opener clips are in `AGENTS.md` (Chapter page layout, Opener clips).
 
 ## 4. Write questions that teach
 
