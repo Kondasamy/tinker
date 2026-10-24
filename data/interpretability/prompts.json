@@ -1,0 +1,74 @@
+{
+  "note": "Every effect a chapter shows, pinned with the numbers Larkspur mini gives. tests/unit/interpretability-engine.test.ts reruns each one live and fails on drift; a retrain means new prompts, not copy typed by hand.",
+  "fuses": {
+    "note": "Chapter 2. Each head's fuse pulled over the held-out text (data/fine-tuning/heldout.json, evaluate()'s windows): of the positions whose true next token is in the top 5, how many leave it. One head matters a little; none breaks the model.",
+    "lost": { "h0-0": 74, "h0-1": 31, "h1-0": 16, "h1-1": 21 },
+    "right": 659,
+    "bite": {
+      "note": "One of the few prompts where pulling the word-start head alone pushes the expected token out of the top 5 (26 of the corpus's sentence starts do, against thousands that don't).",
+      "id": "candidates",
+      "text": "Candidates receive an answer within ten",
+      "expected": " business",
+      "fuse": "h0-0",
+      "rankBefore": 0,
+      "rankAfter": 8
+    }
+  },
+  "lens": {
+    "note": "Chapter 3. The expected token's rank (0 = top) read through the logit lens after the embedding, after block 1 and at the output. The bar: in the top 5 after block 1 but not after the embedding, for at least half the prompts.",
+    "prompts": [
+      { "id": "reply", "text": "We reply within five business", "expected": " days", "ranks": [2, 0, 0] },
+      { "id": "returns", "text": "Our warehouse inspects returned items within five", "expected": " business", "ranks": [6, 0, 0] },
+      { "id": "expenses", "text": "Submit expense reports within 30", "expected": " days", "ranks": [211, 0, 0] },
+      { "id": "billing", "text": "Questions go to the billing team through", "expected": " the", "ranks": [301, 0, 0] },
+      { "id": "success", "text": "Every enterprise account has a named customer success", "expected": " manager", "ranks": [35, 1, 0] },
+      { "id": "delivery", "text": "Expedited delivery takes two business", "expected": " days", "ranks": [2, 0, 0] },
+      { "id": "candidates", "text": "Candidates receive an answer within ten", "expected": " business", "ranks": [452, 0, 0] },
+      { "id": "heron", "text": "Installation guide for Heron steel", "expected": " shelving", "ranks": [60, 1, 0] }
+    ]
+  },
+  "patch": {
+    "note": "Chapter 4. The clean run and the run that swaps one word, the same length in tokens. Copying the swapped run's residual at one stage and position into the clean run changes the answer only at these positions (0-based): the swapped word before block 1, the last token after it.",
+    "clean": { "text": "Every enterprise account has a named customer success", "answer": " manager" },
+    "swapped": { "text": "Every enterprise account has a named Kestrel success", "answer": " team" },
+    "flips": [[10], [12], [12]]
+  },
+  "steer": {
+    "note": "Chapter 5. The direction is the mean residual at the top of layer 2 (after block 1) at the last token of the shipping prompts, minus that of the billing prompts. Added at each scale to every position of the prompt; at the pinned scale the target rises into the top 5 from outside it.",
+    "layer": 1,
+    "toward": [
+      "Standard shipping takes five business days from the warehouse",
+      "Our carrier picks up orders from the Riverbend warehouse",
+      "Expedited delivery ships from the nearest warehouse",
+      "Freight orders leave the warehouse on a pallet"
+    ],
+    "away": [
+      "Invoices are sent by email to the billing contact",
+      "Payment terms are net 30 on every invoice",
+      "Questions go to the billing team",
+      "A credit card payment is charged when the invoice is issued"
+    ],
+    "prompt": "Please contact the",
+    "target": " warehouse",
+    "scales": [0, 1, 2, 4],
+    "scale": 2,
+    "rankBefore": 17
+  },
+  "neurons": {
+    "note": "Chapter 6. Neurons from data/interpretability/neurons.json whose five top tokens are pieces of unrelated kinds. The bar: at least half of all neurons have top tokens of two or more kinds (a word, part of a word, punctuation or a number).",
+    "shown": [
+      { "layer": 0, "neuron": 2 },
+      { "layer": 0, "neuron": 68 },
+      { "layer": 1, "neuron": 63 }
+    ],
+    "mixed": 199,
+    "total": 256
+  },
+  "workbench": {
+    "note": "Chapter 7. A behaviour is kept when, with every fuse outside the set pulled, its expected token is still the top 1. winners: every smallest set that keeps it, recomputed by the test.",
+    "behaviours": [
+      { "id": "reply", "text": "We reply within five business", "expected": " days", "winners": [["h0-0", "mlp0"], ["h0-1", "mlp0"], ["h1-0", "mlp0"], ["h1-1", "mlp0"], ["mlp0", "mlp1"]] },
+      { "id": "heron", "text": "Installation guide for Heron steel", "expected": " shelving", "winners": [["h0-0", "h0-1", "h1-0", "mlp0", "mlp1"]] }
+    ]
+  }
+}
