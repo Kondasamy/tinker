@@ -4,6 +4,10 @@
 export interface Step<S> {
   id: string;
   narration: string;
+  /** A short line the story-so-far log shows once the step is done; the narration when left out. */
+  label?: string;
+  /** Background behind the narration, under a "Why?" fold: open in Words reading, closed in Pictures. */
+  more?: string;
   /** The one control or block this step is about; the stage may highlight it. */
   focus?: string;
   /** Controls the runner renders for this step; everything else stays hidden. */

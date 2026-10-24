@@ -135,7 +135,10 @@ const m = moduleOf(module);
   .card { background: var(--card); border: 1.5px solid var(--ink); border-radius: 14px; padding: 18px; box-shadow: 3px 3px 0 var(--ink); display: flex; flex-direction: column; gap: 14px; }
   .card .count { margin: 0; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
   .card .narration { margin: 4px 0 0; font-size: 16px; font-weight: 700; line-height: 1.45; }
-  .card .hint { margin: 0; font-size: 13px; border-left: 3px solid var(--acc); padding: 2px 0 2px 10px; }
+  .card .why { font-size: 14px; line-height: 1.55; }
+  .card .why summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+  .card .why p { margin: 6px 0 0; }
+  .card .hint {margin: 0; font-size: 13px; border-left: 3px solid var(--acc); padding: 2px 0 2px 10px; }
   .recover { display: flex; flex-wrap: wrap; gap: 8px; border-top: 1px dashed var(--rule); padding-top: 12px; }
   .recover .chip { font-size: 12px; box-shadow: none; border-color: var(--rule); }
   .recover .chip:disabled { opacity: .4; cursor: default; }

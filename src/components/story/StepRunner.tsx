@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useReducer, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { reduce, startRun, isRun, type Step, type Run, type Action } from './steps';
 import { loadChapter, saveChapter, markDone } from '../../lib/progress';
 import { moduleOf } from '../../lib/modules';
@@ -42,6 +42,18 @@ interface Props<S> {
   ready?: boolean;
 }
 
+// The reader's Pictures / Words choice (data-reading on <html>, the module intros' key). With none set, nothing folds.
+const onReading = (f: () => void) => {
+  window.addEventListener('tinker-reading', f);
+  return () => window.removeEventListener('tinker-reading', f);
+};
+const useWords = () =>
+  useSyncExternalStore(
+    onReading,
+    () => document.documentElement.dataset.reading !== 'visual',
+    () => true,
+  );
+
 export default function StepRunner<S>({
   module = 'rag',
   chapter,
@@ -66,6 +78,7 @@ export default function StepRunner<S>({
   const loaded = useRef(false),
     restoring = useRef(false);
   const step = steps[run.index];
+  const words = useWords();
   const apply = (state: S) => dispatch({ type: 'apply', state });
   const sync = (state: S) => dispatch({ type: 'sync', state });
   const inspect = (panel: string, fromStage = false) => {
@@ -181,7 +194,7 @@ export default function StepRunner<S>({
         {past.length > 0 && (
           <ol className="log" aria-label="Story so far">
             {past.map(st => (
-              <li key={st.id}>{st.narration}</li>
+              <li key={st.id}>{st.label ?? st.narration}</li>
             ))}
           </ol>
         )}
@@ -190,6 +203,12 @@ export default function StepRunner<S>({
             <p className="count">{run.done ? 'Chapter complete' : `Step ${run.index + 1} of ${steps.length}`}</p>
             <p className="narration">{step.narration}</p>
           </div>
+          {step.more && (
+            <details key={`${step.id}-${words}`} className="why" open={words}>
+              <summary>Why?</summary>
+              <p>{step.more}</p>
+            </details>
+          )}
           {step.visibleControls.map(name => (
             <div key={name} className="control" data-control={name} data-focus={step.focus === name || undefined}>
               {controls[name]?.({ state: run.state, apply, sync, focused: step.focus === name })}
