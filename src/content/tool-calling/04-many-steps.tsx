@@ -8,10 +8,10 @@ import Predict from '../../components/quiz/Predict';
 import { toolLanes, transcript, type Shown } from '../../components/scenes/toolSequence';
 import { DOMAINS, answerOf, run, stepsOf, type Run } from '../../lib/tools/host';
 import { RECORDINGS } from '../../lib/tools/turns';
-import { fact } from '../../lib/tools/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Fact, Messages, Outcome, Play, Stepper, ToolStage } from './kit';
+import { OFFICE_PARTS } from '../../components/scenes/officeScene';
 
 const MODULE = 'tool-calling',
   ID = '04-many-steps';
@@ -34,7 +34,6 @@ const PAR_IDS = stepsOf(PAR_RUN, 'proposal')
   .join(' and ');
 const [LOOKUP, REFUND] = stepsOf(SEQ_RUNS[FULL], 'proposal').map(p => p.call);
 const capped = (c: number) => SEQ_RUNS[c].status === 'capped';
-const CAP_STOP = stepsOf(SEQ_RUNS[CAPS.find(capped)!], 'cap')[0];
 
 interface S {
   scene: Scene;
@@ -67,7 +66,9 @@ const P2 = {
 };
 const OUT2 = new Set(turnsOf(SEQ_RUNS[FULL])).size > 1 ? 1 : 0;
 
-const QUIZ = {
+export const PARTS = OFFICE_PARTS;
+
+export const QUIZ = {
   question: `Who stopped the ${REFUND.name} call?`,
   options: [
     'The model: it decided it had done enough',
@@ -79,9 +80,9 @@ const QUIZ = {
   explanation:
     'The model proposes calls; the host decides how many run. A cap is one of the host’s own rules, like validation.',
   why: [
-    `The model asked for ${REFUND.name}. It wanted to go on; the host said no.`,
-    'Right. The cap lives in the host. The model only proposes calls; the host decides what runs.',
-    'The order system never saw the call. The host stopped before sending it.',
+    `The model asked for ${REFUND.name}: it wanted to go on, and the host said no.`,
+    'Right: the cap lives in the host, and the model only proposes calls while the host decides what runs.',
+    'The order system never saw the call: the host stopped before sending it.',
     `The arguments were fine: the same call ran when the cap was ${FULL}.`,
   ],
 };
@@ -91,14 +92,16 @@ export const STEPS: Step<S>[] = [
     id: 'predict-parallel',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `Hollis Hardware has two orders open and wants news on both. The host offers ${PAR.tools.join(', ')}. Before you run it:`,
+    narration: `Hollis Hardware has two orders open and wants news on both. The host offers ${PAR.tools.join(', ')}.`,
+    act: 'Predict before you run it.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'run-parallel',
     focus: 'play',
     visibleControls: ['p1', 'play'],
-    narration: 'Run the request and step through the messages.',
+    narration: 'Your pick is locked.',
+    act: 'Run the request and step through the messages.',
     predicate: s => s.scene === 'parallel' && done(s),
     hint: 'Press “Run the request”, then “Next message” until the answer arrives.',
   },
@@ -107,7 +110,9 @@ export const STEPS: Step<S>[] = [
     focus: 'next',
     visibleControls: ['out1', 'next'],
     opensDrawer: 'messages',
-    narration: `Both lookups, orders ${PAR_IDS}, came from one model turn, and the host ran both before the model wrote its answer. The bracket marks the messages that went out at once. ${fact('parallel-calls').claim}`,
+    narration: `Orders ${PAR_IDS} were looked up as parallel calls: both came from one model turn, and the host ran both.`,
+    act: 'Now try a refund.',
+    say: { block: 'orders', text: 'Two at once' },
     predicate: s => s.scene === 'sequence',
   },
   {
@@ -115,14 +120,16 @@ export const STEPS: Step<S>[] = [
     focus: 'p2',
     visibleControls: ['p2'],
     opensDrawer: null,
-    narration: 'A request where the order matters.',
+    narration: 'A request where the order of the calls matters.',
+    act: 'Predict first.',
     predicate: s => s.p2 !== null,
   },
   {
     id: 'run-sequence',
     focus: 'play',
     visibleControls: ['p2', 'play'],
-    narration: 'Run it and watch the turns.',
+    narration: 'Your pick is locked.',
+    act: 'Run it and watch the turns.',
     predicate: s => s.scene === 'sequence' && s.cap === FULL && done(s),
     hint: 'Press “Run the request”, then “Next message” until the answer arrives.',
   },
@@ -130,7 +137,9 @@ export const STEPS: Step<S>[] = [
     id: 'cap',
     focus: 'cap',
     visibleControls: ['out2', 'cap'],
-    narration: `${new Set(turnsOf(SEQ_RUNS[FULL])).size} turns: ${LOOKUP.name} first, then ${REFUND.name} for exactly the total it returned. Each extra turn is another round trip, and a confused model could loop. So the host sets a call cap: the most tool calls one request may make. This host allows ${calls(FULL)}. Lower the cap until the run stops before the refund.`,
+    narration: `A sequence: ${REFUND.name} waited for ${LOOKUP.name}’s total. A call cap stops runaway loops; this host allows ${calls(FULL)}.`,
+    act: 'Lower it until the refund is stopped.',
+    say: { block: 'host', text: 'Counts calls' },
     predicate: s => s.scene === 'sequence' && capped(s.cap) && done(s),
     hint: `Press the “Fewer” button until the cap is too small for both calls.`,
   },
@@ -138,7 +147,9 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['quiz'],
-    narration: `“${CAP_STOP.text}” The model asked for ${REFUND.name}, and the host never ran it: the card is stamped STOPPED. The model chooses calls; your software sets the limits. ${fact('tool-choice').claim}`,
+    narration: `Stopped: the host never ran ${REFUND.name}. The model chooses calls; your software sets the limits.`,
+    act: 'One question to finish.',
+    say: { block: 'host', text: 'Stopped' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Where does the cap live: in what the model reads, or in the software that runs the calls?',
   },
@@ -152,7 +163,7 @@ export default function ManySteps() {
       steps={STEPS}
       initial={{ scene: 'parallel', cap: FULL, shown: 0, p1: null, p2: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, inspect }) => (
+      stage={({ state, inspect, say }) => (
         <ToolStage
           lanes={LANES}
           msgs={msgs(state)}
@@ -163,6 +174,7 @@ export default function ManySteps() {
             schema: true,
             cap: state.scene === 'sequence' ? state.cap : undefined,
           }}
+          say={say}
         />
       )}
       controls={{
@@ -215,6 +227,7 @@ export default function ManySteps() {
             <>
               <Messages lanes={LANES} msgs={msgs(s)} upTo={s.shown} />
               <Fact id="parallel-calls" />
+              <Fact id="tool-choice" />
             </>
           ),
         },

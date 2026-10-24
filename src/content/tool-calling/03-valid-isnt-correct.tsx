@@ -7,13 +7,13 @@ import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { puzzle } from '../../components/quiz/Puzzle';
 import { toolLanes, transcript, callText } from '../../components/scenes/toolSequence';
-import { answerOf, run, type Run } from '../../lib/tools/host';
+import { run, type Run } from '../../lib/tools/host';
 import { RECORDINGS } from '../../lib/tools/turns';
 import { ORDERS } from '../../lib/tools/server';
-import { fact } from '../../lib/tools/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Fact, Messages, Outcome, Play, ToolDef, GET_ORDER, ToolStage } from './kit';
+import { OFFICE_PARTS } from '../../components/scenes/officeScene';
 
 const MODULE = 'tool-calling',
   ID = '03-valid-isnt-correct';
@@ -49,7 +49,7 @@ interface S {
 const P1 = {
   question: `The model sends ${callText(BAD.call)}: the number as text. What does the host do?`,
   options: [
-    'Runs it anyway: "1042" means 1042',
+    `Runs it anyway: "${BAD.call.arguments.order_id}" means ${BAD.call.arguments.order_id}`,
     'Rejects it and sends the error back to the model',
     'Stops the whole assistant',
   ],
@@ -61,7 +61,9 @@ const P2 = {
 };
 const OUT2 = WRONG.errors.length ? 0 : 1;
 
-const QUIZ = {
+export const PARTS = OFFICE_PARTS;
+
+export const QUIZ = {
   question: `The schema accepted order ${WRONG_ORDER.id}. What does that tell you?`,
   options: [
     'The call is correct',
@@ -74,9 +76,9 @@ const QUIZ = {
     'A schema checks shape: type, range, required fields. Meaning, like “this order belongs to this customer”, needs a check in your software.',
   why: [
     `Valid is not correct: ${WRONG_ORDER.id} was a real order, just someone else’s.`,
-    'Right. A schema checks shape; a business rule, like ownership, catches the wrong value.',
-    `No schema can know which customer is on the phone. ${WRONG_ORDER.id} fits every rule a schema can state.`,
-    'One passing check says nothing about the next call. Your software still decides what is allowed.',
+    'Right: a schema checks shape, and a business rule like ownership catches the wrong value.',
+    `No schema can know which customer is on the phone, and ${WRONG_ORDER.id} fits every rule a schema can state.`,
+    'One passing check says nothing about the next call: your software still decides what is allowed.',
   ],
 };
 
@@ -87,14 +89,17 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['p1'],
     opensDrawer: 'tool',
-    narration: `Same question, same tool. Look at the schema: order_id must be an ${ID_SCHEMA.type}, a whole number from ${ID_SCHEMA.minimum} to ${ID_SCHEMA.maximum}. Before anything runs, the host checks every call against it.`,
+    narration: `Same tool. Its schema says order_id is an ${ID_SCHEMA.type} from ${ID_SCHEMA.minimum} to ${ID_SCHEMA.maximum}. Validation checks every call against it first.`,
+    act: 'Predict first.',
+    say: { block: 'schema', text: 'Checks each call' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'run-invalid',
     focus: 'play',
     visibleControls: ['p1', 'play'],
-    narration: 'Run the request and step through the messages.',
+    narration: 'Your pick is locked.',
+    act: 'Run the request and step through the messages.',
     predicate: s => s.scene === 'invalid' && done(s),
     hint: 'Press “Run the request”, then “Next message” until the answer arrives.',
   },
@@ -103,7 +108,9 @@ export const STEPS: Step<S>[] = [
     focus: 'harder',
     visibleControls: ['out1', 'harder'],
     opensDrawer: 'messages',
-    narration: `INVALID: “${BAD.errors.join('. ')}”. Nothing ran. ${fact('mcp-tool-errors').claim} So the model retried with the number, and got a real answer.`,
+    narration: `INVALID: “${BAD.errors.join('. ')}”. Nothing ran: the host sent an error result back, and the model retried.`,
+    act: 'Try a harder mistake.',
+    say: { block: 'schema', text: 'Rejected' },
     predicate: s => s.scene === 'wrong',
   },
   {
@@ -111,13 +118,15 @@ export const STEPS: Step<S>[] = [
     focus: 'p2',
     visibleControls: ['p2'],
     narration: `A harder mistake. The employee asks about order ${ASKED}, but the model sends the wrong number.`,
+    act: 'Predict first.',
     predicate: s => s.p2 !== null,
   },
   {
     id: 'run-wrong',
     focus: 'play',
     visibleControls: ['p2', 'play'],
-    narration: 'Run it and watch what comes back.',
+    narration: 'Your pick is locked.',
+    act: 'Run it and watch what comes back.',
     predicate: s => s.scene === 'wrong' && done(s),
     hint: 'Press “Run the request”, then “Next message” until the answer arrives.',
   },
@@ -126,7 +135,9 @@ export const STEPS: Step<S>[] = [
     focus: 'check',
     visibleControls: ['out2', 'check', 'play'],
     opensDrawer: 'messages',
-    narration: `Valid, and wrong. Order ${WRONG_ORDER.id} belongs to ${WRONG_ORDER.customer}, so the assistant just read out their delivery: “${answerOf(RUN.wrong)}” Turn on an ownership check, then run the request again.`,
+    narration: `Valid but wrong: order ${WRONG_ORDER.id} belongs to ${WRONG_ORDER.customer}, yet the assistant read it out.`,
+    act: 'Turn on an ownership check and run it again.',
+    say: { block: 'orders', text: 'Someone else’s' },
     broken: s => ({ ...s, scene: 'wrong', shown: MSGS.wrong.length }),
     verdict: s => s.scene === 'checked' && done(s),
     solution: s => ({ ...s, scene: 'checked', shown: MSGS.checked.length }),
@@ -136,7 +147,9 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['quiz'],
-    narration: `The check refused order ${WRONG_ORDER.id} with an error result. The model read it and looked up ${ASKED} instead: “${answerOf(RUN.checked)}” One question to finish.`,
+    narration: `The ownership check refused order ${WRONG_ORDER.id} with an error result, so the model looked up ${ASKED} instead.`,
+    act: 'One question to finish.',
+    say: { block: 'owner', text: `Refused ${WRONG_ORDER.id}` },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What does a schema look at: the shape of a value, or what it means?',
   },
@@ -150,13 +163,14 @@ export default function ValidIsntCorrect() {
       steps={STEPS}
       initial={{ scene: 'invalid', shown: 0, p1: null, p2: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, inspect }) => (
+      stage={({ state, inspect, say }) => (
         <ToolStage
           lanes={LANES}
           msgs={MSGS[state.scene]}
           upTo={state.shown}
           inspect={inspect}
           office={{ tools: REC[state.scene].tools.length, schema: true, owner: state.scene === 'checked' }}
+          say={say}
         />
       )}
       controls={{

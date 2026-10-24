@@ -97,7 +97,10 @@ const P1 = {
 };
 const OUT1 = 1;
 
-const QUIZ = {
+// this chapter's pictures are drawn by mcpScene directly, with no named parts for a callout
+export const PARTS: readonly string[] = [];
+
+export const QUIZ = {
   question:
     'Larkspur’s refund policy is a document the assistant should consult. How should the orders server offer it?',
   options: [
@@ -109,10 +112,10 @@ const QUIZ = {
   correct: 1,
   explanation: fact('mcp-features').claim,
   why: [
-    'A tool does something when the model calls it. A policy is something to read, not to run.',
-    'Right. Data and context are resources; you read the policy with resources/read.',
-    'A prompt is a message template for a person to start from, like refund_request. The policy itself is data.',
-    'Servers offer three features, not one. You just read the policy through the same connection.',
+    'A tool does something when the model calls it, but a policy is something to read, not to run.',
+    'Right: data and context are resources, and you read the policy with resources/read.',
+    `A prompt is a message template for a person, like ${PROMPT}, while the policy itself is data.`,
+    'Servers offer three features, not one, and you just read the policy through the same connection.',
   ],
 };
 
@@ -121,7 +124,8 @@ export const STEPS: Step<S>[] = [
     id: 'tangle',
     focus: 'size',
     visibleControls: ['size', 'counts'],
-    narration: `Larkspur’s tools now live in ${IDS.length} systems: orders and the team calendar. Every AI app that wants a system’s tools needs code that joins the two. Other teams want apps of their own. Step up to ${TARGET.apps} apps and ${TARGET.systems} systems and watch the wiring.`,
+    narration: 'Each app needs its own integration with each system.',
+    act: `Step up to ${TARGET.apps} apps and ${TARGET.systems} systems.`,
     predicate: s => s.apps === TARGET.apps && s.systems === TARGET.systems,
     hint: `Press “+ More” on each until there are ${TARGET.apps} apps and ${TARGET.systems} systems.`,
   },
@@ -129,21 +133,24 @@ export const STEPS: Step<S>[] = [
     id: 'predict-mcp',
     focus: 'p1',
     visibleControls: ['counts', 'p1'],
-    narration: `${GOAL.without} integrations, each one custom, each one to keep working. The Model Context Protocol, MCP, is one shared way for apps and systems to talk. Before you switch it on:`,
+    narration: `${GOAL.without} integrations, each custom and each to maintain. MCP is one shared way for apps and systems to talk.`,
+    act: 'Predict before you switch it on.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'mcp',
     focus: 'mcp',
     visibleControls: ['p1', 'mcp', 'counts'],
-    narration: 'Switch the picture to MCP.',
+    narration: 'Your pick is locked.',
+    act: 'Switch the picture to MCP.',
     predicate: s => s.mcp,
   },
   {
     id: 'connect',
     focus: 'orders',
     visibleControls: ['out1', 'counts', 'orders'],
-    narration: `Each app is built once to speak MCP, each system gets one MCP server, and any app can then plug into any server. ${fact('mcp-roles').claim} Back to Larkspur’s assistant, the host. Connect it to the orders server.`,
+    narration: 'Each app speaks MCP once and each system gets one MCP server. Larkspur’s assistant is the host.',
+    act: 'Connect it to the orders server.',
     predicate: s => has(s, ORDERS_ID),
   },
   {
@@ -152,14 +159,17 @@ export const STEPS: Step<S>[] = [
     visibleControls: [CAL_ID],
     opensDrawer: null,
     setup: s => ({ ...s, view: 'seq' }),
-    narration: `Two requests, in order. First, server/discover. ${fact('mcp-discover').claim} Then tools/list. ${fact('mcp-methods').claim} ${fact('mcp-stateless').claim} Press a message to see its JSON. Now connect the calendar server.`,
+    narration:
+      'Its MCP client sent server/discover, then tools/list: JSON-RPC requests, each with its own version, no handshake.',
+    act: 'Open a message, then connect the calendar server.',
     predicate: s => has(s, CAL_ID),
   },
   {
     id: 'explore',
     focus: 'explore',
     visibleControls: ['explore'],
-    narration: `${fact('mcp-features').claim} The orders server offers all three. Read its refund policy, a resource, and get its ${PROMPT} prompt.`,
+    narration: 'MCP servers offer tools, resources and prompts. The orders server offers all three.',
+    act: `Read its refund policy, a resource, and get its ${PROMPT} prompt.`,
     predicate: s => has(s, 'resource') && has(s, 'prompt'),
     hint: 'Press both buttons, then open the newest messages in the drawer.',
   },
@@ -168,7 +178,8 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['quiz'],
     opensDrawer: 'messages',
-    narration: `The policy came back as text, and the prompt as a message to start from; the drawer has both in full. Two more facts about real servers: ${fact('mcp-auth').claim} ${fact('mcp-version').claim} One question to finish.`,
+    narration: 'The policy came back as text, the prompt as a message to start from; the drawer has both.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Is a policy something to run, something to read, or a message template?',
   },
@@ -353,7 +364,12 @@ export default function Mcp() {
           render: s => (
             <>
               <Messages lanes={LANES} msgs={msgs(s)} upTo={msgs(s).length} />
+              <Fact id="mcp-roles" />
+              <Fact id="mcp-discover" />
+              <Fact id="mcp-methods" />
+              <Fact id="mcp-stateless" />
               <Fact id="mcp-jsonrpc" />
+              <Fact id="mcp-auth" />
               <Fact id="mcp-version" />
             </>
           ),

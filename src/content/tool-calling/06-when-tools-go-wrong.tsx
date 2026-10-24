@@ -10,10 +10,10 @@ import { toolLanes, transcript, callText, type Shown } from '../../components/sc
 import { answerOf, run, stepsOf, type Decision, type Run, type Setup } from '../../lib/tools/host';
 import { RECORDINGS, type Recording } from '../../lib/tools/turns';
 import { ORDERS } from '../../lib/tools/server';
-import { fact } from '../../lib/tools/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Fact, LIMITS, LIMIT_OF, Ledger, Messages, Outcome, Play, Stepper, ToolStage, money } from './kit';
+import { OFFICE_PARTS } from '../../components/scenes/officeScene';
 
 const MODULE = 'tool-calling',
   ID = '06-when-tools-go-wrong';
@@ -59,7 +59,9 @@ const base: S = { scene: 'gate', decide: null, limit: null, shown: 0, p1: null, 
 /** messages up to and including the one that waits at the gate: where a decision picks the run up */
 const waitAt = (scene: Scene) => msgs({ ...base, scene }).length;
 const GATE_CALL = stepsOf(result({ ...base, scene: 'gate' }).run, 'gate')[0].call;
-const LIMIT_REFUSAL = refundOf(result({ ...base, scene: 'limit', limit: LIMITS.at(-1)! }).run)!.result.content[0].text;
+const LIMIT_REFUSAL_TEXT = refundOf(result({ ...base, scene: 'limit', limit: LIMITS.at(-1)! }).run)!.result.content[0]
+  .text;
+const LIMIT_REFUSAL = `${LIMIT_REFUSAL_TEXT.split('. ')[0].replace(/\.$/, '')}.`; // its first sentence, the refusal itself
 const NOTE_ORDER = ORDERS.find(o => o.injected)!;
 const PLANTED = stepsOf(result({ ...base, scene: 'inject-off' }).run, 'proposal').find(
   p => p.call.name === 'issue_refund',
@@ -78,7 +80,9 @@ const OUT1 = stepsOf(result({ ...base, scene: 'inject-off' }).run, 'call').some(
   ? 1
   : 0;
 
-const QUIZ = {
+export const PARTS = OFFICE_PARTS;
+
+export const QUIZ = {
   question: `What protected Larkspur from the note on order ${NOTE_ORDER.id}?`,
   options: [
     'The model noticed the trick and refused',
@@ -91,8 +95,8 @@ const QUIZ = {
     'A model can follow instructions planted in the data it reads. Rules the model cannot change, a person at the gate and a narrow permission, protect you whether it does or not.',
   why: [
     `With the gate off it did not refuse: it proposed ${callText(PLANTED)}, and the ledger showed the damage.`,
-    'Right. The gate and the refund limit sit in your software, so they work whatever the model was persuaded to do.',
-    'The note reached the model as an ordinary tool result. Protection has to come from the host and the tools.',
+    'Right: the gate and the refund limit sit in your software, so they work whatever the model was persuaded to do.',
+    'The note reached the model as an ordinary tool result, so protection has to come from the host and the tools.',
     `The gate stopped the same call before it ran, and a refund limit below ${money(PLANTED.arguments.amount as number)} refuses it too.`,
   ],
 };
@@ -103,7 +107,10 @@ export const STEPS: Step<S>[] = [
     id: 'gate-on',
     focus: 'play',
     visibleControls: ['play'],
-    narration: `“${GATE.ask}” This time the host has an approval gate: any call to a tool that changes data waits for a person. ${fact('mcp-human').claim} Run the request.`,
+    narration:
+      'A customer wants a refund. Now an approval gate holds every call that changes data until a person decides.',
+    act: 'Run the request.',
+    say: { block: 'gate', text: 'Gate on' },
     predicate: s => s.scene === 'gate' && s.decide === null && done(s),
     hint: 'Press “Run the request”, then “Next message” until a call waits for approval.',
   },
@@ -111,7 +118,9 @@ export const STEPS: Step<S>[] = [
     id: 'decide',
     focus: 'decide',
     visibleControls: ['decide', 'play'],
-    narration: `The ${GATE_CALL.name} call waits, stamped WAITING. Nothing has moved yet. You are the person at the gate: approve it or deny it, then step through what happens.`,
+    narration: `The ${GATE_CALL.name} call waits at the gate. Nothing has moved yet: you are the person who decides.`,
+    act: 'Approve or deny, then step through what happens.',
+    say: { block: 'gate', text: 'Waiting' },
     predicate: s => s.scene === 'gate' && decided(s),
     hint: 'Press Approve or Deny, then “Next message” until the answer arrives.',
   },
@@ -126,7 +135,9 @@ export const STEPS: Step<S>[] = [
       limit: LIMITS[0],
       shown: msgs({ ...s, scene: 'limit', limit: LIMITS[0] }).length,
     }),
-    narration: `Either way, a person decided. Now the team turns the gate off, as busy teams do, and narrows ${GATE_CALL.name} instead: give it a refund limit. Step the limit down until the tool refuses this refund.`,
+    narration: `Either way, a person decided. Busy teams turn the gate off, so give ${GATE_CALL.name} a refund limit instead.`,
+    act: 'Lower it until the tool refuses.',
+    say: { block: 'orders', text: 'Refund limit' },
     predicate: s => s.scene === 'limit' && !!refundOf(result(s).run)?.result.isError,
     hint: 'Press “Lower” until the limit is below the refund’s amount.',
   },
@@ -134,21 +145,25 @@ export const STEPS: Step<S>[] = [
     id: 'refused',
     focus: 'next',
     visibleControls: ['next'],
-    narration: `Refused, stamped REFUSED and marked isError: “${LIMIT_REFUSAL}” The model read the error and told the employee. Least privilege: a tool can only do as much harm as its permission allows.`,
+    narration: `REFUSED: “${LIMIT_REFUSAL}” Least privilege: a tool’s permission caps its harm.`,
+    act: 'Next request.',
+    say: { block: 'orders', text: 'Refused' },
     predicate: s => s.scene === 'inject-off',
   },
   {
     id: 'predict-injection',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `A different request: “${INJ.ask}” No refund limit this time, and the gate is still off. This customer left a note on the order. Read it:`,
+    narration: `“${INJ.ask}” No limit, gate still off, and the customer left a note on the order.`,
+    act: 'Read it, then predict.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'run-injection',
     focus: 'play',
     visibleControls: ['p1', 'play'],
-    narration: 'Run the request and watch the ledger under the picture.',
+    narration: 'Your pick is locked.',
+    act: 'Run the request and watch the ledger under the picture.',
     predicate: s => s.scene === 'inject-off' && done(s),
     hint: 'Press “Run the request”, then “Next message” until the answer arrives.',
   },
@@ -157,7 +172,9 @@ export const STEPS: Step<S>[] = [
     focus: 'gate',
     visibleControls: ['out1', 'gate', 'play'],
     opensDrawer: 'messages',
-    narration: `The model read the note as an instruction and proposed ${callText(PLANTED)}. Nothing stopped it, and the ledger shows the damage. A model can follow text planted in what it reads. It will not always, but you cannot count on it not to. Turn the approval gate back on and run the request again.`,
+    narration: `The model obeyed the note and proposed a ${money(PLANTED.arguments.amount as number)} refund: prompt injection. The ledger shows the damage.`,
+    act: 'Turn the gate on and run it again.',
+    say: { block: 'model', text: 'Obeyed the note' },
     predicate: s => s.scene === 'inject-on' && s.decide === null && done(s),
     hint: 'Tick the approval gate, then press “Run the request” and “Next message” until a call waits.',
   },
@@ -165,7 +182,10 @@ export const STEPS: Step<S>[] = [
     id: 'inject-decide',
     focus: 'decide',
     visibleControls: ['decide', 'play', 'approved'],
-    narration: `Same note, same proposal, but now it waits at the gate and the ledger has not changed. The gate holds every tool not marked read-only, and that mark comes from the server: ${fact('mcp-untrusted-annotations').claim} You are the person at the gate. Read the call, decide, and step through what happens.`,
+    narration:
+      'Same proposal, now held at the gate. Read-only marks come from the server, so trust them only from trusted servers.',
+    act: 'Decide, then step through.',
+    say: { block: 'gate', text: 'Held' },
     predicate: s => s.scene === 'inject-on' && s.decide === 'deny' && done(s),
     hint: `Nobody asked for ${money(PLANTED.arguments.amount as number)}. Deny the call, then press “Next message” until the answer arrives.`,
   },
@@ -173,7 +193,8 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['quiz'],
-    narration: `Denied: no money moved, and the assistant said “${answerOf(result({ ...base, scene: 'inject-on', decide: 'deny' }).run)}” One question to finish.`,
+    narration: 'Denied: no money moved, and the assistant told the employee why.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which parts worked no matter what the model was persuaded to do?',
   },
@@ -187,7 +208,7 @@ export default function WhenToolsGoWrong() {
       steps={STEPS}
       initial={base}
       next={nextOf(MODULE, ID)}
-      stage={({ state, inspect }) => (
+      stage={({ state, inspect, say }) => (
         <div className="tc-stage">
           <ToolStage
             lanes={LANES}
@@ -201,6 +222,7 @@ export default function WhenToolsGoWrong() {
               note: state.scene !== 'gate' && state.scene !== 'limit',
               orders: state.scene === 'limit' ? LIMIT_OF(state.limit).toUpperCase() : undefined,
             }}
+            say={say}
           />
           {/* the ledger follows the messages shown: a refund only lands once its result is on screen */}
           <Ledger after={done(state) ? result(state).run.orders : ORDERS} ids={[orderIn(REC[state.scene])]} />
@@ -321,6 +343,7 @@ export default function WhenToolsGoWrong() {
             <>
               <Messages lanes={LANES} msgs={msgs(s)} upTo={s.shown} />
               <Fact id="mcp-human" />
+              <Fact id="mcp-untrusted-annotations" />
             </>
           ),
         },

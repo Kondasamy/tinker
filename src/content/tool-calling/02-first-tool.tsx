@@ -9,10 +9,10 @@ import { puzzle } from '../../components/quiz/Puzzle';
 import { toolLanes, transcript, type Shown } from '../../components/scenes/toolSequence';
 import { DOMAINS, run } from '../../lib/tools/host';
 import { RECORDINGS, type Desc } from '../../lib/tools/turns';
-import { fact } from '../../lib/tools/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Fact, Messages, Play, ToolDef, getOrder, GET_ORDER, ToolStage } from './kit';
+import { OFFICE_PARTS } from '../../components/scenes/officeScene';
 
 const MODULE = 'tool-calling',
   ID = '02-first-tool';
@@ -23,6 +23,7 @@ const RUNS = Object.fromEntries(DESCS.map(d => [d, transcript(REC, run(REC, { de
 const OTHER = REC.tools.find(t => t !== GET_ORDER.name)!;
 const called = (d: Desc) => RUNS[d].find(m => m.from === 'model' && m.kind === 'request');
 const ANSWER = RUNS.clear[RUNS.clear.length - 1].text;
+const FIRST = `${ANSWER.split('. ')[0].replace(/\.$/, '')}.`; // the answer's first sentence, short enough for a step
 
 interface S {
   opened: boolean;
@@ -41,7 +42,9 @@ const PREDICT = {
 const vagueCall = called('vague');
 const OUTCOME = !vagueCall ? 1 : vagueCall.text.startsWith(GET_ORDER.name) ? 0 : 2;
 
-const QUIZ = {
+export const PARTS = OFFICE_PARTS;
+
+export const QUIZ = {
   question: `What made the model call ${GET_ORDER.name} the second time?`,
   options: [
     'The model got smarter between the runs',
@@ -53,10 +56,10 @@ const QUIZ = {
   explanation:
     'The model picks tools by reading their definitions. The description is how it knows what a tool is for.',
   why: [
-    'Same recorded model both times. Only what it could read changed.',
-    'Right. The model chooses a tool by reading its definition, and the description is the part that says when to use it.',
-    'The host only offered the tools. Choosing one was the model’s call; the host ran what it proposed.',
-    `The name stayed ${GET_ORDER.name} in both runs. Only the description changed.`,
+    'Same recorded model both times: only what it could read changed.',
+    'Right: the model chooses a tool by reading its definition, and the description says when to use it.',
+    'The host only offered the tools: choosing one was the model’s call, and the host ran what it proposed.',
+    `The name stayed ${GET_ORDER.name} in both runs: only the description changed.`,
   ],
 };
 
@@ -66,7 +69,8 @@ export const STEPS: Step<S>[] = [
     id: 'meet',
     focus: 'open',
     visibleControls: ['open'],
-    narration: `The team gives the assistant its first tool, ${GET_ORDER.name}. ${fact('tool-definition').claim} Open the definition they wrote.`,
+    narration: `The assistant gets its first tool, ${GET_ORDER.name}. Its tool definition tells the model what it does.`,
+    act: 'Open the definition they wrote.',
     predicate: s => s.opened,
   },
   {
@@ -74,14 +78,16 @@ export const STEPS: Step<S>[] = [
     focus: 'predict',
     visibleControls: ['predict'],
     opensDrawer: 'tool',
-    narration: `Look at the description: “${GET_ORDER.vague}” The host also offers a second tool, ${OTHER}. Before you run it:`,
+    narration: `The description reads “${GET_ORDER.vague}” and a JSON Schema sets its arguments. The host app also offers ${OTHER}.`,
+    act: 'Predict before you run it.',
     predicate: s => s.prediction !== null,
   },
   {
     id: 'run-vague',
     focus: 'reveal',
     visibleControls: ['predict', 'reveal'],
-    narration: 'Now run the request with this description.',
+    narration: 'Your pick is locked.',
+    act: 'Run the request with this description.',
     predicate: s => s.desc === 'vague' && done(s),
   },
   puzzle<S>({
@@ -89,7 +95,9 @@ export const STEPS: Step<S>[] = [
     focus: 'desc',
     visibleControls: ['desc', 'play'],
     opensDrawer: 'tool',
-    narration: `The model could not tell which tool checks orders, so it guessed. Pick a better description for ${GET_ORDER.name}, then run the request and step through each message.`,
+    narration: 'No call: the model could not tell which tool checks orders, so it guessed.',
+    act: 'Pick a clearer description, then run the request message by message.',
+    say: { block: 'model', text: 'Guessed' },
     broken: s => ({ ...s, desc: 'vague', shown: RUNS.vague.length }),
     verdict: s => s.desc === 'clear' && done(s),
     solution: s => ({ ...s, desc: 'clear', shown: RUNS.clear.length }),
@@ -99,7 +107,8 @@ export const STEPS: Step<S>[] = [
     id: 'grounded',
     focus: 'see',
     visibleControls: ['see'],
-    narration: `This time the model proposed a call. The host ran it on the order system and sent the result back, and the answer comes from it: “${ANSWER}”`,
+    narration: `The model made a tool call, the host ran it, and the tool result gave the answer: “${FIRST}”`,
+    say: { block: 'orders', text: 'Looked up' },
     predicate: s => s.seen,
   },
   {
@@ -107,8 +116,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['quiz'],
     opensDrawer: 'messages',
-    narration:
-      'The drawer shows the exact call and result. Notice that the model never touched the order system: it asked, and the host did the work. One question to finish.',
+    narration: 'The model never touched the order system: it asked, and the host did the work.',
+    act: 'One question to finish.',
+    say: { block: 'host', text: 'Ran the call' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Compare the two runs. What was different about what the model could read?',
   },
@@ -122,13 +132,14 @@ export default function FirstTool() {
       steps={STEPS}
       initial={{ opened: false, desc: 'vague', prediction: null, shown: 0, seen: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, inspect }) => (
+      stage={({ state, inspect, say }) => (
         <ToolStage
           lanes={LANES}
           msgs={RUNS[state.desc]}
           upTo={state.shown}
           inspect={inspect}
           office={{ tools: REC.tools.length }}
+          say={say}
         />
       )}
       controls={{
