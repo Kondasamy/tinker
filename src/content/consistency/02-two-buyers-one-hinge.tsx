@@ -5,7 +5,7 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { Outcome } from '../tool-calling/kit';
-import { MOMENTS, STOCK, clock, policyOf, runOf } from '../../lib/consistency/sim';
+import { EVENTS, MOMENTS, REP_NAME, STOCK, clock, policyOf, runOf } from '../../lib/consistency/sim';
 import { STOCK_PARTS, stockAt } from '../../components/scenes/stockScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
@@ -19,9 +19,10 @@ const LAST = MOMENTS.lastHinge,
   /** East sells the second-to-last hinge two minutes before */
   EAST = LAST - 2,
   START = MOMENTS.priyaBuys;
+const [A, B] = EVENTS.filter(e => e.t === LAST && e.kind === 'order');
 
 export const P1 = {
-  question: `At ${clock(LAST)} Jo at North and Kim at West buy in the same minute. Both counts say 1. How many receipts print?`,
+  question: `At ${clock(LAST)} ${A.who} at ${REP_NAME[A.at]} and ${B.who} at ${REP_NAME[B.at]} buy in the same minute. Both counts say 1. How many receipts print?`,
   options: [
     'One: the second buyer finds it sold out',
     'Two: each warehouse sells from its own count',

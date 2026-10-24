@@ -6,7 +6,7 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { Outcome } from '../tool-calling/kit';
-import { MOMENTS, REP_NAME, RULE_NAME, clock, policyOf, runOf, type Rule } from '../../lib/consistency/sim';
+import { EVENTS, MOMENTS, REP_NAME, RULE_NAME, clock, policyOf, runOf, type Rule } from '../../lib/consistency/sim';
 import { STOCK_PARTS, stockAt } from '../../components/scenes/stockScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
@@ -17,6 +17,7 @@ const MODULE = 'consistency',
 export const PARTS = STOCK_PARTS;
 export const runWith = (rule: Rule) => runOf(policyOf({ r: 2, w: 2, rule }));
 const LAST = MOMENTS.lastHinge;
+const [A, B] = EVENTS.filter(e => e.t === LAST && e.kind === 'order');
 const sales = (rule: Rule) => runWith(rule).ticks[LAST].outcomes.filter(o => o.result === 'sold');
 /** the sale last writer wins drops from the count */
 export const LOST = sales('lww').find(o => o.lost)!;
@@ -24,7 +25,7 @@ export const LOST = sales('lww').find(o => o.lost)!;
 export const TURNED = runWith('primary').ticks[LAST].outcomes.find(o => o.result === 'soldout')!;
 
 export const P1 = {
-  question: `Quorums are on. At ${clock(LAST)} Jo and Kim still buy the last hinge in the same minute. How many receipts?`,
+  question: `Quorums are on. At ${clock(LAST)} ${A.who} and ${B.who} still buy the last hinge in the same minute. How many receipts?`,
   options: [
     'One: the quorum stops the second sale',
     'Two: both read 1 before either wrote',
