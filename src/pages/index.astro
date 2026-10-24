@@ -5,7 +5,7 @@
 import '../styles/tokens.css';
 import '../styles/page.css';
 import Meta from '../components/Meta.astro';
-import IsoStage, { type SceneCtx } from '../lib/iso/IsoStage';
+import IsoStage, { type SceneCtx, type Zoom } from '../lib/iso/IsoStage';
 import { miniPipeline, MINI_BOARD, MINI_LABEL } from '../components/scenes/miniPipeline';
 import { HERO_BOARD, HOME_HERO, HOME_HERO_LABEL, heroCaption } from '../components/scenes/heroScene';
 import { renderers, blockShadow, type BlockType } from '../lib/iso/blocks';
@@ -106,7 +106,7 @@ const LOOP: [string, string][] = [
   ],
 ];
 // a live module's card picture and topic chips; every other fact on a card comes from the registry
-type Iso = { board: typeof MINI_BOARD; scene: typeof miniPipeline; label: string };
+type Iso = { board: typeof MINI_BOARD; scene: typeof miniPipeline; label: string; zoom?: Zoom };
 const OFFICE = { msgs: SEQ_MSGS, upTo: 3, tools: RECORDINGS['order-status'].tools.length, scale: 1.7 };
 // the damaged delivery with the printer out of stock: the agent checked, changed course and is telling the customer
 const CASE = run(AGENT_RECORDINGS['01-workflow-or-agent'], { case: 'damaged', stock: 'out' });
@@ -497,7 +497,13 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   },
   databases: {
     name: 'Databases & indexes',
-    iso: { board: ARCHIVE_BOARD, scene: archiveScene(ARCHIVE), label: archiveLabel(ARCHIVE) },
+    // the orders cabinet stands taller than the board's headroom: pull back, keeping the floor, so its top clears the frame
+    iso: {
+      board: ARCHIVE_BOARD,
+      scene: archiveScene(ARCHIVE),
+      label: archiveLabel(ARCHIVE),
+      zoom: { k: 0.88, u: 0.5, v: 1 },
+    },
     topics: ['Full scans', 'B-tree indexes', 'Write cost', 'Column order', 'The query planner', 'Joins', 'Index plans'],
   },
   consistency: {
