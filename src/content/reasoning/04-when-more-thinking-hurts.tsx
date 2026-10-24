@@ -9,10 +9,12 @@ import { ofKind, run, sweep, type Effort } from '../../lib/reasoning/engine';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
+import { THINK_PARTS } from '../../components/scenes/thinkScene';
 import { Answer, Fact, ReasoningStage, type View } from './kit';
 
 const MODULE = 'reasoning',
   ID = '04-when-more-thinking-hurts';
+export const PARTS = THINK_PARTS;
 const QS = ofKind('distractor'),
   IDS = QS.map(q => q.id);
 const [LOW, HIGH] = sweep(IDS, ['low', 'high']);
@@ -35,7 +37,7 @@ const P1 = {
 };
 const outcome = () => (HIGH.right > LOW.right ? 0 : HIGH.right === LOW.right ? 1 : 2);
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A hotel assistant is asked “How many guests are in room 12?” next to a note about towel counts, late checkout and last month’s refit. At which setting is a wrong count most likely?',
   options: ['No thinking', 'Low effort', 'High effort: more chances to build on the notes'],
@@ -44,7 +46,7 @@ const QUIZ = {
   why: [
     'Possible, but a direct answer has little room to wander off; a quick count is often right.',
     'A short think usually reads the count and stops.',
-    'Right. The longest thinking has the most room to pick up the towels or the refit and build a wrong answer on them.',
+    'Right: the longest thinking has the most room to pick up the towels or the refit and build a wrong answer on them.',
   ],
 };
 
@@ -59,29 +61,35 @@ export const STEPS: Step<S>[] = [
     id: 'low',
     focus: 'low',
     visibleControls: ['questions', 'low'],
-    narration:
-      'Chapter 3’s dial suggests turning effort up for everything, just in case. Try it on the simplest questions Larkspur gets: counts. Each comes with a distractor, a detail near the question that has nothing to do with the answer. Run them at low effort first.',
+    narration: 'Each count comes with a distractor: a nearby detail that has nothing to do with the answer.',
+    act: 'Run them at low effort first.',
+    say: { block: 'dial', text: 'Starts low' },
     predicate: s => s.low,
   },
   {
     id: 'predict',
     focus: 'p1',
     visibleControls: ['lowAnswers', 'p1'],
-    narration: `${LOW.right} of ${LOW.of} right at low. Before you turn the dial up:`,
+    narration: `${LOW.right} of ${LOW.of} right at low.`,
+    act: 'Predict before you turn the dial up.',
+    say: { block: 'pad', text: 'Short think' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'high',
     focus: 'high',
     visibleControls: ['p1', 'high'],
-    narration: 'Run the same three questions at high effort.',
+    narration: 'Your pick is locked.',
+    act: 'Run the same questions at high effort.',
     predicate: s => s.high,
   },
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['highAnswers', 'quiz'],
-    narration: `${HIGH.right} of ${HIGH.of} right at high. Each long think picked up a distractor (the cartons, the K3’s speed, last week’s holiday) and built on it. That is overthinking: thinking past the answer until the extra steps change it. When more of something makes results worse, researchers call it inverse scaling. These answers were written for this site to illustrate that finding; they were not measured.`,
+    narration: `${HIGH.right} of ${HIGH.of} right at high. Each long think built on a distractor: overthinking. More thinking, worse results: inverse scaling.`,
+    act: 'One question to finish.',
+    say: { block: 'pad', text: 'Wandered off' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which setting gives a simple count the most room to wander?',
   },
@@ -95,13 +103,14 @@ export default function WhenMoreThinkingHurts() {
       steps={STEPS}
       initial={{ low: false, p1: null, high: false, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => {
+      stage={({ state, sync, say }) => {
         const e: Effort = state.high ? 'high' : 'low',
           p = e === 'low' ? LOW : HIGH,
           ran = state.low;
         const points = state.high ? [LOW, HIGH] : ran ? [LOW] : [];
         return (
           <ReasoningStage
+            say={say}
             view={state.view}
             onView={view => sync({ ...state, view })}
             shown={{
@@ -150,6 +159,9 @@ export default function WhenMoreThinkingHurts() {
             {IDS.map(q => (
               <Answer key={q} q={q} effort="high" />
             ))}
+            <p className="rs-note">
+              These answers were written for this site to illustrate the finding below; they were not measured.
+            </p>
             <Fact id="gema" />
           </>
         ),

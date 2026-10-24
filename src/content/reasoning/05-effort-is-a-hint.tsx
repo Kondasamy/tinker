@@ -9,10 +9,12 @@ import { HINT_PAIR, question, run, type Effort } from '../../lib/reasoning/engin
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
+import { THINK_PARTS } from '../../components/scenes/thinkScene';
 import { EffortRange, Fact, ReasoningStage, deskOf } from './kit';
 
 const MODULE = 'reasoning',
   ID = '05-effort-is-a-hint';
+export const PARTS = THINK_PARTS;
 const [EASY, HARD] = HINT_PAIR;
 const NAME = (q: string) => (question(q).kind === 'lookup' ? 'The lookup' : 'The delivery date');
 
@@ -39,7 +41,7 @@ const outcome = () => {
   return Math.abs(e - h) < 0.2 * h ? 0 : h > e ? 1 : 2;
 };
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A team moves to a newer model and its code still sends a fixed thinking budget of 8,000 tokens. What should it do?',
   options: [
@@ -50,8 +52,8 @@ const QUIZ = {
   correct: 1,
   explanation: 'Newer models decide per request how much to think, steered by effort; max_tokens stays the hard cap.',
   why: [
-    'The fixed budget is deprecated on some models and rejected by newer ones. Code that sends it can stop working.',
-    'Right. Effort replaces the budget as the control; max_tokens still caps the whole reply; and a new setting is a change to measure.',
+    'The fixed budget is deprecated on some models and rejected by newer ones, so code that sends it can stop working.',
+    'Right: effort replaces the budget as the control, max_tokens still caps the whole reply, and a new setting is a change to measure.',
     'A bigger fixed budget is still a fixed budget, which newer models don’t take.',
   ],
 };
@@ -61,15 +63,17 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['pair', 'p1'],
-    narration:
-      'The team sets effort to high for two questions, a lookup and a delivery date, and expects them to think the same amount. Before you run them:',
+    narration: 'The team sets high effort for a lookup and a delivery date, and expects equal thinking.',
+    act: 'Predict first.',
+    say: { block: 'dial', text: 'Both on high' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'run',
     focus: 'run',
     visibleControls: ['p1', 'run'],
-    narration: 'Run both at high effort.',
+    narration: 'One setting, two questions.',
+    act: 'Run both at high effort.',
     predicate: s => s.ran,
   },
   {
@@ -77,7 +81,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['counts', 'apis', 'quiz'],
     narration:
-      'Same setting, very different thinking: the lookup had little to work out. Effort tells the model how willing to be to think, not how many tokens to spend. That is how today’s APIs describe it, and it replaced the fixed thinking budget, a set number of tokens to think for. What still sets a hard limit is max_tokens, the cap on everything a reply writes, thinking and answer together. Move the dial to compare the two at other levels; then one question.',
+      'Effort is only a hint. Newer models take effort and adaptive thinking, not a fixed thinking budget; max_tokens still caps replies.',
+    act: 'One question to finish.',
+    say: { block: 'pad', text: 'Model decides' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What do newer models take in place of a fixed budget?',
   },
@@ -91,10 +97,11 @@ export default function EffortIsAHint() {
       steps={STEPS}
       initial={{ p1: null, ran: false, effort: 'high', pick: HARD, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => {
+      stage={({ state, say }) => {
         const r = run(state.pick, state.effort);
         return (
           <ReasoningStage
+            say={say}
             shown={{
               desk: state.ran ? deskOf(r) : { effort: 'high', thinking: 0, wait: 0 },
               caption: state.ran

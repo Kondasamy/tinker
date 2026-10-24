@@ -8,10 +8,12 @@ import { SPLIT, run } from '../../lib/reasoning/engine';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
+import { THINK_PARTS } from '../../components/scenes/thinkScene';
 import { Answer, Asked, ReasoningStage, deskOf } from './kit';
 
 const MODULE = 'reasoning',
   ID = '01-answer-now-or-think-first';
+export const PARTS = THINK_PARTS;
 const NOW = run(SPLIT, 'none'),
   THINK = run(SPLIT, 'medium');
 
@@ -34,7 +36,7 @@ const P1 = {
 /** read off the recorded answers' grades */
 const outcome = () => (THINK.right === NOW.right ? 0 : 1);
 
-const QUIZ = {
+export const QUIZ = {
   question: 'Which of these is the assistant most likely to get wrong when it answers at once, without thinking?',
   options: [
     'Which warehouse is in Eastgate?',
@@ -46,8 +48,8 @@ const QUIZ = {
     'Several steps in a row (two price columns, two products, a sum) give a quick answer several chances to slip.',
   why: [
     'One fact read off a page: there is no working to get wrong.',
-    'Right. Each line needs its own column, then a product, then a sum. That is where writing the steps out pays off.',
-    'A name on a page. Thinking first has nothing to fix here.',
+    'Right: each line needs its own column, then a product, then a sum, and that is where writing the steps out pays off.',
+    'A name on a page, so thinking first has nothing to fix here.',
   ],
 };
 
@@ -56,8 +58,9 @@ export const STEPS: Step<S>[] = [
     id: 'now',
     focus: 'now',
     visibleControls: ['asked', 'now'],
-    narration:
-      'A salesperson forwards a customer’s question to Larkspur’s assistant. It reads the price list and answers at once. The answers in this module were written ahead of time for this site: they are recorded, not live. The grade under each runs in your browser, with the key-fact check from the Evals module.',
+    narration: 'A customer’s quote reaches the assistant. It reads the price list and answers at once.',
+    act: 'Press Answer now.',
+    say: { block: 'dial', text: 'No thinking yet' },
     predicate: s => s.now,
   },
   {
@@ -65,15 +68,17 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['nowAnswer', 'p1'],
     narration:
-      'The quick answer is wrong: it never used the sentence about order lines. A reasoning model is a model trained to write out its working before it answers; that working is its thinking. Before you let it think:',
+      'Wrong: the quick answer skipped the sentence about order lines. A reasoning model writes out its working, its thinking, before it answers.',
+    act: 'Predict first.',
+    say: { block: 'dial', text: 'Answered at once' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'think',
     focus: 'think',
     visibleControls: ['p1', 'think'],
-    narration:
-      'Ask again, this time letting it think first. Its thinking appears in the panel under the picture, and the pad of papers on the desk grows with it.',
+    narration: 'Its thinking appears under the picture, and the pad on the desk grows with it.',
+    act: 'Press Think first, then answer.',
     predicate: s => s.thought,
   },
   {
@@ -81,7 +86,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['compare', 'quiz'],
     narration:
-      'Same model, same documents, a different answer. Writing out the steps (the price per line, then each line, then the difference) made it use a rule it had read and skipped. A question with several steps is a multi-step question, and that is where thinking first pays off. One question to finish.',
+      'Same model, same documents, a different answer: writing out the steps caught the skipped rule. It pays on a multi-step question.',
+    act: 'One question to finish.',
+    say: { block: 'pad', text: 'Its working' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which question needs several steps in a row?',
   },
@@ -95,10 +102,11 @@ export default function AnswerNowOrThinkFirst() {
       steps={STEPS}
       initial={{ now: false, p1: null, thought: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => {
+      stage={({ state, say }) => {
         const r = state.thought ? THINK : NOW;
         return (
           <ReasoningStage
+            say={say}
             shown={{
               desk: state.now ? deskOf(r) : { effort: 'none', thinking: 0, wait: 0 },
               caption: state.thought
@@ -113,7 +121,15 @@ export default function AnswerNowOrThinkFirst() {
         );
       }}
       controls={{
-        asked: () => <Asked q={SPLIT} />,
+        asked: () => (
+          <>
+            <Asked q={SPLIT} />
+            <p className="rs-note">
+              The answers in this module were written ahead of time for this site: recorded, not live. The grade under
+              each runs in your browser, with the Evals module’s key-fact check.
+            </p>
+          </>
+        ),
         now: ({ state, sync }) => (
           <button type="button" className="big" onClick={() => sync({ ...state, now: true })}>
             Answer now

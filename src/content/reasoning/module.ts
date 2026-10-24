@@ -11,7 +11,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Think first',
     intro: {
       story:
-        'Larkspur’s assistant reads the right documents and passes the Evals module’s release gate on policy questions. Then sales starts sending it quotes: volume prices, split order lines, a few sums in a row. The answers come back fast, and some are wrong.',
+        'Larkspur’s assistant passes the Evals gate on policy questions. Then sales sends it quotes: volume prices, split order lines, a few sums in a row. Some answers come back wrong.',
       goal: 'What changes when a model writes out its working before it answers?',
       learn: [
         'What a reasoning model’s thinking is: text it writes before the answer',
@@ -63,7 +63,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Effort dial',
     intro: {
       story:
-        'Thinking costs tokens and time. Larkspur’s team can ask for more or less of it with one setting, effort, and wants to know what each step of the dial buys on the questions that need it.',
+        'Thinking costs tokens and time. One setting, effort, asks for more or less of it. The team wants to know what each step of the dial buys.',
       goal: 'Does more thinking keep making answers better?',
       learn: [
         'What an effort setting is: none, low, medium or high',
@@ -83,7 +83,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Overthinking',
     intro: {
       story:
-        'After chapter 3, someone suggests turning effort up to high for everything, just in case. The team tries it on the simplest questions it has: counts, with a few stray details nearby.',
+        'After chapter 3, someone suggests high effort for everything, just in case. The team tries it on its simplest questions: counts, with a few stray details nearby.',
       goal: 'Can more thinking make an answer worse?',
       learn: [
         'What overthinking looks like: a long chain of reasoning that wanders off the question',
@@ -149,7 +149,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Workbench',
     intro: {
       story:
-        'Everything is on the bench: three kinds of request, four effort levels, and the recorded answers graded live. The support lead needs one setting per kind before the assistant goes back on duty.',
+        'Everything is on the bench: three kinds of request, four effort levels, recorded answers graded live. The support lead needs one setting per kind.',
       goal: 'Which effort should each kind of request get?',
       learn: [
         'How to read accuracy, cost and wait together',

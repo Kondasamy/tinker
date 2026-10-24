@@ -165,7 +165,10 @@ export function ReasoningStage({
       </div>
       <p className="tc-caption">
         {s.stamp && <span className={`stamp ${STAMP_CLASS[s.stamp]}`}>{s.stamp}</span>}
-        <span className="txt">{s.caption}</span>
+        <span className="txt">
+          {s.caption}
+          {s.desk.wait > 0 && ' Waits use Larkspur’s assumed rate.'}
+        </span>
       </p>
       <section className="rs-thinking" aria-label="The model’s thinking" tabIndex={0}>
         <p className="lbl">

@@ -20,10 +20,12 @@ import {
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
+import { THINK_PARTS } from '../../components/scenes/thinkScene';
 import { Fact, ReasoningStage, kindSeries, type View } from './kit';
 
 const MODULE = 'reasoning',
   ID = '06-measure-then-pick';
+export const PARTS = THINK_PARTS;
 const IDS = KINDS.map(k => k.id);
 
 interface S {
@@ -43,7 +45,7 @@ const outcome = () => {
   return IDS.reduce((best, k, i) => (rank(k) > rank(IDS[best]) ? i : best), 0);
 };
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A new kind of request arrives: customers asking for a quote with a trade-in credit. What should the team do before choosing its effort?',
   options: [
@@ -54,8 +56,8 @@ const QUIZ = {
   correct: 1,
   explanation: 'Each kind gets its own measured setting. A new kind means a new sweep.',
   why: [
-    'A good first guess, but the trade-in step may need more, or less. The gate is what tells you.',
-    'Right. A sweep through the gate finds the lowest effort that passes, and the no-regressions rule guards what already worked.',
+    'A good first guess, but the trade-in step may need more or less, and only the gate can tell you.',
+    'Right: a sweep through the gate finds the lowest effort that passes, and the no-regressions rule guards what already worked.',
     'High costs the most, waits the longest, and chapter 4 showed it can make answers worse.',
   ],
 };
@@ -65,14 +67,17 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['kinds', 'p1'],
-    narration: `A release gate is the rule that decides, from a test run, whether a change ships; this is the one from the Evals module, unchanged. Here a kind of question ships at an effort if ${GATE.threshold}% or more of its answers pass and none that passed with no thinking (the baseline) now fails: a question that used to pass and now fails is a regression. Before you run it:`,
+    narration: `Evals’ release gate ships a kind if at least ${GATE.threshold}% pass and none that passed with no thinking (the baseline) fails.`,
+    act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'gate',
     focus: 'gate',
     visibleControls: ['p1', 'gate'],
-    narration: 'Run each kind through the gate at every effort.',
+    narration: 'The gate checks every effort against the baseline.',
+    act: 'Gate each kind of question.',
+    say: { block: 'dial', text: 'Lowest passing' },
     predicate: s => IDS.every(k => s.gated.includes(k)),
     hint: 'Press the button for each of the three kinds.',
   },
@@ -80,7 +85,8 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['picks', 'quiz'],
-    narration: `${IDS.map(k => `${kindOf(k).short}: ${lowestPassing(k)}`).join('; ')}. Lookups need no thinking at all. Multi-step questions need medium; high costs more for no gain. The distractions pass at low, and the no-regressions rule holds high back: it breaks counts that no thinking got right. The right setting is the lowest effort that passes, kind by kind.`,
+    narration: `${IDS.map(k => `${kindOf(k).short}: ${lowestPassing(k)}`).join('; ')}. A regression, a pass turned fail, holds effort back. Ship the lowest effort that passes.`,
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What tells you a setting works for a kind of question?',
   },
@@ -94,7 +100,7 @@ export default function MeasureThenPick() {
       steps={STEPS}
       initial={{ p1: null, gated: [], view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => {
+      stage={({ state, sync, say }) => {
         const last = state.gated.at(-1),
           pick = last ? (lowestPassing(last) ?? 'high') : 'none';
         const qs = last ? ofKind(last).map(q => q.id) : [];
@@ -102,6 +108,7 @@ export default function MeasureThenPick() {
           wait = qs.length ? qs.reduce((n, q) => n + run(q, pick).wait, 0) / qs.length : 0;
         return (
           <ReasoningStage
+            say={say}
             view={state.view}
             onView={view => sync({ ...state, view })}
             shown={{

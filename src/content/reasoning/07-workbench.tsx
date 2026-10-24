@@ -8,10 +8,12 @@ import { EFFORTS, KINDS, question, type Effort } from '../../lib/reasoning/engin
 import { LEAST_COST, MOST_RIGHT, WINNERS, solved, totals, type Plan } from '../../lib/reasoning/workbench';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
+import { THINK_PARTS } from '../../components/scenes/thinkScene';
 import { RateNote, ReasoningStage, kindSeries, seconds, type View } from './kit';
 
 const MODULE = 'reasoning',
   ID = '07-workbench';
+export const PARTS = THINK_PARTS;
 /** “High everywhere, to be safe”: where chapter 4's meeting started */
 export const START: Plan = { lookup: 'high', multistep: 'high', distractor: 'high' };
 /** the plan in a run's state; a missing or unknown effort falls back to START's */
@@ -23,7 +25,7 @@ export interface S extends Plan {
   quiz: number | null;
 }
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A team’s plan matches the best on accuracy but costs twice as much: it uses high effort on its lookups. What does the workbench say?',
   options: [
@@ -35,8 +37,8 @@ const QUIZ = {
   explanation: 'With accuracy tied, cost and wait decide, and lookups gain nothing from thinking.',
   why: [
     'Accuracy comes first, but two plans with the same accuracy are not equal if one costs twice as much.',
-    'Right. The lookups’ thinking buys nothing. Drop it and the plan is cheaper and faster for the same answers.',
-    'Consistency is not a goal. High on distractions loses answers, and on lookups it only costs.',
+    'Right: the lookups’ thinking buys nothing, so dropping it makes the plan cheaper and faster for the same answers.',
+    'Consistency is not a goal: high on distractions loses answers, and on lookups it only costs.',
   ],
 };
 
@@ -45,7 +47,9 @@ export const STEPS: Step<S>[] = [
     id: 'plan',
     focus: 'plan',
     visibleControls: ['score', 'plan'],
-    narration: `The proposal on the table: high effort everywhere, to be safe. The bench reads every recorded answer for your plan and grades it live. The best plan gets the most answers right (${MOST_RIGHT} is the most any plan gets) at the lowest cost. Cost is thinking and answer tokens, in relative units. Set an effort for each kind and find a best plan.`,
+    narration: `The proposal: high everywhere, to be safe. The best effort plan gets the most right (${MOST_RIGHT}) at the lowest cost.`,
+    act: 'Set each kind’s effort.',
+    say: { block: 'dial', text: 'High everywhere' },
     predicate: s => solved(planOf(s)),
     hint: 'Take each kind on its own: what is the lowest effort that gets its answers right? Chapter 6 found them.',
     solution: s => ({ ...s, ...WINNERS[0] }),
@@ -54,7 +58,8 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['score', 'plan', 'quiz'],
-    narration: `${MOST_RIGHT} right for ${LEAST_COST}: the best any plan does. Yours is ${WINNERS.length === 1 ? 'the one plan' : `one of ${WINNERS.length} plans`} that ${WINNERS.length === 1 ? 'reaches' : 'reach'} it, and it mixes efforts: none where there is nothing to work out, more where there are steps, and less where extra thinking wanders. Change the plan if you like; the bench is yours. One question to finish.`,
+    narration: `${MOST_RIGHT} right for ${LEAST_COST}, the best possible. Yours is ${WINNERS.length === 1 ? 'the one plan that reaches' : `one of ${WINNERS.length} plans that reach`} it, and it mixes efforts.`,
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'With the same answers right, what decides between two plans?',
   },
@@ -111,12 +116,13 @@ export default function Workbench() {
       steps={STEPS}
       initial={{ ...START, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => {
+      stage={({ state, sync, say }) => {
         const p = planOf(state),
           t = totals(p),
           top = EFFORTS[Math.max(...KINDS.map(k => EFFORTS.indexOf(p[k.id])))];
         return (
           <ReasoningStage
+            say={say}
             view={state.view}
             onView={view => sync({ ...state, view })}
             shown={{
