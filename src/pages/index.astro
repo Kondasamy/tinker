@@ -60,6 +60,9 @@ import { grpoRun, seedOf } from '../lib/post-training/policy';
 import { cardsOf, groupOf } from '../content/post-training/kit';
 import { FUSE_BOARD, fuseScene, fuseLabel } from '../components/scenes/fuseScene';
 import { BITE } from '../lib/interpretability/probe';
+import { DEPOT_BOARD, depotAt, depotLabel, depotScene } from '../components/scenes/depotScene';
+import { MOMENTS as CACHE_MOMENTS, runOf as cacheRun } from '../lib/caching/sim';
+import { WINNERS as CACHE_WINNERS } from '../lib/caching/workbench';
 
 const one =
   (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) =>
@@ -193,6 +196,8 @@ const FUSES_CARD = {
   pulled: [BITE.fuse],
   scale: 1.7,
 };
+// the depot map mid-sale on chapter 7's first winning policy
+const DEPOT = { ...depotAt(cacheRun(CACHE_WINNERS[0]), CACHE_MOMENTS.sale + 2), scale: 1.7 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -445,6 +450,19 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Steering',
       'Polysemantic neurons',
       'Circuits',
+    ],
+  },
+  caching: {
+    name: 'Caching & CDNs',
+    iso: { board: DEPOT_BOARD, scene: depotScene(DEPOT), label: depotLabel(DEPOT) },
+    topics: [
+      'Latency and distance',
+      'Edge caches',
+      'TTL and stale copies',
+      'Purge & versioned names',
+      'Request coalescing',
+      'Prompt & KV caches',
+      'Cache policy',
     ],
   },
 };

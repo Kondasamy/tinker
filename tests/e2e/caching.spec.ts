@@ -1,6 +1,6 @@
 // Caching & CDNs: the intro, every chapter played by mouse and by keyboard only, its own progress key, chapter 5's
 // depot overloaded without coalescing and calm with it, the timeline read with the arrow keys, "I'm not sure", reduced
-// motion, the recap, axe and phone width.
+// motion, the recap, axe and phone width; the go-live checks: Module 21 kickers and share images, home's card.
 import { test, expect, type Page } from '@playwright/test';
 import { moduleOf } from '../../src/lib/modules';
 import { MOMENTS } from '../../src/lib/caching/sim';
@@ -38,6 +38,28 @@ test('the intro shows the level, the author, the chapters and the Colorfigures c
   await page.getByRole('button', { name: 'Words' }).click();
   await expect(page.locator('.band .note.more')).toBeVisible();
   await axe(page);
+});
+
+test('Module 21 on the intro and the recap', async ({ page }) => {
+  await page.goto('/caching/');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 21 · Caching & CDNs');
+  await page.goto('/caching/recap/');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 21 · Recap');
+});
+
+test('go-live: own share images and home’s card', async ({ page }) => {
+  await page.goto('/caching/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/caching\.jpg$/);
+  await page.goto(`/caching/${CH1}/`);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    new RegExp(`/og/caching-${CH1}\\.jpg$`),
+  );
+  await page.goto('/caching/recap/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/caching-recap\.jpg$/);
+  expect((await page.request.get('/og/caching.jpg')).status()).toBe(200);
+  await page.goto('/');
+  await expect(page.locator('.module[data-module="caching"] h4 a')).toHaveAttribute('href', '/caching/');
 });
 
 test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({

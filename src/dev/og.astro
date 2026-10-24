@@ -130,6 +130,14 @@ import { FUSE_BOARD, fuseScene, type FuseOpts } from '../components/scenes/fuseS
 import { lensGrid } from '../components/scenes/lensGrid';
 import { BITE, FUSES, LENS, PATCH, STAGES as LENS_STAGES, STEER, lens } from '../lib/interpretability/probe';
 import { BEHAVIOURS, WINNERS as IP_WINNERS } from '../lib/interpretability/workbench';
+import { DEPOT_BOARD, depotAt, depotScene, type DepotOpts } from '../components/scenes/depotScene';
+import { MOMENTS, TICKS, runOf as cacheRun } from '../lib/caching/sim';
+import { WINNERS as CACHE_WINNERS } from '../lib/caching/workbench';
+import { oneTrip } from '../content/caching/01-far-is-slow';
+import { KEEP } from '../content/caching/02-keep-a-copy';
+import { SHORT, runAt as ttlRun } from '../content/caching/03-how-long-is-it-fresh';
+import { runOfWay } from '../content/caching/04-take-it-back';
+import { runWith } from '../content/caching/05-everyone-at-once';
 import { CallTimeline, segmentsOf } from '../content/voice/kit';
 import { DEFAULT_LINE, runCall } from '../lib/voice/engine';
 import { SILENCES } from '../lib/voice/turns';
@@ -725,6 +733,26 @@ const FUSE_OG: Record<string, () => FuseOpts> = {
     fuseOf(REPLY.text, { pulled: FUSES.filter(f => !IP_WINNERS.reply[0].includes(f)) }),
 };
 const fuseOg = FUSE_OG[page.og]?.();
+// module 21: the depot map as each chapter turns. The intro and 7: mid-sale on the first winning policy; 1: one trip from
+// the West; 2: the shelves at 09:00; 3: a day's TTL beside 15 minutes at the price rise; 4: the purge; 5: the stampede
+// beside coalescing; 6: the calm shelves after the sale.
+const DEPOT_OG: Record<string, () => Omit<DepotOpts, 'scale'>[]> = {
+  caching: () => [depotAt(cacheRun(CACHE_WINNERS[0]), MOMENTS.sale + 2)],
+  'caching-01-far-is-slow': () => [oneTrip('west')],
+  'caching-02-keep-a-copy': () => [depotAt(cacheRun(KEEP), MOMENTS.morning)],
+  'caching-03-how-long-is-it-fresh': () => [
+    depotAt(ttlRun(TICKS), MOMENTS.priceRise),
+    depotAt(ttlRun(SHORT), MOMENTS.priceRise),
+  ],
+  'caching-04-take-it-back': () => [depotAt(runOfWay('purge'), MOMENTS.priceRise)],
+  'caching-05-everyone-at-once': () => [
+    depotAt(runWith(false, false), MOMENTS.sale),
+    depotAt(runWith(true, false), MOMENTS.sale),
+  ],
+  'caching-06-the-same-trick': () => [depotAt(runWith(true, false), MOMENTS.sale + 4)],
+  'caching-07-cache-policy': () => [depotAt(cacheRun(CACHE_WINNERS[0]), MOMENTS.sale + 2)],
+};
+const depotOgs = DEPOT_OG[page.og]?.();
 const lensOg =
   page.og === 'interpretability-03-the-guess-forming'
     ? (() => {
@@ -782,6 +810,7 @@ const curveOg =
           : forgeOg ? <IsoStage board={FORGE_BOARD} scene={forgeScene(forgeOg)} label="" />
           : examOg ? <IsoStage board={EXAM_BOARD} scene={examScene({ ...examOg, scale: 1.3 })} label="" />
           : fuseOg ? <IsoStage board={FUSE_BOARD} scene={fuseScene(fuseOg)} label="" />
+          : depotOgs ? <div class={depotOgs.length > 1 ? 'duo' : ''}>{depotOgs.map(o => <IsoStage board={DEPOT_BOARD} scene={depotScene({ ...o, scale: 1.3 })} label="" />)}</div>
           : lensOg ? <div class="tf-og"><Flat fig={lensOg} role="img" label="" /></div>
           : page.og === 'pre-training-06-bigger-or-longer' ? <div class="pt-og"><ScalingView budget={10} /></div>
           : callOg ? <div class="vo-og"><CallTimeline segments={callOg.segments} marks={callOg.marks} /></div>

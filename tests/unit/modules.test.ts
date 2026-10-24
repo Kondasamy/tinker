@@ -471,6 +471,17 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'interpretability')).toBe(19);
   });
 
+  it('has caching as a live Beginner module with no prerequisites, numbered 21', () => {
+    expect(moduleOf('caching')).toMatchObject({
+      title: 'Caching & CDNs',
+      level: 'Beginner',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('caching').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'caching')).toBe(20);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

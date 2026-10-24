@@ -41,6 +41,7 @@ import { phonePlot } from './phoneScene';
 import { forgePlot } from './forgeScene';
 import { examPlot } from './examScene';
 import { fusePlot } from './fuseScene';
+import { depotPlot } from './depotScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
@@ -254,6 +255,7 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   'pre-training': (x, y, { top }) => forgePlot(x + 14, y - 2, top),
   'post-training': (x, y, { top }) => examPlot(x + 14, y - 2, top),
   interpretability: (x, y, { top }) => fusePlot(x + 14, y - 2, top),
+  caching: (x, y, { top }) => depotPlot(x + 14, y - 4, top),
 };
 const LIVE = MODULES.filter(m => m.status === 'live'),
   PLANNED = MODULES.filter(m => m.status === 'planned');

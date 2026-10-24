@@ -17,12 +17,13 @@ import { waitOf } from '../../content/caching/01-far-is-slow';
 import { KEEP, MORNING } from '../../content/caching/02-keep-a-copy';
 import { runOfWay } from '../../content/caching/04-take-it-back';
 import { runWith } from '../../content/caching/05-everyone-at-once';
-import { moduleOf, chapterHref } from '../../lib/modules';
+import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('caching');
 const CHAPTERS = MODULE.chapters;
+const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
 const pic = (o: Omit<DepotOpts, 'scale'>): DepotOpts => ({ ...o, scale: 1.4 });
 const BEST_RUN = runOf(WINNERS[0]);
 const HERO = pic(depotAt(BEST_RUN, MOMENTS.sale + 2));
@@ -70,7 +71,7 @@ const FACTS: [string, string][] = [
     <main class="intro">
       <header class="hero">
         <div class="hero-text">
-          <p class="kicker">{MODULE.title}</p>
+          <p class="kicker">Module {NUMBER} · {MODULE.title}</p>
           <p class="module-meta"><span class="level">{MODULE.level}</span> · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
           <h1>Why a copy nearby beats the original far away</h1>
           <p class="lede">A shop that answers every request from one place makes far customers wait, and buckles when everyone shows up at once. Here you put copies in Larkspur’s regional warehouses, then keep them right through a price change and a flash sale.</p>
@@ -157,7 +158,7 @@ const FACTS: [string, string][] = [
 
     <script>
       // finished chapters get a tick; the button continues from the first unfinished chapter
-      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
       import { completed } from '../../lib/progress';
       const CHAPTERS = moduleOf('caching').chapters;
       const done = completed('caching');

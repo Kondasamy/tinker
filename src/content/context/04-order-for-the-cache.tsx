@@ -245,8 +245,8 @@ function Readout({ p, fixed }: { p: Priced; fixed?: boolean }) {
       <p className="cx-note">
         Costs are in relative units, not dollars: a fresh input token costs 1, a cache hit {READ}, a cache write{' '}
         {WRITE[LIFETIME]}, an output token {OUTPUT}. Token counts are this site’s own. Larkspur’s windows are kept small
-        to show the mechanism: a real model caches nothing shorter than its minimum, so windows this size may not be
-        cached at all.
+        to show the mechanism: a real model <a href="/caching/">caches</a> nothing shorter than its minimum, so windows
+        this size may not be cached at all.
       </p>
     </>
   );
