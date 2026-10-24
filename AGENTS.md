@@ -320,7 +320,7 @@ Look at the pages you changed (desktop and 390px wide), not just the tests. New 
 
 1. Plan it first (concept, level, story, chapter list, sources; see `CONTRIBUTING.md`).
 2. `pnpm new-module <id> "<Title>"` copies `templates/module/` (registry entry, intro, chapter route, recap, one chapter, e2e spec), appends the module to the end of `MODULES` (removing its planned line, if it has one) and refuses an id that exists. `templates/` sits outside `src/`, so Astro never builds it.
-3. Write it by `docs/writing-a-module.md`; `pnpm test` (the registry test) lists what is still missing.
+3. Write it by `docs/writing-a-module.md`; `pnpm test` (the registry test) lists what is still missing. A new module is picture-first from its first commit: the copy budgets, `act` for every instruction, `say` callouts on its scene's exported parts, `Cite` for sources, and the fact rules (framing that names whose figure and when; dated, re-checked sources) all apply. The copy-budget, callout-target and opening checks read the registry, so they hold a new module to these without any list to edit.
 4. Reuse `src/lib/iso/` for pictures and label pills; keep the Colorfigures credit. Then `pnpm og`.
 
 ## Commits

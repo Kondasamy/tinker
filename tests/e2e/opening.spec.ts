@@ -1,6 +1,7 @@
 // Picture-first chapters (U2): a short opening with the rest folded, chapter words defined where they are first used,
 // and the story so far folded to a count.
 import { test, expect, type Page } from '@playwright/test';
+import { MODULES } from '../../src/lib/modules';
 
 const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 const open = async (page: Page, path: string) => {
@@ -53,32 +54,11 @@ test('the story so far is folded to a count and stays open once opened', async (
 });
 
 // R1 success criterion: from the title down to step 1's control, at most 80 words, on every RAG chapter and on
-// chapter 1 of every other module
-for (const ch of [
-  'rag/01-history',
-  'rag/02-why-not-stuff-it',
-  'rag/03-what-is-rag',
-  'rag/04-layers',
-  'rag/05-accuracy',
-  'rag/06-types',
-  'rag/07-sandbox',
-  'tool-calling/01-answers-arent-actions',
-  'agents/01-workflow-or-agent',
-  'evals/01-it-worked-when-i-tried-it',
-  'guardrails/01-data-or-instructions',
-  'tokens/01-what-the-model-reads',
-  'transformers/01-one-token-at-a-time',
-  'context/01-whats-in-the-window',
-  'fine-tuning/01-three-ways',
-  'structured-outputs/01-asking-nicely',
-  'reasoning/01-answer-now-or-think-first',
-  'small-models/01-big-model-small-model',
-  'inference/01-prefill-and-decode',
-  'observability/01-what-it-did',
-  'sandboxing/01-where-it-runs',
-  'multimodal/01-a-picture-is-tokens',
-  'voice/01-larkspurs-phone-line',
-])
+// chapter 1 of every other live module, read off the registry so a new module is held to it from day one
+const OPENINGS = MODULES.filter(m => m.chapters.length > 0).flatMap(m =>
+  (m.id === 'rag' ? m.chapters : m.chapters.slice(0, 1)).map(c => `${m.id}/${c.id}`),
+);
+for (const ch of OPENINGS)
   test(`${ch}: the first screen has at most 80 words above the first control`, async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await open(page, `/${ch}/`);
