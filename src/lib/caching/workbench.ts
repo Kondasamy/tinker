@@ -2,7 +2,7 @@
 // each over its finite list (5 × 5 × 5 × 2 × 2 policies). Coalescing stays on from chapter 5 and stale-while-revalidate
 // off. The simulator runs the day; a policy passes when each kind's share of stale reads is within the team's limit
 // (data/caching/workbench.json), and scores its hit rate. The puzzle accepts every passing policy tied for the best hit
-// rate (WINNERS), not one hand-picked answer.
+// rate (WINNERS, pinned in the same file), not one hand-picked answer.
 import data from '../../../data/caching/workbench.json' with { type: 'json' };
 import { KINDS, TTLS, runOf, type Kind, type Policy } from './sim';
 
@@ -28,9 +28,10 @@ export const POLICIES: Policy[] = TTLS.flatMap(price =>
     ),
   ),
 );
-const passing = POLICIES.filter(meets);
-export const BEST = Math.max(...passing.map(scoreOf));
-export const WINNERS = passing.filter(p => scoreOf(p) === BEST);
+/** The best hit rate among passing policies, and every policy that reaches it, pinned: solving all 500 at import cost
+ * the chapter about 0.4 s of main-thread work. tests/unit/caching-sim.test.ts keeps them equal to a fresh solve. */
+export const BEST: number = data.solved.best;
+export const WINNERS: Policy[] = data.solved.winners.map(w => ({ ...(w as Bench), ...FIXED }));
 export const wins = (p: Policy) => meets(p) && scoreOf(p) === BEST;
 
 /** What the bench's controls set. */

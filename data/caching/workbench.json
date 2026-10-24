@@ -5,5 +5,12 @@
     "price": "A customer must never be charged a price the shop no longer shows.",
     "photo": "A product page must never show the old photo once a new one is up.",
     "stock": "A stock count may lag a little; the checkout checks again before taking an order."
+  },
+  "solved": {
+    "best": 0.7123287671232876,
+    "winners": [
+      { "ttl": { "price": 48, "photo": 48, "stock": 1 }, "purge": true, "versioned": false },
+      { "ttl": { "price": 48, "photo": 48, "stock": 1 }, "purge": true, "versioned": true }
+    ]
   }
 }

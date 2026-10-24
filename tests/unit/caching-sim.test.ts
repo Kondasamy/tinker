@@ -13,7 +13,7 @@ import {
   tripsAt,
   type Policy,
 } from '../../src/lib/caching/sim';
-import { LIMITS, POLICIES, WINNERS, meets, scoreOf } from '../../src/lib/caching/workbench';
+import { BEST, LIMITS, POLICIES, WINNERS, meets, scoreOf } from '../../src/lib/caching/workbench';
 
 const DAY = TTLS.at(-1)!;
 const long = (p: Partial<Policy> = {}) => policyOf({ ttl: { price: DAY, photo: DAY, stock: DAY }, ...p });
@@ -111,6 +111,13 @@ describe('the workbench', () => {
       const r = simulate(w);
       for (const k of KINDS) expect(r.staleBy[k] / r.readsBy[k]).toBeLessThanOrEqual(LIMITS[k]);
     }
+  });
+
+  it('the pinned BEST and WINNERS, which the chapter reads so it never runs every policy in the browser, equal a fresh solve', () => {
+    const passing = POLICIES.filter(meets);
+    const best = Math.max(...passing.map(scoreOf));
+    expect(BEST).toBe(best);
+    expect(WINNERS).toEqual(passing.filter(p => scoreOf(p) === best));
   });
 
   it('caching everything for a day with no purge breaks a limit', () => {
