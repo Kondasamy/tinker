@@ -180,7 +180,7 @@ export const forgeScene = (o: ForgeOpts) => (ctx: SceneCtx) => {
   }));
   parts.push(furnace(st.burning), model(st.grown), shelf(st.slots));
   s += byDepth(parts);
-  const crateAt = [CRATES_X, ys[0], BH + 17],
+  const crateAt = [CRATES_X, ys.at(-1)!, BH + 17],
     furnaceAt = [FURNACE[0], FURNACE[1], BH + FH + 12],
     modelAt = [MODEL[0], MODEL[1], BH + MH0 + MH * st.grown],
     w = (SHELF_X1 - SHELF_X0) / st.slots.length,

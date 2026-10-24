@@ -16,6 +16,7 @@ import { MULTIMODAL_MODULE } from '../content/multimodal/module';
 import { OBSERVABILITY_MODULE } from '../content/observability/module';
 import { SANDBOXING_MODULE } from '../content/sandboxing/module';
 import { VOICE_MODULE } from '../content/voice/module';
+import { PRE_TRAINING_MODULE } from '../content/pre-training/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -87,12 +88,7 @@ export const MODULES: Module[] = [
   SANDBOXING_MODULE,
   MULTIMODAL_MODULE,
   VOICE_MODULE,
-  planned(
-    'pre-training',
-    'Pre-training',
-    'Intermediate',
-    'Watch Larkspur mini learn from nothing: the same prompt at every checkpoint, the data that shaped it, and a leaked test.',
-  ),
+  PRE_TRAINING_MODULE,
   planned(
     'post-training',
     'Post-training',

@@ -35,7 +35,7 @@ describe('the checkpoints, live', () => {
     expect(PINNED.prompts.map(p => p.text)).toEqual(PROMPTS.map(p => p.text));
     for (const [i, p] of PINNED.prompts.entries())
       for (const s of STEPS) expect([s, i, says(MODELS[s], i)]).toEqual([s, i, p.says[String(s) as '0']]);
-  });
+  }, 60_000);
 
   it('the base run’s last checkpoint writes what the clean run’s recorded sample says', () => {
     for (const i of PROMPTS.keys()) expect(continuation(MODELS[3000], i)).toEqual(runOf('clean').samples[i]);

@@ -8,6 +8,7 @@ import { fetchLoader, type Loader } from '../../lib/rag/load';
 import { modelLoader } from '../../lib/lm/load';
 import type { Model } from '../../lib/lm/model';
 import type { Candidate } from '../../lib/transformers/trace';
+import { pieceBytes, pieceText } from '../../lib/lm/bpe';
 import { CKPT, PROMPTS, runOf, weightsAt, type CkptWeights, type RunId } from '../../lib/pre-training/engine';
 import { FIT_IDS, FITS, grow } from '../../lib/pre-training/scaling';
 import { fact } from '../../lib/pre-training/facts';
@@ -178,7 +179,7 @@ export function ScalingView({ budget }: { budget: number }) {
 
 /** What a chapter puts on the stage: the foundry's settings, a chart, and the caption. */
 export interface Shown {
-  scene: Omit<ForgeOpts, 'scale' | 'say' | 'steps'>;
+  scene: Omit<ForgeOpts, 'scale' | 'say' | 'steps'> & { steps?: number[] };
   chart?: { series: Series[] } | { budget: number };
   caption: string;
 }
@@ -236,13 +237,16 @@ export function PreTrainingStage({
         {!s ? (
           <Waiting step={step!} failed={status === 'error'} retry={retry} />
         ) : view === 'chart' && c ? (
-          <div className="ft-scroll">
-            {'series' in c ? (
+          'series' in c ? (
+            <div className="ft-scroll">
               <LossChart key={c.series[0].points.length} series={c.series} />
-            ) : (
+            </div>
+          ) : (
+            // the scaling view has no focusable part, so the scroll box itself takes focus for keyboard scrolling
+            <div className="ft-scroll" tabIndex={0} role="region" aria-label="Scaling fits">
               <ScalingView budget={c.budget} />
-            )}
-          </div>
+            </div>
+          )
         ) : (
           <IsoStage className="forge" board={FORGE_BOARD} style={FILL} scene={forgeScene(o)} label={forgeLabel(o)} />
         )}
@@ -274,6 +278,16 @@ export const Says = ({ who, prompt, text, live }: { who: string; prompt: number;
   </div>
 );
 
+/** A piece as the Tokens module shows it: spaces and line breaks made visible, and a piece that is only part of a
+ * character, or a control byte, named by its bytes. */
+export function pieceLabel(id: number) {
+  const t = pieceText(id);
+  const control = (ch: string) => ch.charCodeAt(0) === 127 || (ch.charCodeAt(0) < 32 && ch !== '\n');
+  if (t === null || [...t].some(control))
+    return [...pieceBytes(id)].map(b => `0x${b.toString(16).padStart(2, '0')}`).join(' ');
+  return t.replace(/ /g, '␣').replace(/\n/g, '↵');
+}
+
 /** A model's five likeliest next pieces, each with a bar for its probability (scaled to the likeliest). */
 export function Top5({ cands, caption }: { cands: Candidate[]; caption: string }) {
   const max = Math.max(...cands.map(c => c.p));
@@ -283,7 +297,7 @@ export function Top5({ cands, caption }: { cands: Candidate[]; caption: string }
       <ul className="pt-top">
         {cands.map(c => (
           <li key={c.id}>
-            <code>{JSON.stringify(c.text).slice(1, -1)}</code>
+            <code>{pieceLabel(c.id)}</code>
             <span className="fill" style={{ width: `${(c.p / max) * 100}%` }} aria-hidden="true" />
             <span className="p">{(c.p * 100).toFixed(1)}%</span>
           </li>
