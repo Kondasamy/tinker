@@ -13,8 +13,10 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { ModelGate } from '../fine-tuning/kit';
+import { ROUTER_PARTS } from '../../components/scenes/routerScene';
 import { Fact, META, SmallStage, STUDENT_SERIES, modelNow, type View } from './kit';
 
+export const PARTS = ROUTER_PARTS;
 const MODULE = 'small-models',
   ID = '02-learning-from-a-teacher';
 const RUN = META.student!,
@@ -43,7 +45,7 @@ export const P1 = {
 /** read off the recorded held-out losses */
 export const gapOutcome = (gap: number) => (gap < 0 ? 0 : gap < 1 ? 1 : 2);
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A team distils a large email classifier into a small one. Why train on the large model’s odds (“spam 70%, promo 25%, personal 5%”) instead of only the label “spam”?',
   options: [
@@ -56,7 +58,7 @@ const QUIZ = {
   explanation:
     'Soft targets carry the teacher’s sense of what is nearly right, so each example teaches the student more.',
   why: [
-    'Right. “promo is close, personal isn’t” is in the odds and not in the label.',
+    'Right: “promo is close, personal isn’t” is in the odds and not in the label.',
     'The teacher can be wrong; that is why a little weight usually stays on the true label.',
     'A full set of odds is more to store than one label; it is used because it teaches more.',
     'The student still reads examples; the teacher gives odds on them.',
@@ -68,7 +70,10 @@ export const STEPS: Step<S>[] = [
     id: 'lesson',
     focus: 'lesson',
     visibleControls: ['lesson'],
-    narration: `Training a model from text alone teaches one right next piece at a time. Distillation teaches the teacher’s whole set of odds instead, softened at temperature ${T.temperature} so the near-misses count, with a small weight (${T.hard}) left on the right piece. Open one lesson.`,
+    narration:
+      'Text alone teaches one right piece at a time. Distillation teaches the teacher’s whole set of odds instead.',
+    act: 'Open one lesson.',
+    say: { block: 'small', text: 'Learns the odds' },
     predicate: s => s.lesson && !!modelNow('base'),
     hint: 'Press “Show the teacher’s lesson”.',
   },
@@ -76,15 +81,17 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['targets', 'p1'],
-    narration:
-      'The right answer says only one thing. The teacher’s odds also say which other pieces were nearly right: that is the extra the student learns from. Before you look at the training run:',
+    narration: `Raised to temperature ${T.temperature}, near-misses count more. These soft targets show which other pieces were nearly right: extra the right answer lacks.`,
+    act: 'Predict first.',
+    say: { block: 'big', text: 'Soft targets' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'curve',
     focus: 'curve',
     visibleControls: ['p1', 'curve'],
-    narration: 'The run was trained once, ahead of time, and recorded. Open it.',
+    narration: `Teacher and student ran once, ahead of time: the student learnt the odds, plus a small weight (${T.hard}) on the right piece.`,
+    act: 'Open the run.',
     predicate: s => s.curve,
   },
   {
@@ -92,7 +99,8 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['scores', 'facts', 'quiz'],
     narration:
-      'Both losses fall fast, then flatten. The training loss drops below the held-out one: the student fits the text it reads better than new text. On held-out text it ends a little behind its teacher, not far: these are Larkspur mini’s numbers, recorded when the student was trained. One question to finish.',
+      'Loss falls fast, then flattens. On held-out text the student ends a little behind its teacher, not far.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What do the odds tell the student that one right answer doesn’t?',
   },
@@ -106,8 +114,9 @@ export default function LearningFromATeacher() {
       steps={STEPS}
       initial={{ lesson: false, p1: null, curve: false, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => (
+      stage={({ state, sync, say }) => (
         <SmallStage
+          say={say}
           view={state.view}
           onView={view => sync({ ...state, view })}
           show={() => ({

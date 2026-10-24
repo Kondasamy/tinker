@@ -219,7 +219,7 @@ export const RECALL: RecallItem[] = [
     id: 'relative-cost',
     chapter: '04-send-it-the-easy-ones',
     question:
-      'A small model costs a fifth of a large one per token. A team sends 100 questions to the small one instead of the large one. What does that cost, in large answers?',
+      'Say a small model costs a fifth of a large one per token. A team sends 100 questions to the small one instead of the large one. What does that cost, in large answers?',
     options: ['About 20', 'About 100', 'About 500', 'Nothing'],
     correct: 0,
     why: [

@@ -14,15 +14,16 @@ import {
   QUESTION_IDS,
   questionText,
   run,
-  SURE_AND_WRONG,
   THRESHOLDS,
 } from '../../lib/small-models/router';
 import { units } from '../../components/scenes/frontierChart';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
+import { ROUTER_PARTS } from '../../components/scenes/routerScene';
 import { SmallStage, type View } from './kit';
 
+export const PARTS = ROUTER_PARTS;
 const MODULE = 'small-models',
   ID = '06-gate-the-switch';
 const POINTS = frontier(),
@@ -60,7 +61,7 @@ export const shipOutcome = () =>
       ? 2
       : 1;
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A cheaper setup passes 91% of the test set against a 90% bar, but one question the current version answers right now fails. The gate checks for regressions. What does it say?',
   options: [
@@ -72,7 +73,7 @@ const QUIZ = {
   correct: 0,
   explanation: 'The pass rate can hide a lost answer; the no-regressions rule finds it, question by question.',
   why: [
-    'Right. That is exactly the case the rule is for: a confident wrong answer that the bar alone would let through.',
+    'Right: this is the case the rule is for, a confident wrong answer the bar alone would let through.',
     'The bar is one of two rules; the regression rule fails it.',
     'The rule exists because one lost answer can be the one that matters.',
     'The gate compares answers to the same questions, whatever wrote them.',
@@ -84,21 +85,25 @@ export const STEPS: Step<S>[] = [
     id: 'baseline',
     focus: 'baseline',
     visibleControls: ['baseline'],
-    narration: `Larkspur ships the all-large assistant today, so it is the baseline. Evals’ release gate has two rules: ${rules}. Run the baseline through it first.`,
+    narration: 'All-large ships today, so it is the baseline. The release gate checks the pass rate and regressions.',
+    act: 'Run the baseline through it.',
+    say: { block: 'big', text: 'The baseline' },
     predicate: s => s.base,
   },
   {
     id: 'predict',
     focus: 'p1',
     visibleControls: ['decision', 'p1'],
-    narration: `All-large passes, at a cost of ${units(LARGE.cost)}. Now the router has to pass the same gate. Before you try it:`,
+    narration: `All-large passes, at a cost of ${units(LARGE.cost)}. Now the router has to pass the same gate.`,
+    act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'gate',
     focus: 'gate',
     visibleControls: ['p1', 'gate'],
-    narration: 'The router starts at a threshold the gate turns down. Find the cheapest threshold that ships.',
+    narration: 'The router starts at a threshold the gate turns down.',
+    act: 'Find the cheapest threshold that ships.',
     predicate: s => BEST !== null && thresholdAt(s.t) === BEST,
     setup: s => ({ ...s, t: START }),
     solution: s => ({ ...s, t: BEST_I }),
@@ -108,7 +113,9 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['gate', 'why', 'quiz'],
-    narration: `It ships at ${units(run({ threshold: BEST ?? 1 }).cost)} against all-large’s ${units(LARGE.cost)}, with every answer all-large gets right still right. Below it, the gate catches “${questionText(SURE_AND_WRONG)}”: wrong, and sure enough to stay small. Above it, the router ships too, but pays for answers it didn’t need to send up. One question to finish.`,
+    narration: `It ships at ${units(run({ threshold: BEST ?? 1 }).cost)} against all-large’s ${units(LARGE.cost)}, every right answer kept. Below it, the sure, wrong answer stays small and regresses.`,
+    act: 'One question to finish.',
+    say: { block: 'router', text: 'Cheapest ship' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which rule looks at each question, not the total?',
   },
@@ -142,11 +149,12 @@ export default function GateTheSwitch() {
       steps={STEPS}
       initial={{ base: false, p1: null, t: START, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => {
+      stage={({ state, sync, say }) => {
         const t = state.p1 === null ? null : thresholdAt(state.t),
           d = t === null ? null : gate({ threshold: t });
         return (
           <SmallStage
+            say={say}
             view={state.view}
             onView={view => sync({ ...state, view })}
             show={() => ({

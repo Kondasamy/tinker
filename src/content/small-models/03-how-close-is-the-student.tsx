@@ -11,8 +11,10 @@ import { num } from '../../lib/format';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
+import { ROUTER_PARTS } from '../../components/scenes/routerScene';
 import { BothGate, SmallStage, bothNow, loadBoth } from './kit';
 
+export const PARTS = ROUTER_PARTS;
 const MODULE = 'small-models',
   ID = '03-how-close-is-the-student';
 const pct = (x: number) => `${Math.round(x * 100)}%`;
@@ -34,7 +36,7 @@ export const P1 = {
 };
 export const agreeOutcome = (a: number) => (a > 0.9 ? 0 : a >= 0.3 ? 1 : 2);
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A distilled legal-search model agrees with its teacher’s top pick 95% of the time on held-out text. Can it replace the teacher?',
   options: [
@@ -47,7 +49,7 @@ const QUIZ = {
   explanation:
     'Agreement and KL measure closeness to the teacher. Whether the answers are right is a question for the eval, which the next chapters run.',
   why: [
-    'Right. Closeness to the teacher is a good sign, but the teacher can be wrong, and one changed piece can change an answer.',
+    'Right: closeness to the teacher is a good sign, but the teacher can be wrong, and one changed piece can change an answer.',
     'Agreement is per piece of text and against the teacher, not per answer against the truth.',
     'A smaller model never matches exactly; what matters is whether the differences change the answers.',
     'It trained on that text, so agreement there flatters it.',
@@ -60,14 +62,17 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['heldout', 'p1'],
     narration:
-      'The student copied the teacher’s odds on the training text. The fair test is text neither model trained on: held-out text. At every place in it, both models pick their most likely next piece. Before you run them:',
+      'The fair test is held-out text, which neither model trained on. At every place in it, both pick their likeliest next piece.',
+    act: 'Predict first.',
+    say: { block: 'big', text: 'Neither read it' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'measure',
     focus: 'measure',
     visibleControls: ['p1', 'measure'],
-    narration: 'Run both models over the held-out documents, in your browser. It takes a moment.',
+    narration: 'It runs in your browser and takes a moment.',
+    act: 'Run both over the held-out documents.',
     predicate: s => s.measured && !!bothNow(),
     hint: 'Press “Compare them on held-out text”.',
   },
@@ -76,7 +81,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['results', 'quiz'],
     narration:
-      'Agreement counts how often the top picks match. KL divergence looks at the whole set of odds: even where the top pick matches, the student spreads its bets differently, and KL adds that up (0 would mean the same odds everywhere). These are Larkspur mini’s numbers, not any provider’s. Neither number says whether an answer is right. One question to finish.',
+      'Agreement counts matching top picks; KL divergence, how differently the odds spread. Neither says if an answer is right.',
+    act: 'One question to finish.',
+    say: { block: 'small', text: 'Close, not right' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What is agreement measured against: the teacher, or the truth?',
   },
@@ -136,8 +143,9 @@ export default function HowCloseIsTheStudent() {
       steps={STEPS}
       initial={{ p1: null, measured: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => (
+      stage={({ state, say }) => (
         <SmallStage
+          say={say}
           models
           show={() => {
             const m = bothNow(),
@@ -145,7 +153,7 @@ export default function HowCloseIsTheStudent() {
             return {
               scene: { mode: 'distill', lit: c ? 'both' : null, lessons: false },
               caption: c
-                ? `Over the held-out text the student picks what the teacher picks ${pct(c.agreement)} of the time; KL ${c.kl.toFixed(2)} per place.`
+                ? `Over the held-out text the student picks what the teacher picks ${pct(c.agreement)} of the time; KL ${c.kl.toFixed(2)} per place. Larkspur mini’s numbers, not a provider’s.`
                 : 'Teacher and student, ready to read the held-out documents.',
             };
           }}

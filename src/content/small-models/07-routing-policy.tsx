@@ -23,8 +23,10 @@ import {
 import { units } from '../../components/scenes/frontierChart';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
+import { ROUTER_PARTS } from '../../components/scenes/routerScene';
 import { SmallStage, type View } from './kit';
 
+export const PARTS = ROUTER_PARTS;
 const MODULE = 'small-models',
   ID = '07-routing-policy';
 const NAME: Record<Choice, string> = { small: 'Small tier', router: 'Router', large: 'Large tier' };
@@ -46,7 +48,7 @@ export interface S extends Plan {
   quiz: number | null;
 }
 
-const QUIZ = {
+export const QUIZ = {
   question: 'A bank sorts its questions into balance lookups, fee disputes and fraud reports. Which policy fits?',
   options: [
     'Lookups to the small model, disputes through the router, fraud straight to the large model',
@@ -58,7 +60,7 @@ const QUIZ = {
   explanation:
     'Each kind gets the cheapest setup that keeps its answers right: small where it is always right, the router where it is sometimes unsure, large where it would go up anyway.',
   why: [
-    'Right. Lookups never need the large model; disputes sometimes do; fraud reports would go up every time, so the small try only adds cost.',
+    'Right: lookups never need the large model; disputes sometimes do; fraud reports would go up every time, so the small try only adds cost.',
     'It works, but lookups pay for nothing and the hard kind pays twice.',
     'The hardest, costliest-to-get-wrong kind needs the strongest model.',
     'Safe, but it pays large prices for lookups the small model gets right.',
@@ -70,7 +72,9 @@ export const STEPS: Step<S>[] = [
     id: 'plan',
     focus: 'plan',
     visibleControls: ['plan', 'score'],
-    narration: `Chapter 6’s router ships with one threshold for every question. The support lead sorts the questions into kinds and wants a policy per kind. The bench scores a policy: ${POINTS} points per right answer, minus the cost in large answers. ${POINTS_WHY} The answers are recorded; the grading runs live. Find a policy with the best score.`,
+    narration: `A routing policy picks a tier per kind; its policy score: ${POINTS} points per right answer, minus cost in large answers.`,
+    act: 'Find the best score.',
+    say: { block: 'router', text: 'Pick per kind' },
     predicate: s => solved(planOf(s)),
     hint: 'Look at each kind on its own: where is the small tier always right, and where does every small answer go up anyway?',
     solution: s => ({ ...s, ...WINNERS[0] }),
@@ -79,7 +83,9 @@ export const STEPS: Step<S>[] = [
     id: 'ties',
     focus: 'quiz',
     visibleControls: ['plan', 'score', 'quiz'],
-    narration: `${pts(BEST)} points: the best any policy scores. ${WINNERS.length > 1 ? `Yours is one of ${WINNERS.length} that work.` : 'Only this policy reaches it.'} Lookups go small: it gets every one right. The router earns its keep only where the small tier is right some of the time. Where it is unsure every time, the small try is wasted, so those go straight to large. Change the policy if you like; the bench is yours. One question to finish.`,
+    narration: `${pts(BEST)} points, the best${WINNERS.length > 1 ? ` (one of ${WINNERS.length} winners)` : ''}. Lookups go small, always-unsure kinds go large, the router takes the rest.`,
+    act: 'One question to finish.',
+    say: { block: 'small', text: 'Lookups go here' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Where would every small answer go up anyway?',
   },
@@ -105,6 +111,7 @@ function Score({ s }: { s: S }) {
       <p className="tc-status">
         {t.right} of {t.of} right · cost {units(t.cost)}
       </p>
+      <p className="note">{POINTS_WHY}</p>
       <table className="tc-ledger sm-rows">
         <caption>Each question under your policy</caption>
         <thead>
@@ -146,12 +153,13 @@ export default function RoutingPolicy() {
       steps={STEPS}
       initial={{ ...START, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => {
+      stage={({ state, sync, say }) => {
         const p = planOf(state),
           t = totals(p),
           uses = (c: Choice) => KINDS.some(k => p[k.id] === c);
         return (
           <SmallStage
+            say={say}
             view={state.view}
             onView={view => sync({ ...state, view })}
             show={() => ({
