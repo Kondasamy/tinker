@@ -1,7 +1,9 @@
-import { useEffect, useReducer, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
+import { useEffect, useReducer, useRef, useState, type ReactNode } from 'react';
 import { reduce, startRun, isRun, type Step, type Run, type Action } from './steps';
 import { loadChapter, saveChapter, markDone } from '../../lib/progress';
-import { moduleOf } from '../../lib/modules';
+import { moduleOf, type Chapter } from '../../lib/modules';
+import ChapterClip from './ChapterClip';
+import { setReading, useWords, type Reading } from './reading';
 import Drawer from './Drawer';
 
 /** What a step control gets. `apply` hands the next state to the runner, which checks the step's predicate;
@@ -41,18 +43,6 @@ interface Props<S> {
   /** false hides "Show me" (e.g. while data a step's predicate or solution reads is still loading) */
   ready?: boolean;
 }
-
-// The reader's Pictures / Words choice (data-reading on <html>, the module intros' key). With none set, nothing folds.
-const onReading = (f: () => void) => {
-  window.addEventListener('tinker-reading', f);
-  return () => window.removeEventListener('tinker-reading', f);
-};
-const useWords = () =>
-  useSyncExternalStore(
-    onReading,
-    () => document.documentElement.dataset.reading !== 'visual',
-    () => true,
-  );
 
 export default function StepRunner<S>({
   module = 'rag',
@@ -150,46 +140,13 @@ export default function StepRunner<S>({
       </section>
       <div className="side">
         {ch && (
-          <header className="intro">
-            <p className="eyebrow">
-              Chapter {n + 1} of {chapters.length}
-            </p>
-            <h1>{ch.title}</h1>
-            <p className="story">{ch.intro.story}</p>
-            <p className="goal">
-              <strong>This chapter:</strong> {ch.intro.goal}
-            </p>
-            <div className="learn">
-              <p className="lbl">You will learn</p>
-              <ul>
-                {ch.intro.learn.map(l => (
-                  <li key={l}>{l}</li>
-                ))}
-              </ul>
-            </div>
-            {ch.intro.terms.length > 0 && (
-              <details className="terms">
-                <summary>Words you’ll meet ({ch.intro.terms.length})</summary>
-                <dl>
-                  {ch.intro.terms.map(([t, d]) => (
-                    <div key={t}>
-                      <dt>{t}</dt>
-                      <dd>{d}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </details>
-            )}
-            <p className="how">
-              The picture on the left is live. Each step below asks you to do one thing in it; the story continues here
-              as you go.
-            </p>
+          <ChapterIntro module={module} ch={ch} n={n} total={chapters.length}>
             {(run.index > 0 || run.done) && (
               <button type="button" className="chip resume" onClick={toCard}>
                 {run.done ? 'You finished this chapter: see the end ↓' : `Continue at step ${run.index + 1} ↓`}
               </button>
             )}
-          </header>
+          </ChapterIntro>
         )}
         {past.length > 0 && (
           <ol className="log" aria-label="Story so far">
@@ -267,6 +224,87 @@ export default function StepRunner<S>({
           </Drawer>
         )}
       </div>
+    </div>
+  );
+}
+
+/** The story column's opening context (never drop a reader straight into a step). A chapter with an opener clip reads
+ * Pictures-first: it shows the clip, the title and the question, and its longer text (.more) folds until the reader
+ * picks Words. */
+export function ChapterIntro({
+  module,
+  ch,
+  n,
+  total,
+  children,
+}: {
+  module: string;
+  ch: Chapter;
+  n: number;
+  total: number;
+  children?: ReactNode;
+}) {
+  const clip = ch.intro.clip;
+  return (
+    <header className="intro">
+      <p className="eyebrow">
+        Chapter {n + 1} of {total}
+      </p>
+      <h1>{ch.title}</h1>
+      {clip && <ReadingSwitch />}
+      {clip && <ChapterClip module={module} chapter={ch.id} lines={clip} />}
+      <p className={clip ? 'story more' : 'story'}>{ch.intro.story}</p>
+      <p className="goal">
+        <strong>This chapter:</strong> {ch.intro.goal}
+      </p>
+      <div className={clip ? 'learn more' : 'learn'}>
+        <p className="lbl">You will learn</p>
+        <ul>
+          {ch.intro.learn.map(l => (
+            <li key={l}>{l}</li>
+          ))}
+        </ul>
+      </div>
+      {ch.intro.terms.length > 0 && (
+        <details className={clip ? 'terms more' : 'terms'}>
+          <summary>Words you’ll meet ({ch.intro.terms.length})</summary>
+          <dl>
+            {ch.intro.terms.map(([t, d]) => (
+              <div key={t}>
+                <dt>{t}</dt>
+                <dd>{d}</dd>
+              </div>
+            ))}
+          </dl>
+        </details>
+      )}
+      <p className={clip ? 'how more' : 'how'}>
+        The picture on the left is live. Each step below asks you to do one thing in it; the story continues here as you
+        go.
+      </p>
+      {children}
+    </header>
+  );
+}
+
+function ReadingSwitch() {
+  const words = useWords();
+  const button = (m: Reading, label: string) => (
+    <button
+      type="button"
+      className="chip"
+      data-mode={m}
+      aria-pressed={words === (m === 'words')}
+      onClick={() => setReading(m)}
+    >
+      {label}
+    </button>
+  );
+  return (
+    <div className="reading" role="group" aria-label="Read this chapter as">
+      <span className="lbl">Read as</span>
+      {button('visual', 'Pictures')}
+      {button('words', 'Words')}
     </div>
   );
 }

@@ -13,10 +13,22 @@ interface Props {
 }
 const { module = 'rag', chapter, title } = Astro.props;
 const m = moduleOf(module);
+// a chapter with an opener clip reads Pictures-first (StepRunner's ChapterIntro); set the mode before paint so the
+// longer intro text doesn't flash open and fold
+const clip = !!m.chapters.find(c => c.id === chapter)?.intro.clip;
 ---
 <html lang="en">
   <head>
     <Meta {...chapterMeta(m.id, chapter)} title={`${title} · ${m.title} · Tinker`} />
+    {clip && (
+      <script is:inline>
+        (() => {
+          let mode = 'visual';
+          try { mode = localStorage.getItem('tinker-reading') || mode; } catch {}
+          document.documentElement.dataset.reading = mode;
+        })();
+      </script>
+    )}
   </head>
   <body>
     <header class="top">
@@ -127,6 +139,10 @@ const m = moduleOf(module);
   .intro dd { margin: 0; color: var(--ink); }
   .intro .how { font-size: 13px; color: var(--muted); }
   .intro .resume { align-self: flex-start; }
+  .intro .reading { margin-top: 0; }
+  .chapter-clip { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  .chapter-clip :where(video, img) { width: 100%; height: auto; aspect-ratio: 16 / 9; border: 1.5px solid var(--ink); border-radius: 10px; background: var(--card); display: block; }
+  .clip-lines { margin: 0; padding-left: 18px; font-size: 13px; color: var(--muted); display: flex; flex-direction: column; gap: 2px; }
   /* steps already done stay as the story so far, quieter than the current step */
   .log { margin: 0; padding: 12px 0 0; list-style: none; display: flex; flex-direction: column; gap: 10px; border-top: 1.5px dashed var(--rule); font-size: 13.5px; line-height: 1.5; color: var(--muted); }
   .log li { padding-left: 22px; position: relative; }

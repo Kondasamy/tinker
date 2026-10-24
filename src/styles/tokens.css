@@ -63,3 +63,42 @@ a {
     scroll-behavior: auto !important;
   }
 }
+
+/* Pictures / Words reading (module intros: ReadingMode.astro; chapters with a clip: StepRunner). Pictures folds away the longer text, marked .more */
+:root[data-reading="visual"] .more {
+  display: none;
+}
+.reading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 18px;
+}
+.reading .lbl {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-right: 4px;
+}
+.reading button {
+  font:
+    700 13px ui-monospace,
+    Menlo,
+    monospace;
+  padding: 5px 12px;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
+  cursor: pointer;
+}
+.reading button[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--paper);
+}
+.reading button:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}

@@ -36,6 +36,8 @@ export interface Chapter {
     goal: string;
     learn: string[];
     terms: [term: string, meaning: string][];
+    /** the opener clip's on-screen lines (public/video/<module>/<chapter>.*); a chapter with one reads Pictures-first */
+    clip?: string[];
   };
 }
 
