@@ -7,13 +7,16 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { agentLanes, agentMessages } from '../../components/scenes/agentSequence';
-import { CONTEXT, DEFAULTS, answerOf, run, stepsOf } from '../../lib/agents/loop';
+import { CONTEXT, DEFAULTS, run, stepsOf } from '../../lib/agents/loop';
 import { RECORDINGS } from '../../lib/agents/turns';
-import { fact } from '../../lib/agents/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
 import { AgentStage, Fact } from './kit';
+import { AGENT_PARTS } from '../../components/scenes/agentScene';
+
+/** the parts a step's callout may name: the back office with the agent's props */
+export const PARTS = AGENT_PARTS;
 
 const MODULE = 'agents',
   ID = '02-the-loop';
@@ -29,8 +32,7 @@ const STARTS = R.steps.flatMap((s, i) =>
   'turn' in s && R.steps.findIndex(x => 'turn' in x && x.turn === s.turn) === i ? [i] : [],
 );
 const upTo = (t: number) => (t === 0 ? 0 : (STARTS[t] ?? R.steps.length));
-/** what the model said on turn t (1-based), and the calls it asked for */
-const said = (t: number) => (R.steps.find(s => 'turn' in s && s.turn === t - 1) as { text: string }).text;
+/** the calls the model asked for on turn t (1-based) */
 const asked = (t: number) =>
   stepsOf(R, 'proposal')
     .filter(p => p.turn === t - 1)
@@ -69,7 +71,7 @@ const P2 = {
 const answered = stepsOf(R, 'answer').length > 0 && R.status === 'done';
 const OUT2 = answered ? 1 : R.status === 'out-of-budget' ? 2 : 0;
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A Larkspur agent books a warehouse visit. It has four tools. After its second call it writes “The visit is booked for Tuesday” and asks for no tool. What happens?',
   options: [
@@ -81,10 +83,10 @@ const QUIZ = {
   correct: 2,
   explanation: 'The model decides when the case is done. The host’s budget is only a backstop.',
   why: [
-    `The host never waits for tools to run out. In the printer case ${UNUSED.join(' and ')} never ran, and the run still ended.`,
-    `The printer case had a budget of ${BUDGET} turns and ended after ${TURNS}. A budget is a backstop for a run that never ends, not how a normal run stops. ${fact('stopping-conditions').claim}`,
-    'Right. Each turn the model either asks for calls or answers. An answer with no call is how it says “done”, and the loop ends.',
-    'A tool result is just more for the model to read. The model decides what it means and whether the case is finished.',
+    `The host never waits for tools to run out: in the printer case ${UNUSED.join(' and ')} never ran, and the run still ended.`,
+    `A budget is a backstop for a run that never ends: the printer case ended after ${TURNS} of its ${BUDGET} turns.`,
+    'Right: each turn the model either asks for calls or answers, and an answer with no call is how it says “done”.',
+    'A tool result is just more for the model to read; the model decides whether the case is finished.',
   ],
 };
 
@@ -94,14 +96,17 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['p1'],
     opensDrawer: 'loop',
-    narration: `In chapter 1 the agent fixed the cracked printer. Now look at how. An agent runs in a loop. Each turn the model reads everything so far and asks for a tool call (think, act). The host runs the call and hands the result back (observe). Then the model decides again. ${fact('react-loop').claim} Before you step through it:`,
+    narration: 'An agent runs a loop: each turn the model asks for a call, the host runs it, and the result goes back.',
+    act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'turn-1',
     focus: 'play',
     visibleControls: ['p1', 'play'],
-    narration: 'Start the run. The picture stops after each turn, and the gauge on the host’s desk counts the turns.',
+    narration: 'The picture stops after each turn, and the gauge on the host’s desk counts them.',
+    act: 'Start the run.',
+    say: { block: 'gauge', text: 'Counts turns' },
     predicate: s => s.t >= 1,
     hint: 'Press “Start the run”.',
   },
@@ -110,7 +115,9 @@ export const STEPS: Step<S>[] = [
     focus: 'play',
     visibleControls: ['play'],
     opensDrawer: null,
-    narration: `Turn 1. The model thought: “${said(1)}” It asked for ${asked(1)}, the host ran it, and the result went back. That is one turn. Now the model decides again, from what the result said.`,
+    narration: `Turn 1: the model asked for ${asked(1)}, the host ran it, and the result went back. Now the model decides again.`,
+    act: 'Next turn.',
+    say: { block: 'model', text: 'Decides again' },
     predicate: s => s.t >= 2,
     hint: 'Press “Next turn”.',
   },
@@ -118,7 +125,8 @@ export const STEPS: Step<S>[] = [
     id: 'decide',
     focus: 'play',
     visibleControls: ['play'],
-    narration: `Turn 2: “${said(2)}” Nobody told it to call ${asked(2)}; it chose to from the order. ${fact('ground-truth').claim} Keep stepping until the email goes.`,
+    narration: `Turn 2: nobody told it to call ${asked(2)}. It chose to, from what the order said.`,
+    act: 'Keep stepping until the email goes.',
     predicate: s => s.t >= LAST,
     hint: `Press “Next turn” until the turn that calls ${asked(LAST)}.`,
   },
@@ -126,14 +134,16 @@ export const STEPS: Step<S>[] = [
     id: 'predict-stop',
     focus: 'p2',
     visibleControls: ['p2'],
-    narration: `Turn ${LAST}: “${said(LAST)}” The replacement is on its way and the customer is told. The host still allows more turns. Before the next one:`,
+    narration: `Turn ${LAST}: the replacement is on its way and the customer is told. The host still allows more turns.`,
+    act: 'Predict first.',
     predicate: s => s.p2 !== null,
   },
   {
     id: 'last-turn',
     focus: 'play',
     visibleControls: ['p2', 'play'],
-    narration: 'Run the next turn.',
+    narration: 'Your pick is locked.',
+    act: 'Run the next turn.',
     predicate: s => s.t >= TURNS,
     hint: 'Press “Next turn”.',
   },
@@ -142,7 +152,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['out1', 'out2', 'quiz'],
     opensDrawer: 'loop',
-    narration: `Turn ${TURNS}: “${answerOf(R)}” No call this time. That answer is how the model says “done”, and the loop ends there. The host allowed ${BUDGET} turns and the case took ${TURNS}. ${UNUSED.length ? `${UNUSED.join(' and ')} never ran, so the host did not stop because the tools ran out. ` : ''}One question to finish.`,
+    narration: `Turn ${TURNS}. No call this time, so the model is done. The step budget of ${BUDGET} was only a backstop.`,
+    act: 'One question to finish.',
+    say: { block: 'model', text: 'Answered: done' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What does a turn with no tool call mean?',
   },
@@ -156,8 +168,8 @@ export default function TheLoop() {
       steps={STEPS}
       initial={{ t: 0, p1: null, p2: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, inspect }) => (
-        <AgentStage run={R} upTo={upTo(state.t)} props={{ gauge: GAUGE }} inspect={inspect} />
+      stage={({ state, inspect, say }) => (
+        <AgentStage run={R} upTo={upTo(state.t)} props={{ gauge: GAUGE }} inspect={inspect} say={say} />
       )}
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
@@ -205,6 +217,7 @@ export default function TheLoop() {
                 sends the results back.
               </p>
               <Fact id="react-loop" />
+              <Fact id="ground-truth" />
             </div>
           ),
         },

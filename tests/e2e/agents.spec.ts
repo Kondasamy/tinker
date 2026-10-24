@@ -246,7 +246,7 @@ test('chapter 4: with no detector the agent retries until the budget ends it; th
   await c.getByRole('button', { name: 'Run the case' }).click();
   await expect(caption).toContainText('Turn 12 of 12');
   await expect(gauge).toHaveAttribute('data-steps', '1.000');
-  await expect(c).toContainText('Stopped: out of steps');
+  await expect(c).toContainText('until the budget stopped it');
   await expect(c).toContainText('What happened: Keeps retrying until the step budget stops it');
   await c.getByRole('radio', { name: /^The same each turn/ }).click();
   await expect(c).toContainText('What happened: More each turn');
@@ -337,7 +337,7 @@ test('chapter 5: with full memory the stage reports the context passing the host
     caption = page.locator('.tc-caption'),
     gauge = page.locator('.stage [data-prop="gauge"]'),
     tray = page.locator('.stage [data-prop="tray"]');
-  await expect(c).toContainText('not the context window of any model');
+  await expect(c).toContainText('not any model’s context window');
   await c.getByRole('radio', { name: /^Yes, but the last turn/ }).click();
   await c.getByRole('button', { name: 'Run the case' }).click();
   await expect(c).toContainText('What happened: No: a turn passes the budget');
@@ -347,16 +347,14 @@ test('chapter 5: with full memory the stage reports the context passing the host
     .map(x => Number(x.replaceAll(',', '')));
   expect(needed).toBeGreaterThan(budget);
   await expect(gauge).toHaveAttribute('data-context', '1.000');
-  await expect(c).toContainText(
-    `Stopped: this turn needs ${needed} tokens of context, over the host's budget of ${budget}`,
-  );
+  await expect(c).toContainText(`The last turn needed ${needed.toLocaleString('en-US')} tokens, over budget`);
   await expect(tray).toHaveAttribute('data-binder', '0');
 });
 
 test('chapter 5: summary compacts, the step names the dropped note, and the email offers a call', async ({ page }) => {
   const c = await toMemoryPuzzle(page);
   await expect(c).toContainText('What happened: It offers to phone');
-  await expect(c).toContainText(NOTED.note!);
+  await expect(c).toContainText(`order ${NOTED.id}’s no-calls note`);
   await expect(c.locator('[data-email]')).toContainText(emailFor('summary'));
   await expect(c.locator('[data-email]')).toContainText('phone');
   await expect(c.getByRole('status').filter({ hasText: /FIXED|BROKEN/ })).toContainText('BROKEN');
@@ -379,7 +377,7 @@ test('chapter 5: pinned keeps the note through compaction, and the email keeps t
   await expect(c).toContainText('Step 6 of');
   await expect(c).toContainText(emailFor('pinned'));
   expect(emailFor('pinned')).not.toMatch(/phone/);
-  await expect(c).toContainText(NOTED.note!);
+  await expect(c).toContainText('sent the note every turn');
   const rows = c.locator('table tbody tr[data-mem]');
   await expect(rows).toHaveCount(3);
   await expect(rows.filter({ hasText: 'Full' }).locator('td').first()).toHaveText('Over budget');

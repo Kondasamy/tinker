@@ -330,7 +330,7 @@ export const RECALL: RecallItem[] = [
     why: [
       'The host could set any number, and Larkspur’s is a choice for its agent. The model’s context window is fixed by the model.',
       'Right. The host may keep each turn well under what the model could take, to keep costs down and leave room.',
-      'Both count tokens: small pieces of text, about ¾ of a word each.',
+      'Both count tokens: small pieces of text, a word or part of one.',
     ],
   },
   // 6. Sub-agents

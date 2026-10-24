@@ -10,18 +10,8 @@ import Predict from '../../components/quiz/Predict';
 import { puzzle, Verdict } from '../../components/quiz/Puzzle';
 import { Source } from '../../components/scenes/Source';
 import { agentLanes, agentMessages } from '../../components/scenes/agentSequence';
-import { agentState } from '../../components/scenes/agentScene';
-import {
-  CASE_ORDERS,
-  COMPACT_AT,
-  DEFAULTS,
-  DOMAINS,
-  combos,
-  run,
-  stepsOf,
-  totalTokens,
-  type Run,
-} from '../../lib/agents/loop';
+import { AGENT_PARTS, agentState } from '../../components/scenes/agentScene';
+import { CASE_ORDERS, COMPACT_AT, DEFAULTS, DOMAINS, combos, run, stepsOf, type Run } from '../../lib/agents/loop';
 import { RECORDINGS, type Mem } from '../../lib/agents/turns';
 import { fact } from '../../lib/agents/facts';
 import { BYTES_PER_TOKEN, TOKENS_SOURCE } from '../../lib/scale';
@@ -29,6 +19,9 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
 import { AgentStage, Chips, Fact } from './kit';
+
+/** the parts a step's callout may name: the back office with the agent's props */
+export const PARTS = AGENT_PARTS;
 
 const MODULE = 'agents',
   ID = '05-memory';
@@ -50,17 +43,13 @@ const mailTo = (r: Run) => r.mail.find(m => m.order_id === ORDER)!.body;
 const offersCall = (r: Run) => /phone/i.test(mailTo(r));
 const peak = (r: Run) => Math.max(...r.meter.map(m => m.input));
 const compactOf = (r: Run) => stepsOf(r, 'compact')[0];
-const COMPACT = compactOf(SUMMARY),
-  PIN = compactOf(PINNED).pins[0];
+const COMPACT = compactOf(SUMMARY);
 // the turns the model had taken when the host compacted
 const AFTER = new Set(
   stepsOf({ ...SUMMARY, steps: SUMMARY.steps.slice(0, SUMMARY.steps.indexOf(COMPACT)) }, 'proposal').map(p => p.turn),
 ).size;
-const PAPERS = agentState({ run: FULL }).tray.papers;
-// the turn full memory could not send: its context, rebuilt by the loop's rule, and the host's words; and the turn that emailed
-const NEED = agentState({ run: FULL, gauge: GAUGE }).context,
-  STOP = stepsOf(FULL, 'budget')[0]?.text ?? '';
-const EMAILED = stepsOf(FULL, 'proposal').find(p => p.call.name === 'send_email')!.turn + 1;
+// the turn full memory could not send: its context, rebuilt by the loop's rule
+const NEED = agentState({ run: FULL, gauge: GAUGE }).context;
 /** the biggest context a run needed: the turn that passed the budget, if one did */
 const biggest = (r: Run) => (r.status === 'out-of-budget' ? NEED : peak(r));
 
@@ -98,7 +87,7 @@ const P2 = {
 };
 const OUT2 = offersCall(SUMMARY) ? 1 : 0;
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'Larkspur’s purchasing agent reads a long supplier contract, page by page, and the host compacts the history as it goes. On page 2 the supplier wrote: “Prices are fixed until March.” What makes sure the agent still knows that when it drafts the order on page 40?',
   options: [
@@ -111,10 +100,10 @@ const QUIZ = {
   explanation:
     'Compaction keeps what the summary says and drops the rest. A line that has to survive must sit outside the summary: pinned.',
   why: [
-    `The model sees only what the host sends it that turn. In the storm case, summary memory dropped order ${ORDER}’s note, and the email offered a call.`,
-    `It might fit this contract, but every turn would re-send everything: in the storm case, full memory’s last turn needed ${n(NEED)} tokens, where pinned memory never needed more than ${n(peak(PINNED))}. A longer case still runs out.`,
-    `Right. ${fact('compaction').claim}`,
-    'A shorter summary keeps less, not more. The storm summary listed outcomes only, and the customer’s note was not an outcome.',
+    `The model sees only what the host sends it that turn: in the storm case, summary memory dropped order ${ORDER}’s note, and the email offered a call.`,
+    `It might fit this contract, but every turn would re-send everything: in the storm case full memory’s last turn needed ${n(NEED)} tokens, pinned memory at most ${n(peak(PINNED))}.`,
+    `Right: ${fact('compaction').claim}`,
+    'A shorter summary keeps less, not more: the storm summary listed outcomes only, and the customer’s note was not an outcome.',
   ],
 };
 
@@ -124,15 +113,17 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['p1'],
     opensDrawer: 'case',
-    narration: `A new case: ${REC.asks.storm} One order, ${ORDER}, carries a note from ${WHO}: “${NOTE}” The host keeps the whole history and re-sends it every turn, as in chapter 4. It also sets a context budget: one turn may send the model at most ${n(BUDGET)} tokens. That number is Larkspur’s setting for this host, not the context window of any model. Before you run it:`,
+    narration: `${CASE_ORDERS.length} storm-damaged orders. The host re-sends the whole history each turn, within a context budget: its own setting, not any model’s context window.`,
+    act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'run-full',
     focus: 'run',
     visibleControls: ['p1', 'run'],
-    narration:
-      'Run the case. Watch the in-tray on the host’s desk: each result adds a paper. The gauge beside it shows how much of the context budget each turn uses.',
+    narration: `Each result adds a paper to the in-tray. Note: order ${ORDER}’s customer asked for no phone calls.`,
+    act: 'Run the case.',
+    say: { block: 'tray', text: 'A paper a result' },
     predicate: s => s.ran,
     hint: 'Press “Run the case”.',
   },
@@ -141,14 +132,17 @@ export const STEPS: Step<S>[] = [
     focus: 'p2',
     visibleControls: ['out1', 'p2'],
     opensDrawer: null,
-    narration: `Turn 1 sent ${n(FULL.meter[0].input)} tokens. Turn ${EMAILED} sent ${n(FULL.meter[EMAILED - 1].input)} and emailed the five customers. The last turn, where the agent reports the case done, needed ${n(NEED)}, and the host stopped the run: “${STOP}” The tray held ${PAPERS} papers, every one re-sent each turn. The work got done this time, just, but the agent never reported back, and a bigger storm would pass the budget in the middle of the work. ${fact('context-finite').claim} The host has a second memory setting, summary: once the history passes ${n(COMPACT_AT)} tokens, the host swaps the papers for one short summary and drops the rest. Before you switch:`,
+    narration: `The last turn needed ${n(NEED)} tokens, over budget, so the host stopped the run. Summary memory swaps old papers for one short summary.`,
+    act: 'Predict first.',
+    say: { block: 'gauge', text: 'Over budget' },
     predicate: s => s.p2 !== null,
   },
   {
     id: 'summary',
     focus: 'mem',
     visibleControls: ['mem'],
-    narration: 'Switch the host’s memory to summary. The case runs again from the start.',
+    narration: 'The case runs again from the start.',
+    act: 'Switch the memory to summary.',
     predicate: s => s.mem === 'summary',
     hint: 'Press “Memory: summary”.',
   },
@@ -157,7 +151,9 @@ export const STEPS: Step<S>[] = [
     focus: 'mem',
     visibleControls: ['out2', 'email', 'mem', 'verdict'],
     opensDrawer: 'memory',
-    narration: `After turn ${AFTER} the history passed ${n(COMPACT_AT)} tokens, and the host compacted it: ${COMPACT.dropped.length} results dropped, one line of outcomes kept (the drawer shows it). One dropped result was order ${ORDER}’s, with its note: “${NOTE}” So the email offers ${WHO} a call. The summary fit: no turn needed more than ${n(peak(SUMMARY))} tokens, so the run finished. But it lost the line that mattered. The third setting, pinned, copies a customer’s note to a line the host sends every turn and never compacts. Pick the setting that compacts and keeps the request.`,
+    narration: `Compaction after turn ${AFTER} dropped ${COMPACT.dropped.length} results, order ${ORDER}’s no-calls note too, so the email offers a call.`,
+    act: 'Compact, but keep the note.',
+    say: { block: 'tray', text: 'Compacted' },
     broken: s => ({ ...s, ran: true, mem: 'summary' }),
     verdict: fixed,
     solution: s => ({ ...s, ran: true, mem: 'pinned' }),
@@ -166,9 +162,12 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['compare', 'quiz'],
+    visibleControls: ['email', 'compare', 'quiz'],
     opensDrawer: null,
-    narration: `Pinned: the host compacted after the same turn, and sent this line every turn after it: “${PIN}” So the email to ${WHO} kept to email: “${mailTo(PINNED)}” The run used ${n(totalTokens(PINNED))} tokens in all, close to the summary’s ${n(totalTokens(SUMMARY))}. Compaction is a choice of what to keep. Whatever the summary leaves out, the agent no longer knows. One question to finish.`,
+    narration:
+      'Pinning sent the note every turn, outside the summary, so the email kept to email, for about the same tokens.',
+    act: 'One question to finish.',
+    say: { block: 'tray', text: 'Note pinned' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which setting keeps a line outside the summary?',
   },
@@ -184,7 +183,7 @@ export default function Memory() {
       steps={STEPS}
       initial={{ ran: false, mem: 'full', p1: null, p2: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, inspect }) => {
+      stage={({ state, inspect, say }) => {
         const r = current(state);
         return (
           <AgentStage
@@ -192,6 +191,7 @@ export default function Memory() {
             upTo={state.ran ? r.steps.length : 1}
             props={{ gauge: GAUGE, tray: true }}
             inspect={inspect}
+            say={say}
           />
         );
       }}
@@ -274,6 +274,10 @@ export default function Memory() {
             <div className="tc-def">
               <p className="lbl">The task</p>
               <p>{REC.asks.storm}</p>
+              <p className="lbl">
+                Order {ORDER}’s note, from {WHO}
+              </p>
+              <p>{NOTE}</p>
               <p className="lbl">The agent’s tools</p>
               <p>{REC.tools.join(', ')}</p>
               <p className="lbl">The host’s rules</p>

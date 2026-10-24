@@ -25,6 +25,10 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
 import { AgentStage, Chips, Fact } from './kit';
+import { AGENT_PARTS } from '../../components/scenes/agentScene';
+
+/** the parts a step's callout may name: the back office with the agent's props */
+export const PARTS = AGENT_PARTS;
 
 const MODULE = 'agents',
   ID = '06-sub-agents';
@@ -40,19 +44,13 @@ const ALONE = RUNS.alone,
 const GAUGE = { steps: DEFAULTS.steps, context: CONTEXT };
 /** the biggest context one of this run's own turns sent (helpers' turns are in their own runs) */
 const peak = (r: Run) => Math.max(...r.meter.map(m => m.input));
-/** the tokens this run's own turns used, its helpers' left out */
-const own = (r: Run) => r.meter.reduce((t, m) => t + m.input + m.output, 0);
 const HELPERS = stepsOf(HELPED, 'helper'),
   ORDERS = HELPERS.map(h => h.call.arguments.order_id as number);
-const HELP = HELPERS.reduce((t, h) => t + totalTokens(h.run), 0);
-const HELPER_PEAK = Math.max(...HELPERS.map(h => peak(h.run)));
 const HELPER_FIRST = Math.min(...HELPERS.map(h => h.run.meter[0].input));
-const HELPER_TURNS = HELPERS.reduce((t, h) => t + h.run.meter.length, 0);
 const RATIO = (totalTokens(HELPED) / totalTokens(ALONE)).toFixed(1);
-// the helper that found its order out of stock, and the one line the lead got back from it
+// the helper that found its order out of stock
 const OUT = HELPERS.find(h => stepsOf(h.run, 'result').some(x => x.key.endsWith(':out')))!;
-const OUT_ORDER = OUT.call.arguments.order_id as number,
-  REPORT = answerOf(OUT.run);
+const OUT_ORDER = OUT.call.arguments.order_id as number;
 /** what the lead's last turn could see: its history, outcomes only (the signature's `hist` field) */
 const LEAD_HIST = HELPED.signatures
   .at(-1)!
@@ -93,7 +91,7 @@ const P2 = {
 // the lead's history holds no helper's lookups, only one delegate outcome per helper
 const OUT2 = LEAD_HIST.some(k => !k.startsWith('delegate:')) ? 0 : LEAD_HIST.length === HELPERS.length ? 1 : 2;
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'Larkspur’s buyer asks the agent one thing: today’s price for a box of deck screws from its usual supplier. It is one lookup and one answer. Should the agent hand the job to a helper?',
   options: [
@@ -106,10 +104,10 @@ const QUIZ = {
   explanation:
     'Helpers pay when a case splits into separate pieces, each with a long history of its own. One short lookup has nothing to split.',
   why: [
-    `A clean context helps when the lead’s history is long. Here the history is one result. In the storm case each helper’s first turn already sent ${n(HELPER_FIRST)} tokens before it had done anything.`,
-    `Right. ${fact('simplest-first').claim}`,
-    `${fact('subagent-parallel').claim} One lookup has nothing to work on in parallel.`,
-    `Helpers re-send their own instructions and tools. In the storm case the total went from ${n(totalTokens(ALONE))} tokens to ${n(totalTokens(HELPED))}.`,
+    `A clean context helps when the lead’s history is long, and here it is one result: in the storm case each helper’s first turn sent ${n(HELPER_FIRST)} tokens before doing anything.`,
+    `Right: ${fact('simplest-first').claim}`,
+    'One lookup has nothing to work on in parallel, and parallel pieces are what helpers are for.',
+    `Helpers re-send their own instructions and tools: in the storm case the total went from ${n(totalTokens(ALONE))} tokens to ${n(totalTokens(HELPED))}.`,
   ],
 };
 
@@ -119,15 +117,18 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['p1'],
     opensDrawer: 'case',
-    narration: `Monday’s storm again: five damaged orders, ${ORDERS.join(', ')}. In chapter 5 one agent held all five in one history, and the host had to compact it, with care, to fit. The host can also offer the agent a tool of its own, delegate: the agent hands one order to a helper, a second agent that starts with a clean context, works that order alone and replies with one line. The agent that hands work out is the lead. Before you run it both ways:`,
+    narration:
+      'The host can offer a delegate tool: the lead agent hands one order to a sub-agent, a helper with a clean context.',
+    act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'run-alone',
     focus: 'run',
     visibleControls: ['p1', 'run'],
-    narration:
-      'First the lead alone, with the full memory of chapter 5. Run the case, and watch the gauge on the host’s desk: it shows how much context each turn sends the model.',
+    narration: 'First the lead alone, with chapter 5’s full memory. The gauge shows how much context each turn sends.',
+    act: 'Run the case.',
+    say: { block: 'gauge', text: 'Context per turn' },
     predicate: s => s.ran,
     hint: 'Press “Run the case”.',
   },
@@ -135,7 +136,9 @@ export const STEPS: Step<S>[] = [
     id: 'helpers',
     focus: 'setup',
     visibleControls: ['p1', 'setup'],
-    narration: `The lead alone took ${ALONE.meter.length} turns: lookups for all five orders, then stock, then a replacement or refund each, then five emails, every result in one history. Its biggest turn sent ${n(peak(ALONE))} tokens. Now give the host the delegate tool: switch to the lead with helpers.`,
+    narration: `The lead alone took ${ALONE.meter.length} turns, every result in one history; its biggest turn sent ${n(peak(ALONE))} tokens.`,
+    act: 'Switch to the lead with helpers.',
+    say: { block: 'gauge', text: 'One big history' },
     predicate: s => s.setup === 'helpers',
     hint: 'Press “Lead + helpers”.',
   },
@@ -144,7 +147,9 @@ export const STEPS: Step<S>[] = [
     focus: 'p2',
     visibleControls: ['out1', 'compare', 'p2'],
     opensDrawer: 'helpers',
-    narration: `The lead handed out ${HELPERS.length} orders, one helper desk each. Its biggest turn sent ${n(peak(HELPED))} tokens, against ${n(peak(ALONE))} alone, and no helper’s turn sent more than ${n(HELPER_PEAK)}. But the total grew to ${n(totalTokens(HELPED))} tokens, about ${RATIO} times the lead alone. The helpers took ${HELPER_TURNS} turns between them, and on every one a helper re-sent the instructions, the tool list and its task: the lead itself used ${n(own(HELPED))}, the helpers ${n(HELP)}. These are this case’s counts, from the module’s hand-written recordings. The drawer shows each helper. Before you look at what the lead saw:`,
+    narration: `The lead’s biggest turn shrank to ${n(peak(HELPED))} tokens, but the total grew ${RATIO} times: each handoff re-sends instructions and tools.`,
+    act: 'Predict first.',
+    say: { block: 'helpers', text: 'Fresh contexts' },
     predicate: s => s.p2 !== null,
   },
   {
@@ -152,7 +157,10 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['out2', 'quiz'],
     opensDrawer: null,
-    narration: `The lead’s history held one outcome per helper, and the line each one sent back, such as: “${REPORT}” None of the helper’s lookups, stock checks or emails reached it. That is the clean context: each helper carried one order, and the lead carried five lines. ${fact('subagent-clean-context').claim} The price is the handoff: every helper starts from the instructions again. So helpers pay when a case splits into separate pieces, each with a long history of its own, and cost extra when it does not. One question to finish.`,
+    narration:
+      'The lead saw one line per helper. Helpers pay when a case splits into long separate pieces, else they cost extra.',
+    act: 'One question to finish.',
+    say: { block: 'helpers', text: 'One line back' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Is there a long history here for a helper to keep out of the lead’s context?',
   },
@@ -168,7 +176,7 @@ export default function SubAgents() {
       steps={STEPS}
       initial={{ ran: false, setup: 'alone', p1: null, p2: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, inspect }) => {
+      stage={({ state, inspect, say }) => {
         const r = current(state);
         return (
           <AgentStage
@@ -176,6 +184,7 @@ export default function SubAgents() {
             upTo={state.ran ? r.steps.length : 1}
             props={{ gauge: GAUGE, helpers: true }}
             inspect={inspect}
+            say={say}
           />
         );
       }}
