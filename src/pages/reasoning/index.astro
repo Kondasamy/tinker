@@ -11,7 +11,7 @@ import ReadingMode from '../../components/intro/ReadingMode.astro';
 import ChapterCards from '../../components/intro/ChapterCards.astro';
 import { THINK_BOARD, thinkLabel, thinkScene, seconds, type ThinkOpts } from '../../components/scenes/thinkScene';
 import { SPLIT, lowestPassing, question, run, sweep, ofKind, type Effort } from '../../lib/reasoning/engine';
-import { ACCESSED, fact } from '../../lib/reasoning/facts';
+import { fact } from '../../lib/reasoning/facts';
 import { moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
@@ -71,7 +71,6 @@ const FACTS: [string, string][] = [
   [String(lowestPassing('lookup')), 'the effort Evals’ gate picks for policy lookups'],
   [seconds(SIDES[1].r.wait), 'the wait for that quote, at Larkspur’s assumed speed'],
 ];
-const checked = longDate(ACCESSED);
 ---
 <html lang="en">
   <head>
@@ -127,7 +126,7 @@ const checked = longDate(ACCESSED);
               <h3><span class="n">{i + 1}</span> {name}</h3>
               <p class="cap">{short}</p>
               <p class="more">{f.claim}</p>
-              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
             </li>
           ))}
         </ol>

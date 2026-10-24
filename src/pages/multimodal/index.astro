@@ -15,7 +15,7 @@ import { costOf, grade, sent } from '../../lib/multimodal/readings';
 import { PATCH, thousands } from '../../lib/multimodal/patches';
 import { LEAST_COST, totals, WINNERS } from '../../lib/multimodal/workbench';
 import { START } from '../../content/multimodal/07-workbench';
-import { ACCESSED, fact } from '../../lib/multimodal/facts';
+import { fact } from '../../lib/multimodal/facts';
 import { moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
@@ -74,7 +74,6 @@ const FACTS: [string, string][] = [
     'fewer tokens than “vision, largest size” for the same fields',
   ],
 ];
-const checked = longDate(ACCESSED);
 ---
 <html lang="en">
   <head>
@@ -132,7 +131,7 @@ const checked = longDate(ACCESSED);
               <h3><span class="n">{i + 1}</span> {name}</h3>
               <p class="cap">{short}</p>
               {f && <p class="more">{f.claim}</p>}
-              {f && <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>}
+              {f && <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>}
             </li>
           ))}
         </ol>

@@ -14,7 +14,7 @@ import { ENGINE_BOARD, engineLabel, engineScene, type EngineOpts } from '../../c
 import { pieceLabel } from '../../components/scenes/attentionMap';
 import { PROMPTS, trace } from '../../lib/transformers/trace';
 import { diskModel } from '../../lib/transformers/diskModel';
-import { ACCESSED, fact } from '../../lib/transformers/facts';
+import { fact } from '../../lib/transformers/facts';
 import META from '../../../public/data/lm/meta.json' with { type: 'json' };
 import { moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
@@ -60,7 +60,6 @@ const FACTS: [string, string][] = [
   [String(LM.ctx), 'tokens in its window'],
   [`${Math.round(META.heldout.top5 * 100)}%`, 'of unseen Larkspur text: the real next token is in its top 5'],
 ];
-const checked = longDate(ACCESSED);
 ---
 <html lang="en">
   <head>
@@ -126,7 +125,7 @@ const checked = longDate(ACCESSED);
               <h3><span class="n">{i + 1}</span> {name}</h3>
               <p class="cap">{short}</p>
               <p class="more">{f.claim}</p>
-              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
             </li>
           ))}
         </ol>

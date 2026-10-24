@@ -18,7 +18,7 @@ import {
 import { agentLanes, agentMessages } from '../../components/scenes/agentSequence';
 import { answerOf, run, stepsOf, totalTokens, AGENT_TOOLS, CASE_ORDERS } from '../../lib/agents/loop';
 import { RECORDINGS } from '../../lib/agents/turns';
-import { fact, ACCESSED } from '../../lib/agents/facts';
+import { fact } from '../../lib/agents/facts';
 import { moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import Recap from '../../components/quiz/Recap';
@@ -85,7 +85,6 @@ const STEPS: [string, string, ReturnType<typeof fact>, [number, number, number, 
     solo(() => gaugeProp(30, 30, 0.6, 0.4, false), [24, 17, 36, 35, 34], STAND),
   ],
 ];
-const checked = longDate(ACCESSED);
 
 // the cases the recordings hold, and what makes each one hard
 const HARD: [string, string][] = [
@@ -174,7 +173,7 @@ const FACTS: [string, string][] = [
               <h3><span class="n">{i + 1}</span> {name}</h3>
               <p class="cap">{short}</p>
               <p class="more">{f.claim}</p>
-              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
             </li>
           ))}
         </ol>

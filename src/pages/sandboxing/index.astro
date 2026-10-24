@@ -13,7 +13,7 @@ import ChapterCards from '../../components/intro/ChapterCards.astro';
 import { SANDBOX_BOARD, sandboxLabel, sandboxScene, type SandboxOpts } from '../../components/scenes/sandboxScene';
 import { ATTACKS, TASKS, metrics, run } from '../../lib/sandboxing/loop';
 import { RECORDING } from '../../lib/sandboxing/turns';
-import { ACCESSED, fact } from '../../lib/sandboxing/facts';
+import { fact } from '../../lib/sandboxing/facts';
 import { SOLUTION, bench } from '../../content/sandboxing/07-red-team';
 import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
@@ -76,7 +76,6 @@ const FACTS: [string, string][] = [
     `once the policy is set, with ${CLEAN.blocked} of ${CLEAN.tasks} tasks blocked`,
   ],
 ];
-const checked = longDate(ACCESSED);
 ---
 <html lang="en">
   <head>
@@ -133,7 +132,7 @@ const checked = longDate(ACCESSED);
               <h3><span class="n">{i + 1}</span> {name}</h3>
               <p class="cap">{short}</p>
               <p class="more">{f.claim}</p>
-              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
             </li>
           ))}
         </ol>

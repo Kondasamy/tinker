@@ -14,7 +14,7 @@ import { STENCIL_BOARD, stencilLabel, stencilScene, type StencilOpts } from '../
 import { stencilAt } from '../../content/structured-outputs/kit';
 import { play, run } from '../../lib/structured-outputs/prompts';
 import { diskModel } from '../../lib/transformers/diskModel';
-import { ACCESSED, fact } from '../../lib/structured-outputs/facts';
+import { fact } from '../../lib/structured-outputs/facts';
 import { VOCAB_SIZE } from '../../lib/lm/bpe';
 import { moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
@@ -68,7 +68,6 @@ const FACTS: [string, string][] = [
   [String(masked.ids.length), 'tokens in its masked answer to “Where is order 1042?”'],
   [`${fact('llguidance').value} µs`, 'of CPU per token for a real engine’s mask over 128k tokens (llguidance)'],
 ];
-const checked = longDate(ACCESSED);
 ---
 <html lang="en">
   <head>
@@ -128,7 +127,7 @@ const checked = longDate(ACCESSED);
               <h3><span class="n">{i + 1}</span> {name}</h3>
               <p class="cap">{short}</p>
               <p class="more">{f.claim}</p>
-              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
             </li>
           ))}
         </ol>

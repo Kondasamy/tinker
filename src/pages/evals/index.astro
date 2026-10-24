@@ -9,7 +9,7 @@ import Meta from '../../components/Meta.astro';
 import IsoStage from '../../lib/iso/IsoStage';
 import { EVAL_BOARD, evalLabel, evalScene, type EvalOpts } from '../../components/scenes/evalScene';
 import { QUESTIONS, VERSIONS, compare, passed } from '../../lib/evals/suite';
-import { fact, ACCESSED } from '../../lib/evals/facts';
+import { fact } from '../../lib/evals/facts';
 import { Grid, colsOf, loadSuite, resultsOf } from '../../content/evals/kit';
 import { moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
@@ -49,7 +49,6 @@ const FACTS: [string, string][] = [
   [String(fixed.length), `questions ${V2.label} fixes`],
   [String(broken.length), `question${broken.length === 1 ? '' : 's'} ${V2.label} breaks`],
 ];
-const checked = longDate(ACCESSED);
 ---
 <html lang="en">
   <head>
@@ -109,7 +108,7 @@ const checked = longDate(ACCESSED);
               <h3><span class="n">{i + 1}</span> {name}</h3>
               <p class="cap">{short}</p>
               <p class="more">{f.claim}</p>
-              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
             </li>
           ))}
         </ol>

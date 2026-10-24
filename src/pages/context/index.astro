@@ -14,7 +14,7 @@ import { WINDOW_BOARD, windowLabel, windowScene, type WindowOpts } from '../../c
 import { DEFAULTS, REPLY_ROOM, run, type Setup } from '../../lib/context/loop';
 import { RECORDING } from '../../lib/context/turns';
 import { caseOf } from '../../lib/context/window';
-import { ACCESSED, fact } from '../../lib/context/facts';
+import { fact } from '../../lib/context/facts';
 import { moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate, num } from '../../lib/format';
@@ -83,7 +83,6 @@ const FACTS: [string, string][] = [
   [`${fact('cache-write-5m').value}×`, 'the input price to write them to the 5-minute cache'],
   [fact('cache-breakpoints').value!, 'cache breakpoints a request can set'],
 ];
-const checked = longDate(ACCESSED);
 ---
 <html lang="en">
   <head>
@@ -137,7 +136,7 @@ const checked = longDate(ACCESSED);
             <p class="cap">The recorded answer to that window.</p>
           </article>
         </div>
-        <p class="note more">{fact('window-everything').claim} The counts here come from this site’s own tokenizer, so they show the mechanism, not any provider’s numbers. <a href={fact('window-everything').source}>Source</a>, checked {checked}.</p>
+        <p class="note more">{fact('window-everything').claim} The counts here come from this site’s own tokenizer, so they show the mechanism, not any provider’s numbers. <a href={fact('window-everything').source}>Source</a>, checked {longDate(fact('window-everything').accessed)}.</p>
       </section>
 
       <section aria-labelledby="how">
@@ -150,7 +149,7 @@ const checked = longDate(ACCESSED);
               <h3><span class="n">{i + 1}</span> {name}</h3>
               <p class="cap">{short}</p>
               <p class="more">{f.claim}</p>
-              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
             </li>
           ))}
         </ol>

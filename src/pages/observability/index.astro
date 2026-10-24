@@ -14,7 +14,7 @@ import { TRACE_BOARD, traceLabel, traceScene, type TraceOpts } from '../../compo
 import { Waterfall, binsOf, wallOf } from '../../content/observability/kit';
 import { FAILED, MODE_IDS, TRACES, modeOf, replyOf, spanOf, traceOf } from '../../lib/observability/traces';
 import { DAY1_COUNTS, NEEDED_NOTES, TOP, mostFrequent } from '../../lib/observability/coding';
-import { ACCESSED, fact } from '../../lib/observability/facts';
+import { fact } from '../../lib/observability/facts';
 import { moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
@@ -55,7 +55,6 @@ const FACTS: [string, string][] = [
   [fact('annotate-yourself').value!, 'traces to note yourself before you trust an AI’s suggestions'],
   [fact('saturation').value!, 'traces or so in a working review pool'],
 ];
-const checked = longDate(ACCESSED);
 ---
 <html lang="en">
   <head>
@@ -101,7 +100,7 @@ const checked = longDate(ACCESSED);
             <p class="cap">{FIRST.detail}</p>
           </article>
         </div>
-        <p class="note more">{fact('first-failure').claim} These traces are written by hand for this module, shaped like real ones, so they show the method, not any system’s failure rates. <a href={fact('first-failure').source}>Source</a>, checked {checked}.</p>
+        <p class="note more">{fact('first-failure').claim} These traces are written by hand for this module, shaped like real ones, so they show the method, not any system’s failure rates. <a href={fact('first-failure').source}>Source</a>, checked {longDate(fact('first-failure').accessed)}.</p>
       </section>
 
       <section aria-labelledby="how">
@@ -114,7 +113,7 @@ const checked = longDate(ACCESSED);
               <h3><span class="n">{i + 1}</span> {name}</h3>
               <p class="cap">{short}</p>
               <p class="more">{f.claim}</p>
-              <p class="src more"><a href={f.source}>Source</a>, checked {checked}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
             </li>
           ))}
         </ol>

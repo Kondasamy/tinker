@@ -149,7 +149,7 @@ export const STEPS: Step<S>[] = [
     opensDrawer: 'plan',
     narration: 'Plan mode asks the model to write its steps on the clipboard before it calls anything.',
     act: 'Turn plan mode on.',
-    say: { block: 'plan', text: 'Plan goes here' },
+    say: { block: 'model', text: 'Plans first' },
     predicate: s => s.plan,
     hint: 'Press “Plan mode: on”.',
   },
