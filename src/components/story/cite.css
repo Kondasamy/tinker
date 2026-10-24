@@ -13,7 +13,7 @@
   cursor: pointer;
 }
 .cite-mark::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: -14px -10px;
 }

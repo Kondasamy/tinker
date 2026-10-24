@@ -224,8 +224,7 @@ export function Fact({ id }: { id: string }) {
   const f = fact(id);
   return (
     <p className="tc-fact">
-      {f.claim}{' '}
-      <Cite title={new URL(f.source).hostname} href={f.source} checked={f.accessed} />
+      {f.claim} <Cite title={new URL(f.source).hostname} href={f.source} checked={f.accessed} />
     </p>
   );
 }
