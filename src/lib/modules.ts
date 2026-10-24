@@ -16,6 +16,7 @@ import { MULTIMODAL_MODULE } from '../content/multimodal/module';
 import { OBSERVABILITY_MODULE } from '../content/observability/module';
 import { SANDBOXING_MODULE } from '../content/sandboxing/module';
 import { VOICE_MODULE } from '../content/voice/module';
+import { DIFFUSION_MODULE } from '../content/diffusion/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -129,12 +130,7 @@ export const MODULES: Module[] = [
     'Beginner',
     'Did the new button work? Running a fair test, and the lucky days and early peeks that fake a win.',
   ),
-  planned(
-    'diffusion',
-    'Diffusion models',
-    'Intermediate',
-    'How a picture comes out of noise: a model that removes its best guess of the noise, step by step.',
-  ),
+  DIFFUSION_MODULE,
   planned(
     'diffusion-llms',
     'Diffusion language models',
