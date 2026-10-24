@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import FarIsSlow from '../../content/caching/01-far-is-slow';
+import KeepACopy from '../../content/caching/02-keep-a-copy';
+import HowLongIsItFresh from '../../content/caching/03-how-long-is-it-fresh';
+import TakeItBack from '../../content/caching/04-take-it-back';
+import EveryoneAtOnce from '../../content/caching/05-everyone-at-once';
+import TheSameTrick from '../../content/caching/06-the-same-trick';
+import CachePolicy from '../../content/caching/07-cache-policy';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('caching').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="caching" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-far-is-slow' ? <FarIsSlow client:load />
+    : chapter === '02-keep-a-copy' ? <KeepACopy client:load />
+    : chapter === '03-how-long-is-it-fresh' ? <HowLongIsItFresh client:load />
+    : chapter === '04-take-it-back' ? <TakeItBack client:load />
+    : chapter === '05-everyone-at-once' ? <EveryoneAtOnce client:load />
+    : chapter === '06-the-same-trick' ? <TheSameTrick client:load />
+    : <CachePolicy client:load />}
+</ChapterLayout>

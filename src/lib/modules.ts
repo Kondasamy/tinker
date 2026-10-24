@@ -19,6 +19,7 @@ import { VOICE_MODULE } from '../content/voice/module';
 import { POST_TRAINING_MODULE } from '../content/post-training/module';
 import { PRE_TRAINING_MODULE } from '../content/pre-training/module';
 import { INTERPRETABILITY_MODULE } from '../content/interpretability/module';
+import { CACHING_MODULE } from '../content/caching/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -93,12 +94,7 @@ export const MODULES: Module[] = [
   PRE_TRAINING_MODULE,
   POST_TRAINING_MODULE,
   INTERPRETABILITY_MODULE,
-  planned(
-    'caching',
-    'Caching & CDNs',
-    'Beginner',
-    'Why a copy close by beats the original far away: edge caches, expiry, stale prices and a flash sale.',
-  ),
+  CACHING_MODULE,
   planned(
     'databases',
     'Databases & indexes',

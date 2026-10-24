@@ -1,0 +1,9 @@
+{
+  "note": "Larkspur's staleness limits, set by the shop's owner: the largest share of each kind's reads that may show a copy older than the depot's. Team choices, not industry figures.",
+  "limits": { "price": 0, "photo": 0, "stock": 0.15 },
+  "reasons": {
+    "price": "A customer must never be charged a price the shop no longer shows.",
+    "photo": "A product page must never show the old photo once a new one is up.",
+    "stock": "A stock count may lag a little; the checkout checks again before taking an order."
+  }
+}

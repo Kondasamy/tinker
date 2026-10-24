@@ -1,0 +1,72 @@
+---
+// Dev-only eyeball page: the depot map in several states of Larkspur's day (static SVG, wide and phone), the cache
+// timeline with and without coalescing, then the stage live. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { DEPOT_BOARD, IDLE, depotAt, depotLabel, depotScene, type DepotOpts } from '../components/scenes/depotScene';
+import { CachingStage, TimelineView } from '../content/caching/kit';
+import { MOMENTS, OFF, TTLS, clock, policyOf, simulate } from '../lib/caching/sim';
+import { WINNERS } from '../lib/caching/workbench';
+
+const DAY = TTLS.at(-1)!;
+const kept = simulate(policyOf({ ttl: { price: DAY, photo: DAY, stock: DAY } }));
+const rush = simulate(policyOf({ ttl: { price: DAY, photo: DAY, stock: 1 }, purge: true }));
+const calm = simulate({ ...rush.policy, coalesce: true });
+const best = simulate(WINNERS[0]);
+const STATES: [string, Omit<DepotOpts, 'scale'>][] = [
+  ['Idle: empty shelves', IDLE],
+  ['Caching off, 09:00: every request a trip', depotAt(simulate(OFF), 4)],
+  ['Kept a day, 08:00: the first misses', depotAt(kept, 0)],
+  [`Kept a day, ${clock(MOMENTS.priceRise)}: stale prices`, depotAt(kept, MOMENTS.priceRise)],
+  [
+    'Flash sale, no coalescing: overloaded',
+    { ...depotAt(rush, MOMENTS.sale), say: { block: 'depot', text: 'Stampede' } },
+  ],
+  ['Flash sale, coalescing', depotAt(calm, MOMENTS.sale)],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Caching scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Depot map: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={DEPOT_BOARD} scene={depotScene({ ...o, scale: 1.2 })} label={depotLabel(o)} /></div>
+            <div class="phone"><IsoStage board={DEPOT_BOARD} scene={depotScene({ ...o, scale: 2 })} label={depotLabel(o)} /></div>
+            <p>{depotLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <section><h2>Timeline: flash sale without coalescing</h2><TimelineView client:load result={rush} at={MOMENTS.sale} /></section>
+      <section><h2>Timeline: with coalescing</h2><TimelineView client:load result={calm} at={MOMENTS.sale} /></section>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Picture</h2><div class="stage"><CachingStage client:load show={{ scene: depotAt(best, 20), result: best, tick: 20, caption: 'A winning policy at 13:00.' }} /></div></section>
+        <section><h2>Timeline, escaped caption</h2><div class="stage"><CachingStage client:load view="timeline" show={{ scene: depotAt(kept, 9), result: kept, tick: 9, caption: '<script>alert(1)</script>' }} /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 520px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

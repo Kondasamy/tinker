@@ -1,0 +1,25 @@
+{
+  "note": "A day of requests to Larkspur's shop, 08:00 to 20:00 in quarter hours, written for this site, not logged traffic. Steady rows repeat every `every` quarter hours from `from` to `to`; bursts arrive in the same quarter hour. Changes are the quarter hours at which the depot's copy of a key changes.",
+  "ticks": 48,
+  "steady": [
+    { "edges": ["north", "east", "west"], "key": "price:hinge", "every": 1, "count": 1, "from": 0, "to": 47 },
+    { "edges": ["north", "east", "west"], "key": "photo:hinge", "every": 1, "count": 1, "from": 0, "to": 47 },
+    { "edges": ["north", "east", "west"], "key": "stock:hinge", "every": 1, "count": 1, "from": 0, "to": 47 },
+    { "edges": ["north", "east", "west"], "key": "price:drill", "every": 2, "count": 1, "from": 0, "to": 47 },
+    { "edges": ["north", "east", "west"], "key": "photo:drill", "every": 2, "count": 1, "from": 1, "to": 47 },
+    { "edges": ["north", "east", "west"], "key": "stock:drill", "every": 2, "count": 1, "from": 0, "to": 47 }
+  ],
+  "bursts": [
+    { "edges": ["north", "east", "west"], "keys": ["price:hinge", "stock:hinge", "photo:hinge"], "at": 16, "count": 12 },
+    { "edges": ["north", "east", "west"], "keys": ["price:hinge", "stock:hinge", "photo:hinge"], "at": 17, "count": 8 },
+    { "edges": ["north", "east", "west"], "keys": ["price:hinge", "stock:hinge"], "at": 18, "count": 5 },
+    { "edges": ["north", "east", "west"], "keys": ["price:hinge", "stock:hinge"], "at": 19, "count": 3 }
+  ],
+  "changes": {
+    "price:hinge": [9, 16],
+    "photo:hinge": [28],
+    "stock:hinge": [2, 4, 6, 8, 10, 12, 14, 16, 17, 18, 19, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46],
+    "stock:drill": [4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44]
+  },
+  "moments": { "morning": 4, "priceRise": 9, "sale": 16, "newPhoto": 28 }
+}
