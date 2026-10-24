@@ -185,22 +185,26 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
   );
 });
 
-// the eight new modules' lines and the seven roadmap cards (KTD14): the live cards numbered 1 to N, every other module of
-// the 32 a roadmap card, and the hero's open plots invite a build through the request form
-test('the live cards are numbered from 1, the rest of the 32 are roadmap cards, and the empty plots invite a build', async ({
-  page,
-}) => {
+// the eight new modules' lines and the seven roadmap cards (KTD14, R17): 25 live cards numbered 1 to 25, seven roadmap
+// cards in build order, and the hero's open plots invite a build through the request form
+const ROADMAP = ['diffusion-llms', 'computer-use', 'calibration', 'search', 'web-requests', 'payments', 'git'];
+test('25 live cards numbered 1–25, seven roadmap cards, and the empty plots invite a build', async ({ page }) => {
   await page.goto('/');
-  const live = NUMBERED.length;
+  expect(NUMBERED).toHaveLength(25);
   expect(MODULES.filter(m => m.status === 'live').map(m => m.id)).toEqual(NUMBERED);
-  expect(MODULES).toHaveLength(32);
-  await expect(catalogue(page).locator('.module')).toHaveCount(live);
-  await expect(catalogue(page).locator('.roadmap')).toHaveCount(32 - live);
+  expect(MODULES.filter(m => m.status === 'planned').map(m => m.id)).toEqual(ROADMAP);
+  await expect(catalogue(page).locator('.module')).toHaveCount(25);
+  await expect(catalogue(page).locator('.roadmap')).toHaveCount(7);
   const nums = await catalogue(page)
     .locator('.module .kicker')
     .evaluateAll(els => els.map(e => Number(/^Module (\d+) · /.exec(e.textContent ?? '')?.[1])));
-  expect(nums.sort((a, b) => a - b)).toEqual(Array.from({ length: live }, (_, i) => i + 1));
-  await expect(page.locator('.hero-pic .hero-soon')).toHaveCount(32 - live);
+  expect(nums.sort((a, b) => a - b)).toEqual(Array.from({ length: 25 }, (_, i) => i + 1));
+  expect(
+    await catalogue(page)
+      .locator('.roadmap')
+      .evaluateAll(els => els.map(e => e.getAttribute('data-module')).sort()),
+  ).toEqual([...ROADMAP].sort());
+  await expect(page.locator('.hero-pic .hero-soon')).toHaveCount(7);
   await expect(page.locator('.hero-pic figcaption')).toContainText('The empty plots are open:');
   await expect(page.locator('.hero-pic figcaption a')).toHaveText('build one');
   await expect(page.locator('.hero-pic figcaption a')).toHaveAttribute('href', REQUEST);
