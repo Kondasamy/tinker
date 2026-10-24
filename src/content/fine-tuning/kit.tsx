@@ -19,6 +19,7 @@ import { Grid } from '../evals/kit';
 import { useNarrow } from '../tool-calling/kit';
 import metaJson from '../../../public/data/lm/meta.json';
 import './fine-tuning.css';
+import Cite from '../../components/story/Cite';
 
 /** Larkspur mini's layout and recorded runs (the loss curves), read at build time: the chart needs no download. */
 export const META = metaJson as unknown as Meta;
@@ -273,10 +274,7 @@ export function Fact({ id }: { id: string }) {
   return (
     <p className="tc-fact">
       {f.claim}{' '}
-      <a className="source" href={f.source} target="_blank" rel="noreferrer">
-        Source: {new URL(f.source).hostname}
-      </a>{' '}
-      (checked {f.accessed})
+      <Cite title={new URL(f.source).hostname} href={f.source} checked={f.accessed} />
     </p>
   );
 }

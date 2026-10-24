@@ -20,6 +20,7 @@ import { gridLabel, maskGrid } from '../../components/scenes/maskGrid';
 import { Flat, MODEL, useModel, type ModelStore } from '../transformers/kit';
 import { useNarrow } from '../tool-calling/kit';
 import './structured.css';
+import Cite from '../../components/story/Cite';
 
 export { MODEL, Waiting, modelNow, modelStore, useModel, whenLoaded } from '../transformers/kit';
 
@@ -255,10 +256,7 @@ export function Fact({ id }: { id: string }) {
   return (
     <p className="tc-fact">
       {f.claim}{' '}
-      <a className="source" href={f.source} target="_blank" rel="noreferrer">
-        Source: {new URL(f.source).hostname}
-      </a>{' '}
-      (checked {f.accessed})
+      <Cite title={new URL(f.source).hostname} href={f.source} checked={f.accessed} />
     </p>
   );
 }

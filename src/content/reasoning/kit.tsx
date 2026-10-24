@@ -23,6 +23,7 @@ import { THINK_BOARD, seconds, thinkLabel, thinkScene, type ThinkOpts } from '..
 import { effortChart, effortLabel, levelWords, type Series } from '../../components/scenes/effortChart';
 import { useNarrow } from '../tool-calling/kit';
 import './reasoning.css';
+import Cite from '../../components/story/Cite';
 
 export { seconds };
 /** The desk's settings for one run. */
@@ -214,10 +215,7 @@ export function Fact({ id }: { id: string }) {
   return (
     <p className="tc-fact">
       {f.claim}{' '}
-      <a className="source" href={f.source} target="_blank" rel="noreferrer">
-        Source: {new URL(f.source).hostname}
-      </a>{' '}
-      (checked {f.accessed})
+      <Cite title={new URL(f.source).hostname} href={f.source} checked={f.accessed} />
     </p>
   );
 }

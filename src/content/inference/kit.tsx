@@ -16,6 +16,7 @@ import { PHASE_PAL, laneName, serverTimeline, timelineLabel } from '../../compon
 import { useNarrow } from '../tool-calling/kit';
 import HELDOUT from '../../../data/fine-tuning/heldout.json' with { type: 'json' };
 import './inference.css';
+import Cite from '../../components/story/Cite';
 
 // ---- the models: one loader per set of weights, shared by the stage and every control ----
 
@@ -363,10 +364,7 @@ export function Fact({ id }: { id: string }) {
   return (
     <p className="tc-fact">
       {f.claim}{' '}
-      <a className="source" href={f.source} target="_blank" rel="noreferrer">
-        Source: {new URL(f.source).hostname}
-      </a>{' '}
-      (checked {f.accessed})
+      <Cite title={new URL(f.source).hostname} href={f.source} checked={f.accessed} />
     </p>
   );
 }

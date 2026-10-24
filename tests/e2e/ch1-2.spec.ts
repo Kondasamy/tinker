@@ -17,12 +17,22 @@ test('chapter 1: wrong answer, click through the eras, cited sources, quiz', asy
   for (let i = 0; i < 4; i++) {
     await expect(card(page)).toContainText(`Step ${i + 2} of`);
     await page.locator(`[data-era="${i}"]`).click();
-    // the era drawer lists that era's claims, each with a source link
-    const links = drawer(page).getByRole('link', { name: /^Source:/ });
-    await expect(links.first()).toBeVisible();
-    for (const href of await links.evaluateAll(as => as.map(a => (a as HTMLAnchorElement).href)))
+    // the era drawer lists that era's claims, each with a source mark that opens its link
+    const marks = drawer(page).getByRole('button', { name: /^Source:/ });
+    await expect(marks.first()).toBeVisible();
+    for (const href of await drawer(page)
+      .locator('.cite-pop a')
+      .evaluateAll(as => as.map(a => (a as HTMLAnchorElement).href)))
       expect(href).toMatch(/^https:\/\//);
   }
+
+  // a mark opens its source in place, and Escape closes it again
+  await page.locator('[data-era="0"]').click();
+  const mark = drawer(page).getByRole('button', { name: /^Source:/ }).first();
+  await mark.click();
+  await expect(drawer(page).locator('.cite-pop:popover-open a')).toHaveAttribute('target', '_blank');
+  await page.keyboard.press('Escape');
+  await expect(drawer(page).locator('.cite-pop:popover-open')).toHaveCount(0);
 
   await card(page)
     .getByRole('radio', { name: /Models were too slow/ })

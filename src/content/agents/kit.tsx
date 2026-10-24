@@ -10,6 +10,7 @@ import { agentLanes, agentMessages } from '../../components/scenes/agentSequence
 import { totalTokens, type Run } from '../../lib/agents/loop';
 import { fact } from '../../lib/agents/facts';
 import { openMessage, useNarrow } from '../tool-calling/kit';
+import Cite from '../../components/story/Cite';
 
 /** The props a chapter turns on (KTD8): everything in AgentOpts but the run, the step and the drawing's own settings. */
 export type AgentProps = Omit<AgentOpts, 'run' | 'upTo' | 'host' | 'scale'>;
@@ -146,10 +147,7 @@ export function Fact({ id }: { id: string }) {
   return (
     <p className="tc-fact">
       {f.claim}{' '}
-      <a className="source" href={f.source} target="_blank" rel="noreferrer">
-        Source: {new URL(f.source).hostname}
-      </a>{' '}
-      (checked {f.accessed})
+      <Cite title={new URL(f.source).hostname} href={f.source} checked={f.accessed} />
     </p>
   );
 }

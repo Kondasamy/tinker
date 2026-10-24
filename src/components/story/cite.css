@@ -1,0 +1,54 @@
+/* Source marks: small in the text, with a 44px hit area that doesn't push the line apart */
+.cite-mark {
+  position: relative;
+  font: inherit;
+  font-size: 0.8em;
+  font-weight: 800;
+  line-height: 1;
+  vertical-align: super;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  padding: 0 2px;
+  cursor: pointer;
+}
+.cite-mark::after {
+  content: '';
+  position: absolute;
+  inset: -14px -10px;
+}
+.cite-mark:hover,
+.cite-mark:focus-visible {
+  color: var(--ink);
+}
+/* anchored under its mark where the browser can; otherwise the popover's own centred place */
+.cite-pop {
+  position-area: block-end span-inline-start;
+  position-try-fallbacks: flip-block, flip-inline;
+  margin: 6px 0 0;
+  max-width: min(320px, calc(100vw - 32px));
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink);
+  background: var(--card);
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.cite-pop a {
+  color: var(--ink);
+  font-weight: 700;
+}
+.cite-checked {
+  color: var(--muted);
+}
+/* phones: a sheet across the bottom of the screen */
+@media (max-width: 860px) {
+  .cite-pop {
+    position-area: none;
+    inset: auto 16px 16px;
+    margin: 0;
+    max-width: none;
+  }
+}

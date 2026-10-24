@@ -17,6 +17,7 @@ import { fact } from '../../lib/small-models/facts';
 import { useNarrow } from '../tool-calling/kit';
 import { LossChart, META, ModelGate, loadModel, modelNow, useModel } from '../fine-tuning/kit';
 import './small-models.css';
+import Cite from '../../components/story/Cite';
 
 export { META, loadModel, modelNow };
 /** The student's recorded distillation run (meta.json `student`): training and held-out loss per step. */
@@ -201,10 +202,7 @@ export function Fact({ id }: { id: string }) {
   return (
     <p className="tc-fact">
       {f.claim}{' '}
-      <a className="source" href={f.source} target="_blank" rel="noreferrer">
-        Source: {new URL(f.source).hostname}
-      </a>{' '}
-      (checked {f.accessed})
+      <Cite title={new URL(f.source).hostname} href={f.source} checked={f.accessed} />
     </p>
   );
 }

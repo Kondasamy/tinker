@@ -20,6 +20,7 @@ import { caseOf, type PartKind } from '../../lib/context/window';
 import { fact } from '../../lib/context/facts';
 import { useNarrow } from '../tool-calling/kit';
 import './context.css';
+import Cite from '../../components/story/Cite';
 
 /** The props a chapter turns on: everything in WindowOpts but the run, the call and the drawing's own settings. */
 export type WindowProps = Pick<WindowOpts, 'shelf' | 'cabinet' | 'tray'>;
@@ -250,10 +251,7 @@ export function Fact({ id }: { id: string }) {
   return (
     <p className="tc-fact">
       {f.claim}{' '}
-      <a className="source" href={f.source} target="_blank" rel="noreferrer">
-        Source: {new URL(f.source).hostname}
-      </a>{' '}
-      (checked {f.accessed})
+      <Cite title={new URL(f.source).hostname} href={f.source} checked={f.accessed} />
     </p>
   );
 }

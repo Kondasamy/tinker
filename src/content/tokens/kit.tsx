@@ -16,6 +16,7 @@ import type { Config } from '../../lib/rag/load';
 import { useNarrow } from '../tool-calling/kit';
 import { fact } from '../../lib/tokens/facts';
 import './tokens.css';
+import Cite from '../../components/story/Cite';
 
 /** The site tokenizer's ids and pieces for text: a piece is its text, or its bytes when they are only part of a character. */
 export function siteEncoding(text: string): Encoding {
@@ -224,10 +225,7 @@ export function Fact({ id }: { id: string }) {
   return (
     <p className="tc-fact">
       {f.claim}{' '}
-      <a className="source" href={f.source} target="_blank" rel="noreferrer">
-        Source: {new URL(f.source).hostname}
-      </a>{' '}
-      (checked {f.accessed})
+      <Cite title={new URL(f.source).hostname} href={f.source} checked={f.accessed} />
     </p>
   );
 }

@@ -19,6 +19,7 @@ import { MODE_IDS, modeOf, replyOf, spanOf, type ModeId, type Trace } from '../.
 import { fact } from '../../lib/observability/facts';
 import { useNarrow } from '../tool-calling/kit';
 import './observability.css';
+import Cite from '../../components/story/Cite';
 
 export const MODULE = 'observability';
 /** a mode's word on its bin's pill */
@@ -288,10 +289,7 @@ export function Fact({ id }: { id: string }) {
   return (
     <p className="tc-fact">
       {f.claim}{' '}
-      <a className="source" href={f.source} target="_blank" rel="noreferrer">
-        Source: {new URL(f.source).hostname}
-      </a>{' '}
-      (checked {f.accessed})
+      <Cite title={new URL(f.source).hostname} href={f.source} checked={f.accessed} />
     </p>
   );
 }

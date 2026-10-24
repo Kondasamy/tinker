@@ -24,6 +24,7 @@ import { ENGINE_BOARD, engineLabel, engineScene, type EngineOpts } from '../../c
 import { attentionMap, mapLabel, pieceLabel, probBar } from '../../components/scenes/attentionMap';
 import { useNarrow } from '../tool-calling/kit';
 import './transformers.css';
+import Cite from '../../components/story/Cite';
 
 /** Larkspur mini's context: the most tokens it reads (public/data/lm/meta.json model.ctx; a test holds them equal). */
 export const CTX = 32;
@@ -377,10 +378,7 @@ export function Fact({ id }: { id: string }) {
   return (
     <p className="tc-fact">
       {f.claim}{' '}
-      <a className="source" href={f.source} target="_blank" rel="noreferrer">
-        Source: {new URL(f.source).hostname}
-      </a>{' '}
-      (checked {f.accessed})
+      <Cite title={new URL(f.source).hostname} href={f.source} checked={f.accessed} />
     </p>
   );
 }

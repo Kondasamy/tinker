@@ -6,6 +6,7 @@ import Predict, { Reveal } from '../../components/quiz/Predict';
 import { UNSURE } from '../../lib/recall';
 import ContextOverflow from '../../components/scenes/ContextOverflow';
 import { Source, Answer } from '../../components/scenes/Source';
+import Cite from '../../components/story/Cite';
 import { nextOf } from '../../lib/chapters';
 import {
   BYTES_PER_TOKEN,
@@ -246,9 +247,7 @@ export default function WhyNotStuffIt() {
                       ≈ ${((tokens / 1e6) * PRICE.perMillion).toLocaleString('en', { maximumFractionDigits: 2 })} at $
                       {PRICE.perMillion} per million input tokens ({PRICE.model}, price as of {PRICE.asOf}), if it could
                       fit at all.{' '}
-                      <a href={PRICE.sourceUrl} target="_blank" rel="noreferrer">
-                        {PRICE.sourceTitle}
-                      </a>
+                      <Cite title={PRICE.sourceTitle} href={PRICE.sourceUrl} />
                     </dd>
                   </>
                 ) : (

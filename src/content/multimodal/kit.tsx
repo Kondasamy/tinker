@@ -22,6 +22,7 @@ import { SCAN_BOARD, scanLabel, scanScene } from '../../components/scenes/scanSc
 import { patchGrid } from '../../components/scenes/patchGrid';
 import { useNarrow } from '../tool-calling/kit';
 import './multimodal.css';
+import Cite from '../../components/story/Cite';
 
 export const px = (n: number) => `${thousands(n)} px`;
 
@@ -296,10 +297,7 @@ export function Fact({ id }: { id: string }) {
   return (
     <p className="tc-fact">
       {f.claim}{' '}
-      <a className="source" href={f.source} target="_blank" rel="noreferrer">
-        Source: {new URL(f.source).hostname}
-      </a>{' '}
-      (checked {f.accessed})
+      <Cite title={new URL(f.source).hostname} href={f.source} checked={f.accessed} />
     </p>
   );
 }

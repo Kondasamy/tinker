@@ -21,6 +21,7 @@ import { evalGrid, flippedQuestions, gridLabel, type GridCol } from '../../compo
 import { useNarrow } from '../tool-calling/kit';
 import { fact } from '../../lib/evals/facts';
 import './evals.css';
+import Cite from '../../components/story/Cite';
 
 export type Suite = Record<VersionId, Row[]>;
 
@@ -224,10 +225,7 @@ export function Fact({ id }: { id: string }) {
   return (
     <p className="tc-fact">
       {f.claim}{' '}
-      <a className="source" href={f.source} target="_blank" rel="noreferrer">
-        Source: {new URL(f.source).hostname}
-      </a>{' '}
-      (checked {f.accessed})
+      <Cite title={new URL(f.source).hostname} href={f.source} checked={f.accessed} />
     </p>
   );
 }
