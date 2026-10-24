@@ -1,0 +1,21 @@
+{
+  "note": "Larkspur's planning numbers for a teaching simulator, not measurements of any real network, CDN or server. Every wait the Caching module shows comes from these and from the trace.",
+  "tickMinutes": 15,
+  "dayStartsHour": 8,
+  "edgeMs": 12,
+  "depotMs": 60,
+  "msPer100Km": 2,
+  "distanceKm": { "north": 300, "east": 900, "west": 2800 },
+  "capacity": 20,
+  "queueMs": 40,
+  "swrTicks": 2,
+  "purgeable": ["price", "photo"],
+  "words": {
+    "edge": "12 ms from a customer to their regional warehouse and back",
+    "depot": "60 ms for the depot to build a reply",
+    "distance": "2 ms of round trip for every 100 km between a warehouse and the depot",
+    "capacity": "the depot answers 20 trips in a quarter hour without slowing down; every trip past that adds 40 ms to every trip in that quarter hour",
+    "swr": "stale-while-revalidate may serve an expired copy for up to 30 minutes",
+    "purge": "staff send a purge when they edit a price or a photo; stock counts change with every order and are never purged"
+  }
+}
