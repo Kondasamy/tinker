@@ -35,8 +35,22 @@ export interface FineTuneRun {
   heldout: { loss: number; top1: number; top5: number };
   style: { loss: number; top1: number; top5: number };
 }
-/** Which weights to run: the base, the full fine-tune, the base plus the LoRA adapter, or the distilled student. */
-export type Weights = 'base' | 'finetuned' | 'lora' | 'student';
+/** public/data/pre-training/meta.json (KTD3): the base run's checkpoints, each in model.bin's layout. */
+export interface CheckpointMeta {
+  model: ModelConfig & { params: number };
+  dtype: 'float16-le';
+  tensors: Meta['tensors'];
+  steps: number[];
+  training: Record<string, unknown>;
+  checkpoints: { step: number; file: string; bytes: number; train: Score; heldout: Score }[];
+}
+type Score = { loss: number; top1: number; top5: number };
+/**
+ * Which weights to run: the base, the full fine-tune, the base plus the LoRA adapter, the distilled student, or the
+ * base run's checkpoint at a step (`ckpt-250`, read from /data/pre-training/).
+ */
+export type Weights = 'base' | 'finetuned' | 'lora' | 'student' | `ckpt-${number}`;
+const isCheckpoint = (w: Weights): w is `ckpt-${number}` => w.startsWith('ckpt-');
 
 /** IEEE 754 half to number. */
 export function halfToFloat(h: number): number {
@@ -80,8 +94,20 @@ export function parseStudent(meta: Meta, buf: ArrayBuffer): Model {
   return { config, tensors: parseTensors(s.file, s.bytes, s.tensors, buf) };
 }
 
+/** ckpt-<step>.bin: the base run's weights at `step`, laid out by the pre-training meta.json. */
+export function parseCheckpoint(meta: CheckpointMeta, step: number, buf: ArrayBuffer): Model {
+  const c = meta.checkpoints.find(x => x.step === step);
+  if (!c) throw new Error(`no checkpoint at step ${step}`);
+  const { params: _, ...config } = meta.model;
+  return { config, tensors: parseTensors(c.file, c.bytes, meta.tensors, buf) };
+}
+
 /** The files each choice of weights needs, after meta.json, and how they make a model. */
 async function loadWeights(loader: Loader, w: Weights): Promise<Model> {
+  if (isCheckpoint(w)) {
+    const [m, bin] = await Promise.all(['meta.json', `${w}.bin`].map(loader));
+    return parseCheckpoint(JSON.parse(new TextDecoder().decode(m)), Number(w.slice(5)), bin);
+  }
   const bin = w === 'finetuned' ? 'finetuned.bin' : w === 'student' ? 'student.bin' : 'model.bin';
   const [m, weights, lora] = await Promise.all(['meta.json', bin, ...(w === 'lora' ? ['lora.bin'] : [])].map(loader));
   const meta = JSON.parse(new TextDecoder().decode(m)) as Meta;
@@ -90,8 +116,12 @@ async function loadWeights(loader: Loader, w: Weights): Promise<Model> {
   return lora ? { ...model, adapter: parseAdapter(meta, lora) } : model;
 }
 
-/** One model, fetched on first load(); a failed load leaves status 'error' and the next load() retries. */
-export function modelLoader(loader: Loader = fetchLoader('/data/lm/'), weights: Weights = 'base') {
+/**
+ * One model, fetched on first load(); a failed load leaves status 'error' and the next load() retries. The loader
+ * reads /data/lm/, or /data/pre-training/ for a checkpoint, unless one is passed.
+ */
+export function modelLoader(loader?: Loader, weights: Weights = 'base') {
+  const files = loader ?? fetchLoader(isCheckpoint(weights) ? '/data/pre-training/' : '/data/lm/');
   let model: Model | undefined,
     pending: Promise<Model> | undefined,
     failed = false;
@@ -102,7 +132,7 @@ export function modelLoader(loader: Loader = fetchLoader('/data/lm/'), weights: 
       if (model) return Promise.resolve(model);
       failed = false;
       // Parse in its own step, so a bad file fails the load as a 404 does (and the next load() retries).
-      return (pending ??= loadWeights(loader, weights).then(
+      return (pending ??= loadWeights(files, weights).then(
         x => {
           model = x;
           pending = undefined;
