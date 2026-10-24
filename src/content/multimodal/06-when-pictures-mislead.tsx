@@ -9,10 +9,12 @@ import { reading, sumCheck } from '../../lib/multimodal/readings';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
+import { SCAN_PARTS } from '../../components/scenes/scanScene';
 import { Fact, MultimodalStage, ReadingCard, RecordedNote } from './kit';
 
 const MODULE = 'multimodal',
   ID = '06-when-pictures-mislead';
+export const PARTS = SCAN_PARTS;
 const SIZE = 1600;
 const money = (n: number) => (Number.isFinite(n) ? `$${n.toFixed(2)}` : 'unreadable');
 
@@ -41,7 +43,7 @@ export const outcome = () =>
     ? 1
     : 0;
 
-const QUIZ = {
+export const QUIZ = {
   question: 'Which defence holds against instructions written inside images?',
   options: [
     'Treat text read from an image as data: an action it asks for, like a refund, needs a person',
@@ -51,7 +53,7 @@ const QUIZ = {
   correct: 0,
   explanation: 'Reading the sentence is the job; acting on it is a decision the host keeps away from untrusted text.',
   why: [
-    'Right. The model may read anything; what text from an image can make the system do is limited by the host, not by hoping.',
+    'Right: the model may read anything, but what text from an image can make the system do is limited by the host, not by hoping.',
     'OCR passed the same sentence on, word for word.',
     'A prompt rule helps, but a well-written injection can still win: the Guardrails module measures exactly that.',
   ],
@@ -62,16 +64,18 @@ export const STEPS: Step<S>[] = [
     id: 'fax',
     focus: 'fax',
     visibleControls: ['fax'],
-    narration:
-      'First, a supplier’s invoice that came by fax: grainy, with a smudge across the total. Read it with vision.',
+    narration: 'First, a faxed invoice: grainy, with a smudge across the total.',
+    act: 'Read it with vision.',
+    say: { block: 'sheet', text: 'Smudged total' },
     predicate: s => s.fax,
   },
   {
     id: 'check',
     focus: 'check',
     visibleControls: ['faxReading', 'check'],
-    narration:
-      'The reading looks confident. Nothing in it says a digit was hard to read. Run a cross-check: a rule the host applies to the reading, outside the model. Do the line amounts add up to the total?',
+    narration: 'The reading looks sure: nothing says a digit was hard. A cross-check runs outside the model.',
+    act: 'Check the lines add up.',
+    say: { block: 'camera', text: 'Looks confident' },
     predicate: s => s.checked,
   },
   {
@@ -79,22 +83,26 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['checked', 'p1'],
     narration:
-      'The check caught a misread: a clean wrong digit that looked right. OCR’s reading of the same fax is garbled, which is easier to spot but just as unusable. Now a second image, a different danger:',
+      'Caught: a misread, a clean wrong digit that looked right. OCR’s reading is garbled: easier to spot, equally unusable.',
+    act: 'Now a return label: predict first.',
+    say: { block: 'sheet', text: 'Wrong digit' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'label',
     focus: 'label',
     visibleControls: ['p1', 'label'],
-    narration: 'Read the return label, with OCR and with vision.',
+    narration: 'Your pick is locked.',
+    act: 'Read the return label.',
     predicate: s => s.label,
   },
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['labelReadings', 'quiz'],
-    narration:
-      'Both readings pass the sentence on, word for word: reading text is what they are for. A sentence written to steer a model, hidden in something it reads, is prompt injection. In an image it works the same as in an email. Switching methods filters nothing out.',
+    narration: 'Both readings pass the sentence on word for word: prompt injection, in an image as in an email.',
+    act: 'One question to finish.',
+    say: { block: 'camera', text: 'Word for word' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Did OCR’s reading leave the sentence out?',
   },
@@ -108,11 +116,12 @@ export default function WhenPicturesMislead() {
       steps={STEPS}
       initial={{ fax: false, checked: false, p1: null, label: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => {
+      stage={({ state, say }) => {
         const onLabel = state.p1 !== null,
           c = sumCheck(reading('fax', SIZE, 'vision'));
         return onLabel ? (
           <MultimodalStage
+            say={say}
             shown={{
               image: 'label',
               size: SIZE,
@@ -125,6 +134,7 @@ export default function WhenPicturesMislead() {
           />
         ) : (
           <MultimodalStage
+            say={say}
             shown={{
               image: 'fax',
               size: SIZE,

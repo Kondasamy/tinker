@@ -12,7 +12,7 @@ import ChapterCards from '../../components/intro/ChapterCards.astro';
 import { SCAN_BOARD, scanLabel, scanScene, type ScanOpts } from '../../components/scenes/scanScene';
 import { gridWords, patchStill } from '../../components/scenes/patchGrid';
 import { costOf, grade, sent } from '../../lib/multimodal/readings';
-import { thousands } from '../../lib/multimodal/patches';
+import { PATCH, thousands } from '../../lib/multimodal/patches';
 import { LEAST_COST, totals, WINNERS } from '../../lib/multimodal/workbench';
 import { START } from '../../content/multimodal/07-workbench';
 import { ACCESSED, fact } from '../../lib/multimodal/facts';
@@ -34,7 +34,7 @@ const SIDES = ([400, 1600] as const).map(size => ({
 // a number is a still of the invoice cut into its patch grid at that size; otherwise the scanning table
 type Idea = [string, string, ReturnType<typeof fact> | null, ScanOpts | number];
 const IDEAS: Idea[] = [
-  ['A picture is tokens', 'Cut into 28 px patches, one token each', fact('patches'), 1600],
+  ['A picture is tokens', `Cut into ${PATCH} px patches, one token each`, fact('patches'), 1600],
   ['Size and detail', 'Fewer pixels, fewer tokens, and the small print goes first', fact('text-legible'), 400],
   [
     'Reading a scan',

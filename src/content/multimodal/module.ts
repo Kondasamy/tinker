@@ -10,7 +10,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Pictures are tokens',
     intro: {
       story:
-        'Larkspur’s assistant answers questions from text. Now suppliers email invoices as images, the warehouse photographs its notes, and customers send pictures of broken parts. The team wants the assistant to read them.',
+        'Larkspur’s assistant reads text. Now suppliers email invoices as images, the warehouse photographs its notes, and customers send photos of broken parts.',
       goal: 'How does a model that reads tokens read a picture?',
       learn: [
         'Why an image is cut into small squares called patches',
@@ -53,7 +53,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Reading a scan',
     intro: {
       story:
-        'Not every page is a clean invoice. The warehouse sends a packing slip with a table, and a handwritten note stuck to a delivery. There is an older way to read a scan, too: turn it into text first.',
+        'Not every page is a clean invoice: the warehouse sends a packing slip with a table, and a handwritten note. An older way turns a scan into text first.',
       goal: 'When is reading the image better than reading its text?',
       learn: [
         'What OCR is, and what it hands the model',
@@ -116,7 +116,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Pictures mislead',
     intro: {
       story:
-        'Two images reach the assistant in the same week: a faxed invoice with a smudge on its total, and a returned crate whose label has a sentence written for the AI.',
+        'Two images reach the assistant in one week: a faxed invoice with a smudged total, and a returned crate whose label has a sentence written for the AI.',
       goal: 'How can an image make the assistant wrong, or make it do something it shouldn’t?',
       learn: [
         'Why a misread digit comes back with no sign of doubt',
@@ -139,7 +139,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Workbench',
     intro: {
       story:
-        'Larkspur now reads three kinds of document every day: invoices, packing slips and the warehouse’s notes. Each costs tokens, and each can be read by OCR or by vision, at any size.',
+        'Larkspur now reads three kinds of document daily: invoices, packing slips and warehouse notes. Each can be read by OCR or vision, at any size.',
       goal: 'Which method and size should each kind of document get?',
       learn: [
         'How to choose a method and a size for each kind of document',

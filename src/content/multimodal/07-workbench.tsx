@@ -19,10 +19,12 @@ import {
 } from '../../lib/multimodal/workbench';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
+import { SCAN_PARTS } from '../../components/scenes/scanScene';
 import { MultimodalStage, RecordedNote, px, type View } from './kit';
 
 const MODULE = 'multimodal',
   ID = '07-workbench';
+export const PARTS = SCAN_PARTS;
 /** “Vision at the largest size, to be safe”: where the meeting started */
 export const START: Plan = Object.fromEntries(KIND_IDS.map(k => [k, { method: 'vision', size: 3200 }]));
 const ok = (c: Partial<Choice> | undefined): c is Choice =>
@@ -38,7 +40,7 @@ export interface S {
   quiz: number | null;
 }
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A team reads typed letters with vision at the largest size. Every field is right. What does the workbench say?',
   options: [
@@ -50,7 +52,7 @@ const QUIZ = {
   explanation:
     'With the fields tied, cost decides, and clean print is where OCR is right for a fraction of the tokens.',
   why: [
-    'Right. Same fields, far fewer tokens: that is a better plan, as long as a test set shows the fields stay right.',
+    'Right: same fields for far fewer tokens is a better plan, as long as a test set shows the fields stay right.',
     'Right isn’t the same as best: two plans with the same fields right are not equal if one costs several times more.',
     'Not everything: OCR breaks tables and handwriting, where vision is worth its tokens.',
   ],
@@ -61,7 +63,9 @@ export const STEPS: Step<S>[] = [
     id: 'plan',
     focus: 'plan',
     visibleControls: ['score', 'plan'],
-    narration: `The proposal on the table: vision at the largest size for everything, to be safe. The bench reads the recorded reading for your plan, document by document, and grades every field live. The best plan gets the most fields right (${MOST_RIGHT} is the most any plan gets) for the fewest tokens. Pick a method and a size for each kind of document.`,
+    narration: `Proposed: vision at the largest size, for everything. The best plan gets ${MOST_RIGHT} fields right at the lowest cost.`,
+    act: 'Change the plan on the workbench.',
+    say: { block: 'camera', text: 'Safe, but costly' },
     predicate: s => solved(planOf(s.plan)),
     hint: 'Take each document on its own: chapter 3 showed which method each needs, chapter 2 how small it can go.',
     solution: s => ({ ...s, plan: WINNERS[0] }),
@@ -70,7 +74,8 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['score', 'plan', 'quiz'],
-    narration: `${MOST_RIGHT} fields for ${thousands(LEAST_COST)} tokens: the best any plan does. Yours is ${WINNERS.length === 1 ? 'the one plan' : `one of ${WINNERS.length} plans`} that ${WINNERS.length === 1 ? 'reaches' : 'reach'} it, and it mixes methods: OCR where the print is clean, vision where layout or handwriting matters, each at the smallest size that keeps its fields. Change the plan if you like; the bench is yours. One question to finish.`,
+    narration: `${MOST_RIGHT} fields for ${thousands(LEAST_COST)} tokens: the best. OCR for clean print, vision for layout and handwriting, each as small as works.`,
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'With the same fields right, what decides between two plans?',
   },
@@ -130,13 +135,14 @@ export default function Workbench() {
       steps={STEPS}
       initial={{ plan: START, show: 'invoice', view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => {
+      stage={({ state, sync, say }) => {
         const p = planOf(state.plan),
           show = KIND_IDS.includes(state.show) ? state.show : KIND_IDS[0],
           c = p[show],
           t = totals(p);
         return (
           <MultimodalStage
+            say={say}
             view={state.view}
             onView={view => sync({ ...state, view })}
             shown={{
