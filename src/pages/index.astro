@@ -389,8 +389,8 @@ const FIRST = LIVE[0];
 // live modules first within a level
 const PLANNED = MODULES.filter(m => m.status === 'planned');
 const atLevel = (level: Level) => [...LIVE, ...PLANNED].filter(m => m.level === level);
-// shortcut: FormSubmit mails the form with no backend; after its one-time activation email, swap the address for the alias it gives
-const FORM = 'https://formsubmit.co/jkondasamy1992@gmail.com';
+// FormSubmit mails the form with no backend; the alias keeps the author's address out of the page
+const FORM = 'https://formsubmit.co/772ba7c404246e8574ae55366cdadcae';
 const SENT = new URL('/?sent#request', Astro.site).href;
 const CAPTION = heroCaption(PLANNED.length > 0);
 // the wave's cycle is one 0.8 s slot per live plot, and keyframe percentages must be literal, so each step is placed at a
