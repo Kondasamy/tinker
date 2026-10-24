@@ -8,6 +8,7 @@ import {
   IDLE,
   archiveAt,
   archiveLabel,
+  archivePlot,
   archiveScene,
   type ArchiveOpts,
 } from '../components/scenes/archiveScene';
@@ -61,6 +62,7 @@ const STATES: [string, Omit<ArchiveOpts, 'scale'>][] = [
       </div>
       <section><h2>Tree: order 1042</h2><TreeView client:load how="id" query={ONE} exec={look} /></section>
       <section><h2>Tree: a customer’s orders this month</h2><TreeView client:load how="customer_date" query={MINE} exec={mine} /></section>
+      <section><h2>Home hero plot</h2><div class="plot"><IsoStage board={[20, 20, 100, 100]} scene={ctx => archivePlot(60, 60, ctx.top)} label="The databases plot" /></div></section>
       <h1>The stage, live</h1>
       <div class="grid">
         <section><h2>Picture</h2><div class="stage"><DbStage client:load show={{ scene: lookAt, tree: { how: 'id', query: ONE, exec: look }, caption: 'Order 1042 through the index.' }} /></div></section>
@@ -77,6 +79,7 @@ const STATES: [string, Omit<ArchiveOpts, 'scale'>][] = [
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
   section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
   .phone { display: none; }
+  .plot { width: 240px; }
   .stage { display: flex; height: 520px; }
   @media (max-width: 599px) {
     .grid { grid-template-columns: 1fr; }

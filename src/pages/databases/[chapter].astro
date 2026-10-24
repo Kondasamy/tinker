@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import FindOneOrder from '../../content/databases/01-find-one-order';
+import TheIndex from '../../content/databases/02-the-index';
+import EveryWritePays from '../../content/databases/03-every-write-pays';
+import ColumnOrder from '../../content/databases/04-column-order';
+import PlannerSkips from '../../content/databases/05-planner-skips';
+import JoiningTables from '../../content/databases/06-joining-tables';
+import IndexPlan from '../../content/databases/07-index-plan';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('databases').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="databases" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-find-one-order' ? <FindOneOrder client:load />
+    : chapter === '02-the-index' ? <TheIndex client:load />
+    : chapter === '03-every-write-pays' ? <EveryWritePays client:load />
+    : chapter === '04-column-order' ? <ColumnOrder client:load />
+    : chapter === '05-planner-skips' ? <PlannerSkips client:load />
+    : chapter === '06-joining-tables' ? <JoiningTables client:load />
+    : <IndexPlan client:load />}
+</ChapterLayout>

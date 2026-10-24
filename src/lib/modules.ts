@@ -16,6 +16,7 @@ import { MULTIMODAL_MODULE } from '../content/multimodal/module';
 import { OBSERVABILITY_MODULE } from '../content/observability/module';
 import { SANDBOXING_MODULE } from '../content/sandboxing/module';
 import { VOICE_MODULE } from '../content/voice/module';
+import { DATABASES_MODULE } from '../content/databases/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -111,12 +112,7 @@ export const MODULES: Module[] = [
     'Beginner',
     'Why a copy close by beats the original far away: edge caches, expiry, stale prices and a flash sale.',
   ),
-  planned(
-    'databases',
-    'Databases & indexes',
-    'Beginner',
-    'Why the orders page is slow: a full scan, an index that jumps straight to the rows, and what every write then pays.',
-  ),
+  DATABASES_MODULE,
   planned(
     'consistency',
     'Replication & consistency',

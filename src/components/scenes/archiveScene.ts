@@ -141,7 +141,9 @@ export const archiveScene = (o: ArchiveOpts) => (ctx: SceneCtx) => {
   const st = archiveState(o),
     scale = o.scale ?? 1,
     narrow = scale > 1.5,
-    write = o.index?.write ? 'write' : 'read';
+    write = o.index?.write ? 'write' : 'read',
+    // a write with nothing read: the pills speak of writing
+    writing = st.written > 0 && o.pages === 0;
   let s = '';
   for (const b of [CAB, CUS, DESK, CLERK])
     s += castShadow(boxCorners(b.x0, b.y0, BH, b.x1, b.y1, (b as { z1: number }).z1), BH, ctx.top);
@@ -159,6 +161,7 @@ export const archiveScene = (o: ArchiveOpts) => (ctx: SceneCtx) => {
   for (let d = 1; d < slots.length; d++) {
     const a = slots[d - 1],
       b = slots[d];
+    if (a.lit < 0 || b.lit < 0) continue;
     thread += line(
       [
         [a.xs[a.lit], a.y + CARD, DESK.z1 + 4.5],
@@ -187,8 +190,12 @@ export const archiveScene = (o: ArchiveOpts) => (ctx: SceneCtx) => {
       cabTop,
       narrow ? -40 : -30,
       -14,
-      narrow ? 'ORDERS' : `ORDERS · ${plural(o.pages, 'PAGE')} READ`,
-      st.lit > 0,
+      narrow
+        ? 'ORDERS'
+        : writing
+          ? `ORDERS · ${plural(st.written, 'PAGE')} WRITTEN`
+          : `ORDERS · ${plural(o.pages, 'PAGE')} READ`,
+      st.lit > 0 || writing,
       scale,
     ),
     pill(
@@ -207,7 +214,14 @@ export const archiveScene = (o: ArchiveOpts) => (ctx: SceneCtx) => {
       !!o.index,
       scale,
     ),
-    pill(clerkTop, 0, 24, narrow ? 'ROWS' : `ROWS READ · ${fmt(o.rows)}`, o.rows > 0, scale),
+    pill(
+      clerkTop,
+      0,
+      24,
+      writing ? 'NEW ORDER' : narrow ? 'ROWS' : `ROWS READ · ${fmt(o.rows)}`,
+      o.rows > 0 || writing,
+      scale,
+    ),
   ];
   const callouts =
     sayAt(o.say, 'cabinet', [CAB.x0 + 60, CAB.y1, CAB.z1], -20, scale) +
@@ -233,6 +247,8 @@ export function archiveLabel(o: ArchiveOpts): string {
 
 /** The counts the caption carries (phones show only the names in the pills). */
 export function archiveReadouts(o: ArchiveOpts): string[] {
+  const w = archiveState(o).written;
+  if (w && !o.pages) return [`${fmt(w)} table page${w === 1 ? '' : 's'} written`];
   return [
     `${fmt(o.pages)} page${o.pages === 1 ? '' : 's'} read`,
     `${fmt(o.rows)} row${o.rows === 1 ? '' : 's'} read`,

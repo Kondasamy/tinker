@@ -97,7 +97,7 @@ export function TreeView({ how, query, exec }: { how: IndexName; query: Query; e
                   stroke={INK}
                   strokeWidth={b.lit ? 1.6 : 0.8}
                 />
-                <text x={b.x + b.w / 2} y={r.y + t.row / 2 + fs * 0.36} fontSize={fs} textAnchor="middle">
+                <text x={b.x + b.w / 2} y={r.y + t.row / 2 + fs * 0.32} fontSize={fs * 0.9} textAnchor="middle">
                   {b.text}
                 </text>
               </g>
