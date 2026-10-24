@@ -7,7 +7,7 @@ import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { Outcome } from '../tool-calling/kit';
 import { CAPS, MEMORY, OPEN, serve } from '../../lib/inference/server';
-import { floorAt } from '../../components/scenes/serveScene';
+import { SERVE_PARTS, floorAt } from '../../components/scenes/serveScene';
 import { ms } from '../../components/scenes/serverTimeline';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
@@ -22,9 +22,11 @@ export const RUNS = Object.fromEntries(
 /** the prediction compares these two caps */
 export const FROM = 4,
   TO = 16;
+/** the parts the serving floor can call out */
+export const PARTS = SERVE_PARTS;
 const tput = (cap: number) => `${Math.round(RUNS[cap].throughput)} tokens/s`;
 
-const P1 = {
+export const P1 = {
   question: `The server runs up to ${FROM} requests at once. Raise the cap to ${TO}. What happens?`,
   options: [
     'Everything gets better: more tokens a second, and each reply’s tokens come faster',
@@ -39,7 +41,7 @@ export function outcomeOf(): number {
   return b.meanTpot > a.meanTpot ? 1 : 0;
 }
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A voice assistant reads its replies aloud as they arrive; if a token comes later than the voice needs it, the speech stutters. Its server has spare memory. Should the team raise the batch cap as far as memory allows?',
   options: [
@@ -53,7 +55,7 @@ const QUIZ = {
     'The cap trades each request’s pace for the server’s throughput. A product that streams tokens to people needs a pace target, and the cap has to respect it.',
   why: [
     'More tokens per second across all callers, yes; but each pass carries more requests, so each caller waits longer between tokens.',
-    'Right. Throughput rises with the cap; so does the time per token. Pick the cap from the pace the product needs.',
+    'Right: throughput and time per token both rise with the cap, so pick the cap from the pace the product needs.',
     'Batching works the same for any reply; voice just makes the pace matter more.',
     'Memory caps how many fit; the pace each one gets is a second limit, set by how long a pass takes.',
   ],
@@ -71,14 +73,17 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['table', 'p1'],
-    narration: `Monday’s rush again, with continuous batching and the full KV room. The batch cap is how many requests run in one pass. Each pass reads the weights once, plus each request’s own cache and work, so a fuller pass takes longer. The cap is ${FROM}. Before you raise it:`,
+    narration: `The batch cap is how many requests share a pass. A fuller pass takes longer. The cap is ${FROM}.`,
+    act: `Predict raising it to ${TO}.`,
+    say: { block: 'server', text: `Cap of ${FROM}` },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'reveal',
     focus: 'cap',
     visibleControls: ['p1', 'cap'],
-    narration: `Locked in. Raise the cap to ${TO}.`,
+    narration: 'Your pick is locked.',
+    act: `Raise the cap to ${TO}.`,
     predicate: s => s.cap === TO,
     hint: 'Move the slider all the way right.',
   },
@@ -87,7 +92,9 @@ export const STEPS: Step<S>[] = [
     focus: 'cap',
     visibleControls: ['out1', 'cap'],
     narration:
-      'More throughput and a shorter queue, paid for by every customer’s pace: each token now waits for a fuller pass. Look at the other end: a cap of 1, one customer at a time.',
+      'More throughput and a shorter queue, paid by every customer’s pace: each token waits for a fuller pass.',
+    act: 'Now try a cap of 1.',
+    say: { block: 'server', text: 'Fuller pass' },
     predicate: s => s.cap === 1,
   },
   {
@@ -95,7 +102,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['cap', 'quiz'],
     narration:
-      'One at a time, each token comes fastest, but the queue grows long and the server writes a fraction of the tokens. No setting wins on every number; the team has to choose from its targets. One question to finish.',
+      'One at a time, each token comes fastest, but the queue grows and throughput falls. No setting wins every number.',
+    act: 'One question to finish.',
+    say: { block: 'queue', text: 'Long queue' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What happens to each customer when a pass carries more requests?',
   },
@@ -135,8 +144,9 @@ export default function PaceOrThroughput() {
       steps={STEPS}
       initial={{ cap: FROM, view: 'scene', p1: null, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => (
+      stage={({ state, sync, say }) => (
         <InferenceStage
+          say={say}
           view={state.view}
           onView={view => sync({ ...state, view })}
           show={() => ({

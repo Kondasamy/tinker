@@ -17,6 +17,7 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { num } from '../../lib/format';
 import P from '../../../data/inference/prompts.json' with { type: 'json' };
+import { SERVE_PARTS } from '../../components/scenes/serveScene';
 import { Fact, InferenceStage, ModelGate, modelNow, scoreNow, useHeldout } from './kit';
 
 const MODULE = 'inference',
@@ -28,9 +29,11 @@ export const weightsGB = (bits: Bits) => (OPEN_MODEL.params * bits) / 8 / 1e9;
 export const roomGB = (bits: Bits) => GPU_GB - weightsGB(bits);
 /** full-length requests the room holds */
 export const fitsAt = (bits: Bits) => Math.floor((roomGB(bits) * 1e9) / kvBytes(OPEN, OPEN_MODEL.ctx));
+/** the parts the serving floor can call out */
+export const PARTS = SERVE_PARTS;
 const pct = (x: number) => `${(x * 100).toFixed(1)}%`;
 
-const P1 = {
+export const P1 = {
   question:
     'At 8 bits the weights take about half the memory. On held-out text Larkspur never trained on, its loss at 8 bits:',
   options: [
@@ -48,7 +51,7 @@ export function outcomeOf(): number | undefined {
   return r > 0.1 ? 0 : r < -0.01 ? 2 : r <= 0.01 ? 1 : 0;
 }
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A team wants to run its assistant on a smaller, cheaper card by storing the weights in 4 bits. What should it do before switching?',
   options: [
@@ -62,9 +65,9 @@ const QUIZ = {
     'Memory saved is arithmetic; what the rounding costs depends on the model and the task, so measure it, as you did on held-out text and the top 5.',
   why: [
     'The memory falls to a quarter, but the rounding is coarser: Larkspur mini’s loss rose and its top 5 changed at 4 bits.',
-    'Right. The saving is known from the shapes; the cost shows only when you measure, as with any change (the Evals module).',
+    'Right: the saving is known from the shapes, but the cost shows only when you measure (the Evals module).',
     'Quantization rounds trained weights after training; no retraining is needed, though methods like GPTQ and AWQ round more carefully.',
-    'Weights round well: you just did it. Caches can be quantized too, but that is a separate choice.',
+    'Weights round well, as you just saw; caches can be quantized too, but that is a separate choice.',
   ],
 };
 
@@ -80,29 +83,33 @@ export const STEPS: Step<S>[] = [
     id: 'eight',
     focus: 'bits',
     visibleControls: ['bits'],
-    narration:
-      'Larkspur mini’s weights are 16-bit numbers. Quantization rounds each one to a few levels: here each row of weights gets its own scale, its largest weight maps to the top level, and every other weight to the nearest. Store them in 8 bits.',
+    narration: 'Quantization rounds each weight to one of a few levels, scaled per row to its largest weight.',
+    act: 'Store them as int8: 8 bits.',
     predicate: s => !!modelNow('base') && s.bits === 8,
   },
   {
     id: 'predict',
     focus: 'p1',
     visibleControls: ['bits', 'p1'],
-    narration: 'About half the memory, counted from the shapes. Before you score it:',
+    narration: 'About half the memory, counted from the shapes.',
+    act: 'Predict the held-out loss.',
+    say: { block: 'kv', text: 'More KV room' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'reveal',
     focus: 'score',
     visibleControls: ['p1', 'score'],
-    narration: 'Locked in. Score both on held-out text, in your browser.',
+    narration: 'Your pick is locked.',
+    act: 'Score both on held-out text, in your browser.',
     predicate: s => s.revealed && !!scoreNow(8) && !!scoreNow(16),
   },
   {
     id: 'four',
     focus: 'bits',
     visibleControls: ['out1', 'bits'],
-    narration: 'Eight bits keep 255 levels per row, plenty for these weights. Go further: 4 bits keep only 15.',
+    narration: 'int8 keeps 255 levels per row, plenty for these weights. int4 keeps only 15.',
+    act: 'Store them in 4 bits.',
     predicate: s => s.bits === 4,
   },
   {
@@ -110,7 +117,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['bits', 'more', 'quiz'],
     narration:
-      'A quarter of the memory, and now the loss rises and some top-5 picks change. These are Larkspur mini’s numbers, a tiny model; big models are rounded with careful methods and still checked task by task. On the server, the memory saved becomes room for the KV cache. One question to finish.',
+      'A quarter of the memory, but the loss rises and top-5 picks change. A tiny model’s numbers: measure your own.',
+    act: 'One question to finish.',
+    say: { block: 'kv', text: 'Freed for cache' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which part of the trade is arithmetic, and which has to be measured?',
   },
@@ -202,11 +211,12 @@ export default function SmallerNumbers() {
       ready={!!modelNow('base')}
       initial={{ bits: 16, p1: null, revealed: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => {
+      stage={({ state, say }) => {
         const fits = fitsAt(state.bits),
           drawn = Math.min(16, fits);
         return (
           <InferenceStage
+            say={say}
             weights={['base']}
             show={() => ({
               scene: { seats: Array.from({ length: drawn }, () => 'decode' as const), queued: 0, kv: 1 },
