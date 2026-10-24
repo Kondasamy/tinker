@@ -16,6 +16,7 @@ import { MULTIMODAL_MODULE } from '../content/multimodal/module';
 import { OBSERVABILITY_MODULE } from '../content/observability/module';
 import { SANDBOXING_MODULE } from '../content/sandboxing/module';
 import { VOICE_MODULE } from '../content/voice/module';
+import { POST_TRAINING_MODULE } from '../content/post-training/module';
 import { PRE_TRAINING_MODULE } from '../content/pre-training/module';
 import type { RecallItem } from './recall';
 
@@ -89,12 +90,7 @@ export const MODULES: Module[] = [
   MULTIMODAL_MODULE,
   VOICE_MODULE,
   PRE_TRAINING_MODULE,
-  planned(
-    'post-training',
-    'Post-training',
-    'Advanced',
-    'How a base model becomes an assistant: preferences, a grader that marks its drafts, and the answers that game a weak one.',
-  ),
+  POST_TRAINING_MODULE,
   planned(
     'interpretability',
     'Interpretability',

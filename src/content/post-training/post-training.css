@@ -1,0 +1,102 @@
+/* Post-training stage: shares the tool-calling stage frame (.tc-*) and Fine-tuning's chart and answer styles (.ft-*,
+   fine-tuning.css through fine-tuning/kit). These are the bars' key and focus ring, the answer cards and the rule picker. */
+.pt-ring {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+}
+.pt-swatch {
+  width: 14px;
+  height: 10px;
+  border: 1.2px solid var(--ink);
+  background: #5a82c6;
+}
+.pt-swatch[data-k="before"] {
+  background: #c9d8f0;
+  border-style: dashed;
+}
+.pt-answer .lbl {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pt-p {
+  margin-left: auto;
+  font:
+    800 13px ui-monospace,
+    Menlo,
+    monospace;
+}
+.pt-answer[data-gaming="1"] {
+  border-left: 4px solid var(--bad);
+}
+.pt-marks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 13px;
+}
+.pt-rules {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1.5px solid var(--rule);
+  border-radius: 10px;
+}
+.pt-rules legend {
+  padding: 0 4px;
+  font-weight: 800;
+  font-size: 13.5px;
+}
+.pt-rules label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pt-maths {
+  font-size: 13.5px;
+}
+.pt-maths summary {
+  cursor: pointer;
+  font-weight: 800;
+}
+.pt-pairs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pt-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+}
+.pt-pair button {
+  text-align: left;
+  font: inherit;
+  padding: 10px 12px;
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--ink);
+  cursor: pointer;
+}
+.pt-pair button[aria-pressed="true"] {
+  background: var(--acc, #ffb627);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.pt-range {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pt-range input {
+  width: 100%;
+}
+@media (max-width: 560px) {
+  .pt-pair {
+    grid-template-columns: 1fr;
+  }
+}

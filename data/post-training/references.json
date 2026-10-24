@@ -1,0 +1,22 @@
+{
+  "refund-window": {
+    "answer": "Standard customers can request a refund within 30 days of delivery.",
+    "facts": { "refund-30-days": ["30 days", "thirty days"] }
+  },
+  "k2-price": {
+    "answer": "A Kestrel K2 handheld scanner costs $410 per unit when you order 50 or more.",
+    "facts": { "k2-row": ["$410"] }
+  },
+  "same-day-cutoff": {
+    "answer": "In-stock orders placed before 2 p.m. Central time on a business day ship the same day.",
+    "facts": { "cutoff-2pm": ["2 p.m.", "2 pm", "2pm"] }
+  },
+  "sensor-warranty": {
+    "answer": "The DS-100 dock door sensor has a three-year warranty from the date of shipment.",
+    "facts": { "three-years": ["three years", "three-year", "3 years"] }
+  },
+  "late-again": {
+    "answer": "I’m sorry it’s late again. Order 1042 ships today and arrives Thursday.",
+    "facts": { "ships-today": ["ships today"] }
+  }
+}

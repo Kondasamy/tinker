@@ -1,0 +1,61 @@
+{
+  "about": "Hand-written answers per question, written for this site (KTD4). `ref` is the toy policy's starting probability for each answer, set by hand; each question's sum to 1. `best` marks the answer the team wants, `gaming` an answer that satisfies weak rules without the key fact, `base` a base model's continuation.",
+  "questions": [
+    {
+      "id": "refund-window",
+      "kind": "checkable",
+      "query": "How long do standard customers have to ask for a refund?",
+      "candidates": [
+        { "id": "A", "text": "Q: How long is the warranty on a dock sensor? Q: Can I return a ladder? Q: Where is my order?", "note": "A base model’s continuation: it carries on the FAQ page instead of answering.", "ref": 0.3, "base": true },
+        { "id": "B", "text": "Standard customers can request a refund within 30 days of delivery.", "note": "Right, and word for word the reference.", "ref": 0.25, "best": true },
+        { "id": "C", "text": "You have 14 days from delivery to ask for a refund.", "note": "Wrong number, said with confidence.", "ref": 0.2 },
+        { "id": "D", "text": "It depends on your account. Please check the policy page.", "note": "Dodges the question.", "ref": 0.15 },
+        { "id": "E", "text": "Refunds take 7, 14 or 60 days, it depends. Cheers, the Larkspur team", "note": "Games a weak grader: numbers and a sign-off, but not the 30 days.", "ref": 0.1, "gaming": true }
+      ]
+    },
+    {
+      "id": "k2-price",
+      "kind": "checkable",
+      "query": "What does a Kestrel K2 scanner cost when I order 50 or more?",
+      "candidates": [
+        { "id": "A", "text": "Prices change often, so please ask your account manager.", "note": "Dodges the question.", "ref": 0.35 },
+        { "id": "B", "text": "A Kestrel K2 handheld scanner costs $410 per unit when you order 50 or more.", "note": "Right, and word for word the reference.", "ref": 0.25, "best": true },
+        { "id": "C", "text": "A Kestrel K2 costs $460 per unit.", "note": "The single-unit price row, misread.", "ref": 0.25 },
+        { "id": "D", "text": "Somewhere from $99 to $999 a unit. Cheers, the Larkspur team", "note": "Games a weak grader: numbers and a sign-off, but not $410.", "ref": 0.15, "gaming": true }
+      ]
+    },
+    {
+      "id": "same-day-cutoff",
+      "kind": "checkable",
+      "query": "When do I have to order for same-day shipping?",
+      "candidates": [
+        { "id": "A", "text": "Most orders ship quickly.", "note": "True, and no help.", "ref": 0.35 },
+        { "id": "B", "text": "In-stock orders placed before 2 p.m. Central time on a business day ship the same day.", "note": "Right, and word for word the reference.", "ref": 0.2, "best": true },
+        { "id": "C", "text": "Order before noon and it ships the same day.", "note": "Wrong cutoff.", "ref": 0.3 },
+        { "id": "D", "text": "Order by 9, 10, 11 or 12 and it may ship. Cheers, the Larkspur team", "note": "Games a weak grader: numbers and a sign-off, but not 2 p.m.", "ref": 0.15, "gaming": true }
+      ]
+    },
+    {
+      "id": "sensor-warranty",
+      "kind": "checkable",
+      "query": "How long is the warranty on the DS-100 dock sensor?",
+      "candidates": [
+        { "id": "A", "text": "Warranties vary by product.", "note": "Dodges the question.", "ref": 0.3 },
+        { "id": "B", "text": "The DS-100 dock door sensor has a three-year warranty from the date of shipment.", "note": "Right, and word for word the reference.", "ref": 0.25, "best": true },
+        { "id": "C", "text": "The DS-100 has a one-year warranty.", "note": "Wrong length, with the product’s name to look sure.", "ref": 0.3 },
+        { "id": "D", "text": "1 or 2 years, give or take. Cheers, the Larkspur team", "note": "Games a weak grader: numbers and a sign-off, but not three years.", "ref": 0.15, "gaming": true }
+      ]
+    },
+    {
+      "id": "late-again",
+      "kind": "tone",
+      "query": "My order 1042 is late AGAIN. Third time this year!",
+      "candidates": [
+        { "id": "A", "text": "I’m so sorry it’s late again; that isn’t good enough. Order 1042 ships today and arrives Thursday.", "note": "Owns the problem, then gives the facts.", "ref": 0.25, "best": true },
+        { "id": "B", "text": "Order 1042 ships today.", "note": "Right, but cold to a customer who is upset.", "ref": 0.35 },
+        { "id": "C", "text": "Orders are late sometimes. 1042 ships today.", "note": "Right, and brushes the customer off.", "ref": 0.25 },
+        { "id": "D", "text": "We value your business! Your order ships today. Cheers, the Larkspur team", "note": "Right, in a script that ignores what the customer said.", "ref": 0.15 }
+      ]
+    }
+  ]
+}
