@@ -43,10 +43,10 @@ export const QUIZ = {
 // the era's lesson over it.
 const LESSON = ['RAG is named', 'Tiny windows', 'Smarter retrieval', 'RAG becomes a tool'];
 const AFTER: string[] = [
-  '2020: researchers named the fix. Fetch relevant text first, then let the model answer from it: Retrieval-Augmented Generation, or RAG. Click 2023.',
-  `2023: chat assistants arrived, with a context window of ${smallest2023} to ${win('small-windows')} tokens. Tool calling had barely begun, so retrieval picked the paragraphs. Click 2024.`,
-  `2024: windows reached ${win('retrieval-matures')} tokens and retrieval got smarter: knowledge graphs, better chunks, reranking. Tool use still stumbled on multi-step tasks. Click the last era.`,
-  `Late 2024–26: windows reached ${win('agents')} tokens, and models call tools well enough to act as agents. Retrieval became one tool the agent chooses. Last question.`,
+  '2020: researchers named the fix. Fetch relevant text first, then let the model answer from it: Retrieval-Augmented Generation, or RAG.',
+  `2023: chat assistants arrived, with a context window of ${smallest2023} to ${win('small-windows')} tokens. Tool calling had barely begun, so retrieval picked the paragraphs.`,
+  `2024: windows reached ${win('retrieval-matures')} tokens and retrieval got smarter: knowledge graphs, better chunks, reranking. Tool use still stumbled on multi-step tasks.`,
+  `Late 2024–26: windows reached ${win('agents')} tokens, and models call tools well enough to act as agents. Retrieval became one tool the agent chooses.`,
 ];
 
 const eraStep = (i: number): Step<S> => ({
@@ -56,8 +56,9 @@ const eraStep = (i: number): Step<S> => ({
   opensDrawer: i === 0 ? 'answer' : 'era',
   narration:
     i === 0
-      ? 'Confident, and wrong. A model knows only its training data plus its prompt, and it never saw your contracts. Click 2020.'
+      ? 'Confident, and wrong. A model knows only its training data plus its prompt, and it never saw your contracts.'
       : AFTER[i - 1],
+  act: `Click ${i === ERAS.length - 1 ? 'the last era' : ERAS[i].label}.`,
   say: i === 0 ? undefined : { block: String(i - 1), text: LESSON[i - 1] },
   predicate: s => s.visited > i,
   hint: `Click the glowing ${ERAS[i].label} object, or Tab to it and press Enter.`,
@@ -78,6 +79,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['quiz'],
     opensDrawer: 'era',
     narration: AFTER[ERAS.length - 1],
+    act: 'Last question.',
     say: { block: String(ERAS.length - 1), text: LESSON[ERAS.length - 1] },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Think back to 2023: what limited how much a model could read?',

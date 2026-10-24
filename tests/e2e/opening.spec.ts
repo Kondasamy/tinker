@@ -68,6 +68,7 @@ for (const ch of [
         document.querySelector<HTMLElement>('.intro')?.innerText ?? '',
         document.querySelector<HTMLElement>('.card .count')?.innerText ?? '',
         document.querySelector<HTMLElement>('.card .narration')?.innerText ?? '',
+        document.querySelector<HTMLElement>('.card .act')?.innerText ?? '',
       ].join(' ');
       return text.split(/\s+/).filter(Boolean).length;
     });

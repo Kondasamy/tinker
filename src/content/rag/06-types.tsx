@@ -111,8 +111,8 @@ export const STEPS: Step<S>[] = [
     id: 'naive-run',
     focus: 'run',
     visibleControls: ['cards', 'run'],
-    narration:
-      'Pick the enterprise refund question and run it as naive RAG. Each run adds a row to the results strip under the canvas.',
+    narration: 'Each run adds a row to the results strip under the canvas.',
+    act: 'Pick the enterprise refund question and run it as naive RAG.',
     predicate: s => !!row(s, 'refund-enterprise', 'naive'),
   },
   {
@@ -121,7 +121,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['types'],
     opensDrawer: 'answer',
     narration:
-      'Wrong: one chunk stopped after “does NOT”. Agentic RAG puts an agent between retriever and model to decide whether to search again. Switch to Agentic.',
+      'Wrong: one chunk stopped after “does NOT”. Agentic RAG puts an agent between retriever and model to decide whether to search again.',
+    act: 'Switch to Agentic.',
     say: { block: 'llm', text: 'Read half a rule' },
     predicate: s => s.type === 'agentic',
     solution: s => switchType(s, 'agentic'),
@@ -131,8 +132,8 @@ export const STEPS: Step<S>[] = [
     focus: 'run',
     visibleControls: ['maxCalls', 'run'],
     opensDrawer: 'answer',
-    narration:
-      'The agent sits in the side bay, wired to the retriever both ways. Max calls caps its retrievals. Keep it at 2 and run.',
+    narration: 'The agent sits in the side bay, wired to the retriever both ways. Max calls caps its retrievals.',
+    act: 'Keep it at 2 and run.',
     say: { block: 'agent', text: 'Can search again' },
     predicate: s => row(s, 'refund-enterprise', 'agentic')?.verdict === 'correct',
     hint: 'The agent needs at least 2 calls to search again.',
@@ -142,8 +143,8 @@ export const STEPS: Step<S>[] = [
     focus: 'cards',
     visibleControls: ['cards', 'types', 'run'],
     opensDrawer: 'answer',
-    narration:
-      'Correct in 2 calls: the first chunk was cut mid-sentence, so the agent fetched its neighbours. Now run the hotel limit question under both types.',
+    narration: 'Correct in 2 calls: the first chunk was cut mid-sentence, so the agent fetched its neighbours.',
+    act: 'Now run the hotel limit question under both types.',
     predicate: s => !!row(s, 'stale-hotel-limit', 'naive') && !!row(s, 'stale-hotel-limit', 'agentic'),
     hint: 'Pick the hotel card and run it, switch the type, then run it again.',
   },
@@ -152,7 +153,8 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['quiz'],
     narration:
-      'Both wrong, and the agent paid for a second search. Searching more never removes the retired 2018 policy: a metadata filter does. One question.',
+      'Both wrong, and the agent paid for a second search. Searching more never removes the retired 2018 policy: a metadata filter does.',
+    act: 'One question.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Compare the refund rows with the hotel rows in the strip.',
   },
@@ -161,7 +163,8 @@ export const STEPS: Step<S>[] = [
     focus: 'cards',
     visibleControls: ['cards', 'types', 'run'],
     narration:
-      'Harder: who approves purchases for the team owning the Kestrel K2 scanner integration? It spans two documents. Pick its card; run naive and agentic.',
+      'Harder: who approves purchases for the team owning the Kestrel K2 scanner integration? It spans two documents.',
+    act: 'Pick its card; run naive and agentic.',
     predicate: s => !!row(s, MULTI, 'naive') && !!row(s, MULTI, 'agentic'),
     hint: 'Pick the Kestrel card, run it, switch the type, then run it again.',
   },
@@ -171,7 +174,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['types'],
     opensDrawer: 'answer',
     narration:
-      'Not found either way: no single sentence links the scanner to the approver. GraphRAG walks a knowledge graph drawn from the documents. Switch to GraphRAG.',
+      'Not found either way: no single sentence links the scanner to the approver. GraphRAG walks a knowledge graph drawn from the documents.',
+    act: 'Switch to GraphRAG.',
     predicate: s => s.type === 'graph',
     solution: s => switchType(s, 'graph'),
   },
@@ -181,7 +185,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['run'],
     opensDrawer: 'answer',
     narration:
-      'The graph starts from what your question names, the Kestrel K2, and follows relations outward to the sentences behind them. Run it with 1 hop.',
+      'The graph starts from what your question names, the Kestrel K2, and follows relations outward to the sentences behind them.',
+    act: 'Run it with 1 hop.',
     say: { block: 'graph', text: 'Walks relations' },
     predicate: s => !!row(s, MULTI, 'graph'),
   },
@@ -191,7 +196,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['hops', 'run'],
     opensDrawer: 'answer',
     narration:
-      'Still not found. One hop reached Fulfillment Systems, the team that owns the integration, and stopped short of its approver. Set hops to 2.',
+      'Still not found. One hop reached Fulfillment Systems, the team that owns the integration, and stopped short of its approver.',
+    act: 'Set hops to 2.',
     say: { block: 'graph', text: 'One step short' },
     predicate: s => row(s, MULTI, 'graph')?.verdict === 'correct',
     hint: 'Drag the hops slider to 2, then run.',
@@ -201,7 +207,8 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['gquiz'],
     narration:
-      'Correct: the second hop reached Tomasz Rehnquist in another document. The price: the walk sent about two dozen chunks instead of one. One question.',
+      'Correct: the second hop reached Tomasz Rehnquist in another document. The price: the walk sent about two dozen chunks instead of one.',
+    act: 'One question.',
     predicate: s => s.gquiz === GRAPH_QUIZ.correct || s.gquiz === UNSURE,
     hint: 'Compare the Kestrel rows in the strip.',
   },
@@ -211,7 +218,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['run'],
     setup: s => ({ ...switchType(s, 'naive'), q: SC }),
     narration:
-      'Next, a trap: how long does Larkspur keep customer payment card data? A meeting note about fake demo cards uses near-identical words. Run naive.',
+      'Next, a trap: how long does Larkspur keep customer payment card data? A meeting note about fake demo cards uses near-identical words.',
+    act: 'Run naive.',
     predicate: s => !!row(s, SC, 'naive'),
   },
   {
@@ -220,7 +228,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['types'],
     opensDrawer: 'answer',
     narration:
-      'Wrong: it read the demo note. Self-correcting RAG grades retrieval before answering, retries, and says “I don’t know” if nothing passes. Switch to Self-correcting.',
+      'Wrong: it read the demo note. Self-correcting RAG grades retrieval before answering, retries, and says “I don’t know” if nothing passes.',
+    act: 'Switch to Self-correcting.',
     say: { block: 'llm', text: 'Read the demo note' },
     predicate: s => s.type === 'selfcheck',
     solution: s => switchType(s, 'selfcheck'),
@@ -230,7 +239,8 @@ export const STEPS: Step<S>[] = [
     focus: 'run',
     visibleControls: ['run'],
     opensDrawer: 'answer',
-    narration: `The Evaluator scores each search with a cross-encoder, which reads question and chunk together. A best chunk of ${GRADE_BAR} or more passes. Run again.`,
+    narration: `The Evaluator scores each search with a cross-encoder, which reads question and chunk together. A best chunk of ${GRADE_BAR} or more passes.`,
+    act: 'Run again.',
     predicate: s => {
       const r = row(s, SC, 'selfcheck');
       return !!r && r.verdict !== 'wrong';
@@ -242,7 +252,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['types'],
     opensDrawer: 'answer',
     narration:
-      'The look-alike and a rewrite both failed the bar, so it said “I don’t know”. No grade reads tables, PDFs or images. Switch to Multimodal.',
+      'The look-alike and a rewrite both failed the bar, so it said “I don’t know”. No grade reads tables, PDFs or images.',
+    act: 'Switch to Multimodal.',
     say: { block: 'grader', text: 'Says “I don’t know”' },
     predicate: s => s.type === 'multimodal',
     solution: s => switchType(s, 'multimodal'),
@@ -252,8 +263,8 @@ export const STEPS: Step<S>[] = [
     focus: 'run',
     visibleControls: ['run'],
     opensDrawer: 'answer',
-    narration:
-      'A plain-text reader skips tables and images, so the Docs block’s three parsers start off. Run the price question: a Kestrel K2 at 50+ units?',
+    narration: 'A plain-text reader skips tables and images, so the Docs block’s three parsers start off.',
+    act: 'Run the price question: a Kestrel K2 at 50+ units?',
     say: { block: 'docs', text: 'Parsers off' },
     predicate: s => !!row(s, PRICE, 'multimodal'),
   },
@@ -262,8 +273,8 @@ export const STEPS: Step<S>[] = [
     focus: 'parse',
     visibleControls: ['parse', 'run'],
     opensDrawer: 'answer',
-    narration:
-      'Not found: the price list is a table, and with table parsing off retrieval never sees it. Turn on “Parse tables to text” and rerun.',
+    narration: 'Not found: the price list is a table, and with table parsing off retrieval never sees it.',
+    act: 'Turn on “Parse tables to text” and rerun.',
     predicate: s => row(s, PRICE, 'multimodal')?.verdict === 'correct',
     hint: 'Tick “Parse tables to text”, then run.',
   },
@@ -273,7 +284,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['cards', 'parse', 'run'],
     opensDrawer: 'answer',
     narration:
-      'Correct: $410, from the table’s K2 row. The sensor warranty sits in a vendor PDF, the lead in an org chart image. Turn on both.',
+      'Correct: $410, from the table’s K2 row. The sensor warranty sits in a vendor PDF, the lead in an org chart image.',
+    act: 'Turn on both.',
     predicate: s =>
       row(s, PDF, 'multimodal')?.verdict === 'correct' && row(s, IMG, 'multimodal')?.verdict === 'correct',
     hint: 'PDF parsing for the warranty card, image captions for the Customer Success card.',

@@ -137,7 +137,11 @@ const m = moduleOf(module);
 
   .card { background: var(--card); border: 1.5px solid var(--ink); border-radius: 14px; padding: 18px; box-shadow: 3px 3px 0 var(--ink); display: flex; flex-direction: column; gap: 14px; }
   .card .count { margin: 0; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
-  .card .narration { margin: 4px 0 0; font-size: 16px; font-weight: 700; line-height: 1.45; }
+  .card .narration { margin: 4px 0 0; font-size: 16px; font-weight: 500; line-height: 1.45; }
+  /* what to do now: its own line, bold and highlighted, so it never hides in the narration */
+  .card .act { margin: 8px 0 0; display: flex; gap: 8px; font-size: 16px; font-weight: 800; line-height: 1.45; }
+  .card .act::before { content: '→' / ''; flex: none; }
+  .card .act span { background: linear-gradient(transparent 55%, color-mix(in srgb, var(--acc) 60%, transparent) 0); }
   /* a chapter word, defined where it is first used (KTD3) */
   .card .term { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: help; text-decoration: underline dotted 1.5px; text-underline-offset: 3px; }
   .card .term[aria-expanded='true'] { background: var(--acc); border-radius: 3px; }

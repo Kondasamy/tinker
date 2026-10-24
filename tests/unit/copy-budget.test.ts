@@ -46,10 +46,11 @@ function overruns(moduleId: string) {
     if (words(story) > BUDGET.story) out.push(`${at} story: ${words(story)} words`);
     if (words(goal) > BUDGET.goal) out.push(`${at} question: ${words(goal)} words`);
     if (learn.length > BUDGET.learn) out.push(`${at} learn: ${learn.length} items`);
-    const opening = words(story) + words(goal) + words(steps[0].narration);
+    const step = (s: Step<unknown>) => words(s.narration) + words(s.act ?? '');
+    const opening = words(story) + words(goal) + step(steps[0]);
     if (opening > BUDGET.opening) out.push(`${at} opening: ${opening} words`);
     for (const s of steps) {
-      if (words(s.narration) > BUDGET.narration) out.push(`${at} step ${s.id}: ${words(s.narration)} words`);
+      if (step(s) > BUDGET.narration) out.push(`${at} step ${s.id}: ${step(s)} words`);
       if (s.say && words(s.say.text) > BUDGET.say) out.push(`${at} step ${s.id} callout: ${words(s.say.text)} words`);
     }
     for (const q of Object.values(mod))
@@ -57,7 +58,7 @@ function overruns(moduleId: string) {
         for (const [i, w] of (q as { why: string[] }).why.entries())
           if (sentences(w) > 1) out.push(`${at} quiz why ${i + 1}: ${sentences(w)} sentences`);
     for (const t of unmarked(
-      steps.map(s => s.narration),
+      steps.flatMap(s => [s.narration, s.act ?? '']),
       terms,
     ))
       out.push(`${at} term never in narration: ${t}`);

@@ -64,8 +64,8 @@ export const STEPS: Step<S>[] = [
     focus: 'add',
     visibleControls: ['add'],
     opensDrawer: 'answer',
-    narration:
-      'Made up. It sounds sure, but it has never read your refund policy, so it invented one. Give it the company documents.',
+    narration: 'Made up. It sounds sure, but it has never read your refund policy, so it invented one.',
+    act: 'Give it the company documents.',
     predicate: s => has(s, 'docs'),
   },
   {
@@ -73,7 +73,8 @@ export const STEPS: Step<S>[] = [
     focus: 'predict',
     visibleControls: ['predict'],
     narration:
-      'Still made up: the documents are there, but nothing carries the right ones to the model. A Retriever finds the passages that match. Predict first.',
+      'Still made up: the documents are there, but nothing carries the right ones to the model. A Retriever finds the passages that match.',
+    act: 'Predict first.',
     say: { block: 'docs', text: 'No wire to the model' },
     predicate: s => s.prediction !== null,
   },
@@ -81,7 +82,8 @@ export const STEPS: Step<S>[] = [
     id: 'retriever',
     focus: 'add',
     visibleControls: ['predict', 'add'],
-    narration: 'Your pick is locked. Add the Retriever and watch the answer.',
+    narration: 'Your pick is locked.',
+    act: 'Add the Retriever and watch the answer.',
     predicate: s => has(s, 'retriever') && s.verdict === 'correct',
     hint: 'Press “Add the Retriever”. The wire from Docs to the model lights up once it is in place.',
   },
@@ -100,8 +102,8 @@ export const STEPS: Step<S>[] = [
     focus: 'retriever',
     visibleControls: [],
     opensDrawer: 'evidence',
-    narration:
-      'These passages reached the model, each with a similarity score. Tick “Show the math” to see how the top score is computed.',
+    narration: 'These passages reached the model, each with a similarity score.',
+    act: 'Tick “Show the math” to see how the top score is computed.',
     predicate: s => s.math,
     hint: 'The “Show the math” box sits above the list of chunks. If the panel is closed, press Evidence under the canvas.',
   },
@@ -109,8 +111,8 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['quiz'],
-    narration:
-      'The retriever compares the meaning of your question with every passage and keeps the closest. One question to finish.',
+    narration: 'The retriever compares the meaning of your question with every passage and keeps the closest.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What changed between the made-up answer and the right one? Not the model.',
   },

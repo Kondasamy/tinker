@@ -61,7 +61,8 @@ export const STEPS: Step<S>[] = [
     id: 'ask',
     focus: 'ask',
     visibleControls: ['ask'],
-    narration: `The team now cuts documents into ${BROKEN.size}-word chunks and sends only the best. Ask about refunds again.`,
+    narration: `The team now cuts documents into ${BROKEN.size}-word chunks and sends only the best.`,
+    act: 'Ask about refunds again.',
     predicate: s => s.asked,
   },
   {
@@ -69,7 +70,8 @@ export const STEPS: Step<S>[] = [
     focus: 'predict',
     visibleControls: ['predict'],
     opensDrawer: 'answer',
-    narration: `Wrong, and sure of itself. The policy excludes enterprise contracts, but only one ${BROKEN.size}-word chunk reached the model. Predict what it held.`,
+    narration: `Wrong, and sure of itself. The policy excludes enterprise contracts, but only one ${BROKEN.size}-word chunk reached the model.`,
+    act: 'Predict what it held.',
     say: { block: 'llm', text: 'Got one chunk' },
     predicate: s => s.prediction !== null,
   },
@@ -78,7 +80,8 @@ export const STEPS: Step<S>[] = [
     focus: 'add',
     visibleControls: ['predict', 'add'],
     narration:
-      'Your pick is locked. Open up the pipeline. First layer: the Chunker, which cuts every document into chunks before any search.',
+      'Your pick is locked. Open up the pipeline. First layer: the Chunker cuts every document into chunks before any search.',
+    act: 'Add the Chunker.',
     predicate: s => has(s, 'chunker'),
   },
   {
@@ -87,7 +90,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['reveal', 'add'],
     opensDrawer: 'chunks',
     narration:
-      'There it is: a cut after “does NOT”, the red mark. The rule and its exception landed in different chunks. Add the Embedder and Index.',
+      'There it is: a cut after “does NOT”, the red mark. The rule and its exception landed in different chunks.',
+    act: 'Add the Embedder and Index.',
     say: { block: 'chunker', text: 'Cuts after “NOT”' },
     predicate: s => has(s, 'embedder') && has(s, 'index'),
   },
@@ -97,7 +101,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: [],
     opensDrawer: 'map',
     narration:
-      'The Embedder turns each chunk into an embedding, 384 numbers for its meaning; the vector index stores them. Point at a dot on the map.',
+      'The Embedder turns each chunk into an embedding, 384 numbers for its meaning; the vector index stores them.',
+    act: 'Point at a dot on the map.',
     say: { block: 'embedder', text: 'Text to numbers' },
     predicate: s => s.probed,
     hint: 'The blue and yellow dots are the closest matches. Hover one, or press Tab until one is selected.',
@@ -107,7 +112,8 @@ export const STEPS: Step<S>[] = [
     focus: 'add',
     visibleControls: ['add'],
     narration:
-      'Closeness on the map is a picture: the retriever ranks by the true score. Last layer: the Context assembler packs the chunks into the prompt.',
+      'The map is a picture; ranking uses the true score. Last layer: the Context assembler packs chunks into the prompt.',
+    act: 'Add the Context assembler.',
     predicate: s => has(s, 'assembler'),
   },
   puzzle<S>({
@@ -115,8 +121,8 @@ export const STEPS: Step<S>[] = [
     focus: 'chunker',
     visibleControls: ['overlap'],
     opensDrawer: 'evidence',
-    narration:
-      'Puzzle: the chunk the model gets ends on “does NOT”. Fix the Chunker so the sentence survives: overlap repeats each chunk’s end in the next.',
+    narration: 'Puzzle: the chunk the model gets ends on “does NOT”. Overlap repeats each chunk’s end in the next.',
+    act: 'Fix the Chunker so the sentence survives.',
     say: { block: 'chunker', text: 'Try overlap' },
     broken: s =>
       isBroken(s.canvas.knobs)
@@ -132,7 +138,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['quiz'],
     opensDrawer: 'answer',
     narration:
-      'Correct, with a citation. With overlap the whole sentence sits in one chunk, so the model reads the exception. One question to finish.',
+      'Correct, with a citation. With overlap the whole sentence sits in one chunk, so the model reads the exception.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Look at the red mark in the Chunks panel from earlier.',
   },

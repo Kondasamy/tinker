@@ -33,7 +33,7 @@ Every chapter opens with context, never straight into a step, and keeps it short
 
 Rules for steps:
 
-- One idea per step, in plain words and short sentences: at most 25 words. The picture shows what happened; the step says what it means and what to do next.
+- One idea per step, in plain words and short sentences: at most 25 words. The picture shows what happened; the narration says what it means, and `act` says what to do next ("Click 2020."). The runner draws `act` as its own bold, highlighted line: testers could not pick an instruction out of the narration.
 - Define a term the first time it appears, and add it to the chapter's `terms`. Use the term's own word in the narration: the runner marks its first use as a tap-to-define button.
 - Give a step a callout (`say: { block, text }`, at most 5 words) when the picture has a part to point at, so the lesson sits on the picture, not only in the text.
 - Facts carry their source through a `Fact` (or `Cite`): the source opens from a small mark, never an inline "Source:" link.

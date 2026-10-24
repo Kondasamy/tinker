@@ -38,8 +38,8 @@ export const STEPS: Step<S>[] = [
     id: 'open',
     visibleControls: [],
     opensDrawer: 'answer',
-    narration:
-      'Every block from chapters 3 to 6 is here, wired; the graph answers the module’s hardest question. Open the workbench below.',
+    narration: 'Every block from chapters 3 to 6 is here, wired; the graph answers the module’s hardest question.',
+    act: 'Open the workbench below.',
     predicate: s => s.canvas.mode === 'bench',
     solution: s => ({ ...s, canvas: openBench(s.canvas) }),
   },
@@ -47,8 +47,8 @@ export const STEPS: Step<S>[] = [
     id: 'play',
     focus: 'run',
     visibleControls: ['question', 'run', 'block', 'tips', 'ready'],
-    narration:
-      'Now it is yours: drag blocks, wire them from their yellow knobs, click a wire to cut it. Ask any question and run it.',
+    narration: 'Now it is yours: drag blocks, wire them from their yellow knobs, click a wire to cut it.',
+    act: 'Ask any question and run it.',
     predicate: s => s.acks >= 1,
   },
   {
@@ -56,7 +56,8 @@ export const STEPS: Step<S>[] = [
     focus: 'challenge',
     visibleControls: ['challenge'],
     opensDrawer: null,
-    narration: 'Last stop. Five teams at Larkspur each describe a problem. Pick the RAG type that fits each one best.',
+    narration: 'Last stop. Five teams at Larkspur each describe a problem.',
+    act: 'Pick the RAG type that fits each one best.',
     predicate: s => complete(s.ch),
   },
 ];

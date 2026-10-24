@@ -10,6 +10,8 @@ export interface Say {
 export interface Step<S> {
   id: string;
   narration: string;
+  /** What the reader does now ("Click 2020."), drawn apart from the narration so it never hides in it. */
+  act?: string;
   /** The one control or block this step is about; the stage may highlight it. */
   focus?: string;
   /** stages that don't read it ignore it */

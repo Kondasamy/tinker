@@ -3,7 +3,7 @@ import { reduce, startRun, isRun, type Step, type Run, type Action, type Say } f
 import { loadChapter, saveChapter, markDone } from '../../lib/progress';
 import { moduleOf } from '../../lib/modules';
 import Drawer from './Drawer';
-import { markTerms, type TermMark } from './terms';
+import { markTerms, type Segment, type TermMark } from './terms';
 
 /** What a step control gets. `apply` hands the next state to the runner, which checks the step's predicate;
  * `sync` does too, but a miss is never a failed try (e.g. "I'm not sure"). */
@@ -135,13 +135,31 @@ export default function StepRunner<S>({
   const marked = useMemo(
     () =>
       markTerms(
-        steps.map(st => st.narration),
+        steps.flatMap(st => [st.narration, st.act ?? '']), // narration then act, per step
         ch?.intro.terms ?? [],
       ),
     [steps, ch],
   );
   const [term, setTerm] = useState<TermMark | null>(null);
   useEffect(() => setTerm(null), [run.index]);
+  const withTerms = (segs: Segment[]) =>
+    segs.map(seg =>
+      typeof seg === 'string' ? (
+        seg
+      ) : (
+        <button
+          key={seg.term}
+          type="button"
+          className="term"
+          aria-label={`${seg.text}, define`}
+          aria-expanded={term?.term === seg.term}
+          aria-controls="term-def"
+          onClick={() => setTerm(t => (t?.term === seg.term ? null : seg))}
+        >
+          {seg.text}
+        </button>
+      ),
+    );
   const [logOpen, setLogOpen] = useState(false); // kept while the reader stays, even when Back empties the log
 
   const panel = run.drawer ? panels[run.drawer] : undefined;
@@ -213,25 +231,12 @@ export default function StepRunner<S>({
         >
           <div aria-live="polite" aria-atomic="true">
             <p className="count">{run.done ? 'Chapter complete' : `Step ${run.index + 1} of ${steps.length}`}</p>
-            <p className="narration">
-              {(marked[run.index] ?? [step.narration]).map(seg =>
-                typeof seg === 'string' ? (
-                  seg
-                ) : (
-                  <button
-                    key={seg.term}
-                    type="button"
-                    className="term"
-                    aria-label={`${seg.text}, define`}
-                    aria-expanded={term?.term === seg.term}
-                    aria-controls="term-def"
-                    onClick={() => setTerm(t => (t?.term === seg.term ? null : seg))}
-                  >
-                    {seg.text}
-                  </button>
-                ),
-              )}
-            </p>
+            <p className="narration">{withTerms(marked[2 * run.index] ?? [step.narration])}</p>
+            {step.act && !run.done && (
+              <p className="act">
+                <span>{withTerms(marked[2 * run.index + 1] ?? [step.act])}</span>
+              </p>
+            )}
           </div>
           {/* outside the atomic live region, so opening a word never re-reads the whole step */}
           <div id="term-def" className="term-def" aria-live="polite">

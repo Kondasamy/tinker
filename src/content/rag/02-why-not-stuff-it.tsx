@@ -65,12 +65,13 @@ const PREDICT = {
 const OUTCOME = 1;
 
 // Each reason step: one button reveals the next reason; the drawer shows the one just revealed.
-const reasonStep = (id: Reason, opens: string, narration: string): Step<S> => ({
+const reasonStep = (id: Reason, opens: string, narration: string, act: string): Step<S> => ({
   id: `reason-${id}`,
   focus: 'reason',
   visibleControls: ['reason'],
   opensDrawer: opens,
   narration,
+  act,
   predicate: s => s.seen.includes(id),
 });
 
@@ -79,15 +80,16 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'predict',
     visibleControls: ['predict'],
-    narration:
-      'Your team’s obvious fix: paste the whole company drive into the assistant’s prompt. Before you try it, make a prediction.',
+    narration: 'Your team’s obvious fix: paste the whole company drive into the assistant’s prompt.',
+    act: 'Before you try it, make a prediction.',
     predicate: s => s.prediction !== null,
   },
   {
     id: 'ask',
     focus: 'ask',
     visibleControls: ['predict', 'ask'],
-    narration: 'Your pick is locked. The drive is pasted in. Ask the assistant about enterprise refunds.',
+    narration: 'Your pick is locked. The drive is pasted in.',
+    act: 'Ask the assistant about enterprise refunds.',
     predicate: s => s.asked,
   },
   {
@@ -95,8 +97,8 @@ export const STEPS: Step<S>[] = [
     focus: 'corpus',
     visibleControls: ['corpus'],
     opensDrawer: 'answer',
-    narration:
-      'Wrong again. The policy is on the drive, but truncation cut the paste before it. Drag the corpus slider past the context window.',
+    narration: 'Wrong again. The policy is on the drive, but truncation cut the paste before it.',
+    act: 'Drag the corpus slider past the context window.',
     say: { block: 'window', text: 'The paste stops here' },
     predicate: s => overflows(STOPS[s.stop]),
     hint: `The window holds ${formatTokens(WINDOW)} tokens, about ${formatBytes(WINDOW * BYTES_PER_TOKEN)} of text. Go past that.`,
@@ -106,7 +108,8 @@ export const STEPS: Step<S>[] = [
     focus: 'corpus',
     visibleControls: ['reveal', 'corpus'],
     opensDrawer: 'numbers',
-    narration: `It already overflows at ${formatBytes(STOPS[FIRST_OVER])}. Real company drives are much bigger. Keep dragging, to 5 TB.`,
+    narration: `It already overflows at ${formatBytes(STOPS[FIRST_OVER])}. Real company drives are much bigger.`,
+    act: 'Keep dragging, to 5 TB.',
     say: { block: 'corpus', text: 'Already too big' },
     predicate: s => s.stop >= STOP_5TB,
     hint: 'Each notch is 10 times bigger. 5 TB is the ninth notch.',
@@ -114,21 +117,23 @@ export const STEPS: Step<S>[] = [
   reasonStep(
     'middle',
     'numbers',
-    `5 TB is about ${formatTokens(tokensFor(STOPS[STOP_5TB]))} tokens. No model reads that in one go, and size is only one problem. Open the next reason.`,
+    `5 TB is about ${formatTokens(tokensFor(STOPS[STOP_5TB]))} tokens. No model reads that in one go, and size is only one problem.`,
+    'Open the next reason.',
   ),
   reasonStep(
     'fresh',
     'middle',
-    'Even text that fits gets used badly: facts lost in the middle of a long prompt are often missed. Next reason.',
+    'Even text that fits gets used badly: facts lost in the middle of a long prompt are often missed.',
+    'Next reason.',
   ),
-  reasonStep('access', 'fresh', 'A prompt is a snapshot. Documents change every day. Last reason.'),
+  reasonStep('access', 'fresh', 'A prompt is a snapshot. Documents change every day.', 'Last reason.'),
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['quiz'],
     opensDrawer: 'access',
-    narration:
-      'And one prompt for everyone ignores permissions. Retrieval can filter per user. One question to finish.',
+    narration: 'And one prompt for everyone ignores permissions. Retrieval can filter per user.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Think of all four problems: size, the middle, freshness, permissions.',
   },
