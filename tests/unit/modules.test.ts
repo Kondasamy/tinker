@@ -482,6 +482,17 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'caching')).toBe(20);
   });
 
+  it('has databases as a live Beginner module with no prerequisites, numbered 22', () => {
+    expect(moduleOf('databases')).toMatchObject({
+      title: 'Databases & indexes',
+      level: 'Beginner',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('databases').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'databases')).toBe(21);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

@@ -23,11 +23,12 @@ import { ORDERS, TABLE_PAGES, fmt } from '../../lib/databases/table';
 import { BEST, WINNERS } from '../../lib/databases/workbench';
 import { fact } from '../../lib/databases/facts';
 import { MONTHS, ONE } from '../../content/databases/requests';
-import { moduleOf, chapterHref } from '../../lib/modules';
+import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('databases');
+const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
 const CHAPTERS = MODULE.chapters;
 const pic = (o: Omit<ArchiveOpts, 'scale'>): ArchiveOpts => ({ ...o, scale: 1.4 });
 const SCAN = execute(ONE, 'scan'),
@@ -75,7 +76,7 @@ const FACTS: [string, string][] = [
     <main class="intro">
       <header class="hero">
         <div class="hero-text">
-          <p class="kicker">{MODULE.title}</p>
+          <p class="kicker">Module {NUMBER} · {MODULE.title}</p>
           <p class="module-meta"><span class="level">{MODULE.level}</span> · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
           <h1>Why one order can take a whole table to find</h1>
           <p class="lede">A database with no index reads every page to find one row. Here you find an order in Larkspur’s table, build the index that jumps straight to it, and learn what that index costs every time an order is written.</p>

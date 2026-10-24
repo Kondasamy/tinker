@@ -1,6 +1,6 @@
 // Databases & indexes: the intro, every chapter played by mouse and by keyboard only, its own progress key, chapter 2's
 // lookup opening far fewer drawers than chapter 1's scan, the tree read with the arrow keys, "I'm not sure", reduced
-// motion, the recap, axe and phone width.
+// motion, the recap, axe and phone width; the go-live checks: Module 22 kickers and share images, home's card.
 import { test, expect, type Page } from '@playwright/test';
 import { moduleOf } from '../../src/lib/modules';
 import { TABLE_PAGES } from '../../src/lib/databases/table';
@@ -38,6 +38,28 @@ test('the intro shows the level, the author, the chapters and the Colorfigures c
   await page.getByRole('button', { name: 'Words' }).click();
   await expect(page.locator('.band .note.more')).toBeVisible();
   await axe(page);
+});
+
+test('Module 22 on the intro and the recap', async ({ page }) => {
+  await page.goto('/databases/');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 22 · Databases & indexes');
+  await page.goto('/databases/recap/');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 22 · Recap');
+});
+
+test('go-live: own share images and home’s card', async ({ page }) => {
+  await page.goto('/databases/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/databases\.jpg$/);
+  await page.goto(`/databases/${CH1}/`);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    new RegExp(`/og/databases-${CH1}\\.jpg$`),
+  );
+  await page.goto('/databases/recap/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/databases-recap\.jpg$/);
+  expect((await page.request.get('/og/databases.jpg')).status()).toBe(200);
+  await page.goto('/');
+  await expect(page.locator('.module[data-module="databases"] h4 a')).toHaveAttribute('href', '/databases/');
 });
 
 test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({

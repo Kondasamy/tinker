@@ -63,6 +63,10 @@ import { BITE } from '../lib/interpretability/probe';
 import { DEPOT_BOARD, depotAt, depotLabel, depotScene } from '../components/scenes/depotScene';
 import { MOMENTS as CACHE_MOMENTS, runOf as cacheRun } from '../lib/caching/sim';
 import { WINNERS as CACHE_WINNERS } from '../lib/caching/workbench';
+import { ARCHIVE_BOARD, archiveAt, archiveLabel, archiveScene } from '../components/scenes/archiveScene';
+import { execute as dbExec } from '../lib/databases/planner';
+import { WINNERS as DB_WINNERS } from '../lib/databases/workbench';
+import { ONE as DB_ONE } from '../content/databases/requests';
 
 const one =
   (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) =>
@@ -198,6 +202,8 @@ const FUSES_CARD = {
 };
 // the depot map mid-sale on chapter 7's first winning policy
 const DEPOT = { ...depotAt(cacheRun(CACHE_WINNERS[0]), CACHE_MOMENTS.sale + 2), scale: 1.7 };
+// order 1042 found through its index, the winning plan's other indexes at the desk's end
+const ARCHIVE = { ...archiveAt(dbExec(DB_ONE, 'id'), DB_ONE), others: DB_WINNERS[0].length - 1, scale: 1.7 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -464,6 +470,11 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Prompt & KV caches',
       'Cache policy',
     ],
+  },
+  databases: {
+    name: 'Databases & indexes',
+    iso: { board: ARCHIVE_BOARD, scene: archiveScene(ARCHIVE), label: archiveLabel(ARCHIVE) },
+    topics: ['Full scans', 'B-tree indexes', 'Write cost', 'Column order', 'The query planner', 'Joins', 'Index plans'],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];
