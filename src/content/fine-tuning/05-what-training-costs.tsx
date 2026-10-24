@@ -10,6 +10,7 @@ import Predict from '../../components/quiz/Predict';
 import { HELDOUT, heldoutScore } from '../../lib/fine-tuning/engine';
 import { loss, type Series } from '../../components/scenes/lossChart';
 import type { Weights } from '../../lib/lm/load';
+import { TRAIN_PARTS } from '../../components/scenes/trainScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
@@ -65,7 +66,7 @@ export function forgetOutcome(base: number, full: number, lora: number) {
   return full - base >= lora - base ? 0 : 1;
 }
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A team fully fine-tunes its assistant on 2,000 legal replies. The replies sound right, but it now answers general product questions worse than before. What is the cheapest next thing to try?',
   options: [
@@ -78,19 +79,24 @@ const QUIZ = {
   explanation:
     'An adapter changes fewer weights, so it usually learns less and forgets less; measuring both on held-out questions shows the trade.',
   why: [
-    'More training on the narrow set usually pulls the weights further from what they knew: the held-out loss keeps rising.',
-    'Right. Score both on held-out questions, as this chapter did. An adapter often keeps more of the base model’s skills, and if the base still matters most, a prompt may be enough.',
-    'Forgetting varies with how much training changes. A small adapter, fewer steps or mixing general examples back in all forget less.',
-    'An instruction can’t restore weights that training moved. The model doesn’t know what it lost.',
+    'More training on the narrow set usually pulls the weights further from what they knew, so the held-out loss keeps rising.',
+    'Right: score both on held-out questions, as this chapter did, since an adapter often keeps more of the base model’s skills.',
+    'Forgetting varies with how much training changes: a small adapter, fewer steps or mixing general examples back in all forget less.',
+    'An instruction can’t restore weights that training moved, and the model doesn’t know what it lost.',
   ],
 };
+
+/** the bench's parts a callout can point at */
+export const PARTS = TRAIN_PARTS;
 
 export const STEPS: Step<S>[] = [
   {
     id: 'base',
     focus: 'base',
     visibleControls: ['heldout', 'base'],
-    narration: `Training taught Larkspur mini a sign-off. What did it cost? To find out, score text the model never trained on: held-out text. Larkspur kept ${DOCS} of its documents out of every training run. The score is the loss from chapter 2, averaged over all ${TOKENS} pieces: lower means the model predicts the text better. Score the base model first.`,
+    narration: `Held-out text: ${DOCS} documents no run trained on. Its score is the average loss: lower is better.`,
+    act: 'Score the base model.',
+    say: { block: 'model', text: 'Scores held-out' },
     predicate: s => s.base && lossOf('base') !== undefined,
   },
   {
@@ -98,21 +104,25 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['baseScore', 'p1'],
     narration:
-      'That is the base model’s score, computed in your browser just now. The full fine-tune changed every weight; the adapter changed a few percent, beside the base. Before you score them:',
+      'That is the base model’s score, computed in your browser. The full fine-tune changed every weight; the adapter, a small share.',
+    act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'score',
     focus: 'score',
     visibleControls: ['p1', 'score'],
-    narration: 'Score both fine-tunes on the same held-out text, the same way.',
+    narration: 'Same text, same scoring, for both fine-tunes.',
+    act: 'Score both fine-tunes.',
+    say: { block: 'model', text: 'Both fine-tunes' },
     predicate: s => s.scored && lossOf('finetuned') !== undefined && lossOf('lora') !== undefined,
   },
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['scores', 'facts', 'quiz'],
-    narration: `Both fine-tunes predict Larkspur’s own documents worse than before, the full one by more: training on ${EXAMPLES} replies pulled the weights away from what they knew. That is forgetting. The adapter changed less and lost less. These numbers come from Larkspur mini, a tiny model, not from any provider; on real models researchers report the same trade, cited below. One question to finish.`,
+    narration: `Both fine-tunes predict Larkspur’s documents worse, the adapter least: training on ${EXAMPLES} replies pulled the weights away. That is forgetting.`,
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which choice measures the trade before committing to it?',
   },
@@ -173,7 +183,7 @@ export default function WhatTrainingCosts() {
       steps={STEPS}
       initial={{ base: false, p1: null, scored: false, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => {
+      stage={({ state, sync, say }) => {
         const w: Weights = state.scored ? 'finetuned' : 'base',
           b = lossOf('base'),
           f = lossOf('finetuned'),
@@ -183,12 +193,13 @@ export default function WhatTrainingCosts() {
             weights={w}
             view={state.view}
             onView={view => sync({ ...state, view })}
+            say={say}
             show={() => ({
               scene: { lit: state.scored ? 'weights' : null, weights: w },
               results: state.scored ? { series: HELDOUT_SERIES } : undefined,
               caption:
                 state.scored && b !== undefined && f !== undefined && l !== undefined
-                  ? `Held-out loss: base ${loss(b)}, full fine-tune ${loss(f)} (${signed(f - b)}), adapter ${loss(l)} (${signed(l - b)}).`
+                  ? `Held-out loss: base ${loss(b)}, full fine-tune ${loss(f)} (${signed(f - b)}), adapter ${loss(l)} (${signed(l - b)}). Larkspur mini’s numbers, not a provider’s.`
                   : state.base && b !== undefined
                     ? `The base model scores ${loss(b)} on the held-out text.`
                     : 'Larkspur mini on the bench, with the held-out documents beside it.',
@@ -199,7 +210,7 @@ export default function WhatTrainingCosts() {
       controls={{
         heldout: () => (
           <div className="tc-def">
-            <p className="lbl">Held-out documents</p>
+            <p className="lbl">Held-out documents ({TOKENS} pieces in all, the score averages over each)</p>
             <p>{HELDOUT.docs.join(', ')}</p>
           </div>
         ),

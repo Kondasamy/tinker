@@ -6,6 +6,7 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { adaptedMatrices, fullCount, loraCount, replyOf, signsOff, STYLE_PROMPTS } from '../../lib/fine-tuning/engine';
+import { TRAIN_PARTS } from '../../components/scenes/trainScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
@@ -31,14 +32,14 @@ interface S {
   quiz: number | null;
 }
 
-const P1 = {
+export const P1 = {
   question: `LoRA leaves those ${n(FULL)} weights as they are. Beside each of the ${MATRICES.length} attention matrices it adds two thin matrices, rank ${RANK}, and trains only those. What share of the model’s size will it train?`,
   options: ['More than a quarter', 'Between 10% and 25%', 'Between 1% and 10%', 'Under 1%'],
 };
 /** the option the computed share falls in */
 export const shareOption = (x: number) => (x > 0.25 ? 0 : x >= 0.1 ? 1 : x >= 0.01 ? 2 : 3);
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'Larkspur wants three styles: one for customers, one for suppliers, one for staff. Why might the team train three LoRA adapters rather than three full fine-tunes?',
   options: [
@@ -51,42 +52,50 @@ const QUIZ = {
   explanation:
     'An adapter trains a small share of the weights and leaves the base as it was, so one base model can wear many adapters.',
   why: [
-    'Not always: an adapter trains far fewer weights, so it can learn less than a full fine-tune. Its win is size, not accuracy.',
-    'Right. The base stays shared and unchanged; each style is only its adapter, small to store and quick to swap.',
-    'An adapter is trained like any fine-tune, on examples of the replies you want. It just trains fewer weights.',
-    'A full fine-tune can be trained again on another style. The cost is that each one is a whole copy of the model.',
+    'Not always: an adapter trains far fewer weights and can learn less, so its win is size, not accuracy.',
+    'Right: the base stays shared and unchanged, and each style is only its adapter, small to store and quick to swap.',
+    'An adapter is trained like any fine-tune, on examples of the replies you want, just with fewer weights.',
+    'A full fine-tune can be retrained on another style, but each one is a whole copy of the model.',
   ],
 };
+
+/** the bench's parts a callout can point at */
+export const PARTS = TRAIN_PARTS;
 
 export const STEPS: Step<S>[] = [
   {
     id: 'count',
     focus: 'count',
     visibleControls: ['count'],
-    narration:
-      'Chapter 2’s fine-tune changed every weight in Larkspur mini. That is a full fine-tune: the result is a whole new copy of the model. Count what it trained.',
+    narration: 'Chapter 2 changed every weight: a full fine-tune, whose result is a whole new copy of the model.',
+    act: 'Count what it trained.',
+    say: { block: 'model', text: 'Every weight' },
     predicate: s => s.counted,
   },
   {
     id: 'predict',
     focus: 'p1',
     visibleControls: ['total', 'p1'],
-    narration: `LoRA is another way to fine-tune. It freezes the model and trains a small adapter beside it. Before you see the count:`,
+    narration: 'LoRA freezes the model and trains a small adapter beside it.',
+    act: 'Predict the share first.',
+    say: { block: 'model', text: 'Stays frozen' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'clip',
     focus: 'clip',
     visibleControls: ['p1', 'clip'],
-    narration:
-      'Clip the adapter onto the model. The counts below come from the model’s real shapes, worked out in your browser.',
+    narration: 'The counts come from the model’s real shapes, worked out in your browser.',
+    act: 'Clip the adapter onto the model.',
     predicate: s => s.clipped && !!modelNow('lora'),
   },
   {
     id: 'try',
     focus: 'try',
     visibleControls: ['counts', 'try'],
-    narration: `Each matrix of out × in weights gets two thin ones: ${RANK} × in and out × ${RANK}, so LoRA trains ${RANK} × (in + out) per matrix. Did training that little teach the sign-off? Ask the base model with the adapter clipped on.`,
+    narration: `Each matrix gets two thin ones, rank ${RANK}, so LoRA trains ${RANK} × (in + out) weights per matrix.`,
+    act: 'Ask with the adapter on.',
+    say: { block: 'adapter', text: `Rank ${RANK}` },
     predicate: s => s.tried && !!modelNow('lora'),
   },
   {
@@ -94,7 +103,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['reply', 'scale', 'quiz'],
     narration:
-      'The adapter learnt the sign-off, and the base model underneath never changed. Take the adapter off and the base is back. On real models the gap is far bigger than on this tiny one:',
+      'The adapter learnt the sign-off; unclip it and the untouched base is back. On real models the gap is far bigger:',
+    act: 'One question to finish.',
+    say: { block: 'adapter', text: 'Signs off' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What stays the same when you swap one adapter for another?',
   },
@@ -108,8 +119,9 @@ export default function SmallAdapters() {
       steps={STEPS}
       initial={{ counted: false, p1: null, clipped: false, tried: false, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => (
+      stage={({ state, say }) => (
         <FineTuneStage
+          say={say}
           weights={state.clipped ? 'lora' : undefined}
           show={m => ({
             scene: { lit: state.counted ? 'weights' : null, weights: state.clipped ? 'lora' : 'base' },

@@ -6,7 +6,7 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { gradeVersion, QUESTION_IDS, SIGNOFF, VERSIONS, VERSION_IDS, type Version } from '../../lib/fine-tuning/engine';
-import { APPROACHES, type Approach } from '../../components/scenes/trainScene';
+import { APPROACHES, TRAIN_PARTS, type Approach } from '../../components/scenes/trainScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
@@ -37,7 +37,7 @@ interface S {
   quiz: number | null;
 }
 
-const P1 = {
+export const P1 = {
   question: `Each version is told to end its replies with “${SIGNOFF}” in its own way. Ask all three the same question. Which replies will end with it?`,
   options: [
     `Only ${versionOf('prompt').label}: the instruction is right there in its prompt`,
@@ -52,7 +52,7 @@ function outcome() {
   return signed.length === 3 ? 2 : signed.length === 0 ? 3 : signed.includes('finetuned') ? 1 : 0;
 }
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'This morning Larkspur published a safety recall for one model of ladder. By lunch, the assistant must tell customers about it. Which lever do you pull?',
   options: [
@@ -65,20 +65,25 @@ const QUIZ = {
   explanation:
     'A new fact belongs where the assistant reads it each time: in the documents. The next answer can use it.',
   why: [
-    'Training takes time and changes the model for good; next month’s recall would need another run. Weights are slow to update, and a fact learnt in them goes stale.',
-    'Right. The documents are read fresh for every question, so a notice added at 9 is in the answer at 9:01, with a citation.',
-    'It works for one notice, but the prompt goes with every question, recall or not, and it grows with each new notice. Documents are fetched only when they match.',
-    'A model knows only what it was trained on and what it is sent. Nothing reaches it on its own.',
+    'Training takes time and changes the model for good, so next month’s recall needs another run and a learnt fact goes stale.',
+    'Right: documents are read fresh for every question, so a notice added at 9 is in the answer at 9:01, with a citation.',
+    'It works for one notice, but the prompt goes with every question and grows with each notice, while documents are fetched only when they match.',
+    'A model knows only what it was trained on and what it is sent, so nothing reaches it on its own.',
   ],
 };
+
+/** the bench's parts a callout can point at */
+export const PARTS = TRAIN_PARTS;
+const [PROMPTED, RAG, TUNED] = (['prompt', 'documents', 'weights'] as const).map(a => versionOf(a).label);
 
 export const STEPS: Step<S>[] = [
   {
     id: 'levers',
     focus: 'levers',
     visibleControls: ['levers'],
-    narration:
-      'Larkspur’s bench has three levers, one for each way to change what the assistant says. Pull each one and read where its change lives.',
+    narration: 'Three levers, three ways to change an answer: the prompt, the documents and the weights.',
+    act: 'Pull each one.',
+    say: { block: 'model', text: 'Weights in here' },
     predicate: s => APPROACHES.every(a => s.pulled.includes(a)),
     hint: 'Press all three lever buttons.',
   },
@@ -86,23 +91,26 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['levers', 'p1'],
-    narration: `The team built three versions, one per lever. ${VERSIONS.map(v => `${v.label}: ${v.note}.`).join(' ')} The answers you are about to read were written ahead of time for this site: they are recorded, not live. Before you ask:`,
+    narration:
+      'The team built one version per lever; changing the weights is fine-tuning. Their answers were recorded for this site, not live.',
+    act: 'Predict first.',
+    say: { block: 'documents', text: 'Read each time' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'ask',
     focus: 'ask',
     visibleControls: ['p1', 'ask'],
-    narration:
-      'Ask all three the same question. Under each answer, two checks run live in your browser: does it carry the key fact from the test set, and does it sign off?',
+    narration: 'Under each answer, two live checks: does it carry the key fact, and does it sign off?',
+    act: 'Ask all three.',
     predicate: s => s.asked,
   },
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['answers', 'quiz'],
-    narration:
-      'All three sign off: a style can ride on any lever. The facts are another matter. The prompted version made one up. RAG read it in a document. The fine-tuned version learnt it from past replies, so it lives in the weights, where it stays whatever happens later. One question to finish.',
+    narration: `All three sign off: style rides any lever. The fact: ${PROMPTED} guessed, ${RAG} read it, ${TUNED} learnt it in training.`,
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which lever is read fresh for every question?',
   },
@@ -116,12 +124,13 @@ export default function ThreeWays() {
       steps={STEPS}
       initial={{ pulled: [], p1: null, asked: false, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => {
+      stage={({ state, sync, say }) => {
         const lit = state.pulled.at(-1) ?? null;
         return (
           <FineTuneStage
             view={state.view}
             onView={view => sync({ ...state, view })}
+            say={say}
             show={() => ({
               scene: { lit, weights: lit === 'weights' ? 'finetuned' : 'base' },
               results: state.asked ? { cols: versionCols(VERSION_IDS, [QUESTION]), questions: [QUESTION] } : undefined,
@@ -165,7 +174,18 @@ export default function ThreeWays() {
             )}
           </>
         ),
-        p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
+        p1: ({ state, apply }) => (
+          <>
+            <ul className="note">
+              {VERSIONS.map(v => (
+                <li key={v.id}>
+                  {v.label}: {v.note}.
+                </li>
+              ))}
+            </ul>
+            <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />
+          </>
+        ),
         ask: ({ state, sync }) => (
           <button type="button" className="big" onClick={() => sync({ ...state, asked: true, view: 'results' })}>
             Ask all three: “{questionText(QUESTION)}”

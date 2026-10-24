@@ -7,6 +7,7 @@ import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { fullCount, replyOf, signsOff, SIGNOFF, STYLE_PROMPTS } from '../../lib/fine-tuning/engine';
 import { loss } from '../../components/scenes/lossChart';
+import { TRAIN_PARTS } from '../../components/scenes/trainScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
@@ -33,7 +34,7 @@ interface S {
   quiz: number | null;
 }
 
-const P1 = {
+export const P1 = {
   question: `Now swap in the fine-tuned weights and ask the same question. It was not one of the ${TRAINING.styleExamples} training examples. What will it write?`,
   options: [
     'The same reply as before: the question didn’t change, so the answer won’t',
@@ -43,7 +44,7 @@ const P1 = {
   ],
 };
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A team fine-tunes its assistant on 500 replies that all open with “Hi there!”. Afterwards it opens a reply to a brand-new question with “Hi there!”, with no instruction in the prompt. What changed?',
   options: [
@@ -56,19 +57,24 @@ const QUIZ = {
   explanation:
     'Fine-tuning changes the weights, so the new habit comes with the model to every question, even ones it never saw.',
   why: [
-    'Right. Training nudged the numbers inside the model until “Hi there!” became its most likely opening. Nothing extra is sent with the question.',
-    'Fine-tuning sends nothing extra. Larkspur mini signed off with the same bare question as before; only its weights were swapped.',
-    'A fine-tuned model doesn’t look anything up. The replies were used once, in training, and are not read again when it answers.',
-    'The change is in the weights, which stay as trained until someone trains them again. It lasts across every conversation.',
+    'Right: training nudged the numbers inside the model until “Hi there!” became its likeliest opening, with nothing extra sent.',
+    'Fine-tuning sends nothing extra: Larkspur mini signed off on the same bare question, with only its weights swapped.',
+    'A fine-tuned model looks nothing up: the replies were used once, in training, and are not read again.',
+    'The change lives in the weights, which stay as trained across every conversation until someone trains them again.',
   ],
 };
+
+/** the bench's parts a callout can point at (the Results tab, the loss chart, takes none) */
+export const PARTS = TRAIN_PARTS;
 
 export const STEPS: Step<S>[] = [
   {
     id: 'ask',
     focus: 'ask',
     visibleControls: ['ask'],
-    narration: `Meet Larkspur mini: a tiny language model that runs in your browser. It has ${PARAMS} weights, where the assistants people use have billions, and it was trained on Larkspur’s documents. Its numbers teach how training works; they are not any provider’s. It picks its most likely next piece each time, so the same weights always write the same reply. Pick a question and ask it.`,
+    narration: `Larkspur mini has ${PARAMS} weights, not billions: the base model, before any fine-tuning.`,
+    act: 'Pick a question and ask it.',
+    say: { block: 'model', text: 'As first trained' },
     predicate: s => s.asked && !!modelNow('base'),
     hint: 'Press “Ask the base model”.',
   },
@@ -76,28 +82,34 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['before', 'p1'],
-    narration: `That is the base model: no sign-off. The team then trained a copy on ${TRAINING.styleExamples} past support replies, each ending “${SIGNOFF}”. That is fine-tuning: training a model that already exists a little further, on your own examples. Before you try the copy:`,
+    narration: `No sign-off. The team trained a copy on ${TRAINING.styleExamples} past replies, each a training example ending “${SIGNOFF}”.`,
+    act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'swap',
     focus: 'swap',
     visibleControls: ['before', 'p1', 'swap'],
-    narration: 'Swap the weights. The question stays exactly as it was; only the numbers inside the model change.',
+    narration: 'The question stays exactly as it was; only the numbers inside the model change.',
+    act: 'Swap in the fine-tuned weights.',
+    say: { block: 'model', text: 'Only this moves' },
     predicate: s => s.swapped && !!modelNow('finetuned'),
   },
   {
     id: 'curve',
     focus: 'curve',
     visibleControls: ['after', 'curve'],
-    narration: `The words in the question didn’t change; the model did. How did training get there? It ran ${TRAINING.steps} training steps. At each one the model read a batch of examples, measured its loss (how surprised it was by each next piece), and nudged its weights to be less surprised. The run was recorded when it was made, with a fixed seed.`,
+    narration: `Same question, new reply: the model changed. Training ran ${TRAINING.steps} training steps, each nudging the weights to lower the loss.`,
+    act: 'Show the training run.',
+    say: { block: 'model', text: 'New weights' },
     predicate: s => s.curve,
   },
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['curve', 'quiz'],
-    narration: `Training loss fell from ${loss(CURVE[0].train)} to ${loss(CURVE.at(-1)!.train)}: the model became less surprised by Larkspur’s replies, sign-off included. The second line is text the model never trained on; chapter 5 comes back to it. One question to finish.`,
+    narration: `The recorded run: training loss fell from ${loss(CURVE[0].train)} to ${loss(CURVE.at(-1)!.train)}. The second line, unseen text, returns in chapter 5.`,
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Was anything added to the question when the fine-tuned copy signed off?',
   },
@@ -111,18 +123,19 @@ export default function WhatTrainingDoes() {
       steps={STEPS}
       initial={{ prompt: 0, asked: false, p1: null, swapped: false, curve: false, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => {
+      stage={({ state, sync, say }) => {
         const w = state.swapped ? 'finetuned' : 'base';
         return (
           <FineTuneStage
             weights={w}
             view={state.view}
             onView={view => sync({ ...state, view })}
+            say={say}
             show={m => ({
               scene: { lit: state.swapped ? 'weights' : null, weights: w },
               results: state.curve ? { series: FINETUNE_SERIES } : undefined,
               caption: !state.asked
-                ? 'Larkspur mini on the bench, as first trained.'
+                ? 'Larkspur mini, as first trained: a teaching model, its numbers not any provider’s.'
                 : `${state.swapped ? 'The fine-tuned copy' : 'The base model'}: “${replyOf(m!, promptAt(state.prompt))}”`,
             })}
           />

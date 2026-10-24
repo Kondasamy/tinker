@@ -14,7 +14,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Three ways',
     intro: {
       story:
-        'Larkspur’s assistant answers from the company’s documents, and Evals checks every change before it ships. Now the support lead wants every reply to sound like Larkspur and sign off as the team. Someone in the meeting says: “Just fine-tune it.”',
+        'Larkspur’s assistant answers from its documents, and Evals checks every change. Now the support lead wants every reply to sign off as the team. Someone says: “Just fine-tune it.”',
       goal: 'What can you change to change an answer, and where does each change live?',
       learn: [
         'The three levers: the prompt, the documents and the weights',
@@ -44,7 +44,7 @@ const CHAPTERS: Chapter[] = [
     short: 'What training does',
     intro: {
       story:
-        'Chapter 1 showed three levers on paper. Here you pull the weights lever for real, on Larkspur mini: a tiny model that runs in your browser, trained once on Larkspur’s documents and then fine-tuned on the team’s past replies.',
+        'Chapter 1 showed three levers on paper. Now pull the weights lever for real, on Larkspur mini: a tiny model, trained on Larkspur’s documents, that runs in your browser.',
       goal: 'What does fine-tuning change, and what does training look like while it runs?',
       learn: [
         'How a fine-tuned copy writes differently from its base model on a question it never trained on',
@@ -68,8 +68,8 @@ const CHAPTERS: Chapter[] = [
     short: 'Small adapters',
     intro: {
       story:
-        'The fine-tune worked: Larkspur mini signs off. But it changed every weight in the model, and the team would need a whole copy of the model for every style they train.',
-      goal: 'How can training change a model’s replies while touching only a small share of its weights?',
+        'The fine-tune worked: Larkspur mini signs off. But it changed every weight, so each new style would need a whole copy of the model.',
+      goal: 'How can training change replies while touching only a small share of the weights?',
       learn: [
         'How many weights a full fine-tune trains, counted from the model’s shapes',
         'What LoRA trains instead, and why that is so much smaller',
@@ -133,7 +133,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Measure first',
     intro: {
       story:
-        'The team has three versions of the assistant: prompted, RAG and fine-tuned. Before anyone pays to train again, the release gate from the Evals module gets a say.',
+        'Three versions are on the bench: prompted, RAG and fine-tuned. Before anyone pays to train again, Evals’ release gate gets a say.',
       goal: 'How do you decide, with numbers, whether fine-tuning beat prompting and documents?',
       learn: [
         'Why you set a baseline before you train',
@@ -152,7 +152,7 @@ const CHAPTERS: Chapter[] = [
     short: 'The decision',
     intro: {
       story:
-        'Everything is on the bench: the prompted, RAG and fine-tuned versions, with their scores from the release gate. The support lead needs a plan for each kind of request.',
+        'The prompted, RAG and fine-tuned versions are on the bench, graded. The support lead needs a plan for each kind of request.',
       goal: 'Which lever should Larkspur pull for each kind of request?',
       learn: [
         'How to match a lever to what the request needs: a style, a fact, or a skill',

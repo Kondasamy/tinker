@@ -6,6 +6,7 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { ALL_QUESTIONS, gradeVersion, PRICE_CHANGE, VERSIONS, type VersionId } from '../../lib/fine-tuning/engine';
+import { TRAIN_PARTS } from '../../components/scenes/trainScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
@@ -33,8 +34,8 @@ interface S {
   quiz: number | null;
 }
 
-const P1 = {
-  question: `The update is in Larkspur’s documents. Nobody retrained anything. Ask ${FT} and ${RAG} what a K2 costs at 50 or more. What will each say?`,
+export const P1 = {
+  question: `The update is in Larkspur’s documents. Nobody retrained anything. Ask ${FT} and ${RAG}: “${PRICE_CHANGE.question.query}” What will each say?`,
   options: [
     'Both give the new price',
     `${FT} gives the old price; ${RAG} gives the new one`,
@@ -48,7 +49,7 @@ export function outcome() {
   return ft && rag ? 0 : !ft && rag ? 1 : !ft && !rag ? 2 : 3;
 }
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'Larkspur fine-tuned its assistant last month, on replies that say returns are accepted within 30 days. Next week the window becomes 45 days. What keeps the answers right with the least work?',
   options: [
@@ -61,41 +62,50 @@ const QUIZ = {
   explanation:
     'Facts that change belong in documents, which are read fresh for every question; style can stay in the weights.',
   why: [
-    'Weights hold what they were trained on. Nothing tells them the policy moved, so the old window stays in every answer.',
-    'It works, slowly: every change means a new training run and a new round of evals, and the old fact may still leak through until then.',
-    'Right. Update the document and the next answer reads 45 days, with a citation to show where it came from.',
-    'An instruction to be accurate gives the model no new fact. It still only knows 30 days.',
+    'Weights hold what they were trained on, and nothing tells them the policy moved, so the old window stays.',
+    'It works slowly: every change means a new training run and a new round of evals, and the old fact may leak through until then.',
+    'Right: update the document and the next answer reads 45 days, with a citation to show where it came from.',
+    'An instruction to be accurate gives the model no new fact, so it still only knows 30 days.',
   ],
 };
+
+/** the bench's parts a callout can point at */
+export const PARTS = TRAIN_PARTS;
 
 export const STEPS: Step<S>[] = [
   {
     id: 'update',
     focus: 'update',
     visibleControls: ['update'],
-    narration: `Larkspur’s fine-tuned version learnt prices from past replies, and it signs off the way the team wants. Then purchasing posts a price change. Read it.`,
+    narration: `Larkspur’s fine-tuned version learnt prices from past replies, and it signs off the way the team wants. Then purchasing posts a price change.`,
+    act: 'Read it.',
+    say: { block: 'model', text: 'Prices learnt' },
     predicate: s => s.read,
   },
   {
     id: 'predict',
     focus: 'p1',
     visibleControls: ['passage', 'p1'],
-    narration: `${RAG} reads the documents for every question; ${FT} reads none, and answers from its weights. Before you ask:`,
+    narration: `${RAG} reads the documents for every question; ${FT} reads none, and answers from its weights.`,
+    act: 'Predict first.',
+    say: { block: 'documents', text: 'Price updated' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'ask',
     focus: 'ask',
     visibleControls: ['p1', 'ask'],
-    narration:
-      'Ask both. Their answers are recorded; the key-fact check from the Evals module runs on them live, looking for the new price.',
+    narration: 'Their answers are recorded; Evals’ check runs on them live, looking for the key fact: the new price.',
+    act: 'Ask both.',
     predicate: s => s.asked,
   },
   {
     id: 'all',
     focus: 'all',
     visibleControls: ['answers', 'all'],
-    narration: `${FT}’s answer is stale: right when it was trained, wrong now. It still signs off: the style stayed, the fact didn’t move. Is that one question bad luck? Run every question in the test set on both.`,
+    narration: `${FT}’s answer is stale: right when trained, wrong now. It still signs off: the style stayed, the fact didn’t move.`,
+    act: 'Run every question on both.',
+    say: { block: 'model', text: 'Stale price' },
     predicate: s => s.all,
   },
   {
@@ -103,7 +113,8 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['summary', 'quiz'],
     narration:
-      'Weights are a good home for a style, which rarely changes. They are a poor home for facts, which do. Documents move the moment they are updated. One question to finish.',
+      'Weights suit a style, which rarely changes, and not facts, which do. Documents move the moment they are updated.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which lever is read fresh each time a question comes in?',
   },
@@ -117,8 +128,9 @@ export default function FactsMoveStyleStays() {
       steps={STEPS}
       initial={{ read: false, p1: null, asked: false, all: false, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => (
+      stage={({ state, sync, say }) => (
         <FineTuneStage
+          say={say}
           view={state.view}
           onView={view => sync({ ...state, view })}
           show={() => ({

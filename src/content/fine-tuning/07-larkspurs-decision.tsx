@@ -6,7 +6,8 @@ import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import { ALL_QUESTIONS, VERSION_IDS, VERSIONS, type VersionId } from '../../lib/fine-tuning/engine';
-import { BEST, KINDS, QUALITY, WINNERS, cell, solved, totals, type Plan } from '../../lib/fine-tuning/workbench';
+import { BEST, KINDS, WINNERS, cell, solved, totals, type Plan } from '../../lib/fine-tuning/workbench';
+import { TRAIN_PARTS } from '../../components/scenes/trainScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Fact, FineTuneStage, versionCols, type View } from './kit';
@@ -30,7 +31,7 @@ export interface S extends Plan {
   quiz: number | null;
 }
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A travel company’s assistant must answer in the brand’s voice, quote fares that change hourly, and fill in a booking form in one exact format. Which plan fits?',
   options: [
@@ -44,18 +45,23 @@ const QUIZ = {
     'Match the lever to the need: a voice to the prompt, changing facts to documents, and train only for a skill the cheaper levers miss, once the evals show they miss it.',
   why: [
     'Fares learnt in training are stale within the hour, and every change means a new run and a new round of evals.',
-    'Right. Each need goes to the cheapest lever that meets it, and training waits for evidence. A fixed output format is one of the jobs fine-tuning is used for.',
-    'Passages are read as facts, not followed as habits. A voice and a format are better set by the prompt or by training.',
-    'The prompt goes with every request, so hourly fares there are slow, costly and easy to forget to update. Documents are fetched only when they match.',
+    'Right: each need goes to the cheapest lever that meets it, and training waits for evidence, since a fixed output format is one job fine-tuning is used for.',
+    'Passages are read as facts, not followed as habits, so a voice and a format are better set by the prompt or by training.',
+    'The prompt goes with every request, so hourly fares there are slow, costly and easy to forget, while documents are fetched only when they match.',
   ],
 };
+
+/** the bench's parts a callout can point at */
+export const PARTS = TRAIN_PARTS;
 
 export const STEPS: Step<S>[] = [
   {
     id: 'plan',
     focus: 'plan',
     visibleControls: ['score', 'plan'],
-    narration: `The support lead’s brief: “Just fine-tune it” sends every kind of request to the fine-tuned version. The bench scores a plan. Quality is up to ${QUALITY} points per kind: the share of its recorded answers that pass, graded live (the key fact, or the sign-off for replies with no facts). Then subtract cost and upkeep, the work a choice needs after launch: those come from the team’s own notes, not measured facts. Send each kind to one version and find a plan with the best score.`,
+    narration: `“Just fine-tune it” sends everything to ${label('finetuned')}. Plan score: quality minus cost and upkeep, the team’s own notes, not measured facts.`,
+    act: 'Find the best plan.',
+    say: { block: 'model', text: 'All fine-tuned' },
     predicate: s => solved(planOf(s)),
     hint: 'Look at each kind on its own: which version scores most there? Facts that change belong where they are read fresh.',
     solution: s => ({ ...s, ...WINNERS[0] }),
@@ -64,7 +70,9 @@ export const STEPS: Step<S>[] = [
     id: 'ties',
     focus: 'quiz',
     visibleControls: ['score', 'plan', 'ties', 'quiz'],
-    narration: `${pts(BEST)} points: the best any plan scores. Yours is one of ${WINNERS.length} plans that tie. ${VOICE_TIE ? 'For replies with no facts every version signs off every time, so quality ties there and the team’s own notes on cost and upkeep decide it: the prompt pays with words on every request, the fine-tune with a training run.' : 'For replies with no facts the versions differ in quality, and the team’s own notes on cost and upkeep weigh in too.'} For facts, documents win: they pass most and update in one place. Change the plan if you like; the bench is yours. One question to finish.`,
+    narration: `${pts(BEST)} points: the best, shared by ${WINNERS.length} plans. ${VOICE_TIE ? 'No-fact replies tie, so the team’s own notes decide' : 'No-fact replies differ, and the team’s own notes weigh in'}; facts go to documents.`,
+    act: 'One question to finish.',
+    say: { block: 'documents', text: 'Facts go here' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which lever suits a fact that changes, and which suits a habit that doesn’t?',
   },
@@ -129,13 +137,14 @@ export default function LarkspursDecision() {
       steps={STEPS}
       initial={{ ...START, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => {
+      stage={({ state, sync, say }) => {
         const p = planOf(state),
           uses = (v: VersionId) => KINDS.some(k => p[k.id] === v);
         return (
           <FineTuneStage
             view={state.view}
             onView={view => sync({ ...state, view })}
+            say={say}
             show={() => ({
               scene: {
                 lit: uses('finetuned') ? 'weights' : uses('rag') ? 'documents' : 'prompt',
