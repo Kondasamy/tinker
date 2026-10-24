@@ -20,6 +20,7 @@ import { POST_TRAINING_MODULE } from '../content/post-training/module';
 import { PRE_TRAINING_MODULE } from '../content/pre-training/module';
 import { INTERPRETABILITY_MODULE } from '../content/interpretability/module';
 import { CACHING_MODULE } from '../content/caching/module';
+import { DATABASES_MODULE } from '../content/databases/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -95,12 +96,7 @@ export const MODULES: Module[] = [
   POST_TRAINING_MODULE,
   INTERPRETABILITY_MODULE,
   CACHING_MODULE,
-  planned(
-    'databases',
-    'Databases & indexes',
-    'Beginner',
-    'Why the orders page is slow: a full scan, an index that jumps straight to the rows, and what every write then pays.',
-  ),
+  DATABASES_MODULE,
   planned(
     'consistency',
     'Replication & consistency',

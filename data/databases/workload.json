@@ -1,0 +1,18 @@
+{
+  "note": "A day of Larkspur's order system, written for this site: the requests the shop and the warehouse make, and the new orders written. Team estimates, not logged traffic.",
+  "inserts": 300,
+  "reads": [
+    { "id": "order", "name": "One order by number", "perDay": 2000, "where": { "id": 1042 } },
+    { "id": "customer", "name": "A customer’s orders", "perDay": 400, "where": { "customer": "regular" } },
+    {
+      "id": "customer-month",
+      "name": "A customer’s orders this month",
+      "perDay": 200,
+      "where": { "customer": "regular", "day": "month" }
+    },
+    { "id": "today", "name": "Today’s orders", "perDay": 40, "where": { "day": "today" } },
+    { "id": "returned", "name": "Returned orders", "perDay": 4, "where": { "status": "returned" } }
+  ],
+  "budget": 4300,
+  "budgetWhy": "The order system may spend at most this many page writes a day on new orders, so checkout stays quick in the rush."
+}
