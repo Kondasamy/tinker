@@ -55,7 +55,7 @@ export const QUIZ = {
 
 // Predict, then reveal (R9): the slider shows the outcome, so the stage stays at one document until the pick.
 const PREDICT = {
-  question: `The largest context window holds ${formatTokens(WINDOW)} tokens. Will the whole company drive fit?`,
+  question: `The largest context window, ${LARGEST.model}’s, holds ${formatTokens(WINDOW)} tokens. Will the whole company drive fit?`,
   options: [
     'Yes: that window is huge',
     'No: a real drive overflows it many times over',

@@ -1,7 +1,7 @@
 [
   {
     "date": "2020-05-22", "era": "origins",
-    "claim": "Researchers at Facebook AI and UCL coin \"retrieval-augmented generation\" (RAG): fetch relevant passages first, then let the model write its answer from them.",
+    "claim": "Researchers at Facebook AI, UCL and NYU coin \"retrieval-augmented generation\" (RAG): fetch relevant passages first, then let the model write its answer from them.",
     "sourceTitle": "Lewis et al., Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks (arXiv)",
     "sourceUrl": "https://arxiv.org/abs/2005.11401"
   },
@@ -23,7 +23,8 @@
     "date": "2023-06-13", "era": "small-windows",
     "claim": "OpenAI adds function calling to its chat API, the start of models calling tools. The standard gpt-3.5-turbo window is 4k tokens, with a new 16k version.",
     "sourceTitle": "OpenAI, Function calling and other API updates",
-    "sourceUrl": "https://openai.com/blog/function-calling-and-other-api-updates"
+    "sourceUrl": "https://openai.com/blog/function-calling-and-other-api-updates",
+    "contextTokens": 4096, "model": "gpt-3.5-turbo"
   },
   {
     "date": "2023-07-06", "era": "small-windows",
@@ -63,6 +64,13 @@
     "claim": "UC Berkeley launches the Berkeley Function-Calling Leaderboard, about 2,000 test cases measuring how well models call tools.",
     "sourceTitle": "Gorilla, Berkeley Function-Calling Leaderboard",
     "sourceUrl": "https://gorilla.cs.berkeley.edu/blogs/8_berkeley_function_calling_leaderboard.html"
+  },
+  {
+    "date": "2024-03-04", "era": "retrieval-matures",
+    "claim": "Anthropic's Claude 3 models launch with a 200K-token context window, with inputs over 1 million tokens offered to select customers.",
+    "sourceTitle": "Anthropic, Introducing the next generation of Claude",
+    "sourceUrl": "https://www.anthropic.com/news/claude-3-family",
+    "contextTokens": 200000, "model": "Claude 3"
   },
   {
     "date": "2024-06-27", "era": "retrieval-matures",

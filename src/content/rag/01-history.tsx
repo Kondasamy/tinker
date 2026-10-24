@@ -3,7 +3,7 @@
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
-import Timeline, { ERAS, eraWindow } from '../../components/scenes/Timeline';
+import Timeline, { ERAS, eraRange, eraWindow } from '../../components/scenes/Timeline';
 import { Source, Answer } from '../../components/scenes/Source';
 import { nextOf } from '../../lib/chapters';
 import { TIMELINE, formatTokens } from '../../lib/scale';
@@ -18,9 +18,14 @@ interface S {
 }
 
 const win = (era: string) => formatTokens(eraWindow(TIMELINE, era));
-const smallest2023 = formatTokens(
-  Math.min(...TIMELINE.filter(e => e.era === 'small-windows' && e.contextTokens).map(e => e.contextTokens!)),
-);
+// the model behind an era's largest window, so the narration never passes one model's window off as typical
+const largest = (era: string) =>
+  TIMELINE.find(e => e.era === era && e.contextTokens === eraWindow(TIMELINE, era))!.model;
+// the window most of an era's cited models share (the agents era: 1M)
+const common = (era: string) => {
+  const w = TIMELINE.filter(e => e.era === era && e.contextTokens).map(e => e.contextTokens!);
+  return formatTokens(w.toSorted((a, b) => w.filter(x => x === b).length - w.filter(x => x === a).length)[0]);
+};
 
 export const QUIZ = {
   question: 'Why did 2023 assistants need retrieval to answer from company documents?',
@@ -41,12 +46,12 @@ export const QUIZ = {
 
 // What the narration says right after the learner opens era i (the drawer shows its cited claims); the picture pins
 // the era's lesson over it.
-const LESSON = ['RAG is named', 'Tiny windows', 'Smarter retrieval', 'RAG becomes a tool'];
+const LESSON = ['RAG is named', 'Small windows', 'Smarter retrieval', 'RAG becomes a tool'];
 const AFTER: string[] = [
   '2020: researchers named the fix. Fetch relevant text first, then let the model answer from it: Retrieval-Augmented Generation, or RAG.',
-  `2023: chat assistants arrived, with a context window of ${smallest2023} to ${win('small-windows')} tokens. Tool calling had barely begun, so retrieval picked the paragraphs.`,
-  `2024: windows reached ${win('retrieval-matures')} tokens and retrieval got smarter: knowledge graphs, better chunks, reranking. Tool use still stumbled on multi-step tasks.`,
-  `Late 2024–26: windows reached ${win('agents')} tokens, and models call tools well enough to act as agents. Retrieval became one tool the agent chooses.`,
+  `2023: companies rolled out chat assistants with context windows of ${eraRange(TIMELINE, 'small-windows')} tokens. Tool calling was new, so retrieval picked the paragraphs.`,
+  `2024: ${largest('retrieval-matures')}’s window hit ${win('retrieval-matures')} tokens, the record. Retrieval got smarter: graphs, better chunks, reranking. Multi-step tool use still stumbled.`,
+  `Late 2024–26: ${common('agents')}-token windows became common (${largest('agents')} claims ${win('agents')}). Models now act as agents, and retrieval is one tool they choose.`,
 ];
 
 const eraStep = (i: number): Step<S> => ({
@@ -58,7 +63,7 @@ const eraStep = (i: number): Step<S> => ({
     i === 0
       ? 'Confident, and wrong. A model knows only its training data plus its prompt, and it never saw your contracts.'
       : AFTER[i - 1],
-  act: `Click ${i === ERAS.length - 1 ? 'the last era' : ERAS[i].label}.`,
+  act: `Click ${ERAS[i].label}.`,
   say: i === 0 ? undefined : { block: String(i - 1), text: LESSON[i - 1] },
   predicate: s => s.visited > i,
   hint: `Click the glowing ${ERAS[i].label} object, or Tab to it and press Enter.`,
