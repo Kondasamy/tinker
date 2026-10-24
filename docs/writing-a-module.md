@@ -35,7 +35,7 @@ Rules for steps:
 
 - One idea per step, in plain words and short sentences: at most 25 words. The picture shows what happened; the narration says what it means, and `act` says what to do next ("Click 2020."). The runner draws `act` as its own bold, highlighted line: testers could not pick an instruction out of the narration.
 - Define a term the first time it appears, and add it to the chapter's `terms`. Use the term's own word in the narration: the runner marks its first use as a tap-to-define button.
-- Give a step a callout (`say: { block, text }`, at most 5 words) when the picture has a part to point at, so the lesson sits on the picture, not only in the text.
+- Give a step a callout (`say: { block, text }`, at most 5 words and 16 characters) when the picture has a part to point at, so the lesson sits on the picture, not only in the text. `block` names one of the scene's exported parts; export `PARTS` from the chapter (the scene's list, or `[]` for a chart) and pass `say` into the stage.
 - Facts carry their source through a `Fact` (or `Cite`): the source opens from a small mark, never an inline "Source:" link.
 - Puzzles (`puzzle()`) hand the reader a broken setup. Hints appear after three misses; "Show me" is always there.
 - Finished steps stay reachable as a folded "story so far" log. Don't write a step that only makes sense if the previous one is still on screen.

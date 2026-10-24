@@ -52,19 +52,36 @@ test('the story so far is folded to a count and stays open once opened', async (
   await expect(fold).toHaveAttribute('open');
 });
 
-// R1 success criterion: from the title down to step 1's control, at most 80 words on every RAG chapter
+// R1 success criterion: from the title down to step 1's control, at most 80 words, on every RAG chapter and on
+// chapter 1 of every other module
 for (const ch of [
-  '01-history',
-  '02-why-not-stuff-it',
-  '03-what-is-rag',
-  '04-layers',
-  '05-accuracy',
-  '06-types',
-  '07-sandbox',
+  'rag/01-history',
+  'rag/02-why-not-stuff-it',
+  'rag/03-what-is-rag',
+  'rag/04-layers',
+  'rag/05-accuracy',
+  'rag/06-types',
+  'rag/07-sandbox',
+  'tool-calling/01-answers-arent-actions',
+  'agents/01-workflow-or-agent',
+  'evals/01-it-worked-when-i-tried-it',
+  'guardrails/01-data-or-instructions',
+  'tokens/01-what-the-model-reads',
+  'transformers/01-one-token-at-a-time',
+  'context/01-whats-in-the-window',
+  'fine-tuning/01-three-ways',
+  'structured-outputs/01-asking-nicely',
+  'reasoning/01-answer-now-or-think-first',
+  'small-models/01-big-model-small-model',
+  'inference/01-prefill-and-decode',
+  'observability/01-what-it-did',
+  'sandboxing/01-where-it-runs',
+  'multimodal/01-a-picture-is-tokens',
+  'voice/01-larkspurs-phone-line',
 ])
-  test(`rag/${ch}: the first screen has at most 80 words above the first control`, async ({ page }) => {
+  test(`${ch}: the first screen has at most 80 words above the first control`, async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await open(page, `/rag/${ch}/`);
+    await open(page, `/${ch}/`);
     const words = await page.evaluate(() => {
       const text = [
         document.querySelector<HTMLElement>('.intro')?.innerText ?? '',

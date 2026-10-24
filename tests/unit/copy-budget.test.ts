@@ -1,5 +1,5 @@
 // Copy budgets (picture-first chapters, R5): short steps and a short opening, so the picture carries the story.
-// Every live module is checked; a module on PENDING only reports until its copy pass, RAG is always strict.
+// Every live module is held to them.
 import { describe, expect, it } from 'vitest';
 import { MODULES } from '../../src/lib/modules';
 import { unmarked } from '../../src/components/story/terms';
@@ -8,8 +8,6 @@ import type { Step } from '../../src/components/story/steps';
 const BUDGET = { narration: 25, story: 30, goal: 20, learn: 3, say: 5, sayChars: 16, opening: 62 };
 // opening: story + question + step 1, leaving about 18 words for the labels inside the 80-word first screen
 // sayChars: callouts outside RAG fit a phone's pill, so phones never drop them (RAG's canvas drops longer ones).
-// Modules whose copy predates the budgets; remove an id when its copy pass lands.
-const PENDING = ['observability', 'sandboxing', 'multimodal', 'voice'];
 
 const files = import.meta.glob<Record<string, unknown>>('../../src/content/*/[0-9]*.tsx', { eager: true });
 const words = (s: string) => s.trim().split(/\s+/).filter(Boolean).length;
@@ -53,21 +51,5 @@ function overruns(moduleId: string) {
 }
 
 describe('copy budgets', () => {
-  it('PENDING names only live modules, and never RAG', () => {
-    const ids = live.map(m => m.id);
-    for (const p of PENDING) expect(ids, p).toContain(p);
-    expect(PENDING).not.toContain('rag');
-  });
-
-  // STRICT=<id> holds one pending module to the budgets without editing PENDING (a copy pass's to-do list)
-  const strict = process.env.STRICT;
-  for (const m of live)
-    it(`${m.id}${PENDING.includes(m.id) && m.id !== strict ? ' (pending, report only)' : ''}`, () => {
-      const over = overruns(m.id);
-      if (PENDING.includes(m.id) && m.id !== strict) {
-        if (over.length) console.info(`${m.id}: ${over.length} over budget`);
-        return;
-      }
-      expect(over).toEqual([]);
-    });
+  for (const m of live) it(m.id, () => expect(overruns(m.id)).toEqual([]));
 });

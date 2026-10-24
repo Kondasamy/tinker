@@ -53,6 +53,10 @@ export const QUIZ = {
   ],
 };
 
+// The parts of the picture a step's `say` may name: a scene's exported list (e.g. OFFICE_PARTS), or none for this flat
+// chart. tests/unit/say-targets.test.ts holds every callout to it.
+export const PARTS: readonly string[] = [];
+
 export const STEPS: Step<S>[] = [
   {
     id: 'ask',
