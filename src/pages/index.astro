@@ -71,6 +71,8 @@ import { STOCK_BOARD, stockAt, stockLabel, stockScene } from '../components/scen
 import { MOMENTS as CS_MOMENTS, policyOf as csPolicy, runOf as csRun } from '../lib/consistency/sim';
 import { SPLIT_BOARD, splitAt, splitLabel, splitScene } from '../components/scenes/splitScene';
 import { SCENARIOS as AB_SCENARIOS, runOf as abRun } from '../lib/ab-testing/sim';
+import { DARK_BOARD, darkroomLabel, darkroomScene, type DarkroomOpts } from '../components/scenes/darkroomScene';
+import { sampleDrawing } from '../lib/diffusion/ideal';
 
 const one =
   (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) =>
@@ -216,6 +218,14 @@ const STOCK = {
 // the one-page checkout winning at the end of its test
 const SHOP = {
   ...splitAt(abRun(AB_SCENARIOS.checkout), AB_SCENARIOS.checkout, AB_SCENARIOS.checkout.days - 1),
+  scale: 1.7,
+};
+// a drill developed in 20 steps, asked for by its label at guidance 4
+const DARK: DarkroomOpts = {
+  print: { kind: 'pixels', px: sampleDrawing(20, 2, 'drill', 4), name: 'DRILL' },
+  steps: 20,
+  label: 'drill',
+  guidance: 4,
   scale: 1.7,
 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
@@ -514,6 +524,19 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Multiple comparisons',
       'Guardrail metrics',
       'Ship or stop',
+    ],
+  },
+  diffusion: {
+    name: 'Diffusion models',
+    iso: { board: DARK_BOARD, scene: darkroomScene(DARK), label: darkroomLabel(DARK) },
+    topics: [
+      'Noise to picture',
+      'Steps & cost',
+      'Learned denoisers',
+      'Copy or create',
+      'Guidance',
+      'Latent & few-step models',
+      'Steps per use',
     ],
   },
 };

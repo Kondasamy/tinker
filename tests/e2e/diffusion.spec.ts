@@ -1,6 +1,7 @@
 // Diffusion models: the intro, every chapter played by mouse and by keyboard only, its own progress key, the strip read
 // by arrow keys, chapter 4's copies against new dots, the page staying responsive while dots develop, the workbench's
-// best plans, "I'm not sure", reduced motion, the recap, axe and phone width.
+// best plans, "I'm not sure", reduced motion, the recap, axe and phone width; the go-live checks: Module 25 kickers and
+// share images, home's card.
 import { test, expect, type Page } from '@playwright/test';
 import { moduleOf } from '../../src/lib/modules';
 import { dfWalker } from './diffusion-flow';
@@ -33,7 +34,7 @@ test('the intro shows the level, the prerequisite, the author, the chapters and 
 }) => {
   await page.goto('/diffusion/');
   const meta = page.locator('.hero .module-meta');
-  await expect(page.locator('.hero .kicker')).toHaveText(/^Module \d+ · Diffusion$/);
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 25 · Diffusion');
   await expect(meta.locator('.level')).toHaveText('Intermediate');
   await expect(meta.getByRole('link', { name: moduleOf('multimodal').title, exact: true })).toHaveAttribute(
     'href',
@@ -44,6 +45,26 @@ test('the intro shows the level, the prerequisite, the author, the chapters and 
   await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toBeVisible();
   await expect(page.locator('.versus .reply')).toHaveCount(2);
   await axe(page);
+});
+
+test('Module 25 on the recap', async ({ page }) => {
+  await page.goto('/diffusion/recap/');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 25 · Recap');
+});
+
+test('go-live: own share images and home’s card', async ({ page }) => {
+  await page.goto('/diffusion/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/diffusion\.jpg$/);
+  await page.goto(`/diffusion/${CH1}/`);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    new RegExp(`/og/diffusion-${CH1}\\.jpg$`),
+  );
+  await page.goto('/diffusion/recap/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/diffusion-recap\.jpg$/);
+  expect((await page.request.get('/og/diffusion.jpg')).status()).toBe(200);
+  await page.goto('/');
+  await expect(page.locator('.module[data-module="diffusion"] h4 a')).toHaveAttribute('href', '/diffusion/');
 });
 
 test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({

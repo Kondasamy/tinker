@@ -157,6 +157,23 @@ import {
 } from '../lib/ab-testing/sim';
 import { ruleOf as abRule } from '../lib/ab-testing/workbench';
 import { NAME as AB_LUCKY, WINNER as AB_LUCKY_ARM } from '../content/ab-testing/05-twenty-colours';
+import { DARK_BOARD, darkroomScene, type DarkroomOpts } from '../components/scenes/darkroomScene';
+import { denoiseStrip } from '../components/scenes/denoiseStrip';
+import { META as DF_META, pictureFrames } from '../content/diffusion/kit';
+import { drawing as dfDrawing } from '../lib/diffusion/drawings';
+import { sampleDrawing, sampleIdealPoints, trajectory } from '../lib/diffusion/ideal';
+import { noised } from '../lib/diffusion/schedule';
+import { parsePoints, samplePoints } from '../lib/diffusion/points';
+import { SEEDS as DF_SEEDS, WINNERS as DF_WINNERS } from '../lib/diffusion/workbench';
+import { STEPS_1 as DF_STEPS_1, SEED as DF_SEED_1 } from '../content/diffusion/01-noise-to-picture';
+import {
+  DOTS as DF_DOTS,
+  SEED as DF_SEED,
+  STEPS_4 as DF_STEPS_4,
+  TRAIN as DF_TRAIN,
+} from '../content/diffusion/04-copy-or-create';
+import { STEPS_5 as DF_STEPS_5 } from '../content/diffusion/05-steer-with-a-label';
+import { STEPS_6 as DF_STEPS_6 } from '../content/diffusion/06-why-it-costs';
 import { MOMENTS, TICKS, runOf as cacheRun } from '../lib/caching/sim';
 import { WINNERS as CACHE_WINNERS } from '../lib/caching/workbench';
 import { oneTrip } from '../content/caching/01-far-is-slow';
@@ -862,6 +879,61 @@ const abChartOg =
   page.og === 'ab-testing-04-peeking'
     ? { run: abRun(ABS.aa), peek: peekResult(abRun(ABS.aa), AB.level)?.t }
     : undefined;
+// module 25: the darkroom. The intro: a hinge half developed; chapter 1: the denoising strip (below); chapter 2: dots after
+// 5 steps; chapter 3: dots after 50; chapter 4: the ideal denoiser's copies on its training points; chapter 5: a drill asked
+// for at guidance 4; chapter 6: the drill as a latent; chapter 7: the first winning catalogue choice.
+const dfModel = () => {
+  const bin = readFileSync('public/data/diffusion/points.bin');
+  return parsePoints(DF_META, bin.buffer.slice(bin.byteOffset, bin.byteOffset + bin.byteLength) as ArrayBuffer);
+};
+const dfDots = (steps: number): DarkroomOpts['print'] => ({
+  kind: 'points',
+  pts: samplePoints(dfModel(), DF_DOTS, steps, DF_SEED),
+  name: steps < 50 ? 'DOTS' : 'HINGE',
+});
+const DARK_OG: Record<string, () => DarkroomOpts> = {
+  diffusion: () => ({
+    print: { kind: 'pixels', px: noised(dfDrawing('hinge-square').pixels, 0.5, 3), name: 'DEVELOPING' },
+    steps: 50,
+    done: 25,
+  }),
+  'diffusion-02-step-by-step': () => ({ print: dfDots(5), steps: 5 }),
+  'diffusion-03-a-learned-denoiser': () => ({ print: dfDots(50), steps: 50 }),
+  'diffusion-04-copy-or-create': () => ({
+    print: {
+      kind: 'points',
+      pts: sampleIdealPoints(DF_TRAIN, DF_DOTS, DF_STEPS_4, DF_SEED),
+      train: DF_TRAIN,
+      name: 'COPIES',
+    },
+    steps: DF_STEPS_4,
+  }),
+  'diffusion-05-steer-with-a-label': () => ({
+    print: { kind: 'pixels', px: sampleDrawing(DF_STEPS_5, 2, 'drill', 4), name: 'DRILL' },
+    steps: DF_STEPS_5,
+    label: 'drill',
+    guidance: 4,
+  }),
+  'diffusion-06-why-it-costs': () => ({
+    print: { kind: 'pixels', px: dfDrawing('drill-pistol').pixels, name: 'LATENT' },
+    steps: DF_STEPS_6,
+  }),
+  'diffusion-07-workbench': () => {
+    const c = DF_WINNERS[0].catalogue;
+    return {
+      print: { kind: 'pixels', px: sampleDrawing(c.steps, DF_SEEDS[0], 'drill', c.scale), name: 'DRILL' },
+      steps: c.steps,
+      label: 'drill',
+      guidance: c.scale,
+    };
+  },
+};
+const darkOg = DARK_OG[page.og]?.();
+const dfStripSrc = (() => {
+  if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
+  const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${s.w} ${s.h}">${s.svg}</svg>`)}`;
+})();
 const lensOg =
   page.og === 'interpretability-03-the-guess-forming'
     ? (() => {
@@ -922,6 +994,8 @@ const curveOg =
           : dbOg ? <IsoStage board={ARCHIVE_BOARD} scene={archiveScene({ ...dbOg, scale: 1.3 })} label="" />
           : stockOg ? <IsoStage board={STOCK_BOARD} scene={stockScene({ ...stockOg, scale: 1.4 })} label="" />
           : splitOg ? <IsoStage board={SPLIT_BOARD} scene={splitScene({ ...splitOg, scale: 1.3 })} label="" />
+          : darkOg ? <IsoStage board={DARK_BOARD} scene={darkroomScene({ ...darkOg, scale: 1.3 })} label="" />
+          : dfStripSrc ? <div class="mm-og"><img src={dfStripSrc} alt="" /></div>
           : abChartOg ? <div class="tf-og ab-og"><ResultView chart={abChartOg} /></div>
           : depotOgs ? <div class={depotOgs.length > 1 ? 'duo' : ''}>{depotOgs.map(o => <IsoStage board={DEPOT_BOARD} scene={depotScene({ ...o, scale: 1.3 })} label="" />)}</div>
           : lensOg ? <div class="tf-og"><Flat fig={lensOg} role="img" label="" /></div>
