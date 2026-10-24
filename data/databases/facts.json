@@ -1,0 +1,40 @@
+{
+  "accessed": "2026-10-24",
+  "facts": [
+    {
+      "id": "b-tree",
+      "claim": "Rudolf Bayer and Edward McCreight introduced the B-tree in “Organization and maintenance of large ordered indexes” (Acta Informatica, 1972).",
+      "source": "https://doi.org/10.1007/BF00288683"
+    },
+    {
+      "id": "depth",
+      "claim": "Use The Index, Luke: tree depth grows very slowly compared to the number of leaf nodes; real-world indexes with millions of records have a depth of four or five.",
+      "source": "https://use-the-index-luke.com/sql/anatomy/the-tree"
+    },
+    {
+      "id": "insert",
+      "claim": "Use The Index, Luke: the number of indexes on a table is the most dominant factor for insert performance, and each additional index slows inserts further.",
+      "source": "https://use-the-index-luke.com/sql/dml/insert"
+    },
+    {
+      "id": "leading-column",
+      "claim": "Use The Index, Luke: a database can use a two-column index when searching by its leading column, but not by the second column alone, like a telephone directory.",
+      "source": "https://use-the-index-luke.com/sql/where-clause/the-equals-operator/concatenated-keys"
+    },
+    {
+      "id": "planner-cost",
+      "claim": "PostgreSQL’s planner estimates each plan’s cost, in arbitrary units, and seeks the lowest estimated total cost; EXPLAIN shows its estimated rows.",
+      "source": "https://www.postgresql.org/docs/current/using-explain.html"
+    },
+    {
+      "id": "fetch-cost",
+      "claim": "PostgreSQL’s docs: fetching rows separately is much more expensive than reading them sequentially, and a table on one page nearly always gets a sequential scan, indexes or not.",
+      "source": "https://www.postgresql.org/docs/current/using-explain.html"
+    },
+    {
+      "id": "nested-loop",
+      "claim": "PostgreSQL’s docs: a nested-loop join runs its inner child once for each row from the outer child, and the inner child can be an index scan.",
+      "source": "https://www.postgresql.org/docs/current/using-explain.html"
+    }
+  ]
+}
