@@ -7,7 +7,7 @@ Writes
 The network predicts the noise added to a point (DDPM's epsilon, Ho et al. 2020) from the noisy point and sinusoidal
 embeddings of its coordinates (so it can draw fine detail like the screw holes) and of the time t in [0, 1]. The noise schedule is cosine (Nichol and Dhariwal 2021), squeezed so the last step
 keeps a little signal. Goldens are computed in float64 from the weights rounded to Float16 (what ships);
-src/lib/diffusion/points.ts runs the same maths and tests/unit/diffusion-spike.test.ts checks it against them.
+src/lib/diffusion/points.ts runs the same maths and tests/unit/diffusion-learned.test.ts checks it against them.
 
 Run (about 35 seconds on one CPU thread; seeded and deterministic, a rerun gives a byte-identical points.bin):
   uv run --no-project --python 3.12 --with-requirements scripts/train/requirements.txt scripts/train/train_diffusion.py

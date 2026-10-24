@@ -63,7 +63,8 @@ export function useCkpt(step?: number | null) {
     snap,
   );
   useEffect(() => {
-    if (w && loaderOf(w).status() === 'idle') loaderOf(w).load().then(emit, emit);
+    // through loadCkpt, which emits 'loading' as it starts, so every subscriber leaves 'idle' with this one
+    if (w && loaderOf(w).status() === 'idle') loadCkpt(Number(w.slice(5))).catch(() => {});
   }, [w]);
   return {
     status,

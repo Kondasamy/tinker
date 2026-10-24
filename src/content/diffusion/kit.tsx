@@ -33,7 +33,7 @@ import './diffusion.css';
 export const META = metaJson as unknown as PointsMeta;
 export const NAME: Record<Label, string> = { hinge: 'hinge', drill: 'drill', bracket: 'bracket' };
 export const two = (n: number) => n.toFixed(2);
-/** On the outline: within the spike's pinned distance (diffusion-spike.test.ts). */
+/** On the outline: within the learned denoiser's pinned distance (diffusion-learned.test.ts). */
 export const NEAR = 0.05;
 
 /** A picture in words: the part it is nearest and how rough it is (0 a clean copy of a training drawing). */

@@ -1,4 +1,4 @@
-// Diffusion spike (U4, KTD8): the learned 2-D denoiser against its Python goldens, its size and how well it draws the
+// The learned 2-D denoiser (KTD8): the shipped weights against their Python goldens, its size and how well it draws the
 // hinge, and chapter 2's roughness measure. The ideal denoiser's checks are in diffusion-engine.test.ts.
 import { readFileSync, statSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
@@ -16,8 +16,8 @@ const meta = JSON.parse(readFileSync('public/data/diffusion/meta.json', 'utf8'))
 const bin = readFileSync('public/data/diffusion/points.bin');
 const model = parsePoints(meta, bin.buffer.slice(bin.byteOffset, bin.byteOffset + bin.byteLength) as ArrayBuffer);
 
-// Pinned in the spike: with seed 7, 200 points in 50 steps, at least this share lies within NEAR of the outline
-// (the outline spans about 1.8 × 1.7; a screw hole's radius is 0.12). Measured 0.915.
+// Pinned when the denoiser was trained: with seed 7, 200 points in 50 steps, at least this share lies within NEAR of
+// the outline (the outline spans about 1.8 × 1.7; a screw hole's radius is 0.12). Measured 0.915.
 const SEED = 7;
 const NEAR = 0.05;
 const SHARE = 0.9;

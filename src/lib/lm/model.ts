@@ -115,15 +115,14 @@ function adapted(model: Model, name: string, x: Float64Array, nOut: number): Flo
 
 const gelu = (x: number) => 0.5 * x * (1 + Math.tanh(Math.sqrt(2 / Math.PI) * (x + 0.044715 * x ** 3)));
 
+/** The tied unembedding has no bias: one shared zero row per vocabulary size, never written. */
+const zeroBias = new Map<number, Float32Array>();
+const noBias = (n: number) => zeroBias.get(n) ?? zeroBias.set(n, new Float32Array(n)).get(n)!;
+
 /** One residual read out as next-token logits: `lnf`, then the unembedding tied to the token embedding (the logit lens). */
 export function unembed(model: Model, x: Float64Array): Float64Array {
   const { config: c, tensors: P } = model;
-  return linear(
-    layerNorm(x, P['lnf.weight'], P['lnf.bias'], c.ln_eps),
-    P['wte.weight'],
-    new Float32Array(c.vocab),
-    c.vocab,
-  );
+  return linear(layerNorm(x, P['lnf.weight'], P['lnf.bias'], c.ln_eps), P['wte.weight'], noBias(c.vocab), c.vocab);
 }
 
 /** Patch and steer the residual stream at the top of layer l (hooks looked up once per layer). */
