@@ -24,6 +24,7 @@ import {
   byDepth,
 } from '../../lib/iso/core.js';
 import { pieceLabel } from './attentionMap';
+import type { Say } from '../story/steps';
 
 export const ENGINE_BOARD: Board = [0, 0, 260, 210];
 /** Weights under this draw no thread: they would be ink too faint to see, and they crowd the strong ones. */
@@ -42,7 +43,7 @@ export interface EngineOpts {
   /** label pill size: 1 wide, larger on phones (name only) */
   scale?: number;
   /** the step's callout, over one of ENGINE_PARTS */
-  say?: { block: string; text: string };
+  say?: Say;
 }
 /** The parts a step's callout may name: each floor, the lit head's desk, the query tile and the tile it weighs most. */
 export const ENGINE_PARTS = ['layer-1', 'layer-2', 'head', 'query', 'focus'] as const;

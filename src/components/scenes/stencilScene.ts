@@ -22,6 +22,7 @@ import {
 } from '../../lib/iso/core.js';
 import { beltAt } from './officeScene';
 import { TILE_COLOURS } from './tokenScene';
+import type { Say } from '../story/steps';
 
 export const STENCIL_BOARD: Board = [0, 0, 240, 120];
 
@@ -42,7 +43,7 @@ export interface StencilOpts {
   done?: boolean;
   scale?: number;
   /** the step's callout, over one of STENCIL_PARTS */
-  say?: { block: string; text: string };
+  say?: Say;
 }
 /** The parts a step's callout may name: the prompt's strip, the press, the schema plate, the blocked tile and the belt
  * of output tiles. A callout on the plate or the blocked tile stands where it would be, drawn or not. */

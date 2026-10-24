@@ -449,6 +449,16 @@ export function officeState({ msgs, upTo = msgs.length, tools, gate }: OfficeOpt
   };
 }
 
+/** The office's SVG split for a scene that adds props: its art, its name pills (the props go between the two), and
+ * its step callout, which goes on last, over the scene's own pills. */
+export function splitOffice(svg: string) {
+  const lit = svg.indexOf('<g class="callout"'),
+    callout = lit < 0 ? '' : svg.slice(lit),
+    rest = lit < 0 ? svg : svg.slice(0, lit),
+    cut = rest.search(/<g class="(block|check|msg)-tag"/);
+  return { art: cut < 0 ? rest : rest.slice(0, cut), names: cut < 0 ? '' : rest.slice(cut), callout };
+}
+
 /** The diorama. Pills: each station's name (lit while it is busy), and the message on the belt with its stamp. */
 export const officeScene =
   (o: OfficeOpts) =>

@@ -6,7 +6,8 @@
 // assistant, and the chute is the fallback that sends an unsure answer up. Words only in pills; on phones (scale > 1.5)
 // the router's and the chute's pills show only while lit.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
-import { ACC, BH, boxCorners, esc, renderers, sayAt } from '../../lib/iso/blocks';
+import { ACC, BH, boxCorners, esc, renderers, sayAt, calloutsLast } from '../../lib/iso/blocks';
+import type { Say } from '../story/steps';
 import {
   INK,
   PALS,
@@ -47,7 +48,7 @@ export interface RouterOpts {
   /** pill size; phones pass more */
   scale?: number;
   /** the step's callout: a lit pill over one of ROUTER_PARTS */
-  say?: { block: string; text: string };
+  say?: Say;
 }
 
 /** The parts a step's callout may point at: the ones with a name pill. */
@@ -192,7 +193,7 @@ export const routerScene = (o: RouterOpts) => (ctx: SceneCtx) => {
   ];
   if (!narrow || st.router.on) pills.push(pill([wx, wy, SZ + 18], 0, -12, st.router.name, st.router.on, scale));
   if (!narrow || st.chute.on) pills.push(pill([CHUTE_X, sy - 16, BH + 1], -44, 4, st.chute.name, st.chute.on, scale));
-  return s + pills.join('');
+  return s + calloutsLast(pills);
 };
 
 /** The picture in words, for its aria-label. */

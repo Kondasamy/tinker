@@ -4,7 +4,7 @@
 // belt instead. Before a reading the belt is empty. Words only in pills; on phones (scale > 1.5) the pills keep short
 // names and the caption carries the counts.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
-import { BH, boxCorners, esc, renderers, sayTag } from '../../lib/iso/blocks';
+import { BH, boxCorners, esc, renderers, sayAt } from '../../lib/iso/blocks';
 import {
   PALS,
   CERAMIC,
@@ -26,6 +26,7 @@ import { costOf, sent, METHOD_NAME, type Method } from '../../lib/multimodal/rea
 import { thousands } from '../../lib/multimodal/patches';
 import { beltAt } from './officeScene';
 import { TILE_COLOURS } from './tokenScene';
+import type { Say } from '../story/steps';
 
 export const SCAN_BOARD: Board = [0, 0, 240, 120];
 
@@ -38,7 +39,7 @@ export interface ScanOpts {
   /** pill size; phones pass more */
   scale?: number;
   /** the step's callout, over one of SCAN_PARTS */
-  say?: { block: string; text: string };
+  say?: Say;
 }
 /** The parts a step's callout may name: the sheet, the camera and the belt to the model. */
 export const SCAN_PARTS = ['sheet', 'camera', 'belt'] as const;
@@ -203,17 +204,14 @@ export const scanScene = (o: ScanOpts) => (ctx: SceneCtx) => {
     : st.method === 'ocr'
       ? `${thousands(st.tokens)} TEXT TOKENS`
       : `${thousands(st.read.tokens)} IMAGE TOKENS`;
-  // sayAt's phone rule, keyed to narrow: desktop pills here are already 1.2
-  const say = (part: string, p: number[], dy: number) =>
-    o.say?.block === part && (!narrow || o.say.text.length <= 16) ? sayTag(p, o.say.text, scale, dy - 24) : '';
   return (
     s +
     pill([CAM[0] + 10, CAM[1] + 25, BH + 1], narrow ? 0 : 10, narrow ? 34 : 30, doc, false, scale) +
     pill([CAM[0], CAM[1], BH + 66], 0, -12, narrow && !st.method ? '—' : how, !!st.method, scale) +
     pill([BELT.b[0] - 30, Y + 6, BH], 0, narrow ? 34 : 30, count, false, scale) +
-    say('sheet', [CAM[0] + 10, CAM[1] + 25, BH + 1], narrow ? 34 : 30) +
-    say('camera', [CAM[0], CAM[1], BH + 66], -12) +
-    say('belt', [BELT.b[0] - 30, Y + 6, BH], narrow ? 34 : 30)
+    sayAt(o.say, 'sheet', [CAM[0] + 10, CAM[1] + 25, BH + 1], narrow ? 34 : 30, scale, narrow) +
+    sayAt(o.say, 'camera', [CAM[0], CAM[1], BH + 66], -12, scale, narrow) +
+    sayAt(o.say, 'belt', [BELT.b[0] - 30, Y + 6, BH], narrow ? 34 : 30, scale, narrow)
   );
 };
 

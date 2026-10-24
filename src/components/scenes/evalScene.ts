@@ -3,7 +3,7 @@
 // wire to a grader's desk at the front right, where graded cards pile up in a PASS pile and a FAIL pile, each stamped.
 // A scoreboard pill reads passed / total. Words only in pills; on phones (scale > 1.5) the caption carries the piles.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
-import { ACC, BH, boxCorners, calloutTag, esc, sayAt } from '../../lib/iso/blocks';
+import { ACC, BH, boxCorners, calloutTag, esc, sayAt, sayFits } from '../../lib/iso/blocks';
 import {
   INK,
   PALS,
@@ -23,6 +23,7 @@ import {
   byDepth,
 } from '../../lib/iso/core.js';
 import { miniPipelineParts, ROW, Y } from './miniPipeline';
+import type { Say } from '../story/steps';
 
 export const EVAL_BOARD: Board = [0, 0, 240, 150];
 
@@ -38,7 +39,7 @@ export interface EvalOpts {
   /** the scoreboard's words, in place of "version · PASSED n/total" (a chapter scoring something else) */
   board?: string;
   /** the step's callout, over one of EVAL_PARTS */
-  say?: { block: string; text: string };
+  say?: Say;
   /** pill size; phones pass more */
   scale?: number;
 }
@@ -209,9 +210,7 @@ export const evalScene = (o: EvalOpts) => (ctx: SceneCtx) => {
     sayAt(o.say, 'tests', stackAt, 26, scale) +
     sayAt(o.say, 'fail', failAt, 22, scale) +
     sayAt(o.say, 'pass', passAt, 2, scale) +
-    ROW.map(([t, x]) =>
-      o.say?.block === t && (scale <= 1 || o.say.text.length <= 16) ? calloutTag(t, x, Y, o.say.text, scale) : '',
-    ).join('');
+    ROW.map(([t, x]) => (o.say && sayFits(o.say, t, scale > 1) ? calloutTag(t, x, Y, o.say.text, scale) : '')).join('');
   return s + pipePills + pills.join('') + callouts;
 };
 

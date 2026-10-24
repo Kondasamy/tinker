@@ -28,6 +28,7 @@ import {
   shape,
 } from '../../lib/iso/core.js';
 import { beltAt, type Part } from './officeScene';
+import type { Say } from '../story/steps';
 
 export const PHONE_BOARD: Board = [0, 0, 200, 164];
 type Station = 'phone' | 'ear' | 'model' | 'mouth';
@@ -59,7 +60,7 @@ export interface PhoneOpts {
   /** speech-to-text was unsure of what it wrote (a flag on the transcript card) */
   unsure?: boolean;
   /** the step's callout, over one of PHONE_PARTS */
-  say?: { block: string; text: string };
+  say?: Say;
   /** pill size; phones pass more */
   scale?: number;
 }

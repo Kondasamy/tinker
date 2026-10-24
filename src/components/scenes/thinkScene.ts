@@ -3,7 +3,7 @@
 // on the chosen effort) and a clock whose pill shows the wait. With no thinking, no pad is drawn and the clock shows the
 // answer-only wait. Words only in pills; the thinking text itself goes in a panel under the stage, never on the picture.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
-import { ACC, BH, boxCorners, esc, renderers, sayAt } from '../../lib/iso/blocks';
+import { ACC, BH, boxCorners, esc, renderers, sayAt, calloutsLast } from '../../lib/iso/blocks';
 import {
   INK,
   PALS,
@@ -25,6 +25,7 @@ import {
   byDepth,
 } from '../../lib/iso/core.js';
 import { EFFORTS, type Effort } from '../../lib/reasoning/engine';
+import type { Say } from '../story/steps';
 
 export const THINK_BOARD: Board = [0, 0, 150, 120];
 
@@ -39,7 +40,7 @@ export interface ThinkOpts {
   /** pill size; phones pass more */
   scale?: number;
   /** the step's callout: a lit pill over one of THINK_PARTS */
-  say?: { block: string; text: string };
+  say?: Say;
 }
 
 /** The parts a step's callout may point at: the ones with a name pill. */
@@ -176,7 +177,7 @@ export const thinkScene = (o: ThinkOpts) => (ctx: SceneCtx) => {
   if (st.pad)
     pills.push(pill(padAt, 0, -14, narrow ? `${st.thinking} TOK` : `${st.thinking} THINKING TOKENS`, false, scale));
   else if (!narrow) pills.push(pill([PAD[0], PAD[1], BH], 0, -14, 'NO THINKING', false, scale));
-  return s + pills.join('');
+  return s + calloutsLast(pills);
 };
 
 /** The home hero's plot (heroScene): a small scratchpad desk at (x, y). A squat model block, a pad of papers beside it, and a

@@ -30,6 +30,7 @@ import {
   beltAt,
   envelope,
   officeScene,
+  splitOffice,
   type OfficeOpts,
   type Part,
 } from './officeScene';
@@ -217,7 +218,6 @@ function taintTag(x: number, y: number) {
 
 const pill = (p: number[], dx: number, dy: number, text: string, lit: boolean, scale: number, cls = 'block-tag') =>
   `<g class="${cls}" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text), lit, scale)}</g>`;
-const PILLS = /<g class="(block|check|msg)-tag"/;
 
 /** The office with the mail room and the defences that are on. Words go only in pills; on phones (scale > 1) the props
  * keep short names and the caption carries their readouts. */
@@ -228,13 +228,7 @@ export const guardScene = (o: GuardOpts) => (ctx: SceneCtx) => {
     msgs = guardMessages(run);
   const office = officeScene({ ...o, msgs, upTo, tools: st.tools, emp: 'MAIL ROOM' })(ctx);
   // the props go over the office's art but under its name pills; the chute is floor, under everything
-  // the office's callout (it draws one only for its own parts) moves to the very top, over this scene's pills
-  const lit = office.indexOf('<g class="callout"'),
-    callout = lit < 0 ? '' : office.slice(lit),
-    rest = lit < 0 ? office : office.slice(0, lit);
-  const cut = rest.search(PILLS),
-    art = cut < 0 ? rest : rest.slice(0, cut),
-    names = cut < 0 ? '' : rest.slice(cut);
+  const { art, names, callout } = splitOffice(office);
   const parts: Part[] = [],
     pills: string[] = [],
     calls: string[] = [],

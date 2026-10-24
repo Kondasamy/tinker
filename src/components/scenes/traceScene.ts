@@ -5,6 +5,7 @@
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
 import { PALS, CERAMIC, WOOD, DARK, box, shape, castShadow, hullInk, toneI, tag, byDepth } from '../../lib/iso/core.js';
+import type { Say } from '../story/steps';
 
 export const TRACE_BOARD: Board = [0, 0, 240, 150];
 /** the most cards the wall holds: eight across, five rows */
@@ -27,7 +28,7 @@ export interface TraceOpts {
   /** the tally board's words, in place of "TRACES n · FAILED f" */
   board?: string;
   /** the step's callout, over one of TRACE_PARTS (a bin is `bin-<index>`, front left first) */
-  say?: { block: string; text: string };
+  say?: Say;
   scale?: number;
 }
 

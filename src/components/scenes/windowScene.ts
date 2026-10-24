@@ -5,7 +5,7 @@
 // shelf behind (a copy of the shared prefix, lit on a hit), a filing cabinet for memory (a drawer out when notes were
 // read), and agentScene's in-tray for cleared results (a binder once summarised). Everything is read off one run, up to a call.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
-import { BH, boxCorners, esc, glassCase, sayAt } from '../../lib/iso/blocks';
+import { BH, boxCorners, esc, glassCase, sayAt, calloutsLast } from '../../lib/iso/blocks';
 import {
   PALS,
   METAL,
@@ -32,6 +32,7 @@ import { KIND_NAME, KIND_PAL } from './windowBar';
 import { DEFAULTS, REPLY_ROOM, type Run } from '../../lib/context/loop';
 import { MEMORY_DIR } from '../../lib/context/memory';
 import type { PartKind } from '../../lib/context/window';
+import type { Say } from '../story/steps';
 
 export const WINDOW_BOARD: Board = [0, 0, 200, 186];
 
@@ -50,7 +51,7 @@ export interface WindowOpts {
   /** pill size; on phones (> 1) the props' readout pills are left to the caption */
   scale?: number;
   /** the step's callout: a lit pill over one of WINDOW_PARTS */
-  say?: { block: string; text: string };
+  say?: Say;
 }
 
 /** The parts a step's callout may point at: the ones with a name pill. */
@@ -330,7 +331,7 @@ export const windowScene = (o: WindowOpts) => (ctx: SceneCtx) => {
       );
   }
   // the desk is under everything on it, so it is drawn first, not sorted by depth
-  return shadows.join('') + desk().svg + byDepth(parts) + pills.join('');
+  return shadows.join('') + desk().svg + byDepth(parts) + calloutsLast(pills);
 };
 
 /** The home hero's plot (heroScene): a small desk at (x, y) with the glass window on it, holding four papers (system,

@@ -21,6 +21,7 @@ import {
 } from '../../lib/iso/core.js';
 import type { Result } from '../../lib/inference/server';
 import { beltAt } from './officeScene';
+import type { Say } from '../story/steps';
 
 export const SERVE_BOARD: Board = [0, 34, 186, 140];
 
@@ -35,7 +36,7 @@ export interface ServeOpts {
   /** speculative decoding: tokens the draft runner guessed and how many the server kept (none: no draft runner) */
   draft?: { drafted: number; accepted: number } | null;
   /** the step's callout, over one of SERVE_PARTS */
-  say?: { block: string; text: string };
+  say?: Say;
   /** pill size; phones pass more */
   scale?: number;
 }

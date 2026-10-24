@@ -24,7 +24,7 @@ import {
   tag,
   byDepth,
 } from '../../lib/iso/core.js';
-import { OFFICE_PARTS, officeScene, officeLabel, type OfficeOpts } from './officeScene';
+import { OFFICE_PARTS, officeScene, splitOffice, officeLabel, type OfficeOpts } from './officeScene';
 import { agentMessages } from './agentSequence';
 import { keyOf, tokens, type Run, type Step } from '../../lib/agents/loop';
 
@@ -304,7 +304,6 @@ const toolsOf = ({ run, tools }: AgentOpts) => {
 };
 const pill = (p: number[], dx: number, dy: number, text: string, on: boolean, scale: number) =>
   `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text), on, scale)}</g>`;
-const PILLS = /<g class="(block|check|msg)-tag"/;
 
 /** The office with the props turned on. Words go only in pills; on phones (scale > 1) the caption carries the readouts. */
 export const agentScene = (o: AgentOpts) => (ctx: SceneCtx) => {
@@ -313,13 +312,7 @@ export const agentScene = (o: AgentOpts) => (ctx: SceneCtx) => {
   const st = agentState(o);
   const office = officeScene({ ...o, msgs: agentMessages(run), upTo, tools: toolsOf(o) })(ctx);
   // draw the props over the office's art but under its name pills, so no prop hides a pill
-  // the office's callout (it draws one only for its own parts) moves to the very top, over this scene's pills
-  const lit = office.indexOf('<g class="callout"'),
-    callout = lit < 0 ? '' : office.slice(lit),
-    rest = lit < 0 ? office : office.slice(0, lit);
-  const cut = rest.search(PILLS),
-    art = cut < 0 ? rest : rest.slice(0, cut),
-    names = cut < 0 ? '' : rest.slice(cut);
+  const { art, names, callout } = splitOffice(office);
   const parts: Part[] = [],
     pills: string[] = [],
     calls: string[] = [],

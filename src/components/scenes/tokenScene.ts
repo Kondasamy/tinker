@@ -21,6 +21,7 @@ import {
 } from '../../lib/iso/core.js';
 import { encode } from '../../lib/lm/bpe';
 import { beltAt } from './officeScene';
+import type { Say } from '../story/steps';
 
 export const TOKEN_BOARD: Board = [0, 0, 240, 120];
 /** The tiles' colours in turn: tile i wears TILE_COLOURS[i % 5], here and in the Tokens tab (as --<name>-l). */
@@ -33,7 +34,7 @@ export interface TokenOpts {
   /** pill size; phones pass more */
   scale?: number;
   /** the step's callout, over one of TOKEN_PARTS */
-  say?: { block: string; text: string };
+  say?: Say;
 }
 /** The parts a step's callout may name: the strip, the press and the belt of tiles. */
 export const TOKEN_PARTS = ['strip', 'press', 'belt'] as const;

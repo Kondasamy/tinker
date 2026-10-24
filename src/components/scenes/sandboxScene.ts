@@ -20,7 +20,16 @@ import {
   tag,
   byDepth,
 } from '../../lib/iso/core.js';
-import { OFFICE_PARTS, archAt, beltAt, envelope, officeScene, type OfficeOpts, type Part } from './officeScene';
+import {
+  OFFICE_PARTS,
+  archAt,
+  beltAt,
+  envelope,
+  officeScene,
+  splitOffice,
+  type OfficeOpts,
+  type Part,
+} from './officeScene';
 import { sandboxMessages } from './sandboxSequence';
 import type { Files, Run } from '../../lib/sandboxing/loop';
 import type { Msg } from '../../lib/iso/flat';
@@ -167,7 +176,6 @@ function proxyProp(x: number, y: number): Part {
 // Phones drop these pills; tests/unit/sandbox-scene.test.ts checks no two overlap.
 const pill = (p: number[], dx: number, dy: number, text: string, lit: boolean, scale: number, cls = 'block-tag') =>
   `<g class="${cls}" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text), lit, scale)}</g>`;
-const PILLS = /<g class="(block|check|msg)-tag"/;
 
 /** The office drawn as a glass room with the doors that are on. */
 export const sandboxScene = (o: SandboxOpts) => (ctx: SceneCtx) => {
@@ -185,13 +193,7 @@ export const sandboxScene = (o: SandboxOpts) => (ctx: SceneCtx) => {
     owner: false,
     gate: false,
   })(ctx);
-  // the office's callout (it draws one only for its own parts) moves to the very top, over this scene's pills
-  const lit = office.indexOf('<g class="callout"'),
-    callout = lit < 0 ? '' : office.slice(lit),
-    rest = lit < 0 ? office : office.slice(0, lit);
-  const cut = rest.search(PILLS),
-    art = cut < 0 ? rest : rest.slice(0, cut),
-    names = cut < 0 ? '' : rest.slice(cut);
+  const { art, names, callout } = splitOffice(office);
   const parts: Part[] = [],
     pills: string[] = [],
     calls: string[] = [],

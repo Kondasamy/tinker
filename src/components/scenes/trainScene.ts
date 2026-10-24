@@ -3,7 +3,7 @@
 // each wired to the model. The chosen lever is pulled and lit, with its wire. For LoRA a small adapter clips onto the
 // model's side. Words only in pills; on phones (scale > 1.5) only the lit lever keeps its pill.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
-import { ACC, BH, boxCorners, esc, renderers, sayAt } from '../../lib/iso/blocks';
+import { ACC, BH, boxCorners, esc, renderers, sayAt, calloutsLast } from '../../lib/iso/blocks';
 import {
   INK,
   PALS,
@@ -28,6 +28,7 @@ import {
 } from '../../lib/iso/core.js';
 import type { Weights } from '../../lib/lm/load';
 import type { Version } from '../../lib/fine-tuning/engine';
+import type { Say } from '../story/steps';
 
 export const TRAIN_BOARD: Board = [0, 0, 160, 124];
 
@@ -43,7 +44,7 @@ export interface TrainOpts {
   /** pill size; phones pass more */
   scale?: number;
   /** the step's callout: a lit pill over one of TRAIN_PARTS */
-  say?: { block: string; text: string };
+  say?: Say;
 }
 
 /** The parts a step's callout may point at: the ones with a name pill (a lever by its approach). */
@@ -215,7 +216,7 @@ export const trainScene = (o: TrainOpts) => (ctx: SceneCtx) => {
     pills.push(sayAt(o.say, l.id, at, -12, scale));
     if (!narrow || l.on) pills.push(pill(at, 0, -12, LEVER_NAME[l.id], l.on, scale));
   }
-  return s + pills.join('');
+  return s + calloutsLast(pills);
 };
 
 /** The home hero's plot (heroScene): a small training bench at (x, y). A squat model block with the mint adapter clipped
