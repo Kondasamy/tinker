@@ -107,6 +107,8 @@ export interface TickState {
   boards: Record<Rep, Record<Product, number>>;
   /** messages on their way at the end of the minute, by the warehouse they are going to */
   inFlight: Record<Rep, number>;
+  /** the same messages by wire, "from>to" */
+  wires: Record<string, number>;
   outcomes: Outcome[];
 }
 export interface Run {
@@ -227,6 +229,10 @@ export function simulate(policy: Policy, events: Event[] = EVENTS, windows: Part
       ...(cut ? { cutOff: cut } : {}),
       boards: per(REPS, r => per(PRODUCTS, p => reps[r][p].value)),
       inFlight: per(REPS, r => pending.filter(m => m.to === r).length),
+      wires: pending.reduce<Record<string, number>>((a, m) => {
+        a[`${m.from}>${m.to}`] = (a[`${m.from}>${m.to}`] ?? 0) + 1;
+        return a;
+      }, {}),
       outcomes: here,
     });
   }
@@ -272,3 +278,6 @@ export function runOf(p: Policy): Run {
 export const REP_NAME: Record<Rep, string> = { north: 'North', east: 'East', west: 'West' };
 export const PRODUCT_NAME: Record<Product, string> = { hinge: 'hinge', drill: 'drill press' };
 export const RULE_NAME: Record<Rule, string> = { lww: 'Last writer wins', primary: 'Reservations at North' };
+/** "1 hinge", "3 hinges", "0 drill presses". */
+export const unitsOf = (n: number, p: Product) =>
+  `${n} ${p === 'hinge' ? (n === 1 ? 'hinge' : 'hinges') : n === 1 ? 'drill press' : 'drill presses'}`;
