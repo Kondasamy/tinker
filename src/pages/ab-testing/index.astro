@@ -16,11 +16,12 @@ import { NEEDED } from '../../lib/ab-testing/workbench';
 import { FINAL } from '../../content/ab-testing/01-did-it-work';
 import { PEEK } from '../../content/ab-testing/04-peeking';
 import { NAME } from '../../content/ab-testing/05-twenty-colours';
-import { moduleOf, chapterHref } from '../../lib/modules';
+import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('ab-testing');
+const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
 const CHAPTERS = MODULE.chapters;
 const pic = (o: Omit<SplitOpts, 'scale'>): SplitOpts => ({ ...o, scale: 1.4 });
 const S = SCENARIOS;
@@ -75,7 +76,7 @@ const pts = (x: number) => `${x >= 0 ? '+' : '−'}${Math.abs(x * 100).toFixed(1
     <main class="intro">
       <header class="hero">
         <div class="hero-text">
-          <p class="kicker">{MODULE.title}</p>
+          <p class="kicker">Module {NUMBER} · {MODULE.title}</p>
           <p class="module-meta"><span class="level">{MODULE.level}</span> · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
           <h1>Did the change work, or did you get lucky?</h1>
           <p class="lede">Split shoppers at random, count who buys, and learn when a gap is real. Then meet the lucky days, early peeks and twenty-colour tests that fake a win, at Larkspur’s shop.</p>

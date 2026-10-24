@@ -504,6 +504,17 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'consistency')).toBe(22);
   });
 
+  it('has ab-testing as a live Beginner module after consistency, numbered 24', () => {
+    expect(moduleOf('ab-testing')).toMatchObject({
+      title: 'A/B testing',
+      level: 'Beginner',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('ab-testing').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'ab-testing')).toBe(23);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

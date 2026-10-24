@@ -145,6 +145,18 @@ import {
 import { STOCK_BOARD, stockAt, stockScene, type StockOpts } from '../components/scenes/stockScene';
 import { MOMENTS as CS_M, policyOf as csPol, runOf as csRun } from '../lib/consistency/sim';
 import { WINNERS as CS_WINNERS } from '../lib/consistency/workbench';
+import { SPLIT_BOARD, splitAt, splitScene, type SplitOpts } from '../components/scenes/splitScene';
+import { ResultView } from '../content/ab-testing/kit';
+import {
+  ASSUMPTIONS as AB,
+  BENCH as AB_BENCH,
+  ENOUGH as AB_ENOUGH,
+  SCENARIOS as ABS,
+  peekResult,
+  runOf as abRun,
+} from '../lib/ab-testing/sim';
+import { ruleOf as abRule } from '../lib/ab-testing/workbench';
+import { NAME as AB_LUCKY, WINNER as AB_LUCKY_ARM } from '../content/ab-testing/05-twenty-colours';
 import { MOMENTS, TICKS, runOf as cacheRun } from '../lib/caching/sim';
 import { WINNERS as CACHE_WINNERS } from '../lib/caching/workbench';
 import { oneTrip } from '../content/caching/01-far-is-slow';
@@ -822,6 +834,34 @@ const STOCK_OG: Record<string, () => Omit<StockOpts, 'scale'>> = {
   'consistency-07-stock-policy': () => stockAt(csRun(CS_WINNERS[0]), CS_M.westSells),
 };
 const stockOg = STOCK_OG[page.og]?.();
+// module 24: the shop floor. The intro and 1: the one-page checkout winning at its end; 2: an A/A run at its end; 3: the
+// bigger button run for enough shoppers; 4: the result chart (below); 5: the lucky colour; 6: the banner, returns up;
+// 7: the first bench experiment with its guardrail.
+const abEnd = (p: typeof ABS.aa) => p.days - 1,
+  ab3 = { ...ABS.small, days: AB_ENOUGH },
+  abBench = AB_BENCH[0];
+const SPLIT_OG: Record<string, () => Omit<SplitOpts, 'scale'>> = {
+  'ab-testing': () => splitAt(abRun(ABS.checkout), ABS.checkout, abEnd(ABS.checkout)),
+  'ab-testing-01-did-it-work': () => splitAt(abRun(ABS.checkout), ABS.checkout, abEnd(ABS.checkout)),
+  'ab-testing-02-luck': () => splitAt(abRun(ABS.aa), ABS.aa, abEnd(ABS.aa)),
+  'ab-testing-03-how-many-shoppers': () => splitAt(abRun(ab3), ab3, abEnd(ab3)),
+  'ab-testing-05-twenty-colours': () =>
+    splitAt(abRun(ABS.colours), ABS.colours, abEnd(ABS.colours), { arm: AB_LUCKY_ARM, name: AB_LUCKY }),
+  'ab-testing-06-guardrails': () => ({
+    ...splitAt(abRun(ABS.hurry), ABS.hurry, abEnd(ABS.hurry), { guardrail: true }),
+    verdict: 'B WINS · RETURNS UP',
+    tone: 'warn',
+  }),
+  'ab-testing-07-ship-or-stop': () => {
+    const o = splitAt(abRun(abBench), abBench, abEnd(abBench), { guardrail: true });
+    return abRule(abBench).guardrailHolds ? o : { ...o, verdict: `${o.verdict} · RETURNS UP`, tone: 'warn' };
+  },
+};
+const splitOg = SPLIT_OG[page.og]?.();
+const abChartOg =
+  page.og === 'ab-testing-04-peeking'
+    ? { run: abRun(ABS.aa), peek: peekResult(abRun(ABS.aa), AB.level)?.t }
+    : undefined;
 const lensOg =
   page.og === 'interpretability-03-the-guess-forming'
     ? (() => {
@@ -881,6 +921,8 @@ const curveOg =
           : fuseOg ? <IsoStage board={FUSE_BOARD} scene={fuseScene(fuseOg)} label="" />
           : dbOg ? <IsoStage board={ARCHIVE_BOARD} scene={archiveScene({ ...dbOg, scale: 1.3 })} label="" />
           : stockOg ? <IsoStage board={STOCK_BOARD} scene={stockScene({ ...stockOg, scale: 1.4 })} label="" />
+          : splitOg ? <IsoStage board={SPLIT_BOARD} scene={splitScene({ ...splitOg, scale: 1.3 })} label="" />
+          : abChartOg ? <div class="tf-og ab-og"><ResultView chart={abChartOg} /></div>
           : depotOgs ? <div class={depotOgs.length > 1 ? 'duo' : ''}>{depotOgs.map(o => <IsoStage board={DEPOT_BOARD} scene={depotScene({ ...o, scale: 1.3 })} label="" />)}</div>
           : lensOg ? <div class="tf-og"><Flat fig={lensOg} role="img" label="" /></div>
           : page.og === 'pre-training-06-bigger-or-longer' ? <div class="pt-og"><ScalingView budget={10} /></div>
@@ -927,6 +969,7 @@ const curveOg =
   .ob-og :global(.ob-readout) { display: none; }   /* the waterfall's keyboard hint: no use on a still */
   .vo-og :global(.vo-readout) { display: none; }   /* the timeline's keyboard hint: no use on a still */
   .vo-og :global(svg) { width: 100%; height: auto; }
+  .ab-og :global(.ab-readout) { display: none; }   /* the result chart's keyboard hint: no use on a still */
   .pt-og { font-size: 20px; }
   .mm-og { display: flex; justify-content: center; }
   .mm-og img { max-height: 520px; max-width: 100%; border: 2px solid var(--ink); border-radius: 6px; box-shadow: 5px 5px 0 var(--ink); }

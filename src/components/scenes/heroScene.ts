@@ -44,6 +44,7 @@ import { fusePlot } from './fuseScene';
 import { depotPlot } from './depotScene';
 import { archivePlot } from './archiveScene';
 import { stockPlot } from './stockScene';
+import { splitPlot } from './splitScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
@@ -260,6 +261,7 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   caching: (x, y, { top }) => depotPlot(x + 14, y - 4, top),
   databases: (x, y, { top }) => archivePlot(x + 14, y - 2, top),
   consistency: (x, y, { top }) => stockPlot(x + 14, y - 2, top),
+  'ab-testing': (x, y, { top }) => splitPlot(x + 14, y - 2, top),
 };
 const LIVE = MODULES.filter(m => m.status === 'live'),
   PLANNED = MODULES.filter(m => m.status === 'planned');

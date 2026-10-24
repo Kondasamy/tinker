@@ -69,6 +69,8 @@ import { WINNERS as DB_WINNERS } from '../lib/databases/workbench';
 import { ONE as DB_ONE } from '../content/databases/requests';
 import { STOCK_BOARD, stockAt, stockLabel, stockScene } from '../components/scenes/stockScene';
 import { MOMENTS as CS_MOMENTS, policyOf as csPolicy, runOf as csRun } from '../lib/consistency/sim';
+import { SPLIT_BOARD, splitAt, splitLabel, splitScene } from '../components/scenes/splitScene';
+import { SCENARIOS as AB_SCENARIOS, runOf as abRun } from '../lib/ab-testing/sim';
 
 const one =
   (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) =>
@@ -209,6 +211,11 @@ const ARCHIVE = { ...archiveAt(dbExec(DB_ONE, 'id'), DB_ONE), others: DB_WINNERS
 // North selling the drill press West already sold, the line to West down
 const STOCK = {
   ...stockAt(csRun(csPolicy({ r: 1, w: 1, rule: 'lww' }, { partition: true })), CS_MOMENTS.northSells),
+  scale: 1.7,
+};
+// the one-page checkout winning at the end of its test
+const SHOP = {
+  ...splitAt(abRun(AB_SCENARIOS.checkout), AB_SCENARIOS.checkout, AB_SCENARIOS.checkout.days - 1),
   scale: 1.7,
 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
@@ -494,6 +501,19 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Quorums',
       'Last writer wins',
       'Read your writes',
+    ],
+  },
+  'ab-testing': {
+    name: 'A/B testing',
+    iso: { board: SPLIT_BOARD, scene: splitScene(SHOP), label: splitLabel(SHOP) },
+    topics: [
+      'Random splits',
+      'Luck & A/A tests',
+      'Power & sample size',
+      'Peeking',
+      'Multiple comparisons',
+      'Guardrail metrics',
+      'Ship or stop',
     ],
   },
 };
