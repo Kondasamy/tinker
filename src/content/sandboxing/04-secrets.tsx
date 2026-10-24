@@ -6,6 +6,7 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { sandboxLanes, sandboxMessages } from '../../components/scenes/sandboxSequence';
+import { SANDBOX_PARTS } from '../../components/scenes/sandboxScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
@@ -35,7 +36,7 @@ const P1 = {
 };
 const OUT1 = R({ secret: 'proxy' }).attackMet ? 0 : 1;
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'With the secret held by the proxy, the agent still calls the company API successfully. How, if it never sees the token?',
   options: [
@@ -49,11 +50,14 @@ const QUIZ = {
     'The proxy injects the credential on allowed outbound requests, so the call authenticates without the agent ever holding the secret.',
   why: [
     'Nothing is guessed; the agent’s request simply carries no token.',
-    'Right. The secret lives with the proxy, which attaches it on the way out to allowed hosts only.',
+    'Right: the secret lives with the proxy, which attaches it on the way out to allowed hosts only.',
     'The API still needs the token; the proxy supplies it.',
     'Revealing the token to the agent would defeat the point.',
   ],
 };
+
+/** The glass room's parts, for step callouts. */
+export const PARTS = SANDBOX_PARTS;
 
 export const STEPS: Step<S>[] = [
   {
@@ -61,7 +65,10 @@ export const STEPS: Step<S>[] = [
     focus: 'run',
     visibleControls: ['secret', 'run'],
     opensDrawer: 'files',
-    narration: `The task needs Larkspur’s API token. A colleague puts it in the sandbox’s environment so the agent can use it. A planted note tells the agent to send it to an auditor. Egress is open. Run it.`,
+    narration:
+      'A colleague puts the token in the sandbox’s environment. A planted note says send it out, and egress is open.',
+    act: 'Run it.',
+    say: { block: 'secret', text: 'In the env' },
     predicate: s => s.secret === 'env' && s.ran,
     hint: 'With the secret “in the sandbox”, press Run.',
   },
@@ -70,14 +77,17 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['p1'],
     opensDrawer: null,
-    narration: `${says('exfil')}. A sandbox did not help here: the agent could read the secret, so a compromised agent could send it out. Before you move it:`,
+    narration:
+      'The token left: the agent could read the secret, so the sandbox didn’t help. Next, the proxy holds it outside.',
+    act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'proxy',
     focus: 'secret',
     visibleControls: ['p1', 'out1', 'secret', 'run'],
-    narration: 'Move the secret to the proxy, outside the sandbox, and run the attack again.',
+    narration: 'With the proxy holding it, the token never enters the sandbox.',
+    act: 'Set the secret to “with the proxy” and run the attack again.',
     predicate: s => s.secret === 'proxy' && s.ran && !R(s).attackMet,
     hint: 'Set the secret to “with the proxy” and press Run.',
   },
@@ -86,7 +96,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['quiz'],
     narration:
-      'The read of the token was refused, so there was nothing to send, and yet the real task can still call the API. Keeping the secret out of the agent is a defence the network layer alone cannot give. One question to finish.',
+      'The token read was refused, yet the task still calls the API: a proxy-injected secret, which no network rule alone gives.',
+    act: 'One question to finish.',
+    say: { block: 'files', text: 'Read refused' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Who adds the token to the request if the agent never sees it?',
   },
@@ -100,7 +112,7 @@ export default function SecretsChapter() {
       steps={STEPS}
       initial={{ secret: 'env', ran: false, p1: null, quiz: null, view: 'scene' }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync, inspect }) => {
+      stage={({ state, sync, inspect, say }) => {
         const r = R(state);
         return (
           <SandboxStage
@@ -108,6 +120,7 @@ export default function SecretsChapter() {
             upTo={state.ran ? r.steps.length : 0}
             props={sandboxProps({ sandbox: true, files: 'scoped', egress: 'open', secret: state.secret })}
             inspect={inspect}
+            say={say}
             view={state.view}
             onView={view => sync({ ...state, view })}
           />

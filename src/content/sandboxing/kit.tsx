@@ -144,6 +144,10 @@ export function Files() {
           <strong>{f.path}</strong> — {f.label}
         </p>
       ))}
+      <p>
+        This sandbox is a model: the files are fixtures, the token is a stand-in, and no real code runs. The agent’s
+        turns are recorded; the sandbox’s checks run in your browser.
+      </p>
     </div>
   );
 }

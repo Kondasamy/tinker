@@ -7,6 +7,7 @@ import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import type { Approval } from '../../lib/sandboxing/loop';
 import { sandboxLanes, sandboxMessages } from '../../components/scenes/sandboxSequence';
+import { SANDBOX_PARTS } from '../../components/scenes/sandboxScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
@@ -39,7 +40,7 @@ const P1 = {
 };
 const OUT1 = R({ kase: 'exfil', approval: 'approve' }).attackMet ? 0 : 1;
 
-const QUIZ = {
+export const QUIZ = {
   question: 'After adding a sandbox, a team needs far fewer approvals than before, yet they say it is still safe. Why?',
   options: [
     'It isn’t: fewer prompts always means less safety',
@@ -52,11 +53,14 @@ const QUIZ = {
     'Safety came from the limit, not the clicking. The sandbox supplies the limit, so the prompt is saved for the moments that would leave it.',
   why: [
     'The limit, not the number of clicks, is what kept things safe; the sandbox provides the limit.',
-    'Right. Inside the boundary actions are already safe; the prompt is reserved for a crossing. Anthropic found this cuts prompts sharply.',
+    'Right: inside the boundary actions are already safe, so the prompt is saved for a crossing.',
     'The agent does not approve itself; the sandbox decides what is in bounds.',
     'It is the boundary doing the enforcing, not the speed of approval, that keeps it safe with fewer prompts.',
   ],
 };
+
+/** The glass room's parts, for step callouts. */
+export const PARTS = SANDBOX_PARTS;
 
 export const STEPS: Step<S>[] = [
   {
@@ -64,7 +68,9 @@ export const STEPS: Step<S>[] = [
     focus: 'run',
     visibleControls: ['run'],
     opensDrawer: 'messages',
-    narration: `Before sandboxing, a careful team approved almost every action. Now the agent runs an ordinary report task inside the sandbox, with no approvals turned on. Run it and notice: every action stayed inside the boundary, so nobody was asked anything.`,
+    narration: 'An ordinary report task runs in the sandbox with no approvals turned on.',
+    act: 'Run it, and count the prompts.',
+    say: { block: 'emp', text: 'Approvals off' },
     predicate: s => s.kase === 'report' && s.ran,
     hint: 'Press Run.',
   },
@@ -74,7 +80,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['p1'],
     opensDrawer: null,
     narration:
-      'The report finished with no prompts: its API call was allowed, so it never crossed the boundary. Now the exfil attack, with a person set to check any boundary crossing. Before you run it:',
+      'No prompts: every action stayed inside, so none was a boundary crossing. Next, the exfil attack, with a person checking crossings.',
+    act: 'Predict first.',
     setup: s => ({ ...s, kase: 'exfil', approval: 'approve', ran: false }),
     predicate: s => s.p1 !== null,
   },
@@ -82,8 +89,9 @@ export const STEPS: Step<S>[] = [
     id: 'approve',
     focus: 'approval',
     visibleControls: ['p1', 'out1', 'approval', 'run'],
-    narration:
-      'Run the exfil attack with the person set to “approve”, then try “refuse”. Watch what the approval actually controls.',
+    narration: 'The person is set to “approve”: they will click yes on any crossing.',
+    act: 'Run the attack.',
+    say: { block: 'emp', text: 'Clicks yes' },
     predicate: s => s.kase === 'exfil' && s.approval === 'approve' && s.ran && R(s).attackMet,
     hint: 'Set the person to “approve” and press Run.',
   },
@@ -91,7 +99,9 @@ export const STEPS: Step<S>[] = [
     id: 'deny',
     focus: 'approval',
     visibleControls: ['approval', 'run'],
-    narration: 'Now set the person to “refuse” and run it again.',
+    narration: 'Approving let the token out: the person, not the boundary, made the call.',
+    act: 'Set the person to “refuse” and run it again.',
+    say: { block: 'emp', text: 'Said yes' },
     predicate: s => s.kase === 'exfil' && s.approval === 'deny' && s.ran && !R(s).attackMet,
     hint: 'Set the person to “refuse” and press Run.',
   },
@@ -100,7 +110,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['quiz'],
     narration:
-      'Only the boundary crossing was ever shown to a person, and approving it let the token out: the safety was in the boundary, not the click. Keep the boundary, ask a person rarely. One question to finish.',
+      'Refused, nothing left. Only the crossing ever reached a person, and saying yes undid the boundary: prompt fatigue makes that likely.',
+    act: 'One question to finish.',
+    say: { block: 'emp', text: 'Said no' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which actions inside a sandbox still need a person?',
   },
@@ -123,7 +135,7 @@ export default function FewerPromptsChapter() {
       steps={STEPS}
       initial={{ kase: 'report', approval: 'off', ran: false, p1: null, quiz: null, view: 'scene' }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync, inspect }) => {
+      stage={({ state, sync, inspect, say }) => {
         const r = R(state);
         return (
           <SandboxStage
@@ -131,6 +143,7 @@ export default function FewerPromptsChapter() {
             upTo={state.ran ? r.steps.length : 0}
             props={sandboxProps({ sandbox: true, files: 'scoped', egress: 'allowlist', secret: 'env' })}
             inspect={inspect}
+            say={say}
             view={state.view}
             onView={view => sync({ ...state, view })}
           />

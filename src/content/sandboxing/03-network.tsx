@@ -5,6 +5,7 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { sandboxLanes, sandboxMessages } from '../../components/scenes/sandboxSequence';
+import { SANDBOX_PARTS } from '../../components/scenes/sandboxScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
@@ -36,7 +37,7 @@ const P1 = {
 };
 const OUT1 = R({ kase: 'exfil', egress: 'allowlist' }).attackMet ? 0 : 1;
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'A team sets the agent’s egress to “off” so nothing can leak. The agent’s task needs to call the company API. What happens?',
   options: [
@@ -50,11 +51,14 @@ const QUIZ = {
     'Off is the bluntest setting: it stops leaks and the task’s own requests alike. An allow-list keeps the friendly host open.',
   why: [
     'Egress off means no outbound network at all; it does not know which host is friendly.',
-    'Right. Off blocks the real work too. The allow-list is the middle setting that keeps the task’s host open.',
+    'Right: off blocks the real work too, and the allow-list keeps the task’s host open.',
     'There is no exception; off blocks every outbound request.',
     'The agent cannot route around the sandbox’s network boundary.',
   ],
 };
+
+/** The glass room's parts, for step callouts. */
+export const PARTS = SANDBOX_PARTS;
 
 export const STEPS: Step<S>[] = [
   {
@@ -62,7 +66,9 @@ export const STEPS: Step<S>[] = [
     focus: 'run',
     visibleControls: ['egress', 'run'],
     opensDrawer: 'messages',
-    narration: `The exfiltration attack again, but now the egress is open: the agent can reach any host. Run it and watch the token leave for attacker.example.`,
+    narration: 'The exfiltration attack again, now with egress open: the agent can reach any host.',
+    act: 'Run it.',
+    say: { block: 'network', text: 'Wide open' },
     predicate: s => s.kase === 'exfil' && s.egress === 'open' && s.ran,
     hint: 'With egress “open”, press Run.',
   },
@@ -71,14 +77,16 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['p1'],
     opensDrawer: null,
-    narration: `${says('exfil')}. Open egress is a wide-open door. The proxy can narrow it to an allow-list of hosts. Before you do:`,
+    narration: 'The token left for attacker.example. A proxy can narrow the egress to an allow-list of hosts.',
+    act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'allowlist',
     focus: 'egress',
     visibleControls: ['p1', 'out1', 'egress', 'run'],
-    narration: 'Set the egress to the allow-list (Larkspur’s API only), and run the attack again.',
+    narration: 'The allow-list holds one host: Larkspur’s API.',
+    act: 'Set the egress to the allow-list and run the attack again.',
     predicate: s => s.kase === 'exfil' && s.egress === 'allowlist' && s.ran && !R(s).attackMet,
     hint: 'Set egress to “allow-list” and press Run.',
   },
@@ -86,8 +94,8 @@ export const STEPS: Step<S>[] = [
     id: 'report-off',
     focus: 'case',
     visibleControls: ['case', 'egress', 'run'],
-    narration:
-      'The attacker’s host is blocked. But narrow too far and you block the real work. Switch to the ordinary report task and set egress to “off”: it needs the API.',
+    narration: 'The attacker’s host was blocked. Narrow too far, though, and real work stops.',
+    act: 'Pick the report task, set egress to “off”, and run it.',
     setup: s => ({ ...s, kase: 'report', egress: 'off', ran: false }),
     predicate: s => s.kase === 'report' && s.egress === 'off' && s.ran && !R(s).caseDone,
     hint: 'Pick the report task, set egress “off”, and press Run.',
@@ -97,7 +105,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['quiz'],
     narration:
-      'Off blocked the report’s own API call: a false block. The allow-list is the setting that stops the attacker and still lets the task work. One question to finish.',
+      'Egress off blocked the report’s own API call: a false block. The allow-list stops the attacker and lets the task work.',
+    act: 'One question to finish.',
+    say: { block: 'network', text: 'Task blocked' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What does egress “off” do to the task’s own network request?',
   },
@@ -120,7 +130,7 @@ export default function NetworkChapter() {
       steps={STEPS}
       initial={{ kase: 'exfil', egress: 'open', ran: false, p1: null, quiz: null, view: 'scene' }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync, inspect }) => {
+      stage={({ state, sync, inspect, say }) => {
         const r = R(state);
         return (
           <SandboxStage
@@ -128,6 +138,7 @@ export default function NetworkChapter() {
             upTo={state.ran ? r.steps.length : 0}
             props={sandboxProps({ sandbox: true, files: 'scoped', egress: state.egress, secret: 'env' })}
             inspect={inspect}
+            say={say}
             view={state.view}
             onView={view => sync({ ...state, view })}
           />

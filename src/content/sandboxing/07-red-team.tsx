@@ -6,6 +6,7 @@ import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import { sandboxLanes, sandboxMessages } from '../../components/scenes/sandboxSequence';
+import { SANDBOX_PARTS } from '../../components/scenes/sandboxScene';
 import { CASES, isAttack, metrics, type CaseId, type Files, type Metrics, type Setup } from '../../lib/sandboxing/loop';
 import { WINNERS, isWinner } from '../../lib/sandboxing/workbench';
 import { fact } from '../../lib/sandboxing/facts';
@@ -74,7 +75,7 @@ const DOMAIN = {
 };
 const KEYS = ['files', 'egress', 'secret', 'approval'] as const;
 
-const QUIZ = {
+export const QUIZ = {
   question: `Your bench now stops all ${NONE.attacks} attacks and blocks no task. The team asks: are we safe now?`,
   options: [
     'Yes: a 0% attack success rate means no attack can get through',
@@ -85,19 +86,24 @@ const QUIZ = {
   correct: 1,
   explanation: `A suite measures the attacks it holds. ${fact('not-complete').claim}`,
   why: [
-    `The rate is over ${NONE.attacks} attacks someone thought of. A sandbox reduces risk but is not a complete boundary.`,
-    'Right. The suites are an eval: they grow as new attacks are found, and a gate on both rates stops a change that makes either worse.',
+    `The rate covers only the ${NONE.attacks} attacks someone thought of, and a sandbox is not a complete boundary.`,
+    'Right: the suites are an eval that grows with new attacks, and a gate on both rates stops a change that makes either worse.',
     'Approvals add prompt fatigue without proving safety against new attacks, and not every action is a crossing.',
-    `At its strictest the bench blocks ${STRICT.blocked} of ${STRICT.tasks} tasks. Strictness moves cost onto real work without proving safety against new attacks.`,
+    `At its strictest the bench blocks ${STRICT.blocked} of ${STRICT.tasks} tasks, moving cost onto real work without proving safety against new attacks.`,
   ],
 };
+
+/** The glass room's parts, for step callouts. */
+export const PARTS = SANDBOX_PARTS;
 
 export const STEPS: Step<S>[] = [
   {
     id: 'bench',
     focus: 'start',
     visibleControls: ['bench', 'readout'],
-    narration: `The red team’s bench. Every control is here, and every change reruns both suites: the ${NONE.attacks} attacks and the ${NONE.tasks} ordinary tasks. With the sandbox wide open, ${NONE.succeeded} of ${NONE.attacks} attacks get through. Pick a case to watch it on the stage. Change any control to start.`,
+    narration: `Each change reruns the attack suite (${NONE.attacks}) and the task suite (${NONE.tasks}). Wide open, ${NONE.succeeded} of ${NONE.attacks} attacks get through.`,
+    act: 'Change any control to start.',
+    say: { block: 'host', text: 'Wide open' },
     predicate: s => KEYS.some(k => s[k] !== START[k]),
     hint: 'Change any control, such as the mounts or the egress.',
   },
@@ -105,8 +111,8 @@ export const STEPS: Step<S>[] = [
     id: 'red-team',
     focus: 'bench',
     visibleControls: ['bench', 'readout'],
-    narration:
-      'Find a policy that stops every attack and blocks no ordinary task. The earlier chapters each found a piece: scope the files, hold the secret with the proxy, allow-list the egress, and remember the trifecta leg.',
+    narration: 'As the red team, use what each chapter found.',
+    act: 'Find a policy that stops every attack and blocks no task.',
     predicate: s => clean(bench(s)),
     hint: 'Scope the mounts so no data leg is exposed, hold the secret with the proxy, and allow-list the egress. Leave approvals off.',
     solution: s => ({ ...s, ...SOLUTION }),
@@ -115,8 +121,9 @@ export const STEPS: Step<S>[] = [
     id: 'gate',
     focus: 'quiz',
     visibleControls: ['bench', 'readout', 'gate', 'quiz'],
-    narration:
-      'A clean bench, on this suite. Keep playing: try the strictest settings and watch the false blocks, or take one layer away and see which attack comes back. Then one question to finish.',
+    narration: 'A clean bench on this suite: a minimal policy.',
+    act: 'Try the strictest settings or drop a layer, then answer the question.',
+    say: { block: 'host', text: 'Clean on suite' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What does a 0% rate say about an attack nobody has written yet?',
   },
@@ -187,7 +194,7 @@ export default function RedTeam() {
       steps={STEPS}
       initial={{ ...START, kase: 'exfil', view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync, inspect }) => {
+      stage={({ state, sync, inspect, say }) => {
         const r = current(state);
         return (
           <SandboxStage
@@ -195,6 +202,7 @@ export default function RedTeam() {
             upTo={r.steps.length}
             props={sandboxProps({ sandbox: true, files: state.files, egress: state.egress, secret: state.secret })}
             inspect={inspect}
+            say={say}
             view={state.view}
             onView={view => sync({ ...state, view })}
           />

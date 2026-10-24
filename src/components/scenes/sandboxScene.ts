@@ -181,7 +181,7 @@ export const sandboxScene = (o: SandboxOpts) => (ctx: SceneCtx) => {
     upTo,
     tools: 4,
     emp: 'OPERATOR',
-    host: 'SANDBOX',
+    host: wall ? 'SANDBOX' : 'HOST', // no wall: the agent runs on the host itself
     owner: false,
     gate: false,
   })(ctx);

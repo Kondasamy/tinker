@@ -6,6 +6,7 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { sandboxLanes, sandboxMessages } from '../../components/scenes/sandboxSequence';
+import { SANDBOX_PARTS } from '../../components/scenes/sandboxScene';
 import type { Files } from '../../lib/sandboxing/loop';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
@@ -37,7 +38,7 @@ const P1 = {
 };
 const OUT1 = R({ kase: 'beacon', files: 'nodata' }).attackMet ? 0 : 1;
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'An agent may only reach the company’s own API host. A colleague says “so data can’t leak.” What do you tell them?',
   options: [
@@ -51,11 +52,14 @@ const QUIZ = {
     'The allow-list decides which host, not what the request contains; the reliable fix is to remove a leg of the trifecta.',
   why: [
     'An allowed door is still a door: a request to it can carry whatever the attacker chose.',
-    'Right. A smuggled record leaves through the open door. You have to take away a leg: the data, the untrusted content, or the way out.',
+    'Right: the record leaves through the open door, so you must take away a leg: the data, the untrusted content or the way out.',
     'Encryption hides the request from the network, not from the host that receives it, and the proxy cannot read inside it.',
     'Off stops the leak and the real work; removing the unneeded data leg stops the leak at no cost here.',
   ],
 };
+
+/** The glass room's parts, for step callouts. */
+export const PARTS = SANDBOX_PARTS;
 
 export const STEPS: Step<S>[] = [
   {
@@ -63,7 +67,10 @@ export const STEPS: Step<S>[] = [
     focus: 'run',
     visibleControls: ['run'],
     opensDrawer: 'messages',
-    narration: `The sandbox is scoped, the egress is an allow-list (Larkspur’s API only), the secret is with the proxy. A note tells the agent to add a customer’s record to a routine “status ping” to that API. Run it.`,
+    narration:
+      'Every defence so far is on. A note tells the agent to slip a customer’s record into a routine ping to Larkspur’s API.',
+    act: 'Run it.',
+    say: { block: 'network', text: 'Allow-list on' },
     predicate: s => s.kase === 'beacon' && s.files === 'scoped' && s.ran,
     hint: 'Press Run.',
   },
@@ -72,15 +79,18 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['p1'],
     opensDrawer: null,
-    narration: `${says('beacon')}. This is the lethal trifecta from Guardrails: private data, untrusted content, and a way out. The allowed door is the way out. You can read it again in the Guardrails chapter on it: see the link below. The only reliable fix is to remove one leg.`,
+    narration:
+      'The record left by the allowed door: Guardrails’ lethal trifecta of private data, untrusted content, a way out. Fix: break a leg.',
+    act: 'Predict first.',
+    say: { block: 'network', text: 'Record got out' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'cut',
     focus: 'files',
     visibleControls: ['p1', 'out1', 'files', 'run'],
-    narration:
-      'Remove the data leg: switch to the “no data” mounts, which don’t expose the customer records at all. Run the attack again.',
+    narration: 'The “no data” mounts don’t expose the customer records at all: the data leg is gone.',
+    act: 'Switch to “no data” mounts and rerun the attack.',
     predicate: s => s.kase === 'beacon' && s.files === 'nodata' && s.ran && !R(s).attackMet,
     hint: 'Set the mounts to “no data” and press Run.',
   },
@@ -88,8 +98,8 @@ export const STEPS: Step<S>[] = [
     id: 'task',
     focus: 'case',
     visibleControls: ['case', 'files', 'run'],
-    narration:
-      'With no customer data to read, there is nothing to smuggle. And the report task never needed that data, so it still runs. Switch to the report task (mounts still “no data”) and run it.',
+    narration: 'Nothing left to smuggle. The report never needed that data, so it should still run.',
+    act: 'Pick the report task and run it.',
     setup: s => ({ ...s, kase: 'report', files: 'nodata', ran: false }),
     predicate: s => s.kase === 'report' && s.ran && R(s).caseDone,
     hint: 'Pick the report task and press Run.',
@@ -98,8 +108,9 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['quiz'],
-    narration:
-      'Least privilege did it: not mounting data the task doesn’t need removed a whole leg of the trifecta, at no cost to the real work. One question to finish.',
+    narration: 'The report ran. Least privilege removed a whole leg of the trifecta, at no cost to the real work.',
+    act: 'One question to finish.',
+    say: { block: 'files', text: 'No data here' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Does the allow-list check what’s inside a request, or only which host it goes to?',
   },
@@ -122,7 +133,7 @@ export default function AllowedDoorChapter() {
       steps={STEPS}
       initial={{ kase: 'beacon', files: 'scoped', ran: false, p1: null, quiz: null, view: 'scene' }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync, inspect }) => {
+      stage={({ state, sync, inspect, say }) => {
         const r = R(state);
         return (
           <SandboxStage
@@ -130,6 +141,7 @@ export default function AllowedDoorChapter() {
             upTo={state.ran ? r.steps.length : 0}
             props={sandboxProps({ sandbox: true, files: state.files, egress: 'allowlist', secret: 'proxy' })}
             inspect={inspect}
+            say={say}
             view={state.view}
             onView={view => sync({ ...state, view })}
           />
