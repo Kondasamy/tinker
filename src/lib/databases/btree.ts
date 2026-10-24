@@ -29,6 +29,9 @@ export function cmp(a: Key, b: Key) {
 /** a against a bound that may be a prefix: only the bound's columns count */
 const cmpTo = (a: Key, bound: Key) => cmp(a.slice(0, bound.length), bound);
 const minKey = (n: Node): Key => (n.leaf ? n.keys[0] : minKey(n.kids[0]));
+const maxKey = (n: Node): Key => (n.leaf ? n.keys[n.keys.length - 1] : maxKey(n.kids[n.kids.length - 1]));
+/** The smallest and largest key under a page. */
+export const span = (n: Node): [Key, Key] => [minKey(n), maxKey(n)];
 const chunk = <T>(xs: T[], n: number) =>
   Array.from({ length: Math.ceil(xs.length / n) }, (_, i) => xs.slice(i * n, i * n + n));
 

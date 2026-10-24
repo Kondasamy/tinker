@@ -50,7 +50,7 @@ const matches = (o: Order, q: Query) =>
   );
 
 /** The index's bounds for a request: its leading columns while each is equal to a value, ending at the first range. */
-function bounds(name: IndexName, q: Query): [Key, Key] | null {
+export function bounds(name: IndexName, q: Query): [Key, Key] | null {
   const lo: Key = [],
     hi: Key = [];
   for (const c of INDEX_COLS[name]) {
