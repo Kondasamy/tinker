@@ -58,7 +58,7 @@ test('chapter 1: “I’m not sure” shows the answer unstamped and finishes th
   await expect(card(page)).toContainText('Chapter complete');
 });
 
-test('chapter 2: overflow at 5 TB (AE2), three more reasons, quiz', async ({ page }) => {
+test('chapter 2: overflow at 5 TB (AE2), three more problems, each opened, quiz', async ({ page }) => {
   await open(page, '/rag/02-why-not-stuff-it/');
   // predict first: no Ask, no slider, and the stage holds one document until the pick
   await expect(card(page).getByRole('button', { name: /^Ask/ })).toHaveCount(0);
@@ -94,12 +94,13 @@ test('chapter 2: overflow at 5 TB (AE2), three more reasons, quiz', async ({ pag
     ['Freshness', 'freshness'],
     ['Who may see what', 'who may see what'],
   ]) {
-    await card(page)
-      .getByRole('button', { name: `Next reason: ${reason} →` })
-      .click();
+    const problem = card(page).getByRole('button', { name: new RegExp(`^${reason}`) });
+    await problem.click();
     await expect(drawer(page)).toContainText(new RegExp(title, 'i'));
+    // opened problems stay marked until the last one finishes the step
+    if (reason === 'Lost in the middle') await expect(problem).toHaveAttribute('aria-pressed', 'true');
   }
-  await expect(drawer(page).getByRole('heading')).toContainText(/who may see what/i);
+  await expect(card(page)).toContainText('Step 6 of 6');
 
   await card(page)
     .getByRole('radio', { name: /no context window holds it/ })

@@ -142,7 +142,7 @@ const clip = !!m.chapters.find(c => c.id === chapter)?.intro.clip;
   .intro .reading { margin-top: 0; }
   .chapter-clip { margin: 0; display: flex; flex-direction: column; gap: 8px; }
   .chapter-clip :where(video, img) { width: 100%; height: auto; aspect-ratio: 16 / 9; border: 1.5px solid var(--ink); border-radius: 10px; background: var(--card); display: block; }
-  .clip-lines { margin: 0; padding-left: 18px; font-size: 13px; color: var(--muted); display: flex; flex-direction: column; gap: 2px; }
+  .clip-lines { margin: 0; padding-left: 2.2em; font-size: 13px; color: var(--muted); display: flex; flex-direction: column; gap: 2px; }
   /* steps already done stay as the story so far, quieter than the current step */
   .log { margin: 0; padding: 12px 0 0; list-style: none; display: flex; flex-direction: column; gap: 10px; border-top: 1.5px dashed var(--rule); font-size: 13.5px; line-height: 1.5; color: var(--muted); }
   .log li { padding-left: 22px; position: relative; }
@@ -168,6 +168,8 @@ const clip = !!m.chapters.find(c => c.id === chapter)?.intro.clip;
   .quiz legend { font-size: 14px; margin-bottom: 8px; padding: 0; }
   .quiz .opts { flex-direction: column; align-items: stretch; }
   .quiz .chip { text-align: left; }
+  .reasons { flex-direction: column; align-items: stretch; }
+  .reasons .chip { text-align: left; }
   .feedback p { margin: 6px 0 0; font-size: 13px; }
   .feedback summary { margin-top: 8px; font-size: 13px; cursor: pointer; }
   .feedback ul, .tips ul, .closing ul { margin: 6px 0 0; padding-left: 18px; font-size: 13px; display: flex; flex-direction: column; gap: 6px; }

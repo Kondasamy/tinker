@@ -57,7 +57,7 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
   await slide(slider, '7');
   await step(4);
   await slide(slider, '8');
-  for (const reason of ['Lost in the middle', 'Freshness', 'Who may see what']) await btn(`Next reason: ${reason} →`);
+  for (const reason of ['Lost in the middle', 'Freshness', 'Who may see what']) await btn(new RegExp(`^${reason}`));
   await opt(/no context window holds it/);
   await next(/03-what-is-rag/);
 
@@ -100,7 +100,7 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
   await solve(9);
   await btn('Add the Reranker');
   await solve(11);
-  await nextPuzzle();
+  await opt(/stayed at 100%/); // the check after the buried rule
   await solve(13);
   await nextPuzzle();
   await solve(15);
@@ -112,7 +112,7 @@ export async function walkModule(page: Page, mode: Mode, check: (page: Page) => 
   // 6. Types
   const run = () => press(card.getByRole('button', { name: /^Run as/ }));
   const pick = (label: string | RegExp) => tick(card.getByLabel(label));
-  await btn('Compare types →');
+  await opt(/stops before the exception/); // the prediction
   await pick('Can enterprise customers get a refund?');
   await run();
   await step(3);

@@ -92,7 +92,14 @@ test('chapter 5: every lever, each puzzle broken then solved, meters moving inde
   await solved(page, 11);
   await expect(recall(page)).toHaveAttribute('data-value', '100');
   await expect(verdict(page)).toHaveAttribute('data-verdict', 'correct');
-  await nextPuzzle(page);
+  // the check: the reader reads the recall meter instead of being told
+  await card(page)
+    .getByRole('radio', { name: /It rose/ })
+    .click();
+  await expect(card(page)).toContainText('100% before and after');
+  await card(page)
+    .getByRole('radio', { name: /stayed at 100%/ })
+    .click();
 
   // 5. distractor: hybrid keyword weight, with the blend in "Show the math"
   await broken(page, 13);
@@ -154,7 +161,9 @@ test('chapter 5: Show me solves every puzzle; rerank also frees the hidden needl
   await page.getByRole('group', { name: 'Inspect' }).getByRole('button', { name: 'Evidence' }).click();
   await drawer(page).getByLabel('Show the math').check();
   await expect(page.getByTestId('math-rerank')).toContainText(/-?\d+\.\d\d/);
-  await nextPuzzle(page);
+  await card(page)
+    .getByRole('radio', { name: /stayed at 100%/ })
+    .click();
 
   await showMe(13);
   await nextPuzzle(page);

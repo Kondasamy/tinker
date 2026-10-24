@@ -35,7 +35,9 @@ test('chapter 6: naive then agentic adds two strip rows with different call coun
 }) => {
   await open(page);
   await expect(page.locator('[data-block="agent"]')).toHaveCount(0);
-  await card(page).getByRole('button', { name: 'Compare types →' }).click();
+  await card(page)
+    .getByRole('radio', { name: /stops before the exception/ })
+    .click();
 
   // naive: one call, the negation cut leaves the answer wrong
   await step(page, 2);
@@ -45,6 +47,8 @@ test('chapter 6: naive then agentic adds two strip rows with different call coun
   const naive = strip(page).locator('tr[data-type="naive"]');
   await expect(naive).toHaveAttribute('data-verdict', 'wrong');
   await expect(naive.locator('td').nth(3)).toHaveText('1');
+  // the prediction stays beside the outcome
+  await expect(card(page).locator('.feedback')).toContainText('AS YOU PREDICTED');
 
   // attach the agent side bay
   await step(page, 3);

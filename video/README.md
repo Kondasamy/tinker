@@ -15,6 +15,6 @@ Change a clip by changing its lines in the registry or its keyframes in the dev 
 | Size, rate | 1280 × 720, 30 fps, H.264 |
 | CRF | 30: a 20 s clip is about 0.5 MB; the cap is 1 MB a clip, 6 MB a module |
 | Lines | at most 10 words; each holds 1.4 s plus 0.32 s a word (at least 2.8 s) |
-| Poster | the frame 0.4 s before the last line ends: the whole picture |
+| Poster | the frame 0.4 s after the last line ends: the whole picture, no line under the player's controls |
 
 Rendering needs FFmpeg and Chrome. CI never renders; `tests/unit/clips.test.ts` checks the committed files.

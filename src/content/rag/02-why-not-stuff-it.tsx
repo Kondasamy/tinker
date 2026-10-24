@@ -1,4 +1,5 @@
 // Chapter 2 step script: why not put everything in the prompt? Size first, then the non-size reasons.
+import type { ReactNode } from 'react';
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
@@ -63,17 +64,6 @@ const PREDICT = {
 };
 const OUTCOME = 1;
 
-// Each reason step: one button reveals the next reason; the drawer shows the one just revealed.
-const reasonStep = (id: Reason, opens: string, narration: string, label: string): Step<S> => ({
-  id: `reason-${id}`,
-  focus: 'reason',
-  visibleControls: ['reason'],
-  opensDrawer: opens,
-  narration,
-  label,
-  predicate: s => s.seen.includes(id),
-});
-
 export const STEPS: Step<S>[] = [
   {
     id: 'predict',
@@ -112,42 +102,34 @@ export const STEPS: Step<S>[] = [
     predicate: s => s.stop >= STOP_5TB,
     hint: 'Each notch is 10 times bigger. 5 TB is the ninth notch.',
   },
-  reasonStep(
-    'middle',
-    'numbers',
-    `5 TB is about ${formatTokens(tokensFor(STOPS[STOP_5TB]))} tokens: no window holds it. Size is one of four problems. Open the next.`,
-    `5 TB is ${formatTokens(tokensFor(STOPS[STOP_5TB]))} tokens: far too big`,
-  ),
-  reasonStep(
-    'fresh',
-    'middle',
-    'Even if it fits, facts in the middle of a long prompt get missed. Next reason.',
-    'Reason 1: facts get lost in the middle',
-  ),
-  reasonStep(
-    'access',
-    'fresh',
-    'A prompt is a snapshot; documents change daily. Last reason.',
-    'Reason 2: a pasted prompt goes stale',
-  ),
+  {
+    id: 'reasons',
+    focus: 'reason',
+    visibleControls: ['reason'],
+    opensDrawer: 'reason',
+    narration: `5 TB is ${formatTokens(tokensFor(STOPS[STOP_5TB]))} tokens. Size is one problem; three more remain even when it fits. Open each.`,
+    label: 'Opened the three other problems',
+    predicate: s => s.seen.length === REASONS.length,
+    hint: 'Press each of the three problems below the slider.',
+  },
   {
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['quiz'],
-    opensDrawer: 'access',
-    narration: 'One prompt for everyone ignores permissions. Retrieval can filter per user. One question to finish.',
-    label: 'Reason 3: permissions; answered the quiz',
+    opensDrawer: 'reason',
+    narration: 'Four problems: size, the middle, freshness, permissions. One question to finish.',
+    label: 'Answered the quiz',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Think of all four problems: size, the middle, freshness, permissions.',
   },
 ];
 
-const REASON_LABEL: Record<Reason, string> = {
-  middle: 'Lost in the middle',
-  fresh: 'Freshness',
-  access: 'Who may see what',
-};
-const nextReason = (s: S) => (['middle', 'fresh', 'access'] as Reason[]).find(r => !s.seen.includes(r));
+// the three problems that remain even when the text fits: a name and the one line a reader must keep
+const REASONS: [Reason, string, string][] = [
+  ['middle', 'Lost in the middle', 'Facts deep in a long prompt get missed.'],
+  ['fresh', 'Freshness', 'A pasted prompt is a snapshot; documents change daily.'],
+  ['access', 'Who may see what', 'One prompt for everyone ignores permissions; retrieval can filter per user.'],
+];
 
 export default function WhyNotStuffIt() {
   return (
@@ -194,16 +176,21 @@ export default function WhyNotStuffIt() {
             </span>
           </label>
         ),
-        reason: ({ state, apply }) => {
-          const r = nextReason(state);
-          return (
-            r && (
-              <button type="button" className="big" onClick={() => apply({ ...state, seen: [...state.seen, r] })}>
-                Next reason: {REASON_LABEL[r]} →
+        reason: ({ state, apply }) => (
+          <div className="opts reasons" role="group" aria-label="Problems with pasting everything">
+            {REASONS.map(([r, name, line]) => (
+              <button
+                key={r}
+                type="button"
+                className="chip"
+                aria-pressed={state.seen.includes(r)}
+                onClick={() => apply({ ...state, seen: [...state.seen.filter(x => x !== r), r] })}
+              >
+                <strong>{name}</strong> {line}
               </button>
-            )
-          );
-        },
+            ))}
+          </div>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}
@@ -226,87 +213,94 @@ export default function WhyNotStuffIt() {
             />
           ),
         },
-        numbers: {
-          title: 'The numbers',
+        numbers: { title: 'The numbers', render: numbersPanel },
+        reason: {
+          title: 'Why pasting fails, even when it fits',
           render: s => {
-            const bytes = STOPS[s.stop],
-              tokens = tokensFor(bytes);
-            return (
-              <dl className="facts">
-                <dt>Corpus</dt>
-                <dd>{formatBytes(bytes)} of plain text</dd>
-                <dt>Tokens</dt>
-                <dd>
-                  ≈ {tokens.toLocaleString('en')}: bytes ÷ {BYTES_PER_TOKEN}. A token is a chunk of text, about ¾ of an
-                  English word. <Source e={TOKENS_SOURCE} />
-                </dd>
-                <dt>Largest window</dt>
-                <dd>
-                  {WINDOW.toLocaleString('en')} tokens, {LARGEST.model}. <Source e={LARGEST} />
-                </dd>
-                <dt>Fits?</dt>
-                <dd>
-                  {overflows(bytes)
-                    ? `No: it needs ${Math.ceil(tokens / WINDOW).toLocaleString('en')} full windows.`
-                    : 'Yes.'}
-                </dd>
-                {PRICE ? (
-                  <>
-                    <dt>Cost to send once</dt>
-                    <dd>
-                      ≈ ${((tokens / 1e6) * PRICE.perMillion).toLocaleString('en', { maximumFractionDigits: 2 })} at $
-                      {PRICE.perMillion} per million input tokens ({PRICE.model}, price as of {PRICE.asOf}), if it could
-                      fit at all.{' '}
-                      <a href={PRICE.sourceUrl} target="_blank" rel="noreferrer">
-                        {PRICE.sourceTitle}
-                      </a>
-                    </dd>
-                  </>
-                ) : (
-                  <>
-                    <dt>Cost</dt>
-                    <dd>Not shown: we found no price we could cite.</dd>
-                  </>
-                )}
-                <dt>What it is</dt>
-                <dd>
-                  {UNSTRUCTURED_SOURCE.claim} <Source e={UNSTRUCTURED_SOURCE} />
-                </dd>
-                <dt>Latency</dt>
-                <dd>
-                  Not shown: we found no official reading-speed figure to cite. Longer prompts take longer to read.
-                </dd>
-              </dl>
-            );
+            const r = s.seen.at(-1);
+            return r ? REASON_PANEL[r]() : numbersPanel(s);
           },
-        },
-        middle: {
-          title: 'Reason 1: lost in the middle',
-          render: () => (
-            <p>
-              {MIDDLE.claim} <Source e={MIDDLE} />
-            </p>
-          ),
-        },
-        fresh: {
-          title: 'Reason 2: freshness',
-          render: () => (
-            <p>
-              Prices, policies and tickets change every day. A pasted prompt is frozen at the moment you made it.
-              Retrieval reads the current version each time someone asks.
-            </p>
-          ),
-        },
-        access: {
-          title: 'Reason 3: who may see what',
-          render: () => (
-            <p>
-              Not everyone may read every document: HR files, deal terms, legal holds. One giant prompt shows the model
-              everything, for everyone. Retrieval can fetch only what the person asking is allowed to see.
-            </p>
-          ),
         },
       }}
     />
   );
 }
+
+// the corpus against the window, with its sources: what the reader just dragged to
+function numbersPanel(s: S) {
+  const bytes = STOPS[s.stop],
+    tokens = tokensFor(bytes);
+  return (
+    <dl className="facts">
+      <dt>Corpus</dt>
+      <dd>{formatBytes(bytes)} of plain text</dd>
+      <dt>Tokens</dt>
+      <dd>
+        ≈ {tokens.toLocaleString('en')}: bytes ÷ {BYTES_PER_TOKEN}. A token is a chunk of text, about ¾ of an English
+        word. <Source e={TOKENS_SOURCE} />
+      </dd>
+      <dt>Largest window</dt>
+      <dd>
+        {WINDOW.toLocaleString('en')} tokens, {LARGEST.model}. <Source e={LARGEST} />
+      </dd>
+      <dt>Fits?</dt>
+      <dd>
+        {overflows(bytes) ? `No: it needs ${Math.ceil(tokens / WINDOW).toLocaleString('en')} full windows.` : 'Yes.'}
+      </dd>
+      {PRICE ? (
+        <>
+          <dt>Cost to send once</dt>
+          <dd>
+            ≈ ${((tokens / 1e6) * PRICE.perMillion).toLocaleString('en', { maximumFractionDigits: 2 })} at $
+            {PRICE.perMillion} per million input tokens ({PRICE.model}, price as of {PRICE.asOf}), if it could fit at
+            all.{' '}
+            <a href={PRICE.sourceUrl} target="_blank" rel="noreferrer">
+              {PRICE.sourceTitle}
+            </a>
+          </dd>
+        </>
+      ) : (
+        <>
+          <dt>Cost</dt>
+          <dd>Not shown: we found no price we could cite.</dd>
+        </>
+      )}
+      <dt>What it is</dt>
+      <dd>
+        {UNSTRUCTURED_SOURCE.claim} <Source e={UNSTRUCTURED_SOURCE} />
+      </dd>
+      <dt>Latency</dt>
+      <dd>Not shown: we found no official reading-speed figure to cite. Longer prompts take longer to read.</dd>
+    </dl>
+  );
+}
+
+// what the drawer shows for each problem, with its title and source
+const REASON_PANEL: Record<Reason, () => ReactNode> = {
+  middle: () => (
+    <>
+      <h3>Lost in the middle</h3>
+      <p>
+        {MIDDLE.claim} <Source e={MIDDLE} />
+      </p>
+    </>
+  ),
+  fresh: () => (
+    <>
+      <h3>Freshness</h3>
+      <p>
+        Prices, policies and tickets change every day. A pasted prompt is frozen at the moment you made it. Retrieval
+        reads the current version each time someone asks.
+      </p>
+    </>
+  ),
+  access: () => (
+    <>
+      <h3>Who may see what</h3>
+      <p>
+        Not everyone may read every document: HR files, deal terms, legal holds. One giant prompt shows the model
+        everything, for everyone. Retrieval can fetch only what the person asking is allowed to see.
+      </p>
+    </>
+  ),
+};

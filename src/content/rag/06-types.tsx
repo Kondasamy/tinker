@@ -9,6 +9,7 @@
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
+import Predict, { Reveal } from '../../components/quiz/Predict';
 import { UNSURE } from '../../lib/recall';
 import KnobList, { Knob } from '../../components/canvas/Knobs';
 import { initialCanvas, unlockedThrough, type CanvasQuestion, type CanvasState } from '../../components/canvas/state';
@@ -37,7 +38,7 @@ export interface S extends RagState {
   q: string;
   type: string;
   rows: ResultRow[];
-  acks: number;
+  prediction: number | null;
   quiz: number | null;
   gquiz: number | null;
 }
@@ -56,6 +57,18 @@ function switchType(s: S, type: string): S {
     verdict: null,
   };
 }
+
+// Predict, then reveal (R9): before the naive run, what one search makes of the refund question's cut chunk.
+// The outcome is the recorded verdict, read off the reader's own run.
+const PREDICT = {
+  question: 'Naive RAG makes one search and gets one small chunk. What will it answer?',
+  options: [
+    'Correct: the chunk holds the whole refund rule',
+    'Wrong: the chunk stops before the exception',
+    'Not found: no chunk matches the question',
+  ],
+};
+const OUTCOME: Partial<Record<string, number>> = { correct: 0, wrong: 1, notfound: 2 };
 
 const QUIZ = {
   question: 'When is an agent worth its extra retrieval calls?',
@@ -100,17 +113,18 @@ const GRAPH_QUIZ = {
 export const STEPS: Step<S>[] = [
   {
     id: 'recap',
-    focus: 'next',
-    visibleControls: ['next'],
-    narration: 'Naive RAG searches once; advanced RAG tunes that search. Here each search returns one small chunk.',
-    label: 'Recapped naive and advanced RAG',
+    focus: 'predict',
+    visibleControls: ['predict'],
+    narration:
+      'Naive RAG searches once; advanced RAG tunes that search. Here each search returns one small chunk. Predict.',
+    label: 'Predicted the naive answer',
     more: 'Naive RAG is the chapter 3 version; advanced RAG keeps its single pass and tunes it with the chapter 5 levers. Every pipeline so far searched once. Here the retriever hands over one 16-word chunk, which makes each type’s strengths easy to see.',
-    predicate: s => s.acks >= 1,
+    predicate: s => s.prediction != null, // a run saved before this step was a prediction has none
   },
   {
     id: 'naive-run',
     focus: 'run',
-    visibleControls: ['cards', 'run'],
+    visibleControls: ['predict', 'cards', 'run'],
     narration: 'Run the enterprise refund question as naive RAG. Each run adds a row below.',
     label: 'Ran the refund question as naive RAG',
     predicate: s => !!row(s, 'refund-enterprise', 'naive'),
@@ -118,7 +132,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'attach',
     focus: 'types',
-    visibleControls: ['types'],
+    visibleControls: ['reveal', 'types'],
     opensDrawer: 'answer',
     narration: 'Cut at “does NOT”. An agent reads results and can search again. Switch to Agentic.',
     label: 'Switched to agentic RAG',
@@ -369,7 +383,7 @@ export default function Types() {
         verdict: null,
         math: false,
         probed: false,
-        acks: 0,
+        prediction: null,
         quiz: null,
         gquiz: null,
       }}
@@ -382,11 +396,22 @@ export default function Types() {
         </div>
       )}
       controls={{
-        next: ({ state, apply }) => (
-          <button type="button" className="big" onClick={() => apply({ ...state, acks: state.acks + 1 })}>
-            Compare types →
-          </button>
+        predict: ({ state, apply }) => (
+          <Predict {...PREDICT} value={state.prediction ?? null} onPredict={i => apply({ ...state, prediction: i })} />
         ),
+        reveal: ({ state }) => {
+          const out = OUTCOME[row(state, 'refund-enterprise', 'naive')?.verdict ?? ''];
+          return (
+            out !== undefined && (
+              <Reveal
+                prediction={state.prediction == null ? null : PREDICT.options[state.prediction]}
+                outcome={PREDICT.options[out]}
+                revealed
+                onReveal={() => {}}
+              />
+            )
+          );
+        },
         cards: ({ state, apply }) => (
           <fieldset className="pick">
             <legend>Question</legend>

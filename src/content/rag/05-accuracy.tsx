@@ -42,6 +42,8 @@ interface S extends RagState {
   prediction: number | null;
   asked: boolean;
   acks: number;
+  /** the check after the buried-rule puzzle (answered, or UNSURE) */
+  check?: number | null;
   quiz: number | null;
 }
 
@@ -76,6 +78,18 @@ const fix =
   (s: S): S => ({ ...s, canvas: { ...s.canvas, knobs: { ...s.canvas.knobs, ...FIXES[p] } }, verdict: null });
 const correct = (s: S) => s.verdict === 'correct';
 const has = (s: S, t: BlockType) => s.canvas.unlocked.includes(t);
+
+// After the buried-rule puzzle: the reader reads the meters instead of being told what moved.
+const CHECK = {
+  question: 'The answer went from NOT FOUND to correct. What did recall@k do?',
+  options: ['It rose: the rule was retrieved this time', 'It stayed at 100%: only the rule’s position changed'],
+  correct: 1,
+  explanation: 'Recall never moved: the rule was retrieved all along. Only where it sat in the context changed.',
+  why: [
+    'Look at the recall meter: it was 100% before and after. The rule was always retrieved; it was buried mid-context.',
+    'Right. Retrieval was fine all along; moving the rule to where the model looks fixed the answer.',
+  ],
+};
 
 const QUIZ = {
   question: 'Recall is 100% but the answer is still wrong. Where do you look?',
@@ -226,9 +240,9 @@ export const STEPS: Step<S>[] = [
   }),
   {
     id: 'after-needle',
-    focus: 'next',
-    visibleControls: ['next'],
-    narration: 'Correct, and recall never moved: only the rule’s position changed.',
+    focus: 'check',
+    visibleControls: ['check'],
+    narration: 'Correct. Before the next puzzle, read the meters.',
     label: 'Fixed the answer without moving recall',
     more: 'If you used the reranker, open Evidence and Show the math to see its score.',
     predicate: s => s.acks >= 2,
@@ -282,7 +296,7 @@ export const STEPS: Step<S>[] = [
     focus: 'chunker',
     visibleControls: ['strategy'],
     opensDrawer: 'chunks',
-    narration: 'Last puzzle: one chunk is sent, cut mid-sentence. Overlap won’t help here. Swap the chunker.',
+    narration: 'Puzzle: one chunk is sent, cut mid-sentence. Overlap won’t help here. Swap the chunker.',
     label: 'Swapped to the sentence chunker',
     more: 'The fixed-size chunker cuts the lodging rule mid-sentence.',
     broken: enter('strategy'),
@@ -394,6 +408,15 @@ export default function Accuracy() {
               />
             ),
           ]),
+        ),
+        check: ({ state, apply, sync }) => (
+          <Quiz
+            {...CHECK}
+            unsure
+            value={state.check ?? null}
+            onAnswer={(_, q) => apply({ ...state, check: q, acks: q === CHECK.correct ? state.acks + 1 : state.acks })}
+            onUnsure={() => sync({ ...state, check: UNSURE, acks: state.acks + 1 })}
+          />
         ),
         quiz: ({ state, apply, sync }) => (
           <Quiz

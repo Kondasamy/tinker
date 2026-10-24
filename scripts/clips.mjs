@@ -139,8 +139,8 @@ for (const clip of clips) {
   npx(dir, 'render', '--fps', String(FPS), '--crf', String(CRF), '--quiet', '--output', tmp);
   execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', tmp, '-c', 'copy', '-movflags', '+faststart', mp4]);
   await rm(tmp);
-  // the poster: the whole picture, just before the last line fades
-  const at = beats(clip.lines).at(-1).end - 0.4;
+  // the poster: the whole picture after the last line has faded (the player's controls sit over the line band)
+  const at = beats(clip.lines).at(-1).end + 0.4;
   execFileSync('ffmpeg', [
     '-y',
     '-loglevel',
