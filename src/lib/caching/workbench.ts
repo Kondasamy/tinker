@@ -32,3 +32,16 @@ const passing = POLICIES.filter(meets);
 export const BEST = Math.max(...passing.map(scoreOf));
 export const WINNERS = passing.filter(p => scoreOf(p) === BEST);
 export const wins = (p: Policy) => meets(p) && scoreOf(p) === BEST;
+
+/** What the bench's controls set. */
+export type Bench = Pick<Policy, 'ttl' | 'purge' | 'versioned'>;
+/** where the bench starts: every kind kept an hour, no purge, plain names */
+export const START: Bench = { ttl: { price: TTLS[2], photo: TTLS[2], stock: TTLS[2] }, purge: false, versioned: false };
+const isTtl = (x: unknown): x is number => (TTLS as readonly unknown[]).includes(x);
+/** The policy in a saved run's state; anything unknown falls back to START's. */
+export const benchPolicy = (s: Partial<Bench>): Policy => ({
+  ttl: Object.fromEntries(KINDS.map(k => [k, isTtl(s.ttl?.[k]) ? s.ttl![k] : START.ttl[k]])) as Record<Kind, number>,
+  purge: typeof s.purge === 'boolean' ? s.purge : START.purge,
+  versioned: typeof s.versioned === 'boolean' ? s.versioned : START.versioned,
+  ...FIXED,
+});

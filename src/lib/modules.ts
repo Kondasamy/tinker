@@ -16,6 +16,7 @@ import { MULTIMODAL_MODULE } from '../content/multimodal/module';
 import { OBSERVABILITY_MODULE } from '../content/observability/module';
 import { SANDBOXING_MODULE } from '../content/sandboxing/module';
 import { VOICE_MODULE } from '../content/voice/module';
+import { CACHING_MODULE } from '../content/caching/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -105,12 +106,7 @@ export const MODULES: Module[] = [
     'Advanced',
     'Open a real model and pull its fuses: switch off a head, read its guess layer by layer, and push it off course.',
   ),
-  planned(
-    'caching',
-    'Caching & CDNs',
-    'Beginner',
-    'Why a copy close by beats the original far away: edge caches, expiry, stale prices and a flash sale.',
-  ),
+  CACHING_MODULE,
   planned(
     'databases',
     'Databases & indexes',

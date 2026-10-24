@@ -18,7 +18,10 @@ const STATES: [string, Omit<DepotOpts, 'scale'>][] = [
   ['Caching off, 09:00: every request a trip', depotAt(simulate(OFF), 4)],
   ['Kept a day, 08:00: the first misses', depotAt(kept, 0)],
   [`Kept a day, ${clock(MOMENTS.priceRise)}: stale prices`, depotAt(kept, MOMENTS.priceRise)],
-  ['Flash sale, no coalescing: overloaded', { ...depotAt(rush, MOMENTS.sale), say: { block: 'depot', text: 'Stampede' } }],
+  [
+    'Flash sale, no coalescing: overloaded',
+    { ...depotAt(rush, MOMENTS.sale), say: { block: 'depot', text: 'Stampede' } },
+  ],
   ['Flash sale, coalescing', depotAt(calm, MOMENTS.sale)],
 ];
 ---
