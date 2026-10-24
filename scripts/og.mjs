@@ -1,6 +1,6 @@
 /**
  * Draws the share (OG) image of every public page into public/og/<og>.jpg, 1200×630.
- * Run: pnpm og — after changing a page's title or text in src/lib/pages.ts, a chapter list, or a share picture.
+ * Run: pnpm og [slug or module id…] — after changing a page's title or text in src/lib/pages.ts, a chapter list, or a share picture.
  * Builds the site with the dev pages (src/dev/og.astro is the template), serves dist/ on a local port, and captures each
  * card with Playwright. dist/ then holds the dev pages too; deploys run their own clean `pnpm build`.
  */
@@ -10,6 +10,7 @@ import { readFile, mkdir, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
+import { pick } from './og-filter.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = path.join(ROOT, 'dist'),
@@ -24,7 +25,7 @@ const TYPES = {
 };
 
 execSync('astro build', { cwd: ROOT, stdio: 'inherit', env: { ...process.env, DEV_PAGES: '1' } });
-const slugs = await readdir(path.join(DIST, 'dev/og'));
+const slugs = pick(await readdir(path.join(DIST, 'dev/og')), process.argv.slice(2));
 
 const server = createServer(async (req, res) => {
   let file = path.join(DIST, decodeURIComponent(new URL(req.url, 'http://x').pathname));

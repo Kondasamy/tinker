@@ -18,6 +18,7 @@ import {
 import {
   agreement,
   exactMatch,
+  exactMatchOf,
   gradeRun,
   grade,
   hasCitation,
@@ -28,12 +29,24 @@ import {
   passAtK,
   passHatK,
   positionBias,
+  REFERENCES,
   runCase,
   SAMPLES,
   type PairRows,
 } from '../../src/lib/evals/graders';
 import { ACCESSED, FACTS } from '../../src/lib/evals/facts';
 
+// the answers exact match passed before exactMatchOf existed (KTD4: Evals' grading is unchanged)
+const EXACT_PASSES = [
+  'v1 standard-refund-window',
+  'v1 k2-volume-price',
+  'v1 customer-success-lead',
+  'v2 standard-refund-window',
+  'v2 customer-success-lead',
+  'v3 standard-refund-window',
+  'v3 k2-volume-price',
+  'v3 customer-success-lead',
+];
 let index: RagIndex;
 const rows = {} as Record<VersionId, Row[]>;
 beforeAll(async () => {
@@ -85,6 +98,19 @@ describe('code graders (KTD3)', () => {
     expect(r.verdict).toBe('correct');
     expect(exactMatch(r.question, r.answer.text)).toBe(false);
     expect(keyFact(r.question, r.answer.text)).toBe(true);
+  });
+
+  // Post-training grades its own references with the same rule (KTD4); Evals' verdicts must not move
+  it('exact match against a given reference agrees with exact match by question, on every recorded answer', () => {
+    const passing: string[] = [];
+    for (const v of VERSION_IDS)
+      for (const r of rows[v]) {
+        const of = exactMatchOf(REFERENCES[r.question], r.answer.text);
+        expect(of, `${v} ${r.question}`).toBe(exactMatch(r.question, r.answer.text));
+        if (of) passing.push(`${v} ${r.question}`);
+      }
+    expect(passing).toEqual(EXACT_PASSES);
+    for (const { id } of QUESTIONS) expect(exactMatchOf(REFERENCES[id], REFERENCES[id].answer), id).toBe(true);
   });
 
   it('exact match passes an answer worded like the reference', () => {
