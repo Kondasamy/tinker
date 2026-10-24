@@ -23,6 +23,7 @@ import { CACHING_MODULE } from '../content/caching/module';
 import { DATABASES_MODULE } from '../content/databases/module';
 import { CONSISTENCY_MODULE } from '../content/consistency/module';
 import { AB_TESTING_MODULE } from '../content/ab-testing/module';
+import { DIFFUSION_MODULE } from '../content/diffusion/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -101,12 +102,7 @@ export const MODULES: Module[] = [
   DATABASES_MODULE,
   CONSISTENCY_MODULE,
   AB_TESTING_MODULE,
-  planned(
-    'diffusion',
-    'Diffusion models',
-    'Intermediate',
-    'How a picture comes out of noise: a model that removes its best guess of the noise, step by step.',
-  ),
+  DIFFUSION_MODULE,
   planned(
     'diffusion-llms',
     'Diffusion language models',

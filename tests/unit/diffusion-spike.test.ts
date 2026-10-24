@@ -1,15 +1,14 @@
 // Diffusion spike (U4, KTD8): the learned 2-D denoiser against its Python goldens, its size and how well it draws the
-// hinge, chapter 2's roughness measure, and the ideal denoiser over the 32×32 part drawings.
+// hinge, and chapter 2's roughness measure. The ideal denoiser's checks are in diffusion-engine.test.ts.
 import { readFileSync, statSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { DRAWINGS, idealGuess, nearest, sampleDrawing } from '../../src/lib/diffusion/ideal';
+import { SCHEDULE } from '../../src/lib/diffusion/schedule';
 import {
   distanceToOutline,
   parsePoints,
   type PointsMeta,
   predictNoise,
   roughness,
-  SCHEDULE,
   samplePoints,
 } from '../../src/lib/diffusion/points';
 
@@ -48,30 +47,5 @@ describe('learned 2-D denoiser', () => {
   it("chapter 2's roughness falls as the steps rise", () => {
     const rough = [1, 5, 10, 20, 50].map(steps => roughness(meta.outline, samplePoints(model, 200, steps, SEED)));
     for (let i = 1; i < rough.length; i++) expect(rough[i]).toBeLessThan(rough[i - 1]);
-  });
-});
-
-describe('ideal denoiser', () => {
-  it('draws distinct exact bitmaps, a class per part', () => {
-    expect(new Set(DRAWINGS.map(d => d.pixels.join())).size).toBe(DRAWINGS.length);
-    expect(new Set(DRAWINGS.map(d => d.label))).toEqual(new Set(['hinge', 'drill', 'bracket']));
-    for (const d of DRAWINGS) expect(d.pixels.every(v => v === 1 || v === -1)).toBe(true);
-  });
-
-  it('at no noise returns the nearest training drawing exactly', () => {
-    for (const d of DRAWINGS) {
-      const x = Float64Array.from(d.pixels, (v, i) => (i % 97 === 0 ? -v : v + 0.3));
-      expect(Array.from(idealGuess(x, 0))).toEqual(Array.from(d.pixels));
-    }
-  });
-
-  it('ends a 50-step sample from a fixed seed on one training drawing', () => {
-    const x = sampleDrawing(50, SEED);
-    expect(sampleDrawing(50, SEED)).toEqual(x);
-    expect(nearest(x).rms).toBeLessThan(0.01);
-  });
-
-  it('with the label "drill" ends nearest a drill drawing', () => {
-    for (const seed of [1, 2, 3, 4]) expect(nearest(sampleDrawing(50, seed, 'drill')).drawing.label).toBe('drill');
   });
 });

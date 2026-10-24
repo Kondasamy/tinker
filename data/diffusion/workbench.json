@@ -1,0 +1,17 @@
+{
+  "note": "Larkspur's bars for chapter 7, the team's choices, not any provider's. Roughness is the root-mean-square distance per pixel from the drawing made to the nearest clean drawing (0 a clean copy, about 0.6 the blurred average of all twelve).",
+  "uses": [
+    {
+      "id": "thumbnail",
+      "label": "Thumbnail",
+      "bar": 0.25,
+      "reason": "Shown at a few pixels across in search results: a little roughness never shows, the wrong part always does."
+    },
+    {
+      "id": "catalogue",
+      "label": "Catalogue image",
+      "bar": 0.02,
+      "reason": "The large picture on the part's page: it must be clean and the right part."
+    }
+  ]
+}
