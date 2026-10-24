@@ -11,11 +11,14 @@ import { checkText } from '../../lib/structured-outputs/grammar';
 import { SCHEMAS, play, run } from '../../lib/structured-outputs/prompts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
+import { STENCIL_PARTS } from '../../components/scenes/stencilScene';
 import { Answer, Fact, PinnedStage, Waiting, useModel, whenLoaded } from './kit';
 
 const MODULE = 'structured-outputs',
   ID = '02-a-schema-is-a-contract';
 export const SCHEMA = SCHEMAS.status;
+export const PARTS = STENCIL_PARTS;
+const VALUES = SCHEMA.properties.status.enum as string[];
 export const TRIES = [1, 2, 3].map(i => run(`retry-${i}`));
 
 /** Each try's answer, its check and the tokens it cost. */
@@ -42,7 +45,7 @@ const P1 = {
   options: ['All of them', 'One or two', 'None'],
 };
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'Larkspur’s assistant moves to a big provider model that passes the check 99 times in 100. The team keeps the check and one retry. What have they bought?',
   options: [
@@ -55,9 +58,9 @@ const QUIZ = {
   explanation:
     'A check after the answer catches a bad answer; it can’t prevent one. Every retry is a whole new answer, paid for again, and it can fail too.',
   why: [
-    'A retry is another draw from the same model. It usually passes; nothing makes it pass. Twice unlucky still breaks the order system.',
-    'Right. The check is worth keeping, but it works after the fact, so its price is retries, and its promise is “caught”, not “never”.',
-    'It catches exactly what you saw here: answers that don’t parse or break the schema. Catching isn’t preventing, which is the next chapter’s job.',
+    'A retry is another draw from the same model: it usually passes, nothing makes it pass, and twice unlucky still breaks the order system.',
+    'Right: the check is worth keeping, but it works after the fact, so its price is retries and its promise is “caught”, not “never”.',
+    'It catches exactly what you saw here, answers that don’t parse or break the schema; catching isn’t preventing, which is the next chapter’s job.',
     'The check reads a finished answer; it runs after every token is written and paid for.',
   ],
 };
@@ -67,8 +70,8 @@ export const STEPS: Step<S>[] = [
     id: 'schema',
     focus: 'schema',
     visibleControls: ['schema'],
-    narration:
-      'The team writes down what the order system expects, as a schema: the same small subset of JSON Schema Tool calling checks tool arguments with. One field, status, whose value must be on time or delayed, and nothing else.',
+    narration: `The schema: one field, status, ${VALUES.join(' or ')}, nothing else.`,
+    act: 'Use it to check every answer.',
     predicate: whenLoaded(s => s.read),
     hint: 'Press the button under the schema.',
   },
@@ -76,15 +79,18 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration:
-      'The host now checks every answer after it is written. A failed check means asking again. Before the tries run:',
+    narration: 'The host now runs validation on every answer after it is written; a failed check means asking again.',
+    act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
   {
     id: 'retry',
     focus: 'retry',
     visibleControls: ['p1', 'retry'],
-    narration: `Run the tries, one at a time. Each is a draw at temperature 1 with its own seed, so each answer differs. Watch the check and the tokens each try costs.`,
+    narration:
+      'Each retry is a fresh random draw with its own seed, so each answer differs. Watch the check and the tokens.',
+    act: 'Run the tries.',
+    say: { block: 'belt', text: 'Every token paid' },
     predicate: s => s.tries >= TRIES.length,
     hint: `Press the button ${TRIES.length} times.`,
   },
@@ -92,8 +98,8 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out1', 'quiz'],
-    narration:
-      'Every token of every try was paid for, and the order system still has nothing it can read. A check after the answer can only say no. Larkspur mini is extreme: it never saw JSON. Bigger models pass far more often, but a retry loop has the same shape for them. One question to finish.',
+    narration: 'Every try was paid for, and none passed. A check after the answer can only say no.',
+    act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'When does the check run: before the model writes, or after?',
   },
@@ -109,8 +115,9 @@ export default function ASchemaIsAContract() {
       ready={!!model}
       initial={{ read: false, p1: null, tries: 0, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => (
+      stage={({ state, say }) => (
         <PinnedStage
+          say={say}
           id={TRIES[Math.max(0, state.tries - 1)].id}
           masked={false}
           at={state.tries ? 32 : 0}

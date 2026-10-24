@@ -10,11 +10,13 @@ import { VOCAB_SIZE } from '../../lib/lm/bpe';
 import { play, run } from '../../lib/structured-outputs/prompts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
+import { STENCIL_PARTS } from '../../components/scenes/stencilScene';
 import { Answer, Fact, PinnedStage, Waiting, modelNow, pct, piece, useModel, whenLoaded, type View } from './kit';
 
 const MODULE = 'structured-outputs',
   ID = '03-the-mask';
 export const RUN = run('mask');
+export const PARTS = STENCIL_PARTS;
 const decoded = (model: Model) => play(model, RUN).decoded;
 
 /** 0: all, 1: about half, 2: one. */
@@ -36,7 +38,7 @@ const P1 = {
   options: [`All ${VOCAB_SIZE}: the schema only checks the finished answer`, 'About half of them', 'Only one'],
 };
 
-const QUIZ = {
+export const QUIZ = {
   question: 'At one step the model gives “.” a 60% chance, but the schema blocks it. What happens to that 60%?',
   options: [
     'The model writes “.” anyway, and the check fails later',
@@ -48,10 +50,10 @@ const QUIZ = {
   explanation:
     'Blocked tokens get zero probability. What is left is scaled back up to 100%, so the allowed tokens keep their order and share what the blocked ones had.',
   why: [
-    'A blocked token can’t be written at all: its probability is set to zero before the pick. That is the whole difference from checking afterwards.',
-    'Right. The mask removes the blocked tokens, and the allowed ones are rescaled to add up to 100%. The model’s preferences among them still decide.',
-    'Every step writes a token. If the schema allowed nothing the run would be stuck, which is why a schema compiler makes sure some token is always allowed.',
-    'Nothing is trained. The weights stay as they are; only the choice at each step is limited.',
+    'A blocked token can’t be written at all, because its probability is set to zero before the pick, which is the whole difference from checking afterwards.',
+    'Right: the mask removes the blocked tokens and rescales the allowed ones to add up to 100%, so the model’s preferences among them still decide.',
+    'Every step writes a token, and a schema compiler makes sure some token is always allowed, so the run is never stuck.',
+    'Nothing is trained: the weights stay as they are, and only the choice at each step is limited.',
   ],
 };
 
@@ -61,7 +63,9 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['p1'],
     narration:
-      'Checking after the fact only says no. So stop the bad tokens before they are written. A stencil plate now stands across the press’s belt: the schema. At each step it lets some tokens through and stops the rest. Before you look:',
+      'A stencil plate now stands across the belt: the schema. At each step it lets some tokens through and stops the rest.',
+    act: 'Predict first.',
+    say: { block: 'plate', text: 'The schema' },
     predicate: s => s.p1 !== null,
   },
   {
@@ -69,7 +73,8 @@ export const STEPS: Step<S>[] = [
     focus: 'reveal',
     visibleControls: ['p1', 'reveal'],
     narration:
-      'Locked in. The Mask tab shows all the tokens Larkspur mini knows as a grid, lit where the schema allows them.',
+      'Locked in. The Mask tab shows every token Larkspur mini knows as a grid, lit where the schema allows it.',
+    act: 'Open the mask.',
     predicate: whenLoaded(s => s.revealed),
     hint: 'Press the button to open the mask at step 1.',
   },
@@ -78,7 +83,9 @@ export const STEPS: Step<S>[] = [
     focus: 'write',
     visibleControls: ['out1', 'write'],
     narration:
-      'Now write, a token at a time. Watch the count of allowed tokens change: while the schema spells out {"status": almost nothing else fits, and at the value only tokens that start on time or delayed do. When the model’s own first choice is blocked, it stops at the plate and the model writes the likeliest allowed token instead.',
+      'Writing with a mask at every step is constrained decoding. The allowed count changes; a blocked first choice stops at the plate.',
+    act: 'Write the answer.',
+    say: { block: 'plate', text: 'Blocks the rest' },
     predicate: whenLoaded(s => s.at >= decoded(modelNow()!).ids.length),
     hint: 'Press “Write the rest” to finish the answer.',
   },
@@ -87,7 +94,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['answer', 'quiz'],
     narration:
-      'The answer fits the schema, and it couldn’t have done anything else: no token the schema blocks can be written. Real engines compile the schema once and build the mask fast at every step. One question to finish.',
+      'The answer fits the schema; it couldn’t do otherwise, since no blocked token can be written. Real engines do this fast.',
+    act: 'One question to finish.',
+    say: { block: 'belt', text: 'Always fits' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What probability does a blocked token get before the pick?',
   },
@@ -103,8 +112,9 @@ export default function TheMask() {
       ready={!!model}
       initial={{ p1: null, revealed: false, at: 0, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, sync }) => (
+      stage={({ state, sync, say }) => (
         <PinnedStage
+          say={say}
           id={RUN.id}
           at={state.at}
           locked={state.p1 === null}

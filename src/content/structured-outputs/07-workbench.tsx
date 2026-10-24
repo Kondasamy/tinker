@@ -24,12 +24,15 @@ import {
 } from '../../lib/structured-outputs/workbench';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Answer, Fact, StructuredStage, Waiting, decodeWith, modelNow, useModel, whenLoaded } from './kit';
+import { STENCIL_PARTS } from '../../components/scenes/stencilScene';
+import type { Say } from '../../components/story/steps';
+import { Answer, Fact, StructuredStage, Waiting, decodeWith, CTX, modelNow, useModel, whenLoaded } from './kit';
 
 const MODULE = 'structured-outputs',
   ID = '07-workbench';
 /** The bench the puzzle starts on: the model asked for every field. */
 export const ALL_MODEL: Policy = { team: 'list', status: 'list', days: 'number' };
+export const PARTS = STENCIL_PARTS;
 
 /** 0: all four, 1: some, 2: none. */
 export function answerOf(model: Model) {
@@ -48,7 +51,7 @@ const P1 = {
   options: [`All ${ORDERS.length}`, 'Some of them', 'None'],
 };
 
-const QUIZ = {
+export const QUIZ = {
   question: 'Larkspur adds a field: the order’s tracking number. Where should it come from?',
   options: [
     'The model, as free text: it can copy it from the conversation',
@@ -60,8 +63,8 @@ const QUIZ = {
   explanation:
     'Ask the model only for what it can know or decide. Facts the system already holds come from the system; a mask would make the model invent them in a valid shape.',
   why: [
-    'You saw Larkspur mini given 1042 in the prompt and still write another number. Even a strong model can miscopy; the order system has the real one.',
-    'Right. The schema is for what the model decides. Facts come from the system that holds them, the way Tool calling’s host fetched them.',
+    'You saw Larkspur mini given the order number in the prompt write another one, and even a strong model can miscopy, while the order system has the real one.',
+    'Right: the schema is for what the model decides, and facts come from the system that holds them, the way Tool calling’s host fetched them.',
     'Valid isn’t right: a whole number under a mask is still a guess.',
     'A list that long stops nothing: the model would pick one, valid and wrong.',
   ],
@@ -75,15 +78,18 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `Larkspur’s order-status answer has three fields: the team that handles it, the status, and the days to arrive. Here are ${ORDERS.length} real orders; the order system knows each one’s status and days, but not which team handles it. The team’s first draft asks the model for everything. Before you run it:`,
+    narration:
+      'The order system knows each order’s status and days, but not its team. The first draft asks the model for every field.',
+    act: 'Predict first.',
+    say: { block: 'press', text: 'Asked for all' },
     predicate: s => s.p1 !== null,
   },
   puzzle<S>({
     id: 'design',
     focus: 'bench',
     visibleControls: ['out1', 'bench'],
-    narration:
-      'Now design the schema. For each field choose: the model writes free text, the model picks from a list (or writes a number), or leave it out of the schema and let the order system fill it in. The table decodes every order live under your schema. Get every order valid and right.',
+    narration: 'Per field: the model writes free text, picks from a list or number, or the order system fills it.',
+    act: 'Get every order valid and right.',
     broken: s => ({ ...s, policy: ALL_MODEL }),
     verdict: whenLoaded(s => bench(modelNow()!, s.policy).score === ORDERS.length),
     solution: s => ({ ...s, policy: SOLVED[0] }),
@@ -93,8 +99,9 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['bench', 'quiz'],
-    narration:
-      'The model fills one field, the one only it decides: which team. The list keeps it to a known team, and the facts come from the order system. This is the shape of real structured outputs: a small schema for the model’s decisions, and the facts from tools. One question to finish.',
+    narration: 'The model fills only what it decides, the team, from a list; the facts come from the order system.',
+    act: 'One question to finish.',
+    say: { block: 'press', text: 'Picks the team' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Can the model know a tracking number, or does a system hold it?',
   },
@@ -157,7 +164,7 @@ function Bench({ s, apply }: { s: S; apply: (s: S) => void }) {
   );
 }
 
-function Stage({ policy, locked }: { policy: Policy; locked: boolean }) {
+function Stage({ policy, locked, say }: { policy: Policy; locked: boolean; say?: Say }) {
   const { model } = useModel();
   const prompt = promptFor(ORDERS[0]),
     schema = schemaFor(policy);
@@ -170,7 +177,15 @@ function Stage({ policy, locked }: { policy: Policy; locked: boolean }) {
     ? `Order ${ORDERS[0].id} under your schema: ${policyName(policy)}.`
     : `Order ${ORDERS[0].id}: the order system fills every field, so the model writes nothing.`;
   return (
-    <StructuredStage prompt={prompt} d={d} at={locked ? 0 : 32} locked={locked} masked={!!schema} caption={caption} />
+    <StructuredStage
+      prompt={prompt}
+      d={d}
+      at={locked ? 0 : CTX}
+      locked={locked}
+      masked={!!schema}
+      caption={caption}
+      say={say}
+    />
   );
 }
 
@@ -184,7 +199,7 @@ export default function Workbench() {
       ready={!!model}
       initial={{ p1: null, policy: ALL_MODEL, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => <Stage policy={state.policy} locked={state.p1 === null} />}
+      stage={({ state, say }) => <Stage policy={state.policy} locked={state.p1 === null} say={say} />}
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         out1: ({ state }) =>

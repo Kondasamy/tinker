@@ -11,11 +11,13 @@ import { checkText } from '../../lib/structured-outputs/grammar';
 import { play, run, schemaOf } from '../../lib/structured-outputs/prompts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Answer, Fact, PinnedStage, Waiting, useModel, whenLoaded } from './kit';
+import { STENCIL_PARTS } from '../../components/scenes/stencilScene';
+import { Answer, CTX, Fact, PinnedStage, Waiting, useModel, whenLoaded } from './kit';
 
 const MODULE = 'structured-outputs',
   ID = '06-valid-isnt-right';
 export const SHOWN = [run('order'), run('days'), run('cutoff')];
+export const PARTS = STENCIL_PARTS;
 /** The order number the prompt names, read off the prompt. */
 export const ORDER = Number(/\d+/.exec(SHOWN[0].prompt)![0]);
 
@@ -43,7 +45,7 @@ const P1 = {
   options: [`{"order":${ORDER}}`, `A valid whole number, but not ${ORDER}`, 'Something the check rejects'],
 };
 
-const QUIZ = {
+export const QUIZ = {
   question:
     'Every answer from Larkspur’s new assistant passes the schema check. Can the team report that the assistant is right 100% of the time?',
   options: [
@@ -56,10 +58,10 @@ const QUIZ = {
   explanation:
     'A schema check (and a mask) guarantees the shape. Correctness is a separate question, answered by comparing values with the truth, which is what Evals is about.',
   why: [
-    `You just saw a valid answer give order ${ORDER} the wrong number. The mask forces some value; it can’t force the true one.`,
-    'Right. Valid and right are two measurements. A mask gets the first to 100%; only knowledge, tools and tests move the second.',
+    `You just saw a valid answer give order ${ORDER} the wrong number, because the mask forces some value, never the true one.`,
+    'Right: valid and right are two measurements, and a mask gets the first to 100% while only knowledge, tools and tests move the second.',
     'Numbers and lists were forced just the same: the order number and the status were valid and wrong.',
-    'The check did exactly its job: the shape was right. The problem is asking it a question it doesn’t answer.',
+    'The check did exactly its job, since the shape was right; the problem is asking it a question it doesn’t answer.',
   ],
 };
 
@@ -69,14 +71,17 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['p1'],
     narration:
-      'Every answer passes the check now. The team asks for one more field, the order number, so the order system can match the answer to an order. The prompt even names it. Before you run it:',
+      'Every answer passes the check now. The team adds a field, the order number, so answers match orders. The prompt even names it.',
+    act: 'Predict first.',
+    say: { block: 'strip', text: 'Names the order' },
     predicate: s => s.p1 !== null,
   },
   {
     id: 'reveal',
     focus: 'reveal',
     visibleControls: ['p1', 'reveal'],
-    narration: 'Locked in. Run it, then ask for the days the order will take to arrive.',
+    narration: 'Locked in.',
+    act: 'Ask for the order number, then the days to arrive.',
     predicate: whenLoaded(s => s.shown >= 2),
     hint: 'Press the button twice: the order number, then the days.',
   },
@@ -84,8 +89,9 @@ export const STEPS: Step<S>[] = [
     id: 'cutoff',
     focus: 'cutoff',
     visibleControls: ['out1', 'cutoff'],
-    narration:
-      'Both pass the check. Both are wrong: Larkspur mini has no idea what order 1042 is or when it will arrive, and the mask made it write a number anyway. A mask forces a value; it can’t make one true. One more way an answer can fail the schema even under a mask: run out of room.',
+    narration: `Both valid, both wrong: Larkspur mini can’t know order ${ORDER}, but the mask forced a number.`,
+    act: 'Now ask for status and days together.',
+    say: { block: 'belt', text: 'Valid, wrong' },
     predicate: whenLoaded(s => s.shown >= 3),
     hint: 'Press “Ask for status and days together”.',
   },
@@ -94,7 +100,9 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['cut', 'quiz'],
     narration:
-      'With two fields the answer needs more tokens than Larkspur mini’s window has left, so it stopped mid-answer: cut off, and not valid JSON. Real providers have the same edge, at their output limit; and a refusal comes back in a form that may not follow your schema either. One question to finish.',
+      'Two fields didn’t fit the window: a cut-off answer, not valid JSON. A refusal can break the schema too.',
+    act: 'One question to finish.',
+    say: { block: 'belt', text: 'Cut off' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What does the check look at: the shape, or the truth?',
   },
@@ -109,7 +117,7 @@ function Shown({ i }: { i: number }) {
       <Answer label={`Asked: ${Object.keys(schemaOf(r.run)!.properties).join(' and ')}`} text={r.text} />
       <p className="tc-status">
         {r.status === 'cut-off'
-          ? `Cut off: the window was full (${r.tokens} of 32 tokens) before the answer closed. It doesn’t parse.`
+          ? `Cut off: the window was full (${r.tokens} of ${CTX} tokens) before the answer closed. It doesn’t parse.`
           : r.check?.ok
             ? 'The check passes: valid.'
             : `The check fails: ${r.check?.errors.join('; ')}`}
@@ -128,8 +136,9 @@ export default function ValidIsntRight() {
       ready={!!model}
       initial={{ p1: null, shown: 0, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state }) => (
+      stage={({ state, say }) => (
         <PinnedStage
+          say={say}
           id={SHOWN[Math.max(0, state.shown - 1)].id}
           at={state.shown ? 32 : 0}
           caption={

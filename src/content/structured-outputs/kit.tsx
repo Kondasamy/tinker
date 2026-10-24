@@ -22,6 +22,10 @@ import { useNarrow } from '../tool-calling/kit';
 import './structured.css';
 import Cite from '../../components/story/Cite';
 import type { Say } from '../../components/story/steps';
+import META from '../../../public/data/lm/meta.json' with { type: 'json' };
+
+/** Larkspur mini's window: prompt and answer share it (public/data/lm/meta.json). */
+export const CTX = META.model.ctx;
 
 export { MODEL, Waiting, modelNow, modelStore, useModel, whenLoaded } from '../transformers/kit';
 
@@ -239,6 +243,7 @@ export function PinnedStage({
   onView?: (v: View) => void;
   locked?: boolean;
   store?: ModelStore;
+  say?: Say;
 }) {
   const p = usePinned(id, store);
   return <StructuredStage prompt={pinned(id).prompt} d={p?.decoded ?? null} store={store} {...rest} />;
