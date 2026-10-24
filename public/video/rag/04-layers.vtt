@@ -1,0 +1,16 @@
+WEBVTT
+
+00:00:00.300 --> 00:00:03.620
+Behind the retriever sit more layers
+
+00:00:03.620 --> 00:00:07.260
+A chunker cuts documents into small pieces
+
+00:00:07.260 --> 00:00:10.900
+An embedder turns each piece into numbers
+
+00:00:10.900 --> 00:00:14.540
+An index holds them, ready to compare
+
+00:00:14.540 --> 00:00:18.500
+An assembler builds the prompt the model reads

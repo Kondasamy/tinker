@@ -9,9 +9,22 @@ import { staticTrack } from '../components/scenes/staticTrack';
 import { TRACK_BOARD } from '../components/canvas/track';
 import { MODULES } from '../lib/modules';
 import type { BlockType } from '../lib/iso/blocks';
+import Timeline from '../components/scenes/Timeline';
+import ContextOverflow from '../components/scenes/ContextOverflow';
+import { TIMELINE, STOPS, STOP_5TB } from '../lib/scale';
 
 const track = (blocks: BlockType[]) =>
   renderToStaticMarkup(createElement(IsoStage, { board: TRACK_BOARD, scene: staticTrack(blocks, { scale: 1.6 }), label: '', zoom: { k: 1.06, u: 0.5, v: 0.25 } }));
+// a scene component's picture: its svg, without the caption around it
+const svgOf = (el: ReturnType<typeof createElement>) => /<svg[\s\S]*<\/svg>/.exec(renderToStaticMarkup(el))![0];
+const eras = (visited: number) =>
+  svgOf(createElement(Timeline, { entries: TIMELINE, visited, active: Math.max(0, visited - 1), onPick: () => {}, pills: 1.7 }));
+const corpus = (stop: number) => svgOf(createElement(ContextOverflow, { stop, pills: 1.7 }));
+const RAG3: BlockType[] = ['docs', 'retriever', 'llm'],
+  RAG4: BlockType[] = [...RAG3, 'chunker', 'embedder', 'index', 'assembler'],
+  RAG5: BlockType[] = [...RAG4, 'rewrite', 'reranker', 'grader'],
+  RAG6: BlockType[] = [...RAG5, 'agent', 'graph'];
+
 // every static render gets the same useId prefix; keyframes share one composition, so each gets its own
 const own = (svg: string, tag: string) => {
   const prefix = /id="(iso[\w-]*?-)hand"/.exec(svg)?.[1];
@@ -20,13 +33,30 @@ const own = (svg: string, tag: string) => {
 
 // keyframes per `<module>/<chapter>`, one per clip line
 const FRAMES: Record<string, () => string[]> = {
+  'rag/01-history': () => [eras(0), eras(1), eras(2), eras(3), eras(4)],
+  'rag/02-why-not-stuff-it': () => [
+    corpus(2),
+    corpus(Math.floor((2 + STOP_5TB) / 2)),
+    corpus(STOP_5TB),
+    corpus(STOPS.length - 1),
+  ],
   'rag/03-what-is-rag': () => [
     track([]),
     track(['llm']),
     track(['docs', 'llm']),
-    track(['docs', 'retriever', 'llm']),
-    track(['docs', 'retriever', 'llm']),
+    track(RAG3),
+    track(RAG3),
   ],
+  'rag/04-layers': () => [
+    track(RAG3),
+    track([...RAG3, 'chunker']),
+    track([...RAG3, 'chunker', 'embedder']),
+    track([...RAG3, 'chunker', 'embedder', 'index']),
+    track(RAG4),
+  ],
+  'rag/05-accuracy': () => [track(RAG4), track([...RAG4, 'rewrite']), track([...RAG4, 'rewrite', 'reranker']), track(RAG5)],
+  'rag/06-types': () => [track(RAG5), track([...RAG5, 'agent']), track(RAG6), track(RAG6)],
+  'rag/07-sandbox': () => [track(RAG6), track(RAG6), track(RAG6)],
 };
 
 const clips = MODULES.flatMap(m =>

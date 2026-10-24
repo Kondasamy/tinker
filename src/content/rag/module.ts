@@ -48,6 +48,13 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
           'A model asking the software around it to run something, such as a search, and reading the result.',
         ],
       ],
+      clip: [
+        'A model knows only what it was trained on',
+        'Look up the passages first, then answer',
+        'Small context windows made lookup essential',
+        'Retrieval learned to find the right passage',
+        'Now RAG is one tool an agent can choose',
+      ],
     },
   },
   {
@@ -69,6 +76,12 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
         WINDOW,
         ['Truncation', 'Cutting text off when it doesn’t fit. Whatever is cut, the model never sees.'],
         ['Lost in the middle', 'Models tend to miss facts buried in the middle of a long prompt.'],
+      ],
+      clip: [
+        'Idea: paste the whole company drive in',
+        'The drive grows; the context window does not',
+        'Far too big: it overflows window after window',
+        'Too slow, too stale, and no permissions',
       ],
     },
   },
@@ -130,6 +143,13 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
           'Storage for every chunk’s embedding, built so all of them can be compared with the question at once.',
         ],
       ],
+      clip: [
+        'Behind the retriever sit more layers',
+        'A chunker cuts documents into small pieces',
+        'An embedder turns each piece into numbers',
+        'An index holds them, ready to compare',
+        'An assembler builds the prompt the model reads',
+      ],
     },
   },
   {
@@ -155,6 +175,12 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
         ['Metadata filter', 'A rule on document properties (date, status, team) applied before ranking.'],
         ['Reranker', 'A second, more careful model that re-scores the retrieved chunks and reorders them.'],
         ['Hybrid search', 'Blending meaning-based search with exact keyword matching.'],
+      ],
+      clip: [
+        'Built, and still wrong: measure before you fix',
+        'Rewrite vague questions into searchable ones',
+        'Rerank so the best passages come first',
+        'Check whether the right text was found and used',
       ],
     },
   },
@@ -182,6 +208,12 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
         ['Cross-encoder', 'A model that reads the question and a chunk together to judge how well they match.'],
         ['Multimodal', 'Working with more than plain text: tables, PDFs and images.'],
       ],
+      clip: [
+        "Some questions don't fit one search",
+        'An agent decides when to search again',
+        'A graph joins facts across documents',
+        'Pick the kind of RAG the question needs',
+      ],
     },
   },
   {
@@ -198,6 +230,11 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
         'A final challenge: match five Larkspur teams to the RAG type each needs',
       ],
       terms: [],
+      clip: [
+        'Every block from chapters 3 to 6 is yours',
+        'Rewire it, ask anything, compare runs',
+        'Then match each team to the RAG it needs',
+      ],
     },
   },
 ];
