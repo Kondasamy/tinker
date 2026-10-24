@@ -9,16 +9,7 @@ const BUDGET = { narration: 25, story: 30, goal: 20, learn: 3, say: 5, sayChars:
 // opening: story + question + step 1, leaving about 18 words for the labels inside the 80-word first screen
 // sayChars: callouts outside RAG fit a phone's pill, so phones never drop them (RAG's canvas drops longer ones).
 // Modules whose copy predates the budgets; remove an id when its copy pass lands.
-const PENDING = [
-  'structured-outputs',
-  'reasoning',
-  'small-models',
-  'inference',
-  'observability',
-  'sandboxing',
-  'multimodal',
-  'voice',
-];
+const PENDING = ['observability', 'sandboxing', 'multimodal', 'voice'];
 
 const files = import.meta.glob<Record<string, unknown>>('../../src/content/*/[0-9]*.tsx', { eager: true });
 const words = (s: string) => s.trim().split(/\s+/).filter(Boolean).length;
