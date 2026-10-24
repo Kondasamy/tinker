@@ -22,7 +22,7 @@ Each module tells one story from the first problem to the best fix. RAG and Tool
 
 ## 3. Shape each chapter as a loop
 
-Every chapter opens with context, never straight into a step. Its `intro` in the module file holds the story so far, the chapter's question, "You will learn" and "Words you'll meet". Then the steps run this loop:
+Every chapter opens with context, never straight into a step, and keeps it short: the story so far (at most 30 words) and the chapter's question (at most 20) show; "You will learn" and "Words you'll meet" fold under "About this chapter". All of it lives in the chapter's `intro` in the module file. Then the steps run this loop:
 
 1. **Orient.** What are we trying to do, and why does it matter here?
 2. **Predict.** Before a reveal, the reader commits to what will happen (`Predict`). Their pick locks and stays visible beside the outcome. Ask about the exact relationship the next step will show. Predictions help the reader remember the thing they predicted, not the material around it.
@@ -33,10 +33,13 @@ Every chapter opens with context, never straight into a step. Its `intro` in the
 
 Rules for steps:
 
-- One idea per step, in plain words and short sentences.
-- Define a term the first time it appears, and add it to the chapter's `terms`.
+- One idea per step, in plain words and short sentences: at most 25 words. The picture shows what happened; the step says what it means and what to do next.
+- Define a term the first time it appears, and add it to the chapter's `terms`. Use the term's own word in the narration: the runner marks its first use as a tap-to-define button.
+- Give a step a callout (`say: { block, text }`, at most 5 words) when the picture has a part to point at, so the lesson sits on the picture, not only in the text.
+- Facts carry their source through a `Fact` (or `Cite`): the source opens from a small mark, never an inline "Source:" link.
 - Puzzles (`puzzle()`) hand the reader a broken setup. Hints appear after three misses; "Show me" is always there.
-- Finished steps stay visible as a "story so far" log. Don't write a step that only makes sense if the previous one is gone.
+- Finished steps stay reachable as a folded "story so far" log. Don't write a step that only makes sense if the previous one is still on screen.
+- `tests/unit/copy-budget.test.ts` checks every budget above; a new module is strict from its first chapter.
 
 ## 4. Write questions that teach
 
@@ -90,6 +93,7 @@ The template lives in `templates/module/` (outside `src/`, so it is never built 
 ## 8. Done checklist
 
 - [ ] Every chapter opens with its `intro` and runs orient → predict → act → observe → explain → check
+- [ ] The copy budgets pass (`tests/unit/copy-budget.test.ts`): short steps, a short opening, one-sentence quiz `why`s, chapter terms used in the narration
 - [ ] Every quiz option has a `why` line naming a real misconception; "I'm not sure" is offered
 - [ ] The recall bank covers every chapter, items ask in a new context, one item is pinned
 - [ ] Every fact, number and model answer comes from `data/` with a source

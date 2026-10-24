@@ -1,6 +1,9 @@
 // Chapter 1: the smallest full loop. The reader sends a question (act), predicts the reply, sees it (observe, with
 // their prediction beside it), then answers a checkpoint quiz with a `why` per option and "I'm not sure".
 // Text in the picture is short; anything long belongs in the story column or a drawer panel.
+// Copy budgets (tests/unit/copy-budget.test.ts): a step's narration is at most 25 words, each quiz `why` one sentence,
+// and every chapter term appears in the narration so it is defined where it is used. Let the picture show what happened;
+// a step's `say` pins a short callout (at most 5 words) on the stage when the stage draws one.
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
@@ -37,13 +40,13 @@ const PREDICT = {
 };
 const OUTCOME = 0; // the option that matches what the picture shows
 
-const QUIZ = {
+export const QUIZ = {
   question: 'A checkpoint question, asked in a new situation?',
   options: ['The right answer', 'A plausible misconception', 'Another plausible misconception'],
   correct: 0,
   explanation: fact('core-idea').claim,
   why: [
-    `Right. ${fact('core-idea').claim}`,
+    `Right: ${fact('core-idea').claim}`,
     'Name the misconception behind this pick.',
     'And the one behind this pick.',
   ],
@@ -54,7 +57,7 @@ export const STEPS: Step<S>[] = [
     id: 'ask',
     focus: 'ask',
     visibleControls: ['ask'],
-    narration: 'Orient: what we are trying to do, and why it matters here. Then one thing to do.',
+    narration: 'Orient: what the system does, and why it matters here. Then one thing to do.',
     predicate: s => s.asked,
   },
   {
