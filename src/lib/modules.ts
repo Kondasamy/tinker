@@ -16,6 +16,7 @@ import { MULTIMODAL_MODULE } from '../content/multimodal/module';
 import { OBSERVABILITY_MODULE } from '../content/observability/module';
 import { SANDBOXING_MODULE } from '../content/sandboxing/module';
 import { VOICE_MODULE } from '../content/voice/module';
+import { CONSISTENCY_MODULE } from '../content/consistency/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -117,12 +118,7 @@ export const MODULES: Module[] = [
     'Beginner',
     'Why the orders page is slow: a full scan, an index that jumps straight to the rows, and what every write then pays.',
   ),
-  planned(
-    'consistency',
-    'Replication & consistency',
-    'Advanced',
-    'Three warehouses, one stock count: how the last hinge gets sold twice, and what each fix costs.',
-  ),
+  CONSISTENCY_MODULE,
   planned(
     'ab-testing',
     'A/B testing',

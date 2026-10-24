@@ -17,9 +17,15 @@ const STATES: [string, Omit<StockOpts, 'scale'>][] = [
   ['Idle: every board at opening stock', idleOf(STOCK)],
   ['10:01: North sells a hinge, the copies on their way', stockAt(one, MOMENTS.firstSale)],
   ['10:02: West still reads the old count', stockAt(one, MOMENTS.staleLook)],
-  ['10:22: two buyers, one hinge', { ...stockAt(one, MOMENTS.lastHinge), say: { block: 'west', text: 'Two receipts' } }],
+  [
+    '10:22: two buyers, one hinge',
+    { ...stockAt(one, MOMENTS.lastHinge), say: { block: 'west', text: 'Two receipts' } },
+  ],
   ['Line cut, W = 1: West sells the drill press', stockAt(cut, MOMENTS.westSells)],
-  ['Line cut, W = 2: West refuses', { ...stockAt(right, MOMENTS.westSells), say: { block: 'line', text: 'Line down' } }],
+  [
+    'Line cut, W = 2: West refuses',
+    { ...stockAt(right, MOMENTS.westSells), say: { block: 'line', text: 'Line down' } },
+  ],
   ['Reservations at North, 10:22', stockAt(res, MOMENTS.lastHinge)],
 ];
 ---

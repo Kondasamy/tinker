@@ -160,9 +160,11 @@ function warehouse(r: Rep, v: RepView, lamp: boolean) {
   // this minute's orders: receipts over the roof, a red block for each refusal, a flag for a stale look
   let over = '';
   for (let i = 0; i < Math.min(3, v.sold); i++) {
+    // a paper card standing beside the pole, its face toward the viewer, a mint paid stripe across it
     const lost = i < v.lost,
-      ox = x - 6 + i * 6;
-    over += `<g class="receipt${lost ? ' lost' : ''}">${box(ox, y - 1, WH.top + 4, ox + 4, y + 0.2, WH.top + 11, lost ? PALS.tomato : CERAMIC, toneI, 0.8)}${box(ox + 0.6, y - 1.1, WH.top + 8.5, ox + 3.4, y - 1, WH.top + 9.3, PALS.mint, toneI, 0.4)}</g>`;
+      oy = y + 2.5 + i * 8.5,
+      z0 = WH.top + 6;
+    over += `<g class="receipt${lost ? ' lost' : ''}">${box(x - 0.6, oy, z0, x + 0.6, oy + 7, z0 + 13, lost ? PALS.tomato : CERAMIC, toneI, 1)}${box(x + 0.6, oy + 1, z0 + 8, x + 0.8, oy + 6, z0 + 10, PALS.mint, toneI, 0.4)}</g>`;
   }
   if (v.refused)
     over += `<g class="refused">${box(x - h - 6, y - 3, BH, x - h - 1, y + 3, BH + 9, PALS.tomato, toneI, 0.9)}</g>`;
