@@ -220,6 +220,13 @@ import { MIN_ANSWERS as CB_MIN, itemsOf as cbItems, ofKind as cbOfKind } from '.
 import { bins as cbBins, coverage as cbCoverage } from '../lib/calibration/score';
 import { WINNERS as CB_WINNERS, totals as cbTotals } from '../lib/calibration/workbench';
 import { LOWEST as CB_LOWEST } from '../content/calibration/06-when-to-hand-over';
+import { FRAME_BOARD, typeFrameScene, type FrameOpts } from '../components/scenes/typeFrameScene';
+import { L as DL_L, MASK as DL_MASK, decode as dlDecode } from '../lib/diffusion-llms/decode';
+import { diskMlm } from '../lib/diffusion-llms/diskModel';
+import { WINNERS as DL_WINNERS, kindOf as dlKind, phrase as dlPhrase } from '../lib/diffusion-llms/workbench';
+import { frameOf as dlFrameOf } from '../content/diffusion-llms/kit';
+import { guessBlank } from '../content/diffusion-llms/02-fill-the-blanks';
+import { NEED as DL_NEED } from '../content/diffusion-llms/06-reading-a-speed-claim';
 import { MOMENTS, TICKS, runOf as cacheRun } from '../lib/caching/sim';
 import { WINNERS as CACHE_WINNERS } from '../lib/caching/workbench';
 import { oneTrip } from '../content/caching/01-far-is-slow';
@@ -1127,6 +1134,39 @@ const CU_OG: Record<string, () => PuppetOpts> = {
   'computer-use-07-workbench': () => cuClick({ ...CU_WINNERS[0], case: 'banner' }, 3),
 };
 const puppetOg = CU_OG[page.og]?.();
+// module 32: the type frame. The intro: a release-note reply two passes in at 4 a pass; chapter 1: Larkspur mini's
+// typewriter done; chapter 2: the blank's best guess; chapter 3: the first surest-first pass; chapter 4: all 16 stamped
+// in one pass; chapter 5: a 4-slot frame filled; chapter 6: the dial at the claim's setting; chapter 7: the first
+// winning plan's release-note reply.
+const dlFill = (seed: number, k: number, length = DL_L, rule: 'confidence' | 'random' = 'confidence') =>
+  dlDecode(diskMlm(), dlPhrase(seed).ids, k, rule, seed, length);
+const dlGiven = (seed: number) => dlPhrase(seed).ids.length;
+const FRAME_OG: Record<string, () => FrameOpts> = {
+  'diffusion-llms': () => ({ given: dlGiven(6), ...dlFrameOf(dlFill(6, 4), 2) }),
+  'diffusion-llms-01-one-word-at-a-time': () => ({ given: dlGiven(9), slots: [], typed: DL_L, typeOf: DL_L }),
+  'diffusion-llms-02-fill-the-blanks': () => {
+    const p = dlPhrase(9);
+    return {
+      given: p.ids.length,
+      hole: { at: p.slot, slot: { state: 'new', ...guessBlank(diskMlm())[0] } },
+      slots: [],
+    };
+  },
+  'diffusion-llms-03-sure-words-first': () => ({ given: dlGiven(9), ...dlFrameOf(dlFill(9, 4), 1) }),
+  'diffusion-llms-04-faster-and-worse': () => ({ given: dlGiven(1), ...dlFrameOf(dlFill(1, DL_L), 1) }),
+  'diffusion-llms-05-the-length-is-fixed': () => ({ given: dlGiven(6), ...dlFrameOf(dlFill(6, 1, 4), 4) }),
+  'diffusion-llms-06-reading-a-speed-claim': () => ({
+    given: dlGiven(1),
+    slots: Array.from({ length: DL_L }, () => ({ state: 'mask' as const, tok: DL_MASK, p: 0 })),
+    k: DL_NEED,
+  }),
+  'diffusion-llms-07-workbench': () => {
+    const c = DL_WINNERS[0].release,
+      seed = dlKind('release').cases[0];
+    return { given: dlGiven(seed), ...dlFrameOf(dlFill(seed, c.k, DL_L, c.rule), 2) };
+  },
+};
+const frameOg = FRAME_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1200,6 +1240,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : sxOg ? <IsoStage board={CABINET_BOARD} scene={cabinetScene({ ...sxOg, scale: 1.3 })} label="" />
           : townOg ? <IsoStage board={TOWN_BOARD} scene={townScene({ ...townOg, scale: 1.3 })} label="" />
           : webFallOg ? <div class="tf-og ob-og"><WaterfallView run={webFallOg} /></div>
+          : frameOg ? <IsoStage board={FRAME_BOARD} scene={typeFrameScene({ ...frameOg, scale: 1.3 })} label="" />
           : darkOg ? <IsoStage board={DARK_BOARD} scene={darkroomScene({ ...darkOg, scale: 1.3 })} label="" />
           : crateOg ? <IsoStage board={gtBoardOf(crateOg)} scene={crateScene({ ...crateOg, scale: 1.4 })} label="" />
           : dfStripSrc ?<div class="mm-og"><img src={dfStripSrc} alt="" /></div>

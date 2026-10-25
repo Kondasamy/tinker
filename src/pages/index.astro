@@ -92,6 +92,11 @@ import { boardOf, crateLabel, crateScene, yardOf, type CrateOpts } from '../comp
 import { CLEAN as GIT_CLEAN } from '../lib/git/story';
 import { JAR_BOARD, jarLabel, jarScene, type JarOpts } from '../components/scenes/jarScene';
 import { JARS as CB_JARS } from '../content/calibration/01-what-70-should-mean';
+import { FRAME_BOARD, frameLabel, typeFrameScene, type FrameOpts } from '../components/scenes/typeFrameScene';
+import { decode } from '../lib/diffusion-llms/decode';
+import { diskMlm } from '../lib/diffusion-llms/diskModel';
+import { phrase as dlPhrase } from '../lib/diffusion-llms/workbench';
+import { frameOf } from '../content/diffusion-llms/kit';
 
 const one =
   (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) =>
@@ -260,6 +265,12 @@ const BOOTH: JarOpts = { jars: CB_JARS };
 // the agent's click on the planted notice's Verify now button
 const CU_RUN = cuPlay({ case: 'banner' });
 const PUPPET: PuppetOpts = { ...frameAt(CU_RUN, nthBeat(CU_RUN, 'click', 3)).opts, scale: 1.7 };
+// diffusion LMs: a release-note reply two passes in, four tokens a pass, surest first
+const TYPE: FrameOpts = {
+  given: dlPhrase(6).ids.length,
+  ...frameOf(decode(diskMlm(), dlPhrase(6).ids, 4, 'confidence', 6), 2),
+  scale: 1.7,
+};
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -655,6 +666,19 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Confirmation',
       'Screenshot tokens',
       'Host rules',
+    ],
+  },
+  'diffusion-llms': {
+    name: 'Diffusion language models',
+    iso: { board: FRAME_BOARD, scene: typeFrameScene(TYPE), label: frameLabel(TYPE) },
+    topics: [
+      'One token a pass',
+      'Masked models',
+      'Remasking',
+      'Tokens a pass',
+      'Fixed reply length',
+      'Speed claims',
+      'Speed per reply',
     ],
   },
 };

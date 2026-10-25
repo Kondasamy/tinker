@@ -527,7 +527,7 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'diffusion')).toBe(24);
   });
 
-  it('has search as a live Beginner Classic tech module after diffusion, numbered 26', () => {
+  it('has search as a live Beginner Classic tech module, numbered 26', () => {
     expect(moduleOf('search')).toMatchObject({
       title: 'Search before AI',
       level: 'Beginner',
@@ -597,6 +597,17 @@ describe('module registry', () => {
     });
     expect(moduleOf('computer-use').author).toEqual(moduleOf('rag').author);
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'computer-use')).toBe(30);
+  });
+
+  it('has diffusion-llms as a live Advanced module, numbered 32', () => {
+    expect(moduleOf('diffusion-llms')).toMatchObject({
+      title: 'Diffusion language models',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['diffusion', 'transformers'],
+    });
+    expect(moduleOf('diffusion-llms').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'diffusion-llms')).toBe(31);
   });
 
   it('keeps chapter ids unique within every module', () => {
