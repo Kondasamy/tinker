@@ -155,7 +155,8 @@ export default function NoiseToPicture() {
             <Outcome {...P1} prediction={state.p1} outcome={1} />
             <p className="note">
               Compare <a href="/transformers/">Transformers</a>: a reply is written one token at a time, left to right.
-              Here every pixel changes at every step.
+              Here the whole picture is worked on at once. <a href="/diffusion-llms/">Diffusion language models</a> do
+              the same for text: they start from blanks and fill a whole reply over a few passes.
             </p>
             <Fact id="score-sde" />
             <ToyNote />

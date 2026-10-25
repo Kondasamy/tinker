@@ -82,7 +82,7 @@ import { frontierChart } from '../components/scenes/frontierChart';
 import { STUDENT_SERIES } from '../content/small-models/kit';
 import { cheapestShipping, frontier } from '../lib/small-models/router';
 import { readFileSync } from 'node:fs';
-import { parseStudent, type Meta as LmMeta } from '../lib/lm/load';
+import { parseModel, parseStudent, type Meta as LmMeta } from '../lib/lm/load';
 import { SERVE_BOARD, floorAt, serveScene, type ServeOpts } from '../components/scenes/serveScene';
 import { OPEN, serve } from '../lib/inference/server';
 import { WINNERS as SERVE_WINNERS, runOf as serveRun } from '../lib/inference/workbench';
@@ -132,6 +132,17 @@ import { BITE, FUSES, LENS, PATCH, STAGES as LENS_STAGES, STEER, lens } from '..
 import { BEHAVIOURS, WINNERS as IP_WINNERS } from '../lib/interpretability/workbench';
 import { DEPOT_BOARD, depotAt, depotScene, type DepotOpts } from '../components/scenes/depotScene';
 import { ARCHIVE_BOARD, archiveAt, archiveScene, levelsOf, type ArchiveOpts } from '../components/scenes/archiveScene';
+import {
+  CABINET_BOARD,
+  IDLE as SX_IDLE,
+  cabinetAt,
+  cabinetScene,
+  type CabinetOpts,
+} from '../components/scenes/cabinetScene';
+import SX_PINNED from '../../data/search/pinned.json';
+import { DEFAULT as SX, N as SX_N, queryOf as sxQuery, scan as sxScan } from '../lib/search/engine';
+import { RAW as SX_RAW } from '../lib/search/stem';
+import { CARDS as SX_CARDS, DRAWERS as SX_DRAWERS } from '../content/search/02-the-index';
 import { execute as dbExec, join as dbJoin, query as dbQuery } from '../lib/databases/planner';
 import { TABLE_PAGES, pageOf as dbPageOf } from '../lib/databases/table';
 import { READS as DB_READS, WINNERS as DB_WINNERS } from '../lib/databases/workbench';
@@ -145,6 +156,9 @@ import {
 import { STOCK_BOARD, stockAt, stockScene, type StockOpts } from '../components/scenes/stockScene';
 import { MOMENTS as CS_M, policyOf as csPol, runOf as csRun } from '../lib/consistency/sim';
 import { WINNERS as CS_WINNERS } from '../lib/consistency/workbench';
+import { TUBE_BOARD, hopAt, journeyOf, tubeAt, tubeScene, type TubeOpts } from '../components/scenes/tubeScene';
+import { policyOf as pmPol, runOf as pmRun, type Setting as PmSetting } from '../lib/payments/sim';
+import { WINNERS as PM_WINNERS } from '../lib/payments/workbench';
 import { SPLIT_BOARD, splitAt, splitScene, type SplitOpts } from '../components/scenes/splitScene';
 import { ResultView } from '../content/ab-testing/kit';
 import {
@@ -158,6 +172,14 @@ import {
 import { ruleOf as abRule } from '../lib/ab-testing/workbench';
 import { NAME as AB_LUCKY, WINNER as AB_LUCKY_ARM } from '../content/ab-testing/05-twenty-colours';
 import { DARK_BOARD, darkroomScene, type DarkroomOpts } from '../components/scenes/darkroomScene';
+import { PUPPET_BOARD, puppetScene, type PuppetOpts } from '../components/scenes/puppetScene';
+import {
+  beatsOf as cuBeats,
+  frameAt as cuFrame,
+  nthBeat as cuNth,
+  play as cuPlay,
+} from '../content/computer-use/frames';
+import { WINNERS as CU_WINNERS } from '../lib/computer-use/workbench';
 import { denoiseStrip } from '../components/scenes/denoiseStrip';
 import { META as DF_META, pictureFrames } from '../content/diffusion/kit';
 import { drawing as dfDrawing } from '../lib/diffusion/drawings';
@@ -174,6 +196,37 @@ import {
 } from '../content/diffusion/04-copy-or-create';
 import { STEPS_5 as DF_STEPS_5 } from '../content/diffusion/05-steer-with-a-label';
 import { STEPS_6 as DF_STEPS_6 } from '../content/diffusion/06-why-it-costs';
+import { boardOf as gtBoardOf, crateScene, yardOf, type CrateOpts } from '../components/scenes/crateScene';
+import { packingOf as gtPackingOf } from '../content/git/kit';
+import {
+  EDITED as GT_EDITED,
+  SAVED as GT_SAVED,
+  CLEAN as GIT_CLEAN,
+  REBASED as GIT_REBASED,
+  REWORDED as GIT_REWORDED,
+  SALE as GIT_SALE,
+  conflictMerge as gtConflictMerge,
+} from '../lib/git/story';
+import { WINNERS as GIT_WINNERS, runPlan as gtRunPlan } from '../lib/git/workbench';
+import { JAR_BOARD, jarScene, type JarOpts } from '../components/scenes/jarScene';
+import {
+  TEMPERATURES as CB_TEMPS,
+  fitT as cbFitT,
+  half as cbHalf,
+  measure as cbMeasure,
+  report as cbReport,
+} from '../lib/calibration/measure';
+import { MIN_ANSWERS as CB_MIN, itemsOf as cbItems, ofKind as cbOfKind } from '../lib/calibration/answers';
+import { bins as cbBins, coverage as cbCoverage } from '../lib/calibration/score';
+import { WINNERS as CB_WINNERS, totals as cbTotals } from '../lib/calibration/workbench';
+import { LOWEST as CB_LOWEST } from '../content/calibration/06-when-to-hand-over';
+import { FRAME_BOARD, typeFrameScene, type FrameOpts } from '../components/scenes/typeFrameScene';
+import { L as DL_L, MASK as DL_MASK, decode as dlDecode } from '../lib/diffusion-llms/decode';
+import { diskMlm } from '../lib/diffusion-llms/diskModel';
+import { WINNERS as DL_WINNERS, kindOf as dlKind, phrase as dlPhrase } from '../lib/diffusion-llms/workbench';
+import { frameOf as dlFrameOf } from '../content/diffusion-llms/kit';
+import { guessBlank } from '../content/diffusion-llms/02-fill-the-blanks';
+import { NEED as DL_NEED } from '../content/diffusion-llms/06-reading-a-speed-claim';
 import { MOMENTS, TICKS, runOf as cacheRun } from '../lib/caching/sim';
 import { WINNERS as CACHE_WINNERS } from '../lib/caching/workbench';
 import { oneTrip } from '../content/caching/01-far-is-slow';
@@ -185,6 +238,10 @@ import { CallTimeline, segmentsOf } from '../content/voice/kit';
 import { DEFAULT_LINE, runCall } from '../lib/voice/engine';
 import { SILENCES } from '../lib/voice/turns';
 import { WINNERS as VO_WINNERS, asLine } from '../lib/voice/workbench';
+import { TOWN_BOARD, townAt, townScene, type TownOpts } from '../components/scenes/townScene';
+import { WaterfallView } from '../content/web-requests/kit';
+import { runOf as webRun } from '../lib/web-requests/sim';
+import { WINNERS as WEB_WINNERS, loadOf as webLoad } from '../lib/web-requests/workbench';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -851,6 +908,26 @@ const STOCK_OG: Record<string, () => Omit<StockOpts, 'scale'>> = {
   'consistency-07-stock-policy': () => stockAt(csRun(CS_WINNERS[0]), CS_M.westSells),
 };
 const stockOg = STOCK_OG[page.og]?.();
+// module 28: the tube exchange. The intro and 7: the first night under the first winning policy, the convoy and the
+// jars; 1: Ana's request reaching the issuer; 2: Mona's yes, her basket held; 3: the first night's settlement; 4: Ben
+// charged twice without the key; 5: the small orders challenged; 6: Noor's chargeback riding back.
+const PM_REF: PmSetting = { sca: 'risk', capture: 'shipment', key: true },
+  pmRef = pmRun(pmPol(PM_REF)),
+  pmOrder = (id: string) => pmRef.orders.find(o => o.order.id === id)!,
+  pmCb = pmRun({ ...pmPol(PM_REF), small: { ...PM_REF, sca: 'never' } });
+const TUBE_OG: Record<string, () => Omit<TubeOpts, 'scale'>> = {
+  payments: () => tubeAt(pmRun(PM_WINNERS[0]), 1),
+  'payments-01-four-parties': () => hopAt(pmOrder('A1'), 3),
+  'payments-02-a-hold': () => hopAt(pmOrder('N14'), journeyOf(pmOrder('N14')).length - 1),
+  'payments-03-overnight': () => tubeAt(pmRef, 1),
+  'payments-04-pressed-pay-twice': () => tubeAt(pmRun(pmPol({ ...PM_REF, key: false })), 1, ['B2']),
+  'payments-05-prove-its-you': () =>
+    tubeAt(pmRun({ ...pmPol(PM_REF), small: { ...PM_REF, sca: 'always' } }), 0, ['E5', 'C3', 'G7']),
+  'payments-06-the-money-comes-back': () =>
+    tubeAt(pmCb, pmCb.events.find(e => e.order === 'E5' && e.what === 'chargeback')!.t, ['E5', 'L12']),
+  'payments-07-checkout-policy': () => tubeAt(pmRun(PM_WINNERS[0]), 1),
+};
+const tubeOg = TUBE_OG[page.og]?.();
 // module 24: the shop floor. The intro and 1: the one-page checkout winning at its end; 2: an A/A run at its end; 3: the
 // bigger button run for enough shoppers; 4: the result chart (below); 5: the lucky colour; 6: the banner, returns up;
 // 7: the first bench experiment with its guardrail.
@@ -929,6 +1006,167 @@ const DARK_OG: Record<string, () => DarkroomOpts> = {
   },
 };
 const darkOg = DARK_OG[page.og]?.();
+// Search: the index cabinet as each chapter turns it
+const SX_OG: Record<string, () => Omit<CabinetOpts, 'scale'>> = {
+  search: () => cabinetAt(SX_PINNED.rare.query, { ...SX, weighting: 'tfidf' }),
+  'search-01-reading-every-page': () => ({
+    ...SX_IDLE,
+    query: SX_PINNED.scan.query,
+    read: SX_N,
+    found: sxScan(SX_PINNED.scan.query).found.length,
+  }),
+  'search-02-the-index': () => ({
+    words: SX_DRAWERS.length,
+    drawers: SX_DRAWERS.map((word, i) => ({ word, cards: i < SX_CARDS.length ? 1 : 0, out: true })),
+  }),
+  'search-03-rare-words-count-more': () => cabinetAt(SX_PINNED.rare.query, { ...SX, weighting: 'count' }),
+  'search-04-long-pages-and-repeats': () => cabinetAt(SX_PINNED.repeats.query, SX),
+  'search-05-cleaning-words': () => cabinetAt(SX_PINNED.clean.query, { ...SX, clean: SX_RAW }),
+  'search-06-words-vs-meaning': () => cabinetAt(sxQuery(SX_PINNED.meaning.words).text, SX),
+  'search-07-tune-the-search-box': () => cabinetAt(sxQuery(SX_PINNED.meaning.part).text, SX),
+};
+const sxOg = SX_OG[page.og]?.();
+// module 27: the post town as each chapter turns. The intro and 7: Wen's page on the first winning settings; 1: Ines's
+// first lookup, every office asked; 2: Tomas's answer remembered; 3: Wen's TCP handshake; 4: Wen's lost packet in the
+// ditch; 5: Tomas resumed, the seal office lit; 6: Wen's HTTP/2 waterfall, every file held back.
+const webTcp = () => {
+  const r = webRun('wen', { http: '1.1' });
+  return townAt(r, r.phases.findIndex(p => p.kind === 'tcp') + 1);
+};
+const TOWN_OG: Record<string, () => Omit<TownOpts, 'scale'>> = {
+  'web-requests': () => townAt(webLoad(WEB_WINNERS[0], 'wen')),
+  'web-requests-01-a-name-to-a-number': () => townAt(webRun('ines'), 3),
+  'web-requests-02-the-remembered-answer': () => townAt(webRun('tomas', { ttl: 60, http: '2' })),
+  'web-requests-03-hello-hello-ready': webTcp,
+  'web-requests-04-lost-in-the-post': () => townAt(webRun('wen', { http: '1.1', loss: true })),
+  'web-requests-05-the-sealed-envelope': () => ({
+    ...townAt(webRun('tomas', { http: '2', ttl: 60, resume: true })),
+    seal: true,
+  }),
+  'web-requests-07-make-it-fast': () => townAt(webLoad(WEB_WINNERS[0], 'wen')),
+};
+const townOg = TOWN_OG[page.og]?.();
+const webFallOg =
+  page.og === 'web-requests-06-one-line-many-files' ? webRun('wen', { http: '2', loss: true, ttl: 60 }) : undefined;
+// module 29: the crate yard. The intro and 4: the sale merged into main, the merge base marked; 1: the page re-stamped
+// after one price changed; 2: every crate re-stamped after the first message is reworded; 3: the sale branch with its
+// commit and HEAD; 5: the conflict crate; 6: shelf rebased, the old crates left behind; 7: the first winning plan.
+const gtConflict = gtConflictMerge('theirs').repo;
+const CRATE_OG: Record<string, () => Omit<CrateOpts, 'scale'>> = {
+  git: () => yardOf(GIT_CLEAN.repo, { base: GIT_CLEAN.base, lit: [GIT_CLEAN.repo.refs.main] }),
+  'git-01-named-by-contents': () => ({ crates: [], flags: [], packing: gtPackingOf(GT_SAVED, GT_EDITED) }),
+  'git-02-a-chain-of-snapshots': () => yardOf(GIT_REWORDED, { lit: GIT_REWORDED.order }),
+  'git-03-a-branch-is-a-label': () => yardOf(GIT_SALE, { lit: [GIT_SALE.refs.sale] }),
+  'git-04-three-way-merge': () => yardOf(GIT_CLEAN.repo, { base: GIT_CLEAN.base, lit: [GIT_CLEAN.repo.refs.main] }),
+  'git-05-both-changed-it': () => yardOf(gtConflict, { conflict: gtConflict.refs.main }),
+  'git-06-rewriting-history': () => yardOf(GIT_REBASED.repo, { lit: GIT_REBASED.rewritten.map(([, n]) => n) }),
+  'git-07-bring-them-in': () => yardOf(gtRunPlan(GIT_WINNERS[0]).repo, { ghosts: false }),
+};
+const crateOg = CRATE_OG[page.og]?.();
+// module 30: the forecaster's booth. The intro: the style fine-tune's
+// jars, rings above the mint, its ECE on the slate; chapter 1: the assistant's stand-in answers; chapter 2: Larkspur
+// mini's honest jars; chapter 3: the fine-tune's; chapter 4: the fine-tune's test half at the fitted temperature;
+// chapter 5: Larkspur mini with its ECE and Brier score; chapter 6: the lowest safe hand-over line; chapter 7: the
+// products kind under the first winning plan.
+const cbGuesses = (f: string) => {
+  const bin = readFileSync('public/data/lm/' + f);
+  return cbMeasure(
+    parseModel(
+      JSON.parse(readFileSync('public/data/lm/meta.json', 'utf8')) as LmMeta,
+      bin.buffer.slice(bin.byteOffset, bin.byteOffset + bin.byteLength) as ArrayBuffer,
+    ),
+  );
+};
+const cb3 = (x: number) => x.toFixed(3);
+const CALIB_OG: Record<string, () => JarOpts> = {
+  calibration: () => {
+    const r = cbReport(cbGuesses('finetuned.bin'));
+    return { jars: r.jars, slate: `ECE ${cb3(r.ece)}` };
+  },
+  'calibration-01-what-70-should-mean': () => ({ jars: cbBins(cbItems(), CB_MIN) }),
+  'calibration-02-honest-jars': () => ({ jars: cbReport(cbGuesses('model.bin')).jars }),
+  'calibration-03-after-the-polish': () => ({ jars: cbReport(cbGuesses('finetuned.bin')).jars }),
+  'calibration-04-one-dial': () => {
+    const g = cbGuesses('finetuned.bin'),
+      T = cbFitT(cbHalf(g, 'fit'));
+    return { jars: cbReport(cbHalf(g, 'test'), T).jars, T, temps: CB_TEMPS };
+  },
+  'calibration-05-keeping-score': () => {
+    const r = cbReport(cbGuesses('model.bin'));
+    return { jars: r.jars, slate: `ECE ${cb3(r.ece)} · BRIER ${cb3(r.brier)}` };
+  },
+  'calibration-06-when-to-hand-over': () => ({
+    jars: cbBins(cbItems(), CB_MIN),
+    threshold: CB_LOWEST,
+    handed: cbCoverage(cbItems(), CB_LOWEST).handed,
+  }),
+  'calibration-07-workbench': () => {
+    const c = CB_WINNERS[0].products;
+    return {
+      jars: cbBins(cbItems(cbOfKind('products'), c.T), CB_MIN),
+      T: c.T,
+      temps: CB_TEMPS,
+      handed: cbTotals(CB_WINNERS[0]).handed,
+    };
+  },
+};
+const calibOg = CALIB_OG[page.og]?.();
+// module 31: the puppet desk. The intro: the click on the hinges' Reorder link; chapter 1: the first click, on Past
+// orders; chapter 2: the unscaled click landing on Sign out; chapter 3: Reorder clicked again on a stale screen; chapter
+// 4: the agent obeying the planted notice; chapter 5: the look-alike Pay now refused by a person; chapter 6: the order at
+// 640 px, the wrong row; chapter 7: the planted notice refused under the first winning policy.
+const cuClick = (s: Parameters<typeof cuPlay>[0], n: number) => {
+  const r = cuPlay(s);
+  return cuFrame(r, cuNth(r, 'click', n)).opts;
+};
+const cuEnd = (s: Parameters<typeof cuPlay>[0]) => {
+  const r = cuPlay(s);
+  return cuFrame(r, cuBeats(r).length).opts;
+};
+const CU_OG: Record<string, () => PuppetOpts> = {
+  'computer-use': () => cuClick({ case: 'hinges' }, 2),
+  'computer-use-01-look-then-click': () => cuClick({ case: 'hinges' }, 1),
+  'computer-use-02-the-wrong-button': () => cuClick({ case: 'hinges', size: 1024, scale: false }, 1),
+  'computer-use-03-too-quick': () => cuClick({ case: 'hinges', wait: false }, 3),
+  'computer-use-04-the-page-gives-orders': () => cuClick({ case: 'banner' }, 3),
+  'computer-use-05-ask-before-you-pay': () => cuClick({ case: 'offer', allow: true, confirm: true }, 4),
+  'computer-use-06-every-look-costs': () => cuEnd({ case: 'hinges', size: 640 }),
+  'computer-use-07-workbench': () => cuClick({ ...CU_WINNERS[0], case: 'banner' }, 3),
+};
+const puppetOg = CU_OG[page.og]?.();
+// module 32: the type frame. The intro: a release-note reply two passes in at 4 a pass; chapter 1: Larkspur mini's
+// typewriter done; chapter 2: the blank's best guess; chapter 3: the first surest-first pass; chapter 4: all 16 stamped
+// in one pass; chapter 5: a 4-slot frame filled; chapter 6: the dial at the claim's setting; chapter 7: the first
+// winning plan's release-note reply.
+const dlFill = (seed: number, k: number, length = DL_L, rule: 'confidence' | 'random' = 'confidence') =>
+  dlDecode(diskMlm(), dlPhrase(seed).ids, k, rule, seed, length);
+const dlGiven = (seed: number) => dlPhrase(seed).ids.length;
+const FRAME_OG: Record<string, () => FrameOpts> = {
+  'diffusion-llms': () => ({ given: dlGiven(6), ...dlFrameOf(dlFill(6, 4), 2) }),
+  'diffusion-llms-01-one-word-at-a-time': () => ({ given: dlGiven(9), slots: [], typed: DL_L, typeOf: DL_L }),
+  'diffusion-llms-02-fill-the-blanks': () => {
+    const p = dlPhrase(9);
+    return {
+      given: p.ids.length,
+      hole: { at: p.slot, slot: { state: 'new', ...guessBlank(diskMlm())[0] } },
+      slots: [],
+    };
+  },
+  'diffusion-llms-03-sure-words-first': () => ({ given: dlGiven(9), ...dlFrameOf(dlFill(9, 4), 1) }),
+  'diffusion-llms-04-faster-and-worse': () => ({ given: dlGiven(1), ...dlFrameOf(dlFill(1, DL_L), 1) }),
+  'diffusion-llms-05-the-length-is-fixed': () => ({ given: dlGiven(6), ...dlFrameOf(dlFill(6, 1, 4), 4) }),
+  'diffusion-llms-06-reading-a-speed-claim': () => ({
+    given: dlGiven(1),
+    slots: Array.from({ length: DL_L }, () => ({ state: 'mask' as const, tok: DL_MASK, p: 0 })),
+    k: DL_NEED,
+  }),
+  'diffusion-llms-07-workbench': () => {
+    const c = DL_WINNERS[0].release,
+      seed = dlKind('release').cases[0];
+    return { given: dlGiven(seed), ...dlFrameOf(dlFill(seed, c.k, DL_L, c.rule), 2) };
+  },
+};
+const frameOg = FRAME_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -997,8 +1235,17 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : fuseOg ? <IsoStage board={FUSE_BOARD} scene={fuseScene(fuseOg)} label="" />
           : dbOg ? <IsoStage board={ARCHIVE_BOARD} scene={archiveScene({ ...dbOg, scale: 1.3 })} label="" />
           : stockOg ? <IsoStage board={STOCK_BOARD} scene={stockScene({ ...stockOg, scale: 1.4 })} label="" />
+          : tubeOg ? <IsoStage board={TUBE_BOARD} scene={tubeScene({ ...tubeOg, scale: 1.4 })} label="" />
           : splitOg ? <IsoStage board={SPLIT_BOARD} scene={splitScene({ ...splitOg, scale: 1.3 })} label="" />
+          : sxOg ? <IsoStage board={CABINET_BOARD} scene={cabinetScene({ ...sxOg, scale: 1.3 })} label="" />
+          : townOg ? <IsoStage board={TOWN_BOARD} scene={townScene({ ...townOg, scale: 1.3 })} label="" />
+          : webFallOg ? <div class="tf-og ob-og"><WaterfallView run={webFallOg} /></div>
+          : frameOg ? <IsoStage board={FRAME_BOARD} scene={typeFrameScene({ ...frameOg, scale: 1.3 })} label="" />
           : darkOg ? <IsoStage board={DARK_BOARD} scene={darkroomScene({ ...darkOg, scale: 1.3 })} label="" />
+          : crateOg ? <IsoStage board={gtBoardOf(crateOg)} scene={crateScene({ ...crateOg, scale: 1.4 })} label="" />
+          : dfStripSrc ?<div class="mm-og"><img src={dfStripSrc} alt="" /></div>
+          : calibOg ? <IsoStage board={JAR_BOARD} scene={jarScene({ ...calibOg, scale: 1.3 })} label="" />
+          : puppetOg ? <IsoStage board={PUPPET_BOARD} scene={puppetScene({ ...puppetOg, scale: 1.3 })} label="" />
           : dfStripSrc ? <div class="mm-og"><img src={dfStripSrc} alt="" /></div>
           : abChartOg ? <div class="tf-og ab-og"><ResultView chart={abChartOg} /></div>
           : depotOgs ? <div class={depotOgs.length > 1 ? 'duo' : ''}>{depotOgs.map(o => <IsoStage board={DEPOT_BOARD} scene={depotScene({ ...o, scale: 1.3 })} label="" />)}</div>

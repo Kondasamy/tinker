@@ -72,7 +72,31 @@ import { MOMENTS as CS_MOMENTS, policyOf as csPolicy, runOf as csRun } from '../
 import { SPLIT_BOARD, splitAt, splitLabel, splitScene } from '../components/scenes/splitScene';
 import { SCENARIOS as AB_SCENARIOS, runOf as abRun } from '../lib/ab-testing/sim';
 import { DARK_BOARD, darkroomLabel, darkroomScene, type DarkroomOpts } from '../components/scenes/darkroomScene';
+import { PUPPET_BOARD, puppetLabel, puppetScene, type PuppetOpts } from '../components/scenes/puppetScene';
+import { frameAt, nthBeat, play as cuPlay } from '../content/computer-use/frames';
 import { sampleDrawing } from '../lib/diffusion/ideal';
+import {
+  CABINET_BOARD,
+  cabinetAt,
+  cabinetLabel,
+  cabinetScene,
+  type CabinetOpts,
+} from '../components/scenes/cabinetScene';
+import { DEFAULT as SX_DEFAULT } from '../lib/search/engine';
+import { TOWN_BOARD, townAt, townLabel, townScene } from '../components/scenes/townScene';
+import { WINNERS as WEB_WINNERS, loadOf as webLoad } from '../lib/web-requests/workbench';
+import { TUBE_BOARD, tubeAt, tubeLabel, tubeScene } from '../components/scenes/tubeScene';
+import { runOf as pmRun } from '../lib/payments/sim';
+import { WINNERS as PM_WINNERS } from '../lib/payments/workbench';
+import { boardOf, crateLabel, crateScene, yardOf, type CrateOpts } from '../components/scenes/crateScene';
+import { CLEAN as GIT_CLEAN } from '../lib/git/story';
+import { JAR_BOARD, jarLabel, jarScene, type JarOpts } from '../components/scenes/jarScene';
+import { JARS as CB_JARS } from '../content/calibration/01-what-70-should-mean';
+import { FRAME_BOARD, frameLabel, typeFrameScene, type FrameOpts } from '../components/scenes/typeFrameScene';
+import { decode } from '../lib/diffusion-llms/decode';
+import { diskMlm } from '../lib/diffusion-llms/diskModel';
+import { phrase as dlPhrase } from '../lib/diffusion-llms/workbench';
+import { frameOf } from '../content/diffusion-llms/kit';
 
 const one =
   (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) =>
@@ -206,6 +230,8 @@ const FUSES_CARD = {
   pulled: [BITE.fuse],
   scale: 1.7,
 };
+// the post town: the farthest customer's page on chapter 7's first winning settings, his lost packet in the ditch
+const TOWN = { ...townAt(webLoad(WEB_WINNERS[0], 'wen')), scale: 1.7 };
 // the depot map mid-sale on chapter 7's first winning policy
 const DEPOT = { ...depotAt(cacheRun(CACHE_WINNERS[0]), CACHE_MOMENTS.sale + 2), scale: 1.7 };
 // order 1042 found through its index, the winning plan's other indexes at the desk's end
@@ -226,6 +252,23 @@ const DARK: DarkroomOpts = {
   steps: 20,
   label: 'drill',
   guidance: 4,
+  scale: 1.7,
+};
+// "Larkspur forklift", weighed by rarity: the forklift page tops the podium
+const CABINET: CabinetOpts = { ...cabinetAt('Larkspur forklift', { ...SX_DEFAULT, weighting: 'tfidf' }), scale: 1.7 };
+// the first night under the best checkout policy: the coin convoy and the fee jars
+const TUBES = { ...tubeAt(pmRun(PM_WINNERS[0]), 1), scale: 1.7 };
+// the sale merged into main: a merge crate on two rails
+const YARD: CrateOpts = { ...yardOf(GIT_CLEAN.repo, { lit: [GIT_CLEAN.repo.refs.main] }), scale: 1.7 };
+// calibration: the assistant's stand-in answers in their jars, the most sure honest, the middle ones claiming too much
+const BOOTH: JarOpts = { jars: CB_JARS };
+// the agent's click on the planted notice's Verify now button
+const CU_RUN = cuPlay({ case: 'banner' });
+const PUPPET: PuppetOpts = { ...frameAt(CU_RUN, nthBeat(CU_RUN, 'click', 3)).opts, scale: 1.7 };
+// diffusion LMs: a release-note reply two passes in, four tokens a pass, surest first
+const TYPE: FrameOpts = {
+  given: dlPhrase(6).ids.length,
+  ...frameOf(decode(diskMlm(), dlPhrase(6).ids, 4, 'confidence', 6), 2),
   scale: 1.7,
 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
@@ -543,6 +586,99 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Guidance',
       'Latent & few-step models',
       'Steps per use',
+    ],
+  },
+  search: {
+    name: 'Search before AI',
+    iso: { board: CABINET_BOARD, scene: cabinetScene(CABINET), label: cabinetLabel(CABINET) },
+    topics: [
+      'Scans',
+      'Inverted index',
+      'Postings',
+      'tf-idf & rarity',
+      'BM25',
+      'Stemming & stop words',
+      'Keyword vs semantic search',
+      'Hybrid search',
+      'Precision & recall',
+    ],
+  },
+  'web-requests': {
+    name: 'Opening a web page',
+    iso: { board: TOWN_BOARD, scene: townScene(TOWN), label: townLabel(TOWN) },
+    topics: [
+      'DNS lookups',
+      'TTL and moving address',
+      'TCP handshake',
+      'Packet loss',
+      'TLS and the padlock',
+      'Head-of-line blocking',
+      'HTTP/2 and HTTP/3',
+    ],
+  },
+  payments: {
+    name: 'Card payments',
+    iso: { board: TUBE_BOARD, scene: tubeScene(TUBES), label: tubeLabel(TUBES) },
+    topics: [
+      'Issuers & acquirers',
+      'Authorisation holds',
+      'Capture',
+      'Settlement & interchange',
+      'Idempotency keys',
+      '3-D Secure & SCA',
+      'Chargebacks',
+    ],
+  },
+  git: {
+    name: 'Git',
+    iso: { board: boardOf(YARD), scene: crateScene(YARD), label: crateLabel(YARD) },
+    topics: [
+      'Content hashes',
+      'Commits & snapshots',
+      'Branches & HEAD',
+      'Three-way merge',
+      'Merge conflicts',
+      'Rebase',
+      'Merge or rebase',
+    ],
+  },
+  calibration: {
+    name: 'Calibration',
+    iso: { board: JAR_BOARD, scene: jarScene(BOOTH), label: jarLabel(BOOTH) },
+    topics: [
+      'Confidence',
+      'Reliability diagrams',
+      'Overconfidence after fine-tuning',
+      'Temperature scaling',
+      'ECE & Brier score',
+      'Abstaining & hand-over',
+      'Coverage vs accuracy',
+    ],
+  },
+  'computer-use': {
+    name: 'Computer use',
+    iso: { board: PUPPET_BOARD, scene: puppetScene(PUPPET), label: puppetLabel(PUPPET) },
+    topics: [
+      'Screenshots & clicks',
+      'Coordinate scaling',
+      'Stale screens',
+      'On-screen prompt injection',
+      'Confirmation',
+      'Screenshot tokens',
+      'Host rules',
+    ],
+  },
+  'diffusion-llms': {
+    name: 'Diffusion language models',
+    iso: { board: FRAME_BOARD, scene: typeFrameScene(TYPE), label: frameLabel(TYPE) },
+    topics: [
+      'One token a pass',
+      'Masked models',
+      'Remasking',
+      'Tokens a pass',
+      'Fixed reply length',
+      'Speed claims',
+      'Speed per reply',
     ],
   },
 };

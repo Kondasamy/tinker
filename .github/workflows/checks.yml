@@ -24,15 +24,16 @@ jobs:
       - run: pnpm lint
       - run: pnpm test
 
-  # the e2e run in six shards, each building the site with DEV_PAGES=1 (playwright.config.ts's webServer); at 17 modules
-  # four shards took 4.1–7.4 min each, and 25 modules add about half again, so six keep the slowest near 7.5 min
+  # the e2e run in eight shards, each building the site with DEV_PAGES=1 (playwright.config.ts's webServer); at 17 modules
+  # four shards took 4.1–7.4 min each, and 25 modules added about half again (six shards); 32 modules add about 1.3× more
+  # (estimated, not measured on CI), so eight keep the slowest near 7.5 min
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4, 5, 6]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -42,7 +43,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm test:e2e --shard=${{ matrix.shard }}/6
+      - run: pnpm test:e2e --shard=${{ matrix.shard }}/8
       - uses: actions/upload-artifact@v7
         if: failure()
         with:

@@ -1,0 +1,32 @@
+{
+  "note": "Pinned measurements of Larkspur mini's calibration over Fine-tuning's held-out copy (KTD8, KTD12), and chapter 7's answer. tests/unit/calibration-measure.test.ts and calibration-workbench.test.ts rerun them and fail on drift. minBin is the fewest held-out guesses a jar may hold. Scores are rounded to three decimals.",
+  "minBin": 20,
+  "models": {
+    "base": { "positions": 1503, "right": 346, "ece": 0.032, "brier": 0.133, "fitT": 1.25 },
+    "finetuned": { "positions": 1503, "right": 219, "ece": 0.27, "brier": 0.206, "fitT": 1.5 }
+  },
+  "scaled": { "weights": "finetuned", "T": 1.5, "testEceBefore": 0.267, "testEceAfter": 0.045 },
+  "workbench": {
+    "least": 23,
+    "winners": [
+      { "orders": [1, 0.8], "policy": [1.5, 0.9], "products": [2.5, 0.9] },
+      { "orders": [1, 0.8], "policy": [1.5, 0.9], "products": [3, 0.9] },
+      { "orders": [1, 0.8], "policy": [1.75, 0.9], "products": [2.5, 0.9] },
+      { "orders": [1, 0.8], "policy": [1.75, 0.9], "products": [3, 0.9] },
+      { "orders": [1, 0.8], "policy": [2, 0.9], "products": [2.5, 0.9] },
+      { "orders": [1, 0.8], "policy": [2, 0.9], "products": [3, 0.9] },
+      { "orders": [1.25, 0.8], "policy": [1.5, 0.9], "products": [2.5, 0.9] },
+      { "orders": [1.25, 0.8], "policy": [1.5, 0.9], "products": [3, 0.9] },
+      { "orders": [1.25, 0.8], "policy": [1.75, 0.9], "products": [2.5, 0.9] },
+      { "orders": [1.25, 0.8], "policy": [1.75, 0.9], "products": [3, 0.9] },
+      { "orders": [1.25, 0.8], "policy": [2, 0.9], "products": [2.5, 0.9] },
+      { "orders": [1.25, 0.8], "policy": [2, 0.9], "products": [3, 0.9] },
+      { "orders": [1.5, 0.8], "policy": [1.5, 0.9], "products": [2.5, 0.9] },
+      { "orders": [1.5, 0.8], "policy": [1.5, 0.9], "products": [3, 0.9] },
+      { "orders": [1.5, 0.8], "policy": [1.75, 0.9], "products": [2.5, 0.9] },
+      { "orders": [1.5, 0.8], "policy": [1.75, 0.9], "products": [3, 0.9] },
+      { "orders": [1.5, 0.8], "policy": [2, 0.9], "products": [2.5, 0.9] },
+      { "orders": [1.5, 0.8], "policy": [2, 0.9], "products": [3, 0.9] }
+    ]
+  }
+}

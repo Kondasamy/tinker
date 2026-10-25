@@ -271,6 +271,10 @@ export default function RedTeam() {
               <>
                 <Messages lanes={sandboxLanes()} msgs={sandboxMessages(r)} upTo={r.steps.length} />
                 <Fact id="not-complete" />
+                <p className="note">
+                  An agent that clicks through screens needs the same limits, from outside the model:{' '}
+                  <a href="/computer-use/05-ask-before-you-pay/">Computer use</a> sets them for one.
+                </p>
               </>
             );
           },

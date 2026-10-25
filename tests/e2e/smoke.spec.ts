@@ -39,6 +39,8 @@ test('RAG intro marks finished chapters and continues from the next one', async 
 
 test('every public page has its own share image, and it is served', async ({ page, request }) => {
   const paths = ALL_PAGES.map(p => p.path);
+  // one page load per public page: 32 modules make about 300
+  test.setTimeout(paths.length * 500);
   const seen = new Set<string>();
   for (const p of paths) {
     await page.goto(p);

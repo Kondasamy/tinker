@@ -1,0 +1,29 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import LookThenClick from '../../content/computer-use/01-look-then-click';
+import TheWrongButton from '../../content/computer-use/02-the-wrong-button';
+import TooQuick from '../../content/computer-use/03-too-quick';
+import ThePageGivesOrders from '../../content/computer-use/04-the-page-gives-orders';
+import AskBeforeYouPay from '../../content/computer-use/05-ask-before-you-pay';
+import EveryLookCosts from '../../content/computer-use/06-every-look-costs';
+import Workbench from '../../content/computer-use/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('computer-use').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="computer-use" chapter={chapter} title={title}>
+  {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
+      hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
+  {chapter === '01-look-then-click' ? <LookThenClick client:load />
+    : chapter === '02-the-wrong-button' ? <TheWrongButton client:load />
+    : chapter === '03-too-quick' ? <TooQuick client:load />
+    : chapter === '04-the-page-gives-orders' ? <ThePageGivesOrders client:load />
+    : chapter === '05-ask-before-you-pay' ? <AskBeforeYouPay client:load />
+    : chapter === '06-every-look-costs' ? <EveryLookCosts client:load />
+    : <Workbench client:load />}
+</ChapterLayout>

@@ -1,0 +1,12 @@
+{
+  "accessed": "2026-10-25",
+  "facts": [
+    { "id": "llada-remask", "claim": "The LLaDA paper (2025), on an 8-billion-parameter masked diffusion language model, reports that low-confidence remasking (keeping the surest guesses) consistently outperforms random remasking.", "source": "https://arxiv.org/abs/2502.09992", "accessed": "2026-10-25" },
+    { "id": "llada-length", "claim": "LLaDA sets the reply’s length before sampling starts: it begins from a fully masked sequence of that length, and drops whatever comes after the end-of-text token.", "source": "https://arxiv.org/abs/2502.09992", "accessed": "2026-10-25" },
+    { "id": "mdlm", "claim": "MDLM (2024) found simple masked diffusion works better than previously thought, approaching left-to-right models’ perplexity, and can be sampled block by block for text of any length.", "source": "https://arxiv.org/abs/2406.07524", "accessed": "2026-10-25" },
+    { "id": "sedd", "claim": "SEDD (2023) reports a discrete diffusion language model competitive with GPT-2 at comparable size, and similar quality with 32× fewer network evaluations.", "value": "32", "source": "https://arxiv.org/abs/2310.16834", "accessed": "2026-10-25" },
+    { "id": "fast-dllm", "claim": "Fast-dLLM (2025) decodes only the tokens above a confidence threshold in parallel and adds an approximate key-value cache, reporting up to 27.6× more throughput with minimal accuracy loss.", "value": "27.6", "source": "https://arxiv.org/abs/2505.22618", "accessed": "2026-10-25" },
+    { "id": "gemini-diffusion", "claim": "Google DeepMind announced Gemini Diffusion on 20 May 2025 as an experimental research model that turns random noise into text, faster than its fastest model so far.", "source": "https://blog.google/technology/google-deepmind/gemini-diffusion/", "accessed": "2026-10-25" },
+    { "id": "mercury-2", "claim": "Inception, the vendor, claims its diffusion model Mercury 2 writes 1,009 tokens a second on NVIDIA Blackwell GPUs. The vendor’s own figure, from its blog.", "value": "1009", "source": "https://www.inceptionlabs.ai/blog/introducing-mercury-2", "accessed": "2026-10-25" }
+  ]
+}

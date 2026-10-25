@@ -1,0 +1,6 @@
+{
+  "note": "Chapter 7's bench, the team's choices: the three branches waiting, the ones others already have, and who brings them in. A conflict on the bench is resolved to the incoming side, a stand-in for a person choosing.",
+  "branches": ["sale", "shelf", "hinge"],
+  "shared": ["sale"],
+  "integrator": "mira"
+}

@@ -2,6 +2,7 @@
 // several samples side by side), the ranges over the finite lists, the learned denoiser's loader and a sampler that
 // spreads its work over animation frames, and a cited fact. Every string is React text here; the drawings escape theirs
 // (esc, flatPill), and the strip's art goes in as an image (a data URL), so no markup is injected.
+import { ListRange } from '../../components/story/ListRange';
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import IsoStage from '../../lib/iso/IsoStage';
 import { filterFor } from '../../lib/iso/core.js';
@@ -407,40 +408,6 @@ export function DiffusionStage({
 // ---- controls ----
 
 /** A native range over a finite list, its value named beside it. */
-function ListRange<T>({
-  label,
-  list,
-  value,
-  words,
-  onChange,
-}: {
-  label: string;
-  list: readonly T[];
-  value: T;
-  words: (v: T) => string;
-  onChange: (v: T) => void;
-}) {
-  const id = 'rng' + useId().replace(/[^\w-]/g, ''),
-    i = Math.max(0, list.indexOf(value));
-  return (
-    <div className="df-range">
-      <label htmlFor={id}>{label}</label>
-      <input
-        id={id}
-        type="range"
-        min={0}
-        max={list.length - 1}
-        step={1}
-        value={i}
-        aria-valuetext={words(value)}
-        onChange={e => onChange(list[Number(e.currentTarget.value)])}
-      />
-      <output htmlFor={id} aria-live="polite">
-        {words(value)}
-      </output>
-    </div>
-  );
-}
 export const stepWords = (n: number) => `${n} step${n === 1 ? '' : 's'}`;
 export const StepsRange = ({
   value,
@@ -450,14 +417,22 @@ export const StepsRange = ({
   value: Steps;
   onChange: (s: Steps) => void;
   steps?: readonly Steps[];
-}) => <ListRange label="Steps" list={steps} value={value} words={stepWords} onChange={onChange} />;
+}) => <ListRange className="df-range" label="Steps" list={steps} value={value} words={stepWords} onChange={onChange} />;
 export const GuidanceRange = ({ value, onChange }: { value: Guidance; onChange: (g: Guidance) => void }) => (
-  <ListRange label="Guidance" list={GUIDANCE} value={value} words={g => `scale ${g}`} onChange={onChange} />
+  <ListRange
+    className="df-range"
+    label="Guidance"
+    list={GUIDANCE}
+    value={value}
+    words={g => `scale ${g}`}
+    onChange={onChange}
+  />
 );
 export const noiseWords = (t: number) =>
   t === 0 ? 'none: the drawing' : t === 1 ? 'all the way: pure noise' : `${Math.round(t * 100)}% of the way`;
 export const NoiseRange = ({ value, onChange }: { value: number; onChange: (t: number) => void }) => (
   <ListRange
+    className="df-range"
     label="Noise"
     list={NOISE}
     value={value as (typeof NOISE)[number]}

@@ -1,0 +1,15 @@
+{
+  "note": "Larkspur's owner's rules for the page, team choices for this site, not industry figures.",
+  "budgetMs": 1500,
+  "moveMinutes": 60,
+  "reasons": {
+    "budget": "Every customer’s page, the hinge photo included, must be in within 1.5 seconds, even on a line that loses a packet.",
+    "move": "When the shop moves to a new address, every customer must find it within an hour."
+  },
+  "solved": {
+    "winners": [
+      { "ttl": 5, "http": "3", "resume": true },
+      { "ttl": 60, "http": "3", "resume": true }
+    ]
+  }
+}

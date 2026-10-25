@@ -1,0 +1,166 @@
+/* Search stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
+   tool-calling/kit). These are the postings table, the filing bench, the notes and the story column's tables. */
+.sx-postings {
+  margin: 0;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px;
+}
+.sx-plist {
+  margin: 0;
+  padding: 0 0 0 16px;
+  font-size: 12.5px;
+}
+.sx-more,
+.sx-note,
+.sx-in {
+  color: var(--muted);
+}
+.sx-note {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+}
+
+/* the filing bench: two listboxes side by side, one column on phones */
+.sx-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 10px;
+}
+.sx-h {
+  margin: 0 0 4px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.sx-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1.5px solid var(--rule);
+  border-radius: 10px;
+  background: var(--card);
+}
+.sx-list:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+.sx-opt {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 44px;
+  justify-content: center;
+  padding: 6px 10px;
+  border: 1.5px solid var(--ink);
+  border-radius: 8px;
+  background: var(--paper);
+  cursor: pointer;
+  font-size: 13px;
+  user-select: none;
+}
+.sx-list:focus-visible .sx-opt.active {
+  box-shadow: 0 0 0 3px var(--acc, #f4b829);
+}
+.sx-opt[aria-selected="true"] {
+  background: var(--acc, #f4b829);
+}
+.sx-opt[aria-disabled="true"] {
+  cursor: default;
+}
+.sx-opt.done {
+  border-style: dashed;
+  opacity: 0.7;
+}
+.sx-snip {
+  font-size: 12px;
+}
+.sx-said {
+  margin: 8px 0 0;
+  font-weight: 700;
+  font-size: 13px;
+}
+.sx-hint {
+  margin: 6px 0 0;
+  font-size: 13px;
+  border-left: 4px solid var(--acc, #f4b829);
+  padding-left: 8px;
+}
+.sx-maths {
+  margin: 8px 0 0;
+  font-size: 13px;
+}
+.sx-maths summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.sx-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.sx-headline strong {
+  font:
+    800 30px / 1 ui-monospace,
+    Menlo,
+    monospace;
+}
+.sx-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sx-controls fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.sx-controls legend {
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 0;
+  margin-bottom: 4px;
+}
+.sx-wide {
+  overflow-x: auto;
+}
+.tc-ledger td.ok {
+  color: var(--ok);
+  font-weight: 800;
+}
+.tc-ledger td.bad {
+  color: var(--bad);
+  font-weight: 800;
+}
+@media (max-width: 600px) {
+  .sx-cols {
+    grid-template-columns: 1fr;
+  }
+}
+/* a newly filed card drops into its drawer; reduced motion shows it in place */
+@media (prefers-reduced-motion: no-preference) {
+  .cabinet .card.fresh {
+    animation: sx-drop 0.5s ease-out;
+  }
+  @keyframes sx-drop {
+    from {
+      transform: translateY(-14px);
+      opacity: 0;
+    }
+  }
+}

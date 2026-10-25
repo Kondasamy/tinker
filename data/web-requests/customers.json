@@ -1,0 +1,50 @@
+{
+  "note": "Larkspur's customers for this module, written for this site. Names, towns and distances are made up; every name and address is reserved for documentation (RFC 2606, RFC 5737, RFC 3849).",
+  "site": "larkspur.example",
+  "address": "203.0.113.10",
+  "address6": "2001:db8::10",
+  "newAddress": "203.0.113.80",
+  "resolver": "192.0.2.53",
+  "customers": [
+    {
+      "id": "ines",
+      "name": "Ines",
+      "town": "Millbrook",
+      "km": 40,
+      "lastVisitMin": null,
+      "loss": 0,
+      "seed": 11,
+      "ip": "198.51.100.24"
+    },
+    {
+      "id": "tomas",
+      "name": "Tomas",
+      "town": "Eastport",
+      "km": 1200,
+      "lastVisitMin": 20,
+      "loss": 0,
+      "seed": 23,
+      "ip": "198.51.100.71"
+    },
+    {
+      "id": "dara",
+      "name": "Dara",
+      "town": "Northgate",
+      "km": 2500,
+      "lastVisitMin": 300,
+      "loss": 0,
+      "seed": 37,
+      "ip": "198.51.100.140"
+    },
+    {
+      "id": "wen",
+      "name": "Wen",
+      "town": "Farhaven",
+      "km": 8000,
+      "lastVisitMin": 3,
+      "loss": 0.1,
+      "seed": 407,
+      "ip": "198.51.100.203"
+    }
+  ]
+}

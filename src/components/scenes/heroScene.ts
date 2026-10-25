@@ -46,6 +46,13 @@ import { archivePlot } from './archiveScene';
 import { stockPlot } from './stockScene';
 import { splitPlot } from './splitScene';
 import { darkroomPlot } from './darkroomScene';
+import { cabinetPlot } from './cabinetScene';
+import { townPlot } from './townScene';
+import { tubePlot } from './tubeScene';
+import { cratePlot } from './crateScene';
+import { jarPlot } from './jarScene';
+import { puppetPlot } from './puppetScene';
+import { typeFramePlot } from './typeFrameScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
@@ -54,15 +61,15 @@ import type { Msg } from '../../lib/iso/flat';
 const RAG_Y = 294,
   RAG_X = [44, 112, 180];
 // STEP is a little more than two pill heights apart on screen, so pills down a column never touch; front rows sit a
-// little further apart (ROW), so 32 pills shown at once still clear each other (KTD14)
+// little further apart (ROW), so 39 pills shown at once still clear each other (KTD14)
 const COLUMN = 5,
   STEP = 50,
   ROW = 54,
-  COLS = [132, 206, 280, 354],
+  COLS = [132, 206, 280, 354, 428],
   /** the front row level with RAG keeps only the columns clear of its strip */
   BESIDE_RAG = COLS.filter(x => x - 22 >= 206);
-/** slot i's centre: down the column left of the back office, down the column right of it, then four to a row in front
- * (the first row, level with RAG, two), row by row to the front */
+/** slot i's centre: down the column left of the back office, down the column right of it, then five to a row in front
+ * (the first row, level with RAG, three), row by row to the front */
 const slotXY = (i: number): [number, number] => {
   if (i < COLUMN) return [44, 30 + STEP * i];
   if (i < 2 * COLUMN) return [318, 30 + STEP * (i - COLUMN)];
@@ -71,11 +78,12 @@ const slotXY = (i: number): [number, number] => {
   const k = j - BESIDE_RAG.length;
   return [COLS[k % COLS.length], 292 + ROW * (1 + Math.floor(k / COLS.length))];
 };
-/** a pill floats higher over the column right of the back office and over each front row's left-most slot: their
- * neighbours sit at about their height on screen, and all show at once with reduced motion and in the share image */
+/** a pill floats higher over the column right of the back office; in front, pills step down from left to right: a
+ * slot's right-hand neighbour and the slot in front of that neighbour's left one sit at about one height on screen,
+ * and all show at once with reduced motion and in the share image */
 const lift = (i: number) => {
-  const k = i - 2 * COLUMN - BESIDE_RAG.length;
-  return (i >= COLUMN && i < 2 * COLUMN) || (k >= 0 && k % COLS.length === 0) ? -14 : 0;
+  if (i < 2 * COLUMN) return i >= COLUMN ? -14 : 0;
+  return 10 * COLS.indexOf(slotXY(i)[0]) - 22;
 };
 /** slot i's mat on the board, [x0, y0, x1, y1] */
 export const plotAt = (i: number): Board => {
@@ -135,7 +143,7 @@ export const heroScene =
   ({ live, planned, ride }: { live: HeroPlot[]; planned: HeroPlot[]; ride: Msg[] }) =>
   (ctx: SceneCtx) => {
     const { top } = ctx,
-      // pills keep one size on screen whatever the board, so 32 of them shown at once need this smaller one (KTD14)
+      // pills keep one size on screen whatever the board, so 39 of them shown at once need this smaller one (KTD14)
       scale = 1,
       later = live.slice(2),
       slots = [...later, ...planned];
@@ -198,7 +206,8 @@ export const heroScene =
     };
     return (
       s +
-      hop(0, pill([RAG_X[1], RAG_Y, BH + 34], live[0].name, false, -18)) +
+      // RAG's pill floats over the pill of the first front row's left-most slot
+      hop(0, pill([RAG_X[1], RAG_Y, BH + 34], live[0].name, false, -28)) +
       hop(1, pill([142, 134, BH + 34], live[1].name, false, -22)) +
       later.map((m, i) => hop(i + 2, pill(at(i), m.name, false, -24 + lift(i)))).join('') +
       // planned pills sit out the wave (its timing is per live plot): the animated home hides them, still pictures show them all
@@ -264,6 +273,13 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   consistency: (x, y, { top }) => stockPlot(x + 14, y - 2, top),
   'ab-testing': (x, y, { top }) => splitPlot(x + 14, y - 2, top),
   diffusion: (x, y, { top }) => darkroomPlot(x + 14, y - 2, top),
+  search: (x, y, { top }) => cabinetPlot(x + 14, y - 2, top),
+  'web-requests': (x, y, { top }) => townPlot(x + 4, y - 2, top),
+  payments: (x, y, { top }) => tubePlot(x + 14, y - 2, top),
+  git: (x, y, { top }) => cratePlot(x + 14, y - 2, top),
+  calibration: (x, y, { top }) => jarPlot(x + 12, y - 2, top),
+  'computer-use': (x, y, { top }) => puppetPlot(x + 14, y - 2, top),
+  'diffusion-llms': (x, y, { top }) => typeFramePlot(x + 12, y - 2, top),
 };
 const LIVE = MODULES.filter(m => m.status === 'live'),
   PLANNED = MODULES.filter(m => m.status === 'planned');

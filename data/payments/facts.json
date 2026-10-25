@@ -1,0 +1,83 @@
+{
+  "accessed": "2026-10-25",
+  "facts": [
+    {
+      "id": "four-party",
+      "claim": "In a four-party card scheme, a card payment moves from the payer’s account to the payee’s through the scheme, an issuer on the payer’s side and an acquirer on the payee’s side (EU Regulation 2015/751, Article 2).",
+      "source": "https://eur-lex.europa.eu/eli/reg/2015/751/oj"
+    },
+    {
+      "id": "ifr-debit",
+      "claim": "Under EU Regulation 2015/751 (Article 3), the interchange fee on a consumer debit card payment may be at most 0.2% of its value.",
+      "value": "0.2%",
+      "source": "https://eur-lex.europa.eu/eli/reg/2015/751/oj"
+    },
+    {
+      "id": "ifr-credit",
+      "claim": "Under EU Regulation 2015/751 (Article 4), the interchange fee on a consumer credit card payment may be at most 0.3% of its value.",
+      "value": "0.3%",
+      "source": "https://eur-lex.europa.eu/eli/reg/2015/751/oj"
+    },
+    {
+      "id": "interchange-share",
+      "claim": "The EU’s interchange fee rules call interchange fees a main part of the fees acquirers charge merchants (Regulation 2015/751, recital 10).",
+      "source": "https://eur-lex.europa.eu/eli/reg/2015/751/oj"
+    },
+    {
+      "id": "settlement",
+      "claim": "For each card payment the issuer, for the cardholder, pays the acquirer, for the merchant; the interchange fee flows the other way, from acquirer to issuer (ECB Occasional Paper 131, 2011).",
+      "source": "https://www.ecb.europa.eu/pub/pdf/scpops/ecbocp131.pdf"
+    },
+    {
+      "id": "hold",
+      "claim": "Visa’s guide for US merchants says each approved authorisation reduces the cardholder’s available funds, a hold, and that authorisations a merchant won’t complete must be reversed.",
+      "source": "https://usa.visa.com/dam/VCOM/regional/na/us/support-legal/documents/authorization-and-reversal-processing-best-practices-for-merchants.pdf"
+    },
+    {
+      "id": "idempotency",
+      "claim": "An IETF Internet-Draft (draft-ietf-httpapi-idempotency-key-header, not yet an RFC) has the client send a unique Idempotency-Key so the server can recognise a retry and not repeat the operation.",
+      "source": "https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/"
+    },
+    {
+      "id": "sca",
+      "claim": "EU Directive 2015/2366 (PSD2, Article 97) requires strong customer authentication when a payer starts an electronic payment.",
+      "source": "https://eur-lex.europa.eu/eli/dir/2015/2366/oj"
+    },
+    {
+      "id": "sca-factors",
+      "claim": "Strong customer authentication uses two or more independent elements: something only the user knows, something only they have, and something they are (PSD2, Article 4(30)).",
+      "source": "https://eur-lex.europa.eu/eli/dir/2015/2366/oj"
+    },
+    {
+      "id": "low-value",
+      "claim": "Under Delegated Regulation 2018/389 (Article 16), a remote payment of at most €30 may skip strong authentication, while payments since the last one total at most €100 or number at most five.",
+      "value": "3000",
+      "source": "https://eur-lex.europa.eu/eli/reg_del/2018/389/oj"
+    },
+    {
+      "id": "tra",
+      "claim": "Under the same regulation (Article 18), a payment rated low-risk in real-time analysis may skip strong authentication, up to €500 if the provider’s card fraud rate is at most 0.01%.",
+      "source": "https://eur-lex.europa.eu/eli/reg_del/2018/389/oj"
+    },
+    {
+      "id": "3ds",
+      "claim": "EMV 3-D Secure shares payment and device data between merchant and issuer so the issuer can authenticate the shopper: many just click Buy, higher-risk ones face a challenge such as a one-time passcode.",
+      "source": "https://www.emvco.com/emv-technologies/3-d-secure/"
+    },
+    {
+      "id": "liability-shift",
+      "claim": "Visa’s dispute guide for merchants (October 2026) says a fully authenticated 3-D Secure payment is protected from fraud disputes; a payment without 3-D Secure is not.",
+      "source": "https://usa.visa.com/dam/VCOM/global/support-legal/documents/merchants-dispute-management-guidelines.pdf"
+    },
+    {
+      "id": "dispute-groups",
+      "claim": "Visa groups dispute reasons into four categories: Fraud, Authorization, Processing Errors and Consumer Disputes.",
+      "source": "https://usa.visa.com/dam/VCOM/global/support-legal/documents/merchants-dispute-management-guidelines.pdf"
+    },
+    {
+      "id": "pan-masking",
+      "claim": "Under the PCI card security standard (requirement 3.4.1), screens and reports show at most the first digits and last four of a card number, unless a documented business need justifies more.",
+      "source": "https://pcisecuritystandards.org/faq/articles/Frequently_Asked_Question/how-can-an-entity-meet-pci-dss-requirements-for-pan-masking-and-truncation-if-it-has-migrated-to-8-digit-bins"
+    }
+  ]
+}

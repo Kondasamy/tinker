@@ -15,24 +15,23 @@ const RAG_CHAPTERS = [
   ['07-sandbox', 'Sandbox'],
 ];
 
-// the roadmap (docs/plans/2026-10-24-1806-feat-eight-new-modules-plan.md): the eight modules in go-live order (KTD1),
-// then the seven cards no module plan has taken up yet (R17)
-const ROADMAP: [string, string][] = [
-  ['pre-training', 'Intermediate'],
-  ['post-training', 'Advanced'],
-  ['interpretability', 'Advanced'],
-  ['caching', 'Beginner'],
-  ['databases', 'Beginner'],
-  ['consistency', 'Advanced'],
-  ['ab-testing', 'Beginner'],
-  ['diffusion', 'Intermediate'],
+// the roadmap (docs/plans/2026-10-25-1206-feat-seven-roadmap-modules-plan.md), in registry order: the seven cards that
+// plan takes live, then the seven new cards that follow them (R16); each with its level and track (none is AI)
+const ROADMAP: [string, string, string?][] = [
   ['diffusion-llms', 'Advanced'],
   ['computer-use', 'Advanced'],
   ['calibration', 'Intermediate'],
-  ['search', 'Beginner'],
-  ['web-requests', 'Beginner'],
-  ['payments', 'Beginner'],
-  ['git', 'Beginner'],
+  ['search', 'Beginner', 'Classic tech'],
+  ['web-requests', 'Beginner', 'Classic tech'],
+  ['payments', 'Beginner', 'Classic tech'],
+  ['git', 'Beginner', 'Classic tech'],
+  ['mixture-of-experts', 'Advanced'],
+  ['coding-agents', 'Intermediate'],
+  ['synthetic-data', 'Intermediate'],
+  ['queues', 'Beginner', 'Classic tech'],
+  ['encryption', 'Beginner', 'Classic tech'],
+  ['compression', 'Beginner', 'Classic tech'],
+  ['load-balancing', 'Intermediate', 'Classic tech'],
 ];
 /** true when every id in `ids` is in `list`, in the list's order */
 const inOrder = (ids: string[], list: string[]) => {
@@ -50,7 +49,7 @@ describe('module registry', () => {
     for (const m of MODULES) expect(['Beginner', 'Intermediate', 'Advanced']).toContain(m.level);
   });
 
-  it('has what is left of the roadmap as planned cards, in build order, each at its level with no chapters and no prereqs', () => {
+  it('has what is left of the roadmap as planned cards, in build order, each at its level and track with no chapters and no prereqs', () => {
     const planned = MODULES.filter(m => m.status === 'planned');
     expect(
       inOrder(
@@ -59,15 +58,17 @@ describe('module registry', () => {
       ),
     ).toBe(true);
     for (const m of planned) {
-      expect(m.level, m.id).toBe(new Map(ROADMAP).get(m.id));
+      const [, level, track] = ROADMAP.find(([id]) => id === m.id)!;
+      expect([m.level, m.track], m.id).toEqual([level, track]);
       expect([m.chapters, m.prereqs], m.id).toEqual([[], []]);
     }
   });
 
-  // the R17 cards stay planned through this plan: only the eight module lines go live
-  it('keeps the seven roadmap cards no plan has taken up, last and in order', () => {
+  // the R16 cards stay planned through this plan; the first seven go live in turn, so a card gone from the list is live
+  it('keeps the seven new roadmap cards last and in order, and every roadmap card no longer planned is live', () => {
     const planned = MODULES.filter(m => m.status === 'planned').map(m => m.id);
     expect(planned.slice(-7)).toEqual(ROADMAP.slice(-7).map(([id]) => id));
+    for (const [id] of ROADMAP) if (!planned.includes(id)) expect(moduleOf(id).status, id).toBe('live');
   });
 
   it('says on the home page that Tinker explains how tech works, AI and classic, within 160 characters', () => {
@@ -524,6 +525,89 @@ describe('module registry', () => {
     });
     expect(moduleOf('diffusion').author).toEqual(moduleOf('rag').author);
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'diffusion')).toBe(24);
+  });
+
+  it('has search as a live Beginner Classic tech module, numbered 26', () => {
+    expect(moduleOf('search')).toMatchObject({
+      title: 'Search before AI',
+      level: 'Beginner',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('search').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'search')).toBe(25);
+  });
+
+  it('has web-requests as a live Beginner Classic-tech module with no prerequisites, numbered 27', () => {
+    expect(moduleOf('web-requests')).toMatchObject({
+      title: 'Opening a web page',
+      level: 'Beginner',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('web-requests').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'web-requests')).toBe(26);
+  });
+
+  it('has payments as a live Beginner Classic-tech module, numbered 28', () => {
+    expect(moduleOf('payments')).toMatchObject({
+      title: 'Card payments',
+      level: 'Beginner',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('payments').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'payments')).toBe(27);
+  });
+
+  it('has git as a live Beginner Classic-tech module, numbered 29', () => {
+    expect(moduleOf('git')).toMatchObject({
+      title: 'Git',
+      level: 'Beginner',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('git').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'git')).toBe(28);
+  });
+
+  it('has calibration as a live Intermediate module that recommends Evals first, numbered 30', () => {
+    expect(moduleOf('calibration')).toMatchObject({
+      title: 'Calibration',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: ['evals'],
+    });
+    expect(moduleOf('calibration').track).toBeUndefined();
+    expect(moduleOf('calibration').author).toEqual(moduleOf('rag').author);
+    const live = MODULES.filter(m => m.status === 'live').map(m => m.id);
+    expect(live.indexOf('calibration')).toBe(29);
+  });
+
+  it('has computer-use as a live Advanced module, numbered 31', () => {
+    expect(moduleOf('computer-use')).toMatchObject({
+      title: 'Computer use',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['agents', 'multimodal'],
+    });
+    expect(moduleOf('computer-use').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'computer-use')).toBe(30);
+  });
+
+  it('has diffusion-llms as a live Advanced module, numbered 32', () => {
+    expect(moduleOf('diffusion-llms')).toMatchObject({
+      title: 'Diffusion language models',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['diffusion', 'transformers'],
+    });
+    expect(moduleOf('diffusion-llms').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'diffusion-llms')).toBe(31);
   });
 
   it('keeps chapter ids unique within every module', () => {

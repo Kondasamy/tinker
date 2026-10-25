@@ -1,0 +1,25 @@
+{
+  "accessed": "2026-10-25",
+  "facts": [
+    {
+      "id": "inverted-index",
+      "claim": "Apache Lucene’s documentation: its terms index is an inverted index, because it can list, for a term, the documents that contain it.",
+      "source": "https://lucene.apache.org/core/9_12_0/core/org/apache/lucene/codecs/lucene912/package-summary.html"
+    },
+    {
+      "id": "bm25",
+      "claim": "Robertson and Zaragoza (2009) call BM25 one of the most successful text-retrieval algorithms to come out of the probabilistic relevance framework.",
+      "source": "https://doi.org/10.1561/1500000019"
+    },
+    {
+      "id": "beir",
+      "claim": "BEIR (Thakur et al., 2021) tested ten retrieval systems on 18 public datasets and found BM25 a robust baseline on data the systems were not trained for.",
+      "source": "https://arxiv.org/abs/2104.08663"
+    },
+    {
+      "id": "precision-recall",
+      "claim": "scikit-learn’s guide: precision is the share of what was picked that is right; recall is the share of the right ones that were found.",
+      "source": "https://scikit-learn.org/stable/modules/model_evaluation.html"
+    }
+  ]
+}

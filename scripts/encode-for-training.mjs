@@ -9,13 +9,15 @@
  * `splits`, not in it, because every split's docs are corpus files. `preTraining` (KTD3 of the eight-modules plan)
  * holds what train.py --variants needs: the document the `duplicated` run repeats, the `leaked` run's test questions
  * (Evals' twelve, as `Q: … A: …` with their reference answers) and the prompts every run's greedy samples start from.
+ * `diffusionLlms` (KTD3 of the seven-modules plan) holds each token's bytes, so train_mlm.py can write its pinned
+ * held-out prompts as text without tokenizing.
  *
  * Run: pnpm encode:lm. tests/unit/lm-model.test.ts fails if the file is stale.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { encode, VOCAB_SIZE } from '../src/lib/lm/bpe.ts';
+import { encode, pieceBytes, VOCAB_SIZE } from '../src/lib/lm/bpe.ts';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CORPUS = path.join(ROOT, 'data/corpus');
@@ -88,6 +90,7 @@ const out = {
         .map(x => x.q),
     ].map(text => ({ text, ids: encode(text) })),
   },
+  diffusionLlms: { pieces: Array.from({ length: VOCAB_SIZE }, (_, id) => Array.from(pieceBytes(id))) },
 };
 // one doc per line keeps the file diffable
 const json = JSON.stringify(out).replace(/\],\[/g, '],\n[');

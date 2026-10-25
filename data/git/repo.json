@@ -1,0 +1,76 @@
+{
+  "note": "Larkspur's price-page repo, written for this site. Fixed people, times and texts, so every hash is the same on every machine. A commit's time is start + step × the number of commits the repo held before it.",
+  "file": "prices.txt",
+  "people": {
+    "mira": { "name": "Mira Okafor", "email": "mira@larkspur.example" },
+    "tom": { "name": "Tom Reyes", "email": "tom@larkspur.example" }
+  },
+  "tz": "+0100",
+  "start": 1792400400,
+  "step": 900,
+  "history": [
+    {
+      "by": "mira",
+      "message": "Add the price page",
+      "text": "Larkspur prices\nHinge: 4.50\nBracket: 2.20\nDrill press: 189.00\n"
+    },
+    {
+      "by": "tom",
+      "message": "Add bolts and shelves",
+      "text": "Larkspur prices\nHinge: 4.50\nBracket: 2.20\nDrill press: 189.00\nBolt: 0.30\nShelf: 35.00\n"
+    },
+    {
+      "by": "mira",
+      "message": "Hinges up to 4.80",
+      "text": "Larkspur prices\nHinge: 4.80\nBracket: 2.20\nDrill press: 189.00\nBolt: 0.30\nShelf: 35.00\n"
+    }
+  ],
+  "next": {
+    "by": "mira",
+    "message": "Brackets up to 2.40",
+    "text": "Larkspur prices\nHinge: 4.80\nBracket: 2.40\nDrill press: 189.00\nBolt: 0.30\nShelf: 35.00\n"
+  },
+  "reword": "Add the price list",
+  "branches": {
+    "sale": {
+      "by": "mira",
+      "commits": [
+        {
+          "message": "Drill press sale",
+          "text": "Larkspur prices\nHinge: 4.80\nBracket: 2.20\nDrill press: 159.00\nBolt: 0.30\nShelf: 35.00\n"
+        }
+      ]
+    },
+    "hinge": {
+      "by": "tom",
+      "commits": [
+        {
+          "message": "Hinges up to 4.95",
+          "text": "Larkspur prices\nHinge: 4.95\nBracket: 2.20\nDrill press: 189.00\nBolt: 0.30\nShelf: 35.00\n"
+        }
+      ]
+    },
+    "rise": {
+      "by": "tom",
+      "commits": [
+        {
+          "message": "Drill press up to 199.00",
+          "text": "Larkspur prices\nHinge: 4.80\nBracket: 2.20\nDrill press: 199.00\nBolt: 0.30\nShelf: 35.00\n"
+        }
+      ]
+    },
+    "shelf": {
+      "by": "tom",
+      "commits": [
+        {
+          "message": "Try the drill press at 199.00",
+          "text": "Larkspur prices\nHinge: 4.80\nBracket: 2.20\nDrill press: 199.00\nBolt: 0.30\nShelf: 35.00\n"
+        },
+        {
+          "message": "Shelves up to 38.00, drill press back",
+          "text": "Larkspur prices\nHinge: 4.80\nBracket: 2.20\nDrill press: 189.00\nBolt: 0.30\nShelf: 38.00\n"
+        }
+      ]
+    }
+  }
+}

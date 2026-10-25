@@ -1,0 +1,29 @@
+{
+  "note": "Larkspur's bars for chapter 7, the team's choices, not any provider's. Each kind of reply is tried on its pinned phrases (data/diffusion-llms/prompts.json, by seed). A reply passes when at least `agree` of its 16 tokens match the careful fill (one slot a pass, surest first) and at most `repeat` tokens repeat the one before.",
+  "kinds": [
+    {
+      "id": "answers",
+      "label": "Customer answers",
+      "cases": [1, 2, 7, 8],
+      "agree": 16,
+      "repeat": 15,
+      "reason": "Sent to customers as written: only the careful reply, token for token."
+    },
+    {
+      "id": "release",
+      "label": "Release-note drafts",
+      "cases": [5, 6],
+      "agree": 0,
+      "repeat": 2,
+      "reason": "An editor rewrites them, but stutters waste the editor’s time: at most 2 repeats."
+    },
+    {
+      "id": "notes",
+      "label": "Internal notes",
+      "cases": [3, 4, 9, 10],
+      "agree": 0,
+      "repeat": 5,
+      "reason": "Staff skim them and want them fast: at most 5 repeats."
+    }
+  ]
+}

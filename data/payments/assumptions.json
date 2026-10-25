@@ -1,0 +1,30 @@
+{
+  "note": "Larkspur's planning numbers for a teaching simulator, not any provider's prices or rules. Interchange is charged at the EU caps (facts ifr-debit, ifr-credit), Larkspur's assumption; the scheme fee, the acquirer's fee, the chargeback fee, how long a hold lasts and when a duplicate is noticed are made up for this site. Money is whole cents.",
+  "currency": "EUR",
+  "days": 13,
+  "dayStarts": "09:00",
+  "cutoff": "22:00",
+  "holdDays": 7,
+  "noticeDays": 3,
+  "lowValueCents": 3000,
+  "interchangeBp": {
+    "debit": 20,
+    "credit": 30
+  },
+  "schemeFee": {
+    "bp": 2,
+    "cents": 2
+  },
+  "acquirerFee": {
+    "bp": 15,
+    "cents": 10
+  },
+  "chargebackFee": 1500,
+  "words": {
+    "hold": "a hold lasts 7 days, then it lapses and the money is free again: Larkspur's assumption; the card schemes set the real limits",
+    "fees": "interchange at the EU cap; the scheme's and the acquirer's fees are Larkspur's made-up planning numbers, not anyone's price list",
+    "chargeback": "the acquirer charges Larkspur €15 for every chargeback: a made-up planning number",
+    "fees-kept": "on a refund or a chargeback the fees already paid are not given back: Larkspur's assumption",
+    "abandon": "which customers give up when asked to prove it's them was written by hand: an assumption, not a measured rate"
+  }
+}

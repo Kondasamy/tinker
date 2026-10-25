@@ -1,0 +1,67 @@
+{
+  "workbench": {
+    "best": 670806,
+    "winners": [
+      {
+        "split": {
+          "sca": "risk",
+          "capture": "shipment",
+          "key": true
+        },
+        "large": {
+          "sca": "risk",
+          "capture": "order",
+          "key": true
+        },
+        "small": {
+          "sca": "never",
+          "capture": "shipment",
+          "key": true
+        }
+      }
+    ]
+  },
+  "reference": {
+    "setting": {
+      "sca": "risk",
+      "capture": "shipment",
+      "key": true
+    },
+    "fees": {
+      "issuer": 1479,
+      "network": 135,
+      "acquirer": 959
+    },
+    "net": 544477,
+    "holds": 18,
+    "expiries": 8,
+    "abandoned": 2,
+    "declined": 2,
+    "chargebacks": 0,
+    "doubleCharges": 0,
+    "fraudLoss": {
+      "merchant": 0,
+      "issuer": 124900
+    },
+    "finals": {
+      "A1": "settled",
+      "B2": "settled",
+      "C3": "abandoned",
+      "D4": "abandoned",
+      "E5": "declined",
+      "F6": "expired",
+      "G7": "settled",
+      "H8": "settled",
+      "I9": "settled",
+      "J10": "settled",
+      "K11": "expired",
+      "L12": "settled",
+      "M13": "expired",
+      "N14": "settled",
+      "O15": "settled",
+      "P16": "settled",
+      "Q17": "settled",
+      "R18": "declined"
+    }
+  }
+}

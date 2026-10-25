@@ -1,0 +1,5 @@
+{
+  "note": "The files Larkspur's home page asks for, written for this site: the document first, then the files it names.",
+  "document": "index.html",
+  "files": ["style.css", "app.js", "logo.svg", "hinge.jpg", "drill.jpg"]
+}

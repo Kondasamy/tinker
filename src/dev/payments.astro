@@ -1,0 +1,79 @@
+---
+// Dev-only eyeball page: the tube exchange through Larkspur's day and nights (static SVG, wide and phone), one
+// authorisation hop by hop, then the stage live with its ledger. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import {
+  TUBE_BOARD,
+  hopAt,
+  idleTubes,
+  journeyOf,
+  tubeAt,
+  tubeLabel,
+  tubeScene,
+  type TubeOpts,
+} from '../components/scenes/tubeScene';
+import { PaymentsStage, LedgerView } from '../content/payments/kit';
+import { HOLD_DAYS, policyOf, simulate } from '../lib/payments/sim';
+import { WINNERS } from '../lib/payments/workbench';
+
+const ref = simulate(policyOf({ sca: 'risk', capture: 'shipment', key: true }));
+const loose = simulate(policyOf({ sca: 'never', capture: 'order', key: false }));
+const ana = ref.orders[0];
+const STATES: [string, Omit<TubeOpts, 'scale'>][] = [
+  ['Idle', idleTubes()],
+  ['Ana: the request reaches the issuer', { ...hopAt(ana, 3), say: { block: 'issuer', text: 'Says yes or no' } }],
+  ['Ana: the yes back at the till', hopAt(ana, journeyOf(ana).length - 1)],
+  ['Day 1 by day: every order', tubeAt(ref, 0)],
+  ['Day 1 night: settlement', { ...tubeAt(ref, 1), say: { block: 'jars', text: 'Fees' } }],
+  ['Day 5 night', tubeAt(ref, 9)],
+  [`Day ${HOLD_DAYS + 1}: holds lapse`, tubeAt(ref, HOLD_DAYS * 2)],
+  ['No key, never: Ben charged twice', tubeAt(loose, 1, ['B2'])],
+  ['Never: Noor’s chargeback', tubeAt(loose, 18)],
+];
+const best = simulate(WINNERS[0]);
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Payments scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Tube exchange: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={TUBE_BOARD} scene={tubeScene({ ...o, scale: 1.2 })} label={tubeLabel(o)} /></div>
+            <div class="phone"><IsoStage board={TUBE_BOARD} scene={tubeScene({ ...o, scale: 2 })} label={tubeLabel(o)} /></div>
+            <p>{tubeLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <section><h2>Ledger: reference day, end</h2><LedgerView result={ref} t={23} /></section>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Picture, night</h2><div class="stage"><PaymentsStage client:load show={{ scene: tubeAt(best, 1), result: best, tick: 1, caption: 'A winning policy, day 1 night.' }} /></div></section>
+        <section><h2>Ledger, escaped caption</h2><div class="stage"><PaymentsStage client:load view="ledger" show={{ scene: tubeAt(ref, 3), result: ref, tick: 3, caption: '<script>alert(1)</script>' }} /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 520px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

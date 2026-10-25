@@ -24,6 +24,13 @@ import { DATABASES_MODULE } from '../content/databases/module';
 import { CONSISTENCY_MODULE } from '../content/consistency/module';
 import { AB_TESTING_MODULE } from '../content/ab-testing/module';
 import { DIFFUSION_MODULE } from '../content/diffusion/module';
+import { SEARCH_MODULE } from '../content/search/module';
+import { WEB_REQUESTS_MODULE } from '../content/web-requests/module';
+import { PAYMENTS_MODULE } from '../content/payments/module';
+import { GIT_MODULE } from '../content/git/module';
+import { CALIBRATION_MODULE } from '../content/calibration/module';
+import { COMPUTER_USE_MODULE } from '../content/computer-use/module';
+import { DIFFUSION_LLMS_MODULE } from '../content/diffusion-llms/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -107,50 +114,57 @@ export const MODULES: Module[] = [
   CONSISTENCY_MODULE,
   AB_TESTING_MODULE,
   DIFFUSION_MODULE,
+  SEARCH_MODULE,
+  WEB_REQUESTS_MODULE,
+  PAYMENTS_MODULE,
+  GIT_MODULE,
+  CALIBRATION_MODULE,
+  COMPUTER_USE_MODULE,
+  DIFFUSION_LLMS_MODULE,
   planned(
-    'diffusion-llms',
-    'Diffusion language models',
+    'mixture-of-experts',
+    'Mixture of experts',
     'Advanced',
-    'Writing a reply in any order: fill the sure words first, then the rest, and what the speed gives up.',
+    'A model with many experts that wakes only a few for each word: the router that picks them, and what it saves.',
   ),
   planned(
-    'computer-use',
-    'Computer use',
-    'Advanced',
-    'An agent that sees a screenshot and clicks: what it sees, where it clicks, and the screens that fool it.',
-  ),
-  planned(
-    'calibration',
-    'Calibration',
+    'coding-agents',
+    'Coding agents',
     'Intermediate',
-    'When a model says 70%, is it right 70% of the time? Confidence, measured, and when to abstain.',
+    'An agent that edits code and runs the tests: reading a repository, making a change, and checking its own work.',
   ),
   planned(
-    'search',
-    'Search before AI',
+    'synthetic-data',
+    'Synthetic data',
+    'Intermediate',
+    'Training data written by a model: how it is made, filtered and checked, and when it teaches the wrong thing.',
+  ),
+  planned(
+    'queues',
+    'Queues and background jobs',
     'Beginner',
-    'How keyword search finds a page: an index from words to documents, ranking, and where it misses meaning.',
+    'How an order waits its turn: a queue, workers that take jobs, retries, and the jobs that run twice.',
     'Classic tech',
   ),
   planned(
-    'web-requests',
-    'Opening a web page',
+    'encryption',
+    'Locks and keys',
     'Beginner',
-    'What happens between typing an address and seeing the page: DNS, a connection, encryption and HTTP.',
+    'How a stranger can send you a secret: a public lock, a private key, and signatures that prove who sent it.',
     'Classic tech',
   ),
   planned(
-    'payments',
-    'Card payments',
+    'compression',
+    'Compression',
     'Beginner',
-    'Where the money goes when a customer pays by card: authorisation, capture, settlement, fees and chargebacks.',
+    'How a file gets smaller without losing a byte: repeats replaced by pointers, and why some files will not shrink.',
     'Classic tech',
   ),
   planned(
-    'git',
-    'Git',
-    'Beginner',
-    'How Git stores history: snapshots named by their content, branches as pointers, and merges that clash.',
+    'load-balancing',
+    'Load balancing',
+    'Intermediate',
+    'Spreading requests over many servers: round robin, the least busy, health checks, and the one slow server.',
     'Classic tech',
   ),
 ];

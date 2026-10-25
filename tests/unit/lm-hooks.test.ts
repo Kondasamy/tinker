@@ -99,3 +99,50 @@ describe('forward() hooks', () => {
     expect(maxDiff(ablated.logits, out.logits)).toBeGreaterThan(1e-3);
   });
 });
+
+describe('the bidirectional hook (KTD4)', () => {
+  // A toy one-layer, one-head model over two tokens: small fixed weights, so attention is never one-hot.
+  const c = { vocab: 3, n_layer: 1, n_head: 1, d_model: 2, ctx: 2, d_mlp: 2, ln_eps: 1e-5 };
+  const sizes: Record<string, number> = {
+    'wte.weight': 6,
+    'wpe.weight': 4,
+    'h.0.ln1.weight': 2,
+    'h.0.ln1.bias': 2,
+    'h.0.attn.qkv.weight': 12,
+    'h.0.attn.qkv.bias': 6,
+    'h.0.attn.proj.weight': 4,
+    'h.0.attn.proj.bias': 2,
+    'h.0.ln2.weight': 2,
+    'h.0.ln2.bias': 2,
+    'h.0.mlp.fc.weight': 4,
+    'h.0.mlp.fc.bias': 2,
+    'h.0.mlp.proj.weight': 4,
+    'h.0.mlp.proj.bias': 2,
+    'lnf.weight': 2,
+    'lnf.bias': 2,
+  };
+  const toy: Model = {
+    config: c,
+    tensors: Object.fromEntries(
+      Object.entries(sizes).map(([k, n], j) => [
+        k,
+        Float32Array.from({ length: n }, (_, i) => Math.sin(j + 1 + i) / 2),
+      ]),
+    ),
+  };
+  const sums = (rows: number[][]) => rows.map(r => r.reduce((a, b) => a + b, 0));
+
+  it('without it the first position sees only itself; with it, both positions', () => {
+    const causal = forward(toy, [0, 1]).attention[0][0],
+      both = forward(toy, [0, 1], { bidirectional: true }).attention[0][0];
+    expect(causal[0]).toEqual([1, 0]);
+    expect(both[0]).toHaveLength(2);
+    expect(both[0][1]).toBeGreaterThan(0);
+    for (const s of [...sums(causal), ...sums(both)]) expect(s).toBeCloseTo(1, 12);
+  });
+
+  it("changes Larkspur mini's outputs only when set", () => {
+    expect(forward(model, A, { bidirectional: false })).toEqual(forward(model, A));
+    expect(maxDiff(forward(model, A, { bidirectional: true }).logits, forward(model, A).logits)).toBeGreaterThan(1e-3);
+  });
+});

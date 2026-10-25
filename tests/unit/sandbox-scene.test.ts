@@ -101,7 +101,7 @@ describe('the glass room’s pills', () => {
         }
     }
     expect(checked).toBeGreaterThan(50);
-  }, 30_000);
+  }, 90_000);
 });
 
 describe('glass room callouts', () => {

@@ -1,0 +1,29 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import What70ShouldMean from '../../content/calibration/01-what-70-should-mean';
+import HonestJars from '../../content/calibration/02-honest-jars';
+import AfterThePolish from '../../content/calibration/03-after-the-polish';
+import OneDial from '../../content/calibration/04-one-dial';
+import KeepingScore from '../../content/calibration/05-keeping-score';
+import WhenToHandOver from '../../content/calibration/06-when-to-hand-over';
+import Workbench from '../../content/calibration/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('calibration').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="calibration" chapter={chapter} title={title}>
+  {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
+      hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
+  {chapter === '01-what-70-should-mean' ? <What70ShouldMean client:load />
+    : chapter === '02-honest-jars' ? <HonestJars client:load />
+    : chapter === '03-after-the-polish' ? <AfterThePolish client:load />
+    : chapter === '04-one-dial' ? <OneDial client:load />
+    : chapter === '05-keeping-score' ? <KeepingScore client:load />
+    : chapter === '06-when-to-hand-over' ? <WhenToHandOver client:load />
+    : <Workbench client:load />}
+</ChapterLayout>

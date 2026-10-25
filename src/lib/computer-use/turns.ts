@@ -1,0 +1,41 @@
+// Recorded agent actions for computer use, keyed by what the agent saw (KTD9). One reviewed file per chapter scenario
+// holds the actions that chapter first needs; a signature lives in exactly one file, and every run looks up the merged
+// RECORDING, so later chapters and the workbench reuse earlier actions (as Sandboxing does). The actions were written for
+// this site to show the lessons; they were not recorded from a real model, and the copy says so.
+import { NORECORD } from '../tools/turns';
+export { NORECORD };
+
+/** One agent action: `click` is a point in the screenshot's own pixels; none means `text` is its closing note. */
+export interface Turn {
+  text: string;
+  click?: [number, number];
+  note: string;
+}
+export interface Recording {
+  turns: Record<string, Turn>;
+}
+
+/** Everything the agent can see. Host-only settings (scaling the click back, the allow-list, asking a person) stay out:
+ * they change what the host does, and reach the signature only through the outcomes in `hist`. The wait rule reaches it
+ * through the screen: a stale screenshot is a different screen. */
+export interface Seen {
+  case: string;
+  /** the screen in the screenshot, at its size (screens.ts screenKey) */
+  screen: string;
+  /** every outcome so far, each `click:<element>:<outcome>` */
+  hist: string[];
+}
+
+const files = import.meta.glob<Recording>('/data/computer-use/turns/*.json', { eager: true, import: 'default' });
+export const RECORDINGS: Record<string, Recording> = Object.fromEntries(
+  Object.entries(files).map(([path, rec]) => [path.slice(path.lastIndexOf('/') + 1, -'.json'.length), rec]),
+);
+/** Every scenario's actions in one recording: what chapters and the workbench run against. */
+export const RECORDING: Recording = { turns: Object.assign({}, ...Object.values(RECORDINGS).map(r => r.turns)) };
+
+export const signature = (s: Seen) => [`case=${s.case}`, `hist=${s.hist.join(',')}`, `screen=${s.screen}`].join('|');
+
+/** The recorded action for this signature, or `norecord` so the host can say none exists. */
+export function lookup(rec: Recording, sig: string): Turn | typeof NORECORD {
+  return rec.turns[sig] ?? NORECORD;
+}

@@ -267,6 +267,10 @@ export default function RedTeam() {
               it.
             </p>
             <Fact id="red-team-rate" />
+            <p className="note">
+              An agent that works a browser reads the page itself, so a line planted on a screen is an injection too:{' '}
+              <a href="/computer-use/04-the-page-gives-orders/">Computer use</a> shows one.
+            </p>
           </div>
         ),
         quiz: ({ state, apply, sync }) => (

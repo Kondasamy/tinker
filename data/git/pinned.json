@@ -1,0 +1,46 @@
+{
+  "note": "Produced once by the real Git CLI (2.50.1) from data/git/repo.json, following src/lib/git/story.ts step by step (a rebase as one cherry-pick per commit, committer dates set by the repo clock). tests/unit/git-objects.test.ts checks the engine against every id here.",
+  "hello": "ce013625030ba8dba906f756967f9e9ca394464a",
+  "history": [
+    "f03de40163f30d11f86761cbed13828c9565352f",
+    "269d422fdbde429131c4ec588b3f96aca06e951b",
+    "6866bb340a8180d45e82424316da749468969e18"
+  ],
+  "blobs": [
+    "063b781d49e3a019f384b9d877bff2ac46404509",
+    "956de3bdfc7d2907bef9c6d6a234e1d30c63cfcc",
+    "7b2ed057c9d1e868387e564bf966724a27e63672"
+  ],
+  "trees": [
+    "e60be5a8d2b67d70fff05ff14f3db751f03a5b96",
+    "a009c5c6260ce7791dd657a263f70e6d630939b8",
+    "7dcf8dc55b7724f4d8aa476c074fc41a3906f83c"
+  ],
+  "next": "a775e871b8bb19950e287911c49daa8957dc016f",
+  "reworded": "49b74e3097fd233a7d6df0387ea8d0969267be89",
+  "sale": "07bb1f2e721749ad85f3964e93b709849a89e6f2",
+  "clean": "59985ed10a87d7c7f9a2c365bed75abc690883fe",
+  "cleanText": "Larkspur prices\nHinge: 4.95\nBracket: 2.20\nDrill press: 159.00\nBolt: 0.30\nShelf: 35.00\n",
+  "markers": "Larkspur prices\nHinge: 4.80\nBracket: 2.20\n<<<<<<< main\nDrill press: 199.00\n||||||| base\nDrill press: 189.00\n=======\nDrill press: 159.00\n>>>>>>> sale\nBolt: 0.30\nShelf: 35.00\n",
+  "conflict": "97e297857d5ccec5f979bb0912c76d6a3040796b",
+  "rebased": [
+    "a595109c7c4d869c90db8a12c0cb3e72a0fc782b",
+    "916c1dfce5b10cad209f55b1dff33ca0e5cc44a1"
+  ],
+  "shelf": [
+    "5eab3236ba8acb9a24d257dc219390c0b43ecbcd",
+    "9c6a9fc276306a893763c59790e9d18e84757e71"
+  ],
+  "winners": [
+    "sale>shelf>hinge|sale:merge,shelf:merge,hinge:rebase",
+    "sale>shelf>hinge|sale:rebase,shelf:merge,hinge:rebase",
+    "sale>hinge>shelf|sale:merge,shelf:merge,hinge:rebase",
+    "sale>hinge>shelf|sale:rebase,shelf:merge,hinge:rebase",
+    "shelf>sale>hinge|sale:merge,shelf:merge,hinge:rebase",
+    "shelf>sale>hinge|sale:merge,shelf:rebase,hinge:rebase",
+    "shelf>hinge>sale|sale:merge,shelf:merge,hinge:rebase",
+    "shelf>hinge>sale|sale:merge,shelf:rebase,hinge:rebase",
+    "hinge>shelf>sale|sale:merge,shelf:rebase,hinge:merge",
+    "hinge>shelf>sale|sale:merge,shelf:rebase,hinge:rebase"
+  ]
+}

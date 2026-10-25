@@ -1,0 +1,76 @@
+---
+// Dev-only eyeball page: the puppet desk at each beat of the chapters' runs (static SVG, wide and phone), every portal
+// screen as the agent's screenshot sees it, the hero plot, then the stage live (both tabs). Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { PUPPET_BOARD, puppetLabel, puppetPlot, puppetScene, type PuppetOpts } from '../components/scenes/puppetScene';
+import { svgOf, viewOf, type Portal, type Plants } from '../lib/computer-use/screens';
+import { CuStage, frameAt, play } from '../content/computer-use/kit';
+import { board } from '../lib/iso/core.js';
+
+const RUNS: [string, Parameters<typeof play>[0]][] = [
+  ['Chapter 1: the loop', { case: 'hinges' }],
+  ['Chapter 2: scaling forgotten at 1024', { case: 'hinges', size: 1024, scale: false }],
+  ['Chapter 3: no wait rule', { case: 'hinges', wait: false }],
+  ['Chapter 4: the notice, nothing on', { case: 'banner' }],
+  ['Chapter 4: the notice, allow-list on', { case: 'banner', allow: true }],
+  ['Chapter 5: the offer, confirm on', { case: 'offer', allow: true, confirm: true }],
+  ['Chapter 6: 640 wide', { case: 'hinges', size: 640 }],
+];
+const STATES: [string, PuppetOpts][] = RUNS.flatMap(([name, s]) => {
+  const r = play(s),
+    n = frameAt(r, 99).total;
+  return [2, 4, n - 1].map(at => [`${name}, beat ${at} of ${n}`, frameAt(r, at).opts] as [string, PuppetOpts]);
+});
+const SCREENS: [string, Portal, Plants][] = [
+  ['Home', { screen: 'home', lines: [], plus: false }, {}],
+  ['Past orders', { screen: 'orders', lines: [], plus: false }, {}],
+  ['Basket with the notice', { screen: 'basket', lines: [{ sku: 'HG-120', qty: 120 }], plus: false }, { banner: true }],
+  ['Checkout with the offer', { screen: 'pay', lines: [{ sku: 'HG-120', qty: 120 }], plus: false }, { offer: true }],
+  ['Billing page', { screen: 'verify', lines: [{ sku: 'HG-120', qty: 120 }], plus: false }, { banner: true }],
+  ['Done', { screen: 'done', lines: [{ sku: 'HG-120', qty: 120 }], plus: false }, {}],
+];
+const src = (svg: string) => 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+const live = play({ case: 'hinges', size: 1024, scale: false });
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dev: computer use</title>
+  </head>
+  <body>
+    <main class="dev">
+      <h1>The puppet desk</h1>
+      <div class="grid">
+        {STATES.map(([name, o]) => (
+          <figure>
+            <div class="wide"><IsoStage board={PUPPET_BOARD} scene={puppetScene({ ...o, scale: 1.2 })} label={puppetLabel(o)} /></div>
+            <div class="phone"><IsoStage board={PUPPET_BOARD} scene={puppetScene({ ...o, scale: 2 })} label={puppetLabel(o)} /></div>
+            <figcaption>{name}</figcaption>
+          </figure>
+        ))}
+      </div>
+      <h2>The screens</h2>
+      <div class="grid">
+        {SCREENS.map(([name, p, pl]) => (
+          <figure><img src={src(svgOf(viewOf(p, pl)))} alt={name} /><figcaption>{name}</figcaption></figure>
+        ))}
+      </div>
+      <h2>The hero plot</h2>
+      <IsoStage board={[0, 0, 60, 50]} scene={ctx => board(0, 0, 60, 50) + puppetPlot(30, 25, ctx.top)} label="The hero plot" style={{ width: 240 }} />
+      <h2>The stage, live</h2>
+      <div class="stage"><CuStage client:load run={live} at={2} /></div><div class="stage"><CuStage client:load run={live} at={1} /></div>
+    </main>
+  </body>
+</html>
+
+<style>
+  .dev { max-width: 1200px; margin: 0 auto; padding: 16px; font: 14px/1.5 system-ui, sans-serif; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+  figure { margin: 0; border: 1px solid #ccc; padding: 8px; border-radius: 8px; }
+  img { width: 100%; height: auto; }
+  .phone { display: none; }
+  .stage { height: 520px; max-width: 760px; display: flex; }
+  @media (max-width: 600px) { .wide { display: none; } .phone { display: block; } }
+</style>
