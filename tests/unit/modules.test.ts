@@ -15,16 +15,9 @@ const RAG_CHAPTERS = [
   ['07-sandbox', 'Sandbox'],
 ];
 
-// the roadmap (docs/plans/2026-10-25-1206-feat-seven-roadmap-modules-plan.md), in registry order: the seven cards that
-// plan takes live, then the seven new cards that follow them (R16); each with its level and track (none is AI)
+// the roadmap (docs/plans/2026-10-25-1824-feat-last-seven-roadmap-modules-plan.md), in registry order: the seven cards
+// that plan takes live, then the seven new cards that follow them (R16); each with its level and track (absent is AI)
 const ROADMAP: [string, string, string?][] = [
-  ['diffusion-llms', 'Advanced'],
-  ['computer-use', 'Advanced'],
-  ['calibration', 'Intermediate'],
-  ['search', 'Beginner', 'Classic tech'],
-  ['web-requests', 'Beginner', 'Classic tech'],
-  ['payments', 'Beginner', 'Classic tech'],
-  ['git', 'Beginner', 'Classic tech'],
   ['mixture-of-experts', 'Advanced'],
   ['coding-agents', 'Intermediate'],
   ['synthetic-data', 'Intermediate'],
@@ -32,6 +25,13 @@ const ROADMAP: [string, string, string?][] = [
   ['encryption', 'Beginner', 'Classic tech'],
   ['compression', 'Beginner', 'Classic tech'],
   ['load-balancing', 'Intermediate', 'Classic tech'],
+  ['memorisation', 'Intermediate'],
+  ['video-models', 'Advanced'],
+  ['recommendations', 'Intermediate'],
+  ['logins', 'Beginner', 'Classic tech'],
+  ['email', 'Beginner', 'Classic tech'],
+  ['dependencies', 'Intermediate', 'Classic tech'],
+  ['releases', 'Intermediate', 'Classic tech'],
 ];
 /** true when every id in `ids` is in `list`, in the list's order */
 const inOrder = (ids: string[], list: string[]) => {
