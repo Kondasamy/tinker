@@ -3,6 +3,7 @@
 // (with reduced motion only each fill's end shows), the stage (the type frame, or the Strip tab: the reply after every
 // pass, its cells read by arrow keys), the controls over the finite lists, and a cited fact. Every string is React text
 // here; the drawings escape theirs (esc, flatPill), and the strip's art goes in as an image (a data URL).
+import { ListRange } from '../../components/story/ListRange';
 import { useEffect, useId, useRef, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode } from 'react';
 import IsoStage from '../../lib/iso/IsoStage';
 import { filterFor } from '../../lib/iso/core.js';
@@ -121,8 +122,6 @@ export interface FillJob {
 const fills = new Map<string, Fill>();
 const keyOf = (j: FillJob) => `${j.seed}:${j.k}:${j.rule}:${j.length ?? L}`;
 /** A finished fill run on this page, if any (step predicates and readouts read it). */
-export const fillNow = (j: FillJob) => fills.get(keyOf(j));
-
 /**
  * Run a fill on the toy masked model: one pass per animation frame (a pass is a few milliseconds), shown a pass every
  * PASS_MS so the reader sees the order the frame fills in. With reduced motion only the end shows. A fill already run
@@ -374,58 +373,11 @@ export const frameOf = (f: Fill | null, shown: number, k?: number, length = L) =
 // ---- controls ----
 
 /** A native range over a finite list, its value named beside it. */
-export function ListRange<T>({
-  label,
-  list,
-  value,
-  words,
-  onChange,
-}: {
-  label: string;
-  list: readonly T[];
-  value: T;
-  words: (v: T) => string;
-  onChange: (v: T) => void;
-}) {
-  const id = 'rng' + useId().replace(/[^\w-]/g, ''),
-    i = Math.max(0, list.indexOf(value));
-  return (
-    <div className="dl-range">
-      <label htmlFor={id}>{label}</label>
-      <input
-        id={id}
-        type="range"
-        min={0}
-        max={list.length - 1}
-        step={1}
-        value={i}
-        aria-valuetext={words(value)}
-        onChange={e => onChange(list[Number(e.currentTarget.value)])}
-      />
-      <output htmlFor={id} aria-live="polite">
-        {words(value)}
-      </output>
-    </div>
-  );
-}
 export const kWords = (k: number) => `${tokens(k)} a pass (${passWords(Math.ceil(L / k))})`;
 export const KRange = ({ value, onChange }: { value: K; onChange: (k: K) => void }) => (
-  <ListRange label="Tokens a pass" list={KS} value={value} words={kWords} onChange={onChange} />
+  <ListRange className="dl-range" label="Tokens a pass" list={KS} value={value} words={kWords} onChange={onChange} />
 );
 export const RULE_NAME: Record<Rule, string> = { confidence: 'Surest first', random: 'Random' };
-/** The remasking rule: one button per rule (pressed when chosen). */
-export function RulePick({ value, onChange }: { value: Rule; onChange: (r: Rule) => void }) {
-  return (
-    <div className="dl-chips" role="group" aria-label="Which slots to stamp">
-      {(['confidence', 'random'] as const).map(r => (
-        <button key={r} type="button" className="chip" aria-pressed={value === r} onClick={() => onChange(r)}>
-          {RULE_NAME[r]}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 /** A cited fact from data/diffusion-llms/facts.json, with its source and the day it was checked (R5). */
 export function Fact({ id }: { id: string }) {
   const f = fact(id);

@@ -2,6 +2,7 @@
 // the real screen's size, built from boxes the host can hit-test. A click resolves to the element under its point on the
 // real screen. The words here are painted on the page on purpose: they are what the agent reads, planted text included,
 // and every string is escaped. The fixture (orders, prices, the planted notice and offer) is data/computer-use/screens.json.
+import { money } from '../format';
 import data from '../../../data/computer-use/screens.json' with { type: 'json' };
 import { INK, PALS, f } from '../iso/core.js';
 import { esc } from '../iso/blocks';
@@ -78,8 +79,6 @@ export interface View {
   texts: Txt[];
 }
 
-export const money = (n: number) =>
-  `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 export const nameOf = (sku: string) => PRODUCTS[sku].name;
 export const totalOf = (lines: Line[]) => lines.reduce((s, l) => s + PRODUCTS[l.sku].price * l.qty, 0);
 export const linesWords = (lines: Line[]) => lines.map(l => `${nameOf(l.sku)} × ${l.qty}`).join(', ') || 'nothing';
@@ -329,3 +328,5 @@ export function screenWords(v: View): string {
     : '';
   return `${v.title} at ${v.host}.${planted}${offer} Things to click: ${what || 'none'}.`;
 }
+
+export { money };

@@ -12,7 +12,8 @@ import { text } from '../../lib/diffusion-llms/decode';
 import { ASKED_LENGTHS, LENGTHS, type Len } from '../../lib/diffusion-llms/chapters';
 import { FRAME_PARTS } from '../../components/scenes/typeFrameScene';
 import { Outcome } from '../tool-calling/kit';
-import { Fact, FrameStage, ListRange, ToyNote, Waiting, frameOf, given, phrase, replyAt, tokens, useFill } from './kit';
+import { ListRange } from '../../components/story/ListRange';
+import { Fact, FrameStage, ToyNote, Waiting, frameOf, given, phrase, replyAt, tokens, useFill } from './kit';
 
 const MODULE = 'diffusion-llms',
   ID = '05-the-length-is-fixed';
@@ -142,6 +143,7 @@ export default function TheLengthIsFixed() {
         n: ({ state, sync }) => (
           <>
             <ListRange
+              className="dl-range"
               label="Reply length"
               list={LENGTHS}
               value={state.n}

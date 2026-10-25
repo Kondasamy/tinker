@@ -40,13 +40,12 @@ export function pageOf(ref: string): number {
   return p.id;
 }
 
-export const fmt = (n: number) => n.toLocaleString('en-US');
+export { num as fmt } from '../format';
 
 // ---- the index ----
 
 /** How a page's words become one score. */
 export type Weighting = 'count' | 'tfidf' | 'bm25';
-export const WEIGHTINGS: Weighting[] = ['count', 'tfidf', 'bm25'];
 export const K1S = [0.5, 1.2, 3] as const;
 export const BS = [0, 0.75, 1] as const;
 export type K1 = (typeof K1S)[number];

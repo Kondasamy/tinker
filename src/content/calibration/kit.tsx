@@ -4,6 +4,7 @@
 // time. The temperature is a native range in the story column; the booth's dial only mirrors it (KTD15). Every string
 // is React text here; the drawings escape theirs (esc, flatPill), and the diagram's art goes in as an image (a data
 // URL), so no markup is injected.
+import { ListRange } from '../../components/story/ListRange';
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import IsoStage from '../../lib/iso/IsoStage';
 import { filterFor } from '../../lib/iso/core.js';
@@ -232,40 +233,6 @@ export function CalibrationStage({
 // ---- controls ----
 
 /** A native range over a finite list, its value named beside it. */
-function ListRange<T>({
-  label,
-  list,
-  value,
-  words,
-  onChange,
-}: {
-  label: string;
-  list: readonly T[];
-  value: T;
-  words: (v: T) => string;
-  onChange: (v: T) => void;
-}) {
-  const id = 'rng' + useId().replace(/[^\w-]/g, ''),
-    i = Math.max(0, list.indexOf(value));
-  return (
-    <div className="cb-range">
-      <label htmlFor={id}>{label}</label>
-      <input
-        id={id}
-        type="range"
-        min={0}
-        max={list.length - 1}
-        step={1}
-        value={i}
-        aria-valuetext={words(value)}
-        onChange={e => onChange(list[Number(e.currentTarget.value)])}
-      />
-      <output htmlFor={id} aria-live="polite">
-        {words(value)}
-      </output>
-    </div>
-  );
-}
 export const tWords = (T: number) => (T === 1 ? 'T 1: as trained' : T > 1 ? `T ${T}: softer` : `T ${T}: sharper`);
 /** The temperature: the reader's control; the booth's dial mirrors it. */
 export const TemperatureRange = ({
@@ -276,10 +243,19 @@ export const TemperatureRange = ({
   value: number;
   onChange: (T: number) => void;
   temps?: readonly number[];
-}) => <ListRange label="Temperature" list={temps} value={value} words={tWords} onChange={onChange} />;
+}) => (
+  <ListRange className="cb-range" label="Temperature" list={temps} value={value} words={tWords} onChange={onChange} />
+);
 export const thresholdWords = (t: number) => (t === 0 ? 'hand over none' : `hand over below ${pct(t)}`);
 export const ThresholdRange = ({ value, onChange }: { value: Threshold; onChange: (t: Threshold) => void }) => (
-  <ListRange label="Hand-over line" list={THRESHOLDS} value={value} words={thresholdWords} onChange={onChange} />
+  <ListRange
+    className="cb-range"
+    label="Hand-over line"
+    list={THRESHOLDS}
+    value={value}
+    words={thresholdWords}
+    onChange={onChange}
+  />
 );
 
 /** A cited fact from data/calibration/facts.json, with its source and the day it was checked (R5). */
