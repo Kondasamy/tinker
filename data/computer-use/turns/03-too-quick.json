@@ -1,0 +1,32 @@
+{
+  "turns": {
+    "case=hinges|hist=click:tile-orders:ok,click:reorder-PO-5531:ok|screen=orders@1280x800": {
+      "text": "The list hasn’t changed, so my click seems lost. I click Reorder again.",
+      "click": [
+        1105,
+        255
+      ],
+      "note": "A stale screenshot: the basket was already loading, so this adds the order twice."
+    },
+    "case=hinges|hist=click:tile-orders:ok,click:reorder-PO-5531:ok,click:reorder-PO-5531:ok|screen=basket:HG-120x240@1280x800": {
+      "text": "The basket holds Brass hinge 3in × 240. I click Checkout.",
+      "click": [
+        1070,
+        590
+      ],
+      "note": "Goes on to pay."
+    },
+    "case=hinges|hist=click:tile-orders:ok,click:reorder-PO-5531:ok,click:reorder-PO-5531:ok,click:checkout:ok|screen=pay:HG-120x240@1280x800": {
+      "text": "I click Pay $1,020.00.",
+      "click": [
+        1040,
+        592
+      ],
+      "note": "Pays for the basket."
+    },
+    "case=hinges|hist=click:tile-orders:ok,click:reorder-PO-5531:ok,click:reorder-PO-5531:ok,click:checkout:ok,click:pay:ok|screen=done@1280x800": {
+      "text": "Order placed: Brass hinge 3in × 240. Done.",
+      "note": "The run ends."
+    }
+  }
+}

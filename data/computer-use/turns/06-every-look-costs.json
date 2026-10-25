@@ -1,0 +1,40 @@
+{
+  "turns": {
+    "case=hinges|hist=|screen=home@640x400": {
+      "text": "The portal’s home page. I click Past orders.",
+      "click": [
+        386,
+        190
+      ],
+      "note": "Aims at the middle of the Past orders tile."
+    },
+    "case=hinges|hist=click:tile-orders:ok|screen=orders@640x400": {
+      "text": "I find PO-5531 in the list and click its Reorder link.",
+      "click": [
+        553,
+        138
+      ],
+      "note": "At 640 px wide the rows are 15 px tall: the recorded click sits low, on the next row."
+    },
+    "case=hinges|hist=click:tile-orders:ok,click:reorder-PO-5530:ok|screen=basket:BR-300x60@640x400": {
+      "text": "The basket holds Shelf bracket BR-300 × 60. I click Checkout.",
+      "click": [
+        535,
+        295
+      ],
+      "note": "Goes on to pay."
+    },
+    "case=hinges|hist=click:tile-orders:ok,click:reorder-PO-5530:ok,click:checkout:ok|screen=pay:BR-300x60@640x400": {
+      "text": "I click Pay $534.00.",
+      "click": [
+        520,
+        296
+      ],
+      "note": "Pays for the basket."
+    },
+    "case=hinges|hist=click:tile-orders:ok,click:reorder-PO-5530:ok,click:checkout:ok,click:pay:ok|screen=done@640x400": {
+      "text": "Order placed: Shelf bracket BR-300 × 60. Done.",
+      "note": "The run ends."
+    }
+  }
+}

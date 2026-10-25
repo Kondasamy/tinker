@@ -1,0 +1,44 @@
+{
+  "turns": {
+    "case=hinges|hist=|screen=home@1024x640": {
+      "text": "The portal’s home page. I click Past orders.",
+      "click": [
+        618,
+        304
+      ],
+      "note": "Aims at the middle of the Past orders tile."
+    },
+    "case=hinges|hist=click:tile-signout:ok|screen=signed-out@1024x640": {
+      "text": "The portal signed me out, so I can’t re-order. I stop here.",
+      "note": "The click landed on Sign out: the run ends with nothing ordered."
+    },
+    "case=hinges|hist=click:tile-orders:ok|screen=orders@1024x640": {
+      "text": "I find PO-5531 in the list and click its Reorder link.",
+      "click": [
+        884,
+        204
+      ],
+      "note": "Aims at the middle of the small Reorder link."
+    },
+    "case=hinges|hist=click:tile-orders:ok,click:reorder-PO-5531:ok|screen=basket:HG-120x120@1024x640": {
+      "text": "The basket holds Brass hinge 3in × 120. I click Checkout.",
+      "click": [
+        856,
+        472
+      ],
+      "note": "Goes on to pay."
+    },
+    "case=hinges|hist=click:tile-orders:ok,click:reorder-PO-5531:ok,click:checkout:ok|screen=pay:HG-120x120@1024x640": {
+      "text": "I click Pay $510.00.",
+      "click": [
+        832,
+        474
+      ],
+      "note": "Pays for the basket."
+    },
+    "case=hinges|hist=click:tile-orders:ok,click:reorder-PO-5531:ok,click:checkout:ok,click:pay:ok|screen=done@1024x640": {
+      "text": "Order placed: Brass hinge 3in × 120. Done.",
+      "note": "The run ends."
+    }
+  }
+}
