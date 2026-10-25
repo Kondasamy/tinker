@@ -1,0 +1,94 @@
+---
+// Dev-only eyeball page: the index cabinet in several states (static SVG, wide and phone), the postings table, the
+// filing bench, then the stage live. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import {
+  CABINET_BOARD,
+  IDLE,
+  cabinetAt,
+  cabinetLabel,
+  cabinetPlot,
+  cabinetScene,
+  drawerCount,
+  type CabinetOpts,
+} from '../components/scenes/cabinetScene';
+import { FilingBench, PostingsTable, SearchStage } from '../content/search/kit';
+import { DEFAULT, N, QUERIES, search, pageName } from '../lib/search/engine';
+import { RAW } from '../lib/search/stem';
+
+const S = DEFAULT;
+const words = drawerCount(S);
+const STATES: [string, Omit<CabinetOpts, 'scale'>][] = [
+  ['Idle', { ...IDLE, words }],
+  [
+    'The clerk reads every page',
+    { ...IDLE, words: 0, query: 'forklift', read: N, say: { block: 'pages', text: 'Every page' } },
+  ],
+  [
+    'Filing: two of three cards in',
+    {
+      words,
+      drawers: [
+        { word: 'forklift', cards: 1 },
+        { word: 'refund', cards: 1, fresh: true },
+        { word: 'printer', cards: 0 },
+        { word: 'invoice', cards: 0 },
+      ],
+    },
+  ],
+  ['“forklift” through the index', cabinetAt('forklift', S)],
+  ['“Larkspur forklift”, every word counted the same', cabinetAt('Larkspur forklift', { ...S, weighting: 'count' })],
+  ['“price” under BM25', { ...cabinetAt('price', S), say: { block: 'podium', text: 'Short page wins' } }],
+  ['“Refunds” as typed', cabinetAt('Refunds', { ...S, clean: RAW })],
+  ['A long question', cabinetAt('who pays to send back a faulty item when the label printer jams', S)],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Search scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Index cabinet: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={CABINET_BOARD} scene={cabinetScene({ ...o, scale: 1.2 })} label={cabinetLabel(o)} /></div>
+            <div class="phone"><IsoStage board={CABINET_BOARD} scene={cabinetScene({ ...o, scale: 2 })} label={cabinetLabel(o)} /></div>
+            <p>{cabinetLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <section><h2>Postings: “Larkspur forklift”</h2><PostingsTable query="Larkspur forklift" settings={{ ...S, weighting: 'tfidf' }} /></section>
+      <section><h2>Filing bench</h2><FilingBench client:load cards={[147, 0, 214]} drawers={['forklift', 'refund', 'printer', 'invoice']} filed={{}} clean={S.clean} onFile={() => {}} /></section>
+      <section><h2>Home hero plot</h2><div class="plot"><IsoStage board={[20, 20, 100, 100]} scene={ctx => cabinetPlot(60, 60, ctx.top)} label="The search plot" /></div></section>
+      <section><h2>Queries</h2><ol>{QUERIES.map(q => <li>{q.text}: {search(q.text).slice(0, 3).map(h => pageName(h.id)).join(' / ')}</li>)}</ol></section>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Picture</h2><div class="stage"><SearchStage client:load show={{ scene: cabinetAt('forklift', S), postings: { query: 'forklift', settings: S }, caption: '“forklift” through the index.' }} /></div></section>
+        <section><h2>Postings, escaped caption</h2><div class="stage"><SearchStage client:load view="postings" show={{ scene: cabinetAt('price', S), postings: { query: 'price', settings: S }, caption: '<script>alert(1)</script>' }} /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p, li { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .plot { width: 240px; }
+  .stage { display: flex; height: 520px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>
