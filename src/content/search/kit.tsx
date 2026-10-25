@@ -413,8 +413,8 @@ export function Fact({ id }: { id: string }) {
 /** Shown wherever results and counts appear (R6). */
 export const SimNote = () => (
   <p className="note sx-note">
-    A teaching search box: Larkspur’s documents cut into RAG’s {PAGE_WORDS}-word pages, searched as you watch. The right pages for
-    each test search are this site’s labels.
+    A teaching search box: Larkspur’s documents cut into RAG’s {PAGE_WORDS}-word pages, searched as you watch. The right
+    pages for each test search are this site’s labels.
   </p>
 );
 
