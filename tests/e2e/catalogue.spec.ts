@@ -96,10 +96,15 @@ test('the catalogue searches, filters, keeps the view in the URL and turns no ma
   await page.fill('[name="q"]', '');
   await page.getByRole('radio', { name: 'Classic tech' }).check();
   await page.getByRole('radio', { name: 'Planned' }).check();
-  expect(await shown()).toEqual(['search', 'web-requests', 'payments', 'git']);
+  // the planned classic cards, level by level as the catalogue groups them
+  const classic = (['Beginner', 'Intermediate', 'Advanced'] as const).flatMap(level =>
+    MODULES.filter(m => m.status === 'planned' && m.track === 'Classic tech' && m.level === level).map(m => m.id),
+  );
+  expect(classic.length).toBeGreaterThan(0);
+  expect(await shown()).toEqual(classic);
   await expect(catalogue(page).locator('[data-level="Advanced"]')).toBeHidden();
   await page.reload();
-  expect(await shown()).toEqual(['search', 'web-requests', 'payments', 'git']);
+  expect(await shown()).toEqual(classic);
   // the chosen chip is lit, the group's All is not
   const bg = (name: string) =>
     page
