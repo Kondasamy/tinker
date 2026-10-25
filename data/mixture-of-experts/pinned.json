@@ -1,0 +1,229 @@
+{
+  "note": "Every effect a chapter teaches, pinned with the numbers Larkspur's toy experts model gives (KTD12). tests/unit/mixture-of-experts-engine.test.ts reruns each one live and fails on drift; a retrain means new prompts, not new copy.",
+  "chapters": {
+    "note": "The prompt each chapter runs.",
+    "kitchen": "reply",
+    "doorman": "reply",
+    "learned": "billing",
+    "override": "reply",
+    "busy": "delivery",
+    "total": "success"
+  },
+  "override": {
+    "note": "Chapter 4. Sending the last token, “ business”, to rooms 3 and 4 on both floors (experts 2 and 3) changes the guess; the router alone guesses “ days”.",
+    "prompt": "reply",
+    "experts": [
+      2,
+      3
+    ],
+    "before": " days",
+    "after": " business"
+  },
+  "capacity": {
+    "note": "Chapter 5. Capacity = ceil(factor × tokens × 2 / 8) seats per room per floor; tokens past a full room skip its work. Tokens that lost a room, and the guess, per factor (\"none\": no limit).",
+    "prompt": "delivery",
+    "dropped": {
+      "none": 0,
+      "2": 0,
+      "1.5": 1,
+      "1": 5
+    },
+    "guess": {
+      "none": " days",
+      "2": " days",
+      "1.5": ".",
+      "1": " business"
+    }
+  },
+  "card": {
+    "note": "The home card and intro picture: chapter 2’s prompt, its last token’s rooms per floor and the guess, as the model gives them.",
+    "prompt": "reply",
+    "tokens": [
+      87,
+      101,
+      469,
+      327,
+      508,
+      669,
+      455
+    ],
+    "lit": [
+      [
+        0,
+        4
+      ],
+      [
+        6,
+        1
+      ]
+    ],
+    "guess": 422
+  },
+  "workbench": {
+    "note": "Chapter 7: every plan inside both of Larkspur’s budgets with the most total weights, recomputed by solve().",
+    "winners": [
+      {
+        "card": "mixtral-8x22b",
+        "bits": 8
+      },
+      {
+        "card": "mixtral-8x22b",
+        "bits": 4
+      }
+    ]
+  },
+  "rooms": {
+    "note": "Copied from public/data/mixture-of-experts/meta.json (so pages do not bundle its goldens); the engine test fails if they differ. tops: each expert's five most-routed training tokens; shares: each expert's share of held-out routes.",
+    "params": 68672,
+    "active": 43328,
+    "experts": 8,
+    "topK": 2,
+    "layers": 2,
+    "heldoutTop5": 0.449102,
+    "dense": {
+      "params": 42752,
+      "top5": 0.418496
+    },
+    "baseTop5": 0.438456,
+    "tops": [
+      [
+        [
+          " p",
+          " s",
+          " ",
+          " d",
+          " to"
+        ],
+        [
+          ".",
+          "\n",
+          " the",
+          "s",
+          "ed"
+        ],
+        [
+          ":",
+          " and",
+          "ing",
+          "o",
+          "es"
+        ],
+        [
+          ".",
+          " the",
+          ":",
+          " a",
+          ","
+        ],
+        [
+          "it",
+          "le",
+          " Portal",
+          " order",
+          "5"
+        ],
+        [
+          "s",
+          "e",
+          "d",
+          "es",
+          "ed"
+        ],
+        [
+          "\n",
+          "c",
+          "g",
+          "ts",
+          "v"
+        ],
+        [
+          "\n",
+          "e",
+          "o",
+          "u",
+          "l"
+        ]
+      ],
+      [
+        [
+          "o",
+          "t",
+          "al",
+          "l",
+          " s"
+        ],
+        [
+          " the",
+          "s",
+          ":",
+          ",",
+          " and"
+        ],
+        [
+          ".",
+          "\n",
+          "s",
+          "es",
+          "f"
+        ],
+        [
+          "ed",
+          "d",
+          "y",
+          "n",
+          "h"
+        ],
+        [
+          " the",
+          ".",
+          " a",
+          ":",
+          " and"
+        ],
+        [
+          "\n",
+          " ",
+          " p",
+          " s",
+          "-"
+        ],
+        [
+          ".",
+          "e",
+          "er",
+          "ed",
+          "ts"
+        ],
+        [
+          "\n",
+          " a",
+          "ing",
+          "ed",
+          "u"
+        ]
+      ]
+    ],
+    "shares": [
+      [
+        0.162675,
+        0.131737,
+        0.109115,
+        0.148037,
+        0.120758,
+        0.10845,
+        0.085496,
+        0.133733
+      ],
+      [
+        0.131737,
+        0.144378,
+        0.085163,
+        0.115436,
+        0.133067,
+        0.128743,
+        0.11976,
+        0.141717
+      ]
+    ]
+  }
+}

@@ -1,0 +1,31 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import OneBigKitchen from '../../content/mixture-of-experts/01-one-big-kitchen';
+import RoomsAndADoorman from '../../content/mixture-of-experts/02-rooms-and-a-doorman';
+import WhatTheExpertsLearned from '../../content/mixture-of-experts/03-what-the-experts-learned';
+import SendItElsewhere from '../../content/mixture-of-experts/04-send-it-elsewhere';
+import TheBusyRoom from '../../content/mixture-of-experts/05-the-busy-room';
+import TotalVersusActive from '../../content/mixture-of-experts/06-total-versus-active';
+import Workbench from '../../content/mixture-of-experts/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('mixture-of-experts').chapters.map(({ id, title }) => ({
+    params: { chapter: id },
+    props: { title },
+  }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="mixture-of-experts" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-one-big-kitchen' ? <OneBigKitchen client:load />
+    : chapter === '02-rooms-and-a-doorman' ? <RoomsAndADoorman client:load />
+    : chapter === '03-what-the-experts-learned' ? <WhatTheExpertsLearned client:load />
+    : chapter === '04-send-it-elsewhere' ? <SendItElsewhere client:load />
+    : chapter === '05-the-busy-room' ? <TheBusyRoom client:load />
+    : chapter === '06-total-versus-active' ? <TotalVersusActive client:load />
+    : <Workbench client:load />}
+</ChapterLayout>

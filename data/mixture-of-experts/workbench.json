@@ -1,0 +1,8 @@
+{
+  "note": "Larkspur's planning numbers for chapter 7, not measured: the GPU memory its server keeps for weights, and the most weights it can afford to run for each word at its speed target. The team's rule: of the shapes inside both, the one with the most total weights.",
+  "memoryGB": 160,
+  "memoryWords": "160 GB of GPU memory for weights (two 80 GB cards)",
+  "activeB": 40,
+  "activeWords": "at most 40B weights at work per word, to keep replies fast",
+  "start": { "card": "deepseek-v3", "bits": 16 }
+}
