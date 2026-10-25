@@ -290,7 +290,7 @@ def main():
         dtype='float16-le', bytes=len(blob), tensors=layout,
         training=dict(seed=a.seed, steps=a.steps, batch=a.batch, lr=a.lr, schedule='cosine to 0',
                       optimizer='AdamW betas (0.9, 0.99), grad clip 1.0', weight_decay=a.weight_decay,
-                      dropout=a.dropout, weighting=a.weighting, objective='masked tokens only, mask rate t ~ U(eps, 1) per window, '
+                      dropout=a.dropout, weighting=a.weighting, objective='masked tokens only, mask rate t ~ U(eps, 1) per window, ' +
                                                    ('mean cross-entropy over the masked tokens' if a.weighting == 'mean' else 'cross-entropy weighted 1 / t'), eps=a.eps,
                       torch=torch.__version__, seconds=round(secs, 1),
                       trainTokens=sum(len(d) for d in train_s['ids']), trainDocs=train_s['docs']),
