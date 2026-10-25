@@ -1,0 +1,12 @@
+{
+  "note": "Larkspur's host rules for its coding agent, written for this site. A command's tier is its longest matching prefix; a command no tier names is 'never'. The person approves only the commands in 'approve'.",
+  "test": "npm test",
+  "protected": ["tests/"],
+  "tiers": {
+    "allow": ["npm test", "git diff", "git status"],
+    "ask": ["git push origin"],
+    "never": ["git push --force", "rm -rf", "curl"]
+  },
+  "approve": ["git push origin fix/bulk-discount"],
+  "branch": "fix/bulk-discount"
+}

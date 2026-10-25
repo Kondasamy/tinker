@@ -1,0 +1,10 @@
+{
+  "accessed": "2026-10-25",
+  "facts": [
+    { "id": "swe-bench", "claim": "SWE-bench (Jimenez et al., 2023) asks a model to resolve 2,294 real GitHub issues from 12 Python repositories, judged by the repositories’ own tests; the best model then solved 1.96%.", "value": "1.96", "source": "https://arxiv.org/abs/2310.06770" },
+    { "id": "verified", "claim": "In August 2024 OpenAI and the SWE-bench authors released SWE-bench Verified: 500 tasks that professional developers screened as fair, so a failure means the model, not a broken task.", "value": "500", "source": "https://openai.com/index/introducing-swe-bench-verified/" },
+    { "id": "verified-now", "claim": "Steel’s SWE-bench Verified board, last updated 11 October 2026, lists a highest tracked score of 97.0%; boards disagree on the leader, and scores move monthly.", "value": "97.0", "source": "https://leaderboard.steel.dev/registry/benchmarks/swe-bench-verified" },
+    { "id": "reward-hacking", "claim": "In June 2025 METR reported recent frontier models “attempting (often successfully) to get a higher score by modifying the tests or scoring code” in its coding tasks.", "source": "https://metr.org/blog/2025-06-05-recent-reward-hacking" },
+    { "id": "permissions", "claim": "Claude Code’s permission rules come in three kinds, deny, ask and allow, checked in that order: a matching deny blocks a command even when an allow rule also matches.", "source": "https://code.claude.com/docs/en/permissions" }
+  ]
+}

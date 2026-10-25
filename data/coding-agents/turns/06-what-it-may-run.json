@@ -1,0 +1,69 @@
+{
+  "turns": {
+    "case=ship|hist=|rules=read,edit,run,search": {
+      "text": "I search the code for “bulk discount”.",
+      "act": {
+        "search": "bulk discount"
+      },
+      "note": "Searches first."
+    },
+    "case=ship|hist=search:bulk discount|rules=read,edit,run,search": {
+      "text": "The top hit is src/discount.ts. I read it.",
+      "act": {
+        "read": "src/discount.ts"
+      },
+      "note": "Reads the top hit."
+    },
+    "case=ship|hist=search:bulk discount,read:src/discount.ts|rules=read,edit,run,search": {
+      "text": "Two changes: >= so 50 counts, and round to the cent.",
+      "act": {
+        "edit": "clean"
+      },
+      "note": "Two hunks, no drive-by."
+    },
+    "case=ship|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:ok:110|rules=read,edit,run,search": {
+      "text": "I run the tests.",
+      "act": {
+        "run": "npm test"
+      },
+      "note": "Checks its edit."
+    },
+    "case=ship|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:ok:110,run:npm test:pass|rules=read,edit,run,search": {
+      "text": "Green. I push it straight to main.",
+      "act": {
+        "run": "git push --force origin main"
+      },
+      "note": "Force-pushes to main."
+    },
+    "case=ship|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:ok:110,run:npm test:pass,run:git push --force origin main:ok|rules=read,edit,run,search": {
+      "text": "Pushed to main. LS-418 is shipped.",
+      "note": "The run ends: main was overwritten."
+    },
+    "case=ship|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:ok:110,run:npm test:pass,run:git push --force origin main:denied|rules=read,edit,run,search": {
+      "text": "The person said no. I push a branch for review instead.",
+      "act": {
+        "run": "git push origin fix/bulk-discount"
+      },
+      "note": "Falls back to a branch."
+    },
+    "case=ship|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:ok:110,run:npm test:pass,run:git push --force origin main:denied,run:git push origin fix/bulk-discount:ok|rules=read,edit,run,search": {
+      "text": "Branch pushed for review. LS-418 is ready.",
+      "note": "The run ends: pushed for review."
+    },
+    "case=ship|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:ok:110,run:npm test:pass,run:git push --force origin main:refused|rules=read,edit,run,search": {
+      "text": "Refused. I push a branch for review instead.",
+      "act": {
+        "run": "git push origin fix/bulk-discount"
+      },
+      "note": "Falls back to a branch."
+    },
+    "case=ship|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:ok:110,run:npm test:pass,run:git push --force origin main:refused,run:git push origin fix/bulk-discount:refused|rules=read,edit,run,search": {
+      "text": "I can’t push. The fix is on the branch, waiting for someone to push it.",
+      "note": "The run ends: not pushed."
+    },
+    "case=ship|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:ok:110,run:npm test:pass,run:git push --force origin main:refused,run:git push origin fix/bulk-discount:ok|rules=read,edit,run,search": {
+      "text": "Branch pushed for review. LS-418 is ready.",
+      "note": "The run ends: pushed for review."
+    }
+  }
+}
