@@ -1,0 +1,16 @@
+# Interpretability (`/interpretability/`)
+
+Decisions for this module only; the shared rules are in `AGENTS.md`.
+
+## Picture
+
+- **The fuse box** (`src/components/scenes/fuseScene.ts`) composes Transformers' engine room (`engineScene`) and adds a fuse panel beside the second floor: a row per layer (layer 2 on top), a column per part (head 1, head 2, MLP). A fuse that is in is mustard; a pulled one is drawn out and dark, and a pulled head's desk is unlit with no threads (threads only when the chapter asks, chapter 1). `FUSE_PARTS` adds `fuses` and `pulled` to `ENGINE_PARTS`. `InterpStage` (`src/content/interpretability/kit.tsx`) puts it one tab from the Lens (`lensGrid.ts`: a row per stage, output on top, the top 5 guesses at one position, a native range for the position, arrow keys between cells, a watched token in mint). The Lens tab stays off until the model loads and while a prediction is open. On phones the pills shorten to names.
+
+## Engine (`src/lib/interpretability/`)
+
+- **Nothing is recorded; Larkspur mini runs live through the KTD5 hooks** (`probe.ts`). Six fuses (`FUSES`): one per head (`h<layer>-<head>`, ablate) and one per MLP (`mlp<layer>`, a model copy with that MLP's `mlp.proj` weight and bias zeroed, cached per set; `src/lib/lm/` is untouched). `run()` is one forward pass with fuses pulled. The model loads through Fine-tuning's loaders (`ModelGate`, `useModel('base')`).
+- **Pinned effects** (`data/interpretability/prompts.json`; `tests/unit/interpretability-engine.test.ts` reruns each and fails on drift): chapter 2's held-out counts per head (`headLoss`, over Fine-tuning's held-out copy, `evaluate()`'s windows: of 659 right top-5 guesses, the word-start head L0H0 loses 74, the most) and its one prompt where the word-start fuse bites, labelled one of the few; chapter 3's lens ranks per stage (bar: top 5 after block 1, not after the embedding, for half: 6 of 8); chapter 4's patch flips (`patchGrid`, the swapped word before block 1, the last token after); chapter 5's steering (`steerDirection`, shipping minus billing at the top of layer 2; the target rises from outside the top 5 into it at ×2, a scrap of a word at the strongest); chapter 6's neuron kinds (`kindOf`; bar: half the neurons mix kinds, 199 of 256). A retrain means new prompts, not new copy.
+- **Ablation is measured over text, not one prompt** (the user's call when U2's bar failed): one head moves little in a two-layer model; the copy says the work is spread out, and the pinned prompt is labelled as rare.
+- **The logit lens** (`lens`) reads three stages: after the embedding, after block 1, the output (`STAGES`); the last equals the model's top 5.
+- **Chapter 7's workbench** (`workbench.ts`): a set of fuses keeps a behaviour when, with every other fuse pulled, its expected token is still top 1. `WINNERS` (every smallest set) is pinned in prompts.json and recomputed by the test; the puzzle accepts any of them.
+- **Facts about interpretability** come from `data/interpretability/facts.json` with source and access date; Scaling Monosemanticity is cited through Anthropic's research page (the paper page is too large to fetch).

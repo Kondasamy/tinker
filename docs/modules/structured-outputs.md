@@ -1,0 +1,17 @@
+# Structured outputs (`/structured-outputs/`)
+
+Decisions for this module only; the shared rules are in `AGENTS.md`.
+
+## Picture
+
+- **The stencil press** (`src/components/scenes/stencilScene.ts`) is Tokens' press on the workshop board: the prompt's paper strip feeds it (Larkspur mini), and its tiles ride a belt across a stencil plate, the schema. The plate is blue while the model's own first choice is blocked, that tile stopped tomato against it, and mint while tokens pass; its pill counts how many of the 768 tokens pass at this step. No schema, no plate. `StructuredStage` (`src/content/structured-outputs/kit.tsx`) puts it one tab from the Mask view (`maskGrid.ts`: the vocabulary as a grid of tiles, allowed lit, the token written ringed in ink, a blocked first choice in red, beside a focusable list of the likeliest allowed tokens). On phones the pills keep short names and the caption carries the rest.
+
+## Engine (`src/lib/structured-outputs/`)
+
+- **Nothing is recorded; Larkspur mini decodes live under a mask** (`decode.ts`). Tool calling's schema subset is compiled to a state machine over bytes (`grammar.ts`): every property required, keys in declared order, no whitespace, values an enum, a boolean, an integer or a capped string (printable ASCII, no escapes). At each step a token is allowed when every one of its bytes keeps the grammar live (`mask.ts`, no precomputed index: 768 tokens is cheap), and the blocked logits go to -Infinity before softmax, so the allowed tokens share the probability. Greedy by default; chapter 5 draws at temperature 1 with `mulberry32` seeds.
+- **The 32-token rule.** Prompt and answer share Larkspur mini's 32-token window: a run ends `done` when the grammar accepts, or `cut-off` when the window runs out first. Chapter 6's two-field schema is cut off on purpose; chapter 7's all-model schema is too.
+- **`maxLength` is this site's extension** to the schema subset (`FieldSchema`), so a free string always closes inside the window; a string with none gets `DEFAULT_MAX_LENGTH`. Anthropic's structured outputs reject it (fact `anthropic-limits`), and chapter 4 says so.
+- **The readable bar** (`data/structured-outputs/prompts.json`): every run a chapter shows is pinned with its prompt, schema, seed and the output Larkspur mini writes; `tests/unit/structured-decode.test.ts` reruns every one and fails on drift. A retrain that breaks one means a new prompt, not new copy.
+- **The model ignores the prompt once it is writing JSON.** Larkspur mini never saw JSON, so inside a schema it writes what it prefers, not what the prompt says (given order 1042, it writes another number). The lessons are about preference and what the mask can force, never about what the model knows: facts come from the order system (`data/structured-outputs/orders.json`), as chapter 7 teaches.
+- **Chapter 7's workbench** (`workbench.ts`): each field is free text, a list (or a whole number), or left to the order system, a finite domain of 27 schemas decoded over four orders. Every schema that gives valid, right answers for every order is a right answer (`WINNERS`). Decoding all 27 froze the page for seconds, so the chapter reads `SOLVED`, `WINNERS` precomputed on the committed weights; a unit test keeps the two equal, and a retrain changes both.
+- **Facts about structured outputs** come from `data/structured-outputs/facts.json` with source and access date; provider limits and features are re-checked when the module changes.
