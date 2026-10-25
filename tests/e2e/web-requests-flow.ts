@@ -99,7 +99,7 @@ export function webWalker(page: Page, mode: Mode, check: (page: Page) => Promise
       await btn('Check the certificate');
       await step(2);
       await opt(/^One round trip: his request rides along/);
-      await btn('Session resumption');
+      await btn(/^Session resumption$/);
       await step(4);
       await btn('Place an order');
       await step(5);
@@ -125,7 +125,7 @@ export function webWalker(page: Page, mode: Mode, check: (page: Page) => Promise
       const w = WINNERS[0];
       if (w.ttl !== START.ttl) await slide(/^DNS TTL/, ttl(w.ttl));
       if (w.http !== START.http) await btn(`HTTP/${w.http}`);
-      if (w.resume !== START.resume) await btn('Session resumption');
+      if (w.resume !== START.resume) await btn(/^Session resumption$/);
       await step(2);
       await check(page);
       await opt(/^HTTP\/3 with session resumption/);

@@ -60,7 +60,7 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `${WEN.name}’s long line loses a packet now and then. The sender waits a timeout for a reply, then sends it again.`,
+    narration: `${WEN.name}’s long line sometimes loses a packet. The sender waits a timeout for a reply, then sends it again.`,
     act: 'Predict what one loss costs.',
     predicate: s => s.p1 !== null,
   },

@@ -51,7 +51,7 @@ export function requestWaterfall(r: Run, phone = false) {
     stallW: p.stalled * k,
     y: L.top + i * L.row,
   }));
-  return { rows, total: r.total, w: L.w, h: L.top + rows.length * L.row + 6, ...L, x0, k };
+  return { ...L, rows, total: r.total, h: L.top + rows.length * L.row + 6, x0, k };
 }
 export type Waterfall = ReturnType<typeof requestWaterfall>;
 

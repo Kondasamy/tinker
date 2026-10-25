@@ -60,7 +60,7 @@ export const STEPS: Step<S>[] = [
     id: 'hour',
     focus: 'ttl',
     visibleControls: ['ttl'],
-    narration: `${TOMAS.name} visited ${AGO} minutes ago. His resolver keeps a cache of answers, each for as long as its TTL allows.`,
+    narration: `${TOMAS.name} visited ${AGO} minutes ago. His resolver keeps a cache of answers, each for its TTL.`,
     act: `Set the TTL to ${ttlName(HOUR)}.`,
     say: { block: 'house', text: 'Remembered' },
     predicate: s => s.ttl === HOUR,

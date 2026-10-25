@@ -163,6 +163,7 @@ test.describe('reduced motion', () => {
     await expect(page.locator('.ditch')).toHaveCount(1);
     await expect(page.locator('.stage')).toContainText('RESENT');
     await still(page);
+    await page.evaluate(() => localStorage.clear());
     await walkAll(w);
   });
 });

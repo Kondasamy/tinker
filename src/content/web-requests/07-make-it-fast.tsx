@@ -56,7 +56,7 @@ export const STEPS: Step<S>[] = [
     id: 'bench',
     focus: 'bench',
     visibleControls: ['score', 'bench'],
-    narration: `The owner’s budget: every page within ${msOf(BUDGET)}, even on a lossy line, and a moved shop found within ${MOVE} minutes.`,
+    narration: `The owner’s budget: every page within ${msOf(BUDGET)} on lossy lines, and a moved shop found within ${MOVE} minutes.`,
     act: 'Find settings that meet both.',
     say: { block: 'road', text: 'Fewer trips' },
     predicate: s => wins(benchOf(s)),

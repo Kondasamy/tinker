@@ -59,7 +59,7 @@ export const STEPS: Step<S>[] = [
     id: 'h1',
     focus: 'tab',
     visibleControls: ['http', 'tab'],
-    narration: `The page names ${FILES.length} more files. HTTP/1.1 asks one at a time per connection, so the browser opens more connections.`,
+    narration: `The page names ${FILES.length} more files, fetched over HTTP. HTTP/1.1 asks one per connection at a time, opening extra connections.`,
     act: 'Open the Waterfall tab.',
     predicate: s => s.view === 'fall',
   },

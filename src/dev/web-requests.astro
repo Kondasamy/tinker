@@ -13,7 +13,10 @@ const STATES: [string, Omit<TownOpts, 'scale'>][] = [
   ['Tomas, answer remembered, HTTP/2', townAt(runOf('tomas', { http: '2' }))],
   ['Dara, mid-load', { ...townAt(runOf('dara'), 4), say: { block: 'road', text: 'One round trip' } }],
   ['Wen, lossy line, HTTP/2', townAt(runOf('wen', { http: '2', loss: true }))],
-  ['Wen, seal office lit', { ...townAt(runOf('wen', { http: '3', resume: true })), seal: true, say: { block: 'seal', text: 'Signed it' } }],
+  [
+    'Wen, seal office lit',
+    { ...townAt(runOf('wen', { http: '3', resume: true })), seal: true, say: { block: 'seal', text: 'Signed it' } },
+  ],
 ];
 ---
 <html lang="en">
