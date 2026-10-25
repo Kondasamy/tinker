@@ -73,6 +73,63 @@ for (const width of [1280, 390])
     await expect(page.getByText('In the workshop')).toHaveCount(0);
   });
 
+// the finder: a search reads topics and chapters too and names the hit, chips filter, the URL keeps the view, an empty
+// result offers a module request, and a status no card has shows no chip
+test('the catalogue searches, filters, keeps the view in the URL and turns no match into a request', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const shown = () =>
+    catalogue(page)
+      .locator('[data-search]:visible')
+      .evaluateAll(els => els.map(e => e.getAttribute('data-module')));
+  // the count matches the hero's: playable modules, the planned ones apart
+  const live = MODULES.filter(m => m.status === 'live').length;
+  await expect(page.locator('[data-count]')).toHaveText(`${live} modules · ${MODULES.length - live} planned`);
+  await expect(page.locator('.hero .ctas .btn').nth(1)).toHaveText(`See all ${live} modules`);
+  await expect(page.locator('[data-finder] label', { hasText: 'In progress' })).toBeHidden();
+  await page.keyboard.press('/');
+  await page.keyboard.type('lora');
+  expect(await shown()).toEqual(['fine-tuning']);
+  await expect(page.locator('.module[data-module="fine-tuning"] [data-hit]')).toHaveText('Includes: LoRA adapters');
+  await expect(page).toHaveURL(/\?q=lora#?$/);
+  await page.fill('[name="q"]', '');
+  await page.getByRole('radio', { name: 'Classic tech' }).check();
+  await page.getByRole('radio', { name: 'Planned' }).check();
+  expect(await shown()).toEqual(['search', 'web-requests', 'payments', 'git']);
+  await expect(catalogue(page).locator('[data-level="Advanced"]')).toBeHidden();
+  await page.reload();
+  expect(await shown()).toEqual(['search', 'web-requests', 'payments', 'git']);
+  // the chosen chip is lit, the group's All is not
+  const bg = (name: string) =>
+    page
+      .getByRole('radio', { name })
+      .locator('..')
+      .evaluate(e => getComputedStyle(e).backgroundColor);
+  expect(await bg('Planned')).not.toEqual(await bg('Not started'));
+  await page.fill('[name="q"]', 'quantum knitting');
+  await expect(page.locator('[data-count]')).toHaveText('0 modules');
+  await page.locator('[data-propose]').click();
+  await expect(page.locator('#request textarea')).toHaveValue('A module on: quantum knitting');
+  await page.locator('[data-clear]').click();
+  expect(await shown()).toHaveLength(MODULES.length);
+  await expect(page).toHaveURL(/\/(#request)?$/);
+});
+
+test('progress files a card under In progress', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() =>
+    localStorage.setItem('rag-progress-v1', JSON.stringify({ done: ['01-history'], saved: {} })),
+  );
+  await page.goto('/?status=In+progress');
+  await expect(catalogue(page).locator('[data-search]:visible')).toHaveCount(1);
+  await expect(catalogue(page).locator('.module[data-module="rag"]')).toBeVisible();
+  // the card's button says only what it does; its title, right above, describes it
+  const cta = page.locator('.module[data-module="rag"] [data-cta]');
+  await expect(cta).toHaveText('Continue: chapter 2 →');
+  await expect(cta).toHaveAccessibleDescription('Retrieval-Augmented Generation (RAG)');
+});
+
 // the request form mails FormSubmit and comes back with ?sent, which shows the thanks
 test('the request form posts a message, and a return with ?sent thanks the reader', async ({ page }) => {
   await page.goto('/');

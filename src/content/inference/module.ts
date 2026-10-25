@@ -173,7 +173,7 @@ export const INFERENCE_MODULE: Module = {
     'What happens between the prompt and the reply on a server: batching, the KV cache, quantization and speculative decoding.',
   level: 'Advanced',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: ['transformers'],
   story:
     'Back at Larkspur Supply Co., the team now serves its own model, and has to keep Monday morning’s customers from waiting.',

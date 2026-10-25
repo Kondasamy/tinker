@@ -208,7 +208,7 @@ export const GUARDRAILS_MODULE: Module = {
     'Text that tries to take over the assistant, and the defences that hold it back: filters, output checks and the lethal trifecta.',
   level: 'Intermediate',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: ['tool-calling'],
   story:
     'Larkspur Supply Co.’s assistant now reads customer email and can send email out, so any text it reads can try to take it over.',

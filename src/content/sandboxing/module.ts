@@ -168,7 +168,7 @@ export const SANDBOXING_MODULE: Module = {
     'Where an agent’s code runs, and what it can reach: a sandbox, its files, and the network it can or can’t call out to.',
   level: 'Advanced',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: ['agents', 'guardrails'],
   story:
     'Larkspur Supply Co.’s agent now runs code to do its work, so where it runs and what it can reach decide what a compromised agent can do.',

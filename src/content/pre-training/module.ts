@@ -169,7 +169,7 @@ export const PRE_TRAINING_MODULE: Module = {
     'Watch Larkspur mini learn from nothing: the same prompt at every checkpoint, the data that shaped it, and a leaked test.',
   level: 'Intermediate',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: ['tokens'],
   story:
     'Back at Larkspur Supply Co., the team trains its own tiny model from scratch, and learns what the data, the test set and the stopping point do to it.',

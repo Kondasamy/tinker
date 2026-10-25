@@ -177,7 +177,7 @@ export const EVALS_MODULE: Module = {
   description: 'How a team knows the assistant got better or worse: test sets, graders and regressions.',
   level: 'Intermediate',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: ['rag'],
   story:
     'Back at Larkspur Supply Co., the team keeps changing the assistant, and has to show each change made it better before it ships.',

@@ -145,8 +145,9 @@ export const CONSISTENCY_MODULE: Module = {
   title: 'Replication & consistency',
   description: 'Three warehouses, one stock count: how the last hinge gets sold twice, and what each fix costs.',
   level: 'Advanced',
+  track: 'Classic tech',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: ['databases'],
   story:
     'Larkspur Supply Co. copies its stock count to three warehouses; the team finds how the last hinge sells twice, and picks what each product can risk when the line goes down.',

@@ -169,7 +169,7 @@ export const SMALL_MODELS_MODULE: Module = {
   description: 'Teach a small model from a big one, send it the easy questions, and fall back when it isn’t sure.',
   level: 'Advanced',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: ['fine-tuning', 'evals'],
   story:
     'Back at Larkspur Supply Co., the model bill has grown, and the team wants a smaller, cheaper model to answer what it can without losing the answers that matter.',

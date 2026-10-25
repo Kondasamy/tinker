@@ -163,8 +163,9 @@ export const CACHING_MODULE: Module = {
   title: 'Caching & CDNs',
   description: 'Why a copy close by beats the original far away: edge caches, expiry, stale prices and a flash sale.',
   level: 'Beginner',
+  track: 'Classic tech',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: [],
   story:
     'Larkspur Supply Co.’s online shop runs from one depot; the team puts copies in three regional warehouses and keeps them right through a price change and a flash sale.',

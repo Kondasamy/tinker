@@ -202,7 +202,7 @@ export const AGENTS_MODULE: Module = {
   description: 'How an assistant goes from one request to a whole case: the loop, plans, budgets, memory and helpers.',
   level: 'Advanced',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: ['tool-calling'],
   story:
     'Back at Larkspur Supply Co., the support lead now hands the assistant whole cases, not single requests, and it has to find its own way to done.',

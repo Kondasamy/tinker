@@ -22,6 +22,7 @@ export const __CONST__: Module = {
   title: '__TITLE__',
   description: 'What the reader will understand, in one sentence.',
   level: 'Beginner',
+  // track: 'Classic tech', for a non-AI module
   status: 'live',
   author: { name: 'Your Name', url: 'https://example.com' },
   prereqs: [],

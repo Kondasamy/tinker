@@ -173,7 +173,7 @@ export const FINE_TUNING_MODULE: Module = {
   description: 'When to train the model, when to prompt it, and when to give it documents.',
   level: 'Advanced',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: ['evals', 'transformers'],
   story:
     'Back at Larkspur Supply Co., the team wants replies in the company’s own voice, and has to choose between a better prompt, better documents and training the model itself.',

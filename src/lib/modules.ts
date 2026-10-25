@@ -27,6 +27,7 @@ import { DIFFUSION_MODULE } from '../content/diffusion/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
+export type Track = 'AI' | 'Classic tech';
 
 export interface Chapter {
   id: string;
@@ -52,6 +53,8 @@ export interface Module<C extends Chapter = Chapter> {
   title: string;
   description: string;
   level: Level;
+  /** what the catalogue files it under; absent means AI */
+  track?: Track;
   status: 'live' | 'planned';
   author: { name: string; url: string };
   /** module ids worth finishing first */
@@ -65,11 +68,12 @@ export interface Module<C extends Chapter = Chapter> {
 
 const AUTHOR = RAG_MODULE.author;
 /** a roadmap card: a module someone may build, with no chapters or pages yet */
-export const planned = (id: string, title: string, level: Level, description: string): Module => ({
+export const planned = (id: string, title: string, level: Level, description: string, track?: Track): Module => ({
   id,
   title,
   description,
   level,
+  track,
   status: 'planned',
   author: AUTHOR,
   prereqs: [],
@@ -126,24 +130,28 @@ export const MODULES: Module[] = [
     'Search before AI',
     'Beginner',
     'How keyword search finds a page: an index from words to documents, ranking, and where it misses meaning.',
+    'Classic tech',
   ),
   planned(
     'web-requests',
     'Opening a web page',
     'Beginner',
     'What happens between typing an address and seeing the page: DNS, a connection, encryption and HTTP.',
+    'Classic tech',
   ),
   planned(
     'payments',
     'Card payments',
     'Beginner',
     'Where the money goes when a customer pays by card: authorisation, capture, settlement, fees and chargebacks.',
+    'Classic tech',
   ),
   planned(
     'git',
     'Git',
     'Beginner',
     'How Git stores history: snapshots named by their content, branches as pointers, and merges that clash.',
+    'Classic tech',
   ),
 ];
 
