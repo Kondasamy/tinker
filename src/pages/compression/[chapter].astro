@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import CountingTheBytes from '../../content/compression/01-counting-the-bytes';
+import PointBack from '../../content/compression/02-point-back';
+import ShortCodes from '../../content/compression/03-short-codes';
+import BothAtOnce from '../../content/compression/04-both-at-once';
+import AlreadySqueezed from '../../content/compression/05-already-squeezed';
+import ThrowingSomeAway from '../../content/compression/06-throwing-some-away';
+import PackTheSend from '../../content/compression/07-pack-the-send';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('compression').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="compression" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-counting-the-bytes' ? <CountingTheBytes client:load />
+    : chapter === '02-point-back' ? <PointBack client:load />
+    : chapter === '03-short-codes' ? <ShortCodes client:load />
+    : chapter === '04-both-at-once' ? <BothAtOnce client:load />
+    : chapter === '05-already-squeezed' ? <AlreadySqueezed client:load />
+    : chapter === '06-throwing-some-away' ? <ThrowingSomeAway client:load />
+    : <PackTheSend client:load />}
+</ChapterLayout>

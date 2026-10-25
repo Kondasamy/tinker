@@ -1,0 +1,60 @@
+{
+  "accessed": "2026-10-25",
+  "facts": [
+    {
+      "id": "utf8",
+      "claim": "RFC 3629: in UTF-8, the US-ASCII characters (plain English letters, digits and punctuation) take one byte each.",
+      "source": "https://www.rfc-editor.org/rfc/rfc3629"
+    },
+    {
+      "id": "lz77",
+      "claim": "Jacob Ziv and Abraham Lempel published the pointer method now called LZ77 in 1977, in IEEE Transactions on Information Theory.",
+      "source": "https://ieeexplore.ieee.org/document/1055714"
+    },
+    {
+      "id": "huffman",
+      "claim": "David Huffman published his method for building minimum-redundancy codes in the Proceedings of the IRE in 1952.",
+      "source": "https://ieeexplore.ieee.org/document/4051119"
+    },
+    {
+      "id": "bpe",
+      "claim": "Byte pair encoding, the way many tokenizers build their vocabulary, began as a data compression algorithm (Sennrich, Haddow and Birch, 2016).",
+      "source": "https://arxiv.org/abs/1508.07909"
+    },
+    {
+      "id": "deflate",
+      "claim": "RFC 1951: DEFLATE compresses data using a combination of the LZ77 algorithm and Huffman coding, with lengths of 3 to 258 bytes and distances up to 32K bytes.",
+      "source": "https://www.rfc-editor.org/rfc/rfc1951"
+    },
+    {
+      "id": "gzip",
+      "claim": "RFC 1952: a gzip file is DEFLATE data with a 10-byte header and an 8-byte trailer (a CRC-32 check and the original size).",
+      "source": "https://www.rfc-editor.org/rfc/rfc1952"
+    },
+    {
+      "id": "brotli",
+      "claim": "RFC 7932: Brotli also compresses data using a combination of the LZ77 algorithm and Huffman coding.",
+      "source": "https://www.rfc-editor.org/rfc/rfc7932"
+    },
+    {
+      "id": "streams",
+      "claim": "The Compression Streams standard (updated 19 October 2026) lets a web page compress with brotli, deflate, deflate-raw and gzip.",
+      "source": "https://compression.spec.whatwg.org/"
+    },
+    {
+      "id": "no-universal",
+      "claim": "RFC 1951: no lossless compression algorithm can compress every possible input data set.",
+      "source": "https://www.rfc-editor.org/rfc/rfc1951"
+    },
+    {
+      "id": "shannon",
+      "claim": "Claude Shannon’s 1948 “A Mathematical Theory of Communication” defined entropy, the average bits per symbol no code can beat.",
+      "source": "https://doi.org/10.1002/j.1538-7305.1948.tb01338.x"
+    },
+    {
+      "id": "jpeg",
+      "claim": "The JPEG committee describes JPEG as a Huffman-coded, DCT-based lossy image format.",
+      "source": "https://jpeg.org/jpeg/"
+    }
+  ]
+}
