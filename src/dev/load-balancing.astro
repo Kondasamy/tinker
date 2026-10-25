@@ -1,0 +1,75 @@
+---
+// Dev-only eyeball page: the switchyard in several states of Larkspur's sale (static SVG, wide and phone), the latency
+// board at the end of a run per rule, then the stage live. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { YARD_BOARD, idleYard, yardAt, yardLabel, yardScene, type YardOpts } from '../components/scenes/yardScene';
+import { BoardView, LbStage } from '../content/load-balancing/kit';
+import { policyOf, simulate } from '../lib/load-balancing/sim';
+import { RULES, RULE_NAME } from '../lib/load-balancing/rules';
+import { WINNERS, benchPolicy } from '../lib/load-balancing/workbench';
+
+const GRAY = { dogwood: 'gray' } as const;
+const trouble = simulate(policyOf({ states: { cedar: 'dead', dogwood: 'gray' }, checks: 2 }));
+const best = simulate(benchPolicy(WINNERS[0]));
+const STATES: [string, Omit<YardOpts, 'scale'>][] = [
+  ['Idle, four sheds', idleYard(4, RULE_NAME['round-robin'])],
+  ['Ash alone, mid-sale', yardAt(simulate(policyOf({ servers: 1 })), 2500, RULE_NAME['round-robin'])],
+  ['Round robin, Dogwood gray, 3 s', yardAt(simulate(policyOf({ states: GRAY })), 3000, RULE_NAME['round-robin'])],
+  [
+    'Cedar dead and pulled, Dogwood gray',
+    { ...yardAt(trouble, 2000, 'Round robin'), say: { block: 'cedar', text: 'Pulled' } },
+  ],
+  ['The workbench’s first winner, 3 s', yardAt(best, 3000, RULE_NAME[WINNERS[0].rule])],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Load balancing scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Switchyard: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={YARD_BOARD} scene={yardScene({ ...o, scale: 1.2 })} label={yardLabel(o)} /></div>
+            <div class="phone"><IsoStage board={YARD_BOARD} scene={yardScene({ ...o, scale: 2 })} label={yardLabel(o)} /></div>
+            <p>{yardLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>Latency board per rule (Dogwood slow but answering)</h1>
+      <div class="grid">
+        {RULES.map(rule => {
+          const r = simulate(policyOf({ rule, states: GRAY }));
+          return <section><h2>{RULE_NAME[rule]}</h2><BoardView client:load run={r} t={r.end} /></section>;
+        })}
+      </div>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Picture</h2><div class="stage"><LbStage client:load run={best} play={0} idle={idleYard(4, 'x')} rule={WINNERS[0].rule} caption="The first winner." /></div></section>
+        <section><h2>Board, escaped caption</h2><div class="stage"><LbStage client:load view="board" run={trouble} play={0} idle={idleYard(4, 'x')} rule="round-robin" caption="<script>alert(1)</script>" /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 520px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

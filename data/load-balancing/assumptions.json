@@ -1,0 +1,20 @@
+{
+  "note": "Larkspur's planning numbers for a teaching simulator, not measurements of any real server, network or load balancer. Every wait the Load balancing module shows comes from these and from the traffic file.",
+  "serviceMs": 40,
+  "workSpread": 0.5,
+  "slowFactor": 5,
+  "troubleAtMs": 1000,
+  "timeoutMs": 1000,
+  "checkEveryMs": 200,
+  "checkTimeoutMs": 100,
+  "checkMisses": [0, 1, 2, 3],
+  "hedgeWaits": [0, 50, 100, 200],
+  "words": {
+    "service": "a fine server takes 20 to 60 ms of work per request, 40 ms on average, and works on one request per slot at a time",
+    "slow": "a slow server takes 5 times as long over everything, its health check included",
+    "gray": "a slow-but-answering server takes 5 times as long over real requests, but answers the cheap health check at once",
+    "trouble": "a server's trouble starts 1 second in, as the sale begins",
+    "timeout": "a customer gives up on a request after 1 second with no answer",
+    "checks": "the balancer checks every server every 200 ms; no answer within 100 ms is a miss"
+  }
+}
