@@ -48,7 +48,12 @@ const SIDES = [
 const answers = bins(itemsOf(), MIN_ANSWERS);
 type Idea = [string, string, ReturnType<typeof fact> | null, JarOpts];
 const IDEAS: Idea[] = [
-  ['What 70% should mean', 'Of the answers stated 70%, about seven in ten should be right', null, scene({ jars: answers })],
+  [
+    'What 70% should mean',
+    'Of the answers stated 70%, about seven in ten should be right',
+    null,
+    scene({ jars: answers }),
+  ],
   ['Honest jars', 'A tiny model, measured on text it never saw', fact('kadavath'), scene({ jars: rb.jars })],
   ['After the polish', 'A style fine-tune made it overconfident', fact('gpt4'), scene({ jars: rt.jars })],
   [

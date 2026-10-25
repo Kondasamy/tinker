@@ -8,7 +8,16 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { KINDS, KIND_IDS, MIN_ANSWERS, THRESHOLDS, itemsOf, ofKind, type KindId, type Threshold } from '../../lib/calibration/answers';
+import {
+  KINDS,
+  KIND_IDS,
+  MIN_ANSWERS,
+  THRESHOLDS,
+  itemsOf,
+  ofKind,
+  type KindId,
+  type Threshold,
+} from '../../lib/calibration/answers';
 import { TEMPERATURES, type Temperature } from '../../lib/calibration/measure';
 import { bins } from '../../lib/calibration/score';
 import { LEAST, RULES, WINNERS, solved, totals, type Choice, type Plan } from '../../lib/calibration/workbench';
@@ -54,7 +63,7 @@ export const STEPS: Step<S>[] = [
     id: 'plan',
     focus: 'plan',
     visibleControls: ['score', 'plan'],
-    narration: `Rules: at most ${pct(RULES.wrongRate)} wrong per kind, honest shown confidence, ${RULES.capacity} hand-overs a day. The best plan hands over ${LEAST}.`,
+    narration: `Rules: at most ${pct(RULES.wrongRate)} wrong per kind, honest confidence shown, ${RULES.capacity} hand-overs a day. Best: ${LEAST}.`,
     act: 'Change the plan on the workbench.',
     say: { block: 'desk', text: `Room for ${RULES.capacity}` },
     predicate: s => solved(planOf(s.plan)),
@@ -109,8 +118,7 @@ function Score({ s }: { s: S }) {
                 {r.wrong} of {r.kept} {r.safe ? '✓' : '✗'}
               </td>
               <td>
-                {pct(r.shownMean)} vs {pct(r.rightShare)}{' '}
-                {r.honest ? '✓' : '✗'}
+                {pct(r.shownMean)} vs {pct(r.rightShare)} {r.honest ? '✓' : '✗'}
               </td>
               <td>{r.handed}</td>
             </tr>

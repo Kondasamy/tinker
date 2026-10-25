@@ -132,10 +132,9 @@
 }
 .cb-headline {
   margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
+}
+.cb-headline .stamp {
+  margin-left: 8px;
 }
 .cb-why {
   display: block;

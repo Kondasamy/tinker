@@ -65,17 +65,17 @@ const ROW = 150,
   U0 = -130,
   U1 = 130,
   SHELF = 6,
-  R = 8,
-  H = 34,
-  BALL = 2.35,
-  LAYER = 4.6,
-  DIAL = [143, 60],
-  DESK = [60, 143],
-  SLATE = [22, 22];
+  R = 9,
+  H = 38,
+  BALL = 2.6,
+  LAYER = 5.1,
+  DIAL = [146, 86],
+  DESK = [86, 146],
+  SLATE = [92, 12];
 const xy = (u: number, s = ROW) => [(s + u) / 2, (s - u) / 2];
 /** Where confidence c sits on the ruler. */
 export const uOf = (c: number) => U0 + (U1 - U0) * c;
-const MIN_GAP = 24; // in u: jars stay a hand apart (R = 8)
+const MIN_GAP = 27; // in u: jars stay a hand apart (R = 9)
 
 /** The jars' places on the ruler: each at its bin's mean confidence, pushed apart where two crowd, kept on the shelf. */
 export function jarPlaces(bins: Pick<Bin, 'conf'>[]): number[] {
@@ -122,7 +122,7 @@ function shelf() {
     [b[0], b[1], z1],
   ];
   const poly = (pts: number[][], col: string, w = 0.9) => {
-    const q = pts.map(p => P(p[0], p[1], p[2]));
+    const q = pts.map((p: number[]) => P(p[0], p[1], p[2]));
     return fill(sp(q), col) + ink(sp(q), w);
   };
   let s = poly(endR, WOOD.d) + poly(front, WOOD.m) + poly(top, WOOD.l);
@@ -139,11 +139,11 @@ function shelf() {
   return s;
 }
 
-const ring = (cx: number, cy: number, z: number, r = R) => on(PZ(z), ellUV(cx, cy, r, r, 28));
+const ring = (cx: number, cy: number, z: number, r = R): number[][] => on(PZ(z), ellUV(cx, cy, r, r, 28));
 /** The front half of a ring (the side toward the viewer), as an open path. */
 function frontArc(cx: number, cy: number, z: number, r = R) {
   const pts = Array.from({ length: 15 }, (_, i) => {
-    const a = (-Math.PI / 4) + (i / 14) * Math.PI; // from (1,-1) round through (1,1) to (-1,1)
+    const a = -Math.PI / 4 + (i / 14) * Math.PI; // from (1,-1) round through (1,1) to (-1,1)
     return P(cx + r * Math.cos(a), cy + r * Math.sin(a), z);
   });
   return `M${pts.map(p => `${f(p[0])} ${f(p[1])}`).join('L')}`;
@@ -157,19 +157,19 @@ function marble(x: number, y: number, z: number, col: { l: string; m: string }, 
 }
 // four to a layer, back ones first
 const SPOTS = [
-  [-3, -3],
-  [3, -3],
-  [-3, 3],
-  [3, 3],
+  [-3.4, -3.4],
+  [3.4, -3.4],
+  [-3.4, 3.4],
+  [3.4, 3.4],
 ].sort((a, b) => a[0] + a[1] - (b[0] + b[1]));
 
 /** A glass jar on the shelf at (cx, cy): glass behind, marbles, glass in front, its painted ring and a cork lid. */
 function jar(cx: number, cy: number, b: Bin | null, drop: boolean, gone: boolean) {
   const z0 = BH + SHELF,
     z1 = z0 + H,
-    sil = hull([...ring(cx, cy, z0), ...ring(cx, cy, z1)].map(p => P(p[0], p[1], p[2])));
+    sil = hull([...ring(cx, cy, z0), ...ring(cx, cy, z1)].map((p: number[]) => P(p[0], p[1], p[2])));
   let s = fill(sp(sil), CLEAR.l, 'fill-opacity=".55"');
-  s += ink(sp(ring(cx, cy, z0).map(p => P(p[0], p[1], p[2]))), 0.6);
+  s += ink(sp(ring(cx, cy, z0).map((p: number[]) => P(p[0], p[1], p[2]))), 0.6);
   if (b && !gone) {
     const m = marblesOf(b);
     for (let k = 0; k < MARBLES; k++) {
@@ -188,7 +188,7 @@ function jar(cx: number, cy: number, b: Bin | null, drop: boolean, gone: boolean
     s += `<path class="mark" d="${frontArc(cx, cy, zm, R + 0.2)}" fill="none" stroke="${INK}" stroke-width="2.6" stroke-linecap="round"/>`;
     s += `<path d="${frontArc(cx, cy, zm, R + 0.2)}" fill="none" stroke="${PALS.mustard.l}" stroke-width="1.5" stroke-linecap="round"/>`;
   }
-  s += ink(sp(sil), 1.3) + ink(sp(ring(cx, cy, z1).map(p => P(p[0], p[1], p[2]))), 0.9);
+  s += ink(sp(sil), 1.3) + ink(sp(ring(cx, cy, z1).map((p: number[]) => P(p[0], p[1], p[2]))), 0.9);
   s += cyl(cx, cy, z1, z1 + 3, R - 1.2, WOOD, toneI, 0.9);
   return s;
 }
@@ -239,7 +239,8 @@ function desk(handed: number) {
       y = cy - 3 + Math.floor(k / 4) * 3;
     s += marble(x, y, z + 1.4, PALS.cobalt, k, false);
   }
-  s += cyl(cx + 9, cy, z, z + 1, 2.6, METAL, toneI, 0.8) + cyl(cx + 9, cy, z + 1, z + 3.2, 1.8, PALS.mustard, toneI, 0.8);
+  s +=
+    cyl(cx + 9, cy, z, z + 1, 2.6, METAL, toneI, 0.8) + cyl(cx + 9, cy, z + 1, z + 3.2, 1.8, PALS.mustard, toneI, 0.8);
   return `<g data-part="desk" data-handed="${handed}">${s}</g>`;
 }
 
@@ -258,14 +259,24 @@ function post(threshold: number) {
   );
 }
 
-const CRATE = [104, 104];
+const CRATE = [124, 124];
 /** The crate in front: the marbles still to sort, mint and tomato mixed. */
 function crate() {
   const [x, y] = CRATE,
     z = BH + 9;
   let s = box(x - 10, y - 10, BH, x + 10, y + 10, z, WOOD, toneI, 1.1);
   s += box(x - 8.5, y - 8.5, z - 1.5, x + 8.5, y + 8.5, z - 0.2, WOOD, toneI, 0);
-  const mix = [PALS.mint, PALS.tomato, PALS.tomato, PALS.mint, PALS.tomato, PALS.mint, PALS.mint, PALS.tomato, PALS.mint];
+  const mix = [
+    PALS.mint,
+    PALS.tomato,
+    PALS.tomato,
+    PALS.mint,
+    PALS.tomato,
+    PALS.mint,
+    PALS.mint,
+    PALS.tomato,
+    PALS.mint,
+  ];
   mix.forEach((c, k) => {
     s += marble(x - 5 + (k % 3) * 5, y - 5 + Math.floor(k / 3) * 5, z - 2.3, c, k, false);
   });
@@ -276,15 +287,15 @@ function crate() {
 function slate() {
   const [x, y] = SLATE;
   return (
-    rod([x - 6, y + 6, BH], [x - 6, y + 6, BH + 30], 0.8, WOOD) +
-    rod([x + 6, y - 6, BH], [x + 6, y - 6, BH + 30], 0.8, WOOD) +
+    rod([x - 6, y + 6, BH], [x - 6, y + 6, BH + 62], 0.8, WOOD) +
+    rod([x + 6, y - 6, BH], [x + 6, y - 6, BH + 62], 0.8, WOOD) +
     `<g data-part="slate">${(() => {
       const q = [
-        [x - 9, y + 9, BH + 14],
-        [x + 9, y - 9, BH + 14],
-        [x + 9, y - 9, BH + 32],
-        [x - 9, y + 9, BH + 32],
-      ].map(p => P(p[0], p[1], p[2]));
+        [x - 9, y + 9, BH + 46],
+        [x + 9, y - 9, BH + 46],
+        [x + 9, y - 9, BH + 64],
+        [x - 9, y + 9, BH + 64],
+      ].map((p: number[]) => P(p[0], p[1], p[2]));
       return fill(sp(q), DARK.m) + ink(sp(q), 1.4);
     })()}</g>`
   );
@@ -337,15 +348,21 @@ export const jarScene = (o: JarOpts) => (ctx: SceneCtx) => {
       b = bins[i];
     if (!b) return;
     const text = narrow ? pct(b.conf) : `${pct(b.conf)} · ${b.n}`;
-    pills.push(pill([x, y, zTop], -10 - 18 * (i % rows), text, false, scale, gone(b) ? '#e9e4d6' : undefined));
+    pills.push(pill([x, y, zTop], -10 - 21 * (i % rows), text, false, scale, gone(b) ? '#e9e4d6' : undefined));
   });
   // a jar's callout floats above the highest row of pills, so it clears every neighbour's
   const lowAt = bins.length ? [...xy(us[0]), zTop] : null,
     topAt = bins.length ? [...xy(us.at(-1)!), zTop] : null,
-    above = -10 - 18 * (rows - 1);
+    above = -10 - 21 * (rows - 1);
   const dialAt = [DIAL[0], DIAL[1], BH + 12],
     deskAt = [DESK[0], DESK[1], BH + 14],
-    slateAt = [SLATE[0], SLATE[1], BH + 32];
+    slateAt = [SLATE[0], SLATE[1], BH + 64];
+  // the shelf is a ruler: its two ends named
+  for (const [c, t] of [
+    [0, '0%'],
+    [1, '100%'],
+  ] as const)
+    pills.push(pill([...xy(uOf(c), ROW + 11), BH], 12, t, false, scale));
   if (o.temps?.length && o.T !== undefined) pills.push(pill(dialAt, -14, `T ${o.T}`, o.T !== 1, scale));
   if (o.handed !== undefined)
     pills.push(pill(deskAt, -14, narrow ? `${o.handed}` : `HELP DESK · ${o.handed}`, false, scale));
@@ -401,7 +418,7 @@ export function jarPlot(x: number, y: number, top: SceneCtx['top']): string {
   const jars = spots.map(([dx, dy, c]) => {
     const cx = x + dx,
       cy = y + dy,
-      sil = hull([...ring(cx, cy, z0, r), ...ring(cx, cy, z0 + h, r)].map(p => P(p[0], p[1], p[2])));
+      sil = hull([...ring(cx, cy, z0, r), ...ring(cx, cy, z0 + h, r)].map((p: number[]) => P(p[0], p[1], p[2])));
     let g = fill(sp(sil), CLEAR.l, 'fill-opacity=".55"');
     const mint = Math.round(8 * c * 0.8);
     for (let k = 0; k < 8; k++) {
@@ -410,7 +427,10 @@ export function jarPlot(x: number, y: number, top: SceneCtx['top']): string {
       g += `<circle cx="${f(X)}" cy="${f(Y)}" r="1.5" fill="${k < mint ? PALS.mint.m : PALS.tomato.m}" stroke="${INK}" stroke-width=".6"/>`;
     }
     g += `<path d="${frontArc(cx, cy, z0 + 0.5 + 6 * c, r + 0.1)}" fill="none" stroke="${PALS.mustard.l}" stroke-width="1.4"/>`;
-    g += fill(sp(sil), CLEAR.m, 'fill-opacity=".2"') + ink(sp(sil), 1.1) + cyl(cx, cy, z0 + h, z0 + h + 2, r - 1, WOOD, toneI, 0.8);
+    g +=
+      fill(sp(sil), CLEAR.m, 'fill-opacity=".2"') +
+      ink(sp(sil), 1.1) +
+      cyl(cx, cy, z0 + h, z0 + h + 2, r - 1, WOOD, toneI, 0.8);
     return { at: [cx, cy, 0], svg: `<g>${g}</g>` };
   });
   return s + byDepth(jars);

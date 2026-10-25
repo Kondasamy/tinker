@@ -31,11 +31,7 @@ export interface S {
 
 export const P1 = {
   question: 'The same held-out text, read by the style fine-tune. How do its jars compare?',
-  options: [
-    'About as honest as before',
-    'Overconfident: rings above the mint',
-    'Underconfident: mint above the rings',
-  ],
+  options: ['About as honest as before', 'Overconfident: rings above the mint', 'Underconfident: mint above the rings'],
 };
 /** Over, under or about the same: the fine-tune's average confidence against how often it is right. */
 export function outcomeOf(gap: number) {
@@ -71,8 +67,7 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration:
-      `The fine-tune learned only to sign off “${SIGNOFF}”. Score it on held-out text it was not tuned for.`,
+    narration: `The fine-tune learned only to sign off “${SIGNOFF}”. Score it on held-out text it was not tuned for.`,
     act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
@@ -109,7 +104,9 @@ function Stage({ state, say, sync }: { state: S; say?: Step<S>['say']; sync: (s:
     <CalibrationStage
       say={say}
       shown={{
-        wait: !r ? <Waiting failed={g.status === 'error'} retry={g.retry} done={g.model ? g.done : undefined} /> : undefined,
+        wait: !r ? (
+          <Waiting failed={g.status === 'error'} retry={g.retry} done={g.model ? g.done : undefined} />
+        ) : undefined,
         booth: { jars: r?.jars ?? [] },
         caption: items
           ? `${NAMES[state.show][0].toUpperCase()}${NAMES[state.show].slice(1)}: ${pct(meanConf(items))} sure on average, right ${pct(accuracy(items))} of the time.`

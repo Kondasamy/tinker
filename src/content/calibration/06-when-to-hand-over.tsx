@@ -46,7 +46,8 @@ export const QUIZ = {
     'Nothing, unless the bot is perfectly calibrated',
   ],
   correct: 0,
-  explanation: 'A higher line trades coverage for accuracy: fewer answers go out, more of them right, more go to people.',
+  explanation:
+    'A higher line trades coverage for accuracy: fewer answers go out, more of them right, more go to people.',
   why: [
     'Right: the unsure answers it now hands over were the likeliest to be wrong.',
     'Raising the line can only take answers away from the bot, never add them.',
@@ -80,8 +81,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['table', 'quiz'],
-    narration:
-      'Every notch up hands more to people and lets fewer wrong answers out. The limit and the desk decide where to stop.',
+    narration: 'Each notch up hands more to people and lets fewer wrong answers out. The limit decides where to stop.',
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What happens to the unsure answers when the line goes up?',

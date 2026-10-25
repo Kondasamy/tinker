@@ -35,13 +35,19 @@ export const fitted = (g: Guess[]) => fitT(half(g, 'fit'));
 export interface S {
   p1: number | null;
   T: number;
+  /** the measurement landed (the stage reports it), so the log loss can show */
+  read: boolean;
   checked: boolean;
   quiz: number | null;
 }
 
 export const P1 = {
   question: 'Turn the temperature from 1 up to 2. What happens to the fine-tune’s top guesses?',
-  options: ['The same guesses, stated less surely', 'It picks different guesses', 'The same guesses, stated more surely'],
+  options: [
+    'The same guesses, stated less surely',
+    'It picks different guesses',
+    'The same guesses, stated more surely',
+  ],
 };
 /** Dividing every score by the same T keeps their order, so the top guess is the same at every T. */
 export const OUTCOME = 0;
@@ -78,9 +84,8 @@ export const STEPS: Step<S>[] = [
     id: 'fit',
     focus: 'dial',
     visibleControls: ['result', 'dial'],
-    narration:
-      'Temperature scaling picks the setting with the lowest log loss on half the held-out text: the fit half.',
-    act: 'Find the temperature with the lowest log loss.',
+    narration: 'Temperature scaling picks the setting with the lowest log loss on the fit half of the held-out text.',
+    act: 'Find the lowest log loss.',
     say: { block: 'top', text: 'Watch the rings' },
     predicate: s => {
       const g = guessesNow('finetuned');
@@ -96,7 +101,7 @@ export const STEPS: Step<S>[] = [
     id: 'check',
     focus: 'check',
     visibleControls: ['dial', 'check'],
-    narration: 'The test half played no part in choosing it. If its jars sit near their rings too, the fix holds.',
+    narration: 'The test half played no part in choosing it. Jars near their rings there mean the fix holds.',
     act: 'Check it on the test half.',
     predicate: s => s.checked,
     hint: 'Press “Check on the test half”.',
@@ -105,15 +110,19 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['checked', 'quiz'],
-    narration: 'One number, fitted after training, and the overconfidence is mostly gone. The top guesses never changed.',
+    narration:
+      'One number, fitted after training, and the overconfidence is mostly gone. The top guesses never changed.',
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which data chose the setting, and which data can judge it?',
   },
 ];
 
-function Stage({ state, say }: { state: S; say?: Step<S>['say'] }) {
+function Stage({ state, say, sync }: { state: S; say?: Step<S>['say']; sync: (s: S) => void }) {
   const g = useGuesses('finetuned');
+  useEffect(() => {
+    if (g.guesses && !state.read) sync({ ...state, read: true });
+  });
   const set = g.guesses ? half(g.guesses, state.checked ? 'test' : 'fit') : null;
   const r = set ? report(set, state.T) : null;
   const items = set ? itemsAt(set, state.T) : null;
@@ -121,7 +130,9 @@ function Stage({ state, say }: { state: S; say?: Step<S>['say'] }) {
     <CalibrationStage
       say={say}
       shown={{
-        wait: !r ? <Waiting failed={g.status === 'error'} retry={g.retry} done={g.model ? g.done : undefined} /> : undefined,
+        wait: !r ? (
+          <Waiting failed={g.status === 'error'} retry={g.retry} done={g.model ? g.done : undefined} />
+        ) : undefined,
         booth: { jars: r?.jars ?? [], T: state.T, temps: TEMPERATURES },
         caption:
           items && set
@@ -141,15 +152,15 @@ export default function OneDial() {
       module={MODULE}
       chapter={ID}
       steps={STEPS}
-      initial={{ p1: null, T: 1, checked: false, quiz: null }}
+      initial={{ p1: null, T: 1, read: false, checked: false, quiz: null }}
       next={nextOf(MODULE, ID)}
-      stage={({ state, say }) => <Stage state={state} say={say} />}
+      stage={({ state, say, sync }) => <Stage state={state} say={say} sync={sync} />}
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         result: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />,
         // turning the dial is an attempt only while it is the puzzle
         dial: ({ state, apply, sync, focused }) => {
-          const g = guessesNow('finetuned');
+          const g = state.read ? guessesNow('finetuned') : undefined;
           return (
             <>
               <TemperatureRange value={state.T} onChange={T => (focused ? apply : sync)({ ...state, T })} />

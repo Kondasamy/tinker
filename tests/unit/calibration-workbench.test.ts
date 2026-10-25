@@ -43,7 +43,7 @@ describe('the workbench', () => {
   });
   it('the same threshold everywhere breaks the desk’s capacity: the answer is per kind', () => {
     const uniform = WINNERS.map(p => Object.fromEntries(KIND_IDS.map(k => [k, { ...p[k], threshold: 0.9 }])));
-    for (const p of uniform) expect(totals(p as typeof WINNERS[number]).fits).toBe(false);
+    for (const p of uniform) expect(totals(p as (typeof WINNERS)[number]).fits).toBe(false);
     expect(new Set(WINNERS[0] && KIND_IDS.map(k => WINNERS[0][k].threshold)).size).toBeGreaterThan(1);
   });
   it('sending everything at T = 1 keeps no rule but the capacity', () => {

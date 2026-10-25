@@ -22,7 +22,10 @@ const CHAPTERS: Chapter[] = [
           'Calibrated',
           'Its confidences mean what they say: of the answers it gives 70%, about seven in ten are right.',
         ],
-        ['Jar', 'Here, the answers that stated about the same confidence, gathered so you can count how many were right.'],
+        [
+          'Jar',
+          'Here, the answers that stated about the same confidence, gathered so you can count how many were right.',
+        ],
       ],
     },
   },
@@ -165,7 +168,8 @@ const CHAPTERS: Chapter[] = [
 export const CALIBRATION_MODULE: Module = {
   id: 'calibration',
   title: 'Calibration',
-  description: 'When to trust a model’s confidence: 70% should mean right seven times in ten, and how to check and fix it.',
+  description:
+    'When to trust a model’s confidence: 70% should mean right seven times in ten, and how to check and fix it.',
   level: 'Intermediate',
   status: 'live',
   author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },

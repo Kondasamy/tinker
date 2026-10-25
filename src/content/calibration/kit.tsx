@@ -8,8 +8,8 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode 
 import IsoStage from '../../lib/iso/IsoStage';
 import { filterFor } from '../../lib/iso/core.js';
 import { STAMP_CLASS, type Stamp } from '../../lib/iso/flat';
-import type { Model } from '../../lib/lm/model';
 import type { Weights } from '../../lib/lm/load';
+import type { Model } from '../../lib/lm/model';
 import { JAR_BOARD, jarLabel, jarScene, pct, type JarOpts } from '../../components/scenes/jarScene';
 import { binWords, reliabilityChart, reliabilityLabel } from '../../components/scenes/reliabilityChart';
 import { TEMPERATURES, measureWindow, measured, remember, windows, type Guess } from '../../lib/calibration/measure';
@@ -30,22 +30,18 @@ export const NAMES: Record<'base' | 'finetuned', string> = { base: 'Larkspur min
 
 // ---- the measurement: a window per frame ----
 
-const reduced = () => typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 const BUDGET_MS = 8;
 /** Larkspur mini's held-out guesses for a set of weights: loads them, then measures a few windows per animation frame
  * (within BUDGET_MS) so the page keeps answering. Kept per loaded model, so a second use is instant. */
 export function useGuesses(weights: Weights | undefined, go = true) {
   const { status, model, retry } = useModel(weights);
-  const [guesses, setGuesses] = useState<Guess[] | undefined>(() => (model ? measured(model) : undefined));
+  // kept with the model they belong to, so a switch of weights never shows the last model's guesses
+  const [got, setGot] = useState<{ model: Model; guesses: Guess[] } | undefined>();
+  const guesses = model ? (got?.model === model ? got.guesses : measured(model)) : undefined;
   const [done, setDone] = useState(0);
   useEffect(() => {
     if (!model || !go) return;
-    const hit = measured(model);
-    if (hit) {
-      setGuesses(hit);
-      return;
-    }
-    setGuesses(undefined);
+    if (measured(model)) return;
     const ws = windows(model.config.ctx),
       out: Guess[] = [];
     let i = 0,
@@ -58,13 +54,13 @@ export function useGuesses(weights: Weights | undefined, go = true) {
       if (i < ws.length) raf = requestAnimationFrame(tick);
       else {
         remember(model, out);
-        setGuesses(out);
+        setGot({ model, guesses: out });
       }
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [model, go]);
-  return { status, model, guesses: model ? guesses : undefined, done, retry };
+  return { status, model, guesses, done, retry };
 }
 /** Guesses already measured for a set of weights (a predicate reads this), or undefined. */
 export const guessesNow = (w: Weights) => {

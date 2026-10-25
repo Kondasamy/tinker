@@ -40,11 +40,7 @@ export const OUTCOME = Math.abs(gap(ASKED)) < 0.05 ? 0 : gap(ASKED) < 0 ? 1 : 2;
 
 export const QUIZ = {
   question: 'A weather app said “30% chance of rain” on 100 days, and it rained on 31 of them. What does that show?',
-  options: [
-    'Its 30% was honest: calibrated',
-    'It was wrong on the 69 dry days',
-    'Nothing: you can’t check a chance',
-  ],
+  options: ['Its 30% was honest: calibrated', 'It was wrong on the 69 dry days', 'Nothing: you can’t check a chance'],
   correct: 0,
   explanation: 'A confidence is checked over many cases: 30% should come true about 30 times in 100, and it did.',
   why: [
@@ -78,8 +74,8 @@ export const STEPS: Step<S>[] = [
     id: 'worst',
     focus: 'worst',
     visibleControls: ['result', 'worst'],
-    narration: 'A ring is painted at each jar’s stated level. An honest jar fills with mint up to its ring.',
-    act: 'Pick the jar whose mint falls furthest below its ring.',
+    narration: 'Each jar has a ring painted at its stated level. Honest jars fill with mint up to it.',
+    act: 'Pick the jar furthest below its ring.',
     predicate: s => s.pick === WORST,
     hint: 'Read the Diagram tab: the longest red gap below the diagonal.',
     solution: s => ({ ...s, pick: WORST }),

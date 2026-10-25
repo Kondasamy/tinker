@@ -95,6 +95,8 @@ describe('Larkspur mini, measured', () => {
   it('the style fine-tune is less calibrated than the base on text it was not tuned for (KTD8’s bar)', () => {
     expect(report(g.finetuned).ece).toBeGreaterThan(report(g.base).ece);
     expect(pinned.models.finetuned.ece).toBeGreaterThan(pinned.models.base.ece);
+    // chapter 3 says “in nearly every jar”: every one of its jars holds less mint than its ring
+    for (const j of report(g.finetuned).jars) expect(j.right / j.n).toBeLessThan(j.conf);
   });
   it('the fitted temperature lowers the fine-tune’s test-half NLL and ECE', () => {
     const fit = half(g.finetuned, 'fit'),

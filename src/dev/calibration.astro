@@ -29,15 +29,17 @@ const STATES: [string, JarOpts][] = [
   ['Fine-tune, test half, T 1.5', { jars: report(half(tuned, 'test'), 1.5).jars, T: 1.5, temps: TEMPERATURES }],
   ['Fine-tune, test half, T 3 (merged)', { jars: report(half(tuned, 'test'), 3).jars, T: 3, temps: TEMPERATURES }],
   ['The answer set (stand-in)', { jars: answers }],
-  [
-    'Answer set, hand over below 80%',
-    { jars: answers, threshold: 0.8, handed: coverage(itemsOf(), 0.8).handed },
-  ],
+  ['Answer set, hand over below 80%', { jars: answers, threshold: 0.8, handed: coverage(itemsOf(), 0.8).handed }],
   ['Callout on the top jar', { jars: report(base).jars, say: { block: 'top', text: 'Sure and right' } }],
 ];
 const chart = (phone: boolean) => {
   const c = reliabilityChart(report(tuned).jars, phone);
-  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${c.w} ${c.h}"><defs>${filterFor(1, 'hand')}</defs><g filter="url(#hand)">${c.svg}</g></svg>`);
+  return (
+    'data:image/svg+xml;charset=utf-8,' +
+    encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${c.w} ${c.h}"><defs>${filterFor(1, 'hand')}</defs><g filter="url(#hand)">${c.svg}</g></svg>`,
+    )
+  );
 };
 ---
 <html lang="en">

@@ -96,7 +96,7 @@ export const STEPS: Step<S>[] = [
     narration:
       'Its top guess is often wrong, yet it knows when: unsure guesses are mostly tomato, sure ones mostly mint.',
     act: 'One question to finish.',
-    say: { block: 'low', text: 'Unsure, and right' },
+    say: { block: 'low', text: 'Unsure: tomato' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Is calibration about how often it is right, or how well it knows when?',
   },

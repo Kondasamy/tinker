@@ -25,7 +25,13 @@ export const accuracyOf = (b: Pick<Bin, 'n' | 'right'>) => (b.n ? b.right / b.n 
 /** The jars: tenths of confidence, merged from the top down until each holds `min` items (the bottom leftover joins
  * the bin above it). Empty tenths fold into a neighbour's span. */
 export function bins(items: Item[], min = 1): Bin[] {
-  const t = Array.from({ length: TENTHS }, (_, i) => ({ lo: i / TENTHS, hi: (i + 1) / TENTHS, n: 0, right: 0, sum: 0 }));
+  const t = Array.from({ length: TENTHS }, (_, i) => ({
+    lo: i / TENTHS,
+    hi: (i + 1) / TENTHS,
+    n: 0,
+    right: 0,
+    sum: 0,
+  }));
   for (const x of items) {
     const b = t[tenth(x.c)];
     b.n++;
@@ -36,7 +42,9 @@ export function bins(items: Item[], min = 1): Bin[] {
   let open: (typeof t)[number] | null = null;
   for (let i = TENTHS - 1; i >= 0; i--) {
     const b = t[i];
-    open = open ? { lo: b.lo, hi: open.hi, n: open.n + b.n, right: open.right + b.right, sum: open.sum + b.sum } : { ...b };
+    open = open
+      ? { lo: b.lo, hi: open.hi, n: open.n + b.n, right: open.right + b.right, sum: open.sum + b.sum }
+      : { ...b };
     if (open.n >= min) {
       out.unshift(open);
       open = null;
