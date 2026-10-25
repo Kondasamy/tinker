@@ -126,6 +126,9 @@ export default function NamedByContents() {
           <>
             <Fact id="header" />
             <Commands lines={['git hash-object prices.txt']} />
+            <p className="note in-note">
+              How a hash fingerprints any text: <a href="/encryption/">Locks and keys</a>.
+            </p>
           </>
         ),
         quiz: ({ state, apply, sync }) => (

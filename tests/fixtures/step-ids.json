@@ -1641,5 +1641,48 @@
       "bench",
       "ties"
     ]
+  },
+  "encryption": {
+    "01-a-shared-secret": [
+      "predict",
+      "lock",
+      "send",
+      "quiz"
+    ],
+    "02-mixing-paint": [
+      "pick",
+      "mix",
+      "predict",
+      "swap",
+      "final",
+      "quiz"
+    ],
+    "03-the-open-padlock": [
+      "predict",
+      "shut",
+      "open",
+      "quiz"
+    ],
+    "04-sealed-with-your-key": [
+      "sign",
+      "predict",
+      "tamper",
+      "quiz"
+    ],
+    "05-a-fingerprint": [
+      "predict",
+      "edit",
+      "quiz"
+    ],
+    "06-who-owns-this-padlock": [
+      "predict",
+      "check",
+      "impostor",
+      "quiz"
+    ],
+    "07-lock-sign-or-both": [
+      "bench",
+      "ties"
+    ]
   }
 }

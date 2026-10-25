@@ -646,6 +646,18 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'load-balancing')).toBe(34);
   });
 
+  it('has encryption as a live Beginner Classic tech module, numbered 36', () => {
+    expect(moduleOf('encryption')).toMatchObject({
+      title: 'Locks and keys',
+      level: 'Beginner',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('encryption').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'encryption')).toBe(35);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

@@ -4,7 +4,7 @@
 
 Each module is a short story you play through: the picture on the left is live, the story on the right asks you to do one thing at a time in it, and you watch what changes. Build the thing, break it, fix it.
 
-![Tinker home: one workshop, a plot per module; a wave names each module in turn. Thirty-five modules are live, from RAG and tool calling to search, card payments, Git, diffusion language models, queues, compression and load balancing](docs/images/home.png)
+![Tinker home: one workshop, a plot per module; a wave names each module in turn. Thirty-six modules are live, from RAG and tool calling to search, card payments, Git, diffusion language models, queues, compression, load balancing and encryption](docs/images/home.png)
 
 ---
 
@@ -25,6 +25,7 @@ Every module has a level, a story, an intro at `/<module>/`, its chapters, and a
 | Beginner | [Git](https://tinker.kondasamy.com/git/) | Live, 7 chapters |
 | Beginner | [Queues and background jobs](https://tinker.kondasamy.com/queues/) | Live, 7 chapters |
 | Beginner | [Compression](https://tinker.kondasamy.com/compression/) | Live, 7 chapters |
+| Beginner | [Locks and keys](https://tinker.kondasamy.com/encryption/) | Live, 7 chapters |
 | Intermediate | [Tool calling & MCP](https://tinker.kondasamy.com/tool-calling/) (RAG recommended first) | Live, 7 chapters |
 | Intermediate | [Evals & LLM testing](https://tinker.kondasamy.com/evals/) (RAG recommended first) | Live, 7 chapters |
 | Intermediate | [Prompt injection & guardrails](https://tinker.kondasamy.com/guardrails/) (Tool calling recommended first) | Live, 7 chapters |
@@ -49,7 +50,6 @@ Every module has a level, a story, an intro at `/<module>/`, its chapters, and a
 | Advanced | [Replication & consistency](https://tinker.kondasamy.com/consistency/) (Databases recommended first) | Live, 7 chapters |
 | Advanced | [Computer use](https://tinker.kondasamy.com/computer-use/) (AI agents and Multimodal recommended first) | Live, 7 chapters |
 | Advanced | [Diffusion language models](https://tinker.kondasamy.com/diffusion-llms/) (Diffusion models and Transformers recommended first) | Live, 7 chapters |
-| Beginner | Locks and keys | Planned |
 | Intermediate | Coding agents | Planned |
 | Intermediate | Synthetic data | Planned |
 | Advanced | Mixture of experts | Planned |

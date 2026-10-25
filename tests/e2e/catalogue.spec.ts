@@ -42,6 +42,7 @@ const NUMBERED = [
   'queues',
   'compression',
   'load-balancing',
+  'encryption',
 ];
 
 // every module sits at its level: live cards first, then the roadmap's planned cards in registry (build) order;
@@ -308,6 +309,10 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
   await expect(page.locator('[data-level="Intermediate"] .module[data-module="load-balancing"] h4 a')).toHaveAttribute(
     'href',
     '/load-balancing/',
+  );
+  await expect(page.locator('[data-level="Beginner"] .module[data-module="encryption"] h4 a')).toHaveAttribute(
+    'href',
+    '/encryption/',
   );
 });
 

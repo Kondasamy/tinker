@@ -1,7 +1,7 @@
 // Locks and keys: the intro, every chapter played by mouse and by keyboard only, its own progress key, real AES-GCM
 // and ECDSA run in the browser against their pins, "toy size" on every screen showing toy numbers, the secret picker by
 // keyboard, an impostor's certificate, "I'm not sure", reduced motion, the recap, axe and phone width; the module's
-// number on its intro and recap.
+// number on its intro and recap, its share images and home's card.
 import { test, expect, type Page } from '@playwright/test';
 import pinned from '../../data/encryption/pinned.json' with { type: 'json' };
 import { MODULES } from '../../src/lib/modules';
@@ -47,6 +47,21 @@ test('its module number on the intro and the recap', async ({ page }) => {
   await expect(page.locator('.hero .kicker')).toHaveText(`Module ${NUMBER} · Locks and keys`);
   await page.goto('/encryption/recap/');
   await expect(page.locator('.hero .kicker')).toHaveText(`Module ${NUMBER} · Recap`);
+});
+
+test('go-live: own share images and home’s card', async ({ page }) => {
+  await page.goto('/encryption/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/encryption\.jpg$/);
+  await page.goto(`/encryption/${CH1}/`);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    new RegExp(`/og/encryption-${CH1}\\.jpg$`),
+  );
+  await page.goto('/encryption/recap/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/encryption-recap\.jpg$/);
+  expect((await page.request.get('/og/encryption.jpg')).status()).toBe(200);
+  await page.goto('/');
+  await expect(page.locator('.module[data-module="encryption"] h4 a')).toHaveAttribute('href', '/encryption/');
 });
 
 test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({

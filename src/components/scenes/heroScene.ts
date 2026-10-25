@@ -56,6 +56,7 @@ import { typeFramePlot } from './typeFrameScene';
 import { railPlot } from './railScene';
 import { pilePlot } from './pileScene';
 import { yardPlot } from './yardScene';
+import { paintPlot } from './paintScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
@@ -286,6 +287,7 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   queues: (x, y, { top }) => railPlot(x + 14, y - 2, top),
   compression: (x, y, { top }) => pilePlot(x + 14, y - 2, top),
   'load-balancing': (x, y, { top }) => yardPlot(x + 14, y - 2, top),
+  encryption: (x, y, { top }) => paintPlot(x + 14, y - 2, top),
 };
 const LIVE = MODULES.filter(m => m.status === 'live'),
   PLANNED = MODULES.filter(m => m.status === 'planned');
