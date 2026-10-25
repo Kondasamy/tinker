@@ -88,6 +88,8 @@ import { runOf as pmRun } from '../lib/payments/sim';
 import { WINNERS as PM_WINNERS } from '../lib/payments/workbench';
 import { boardOf, crateLabel, crateScene, yardOf, type CrateOpts } from '../components/scenes/crateScene';
 import { CLEAN as GIT_CLEAN } from '../lib/git/story';
+import { JAR_BOARD, jarLabel, jarScene, type JarOpts } from '../components/scenes/jarScene';
+import { JARS as CB_JARS } from '../content/calibration/01-what-70-should-mean';
 
 const one =
   (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) =>
@@ -251,6 +253,8 @@ const CABINET: CabinetOpts = { ...cabinetAt('Larkspur forklift', { ...SX_DEFAULT
 const TUBES = { ...tubeAt(pmRun(PM_WINNERS[0]), 1), scale: 1.7 };
 // the sale merged into main: a merge crate on two rails
 const YARD: CrateOpts = { ...yardOf(GIT_CLEAN.repo, { lit: [GIT_CLEAN.repo.refs.main] }), scale: 1.7 };
+// calibration: the assistant's stand-in answers in their jars, the most sure honest, the middle ones claiming too much
+const BOOTH: JarOpts = { jars: CB_JARS };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -620,6 +624,19 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Merge conflicts',
       'Rebase',
       'Merge or rebase',
+    ],
+  },
+  calibration: {
+    name: 'Calibration',
+    iso: { board: JAR_BOARD, scene: jarScene(BOOTH), label: jarLabel(BOOTH) },
+    topics: [
+      'Confidence',
+      'Reliability diagrams',
+      'Overconfidence after fine-tuning',
+      'Temperature scaling',
+      'ECE & Brier score',
+      'Abstaining & hand-over',
+      'Coverage vs accuracy',
     ],
   },
 };

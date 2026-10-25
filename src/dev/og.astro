@@ -82,7 +82,7 @@ import { frontierChart } from '../components/scenes/frontierChart';
 import { STUDENT_SERIES } from '../content/small-models/kit';
 import { cheapestShipping, frontier } from '../lib/small-models/router';
 import { readFileSync } from 'node:fs';
-import { parseStudent, type Meta as LmMeta } from '../lib/lm/load';
+import { parseModel, parseStudent, type Meta as LmMeta } from '../lib/lm/load';
 import { SERVE_BOARD, floorAt, serveScene, type ServeOpts } from '../components/scenes/serveScene';
 import { OPEN, serve } from '../lib/inference/server';
 import { WINNERS as SERVE_WINNERS, runOf as serveRun } from '../lib/inference/workbench';
@@ -200,6 +200,18 @@ import {
   conflictMerge as gtConflictMerge,
 } from '../lib/git/story';
 import { WINNERS as GIT_WINNERS, runPlan as gtRunPlan } from '../lib/git/workbench';
+import { JAR_BOARD, jarScene, type JarOpts } from '../components/scenes/jarScene';
+import {
+  TEMPERATURES as CB_TEMPS,
+  fitT as cbFitT,
+  half as cbHalf,
+  measure as cbMeasure,
+  report as cbReport,
+} from '../lib/calibration/measure';
+import { MIN_ANSWERS as CB_MIN, itemsOf as cbItems, ofKind as cbOfKind } from '../lib/calibration/answers';
+import { bins as cbBins, coverage as cbCoverage } from '../lib/calibration/score';
+import { WINNERS as CB_WINNERS, totals as cbTotals } from '../lib/calibration/workbench';
+import { LOWEST as CB_LOWEST } from '../content/calibration/06-when-to-hand-over';
 import { MOMENTS, TICKS, runOf as cacheRun } from '../lib/caching/sim';
 import { WINNERS as CACHE_WINNERS } from '../lib/caching/workbench';
 import { oneTrip } from '../content/caching/01-far-is-slow';
@@ -1036,6 +1048,54 @@ const CRATE_OG: Record<string, () => Omit<CrateOpts, 'scale'>> = {
   'git-07-bring-them-in': () => yardOf(gtRunPlan(GIT_WINNERS[0]).repo, { ghosts: false }),
 };
 const crateOg = CRATE_OG[page.og]?.();
+// module 26 (30 once the roadmap's classic modules are live): the forecaster's booth. The intro: the style fine-tune's
+// jars, rings above the mint, its ECE on the slate; chapter 1: the assistant's stand-in answers; chapter 2: Larkspur
+// mini's honest jars; chapter 3: the fine-tune's; chapter 4: the fine-tune's test half at the fitted temperature;
+// chapter 5: Larkspur mini with its ECE and Brier score; chapter 6: the lowest safe hand-over line; chapter 7: the
+// products kind under the first winning plan.
+const cbGuesses = (f: string) => {
+  const bin = readFileSync('public/data/lm/' + f);
+  return cbMeasure(
+    parseModel(
+      JSON.parse(readFileSync('public/data/lm/meta.json', 'utf8')) as LmMeta,
+      bin.buffer.slice(bin.byteOffset, bin.byteOffset + bin.byteLength) as ArrayBuffer,
+    ),
+  );
+};
+const cb3 = (x: number) => x.toFixed(3);
+const CALIB_OG: Record<string, () => JarOpts> = {
+  calibration: () => {
+    const r = cbReport(cbGuesses('finetuned.bin'));
+    return { jars: r.jars, slate: `ECE ${cb3(r.ece)}` };
+  },
+  'calibration-01-what-70-should-mean': () => ({ jars: cbBins(cbItems(), CB_MIN) }),
+  'calibration-02-honest-jars': () => ({ jars: cbReport(cbGuesses('model.bin')).jars }),
+  'calibration-03-after-the-polish': () => ({ jars: cbReport(cbGuesses('finetuned.bin')).jars }),
+  'calibration-04-one-dial': () => {
+    const g = cbGuesses('finetuned.bin'),
+      T = cbFitT(cbHalf(g, 'fit'));
+    return { jars: cbReport(cbHalf(g, 'test'), T).jars, T, temps: CB_TEMPS };
+  },
+  'calibration-05-keeping-score': () => {
+    const r = cbReport(cbGuesses('model.bin'));
+    return { jars: r.jars, slate: `ECE ${cb3(r.ece)} · BRIER ${cb3(r.brier)}` };
+  },
+  'calibration-06-when-to-hand-over': () => ({
+    jars: cbBins(cbItems(), CB_MIN),
+    threshold: CB_LOWEST,
+    handed: cbCoverage(cbItems(), CB_LOWEST).handed,
+  }),
+  'calibration-07-workbench': () => {
+    const c = CB_WINNERS[0].products;
+    return {
+      jars: cbBins(cbItems(cbOfKind('products'), c.T), CB_MIN),
+      T: c.T,
+      temps: CB_TEMPS,
+      handed: cbTotals(CB_WINNERS[0]).handed,
+    };
+  },
+};
+const calibOg = CALIB_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1112,6 +1172,8 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : darkOg ? <IsoStage board={DARK_BOARD} scene={darkroomScene({ ...darkOg, scale: 1.3 })} label="" />
           : crateOg ? <IsoStage board={gtBoardOf(crateOg)} scene={crateScene({ ...crateOg, scale: 1.4 })} label="" />
           : dfStripSrc ?<div class="mm-og"><img src={dfStripSrc} alt="" /></div>
+          : calibOg ? <IsoStage board={JAR_BOARD} scene={jarScene({ ...calibOg, scale: 1.3 })} label="" />
+          : dfStripSrc ? <div class="mm-og"><img src={dfStripSrc} alt="" /></div>
           : abChartOg ? <div class="tf-og ab-og"><ResultView chart={abChartOg} /></div>
           : depotOgs ? <div class={depotOgs.length > 1 ? 'duo' : ''}>{depotOgs.map(o => <IsoStage board={DEPOT_BOARD} scene={depotScene({ ...o, scale: 1.3 })} label="" />)}</div>
           : lensOg ? <div class="tf-og"><Flat fig={lensOg} role="img" label="" /></div>

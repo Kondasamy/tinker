@@ -575,6 +575,19 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'git')).toBe(28);
   });
 
+  it('has calibration as a live Intermediate module that recommends Evals first, numbered 30', () => {
+    expect(moduleOf('calibration')).toMatchObject({
+      title: 'Calibration',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: ['evals'],
+    });
+    expect(moduleOf('calibration').track).toBeUndefined();
+    expect(moduleOf('calibration').author).toEqual(moduleOf('rag').author);
+    const live = MODULES.filter(m => m.status === 'live').map(m => m.id);
+    expect(live.indexOf('calibration')).toBe(29);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

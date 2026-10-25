@@ -28,6 +28,7 @@ import { SEARCH_MODULE } from '../content/search/module';
 import { WEB_REQUESTS_MODULE } from '../content/web-requests/module';
 import { PAYMENTS_MODULE } from '../content/payments/module';
 import { GIT_MODULE } from '../content/git/module';
+import { CALIBRATION_MODULE } from '../content/calibration/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -115,6 +116,7 @@ export const MODULES: Module[] = [
   WEB_REQUESTS_MODULE,
   PAYMENTS_MODULE,
   GIT_MODULE,
+  CALIBRATION_MODULE,
   planned(
     'diffusion-llms',
     'Diffusion language models',
@@ -126,12 +128,6 @@ export const MODULES: Module[] = [
     'Computer use',
     'Advanced',
     'An agent that sees a screenshot and clicks: what it sees, where it clicks, and the screens that fool it.',
-  ),
-  planned(
-    'calibration',
-    'Calibration',
-    'Intermediate',
-    'When a model says 70%, is it right 70% of the time? Confidence, measured, and when to abstain.',
   ),
   planned(
     'mixture-of-experts',
