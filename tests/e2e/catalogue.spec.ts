@@ -288,7 +288,8 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const)
     const soon = page.locator('.hero-pic .hero-soon');
     await expect(soon).toHaveCount(MODULES.filter(m => m.status === 'planned').length);
     for (const pill of await soon.all())
-      await (reducedMotion === 'reduce' ? expect(pill).toBeVisible() : expect(pill).toBeHidden());
+      if (reducedMotion === 'reduce') await expect(pill).toBeVisible();
+      else await expect(pill).toBeHidden();
   });
 
 // the wave hops plot i at i × 0.8 s; sampled mid-turn, only that plot's pill shows, and with reduced motion every pill shows
