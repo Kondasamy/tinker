@@ -1,0 +1,194 @@
+{
+  "note": "Hand-written test searches for Larkspur's document search box, each with the pages that answer it (doc#page, RAG's default 32-word chunks). Labels are this site's judgement, not measured. Re-run scripts/embed-search-queries.mjs after editing any text.",
+  "queries": [
+    {
+      "id": "sensor-warranty",
+      "text": "dock door sensor warranty",
+      "kind": "words",
+      "right": [
+        "dock-sensor-warranty-2022#1",
+        "dock-sensor-warranty-2022#2"
+      ]
+    },
+    {
+      "id": "late-fee",
+      "text": "late fee on unpaid invoices",
+      "kind": "words",
+      "right": [
+        "faq-billing-2024#3",
+        "faq-billing-2024#4"
+      ]
+    },
+    {
+      "id": "forklift",
+      "text": "who may drive forklifts",
+      "kind": "words",
+      "right": [
+        "warehouse-safety-handbook-2023#2",
+        "warehouse-ops-sync-2024#4"
+      ]
+    },
+    {
+      "id": "two-step",
+      "text": "two-step verification",
+      "kind": "words",
+      "right": [
+        "portal-release-notes-2022#3"
+      ]
+    },
+    {
+      "id": "phishing",
+      "text": "phishing test results",
+      "kind": "words",
+      "right": [
+        "security-review-notes-2024#3",
+        "security-review-notes-2024#4"
+      ]
+    },
+    {
+      "id": "trade-in",
+      "text": "trade-in credit for an old K2",
+      "kind": "words",
+      "right": [
+        "kestrel-k3-launch-faq-2025#4"
+      ]
+    },
+    {
+      "id": "fire",
+      "text": "where are the fire exits",
+      "kind": "words",
+      "right": [
+        "warehouse-safety-handbook-2023#6"
+      ]
+    },
+    {
+      "id": "recordings",
+      "text": "how long are call recordings kept",
+      "kind": "words",
+      "right": [
+        "data-retention-faq-2025#2",
+        "security-policy-2025#5"
+      ]
+    },
+    {
+      "id": "printer-jam",
+      "text": "label printer jams",
+      "kind": "endings",
+      "right": [
+        "warehouse-ops-sync-2024#4",
+        "wren-printer-quickstart-2022#6"
+      ]
+    },
+    {
+      "id": "subscription-refunds",
+      "text": "refunds for subscriptions",
+      "kind": "endings",
+      "right": [
+        "refund-policy-2025#5"
+      ]
+    },
+    {
+      "id": "k3-battery",
+      "text": "Kestrel K3 battery",
+      "kind": "endings",
+      "right": [
+        "kestrel-k3-launch-faq-2025#1",
+        "kestrel-k3-launch-faq-2025#4",
+        "portal-release-notes-2025#2"
+      ]
+    },
+    {
+      "id": "engineering-purchases",
+      "text": "who approves purchases for engineering",
+      "kind": "endings",
+      "right": [
+        "procurement-policy-2024#3"
+      ]
+    },
+    {
+      "id": "shelving-part",
+      "text": "HR-SB",
+      "kind": "part",
+      "right": [
+        "price-list-2025#3"
+      ]
+    },
+    {
+      "id": "duty-extension",
+      "text": "extension 4410",
+      "kind": "part",
+      "right": [
+        "support-handbook-2025#4"
+      ]
+    },
+    {
+      "id": "printer-part",
+      "text": "WR-4",
+      "kind": "part",
+      "right": [
+        "price-list-2025#3"
+      ]
+    },
+    {
+      "id": "no-password",
+      "text": "logging in without a password",
+      "kind": "meaning",
+      "right": [
+        "security-policy-2025#3"
+      ]
+    },
+    {
+      "id": "lodging",
+      "text": "money for a place to sleep on work trips",
+      "kind": "meaning",
+      "right": [
+        "travel-policy-2025#2",
+        "travel-policy-2018#2"
+      ]
+    },
+    {
+      "id": "hotel-limit",
+      "text": "hotel nightly limit",
+      "kind": "words",
+      "right": [
+        "travel-policy-2018#2",
+        "travel-policy-2025#2"
+      ]
+    },
+    {
+      "id": "checkout-outage",
+      "text": "the website was down and nobody could pay",
+      "kind": "meaning",
+      "right": [
+        "incident-postmortem-2024#1"
+      ]
+    },
+    {
+      "id": "faulty-item",
+      "text": "who pays to send back a faulty item",
+      "kind": "meaning",
+      "right": [
+        "refund-policy-2025#6",
+        "returns-faq-2022#4"
+      ]
+    },
+    {
+      "id": "engineering-head",
+      "text": "Okonkwo-Hale",
+      "kind": "part",
+      "right": [
+        "procurement-policy-2024#3",
+        "org-chart-2025#2"
+      ]
+    },
+    {
+      "id": "net-45",
+      "text": "net 45",
+      "kind": "part",
+      "right": [
+        "faq-billing-2024#2",
+        "enterprise-onboarding-guide-2025#8"
+      ]
+    }
+  ]
+}
