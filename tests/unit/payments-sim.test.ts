@@ -34,6 +34,20 @@ const REF: Setting = { sca: 'risk', capture: 'shipment', key: true };
 const sum = (r: Record<string, number>) => Object.values(r).reduce((a, b) => a + b, 0);
 
 describe('the day', () => {
+  it('leaves nothing held on any card once the run ends, with or without the retry key', () => {
+    for (const s of SETTINGS)
+      for (const o of ORDERS) {
+        const r = simulate(policyOf(s), [o]);
+        expect(cardAt(r, TICKS - 1).held, `${o.id} ${JSON.stringify(s)}`).toBe(0);
+      }
+  });
+
+  it('keeps every event of every order, under every setting, inside the run', () => {
+    for (const s of SETTINGS)
+      for (const o of ORDERS)
+        for (const e of runOrder(o, s).events) expect(e.t, `${o.id} ${e.what}`).toBeLessThan(TICKS);
+  });
+
   it('every order ends in exactly one final state, under every setting', () => {
     for (const r of ALL) {
       expect(r.orders).toHaveLength(ORDERS.length);

@@ -196,7 +196,6 @@ export default function CheckoutPolicy() {
             show={{
               scene: tubeAt(r, AT),
               result: r,
-              tick: AT,
               caption: `${clock(AT)} under your policy. Over ${DAYS} days Larkspur keeps ${eur(r.net)}.`,
             }}
           />

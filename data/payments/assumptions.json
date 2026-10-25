@@ -1,7 +1,7 @@
 {
   "note": "Larkspur's planning numbers for a teaching simulator, not any provider's prices or rules. Interchange is charged at the EU caps (facts ifr-debit, ifr-credit), Larkspur's assumption; the scheme fee, the acquirer's fee, the chargeback fee, how long a hold lasts and when a duplicate is noticed are made up for this site. Money is whole cents.",
   "currency": "EUR",
-  "days": 12,
+  "days": 13,
   "dayStarts": "09:00",
   "cutoff": "22:00",
   "holdDays": 7,

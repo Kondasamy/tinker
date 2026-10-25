@@ -228,16 +228,25 @@ export function runOrder(o: Order, s: Setting): OrderRun {
     if (p.day >= HOLD_DAYS) {
       if (!lapsed) {
         lapsed = true;
-        add({ t: T(HOLD_DAYS), what: 'expire', cents: o.cents - captured });
+        for (let c = 0; c < copies; c++)
+          add({ t: T(HOLD_DAYS), what: 'expire', cents: o.cents - captured, ...(c ? { dup: true } : {}) });
       }
       // a new authorisation for the parcel: a new hold, or a no
-      add({ t: T(p.day), what: o.reauthDeclines ? 'declined' : 'reauth', cents: p.cents });
+      for (let c = 0; c < (o.reauthDeclines ? 1 : copies); c++)
+        add({
+          t: T(p.day),
+          what: o.reauthDeclines ? 'declined' : 'reauth',
+          cents: p.cents,
+          ...(c ? { dup: true } : {}),
+        });
       if (o.reauthDeclines) continue;
     }
     capture(p.day, p.cents);
   }
   // a hold with money left on it lapses on its day
-  if (!lapsed && captured < o.cents) add({ t: T(HOLD_DAYS), what: 'expire', cents: o.cents - captured });
+  if (!lapsed && captured < o.cents)
+    for (let c = 0; c < copies; c++)
+      add({ t: T(HOLD_DAYS), what: 'expire', cents: o.cents - captured, ...(c ? { dup: true } : {}) });
   if (!captured) return done('expired');
 
   // refunds: captured at order, parts that never shipped go back on the cancel day
