@@ -1,0 +1,60 @@
+{
+  "accessed": "2026-10-25",
+  "facts": [
+    {
+      "id": "round-robin",
+      "claim": "NGINX sends requests to its servers in round-robin fashion unless another method is set: round robin is its default.",
+      "source": "https://nginx.org/en/docs/http/load_balancing.html"
+    },
+    {
+      "id": "least-connected",
+      "claim": "NGINX’s least-connected method sends the next request to the server with the fewest active connections, which spreads load more fairly when some requests take longer.",
+      "source": "https://nginx.org/en/docs/http/load_balancing.html"
+    },
+    {
+      "id": "weights",
+      "claim": "With server weights of 3, 1 and 1, NGINX sends 3 of every 5 new requests to the first server and one to each of the others.",
+      "source": "https://nginx.org/en/docs/http/load_balancing.html"
+    },
+    {
+      "id": "two-choices",
+      "claim": "Mitzenmacher showed that letting each arrival pick the less loaded of 2 random servers gives exponential improvements in time spent over picking 1 at random (IEEE TPDS, 2001).",
+      "source": "https://www.eecs.harvard.edu/~michaelm/abstracts/tpds2001.html"
+    },
+    {
+      "id": "envoy-p2c",
+      "claim": "Envoy’s least request balancer picks 2 random available hosts by default and prefers the one with fewer active requests, a method it calls P2C (power of two choices).",
+      "source": "https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/upstream/load_balancing/load_balancers"
+    },
+    {
+      "id": "health-checks",
+      "claim": "An AWS Application Load Balancer checks each target every 30 seconds by default and takes it out of service after 2 failed checks in a row, its default unhealthy threshold.",
+      "source": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-health-checks.html"
+    },
+    {
+      "id": "fail-open",
+      "claim": "If every target fails its health checks at once, an AWS Application Load Balancer fails open and sends requests to all of them.",
+      "source": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-health-checks.html"
+    },
+    {
+      "id": "gray-failure",
+      "claim": "Microsoft researchers named subtle faults that are not outright crashes gray failure, and traced them to differential observability: a system’s failure detectors may not notice what its users feel (HotOS, 2017).",
+      "source": "https://www.microsoft.com/en-us/research/publication/gray-failure-achilles-heel-cloud-scale-systems/"
+    },
+    {
+      "id": "sticky",
+      "claim": "NGINX’s ip-hash method keeps a client’s requests on the same server, a sticky or persistent session, except when that server is unavailable.",
+      "source": "https://nginx.org/en/docs/http/load_balancing.html"
+    },
+    {
+      "id": "tail-at-scale",
+      "claim": "Google’s Dean and Barroso argue that rare slow moments, harmless in a small system, come to dominate the latency of a large one (Communications of the ACM, 2013).",
+      "source": "https://research.google/pubs/the-tail-at-scale/"
+    },
+    {
+      "id": "hedged",
+      "claim": "Dean and Barroso describe hedged requests: send the same request to a second server once the first has waited longer than most requests do, and use whichever answers first.",
+      "source": "https://research.google/pubs/the-tail-at-scale/"
+    }
+  ]
+}

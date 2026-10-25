@@ -1,0 +1,40 @@
+{
+  "note": "Larkspur's sale, hand-written for a teaching simulator: arrival rates per phase, the shop's servers and its customers. Not logged traffic. Arrival times, customers and each request's work are drawn from the seed.",
+  "seed": 35,
+  "phases": [
+    { "id": "morning", "name": "the morning", "fromMs": 0, "toMs": 1000, "perSecond": 60 },
+    { "id": "sale", "name": "the sale", "fromMs": 1000, "toMs": 4000, "perSecond": 120 }
+  ],
+  "servers": [
+    { "id": "ash", "name": "Ash", "slots": 4, "weight": 2 },
+    { "id": "birch", "name": "Birch", "slots": 2, "weight": 1 },
+    { "id": "cedar", "name": "Cedar", "slots": 2, "weight": 1 },
+    { "id": "dogwood", "name": "Dogwood", "slots": 2, "weight": 1 }
+  ],
+  "customers": [
+    "Priya",
+    "Tomás",
+    "Aiko",
+    "Femi",
+    "Grace",
+    "Lars",
+    "Mei",
+    "Omar",
+    "Rosa",
+    "Sven",
+    "Ada",
+    "Bilal",
+    "Chloe",
+    "Dmitri",
+    "Esme",
+    "Farid",
+    "Hana",
+    "Ivan",
+    "Joy",
+    "Kofi",
+    "Lena",
+    "Mateo",
+    "Nia",
+    "Oskar"
+  ]
+}
