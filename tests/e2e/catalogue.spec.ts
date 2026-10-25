@@ -34,6 +34,7 @@ const NUMBERED = [
   'diffusion',
   'search',
   'web-requests',
+  'payments',
 ];
 
 // every module sits at its level: live cards first, then the roadmap's planned cards in registry (build) order;
@@ -265,6 +266,10 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
   await expect(page.locator('[data-level="Beginner"] .module[data-module="web-requests"] h4 a')).toHaveAttribute(
     'href',
     '/web-requests/',
+  );
+  await expect(page.locator('[data-level="Beginner"] .module[data-module="payments"] h4 a')).toHaveAttribute(
+    'href',
+    '/payments/',
   );
 });
 

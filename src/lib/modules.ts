@@ -26,6 +26,7 @@ import { AB_TESTING_MODULE } from '../content/ab-testing/module';
 import { DIFFUSION_MODULE } from '../content/diffusion/module';
 import { SEARCH_MODULE } from '../content/search/module';
 import { WEB_REQUESTS_MODULE } from '../content/web-requests/module';
+import { PAYMENTS_MODULE } from '../content/payments/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -111,6 +112,7 @@ export const MODULES: Module[] = [
   DIFFUSION_MODULE,
   SEARCH_MODULE,
   WEB_REQUESTS_MODULE,
+  PAYMENTS_MODULE,
   planned(
     'diffusion-llms',
     'Diffusion language models',
@@ -128,13 +130,6 @@ export const MODULES: Module[] = [
     'Calibration',
     'Intermediate',
     'When a model says 70%, is it right 70% of the time? Confidence, measured, and when to abstain.',
-  ),
-  planned(
-    'payments',
-    'Card payments',
-    'Beginner',
-    'Where the money goes when a customer pays by card: authorisation, capture, settlement, fees and chargebacks.',
-    'Classic tech',
   ),
   planned(
     'git',

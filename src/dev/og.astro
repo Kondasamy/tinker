@@ -156,6 +156,9 @@ import {
 import { STOCK_BOARD, stockAt, stockScene, type StockOpts } from '../components/scenes/stockScene';
 import { MOMENTS as CS_M, policyOf as csPol, runOf as csRun } from '../lib/consistency/sim';
 import { WINNERS as CS_WINNERS } from '../lib/consistency/workbench';
+import { TUBE_BOARD, hopAt, journeyOf, tubeAt, tubeScene, type TubeOpts } from '../components/scenes/tubeScene';
+import { policyOf as pmPol, runOf as pmRun, type Setting as PmSetting } from '../lib/payments/sim';
+import { WINNERS as PM_WINNERS } from '../lib/payments/workbench';
 import { SPLIT_BOARD, splitAt, splitScene, type SplitOpts } from '../components/scenes/splitScene';
 import { ResultView } from '../content/ab-testing/kit';
 import {
@@ -866,6 +869,26 @@ const STOCK_OG: Record<string, () => Omit<StockOpts, 'scale'>> = {
   'consistency-07-stock-policy': () => stockAt(csRun(CS_WINNERS[0]), CS_M.westSells),
 };
 const stockOg = STOCK_OG[page.og]?.();
+// module 26: the tube exchange. The intro and 7: the first night under the first winning policy, the convoy and the
+// jars; 1: Ana's request reaching the issuer; 2: Mona's yes, her basket held; 3: the first night's settlement; 4: Ben
+// charged twice without the key; 5: the small orders challenged; 6: Noor's chargeback riding back.
+const PM_REF: PmSetting = { sca: 'risk', capture: 'shipment', key: true },
+  pmRef = pmRun(pmPol(PM_REF)),
+  pmOrder = (id: string) => pmRef.orders.find(o => o.order.id === id)!,
+  pmCb = pmRun({ ...pmPol(PM_REF), small: { ...PM_REF, sca: 'never' } });
+const TUBE_OG: Record<string, () => Omit<TubeOpts, 'scale'>> = {
+  payments: () => tubeAt(pmRun(PM_WINNERS[0]), 1),
+  'payments-01-four-parties': () => hopAt(pmOrder('A1'), 3),
+  'payments-02-a-hold': () => hopAt(pmOrder('N14'), journeyOf(pmOrder('N14')).length - 1),
+  'payments-03-overnight': () => tubeAt(pmRef, 1),
+  'payments-04-pressed-pay-twice': () => tubeAt(pmRun(pmPol({ ...PM_REF, key: false })), 1, ['B2']),
+  'payments-05-prove-its-you': () =>
+    tubeAt(pmRun({ ...pmPol(PM_REF), small: { ...PM_REF, sca: 'always' } }), 0, ['E5', 'C3', 'G7']),
+  'payments-06-the-money-comes-back': () =>
+    tubeAt(pmCb, pmCb.events.find(e => e.order === 'E5' && e.what === 'chargeback')!.t, ['E5', 'L12']),
+  'payments-07-checkout-policy': () => tubeAt(pmRun(PM_WINNERS[0]), 1),
+};
+const tubeOg = TUBE_OG[page.og]?.();
 // module 24: the shop floor. The intro and 1: the one-page checkout winning at its end; 2: an A/A run at its end; 3: the
 // bigger button run for enough shoppers; 4: the result chart (below); 5: the lucky colour; 6: the banner, returns up;
 // 7: the first bench experiment with its guardrail.
@@ -1054,6 +1077,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : fuseOg ? <IsoStage board={FUSE_BOARD} scene={fuseScene(fuseOg)} label="" />
           : dbOg ? <IsoStage board={ARCHIVE_BOARD} scene={archiveScene({ ...dbOg, scale: 1.3 })} label="" />
           : stockOg ? <IsoStage board={STOCK_BOARD} scene={stockScene({ ...stockOg, scale: 1.4 })} label="" />
+          : tubeOg ? <IsoStage board={TUBE_BOARD} scene={tubeScene({ ...tubeOg, scale: 1.4 })} label="" />
           : splitOg ? <IsoStage board={SPLIT_BOARD} scene={splitScene({ ...splitOg, scale: 1.3 })} label="" />
           : sxOg ? <IsoStage board={CABINET_BOARD} scene={cabinetScene({ ...sxOg, scale: 1.3 })} label="" />
           : townOg ? <IsoStage board={TOWN_BOARD} scene={townScene({ ...townOg, scale: 1.3 })} label="" />

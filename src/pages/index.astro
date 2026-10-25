@@ -83,6 +83,9 @@ import {
 import { DEFAULT as SX_DEFAULT } from '../lib/search/engine';
 import { TOWN_BOARD, townAt, townLabel, townScene } from '../components/scenes/townScene';
 import { WINNERS as WEB_WINNERS, loadOf as webLoad } from '../lib/web-requests/workbench';
+import { TUBE_BOARD, tubeAt, tubeLabel, tubeScene } from '../components/scenes/tubeScene';
+import { runOf as pmRun } from '../lib/payments/sim';
+import { WINNERS as PM_WINNERS } from '../lib/payments/workbench';
 
 const one =
   (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) =>
@@ -242,6 +245,8 @@ const DARK: DarkroomOpts = {
 };
 // "Larkspur forklift", weighed by rarity: the forklift page tops the podium
 const CABINET: CabinetOpts = { ...cabinetAt('Larkspur forklift', { ...SX_DEFAULT, weighting: 'tfidf' }), scale: 1.7 };
+// the first night under the best checkout policy: the coin convoy and the fee jars
+const TUBES = { ...tubeAt(pmRun(PM_WINNERS[0]), 1), scale: 1.7 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -585,6 +590,19 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'TLS and the padlock',
       'Head-of-line blocking',
       'HTTP/2 and HTTP/3',
+    ],
+  },
+  payments: {
+    name: 'Card payments',
+    iso: { board: TUBE_BOARD, scene: tubeScene(TUBES), label: tubeLabel(TUBES) },
+    topics: [
+      'Issuers & acquirers',
+      'Authorisation holds',
+      'Capture',
+      'Settlement & interchange',
+      'Idempotency keys',
+      '3-D Secure & SCA',
+      'Chargebacks',
     ],
   },
 };

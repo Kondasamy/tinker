@@ -41,7 +41,7 @@ test('the intro shows the level, the author, the chapters and the Colorfigures c
 });
 
 test('numbered 26 on the intro and the recap', async ({ page }) => {
-  expect(NUMBER).toBe(26);
+  expect(NUMBER).toBe(28);
   await page.goto('/payments/');
   await expect(page.locator('.hero .kicker')).toHaveText(`Module ${NUMBER} · Card payments`);
   await page.goto('/payments/recap/');

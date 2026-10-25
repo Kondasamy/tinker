@@ -4,7 +4,7 @@
 
 Each module is a short story you play through: the picture on the left is live, the story on the right asks you to do one thing at a time in it, and you watch what changes. Build the thing, break it, fix it.
 
-![Tinker home: one workshop, a plot per module; a wave names each module in turn. Twenty-seven modules are live, from RAG and tool calling to search and opening a web page](docs/images/home.png)
+![Tinker home: one workshop, a plot per module; a wave names each module in turn. Twenty-eight modules are live, from RAG and tool calling to search, opening a web page and card payments](docs/images/home.png)
 
 ---
 
@@ -21,6 +21,7 @@ Every module has a level, a story, an intro at `/<module>/`, its chapters, and a
 | Beginner | [A/B testing](#ab-testing-ab-testing) | Live, 7 chapters |
 | Beginner | [Search before AI](#search-before-ai-search) | Live, 7 chapters |
 | Beginner | [Opening a web page](#opening-a-web-page-web-requests) | Live, 7 chapters |
+| Beginner | [Card payments](#card-payments-payments) | Live, 7 chapters |
 | Intermediate | [Tool calling & MCP](#tool-calling--mcp-tool-calling) (RAG recommended first) | Live, 7 chapters |
 | Intermediate | [Evals & LLM testing](#evals--llm-testing-evals) (RAG recommended first) | Live, 7 chapters |
 | Intermediate | [Prompt injection & guardrails](#prompt-injection--guardrails-guardrails) (Tool calling recommended first) | Live, 7 chapters |
@@ -41,7 +42,6 @@ Every module has a level, a story, an intro at `/<module>/`, its chapters, and a
 | Advanced | [Post-training](#post-training-post-training) (Fine-tuning and Evals recommended first) | Live, 7 chapters |
 | Advanced | [Interpretability](#interpretability-interpretability) (Transformers recommended first) | Live, 7 chapters |
 | Advanced | [Replication & consistency](#replication--consistency-consistency) (Databases recommended first) | Live, 7 chapters |
-| Beginner | Card payments | Planned |
 | Beginner | Git | Planned |
 | Intermediate | Calibration | Planned |
 | Advanced | Diffusion language models | Planned |
@@ -479,6 +479,21 @@ What happens between a click and a page? Larkspur Supply Co.'s customers open it
 | 7 | Make the page fast for everyone | Pick a DNS TTL, an HTTP version and resumption that meet the owner's rules |
 
 The chapters play in a post town: the customer's house, the directory offices, the seal office and the shop at the end of a road as long as the real distance. Carts ride it per round trip, and a lost one tips into a ditch and is sent again. The waterfall is one tab away. Everything runs live in your browser on a seeded simulator; the waits are Larkspur's planning numbers, not measurements.
+### Card payments (`/payments/`)
+
+Where does the money go when a customer pays by card? A customer buys from Larkspur Supply Co. by card, and the team follows the money: a hold, a promise and a transfer that night, with every party taking a fee. EU rules only.
+
+| # | Chapter | What you do |
+|---|---|---|
+| 1 | Four parties and a network | Move Ana's payment through the tubes a message at a time and see who says yes |
+| 2 | A hold, not a payment | Watch a yes become a hold, a capture charge only what shipped, and a hold lapse |
+| 3 | Overnight | Move the clock past the cut-off and see each party's fee land in its jar |
+| 4 | Pressed Pay twice | Retry a timed-out payment, then turn on an idempotency key |
+| 5 | Prove it's you | Turn 3-D Secure on and watch it stop a thief, and a few honest buyers |
+| 6 | The money comes back | Follow two stolen-card disputes and see who pays each back |
+| 7 | Workbench: a checkout policy | Set 3-D Secure, capture and the retry key per kind of order |
+
+The chapters play in a tube exchange: the customer's wallet, Larkspur's till, the acquirer, the card network and the issuer, joined by glass tubes. The run's clock sets the time of day: by day capsules carry the messages, and at night a coin convoy settles the money and the fee jars fill. The ledger is one tab away. A day of orders runs through a simulator in your browser; every card is a masked made-up fixture, and every fee but the EU interchange caps is a labelled planning number.
 
 ---
 
@@ -532,6 +547,7 @@ The chapters play in a post town: the customer's house, the directory offices, t
 | `src/lib/consistency/`, `data/consistency/` | Consistency engine (the replica simulator over a hand-written morning, quorums, last writer wins and reservations, the stock-policy workbench) and its assumptions, day and facts |
 | `src/lib/ab-testing/`, `data/ab-testing/` | A/B testing engine (the seeded visitor simulator, the z-test and its interval, false wins and power counted over repeated runs, the ship-or-stop workbench) and its assumptions, experiments and facts |
 | `src/lib/search/`, `data/search/` | Search engine (RAG's pages and BM25 with this module's word cleaning, the scan, tf-idf, precision and recall, the meaning blend over committed vectors, the search-box workbench) and its labelled test searches, their vectors, pinned effects and facts |
+| `src/lib/payments/`, `data/payments/` | Payments engine (the day simulator: holds, capture, settlement and fees, retries, 3-D Secure and chargebacks; the checkout-policy workbench) and its assumptions, day, pinned outputs and facts |
 | `src/lib/diffusion/`, `data/diffusion/`, `public/data/diffusion/` | Diffusion engine (the part drawings, the noise schedule, the ideal denoiser and its guidance, the learned 2-D denoiser, the steps-and-guidance workbench) and its pinned outputs, workbench bars, facts and the committed denoiser weights |
 | `src/lib/web-requests/`, `data/web-requests/` | Web requests engine (the seeded round-trip simulator: DNS levels and TTL, TCP, TLS 1.3 and 0-RTT, HTTP/1.1, 2 and 3 with loss, the page workbench) and its customers, page, planning numbers, pinned totals, owner's rules and facts |
 | `src/lib/pre-training/`, `data/pre-training/`, `public/data/pre-training/` | Pre-training engine (the base run's checkpoints read live, the recorded variant runs, the published scaling fits, the workbench) and its prompts, runs, scaling fits, facts and the committed checkpoints |
@@ -556,6 +572,7 @@ pnpm dev        # start the dev server on http://localhost:4321
 
 Open http://localhost:4321 for the Tinker home; the modules are at http://localhost:4321/rag/, http://localhost:4321/tool-calling/, http://localhost:4321/agents/, http://localhost:4321/evals/, http://localhost:4321/guardrails/, http://localhost:4321/tokens/, http://localhost:4321/transformers/, http://localhost:4321/context/, http://localhost:4321/fine-tuning/, http://localhost:4321/structured-outputs/, http://localhost:4321/reasoning/, http://localhost:4321/small-models/, http://localhost:4321/inference/, http://localhost:4321/observability/, http://localhost:4321/sandboxing/, http://localhost:4321/multimodal/, http://localhost:4321/voice/, http://localhost:4321/pre-training/, http://localhost:4321/post-training/, http://localhost:4321/interpretability/, http://localhost:4321/caching/, http://localhost:4321/databases/, http://localhost:4321/consistency/, http://localhost:4321/ab-testing/, http://localhost:4321/diffusion/ and http://localhost:4321/search/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap`, `/dev/warmup`, `/dev/agents`, `/dev/evals`, `/dev/guardrails`, `/dev/tokens`, `/dev/transformers`, `/dev/context`, `/dev/fine-tuning`, `/dev/structured-outputs`, `/dev/reasoning`, `/dev/small-models`, `/dev/inference`, `/dev/observability`, `/dev/sandboxing`, `/dev/multimodal`, `/dev/voice`, `/dev/pre-training`, `/dev/post-training`, `/dev/interpretability`, `/dev/caching`, `/dev/databases`, `/dev/consistency`, `/dev/ab-testing`, `/dev/diffusion` and `/dev/search`. These pages are left out of production builds.
 Open http://localhost:4321 for the Tinker home; the modules are at http://localhost:4321/rag/, http://localhost:4321/tool-calling/, http://localhost:4321/agents/, http://localhost:4321/evals/, http://localhost:4321/guardrails/, http://localhost:4321/tokens/, http://localhost:4321/transformers/, http://localhost:4321/context/, http://localhost:4321/fine-tuning/, http://localhost:4321/structured-outputs/, http://localhost:4321/reasoning/, http://localhost:4321/small-models/, http://localhost:4321/inference/, http://localhost:4321/observability/, http://localhost:4321/sandboxing/, http://localhost:4321/multimodal/, http://localhost:4321/voice/, http://localhost:4321/pre-training/, http://localhost:4321/post-training/, http://localhost:4321/interpretability/, http://localhost:4321/caching/, http://localhost:4321/databases/, http://localhost:4321/consistency/, http://localhost:4321/ab-testing/, http://localhost:4321/diffusion/ and http://localhost:4321/web-requests/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap`, `/dev/warmup`, `/dev/agents`, `/dev/evals`, `/dev/guardrails`, `/dev/tokens`, `/dev/transformers`, `/dev/context`, `/dev/fine-tuning`, `/dev/structured-outputs`, `/dev/reasoning`, `/dev/small-models`, `/dev/inference`, `/dev/observability`, `/dev/sandboxing`, `/dev/multimodal`, `/dev/voice`, `/dev/pre-training`, `/dev/post-training`, `/dev/interpretability`, `/dev/caching`, `/dev/databases`, `/dev/consistency`, `/dev/ab-testing`, `/dev/diffusion` and `/dev/web-requests`. These pages are left out of production builds.
+Open http://localhost:4321 for the Tinker home; the modules are at http://localhost:4321/rag/, http://localhost:4321/tool-calling/, http://localhost:4321/agents/, http://localhost:4321/evals/, http://localhost:4321/guardrails/, http://localhost:4321/tokens/, http://localhost:4321/transformers/, http://localhost:4321/context/, http://localhost:4321/fine-tuning/, http://localhost:4321/structured-outputs/, http://localhost:4321/reasoning/, http://localhost:4321/small-models/, http://localhost:4321/inference/, http://localhost:4321/observability/, http://localhost:4321/sandboxing/, http://localhost:4321/multimodal/, http://localhost:4321/voice/, http://localhost:4321/pre-training/, http://localhost:4321/post-training/, http://localhost:4321/interpretability/, http://localhost:4321/caching/, http://localhost:4321/databases/, http://localhost:4321/consistency/, http://localhost:4321/ab-testing/ and http://localhost:4321/diffusion/, http://localhost:4321/payments/. The dev server also serves internal test pages at `/dev/blocks`, `/dev/canvas`, `/dev/runner`, `/dev/flat`, `/dev/quiz`, `/dev/recap`, `/dev/warmup`, `/dev/agents`, `/dev/evals`, `/dev/guardrails`, `/dev/tokens`, `/dev/transformers`, `/dev/context`, `/dev/fine-tuning`, `/dev/structured-outputs`, `/dev/reasoning`, `/dev/small-models`, `/dev/inference`, `/dev/observability`, `/dev/sandboxing`, `/dev/multimodal`, `/dev/voice`, `/dev/pre-training`, `/dev/post-training`, `/dev/interpretability`, `/dev/caching`, `/dev/databases`, `/dev/consistency`, `/dev/ab-testing` and `/dev/diffusion`. These pages are left out of production builds.
 
 To try the production build locally:
 
