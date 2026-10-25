@@ -6,9 +6,9 @@
     { "id": "impostor", "name": "Impostor", "does": "sends its own, in the supplier’s name" }
   ],
   "messages": [
-    { "id": "prices", "name": "Price list for every shop", "secret": false, "genuine": true, "public": true },
-    { "id": "bank", "name": "New bank details", "secret": true, "genuine": true, "public": false },
-    { "id": "delivery", "name": "Delivery date", "secret": false, "genuine": true, "public": false },
-    { "id": "discount", "name": "Larkspur’s own discount code", "secret": true, "genuine": false, "public": false }
+    { "id": "prices", "short": "PRICES", "name": "Price list for every shop", "secret": false, "genuine": true, "public": true },
+    { "id": "bank", "short": "BANK", "name": "New bank details", "secret": true, "genuine": true, "public": false },
+    { "id": "delivery", "short": "DELIVERY", "name": "Delivery date", "secret": false, "genuine": true, "public": false },
+    { "id": "discount", "short": "CODE", "name": "Larkspur’s own discount code", "secret": true, "genuine": false, "public": false }
   ]
 }
