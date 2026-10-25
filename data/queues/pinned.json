@@ -1,0 +1,161 @@
+{
+  "workbench": {
+    "best": 3,
+    "winners": [
+      {
+        "workers": 3,
+        "maxTries": 3,
+        "lease": 6
+      },
+      {
+        "workers": 3,
+        "maxTries": 5,
+        "lease": 6
+      },
+      {
+        "workers": 3,
+        "maxTries": 8,
+        "lease": 6
+      }
+    ]
+  },
+  "scenes": {
+    "inline": {
+      "done": 38,
+      "ranTwice": 0,
+      "deadLettered": 0,
+      "dead": [],
+      "waitedMax": 16,
+      "retries": 0,
+      "doubleShipped": 0,
+      "left": 0,
+      "pageWaitMax": 18,
+      "bunch": 0
+    },
+    "one": {
+      "done": 29,
+      "ranTwice": 0,
+      "deadLettered": 0,
+      "dead": [],
+      "waitedMax": 42,
+      "retries": 0,
+      "doubleShipped": 0,
+      "left": 9,
+      "pageWaitMax": 0,
+      "bunch": 0
+    },
+    "three": {
+      "done": 38,
+      "ranTwice": 0,
+      "deadLettered": 0,
+      "dead": [],
+      "waitedMax": 6,
+      "retries": 0,
+      "doubleShipped": 0,
+      "left": 0,
+      "pageWaitMax": 0,
+      "bunch": 0
+    },
+    "noBackoff": {
+      "done": 36,
+      "ranTwice": 0,
+      "deadLettered": 2,
+      "dead": [
+        "L114",
+        "L115"
+      ],
+      "waitedMax": 8,
+      "retries": 18,
+      "doubleShipped": 0,
+      "left": 0,
+      "pageWaitMax": 0,
+      "bunch": 4
+    },
+    "backoff": {
+      "done": 38,
+      "ranTwice": 0,
+      "deadLettered": 0,
+      "dead": [],
+      "waitedMax": 11,
+      "retries": 19,
+      "doubleShipped": 0,
+      "left": 0,
+      "pageWaitMax": 0,
+      "bunch": 6
+    },
+    "jitter": {
+      "done": 38,
+      "ranTwice": 0,
+      "deadLettered": 0,
+      "dead": [],
+      "waitedMax": 11,
+      "retries": 19,
+      "doubleShipped": 0,
+      "left": 0,
+      "pageWaitMax": 0,
+      "bunch": 4
+    },
+    "crash": {
+      "done": 38,
+      "ranTwice": 0,
+      "deadLettered": 0,
+      "dead": [],
+      "waitedMax": 16,
+      "retries": 0,
+      "doubleShipped": 0,
+      "left": 0,
+      "pageWaitMax": 0,
+      "bunch": 0
+    },
+    "forever": {
+      "done": 38,
+      "ranTwice": 0,
+      "deadLettered": 0,
+      "dead": [],
+      "waitedMax": 7,
+      "retries": 35,
+      "doubleShipped": 0,
+      "left": 0,
+      "pageWaitMax": 0,
+      "bunch": 1
+    },
+    "shelf": {
+      "done": 38,
+      "ranTwice": 0,
+      "deadLettered": 1,
+      "dead": [
+        "L099"
+      ],
+      "waitedMax": 7,
+      "retries": 4,
+      "doubleShipped": 0,
+      "left": 0,
+      "pageWaitMax": 0,
+      "bunch": 1
+    },
+    "crashed": {
+      "done": 38,
+      "ranTwice": 1,
+      "deadLettered": 0,
+      "dead": [],
+      "waitedMax": 18,
+      "retries": 1,
+      "doubleShipped": 1,
+      "left": 0,
+      "pageWaitMax": 0,
+      "bunch": 0
+    },
+    "crashedSafe": {
+      "done": 38,
+      "ranTwice": 1,
+      "deadLettered": 0,
+      "dead": [],
+      "waitedMax": 18,
+      "retries": 1,
+      "doubleShipped": 0,
+      "left": 0,
+      "pageWaitMax": 0,
+      "bunch": 0
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "note": "Larkspur's rule for chapter 7, set by the shop's owner: team choices, not industry figures.",
+  "waitLimit": 20,
+  "rule": "No good order on the dead-letter shelf, and no order waits more than 20 minutes; then pay for as few workers as you can.",
+  "reasons": {
+    "workers": "Each worker is paid for the whole sale, busy or not.",
+    "maxTries": "The courier’s site goes down during the sale, and one order fails every try.",
+    "lease": "The pallet takes longest to pack, and a worker gets knocked over mid-sale."
+  }
+}

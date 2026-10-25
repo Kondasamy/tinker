@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import WaitingAtTheTill from '../../content/queues/01-waiting-at-the-till';
+import ATicketAndAWorker from '../../content/queues/02-a-ticket-and-a-worker';
+import WhenTheLineGrows from '../../content/queues/03-when-the-line-grows';
+import TryAgainLater from '../../content/queues/04-try-again-later';
+import RanTwice from '../../content/queues/05-ran-twice';
+import TheJobThatNeverWorks from '../../content/queues/06-the-job-that-never-works';
+import SaleDay from '../../content/queues/07-sale-day';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('queues').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="queues" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-waiting-at-the-till' ? <WaitingAtTheTill client:load />
+    : chapter === '02-a-ticket-and-a-worker' ? <ATicketAndAWorker client:load />
+    : chapter === '03-when-the-line-grows' ? <WhenTheLineGrows client:load />
+    : chapter === '04-try-again-later' ? <TryAgainLater client:load />
+    : chapter === '05-ran-twice' ? <RanTwice client:load />
+    : chapter === '06-the-job-that-never-works' ? <TheJobThatNeverWorks client:load />
+    : <SaleDay client:load />}
+</ChapterLayout>

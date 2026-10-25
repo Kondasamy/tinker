@@ -1,0 +1,255 @@
+{
+  "note": "A sale morning at Larkspur, 09:00 to 09:59 a minute at a time, written for this site, not logged traffic. Each order puts one job on the queue: book the courier, print the label, email the customer. The sale opens at 09:05. Moe’s order has an address the courier can’t read, so its job fails every try; it is in the day only when a chapter adds it. The outage is the courier’s booking site struggling for the minutes in [from, to); it happens only when a chapter turns it on. The crash is the workbench’s: a worker knocked over mid-job.",
+  "workers": [
+    "Rosa",
+    "Tomas",
+    "Wen",
+    "Kofi"
+  ],
+  "outage": {
+    "from": 10,
+    "to": 16
+  },
+  "crash": {
+    "worker": 0,
+    "tick": 30
+  },
+  "jobs": [
+    {
+      "id": "L101",
+      "t": 0,
+      "who": "Ana",
+      "item": "a box of hinges"
+    },
+    {
+      "id": "L102",
+      "t": 2,
+      "who": "Ben",
+      "item": "drill bits"
+    },
+    {
+      "id": "L103",
+      "t": 4,
+      "who": "Cleo",
+      "item": "a bench vice"
+    },
+    {
+      "id": "L104",
+      "t": 5,
+      "who": "Dara",
+      "item": "wood glue"
+    },
+    {
+      "id": "L105",
+      "t": 5,
+      "who": "Emil",
+      "item": "a tape measure"
+    },
+    {
+      "id": "L106",
+      "t": 6,
+      "who": "Fatima",
+      "item": "sandpaper"
+    },
+    {
+      "id": "L107",
+      "t": 6,
+      "who": "Gus",
+      "item": "a box of hinges"
+    },
+    {
+      "id": "L099",
+      "t": 6,
+      "who": "Moe",
+      "item": "a box of screws",
+      "poison": true
+    },
+    {
+      "id": "L108",
+      "t": 7,
+      "who": "Hana",
+      "item": "drill bits"
+    },
+    {
+      "id": "L109",
+      "t": 7,
+      "who": "Ivo",
+      "item": "a bench vice"
+    },
+    {
+      "id": "L110",
+      "t": 8,
+      "who": "Jade",
+      "item": "wood glue"
+    },
+    {
+      "id": "L111",
+      "t": 8,
+      "who": "Karl",
+      "item": "a pallet of hinges",
+      "kind": "pallet"
+    },
+    {
+      "id": "L112",
+      "t": 9,
+      "who": "Lena",
+      "item": "sandpaper"
+    },
+    {
+      "id": "L113",
+      "t": 9,
+      "who": "Milo",
+      "item": "a box of hinges"
+    },
+    {
+      "id": "L114",
+      "t": 10,
+      "who": "Nia",
+      "item": "drill bits"
+    },
+    {
+      "id": "L115",
+      "t": 10,
+      "who": "Omar",
+      "item": "a bench vice"
+    },
+    {
+      "id": "L116",
+      "t": 11,
+      "who": "Pia",
+      "item": "wood glue"
+    },
+    {
+      "id": "L117",
+      "t": 11,
+      "who": "Quinn",
+      "item": "a tape measure"
+    },
+    {
+      "id": "L118",
+      "t": 12,
+      "who": "Raj",
+      "item": "sandpaper"
+    },
+    {
+      "id": "L119",
+      "t": 12,
+      "who": "Sara",
+      "item": "a box of hinges"
+    },
+    {
+      "id": "L120",
+      "t": 13,
+      "who": "Theo",
+      "item": "drill bits"
+    },
+    {
+      "id": "L121",
+      "t": 13,
+      "who": "Uma",
+      "item": "a bench vice"
+    },
+    {
+      "id": "L122",
+      "t": 14,
+      "who": "Vik",
+      "item": "wood glue"
+    },
+    {
+      "id": "L123",
+      "t": 14,
+      "who": "Wanda",
+      "item": "a tape measure"
+    },
+    {
+      "id": "L124",
+      "t": 15,
+      "who": "Xavi",
+      "item": "sandpaper"
+    },
+    {
+      "id": "L125",
+      "t": 15,
+      "who": "Yara",
+      "item": "a box of hinges"
+    },
+    {
+      "id": "L126",
+      "t": 16,
+      "who": "Zane",
+      "item": "drill bits"
+    },
+    {
+      "id": "L127",
+      "t": 16,
+      "who": "Abe",
+      "item": "a bench vice"
+    },
+    {
+      "id": "L128",
+      "t": 17,
+      "who": "Bea",
+      "item": "wood glue"
+    },
+    {
+      "id": "L129",
+      "t": 17,
+      "who": "Cal",
+      "item": "a tape measure"
+    },
+    {
+      "id": "L130",
+      "t": 18,
+      "who": "Dina",
+      "item": "sandpaper"
+    },
+    {
+      "id": "L131",
+      "t": 18,
+      "who": "Eli",
+      "item": "a box of hinges"
+    },
+    {
+      "id": "L132",
+      "t": 19,
+      "who": "Flo",
+      "item": "drill bits"
+    },
+    {
+      "id": "L133",
+      "t": 19,
+      "who": "Gil",
+      "item": "a bench vice"
+    },
+    {
+      "id": "L134",
+      "t": 21,
+      "who": "Hal",
+      "item": "wood glue"
+    },
+    {
+      "id": "L135",
+      "t": 23,
+      "who": "Ida",
+      "item": "a tape measure"
+    },
+    {
+      "id": "L136",
+      "t": 25,
+      "who": "Jon",
+      "item": "sandpaper"
+    },
+    {
+      "id": "L137",
+      "t": 27,
+      "who": "Kim",
+      "item": "a box of hinges"
+    },
+    {
+      "id": "L138",
+      "t": 29,
+      "who": "Lou",
+      "item": "drill bits"
+    }
+  ]
+}
