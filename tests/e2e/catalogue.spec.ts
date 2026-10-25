@@ -92,17 +92,22 @@ test('the catalogue searches, filters, keeps the view in the URL and turns no ma
       .evaluateAll(els => els.map(e => e.getAttribute('data-module')));
   // the count matches the hero's: playable modules, the planned ones apart
   const live = MODULES.filter(m => m.status === 'live').length;
-  await expect(page.locator('[data-count]')).toHaveText(`${live} modules · ${MODULES.length - live} planned`);
+  await expect(page.locator('[data-count]')).toHaveText(`${live} live · ${MODULES.length - live} planned`);
   await expect(page.locator('.hero .ctas .btn').nth(1)).toHaveText(`See all ${live} modules`);
-  await expect(page.locator('[data-finder] label', { hasText: 'In progress' })).toBeHidden();
+  await expect(page.locator('[data-pick="status"] label', { hasText: 'In progress' })).toHaveCount(0);
   await page.keyboard.press('/');
   await page.keyboard.type('lora');
   expect(await shown()).toEqual(['fine-tuning']);
   await expect(page.locator('.module[data-module="fine-tuning"] [data-hit]')).toHaveText('Includes: LoRA adapters');
   await expect(page).toHaveURL(/\?q=lora#?$/);
   await page.fill('[name="q"]', '');
+  // each filter is a dropdown: open it, pick, and it closes naming the pick
+  await page.locator('[data-pick="track"] summary').click();
   await page.getByRole('radio', { name: 'Classic tech' }).check();
+  await expect(page.locator('[data-pick="track"]')).not.toHaveAttribute('open');
+  await page.locator('[data-pick="status"] summary').click();
   await page.getByRole('radio', { name: 'Planned' }).check();
+  await expect(page.locator('[data-pick="status"] summary')).toHaveText('Planned');
   // the planned classic cards, level by level as the catalogue groups them
   const classic = (['Beginner', 'Intermediate', 'Advanced'] as const).flatMap(level =>
     MODULES.filter(m => m.status === 'planned' && m.track === 'Classic tech' && m.level === level).map(m => m.id),
@@ -112,15 +117,13 @@ test('the catalogue searches, filters, keeps the view in the URL and turns no ma
   await expect(catalogue(page).locator('[data-level="Advanced"]')).toBeHidden();
   await page.reload();
   expect(await shown()).toEqual(classic);
-  // the chosen chip is lit, the group's All is not
+  // a dropdown that filters is lit, one left at its default is not
   const bg = (name: string) =>
-    page
-      .getByRole('radio', { name })
-      .locator('..')
-      .evaluate(e => getComputedStyle(e).backgroundColor);
-  expect(await bg('Planned')).not.toEqual(await bg('Not started'));
+    page.locator(`[data-pick="${name}"] summary`).evaluate(e => getComputedStyle(e).backgroundColor);
+  await expect(page.locator('[data-pick="status"] summary')).toHaveText('Planned');
+  expect(await bg('status')).not.toEqual(await bg('level'));
   await page.fill('[name="q"]', 'quantum knitting');
-  await expect(page.locator('[data-count]')).toHaveText('0 modules');
+  await expect(page.locator('[data-count]')).toHaveText('0 live');
   await page.locator('[data-propose]').click();
   await expect(page.locator('#request textarea')).toHaveValue('A module on: quantum knitting');
   await page.locator('[data-clear]').click();

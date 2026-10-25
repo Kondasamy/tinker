@@ -688,11 +688,11 @@ const FIRST = LIVE[0];
 // live modules first within a level
 const PLANNED = MODULES.filter(m => m.status === 'planned');
 const atLevel = (level: Level) => [...LIVE, ...PLANNED].filter(m => m.level === level);
-// the catalogue's filters, each a row of radio chips, the first one no filter; a status no card has is hidden by the script
+// the catalogue's filters, each a dropdown of radios whose first is no filter; a status no card has is removed by the script
 const FILTERS: [name: string, label: string, options: string[]][] = [
-  ['level', 'Level', ['All', ...LEVELS]],
-  ['track', 'Track', ['All', 'AI', 'Classic tech']],
-  ['status', 'Status', ['All', 'Not started', 'In progress', 'Finished', 'Planned']],
+  ['level', 'Level', ['All levels', ...LEVELS]],
+  ['track', 'Track', ['All tracks', 'AI', 'Classic tech']],
+  ['status', 'Status', ['Any status', 'Not started', 'In progress', 'Finished', 'Planned']],
 ];
 // what a search reads: title, description, story, level, track, topics and chapter titles, one line per field
 const searchOf = (m: Module) =>
@@ -746,20 +746,19 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
         <p class="kicker">Modules</p>
         <h2 id="modules-h">Pick a concept</h2>
         <form class="finder" role="search" data-finder hidden>
-          <div class="row">
-            <input type="search" name="q" aria-label="Search modules" placeholder="Search modules" autocomplete="off" aria-keyshortcuts="/" />
-            <p class="count" role="status" data-count></p>
-          </div>
-          <div class="filters">
-            {FILTERS.map(([name, label, options]) => (
+          <input type="search" name="q" aria-label="Search modules" placeholder="Search modules" autocomplete="off" aria-keyshortcuts="/" />
+          {/* name="filters" makes the dropdowns exclusive: opening one closes the others */}
+          {FILTERS.map(([name, label, options]) => (
+            <details class="pick" name="filters" data-pick={name}>
+              <summary>{options[0]}</summary>
               <fieldset aria-label={label}>
-                <span class="group" aria-hidden="true">{label}</span>
                 {options.map((o, i) => (
                   <label><input type="radio" name={name} value={i ? o : ''} checked={!i} /> {o}</label>
                 ))}
               </fieldset>
-            ))}
-          </div>
+            </details>
+          ))}
+          <p class="count" role="status" data-count></p>
         </form>
         <div class="none" data-none hidden>
           <p>Nothing matches yet.</p>
@@ -909,12 +908,12 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
       const FIELDS = ['level', 'track', 'status'] as const;
       // a status no card has yet (nothing in progress on a first visit) is no use as a chip
       for (const chip of finder.querySelectorAll<HTMLInputElement>('[name="status"]'))
-        if (chip.value && !cards.some(c => c.dataset.status === chip.value)) chip.parentElement!.hidden = true;
+        if (chip.value && !cards.some(c => c.dataset.status === chip.value)) chip.parentElement!.remove();
       const params = new URLSearchParams(location.search);
       q.value = params.get('q') ?? '';
       for (const name of FIELDS) {
         const chip = finder.querySelector<HTMLInputElement>(`[name="${name}"][value="${CSS.escape(params.get(name) ?? '')}"]`);
-        if (chip && !chip.parentElement!.hidden) chip.checked = true;
+        if (chip) chip.checked = true;
       }
       const apply = () => {
         const form = new FormData(finder);
@@ -939,8 +938,13 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
         // playable modules, as the hero counts them, then the planned ones apart
         const planned = cards.filter(c => !c.hidden && c.dataset.status === 'Planned').length;
         const live = shown - planned;
-        finder.querySelector('[data-count]')!.textContent =
-          `${live} ${live === 1 ? 'module' : 'modules'}${planned ? ` · ${planned} planned` : ''}`;
+        finder.querySelector('[data-count]')!.textContent = `${live} live${planned ? ` · ${planned} planned` : ''}`;
+        // each dropdown names its choice, and one that filters is lit
+        for (const f of FIELDS) {
+          const pick = finder.querySelector<HTMLElement>(`[data-pick="${f}"]`)!;
+          pick.toggleAttribute('data-on', !!form.get(f));
+          pick.querySelector('summary')!.textContent = pick.querySelector(':checked')!.parentElement!.textContent!.trim();
+        }
         none.hidden = shown > 0;
         document.querySelector<HTMLElement>('#modules .propose')!.hidden = !shown;
         const url = new URLSearchParams();
@@ -950,6 +954,16 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
       };
       finder.hidden = false;
       finder.addEventListener('input', apply);
+      // a pick, Escape or a click elsewhere closes the open dropdown
+      const close = (focus = false) => {
+        const open = finder.querySelector<HTMLDetailsElement>('.pick[open]');
+        if (!open) return;
+        open.open = false;
+        if (focus) open.querySelector('summary')!.focus();
+      };
+      finder.addEventListener('change', e => (e.target as HTMLElement).closest('.pick') && close(true));
+      finder.addEventListener('keydown', e => e.key === 'Escape' && close(true));
+      document.addEventListener('click', e => !(e.target as Element).closest?.('.pick') && close());
       finder.addEventListener('submit', e => e.preventDefault());
       none.querySelector('[data-clear]')!.addEventListener('click', () => {
         finder.reset();
@@ -1041,20 +1055,23 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
   .ask .btn { align-self: flex-start; cursor: pointer; font-family: inherit; }
   .ask .honey { position: absolute; left: -9999px; }
   .sent { color: var(--ok); font-weight: 600; }
-  /* the finder rides along while the catalogue scrolls: the search, then a chip row per filter */
-  .finder { position: sticky; top: 0; z-index: 2; display: flex; flex-direction: column; gap: 10px; margin: 0 -12px; padding: 12px; background: var(--paper); border-bottom: 1.5px solid var(--rule); }
-  .finder[hidden], .none[hidden], .level-group[hidden], .module[hidden], .roadmap[hidden], .hit[hidden], .finder label[hidden] { display: none; }
-  .finder .row { display: flex; align-items: center; gap: 14px; }
-  .finder input[type=search] { flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 10px 14px; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--card); color: var(--ink); }
-  .finder .count { margin: 0; font-size: 13px; color: var(--muted); white-space: nowrap; }
-  .filters { display: flex; flex-wrap: wrap; gap: 8px 12px; }
-  /* each filter is its own tray, named, so the three rows of chips never read as one */
-  .finder fieldset { border: 1.5px solid var(--rule); border-radius: 999px; margin: 0; padding: 3px 3px 3px 12px; display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
-  .finder .group { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
-  .finder fieldset label { position: relative; font-size: 12.5px; font-weight: 700; padding: 3px 11px; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--card); cursor: pointer; white-space: nowrap; }
-  .finder fieldset input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
-  .finder fieldset label:has(:checked) { background: var(--acc); }
-  .finder fieldset label:has(:focus-visible) { outline: 2px solid var(--ink); outline-offset: 2px; }
+  /* the finder rides along while the catalogue scrolls: the search, three dropdowns and the count in one row */
+  .finder { position: sticky; top: 0; z-index: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 -12px; padding: 12px; background: var(--paper); border-bottom: 1.5px solid var(--rule); }
+  .finder[hidden], .none[hidden], .level-group[hidden], .module[hidden], .roadmap[hidden], .hit[hidden] { display: none; }
+  .finder input[type=search] { flex: 1 1 240px; min-width: 0; font: inherit; font-size: 16px; padding: 8px 16px; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--card); color: var(--ink); }
+  .pick { position: relative; }
+  .pick summary { list-style: none; font-size: 14px; font-weight: 600; padding: 8px 30px 8px 14px; border: 1.5px solid var(--ink); border-radius: 999px; cursor: pointer; white-space: nowrap; user-select: none;
+    background: var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23222' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 12px center; }
+  .pick summary::-webkit-details-marker { display: none; }
+  .pick[data-on] summary { background-color: var(--acc); }
+  .pick summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  /* the menu: a card under its pill, one choice per line, the chosen one ticked */
+  .pick fieldset { position: absolute; top: calc(100% + 6px); left: 0; z-index: 3; min-width: 100%; margin: 0; padding: 6px; display: flex; flex-direction: column; border: 1.5px solid var(--ink); border-radius: 14px; background: var(--card); box-shadow: 4px 4px 0 var(--ink); }
+  .pick label { position: relative; font-size: 14px; font-weight: 600; padding: 7px 12px 7px 28px; border-radius: 9px; cursor: pointer; white-space: nowrap; }
+  .pick label:hover, .pick label:has(:focus-visible) { background: var(--paper); }
+  .pick label:has(:checked)::before { content: '✓'; position: absolute; left: 10px; }
+  .pick input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .finder .count { margin: 0 0 0 4px; font-size: 13px; color: var(--muted); white-space: nowrap; }
   .none { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 28px; }
   .none p { margin: 0; font-weight: 700; }
   .none .btn { font-family: inherit; cursor: pointer; }
@@ -1101,9 +1118,13 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
   }
   @media (max-width: 620px) {
     .modules { grid-template-columns: 1fr; }
-    /* on a phone the chips scroll sideways in one row, so the sticky finder stays short */
-    .finder { padding: 10px 16px; margin: 0 -16px; }
-    .filters { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+    /* on a phone the search takes its own row; the dropdowns share the next and the count closes it */
+    .finder { padding: 10px 16px; margin: 0 -16px; gap: 8px 6px; }
+    .finder input[type=search] { flex-basis: 100%; }
+    .pick { flex: 1 1 0; min-width: 0; }
+    .pick summary { font-size: 13px; padding: 6px 24px 6px 10px; background-position: right 9px center; overflow: hidden; text-overflow: ellipsis; }
+    .pick[data-pick="status"] fieldset { left: auto; right: 0; }
+    .finder .count { flex-basis: 100%; margin: 0; font-size: 12px; }
   }
   @media (max-width: 520px) { .loop { grid-template-columns: 1fr; } }
 </style>
