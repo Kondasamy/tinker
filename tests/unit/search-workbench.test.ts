@@ -65,3 +65,33 @@ describe('the workbench', () => {
     });
   });
 });
+
+describe('the chapters against the engine', () => {
+  it('chapter 7: Show me applies a winner; a losing plan’s row says what it missed', async () => {
+    const { STEPS } = await import('../../src/content/search/07-tune-the-search-box');
+    const step = STEPS.find(s => s.id === 'bench')!;
+    const shown = step.solution!({ plan: START, quiz: null });
+    expect(WINNERS).toContain(planKey(shown.plan));
+    expect(step.predicate(shown)).toBe(true);
+    expect(step.predicate({ plan: START, quiz: null })).toBe(false);
+    const lost = QUERIES.map((_, qi) => rowOf(START, qi, null)).find(r => r.missed !== undefined);
+    expect(lost?.missed).toBeDefined();
+  });
+
+  it('chapter 6: the blend puts both answers in the top five', async () => {
+    const { PARA, PART, rankOf, rankingOf } = await import('../../src/content/search/06-words-vs-meaning');
+    for (const q of [PARA, PART]) {
+      const r = rankOf(rankingOf(q, 'blend', ms), q.right[0]);
+      expect(r).toBeGreaterThan(0);
+      expect(r).toBeLessThanOrEqual(5);
+    }
+    expect(rankOf(rankingOf(PARA, 'meaning', ms), PARA.right[0])).toBe(1);
+  });
+
+  it('chapter 2: each card holds exactly one of the bench’s drawer words', async () => {
+    const { CARDS, DRAWERS } = await import('../../src/content/search/02-the-index');
+    const { belongs } = await import('../../src/content/search/kit');
+    const { DEFAULT } = await import('../../src/lib/search/engine');
+    for (const c of CARDS) expect(DRAWERS.filter(d => belongs(c, d, DEFAULT.clean))).toHaveLength(1);
+  });
+});

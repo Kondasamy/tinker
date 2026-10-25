@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ReadingEveryPage from '../../content/search/01-reading-every-page';
+import TheIndex from '../../content/search/02-the-index';
+import RareWordsCountMore from '../../content/search/03-rare-words-count-more';
+import LongPagesAndRepeats from '../../content/search/04-long-pages-and-repeats';
+import CleaningWords from '../../content/search/05-cleaning-words';
+import WordsVsMeaning from '../../content/search/06-words-vs-meaning';
+import TuneTheSearchBox from '../../content/search/07-tune-the-search-box';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('search').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="search" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-reading-every-page' ? <ReadingEveryPage client:load />
+    : chapter === '02-the-index' ? <TheIndex client:load />
+    : chapter === '03-rare-words-count-more' ? <RareWordsCountMore client:load />
+    : chapter === '04-long-pages-and-repeats' ? <LongPagesAndRepeats client:load />
+    : chapter === '05-cleaning-words' ? <CleaningWords client:load />
+    : chapter === '06-words-vs-meaning' ? <WordsVsMeaning client:load />
+    : <TuneTheSearchBox client:load />}
+</ChapterLayout>

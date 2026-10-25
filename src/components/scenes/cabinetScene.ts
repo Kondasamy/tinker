@@ -35,6 +35,8 @@ export interface Drawer {
   lit?: boolean;
   /** a card just filed (drawn dropping in, unless reduced motion) */
   fresh?: boolean;
+  /** pulled out, not lit: a drawer being filed */
+  out?: boolean;
 }
 export interface Step {
   /** the page's short name */
@@ -50,6 +52,8 @@ export interface CabinetOpts {
   words: number;
   /** pages the clerk read one by one (the scan) */
   read?: number;
+  /** pages found with no ranking (the scan): the podium's pill says how many */
+  found?: number;
   /** the top results, best first (at most three are drawn) */
   podium?: Step[];
   say?: Say;
@@ -102,7 +106,7 @@ function drawerSvg(d: Drawer, i: number): string {
     w = DW - 3,
     h = DH - 4;
   const y = CAB.y1;
-  if (!d.lit && !d.fresh) {
+  if (!d.lit && !d.fresh && !d.out) {
     const face = shape(
       [
         [x, y + 0.05, z],
@@ -201,11 +205,11 @@ export const cabinetScene = (o: CabinetOpts) => (ctx: SceneCtx) => {
   let cab = box(CAB.x0, CAB.y0, BH, CAB.x1, CAB.y1, CAB.z1, WOOD, toneI, 1);
   for (let i = st.drawers.length; i < CAB.cols * CAB.rows; i++) cab += drawerSvg({ word: '', cards: 0 }, i);
   st.drawers.forEach((d, i) => {
-    if (!d.lit && !d.fresh) cab += drawerSvg(d, i);
+    if (!d.lit && !d.fresh && !d.out) cab += drawerSvg(d, i);
   });
   cab += hullInk(boxCorners(CAB.x0, CAB.y0, BH, CAB.x1, CAB.y1, CAB.z1), 2.2);
   st.drawers.forEach((d, i) => {
-    if (d.lit || d.fresh) cab += drawerSvg(d, i);
+    if (d.lit || d.fresh || d.out) cab += drawerSvg(d, i);
   });
   s += `<g data-prop="cabinet" data-drawers="${st.drawers.length}">${cab}</g>`;
   s += stackSvg(st.reading);
@@ -220,7 +224,7 @@ export const cabinetScene = (o: CabinetOpts) => (ctx: SceneCtx) => {
 
   // pills: open drawers' words in a column left of the cabinet, each led to its drawer (phones keep four)
   const pills: string[] = [];
-  const open = st.drawers.map((d, i) => ({ d, i })).filter(x => x.d.lit || x.d.fresh);
+  const open = st.drawers.map((d, i) => ({ d, i })).filter(x => x.d.lit || x.d.fresh || x.d.out);
   const k = inkK() * scale,
     fs = 8.6 * k,
     [right] = P(CAB.x0, CAB.y1, CAB.z1),
@@ -236,7 +240,14 @@ export const cabinetScene = (o: CabinetOpts) => (ctx: SceneCtx) => {
     pills.push(pill(at, (cx - X) / k, (cy - Y) / k, text, !!d.lit, scale));
   });
   pills.push(
-    pill([CAB.x0 + 6, CAB.y0, CAB.z1], -6, -16, narrow ? 'INDEX' : `INDEX · ${plural(o.words, 'WORD')}`, false, scale),
+    pill(
+      [CAB.x0 + 6, CAB.y0, CAB.z1],
+      -6,
+      -16,
+      !o.words ? 'NO INDEX' : narrow ? 'INDEX' : `INDEX · ${plural(o.words, 'WORD')}`,
+      false,
+      scale,
+    ),
     pill(
       [(STACK.x0 + STACK.x1) / 2, STACK.y0, STACK.table + 25],
       0,
@@ -265,12 +276,22 @@ export const cabinetScene = (o: CabinetOpts) => (ctx: SceneCtx) => {
         scale,
       ),
     );
-  else pills.push(pill([stepX(0), POD.y1, POD.base + 3], 0, 26, 'NO RESULTS', false, scale));
+  else
+    pills.push(
+      pill(
+        [stepX(0), POD.y1, POD.base + 3],
+        0,
+        26,
+        o.found === undefined ? 'NO RESULTS' : narrow ? 'FOUND' : `FOUND ON ${plural(o.found, 'PAGE')}`,
+        !!o.found,
+        scale,
+      ),
+    );
   const callouts =
-    sayAt(o.say, 'cabinet', [CAB.x0 + 50, CAB.y1, CAB.z1], -16, scale) +
+    sayAt(o.say, 'cabinet', [CAB.x1 - 16, CAB.y1, CAB.z1], -16, scale) +
     sayAt(o.say, 'pages', [(STACK.x0 + STACK.x1) / 2, STACK.y0, STACK.table + 25], -18, scale) +
     sayAt(o.say, 'desk', [DESK.x0 + 22, DESK.y0 + 12, DESK.z1], -12, scale) +
-    sayAt(o.say, 'podium', [stepX(1), POD.y0, POD.base + POD.tall], -12, scale);
+    sayAt(o.say, 'podium', [stepX(2), POD.y1, POD.base], 50, scale);
   return s + pills.join('') + callouts;
 };
 
@@ -298,6 +319,7 @@ export function cabinetReadouts(o: CabinetOpts): string[] {
     ...(st.reading ? [`${fmt(o.read ?? 0)} pages read`] : []),
     ...st.drawers.filter(d => d.lit).map(d => `“${d.word}”: ${plural(d.cards, 'page').toLowerCase()}`),
     ...(st.steps[0] ? [`top: ${st.steps[0].name}`] : []),
+    ...(o.found !== undefined && !st.steps[0] ? [`found on ${plural(o.found, 'page').toLowerCase()}`] : []),
   ];
 }
 

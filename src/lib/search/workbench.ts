@@ -9,6 +9,20 @@ import { CLEANS, cleanKey, type Clean } from './stem';
 
 export const MEANINGS = [0, 0.25, 0.5, 0.75, 1] as const;
 export type Meaning = (typeof MEANINGS)[number];
+
+// The settings in plain words: k1 and b are named only in the chapters' maths fold-aways.
+/** "How much a repeat helps" (BM25's k1). */
+export const REPEAT_NAMES: Record<K1, string> = { 0.5: 'A little', 1.2: 'Some', 3: 'A lot' };
+/** "How much a long page counts against it" (BM25's b). */
+export const LENGTH_NAMES: Record<B, string> = { 0: 'Not at all', 0.75: 'Mostly', 1: 'Fully' };
+/** "How much meaning counts" in the blend. */
+export const MEANING_NAMES: Record<Meaning, string> = {
+  0: 'None',
+  0.25: 'A quarter',
+  0.5: 'Half',
+  0.75: 'Three quarters',
+  1: 'All',
+};
 export interface Plan {
   clean: Clean;
   k1: K1;

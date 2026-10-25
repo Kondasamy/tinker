@@ -12,7 +12,7 @@ import {
   type CabinetOpts,
 } from '../../components/scenes/cabinetScene';
 import { postingsView, rowWords } from '../../components/scenes/postingsView';
-import { PAGES, fmt, type Settings } from '../../lib/search/engine';
+import { PAGES, PAGE_WORDS, fmt, type Settings } from '../../lib/search/engine';
 import { wordsOf } from '../../lib/search/stem';
 import { fact } from '../../lib/search/facts';
 import { openIndex } from '../../lib/rag/load';
@@ -31,7 +31,7 @@ import './search.css';
 export function PostingsTable({ query, settings }: { query: string; settings: Settings }) {
   const rows = postingsView(query, settings);
   return (
-    <div className="sx-postings">
+    <div className="sx-postings" tabIndex={0} role="region" aria-label="Postings, scrolls">
       <table className="tc-ledger">
         <caption>{`The drawers for “${query}”`}</caption>
         <thead>
@@ -413,7 +413,7 @@ export function Fact({ id }: { id: string }) {
 /** Shown wherever results and counts appear (R6). */
 export const SimNote = () => (
   <p className="note sx-note">
-    A teaching search box: Larkspur’s documents cut into RAG’s 32-word pages, searched as you watch. The right pages for
+    A teaching search box: Larkspur’s documents cut into RAG’s {PAGE_WORDS}-word pages, searched as you watch. The right pages for
     each test search are this site’s labels.
   </p>
 );
