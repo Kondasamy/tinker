@@ -168,7 +168,7 @@ function booth(o: RoomsOpts) {
  * pill a row further out, so two neighbours never overlap. */
 const pillSpot = (l: number, e: number, rank: number): [number[], number, number] =>
   l === 1
-    ? [[roomX(e) + ROOM_W / 2, ROW_Y[l], BH + WALL + 5], 0, -18 - rank * 15]
+    ? [[roomX(e) + ROOM_W / 2, ROW_Y[l], BH + WALL + 5], 0, -18 - rank * 26]
     : [[roomX(e) + ROOM_W / 2, ROW_Y[l] + DEPTH, BH], -6, 16 + rank * 15];
 
 /** A room's pill: its name, and on wide screens its two most-routed training tokens. */
@@ -228,10 +228,13 @@ export const roomsScene = (o: RoomsOpts) => (ctx: SceneCtx) => {
   }
   if (!o.dense && !o.load)
     st.lit.forEach((es, l) =>
-      es.forEach((e, rank) => {
-        const [at, dx, dy] = pillSpot(l, e, rank);
-        pills += pill(at, dx, dy, roomWords(l, e, narrow), true, scale);
-      }),
+      // rank by room order, not route order, so the further room's pill always sits a row higher
+      [...es]
+        .sort((x, y) => x - y)
+        .forEach((e, rank) => {
+          const [at, dx, dy] = pillSpot(l, e, rank);
+          pills += pill(at, dx, dy, roomWords(l, e, narrow), true, scale);
+        }),
     );
   if (o.dense)
     pills += pill(
