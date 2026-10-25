@@ -212,6 +212,7 @@ export function viewOf(p: Portal, plants: Plants = {}): View {
       break;
     case 'done':
       title = 'Order placed';
+      panels.push({ box: [240, 190, 800, 170], fill: PALS.mint.l, kind: 'card' });
       mid('Order placed', 260, 40, 800);
       mid(`${data.next} · ${linesWords(p.lines)} · ${money(totalOf(p.lines))}`, 320);
       break;

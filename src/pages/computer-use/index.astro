@@ -1,0 +1,268 @@
+---
+// Computer use module intro: sets the scene before chapter 1. Static, except the warm-up and a small script that marks
+// finished chapters. Every example is the module's own data, run at build time by the same engine the chapters run: the
+// recorded agent's runs through the host's live stages, the drawn screens, the workbench's best policy, and claims
+// quoted from data/computer-use/facts.json.
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import Meta from '../../components/Meta.astro';
+import IsoStage from '../../lib/iso/IsoStage';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import { PUPPET_BOARD, puppetLabel, puppetScene, type PuppetOpts } from '../../components/scenes/puppetScene';
+import { lookTokens, metrics } from '../../lib/computer-use/loop';
+import { BANNER, money, screenWords, svgOf } from '../../lib/computer-use/screens';
+import { WINNERS } from '../../lib/computer-use/workbench';
+import { beatsOf, clicksOf, frameAt, nthBeat, play } from '../../content/computer-use/kit';
+import { START } from '../../content/computer-use/07-workbench';
+import { fact } from '../../lib/computer-use/facts';
+import { thousands } from '../../lib/multimodal/patches';
+import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { introMeta } from '../../lib/pages';
+import { longDate } from '../../lib/format';
+
+const MODULE = moduleOf('computer-use');
+const N = MODULES.filter(m => m.status === 'live').indexOf(MODULE) + 1;
+const CHAPTERS = MODULE.chapters;
+const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
+
+type Run = ReturnType<typeof play>;
+const scene = (o: PuppetOpts) => ({ ...o, scale: 1.2 });
+/** the run's state once its n-th click has landed */
+const atClick = (r: Run, n: number) => scene(frameAt(r, nthBeat(r, 'click', n)).opts);
+const end = (r: Run) => scene(frameAt(r, beatsOf(r).length).opts);
+
+const HINGES = play({ case: 'hinges' });
+const HERO = atClick(HINGES, 2);
+// the whole idea: the planted notice, with nothing on and with the allow-list
+const OPEN = play({ case: 'banner' }),
+  GUARDED = play({ case: 'banner', allow: true });
+const NOTICE = clicksOf(OPEN)[2].view;
+const src = (svg: string) => 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+const PAID = OPEN.charges.find(c => c.what === 'verify')!;
+const SIDES = [
+  {
+    name: 'Nothing on',
+    ok: false,
+    pic: atClick(OPEN, 3),
+    words: `It followed the notice and paid ${money(PAID.amount)} on ${BANNER.host}.`,
+  },
+  {
+    name: 'Allow-list on',
+    ok: true,
+    pic: atClick(GUARDED, 3),
+    words: 'It still tried. The host refused the page, and the re-order went on.',
+  },
+];
+type Idea = [string, string, ReturnType<typeof fact>, PuppetOpts];
+const IDEAS: Idea[] = [
+  ['Look, then click', 'A screenshot in, a point out, again and again', fact('agent-loop'), atClick(HINGES, 1)],
+  [
+    'The wrong button',
+    'A resized screenshot’s point must be scaled back',
+    fact('coordinates'),
+    atClick(play({ case: 'hinges', size: 1024, scale: false }), 1),
+  ],
+  [
+    'Too quick',
+    'A screenshot taken mid-load shows the past',
+    fact('wait'),
+    atClick(play({ case: 'hinges', wait: false }), 3),
+  ],
+  ['The page that gives orders', 'Words on screen can steer the agent', fact('injection'), atClick(OPEN, 3)],
+  [
+    'Ask before you pay',
+    'A person approves the clicks that spend money',
+    fact('confirm'),
+    atClick(play({ case: 'offer', allow: true, confirm: true }), 4),
+  ],
+  [
+    'Every look costs',
+    'Smaller screenshots cost less, until the agent misses',
+    fact('patches'),
+    end(play({ case: 'hinges', size: 640 })),
+  ],
+];
+const FACTS: [string, string][] = [
+  [String(HINGES.looks), 'screenshots for one re-order'],
+  [thousands(lookTokens(1280)), 'tokens a 1280 × 800 screenshot costs'],
+  [`${fact('osworld').value}%`, 'of OSWorld’s computer tasks people completed'],
+  [
+    `${Math.round(100 * (1 - metrics(WINNERS[0]).tokens / metrics(START).tokens))}%`,
+    'fewer tokens with the workbench’s best policy',
+  ],
+];
+---
+<html lang="en">
+  <head>
+    <Meta {...introMeta(MODULE.id)} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module {N} · Computer use</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS.map((m, i) => <>{i > 0 && ', '}<a href={`/${m.id}/`}>{m.title}</a></>)} recommended · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+          <h1>How does an agent use a website made for people?</h1>
+          <p class="lede">It looks at a screenshot and answers with a point to click. Here you watch an agent re-order stock on a supplier’s old portal, predict its clicks, and find the screens that fool it.</p>
+          <div class="ctas">
+            <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+          <ReadingMode />
+        </div>
+        <div class="hero-pic">
+          {/* the puppet desk every chapter plays on: the agent's click on the hinges' Reorder link */}
+          <IsoStage board={PUPPET_BOARD} scene={puppetScene(HERO)} label={puppetLabel(HERO)} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="idea">
+        <p class="kicker">The whole idea in one example</p>
+        <h2 id="idea">A notice on the page, addressed to the agent</h2>
+        <img class="shot" src={src(svgOf(NOTICE))} alt={`The basket page the agent saw. ${screenWords(NOTICE)}`} />
+        <div class="versus">
+          {SIDES.map(({ name, ok, pic, words }) => (
+            <article class:list={['reply', { read: ok }]}>
+              <header><h3>{name}</h3><span class="stamp">{ok ? 'stopped' : 'obeyed'}</span></header>
+              <IsoStage board={PUPPET_BOARD} scene={puppetScene(pic)} label={puppetLabel(pic)} />
+              <p class="cap">{words}</p>
+            </article>
+          ))}
+        </div>
+        <p class="note more">The agent’s actions were written for this site to show each lesson; they were not recorded from a real model. The screens are drawn, and the host’s rules run live.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Six ideas carry the module</h2>
+        <ol class="steps">
+          {IDEAS.map(([name, short, f, p], i) => (
+            <li>
+              <div class="pic"><IsoStage board={PUPPET_BOARD} scene={puppetScene(p)} label={puppetLabel(p)} /></div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              <p class="more">{f.claim}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
+            </li>
+          ))}
+        </ol>
+        <p class="note more">{fact('osworld-now').claim} <a href={fact('osworld-now').source}>Source</a>, checked {longDate(fact('osworld-now').accessed)}.</p>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">Larkspur’s re-orders, on a portal with no API</h2>
+          <p class="more">{MODULE.story} <strong>You set the rules the agent’s host follows.</strong></p>
+          <p class="prev"><a href="/agents/">AI agents</a> showed the loop with tools; <a href="/multimodal/">Multimodal models</a> showed how a picture becomes tokens. Here the tool is the screen. The workbench’s best policy is one of {WINNERS.length}.</p>
+        </div>
+        <dl class="facts">
+          {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}
+        </dl>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due; the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <ul class="who-chips"><li>Engineers</li><li>Product managers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Product managers, engineers and analysts weighing an agent that works through screens. <a href="/agents/">AI agents</a> and <a href="/multimodal/">Multimodal models</a> come first; no code or maths needed.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com" target="_blank" rel="noopener">Samy (Kondasamy Jayaraman)</a>.</p>
+        <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, whose hand-inked isometric style and engine this course is built on. Colorfigures grew from April’s <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed. Thank you.</p>
+      </footer>
+    </main>
+
+    <script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      const CHAPTERS = moduleOf('computer-use').chapters;
+      const done = completed('computer-use');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('computer-use', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .module-meta a { color: var(--ink); }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .shot { display: block; width: 100%; max-width: 640px; height: auto; margin: 0 auto 18px; border: 1.5px solid var(--ink); border-radius: 8px; }
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.read { border-left: 6px solid var(--acc); }
+  .reply :global(svg) { width: 100%; height: auto; display: block; }
+
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); white-space: nowrap; }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 220px; display: flex; justify-content: center; align-items: center; margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: auto !important; height: 100% !important; max-width: 100%; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .prev { font-size: 14px; color: var(--muted); }
+  .prev a { color: var(--ink); }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
+
+  .pair { display: grid; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+  }
+</style>

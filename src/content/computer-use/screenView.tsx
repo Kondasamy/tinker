@@ -167,8 +167,8 @@ export default function ScreenView({ view, size, aim, hit, stale, predict }: Scr
       <figcaption className="cu-readout">
         Screenshot {s.w} × {s.h} px{size !== SCREEN.w ? `, real screen ${SCREEN.w} × ${SCREEN.h}` : ''}
         {aim ? ` · agent aimed at ${aim[0]}, ${aim[1]}` : ''}
-        {hit && aim && (hit.real[0] !== aim[0] || hit.real[1] !== aim[1])
-          ? ` · host clicked ${hit.real[0]}, ${hit.real[1]}`
+        {hit && aim && (size !== SCREEN.w || hit.real[0] !== aim[0] || hit.real[1] !== aim[1])
+          ? ` · host clicked ${hit.real[0]}, ${hit.real[1]} on the real screen`
           : ''}
       </figcaption>
     </figure>
