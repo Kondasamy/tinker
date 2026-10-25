@@ -46,10 +46,11 @@ export interface CheckpointMeta {
 }
 type Score = { loss: number; top1: number; top5: number };
 /**
- * Which weights to run: the base, the full fine-tune, the base plus the LoRA adapter, the distilled student, or the
- * base run's checkpoint at a step (`ckpt-250`, read from /data/pre-training/).
+ * Which weights to run: the base, the full fine-tune, the base plus the LoRA adapter, the distilled student, the
+ * base run's checkpoint at a step (`ckpt-250`, read from /data/pre-training/), or the masked model (`mlm`, read from
+ * /data/diffusion-llms/: meta.json lays out mlm.bin as model.bin's meta does, vocab included; run it bidirectional).
  */
-export type Weights = 'base' | 'finetuned' | 'lora' | 'student' | `ckpt-${number}`;
+export type Weights = 'base' | 'finetuned' | 'lora' | 'student' | 'mlm' | `ckpt-${number}`;
 const isCheckpoint = (w: Weights): w is `ckpt-${number}` => w.startsWith('ckpt-');
 
 /** IEEE 754 half to number. */
@@ -108,6 +109,12 @@ async function loadWeights(loader: Loader, w: Weights): Promise<Model> {
     const [m, bin] = await Promise.all(['meta.json', `${w}.bin`].map(loader));
     return parseCheckpoint(JSON.parse(new TextDecoder().decode(m)), Number(w.slice(5)), bin);
   }
+  if (w === 'mlm') {
+    const [m, bin] = await Promise.all(['meta.json', 'mlm.bin'].map(loader));
+    const meta = JSON.parse(new TextDecoder().decode(m)) as Meta;
+    const { params: _, ...config } = meta.model;
+    return { config, tensors: parseTensors('mlm.bin', meta.bytes, meta.tensors, bin) };
+  }
   const bin = w === 'finetuned' ? 'finetuned.bin' : w === 'student' ? 'student.bin' : 'model.bin';
   const [m, weights, lora] = await Promise.all(['meta.json', bin, ...(w === 'lora' ? ['lora.bin'] : [])].map(loader));
   const meta = JSON.parse(new TextDecoder().decode(m)) as Meta;
@@ -118,10 +125,12 @@ async function loadWeights(loader: Loader, w: Weights): Promise<Model> {
 
 /**
  * One model, fetched on first load(); a failed load leaves status 'error' and the next load() retries. The loader
- * reads /data/lm/, or /data/pre-training/ for a checkpoint, unless one is passed.
+ * reads /data/lm/, /data/pre-training/ for a checkpoint or /data/diffusion-llms/ for the masked model, unless one
+ * is passed.
  */
 export function modelLoader(loader?: Loader, weights: Weights = 'base') {
-  const files = loader ?? fetchLoader(isCheckpoint(weights) ? '/data/pre-training/' : '/data/lm/');
+  const dir = isCheckpoint(weights) ? 'pre-training' : weights === 'mlm' ? 'diffusion-llms' : 'lm';
+  const files = loader ?? fetchLoader(`/data/${dir}/`);
   let model: Model | undefined,
     pending: Promise<Model> | undefined,
     failed = false;

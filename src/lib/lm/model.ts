@@ -35,7 +35,7 @@ export interface ForwardResult {
   truncated: boolean;
   /** Next-token logits at every position read, each of length vocab. */
   logits: Float64Array[];
-  /** [layer][head][query t][key s]; each row sums to 1 and is 0 for s > t. */
+  /** [layer][head][query t][key s]; each row sums to 1 and is 0 for s > t (unless `hooks.bidirectional`). */
   attention: number[][][][];
   /** With `hooks.residuals`: [stage][t] of d_model; stage 0 after the embedding, stage l + 1 after block l. */
   residuals?: Float64Array[][];
@@ -57,6 +57,8 @@ export interface Hooks {
   patch?: { layer: number; pos: number; value: ArrayLike<number> };
   /** Add a vector to every position's residual. */
   steer?: { layer: number; vector: ArrayLike<number> };
+  /** Drop the causal mask: every position attends to every position (the masked model, KTD4). */
+  bidirectional?: boolean;
 }
 
 export function softmax(xs: ArrayLike<number>): Float64Array {
@@ -153,7 +155,8 @@ export function forward(model: Model, prompt: number[], hooks: Hooks = {}): Forw
     xs = edit(xs, l, hooks);
     if (hooks.residuals) residuals.push(xs);
     const p = (n: string) => P[`h.${l}.${n}`];
-    const off = hooks.ablate?.filter(a => a.layer === l).map(a => a.head) ?? [];
+    const off = hooks.ablate?.filter(a => a.layer === l).map(a => a.head) ?? [],
+      bi = hooks.bidirectional === true;
     const acts: Float64Array[] = [];
     const qkv = xs.map(x =>
       adapted(model, `h.${l}.attn.qkv`, layerNorm(x, p('ln1.weight'), p('ln1.bias'), c.ln_eps), 3 * D),
@@ -164,17 +167,18 @@ export function forward(model: Model, prompt: number[], hooks: Hooks = {}): Forw
       const rows: number[][] = [],
         silenced = off.includes(h);
       for (let t = 0; t < T; t++) {
-        const scores = new Float64Array(t + 1);
-        for (let s = 0; s <= t; s++) {
+        const last = bi ? T - 1 : t,
+          scores = new Float64Array(last + 1);
+        for (let s = 0; s <= last; s++) {
           let dot = 0;
           for (let i = 0; i < hd; i++) dot += qkv[t][h * hd + i] * qkv[s][D + h * hd + i];
           scores[s] = dot / Math.sqrt(hd);
         }
         const a = softmax(scores);
         if (!silenced)
-          for (let s = 0; s <= t; s++)
+          for (let s = 0; s <= last; s++)
             for (let i = 0; i < hd; i++) ys[t][h * hd + i] += a[s] * qkv[s][2 * D + h * hd + i];
-        rows.push(Array.from({ length: T }, (_, s) => (s <= t ? a[s] : 0)));
+        rows.push(Array.from({ length: T }, (_, s) => (s <= last ? a[s] : 0)));
       }
       heads.push(rows);
     }
