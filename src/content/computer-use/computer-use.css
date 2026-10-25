@@ -1,0 +1,140 @@
+/* Computer use stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
+   tool-calling/kit). These are the Screen view, its marks and its click-to-predict targets. */
+.cu-shot {
+  margin: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cu-shot-box {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1280 / 800;
+  border: 1.5px solid var(--ink);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fffdf6;
+}
+.cu-shot canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+.cu-mark {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.cu-aim {
+  border: 2.5px dashed var(--ink);
+}
+.cu-hit {
+  background: rgba(147, 211, 176, 0.6);
+  border: 2px solid var(--ink);
+}
+.cu-hit.bad {
+  background: rgba(239, 106, 76, 0.65);
+}
+.cu-hit::before,
+.cu-hit::after {
+  content: "";
+  position: absolute;
+  background: var(--ink);
+}
+.cu-hit::before {
+  left: -6px;
+  right: -6px;
+  top: 7px;
+  height: 2px;
+}
+.cu-hit::after {
+  top: -6px;
+  bottom: -6px;
+  left: 7px;
+  width: 2px;
+}
+.cu-stale {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 1px 8px;
+  border: 1.2px solid var(--ink);
+  border-radius: 999px;
+  background: #fff4d6;
+  font:
+    800 12px ui-monospace,
+    Menlo,
+    monospace;
+}
+.cu-targets {
+  position: absolute;
+  inset: 0;
+}
+.cu-target {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 0;
+  border: 2px dashed transparent;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+.cu-target:hover,
+.cu-target:focus-visible {
+  border-color: var(--ink);
+  outline: none;
+  background: rgba(244, 184, 41, 0.18);
+}
+.cu-target[aria-pressed="true"] {
+  border: 3px solid var(--ink);
+  background: rgba(244, 184, 41, 0.35);
+}
+.cu-target:disabled {
+  cursor: default;
+}
+.cu-failed {
+  position: absolute;
+  inset: auto 8px 8px;
+  margin: 0;
+  font-size: 13px;
+}
+.cu-readout {
+  font:
+    700 12.5px ui-monospace,
+    Menlo,
+    monospace;
+  overflow-wrap: anywhere;
+}
+.tc-frame .cu-shot {
+  align-self: center;
+}
+.cu-pick {
+  margin-top: 10px;
+}
+.cu-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.cu-bench {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+.cu-bench label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cu-headline {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}

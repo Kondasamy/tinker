@@ -71,7 +71,7 @@ describe('the host stages', () => {
 
 describe('pinned runs (KTD12)', () => {
   it.each(pinned.runs.map(p => [p.chapter, JSON.stringify(p.setup), p] as const))('%s %s', (_, __, p) => {
-    const r = play(p.setup as Setup);
+    const r = play(p.setup as Partial<Setup> & { case: string });
     expect(r.status).toBe('done');
     expect(r.hist).toEqual(p.hist);
     expect(r.caseDone).toBe(p.done);
