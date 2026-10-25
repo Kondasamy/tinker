@@ -145,6 +145,7 @@ export const CONSISTENCY_MODULE: Module = {
   title: 'Replication & consistency',
   description: 'Three warehouses, one stock count: how the last hinge gets sold twice, and what each fix costs.',
   level: 'Advanced',
+  track: 'Classic tech',
   status: 'live',
   author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
   prereqs: ['databases'],

@@ -1,7 +1,7 @@
 ---
 // Tinker home: the platform. Each module is one tech concept told as a playable story; RAG is the first.
 // The catalogue is built from the module registry, one section per level. Static, except a small script that shows
-// progress on live cards and points Continue at the module played last.
+// progress on live cards, points Continue at the module played last, and runs the catalogue's search and filters.
 import '../styles/tokens.css';
 import '../styles/page.css';
 import Meta from '../components/Meta.astro';
@@ -9,7 +9,7 @@ import IsoStage, { type SceneCtx, type Zoom } from '../lib/iso/IsoStage';
 import { miniPipeline, MINI_BOARD, MINI_LABEL } from '../components/scenes/miniPipeline';
 import { HERO_BOARD, HOME_HERO, HOME_HERO_LABEL, heroCaption } from '../components/scenes/heroScene';
 import { renderers, blockShadow, type BlockType } from '../lib/iso/blocks';
-import { MODULES, type Level } from '../lib/modules';
+import { MODULES, type Level, type Module } from '../lib/modules';
 import { HOME } from '../lib/pages';
 import { SEQ_MSGS } from '../components/scenes/toolSequence';
 import { OFFICE_BOARD, officeScene, officeLabel } from '../components/scenes/officeScene';
@@ -552,6 +552,23 @@ const FIRST = LIVE[0];
 // live modules first within a level
 const PLANNED = MODULES.filter(m => m.status === 'planned');
 const atLevel = (level: Level) => [...LIVE, ...PLANNED].filter(m => m.level === level);
+// the catalogue's filters, each a row of radio chips, the first one no filter; a status no card has is hidden by the script
+const FILTERS: [name: string, label: string, options: string[]][] = [
+  ['level', 'Level', ['All levels', ...LEVELS]],
+  ['track', 'Track', ['AI & classic', 'AI', 'Classic tech']],
+  ['status', 'Status', ['Any status', 'Not started', 'In progress', 'Finished', 'Planned']],
+];
+// what a search reads: title, description, story, level, track, topics and chapter titles, one line per field
+const searchOf = (m: Module) =>
+  [
+    CARD[m.id]?.name ?? m.title,
+    m.description,
+    m.story,
+    m.level,
+    m.track ?? 'AI',
+    ...(CARD[m.id]?.topics ?? []),
+    ...m.chapters.map(c => c.title),
+  ].join('\n');
 // FormSubmit mails the form with no backend; the alias keeps the author's address out of the page
 const FORM = 'https://formsubmit.co/772ba7c404246e8574ae55366cdadcae';
 const SENT = new URL('/?sent#request', Astro.site).href;
@@ -589,6 +606,62 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
         </figure>
       </header>
 
+      <section id="modules" aria-labelledby="modules-h">
+        <p class="kicker">Modules</p>
+        <h2 id="modules-h">Pick a concept</h2>
+        <form class="finder" role="search" data-finder hidden>
+          <div class="row">
+            <input type="search" name="q" aria-label="Search modules" placeholder="Search modules" autocomplete="off" aria-keyshortcuts="/" />
+            <p class="count" role="status" data-count></p>
+          </div>
+          <div class="filters">
+            {FILTERS.map(([name, label, options]) => (
+              <fieldset aria-label={label}>
+                {options.map((o, i) => (
+                  <label><input type="radio" name={name} value={i ? o : ''} checked={!i} /> {o}</label>
+                ))}
+              </fieldset>
+            ))}
+          </div>
+        </form>
+        <div class="none" data-none hidden>
+          <p>Nothing matches yet.</p>
+          <button class="btn" type="button" data-clear>Clear filters</button>
+          <a class="btn primary" href="#request" data-propose>Ask for it →</a>
+        </div>
+        {LEVELS.map(level => { const mods = atLevel(level); return (
+          <section class="level-group" data-level={level} aria-labelledby={`level-${level}`}>
+            <h3 id={`level-${level}`}>{level}</h3>
+            {!mods.some(m => m.status === 'live') && <p class="coming">{mods.length ? 'Coming. Nothing to play at this level yet.' : 'Coming. The next module is being built.'}</p>}
+            <div class="modules">
+              {mods.map(m => m.status === 'live' ? (
+                <article class="module" data-module={m.id} data-track={m.track ?? 'AI'} data-status="Not started" data-search={searchOf(m)}>
+                  {CARD[m.id]?.iso && <div class="pic"><IsoStage {...CARD[m.id].iso!} /></div>}
+                  <div class="info">
+                    <div class="head">
+                      <p class="kicker">Module {LIVE.indexOf(m) + 1} · {m.chapters.length ? `${m.chapters.length} ${m.chapters.length === 1 ? 'chapter' : 'chapters'}` : 'Chapters arrive soon'}</p>
+                      <p class="tags"><span class="level">{m.level}</span></p>
+                    </div>
+                    <h4><a href={`/${m.id}/`}>{CARD[m.id]?.name ?? m.title}</a></h4>
+                    <p>{m.description}</p>
+                    <p class="hit" data-hit hidden></p>
+                    <div class="progress" data-progress hidden><span class="bar"><span></span></span><span class="txt"></span></div>
+                    <a class="btn primary" href={`/${m.id}/`} data-cta>Start {m.title} →</a>
+                  </div>
+                </article>
+              ) : (
+                <article class="roadmap" id={`module-${m.id}`} data-module={m.id} data-track={m.track ?? 'AI'} data-status="Planned" data-search={searchOf(m)}>
+                  <p class="tags"><span class="level">{m.level}</span> <span class="planned">Planned</span></p>
+                  <h4>{m.title}</h4>
+                  <p>{m.description}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+        ); })}
+        <p class="propose">Want a concept explained here? <a href="#request">Propose a module</a>.</p>
+      </section>
+
       <section aria-labelledby="why">
         <p class="kicker">Why Tinker</p>
         <h2 id="why">Understanding comes from poking at things</h2>
@@ -601,42 +674,6 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
             </li>
           ))}
         </ul>
-      </section>
-
-      <section id="modules" aria-labelledby="modules-h">
-        <p class="kicker">Modules</p>
-        <h2 id="modules-h">Pick a concept</h2>
-        {LEVELS.map(level => { const mods = atLevel(level); return (
-          <section class="level-group" data-level={level} aria-labelledby={`level-${level}`}>
-            <h3 id={`level-${level}`}>{level}</h3>
-            {!mods.some(m => m.status === 'live') && <p class="coming">{mods.length ? 'Coming. Nothing to play at this level yet.' : 'Coming. The next module is being built.'}</p>}
-            <div class="modules">
-              {mods.map(m => m.status === 'live' ? (
-                <article class="module" data-module={m.id}>
-                  {CARD[m.id]?.iso && <div class="pic"><IsoStage {...CARD[m.id].iso!} /></div>}
-                  <div class="info">
-                    <div class="head">
-                      <p class="kicker">Module {LIVE.indexOf(m) + 1} · {m.chapters.length ? `${m.chapters.length} ${m.chapters.length === 1 ? 'chapter' : 'chapters'}` : 'Chapters arrive soon'}</p>
-                      <p class="tags"><span class="level">{m.level}</span></p>
-                    </div>
-                    <h4><a href={`/${m.id}/`}>{CARD[m.id]?.name ?? m.title}</a></h4>
-                    <p>{m.description}</p>
-                    {CARD[m.id] && <ul class="topics" aria-label="Topics">{CARD[m.id].topics.map(t => <li>{t}</li>)}</ul>}
-                    <div class="progress" data-progress hidden><span class="bar"><span></span></span><span class="txt"></span></div>
-                    <a class="btn primary" href={`/${m.id}/`} data-cta>Start {m.title} →</a>
-                  </div>
-                </article>
-              ) : (
-                <article class="roadmap" id={`module-${m.id}`} data-module={m.id}>
-                  <p class="tags"><span class="level">{m.level}</span> <span class="planned">Planned</span></p>
-                  <h4>{m.title}</h4>
-                  <p>{m.description}</p>
-                </article>
-              ))}
-            </div>
-          </section>
-        ); })}
-        <p class="propose">Want a concept explained here? <a href="#request">Propose a module</a>.</p>
       </section>
 
       <section id="loop" aria-labelledby="loop-h">
@@ -701,6 +738,7 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
       for (const m of live) {
         const r = resume(m), card = document.querySelector<HTMLElement>(`.module[data-module="${m.id}"]`);
         if (!r.done || !card) continue;
+        card.dataset.status = r.done < m.chapters.length ? 'In progress' : 'Finished';
         const box = card.querySelector<HTMLElement>('[data-progress]')!;
         box.hidden = false;
         box.querySelector<HTMLElement>('.bar span')!.style.width = `${(100 * r.done) / m.chapters.length}%`;
@@ -717,6 +755,71 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
       go.href = r.href;
       if (r.done) go.textContent = r.text;
       else if (pick !== live[0]) go.textContent = `Start ${pick.title} →`;
+
+      // the catalogue's finder: every word of the search must appear, and every chip must match; the URL keeps the view
+      const finder = document.querySelector<HTMLFormElement>('[data-finder]')!;
+      const cards = [...document.querySelectorAll<HTMLElement>('#modules [data-search]')];
+      const none = document.querySelector<HTMLElement>('[data-none]')!;
+      const q = finder.querySelector<HTMLInputElement>('[name="q"]')!;
+      const FIELDS = ['level', 'track', 'status'] as const;
+      // a status no card has yet (nothing in progress on a first visit) is no use as a chip
+      for (const chip of finder.querySelectorAll<HTMLInputElement>('[name="status"]'))
+        if (chip.value && !cards.some(c => c.dataset.status === chip.value)) chip.parentElement!.hidden = true;
+      const params = new URLSearchParams(location.search);
+      q.value = params.get('q') ?? '';
+      for (const name of FIELDS) {
+        const chip = finder.querySelector<HTMLInputElement>(`[name="${name}"][value="${CSS.escape(params.get(name) ?? '')}"]`);
+        if (chip && !chip.parentElement!.hidden) chip.checked = true;
+      }
+      const apply = () => {
+        const form = new FormData(finder);
+        const words = q.value.toLowerCase().split(/\s+/).filter(Boolean);
+        let shown = 0;
+        for (const card of cards) {
+          const lines = card.dataset.search!.split('\n'), text = lines.join('\n').toLowerCase();
+          const at = { level: card.closest<HTMLElement>('[data-level]')!.dataset.level, track: card.dataset.track, status: card.dataset.status };
+          const ok = words.every(w => text.includes(w)) && FIELDS.every(f => !form.get(f) || form.get(f) === at[f]);
+          card.hidden = !ok;
+          shown += +ok;
+          // a match the card doesn't show (a topic or chapter) is named under its description
+          const hit = card.querySelector<HTMLElement>('[data-hit]');
+          if (!hit) continue;
+          const seen = lines.slice(0, 2).join(' ').toLowerCase();
+          const extra = lines.slice(5).find(l => words.some(w => !seen.includes(w) && l.toLowerCase().includes(w)));
+          hit.hidden = !ok || !extra;
+          hit.textContent = extra ? `Includes: ${extra}` : '';
+        }
+        for (const g of document.querySelectorAll<HTMLElement>('#modules [data-level]'))
+          g.hidden = !g.querySelector('[data-search]:not([hidden])');
+        const filtered = words.length || FIELDS.some(f => form.get(f));
+        finder.querySelector('[data-count]')!.textContent = filtered ? `${shown} of ${cards.length} modules` : `${cards.length} modules`;
+        none.hidden = shown > 0;
+        document.querySelector<HTMLElement>('#modules .propose')!.hidden = !shown;
+        const url = new URLSearchParams();
+        if (q.value.trim()) url.set('q', q.value.trim());
+        for (const f of FIELDS) if (form.get(f)) url.set(f, String(form.get(f)));
+        history.replaceState(null, '', `${location.pathname}${url.size ? `?${url}` : ''}${location.hash}`);
+      };
+      finder.hidden = false;
+      finder.addEventListener('input', apply);
+      finder.addEventListener('submit', e => e.preventDefault());
+      none.querySelector('[data-clear]')!.addEventListener('click', () => {
+        finder.reset();
+        q.value = '';
+        apply();
+        q.focus();
+      });
+      // a search that finds nothing becomes a module request
+      none.querySelector('[data-propose]')!.addEventListener('click', () => {
+        const ask = document.querySelector<HTMLTextAreaElement>('#request textarea')!;
+        if (!ask.value && q.value.trim()) ask.value = `A module on: ${q.value.trim()}`;
+      });
+      document.addEventListener('keydown', e => {
+        if (e.key !== '/' || e.metaKey || e.ctrlKey || (e.target as HTMLElement).closest('input, textarea, select, [contenteditable]')) return;
+        e.preventDefault();
+        q.focus();
+      });
+      apply();
     </script>
   </body>
 </html>
@@ -781,16 +884,33 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
   .ask .btn { align-self: flex-start; cursor: pointer; font-family: inherit; }
   .ask .honey { position: absolute; left: -9999px; }
   .sent { color: var(--ok); font-weight: 600; }
-  .modules { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: stretch; }
+  /* the finder rides along while the catalogue scrolls: the search, then a chip row per filter */
+  .finder { position: sticky; top: 0; z-index: 2; display: flex; flex-direction: column; gap: 10px; margin: 0 -12px; padding: 12px; background: var(--paper); border-bottom: 1.5px solid var(--rule); }
+  .finder[hidden], .none[hidden], .level-group[hidden], .module[hidden], .roadmap[hidden], .hit[hidden], .finder label[hidden] { display: none; }
+  .finder .row { display: flex; align-items: center; gap: 14px; }
+  .finder input[type=search] { flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 10px 14px; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--card); color: var(--ink); }
+  .finder .count { margin: 0; font-size: 13px; color: var(--muted); white-space: nowrap; }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+  .finder fieldset { border: 0; margin: 0; padding: 0; display: flex; gap: 6px; }
+  .finder fieldset label { position: relative; font-size: 12.5px; font-weight: 700; padding: 3px 11px; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--card); cursor: pointer; white-space: nowrap; }
+  .finder fieldset input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .finder label:has(:checked) { background: var(--acc); }
+  .finder label:has(:focus-visible) { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .none { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 28px; }
+  .none p { margin: 0; font-weight: 700; }
+  .none .btn { font-family: inherit; cursor: pointer; }
+  .hit { font-size: 13px; font-weight: 700; margin: 0 0 12px !important; }
+  .modules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
   .module { display: flex; flex-direction: column; border: 1.5px solid var(--ink); border-radius: 20px; overflow: hidden; background: var(--card); box-shadow: 5px 5px 0 var(--ink); }
   .module .pic { background: var(--paper); border-bottom: 1.5px solid var(--rule); padding: 12px 16px; }
   /* IsoStage sets height: auto inline; a fixed height keeps every card's picture the same size */
-  .module .pic :global(svg) { height: 230px !important; }
-  .module .info { flex: 1; display: flex; flex-direction: column; padding: 18px 22px 22px; }
+  .module .pic :global(svg) { height: 150px !important; }
+  .module .info { flex: 1; display: flex; flex-direction: column; padding: 14px 18px 18px; }
+  .module .info > p:not(.hit) { font-size: 14px; margin-bottom: 14px; }
   .module .head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .module .head p { margin: 0; }
   .module .info > .btn { align-self: flex-start; margin-top: auto; }
-  .module h4 { font-size: 20px; line-height: 1.3; margin: 8px 0 6px; }
+  .module h4 { font-size: 18px; line-height: 1.3; margin: 8px 0 6px; }
   .module h4 a { text-decoration: none; }
   .module h4 a:hover { text-decoration: underline; }
   .tags { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -800,8 +920,6 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
   .roadmap p { font-size: 13.5px; color: var(--muted); margin: 0; }
   .planned { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; color: var(--muted); align-self: center; }
   .pic { display: block; }
-  .topics { list-style: none; margin: 4px 0 16px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
-  .topics li { font-size: 12px; padding: 1px 9px; border-radius: 999px; color: var(--muted); border: 1px solid var(--rule); }
   .progress { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; font-size: 13px; font-weight: 700; }
   .progress[hidden] { display: none; }
   .progress .bar { flex: 1; max-width: 200px; height: 8px; border: 1.5px solid var(--ink); border-radius: 999px; overflow: hidden; background: var(--paper); }
@@ -816,10 +934,15 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
     .home { padding: 12px 16px 48px; gap: 56px; }
     .home h1 { font-size: 32px; }
     .hero { padding-top: 16px; }
-    .modules { grid-template-columns: 1fr; }
-    .module .pic :global(svg) { height: 200px !important; }
+    .modules { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .principles { grid-template-columns: 1fr; }
     .loop { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 620px) {
+    .modules { grid-template-columns: 1fr; }
+    /* on a phone the chips scroll sideways in one row, so the sticky finder stays short */
+    .finder { padding: 10px 16px; margin: 0 -16px; }
+    .filters { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
   }
   @media (max-width: 520px) { .loop { grid-template-columns: 1fr; } }
 </style>

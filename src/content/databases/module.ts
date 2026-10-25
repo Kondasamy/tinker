@@ -143,6 +143,7 @@ export const DATABASES_MODULE: Module = {
   description:
     'Why the orders page is slow: a full scan, an index that jumps straight to the rows, and what every write then pays.',
   level: 'Beginner',
+  track: 'Classic tech',
   status: 'live',
   author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
   prereqs: [],
