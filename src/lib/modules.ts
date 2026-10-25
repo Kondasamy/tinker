@@ -31,6 +31,11 @@ import { GIT_MODULE } from '../content/git/module';
 import { CALIBRATION_MODULE } from '../content/calibration/module';
 import { COMPUTER_USE_MODULE } from '../content/computer-use/module';
 import { DIFFUSION_LLMS_MODULE } from '../content/diffusion-llms/module';
+import { QUEUES_MODULE } from '../content/queues/module';
+import { COMPRESSION_MODULE } from '../content/compression/module';
+import { LOAD_BALANCING_MODULE } from '../content/load-balancing/module';
+import { ENCRYPTION_MODULE } from '../content/encryption/module';
+import { CODING_AGENTS_MODULE } from '../content/coding-agents/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -121,6 +126,11 @@ export const MODULES: Module[] = [
   CALIBRATION_MODULE,
   COMPUTER_USE_MODULE,
   DIFFUSION_LLMS_MODULE,
+  QUEUES_MODULE,
+  COMPRESSION_MODULE,
+  LOAD_BALANCING_MODULE,
+  ENCRYPTION_MODULE,
+  CODING_AGENTS_MODULE,
   planned(
     'mixture-of-experts',
     'Mixture of experts',
@@ -128,44 +138,10 @@ export const MODULES: Module[] = [
     'A model with many experts that wakes only a few for each word: the router that picks them, and what it saves.',
   ),
   planned(
-    'coding-agents',
-    'Coding agents',
-    'Intermediate',
-    'An agent that edits code and runs the tests: reading a repository, making a change, and checking its own work.',
-  ),
-  planned(
     'synthetic-data',
     'Synthetic data',
     'Intermediate',
     'Training data written by a model: how it is made, filtered and checked, and when it teaches the wrong thing.',
-  ),
-  planned(
-    'queues',
-    'Queues and background jobs',
-    'Beginner',
-    'How an order waits its turn: a queue, workers that take jobs, retries, and the jobs that run twice.',
-    'Classic tech',
-  ),
-  planned(
-    'encryption',
-    'Locks and keys',
-    'Beginner',
-    'How a stranger can send you a secret: a public lock, a private key, and signatures that prove who sent it.',
-    'Classic tech',
-  ),
-  planned(
-    'compression',
-    'Compression',
-    'Beginner',
-    'How a file gets smaller without losing a byte: repeats replaced by pointers, and why some files will not shrink.',
-    'Classic tech',
-  ),
-  planned(
-    'load-balancing',
-    'Load balancing',
-    'Intermediate',
-    'Spreading requests over many servers: round robin, the least busy, health checks, and the one slow server.',
-    'Classic tech',
   ),
   planned(
     'memorisation',

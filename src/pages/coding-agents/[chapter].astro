@@ -1,0 +1,29 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ReadEditRun from '../../content/coding-agents/01-read-edit-run';
+import FindingTheFile from '../../content/coding-agents/02-finding-the-file';
+import APatchNotARewrite from '../../content/coding-agents/03-a-patch-not-a-rewrite';
+import RedToGreen from '../../content/coding-agents/04-red-to-green';
+import GreenByCheating from '../../content/coding-agents/05-green-by-cheating';
+import WhatItMayRun from '../../content/coding-agents/06-what-it-may-run';
+import Workbench from '../../content/coding-agents/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('coding-agents').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="coding-agents" chapter={chapter} title={title}>
+  {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
+      hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
+  {chapter === '01-read-edit-run' ? <ReadEditRun client:load />
+    : chapter === '02-finding-the-file' ? <FindingTheFile client:load />
+    : chapter === '03-a-patch-not-a-rewrite' ? <APatchNotARewrite client:load />
+    : chapter === '04-red-to-green' ? <RedToGreen client:load />
+    : chapter === '05-green-by-cheating' ? <GreenByCheating client:load />
+    : chapter === '06-what-it-may-run' ? <WhatItMayRun client:load />
+    : <Workbench client:load />}
+</ChapterLayout>

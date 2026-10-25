@@ -1,0 +1,108 @@
+/* Coding agents stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
+   tool-calling/kit). These are the Code tab (rows of code that scroll sideways inside the panel, never the page), its
+   hunk checkboxes, the test list and the workbench. */
+.ca-code {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  min-height: 0;
+}
+.ca-code-title {
+  margin: 0;
+  font:
+    800 12.5px ui-monospace,
+    Menlo,
+    monospace;
+  overflow-wrap: anywhere;
+}
+.ca-rows {
+  flex: 1;
+  min-height: 0;
+  max-width: 100%;
+  overflow: auto;
+  border: 1.5px solid var(--ink);
+  border-radius: 8px;
+  background: #fffdf6;
+  padding: 6px 0;
+  font:
+    500 12.5px / 1.55 ui-monospace,
+    Menlo,
+    monospace;
+}
+.ca-rows:focus-visible {
+  outline: 3px solid var(--acc);
+  outline-offset: 2px;
+}
+.ca-line {
+  display: flex;
+  width: max-content;
+  min-width: 100%;
+  white-space: pre;
+  padding-right: 10px;
+}
+.ca-line code {
+  font: inherit;
+}
+.ca-n {
+  flex: none;
+  width: 3ch;
+  margin-right: 6px;
+  text-align: right;
+  color: var(--muted);
+}
+.ca-op {
+  flex: none;
+  width: 2ch;
+  font-weight: 800;
+}
+.ca-line.add {
+  background: rgba(147, 211, 176, 0.45);
+}
+.ca-line.del {
+  background: rgba(239, 106, 76, 0.22);
+}
+.ca-line.add[data-kept="0"] {
+  background: transparent;
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.ca-line.del[data-kept="0"] {
+  background: transparent;
+}
+.ca-hunk {
+  margin: 6px 10px 2px;
+  font-family: inherit;
+  font-weight: 800;
+}
+.ca-run {
+  align-self: flex-start;
+}
+.ca-tests {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  font-size: 13.5px;
+}
+.ca-tests .stamp {
+  margin-right: 6px;
+}
+.ca-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.ca-bench {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+.ca-headline {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}

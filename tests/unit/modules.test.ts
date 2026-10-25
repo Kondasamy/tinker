@@ -610,6 +610,66 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'diffusion-llms')).toBe(31);
   });
 
+  it('has queues as a live Beginner Classic tech module, numbered 33', () => {
+    expect(moduleOf('queues')).toMatchObject({
+      title: 'Queues and background jobs',
+      level: 'Beginner',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('queues').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'queues')).toBe(32);
+  });
+
+  it('has compression as a live Beginner Classic tech module, numbered 34', () => {
+    expect(moduleOf('compression')).toMatchObject({
+      title: 'Compression',
+      level: 'Beginner',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('compression').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'compression')).toBe(33);
+  });
+
+  it('has load-balancing as a live Intermediate Classic tech module, numbered 35', () => {
+    expect(moduleOf('load-balancing')).toMatchObject({
+      title: 'Load balancing',
+      level: 'Intermediate',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('load-balancing').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'load-balancing')).toBe(34);
+  });
+
+  it('has encryption as a live Beginner Classic tech module, numbered 36', () => {
+    expect(moduleOf('encryption')).toMatchObject({
+      title: 'Locks and keys',
+      level: 'Beginner',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('encryption').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'encryption')).toBe(35);
+  });
+
+  it('has coding-agents as a live Intermediate AI module after AI agents, numbered 37', () => {
+    expect(moduleOf('coding-agents')).toMatchObject({
+      title: 'Coding agents',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: ['agents'],
+    });
+    expect(moduleOf('coding-agents').track).toBeUndefined();
+    expect(moduleOf('coding-agents').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'coding-agents')).toBe(36);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

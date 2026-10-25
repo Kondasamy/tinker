@@ -166,6 +166,9 @@ export default function HowTheVocabularyIsLearned() {
           <>
             <Fact id="bpe-origin" />
             <Fact id="gpt2-vocab" />
+            <p className="note">
+              Short codes for common bytes, to shrink a file instead: <a href="/compression/">Compression</a>.
+            </p>
             <Quiz
               {...QUIZ}
               unsure

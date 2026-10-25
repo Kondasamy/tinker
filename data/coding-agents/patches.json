@@ -1,0 +1,11 @@
+{
+  "note": "Every patch the recorded agent writes (KTD8): the file, the version it applies to, and the version each subset of its hunks makes, indexed by the subset's bit mask (bit i: the i-th hunk in file order). tests/unit/coding-agents-versions.test.ts applies every subset and requires the version file's exact source.",
+  "patches": [
+    { "id": "fix", "path": "src/discount.ts", "from": "000", "subsets": ["000", "100", "010", "110", "001", "101", "011", "111"] },
+    { "id": "clean", "path": "src/discount.ts", "from": "000", "subsets": ["000", "100", "010", "110"] },
+    { "id": "at50", "path": "src/discount.ts", "from": "000", "subsets": ["000", "100"] },
+    { "id": "round", "path": "src/discount.ts", "from": "100", "subsets": ["100", "110"] },
+    { "id": "untidy", "path": "src/discount.ts", "from": "111", "subsets": ["111", "110"] },
+    { "id": "loosen", "path": "tests/discount.test.ts", "from": "base", "subsets": ["base", "loose"] }
+  ]
+}

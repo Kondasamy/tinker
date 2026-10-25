@@ -172,7 +172,15 @@ export default function FewerPromptsChapter() {
           />
         ),
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
-        out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUT1} />,
+        out1: ({ state }) => (
+          <>
+            <Outcome {...P1} prediction={state.p1} outcome={OUT1} />
+            <p className="note in-note">
+              The same allow-list and ask-first rules for a coding agent:{' '}
+              <a href="/coding-agents/06-what-it-may-run/">Coding agents</a>.
+            </p>
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

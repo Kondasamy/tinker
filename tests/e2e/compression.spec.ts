@@ -1,6 +1,7 @@
 // Compression: the intro, every chapter played by mouse and by keyboard only, its own progress key, chapter 3's merge
 // puzzle (a wrong pair refused with the rule, solved by keyboard alone), real gzip measured in the browser near its
-// reference, "I'm not sure", reduced motion, the recap, axe and phone width; the module's number on its intro and recap.
+// reference, "I'm not sure", reduced motion, the recap, axe and phone width; the go-live
+// checks: the module's number on its intro and recap, its share images and home's card.
 import { test, expect, type Page } from '@playwright/test';
 import pinned from '../../data/compression/pinned.json' with { type: 'json' };
 import { MODULES } from '../../src/lib/modules';
@@ -46,6 +47,21 @@ test('its module number on the intro and the recap', async ({ page }) => {
   await expect(page.locator('.hero .kicker')).toHaveText(`Module ${NUMBER} · Compression`);
   await page.goto('/compression/recap/');
   await expect(page.locator('.hero .kicker')).toHaveText(`Module ${NUMBER} · Recap`);
+});
+
+test('go-live: own share images and home’s card', async ({ page }) => {
+  await page.goto('/compression/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/compression\.jpg$/);
+  await page.goto(`/compression/${CH1}/`);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    new RegExp(`/og/compression-${CH1}\\.jpg$`),
+  );
+  await page.goto('/compression/recap/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/compression-recap\.jpg$/);
+  expect((await page.request.get('/og/compression.jpg')).status()).toBe(200);
+  await page.goto('/');
+  await expect(page.locator('.module[data-module="compression"] h4 a')).toHaveAttribute('href', '/compression/');
 });
 
 test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({
