@@ -97,6 +97,14 @@ import { decode } from '../lib/diffusion-llms/decode';
 import { diskMlm } from '../lib/diffusion-llms/diskModel';
 import { phrase as dlPhrase } from '../lib/diffusion-llms/workbench';
 import { frameOf } from '../content/diffusion-llms/kit';
+import { RAIL_BOARD, railCard, railLabel, railScene } from '../components/scenes/railScene';
+import { PILE_BOARD, pileAt, pileLabel, pileScene } from '../components/scenes/pileScene';
+import { sizeOf as czSize } from '../lib/compression/coders';
+import { fileOf as czFile } from '../lib/compression/files';
+import { YARD_BOARD, yardAt, yardLabel, yardScene } from '../components/scenes/yardScene';
+import { runOf as lbRun } from '../lib/load-balancing/sim';
+import { RULE_NAME as LB_RULE_NAME } from '../lib/load-balancing/rules';
+import { WINNERS as LB_WINNERS, benchPolicy as lbBench } from '../lib/load-balancing/workbench';
 
 const one =
   (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) =>
@@ -269,6 +277,15 @@ const PUPPET: PuppetOpts = { ...frameAt(CU_RUN, nthBeat(CU_RUN, 'click', 3)).opt
 const TYPE: FrameOpts = {
   given: dlPhrase(6).ids.length,
   ...frameOf(decode(diskMlm(), dlPhrase(6).ids, 4, 'confidence', 6), 2),
+  scale: 1.7,
+};
+// queues: Rosa knocked over mid-job, her ticket held on the bench until the lease runs out
+const RAIL = railCard(1.7);
+// compression: the price list's byte piles, its parcel packed by pointers and short codes
+const PILES = { ...pileAt(czFile('price').bytes, czSize('pair', czFile('price').bytes, 'price')), scale: 1.7 };
+// load balancing: the switchyard mid-sale on chapter 7's first winning setting
+const SWITCHYARD = {
+  ...yardAt(lbRun(lbBench(LB_WINNERS[0])), 2500, LB_RULE_NAME[LB_WINNERS[0].rule]),
   scale: 1.7,
 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
@@ -679,6 +696,46 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Fixed reply length',
       'Speed claims',
       'Speed per reply',
+    ],
+  },
+  queues: {
+    name: 'Queues and background jobs',
+    iso: { board: RAIL_BOARD, scene: railScene(RAIL), label: railLabel(RAIL) },
+    topics: [
+      'Background jobs',
+      'Workers',
+      'Backlog',
+      'Retries & backoff',
+      'Jitter',
+      'Leases',
+      'At-least-once',
+      'Idempotent jobs',
+      'Dead-letter queues',
+    ],
+  },
+  compression: {
+    name: 'Compression',
+    iso: { board: PILE_BOARD, scene: pileScene(PILES), label: pileLabel(PILES) },
+    topics: [
+      'Bytes & entropy',
+      'LZ77 pointers',
+      'Huffman codes',
+      'DEFLATE & gzip',
+      'Why random data won’t shrink',
+      'Lossy pictures',
+    ],
+  },
+  'load-balancing': {
+    name: 'Load balancing',
+    iso: { board: YARD_BOARD, scene: yardScene(SWITCHYARD), label: yardLabel(SWITCHYARD) },
+    topics: [
+      'Capacity and queues',
+      'Round robin & weights',
+      'Least outstanding',
+      'Power of two choices',
+      'Health checks',
+      'Sticky sessions',
+      'p99 & hedged requests',
     ],
   },
 };
