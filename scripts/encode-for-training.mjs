@@ -127,7 +127,8 @@ const RARE = [
     facts: { what: ['red light'] },
   },
 ];
-const read = f => fs.readFileSync(path.join(CORPUS, f), 'utf8');
+const texts = new Map();
+const read = f => texts.get(f) ?? texts.set(f, fs.readFileSync(path.join(CORPUS, f), 'utf8')).get(f);
 const has = (doc, seq) => doc.some((_, i) => seq.every((id, j) => doc[i + j] === id));
 
 const files = fs

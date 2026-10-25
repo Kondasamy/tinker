@@ -287,7 +287,8 @@ const TYPE: FrameOpts = {
 // queues: Rosa knocked over mid-job, her ticket held on the bench until the lease runs out
 const RAIL = railCard(1.7);
 // compression: the price list's byte piles, its parcel packed by pointers and short codes
-const PILES = { ...pileAt(czFile('price').bytes, czSize('pair', czFile('price').bytes, 'price')), scale: 1.7 };
+const czPrice = czFile('price').bytes;
+const PILES = { ...pileAt(czPrice, czSize('pair', czPrice, 'price')), scale: 1.7 };
 // load balancing: the switchyard mid-sale on chapter 7's first winning setting
 const SWITCHYARD = {
   ...yardAt(lbRun(lbBench(LB_WINNERS[0])), 2500, LB_RULE_NAME[LB_WINNERS[0].rule]),

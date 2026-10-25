@@ -131,14 +131,11 @@ async function loadWeights(loader: Loader, w: Weights): Promise<Model> {
  * reads /data/lm/, /data/pre-training/ for a checkpoint, /data/diffusion-llms/ for the masked model or
  * /data/mixture-of-experts/ for the experts model, unless one is passed.
  */
+/** the weight sets that live outside /data/lm/ */
+const DIRS: Partial<Record<Weights, string>> = { mlm: 'diffusion-llms', moe: 'mixture-of-experts' };
+
 export function modelLoader(loader?: Loader, weights: Weights = 'base') {
-  const dir = isCheckpoint(weights)
-    ? 'pre-training'
-    : weights === 'mlm'
-      ? 'diffusion-llms'
-      : weights === 'moe'
-        ? 'mixture-of-experts'
-        : 'lm';
+  const dir = isCheckpoint(weights) ? 'pre-training' : (DIRS[weights] ?? 'lm');
   const files = loader ?? fetchLoader(`/data/${dir}/`);
   let model: Model | undefined,
     pending: Promise<Model> | undefined,
