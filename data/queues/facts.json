@@ -1,0 +1,36 @@
+{
+  "accessed": "2026-10-25",
+  "facts": [
+    {
+      "id": "lease",
+      "claim": "Amazon SQS’s guide says a received message stays in the queue, hidden from other consumers for a visibility timeout (30 seconds by default); if it is not deleted in time, it becomes visible again.",
+      "value": "30 seconds",
+      "source": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html"
+    },
+    {
+      "id": "lease-crash",
+      "claim": "The same guide says a message not deleted before the timeout, after a crash or an error, comes back for another try, and that a timeout set too high slows those retries.",
+      "source": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html"
+    },
+    {
+      "id": "at-least-once",
+      "claim": "Amazon SQS’s guide says a standard queue may deliver a message copy again, and asks for idempotent apps: ones not harmed by processing the same message more than once.",
+      "source": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/standard-queues-at-least-once-delivery.html"
+    },
+    {
+      "id": "requeue",
+      "claim": "RabbitMQ’s guide says a delivery not yet acknowledged is put back on the queue when its consumer’s connection closes, and asks consumers to be written with idempotence in mind.",
+      "source": "https://www.rabbitmq.com/docs/confirms"
+    },
+    {
+      "id": "dead-letter",
+      "claim": "Amazon SQS’s guide says a message received more times than the queue’s maxReceiveCount is moved to a dead-letter queue, where it can be examined and later sent back.",
+      "source": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html"
+    },
+    {
+      "id": "jitter",
+      "claim": "Marc Brooker (AWS Architecture Blog, 2015) found that backoff alone still leaves retries in clusters, and that adding jitter spreads them out and more than halves the calls in his simulation.",
+      "source": "https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/"
+    }
+  ]
+}
