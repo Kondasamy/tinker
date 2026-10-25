@@ -1,0 +1,78 @@
+---
+// Dev-only eyeball page: the agent's desk at beats of every chapter's runs (static SVG, wide and phone), each run's
+// turns and live test results as text, every version of the code, the hero plot, then the stage live (both tabs).
+// Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { DESK_BOARD, agentDeskPlot, beatsOf, deskAt, deskLabel, deskScene } from '../components/scenes/deskScene';
+import { CaStage, captionAt, play } from '../content/coding-agents/kit';
+import { VERSIONS } from '../lib/coding-agents/repo';
+import { runTests } from '../lib/coding-agents/tests';
+import { board } from '../lib/iso/core.js';
+
+const RUNS: [string, Parameters<typeof play>[0]][] = [
+  ['Chapter 1: the loop', { case: 'bulk' }],
+  ['Chapter 2: no search', { case: 'bulk', search: false }],
+  ['Chapter 3: hunks 1 and 2 kept', { case: 'bulk', review: 3 }],
+  ['Chapter 3: hunk 1 dropped', { case: 'bulk', review: 6 }],
+  ['Chapter 5: tests open', { case: 'cheat' }],
+  ['Chapter 5: tests protected', { case: 'cheat', protect: true }],
+  ['Chapter 6: no rules', { case: 'ship' }],
+  ['Chapter 6: allow-list', { case: 'ship', allow: true }],
+  ['Chapter 6: allow-list and ask first', { case: 'ship', allow: true, ask: true }],
+];
+const PLAYED = RUNS.map(([name, s]) => ({ name, r: play(s) }));
+const live = play({ case: 'bulk', review: 7 });
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dev: coding agents</title>
+  </head>
+  <body>
+    <main class="dev">
+      <h1>The agent's desk</h1>
+      {PLAYED.map(({ name, r }) => (
+        <section>
+          <h2>{name}: {r.status}, right {String(r.right)}, {r.tokens} tokens, {r.prompts} asked</h2>
+          <div class="grid">
+            {beatsOf(r).map((_, i) => {
+              const o = deskAt(r, i + 1);
+              return (
+                <figure>
+                  <div class="wide"><IsoStage board={DESK_BOARD} scene={deskScene({ ...o, scale: 1.2 })} label={deskLabel(o)} /></div>
+                  <div class="phone"><IsoStage board={DESK_BOARD} scene={deskScene({ ...o, scale: 2 })} label={deskLabel(o)} /></div>
+                  <figcaption>{i + 1}. {captionAt(r, i + 1)}</figcaption>
+                </figure>
+              );
+            })}
+          </div>
+        </section>
+      ))}
+      <h2>Every version, and its live tests</h2>
+      <div class="grid">
+        {VERSIONS.map(v => (
+          <figure>
+            <figcaption>{v.path}@{v.vid}{v.path === 'src/discount.ts' && `: ${runTests(v.vid).filter(t => t.pass).length} of 4 pass`}</figcaption>
+            <pre>{v.text}</pre>
+          </figure>
+        ))}
+      </div>
+      <h2>The hero plot</h2>
+      <IsoStage board={[0, 0, 60, 50]} scene={ctx => board(0, 0, 60, 50) + agentDeskPlot(30, 25, ctx.top)} label="The hero plot" style={{ width: 240 }} />
+      <h2>The stage, live</h2>
+      <div class="stage"><CaStage client:load run={live} at={3} /></div>
+    </main>
+  </body>
+</html>
+
+<style>
+  .dev { max-width: 1200px; margin: 0 auto; padding: 16px; font: 14px/1.5 system-ui, sans-serif; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+  figure { margin: 0; border: 1px solid #ccc; padding: 8px; border-radius: 8px; }
+  pre { font-size: 11px; overflow-x: auto; }
+  .phone { display: none; }
+  .stage { height: 520px; max-width: 760px; display: flex; }
+  @media (max-width: 600px) { .wide { display: none; } .phone { display: block; } }
+</style>
