@@ -1,0 +1,250 @@
+---
+// Calibration module intro: sets the scene before chapter 1. Static, except the warm-up and a small script that marks
+// finished chapters. Every example is the module's own data, computed at build time by the same engine the chapters
+// run: Larkspur mini's and its fine-tune's held-out guesses (their weights read from public/data/lm/), the fitted
+// temperature, the stand-in answer set, the workbench's best plan, and claims quoted from data/calibration/facts.json.
+import { readFileSync } from 'node:fs';
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import Meta from '../../components/Meta.astro';
+import IsoStage from '../../lib/iso/IsoStage';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import { JAR_BOARD, jarLabel, jarScene, type JarOpts } from '../../components/scenes/jarScene';
+import { parseModel, type Meta as LmMeta } from '../../lib/lm/load';
+import { TEMPERATURES, fitT, half, measure, report } from '../../lib/calibration/measure';
+import { ANSWERS, MIN_ANSWERS, itemsOf } from '../../lib/calibration/answers';
+import { bins, coverage } from '../../lib/calibration/score';
+import { LEAST, RULES, WINNERS } from '../../lib/calibration/workbench';
+import { LOWEST } from '../../content/calibration/06-when-to-hand-over';
+import { fact } from '../../lib/calibration/facts';
+import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { introMeta } from '../../lib/pages';
+import { longDate } from '../../lib/format';
+
+const MODULE = moduleOf('calibration');
+const N = MODULES.filter(m => m.status === 'live').indexOf(MODULE) + 1;
+const CHAPTERS = MODULE.chapters;
+const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
+const disk = (f: string) => {
+  const b = readFileSync('public/data/lm/' + f);
+  return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer;
+};
+const lm = JSON.parse(readFileSync('public/data/lm/meta.json', 'utf8')) as LmMeta;
+const base = measure(parseModel(lm, disk('model.bin'))),
+  tuned = measure(parseModel(lm, disk('finetuned.bin')));
+const rb = report(base),
+  rt = report(tuned);
+const T = fitT(half(tuned, 'fit')),
+  test = half(tuned, 'test');
+const three = (x: number) => x.toFixed(3);
+const scene = (o: JarOpts) => ({ ...o, scale: 1.25 });
+const HERO = scene({ jars: rt.jars, slate: `ECE ${three(rt.ece)}` });
+const SIDES = [
+  ['Larkspur mini', rb, 'Rings and mint mostly meet: honest about its own guesses.'],
+  ['After a style fine-tune', rt, 'Rings above the mint in every jar: overconfident.'],
+] as const;
+const answers = bins(itemsOf(), MIN_ANSWERS);
+type Idea = [string, string, ReturnType<typeof fact> | null, JarOpts];
+const IDEAS: Idea[] = [
+  ['What 70% should mean', 'Of the answers stated 70%, about seven in ten should be right', null, scene({ jars: answers })],
+  ['Honest jars', 'A tiny model, measured on text it never saw', fact('kadavath'), scene({ jars: rb.jars })],
+  ['After the polish', 'A style fine-tune made it overconfident', fact('gpt4'), scene({ jars: rt.jars })],
+  [
+    'One dial',
+    'One temperature, fitted on half the text, checked on the other',
+    fact('guo'),
+    scene({ jars: report(test, T).jars, T, temps: TEMPERATURES }),
+  ],
+  [
+    'Keeping score',
+    'ECE for honesty; the Brier score for honest and useful',
+    fact('brier'),
+    scene({ jars: rb.jars, slate: `ECE ${three(rb.ece)} · BRIER ${three(rb.brier)}` }),
+  ],
+  [
+    'When to hand over',
+    'A line below which answers go to a person',
+    fact('selective'),
+    scene({ jars: answers, threshold: LOWEST, handed: coverage(itemsOf(), LOWEST).handed }),
+  ],
+];
+const FACTS: [string, string][] = [
+  [three(rb.ece), 'Larkspur mini’s ECE on held-out text'],
+  [three(rt.ece), 'the style fine-tune’s ECE on the same text'],
+  [three(report(test, T).ece), `the fine-tune’s ECE on the test half at temperature ${T}`],
+  [String(LEAST), `hand-overs a day in the workbench’s best plan, of ${RULES.capacity} the desk can take`],
+];
+---
+<html lang="en">
+  <head>
+    <Meta {...introMeta(MODULE.id)} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module {N} · Calibration</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS.map((m, i) => <>{i > 0 && ', '}<a href={`/${m.id}/`}>{m.title}</a></>)} recommended · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+          <h1>When can you trust a model’s confidence?</h1>
+          <p class="lede">A confidence is a promise: 70% should mean right seven times in ten. Here you drop answers into jars by how sure they claimed to be, measure a real model’s honesty, fix it with one dial, and decide when to hand a customer to a person.</p>
+          <div class="ctas">
+            <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+          <ReadingMode />
+        </div>
+        <div class="hero-pic">
+          {/* the booth every chapter plays in: the style fine-tune's jars, rings above the mint */}
+          <IsoStage board={JAR_BOARD} scene={jarScene(HERO)} label={jarLabel(HERO)} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="idea">
+        <p class="kicker">The whole idea in one example</p>
+        <h2 id="idea">The same held-out text, before and after a style fine-tune</h2>
+        <div class="versus">
+          {SIDES.map(([name, r, cap], i) => (
+            <article class:list={['reply', { read: i === 0 }]}>
+              <header><h3>{name}</h3><span class="stamp">ECE {three(r.ece)}</span></header>
+              <IsoStage board={JAR_BOARD} scene={jarScene(scene({ jars: r.jars }))} label={jarLabel({ jars: r.jars })} />
+              <p class="cap">{cap}</p>
+            </article>
+          ))}
+        </div>
+        <p class="note more">Both are Larkspur mini, this site’s tiny model, measured live in your browser on {rb.positions.toLocaleString('en-US')} places in text it never trained on. Its own numbers, not a large model’s.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Six ideas carry the module</h2>
+        <ol class="steps">
+          {IDEAS.map(([name, short, f, p], i) => (
+            <li>
+              <div class="pic"><IsoStage board={JAR_BOARD} scene={jarScene(p)} label={jarLabel(p)} /></div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              {f && <p class="more">{f.claim}</p>}
+              {f && <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>}
+            </li>
+          ))}
+        </ol>
+        <p class="note more">The assistant’s {ANSWERS.length} answers in chapters 1, 6 and 7 are a stand-in written for this site, with hand-set confidences; every other number is measured live.</p>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">Larkspur’s support desk</h2>
+          <p class="more">{MODULE.story} <strong>You’re on the team that decides how much to trust each number.</strong></p>
+          <p class="prev"><a href="/evals/">Evals</a> asked whether answers are right; here you ask whether the model knows. The workbench’s best plan is one of {WINNERS.length} that tie.</p>
+        </div>
+        <dl class="facts">
+          {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}
+        </dl>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due; the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <ul class="who-chips"><li>Engineers</li><li>Product managers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Product managers, engineers and analysts deciding when a model’s confidence can drive a decision. <a href="/evals/">Evals</a> comes first; no code or maths needed.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com" target="_blank" rel="noopener">Samy (Kondasamy Jayaraman)</a>.</p>
+        <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, whose hand-inked isometric style and engine this course is built on. Colorfigures grew from April’s <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed. Thank you.</p>
+      </footer>
+    </main>
+
+    <script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      const CHAPTERS = moduleOf('calibration').chapters;
+      const done = completed('calibration');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('calibration', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .module-meta a { color: var(--ink); }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.read { border-left: 6px solid var(--acc); }
+  .reply :global(svg) { width: 100%; height: auto; display: block; margin-bottom: 8px; }
+
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); white-space: nowrap; }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 220px; display: flex; justify-content: center; align-items: center; margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: auto !important; height: 100% !important; }
+  .steps .pic img { width: 100%; height: auto; max-height: 100%; object-fit: contain; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .prev { font-size: 14px; color: var(--muted); }
+  .prev a { color: var(--ink); }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
+
+  .pair { display: grid; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+  }
+</style>

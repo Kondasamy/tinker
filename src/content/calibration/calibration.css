@@ -164,3 +164,9 @@
   color: var(--muted);
   font-size: 12.5px;
 }
+.cb-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}

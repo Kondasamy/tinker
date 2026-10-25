@@ -50,7 +50,7 @@ export interface JarOpts {
   temps?: readonly number[];
   /** the hand-over line: answers stated below it go to the help desk */
   threshold?: number;
-  /** how many went to the help desk */
+  /** how many went to the help desk; undefined draws no desk */
   handed?: number;
   /** the slate's words (a score), when shown */
   slate?: string;
@@ -322,8 +322,8 @@ export const jarScene = (o: JarOpts) => (ctx: SceneCtx) => {
   if (o.threshold !== undefined) {
     const [x, y] = xy(uOf(o.threshold), ROW + 7);
     parts.push({ at: [x, y, 2], svg: `<g data-part="line">${post(o.threshold)}</g>` });
-    parts.push({ at: [...DESK, 0], svg: desk(o.handed ?? 0) });
   }
+  if (o.handed !== undefined) parts.push({ at: [...DESK, 0], svg: desk(o.handed) });
   if (o.temps?.length && o.T !== undefined) parts.push({ at: [...DIAL, 0], svg: dial(o.T, o.temps) });
   if (o.slate) parts.push({ at: [...SLATE, 0], svg: slate() });
   parts.push({ at: [...CRATE, 0], svg: crate() });
@@ -347,8 +347,8 @@ export const jarScene = (o: JarOpts) => (ctx: SceneCtx) => {
     deskAt = [DESK[0], DESK[1], BH + 14],
     slateAt = [SLATE[0], SLATE[1], BH + 32];
   if (o.temps?.length && o.T !== undefined) pills.push(pill(dialAt, -14, `T ${o.T}`, o.T !== 1, scale));
-  if (o.threshold !== undefined)
-    pills.push(pill(deskAt, -14, narrow ? `${o.handed ?? 0}` : `HELP DESK · ${o.handed ?? 0}`, false, scale));
+  if (o.handed !== undefined)
+    pills.push(pill(deskAt, -14, narrow ? `${o.handed}` : `HELP DESK · ${o.handed}`, false, scale));
   if (o.slate) pills.push(pill(slateAt, -10, o.slate, true, scale));
   if (lowAt) pills.push(sayAt(o.say, 'low', lowAt, above, scale, narrow));
   if (topAt) pills.push(sayAt(o.say, 'top', topAt, above, scale, narrow));
@@ -368,7 +368,10 @@ export function jarLabel(o: JarOpts): string {
     })
     .join('; ');
   const dial = o.temps?.length && o.T !== undefined ? ` The temperature dial is at ${o.T}.` : '';
-  const desk = o.threshold !== undefined ? ` Below ${pct(o.threshold)}, ${o.handed ?? 0} go to the help desk.` : '';
+  const desk =
+    o.handed === undefined
+      ? ''
+      : ` ${o.threshold !== undefined ? `Below ${pct(o.threshold)}, ` : ''}${o.handed} go to the help desk.`;
   const sl = o.slate ? ` The slate reads ${o.slate}.` : '';
   return `A forecaster’s booth: ${o.jars.length} glass jar${o.jars.length === 1 ? '' : 's'} of marbles on a confidence shelf, each with a ring painted at its stated level. ${jars}.${dial}${desk}${sl}`;
 }

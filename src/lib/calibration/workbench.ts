@@ -23,7 +23,7 @@ export function cell(k: KindId, c: Choice) {
     gap = Math.abs(meanConf(shown) - accuracy(shown));
   const safe = cov.kept === 0 || cov.wrong / cov.kept <= rules.wrongRate + 1e-9,
     honest = gap <= rules.honestGap + 1e-9;
-  return { ...cov, of: shown.length, gap, shownMean: meanConf(shown), safe, honest };
+  return { ...cov, of: shown.length, gap, shownMean: meanConf(shown), rightShare: accuracy(shown), safe, honest };
 }
 export function totals(p: Plan) {
   const rows = KINDS.map(k => ({ kind: k, choice: p[k.id], ...cell(k.id, p[k.id]) }));

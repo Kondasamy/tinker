@@ -4,7 +4,7 @@
 // time. The temperature is a native range in the story column; the booth's dial only mirrors it (KTD15). Every string
 // is React text here; the drawings escape theirs (esc, flatPill), and the diagram's art goes in as an image (a data
 // URL), so no markup is injected.
-import { useEffect, useId, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import IsoStage from '../../lib/iso/IsoStage';
 import { filterFor } from '../../lib/iso/core.js';
 import { STAMP_CLASS, type Stamp } from '../../lib/iso/flat';
@@ -158,7 +158,7 @@ export function Reliability({ bins }: { bins: Bin[] }) {
 
 /** What a chapter puts on the stage: the booth's settings, the caption, and what stands in the frame while waiting. */
 export interface Shown {
-  booth: Omit<JarOpts, 'scale' | 'say'>;
+  booth: Omit<JarOpts, 'scale' | 'say' | 'drop'>;
   caption: string;
   stamp?: Stamp;
   /** stands in the frame instead of the picture (the loading pill) */
@@ -184,7 +184,20 @@ export function CalibrationStage({
   const [own, setOwn] = useState<View>('scene');
   const view = keep ?? own,
     setView = onView ?? setOwn;
-  const o: JarOpts = { ...s.booth, scale: useNarrow() ? 2 : 1.25, say };
+  // marbles drop in when the jars' contents change (sorted, or re-sorted by the dial), not on every re-render
+  // (for the drop's length, so the step change that follows a sort doesn't cut it short)
+  const key = s.booth.jars.map(b => `${b.lo}:${b.n}:${b.right}`).join('|'),
+    last = useRef(key),
+    [falling, setFalling] = useState(false),
+    drop = (falling || last.current !== key) && s.booth.jars.length > 0;
+  useEffect(() => {
+    if (last.current === key) return;
+    last.current = key;
+    setFalling(true);
+    const t = setTimeout(() => setFalling(false), 1100);
+    return () => clearTimeout(t);
+  }, [key]);
+  const o: JarOpts = { ...s.booth, drop, scale: useNarrow() ? 2 : 1.25, say };
   const can = !s.wait && s.booth.jars.length > 0;
   return (
     <div className="tc-stage cb-stage" data-model={s.wait ? 'waiting' : 'ready'}>
