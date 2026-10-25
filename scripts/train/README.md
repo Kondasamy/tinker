@@ -70,3 +70,15 @@ pnpm test        # pre-training-runs.test.ts: the last checkpoint is model.bin, 
 About a minute and three minutes; seeded and deterministic (byte-identical files). A base retrain means rerunning both, and updating the sha256 pins in `pre-training-runs.test.ts`.
 
 The model is shaped after Andrej Karpathy's [nanoGPT](https://github.com/karpathy/nanoGPT) (MIT).
+
+## Masked model (Diffusion language models)
+
+`train_mlm.py` is standalone: it trains Larkspur mini's shape (train.py's `Mini`, its blocks attending both ways) with a 769th token, `[MASK]` (id 768), on the training split. Each window gets a mask rate t ~ U(0.001, 1) and the loss is the mean cross-entropy over the masked tokens only. It reads `ids.json` `diffusionLlms.pieces` (each token's bytes, written by `pnpm encode:lm`) to write its pinned held-out phrases as text. It writes `public/data/diffusion-llms/mlm.bin` and `meta.json` and `data/diffusion-llms/prompts.json` only when every bar holds (the plan's stop conditions: size, the readable bar, reply quality falling from k = 1 to the largest k); otherwise it prints the numbers and stops.
+
+```bash
+pnpm encode:lm   # after editing the corpus
+uv run --no-project --python 3.12 --with-requirements scripts/train/requirements.txt scripts/train/train_mlm.py
+pnpm test
+```
+
+About three and a half minutes; seeded and deterministic (it prints `mlm.bin`'s sha256; a rerun gives the same). Try settings with `--no-write` and `--d-model` (32, or the fallback 40), `--steps`, `--lr`, `--weight-decay`, `--dropout`, `--weighting` (`inverse` is LLaDA's 1 / t; it stalled at the unigram loss), `--batch`, `--seed`.
