@@ -28,6 +28,13 @@
   --blush-m: #d8869c;
   --blush-d: #4b2430;
 
+  /* Locks and keys' paint pigments (paintScene's PIGMENTS) */
+  --paint-straw: #f3d77e;
+  --paint-rose: #f4a9b8;
+  --paint-sky: #9fc8ec;
+  --paint-mint: #a6dcb6;
+  --paint-lilac: #cdb7ec;
+
   --font: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
