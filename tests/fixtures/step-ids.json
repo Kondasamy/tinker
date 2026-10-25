@@ -1771,5 +1771,51 @@
       "recipe",
       "quiz"
     ]
+  },
+  "mixture-of-experts": {
+    "01-one-big-kitchen": [
+      "predict",
+      "walk",
+      "reveal",
+      "quiz"
+    ],
+    "02-rooms-and-a-doorman": [
+      "predict",
+      "route",
+      "scores",
+      "floors",
+      "quiz"
+    ],
+    "03-what-the-experts-learned": [
+      "predict",
+      "explore",
+      "reveal",
+      "quiz"
+    ],
+    "04-send-it-elsewhere": [
+      "pick",
+      "predict",
+      "override",
+      "reveal",
+      "quiz"
+    ],
+    "05-the-busy-room": [
+      "seats",
+      "predict",
+      "drop",
+      "reveal",
+      "quiz"
+    ],
+    "06-total-versus-active": [
+      "count",
+      "predict",
+      "compare",
+      "memory",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "ties"
+    ]
   }
 }

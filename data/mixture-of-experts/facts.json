@@ -2,7 +2,7 @@
   "accessed": "2026-10-25",
   "facts": [
     { "id": "mixtral-abstract", "claim": "The Mixtral paper (2024) says each token has access to 47B parameters but uses only 13B active parameters during inference.", "value": "47B total, 13B active", "source": "https://arxiv.org/abs/2401.04088" },
-    { "id": "mixtral-routing", "claim": "Mixtral’s authors found no obvious split of experts by topic (biology, philosophy, maths); the router follows syntax more, such as Python’s “self” or English words like “Question”.", "source": "https://arxiv.org/abs/2401.04088" },
+    { "id": "mixtral-routing", "claim": "Mixtral’s authors found no obvious split of experts by topic (ArXiv papers, biology, philosophy); the router follows syntax more, such as Python’s “self” or English words like “Question”.", "source": "https://arxiv.org/abs/2401.04088" },
     {
       "id": "mixtral-8x7b",
       "claim": "Mistral AI says Mixtral 8x7B has 46.7B total parameters but uses only 12.9B per token: 8 experts per layer, 2 chosen for each token.",

@@ -37,6 +37,7 @@ import { LOAD_BALANCING_MODULE } from '../content/load-balancing/module';
 import { ENCRYPTION_MODULE } from '../content/encryption/module';
 import { CODING_AGENTS_MODULE } from '../content/coding-agents/module';
 import { SYNTHETIC_DATA_MODULE } from '../content/synthetic-data/module';
+import { MIXTURE_OF_EXPERTS_MODULE } from '../content/mixture-of-experts/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -133,12 +134,7 @@ export const MODULES: Module[] = [
   ENCRYPTION_MODULE,
   CODING_AGENTS_MODULE,
   SYNTHETIC_DATA_MODULE,
-  planned(
-    'mixture-of-experts',
-    'Mixture of experts',
-    'Advanced',
-    'A model with many experts that wakes only a few for each word: the router that picks them, and what it saves.',
-  ),
+  MIXTURE_OF_EXPERTS_MODULE,
   planned(
     'memorisation',
     'What a model remembers',

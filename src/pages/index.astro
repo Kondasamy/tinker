@@ -109,6 +109,7 @@ import { PAINT_BOARD, PAINT_CARD, paintLabel, paintScene } from '../components/s
 import { NAMES as PAINT_NAMES } from '../content/encryption/kit';
 import { DESK_BOARD, deskCard, deskLabel, deskScene } from '../components/scenes/deskScene';
 import { COPIER_BOARD, copierCard, copierLabel, copierScene } from '../components/scenes/copierScene';
+import { ROOMS_BOARD, roomsCard, roomsLabel, roomsScene } from '../components/scenes/officeRoomsScene';
 
 const one =
   (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) =>
@@ -298,6 +299,8 @@ const PAINT = { ...PAINT_CARD, names: PAINT_NAMES, scale: 1.7 };
 const AGENT_DESK = deskCard();
 // synthetic data: generation 5 under replace, the rare marks faded along the shelf
 const COPIER = copierCard(1.7);
+// mixture of experts: “ business” sent to two rooms on each floor, the guess at the door
+const ROOMS = roomsCard();
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -784,6 +787,18 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Model collapse',
       'Replace or accumulate',
       'Data mix',
+    ],
+  },
+  'mixture-of-experts': {
+    name: 'Mixture of experts',
+    iso: { board: ROOMS_BOARD, scene: roomsScene(ROOMS), label: roomsLabel(ROOMS) },
+    topics: [
+      'The router',
+      'Top-2 experts',
+      'What experts learn',
+      'Capacity and dropped tokens',
+      'Load balancing',
+      'Total vs active parameters',
     ],
   },
 };

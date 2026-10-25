@@ -682,6 +682,18 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'synthetic-data')).toBe(37);
   });
 
+  it('has mixture-of-experts as a live Advanced AI module after Transformers, numbered 39', () => {
+    expect(moduleOf('mixture-of-experts')).toMatchObject({
+      title: 'Mixture of experts',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['transformers'],
+    });
+    expect(moduleOf('mixture-of-experts').track).toBeUndefined();
+    expect(moduleOf('mixture-of-experts').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'mixture-of-experts')).toBe(38);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

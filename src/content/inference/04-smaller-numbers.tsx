@@ -264,6 +264,10 @@ export default function SmallerNumbers() {
           <>
             <Fact id="gptq" />
             <Fact id="awq" />
+            <p className="note in-note">
+              A model whose experts all sit in memory while only a few run:{' '}
+              <a href="/mixture-of-experts/06-total-versus-active/">Mixture of experts</a>.
+            </p>
           </>
         ),
         quiz: ({ state, apply, sync }) => (

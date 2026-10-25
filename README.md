@@ -4,7 +4,7 @@
 
 Each module is a short story you play through: the picture on the left is live, the story on the right asks you to do one thing at a time in it, and you watch what changes. Build the thing, break it, fix it.
 
-![Tinker home: one workshop, a plot per module; a wave names each module in turn. Thirty-eight modules are live, from RAG and tool calling to search, card payments, Git, diffusion language models, queues, compression, load balancing, encryption, coding agents and synthetic data](docs/images/home.png)
+![Tinker home: one workshop, a plot per module; a wave names each module in turn. Thirty-nine modules are live, from RAG and tool calling to search, card payments, Git, diffusion language models, queues, compression, load balancing, encryption, coding agents, synthetic data and mixture of experts](docs/images/home.png)
 
 ---
 
@@ -52,7 +52,7 @@ Every module has a level, a story, an intro at `/<module>/`, its chapters, and a
 | Advanced | [Replication & consistency](https://tinker.kondasamy.com/consistency/) (Databases recommended first) | Live, 7 chapters |
 | Advanced | [Computer use](https://tinker.kondasamy.com/computer-use/) (AI agents and Multimodal recommended first) | Live, 7 chapters |
 | Advanced | [Diffusion language models](https://tinker.kondasamy.com/diffusion-llms/) (Diffusion models and Transformers recommended first) | Live, 7 chapters |
-| Advanced | Mixture of experts | Planned |
+| Advanced | [Mixture of experts](https://tinker.kondasamy.com/mixture-of-experts/) (Transformers recommended first) | Live, 7 chapters |
 
 ![A RAG chapter: the live pipeline on the left, the story on the right](docs/images/chapter.png)
 
