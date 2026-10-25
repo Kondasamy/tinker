@@ -1,0 +1,63 @@
+---
+// Dev-only eyeball page: the post town in several states (static SVG, wide and phone), the waterfall for a few loads,
+// then the stage live. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { TOWN_BOARD, idleTown, townAt, townLabel, townScene, type TownOpts } from '../components/scenes/townScene';
+import { WaterfallView, WebStage } from '../content/web-requests/kit';
+import { customerOf, runOf } from '../lib/web-requests/sim';
+
+const STATES: [string, Omit<TownOpts, 'scale'>][] = [
+  ['Idle: Ines, nothing sent', idleTown(customerOf('ines'))],
+  ['Ines, first visit, HTTP/1.1', townAt(runOf('ines'))],
+  ['Tomas, answer remembered, HTTP/2', townAt(runOf('tomas', { http: '2' }))],
+  ['Dara, mid-load', { ...townAt(runOf('dara'), 4), say: { block: 'road', text: 'One round trip' } }],
+  ['Wen, lossy line, HTTP/2', townAt(runOf('wen', { http: '2', loss: true }))],
+  ['Wen, seal office lit', { ...townAt(runOf('wen', { http: '3', resume: true })), seal: true, say: { block: 'seal', text: 'Signed it' } }],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Web requests scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Post town: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={TOWN_BOARD} scene={townScene({ ...o, scale: 1.2 })} label={townLabel(o)} /></div>
+            <div class="phone"><IsoStage board={TOWN_BOARD} scene={townScene({ ...o, scale: 2 })} label={townLabel(o)} /></div>
+            <p>{townLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <section><h2>Waterfall: Wen, HTTP/2, lossy</h2><WaterfallView client:load run={runOf('wen', { http: '2', loss: true })} /></section>
+      <section><h2>Waterfall: Dara, HTTP/1.1</h2><WaterfallView client:load run={runOf('dara')} /></section>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Picture</h2><div class="stage"><WebStage client:load show={{ town: townAt(runOf('wen', { http: '3', loss: true })), run: runOf('wen', { http: '3', loss: true }), caption: 'Wen over HTTP/3.' }} /></div></section>
+        <section><h2>Waterfall, escaped caption</h2><div class="stage"><WebStage client:load view="fall" show={{ town: townAt(runOf('ines')), run: runOf('ines'), caption: '<script>alert(1)</script>' }} /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 520px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>
