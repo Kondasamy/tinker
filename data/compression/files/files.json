@@ -1,0 +1,10 @@
+{
+  "note": "Larkspur's site files for the Compression module. The two texts are read from data/corpus/ as they are; the random file is generated from its seed (mulberry32), so it is the same bytes everywhere; the picture is drawn for this site (picture.json).",
+  "files": [
+    { "id": "price", "name": "price-list.md", "corpus": "price-list-2025" },
+    { "id": "product", "name": "k3-faq.md", "corpus": "kestrel-k3-launch-faq-2025" },
+    { "id": "random", "name": "random.bin", "title": "Random bytes", "seed": 2026, "length": 512 },
+    { "id": "picture", "name": "scanner.rgb", "title": "Scanner picture" }
+  ],
+  "puzzle": { "text": "label roll", "corpus": "price-list-2025" }
+}
