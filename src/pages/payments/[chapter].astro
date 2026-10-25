@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import FourParties from '../../content/payments/01-four-parties';
+import AHold from '../../content/payments/02-a-hold';
+import Overnight from '../../content/payments/03-overnight';
+import PressedPayTwice from '../../content/payments/04-pressed-pay-twice';
+import ProveItsYou from '../../content/payments/05-prove-its-you';
+import TheMoneyComesBack from '../../content/payments/06-the-money-comes-back';
+import CheckoutPolicy from '../../content/payments/07-checkout-policy';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('payments').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="payments" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-four-parties' ? <FourParties client:load />
+    : chapter === '02-a-hold' ? <AHold client:load />
+    : chapter === '03-overnight' ? <Overnight client:load />
+    : chapter === '04-pressed-pay-twice' ? <PressedPayTwice client:load />
+    : chapter === '05-prove-its-you' ? <ProveItsYou client:load />
+    : chapter === '06-the-money-comes-back' ? <TheMoneyComesBack client:load />
+    : <CheckoutPolicy client:load />}
+</ChapterLayout>

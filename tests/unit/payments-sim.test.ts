@@ -37,7 +37,8 @@ describe('the day', () => {
   it('every order ends in exactly one final state, under every setting', () => {
     for (const r of ALL) {
       expect(r.orders).toHaveLength(ORDERS.length);
-      for (const o of r.orders) expect(['settled', 'refunded', 'charged-back', 'expired', 'declined', 'abandoned']).toContain(o.final);
+      for (const o of r.orders)
+        expect(['settled', 'refunded', 'charged-back', 'expired', 'declined', 'abandoned']).toContain(o.final);
     }
   });
 
@@ -54,7 +55,9 @@ describe('the day', () => {
   });
 
   it('every amount is whole cents', () => {
-    for (const r of ALL) for (const e of r.events) for (const c of [e.cents, ...Object.values(e.entries ?? {})]) expect(Number.isInteger(c)).toBe(true);
+    for (const r of ALL)
+      for (const e of r.events)
+        for (const c of [e.cents, ...Object.values(e.entries ?? {})]) expect(Number.isInteger(c)).toBe(true);
   });
 
   it('interchange never passes the EU caps: 0.2% on debit, 0.3% on credit', () => {
@@ -132,7 +135,10 @@ describe('what the chapters teach', () => {
   });
 
   it('“never” only skips the challenge at or under the low-value limit', () => {
-    for (const o of ORDERS) expect(runOrder(o, { ...REF, sca: 'never' }).sca).toBe(o.cents <= ASSUMPTIONS.lowValueCents ? 'exempt' : 'challenge');
+    for (const o of ORDERS)
+      expect(runOrder(o, { ...REF, sca: 'never' }).sca).toBe(
+        o.cents <= ASSUMPTIONS.lowValueCents ? 'exempt' : 'challenge',
+      );
   });
 
   it('an honest customer who would give up does so only when challenged', () => {
@@ -167,7 +173,7 @@ describe('the data', () => {
 });
 
 /** The reference day the chapters show, pinned. WRITE_PINNED=1 rewrites data/payments/pinned.json's reference. */
-export function reference() {
+function reference() {
   const r = simulate(policyOf(REF));
   return {
     setting: REF,

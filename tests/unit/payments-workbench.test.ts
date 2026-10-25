@@ -28,7 +28,10 @@ describe('the workbench', () => {
     expect(wins(START)).toBe(false);
   });
   it('a saved state with unknown values falls back to the start', () => {
-    const p = benchPolicy({ small: { sca: 'nope' as never, capture: 'shipment', key: true }, large: undefined as never });
+    const p = benchPolicy({
+      small: { sca: 'nope' as never, capture: 'shipment', key: true },
+      large: undefined as never,
+    });
     expect(p.small).toEqual({ sca: START.small.sca, capture: 'shipment', key: true });
     expect(p.large).toEqual(START.large);
   });

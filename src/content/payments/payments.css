@@ -1,0 +1,133 @@
+/* Payments stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
+   tool-calling/kit). At night the frame takes the night sky (tubeScene's NIGHT.sky); the swap is set by the run's
+   clock, fades only when motion is allowed, and never touches the caption's text. */
+.pm-stage .tc-frame {
+  border-radius: 14px;
+  background: transparent;
+}
+.pm-stage[data-night] .tc-frame {
+  background: var(--pm-night, #1f2744);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pm-stage .tc-frame {
+    transition: background-color 0.4s ease;
+  }
+}
+.pm-ledger {
+  overflow: auto;
+  align-self: center;
+  max-height: 100%;
+}
+.pm-ledger:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.pm-ledger table {
+  font-size: 13px;
+}
+.pm-ledger td,
+.pm-ledger th {
+  white-space: nowrap;
+}
+.pm-ledger td {
+  font-family: ui-monospace, Menlo, monospace;
+  text-align: right;
+}
+.pm-ledger td.out {
+  color: var(--bad);
+}
+.pm-ledger td.in {
+  color: var(--ok);
+}
+.pm-ledger tfoot td,
+.pm-ledger tfoot th {
+  font-weight: 800;
+}
+.pm-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.pm-range {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0;
+}
+.pm-range label {
+  font-weight: 700;
+  font-size: 14px;
+}
+.pm-range input {
+  width: 100%;
+}
+.pm-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+.pm-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  font-weight: 700;
+  font-size: 14px;
+  min-height: 44px;
+}
+.pm-check input {
+  width: 20px;
+  height: 20px;
+}
+.pm-charges {
+  margin: 8px 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pm-charges li {
+  border: 1.5px dashed var(--ink);
+  border-radius: 6px;
+  padding: 6px 10px;
+  background: var(--card);
+  font-size: 14px;
+}
+.pm-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.pm-headline strong {
+  font:
+    800 26px / 1 ui-monospace,
+    Menlo,
+    monospace;
+}
+.pm-kind {
+  border: 1.5px solid var(--rule);
+  border-radius: 12px;
+  padding: 6px 12px;
+  margin: 8px 0;
+}
+.pm-kind h3 {
+  margin: 4px 0;
+  font-size: 15px;
+}
+.pm-kind .pm-row .chip {
+  font-size: 13px;
+}
+.tc-ledger td.ok {
+  color: var(--ok);
+  font-weight: 800;
+}
+.tc-ledger td.bad {
+  color: var(--bad);
+  font-weight: 800;
+}

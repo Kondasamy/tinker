@@ -342,7 +342,11 @@ export const SCA_NAME: Record<Sca, string> = {
   never: 'Never (ask for an exemption)',
 };
 export const CAPTURE_NAME: Record<Capture, string> = { order: 'At order', shipment: 'At shipment' };
-export const KIND_NAME: Record<Kind, string> = { small: 'Small orders', large: 'Drill presses', split: 'Split baskets' };
+export const KIND_NAME: Record<Kind, string> = {
+  small: 'Small orders',
+  large: 'Drill presses',
+  split: 'Split baskets',
+};
 export const FINAL_NAME: Record<Final, string> = {
   settled: 'paid',
   refunded: 'refunded',
