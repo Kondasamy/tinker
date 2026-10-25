@@ -284,6 +284,7 @@ import { WINNERS as EN_WINNERS } from '../lib/encryption/workbench';
 import { DESK_BOARD, deskAt, deskCard, deskScene, type DeskOpts } from '../components/scenes/deskScene';
 import { beatsOf as caBeats, nthBeat as caNth, play as caPlay } from '../content/coding-agents/kit';
 import { WINNERS as CA_WINNERS } from '../lib/coding-agents/workbench';
+import { COPIER_BOARD, copierAt, copierCard, copierScene, type CopierOpts } from '../components/scenes/copierScene';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -1308,6 +1309,27 @@ const AGENT_DESK_OG: Record<string, () => Omit<DeskOpts, 'scale'>> = {
   'coding-agents-07-workbench': () => caEnd({ ...CA_WINNERS[0], case: 'ship' }),
 };
 const agentDeskOg = AGENT_DESK_OG[page.og]?.();
+// module 38: the copier room. The intro: generation 5 under replace; 1: the empty shelf; 2: the copier running; 3: the
+// sieve on dedupe + facts; 4: the student, generation 1; 5: replace's generation 5; 6: accumulate's; 7: accumulate's
+// first generation.
+const sdEmpty = (o: Partial<CopierOpts> = {}): Omit<CopierOpts, 'scale'> => ({
+  gens: [],
+  gen: null,
+  arm: 'replace',
+  real: 1,
+  ...o,
+});
+const COPIER_OG: Record<string, () => Omit<CopierOpts, 'scale'>> = {
+  'synthetic-data': () => copierCard(),
+  'synthetic-data-01-too-few-examples': () => sdEmpty(),
+  'synthetic-data-02-ask-the-model-to-write': () => sdEmpty({ copying: true }),
+  'synthetic-data-03-the-sieve': () => sdEmpty({ sieve: 'facts' }),
+  'synthetic-data-04-the-teachers-mistakes': () => copierAt('replace', 1),
+  'synthetic-data-05-copies-of-copies': () => copierAt('replace', 5),
+  'synthetic-data-06-keep-the-real-data': () => copierAt('accumulate', 5),
+  'synthetic-data-07-workbench': () => copierAt('accumulate', 1),
+};
+const copierOg = COPIER_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1381,6 +1403,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : sxOg ? <IsoStage board={CABINET_BOARD} scene={cabinetScene({ ...sxOg, scale: 1.3 })} label="" />
           : townOg ? <IsoStage board={TOWN_BOARD} scene={townScene({ ...townOg, scale: 1.3 })} label="" />
           : webFallOg ? <div class="tf-og ob-og"><WaterfallView run={webFallOg} /></div>
+          : copierOg ? <IsoStage board={COPIER_BOARD} scene={copierScene({ ...copierOg, scale: 1.3 })} label="" />
           : agentDeskOg ? <IsoStage board={DESK_BOARD} scene={deskScene({ ...agentDeskOg, scale: 1.3 })} label="" />
           : paintOg ? <IsoStage board={PAINT_BOARD} scene={paintScene({ ...paintOg, names: EN_NAMES, scale: 1.3 })} label="" />
           : yardOg ? <IsoStage board={YARD_BOARD} scene={yardScene({ ...yardOg, scale: 1.3 })} label="" />

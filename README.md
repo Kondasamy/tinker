@@ -4,7 +4,7 @@
 
 Each module is a short story you play through: the picture on the left is live, the story on the right asks you to do one thing at a time in it, and you watch what changes. Build the thing, break it, fix it.
 
-![Tinker home: one workshop, a plot per module; a wave names each module in turn. Thirty-seven modules are live, from RAG and tool calling to search, card payments, Git, diffusion language models, queues, compression, load balancing, encryption and coding agents](docs/images/home.png)
+![Tinker home: one workshop, a plot per module; a wave names each module in turn. Thirty-eight modules are live, from RAG and tool calling to search, card payments, Git, diffusion language models, queues, compression, load balancing, encryption, coding agents and synthetic data](docs/images/home.png)
 
 ---
 
@@ -39,6 +39,7 @@ Every module has a level, a story, an intro at `/<module>/`, its chapters, and a
 | Intermediate | [Calibration](https://tinker.kondasamy.com/calibration/) (Evals recommended first) | Live, 7 chapters |
 | Intermediate | [Load balancing](https://tinker.kondasamy.com/load-balancing/) | Live, 7 chapters |
 | Intermediate | [Coding agents](https://tinker.kondasamy.com/coding-agents/) (AI agents recommended first) | Live, 7 chapters |
+| Intermediate | [Synthetic data](https://tinker.kondasamy.com/synthetic-data/) (Fine-tuning recommended first) | Live, 7 chapters |
 | Advanced | [AI agents](https://tinker.kondasamy.com/agents/) (Tool calling recommended first) | Live, 7 chapters |
 | Advanced | [Transformer architecture](https://tinker.kondasamy.com/transformers/) (Tokens recommended first) | Live, 7 chapters |
 | Advanced | [Fine-tuning vs prompting](https://tinker.kondasamy.com/fine-tuning/) (Evals and Transformers recommended first) | Live, 7 chapters |
@@ -51,7 +52,6 @@ Every module has a level, a story, an intro at `/<module>/`, its chapters, and a
 | Advanced | [Replication & consistency](https://tinker.kondasamy.com/consistency/) (Databases recommended first) | Live, 7 chapters |
 | Advanced | [Computer use](https://tinker.kondasamy.com/computer-use/) (AI agents and Multimodal recommended first) | Live, 7 chapters |
 | Advanced | [Diffusion language models](https://tinker.kondasamy.com/diffusion-llms/) (Diffusion models and Transformers recommended first) | Live, 7 chapters |
-| Intermediate | Synthetic data | Planned |
 | Advanced | Mixture of experts | Planned |
 
 ![A RAG chapter: the live pipeline on the left, the story on the right](docs/images/chapter.png)

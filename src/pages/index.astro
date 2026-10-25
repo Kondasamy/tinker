@@ -108,6 +108,7 @@ import { WINNERS as LB_WINNERS, benchPolicy as lbBench } from '../lib/load-balan
 import { PAINT_BOARD, PAINT_CARD, paintLabel, paintScene } from '../components/scenes/paintScene';
 import { NAMES as PAINT_NAMES } from '../content/encryption/kit';
 import { DESK_BOARD, deskCard, deskLabel, deskScene } from '../components/scenes/deskScene';
+import { COPIER_BOARD, copierCard, copierLabel, copierScene } from '../components/scenes/copierScene';
 
 const one =
   (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) =>
@@ -295,6 +296,8 @@ const SWITCHYARD = {
 const PAINT = { ...PAINT_CARD, names: PAINT_NAMES, scale: 1.7 };
 // coding agents: the first test run, the drive-by hunk turning a lamp red
 const AGENT_DESK = deskCard();
+// synthetic data: generation 5 under replace, the rare marks faded along the shelf
+const COPIER = copierCard(1.7);
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -768,6 +771,19 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Tests as the judge',
       'Reward hacking',
       'Allow-lists and asking first',
+    ],
+  },
+  'synthetic-data': {
+    name: 'Synthetic data',
+    iso: { board: COPIER_BOARD, scene: copierScene(COPIER), label: copierLabel(COPIER) },
+    topics: [
+      'Synthetic data',
+      'Temperature',
+      'Dedupe and fact filters',
+      'Teacher and student',
+      'Model collapse',
+      'Replace or accumulate',
+      'Data mix',
     ],
   },
 };

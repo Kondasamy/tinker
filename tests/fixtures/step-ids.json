@@ -1729,5 +1729,47 @@
       "policy",
       "quiz"
     ]
+  },
+  "synthetic-data": {
+    "01-too-few-examples": [
+      "common",
+      "predict",
+      "rare",
+      "quiz"
+    ],
+    "02-ask-the-model-to-write": [
+      "predict",
+      "cool",
+      "hot",
+      "quiz"
+    ],
+    "03-the-sieve": [
+      "write",
+      "predict",
+      "dedupe",
+      "facts",
+      "quiz"
+    ],
+    "04-the-teachers-mistakes": [
+      "predict",
+      "ask",
+      "student",
+      "quiz"
+    ],
+    "05-copies-of-copies": [
+      "predict",
+      "flip",
+      "rare",
+      "quiz"
+    ],
+    "06-keep-the-real-data": [
+      "predict",
+      "compare",
+      "quiz"
+    ],
+    "07-workbench": [
+      "recipe",
+      "quiz"
+    ]
   }
 }

@@ -1,13 +1,15 @@
 // Synthetic data: the intro, every chapter played by mouse and by keyboard only (waiting for Larkspur mini to load and
 // write), its own progress key, the generation range by keyboard, chapter 6's locked prediction, a failed weights fetch
 // and Retry, playing offline once loaded, the page staying responsive while a batch is written, the workbench's
-// winners, "I'm not sure", reduced motion (no flip), the recap, axe and phone width.
+// winners, "I'm not sure", reduced motion (no flip), the recap, axe and phone width. The go-live adds the module's number,
+// share images and home's card.
 import { test, expect, type Page } from '@playwright/test';
-import { moduleOf } from '../../src/lib/modules';
+import { MODULES, moduleOf } from '../../src/lib/modules';
 import { sdWalker } from './synthetic-data-flow';
 import { serious, layoutHolds, offline, PHONE } from './helpers';
 
 const M = moduleOf('synthetic-data');
+const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'synthetic-data') + 1;
 const CHS = M.chapters.map(c => c.id),
   [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = CHS;
 const at = (id: string) => new RegExp(`/synthetic-data/${id}/$`);
@@ -44,6 +46,31 @@ test('the intro shows the level, the prerequisite, the author, the chapters and 
   await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toBeVisible();
   await expect(page.locator('.versus .reply')).toHaveCount(2);
   await axe(page);
+});
+
+test('its module number on the intro and the recap', async ({ page }) => {
+  await page.goto('/synthetic-data/');
+  await expect(page.locator('.hero .kicker')).toHaveText(`Module ${NUMBER} · Synthetic data`);
+  await page.goto('/synthetic-data/recap/');
+  await expect(page.locator('.hero .kicker')).toHaveText(`Module ${NUMBER} · Recap`);
+});
+
+test('go-live: own share images and home’s card', async ({ page }) => {
+  await page.goto('/synthetic-data/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/synthetic-data\.jpg$/);
+  await page.goto(`/synthetic-data/${CH1}/`);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    new RegExp(`/og/synthetic-data-${CH1}\\.jpg$`),
+  );
+  await page.goto('/synthetic-data/recap/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    /\/og\/synthetic-data-recap\.jpg$/,
+  );
+  expect((await page.request.get('/og/synthetic-data.jpg')).status()).toBe(200);
+  await page.goto('/');
+  await expect(page.locator('.module[data-module="synthetic-data"] h4 a')).toHaveAttribute('href', '/synthetic-data/');
 });
 
 test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({

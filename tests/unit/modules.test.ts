@@ -670,6 +670,18 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'coding-agents')).toBe(36);
   });
 
+  it('has synthetic-data as a live Intermediate AI module after Fine-tuning, numbered 38', () => {
+    expect(moduleOf('synthetic-data')).toMatchObject({
+      title: 'Synthetic data',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: ['fine-tuning'],
+    });
+    expect(moduleOf('synthetic-data').track).toBeUndefined();
+    expect(moduleOf('synthetic-data').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'synthetic-data')).toBe(37);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

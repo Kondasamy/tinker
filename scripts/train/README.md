@@ -93,3 +93,14 @@ pnpm test
 ```
 
 About a minute; seeded and deterministic (it prints `moe.bin`'s sha256; a rerun gives a byte-identical `moe.bin`, only `meta.json`'s `seconds` change). Try settings with `--no-write` and `--balance`, `--steps`, `--lr`, `--weight-decay`, `--dropout`, `--batch`, `--seed`.
+
+## Generations runs (Synthetic data)
+
+`train_synth.py` is standalone and never loads `model.bin`: it retrains generation 0 (Larkspur mini on the training split) from scratch and stops if that differs from `model.bin` byte for byte. Each later generation samples a corpus the training split's size with the site's sampler and trains the base shape from scratch on it: two arms of five generations, `replace` (only the latest generated text) and `accumulate` (the real split plus every generated text so far), then the workbench grid (temperature {0.7, 1, 1.3} x sieve {off, dedupe, dedupe + facts} x real share {0, 50%}). It writes `data/synthetic-data/runs.json` (held-out loss, top-5, rare top-5, distinct rare pieces, repeat rate, greedy samples as ids) only when the gates hold: drift (generation 5's held-out loss replace > accumulate > generation 0), rare words falling first, and a repeat rate under the ceiling. No weights ship. The vanishing-words check is recorded as `vanishing`, not gated. `tests/unit/synthetic-data-runs.test.ts` checks the gates.
+
+```bash
+uv run --no-project --python 3.12 --with-requirements scripts/train/requirements.txt scripts/train/train_synth.py
+pnpm test
+```
+
+Seeded and deterministic (a rerun gives a byte-identical `runs.json`). Try settings with `--no-write`, `--arms-only`, `--steps`, `--lr`, `--weight-decay`, `--dropout`, `--batch`, `--seed`.
