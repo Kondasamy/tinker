@@ -5,7 +5,7 @@ Reads data/lm/ids.json (the training and held-out splits, and `diffusionLlms.pie
 Python never tokenizes) and writes
   public/data/diffusion-llms/mlm.bin     Float16 little-endian weights, tensor layout in meta.json (model.bin's names)
   public/data/diffusion-llms/meta.json   config (vocab 769, mask id 768), layout, training settings, loss curve,
-                                         held-out masked accuracy, the readable bar, reply quality per k, goldens
+                                         held-out masked accuracy, the readable bar, reply quality and repeat rate per k, goldens
   data/diffusion-llms/prompts.json       the pinned held-out phrases: one masked slot each, its expected token, the
                                          held-out reference continuation and the decoded replies per rule and k
 
@@ -15,10 +15,12 @@ with probability t and the loss is the mean cross-entropy over the masked tokens
 --weighting inverse, stalled at the unigram loss in the spike; so did every run under about 10,000 steps.)
 Every score and golden is computed in float64 from the weights rounded to Float16 (what ships).
 
-It writes only when every bar holds (the plan's stop conditions): mlm.bin within 150,000 bytes, the expected token in
-the top 5 for at least half the pinned phrases, and reply quality (KTD11: the reply's tokens that match the reference,
-same token in the same place) lower at the largest k than at k = 1 under both remasking rules. `overlap` (clipped
-shared tokens, any place) is reported beside it.
+It writes only when every bar holds (the plan's stop conditions, KTD11 as the orchestrator redefined it): mlm.bin
+within 150,000 bytes; the expected token in the top 5 for at least half the pinned phrases; reply quality, the share of
+reply tokens equal to the same model's careful fill (k = 1, confidence remasking), lower at the largest k than at k = 1;
+random remasking no better than confidence at any k > 1; and the repeat rate (reply tokens equal to the one before)
+higher at the largest k than at k = 1 under both rules. Held-out text is not the reference: a model this small almost
+never writes unseen text token for token.
 
 Run (about three and a half minutes on one CPU thread; seeded and deterministic, a rerun gives a byte-identical mlm.bin):
   uv run --no-project --python 3.12 --with-requirements scripts/train/requirements.txt scripts/train/train_mlm.py
@@ -248,21 +250,22 @@ def main():
     for p in prompts:
         top = slot_logits(m64, p['maskedIds'], p['slot']).topk(5).indices.tolist()
         p['top5'], p['inTop5'] = top, p['expected'] in top
+        careful = decode(m64, p['ids'], 1, 'confidence', p['seed'])[0]
         p['replies'] = {}
         for rule in RULES:
             p['replies'][rule] = {}
             for k in KS:
                 reply, passes = decode(m64, p['ids'], k, rule, p['seed'])
                 assert passes == math.ceil(L / k) and MASK not in reply
-                ref = p['reference']
                 p['replies'][rule][str(k)] = dict(
-                    ids=reply, exact=sum(x == y for x, y in zip(reply, ref)),  # KTD11: same token, same place
-                    overlap=sum(min(reply.count(t), ref.count(t)) for t in set(reply)))  # clipped, any place
+                    ids=reply, agree=sum(x == y for x, y in zip(reply, careful)),  # same token as the careful fill
+                    repeat=sum(reply[i] == reply[i - 1] for i in range(1, L)))  # same token as the one before
         print(f"{'ok ' if p['inTop5'] else 'MISS'} {p['masked']!r} -> {p['expectedText']!r}; top5 "
               f"{[text_of(pieces, [i]) for i in top]}")
     readable = sum(p['inTop5'] for p in prompts)
-    quality = {how: {rule: {str(k): round(sum(p['replies'][rule][str(k)][how] for p in prompts) / (L * len(prompts)), 6)
-                            for k in KS} for rule in RULES} for how in ('exact', 'overlap')}
+    share = lambda how, rule, k, per: round(sum(p['replies'][rule][str(k)][how] for p in prompts) / (per * len(prompts)), 6)
+    quality = {rule: {str(k): share('agree', rule, k, L) for k in KS} for rule in RULES}
+    repeats = {rule: {str(k): share('repeat', rule, k, L - 1) for k in KS} for rule in RULES}
     params = sum(t.numel() for t in f16.values())
     layout, blob = f16_blob(f16)
     print(f"d_model {a.d_model}: {params} params, {len(blob)} bytes; held-out masked loss {final['loss']:.4f} "
@@ -270,14 +273,16 @@ def main():
     print(f'mlm.bin sha256 {hashlib.sha256(blob).hexdigest()}')
     print(f'readable bar: {readable} of {len(prompts)} expected tokens in the top 5')
     for rule in RULES:
-        for how in quality:
-            print(f'reply quality ({how}), {rule}: ' + ', '.join(f'k={k} {quality[how][rule][str(k)]:.3f}' for k in KS))
+        for name, of in (('agreement', quality), ('repeat rate', repeats)):
+            print(f'{name}, {rule}: ' + ', '.join(f'k={k} {of[rule][str(k)]:.3f}' for k in KS))
     bars = dict(size=len(blob) <= 150_000, readable=2 * readable >= len(prompts),
-                drop={rule: quality['exact'][rule][str(KS[-1])] < quality['exact'][rule]['1'] for rule in RULES})
+                drop=quality['confidence'][str(KS[-1])] < quality['confidence']['1'],
+                random=all(quality['random'][str(k)] <= quality['confidence'][str(k)] for k in KS[1:]),
+                repeats={rule: repeats[rule][str(KS[-1])] > repeats[rule]['1'] for rule in RULES})
     print(f'bars: {bars}')
     if a.no_write:
         return
-    assert bars['size'] and bars['readable'] and all(bars['drop'].values()), 'stop: a bar was missed (KTD3, KTD11)'
+    assert bars['size'] and bars['readable'] and bars['drop'] and bars['random'] and all(bars['repeats'].values()), 'stop: a bar was missed (KTD3, KTD11)'
 
     out = os.path.join(ROOT, 'public/data/diffusion-llms')
     os.makedirs(out, exist_ok=True)
@@ -286,7 +291,7 @@ def main():
     goldens = [golden(m64, p['maskedIds'], p['slot'], p['masked']) for p in prompts[:3]]
     goldens.append(golden(m64, prompts[0]['ids'] + [MASK] * L, PREFIX, prompts[0]['text'] + ' + 16 [MASK]'))
     meta = dict(
-        model=dict(vocab=VOCAB, mask=MASK, **cfg, bidirectional=True, params=params),
+        model=dict(vocab=VOCAB, **cfg, params=params), mask=MASK, bidirectional=True,
         dtype='float16-le', bytes=len(blob), tensors=layout,
         training=dict(seed=a.seed, steps=a.steps, batch=a.batch, lr=a.lr, schedule='cosine to 0',
                       optimizer='AdamW betas (0.9, 0.99), grad clip 1.0', weight_decay=a.weight_decay,
@@ -298,13 +303,13 @@ def main():
         heldout=dict(docs=held['docs'], tokens=final['tokens'], how='every position masked alone',
                      loss=r(final['loss']), top1=r(final['top1']), top5=r(final['top5'])),
         readable=dict(inTop5=readable, prompts=len(prompts)),
-        decoding=dict(prefix=PREFIX, length=L, ks=KS, rules=RULES, quality=quality),
+        decoding=dict(prefix=PREFIX, length=L, ks=KS, rules=RULES, quality=quality, repeats=repeats),
         goldens=goldens,
     )
     json.dump(meta, open(os.path.join(out, 'meta.json'), 'w'), indent=1)
     os.makedirs(os.path.join(ROOT, 'data/diffusion-llms'), exist_ok=True)
     json.dump(dict(mask=MASK, prefix=PREFIX, length=L, ks=KS, rules=RULES, readable=readable, quality=quality,
-                   prompts=prompts),
+                   repeats=repeats, prompts=prompts),
               open(os.path.join(ROOT, 'data/diffusion-llms/prompts.json'), 'w'), indent=1)
     print(f'wrote mlm.bin ({len(blob)} bytes), meta.json, data/diffusion-llms/prompts.json')
 

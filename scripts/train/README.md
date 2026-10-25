@@ -73,7 +73,7 @@ The model is shaped after Andrej Karpathy's [nanoGPT](https://github.com/karpath
 
 ## Masked model (Diffusion language models)
 
-`train_mlm.py` is standalone: it trains Larkspur mini's shape (train.py's `Mini`, its blocks attending both ways) with a 769th token, `[MASK]` (id 768), on the training split. Each window gets a mask rate t ~ U(0.001, 1) and the loss is the mean cross-entropy over the masked tokens only. It reads `ids.json` `diffusionLlms.pieces` (each token's bytes, written by `pnpm encode:lm`) to write its pinned held-out phrases as text. It writes `public/data/diffusion-llms/mlm.bin` and `meta.json` and `data/diffusion-llms/prompts.json` only when every bar holds (the plan's stop conditions: size, the readable bar, reply quality falling from k = 1 to the largest k); otherwise it prints the numbers and stops.
+`train_mlm.py` is standalone: it trains Larkspur mini's shape (train.py's `Mini`, its blocks attending both ways) with a 769th token, `[MASK]` (id 768), on the training split. Each window gets a mask rate t ~ U(0.001, 1) and the loss is the mean cross-entropy over the masked tokens only. It reads `ids.json` `diffusionLlms.pieces` (each token's bytes, written by `pnpm encode:lm`) to write its pinned held-out phrases as text. It writes `public/data/diffusion-llms/mlm.bin` and `meta.json` and `data/diffusion-llms/prompts.json` only when every bar holds (the plan's stop conditions); otherwise it prints the numbers and stops. The bars: `mlm.bin` within 150,000 bytes; the expected token in the top 5 for at least half the pinned phrases; reply quality (the share of a 16-token reply equal to the same model's careful fill, k = 1 with confidence remasking) lower at k = 16 than at k = 1; random remasking no better than confidence at any k > 1; and the repeat rate (reply tokens equal to the one before) higher at k = 16 than at k = 1 under both rules. `tests/unit/diffusion-llms-model.test.ts` checks the TypeScript pass against its goldens and decodes every pinned reply again.
 
 ```bash
 pnpm encode:lm   # after editing the corpus
@@ -81,4 +81,4 @@ uv run --no-project --python 3.12 --with-requirements scripts/train/requirements
 pnpm test
 ```
 
-About three and a half minutes; seeded and deterministic (it prints `mlm.bin`'s sha256; a rerun gives the same). Try settings with `--no-write` and `--d-model` (32, or the fallback 40), `--steps`, `--lr`, `--weight-decay`, `--dropout`, `--weighting` (`inverse` is LLaDA's 1 / t; it stalled at the unigram loss), `--batch`, `--seed`.
+About three and a half minutes; seeded and deterministic (it prints `mlm.bin`'s sha256; a rerun gives a byte-identical `mlm.bin` and `prompts.json`, only `meta.json`'s `seconds` changes). Try settings with `--no-write` and `--d-model` (32, or the fallback 40), `--steps`, `--lr`, `--weight-decay`, `--dropout`, `--weighting` (`inverse` is LLaDA's 1 / t; it stalled at the unigram loss), `--batch`, `--seed`.
