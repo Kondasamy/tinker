@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import OneCountThreeCopies from '../../content/consistency/01-one-count-three-copies';
+import TwoBuyersOneHinge from '../../content/consistency/02-two-buyers-one-hinge';
+import TheLinkGoesDown from '../../content/consistency/03-the-link-goes-down';
+import Quorums from '../../content/consistency/04-quorums';
+import WhoWins from '../../content/consistency/05-who-wins';
+import Eventually from '../../content/consistency/06-eventually';
+import StockPolicy from '../../content/consistency/07-stock-policy';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('consistency').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="consistency" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-one-count-three-copies' ? <OneCountThreeCopies client:load />
+    : chapter === '02-two-buyers-one-hinge' ? <TwoBuyersOneHinge client:load />
+    : chapter === '03-the-link-goes-down' ? <TheLinkGoesDown client:load />
+    : chapter === '04-quorums' ? <Quorums client:load />
+    : chapter === '05-who-wins' ? <WhoWins client:load />
+    : chapter === '06-eventually' ? <Eventually client:load />
+    : <StockPolicy client:load />}
+</ChapterLayout>

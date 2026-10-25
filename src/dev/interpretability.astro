@@ -1,0 +1,107 @@
+---
+// Dev-only eyeball page: the fuse box in several states (static SVG, Larkspur mini read from disk), every probe's
+// pinned effect computed at build time, the lens grid, then the stage live (loading until the model is in).
+// Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { FUSE_BOARD, fuseLabel, fuseScene, type FuseOpts } from '../components/scenes/fuseScene';
+import { diskModel } from '../lib/transformers/diskModel';
+import { decode, encode } from '../lib/lm/bpe';
+import { forward } from '../lib/lm/model';
+import {
+  BITE,
+  FUSES,
+  LENS,
+  PATCH,
+  STAGES,
+  STEER,
+  fuseName,
+  headLoss,
+  nextTop,
+  patchGrid,
+  rankOf,
+  steerDirection,
+  steered,
+} from '../lib/interpretability/probe';
+import { BEHAVIOURS, WINNERS } from '../lib/interpretability/workbench';
+import { InterpStage, LensView } from '../content/interpretability/kit';
+
+const m = diskModel();
+const run = forward(m, encode(BITE.text));
+const base: FuseOpts = { tokens: run.ids.map(i => decode([i])), attention: run.attention, threads: true };
+const STATES: [string, FuseOpts][] = [
+  ['All fuses in, layer 1 head 1 lit', base],
+  ['Word-start head pulled', { ...base, pulled: ['h0-0'] }],
+  ['Layer 2 MLP pulled, layer 2 head 2 lit', { ...base, layer: 1, head: 1, pulled: ['mlp1'] }],
+  ['Three pulled', { ...base, pulled: ['h0-1', 'h1-1', 'mlp1'] }],
+];
+const heads = FUSES.filter(f => f.startsWith('h')).map(f => ({ f, ...headLoss(m, f) }));
+const grid = patchGrid(m, PATCH.clean.text, PATCH.swapped.text);
+const dir = steerDirection(m, STEER.toward, STEER.away, STEER.layer);
+const steer = STEER.scales.map(k => rankOf(steered(m, STEER.prompt, dir, k, STEER.layer), encode(STEER.target)[0]));
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Interpretability scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Interpretability: the fuse box</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={FUSE_BOARD} scene={fuseScene(o)} label={fuseLabel(o)} /></div>
+            <div class="phone"><IsoStage board={FUSE_BOARD} scene={fuseScene({ ...o, scale: 1.8 })} label={fuseLabel(o)} /></div>
+            <p>{fuseLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>Probes</h1>
+      <section>
+        <h2>Chapter 2: right top-5 guesses lost over held-out text</h2>
+        {heads.map(h => <p>{fuseName(h.f)}: {h.lost} of {h.right}</p>)}
+        <p>{BITE.text} → top 5 with all in: {nextTop(m, BITE.text).map(c => c.text).join(' |')}; word-start pulled: {nextTop(m, BITE.text, ['h0-0']).map(c => c.text).join(' |')}</p>
+      </section>
+      <section>
+        <h2>Chapter 3: the lens on “{LENS[0].text}”</h2>
+        <LensView model={m} prompt={LENS[0].text} watch={LENS[0].expected} />
+      </section>
+      <section>
+        <h2>Chapter 4: patch grid ({grid.cleanAnswer} → {grid.swappedAnswer})</h2>
+        {grid.cells.map((row, s) => <p>{STAGES[s]}: {row.map((c, i) => (c.flipped ? `[${i}]` : '.')).join(' ')}</p>)}
+      </section>
+      <section>
+        <h2>Chapter 5: steering “{STEER.prompt}” toward {STEER.target}</h2>
+        <p>{STEER.scales.map((k, i) => `×${k}: rank ${steer[i] + 1}`).join(' · ')}</p>
+      </section>
+      <section>
+        <h2>Chapter 7: winners</h2>
+        {BEHAVIOURS.map(b => <p>{b.text}: {WINNERS[b.id].map(w => w.join('+')).join(' / ')}</p>)}
+      </section>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Loading, then the fuse box</h2><div class="stage"><InterpStage client:load prompt={BITE.text} pulled={['h0-0']} /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  section > svg { max-width: 100%; height: auto; }
+  .phone { display: none; }
+  .stage { display: flex; height: 420px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

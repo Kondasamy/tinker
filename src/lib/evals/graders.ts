@@ -23,7 +23,9 @@ export const REFERENCES: Record<string, Reference> = references;
 const norm = (s: string) => s.toLowerCase().replace(/\s+/g, ' ').trim().replace(/[.!]$/, '');
 export type CodeGrader = 'exact' | 'fact' | 'citation';
 /** Exact match: the answer's words equal the written reference (case and spacing aside). */
-export const exactMatch = (question: string, text: string) => norm(text) === norm(REFERENCES[question].answer);
+export const exactMatch = (question: string, text: string) => exactMatchOf(REFERENCES[question], text);
+/** The same exact-match check against a reference given directly (Post-training's references). */
+export const exactMatchOf = (ref: Pick<Reference, 'answer'>, text: string) => norm(text) === norm(ref.answer);
 /** Contains the key fact: every key fact has one of its short phrases in the answer. */
 export const keyFact = (question: string, text: string) => keyFactOf(REFERENCES[question], text);
 /** The same key-fact check against a reference given directly (Fine-tuning's changed-price fixture). */

@@ -24,6 +24,14 @@ const NUMBERED = [
   'sandboxing',
   'multimodal',
   'voice',
+  'pre-training',
+  'post-training',
+  'interpretability',
+  'caching',
+  'databases',
+  'consistency',
+  'ab-testing',
+  'diffusion',
 ];
 
 // every module sits at its level: live cards first, then the roadmap's planned cards in registry (build) order;
@@ -37,6 +45,7 @@ for (const width of [1280, 390])
     await expect(catalogue(page).locator('[data-level] > h3')).toHaveText(['Beginner', 'Intermediate', 'Advanced']);
     const live = MODULES.filter(m => m.status === 'live'),
       planned = MODULES.filter(m => m.status === 'planned');
+    expect([live.length, planned.length]).toEqual([NUMBERED.length, 32 - NUMBERED.length]);
     await expect(catalogue(page).locator('.module')).toHaveCount(live.length);
     await expect(catalogue(page).locator('.roadmap')).toHaveCount(planned.length);
     for (const level of ['Beginner', 'Intermediate', 'Advanced'] as const) {
@@ -89,6 +98,17 @@ for (const [width, height] of [
       page.locator('.hero .glance'),
     ])
       await expect(el).toBeInViewport({ ratio: 1 });
+    // the picture tucks up under the note, but its topmost pill stays clear of it
+    const note = (await page.locator('.hero .glance').boundingBox())!;
+    const top = await page.locator('.hero-pic .block-tag').evaluateAll(els =>
+      Math.min(
+        ...els
+          .map(e => e.getBoundingClientRect())
+          .filter(r => r.height)
+          .map(r => r.top),
+      ),
+    );
+    expect(top).toBeGreaterThan(note.y + note.height);
   });
 
 test('live modules keep their numbers, each linked under its level', async ({ page }) => {
@@ -142,40 +162,76 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
     'href',
     '/voice/',
   );
+  await expect(page.locator('[data-level="Intermediate"] .module[data-module="pre-training"] h4 a')).toHaveAttribute(
+    'href',
+    '/pre-training/',
+  );
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="post-training"] h4 a')).toHaveAttribute(
+    'href',
+    '/post-training/',
+  );
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="interpretability"] h4 a')).toHaveAttribute(
+    'href',
+    '/interpretability/',
+  );
+  await expect(page.locator('[data-level="Beginner"] .module[data-module="caching"] h4 a')).toHaveAttribute(
+    'href',
+    '/caching/',
+  );
+  await expect(page.locator('[data-level="Beginner"] .module[data-module="databases"] h4 a')).toHaveAttribute(
+    'href',
+    '/databases/',
+  );
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="consistency"] h4 a')).toHaveAttribute(
+    'href',
+    '/consistency/',
+  );
+  await expect(page.locator('[data-level="Beginner"] .module[data-module="ab-testing"] h4 a')).toHaveAttribute(
+    'href',
+    '/ab-testing/',
+  );
+  await expect(page.locator('[data-level="Intermediate"] .module[data-module="diffusion"] h4 a')).toHaveAttribute(
+    'href',
+    '/diffusion/',
+  );
 });
 
-// U35: every module is live, so the roadmap is empty again: seventeen numbered cards, no roadmap card, an invitation to propose
-test('the roadmap is empty: seventeen live cards numbered 1–17, no roadmap cards, Room for more', async ({ page }) => {
+// the eight new modules' lines and the seven roadmap cards (KTD14, R17): 25 live cards numbered 1 to 25, seven roadmap
+// cards in build order, and the hero's open plots invite a build through the request form
+const ROADMAP = ['diffusion-llms', 'computer-use', 'calibration', 'search', 'web-requests', 'payments', 'git'];
+test('25 live cards numbered 1–25, seven roadmap cards, and the empty plots invite a build', async ({ page }) => {
   await page.goto('/');
-  expect(MODULES.map(m => m.id)).toEqual(NUMBERED);
-  await expect(catalogue(page).locator('.module')).toHaveCount(17);
-  await expect(catalogue(page).locator('.roadmap')).toHaveCount(0);
+  expect(NUMBERED).toHaveLength(25);
+  expect(MODULES.filter(m => m.status === 'live').map(m => m.id)).toEqual(NUMBERED);
+  expect(MODULES.filter(m => m.status === 'planned').map(m => m.id)).toEqual(ROADMAP);
+  await expect(catalogue(page).locator('.module')).toHaveCount(25);
+  await expect(catalogue(page).locator('.roadmap')).toHaveCount(7);
   const nums = await catalogue(page)
     .locator('.module .kicker')
     .evaluateAll(els => els.map(e => Number(/^Module (\d+) · /.exec(e.textContent ?? '')?.[1])));
-  expect(nums.sort((a, b) => a - b)).toEqual(Array.from({ length: 17 }, (_, i) => i + 1));
-  await expect(page.locator('.hero-pic .hero-soon')).toHaveCount(0);
-  await expect(page.locator('.hero-pic figcaption')).toContainText('Room for more:');
-  await expect(page.locator('.hero-pic figcaption a')).toHaveText('propose one');
+  expect(nums.sort((a, b) => a - b)).toEqual(Array.from({ length: 25 }, (_, i) => i + 1));
+  expect(
+    await catalogue(page)
+      .locator('.roadmap')
+      .evaluateAll(els => els.map(e => e.getAttribute('data-module')).sort()),
+  ).toEqual([...ROADMAP].sort());
+  await expect(page.locator('.hero-pic .hero-soon')).toHaveCount(7);
+  await expect(page.locator('.hero-pic figcaption')).toContainText('The empty plots are open:');
+  await expect(page.locator('.hero-pic figcaption a')).toHaveText('build one');
   await expect(page.locator('.hero-pic figcaption a')).toHaveAttribute('href', REQUEST);
 });
 
-// a planned plot's pill sits out the wave: hidden while animated, shown with reduced motion (issue #15).
-// No module is planned today, so a hero-soon group is planted in the hero to test the CSS itself.
+// a planned plot's pill sits out the wave: hidden while animated, shown with reduced motion (issue #15)
 for (const reducedMotion of ['no-preference', 'reduce'] as const)
   test(`the hero's planned pills are ${reducedMotion === 'reduce' ? 'shown' : 'hidden'} (${reducedMotion})`, async ({
     page,
   }) => {
     await page.emulateMedia({ reducedMotion });
     await page.goto('/');
-    await page.locator('.hero-pic svg').evaluate(svg => {
-      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      g.setAttribute('class', 'hero-soon');
-      g.innerHTML = '<rect width="40" height="20" />';
-      svg.append(g);
-    });
     const soon = page.locator('.hero-pic .hero-soon');
-    await (reducedMotion === 'reduce' ? expect(soon).toBeVisible() : expect(soon).toBeHidden());
+    await expect(soon).toHaveCount(MODULES.filter(m => m.status === 'planned').length);
+    for (const pill of await soon.all())
+      await (reducedMotion === 'reduce' ? expect(pill).toBeVisible() : expect(pill).toBeHidden());
   });
 
 // the wave hops plot i at i × 0.8 s; sampled mid-turn, only that plot's pill shows, and with reduced motion every pill shows

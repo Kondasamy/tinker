@@ -1,0 +1,77 @@
+---
+// Dev-only eyeball page: the shop floor in several states of Larkspur's tests (static SVG, wide and phone), the result
+// chart for a real win and for a peeked A/A test, the tally, then the stage live. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { IDLE, SPLIT_BOARD, splitAt, splitLabel, splitScene, type SplitOpts } from '../components/scenes/splitScene';
+import { AbStage, ResultView, Tally } from '../content/ab-testing/kit';
+import { ASSUMPTIONS, SCENARIOS, peekResult, runOf, verdicts } from '../lib/ab-testing/sim';
+
+const ck = SCENARIOS.checkout,
+  aa = SCENARIOS.aa,
+  hurry = SCENARIOS.hurry;
+const ckRun = runOf(ck),
+  aaRun = runOf(aa),
+  hurryRun = runOf(hurry);
+const peek = peekResult(aaRun, ASSUMPTIONS.level)!;
+const STATES: [string, Omit<SplitOpts, 'scale'>][] = [
+  ['Idle', IDLE],
+  ['Checkout test, day 3: running', splitAt(ckRun, ck, 2)],
+  [
+    'Checkout test, day 14: B wins',
+    { ...splitAt(ckRun, ck, ck.days - 1), say: { block: 'scoreboard', text: 'B is ahead' } },
+  ],
+  [`A/A test, peek on day ${peek.t + 1}`, splitAt(aaRun, aa, peek.t)],
+  ['A/A test, day 14', splitAt(aaRun, aa, aa.days - 1)],
+  [
+    'Hurry banner with the guardrail',
+    { ...splitAt(hurryRun, hurry, hurry.days - 1, { guardrail: true }), tone: 'warn', verdict: 'RETURNS UP' },
+  ],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>A/B testing scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Shop floor: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={SPLIT_BOARD} scene={splitScene({ ...o, scale: 1.2 })} label={splitLabel(o)} /></div>
+            <div class="phone"><IsoStage board={SPLIT_BOARD} scene={splitScene({ ...o, scale: 2 })} label={splitLabel(o)} /></div>
+            <p>{splitLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <section><h2>Result: one-page checkout</h2><ResultView client:load chart={{ run: ckRun }} /></section>
+      <section><h2>Result: A/A test, peeked</h2><ResultView client:load chart={{ run: aaRun, peek: peek.t }} at={peek.t} /></section>
+      <section><h2>Tally: 100 A/A tests, peeking daily</h2><Tally verdicts={verdicts(aa, 'peek')} label="A/A tests declared a winner" /></section>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Picture</h2><div class="stage"><AbStage client:load show={{ scene: splitAt(ckRun, ck, 6), chart: { run: ckRun }, at: 6, caption: 'Day 7 of the checkout test.' }} /></div></section>
+        <section><h2>Result, escaped caption</h2><div class="stage"><AbStage client:load view="chart" show={{ scene: splitAt(aaRun, aa, 13), chart: { run: aaRun, peek: peek.t }, caption: '<script>alert(1)</script>' }} /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 520px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

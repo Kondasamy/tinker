@@ -37,6 +37,26 @@ export interface ForwardResult {
   logits: Float64Array[];
   /** [layer][head][query t][key s]; each row sums to 1 and is 0 for s > t. */
   attention: number[][][][];
+  /** With `hooks.residuals`: [stage][t] of d_model; stage 0 after the embedding, stage l + 1 after block l. */
+  residuals?: Float64Array[][];
+  /** With `hooks.mlp`: [layer][t] of d_mlp, each MLP neuron's activation after GELU. */
+  mlp?: Float64Array[][];
+}
+
+/**
+ * Optional hooks (KTD5, Interpretability). A `layer` for patch and steer is the residual at the top of that layer,
+ * before its block runs; `n_layer` means after the last block, before `lnf`. Positions count in the ids read, after
+ * the 32-token truncation.
+ */
+export interface Hooks {
+  /** Heads whose output is zeroed before the output projection (its bias still applies; `attention` still reports them). */
+  ablate?: { layer: number; head: number }[];
+  residuals?: boolean;
+  mlp?: boolean;
+  /** Replace one position's residual. */
+  patch?: { layer: number; pos: number; value: ArrayLike<number> };
+  /** Add a vector to every position's residual. */
+  steer?: { layer: number; vector: ArrayLike<number> };
 }
 
 export function softmax(xs: ArrayLike<number>): Float64Array {
@@ -95,7 +115,25 @@ function adapted(model: Model, name: string, x: Float64Array, nOut: number): Flo
 
 const gelu = (x: number) => 0.5 * x * (1 + Math.tanh(Math.sqrt(2 / Math.PI) * (x + 0.044715 * x ** 3)));
 
-export function forward(model: Model, prompt: number[]): ForwardResult {
+/** The tied unembedding has no bias: one shared zero row per vocabulary size, never written. */
+const zeroBias = new Map<number, Float32Array>();
+const noBias = (n: number) => zeroBias.get(n) ?? zeroBias.set(n, new Float32Array(n)).get(n)!;
+
+/** One residual read out as next-token logits: `lnf`, then the unembedding tied to the token embedding (the logit lens). */
+export function unembed(model: Model, x: Float64Array): Float64Array {
+  const { config: c, tensors: P } = model;
+  return linear(layerNorm(x, P['lnf.weight'], P['lnf.bias'], c.ln_eps), P['wte.weight'], noBias(c.vocab), c.vocab);
+}
+
+/** Patch and steer the residual stream at the top of layer l (hooks looked up once per layer). */
+function edit(xs: Float64Array[], l: number, hooks: Hooks): Float64Array[] {
+  const { patch, steer } = hooks;
+  if (patch?.layer === l) xs = xs.map((x, t) => (t === patch.pos ? Float64Array.from(patch.value) : x));
+  if (steer?.layer === l) xs = xs.map(x => x.map((v, i) => v + steer.vector[i]));
+  return xs;
+}
+
+export function forward(model: Model, prompt: number[], hooks: Hooks = {}): ForwardResult {
   const { config: c, tensors: P } = model;
   const D = c.d_model,
     H = c.n_head,
@@ -104,18 +142,27 @@ export function forward(model: Model, prompt: number[]): ForwardResult {
     T = ids.length;
   const wte = P['wte.weight'],
     wpe = P['wpe.weight'];
-  let xs = ids.map((id, t) => Float64Array.from({ length: D }, (_, i) => wte[id * D + i] + wpe[t * D + i]));
+  let xs: Float64Array[] = ids.map((id, t) =>
+    Float64Array.from({ length: D }, (_, i) => wte[id * D + i] + wpe[t * D + i]),
+  );
   const attention: number[][][][] = [];
+  const residuals: Float64Array[][] = [],
+    mlp: Float64Array[][] = [];
 
   for (let l = 0; l < c.n_layer; l++) {
+    xs = edit(xs, l, hooks);
+    if (hooks.residuals) residuals.push(xs);
     const p = (n: string) => P[`h.${l}.${n}`];
+    const off = hooks.ablate?.filter(a => a.layer === l).map(a => a.head) ?? [];
+    const acts: Float64Array[] = [];
     const qkv = xs.map(x =>
       adapted(model, `h.${l}.attn.qkv`, layerNorm(x, p('ln1.weight'), p('ln1.bias'), c.ln_eps), 3 * D),
     );
     const ys = xs.map(() => new Float64Array(D));
     const heads: number[][][] = [];
     for (let h = 0; h < H; h++) {
-      const rows: number[][] = [];
+      const rows: number[][] = [],
+        silenced = off.includes(h);
       for (let t = 0; t < T; t++) {
         const scores = new Float64Array(t + 1);
         for (let s = 0; s <= t; s++) {
@@ -124,8 +171,9 @@ export function forward(model: Model, prompt: number[]): ForwardResult {
           scores[s] = dot / Math.sqrt(hd);
         }
         const a = softmax(scores);
-        for (let s = 0; s <= t; s++)
-          for (let i = 0; i < hd; i++) ys[t][h * hd + i] += a[s] * qkv[s][2 * D + h * hd + i];
+        if (!silenced)
+          for (let s = 0; s <= t; s++)
+            for (let i = 0; i < hd; i++) ys[t][h * hd + i] += a[s] * qkv[s][2 * D + h * hd + i];
         rows.push(Array.from({ length: T }, (_, s) => (s <= t ? a[s] : 0)));
       }
       heads.push(rows);
@@ -140,14 +188,20 @@ export function forward(model: Model, prompt: number[]): ForwardResult {
         p('mlp.fc.bias'),
         c.d_mlp,
       ).map(gelu);
+      if (hooks.mlp) acts.push(hidden);
       const out = linear(hidden, p('mlp.proj.weight'), p('mlp.proj.bias'), D);
       return r.map((v, i) => v + out[i]);
     });
+    if (hooks.mlp) mlp.push(acts);
   }
+  xs = edit(xs, c.n_layer, hooks);
+  if (hooks.residuals) residuals.push(xs);
 
-  const zeros = new Float32Array(c.vocab);
-  const logits = xs.map(x => linear(layerNorm(x, P['lnf.weight'], P['lnf.bias'], c.ln_eps), wte, zeros, c.vocab));
-  return { ids, truncated: prompt.length > c.ctx, logits, attention };
+  const logits = xs.map(x => unembed(model, x));
+  const out: ForwardResult = { ids, truncated: prompt.length > c.ctx, logits, attention };
+  if (hooks.residuals) out.residuals = residuals;
+  if (hooks.mlp) out.mlp = mlp;
+  return out;
 }
 
 /**

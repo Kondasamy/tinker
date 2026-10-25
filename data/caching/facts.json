@@ -1,0 +1,60 @@
+{
+  "accessed": "2026-10-24",
+  "facts": [
+    {
+      "id": "fresh",
+      "claim": "HTTP caching (RFC 9111) calls a stored response fresh while its age has not yet passed its freshness lifetime, the time from when the origin made it to when it expires.",
+      "source": "https://www.rfc-editor.org/rfc/rfc9111#section-4.2"
+    },
+    {
+      "id": "max-age",
+      "claim": "A max-age directive tells a cache to treat the response as stale once its age is greater than that many seconds (RFC 9111).",
+      "source": "https://www.rfc-editor.org/rfc/rfc9111#section-5.2.2.1"
+    },
+    {
+      "id": "no-stale",
+      "claim": "A cache must not serve a stale response unless it is cut off from the origin or a directive allows it (RFC 9111).",
+      "source": "https://www.rfc-editor.org/rfc/rfc9111#section-4.2.4"
+    },
+    {
+      "id": "purge",
+      "claim": "MDN: there is no way to delete responses that an intermediate cache stored with a long max-age; a CDN that offers purging lets you cache aggressively and purge only when the content changes.",
+      "source": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching"
+    },
+    {
+      "id": "cache-busting",
+      "claim": "MDN: for content that changes, common practice is to change the URL each time it changes, often with a version number or hash, so each URL can be cached for a long time.",
+      "source": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching"
+    },
+    {
+      "id": "collapse-rfc",
+      "claim": "RFC 9111 allows a cache to collapse requests: combine several incoming requests into a single request to the origin on a miss.",
+      "source": "https://www.rfc-editor.org/rfc/rfc9111#section-4"
+    },
+    {
+      "id": "collapse-cdn",
+      "claim": "Fastly’s documentation describes request collapsing: one request goes to the origin, the others wait on a waiting list, and the one response is cached and served to all of them.",
+      "source": "https://www.fastly.com/documentation/guides/concepts/edge-state/cache/request-collapsing/"
+    },
+    {
+      "id": "swr",
+      "claim": "RFC 5861’s stale-while-revalidate lets a cache serve a response for a set number of seconds after it goes stale, while it revalidates in the background without making the client wait.",
+      "source": "https://www.rfc-editor.org/rfc/rfc5861#section-3"
+    },
+    {
+      "id": "prompt-cache-lifetime",
+      "claim": "Anthropic: a prompt cache entry lives 5 minutes by default, and each use refreshes it at no extra cost.",
+      "source": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+    },
+    {
+      "id": "prompt-cache-match",
+      "claim": "Anthropic: a prompt cache hit needs the prompt to be 100% identical up to and including the block marked for caching.",
+      "source": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+    },
+    {
+      "id": "kv-cache",
+      "claim": "Serving a language model keeps a key-value (KV) cache for each request, which grows and shrinks as the request runs (Kwon et al., 2023, the vLLM paper).",
+      "source": "https://arxiv.org/abs/2309.06180"
+    }
+  ]
+}

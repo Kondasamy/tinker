@@ -1,0 +1,89 @@
+---
+// Dev-only eyeball page: the filing room in several states (static SVG, wide and phone), the tree view for a lookup and
+// a range, then the stage live. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import {
+  ARCHIVE_BOARD,
+  IDLE,
+  archiveAt,
+  archiveLabel,
+  archivePlot,
+  archiveScene,
+  type ArchiveOpts,
+} from '../components/scenes/archiveScene';
+import { DbStage, TreeView } from '../content/databases/kit';
+import { execute, join, type Query } from '../lib/databases/planner';
+import { MONTH, REGULAR, TODAY } from '../lib/databases/table';
+
+const ONE: Query = { where: { id: 1042 } },
+  MINE: Query = { where: { customer: REGULAR, day: MONTH } },
+  DAY: Query = { where: { day: [TODAY, TODAY] } };
+const look = execute(ONE, 'id'),
+  mine = execute(MINE, 'customer_date'),
+  slow = join(DAY, ['date'], false),
+  fast = join(DAY, ['date'], true);
+const lookAt = archiveAt(look, ONE);
+const STATES: [string, Omit<ArchiveOpts, 'scale'>][] = [
+  ['Idle', IDLE],
+  [
+    'Full scan for order 1042',
+    { ...archiveAt(execute(ONE, 'scan'), ONE), say: { block: 'cabinet', text: 'Every drawer' } },
+  ],
+  ['Lookup through the order-number index', lookAt],
+  ['A customer’s orders this month', archiveAt(mine, MINE)],
+  [
+    'A new order written, three indexes',
+    { ...lookAt, read: [], written: [199], index: { ...lookAt.index!, write: true }, others: 2 },
+  ],
+  ['Join, scanning customers', archiveAt(slow.outer, DAY, { customers: { pages: slow.innerPages, lit: 20 } })],
+  ['Join through the customers index', archiveAt(fast.outer, DAY, { customers: { pages: fast.innerPages, lit: 9 } })],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Databases scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Filing room: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={ARCHIVE_BOARD} scene={archiveScene({ ...o, scale: 1.2 })} label={archiveLabel(o)} /></div>
+            <div class="phone"><IsoStage board={ARCHIVE_BOARD} scene={archiveScene({ ...o, scale: 2 })} label={archiveLabel(o)} /></div>
+            <p>{archiveLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <section><h2>Tree: order 1042</h2><TreeView client:load how="id" query={ONE} exec={look} /></section>
+      <section><h2>Tree: a customer’s orders this month</h2><TreeView client:load how="customer_date" query={MINE} exec={mine} /></section>
+      <section><h2>Home hero plot</h2><div class="plot"><IsoStage board={[20, 20, 100, 100]} scene={ctx => archivePlot(60, 60, ctx.top)} label="The databases plot" /></div></section>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Picture</h2><div class="stage"><DbStage client:load show={{ scene: lookAt, tree: { how: 'id', query: ONE, exec: look }, caption: 'Order 1042 through the index.' }} /></div></section>
+        <section><h2>Tree, escaped caption</h2><div class="stage"><DbStage client:load view="tree" show={{ scene: lookAt, tree: { how: 'id', query: ONE, exec: look }, caption: '<script>alert(1)</script>' }} /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .plot { width: 240px; }
+  .stage { display: flex; height: 520px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

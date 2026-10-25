@@ -1,0 +1,199 @@
+{
+  "note": "Larkspur's experiments, written for this site: each arm's true rate is set by hand to teach one lesson, and each seed is pinned so a run always draws the same shoppers. Not data from any real shop.",
+  "scenarios": {
+    "checkout": {
+      "name": "One-page checkout",
+      "arms": [
+        {
+          "name": "Today's checkout",
+          "rate": 0.1,
+          "returns": 0.05
+        },
+        {
+          "name": "One-page checkout",
+          "rate": 0.12,
+          "returns": 0.05
+        }
+      ],
+      "days": 14,
+      "seed": 5
+    },
+    "aa": {
+      "name": "A/A test",
+      "arms": [
+        {
+          "name": "Today's checkout",
+          "rate": 0.1,
+          "returns": 0.05
+        },
+        {
+          "name": "Today's checkout, again",
+          "rate": 0.1,
+          "returns": 0.05
+        }
+      ],
+      "days": 14,
+      "seed": 130
+    },
+    "small": {
+      "name": "Bigger Buy button",
+      "arms": [
+        {
+          "name": "Today's button",
+          "rate": 0.1,
+          "returns": 0.05
+        },
+        {
+          "name": "Bigger button",
+          "rate": 0.11,
+          "returns": 0.05
+        }
+      ],
+      "days": 7,
+      "seed": 2
+    },
+    "colours": {
+      "name": "Twenty button colours",
+      "arms": [
+        {
+          "name": "Today's blue",
+          "rate": 0.1,
+          "returns": 0.05
+        }
+      ],
+      "colours": [
+        "Red",
+        "Orange",
+        "Amber",
+        "Yellow",
+        "Lime",
+        "Green",
+        "Mint",
+        "Teal",
+        "Cyan",
+        "Sky",
+        "Navy",
+        "Indigo",
+        "Violet",
+        "Purple",
+        "Plum",
+        "Pink",
+        "Rose",
+        "Brown",
+        "Grey",
+        "Black"
+      ],
+      "days": 14,
+      "seed": 21
+    },
+    "hurry": {
+      "name": "Only-a-few-left banner",
+      "arms": [
+        {
+          "name": "No banner",
+          "rate": 0.1,
+          "returns": 0.05
+        },
+        {
+          "name": "Only-a-few-left banner",
+          "rate": 0.115,
+          "returns": 0.174
+        }
+      ],
+      "days": 14,
+      "seed": 5
+    }
+  },
+  "bench": [
+    {
+      "id": "addresses",
+      "name": "Saved addresses",
+      "arms": [
+        {
+          "name": "Type it each time",
+          "rate": 0.1,
+          "returns": 0.05
+        },
+        {
+          "name": "Saved addresses",
+          "rate": 0.12,
+          "returns": 0.05
+        }
+      ],
+      "days": 14,
+      "seed": 2
+    },
+    {
+      "id": "photos",
+      "name": "Bigger photos",
+      "arms": [
+        {
+          "name": "Today's photos",
+          "rate": 0.1,
+          "returns": 0.05
+        },
+        {
+          "name": "Bigger photos",
+          "rate": 0.11,
+          "returns": 0.05
+        }
+      ],
+      "days": 14,
+      "seed": 2
+    },
+    {
+      "id": "countdown",
+      "name": "Sale countdown",
+      "arms": [
+        {
+          "name": "No countdown",
+          "rate": 0.1,
+          "returns": 0.05
+        },
+        {
+          "name": "Sale countdown",
+          "rate": 0.12,
+          "returns": 0.15
+        }
+      ],
+      "days": 14,
+      "seed": 6
+    },
+    {
+      "id": "green",
+      "name": "Green Buy button",
+      "arms": [
+        {
+          "name": "Blue button",
+          "rate": 0.1,
+          "returns": 0.05
+        },
+        {
+          "name": "Green button",
+          "rate": 0.1,
+          "returns": 0.05
+        }
+      ],
+      "days": 42,
+      "seed": 2
+    },
+    {
+      "id": "reviews",
+      "name": "Reviews first",
+      "arms": [
+        {
+          "name": "Photos first",
+          "rate": 0.1,
+          "returns": 0.05
+        },
+        {
+          "name": "Reviews first",
+          "rate": 0.1,
+          "returns": 0.05
+        }
+      ],
+      "days": 42,
+      "seed": 15
+    }
+  ]
+}

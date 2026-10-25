@@ -147,7 +147,8 @@ export default function KvCacheAtScale() {
           <>
             <table className="tc-ledger">
               <caption>
-                KV cache, counted from each model’s shape: layers × 2 (key and value) × d_model × tokens × 2 bytes
+                <a href="/caching/">KV cache</a>, counted from each model’s shape: layers × 2 (key and value) × d_model
+                × tokens × 2 bytes
               </caption>
               <tbody>
                 {state.recap && (

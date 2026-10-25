@@ -104,6 +104,83 @@ import { SCAN_BOARD, scanScene, type ScanOpts } from '../components/scenes/scanS
 import { patchStill } from '../components/scenes/patchGrid';
 import { WINNERS as MM_WINNERS } from '../lib/multimodal/workbench';
 import { PHONE_BOARD, phoneScene, type PhoneOpts } from '../components/scenes/phoneScene';
+import { FORGE_BOARD, forgeScene, type ForgeOpts } from '../components/scenes/forgeScene';
+import { CKPT_SERIES, ScalingView } from '../content/pre-training/kit';
+import { STEPS as PT_STEPS } from '../lib/pre-training/engine';
+import { STOPS as PT_STOPS, WINNERS as PT_WINNERS } from '../lib/pre-training/workbench';
+import { EXAM_BOARD, examScene, type ExamOpts } from '../components/scenes/examScene';
+import { cardsOf, groupOf } from '../content/post-training/kit';
+import {
+  FULL,
+  WEAK,
+  REFUND,
+  WARRANTY,
+  TONE,
+  gamingOf,
+  question,
+  refOf,
+  rewardsOf,
+  type RuleId,
+} from '../lib/post-training/graders';
+import { ROUNDS, grpoRun, seedOf, winnerOf } from '../lib/post-training/policy';
+import { BENCH as PO_BENCH, WINNERS as PO_WINNERS } from '../lib/post-training/workbench';
+import { TEAM_PICKS, scoresOf } from '../content/post-training/02-which-is-better';
+import { policyOf } from '../content/post-training/03-learning-from-preferences';
+import { FUSE_BOARD, fuseScene, type FuseOpts } from '../components/scenes/fuseScene';
+import { lensGrid } from '../components/scenes/lensGrid';
+import { BITE, FUSES, LENS, PATCH, STAGES as LENS_STAGES, STEER, lens } from '../lib/interpretability/probe';
+import { BEHAVIOURS, WINNERS as IP_WINNERS } from '../lib/interpretability/workbench';
+import { DEPOT_BOARD, depotAt, depotScene, type DepotOpts } from '../components/scenes/depotScene';
+import { ARCHIVE_BOARD, archiveAt, archiveScene, levelsOf, type ArchiveOpts } from '../components/scenes/archiveScene';
+import { execute as dbExec, join as dbJoin, query as dbQuery } from '../lib/databases/planner';
+import { TABLE_PAGES, pageOf as dbPageOf } from '../lib/databases/table';
+import { READS as DB_READS, WINNERS as DB_WINNERS } from '../lib/databases/workbench';
+import {
+  MINE as DB_MINE,
+  MONTHS as DB_MONTHS,
+  NEW as DB_NEW,
+  ONE as DB_ONE,
+  TODAYS as DB_TODAYS,
+} from '../content/databases/requests';
+import { STOCK_BOARD, stockAt, stockScene, type StockOpts } from '../components/scenes/stockScene';
+import { MOMENTS as CS_M, policyOf as csPol, runOf as csRun } from '../lib/consistency/sim';
+import { WINNERS as CS_WINNERS } from '../lib/consistency/workbench';
+import { SPLIT_BOARD, splitAt, splitScene, type SplitOpts } from '../components/scenes/splitScene';
+import { ResultView } from '../content/ab-testing/kit';
+import {
+  ASSUMPTIONS as AB,
+  BENCH as AB_BENCH,
+  ENOUGH as AB_ENOUGH,
+  SCENARIOS as ABS,
+  peekResult,
+  runOf as abRun,
+} from '../lib/ab-testing/sim';
+import { ruleOf as abRule } from '../lib/ab-testing/workbench';
+import { NAME as AB_LUCKY, WINNER as AB_LUCKY_ARM } from '../content/ab-testing/05-twenty-colours';
+import { DARK_BOARD, darkroomScene, type DarkroomOpts } from '../components/scenes/darkroomScene';
+import { denoiseStrip } from '../components/scenes/denoiseStrip';
+import { META as DF_META, pictureFrames } from '../content/diffusion/kit';
+import { drawing as dfDrawing } from '../lib/diffusion/drawings';
+import { sampleDrawing, sampleIdealPoints, trajectory } from '../lib/diffusion/ideal';
+import { noised } from '../lib/diffusion/schedule';
+import { parsePoints, samplePoints } from '../lib/diffusion/points';
+import { SEEDS as DF_SEEDS, WINNERS as DF_WINNERS } from '../lib/diffusion/workbench';
+import { STEPS_1 as DF_STEPS_1, SEED as DF_SEED_1 } from '../content/diffusion/01-noise-to-picture';
+import {
+  DOTS as DF_DOTS,
+  SEED as DF_SEED,
+  STEPS_4 as DF_STEPS_4,
+  TRAIN as DF_TRAIN,
+} from '../content/diffusion/04-copy-or-create';
+import { STEPS_5 as DF_STEPS_5 } from '../content/diffusion/05-steer-with-a-label';
+import { STEPS_6 as DF_STEPS_6 } from '../content/diffusion/06-why-it-costs';
+import { MOMENTS, TICKS, runOf as cacheRun } from '../lib/caching/sim';
+import { WINNERS as CACHE_WINNERS } from '../lib/caching/workbench';
+import { oneTrip } from '../content/caching/01-far-is-slow';
+import { KEEP } from '../content/caching/02-keep-a-copy';
+import { SHORT, runAt as ttlRun } from '../content/caching/03-how-long-is-it-fresh';
+import { runOfWay } from '../content/caching/04-take-it-back';
+import { runWith } from '../content/caching/05-everyone-at-once';
 import { CallTimeline, segmentsOf } from '../content/voice/kit';
 import { DEFAULT_LINE, runCall } from '../lib/voice/engine';
 import { SILENCES } from '../lib/voice/turns';
@@ -625,19 +702,265 @@ const callOg =
   page.og === 'voice-03-whose-turn-is-it'
     ? segmentsOf(runCall('hesitant', { ...VO, silence: SILENCES[0] }))
     : undefined;
+// module 18: the foundry as each chapter turns. The intro: step 1000; 1: cold at step 0; 2: step 3000; 3: the checkpoints'
+// loss chart; 4 and 5: the duplicated and leaked mixes; 6: the scaling view; 7: the first winning plan.
+const FORGE_OG: Record<string, Partial<ForgeOpts>> = {
+  'pre-training': { step: 1000 },
+  'pre-training-01-before-training': { step: 0, burning: false },
+  'pre-training-02-watch-it-learn': { step: 3000 },
+  'pre-training-04-data-is-the-curriculum': { step: 3000, mix: 'duplicated' },
+  'pre-training-05-a-leaked-test': { step: 3000, mix: 'leaked' },
+  'pre-training-07-larkspurs-run': { steps: PT_STOPS, step: PT_WINNERS[0].stop, mix: PT_WINNERS[0].mix },
+};
+const forgeOg: ForgeOpts | undefined = FORGE_OG[page.og] && {
+  steps: PT_STEPS,
+  step: null,
+  scale: 1.3,
+  ...FORGE_OG[page.og],
+};
+// module 19: the exam hall as each chapter turns. GRPO halls show the run's last round under their grader; 1: the base
+// answer lit before any grader; 2 and 3: the tone drafts scored, then moved at β 1, by the team's picks; 6: the weak
+// grader gamed; 7: the refund question under the first winning grader.
+const hall = (q: string, rules: RuleId[], grader: string, lit?: number): ExamOpts => {
+  const r = rewardsOf(q, rules),
+    last = grpoRun(refOf(q), r, seedOf(q)).at(-1);
+  return { cards: cardsOf(q, last!.after, r), grader, group: groupOf(last), board: `ROUND ${ROUNDS}/${ROUNDS}`, lit };
+};
+const PO_TONE = policyOf(TEAM_PICKS, 1);
+const EXAM_OG: Record<string, () => ExamOpts> = {
+  'post-training': () => hall(REFUND, FULL, 'KEY FACT'),
+  'post-training-01-base-or-assistant': () => ({
+    cards: cardsOf(REFUND, refOf(REFUND)),
+    lit: question(REFUND).candidates.findIndex(c => c.base),
+  }),
+  'post-training-02-which-is-better': () => ({
+    cards: cardsOf(
+      TONE,
+      refOf(TONE),
+      scoresOf(TEAM_PICKS).map(x => (x > 0 ? 1 : 0)),
+    ),
+    grader: 'YOUR PICKS',
+  }),
+  'post-training-03-learning-from-preferences': () => ({
+    cards: cardsOf(TONE, PO_TONE),
+    grader: 'YOUR PICKS',
+    board: 'β 1',
+    lit: winnerOf(PO_TONE),
+  }),
+  'post-training-04-grade-dont-judge': () => hall(WARRANTY, FULL, 'KEY FACT'),
+  'post-training-05-only-what-you-can-check': () => hall(TONE, FULL, 'KEY FACT'),
+  'post-training-06-you-get-what-you-check': () => hall(REFUND, WEAK, 'NUMBER + SIGN-OFF', gamingOf(REFUND)),
+  'post-training-07-build-a-grader': () => ({
+    ...hall(REFUND, PO_WINNERS[0], `${PO_WINNERS[0].length} RULE${PO_WINNERS[0].length === 1 ? '' : 'S'}`),
+    board: `${PO_BENCH.indexOf(REFUND) + 1} OF ${PO_BENCH.length}`,
+  }),
+};
+const examOg = EXAM_OG[page.og]?.();
+// module 20: the fuse box as each chapter turns, Larkspur mini run at build time from disk. The intro and 2: the
+// word-start fuse pulled on the pinned prompt; 1: the threads lit; 3: the lens grid at the last token; 4: the clean patch
+// prompt; 5: the steered prompt; 6: the first MLP pulled; 7: the reply behaviour with its first smallest set kept.
+const ip = page.og.startsWith('interpretability') ? diskModel() : null;
+const fuseOf = (text: string, o: Partial<FuseOpts> = {}): FuseOpts => {
+  const t = trace(ip!, text);
+  return { tokens: t.tokens.map(x => x.text), attention: t.attention, ...o };
+};
+const REPLY = BEHAVIOURS.find(b => b.id === 'reply')!;
+const FUSE_OG: Record<string, () => FuseOpts> = {
+  interpretability: () => fuseOf(BITE.text, { pulled: [BITE.fuse] }),
+  'interpretability-01-why-did-it-say-that': () => fuseOf(REPLY.text, { threads: true }),
+  'interpretability-02-pull-a-fuse': () => fuseOf(BITE.text, { pulled: [BITE.fuse] }),
+  'interpretability-04-patching': () => fuseOf(PATCH.clean.text, { say: { block: 'query', text: 'Guess made here' } }),
+  'interpretability-05-steering': () => fuseOf(STEER.prompt),
+  'interpretability-06-one-neuron-many-meanings': () => fuseOf(BITE.text, { pulled: ['mlp0'] }),
+  'interpretability-07-the-smallest-set': () =>
+    fuseOf(REPLY.text, { pulled: FUSES.filter(f => !IP_WINNERS.reply[0].includes(f)) }),
+};
+const fuseOg = FUSE_OG[page.og]?.();
+// module 21: the depot map as each chapter turns. The intro and 7: mid-sale on the first winning policy; 1: one trip from
+// the West; 2: the shelves at 09:00; 3: a day's TTL beside 15 minutes at the price rise; 4: the purge; 5: the stampede
+// beside coalescing; 6: the calm shelves after the sale.
+const DEPOT_OG: Record<string, () => Omit<DepotOpts, 'scale'>[]> = {
+  caching: () => [depotAt(cacheRun(CACHE_WINNERS[0]), MOMENTS.sale + 2)],
+  'caching-01-far-is-slow': () => [oneTrip('west')],
+  'caching-02-keep-a-copy': () => [depotAt(cacheRun(KEEP), MOMENTS.morning)],
+  'caching-03-how-long-is-it-fresh': () => [
+    depotAt(ttlRun(TICKS), MOMENTS.priceRise),
+    depotAt(ttlRun(SHORT), MOMENTS.priceRise),
+  ],
+  'caching-04-take-it-back': () => [depotAt(runOfWay('purge'), MOMENTS.priceRise)],
+  'caching-05-everyone-at-once': () => [
+    depotAt(runWith(false, false), MOMENTS.sale),
+    depotAt(runWith(true, false), MOMENTS.sale),
+  ],
+  'caching-06-the-same-trick': () => [depotAt(runWith(true, false), MOMENTS.sale + 4)],
+  'caching-07-cache-policy': () => [depotAt(cacheRun(CACHE_WINNERS[0]), MOMENTS.sale + 2)],
+};
+const depotOgs = DEPOT_OG[page.og]?.();
+// module 22: the filing room. The intro: order 1042 through its index, the winning plan beside it; 1: the full scan;
+// 2: the lookup; 3: a new order written into three indexes; 4: a regular's month through (customer, date); 5: this
+// month scanned, the date index skipped; 6: the join through the customers index; 7: the costliest request under the
+// winning plan.
+const DB_OG: Record<string, () => Omit<ArchiveOpts, 'scale'>> = {
+  databases: () => ({ ...archiveAt(dbExec(DB_ONE, 'id'), DB_ONE), others: DB_WINNERS[0].length - 1 }),
+  'databases-01-find-one-order': () => archiveAt(dbExec(DB_ONE, 'scan'), DB_ONE),
+  'databases-02-the-index': () => archiveAt(dbExec(DB_ONE, 'id'), DB_ONE),
+  'databases-03-every-write-pays': () => ({
+    read: [],
+    written: [TABLE_PAGES - 1],
+    pages: 0,
+    rows: 0,
+    index: { name: 'order number', levels: levelsOf('id', { where: { id: DB_NEW.id } }), write: true },
+    others: 2,
+  }),
+  'databases-04-column-order': () => archiveAt(dbExec(DB_MINE, 'customer_date'), DB_MINE),
+  'databases-05-planner-skips': () => ({
+    ...archiveAt(dbQuery(DB_MONTHS, ['date']), DB_MONTHS),
+    index: { name: 'date', levels: levelsOf('date', DB_TODAYS).map(l => ({ ...l, at: -1 })) },
+  }),
+  'databases-06-joining-tables': () => {
+    const j = dbJoin(DB_TODAYS, ['date'], true);
+    return archiveAt(j.outer, DB_TODAYS, {
+      customers: { pages: j.innerPages, lit: new Set(j.outer.rows.map(r => dbPageOf(r.customer - 1))).size },
+    });
+  },
+  'databases-07-index-plan': () => {
+    const set = DB_WINNERS[0],
+      top = DB_READS.reduce((a, r) =>
+        r.perDay * dbQuery(r.query, set).pages > a.perDay * dbQuery(a.query, set).pages ? r : a,
+      ),
+      run = dbQuery(top.query, set);
+    return archiveAt(run, top.query, { others: Math.max(0, set.length - (run.how === 'scan' ? 0 : 1)) });
+  },
+};
+const dbOg = DB_OG[page.og]?.();
+// module 23: the three warehouses. The intro: North selling the drill press West already sold, the line down; 1: a
+// stale look; 2: the last hinge sold twice; 3: West refusing under quorums; 4: quorums with the line up; 5: reservations
+// at North; 6: sticky reads; 7: the first winning policy.
+const csOne = csRun(csPol({ r: 1, w: 1, rule: 'lww' })),
+  csOpen = csRun(csPol({ r: 1, w: 1, rule: 'lww' }, { partition: true })),
+  csRight = csRun(csPol({ r: 2, w: 2, rule: 'lww' }, { partition: true }));
+const STOCK_OG: Record<string, () => Omit<StockOpts, 'scale'>> = {
+  consistency: () => stockAt(csOpen, CS_M.northSells),
+  'consistency-01-one-count-three-copies': () => stockAt(csOne, CS_M.staleLook),
+  'consistency-02-two-buyers-one-hinge': () => stockAt(csOne, CS_M.lastHinge),
+  'consistency-03-the-link-goes-down': () => stockAt(csRight, CS_M.westSells),
+  'consistency-04-quorums': () => stockAt(csRun(csPol({ r: 2, w: 2, rule: 'lww' })), CS_M.staleLook),
+  'consistency-05-who-wins': () => stockAt(csRun(csPol({ r: 2, w: 2, rule: 'primary' })), CS_M.lastHinge),
+  'consistency-06-eventually': () =>
+    stockAt(csRun(csPol({ r: 1, w: 1, rule: 'lww' }, { sticky: true })), CS_M.priyaLooks),
+  'consistency-07-stock-policy': () => stockAt(csRun(CS_WINNERS[0]), CS_M.westSells),
+};
+const stockOg = STOCK_OG[page.og]?.();
+// module 24: the shop floor. The intro and 1: the one-page checkout winning at its end; 2: an A/A run at its end; 3: the
+// bigger button run for enough shoppers; 4: the result chart (below); 5: the lucky colour; 6: the banner, returns up;
+// 7: the first bench experiment with its guardrail.
+const abEnd = (p: typeof ABS.aa) => p.days - 1,
+  ab3 = { ...ABS.small, days: AB_ENOUGH },
+  abBench = AB_BENCH[0];
+const SPLIT_OG: Record<string, () => Omit<SplitOpts, 'scale'>> = {
+  'ab-testing': () => splitAt(abRun(ABS.checkout), ABS.checkout, abEnd(ABS.checkout)),
+  'ab-testing-01-did-it-work': () => splitAt(abRun(ABS.checkout), ABS.checkout, abEnd(ABS.checkout)),
+  'ab-testing-02-luck': () => splitAt(abRun(ABS.aa), ABS.aa, abEnd(ABS.aa)),
+  'ab-testing-03-how-many-shoppers': () => splitAt(abRun(ab3), ab3, abEnd(ab3)),
+  'ab-testing-05-twenty-colours': () =>
+    splitAt(abRun(ABS.colours), ABS.colours, abEnd(ABS.colours), { arm: AB_LUCKY_ARM, name: AB_LUCKY }),
+  'ab-testing-06-guardrails': () => ({
+    ...splitAt(abRun(ABS.hurry), ABS.hurry, abEnd(ABS.hurry), { guardrail: true }),
+    verdict: 'B WINS · RETURNS UP',
+    tone: 'warn',
+  }),
+  'ab-testing-07-ship-or-stop': () => {
+    const o = splitAt(abRun(abBench), abBench, abEnd(abBench), { guardrail: true });
+    return abRule(abBench).guardrailHolds ? o : { ...o, verdict: `${o.verdict} · RETURNS UP`, tone: 'warn' };
+  },
+};
+const splitOg = SPLIT_OG[page.og]?.();
+const abChartOg =
+  page.og === 'ab-testing-04-peeking'
+    ? { run: abRun(ABS.aa), peek: peekResult(abRun(ABS.aa), AB.level)?.t }
+    : undefined;
+// module 25: the darkroom. The intro: a hinge half developed; chapter 1: the denoising strip (below); chapter 2: dots after
+// 5 steps; chapter 3: dots after 50; chapter 4: the ideal denoiser's copies on its training points; chapter 5: a drill asked
+// for at guidance 4; chapter 6: the drill as a latent; chapter 7: the first winning catalogue choice.
+const dfModel = () => {
+  const bin = readFileSync('public/data/diffusion/points.bin');
+  return parsePoints(DF_META, bin.buffer.slice(bin.byteOffset, bin.byteOffset + bin.byteLength) as ArrayBuffer);
+};
+const dfDots = (steps: number): DarkroomOpts['print'] => ({
+  kind: 'points',
+  pts: samplePoints(dfModel(), DF_DOTS, steps, DF_SEED),
+  name: steps < 50 ? 'DOTS' : 'HINGE',
+});
+const DARK_OG: Record<string, () => DarkroomOpts> = {
+  diffusion: () => ({
+    print: { kind: 'pixels', px: noised(dfDrawing('hinge-square').pixels, 0.5, 3), name: 'DEVELOPING' },
+    steps: 50,
+    done: 25,
+  }),
+  'diffusion-02-step-by-step': () => ({ print: dfDots(5), steps: 5 }),
+  'diffusion-03-a-learned-denoiser': () => ({ print: dfDots(50), steps: 50 }),
+  'diffusion-04-copy-or-create': () => ({
+    print: {
+      kind: 'points',
+      pts: sampleIdealPoints(DF_TRAIN, DF_DOTS, DF_STEPS_4, DF_SEED),
+      train: DF_TRAIN,
+      name: 'COPIES',
+    },
+    steps: DF_STEPS_4,
+  }),
+  'diffusion-05-steer-with-a-label': () => ({
+    print: { kind: 'pixels', px: sampleDrawing(DF_STEPS_5, 2, 'drill', 4), name: 'DRILL' },
+    steps: DF_STEPS_5,
+    label: 'drill',
+    guidance: 4,
+  }),
+  'diffusion-06-why-it-costs': () => ({
+    print: { kind: 'pixels', px: dfDrawing('drill-pistol').pixels, name: 'LATENT' },
+    steps: DF_STEPS_6,
+  }),
+  'diffusion-07-workbench': () => {
+    const c = DF_WINNERS[0].catalogue;
+    return {
+      print: { kind: 'pixels', px: sampleDrawing(c.steps, DF_SEEDS[0], 'drill', c.scale), name: 'DRILL' },
+      steps: c.steps,
+      label: 'drill',
+      guidance: c.scale,
+    };
+  },
+};
+const darkOg = DARK_OG[page.og]?.();
+const dfStripSrc = (() => {
+  if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
+  const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${s.w} ${s.h}">${s.svg}</svg>`)}`;
+})();
+const lensOg =
+  page.og === 'interpretability-03-the-guess-forming'
+    ? (() => {
+        const p = LENS.find(x => x.id === 'expenses')!,
+          l = lens(ip!, p.text);
+        return lensGrid({ stages: LENS_STAGES, guesses: l.stages.map(st => st.at(-1)!), watch: p.expected });
+      })()
+    : undefined;
 const curveOg =
-  page.og === 'fine-tuning-02-what-training-does'
-    ? lossChart({ series: FINETUNE_SERIES })
-    : page.og === 'small-models-02-learning-from-a-teacher'
-      ? lossChart({ series: STUDENT_SERIES })
-      : undefined;
+  page.og === 'pre-training-03-held-out'
+    ? lossChart({ series: CKPT_SERIES })
+    : page.og === 'fine-tuning-02-what-training-does'
+      ? lossChart({ series: FINETUNE_SERIES })
+      : page.og === 'small-models-02-learning-from-a-teacher'
+        ? lossChart({ series: STUDENT_SERIES })
+        : undefined;
+// a long title may wrap, but the kicker's last part ("Chapter 3 of 7") stays on one line
+const cut = page.kicker.lastIndexOf(' · ') + 1,
+  kickerHead = page.kicker.slice(0, cut && cut + 2),
+  kickerTail = page.kicker.slice(kickerHead.length);
 ---
 <html lang="en">
   <head><meta charset="utf-8" /><meta name="robots" content="noindex" /><title>og: {page.og}</title></head>
   <body>
     <div class="og" data-og={page.og}>
       <div class="text">
-        <p class="brand"><img src="/favicon.svg" alt="" width="40" height="40" /> {page.kicker}</p>
+        <p class="brand"><img src="/favicon.svg" alt="" width="40" height="40" /> <span>{kickerHead}<span class="nowrap">{kickerTail}</span></span></p>
         <h1>{page.headline}</h1>
         <p class="sub">{page.sub}</p>
         <p class="foot">tinker.kondasamy.com <span>· by Kondasamy Jayaraman</span></p>
@@ -669,6 +992,18 @@ const curveOg =
           : scanOg ? <IsoStage board={SCAN_BOARD} scene={scanScene({ ...scanOg, scale: 1.3 })} label="" />
           : patchSrc ? <div class="mm-og"><img src={patchSrc} alt="" /></div>
           : phoneOg ? <IsoStage board={PHONE_BOARD} scene={phoneScene({ ...phoneOg, scale: 1.3 })} label="" />
+          : forgeOg ? <IsoStage board={FORGE_BOARD} scene={forgeScene(forgeOg)} label="" />
+          : examOg ? <IsoStage board={EXAM_BOARD} scene={examScene({ ...examOg, scale: 1.3 })} label="" />
+          : fuseOg ? <IsoStage board={FUSE_BOARD} scene={fuseScene(fuseOg)} label="" />
+          : dbOg ? <IsoStage board={ARCHIVE_BOARD} scene={archiveScene({ ...dbOg, scale: 1.3 })} label="" />
+          : stockOg ? <IsoStage board={STOCK_BOARD} scene={stockScene({ ...stockOg, scale: 1.4 })} label="" />
+          : splitOg ? <IsoStage board={SPLIT_BOARD} scene={splitScene({ ...splitOg, scale: 1.3 })} label="" />
+          : darkOg ? <IsoStage board={DARK_BOARD} scene={darkroomScene({ ...darkOg, scale: 1.3 })} label="" />
+          : dfStripSrc ? <div class="mm-og"><img src={dfStripSrc} alt="" /></div>
+          : abChartOg ? <div class="tf-og ab-og"><ResultView chart={abChartOg} /></div>
+          : depotOgs ? <div class={depotOgs.length > 1 ? 'duo' : ''}>{depotOgs.map(o => <IsoStage board={DEPOT_BOARD} scene={depotScene({ ...o, scale: 1.3 })} label="" />)}</div>
+          : lensOg ? <div class="tf-og"><Flat fig={lensOg} role="img" label="" /></div>
+          : page.og === 'pre-training-06-bigger-or-longer' ? <div class="pt-og"><ScalingView budget={10} /></div>
           : callOg ? <div class="vo-og"><CallTimeline segments={callOg.segments} marks={callOg.marks} /></div>
           : fallOg ? <div class="tf-og ob-og"><Waterfall trace={fallOg.trace} stamp={fallOg.stamp} /></div>
           : curveOg ? <div class="tf-og"><Flat fig={curveOg} role="img" label="" /></div>
@@ -693,6 +1028,7 @@ const curveOg =
   .og { width: 1200px; height: 630px; box-sizing: border-box; padding: 56px 48px 48px 64px; display: grid; grid-template-columns: 500px 1fr; gap: 24px; align-items: center; overflow: hidden;
     background-image: radial-gradient(circle at 80% 50%, rgba(255, 182, 39, .14), transparent 55%); border-bottom: 14px solid var(--ink); }
   .text { display: flex; flex-direction: column; gap: 18px; height: 100%; }
+  .nowrap { white-space: nowrap; }
   .brand { margin: 0; display: flex; align-items: center; gap: 12px; font-size: 22px; font-weight: 800; letter-spacing: .02em; }
   h1 { margin: 0; font-size: 50px; line-height: 1.08; letter-spacing: -.015em; }
   .sub { margin: 0; font-size: 22px; line-height: 1.4; color: var(--muted); }
@@ -712,6 +1048,8 @@ const curveOg =
   .ob-og :global(.ob-readout) { display: none; }   /* the waterfall's keyboard hint: no use on a still */
   .vo-og :global(.vo-readout) { display: none; }   /* the timeline's keyboard hint: no use on a still */
   .vo-og :global(svg) { width: 100%; height: auto; }
+  .ab-og :global(.ab-readout) { display: none; }   /* the result chart's keyboard hint: no use on a still */
+  .pt-og { font-size: 20px; }
   .mm-og { display: flex; justify-content: center; }
   .mm-og img { max-height: 520px; max-width: 100%; border: 2px solid var(--ink); border-radius: 6px; box-shadow: 5px 5px 0 var(--ink); }
   .tf-og :global(svg) { width: 100%; height: auto; max-height: 520px; }

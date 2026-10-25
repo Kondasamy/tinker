@@ -1,7 +1,7 @@
 // The home hero: Tinker as one workshop, a plot per module on a single board. RAG's pipeline (docs → retriever → model,
 // wired and lit), tool calling's back office (an envelope riding a belt), then a grid of plots: one per later live module,
 // then a roped-off building plot for each planned module (a crate and traffic cones: open for someone to build). The plots
-// fill the board's empty ground: a column beside the back office, then rows in front of it; the board grows with the registry.
+// fill the board's empty ground: a column on each side of the back office, then rows in front of it; the board grows with the registry.
 import type { SceneCtx, Board } from '../../lib/iso/IsoStage';
 import { BH, ACC, renderers, blockShadow, boxCorners, esc } from '../../lib/iso/blocks';
 import {
@@ -38,6 +38,14 @@ import { controlRoomPlot } from './traceScene';
 import { glassRoomPlot } from './sandboxScene';
 import { scanPlot } from './scanScene';
 import { phonePlot } from './phoneScene';
+import { forgePlot } from './forgeScene';
+import { examPlot } from './examScene';
+import { fusePlot } from './fuseScene';
+import { depotPlot } from './depotScene';
+import { archivePlot } from './archiveScene';
+import { stockPlot } from './stockScene';
+import { splitPlot } from './splitScene';
+import { darkroomPlot } from './darkroomScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
@@ -45,24 +53,40 @@ import type { Msg } from '../../lib/iso/flat';
 // the back office at the back; RAG along the front-left edge; plots in the ground the two leave empty
 const RAG_Y = 294,
   RAG_X = [44, 112, 180];
-// STEP is a little more than two pill heights apart on screen, so pills down a column or a diagonal never touch
+// STEP is a little more than two pill heights apart on screen, so pills down a column never touch; front rows sit a
+// little further apart (ROW), so 32 pills shown at once still clear each other (KTD14)
 const COLUMN = 5,
-  STEP = 50;
-/** slot i's centre: down the column left of the back office, then two to a row right of RAG, row by row to the front */
-const slotXY = (i: number): [number, number] =>
-  i < COLUMN ? [44, 30 + STEP * i] : [248 + 58 * ((i - COLUMN) % 2), 292 + STEP * Math.floor((i - COLUMN) / 2)];
+  STEP = 50,
+  ROW = 54,
+  COLS = [132, 206, 280, 354],
+  /** the front row level with RAG keeps only the columns clear of its strip */
+  BESIDE_RAG = COLS.filter(x => x - 22 >= 206);
+/** slot i's centre: down the column left of the back office, down the column right of it, then four to a row in front
+ * (the first row, level with RAG, two), row by row to the front */
+const slotXY = (i: number): [number, number] => {
+  if (i < COLUMN) return [44, 30 + STEP * i];
+  if (i < 2 * COLUMN) return [318, 30 + STEP * (i - COLUMN)];
+  const j = i - 2 * COLUMN;
+  if (j < BESIDE_RAG.length) return [BESIDE_RAG[j], 292];
+  const k = j - BESIDE_RAG.length;
+  return [COLS[k % COLS.length], 292 + ROW * (1 + Math.floor(k / COLS.length))];
+};
+/** a pill floats higher over the column right of the back office and over each front row's left-most slot: their
+ * neighbours sit at about their height on screen, and all show at once with reduced motion and in the share image */
+const lift = (i: number) => {
+  const k = i - 2 * COLUMN - BESIDE_RAG.length;
+  return (i >= COLUMN && i < 2 * COLUMN) || (k >= 0 && k % COLS.length === 0) ? -14 : 0;
+};
 /** slot i's mat on the board, [x0, y0, x1, y1] */
 export const plotAt = (i: number): Board => {
   const [x, y] = slotXY(i);
   return [x - 22, y - 22, x + 30, y + 22];
 };
-/** the board for `slots` plots: at least deep enough for RAG's strip */
-export const heroBoard = (slots: number): Board => [
-  0,
-  0,
-  340,
-  Math.max(336, ...Array.from({ length: slots }, (_, i) => plotAt(i)[3] + 6)),
-];
+/** the board for `slots` plots: at least wide enough for the back office and deep enough for RAG's strip */
+export const heroBoard = (slots: number): Board => {
+  const plots = Array.from({ length: slots }, (_, i) => plotAt(i));
+  return [0, 0, Math.max(340, ...plots.map(p => p[2] + 6)), Math.max(336, ...plots.map(p => p[3] + 6))];
+};
 
 /** a plot's floor: a tinted mat with a dashed edge */
 const mat = (x0: number, y0: number, x1: number, y1: number, col: string) => {
@@ -111,7 +135,8 @@ export const heroScene =
   ({ live, planned, ride }: { live: HeroPlot[]; planned: HeroPlot[]; ride: Msg[] }) =>
   (ctx: SceneCtx) => {
     const { top } = ctx,
-      scale = 1.15,
+      // pills keep one size on screen whatever the board, so 32 of them shown at once need this smaller one (KTD14)
+      scale = 1,
       later = live.slice(2),
       slots = [...later, ...planned];
     let s =
@@ -171,9 +196,6 @@ export const heroScene =
       const [x, y] = slotXY(i);
       return [x + 4, y, BH + 15];
     };
-    // a row's left-hand pill floats higher: its right-hand neighbour and the next row's left-hand one sit at about its
-    // height on screen, and all show at once with reduced motion and in the share image
-    const lift = (i: number) => (i >= COLUMN && (i - COLUMN) % 2 === 0 ? -21 : 0);
     return (
       s +
       hop(0, pill([RAG_X[1], RAG_Y, BH + 34], live[0].name, false, -18)) +
@@ -234,6 +256,14 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   sandboxing: (x, y, { top }) => glassRoomPlot(x + 8, y - 2, top),
   multimodal: (x, y, { top }) => scanPlot(x + 14, y - 2, top),
   voice: (x, y, { top }) => phonePlot(x + 14, y - 2, top),
+  'pre-training': (x, y, { top }) => forgePlot(x + 14, y - 2, top),
+  'post-training': (x, y, { top }) => examPlot(x + 14, y - 2, top),
+  interpretability: (x, y, { top }) => fusePlot(x + 14, y - 2, top),
+  caching: (x, y, { top }) => depotPlot(x + 14, y - 4, top),
+  databases: (x, y, { top }) => archivePlot(x + 14, y - 2, top),
+  consistency: (x, y, { top }) => stockPlot(x + 14, y - 2, top),
+  'ab-testing': (x, y, { top }) => splitPlot(x + 14, y - 2, top),
+  diffusion: (x, y, { top }) => darkroomPlot(x + 14, y - 2, top),
 };
 const LIVE = MODULES.filter(m => m.status === 'live'),
   PLANNED = MODULES.filter(m => m.status === 'planned');

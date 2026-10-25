@@ -1,0 +1,239 @@
+---
+// A/B testing module intro: sets the scene before chapter 1. Static, except the warm-up and a small script that marks
+// finished chapters. Every example is the module's own data: rates from seeded runs of the visitor simulator
+// (Larkspur's labelled assumptions), the shop floor drawn from those runs, and claims quoted from data/ab-testing/facts.json.
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import Meta from '../../components/Meta.astro';
+import IsoStage from '../../lib/iso/IsoStage';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import { SPLIT_BOARD, splitAt, splitLabel, splitScene, type SplitOpts } from '../../components/scenes/splitScene';
+import { ASSUMPTIONS, SCENARIOS, SEEDS, falseWinRate, runOf } from '../../lib/ab-testing/sim';
+import { fact } from '../../lib/ab-testing/facts';
+import { NEEDED } from '../../lib/ab-testing/workbench';
+import { FINAL } from '../../content/ab-testing/01-did-it-work';
+import { PEEK } from '../../content/ab-testing/04-peeking';
+import { NAME } from '../../content/ab-testing/05-twenty-colours';
+import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { introMeta } from '../../lib/pages';
+import { longDate } from '../../lib/format';
+
+const MODULE = moduleOf('ab-testing');
+const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const CHAPTERS = MODULE.chapters;
+const pic = (o: Omit<SplitOpts, 'scale'>): SplitOpts => ({ ...o, scale: 1.4 });
+const S = SCENARIOS;
+const end = (p: typeof S.aa) => p.days - 1;
+const HERO = pic(splitAt(runOf(S.checkout), S.checkout, end(S.checkout)));
+const IDEAS: [string, string, ReturnType<typeof fact>, SplitOpts][] = [
+  [
+    'Split at random',
+    'A coin flip decides who sees which checkout',
+    fact('random'),
+    pic(splitAt(runOf(S.checkout), S.checkout, 2)),
+  ],
+  [
+    'Luck makes gaps',
+    'Identical checkouts still land apart',
+    fact('aa-test'),
+    pic(splitAt(runOf(S.aa), S.aa, end(S.aa))),
+  ],
+  ['Don’t stop on a good day', 'An early lead can be luck', fact('peeking'), pic(splitAt(runOf(S.aa), S.aa, PEEK.t))],
+  [
+    'Watch the guardrails',
+    'More orders, but more sent back',
+    fact('short-term'),
+    pic({
+      ...splitAt(runOf(S.hurry), S.hurry, end(S.hurry), { guardrail: true }),
+      verdict: 'RETURNS UP',
+      tone: 'warn',
+    }),
+  ],
+];
+const N = SEEDS.length;
+const FACTS: [string, string][] = [
+  [ASSUMPTIONS.perDay.toLocaleString('en-US'), 'shoppers a day reach each checkout in Larkspur’s simulated shop'],
+  [NEEDED.toLocaleString('en-US'), 'shoppers per checkout to find a one-point lift most of the time'],
+  [`${Math.round(falseWinRate(S.aa, 'peek') * N)} of ${N}`, 'A/A tests call a winner when peeked at every day'],
+  [
+    `${Math.round(falseWinRate(S.colours, 'fixed') * N)} of ${N}`,
+    `runs of twenty identical colours crown one by luck, like ${NAME}`,
+  ],
+];
+const pts = (x: number) => `${x >= 0 ? '+' : '−'}${Math.abs(x * 100).toFixed(1)}`;
+---
+<html lang="en">
+  <head>
+    <Meta {...introMeta(MODULE.id)} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module {NUMBER} · {MODULE.title}</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span> · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+          <h1>Did the change work, or did you get lucky?</h1>
+          <p class="lede">Split shoppers at random, count who buys, and learn when a gap is real. Then meet the lucky days, early peeks and twenty-colour tests that fake a win, at Larkspur’s shop.</p>
+          <div class="ctas">
+            <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+          <ReadingMode />
+        </div>
+        <div class="hero-pic">
+          {/* the shop floor every chapter plays on, at the end of chapter 1's checkout test */}
+          <IsoStage board={SPLIT_BOARD} scene={splitScene(HERO)} label={splitLabel(HERO)} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="idea">
+        <p class="kicker">The whole idea in one example</p>
+        <h2 id="idea">Two looks at identical checkouts</h2>
+        <div class="versus">
+          <article class="reply">
+            <header><h3>Peek on day {PEEK.t + 1}</h3><span class="stamp">win?</span></header>
+            <p class="said">{pts(PEEK.result.diff)} pts</p>
+            <p class="cap">Significant, and pure luck.</p>
+          </article>
+          <article class="reply read">
+            <header><h3>Read on day {S.aa.days}</h3><span class="stamp">no winner</span></header>
+            <p class="said">No winner</p>
+            <p class="cap">The planned end keeps no win.</p>
+          </article>
+        </div>
+        <p class="note more">Rates come from simulated shoppers: Larkspur’s own traffic and rates, drawn from fixed seeds, not data from any real shop. The real one-page checkout in chapter 1 ends {pts(FINAL.diff)} points.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Four ideas carry the module</h2>
+        <ol class="steps">
+          {IDEAS.map(([name, short, f, o], i) => (
+            <li>
+              <div class="pic"><IsoStage board={SPLIT_BOARD} scene={splitScene(o)} label={splitLabel(o)} /></div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              <p class="more">{f.claim}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">Larkspur tests its checkout</h2>
+          <p class="more">{MODULE.story} <strong>You’re the one who reads the results.</strong></p>
+          <p class="prev">Played <a href="/evals/">Evals</a>? It asks the same “is B better?” of an AI assistant.</p>
+        </div>
+        <dl class="facts">
+          {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}
+        </dl>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due; the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <ul class="who-chips"><li>Product managers</li><li>Analysts</li><li>Engineers</li><li>No maths needed</li></ul>
+          <p class="more">Anyone who ships changes and reads test results, and wants to know when a win is real. The maths is folded away; the shoppers do the work.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com" target="_blank" rel="noopener">Kondasamy Jayaraman</a>.</p>
+        <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, whose hand-inked isometric style and engine this course is built on. Colorfigures grew from April’s <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed. Thank you.</p>
+      </footer>
+    </main>
+
+    <script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      const CHAPTERS = moduleOf('ab-testing').chapters;
+      const done = completed('ab-testing');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('ab-testing', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .module-meta a { color: var(--ink); }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.read { border-left: 6px solid var(--acc); }
+  .said { font-size: 28px; font-weight: 900; }
+
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); white-space: nowrap; }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 240px; display: flex; justify-content: center; margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: auto !important; height: 100% !important; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .prev { font-size: 14px; color: var(--muted); }
+  .prev a { color: var(--ink); }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
+
+  .pair { display: grid; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+    .steps .pic { height: 200px; }
+  }
+</style>

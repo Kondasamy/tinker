@@ -1,0 +1,76 @@
+---
+// Dev-only eyeball page: the three warehouses in several states of Larkspur's morning (static SVG, wide and phone), the
+// replica timeline with and without the outage, then the stage live. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { STOCK_BOARD, idleOf, stockAt, stockLabel, stockScene, type StockOpts } from '../components/scenes/stockScene';
+import { ConsistencyStage, TimelineView } from '../content/consistency/kit';
+import { MOMENTS, STOCK, policyOf, simulate } from '../lib/consistency/sim';
+import { WINNERS } from '../lib/consistency/workbench';
+
+const one = simulate(policyOf({ r: 1, w: 1, rule: 'lww' }));
+const cut = simulate(policyOf({ r: 1, w: 1, rule: 'lww' }, { partition: true }));
+const right = simulate(policyOf({ r: 2, w: 2, rule: 'lww' }, { partition: true }));
+const res = simulate(policyOf({ r: 1, w: 1, rule: 'primary' }));
+const best = simulate(WINNERS[0]);
+const STATES: [string, Omit<StockOpts, 'scale'>][] = [
+  ['Idle: every board at opening stock', idleOf(STOCK)],
+  ['10:01: North sells a hinge, the copies on their way', stockAt(one, MOMENTS.firstSale)],
+  ['10:02: West still reads the old count', stockAt(one, MOMENTS.staleLook)],
+  [
+    '10:22: two buyers, one hinge',
+    { ...stockAt(one, MOMENTS.lastHinge), say: { block: 'west', text: 'Two receipts' } },
+  ],
+  ['Line cut, W = 1: West sells the drill press', stockAt(cut, MOMENTS.westSells)],
+  [
+    'Line cut, W = 2: West refuses',
+    { ...stockAt(right, MOMENTS.westSells), say: { block: 'line', text: 'Line down' } },
+  ],
+  ['Reservations at North, 10:22', stockAt(res, MOMENTS.lastHinge)],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Consistency scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Warehouses: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={STOCK_BOARD} scene={stockScene({ ...o, scale: 1.2 })} label={stockLabel(o)} /></div>
+            <div class="phone"><IsoStage board={STOCK_BOARD} scene={stockScene({ ...o, scale: 2 })} label={stockLabel(o)} /></div>
+            <p>{stockLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <section><h2>Timeline: R 1, W 1, line cut</h2><TimelineView client:load result={cut} at={MOMENTS.westSells} /></section>
+      <section><h2>Timeline: R 1, W 1, no outage</h2><TimelineView client:load result={one} at={MOMENTS.lastHinge} /></section>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Picture</h2><div class="stage"><ConsistencyStage client:load show={{ scene: stockAt(best, 8), result: best, tick: 8, caption: 'A winning policy at 10:08.' }} /></div></section>
+        <section><h2>Timeline, escaped caption</h2><div class="stage"><ConsistencyStage client:load view="timeline" show={{ scene: stockAt(one, 2), result: one, tick: 2, caption: '<script>alert(1)</script>' }} /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 520px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

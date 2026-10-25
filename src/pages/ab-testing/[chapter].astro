@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import DidItWork from '../../content/ab-testing/01-did-it-work';
+import Luck from '../../content/ab-testing/02-luck';
+import HowManyShoppers from '../../content/ab-testing/03-how-many-shoppers';
+import Peeking from '../../content/ab-testing/04-peeking';
+import TwentyColours from '../../content/ab-testing/05-twenty-colours';
+import Guardrails from '../../content/ab-testing/06-guardrails';
+import ShipOrStop from '../../content/ab-testing/07-ship-or-stop';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('ab-testing').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="ab-testing" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-did-it-work' ? <DidItWork client:load />
+    : chapter === '02-luck' ? <Luck client:load />
+    : chapter === '03-how-many-shoppers' ? <HowManyShoppers client:load />
+    : chapter === '04-peeking' ? <Peeking client:load />
+    : chapter === '05-twenty-colours' ? <TwentyColours client:load />
+    : chapter === '06-guardrails' ? <Guardrails client:load />
+    : <ShipOrStop client:load />}
+</ChapterLayout>

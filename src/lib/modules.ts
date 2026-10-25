@@ -16,6 +16,14 @@ import { MULTIMODAL_MODULE } from '../content/multimodal/module';
 import { OBSERVABILITY_MODULE } from '../content/observability/module';
 import { SANDBOXING_MODULE } from '../content/sandboxing/module';
 import { VOICE_MODULE } from '../content/voice/module';
+import { POST_TRAINING_MODULE } from '../content/post-training/module';
+import { PRE_TRAINING_MODULE } from '../content/pre-training/module';
+import { INTERPRETABILITY_MODULE } from '../content/interpretability/module';
+import { CACHING_MODULE } from '../content/caching/module';
+import { DATABASES_MODULE } from '../content/databases/module';
+import { CONSISTENCY_MODULE } from '../content/consistency/module';
+import { AB_TESTING_MODULE } from '../content/ab-testing/module';
+import { DIFFUSION_MODULE } from '../content/diffusion/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -87,6 +95,56 @@ export const MODULES: Module[] = [
   SANDBOXING_MODULE,
   MULTIMODAL_MODULE,
   VOICE_MODULE,
+  PRE_TRAINING_MODULE,
+  POST_TRAINING_MODULE,
+  INTERPRETABILITY_MODULE,
+  CACHING_MODULE,
+  DATABASES_MODULE,
+  CONSISTENCY_MODULE,
+  AB_TESTING_MODULE,
+  DIFFUSION_MODULE,
+  planned(
+    'diffusion-llms',
+    'Diffusion language models',
+    'Advanced',
+    'Writing a reply in any order: fill the sure words first, then the rest, and what the speed gives up.',
+  ),
+  planned(
+    'computer-use',
+    'Computer use',
+    'Advanced',
+    'An agent that sees a screenshot and clicks: what it sees, where it clicks, and the screens that fool it.',
+  ),
+  planned(
+    'calibration',
+    'Calibration',
+    'Intermediate',
+    'When a model says 70%, is it right 70% of the time? Confidence, measured, and when to abstain.',
+  ),
+  planned(
+    'search',
+    'Search before AI',
+    'Beginner',
+    'How keyword search finds a page: an index from words to documents, ranking, and where it misses meaning.',
+  ),
+  planned(
+    'web-requests',
+    'Opening a web page',
+    'Beginner',
+    'What happens between typing an address and seeing the page: DNS, a connection, encryption and HTTP.',
+  ),
+  planned(
+    'payments',
+    'Card payments',
+    'Beginner',
+    'Where the money goes when a customer pays by card: authorisation, capture, settlement, fees and chargebacks.',
+  ),
+  planned(
+    'git',
+    'Git',
+    'Beginner',
+    'How Git stores history: snapshots named by their content, branches as pointers, and merges that clash.',
+  ),
 ];
 
 export function moduleOf(id: string): Module {

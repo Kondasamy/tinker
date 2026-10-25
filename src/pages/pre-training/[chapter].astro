@@ -1,0 +1,29 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import BeforeTraining from '../../content/pre-training/01-before-training';
+import WatchItLearn from '../../content/pre-training/02-watch-it-learn';
+import HeldOut from '../../content/pre-training/03-held-out';
+import DataIsTheCurriculum from '../../content/pre-training/04-data-is-the-curriculum';
+import ALeakedTest from '../../content/pre-training/05-a-leaked-test';
+import BiggerOrLonger from '../../content/pre-training/06-bigger-or-longer';
+import LarkspursRun from '../../content/pre-training/07-larkspurs-run';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('pre-training').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="pre-training" chapter={chapter} title={title}>
+  {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
+      hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
+  {chapter === '01-before-training' ? <BeforeTraining client:load />
+    : chapter === '02-watch-it-learn' ? <WatchItLearn client:load />
+    : chapter === '03-held-out' ? <HeldOut client:load />
+    : chapter === '04-data-is-the-curriculum' ? <DataIsTheCurriculum client:load />
+    : chapter === '05-a-leaked-test' ? <ALeakedTest client:load />
+    : chapter === '06-bigger-or-longer' ? <BiggerOrLonger client:load />
+    : <LarkspursRun client:load />}
+</ChapterLayout>

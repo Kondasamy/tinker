@@ -1,0 +1,216 @@
+---
+// Consistency module intro: sets the scene before chapter 1. Static, except the warm-up and a small script that marks
+// finished chapters. Every example is the module's own data: counts from the simulated morning (Larkspur's labelled
+// assumptions), the warehouses drawn from runs of it, and claims quoted from data/consistency/facts.json.
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import Meta from '../../components/Meta.astro';
+import IsoStage from '../../lib/iso/IsoStage';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import { STOCK_BOARD, stockAt, stockLabel, stockScene, type StockOpts } from '../../components/scenes/stockScene';
+import { EVENTS, MOMENTS, REPS, STOCK, clock, policyOf, runOf } from '../../lib/consistency/sim';
+import { WINNERS } from '../../lib/consistency/workbench';
+import { fact } from '../../lib/consistency/facts';
+import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { introMeta } from '../../lib/pages';
+import { longDate } from '../../lib/format';
+
+const MODULE = moduleOf('consistency');
+const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const CHAPTERS = MODULE.chapters;
+const pic = (o: Omit<StockOpts, 'scale'>): StockOpts => ({ ...o, scale: 1.4 });
+const ONE = runOf(policyOf({ r: 1, w: 1, rule: 'lww' }));
+const OPEN = runOf(policyOf({ r: 1, w: 1, rule: 'lww' }, { partition: true }));
+const RIGHT = runOf(policyOf({ r: 2, w: 2, rule: 'lww' }, { partition: true }));
+const RES = runOf(policyOf({ r: 2, w: 2, rule: 'primary' }));
+const HERO = pic(stockAt(OPEN, MOMENTS.northSells));
+const IDEAS: [string, string, ReturnType<typeof fact>, StockOpts][] = [
+  ['Copies lag', 'West still counts a hinge North sold', fact('eventual'), pic(stockAt(ONE, MOMENTS.staleLook))],
+  ['The line goes down', 'Stay open or stay right, not both', fact('cap'), pic(stockAt(RIGHT, MOMENTS.westSells))],
+  ['Quorums', 'Reads and writes that always overlap', fact('dynamo-quorum'), pic(stockAt(RIGHT, MOMENTS.northSells))],
+  ['Who wins', 'One place decides, one order at a time', fact('lww'), pic(stockAt(RES, MOMENTS.lastHinge))],
+];
+const westSale = OPEN.outcomes.find(o => o.t === MOMENTS.westSells)!,
+  northSale = OPEN.outcomes.find(o => o.t === MOMENTS.northSells)!;
+const FACTS: [string, string][] = [
+  [String(EVENTS.length), 'orders and stock checks in Larkspur’s morning, the one every chapter runs'],
+  [String(REPS.length), 'warehouses, each with its own copy of every stock count'],
+  [String(STOCK.drill), 'drill press in stock, the one-off the owner will never sell twice'],
+  [String(WINNERS.length), 'stock policies tie for best in chapter 7'],
+];
+---
+<html lang="en">
+  <head>
+    <Meta {...introMeta(MODULE.id)} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module {NUMBER} · {MODULE.title}</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span> · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+          <h1>Three copies of one count, and the day they disagree</h1>
+          <p class="lede">Keeping a copy of your data in every region makes a shop fast and keeps it open. It also lets two regions sell the last item. Here you watch Larkspur’s three warehouses drift apart, then choose what each product can risk.</p>
+          <div class="ctas">
+            <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+          <p class="prev">New to databases? Start with <a href="/databases/">Databases &amp; indexes</a>.</p>
+          <ReadingMode />
+        </div>
+        <div class="hero-pic">
+          {/* the line to West down, and North selling the drill press West already sold */}
+          <IsoStage board={STOCK_BOARD} scene={stockScene(HERO)} label={stockLabel(HERO)} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="idea">
+        <p class="kicker">The whole idea in one example</p>
+        <h2 id="idea">One drill press, two receipts</h2>
+        <div class="versus">
+          <article class="reply">
+            <header><h3>West, cut off</h3><span class="stamp">sold</span></header>
+            <p class="said">{clock(westSale.t)}</p>
+            <p class="cap">{westSale.who} buys it. West’s count said {westSale.seen}.</p>
+          </article>
+          <article class="reply read">
+            <header><h3>North</h3><span class="stamp">sold again</span></header>
+            <p class="said">{clock(northSale.t)}</p>
+            <p class="cap">{northSale.who} buys it too. North never heard.</p>
+          </article>
+        </div>
+        <p class="note more">Counts come from a simulated morning: Larkspur’s own orders and planning numbers, not a measurement of any real database.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Four ideas carry the module</h2>
+        <ol class="steps">
+          {IDEAS.map(([name, short, f, o], i) => (
+            <li>
+              <div class="pic"><IsoStage board={STOCK_BOARD} scene={stockScene(o)} label={stockLabel(o)} /></div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              <p class="more">{f.claim}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">Larkspur’s count goes regional</h2>
+          <p class="more">{MODULE.story} <strong>You’re on the team that keeps the counts.</strong></p>
+        </div>
+        <dl class="facts">
+          {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}
+        </dl>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due; the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <ul class="who-chips"><li>Engineers</li><li>Product managers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Anyone whose product keeps the same data in more than one place, and who wants to know why it sometimes sells what it doesn’t have. No background needed beyond what a database is.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com" target="_blank" rel="noopener">Kondasamy Jayaraman</a>.</p>
+        <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, whose hand-inked isometric style and engine this course is built on. Colorfigures grew from April’s <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed. Thank you.</p>
+      </footer>
+    </main>
+
+    <script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      const CHAPTERS = moduleOf('consistency').chapters;
+      const done = completed('consistency');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('consistency', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .module-meta a { color: var(--ink); }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .prev { font-size: 14px; color: var(--muted); margin-top: 12px; }
+  .prev a { color: var(--ink); }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.read { border-left: 6px solid var(--acc); }
+  .said { font-size: 28px; font-weight: 900; }
+
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); white-space: nowrap; }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 240px; display: flex; justify-content: center; margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: auto !important; height: 100% !important; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
+
+  .pair { display: grid; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+    .steps .pic { height: 200px; }
+  }
+</style>

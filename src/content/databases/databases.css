@@ -1,0 +1,83 @@
+/* Databases stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
+   tool-calling/kit). These are the tree view, the notes, the SQL fold-away and the story column's tables. */
+.db-tree {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+  flex: 1;
+  justify-content: center;
+}
+.db-tree svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  font-family: ui-monospace, Menlo, monospace;
+}
+.db-row {
+  cursor: pointer;
+  outline: none;
+}
+.db-tree svg:focus-within {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.db-readout {
+  margin: 0;
+  font:
+    700 12.5px ui-monospace,
+    Menlo,
+    monospace;
+  min-height: 4.2em;
+}
+.db-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.db-sql {
+  margin: 8px 0 0;
+  font-size: 13px;
+}
+.db-sql summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.db-sql pre {
+  margin: 6px 0 0;
+  padding: 8px 10px;
+  border: 1.5px solid var(--rule);
+  border-radius: 8px;
+  background: var(--card);
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+.db-row-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.db-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.db-headline strong {
+  font:
+    800 30px / 1 ui-monospace,
+    Menlo,
+    monospace;
+}
+.tc-ledger td.ok {
+  color: var(--ok);
+  font-weight: 800;
+}
+.tc-ledger td.bad {
+  color: var(--bad);
+  font-weight: 800;
+}

@@ -1,0 +1,29 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import NoiseToPicture from '../../content/diffusion/01-noise-to-picture';
+import StepByStep from '../../content/diffusion/02-step-by-step';
+import ALearnedDenoiser from '../../content/diffusion/03-a-learned-denoiser';
+import CopyOrCreate from '../../content/diffusion/04-copy-or-create';
+import SteerWithALabel from '../../content/diffusion/05-steer-with-a-label';
+import WhyItCosts from '../../content/diffusion/06-why-it-costs';
+import Workbench from '../../content/diffusion/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('diffusion').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="diffusion" chapter={chapter} title={title}>
+  {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
+      hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
+  {chapter === '01-noise-to-picture' ? <NoiseToPicture client:load />
+    : chapter === '02-step-by-step' ? <StepByStep client:load />
+    : chapter === '03-a-learned-denoiser' ? <ALearnedDenoiser client:load />
+    : chapter === '04-copy-or-create' ? <CopyOrCreate client:load />
+    : chapter === '05-steer-with-a-label' ? <SteerWithALabel client:load />
+    : chapter === '06-why-it-costs' ? <WhyItCosts client:load />
+    : <Workbench client:load />}
+</ChapterLayout>

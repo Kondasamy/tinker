@@ -1,0 +1,8 @@
+{
+  "note": "Larkspur's rule for chapter 7, set by the shop's owner: team choices, not industry figures.",
+  "zeroOversell": ["drill"],
+  "reasons": {
+    "hinge": "Hinges are cheap and restocked every day: an oversold hinge is a short backorder, but a refused order is a lost sale.",
+    "drill": "The drill press is the only one: selling it twice is a promise Larkspur cannot keep."
+  }
+}

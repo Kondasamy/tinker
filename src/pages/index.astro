@@ -5,7 +5,7 @@
 import '../styles/tokens.css';
 import '../styles/page.css';
 import Meta from '../components/Meta.astro';
-import IsoStage, { type SceneCtx } from '../lib/iso/IsoStage';
+import IsoStage, { type SceneCtx, type Zoom } from '../lib/iso/IsoStage';
 import { miniPipeline, MINI_BOARD, MINI_LABEL } from '../components/scenes/miniPipeline';
 import { HERO_BOARD, HOME_HERO, HOME_HERO_LABEL, heroCaption } from '../components/scenes/heroScene';
 import { renderers, blockShadow, type BlockType } from '../lib/iso/blocks';
@@ -52,6 +52,27 @@ import { RECORDING as SANDBOX_RECORDING } from '../lib/sandboxing/turns';
 import { SCAN_BOARD, scanScene, scanLabel } from '../components/scenes/scanScene';
 import { PHONE_BOARD, phoneScene, phoneLabel } from '../components/scenes/phoneScene';
 import { DEFAULT_LINE, runCall } from '../lib/voice/engine';
+import { FORGE_BOARD, forgeScene, forgeLabel } from '../components/scenes/forgeScene';
+import { STEPS as FORGE_STEPS } from '../lib/pre-training/engine';
+import { EXAM_BOARD, examScene, examLabel } from '../components/scenes/examScene';
+import { FULL, REFUND, refOf, rewardsOf } from '../lib/post-training/graders';
+import { grpoRun, seedOf } from '../lib/post-training/policy';
+import { cardsOf, groupOf } from '../content/post-training/kit';
+import { FUSE_BOARD, fuseScene, fuseLabel } from '../components/scenes/fuseScene';
+import { BITE } from '../lib/interpretability/probe';
+import { DEPOT_BOARD, depotAt, depotLabel, depotScene } from '../components/scenes/depotScene';
+import { MOMENTS as CACHE_MOMENTS, runOf as cacheRun } from '../lib/caching/sim';
+import { WINNERS as CACHE_WINNERS } from '../lib/caching/workbench';
+import { ARCHIVE_BOARD, archiveAt, archiveLabel, archiveScene } from '../components/scenes/archiveScene';
+import { execute as dbExec } from '../lib/databases/planner';
+import { WINNERS as DB_WINNERS } from '../lib/databases/workbench';
+import { ONE as DB_ONE } from '../content/databases/requests';
+import { STOCK_BOARD, stockAt, stockLabel, stockScene } from '../components/scenes/stockScene';
+import { MOMENTS as CS_MOMENTS, policyOf as csPolicy, runOf as csRun } from '../lib/consistency/sim';
+import { SPLIT_BOARD, splitAt, splitLabel, splitScene } from '../components/scenes/splitScene';
+import { SCENARIOS as AB_SCENARIOS, runOf as abRun } from '../lib/ab-testing/sim';
+import { DARK_BOARD, darkroomLabel, darkroomScene, type DarkroomOpts } from '../components/scenes/darkroomScene';
+import { sampleDrawing } from '../lib/diffusion/ideal';
 
 const one =
   (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) =>
@@ -85,7 +106,7 @@ const LOOP: [string, string][] = [
   ],
 ];
 // a live module's card picture and topic chips; every other fact on a card comes from the registry
-type Iso = { board: typeof MINI_BOARD; scene: typeof miniPipeline; label: string };
+type Iso = { board: typeof MINI_BOARD; scene: typeof miniPipeline; label: string; zoom?: Zoom };
 const OFFICE = { msgs: SEQ_MSGS, upTo: 3, tools: RECORDINGS['order-status'].tools.length, scale: 1.7 };
 // the damaged delivery with the printer out of stock: the agent checked, changed course and is telling the customer
 const CASE = run(AGENT_RECORDINGS['01-workflow-or-agent'], { case: 'damaged', stock: 'out' });
@@ -167,6 +188,46 @@ const PHONE = {
   wait: runCall('hesitant', { ...DEFAULT_LINE, streaming: true, bargeIn: true, readBack: true, silence: 800 }).wait,
   scale: 1.7,
 } as const;
+// the foundry as the module's intro opens: the furnace lit, the model a third of the way through its run
+const FORGE = { steps: FORGE_STEPS, step: 1000, scale: 1.7 };
+// the exam hall after the key-fact grader's run on the refund question: the right answer's stack the tallest
+const EXAM_RUN = grpoRun(refOf(REFUND), rewardsOf(REFUND, FULL), seedOf(REFUND));
+const EXAM = {
+  cards: cardsOf(REFUND, EXAM_RUN.at(-1)!.after, rewardsOf(REFUND, FULL)),
+  grader: 'KEY FACT',
+  group: groupOf(EXAM_RUN.at(-1)),
+  scale: 1.7,
+};
+// the fuse box on chapter 2's pinned prompt, the word-start head's fuse pulled
+const BITE_RUN = trace(diskModel(), BITE.text);
+const FUSES_CARD = {
+  tokens: BITE_RUN.tokens.map(t => t.text),
+  attention: BITE_RUN.attention,
+  pulled: [BITE.fuse],
+  scale: 1.7,
+};
+// the depot map mid-sale on chapter 7's first winning policy
+const DEPOT = { ...depotAt(cacheRun(CACHE_WINNERS[0]), CACHE_MOMENTS.sale + 2), scale: 1.7 };
+// order 1042 found through its index, the winning plan's other indexes at the desk's end
+const ARCHIVE = { ...archiveAt(dbExec(DB_ONE, 'id'), DB_ONE), others: DB_WINNERS[0].length - 1, scale: 1.7 };
+// North selling the drill press West already sold, the line to West down
+const STOCK = {
+  ...stockAt(csRun(csPolicy({ r: 1, w: 1, rule: 'lww' }, { partition: true })), CS_MOMENTS.northSells),
+  scale: 1.7,
+};
+// the one-page checkout winning at the end of its test
+const SHOP = {
+  ...splitAt(abRun(AB_SCENARIOS.checkout), AB_SCENARIOS.checkout, AB_SCENARIOS.checkout.days - 1),
+  scale: 1.7,
+};
+// a drill developed in 20 steps, asked for by its label at guidance 4
+const DARK: DarkroomOpts = {
+  print: { kind: 'pixels', px: sampleDrawing(20, 2, 'drill', 4), name: 'DRILL' },
+  steps: 20,
+  label: 'drill',
+  guidance: 4,
+  scale: 1.7,
+};
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -382,6 +443,108 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Speech-to-speech models',
     ],
   },
+  'pre-training': {
+    name: 'Pre-training',
+    iso: { board: FORGE_BOARD, scene: forgeScene(FORGE), label: forgeLabel(FORGE) },
+    topics: [
+      'Random weights',
+      'Checkpoints',
+      'Training loss',
+      'Held-out text',
+      'Duplicated data',
+      'Leaked tests',
+      'Scaling laws',
+    ],
+  },
+  'post-training': {
+    name: 'Post-training',
+    iso: { board: EXAM_BOARD, scene: examScene(EXAM), label: examLabel(EXAM) },
+    topics: [
+      'Base models',
+      'Preference pairs',
+      'DPO',
+      'Graders and GRPO',
+      'What a grader can’t check',
+      'Reward hacking',
+      'Building a grader',
+    ],
+  },
+  interpretability: {
+    name: 'Interpretability',
+    iso: { board: FUSE_BOARD, scene: fuseScene(FUSES_CARD), label: fuseLabel(FUSES_CARD) },
+    topics: [
+      'Attention isn’t proof',
+      'Ablation',
+      'The logit lens',
+      'Activation patching',
+      'Steering',
+      'Polysemantic neurons',
+      'Circuits',
+    ],
+  },
+  caching: {
+    name: 'Caching & CDNs',
+    iso: { board: DEPOT_BOARD, scene: depotScene(DEPOT), label: depotLabel(DEPOT) },
+    topics: [
+      'Latency and distance',
+      'Edge caches',
+      'TTL and stale copies',
+      'Purge & versioned names',
+      'Request coalescing',
+      'Prompt & KV caches',
+      'Cache policy',
+    ],
+  },
+  databases: {
+    name: 'Databases & indexes',
+    // the orders cabinet stands taller than the board's headroom: pull back, keeping the floor, so its top clears the frame
+    iso: {
+      board: ARCHIVE_BOARD,
+      scene: archiveScene(ARCHIVE),
+      label: archiveLabel(ARCHIVE),
+      zoom: { k: 0.88, u: 0.5, v: 1 },
+    },
+    topics: ['Full scans', 'B-tree indexes', 'Write cost', 'Column order', 'The query planner', 'Joins', 'Index plans'],
+  },
+  consistency: {
+    name: 'Replication & consistency',
+    iso: { board: STOCK_BOARD, scene: stockScene(STOCK), label: stockLabel(STOCK) },
+    topics: [
+      'Replicas',
+      'Replication lag',
+      'Concurrent writes',
+      'Partitions & CAP',
+      'Quorums',
+      'Last writer wins',
+      'Read your writes',
+    ],
+  },
+  'ab-testing': {
+    name: 'A/B testing',
+    iso: { board: SPLIT_BOARD, scene: splitScene(SHOP), label: splitLabel(SHOP) },
+    topics: [
+      'Random splits',
+      'Luck & A/A tests',
+      'Power & sample size',
+      'Peeking',
+      'Multiple comparisons',
+      'Guardrail metrics',
+      'Ship or stop',
+    ],
+  },
+  diffusion: {
+    name: 'Diffusion models',
+    iso: { board: DARK_BOARD, scene: darkroomScene(DARK), label: darkroomLabel(DARK) },
+    topics: [
+      'Noise to picture',
+      'Steps & cost',
+      'Learned denoisers',
+      'Copy or create',
+      'Guidance',
+      'Latent & few-step models',
+      'Steps per use',
+    ],
+  },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];
 const LIVE = MODULES.filter(m => m.status === 'live');
@@ -575,7 +738,7 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
   .ctas { justify-content: center; }
   .hero .glance { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
   /* the board's viewBox leaves headroom for tall props; pull it up under the text */
-  .hero-pic { margin: -32px 0 0; width: 100%; max-width: 780px; }
+  .hero-pic { margin: max(-32px, -4%) 0 0; width: 100%; max-width: 780px; }
   /* the workshop is busy (none with reduced motion): the envelope rides its belt, RAG's wire carries a current, and a wave
      hops each live plot in turn down the board, showing and lighting its pill only for its turn, so the board rests unlabelled */
   @media (prefers-reduced-motion: no-preference) {

@@ -23,7 +23,7 @@ export const HOME: PageMeta = {
   og: 'home',
   title: 'Tinker: see how tech works by playing with it',
   description:
-    'Free, hand-drawn, interactive explanations of how AI works: RAG, tool calling, agents, evals, tokens, transformers and more. Build it, break it, fix it.',
+    'Free, hand-drawn, interactive explanations of how tech works, from RAG, agents and transformers to caching and databases. Build it, break it, fix it.',
   kicker: 'Tinker',
   headline: 'See how tech works by playing with it.',
   sub: `Hand-drawn, interactive explanations of tech concepts: ${MODULES.filter(m => m.status === 'live').length} modules to play${MODULES.some(m => m.status === 'planned') ? ', more on the way' : ''}.`,

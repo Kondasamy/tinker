@@ -1,0 +1,20 @@
+{
+  "note": "Larkspur's teaching database: a generated orders table and a real B+tree, with page counts read off them. Round sizes chosen to show the mechanism, not any real database's numbers.",
+  "seed": 1042,
+  "orders": 10000,
+  "customers": 1000,
+  "start": "2026-01-01",
+  "end": "2026-10-24",
+  "openDays": 14,
+  "returnedShare": 0.01,
+  "rowsPerPage": 50,
+  "fanout": 50,
+  "scaleRows": 1000000,
+  "words": {
+    "page": "a table page holds 50 orders; an index page holds 50 keys",
+    "read": "every page read costs the same, wherever it is",
+    "fetch": "every row an index points to costs one page read to fetch",
+    "planner": "the planner guesses each plan's pages from estimated rows and picks the cheaper: a stated rule, not any real database's planner",
+    "scale": "the million-row counts are computed by formula from the 10,000 rows stored here"
+  }
+}

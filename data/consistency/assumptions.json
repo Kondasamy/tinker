@@ -1,0 +1,12 @@
+{
+  "note": "Larkspur's planning numbers for a teaching simulator, not measurements of any real database or network. Every count the Replication & consistency module shows comes from these and from the morning in day.json.",
+  "startsAt": "10:00",
+  "tickMinutes": 1,
+  "lagTicks": 2,
+  "primary": "north",
+  "words": {
+    "lag": "a change made at one warehouse reaches the other two 2 minutes later: slowed down so you can watch it; real links take milliseconds to seconds",
+    "partition": "while the line to West is down nothing crosses it; messages wait, and arrive once it is back",
+    "primary": "with reservations, every order is decided at North, the primary, one at a time"
+  }
+}

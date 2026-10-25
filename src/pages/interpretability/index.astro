@@ -1,0 +1,252 @@
+---
+// Interpretability module intro: sets the scene before chapter 1. Static, except the warm-up and a small script that
+// marks finished chapters. Every example is the course's own data: chapter 2's pinned prompt run through Larkspur mini at
+// build time (read from disk, the same weights the chapters load), with and without the word-start head, the held-out
+// counts computed the same way, and claims quoted from data/interpretability/facts.json.
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import Meta from '../../components/Meta.astro';
+import IsoStage from '../../lib/iso/IsoStage';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import { FUSE_BOARD, fuseLabel, fuseScene, type FuseOpts } from '../../components/scenes/fuseScene';
+import { pieceLabel } from '../../components/scenes/attentionMap';
+import { BITE, FUSES, fuseName, headLoss, nextTop, NEURONS, kindOf } from '../../lib/interpretability/probe';
+import { diskModel } from '../../lib/transformers/diskModel';
+import { decode, encode } from '../../lib/lm/bpe';
+import { forward } from '../../lib/lm/model';
+import { fact } from '../../lib/interpretability/facts';
+import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { introMeta } from '../../lib/pages';
+import { longDate } from '../../lib/format';
+
+const MODULE = moduleOf('interpretability');
+const CHAPTERS = MODULE.chapters;
+const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
+const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const m = diskModel();
+const run = forward(m, encode(BITE.text));
+const room = (o: Partial<FuseOpts> = {}): FuseOpts => ({
+  tokens: run.ids.map(i => decode([i])),
+  attention: run.attention,
+  scale: 1.7,
+  ...o,
+});
+const HERO = room({ pulled: [BITE.fuse] });
+const BEFORE = nextTop(m, BITE.text),
+  AFTER = nextTop(m, BITE.text, [BITE.fuse]);
+const IDEAS: [string, string, ReturnType<typeof fact>, FuseOpts][] = [
+  [
+    'Looking isn’t proof',
+    'An attention map shows where a head looked',
+    fact('attention-not-explanation'),
+    room({ threads: true }),
+  ],
+  [
+    'Copy an activation across',
+    'Find where a word’s effect travels inside the run',
+    fact('rome'),
+    room({ pulled: [BITE.fuse] }),
+  ],
+  [
+    'Read the guess forming',
+    'Read each block’s guess through the model’s last step',
+    fact('logit-lens'),
+    room({ layer: 1 }),
+  ],
+  ['Push it', 'Add a direction and the model drifts', fact('actadd'), room({ pulled: ['mlp1'], layer: 1, head: 1 })],
+];
+const WORD = headLoss(m, BITE.fuse);
+const ALL = NEURONS.layers.flat();
+const MIXED = ALL.filter(f => new Set(f.map(x => kindOf(x.piece))).size >= 2).length;
+const FACTS: [string, string][] = [
+  [String(FUSES.length), 'fuses: one per head, one per MLP'],
+  [`${Math.round((WORD.lost / WORD.right) * 100)}%`, `of right top-5 guesses lost with ${fuseName(BITE.fuse)} pulled`],
+  [`${MIXED} of ${ALL.length}`, 'neurons fire on unrelated kinds of token'],
+  ['0', 'weights changed by anything you do here'],
+];
+---
+<html lang="en">
+  <head>
+    <Meta {...introMeta(MODULE.id)} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module {NUMBER} · Interpretability</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS.map((p, i) => <>{i > 0 && ', '}<a href={`/${p.id}/`}>{p.title}</a></>)} recommended · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+          <h1>Why did the model say that?</h1>
+          <p class="lede">Looking inside a model isn’t enough to explain it. Here you test its parts: pull a fuse, read its guess as it forms, copy an activation across, and push it off course.</p>
+          <div class="ctas">
+            <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+          <ReadingMode />
+        </div>
+        <div class="hero-pic">
+          {/* the fuse box every chapter plays in, the word-start head's fuse pulled */}
+          <IsoStage board={FUSE_BOARD} scene={fuseScene(HERO)} label={fuseLabel(HERO)} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="idea">
+        <p class="kicker">The whole idea in one example</p>
+        <h2 id="idea">Pull one fuse and the guess changes</h2>
+        <div class="versus">
+          {[['All fuses in', BEFORE], [`${fuseName(BITE.fuse)} pulled`, AFTER]].map(([title, top]) => (
+            <article class="reply">
+              <header><h3>{title as string}</h3></header>
+              <p class="said">“{BITE.text} …”</p>
+              <ol class="bar" aria-label={`Top 5 next pieces, ${title}`}>
+                {(top as typeof BEFORE).map(c => (
+                  <li data-top={c.text === BITE.expected || undefined}>
+                    <span class="tok">{pieceLabel(c.text)}</span>
+                    <span class="fill" style={`width:${Math.max(6, Math.round((c.p / (top as typeof BEFORE)[0].p) * 100))}%`}></span>
+                    <span class="p">{c.p.toFixed(2)}</span>
+                  </li>
+                ))}
+              </ol>
+            </article>
+          ))}
+        </div>
+        <p class="cap">“{BITE.expected.trim()}” drops out of the top 5. Larkspur mini’s numbers, computed from its real weights.</p>
+        <p class="note more">This prompt is one of the few where one head matters that much. Over all of Larkspur’s held-out text, the same fuse costs {WORD.lost} of {WORD.right} right top-5 guesses: each head does a little, and the work is spread out. Finding that out, by experiment rather than by looking, is the module.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Four ways in</h2>
+        <ol class="steps">
+          {IDEAS.map(([name, short, f, pic], i) => (
+            <li>
+              <div class="pic"><IsoStage board={FUSE_BOARD} scene={fuseScene(pic)} label={fuseLabel(pic)} /></div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              <p class="more">{f.claim}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">Larkspur asks why</h2>
+          <p class="more">{MODULE.story} <strong>You’re on the team that has to answer the reviewer.</strong></p>
+          <p class="prev">Played <a href="/transformers/">Transformers</a>? This is the same Larkspur mini and the same engine room, now with a fuse box.</p>
+        </div>
+        <dl class="facts">
+          {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}
+        </dl>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due (R13); the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <ul class="who-chips"><li>Engineers</li><li>Product managers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Engineers, product managers and analysts who hear “we looked inside the model” and want to know what that can and can’t show. It builds on Transformer architecture; any maths is optional.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com" target="_blank" rel="noopener">Kondasamy Jayaraman</a>. Larkspur mini’s training follows <a href="https://github.com/karpathy/nanoGPT">nanoGPT</a> by Andrej Karpathy (MIT).</p>
+        <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, whose hand-inked isometric style and engine this course is built on. Colorfigures grew from April’s <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed. Thank you.</p>
+      </footer>
+    </main>
+
+    <script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      const CHAPTERS = moduleOf('interpretability').chapters;
+      const done = completed('interpretability');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('interpretability', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .module-meta a { color: var(--ink); }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .said { font-size: 17px; font-weight: 700; overflow-wrap: anywhere; }
+  .bar { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .bar li { display: grid; grid-template-columns: 7em minmax(0, 1fr) 3em; align-items: center; gap: 8px; font-size: 14px; }
+  .bar .tok { font-family: ui-monospace, Menlo, monospace; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar .fill { display: block; height: 12px; box-sizing: border-box; border: 1.5px solid var(--ink); border-radius: 4px; background: var(--card); }
+  .bar li[data-top] .fill { background: var(--acc); }
+  .bar .p { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 220px; display: flex; justify-content: center; margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: auto !important; height: 100% !important; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .prev { font-size: 14px; color: var(--muted); }
+  .prev a { color: var(--ink); }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
+
+  .pair { display: grid; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+  }
+</style>

@@ -1,0 +1,65 @@
+{
+  "accessed": "2026-10-24",
+  "facts": [
+    {
+      "id": "cap",
+      "claim": "Gilbert and Lynch (2002) proved that when the network can lose messages, no read/write data store can guarantee both availability and atomic consistency: the CAP theorem.",
+      "source": "https://www.comp.nus.edu.sg/~gilbert/pubs/BrewersConjecture-SigAct.pdf"
+    },
+    {
+      "id": "cap-available",
+      "claim": "In Gilbert and Lynch’s proof, available means every request received by a node that has not failed must get a response.",
+      "source": "https://www.comp.nus.edu.sg/~gilbert/pubs/BrewersConjecture-SigAct.pdf"
+    },
+    {
+      "id": "cap-partition",
+      "claim": "Gilbert and Lynch model a partition as a network allowed to lose any number of messages; across a partition, every message is lost.",
+      "source": "https://www.comp.nus.edu.sg/~gilbert/pubs/BrewersConjecture-SigAct.pdf"
+    },
+    {
+      "id": "dynamo-quorum",
+      "claim": "Amazon’s Dynamo paper (2007): R is the fewest replicas a read must reach and W the fewest a write must reach; setting R + W > N gives a quorum-like system.",
+      "source": "https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf"
+    },
+    {
+      "id": "dynamo-322",
+      "claim": "The Dynamo paper reports that the common (N, R, W) setting across several of its instances was (3, 2, 2).",
+      "source": "https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf"
+    },
+    {
+      "id": "dynamo-writeable",
+      "claim": "Dynamo was built to be “always writeable”: for Amazon, rejecting a customer’s update, such as a shopping cart change, was a poor experience.",
+      "source": "https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf"
+    },
+    {
+      "id": "dynamo-w",
+      "claim": "The Dynamo paper notes that raising W may increase the chance of rejecting requests, since more storage hosts must be alive to take a write.",
+      "source": "https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf"
+    },
+    {
+      "id": "lww",
+      "claim": "In the Dynamo paper, “last write wins” means that when versions diverge, the one with the largest timestamp is kept as the correct version.",
+      "source": "https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf"
+    },
+    {
+      "id": "eventual",
+      "claim": "Dynamo describes itself as an eventually consistent data store: all updates reach all replicas eventually.",
+      "source": "https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf"
+    },
+    {
+      "id": "linearizable",
+      "claim": "Jepsen: linearizability, one of the strongest consistency models, cannot stay available in a network partition; some or all nodes cannot make progress.",
+      "source": "https://jepsen.io/consistency/models/linearizable"
+    },
+    {
+      "id": "ryw",
+      "claim": "Jepsen: read your writes requires that a process’s later read sees its own write; it is sticky available, as long as each client keeps talking to the same server.",
+      "source": "https://jepsen.io/consistency/models/read-your-writes"
+    },
+    {
+      "id": "raft",
+      "claim": "Raft (Ongaro and Ousterhout) is a consensus algorithm for managing a replicated log; it elects a leader and copies its log to the other servers.",
+      "source": "https://raft.github.io/raft.pdf"
+    }
+  ]
+}
