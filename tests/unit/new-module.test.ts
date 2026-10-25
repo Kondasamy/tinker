@@ -27,7 +27,7 @@ describe('pnpm new-module', () => {
     expect(plan('demo', '').error).toMatch(/title/);
   });
 
-  it('fills the template and registers the module at the end of MODULES', () => {
+  it('fills the template and registers the module after the last live one, before the roadmap cards', () => {
     const { files, registry, error } = plan('zz-scaffold-check', "Bob's demo", REGISTRY);
     expect(error).toBeUndefined();
     const paths = files.map(([p]: [string]) => p).sort();
@@ -46,12 +46,12 @@ describe('pnpm new-module', () => {
       "export const ZZ_SCAFFOLD_CHECK_MODULE: Module = {\n  id: 'zz-scaffold-check',\n  title: 'Bob’s demo',",
     );
     expect(registry).toContain("import { ZZ_SCAFFOLD_CHECK_MODULE } from '../content/zz-scaffold-check/module';");
-    expect(registry).toMatch(/\n {2}planned\('transformers'.*\n {2}ZZ_SCAFFOLD_CHECK_MODULE,\n\];/);
+    expect(registry).toContain("  RAG_MODULE,\n  ZZ_SCAFFOLD_CHECK_MODULE,\n  planned('tokens'");
   });
 
-  it('turns a planned module live at the end, removing its planned card: live modules keep their numbers', () => {
+  it('turns a planned module live after the live ones, removing its planned card: live modules keep their numbers', () => {
     const { registry } = plan('demo-live', 'Demo', REGISTRY.replace("planned('tokens'", "planned('demo-live'"));
-    expect(registry).toMatch(/\n {2}planned\('transformers'.*\n {2}DEMO_LIVE_MODULE,\n\];/);
+    expect(registry).toContain("  RAG_MODULE,\n  DEMO_LIVE_MODULE,\n  planned('transformers'");
     expect(registry).not.toContain("planned('demo-live'");
   });
 
@@ -60,6 +60,18 @@ describe('pnpm new-module', () => {
     const { registry, error } = plan('zz-fresh-check', 'Fresh');
     expect(error).toBeUndefined();
     expect(live(registry!)).toEqual([...live(real), 'ZZ_FRESH_CHECK_MODULE']);
+  });
+
+  // Biome writes each planned() card one argument per line
+  it('on the real registry, takes a multi-line planned card live right after the last live module', () => {
+    const real = readFileSync('src/lib/modules.ts', 'utf8');
+    expect(real).toMatch(/^ {2}planned\(\n {4}'queues',$/m);
+    const { registry, error } = plan('queues', 'Queues and background jobs');
+    expect(error).toBeUndefined();
+    expect(registry).not.toMatch(/'queues',/);
+    expect(registry).toContain('  DIFFUSION_LLMS_MODULE,\n  QUEUES_MODULE,\n  planned(\n');
+    expect(live(registry!)).toEqual([...live(real), 'QUEUES_MODULE']);
+    expect(registry!.split('planned(').length).toBe(real.split('planned(').length - 1);
   });
 
   it('registers the module at the end of MODULES when no planned() card exists, and refuses when it cannot', () => {

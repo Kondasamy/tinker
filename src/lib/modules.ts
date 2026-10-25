@@ -167,6 +167,52 @@ export const MODULES: Module[] = [
     'Spreading requests over many servers: round robin, the least busy, health checks, and the one slow server.',
     'Classic tech',
   ),
+  planned(
+    'memorisation',
+    'What a model remembers',
+    'Intermediate',
+    'What a model keeps from its training text: memorised lines, how they leak back out, and keeping private data out.',
+  ),
+  planned(
+    'video-models',
+    'Video and world models',
+    'Advanced',
+    'Models that make moving pictures: frames that agree over time, and models that guess what a world does next.',
+  ),
+  planned(
+    'recommendations',
+    'Recommendations',
+    'Intermediate',
+    'Why the shop shows you this drill: what you and people like you bought, ranked, and the loop it feeds.',
+  ),
+  planned(
+    'logins',
+    'Logins and passwords',
+    'Beginner',
+    'How a site knows it is you: hashed and salted passwords, a session cookie, and signing in with another site.',
+    'Classic tech',
+  ),
+  planned(
+    'email',
+    'How email arrives',
+    'Beginner',
+    'How a message crosses the internet: mail servers that pass it on, SPF and DKIM that vouch for it, and spam.',
+    'Classic tech',
+  ),
+  planned(
+    'dependencies',
+    'Dependencies',
+    'Intermediate',
+    'Code you did not write: a package manager, version ranges, the lockfile, and one package that breaks the rest.',
+    'Classic tech',
+  ),
+  planned(
+    'releases',
+    'Shipping a release',
+    'Intermediate',
+    'How new code reaches everyone: tests on every change, a canary first, feature flags, and a rollback.',
+    'Classic tech',
+  ),
 ];
 
 export function moduleOf(id: string): Module {

@@ -309,13 +309,6 @@ test('the finder finds Opening a web page by a topic', async ({ page }) => {
 // the roadmap (R16): the seven cards the roadmap plan takes live, then the seven new ones, in registry (build) order;
 // live cards are numbered 1 to n, the roadmap cards still planned keep that order, and the open plots invite a build
 const ROADMAP = [
-  'diffusion-llms',
-  'computer-use',
-  'calibration',
-  'search',
-  'web-requests',
-  'payments',
-  'git',
   'mixture-of-experts',
   'coding-agents',
   'synthetic-data',
@@ -323,6 +316,13 @@ const ROADMAP = [
   'encryption',
   'compression',
   'load-balancing',
+  'memorisation',
+  'video-models',
+  'recommendations',
+  'logins',
+  'email',
+  'dependencies',
+  'releases',
 ];
 test('live cards numbered from 1, the roadmap cards in order, and the empty plots invite a build', async ({ page }) => {
   await page.goto('/');
