@@ -27,6 +27,7 @@ import { DIFFUSION_MODULE } from '../content/diffusion/module';
 import { SEARCH_MODULE } from '../content/search/module';
 import { WEB_REQUESTS_MODULE } from '../content/web-requests/module';
 import { PAYMENTS_MODULE } from '../content/payments/module';
+import { GIT_MODULE } from '../content/git/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -113,6 +114,7 @@ export const MODULES: Module[] = [
   SEARCH_MODULE,
   WEB_REQUESTS_MODULE,
   PAYMENTS_MODULE,
+  GIT_MODULE,
   planned(
     'diffusion-llms',
     'Diffusion language models',
@@ -130,13 +132,6 @@ export const MODULES: Module[] = [
     'Calibration',
     'Intermediate',
     'When a model says 70%, is it right 70% of the time? Confidence, measured, and when to abstain.',
-  ),
-  planned(
-    'git',
-    'Git',
-    'Beginner',
-    'How Git stores history: snapshots named by their content, branches as pointers, and merges that clash.',
-    'Classic tech',
   ),
   planned(
     'mixture-of-experts',

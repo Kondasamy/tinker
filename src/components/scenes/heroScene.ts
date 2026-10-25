@@ -49,6 +49,7 @@ import { darkroomPlot } from './darkroomScene';
 import { cabinetPlot } from './cabinetScene';
 import { townPlot } from './townScene';
 import { tubePlot } from './tubeScene';
+import { cratePlot } from './crateScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
@@ -272,6 +273,7 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   search: (x, y, { top }) => cabinetPlot(x + 14, y - 2, top),
   'web-requests': (x, y, { top }) => townPlot(x + 4, y - 2, top),
   payments: (x, y, { top }) => tubePlot(x + 14, y - 2, top),
+  git: (x, y, { top }) => cratePlot(x + 14, y - 2, top),
 };
 const LIVE = MODULES.filter(m => m.status === 'live'),
   PLANNED = MODULES.filter(m => m.status === 'planned');

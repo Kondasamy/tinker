@@ -188,6 +188,18 @@ import {
 } from '../content/diffusion/04-copy-or-create';
 import { STEPS_5 as DF_STEPS_5 } from '../content/diffusion/05-steer-with-a-label';
 import { STEPS_6 as DF_STEPS_6 } from '../content/diffusion/06-why-it-costs';
+import { boardOf as gtBoardOf, crateScene, yardOf, type CrateOpts } from '../components/scenes/crateScene';
+import { packingOf as gtPackingOf } from '../content/git/kit';
+import {
+  EDITED as GT_EDITED,
+  SAVED as GT_SAVED,
+  CLEAN as GIT_CLEAN,
+  REBASED as GIT_REBASED,
+  REWORDED as GIT_REWORDED,
+  SALE as GIT_SALE,
+  conflictMerge as gtConflictMerge,
+} from '../lib/git/story';
+import { WINNERS as GIT_WINNERS, runPlan as gtRunPlan } from '../lib/git/workbench';
 import { MOMENTS, TICKS, runOf as cacheRun } from '../lib/caching/sim';
 import { WINNERS as CACHE_WINNERS } from '../lib/caching/workbench';
 import { oneTrip } from '../content/caching/01-far-is-slow';
@@ -869,7 +881,7 @@ const STOCK_OG: Record<string, () => Omit<StockOpts, 'scale'>> = {
   'consistency-07-stock-policy': () => stockAt(csRun(CS_WINNERS[0]), CS_M.westSells),
 };
 const stockOg = STOCK_OG[page.og]?.();
-// module 26: the tube exchange. The intro and 7: the first night under the first winning policy, the convoy and the
+// module 28: the tube exchange. The intro and 7: the first night under the first winning policy, the convoy and the
 // jars; 1: Ana's request reaching the issuer; 2: Mona's yes, her basket held; 3: the first night's settlement; 4: Ben
 // charged twice without the key; 5: the small orders challenged; 6: Noor's chargeback riding back.
 const PM_REF: PmSetting = { sca: 'risk', capture: 'shipment', key: true },
@@ -987,7 +999,7 @@ const SX_OG: Record<string, () => Omit<CabinetOpts, 'scale'>> = {
   'search-07-tune-the-search-box': () => cabinetAt(sxQuery(SX_PINNED.meaning.part).text, SX),
 };
 const sxOg = SX_OG[page.og]?.();
-// module 26: the post town as each chapter turns. The intro and 7: Wen's page on the first winning settings; 1: Ines's
+// module 27: the post town as each chapter turns. The intro and 7: Wen's page on the first winning settings; 1: Ines's
 // first lookup, every office asked; 2: Tomas's answer remembered; 3: Wen's TCP handshake; 4: Wen's lost packet in the
 // ditch; 5: Tomas resumed, the seal office lit; 6: Wen's HTTP/2 waterfall, every file held back.
 const webTcp = () => {
@@ -1009,6 +1021,21 @@ const TOWN_OG: Record<string, () => Omit<TownOpts, 'scale'>> = {
 const townOg = TOWN_OG[page.og]?.();
 const webFallOg =
   page.og === 'web-requests-06-one-line-many-files' ? webRun('wen', { http: '2', loss: true, ttl: 60 }) : undefined;
+// module 29: the crate yard. The intro and 4: the sale merged into main, the merge base marked; 1: the page re-stamped
+// after one price changed; 2: every crate re-stamped after the first message is reworded; 3: the sale branch with its
+// commit and HEAD; 5: the conflict crate; 6: shelf rebased, the old crates left behind; 7: the first winning plan.
+const gtConflict = gtConflictMerge('theirs').repo;
+const CRATE_OG: Record<string, () => Omit<CrateOpts, 'scale'>> = {
+  git: () => yardOf(GIT_CLEAN.repo, { base: GIT_CLEAN.base, lit: [GIT_CLEAN.repo.refs.main] }),
+  'git-01-named-by-contents': () => ({ crates: [], flags: [], packing: gtPackingOf(GT_SAVED, GT_EDITED) }),
+  'git-02-a-chain-of-snapshots': () => yardOf(GIT_REWORDED, { lit: GIT_REWORDED.order }),
+  'git-03-a-branch-is-a-label': () => yardOf(GIT_SALE, { lit: [GIT_SALE.refs.sale] }),
+  'git-04-three-way-merge': () => yardOf(GIT_CLEAN.repo, { base: GIT_CLEAN.base, lit: [GIT_CLEAN.repo.refs.main] }),
+  'git-05-both-changed-it': () => yardOf(gtConflict, { conflict: gtConflict.refs.main }),
+  'git-06-rewriting-history': () => yardOf(GIT_REBASED.repo, { lit: GIT_REBASED.rewritten.map(([, n]) => n) }),
+  'git-07-bring-them-in': () => yardOf(gtRunPlan(GIT_WINNERS[0]).repo, { ghosts: false }),
+};
+const crateOg = CRATE_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1083,7 +1110,8 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : townOg ? <IsoStage board={TOWN_BOARD} scene={townScene({ ...townOg, scale: 1.3 })} label="" />
           : webFallOg ? <div class="tf-og ob-og"><WaterfallView run={webFallOg} /></div>
           : darkOg ? <IsoStage board={DARK_BOARD} scene={darkroomScene({ ...darkOg, scale: 1.3 })} label="" />
-          : dfStripSrc ? <div class="mm-og"><img src={dfStripSrc} alt="" /></div>
+          : crateOg ? <IsoStage board={gtBoardOf(crateOg)} scene={crateScene({ ...crateOg, scale: 1.4 })} label="" />
+          : dfStripSrc ?<div class="mm-og"><img src={dfStripSrc} alt="" /></div>
           : abChartOg ? <div class="tf-og ab-og"><ResultView chart={abChartOg} /></div>
           : depotOgs ? <div class={depotOgs.length > 1 ? 'duo' : ''}>{depotOgs.map(o => <IsoStage board={DEPOT_BOARD} scene={depotScene({ ...o, scale: 1.3 })} label="" />)}</div>
           : lensOg ? <div class="tf-og"><Flat fig={lensOg} role="img" label="" /></div>
