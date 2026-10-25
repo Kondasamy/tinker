@@ -1,0 +1,92 @@
+---
+// Dev-only eyeball page: the forecaster's booth in each state (static SVG, wide and phone) for both models' measured
+// bins, the answer set, a hand-over line and the dial; the hero plot; the reliability diagram; then the stage live on
+// its Diagram tab. Below 600px the phone versions show.
+import { readFileSync } from 'node:fs';
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { JAR_BOARD, jarLabel, jarPlot, jarScene, type JarOpts } from '../components/scenes/jarScene';
+import { reliabilityChart } from '../components/scenes/reliabilityChart';
+import { parseModel, type Meta } from '../lib/lm/load';
+import { TEMPERATURES, half, measure, report } from '../lib/calibration/measure';
+import { MIN_ANSWERS, itemsOf } from '../lib/calibration/answers';
+import { bins, coverage } from '../lib/calibration/score';
+import { filterFor } from '../lib/iso/core.js';
+import { CalibrationStage } from '../content/calibration/kit';
+
+const disk = (f: string) => {
+  const b = readFileSync('public/data/lm/' + f);
+  return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer;
+};
+const meta = JSON.parse(readFileSync('public/data/lm/meta.json', 'utf8')) as Meta;
+const base = measure(parseModel(meta, disk('model.bin'))),
+  tuned = measure(parseModel(meta, disk('finetuned.bin')));
+const answers = bins(itemsOf(), MIN_ANSWERS);
+const STATES: [string, JarOpts][] = [
+  ['Empty booth', { jars: [] }],
+  ['Larkspur mini, every held-out guess', { jars: report(base).jars, drop: true }],
+  ['The style fine-tune', { jars: report(tuned).jars, slate: 'ECE 0.27' }],
+  ['Fine-tune, test half, T 1.5', { jars: report(half(tuned, 'test'), 1.5).jars, T: 1.5, temps: TEMPERATURES }],
+  ['Fine-tune, test half, T 3 (merged)', { jars: report(half(tuned, 'test'), 3).jars, T: 3, temps: TEMPERATURES }],
+  ['The answer set (stand-in)', { jars: answers }],
+  [
+    'Answer set, hand over below 80%',
+    { jars: answers, threshold: 0.8, handed: coverage(itemsOf(), 0.8).handed },
+  ],
+  ['Callout on the top jar', { jars: report(base).jars, say: { block: 'top', text: 'Sure and right' } }],
+];
+const chart = (phone: boolean) => {
+  const c = reliabilityChart(report(tuned).jars, phone);
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${c.w} ${c.h}"><defs>${filterFor(1, 'hand')}</defs><g filter="url(#hand)">${c.svg}</g></svg>`);
+};
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Calibration scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>The forecaster's booth: every state</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={JAR_BOARD} scene={jarScene({ ...o, scale: 1.25 })} label={jarLabel(o)} /></div>
+            <div class="phone"><IsoStage board={JAR_BOARD} scene={jarScene({ ...o, scale: 2 })} label={jarLabel(o)} /></div>
+            <p>{jarLabel(o)}</p>
+          </section>
+        ))}
+        <section>
+          <h2>Hero plot</h2>
+          <IsoStage board={[0, 0, 60, 60]} scene={({ top }) => jarPlot(30, 30, top)} label="The home hero's calibration plot" />
+        </section>
+      </div>
+      <h1>The reliability diagram (static)</h1>
+      <img class="wide strip" src={chart(false)} alt="The diagram, desktop" />
+      <img class="phone strip" src={chart(true)} alt="The diagram, phone" />
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Diagram tab</h2><div class="stage"><CalibrationStage client:load view="diagram" shown={{ booth: { jars: report(base).jars }, caption: '<script>alert(1)</script> escaped caption' }} /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(460px, 1fr)); gap: 16px; }
+  img.strip { width: 100%; max-width: 640px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 560px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>
