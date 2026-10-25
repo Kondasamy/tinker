@@ -132,6 +132,17 @@ import { BITE, FUSES, LENS, PATCH, STAGES as LENS_STAGES, STEER, lens } from '..
 import { BEHAVIOURS, WINNERS as IP_WINNERS } from '../lib/interpretability/workbench';
 import { DEPOT_BOARD, depotAt, depotScene, type DepotOpts } from '../components/scenes/depotScene';
 import { ARCHIVE_BOARD, archiveAt, archiveScene, levelsOf, type ArchiveOpts } from '../components/scenes/archiveScene';
+import {
+  CABINET_BOARD,
+  IDLE as SX_IDLE,
+  cabinetAt,
+  cabinetScene,
+  type CabinetOpts,
+} from '../components/scenes/cabinetScene';
+import SX_PINNED from '../../data/search/pinned.json';
+import { DEFAULT as SX, N as SX_N, queryOf as sxQuery, scan as sxScan } from '../lib/search/engine';
+import { RAW as SX_RAW } from '../lib/search/stem';
+import { CARDS as SX_CARDS, DRAWERS as SX_DRAWERS } from '../content/search/02-the-index';
 import { execute as dbExec, join as dbJoin, query as dbQuery } from '../lib/databases/planner';
 import { TABLE_PAGES, pageOf as dbPageOf } from '../lib/databases/table';
 import { READS as DB_READS, WINNERS as DB_WINNERS } from '../lib/databases/workbench';
@@ -929,6 +940,26 @@ const DARK_OG: Record<string, () => DarkroomOpts> = {
   },
 };
 const darkOg = DARK_OG[page.og]?.();
+// Search: the index cabinet as each chapter turns it
+const SX_OG: Record<string, () => Omit<CabinetOpts, 'scale'>> = {
+  search: () => cabinetAt(SX_PINNED.rare.query, { ...SX, weighting: 'tfidf' }),
+  'search-01-reading-every-page': () => ({
+    ...SX_IDLE,
+    query: SX_PINNED.scan.query,
+    read: SX_N,
+    found: sxScan(SX_PINNED.scan.query).found.length,
+  }),
+  'search-02-the-index': () => ({
+    words: SX_DRAWERS.length,
+    drawers: SX_DRAWERS.map((word, i) => ({ word, cards: i < SX_CARDS.length ? 1 : 0, out: true })),
+  }),
+  'search-03-rare-words-count-more': () => cabinetAt(SX_PINNED.rare.query, { ...SX, weighting: 'count' }),
+  'search-04-long-pages-and-repeats': () => cabinetAt(SX_PINNED.repeats.query, SX),
+  'search-05-cleaning-words': () => cabinetAt(SX_PINNED.clean.query, { ...SX, clean: SX_RAW }),
+  'search-06-words-vs-meaning': () => cabinetAt(sxQuery(SX_PINNED.meaning.words).text, SX),
+  'search-07-tune-the-search-box': () => cabinetAt(sxQuery(SX_PINNED.meaning.part).text, SX),
+};
+const sxOg = SX_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -998,6 +1029,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : dbOg ? <IsoStage board={ARCHIVE_BOARD} scene={archiveScene({ ...dbOg, scale: 1.3 })} label="" />
           : stockOg ? <IsoStage board={STOCK_BOARD} scene={stockScene({ ...stockOg, scale: 1.4 })} label="" />
           : splitOg ? <IsoStage board={SPLIT_BOARD} scene={splitScene({ ...splitOg, scale: 1.3 })} label="" />
+          : sxOg ? <IsoStage board={CABINET_BOARD} scene={cabinetScene({ ...sxOg, scale: 1.3 })} label="" />
           : darkOg ? <IsoStage board={DARK_BOARD} scene={darkroomScene({ ...darkOg, scale: 1.3 })} label="" />
           : dfStripSrc ? <div class="mm-og"><img src={dfStripSrc} alt="" /></div>
           : abChartOg ? <div class="tf-og ab-og"><ResultView chart={abChartOg} /></div>

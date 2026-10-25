@@ -24,6 +24,7 @@ import { DATABASES_MODULE } from '../content/databases/module';
 import { CONSISTENCY_MODULE } from '../content/consistency/module';
 import { AB_TESTING_MODULE } from '../content/ab-testing/module';
 import { DIFFUSION_MODULE } from '../content/diffusion/module';
+import { SEARCH_MODULE } from '../content/search/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -107,6 +108,7 @@ export const MODULES: Module[] = [
   CONSISTENCY_MODULE,
   AB_TESTING_MODULE,
   DIFFUSION_MODULE,
+  SEARCH_MODULE,
   planned(
     'diffusion-llms',
     'Diffusion language models',
@@ -124,13 +126,6 @@ export const MODULES: Module[] = [
     'Calibration',
     'Intermediate',
     'When a model says 70%, is it right 70% of the time? Confidence, measured, and when to abstain.',
-  ),
-  planned(
-    'search',
-    'Search before AI',
-    'Beginner',
-    'How keyword search finds a page: an index from words to documents, ranking, and where it misses meaning.',
-    'Classic tech',
   ),
   planned(
     'web-requests',

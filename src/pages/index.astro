@@ -73,6 +73,14 @@ import { SPLIT_BOARD, splitAt, splitLabel, splitScene } from '../components/scen
 import { SCENARIOS as AB_SCENARIOS, runOf as abRun } from '../lib/ab-testing/sim';
 import { DARK_BOARD, darkroomLabel, darkroomScene, type DarkroomOpts } from '../components/scenes/darkroomScene';
 import { sampleDrawing } from '../lib/diffusion/ideal';
+import {
+  CABINET_BOARD,
+  cabinetAt,
+  cabinetLabel,
+  cabinetScene,
+  type CabinetOpts,
+} from '../components/scenes/cabinetScene';
+import { DEFAULT as SX_DEFAULT } from '../lib/search/engine';
 
 const one =
   (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) =>
@@ -228,6 +236,8 @@ const DARK: DarkroomOpts = {
   guidance: 4,
   scale: 1.7,
 };
+// "Larkspur forklift", weighed by rarity: the forklift page tops the podium
+const CABINET: CabinetOpts = { ...cabinetAt('Larkspur forklift', { ...SX_DEFAULT, weighting: 'tfidf' }), scale: 1.7 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -543,6 +553,21 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Guidance',
       'Latent & few-step models',
       'Steps per use',
+    ],
+  },
+  search: {
+    name: 'Search before AI',
+    iso: { board: CABINET_BOARD, scene: cabinetScene(CABINET), label: cabinetLabel(CABINET) },
+    topics: [
+      'Scans',
+      'Inverted index',
+      'Postings',
+      'tf-idf & rarity',
+      'BM25',
+      'Stemming & stop words',
+      'Keyword vs semantic search',
+      'Hybrid search',
+      'Precision & recall',
     ],
   },
 };
