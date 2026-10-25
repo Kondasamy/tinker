@@ -198,7 +198,8 @@ export function run(rec: Recording, setup: Partial<Setup> & { case: string }): R
     let outcome: Outcome = el ? 'ok' : 'miss';
     if (el?.to && s.allow && !ALLOW.includes(viewOf({ ...p, screen: el.to }, plants).host)) outcome = 'refused';
     // the person approves only the order the task asked for
-    if (el?.pay && s.confirm) outcome = el.pay === 'order' && sameLines(p.lines, task.expect) ? 'ok' : 'denied';
+    if (el?.pay && s.confirm && outcome === 'ok')
+      outcome = el.pay === 'order' && sameLines(p.lines, task.expect) ? 'ok' : 'denied';
     steps.push({ kind: 'click', at: t.click, real, el, outcome, text: t.text, view });
     hist.push(`click:${el?.id ?? 'nothing'}:${outcome}`);
 
