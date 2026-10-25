@@ -90,7 +90,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['notes', 'quiz'],
+    visibleControls: ['charges', 'notes', 'quiz'],
     narration: 'Same retry, one charge. Without the key, Ben disputes the second and Larkspur pays a fee.',
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,

@@ -132,42 +132,45 @@ function BenchControls({ s, set }: { s: S; set: (s: S) => void }) {
           <p className="note pm-note">{REASONS[k]}</p>
         </section>
       ))}
-      <table className="tc-ledger">
-        <caption>{`Each kind of order over ${DAYS} days`}</caption>
-        <thead>
-          <tr>
-            <th scope="col">Orders</th>
-            <th scope="col">Paid</th>
-            <th scope="col">Lost sales</th>
-            <th scope="col">Charged twice</th>
-            <th scope="col">Fraud loss</th>
-            <th scope="col">Kept</th>
-          </tr>
-        </thead>
-        <tbody>
-          {KINDS.map(k => {
-            const x = row(k);
-            return (
-              <tr key={k} data-kind={k}>
-                <th scope="row">{KIND_NAME[k]}</th>
-                <td>{x.paid}</td>
-                <td>{x.lost}</td>
-                <td className={x.twice ? 'bad' : 'ok'}>{x.twice}</td>
-                <td>{eur(x.fraud)}</td>
-                <td>{eur(x.kept)}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-        <tfoot>
-          <tr>
-            <th scope="row">All</th>
-            <td colSpan={3} />
-            <td className={r.fraudLoss.merchant > FRAUD_LIMIT ? 'bad' : ''}>{eur(r.fraudLoss.merchant)}</td>
-            <td>{eur(r.net)}</td>
-          </tr>
-        </tfoot>
-      </table>
+      {/* a focusable scroll region, so a phone can read the whole table by keyboard */}
+      <div className="pm-scroll" role="region" aria-label="Results by kind of order" tabIndex={0}>
+        <table className="tc-ledger">
+          <caption>{`Each kind of order over ${DAYS} days`}</caption>
+          <thead>
+            <tr>
+              <th scope="col">Orders</th>
+              <th scope="col">Paid</th>
+              <th scope="col">Lost</th>
+              <th scope="col">Twice</th>
+              <th scope="col">Fraud</th>
+              <th scope="col">Kept</th>
+            </tr>
+          </thead>
+          <tbody>
+            {KINDS.map(k => {
+              const x = row(k);
+              return (
+                <tr key={k} data-kind={k}>
+                  <th scope="row">{KIND_NAME[k]}</th>
+                  <td>{x.paid}</td>
+                  <td>{x.lost}</td>
+                  <td className={x.twice ? 'bad' : 'ok'}>{x.twice}</td>
+                  <td>{eur(x.fraud)}</td>
+                  <td>{eur(x.kept)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+          <tfoot>
+            <tr>
+              <th scope="row">All</th>
+              <td colSpan={3} />
+              <td className={r.fraudLoss.merchant > FRAUD_LIMIT ? 'bad' : ''}>{eur(r.fraudLoss.merchant)}</td>
+              <td>{eur(r.net)}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
       <Assumed k="abandon" />
       <SimNote />
     </div>

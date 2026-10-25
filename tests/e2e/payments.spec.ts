@@ -154,11 +154,14 @@ test.describe('reduced motion', () => {
         )
         .toBe(0);
     };
-    await walkAll(paymentsWalker(page, 'mouse', still));
-    await page.goto(`/payments/${CH3}/`);
-    await page.locator('astro-island:not([ssr])').waitFor();
+    await paymentsWalker(page, 'mouse').open(CH3);
     await card(page).getByRole('slider', { name: /^Time/ }).fill('1');
-    expect(await page.locator('.pm-stage .tc-frame').evaluate(e => getComputedStyle(e).transitionDuration)).toBe('0s');
+    await expect(page.locator('.pm-stage')).toHaveAttribute('data-night', '1');
+    // no fade: the site's reduced-motion reset leaves at most a 0.00001s transition
+    const fade = await page.locator('.pm-stage .tc-frame').evaluate(e => getComputedStyle(e).transitionDuration);
+    expect(Number.parseFloat(fade)).toBeLessThan(0.01);
+    await page.evaluate(() => localStorage.removeItem('payments-progress-v1'));
+    await walkAll(paymentsWalker(page, 'mouse', still));
   });
 });
 
