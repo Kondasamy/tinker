@@ -1550,5 +1550,48 @@
       "bench",
       "ties"
     ]
+  },
+  "compression": {
+    "01-counting-the-bytes": [
+      "predict",
+      "sort",
+      "picture",
+      "quiz"
+    ],
+    "02-point-back": [
+      "predict",
+      "point",
+      "pack",
+      "quiz"
+    ],
+    "03-short-codes": [
+      "predict",
+      "merge",
+      "tree",
+      "quiz"
+    ],
+    "04-both-at-once": [
+      "predict",
+      "try",
+      "gzip",
+      "quiz"
+    ],
+    "05-already-squeezed": [
+      "predict",
+      "pack",
+      "twice",
+      "quiz"
+    ],
+    "06-throwing-some-away": [
+      "predict",
+      "shades",
+      "look",
+      "budget",
+      "quiz"
+    ],
+    "07-pack-the-send": [
+      "bench",
+      "ties"
+    ]
   }
 }

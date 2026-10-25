@@ -54,6 +54,7 @@ import { jarPlot } from './jarScene';
 import { puppetPlot } from './puppetScene';
 import { typeFramePlot } from './typeFrameScene';
 import { railPlot } from './railScene';
+import { pilePlot } from './pileScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
@@ -282,6 +283,7 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   'computer-use': (x, y, { top }) => puppetPlot(x + 14, y - 2, top),
   'diffusion-llms': (x, y, { top }) => typeFramePlot(x + 12, y - 2, top),
   queues: (x, y, { top }) => railPlot(x + 14, y - 2, top),
+  compression: (x, y, { top }) => pilePlot(x + 14, y - 2, top),
 };
 const LIVE = MODULES.filter(m => m.status === 'live'),
   PLANNED = MODULES.filter(m => m.status === 'planned');

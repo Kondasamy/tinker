@@ -250,6 +250,18 @@ import {
   runOf as quRun,
 } from '../lib/queues/sim';
 import { WINNERS as QU_WINNERS, benchRun as quBench } from '../lib/queues/workbench';
+import { PILE_BOARD, pileAt, pileScene, pilesOf, type PileOpts } from '../components/scenes/pileScene';
+import { forestOf as czForestOf, forestTable as czForestTable } from '../content/compression/kit';
+import { FITS as CZ_FITS } from '../content/compression/06-throwing-some-away';
+import { sizeOf as czSize } from '../lib/compression/coders';
+import {
+  FILES as CZ_FILES,
+  PICTURE as CZ_PICTURE,
+  PUZZLE as CZ_PUZZLE,
+  fileOf as czFile,
+} from '../lib/compression/files';
+import { lossOf as czLoss } from '../lib/compression/lossy';
+import { WINNERS as CZ_WINNERS, runPlan as czRunPlan } from '../lib/compression/workbench';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -1190,6 +1202,39 @@ const RAIL_OG: Record<string, () => Omit<RailOpts, 'scale'>> = {
   'queues-07-sale-day': () => railAt(quBench(QU_WINNERS[0]), 30),
 };
 const railOg = RAIL_OG[page.og]?.();
+// module 34: the sorting table. The intro and 4: the price list's piles, packed by pointers and short codes; 1: its
+// piles raw; 2: its parcel packed by pointers; 3: the merge puzzle's letter piles; 5: the random file packed, grown; 6: the
+// picture at the first setting that fits; 7: tonight's send on the first winning plan.
+const czPrice = czFile('price').bytes,
+  czRandom = czFile('random').bytes;
+const czPacked = () => pileAt(czPrice, czSize('pair', czPrice, 'price'));
+const PILE_OG: Record<string, () => Omit<PileOpts, 'scale'>> = {
+  compression: czPacked,
+  'compression-01-counting-the-bytes': () => pileAt(czPrice),
+  'compression-02-point-back': () => ({
+    piles: [],
+    parcel: { raw: czPrice.length, packed: czSize('lz77', czPrice, 'price') },
+  }),
+  'compression-03-short-codes': () => czForestTable(czForestOf(CZ_PUZZLE), false),
+  'compression-04-both-at-once': czPacked,
+  'compression-05-already-squeezed': () => pileAt(czRandom, czSize('pair', czRandom, 'random')),
+  'compression-06-throwing-some-away': () => {
+    const x = czLoss(CZ_PICTURE, CZ_FITS[0]);
+    return { piles: pilesOf(x.pic.rgb), parcel: { raw: czFile('picture').bytes.length, packed: x.size } };
+  },
+  'compression-07-pack-the-send': () => {
+    const r = czRunPlan(CZ_WINNERS[0]);
+    return {
+      piles: r.rows.map(row => ({
+        label: czFile(row.id).name.split('.')[0],
+        w: row.size,
+        kind: row.size > row.raw ? ('pointer' as const) : undefined,
+      })),
+      parcel: { raw: CZ_FILES.reduce((a, f) => a + f.bytes.length, 0), packed: r.total },
+    };
+  },
+};
+const pileOg = PILE_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1263,6 +1308,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : sxOg ? <IsoStage board={CABINET_BOARD} scene={cabinetScene({ ...sxOg, scale: 1.3 })} label="" />
           : townOg ? <IsoStage board={TOWN_BOARD} scene={townScene({ ...townOg, scale: 1.3 })} label="" />
           : webFallOg ? <div class="tf-og ob-og"><WaterfallView run={webFallOg} /></div>
+          : pileOg ? <IsoStage board={PILE_BOARD} scene={pileScene({ ...pileOg, scale: 1.4 })} label="" />
           : railOg ? <IsoStage board={RAIL_BOARD} scene={railScene({ ...railOg, scale: 1.4 })} label="" />
           : frameOg ? <IsoStage board={FRAME_BOARD} scene={typeFrameScene({ ...frameOg, scale: 1.3 })} label="" />
           : darkOg ? <IsoStage board={DARK_BOARD} scene={darkroomScene({ ...darkOg, scale: 1.3 })} label="" />

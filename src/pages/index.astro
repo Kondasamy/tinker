@@ -98,6 +98,9 @@ import { diskMlm } from '../lib/diffusion-llms/diskModel';
 import { phrase as dlPhrase } from '../lib/diffusion-llms/workbench';
 import { frameOf } from '../content/diffusion-llms/kit';
 import { RAIL_BOARD, railCard, railLabel, railScene } from '../components/scenes/railScene';
+import { PILE_BOARD, pileAt, pileLabel, pileScene } from '../components/scenes/pileScene';
+import { sizeOf as czSize } from '../lib/compression/coders';
+import { fileOf as czFile } from '../lib/compression/files';
 
 const one =
   (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) =>
@@ -274,6 +277,8 @@ const TYPE: FrameOpts = {
 };
 // queues: Rosa knocked over mid-job, her ticket held on the bench until the lease runs out
 const RAIL = railCard(1.7);
+// compression: the price list's byte piles, its parcel packed by pointers and short codes
+const PILES = { ...pileAt(czFile('price').bytes, czSize('pair', czFile('price').bytes, 'price')), scale: 1.7 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -697,6 +702,18 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'At-least-once',
       'Idempotent jobs',
       'Dead-letter queues',
+    ],
+  },
+  compression: {
+    name: 'Compression',
+    iso: { board: PILE_BOARD, scene: pileScene(PILES), label: pileLabel(PILES) },
+    topics: [
+      'Bytes & entropy',
+      'LZ77 pointers',
+      'Huffman codes',
+      'DEFLATE & gzip',
+      'Why random data won’t shrink',
+      'Lossy pictures',
     ],
   },
 };
