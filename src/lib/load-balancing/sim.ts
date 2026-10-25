@@ -204,12 +204,20 @@ export function simulate(p: Policy, requests: Request[] = REQUESTS): Result {
     working[job.server].add(j);
     at(t + reqs[job.req].work * (slow ? data.slowFactor : 1), 'done', j);
   };
+  /** a slot on server s comes free: the next queued copy starts */
+  const free = (s: number, t: number) => {
+    busy[s]--;
+    const q = queues[s].shift();
+    if (q !== undefined) start(q, t);
+  };
   const send = (r: number, s: number, copy: 0 | 1, t: number) => {
     const j = jobs.push({ req: r, server: s, copy, sentAt: t, endAt: Infinity, ok: false }) - 1;
     (copies.get(r) ?? copies.set(r, []).get(r)!).push(j);
     outstanding[s]++;
-    if (dead[s]) at(t + data.timeoutMs, 'timeout', j);
-    else if (busy[s] < SERVERS[s].slots) start(j, t);
+    // the customer gives up timeoutMs after asking, so every copy, a hedge included, shares the request's deadline
+    at(reqs[r].t + data.timeoutMs, 'timeout', j);
+    if (dead[s]) return;
+    if (busy[s] < SERVERS[s].slots) start(j, t);
     else queues[s].push(j);
   };
   const finish = (r: number, t: number, ok: boolean) => {
@@ -230,6 +238,8 @@ export function simulate(p: Policy, requests: Request[] = REQUESTS): Result {
   while (heap.size) {
     const e = heap.pop(),
       t = e.t;
+    // a give-up for a copy already over, or for a request another copy answered, is no event at all
+    if (e.kind === 'timeout' && (jobs[e.n].endAt < Infinity || served.get(jobs[e.n].req)!.end < Infinity)) continue;
     end = Math.max(end, t);
     if (e.kind === 'arrive') {
       const r = reqs[e.n],
@@ -248,18 +258,21 @@ export function simulate(p: Policy, requests: Request[] = REQUESTS): Result {
       s.hedged = true;
       send(e.n, pick(inRotation(t, s.server), outstanding), 1, t);
     } else if (e.kind === 'death') {
-      // everything on a dead server hangs until its customer gives up
+      // everything on a dead server hangs until its customer gives up (each copy's give-up is already set)
       dead[e.n] = true;
-      for (const j of [...working[e.n], ...queues[e.n]]) at(Math.max(t, jobs[j].sentAt + data.timeoutMs), 'timeout', j);
       working[e.n].clear();
       queues[e.n] = [];
     } else {
       const job = jobs[e.n];
       if (e.kind === 'done') {
-        if (!working[job.server].delete(e.n)) continue; // its server died while it worked
-        busy[job.server]--;
-        const q = queues[job.server].shift();
-        if (q !== undefined) start(q, t);
+        if (!working[job.server].delete(e.n)) continue; // its server died, or its customer gave up, while it worked
+        free(job.server, t);
+      } else {
+        if (working[job.server].delete(e.n)) free(job.server, t);
+        else {
+          const q = queues[job.server].indexOf(e.n);
+          if (q >= 0) queues[job.server].splice(q, 1);
+        }
       }
       outstanding[job.server]--;
       Object.assign(job, { endAt: t, ok: e.kind === 'done' });

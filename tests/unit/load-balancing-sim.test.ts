@@ -3,9 +3,18 @@
 import { describe, expect, it } from 'vitest';
 import pinned from '../../data/load-balancing/pinned.json' with { type: 'json' };
 import { percentile } from '../../src/lib/load-balancing/percentile';
-import { HEDGES, MISSES, PHASES, REQUESTS, SERVERS, policyOf, simulate } from '../../src/lib/load-balancing/sim';
+import {
+  ASSUMPTIONS,
+  HEDGES,
+  MISSES,
+  PHASES,
+  REQUESTS,
+  SERVERS,
+  policyOf,
+  simulate,
+} from '../../src/lib/load-balancing/sim';
 import { RULES } from '../../src/lib/load-balancing/rules';
-import { BENCHES, BEST, WINNERS, solve, wins } from '../../src/lib/load-balancing/workbench';
+import { BENCHES, BEST, WINNERS, benchPolicy, solve, wins } from '../../src/lib/load-balancing/workbench';
 
 const r4 = (x: number) => Math.round(x * 10000) / 10000;
 const ms = (x: number) => Math.round(x);
@@ -19,6 +28,7 @@ function pins() {
     shares: Object.fromEntries(RULES.map(rule => [rule, run({ rule, states: GRAY, checks: 2 }).shares.map(r4)])),
     ceiling: { morningP99: ms(ash(PHASES[0].toMs).p99), saleP50: ms(ash().p50), saleP99: ms(ash().p99) },
     slow: Object.fromEntries(RULES.map(rule => [rule, ms(run({ rule, states: { birch: 'slow' } }).p99)])),
+    slowFailed: Object.fromEntries(RULES.map(rule => [rule, run({ rule, states: { birch: 'slow' } }).failed])),
     dead: MISSES.map(checks => {
       const r = run({ states: { cedar: 'dead' }, checks });
       return { checks, failed: r.failed, pulledAt: r.pulledAt[2] === Infinity ? null : r.pulledAt[2] };
@@ -77,8 +87,11 @@ describe('the lessons (pinned)', () => {
   it('one server hits its ceiling in the sale', () => {
     expect(fresh.ceiling.saleP99).toBeGreaterThan(3 * fresh.ceiling.morningP99);
   });
-  it('round robin feeds a 5× slower server; counting waiting requests steers around it; two choices come close', () => {
-    expect(fresh.slow['round-robin']).toBeGreaterThan(5 * fresh.slow.least);
+  it('round robin feeds a 5× slower server till customers give up; counting waiting requests steers around it; two choices come close', () => {
+    expect(fresh.slowFailed['round-robin']).toBeGreaterThan(0);
+    expect(fresh.slowFailed.least).toBe(0);
+    expect(fresh.slowFailed.two).toBe(0);
+    expect(fresh.slow['round-robin']).toBeGreaterThan(3 * fresh.slow.least);
     expect(fresh.slow.two).toBeLessThanOrEqual(1.3 * fresh.slow.least);
   });
   it('a gray server passes health checks: round robin and weighted keep its share, waiting-count rules cut it', () => {
@@ -105,6 +118,33 @@ describe('the lessons (pinned)', () => {
     expect(mid.p99).toBeLessThan(off.p99 / 1.5);
     expect(mid.sent).toBeGreaterThan(off.sent);
     expect(early.sent - off.sent).toBeGreaterThan(3 * (mid.sent - off.sent));
+  });
+});
+
+describe('the give-up', () => {
+  it('no answered request took longer than the timeout, in any chapter run or workbench setup', () => {
+    const p = policyOf,
+      runs = [
+        ...RULES.flatMap(rule => [
+          p({ rule }),
+          p({ rule, states: { birch: 'slow' } }),
+          p({ rule, states: GRAY, checks: 2 }),
+        ]),
+        ...MISSES.flatMap(checks => [
+          p({ states: { cedar: 'dead' }, checks }),
+          p({ states: { cedar: 'dead', ...GRAY }, checks }),
+        ]),
+        p({ sticky: true }),
+        p({ sticky: true, states: { cedar: 'dead' }, checks: 2 }),
+        ...HEDGES.map(hedgeMs => p({ rule: 'least', states: GRAY, hedgeMs })),
+        p({ servers: 1, until: PHASES[0].toMs }),
+        p({ servers: 1 }),
+        ...BENCHES.map(benchPolicy),
+      ];
+    for (const r of runs.map(x => simulate(x))) {
+      expect(r.served.filter(s => s.ok).every(s => s.ms <= ASSUMPTIONS.timeoutMs)).toBe(true);
+      expect(r.served.filter(s => !s.ok).every(s => Math.round(s.ms) === ASSUMPTIONS.timeoutMs)).toBe(true);
+    }
   });
 });
 

@@ -1,5 +1,5 @@
 {
-  "note": "Every effect the Load balancing chapters teach, from runs of Larkspur's simulated sale (planning numbers, not measurements). tests/unit/load-balancing-sim.test.ts reruns them; a change that moves one fails there. shares: each rule's share per server (Ash, Birch, Cedar, Dogwood) with Dogwood slow but answering and health checks at 2 misses.",
+  "note": "Every effect the Load balancing chapters teach, from runs of Larkspur's simulated sale (planning numbers, not measurements). tests/unit/load-balancing-sim.test.ts reruns them; a change that moves one fails there. shares: each rule's share per server (Ash, Birch, Cedar, Dogwood) with Dogwood slow but answering and health checks at 2 misses. slow: each rule's p99 with Birch slow (a request whose customer gave up counts the 1 s timeout); slowFailed: how many gave up.",
   "shares": {
     "round-robin": [
       0.2506,
@@ -32,10 +32,16 @@
     "saleP99": 465
   },
   "slow": {
-    "round-robin": 5291,
+    "round-robin": 1000,
     "least": 288,
     "two": 358,
-    "weighted": 3738
+    "weighted": 1000
+  },
+  "slowFailed": {
+    "round-robin": 69,
+    "least": 0,
+    "two": 0,
+    "weighted": 48
   },
   "dead": [
     {

@@ -1,4 +1,4 @@
-// Chapter 3: the least busy. Birch turns 5× slower as the sale starts. Round robin keeps feeding it and p99 soars; the
+// Chapter 3: the least busy. Birch turns 5× slower as the sale starts. Round robin keeps feeding it till customers give up; the
 // reader predicts Birch's share under least outstanding, picks it, then tries the power of two choices.
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
@@ -73,7 +73,7 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `p99: ${msOf(RR.p99)}. Least outstanding counts each server’s outstanding requests and picks the fewest.`,
+    narration: `${RR.failed} customers gave up after ${ASSUMPTIONS.timeoutMs / 1000} s. Least outstanding counts each server’s outstanding requests and picks the fewest.`,
     act: `Predict ${BIRCH.name}’s share.`,
     predicate: s => s.p1 !== null,
   },
@@ -126,7 +126,7 @@ export default function TheLeastBusy() {
             onView={view => sync({ ...state, view })}
             caption={
               run
-                ? `${RULE_NAME[state.rule]}: ${BIRCH.name} got ${pct(run.shares[1])} of requests; p99 ${msOf(run.p99)}.`
+                ? `${RULE_NAME[state.rule]}: ${BIRCH.name} got ${pct(run.shares[1])} of requests; ${run.failed} failed, p99 ${msOf(run.p99)}.`
                 : `${BIRCH.name} slows down as the sale starts.`
             }
           />
