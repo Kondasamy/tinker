@@ -103,7 +103,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out1', 'quiz'],
-    narration: `${DOG.name} keeps its ${pct(GRAY.shares[3])} share; p99 is ${msOf(GRAY.p99)}. A check asks “alive?”, never “fast?”.`,
+    narration: `${DOG.name} keeps its ${pct(GRAY.shares[3])} share; ${GRAY.failed} requests failed. A check asks “alive?”, never “fast?”.`,
     act: 'One question to finish.',
     say: { block: 'dogwood', text: 'Passes checks' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
