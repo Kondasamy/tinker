@@ -124,6 +124,10 @@ test('progress files a card under In progress', async ({ page }) => {
   await page.goto('/?status=In+progress');
   await expect(catalogue(page).locator('[data-search]:visible')).toHaveCount(1);
   await expect(catalogue(page).locator('.module[data-module="rag"]')).toBeVisible();
+  // the card's button says only what it does; its title, right above, describes it
+  const cta = page.locator('.module[data-module="rag"] [data-cta]');
+  await expect(cta).toHaveText('Continue: chapter 2 →');
+  await expect(cta).toHaveAccessibleDescription('Retrieval-Augmented Generation (RAG)');
 });
 
 // the request form mails FormSubmit and comes back with ?sent, which shows the thanks

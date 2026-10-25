@@ -7,7 +7,7 @@ import { MODULES } from '../../src/lib/modules';
 test('Tinker home returns 200 and links to the RAG module', async ({ page }) => {
   const res = await page.goto('/');
   expect(res?.status()).toBe(200);
-  await page.getByRole('link', { name: 'Start RAG →' }).click();
+  await page.locator('.module[data-module="rag"] [data-cta]').click();
   await expect(page).toHaveURL(/\/rag\/$/);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('How AI assistants answer');
 });

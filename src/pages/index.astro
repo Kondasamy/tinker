@@ -587,7 +587,7 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
   <body>
     <div class="topbar">
       <p class="crumbs"><img src="/favicon.svg" alt="" width="22" height="22" /> Tinker</p>
-      <p class="by">by <a href="https://kondasamy.com" target="_blank" rel="noopener">Kondasamy Jayaraman</a></p>
+      <p class="by">by <a href="https://kondasamy.com" target="_blank" rel="noopener">Samy (Kondasamy Jayaraman)</a></p>
     </div>
     <main class="home">
       <header class="hero">
@@ -643,11 +643,12 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
                       <p class="kicker">Module {LIVE.indexOf(m) + 1} · {m.chapters.length ? `${m.chapters.length} ${m.chapters.length === 1 ? 'chapter' : 'chapters'}` : 'Chapters arrive soon'}</p>
                       <p class="tags"><span class="level">{m.level}</span></p>
                     </div>
-                    <h4><a href={`/${m.id}/`}>{CARD[m.id]?.name ?? m.title}</a></h4>
+                    <h4 id={`card-${m.id}`}><a href={`/${m.id}/`}>{CARD[m.id]?.name ?? m.title}</a></h4>
                     <p>{m.description}</p>
                     <p class="hit" data-hit hidden></p>
                     <div class="progress" data-progress hidden><span class="bar"><span></span></span><span class="txt"></span></div>
-                    <a class="btn primary" href={`/${m.id}/`} data-cta>Start {m.title} →</a>
+                    {/* the title sits right above, so the button says only what it does; the title describes it for screen readers */}
+                    <a class="btn primary" href={`/${m.id}/`} aria-describedby={`card-${m.id}`} data-cta>Start →</a>
                   </div>
                 </article>
               ) : (
@@ -660,7 +661,10 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
             </div>
           </section>
         ); })}
-        <p class="propose">Want a concept explained here? <a href="#request">Propose a module</a>.</p>
+        <div class="propose">
+          <p>Want a concept explained here?</p>
+          <a class="btn primary" href="#request">Propose a module →</a>
+        </div>
       </section>
 
       <section aria-labelledby="why">
@@ -686,9 +690,11 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
       </section>
 
       <section id="request" aria-labelledby="request-h">
-        <p class="kicker">Requests &amp; feedback</p>
-        <h2 id="request-h">What should Tinker explain next?</h2>
-        <p class="sent" role="status" hidden>Thanks, it’s on its way. I read every one.</p>
+        <div class="ask-head">
+          <p class="kicker">Requests &amp; feedback</p>
+          <h2 id="request-h">What should Tinker explain <em>next?</em></h2>
+          <p class="sent" role="status" hidden>Thanks, it’s on its way. I read every one.</p>
+        </div>
         <form class="ask" action={FORM} method="POST">
           <fieldset>
             <legend>This is</legend>
@@ -710,7 +716,7 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
       </section>
 
       <footer class="credits">
-        <p>Made by <a href="https://kondasamy.com" target="_blank" rel="noopener">Kondasamy Jayaraman</a>.</p>
+        <p>Made by <a href="https://kondasamy.com" target="_blank" rel="noopener">Samy (Kondasamy Jayaraman)</a>.</p>
         <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, whose hand-inked isometric style and engine Tinker is built on. Colorfigures grew from April’s <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed. Thank you.</p>
       </footer>
     </main>
@@ -728,12 +734,14 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
         const done = m.chapters.filter(c => finished.includes(c.id)).length;
         // a warm-up is due: Continue opens it on the module intro, which offers a skip to the chapter (R8, R13)
         if (warmupItems(m.recall ?? [], completedAt(m.id), recallResults(m.id), Date.now()).length)
-          return { done, href: `/${m.id}/#warmup`, text: `Warm up, then continue ${m.title} →` };
+          return { done, href: `/${m.id}/#warmup`, text: `Warm up, then continue ${m.title} →`, short: 'Warm up, then continue →' };
         return {
           done,
           // a first visit, or a finished module, opens the intro: it sets the context before chapter 1 (AGENTS.md)
           href: !done || next < 0 ? `/${m.id}/` : chapterHref(m.id, m.chapters[next].id),
           text: next < 0 ? `Revisit ${m.title} →` : `Continue ${m.title}: chapter ${next + 1} →`,
+          // a card's button, under its title
+          short: next < 0 ? 'Revisit →' : `Continue: chapter ${next + 1} →`,
         };
       };
       for (const m of live) {
@@ -746,7 +754,7 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
         box.querySelector<HTMLElement>('.txt')!.textContent = `${r.done} of ${m.chapters.length} chapters done`;
         const a = card.querySelector<HTMLAnchorElement>('[data-cta]')!;
         a.href = r.href;
-        a.textContent = r.text;
+        a.textContent = r.short;
       }
       // the last module played, or once it is finished, the next module not yet finished: the hero walks the reader through them all
       const unfinished = (m: typeof live[number]) => m.chapters.some(c => !completed(m.id).includes(c.id));
@@ -878,7 +886,16 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
   .level-group > h3 { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
   .level-group > h3::after { content: ''; flex: 1; border-top: 1.5px solid var(--rule); }
   .coming { font-size: 14px; color: var(--muted); }
-  .propose { margin-top: 28px; font-size: 15px; }
+  /* a planned card's dashed edge, asking for the next one */
+  .propose { margin-top: 28px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; padding: 18px 22px; border: 1.5px dashed var(--ink); border-radius: 20px; background: var(--card); }
+  .propose[hidden] { display: none; }
+  .propose p { margin: 0 !important; font-size: 17px; font-weight: 800; }
+  /* the request form is the site's one way back to the author: an inked card, the form beside its question */
+  #request { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 20px 40px; align-items: start; padding: 32px; border: 1.5px solid var(--ink); border-radius: 24px; background: var(--card); box-shadow: 6px 6px 0 var(--ink); scroll-margin-top: 16px; }
+  #request .ask-head { align-self: center; }
+  #request h2 { font-size: 32px; }
+  #request h2 em { font-style: normal; background: linear-gradient(transparent 62%, var(--acc) 62% 92%, transparent 92%); }
+  #request .ask textarea, #request .ask input[type=email] { background: var(--paper); }
   .ask { display: flex; flex-direction: column; gap: 16px; max-width: 620px; }
   .ask fieldset { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 20px; }
   .ask legend { padding: 0; margin-bottom: 6px; font-weight: 600; }
@@ -915,7 +932,7 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
   .module .info > p:not(.hit) { font-size: 14px; margin-bottom: 14px; }
   .module .head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .module .head p { margin: 0; }
-  .module .info > .btn { align-self: flex-start; margin-top: auto; }
+  .module .info > .btn { margin-top: auto; text-align: center; font-size: 14px; padding: 9px 16px; }
   .module h4 { font-size: 18px; line-height: 1.3; margin: 8px 0 6px; }
   .module h4 a { text-decoration: none; }
   .module h4 a:hover { text-decoration: underline; }
@@ -943,6 +960,8 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
     .modules { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .principles { grid-template-columns: 1fr; }
     .loop { grid-template-columns: 1fr 1fr; }
+    #request { grid-template-columns: 1fr; padding: 22px 18px; }
+    #request h2 { font-size: 26px; }
   }
   @media (max-width: 620px) {
     .modules { grid-template-columns: 1fr; }
