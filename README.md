@@ -46,6 +46,13 @@ Every module has a level, a story, an intro at `/<module>/`, its chapters, and a
 | Advanced | [Replication & consistency](#replication--consistency-consistency) (Databases recommended first) | Live, 7 chapters |
 | Advanced | [Computer use](#computer-use-computer-use) (AI agents and Multimodal recommended first) | Live, 7 chapters |
 | Advanced | [Diffusion language models](#diffusion-language-models-diffusion-llms) (Diffusion models and Transformers recommended first) | Live, 7 chapters |
+| Beginner | Queues and background jobs | Planned |
+| Beginner | Locks and keys | Planned |
+| Beginner | Compression | Planned |
+| Intermediate | Coding agents | Planned |
+| Intermediate | Synthetic data | Planned |
+| Intermediate | Load balancing | Planned |
+| Advanced | Mixture of experts | Planned |
 
 ### RAG: Retrieval-Augmented Generation (`/rag/`)
 
