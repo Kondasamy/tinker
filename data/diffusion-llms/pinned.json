@@ -1,0 +1,15 @@
+{
+  "note": "What the chapters teach, pinned (KTD12). winners: every chapter 7 plan with the fewest passes that keeps every kind's bars (workbench.ts solve()). lengths: chapter 5's phrase filled carefully at each reply length. Tests rerun both and fail on drift.",
+  "winners": [
+    {
+      "answers": { "k": 1, "rule": "confidence" },
+      "release": { "k": 4, "rule": "confidence" },
+      "notes": { "k": 8, "rule": "confidence" }
+    },
+    {
+      "answers": { "k": 1, "rule": "confidence" },
+      "release": { "k": 4, "rule": "confidence" },
+      "notes": { "k": 8, "rule": "random" }
+    }
+  ]
+}
