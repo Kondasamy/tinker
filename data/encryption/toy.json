@@ -1,0 +1,19 @@
+{
+  "note": "Toy-size numbers for the maths, small enough to check by hand. Real keys are hundreds or thousands of bits (facts.json); never use numbers like these for anything.",
+  "dh": {
+    "p": 23,
+    "g": 5,
+    "base": "straw",
+    "supplier": { "pigment": "lilac", "secret": 15 },
+    "secrets": [
+      { "pigment": "rose", "secret": 6 },
+      { "pigment": "sky", "secret": 9 },
+      { "pigment": "mint", "secret": 13 }
+    ]
+  },
+  "rsa": {
+    "supplier": { "p": 61, "q": 53, "e": 17 },
+    "root": { "p": 89, "q": 97, "e": 5 },
+    "lookalike": { "p": 71, "q": 79, "e": 17 }
+  }
+}
