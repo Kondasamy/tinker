@@ -1,0 +1,102 @@
+---
+// Dev-only eyeball page: the sorting office in the states the chapters teach (static SVG from the toy run at build time,
+// wide and phone), then chapter 4 live in the browser (it fetches the weights, routes and reruns the guess as you pick
+// and override). Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import {
+  ROOMS_BOARD,
+  roomsCard,
+  roomsLabel,
+  roomsScene,
+  tokensOf,
+  type RoomsOpts,
+} from '../components/scenes/officeRoomsScene';
+import SendItElsewhere from '../content/mixture-of-experts/04-send-it-elsewhere';
+import { promptOf, run, shownPositions } from '../lib/mixture-of-experts/routes';
+import { capped } from '../lib/mixture-of-experts/capacity';
+import { diskMoe } from '../lib/mixture-of-experts/diskModel';
+import PINNED from '../../data/mixture-of-experts/pinned.json' with { type: 'json' };
+
+const m = diskMoe();
+const at = (id: string, sel: number, override = {}): Omit<RoomsOpts, 'scale'> => {
+  const p = promptOf(id),
+    pos = shownPositions(p.ids)[sel],
+    r = run(m, p.ids, override);
+  return {
+    tokens: tokensOf(p.ids),
+    sel,
+    lit: r.routes.map(l => l[pos].experts),
+    guess: r.top[0].tok,
+    forced: pos in override,
+  };
+};
+const busy = (f: 1 | 1.5 | 2) => {
+  const p = promptOf(PINNED.capacity.prompt),
+    c = capped(m, p.ids, f),
+    shown = shownPositions(p.ids);
+  return {
+    tokens: tokensOf(p.ids),
+    sel: null,
+    guess: c.pass.top[0].tok,
+    load: { asked: c.asked, capacity: c.capacity },
+    dropped: c.dropped.flatMap(x => (shown.includes(x) ? [shown.indexOf(x)] : [])),
+  };
+};
+const reply = promptOf('reply');
+const STATES: [string, Omit<RoomsOpts, 'scale'>][] = [
+  ['Nothing picked', { tokens: tokensOf(reply.ids), sel: null }],
+  ['Dense: every room', { ...at('reply', 6), dense: true, say: { block: 'rooms', text: 'One kitchen' } }],
+  ['The card: “ business”, two rooms a floor', roomsCard(1)],
+  ['Billing, token 3', { ...at('billing', 3), say: { block: 'doorman', text: 'The router' } }],
+  [
+    'Override rooms 3 and 4',
+    { ...at('reply', 6, { 6: PINNED.override.experts }), say: { block: 'guess', text: 'The guess' } },
+  ],
+  ['Capacity 2: none turned away', busy(2)],
+  ['Capacity 1: tokens turned away', { ...busy(1), say: { block: 'belt', text: 'Turned away' } }],
+  ['Upstairs callout', { ...at('success', 7), say: { block: 'upstairs', text: 'Floor 2' } }],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Mixture of experts scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Sorting office: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={ROOMS_BOARD} scene={roomsScene({ ...o, scale: 1.2 })} label={roomsLabel(o)} /></div>
+            <div class="phone"><IsoStage board={ROOMS_BOARD} scene={roomsScene({ ...o, scale: 2 })} label={roomsLabel(o)} /></div>
+            <p>{roomsLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Chapter 4, live: pick, predict, override</h2><SendItElsewhere client:load /></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 640px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>
