@@ -196,6 +196,10 @@ import { CallTimeline, segmentsOf } from '../content/voice/kit';
 import { DEFAULT_LINE, runCall } from '../lib/voice/engine';
 import { SILENCES } from '../lib/voice/turns';
 import { WINNERS as VO_WINNERS, asLine } from '../lib/voice/workbench';
+import { TOWN_BOARD, townAt, townScene, type TownOpts } from '../components/scenes/townScene';
+import { WaterfallView } from '../content/web-requests/kit';
+import { runOf as webRun } from '../lib/web-requests/sim';
+import { WINNERS as WEB_WINNERS, loadOf as webLoad } from '../lib/web-requests/workbench';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -960,6 +964,28 @@ const SX_OG: Record<string, () => Omit<CabinetOpts, 'scale'>> = {
   'search-07-tune-the-search-box': () => cabinetAt(sxQuery(SX_PINNED.meaning.part).text, SX),
 };
 const sxOg = SX_OG[page.og]?.();
+// module 26: the post town as each chapter turns. The intro and 7: Wen's page on the first winning settings; 1: Ines's
+// first lookup, every office asked; 2: Tomas's answer remembered; 3: Wen's TCP handshake; 4: Wen's lost packet in the
+// ditch; 5: Tomas resumed, the seal office lit; 6: Wen's HTTP/2 waterfall, every file held back.
+const webTcp = () => {
+  const r = webRun('wen', { http: '1.1' });
+  return townAt(r, r.phases.findIndex(p => p.kind === 'tcp') + 1);
+};
+const TOWN_OG: Record<string, () => Omit<TownOpts, 'scale'>> = {
+  'web-requests': () => townAt(webLoad(WEB_WINNERS[0], 'wen')),
+  'web-requests-01-a-name-to-a-number': () => townAt(webRun('ines'), 3),
+  'web-requests-02-the-remembered-answer': () => townAt(webRun('tomas', { ttl: 60, http: '2' })),
+  'web-requests-03-hello-hello-ready': webTcp,
+  'web-requests-04-lost-in-the-post': () => townAt(webRun('wen', { http: '1.1', loss: true })),
+  'web-requests-05-the-sealed-envelope': () => ({
+    ...townAt(webRun('tomas', { http: '2', ttl: 60, resume: true })),
+    seal: true,
+  }),
+  'web-requests-07-make-it-fast': () => townAt(webLoad(WEB_WINNERS[0], 'wen')),
+};
+const townOg = TOWN_OG[page.og]?.();
+const webFallOg =
+  page.og === 'web-requests-06-one-line-many-files' ? webRun('wen', { http: '2', loss: true, ttl: 60 }) : undefined;
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1030,6 +1056,8 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : stockOg ? <IsoStage board={STOCK_BOARD} scene={stockScene({ ...stockOg, scale: 1.4 })} label="" />
           : splitOg ? <IsoStage board={SPLIT_BOARD} scene={splitScene({ ...splitOg, scale: 1.3 })} label="" />
           : sxOg ? <IsoStage board={CABINET_BOARD} scene={cabinetScene({ ...sxOg, scale: 1.3 })} label="" />
+          : townOg ? <IsoStage board={TOWN_BOARD} scene={townScene({ ...townOg, scale: 1.3 })} label="" />
+          : webFallOg ? <div class="tf-og ob-og"><WaterfallView run={webFallOg} /></div>
           : darkOg ? <IsoStage board={DARK_BOARD} scene={darkroomScene({ ...darkOg, scale: 1.3 })} label="" />
           : dfStripSrc ? <div class="mm-og"><img src={dfStripSrc} alt="" /></div>
           : abChartOg ? <div class="tf-og ab-og"><ResultView chart={abChartOg} /></div>

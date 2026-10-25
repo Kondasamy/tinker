@@ -161,6 +161,10 @@ export default function FarIsSlow() {
             <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />
             <p className="tc-status">{`West waited ${msOf(waitOf('west'))}, North ${msOf(waitOf('north'))}.`}</p>
             <SimNote />
+            <p className="note ca-note">
+              What one round trip holds, from the name to the last file: <a href="/web-requests/">Opening a web page</a>
+              .
+            </p>
           </>
         ),
         tab: ({ state, apply }) => (

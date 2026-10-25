@@ -33,6 +33,7 @@ const NUMBERED = [
   'ab-testing',
   'diffusion',
   'search',
+  'web-requests',
 ];
 
 // every module sits at its level: live cards first, then the roadmap's planned cards in registry (build) order;
@@ -260,6 +261,20 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
   await expect(page.locator('[data-level="Beginner"] .module[data-module="search"] h4 a')).toHaveAttribute(
     'href',
     '/search/',
+  );
+  await expect(page.locator('[data-level="Beginner"] .module[data-module="web-requests"] h4 a')).toHaveAttribute(
+    'href',
+    '/web-requests/',
+  );
+});
+
+// Opening a web page's card (U11): the finder finds it by a topic and names the hit
+test('the finder finds Opening a web page by a topic', async ({ page }) => {
+  await page.goto('/');
+  await page.fill('[name="q"]', 'head-of-line');
+  await expect(catalogue(page).locator('[data-search]:visible')).toHaveCount(1);
+  await expect(page.locator('.module[data-module="web-requests"] [data-hit]')).toHaveText(
+    'Includes: Head-of-line blocking',
   );
 });
 

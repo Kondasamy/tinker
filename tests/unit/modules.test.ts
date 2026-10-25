@@ -539,6 +539,18 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'search')).toBe(25);
   });
 
+  it('has web-requests as a live Beginner Classic-tech module with no prerequisites, numbered 27', () => {
+    expect(moduleOf('web-requests')).toMatchObject({
+      title: 'Opening a web page',
+      level: 'Beginner',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('web-requests').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'web-requests')).toBe(26);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

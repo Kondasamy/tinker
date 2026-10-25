@@ -81,6 +81,8 @@ import {
   type CabinetOpts,
 } from '../components/scenes/cabinetScene';
 import { DEFAULT as SX_DEFAULT } from '../lib/search/engine';
+import { TOWN_BOARD, townAt, townLabel, townScene } from '../components/scenes/townScene';
+import { WINNERS as WEB_WINNERS, loadOf as webLoad } from '../lib/web-requests/workbench';
 
 const one =
   (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) =>
@@ -214,6 +216,8 @@ const FUSES_CARD = {
   pulled: [BITE.fuse],
   scale: 1.7,
 };
+// the post town: the farthest customer's page on chapter 7's first winning settings, his lost packet in the ditch
+const TOWN = { ...townAt(webLoad(WEB_WINNERS[0], 'wen')), scale: 1.7 };
 // the depot map mid-sale on chapter 7's first winning policy
 const DEPOT = { ...depotAt(cacheRun(CACHE_WINNERS[0]), CACHE_MOMENTS.sale + 2), scale: 1.7 };
 // order 1042 found through its index, the winning plan's other indexes at the desk's end
@@ -568,6 +572,19 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Keyword vs semantic search',
       'Hybrid search',
       'Precision & recall',
+    ],
+  },
+  'web-requests': {
+    name: 'Opening a web page',
+    iso: { board: TOWN_BOARD, scene: townScene(TOWN), label: townLabel(TOWN) },
+    topics: [
+      'DNS lookups',
+      'TTL and moving address',
+      'TCP handshake',
+      'Packet loss',
+      'TLS and the padlock',
+      'Head-of-line blocking',
+      'HTTP/2 and HTTP/3',
     ],
   },
 };

@@ -25,6 +25,7 @@ import { CONSISTENCY_MODULE } from '../content/consistency/module';
 import { AB_TESTING_MODULE } from '../content/ab-testing/module';
 import { DIFFUSION_MODULE } from '../content/diffusion/module';
 import { SEARCH_MODULE } from '../content/search/module';
+import { WEB_REQUESTS_MODULE } from '../content/web-requests/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -109,6 +110,7 @@ export const MODULES: Module[] = [
   AB_TESTING_MODULE,
   DIFFUSION_MODULE,
   SEARCH_MODULE,
+  WEB_REQUESTS_MODULE,
   planned(
     'diffusion-llms',
     'Diffusion language models',
@@ -126,13 +128,6 @@ export const MODULES: Module[] = [
     'Calibration',
     'Intermediate',
     'When a model says 70%, is it right 70% of the time? Confidence, measured, and when to abstain.',
-  ),
-  planned(
-    'web-requests',
-    'Opening a web page',
-    'Beginner',
-    'What happens between typing an address and seeing the page: DNS, a connection, encryption and HTTP.',
-    'Classic tech',
   ),
   planned(
     'payments',
