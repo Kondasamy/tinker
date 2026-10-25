@@ -83,7 +83,10 @@ test('the catalogue searches, filters, keeps the view in the URL and turns no ma
     catalogue(page)
       .locator('[data-search]:visible')
       .evaluateAll(els => els.map(e => e.getAttribute('data-module')));
-  await expect(page.locator('[data-count]')).toHaveText(`${MODULES.length} modules`);
+  // the count matches the hero's: playable modules, the planned ones apart
+  const live = MODULES.filter(m => m.status === 'live').length;
+  await expect(page.locator('[data-count]')).toHaveText(`${live} modules · ${MODULES.length - live} planned`);
+  await expect(page.locator('.hero .ctas .btn').nth(1)).toHaveText(`See all ${live} modules`);
   await expect(page.locator('[data-finder] label', { hasText: 'In progress' })).toBeHidden();
   await page.keyboard.press('/');
   await page.keyboard.type('lora');
@@ -105,7 +108,7 @@ test('the catalogue searches, filters, keeps the view in the URL and turns no ma
       .evaluate(e => getComputedStyle(e).backgroundColor);
   expect(await bg('Planned')).not.toEqual(await bg('Not started'));
   await page.fill('[name="q"]', 'quantum knitting');
-  await expect(page.locator('[data-count]')).toHaveText(`0 of ${MODULES.length} modules`);
+  await expect(page.locator('[data-count]')).toHaveText('0 modules');
   await page.locator('[data-propose]').click();
   await expect(page.locator('#request textarea')).toHaveValue('A module on: quantum knitting');
   await page.locator('[data-clear]').click();

@@ -792,8 +792,11 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
         }
         for (const g of document.querySelectorAll<HTMLElement>('#modules [data-level]'))
           g.hidden = !g.querySelector('[data-search]:not([hidden])');
-        const filtered = words.length || FIELDS.some(f => form.get(f));
-        finder.querySelector('[data-count]')!.textContent = filtered ? `${shown} of ${cards.length} modules` : `${cards.length} modules`;
+        // playable modules, as the hero counts them, then the planned ones apart
+        const planned = cards.filter(c => !c.hidden && c.dataset.status === 'Planned').length;
+        const live = shown - planned;
+        finder.querySelector('[data-count]')!.textContent =
+          `${live} ${live === 1 ? 'module' : 'modules'}${planned ? ` · ${planned} planned` : ''}`;
         none.hidden = shown > 0;
         document.querySelector<HTMLElement>('#modules .propose')!.hidden = !shown;
         const url = new URLSearchParams();
