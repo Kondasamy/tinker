@@ -108,7 +108,7 @@ function Stage({ state, sync, say }: { state: S; sync: (s: S) => void; say?: Ste
   const r = useFill(job, f => {
     if (state.run && !state.runs[state.run]) sync({ ...state, runs: { ...state.runs, [state.run]: ran(f.reply) } });
   });
-  const fr = frameOf(r.fill, r.shown, state.k);
+  const fr = { ...frameOf(r.fill, r.shown, state.k), k: state.k };
   return (
     <FrameStage
       say={say}
