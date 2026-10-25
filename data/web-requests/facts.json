@@ -1,0 +1,85 @@
+{
+  "accessed": "2026-10-25",
+  "facts": [
+    {
+      "id": "dns-tree",
+      "claim": "DNS names form a tree held in parts by many name servers; a resolver that knows nothing better starts at the root’s servers and follows each referral closer to the name (RFC 1034).",
+      "source": "https://www.rfc-editor.org/rfc/rfc1034#section-5.3.3"
+    },
+    {
+      "id": "dns-ttl",
+      "claim": "Every DNS answer carries a TTL: the time in seconds it may be cached before it should be thrown away (RFC 1035).",
+      "source": "https://www.rfc-editor.org/rfc/rfc1035#section-4.1.3"
+    },
+    {
+      "id": "tcp-handshake",
+      "claim": "TCP opens a connection with a three-way handshake, SYN, SYN-ACK, ACK, and hands data to the application only once the connection is established (RFC 9293).",
+      "source": "https://www.rfc-editor.org/rfc/rfc9293#section-3.5"
+    },
+    {
+      "id": "rto",
+      "claim": "Before it has measured a round trip, a TCP sender waits 1 second for an acknowledgement, and it rounds any shorter computed timeout up to 1 second, then resends (RFC 6298).",
+      "source": "https://www.rfc-editor.org/rfc/rfc6298#section-2"
+    },
+    {
+      "id": "tls13-1rtt",
+      "claim": "A full TLS 1.3 handshake lets the client send its request after one round trip (RFC 9001 on TLS 1.3).",
+      "source": "https://www.rfc-editor.org/rfc/rfc9001#section-2.1"
+    },
+    {
+      "id": "zero-rtt",
+      "claim": "With a key from an earlier session, a TLS 1.3 client can send early data, 0-RTT, in its very first message (RFC 8446).",
+      "source": "https://www.rfc-editor.org/rfc/rfc8446#section-2.3"
+    },
+    {
+      "id": "zero-rtt-replay",
+      "claim": "Early data can be replayed by an attacker, so clients must only send early data that is safe to repeat; RFC 8446’s examples of harm are buying an item or moving money.",
+      "source": "https://www.rfc-editor.org/rfc/rfc8446#appendix-E.5"
+    },
+    {
+      "id": "ticket-lifetime",
+      "claim": "A TLS 1.3 session ticket may last at most 604,800 seconds, 7 days (RFC 8446).",
+      "source": "https://www.rfc-editor.org/rfc/rfc8446#section-4.6.1"
+    },
+    {
+      "id": "cert",
+      "claim": "A certificate binds a public key to a name, and a trusted certification authority vouches for that binding by signing it (RFC 5280).",
+      "source": "https://www.rfc-editor.org/rfc/rfc5280#section-3.1"
+    },
+    {
+      "id": "https-proves",
+      "claim": "For https, the browser checks that the certificate matches the name it asked for, to stop anyone impersonating that server (RFC 9110).",
+      "source": "https://www.rfc-editor.org/rfc/rfc9110#section-4.3.4"
+    },
+    {
+      "id": "safe-methods",
+      "claim": "GET is a safe method, essentially read-only; POST is not on HTTP’s lists of safe or idempotent methods (RFC 9110).",
+      "source": "https://www.rfc-editor.org/rfc/rfc9110#section-9.2.1"
+    },
+    {
+      "id": "h1-connections",
+      "claim": "HTTP/1.1 asks clients to limit how many connections they open to one server, and deliberately sets no maximum (RFC 9112).",
+      "source": "https://www.rfc-editor.org/rfc/rfc9112#section-9.4"
+    },
+    {
+      "id": "h2-multiplex",
+      "claim": "One HTTP/2 connection carries many requests at once, each on its own stream, their pieces interleaved (RFC 9113).",
+      "source": "https://www.rfc-editor.org/rfc/rfc9113#section-5"
+    },
+    {
+      "id": "h3-hol",
+      "claim": "Over TCP, a lost packet stalls every active HTTP/2 request, whether or not it was the one hit; HTTP/3 over QUIC recovers losses stream by stream (RFC 9114).",
+      "source": "https://www.rfc-editor.org/rfc/rfc9114#section-1.1"
+    },
+    {
+      "id": "quic-handshake",
+      "claim": "QUIC combines the transport and TLS handshakes into one, to cut the time a connection takes to set up (RFC 9000).",
+      "source": "https://www.rfc-editor.org/rfc/rfc9000#section-7"
+    },
+    {
+      "id": "example-names",
+      "claim": "The .example name and the address ranges this module uses are reserved for documentation (RFC 2606, RFC 5737).",
+      "source": "https://www.rfc-editor.org/rfc/rfc2606#section-2"
+    }
+  ]
+}

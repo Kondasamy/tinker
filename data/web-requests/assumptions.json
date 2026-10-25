@@ -1,0 +1,20 @@
+{
+  "note": "Larkspur's planning numbers for a teaching simulator, not measurements of any real network, browser or server. Every wait the Opening a web page module shows comes from these, the customers and the page's file list.",
+  "hopMs": 10,
+  "msPer100Km": 2,
+  "serverMs": 20,
+  "rtoMs": 1000,
+  "h1Connections": 6,
+  "ticketMinutes": 1440,
+  "directoryKm": { "root": 150, "tld": 500 },
+  "kmFull": 2500,
+  "words": {
+    "trip": "a round trip takes 10 ms to get onto the network, plus 2 ms for every 100 km there and back",
+    "server": "20 ms for the shop to build a reply",
+    "rto": "a lost packet is sent again after a 1-second wait",
+    "h1": "a browser speaking HTTP/1.1 opens up to 6 connections to one site",
+    "ticket": "Larkspur's shop honours a returning browser's session ticket for a day",
+    "directory": "the root's office is 150 km from every customer's resolver and the .example office 500 km; Larkspur's own directory office stands beside the shop",
+    "cold": "a customer who has never visited starts with a resolver that remembers nothing; a returning customer's resolver still remembers the root's and .example's answers"
+  }
+}

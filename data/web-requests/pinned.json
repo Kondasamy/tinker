@@ -1,0 +1,17 @@
+{
+  "note": "Each customer's page-load total, in ms, under the settings the chapters teach with (KTD12). tests/unit/web-requests-sim.test.ts reruns every one and fails on drift.",
+  "settings": {
+    "h1": { "http": "1.1" },
+    "h2": { "http": "2" },
+    "h3-resume": { "http": "3", "resume": true },
+    "h2-loss": { "http": "2", "loss": true },
+    "h3-loss": { "http": "3", "loss": true }
+  },
+  "totals": {
+    "ines": { "h1": 148.6, "h2": 127, "h3-resume": 116.2, "h2-loss": 127, "h3-loss": 116.2 },
+    "tomas": { "h1": 244, "h2": 176, "h3-resume": 108, "h2-loss": 176, "h3-loss": 142 },
+    "dara": { "h1": 460, "h2": 340, "h3-resume": 220, "h2-loss": 340, "h3-loss": 280 },
+    "wen": { "h1": 1060, "h2": 720, "h3-resume": 380, "h2-loss": 1720, "h3-loss": 1550 }
+  },
+  "wenLost": ["req:hinge.jpg"]
+}
