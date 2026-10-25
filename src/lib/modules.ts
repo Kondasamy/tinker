@@ -29,6 +29,7 @@ import { WEB_REQUESTS_MODULE } from '../content/web-requests/module';
 import { PAYMENTS_MODULE } from '../content/payments/module';
 import { GIT_MODULE } from '../content/git/module';
 import { CALIBRATION_MODULE } from '../content/calibration/module';
+import { COMPUTER_USE_MODULE } from '../content/computer-use/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -117,17 +118,12 @@ export const MODULES: Module[] = [
   PAYMENTS_MODULE,
   GIT_MODULE,
   CALIBRATION_MODULE,
+  COMPUTER_USE_MODULE,
   planned(
     'diffusion-llms',
     'Diffusion language models',
     'Advanced',
     'Writing a reply in any order: fill the sure words first, then the rest, and what the speed gives up.',
-  ),
-  planned(
-    'computer-use',
-    'Computer use',
-    'Advanced',
-    'An agent that sees a screenshot and clicks: what it sees, where it clicks, and the screens that fool it.',
   ),
   planned(
     'mixture-of-experts',

@@ -172,6 +172,14 @@ import {
 import { ruleOf as abRule } from '../lib/ab-testing/workbench';
 import { NAME as AB_LUCKY, WINNER as AB_LUCKY_ARM } from '../content/ab-testing/05-twenty-colours';
 import { DARK_BOARD, darkroomScene, type DarkroomOpts } from '../components/scenes/darkroomScene';
+import { PUPPET_BOARD, puppetScene, type PuppetOpts } from '../components/scenes/puppetScene';
+import {
+  beatsOf as cuBeats,
+  frameAt as cuFrame,
+  nthBeat as cuNth,
+  play as cuPlay,
+} from '../content/computer-use/frames';
+import { WINNERS as CU_WINNERS } from '../lib/computer-use/workbench';
 import { denoiseStrip } from '../components/scenes/denoiseStrip';
 import { META as DF_META, pictureFrames } from '../content/diffusion/kit';
 import { drawing as dfDrawing } from '../lib/diffusion/drawings';
@@ -1048,7 +1056,7 @@ const CRATE_OG: Record<string, () => Omit<CrateOpts, 'scale'>> = {
   'git-07-bring-them-in': () => yardOf(gtRunPlan(GIT_WINNERS[0]).repo, { ghosts: false }),
 };
 const crateOg = CRATE_OG[page.og]?.();
-// module 26 (30 once the roadmap's classic modules are live): the forecaster's booth. The intro: the style fine-tune's
+// module 30: the forecaster's booth. The intro: the style fine-tune's
 // jars, rings above the mint, its ECE on the slate; chapter 1: the assistant's stand-in answers; chapter 2: Larkspur
 // mini's honest jars; chapter 3: the fine-tune's; chapter 4: the fine-tune's test half at the fitted temperature;
 // chapter 5: Larkspur mini with its ECE and Brier score; chapter 6: the lowest safe hand-over line; chapter 7: the
@@ -1096,6 +1104,29 @@ const CALIB_OG: Record<string, () => JarOpts> = {
   },
 };
 const calibOg = CALIB_OG[page.og]?.();
+// module 31: the puppet desk. The intro: the click on the hinges' Reorder link; chapter 1: the first click, on Past
+// orders; chapter 2: the unscaled click landing on Sign out; chapter 3: Reorder clicked again on a stale screen; chapter
+// 4: the agent obeying the planted notice; chapter 5: the look-alike Pay now refused by a person; chapter 6: the order at
+// 640 px, the wrong row; chapter 7: the planted notice refused under the first winning policy.
+const cuClick = (s: Parameters<typeof cuPlay>[0], n: number) => {
+  const r = cuPlay(s);
+  return cuFrame(r, cuNth(r, 'click', n)).opts;
+};
+const cuEnd = (s: Parameters<typeof cuPlay>[0]) => {
+  const r = cuPlay(s);
+  return cuFrame(r, cuBeats(r).length).opts;
+};
+const CU_OG: Record<string, () => PuppetOpts> = {
+  'computer-use': () => cuClick({ case: 'hinges' }, 2),
+  'computer-use-01-look-then-click': () => cuClick({ case: 'hinges' }, 1),
+  'computer-use-02-the-wrong-button': () => cuClick({ case: 'hinges', size: 1024, scale: false }, 1),
+  'computer-use-03-too-quick': () => cuClick({ case: 'hinges', wait: false }, 3),
+  'computer-use-04-the-page-gives-orders': () => cuClick({ case: 'banner' }, 3),
+  'computer-use-05-ask-before-you-pay': () => cuClick({ case: 'offer', allow: true, confirm: true }, 4),
+  'computer-use-06-every-look-costs': () => cuEnd({ case: 'hinges', size: 640 }),
+  'computer-use-07-workbench': () => cuClick({ ...CU_WINNERS[0], case: 'banner' }, 3),
+};
+const puppetOg = CU_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1173,6 +1204,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : crateOg ? <IsoStage board={gtBoardOf(crateOg)} scene={crateScene({ ...crateOg, scale: 1.4 })} label="" />
           : dfStripSrc ?<div class="mm-og"><img src={dfStripSrc} alt="" /></div>
           : calibOg ? <IsoStage board={JAR_BOARD} scene={jarScene({ ...calibOg, scale: 1.3 })} label="" />
+          : puppetOg ? <IsoStage board={PUPPET_BOARD} scene={puppetScene({ ...puppetOg, scale: 1.3 })} label="" />
           : dfStripSrc ? <div class="mm-og"><img src={dfStripSrc} alt="" /></div>
           : abChartOg ? <div class="tf-og ab-og"><ResultView chart={abChartOg} /></div>
           : depotOgs ? <div class={depotOgs.length > 1 ? 'duo' : ''}>{depotOgs.map(o => <IsoStage board={DEPOT_BOARD} scene={depotScene({ ...o, scale: 1.3 })} label="" />)}</div>

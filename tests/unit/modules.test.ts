@@ -588,6 +588,17 @@ describe('module registry', () => {
     expect(live.indexOf('calibration')).toBe(29);
   });
 
+  it('has computer-use as a live Advanced module, numbered 31', () => {
+    expect(moduleOf('computer-use')).toMatchObject({
+      title: 'Computer use',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['agents', 'multimodal'],
+    });
+    expect(moduleOf('computer-use').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'computer-use')).toBe(30);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

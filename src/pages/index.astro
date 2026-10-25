@@ -72,6 +72,8 @@ import { MOMENTS as CS_MOMENTS, policyOf as csPolicy, runOf as csRun } from '../
 import { SPLIT_BOARD, splitAt, splitLabel, splitScene } from '../components/scenes/splitScene';
 import { SCENARIOS as AB_SCENARIOS, runOf as abRun } from '../lib/ab-testing/sim';
 import { DARK_BOARD, darkroomLabel, darkroomScene, type DarkroomOpts } from '../components/scenes/darkroomScene';
+import { PUPPET_BOARD, puppetLabel, puppetScene, type PuppetOpts } from '../components/scenes/puppetScene';
+import { frameAt, nthBeat, play as cuPlay } from '../content/computer-use/frames';
 import { sampleDrawing } from '../lib/diffusion/ideal';
 import {
   CABINET_BOARD,
@@ -255,6 +257,9 @@ const TUBES = { ...tubeAt(pmRun(PM_WINNERS[0]), 1), scale: 1.7 };
 const YARD: CrateOpts = { ...yardOf(GIT_CLEAN.repo, { lit: [GIT_CLEAN.repo.refs.main] }), scale: 1.7 };
 // calibration: the assistant's stand-in answers in their jars, the most sure honest, the middle ones claiming too much
 const BOOTH: JarOpts = { jars: CB_JARS };
+// the agent's click on the planted notice's Verify now button
+const CU_RUN = cuPlay({ case: 'banner' });
+const PUPPET: PuppetOpts = { ...frameAt(CU_RUN, nthBeat(CU_RUN, 'click', 3)).opts, scale: 1.7 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -637,6 +642,19 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'ECE & Brier score',
       'Abstaining & hand-over',
       'Coverage vs accuracy',
+    ],
+  },
+  'computer-use': {
+    name: 'Computer use',
+    iso: { board: PUPPET_BOARD, scene: puppetScene(PUPPET), label: puppetLabel(PUPPET) },
+    topics: [
+      'Screenshots & clicks',
+      'Coordinate scaling',
+      'Stale screens',
+      'On-screen prompt injection',
+      'Confirmation',
+      'Screenshot tokens',
+      'Host rules',
     ],
   },
 };

@@ -1,7 +1,7 @@
 // Computer use: the intro, every chapter played by mouse and by keyboard only, its own progress key, click-to-predict on
 // the Screen view (a keyboard pick locks like a mouse pick), chapter 2's wrong button on both the picture and the screen,
 // the workbench's best policy, "I'm not sure", reduced motion, the recap, axe and phone width; the go-live checks:
-// Module 26 kickers and share images, home's card.
+// Module 31 kickers and share images, home's card.
 import { test, expect, type Page } from '@playwright/test';
 import { moduleOf } from '../../src/lib/modules';
 import { cuWalker } from './computer-use-flow';
@@ -34,7 +34,7 @@ test('the intro shows the level, the prerequisites, the author, the chapters and
 }) => {
   await page.goto('/computer-use/');
   const meta = page.locator('.hero .module-meta');
-  await expect(page.locator('.hero .kicker')).toHaveText('Module 26 · Computer use');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 31 · Computer use');
   await expect(meta.locator('.level')).toHaveText('Advanced');
   for (const id of M.prereqs)
     await expect(meta.getByRole('link', { name: moduleOf(id).title, exact: true })).toHaveAttribute('href', `/${id}/`);
@@ -45,9 +45,9 @@ test('the intro shows the level, the prerequisites, the author, the chapters and
   await axe(page);
 });
 
-test('Module 26 on the recap', async ({ page }) => {
+test('Module 31 on the recap', async ({ page }) => {
   await page.goto('/computer-use/recap/');
-  await expect(page.locator('.hero .kicker')).toHaveText('Module 26 · Recap');
+  await expect(page.locator('.hero .kicker')).toHaveText('Module 31 · Recap');
 });
 
 test('go-live: own share images and home’s card', async ({ page }) => {
