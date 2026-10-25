@@ -68,6 +68,8 @@ describe('the index', () => {
     expect(['refund', 'refunds', 'refunded'].map(stem)).toEqual(['refund', 'refund', 'refund']);
     expect(['batteries', 'shipping', 'shipped', 'boxes'].map(stem)).toEqual(['battery', 'ship', 'ship', 'box']);
     expect(stem('address')).toBe('address');
+    expect(stem('addresses')).toBe('address');
+    expect(stem('businesses')).toBe('business');
     const plain = search('refunds', { ...DEFAULT, clean: { lower: true, stop: false, stem: false } }).map(h => h.id);
     const stemmed = search('refunds', DEFAULT).map(h => h.id);
     expect(stemmed.length).toBeGreaterThan(plain.length);

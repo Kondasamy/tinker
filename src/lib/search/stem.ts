@@ -15,8 +15,8 @@ export function stem(w: string): string {
   if (w.length <= 3 || /\d/.test(w)) return w;
   let s = w;
   if (s.endsWith('ies') && s.length > 4) s = `${s.slice(0, -3)}y`;
+  else if (/(sh|ch|x|ss)es$/.test(s)) s = s.slice(0, -2);
   else if (/(ss|us)$/.test(s)) return s;
-  else if (/(sh|ch|x)es$/.test(s)) s = s.slice(0, -2);
   else if (s.endsWith('s')) s = s.slice(0, -1);
   if (/[^aeiou]ing$/.test(s) && s.length > 5) s = s.slice(0, -3);
   else if (/[^aeiou]ed$/.test(s) && s.length > 4) s = s.slice(0, -2);
