@@ -554,9 +554,9 @@ const PLANNED = MODULES.filter(m => m.status === 'planned');
 const atLevel = (level: Level) => [...LIVE, ...PLANNED].filter(m => m.level === level);
 // the catalogue's filters, each a row of radio chips, the first one no filter; a status no card has is hidden by the script
 const FILTERS: [name: string, label: string, options: string[]][] = [
-  ['level', 'Level', ['All levels', ...LEVELS]],
-  ['track', 'Track', ['AI & classic', 'AI', 'Classic tech']],
-  ['status', 'Status', ['Any status', 'Not started', 'In progress', 'Finished', 'Planned']],
+  ['level', 'Level', ['All', ...LEVELS]],
+  ['track', 'Track', ['All', 'AI', 'Classic tech']],
+  ['status', 'Status', ['All', 'Not started', 'In progress', 'Finished', 'Planned']],
 ];
 // what a search reads: title, description, story, level, track, topics and chapter titles, one line per field
 const searchOf = (m: Module) =>
@@ -617,6 +617,7 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
           <div class="filters">
             {FILTERS.map(([name, label, options]) => (
               <fieldset aria-label={label}>
+                <span class="group" aria-hidden="true">{label}</span>
                 {options.map((o, i) => (
                   <label><input type="radio" name={name} value={i ? o : ''} checked={!i} /> {o}</label>
                 ))}
@@ -890,12 +891,14 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
   .finder .row { display: flex; align-items: center; gap: 14px; }
   .finder input[type=search] { flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 10px 14px; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--card); color: var(--ink); }
   .finder .count { margin: 0; font-size: 13px; color: var(--muted); white-space: nowrap; }
-  .filters { display: flex; flex-wrap: wrap; gap: 8px 22px; }
-  .finder fieldset { border: 0; margin: 0; padding: 0; display: flex; gap: 6px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px 12px; }
+  /* each filter is its own tray, named, so the three rows of chips never read as one */
+  .finder fieldset { border: 1.5px solid var(--rule); border-radius: 999px; margin: 0; padding: 3px 3px 3px 12px; display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+  .finder .group { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
   .finder fieldset label { position: relative; font-size: 12.5px; font-weight: 700; padding: 3px 11px; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--card); cursor: pointer; white-space: nowrap; }
   .finder fieldset input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
-  .finder label:has(:checked) { background: var(--acc); }
-  .finder label:has(:focus-visible) { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .finder fieldset label:has(:checked) { background: var(--acc); }
+  .finder fieldset label:has(:focus-visible) { outline: 2px solid var(--ink); outline-offset: 2px; }
   .none { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 28px; }
   .none p { margin: 0; font-weight: 700; }
   .none .btn { font-family: inherit; cursor: pointer; }

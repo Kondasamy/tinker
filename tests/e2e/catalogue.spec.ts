@@ -97,6 +97,13 @@ test('the catalogue searches, filters, keeps the view in the URL and turns no ma
   await expect(catalogue(page).locator('[data-level="Advanced"]')).toBeHidden();
   await page.reload();
   expect(await shown()).toEqual(['search', 'web-requests', 'payments', 'git']);
+  // the chosen chip is lit, the group's All is not
+  const bg = (name: string) =>
+    page
+      .getByRole('radio', { name })
+      .locator('..')
+      .evaluate(e => getComputedStyle(e).backgroundColor);
+  expect(await bg('Planned')).not.toEqual(await bg('Not started'));
   await page.fill('[name="q"]', 'quantum knitting');
   await expect(page.locator('[data-count]')).toHaveText(`0 of ${MODULES.length} modules`);
   await page.locator('[data-propose]').click();
