@@ -57,6 +57,7 @@ import { railPlot } from './railScene';
 import { pilePlot } from './pileScene';
 import { yardPlot } from './yardScene';
 import { paintPlot } from './paintScene';
+import { agentDeskPlot } from './deskScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
@@ -288,6 +289,7 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   compression: (x, y, { top }) => pilePlot(x + 14, y - 2, top),
   'load-balancing': (x, y, { top }) => yardPlot(x + 14, y - 2, top),
   encryption: (x, y, { top }) => paintPlot(x + 14, y - 2, top),
+  'coding-agents': (x, y, { top }) => agentDeskPlot(x + 14, y - 2, top),
 };
 const LIVE = MODULES.filter(m => m.status === 'live'),
   PLANNED = MODULES.filter(m => m.status === 'planned');

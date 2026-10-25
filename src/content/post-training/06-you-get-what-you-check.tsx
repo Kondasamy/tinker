@@ -158,6 +158,10 @@ export default function YouGetWhatYouCheck() {
               {pct(WEAK_RUN.at(-1)!.after[BEST])}.
             </p>
             <Fact id="spec-gaming" />
+            <p className="note in-note">
+              A coding agent games its tests the same way:{' '}
+              <a href="/coding-agents/05-green-by-cheating/">Coding agents</a>.
+            </p>
           </>
         ),
         fix: ({ state, sync }) => (

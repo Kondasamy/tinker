@@ -3,11 +3,12 @@
 // phone, "I'm not sure", reduced motion, the recap, axe and phone width. The go-live adds the module's number, share
 // images and home's card.
 import { test, expect, type Page } from '@playwright/test';
-import { moduleOf } from '../../src/lib/modules';
+import { MODULES, moduleOf } from '../../src/lib/modules';
 import { codingWalker } from './coding-agents-flow';
 import { serious, layoutHolds, PHONE } from './helpers';
 
 const M = moduleOf('coding-agents');
+const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'coding-agents') + 1;
 const IDS = M.chapters.map(c => c.id);
 const [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = IDS;
 const at = (id: string) => new RegExp(`/coding-agents/${id}/$`);
@@ -40,6 +41,28 @@ test('the intro shows the level, the prerequisite, the chapters and the Colorfig
   await page.getByRole('button', { name: 'Words' }).click();
   await expect(page.locator('.band .note.more')).toBeVisible();
   await axe(page);
+});
+
+test('its module number on the intro and the recap', async ({ page }) => {
+  await page.goto('/coding-agents/');
+  await expect(page.locator('.hero .kicker')).toHaveText(`Module ${NUMBER} · Coding agents`);
+  await page.goto('/coding-agents/recap/');
+  await expect(page.locator('.hero .kicker')).toHaveText(`Module ${NUMBER} · Recap`);
+});
+
+test('go-live: own share images and home’s card', async ({ page }) => {
+  await page.goto('/coding-agents/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/coding-agents\.jpg$/);
+  await page.goto(`/coding-agents/${CH1}/`);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    new RegExp(`/og/coding-agents-${CH1}\\.jpg$`),
+  );
+  await page.goto('/coding-agents/recap/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/coding-agents-recap\.jpg$/);
+  expect((await page.request.get('/og/coding-agents.jpg')).status()).toBe(200);
+  await page.goto('/');
+  await expect(page.locator('.module[data-module="coding-agents"] h4 a')).toHaveAttribute('href', '/coding-agents/');
 });
 
 test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({

@@ -1684,5 +1684,50 @@
       "bench",
       "ties"
     ]
+  },
+  "coding-agents": {
+    "01-read-edit-run": [
+      "predict",
+      "first",
+      "loop",
+      "quiz"
+    ],
+    "02-finding-the-file": [
+      "one-by-one",
+      "predict",
+      "search",
+      "quiz"
+    ],
+    "03-a-patch-not-a-rewrite": [
+      "hunks",
+      "red",
+      "keep",
+      "quiz"
+    ],
+    "04-red-to-green": [
+      "predict",
+      "run",
+      "red",
+      "quiz"
+    ],
+    "05-green-by-cheating": [
+      "red",
+      "predict",
+      "cheat",
+      "green",
+      "protect",
+      "quiz"
+    ],
+    "06-what-it-may-run": [
+      "predict",
+      "push",
+      "allow",
+      "ask",
+      "quiz"
+    ],
+    "07-workbench": [
+      "policy",
+      "quiz"
+    ]
   }
 }

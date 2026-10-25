@@ -35,6 +35,7 @@ import { QUEUES_MODULE } from '../content/queues/module';
 import { COMPRESSION_MODULE } from '../content/compression/module';
 import { LOAD_BALANCING_MODULE } from '../content/load-balancing/module';
 import { ENCRYPTION_MODULE } from '../content/encryption/module';
+import { CODING_AGENTS_MODULE } from '../content/coding-agents/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -129,17 +130,12 @@ export const MODULES: Module[] = [
   COMPRESSION_MODULE,
   LOAD_BALANCING_MODULE,
   ENCRYPTION_MODULE,
+  CODING_AGENTS_MODULE,
   planned(
     'mixture-of-experts',
     'Mixture of experts',
     'Advanced',
     'A model with many experts that wakes only a few for each word: the router that picks them, and what it saves.',
-  ),
-  planned(
-    'coding-agents',
-    'Coding agents',
-    'Intermediate',
-    'An agent that edits code and runs the tests: reading a repository, making a change, and checking its own work.',
   ),
   planned(
     'synthetic-data',
