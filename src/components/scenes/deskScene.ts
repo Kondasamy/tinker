@@ -234,7 +234,8 @@ export const deskScene = (o: DeskOpts) => (ctx: SceneCtx) => {
       ? o.term.outcome.toUpperCase()
       : narrow
         ? 'RAN'
-        : o.term.cmd.toUpperCase();
+        : // the pill names the command; its arguments live in the description, so it never covers the patch pill
+          o.term.cmd.split(' ').slice(0, 2).join(' ').toUpperCase();
   return (
     s +
     pill(cabAt, -6, -22, cab, false, scale) +
