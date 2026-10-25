@@ -1,0 +1,75 @@
+---
+// Dev-only eyeball page: the copier room in several states (static SVG, wide and phone), then Larkspur mini writing and
+// sieving a batch at each temperature (run at build time from the weights on disk), the teacher's rare answers, the
+// workbench's winners, and the stage live. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { COPIER_BOARD, copierAt, copierLabel, copierScene, type CopierOpts } from '../components/scenes/copierScene';
+import { CopierStage } from '../content/synthetic-data/kit';
+import { diskModel } from '../lib/transformers/diskModel';
+import { RARE, TEMPS, copies, factOf, replyText, teacher, writeBatch } from '../lib/synthetic-data/generate';
+import { SIEVES, sieve } from '../lib/synthetic-data/sieve';
+import { LAST, RUNS } from '../lib/synthetic-data/runs';
+import { WINNERS, scoreOf } from '../lib/synthetic-data/workbench';
+
+const STATES: [string, Omit<CopierOpts, 'scale'>][] = [
+  ['Empty shelf, copier running', { ...copierAt('replace', 0), gens: [], gen: null, copying: true }],
+  ['Sieve on, dedupe + facts', { ...copierAt('replace', 0), gens: [], gen: null, sieve: 'facts' }],
+  ['Replace, generation 2', copierAt('replace', 2)],
+  ['Replace, generation 5', { ...copierAt('replace', LAST), say: { block: 'copies', text: 'Rare marks fade' } }],
+  ['Accumulate, generation 5', copierAt('accumulate', LAST)],
+];
+const model = diskModel();
+const PROMPT = RUNS.prompts[0].text;
+const batches = TEMPS.map(t => ({ t, b: writeBatch(model, PROMPT, t) }));
+const answers = RARE.map((_, i) => teacher(model, i));
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Synthetic data scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Copier room: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={COPIER_BOARD} scene={copierScene({ ...o, scale: 1.2 })} label={copierLabel(o)} /></div>
+            <div class="phone"><IsoStage board={COPIER_BOARD} scene={copierScene({ ...o, scale: 2 })} label={copierLabel(o)} /></div>
+            <p>{copierLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>“{PROMPT}”, twenty replies per temperature</h1>
+      <div class="grid">
+        {batches.map(({ t, b }) => (
+          <section>
+            <h2>Temperature {t}: {copies(b)} copies; kept {SIEVES.map(k => `${k} ${sieve(b, k).filter(v => v === 'kept').length}`).join(', ')}</h2>
+            <ol>{b.map((r, i) => <li>{sieve(b, 'facts')[i]}: {replyText(r)}</li>)}</ol>
+          </section>
+        ))}
+      </div>
+      <h1>The teacher on the rare requests</h1>
+      <ol>{answers.map((a, i) => <li>{a.ok ? 'has' : 'misses'} “{factOf(i)}”: {RARE[i].text} → {a.text}</li>)}</ol>
+      <h1>Workbench winners</h1>
+      <ul>{WINNERS.map(w => <li>{JSON.stringify(w)}: {JSON.stringify(scoreOf(w))}</li>)}</ul>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Replace, gen 3, with read-out</h2><div class="stage"><CopierStage client:load readout room={copierAt('replace', 3)} caption="<script>alert(1)</script>" /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+
+<style>
+  main { max-width: 1200px; margin: 0 auto; padding: 16px; font: 14px/1.5 system-ui, sans-serif; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { border: 1px solid #ccc; border-radius: 12px; padding: 12px; }
+  .stage { height: 420px; display: flex; }
+  .phone { display: none; }
+  @media (max-width: 600px) { .wide { display: none; } .phone { display: block; } }
+</style>
