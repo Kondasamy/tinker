@@ -1,0 +1,10 @@
+{
+  "note": "Larkspur's rule for chapter 7, set by the shop's owner: team choices, not industry figures.",
+  "fraudLimitCents": 5000,
+  "rule": "No customer is charged twice, and Larkspur loses at most €50 to stolen cards; then keep as much money as you can.",
+  "reasons": {
+    "small": "Small orders are cheap parts that ship the same day: a lost sale and a stolen card cost about the same.",
+    "large": "A drill press waits for the supplier and ships on day 10, after a hold has lapsed.",
+    "split": "A split basket ships what is in stock today and the rest within a week; some parts never come."
+  }
+}

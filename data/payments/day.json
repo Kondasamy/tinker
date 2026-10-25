@@ -1,0 +1,217 @@
+{
+  "note": "One day of card orders at Larkspur's online shop, written for this site, not real customers or real cards. Every card is a masked fixture: only four made-up digits, never a real card number, issuer or merchant ID. Orders are placed on day 1; `ships` lists each parcel's day (0 is the order day) and amount, and a basket's parts that never ship were cancelled on `cancelDay`. `risky`: the issuer's risk check would ask this customer to prove it's them. `abandons`: an honest customer who gives up if asked. `timeout`: the till's first request gets no answer, so it sends again. `fraud`: a stolen card; `passes` says whether the thief gets through a challenge, and `day` when the real cardholder disputes it. `reauthDeclines`: the bank says no when Larkspur asks again after the hold lapsed.",
+  "kinds": ["small", "large", "split"],
+  "orders": [
+    {
+      "id": "A1",
+      "who": "Ana",
+      "kind": "small",
+      "item": "hinge pack",
+      "cents": 2400,
+      "card": { "type": "debit", "last4": "•••• 0417" },
+      "hour": 9,
+      "ships": [{ "day": 0, "cents": 2400 }]
+    },
+    {
+      "id": "B2",
+      "who": "Ben",
+      "kind": "small",
+      "item": "cabinet handles",
+      "cents": 1850,
+      "card": { "type": "credit", "last4": "•••• 2290" },
+      "hour": 10,
+      "timeout": true,
+      "ships": [{ "day": 0, "cents": 1850 }]
+    },
+    {
+      "id": "C3",
+      "who": "Cleo",
+      "kind": "small",
+      "item": "wood screws",
+      "cents": 1290,
+      "card": { "type": "debit", "last4": "•••• 7731" },
+      "hour": 11,
+      "risky": true,
+      "abandons": true,
+      "ships": [{ "day": 0, "cents": 1290 }]
+    },
+    {
+      "id": "D4",
+      "who": "Dara",
+      "kind": "small",
+      "item": "door stops",
+      "cents": 2650,
+      "card": { "type": "credit", "last4": "•••• 5108" },
+      "hour": 12,
+      "risky": true,
+      "abandons": true,
+      "ships": [{ "day": 0, "cents": 2650 }]
+    },
+    {
+      "id": "E5",
+      "who": "Noor",
+      "kind": "small",
+      "item": "brass padlock",
+      "cents": 2890,
+      "card": { "type": "credit", "last4": "•••• 6624" },
+      "hour": 13,
+      "risky": true,
+      "fraud": { "passes": false, "day": 9 },
+      "ships": [{ "day": 0, "cents": 2890 }]
+    },
+    {
+      "id": "F6",
+      "who": "Finn",
+      "kind": "small",
+      "item": "brass hooks",
+      "cents": 990,
+      "card": { "type": "debit", "last4": "•••• 3056" },
+      "hour": 14,
+      "ships": [],
+      "cancelDay": 2
+    },
+    {
+      "id": "G7",
+      "who": "Tomas",
+      "kind": "small",
+      "item": "drawer runners",
+      "cents": 2200,
+      "card": { "type": "debit", "last4": "•••• 8842" },
+      "hour": 15,
+      "abandons": true,
+      "ships": [{ "day": 0, "cents": 2200 }]
+    },
+    {
+      "id": "H8",
+      "who": "Gita",
+      "kind": "large",
+      "item": "drill press",
+      "cents": 124900,
+      "card": { "type": "credit", "last4": "•••• 1975" },
+      "hour": 9,
+      "ships": [{ "day": 9, "cents": 124900 }]
+    },
+    {
+      "id": "I9",
+      "who": "Hugo",
+      "kind": "large",
+      "item": "drill press",
+      "cents": 124900,
+      "card": { "type": "debit", "last4": "•••• 4410" },
+      "hour": 10,
+      "timeout": true,
+      "ships": [{ "day": 9, "cents": 124900 }]
+    },
+    {
+      "id": "J10",
+      "who": "Iris",
+      "kind": "large",
+      "item": "drill press",
+      "cents": 124900,
+      "card": { "type": "credit", "last4": "•••• 9263" },
+      "hour": 11,
+      "abandons": true,
+      "ships": [{ "day": 9, "cents": 124900 }]
+    },
+    {
+      "id": "K11",
+      "who": "Jonas",
+      "kind": "large",
+      "item": "drill press",
+      "cents": 124900,
+      "card": { "type": "debit", "last4": "•••• 0588" },
+      "hour": 13,
+      "reauthDeclines": true,
+      "ships": [{ "day": 9, "cents": 124900 }]
+    },
+    {
+      "id": "L12",
+      "who": "Kai",
+      "kind": "large",
+      "item": "drill press",
+      "cents": 124900,
+      "card": { "type": "credit", "last4": "•••• 3317" },
+      "hour": 14,
+      "fraud": { "passes": true, "day": 11 },
+      "ships": [{ "day": 9, "cents": 124900 }]
+    },
+    {
+      "id": "M13",
+      "who": "Lena",
+      "kind": "large",
+      "item": "drill press",
+      "cents": 124900,
+      "card": { "type": "debit", "last4": "•••• 7720" },
+      "hour": 16,
+      "ships": [],
+      "cancelDay": 4
+    },
+    {
+      "id": "N14",
+      "who": "Mona",
+      "kind": "split",
+      "item": "shelf brackets and a bench vice",
+      "cents": 18200,
+      "card": { "type": "debit", "last4": "•••• 6159" },
+      "hour": 10,
+      "ships": [
+        { "day": 0, "cents": 6200 },
+        { "day": 4, "cents": 12000 }
+      ]
+    },
+    {
+      "id": "O15",
+      "who": "Nils",
+      "kind": "split",
+      "item": "sanding kit and a clamp set",
+      "cents": 9400,
+      "card": { "type": "credit", "last4": "•••• 2843" },
+      "hour": 12,
+      "timeout": true,
+      "ships": [
+        { "day": 0, "cents": 3400 },
+        { "day": 4, "cents": 6000 }
+      ]
+    },
+    {
+      "id": "P16",
+      "who": "Omar",
+      "kind": "split",
+      "item": "tool box and a table saw",
+      "cents": 25600,
+      "card": { "type": "credit", "last4": "•••• 5571" },
+      "hour": 14,
+      "ships": [{ "day": 0, "cents": 5600 }],
+      "cancelDay": 4
+    },
+    {
+      "id": "Q17",
+      "who": "Pia",
+      "kind": "split",
+      "item": "hinges and a router table",
+      "cents": 7800,
+      "card": { "type": "debit", "last4": "•••• 9034" },
+      "hour": 15,
+      "abandons": true,
+      "ships": [
+        { "day": 0, "cents": 1800 },
+        { "day": 4, "cents": 6000 }
+      ]
+    },
+    {
+      "id": "R18",
+      "who": "Quinn",
+      "kind": "split",
+      "item": "angle grinder and discs",
+      "cents": 11900,
+      "card": { "type": "credit", "last4": "•••• 4486" },
+      "hour": 16,
+      "risky": true,
+      "fraud": { "passes": false, "day": 10 },
+      "ships": [
+        { "day": 0, "cents": 8900 },
+        { "day": 4, "cents": 3000 }
+      ]
+    }
+  ]
+}
