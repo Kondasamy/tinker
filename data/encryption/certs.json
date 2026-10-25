@@ -1,0 +1,78 @@
+{
+  "note": "Fixture certificates for chapter 6, written for this site with .example names (RFC 2606). Each is signed with a toy-size RSA key from toy.json (the issuer’s), over the SHA-256 of its fields joined by |, so every check runs here. Real certificates are X.509 with real-size keys.",
+  "store": [
+    {
+      "name": "Harbour Root CA",
+      "key": {
+        "n": 8633,
+        "e": 5
+      }
+    }
+  ],
+  "issuers": [
+    {
+      "name": "Harbour Root CA",
+      "key": {
+        "n": 8633,
+        "e": 5
+      }
+    },
+    {
+      "name": "Harbor Root CA",
+      "key": {
+        "n": 5609,
+        "e": 17
+      }
+    }
+  ],
+  "certs": [
+    {
+      "id": "genuine",
+      "subject": "brightwater.example",
+      "issuer": "Harbour Root CA",
+      "from": "2026-03-01",
+      "to": "2027-03-01",
+      "key": {
+        "n": 3233,
+        "e": 17
+      },
+      "signature": 5742
+    },
+    {
+      "id": "wrong-name",
+      "subject": "brightwater-pay.example",
+      "issuer": "Harbour Root CA",
+      "from": "2026-06-01",
+      "to": "2027-06-01",
+      "key": {
+        "n": 3233,
+        "e": 17
+      },
+      "signature": 6078
+    },
+    {
+      "id": "expired",
+      "subject": "brightwater.example",
+      "issuer": "Harbour Root CA",
+      "from": "2024-09-01",
+      "to": "2025-09-01",
+      "key": {
+        "n": 3233,
+        "e": 17
+      },
+      "signature": 4438
+    },
+    {
+      "id": "unknown-root",
+      "subject": "brightwater.example",
+      "issuer": "Harbor Root CA",
+      "from": "2026-03-01",
+      "to": "2027-03-01",
+      "key": {
+        "n": 3233,
+        "e": 17
+      },
+      "signature": 1076
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+---
+// Dev-only eyeball page: every toy number (Diffie–Hellman per secret, RSA keys, the locked order, the signature),
+// SHA-256's vector and the one-character flip, the certificate checks, the workbench's winners, the real AES-GCM and
+// ECDSA run live, then the paint counter in each state (static SVG, wide and phone) and the stage live. Below 600px
+// the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import {
+  DH_STAGES,
+  PAINT_BOARD,
+  PAINT_CARD,
+  paintAt,
+  paintLabel,
+  paintScene,
+  type PaintOpts,
+} from '../components/scenes/paintScene';
+import { CipherLine, EncryptionStage, NAMES, SecretPicker, VerifyLine } from '../content/encryption/kit';
+import { KEYS, TOY, encrypt, publicOf, sharedOf, sign } from '../lib/encryption/toy';
+import { bitsDiffer, hashText } from '../lib/encryption/sha256';
+import { CERTS, checkCert } from '../lib/encryption/certs';
+import { WINNERS, planKey } from '../lib/encryption/workbench';
+import { EDITED, FORGED, INVOICE, ORDER, ORDER_NUMBER } from '../lib/encryption/story';
+
+const B = publicOf(TOY.dh.supplier.secret);
+const STATES: [string, Omit<PaintOpts, 'scale'>][] = [
+  ...DH_STAGES.map(s => [`Mixing, rose: ${s}`, paintAt('rose', s, NAMES)] as [string, PaintOpts]),
+  ['Card picture', PAINT_CARD],
+  [
+    'Locked crate crossing, key copied',
+    {
+      us: [{ kind: 'key', label: 'KEY', owner: 'us' }],
+      counter: [
+        { kind: 'box', label: 'LOCKED ORDER', short: 'LOCKED', locked: true, owner: 'us' },
+        { kind: 'key', label: 'KEY', owner: 'us', lit: true },
+      ],
+      them: [],
+      eve: 'HAS THE KEY',
+      names: NAMES,
+      say: { block: 'eve', text: 'Has the key' },
+    },
+  ],
+  [
+    'Four messages in the open',
+    {
+      us: [],
+      counter: [
+        { kind: 'card', label: 'PRICES', sealed: true },
+        { kind: 'card', label: 'BANK', sealed: true, locked: true },
+        { kind: 'card', label: 'DELIVERY', broken: true },
+        { kind: 'card', label: 'DISCOUNT', locked: true },
+      ],
+      them: [{ kind: 'lock', label: 'PADLOCK', open: true }],
+      eve: '3 ATTACKERS',
+      names: NAMES,
+    },
+  ],
+  ['<script>alert(1)</script> as a pill', { us: [{ kind: 'card', label: '<b>x</b>' }], counter: [], them: [] }],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Locks and keys scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Toy numbers</h1>
+      <table>
+        <thead><tr><th>Secret</th><th>a</th><th>g^a mod p</th><th>shared (both ends)</th></tr></thead>
+        <tbody>
+          {TOY.dh.secrets.map(s => (
+            <tr><th>{s.pigment}</th><td>{s.secret}</td><td>{publicOf(s.secret)}</td><td>{sharedOf(B, s.secret)} / {sharedOf(publicOf(s.secret), TOY.dh.supplier.secret)}</td></tr>
+          ))}
+        </tbody>
+      </table>
+      <p>RSA: {Object.entries(KEYS).map(([k, v]) => `${k} n=${v.n} e=${v.e} d=${v.d}`).join(' · ')}</p>
+      <p>Order {ORDER_NUMBER} locked: {encrypt(ORDER_NUMBER, KEYS.supplier)} · invoice signed: {sign(INVOICE, KEYS.supplier)} · forged signed: {sign(FORGED, KEYS.supplier)}</p>
+      <p>SHA-256 abc: {hashText('abc')}</p>
+      <p>Invoice: {hashText(INVOICE)} · one character changed: {hashText(EDITED)} · bits flipped: {bitsDiffer(hashText(INVOICE), hashText(EDITED))}</p>
+      <ul>{CERTS.map(c => <li>{c.id}: {checkCert(c).map(x => `${x.ok ? '✓' : '✗'} ${x.said}`).join(' · ')}</li>)}</ul>
+      <p>Winners: {WINNERS.map(planKey).join(' | ')}</p>
+      <h1>Real algorithms, live</h1>
+      <CipherLine client:load text={ORDER} />
+      <VerifyLine client:load text={INVOICE} />
+      <VerifyLine client:load text={EDITED} />
+      <h1>Paint counter: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={PAINT_BOARD} scene={paintScene({ ...o, scale: 1.2 })} label={paintLabel(o)} /></div>
+            <div class="phone"><IsoStage board={PAINT_BOARD} scene={paintScene({ ...o, scale: 2 })} label={paintLabel(o)} /></div>
+            <p>{paintLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>The stage and the picker, live</h1>
+      <div class="grid">
+        <section><h2>Stage</h2><div class="stage"><EncryptionStage client:load show={{ scene: paintAt('mint', 'final'), caption: '<script>alert(1)</script>', toy: true }} /></div></section>
+        <section><h2>Secret picker (static)</h2><SecretPicker value="sky" onPick={() => {}} /></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p, td, th, li { font-size: 12px; margin: 0; text-align: left; overflow-wrap: anywhere; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 520px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

@@ -173,6 +173,9 @@ export default function TheSealedEnvelope() {
             </div>
             <Fact id="zero-rtt-replay" />
             <Fact id="https-proves" />
+            <p className="note in-note">
+              How the padlock and the certificate work: <a href="/encryption/">Locks and keys</a>.
+            </p>
             <SimNote />
           </>
         ),

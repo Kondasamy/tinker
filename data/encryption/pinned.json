@@ -1,0 +1,31 @@
+{
+  "note": "Every number Locks and keys teaches, rerun by tests/unit/encryption-*.test.ts. Toy-size numbers from toy.json. aes: the order locked with the demo key and IV (ciphertext then tag). ecdsa: the invoice signed once with the demo P-256 key (r then s); ECDSA signatures are randomised, so this one is committed and verified live.",
+  "dh": {
+    "supplier": 19,
+    "secrets": {
+      "rose": { "public": 8, "shared": 2 },
+      "sky": { "public": 11, "shared": 10 },
+      "mint": { "public": 21, "shared": 7 }
+    }
+  },
+  "rsa": {
+    "supplier": { "n": 3233, "d": 2753 },
+    "root": { "n": 8633, "d": 5069 },
+    "lookalike": { "n": 5609, "d": 3533 }
+  },
+  "locked": 2881,
+  "signed": 1960,
+  "abc": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+  "invoice": "f0ec1110d26513fa28a45aff3ebd97ae89966b7d594bc88d9aa479611506d7de",
+  "edited": "b08edc2678819f7145627b2946d7d8ef7b7275df49680da39f831a292f409504",
+  "flipped": 113,
+  "certs": { "genuine": [], "wrong-name": ["name"], "expired": ["date"], "unknown-root": ["root", "signature"] },
+  "aes": "c48fbdcfdb8acf5ed874c1618505575d62532398f505c4129edcddd81a221a7505ee78f1777391ec621e73581df61f42de830948f6e0f80cf98b71fdd3765011374b",
+  "ecdsa": "35997958b44c698a3a064274deffde5f3b4b7705230d14e9beedf53789a9f8d5afd3bd7c399d90cd7d8b53e360cc8e1a60043b6f833c89a548011762ed4998b8",
+  "winners": [
+    "prices:sign,bank:both,delivery:sign,discount:lock",
+    "prices:sign,bank:both,delivery:sign,discount:both",
+    "prices:sign,bank:both,delivery:both,discount:lock",
+    "prices:sign,bank:both,delivery:both,discount:both"
+  ]
+}

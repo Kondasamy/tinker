@@ -162,7 +162,8 @@ export default function PressedPayTwice() {
             <SimNote />
             <p className="note pm-note">
               Doing a change exactly once across copies comes back in{' '}
-              <a href="/consistency/">Replication &amp; consistency</a>.
+              <a href="/consistency/">Replication &amp; consistency</a>, and a background job that runs twice in{' '}
+              <a href="/queues/05-ran-twice/">Queues</a>.
             </p>
           </>
         ),

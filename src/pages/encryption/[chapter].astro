@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ASharedSecret from '../../content/encryption/01-a-shared-secret';
+import MixingPaint from '../../content/encryption/02-mixing-paint';
+import TheOpenPadlock from '../../content/encryption/03-the-open-padlock';
+import SealedWithYourKey from '../../content/encryption/04-sealed-with-your-key';
+import AFingerprint from '../../content/encryption/05-a-fingerprint';
+import WhoOwnsThisPadlock from '../../content/encryption/06-who-owns-this-padlock';
+import LockSignOrBoth from '../../content/encryption/07-lock-sign-or-both';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('encryption').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="encryption" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-a-shared-secret' ? <ASharedSecret client:load />
+    : chapter === '02-mixing-paint' ? <MixingPaint client:load />
+    : chapter === '03-the-open-padlock' ? <TheOpenPadlock client:load />
+    : chapter === '04-sealed-with-your-key' ? <SealedWithYourKey client:load />
+    : chapter === '05-a-fingerprint' ? <AFingerprint client:load />
+    : chapter === '06-who-owns-this-padlock' ? <WhoOwnsThisPadlock client:load />
+    : <LockSignOrBoth client:load />}
+</ChapterLayout>
