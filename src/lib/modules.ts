@@ -33,6 +33,7 @@ import { COMPUTER_USE_MODULE } from '../content/computer-use/module';
 import { DIFFUSION_LLMS_MODULE } from '../content/diffusion-llms/module';
 import { QUEUES_MODULE } from '../content/queues/module';
 import { COMPRESSION_MODULE } from '../content/compression/module';
+import { LOAD_BALANCING_MODULE } from '../content/load-balancing/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -125,6 +126,7 @@ export const MODULES: Module[] = [
   DIFFUSION_LLMS_MODULE,
   QUEUES_MODULE,
   COMPRESSION_MODULE,
+  LOAD_BALANCING_MODULE,
   planned(
     'mixture-of-experts',
     'Mixture of experts',
@@ -148,13 +150,6 @@ export const MODULES: Module[] = [
     'Locks and keys',
     'Beginner',
     'How a stranger can send you a secret: a public lock, a private key, and signatures that prove who sent it.',
-    'Classic tech',
-  ),
-  planned(
-    'load-balancing',
-    'Load balancing',
-    'Intermediate',
-    'Spreading requests over many servers: round robin, the least busy, health checks, and the one slow server.',
     'Classic tech',
   ),
   planned(

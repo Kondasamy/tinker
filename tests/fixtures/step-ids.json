@@ -1593,5 +1593,53 @@
       "bench",
       "ties"
     ]
+  },
+  "load-balancing": {
+    "01-one-servers-ceiling": [
+      "morning",
+      "predict",
+      "sale",
+      "four",
+      "quiz"
+    ],
+    "02-take-turns": [
+      "predict",
+      "run",
+      "weighted",
+      "quiz"
+    ],
+    "03-the-least-busy": [
+      "rr",
+      "predict",
+      "least",
+      "two",
+      "quiz"
+    ],
+    "04-is-it-alive": [
+      "dead",
+      "checks",
+      "fewer",
+      "predict",
+      "gray",
+      "quiz"
+    ],
+    "05-same-customer": [
+      "off",
+      "predict",
+      "sticky",
+      "dies",
+      "quiz"
+    ],
+    "06-the-slow-tail": [
+      "tail",
+      "predict",
+      "hedge",
+      "early",
+      "quiz"
+    ],
+    "07-route-the-sale": [
+      "bench",
+      "ties"
+    ]
   }
 }

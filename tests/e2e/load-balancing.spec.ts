@@ -1,13 +1,15 @@
 // Load balancing: the intro, every chapter played by mouse and by keyboard only, its own progress key, chapter 4's gray
 // server passing its health check, the board's p99 marker and its percentiles as text, Replay, "I'm not sure", reduced
-// motion (a run shows its end at once), the recap, axe and phone width.
+// motion (a run shows its end at once), the recap, axe and phone width; the go-live checks: the module's number on its
+// intro and recap, its share images and home's card.
 import { test, expect, type Page } from '@playwright/test';
-import { moduleOf } from '../../src/lib/modules';
+import { MODULES, moduleOf } from '../../src/lib/modules';
 import { SERVERS } from '../../src/lib/load-balancing/sim';
 import { loadBalancingWalker } from './load-balancing-flow';
 import { serious, layoutHolds, PHONE } from './helpers';
 
 const M = moduleOf('load-balancing');
+const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'load-balancing') + 1;
 const IDS = M.chapters.map(c => c.id);
 const [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = IDS;
 const at = (id: string) => new RegExp(`/load-balancing/${id}/$`);
@@ -38,6 +40,31 @@ test('the intro shows the level, the author, the chapters and the Colorfigures c
   await page.getByRole('button', { name: 'Words' }).click();
   await expect(page.locator('.band .note.more')).toBeVisible();
   await axe(page);
+});
+
+test('its module number on the intro and the recap', async ({ page }) => {
+  await page.goto('/load-balancing/');
+  await expect(page.locator('.hero .kicker')).toHaveText(`Module ${NUMBER} · Load balancing`);
+  await page.goto('/load-balancing/recap/');
+  await expect(page.locator('.hero .kicker')).toHaveText(`Module ${NUMBER} · Recap`);
+});
+
+test('go-live: own share images and home’s card', async ({ page }) => {
+  await page.goto('/load-balancing/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/load-balancing\.jpg$/);
+  await page.goto(`/load-balancing/${CH1}/`);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    new RegExp(`/og/load-balancing-${CH1}\\.jpg$`),
+  );
+  await page.goto('/load-balancing/recap/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    /\/og\/load-balancing-recap\.jpg$/,
+  );
+  expect((await page.request.get('/og/load-balancing.jpg')).status()).toBe(200);
+  await page.goto('/');
+  await expect(page.locator('.module[data-module="load-balancing"] h4 a')).toHaveAttribute('href', '/load-balancing/');
 });
 
 test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({

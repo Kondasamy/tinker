@@ -4,7 +4,7 @@
 
 Each module is a short story you play through: the picture on the left is live, the story on the right asks you to do one thing at a time in it, and you watch what changes. Build the thing, break it, fix it.
 
-![Tinker home: one workshop, a plot per module; a wave names each module in turn. Thirty-four modules are live, from RAG and tool calling to search, card payments, Git, diffusion language models, queues and compression](docs/images/home.png)
+![Tinker home: one workshop, a plot per module; a wave names each module in turn. Thirty-five modules are live, from RAG and tool calling to search, card payments, Git, diffusion language models, queues, compression and load balancing](docs/images/home.png)
 
 ---
 
@@ -36,6 +36,7 @@ Every module has a level, a story, an intro at `/<module>/`, its chapters, and a
 | Intermediate | [Pre-training](https://tinker.kondasamy.com/pre-training/) (Tokens recommended first) | Live, 7 chapters |
 | Intermediate | [Diffusion models](https://tinker.kondasamy.com/diffusion/) (Multimodal recommended first) | Live, 7 chapters |
 | Intermediate | [Calibration](https://tinker.kondasamy.com/calibration/) (Evals recommended first) | Live, 7 chapters |
+| Intermediate | [Load balancing](https://tinker.kondasamy.com/load-balancing/) | Live, 7 chapters |
 | Advanced | [AI agents](https://tinker.kondasamy.com/agents/) (Tool calling recommended first) | Live, 7 chapters |
 | Advanced | [Transformer architecture](https://tinker.kondasamy.com/transformers/) (Tokens recommended first) | Live, 7 chapters |
 | Advanced | [Fine-tuning vs prompting](https://tinker.kondasamy.com/fine-tuning/) (Evals and Transformers recommended first) | Live, 7 chapters |
@@ -51,7 +52,6 @@ Every module has a level, a story, an intro at `/<module>/`, its chapters, and a
 | Beginner | Locks and keys | Planned |
 | Intermediate | Coding agents | Planned |
 | Intermediate | Synthetic data | Planned |
-| Intermediate | Load balancing | Planned |
 | Advanced | Mixture of experts | Planned |
 
 ![A RAG chapter: the live pipeline on the left, the story on the right](docs/images/chapter.png)

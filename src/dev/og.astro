@@ -262,6 +262,16 @@ import {
 } from '../lib/compression/files';
 import { lossOf as czLoss } from '../lib/compression/lossy';
 import { WINNERS as CZ_WINNERS, runPlan as czRunPlan } from '../lib/compression/workbench';
+import { YARD_BOARD, yardAt, yardScene, type YardOpts } from '../components/scenes/yardScene';
+import { RUNS as LB_RUNS } from '../content/load-balancing/01-one-servers-ceiling';
+import { runAt as lbTurns } from '../content/load-balancing/02-take-turns';
+import { runAt as lbSlow } from '../content/load-balancing/03-the-least-busy';
+import { runAt as lbAlive } from '../content/load-balancing/04-is-it-alive';
+import { runAt as lbSticky } from '../content/load-balancing/05-same-customer';
+import { HEDGE as LB_HEDGE, runAt as lbHedge } from '../content/load-balancing/06-the-slow-tail';
+import { RULE_NAME as LB_RULE } from '../lib/load-balancing/rules';
+import { runOf as lbRun } from '../lib/load-balancing/sim';
+import { WINNERS as LB_WINNERS, benchPolicy as lbBench } from '../lib/load-balancing/workbench';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -1235,6 +1245,22 @@ const PILE_OG: Record<string, () => Omit<PileOpts, 'scale'>> = {
   },
 };
 const pileOg = PILE_OG[page.og]?.();
+// module 35: the switchyard mid-sale. The intro and 7: the first winning setting; 1: Ash alone in the sale; 2: weighted
+// turns; 3: least outstanding with Birch slow; 4: Cedar dead, Dogwood gray, one missed check; 5: sticky sessions as
+// Cedar dies; 6: hedged requests around gray Dogwood.
+const LB_AT = 2500;
+const lbBest = () => yardAt(lbRun(lbBench(LB_WINNERS[0])), LB_AT, LB_RULE[LB_WINNERS[0].rule]);
+const YARD_OG: Record<string, () => Omit<YardOpts, 'scale'>> = {
+  'load-balancing': lbBest,
+  'load-balancing-01-one-servers-ceiling': () => yardAt(LB_RUNS.sale, LB_AT, LB_RULE['round-robin']),
+  'load-balancing-02-take-turns': () => yardAt(lbTurns('weighted'), LB_AT, LB_RULE.weighted),
+  'load-balancing-03-the-least-busy': () => yardAt(lbSlow('least'), LB_AT, LB_RULE.least),
+  'load-balancing-04-is-it-alive': () => yardAt(lbAlive(1, true), LB_AT, LB_RULE['round-robin']),
+  'load-balancing-05-same-customer': () => yardAt(lbSticky(true, true), LB_AT, LB_RULE['round-robin']),
+  'load-balancing-06-the-slow-tail': () => yardAt(lbHedge(LB_HEDGE), LB_AT, LB_RULE.least),
+  'load-balancing-07-route-the-sale': lbBest,
+};
+const yardOg = YARD_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1308,6 +1334,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : sxOg ? <IsoStage board={CABINET_BOARD} scene={cabinetScene({ ...sxOg, scale: 1.3 })} label="" />
           : townOg ? <IsoStage board={TOWN_BOARD} scene={townScene({ ...townOg, scale: 1.3 })} label="" />
           : webFallOg ? <div class="tf-og ob-og"><WaterfallView run={webFallOg} /></div>
+          : yardOg ? <IsoStage board={YARD_BOARD} scene={yardScene({ ...yardOg, scale: 1.3 })} label="" />
           : pileOg ? <IsoStage board={PILE_BOARD} scene={pileScene({ ...pileOg, scale: 1.4 })} label="" />
           : railOg ? <IsoStage board={RAIL_BOARD} scene={railScene({ ...railOg, scale: 1.4 })} label="" />
           : frameOg ? <IsoStage board={FRAME_BOARD} scene={typeFrameScene({ ...frameOg, scale: 1.3 })} label="" />
