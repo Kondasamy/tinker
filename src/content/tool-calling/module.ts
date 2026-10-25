@@ -192,7 +192,7 @@ export const TOOL_CALLING_MODULE: Module = {
     'How AI assistants go from answering to acting: tools, the Model Context Protocol, and keeping a human in charge.',
   level: 'Intermediate',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: ['rag'],
   story:
     'Back at Larkspur Supply Co., the assistant that answers from documents must now act: check an order, issue a refund.',

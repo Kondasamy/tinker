@@ -249,7 +249,7 @@ export const RAG_MODULE: Module<RagChapter> = {
   description: 'How AI assistants answer from your company’s documents, why they go wrong, and how to fix them.',
   level: 'Beginner',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: [],
   story: 'You join the team building an AI assistant for Larkspur Supply Co., a hardware company.',
   // bare og ids: already-shared links keep their images (KTD5)

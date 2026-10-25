@@ -153,7 +153,7 @@ export const AB_TESTING_MODULE: Module = {
   level: 'Beginner',
   track: 'Classic tech',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: [],
   story:
     'Larkspur Supply Co. tests a new checkout, a bigger button, twenty colours and a pushy banner, and learns which wins are real.',

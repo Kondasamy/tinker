@@ -172,7 +172,7 @@ export const TOKENS_MODULE: Module = {
     'How text becomes the numbers a model reads: tokens to count and pay for, and embeddings that carry meaning.',
   level: 'Beginner',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: [],
   story:
     'Larkspur Supply Co. is building an AI assistant, and the team starts where the model does: with the tokens it reads and the numbers that carry meaning.',

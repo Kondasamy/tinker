@@ -158,7 +158,7 @@ export const POST_TRAINING_MODULE: Module = {
     'How a base model becomes an assistant: preferences, a grader that marks its drafts, and the answers that game a weak one.',
   level: 'Advanced',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: ['fine-tuning', 'evals'],
   story:
     'Back at Larkspur Supply Co., the team is turning a base model into its assistant: with people’s picks, with graders, and by finding where a grader gets gamed.',

@@ -161,7 +161,7 @@ export const MULTIMODAL_MODULE: Module = {
   description: 'How images and documents become tokens, and how a model reads a photo, a scan or an invoice.',
   level: 'Intermediate',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: ['tokens'],
   story:
     'Larkspur Supply Co.’s assistant starts receiving pictures: supplier invoices, packing slips, notes from the warehouse and photos of broken parts.',

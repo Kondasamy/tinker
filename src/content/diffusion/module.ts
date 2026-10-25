@@ -177,7 +177,7 @@ export const DIFFUSION_MODULE: Module = {
   description: 'How a picture comes out of noise: a model that removes its best guess of the noise, step by step.',
   level: 'Intermediate',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: ['multimodal'],
   story:
     'Larkspur Supply Co. wants pictures of its parts drawn by a model: a thumbnail for search and a clean image for every catalogue page.',

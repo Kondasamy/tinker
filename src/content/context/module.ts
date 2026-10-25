@@ -183,7 +183,7 @@ export const CONTEXT_MODULE: Module = {
     'What goes into the model’s window each turn, in what order, and what it should remember between conversations.',
   level: 'Intermediate',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: ['rag', 'tool-calling'],
   story:
     'Larkspur Supply Co.’s assistant now answers from documents, calls tools and holds long conversations, so the team has to choose what goes into its window each turn.',

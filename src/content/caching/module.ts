@@ -165,7 +165,7 @@ export const CACHING_MODULE: Module = {
   level: 'Beginner',
   track: 'Classic tech',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: [],
   story:
     'Larkspur Supply Co.’s online shop runs from one depot; the team puts copies in three regional warehouses and keeps them right through a price change and a flash sale.',

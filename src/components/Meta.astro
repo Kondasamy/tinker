@@ -14,7 +14,7 @@ const url = new URL(Astro.url.pathname, Astro.site);
 const image = new URL(`/og/${og}.jpg`, Astro.site);
 
 const abs = (path: string) => new URL(path, Astro.site).href;
-const AUTHOR = { '@type': 'Person', name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' };
+const AUTHOR = { '@type': 'Person', name: 'Kondasamy Jayaraman', alternateName: 'Samy', url: 'https://kondasamy.com' };
 const FREE = { inLanguage: 'en', isAccessibleForFree: true, author: AUTHOR };
 const crumbs = (items: [string, string][]) => ({
   '@type': 'BreadcrumbList',

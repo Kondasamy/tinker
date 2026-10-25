@@ -145,7 +145,7 @@ export const DATABASES_MODULE: Module = {
   level: 'Beginner',
   track: 'Classic tech',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: [],
   story:
     'Larkspur Supply Co.’s orders page crawls; the team finds one order among ten thousand, builds indexes, pays for them on every write and plans the day’s set.',

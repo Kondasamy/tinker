@@ -159,7 +159,7 @@ export const VOICE_MODULE: Module = {
   description: 'Assistants you talk to: speech in and out, taking turns, being interrupted, and the latency budget.',
   level: 'Advanced',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: ['tool-calling', 'multimodal'],
   story:
     'Larkspur Supply Co. puts its assistant on the phone: customers call, speak, pause, talk over it and read out order numbers, and the team has to make the line feel like a conversation.',

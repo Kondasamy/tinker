@@ -171,7 +171,7 @@ export const REASONING_MODULE: Module = {
     'Models that think before they answer: what a thinking budget buys, what it costs, and when more thinking hurts.',
   level: 'Intermediate',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: ['evals'],
   story:
     'Back at Larkspur Supply Co., the assistant starts getting quotes and delivery questions with several steps, and the team has to decide how much it should think before it answers.',

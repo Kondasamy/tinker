@@ -156,7 +156,7 @@ export const OBSERVABILITY_MODULE: Module = {
     'Reading what the assistant really did in production: traces, labelling failures by hand, and finding the ones that matter.',
   level: 'Intermediate',
   status: 'live',
-  author: { name: 'Kondasamy Jayaraman', url: 'https://kondasamy.com' },
+  author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: ['evals'],
   story:
     'Larkspur Supply Co.’s assistant is answering real customers now, so the team reads its traces, names what goes wrong, and fixes what matters first.',

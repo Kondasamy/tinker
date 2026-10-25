@@ -22,7 +22,7 @@ The pictures use **Colorfigures by April Zhu** (https://april-zhu.com/colorfigur
 - in the footer of the home page and of every module intro;
 - in the README Credits section, and `src/lib/iso/LICENSE` with the engine.
 
-Author credit is always the full name, **Kondasamy Jayaraman**, linked to kondasamy.com, opening in a new tab (`target="_blank" rel="noopener"`).
+Author credit is always **Samy (Kondasamy Jayaraman)**: the alias, then the full name, linked to kondasamy.com, opening in a new tab (`target="_blank" rel="noopener"`). The registry's `author.name` carries it; structured data (`Meta.astro`) names the person Kondasamy Jayaraman with `alternateName` Samy. Share images still read "by Kondasamy Jayaraman" until `pnpm og` runs again.
 
 ## Pages and their jobs
 

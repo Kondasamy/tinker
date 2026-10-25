@@ -1,6 +1,6 @@
 # Tinker
 
-> See how tech works by playing with it. Hand-drawn, interactive explanations of how tech works, AI and classic, by [Kondasamy Jayaraman](https://kondasamy.com). Home: **https://tinker.kondasamy.com**.
+> See how tech works by playing with it. Hand-drawn, interactive explanations of how tech works, AI and classic, by [Samy (Kondasamy Jayaraman)](https://kondasamy.com). Home: **https://tinker.kondasamy.com**.
 
 Each module is a short story you play through: the picture on the left is live, the story on the right asks you to do one thing at a time in it, and you watch what changes. Build the thing, break it, fix it.
 
