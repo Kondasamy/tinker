@@ -1,6 +1,7 @@
 // Compression's coders (U9, KTD6): every site file round-trips byte-exact through each coder, the pinned sizes and
 // tokens hold, the Huffman tree is pinned and meets Kraft's equality, random bytes don't shrink, real gzip sits near its
 // reference, and the lossy step meets its pin.
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import pinned from '../../data/compression/pinned.json' with { type: 'json' };
 import { CODERS, CODER_IDS, sizeOf } from '../../src/lib/compression/coders';
@@ -75,6 +76,13 @@ describe('Huffman', () => {
 });
 
 describe('the site files', () => {
+  it('the two texts are the corpus documents, byte for byte', () => {
+    for (const [id, doc] of [
+      ['price', 'price-list-2025'],
+      ['product', 'kestrel-k3-launch-faq-2025'],
+    ] as const)
+      expect(same(fileOf(id).bytes, new Uint8Array(readFileSync(`data/corpus/${doc}.md`)))).toBe(true);
+  });
   it('the random file is its seed’s bytes, and the pair can’t shrink it', () => {
     const r = fileOf('random');
     expect(same(r.bytes, randomBytes(2026, 512))).toBe(true);

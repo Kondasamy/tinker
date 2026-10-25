@@ -1,0 +1,103 @@
+---
+// Dev-only eyeball page: every site file's size per coder (ours pinned, real gzip measured in the browser), the sorting
+// table in each chapter's state (static SVG, wide and phone), the precise views, then the stage and the merge bench
+// live. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { PILE_BOARD, pileAt, pileLabel, pileScene, type PileOpts } from '../components/scenes/pileScene';
+import {
+  CompressionStage,
+  GzipLine,
+  MergeBench,
+  PixelView,
+  StripView,
+  TreeView,
+  finish,
+  forestOf,
+  forestTable,
+} from '../content/compression/kit';
+import { CODERS, CODER_IDS, sizeOf } from '../lib/compression/coders';
+import { FILES, PICTURE, PUZZLE, fileOf } from '../lib/compression/files';
+import { lossOf } from '../lib/compression/lossy';
+import { SCANNERS } from '../lib/compression/story';
+import { WINNERS, runPlan } from '../lib/compression/workbench';
+
+const price = fileOf('price').bytes,
+  random = fileOf('random').bytes;
+const half = forestOf(PUZZLE);
+const win = runPlan(WINNERS[0]);
+const STATES: [string, Omit<PileOpts, 'scale'>][] = [
+  ['Price list, raw', pileAt(price)],
+  ['Price list, packed', { ...pileAt(price, sizeOf('pair', price)), say: { block: 'parcel', text: 'Packed size' } }],
+  ['Puzzle, start', forestTable(half, false)],
+  ['Puzzle, done', { ...forestTable(finish(half), true), say: { block: 'tray', text: 'Newest merge' } }],
+  ['Random, packed (grows)', pileAt(random, sizeOf('pair', random))],
+  ['Picture, 16 shades', pileAt(lossOf(PICTURE, { levels: 16, block: 1 }).pic.rgb, 635)],
+  ['Empty table', { piles: [] }],
+  ['<script>alert(1)</script> as a pile', { piles: [{ label: '<b>x</b>', w: 3 }] }],
+  [
+    'Bench: a winner',
+    {
+      piles: win.rows.map(r => ({ label: r.id, w: r.size })),
+      parcel: { raw: win.rows.reduce((a, r) => a + r.raw, 0), packed: win.total },
+    },
+  ],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Compression scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Sizes per coder (bytes)</h1>
+      <table>
+        <thead><tr><th>File</th><th>Raw</th>{CODER_IDS.map(c => <th>{CODERS[c].name}</th>)}<th>Real gzip</th></tr></thead>
+        <tbody>
+          {FILES.map(f => (
+            <tr><th>{f.name}</th><td>{f.bytes.length}</td>{CODER_IDS.map(c => <td>{sizeOf(c, f.bytes, f.id)}</td>)}<td><GzipLine client:load data={f.bytes} /></td></tr>
+          ))}
+        </tbody>
+      </table>
+      <h1>Sorting table: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={PILE_BOARD} scene={pileScene({ ...o, scale: 1.2 })} label={pileLabel(o)} /></div>
+            <div class="phone"><IsoStage board={PILE_BOARD} scene={pileScene({ ...o, scale: 2 })} label={pileLabel(o)} /></div>
+            <p>{pileLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <div class="grid">
+        <section><h2>Pointer strip</h2><StripView client:load text={SCANNERS} pointers /></section>
+        <section><h2>Code tree</h2><TreeView root={finish(half)[0]} /></section>
+        <section><h2>Pixels: 4 shades, blocks of 4</h2><PixelView before={PICTURE} after={lossOf(PICTURE, { levels: 4, block: 4 }).pic} /></section>
+      </div>
+      <h1>The stage and the bench, live</h1>
+      <div class="grid">
+        <section><h2>Stage</h2><div class="stage"><CompressionStage client:load show={{ table: pileAt(price), caption: '<script>alert(1)</script>' }} /></div></section>
+        <section><h2>Merge bench (static)</h2><MergeBench forest={half} onMerge={() => {}} onMiss={() => {}} /></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p, td, th { font-size: 12px; margin: 0; text-align: left; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 520px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

@@ -1,15 +1,12 @@
 // Larkspur's site files for the Compression module (data/compression/files/): the price list and the K3 product page
-// read from data/corpus/ as they are, a seeded random file, and a small picture drawn for this site. Their names and
-// titles come from the data, never typed into copy (R18).
+// from data/corpus/ as they are (copied into texts.json, so the e2e flow runs outside Vite; a test checks the copy), a
+// seeded random file, and a small picture drawn for this site. Names and titles come from the data, never typed (R18).
 import data from '../../../data/compression/files/files.json' with { type: 'json' };
 import picture from '../../../data/compression/files/picture.json' with { type: 'json' };
+import texts from '../../../data/compression/files/texts.json' with { type: 'json' };
 import meta from '../../../data/corpus/meta.json' with { type: 'json' };
 
-const RAW = import.meta.glob<string>('/data/corpus/{price-list-2025,kestrel-k3-launch-faq-2025}.md', {
-  query: '?raw',
-  import: 'default',
-  eager: true,
-});
+const RAW = texts as unknown as Record<string, string>;
 const enc = new TextEncoder();
 
 /** mulberry32: a small fixed 32-bit PRNG, uniform in [0, 1). The same as Transformers' sampler, without its model. */
@@ -27,6 +24,10 @@ export const randomBytes = (seed: number, length: number) => {
   const r = mulberry32(seed);
   return Uint8Array.from({ length }, () => Math.floor(r() * 256));
 };
+
+/** A byte as a pill or a cell shows it: a space and a line break drawn, anything unprintable as its number. */
+export const byteName = (b: number) =>
+  b === 32 ? '␣' : b === 10 ? '↵' : b > 32 && b < 127 ? String.fromCharCode(b) : `#${b}`;
 
 export type FileId = 'price' | 'product' | 'random' | 'picture';
 export interface SiteFile {
@@ -49,7 +50,7 @@ const b64 = (s: string) => Uint8Array.from(atob(s), c => c.charCodeAt(0));
 export const PICTURE: Picture = { w: picture.w, h: picture.h, rgb: b64(picture.rgb) };
 
 const titleOf = (corpus: string) => meta.find(m => m.id === corpus)!.title;
-const textOf = (corpus: string) => RAW[`/data/corpus/${corpus}.md`];
+const textOf = (corpus: string) => RAW[corpus];
 
 export const FILES: SiteFile[] = data.files.map(f => {
   const id = f.id as FileId;

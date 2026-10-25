@@ -9,7 +9,7 @@ import { CODER_IDS, sizeOf, type CoderId } from './coders';
 import { FILES, PICTURE, type FileId } from './files';
 import { BLOCKS, LEVELS, lossOf } from './lossy';
 
-export const BUDGET = { bytes: budget.bytes, diff: budget.diff };
+export const BUDGET = { bytes: budget.bytes, diff: budget.diff, picture: budget.picture };
 /** The files a coder is picked for: every one but the picture. */
 export const LOSSLESS = FILES.filter(f => f.kind !== 'picture').map(f => f.id);
 export interface Plan {
