@@ -1,0 +1,99 @@
+---
+// Dev-only eyeball page: the crate yard in each chapter's state (static SVG, wide and phone), the packing view, the
+// commit graph, then the stage live with the editor. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { boardOf, crateLabel, crateScene, yardOf, type CrateOpts } from '../components/scenes/crateScene';
+import { GitStage, GraphView, packingOf } from '../content/git/kit';
+import { REPO } from '../lib/git/graph';
+import {
+  BASE,
+  BEFORE_CONFLICT,
+  BEFORE_REBASE,
+  CLEAN,
+  NEXT,
+  REBASED,
+  REWORDED,
+  SALE,
+  conflictMerge,
+} from '../lib/git/story';
+import { WAITING, WINNERS, runPlan } from '../lib/git/workbench';
+
+const saved = REPO.history.at(-1)!.text;
+const win = runPlan(WINNERS[0]).repo;
+const STATES: [string, Omit<CrateOpts, 'scale'>][] = [
+  ['Packing: unchanged', { crates: [], flags: [], packing: packingOf(saved, saved) }],
+  [
+    'Packing: a price changed',
+    {
+      crates: [],
+      flags: [],
+      packing: packingOf(saved, saved.replace('189', '179')),
+      say: { block: 'blob', text: 'New name' },
+    },
+  ],
+  ['The chain', yardOf(BASE)],
+  ['Committed', { ...yardOf(NEXT, { lit: [NEXT.refs.main] }), say: { block: 'tip', text: 'New crate' } }],
+  ['Reworded first commit', yardOf(REWORDED, { lit: REWORDED.order })],
+  ['A branch with a commit', { ...yardOf(SALE), say: { block: 'head', text: 'HEAD' } }],
+  [
+    'Clean merge',
+    {
+      ...yardOf(CLEAN.repo, { lit: [CLEAN.repo.refs.main], base: CLEAN.base }),
+      say: { block: 'base', text: 'Merge base' },
+    },
+  ],
+  ['Before the conflict', yardOf(BEFORE_CONFLICT)],
+  ['Conflict', yardOf(conflictMerge('theirs').repo, { conflict: conflictMerge('theirs').repo.refs.main })],
+  ['Before rebase', yardOf(BEFORE_REBASE)],
+  ['Rebased, old crates left behind', yardOf(REBASED.repo, { lit: REBASED.rewritten.map(([, n]) => n) })],
+  ['Bench: waiting', yardOf(WAITING)],
+  ['Bench: a winner', yardOf(win, { ghosts: false })],
+  ['<script>alert(1)</script> as a branch', yardOf({ ...BASE, refs: { ...BASE.refs, '<b>x</b>': BASE.order[0] } })],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Git scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Crate yard: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={boardOf(o)} scene={crateScene({ ...o, scale: 1.2 })} label={crateLabel(o)} /></div>
+            <div class="phone"><IsoStage board={boardOf(o)} scene={crateScene({ ...o, scale: 2 })} label={crateLabel(o)} /></div>
+            <p>{crateLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <section><h2>Graph: rebased</h2><GraphView client:load repo={REBASED.repo} /></section>
+      <section><h2>Graph: clean merge</h2><GraphView client:load repo={CLEAN.repo} /></section>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Picture</h2><div class="stage"><GitStage client:load show={{ yard: yardOf(win), repo: win, caption: 'A winning plan.' }} /></div></section>
+        <section><h2>Graph, escaped caption</h2><div class="stage"><GitStage client:load view="graph" show={{ yard: yardOf(SALE), repo: SALE, caption: '<script>alert(1)</script>' }} /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 520px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

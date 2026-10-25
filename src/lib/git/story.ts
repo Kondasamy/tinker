@@ -21,6 +21,11 @@ export function onMain(r: Repo, b: BranchId): Repo {
   return r;
 }
 
+/** Chapter 1: the page as last committed (what the saved crate holds), its drill press price, and one price changed. */
+export const SAVED = REPO.history.at(-1)!.text;
+export const DRILL = /Drill press: ([\d.]+)/.exec(SAVED)![1];
+export const EDITED = SAVED.replace(DRILL, (Number(DRILL) - 10).toFixed(2));
+
 /** The three commits so far, on main. */
 export const BASE = init();
 /** Chapter 2: Mira's next change, committed. */
