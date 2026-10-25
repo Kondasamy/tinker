@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ANameToANumber from '../../content/web-requests/01-a-name-to-a-number';
+import TheRememberedAnswer from '../../content/web-requests/02-the-remembered-answer';
+import HelloHelloReady from '../../content/web-requests/03-hello-hello-ready';
+import LostInThePost from '../../content/web-requests/04-lost-in-the-post';
+import TheSealedEnvelope from '../../content/web-requests/05-the-sealed-envelope';
+import OneLineManyFiles from '../../content/web-requests/06-one-line-many-files';
+import MakeItFast from '../../content/web-requests/07-make-it-fast';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('web-requests').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="web-requests" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-a-name-to-a-number' ? <ANameToANumber client:load />
+    : chapter === '02-the-remembered-answer' ? <TheRememberedAnswer client:load />
+    : chapter === '03-hello-hello-ready' ? <HelloHelloReady client:load />
+    : chapter === '04-lost-in-the-post' ? <LostInThePost client:load />
+    : chapter === '05-the-sealed-envelope' ? <TheSealedEnvelope client:load />
+    : chapter === '06-one-line-many-files' ? <OneLineManyFiles client:load />
+    : <MakeItFast client:load />}
+</ChapterLayout>

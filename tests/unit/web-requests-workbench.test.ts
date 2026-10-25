@@ -13,6 +13,13 @@ import {
   meets,
   solve,
 } from '../../src/lib/web-requests/workbench';
+import * as ch1 from '../../src/content/web-requests/01-a-name-to-a-number';
+import * as ch2 from '../../src/content/web-requests/02-the-remembered-answer';
+import * as ch3 from '../../src/content/web-requests/03-hello-hello-ready';
+import * as ch4 from '../../src/content/web-requests/04-lost-in-the-post';
+import * as ch5 from '../../src/content/web-requests/05-the-sealed-envelope';
+import * as ch6 from '../../src/content/web-requests/06-one-line-many-files';
+import * as ch7 from '../../src/content/web-requests/07-make-it-fast';
 
 describe('the page workbench', () => {
   it('pins every policy that meets the rules', () => {
@@ -33,6 +40,19 @@ describe('the page workbench', () => {
     const day = { ...WINNERS[0], ttl: 1440 };
     expect(CUSTOMERS.every(c => loadOf(day, c.id).total <= BUDGET)).toBe(true);
     expect(meets(day)).toBe(false);
+  });
+
+  it('chapter 7’s Show me lands in WINNERS, and each chapter’s reveal matches its run', () => {
+    const shown = ch7.STEPS[0].solution!({ ...START, view: 'scene', quiz: null });
+    expect(WINNERS).toContainEqual(benchOf(shown));
+    expect(ch7.STEPS[0].predicate(shown)).toBe(true);
+    // each prediction's right option, read off the runs
+    expect(ch1.outcomeOf()).toBe(1);
+    expect(ch2.outcomeOf()).toBe(1);
+    expect(ch3.outcomeOf()).toBe(1);
+    expect(ch4.outcomeOf()).toBe(1);
+    expect(ch5.outcomeOf()).toBe(1);
+    expect(ch6.outcomeOf()).toBe(1);
   });
 
   it('a saved bench with unknown values falls back to the start', () => {

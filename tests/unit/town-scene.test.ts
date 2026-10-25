@@ -46,7 +46,9 @@ describe('the post town', () => {
       for (const http of ['1.1', '2', '3'] as const) {
         const r = runOf(c.id, { http, loss: true }),
           svg = draw(townAt(r));
-        expect(count(svg, 'class="ditch"')).toBe(new Set(r.phases.filter(p => p.lost).map(p => p.office ?? 'road')).size);
+        expect(count(svg, 'class="ditch"')).toBe(
+          new Set(r.phases.filter(p => p.lost).map(p => p.office ?? 'road')).size,
+        );
       }
     const wen = draw(townAt(runOf('wen', { http: '2', loss: true })));
     expect(wen).toContain('data-ditch="road"');

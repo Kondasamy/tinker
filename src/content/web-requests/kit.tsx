@@ -227,13 +227,7 @@ export function CustomerPicker({
   return (
     <div className="wr-row" role="group" aria-label={label}>
       {CUSTOMERS.filter(c => !only || only.includes(c.id)).map(c => (
-        <button
-          key={c.id}
-          type="button"
-          className="chip"
-          aria-pressed={value === c.id}
-          onClick={() => onPick(c.id)}
-        >
+        <button key={c.id} type="button" className="chip" aria-pressed={value === c.id} onClick={() => onPick(c.id)}>
           {`${c.name}, ${c.town}`}
         </button>
       ))}

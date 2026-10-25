@@ -145,7 +145,7 @@ function roof(x0: number, y0: number, x1: number, y1: number, z: number, h: numb
   );
 }
 
-function house(o: TownOpts) {
+function house() {
   const { x, y, h } = HOUSE;
   let s = box(x - h, y - h, BH, x + h, y + h, BH + 12, CERAMIC, toneI, 1);
   s += box(x + h, y - 2.5, BH, x + h + 0.4, y + 2.5, BH + 7, PALS.cobalt, toneI, 0.8); // door, toward the road
@@ -302,7 +302,7 @@ export const townScene = (o: TownOpts) => (ctx: SceneCtx) => {
     shadow(...OFFICE.tld, 7, BH + 15);
   s += roads(km, st.broken);
   const parts = [
-    house(o),
+    house(),
     office('root', ...OFFICE.root, st.lit.includes('root')),
     office('tld', ...OFFICE.tld, st.lit.includes('tld')),
     office('nameserver', nx, ny, st.lit.includes('nameserver')),
@@ -332,9 +332,7 @@ export const townScene = (o: TownOpts) => (ctx: SceneCtx) => {
   }
   s += `<g data-prop="carts" data-carts="${st.carts}" data-sealed="${o.sealed ? 1 : 0}">${byDepth(parts)}</g>`;
 
-  const shopText = narrow
-    ? 'SHOP'
-    : `SHOP · ${num(km)} KM${o.http && o.ms !== null ? ` · HTTP/${o.http}` : ''}`;
+  const shopText = narrow ? 'SHOP' : `SHOP · ${num(km)} KM${o.http && o.ms !== null ? ` · HTTP/${o.http}` : ''}`;
   let pills = pill([sx, sy, BH + 21], 0, -20, shopText, o.trips > 0, scale);
   pills += pill(
     [HOUSE.x + HOUSE.h, HOUSE.y + HOUSE.h, BH],
@@ -432,10 +430,6 @@ export function townPlot(x: number, y: number, top: SceneCtx['top']): string {
     castShadow(boxCorners(hx - h, hy - h, BH, hx + h, hy + h, BH + 10), BH, top) +
     castShadow(boxCorners(shx - sh, shy - sh, BH, shx + sh, shy + sh, BH + 12), BH, top) +
     road +
-    byDepth([
-      { at: [hx, hy, 0], svg: hs },
-      { at: [shx, shy, 0], svg: ss },
-      cart(hx, (hy + shy) / 2, true),
-    ])
+    byDepth([{ at: [hx, hy, 0], svg: hs }, { at: [shx, shy, 0], svg: ss }, cart(hx, (hy + shy) / 2, true)])
   );
 }
