@@ -1,0 +1,10 @@
+{
+  "accessed": "2026-10-25",
+  "facts": [
+    { "id": "guo", "claim": "Guo and colleagues (2017) found that modern neural networks, unlike those of a decade earlier, are poorly calibrated, and that temperature scaling, one number fitted on held-out data, is surprisingly effective at fixing it.", "source": "https://arxiv.org/abs/1706.04599" },
+    { "id": "kadavath", "claim": "Kadavath and colleagues at Anthropic (2022) found that larger language models are well calibrated on diverse multiple-choice and true/false questions.", "source": "https://arxiv.org/abs/2207.05221" },
+    { "id": "gpt4", "claim": "OpenAI’s GPT-4 report (2023) shows its pre-trained model well calibrated on part of the MMLU test, with an ECE of 0.007, and its post-trained model much less so, at 0.074. OpenAI’s figures, for a far larger model.", "value": "0.007,0.074", "source": "https://arxiv.org/abs/2303.08774" },
+    { "id": "brier", "claim": "Glenn Brier proposed his score in 1950 to check weather forecasts given as probabilities: the average squared gap between each forecast and what happened.", "source": "https://doi.org/10.1175/1520-0493(1950)078%3C0001:VOFEIT%3E2.0.CO;2" },
+    { "id": "selective", "claim": "Geifman and El-Yaniv (2017) built selective classifiers on trained deep networks: you set the error rate you can accept, and the classifier declines the inputs it must to keep it.", "source": "https://arxiv.org/abs/1705.08500" }
+  ]
+}

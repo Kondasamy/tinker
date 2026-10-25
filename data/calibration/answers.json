@@ -1,0 +1,507 @@
+{
+  "note": "A stand-in set written for this site: sixty answers by Larkspur's support assistant, each with a hand-set confidence set to show the overconfidence Guo et al. (2017) report. Not a real model's answers or scores. Each is graded live by Evals' key-fact check: against Evals' reference where `evals` names one, otherwise against data/calibration/references.json.",
+  "kinds": [
+    {
+      "id": "orders",
+      "label": "Orders and delivery",
+      "about": "Shipping times, pickup, tracking and the Portal's ordering steps."
+    },
+    {
+      "id": "policy",
+      "label": "Refunds and billing",
+      "about": "Refunds, returns, invoices and payment terms."
+    },
+    {
+      "id": "products",
+      "label": "Product questions",
+      "about": "Specs, prices and fit for scanners, printers, shelving and sensors."
+    }
+  ],
+  "answers": [
+    {
+      "id": "o-same-day",
+      "kind": "orders",
+      "evals": "same-day-cutoff",
+      "question": "If I order before lunch, does it ship today?",
+      "text": "Yes: in-stock orders placed before 2 p.m. Central time on a business day ship the same day.",
+      "confidence": 0.98,
+      "note": "Right: one plain line in the shipping policy."
+    },
+    {
+      "id": "o-weekend",
+      "kind": "orders",
+      "question": "Do you ship on Saturdays?",
+      "text": "No. Orders are picked and shipped on business days only.",
+      "confidence": 0.97,
+      "note": "Right: the shipping FAQ says so directly."
+    },
+    {
+      "id": "o-ground",
+      "kind": "orders",
+      "question": "How long does standard ground delivery take?",
+      "text": "Standard ground delivery takes three to five business days.",
+      "confidence": 0.97,
+      "note": "Right."
+    },
+    {
+      "id": "o-expedited",
+      "kind": "orders",
+      "question": "How fast is expedited delivery?",
+      "text": "Expedited delivery takes two business days.",
+      "confidence": 0.96,
+      "note": "Right."
+    },
+    {
+      "id": "o-free-parcel",
+      "kind": "orders",
+      "question": "When is parcel shipping free?",
+      "text": "Parcel shipping is free on orders over $500.",
+      "confidence": 0.96,
+      "note": "Right."
+    },
+    {
+      "id": "o-pickup",
+      "kind": "orders",
+      "question": "Can I collect an order myself?",
+      "text": "Yes. Choose warehouse pickup at checkout for the Riverbend or Eastgate warehouse.",
+      "confidence": 0.95,
+      "note": "Right."
+    },
+    {
+      "id": "o-track",
+      "kind": "orders",
+      "question": "Where do I see tracking for my parcels?",
+      "text": "Open the order in the Portal to see carrier tracking for every parcel.",
+      "confidence": 0.95,
+      "note": "Right."
+    },
+    {
+      "id": "o-engraving",
+      "kind": "orders",
+      "question": "How much longer do engraved items take?",
+      "text": "Orders that need custom cutting or engraving add three business days.",
+      "confidence": 0.94,
+      "note": "Right."
+    },
+    {
+      "id": "o-combine",
+      "kind": "orders",
+      "question": "Can you combine my two orders into one shipment?",
+      "text": "Yes, always: support can merge any two orders into one shipment.",
+      "confidence": 0.94,
+      "note": "Wrong and sure: only orders still waiting to be picked can be combined."
+    },
+    {
+      "id": "o-backorder",
+      "kind": "orders",
+      "question": "Do back-ordered items cost extra to ship?",
+      "text": "No. Back-ordered items ship separately at no extra cost.",
+      "confidence": 0.93,
+      "note": "Right."
+    },
+    {
+      "id": "o-damage",
+      "kind": "orders",
+      "question": "How soon must I report a damaged delivery?",
+      "text": "Report damage within five days of delivery, with photos of the carton and the item.",
+      "confidence": 0.92,
+      "note": "Right."
+    },
+    {
+      "id": "o-liftgate",
+      "kind": "orders",
+      "question": "Can you send a truck with a liftgate for my shelving?",
+      "text": "Yes. Add the liftgate option when you book the freight appointment.",
+      "confidence": 0.91,
+      "note": "Right."
+    },
+    {
+      "id": "o-reorder",
+      "kind": "orders",
+      "question": "How do I order the same things again?",
+      "text": "Open Order history and choose Reorder on any past order.",
+      "confidence": 0.9,
+      "note": "Right."
+    },
+    {
+      "id": "o-approval",
+      "kind": "orders",
+      "question": "Why is my order stuck as waiting?",
+      "text": "Your admin has set an approval rule; it goes to the warehouse once an approver accepts it.",
+      "confidence": 0.88,
+      "note": "Right."
+    },
+    {
+      "id": "o-address",
+      "kind": "orders",
+      "question": "Where do I change my delivery address?",
+      "text": "Open Settings, then Addresses.",
+      "confidence": 0.86,
+      "note": "Right."
+    },
+    {
+      "id": "o-no-account",
+      "kind": "orders",
+      "question": "Can I order without a Portal account?",
+      "text": "No. Every order needs a Portal account so invoices and warranties are tracked.",
+      "confidence": 0.84,
+      "note": "Right."
+    },
+    {
+      "id": "o-international",
+      "kind": "orders",
+      "question": "Do you ship to Canada for a small shop?",
+      "text": "Yes, standard ground delivery reaches neighboring countries in five to eight days.",
+      "confidence": 0.79,
+      "note": "Wrong: international shipping is only for enterprise contracts."
+    },
+    {
+      "id": "o-stock",
+      "kind": "orders",
+      "question": "Where can I see stock levels?",
+      "text": "Each product page shows stock at your nearest warehouse.",
+      "confidence": 0.78,
+      "note": "Right."
+    },
+    {
+      "id": "o-freight-days",
+      "kind": "orders",
+      "question": "How soon is a freight delivery scheduled?",
+      "text": "Freight deliveries are scheduled with you within one business day of shipping.",
+      "confidence": 0.74,
+      "note": "Right."
+    },
+    {
+      "id": "o-no-one-home",
+      "kind": "orders",
+      "question": "What happens if nobody is at the dock for my freight?",
+      "text": "The driver leaves the pallet at the door.",
+      "confidence": 0.68,
+      "note": "Wrong: the carrier reschedules and a redelivery fee may apply."
+    },
+    {
+      "id": "p-window",
+      "kind": "policy",
+      "evals": "standard-refund-window",
+      "question": "How long do I have to ask for a refund?",
+      "text": "Standard customers can request a refund within 30 days of delivery.",
+      "confidence": 0.98,
+      "note": "Right: one line in the refund policy."
+    },
+    {
+      "id": "p-enterprise",
+      "kind": "policy",
+      "evals": "refund-enterprise",
+      "question": "We're on an enterprise contract. Can we get a refund?",
+      "text": "No. The refund policy does not apply to enterprise contracts; raise a billing dispute with your account manager.",
+      "confidence": 0.97,
+      "note": "Right."
+    },
+    {
+      "id": "p-net30",
+      "kind": "policy",
+      "question": "What are the payment terms on a standard account?",
+      "text": "Standard accounts pay on net 30 terms.",
+      "confidence": 0.96,
+      "note": "Right."
+    },
+    {
+      "id": "p-return-start",
+      "kind": "policy",
+      "question": "How do I start a return?",
+      "text": "Open the order in the Portal and choose Start return, then print the label.",
+      "confidence": 0.95,
+      "note": "Right."
+    },
+    {
+      "id": "p-card-days",
+      "kind": "policy",
+      "question": "How long until a card refund shows up?",
+      "text": "Card refunds usually appear within seven business days.",
+      "confidence": 0.94,
+      "note": "Right."
+    },
+    {
+      "id": "p-annual",
+      "kind": "policy",
+      "question": "Can I get money back for unused months of an annual plan?",
+      "text": "Yes, unused months on annual plans are refunded pro rata.",
+      "confidence": 0.93,
+      "note": "Wrong and very sure: annual plans are never partly refunded; the plan runs to the end of the term."
+    },
+    {
+      "id": "p-old-invoice",
+      "kind": "policy",
+      "question": "Can I download an invoice from 2020?",
+      "text": "Yes. Every invoice since 2019 can be downloaded from the Invoices page.",
+      "confidence": 0.93,
+      "note": "Right."
+    },
+    {
+      "id": "p-invoice-day",
+      "kind": "policy",
+      "question": "When is the invoice sent?",
+      "text": "Invoices are emailed the day an order ships.",
+      "confidence": 0.92,
+      "note": "Right."
+    },
+    {
+      "id": "p-exchange",
+      "kind": "policy",
+      "question": "Can I swap an item instead of returning it?",
+      "text": "Yes. Choose Exchange in the returns center and pick the replacement.",
+      "confidence": 0.91,
+      "note": "Right."
+    },
+    {
+      "id": "p-inspect",
+      "kind": "policy",
+      "question": "How long does a return take once it arrives?",
+      "text": "Most returns are inspected within five business days of reaching the warehouse.",
+      "confidence": 0.9,
+      "note": "Right."
+    },
+    {
+      "id": "p-labels",
+      "kind": "policy",
+      "question": "Can I return an opened roll of labels?",
+      "text": "Yes, any roll can be returned within 30 days.",
+      "confidence": 0.88,
+      "note": "Wrong and sure: only unopened rolls come back."
+    },
+    {
+      "id": "p-dispute",
+      "kind": "policy",
+      "question": "How do I dispute an invoice?",
+      "text": "Open the invoice and choose Dispute; it goes to your account manager.",
+      "confidence": 0.88,
+      "note": "Right."
+    },
+    {
+      "id": "p-po-credit",
+      "kind": "policy",
+      "question": "How is a purchase-order customer refunded?",
+      "text": "Purchase-order customers receive a credit note for their next invoice.",
+      "confidence": 0.86,
+      "note": "Right."
+    },
+    {
+      "id": "p-custom-cut",
+      "kind": "policy",
+      "question": "Can I return custom-cut shelving I no longer need?",
+      "text": "Yes, within 30 days in its original packaging.",
+      "confidence": 0.85,
+      "note": "Wrong and sure: made-to-order items are final sale unless defective."
+    },
+    {
+      "id": "p-tax",
+      "kind": "policy",
+      "question": "We're tax-exempt. What do we do?",
+      "text": "Upload your exemption certificate in Settings.",
+      "confidence": 0.83,
+      "note": "Right."
+    },
+    {
+      "id": "p-enterprise-terms",
+      "kind": "policy",
+      "question": "What payment terms do enterprise accounts get?",
+      "text": "Enterprise accounts usually pay on net 45 terms set in their contract.",
+      "confidence": 0.8,
+      "note": "Right."
+    },
+    {
+      "id": "p-late-fee",
+      "kind": "policy",
+      "question": "What is the late fee on an unpaid invoice?",
+      "text": "Late invoices carry a flat $25 fee.",
+      "confidence": 0.78,
+      "note": "Wrong: it is 1.5 percent per month, after 15 days."
+    },
+    {
+      "id": "p-bank",
+      "kind": "policy",
+      "question": "Can I pay a $1,000 invoice by bank transfer?",
+      "text": "Not for that amount: bank transfer is for invoices over $2,000.",
+      "confidence": 0.75,
+      "note": "Right."
+    },
+    {
+      "id": "p-gift-card",
+      "kind": "policy",
+      "question": "Is a gift card refunded to cash?",
+      "text": "Gift cards and promotional credit are not refunded to cash.",
+      "confidence": 0.72,
+      "note": "Right."
+    },
+    {
+      "id": "p-return-ship",
+      "kind": "policy",
+      "question": "Who pays for return shipping?",
+      "text": "Larkspur pays return shipping on every return.",
+      "confidence": 0.7,
+      "note": "Wrong: the customer pays unless the item was wrong or defective."
+    },
+    {
+      "id": "x-k3-price",
+      "kind": "products",
+      "question": "What does one Kestrel K3 cost?",
+      "text": "One Kestrel K3 is $620.",
+      "confidence": 0.99,
+      "note": "Right."
+    },
+    {
+      "id": "x-k2-volume",
+      "kind": "products",
+      "evals": "k2-volume-price",
+      "question": "What does a Kestrel K2 cost if we buy 60?",
+      "text": "At 50 or more, a Kestrel K2 is $410 per unit.",
+      "confidence": 0.98,
+      "note": "Right: one row of the price list."
+    },
+    {
+      "id": "x-wren-price",
+      "kind": "products",
+      "question": "How much is a Wren WL-4 printer?",
+      "text": "A Wren WL-4 label printer is $310 for one to nine units.",
+      "confidence": 0.98,
+      "note": "Right."
+    },
+    {
+      "id": "x-k3-battery",
+      "kind": "products",
+      "question": "Will my spare K3 batteries fit our K2 scanners?",
+      "text": "Yes, K3 batteries fit the K2.",
+      "confidence": 0.97,
+      "note": "Wrong and very sure: the batteries have different shapes."
+    },
+    {
+      "id": "x-ds-warranty",
+      "kind": "products",
+      "evals": "dock-sensor-warranty",
+      "question": "How long is the dock sensor's warranty?",
+      "text": "The DS-100 has a three-year warranty from the date of shipment.",
+      "confidence": 0.97,
+      "note": "Right."
+    },
+    {
+      "id": "x-heron-load",
+      "kind": "products",
+      "question": "How much weight can one Heron bay hold?",
+      "text": "Each Heron bay is rated for 900 kilograms.",
+      "confidence": 0.96,
+      "note": "Right."
+    },
+    {
+      "id": "x-wren-wifi",
+      "kind": "products",
+      "question": "How do I put the Wren printer on Wi-Fi?",
+      "text": "Hold the feed button for five seconds until the light blinks blue, then finish setup in the Portal.",
+      "confidence": 0.95,
+      "note": "Right."
+    },
+    {
+      "id": "x-k3-k2-site",
+      "kind": "products",
+      "question": "Can K2 and K3 scanners work at the same site?",
+      "text": "Yes. Both use the same Portal receiving screens and the same Wren printers.",
+      "confidence": 0.94,
+      "note": "Right."
+    },
+    {
+      "id": "x-trade-in",
+      "kind": "products",
+      "question": "Is there a trade-in for an old K2?",
+      "text": "Return a working K2 and get a $60 credit toward a K3, until the end of 2025.",
+      "confidence": 0.93,
+      "note": "Right."
+    },
+    {
+      "id": "x-wren-red",
+      "kind": "products",
+      "question": "The printer's red light is blinking. Why?",
+      "text": "A blinking red light means the roll is empty.",
+      "confidence": 0.92,
+      "note": "Right."
+    },
+    {
+      "id": "x-heron-inspect",
+      "kind": "products",
+      "question": "How often should shelving be inspected?",
+      "text": "Inspect Heron shelving every six months.",
+      "confidence": 0.9,
+      "note": "Right."
+    },
+    {
+      "id": "x-ds-battery",
+      "kind": "products",
+      "question": "Is the dock sensor's battery covered for three years too?",
+      "text": "Yes, the battery is covered for the full three years.",
+      "confidence": 0.89,
+      "note": "Wrong and very sure: batteries are warranted for one year."
+    },
+    {
+      "id": "x-ds-range",
+      "kind": "products",
+      "question": "What temperatures can the dock sensor handle?",
+      "text": "The DS-100 is rated from minus 30 to plus 60 degrees Celsius.",
+      "confidence": 0.88,
+      "note": "Right."
+    },
+    {
+      "id": "x-heron-tall",
+      "kind": "products",
+      "question": "Does a 2.8 m Heron bay need anything beyond floor bolts?",
+      "text": "No. Floor bolts are enough for any Heron bay.",
+      "confidence": 0.88,
+      "note": "Wrong and sure: bays over 2.5 m must also be tied to a wall or another bay."
+    },
+    {
+      "id": "x-wren-roll",
+      "kind": "products",
+      "question": "How many labels come in the Wren starter roll?",
+      "text": "The starter roll holds 500 labels.",
+      "confidence": 0.86,
+      "note": "Right."
+    },
+    {
+      "id": "x-label-1k",
+      "kind": "products",
+      "question": "What does a 1,000-label roll cost in tens?",
+      "text": "A 1,000-label roll is $14 each at any quantity.",
+      "confidence": 0.85,
+      "note": "Wrong and sure: it is $12 each from 10 to 49."
+    },
+    {
+      "id": "x-k2-sold",
+      "kind": "products",
+      "question": "Is the K2 still for sale now the K3 is out?",
+      "text": "Yes. The K2 stays in the catalog through at least 2026.",
+      "confidence": 0.82,
+      "note": "Right."
+    },
+    {
+      "id": "x-k3-ship",
+      "kind": "products",
+      "question": "How soon does a K3 ship after I order?",
+      "text": "K3 orders ship the same day if placed before 2 p.m.",
+      "confidence": 0.8,
+      "note": "Wrong: the launch FAQ says within two weeks."
+    },
+    {
+      "id": "x-ds-forklift",
+      "kind": "products",
+      "question": "A forklift hit our dock sensor. Is that covered?",
+      "text": "No. Forklift impact is excluded from the warranty.",
+      "confidence": 0.78,
+      "note": "Right."
+    },
+    {
+      "id": "x-wren-clean",
+      "kind": "products",
+      "question": "How often should the print head be cleaned?",
+      "text": "Clean the print head every 50 rolls.",
+      "confidence": 0.7,
+      "note": "Wrong: every five rolls, or sooner if labels look faded."
+    }
+  ]
+}

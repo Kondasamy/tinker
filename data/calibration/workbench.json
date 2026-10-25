@@ -1,0 +1,9 @@
+{
+  "note": "The support desk's rules for chapter 7, the team's choices for this site, not anyone's measured numbers.",
+  "wrongRate": 0.1,
+  "wrongWhy": "A customer may get a wrong answer at most one time in ten, per kind of question.",
+  "capacity": 25,
+  "capacityWhy": "The two people on the help desk can take 25 hand-overs in a day.",
+  "honestGap": 0.05,
+  "honestWhy": "The confidence shown beside each answer must be honest: within each kind, the average confidence at most 5 points from how often the answers are right."
+}
