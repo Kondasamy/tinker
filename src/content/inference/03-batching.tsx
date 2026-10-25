@@ -183,6 +183,9 @@ export default function Batching() {
         out1: ({ state }) => (
           <>
             <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />
+            <p className="note in-note">
+              Jobs that wait for a worker, not a batch: <a href="/queues/">Queues and background jobs</a>.
+            </p>
             <Fact id="batching-amortizes" />
             <Fact id="orca" />
           </>

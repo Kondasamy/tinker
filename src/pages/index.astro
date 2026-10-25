@@ -97,6 +97,7 @@ import { decode } from '../lib/diffusion-llms/decode';
 import { diskMlm } from '../lib/diffusion-llms/diskModel';
 import { phrase as dlPhrase } from '../lib/diffusion-llms/workbench';
 import { frameOf } from '../content/diffusion-llms/kit';
+import { RAIL_BOARD, railCard, railLabel, railScene } from '../components/scenes/railScene';
 
 const one =
   (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) =>
@@ -271,6 +272,8 @@ const TYPE: FrameOpts = {
   ...frameOf(decode(diskMlm(), dlPhrase(6).ids, 4, 'confidence', 6), 2),
   scale: 1.7,
 };
+// queues: Rosa knocked over mid-job, her ticket held on the bench until the lease runs out
+const RAIL = railCard(1.7);
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -679,6 +682,21 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Fixed reply length',
       'Speed claims',
       'Speed per reply',
+    ],
+  },
+  queues: {
+    name: 'Queues and background jobs',
+    iso: { board: RAIL_BOARD, scene: railScene(RAIL), label: railLabel(RAIL) },
+    topics: [
+      'Background jobs',
+      'Workers',
+      'Backlog',
+      'Retries & backoff',
+      'Jitter',
+      'Leases',
+      'At-least-once',
+      'Idempotent jobs',
+      'Dead-letter queues',
     ],
   },
 };

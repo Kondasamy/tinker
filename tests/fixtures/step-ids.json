@@ -1501,5 +1501,54 @@
       "plan",
       "quiz"
     ]
+  },
+  "queues": {
+    "01-waiting-at-the-till": [
+      "flood",
+      "predict",
+      "watch",
+      "reveal",
+      "quiz"
+    ],
+    "02-a-ticket-and-a-worker": [
+      "ticket",
+      "predict",
+      "watch",
+      "reveal",
+      "quiz"
+    ],
+    "03-when-the-line-grows": [
+      "flood",
+      "predict",
+      "watch",
+      "workers",
+      "quiz"
+    ],
+    "04-try-again-later": [
+      "outage",
+      "predict",
+      "watch",
+      "backoff",
+      "jitter",
+      "quiz"
+    ],
+    "05-ran-twice": [
+      "crash",
+      "predict",
+      "watch",
+      "twice",
+      "quiz"
+    ],
+    "06-the-job-that-never-works": [
+      "poison",
+      "predict",
+      "watch",
+      "limit",
+      "quiz"
+    ],
+    "07-sale-day": [
+      "bench",
+      "ties"
+    ]
   }
 }
