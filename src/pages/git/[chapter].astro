@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import NamedByContents from '../../content/git/01-named-by-contents';
+import AChainOfSnapshots from '../../content/git/02-a-chain-of-snapshots';
+import ABranchIsALabel from '../../content/git/03-a-branch-is-a-label';
+import ThreeWayMerge from '../../content/git/04-three-way-merge';
+import BothChangedIt from '../../content/git/05-both-changed-it';
+import RewritingHistory from '../../content/git/06-rewriting-history';
+import BringThemIn from '../../content/git/07-bring-them-in';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('git').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="git" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-named-by-contents' ? <NamedByContents client:load />
+    : chapter === '02-a-chain-of-snapshots' ? <AChainOfSnapshots client:load />
+    : chapter === '03-a-branch-is-a-label' ? <ABranchIsALabel client:load />
+    : chapter === '04-three-way-merge' ? <ThreeWayMerge client:load />
+    : chapter === '05-both-changed-it' ? <BothChangedIt client:load />
+    : chapter === '06-rewriting-history' ? <RewritingHistory client:load />
+    : <BringThemIn client:load />}
+</ChapterLayout>
