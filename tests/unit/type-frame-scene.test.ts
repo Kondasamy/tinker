@@ -33,7 +33,8 @@ describe('the type frame', () => {
   it('draws every part it names, and takes one callout over each', () => {
     const svg = draw(at(2));
     for (const part of FRAME_PARTS) expect(svg).toContain(`data-part="${part}"`);
-    for (const block of FRAME_PARTS) expect(calls(draw({ ...at(2), say: { block, text: 'Look here' } })), block).toBe(1);
+    for (const block of FRAME_PARTS)
+      expect(calls(draw({ ...at(2), say: { block, text: 'Look here' } })), block).toBe(1);
     expect(calls(draw({ ...at(2), say: { block: 'nowhere', text: 'x' } }))).toBe(0);
   });
 

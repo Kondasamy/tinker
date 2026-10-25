@@ -27,7 +27,13 @@ import {
 } from '../../lib/diffusion-llms/decode';
 import { PHRASES, phrase } from '../../lib/diffusion-llms/workbench';
 import { fact } from '../../lib/diffusion-llms/facts';
-import { FRAME_BOARD, frameLabel, typeFrameScene, type FrameOpts, type FrameSlot } from '../../components/scenes/typeFrameScene';
+import {
+  FRAME_BOARD,
+  frameLabel,
+  typeFrameScene,
+  type FrameOpts,
+  type FrameSlot,
+} from '../../components/scenes/typeFrameScene';
 import { cellsOf, fillStrip } from '../../components/scenes/fillStrip';
 import { useNarrow } from '../tool-calling/kit';
 import Cite from '../../components/story/Cite';
@@ -173,7 +179,8 @@ export function useFill(job: FillJob | null, onDone?: (f: Fill) => void) {
 
 /** The frame's reply slots after `n` passes of a fill (n = 0: all blank). */
 export function slotsAt(f: Fill | null, n: number, length = L): FrameSlot[] {
-  if (!f || n === 0) return Array.from({ length: f?.reply.length ?? length }, () => ({ state: 'mask', tok: MASK, p: 0 }));
+  if (!f || n === 0)
+    return Array.from({ length: f?.reply.length ?? length }, () => ({ state: 'mask', tok: MASK, p: 0 }));
   return cellsOf(f.passes.slice(0, n), f.reply.length)[n - 1];
 }
 /** A reply as it stands after `n` passes: stamped tokens, ▢ for the blanks. */

@@ -41,6 +41,8 @@ export interface FrameSlot {
 export interface FrameOpts {
   /** the given phrase's length, in slots */
   given: number;
+  /** one blank inside the phrase (chapter 2): its window position and what it holds */
+  hole?: { at: number; slot: FrameSlot };
   /** the reply's slots; none while the toy masked model sits idle */
   slots: FrameSlot[];
   /** passes done and passes the fill takes (the press's pill) */
@@ -59,7 +61,6 @@ export interface FrameOpts {
 export const FRAME_PARTS = ['frame', 'press', 'typewriter', 'dial'] as const;
 
 const COLS = 8,
-  ROWS = 4,
   PITCH = 13,
   TILE = 10,
   X0 = 22,
@@ -68,7 +69,7 @@ const COLS = 8,
   SLUG = 5,
   BLANK = 1.6,
   TW = { x0: 150, y0: 30, x1: 182, y1: 54 },
-  DIAL = [166, 92];
+  DIAL = [178, 76];
 
 /** Where slot n's tile stands: (x, y) of its back corner. Rows read along x, row after row toward the viewer. */
 export const slotAt = (n: number) => [X0 + (n % COLS) * PITCH, Y0 + Math.floor(n / COLS) * PITCH];
@@ -108,11 +109,12 @@ function chaseBox(o: FrameOpts) {
 function frame(o: FrameOpts) {
   const [x0, y0, x1, y1] = chaseBox(o);
   let s = box(x0, y0, BH, x1, y1, BED, METAL, toneI, 1);
-  s += box(x0, y0, BED, x0 + 2, y1, BED + 2, METAL, toneI, 0.8) + box(x0, y0, BED, x1, y0 + 2, BED + 2, METAL, toneI, 0.8);
+  s +=
+    box(x0, y0, BED, x0 + 2, y1, BED + 2, METAL, toneI, 0.8) + box(x0, y0, BED, x1, y0 + 2, BED + 2, METAL, toneI, 0.8);
   const tiles: { n: number; svg: string }[] = [];
   for (let n = 0; n < total(o); n++) {
     const [x, y] = slotAt(n);
-    const sl = n < o.given ? null : o.slots[n - o.given];
+    const sl = n < o.given ? (o.hole?.at === n ? o.hole.slot : null) : o.slots[n - o.given];
     const state = sl ? sl.state : 'given';
     const m = state === 'given' ? CERAMIC : state === 'new' ? PALS.mint : state === 'set' ? PALS.cobalt : DARK;
     const h = state === 'mask' ? BLANK : SLUG;
@@ -122,7 +124,7 @@ function frame(o: FrameOpts) {
       const g = glowOf(sl.p),
         cx = x + TILE / 2,
         cy = y + TILE / 2;
-      t += `<path d="${flat(cx - g, cy - g, cx + g, cy + g, BED + h + 0.05)}" fill="${PALS.mustard.l}" stroke="${PALS.mustard.d}" stroke-width="0.6" data-glow="${sl.p.toFixed(3)}" data-slot="${n - o.given}"/>`;
+      t += `<path d="${flat(cx - g, cy - g, cx + g, cy + g, BED + h + 0.05)}" fill="${PALS.mustard.l}" stroke="${PALS.mustard.d}" stroke-width="0.6" data-glow="${sl.p.toFixed(3)}" data-slot="${n < o.given ? 'hole' : n - o.given}"/>`;
     } else if (!sl) {
       // a raised letter mark on the slug's face: a short bar, not text (the words go in pills and the strip)
       t += line(
@@ -257,11 +259,7 @@ export const typeFrameScene = (o: FrameOpts) => (ctx: SceneCtx) => {
     { at: [DIAL[0], DIAL[1], 0], svg: dial(o.k) },
   ]);
   const running = o.pass !== undefined && o.passes !== undefined;
-  const pressText = !running
-    ? 'PRESS'
-    : narrow
-      ? `PASS ${o.pass}`
-      : `PASS ${o.pass} OF ${o.passes}`;
+  const pressText = !running ? 'PRESS' : narrow ? `PASS ${o.pass}` : `PASS ${o.pass} OF ${o.passes}`;
   const typing = o.typed !== undefined;
   const twText = narrow || !typing ? 'MINI' : `MINI · ${o.typed} PASS${o.typed === 1 ? '' : 'ES'}`;
   const dialText = o.k === undefined ? 'K' : narrow ? `K ${o.k}` : `${o.k} A PASS`;
@@ -269,6 +267,14 @@ export const typeFrameScene = (o: FrameOpts) => (ctx: SceneCtx) => {
     frameAt = [x0, y1, BED],
     twAt = [(TW.x0 + TW.x1) / 2, TW.y0 + 2, BH + 9 + 6 + (o.typed ?? 0) * 1.4],
     dialAt = [DIAL[0], DIAL[1], BH + 9];
+  const hole = o.hole && o.hole.slot.state !== 'mask' ? o.hole : null;
+  const holePill = hole
+    ? (() => {
+        const [x, y] = slotAt(hole.at);
+        const words = narrow ? 'BLANK' : `BLANK ${quoted(hole.slot.tok)} ${Math.round(hole.slot.p * 100)}%`;
+        return pill([x + TILE / 2, y + TILE / 2, BED + SLUG], narrow ? -30 : -18, words, true, scale);
+      })()
+    : '';
   const slotPill =
     at === null
       ? ''
@@ -276,17 +282,18 @@ export const typeFrameScene = (o: FrameOpts) => (ctx: SceneCtx) => {
           const [x, y] = slotAt(o.given + at),
             sl = o.slots[at];
           const words = narrow ? `#${at + 1}` : `#${at + 1} ${quoted(sl.tok)} ${Math.round(sl.p * 100)}%`;
-          return pill([x + TILE / 2, y + TILE / 2, BED + SLUG], -18, words, true, scale);
+          return pill([x + TILE / 2, y + TILE / 2, BED + SLUG], narrow ? -30 : -18, words, true, scale);
         })();
   return (
     s +
     pill(pressAt, -12, pressText, running && at !== null, scale) +
-    pill(frameAt, narrow ? 30 : 26, o.slots.length ? 'TOY MASKED MODEL' : 'FRAME', false, scale) +
+    pill(frameAt, 30, o.slots.length && !narrow ? 'TOY MASKED MODEL' : 'FRAME', false, scale) +
     pill(twAt, -14, twText, typing, scale) +
     pill(dialAt, 20, dialText, false, scale) +
     slotPill +
+    holePill +
     sayAt(o.say, 'press', pressAt, -12, scale, narrow) +
-    sayAt(o.say, 'frame', frameAt, narrow ? 30 : 26, scale, narrow) +
+    sayAt(o.say, 'frame', frameAt, 30, scale, narrow) +
     sayAt(o.say, 'typewriter', twAt, -14, scale, narrow) +
     sayAt(o.say, 'dial', dialAt, 20, scale, narrow)
   );
@@ -327,7 +334,8 @@ export function typeFramePlot(x: number, y: number, top: SceneCtx['top']): strin
       cells.push(box(cx, cy, z, cx + 5, cy + 5, z + h, m, toneI, 0.7));
     }
   t += cells.join('') + hullInk(boxCorners(x - 18, y - 9, BH, x + 12, y + 9, z + 3), 1.4);
-  const w = box(x + 18, y - 8, BH, x + 30, y + 2, BH + 5, PALS.cobalt, toneI, 1) +
+  const w =
+    box(x + 18, y - 8, BH, x + 30, y + 2, BH + 5, PALS.cobalt, toneI, 1) +
     box(x + 19, y - 8, BH + 5, x + 29, y - 7, BH + 11, CERAMIC, toneI, 0.8);
   return (
     castShadow(boxCorners(x - 18, y - 9, BH, x + 12, y + 9, z), BH, top) +
@@ -337,4 +345,3 @@ export function typeFramePlot(x: number, y: number, top: SceneCtx['top']): strin
     ])
   );
 }
-

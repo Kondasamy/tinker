@@ -1,0 +1,29 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import OneWordAtATime from '../../content/diffusion-llms/01-one-word-at-a-time';
+import FillTheBlanks from '../../content/diffusion-llms/02-fill-the-blanks';
+import SureWordsFirst from '../../content/diffusion-llms/03-sure-words-first';
+import FasterAndWorse from '../../content/diffusion-llms/04-faster-and-worse';
+import TheLengthIsFixed from '../../content/diffusion-llms/05-the-length-is-fixed';
+import ReadingASpeedClaim from '../../content/diffusion-llms/06-reading-a-speed-claim';
+import Workbench from '../../content/diffusion-llms/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('diffusion-llms').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="diffusion-llms" chapter={chapter} title={title}>
+  {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
+      hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
+  {chapter === '01-one-word-at-a-time' ? <OneWordAtATime client:load />
+    : chapter === '02-fill-the-blanks' ? <FillTheBlanks client:load />
+    : chapter === '03-sure-words-first' ? <SureWordsFirst client:load />
+    : chapter === '04-faster-and-worse' ? <FasterAndWorse client:load />
+    : chapter === '05-the-length-is-fixed' ? <TheLengthIsFixed client:load />
+    : chapter === '06-reading-a-speed-claim' ? <ReadingASpeedClaim client:load />
+    : <Workbench client:load />}
+</ChapterLayout>

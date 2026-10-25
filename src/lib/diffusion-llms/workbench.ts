@@ -36,6 +36,10 @@ export interface Phrase {
   seed: number;
   text: string;
   ids: number[];
+  /** a slot in the phrase hidden for chapter 2, its real token and the phrase with it masked */
+  slot: number;
+  expected: number;
+  maskedIds: number[];
   replies: Record<Rule, Record<string, Reply>>;
 }
 export const PHRASES = PINNED.prompts as unknown as Phrase[];
@@ -52,7 +56,13 @@ export interface Case {
 export function casesOf(kind: Kind, c: Choice): Case[] {
   return kind.cases.map(seed => {
     const r = phrase(seed).replies[c.rule][c.k];
-    return { seed, reply: r.ids, agree: r.agree, repeat: r.repeat, ok: r.agree >= kind.agree && r.repeat <= kind.repeat };
+    return {
+      seed,
+      reply: r.ids,
+      agree: r.agree,
+      repeat: r.repeat,
+      ok: r.agree >= kind.agree && r.repeat <= kind.repeat,
+    };
   });
 }
 export const kindOk = (kind: Kind, c: Choice) => casesOf(kind, c).every(x => x.ok);

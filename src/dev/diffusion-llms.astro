@@ -3,7 +3,13 @@
 // the stage live on its Strip tab. Below 600px the phone versions show. Fills run on the masked model read from disk.
 import '../styles/tokens.css';
 import IsoStage from '../lib/iso/IsoStage';
-import { FRAME_BOARD, frameLabel, typeFrameScene, typeFramePlot, type FrameOpts } from '../components/scenes/typeFrameScene';
+import {
+  FRAME_BOARD,
+  frameLabel,
+  typeFrameScene,
+  typeFramePlot,
+  type FrameOpts,
+} from '../components/scenes/typeFrameScene';
 import { fillStrip } from '../components/scenes/fillStrip';
 import { decode, typewriter } from '../lib/diffusion-llms/decode';
 import { diskMini, diskMlm } from '../lib/diffusion-llms/diskModel';
