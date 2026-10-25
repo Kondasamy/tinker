@@ -34,7 +34,7 @@ Author credit is always **Samy (Kondasamy Jayaraman)**: alias then full name, li
 
 ## Modules
 
-- **New modules go at the end of `MODULES`** in go-live order (`pnpm new-module` appends and removes the planned line). Home numbers live modules by list position; Agents, Evals and Guardrails keep hard-coded "Module 3/4/5" kickers.
+- **New modules go after the last live module in `MODULES`**, before the roadmap cards, in go-live order (`pnpm new-module` inserts it there and removes the planned card). Home numbers live modules by list position; Agents, Evals and Guardrails keep hard-coded "Module 3/4/5" kickers.
 - **Registry**: each module declares itself in `src/content/<module>/module.ts` (id, title, level, track, status, author, prereqs, story, chapters with `intro`, recall bank). Planned modules have no chapters, pages or images. `track: 'Classic tech'` marks non-AI modules; absent means AI.
 - **Each module keeps its own page folder** (`index.astro`, `[chapter].astro`, `recap.astro`). The chapter route picks its island with a ternary chain, one line per chapter: hydration needs a static import, so no lookup table and no shared route.
 - **Progress** is per module in `localStorage` `<module>-progress-v1` (RAG's is `rag-progress-v1`), plus `tinker-last-module`. Every read tolerates missing fields and storage.

@@ -53,6 +53,13 @@ Every module has a level, a story, an intro at `/<module>/`, its chapters, and a
 | Advanced | [Computer use](https://tinker.kondasamy.com/computer-use/) (AI agents and Multimodal recommended first) | Live, 7 chapters |
 | Advanced | [Diffusion language models](https://tinker.kondasamy.com/diffusion-llms/) (Diffusion models and Transformers recommended first) | Live, 7 chapters |
 | Advanced | [Mixture of experts](https://tinker.kondasamy.com/mixture-of-experts/) (Transformers recommended first) | Live, 7 chapters |
+| Beginner | Logins and passwords | Planned |
+| Beginner | How email arrives | Planned |
+| Intermediate | What a model remembers | Planned |
+| Intermediate | Recommendations | Planned |
+| Intermediate | Dependencies | Planned |
+| Intermediate | Shipping a release | Planned |
+| Advanced | Video and world models | Planned |
 
 ![A RAG chapter: the live pipeline on the left, the story on the right](docs/images/chapter.png)
 

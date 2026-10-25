@@ -1,5 +1,5 @@
 // Saved progress is keyed by chapter and step ids (R15): every pinned module keeps its chapters and steps, in order.
-// A module that goes live later is not pinned yet, so it never fails this; WRITE_STEP_IDS=1 pins every live module.
+// WRITE_STEP_IDS=1 only adds modules the pin lacks; to re-pin one on purpose, delete its key so the diff shows it.
 import { describe, expect, it } from 'vitest';
 import { writeFileSync } from 'node:fs';
 import { MODULES } from '../../src/lib/modules';
@@ -21,13 +21,17 @@ const now = Object.fromEntries(
 
 describe('step ids', () => {
   it('every pinned module keeps its chapter ids and step ids, in order', () => {
-    if (process.env.WRITE_STEP_IDS) writeFileSync(PIN, `${JSON.stringify(now, null, 2)}\n`);
-    else
-      for (const [id, chapters] of Object.entries(pinned as Record<string, Record<string, string[]>>)) {
-        expect(now[id], id).toBeDefined();
-        expect(Object.keys(now[id]), id).toEqual(Object.keys(chapters));
-        expect(now[id], id).toEqual(chapters);
-      }
+    const pins = pinned as Record<string, Record<string, string[]>>;
+    if (process.env.WRITE_STEP_IDS) writeFileSync(PIN, `${JSON.stringify({ ...now, ...pins }, null, 2)}\n`);
+    for (const [id, chapters] of Object.entries(pins)) {
+      expect(now[id], id).toBeDefined();
+      expect(Object.keys(now[id]), id).toEqual(Object.keys(chapters));
+      expect(now[id], id).toEqual(chapters);
+    }
+  });
+
+  it('pins every live module, so a go-live is protected from its first commit', () => {
+    expect(Object.keys(now).filter(id => !(id in pinned))).toEqual([]);
   });
 
   it('pins every chapter with at least one step', () => {

@@ -1,4 +1,4 @@
-// Chapter 3: the sieve. Larkspur mini writes twenty replies at temperature 1 (live, seeded); the reader predicts how
+// Chapter 3: the sieve. Larkspur mini writes twenty replies at pinned.json's sieve temperature (live, seeded); the reader predicts how
 // many survive, then runs dedupe and the fact filter over them live (sieve.ts, the grid's own rule). pinned.json holds
 // the kept counts a test reruns.
 import StepRunner from '../../components/story/StepRunner';

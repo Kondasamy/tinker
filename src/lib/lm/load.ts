@@ -126,13 +126,14 @@ async function loadWeights(loader: Loader, w: Weights): Promise<Model> {
   return lora ? { ...model, adapter: parseAdapter(meta, lora) } : model;
 }
 
+/** the weight sets that live outside /data/lm/ */
+const DIRS: Partial<Record<Weights, string>> = { mlm: 'diffusion-llms', moe: 'mixture-of-experts' };
+
 /**
  * One model, fetched on first load(); a failed load leaves status 'error' and the next load() retries. The loader
  * reads /data/lm/, /data/pre-training/ for a checkpoint, /data/diffusion-llms/ for the masked model or
  * /data/mixture-of-experts/ for the experts model, unless one is passed.
  */
-/** the weight sets that live outside /data/lm/ */
-const DIRS: Partial<Record<Weights, string>> = { mlm: 'diffusion-llms', moe: 'mixture-of-experts' };
 
 export function modelLoader(loader?: Loader, weights: Weights = 'base') {
   const dir = isCheckpoint(weights) ? 'pre-training' : (DIRS[weights] ?? 'lm');

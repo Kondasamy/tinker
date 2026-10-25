@@ -34,7 +34,7 @@ pnpm exec playwright install chromium   # once, for the e2e tests
 pnpm new-module <id> "<Title>"          # for example: pnpm new-module tokens "Tokens & embeddings"
 ```
 
-This copies `templates/module/` into place: a registry entry, an intro page, a chapter route, a recap page, one example chapter (`01-first-step.tsx`) with a three-item recall bank, a `data/<id>/facts.json` with sources, and an e2e spec. It also adds the module to the end of `MODULES` in `src/lib/modules.ts`, and removes its planned card if it has one, so live modules keep their numbers; its pages and share-image ids follow from that entry. It refuses an id that is not kebab-case or that already exists, and writes nothing then. Then run `pnpm test`; the registry check lists what your module still needs before it can go live (at first, its share images: run `pnpm og`).
+This copies `templates/module/` into place: a registry entry, an intro page, a chapter route, a recap page, one example chapter (`01-first-step.tsx`) with a three-item recall bank, a `data/<id>/facts.json` with sources, and an e2e spec. It also adds the module to `MODULES` in `src/lib/modules.ts`, after the last live module, and removes its planned card if it has one, so live modules keep their numbers; its pages and share-image ids follow from that entry. It refuses an id that is not kebab-case or that already exists, and writes nothing then. Then run `pnpm test`; the registry check lists what your module still needs before it can go live (at first, its share images: run `pnpm og`).
 
 ## Checks before you open a PR
 
