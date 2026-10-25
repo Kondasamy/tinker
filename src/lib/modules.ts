@@ -153,6 +153,52 @@ export const MODULES: Module[] = [
     'How Git stores history: snapshots named by their content, branches as pointers, and merges that clash.',
     'Classic tech',
   ),
+  planned(
+    'mixture-of-experts',
+    'Mixture of experts',
+    'Advanced',
+    'A model with many experts that wakes only a few for each word: the router that picks them, and what it saves.',
+  ),
+  planned(
+    'coding-agents',
+    'Coding agents',
+    'Intermediate',
+    'An agent that edits code and runs the tests: reading a repository, making a change, and checking its own work.',
+  ),
+  planned(
+    'synthetic-data',
+    'Synthetic data',
+    'Intermediate',
+    'Training data written by a model: how it is made, filtered and checked, and when it teaches the wrong thing.',
+  ),
+  planned(
+    'queues',
+    'Queues and background jobs',
+    'Beginner',
+    'How an order waits its turn: a queue, workers that take jobs, retries, and the jobs that run twice.',
+    'Classic tech',
+  ),
+  planned(
+    'encryption',
+    'Locks and keys',
+    'Beginner',
+    'How a stranger can send you a secret: a public lock, a private key, and signatures that prove who sent it.',
+    'Classic tech',
+  ),
+  planned(
+    'compression',
+    'Compression',
+    'Beginner',
+    'How a file gets smaller without losing a byte: repeats replaced by pointers, and why some files will not shrink.',
+    'Classic tech',
+  ),
+  planned(
+    'load-balancing',
+    'Load balancing',
+    'Intermediate',
+    'Spreading requests over many servers: round robin, the least busy, health checks, and the one slow server.',
+    'Classic tech',
+  ),
 ];
 
 export function moduleOf(id: string): Module {

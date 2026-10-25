@@ -15,24 +15,23 @@ const RAG_CHAPTERS = [
   ['07-sandbox', 'Sandbox'],
 ];
 
-// the roadmap (docs/plans/2026-10-24-1806-feat-eight-new-modules-plan.md): the eight modules in go-live order (KTD1),
-// then the seven cards no module plan has taken up yet (R17)
-const ROADMAP: [string, string][] = [
-  ['pre-training', 'Intermediate'],
-  ['post-training', 'Advanced'],
-  ['interpretability', 'Advanced'],
-  ['caching', 'Beginner'],
-  ['databases', 'Beginner'],
-  ['consistency', 'Advanced'],
-  ['ab-testing', 'Beginner'],
-  ['diffusion', 'Intermediate'],
+// the roadmap (docs/plans/2026-10-25-1206-feat-seven-roadmap-modules-plan.md), in registry order: the seven cards that
+// plan takes live, then the seven new cards that follow them (R16); each with its level and track (none is AI)
+const ROADMAP: [string, string, string?][] = [
   ['diffusion-llms', 'Advanced'],
   ['computer-use', 'Advanced'],
   ['calibration', 'Intermediate'],
-  ['search', 'Beginner'],
-  ['web-requests', 'Beginner'],
-  ['payments', 'Beginner'],
-  ['git', 'Beginner'],
+  ['search', 'Beginner', 'Classic tech'],
+  ['web-requests', 'Beginner', 'Classic tech'],
+  ['payments', 'Beginner', 'Classic tech'],
+  ['git', 'Beginner', 'Classic tech'],
+  ['mixture-of-experts', 'Advanced'],
+  ['coding-agents', 'Intermediate'],
+  ['synthetic-data', 'Intermediate'],
+  ['queues', 'Beginner', 'Classic tech'],
+  ['encryption', 'Beginner', 'Classic tech'],
+  ['compression', 'Beginner', 'Classic tech'],
+  ['load-balancing', 'Intermediate', 'Classic tech'],
 ];
 /** true when every id in `ids` is in `list`, in the list's order */
 const inOrder = (ids: string[], list: string[]) => {
@@ -50,7 +49,7 @@ describe('module registry', () => {
     for (const m of MODULES) expect(['Beginner', 'Intermediate', 'Advanced']).toContain(m.level);
   });
 
-  it('has what is left of the roadmap as planned cards, in build order, each at its level with no chapters and no prereqs', () => {
+  it('has what is left of the roadmap as planned cards, in build order, each at its level and track with no chapters and no prereqs', () => {
     const planned = MODULES.filter(m => m.status === 'planned');
     expect(
       inOrder(
@@ -59,15 +58,17 @@ describe('module registry', () => {
       ),
     ).toBe(true);
     for (const m of planned) {
-      expect(m.level, m.id).toBe(new Map(ROADMAP).get(m.id));
+      const [, level, track] = ROADMAP.find(([id]) => id === m.id)!;
+      expect([m.level, m.track], m.id).toEqual([level, track]);
       expect([m.chapters, m.prereqs], m.id).toEqual([[], []]);
     }
   });
 
-  // the R17 cards stay planned through this plan: only the eight module lines go live
-  it('keeps the seven roadmap cards no plan has taken up, last and in order', () => {
+  // the R16 cards stay planned through this plan; the first seven go live in turn, so a card gone from the list is live
+  it('keeps the seven new roadmap cards last and in order, and every roadmap card no longer planned is live', () => {
     const planned = MODULES.filter(m => m.status === 'planned').map(m => m.id);
     expect(planned.slice(-7)).toEqual(ROADMAP.slice(-7).map(([id]) => id));
+    for (const [id] of ROADMAP) if (!planned.includes(id)) expect(moduleOf(id).status, id).toBe('live');
   });
 
   it('says on the home page that Tinker explains how tech works, AI and classic, within 160 characters', () => {

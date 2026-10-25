@@ -20,23 +20,22 @@ import { PALS, WOOD } from '../../src/lib/iso/core.js';
 // RAG's strip and the back office's ground (heroScene's mats): no slot may sit on either
 const RAG_MAT = [18, 270, 206, 318],
   OFFICE_MAT = [100, 0, 290, 256];
-// the eight modules this plan takes live, then the seven cards (R2, R17)
+// the seven modules this plan takes live, in go-live order (KTD1), then the seven new cards (R16)
 const FUTURE = [
-  'pre-training',
-  'post-training',
-  'interpretability',
-  'caching',
-  'databases',
-  'consistency',
-  'ab-testing',
-  'diffusion',
-  'diffusion-llms',
-  'computer-use',
-  'calibration',
   'search',
   'web-requests',
   'payments',
   'git',
+  'calibration',
+  'computer-use',
+  'diffusion-llms',
+  'mixture-of-experts',
+  'coding-agents',
+  'synthetic-data',
+  'queues',
+  'encryption',
+  'compression',
+  'load-balancing',
 ];
 const draw = (board = HERO_BOARD, scene = HOME_HERO) =>
   renderToString(createElement(IsoStage, { board, scene, label: '' }));
@@ -55,11 +54,11 @@ describe('home hero', () => {
     expect(svg).not.toMatch(/NaN/);
   });
 
-  // 25 live modules and 7 cards leave 30 slots after RAG's and tool calling's plots (KTD14)
-  it('plots never overlap, stay on the board and clear RAG and the back office, for 1 slot up to 30 (or the registry’s count)', () => {
+  // 32 live modules and 7 cards leave 37 slots after RAG's and tool calling's plots (KTD14)
+  it('plots never overlap, stay on the board and clear RAG and the back office, for 1 slot up to 37 (or the registry’s count)', () => {
     const slots =
       MODULES.filter(m => m.status === 'live').length - 2 + MODULES.filter(m => m.status === 'planned').length;
-    for (let n = 1; n <= Math.max(30, slots); n++) {
+    for (let n = 1; n <= Math.max(37, slots); n++) {
       const rects = Array.from({ length: n }, (_, i) => plotAt(i)),
         [, , bx1, by1] = heroBoard(n);
       rects.forEach(([x0, y0, x1, y1], i) => {
@@ -73,9 +72,9 @@ describe('home hero', () => {
     }
   });
 
-  // four to a row keeps 30 slots near today's depth, so the hero's plots and pills shrink little (KTD14)
-  it('the board for 30 slots is no deeper than 1.2× the board before it (520 deep)', () => {
-    expect(heroBoard(30)[3]).toBeLessThanOrEqual(1.2 * 520);
+  // five to a row keeps 37 slots at today's depth, so the hero's plots and pills shrink little (KTD14)
+  it('the board for 37 slots is no deeper than 1.2× the board before it (520 deep)', () => {
+    expect(heroBoard(37)[3]).toBeLessThanOrEqual(1.2 * 520);
   });
 
   it('fits nine slots, and a third live module draws as live (its pill in the wave, not a building site)', () => {
@@ -97,7 +96,7 @@ describe('home hero', () => {
   it('draws a plot for every live module, and names any that lacks one', () => {
     const live = MODULES.filter(m => m.status === 'live').map(m => m.id);
     expect(undrawn(live)).toEqual([]);
-    const seventeen = [...live, ...Array.from({ length: 17 - live.length }, (_, i) => `fixture-${i}`)];
+    const seventeen = [...live, ...Array.from({ length: 32 - live.length }, (_, i) => `fixture-${i}`)];
     expect(undrawn(seventeen)).toEqual(seventeen.slice(live.length));
   });
 
@@ -149,15 +148,22 @@ describe('home hero', () => {
   });
 
   // reduced motion and the share image show every pill at once: none may cover another
-  it('no two pills overlap with every pill shown, for the real registry and for 25 live modules and 7 cards', () => {
+  // every go-live in turn moves one card from the planned list to the end of the live one, up to 32 live and 7 cards
+  it('no two pills overlap with every pill shown, for the real registry and after each go-live up to 32 live modules and 7 cards', () => {
     expect(pillHits(draw(), MODULES.length)).toEqual([]);
     const name = (id: string) => ({ name: id.replace(/-/g, ' ') });
     const now = MODULES.filter(m => m.status === 'live').map(m => m.id),
-      rest = FUTURE.filter(id => !now.includes(id)),
-      live = [...now, ...rest.slice(0, 25 - now.length)].map(name),
-      planned = rest.slice(25 - now.length).map(name);
-    expect([live.length, planned.length]).toEqual([25, 7]);
-    expect(pillHits(draw(heroBoard(30), heroScene({ live, planned, ride: [] })), 32)).toEqual([]);
+      cards = MODULES.filter(m => m.status === 'planned').map(m => m.id),
+      rest = FUTURE.filter(id => !now.includes(id));
+    for (let n = 0; now.length + n <= 32; n++) {
+      const live = [...now, ...rest.slice(0, n)],
+        planned = cards.filter(id => !live.includes(id));
+      expect(
+        pillHits(draw(heroBoard(37), heroScene({ live: live.map(name), planned: planned.map(name), ride: [] })), 39),
+        `${live.length} live`,
+      ).toEqual([]);
+      if (live.length === 32) expect(planned).toEqual(FUTURE.slice(-7));
+    }
   });
 });
 

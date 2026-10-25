@@ -18,7 +18,8 @@ describe('BM25 (KTD5)', () => {
     const h = createHash('sha256');
     for (const { file } of index.manifest.configs) {
       const bm = (await index.load(file)).bm25;
-      for (const q of questions) for (const s of [q.query, ...(q.rewrites ?? [])]) h.update(new Uint8Array(bm.score(s).buffer));
+      for (const q of questions)
+        for (const s of [q.query, ...(q.rewrites ?? [])]) h.update(new Uint8Array(bm.score(s).buffer));
     }
     expect(h.digest('hex')).toBe(PINNED);
   }, 60_000);
