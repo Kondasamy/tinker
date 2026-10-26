@@ -77,12 +77,7 @@ for (const width of [1280, 390])
     }
     await expect(catalogue(page).locator('.coming')).toHaveCount(0);
     await expect(catalogue(page).getByRole('link', { name: 'Propose a module' })).toHaveAttribute('href', REQUEST);
-    // heroCaption's wording for both states is unit-tested (hero.test.ts); here, the one the registry gives
-    const [text, link] = planned.length
-      ? ['The empty plots are open:', 'build one']
-      : ['Room for more:', 'propose one'];
-    await expect(page.locator('.hero-pic figcaption')).toContainText(text);
-    await expect(page.locator('.hero-pic figcaption a')).toHaveText(link);
+    await expect(page.locator('.hero-pic figcaption a')).toHaveText('propose the next');
     await expect(page.locator('.hero-pic figcaption a')).toHaveAttribute('href', REQUEST);
     await expect(page.getByText('In the workshop')).toHaveCount(0);
   });
@@ -359,7 +354,7 @@ const ROADMAP = [
   'dependencies',
   'releases',
 ];
-test('live cards numbered from 1, the roadmap cards in order, and the empty plots invite a build', async ({ page }) => {
+test('live cards numbered from 1, the roadmap cards in order', async ({ page }) => {
   await page.goto('/');
   const live = MODULES.filter(m => m.status === 'live').map(m => m.id),
     planned = MODULES.filter(m => m.status === 'planned').map(m => m.id);
@@ -376,49 +371,38 @@ test('live cards numbered from 1, the roadmap cards in order, and the empty plot
       .locator('.roadmap')
       .evaluateAll(els => els.map(e => e.getAttribute('data-module')).sort()),
   ).toEqual([...planned].sort());
-  await expect(page.locator('.hero-pic .hero-soon')).toHaveCount(planned.length);
-  await expect(page.locator('.hero-pic figcaption')).toContainText('The empty plots are open:');
-  await expect(page.locator('.hero-pic figcaption a')).toHaveText('build one');
-  await expect(page.locator('.hero-pic figcaption a')).toHaveAttribute('href', REQUEST);
 });
 
-// a planned plot's pill sits out the wave: hidden while animated, shown with reduced motion (issue #15)
-for (const reducedMotion of ['no-preference', 'reduce'] as const)
-  test(`the hero's planned pills are ${reducedMotion === 'reduce' ? 'shown' : 'hidden'} (${reducedMotion})`, async ({
-    page,
-  }) => {
-    await page.emulateMedia({ reducedMotion });
-    await page.goto('/');
-    const soon = page.locator('.hero-pic .hero-soon');
-    await expect(soon).toHaveCount(MODULES.filter(m => m.status === 'planned').length);
-    for (const pill of await soon.all())
-      if (reducedMotion === 'reduce') await expect(pill).toBeVisible();
-      else await expect(pill).toBeHidden();
-  });
-
-// the wave hops plot i at i × 0.8 s; sampled mid-turn, only that plot's pill shows, and with reduced motion every pill shows
-test('the hero wave shows one pill at a time, each on its own turn', async ({ page }) => {
+// every module after RAG and tool calling takes a 2.4 s turn on the stand, newest first; sampled mid-turn, only that
+// module is on it, and it links to its intro
+const TURNS = NUMBERED.slice(2).reverse();
+test('the hero stand shows one module at a time, newest first, each opening its module', async ({ page }) => {
   await page.goto('/');
-  const pills = page.locator('.hero-pic .hero-hop .block-tag');
-  await expect(pills).toHaveCount(NUMBERED.length);
-  const shown = () => pills.evaluateAll(els => els.map(e => +getComputedStyle(e).opacity > 0.01));
-  for (let i = 0; i < NUMBERED.length; i++) {
+  const turns = page.locator('.hero-pic .hero-turn');
+  expect(await turns.evaluateAll(els => els.map(e => e.getAttribute('data-href')))).toEqual(TURNS.map(id => `/${id}/`));
+  const shown = () => turns.evaluateAll(els => els.map(e => getComputedStyle(e).visibility === 'visible'));
+  for (let i = 0; i < TURNS.length; i++) {
     await page.evaluate(
       t =>
         document.getAnimations().forEach(a => {
           a.pause();
           a.currentTime = t;
         }),
-      i * 800 + 400,
+      i * 2400 + 1200,
     );
-    expect(await shown(), `turn ${i}`).toEqual(NUMBERED.map((_, j) => j === i));
+    expect(await shown(), `turn ${i}`).toEqual(TURNS.map((_, j) => j === i));
   }
+  await page.locator('.hero-pic [data-href="/rag/"]').click({ force: true });
+  await expect(page).toHaveURL(/\/rag\/$/);
 });
 
-test('with reduced motion, every hero pill shows', async ({ page }) => {
+test('with reduced motion, the stand holds the newest module', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  for (const pill of await page.locator('.hero-pic .block-tag').all()) await expect(pill).toHaveCSS('opacity', '1');
+  const turns = page.locator('.hero-pic .hero-turn');
+  await expect(turns.first()).toBeVisible();
+  await expect(turns.first()).toHaveAttribute('data-href', `/${TURNS[0]}/`);
+  for (const t of (await turns.all()).slice(1)) await expect(t).toBeHidden();
 });
 
 test('keyboard Tab never lands in a planned card', async ({ page }) => {

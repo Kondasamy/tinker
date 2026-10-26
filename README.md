@@ -4,79 +4,25 @@
 
 Each module is a short story you play through: the picture on the left is live, the story on the right asks you to do one thing at a time in it, and you watch what changes. Build the thing, break it, fix it.
 
-![Tinker home: one workshop, a plot per module; a wave names each module in turn. Thirty-nine modules are live, from RAG and tool calling to search, card payments, Git, diffusion language models, queues, compression, load balancing, encryption, coding agents, synthetic data and mixture of experts](docs/images/home.png)
-
----
+![Tinker home: the workshop, where each module takes a turn on the stand](docs/images/home.png)
 
 ## Modules
 
-Every module has a level, a story, an intro at `/<module>/`, its chapters, and a recap at `/<module>/recap/`. The home page lists them by level, numbered in the order they went live, with the planned modules as roadmap cards. Readers propose new ones through the form at the bottom of the home page.
+Every module has an intro at `/<module>/`, its chapters, and a recap at `/<module>/recap/`. They run from beginner to advanced, across AI (RAG, agents, transformers, evals…) and classic tech (caching, Git, payments, queues…).
 
-| Level | Module | Status |
-|---|---|---|
-| Beginner | [RAG: Retrieval-Augmented Generation](https://tinker.kondasamy.com/rag/) | Live, 7 chapters |
-| Beginner | [Tokens & embeddings](https://tinker.kondasamy.com/tokens/) | Live, 7 chapters |
-| Beginner | [Caching & CDNs](https://tinker.kondasamy.com/caching/) | Live, 7 chapters |
-| Beginner | [Databases & indexes](https://tinker.kondasamy.com/databases/) | Live, 7 chapters |
-| Beginner | [A/B testing](https://tinker.kondasamy.com/ab-testing/) | Live, 7 chapters |
-| Beginner | [Search before AI](https://tinker.kondasamy.com/search/) | Live, 7 chapters |
-| Beginner | [Opening a web page](https://tinker.kondasamy.com/web-requests/) | Live, 7 chapters |
-| Beginner | [Card payments](https://tinker.kondasamy.com/payments/) | Live, 7 chapters |
-| Beginner | [Git](https://tinker.kondasamy.com/git/) | Live, 7 chapters |
-| Beginner | [Queues and background jobs](https://tinker.kondasamy.com/queues/) | Live, 7 chapters |
-| Beginner | [Compression](https://tinker.kondasamy.com/compression/) | Live, 7 chapters |
-| Beginner | [Locks and keys](https://tinker.kondasamy.com/encryption/) | Live, 7 chapters |
-| Intermediate | [Tool calling & MCP](https://tinker.kondasamy.com/tool-calling/) (RAG recommended first) | Live, 7 chapters |
-| Intermediate | [Evals & LLM testing](https://tinker.kondasamy.com/evals/) (RAG recommended first) | Live, 7 chapters |
-| Intermediate | [Prompt injection & guardrails](https://tinker.kondasamy.com/guardrails/) (Tool calling recommended first) | Live, 7 chapters |
-| Intermediate | [Context engineering & memory](https://tinker.kondasamy.com/context/) (RAG and Tool calling recommended first) | Live, 7 chapters |
-| Intermediate | [Structured outputs](https://tinker.kondasamy.com/structured-outputs/) (Tool calling and Tokens recommended first) | Live, 7 chapters |
-| Intermediate | [Reasoning models & thinking budgets](https://tinker.kondasamy.com/reasoning/) (Evals recommended first) | Live, 7 chapters |
-| Intermediate | [Observability & error analysis](https://tinker.kondasamy.com/observability/) (Evals recommended first) | Live, 7 chapters |
-| Intermediate | [Multimodal models](https://tinker.kondasamy.com/multimodal/) (Tokens recommended first) | Live, 7 chapters |
-| Intermediate | [Pre-training](https://tinker.kondasamy.com/pre-training/) (Tokens recommended first) | Live, 7 chapters |
-| Intermediate | [Diffusion models](https://tinker.kondasamy.com/diffusion/) (Multimodal recommended first) | Live, 7 chapters |
-| Intermediate | [Calibration](https://tinker.kondasamy.com/calibration/) (Evals recommended first) | Live, 7 chapters |
-| Intermediate | [Load balancing](https://tinker.kondasamy.com/load-balancing/) | Live, 7 chapters |
-| Intermediate | [Coding agents](https://tinker.kondasamy.com/coding-agents/) (AI agents recommended first) | Live, 7 chapters |
-| Intermediate | [Synthetic data](https://tinker.kondasamy.com/synthetic-data/) (Fine-tuning recommended first) | Live, 7 chapters |
-| Advanced | [AI agents](https://tinker.kondasamy.com/agents/) (Tool calling recommended first) | Live, 7 chapters |
-| Advanced | [Transformer architecture](https://tinker.kondasamy.com/transformers/) (Tokens recommended first) | Live, 7 chapters |
-| Advanced | [Fine-tuning vs prompting](https://tinker.kondasamy.com/fine-tuning/) (Evals and Transformers recommended first) | Live, 7 chapters |
-| Advanced | [Small models: distillation & routing](https://tinker.kondasamy.com/small-models/) (Fine-tuning and Evals recommended first) | Live, 7 chapters |
-| Advanced | [Inference engineering](https://tinker.kondasamy.com/inference/) (Transformers recommended first) | Live, 7 chapters |
-| Advanced | [Agent sandboxing](https://tinker.kondasamy.com/sandboxing/) (AI agents and Guardrails recommended first) | Live, 7 chapters |
-| Advanced | [Voice agents](https://tinker.kondasamy.com/voice/) (Tool calling and Multimodal recommended first) | Live, 7 chapters |
-| Advanced | [Post-training](https://tinker.kondasamy.com/post-training/) (Fine-tuning and Evals recommended first) | Live, 7 chapters |
-| Advanced | [Interpretability](https://tinker.kondasamy.com/interpretability/) (Transformers recommended first) | Live, 7 chapters |
-| Advanced | [Replication & consistency](https://tinker.kondasamy.com/consistency/) (Databases recommended first) | Live, 7 chapters |
-| Advanced | [Computer use](https://tinker.kondasamy.com/computer-use/) (AI agents and Multimodal recommended first) | Live, 7 chapters |
-| Advanced | [Diffusion language models](https://tinker.kondasamy.com/diffusion-llms/) (Diffusion models and Transformers recommended first) | Live, 7 chapters |
-| Advanced | [Mixture of experts](https://tinker.kondasamy.com/mixture-of-experts/) (Transformers recommended first) | Live, 7 chapters |
-| Beginner | Logins and passwords | Planned |
-| Beginner | How email arrives | Planned |
-| Intermediate | What a model remembers | Planned |
-| Intermediate | Recommendations | Planned |
-| Intermediate | Dependencies | Planned |
-| Intermediate | Shipping a release | Planned |
-| Advanced | Video and world models | Planned |
+The catalogue lives on the [home page](https://tinker.kondasamy.com/#modules); its source of truth is the registry, `src/lib/modules.ts`. Planned modules show there as roadmap cards, and readers propose new ones through the form at the bottom of the home page.
 
 ![A RAG chapter: the live pipeline on the left, the story on the right](docs/images/chapter.png)
 
 ## How it's built
 
-- **Static site:** Astro with React islands. No backend, no API key, no live model, so it runs on any static host, and a chapter keeps working offline once its data has loaded.
-- **Real retrieval, precomputed answers (RAG):** the corpus is embedded at build time (`pnpm build:index`, all-MiniLM-L6-v2 and a cross-encoder reranker); the browser runs the real similarity, BM25, reranking, graph-walk and agent maths over those vectors. Model answers are pre-recorded for each kind of evidence that can reach the model, so every knob changes the outcome honestly.
-- **Recorded turns, live tools (Tool calling, AI agents):** the model's turns are pre-recorded per scenario (`data/tool-calling/turns/`). The host loop, a JSON Schema subset validator, the approval gate, the tools running on fixture data and an MCP-shaped JSON-RPC server all run in the browser (`src/lib/tools/`). A unit test checks every reachable control setting has a recorded turn. MCP facts come from `data/tool-calling/facts.json`, each with its source. The agent loop (`src/lib/agents/`) reuses those tools and adds plans, approval, budgets, a repeat detector, memory and helpers, all computed in the browser; its recorded turns are in `data/agents/turns/` and its facts in `data/agents/facts.json`. The guardrails loop (`src/lib/guardrails/`) puts defences around the model as host stages (input filters, the taint rule, the allow-list, the output filter, policy checks, approval); its turns are in `data/guardrails/turns/`, its stand-in classifier's hand-set scores in `data/guardrails/inbox.json`, and its attack and customer suites in `data/guardrails/suite.json`.
-- **Real retrieval, recorded grading (Evals):** each version of the assistant runs RAG's real retrieval over the same 12 questions and reads the recorded answer for what it found. Code graders run in the browser (`src/lib/evals/`); the model judge's verdicts, people's labels and repeated tries are recorded in `data/evals/`, and every combination a control can reach is checked by a unit test.
-- **Pictures:** hand-inked isometric figures drawn by the Colorfigures engine (see Credits), extended to orbit, zoom and turn the view. Each module leads with a scene you can picture rather than a flow chart (RAG's pipeline on a workbench, tool calling's back office, caching's depot map, Git's crate yard…), one file each in `src/components/scenes/`, and the home page's animated workshop has a plot per module (`heroScene.ts`). Flat figures (`src/lib/iso/flat.ts`) in the same ink show the exact messages or charts a tab away. Names sit in label pills so they stay readable.
-- **Search:** every page has its own title, description, canonical URL and share image; intros and chapters carry schema.org course and lesson data with breadcrumbs; `/sitemap.xml` and `/robots.txt` are built from the page list, and recaps and the 404 page stay out of search.
-- **Works on a phone:** below 861px the picture stacks above the story, pills grow, and the sequence shows one message at a time.
-
-- **Story:** every chapter is a list of steps run by one step runner (`src/components/story/`): each step has narration, the one control it needs, a check that advances it, hints after a few tries and, for puzzles, “Show me”. Progress is saved in the browser, per module.
-- **Pictures first, words on request:** each module intro opens in a Pictures reading mode (pictures, headings and one-line captions, the chapters as picture cards); a Words switch shows the full text.
-- **Making it stick:** chapters ask for a prediction before a reveal, quizzes explain why each option is right or wrong and offer “I’m not sure”, each module's recap asks recall questions from the chapters you finished, and a reader who returns 20 hours or more after finishing a chapter is offered a short warm-up. Nothing leaves the browser.
-- **Tests:** unit tests for the engine and story logic (Vitest), and end-to-end tests that play every chapter, check accessibility with axe, keyboard-only play, reduced motion, phone size and offline use (Playwright).
+- **Static site:** Astro with React islands. No backend, no API key, no live model; it runs on any static host, and a chapter keeps working offline once its data has loaded.
+- **Real maths, recorded models:** whatever can run in the browser does (retrieval, validators, simulators, graders, a tiny trained model); whatever needs a real model is recorded ahead of time and labelled as such. Each module's engine and data are described in `docs/modules/<module>.md`.
+- **Pictures:** hand-inked isometric scenes drawn with the Colorfigures engine (see Credits), one per module in `src/components/scenes/`, with flat figures (`src/lib/iso/flat.ts`) a tab away. Names sit in label pills.
+- **Story:** every chapter is a list of steps run by one step runner (`src/components/story/`): narration, the one control it needs, a check that advances it, hints, and “Show me” for puzzles. Progress is saved in the browser, per module.
+- **Making it stick:** predict before a reveal, quizzes that explain every option, a recap of recall questions, and a short warm-up when you come back. Nothing leaves the browser.
+- **Search and sharing:** every page has its own title, description, canonical URL, structured data and 1200×630 share image.
+- **Tests:** Vitest for the engines and story logic; Playwright plays every chapter and checks accessibility (axe), keyboard play, reduced motion, phone size and offline use.
 
 <p align="center"><img src="docs/images/phone.png" width="300" alt="A tool calling chapter on a phone: the back office above, the INVALID call held at the schema check"></p>
 

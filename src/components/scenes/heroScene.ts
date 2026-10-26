@@ -1,10 +1,10 @@
-// The home hero: Tinker as one workshop, a plot per module on a single board. RAG's pipeline (docs → retriever → model,
-// wired and lit), tool calling's back office (an envelope riding a belt), then a grid of plots: one per later live module,
-// then a roped-off building plot for each planned module (a crate and traffic cones: open for someone to build). The plots
-// fill the board's empty ground: a column on each side of the back office, then rows in front of it; the board grows with the registry.
+// The home hero: Tinker as one workshop on a board of fixed size. RAG's pipeline (docs → retriever → model, wired and
+// lit), tool calling's back office (an envelope riding a belt), a building site open for the next module, and a stand where
+// every later live module takes a turn. Each piece opens its module; the stand opens whichever module stands on it.
 import type { SceneCtx, Board } from '../../lib/iso/IsoStage';
 import { BH, ACC, renderers, blockShadow, boxCorners, esc } from '../../lib/iso/blocks';
 import {
+  P,
   INK,
   PALS,
   CERAMIC,
@@ -64,43 +64,19 @@ import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
 
-// the back office at the back; RAG along the front-left edge; plots in the ground the two leave empty
+// the back office at the back, RAG along the front-left edge, the stand front-right and a building site on the left
 const RAG_Y = 294,
-  RAG_X = [44, 112, 180];
-// STEP is a little more than two pill heights apart on screen, so pills down a column never touch; front rows sit a
-// little further apart (ROW), so 46 pills shown at once still clear each other (KTD14)
-const COLUMN = 5,
-  STEP = 54,
-  ROW = 56,
-  COLS = [132, 206, 280, 354, 428, 502],
-  /** the front row level with RAG keeps only the columns clear of its strip */
-  BESIDE_RAG = COLS.filter(x => x - 22 >= 206);
-/** slot i's centre: down the column left of the back office, down the column right of it, then six to a row in front
- * (the first row, level with RAG, four), row by row to the front */
-const slotXY = (i: number): [number, number] => {
-  if (i < COLUMN) return [44, 30 + STEP * i];
-  if (i < 2 * COLUMN) return [318, 30 + STEP * (i - COLUMN)];
-  const j = i - 2 * COLUMN;
-  if (j < BESIDE_RAG.length) return [BESIDE_RAG[j], 292];
-  const k = j - BESIDE_RAG.length;
-  return [COLS[k % COLS.length], 292 + ROW * (1 + Math.floor(k / COLS.length))];
-};
-/** a pill floats higher over the column right of the back office; in front, pills step down from left to right: a
- * slot's right-hand neighbour and the slot in front of that neighbour's left one sit at about one height on screen,
- * and all show at once with reduced motion and in the share image */
-const lift = (i: number) => {
-  if (i < 2 * COLUMN) return i >= COLUMN ? -14 : 0;
-  return 12 * COLS.indexOf(slotXY(i)[0]) - 18;
-};
-/** slot i's mat on the board, [x0, y0, x1, y1] */
-export const plotAt = (i: number): Board => {
-  const [x, y] = slotXY(i);
-  return [x - 22, y - 22, x + 30, y + 22];
-};
-/** the board for `slots` plots: at least wide enough for the back office and deep enough for RAG's strip */
-export const heroBoard = (slots: number): Board => {
-  const plots = Array.from({ length: slots }, (_, i) => plotAt(i));
-  return [0, 0, Math.max(340, ...plots.map(p => p[2] + 6)), Math.max(336, ...plots.map(p => p[3] + 6))];
+  RAG_X = [44, 112, 180],
+  STAND: [number, number] = [272, 298],
+  /** the stand shows its module this much larger than a plot */
+  Z = 1.5,
+  SITE: [number, number] = [50, 196];
+/** the hero's board: one size whatever the registry holds */
+export const HERO_BOARD: Board = [0, 0, 346, 348];
+/** a plot drawn at (x, y), magnified Z times about its foot; its strokes are thinned to match, so the ink keeps one weight */
+const magnify = (x: number, y: number, svg: string) => {
+  const [X, Y] = P(x, y, BH);
+  return `<g transform="translate(${X} ${Y}) scale(${Z}) translate(${-X} ${-Y})">${svg.replace(/stroke-width="([\d.]+)"/g, (_, w) => `stroke-width="${(+w / Z).toFixed(3)}"`)}</g>`;
 };
 
 /** a plot's floor: a tinted mat with a dashed edge */
@@ -137,32 +113,31 @@ const barrier = (x: number, y: number) =>
   rod([x, y - 12, BH + 9], [x, y + 12, BH + 9], 1.6, PALS.mustard) +
   rod([x, y - 4, BH + 9], [x, y + 2, BH + 9], 1.65, INK);
 
-/** a live plot's drawing (or its pill) in the home page's wave, which hops plot i, then i + 1, and shows the pill only on its turn */
-const hop = (i: number, svg: string) => `<g class="hero-hop" style="--i:${i}">${svg}</g>`;
+// the hero is a picture (role="img"): a piece opens its page on a click (the home page's script); the catalogue below
+// is the way in for keyboards and screen readers
+const link = (href: string, svg: string, attrs = '') => `<g data-href="${href}"${attrs}>${svg}</g>`;
+const pill = (p: number[], text: string, lit: boolean, dy: number) =>
+  `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p, 0, dy, esc(text.toUpperCase()), lit)}</g>`;
 
-/** a plot's pill text (short: plots sit one step apart), and for a live module after the second its drawing, centred on (x, y) */
+/** a module's id, and for a module after the second its drawing, centred on (x, y) */
 export interface HeroPlot {
-  name: string;
+  id: string;
   draw?: (x: number, y: number, ctx: SceneCtx) => string;
 }
-/** live: RAG's plot, tool calling's, then any later live modules; planned: one building site each; ride: the envelope on the belt */
+const nameOf = (id: string) => id.replace(/-/g, ' ');
+/** live in registry order: RAG's pipeline, tool calling's back office, then every later module takes a turn on the stand,
+ * newest first, so the still picture (reduced motion, share image) shows the latest; ride: the envelope on the belt */
 export const heroScene =
-  ({ live, planned, ride }: { live: HeroPlot[]; planned: HeroPlot[]; ride: Msg[] }) =>
+  ({ live, ride }: { live: HeroPlot[]; ride: Msg[] }) =>
   (ctx: SceneCtx) => {
     const { top } = ctx,
-      // pills keep one size on screen whatever the board, so 46 of them shown at once need this smaller one (KTD14)
-      scale = 1,
-      later = live.slice(2),
-      slots = [...later, ...planned];
+      [sx, sy] = STAND,
+      turns = live.slice(2).reverse();
     let s =
       mat(18, 270, 206, 318, PALS.mint.l) +
       mat(100, 0, 290, 256, PALS.cobalt.l) +
-      slots
-        .map((_, i) => {
-          const [x0, y0, x1, y1] = plotAt(i);
-          return mat(x0, y0, x1, y1, i < later.length ? PALS.mint.l : PALS.mustard.l);
-        })
-        .join('');
+      mat(SITE[0] - 22, SITE[1] - 22, SITE[0] + 30, SITE[1] + 22, PALS.mustard.l) +
+      `<g class="hero-thud">${mat(sx - 44, sy - 42, sx + 56, sy + 44, PALS.mustard.l)}${mat(sx - 33, sy - 33, sx + 45, sy + 33, PALS.mint.l)}</g>`;
     // RAG: three blocks down the plot, joined by a lit wire
     s += RAG_X.map((x, i) => blockShadow((['docs', 'retriever', 'llm'] as const)[i], x, RAG_Y, top)).join('');
     const d = pd(
@@ -175,53 +150,45 @@ export const heroScene =
     s +=
       `<path d="${d}" fill="none" stroke="${INK}" stroke-width="4.2" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${ACC}" stroke-width="2.2" stroke-linecap="round"/>` +
       `<path class="hero-flow" d="${d}" fill="none" stroke="${INK}" stroke-width="1.1" stroke-linecap="round" stroke-dasharray="2 9" opacity=".55"/>`;
-    s += hop(
-      0,
+    s += link(
+      `/${live[0].id}/`,
       byDepth(
         (['docs', 'retriever', 'llm'] as const).map((t, i) => ({
           at: [RAG_X[i], RAG_Y, 0],
           svg: renderers[t]({ x: RAG_X[i], y: RAG_Y, lit: true, state: 'ok' }),
         })),
-      ),
+      ) + pill([RAG_X[1], RAG_Y, BH + 34], nameOf(live[0].id), false, -28),
     );
-    // tool calling: the back office, its stations unnamed (the plot's pill names the module)
-    s += officeScene({ msgs: ride, tools: 2, schema: true, names: false })(ctx);
-    // later live modules: their own drawing
-    s += later.map((p, i) => hop(i + 2, p.draw?.(...slotXY(i), ctx) ?? '')).join('');
-    // planned modules: building plots
-    const plots = planned
-      .map((_, j) => {
-        const [x, y] = slotXY(later.length + j);
-        return (
-          castShadow(boxCorners(x - 17, y - 9, BH, x + 1, y + 9, BH + 15), BH, top) +
-          byDepth([
-            { at: [x - 8, y, 0], svg: crate(x - 8, y) },
-            { at: [x + 11, y - 12, 0], svg: cone(x + 11, y - 12) },
-            { at: [x + 11, y + 12, 0], svg: cone(x + 11, y + 12) },
-            { at: [x + 24, y, 0], svg: barrier(x + 24, y) },
-          ])
-        );
-      })
-      .join('');
-    s += plots;
-    const pill = (p: number[], text: string, onn: boolean, dy = -20, dx = 0) =>
-      `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text.toUpperCase()), onn, scale)}</g>`;
-    // a pill floats above its plot's centre: on the home page only one shows at a time, so they never crowd
-    const at = (i: number) => {
-      const [x, y] = slotXY(i);
-      return [x + 4, y, BH + 15];
-    };
+    // tool calling: the back office, its stations unnamed (its pill names the module)
+    s += link(
+      `/${live[1].id}/`,
+      officeScene({ msgs: ride, tools: 2, schema: true, names: false })(ctx) +
+        pill([142, 134, BH + 34], nameOf(live[1].id), false, -22),
+    );
+    // the building site: room for the next module, a crate, two cones and a barrier, open to a request
+    const [bx, by] = SITE;
+    s += link(
+      '#request',
+      castShadow(boxCorners(bx - 17, by - 9, BH, bx + 1, by + 9, BH + 15), BH, top) +
+        byDepth([
+          { at: [bx - 8, by, 0], svg: crate(bx - 8, by) },
+          { at: [bx + 11, by - 12, 0], svg: cone(bx + 11, by - 12) },
+          { at: [bx + 11, by + 12, 0], svg: cone(bx + 11, by + 12) },
+          { at: [bx + 24, by, 0], svg: barrier(bx + 24, by) },
+        ]) +
+        pill([bx + 4, by, BH + 15], 'yours?', false, -24),
+    );
+    // the stand: one module at a time drops on, lit, and lifts off for the next (the home page's turns); only the
+    // first shows in a still picture
     return (
       s +
-      // RAG's pill floats over the pill of the first front row's left-most slot
-      hop(0, pill([RAG_X[1], RAG_Y, BH + 34], live[0].name, false, -28)) +
-      hop(1, pill([142, 134, BH + 34], live[1].name, false, -22)) +
-      later.map((m, i) => hop(i + 2, pill(at(i), m.name, false, -24 + lift(i)))).join('') +
-      // planned pills sit out the wave (its timing is per live plot): the animated home hides them, still pictures show them all
-      planned
-        .map(
-          (m, j) =>
-            `<g class="hero-soon">${pill(at(later.length + j), m.name, false, -24 + lift(later.length + j))}</g>`,
+      turns
+        .map((p, i) =>
+          link(
+            `/${p.id}/`,
+            magnify(sx, sy, p.draw?.(sx, sy, ctx) ?? '') + pill([sx + 4 * Z, sy, BH + 15 * Z], nameOf(p.id), true, -34),
+            ` class="hero-turn" style="--i:${i}"${i ? ' visibility="hidden"' : ''}`,
+          ),
         )
         .join('')
     );
@@ -295,24 +262,17 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   'synthetic-data': (x, y, { top }) => copierPlot(x + 14, y - 2, top),
   'mixture-of-experts': (x, y, { top }) => roomsPlot(x + 14, y - 4, top),
 };
-const LIVE = MODULES.filter(m => m.status === 'live'),
-  PLANNED = MODULES.filter(m => m.status === 'planned');
-/** the home page's share image, from the registry: the model's call riding to the host */
-export const HERO_BOARD = heroBoard(LIVE.length - 2 + PLANNED.length);
+const LIVE = MODULES.filter(m => m.status === 'live');
+/** the home page's hero and share image, from the registry: the model's call riding to the host */
 export const HOME_HERO = heroScene({
-  live: LIVE.map(m => ({ name: m.id.replace(/-/g, ' '), draw: DRAW[m.id] })),
-  planned: PLANNED.map(m => ({ name: m.id.replace(/-/g, ' ') })),
+  live: LIVE.map(m => ({ id: m.id, draw: DRAW[m.id] })),
   ride: SEQ_MSGS.slice(0, 3),
 });
-/** the hero's accessible label: building sites are named only while some module is planned */
-export const heroLabel = (live: string[], planned: string[]) =>
-  `Tinker as one workshop with a plot per module: ${live.join(' and ')}, live${planned.length ? `, and building sites for ${planned.join(', ')}` : ''}.`;
+/** how many modules take a turn on the stand */
+export const HERO_TURNS = LIVE.length - 2;
+/** the hero's accessible label */
+export const heroLabel = (live: string[]) =>
+  `Tinker's workshop: ${live[0]} and ${live[1]} at work, and a stand where each later module takes a turn: ${live.slice(2).join(', ')}.`;
 /** the live modules (in registry order) whose plot has no drawing: RAG's and tool calling's are drawn by heroScene itself */
 export const undrawn = (live: string[]) => live.slice(2).filter(id => !DRAW[id]);
-/** the hero's caption: an invitation to build while a plot is open, to propose once none is */
-export const heroCaption = (planned: boolean) =>
-  planned ? { text: 'The empty plots are open:', link: 'build one' } : { text: 'Room for more:', link: 'propose one' };
-export const HOME_HERO_LABEL = heroLabel(
-  LIVE.map(m => m.title),
-  PLANNED.map(m => m.title),
-);
+export const HOME_HERO_LABEL = heroLabel(LIVE.map(m => m.title));
