@@ -1,0 +1,186 @@
+/* Mixture of experts stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in
+   through tool-calling/kit). These are the loading line, the token strip, the override's 4×2 rooms, the Router tab
+   and the workbench. No motion: rooms light without the walk, with or without reduced motion. */
+.me-status {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 14px;
+}
+.me-strip,
+.me-override fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.me-strip legend,
+.me-override legend {
+  font-weight: 800;
+  font-size: 13.5px;
+  margin-bottom: 4px;
+  padding: 0;
+}
+.me-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.me-strip legend {
+  width: 100%;
+}
+.me-strip label,
+.me-rooms label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 2px 10px;
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+  background: var(--card);
+  font:
+    700 14px ui-monospace,
+    Menlo,
+    monospace;
+  cursor: pointer;
+}
+.me-strip label.on,
+.me-rooms label:has(input:checked) {
+  background: var(--acc, #f4b829);
+}
+.me-strip fieldset:disabled label,
+.me-strip:disabled label,
+.me-override fieldset:disabled label {
+  opacity: 0.5;
+  cursor: default;
+}
+.me-strip label:focus-within,
+.me-rooms label:focus-within {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+.me-override {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+}
+.me-rooms {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+.me-said {
+  margin: 0;
+  width: 100%;
+  font-size: 13px;
+  color: var(--muted);
+  min-height: 1.4em;
+}
+.me-table {
+  overflow: auto;
+  align-self: stretch;
+  max-height: 100%;
+}
+.me-table:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.me-table table {
+  width: 100%;
+  font-size: 13px;
+}
+.me-table td.runs {
+  font-weight: 800;
+  background: color-mix(in srgb, var(--acc, #f4b829) 30%, transparent);
+}
+.me-empty {
+  margin: auto;
+  font-weight: 700;
+}
+.me-learned td {
+  font:
+    600 13px ui-monospace,
+    Menlo,
+    monospace;
+}
+.me-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.me-bench {
+  border: 1.5px solid var(--rule);
+  border-radius: 12px;
+  padding: 6px 12px;
+  margin: 8px 0;
+}
+.me-bench fieldset {
+  border: 0;
+  padding: 0;
+  margin: 6px 0;
+}
+.me-bench legend {
+  font-weight: 800;
+  font-size: 14px;
+}
+.me-bench label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 32px;
+  font-size: 14px;
+}
+.me-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.me-headline strong {
+  font:
+    800 26px / 1 ui-monospace,
+    Menlo,
+    monospace;
+}
+.tc-ledger td.ok {
+  color: var(--ok);
+  font-weight: 800;
+}
+.tc-ledger td.bad {
+  color: var(--bad);
+  font-weight: 800;
+}
+@media (max-width: 600px) {
+  .me-strip label,
+  .me-rooms label {
+    min-height: 44px;
+    min-width: 44px;
+    justify-content: center;
+  }
+}
+.me-range {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0;
+}
+.me-range label {
+  font-weight: 800;
+  font-size: 14px;
+}
+.me-range input {
+  width: 100%;
+}
+.me-range output {
+  font:
+    700 13px ui-monospace,
+    Menlo,
+    monospace;
+}

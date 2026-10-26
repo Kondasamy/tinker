@@ -31,6 +31,13 @@ import { GIT_MODULE } from '../content/git/module';
 import { CALIBRATION_MODULE } from '../content/calibration/module';
 import { COMPUTER_USE_MODULE } from '../content/computer-use/module';
 import { DIFFUSION_LLMS_MODULE } from '../content/diffusion-llms/module';
+import { QUEUES_MODULE } from '../content/queues/module';
+import { COMPRESSION_MODULE } from '../content/compression/module';
+import { LOAD_BALANCING_MODULE } from '../content/load-balancing/module';
+import { ENCRYPTION_MODULE } from '../content/encryption/module';
+import { CODING_AGENTS_MODULE } from '../content/coding-agents/module';
+import { SYNTHETIC_DATA_MODULE } from '../content/synthetic-data/module';
+import { MIXTURE_OF_EXPERTS_MODULE } from '../content/mixture-of-experts/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -121,50 +128,57 @@ export const MODULES: Module[] = [
   CALIBRATION_MODULE,
   COMPUTER_USE_MODULE,
   DIFFUSION_LLMS_MODULE,
+  QUEUES_MODULE,
+  COMPRESSION_MODULE,
+  LOAD_BALANCING_MODULE,
+  ENCRYPTION_MODULE,
+  CODING_AGENTS_MODULE,
+  SYNTHETIC_DATA_MODULE,
+  MIXTURE_OF_EXPERTS_MODULE,
   planned(
-    'mixture-of-experts',
-    'Mixture of experts',
+    'memorisation',
+    'What a model remembers',
+    'Intermediate',
+    'What a model keeps from its training text: memorised lines, how they leak back out, and keeping private data out.',
+  ),
+  planned(
+    'video-models',
+    'Video and world models',
     'Advanced',
-    'A model with many experts that wakes only a few for each word: the router that picks them, and what it saves.',
+    'Models that make moving pictures: frames that agree over time, and models that guess what a world does next.',
   ),
   planned(
-    'coding-agents',
-    'Coding agents',
+    'recommendations',
+    'Recommendations',
     'Intermediate',
-    'An agent that edits code and runs the tests: reading a repository, making a change, and checking its own work.',
+    'Why the shop shows you this drill: what you and people like you bought, ranked, and the loop it feeds.',
   ),
   planned(
-    'synthetic-data',
-    'Synthetic data',
-    'Intermediate',
-    'Training data written by a model: how it is made, filtered and checked, and when it teaches the wrong thing.',
-  ),
-  planned(
-    'queues',
-    'Queues and background jobs',
+    'logins',
+    'Logins and passwords',
     'Beginner',
-    'How an order waits its turn: a queue, workers that take jobs, retries, and the jobs that run twice.',
+    'How a site knows it is you: hashed and salted passwords, a session cookie, and signing in with another site.',
     'Classic tech',
   ),
   planned(
-    'encryption',
-    'Locks and keys',
+    'email',
+    'How email arrives',
     'Beginner',
-    'How a stranger can send you a secret: a public lock, a private key, and signatures that prove who sent it.',
+    'How a message crosses the internet: mail servers that pass it on, SPF and DKIM that vouch for it, and spam.',
     'Classic tech',
   ),
   planned(
-    'compression',
-    'Compression',
-    'Beginner',
-    'How a file gets smaller without losing a byte: repeats replaced by pointers, and why some files will not shrink.',
-    'Classic tech',
-  ),
-  planned(
-    'load-balancing',
-    'Load balancing',
+    'dependencies',
+    'Dependencies',
     'Intermediate',
-    'Spreading requests over many servers: round robin, the least busy, health checks, and the one slow server.',
+    'Code you did not write: a package manager, version ranges, the lockfile, and one package that breaks the rest.',
+    'Classic tech',
+  ),
+  planned(
+    'releases',
+    'Shipping a release',
+    'Intermediate',
+    'How new code reaches everyone: tests on every change, a canary first, feature flags, and a rollback.',
     'Classic tech',
   ),
 ];

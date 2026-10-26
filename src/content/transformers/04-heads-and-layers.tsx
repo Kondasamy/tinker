@@ -289,6 +289,10 @@ export default function HeadsAndLayers() {
               ))}
               <li>The last token’s vector → a score for every token in the vocabulary</li>
             </ol>
+            <p className="note in-note">
+              Each layer’s small calculation, split among many experts:{' '}
+              <a href="/mixture-of-experts/01-one-big-kitchen/">Mixture of experts</a>.
+            </p>
             {model ? (
               <HeadButtons s={state} set={(l, h) => apply({ ...state, layer: l, head: h, view: 'scene' })} />
             ) : (

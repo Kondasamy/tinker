@@ -40,7 +40,7 @@ export interface TrainOpts {
   /** the lever pulled and lit (none: the bench at rest) */
   lit?: Approach | null;
   /** the weights the model runs: the base, the full fine-tune, or the base with the LoRA adapter clipped on */
-  weights?: Exclude<Weights, 'student' | 'mlm'>;
+  weights?: Exclude<Weights, 'student' | 'mlm' | 'moe'>;
   /** pill size; phones pass more */
   scale?: number;
   /** the step's callout: a lit pill over one of TRAIN_PARTS */
@@ -50,7 +50,7 @@ export interface TrainOpts {
 /** The parts a step's callout may point at: the ones with a name pill (a lever by its approach). */
 export const TRAIN_PARTS = ['model', 'adapter', ...APPROACHES] as const;
 
-const MODEL_NAME: Record<Exclude<Weights, 'student' | 'mlm'>, string> = {
+const MODEL_NAME: Record<Exclude<Weights, 'student' | 'mlm' | 'moe'>, string> = {
   base: 'BASE MODEL',
   finetuned: 'FINE-TUNED',
   lora: 'BASE + ADAPTER',

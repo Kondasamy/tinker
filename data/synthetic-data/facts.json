@@ -1,0 +1,26 @@
+{
+  "accessed": "2026-10-25",
+  "facts": [
+    {
+      "id": "shumailov-2024",
+      "claim": "A large-model finding: Shumailov and colleagues (Nature, 2024) trained models on recursively generated data and found the tails of the original distribution disappear. They call it model collapse.",
+      "source": "https://www.nature.com/articles/s41586-024-07566-y"
+    },
+    {
+      "id": "gerstgrasser-2024",
+      "claim": "A large-model finding: Gerstgrasser and colleagues (2024) found that replacing real data with each generation’s output leads to collapse, while accumulating it alongside the real data avoids it.",
+      "source": "https://arxiv.org/abs/2404.01413"
+    },
+    {
+      "id": "self-instruct",
+      "claim": "Self-Instruct (Wang and colleagues, 2022) had GPT-3 write its own instructions, filtered out invalid or similar ones, and tuned on the rest: a 33% absolute gain on Super-NaturalInstructions.",
+      "value": "33",
+      "source": "https://arxiv.org/abs/2212.10560"
+    },
+    {
+      "id": "textbooks",
+      "claim": "phi-1 (Gunasekar and colleagues, 2023), 1.3B parameters, trained on 6B tokens of filtered web text and 1B tokens of GPT-3.5-written textbooks, scored 50.6% on HumanEval.",
+      "source": "https://arxiv.org/abs/2306.11644"
+    }
+  ]
+}

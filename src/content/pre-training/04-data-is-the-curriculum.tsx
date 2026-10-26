@@ -147,6 +147,10 @@ export default function DataIsTheCurriculum() {
           <>
             <Fact id="dedup-copying" />
             <Fact id="dedup-less-memorised" />
+            <p className="note in-note">
+              When a model writes its own training data:{' '}
+              <a href="/synthetic-data/06-keep-the-real-data/">Synthetic data</a>.
+            </p>
           </>
         ),
         quiz: ({ state, apply, sync }) => (

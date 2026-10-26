@@ -1,0 +1,73 @@
+---
+// Dev-only eyeball page: the ticket rail in the states the chapters teach (static SVG, wide and phone), then the stage
+// live with its clock and crash bar, and the jobs table. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { RAIL_BOARD, idleRail, railAt, railLabel, railScene, type RailOpts } from '../components/scenes/railScene';
+import { JobsView, QueuesStage } from '../content/queues/kit';
+import { CRASH_AT, SCENES, SHOWN_CRASH, clock, simulate } from '../lib/queues/sim';
+import { WINNERS, benchRun } from '../lib/queues/workbench';
+
+const inline = simulate(SCENES.inline);
+const one = simulate(SCENES.one);
+const crashed = simulate({ ...SCENES.crash, crashes: [SHOWN_CRASH] });
+const noBackoff = simulate(SCENES.noBackoff);
+const shelf = simulate(SCENES.shelf);
+const best = benchRun(WINNERS[0]);
+const STATES: [string, Omit<RailOpts, 'scale'>][] = [
+  ['Idle: two workers, nothing on the rail', idleRail(2)],
+  [`Inline, ${clock(16)}: the line at the till`, railAt(inline, 16)],
+  [`One worker, ${clock(18)}: the backlog`, { ...railAt(one, 18), say: { block: 'rail', text: 'Backlog' } }],
+  [`Crash at ${clock(CRASH_AT)}: Rosa down, her ticket held`, railAt(crashed, CRASH_AT)],
+  [`${clock(CRASH_AT + 4)}: the ticket hidden on the rail`, railAt(crashed, CRASH_AT + 4)],
+  [`${clock(CRASH_AT + 6)}: the lease runs out, it slides back`, railAt(crashed, CRASH_AT + 6)],
+  [`No backoff, ${clock(12)}: the outage`, { ...railAt(noBackoff, 12), say: { block: 'courier', text: 'Site down' } }],
+  ['No backoff, end: dead letters', railAt(noBackoff, 59)],
+  ['Moe on the shelf', { ...railAt(shelf, 40), say: { block: 'shelf', text: 'Dead letter' } }],
+  ['A winning bench at 09:30', railAt(best, 30)],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Queues scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Ticket rail: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={RAIL_BOARD} scene={railScene({ ...o, scale: 1.2 })} label={railLabel(o)} /></div>
+            <div class="phone"><IsoStage board={RAIL_BOARD} scene={railScene({ ...o, scale: 2 })} label={railLabel(o)} /></div>
+            <p>{railLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Crash bar, Rosa and Tomas busy</h2><div class="stage"><QueuesStage show={{ scene: railAt(simulate(SCENES.crash), CRASH_AT), result: simulate(SCENES.crash), tick: CRASH_AT, caption: 'Chapter 5’s minute.' }} onCrash={() => {}} /></div></section>
+        <section><h2>Crash bar, nobody busy; escaped caption</h2><div class="stage"><QueuesStage show={{ scene: idleRail(2), caption: '<script>alert(1)</script>' }} onCrash={() => {}} /></div></section>
+        <section><h2>Jobs table</h2><div class="stage"><JobsView client:load result={crashed} t={CRASH_AT + 6} /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 520px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

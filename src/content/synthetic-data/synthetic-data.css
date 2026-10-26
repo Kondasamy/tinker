@@ -1,0 +1,134 @@
+/* Synthetic data stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in
+   through tool-calling/kit). These are the loading card, the read-out, the range, the arms radio, replies and the
+   copy stack's flip (none with reduced motion). */
+.sd-wait {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sd-pill {
+  padding: 2px 10px;
+  border: 1.2px solid var(--ink);
+  border-radius: 999px;
+  background: #fff4d6;
+  font:
+    800 12px ui-monospace,
+    Menlo,
+    monospace;
+}
+.sd-error {
+  text-align: center;
+  font-size: 13px;
+}
+.sd-readout {
+  margin: 4px 0 0;
+  font:
+    700 13px ui-monospace,
+    Menlo,
+    monospace;
+  overflow-wrap: anywhere;
+}
+.tc-frame .sd-scroll {
+  overflow-y: auto;
+  width: 100%;
+  align-self: stretch;
+}
+.sd-numbers td.lit {
+  background: var(--accent, #f4b829);
+  font-weight: 800;
+}
+.sd-range {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  margin-top: 10px;
+}
+.sd-range label {
+  font-weight: 800;
+}
+.sd-range input {
+  flex: 1 1 140px;
+}
+.sd-range output {
+  font-weight: 700;
+}
+.sd-arms,
+.sd-bench {
+  border: 1.2px solid var(--ink);
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin: 10px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sd-arms legend,
+.sd-bench legend {
+  font-weight: 800;
+  padding: 0 4px;
+}
+.sd-bench label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.sd-note {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--muted, #5a5246);
+}
+.sd-replies {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+}
+.sd-replies li {
+  display: flex;
+  gap: 8px;
+  overflow-wrap: anywhere;
+}
+.sd-replies li[data-v="copy"],
+.sd-replies li[data-v="overlap"],
+.sd-replies li[data-v="no-fact"] {
+  color: var(--muted, #5a5246);
+  text-decoration: line-through;
+}
+.sd-replies .v {
+  font:
+    800 11px ui-monospace,
+    Menlo,
+    monospace;
+  flex: 0 0 auto;
+}
+.sd-headline {
+  margin: 0;
+  font-size: 15px;
+}
+.sd-headline .stamp {
+  margin-left: 8px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .copier-room .sd-flip {
+    animation: sd-flip 0.5s ease-out;
+    transform-box: fill-box;
+    transform-origin: center bottom;
+  }
+}
+@keyframes sd-flip {
+  from {
+    transform: translateY(-8px) scaleY(0.2);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}

@@ -10,7 +10,9 @@
  * holds what train.py --variants needs: the document the `duplicated` run repeats, the `leaked` run's test questions
  * (Evals' twelve, as `Q: … A: …` with their reference answers) and the prompts every run's greedy samples start from.
  * `diffusionLlms` (KTD3 of the seven-modules plan) holds each token's bytes, so train_mlm.py can write its pinned
- * held-out prompts as text without tokenizing.
+ * held-out prompts as text without tokenizing. `syntheticData` (KTD9 of the last-seven plan) holds what train_synth.py
+ * needs: product names as id sequences (the fact filter), the support prompts the chapters sample from, and the pinned
+ * rare prompts, held-out text whose key fact also appears in training documents (the rare-request score).
  *
  * Run: pnpm encode:lm. tests/unit/lm-model.test.ts fails if the file is stale.
  */
@@ -60,6 +62,75 @@ const evalsQuestions = () => {
     .map(q => ({ id: q.id, q: `Q: ${q.query} A:`, text: `Q: ${q.query} A: ${refs[q.id].answer}\n\n` }));
 };
 
+/** The fact filter keeps a sample that names one of these: each is an id sequence found in the training split. */
+const PRODUCTS = [
+  ' Kestrel K2',
+  ' Kestrel K3',
+  ' Kestrel',
+  ' Wren',
+  ' Heron',
+  ' handheld scanner',
+  ' label printer',
+  ' steel shelving',
+  ' dock door sensor',
+  ' label rolls',
+];
+const SUPPORT_PROMPTS = [
+  'Q: Does the Kestrel K3 come with a charger? A:',
+  'Q: How do I load the Wren label printer? A:',
+  'Q: How much weight can a Heron shelving bay hold? A:',
+  'Q: Can I return a dock door sensor? A:',
+  'Q: How do I order label rolls? A:',
+  'Q: Which warehouse ships my order? A:',
+];
+/** Held-out openings that stop where a key fact starts; every fact also appears in a training document. */
+const RARE = [
+  {
+    doc: 'data-retention-faq-2025.md',
+    text: 'Q: Are support calls recorded? A: Yes, for quality and training. Recordings are deleted after',
+    facts: { days: ['180 days'] },
+  },
+  {
+    doc: 'data-retention-faq-2025.md',
+    text: 'Q: How long is order history kept? A:',
+    facts: { years: ['seven years'] },
+  },
+  { doc: 'heron-shelving-install-guide-2021.md', text: 'Inspect shelving every', facts: { often: ['six months'] } },
+  {
+    doc: 'portal-release-notes-2021.md',
+    text: 'September release: the Wren label printer can be ordered with preloaded',
+    facts: { what: ['label templates'] },
+  },
+  {
+    doc: 'portal-release-notes-2021.md',
+    text: 'April release: punch-out catalogs for customers who buy through an external',
+    facts: { what: ['purchasing'] },
+  },
+  {
+    doc: 'remote-work-policy-2021.md',
+    text: 'Home setup: the company pays a one-time home office allowance of',
+    facts: { amount: ['$500'] },
+  },
+  {
+    doc: 'warehouse-safety-handbook-2023.md',
+    text: 'This handbook sets the safety rules for the Riverbend and',
+    facts: { site: ['Eastgate'] },
+  },
+  {
+    doc: 'warehouse-safety-handbook-2023.md',
+    text: 'Forklifts: only certified operators may drive forklifts. Certification is renewed every',
+    facts: { often: ['three years'] },
+  },
+  {
+    doc: 'warehouse-safety-handbook-2023.md',
+    text: 'Dock doors: dock door sensors show a',
+    facts: { what: ['red light'] },
+  },
+];
+const texts = new Map();
+const read = f => texts.get(f) ?? texts.set(f, fs.readFileSync(path.join(CORPUS, f), 'utf8')).get(f);
+const has = (doc, seq) => doc.some((_, i) => seq.every((id, j) => doc[i + j] === id));
+
 const files = fs
   .readdirSync(CORPUS)
   .filter(f => f.endsWith('.md'))
@@ -92,6 +163,20 @@ const out = {
   },
   diffusionLlms: { pieces: Array.from({ length: VOCAB_SIZE }, (_, id) => Array.from(pieceBytes(id))) },
 };
+const train = out.splits.train;
+out.syntheticData = {
+  products: PRODUCTS.map(text => ({ text, ids: encode(text) })),
+  prompts: SUPPORT_PROMPTS.map(text => ({ text, ids: encode(text) })),
+  rare: RARE.map(r => ({ ...r, ids: encode(r.text) })),
+};
+for (const p of out.syntheticData.products)
+  if (!train.ids.some(d => has(d, p.ids))) throw new Error(`product ${p.text} is not in the training split`);
+for (const r of RARE) {
+  if (!out.splits.heldout.docs.includes(r.doc) || !read(r.doc).includes(r.text))
+    throw new Error(`rare prompt is not held-out text: ${r.text}`);
+  for (const ps of Object.values(r.facts))
+    if (!ps.some(p => train.docs.some(f => read(f).includes(p)))) throw new Error(`fact ${ps} is not in training`);
+}
 // one doc per line keeps the file diffable
 const json = JSON.stringify(out).replace(/\],\[/g, '],\n[');
 fs.writeFileSync(OUT, json + '\n');

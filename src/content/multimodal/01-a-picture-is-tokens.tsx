@@ -141,6 +141,9 @@ export default function APictureIsTokens() {
             <Fact id="example-1000" />
             <Fact id="openai-32" />
             <Fact id="vit" />
+            <p className="mm-note">
+              Making a picture smaller to store or send is another job: <a href="/compression/">Compression</a>.
+            </p>
           </>
         ),
         quiz: ({ state, apply, sync }) => (

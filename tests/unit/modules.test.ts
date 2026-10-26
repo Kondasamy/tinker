@@ -15,16 +15,9 @@ const RAG_CHAPTERS = [
   ['07-sandbox', 'Sandbox'],
 ];
 
-// the roadmap (docs/plans/2026-10-25-1206-feat-seven-roadmap-modules-plan.md), in registry order: the seven cards that
-// plan takes live, then the seven new cards that follow them (R16); each with its level and track (none is AI)
+// the roadmap (docs/plans/2026-10-25-1824-feat-last-seven-roadmap-modules-plan.md), in registry order: the seven cards
+// that plan takes live, then the seven new cards that follow them (R16); each with its level and track (absent is AI)
 const ROADMAP: [string, string, string?][] = [
-  ['diffusion-llms', 'Advanced'],
-  ['computer-use', 'Advanced'],
-  ['calibration', 'Intermediate'],
-  ['search', 'Beginner', 'Classic tech'],
-  ['web-requests', 'Beginner', 'Classic tech'],
-  ['payments', 'Beginner', 'Classic tech'],
-  ['git', 'Beginner', 'Classic tech'],
   ['mixture-of-experts', 'Advanced'],
   ['coding-agents', 'Intermediate'],
   ['synthetic-data', 'Intermediate'],
@@ -32,6 +25,13 @@ const ROADMAP: [string, string, string?][] = [
   ['encryption', 'Beginner', 'Classic tech'],
   ['compression', 'Beginner', 'Classic tech'],
   ['load-balancing', 'Intermediate', 'Classic tech'],
+  ['memorisation', 'Intermediate'],
+  ['video-models', 'Advanced'],
+  ['recommendations', 'Intermediate'],
+  ['logins', 'Beginner', 'Classic tech'],
+  ['email', 'Beginner', 'Classic tech'],
+  ['dependencies', 'Intermediate', 'Classic tech'],
+  ['releases', 'Intermediate', 'Classic tech'],
 ];
 /** true when every id in `ids` is in `list`, in the list's order */
 const inOrder = (ids: string[], list: string[]) => {
@@ -608,6 +608,90 @@ describe('module registry', () => {
     });
     expect(moduleOf('diffusion-llms').author).toEqual(moduleOf('rag').author);
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'diffusion-llms')).toBe(31);
+  });
+
+  it('has queues as a live Beginner Classic tech module, numbered 33', () => {
+    expect(moduleOf('queues')).toMatchObject({
+      title: 'Queues and background jobs',
+      level: 'Beginner',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('queues').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'queues')).toBe(32);
+  });
+
+  it('has compression as a live Beginner Classic tech module, numbered 34', () => {
+    expect(moduleOf('compression')).toMatchObject({
+      title: 'Compression',
+      level: 'Beginner',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('compression').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'compression')).toBe(33);
+  });
+
+  it('has load-balancing as a live Intermediate Classic tech module, numbered 35', () => {
+    expect(moduleOf('load-balancing')).toMatchObject({
+      title: 'Load balancing',
+      level: 'Intermediate',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('load-balancing').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'load-balancing')).toBe(34);
+  });
+
+  it('has encryption as a live Beginner Classic tech module, numbered 36', () => {
+    expect(moduleOf('encryption')).toMatchObject({
+      title: 'Locks and keys',
+      level: 'Beginner',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('encryption').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'encryption')).toBe(35);
+  });
+
+  it('has coding-agents as a live Intermediate AI module after AI agents, numbered 37', () => {
+    expect(moduleOf('coding-agents')).toMatchObject({
+      title: 'Coding agents',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: ['agents'],
+    });
+    expect(moduleOf('coding-agents').track).toBeUndefined();
+    expect(moduleOf('coding-agents').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'coding-agents')).toBe(36);
+  });
+
+  it('has synthetic-data as a live Intermediate AI module after Fine-tuning, numbered 38', () => {
+    expect(moduleOf('synthetic-data')).toMatchObject({
+      title: 'Synthetic data',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: ['fine-tuning'],
+    });
+    expect(moduleOf('synthetic-data').track).toBeUndefined();
+    expect(moduleOf('synthetic-data').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'synthetic-data')).toBe(37);
+  });
+
+  it('has mixture-of-experts as a live Advanced AI module after Transformers, numbered 39', () => {
+    expect(moduleOf('mixture-of-experts')).toMatchObject({
+      title: 'Mixture of experts',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['transformers'],
+    });
+    expect(moduleOf('mixture-of-experts').track).toBeUndefined();
+    expect(moduleOf('mixture-of-experts').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'mixture-of-experts')).toBe(38);
   });
 
   it('keeps chapter ids unique within every module', () => {

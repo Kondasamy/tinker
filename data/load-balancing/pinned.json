@@ -1,0 +1,99 @@
+{
+  "note": "Every effect the Load balancing chapters teach, from runs of Larkspur's simulated sale (planning numbers, not measurements). tests/unit/load-balancing-sim.test.ts reruns them; a change that moves one fails there. shares: each rule's share per server (Ash, Birch, Cedar, Dogwood) with Dogwood slow but answering and health checks at 2 misses. slow: each rule's p99 with Birch slow (a request whose customer gave up counts the 1 s timeout); slowFailed: how many gave up.",
+  "shares": {
+    "round-robin": [
+      0.2506,
+      0.2506,
+      0.2506,
+      0.2481
+    ],
+    "least": [
+      0.2886,
+      0.2987,
+      0.2962,
+      0.1165
+    ],
+    "two": [
+      0.3089,
+      0.2962,
+      0.2785,
+      0.1165
+    ],
+    "weighted": [
+      0.4,
+      0.2,
+      0.2,
+      0.2
+    ]
+  },
+  "ceiling": {
+    "morningP99": 84,
+    "saleP50": 173,
+    "saleP99": 465
+  },
+  "slow": {
+    "round-robin": 1000,
+    "least": 288,
+    "two": 358,
+    "weighted": 1000
+  },
+  "slowFailed": {
+    "round-robin": 69,
+    "least": 0,
+    "two": 0,
+    "weighted": 48
+  },
+  "dead": [
+    {
+      "checks": 0,
+      "failed": 84,
+      "pulledAt": null
+    },
+    {
+      "checks": 1,
+      "failed": 3,
+      "pulledAt": 1100
+    },
+    {
+      "checks": 2,
+      "failed": 11,
+      "pulledAt": 1300
+    },
+    {
+      "checks": 3,
+      "failed": 15,
+      "pulledAt": 1500
+    }
+  ],
+  "sticky": {
+    "off": 294,
+    "on": 0,
+    "dies": 6
+  },
+  "hedge": [
+    {
+      "hedgeMs": 0,
+      "p50": 45,
+      "p99": 319,
+      "sent": 395
+    },
+    {
+      "hedgeMs": 50,
+      "p50": 49,
+      "p99": 127,
+      "sent": 582
+    },
+    {
+      "hedgeMs": 100,
+      "p50": 45,
+      "p99": 160,
+      "sent": 423
+    },
+    {
+      "hedgeMs": 200,
+      "p50": 44,
+      "p99": 256,
+      "sent": 417
+    }
+  ]
+}

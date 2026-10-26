@@ -1,0 +1,6 @@
+{
+  "note": "Planning numbers written for this site, not a real link's limits. Chapter 7: one send of Larkspur's site files may take at most `bytes`, and the picture may differ from the original by at most `diff` percent on average; the texts and the random file must come back byte for byte. Chapter 6: the picture alone in at most `picture` bytes, within the same `diff`.",
+  "bytes": 2200,
+  "diff": 2,
+  "picture": 700
+}

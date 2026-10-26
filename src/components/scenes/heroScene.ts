@@ -53,6 +53,13 @@ import { cratePlot } from './crateScene';
 import { jarPlot } from './jarScene';
 import { puppetPlot } from './puppetScene';
 import { typeFramePlot } from './typeFrameScene';
+import { railPlot } from './railScene';
+import { pilePlot } from './pileScene';
+import { yardPlot } from './yardScene';
+import { paintPlot } from './paintScene';
+import { agentDeskPlot } from './deskScene';
+import { copierPlot } from './copierScene';
+import { roomsPlot } from './officeRoomsScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
@@ -61,15 +68,15 @@ import type { Msg } from '../../lib/iso/flat';
 const RAG_Y = 294,
   RAG_X = [44, 112, 180];
 // STEP is a little more than two pill heights apart on screen, so pills down a column never touch; front rows sit a
-// little further apart (ROW), so 39 pills shown at once still clear each other (KTD14)
+// little further apart (ROW), so 46 pills shown at once still clear each other (KTD14)
 const COLUMN = 5,
-  STEP = 50,
-  ROW = 54,
-  COLS = [132, 206, 280, 354, 428],
+  STEP = 54,
+  ROW = 56,
+  COLS = [132, 206, 280, 354, 428, 502],
   /** the front row level with RAG keeps only the columns clear of its strip */
   BESIDE_RAG = COLS.filter(x => x - 22 >= 206);
-/** slot i's centre: down the column left of the back office, down the column right of it, then five to a row in front
- * (the first row, level with RAG, three), row by row to the front */
+/** slot i's centre: down the column left of the back office, down the column right of it, then six to a row in front
+ * (the first row, level with RAG, four), row by row to the front */
 const slotXY = (i: number): [number, number] => {
   if (i < COLUMN) return [44, 30 + STEP * i];
   if (i < 2 * COLUMN) return [318, 30 + STEP * (i - COLUMN)];
@@ -83,7 +90,7 @@ const slotXY = (i: number): [number, number] => {
  * and all show at once with reduced motion and in the share image */
 const lift = (i: number) => {
   if (i < 2 * COLUMN) return i >= COLUMN ? -14 : 0;
-  return 10 * COLS.indexOf(slotXY(i)[0]) - 22;
+  return 12 * COLS.indexOf(slotXY(i)[0]) - 18;
 };
 /** slot i's mat on the board, [x0, y0, x1, y1] */
 export const plotAt = (i: number): Board => {
@@ -143,7 +150,7 @@ export const heroScene =
   ({ live, planned, ride }: { live: HeroPlot[]; planned: HeroPlot[]; ride: Msg[] }) =>
   (ctx: SceneCtx) => {
     const { top } = ctx,
-      // pills keep one size on screen whatever the board, so 39 of them shown at once need this smaller one (KTD14)
+      // pills keep one size on screen whatever the board, so 46 of them shown at once need this smaller one (KTD14)
       scale = 1,
       later = live.slice(2),
       slots = [...later, ...planned];
@@ -280,6 +287,13 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   calibration: (x, y, { top }) => jarPlot(x + 12, y - 2, top),
   'computer-use': (x, y, { top }) => puppetPlot(x + 14, y - 2, top),
   'diffusion-llms': (x, y, { top }) => typeFramePlot(x + 12, y - 2, top),
+  queues: (x, y, { top }) => railPlot(x + 14, y - 2, top),
+  compression: (x, y, { top }) => pilePlot(x + 14, y - 2, top),
+  'load-balancing': (x, y, { top }) => yardPlot(x + 14, y - 2, top),
+  encryption: (x, y, { top }) => paintPlot(x + 14, y - 2, top),
+  'coding-agents': (x, y, { top }) => agentDeskPlot(x + 14, y - 2, top),
+  'synthetic-data': (x, y, { top }) => copierPlot(x + 14, y - 2, top),
+  'mixture-of-experts': (x, y, { top }) => roomsPlot(x + 14, y - 4, top),
 };
 const LIVE = MODULES.filter(m => m.status === 'live'),
   PLANNED = MODULES.filter(m => m.status === 'planned');

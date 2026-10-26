@@ -1,0 +1,12 @@
+{
+  "note": "The people and messages for Locks and keys, written for this site. The supplier, its domain and every message are made up; every domain is reserved for documentation (RFC 2606).",
+  "company": "Larkspur Supply Co.",
+  "supplier": { "name": "Brightwater Fasteners", "short": "Brightwater", "domain": "brightwater.example" },
+  "impostor": { "domain": "brightwater-pay.example" },
+  "order": "Order 1207: 400 brass hinges for Larkspur, dock 2.",
+  "invoice": "Invoice 1207: pay 1880.00 to account 4417-2209.",
+  "edited": "Invoice 1207: pay 1980.00 to account 4417-2209.",
+  "forged":"Invoice 1207: pay 1880.00 to account 9001-5150.",
+  "orderNumber": 1207,
+  "today": "2026-10-25"
+}

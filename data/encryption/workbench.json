@@ -1,0 +1,14 @@
+{
+  "note": "Chapter 7's messages from the supplier and the attackers on the line, written for this site. secret: an eavesdropper must not read it; genuine: a tamperer or an impostor must not change or fake it; public: every shop must be able to read it.",
+  "attackers": [
+    { "id": "eavesdropper", "name": "Eavesdropper", "does": "reads what crosses" },
+    { "id": "tamperer", "name": "Tamperer", "does": "changes what crosses" },
+    { "id": "impostor", "name": "Impostor", "does": "sends its own, in the supplier’s name" }
+  ],
+  "messages": [
+    { "id": "prices", "short": "PRICES", "name": "Price list for every shop", "secret": false, "genuine": true, "public": true },
+    { "id": "bank", "short": "BANK", "name": "New bank details", "secret": true, "genuine": true, "public": false },
+    { "id": "delivery", "short": "DELIVERY", "name": "Delivery date", "secret": false, "genuine": true, "public": false },
+    { "id": "discount", "short": "CODE", "name": "Larkspur’s own discount code", "secret": true, "genuine": false, "public": false }
+  ]
+}

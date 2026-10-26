@@ -1,0 +1,1821 @@
+{
+  "rag": {
+    "01-history": [
+      "ask",
+      "era-origins",
+      "era-small-windows",
+      "era-retrieval-matures",
+      "era-agents",
+      "quiz"
+    ],
+    "02-why-not-stuff-it": [
+      "predict",
+      "ask",
+      "overflow",
+      "scale",
+      "reason-middle",
+      "reason-fresh",
+      "reason-access",
+      "quiz"
+    ],
+    "03-what-is-rag": [
+      "ask",
+      "docs",
+      "predict",
+      "retriever",
+      "grounded",
+      "math",
+      "quiz"
+    ],
+    "04-layers": [
+      "ask",
+      "predict",
+      "chunker",
+      "embedder",
+      "map",
+      "assembler",
+      "fix",
+      "quiz"
+    ],
+    "05-accuracy": [
+      "ask",
+      "evaluator",
+      "predict",
+      "more",
+      "filter",
+      "add-rewrite",
+      "rewrite",
+      "after-rewrite",
+      "topk",
+      "add-reranker",
+      "needle",
+      "after-needle",
+      "distractor",
+      "after-distractor",
+      "overlap",
+      "after-overlap",
+      "strategy",
+      "quiz"
+    ],
+    "06-types": [
+      "recap",
+      "naive-run",
+      "attach",
+      "agent-run",
+      "cost",
+      "quiz",
+      "multi-hop",
+      "attach-graph",
+      "graph-one",
+      "graph-two",
+      "graph-quiz",
+      "sc-run",
+      "sc-attach",
+      "sc-grade",
+      "mm-attach",
+      "mm-run",
+      "mm-tables",
+      "mm-more"
+    ],
+    "07-sandbox": [
+      "open",
+      "play",
+      "challenge"
+    ]
+  },
+  "tool-calling": {
+    "01-answers-arent-actions": [
+      "ask",
+      "predict",
+      "reveal",
+      "look",
+      "quiz"
+    ],
+    "02-first-tool": [
+      "meet",
+      "predict",
+      "run-vague",
+      "fix",
+      "grounded",
+      "quiz"
+    ],
+    "03-valid-isnt-correct": [
+      "predict-type",
+      "run-invalid",
+      "invalid",
+      "predict-wrong",
+      "run-wrong",
+      "check",
+      "quiz"
+    ],
+    "04-many-steps": [
+      "predict-parallel",
+      "run-parallel",
+      "parallel",
+      "predict-sequence",
+      "run-sequence",
+      "cap",
+      "quiz"
+    ],
+    "05-mcp": [
+      "tangle",
+      "predict-mcp",
+      "mcp",
+      "connect",
+      "discover",
+      "explore",
+      "quiz"
+    ],
+    "06-when-tools-go-wrong": [
+      "gate-on",
+      "decide",
+      "limit",
+      "refused",
+      "predict-injection",
+      "run-injection",
+      "gate-back",
+      "inject-decide",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "match"
+    ]
+  },
+  "agents": {
+    "01-workflow-or-agent": [
+      "meet",
+      "predict-refund",
+      "run-refund",
+      "refund",
+      "run-damaged",
+      "predict-out",
+      "run-out",
+      "quiz"
+    ],
+    "02-the-loop": [
+      "predict-turns",
+      "turn-1",
+      "observe",
+      "decide",
+      "predict-stop",
+      "last-turn",
+      "quiz"
+    ],
+    "03-plans": [
+      "plan-on",
+      "predict-surprise",
+      "run-plan",
+      "predict-approval",
+      "approve-plan",
+      "back-for-approval",
+      "approved-once",
+      "predict-planted",
+      "decide-planted",
+      "quiz"
+    ],
+    "04-budgets": [
+      "predict-retry",
+      "run-open",
+      "predict-cost",
+      "tighter",
+      "stop-early",
+      "quiz"
+    ],
+    "05-memory": [
+      "predict-fit",
+      "run-full",
+      "predict-summary",
+      "summary",
+      "pin",
+      "quiz"
+    ],
+    "06-sub-agents": [
+      "predict-total",
+      "run-alone",
+      "helpers",
+      "predict-report",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "endings"
+    ]
+  },
+  "evals": {
+    "01-it-worked-when-i-tried-it": [
+      "try",
+      "predict",
+      "run",
+      "find",
+      "quiz"
+    ],
+    "02-the-test-set": [
+      "sort",
+      "predict",
+      "check",
+      "quiz"
+    ],
+    "03-graders": [
+      "predict-1",
+      "grade-1",
+      "predict-2",
+      "grade-2",
+      "predict-3",
+      "grade-3",
+      "quiz"
+    ],
+    "04-judge-the-judge": [
+      "predict-agree",
+      "run-r1",
+      "rubric",
+      "who-was-wrong",
+      "predict-swap",
+      "swap",
+      "quiz"
+    ],
+    "05-grading-the-path": [
+      "run",
+      "predict",
+      "grade",
+      "judge",
+      "clean",
+      "quiz"
+    ],
+    "06-run-it-twice": [
+      "predict",
+      "run",
+      "pass-at-k",
+      "predict-hat",
+      "pass-hat-k",
+      "small-suite",
+      "quiz"
+    ],
+    "07-release-day": [
+      "gate",
+      "judge",
+      "quiz"
+    ]
+  },
+  "guardrails": {
+    "01-data-or-instructions": [
+      "recap",
+      "run-direct",
+      "direct",
+      "run-invoice",
+      "predict",
+      "run-rule",
+      "quiz"
+    ],
+    "02-input-filters": [
+      "predict",
+      "threshold",
+      "no-winner",
+      "cost",
+      "quiz"
+    ],
+    "03-the-way-out": [
+      "run-leak",
+      "predict-allow",
+      "allow",
+      "predict-link",
+      "run-link",
+      "filter",
+      "approval",
+      "quiz"
+    ],
+    "04-the-trifecta": [
+      "legs",
+      "remove-leg",
+      "taint",
+      "quiz"
+    ],
+    "05-defence-in-depth": [
+      "predict",
+      "stack",
+      "eval"
+    ],
+    "06-when-the-user-is-the-attacker": [
+      "discount",
+      "output-check",
+      "off-topic",
+      "input-check",
+      "strict",
+      "over-refusal",
+      "quiz"
+    ],
+    "07-red-team": [
+      "bench",
+      "red-team",
+      "gate"
+    ]
+  },
+  "tokens": {
+    "01-what-the-model-reads": [
+      "predict",
+      "feed",
+      "ids",
+      "quiz"
+    ],
+    "02-how-the-vocabulary-is-learned": [
+      "bytes",
+      "predict",
+      "merge",
+      "replay",
+      "quiz"
+    ],
+    "03-tokens-are-the-meter": [
+      "predict",
+      "count",
+      "compare",
+      "bill"
+    ],
+    "04-every-tokenizer-splits-differently": [
+      "predict",
+      "run",
+      "spaces",
+      "numbers",
+      "quiz"
+    ],
+    "05-from-token-to-vector": [
+      "predict",
+      "embed",
+      "map",
+      "quiz"
+    ],
+    "06-meaning-by-neighbours": [
+      "predict",
+      "closest",
+      "quiz"
+    ],
+    "07-workbench": [
+      "predict",
+      "trim",
+      "raise",
+      "quiz"
+    ]
+  },
+  "transformers": {
+    "01-one-token-at-a-time": [
+      "run",
+      "predict",
+      "reveal",
+      "grow",
+      "quiz"
+    ],
+    "02-tokens-become-vectors": [
+      "look",
+      "predict",
+      "reveal",
+      "quiz"
+    ],
+    "03-attention": [
+      "open",
+      "predict",
+      "reveal",
+      "prompts",
+      "quiz"
+    ],
+    "04-heads-and-layers": [
+      "heads",
+      "predict",
+      "reveal",
+      "prompts",
+      "stream",
+      "quiz"
+    ],
+    "05-choosing-the-next-token": [
+      "greedy",
+      "predict",
+      "reveal",
+      "temperature",
+      "top-p",
+      "quiz"
+    ],
+    "06-why-long-prompts-cost-more": [
+      "grow",
+      "predict",
+      "reveal",
+      "cache",
+      "quiz"
+    ],
+    "07-trace-a-prompt": [
+      "type",
+      "follow",
+      "predict",
+      "reveal",
+      "quiz"
+    ]
+  },
+  "context": {
+    "01-whats-in-the-window": [
+      "send",
+      "docs",
+      "predict",
+      "tools",
+      "earlier",
+      "quiz"
+    ],
+    "02-more-isnt-better": [
+      "alone",
+      "predict",
+      "try",
+      "quiz"
+    ],
+    "03-fetch-when-needed": [
+      "stuff",
+      "predict",
+      "fetch",
+      "compare",
+      "quiz"
+    ],
+    "04-order-for-the-cache": [
+      "plain",
+      "predict",
+      "reorder",
+      "quiz"
+    ],
+    "05-clearing-the-desk": [
+      "full",
+      "recap",
+      "clear",
+      "cache",
+      "quiz"
+    ],
+    "06-memory": [
+      "without",
+      "predict",
+      "with",
+      "quiz"
+    ],
+    "07-workbench": [
+      "baseline",
+      "predict",
+      "tune",
+      "quiz"
+    ]
+  },
+  "fine-tuning": {
+    "01-three-ways": [
+      "levers",
+      "predict",
+      "ask",
+      "quiz"
+    ],
+    "02-what-training-does": [
+      "ask",
+      "predict",
+      "swap",
+      "curve",
+      "quiz"
+    ],
+    "03-small-adapters": [
+      "count",
+      "predict",
+      "clip",
+      "try",
+      "quiz"
+    ],
+    "04-facts-move-style-stays": [
+      "update",
+      "predict",
+      "ask",
+      "all",
+      "quiz"
+    ],
+    "05-what-training-costs": [
+      "base",
+      "predict",
+      "score",
+      "quiz"
+    ],
+    "06-measure-before-you-train": [
+      "baseline",
+      "predict",
+      "gate",
+      "quiz"
+    ],
+    "07-larkspurs-decision": [
+      "plan",
+      "ties"
+    ]
+  },
+  "structured-outputs": {
+    "01-asking-nicely": [
+      "ask",
+      "predict",
+      "reveal",
+      "quiz"
+    ],
+    "02-a-schema-is-a-contract": [
+      "schema",
+      "predict",
+      "retry",
+      "quiz"
+    ],
+    "03-the-mask": [
+      "predict",
+      "reveal",
+      "write",
+      "quiz"
+    ],
+    "04-tokens-are-not-characters": [
+      "predict",
+      "reveal",
+      "heal",
+      "quiz"
+    ],
+    "05-choices-from-a-list": [
+      "free",
+      "predict",
+      "draw",
+      "quiz"
+    ],
+    "06-valid-isnt-right": [
+      "predict",
+      "reveal",
+      "cutoff",
+      "quiz"
+    ],
+    "07-workbench": [
+      "predict",
+      "design",
+      "quiz"
+    ]
+  },
+  "reasoning": {
+    "01-answer-now-or-think-first": [
+      "now",
+      "predict",
+      "think",
+      "quiz"
+    ],
+    "02-thinking-is-tokens": [
+      "predict",
+      "count",
+      "dial",
+      "quiz"
+    ],
+    "03-the-effort-dial": [
+      "predict",
+      "sweep",
+      "quiz"
+    ],
+    "04-when-more-thinking-hurts": [
+      "low",
+      "predict",
+      "high",
+      "quiz"
+    ],
+    "05-effort-is-a-hint": [
+      "predict",
+      "run",
+      "apis"
+    ],
+    "06-measure-then-pick": [
+      "predict",
+      "gate",
+      "quiz"
+    ],
+    "07-workbench": [
+      "plan",
+      "quiz"
+    ]
+  },
+  "small-models": {
+    "01-big-model-small-model": [
+      "weigh",
+      "predict",
+      "ask",
+      "quiz"
+    ],
+    "02-learning-from-a-teacher": [
+      "lesson",
+      "predict",
+      "curve",
+      "quiz"
+    ],
+    "03-how-close-is-the-student": [
+      "predict",
+      "measure",
+      "quiz"
+    ],
+    "04-send-it-the-easy-ones": [
+      "predict",
+      "run",
+      "quiz"
+    ],
+    "05-fall-back-when-unsure": [
+      "predict",
+      "slide",
+      "quiz"
+    ],
+    "06-gate-the-switch": [
+      "baseline",
+      "predict",
+      "gate",
+      "quiz"
+    ],
+    "07-routing-policy": [
+      "plan",
+      "ties"
+    ]
+  },
+  "inference": {
+    "01-prefill-and-decode": [
+      "read",
+      "predict",
+      "reveal",
+      "long",
+      "quiz"
+    ],
+    "02-kv-cache-at-scale": [
+      "recap",
+      "scale",
+      "predict",
+      "reveal",
+      "quiz"
+    ],
+    "03-batching": [
+      "static",
+      "predict",
+      "reveal",
+      "quiz"
+    ],
+    "04-smaller-numbers": [
+      "eight",
+      "predict",
+      "reveal",
+      "four",
+      "quiz"
+    ],
+    "05-guess-ahead": [
+      "plain",
+      "predict",
+      "reveal",
+      "k",
+      "quiz"
+    ],
+    "06-pace-or-throughput": [
+      "predict",
+      "reveal",
+      "low",
+      "quiz"
+    ],
+    "07-serve-larkspur": [
+      "bench",
+      "ties"
+    ]
+  },
+  "observability": {
+    "01-what-it-did": [
+      "open",
+      "predict",
+      "read",
+      "quiz"
+    ],
+    "02-first-failure": [
+      "open",
+      "predict",
+      "find-a",
+      "find-b",
+      "quiz"
+    ],
+    "03-open-coding": [
+      "predict",
+      "note",
+      "quiz"
+    ],
+    "04-axial-coding": [
+      "predict",
+      "sort",
+      "quiz"
+    ],
+    "05-what-matters": [
+      "predict",
+      "pick",
+      "quiz"
+    ],
+    "06-trace-to-test": [
+      "pick",
+      "current",
+      "predict",
+      "fixed",
+      "quiz"
+    ],
+    "07-workbench": [
+      "open",
+      "predict",
+      "triage",
+      "quiz"
+    ]
+  },
+  "sandboxing": {
+    "01-where-it-runs": [
+      "run-host",
+      "predict",
+      "run-box",
+      "quiz"
+    ],
+    "02-files": [
+      "open",
+      "predict",
+      "scope",
+      "tamper",
+      "quiz"
+    ],
+    "03-network": [
+      "open",
+      "predict",
+      "allowlist",
+      "report-off",
+      "quiz"
+    ],
+    "04-secrets": [
+      "env",
+      "predict",
+      "proxy",
+      "quiz"
+    ],
+    "05-allowed-door": [
+      "leak",
+      "predict",
+      "cut",
+      "task",
+      "quiz"
+    ],
+    "06-fewer-prompts": [
+      "report",
+      "predict",
+      "approve",
+      "deny",
+      "quiz"
+    ],
+    "07-red-team": [
+      "bench",
+      "red-team",
+      "gate"
+    ]
+  },
+  "multimodal": {
+    "01-a-picture-is-tokens": [
+      "predict",
+      "cut",
+      "quiz"
+    ],
+    "02-size-and-detail": [
+      "predict",
+      "shrink",
+      "quiz"
+    ],
+    "03-reading-a-scan": [
+      "predict",
+      "read",
+      "quiz"
+    ],
+    "04-pulling-fields-out": [
+      "predict",
+      "big",
+      "small",
+      "quiz"
+    ],
+    "05-photos-of-parts": [
+      "predict",
+      "front",
+      "side",
+      "quiz"
+    ],
+    "06-when-pictures-mislead": [
+      "fax",
+      "check",
+      "predict",
+      "label",
+      "quiz"
+    ],
+    "07-workbench": [
+      "plan",
+      "quiz"
+    ]
+  },
+  "voice": {
+    "01-larkspurs-phone-line": [
+      "ring",
+      "predict",
+      "stages",
+      "quiz"
+    ],
+    "02-the-latency-budget": [
+      "time",
+      "predict",
+      "stream",
+      "quiz"
+    ],
+    "03-whose-turn-is-it": [
+      "predict",
+      "silence",
+      "noisy",
+      "quiz"
+    ],
+    "04-being-interrupted": [
+      "ask",
+      "point",
+      "predict",
+      "bargein",
+      "quiz"
+    ],
+    "05-mishearing": [
+      "take",
+      "predict",
+      "readback",
+      "quiz"
+    ],
+    "06-one-model-or-three": [
+      "predict",
+      "switch",
+      "quiz"
+    ],
+    "07-workbench": [
+      "tune",
+      "quiz"
+    ]
+  },
+  "pre-training": {
+    "01-before-training": [
+      "open",
+      "predict",
+      "ask",
+      "odds",
+      "quiz"
+    ],
+    "02-watch-it-learn": [
+      "predict",
+      "scrub",
+      "curve",
+      "quiz"
+    ],
+    "03-held-out": [
+      "predict",
+      "score",
+      "curve",
+      "quiz"
+    ],
+    "04-data-is-the-curriculum": [
+      "predict",
+      "compare",
+      "curve",
+      "quiz"
+    ],
+    "05-a-leaked-test": [
+      "predict",
+      "score",
+      "quiz"
+    ],
+    "06-bigger-or-longer": [
+      "predict",
+      "budget",
+      "quiz"
+    ],
+    "07-larkspurs-run": [
+      "plan",
+      "ties"
+    ]
+  },
+  "post-training": {
+    "01-base-or-assistant": [
+      "ask",
+      "predict",
+      "sft",
+      "quiz"
+    ],
+    "02-which-is-better": [
+      "pick",
+      "predict",
+      "score",
+      "quiz"
+    ],
+    "03-learning-from-preferences": [
+      "train",
+      "predict",
+      "beta",
+      "quiz"
+    ],
+    "04-grade-dont-judge": [
+      "draw",
+      "predict",
+      "update",
+      "rounds",
+      "quiz"
+    ],
+    "05-only-what-you-can-check": [
+      "predict",
+      "run",
+      "quiz"
+    ],
+    "06-you-get-what-you-check": [
+      "predict",
+      "run",
+      "fix",
+      "quiz"
+    ],
+    "07-build-a-grader": [
+      "build",
+      "quiz"
+    ]
+  },
+  "interpretability": {
+    "01-why-did-it-say-that": [
+      "top",
+      "heads",
+      "predict",
+      "reveal",
+      "quiz"
+    ],
+    "02-pull-a-fuse": [
+      "pull",
+      "predict",
+      "reveal",
+      "heads",
+      "quiz"
+    ],
+    "03-the-guess-forming": [
+      "open",
+      "predict",
+      "reveal",
+      "prompts",
+      "quiz"
+    ],
+    "04-patching": [
+      "swap",
+      "predict",
+      "reveal",
+      "after",
+      "quiz"
+    ],
+    "05-steering": [
+      "build",
+      "predict",
+      "reveal",
+      "push",
+      "quiz"
+    ],
+    "06-one-neuron-many-meanings": [
+      "mlp",
+      "predict",
+      "reveal",
+      "more",
+      "quiz"
+    ],
+    "07-the-smallest-set": [
+      "first",
+      "second",
+      "quiz"
+    ]
+  },
+  "caching": {
+    "01-far-is-slow": [
+      "north",
+      "predict",
+      "west",
+      "day",
+      "quiz"
+    ],
+    "02-keep-a-copy": [
+      "shelves",
+      "predict",
+      "timeline",
+      "clock",
+      "quiz"
+    ],
+    "03-how-long-is-it-fresh": [
+      "rise",
+      "predict",
+      "ttl",
+      "quiz"
+    ],
+    "04-take-it-back": [
+      "predict",
+      "purge",
+      "photo",
+      "quiz"
+    ],
+    "05-everyone-at-once": [
+      "sale",
+      "predict",
+      "coalesce",
+      "swr",
+      "quiz"
+    ],
+    "06-the-same-trick": [
+      "prompt",
+      "kv",
+      "quiz"
+    ],
+    "07-cache-policy": [
+      "bench",
+      "ties"
+    ]
+  },
+  "databases": {
+    "01-find-one-order": [
+      "ask",
+      "predict",
+      "grow",
+      "quiz"
+    ],
+    "02-the-index": [
+      "build",
+      "predict",
+      "find",
+      "tree",
+      "quiz"
+    ],
+    "03-every-write-pays": [
+      "insert",
+      "predict",
+      "add",
+      "quiz"
+    ],
+    "04-column-order": [
+      "mine",
+      "predict",
+      "month",
+      "quiz"
+    ],
+    "05-planner-skips": [
+      "today",
+      "predict",
+      "month",
+      "force",
+      "quiz"
+    ],
+    "06-joining-tables": [
+      "join",
+      "predict",
+      "index",
+      "quiz"
+    ],
+    "07-index-plan": [
+      "bench",
+      "ties"
+    ]
+  },
+  "consistency": {
+    "01-one-count-three-copies": [
+      "sale",
+      "predict",
+      "look",
+      "lag",
+      "quiz"
+    ],
+    "02-two-buyers-one-hinge": [
+      "east",
+      "predict",
+      "buy",
+      "oversold",
+      "quiz"
+    ],
+    "03-the-link-goes-down": [
+      "cut",
+      "predict",
+      "twice",
+      "right",
+      "cap"
+    ],
+    "04-quorums": [
+      "nrw",
+      "set",
+      "cut",
+      "cost"
+    ],
+    "05-who-wins": [
+      "predict",
+      "clock",
+      "lww",
+      "primary"
+    ],
+    "06-eventually": [
+      "buy",
+      "predict",
+      "reload",
+      "sticky",
+      "agree"
+    ],
+    "07-stock-policy": [
+      "bench",
+      "ties"
+    ]
+  },
+  "ab-testing": {
+    "01-did-it-work": [
+      "split",
+      "predict",
+      "run",
+      "chart",
+      "quiz"
+    ],
+    "02-luck": [
+      "aa",
+      "predict",
+      "many",
+      "tally",
+      "quiz"
+    ],
+    "03-how-many-shoppers": [
+      "week",
+      "predict",
+      "many",
+      "size",
+      "quiz"
+    ],
+    "04-peeking": [
+      "morning",
+      "predict",
+      "end",
+      "many",
+      "tally",
+      "quiz"
+    ],
+    "05-twenty-colours": [
+      "run",
+      "predict",
+      "many",
+      "correct",
+      "quiz"
+    ],
+    "06-guardrails": [
+      "run",
+      "predict",
+      "guard",
+      "kept",
+      "quiz"
+    ],
+    "07-ship-or-stop": [
+      "bench",
+      "truth"
+    ]
+  },
+  "diffusion": {
+    "01-noise-to-picture": [
+      "predict",
+      "noise",
+      "develop",
+      "quiz"
+    ],
+    "02-step-by-step": [
+      "predict",
+      "sweep",
+      "quiz"
+    ],
+    "03-a-learned-denoiser": [
+      "predict",
+      "sample",
+      "quiz"
+    ],
+    "04-copy-or-create": [
+      "predict",
+      "ideal",
+      "learned",
+      "quiz"
+    ],
+    "05-steer-with-a-label": [
+      "predict",
+      "sweep",
+      "quiz"
+    ],
+    "06-why-it-costs": [
+      "predict",
+      "size",
+      "latent",
+      "quiz"
+    ],
+    "07-workbench": [
+      "plan",
+      "quiz"
+    ]
+  },
+  "search": {
+    "01-reading-every-page": [
+      "search",
+      "predict",
+      "again",
+      "quiz"
+    ],
+    "02-the-index": [
+      "file",
+      "predict",
+      "find",
+      "postings",
+      "quiz"
+    ],
+    "03-rare-words-count-more": [
+      "count",
+      "drawers",
+      "predict",
+      "weigh",
+      "quiz"
+    ],
+    "04-long-pages-and-repeats": [
+      "rarity",
+      "predict",
+      "bm25",
+      "length",
+      "quiz"
+    ],
+    "05-cleaning-words": [
+      "typed",
+      "lower",
+      "predict",
+      "stem",
+      "stop",
+      "quiz"
+    ],
+    "06-words-vs-meaning": [
+      "words",
+      "predict",
+      "meaning",
+      "part",
+      "blend",
+      "quiz"
+    ],
+    "07-tune-the-search-box": [
+      "bench",
+      "ties"
+    ]
+  },
+  "web-requests": {
+    "01-a-name-to-a-number": [
+      "root",
+      "predict",
+      "rest",
+      "fall",
+      "quiz"
+    ],
+    "02-the-remembered-answer": [
+      "hour",
+      "predict",
+      "short",
+      "move",
+      "quiz"
+    ],
+    "03-hello-hello-ready": [
+      "ines",
+      "predict",
+      "wen",
+      "fall",
+      "quiz"
+    ],
+    "04-lost-in-the-post": [
+      "predict",
+      "loss",
+      "ines",
+      "fall",
+      "quiz"
+    ],
+    "05-the-sealed-envelope": [
+      "seal",
+      "predict",
+      "resume",
+      "post",
+      "quiz"
+    ],
+    "06-one-line-many-files": [
+      "h1",
+      "predict",
+      "h2",
+      "h3",
+      "quiz"
+    ],
+    "07-make-it-fast": [
+      "bench",
+      "ties"
+    ]
+  },
+  "payments": {
+    "01-four-parties": [
+      "tap",
+      "predict",
+      "route",
+      "yes",
+      "quiz"
+    ],
+    "02-a-hold": [
+      "hold",
+      "capture",
+      "finn",
+      "lapse",
+      "quiz"
+    ],
+    "03-overnight": [
+      "cutoff",
+      "predict",
+      "ledger",
+      "cap",
+      "quiz"
+    ],
+    "04-pressed-pay-twice": [
+      "retry",
+      "charges",
+      "key",
+      "quiz"
+    ],
+    "05-prove-its-you": [
+      "exempt",
+      "always",
+      "risk",
+      "quiz"
+    ],
+    "06-the-money-comes-back": [
+      "dispute",
+      "predict",
+      "kai",
+      "ledger",
+      "quiz"
+    ],
+    "07-checkout-policy": [
+      "bench",
+      "ties"
+    ]
+  },
+  "git": {
+    "01-named-by-contents": [
+      "predict",
+      "edit",
+      "undo",
+      "quiz"
+    ],
+    "02-a-chain-of-snapshots": [
+      "commit",
+      "predict",
+      "reword",
+      "ripple",
+      "quiz"
+    ],
+    "03-a-branch-is-a-label": [
+      "predict",
+      "branch",
+      "label",
+      "moved",
+      "quiz"
+    ],
+    "04-three-way-merge": [
+      "predict",
+      "merge",
+      "two-parents",
+      "quiz"
+    ],
+    "05-both-changed-it": [
+      "predict",
+      "try",
+      "resolve",
+      "resolved",
+      "quiz"
+    ],
+    "06-rewriting-history": [
+      "predict",
+      "rebase",
+      "new-crates",
+      "quiz"
+    ],
+    "07-bring-them-in": [
+      "bench",
+      "ties"
+    ]
+  },
+  "calibration": {
+    "01-what-70-should-mean": [
+      "predict",
+      "sort",
+      "worst",
+      "quiz"
+    ],
+    "02-honest-jars": [
+      "predict",
+      "measure",
+      "diagram",
+      "quiz"
+    ],
+    "03-after-the-polish": [
+      "predict",
+      "compare",
+      "quiz"
+    ],
+    "04-one-dial": [
+      "predict",
+      "fit",
+      "check",
+      "quiz"
+    ],
+    "05-keeping-score": [
+      "predict",
+      "score",
+      "quiz"
+    ],
+    "06-when-to-hand-over": [
+      "predict",
+      "line",
+      "quiz"
+    ],
+    "07-workbench": [
+      "plan",
+      "quiz"
+    ]
+  },
+  "computer-use": {
+    "01-look-then-click": [
+      "predict",
+      "click",
+      "loop",
+      "quiz"
+    ],
+    "02-the-wrong-button": [
+      "predict",
+      "click",
+      "fix",
+      "quiz"
+    ],
+    "03-too-quick": [
+      "predict",
+      "click",
+      "end",
+      "fix",
+      "quiz"
+    ],
+    "04-the-page-gives-orders": [
+      "predict",
+      "click",
+      "end",
+      "fix",
+      "quiz"
+    ],
+    "05-ask-before-you-pay": [
+      "predict",
+      "click",
+      "end",
+      "fix",
+      "quiz"
+    ],
+    "06-every-look-costs": [
+      "predict",
+      "sizes",
+      "quiz"
+    ],
+    "07-workbench": [
+      "policy",
+      "quiz"
+    ]
+  },
+  "diffusion-llms": {
+    "01-one-word-at-a-time": [
+      "predict",
+      "type",
+      "quiz"
+    ],
+    "02-fill-the-blanks": [
+      "predict",
+      "guess",
+      "look",
+      "quiz"
+    ],
+    "03-sure-words-first": [
+      "predict",
+      "random",
+      "surest",
+      "quiz"
+    ],
+    "04-faster-and-worse": [
+      "predict",
+      "sweep",
+      "quiz"
+    ],
+    "05-the-length-is-fixed": [
+      "predict",
+      "sweep",
+      "quiz"
+    ],
+    "06-reading-a-speed-claim": [
+      "predict",
+      "dial",
+      "quiz"
+    ],
+    "07-workbench": [
+      "plan",
+      "quiz"
+    ]
+  },
+  "queues": {
+    "01-waiting-at-the-till": [
+      "flood",
+      "predict",
+      "watch",
+      "reveal",
+      "quiz"
+    ],
+    "02-a-ticket-and-a-worker": [
+      "ticket",
+      "predict",
+      "watch",
+      "reveal",
+      "quiz"
+    ],
+    "03-when-the-line-grows": [
+      "flood",
+      "predict",
+      "watch",
+      "workers",
+      "quiz"
+    ],
+    "04-try-again-later": [
+      "outage",
+      "predict",
+      "watch",
+      "backoff",
+      "jitter",
+      "quiz"
+    ],
+    "05-ran-twice": [
+      "crash",
+      "predict",
+      "watch",
+      "twice",
+      "quiz"
+    ],
+    "06-the-job-that-never-works": [
+      "poison",
+      "predict",
+      "watch",
+      "limit",
+      "quiz"
+    ],
+    "07-sale-day": [
+      "bench",
+      "ties"
+    ]
+  },
+  "compression": {
+    "01-counting-the-bytes": [
+      "predict",
+      "sort",
+      "picture",
+      "quiz"
+    ],
+    "02-point-back": [
+      "predict",
+      "point",
+      "pack",
+      "quiz"
+    ],
+    "03-short-codes": [
+      "predict",
+      "merge",
+      "tree",
+      "quiz"
+    ],
+    "04-both-at-once": [
+      "predict",
+      "try",
+      "gzip",
+      "quiz"
+    ],
+    "05-already-squeezed": [
+      "predict",
+      "pack",
+      "twice",
+      "quiz"
+    ],
+    "06-throwing-some-away": [
+      "predict",
+      "shades",
+      "look",
+      "budget",
+      "quiz"
+    ],
+    "07-pack-the-send": [
+      "bench",
+      "ties"
+    ]
+  },
+  "load-balancing": {
+    "01-one-servers-ceiling": [
+      "morning",
+      "predict",
+      "sale",
+      "four",
+      "quiz"
+    ],
+    "02-take-turns": [
+      "predict",
+      "run",
+      "weighted",
+      "quiz"
+    ],
+    "03-the-least-busy": [
+      "rr",
+      "predict",
+      "least",
+      "two",
+      "quiz"
+    ],
+    "04-is-it-alive": [
+      "dead",
+      "checks",
+      "fewer",
+      "predict",
+      "gray",
+      "quiz"
+    ],
+    "05-same-customer": [
+      "off",
+      "predict",
+      "sticky",
+      "dies",
+      "quiz"
+    ],
+    "06-the-slow-tail": [
+      "tail",
+      "predict",
+      "hedge",
+      "early",
+      "quiz"
+    ],
+    "07-route-the-sale": [
+      "bench",
+      "ties"
+    ]
+  },
+  "encryption": {
+    "01-a-shared-secret": [
+      "predict",
+      "lock",
+      "send",
+      "quiz"
+    ],
+    "02-mixing-paint": [
+      "pick",
+      "mix",
+      "predict",
+      "swap",
+      "final",
+      "quiz"
+    ],
+    "03-the-open-padlock": [
+      "predict",
+      "shut",
+      "open",
+      "quiz"
+    ],
+    "04-sealed-with-your-key": [
+      "sign",
+      "predict",
+      "tamper",
+      "quiz"
+    ],
+    "05-a-fingerprint": [
+      "predict",
+      "edit",
+      "quiz"
+    ],
+    "06-who-owns-this-padlock": [
+      "predict",
+      "check",
+      "impostor",
+      "quiz"
+    ],
+    "07-lock-sign-or-both": [
+      "bench",
+      "ties"
+    ]
+  },
+  "coding-agents": {
+    "01-read-edit-run": [
+      "predict",
+      "first",
+      "loop",
+      "quiz"
+    ],
+    "02-finding-the-file": [
+      "one-by-one",
+      "predict",
+      "search",
+      "quiz"
+    ],
+    "03-a-patch-not-a-rewrite": [
+      "hunks",
+      "red",
+      "keep",
+      "quiz"
+    ],
+    "04-red-to-green": [
+      "predict",
+      "run",
+      "red",
+      "quiz"
+    ],
+    "05-green-by-cheating": [
+      "red",
+      "predict",
+      "cheat",
+      "green",
+      "protect",
+      "quiz"
+    ],
+    "06-what-it-may-run": [
+      "predict",
+      "push",
+      "allow",
+      "ask",
+      "quiz"
+    ],
+    "07-workbench": [
+      "policy",
+      "quiz"
+    ]
+  },
+  "synthetic-data": {
+    "01-too-few-examples": [
+      "common",
+      "predict",
+      "rare",
+      "quiz"
+    ],
+    "02-ask-the-model-to-write": [
+      "predict",
+      "cool",
+      "hot",
+      "quiz"
+    ],
+    "03-the-sieve": [
+      "write",
+      "predict",
+      "dedupe",
+      "facts",
+      "quiz"
+    ],
+    "04-the-teachers-mistakes": [
+      "predict",
+      "ask",
+      "student",
+      "quiz"
+    ],
+    "05-copies-of-copies": [
+      "predict",
+      "flip",
+      "rare",
+      "quiz"
+    ],
+    "06-keep-the-real-data": [
+      "predict",
+      "compare",
+      "quiz"
+    ],
+    "07-workbench": [
+      "recipe",
+      "quiz"
+    ]
+  },
+  "mixture-of-experts": {
+    "01-one-big-kitchen": [
+      "predict",
+      "walk",
+      "reveal",
+      "quiz"
+    ],
+    "02-rooms-and-a-doorman": [
+      "predict",
+      "route",
+      "scores",
+      "floors",
+      "quiz"
+    ],
+    "03-what-the-experts-learned": [
+      "predict",
+      "explore",
+      "reveal",
+      "quiz"
+    ],
+    "04-send-it-elsewhere": [
+      "pick",
+      "predict",
+      "override",
+      "reveal",
+      "quiz"
+    ],
+    "05-the-busy-room": [
+      "seats",
+      "predict",
+      "drop",
+      "reveal",
+      "quiz"
+    ],
+    "06-total-versus-active": [
+      "count",
+      "predict",
+      "compare",
+      "memory",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "ties"
+    ]
+  }
+}

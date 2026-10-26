@@ -1,0 +1,104 @@
+/* Load balancing stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in
+   through tool-calling/kit). These are the board, the read-out, the controls and the workbench's headline. */
+.lb-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.lb-range {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0;
+}
+.lb-range label {
+  font-weight: 700;
+  font-size: 14px;
+}
+.lb-range input {
+  width: 100%;
+}
+.lb-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.lb-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.lb-headline strong {
+  font:
+    800 30px / 1 ui-monospace,
+    Menlo,
+    monospace;
+}
+.tc-ledger td.ok {
+  color: var(--ok);
+  font-weight: 800;
+}
+.tc-ledger td.bad {
+  color: var(--bad);
+  font-weight: 800;
+}
+.lb-board {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+  justify-content: center;
+}
+.lb-board svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  font-family: ui-monospace, Menlo, monospace;
+}
+.lb-readout {
+  margin: 0;
+  font:
+    700 12.5px ui-monospace,
+    Menlo,
+    monospace;
+}
+.lb-replay {
+  margin-left: auto;
+}
+.lb-field {
+  border: 1.5px solid var(--rule);
+  border-radius: 12px;
+  padding: 8px 12px 10px;
+  margin: 8px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
+.lb-field legend {
+  font-weight: 700;
+  font-size: 14px;
+  padding: 0 4px;
+}
+.lb-field label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  min-height: 32px;
+}
+.lb-states label span {
+  min-width: 64px;
+  font-weight: 700;
+}
+.lb-states select {
+  font: inherit;
+  padding: 4px 6px;
+  border: 1.5px solid var(--ink);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--ink);
+}

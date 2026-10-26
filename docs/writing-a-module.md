@@ -84,7 +84,7 @@ Each module has a **recall bank** (`src/content/<module>/recall.ts`): three to f
 | `data/<id>/` | Facts with sources, recorded answers, fixtures |
 | `tests/e2e/<id>.spec.ts` | Plays every chapter (mouse and keyboard), axe, phone width |
 
-The scaffold registers the module at the end of `MODULES` in `src/lib/modules.ts` (removing its planned card), so the home keeps every live module's number. Its pages join `ALL_PAGES` (`src/lib/pages.ts`) from that entry: the intro's share card is built from the title and description unless you write one in `introMeta`. `src/dev/og.astro` draws a new module's pages with the recall cards until you add a picture case for them; then run `pnpm og` and commit the JPEGs. Add each new chapter to `module.ts`, `recall.ts` and the `[chapter].astro` chain, and a walk for it to the e2e spec.
+The scaffold registers the module after the last live module in `MODULES` (`src/lib/modules.ts`) (removing its planned card), so the home keeps every live module's number. Its pages join `ALL_PAGES` (`src/lib/pages.ts`) from that entry: the intro's share card is built from the title and description unless you write one in `introMeta`. `src/dev/og.astro` draws a new module's pages with the recall cards until you add a picture case for them; then run `pnpm og` and commit the JPEGs. Add each new chapter to `module.ts`, `recall.ts` and the `[chapter].astro` chain, and a walk for it to the e2e spec.
 
 The template lives in `templates/module/` (outside `src/`, so it is never built or type-checked); its files use `__ID__`, `__TITLE__` and `__CONST__` for the scaffold to fill in.
 

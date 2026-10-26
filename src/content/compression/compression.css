@@ -1,0 +1,145 @@
+/* Compression stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
+   tool-calling/kit). These are the precise views, the merge bench and the story column's bits. */
+.cz-strip,
+.cz-tree,
+.cz-pixels {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+  flex: 1;
+  justify-content: center;
+}
+.cz-strip svg,
+.cz-tree svg,
+.cz-pixels svg {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  display: block;
+  font-family: ui-monospace, Menlo, monospace;
+}
+.cz-pixels figcaption {
+  display: flex;
+  justify-content: space-around;
+  font-weight: 800;
+  font-size: 12.5px;
+}
+
+/* the merge bench: the piles as a listbox, wrapping into a grid */
+.cz-bench {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0;
+}
+.cz-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 6px;
+  padding: 4px;
+  border: 1.5px solid var(--rule);
+  border-radius: 10px;
+  background: var(--card);
+}
+.cz-list:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+.cz-opt {
+  display: flex;
+  flex-direction: column;
+  min-height: 44px;
+  justify-content: center;
+  padding: 4px 8px;
+  border: 1.5px solid var(--ink);
+  border-radius: 8px;
+  background: var(--paper);
+  cursor: pointer;
+}
+.cz-opt .sym {
+  font:
+    800 15px ui-monospace,
+    Menlo,
+    monospace;
+  overflow-wrap: anywhere;
+}
+.cz-opt .w {
+  font-size: 12px;
+}
+.cz-opt.merged {
+  border-style: double;
+  border-width: 3px;
+}
+.cz-list:focus-visible .cz-opt.active {
+  box-shadow: 0 0 0 3px var(--acc, #f4b829);
+}
+.cz-opt[aria-selected="true"] {
+  background: var(--acc, #f4b829);
+}
+.cz-said,
+.cz-gzip {
+  margin: 0;
+  font-weight: 700;
+  font-size: 13.5px;
+  min-height: 1.4em;
+}
+.cz-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.cz-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0;
+}
+.cz-field label {
+  font-weight: 700;
+  font-size: 14px;
+}
+.cz-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.cz-headline strong {
+  font:
+    800 30px / 1 ui-monospace,
+    Menlo,
+    monospace;
+}
+.cz-entropy {
+  margin: 8px 0;
+  font-size: 13.5px;
+}
+.cz-entropy summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.tc-ledger td.ok {
+  color: var(--ok);
+  font-weight: 800;
+}
+.tc-ledger td.bad {
+  color: var(--bad);
+  font-weight: 800;
+}
+
+/* a merged pile drops onto its tray; never with reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  .cz-stage [data-lit] {
+    animation: cz-drop 0.35s ease-out;
+  }
+}
+@keyframes cz-drop {
+  from {
+    transform: translateY(-10px);
+    opacity: 0.3;
+  }
+}

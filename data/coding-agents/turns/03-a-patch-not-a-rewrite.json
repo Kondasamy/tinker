@@ -1,0 +1,92 @@
+{
+  "turns": {
+    "case=bulk|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:reviewed:000|rules=read,edit,run,search": {
+      "text": "Your review is in. I run the tests on what you kept.",
+      "act": {
+        "run": "npm test"
+      },
+      "note": "Tests the reviewed version."
+    },
+    "case=bulk|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:reviewed:000,run:npm test:fail=at-50+cents|rules=read,edit,run,search": {
+      "text": "2 of 4 tests pass. Failing: “50 of one item get 10% off”, “The discount is to the cent”. Over to you.",
+      "note": "The run ends: red, handed back to the reviewer."
+    },
+    "case=bulk|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:reviewed:100|rules=read,edit,run,search": {
+      "text": "Your review is in. I run the tests on what you kept.",
+      "act": {
+        "run": "npm test"
+      },
+      "note": "Tests the reviewed version."
+    },
+    "case=bulk|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:reviewed:100,run:npm test:fail=cents|rules=read,edit,run,search": {
+      "text": "3 of 4 tests pass. Failing: “The discount is to the cent”. Over to you.",
+      "note": "The run ends: red, handed back to the reviewer."
+    },
+    "case=bulk|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:reviewed:010|rules=read,edit,run,search": {
+      "text": "Your review is in. I run the tests on what you kept.",
+      "act": {
+        "run": "npm test"
+      },
+      "note": "Tests the reviewed version."
+    },
+    "case=bulk|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:reviewed:010,run:npm test:fail=at-50|rules=read,edit,run,search": {
+      "text": "3 of 4 tests pass. Failing: “50 of one item get 10% off”. Over to you.",
+      "note": "The run ends: red, handed back to the reviewer."
+    },
+    "case=bulk|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:reviewed:110|rules=read,edit,run,search": {
+      "text": "Your review is in. I run the tests on what you kept.",
+      "act": {
+        "run": "npm test"
+      },
+      "note": "Tests the reviewed version."
+    },
+    "case=bulk|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:reviewed:110,run:npm test:pass|rules=read,edit,run,search": {
+      "text": "All 4 tests pass on the hunks you kept. Ready to merge.",
+      "note": "The run ends: green."
+    },
+    "case=bulk|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:reviewed:001|rules=read,edit,run,search": {
+      "text": "Your review is in. I run the tests on what you kept.",
+      "act": {
+        "run": "npm test"
+      },
+      "note": "Tests the reviewed version."
+    },
+    "case=bulk|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:reviewed:001,run:npm test:fail=at-50+cents+line|rules=read,edit,run,search": {
+      "text": "1 of 4 tests pass. Failing: “50 of one item get 10% off”, “The discount is to the cent”, “A line is its price less its discount”. Over to you.",
+      "note": "The run ends: red, handed back to the reviewer."
+    },
+    "case=bulk|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:reviewed:101|rules=read,edit,run,search": {
+      "text": "Your review is in. I run the tests on what you kept.",
+      "act": {
+        "run": "npm test"
+      },
+      "note": "Tests the reviewed version."
+    },
+    "case=bulk|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:reviewed:101,run:npm test:fail=cents+line|rules=read,edit,run,search": {
+      "text": "2 of 4 tests pass. Failing: “The discount is to the cent”, “A line is its price less its discount”. Over to you.",
+      "note": "The run ends: red, handed back to the reviewer."
+    },
+    "case=bulk|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:reviewed:011|rules=read,edit,run,search": {
+      "text": "Your review is in. I run the tests on what you kept.",
+      "act": {
+        "run": "npm test"
+      },
+      "note": "Tests the reviewed version."
+    },
+    "case=bulk|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:reviewed:011,run:npm test:fail=at-50+line|rules=read,edit,run,search": {
+      "text": "2 of 4 tests pass. Failing: “50 of one item get 10% off”, “A line is its price less its discount”. Over to you.",
+      "note": "The run ends: red, handed back to the reviewer."
+    },
+    "case=bulk|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:reviewed:111|rules=read,edit,run,search": {
+      "text": "Your review is in. I run the tests on what you kept.",
+      "act": {
+        "run": "npm test"
+      },
+      "note": "Tests the reviewed version."
+    },
+    "case=bulk|hist=search:bulk discount,read:src/discount.ts,edit:src/discount.ts:reviewed:111,run:npm test:fail=line|rules=read,edit,run,search": {
+      "text": "3 of 4 tests pass. Failing: “A line is its price less its discount”. Over to you.",
+      "note": "The run ends: red, handed back to the reviewer."
+    }
+  }
+}

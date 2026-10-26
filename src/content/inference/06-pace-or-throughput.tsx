@@ -189,6 +189,9 @@ export default function PaceOrThroughput() {
         out1: ({ state }) => (
           <>
             <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />
+            <p className="note in-note">
+              Spreading requests over many servers instead: <a href="/load-balancing/">Load balancing</a>.
+            </p>
             <Fact id="batching-amortizes" />
           </>
         ),

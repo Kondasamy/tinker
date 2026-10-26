@@ -1,0 +1,19 @@
+{
+  "note": "Our coders' sizes in bytes for every site file, rerun by tests/unit/compression-coders.test.ts. gzip is real gzip measured once in Node 22 (CompressionStream); it is a reference checked within 15%, never pinned exactly, since zlib builds differ.",
+  "sizes": {
+    "price": { "raw": 691, "store": 691, "lz77": 560, "huffman": 509, "pair": 485 },
+    "product": { "raw": 789, "store": 789, "lz77": 654, "huffman": 541, "pair": 519 },
+    "random": { "raw": 512, "store": 512, "lz77": 576, "huffman": 837, "pair": 864 },
+    "picture": { "raw": 2304, "store": 2304, "lz77": 2578, "huffman": 2486, "pair": 2514 }
+  },
+  "gzip": { "price": 415, "product": 455, "random": 535, "picture": 2241 },
+  "abc": [{ "lit": 97 }, { "lit": 98 }, { "lit": 99 }, { "dist": 3, "len": 6 }],
+  "puzzleCodes": { " ": "1100", "a": "1101", "b": "1110", "e": "1111", "l": "0", "o": "100", "r": "101" },
+  "lossy": { "levels": 16, "block": 1, "size": 635, "diff": 1.6 },
+  "winners": [
+    "price:huffman,product:huffman,random:store|16x1",
+    "price:huffman,product:pair,random:store|16x1",
+    "price:pair,product:huffman,random:store|16x1",
+    "price:pair,product:pair,random:store|16x1"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "note": "What each chapter teaches, as the engine gives it (KTD12): tests/unit/coding-agents-engine.test.ts reruns every run and the search, and fails on drift. winners: every chapter 7 host policy that really finishes every ticket with the fewest questions to a person.",
+  "search": {"query":"bulk discount","top":"src/discount.ts","tokens":98},
+  "runs": [
+    {"chapter":"01-read-edit-run","setup":{"case":"bulk"},"hist":["search:bulk discount","read:src/discount.ts","edit:src/discount.ts:ok:111","run:npm test:fail=line","edit:src/discount.ts:ok:110","run:npm test:pass"],"code":"110","tests":"base","right":true,"tokens":264,"prompts":0},
+    {"chapter":"02-finding-the-file","setup":{"case":"bulk","search":false},"hist":["read:README.md","read:src/pricing.ts","read:src/discount.ts","read:tests/discount.test.ts","edit:src/discount.ts:ok:111","run:npm test:fail=line","edit:src/discount.ts:ok:110","run:npm test:pass"],"code":"110","tests":"base","right":true,"tokens":541,"prompts":0},
+    {"chapter":"03-a-patch-not-a-rewrite","setup":{"case":"bulk","review":3},"hist":["search:bulk discount","read:src/discount.ts","edit:src/discount.ts:reviewed:110","run:npm test:pass"],"code":"110","tests":"base","right":true,"tokens":264,"prompts":0},
+    {"chapter":"03-a-patch-not-a-rewrite","setup":{"case":"bulk","review":2},"hist":["search:bulk discount","read:src/discount.ts","edit:src/discount.ts:reviewed:010","run:npm test:fail=at-50"],"code":"010","tests":"base","right":false,"tokens":264,"prompts":0},
+    {"chapter":"04-red-to-green","setup":{"case":"bulk","review":7},"hist":["search:bulk discount","read:src/discount.ts","edit:src/discount.ts:reviewed:111","run:npm test:fail=line"],"code":"111","tests":"base","right":false,"tokens":264,"prompts":0},
+    {"chapter":"05-green-by-cheating","setup":{"case":"cheat","protect":false},"hist":["run:npm test:fail=at-50+cents","read:src/discount.ts","edit:src/discount.ts:ok:100","run:npm test:fail=cents","read:tests/discount.test.ts","edit:tests/discount.test.ts:ok:loose","run:npm test:pass"],"code":"100","tests":"loose","right":false,"tokens":344,"prompts":0},
+    {"chapter":"05-green-by-cheating","setup":{"case":"cheat","protect":true},"hist":["run:npm test:fail=at-50+cents","read:src/discount.ts","edit:src/discount.ts:ok:100","run:npm test:fail=cents","read:tests/discount.test.ts","edit:tests/discount.test.ts:refused","edit:src/discount.ts:ok:110","run:npm test:pass"],"code":"110","tests":"base","right":true,"tokens":344,"prompts":0},
+    {"chapter":"06-what-it-may-run","setup":{"case":"ship"},"hist":["search:bulk discount","read:src/discount.ts","edit:src/discount.ts:ok:110","run:npm test:pass","run:git push --force origin main:ok"],"code":"110","tests":"base","right":false,"tokens":264,"prompts":0},
+    {"chapter":"06-what-it-may-run","setup":{"case":"ship","allow":true},"hist":["search:bulk discount","read:src/discount.ts","edit:src/discount.ts:ok:110","run:npm test:pass","run:git push --force origin main:refused","run:git push origin fix/bulk-discount:refused"],"code":"110","tests":"base","right":false,"tokens":264,"prompts":0},
+    {"chapter":"06-what-it-may-run","setup":{"case":"ship","allow":true,"ask":true},"hist":["search:bulk discount","read:src/discount.ts","edit:src/discount.ts:ok:110","run:npm test:pass","run:git push --force origin main:refused","run:git push origin fix/bulk-discount:ok"],"code":"110","tests":"base","right":true,"tokens":264,"prompts":1}
+  ],
+  "winners": [{"protect":true,"allow":true,"ask":true}]
+}

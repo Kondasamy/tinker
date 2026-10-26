@@ -1,0 +1,22 @@
+{
+  "note": "Larkspur's planning numbers for a teaching simulator, not measurements of any real queue, worker or courier. Every count the Queues module shows comes from these and from the morning in day.json.",
+  "startsAt": "09:00",
+  "tickMinutes": 1,
+  "ticks": 60,
+  "serviceTicks": {
+    "parcel": 2,
+    "pallet": 4
+  },
+  "restartTicks": 3,
+  "backoffBase": 2,
+  "outageFailRate": 1,
+  "seed": 7,
+  "words": {
+    "service": "a parcel job takes a worker 2 minutes and the pallet 4: slowed down so you can watch it; real jobs take milliseconds to seconds",
+    "outage": "while the courier’s site is down, every call fails",
+    "restart": "a worker knocked over takes work again 4 minutes later",
+    "backoff": "with backoff a job waits 2, 4, 8, 16 minutes before each new try; with jitter, a random part of that",
+    "fail": "a call to the courier that fails gives up after 1 minute"
+  },
+  "failTicks": 1
+}

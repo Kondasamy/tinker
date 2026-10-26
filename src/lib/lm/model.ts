@@ -10,6 +10,13 @@ export interface ModelConfig {
   ctx: number;
   d_mlp: number;
   ln_eps: number;
+  /**
+   * A mixture-of-experts model (KTD4): each block's MLP is `experts` MLPs of width d_mlp, `top_k` run per position.
+   * Tensors per layer: `h.<l>.mlp.router.weight` [experts, d_model] (no bias), and for each expert e
+   * `h.<l>.mlp.experts.<e>.fc.weight` [d_mlp, d_model], `.fc.bias`, `.proj.weight` [d_model, d_mlp], `.proj.bias`.
+   */
+  experts?: number;
+  top_k?: number;
 }
 /** Tensors by their PyTorch names (Linear weights are [out, in], row-major). */
 export interface Model {
@@ -39,8 +46,19 @@ export interface ForwardResult {
   attention: number[][][][];
   /** With `hooks.residuals`: [stage][t] of d_model; stage 0 after the embedding, stage l + 1 after block l. */
   residuals?: Float64Array[][];
-  /** With `hooks.mlp`: [layer][t] of d_mlp, each MLP neuron's activation after GELU. */
+  /** With `hooks.mlp`: [layer][t] of d_mlp, each MLP neuron's activation after GELU (dense MLPs only; empty for experts). */
   mlp?: Float64Array[][];
+  /** With `hooks.routes` on an experts model: [layer][t], the router's choice at each position. */
+  routes?: Route[][];
+}
+
+export interface Route {
+  /** The router's softmax over every expert. */
+  probs: Float64Array;
+  /** The experts run, best first (or as `hooks.route` forced them). */
+  experts: number[];
+  /** Each run expert's weight: the softmax of the router logits over `experts` alone. */
+  weights: number[];
 }
 
 /**
@@ -59,6 +77,10 @@ export interface Hooks {
   steer?: { layer: number; vector: ArrayLike<number> };
   /** Drop the causal mask: every position attends to every position (the masked model, KTD4). */
   bidirectional?: boolean;
+  /** Report each experts layer's routes (KTD4). */
+  routes?: boolean;
+  /** Force experts: layer → position → expert indices. An empty list skips that position's MLP (it adds zero). */
+  route?: Record<number, Record<number, number[]>>;
 }
 
 export function softmax(xs: ArrayLike<number>): Float64Array {
@@ -135,6 +157,27 @@ function edit(xs: Float64Array[], l: number, hooks: Hooks): Float64Array[] {
   return xs;
 }
 
+/**
+ * One position's experts MLP in layer l: the router reads the LayerNorm'd input `n`, the top k logits win (ties to
+ * the lower index) unless `forced` names the experts, and their outputs add up weighted by a softmax over theirs.
+ */
+function mixture(model: Model, l: number, n: Float64Array, forced: number[] | undefined): [Float64Array, Route] {
+  const { config: c, tensors: P } = model;
+  const E = c.experts!,
+    D = c.d_model,
+    p = (name: string) => P[`h.${l}.mlp.${name}`];
+  const logits = linear(n, p('router.weight'), noBias(E), E);
+  const experts = forced ?? [...logits.keys()].sort((a, b) => logits[b] - logits[a] || a - b).slice(0, c.top_k ?? 1);
+  const weights = Array.from(softmax(experts.map(e => logits[e])));
+  const out = new Float64Array(D);
+  experts.forEach((e, j) => {
+    const hidden = linear(n, p(`experts.${e}.fc.weight`), p(`experts.${e}.fc.bias`), c.d_mlp).map(gelu);
+    const y = linear(hidden, p(`experts.${e}.proj.weight`), p(`experts.${e}.proj.bias`), D);
+    for (let i = 0; i < D; i++) out[i] += weights[j] * y[i];
+  });
+  return [out, { probs: softmax(logits), experts, weights }];
+}
+
 export function forward(model: Model, prompt: number[], hooks: Hooks = {}): ForwardResult {
   const { config: c, tensors: P } = model;
   const D = c.d_model,
@@ -149,7 +192,8 @@ export function forward(model: Model, prompt: number[], hooks: Hooks = {}): Forw
   );
   const attention: number[][][][] = [];
   const residuals: Float64Array[][] = [],
-    mlp: Float64Array[][] = [];
+    mlp: Float64Array[][] = [],
+    routes: Route[][] = [];
 
   for (let l = 0; l < c.n_layer; l++) {
     xs = edit(xs, l, hooks);
@@ -183,9 +227,23 @@ export function forward(model: Model, prompt: number[], hooks: Hooks = {}): Forw
       heads.push(rows);
     }
     attention.push(heads);
+    const E = c.experts,
+      forced = hooks.route?.[l],
+      layerRoutes: Route[] = [];
+    if (E && forced)
+      for (const [pos, es] of Object.entries(forced))
+        for (const e of es)
+          if (!Number.isInteger(e) || e < 0 || e >= E)
+            throw new Error(`route: layer ${l} position ${pos} names expert ${e}; this model has experts 0–${E - 1}`);
     xs = xs.map((x, t) => {
       const proj = adapted(model, `h.${l}.attn.proj`, ys[t], D);
       const r = x.map((v, i) => v + proj[i]);
+      if (E) {
+        const n = layerNorm(r, p('ln2.weight'), p('ln2.bias'), c.ln_eps),
+          [out, route] = mixture(model, l, n, forced?.[t]);
+        layerRoutes.push(route);
+        return r.map((v, i) => v + out[i]);
+      }
       const hidden = linear(
         layerNorm(r, p('ln2.weight'), p('ln2.bias'), c.ln_eps),
         p('mlp.fc.weight'),
@@ -197,6 +255,7 @@ export function forward(model: Model, prompt: number[], hooks: Hooks = {}): Forw
       return r.map((v, i) => v + out[i]);
     });
     if (hooks.mlp) mlp.push(acts);
+    if (E && hooks.routes) routes.push(layerRoutes);
   }
   xs = edit(xs, c.n_layer, hooks);
   if (hooks.residuals) residuals.push(xs);
@@ -205,6 +264,7 @@ export function forward(model: Model, prompt: number[], hooks: Hooks = {}): Forw
   const out: ForwardResult = { ids, truncated: prompt.length > c.ctx, logits, attention };
   if (hooks.residuals) out.residuals = residuals;
   if (hooks.mlp) out.mlp = mlp;
+  if (c.experts && hooks.routes) out.routes = routes;
   return out;
 }
 

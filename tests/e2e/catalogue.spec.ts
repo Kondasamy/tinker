@@ -39,6 +39,13 @@ const NUMBERED = [
   'calibration',
   'computer-use',
   'diffusion-llms',
+  'queues',
+  'compression',
+  'load-balancing',
+  'encryption',
+  'coding-agents',
+  'synthetic-data',
+  'mixture-of-experts',
 ];
 
 // every module sits at its level: live cards first, then the roadmap's planned cards in registry (build) order;
@@ -294,6 +301,34 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
     'href',
     '/diffusion-llms/',
   );
+  await expect(page.locator('[data-level="Beginner"] .module[data-module="queues"] h4 a')).toHaveAttribute(
+    'href',
+    '/queues/',
+  );
+  await expect(page.locator('[data-level="Beginner"] .module[data-module="compression"] h4 a')).toHaveAttribute(
+    'href',
+    '/compression/',
+  );
+  await expect(page.locator('[data-level="Intermediate"] .module[data-module="load-balancing"] h4 a')).toHaveAttribute(
+    'href',
+    '/load-balancing/',
+  );
+  await expect(page.locator('[data-level="Beginner"] .module[data-module="encryption"] h4 a')).toHaveAttribute(
+    'href',
+    '/encryption/',
+  );
+  await expect(page.locator('[data-level="Intermediate"] .module[data-module="coding-agents"] h4 a')).toHaveAttribute(
+    'href',
+    '/coding-agents/',
+  );
+  await expect(page.locator('[data-level="Intermediate"] .module[data-module="synthetic-data"] h4 a')).toHaveAttribute(
+    'href',
+    '/synthetic-data/',
+  );
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="mixture-of-experts"] h4 a')).toHaveAttribute(
+    'href',
+    '/mixture-of-experts/',
+  );
 });
 
 // Opening a web page's card (U11): the finder finds it by a topic and names the hit
@@ -309,13 +344,6 @@ test('the finder finds Opening a web page by a topic', async ({ page }) => {
 // the roadmap (R16): the seven cards the roadmap plan takes live, then the seven new ones, in registry (build) order;
 // live cards are numbered 1 to n, the roadmap cards still planned keep that order, and the open plots invite a build
 const ROADMAP = [
-  'diffusion-llms',
-  'computer-use',
-  'calibration',
-  'search',
-  'web-requests',
-  'payments',
-  'git',
   'mixture-of-experts',
   'coding-agents',
   'synthetic-data',
@@ -323,6 +351,13 @@ const ROADMAP = [
   'encryption',
   'compression',
   'load-balancing',
+  'memorisation',
+  'video-models',
+  'recommendations',
+  'logins',
+  'email',
+  'dependencies',
+  'releases',
 ];
 test('live cards numbered from 1, the roadmap cards in order, and the empty plots invite a build', async ({ page }) => {
   await page.goto('/');

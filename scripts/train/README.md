@@ -82,3 +82,25 @@ pnpm test
 ```
 
 About three and a half minutes; seeded and deterministic (it prints `mlm.bin`'s sha256; a rerun gives a byte-identical `mlm.bin` and `prompts.json`, only `meta.json`'s `seconds` changes). Try settings with `--no-write` and `--d-model` (32, or the fallback 40), `--steps`, `--lr`, `--weight-decay`, `--dropout`, `--weighting` (`inverse` is LLaDA's 1 / t; it stalled at the unigram loss), `--batch`, `--seed`.
+
+## Experts model (Mixture of experts)
+
+`train_moe.py` is standalone and never starts from `model.bin`: it trains Larkspur mini's shape with each MLP replaced by 8 experts of width 32, two run per token (a bias-free router reads `ln2`'s output; the two highest logits win, ties to the lower index, weighted by a softmax over those two), plus Switch's load-balancing loss at coefficient 0.01, on train.py's split and settings. It also trains an active-matched dense model (d_mlp 64) the same way, scored and never shipped. It writes `public/data/mixture-of-experts/moe.bin` (Float16, 137 KB) and `meta.json` (layout, loss curve, held-out scores, per-layer route shares, each expert's five most-routed tokens, the dense model's scores, goldens with routes) only when the bar holds: every expert at least 3% of held-out routes in each layer, held-out top-5 within 5 points of the base's and at least the dense model's, and at most 150,000 bytes. If a retrain misses it, retry once with a larger `--balance`, then stop. `tests/unit/mixture-of-experts-model.test.ts` checks the TypeScript pass and routes against the goldens.
+
+```bash
+uv run --no-project --python 3.12 --with-requirements scripts/train/requirements.txt scripts/train/train_moe.py
+pnpm test
+```
+
+About a minute; seeded and deterministic (it prints `moe.bin`'s sha256; a rerun gives a byte-identical `moe.bin`, only `meta.json`'s `seconds` change). Try settings with `--no-write` and `--balance`, `--steps`, `--lr`, `--weight-decay`, `--dropout`, `--batch`, `--seed`.
+
+## Generations runs (Synthetic data)
+
+`train_synth.py` is standalone and never loads `model.bin`: it retrains generation 0 (Larkspur mini on the training split) from scratch and stops if that differs from `model.bin` byte for byte. Each later generation samples a corpus the training split's size with the site's sampler and trains the base shape from scratch on it: two arms of five generations, `replace` (only the latest generated text) and `accumulate` (the real split plus every generated text so far), then the workbench grid (temperature {0.7, 1, 1.3} x sieve {off, dedupe, dedupe + facts} x real share {0, 50%}). It writes `data/synthetic-data/runs.json` (held-out loss, top-5, rare top-5, distinct rare pieces, repeat rate, greedy samples as ids) only when the gates hold: drift (generation 5's held-out loss replace > accumulate > generation 0), rare words falling first, and a repeat rate under the ceiling. No weights ship. The vanishing-words check is recorded as `vanishing`, not gated. `tests/unit/synthetic-data-runs.test.ts` checks the gates.
+
+```bash
+uv run --no-project --python 3.12 --with-requirements scripts/train/requirements.txt scripts/train/train_synth.py
+pnpm test
+```
+
+Seeded and deterministic (a rerun gives a byte-identical `runs.json`). Try settings with `--no-write`, `--arms-only`, `--steps`, `--lr`, `--weight-decay`, `--dropout`, `--batch`, `--seed`.

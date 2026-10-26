@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import TooFewExamples from '../../content/synthetic-data/01-too-few-examples';
+import AskTheModelToWrite from '../../content/synthetic-data/02-ask-the-model-to-write';
+import TheSieve from '../../content/synthetic-data/03-the-sieve';
+import TheTeachersMistakes from '../../content/synthetic-data/04-the-teachers-mistakes';
+import CopiesOfCopies from '../../content/synthetic-data/05-copies-of-copies';
+import KeepTheRealData from '../../content/synthetic-data/06-keep-the-real-data';
+import Workbench from '../../content/synthetic-data/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('synthetic-data').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="synthetic-data" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-too-few-examples' ? <TooFewExamples client:load />
+    : chapter === '02-ask-the-model-to-write' ? <AskTheModelToWrite client:load />
+    : chapter === '03-the-sieve' ? <TheSieve client:load />
+    : chapter === '04-the-teachers-mistakes' ? <TheTeachersMistakes client:load />
+    : chapter === '05-copies-of-copies' ? <CopiesOfCopies client:load />
+    : chapter === '06-keep-the-real-data' ? <KeepTheRealData client:load />
+    : <Workbench client:load />}
+</ChapterLayout>

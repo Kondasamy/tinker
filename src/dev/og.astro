@@ -242,6 +242,54 @@ import { TOWN_BOARD, townAt, townScene, type TownOpts } from '../components/scen
 import { WaterfallView } from '../content/web-requests/kit';
 import { runOf as webRun } from '../lib/web-requests/sim';
 import { WINNERS as WEB_WINNERS, loadOf as webLoad } from '../lib/web-requests/workbench';
+import { RAIL_BOARD, railAt, railCard, railScene, type RailOpts } from '../components/scenes/railScene';
+import {
+  CRASH_AT as QU_CRASH_AT,
+  SCENES as QU_SCENES,
+  SHOWN_CRASH as QU_CRASH,
+  runOf as quRun,
+} from '../lib/queues/sim';
+import { WINNERS as QU_WINNERS, benchRun as quBench } from '../lib/queues/workbench';
+import { PILE_BOARD, pileAt, pileScene, pilesOf, type PileOpts } from '../components/scenes/pileScene';
+import { forestOf as czForestOf, forestTable as czForestTable } from '../content/compression/kit';
+import { FITS as CZ_FITS } from '../content/compression/06-throwing-some-away';
+import { sizeOf as czSize } from '../lib/compression/coders';
+import {
+  FILES as CZ_FILES,
+  PICTURE as CZ_PICTURE,
+  PUZZLE as CZ_PUZZLE,
+  fileOf as czFile,
+} from '../lib/compression/files';
+import { lossOf as czLoss } from '../lib/compression/lossy';
+import { WINNERS as CZ_WINNERS, runPlan as czRunPlan } from '../lib/compression/workbench';
+import { YARD_BOARD, yardAt, yardScene, type YardOpts } from '../components/scenes/yardScene';
+import { RUNS as LB_RUNS } from '../content/load-balancing/01-one-servers-ceiling';
+import { runAt as lbTurns } from '../content/load-balancing/02-take-turns';
+import { runAt as lbSlow } from '../content/load-balancing/03-the-least-busy';
+import { runAt as lbAlive } from '../content/load-balancing/04-is-it-alive';
+import { runAt as lbSticky } from '../content/load-balancing/05-same-customer';
+import { HEDGE as LB_HEDGE, runAt as lbHedge } from '../content/load-balancing/06-the-slow-tail';
+import { RULE_NAME as LB_RULE } from '../lib/load-balancing/rules';
+import { runOf as lbRun } from '../lib/load-balancing/sim';
+import { WINNERS as LB_WINNERS, benchPolicy as lbBench } from '../lib/load-balancing/workbench';
+import { PAINT_BOARD, PAINT_CARD, paintAt, paintScene, type PaintOpts } from '../components/scenes/paintScene';
+import { NAMES as EN_NAMES } from '../content/encryption/kit';
+import { sceneOf as enSecret } from '../content/encryption/01-a-shared-secret';
+import { sceneOf as enPadlock } from '../content/encryption/03-the-open-padlock';
+import { sceneOf as enSealed } from '../content/encryption/04-sealed-with-your-key';
+import { sceneOf as enPrint } from '../content/encryption/05-a-fingerprint';
+import { sceneOf as enOwner } from '../content/encryption/06-who-owns-this-padlock';
+import { sceneOf as enBench } from '../content/encryption/07-lock-sign-or-both';
+import { WINNERS as EN_WINNERS } from '../lib/encryption/workbench';
+import { DESK_BOARD, deskAt, deskCard, deskScene, type DeskOpts } from '../components/scenes/deskScene';
+import { beatsOf as caBeats, nthBeat as caNth, play as caPlay } from '../content/coding-agents/kit';
+import { WINNERS as CA_WINNERS } from '../lib/coding-agents/workbench';
+import { COPIER_BOARD, copierAt, copierCard, copierScene, type CopierOpts } from '../components/scenes/copierScene';
+import { ROOMS_BOARD, roomsCard, roomsScene, tokensOf, type RoomsOpts } from '../components/scenes/officeRoomsScene';
+import { promptOf as mePrompt, run as meRun, shownPositions as meShown } from '../lib/mixture-of-experts/routes';
+import { capped as meCapped } from '../lib/mixture-of-experts/capacity';
+import { diskMoe } from '../lib/mixture-of-experts/diskModel';
+import ME_PINNED from '../../data/mixture-of-experts/pinned.json' with { type: 'json' };
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -1167,6 +1215,168 @@ const FRAME_OG: Record<string, () => FrameOpts> = {
   },
 };
 const frameOg = FRAME_OG[page.og]?.();
+// module 33: the ticket rail. The intro: Rosa knocked over mid-job (the home card); 1: the line at the till; 2: one
+// worker taking tickets; 3: the backlog on the rail; 4: the courier down, no backoff; 5: Rosa's ticket hidden on the
+// rail, its lease still held; 6: Moe's order on the dead-letter shelf; 7: the first winning bench at 09:30.
+const quCrashed = () => quRun({ ...QU_SCENES.crash, crashes: [QU_CRASH] });
+const RAIL_OG: Record<string, () => Omit<RailOpts, 'scale'>> = {
+  queues: () => railCard(),
+  'queues-01-waiting-at-the-till': () => railAt(quRun(QU_SCENES.inline), 16),
+  'queues-02-a-ticket-and-a-worker': () => railAt(quRun(QU_SCENES.one), 6),
+  'queues-03-when-the-line-grows': () => railAt(quRun(QU_SCENES.one), 18),
+  'queues-04-try-again-later': () => railAt(quRun(QU_SCENES.noBackoff), 12),
+  'queues-05-ran-twice': () => railAt(quCrashed(), QU_CRASH_AT + 4),
+  'queues-06-the-job-that-never-works': () => railAt(quRun(QU_SCENES.shelf), 40),
+  'queues-07-sale-day': () => railAt(quBench(QU_WINNERS[0]), 30),
+};
+const railOg = RAIL_OG[page.og]?.();
+// module 34: the sorting table. The intro and 4: the price list's piles, packed by pointers and short codes; 1: its
+// piles raw; 2: its parcel packed by pointers; 3: the merge puzzle's letter piles; 5: the random file packed, grown; 6: the
+// picture at the first setting that fits; 7: tonight's send on the first winning plan.
+const czPrice = czFile('price').bytes,
+  czRandom = czFile('random').bytes;
+const czPacked = () => pileAt(czPrice, czSize('pair', czPrice, 'price'));
+const PILE_OG: Record<string, () => Omit<PileOpts, 'scale'>> = {
+  compression: czPacked,
+  'compression-01-counting-the-bytes': () => pileAt(czPrice),
+  'compression-02-point-back': () => ({
+    piles: [],
+    parcel: { raw: czPrice.length, packed: czSize('lz77', czPrice, 'price') },
+  }),
+  'compression-03-short-codes': () => czForestTable(czForestOf(CZ_PUZZLE), false),
+  'compression-04-both-at-once': czPacked,
+  'compression-05-already-squeezed': () => pileAt(czRandom, czSize('pair', czRandom, 'random')),
+  'compression-06-throwing-some-away': () => {
+    const x = czLoss(CZ_PICTURE, CZ_FITS[0]);
+    return { piles: pilesOf(x.pic.rgb), parcel: { raw: czFile('picture').bytes.length, packed: x.size } };
+  },
+  'compression-07-pack-the-send': () => {
+    const r = czRunPlan(CZ_WINNERS[0]);
+    return {
+      piles: r.rows.map(row => ({
+        label: czFile(row.id).name.split('.')[0],
+        w: row.size,
+        kind: row.size > row.raw ? ('pointer' as const) : undefined,
+      })),
+      parcel: { raw: CZ_FILES.reduce((a, f) => a + f.bytes.length, 0), packed: r.total },
+    };
+  },
+};
+const pileOg = PILE_OG[page.og]?.();
+// module 35: the switchyard mid-sale. The intro and 7: the first winning setting; 1: Ash alone in the sale; 2: weighted
+// turns; 3: least outstanding with Birch slow; 4: Cedar dead, Dogwood gray, one missed check; 5: sticky sessions as
+// Cedar dies; 6: hedged requests around gray Dogwood.
+const LB_AT = 2500;
+const lbBest = () => yardAt(lbRun(lbBench(LB_WINNERS[0])), LB_AT, LB_RULE[LB_WINNERS[0].rule]);
+const YARD_OG: Record<string, () => Omit<YardOpts, 'scale'>> = {
+  'load-balancing': lbBest,
+  'load-balancing-01-one-servers-ceiling': () => yardAt(LB_RUNS.sale, LB_AT, LB_RULE['round-robin']),
+  'load-balancing-02-take-turns': () => yardAt(lbTurns('weighted'), LB_AT, LB_RULE.weighted),
+  'load-balancing-03-the-least-busy': () => yardAt(lbSlow('least'), LB_AT, LB_RULE.least),
+  'load-balancing-04-is-it-alive': () => yardAt(lbAlive(1, true), LB_AT, LB_RULE['round-robin']),
+  'load-balancing-05-same-customer': () => yardAt(lbSticky(true, true), LB_AT, LB_RULE['round-robin']),
+  'load-balancing-06-the-slow-tail': () => yardAt(lbHedge(LB_HEDGE), LB_AT, LB_RULE.least),
+  'load-balancing-07-route-the-sale': lbBest,
+};
+const yardOg = YARD_OG[page.og]?.();
+// module 36: the paint counter. The intro and 2: the mix finished; 1: the order locked and sent; 3: the open padlock
+// shut; 4: a signed invoice tampered with; 5: an edited message's fingerprint; 6: an impostor's certificate checked;
+// 7: the first plan that loses nothing.
+const PAINT_OG: Record<string, () => Omit<PaintOpts, 'scale'>> = {
+  encryption: () => PAINT_CARD,
+  'encryption-01-a-shared-secret': () => enSecret({ locked: true, sent: true }),
+  'encryption-02-mixing-paint': () => paintAt('rose', 'final'),
+  'encryption-03-the-open-padlock': () => enPadlock({ shut: true, opened: false }),
+  'encryption-04-sealed-with-your-key': () => enSealed({ signed: true, tampered: true }),
+  'encryption-05-a-fingerprint': () => enPrint({ edited: true }),
+  'encryption-06-who-owns-this-padlock': () => enOwner({ cert: 'unknown-root', checked: true }),
+  'encryption-07-lock-sign-or-both': () => enBench(EN_WINNERS[0]),
+};
+const paintOg = PAINT_OG[page.og]?.();
+// module 37: the agent's desk. The intro: the first test run, a lamp red; 1: two beats in; 2: four beats in without
+// search; 3: the patch with one hunk dropped; 4: the first run; 5: the cheat run's end; 6: the guarded ship run's end;
+// 7: the first plan that loses nothing, on the ship ticket.
+const caEnd = (s: Parameters<typeof caPlay>[0]) => {
+  const r = caPlay(s);
+  return deskAt(r, caBeats(r).length);
+};
+const AGENT_DESK_OG: Record<string, () => Omit<DeskOpts, 'scale'>> = {
+  'coding-agents': () => deskCard(),
+  'coding-agents-01-read-edit-run': () => deskAt(caPlay({ case: 'bulk' }), 2),
+  'coding-agents-02-finding-the-file': () => deskAt(caPlay({ case: 'bulk', search: false }), 4),
+  'coding-agents-03-a-patch-not-a-rewrite': () => caEnd({ case: 'bulk', review: 6 }),
+  'coding-agents-04-red-to-green': () => {
+    const r = caPlay({ case: 'bulk' });
+    return deskAt(r, caNth(r, 'run'));
+  },
+  'coding-agents-05-green-by-cheating': () => caEnd({ case: 'cheat' }),
+  'coding-agents-06-what-it-may-run': () => caEnd({ case: 'ship', allow: true, ask: true }),
+  'coding-agents-07-workbench': () => caEnd({ ...CA_WINNERS[0], case: 'ship' }),
+};
+const agentDeskOg = AGENT_DESK_OG[page.og]?.();
+// module 38: the copier room. The intro: generation 5 under replace; 1: the empty shelf; 2: the copier running; 3: the
+// sieve on dedupe + facts; 4: the student, generation 1; 5: replace's generation 5; 6: accumulate's; 7: accumulate's
+// first generation.
+const sdEmpty = (o: Partial<CopierOpts> = {}): Omit<CopierOpts, 'scale'> => ({
+  gens: [],
+  gen: null,
+  arm: 'replace',
+  real: 1,
+  ...o,
+});
+const COPIER_OG: Record<string, () => Omit<CopierOpts, 'scale'>> = {
+  'synthetic-data': () => copierCard(),
+  'synthetic-data-01-too-few-examples': () => sdEmpty(),
+  'synthetic-data-02-ask-the-model-to-write': () => sdEmpty({ copying: true }),
+  'synthetic-data-03-the-sieve': () => sdEmpty({ sieve: 'facts' }),
+  'synthetic-data-04-the-teachers-mistakes': () => copierAt('replace', 1),
+  'synthetic-data-05-copies-of-copies': () => copierAt('replace', 5),
+  'synthetic-data-06-keep-the-real-data': () => copierAt('accumulate', 5),
+  'synthetic-data-07-workbench': () => copierAt('accumulate', 1),
+};
+const copierOg = COPIER_OG[page.og]?.();
+// module 39: the sorting office, read off the toy experts model at build time. The intro: the card; 1: every room
+// working on “ business” (dense); 2: the doorman's two rooms a floor for it; 3: a billing token's rooms; 4: rooms 3 and
+// 4 forced; 5: capacity 1, tokens turned away; 6: the success prompt's last token; 7: capacity 2, none turned away.
+const meAt = (id: string, sel: number, override = {}): Omit<RoomsOpts, 'scale'> => {
+  const p = mePrompt(id),
+    pos = meShown(p.ids)[sel],
+    r = meRun(diskMoe(), p.ids, override);
+  return {
+    tokens: tokensOf(p.ids),
+    sel,
+    lit: r.routes.map(l => l[pos].experts),
+    guess: r.top[0].tok,
+    forced: pos in override,
+  };
+};
+const meBusy = (f: 1 | 2): Omit<RoomsOpts, 'scale'> => {
+  const p = mePrompt(ME_PINNED.capacity.prompt),
+    c = meCapped(diskMoe(), p.ids, f),
+    shown = meShown(p.ids);
+  return {
+    tokens: tokensOf(p.ids),
+    sel: null,
+    guess: c.pass.top[0].tok,
+    load: { asked: c.asked, capacity: c.capacity },
+    dropped: c.dropped.flatMap(x => (shown.includes(x) ? [shown.indexOf(x)] : [])),
+  };
+};
+const meLast = (id: string) => meShown(mePrompt(id).ids).length - 1;
+const ROOMS_OG: Record<string, () => Omit<RoomsOpts, 'scale'>> = {
+  'mixture-of-experts': () => roomsCard(),
+  'mixture-of-experts-01-one-big-kitchen': () => ({ ...meAt('reply', meLast('reply')), dense: true }),
+  'mixture-of-experts-02-rooms-and-a-doorman': () => meAt('reply', meLast('reply')),
+  'mixture-of-experts-03-what-the-experts-learned': () => meAt('billing', 3),
+  'mixture-of-experts-04-send-it-elsewhere': () =>
+    meAt(ME_PINNED.override.prompt, meLast(ME_PINNED.override.prompt), {
+      [meShown(mePrompt(ME_PINNED.override.prompt).ids).at(-1)!]: ME_PINNED.override.experts,
+    }),
+  'mixture-of-experts-05-the-busy-room': () => meBusy(1),
+  'mixture-of-experts-06-total-versus-active': () => meAt('success', meLast('success')),
+  'mixture-of-experts-07-workbench': () => meBusy(2),
+};
+const roomsOg = ROOMS_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1240,6 +1450,13 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : sxOg ? <IsoStage board={CABINET_BOARD} scene={cabinetScene({ ...sxOg, scale: 1.3 })} label="" />
           : townOg ? <IsoStage board={TOWN_BOARD} scene={townScene({ ...townOg, scale: 1.3 })} label="" />
           : webFallOg ? <div class="tf-og ob-og"><WaterfallView run={webFallOg} /></div>
+          : roomsOg ? <IsoStage board={ROOMS_BOARD} scene={roomsScene({ ...roomsOg, scale: 1.3 })} label="" />
+          : copierOg ? <IsoStage board={COPIER_BOARD} scene={copierScene({ ...copierOg, scale: 1.3 })} label="" />
+          : agentDeskOg ? <IsoStage board={DESK_BOARD} scene={deskScene({ ...agentDeskOg, scale: 1.3 })} label="" />
+          : paintOg ? <IsoStage board={PAINT_BOARD} scene={paintScene({ ...paintOg, names: EN_NAMES, scale: 1.3 })} label="" />
+          : yardOg ? <IsoStage board={YARD_BOARD} scene={yardScene({ ...yardOg, scale: 1.3 })} label="" />
+          : pileOg ? <IsoStage board={PILE_BOARD} scene={pileScene({ ...pileOg, scale: 1.4 })} label="" />
+          : railOg ? <IsoStage board={RAIL_BOARD} scene={railScene({ ...railOg, scale: 1.4 })} label="" />
           : frameOg ? <IsoStage board={FRAME_BOARD} scene={typeFrameScene({ ...frameOg, scale: 1.3 })} label="" />
           : darkOg ? <IsoStage board={DARK_BOARD} scene={darkroomScene({ ...darkOg, scale: 1.3 })} label="" />
           : crateOg ? <IsoStage board={gtBoardOf(crateOg)} scene={crateScene({ ...crateOg, scale: 1.4 })} label="" />

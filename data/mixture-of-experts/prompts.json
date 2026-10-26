@@ -1,0 +1,12 @@
+{
+  "note": "The phrases the chapters run through Larkspur's toy experts model (public/data/mixture-of-experts/moe.bin), each with the next token its source text has. tests/unit/mixture-of-experts-engine.test.ts fails unless that token is in the model's top 5. A retrain means new phrases, not new copy.",
+  "prompts": [
+    { "id": "delivery", "text": "Standard shipping takes three to five business", "expected": " days" },
+    { "id": "reply", "text": "We reply within five business", "expected": " days" },
+    { "id": "returns", "text": "Returns are accepted within 30", "expected": " days" },
+    { "id": "billing", "text": "Questions go to the billing team through", "expected": " the" },
+    { "id": "success", "text": "Every enterprise account has a named customer success", "expected": " manager" },
+    { "id": "heron", "text": "Installation guide for Heron steel", "expected": " shelving" },
+    { "id": "inspect", "text": "Our warehouse inspects returned items within five", "expected": " business" }
+  ]
+}

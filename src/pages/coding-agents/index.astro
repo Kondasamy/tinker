@@ -1,0 +1,257 @@
+---
+// Coding agents module intro: sets the scene before chapter 1. Static, except the warm-up and a small script that marks
+// finished chapters. Every example is the module's own data, run at build time by the same engine the chapters run: the
+// recorded agent's turns through the host's live stages, the real versions of the code, the live tests, the
+// workbench's best rules, and claims quoted from data/coding-agents/facts.json.
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import Meta from '../../components/Meta.astro';
+import IsoStage from '../../lib/iso/IsoStage';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import {
+  DESK_BOARD,
+  beatsOf,
+  deskAt,
+  deskCard,
+  deskLabel,
+  deskScene,
+  type DeskOpts,
+} from '../../components/scenes/deskScene';
+import { metrics, ticketOf } from '../../lib/coding-agents/loop';
+import { runTests } from '../../lib/coding-agents/tests';
+import { WINNERS } from '../../lib/coding-agents/workbench';
+import { nthBeat, play } from '../../content/coding-agents/kit';
+import { fact } from '../../lib/coding-agents/facts';
+import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { introMeta } from '../../lib/pages';
+import { longDate } from '../../lib/format';
+
+const MODULE = moduleOf('coding-agents');
+const N = MODULES.filter(m => m.status === 'live').indexOf(MODULE) + 1;
+const CHAPTERS = MODULE.chapters;
+const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
+
+type Run = ReturnType<typeof play>;
+const scene = (o: Omit<DeskOpts, 'scale'>): DeskOpts => ({ ...o, scale: 1.2 });
+const end = (r: Run) => scene(deskAt(r, beatsOf(r).length));
+const HERO = deskCard(1.2);
+
+// the whole idea: Tom's red checks, with test files open to the agent and protected
+const CHEAT = ticketOf('cheat');
+const OPEN = play({ case: 'cheat' }),
+  GUARDED = play({ case: 'cheat', protect: true });
+const own = (r: Run) => runTests(r.code).filter(t => t.pass).length;
+const SIDES = [
+  {
+    name: 'Tests open to edits',
+    ok: false,
+    pic: end(OPEN),
+    words: `All lamps green, on a loosened test. Larkspur’s own checks: ${own(OPEN)} of 4 pass.`,
+  },
+  {
+    name: 'Test files protected',
+    ok: true,
+    pic: end(GUARDED),
+    words: `The edit to the test was refused, so it fixed the code. Larkspur’s own checks: ${own(GUARDED)} of 4 pass.`,
+  },
+];
+const BULK = play({ case: 'bulk' });
+type Idea = [string, string, ReturnType<typeof fact> | null, DeskOpts];
+const IDEAS: Idea[] = [
+  ['Read, edit, run', 'An action, its result, the next action', fact('swe-bench'), scene(deskAt(BULK, 2))],
+  ['Finding the file', 'Search first; every read costs tokens', null, scene(deskAt(BULK, 1))],
+  ['A patch, in hunks', 'Keep the fix, drop the drive-by', null, scene(deskAt(play({ case: 'bulk', review: 3 }), 3))],
+  ['Red to green', 'A failing test names what broke', fact('verified'), scene(deskAt(BULK, nthBeat(BULK, 'run')))],
+  ['Green by cheating', 'Done means what the tests check', fact('reward-hacking'), end(OPEN)],
+  [
+    'What it may run',
+    'Allowed, ask first, never',
+    fact('permissions'),
+    end(play({ case: 'ship', allow: true, ask: true })),
+  ],
+];
+const best = metrics(WINNERS[0]);
+const FACTS: [string, string][] = [
+  [
+    `${play({ case: 'bulk', search: false }).tokens} → ${BULK.tokens}`,
+    'tokens read for the same fix, without and with search',
+  ],
+  [String(runTests('000').length), 'real tests, run live on every version'],
+  [`${fact('swe-bench').value}%`, 'of SWE-bench issues the best model solved in 2023'],
+  [String(best.prompts), 'question to a person under the workbench’s best rules'],
+];
+---
+<html lang="en">
+  <head>
+    <Meta {...introMeta(MODULE.id)} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module {N} · Coding agents</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS.map((m, i) => <>{i > 0 && ', '}<a href={`/${m.id}/`}>{m.title}</a></>)} recommended · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+          <h1>How does an AI agent fix a bug in your code?</h1>
+          <p class="lede">It searches, reads, edits and runs the tests, one turn at a time. Here you review its patch hunk by hunk, watch the tests judge it, and catch it cheating.</p>
+          <div class="ctas">
+            <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+          <ReadingMode />
+        </div>
+        <div class="hero-pic">
+          {/* the agent's desk every chapter plays on: its drive-by hunk turning one lamp red */}
+          <IsoStage board={DESK_BOARD} scene={deskScene(HERO)} label={deskLabel(HERO)} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="idea">
+        <p class="kicker">The whole idea in one example</p>
+        <h2 id="idea">Make the red checks green</h2>
+        <p class="ticket">Ticket {CHEAT.id} from {CHEAT.from}: “{CHEAT.says}”</p>
+        <div class="versus">
+          {SIDES.map(({ name, ok, pic, words }) => (
+            <article class:list={['reply', { read: ok }]}>
+              <header><h3>{name}</h3><span class="stamp">{ok ? 'really done' : 'green, wrongly'}</span></header>
+              <IsoStage board={DESK_BOARD} scene={deskScene(pic)} label={deskLabel(pic)} />
+              <p class="cap">{words}</p>
+            </article>
+          ))}
+        </div>
+        <p class="note more">The agent’s turns were written for this site to show each lesson; they were not recorded from a real model. The code, every version of it and the tests are real, and run live.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Six ideas carry the module</h2>
+        <ol class="steps">
+          {IDEAS.map(([name, short, f, p], i) => (
+            <li>
+              <div class="pic"><IsoStage board={DESK_BOARD} scene={deskScene(p)} label={deskLabel(p)} /></div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              {f && <p class="more">{f.claim}</p>}
+              {f && <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>}
+            </li>
+          ))}
+        </ol>
+        <p class="note more">{fact('verified-now').claim} <a href={fact('verified-now').source}>Source</a>, checked {longDate(fact('verified-now').accessed)}.</p>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">Larkspur’s pricing code, and three tickets</h2>
+          <p class="more">{MODULE.story} <strong>You review its patches and set the rules its host follows.</strong></p>
+          <p class="prev"><a href="/agents/">AI agents</a> showed the loop with tools; <a href="/post-training/">Post-training</a> showed a model learning to game its grader. Here the grader is the test suite. The workbench’s best rules are one of {WINNERS.length}.</p>
+        </div>
+        <dl class="facts">
+          {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}
+        </dl>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due; the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <ul class="who-chips"><li>Engineers</li><li>Product managers</li><li>Analysts</li><li>A little code</li></ul>
+          <p class="more">Product managers, engineers and analysts weighing an agent that changes their code. <a href="/agents/">AI agents</a> comes first; reading a few lines of code helps, and no maths is needed.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com" target="_blank" rel="noopener">Samy (Kondasamy Jayaraman)</a>.</p>
+        <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, whose hand-inked isometric style and engine this course is built on. Colorfigures grew from April’s <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed. Thank you.</p>
+      </footer>
+    </main>
+
+    <script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      const CHAPTERS = moduleOf('coding-agents').chapters;
+      const done = completed('coding-agents');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('coding-agents', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .module-meta a { color: var(--ink); }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .ticket { font-weight: 700; margin-bottom: 16px; }
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.read { border-left: 6px solid var(--acc); }
+  .reply :global(svg) { width: 100%; height: auto; display: block; }
+
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); white-space: nowrap; }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 220px; display: flex; justify-content: center; align-items: center; margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: auto !important; height: 100% !important; max-width: 100%; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .prev { font-size: 14px; color: var(--muted); }
+  .prev a { color: var(--ink); }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
+
+  .pair { display: grid; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+  }
+</style>

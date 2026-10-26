@@ -1,0 +1,14 @@
+{
+  "note": "DEMO KEYS, generated once for this site and used nowhere else. They are public on purpose so the page can run the real algorithms; a real private key never leaves its owner.",
+  "aes": {
+    "key": "964d39cc297ffbe0f28fa88e519c57a1",
+    "iv": "7de1c3c6f44c0df60f28871d",
+    "ivNote": "A fixed demo IV so the ciphertext can be pinned. Never reuse an IV with the same key."
+  },
+  "ecdsa": {
+    "curve": "P-256",
+    "x": "S-Wq81xq8aqI2nh75F5vOljEcFVd7Zxooiu-py3K4oE",
+    "y": "jtxM3E3Cw_FM379NDxfvxgHOLxn4xbGABbzgvif9630",
+    "d": "AND4203_Yb3eRbAlM5uM-ydp8SkEPmJOilq2xw4EvJI"
+  }
+}

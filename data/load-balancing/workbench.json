@@ -1,0 +1,26 @@
+{
+  "note": "Larkspur's limits for the sale, set by the team: no customer may give up on a request, and hedged copies may add at most 15% to the requests the servers see. Team choices, not industry figures.",
+  "states": {
+    "cedar": "dead",
+    "dogwood": "gray"
+  },
+  "limits": {
+    "failed": 0,
+    "extraShare": 0.15
+  },
+  "solved": {
+    "best": 190,
+    "winners": [
+      {
+        "rule": "least",
+        "checks": 2,
+        "hedgeMs": 100
+      },
+      {
+        "rule": "least",
+        "checks": 3,
+        "hedgeMs": 100
+      }
+    ]
+  }
+}

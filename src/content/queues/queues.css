@@ -1,0 +1,150 @@
+/* Queues stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
+   tool-calling/kit). These are the picture with the crash bar over it, the clock, the jobs table and the bench.
+   Motion (a ticket sliding back onto the rail, a worker toppling) plays only when motion is allowed; with reduced
+   motion the same minute shows the end state at once. */
+.qu-pic {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.qu-pic > svg {
+  flex: 1;
+  min-height: 0;
+}
+.qu-crash {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+.qu-crash [role="toolbar"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.qu-crash .chip {
+  background: var(--card);
+}
+.qu-crash .chip:disabled {
+  opacity: 0.5;
+  cursor: default;
+  box-shadow: none;
+}
+.qu-reason {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  background: var(--card);
+  border: 1.5px solid var(--rule);
+  border-radius: 8px;
+  padding: 2px 8px;
+}
+.qu-transport {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.qu-clock {
+  font:
+    800 15px ui-monospace,
+    Menlo,
+    monospace;
+  margin-left: 4px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .qu-stage .ticket.returned {
+    animation: qu-slide 0.6s ease-out;
+  }
+  .qu-stage .worker[data-fell] .fallen {
+    animation: qu-fall 0.45s ease-in;
+  }
+}
+@keyframes qu-slide {
+  from {
+    transform: translate(-60px, -30px);
+    opacity: 0.2;
+  }
+}
+@keyframes qu-fall {
+  from {
+    transform: translateY(-14px);
+    opacity: 0.3;
+  }
+}
+.qu-jobs {
+  overflow: auto;
+  align-self: stretch;
+  max-height: 100%;
+}
+.qu-jobs:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.qu-jobs table {
+  font-size: 13px;
+  width: 100%;
+}
+.qu-jobs tr[data-state="dead"] td {
+  color: var(--bad);
+  font-weight: 800;
+}
+.qu-jobs tr[data-state="done"] td {
+  color: var(--ok);
+}
+.qu-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.qu-range {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0;
+}
+.qu-range label {
+  font-weight: 700;
+  font-size: 14px;
+}
+.qu-range input {
+  width: 100%;
+}
+.qu-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+.qu-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.qu-headline strong {
+  font:
+    800 30px / 1 ui-monospace,
+    Menlo,
+    monospace;
+}
+.qu-bench {
+  border: 1.5px solid var(--rule);
+  border-radius: 12px;
+  padding: 6px 12px;
+  margin: 8px 0;
+}
+.tc-ledger td.ok {
+  color: var(--ok);
+  font-weight: 800;
+}
+.tc-ledger td.bad {
+  color: var(--bad);
+  font-weight: 800;
+}

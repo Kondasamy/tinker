@@ -40,8 +40,9 @@ export function plan(id, title, registry = readFileSync(REGISTRY, 'utf8')) {
     return {
       error: `module "${id}" already exists${taken.length ? `: ${taken.join(', ')}` : ' in src/lib/modules.ts'}`,
     };
-  // import beside the other modules; the entry always goes at the end of MODULES (home numbers modules in registry
-  // order, so live modules append in go-live order), and a planned() card of the same id is removed
+  // import beside the other modules; the entry goes after the last live module, before the roadmap cards (home numbers
+  // modules in registry order, so live modules append in go-live order), and a planned() card of the same id is removed,
+  // on one line or as Biome formats it, one argument per line
   const imports = [...registry.matchAll(/^import \{ \w+ \} from '\.\.\/content\/[\w-]+\/module';$/gm)].at(-1);
   const unregistered = {
     error: `could not register "${id}" in src/lib/modules.ts: no module import, or no \`export const MODULES = [\` list closed by \`];\``,
@@ -51,8 +52,8 @@ export function plan(id, title, registry = readFileSync(REGISTRY, 'utf8')) {
     registry.slice(0, imports.index + imports[0].length) +
     `\nimport { ${CONST} } from '../content/${id}/module';` +
     registry.slice(imports.index + imports[0].length);
-  next = next.replace(new RegExp(`^  planned\\('${id}',.*\\n`, 'm'), '');
-  next = next.replace(/(^export const MODULES\b[^\n]*\[\n[\s\S]*?)^\];/m, `$1  ${CONST},\n];`);
+  next = next.replace(new RegExp(`^  planned\\((?:'${id}',.*|\\n\\s+'${id}',[\\s\\S]*?\\n  \\)),\\n`, 'm'), '');
+  next = next.replace(/(^export const MODULES\b[^\n]*\[\n[\s\S]*?)^( {2}planned\(|\];)/m, `$1  ${CONST},\n$2`);
   if (!next.includes(`\n  ${CONST},\n`)) return unregistered;
   return { files, registry: next };
 }
