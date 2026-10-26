@@ -7,7 +7,7 @@ import '../styles/page.css';
 import Meta from '../components/Meta.astro';
 import IsoStage, { type SceneCtx, type Zoom } from '../lib/iso/IsoStage';
 import { miniPipeline, MINI_BOARD, MINI_LABEL } from '../components/scenes/miniPipeline';
-import { HERO_BOARD, HOME_HERO, HOME_HERO_LABEL, heroCaption } from '../components/scenes/heroScene';
+import { HERO_BOARD, HERO_TURNS, HOME_HERO, HOME_HERO_LABEL } from '../components/scenes/heroScene';
 import { renderers, blockShadow, type BlockType } from '../lib/iso/blocks';
 import { MODULES, type Level, type Module } from '../lib/modules';
 import { HOME } from '../lib/pages';
@@ -829,17 +829,22 @@ const searchOf = (m: Module) =>
 // FormSubmit mails the form with no backend; the alias keeps the author's address out of the page
 const FORM = 'https://formsubmit.co/772ba7c404246e8574ae55366cdadcae';
 const SENT = new URL('/?sent#request', Astro.site).href;
-const CAPTION = heroCaption(PLANNED.length > 0);
-// the wave's cycle is one 0.8 s slot per live plot, and keyframe percentages must be literal, so each step is placed at a
-// fixed share of one slot here: a pill is gone by the end of its slot, and only one ever shows, at any count
-const slot = (share: number) => `${+((share * 100) / LIVE.length).toFixed(3)}%`;
-const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot(0.18)}, ${slot(0.88)} { opacity: 1; } }
-@keyframes hero-hop { 0%, ${slot(1)}, 100% { transform: none; } ${slot(0.36)} { transform: translateY(-7px); } ${slot(0.72)} { transform: translateY(1px); } }`;
+// each module's turn on the stand is one 2.4 s slot of a cycle through them all, and keyframe percentages must be literal,
+// so each step is placed at a fixed share of one slot here: it drops in, bounces, holds, and lifts off before the next lands
+const slot = (share: number) => `${+((share * 100) / HERO_TURNS).toFixed(3)}%`;
+const TURN = `@keyframes hero-turn {
+  0% { visibility: visible; opacity: 0; transform: translateY(-60px); }
+  ${slot(0.12)} { opacity: 1; transform: none; }
+  ${slot(0.18)} { transform: translateY(-6px); }
+  ${slot(0.24)}, ${slot(0.88)} { opacity: 1; transform: none; }
+  ${slot(0.999)} { visibility: visible; opacity: 0; transform: translateY(-40px); }
+  ${slot(1)}, 100% { visibility: hidden; opacity: 0; }
+}`;
 ---
 <html lang="en">
   <head>
     <Meta {...HOME} />
-    <style is:inline set:html={WAVE}></style>
+    <style is:inline set:html={TURN}></style>
   </head>
   <body>
     <div class="topbar">
@@ -857,9 +862,9 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
           </div>
           <p class="glance">Free · No sign-up · Nothing to install · Works on your phone</p>
         </div>
-        <figure class="hero-pic" style={`--n:${LIVE.length}`}>
+        <figure class="hero-pic" style={`--n:${HERO_TURNS}`}>
           <IsoStage board={HERO_BOARD} scene={HOME_HERO} label={HOME_HERO_LABEL} />
-          <figcaption>One workshop, a plot per module. {CAPTION.text} <a href="#request">{CAPTION.link}</a>.</figcaption>
+          <figcaption>Every module takes a turn on the stand. Click one to step in, or <a href="#request">propose the next</a>.</figcaption>
         </figure>
       </header>
 
@@ -980,6 +985,11 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
     <script>
       // FormSubmit sends the reader back here once the form is mailed
       if (new URLSearchParams(location.search).has('sent')) document.querySelector<HTMLElement>('#request .sent')!.hidden = false;
+      // a click on a piece of the hero opens its page (the stand's hidden turns take no clicks)
+      document.querySelector('.hero-pic')!.addEventListener('click', e => {
+        const href = (e.target as Element).closest<SVGElement>('[data-href]')?.dataset.href;
+        if (href) location.href = href;
+      });
       // progress on each live card; card buttons and the hero's Continue go to the first unfinished chapter
       import { MODULES, chapterHref } from '../lib/modules';
       import { completed, completedAt, lastModule, recallResults } from '../lib/progress';
@@ -1125,15 +1135,15 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
   .hero .glance { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
   /* the board's viewBox leaves headroom for tall props; pull it up under the text */
   .hero-pic { margin: max(-32px, -4%) 0 0; width: 100%; max-width: 780px; }
-  /* the workshop is busy (none with reduced motion): the envelope rides its belt, RAG's wire carries a current, and a wave
-     hops each live plot in turn down the board, showing and lighting its pill only for its turn, so the board rests unlabelled */
+  /* the workshop is busy (none with reduced motion): the envelope rides its belt, RAG's wire carries a current, and the
+     modules take turns on the stand, which jolts as each lands; a pointer over the picture holds the one on it */
+  .hero-pic :global([data-href]) { cursor: pointer; }
   @media (prefers-reduced-motion: no-preference) {
     .hero-pic :global(.capsule) { animation: hero-ride 3.2s cubic-bezier(.45, 0, .3, 1) infinite; }
     .hero-pic :global(.hero-flow) { animation: hero-flow .9s linear infinite; }
-    .hero-pic :global(.hero-hop) { animation: hero-hop calc(var(--n) * .8s) ease-in-out infinite; animation-delay: calc(var(--i) * .8s); }
-    .hero-pic :global(.hero-hop .block-tag) { opacity: 0; animation: hero-show calc(var(--n) * .8s) ease-in-out infinite; animation-delay: calc(var(--i) * .8s); }
-    .hero-pic :global(.hero-hop .tag rect) { fill: var(--acc); }
-    .hero-pic :global(.hero-soon) { display: none; }
+    .hero-pic :global(.hero-turn) { animation: hero-turn calc(var(--n) * 2.4s) cubic-bezier(.5, 0, .4, 1) infinite; animation-delay: calc(var(--i) * 2.4s); }
+    .hero-pic :global(.hero-thud) { animation: hero-thud 2.4s ease-out infinite; }
+    .hero-pic:hover :global(:is(.hero-turn, .hero-thud)) { animation-play-state: paused; }
     /* the token press keeps cutting tiles, and the agent's clipboard keeps ticking its plan off */
     .hero-pic :global(.tile) { animation: hero-drop 2.4s cubic-bezier(.5, 0, .5, 1.4) infinite both; }
     .hero-pic :global(.tile:nth-child(2 of .tile)) { animation-delay: .3s; }
@@ -1143,6 +1153,7 @@ const WAVE = `@keyframes hero-show { 0%, ${slot(1)}, 100% { opacity: 0; } ${slot
   }
   @keyframes hero-ride { 0% { transform: translate(var(--dx), var(--dy)); opacity: 0; } 12% { opacity: 1; } 55%, 100% { transform: none; } }
   @keyframes hero-flow { to { stroke-dashoffset: -11; } }
+  @keyframes hero-thud { 0%, 11% { transform: none; } 13% { transform: translateY(2.5px); } 20%, 100% { transform: none; } }
   @keyframes hero-drop { 0% { transform: translateY(-12px); opacity: 0; } 20%, 80% { transform: none; opacity: 1; } 100% { opacity: 0; } }
   @keyframes hero-tick { 0%, 15% { opacity: 0; } 30%, 90% { opacity: 1; } 100% { opacity: 0; } }
   .hero-pic figcaption { text-align: center; font-size: 12.5px; color: var(--muted); margin-top: 8px; }

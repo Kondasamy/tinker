@@ -1,169 +1,72 @@
-// U2: the home hero draws a plot for every module in the registry, at any count (R2).
+// The home hero: a fixed board where every live module after RAG and tool calling takes a turn on the stand.
 import { describe, it, expect } from 'vitest';
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import IsoStage from '../../src/lib/iso/IsoStage';
 import {
   HERO_BOARD,
+  HERO_TURNS,
   HOME_HERO,
   HOME_HERO_LABEL,
-  heroBoard,
-  heroCaption,
-  heroLabel,
   heroScene,
-  plotAt,
   undrawn,
 } from '../../src/components/scenes/heroScene';
 import { MODULES } from '../../src/lib/modules';
-import { PALS, WOOD } from '../../src/lib/iso/core.js';
 
-// RAG's strip and the back office's ground (heroScene's mats): no slot may sit on either
-const RAG_MAT = [18, 270, 206, 318],
-  OFFICE_MAT = [100, 0, 290, 256];
-// the seven modules this plan takes live, in go-live order (KTD1), then the seven new cards (R16)
-const FUTURE = [
-  'queues',
-  'compression',
-  'load-balancing',
-  'encryption',
-  'coding-agents',
-  'synthetic-data',
-  'mixture-of-experts',
-  'memorisation',
-  'video-models',
-  'recommendations',
-  'logins',
-  'email',
-  'dependencies',
-  'releases',
-];
-const draw = (board = HERO_BOARD, scene = HOME_HERO) =>
-  renderToString(createElement(IsoStage, { board, scene, label: '' }));
+const LIVE = MODULES.filter(m => m.status === 'live');
+const draw = (scene = HOME_HERO) => renderToString(createElement(IsoStage, { board: HERO_BOARD, scene, label: '' }));
 const upper = (s: string) => s.toUpperCase().replace(/&/g, '&amp;');
-/** the SVG before the planned pills, then each planned pill's group (they are drawn last) */
-const soonSplit = (svg: string) => {
-  const [rest, ...soon] = svg.split('<g class="hero-soon">');
-  return { rest, soon };
-};
+/** each turn on the stand: its link and whether a still picture hides it */
+const turnsOf = (svg: string) =>
+  [...svg.matchAll(/<g data-href="([^"]+)" class="hero-turn" style="--i:(\d+)"( visibility="hidden")?>/g)].map(
+    ([, href, i, hidden]) => ({ href, i: +i, hidden: !!hidden }),
+  );
 
 describe('home hero', () => {
-  it('has one name pill per module, each from the registry, and no NaN coordinates', () => {
+  it('has a name pill and a link for every live module, and no NaN coordinates', () => {
     const svg = draw();
-    for (const m of MODULES) expect(svg).toContain(upper(m.id.replace(/-/g, ' ')));
-    expect(soonSplit(svg).soon).toHaveLength(MODULES.filter(m => m.status === 'planned').length);
-    expect(svg).not.toMatch(/NaN/);
-  });
-
-  // 39 live modules and 7 cards leave 44 slots after RAG's and tool calling's plots (KTD14)
-  it('plots never overlap, stay on the board and clear RAG and the back office, for 1 slot up to 44 (or the registry’s count)', () => {
-    const slots =
-      MODULES.filter(m => m.status === 'live').length - 2 + MODULES.filter(m => m.status === 'planned').length;
-    for (let n = 1; n <= Math.max(44, slots); n++) {
-      const rects = Array.from({ length: n }, (_, i) => plotAt(i)),
-        [, , bx1, by1] = heroBoard(n);
-      rects.forEach(([x0, y0, x1, y1], i) => {
-        expect(x1 <= bx1 && y1 <= by1 && x0 >= 0 && y0 >= 0).toBe(true);
-        for (const [a0, b0, a1, b1] of [RAG_MAT, OFFICE_MAT])
-          expect(x1 <= a0 || a1 <= x0 || y1 <= b0 || b1 <= y0, `slot ${i} of ${n}`).toBe(true);
-        rects
-          .slice(i + 1)
-          .forEach(([a0, b0, a1, b1]) => expect(x1 <= a0 || a1 <= x0 || y1 <= b0 || b1 <= y0).toBe(true));
-      });
+    for (const m of LIVE) {
+      expect(svg).toContain(upper(m.id.replace(/-/g, ' ')));
+      expect(svg).toContain(`data-href="/${m.id}/"`);
     }
-  });
-
-  // six to a row keeps 44 slots near today's depth, so the hero's plots and pills shrink little (KTD14)
-  it('the board for 44 slots is no deeper than 1.2× the board before it (520 deep)', () => {
-    expect(heroBoard(44)[3]).toBeLessThanOrEqual(1.2 * 520);
-  });
-
-  it('fits nine slots, and a third live module draws as live (its pill in the wave, not a building site)', () => {
-    const planned = Array.from({ length: 6 }, (_, i) => ({ name: `Planned ${i}` }));
-    const scene = heroScene({
-      live: [{ name: 'One' }, { name: 'Two' }, { name: 'Three', draw: () => '<g class="third"/>' }],
-      planned,
-      ride: [],
-    });
-    const svg = draw(heroBoard(7), scene);
-    expect(svg).toContain('class="third"');
-    const { rest, soon } = soonSplit(svg);
-    expect(rest).toContain('THREE');
-    expect(soon.map(g => /PLANNED \d/.exec(g)?.[0])).toEqual(planned.map(p => p.name.toUpperCase()));
+    expect(svg).toContain('data-href="#request"');
     expect(svg).not.toMatch(/NaN/);
   });
 
-  // a live module with no drawing would leave an empty mint plot in the wave
+  it('puts every module after the first two on the stand, newest first, and a still picture shows only the newest', () => {
+    const turns = turnsOf(draw());
+    expect(turns).toHaveLength(HERO_TURNS);
+    expect(turns.map(t => t.href)).toEqual(
+      LIVE.slice(2)
+        .reverse()
+        .map(m => `/${m.id}/`),
+    );
+    expect(turns.map(t => t.hidden)).toEqual(turns.map((_, i) => i > 0));
+  });
+
+  // the point of the stand: adding modules never grows the board, only the queue for the stand
+  it('stands any number of modules in turn on the same board', () => {
+    const live = Array.from({ length: 60 }, (_, i) => ({ id: `module-${i}` }));
+    const turns = turnsOf(draw(heroScene({ live, ride: [] })));
+    expect(turns).toHaveLength(58);
+    expect(turns.filter(t => !t.hidden)).toHaveLength(1);
+  });
+
+  // every module's pill takes the same spot on the stand: none may cover RAG's, tool calling's or the building site's
+  it('no stand pill covers another pill, for every live module', () => {
+    for (const m of LIVE.slice(2))
+      expect(pillHits(draw(heroScene({ live: [LIVE[0], LIVE[1], m], ride: [] })), 4), m.id).toEqual([]);
+  });
+
+  // a live module with no drawing would stand an empty mat on the stand
   it('draws a plot for every live module, and names any that lacks one', () => {
-    const live = MODULES.filter(m => m.status === 'live').map(m => m.id);
+    const live = LIVE.map(m => m.id);
     expect(undrawn(live)).toEqual([]);
-    const seventeen = [...live, ...Array.from({ length: 39 - live.length }, (_, i) => `fixture-${i}`)];
-    expect(undrawn(seventeen)).toEqual(seventeen.slice(live.length));
+    expect(undrawn([...live, 'fixture'])).toEqual(['fixture']);
   });
 
-  it('the caption invites a build while plots are open, and a proposal once none are', () => {
-    expect(heroCaption(true)).toEqual({ text: 'The empty plots are open:', link: 'build one' });
-    expect(heroCaption(false)).toEqual({ text: 'Room for more:', link: 'propose one' });
-  });
-
-  it('the label names every module', () => {
-    for (const m of MODULES) expect(HOME_HERO_LABEL).toContain(m.title);
-  });
-
-  it('names building sites only while some module is planned', () => {
-    expect(HOME_HERO_LABEL.includes('building sites')).toBe(MODULES.some(m => m.status === 'planned'));
-    expect(heroLabel(['RAG', 'Tool calling'], [])).toBe(
-      'Tinker as one workshop with a plot per module: RAG and Tool calling, live.',
-    );
-  });
-
-  // a planned fixture keeps the building-site path tested whatever the registry holds (KTD14)
-  it('a planned fixture still draws a building site (crate and cones) and the label names it', () => {
-    const count = (svg: string, colour: string) => svg.split(colour).length - 1;
-    const site = draw(
-      heroBoard(1),
-      heroScene({ live: [{ name: 'One' }, { name: 'Two' }], planned: [{ name: 'demo' }], ride: [] }),
-    );
-    const live = draw(
-      heroBoard(1),
-      heroScene({ live: [{ name: 'One' }, { name: 'Two' }, { name: 'Three' }], planned: [], ride: [] }),
-    );
-    expect(site).toContain('DEMO');
-    expect(count(site, WOOD.l)).toBeGreaterThan(count(live, WOOD.l));
-    expect(count(site, PALS.tomato.l)).toBeGreaterThan(count(live, PALS.tomato.l));
-    expect(heroLabel(['RAG'], ['Demo'])).toBe(
-      'Tinker as one workshop with a plot per module: RAG, live, and building sites for Demo.',
-    );
-  });
-
-  // the wave's timing is per live plot, so planned pills sit out of it in their own group, which the animated home hides
-  it('keeps every planned pill out of the hop wave, in a hero-soon group', () => {
-    const svg = draw(
-      heroBoard(2),
-      heroScene({ live: [{ name: 'One' }, { name: 'Two' }], planned: [{ name: 'a' }, { name: 'b' }], ride: [] }),
-    );
-    const { rest, soon } = soonSplit(svg);
-    expect(soon.map(g => />([AB])</.exec(g)?.[1])).toEqual(['A', 'B']);
-    expect(rest).not.toMatch(/>[AB]</);
-    expect(rest).toContain('class="hero-hop"');
-  });
-
-  // reduced motion and the share image show every pill at once: none may cover another
-  // every go-live in turn moves one card from the planned list to the end of the live one, up to 39 live and 7 cards
-  it('no two pills overlap with every pill shown, for the real registry and after each go-live up to 39 live modules and 7 cards', () => {
-    expect(pillHits(draw(), MODULES.length)).toEqual([]);
-    const name = (id: string) => ({ name: id.replace(/-/g, ' ') });
-    const now = MODULES.filter(m => m.status === 'live').map(m => m.id),
-      cards = MODULES.filter(m => m.status === 'planned').map(m => m.id),
-      rest = FUTURE.filter(id => !now.includes(id));
-    for (let n = 0; now.length + n <= 39; n++) {
-      const live = [...now, ...rest.slice(0, n)],
-        planned = cards.filter(id => !live.includes(id));
-      expect(
-        pillHits(draw(heroBoard(44), heroScene({ live: live.map(name), planned: planned.map(name), ride: [] })), 46),
-        `${live.length} live`,
-      ).toEqual([]);
-      if (live.length === 39) expect(planned).toEqual(FUTURE.slice(-7));
-    }
+  it('the label names every live module', () => {
+    for (const m of LIVE) expect(HOME_HERO_LABEL).toContain(m.title);
   });
 });
 
