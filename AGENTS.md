@@ -47,7 +47,8 @@ Author credit is always **Samy (Kondasamy Jayaraman)**: alias then full name, li
 - **Quizzes explain every option** (`why`) and offer "I'm not sure", which reveals without counting a miss.
 - **Recall bank** per module (`src/content/<module>/recall.ts`), one item `pin`ned. Results live in progress outside the run, so Reset never wipes them.
 - **Recap** draws from the bank for finished chapters with a stored seed. **Warm-up**: up to three questions when the reader returns 20 h+ after finishing a chapter, on the intro and through home's Continue, with a skip link.
-- Nothing a reader enters leaves the browser, except the home request form on submit.
+- **Watch** (modules with narration, RAG so far): the chapter plays itself, each step's `demo` (else `solution`) applied under recorded narration and a quiet music bed; predict and quiz steps wait for the reader's own pick. Reader input on a playing step pauses it; the stage's own `sync` never does. Every step needs a `demo` unless it asks the reader.
+- Nothing a reader enters leaves the browser, except the home request form on submit and the one-click "Was Watch better?" at the end of a watched chapter (module, chapter, answer; `src/lib/site.ts`).
 - **Analytics is Cloudflare Web Analytics, page views only**: its beacon in `Meta.astro` (production builds, not `DEV_PAGES`; `spa` off so the Finder's URL never sends), site `tinker.kondasamy.com`. No cookies, no custom events; another tracker is a deliberate change.
 
 ## Styles
@@ -108,6 +109,7 @@ Marketing pages share `src/styles/page.css`; chapter pages use `src/layouts/Chap
 - **Imports from `public/` go through the `public-json` plugin in dev.**
 - Dev-only pages (`/dev/*`) exist in `astro dev` or with `DEV_PAGES=1`.
 - **Biome** lints and formats (2 spaces, single quotes, 120 columns; `pnpm format`, `pnpm lint`). A real exception gets a `biome-ignore` with its reason, never a rule switched off for one site.
+- **Watch narration** is `data/watch/<module>.script.json` (built from `STEPS` by `pnpm narration:script`), recorded by `ELEVENLABS_API_KEY=… pnpm record:narration <module>` into committed MP3s; never in CI. A copy edit leaves a stale clip that falls back to captions and a test warning; re-record when convenient.
 - The RAG index in `public/data/index/` is committed; rebuild (`pnpm build:index`) only after editing `data/corpus/` or `data/questions/`, never on a host.
 
 ## Checks before you call it done

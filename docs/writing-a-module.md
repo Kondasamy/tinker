@@ -39,6 +39,7 @@ Rules for steps:
 - Facts carry their source through a `Fact` (or `Cite`): the source opens from a small mark, never an inline "Source:" link.
 - Puzzles (`puzzle()`) hand the reader a broken setup. Hints appear after three misses; "Show me" is always there.
 - Finished steps stay reachable as a folded "story so far" log. Don't write a step that only makes sense if the previous one is still on screen.
+- Watch mode (optional): give every step that doesn't ask the reader a `demo` doing its `act`, then `pnpm narration:script` and `pnpm record:narration <module>`. Steps without `demo` or `solution` wait for the reader.
 - `tests/unit/copy-budget.test.ts` checks every budget above; a new module is strict from its first chapter.
 
 ## 4. Write questions that teach
