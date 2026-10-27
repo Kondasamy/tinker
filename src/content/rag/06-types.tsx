@@ -6,12 +6,20 @@
 // Self-correcting (U13) is a setting on the Evaluator (grade, retry with a rewrite, or say "I don't know");
 // Multimodal (U13) is the Docs block's parsers for tables, PDFs and images, with its own three cards.
 // The canvas stays the hero: the stage shows only the latest runs, the full comparison lives in the Compare tab.
+import { useEffect } from 'react';
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import { UNSURE } from '../../lib/recall';
 import KnobList, { Knob } from '../../components/canvas/Knobs';
-import { initialCanvas, unlockedThrough, type CanvasQuestion, type CanvasState } from '../../components/canvas/state';
+import {
+  initialCanvas,
+  unlockedThrough,
+  type CanvasQuestion,
+  type CanvasState,
+  type Knobs,
+  type Outcome,
+} from '../../components/canvas/state';
 import { RagStage, useQuestionRuns, type RagState } from '../../components/panels/rag';
 import ResultStrip, { comparePanel, rowOf, withRow, type ResultRow } from '../../components/panels/ResultStrip';
 import IsoStage from '../../lib/iso/IsoStage';
@@ -40,6 +48,8 @@ export interface S extends RagState {
   acks: number;
   quiz: number | null;
   gquiz: number | null;
+  /** Runs Watch mode asked for, as [question, type]; the stage fills their rows from the engine (KTD8). */
+  todo?: [string, string][];
 }
 
 const row = (s: S, q: string, type: string) => s.rows.find(r => r.q === q && r.type === type);
@@ -55,6 +65,48 @@ function switchType(s: S, type: string): S {
     canvas: { ...s.canvas, unlocked: unlockedFor(type), knobs },
     verdict: null,
   };
+}
+
+/** The canvas a run of `q` as `type` reads: the current one for the current type, else that type's setting. */
+export const canvasOf = (s: S, q: string, type: string) =>
+  type === s.type ? s.canvas : switchType({ ...s, q }, type).canvas;
+
+/** The queued runs done, as the run button would: their rows in the strip; null while the engine is loading. */
+export function finishRuns(s: S, outcomeOf: (q: string, c: CanvasState) => Outcome | null): S | null {
+  let { rows, verdict } = s;
+  for (const [q, type] of s.todo ?? []) {
+    const o = outcomeOf(q, canvasOf(s, q, type));
+    if (!o?.answer) return null;
+    const r = rowOf(q, type, o);
+    rows = withRow(rows, r);
+    if (q === s.q && type === s.type) verdict = r.verdict;
+  }
+  return { ...s, todo: undefined, rows, verdict };
+}
+
+// Watch mode's demos: pick the card and run it (the last run's card stays picked), or turn a knob first.
+const queue =
+  (...todo: [string, string][]) =>
+  (s: S): S => ({ ...s, q: todo[todo.length - 1][0], todo });
+const knob =
+  (k: Partial<Knobs>) =>
+  (s: S): S => ({ ...s, canvas: { ...s.canvas, knobs: { ...s.canvas.knobs, ...k } } });
+
+/** Finishes the runs Watch queued once the engine has them: the run button's job when the reader plays. */
+function QueuedRuns({
+  state,
+  sync,
+  outcomeOf,
+}: {
+  state: S;
+  sync: (s: S) => void;
+  outcomeOf: (q: string, c: CanvasState) => Outcome | null;
+}) {
+  useEffect(() => {
+    const n = state.todo && finishRuns(state, outcomeOf);
+    if (n) sync(n);
+  });
+  return null;
 }
 
 export const QUIZ = {
@@ -106,6 +158,7 @@ export const STEPS: Step<S>[] = [
       'Every pipeline so far searched once: naive RAG, then advanced. Here the retriever sends one 16-word chunk, so each type’s strengths show.',
     say: { block: 'retriever', text: 'One chunk only' },
     predicate: s => s.acks >= 1,
+    demo: s => ({ ...s, acks: s.acks + 1 }),
   },
   {
     id: 'naive-run',
@@ -114,6 +167,7 @@ export const STEPS: Step<S>[] = [
     narration: 'Each run adds a row to the results strip under the canvas.',
     act: 'Pick the enterprise refund question and run it as naive RAG.',
     predicate: s => !!row(s, 'refund-enterprise', 'naive'),
+    demo: queue(['refund-enterprise', 'naive']),
   },
   {
     id: 'attach',
@@ -136,6 +190,7 @@ export const STEPS: Step<S>[] = [
     act: 'Keep it at 2 and run.',
     say: { block: 'agent', text: 'Can search again' },
     predicate: s => row(s, 'refund-enterprise', 'agentic')?.verdict === 'correct',
+    demo: queue(['refund-enterprise', 'agentic']),
     hint: 'The agent needs at least 2 calls to search again.',
   },
   {
@@ -146,6 +201,7 @@ export const STEPS: Step<S>[] = [
     narration: 'Correct in 2 calls: the first chunk was cut mid-sentence, so the agent fetched its neighbours.',
     act: 'Now run the hotel limit question under both types.',
     predicate: s => !!row(s, 'stale-hotel-limit', 'naive') && !!row(s, 'stale-hotel-limit', 'agentic'),
+    demo: queue(['stale-hotel-limit', 'naive'], ['stale-hotel-limit', 'agentic']),
     hint: 'Pick the hotel card and run it, switch the type, then run it again.',
   },
   {
@@ -166,6 +222,7 @@ export const STEPS: Step<S>[] = [
       'Harder: who approves purchases for the team owning the Kestrel K2 scanner integration? It spans two documents.',
     act: 'Pick its card; run naive and agentic.',
     predicate: s => !!row(s, MULTI, 'naive') && !!row(s, MULTI, 'agentic'),
+    demo: queue([MULTI, 'naive'], [MULTI, 'agentic']),
     hint: 'Pick the Kestrel card, run it, switch the type, then run it again.',
   },
   {
@@ -189,6 +246,7 @@ export const STEPS: Step<S>[] = [
     act: 'Run it with 1 hop.',
     say: { block: 'graph', text: 'Walks relations' },
     predicate: s => !!row(s, MULTI, 'graph'),
+    demo: queue([MULTI, 'graph']),
   },
   {
     id: 'graph-two',
@@ -200,6 +258,7 @@ export const STEPS: Step<S>[] = [
     act: 'Set hops to 2.',
     say: { block: 'graph', text: 'One step short' },
     predicate: s => row(s, MULTI, 'graph')?.verdict === 'correct',
+    demo: s => queue([MULTI, 'graph'])(knob({ hops: 2 })(s)),
     hint: 'Drag the hops slider to 2, then run.',
   },
   {
@@ -221,6 +280,7 @@ export const STEPS: Step<S>[] = [
       'Next, a trap: how long does Larkspur keep customer payment card data? A meeting note about fake demo cards uses near-identical words.',
     act: 'Run naive.',
     predicate: s => !!row(s, SC, 'naive'),
+    demo: queue([SC, 'naive']),
   },
   {
     id: 'sc-attach',
@@ -245,6 +305,7 @@ export const STEPS: Step<S>[] = [
       const r = row(s, SC, 'selfcheck');
       return !!r && r.verdict !== 'wrong';
     },
+    demo: queue([SC, 'selfcheck']),
   },
   {
     id: 'mm-attach',
@@ -267,6 +328,7 @@ export const STEPS: Step<S>[] = [
     act: 'Run the price question: a Kestrel K2 at 50+ units?',
     say: { block: 'docs', text: 'Parsers off' },
     predicate: s => !!row(s, PRICE, 'multimodal'),
+    demo: queue([PRICE, 'multimodal']),
   },
   {
     id: 'mm-tables',
@@ -276,6 +338,7 @@ export const STEPS: Step<S>[] = [
     narration: 'Not found: the price list is a table, and with table parsing off retrieval never sees it.',
     act: 'Turn on “Parse tables to text” and rerun.',
     predicate: s => row(s, PRICE, 'multimodal')?.verdict === 'correct',
+    demo: s => queue([PRICE, 'multimodal'])(knob({ tables: true })(s)),
     hint: 'Tick “Parse tables to text”, then run.',
   },
   {
@@ -288,6 +351,7 @@ export const STEPS: Step<S>[] = [
     act: 'Turn on both.',
     predicate: s =>
       row(s, PDF, 'multimodal')?.verdict === 'correct' && row(s, IMG, 'multimodal')?.verdict === 'correct',
+    demo: s => queue([PDF, 'multimodal'], [IMG, 'multimodal'])(knob({ pdfs: true, images: true })(s)),
     hint: 'PDF parsing for the warranty card, image captions for the Customer Success card.',
   },
 ];
@@ -322,6 +386,19 @@ function GraphWalk({ trace, question }: { trace: Traversal | null; question: Can
     </figure>
   );
 }
+
+export const INITIAL: S = {
+  q: CARDS[0].q,
+  type: 'naive',
+  rows: [],
+  canvas: initialCanvas(unlockedFor('naive'), KNOBS),
+  verdict: null,
+  math: false,
+  probed: false,
+  acks: 0,
+  quiz: null,
+  gquiz: null,
+};
 
 export default function Types() {
   const { runs, panels } = useQuestionRuns<S>(CARD_QS);
@@ -361,22 +438,13 @@ export default function Types() {
     <StepRunner<S>
       chapter={ID}
       steps={STEPS}
-      initial={{
-        q: CARDS[0].q,
-        type: 'naive',
-        rows: [],
-        canvas: initialCanvas(unlockedFor('naive'), KNOBS),
-        verdict: null,
-        math: false,
-        probed: false,
-        acks: 0,
-        quiz: null,
-        gquiz: null,
-      }}
+      initial={INITIAL}
       next={nextOf(ID)}
       stage={p => (
         <div className="stage-col">
           <RagStage {...p} run={runs[p.state.q]} extraTabs={[['compare', 'Compare']]} />
+          {/* after the stage, so its sync lands after the verdict sync and keeps the rows */}
+          <QueuedRuns state={p.state} sync={p.sync} outcomeOf={(q, c) => runs[q].outcomeOf(c)} />
           {p.state.type === 'graph' && <GraphWalk trace={runs[p.state.q].out?.graph ?? null} question={Q(p.state.q)} />}
           <ResultStrip rows={p.state.rows} label={rowLabel} latest={3} onAll={() => p.inspect('compare')} />
         </div>
