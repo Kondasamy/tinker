@@ -12,6 +12,9 @@ interface Props {
 const { title, description, og, noindex } = Astro.props;
 const url = new URL(Astro.url.pathname, Astro.site);
 const image = new URL(`/og/${og}.jpg`, Astro.site);
+// Cloudflare Web Analytics (page views, no cookies) on production builds only: dev and the DEV_PAGES e2e/og builds stay
+// beacon-free. spa off: the Finder rewrites the URL on each keystroke, which must not count or send a page view.
+const beacon = import.meta.env.PROD && !process.env.DEV_PAGES;
 
 const abs = (path: string) => new URL(path, Astro.site).href;
 const AUTHOR = { '@type': 'Person', name: 'Kondasamy Jayaraman', alternateName: 'Samy', url: 'https://kondasamy.com' };
@@ -96,3 +99,13 @@ const ld = graph.length
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={image} />
 {ld && <script type="application/ld+json" is:inline set:html={ld} />}
+{
+  beacon && (
+    <script
+      is:inline
+      defer
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon='{"token": "a96dadf51be74671bd4fcb58d000c1d0", "spa": false}'
+    />
+  )
+}
