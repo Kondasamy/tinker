@@ -1,0 +1,70 @@
+WEBVTT
+
+00:00.500 --> 00:01.926
+It's 2023.
+
+00:01.986 --> 00:03.762
+An employee asks the company's new
+
+00:03.762 --> 00:05.862
+AI assistant about a contract.
+
+00:05.875 --> 00:07.745
+It answers, sure of itself,
+
+00:07.745 --> 00:08.927
+and wrong.
+
+00:09.000 --> 00:10.265
+A model knows only its
+
+00:10.265 --> 00:12.191
+training data and its prompt.
+
+00:12.471 --> 00:14.118
+It never read your documents.
+
+00:14.480 --> 00:16.790
+Since 2020, the fix has a name:
+
+00:16.790 --> 00:17.752
+RAG.
+
+00:17.800 --> 00:18.948
+So build one.
+
+00:19.007 --> 00:21.293
+Give the assistant the company documents.
+
+00:21.353 --> 00:23.384
+Still made up: nothing carries the
+
+00:23.384 --> 00:25.066
+right ones to the model.
+
+00:25.300 --> 00:26.575
+Add a retriever.
+
+00:26.937 --> 00:28.632
+Now the answer is correct,
+
+00:28.632 --> 00:30.894
+and it cites the policy it used.
+
+00:31.500 --> 00:34.284
+Retrieve, augment, generate.
+
+00:34.400 --> 00:36.116
+Then the whole pipeline is yours.
+
+00:36.478 --> 00:39.334
+47 documents, every block to rewire,
+
+00:39.334 --> 00:40.969
+break and fix.
+
+00:41.400 --> 00:43.163
+RAG, on Tinker.
+
+00:43.223 --> 00:44.904
+Start with chapter 1.

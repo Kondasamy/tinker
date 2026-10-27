@@ -139,6 +139,10 @@ const FACTS: [string, string][] = [
             <blockquote><span>From refund-policy-2025</span>{WITH.citation}</blockquote>
           </article>
         </div>
+        <video class="trailer" controls preload="none" poster="/video/rag-trailer.jpg" width="1920" height="1080" aria-label="RAG trailer">
+          <source src="/video/rag-trailer.mp4" type="video/mp4" />
+          <track kind="captions" srclang="en" label="English" src="/video/rag-trailer.vtt" default />
+        </video>
         <p class="note more">These are the course’s own recorded answers. The only thing that changed is what reached the model.</p>
       </section>
 
@@ -257,6 +261,8 @@ const FACTS: [string, string][] = [
   blockquote { margin: 6px 0 0; padding: 8px 12px; background: var(--card); border-radius: 8px; font-size: 13.5px; border: 1px dashed var(--rule); }
   blockquote span { display: block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
   .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+  /* the trailer: a fixed 16:9 frame at full width; the poster stays if the video can't load */
+  .trailer { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; margin: 18px 0 0; border: 1.5px solid var(--ink); border-radius: 14px; background: var(--paper); }
 
   .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
   .steps li { position: relative; padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
