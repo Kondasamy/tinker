@@ -16,17 +16,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import crypto from 'node:crypto';
-import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { apiKey, decode as decodeAt, encodeMp3, speak as tts, wavOf as wavAt } from './lib/elevenlabs.mjs';
 
-const KEY = process.env.ELEVENLABS_API_KEY;
-if (!KEY) {
-  console.error(
-    'record-voice: set ELEVENLABS_API_KEY in the environment (it is never read from or written to a file).',
-  );
-  process.exit(1);
-}
+const KEY = apiKey('record-voice');
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT_MP3 = path.join(ROOT, 'public/data/voice');
@@ -42,49 +35,10 @@ const MARGIN = 100,
 const script = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/voice/script.json'), 'utf8'));
 const { model, seed, outputFormat } = script.tts;
 
-/** One part's speech as an MP3, from the cache or the API (retrying a busy or failing service a few times). */
-async function speak(text, voice) {
-  const body = { text, model_id: model, seed };
-  const id = crypto
-    .createHash('sha256')
-    .update(JSON.stringify({ voice, outputFormat, ...body }))
-    .digest('hex')
-    .slice(0, 16);
-  const file = path.join(CACHE, `${id}.mp3`);
-  if (fs.existsSync(file)) return file;
-  for (let attempt = 0; ; attempt++) {
-    const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice}?output_format=${outputFormat}`, {
-      method: 'POST',
-      headers: { 'xi-api-key': KEY, 'content-type': 'application/json', accept: 'audio/mpeg' },
-      body: JSON.stringify(body),
-    });
-    if ((r.status === 429 || r.status >= 500) && attempt < 4) {
-      const wait = 1000 * 2 ** attempt;
-      console.warn(`ElevenLabs ${r.status}, retrying in ${wait} ms`);
-      await new Promise(ok => setTimeout(ok, wait));
-      continue;
-    }
-    if (!r.ok) throw new Error(`ElevenLabs ${r.status} for “${text}”: ${(await r.text()).slice(0, 200)}`);
-    const type = r.headers.get('content-type') ?? '';
-    if (!type.startsWith('audio/'))
-      throw new Error(`ElevenLabs sent ${type || 'no content type'} for “${text}”, not audio`);
-    // write then rename, so a run killed mid-write never leaves a truncated file the cache would reuse
-    fs.mkdirSync(CACHE, { recursive: true });
-    fs.writeFileSync(`${file}.tmp`, Buffer.from(await r.arrayBuffer()));
-    fs.renameSync(`${file}.tmp`, file);
-    return file;
-  }
-}
-
-/** Decode an MP3 to mono float samples at SR. */
-const decode = file => {
-  const raw = execFileSync(
-    'ffmpeg',
-    ['-loglevel', 'error', '-i', file, '-ac', '1', '-ar', String(SR), '-f', 'f32le', '-'],
-    { maxBuffer: 1 << 28 },
-  );
-  return Array.from(new Float32Array(raw.buffer, raw.byteOffset, raw.length / 4));
-};
+/** One part's speech as an MP3, from the cache or the API. */
+const speak = (text, voice) => tts({ key: KEY, cache: CACHE, voice, model, seed, outputFormat, text });
+const decode = file => decodeAt(file, SR);
+const wavOf = x => wavAt(x, SR);
 
 // a seeded line hum (white noise), so a re-record mixes the same noise
 let noiseSeed = 1;
@@ -100,24 +54,6 @@ const frames = x => {
     out.push(Math.sqrt(s / (end - i)));
   }
   return out;
-};
-
-const wavOf = x => {
-  const b = Buffer.alloc(44 + x.length * 2);
-  b.write('RIFF', 0);
-  b.writeUInt32LE(36 + x.length * 2, 4);
-  b.write('WAVEfmt ', 8);
-  b.writeUInt32LE(16, 16);
-  b.writeUInt16LE(1, 20);
-  b.writeUInt16LE(1, 22);
-  b.writeUInt32LE(SR, 24);
-  b.writeUInt32LE(SR * 2, 28);
-  b.writeUInt16LE(2, 32);
-  b.writeUInt16LE(16, 34);
-  b.write('data', 36);
-  b.writeUInt32LE(x.length * 2, 40);
-  x.forEach((v, i) => b.writeInt16LE(Math.round(Math.max(-1, Math.min(1, v)) * 32767), 44 + i * 2));
-  return b;
 };
 
 // every clip is made in a staging folder beside the cache and moved into place only once all of them (and the
@@ -155,26 +91,7 @@ for (const line of script.lines) {
   const wav = path.join(tmp, `${line.id}.wav`),
     mp3 = path.join(STAGE, `${line.id}.mp3`);
   fs.writeFileSync(wav, wavOf(pcm));
-  execFileSync('ffmpeg', [
-    '-y',
-    '-loglevel',
-    'error',
-    '-i',
-    wav,
-    '-ac',
-    '1',
-    '-codec:a',
-    'libmp3lame',
-    '-b:a',
-    '32k',
-    '-map_metadata',
-    '-1',
-    '-fflags',
-    '+bitexact',
-    '-flags:a',
-    '+bitexact',
-    mp3,
-  ]);
+  encodeMp3(wav, mp3);
   clips[line.id] = { ms: Math.round((pcm.length / SR) * 1000), parts, env: frames(pcm).map(v => Math.round(v * 1000)) };
   console.log(`${line.id}: ${clips[line.id].ms} ms, ${fs.statSync(mp3).size} bytes`);
 }
