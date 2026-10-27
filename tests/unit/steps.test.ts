@@ -87,6 +87,38 @@ describe('step machine', () => {
     expect(reduce(STEPS, start, { type: 'showMe' })).toBe(start);
   });
 
+  describe('watch', () => {
+    const demoed: Step<S>[] = [{ ...STEPS[0], demo: s => ({ ...s, k: 3 }) }, STEPS[1]];
+    const start = () => startRun(demoed, { k: 1, overlap: 10 });
+    const watch = (r: Run<S>) => reduce(demoed, r, { type: 'watch' });
+
+    it("plays a step's demo and advances", () => {
+      const r = watch(start());
+      expect(r.index).toBe(1);
+      expect(r.state.k).toBe(3);
+    });
+
+    it('falls back to the solution, and on the last step finishes the chapter', () => {
+      const r = watch(watch(start()));
+      expect(r.state.overlap).toBe(25);
+      expect(r.done).toBe(true);
+    });
+
+    it('does nothing on a step with neither demo nor solution', () => {
+      const s = startRun(STEPS, { k: 1, overlap: 10 });
+      expect(reduce(STEPS, s, { type: 'watch' })).toBe(s);
+    });
+
+    it('a demo that misses never counts as a try or raises a hint', () => {
+      const missing: Step<S>[] = [{ ...STEPS[0], demo: s => ({ ...s, k: 2 }) }];
+      let r = startRun(missing, { k: 1, overlap: 10 });
+      for (let i = 0; i < HINT_AFTER + 1; i++) r = reduce(missing, r, { type: 'watch' });
+      expect(r.index).toBe(0);
+      expect(r.fails).toBe(0);
+      expect(r.hint).toBe(false);
+    });
+  });
+
   it('a step can open the drawer; Inspect opens it without changing the focused step', () => {
     expect(run([apply({ k: 3, overlap: 10 })]).drawer).toBe('chunks');
     const r = run([{ type: 'inspect', panel: 'answer' }]);

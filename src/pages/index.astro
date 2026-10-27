@@ -110,6 +110,7 @@ import { NAMES as PAINT_NAMES } from '../content/encryption/kit';
 import { DESK_BOARD, deskCard, deskLabel, deskScene } from '../components/scenes/deskScene';
 import { COPIER_BOARD, copierCard, copierLabel, copierScene } from '../components/scenes/copierScene';
 import { ROOMS_BOARD, roomsCard, roomsLabel, roomsScene } from '../components/scenes/officeRoomsScene';
+import { FORM } from '../lib/site';
 
 const one =
   (type: BlockType, opts: { lit?: boolean; state?: 'ok' } = {}) =>
@@ -826,8 +827,6 @@ const searchOf = (m: Module) =>
     ...(CARD[m.id]?.topics ?? []),
     ...m.chapters.map(c => c.title),
   ].join('\n');
-// FormSubmit mails the form with no backend; the alias keeps the author's address out of the page
-const FORM = 'https://formsubmit.co/772ba7c404246e8574ae55366cdadcae';
 const SENT = new URL('/?sent#request', Astro.site).href;
 // each module's turn on the stand is one 2.4 s slot of a cycle through them all, and keyframe percentages must be literal,
 // so each step is placed at a fixed share of one slot here: it drops in, bounces, holds, and lifts off before the next lands

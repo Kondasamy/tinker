@@ -4,6 +4,27 @@ import { loadChapter, saveChapter, markDone } from '../../lib/progress';
 import { moduleOf } from '../../lib/modules';
 import Drawer from './Drawer';
 import { markTerms, type Segment, type TermMark } from './terms';
+import { interrupts, setSound, soundOn, useWatch, type Clip, type Phase } from './watch';
+import WatchFeedback from './WatchFeedback';
+
+// recorded narration per module (KTD9): data/watch/<module>.json, { chapter: { step: { text, ms } } }
+type Narration = Record<string, Record<string, { text: string }>>;
+const NARRATION = Object.fromEntries(
+  Object.entries(
+    import.meta.glob<Narration>(['/data/watch/*.json', '!/data/watch/*.script.json'], {
+      eager: true,
+      import: 'default',
+    }),
+  ).map(([path, n]) => [path.slice('/data/watch/'.length, -'.json'.length), n]),
+);
+const STATUS: Partial<Record<Phase, string>> = {
+  speaking: 'Watching',
+  applying: 'Watching',
+  settling: 'Watching',
+  waiting: 'Your pick',
+  paused: 'Your turn',
+};
+const FOCUSABLE = '.control :is(button, input, select, textarea, [tabindex]):not(:disabled, [tabindex="-1"])';
 
 /** What a step control gets. `apply` hands the next state to the runner, which checks the step's predicate;
  * `sync` does too, but a miss is never a failed try (e.g. "I'm not sure"). */
@@ -71,17 +92,38 @@ export default function StepRunner<S>({
   const loaded = useRef(false),
     restoring = useRef(false);
   const step = steps[run.index];
-  const apply = (state: S) => dispatch({ type: 'apply', state });
-  const sync = (state: S) => dispatch({ type: 'sync', state });
-  const inspect = (panel: string, fromStage = false) => {
-    dispatch({ type: 'inspect', panel });
-    setSheet(fromStage);
-    setFocusDrawer(n => n + 1);
-  };
-
   const chapters = moduleOf(module).chapters;
   const n = chapters.findIndex(c => c.id === chapter),
-    ch = chapters[n];
+    ch = chapters[n],
+    after = chapters[n + 1];
+
+  const narration = NARRATION[module]?.[chapter];
+  const clipFor = (i: number): Clip | null => {
+    const id = steps[i].id,
+      rec = narration?.[id];
+    return rec ? { url: `/data/watch/${module}/${chapter}/${id}.mp3`, text: rec.text } : null;
+  };
+  const watch = useWatch(run, steps, dispatch, clipFor);
+  const watching = watch.phase !== 'idle' && watch.phase !== 'done';
+  // the reader's own input pauses Watch while a demo plays (R3); the stage's sync (an async verdict) never does
+  const mine =
+    <A extends unknown[]>(f: (...a: A) => void) =>
+    (...a: A) => {
+      if (interrupts(watch.phase, step)) watch.pause();
+      f(...a);
+    };
+  const apply = mine((state: S) => dispatch({ type: 'apply', state }));
+  const sync = (state: S) => dispatch({ type: 'sync', state });
+  const inspect = mine((panel: string, fromStage?: boolean) => {
+    dispatch({ type: 'inspect', panel });
+    setSheet(!!fromStage);
+    setFocusDrawer(n => n + 1);
+  });
+  const [sound, setSoundState] = useState(soundOn);
+  const toggleSound = () => {
+    setSound(!sound);
+    setSoundState(!sound);
+  };
 
   // Save before restoring (effect order), so the first, seeded render never overwrites saved work.
   useEffect(() => {
@@ -97,6 +139,29 @@ export default function StepRunner<S>({
     }
     loaded.current = true;
   }, [module, chapter, steps, ch]);
+
+  // "Watch next chapter" opens this page with ?watch: start once the saved run is restored (the next render)
+  const [autoWatch, setAutoWatch] = useState(false);
+  useEffect(() => {
+    const url = new URL(location.href);
+    if (!url.searchParams.has('watch')) return;
+    url.searchParams.delete('watch');
+    history.replaceState(history.state, '', url);
+    if (narration) setAutoWatch(true);
+  }, [narration]);
+  useEffect(() => {
+    if (autoWatch) watch.start();
+  }, [autoWatch, watch.start]);
+
+  // focus stays on the Watch control across steps; it moves to the step's control when the reader is up
+  const watchBtn = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    const p = watch.phase;
+    if (p === 'speaking' && !watchBtn.current?.parentElement?.contains(document.activeElement))
+      watchBtn.current?.focus();
+    else if (p === 'paused' || p === 'waiting') cardRef.current?.querySelector<HTMLElement>(FOCUSABLE)?.focus();
+    else if (p === 'done') cardRef.current?.querySelector<HTMLElement>('a')?.focus();
+  }, [watch.phase]);
 
   useEffect(() => {
     if (!run.done) return;
@@ -204,12 +269,43 @@ export default function StepRunner<S>({
                 </>
               )}
             </details>
-            {(run.index > 0 || run.done) && (
-              <button type="button" className="chip resume" onClick={toCard}>
-                {run.done ? 'You finished this chapter: see the end ↓' : `Continue at step ${run.index + 1} ↓`}
-              </button>
+            {(run.index > 0 || run.done || (narration && !run.done && !watching)) && (
+              <div className="resume">
+                {(run.index > 0 || run.done) && (
+                  <button type="button" className="chip" onClick={toCard}>
+                    {run.done ? 'You finished this chapter: see the end ↓' : `Continue at step ${run.index + 1} ↓`}
+                  </button>
+                )}
+                {narration && !run.done && !watching && (
+                  <button type="button" className="chip" onClick={watch.start}>
+                    <span aria-hidden="true">▶ </span>Watch
+                  </button>
+                )}
+              </div>
             )}
           </header>
+        )}
+        {/* state changes only: while watching, the narration is the voice and the caption */}
+        <p className="sr" role="status" data-testid="watch-status">
+          {STATUS[watch.phase] ?? ''}
+        </p>
+        {watching && (
+          <div className="watch">
+            <button
+              ref={watchBtn}
+              type="button"
+              className="big"
+              onClick={
+                watch.phase === 'reveal' ? watch.skipDwell : watch.phase === 'paused' ? watch.start : watch.pause
+              }
+            >
+              {watch.phase === 'reveal' ? 'Continue' : watch.phase === 'paused' ? 'Watch' : 'Pause'}
+            </button>
+            <button type="button" className="chip" onClick={toggleSound}>
+              {sound ? 'Sound on' : 'Sound off'}
+            </button>
+            <span aria-hidden="true">{STATUS[watch.phase]}</span>
+          </div>
         )}
         {past.length > 0 && (
           <details className="log-fold" open={logOpen} onToggle={e => setLogOpen(e.currentTarget.open)}>
@@ -229,7 +325,7 @@ export default function StepRunner<S>({
             if (e.key === 'Escape' && term) setTerm(null);
           }}
         >
-          <div aria-live="polite" aria-atomic="true">
+          <div aria-live={watching ? 'off' : 'polite'} aria-atomic="true">
             <p className="count">{run.done ? 'Chapter complete' : `Step ${run.index + 1} of ${steps.length}`}</p>
             <p className="narration">{withTerms(marked[2 * run.index] ?? [step.narration])}</p>
             {step.act && !run.done && (
@@ -261,6 +357,16 @@ export default function StepRunner<S>({
               Next: {next.title} →
             </a>
           )}
+          {run.done && watch.phase !== 'idle' && (
+            <div className="watch-end">
+              {next && after && NARRATION[module]?.[after.id] && (
+                <a className="chip" href={`${next.href}?watch`}>
+                  <span aria-hidden="true">▶ </span>Watch next chapter
+                </a>
+              )}
+              <WatchFeedback module={module} chapter={chapter} />
+            </div>
+          )}
           {run.done && !next && chapters.at(-1)?.id === chapter && (
             <a className="big" href={`/${module}/recap/`}>
               Recap: what do you remember? →
@@ -270,16 +376,16 @@ export default function StepRunner<S>({
             <button
               type="button"
               className="chip"
-              onClick={() => dispatch({ type: 'back' })}
+              onClick={mine(() => dispatch({ type: 'back' }))}
               disabled={run.index === 0}
             >
               ← Back
             </button>
-            <button type="button" className="chip" onClick={() => dispatch({ type: 'reset' })}>
+            <button type="button" className="chip" onClick={mine(() => dispatch({ type: 'reset' }))}>
               Reset this step
             </button>
             {step.solution && !run.done && ready && (
-              <button type="button" className="chip" onClick={() => dispatch({ type: 'showMe' })}>
+              <button type="button" className="chip" onClick={mine(() => dispatch({ type: 'showMe' }))}>
                 Show me
               </button>
             )}

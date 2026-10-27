@@ -150,56 +150,56 @@ describe('the shared player', () => {
 
   it('nothing plays until asked, and one element serves every clip', () => {
     expect(fakes).toHaveLength(0);
-    expect(clipStatus('status-caller')).toBe('idle');
-    playClip('status-caller');
-    playClip('status-reply');
+    expect(clipStatus(clipUrl('status-caller'))).toBe('idle');
+    playClip(clipUrl('status-caller'));
+    playClip(clipUrl('status-reply'));
     expect(fakes).toHaveLength(1);
   });
 
   it('loads, then plays; starting a second clip stops the first', () => {
-    playClip('status-caller');
-    expect(clipStatus('status-caller')).toBe('loading');
+    playClip(clipUrl('status-caller'));
+    expect(clipStatus(clipUrl('status-caller'))).toBe('loading');
     fakes[0].on.playing();
-    expect(clipStatus('status-caller')).toBe('playing');
-    playClip('status-reply');
+    expect(clipStatus(clipUrl('status-caller'))).toBe('playing');
+    playClip(clipUrl('status-reply'));
     expect(fakes[0].paused).toBe(1);
-    expect(clipStatus('status-caller')).toBe('idle');
-    expect(clipStatus('status-reply')).toBe('loading');
+    expect(clipStatus(clipUrl('status-caller'))).toBe('idle');
+    expect(clipStatus(clipUrl('status-reply'))).toBe('loading');
   });
 
   it('stop (a step change, an unmount) silences it; the end of a clip resets it', () => {
-    playClip('status-caller');
+    playClip(clipUrl('status-caller'));
     fakes[0].on.playing();
     stopClip();
-    expect(clipStatus('status-caller')).toBe('idle');
-    playClip('status-reply');
+    expect(clipStatus(clipUrl('status-caller'))).toBe('idle');
+    playClip(clipUrl('status-reply'));
     fakes[0].on.playing();
     fakes[0].on.ended();
-    expect(clipStatus('status-reply')).toBe('idle');
+    expect(clipStatus(clipUrl('status-reply'))).toBe('idle');
   });
 
   it('a late event from a stopped clip is not taken for the next one', () => {
-    playClip('status-caller');
+    playClip(clipUrl('status-caller'));
     stopClip();
-    playClip('status-reply');
+    playClip(clipUrl('status-reply'));
     const f = fakes[0],
       src = f.src;
     f.src = clipUrl('status-caller'); // the element still reporting the old clip when its events land
     f.on.error();
     f.on.playing();
     f.src = src;
-    expect(clipStatus('status-reply')).toBe('loading');
-    expect(clipStatus('status-caller')).toBe('idle');
+    expect(clipStatus(clipUrl('status-reply'))).toBe('loading');
+    expect(clipStatus(clipUrl('status-caller'))).toBe('idle');
   });
 
   it('a clip that fails to load settles on error, quietly', async () => {
-    playClip('status-caller');
+    playClip(clipUrl('status-caller'));
     fakes[0].on.error();
-    expect(clipStatus('status-caller')).toBe('error');
+    expect(clipStatus(clipUrl('status-caller'))).toBe('error');
     fakes[0].fail = true;
-    playClip('status-reply');
+    playClip(clipUrl('status-reply'));
     await Promise.resolve();
     await Promise.resolve();
-    expect(clipStatus('status-reply')).toBe('error');
+    expect(clipStatus(clipUrl('status-reply'))).toBe('error');
   });
 });

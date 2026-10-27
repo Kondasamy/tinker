@@ -20,7 +20,9 @@
     "new-module": "node scripts/new-module.mjs",
     "train:bpe": "node scripts/train-bpe.mjs",
     "encode:lm": "node scripts/encode-for-training.mjs",
-    "record:tokens": "node scripts/record-tokenizers.mjs"
+    "record:tokens": "node scripts/record-tokenizers.mjs",
+    "narration:script": "UPDATE_NARRATION=1 vitest run tests/unit/narration.test.ts -t 'built from'",
+    "record:narration": "node scripts/record-narration.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "8.1.0",

@@ -50,6 +50,7 @@ export const STEPS: Step<S>[] = [
     narration: 'Now it is yours: drag blocks, wire them from their yellow knobs, click a wire to cut it.',
     act: 'Ask any question and run it.',
     predicate: s => s.acks >= 1,
+    demo: s => ({ ...s, acks: s.acks + 1 }),
   },
   {
     id: 'challenge',
@@ -61,6 +62,17 @@ export const STEPS: Step<S>[] = [
     predicate: s => complete(s.ch),
   },
 ];
+
+export const INITIAL: S = {
+  q: FIRST,
+  rows: [],
+  canvas: initialCanvas(unlockedThrough('06-types'), { hops: 2 }),
+  verdict: null,
+  math: false,
+  probed: false,
+  acks: 0,
+  ch: START,
+};
 
 export default function Sandbox() {
   const { runs, panels } = useQuestionRuns<S>(QS_ALL);
@@ -75,16 +87,7 @@ export default function Sandbox() {
     <StepRunner<S>
       chapter={ID}
       steps={STEPS}
-      initial={{
-        q: FIRST,
-        rows: [],
-        canvas: initialCanvas(unlockedThrough('06-types'), { hops: 2 }),
-        verdict: null,
-        math: false,
-        probed: false,
-        acks: 0,
-        ch: START,
-      }}
+      initial={INITIAL}
       stage={p => (
         <div className="stage-col">
           <RagStage {...p} run={runs[p.state.q]} extraTabs={[['compare', 'Compare']]} canvas={{ allowBench: true }} />

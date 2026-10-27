@@ -56,6 +56,10 @@ const PREDICT = {
 const OUTCOME = 1;
 
 const has = (s: S, t: BlockType) => s.canvas.unlocked.includes(t);
+// what the add button does; the verdict follows from the stage (KTD8)
+const add =
+  (...ts: BlockType[]) =>
+  (s: S): S => ({ ...s, canvas: { ...s.canvas, unlocked: [...s.canvas.unlocked, ...ts] } });
 export const STEPS: Step<S>[] = [
   {
     id: 'ask',
@@ -64,6 +68,7 @@ export const STEPS: Step<S>[] = [
     narration: `The team now cuts documents into ${BROKEN.size}-word chunks and sends only the best.`,
     act: 'Ask about refunds again.',
     predicate: s => s.asked,
+    demo: s => ({ ...s, asked: true }),
   },
   {
     id: 'predict',
@@ -83,6 +88,7 @@ export const STEPS: Step<S>[] = [
       'Your pick is locked. Open up the pipeline. First layer: the Chunker cuts every document into chunks before any search.',
     act: 'Add the Chunker.',
     predicate: s => has(s, 'chunker'),
+    demo: add('chunker'),
   },
   {
     id: 'embedder',
@@ -94,6 +100,7 @@ export const STEPS: Step<S>[] = [
     act: 'Add the Embedder and Index.',
     say: { block: 'chunker', text: 'Cuts after “NOT”' },
     predicate: s => has(s, 'embedder') && has(s, 'index'),
+    demo: add('embedder', 'index'),
   },
   {
     id: 'map',
@@ -105,6 +112,7 @@ export const STEPS: Step<S>[] = [
     act: 'Point at a dot on the map.',
     say: { block: 'embedder', text: 'Text to numbers' },
     predicate: s => s.probed,
+    demo: s => ({ ...s, probed: true }),
     hint: 'The blue and yellow dots are the closest matches. Hover one, or press Tab until one is selected.',
   },
   {
@@ -115,6 +123,7 @@ export const STEPS: Step<S>[] = [
       'The map is a picture; ranking uses the true score. Last layer: the Context assembler packs chunks into the prompt.',
     act: 'Add the Context assembler.',
     predicate: s => has(s, 'assembler'),
+    demo: add('assembler'),
   },
   puzzle<S>({
     id: 'fix',
@@ -151,21 +160,23 @@ const NEXT_LAYER: [BlockType[], string][] = [
   [['assembler'], 'Add the Context assembler'],
 ];
 
+export const INITIAL: S = {
+  canvas: initialCanvas(unlockedThrough('03-what-is-rag'), BROKEN),
+  verdict: null,
+  math: false,
+  probed: false,
+  prediction: null,
+  asked: false,
+  quiz: null,
+};
+
 export default function Layers() {
   const run = useRagRun(QUESTION);
   return (
     <StepRunner<S>
       chapter={ID}
       steps={STEPS}
-      initial={{
-        canvas: initialCanvas(unlockedThrough('03-what-is-rag'), BROKEN),
-        verdict: null,
-        math: false,
-        probed: false,
-        prediction: null,
-        asked: false,
-        quiz: null,
-      }}
+      initial={INITIAL}
       next={nextOf(ID)}
       stage={p => <RagStage {...p} run={run} />}
       controls={{

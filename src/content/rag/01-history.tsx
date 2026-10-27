@@ -66,6 +66,7 @@ const eraStep = (i: number): Step<S> => ({
   act: `Click ${ERAS[i].label}.`,
   say: i === 0 ? undefined : { block: String(i - 1), text: LESSON[i - 1] },
   predicate: s => s.visited > i,
+  demo: s => ({ ...s, active: i, visited: Math.max(s.visited, i + 1) }),
   hint: `Click the glowing ${ERAS[i].label} object, or Tab to it and press Enter.`,
 });
 
@@ -76,6 +77,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['ask'],
     narration: 'It’s 2023. An employee asks the company’s new AI assistant, an LLM, about a customer contract.',
     predicate: s => s.asked,
+    demo: s => ({ ...s, asked: true }),
   },
   ...ERAS.map((_, i) => eraStep(i)),
   {
@@ -91,12 +93,14 @@ export const STEPS: Step<S>[] = [
   },
 ];
 
+export const INITIAL: S = { asked: false, visited: 0, active: null, quiz: null };
+
 export default function History() {
   return (
     <StepRunner<S>
       chapter={ID}
       steps={STEPS}
-      initial={{ asked: false, visited: 0, active: null, quiz: null }}
+      initial={INITIAL}
       next={nextOf(ID)}
       stage={({ state, apply, say }) => (
         <Timeline
