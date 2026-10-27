@@ -48,6 +48,7 @@ Author credit is always **Samy (Kondasamy Jayaraman)**: alias then full name, li
 - **Recall bank** per module (`src/content/<module>/recall.ts`), one item `pin`ned. Results live in progress outside the run, so Reset never wipes them.
 - **Recap** draws from the bank for finished chapters with a stored seed. **Warm-up**: up to three questions when the reader returns 20 h+ after finishing a chapter, on the intro and through home's Continue, with a skip link.
 - Nothing a reader enters leaves the browser, except the home request form on submit.
+- **Analytics is Cloudflare Web Analytics, page views only**: its beacon in `Meta.astro` (production builds, not `DEV_PAGES`; `spa` off so the Finder's URL never sends), site `tinker.kondasamy.com`. No cookies, no custom events; another tracker is a deliberate change.
 
 ## Styles
 
