@@ -1,0 +1,547 @@
+{
+  "01": {
+    "text": "It's 2023. An employee asks the company's new AI assistant about a contract. It answers, sure of itself, and wrong.",
+    "words": [
+      {
+        "text": "It's",
+        "start": 0,
+        "end": 0.197
+      },
+      {
+        "text": "2023.",
+        "start": 0.255,
+        "end": 1.126
+      },
+      {
+        "text": "An",
+        "start": 1.486,
+        "end": 1.625
+      },
+      {
+        "text": "employee",
+        "start": 1.672,
+        "end": 2.078
+      },
+      {
+        "text": "asks",
+        "start": 2.148,
+        "end": 2.392
+      },
+      {
+        "text": "the",
+        "start": 2.438,
+        "end": 2.508
+      },
+      {
+        "text": "company's",
+        "start": 2.554,
+        "end": 2.961
+      },
+      {
+        "text": "new",
+        "start": 3.042,
+        "end": 3.193
+      },
+      {
+        "text": "AI",
+        "start": 3.262,
+        "end": 3.529
+      },
+      {
+        "text": "assistant",
+        "start": 3.587,
+        "end": 4.005
+      },
+      {
+        "text": "about",
+        "start": 4.052,
+        "end": 4.238
+      },
+      {
+        "text": "a",
+        "start": 4.272,
+        "end": 4.296
+      },
+      {
+        "text": "contract.",
+        "start": 4.342,
+        "end": 5.062
+      },
+      {
+        "text": "It",
+        "start": 5.375,
+        "end": 5.515
+      },
+      {
+        "text": "answers,",
+        "start": 5.561,
+        "end": 6.107
+      },
+      {
+        "text": "sure",
+        "start": 6.304,
+        "end": 6.548
+      },
+      {
+        "text": "of",
+        "start": 6.583,
+        "end": 6.629
+      },
+      {
+        "text": "itself,",
+        "start": 6.676,
+        "end": 7.152
+      },
+      {
+        "text": "and",
+        "start": 7.245,
+        "end": 7.419
+      },
+      {
+        "text": "wrong.",
+        "start": 7.477,
+        "end": 8.127
+      }
+    ]
+  },
+  "02": {
+    "text": "A model knows only its training data and its prompt. It never read your documents. Since 2020, the fix has a name: RAG.",
+    "words": [
+      {
+        "text": "A",
+        "start": 0,
+        "end": 0.093
+      },
+      {
+        "text": "model",
+        "start": 0.186,
+        "end": 0.464
+      },
+      {
+        "text": "knows",
+        "start": 0.511,
+        "end": 0.72
+      },
+      {
+        "text": "only",
+        "start": 0.801,
+        "end": 1.033
+      },
+      {
+        "text": "its",
+        "start": 1.08,
+        "end": 1.207
+      },
+      {
+        "text": "training",
+        "start": 1.265,
+        "end": 1.637
+      },
+      {
+        "text": "data",
+        "start": 1.695,
+        "end": 1.962
+      },
+      {
+        "text": "and",
+        "start": 2.043,
+        "end": 2.218
+      },
+      {
+        "text": "its",
+        "start": 2.287,
+        "end": 2.392
+      },
+      {
+        "text": "prompt.",
+        "start": 2.438,
+        "end": 2.891
+      },
+      {
+        "text": "It",
+        "start": 3.471,
+        "end": 3.599
+      },
+      {
+        "text": "never",
+        "start": 3.657,
+        "end": 3.843
+      },
+      {
+        "text": "read",
+        "start": 3.889,
+        "end": 4.017
+      },
+      {
+        "text": "your",
+        "start": 4.052,
+        "end": 4.145
+      },
+      {
+        "text": "documents.",
+        "start": 4.191,
+        "end": 4.818
+      },
+      {
+        "text": "Since",
+        "start": 5.48,
+        "end": 5.759
+      },
+      {
+        "text": "2020,",
+        "start": 5.805,
+        "end": 6.525
+      },
+      {
+        "text": "the",
+        "start": 6.583,
+        "end": 6.676
+      },
+      {
+        "text": "fix",
+        "start": 6.757,
+        "end": 6.989
+      },
+      {
+        "text": "has",
+        "start": 7.047,
+        "end": 7.175
+      },
+      {
+        "text": "a",
+        "start": 7.221,
+        "end": 7.245
+      },
+      {
+        "text": "name:",
+        "start": 7.303,
+        "end": 7.628
+      },
+      {
+        "text": "RAG.",
+        "start": 7.79,
+        "end": 8.452
+      }
+    ]
+  },
+  "03": {
+    "text": "So build one. Give the assistant the company documents. Still made up: nothing carries the right ones to the model.",
+    "words": [
+      {
+        "text": "So",
+        "start": 0,
+        "end": 0.232
+      },
+      {
+        "text": "build",
+        "start": 0.302,
+        "end": 0.522
+      },
+      {
+        "text": "one.",
+        "start": 0.592,
+        "end": 0.848
+      },
+      {
+        "text": "Give",
+        "start": 1.207,
+        "end": 1.405
+      },
+      {
+        "text": "the",
+        "start": 1.44,
+        "end": 1.509
+      },
+      {
+        "text": "assistant",
+        "start": 1.567,
+        "end": 1.985
+      },
+      {
+        "text": "the",
+        "start": 2.02,
+        "end": 2.09
+      },
+      {
+        "text": "company",
+        "start": 2.136,
+        "end": 2.438
+      },
+      {
+        "text": "documents.",
+        "start": 2.496,
+        "end": 3.193
+      },
+      {
+        "text": "Still",
+        "start": 3.553,
+        "end": 3.82
+      },
+      {
+        "text": "made",
+        "start": 3.866,
+        "end": 4.04
+      },
+      {
+        "text": "up:",
+        "start": 4.087,
+        "end": 4.342
+      },
+      {
+        "text": "nothing",
+        "start": 4.702,
+        "end": 5.039
+      },
+      {
+        "text": "carries",
+        "start": 5.097,
+        "end": 5.41
+      },
+      {
+        "text": "the",
+        "start": 5.457,
+        "end": 5.526
+      },
+      {
+        "text": "right",
+        "start": 5.584,
+        "end": 5.77
+      },
+      {
+        "text": "ones",
+        "start": 5.828,
+        "end": 6.037
+      },
+      {
+        "text": "to",
+        "start": 6.084,
+        "end": 6.153
+      },
+      {
+        "text": "the",
+        "start": 6.211,
+        "end": 6.281
+      },
+      {
+        "text": "model.",
+        "start": 6.316,
+        "end": 6.966
+      }
+    ]
+  },
+  "04": {
+    "text": "Add a retriever. Now the answer is correct, and it cites the policy it used. Retrieve, augment, generate.",
+    "words": [
+      {
+        "text": "Add",
+        "start": 0,
+        "end": 0.186
+      },
+      {
+        "text": "a",
+        "start": 0.221,
+        "end": 0.244
+      },
+      {
+        "text": "retriever.",
+        "start": 0.302,
+        "end": 0.975
+      },
+      {
+        "text": "Now",
+        "start": 1.637,
+        "end": 1.8
+      },
+      {
+        "text": "the",
+        "start": 1.858,
+        "end": 1.939
+      },
+      {
+        "text": "answer",
+        "start": 1.997,
+        "end": 2.299
+      },
+      {
+        "text": "is",
+        "start": 2.357,
+        "end": 2.438
+      },
+      {
+        "text": "correct,",
+        "start": 2.508,
+        "end": 3.065
+      },
+      {
+        "text": "and",
+        "start": 3.332,
+        "end": 3.471
+      },
+      {
+        "text": "it",
+        "start": 3.529,
+        "end": 3.599
+      },
+      {
+        "text": "cites",
+        "start": 3.657,
+        "end": 3.971
+      },
+      {
+        "text": "the",
+        "start": 4.017,
+        "end": 4.087
+      },
+      {
+        "text": "policy",
+        "start": 4.145,
+        "end": 4.621
+      },
+      {
+        "text": "it",
+        "start": 4.69,
+        "end": 4.76
+      },
+      {
+        "text": "used.",
+        "start": 4.818,
+        "end": 5.294
+      },
+      {
+        "text": "Retrieve,",
+        "start": 6.2,
+        "end": 6.931
+      },
+      {
+        "text": "augment,",
+        "start": 7.094,
+        "end": 7.663
+      },
+      {
+        "text": "generate.",
+        "start": 7.802,
+        "end": 8.684
+      }
+    ]
+  },
+  "05": {
+    "text": "Then the whole pipeline is yours. 47 documents, every block to rewire, break and fix.",
+    "words": [
+      {
+        "text": "Then",
+        "start": 0,
+        "end": 0.197
+      },
+      {
+        "text": "the",
+        "start": 0.232,
+        "end": 0.302
+      },
+      {
+        "text": "whole",
+        "start": 0.325,
+        "end": 0.476
+      },
+      {
+        "text": "pipeline",
+        "start": 0.499,
+        "end": 0.859
+      },
+      {
+        "text": "is",
+        "start": 0.894,
+        "end": 0.952
+      },
+      {
+        "text": "yours.",
+        "start": 0.998,
+        "end": 1.416
+      },
+      {
+        "text": "47",
+        "start": 2.078,
+        "end": 2.531
+      },
+      {
+        "text": "documents,",
+        "start": 2.589,
+        "end": 3.274
+      },
+      {
+        "text": "every",
+        "start": 3.471,
+        "end": 3.704
+      },
+      {
+        "text": "block",
+        "start": 3.738,
+        "end": 3.971
+      },
+      {
+        "text": "to",
+        "start": 4.017,
+        "end": 4.075
+      },
+      {
+        "text": "rewire,",
+        "start": 4.156,
+        "end": 4.772
+      },
+      {
+        "text": "break",
+        "start": 4.934,
+        "end": 5.236
+      },
+      {
+        "text": "and",
+        "start": 5.352,
+        "end": 5.515
+      },
+      {
+        "text": "fix.",
+        "start": 5.596,
+        "end": 6.269
+      }
+    ]
+  },
+  "06": {
+    "text": "RAG, on Tinker. Start with chapter 1.",
+    "words": [
+      {
+        "text": "RAG,",
+        "start": 0,
+        "end": 0.546
+      },
+      {
+        "text": "on",
+        "start": 0.743,
+        "end": 0.929
+      },
+      {
+        "text": "Tinker.",
+        "start": 0.987,
+        "end": 1.463
+      },
+      {
+        "text": "Start",
+        "start": 1.823,
+        "end": 2.09
+      },
+      {
+        "text": "with",
+        "start": 2.113,
+        "end": 2.229
+      },
+      {
+        "text": "chapter",
+        "start": 2.276,
+        "end": 2.612
+      },
+      {
+        "text": "1.",
+        "start": 2.682,
+        "end": 3.204
+      }
+    ]
+  }
+}
