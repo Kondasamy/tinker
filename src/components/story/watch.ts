@@ -26,6 +26,11 @@ export const wordsMs = (text: string) =>
 
 const waits = <S>(step: Step<S>) => !step.demo && !step.solution;
 
+/** Whether the reader's own input pauses Watch (R3): only while a demo step plays. On a waiting step their answer is
+ * what Watch is waiting for, and on a reveal, a pause or the end there is nothing to stop. */
+export const interrupts = <S>(phase: Phase, step: Step<S>) =>
+  (phase === 'speaking' || phase === 'applying' || phase === 'settling') && !waits(step);
+
 /** What Watch says on a step: the narration, plus `act` only where the reader really has to do it. */
 export const spokenText = <S>(step: Step<S>) =>
   waits(step) && step.act ? `${step.narration} ${step.act}` : step.narration;

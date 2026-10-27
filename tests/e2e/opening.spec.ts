@@ -63,8 +63,10 @@ for (const ch of OPENINGS)
     await page.setViewportSize({ width: 1440, height: 900 });
     await open(page, `/${ch}/`);
     const words = await page.evaluate(() => {
+      // the intro's Continue and Watch buttons are controls, not reading
+      const intro = document.querySelector<HTMLElement>('.intro');
       const text = [
-        document.querySelector<HTMLElement>('.intro')?.innerText ?? '',
+        (intro?.innerText ?? '').replace(intro?.querySelector<HTMLElement>('.resume')?.innerText ?? '\0', ''),
         document.querySelector<HTMLElement>('.card .count')?.innerText ?? '',
         document.querySelector<HTMLElement>('.card .narration')?.innerText ?? '',
         document.querySelector<HTMLElement>('.card .act')?.innerText ?? '',
