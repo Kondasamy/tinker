@@ -165,6 +165,59 @@ test('reduced motion: Watch still plays to the end', async ({ page }) => {
   await watchChapter3(page);
 });
 
+test('feedback after a watched chapter: one click sends only module, chapter and answer, once', async ({ page }) => {
+  const sent: unknown[] = [];
+  await page.route('https://formsubmit.co/**', route => {
+    sent.push(route.request().postDataJSON());
+    return route.fulfill({ status: 200, contentType: 'application/json', body: '{"success":"true"}' });
+  });
+  await open(page);
+  await watchChapter3(page);
+  const ask = card(page).getByRole('group', { name: 'Was Watch better?' });
+  await ask.getByRole('button', { name: 'Yes' }).click();
+  await expect(ask).toContainText('Thanks');
+  await expect.poll(() => sent.length).toBe(1);
+  expect(sent[0]).toEqual({ module: 'rag', chapter: '03-what-is-rag', answer: 'yes' });
+
+  // watched again (the chapter is finished, so Watch ends at once): the question never comes back
+  await page.goto(`${CH3}?watch`);
+  await page.locator('astro-island:not([ssr])').waitFor();
+  await expect(card(page).getByRole('link', { name: 'Watch next chapter' })).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Was Watch better?' })).toHaveCount(0);
+  expect(sent).toHaveLength(1);
+});
+
+test('a failed feedback send is silent and the next link still works', async ({ page }) => {
+  await page.route('https://formsubmit.co/**', route => route.abort());
+  await open(page);
+  await watchChapter3(page);
+  await card(page).getByRole('button', { name: 'No' }).click();
+  await expect(card(page)).toContainText('Thanks');
+  await card(page).getByRole('link', { name: /Next:/ }).click();
+  await expect(page).toHaveURL('/rag/04-layers/');
+});
+
+test('a chapter played by hand never asks about Watch', async ({ page }) => {
+  const sent: string[] = [];
+  page.on('request', r => r.url().includes('formsubmit') && sent.push(r.url()));
+  await open(page);
+  await card(page).getByRole('button', { name: /^Ask/ }).click();
+  await card(page).getByRole('button', { name: 'Add the Docs' }).click();
+  await card(page)
+    .getByRole('radio', { name: /cites the policy/ })
+    .click();
+  await card(page).getByRole('button', { name: 'Add the Retriever' }).click();
+  await card(page).getByRole('button', { name: 'See what the retriever found' }).click();
+  await page.getByRole('complementary').getByLabel('Show the math').check();
+  await card(page)
+    .getByRole('radio', { name: /few passages that match/ })
+    .click();
+  await expect(card(page)).toContainText('Chapter complete');
+  await expect(page.getByRole('group', { name: 'Was Watch better?' })).toHaveCount(0);
+  await expect(card(page).getByRole('link', { name: 'Watch next chapter' })).toHaveCount(0);
+  expect(sent).toEqual([]);
+});
+
 test('a module without narration offers no Watch', async ({ page }) => {
   const m = moduleOf('tokens');
   await open(page, chapterHref(m.id, m.chapters[0].id));

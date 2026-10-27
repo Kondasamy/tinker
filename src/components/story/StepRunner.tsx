@@ -5,6 +5,7 @@ import { moduleOf } from '../../lib/modules';
 import Drawer from './Drawer';
 import { markTerms, type Segment, type TermMark } from './terms';
 import { interrupts, setSound, soundOn, useWatch, type Clip, type Phase } from './watch';
+import WatchFeedback from './WatchFeedback';
 
 // recorded narration per module (KTD9): data/watch/<module>.json, { chapter: { step: { text, ms } } }
 type Narration = Record<string, Record<string, { text: string }>>;
@@ -363,6 +364,7 @@ export default function StepRunner<S>({
                   <span aria-hidden="true">▶ </span>Watch next chapter
                 </a>
               )}
+              <WatchFeedback module={module} chapter={chapter} />
             </div>
           )}
           {run.done && !next && chapters.at(-1)?.id === chapter && (
