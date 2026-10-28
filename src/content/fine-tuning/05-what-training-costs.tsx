@@ -18,8 +18,8 @@ import { Fact, FineTuneStage, META, ModelGate, loadModel, modelNow, type View } 
 
 const MODULE = 'fine-tuning',
   ID = '05-what-training-costs';
-const ALL: Exclude<Weights, 'student' | 'mlm' | 'moe'>[] = ['base', 'finetuned', 'lora'];
-const NAME: Record<Exclude<Weights, 'student' | 'mlm' | 'moe'>, string> = {
+const ALL: Exclude<Weights, 'student' | 'mlm' | 'moe' | 'canary'>[] = ['base', 'finetuned', 'lora'];
+const NAME: Record<Exclude<Weights, 'student' | 'mlm' | 'moe' | 'canary'>, string> = {
   base: 'Base model',
   finetuned: 'Full fine-tune',
   lora: 'Base + adapter (LoRA)',

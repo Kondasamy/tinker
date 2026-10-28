@@ -104,3 +104,17 @@ pnpm test
 ```
 
 Seeded and deterministic (a rerun gives a byte-identical `runs.json`). Try settings with `--no-write`, `--arms-only`, `--steps`, `--lr`, `--weight-decay`, `--dropout`, `--batch`, `--seed`.
+
+## Canary model (What a model remembers)
+
+`train_canary.py` is standalone and never starts from `model.bin`. It plants four canaries, fake account PINs of fictional customers (`data/memorisation/canaries.json`, encoded into `ids.json` `memorisation` by `pnpm encode:lm` with every four-digit candidate's ids), repeated 1, 4, 16 and 64 times: each repeat is one line spliced after a line-ending token of the training split, at places one seeded generator picks. It trains Larkspur mini's shape from scratch four times with train.py's loop and settings: `canary` (the planted split), `dedup` (each canary once), `scrubbed` (every PIN replaced by `[PIN]`) and `dedup+scrubbed`. Each run is scored in float64 from its Float16 weights: greedy extraction from each canary's prefix, exposure over all 10,000 candidates (log2 10,000 minus log2 of the true PIN's rank by sequence log-probability) and held-out loss, top-1 and top-5.
+
+It writes `public/data/memorisation/canary.bin` (Float16, 102 KB, model.bin's layout), its `meta.json` (layout, loss curve, scores, the bar, goldens for the five base prompts and the four prefixes) and `data/memorisation/runs.json` (every run's scores and greedy replies as ids) only when the bar holds: in `canary` the 64-repeat PIN is extracted and the 1-repeat one is not, exposure never falls as repeats rise, `dedup` and `scrubbed` extract nothing, held-out top-5 is within 2 points of the base's, and the file is at most 150,000 bytes. If a retrain misses it: when the 1-repeat PIN leaks, retry with fewer `--steps`; when the 64-repeat one is not extracted, raise its repeats in `canaries.json`; then stop. `tests/unit/memorisation-model.test.ts` checks the TypeScript pass, live extraction and the bar.
+
+```bash
+pnpm encode:lm   # after editing canaries.json
+uv run --no-project --python 3.12 --with-requirements scripts/train/requirements.txt scripts/train/train_canary.py
+pnpm test
+```
+
+About two and a half minutes; seeded and deterministic (a rerun gives byte-identical files). Try settings with `--no-write` and `--steps`, `--lr`, `--weight-decay`, `--dropout`, `--batch`, `--seed`.

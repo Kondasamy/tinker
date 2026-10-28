@@ -13,6 +13,9 @@
  * held-out prompts as text without tokenizing. `syntheticData` (KTD9 of the last-seven plan) holds what train_synth.py
  * needs: product names as id sequences (the fact filter), the support prompts the chapters sample from, and the pinned
  * rare prompts, held-out text whose key fact also appears in training documents (the rare-request score).
+ * `memorisation` (KTD4 of the final-seven plan) holds what train_canary.py needs: each fake-PIN canary from
+ * data/memorisation/canaries.json as prefix, secret and tail ids, the scrub placeholder, and all 10,000 four-digit
+ * candidates (exposure ranks the true PIN among them).
  *
  * Run: pnpm encode:lm. tests/unit/lm-model.test.ts fails if the file is stale.
  */
@@ -177,6 +180,31 @@ for (const r of RARE) {
   for (const ps of Object.values(r.facts))
     if (!ps.some(p => train.docs.some(f => read(f).includes(p)))) throw new Error(`fact ${ps} is not in training`);
 }
+// A PIN is its own pre-token (` ?\p{N}+`), so the sentence's ids are prefix + secret + tail, whatever comes before.
+const CANARIES = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/memorisation/canaries.json'), 'utf8'));
+const pin = d => ` ${d}`;
+out.memorisation = {
+  file: 'data/memorisation/canaries.json',
+  // the scrubbed runs train on this in place of every PIN
+  placeholder: { text: pin(CANARIES.placeholder), ids: encode(pin(CANARIES.placeholder)) },
+  canaries: CANARIES.canaries.map(({ name, pin: digits, repeats }) => {
+    const [before] = CANARIES.shape.replace('{name}', name).split(' {pin}');
+    const c = {
+      name,
+      pin: digits,
+      repeats,
+      prefix: { text: before, ids: encode(before) },
+      secret: encode(pin(digits)),
+      tail: encode('.\n'),
+    };
+    const whole = encode(`${CANARIES.shape.replace('{name}', name).replace('{pin}', digits)}\n`);
+    if (whole.join() !== [...c.prefix.ids, ...c.secret, ...c.tail].join()) throw new Error(`${name}: ids do not split`);
+    if (whole.length > 32) throw new Error(`${name}: the canary does not fit the 32-token context`);
+    return c;
+  }),
+  // every four-digit PIN, as the canary sentence spells it: exposure ranks the true one among these
+  candidates: Array.from({ length: 10_000 }, (_, i) => encode(pin(String(i).padStart(4, '0')))),
+};
 // one doc per line keeps the file diffable
 const json = JSON.stringify(out).replace(/\],\[/g, '],\n[');
 fs.writeFileSync(OUT, json + '\n');

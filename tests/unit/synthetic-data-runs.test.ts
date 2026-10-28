@@ -86,12 +86,10 @@ describe('the generations', () => {
 });
 
 describe('nothing else changed', () => {
-  it('keeps ids.json’s other keys byte for byte', () => {
-    const keys = Object.fromEntries(
-      Object.entries(IDS)
-        .filter(([k]) => k !== 'syntheticData')
-        .map(([k, v]) => [k, shaOf(v)]),
-    );
+  it('keeps ids.json’s earlier keys byte for byte', () => {
+    // only the keys that came before syntheticData: a later module's new key is not a change to them
+    const pinned = ['vocab', 'splits', 'prompts', 'styleSet', 'preTraining', 'diffusionLlms'] as const;
+    const keys = Object.fromEntries(pinned.map(k => [k, shaOf(IDS[k])]));
     expect(keys).toEqual({
       vocab: 'f7b856c054de7ccced087ad4f9413380ec494e40abc818b840aaad990ca3c5bc',
       splits: '7dd5db9da1db6a16c356dcf2bea72843538137dc484a1bea746b45d481f43390',
