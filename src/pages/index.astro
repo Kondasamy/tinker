@@ -110,6 +110,9 @@ import { NAMES as PAINT_NAMES } from '../content/encryption/kit';
 import { DESK_BOARD, deskCard, deskLabel, deskScene } from '../components/scenes/deskScene';
 import { COPIER_BOARD, copierCard, copierLabel, copierScene } from '../components/scenes/copierScene';
 import { ROOMS_BOARD, roomsCard, roomsLabel, roomsScene } from '../components/scenes/officeRoomsScene';
+import { CLOAK_BOARD, cloakLabel, cloakScene } from '../components/scenes/cloakScene';
+import { raceScene as loginsRace } from '../content/logins/kit';
+import { LAST as LOGINS_LAST, WORK as LOGINS_WORK } from '../lib/logins/race';
 import { FORM } from '../lib/site';
 
 const one =
@@ -303,6 +306,13 @@ const AGENT_DESK = deskCard();
 const COPIER = copierCard(1.7);
 // mixture of experts: “ business” sent to two rooms on each floor, the guess at the door
 const ROOMS = roomsCard();
+// logins: the race lost at the top work factor, only the leaked-list accounts cracked, a ticket on the desk
+const CLOAK = {
+  ...loginsRace('pbkdf2', LOGINS_WORK[LOGINS_WORK.length - 1], LOGINS_LAST),
+  desk: 'LARKSPUR',
+  ticket: { label: 'TICKET' },
+  scale: 1.7,
+};
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -801,6 +811,18 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Capacity and dropped tokens',
       'Load balancing',
       'Total vs active parameters',
+    ],
+  },
+  logins: {
+    name: 'Logins and passwords',
+    iso: { board: CLOAK_BOARD, scene: cloakScene(CLOAK), label: cloakLabel(CLOAK) },
+    topics: [
+      'Password hashing',
+      'Salt',
+      'Slow hashes (PBKDF2)',
+      'Session cookies',
+      'Sign in with another site',
+      'Two-factor codes',
     ],
   },
 };

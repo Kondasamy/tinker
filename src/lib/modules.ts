@@ -38,6 +38,7 @@ import { ENCRYPTION_MODULE } from '../content/encryption/module';
 import { CODING_AGENTS_MODULE } from '../content/coding-agents/module';
 import { SYNTHETIC_DATA_MODULE } from '../content/synthetic-data/module';
 import { MIXTURE_OF_EXPERTS_MODULE } from '../content/mixture-of-experts/module';
+import { LOGINS_MODULE } from '../content/logins/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -135,6 +136,7 @@ export const MODULES: Module[] = [
   CODING_AGENTS_MODULE,
   SYNTHETIC_DATA_MODULE,
   MIXTURE_OF_EXPERTS_MODULE,
+  LOGINS_MODULE,
   planned(
     'memorisation',
     'What a model remembers',
@@ -152,13 +154,6 @@ export const MODULES: Module[] = [
     'Recommendations',
     'Intermediate',
     'Why the shop shows you this drill: what you and people like you bought, ranked, and the loop it feeds.',
-  ),
-  planned(
-    'logins',
-    'Logins and passwords',
-    'Beginner',
-    'How a site knows it is you: hashed and salted passwords, a session cookie, and signing in with another site.',
-    'Classic tech',
   ),
   planned(
     'email',
