@@ -2004,5 +2004,49 @@
       "bench",
       "ties"
     ]
+  },
+  "recommendations": {
+    "01-the-bestsellers-shelf": [
+      "shelf",
+      "predict",
+      "pick",
+      "quiz"
+    ],
+    "02-people-like-you": [
+      "alike",
+      "switch",
+      "quiz"
+    ],
+    "03-bought-together": [
+      "together",
+      "predict",
+      "pick",
+      "quiz"
+    ],
+    "04-hidden-tastes": [
+      "map",
+      "other",
+      "predict",
+      "back",
+      "quiz"
+    ],
+    "05-new-shopper-new-product": [
+      "picks",
+      "placed",
+      "predict",
+      "orders",
+      "quiz"
+    ],
+    "06-the-loop": [
+      "rounds",
+      "predict",
+      "narrow",
+      "explore",
+      "quiz"
+    ],
+    "07-tune-the-shelf": [
+      "bench",
+      "ties"
+    ]
   }
 }

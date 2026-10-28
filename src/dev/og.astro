@@ -321,6 +321,15 @@ import { SIGNAL_BOARD, signalAt, signalScene, type SignalOpts } from '../compone
 import { SCENES as RL_SCENES, runOf as rlRun } from '../lib/releases/sim';
 import { pipelineOf as rlPipeline } from '../lib/releases/pipeline';
 import { WINNERS as RL_WINNERS, benchRun as rlBench } from '../lib/releases/workbench';
+import { SHELF_BOARD, shelfScene, type ShelfOpts } from '../components/scenes/shelfScene';
+import { BASE as RC_BASE, AFTER_FIRST as RC_AFTER } from '../lib/recommendations/factorise';
+import { shelfOf as rcShelfOf, tasteShelf as rcTasteShelf } from '../lib/recommendations/score';
+import { neighbours as rcNeighbours } from '../lib/recommendations/similar';
+import { TRAIN as RC_TRAIN, customerOf as rcCustomer } from '../lib/recommendations/story';
+import { ROUNDS as RC_ROUNDS, itemsOf as rcItemsOf, loopOf as rcLoopOf } from '../lib/recommendations/loop';
+import { WINNERS as RC_WINNERS } from '../lib/recommendations/workbench';
+import { PRINTER as RC_PRINTER, shelfFor as rcTogether } from '../content/recommendations/03-bought-together';
+import { CHOICES as RC_CHOICES, tasteFor as rcNewTaste } from '../content/recommendations/05-new-shopper-new-product';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -1483,6 +1492,65 @@ const SIGNAL_OG: Record<string, () => Omit<SignalOpts, 'scale'>> = {
   'releases-07-release-plan': () => signalAt(rlBench(RL_WINNERS[0], 'button'), 30),
 };
 const signalOg = SIGNAL_OG[page.og]?.();
+// module 44: Larkspur's shop aisle. The intro: Ash's hidden-tastes shelf over the map; 1: the bestsellers shelf; 2: people
+// like Hazel beside her; 3: bought together with the label printer; 4: the map under another customer's taste; 5: a new shopper's
+// picks once the K3 has orders; 6: the loop's last round, no exploration; 7: the workbench's first winning setting.
+const rcAsh = rcCustomer('c01'),
+  rcHazel = rcCustomer('c17');
+const rcRound = (blend: number, explore: number) => {
+  const k = rcLoopOf(blend, explore).rounds[RC_ROUNDS];
+  return {
+    view: 'map' as const,
+    shelf: k.shelf,
+    explored: k.shelf.slice(k.shelf.length - explore),
+    shopper: rcCustomer('c02').name,
+    you: k.you,
+    items: rcItemsOf(k),
+  };
+};
+const rcNew = () => {
+  const s = { picks: [RC_CHOICES[2].id, RC_CHOICES[3].id], you: null, after: true };
+  const you = rcNewTaste(s)!;
+  return {
+    view: 'map' as const,
+    shelf: rcTasteShelf(RC_AFTER.items, you, s.picks),
+    shopper: 'New shopper',
+    you,
+    items: RC_AFTER.items,
+  };
+};
+const rcTastes = (c: ReturnType<typeof rcCustomer>) => ({
+  view: 'map' as const,
+  shelf: rcShelfOf('factors', RC_TRAIN, c.id, RC_BASE),
+  shopper: c.name,
+  you: RC_BASE.users[c.id],
+  items: RC_BASE.items,
+});
+const SHELF_OG: Record<string, () => Omit<ShelfOpts, 'scale'>> = {
+  recommendations: () => rcTastes(rcAsh),
+  'recommendations-01-the-bestsellers-shelf': () => ({
+    view: 'aisle',
+    shelf: rcShelfOf('popular', RC_TRAIN, rcAsh.id),
+    shopper: rcAsh.name,
+  }),
+  'recommendations-02-people-like-you': () => ({
+    view: 'aisle',
+    shelf: rcShelfOf('users', RC_TRAIN, rcHazel.id),
+    shopper: rcHazel.name,
+    others: rcNeighbours(RC_TRAIN, rcHazel.id).map(n => rcCustomer(n.id).name),
+  }),
+  'recommendations-03-bought-together': () => ({
+    view: 'aisle',
+    shelf: rcTogether(RC_PRINTER.id),
+    shopper: 'This basket',
+    basket: RC_PRINTER.id,
+  }),
+  'recommendations-04-hidden-tastes': () => rcTastes(rcCustomer('c35')),
+  'recommendations-05-new-shopper-new-product': rcNew,
+  'recommendations-06-the-loop': () => rcRound(1, 0),
+  'recommendations-07-tune-the-shelf': () => rcRound(RC_WINNERS[0].blend, RC_WINNERS[0].explore),
+};
+const shelfOg = SHELF_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1556,6 +1624,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : sxOg ? <IsoStage board={CABINET_BOARD} scene={cabinetScene({ ...sxOg, scale: 1.3 })} label="" />
           : townOg ? <IsoStage board={TOWN_BOARD} scene={townScene({ ...townOg, scale: 1.3 })} label="" />
           : webFallOg ? <div class="tf-og ob-og"><WaterfallView run={webFallOg} /></div>
+          : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />
           : signalOg ? <IsoStage board={SIGNAL_BOARD} scene={signalScene({ ...signalOg, scale: 1.3 })} label="" />
           : towerOg ? <IsoStage board={TOWER_BOARD} scene={towerScene({ ...towerOg, scale: 1.3 })} label="" />
           : postOg ? <IsoStage board={POST_BOARD} scene={postScene({ ...postOg, scale: 1.3 })} label="" />

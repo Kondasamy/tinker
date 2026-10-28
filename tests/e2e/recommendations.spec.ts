@@ -3,12 +3,13 @@
 // select as the list alternative, the Ranking tab, "I'm not sure", reduced motion, the workbench's winning and losing
 // settings, the recap, axe and phone width. The go-live adds the module's number, share images and home's card.
 import { test, expect, type Page } from '@playwright/test';
-import { moduleOf } from '../../src/lib/modules';
+import { MODULES, moduleOf } from '../../src/lib/modules';
 import { customerOf } from '../../src/lib/recommendations/story';
 import { recommendationsWalker } from './recommendations-flow';
 import { serious, layoutHolds, PHONE } from './helpers';
 
 const M = moduleOf('recommendations');
+const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'recommendations') + 1;
 const IDS = M.chapters.map(c => c.id);
 const [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = IDS;
 const at = (id: string) => new RegExp(`/recommendations/${id}/$`);
@@ -40,6 +41,34 @@ test('the intro shows the level, the author, the chapters and the Colorfigures c
   await page.getByRole('button', { name: 'Words' }).click();
   await expect(page.locator('.band .note.more')).toBeVisible();
   await axe(page);
+});
+
+test('its module number on the intro and the recap', async ({ page }) => {
+  await page.goto('/recommendations/');
+  await expect(page.locator('.hero .kicker')).toHaveText(`Module ${NUMBER} · Recommendations`);
+  await page.goto('/recommendations/recap/');
+  await expect(page.locator('.hero .kicker')).toHaveText(`Module ${NUMBER} · Recap`);
+});
+
+test('go-live: own share images and home’s card', async ({ page }) => {
+  await page.goto('/recommendations/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/recommendations\.jpg$/);
+  await page.goto(`/recommendations/${CH1}/`);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    new RegExp(`/og/recommendations-${CH1}\\.jpg$`),
+  );
+  await page.goto('/recommendations/recap/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    /\/og\/recommendations-recap\.jpg$/,
+  );
+  expect((await page.request.get('/og/recommendations.jpg')).status()).toBe(200);
+  await page.goto('/');
+  await expect(page.locator('.module[data-module="recommendations"] h4 a')).toHaveAttribute(
+    'href',
+    '/recommendations/',
+  );
 });
 
 test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({

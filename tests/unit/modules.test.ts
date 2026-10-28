@@ -750,6 +750,18 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'releases')).toBe(42);
   });
 
+  it('has recommendations as a live Intermediate module with no prereqs, numbered 44', () => {
+    expect(moduleOf('recommendations')).toMatchObject({
+      title: 'Recommendations',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('recommendations').track).toBeUndefined();
+    expect(moduleOf('recommendations').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'recommendations')).toBe(43);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

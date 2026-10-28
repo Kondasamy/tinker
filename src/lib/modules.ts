@@ -42,6 +42,7 @@ import { LOGINS_MODULE } from '../content/logins/module';
 import { EMAIL_MODULE } from '../content/email/module';
 import { DEPENDENCIES_MODULE } from '../content/dependencies/module';
 import { RELEASES_MODULE } from '../content/releases/module';
+import { RECOMMENDATIONS_MODULE } from '../content/recommendations/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -143,6 +144,7 @@ export const MODULES: Module[] = [
   EMAIL_MODULE,
   DEPENDENCIES_MODULE,
   RELEASES_MODULE,
+  RECOMMENDATIONS_MODULE,
   planned(
     'memorisation',
     'What a model remembers',
@@ -154,12 +156,6 @@ export const MODULES: Module[] = [
     'Video and world models',
     'Advanced',
     'Models that make moving pictures: frames that agree over time, and models that guess what a world does next.',
-  ),
-  planned(
-    'recommendations',
-    'Recommendations',
-    'Intermediate',
-    'Why the shop shows you this drill: what you and people like you bought, ranked, and the loop it feeds.',
   ),
   planned(
     'fairness',

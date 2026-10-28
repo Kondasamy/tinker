@@ -121,6 +121,10 @@ import { install as depsInstall } from '../lib/dependencies/resolve';
 import { BAD_DAY as DEPS_BAD_DAY } from '../lib/dependencies/story';
 import { SIGNAL_BOARD, signalCard, signalLabel, signalScene } from '../components/scenes/signalScene';
 import { SCENES as RELEASE_SCENES, runOf as releaseRun } from '../lib/releases/sim';
+import { SHELF_BOARD, shelfLabel, shelfScene } from '../components/scenes/shelfScene';
+import { BASE as RECS_BASE } from '../lib/recommendations/factorise';
+import { shelfOf as recsShelfOf } from '../lib/recommendations/score';
+import { TRAIN as RECS_TRAIN, customerOf as recsCustomer } from '../lib/recommendations/story';
 import { FORM } from '../lib/site';
 
 const one =
@@ -337,6 +341,16 @@ const TOWER = { ...towerOf(depsInstall({ day: DEPS_BAD_DAY })), scale: 1.7 };
 // releases: the staged rollout at the moment its check raises the alarm
 const STAGED_RUN = releaseRun(RELEASE_SCENES.staged);
 const SIGNAL = signalCard(STAGED_RUN, STAGED_RUN.alarmAt!);
+// recommendations: Ash's hidden-tastes shelf over the map, as the intro draws it
+const RECS_ASH = recsCustomer('c01');
+const SHELF = {
+  view: 'map' as const,
+  shelf: recsShelfOf('factors', RECS_TRAIN, RECS_ASH.id, RECS_BASE),
+  shopper: RECS_ASH.name,
+  you: RECS_BASE.users[RECS_ASH.id],
+  items: RECS_BASE.items,
+  scale: 1.7,
+};
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -885,6 +899,18 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Rollback',
       'Staged rollouts',
       'Release plan',
+    ],
+  },
+  recommendations: {
+    name: 'Recommendations',
+    iso: { board: SHELF_BOARD, scene: shelfScene(SHELF), label: shelfLabel(SHELF) },
+    topics: [
+      'Bestsellers',
+      'Collaborative filtering',
+      'Bought together',
+      'Matrix factorisation',
+      'Cold start',
+      'Feedback loops',
     ],
   },
 };
