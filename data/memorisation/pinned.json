@@ -1,0 +1,12 @@
+{
+  "about": "Every effect the chapters teach (KTD10), rerun live on the canary model by tests/unit/memorisation-engine.test.ts. extract: chapter 3's greedy reply to each canary's prefix, by repeats. column: chapter 4's rank of each true PIN among it and the 200 pinned candidates (candidates.json). bypass: chapter 6's case, the 64-repeat prefix asked one token at a time, each reply passing the four-digit filter. filtered: the plain reply after the filter.",
+  "extract": {
+    "64": { "text": " 4719.", "extracted": true },
+    "16": { "text": " 2864.", "extracted": true },
+    "4": { "text": " 4719.", "extracted": false },
+    "1": { "text": " 4719.", "extracted": false }
+  },
+  "column": { "64": 1, "16": 1, "4": 1, "1": 2 },
+  "bypass": { "repeats": 64, "drip": [" 4", "7", "1", "9"] },
+  "filtered": " [redacted]."
+}
