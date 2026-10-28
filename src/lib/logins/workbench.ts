@@ -11,7 +11,7 @@
 import bench from '../../../data/logins/workbench.json' with { type: 'json' };
 import pinned from '../../../data/logins/pinned.json' with { type: 'json' };
 import { fact } from './facts';
-import { ACCOUNTS, TYPES, type TypeId } from './store';
+import { ACCOUNTS, type TypeId } from './store';
 import { crackSeconds, guessesFor, WORK, type Form } from './race';
 import { COOKIE_VICTIM } from './story';
 
@@ -94,8 +94,9 @@ export const PLANS: Plan[] = KEYS.reduce<Plan[]>(
 
 /** Fewest break-ins, then least friction, over the whole domain (the test checks the pin). */
 export function solve(): Plan[] {
-  const least = Math.min(...PLANS.map(p => breakIns(p).length)),
-    fewest = PLANS.filter(p => breakIns(p).length === least),
+  const counts = PLANS.map(p => breakIns(p).length),
+    least = Math.min(...counts),
+    fewest = PLANS.filter((_, i) => counts[i] === least),
     calm = Math.min(...fewest.map(frictionOf));
   return fewest.filter(p => frictionOf(p) === calm);
 }
@@ -104,7 +105,8 @@ export const planKey = (p: Plan) => KEYS.map(k => `${k}:${p[k]}`).join(',');
 export const WINNERS: Plan[] = pinned.winners.map(k => Object.fromEntries(k.split(',').map(x => x.split(':'))) as Plan);
 const WIN = new Set(pinned.winners);
 export const wins = (p: Plan) => WIN.has(planKey(p));
-export const BEST = { breakIns: breakIns(WINNERS[0] ?? PLANS[0]).length, friction: frictionOf(WINNERS[0] ?? PLANS[0]) };
+const BEST_PLAN = WINNERS[0] ?? PLANS[0];
+export const BEST = { breakIns: breakIns(BEST_PLAN).length, friction: frictionOf(BEST_PLAN) };
 
 /** Where the bench starts: passwords as written, no code, month-long sessions. */
 export const START: Plan = {
@@ -117,5 +119,3 @@ export const START: Plan = {
 /** The plan in a saved run's state; anything unknown falls back to START's. */
 export const benchPlan = (s: Partial<Plan>): Plan =>
   Object.fromEntries(KEYS.map(k => [k, OPTIONS[k].includes(s[k] as string) ? s[k] : START[k]])) as unknown as Plan;
-
-export const typeName = (t: TypeId) => TYPES.find(x => x.id === t)!.name;

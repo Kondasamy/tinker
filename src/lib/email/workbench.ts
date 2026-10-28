@@ -28,9 +28,17 @@ export const recordsOf = (b: Bench): Records => ({
   dkim: b.dkim,
   dmarc: b.dmarc,
 });
-/** Each kind of message's fate under a setting. */
-export const fatesOf = (b: Bench): Record<MessageId, Fate> =>
-  Object.fromEntries(DAY.map(d => [d.id, verdictOf(d.id, recordsOf(b)).fate])) as Record<MessageId, Fate>;
+const fates = new Map<string, Record<MessageId, Fate>>();
+/** Each kind of message's fate under a setting, worked out once per setting (shared: don't mutate it). */
+export function fatesOf(b: Bench): Record<MessageId, Fate> {
+  const key = `${b.spf}|${b.dkim}|${b.dmarc}`;
+  let f = fates.get(key);
+  if (!f) {
+    f = Object.fromEntries(DAY.map(d => [d.id, verdictOf(d.id, recordsOf(b)).fate])) as Record<MessageId, Fate>;
+    fates.set(key, f);
+  }
+  return f;
+}
 export function scoreOf(b: Bench) {
   const f = fatesOf(b);
   return {

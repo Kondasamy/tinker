@@ -126,11 +126,11 @@ export function install(o: InstallOpts): Tree {
       }
       const path = seen === undefined && !nodes.has(name) ? name : at(from, name);
       const version = pick(path, name, range);
-      if (version === null || !releaseOf(name, version)) {
+      const rel = version === null ? undefined : releaseOf(name, version);
+      if (version === null || !rel) {
         unmet.push({ from, name, range });
         continue;
       }
-      const rel = releaseOf(name, version)!;
       nodes.set(path, { path, name, version, by: [from], deps: { ...(rel.deps ?? {}) } });
       if (!satisfies(version, range)) unmet.push({ from, name, range, got: version });
       if (rel.deps) queue.push({ from: path, deps: rel.deps });
