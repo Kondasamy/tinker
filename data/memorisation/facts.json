@@ -1,0 +1,30 @@
+{
+  "accessed": "2026-10-28",
+  "facts": [
+    {
+      "id": "carlini-2019",
+      "claim": "A large-model finding: Carlini and colleagues (The Secret Sharer, 2019) planted random secrets, canaries, in training text and measured their exposure. Models trained without care for memorisation gave back unique secrets such as credit card numbers.",
+      "source": "https://arxiv.org/abs/1802.08232"
+    },
+    {
+      "id": "carlini-2021",
+      "claim": "A large-model finding: Carlini and colleagues (2021) pulled hundreds of verbatim training sequences out of GPT-2, names, phone numbers and email addresses among them, some seen in just one document. Larger models were more vulnerable.",
+      "source": "https://arxiv.org/abs/2012.07805"
+    },
+    {
+      "id": "kandpal-2022",
+      "claim": "A large-model finding: Kandpal, Wallace and Raffel (2022) found a sequence present 10 times in training is generated about 1,000 times more often than one present once, and that deduplicating makes models far more resistant.",
+      "source": "https://arxiv.org/abs/2202.06539"
+    },
+    {
+      "id": "nasr-2023",
+      "claim": "A large-model finding: Nasr and colleagues (2023) extracted gigabytes of training data from open models, and made the aligned ChatGPT emit training data at a rate 150 times higher than when behaving properly.",
+      "source": "https://arxiv.org/abs/2311.17035"
+    },
+    {
+      "id": "abadi-2016",
+      "claim": "Abadi and colleagues (2016) showed deep networks can be trained with differential privacy (DP-SGD), which bounds how much any one example shapes the model, at a modest cost in quality.",
+      "source": "https://arxiv.org/abs/1607.00133"
+    }
+  ]
+}
