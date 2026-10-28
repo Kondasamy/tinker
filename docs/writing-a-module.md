@@ -39,7 +39,6 @@ Rules for steps:
 - Facts carry their source through a `Fact` (or `Cite`): the source opens from a small mark, never an inline "Source:" link.
 - Puzzles (`puzzle()`) hand the reader a broken setup. Hints appear after three misses; "Show me" is always there.
 - Finished steps stay reachable as a folded "story so far" log. Don't write a step that only makes sense if the previous one is still on screen.
-- Watch mode (optional): give every step that doesn't ask the reader a `demo` doing its `act`, then `pnpm narration:script` and `pnpm record:narration <module>`. Steps without `demo` or `solution` wait for the reader.
 - `tests/unit/copy-budget.test.ts` checks every budget above; a new module is strict from its first chapter.
 
 ## 4. Write questions that teach
@@ -107,3 +106,16 @@ The template lives in `templates/module/` (outside `src/`, so it is never built 
 
 - The dev server keeps its own Vite cache (`node_modules/.vite-dev`); keep the `dev-cache` integration in `astro.config.mjs`. Without it, running `astro build` or `astro check` beside a dev server crashes the dev server.
 - Layout-level rules that style elements inside components go in `:where(...)`, so component rules always win whatever order Astro bundles the CSS. Dev-only pages use scoped styles, never `is:global`.
+
+## Trailer (optional, at go-live or any time after)
+
+A trailer is a module's one video: under a minute of the live chapters played by hand, narrated, on the intro. `videos/rag-trailer/` is the template; its `BRIEF.md` lists the pipeline.
+
+1. Copy `videos/rag-trailer/` to `videos/<id>-trailer/` (skip `node_modules/`, `capture/`, `renders/`). Output names follow the folder.
+2. Rewrite `BRIEF.md` and `SCRIPT.md`. Every spoken number comes from the module's data.
+3. Point the takes in `record.mjs` at the module's chapters, and the cut ranges in `cut.sh` at the takes.
+4. Retitle the chapter plates and end card in `index.html`, the `name` in `package.json` and `meta.json`, and pick the poster time (`POSTER`) in `deliver.sh`.
+5. Run `voice.mjs` → `music.mjs` → `record.mjs` → `cut.sh` → render → `deliver.sh` (commands in `BRIEF.md`).
+6. Add `<Trailer id="<id>" name="<short name>" length="m:ss" />` to the intro's hero buttons, and a `tests/unit/<id>-trailer.test.ts` modelled on RAG's that finds every captioned number in the module's data.
+
+`tests/unit/trailers.test.ts` and `tests/e2e/trailer.spec.ts` pick the new trailer up on their own.

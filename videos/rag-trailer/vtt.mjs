@@ -1,7 +1,7 @@
 // Writes the trailer's WebVTT captions from the recorded word timings, placed where index.html starts each line.
-// Usage: node videos/rag-trailer/vtt.mjs  → public/video/rag-trailer.vtt
+// Usage: node videos/<folder>/vtt.mjs  → public/video/<folder>.vtt
 import { readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const DIR = dirname(fileURLToPath(import.meta.url));
@@ -35,5 +35,5 @@ for (const [id, { words: ws }] of Object.entries(words)) {
 const vtt = `WEBVTT\n\n${cues
   .map((c, i) => `${ts(c.from)} --> ${ts(Math.min(c.to + 0.3, cues[i + 1]?.from ?? Infinity))}\n${c.text}`)
   .join('\n\n')}\n`;
-writeFileSync(join(DIR, '../../public/video/rag-trailer.vtt'), vtt);
+writeFileSync(join(DIR, `../../public/video/${basename(DIR)}.vtt`), vtt);
 console.log(`${cues.length} cues`);

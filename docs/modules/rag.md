@@ -9,11 +9,9 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - Callouts: RAG's canvas, timeline and context-overflow scenes draw them; RAG callouts are not held to the 16-character limit.
 - Share images: chapter 1 the timeline, chapter 2 the overflowing window, chapters 3–7 the track as of that chapter.
 
-## Watch and trailer
+## Trailer
 
-- Every non-question step has a `demo`. Chapter 6's run steps queue engine runs in `todo`, filled by `QueuedRuns` after `RagStage` (a pure demo can't compute a result row). Chapter 7's `play` demo opens the challenge without running a question.
-- Narration: one voice (River), `data/watch/rag.json`; music `public/data/watch/music.mp3`.
-- Trailer: `videos/rag-trailer/` (chapters 1, 3, 7 by scripted hand-play), shown on `/rag/` behind its poster. It quotes 2020, 2023 and the corpus's 47 documents; re-render if those change.
+- `videos/rag-trailer/` (chapters 1, 3, 7 by scripted hand-play), shown on `/rag/` behind its poster. It quotes 2020, 2023 and the corpus's 47 documents; re-render if those change.
 
 ## Data
 
