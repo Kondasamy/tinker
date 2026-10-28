@@ -1,0 +1,73 @@
+---
+// Dev-only eyeball page: the crate tower in the states the chapters teach (static SVG, wide and phone), then the
+// stage with its pull bar and read-out, and the tree. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { TOWER_BOARD, towerLabel, towerOf, towerScene, type TowerOpts } from '../components/scenes/towerScene';
+import { DepsStage, TreeView, pulledOf } from '../content/dependencies/kit';
+import { brokenOf, diff, install } from '../lib/dependencies/resolve';
+import { BAD_DAY, FIRST, FIRST_LOCK, HIJACK_DAY, MIRA_DAY, SERVER_DAY, pinned } from '../lib/dependencies/story';
+import { WINNERS, runPolicy } from '../lib/dependencies/workbench';
+
+const pull = { 'cartwheel/tidystr': null };
+const pulledTree = install({ day: 0, overrides: pull });
+const forced = install({ day: 0, overrides: { pricebook: '2.0.0' } });
+const server = install({ day: SERVER_DAY });
+const drift = diff(install({ day: MIRA_DAY }), server).map(c => c.path);
+const hijack = install({ day: HIJACK_DAY, deps: pinned('logline') });
+const best = runPolicy(WINNERS[0]).days[17].tree;
+const STATES: [string, Omit<TowerOpts, 'scale'>][] = [
+  ['Day 0: the install', { ...towerOf(FIRST), say: { block: 'app', text: 'Your app' } }],
+  ['Nested copy', { ...towerOf(FIRST, { lit: ['cartwheel/tidystr'] }), say: { block: 'nested', text: 'Second copy' } }],
+  ['Pulled the nested tidystr', { ...towerOf(pulledTree, { pulled: pulledOf(FIRST, pull) }), say: { block: 'pulled', text: 'Pulled' } }],
+  ['pricebook forced to 2.0.0', { ...towerOf(forced, { lit: ['pricebook'] }), say: { block: 'broken', text: 'Out of range' } }],
+  [`Day ${SERVER_DAY}: drift since day ${MIRA_DAY}`, { ...towerOf(server, { lit: drift }), say: { block: 'lit', text: 'Changed' } }],
+  [`Day ${BAD_DAY}: the bad patch`, towerOf(install({ day: BAD_DAY }))],
+  [`Day ${BAD_DAY} with the lockfile`, { ...towerOf(install({ day: BAD_DAY, lock: FIRST_LOCK }), { lock: true }), say: { block: 'lock', text: 'Lockfile' } }],
+  [`Day ${HIJACK_DAY}: logline pinned, hijack in`, { ...towerOf(hijack), say: { block: 'hijacked', text: 'Stranger' } }],
+  ['A winning policy, day 18', towerOf(best, { lock: true })],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Dependencies scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Crate tower: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={TOWER_BOARD} scene={towerScene({ ...o, scale: 1.2 })} label={towerLabel(o)} /></div>
+            <div class="phone"><IsoStage board={TOWER_BOARD} scene={towerScene({ ...o, scale: 2 })} label={towerLabel(o)} /></div>
+            <p>{towerLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>The stage</h1>
+      <div class="grid">
+        <section><h2>Pull bar, day slider and read-out; escaped caption</h2><div class="stage"><DepsStage show={{ tower: towerOf(FIRST), tree: FIRST, caption: '<script>alert(1)</script>', status: 'Day 1 install: nothing broken.' }} overrides={{}} onPull={() => {}} day={1} onDay={() => {}} /></div></section>
+        <section><h2>Tree, pulled</h2><div class="stage"><TreeView tree={pulledTree} broken={brokenOf(pulledTree)} /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 560px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>
