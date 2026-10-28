@@ -1,0 +1,16 @@
+Return-Path: <billing@larkspur.example>
+Received: from mx1.hollisbuild.example (mx1.hollisbuild.example [198.51.100.7])
+	by store.hollisbuild.example with LMTP id a172; Fri, 30 Oct 2026 18:05:09 +0000
+Received: from mail.larkspur-billing.example (mail.larkspur-billing.example [203.0.113.66])
+	by mx1.hollisbuild.example with ESMTP id 70b8; Fri, 30 Oct 2026 18:05:08 +0000
+From: Larkspur Supply Co. <billing@larkspur.example>
+To: Hollis Builders <accounts@hollisbuild.example>
+Subject: Invoice 1207, reminder
+Date: Fri, 30 Oct 2026 18:05:06 +0000
+Message-ID: <invoice-1207-reminder@larkspur-billing.example>
+
+Invoice 1207 for order 1207 is due.
+
+Please pay 1880.00 to our new account 9001-5150 today.
+
+Larkspur Supply Co.

@@ -1,0 +1,32 @@
+Return-Path: <bounces@larkspur.example>
+Received: from mx1.hollisbuild.example (mx1.hollisbuild.example [198.51.100.7])
+	by store.hollisbuild.example with LMTP id b3f0; Tue, 27 Oct 2026 09:14:12 +0000
+Received: from relay.oldmail.example (relay.oldmail.example [198.51.100.200])
+	by mx1.hollisbuild.example with ESMTPS id 82e5; Tue, 27 Oct 2026 09:14:11 +0000
+Received: from mx.oldmail.example (mx.oldmail.example [198.51.100.199])
+	by relay.oldmail.example with ESMTP id 0c9d; Tue, 27 Oct 2026 09:14:09 +0000
+Received: from mail.larkspur.example (mail.larkspur.example [192.0.2.10])
+	by mx.oldmail.example with ESMTPS id e641; Tue, 27 Oct 2026 09:14:05 +0000
+Received: from app.larkspur.example (app.larkspur.example [192.0.2.5])
+	by mail.larkspur.example with ESMTP id 19b1; Tue, 27 Oct 2026 09:14:02 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=larkspur.example; s=demo2026;
+	h=from:to:subject:date:message-id;
+	bh=H0yKthEqrR3nPh4mJVzPaM8aL4fDbXnmDbcz8IC5ow0=;
+	b=QP+zK6UCeCt3l9OlG/d6ePn5Vx27pepsyW/nyqdP1NbA77ufgNw98IbXON93gFxD
+	 lHitklbNjEhCntXDL7Ut8nKAzpiqrJWOIpUSrpQ5n95NSVHwnHbGe19csUJq2bBz
+	 jwIfN53ntGZV0caqi0pmm0R9cvmTUXjl3T+v1p6AHE8sJ3q3RcaeOsNCxCtwnd1m
+	 AFp4/Xd12WJIjMTh9BIgxLUG/vS8oN8k3JWYohwDA0tewfcKVH6/jyn5e62GIxtJ
+	 Vva1z01CW24JCpLfmRNpAHCCqrQqWmB1wGhxq8HiNb/xkt7OLrw6Y3N8atln7geW
+	 yDN79mkpZAPvcW0+V0a+gQ==
+From: Larkspur Supply Co. <orders@larkspur.example>
+To: Hollis Builders <hollis@oldmail.example>
+Subject: Order 1207 confirmed
+Date: Tue, 27 Oct 2026 09:14:01 +0000
+Message-ID: <order-1207-copy@larkspur.example>
+
+Thank you for your order.
+
+Order 1207: 400 brass hinges, delivery to dock 2 on Friday.
+Your invoice follows when the order ships.
+
+Larkspur Supply Co.

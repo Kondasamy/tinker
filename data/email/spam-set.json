@@ -1,0 +1,29 @@
+{
+  "note": "A small labelled set of short messages, hand-written for this site, that the spam filter counts words over. Real filters learn from millions of messages.",
+  "messages": [
+    { "spam": true, "text": "Congratulations! You are a winner. Claim your free prize now." },
+    { "spam": true, "text": "Act fast: this offer expires tonight. Click here for free cash." },
+    { "spam": true, "text": "You have won a lucky draw. Claim your cash prize before midnight." },
+    { "spam": true, "text": "Free gift card for our lucky winner, click here to claim it now." },
+    { "spam": true, "text": "Cheap pills, no prescription, click here, limited offer." },
+    { "spam": true, "text": "Make cash fast from home. Act now, this offer will not last." },
+    { "spam": true, "text": "Your free trial is waiting. Click here now to claim the offer." },
+    { "spam": true, "text": "Winner! Your number was drawn. Send your details to claim the prize." },
+    { "spam": true, "text": "Lose weight fast with this one free trick. Click now." },
+    { "spam": true, "text": "Hot offer tonight only: free shipping on cheap watches, act now." },
+    { "spam": true, "text": "Urgent: claim your lucky prize, click here before it expires." },
+    { "spam": true, "text": "Earn cash now, no work needed, free sign up, click here." },
+    { "spam": false, "text": "Thank you for your order. Delivery is booked for Friday." },
+    { "spam": false, "text": "Invoice for order 1180 attached. Please pay within 30 days." },
+    { "spam": false, "text": "Your order of deck screws has shipped and will arrive Tuesday." },
+    { "spam": false, "text": "Meeting moved to Thursday at the site office, see you there." },
+    { "spam": false, "text": "The brackets are back in stock. Shall I add them to the order?" },
+    { "spam": false, "text": "Please pay the attached invoice to our account by the due date." },
+    { "spam": false, "text": "New stock of hinges arrived this week on the shelves." },
+    { "spam": false, "text": "Delivery to dock 2 confirmed for your order on Friday." },
+    { "spam": false, "text": "Can you send the site plans before the meeting on Monday?" },
+    { "spam": false, "text": "Our account details are on the invoice. Thanks for the order." },
+    { "spam": false, "text": "The order shipped today; your invoice follows by email." },
+    { "spam": false, "text": "Thanks for the quick delivery, the crew starts on site this week." }
+  ]
+}

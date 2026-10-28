@@ -1,0 +1,32 @@
+{
+  "note": "A hand-written day of mail to Larkspur's customers: made-up counts, not measured.",
+  "day": [
+    { "id": "order", "name": "Order confirmations", "count": 40, "real": true },
+    { "id": "invoice", "name": "Invoices", "count": 12, "real": true },
+    { "id": "forwarded", "name": "Forwarded through an old address", "count": 4, "real": true },
+    { "id": "newsletter", "name": "Newsletter, sent by Sendwell", "count": 30, "real": true },
+    { "id": "forged", "name": "Fake invoices, forger’s own envelope", "count": 6, "real": false },
+    { "id": "spoofed", "name": "Fake invoices, Larkspur’s envelope", "count": 6, "real": false }
+  ],
+  "spf": [
+    { "id": "none", "name": "No SPF record", "record": null },
+    { "id": "own", "name": "Larkspur’s servers, -all", "record": "v=spf1 ip4:192.0.2.0/28 -all" },
+    {
+      "id": "vendor-soft",
+      "name": "Larkspur’s and Sendwell’s, ~all",
+      "record": "v=spf1 ip4:192.0.2.0/28 include:_spf.sendwell.example ~all"
+    },
+    {
+      "id": "vendor",
+      "name": "Larkspur’s and Sendwell’s, -all",
+      "record": "v=spf1 ip4:192.0.2.0/28 include:_spf.sendwell.example -all"
+    },
+    { "id": "open", "name": "Anyone, +all", "record": "v=spf1 +all" }
+  ],
+  "rule": "The owner’s rule: every real message lands in an inbox, and no fake reaches a customer, not even their junk.",
+  "reasons": {
+    "spf": "Which servers may send with Larkspur’s envelope.",
+    "dkim": "Larkspur seals what its own servers send; Sendwell doesn’t.",
+    "dmarc": "What receivers do with mail that fails alignment."
+  }
+}

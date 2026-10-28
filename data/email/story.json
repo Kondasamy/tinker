@@ -1,0 +1,16 @@
+{
+  "note": "The people, domains and addresses for How email arrives, written for this site. Every company, domain and message is made up; every domain is reserved for documentation (RFC 2606) and every IP address comes from the documentation ranges (RFC 5737).",
+  "company": "Larkspur Supply Co.",
+  "domain": "larkspur.example",
+  "customer": { "name": "Hollis Builders", "short": "Hollis", "domain": "hollisbuild.example" },
+  "forger": { "domain": "larkspur-billing.example" },
+  "vendor": { "name": "Sendwell", "domain": "sendwell.example" },
+  "forwarder": { "domain": "oldmail.example" },
+  "spf": {
+    "own": "v=spf1 ip4:192.0.2.0/28 -all",
+    "vendor": "v=spf1 ip4:192.0.2.0/28 include:_spf.sendwell.example -all"
+  },
+  "selector": "demo2026",
+  "receiverRule": "Hollis’s mail provider puts mail that passes neither SPF nor DKIM in junk.",
+  "spamThreshold": 0.5
+}

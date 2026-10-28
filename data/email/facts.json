@@ -1,0 +1,60 @@
+{
+  "accessed": "2026-10-28",
+  "facts": [
+    {
+      "id": "from",
+      "claim": "RFC 5322 says the From field names the author of a message: the person or system responsible for writing it. Nothing in it proves who that is.",
+      "source": "https://www.rfc-editor.org/rfc/rfc5322.html#section-3.6.2"
+    },
+    {
+      "id": "received",
+      "claim": "RFC 5321 says each mail server that takes a message must add a Received line at its top, and the server that makes final delivery adds a Return-Path line holding the envelope sender.",
+      "source": "https://www.rfc-editor.org/rfc/rfc5321.html#section-4.4"
+    },
+    {
+      "id": "mx",
+      "claim": "RFC 5321 says a sending server first looks up the MX record of the recipient’s domain to find which server to hand the message to.",
+      "source": "https://www.rfc-editor.org/rfc/rfc5321.html#section-5.1"
+    },
+    {
+      "id": "spf",
+      "claim": "RFC 7208 has SPF check the envelope sender’s domain (MAIL FROM) against the IP address of the server handing the message over, and caps a check at 10 DNS lookups.",
+      "source": "https://www.rfc-editor.org/rfc/rfc7208.html"
+    },
+    {
+      "id": "softfail",
+      "claim": "RFC 7208 says receivers should not reject mail on a softfail alone, and must treat neutral like no record at all.",
+      "source": "https://www.rfc-editor.org/rfc/rfc7208.html#section-8.5"
+    },
+    {
+      "id": "dkim",
+      "claim": "RFC 6376 has the signer name its domain (d=) and a selector, and publishes the public key in DNS at <selector>._domainkey.<domain>.",
+      "source": "https://www.rfc-editor.org/rfc/rfc6376.html#section-3.6.2.1"
+    },
+    {
+      "id": "relaxed",
+      "claim": "RFC 6376’s relaxed canonicalisation tolerates common changes such as replaced whitespace and rewrapped header lines.",
+      "source": "https://www.rfc-editor.org/rfc/rfc6376.html#section-3.4"
+    },
+    {
+      "id": "lists",
+      "claim": "RFC 7960 notes that mailing lists often tag the subject or add a footer, and any such change breaks the DKIM signature.",
+      "source": "https://www.rfc-editor.org/rfc/rfc7960.html#section-3.2.3"
+    },
+    {
+      "id": "dmarc",
+      "claim": "RFC 7489 counts an SPF or DKIM pass for DMARC only when its domain aligns with the From domain, relaxed by default, and offers three policies: none, quarantine and reject.",
+      "source": "https://www.rfc-editor.org/rfc/rfc7489.html#section-6.3"
+    },
+    {
+      "id": "gmail-2024",
+      "claim": "Gmail’s sender guidelines say that from February 1, 2024, anyone sending more than 5,000 messages a day to Gmail must set up SPF, DKIM and DMARC (policy none allowed), with the From domain aligned.",
+      "source": "https://support.google.com/a/answer/81126"
+    },
+    {
+      "id": "yahoo-2024",
+      "claim": "Yahoo’s sender best practices required bulk senders, from February 2024, to use both SPF and DKIM and publish a DMARC policy of at least p=none, with the From domain aligned.",
+      "source": "https://senders.yahooinc.com/best-practices/"
+    }
+  ]
+}
