@@ -1,0 +1,19 @@
+# Logins and passwords (`/logins/`)
+
+Decisions for this module only; the shared rules are in `AGENTS.md`.
+
+## Picture
+
+- **The cloakroom** (`src/components/scenes/cloakScene.ts`): a key cabinet at the back, one drawer per trade account, holding what the site keeps: a sticky note (as written) or a fingerprint card, coloured by stored form (mustard, cobalt, blush salted, mint slow); a cracked drawer turns tomato and pops out. The desk in front hands out the ticket (the session cookie). A thief to the right holds what she took (the table, a copied ticket, a code). In chapter 6 the Guild's booth sits at the end of a belt (officeScene's `beltAt`, composed) that carries the code and the ID token. At most 12 drawers, then a count pill. Parts: `cabinet`, `desk`, `thief`, `guild`.
+- **The precise view, one tab away** (`LoginsStage`, `src/content/logins/kit.tsx`): the accounts table read off the same drawers; in chapter 6 the sign-in steps as `FlatStage` lanes (browser, Larkspur, Guild, thief) with PASS/DENIED/FAIL stamps.
+- **The mechanic (KTD13): the cracking race.** A radio group for the stored form, a native range for the PBKDF2 work factor, Play and Step. Each tick is a time on a log scale (1 second to 1 year); the board at any tick is `boardAt()`. One polite `role="status"` line speaks on each press and when an account cracks, never per tick. With reduced motion, Play shows the final board at once and drawers don't pop.
+
+## Engine (`src/lib/logins/`)
+
+- **Accounts and the leaked list** are hand-written demo data (`data/logins/accounts.json`, `leaked.json`), labelled; no real credentials. Salts are fixed per account so every fingerprint is pinned.
+- **Hashing reuses Locks and keys** (`sha256.ts`, sync). Salted = SHA-256 of salt then password. PBKDF2-HMAC-SHA256 runs in Web Crypto, pinned for one account at each work factor and checked against Node's PBKDF2.
+- **The race** (`race.ts`): guesses for a password are its place on the leaked list, or the whole list plus its brute-force space (character kinds ^ length; a planning estimate, labelled). Rates are one benchmark's figures (Chick3nman's hashcat 6.2.6 on an RTX 4090, October 2022): SHA-256 as measured; PBKDF2 scaled from its 999-iteration figure. Unsalted, one guess tests every account; salted, the rate is shared across accounts. Work factors are NIST SP 800-132's 1,000, 100,000 and OWASP's 600,000. **Slow hashing never saves a leaked-list password**: those crack in the first second at every factor (tested).
+- **TOTP** (`totp.ts`): RFC 6238 over HMAC-SHA1 in Web Crypto, tested against RFC 6238's and RFC 4226's vectors; the demo secret and time give a pinned code.
+- **Sign in with another site** (`oidc.ts`): state, PKCE S256 (base64url SHA-256 of the verifier, checked against RFC 7636's own example), and an ES256 ID token signed once with Locks and keys' demo ECDSA key and committed; verified live. A one-letter change fails the signature, a token for another app the audience, a forged state the state, a wrong verifier PKCE, each alone.
+- **Chapter 7's workbench** (`workbench.ts`): a store (6) and, per account type, a second factor (2) and a session length (3): 216 plans against a breach dump (the race's maths for 30 days), a guesser at the form (NIST's 100 failed tries), a staff-cookie thief and a phishing page. TOTP's secret sits in the same database, so it doesn't stop the breach; the phishing page relays codes live, so nothing in the bench stops it, and its row cites NIST's phishing-resistance (passkeys) as the fix. `WINNERS` (fewest break-ins, then least sign-in friction) is pinned in `data/logins/pinned.json` and recomputed by a test. Timings and sign-in counts are planning numbers, labelled.
+- **Facts** come from `data/logins/facts.json` with source and access date; the guess rates name whose figure and when.
