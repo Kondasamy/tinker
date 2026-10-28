@@ -63,7 +63,7 @@ export function useModel() {
 /** What stands in the frame until the weights are in: a loading pill, or an error card with Retry. */
 export function Waiting({ failed, retry }: { failed: boolean; retry: () => void }) {
   return (
-    <div className="mem-wait" data-state={failed ? 'failed' : 'loading'}>
+    <div className="mem-wait" role="status" data-state={failed ? 'failed' : 'loading'}>
       {failed ? (
         <div className="mem-error">
           <p>Couldn’t load the canary model.</p>
@@ -90,7 +90,7 @@ export const LoadLine = ({ status }: { status: string }) =>
 export const SAMPLE_PINS: string[] = SAMPLE.pins;
 export const COLUMN_SIZE = SAMPLE_PINS.length + 1;
 const columns = new Map<number, number[]>();
-/** Each candidate's log-probability for the canary at `repeats` (its true PIN first), a few per animation frame so
+/** Each candidate's log-probability for the canary at `repeats` (its true PIN first), ~8 ms per animation frame so
  * the page keeps answering; a column ranked before comes back at once. Null while it ranks. */
 export function useColumn(repeats: number | null) {
   const { model, status, retry } = useModel();
@@ -106,7 +106,10 @@ export function useColumn(repeats: number | null) {
       out: number[] = [];
     let raf = 0;
     const tick = () => {
-      for (let k = 0; k < 12 && out.length < pins.length; k++) out.push(score(idsOf(pins[out.length])));
+      // ~8 ms of scoring per frame, at least one PIN, so slow devices still advance and fast ones finish sooner
+      const until = performance.now() + 8;
+      do out.push(score(idsOf(pins[out.length])));
+      while (out.length < pins.length && performance.now() < until);
       if (out.length < pins.length) raf = requestAnimationFrame(tick);
       else {
         columns.set(repeats, out);
