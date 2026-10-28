@@ -17,6 +17,7 @@ import {
   RECEIVER_MX,
   VENDOR_SPF,
   dkimOf,
+  invoiceAs,
   ipOf,
   messageAs,
   verdictOf,
@@ -107,7 +108,7 @@ describe('SPF', () => {
 
 describe('DKIM', () => {
   it('relaxed canonicalisation tidies header and body whitespace', () => {
-    expect(canonHeader({ name: 'Subject', value: ' Order  1207\r\n\tconfirmed ', raw: '' })).toBe(
+    expect(canonHeader({ name: 'Subject', value: ' Order  1207\r\n\tconfirmed ' })).toBe(
       'subject:Order 1207 confirmed',
     );
     expect(canonBody('a  b \r\n\r\nc\t\r\n\r\n\r\n')).toBe('a b\r\n\r\nc\r\n');
@@ -134,11 +135,18 @@ describe('DKIM', () => {
   it('verifies the real invoice; one changed byte fails; extra spaces still pass', async () => {
     const text = MESSAGES.invoice;
     expect(await verify(parse(text), ALL_ON)).toEqual({ result: 'pass', domain: DOMAIN });
-    const digit = text.replace('1880.00', '1980.00');
+    const digit = invoiceAs('digit', ALL_ON),
+      spaced = invoiceAs('spaces', ALL_ON);
     expect(digit.length).toBe(text.length);
-    expect(await verify(parse(digit), ALL_ON)).toEqual({ result: 'fail', domain: DOMAIN });
-    const spaced = text.replace('within 30 days.', 'within  30 days.   ');
-    expect(await verify(parse(spaced), ALL_ON)).toEqual({ result: 'pass', domain: DOMAIN });
+    expect([...digit].filter((c, i) => c !== text[i])).toHaveLength(1);
+    expect(spaced).not.toBe(text);
+    const live = {
+      digit: (await verify(parse(digit), ALL_ON)).result,
+      spaces: (await verify(parse(spaced), ALL_ON)).result,
+    };
+    if (process.env.WRITE_PINNED) return write({ tamper: live });
+    expect(live).toEqual({ digit: 'fail', spaces: 'pass' });
+    expect(live).toEqual(pinned.tamper);
     const subject = text.replace('Subject: Invoice 1207', 'Subject: Invoice 1208');
     expect((await verify(parse(subject), ALL_ON)).result).toBe('fail');
   });

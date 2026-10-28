@@ -117,5 +117,9 @@
       "dkim": true,
       "dmarc": "reject"
     }
-  ]
+  ],
+  "tamper": {
+    "digit": "fail",
+    "spaces": "pass"
+  }
 }

@@ -10,6 +10,19 @@
     "own": "v=spf1 ip4:192.0.2.0/28 -all",
     "vendor": "v=spf1 ip4:192.0.2.0/28 include:_spf.sendwell.example -all"
   },
+  "names": {
+    "order": "Order confirmation",
+    "invoice": "Real invoice",
+    "forged": "Fake invoice",
+    "spoofed": "Fake reminder",
+    "forwarded": "Forwarded copy",
+    "newsletter": "Newsletter",
+    "prize": "Prize draw"
+  },
+  "tamper": {
+    "digit": ["1880.00", "1980.00"],
+    "spaces": ["within 30 days.", "within  30  days.   "]
+  },
   "selector": "demo2026",
   "receiverRule": "Hollis’s mail provider puts mail that passes neither SPF nor DKIM in junk.",
   "spamThreshold": 0.5

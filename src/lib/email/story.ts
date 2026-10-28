@@ -18,6 +18,8 @@ export const MESSAGES = Object.fromEntries(
   Object.entries(RAW).map(([path, text]) => [path.match(/([\w-]+)\.eml$/)![1], text]),
 ) as Record<MessageId, string>;
 
+/** Each message's short name on the page. */
+export const NAMES = story.names as Record<MessageId, string>;
 export const COMPANY = story.company;
 export const DOMAIN = story.domain;
 export const CUSTOMER = story.customer;
@@ -41,6 +43,14 @@ export function messageAs(id: MessageId, rec: Records): string {
   return serialize(m);
 }
 
+export type Version = 'sent' | 'digit' | 'spaces';
+export const TAMPER = story.tamper as Record<Exclude<Version, 'sent'>, [string, string]>;
+/** The signed invoice as sent, with one digit changed, or re-spaced on the way (chapter 5). */
+export const invoiceAs = (v: Version, rec: Records) => {
+  const text = messageAs('invoice', rec);
+  return v === 'sent' ? text : text.replace(TAMPER[v][0], TAMPER[v][1]);
+};
+
 /** The IP that handed the message to the receiver's MX: the one SPF checks. */
 export const ipOf = (id: MessageId) => hops(parse(MESSAGES[id])).find(h => h.by === RECEIVER_MX)!.ip;
 
@@ -54,3 +64,5 @@ export function dkimOf(id: MessageId, rec: Records): DkimResult {
 /** How Hollis's server judges one fixture message under Larkspur's records. */
 export const verdictOf = (id: MessageId, rec: Records, dkim = dkimOf(id, rec)): Verdict =>
   judge(parse(messageAs(id, rec)), ipOf(id), rec, dkim);
+/** DKIM's pinned verdict on each changed copy of the invoice (the engine test verifies them again). */
+export const TAMPERED = (pinned as { tamper: Record<Exclude<Version, 'sent'>, string> }).tamper;
