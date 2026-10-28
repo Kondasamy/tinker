@@ -1,0 +1,12 @@
+{
+  "accessed": "2026-10-28",
+  "facts": [
+    { "id": "world-models", "claim": "Ha and Schmidhuber (2018) built generative models of game environments and trained an agent entirely inside its world model’s “hallucinated dream”, then ran the agent in the real game.", "source": "https://arxiv.org/abs/1803.10122", "accessed": "2026-10-28" },
+    { "id": "gamengen", "claim": "GameNGen (Valevski et al., 2024) simulates the game DOOM with a diffusion model at 20 frames per second on a single TPU; human raters were only slightly better than chance at telling its clips from the real game.", "value": "20", "source": "https://arxiv.org/abs/2408.14837", "accessed": "2026-10-28" },
+    { "id": "gamengen-context", "claim": "GameNGen guesses each frame from the last 64 frames and actions, a little over 3 seconds; without noise added to those frames in training, its quality fell apart after about 10 to 20 frames of its own guesses.", "value": "64", "source": "https://arxiv.org/abs/2408.14837", "accessed": "2026-10-28" },
+    { "id": "genie", "claim": "Genie (Bruce et al., 2024) is an 11-billion-parameter world model trained on 30,000 hours of 2D platformer videos with no action labels; it learns its own small set of actions and is played frame by frame.", "value": "11", "source": "https://arxiv.org/abs/2402.15391", "accessed": "2026-10-28" },
+    { "id": "movie-gen", "claim": "Meta’s Movie Gen (October 2024) is a 30-billion-parameter model that makes 1080p video, 16 seconds at 16 frames a second, reading up to 73,000 video tokens at once.", "value": "16", "source": "https://arxiv.org/abs/2410.13720", "accessed": "2026-10-28" },
+    { "id": "sora", "claim": "OpenAI’s Sora report (February 2024) says its largest model makes up to a minute of high-fidelity video, treats video as patches across space and time, and leaves out model details.", "source": "https://openai.com/index/video-generation-models-as-world-simulators/", "accessed": "2026-10-28" },
+    { "id": "hd", "claim": "A 1080p HD frame is 1,920 pixels across and 1,080 down.", "value": "1920x1080", "source": "https://www.itu.int/rec/R-REC-BT.709", "accessed": "2026-10-28" }
+  ]
+}
