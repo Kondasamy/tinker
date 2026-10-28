@@ -5,6 +5,7 @@
 // It runs at build and test time only: the browser reads the pinned results (factors.json, loop.json) and never
 // factorises (R3).
 import pinnedFactors from '../../../data/recommendations/factors.json' with { type: 'json' };
+import { mulberry32 } from '../transformers/sample';
 import type { History } from './story';
 
 export type Vec = [number, number];
@@ -20,17 +21,6 @@ export const ITERS = 15;
 export const LAMBDA = 0.1;
 export const ALPHA = 16;
 export const SEED = 7;
-
-/** A small seeded generator (mulberry32): the same seed gives the same draws everywhere. */
-export function prng(seed: number) {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 /** One side's solve: for each row, the 2-vector that best fits its preferences against the other side's vectors. */
 function solve(rows: string[], cols: string[], other: Record<string, Vec>, has: (r: string, c: string) => boolean) {
@@ -71,7 +61,7 @@ export function factorise(h: History, products: string[], seed = SEED): Factors 
   const users = Object.keys(h);
   const bought = new Set(users.flatMap(u => h[u].map(p => `${u}|${p}`)));
   const has = (u: string, p: string) => bought.has(`${u}|${p}`);
-  const rand = prng(seed);
+  const rand = mulberry32(seed);
   let Y: Record<string, Vec> = Object.fromEntries(products.map(p => [p, [rand() * 0.1, rand() * 0.1] as Vec]));
   let X: Record<string, Vec> = {};
   for (let i = 0; i < ITERS; i++) {

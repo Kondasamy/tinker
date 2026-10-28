@@ -9,7 +9,8 @@
 // Blend and exploration take a few fixed steps, so every run is finite: simulate() runs at test time and its results
 // are pinned in data/recommendations/loop.json, which the browser replays (R3: nothing factorises in the browser).
 import pinned from '../../../data/recommendations/loop.json' with { type: 'json' };
-import { align, factorise, prng, type Factors, type Vec } from './factorise';
+import { mulberry32 } from '../transformers/sample';
+import { align, factorise, type Factors, type Vec } from './factorise';
 import { popularity, topOf } from './score';
 import { CUSTOMERS, HELD_OUT, PRODUCTS, SHELF, TRAIN, productOf, type Aisle, type History } from './story';
 
@@ -42,7 +43,7 @@ const TASTE: Record<string, Partial<Record<Aisle, number>>> = Object.fromEntries
 
 /** One draw for (round, customer, slot), the same whatever the policy (common random numbers). */
 const draw = (round: number, who: number, slot: number) =>
-  prng(LOOP_SEED * 1_000_003 + round * 7919 + who * 101 + slot)();
+  mulberry32(LOOP_SEED * 1_000_003 + round * 7919 + who * 101 + slot)();
 const round3 = (v: number) => Math.round(v * 1e3) / 1e3 || 0; // never -0, which JSON writes as 0
 
 export interface Round {

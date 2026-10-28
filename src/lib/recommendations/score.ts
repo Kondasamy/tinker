@@ -55,11 +55,34 @@ export function itemScores(h: History, c: string, buyers = buyersOf(h)): Record<
   for (const p of ALL) for (const q of new Set(h[c] ?? [])) out[p] = (out[p] ?? 0) + itemSimilarity(buyers, p, q);
   return out;
 }
+/** A product's score for a taste: the dot product with its own; null for a product with no taste. */
+export const tasteScore = (items: Factors['items'], taste: Vec) => (p: string) =>
+  items[p] ? dot(taste, items[p]!) : null;
 /** Shelf from a taste: products ranked by dot product with it; products with no taste are left out. */
 export const tasteShelf = (items: Factors['items'], taste: Vec, exclude: readonly string[] = []) =>
-  topOf(p => (items[p] ? dot(taste, items[p]!) : null), exclude);
+  topOf(tasteScore(items, taste), exclude);
 
-/** One customer's shelf by a method. A customer with no orders gets the bestsellers (nothing to be similar to). */
+/** One customer's scorer by a method, leaving out what they already bought. A customer with no orders (nothing to be
+ * similar to), or no taste, gets the bestsellers. */
+function scorerOf(method: Method, h: History, c: string, f?: Factors, buyers?: Record<string, string[]>) {
+  const own = h[c] ?? [];
+  const u = method === 'factors' ? f?.users[c] : undefined;
+  if (method === 'popular' || !own.length || (method === 'factors' && !u)) {
+    const pop = popularity(h);
+    return { score: (p: string): number | null => pop[p], exclude: own };
+  }
+  if (method === 'users') {
+    const s = userScores(h, c);
+    return { score: (p: string): number | null => s[p] ?? 0, exclude: own };
+  }
+  if (method === 'items') {
+    const s = itemScores(h, c, buyers);
+    return { score: (p: string): number | null => s[p] ?? 0, exclude: own };
+  }
+  return { score: tasteScore(f!.items, u!), exclude: own };
+}
+
+/** One customer's shelf by a method. */
 export function shelfOf(
   method: Method,
   h: History,
@@ -67,18 +90,8 @@ export function shelfOf(
   f?: Factors,
   buyers?: Record<string, string[]>,
 ): string[] {
-  const own = h[c] ?? [];
-  if (method === 'popular' || !own.length) return popularShelf(h, own);
-  if (method === 'users') {
-    const s = userScores(h, c);
-    return topOf(p => s[p] ?? 0, own);
-  }
-  if (method === 'items') {
-    const s = itemScores(h, c, buyers);
-    return topOf(p => s[p] ?? 0, own);
-  }
-  const u = f?.users[c];
-  return u ? tasteShelf(f!.items, u, own) : popularShelf(h, own);
+  const { score, exclude } = scorerOf(method, h, c, f, buyers);
+  return topOf(score, exclude);
 }
 
 /** Every customer's shelf by a method, over the training orders. */
@@ -106,7 +119,7 @@ export const SCORES = pinned.methods as Record<Method, { hits: number; coverage:
 /** Where a product ranks (1 = top) for a taste, among products not excluded; null if it has no taste. */
 export function rankOf(items: Factors['items'], taste: Vec, exclude: readonly string[], id: string): number | null {
   if (!items[id]) return null;
-  const order = topOf(p => (items[p] ? dot(taste, items[p]!) : null), exclude, ALL.length);
+  const order = topOf(tasteScore(items, taste), exclude, ALL.length);
   const i = order.indexOf(id);
   return i < 0 ? null : i + 1;
 }
@@ -117,25 +130,12 @@ export function rowsOf(score: (p: string) => number | null, exclude: readonly st
 }
 /** One customer's ranking by a method, as the shelf ranks it (shelfOf's first SHELF rows). */
 export function methodRows(method: Method, h: History, c: string, f?: Factors, n = 8): { id: string; score: number }[] {
-  const own = h[c] ?? [];
-  if (method === 'popular' || !own.length) {
-    const pop = popularity(h);
-    return rowsOf(p => pop[p], own, n);
-  }
-  if (method === 'users') {
-    const s = userScores(h, c);
-    return rowsOf(p => s[p] ?? 0, own, n);
-  }
-  if (method === 'items') {
-    const s = itemScores(h, c);
-    return rowsOf(p => s[p] ?? 0, own, n);
-  }
-  const u = f?.users[c];
-  return u ? tasteRows(f!.items, u, own, n) : methodRows('popular', h, c, f, n);
+  const { score, exclude } = scorerOf(method, h, c, f);
+  return rowsOf(score, exclude, n);
 }
 /** A taste's ranking: dot product with each product's taste; products without one are left out. */
 export const tasteRows = (items: Factors['items'], taste: Vec, exclude: readonly string[] = [], n = 8) =>
-  rowsOf(p => (items[p] ? dot(taste, items[p]!) : null), exclude, n);
+  rowsOf(tasteScore(items, taste), exclude, n);
 /** Bought together with one product: every other product by how alike their buyers are. */
 export function togetherRows(h: History, p: string, n = 8) {
   const buyers = buyersOf(h);
