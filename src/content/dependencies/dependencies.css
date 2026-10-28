@@ -22,6 +22,7 @@
 }
 .dp-pull [role="toolbar"] .chip[aria-pressed="true"] {
   background: var(--acc);
+  color: var(--ink);
 }
 .dp-pick {
   display: flex;

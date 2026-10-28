@@ -19,12 +19,30 @@ const best = runPolicy(WINNERS[0]).days[17].tree;
 const STATES: [string, Omit<TowerOpts, 'scale'>][] = [
   ['Day 0: the install', { ...towerOf(FIRST), say: { block: 'app', text: 'Your app' } }],
   ['Nested copy', { ...towerOf(FIRST, { lit: ['cartwheel/tidystr'] }), say: { block: 'nested', text: 'Second copy' } }],
-  ['Pulled the nested tidystr', { ...towerOf(pulledTree, { pulled: pulledOf(FIRST, pull) }), say: { block: 'pulled', text: 'Pulled' } }],
-  ['pricebook forced to 2.0.0', { ...towerOf(forced, { lit: ['pricebook'] }), say: { block: 'broken', text: 'Out of range' } }],
-  [`Day ${SERVER_DAY}: drift since day ${MIRA_DAY}`, { ...towerOf(server, { lit: drift }), say: { block: 'lit', text: 'Changed' } }],
+  [
+    'Pulled the nested tidystr',
+    { ...towerOf(pulledTree, { pulled: pulledOf(FIRST, pull) }), say: { block: 'pulled', text: 'Pulled' } },
+  ],
+  [
+    'pricebook forced to 2.0.0',
+    { ...towerOf(forced, { lit: ['pricebook'] }), say: { block: 'broken', text: 'Out of range' } },
+  ],
+  [
+    `Day ${SERVER_DAY}: drift since day ${MIRA_DAY}`,
+    { ...towerOf(server, { lit: drift }), say: { block: 'lit', text: 'Changed' } },
+  ],
   [`Day ${BAD_DAY}: the bad patch`, towerOf(install({ day: BAD_DAY }))],
-  [`Day ${BAD_DAY} with the lockfile`, { ...towerOf(install({ day: BAD_DAY, lock: FIRST_LOCK }), { lock: true }), say: { block: 'lock', text: 'Lockfile' } }],
-  [`Day ${HIJACK_DAY}: logline pinned, hijack in`, { ...towerOf(hijack), say: { block: 'hijacked', text: 'Stranger' } }],
+  [
+    `Day ${BAD_DAY} with the lockfile`,
+    {
+      ...towerOf(install({ day: BAD_DAY, lock: FIRST_LOCK }), { lock: true }),
+      say: { block: 'lock', text: 'Lockfile' },
+    },
+  ],
+  [
+    `Day ${HIJACK_DAY}: logline pinned, hijack in`,
+    { ...towerOf(hijack), say: { block: 'hijacked', text: 'Stranger' } },
+  ],
   ['A winning policy, day 18', towerOf(best, { lock: true })],
 ];
 ---
