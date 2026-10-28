@@ -3,7 +3,10 @@
 // pinned item is the module's one-line edge: a recommender ranks by what people like you bought, and what it shows
 // shapes what gets bought next.
 import type { RecallItem } from '../../lib/recall';
-import { COVERAGE_MIN } from '../../lib/recommendations/workbench';
+import data from '../../../data/recommendations/workbench.json' with { type: 'json' };
+
+// read off the bench's data, not workbench.ts, which would pull the loop into every page's registry
+const COVERAGE_MIN = data.coverageMin;
 
 const C1 = '01-the-bestsellers-shelf',
   C2 = '02-people-like-you',

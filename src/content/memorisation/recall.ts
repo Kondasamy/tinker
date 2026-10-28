@@ -2,7 +2,7 @@
 // asking the chapter's idea in a new situation. Every wrong option is a real misconception, and every option has a
 // `why` line.
 import type { RecallItem } from '../../lib/recall';
-import { RUNS, scoreOf } from '../../lib/memorisation/story';
+import { RUNS, scoreOf } from '../../lib/memorisation/runs';
 
 const DEDUP = scoreOf('dedup', 64).rank,
   N = RUNS.candidates.toLocaleString('en'),

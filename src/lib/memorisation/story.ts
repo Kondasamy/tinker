@@ -2,7 +2,9 @@
 // (KTD4). The PINs are fake, planted in training on purpose; names and digits come from data, never typed in copy.
 import ids from '../../../data/lm/ids.json' with { type: 'json' };
 import canaries from '../../../data/memorisation/canaries.json' with { type: 'json' };
-import runs from '../../../data/memorisation/runs.json' with { type: 'json' };
+import { RUNS, type RunId } from './runs';
+
+export { RUNS, scoreOf, type CanaryScore, type Run, type RunId } from './runs';
 
 export interface Canary {
   name: string;
@@ -11,21 +13,6 @@ export interface Canary {
   prefix: { text: string; ids: number[] };
   secret: number[];
   tail: number[];
-}
-export interface CanaryScore {
-  repeats: number;
-  extracted: boolean;
-  rank: number;
-  exposure: number;
-  logprob: number;
-  reply: number[];
-}
-export type RunId = 'canary' | 'dedup' | 'scrubbed' | 'dedup+scrubbed';
-export interface Run {
-  lines: number;
-  tokens: number;
-  heldout: { loss: number; top1: number; top5: number };
-  canaries: CanaryScore[];
 }
 
 const MEM = ids.memorisation;
@@ -36,16 +23,8 @@ export const CANDIDATES: number[][] = MEM.candidates;
 export const SHAPE = canaries.shape;
 export const PLACEHOLDER = canaries.placeholder;
 export const REPEATS = CANARIES.map(c => c.repeats);
-export const RUNS = runs as unknown as {
-  candidates: number;
-  replyTokens: number;
-  base: { heldout: { loss: number; top5: number } };
-  runs: Record<RunId, Run>;
-};
 export const RUN_IDS = Object.keys(RUNS.runs) as RunId[];
 export const canaryOf = (repeats: number) => CANARIES.find(c => c.repeats === repeats)!;
-/** A canary's offline score in a run, over all 10,000 candidates. */
-export const scoreOf = (run: RunId, repeats: number) => RUNS.runs[run].canaries.find(c => c.repeats === repeats)!;
 /** The canary's training line, as planted. */
 export const lineOf = (c: Canary) => SHAPE.replace('{name}', c.name).replace('{pin}', c.pin);
 /** Its first name, for pills and short copy. */

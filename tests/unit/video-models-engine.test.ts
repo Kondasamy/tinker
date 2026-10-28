@@ -7,6 +7,7 @@ import meta from '../../public/data/video-models/meta.json' with { type: 'json' 
 import { sizeOf } from '../../src/lib/compression/coders';
 import { multiplies, units } from '../../src/lib/video-models/compute';
 import { diskNet } from '../../src/lib/video-models/diskModel';
+import { TRAIN_ROLLOUTS } from '../../src/lib/video-models/training';
 import {
   changed,
   crateCells,
@@ -112,6 +113,12 @@ describe('the reader’s drive', () => {
       expect(r.frames[i + 1]).toEqual(frame(w));
     });
     expect(r.actions.slice(1)).toEqual(moves);
+  });
+});
+
+describe('training', () => {
+  it('the registry’s rollout count is the one meta.json recorded', () => {
+    expect(TRAIN_ROLLOUTS).toBe(meta.training.rollouts);
   });
 });
 

@@ -1,11 +1,11 @@
 // Video and world models: its chapters and module facts. Chapter ids are a contract with readers' saved progress: never
 // rename one.
 import type { Chapter, Module } from '../../lib/modules';
-import meta from '../../../public/data/video-models/meta.json' with { type: 'json' };
 import bench from '../../../data/video-models/workbench.json' with { type: 'json' };
+import { TRAIN_ROLLOUTS } from '../../lib/video-models/training';
 import { RECALL } from './recall';
 
-const RUNS = meta.training.rollouts.toLocaleString('en-US');
+const RUNS = TRAIN_ROLLOUTS.toLocaleString('en-US');
 
 const CHAPTERS: Chapter[] = [
   {
