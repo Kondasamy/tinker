@@ -1,0 +1,11 @@
+{
+  "note": "Larkspur's shop app as its package.json lists it: fictional packages, ranges as the team wrote them.",
+  "name": "larkspur-shop",
+  "deps": {
+    "cartwheel": "^2.1.0",
+    "logline": "^1.3.0",
+    "pricebook": "^1.4.2",
+    "shipcalc": "^3.2.4",
+    "tidystr": "^2.0.0"
+  }
+}

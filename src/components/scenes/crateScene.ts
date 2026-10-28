@@ -143,9 +143,18 @@ export function crateState(o: CrateOpts) {
 const pill = (p: number[], dx: number, dy: number, text: string, lit: boolean, scale: number, fill?: string) =>
   `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text), lit, scale, fill)}</g>`;
 
-/** A sealed crate: slats on its two front faces, a lid, a wax seal; pale for a ghost, lid off for a conflict. */
-function crate(x: number, y: number, state?: Crate['state'], z0 = BH, half = HALF, ht = HT) {
-  const m = state === 'ghost' ? GHOST : WOOD,
+/** A sealed crate: slats on its two front faces, a lid, a wax seal; pale for a ghost, lid off for a conflict. Exported
+ * for Dependencies' crate tower, which may paint it another colour (pal). */
+export function crate(
+  x: number,
+  y: number,
+  state?: Crate['state'],
+  z0 = BH,
+  half = HALF,
+  ht = HT,
+  pal?: { l: string; m: string; d: string },
+) {
+  const m = pal ?? (state === 'ghost' ? GHOST : WOOD),
     x0 = x - half,
     x1 = x + half,
     y0 = y - half,
