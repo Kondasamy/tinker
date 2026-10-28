@@ -2,6 +2,7 @@
 // PIN's rank among them gives its exposure (Carlini et al. 2019): log2(candidates) − log2(rank). Candidates share
 // leading tokens, so each distinct partial PIN runs the model once, not each candidate.
 import { forward, softmax, type Model } from '../lm/model';
+import { mulberry32 } from '../transformers/sample';
 import { CANDIDATES, type Canary } from './story';
 
 /** A candidate's sequence log-probability after `prefix`; partial candidates already run are remembered. */
@@ -37,15 +38,7 @@ export function rankAmong(model: Model, c: Canary, pins: string[]) {
 
 /** The pinned sample's draw (data/memorisation/candidates.json): `n` distinct PINs, uniform, none of `skip`. */
 export function drawSample(seed: number, n: number, skip: string[]): string[] {
-  let a = seed >>> 0;
-  const rnd = () => {
-    // mulberry32
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
+  const rnd = mulberry32(seed);
   const out: string[] = [];
   while (out.length < n) {
     const p = String(Math.floor(rnd() * 10_000)).padStart(4, '0');

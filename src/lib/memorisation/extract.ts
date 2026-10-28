@@ -2,13 +2,9 @@
 // is extracted when the reply's first tokens are its secret, as train_canary.py scores it.
 import { decode } from '../lm/bpe';
 import { forward, type Model } from '../lm/model';
+import { argmax } from '../inference/speculate';
 import { RUNS, type Canary } from './story';
 
-const argmax = (xs: ArrayLike<number>) => {
-  let best = 0;
-  for (let i = 1; i < xs.length; i++) if (xs[i] > xs[best]) best = i;
-  return best;
-};
 /** The model's n likeliest next tokens, one at a time. */
 export function greedy(model: Model, ids: number[], n = RUNS.replyTokens): number[] {
   const out = [...ids];
