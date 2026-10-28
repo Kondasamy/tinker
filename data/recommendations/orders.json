@@ -1,5 +1,5 @@
 {
- "note": "Hand-written orders: made-up trade customers and their orders, one product per order, oldest first. Not real data.",
+ "note": "Made-up orders: invented trade customers and their orders, one product per order, oldest first, generated once by a seeded script. Not real data.",
  "aisles": {
   "wood": "Woodwork",
   "fit": "Fittings",

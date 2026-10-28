@@ -1,4 +1,4 @@
-// Larkspur's shop for the Recommendations module (KTD9): the catalogue and the hand-written orders
+// Larkspur's shop for the Recommendations module (KTD9): the catalogue and the made-up orders
 // (data/recommendations/orders.json, made up, labelled wherever they show). Each customer's orders are one product each,
 // oldest first; the last is held out, the order every method tries to guess, and the rest is what the methods learn
 // from. The Kestrel K3 has just launched and has no orders yet: the cold-start product.

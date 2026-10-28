@@ -151,7 +151,7 @@ describe('the loop', () => {
       expect(loopOf(w.blend, w.explore).rounds.at(-1)!.coverage).toBeGreaterThanOrEqual(COVERAGE_MIN);
     }
   });
-  it('round 0 is the hand-written orders’ shelf: everything with an order is on the map', () => {
+  it('round 0 is the made-up orders’ shelf: everything with an order is on the map', () => {
     expect(loopOf(1, 0).rounds[0].coverage).toBe(PRODUCTS.length - 1);
   });
   it('loop.json recomputes from factorise() for every blend and exploration step', () => {

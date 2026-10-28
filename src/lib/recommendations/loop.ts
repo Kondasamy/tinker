@@ -1,8 +1,8 @@
-// The loop (KTD9): the shelf shapes the orders that train the shelf. A seeded simulator over the hand-written orders,
+// The loop (KTD9): the shelf shapes the orders that train the shelf. A seeded simulator over the made-up orders,
 // nothing measured. Each round every customer sees a shelf of SHELF products they haven't bought: the ranked slots by a
 // blend of bestsellers and hidden tastes, then `explore` slots given to random products. With chance BUY (a stated
 // planning number) they buy one shelf product from an aisle they buy from; otherwise nothing. The shop retrains on the
-// last WINDOW rounds of orders, the hand-written ones counting as round 0, so once those age out it learns only from what
+// last WINDOW rounds of orders, the made-up ones counting as round 0, so once those age out it learns only from what
 // its own shelves sold: a product off every shelf gets no orders and loses its taste, its place on the map (coverage).
 // A customer never buys their held-out last order in the loop; every round's shelves are scored on it (hit@5).
 //
@@ -17,7 +17,7 @@ import { CUSTOMERS, HELD_OUT, PRODUCTS, SHELF, TRAIN, productOf, type Aisle, typ
 export const ROUNDS = 6;
 /** The chance a customer buys from the shelf in a round: a stated planning number, not measured. */
 export const BUY = 0.8;
-/** The shop retrains on the orders of the last WINDOW rounds; the hand-written orders count as round 0. */
+/** The shop retrains on the orders of the last WINDOW rounds; the made-up orders count as round 0. */
 export const WINDOW = 3;
 /** The blend's steps: the share of the ranking from hidden tastes; the rest is bestsellers. */
 export const BLENDS = [0, 0.25, 0.5, 0.75, 1];
@@ -97,7 +97,7 @@ function shelfFor(
 
 /** Runs the loop under a policy from the training orders: ROUNDS rounds of buying, ROUNDS + 1 shelves scored. */
 export function simulate(blend: number, explore: number): Loop {
-  // everything each customer has bought (never offered again), and the orders of each round, the hand-written first
+  // everything each customer has bought (never offered again), and the orders of each round, the made-up first
   const own: History = Object.fromEntries(Object.entries(TRAIN).map(([c, ps]) => [c, [...ps]]));
   const placed: History[] = [TRAIN];
   const rounds: Round[] = [];

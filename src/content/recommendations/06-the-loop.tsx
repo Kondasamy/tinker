@@ -177,7 +177,7 @@ export default function TheLoop() {
               {' One random slot on every shelf'}
             </label>
             <p className="note rc-note">
-              {`A simulation over the hand-written orders: the ${pct(BUY)} buying chance is a planning number.`}
+              {`A simulation over the made-up orders: the ${pct(BUY)} buying chance is a planning number.`}
             </p>
             <OrdersNote />
           </>
