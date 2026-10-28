@@ -1,0 +1,68 @@
+---
+// Dev-only eyeball page: the post room in the states the chapters teach (static SVG, wide and phone), then the stage
+// live with its postmarks and read-out, and the headers tab. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { POST_BOARD, postLabel, postScene, type PostOpts } from '../components/scenes/postScene';
+import { EmailStage, postOf, type Show } from '../content/email/kit';
+import { RECORDS, verdictOf, type MessageId } from '../lib/email/story';
+
+const ALL: Show = { spf: true, dkim: true, dmarc: true, spam: true, sorted: true };
+const at = (id: MessageId, rec: string, peeled: number, show: Show, say?: PostOpts['say']) => ({
+  ...postOf(verdictOf(id, RECORDS[rec]), id, RECORDS[rec], peeled, show),
+  say,
+});
+const STATES: [string, Omit<PostOpts, 'scale'>][] = [
+  ['Ch1: the order on the desk', at('order', 'nothing', 0, {}, { block: 'envelope', text: 'The envelope' })],
+  ['Ch1: sorted to junk', at('order', 'nothing', 0, { sorted: true })],
+  ['Ch2: two postmarks peeled', at('order', 'nothing', 2, {}, { block: 'postmarks', text: 'Bottom first' })],
+  ['Ch2: the forward, all peeled', at('forwarded', 'nothing', 5, {})],
+  ['Ch4: SPF on the spoof', at('spoofed', 'spf', 2, { spf: true, sorted: true }, { block: 'spf', text: 'Not listed' })],
+  ['Ch5: DKIM passes', at('invoice', 'dkim', 0, { spf: true, dkim: true, sorted: true })],
+  ['Ch6: forged, reject', at('forged', 'reject', 0, ALL, { block: 'bounce', text: 'Bounced' })],
+  ['Ch6: the prize', at('prize', 'reject', 0, ALL, { block: 'spam', text: 'Spammy words' })],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Email scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Post room: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={POST_BOARD} scene={postScene({ ...o, scale: 1.2 })} label={postLabel(o)} /></div>
+            <div class="phone"><IsoStage board={POST_BOARD} scene={postScene({ ...o, scale: 2 })} label={postLabel(o)} /></div>
+            <p>{postLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Postmarks, order</h2><div class="stage"><EmailStage id="order" rec={RECORDS.nothing} show={{}} peeled={1} onPeel={() => {}} caption="Chapter 2." /></div></section>
+        <section><h2>Headers, forged</h2><div class="stage"><EmailStage id="forged" rec={RECORDS.reject} show={ALL} view="headers" caption="<script>alert(1)</script>" /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 640px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

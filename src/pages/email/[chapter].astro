@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import EnvelopeAndLetter from '../../content/email/01-envelope-and-letter';
+import WhoTakesItNext from '../../content/email/02-who-takes-it-next';
+import AnyoneCanWriteFrom from '../../content/email/03-anyone-can-write-from';
+import AllowedSenders from '../../content/email/04-allowed-senders';
+import ASealOnTheLetter from '../../content/email/05-a-seal-on-the-letter';
+import WhatToDoWithAFailure from '../../content/email/06-what-to-do-with-a-failure';
+import MailRecords from '../../content/email/07-mail-records';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('email').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="email" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-envelope-and-letter' ? <EnvelopeAndLetter client:load />
+    : chapter === '02-who-takes-it-next' ? <WhoTakesItNext client:load />
+    : chapter === '03-anyone-can-write-from' ? <AnyoneCanWriteFrom client:load />
+    : chapter === '04-allowed-senders' ? <AllowedSenders client:load />
+    : chapter === '05-a-seal-on-the-letter' ? <ASealOnTheLetter client:load />
+    : chapter === '06-what-to-do-with-a-failure' ? <WhatToDoWithAFailure client:load />
+    : <MailRecords client:load />}
+</ChapterLayout>

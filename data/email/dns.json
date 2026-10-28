@@ -1,0 +1,16 @@
+{
+  "note": "Made-up DNS for How email arrives: nothing here resolves for real. Larkspur's own SPF and DMARC records are what the reader sets in each chapter, so they are not listed here. scripts/sign-email.mjs writes the DKIM key record.",
+  "mx": {
+    "hollisbuild.example": "mx1.hollisbuild.example",
+    "larkspur.example": "mail.larkspur.example",
+    "oldmail.example": "mx.oldmail.example"
+  },
+  "txt": {
+    "_spf.sendwell.example": "v=spf1 ip4:198.51.100.32/27 -all",
+    "larkspur-billing.example": "v=spf1 ip4:203.0.113.66 -all",
+    "prize-draw.example": "v=spf1 ip4:203.0.113.90 -all",
+    "_dmarc.prize-draw.example": "v=DMARC1; p=none",
+    "loop.example": "v=spf1 include:loop.example -all",
+    "demo2026._domainkey.larkspur.example": "v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqM6nfAjU/Ke6F5DWIATUPg2vmNvm28GWt3SiDPiSbXQx4sWKYnFMJ5aMQ9PuAHTBm+CIzMjvkq0HBfyOnLyQpbaFyiFbWF0tX+sy7+UN95bLKSTgQ80kziwYkRCP6RsxMaowSbkSOuBQIlJLlny/AU89nO1DHc2dALckiCJb6ZLCXXWtOxGYhEron8/1Kr3s4x8e7r8yGvPQOMQFJ0UsjAsyHHm0mCetXs/S9//B6NmglUrgLnPzk/aqKwrtB7B6iBLrIjusPwHKuO9IKQ3C9AvbNDpQDSNzM//mthrmD/b2rPi7ODoDEKuOqyTH/pxWdWdNMVC+QnZcWpR9cmGTuQIDAQAB"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "note": "DEMO KEY, generated once for this site and used nowhere else. It is public on purpose so the page can check a real DKIM signature; a real private key never leaves its owner.",
+  "key": {
+    "key_ops": [
+      "sign"
+    ],
+    "ext": true,
+    "alg": "RS256",
+    "kty": "RSA",
+    "n": "qM6nfAjU_Ke6F5DWIATUPg2vmNvm28GWt3SiDPiSbXQx4sWKYnFMJ5aMQ9PuAHTBm-CIzMjvkq0HBfyOnLyQpbaFyiFbWF0tX-sy7-UN95bLKSTgQ80kziwYkRCP6RsxMaowSbkSOuBQIlJLlny_AU89nO1DHc2dALckiCJb6ZLCXXWtOxGYhEron8_1Kr3s4x8e7r8yGvPQOMQFJ0UsjAsyHHm0mCetXs_S9__B6NmglUrgLnPzk_aqKwrtB7B6iBLrIjusPwHKuO9IKQ3C9AvbNDpQDSNzM__mthrmD_b2rPi7ODoDEKuOqyTH_pxWdWdNMVC-QnZcWpR9cmGTuQ",
+    "e": "AQAB",
+    "d": "AS2sIqQHJJphJK_4prGR77r1ulnyox8XV8GDLhcAIq54eK5LWIOU9gPJh-GvXCZ0gYuQOOnALmRx05tfPX3dfqKnDXGtKxE_c1d3fBA7yDovweJFhIOmmZ_aLg0RDB4J-mBHRQR7OZj-RjcP2wWU6cPtWK6ZVNhuG6arpR2kSZ2fQbQhN5VrhFzlzF9b9akHQ7Yk7E4XRjlpJGG-WzEVFKM4Xa2i8nKlK1JhbCyRFu2e-8UBy75EytnDkrOsh6mQhctDL9ceMnIdzy11Sv8e0WtLTcUpfV9mKTSiWHBrXHZqgBGVISyHpfqYSjCsie24HNpFMQebw3cRZnwkgGRI2Q",
+    "p": "0RdqwHr3jjqECDEN_ocu6FkqeSn4yPYiwHXzFV7CBT8HtXpyshJlogt-ej34YM8ZmZR9XsXAmA026XqhrAbNtGBCB-A5t5FFwu55uGn20IFnG2evAU88-CsgDPwkqjIhwI9VBSHpogeQle22-jUJPNcDWAsipoB5xQWTrmzIQfU",
+    "q": "zq2gF7ehrYWypGiDqocHFgfoiqiCYSIx8NJEogpLmro9Zk6mseXzgANFvSM7jQdyTCudWLNduXdUW_ynPFa50ouJ1X211ZZWU7oVDaxkjN11D8fOlufuBBGpi1i6wIyKh9INW5MB3CJt6pdmHyV6dMmK0pFywUOeqO29Y5EMvDU",
+    "dp": "dxH3x97-5O7ry2JsDrta-hP0_QTq2T5ZsfI5WL0ajjRDppQxhri1Sd9zyhdKP48QjAYkkvjYYX58-97K_JTvRb3fPG7zT1caPBTkGiG13S0j01ZrMbq3BLhCS0K3eniMAgVdrEuQqaXXL5osrjXPqebjz5qfw-O79HfljtoB_JU",
+    "dq": "ohLT5WVyWwHqWjU_cz2aF_OxrvJ_863-Hcy2V5_dNAPyXEU3QXCDKBLo4G49p9V8EzFsnX9i8ysZs10IxC96Xxpfx1RigJD5N4VIN0XGQBT2VJ6qafqM0xIKs6SsJozPobzeDr7UiY1SRtHdGnWoducJfyDiLZ5aUDzG9MptgzU",
+    "qi": "h1PnYULiE8pmk6KMuHEVWOGeM0jMBe1HmJND_zwhjnCvoEOtT-8tB1xMWIGhUyExdKjYCCPrXsZolEztIFHI8-QFygEC84Zaxyi97Yh9YTpEef7bxMUbjWAooC_HTlE2XnTw3_xo-H7VPXiI8nRgELnPQuZGY5djC0BNmrG9VSk"
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "note": "Every verdict the chapters teach, pinned. tests/unit/email-engine.test.ts and email-workbench.test.ts recompute them (WRITE_PINNED=1 rewrites).",
+  "records": {
+    "nothing": {
+      "spf": null,
+      "dkim": false,
+      "dmarc": null
+    },
+    "spf": {
+      "spf": "v=spf1 ip4:192.0.2.0/28 -all",
+      "dkim": false,
+      "dmarc": null
+    },
+    "spf-vendor": {
+      "spf": "v=spf1 ip4:192.0.2.0/28 include:_spf.sendwell.example -all",
+      "dkim": false,
+      "dmarc": null
+    },
+    "dkim": {
+      "spf": "v=spf1 ip4:192.0.2.0/28 include:_spf.sendwell.example -all",
+      "dkim": true,
+      "dmarc": null
+    },
+    "dmarc-none": {
+      "spf": "v=spf1 ip4:192.0.2.0/28 include:_spf.sendwell.example -all",
+      "dkim": true,
+      "dmarc": "none"
+    },
+    "reject": {
+      "spf": "v=spf1 ip4:192.0.2.0/28 include:_spf.sendwell.example -all",
+      "dkim": true,
+      "dmarc": "reject"
+    }
+  },
+  "dkim": {
+    "forged": "none",
+    "forwarded": "pass",
+    "invoice": "pass",
+    "newsletter": "none",
+    "order": "pass",
+    "prize": "none",
+    "spoofed": "none"
+  },
+  "spam": {
+    "forged": 0,
+    "forwarded": 0,
+    "invoice": 0,
+    "newsletter": 0,
+    "order": 0,
+    "prize": 1,
+    "spoofed": 0
+  },
+  "verdicts": {
+    "nothing": {
+      "forged": "inbox",
+      "forwarded": "junk",
+      "invoice": "junk",
+      "newsletter": "junk",
+      "order": "junk",
+      "prize": "junk",
+      "spoofed": "junk"
+    },
+    "spf": {
+      "forged": "inbox",
+      "forwarded": "junk",
+      "invoice": "inbox",
+      "newsletter": "junk",
+      "order": "inbox",
+      "prize": "junk",
+      "spoofed": "junk"
+    },
+    "spf-vendor": {
+      "forged": "inbox",
+      "forwarded": "junk",
+      "invoice": "inbox",
+      "newsletter": "inbox",
+      "order": "inbox",
+      "prize": "junk",
+      "spoofed": "junk"
+    },
+    "dkim": {
+      "forged": "inbox",
+      "forwarded": "inbox",
+      "invoice": "inbox",
+      "newsletter": "inbox",
+      "order": "inbox",
+      "prize": "junk",
+      "spoofed": "junk"
+    },
+    "dmarc-none": {
+      "forged": "inbox",
+      "forwarded": "inbox",
+      "invoice": "inbox",
+      "newsletter": "inbox",
+      "order": "inbox",
+      "prize": "junk",
+      "spoofed": "junk"
+    },
+    "reject": {
+      "forged": "bounced",
+      "forwarded": "inbox",
+      "invoice": "inbox",
+      "newsletter": "inbox",
+      "order": "inbox",
+      "prize": "junk",
+      "spoofed": "bounced"
+    }
+  },
+  "workbench": [
+    {
+      "spf": "vendor-soft",
+      "dkim": true,
+      "dmarc": "reject"
+    },
+    {
+      "spf": "vendor",
+      "dkim": true,
+      "dmarc": "reject"
+    }
+  ],
+  "tamper": {
+    "digit": "fail",
+    "spaces": "pass"
+  }
+}
