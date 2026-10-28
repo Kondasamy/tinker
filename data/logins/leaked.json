@@ -1,0 +1,25 @@
+{
+  "note": "A short stand-in for a leaked-password list, written for this site in the order an attacker tries them. Real lists hold hundreds of millions of passwords from past breaches.",
+  "passwords": [
+    "123456",
+    "password",
+    "123456789",
+    "qwerty",
+    "12345678",
+    "111111",
+    "letmein",
+    "iloveyou",
+    "admin",
+    "welcome",
+    "monkey",
+    "dragon",
+    "sunshine",
+    "football",
+    "password1",
+    "qwerty123",
+    "abc123",
+    "summer2023",
+    "summer2024",
+    "winter2024"
+  ]
+}
