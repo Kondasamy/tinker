@@ -247,7 +247,7 @@ export default function SignInWithAnotherSite() {
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />,
         pkce: () => (
           <ul className="lg-checks">
-            <li data-check="pkce" data-ok={THIEF_FAILS ? '0' : '1'}>
+            <li data-check="thief-pkce" data-ok={THIEF_FAILS ? '0' : '1'}>
               {`Thief’s verifier hashes to ${challengeOf(THIEF_VERIFIER).slice(0, 10)}…, not ${CHALLENGE.slice(0, 10)}…`}
             </li>
           </ul>
