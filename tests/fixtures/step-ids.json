@@ -1910,5 +1910,50 @@
       "bench",
       "ties"
     ]
+  },
+  "dependencies": {
+    "01-code-you-did-not-write": [
+      "predict",
+      "install",
+      "pull",
+      "quiz"
+    ],
+    "02-what-the-numbers-mean": [
+      "predict",
+      "major",
+      "minor",
+      "quiz"
+    ],
+    "03-packages-need-packages": [
+      "predict",
+      "tree",
+      "pull",
+      "quiz"
+    ],
+    "04-the-same-install-every-time": [
+      "predict",
+      "install",
+      "lock",
+      "quiz"
+    ],
+    "05-one-bad-patch": [
+      "build",
+      "predict",
+      "lock",
+      "update",
+      "quiz"
+    ],
+    "06-who-published-this": [
+      "pin",
+      "predict",
+      "install",
+      "scripts",
+      "lock",
+      "quiz"
+    ],
+    "07-update-policy": [
+      "bench",
+      "ties"
+    ]
   }
 }

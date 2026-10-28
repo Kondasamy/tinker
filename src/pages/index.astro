@@ -116,6 +116,9 @@ import { LAST as LOGINS_LAST, WORK as LOGINS_WORK } from '../lib/logins/race';
 import { POST_BOARD, postLabel, postScene } from '../components/scenes/postScene';
 import { postOf as emailPost } from '../content/email/kit';
 import { RECORDS as EMAIL_RECORDS, verdictOf as emailVerdict } from '../lib/email/story';
+import { TOWER_BOARD, towerLabel, towerOf, towerScene } from '../components/scenes/towerScene';
+import { install as depsInstall } from '../lib/dependencies/resolve';
+import { BAD_DAY as DEPS_BAD_DAY } from '../lib/dependencies/story';
 import { FORM } from '../lib/site';
 
 const one =
@@ -327,6 +330,8 @@ const POST = {
   }),
   scale: 1.7,
 };
+// dependencies: the install on the bad patch's day, the broken crates in the tower
+const TOWER = { ...towerOf(depsInstall({ day: DEPS_BAD_DAY })), scale: 1.7 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -850,6 +855,19 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'DKIM signatures',
       'DMARC policy',
       'Spam',
+    ],
+  },
+  dependencies: {
+    name: 'Dependencies',
+    iso: { board: TOWER_BOARD, scene: towerScene(TOWER), label: towerLabel(TOWER) },
+    topics: [
+      'Package managers',
+      'Semantic versioning',
+      'Version ranges',
+      'Transitive dependencies',
+      'Lockfiles',
+      'Supply-chain attacks',
+      'Update policy',
     ],
   },
 };

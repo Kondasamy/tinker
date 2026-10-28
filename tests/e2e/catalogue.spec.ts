@@ -48,6 +48,7 @@ const NUMBERED = [
   'mixture-of-experts',
   'logins',
   'email',
+  'dependencies',
 ];
 
 // every module sits at its level: live cards first, then the roadmap's planned cards in registry (build) order;
@@ -333,6 +334,10 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
   await expect(page.locator('[data-level="Beginner"] .module[data-module="email"] h4 a')).toHaveAttribute(
     'href',
     '/email/',
+  );
+  await expect(page.locator('[data-level="Intermediate"] .module[data-module="dependencies"] h4 a')).toHaveAttribute(
+    'href',
+    '/dependencies/',
   );
 });
 
