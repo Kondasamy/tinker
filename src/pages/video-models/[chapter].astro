@@ -1,0 +1,31 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ManyPictures from '../../content/video-models/01-many-pictures';
+import GuessTheNextFrame from '../../content/video-models/02-guess-the-next-frame';
+import OneFrameIsNotEnough from '../../content/video-models/03-one-frame-is-not-enough';
+import PressAKey from '../../content/video-models/04-press-a-key';
+import Drift from '../../content/video-models/05-drift';
+import TheBigOnes from '../../content/video-models/06-the-big-ones';
+import Workbench from '../../content/video-models/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('video-models').chapters.map(({ id, title }) => ({
+    params: { chapter: id },
+    props: { title },
+  }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="video-models" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-many-pictures' ? <ManyPictures client:load />
+    : chapter === '02-guess-the-next-frame' ? <GuessTheNextFrame client:load />
+    : chapter === '03-one-frame-is-not-enough' ? <OneFrameIsNotEnough client:load />
+    : chapter === '04-press-a-key' ? <PressAKey client:load />
+    : chapter === '05-drift' ? <Drift client:load />
+    : chapter === '06-the-big-ones' ? <TheBigOnes client:load />
+    : <Workbench client:load />}
+</ChapterLayout>
