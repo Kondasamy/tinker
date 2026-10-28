@@ -181,6 +181,52 @@ export const MODULES: Module[] = [
     'How new code reaches everyone: tests on every change, a canary first, feature flags, and a rollback.',
     'Classic tech',
   ),
+  planned(
+    'fairness',
+    'Bias and fairness',
+    'Intermediate',
+    'Who a model gets wrong: error rates group by group, where the skew comes from, and what a fix costs.',
+  ),
+  planned(
+    'watermarks',
+    'Watermarks and made-by-AI',
+    'Intermediate',
+    'Marking generated text and pictures so they can be spotted later, and why a detector can only guess.',
+  ),
+  planned(
+    'prompts',
+    'Writing a prompt',
+    'Beginner',
+    'Telling a model what you want: clear instructions, a few good examples, and testing the prompt like code.',
+  ),
+  planned(
+    'rate-limits',
+    'Rate limits',
+    'Beginner',
+    'Why a busy site says slow down: a bucket of tokens, a 429 reply, and who gets turned away first.',
+    'Classic tech',
+  ),
+  planned(
+    'backups',
+    'Backups and recovery',
+    'Beginner',
+    'Copies that save you on a bad day: how often to copy, testing the restore, and how much you can lose.',
+    'Classic tech',
+  ),
+  planned(
+    'unicode',
+    'Text and Unicode',
+    'Beginner',
+    'How letters become bytes: one number for every character, UTF-8, and why an emoji breaks a form.',
+    'Classic tech',
+  ),
+  planned(
+    'routes',
+    'Finding the way',
+    'Intermediate',
+    'How a map app picks your route: roads as a graph, the shortest path, and live traffic that changes it.',
+    'Classic tech',
+  ),
 ];
 
 export function moduleOf(id: string): Module {

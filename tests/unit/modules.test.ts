@@ -32,6 +32,14 @@ const ROADMAP: [string, string, string?][] = [
   ['email', 'Beginner', 'Classic tech'],
   ['dependencies', 'Intermediate', 'Classic tech'],
   ['releases', 'Intermediate', 'Classic tech'],
+  // docs/plans/2026-10-28-2100-feat-final-seven-roadmap-modules-plan.md takes the seven above live; these follow (KTD14)
+  ['fairness', 'Intermediate'],
+  ['watermarks', 'Intermediate'],
+  ['prompts', 'Beginner'],
+  ['rate-limits', 'Beginner', 'Classic tech'],
+  ['backups', 'Beginner', 'Classic tech'],
+  ['unicode', 'Beginner', 'Classic tech'],
+  ['routes', 'Intermediate', 'Classic tech'],
 ];
 /** true when every id in `ids` is in `list`, in the list's order */
 const inOrder = (ids: string[], list: string[]) => {

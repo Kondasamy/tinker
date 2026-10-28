@@ -353,6 +353,13 @@ const ROADMAP = [
   'email',
   'dependencies',
   'releases',
+  'fairness',
+  'watermarks',
+  'prompts',
+  'rate-limits',
+  'backups',
+  'unicode',
+  'routes',
 ];
 test('live cards numbered from 1, the roadmap cards in order', async ({ page }) => {
   await page.goto('/');

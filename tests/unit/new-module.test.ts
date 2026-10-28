@@ -62,15 +62,15 @@ describe('pnpm new-module', () => {
     expect(live(registry!)).toEqual([...live(real), 'ZZ_FRESH_CHECK_MODULE']);
   });
 
-  // Biome writes each planned() card one argument per line; `releases` stays a roadmap card through this build
+  // Biome writes each planned() card one argument per line; `routes` stays a roadmap card through this build
   it('on the real registry, takes a multi-line planned card live right after the last live module', () => {
     const real = readFileSync('src/lib/modules.ts', 'utf8');
-    expect(real).toMatch(/^ {2}planned\(\n {4}'releases',$/m);
-    const { registry, error } = plan('releases', 'Shipping a release');
+    expect(real).toMatch(/^ {2}planned\(\n {4}'routes',$/m);
+    const { registry, error } = plan('routes', 'Finding the way');
     expect(error).toBeUndefined();
-    expect(registry).not.toMatch(/'releases',/);
-    expect(registry).toContain(`  ${live(real).at(-1)},\n  RELEASES_MODULE,\n  planned(\n`);
-    expect(live(registry!)).toEqual([...live(real), 'RELEASES_MODULE']);
+    expect(registry).not.toMatch(/'routes',/);
+    expect(registry).toContain(`  ${live(real).at(-1)},\n  ROUTES_MODULE,\n  planned(\n`);
+    expect(live(registry!)).toEqual([...live(real), 'ROUTES_MODULE']);
     expect(registry!.split('planned(').length).toBe(real.split('planned(').length - 1);
   });
 
