@@ -1,0 +1,92 @@
+---
+// Dev-only eyeball page: the race's boards per form and work factor, the pins (TOTP, ID token checks, WINNERS), every
+// chapter's picture (static SVG, wide and phone), then the stage and the race's controls live. Below 600px the phone
+// versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { CLOAK_BOARD, cloakLabel, cloakScene, type CloakOpts } from '../components/scenes/cloakScene';
+import { LoginsStage, RaceControls, raceScene, raceSaid } from '../content/logins/kit';
+import { sceneOf as s1 } from '../content/logins/01-the-sticky-note';
+import { sceneOf as s2 } from '../content/logins/02-a-one-way-fingerprint';
+import { sceneOf as s3 } from '../content/logins/03-a-pinch-of-salt';
+import { sceneOf as s4 } from '../content/logins/04-slow-on-purpose';
+import { sceneOf as s5 } from '../content/logins/05-the-cloakroom-ticket';
+import { flowOf, sceneOf as s6 } from '../content/logins/06-sign-in-with-another-site';
+import { sceneOf as s7 } from '../content/logins/07-guard-every-account';
+import { ACCOUNTS } from '../lib/logins/store';
+import { FORMS, LAST, TICKS, WORK, boardAt } from '../lib/logins/race';
+import { BEST, WINNERS, planKey, START } from '../lib/logins/workbench';
+import pinned from '../../data/logins/pinned.json' with { type: 'json' };
+
+const STATES: [string, Omit<CloakOpts, 'scale'>][] = [
+  ['1 · before the breach', s1({ stolen: false })],
+  ['1 · table copied', s1({ stolen: true })],
+  ['2 · race, SHA-256, end', s2({ hashed: true, p1: 0, tick: LAST })],
+  ['3 · twins, unsalted', s3({ salted: false, tick: 0 })],
+  ['3 · salted, end', s3({ salted: true, tick: LAST })],
+  ['4 · PBKDF2 top, end', s4({ form: 'pbkdf2', work: WORK[2], tick: LAST, p1: 0 })],
+  ['5 · ticket copied', s5({ signedIn: true, stolen: true, signedOut: false })],
+  ['5 · signed out', s5({ signedIn: true, stolen: true, signedOut: true })],
+  ['6 · redirect', s6({ redirected: true, checked: false, stolen: false, token: 'genuine' })],
+  ['6 · changed token', s6({ redirected: true, checked: true, stolen: true, token: 'tampered' })],
+  ['7 · start', s7(START)],
+  ['7 · a winner', s7(WINNERS[0])],
+  ['With a callout', { ...raceScene('salted', WORK[0], 3), say: { block: 'thief', text: 'Here' } }],
+  ['<script>alert(1)</script> as a pill', { drawers: [], table: '<b>x</b>' }],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Logins scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>The race: cracked after each tick</h1>
+      <table>
+        <thead><tr><th>Form</th>{TICKS.map(t => <th>{t.label}</th>)}</tr></thead>
+        <tbody>
+          {FORMS.flatMap(f => (f === 'pbkdf2' ? WORK : [WORK[0]]).map(w => (
+            <tr><th>{f}{f === 'pbkdf2' ? ` ${w}` : ''}</th>{TICKS.map((_, t) => <td>{boardAt(f, w, t).cracked.length}/{ACCOUNTS.length}</td>)}</tr>
+          )))}
+        </tbody>
+      </table>
+      <p>{raceSaid({ form: 'pbkdf2', work: WORK[2], tick: LAST })}</p>
+      <p>TOTP (demo): {pinned.totp} · Winners: {WINNERS.map(planKey).join(' | ')} · best {BEST.breakIns} break-ins, {BEST.friction} steps</p>
+      <p>Chapter 6 lanes, all: {flowOf({ redirected: true, checked: true, stolen: true, token: 'other' }).map(m => `${m.from}→${m.to}: ${m.text}${m.stamp ? ` [${m.stamp}]` : ''}`).join(' · ')}</p>
+      <h1>Cloakroom: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={CLOAK_BOARD} scene={cloakScene({ ...o, scale: 1.2 })} label={cloakLabel(o)} /></div>
+            <div class="phone"><IsoStage board={CLOAK_BOARD} scene={cloakScene({ ...o, scale: 2 })} label={cloakLabel(o)} /></div>
+            <p>{cloakLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>The stage and the race, live</h1>
+      <div class="grid">
+        <section><h2>Stage</h2><div class="stage"><LoginsStage client:load show={{ scene: raceScene('pbkdf2', WORK[1], 4), caption: '<script>alert(1)</script>' }} /></div></section>
+        <section><h2>Race controls (static)</h2><RaceControls race={{ form: 'pbkdf2', work: WORK[1], tick: 2 }} forms={['salted', 'pbkdf2']} onChange={() => {}} /></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p, td, th, li { font-size: 12px; margin: 0; text-align: left; overflow-wrap: anywhere; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 520px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

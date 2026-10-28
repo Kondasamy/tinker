@@ -1,0 +1,63 @@
+/* Logins and passwords stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption) and Locks and
+   keys' fields (.ek-field, .ek-note). These are the race's controls, the accounts table and the story column's bits. */
+.lg-accounts {
+  align-self: center;
+  width: 100%;
+}
+.lg-accounts code {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.lg-accounts td.bad {
+  color: var(--bad);
+  font-weight: 800;
+}
+.lg-work input[type="range"] {
+  width: 100%;
+  min-height: 44px;
+}
+.lg-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 8px 0;
+}
+.lg-buttons button {
+  min-height: 44px;
+}
+.lg-said {
+  margin: 6px 0;
+  font-weight: 700;
+  font-size: 14px;
+}
+.lg-checks {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  font-size: 14px;
+}
+.lg-checks li[data-ok="1"]::before {
+  content: "✓ ";
+  color: var(--ok);
+  font-weight: 900;
+}
+.lg-checks li[data-ok="0"]::before {
+  content: "✗ ";
+  color: var(--bad);
+  font-weight: 900;
+}
+
+/* a drawer that just cracked pops open; never with reduced motion, where the board shows its final state at once */
+@media (prefers-reduced-motion: no-preference) {
+  .lg-stage [data-fresh] {
+    animation: lg-pop 0.45s ease-out;
+  }
+}
+@keyframes lg-pop {
+  from {
+    transform: translateY(-6px);
+    opacity: 0.3;
+  }
+}
