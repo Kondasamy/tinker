@@ -1,11 +1,14 @@
 // Records three live RAG chapters being played by hand (1920×1080), one take each. Clicks land on a schedule
 // (ms after the take's first click) timed to the narration in SCRIPT.md, and each click's centre and time
 // (ms from page creation) is logged to clicks.json for the cursor overlay.
-// Usage: node videos/rag-trailer/record.mjs <base-url> <out-dir>
+// Usage: node videos/<folder>/record.mjs [base-url] [out-dir, default <folder>/capture]
 import { chromium } from '@playwright/test';
 import { mkdirSync, renameSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const [BASE = 'http://127.0.0.1:4517', OUT = 'videos/rag-trailer/capture'] = process.argv.slice(2);
+const [BASE = 'http://127.0.0.1:4517', OUT = join(dirname(fileURLToPath(import.meta.url)), 'capture')] =
+  process.argv.slice(2);
 const PREROLL = 3000; // still frames before the first click, so the cut can start before it
 mkdirSync(OUT, { recursive: true });
 const browser = await chromium.launch();
