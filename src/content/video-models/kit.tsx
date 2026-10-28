@@ -247,11 +247,14 @@ export function DrivePad({
   net,
   seed,
   drive,
+  before,
   onDrive,
 }: {
   net: Net;
   seed: number;
   drive: Drive;
+  /** the drive as it stands, already run by the parent */
+  before: Driven;
   onDrive: (d: Drive, now: Driven) => void;
 }) {
   const [said, setSaid] = useState('');
@@ -260,8 +263,7 @@ export function DrivePad({
   const act = (a: Action | 'sync') => {
     const next = a === 'sync' ? resync(drive) : move(drive, a);
     if (next === drive) return;
-    const before = driven(net, seed, drive),
-      after = driven(net, seed, next);
+    const after = driven(net, seed, next);
     setSaid(readout(before, after, a));
     onDrive(next, after);
   };

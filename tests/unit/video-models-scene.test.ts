@@ -157,6 +157,7 @@ describe('the stage, live', () => {
           net: nets.k2,
           seed: SEED,
           drive: d,
+          before: now,
           onDrive: (next: Drive) => {
             seen.push(next);
             setD(next);

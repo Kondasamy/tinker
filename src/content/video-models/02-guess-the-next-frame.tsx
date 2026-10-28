@@ -1,6 +1,7 @@
 // Chapter 2: guess the next frame. Along the pinned route, the toy model (two frames of context) guesses each frame
 // from the real frames before it; the screen shows its guess beside the real floor. The reader predicts how many cells
 // change a step, steps through, and opens the Frames tab: the changed cells are the real test.
+import { useMemo } from 'react';
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
@@ -8,7 +9,7 @@ import Predict from '../../components/quiz/Predict';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { DREAM_PARTS } from '../../components/scenes/dreamFloorScene';
-import { changed, confidence, oneStep } from '../../lib/video-models/rollout';
+import { changed, guessWithConf } from '../../lib/video-models/rollout';
 import { SIZE } from '../../lib/video-models/world';
 import { Outcome } from '../tool-calling/kit';
 import { DreamStage, META, ModelStatus, PIN, ROUTE, ToyNote, pct, useNets, type View } from './kit';
@@ -90,7 +91,12 @@ function Stage({ s, setView, say }: { s: S; setView: (v: View) => void; say?: { 
   const { nets, status, retry } = useNets();
   const real = ROUTE.frames[s.t],
     net = nets?.k2;
-  const guess = net ? oneStep(net, ROUTE, s.t - 1) : null;
+  const t = s.t;
+  const pass = useMemo(
+    () => (net ? guessWithConf(net, ROUTE.frames.slice(t - 2, t), ROUTE.actions[t - 1]) : null),
+    [net, t],
+  );
+  const guess = pass?.guess ?? null;
   const moved = changed(ROUTE.frames[s.t - 1], real);
   const right = guess ? moved.filter(c => guess[c] === real[c]).length : 0;
   return (
@@ -99,7 +105,7 @@ function Stage({ s, setView, say }: { s: S; setView: (v: View) => void; say?: { 
       real={real}
       dream={guess}
       step={s.t}
-      conf={net ? confidence(net, ROUTE.frames.slice(s.t - 2, s.t), ROUTE.actions[s.t - 1]) : null}
+      conf={pass?.conf ?? null}
       view={s.view}
       onView={setView}
       caption={

@@ -94,10 +94,12 @@ export function logits(net: Net, frames: Uint8Array[], action: Action): Float64A
   return conv1(h, ch, T['out.weight'], T['out.bias']);
 }
 
-/** The model's guessed next frame: the likeliest kind per cell. */
-export function guess(net: Net, frames: Uint8Array[], action: Action): Uint8Array {
-  const z = logits(net, frames, action),
-    f = new Uint8Array(N);
+/** A frame from a pass's logits: the likeliest kind per cell. */
+export function frameOf(z: Float64Array): Uint8Array {
+  const f = new Uint8Array(N);
   for (let c = 0; c < N; c++) for (let j = 1; j < KINDS.length; j++) if (z[j * N + c] > z[f[c] * N + c]) f[c] = j;
   return f;
 }
+/** The model's guessed next frame: the likeliest kind per cell. */
+export const guess = (net: Net, frames: Uint8Array[], action: Action): Uint8Array =>
+  frameOf(logits(net, frames, action));

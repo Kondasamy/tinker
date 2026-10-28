@@ -2,12 +2,11 @@
 // re-sync (a real frame swapped in every N steps). The reader's drive is the same replay over their own actions, so
 // every picture is a pure function of (model, seed, actions, re-syncs). Nothing runs at import.
 import { mulberry32 } from '../transformers/sample';
-import { guess, logits, type Net } from './net';
+import { frameOf, guess, logits, type Net } from './net';
 import { type Action, BELT, CRATE, frame, ROBOT, rollout, SIZE, start, step, type World } from './world';
 
 export type ModelId = 'k1' | 'k2';
 const N = SIZE * SIZE;
-export const kOf = (m: ModelId) => (m === 'k1' ? 1 : 2);
 
 /** The cell holding the one robot, or -1 when a frame holds none or several. */
 export function robotCell(f: Uint8Array): number {
@@ -35,9 +34,15 @@ export const robotRight = (real: Uint8Array, guessed: Uint8Array) => {
 };
 
 /** How sure the model is per cell: the softmax's top share over the four kinds. */
-export function confidence(net: Net, frames: Uint8Array[], action: Action): Float64Array {
-  const z = logits(net, frames, action),
-    out = new Float64Array(N);
+export const confidence = (net: Net, frames: Uint8Array[], action: Action): Float64Array =>
+  confidenceOf(logits(net, frames, action));
+/** The guess and its per-cell confidence from one model pass. */
+export function guessWithConf(net: Net, frames: Uint8Array[], action: Action) {
+  const z = logits(net, frames, action);
+  return { guess: frameOf(z), conf: confidenceOf(z) };
+}
+function confidenceOf(z: Float64Array): Float64Array {
+  const out = new Float64Array(N);
   for (let c = 0; c < N; c++) {
     let max = -Infinity;
     for (let j = 0; j < 4; j++) max = Math.max(max, z[j * N + c]);
@@ -127,6 +132,3 @@ export function crateGoneAt(d: Dream): number {
   for (let t = 2; t < d.frames.length; t++) if (!crateCells(d.frames[t]).length) return t;
   return -1;
 }
-/** Of the dream's frames from 2 on, how many have the robot right. */
-export const robotHits = (r: Real, d: Dream) =>
-  d.frames.slice(2).filter((f, i) => robotRight(r.frames[i + 2], f)).length;

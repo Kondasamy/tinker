@@ -1,6 +1,7 @@
 // Chapter 3: one frame is not enough. Two frames after the crate turned at the belt's end, the one-frame model (k1)
 // and the two-frame model (k2) guess its next cell. The reader predicts what one frame can tell, shows k1's guess, then
 // k2's; held-out scores and the cost of the extra frame close it.
+import { useMemo } from 'react';
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
@@ -8,7 +9,7 @@ import Predict from '../../components/quiz/Predict';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { DREAM_PARTS } from '../../components/scenes/dreamFloorScene';
-import { confidence, crateCells, oneStep } from '../../lib/video-models/rollout';
+import { crateCells, guessWithConf } from '../../lib/video-models/rollout';
 import { Outcome } from '../tool-calling/kit';
 import { DreamStage, META, ModelStatus, PIN, ROUTE, pct, useNets } from './kit';
 
@@ -89,7 +90,11 @@ export const STEPS: Step<S>[] = [
 function Stage({ s, say }: { s: S; say?: { block: string; text: string } }) {
   const { nets, status, retry } = useNets();
   const net = nets && s.k ? nets[s.k === 1 ? 'k1' : 'k2'] : null;
-  const guess = net ? oneStep(net, ROUTE, T) : null;
+  const pass = useMemo(
+    () => (net ? guessWithConf(net, ROUTE.frames.slice(T + 1 - net.k, T + 1), ROUTE.actions[T]) : null),
+    [net],
+  );
+  const guess = pass?.guess ?? null;
   const at = guess ? crateCells(guess) : [];
   return (
     <DreamStage
@@ -97,7 +102,7 @@ function Stage({ s, say }: { s: S; say?: { block: string; text: string } }) {
       real={ROUTE.frames[T + 1]}
       dream={guess}
       step={T + 1}
-      conf={net ? confidence(net, ROUTE.frames.slice(T + 1 - net.k, T + 1), ROUTE.actions[T]) : null}
+      conf={pass?.conf ?? null}
       caption={
         guess
           ? `${s.k === 1 ? 'One frame' : 'Two frames'}: the guess puts the crate at cell ${at.map(x => x + 1).join(' and ') || 'none'}; the real one is at ${REAL}.`

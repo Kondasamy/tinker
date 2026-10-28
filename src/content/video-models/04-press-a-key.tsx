@@ -1,6 +1,7 @@
 // Chapter 4: press a key. The reader drives the robot (KTD13: arrow keys while the pad has focus, or its buttons): the
 // real floor steps through the simulator, and the dream steps through the model, fed the same action beside its own
 // last two frames. Re-sync copies the real frame onto the screen.
+import { useMemo } from 'react';
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
@@ -91,15 +92,19 @@ export const STEPS: Step<S>[] = [
 function Stage({ s, onDrive, say }: { s: S; onDrive: (d: Drive) => void; say?: { block: string; text: string } }) {
   const { nets, status, retry } = useNets();
   const net = nets?.k2;
-  if (!net)
+  const d = useMemo(() => (net ? driven(net, SEED, s.drive) : null), [net, s.drive]);
+  const t = d?.at ?? 0,
+    guessed = !!d && !d.dream.synced[t];
+  const conf = useMemo(
+    () => (net && d && guessed ? confidence(net, d.dream.frames.slice(t - 2, t), d.real.actions[t - 1]) : null),
+    [net, d, t, guessed],
+  );
+  if (!net || !d)
     return (
       <DreamStage say={say} real={ROUTE.frames[1]} step={1} caption="The test floor, waiting for the model.">
         <ModelStatus status={status} retry={retry} />
       </DreamStage>
     );
-  const d = driven(net, SEED, s.drive),
-    t = d.at;
-  const guessed = !d.dream.synced[t];
   return (
     <DreamStage
       say={say}
@@ -107,10 +112,10 @@ function Stage({ s, onDrive, say }: { s: S; onDrive: (d: Drive) => void; say?: {
       dream={d.dream.frames[t]}
       step={t}
       synced={t > 1 && !guessed}
-      conf={guessed ? confidence(net, d.dream.frames.slice(t - 2, t), d.real.actions[t - 1]) : null}
+      conf={conf}
       caption={`Step ${t}: ${s.drive.moves.length} move${s.drive.moves.length === 1 ? '' : 's'}, ${s.drive.syncs.length} re-sync${s.drive.syncs.length === 1 ? '' : 's'}.`}
     >
-      <DrivePad net={net} seed={SEED} drive={s.drive} onDrive={onDrive} />
+      <DrivePad net={net} seed={SEED} drive={s.drive} before={d} onDrive={onDrive} />
     </DreamStage>
   );
 }
