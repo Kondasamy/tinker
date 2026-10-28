@@ -51,9 +51,10 @@ type Score = { loss: number; top1: number; top5: number };
  * /data/diffusion-llms/: meta.json lays out mlm.bin as model.bin's meta does, vocab included; run it bidirectional),
  * or the mixture of experts (`moe`, read from /data/mixture-of-experts/: meta.json `model` carries `experts` and
  * `top_k`; moe.bin has model.bin's tensors with each `h.<l>.mlp.fc/proj` replaced by `h.<l>.mlp.router.weight` and
- * `h.<l>.mlp.experts.<e>.fc/proj` weight and bias, see ModelConfig).
+ * `h.<l>.mlp.experts.<e>.fc/proj` weight and bias, see ModelConfig), or the canary model (`canary`, read from
+ * /data/memorisation/: model.bin's shape, trained with planted fake PINs; meta.json lays out canary.bin).
  */
-export type Weights = 'base' | 'finetuned' | 'lora' | 'student' | 'mlm' | 'moe' | `ckpt-${number}`;
+export type Weights = 'base' | 'finetuned' | 'lora' | 'student' | 'mlm' | 'moe' | 'canary' | `ckpt-${number}`;
 const isCheckpoint = (w: Weights): w is `ckpt-${number}` => w.startsWith('ckpt-');
 
 /** IEEE 754 half to number. */
@@ -112,7 +113,7 @@ async function loadWeights(loader: Loader, w: Weights): Promise<Model> {
     const [m, bin] = await Promise.all(['meta.json', `${w}.bin`].map(loader));
     return parseCheckpoint(JSON.parse(new TextDecoder().decode(m)), Number(w.slice(5)), bin);
   }
-  if (w === 'mlm' || w === 'moe') {
+  if (w === 'mlm' || w === 'moe' || w === 'canary') {
     const [m, bin] = await Promise.all(['meta.json', `${w}.bin`].map(loader));
     const meta = JSON.parse(new TextDecoder().decode(m)) as Meta;
     const { params: _, ...config } = meta.model;
@@ -127,12 +128,16 @@ async function loadWeights(loader: Loader, w: Weights): Promise<Model> {
 }
 
 /** the weight sets that live outside /data/lm/ */
-const DIRS: Partial<Record<Weights, string>> = { mlm: 'diffusion-llms', moe: 'mixture-of-experts' };
+const DIRS: Partial<Record<Weights, string>> = {
+  mlm: 'diffusion-llms',
+  moe: 'mixture-of-experts',
+  canary: 'memorisation',
+};
 
 /**
  * One model, fetched on first load(); a failed load leaves status 'error' and the next load() retries. The loader
  * reads /data/lm/, /data/pre-training/ for a checkpoint, /data/diffusion-llms/ for the masked model or
- * /data/mixture-of-experts/ for the experts model, unless one is passed.
+ * /data/mixture-of-experts/ for the experts model or /data/memorisation/ for the canary model, unless one is passed.
  */
 
 export function modelLoader(loader?: Loader, weights: Weights = 'base') {
