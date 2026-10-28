@@ -128,14 +128,7 @@ const m = moduleOf(module);
   .intro dl { margin: 4px 0 0; display: flex; flex-direction: column; gap: 8px; }
   .intro dt { font-weight: 800; }
   .intro dd { margin: 0; color: var(--ink); }
-  .intro .resume { display: flex; flex-wrap: wrap; gap: 8px; }
-  /* Watch mode's strip: pinned to the top of the story column (under the picture on phones), so Pause is always in reach */
-  .watch { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; gap: 10px; padding: 8px 0; background: var(--paper); border-bottom: 1.5px dashed var(--rule); }
-  :where(.watch) .big { align-self: center; }
-  .watch > span { margin-left: auto; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
-  .side:has(.watch) .card { scroll-margin-top: 64px; }
-  .watch-end, .watch-feedback { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
-  .watch-feedback p { margin: 0; font-size: 13px; font-weight: 700; }
+  .intro .resume { align-self: flex-start; }
   /* steps already done stay as the story so far, folded and quieter than the current step */
   .log-fold { border-top: 1.5px dashed var(--rule); padding-top: 10px; }
   .log { margin: 0; padding: 12px 0 0; list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 13.5px; line-height: 1.5; color: var(--muted); }

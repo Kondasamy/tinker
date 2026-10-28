@@ -2,7 +2,7 @@
 // nothing plays until the reader presses Play, starting a clip stops any other, and unmounting stops this one. The
 // caption is always in the page, so a reader with the sound off (or a clip that won't load) reads the line instead.
 import { useEffect, useSyncExternalStore } from 'react';
-import { clipStatus, clipUrl, playClip, playing, stopClip, subscribe } from '../../lib/voice/audio';
+import { clipStatus, playClip, playing, stopClip, subscribe } from '../../lib/voice/audio';
 
 interface Props {
   clip: string;
@@ -11,17 +11,16 @@ interface Props {
 }
 
 export default function ClipPlayer({ clip, who, caption }: Props) {
-  const url = clipUrl(clip);
   const status = useSyncExternalStore(
     subscribe,
-    () => clipStatus(url),
+    () => clipStatus(clip),
     () => 'idle' as const,
   );
   useEffect(
     () => () => {
-      if (playing() === url) stopClip();
+      if (playing() === clip) stopClip();
     },
-    [url],
+    [clip],
   );
   const on = status === 'playing' || status === 'loading';
   return (
@@ -32,7 +31,7 @@ export default function ClipPlayer({ clip, who, caption }: Props) {
         aria-pressed={on}
         aria-busy={status === 'loading'}
         aria-label={`${on ? 'Stop' : 'Play'} ${who}’s line`}
-        onClick={() => (on ? stopClip() : playClip(url))}
+        onClick={() => (on ? stopClip() : playClip(clip))}
       >
         <span aria-hidden="true">{status === 'loading' ? '…' : on ? '■' : '▶'}</span>{' '}
         {status === 'loading' ? 'Loading' : on ? 'Stop' : 'Play'}

@@ -2,10 +2,7 @@
 // clip stops any other; the chapter stops it when the step changes or the page unmounts. A clip that can't load (no
 // network, no audio support) settles on 'error' and the caption stands in for it. The audio element is made on the
 // first press, so server rendering and the unit tests never touch one (tests pass a fake through setAudioFactory).
-// Clips are keyed by URL: voice lines pass clipUrl(id), Watch mode its narration clips.
 export type ClipState = 'idle' | 'loading' | 'playing' | 'error';
-/** How a clip's play settled: it ran to the end, it couldn't load, or something stopped or replaced it. */
-export type ClipEnd = 'ended' | 'error' | 'stopped';
 
 /** The part of HTMLAudioElement the player uses. */
 export interface AudioLike {
@@ -21,8 +18,7 @@ let make: () => AudioLike = () => new Audio();
 let el: AudioLike | null = null;
 let current: string | null = null,
   state: ClipState = 'idle',
-  token = 0,
-  settle: ((e: ClipEnd) => void) | null = null;
+  token = 0;
 const failed = new Set<string>();
 const subs = new Set<() => void>();
 const emit = () => subs.forEach(f => f());
@@ -30,17 +26,11 @@ const set = (s: ClipState) => {
   state = s;
   emit();
 };
-const finish = (e: ClipEnd) => {
-  const f = settle;
-  settle = null;
-  f?.(e);
-};
-const fail = (url: string) => {
-  failed.add(url);
-  if (current === url) {
+const fail = (id: string) => {
+  failed.add(id);
+  if (current === id) {
     current = null;
     set('idle');
-    finish('error');
   } else emit();
 };
 
@@ -48,7 +38,7 @@ function audio(): AudioLike {
   if (el) return el;
   const a = make();
   // the element is shared: an event counts only while it still holds the current clip (the browser makes src absolute)
-  const mine = () => current !== null && a.src.endsWith(current);
+  const mine = () => current !== null && a.src.endsWith(clipUrl(current));
   a.addEventListener('playing', () => {
     if (mine() && state === 'loading') set('playing');
   });
@@ -56,7 +46,6 @@ function audio(): AudioLike {
     if (mine()) {
       current = null;
       set('idle');
-      finish('ended');
     }
   });
   a.addEventListener('error', () => {
@@ -65,21 +54,18 @@ function audio(): AudioLike {
   return (el = a);
 }
 
-/** Play a clip by URL (a reader pressed Play, or Watch speaks a step): stops whatever else was playing first.
- * Settles when the clip ends, fails, or is stopped. */
-export function playClip(url: string): Promise<ClipEnd> {
+/** Play a clip (a reader pressed Play): stops whatever else was playing first. */
+export function playClip(id: string) {
   stopClip();
   const a = audio(),
-    mine = ++token,
-    done = new Promise<ClipEnd>(r => (settle = r));
-  current = url;
-  failed.delete(url);
+    mine = ++token;
+  current = id;
+  failed.delete(id);
   set('loading');
-  a.src = url;
+  a.src = clipUrl(id);
   a.play().catch(() => {
-    if (token === mine && current === url) fail(url);
+    if (token === mine && current === id) fail(id);
   });
-  return done;
 }
 
 /** Stop whatever is playing (no-op when nothing is). */
@@ -89,11 +75,10 @@ export function stopClip() {
   current = null;
   el?.pause();
   set('idle');
-  finish('stopped');
 }
 
 /** A clip's state: loading or playing only while it is the current clip; error after its last try failed. */
-export const clipStatus = (url: string): ClipState => (current === url ? state : failed.has(url) ? 'error' : 'idle');
+export const clipStatus = (id: string): ClipState => (current === id ? state : failed.has(id) ? 'error' : 'idle');
 export const playing = () => current;
 export function subscribe(f: () => void) {
   subs.add(f);
@@ -108,7 +93,6 @@ export function setAudioFactory(f: () => AudioLike) {
   el = null;
   current = null;
   state = 'idle';
-  settle = null;
   failed.clear();
   emit();
 }
