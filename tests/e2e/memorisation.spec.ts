@@ -3,11 +3,12 @@
 // workbench, a failed weights fetch and Retry, "I'm not sure", reduced motion (no rise), the recap, axe and phone
 // width. The go-live adds the module's number, share images and home's card.
 import { test, expect, type Page } from '@playwright/test';
-import { moduleOf } from '../../src/lib/modules';
+import { MODULES, moduleOf } from '../../src/lib/modules';
 import { memWalker } from './memorisation-flow';
 import { serious, layoutHolds, PHONE } from './helpers';
 
 const M = moduleOf('memorisation');
+const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'memorisation') + 1;
 const CHS = M.chapters.map(c => c.id),
   [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = CHS;
 const at = (id: string) => new RegExp(`/memorisation/${id}/$`);
@@ -44,6 +45,28 @@ test('the intro shows the level, the prerequisite, the author, the chapters and 
   await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toBeVisible();
   await expect(page.locator('.versus .reply')).toHaveCount(2);
   await axe(page);
+});
+
+test('its module number on the intro and the recap', async ({ page }) => {
+  await page.goto('/memorisation/');
+  await expect(page.locator('.hero .kicker')).toHaveText(`Module ${NUMBER} · What a model remembers`);
+  await page.goto('/memorisation/recap/');
+  await expect(page.locator('.hero .kicker')).toHaveText(`Module ${NUMBER} · Recap`);
+});
+
+test('go-live: own share images and home’s card', async ({ page }) => {
+  await page.goto('/memorisation/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/memorisation\.jpg$/);
+  await page.goto(`/memorisation/${CH1}/`);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    new RegExp(`/og/memorisation-${CH1}\\.jpg$`),
+  );
+  await page.goto('/memorisation/recap/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/memorisation-recap\.jpg$/);
+  expect((await page.request.get('/og/memorisation.jpg')).status()).toBe(200);
+  await page.goto('/');
+  await expect(page.locator('.module[data-module="memorisation"] h4 a')).toHaveAttribute('href', '/memorisation/');
 });
 
 test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({

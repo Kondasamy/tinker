@@ -762,6 +762,18 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'recommendations')).toBe(43);
   });
 
+  it('has memorisation as a live Intermediate module after pre-training, numbered 45', () => {
+    expect(moduleOf('memorisation')).toMatchObject({
+      title: 'What a model remembers',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: ['pre-training'],
+    });
+    expect(moduleOf('memorisation').track).toBeUndefined();
+    expect(moduleOf('memorisation').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'memorisation')).toBe(44);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

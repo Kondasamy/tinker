@@ -330,6 +330,22 @@ import { ROUNDS as RC_ROUNDS, itemsOf as rcItemsOf, loopOf as rcLoopOf } from '.
 import { WINNERS as RC_WINNERS } from '../lib/recommendations/workbench';
 import { PRINTER as RC_PRINTER, shelfFor as rcTogether } from '../content/recommendations/03-bought-together';
 import { CHOICES as RC_CHOICES, tasteFor as rcNewTaste } from '../content/recommendations/05-new-shopper-new-product';
+import { RECITAL_BOARD, recitalScene, type RecitalOpts } from '../components/scenes/recitalScene';
+import { SAMPLE_PINS as MEM_PINS, columnLabel as memColumn, ledgerOf as memLedger } from '../content/memorisation/kit';
+import { slipOf as memSlip } from '../content/memorisation/07-workbench';
+import { diskCanary } from '../lib/memorisation/diskModel';
+import { extract as memExtract, replyText as memReply } from '../lib/memorisation/extract';
+import { columnPins as memPins, rankAmong as memRank } from '../lib/memorisation/rank';
+import {
+  REPEATS as MEM_REPEATS,
+  RUNS as MEM_RUNS,
+  bits as memBits,
+  canaryOf as memCanary,
+  scoreOf as memScore,
+} from '../lib/memorisation/story';
+import { WINNERS as MEM_WINNERS, scoreOf as memPolicyScore } from '../lib/memorisation/workbench';
+import { RUNS as PT_RUNS } from '../lib/pre-training/engine';
+import MEM_PINNED from '../../data/memorisation/pinned.json' with { type: 'json' };
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -1551,6 +1567,62 @@ const SHELF_OG: Record<string, () => Omit<ShelfOpts, 'scale'>> = {
   'recommendations-07-tune-the-shelf': () => rcRound(RC_WINNERS[0].blend, RC_WINNERS[0].explore),
 };
 const shelfOg = SHELF_OG[page.og]?.();
+// module 45: the recital desk. The intro: the most-copied canary recited, its true PIN topping the column; 1: the
+// pre-training run reciting the policy; 2: the planted lines lit; 3: the canary recited; 4: the column alone; 5: the
+// deduplicated model's reply; 6: the scrubbed model; 7: the workbench's first winning policy.
+const memMost = () => memCanary(Math.max(...MEM_REPEATS));
+const memSaid = () => `SAYS ${memExtract(diskCanary(), memMost()).text.trim()}`;
+const memColumnOf = () => {
+  const c = memMost(),
+    r = memRank(diskCanary(), c, memPins(c, MEM_PINS));
+  return { lps: r.lps, label: memColumn(r.rank) };
+};
+const memRunReply = (run: 'dedup' | 'scrubbed', repeats: number) => memReply(memScore(run, repeats).reply).trim();
+const RECITAL_OG: Record<string, () => Omit<RecitalOpts, 'scale'>> = {
+  memorisation: () => ({
+    ledger: memLedger(memMost().repeats),
+    reply: { text: memSaid(), leak: true },
+    column: memColumnOf(),
+  }),
+  'memorisation-01-seen-once-seen-often': () => ({
+    ledger: { label: `POLICY ×${PT_RUNS.duplicated.copies}`, lit: PT_RUNS.duplicated.copies },
+    model: 'PRE-TRAINING RUN',
+    reply: { text: 'RECITES POLICY', leak: true },
+  }),
+  'memorisation-02-a-planted-secret': () => ({ ledger: memLedger(memMost().repeats) }),
+  'memorisation-03-ask-it-to-finish': () => ({
+    ledger: memLedger(memMost().repeats),
+    reply: { text: memSaid(), leak: true },
+  }),
+  'memorisation-04-how-sure-is-it': () => ({ ledger: memLedger(memMost().repeats), column: memColumnOf() }),
+  'memorisation-05-copies-make-it-worse': () => {
+    const m = memMost().repeats,
+      s = memScore('dedup', m);
+    return {
+      ledger: memLedger(m, { dedup: true }),
+      reply: { text: `SAYS ${memRunReply('dedup', m)}`, leak: s.extracted },
+      column: { lps: [], label: `RANK ${s.rank} OF ${MEM_RUNS.candidates.toLocaleString('en')}` },
+    };
+  },
+  'memorisation-06-keep-it-out': () => {
+    const r = MEM_PINNED.bypass.repeats;
+    return {
+      ledger: memLedger(r, { scrub: true }),
+      filter: false,
+      reply: { text: `SAYS ${memRunReply('scrubbed', r)}`, leak: false },
+    };
+  },
+  'memorisation-07-workbench': () => {
+    const p = MEM_WINNERS[0];
+    return {
+      ledger: memLedger(memMost().repeats, { dedup: p.dedup, scrub: p.scrub }),
+      filter: p.filter,
+      reply: memSlip(p),
+      column: { lps: [], label: `EXPOSURE ${memBits(memPolicyScore(p).exposure)}` },
+    };
+  },
+};
+const recitalOg = RECITAL_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1624,6 +1696,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : sxOg ? <IsoStage board={CABINET_BOARD} scene={cabinetScene({ ...sxOg, scale: 1.3 })} label="" />
           : townOg ? <IsoStage board={TOWN_BOARD} scene={townScene({ ...townOg, scale: 1.3 })} label="" />
           : webFallOg ? <div class="tf-og ob-og"><WaterfallView run={webFallOg} /></div>
+          : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
           : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />
           : signalOg ? <IsoStage board={SIGNAL_BOARD} scene={signalScene({ ...signalOg, scale: 1.3 })} label="" />
           : towerOg ? <IsoStage board={TOWER_BOARD} scene={towerScene({ ...towerOg, scale: 1.3 })} label="" />

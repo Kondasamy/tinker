@@ -65,6 +65,7 @@ import { postPlot } from './postScene';
 import { towerPlot } from './towerScene';
 import { signalPlot } from './signalScene';
 import { shelfPlot } from './shelfScene';
+import { recitalPlot } from './recitalScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
@@ -271,6 +272,7 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   dependencies: (x, y, { top }) => towerPlot(x + 8, y - 2, top),
   releases: (x, y, { top }) => signalPlot(x + 14, y - 2, top),
   recommendations: (x, y, { top }) => shelfPlot(x + 14, y - 2, top),
+  memorisation: (x, y, { top }) => recitalPlot(x + 14, y - 2, top),
 };
 const LIVE = MODULES.filter(m => m.status === 'live');
 /** the home page's hero and share image, from the registry: the model's call riding to the host */

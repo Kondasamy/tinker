@@ -125,6 +125,12 @@ import { SHELF_BOARD, shelfLabel, shelfScene } from '../components/scenes/shelfS
 import { BASE as RECS_BASE } from '../lib/recommendations/factorise';
 import { shelfOf as recsShelfOf } from '../lib/recommendations/score';
 import { TRAIN as RECS_TRAIN, customerOf as recsCustomer } from '../lib/recommendations/story';
+import { RECITAL_BOARD, recitalLabel, recitalScene } from '../components/scenes/recitalScene';
+import { SAMPLE_PINS as MEM_PINS, columnLabel as memColumn, ledgerOf as memLedger } from '../content/memorisation/kit';
+import { diskCanary } from '../lib/memorisation/diskModel';
+import { extract as memExtract } from '../lib/memorisation/extract';
+import { columnPins as memPins, rankAmong as memRank } from '../lib/memorisation/rank';
+import { REPEATS as MEM_REPEATS, canaryOf as memCanary } from '../lib/memorisation/story';
 import { FORM } from '../lib/site';
 
 const one =
@@ -349,6 +355,16 @@ const SHELF = {
   shopper: RECS_ASH.name,
   you: RECS_BASE.users[RECS_ASH.id],
   items: RECS_BASE.items,
+  scale: 1.7,
+};
+// memorisation: the most-copied canary recited, its true PIN at the top of the column, as the intro draws it
+const MEM_MODEL = diskCanary(),
+  MEM_MOST = memCanary(Math.max(...MEM_REPEATS)),
+  MEM_TOP = memRank(MEM_MODEL, MEM_MOST, memPins(MEM_MOST, MEM_PINS));
+const RECITAL = {
+  ledger: memLedger(MEM_MOST.repeats),
+  reply: { text: `SAYS ${memExtract(MEM_MODEL, MEM_MOST).text.trim()}`, leak: true },
+  column: { lps: MEM_TOP.lps, label: memColumn(MEM_TOP.rank) },
   scale: 1.7,
 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
@@ -912,6 +928,11 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Cold start',
       'Feedback loops',
     ],
+  },
+  memorisation: {
+    name: 'What a model remembers',
+    iso: { board: RECITAL_BOARD, scene: recitalScene(RECITAL), label: recitalLabel(RECITAL) },
+    topics: ['Memorisation', 'Canaries', 'Extraction', 'Exposure', 'Deduplication', 'Output filters', 'Data policy'],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];

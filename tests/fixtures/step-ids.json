@@ -2048,5 +2048,42 @@
       "bench",
       "ties"
     ]
+  },
+  "memorisation": {
+    "01-seen-once-seen-often": [
+      "predict",
+      "show",
+      "quiz"
+    ],
+    "02-a-planted-secret": [
+      "look",
+      "quiz"
+    ],
+    "03-ask-it-to-finish": [
+      "predict",
+      "ask",
+      "quiz"
+    ],
+    "04-how-sure-is-it": [
+      "predict",
+      "rank",
+      "quiz"
+    ],
+    "05-copies-make-it-worse": [
+      "predict",
+      "dedup",
+      "quiz"
+    ],
+    "06-keep-it-out": [
+      "predict",
+      "ask",
+      "drip",
+      "scrub",
+      "quiz"
+    ],
+    "07-workbench": [
+      "policy",
+      "quiz"
+    ]
   }
 }

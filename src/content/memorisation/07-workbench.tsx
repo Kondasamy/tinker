@@ -130,7 +130,7 @@ function Score({ s }: { s: S }) {
 }
 
 /** What the desk's slip says for the most-copied canary under a policy (recorded replies; the filter live). */
-function slipOf(p: Policy) {
+export function slipOf(p: Policy) {
   const sc = scoreOf(p),
     said = replyText(canaryScore(sc.run, MOST).reply).trim();
   if (sc.leaked.includes(MOST) && p.filter) return { text: PINNED.bypass.drip.join(' ').trim(), leak: true };

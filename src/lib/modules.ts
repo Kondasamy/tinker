@@ -43,6 +43,7 @@ import { EMAIL_MODULE } from '../content/email/module';
 import { DEPENDENCIES_MODULE } from '../content/dependencies/module';
 import { RELEASES_MODULE } from '../content/releases/module';
 import { RECOMMENDATIONS_MODULE } from '../content/recommendations/module';
+import { MEMORISATION_MODULE } from '../content/memorisation/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -145,12 +146,7 @@ export const MODULES: Module[] = [
   DEPENDENCIES_MODULE,
   RELEASES_MODULE,
   RECOMMENDATIONS_MODULE,
-  planned(
-    'memorisation',
-    'What a model remembers',
-    'Intermediate',
-    'What a model keeps from its training text: memorised lines, how they leak back out, and keeping private data out.',
-  ),
+  MEMORISATION_MODULE,
   planned(
     'video-models',
     'Video and world models',
