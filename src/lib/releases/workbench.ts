@@ -18,6 +18,8 @@ export const BAKES = [2, 5, 10];
 /** 0: no automatic check */
 export const THRESHOLDS = [0, THRESHOLD, 0.05];
 export const START_AT = 2;
+/** the stage between the canary and everyone */
+export const MIDDLE = 0.5;
 
 /** What the bench's controls set. */
 export interface Bench {
@@ -32,7 +34,7 @@ export const benchRun = (b: Bench, change: string): Run =>
     policyOf({
       change,
       start: START_AT,
-      stages: [b.canary, 0.5, 1],
+      stages: [b.canary, MIDDLE, 1],
       bake: b.bake,
       flag: b.flag,
       threshold: b.threshold,

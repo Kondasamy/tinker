@@ -1,0 +1,87 @@
+---
+// Dev-only eyeball page: the signal box in the states the chapters teach (static SVG, wide and phone), then the stage
+// live with its dial, lever, clock and read-out, and the Errors chart. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { SIGNAL_BOARD, signalAt, signalLabel, signalScene, type SignalOpts } from '../components/scenes/signalScene';
+import { ErrorsView, ReleasesStage } from '../content/releases/kit';
+import { SCENES, clock, simulate } from '../lib/releases/sim';
+import { pipelineOf } from '../lib/releases/pipeline';
+import { WINNERS, benchRun } from '../lib/releases/workbench';
+
+const all = simulate(SCENES.all);
+const calm = simulate(SCENES.calm);
+const alarm = simulate(SCENES.canary('button', 2));
+const flag = simulate({
+  ...SCENES.flag,
+  events: [
+    { t: 2, kind: 'dial', share: 0.1 },
+    { t: 5, kind: 'back' },
+  ],
+});
+const refused = simulate({ ...SCENES.migration, events: [{ t: 4, kind: 'back' }] });
+const staged = simulate(SCENES.staged);
+const best = benchRun(WINNERS[0], 'button');
+const STATES: [string, Omit<SignalOpts, 'scale'>][] = [
+  ['Before the release: everyone on the old track', signalAt(all, 0)],
+  [`Straight to everyone, ${clock(4)}`, { ...signalAt(all, 4), say: { block: 'new', text: 'Everyone' } }],
+  [
+    'Pipeline: the coupon fix stopped',
+    { ...signalAt(calm, 0), pipeline: pipelineOf('coupon'), say: { block: 'gates', text: 'Stopped' } },
+  ],
+  ['Pipeline: the address tweak passed', { ...signalAt(calm, 0), pipeline: pipelineOf('address') }],
+  [
+    `Canary 5%, false alarm at ${clock(alarm.alarmAt!)}`,
+    { ...signalAt(alarm, alarm.alarmAt!), say: { block: 'box', text: 'Alarm' } },
+  ],
+  [`Flag on at 10%, ${clock(3)}`, { ...signalAt(flag, 3), say: { block: 'flag', text: 'Flag on' } }],
+  [`Flag off, ${clock(6)}`, signalAt(flag, 6)],
+  [`Lever refused, ${clock(5)}`, signalAt(refused, 5)],
+  [`Staged, rolling back at ${clock(7)}`, signalAt(staged, 7)],
+  ['A winning plan, everyone at the end', signalAt(best, 30)],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Releases scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Signal box: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={SIGNAL_BOARD} scene={signalScene({ ...o, scale: 1.2 })} label={signalLabel(o)} /></div>
+            <div class="phone"><IsoStage board={SIGNAL_BOARD} scene={signalScene({ ...o, scale: 2 })} label={signalLabel(o)} /></div>
+            <p>{signalLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Dial and lever, flag scene</h2><div class="stage"><ReleasesStage run={flag} t={3} caption="Chapter 4’s minute." onDial={() => {}} onBack={() => {}} onTick={() => {}} /></div></section>
+        <section><h2>Staged, the clock</h2><div class="stage"><ReleasesStage run={staged} t={7} caption="<script>alert(1)</script>" onTick={() => {}} /></div></section>
+        <section><h2>Errors chart</h2><div class="stage"><ErrorsView result={staged} t={20} /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 560px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>
