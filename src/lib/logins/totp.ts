@@ -4,7 +4,7 @@ import { unhex } from './store';
 import { NOW, TOTP_SECRET } from './story';
 
 /** RFC 4226: an HMAC-SHA1 of the counter, dynamically truncated to `digits` digits. */
-export async function hotp(key: Uint8Array, counter: number, digits = 6): Promise<string> {
+export async function hotp(key: Uint8Array<ArrayBuffer>, counter: number, digits = 6): Promise<string> {
   const msg = new Uint8Array(8);
   new DataView(msg.buffer).setBigUint64(0, BigInt(counter));
   const k = await crypto.subtle.importKey('raw', key, { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']);
@@ -15,7 +15,7 @@ export async function hotp(key: Uint8Array, counter: number, digits = 6): Promis
 }
 
 /** RFC 6238: HOTP over the count of 30-second steps since 1970. */
-export const totp = (key: Uint8Array, unixSeconds: number, digits = 6, step = 30) =>
+export const totp = (key: Uint8Array<ArrayBuffer>, unixSeconds: number, digits = 6, step = 30) =>
   hotp(key, Math.floor(unixSeconds / step), digits);
 
 export const DEMO_TOTP = { key: unhex(TOTP_SECRET), time: Date.parse(NOW) / 1000 };
