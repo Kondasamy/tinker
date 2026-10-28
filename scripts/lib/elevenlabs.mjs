@@ -1,5 +1,5 @@
 /**
- * The ElevenLabs client the recorders share: text-to-speech and music, each cached in a folder keyed by everything
+ * The ElevenLabs client: text-to-speech, cached in a folder keyed by everything
  * sent (so a rerun after a small edit only pays for what changed), plus the local ffmpeg decode and encode.
  * The key comes only from the command's environment, never from or to a file.
  */
@@ -59,17 +59,6 @@ export function speak({ key, cache, voice, model, seed, outputFormat, text }) {
     body,
     cacheFile(cache, { voice, outputFormat, ...body }),
     text,
-  );
-}
-
-/** One generated music track as an MP3 file, from the cache or the API. */
-export function compose({ key, cache, outputFormat, ...body }) {
-  return fetchAudio(
-    key,
-    `${API}/music?output_format=${outputFormat}`,
-    body,
-    cacheFile(cache, { music: true, outputFormat, ...body }),
-    body.prompt,
   );
 }
 
