@@ -346,6 +346,13 @@ import {
 import { WINNERS as MEM_WINNERS, scoreOf as memPolicyScore } from '../lib/memorisation/workbench';
 import { RUNS as PT_RUNS } from '../lib/pre-training/engine';
 import MEM_PINNED from '../../data/memorisation/pinned.json' with { type: 'json' };
+import { boardOf as dreamBoard, dreamScene, type DreamOpts } from '../components/scenes/dreamFloorScene';
+import { diskNet } from '../lib/video-models/diskModel';
+import { NO_DRIVE, driven, move as vmMove } from '../lib/video-models/drive';
+import { dream as vmDream, oneStep as vmOneStep } from '../lib/video-models/rollout';
+import { BENCH as VM_BENCH, WINNERS as VM_WINNERS } from '../lib/video-models/workbench';
+import { parseFrame as vmParse, rollout as vmRollout } from '../lib/video-models/world';
+import VM_PINNED from '../../data/video-models/pinned.json' with { type: 'json' };
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -1623,6 +1630,41 @@ const RECITAL_OG: Record<string, () => Omit<RecitalOpts, 'scale'>> = {
   },
 };
 const recitalOg = RECITAL_OG[page.og]?.();
+// module 46: the warehouse floor and its dream. The intro: two steps after the dream lost the crate; 1: the first real
+// frame alone; 2: one guessed frame beside the real one; 3: the one-frame model's bounce guess; 4: a short drive; 5: the
+// dream at its last step; 6: the dream where it lost the crate; 7: the workbench's first winning plan, last step.
+const vmRoute = () => vmRollout(VM_PINNED.seed, VM_PINNED.steps);
+const vmAt = (t: number): Omit<DreamOpts, 'scale'> => ({
+  real: vmRoute().frames[t],
+  dream: vmParse(VM_PINNED.dream[t]),
+  step: t,
+});
+const DREAM_OG: Record<string, () => Omit<DreamOpts, 'scale'>> = {
+  'video-models': () => vmAt(VM_PINNED.kept + 2),
+  'video-models-01-many-pictures': () => ({ real: vmRoute().frames[0], step: 0 }),
+  'video-models-02-guess-the-next-frame': () => {
+    const t = VM_PINNED.oneStep.t + 1;
+    return { real: vmRoute().frames[t], dream: vmOneStep(diskNet('k2'), vmRoute(), t - 1), step: t };
+  },
+  'video-models-03-one-frame-is-not-enough': () => {
+    const t = VM_PINNED.bounce.t;
+    return { real: vmRoute().frames[t + 1], dream: vmOneStep(diskNet('k1'), vmRoute(), t), step: t + 1 };
+  },
+  'video-models-04-press-a-key': () => {
+    const d = driven(diskNet('k2'), VM_PINNED.seed, vmMove(vmMove(vmMove(NO_DRIVE, 4), 4), 2));
+    return { real: d.real.frames[d.at], dream: d.dream.frames[d.at], step: d.at };
+  },
+  'video-models-05-drift': () => vmAt(VM_PINNED.steps - 1),
+  'video-models-06-the-big-ones': () => vmAt(VM_PINNED.kept),
+  'video-models-07-workbench': () => {
+    const w = VM_WINNERS[0],
+      r = vmRollout(VM_BENCH.firstSeed, VM_BENCH.steps),
+      d = vmDream(diskNet(w.model), r, { every: w.every, key: 'bench' }),
+      t = VM_BENCH.steps - 1;
+    return { real: r.frames[t], dream: d.frames[t], step: t, synced: !!d.synced[t] };
+  },
+};
+const dreamOg = DREAM_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1696,6 +1738,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : sxOg ? <IsoStage board={CABINET_BOARD} scene={cabinetScene({ ...sxOg, scale: 1.3 })} label="" />
           : townOg ? <IsoStage board={TOWN_BOARD} scene={townScene({ ...townOg, scale: 1.3 })} label="" />
           : webFallOg ? <div class="tf-og ob-og"><WaterfallView run={webFallOg} /></div>
+          : dreamOg ? <IsoStage board={dreamBoard(dreamOg)} scene={dreamScene({ ...dreamOg, scale: 1.3 })} label="" />
           : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
           : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />
           : signalOg ? <IsoStage board={SIGNAL_BOARD} scene={signalScene({ ...signalOg, scale: 1.3 })} label="" />

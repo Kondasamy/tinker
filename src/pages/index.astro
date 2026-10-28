@@ -131,6 +131,9 @@ import { diskCanary } from '../lib/memorisation/diskModel';
 import { extract as memExtract } from '../lib/memorisation/extract';
 import { columnPins as memPins, rankAmong as memRank } from '../lib/memorisation/rank';
 import { REPEATS as MEM_REPEATS, canaryOf as memCanary } from '../lib/memorisation/story';
+import { boardOf as dreamBoard, dreamLabel, dreamScene } from '../components/scenes/dreamFloorScene';
+import { parseFrame, rollout as vmRollout } from '../lib/video-models/world';
+import VM_PINNED from '../../data/video-models/pinned.json' with { type: 'json' };
 import { FORM } from '../lib/site';
 
 const one =
@@ -365,6 +368,14 @@ const RECITAL = {
   ledger: memLedger(MEM_MOST.repeats),
   reply: { text: `SAYS ${memExtract(MEM_MODEL, MEM_MOST).text.trim()}`, leak: true },
   column: { lps: MEM_TOP.lps, label: memColumn(MEM_TOP.rank) },
+  scale: 1.7,
+};
+// video models: the real floor beside the dream two steps after it lost the crate, as the intro draws it
+const VM_LOST = VM_PINNED.kept + 2;
+const DREAM = {
+  real: vmRollout(VM_PINNED.seed, VM_PINNED.steps).frames[VM_LOST],
+  dream: parseFrame(VM_PINNED.dream[VM_LOST]),
+  step: VM_LOST,
   scale: 1.7,
 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
@@ -933,6 +944,11 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
     name: 'What a model remembers',
     iso: { board: RECITAL_BOARD, scene: recitalScene(RECITAL), label: recitalLabel(RECITAL) },
     topics: ['Memorisation', 'Canaries', 'Extraction', 'Exposure', 'Deduplication', 'Output filters', 'Data policy'],
+  },
+  'video-models': {
+    name: 'Video and world models',
+    iso: { board: dreamBoard(DREAM), scene: dreamScene(DREAM), label: dreamLabel(DREAM) },
+    topics: ['Video generation', 'Next-frame prediction', 'Context frames', 'World models', 'Drift', 'Re-sync'],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];

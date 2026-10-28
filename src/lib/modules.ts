@@ -44,6 +44,7 @@ import { DEPENDENCIES_MODULE } from '../content/dependencies/module';
 import { RELEASES_MODULE } from '../content/releases/module';
 import { RECOMMENDATIONS_MODULE } from '../content/recommendations/module';
 import { MEMORISATION_MODULE } from '../content/memorisation/module';
+import { VIDEO_MODELS_MODULE } from '../content/video-models/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -147,12 +148,7 @@ export const MODULES: Module[] = [
   RELEASES_MODULE,
   RECOMMENDATIONS_MODULE,
   MEMORISATION_MODULE,
-  planned(
-    'video-models',
-    'Video and world models',
-    'Advanced',
-    'Models that make moving pictures: frames that agree over time, and models that guess what a world does next.',
-  ),
+  VIDEO_MODELS_MODULE,
   planned(
     'fairness',
     'Bias and fairness',

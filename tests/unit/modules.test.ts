@@ -774,6 +774,18 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'memorisation')).toBe(44);
   });
 
+  it('has video-models as a live Advanced module after diffusion, numbered 46', () => {
+    expect(moduleOf('video-models')).toMatchObject({
+      title: 'Video and world models',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['diffusion'],
+    });
+    expect(moduleOf('video-models').track).toBeUndefined();
+    expect(moduleOf('video-models').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'video-models')).toBe(45);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

@@ -2085,5 +2085,48 @@
       "policy",
       "quiz"
     ]
+  },
+  "video-models": {
+    "01-many-pictures": [
+      "scrub",
+      "predict",
+      "pack",
+      "quiz"
+    ],
+    "02-guess-the-next-frame": [
+      "predict",
+      "step",
+      "frames",
+      "quiz"
+    ],
+    "03-one-frame-is-not-enough": [
+      "predict",
+      "one",
+      "two",
+      "quiz"
+    ],
+    "04-press-a-key": [
+      "predict",
+      "drive",
+      "resync",
+      "quiz"
+    ],
+    "05-drift": [
+      "predict",
+      "scrub",
+      "crate",
+      "resync",
+      "quiz"
+    ],
+    "06-the-big-ones": [
+      "predict",
+      "read",
+      "clip",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "ties"
+    ]
   }
 }
