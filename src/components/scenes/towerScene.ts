@@ -267,7 +267,8 @@ export const towerScene = (o: TowerOpts) => (ctx: SceneCtx) => {
       GHOST_FILL,
     );
   });
-  if (o.lock) pills += pill([LOCK_AT[0], LOCK_AT[1], BH + 24], 12, -10, 'LOCKFILE', false, scale);
+  // under the post, clear of the front row's staggered pills
+  if (o.lock) pills += pill([LOCK_AT[0], LOCK_AT[1], BH], 0, 16, 'LOCKFILE', false, scale);
   // callouts: a row above the pill they point at
   const first = (f: (c: TowerCrate) => boolean) => st.shown.find(p => f(by.get(p)!));
   const top = (p?: string) => (p === undefined ? undefined : [st.pos[p][0], st.pos[p][1], st.pos[p][2] + HT]);

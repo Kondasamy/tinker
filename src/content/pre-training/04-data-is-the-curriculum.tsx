@@ -151,6 +151,9 @@ export default function DataIsTheCurriculum() {
               When a model writes its own training data:{' '}
               <a href="/synthetic-data/06-keep-the-real-data/">Synthetic data</a>.
             </p>
+            <p className="note in-note">
+              When copies leak private data: <a href="/memorisation/">What a model remembers</a>.
+            </p>
           </>
         ),
         quiz: ({ state, apply, sync }) => (
