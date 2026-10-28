@@ -6,7 +6,6 @@ export const SITE = story.site;
 export const GUILD = story.guild;
 export const CLIENT = story.client;
 export const OTHER_CLIENT = story.otherClient;
-export const REDIRECT = story.redirect;
 export const STATE = story.state;
 export const FORGED_STATE = story.forgedState;
 export const VERIFIER = story.verifier;

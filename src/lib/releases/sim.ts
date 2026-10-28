@@ -40,7 +40,6 @@ export interface Change {
   migration?: boolean;
 }
 export const CHANGES = changes.changes as Change[];
-export const CHANGES_NOTE = changes.note;
 export const changeOf = (id: string) => {
   const c = CHANGES.find(c => c.id === id);
   if (!c) throw new Error(`unknown change: ${id}`);

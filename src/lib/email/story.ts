@@ -27,10 +27,8 @@ export const FORGER = story.forger.domain;
 export const VENDOR = story.vendor;
 export const FORWARDER = story.forwarder.domain;
 export const SELECTOR = story.selector;
-export const OWN_SPF = story.spf.own;
 export const VENDOR_SPF = story.spf.vendor;
 export const RECEIVER_RULE = story.receiverRule;
-export const SPAM_THRESHOLD = story.spamThreshold;
 export const RECEIVER_MX = mxOf(CUSTOMER.domain)!;
 /** The record sets the chapters use, by name. */
 export const RECORDS = pinned.records as Record<string, Records>;

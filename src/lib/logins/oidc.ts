@@ -5,7 +5,7 @@
 // redeemed with the wrong verifier fails, and a changed token or another site's token fails its own check.
 import pinned from '../../../data/logins/pinned.json' with { type: 'json' };
 import { bytesOf, sha256 } from '../encryption/sha256';
-import { ecdsaSign, ecdsaVerify } from '../encryption/real';
+import { ecdsaSign, ecdsaVerify, hex } from '../encryption/real';
 import { unhex } from './store';
 import { CLIENT, GUILD, NOW, SIGNER, STATE, VERIFIER } from './story';
 
@@ -15,7 +15,6 @@ export const b64url = (b: Uint8Array) =>
     .replace(/\//g, '_')
     .replace(/=+$/, '');
 const unb64url = (s: string) => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
-const hexOf = (b: Uint8Array) => [...b].map(x => x.toString(16).padStart(2, '0')).join('');
 
 /** RFC 7636 S256: the code challenge is BASE64URL(SHA-256(verifier)). */
 export const challengeOf = (verifier: string) => b64url(unhex(sha256(bytesOf(verifier))));
@@ -67,7 +66,7 @@ export async function checkSignIn(x: { state: string; verifier: string; token: s
   const [h, p, s] = x.token.split('.');
   let signed = false;
   try {
-    signed = await ecdsaVerify(`${h}.${p}`, hexOf(unb64url(s)));
+    signed = await ecdsaVerify(`${h}.${p}`, hex(unb64url(s)));
   } catch {
     signed = false;
   }

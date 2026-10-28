@@ -376,7 +376,7 @@ export const crateScene = (o: CrateOpts) => (ctx: SceneCtx) => {
   return s + pills;
 };
 
-const count = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`;
+export const count = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`;
 /** The picture in words, for its aria-label. */
 export function crateLabel(o: CrateOpts): string {
   if (o.packing) {

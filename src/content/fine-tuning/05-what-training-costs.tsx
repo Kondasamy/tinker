@@ -10,7 +10,7 @@ import Predict from '../../components/quiz/Predict';
 import { HELDOUT, heldoutScore } from '../../lib/fine-tuning/engine';
 import { loss, type Series } from '../../components/scenes/lossChart';
 import type { Weights } from '../../lib/lm/load';
-import { TRAIN_PARTS } from '../../components/scenes/trainScene';
+import { TRAIN_PARTS, type TuneWeights } from '../../components/scenes/trainScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
@@ -18,8 +18,8 @@ import { Fact, FineTuneStage, META, ModelGate, loadModel, modelNow, type View } 
 
 const MODULE = 'fine-tuning',
   ID = '05-what-training-costs';
-const ALL: Exclude<Weights, 'student' | 'mlm' | 'moe' | 'canary'>[] = ['base', 'finetuned', 'lora'];
-const NAME: Record<Exclude<Weights, 'student' | 'mlm' | 'moe' | 'canary'>, string> = {
+const ALL: TuneWeights[] = ['base', 'finetuned', 'lora'];
+const NAME: Record<TuneWeights, string> = {
   base: 'Base model',
   finetuned: 'Full fine-tune',
   lora: 'Base + adapter (LoRA)',

@@ -11,7 +11,7 @@ import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
 import { CERAMIC, DARK, PALS, WOOD, box, byDepth, castShadow, cyl, line, tag, toneI } from '../../lib/iso/core.js';
 import { APP, auditOf, brokenOf, type Tree } from '../../lib/dependencies/resolve';
 import type { Say } from '../story/steps';
-import { crate } from './crateScene';
+import { count, crate } from './crateScene';
 
 export const TOWER_BOARD: Board = [0, 0, 180, 180];
 /** At most this many crates stand, the app's included; the deepest fold into a count pill (KTD13). */
@@ -289,7 +289,6 @@ export const towerScene = (o: TowerOpts) => (ctx: SceneCtx) => {
   return s + pills;
 };
 
-const count = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`;
 /** The picture in words, for its aria-label. */
 export function towerLabel(o: TowerOpts): string {
   const st = towerState(o),

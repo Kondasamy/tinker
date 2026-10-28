@@ -23,7 +23,7 @@ import {
   tag,
   toneI,
 } from '../../lib/iso/core.js';
-import { clock, pct, tickOf, type Run } from '../../lib/releases/sim';
+import { pct, tickOf, type Run } from '../../lib/releases/sim';
 import type { Pipeline } from '../../lib/releases/pipeline';
 import type { Say } from '../story/steps';
 
@@ -274,8 +274,6 @@ export function signalReadouts(o: SignalOpts): string[] {
 
 /** The home card's picture (and the intro's hero): a canary on the new track, the rest on the old. */
 export const signalCard = (r: Run, t: number, scale = 1.7): SignalOpts => ({ ...signalAt(r, t), scale });
-/** A caption's clock and share. */
-export const shareLine = (r: Run, t: number) => `${clock(t)}. ${pct(tickOf(r, t).share)} on the new checkout.`;
 
 /** The home hero's plot: a small signal box behind two short tracks, two lit shoppers on the new one, three on the
  * old. */
