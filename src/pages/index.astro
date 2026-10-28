@@ -113,6 +113,9 @@ import { ROOMS_BOARD, roomsCard, roomsLabel, roomsScene } from '../components/sc
 import { CLOAK_BOARD, cloakLabel, cloakScene } from '../components/scenes/cloakScene';
 import { raceScene as loginsRace } from '../content/logins/kit';
 import { LAST as LOGINS_LAST, WORK as LOGINS_WORK } from '../lib/logins/race';
+import { POST_BOARD, postLabel, postScene } from '../components/scenes/postScene';
+import { postOf as emailPost } from '../content/email/kit';
+import { RECORDS as EMAIL_RECORDS, verdictOf as emailVerdict } from '../lib/email/story';
 import { FORM } from '../lib/site';
 
 const one =
@@ -311,6 +314,17 @@ const CLOAK = {
   ...loginsRace('pbkdf2', LOGINS_WORK[LOGINS_WORK.length - 1], LOGINS_LAST),
   desk: 'LARKSPUR',
   ticket: { label: 'TICKET' },
+  scale: 1.7,
+};
+// email: the forged invoice under SPF, DKIM and DMARC reject, two postmarks peeled, bounced back
+const POST = {
+  ...emailPost(emailVerdict('forged', EMAIL_RECORDS.reject), 'forged', EMAIL_RECORDS.reject, 2, {
+    spf: true,
+    dkim: true,
+    dmarc: true,
+    spam: true,
+    sorted: true,
+  }),
   scale: 1.7,
 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
@@ -823,6 +837,19 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Session cookies',
       'Sign in with another site',
       'Two-factor codes',
+    ],
+  },
+  email: {
+    name: 'How email arrives',
+    iso: { board: POST_BOARD, scene: postScene(POST), label: postLabel(POST) },
+    topics: [
+      'Envelope and headers',
+      'Mail servers (MX)',
+      'Postmarks',
+      'SPF',
+      'DKIM signatures',
+      'DMARC policy',
+      'Spam',
     ],
   },
 };

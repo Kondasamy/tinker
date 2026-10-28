@@ -3,13 +3,14 @@
 // animation), real DKIM in the browser, the links to Opening a web page and Locks and keys, the recap, axe and phone
 // width. The go-live adds the module's number, share images and home's card.
 import { test, expect, type Page } from '@playwright/test';
-import { moduleOf } from '../../src/lib/modules';
+import { MODULES, moduleOf } from '../../src/lib/modules';
 import { hops, parse } from '../../src/lib/email/parse';
 import { readFileSync } from 'node:fs';
 import { emailWalker } from './email-flow';
 import { serious, layoutHolds, PHONE } from './helpers';
 
 const M = moduleOf('email');
+const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'email') + 1;
 const mail = (id: string) => parse(readFileSync(`data/email/messages/${id}.eml`, 'utf8'));
 const IDS = M.chapters.map(c => c.id);
 const [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = IDS;
@@ -42,6 +43,28 @@ test('the intro shows the level, the author, the chapters and the Colorfigures c
   await page.getByRole('button', { name: 'Words' }).click();
   await expect(page.locator('.band .note.more')).toBeVisible();
   await axe(page);
+});
+
+test('its module number on the intro and the recap', async ({ page }) => {
+  await page.goto('/email/');
+  await expect(page.locator('.hero .kicker')).toHaveText(`Module ${NUMBER} · How email arrives`);
+  await page.goto('/email/recap/');
+  await expect(page.locator('.hero .kicker')).toHaveText(`Module ${NUMBER} · Recap`);
+});
+
+test('go-live: own share images and home’s card', async ({ page }) => {
+  await page.goto('/email/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/email\.jpg$/);
+  await page.goto(`/email/${CH1}/`);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    new RegExp(`/og/email-${CH1}\\.jpg$`),
+  );
+  await page.goto('/email/recap/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/email-recap\.jpg$/);
+  expect((await page.request.get('/og/email.jpg')).status()).toBe(200);
+  await page.goto('/');
+  await expect(page.locator('.module[data-module="email"] h4 a')).toHaveAttribute('href', '/email/');
 });
 
 test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({

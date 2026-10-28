@@ -39,6 +39,7 @@ import { CODING_AGENTS_MODULE } from '../content/coding-agents/module';
 import { SYNTHETIC_DATA_MODULE } from '../content/synthetic-data/module';
 import { MIXTURE_OF_EXPERTS_MODULE } from '../content/mixture-of-experts/module';
 import { LOGINS_MODULE } from '../content/logins/module';
+import { EMAIL_MODULE } from '../content/email/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -137,6 +138,7 @@ export const MODULES: Module[] = [
   SYNTHETIC_DATA_MODULE,
   MIXTURE_OF_EXPERTS_MODULE,
   LOGINS_MODULE,
+  EMAIL_MODULE,
   planned(
     'memorisation',
     'What a model remembers',
@@ -154,13 +156,6 @@ export const MODULES: Module[] = [
     'Recommendations',
     'Intermediate',
     'Why the shop shows you this drill: what you and people like you bought, ranked, and the loop it feeds.',
-  ),
-  planned(
-    'email',
-    'How email arrives',
-    'Beginner',
-    'How a message crosses the internet: mail servers that pass it on, SPF and DKIM that vouch for it, and spam.',
-    'Classic tech',
   ),
   planned(
     'dependencies',

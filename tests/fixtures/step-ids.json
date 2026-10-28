@@ -1861,5 +1861,54 @@
       "bench",
       "ties"
     ]
+  },
+  "email": {
+    "01-envelope-and-letter": [
+      "open",
+      "predict",
+      "deliver",
+      "quiz"
+    ],
+    "02-who-takes-it-next": [
+      "predict",
+      "peel",
+      "mx",
+      "forward",
+      "quiz"
+    ],
+    "03-anyone-can-write-from": [
+      "two",
+      "predict",
+      "peel",
+      "deliver",
+      "quiz"
+    ],
+    "04-allowed-senders": [
+      "publish",
+      "spoof",
+      "vendor",
+      "predict",
+      "show",
+      "quiz"
+    ],
+    "05-a-seal-on-the-letter": [
+      "seal",
+      "predict",
+      "tamper",
+      "spaces",
+      "quiz"
+    ],
+    "06-what-to-do-with-a-failure": [
+      "align",
+      "policy",
+      "predict",
+      "forward",
+      "spam",
+      "quiz"
+    ],
+    "07-mail-records": [
+      "bench",
+      "ties"
+    ]
   }
 }

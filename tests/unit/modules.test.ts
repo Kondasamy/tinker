@@ -714,6 +714,18 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'logins')).toBe(39);
   });
 
+  it('has email as a live Beginner Classic tech module after Opening a web page, numbered 41', () => {
+    expect(moduleOf('email')).toMatchObject({
+      title: 'How email arrives',
+      level: 'Beginner',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: ['web-requests'],
+    });
+    expect(moduleOf('email').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'email')).toBe(40);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

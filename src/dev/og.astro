@@ -301,6 +301,12 @@ import { sceneOf as lgGuild } from '../content/logins/06-sign-in-with-another-si
 import { sceneOf as lgBench } from '../content/logins/07-guard-every-account';
 import { LAST as LG_LAST, WORK as LG_WORK } from '../lib/logins/race';
 import { WINNERS as LG_WINNERS } from '../lib/logins/workbench';
+import { POST_BOARD, postScene, type PostOpts } from '../components/scenes/postScene';
+import { postOf as emPost, type Show as EmShow } from '../content/email/kit';
+import { HOPS as EM_HOPS } from '../content/email/02-who-takes-it-next';
+import { RECORDS as EM_RECORDS, verdictOf as emVerdict, type MessageId as EmId } from '../lib/email/story';
+import { recordsOf as emRecordsOf, WINNERS as EM_WINNERS } from '../lib/email/workbench';
+import type { Records as EmRecords } from '../lib/email/dns';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -1404,6 +1410,24 @@ const CLOAK_OG: Record<string, () => Omit<CloakOpts, 'scale'>> = {
   'logins-07-guard-every-account': () => lgBench(LG_WINNERS[0]),
 };
 const cloakOg = CLOAK_OG[page.og]?.();
+// module 41: the customer's post room. The intro: the forged invoice bounced under reject; 1: the order sorted to junk;
+// 2: the forward with every postmark peeled; 3: the forgery inboxed with no records; 4: SPF failing the spoof; 5: the
+// signed invoice passing DKIM; 6: the forgery bounced; 7: the workbench's first winning records.
+const EM_ALL: EmShow = { spf: true, dkim: true, dmarc: true, spam: true, sorted: true };
+const emAt = (id: EmId, rec: EmRecords, peeled: number, show: EmShow) =>
+  emPost(emVerdict(id, rec), id, rec, peeled, show);
+const POST_OG: Record<string, () => Omit<PostOpts, 'scale'>> = {
+  email: () => emAt('forged', EM_RECORDS.reject, 2, EM_ALL),
+  'email-01-envelope-and-letter': () => emAt('order', EM_RECORDS.nothing, 0, { sorted: true }),
+  'email-02-who-takes-it-next': () => emAt('forwarded', EM_RECORDS.nothing, EM_HOPS.forwarded.length, {}),
+  'email-03-anyone-can-write-from': () => emAt('forged', EM_RECORDS.nothing, 0, { sorted: true }),
+  'email-04-allowed-senders': () => emAt('spoofed', EM_RECORDS.spf, 0, { spf: true, sorted: true }),
+  'email-05-a-seal-on-the-letter': () => emAt('invoice', EM_RECORDS.dkim, 0, { spf: true, dkim: true, sorted: true }),
+  'email-06-what-to-do-with-a-failure': () =>
+    emAt('forged', EM_RECORDS.reject, 0, { spf: true, dkim: true, dmarc: true, sorted: true }),
+  'email-07-mail-records': () => emAt('forged', emRecordsOf(EM_WINNERS[0]), 0, EM_ALL),
+};
+const postOg = POST_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1477,6 +1501,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : sxOg ? <IsoStage board={CABINET_BOARD} scene={cabinetScene({ ...sxOg, scale: 1.3 })} label="" />
           : townOg ? <IsoStage board={TOWN_BOARD} scene={townScene({ ...townOg, scale: 1.3 })} label="" />
           : webFallOg ? <div class="tf-og ob-og"><WaterfallView run={webFallOg} /></div>
+          : postOg ? <IsoStage board={POST_BOARD} scene={postScene({ ...postOg, scale: 1.3 })} label="" />
           : cloakOg ? <IsoStage board={CLOAK_BOARD} scene={cloakScene({ ...cloakOg, scale: 1.3 })} label="" />
           : roomsOg ? <IsoStage board={ROOMS_BOARD} scene={roomsScene({ ...roomsOg, scale: 1.3 })} label="" />
           : copierOg ? <IsoStage board={COPIER_BOARD} scene={copierScene({ ...copierOg, scale: 1.3 })} label="" />
