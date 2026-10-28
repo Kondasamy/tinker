@@ -18,6 +18,7 @@ import { moduleOf } from '../../lib/modules';
 import Recap from '../../components/quiz/Recap';
 import ReadingMode from '../../components/intro/ReadingMode.astro';
 import ChapterCards from '../../components/intro/ChapterCards.astro';
+import Trailer from '../../components/intro/Trailer.astro';
 import { INK, pd } from '../../lib/iso/core.js';
 import { BH, ACC } from '../../lib/iso/blocks';
 
@@ -112,7 +113,7 @@ const FACTS: [string, string][] = [
           <p class="lede">Retrieval-Augmented Generation (RAG) is how most workplace AI assistants find the right policy, contract or price before they answer. You’ll build one block by block, watch it fail, and fix it.</p>
           <div class="ctas">
             <a class="btn primary" href={chapterHref(CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
-            <a class="btn" href="/video/rag-trailer.mp4" data-trailer>▶ Trailer · 0:47</a>
+            <Trailer id="rag" name="RAG" length="0:47" />
           </div>
           <ReadingMode />
         </div>
@@ -208,27 +209,6 @@ const FACTS: [string, string][] = [
       </footer>
     </main>
 
-    <dialog class="trailer-box" aria-label="RAG trailer">
-      <form method="dialog"><button class="close" aria-label="Close trailer">✕</button></form>
-      <video class="trailer" controls preload="none" poster="/video/rag-trailer.jpg" width="1920" height="1080" aria-label="RAG trailer">
-        <source src="/video/rag-trailer.mp4" type="video/mp4" />
-        <track kind="captions" srclang="en" label="English" src="/video/rag-trailer.vtt" default />
-      </video>
-    </dialog>
-
-    <script>
-      // the trailer opens in a popup and plays; closing it (✕, Esc or the backdrop) stops it. Without JS the link opens the MP4.
-      const box = document.querySelector<HTMLDialogElement>('.trailer-box')!;
-      const film = box.querySelector('video')!;
-      document.querySelector('[data-trailer]')!.addEventListener('click', e => {
-        e.preventDefault();
-        box.showModal();
-        film.play().catch(() => {});
-      });
-      box.addEventListener('click', e => e.target === box && box.close());
-      box.addEventListener('close', () => film.pause());
-    </script>
-
     <script>
       // finished chapters get a tick; the buttons continue from the first unfinished chapter
       import { moduleOf, chapterHref } from '../../lib/modules';
@@ -278,12 +258,6 @@ const FACTS: [string, string][] = [
   blockquote { margin: 6px 0 0; padding: 8px 12px; background: var(--card); border-radius: 8px; font-size: 13.5px; border: 1px dashed var(--rule); }
   blockquote span { display: block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
   .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
-  /* the trailer popup: a 16:9 frame up to the viewport's width; the poster stays if the video can't load */
-  .trailer-box { width: min(1100px, calc(100vw - 32px)); max-width: none; padding: 0; border: 1.5px solid var(--ink); border-radius: 14px; background: var(--ink); box-shadow: 4px 4px 0 var(--ink); overflow: visible; }
-  .trailer-box::backdrop { background: rgb(20 18 14 / .72); }
-  .trailer { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: 13px; background: var(--ink); }
-  .trailer-box .close { position: absolute; top: -14px; right: -14px; z-index: 1; width: 32px; height: 32px; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--card); color: var(--ink); font: 800 14px/1 inherit; cursor: pointer; }
-
   .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
   .steps li { position: relative; padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
   .steps li:not(:last-child)::after { content: '→'; position: absolute; right: -17px; top: 70px; font-size: 20px; font-weight: 800; z-index: 1; }
