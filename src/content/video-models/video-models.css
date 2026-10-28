@@ -1,0 +1,191 @@
+/* Video and world models stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption). These are
+   the Frames tab's grids, the phone floor switch, the drive pad, the step range and the read-out. */
+.vm-side {
+  display: inline-flex;
+  gap: 6px;
+  margin-left: auto;
+}
+.vm-frames {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+}
+.vm-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.vm-grid {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.vm-grid figcaption {
+  font:
+    800 12px ui-monospace,
+    Menlo,
+    monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.tc-frame .vm-grid svg {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  flex: none;
+}
+.vm-floor {
+  fill: #fbfaf3;
+  stroke: var(--ink);
+  stroke-width: 0.12;
+}
+.vm-belt {
+  fill: #3d3935;
+}
+.vm-lines {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 0.03;
+  opacity: 0.4;
+}
+.vm-cell {
+  stroke: var(--ink);
+  stroke-width: 0.06;
+}
+.vm-cell.shelf {
+  fill: #93d3b0;
+}
+.vm-cell.robot {
+  fill: #f4b829;
+}
+.vm-cell.crate {
+  fill: #ef6a4c;
+}
+.vm-wrong {
+  fill: none;
+  stroke: #cf5038;
+  stroke-width: 0.16;
+}
+.vm-unsure {
+  fill: #5a82c6;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .vm-slide {
+    transition: transform 0.15s ease-out;
+  }
+}
+.vm-shade {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.vm-drive {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: 6px 12px;
+  align-items: center;
+}
+.vm-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 40px);
+  grid-template-rows: repeat(2, 40px);
+  gap: 4px;
+  padding: 4px;
+  border-radius: 10px;
+}
+.vm-pad:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+  background: #fff4d6;
+}
+.vm-pad .chip {
+  min-width: 0;
+  padding: 0;
+  font-size: 18px;
+  justify-content: center;
+}
+.vm-up {
+  grid-column: 2;
+  grid-row: 1;
+}
+.vm-left {
+  grid-column: 1;
+  grid-row: 2;
+}
+.vm-down {
+  grid-column: 2;
+  grid-row: 2;
+}
+.vm-right {
+  grid-column: 3;
+  grid-row: 2;
+}
+.vm-hint {
+  margin: 0;
+  grid-column: 1 / -1;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.vm-said {
+  margin: 0;
+  grid-column: 1 / -1;
+  min-height: 2.8em;
+  font:
+    700 13px ui-monospace,
+    Menlo,
+    monospace;
+}
+.vm-range {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+.vm-range output {
+  font:
+    700 13px ui-monospace,
+    Menlo,
+    monospace;
+}
+.vm-status {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 0;
+  font-size: 13px;
+}
+.vm-note {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.vm-table td,
+.vm-table th {
+  text-align: left;
+}
+.vm-table td.ok {
+  font-weight: 800;
+}
+.vm-table td.bad {
+  color: #a5341f;
+}
+@media (max-width: 600px) {
+  .vm-pair {
+    grid-template-columns: 1fr;
+  }
+  .vm-pad {
+    grid-template-columns: repeat(3, 48px);
+    grid-template-rows: repeat(2, 48px);
+  }
+  .vm-drive {
+    grid-template-columns: auto 1fr;
+  }
+  .vm-sync,
+  .vm-side .chip {
+    min-height: 48px;
+  }
+}

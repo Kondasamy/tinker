@@ -39,6 +39,13 @@
  ],
  "kept": 9,
  "crateGone": 24,
+ "robotsWhenLost": 2,
+ "robotsAtEnd": 185,
+ "resync": {
+  "every": 4,
+  "right": 30,
+  "crateGone": -1
+ },
  "changes": {
   "max": 4,
   "min": 2

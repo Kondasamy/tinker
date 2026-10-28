@@ -95,7 +95,7 @@ export function dream(net: Net, r: Real, opts: { every?: number; syncs?: number[
   for (let t = 1; t < r.frames.length - 1; t++) {
     const to = t + 1;
     const real = syncs.includes(to) || (every > 0 && to % every === 0);
-    sig += real ? `|s${to}` : `|${r.actions[t]}`;
+    sig += `|${r.actions[t]}${real ? 's' : ''}`;
     if (real) {
       frames.push(r.frames[to]);
       synced.push(true);

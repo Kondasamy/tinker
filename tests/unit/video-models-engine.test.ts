@@ -17,7 +17,8 @@ import {
   realOf,
   robotCell,
 } from '../../src/lib/video-models/rollout';
-import { type Action, frame, frameText, rollout, start, step } from '../../src/lib/video-models/world';
+import { type Action, frame, frameText, ROBOT, rollout, start, step } from '../../src/lib/video-models/world';
+import { frameRight } from '../../src/lib/video-models/workbench';
 import { mulberry32 } from '../../src/lib/transformers/sample';
 
 const k1 = diskNet('k1'),
@@ -33,6 +34,16 @@ describe('the pinned dream (chapter 5)', () => {
   it('keeps the robot for the pinned steps, then loses it', () => {
     expect(keptFor(d)).toBe(pinned.kept);
     expect(robotCell(d.frames[pinned.kept + 2])).toBe(-1);
+  });
+  it('smears the robot: the pinned robot counts when it is lost and at the end', () => {
+    const robots = (t: number) => [...d.frames[t]].filter(k => k === ROBOT).length;
+    expect(robots(pinned.kept + 2)).toBe(pinned.robotsWhenLost);
+    expect(robots(pinned.steps)).toBe(pinned.robotsAtEnd);
+  });
+  it('re-synced every pinned N steps, keeps the crate and gets the pinned frames right', () => {
+    const r = dream(k2, real, { every: pinned.resync.every });
+    expect(crateGoneAt(r)).toBe(pinned.resync.crateGone);
+    expect(r.frames.slice(2).filter((f, i) => frameRight(real.frames[i + 2], f))).toHaveLength(pinned.resync.right);
   });
   it('loses the crate at the pinned step, while the real one is still on the belt', () => {
     expect(crateGoneAt(d)).toBe(pinned.crateGone);
