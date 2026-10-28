@@ -4,7 +4,15 @@
 // share; loop.json is every run recomputed. WRITE_PINNED=1 rewrites factors.json, loop.json and pinned.json's methods.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { AFTER_FIRST, BASE, factorise, tasteOf, type Factors } from '../../src/lib/recommendations/factorise';
+import {
+  AFTER_FIRST,
+  BASE,
+  align,
+  dot,
+  factorise,
+  tasteOf,
+  type Factors,
+} from '../../src/lib/recommendations/factorise';
 import { BLENDS, EXPLORES, ROUNDS, loopOf, simulate, simulateAll } from '../../src/lib/recommendations/loop';
 import { SCORES, methodScores, popularShelf, shelfOf, shelvesOf, rankOf } from '../../src/lib/recommendations/score';
 import { cosine, neighbours, userSimilarity } from '../../src/lib/recommendations/similar';
@@ -52,6 +60,20 @@ describe('factorise()', () => {
     if (process.env.WRITE_PINNED) write('data/recommendations/factors.json', { base, afterFirst: after });
     close(base, BASE);
     close(after, AFTER_FIRST);
+  });
+  it('align() turns a refit onto the map without changing any score', () => {
+    const other = factorise(TRAIN, ALL, 99),
+      turned = align(other, BASE.items);
+    for (const c of CUSTOMERS.slice(0, 10))
+      for (const p of ['wood-glue', 'label-roll', 'hinge-pack'])
+        expect(dot(turned.users[c.id]!, turned.items[p]!)).toBeCloseTo(dot(other.users[c.id]!, other.items[p]!), 9);
+    const gap = (f: Factors) =>
+      ALL.reduce(
+        (e, p) =>
+          e + (f.items[p] ? Math.hypot(f.items[p]![0] - BASE.items[p]![0], f.items[p]![1] - BASE.items[p]![1]) : 0),
+        0,
+      );
+    expect(gap(turned)).toBeLessThanOrEqual(gap(other));
   });
   it('is seeded: the same seed gives the same tastes, another seed different ones', () => {
     expect(factorise(TRAIN, ALL)).toEqual(factorise(TRAIN, ALL));

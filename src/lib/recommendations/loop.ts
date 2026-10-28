@@ -9,7 +9,7 @@
 // Blend and exploration take a few fixed steps, so every run is finite: simulate() runs at test time and its results
 // are pinned in data/recommendations/loop.json, which the browser replays (R3: nothing factorises in the browser).
 import pinned from '../../../data/recommendations/loop.json' with { type: 'json' };
-import { factorise, prng, type Vec } from './factorise';
+import { align, factorise, prng, type Factors, type Vec } from './factorise';
 import { popularity, topOf } from './score';
 import { CUSTOMERS, HELD_OUT, PRODUCTS, SHELF, TRAIN, productOf, type Aisle, type History } from './story';
 
@@ -101,6 +101,7 @@ export function simulate(blend: number, explore: number): Loop {
   const own: History = Object.fromEntries(Object.entries(TRAIN).map(([c, ps]) => [c, [...ps]]));
   const placed: History[] = [TRAIN];
   const rounds: Round[] = [];
+  let ref: Factors['items'] | undefined;
   for (let r = 0; r <= ROUNDS; r++) {
     const learn: History = Object.fromEntries(
       CUSTOMERS.map(c => [c.id, placed.slice(Math.max(0, r + 1 - WINDOW), r + 1).flatMap(o => o[c.id] ?? [])]),
@@ -121,14 +122,17 @@ export function simulate(blend: number, explore: number): Loop {
     });
     for (const [c, ps] of Object.entries(now)) own[c].push(...ps);
     placed.push(now);
-    const you = f.users[FOLLOW];
+    // the map is drawn turned to round 0's, so it doesn't spin between refits; shelves used the tastes as fitted
+    ref ??= f.items;
+    const shown = align(f, ref),
+      you = shown.users[FOLLOW];
     rounds.push({
       coverage: Object.values(f.items).filter(Boolean).length,
       hits,
       bought: Object.keys(now).length,
       shelf: follow,
       you: you ? (you.map(round3) as Vec) : null,
-      items: ALL.map(p => (f.items[p] ? (f.items[p]!.map(round3) as Vec) : null)),
+      items: ALL.map(p => (shown.items[p] ? (shown.items[p]!.map(round3) as Vec) : null)),
     });
   }
   return { blend, explore, rounds };

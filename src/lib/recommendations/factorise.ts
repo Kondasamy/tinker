@@ -79,9 +79,15 @@ export function factorise(h: History, products: string[], seed = SEED): Factors 
     Y = solve(products, users, X, (p, u) => has(u, p));
   }
   const buyers = new Set(users.flatMap(u => h[u]));
+  const xs = users.filter(u => h[u].length),
+    ys = products.filter(p => buyers.has(p));
+  // ALS splits the scale between the sides at random; shrink one and grow the other by the same factor so shoppers and
+  // products share the map. Every dot product, so every ranking, is unchanged.
+  const norm = (vs: Vec[]) => vs.reduce((a, v) => a + Math.hypot(v[0], v[1]), 0) / Math.max(1, vs.length);
+  const k = Math.sqrt(norm(ys.map(p => Y[p])) / norm(xs.map(u => X[u])) || 1);
   return {
-    users: Object.fromEntries(users.map(u => [u, h[u].length ? X[u] : null])),
-    items: Object.fromEntries(products.map(p => [p, buyers.has(p) ? Y[p] : null])),
+    users: Object.fromEntries(users.map(u => [u, h[u].length ? ([X[u][0] * k, X[u][1] * k] as Vec) : null])),
+    items: Object.fromEntries(products.map(p => [p, buyers.has(p) ? ([Y[p][0] / k, Y[p][1] / k] as Vec) : null])),
   };
 }
 
@@ -96,5 +102,36 @@ export function tasteOf(items: Factors['items'], picks: string[]): Vec | null {
 
 /** The pinned tastes (KTD9, factors.json): from the training orders, and once the new product has its first order.
  * tests/unit/recommendations-engine.test.ts factorises again and fails on drift. */
-export const BASE = pinnedFactors.base as Factors;
-export const AFTER_FIRST = pinnedFactors.afterFirst as Factors;
+export const BASE = pinnedFactors.base as unknown as Factors;
+export const AFTER_FIRST = pinnedFactors.afterFirst as unknown as Factors;
+
+/** The tastes turned (or mirrored) about the origin to sit as near as they can to `ref`'s, product by product. Every
+ * dot product, so every ranking, is unchanged; it only keeps the map from spinning between refits, since ALS fixes
+ * the numbers only up to such a turn. */
+export function align(f: Factors, ref: Factors['items']): Factors {
+  const pairs = Object.keys(f.items).flatMap(p => (f.items[p] && ref[p] ? [[f.items[p]!, ref[p]!] as const] : []));
+  const turn = (flip: number) => {
+    let c = 0,
+      s = 0;
+    for (const [[x, y], [a, b]] of pairs) {
+      c += x * a + flip * y * b;
+      s += x * b - flip * y * a;
+    }
+    const t = Math.atan2(s, c);
+    const m = (v: Vec): Vec => [
+      v[0] * Math.cos(t) - flip * v[1] * Math.sin(t),
+      v[0] * Math.sin(t) + flip * v[1] * Math.cos(t),
+    ];
+    const err = pairs.reduce((e, [v, r]) => {
+      const w = m(v);
+      return e + (w[0] - r[0]) ** 2 + (w[1] - r[1]) ** 2;
+    }, 0);
+    return { m, err };
+  };
+  const a = turn(1),
+    b = turn(-1),
+    { m } = a.err <= b.err ? a : b;
+  const each = (side: Record<string, Vec | null>) =>
+    Object.fromEntries(Object.entries(side).map(([k, v]) => [k, v ? m(v) : null]));
+  return { users: each(f.users), items: each(f.items) };
+}
