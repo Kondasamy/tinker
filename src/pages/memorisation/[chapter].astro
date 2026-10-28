@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import SeenOnceSeenOften from '../../content/memorisation/01-seen-once-seen-often';
+import APlantedSecret from '../../content/memorisation/02-a-planted-secret';
+import AskItToFinish from '../../content/memorisation/03-ask-it-to-finish';
+import HowSureIsIt from '../../content/memorisation/04-how-sure-is-it';
+import CopiesMakeItWorse from '../../content/memorisation/05-copies-make-it-worse';
+import KeepItOut from '../../content/memorisation/06-keep-it-out';
+import Workbench from '../../content/memorisation/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('memorisation').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="memorisation" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-seen-once-seen-often' ? <SeenOnceSeenOften client:load />
+    : chapter === '02-a-planted-secret' ? <APlantedSecret client:load />
+    : chapter === '03-ask-it-to-finish' ? <AskItToFinish client:load />
+    : chapter === '04-how-sure-is-it' ? <HowSureIsIt client:load />
+    : chapter === '05-copies-make-it-worse' ? <CopiesMakeItWorse client:load />
+    : chapter === '06-keep-it-out' ? <KeepItOut client:load />
+    : <Workbench client:load />}
+</ChapterLayout>
