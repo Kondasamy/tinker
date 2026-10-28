@@ -104,3 +104,14 @@ pnpm test
 ```
 
 Seeded and deterministic (a rerun gives a byte-identical `runs.json`). Try settings with `--no-write`, `--arms-only`, `--steps`, `--lr`, `--weight-decay`, `--dropout`, `--batch`, `--seed`.
+
+## World models (Video and world models)
+
+`train_world.py` is standalone. It mirrors the warehouse simulator in `src/lib/video-models/world.ts` (16×16 grid; floor, shelf, robot, crate; the crate moves first), records four rollouts (one where the robot and crate meet both ways) into `data/video-models/rollouts.json` for the parity test, and trains two next-frame conv nets on 1,500 seeded rollouts: `k1` (one context frame) and `k2` (two). Each is three 3×3 convs of 16 channels with ReLU and a 1×1 conv to the four kinds, Float16 (`k1.bin` 12 KB, `k2.bin` 13 KB). It writes `public/data/video-models/` (`k1.bin`, `k2.bin`, `meta.json` with layout, loss curves, held-out scores and goldens) only if KTD5's bar holds on 300 held-out rollouts: `k2` right on ≥ 90% of changed cells and ≥ 95% of robot cells, `k2` ≥ 90% and `k1` ≤ 65% on the crate's next cell at a bounce-free step, and `k2` fed its own guesses keeping one robot for a median of 6 to 15 of 16 steps. The default 1,300 steps is chosen to land there: at 3,000 steps `k2` never drifts.
+
+```bash
+uv run --no-project --python 3.12 --with-requirements scripts/train/requirements.txt scripts/train/train_world.py
+pnpm test        # video-models-world.test.ts (parity), video-models-net.test.ts (goldens, size, the bar in TS)
+```
+
+About 45 seconds; seeded and deterministic (a rerun gives byte-identical files). Try settings with `--no-write` and `--channels`, `--steps`, `--rollouts`, `--lr`, `--batch`, `--seed`.
