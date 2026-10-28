@@ -1,0 +1,33 @@
+{
+  "methods": {
+    "popular": {
+      "hits": 10,
+      "coverage": 11
+    },
+    "users": {
+      "hits": 28,
+      "coverage": 28
+    },
+    "items": {
+      "hits": 31,
+      "coverage": 36
+    },
+    "factors": {
+      "hits": 23,
+      "coverage": 28
+    }
+  },
+  "workbench": {
+    "best": 17,
+    "winners": [
+      {
+        "blend": 0.25,
+        "explore": 2
+      },
+      {
+        "blend": 0.5,
+        "explore": 1
+      }
+    ]
+  }
+}
