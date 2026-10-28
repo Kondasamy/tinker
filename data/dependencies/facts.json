@@ -1,0 +1,69 @@
+{
+  "accessed": "2026-10-28",
+  "facts": [
+    {
+      "id": "semver",
+      "claim": "Semantic Versioning 2.0.0 says to bump the major version for incompatible changes, the minor for backward-compatible features, and the patch for backward-compatible fixes.",
+      "source": "https://semver.org/spec/v2.0.0.html"
+    },
+    {
+      "id": "semver-zero",
+      "claim": "Semantic Versioning 2.0.0 says major version zero (0.y.z) is for initial development: anything may change at any time.",
+      "source": "https://semver.org/spec/v2.0.0.html"
+    },
+    {
+      "id": "immutable",
+      "claim": "Semantic Versioning 2.0.0 says a released version’s contents must not be modified; any change is released as a new version.",
+      "source": "https://semver.org/spec/v2.0.0.html"
+    },
+    {
+      "id": "ranges",
+      "claim": "npm’s semver rules expand ^1.2.3 to >=1.2.3 <2.0.0, ^0.2.3 to >=0.2.3 <0.3.0, and ~1.2.3 to >=1.2.3 <1.3.0.",
+      "source": "https://github.com/npm/node-semver#advanced-range-syntax"
+    },
+    {
+      "id": "lockfile",
+      "claim": "npm’s docs say package-lock.json describes the exact tree installed, so later installs can produce identical trees regardless of intermediate dependency updates, and it is meant to be committed.",
+      "source": "https://docs.npmjs.com/cli/v10/configuring-npm/package-lock-json"
+    },
+    {
+      "id": "ignore-scripts",
+      "claim": "npm’s docs say that with ignore-scripts set, npm does not run scripts specified in package.json files; it is off by default.",
+      "source": "https://docs.npmjs.com/cli/v10/using-npm/config#ignore-scripts"
+    },
+    {
+      "id": "install-scripts",
+      "claim": "npm’s docs list preinstall, install and postinstall among the scripts npm install runs, and say the only valid use of install or preinstall is compiling for the target machine.",
+      "source": "https://docs.npmjs.com/cli/v10/using-npm/scripts"
+    },
+    {
+      "id": "allow-builds",
+      "claim": "pnpm’s allowBuilds setting is a map of packages allowed (true) or not (false) to run their build scripts; packages not listed are disallowed by default.",
+      "source": "https://pnpm.io/settings/build"
+    },
+    {
+      "id": "this-repo",
+      "claim": "This site’s own pnpm-workspace.yaml turns install scripts off for two of its dependencies, onnxruntime-node and protobufjs.",
+      "value": "onnxruntime-node,protobufjs",
+      "source": "https://pnpm.io/settings/build"
+    },
+    {
+      "id": "left-pad",
+      "claim": "On 22 March 2016 a small package, left-pad, was unpublished from npm; installs of packages that needed it failed for about 2.5 hours, npm’s write-up says.",
+      "value": "2016-03-22",
+      "source": "https://blog.npmjs.org/post/141577284765/kik-left-pad-and-npm"
+    },
+    {
+      "id": "event-stream",
+      "claim": "npm’s write-up says an attacker took over maintainership of event-stream and, on 9 September 2018, added a dependency, flatmap-stream, whose version 0.1.1 hid code aimed at a bitcoin wallet app; it was reported on 26 November 2018.",
+      "value": "2018-09-09",
+      "source": "https://blog.npmjs.org/post/180565383195/details-about-the-event-stream-incident"
+    },
+    {
+      "id": "xz",
+      "claim": "On 29 March 2024 Andres Freund reported a backdoor in xz releases 5.6.0 and 5.6.1, injected through their build scripts, that reached the ssh server through a library it loads.",
+      "value": "2024-03-29",
+      "source": "https://www.openwall.com/lists/oss-security/2024/03/29/4"
+    }
+  ]
+}

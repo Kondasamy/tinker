@@ -1,0 +1,91 @@
+{
+  "note": "A fictional package registry, written by hand for this module: every package, version, day and flag is made up. Days count from the 1st of Larkspur's month (day 0 is the evening before); negative days are older releases. Nothing here runs: install scripts and payloads are flags.",
+  "month": 30,
+  "packages": {
+    "cartwheel": {
+      "what": "The shop's cart: the basket, its rows and the checkout button.",
+      "versions": {
+        "2.0.0": { "day": -200, "deps": { "pricebook": "^1.3.0", "tidystr": "^1.0.0" } },
+        "2.1.0": { "day": -50, "deps": { "pricebook": "^1.4.0", "tidystr": "^1.0.0" } },
+        "2.1.1": { "day": 6, "deps": { "pricebook": "^1.4.0", "tidystr": "^1.0.0" } }
+      }
+    },
+    "pricebook": {
+      "what": "Prices: totals, discounts and tax.",
+      "versions": {
+        "1.3.0": { "day": -300, "deps": { "roundnum": "^3.0.0" } },
+        "1.4.0": { "day": -120, "deps": { "roundnum": "^3.0.0" } },
+        "1.4.2": { "day": -10, "deps": { "roundnum": "^3.0.0" } },
+        "1.4.3": {
+          "day": 11,
+          "deps": { "roundnum": "^3.0.0" },
+          "breaks": "Totals with a discount come out as NaN, so the checkout tests fail."
+        },
+        "1.4.4": { "day": 12, "deps": { "roundnum": "^3.0.0" }, "fixes": "1.4.3" },
+        "1.5.0": { "day": 24, "deps": { "roundnum": "^3.0.0" } },
+        "2.0.0": { "day": 26, "deps": { "roundnum": "^3.0.0" }, "major": "Prices become whole pennies, not decimals." }
+      }
+    },
+    "roundnum": {
+      "what": "Rounding money to the penny.",
+      "versions": {
+        "3.0.0": { "day": -400 },
+        "3.0.1": { "day": -40 }
+      }
+    },
+    "shipcalc": {
+      "what": "Delivery prices by postcode and weight.",
+      "versions": {
+        "3.1.0": { "day": -150, "deps": { "geobits": "^0.4.1" } },
+        "3.2.0": { "day": -70, "deps": { "geobits": "^0.4.1" } },
+        "3.2.4": { "day": -20, "deps": { "geobits": "^0.4.1" } },
+        "3.2.5": {
+          "day": 9,
+          "deps": { "geobits": "^0.4.1" },
+          "security": "Fixes a flaw that let a crafted address read another customer's delivery quote."
+        },
+        "3.3.0": { "day": 16, "deps": { "geobits": "^0.4.1" } }
+      }
+    },
+    "geobits": {
+      "what": "Postcodes to map areas.",
+      "versions": {
+        "0.4.1": { "day": -80 },
+        "0.4.2": { "day": 5 },
+        "0.5.0": { "day": 15, "major": "Below 1.0.0 a minor may break: area names change." }
+      }
+    },
+    "logline": {
+      "what": "Logs each order for the support team.",
+      "versions": {
+        "1.2.0": { "day": -200, "deps": { "inkdrop": "^1.0.0" } },
+        "1.3.0": { "day": -30, "deps": { "inkdrop": "^1.1.0" } }
+      }
+    },
+    "inkdrop": {
+      "what": "Colours log lines.",
+      "versions": {
+        "1.0.0": { "day": -400 },
+        "1.1.0": { "day": -200 },
+        "1.1.3": { "day": -25 },
+        "1.1.4": {
+          "day": 18,
+          "hijacked": "Published by a stranger who took over the maintainer's account.",
+          "installScript": "A postinstall script that would copy the build server's keys.",
+          "importPayload": "Code that would send each order's card details away when the app imports inkdrop.",
+          "removed": 20
+        },
+        "1.1.5": { "day": 20, "fixes": "1.1.4" }
+      }
+    },
+    "tidystr": {
+      "what": "Trims and tidies text.",
+      "versions": {
+        "1.0.0": { "day": -700 },
+        "1.0.4": { "day": -300 },
+        "2.0.0": { "day": -90 },
+        "2.0.1": { "day": 3 }
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "note": "Larkspur's rule for chapter 7, set by the shop's owner: team choices over a fictional registry's month, not industry figures.",
+  "rule": "No broken build, no hijacked code shipped and no hijacked install script run; then take the security fix as soon as you can.",
+  "reasons": {
+    "range": "How far each of the app's five ranges may move on its own.",
+    "lock": "Whether builds install from the lockfile or resolve afresh each day.",
+    "cadence": "How often the lockfile is updated, with the tests run first.",
+    "scripts": "Whether packages may run install scripts."
+  },
+  "cadences": { "never": 0, "monthly": 30, "weekly": 7, "daily": 1 }
+}
