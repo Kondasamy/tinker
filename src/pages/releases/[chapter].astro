@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import StraightToEveryone from '../../content/releases/01-straight-to-everyone';
+import TestsOnEveryChange from '../../content/releases/02-tests-on-every-change';
+import AFewFirst from '../../content/releases/03-a-few-first';
+import DeployNowSwitchOnLater from '../../content/releases/04-deploy-now-switch-on-later';
+import BackItOut from '../../content/releases/05-back-it-out';
+import StepByStep from '../../content/releases/06-step-by-step';
+import ReleasePlan from '../../content/releases/07-release-plan';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('releases').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="releases" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-straight-to-everyone' ? <StraightToEveryone client:load />
+    : chapter === '02-tests-on-every-change' ? <TestsOnEveryChange client:load />
+    : chapter === '03-a-few-first' ? <AFewFirst client:load />
+    : chapter === '04-deploy-now-switch-on-later' ? <DeployNowSwitchOnLater client:load />
+    : chapter === '05-back-it-out' ? <BackItOut client:load />
+    : chapter === '06-step-by-step' ? <StepByStep client:load />
+    : <ReleasePlan client:load />}
+</ChapterLayout>
