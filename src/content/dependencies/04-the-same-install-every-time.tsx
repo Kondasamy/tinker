@@ -5,8 +5,8 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { Outcome } from '../tool-calling/kit';
-import { diff, install } from '../../lib/dependencies/resolve';
-import { FIRST_LOCK, MIRA_DAY, SERVER_DAY } from '../../lib/dependencies/story';
+import { diff } from '../../lib/dependencies/resolve';
+import { MIRA_DAY, SERVER_DAY, installAt } from '../../lib/dependencies/story';
 import { TOWER_PARTS, towerOf } from '../../components/scenes/towerScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
@@ -15,8 +15,7 @@ import { DepsStage, Fact, RegistryNote, Toggle, type View } from './kit';
 const MODULE = 'dependencies',
   ID = '04-the-same-install-every-time';
 export const PARTS = TOWER_PARTS;
-const at = (day: number, lock: boolean) => install({ day, ...(lock ? { lock: FIRST_LOCK } : {}) });
-export const changesOf = (lock: boolean) => diff(at(MIRA_DAY, lock), at(SERVER_DAY, lock));
+export const changesOf = (lock: boolean) => diff(installAt(MIRA_DAY, lock), installAt(SERVER_DAY, lock));
 export const DRIFT = changesOf(false);
 
 export const P1 = {
@@ -100,8 +99,8 @@ export default function TheSameInstallEveryTime() {
       initial={{ p1: null, day: MIRA_DAY, lock: false, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
       stage={({ state, sync, say }) => {
-        const t = at(state.day, state.lock);
-        const lit = diff(at(MIRA_DAY, state.lock), t).map(c => c.path);
+        const t = installAt(state.day, state.lock);
+        const lit = diff(installAt(MIRA_DAY, state.lock), t).map(c => c.path);
         return (
           <DepsStage
             say={say}

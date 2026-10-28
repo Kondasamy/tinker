@@ -6,9 +6,9 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { Outcome } from '../tool-calling/kit';
-import { brokenOf, install } from '../../lib/dependencies/resolve';
+import { brokenOf } from '../../lib/dependencies/resolve';
 import { update } from '../../lib/dependencies/lock';
-import { BAD, BAD_DAY, FIRST_LOCK } from '../../lib/dependencies/story';
+import { BAD, BAD_DAY, FIRST_LOCK, installAt } from '../../lib/dependencies/story';
 import { TOWER_PARTS, towerOf } from '../../components/scenes/towerScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
@@ -17,7 +17,6 @@ import { DepsStage, Fact, RegistryNote, Toggle, type View } from './kit';
 const MODULE = 'dependencies',
   ID = '05-one-bad-patch';
 export const PARTS = TOWER_PARTS;
-const at = (day: number, lock: boolean) => install({ day, ...(lock ? { lock: FIRST_LOCK } : {}) });
 export const UPDATE = update(FIRST_LOCK, BAD_DAY);
 
 export const P1 = {
@@ -28,7 +27,7 @@ export const P1 = {
     'The registry was down',
   ],
 };
-export const outcomeOf = () => (brokenOf(at(BAD_DAY, false)).has(BAD.name) ? 0 : 1);
+export const outcomeOf = () => (brokenOf(installAt(BAD_DAY, false)).has(BAD.name) ? 0 : 1);
 
 export const QUIZ = {
   question:
@@ -78,7 +77,7 @@ export const STEPS: Step<S>[] = [
     id: 'lock',
     focus: 'lock',
     visibleControls: ['out1', 'lock'],
-    narration: `${BAD.name} ${BAD.version} came out at dawn with a bug. Every caret range on ${BAD.name} took it, ${[...brokenOf(at(BAD_DAY, false))].filter(p => p && p !== BAD.name).join(', ')}’s too.`,
+    narration: `${BAD.name} ${BAD.version} came out at dawn with a bug. Every caret range on ${BAD.name} took it, ${[...brokenOf(installAt(BAD_DAY, false))].filter(p => p && p !== BAD.name).join(', ')}’s too.`,
     act: 'Turn on the lockfile.',
     say: { block: 'broken', text: 'Bad patch' },
     predicate: s => s.lock,
@@ -112,7 +111,7 @@ export default function OneBadPatch() {
       initial={{ day: BAD_DAY - 1, p1: null, lock: false, tested: false, view: 'scene', quiz: null }}
       next={nextOf(MODULE, ID)}
       stage={({ state, sync, say }) => {
-        const t = at(state.day, state.lock),
+        const t = installAt(state.day, state.lock),
           broken = brokenOf(t).has('');
         return (
           <DepsStage

@@ -1,7 +1,7 @@
 // Dependencies: the module's registry entry and chapters. Chapter ids are a contract with readers' saved progress:
 // never rename one.
 import type { Chapter, Module } from '../../lib/modules';
-import { BAD_DAY } from '../../lib/dependencies/story';
+import { BAD_DAY } from '../../lib/dependencies/days';
 import { RECALL } from './recall';
 
 const CHAPTERS: Chapter[] = [
