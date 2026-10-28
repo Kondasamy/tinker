@@ -60,6 +60,7 @@ import { paintPlot } from './paintScene';
 import { agentDeskPlot } from './deskScene';
 import { copierPlot } from './copierScene';
 import { roomsPlot } from './officeRoomsScene';
+import { cloakPlot } from './cloakScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
@@ -261,6 +262,7 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   'coding-agents': (x, y, { top }) => agentDeskPlot(x + 14, y - 2, top),
   'synthetic-data': (x, y, { top }) => copierPlot(x + 14, y - 2, top),
   'mixture-of-experts': (x, y, { top }) => roomsPlot(x + 14, y - 4, top),
+  logins: (x, y, { top }) => cloakPlot(x + 14, y - 2, top),
 };
 const LIVE = MODULES.filter(m => m.status === 'live');
 /** the home page's hero and share image, from the registry: the model's call riding to the host */

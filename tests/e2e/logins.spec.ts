@@ -1,14 +1,16 @@
 // Logins and passwords: the intro, every chapter played by mouse and by keyboard only, its own progress key, the
 // cracking race by keyboard (radios, the range, Play and Step, one read-out), real PBKDF2, TOTP and ECDSA run in the
 // browser against their pins, the workbench with a losing plan and a winning one, "I'm not sure", reduced motion, the
-// recap, axe and phone width. The module number, share images and home's card are checked at go-live.
+// recap, axe and phone width. The go-live adds the module's number, share images and home's card.
 import { test, expect, type Page } from '@playwright/test';
 import pinned from '../../data/logins/pinned.json' with { type: 'json' };
 import { LOGINS_MODULE as M } from '../../src/content/logins/module';
+import { MODULES } from '../../src/lib/modules';
 import { START } from '../../src/lib/logins/workbench';
 import { BENCH_LABELS, loginsWalker } from './logins-flow';
 import { serious, layoutHolds, PHONE } from './helpers';
 
+const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'logins') + 1;
 const IDS = M.chapters.map(c => c.id);
 const [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = IDS;
 const at = (id: string) => new RegExp(`/logins/${id}/$`);
@@ -39,6 +41,28 @@ test('the intro shows the level, the author, the chapters and the Colorfigures c
   await page.getByRole('button', { name: 'Words' }).click();
   await expect(page.locator('.band .note.more')).toBeVisible();
   await axe(page);
+});
+
+test('its module number on the intro and the recap', async ({ page }) => {
+  await page.goto('/logins/');
+  await expect(page.locator('.hero .kicker')).toHaveText(`Module ${NUMBER} · Logins and passwords`);
+  await page.goto('/logins/recap/');
+  await expect(page.locator('.hero .kicker')).toHaveText(`Module ${NUMBER} · Recap`);
+});
+
+test('go-live: own share images and home’s card', async ({ page }) => {
+  await page.goto('/logins/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/logins\.jpg$/);
+  await page.goto(`/logins/${CH1}/`);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    new RegExp(`/og/logins-${CH1}\\.jpg$`),
+  );
+  await page.goto('/logins/recap/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/logins-recap\.jpg$/);
+  expect((await page.request.get('/og/logins.jpg')).status()).toBe(200);
+  await page.goto('/');
+  await expect(page.locator('.module[data-module="logins"] h4 a')).toHaveAttribute('href', '/logins/');
 });
 
 test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({

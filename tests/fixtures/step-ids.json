@@ -1817,5 +1817,49 @@
       "bench",
       "ties"
     ]
+  },
+  "logins": {
+    "01-the-sticky-note": [
+      "predict",
+      "breach",
+      "quiz"
+    ],
+    "02-a-one-way-fingerprint": [
+      "hash",
+      "predict",
+      "race",
+      "quiz"
+    ],
+    "03-a-pinch-of-salt": [
+      "predict",
+      "salt",
+      "race",
+      "quiz"
+    ],
+    "04-slow-on-purpose": [
+      "slow",
+      "predict",
+      "race",
+      "quiz"
+    ],
+    "05-the-cloakroom-ticket": [
+      "signin",
+      "predict",
+      "steal",
+      "signout",
+      "quiz"
+    ],
+    "06-sign-in-with-another-site": [
+      "redirect",
+      "code",
+      "predict",
+      "steal",
+      "token",
+      "quiz"
+    ],
+    "07-guard-every-account": [
+      "bench",
+      "ties"
+    ]
   }
 }

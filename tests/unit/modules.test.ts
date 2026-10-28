@@ -702,6 +702,18 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'mixture-of-experts')).toBe(38);
   });
 
+  it('has logins as a live Beginner Classic tech module after Locks and keys, numbered 40', () => {
+    expect(moduleOf('logins')).toMatchObject({
+      title: 'Logins and passwords',
+      level: 'Beginner',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: ['encryption'],
+    });
+    expect(moduleOf('logins').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'logins')).toBe(39);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });
