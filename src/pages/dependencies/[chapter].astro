@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import CodeYouDidNotWrite from '../../content/dependencies/01-code-you-did-not-write';
+import WhatTheNumbersMean from '../../content/dependencies/02-what-the-numbers-mean';
+import PackagesNeedPackages from '../../content/dependencies/03-packages-need-packages';
+import TheSameInstallEveryTime from '../../content/dependencies/04-the-same-install-every-time';
+import OneBadPatch from '../../content/dependencies/05-one-bad-patch';
+import WhoPublishedThis from '../../content/dependencies/06-who-published-this';
+import UpdatePolicy from '../../content/dependencies/07-update-policy';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('dependencies').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="dependencies" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-code-you-did-not-write' ? <CodeYouDidNotWrite client:load />
+    : chapter === '02-what-the-numbers-mean' ? <WhatTheNumbersMean client:load />
+    : chapter === '03-packages-need-packages' ? <PackagesNeedPackages client:load />
+    : chapter === '04-the-same-install-every-time' ? <TheSameInstallEveryTime client:load />
+    : chapter === '05-one-bad-patch' ? <OneBadPatch client:load />
+    : chapter === '06-who-published-this' ? <WhoPublishedThis client:load />
+    : <UpdatePolicy client:load />}
+</ChapterLayout>
