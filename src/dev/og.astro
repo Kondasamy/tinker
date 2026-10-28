@@ -317,6 +317,10 @@ import {
   pinned as dpPinned,
 } from '../lib/dependencies/story';
 import { WINNERS as DP_WINNERS, runPolicy as dpRun } from '../lib/dependencies/workbench';
+import { SIGNAL_BOARD, signalAt, signalScene, type SignalOpts } from '../components/scenes/signalScene';
+import { SCENES as RL_SCENES, runOf as rlRun } from '../lib/releases/sim';
+import { pipelineOf as rlPipeline } from '../lib/releases/pipeline';
+import { WINNERS as RL_WINNERS, benchRun as rlBench } from '../lib/releases/workbench';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -1457,6 +1461,28 @@ const TOWER_OG: Record<string, () => Omit<TowerOpts, 'scale'>> = {
   'dependencies-07-update-policy': () => towerOf(dpRun(DP_WINNERS[0]).days[17].tree, { lock: true }),
 };
 const towerOg = TOWER_OG[page.og]?.();
+// module 43: Larkspur's signal box. The intro: the staged rollout at its alarm; 1: straight to everyone; 2: the coupon
+// fix stopped by the pipeline; 3: the canary's false alarm; 4: the flag on at 10%; 5: the lever refused after the
+// migration; 6: the staged rollout rolling back; 7: the workbench's first winning plan, everyone at the end.
+const rlStaged = () => rlRun(RL_SCENES.staged);
+const SIGNAL_OG: Record<string, () => Omit<SignalOpts, 'scale'>> = {
+  releases: () => signalAt(rlStaged(), rlStaged().alarmAt!),
+  'releases-01-straight-to-everyone': () => signalAt(rlRun(RL_SCENES.all), 4),
+  'releases-02-tests-on-every-change': () => ({
+    ...signalAt(rlRun(RL_SCENES.calm), 0),
+    pipeline: rlPipeline('coupon'),
+  }),
+  'releases-03-a-few-first': () => {
+    const r = rlRun(RL_SCENES.canary('button', 2));
+    return signalAt(r, r.alarmAt!);
+  },
+  'releases-04-deploy-now-switch-on-later': () =>
+    signalAt(rlRun({ ...RL_SCENES.flag, events: [{ t: 1, kind: 'dial', share: 0.1 }] }), 3),
+  'releases-05-back-it-out': () => signalAt(rlRun({ ...RL_SCENES.migration, events: [{ t: 4, kind: 'back' }] }), 5),
+  'releases-06-step-by-step': () => signalAt(rlStaged(), 7),
+  'releases-07-release-plan': () => signalAt(rlBench(RL_WINNERS[0], 'button'), 30),
+};
+const signalOg = SIGNAL_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1530,6 +1556,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : sxOg ? <IsoStage board={CABINET_BOARD} scene={cabinetScene({ ...sxOg, scale: 1.3 })} label="" />
           : townOg ? <IsoStage board={TOWN_BOARD} scene={townScene({ ...townOg, scale: 1.3 })} label="" />
           : webFallOg ? <div class="tf-og ob-og"><WaterfallView run={webFallOg} /></div>
+          : signalOg ? <IsoStage board={SIGNAL_BOARD} scene={signalScene({ ...signalOg, scale: 1.3 })} label="" />
           : towerOg ? <IsoStage board={TOWER_BOARD} scene={towerScene({ ...towerOg, scale: 1.3 })} label="" />
           : postOg ? <IsoStage board={POST_BOARD} scene={postScene({ ...postOg, scale: 1.3 })} label="" />
           : cloakOg ? <IsoStage board={CLOAK_BOARD} scene={cloakScene({ ...cloakOg, scale: 1.3 })} label="" />

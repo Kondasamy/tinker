@@ -738,6 +738,18 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'dependencies')).toBe(41);
   });
 
+  it('has releases as a live Intermediate Classic tech module with no prereqs, numbered 43', () => {
+    expect(moduleOf('releases')).toMatchObject({
+      title: 'Shipping a release',
+      level: 'Intermediate',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('releases').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'releases')).toBe(42);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

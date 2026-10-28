@@ -119,6 +119,8 @@ import { RECORDS as EMAIL_RECORDS, verdictOf as emailVerdict } from '../lib/emai
 import { TOWER_BOARD, towerLabel, towerOf, towerScene } from '../components/scenes/towerScene';
 import { install as depsInstall } from '../lib/dependencies/resolve';
 import { BAD_DAY as DEPS_BAD_DAY } from '../lib/dependencies/story';
+import { SIGNAL_BOARD, signalCard, signalLabel, signalScene } from '../components/scenes/signalScene';
+import { SCENES as RELEASE_SCENES, runOf as releaseRun } from '../lib/releases/sim';
 import { FORM } from '../lib/site';
 
 const one =
@@ -332,6 +334,9 @@ const POST = {
 };
 // dependencies: the install on the bad patch's day, the broken crates in the tower
 const TOWER = { ...towerOf(depsInstall({ day: DEPS_BAD_DAY })), scale: 1.7 };
+// releases: the staged rollout at the moment its check raises the alarm
+const STAGED_RUN = releaseRun(RELEASE_SCENES.staged);
+const SIGNAL = signalCard(STAGED_RUN, STAGED_RUN.alarmAt!);
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -868,6 +873,18 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Lockfiles',
       'Supply-chain attacks',
       'Update policy',
+    ],
+  },
+  releases: {
+    name: 'Shipping a release',
+    iso: { board: SIGNAL_BOARD, scene: signalScene(SIGNAL), label: signalLabel(SIGNAL) },
+    topics: [
+      'Continuous integration',
+      'Canary releases',
+      'Feature flags',
+      'Rollback',
+      'Staged rollouts',
+      'Release plan',
     ],
   },
 };

@@ -41,6 +41,7 @@ import { MIXTURE_OF_EXPERTS_MODULE } from '../content/mixture-of-experts/module'
 import { LOGINS_MODULE } from '../content/logins/module';
 import { EMAIL_MODULE } from '../content/email/module';
 import { DEPENDENCIES_MODULE } from '../content/dependencies/module';
+import { RELEASES_MODULE } from '../content/releases/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -141,6 +142,7 @@ export const MODULES: Module[] = [
   LOGINS_MODULE,
   EMAIL_MODULE,
   DEPENDENCIES_MODULE,
+  RELEASES_MODULE,
   planned(
     'memorisation',
     'What a model remembers',
@@ -158,13 +160,6 @@ export const MODULES: Module[] = [
     'Recommendations',
     'Intermediate',
     'Why the shop shows you this drill: what you and people like you bought, ranked, and the loop it feeds.',
-  ),
-  planned(
-    'releases',
-    'Shipping a release',
-    'Intermediate',
-    'How new code reaches everyone: tests on every change, a canary first, feature flags, and a rollback.',
-    'Classic tech',
   ),
   planned(
     'fairness',

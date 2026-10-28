@@ -1955,5 +1955,54 @@
       "bench",
       "ties"
     ]
+  },
+  "releases": {
+    "01-straight-to-everyone": [
+      "ship",
+      "predict",
+      "lever",
+      "watch",
+      "quiz"
+    ],
+    "02-tests-on-every-change": [
+      "coupon",
+      "predict",
+      "address",
+      "quiz"
+    ],
+    "03-a-few-first": [
+      "canary",
+      "predict",
+      "check",
+      "bake",
+      "pass",
+      "miss",
+      "quiz"
+    ],
+    "04-deploy-now-switch-on-later": [
+      "dark",
+      "watch",
+      "predict",
+      "off",
+      "gone",
+      "quiz"
+    ],
+    "05-back-it-out": [
+      "predict",
+      "lever",
+      "expand",
+      "back",
+      "quiz"
+    ],
+    "06-step-by-step": [
+      "plan",
+      "play",
+      "chart",
+      "quiz"
+    ],
+    "07-release-plan": [
+      "bench",
+      "ties"
+    ]
   }
 }
