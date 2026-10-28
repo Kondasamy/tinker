@@ -1,0 +1,134 @@
+/* Email stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
+   tool-calling/kit). These are the postmarks to peel, the raw headers, the read-out and the bench.
+   Motion (a postmark peeling off, a hop lighting up) plays only when motion is allowed; with reduced motion each
+   press shows the peeled list at once. */
+.em-peel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 6px 10px;
+}
+.em-peel ol {
+  margin: 0;
+  padding: 0 0 0 1.4em;
+  flex: 1 1 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+.em-peel .chip {
+  min-height: 44px;
+}
+.em-peel ol .chip {
+  min-height: 36px;
+}
+.em-hop {
+  font:
+    600 12.5px ui-monospace,
+    Menlo,
+    monospace;
+  overflow-wrap: anywhere;
+}
+.em-headers {
+  margin: 0;
+  align-self: stretch;
+  width: 100%;
+  overflow: auto;
+  padding: 10px 12px;
+  font:
+    12px / 1.45 ui-monospace,
+    Menlo,
+    monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--card);
+  border: 1.5px solid var(--rule);
+  border-radius: 10px;
+}
+.em-readout {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  min-height: 1.5em;
+  overflow-wrap: anywhere;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .em-stage .postmark.peeled {
+    animation: em-peel 0.45s ease-out;
+  }
+  .em-stage .hop.lit {
+    animation: em-light 0.5s ease-out;
+  }
+}
+@keyframes em-peel {
+  from {
+    transform: translateY(-6px);
+    opacity: 0.4;
+  }
+}
+@keyframes em-light {
+  from {
+    opacity: 0.5;
+  }
+}
+.em-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.em-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin: 8px 0;
+  border: 0;
+  padding: 0;
+}
+.em-row legend {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+.em-row label {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.em-record {
+  font:
+    600 12.5px ui-monospace,
+    Menlo,
+    monospace;
+  overflow-wrap: anywhere;
+}
+.em-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.em-headline strong {
+  font:
+    800 26px / 1 ui-monospace,
+    Menlo,
+    monospace;
+}
+.em-bench {
+  border: 1.5px solid var(--rule);
+  border-radius: 12px;
+  padding: 6px 12px;
+  margin: 8px 0;
+}
+.em-stage .tc-ledger td.ok,
+.tc-ledger td.em-ok {
+  color: var(--ok);
+  font-weight: 800;
+}
+.tc-ledger td.em-bad {
+  color: var(--bad);
+  font-weight: 800;
+}
