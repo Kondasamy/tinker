@@ -12,24 +12,29 @@ import { boardOf, dreamLabel, dreamScene, shownOf, type Show } from '../../compo
 import { type Net, type NetMeta, parseNet } from '../../lib/video-models/net';
 import type { ModelId } from '../../lib/video-models/rollout';
 import { type Drive, driven, type Driven, MAX_MOVES, move, readout, resync } from '../../lib/video-models/drive';
-import { type Action, CRATE, ROBOT, SHELF, SIZE } from '../../lib/video-models/world';
+import { type Action, CRATE, parseFrame, ROBOT, rollout, SHELF, SIZE } from '../../lib/video-models/world';
 import { fact } from '../../lib/video-models/facts';
 import metaJson from '../../../public/data/video-models/meta.json';
+import pinned from '../../../data/video-models/pinned.json' with { type: 'json' };
 import { useNarrow } from '../tool-calling/kit';
 import './video-models.css';
 
 export const META = metaJson as unknown as { models: Record<ModelId, NetMeta> };
+/** The pinned route every chapter but the drive and the workbench plays: its real frames, and k2's open-loop dream. */
+export const PIN = pinned;
+export const ROUTE = rollout(PIN.seed, PIN.steps);
+export const DREAMED = PIN.dream.map(parseFrame);
 
 // ---- the models: fetched once per page ----
 
 type Status = 'loading' | 'ready' | 'error';
 let loaded: Record<ModelId, Net> | null = null,
   pending: Promise<Record<ModelId, Net>> | null = null;
-const fetchNet = (id: ModelId) =>
-  fetch(`/data/video-models/${id}.bin`).then(r => {
-    if (!r.ok) throw new Error(`${id}.bin: HTTP ${r.status}`);
-    return r.arrayBuffer().then(b => parseNet(META.models[id], b));
-  });
+async function fetchNet(id: ModelId) {
+  const r = await fetch(`/data/video-models/${id}.bin`);
+  if (!r.ok) throw new Error(`${id}.bin: HTTP ${r.status}`);
+  return parseNet(META.models[id], await r.arrayBuffer());
+}
 function loadNets() {
   if (loaded) return Promise.resolve(loaded);
   pending ??= Promise.all([fetchNet('k1'), fetchNet('k2')])
@@ -304,22 +309,24 @@ export function DrivePad({
 
 // ---- controls ----
 
-/** A native range over frame steps 0..last, its step named beside it. */
+/** A native range over frame steps first..last, its step named beside it. */
 export const StepRange = ({
   value,
   last,
+  first = 0,
   onChange,
   label = 'Step',
 }: {
   value: number;
   last: number;
+  first?: number;
   onChange: (n: number) => void;
   label?: string;
 }) => (
   <ListRange
     className="vm-range"
     label={label}
-    list={Array.from({ length: last + 1 }, (_, i) => i)}
+    list={Array.from({ length: last - first + 1 }, (_, i) => first + i)}
     value={value}
     words={n => `${label.toLowerCase()} ${n} of ${last}`}
     onChange={onChange}

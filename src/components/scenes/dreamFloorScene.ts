@@ -203,11 +203,11 @@ export const dreamScene = (o: DreamOpts) => (ctx: SceneCtx) => {
   if (dreamX !== null)
     pills.push(pill(front(dreamX), 22, `${o.synced ? 'RE-SYNCED' : 'DREAM'}${step}`, !!o.synced, scale));
   pills.push(
-    sayAt(o.say, 'floor', front(realX ?? x0), 22, scale, narrow),
-    sayAt(o.say, 'dream', front(dreamX ?? x0), 22, scale, narrow),
+    sayAt(o.say, 'floor', front(realX ?? x0), 70, scale, narrow),
+    sayAt(o.say, 'dream', front(dreamX ?? x0), 70, scale, narrow),
     sayAt(o.say, 'robot', robotAt, -10, scale, narrow),
     sayAt(o.say, 'crate', crateAt, -10, scale, narrow),
-    sayAt(o.say, 'belt', beltAt, 14, scale, narrow),
+    sayAt(o.say, 'belt', beltAt, 44, scale, narrow),
   );
   return s + calloutsLast(pills);
 };

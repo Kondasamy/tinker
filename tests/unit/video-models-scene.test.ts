@@ -64,7 +64,7 @@ describe('the warehouse dream', () => {
   it('draws both floors on the pair board, one floor alone on its own board', () => {
     expect(boardOf(at(3))).toEqual(PAIR_BOARD);
     expect(boardOf({ ...at(3), show: 'dream' })).toEqual(FLOOR_ONLY_BOARD);
-    expect(boardOf({ real: real.frames[0] })).toEqual(FLOOR_ONLY_BOARD);
+    expect(boardOf({ dream: null })).toEqual(FLOOR_ONLY_BOARD);
     const one = draw({ ...at(3), show: 'dream', scale: 2 });
     expect(one).toContain('data-part="dream"');
     expect(one).not.toContain('data-part="floor"');

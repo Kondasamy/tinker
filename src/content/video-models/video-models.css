@@ -189,3 +189,42 @@
     min-height: 48px;
   }
 }
+.vm-bench {
+  border: 1.5px solid var(--rule);
+  border-radius: 12px;
+  padding: 6px 12px;
+  margin: 8px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 28px;
+}
+.vm-bench fieldset {
+  border: 0;
+  padding: 0;
+  margin: 6px 0;
+}
+.vm-bench legend {
+  font-weight: 800;
+  font-size: 14px;
+}
+.vm-bench label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 32px;
+  font-size: 14px;
+}
+.vm-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.vm-headline strong {
+  font:
+    800 26px / 1 ui-monospace,
+    Menlo,
+    monospace;
+}
