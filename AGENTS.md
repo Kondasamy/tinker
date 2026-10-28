@@ -47,8 +47,7 @@ Author credit is always **Samy (Kondasamy Jayaraman)**: alias then full name, li
 - **Quizzes explain every option** (`why`) and offer "I'm not sure", which reveals without counting a miss.
 - **Recall bank** per module (`src/content/<module>/recall.ts`), one item `pin`ned. Results live in progress outside the run, so Reset never wipes them.
 - **Recap** draws from the bank for finished chapters with a stored seed. **Warm-up**: up to three questions when the reader returns 20 h+ after finishing a chapter, on the intro and through home's Continue, with a skip link.
-- **Watch** (modules with narration, RAG so far): the chapter plays itself, each step's `demo` (else `solution`) applied under recorded narration and a quiet music bed; predict and quiz steps wait for the reader's own pick. Reader input on a playing step pauses it; the stage's own `sync` never does. Every step needs a `demo` unless it asks the reader.
-- Nothing a reader enters leaves the browser, except the home request form on submit and the one-click "Was Watch better?" at the end of a watched chapter (module, chapter, answer; `src/lib/site.ts`).
+- Nothing a reader enters leaves the browser, except the home request form on submit.
 - **Analytics is Cloudflare Web Analytics, page views only**: its beacon in `Meta.astro` (production builds, not `DEV_PAGES`; `spa` off so the Finder's URL never sends), site `tinker.kondasamy.com`. No cookies, no custom events; another tracker is a deliberate change.
 
 ## Styles
@@ -86,7 +85,7 @@ Marketing pages share `src/styles/page.css`; chapter pages use `src/layouts/Chap
 - **The home hero is the workshop** (`heroScene.ts`), one fixed board that never grows: RAG's pipeline, tool calling's back office, a building site (`#request`) and a stand. Every later live module takes a 2.4 s turn on the stand, newest first, drawn 1.5× with its ink kept even; hovering holds it, clicking opens it. A new module needs only its `DRAW` entry. Still with reduced motion and in the share image (the newest module on the stand). `tests/unit/hero.test.ts` checks the pills never overlap at any registry size.
 - **Callouts**: a step may carry `say: { block, text }` (≤ 5 words; outside RAG ≤ 16 characters), pinned as a lit pill over the named part. Each scene exports its parts (`OFFICE_PARTS`…) and each chapter its `PARTS`; `tests/unit/say-targets.test.ts` fails a callout naming a part its picture doesn't draw. Prefer large, separated parts.
 - **One figure on a stage at a time**, in a fixed frame. Picture / second-view tabs are view state unless a chapter keeps the tab in step state. On phones, pills keep short names and the caption carries the numbers.
-- **Trailers** live in `videos/<module>-trailer/`, recorded by scripted hand-play of the live chapters, and ship as `public/video/<module>-trailer.{mp4,jpg,vtt}` behind a poster (`preload="none"`). Re-render one when a picture or quoted fact it shows changes.
+- **Trailers are a module's only video**: no narration inside chapters. One per module, made at go-live or any time after (recipe in `docs/writing-a-module.md`). Each lives in `videos/<module>-trailer/`, recorded by scripted hand-play of the live chapters, ships as `public/video/<module>-trailer.{mp4,jpg,vtt}` and shows on the intro through `Trailer.astro` behind its poster (`preload="none"`); `tests/unit/trailers.test.ts` checks every one. Re-render one when a picture or quoted fact it shows changes.
 - **Untrusted strings render as text only**: React text nodes, or `esc()` in SVG strings. No `set:html` or `dangerouslySetInnerHTML` for content.
 
 ## Search (SEO)
@@ -109,7 +108,6 @@ Marketing pages share `src/styles/page.css`; chapter pages use `src/layouts/Chap
 - **Imports from `public/` go through the `public-json` plugin in dev.**
 - Dev-only pages (`/dev/*`) exist in `astro dev` or with `DEV_PAGES=1`.
 - **Biome** lints and formats (2 spaces, single quotes, 120 columns; `pnpm format`, `pnpm lint`). A real exception gets a `biome-ignore` with its reason, never a rule switched off for one site.
-- **Watch narration** is `data/watch/<module>.script.json` (built from `STEPS` by `pnpm narration:script`), recorded by `ELEVENLABS_API_KEY=… pnpm record:narration <module>` into committed MP3s; never in CI. A copy edit leaves a stale clip that falls back to captions and a test warning; re-record when convenient.
 - The RAG index in `public/data/index/` is committed; rebuild (`pnpm build:index`) only after editing `data/corpus/` or `data/questions/`, never on a host.
 
 ## Checks before you call it done

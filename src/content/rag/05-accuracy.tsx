@@ -76,11 +76,6 @@ const fix =
   (s: S): S => ({ ...s, canvas: { ...s.canvas, knobs: { ...s.canvas.knobs, ...FIXES[p] } }, verdict: null });
 const correct = (s: S) => s.verdict === 'correct';
 const has = (s: S, t: BlockType) => s.canvas.unlocked.includes(t);
-// what the add, more and next buttons do; the verdict follows from the stage (KTD8)
-const add =
-  (t: BlockType) =>
-  (s: S): S => ({ ...s, canvas: { ...s.canvas, unlocked: [...s.canvas.unlocked, t] } });
-const ack = (s: S): S => ({ ...s, acks: s.acks + 1 });
 
 export const QUIZ = {
   question: 'Recall is 100% but the answer is still wrong. Where do you look?',
@@ -118,7 +113,6 @@ export const STEPS: Step<S>[] = [
     narration:
       'Your pipeline from the last chapter is live. A consultant booking a trip asks the assistant about the hotel limit.',
     predicate: s => s.asked,
-    demo: s => ({ ...s, asked: true }),
   },
   {
     id: 'evaluator',
@@ -130,7 +124,6 @@ export const STEPS: Step<S>[] = [
     act: 'Add the Evaluator.',
     say: { block: 'llm', text: 'Quotes a retired policy' },
     predicate: s => has(s, 'grader'),
-    demo: add('grader'),
   },
   {
     id: 'predict',
@@ -150,7 +143,6 @@ export const STEPS: Step<S>[] = [
     narration: 'Your pick is locked.',
     act: 'Fetch more chunks and watch both meters.',
     predicate: s => s.canvas.knobs.topK === 5,
-    demo: s => ({ ...s, canvas: { ...s.canvas, knobs: { ...s.canvas.knobs, topK: 5 } } }),
   },
   puzzle<S>({
     id: 'filter',
@@ -173,7 +165,6 @@ export const STEPS: Step<S>[] = [
     narration: 'Correct, citing the 2025 policy. Filters act before ranking, so stale text never competes.',
     act: 'Next lever works on the question itself: add Query rewrite.',
     predicate: s => has(s, 'rewrite'),
-    demo: add('rewrite'),
   },
   puzzle<S>({
     id: 'rewrite',
@@ -196,7 +187,6 @@ export const STEPS: Step<S>[] = [
     narration:
       'Correct. The rewrite names a Portal outage outside business hours, so the Duty Desk rule ranks in: recall went 0% to 100%.',
     predicate: s => s.acks >= 1,
-    demo: ack,
   },
   puzzle<S>({
     id: 'topk',
@@ -219,7 +209,6 @@ export const STEPS: Step<S>[] = [
       'Past 6, recall stays 100% but the answer turns NOT FOUND. The model loses facts in the middle of long context.',
     act: 'Add the Reranker.',
     predicate: s => has(s, 'reranker'),
-    demo: add('reranker'),
   },
   puzzle<S>({
     id: 'needle',
@@ -241,7 +230,6 @@ export const STEPS: Step<S>[] = [
     narration: 'Correct, and recall never moved: the rule was retrieved all along, only its position changed.',
     act: 'Open Evidence and Show the math for the scores.',
     predicate: s => s.acks >= 2,
-    demo: ack,
   },
   puzzle<S>({
     id: 'distractor',
@@ -263,7 +251,6 @@ export const STEPS: Step<S>[] = [
     narration: 'Correct. Keyword matching rewards the real policy’s exact terms, so it outranks the look-alike.',
     act: 'Open Evidence and Show the math to see the blend.',
     predicate: s => s.acks >= 3,
-    demo: ack,
   },
   puzzle<S>({
     id: 'overlap',
@@ -284,7 +271,6 @@ export const STEPS: Step<S>[] = [
     narration:
       'Correct. Overlap repeats each chunk’s end at the start of the next, so a sentence near a cut survives whole.',
     predicate: s => s.acks >= 4,
-    demo: ack,
   },
   puzzle<S>({
     id: 'strategy',
@@ -319,18 +305,6 @@ const NEXT_BLOCK: [BlockType, string][] = [
 ];
 const KNOB_CONTROLS: KnobName[] = ['filter', 'rewrite', 'topK', 'order', 'rerank', 'hybrid', 'overlap', 'strategy'];
 
-export const INITIAL: S = {
-  q: PRESETS.open.q,
-  canvas: initialCanvas(unlockedThrough('04-layers'), PRESETS.open.knobs),
-  verdict: null,
-  math: false,
-  probed: false,
-  prediction: null,
-  asked: false,
-  acks: 0,
-  quiz: null,
-};
-
 export default function Accuracy() {
   // one run per question, in a fixed order (hook rules hold: USED never changes)
   const { runs, panels } = useQuestionRuns<S>(USED_QS);
@@ -338,7 +312,17 @@ export default function Accuracy() {
     <StepRunner<S>
       chapter={ID}
       steps={STEPS}
-      initial={INITIAL}
+      initial={{
+        q: PRESETS.open.q,
+        canvas: initialCanvas(unlockedThrough('04-layers'), PRESETS.open.knobs),
+        verdict: null,
+        math: false,
+        probed: false,
+        prediction: null,
+        asked: false,
+        acks: 0,
+        quiz: null,
+      }}
       next={nextOf(ID)}
       stage={p => (
         <div className="stage-col">

@@ -49,10 +49,6 @@ const PREDICT = {
 const OUTCOME = 1;
 
 const has = (s: S, t: BlockType) => s.canvas.unlocked.includes(t);
-// what the add button does; the verdict follows from the stage (KTD8)
-const add =
-  (t: BlockType) =>
-  (s: S): S => ({ ...s, canvas: { ...s.canvas, unlocked: [...s.canvas.unlocked, t] } });
 export const STEPS: Step<S>[] = [
   {
     id: 'ask',
@@ -62,7 +58,6 @@ export const STEPS: Step<S>[] = [
       'Meet the assistant: for now just an LLM, with no documents wired in. A support lead asks it about refunds.',
     say: { block: 'llm', text: 'No documents yet' },
     predicate: s => s.asked,
-    demo: s => ({ ...s, asked: true }),
   },
   {
     id: 'docs',
@@ -72,7 +67,6 @@ export const STEPS: Step<S>[] = [
     narration: 'Made up. It sounds sure, but it has never read your refund policy, so it invented one.',
     act: 'Give it the company documents.',
     predicate: s => has(s, 'docs'),
-    demo: add('docs'),
   },
   {
     id: 'predict',
@@ -91,7 +85,6 @@ export const STEPS: Step<S>[] = [
     narration: 'Your pick is locked.',
     act: 'Add the Retriever and watch the answer.',
     predicate: s => has(s, 'retriever') && s.verdict === 'correct',
-    demo: add('retriever'),
     hint: 'Press “Add the Retriever”. The wire from Docs to the model lights up once it is in place.',
   },
   {
@@ -103,7 +96,6 @@ export const STEPS: Step<S>[] = [
       'Correct, and it cites the policy it used: a grounded answer. That is RAG: Retrieve the passages, Augment the prompt, Generate the answer.',
     say: { block: 'retriever', text: 'Finds the passages' },
     predicate: s => s.seen,
-    demo: s => ({ ...s, seen: true }),
   },
   {
     id: 'math',
@@ -113,7 +105,6 @@ export const STEPS: Step<S>[] = [
     narration: 'These passages reached the model, each with a similarity score.',
     act: 'Tick “Show the math” to see how the top score is computed.',
     predicate: s => s.math,
-    demo: s => ({ ...s, math: true }),
     hint: 'The “Show the math” box sits above the list of chunks. If the panel is closed, press Evidence under the canvas.',
   },
   {
@@ -133,24 +124,22 @@ const NEXT_BLOCK: [BlockType, string][] = [
   ['llm', ''],
 ];
 
-export const INITIAL: S = {
-  canvas: initialCanvas(['llm']),
-  verdict: null,
-  math: false,
-  probed: false,
-  prediction: null,
-  asked: false,
-  seen: false,
-  quiz: null,
-};
-
 export default function WhatIsRag() {
   const run = useRagRun(QUESTION);
   return (
     <StepRunner<S>
       chapter={ID}
       steps={STEPS}
-      initial={INITIAL}
+      initial={{
+        canvas: initialCanvas(['llm']),
+        verdict: null,
+        math: false,
+        probed: false,
+        prediction: null,
+        asked: false,
+        seen: false,
+        quiz: null,
+      }}
       next={nextOf(ID)}
       stage={p => <RagStage {...p} run={run} />}
       controls={{

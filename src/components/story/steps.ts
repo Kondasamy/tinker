@@ -26,8 +26,6 @@ export interface Step<S> {
   setup?: (state: S) => S;
   /** Puzzles: what "Show me" applies. */
   solution?: (state: S) => S;
-  /** What Watch mode does for the reader on this step (falls back to `solution`); a step with neither waits for them. */
-  demo?: (state: S) => S;
 }
 
 export interface Run<S> {
@@ -49,8 +47,6 @@ export type Action<S> =
   | { type: 'back' }
   | { type: 'reset' }
   | { type: 'showMe' }
-  /** Watch mode plays the step: like sync, a miss is never a try. */
-  | { type: 'watch' }
   | { type: 'idle' }
   | { type: 'inspect'; panel: string }
   | { type: 'closeDrawer' }
@@ -122,10 +118,6 @@ export function reduce<S>(steps: Step<S>[], run: Run<S>, a: Action<S>): Run<S> {
       return { ...run, state: run.starts[run.index], fails: 0, hint: false, done: false };
     case 'showMe':
       return step.solution ? reduce(steps, run, { type: 'apply', state: step.solution(run.state) }) : run;
-    case 'watch': {
-      const play = step.demo ?? step.solution;
-      return play ? reduce(steps, run, { type: 'sync', state: play(run.state) }) : run;
-    }
     case 'idle':
       return run.done ? run : { ...run, hint: true };
     case 'inspect':

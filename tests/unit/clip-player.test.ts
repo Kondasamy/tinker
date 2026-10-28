@@ -6,7 +6,7 @@ import { act, createElement, Fragment } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import ClipPlayer from '../../src/components/story/ClipPlayer';
 import { VoiceStage } from '../../src/content/voice/kit';
-import { clipStatus, clipUrl, setAudioFactory, type AudioLike } from '../../src/lib/voice/audio';
+import { clipStatus, setAudioFactory, type AudioLike } from '../../src/lib/voice/audio';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -44,7 +44,7 @@ async function press() {
     host.querySelector<HTMLButtonElement>('.clip-btn')!.click();
   });
   act(() => fake.on.playing());
-  expect(clipStatus(clipUrl('status-caller'))).toBe('playing');
+  expect(clipStatus('status-caller')).toBe('playing');
 }
 
 describe('the clip player, mounted', () => {
@@ -53,16 +53,16 @@ describe('the clip player, mounted', () => {
     await press();
     act(() => root.render(null));
     expect(fake.paused).toBe(1);
-    expect(clipStatus(clipUrl('status-caller'))).toBe('idle');
+    expect(clipStatus('status-caller')).toBe('idle');
   });
 
   it('the stage stops whatever is playing when the step changes', async () => {
     act(() => root.render(createElement(Fragment, null, stage('a'), clip)));
     await press();
     act(() => root.render(createElement(Fragment, null, stage('a'), clip)));
-    expect(clipStatus(clipUrl('status-caller'))).toBe('playing');
+    expect(clipStatus('status-caller')).toBe('playing');
     act(() => root.render(createElement(Fragment, null, stage('b'), clip)));
     expect(fake.paused).toBe(1);
-    expect(clipStatus(clipUrl('status-caller'))).toBe('idle');
+    expect(clipStatus('status-caller')).toBe('idle');
   });
 });

@@ -1,5 +1,5 @@
-// The RAG trailer's captions quote only the repo's data: every number spoken is in the RAG data files, and the cues
-// are the recorded narration word for word (videos/rag-trailer/assets/voice/words.json).
+// The RAG trailer's captions quote only the repo's data: every number spoken is in the RAG data files
+// (tests/unit/trailers.test.ts checks every trailer's captions against its recorded narration).
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 
@@ -32,13 +32,5 @@ describe('RAG trailer captions', () => {
       const re = new RegExp(`(?<![\\d.,])(${n.replace(/[.,]/g, '\\$&')}|${bare})(?![\\d])`);
       expect(DATA, `"${n}" is not in the RAG data`).toMatch(re);
     }
-  });
-
-  it('the cues are the recorded narration, word for word', () => {
-    const words: Record<string, { words: { text: string }[] }> = JSON.parse(
-      readFileSync('videos/rag-trailer/assets/voice/words.json', 'utf8'),
-    );
-    const spoken = Object.values(words).flatMap(l => l.words.map(w => w.text));
-    expect(cues.join(' ').split(/\s+/)).toEqual(spoken);
   });
 });

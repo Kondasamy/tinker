@@ -73,7 +73,6 @@ const reasonStep = (id: Reason, opens: string, narration: string, act: string): 
   narration,
   act,
   predicate: s => s.seen.includes(id),
-  demo: s => ({ ...s, seen: [...s.seen, id] }),
 });
 
 export const STEPS: Step<S>[] = [
@@ -92,7 +91,6 @@ export const STEPS: Step<S>[] = [
     narration: 'Your pick is locked. The drive is pasted in.',
     act: 'Ask the assistant about enterprise refunds.',
     predicate: s => s.asked,
-    demo: s => ({ ...s, asked: true }),
   },
   {
     id: 'overflow',
@@ -103,7 +101,6 @@ export const STEPS: Step<S>[] = [
     act: 'Drag the corpus slider past the context window.',
     say: { block: 'window', text: 'The paste stops here' },
     predicate: s => overflows(STOPS[s.stop]),
-    demo: s => ({ ...s, stop: FIRST_OVER }),
     hint: `The window holds ${formatTokens(WINDOW)} tokens, about ${formatBytes(WINDOW * BYTES_PER_TOKEN)} of text. Go past that.`,
   },
   {
@@ -115,7 +112,6 @@ export const STEPS: Step<S>[] = [
     act: 'Keep dragging, to 5 TB.',
     say: { block: 'corpus', text: 'Already too big' },
     predicate: s => s.stop >= STOP_5TB,
-    demo: s => ({ ...s, stop: STOP_5TB }),
     hint: 'Each notch is 10 times bigger. 5 TB is the ninth notch.',
   },
   reasonStep(
@@ -150,14 +146,12 @@ const REASON_LABEL: Record<Reason, string> = {
 };
 const nextReason = (s: S) => (['middle', 'fresh', 'access'] as Reason[]).find(r => !s.seen.includes(r));
 
-export const INITIAL: S = { prediction: null, asked: false, stop: 0, seen: [], quiz: null };
-
 export default function WhyNotStuffIt() {
   return (
     <StepRunner<S>
       chapter={ID}
       steps={STEPS}
-      initial={INITIAL}
+      initial={{ prediction: null, asked: false, stop: 0, seen: [], quiz: null }}
       next={nextOf(ID)}
       stage={({ state, say }) => <ContextOverflow stop={state.stop} say={say} />}
       controls={{
