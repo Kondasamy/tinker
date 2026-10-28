@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import TheBestsellersShelf from '../../content/recommendations/01-the-bestsellers-shelf';
+import PeopleLikeYou from '../../content/recommendations/02-people-like-you';
+import BoughtTogether from '../../content/recommendations/03-bought-together';
+import HiddenTastes from '../../content/recommendations/04-hidden-tastes';
+import NewShopperNewProduct from '../../content/recommendations/05-new-shopper-new-product';
+import TheLoop from '../../content/recommendations/06-the-loop';
+import TuneTheShelf from '../../content/recommendations/07-tune-the-shelf';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('recommendations').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="recommendations" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-the-bestsellers-shelf' ? <TheBestsellersShelf client:load />
+    : chapter === '02-people-like-you' ? <PeopleLikeYou client:load />
+    : chapter === '03-bought-together' ? <BoughtTogether client:load />
+    : chapter === '04-hidden-tastes' ? <HiddenTastes client:load />
+    : chapter === '05-new-shopper-new-product' ? <NewShopperNewProduct client:load />
+    : chapter === '06-the-loop' ? <TheLoop client:load />
+    : <TuneTheShelf client:load />}
+</ChapterLayout>

@@ -1,0 +1,35 @@
+{
+  "accessed": "2026-10-28",
+  "facts": [
+    {
+      "id": "mf",
+      "claim": "Koren, Bell and Volinsky (IEEE Computer, 2009) write that, as the Netflix Prize showed, matrix factorization models beat classic nearest-neighbour methods at product recommendations.",
+      "source": "https://doi.org/10.1109/MC.2009.263"
+    },
+    {
+      "id": "mf-extra",
+      "claim": "The same article says factorization can also take in implicit feedback, changes over time and confidence levels.",
+      "source": "https://doi.org/10.1109/MC.2009.263"
+    },
+    {
+      "id": "implicit",
+      "claim": "Hu, Koren and Volinsky (ICDM 2008) treat implicit data, such as what people bought or watched, as signs of liking or not liking held with very different confidence.",
+      "source": "https://doi.org/10.1109/ICDM.2008.22"
+    },
+    {
+      "id": "loop",
+      "claim": "Chaney, Stewart and Engelhardt (RecSys 2018) note that recommenders are trained on data from users already shown recommendations, a feedback loop.",
+      "source": "https://arxiv.org/abs/1710.11214"
+    },
+    {
+      "id": "loop-same",
+      "claim": "In their simulations, that loop makes users’ behaviour more alike without making them better off.",
+      "source": "https://arxiv.org/abs/1710.11214"
+    },
+    {
+      "id": "two-stage",
+      "claim": "Covington, Adams and Sargin (RecSys 2016) describe YouTube’s recommender in two stages: one model picks candidates from the catalogue, a second model ranks them.",
+      "source": "https://research.google/pubs/deep-neural-networks-for-youtube-recommendations/"
+    }
+  ]
+}

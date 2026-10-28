@@ -1,0 +1,554 @@
+{
+ "note": "Hand-written orders: made-up trade customers and their orders, one product per order, oldest first. Not real data.",
+ "aisles": {
+  "wood": "Woodwork",
+  "fit": "Fittings",
+  "store": "Warehouse",
+  "metal": "Metalwork"
+ },
+ "newProduct": "k3-scanner",
+ "products": [
+  {
+   "id": "wood-glue",
+   "name": "Wood glue",
+   "short": "Glue",
+   "aisle": "wood"
+  },
+  {
+   "id": "sandpaper",
+   "name": "Sandpaper",
+   "short": "Sandpaper",
+   "aisle": "wood"
+  },
+  {
+   "id": "clamp-set",
+   "name": "Clamp set",
+   "short": "Clamps",
+   "aisle": "wood"
+  },
+  {
+   "id": "wood-screws",
+   "name": "Wood screws",
+   "short": "Wood screws",
+   "aisle": "wood"
+  },
+  {
+   "id": "sanding-kit",
+   "name": "Sanding kit",
+   "short": "Sanding kit",
+   "aisle": "wood"
+  },
+  {
+   "id": "bench-vice",
+   "name": "Bench vice",
+   "short": "Vice",
+   "aisle": "wood"
+  },
+  {
+   "id": "chisel-set",
+   "name": "Chisel set",
+   "short": "Chisels",
+   "aisle": "wood"
+  },
+  {
+   "id": "router-table",
+   "name": "Router table",
+   "short": "Router table",
+   "aisle": "wood"
+  },
+  {
+   "id": "table-saw",
+   "name": "Table saw",
+   "short": "Table saw",
+   "aisle": "wood"
+  },
+  {
+   "id": "wood-stain",
+   "name": "Wood stain",
+   "short": "Stain",
+   "aisle": "wood"
+  },
+  {
+   "id": "hinge-pack",
+   "name": "Hinge pack",
+   "short": "Hinges",
+   "aisle": "fit"
+  },
+  {
+   "id": "cabinet-handles",
+   "name": "Cabinet handles",
+   "short": "Handles",
+   "aisle": "fit"
+  },
+  {
+   "id": "drawer-runners",
+   "name": "Drawer runners",
+   "short": "Runners",
+   "aisle": "fit"
+  },
+  {
+   "id": "shelf-brackets",
+   "name": "Shelf brackets",
+   "short": "Brackets",
+   "aisle": "fit"
+  },
+  {
+   "id": "door-stops",
+   "name": "Door stops",
+   "short": "Door stops",
+   "aisle": "fit"
+  },
+  {
+   "id": "brass-hooks",
+   "name": "Brass hooks",
+   "short": "Hooks",
+   "aisle": "fit"
+  },
+  {
+   "id": "brass-padlock",
+   "name": "Brass padlock",
+   "short": "Padlock",
+   "aisle": "fit"
+  },
+  {
+   "id": "wall-plugs",
+   "name": "Wall plugs",
+   "short": "Wall plugs",
+   "aisle": "fit"
+  },
+  {
+   "id": "soft-close-hinges",
+   "name": "Soft-close hinges",
+   "short": "Soft-close",
+   "aisle": "fit"
+  },
+  {
+   "id": "cabinet-locks",
+   "name": "Cabinet locks",
+   "short": "Locks",
+   "aisle": "fit"
+  },
+  {
+   "id": "label-roll",
+   "name": "Label roll, 1,000 labels",
+   "short": "Labels",
+   "aisle": "store"
+  },
+  {
+   "id": "packing-tape",
+   "name": "Packing tape",
+   "short": "Tape",
+   "aisle": "store"
+  },
+  {
+   "id": "label-printer",
+   "name": "Wren WL-4 label printer",
+   "short": "Printer",
+   "aisle": "store"
+  },
+  {
+   "id": "shelving-bay",
+   "name": "Heron steel shelving bay",
+   "short": "Shelving",
+   "aisle": "store"
+  },
+  {
+   "id": "k2-scanner",
+   "name": "Kestrel K2 handheld scanner",
+   "short": "K2 scanner",
+   "aisle": "store"
+  },
+  {
+   "id": "box-cutter",
+   "name": "Box cutter",
+   "short": "Cutter",
+   "aisle": "store"
+  },
+  {
+   "id": "stretch-wrap",
+   "name": "Stretch wrap",
+   "short": "Wrap",
+   "aisle": "store"
+  },
+  {
+   "id": "dock-sensor",
+   "name": "Dock door sensor",
+   "short": "Dock sensor",
+   "aisle": "store"
+  },
+  {
+   "id": "pallet-truck",
+   "name": "Pallet truck",
+   "short": "Pallet truck",
+   "aisle": "store"
+  },
+  {
+   "id": "k3-scanner",
+   "name": "Kestrel K3 handheld scanner",
+   "short": "K3 scanner",
+   "aisle": "store"
+  },
+  {
+   "id": "drill-bits",
+   "name": "Drill bits",
+   "short": "Drill bits",
+   "aisle": "metal"
+  },
+  {
+   "id": "tape-measure",
+   "name": "Tape measure",
+   "short": "Tape measure",
+   "aisle": "metal"
+  },
+  {
+   "id": "safety-glasses",
+   "name": "Safety glasses",
+   "short": "Glasses",
+   "aisle": "metal"
+  },
+  {
+   "id": "grinding-discs",
+   "name": "Grinding discs",
+   "short": "Discs",
+   "aisle": "metal"
+  },
+  {
+   "id": "angle-grinder",
+   "name": "Angle grinder",
+   "short": "Grinder",
+   "aisle": "metal"
+  },
+  {
+   "id": "welding-gloves",
+   "name": "Welding gloves",
+   "short": "Gloves",
+   "aisle": "metal"
+  },
+  {
+   "id": "tool-box",
+   "name": "Tool box",
+   "short": "Tool box",
+   "aisle": "metal"
+  },
+  {
+   "id": "metal-files",
+   "name": "Metal files",
+   "short": "Files",
+   "aisle": "metal"
+  },
+  {
+   "id": "drill-press",
+   "name": "Drill press",
+   "short": "Drill press",
+   "aisle": "metal"
+  },
+  {
+   "id": "work-light",
+   "name": "Work light",
+   "short": "Work light",
+   "aisle": "metal"
+  }
+ ],
+ "customers": [
+  {
+   "id": "c01",
+   "name": "Ash Joinery",
+   "orders": ["wood-glue", "drill-bits", "router-table", "sanding-kit", "wood-screws"]
+  },
+  {
+   "id": "c02",
+   "name": "Bramble Interiors",
+   "orders": ["drawer-runners", "brass-hooks", "hinge-pack", "wood-glue", "drill-bits", "wall-plugs"]
+  },
+  {
+   "id": "c03",
+   "name": "Harbour Logistics",
+   "orders": ["sandpaper", "label-printer", "box-cutter", "shelving-bay", "packing-tape", "k2-scanner", "label-roll", "metal-files", "stretch-wrap"]
+  },
+  {
+   "id": "c04",
+   "name": "Anvil Fabrication",
+   "orders": ["drill-bits", "work-light", "tape-measure", "grinding-discs", "sanding-kit", "clamp-set", "safety-glasses", "router-table", "welding-gloves"]
+  },
+  {
+   "id": "c05",
+   "name": "Alder Carpentry",
+   "orders": ["clamp-set", "bench-vice", "sandpaper", "wood-glue", "hinge-pack", "chisel-set", "shelf-brackets", "cabinet-locks", "wood-stain"]
+  },
+  {
+   "id": "c06",
+   "name": "Clover Kitchens",
+   "orders": ["cabinet-handles", "brass-hooks", "hinge-pack", "brass-padlock", "sanding-kit", "door-stops", "soft-close-hinges"]
+  },
+  {
+   "id": "c07",
+   "name": "Quay Freight",
+   "orders": ["label-roll", "tape-measure", "packing-tape", "label-printer", "shelving-bay", "pallet-truck"]
+  },
+  {
+   "id": "c08",
+   "name": "Forge Metalworks",
+   "orders": ["drill-bits", "work-light", "drill-press", "sanding-kit", "welding-gloves"]
+  },
+  {
+   "id": "c09",
+   "name": "Beech Woodworks",
+   "orders": ["chisel-set", "wood-stain", "tape-measure", "wood-glue", "safety-glasses", "wood-screws"]
+  },
+  {
+   "id": "c10",
+   "name": "Fern Fit-outs",
+   "orders": ["bench-vice", "chisel-set", "shelf-brackets", "cabinet-handles", "wood-glue", "hinge-pack", "soft-close-hinges"]
+  },
+  {
+   "id": "c11",
+   "name": "Dockside Stores",
+   "orders": ["packing-tape", "stretch-wrap", "tape-measure", "pallet-truck", "label-roll"]
+  },
+  {
+   "id": "c12",
+   "name": "Ironside Engineering",
+   "orders": ["label-roll", "safety-glasses", "drill-press", "hinge-pack", "tape-measure", "tool-box"]
+  },
+  {
+   "id": "c13",
+   "name": "Elm Joinery",
+   "orders": ["table-saw", "wood-glue", "chisel-set", "drill-bits", "sandpaper"]
+  },
+  {
+   "id": "c14",
+   "name": "Heather Interiors",
+   "orders": ["cabinet-handles", "hinge-pack", "drawer-runners", "sandpaper", "door-stops"]
+  },
+  {
+   "id": "c15",
+   "name": "Northgate Logistics",
+   "orders": ["drill-bits", "pallet-truck", "dock-sensor", "label-roll", "label-printer", "stretch-wrap", "shelving-bay"]
+  },
+  {
+   "id": "c16",
+   "name": "Copper Fabrication",
+   "orders": ["tape-measure", "welding-gloves", "angle-grinder", "grinding-discs", "drill-bits"]
+  },
+  {
+   "id": "c17",
+   "name": "Hazel Carpentry",
+   "orders": ["work-light", "wood-glue", "sanding-kit", "chisel-set", "clamp-set"]
+  },
+  {
+   "id": "c18",
+   "name": "Ivy Kitchens",
+   "orders": ["door-stops", "cabinet-handles", "router-table", "brass-hooks", "drawer-runners"]
+  },
+  {
+   "id": "c19",
+   "name": "Wharf Freight",
+   "orders": ["drill-bits", "label-printer", "label-roll", "stretch-wrap", "tape-measure", "shelving-bay", "k2-scanner"]
+  },
+  {
+   "id": "c20",
+   "name": "Flint Metalworks",
+   "orders": ["welding-gloves", "drill-bits", "grinding-discs", "metal-files", "angle-grinder", "safety-glasses", "tape-measure"]
+  },
+  {
+   "id": "c21",
+   "name": "Larch Woodworks",
+   "orders": ["wood-screws", "wood-glue", "drill-bits", "tape-measure", "clamp-set"]
+  },
+  {
+   "id": "c22",
+   "name": "Juniper Fit-outs",
+   "orders": ["hinge-pack", "label-roll", "cabinet-handles", "wood-glue", "sanding-kit", "cabinet-locks", "sandpaper", "drawer-runners"]
+  },
+  {
+   "id": "c23",
+   "name": "Canal Stores",
+   "orders": ["packing-tape", "label-roll", "tape-measure", "drill-bits", "safety-glasses", "label-printer", "hinge-pack", "shelving-bay"]
+  },
+  {
+   "id": "c24",
+   "name": "Steel Engineering",
+   "orders": ["angle-grinder", "tape-measure", "drill-bits", "chisel-set", "wood-screws", "packing-tape", "hinge-pack", "work-light", "grinding-discs"]
+  },
+  {
+   "id": "c25",
+   "name": "Maple Joinery",
+   "orders": ["chisel-set", "brass-padlock", "grinding-discs", "table-saw", "sandpaper"]
+  },
+  {
+   "id": "c26",
+   "name": "Laurel Interiors",
+   "orders": ["shelf-brackets", "cabinet-handles", "hinge-pack", "drawer-runners", "packing-tape", "brass-hooks", "door-stops"]
+  },
+  {
+   "id": "c27",
+   "name": "Railway Logistics",
+   "orders": ["label-printer", "drill-bits", "k2-scanner", "pallet-truck", "label-roll", "packing-tape"]
+  },
+  {
+   "id": "c28",
+   "name": "Tinsmith Fabrication",
+   "orders": ["drill-bits", "label-printer", "label-roll", "angle-grinder", "safety-glasses", "cabinet-handles", "grinding-discs", "metal-files"]
+  },
+  {
+   "id": "c29",
+   "name": "Oakley Carpentry",
+   "orders": ["clamp-set", "wood-screws", "hinge-pack", "sandpaper", "wood-glue", "table-saw"]
+  },
+  {
+   "id": "c30",
+   "name": "Myrtle Kitchens",
+   "orders": ["brass-padlock", "cabinet-handles", "stretch-wrap", "drawer-runners", "soft-close-hinges"]
+  },
+  {
+   "id": "c31",
+   "name": "Ferry Freight",
+   "orders": ["k2-scanner", "label-roll", "label-printer", "grinding-discs", "packing-tape"]
+  },
+  {
+   "id": "c32",
+   "name": "Bolt Metalworks",
+   "orders": ["dock-sensor", "label-roll", "metal-files", "work-light", "drill-bits", "safety-glasses", "k2-scanner", "welding-gloves", "grinding-discs"]
+  },
+  {
+   "id": "c33",
+   "name": "Rowan Woodworks",
+   "orders": ["drill-press", "sanding-kit", "clamp-set", "brass-hooks", "tape-measure", "table-saw"]
+  },
+  {
+   "id": "c34",
+   "name": "Primrose Fit-outs",
+   "orders": ["cabinet-handles", "hinge-pack", "drawer-runners", "wall-plugs", "shelf-brackets", "wood-glue", "soft-close-hinges"]
+  },
+  {
+   "id": "c35",
+   "name": "Bridge Stores",
+   "orders": ["shelving-bay", "label-printer", "k2-scanner", "label-roll", "safety-glasses", "box-cutter", "dock-sensor", "stretch-wrap", "packing-tape"]
+  },
+  {
+   "id": "c36",
+   "name": "Rivet Engineering",
+   "orders": ["angle-grinder", "work-light", "welding-gloves", "drill-bits", "wood-glue", "tape-measure"]
+  },
+  {
+   "id": "c37",
+   "name": "Spruce Joinery",
+   "orders": ["hinge-pack", "wood-screws", "wood-glue", "router-table", "chisel-set", "drill-bits", "sanding-kit", "sandpaper", "table-saw"]
+  },
+  {
+   "id": "c38",
+   "name": "Sorrel Interiors",
+   "orders": ["soft-close-hinges", "hinge-pack", "sandpaper", "shelf-brackets", "cabinet-handles"]
+  },
+  {
+   "id": "c39",
+   "name": "Junction Logistics",
+   "orders": ["safety-glasses", "drill-bits", "shelf-brackets", "packing-tape", "tape-measure", "k2-scanner", "box-cutter", "label-roll"]
+  },
+  {
+   "id": "c40",
+   "name": "Cinder Fabrication",
+   "orders": ["dock-sensor", "label-roll", "drill-press", "metal-files", "work-light", "safety-glasses", "grinding-discs"]
+  },
+  {
+   "id": "c41",
+   "name": "Walnut Carpentry",
+   "orders": ["clamp-set", "wood-glue", "sanding-kit", "shelf-brackets", "sandpaper", "cabinet-locks", "hinge-pack", "router-table"]
+  },
+  {
+   "id": "c42",
+   "name": "Tansy Kitchens",
+   "orders": ["hinge-pack", "wood-glue", "soft-close-hinges", "drill-bits", "wall-plugs", "cabinet-handles", "drawer-runners", "clamp-set", "shelf-brackets"]
+  },
+  {
+   "id": "c43",
+   "name": "Depot Freight",
+   "orders": ["packing-tape", "grinding-discs", "drill-bits", "label-roll", "stretch-wrap"]
+  },
+  {
+   "id": "c44",
+   "name": "Ember Metalworks",
+   "orders": ["sandpaper", "wood-screws", "tool-box", "safety-glasses", "drill-bits", "angle-grinder", "welding-gloves", "tape-measure", "drill-press"]
+  },
+  {
+   "id": "c45",
+   "name": "Yew Woodworks",
+   "orders": ["sandpaper", "drawer-runners", "wood-glue", "chisel-set", "sanding-kit", "clamp-set", "wood-stain"]
+  },
+  {
+   "id": "c46",
+   "name": "Violet Fit-outs",
+   "orders": ["door-stops", "hinge-pack", "wall-plugs", "brass-hooks", "wood-screws", "brass-padlock", "cabinet-handles", "shelf-brackets"]
+  },
+  {
+   "id": "c47",
+   "name": "Haven Stores",
+   "orders": ["stretch-wrap", "packing-tape", "pallet-truck", "box-cutter", "dock-sensor", "shelving-bay", "drawer-runners", "label-printer"]
+  },
+  {
+   "id": "c48",
+   "name": "Slate Engineering",
+   "orders": ["sandpaper", "work-light", "drill-bits", "tape-measure", "sanding-kit", "tool-box", "safety-glasses", "drill-press", "angle-grinder"]
+  },
+  {
+   "id": "c49",
+   "name": "Cherry Joinery",
+   "orders": ["label-roll", "sandpaper", "wood-glue", "drill-bits", "clamp-set"]
+  },
+  {
+   "id": "c50",
+   "name": "Willow Interiors",
+   "orders": ["hinge-pack", "label-printer", "drawer-runners", "wood-glue", "cabinet-handles"]
+  },
+  {
+   "id": "c51",
+   "name": "Landing Logistics",
+   "orders": ["welding-gloves", "wood-glue", "shelving-bay", "drill-bits", "packing-tape"]
+  },
+  {
+   "id": "c52",
+   "name": "Quarry Fabrication",
+   "orders": ["safety-glasses", "drill-bits", "cabinet-handles", "tape-measure", "work-light", "drill-press"]
+  },
+  {
+   "id": "c53",
+   "name": "Poplar Carpentry",
+   "orders": ["clamp-set", "bench-vice", "tape-measure", "wood-glue", "hinge-pack", "sandpaper", "chisel-set"]
+  },
+  {
+   "id": "c54",
+   "name": "Yarrow Kitchens",
+   "orders": ["shelf-brackets", "brass-hooks", "soft-close-hinges", "cabinet-handles", "drawer-runners", "cabinet-locks"]
+  },
+  {
+   "id": "c55",
+   "name": "Crossing Freight",
+   "orders": ["label-printer", "box-cutter", "shelving-bay", "packing-tape", "label-roll", "stretch-wrap"]
+  },
+  {
+   "id": "c56",
+   "name": "Granite Metalworks",
+   "orders": ["router-table", "grinding-discs", "wood-glue", "sandpaper", "tape-measure", "drill-bits"]
+  },
+  {
+   "id": "c57",
+   "name": "Linden Woodworks",
+   "orders": ["wood-glue", "drill-bits", "router-table", "welding-gloves", "sandpaper", "bench-vice"]
+  },
+  {
+   "id": "c58",
+   "name": "Thistle Fit-outs",
+   "orders": ["wood-stain", "door-stops", "cabinet-handles", "wood-screws", "hinge-pack", "drawer-runners", "shelf-brackets"]
+  },
+  {
+   "id": "c59",
+   "name": "Station Stores",
+   "orders": ["k2-scanner", "sanding-kit", "label-roll", "label-printer", "box-cutter", "angle-grinder", "shelving-bay", "safety-glasses", "pallet-truck"]
+  },
+  {
+   "id": "c60",
+   "name": "Cobalt Engineering",
+   "orders": ["wood-screws", "tape-measure", "drill-bits", "wood-stain", "grinding-discs", "wood-glue", "work-light", "clamp-set", "drill-press"]
+  }
+ ]
+}
