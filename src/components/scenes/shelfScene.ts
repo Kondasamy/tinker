@@ -129,7 +129,7 @@ export const shelfScene = (o: ShelfOpts) => (ctx: SceneCtx) => {
   const parts = [
     {
       at: [90, SHELF_Y[0], 0],
-      svg: `<g data-prop="shelf" data-count="${st.shelf.length}">${box(CAB[0], SHELF_Y[0], BH, CAB[1], SHELF_Y[1], CAB_TOP, WOOD, toneI, 1)}${hullInk(cab, 2)}${items}</g>`,
+      svg: `<g data-prop="shelf">${box(CAB[0], SHELF_Y[0], BH, CAB[1], SHELF_Y[1], CAB_TOP, WOOD, toneI, 1)}${hullInk(cab, 2)}${items}</g>`,
     },
   ];
   if (o.view === 'map') {
