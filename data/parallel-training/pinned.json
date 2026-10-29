@@ -1,0 +1,164 @@
+{
+  "fit": {
+    "state": 1120000000000,
+    "chipMemory": 80000000000,
+    "chipsAtLeast": 14
+  },
+  "ring": {
+    "mean": [
+      1,
+      0.2,
+      0.8,
+      1
+    ],
+    "sent": [
+      48,
+      48,
+      48,
+      48
+    ],
+    "vectorBytes": 32,
+    "hops": 6
+  },
+  "zero": [
+    {
+      "tp": 1,
+      "pp": 1,
+      "dp": 8,
+      "zero": 0,
+      "weights": 140000000000,
+      "grads": 140000000000,
+      "optimiser": 840000000000,
+      "activations": 91268055040,
+      "total": 1211268055040
+    },
+    {
+      "tp": 1,
+      "pp": 1,
+      "dp": 8,
+      "zero": 1,
+      "weights": 140000000000,
+      "grads": 140000000000,
+      "optimiser": 105000000000,
+      "activations": 91268055040,
+      "total": 476268055040
+    },
+    {
+      "tp": 1,
+      "pp": 1,
+      "dp": 8,
+      "zero": 2,
+      "weights": 140000000000,
+      "grads": 17500000000,
+      "optimiser": 105000000000,
+      "activations": 91268055040,
+      "total": 353768055040
+    },
+    {
+      "tp": 1,
+      "pp": 1,
+      "dp": 8,
+      "zero": 3,
+      "weights": 17500000000,
+      "grads": 17500000000,
+      "optimiser": 105000000000,
+      "activations": 91268055040,
+      "total": 231268055040
+    }
+  ],
+  "bubble": [
+    {
+      "p": 4,
+      "m": 1,
+      "idle": 24,
+      "bubble": 0.75
+    },
+    {
+      "p": 4,
+      "m": 4,
+      "idle": 24,
+      "bubble": 0.428571
+    },
+    {
+      "p": 4,
+      "m": 16,
+      "idle": 24,
+      "bubble": 0.157895
+    }
+  ],
+  "tensor": {
+    "hopInside": 0.000130489,
+    "hopBetween": 0.00251658,
+    "inBox": {
+      "tp": 8,
+      "pp": 4,
+      "dp": 32,
+      "zero": 1,
+      "step": 5.28882,
+      "tensor": 0.334053
+    },
+    "acrossBoxes": {
+      "tp": 16,
+      "pp": 2,
+      "dp": 32,
+      "zero": 1,
+      "step": 17.9394,
+      "tensor": 12.8849
+    }
+  },
+  "failures": {
+    "chips": 1024,
+    "mtbf": 2969.36,
+    "young": 172.318,
+    "grid": 10,
+    "best": 170,
+    "waste": 0.0614052,
+    "failsInTwoMonths": 31,
+    "runs": [
+      {
+        "interval": 30,
+        "hits": 17,
+        "saves": 1439,
+        "lost": 418.556,
+        "wall": 50813.6
+      },
+      {
+        "interval": 170,
+        "hits": 17,
+        "saves": 254,
+        "lost": 1678.56,
+        "wall": 46148.6
+      },
+      {
+        "interval": 480,
+        "hits": 17,
+        "saves": 89,
+        "lost": 5173.56,
+        "wall": 48818.6
+      }
+    ]
+  },
+  "workbench": {
+    "best": 5.638794912165448,
+    "winners": [
+      {
+        "tp": 8,
+        "pp": 8,
+        "zero": 0,
+        "interval": 240
+      },
+      {
+        "tp": 8,
+        "pp": 8,
+        "zero": 1,
+        "interval": 240
+      },
+      {
+        "tp": 8,
+        "pp": 8,
+        "zero": 2,
+        "interval": 240
+      }
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "note": "Planning numbers for the simulated cluster on Fernhill's quote, chosen for this site, not measured: how many chips are rented, the micro-batch size, and how long a checkpoint takes to write and a restart to come back. Chip, link, batch and failure figures come from facts.json.",
+  "chips": 1024,
+  "microBatch": 1,
+  "saveMinutes": 5,
+  "restartMinutes": 10,
+  "tp": [1, 2, 4, 8, 16],
+  "pp": [1, 2, 4, 8],
+  "zero": [0, 1, 2, 3],
+  "intervals": [30, 60, 120, 240, 480],
+  "start": { "tp": 1, "pp": 1, "zero": 0, "interval": 30 },
+  "rule": "Fernhill’s rule: every chip’s memory fits, then the least time per step once lost work is counted."
+}
