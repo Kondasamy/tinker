@@ -809,8 +809,8 @@ const fallOg =
     : page.og === 'observability-02-first-failure'
       ? { trace: traceOf('t23'), stamp: traceOf('t23').first }
       : undefined;
-// module 15: the glass room as each chapter turns its door on. The intro: the exfiltration attack on the open host as the
-// token leaves; chapter 1: the same attack in the sandbox, refused; 2: the hidden key's read refused at the file door; 3: the
+// module 15: the glass room as each chapter turns its door on. The intro: the exfiltration attack leaving the glass room
+// through its open network door, the token on its way out; chapter 1: the same attack in the sandbox, refused; 2: the hidden key's read refused at the file door; 3: the
 // fetch to an off-list host refused at the network door; 4: the secret moved to the proxy; 5: a record smuggled through the
 // allowed API host; 6: the report task run with no prompt; 7: the clean policy against the exfiltration attack.
 const sbAt = (setup: Partial<SbSetup> & { case: SbSetup['case'] }, upTo?: (r: SbRun) => number): SandboxOpts => {
@@ -822,7 +822,8 @@ const sbFetch = (r: SbRun) => r.steps.findIndex(st => st.kind === 'call' && st.c
 const sbBlocked = (r: SbRun) => r.steps.findIndex(st => st.kind === 'blocked') + 1;
 const SB_IN = { sandbox: true, files: 'scoped', egress: 'allowlist' } as const;
 const GLASS_OG: Record<string, () => SandboxOpts> = {
-  sandboxing: () => sbAt({ case: 'exfil', sandbox: false }, sbFetch),
+  sandboxing: () =>
+    sbAt({ case: 'exfil', sandbox: true, files: 'scoped', egress: 'open', secret: 'env' }, sbFetch),
   'sandboxing-01-where-it-runs': () => sbAt({ case: 'exfil', ...SB_IN, secret: 'proxy' }, sbBlocked),
   'sandboxing-02-files': () => sbAt({ case: 'peek', ...SB_IN, secret: 'proxy' }, sbBlocked),
   'sandboxing-03-network': () => sbAt({ case: 'exfil', ...SB_IN, secret: 'env' }, sbBlocked),
