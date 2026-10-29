@@ -1817,5 +1817,316 @@
       "bench",
       "ties"
     ]
+  },
+  "logins": {
+    "01-the-sticky-note": [
+      "predict",
+      "breach",
+      "quiz"
+    ],
+    "02-a-one-way-fingerprint": [
+      "hash",
+      "predict",
+      "race",
+      "quiz"
+    ],
+    "03-a-pinch-of-salt": [
+      "predict",
+      "salt",
+      "race",
+      "quiz"
+    ],
+    "04-slow-on-purpose": [
+      "slow",
+      "predict",
+      "race",
+      "quiz"
+    ],
+    "05-the-cloakroom-ticket": [
+      "signin",
+      "predict",
+      "steal",
+      "signout",
+      "quiz"
+    ],
+    "06-sign-in-with-another-site": [
+      "redirect",
+      "code",
+      "predict",
+      "steal",
+      "token",
+      "quiz"
+    ],
+    "07-guard-every-account": [
+      "bench",
+      "ties"
+    ]
+  },
+  "email": {
+    "01-envelope-and-letter": [
+      "open",
+      "predict",
+      "deliver",
+      "quiz"
+    ],
+    "02-who-takes-it-next": [
+      "predict",
+      "peel",
+      "mx",
+      "forward",
+      "quiz"
+    ],
+    "03-anyone-can-write-from": [
+      "two",
+      "predict",
+      "peel",
+      "deliver",
+      "quiz"
+    ],
+    "04-allowed-senders": [
+      "publish",
+      "spoof",
+      "vendor",
+      "predict",
+      "show",
+      "quiz"
+    ],
+    "05-a-seal-on-the-letter": [
+      "seal",
+      "predict",
+      "tamper",
+      "spaces",
+      "quiz"
+    ],
+    "06-what-to-do-with-a-failure": [
+      "align",
+      "policy",
+      "predict",
+      "forward",
+      "spam",
+      "quiz"
+    ],
+    "07-mail-records": [
+      "bench",
+      "ties"
+    ]
+  },
+  "dependencies": {
+    "01-code-you-did-not-write": [
+      "predict",
+      "install",
+      "pull",
+      "quiz"
+    ],
+    "02-what-the-numbers-mean": [
+      "predict",
+      "major",
+      "minor",
+      "quiz"
+    ],
+    "03-packages-need-packages": [
+      "predict",
+      "tree",
+      "pull",
+      "quiz"
+    ],
+    "04-the-same-install-every-time": [
+      "predict",
+      "install",
+      "lock",
+      "quiz"
+    ],
+    "05-one-bad-patch": [
+      "build",
+      "predict",
+      "lock",
+      "update",
+      "quiz"
+    ],
+    "06-who-published-this": [
+      "pin",
+      "predict",
+      "install",
+      "scripts",
+      "lock",
+      "quiz"
+    ],
+    "07-update-policy": [
+      "bench",
+      "ties"
+    ]
+  },
+  "releases": {
+    "01-straight-to-everyone": [
+      "ship",
+      "predict",
+      "lever",
+      "watch",
+      "quiz"
+    ],
+    "02-tests-on-every-change": [
+      "coupon",
+      "predict",
+      "address",
+      "quiz"
+    ],
+    "03-a-few-first": [
+      "canary",
+      "predict",
+      "check",
+      "bake",
+      "pass",
+      "miss",
+      "quiz"
+    ],
+    "04-deploy-now-switch-on-later": [
+      "dark",
+      "watch",
+      "predict",
+      "off",
+      "gone",
+      "quiz"
+    ],
+    "05-back-it-out": [
+      "predict",
+      "lever",
+      "expand",
+      "back",
+      "quiz"
+    ],
+    "06-step-by-step": [
+      "plan",
+      "play",
+      "chart",
+      "quiz"
+    ],
+    "07-release-plan": [
+      "bench",
+      "ties"
+    ]
+  },
+  "recommendations": {
+    "01-the-bestsellers-shelf": [
+      "shelf",
+      "predict",
+      "pick",
+      "quiz"
+    ],
+    "02-people-like-you": [
+      "alike",
+      "switch",
+      "quiz"
+    ],
+    "03-bought-together": [
+      "together",
+      "predict",
+      "pick",
+      "quiz"
+    ],
+    "04-hidden-tastes": [
+      "map",
+      "other",
+      "predict",
+      "back",
+      "quiz"
+    ],
+    "05-new-shopper-new-product": [
+      "picks",
+      "placed",
+      "predict",
+      "orders",
+      "quiz"
+    ],
+    "06-the-loop": [
+      "rounds",
+      "predict",
+      "narrow",
+      "explore",
+      "quiz"
+    ],
+    "07-tune-the-shelf": [
+      "bench",
+      "ties"
+    ]
+  },
+  "memorisation": {
+    "01-seen-once-seen-often": [
+      "predict",
+      "show",
+      "quiz"
+    ],
+    "02-a-planted-secret": [
+      "look",
+      "quiz"
+    ],
+    "03-ask-it-to-finish": [
+      "predict",
+      "ask",
+      "quiz"
+    ],
+    "04-how-sure-is-it": [
+      "predict",
+      "rank",
+      "quiz"
+    ],
+    "05-copies-make-it-worse": [
+      "predict",
+      "dedup",
+      "quiz"
+    ],
+    "06-keep-it-out": [
+      "predict",
+      "ask",
+      "drip",
+      "scrub",
+      "quiz"
+    ],
+    "07-workbench": [
+      "policy",
+      "quiz"
+    ]
+  },
+  "video-models": {
+    "01-many-pictures": [
+      "scrub",
+      "predict",
+      "pack",
+      "quiz"
+    ],
+    "02-guess-the-next-frame": [
+      "predict",
+      "step",
+      "frames",
+      "quiz"
+    ],
+    "03-one-frame-is-not-enough": [
+      "predict",
+      "one",
+      "two",
+      "quiz"
+    ],
+    "04-press-a-key": [
+      "predict",
+      "drive",
+      "resync",
+      "quiz"
+    ],
+    "05-drift": [
+      "predict",
+      "scrub",
+      "crate",
+      "resync",
+      "quiz"
+    ],
+    "06-the-big-ones": [
+      "predict",
+      "read",
+      "clip",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "ties"
+    ]
   }
 }

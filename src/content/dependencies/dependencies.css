@@ -1,0 +1,164 @@
+/* Dependencies stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in
+   through tool-calling/kit). These are the tower, the pull bar beside it, the day slider, the read-out and the tree.
+   Motion (a crate toppling when what it stands on goes) plays only when motion is allowed; with reduced motion the
+   same crates turn tomato and carry their crossed planks at once. */
+.dp-pic {
+  display: flex;
+  flex-direction: column;
+}
+.dp-pic > svg {
+  flex: 1;
+  min-height: 0;
+}
+.dp-pull {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.dp-pull [role="toolbar"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.dp-pull [role="toolbar"] .chip[aria-pressed="true"] {
+  background: var(--acc);
+  color: var(--ink);
+}
+.dp-pick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 14px;
+}
+.dp-pick select {
+  font: inherit;
+  min-height: 32px;
+  margin-left: 4px;
+}
+.dp-day {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 14px;
+}
+.dp-day label {
+  min-width: 56px;
+}
+.dp-day input {
+  flex: 1;
+}
+.dp-status {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: 13px;
+  font-weight: 700;
+}
+.dp-tree {
+  overflow: auto;
+  align-self: stretch;
+  max-height: 100%;
+  font-size: 13.5px;
+  padding: 4px 8px;
+}
+.dp-tree:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.dp-tree p {
+  margin: 0 0 4px;
+}
+.dp-tree ul {
+  margin: 0;
+  padding-left: 18px;
+  list-style: "└ ";
+}
+.dp-tag {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+}
+.dp-tag.bad,
+.dp-unmet {
+  color: var(--bad);
+}
+.dp-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.dp-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  margin: 8px 0;
+}
+.dp-toggle input {
+  width: 18px;
+  height: 18px;
+}
+.dp-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.dp-headline strong {
+  font:
+    800 30px / 1 ui-monospace,
+    Menlo,
+    monospace;
+}
+.dp-bench {
+  border: 1.5px solid var(--rule);
+  border-radius: 12px;
+  padding: 6px 12px;
+  margin: 8px 0;
+}
+.dp-bench fieldset {
+  border: 0;
+  padding: 0;
+  margin: 6px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+.dp-bench legend {
+  font-weight: 800;
+  font-size: 14px;
+  padding: 0;
+}
+.dp-bench fieldset label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.tc-ledger td.ok {
+  color: var(--ok);
+  font-weight: 800;
+}
+.tc-ledger td.bad {
+  color: var(--bad);
+  font-weight: 800;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .dp-stage .tw-crate[data-fell] {
+    animation: dp-topple 0.5s ease-in;
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+  }
+}
+@keyframes dp-topple {
+  30% {
+    transform: rotate(-8deg);
+  }
+  60% {
+    transform: rotate(5deg);
+  }
+}

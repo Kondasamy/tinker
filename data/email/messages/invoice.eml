@@ -1,0 +1,27 @@
+Return-Path: <bounces@larkspur.example>
+Received: from mx1.hollisbuild.example (mx1.hollisbuild.example [198.51.100.7])
+	by store.hollisbuild.example with LMTP id 8d20; Fri, 30 Oct 2026 16:02:11 +0000
+Received: from mail.larkspur.example (mail.larkspur.example [192.0.2.10])
+	by mx1.hollisbuild.example with ESMTPS id 51c3; Fri, 30 Oct 2026 16:02:10 +0000
+Received: from app.larkspur.example (app.larkspur.example [192.0.2.5])
+	by mail.larkspur.example with ESMTP id 2a77; Fri, 30 Oct 2026 16:02:07 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=larkspur.example; s=demo2026;
+	h=from:to:subject:date:message-id;
+	bh=SBuCPD4PoAPZwMo2IFKvdLyiwF3WmV9pGLNT8ZAO8Bs=;
+	b=oonS0dQWa2X/utFgT+msTVhPOTnfTQgVIbnVD+RKPU9HV4zfKKosL2B9K+k54l/+
+	 fDhIahkXbCCB7NZeG00dfjhW9ZbEiwsany5DvUqNHMZKb8oXYh2yXqMd2z9iRvad
+	 B7VSy9toc5gxcEEKpoVkewn2bVqb4niNp+ma82lFKW/U5OX0OWdo2HtMWZ4oijSl
+	 78B781WcKqO5IKYQQ2je+QKnkEBWWBqYC/4WMms4DoeHUYNN5i0pn98Y2s6MKi5S
+	 mGZqUxdsG2VTqW09JIegv26K+sxETJecj1yEuqHlzpQ85ap3pIoP50fwjgD88Qgg
+	 r3Es3yyjxCnha5mNjxHWTA==
+From: Larkspur Supply Co. <billing@larkspur.example>
+To: Hollis Builders <accounts@hollisbuild.example>
+Subject: Invoice 1207
+Date: Fri, 30 Oct 2026 16:02:06 +0000
+Message-ID: <invoice-1207@larkspur.example>
+
+Invoice 1207 for order 1207, shipped today.
+
+Please pay 1880.00 to account 4417-2209 within 30 days.
+
+Larkspur Supply Co.

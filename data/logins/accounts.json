@@ -1,0 +1,19 @@
+{
+  "note": "Larkspur's trade accounts, hand-written for this site. The people are made up and every password is a demo password, never a real credential. Salts are fixed per account so every fingerprint can be pinned; a real site draws a fresh random salt for each password.",
+  "types": [
+    { "id": "builder", "name": "Builders", "short": "BUILDERS" },
+    { "id": "staff", "name": "Staff", "short": "STAFF" }
+  ],
+  "accounts": [
+    { "id": "ada", "name": "Ada Okafor", "type": "builder", "password": "summer2024", "salt": "9fc1a4ec5ed1a76c" },
+    { "id": "bram", "name": "Bram Quist", "type": "builder", "password": "summer2024", "salt": "7bc7746079cf63e6" },
+    { "id": "cora", "name": "Cora Lind", "type": "builder", "password": "letmein", "salt": "e7f7e74bc4771b3f" },
+    { "id": "dev", "name": "Dev Mehta", "type": "builder", "password": "hinge4u", "salt": "20da91bf58d50bf9" },
+    { "id": "esme", "name": "Esme Hart", "type": "builder", "password": "brass-otter-quarry", "salt": "e70fab404adec43b" },
+    { "id": "finn", "name": "Finn Rowe", "type": "builder", "password": "nailgun42", "salt": "7c140db603023e97" },
+    { "id": "gus", "name": "Gus Pike", "type": "builder", "password": "Gr8-Pl4ster-Day!", "salt": "ee156937d18b92cf" },
+    { "id": "hana", "name": "Hana Ito", "type": "staff", "password": "password1", "salt": "46d44de02f40eba1" },
+    { "id": "ivo", "name": "Ivo Brandt", "type": "staff", "password": "ledger88x", "salt": "31396541a98c0d9d" },
+    { "id": "jo", "name": "Jo Marsh", "type": "staff", "password": "copper-kettle-lantern", "salt": "59b5c8da526ad7c9" }
+  ]
+}

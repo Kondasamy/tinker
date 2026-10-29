@@ -1,0 +1,10 @@
+{
+  "note": "Larkspur's planning numbers for chapter 7, not measured: how often a route test's dream must match the real floor, and the test routes it runs. A real frame means running the real test floor, the thing the simulator was meant to save, so the team's rule is: of the plans that clear the bar, the fewest real frames, then the least compute.",
+  "bar": 0.7,
+  "barWords": "at least 70% of dreamed frames right (robot and crate both in place)",
+  "firstSeed": 1000001,
+  "routes": 8,
+  "steps": 32,
+  "every": [0, 16, 8, 4, 2],
+  "start": { "model": "k1", "every": 0 }
+}

@@ -46,6 +46,13 @@ const NUMBERED = [
   'coding-agents',
   'synthetic-data',
   'mixture-of-experts',
+  'logins',
+  'email',
+  'dependencies',
+  'releases',
+  'recommendations',
+  'memorisation',
+  'video-models',
 ];
 
 // every module sits at its level: live cards first, then the roadmap's planned cards in registry (build) order;
@@ -324,6 +331,34 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
     'href',
     '/mixture-of-experts/',
   );
+  await expect(page.locator('[data-level="Beginner"] .module[data-module="logins"] h4 a')).toHaveAttribute(
+    'href',
+    '/logins/',
+  );
+  await expect(page.locator('[data-level="Beginner"] .module[data-module="email"] h4 a')).toHaveAttribute(
+    'href',
+    '/email/',
+  );
+  await expect(page.locator('[data-level="Intermediate"] .module[data-module="dependencies"] h4 a')).toHaveAttribute(
+    'href',
+    '/dependencies/',
+  );
+  await expect(page.locator('[data-level="Intermediate"] .module[data-module="releases"] h4 a')).toHaveAttribute(
+    'href',
+    '/releases/',
+  );
+  await expect(page.locator('[data-level="Intermediate"] .module[data-module="recommendations"] h4 a')).toHaveAttribute(
+    'href',
+    '/recommendations/',
+  );
+  await expect(page.locator('[data-level="Intermediate"] .module[data-module="memorisation"] h4 a')).toHaveAttribute(
+    'href',
+    '/memorisation/',
+  );
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="video-models"] h4 a')).toHaveAttribute(
+    'href',
+    '/video-models/',
+  );
 });
 
 // Opening a web page's card (U11): the finder finds it by a topic and names the hit
@@ -353,6 +388,13 @@ const ROADMAP = [
   'email',
   'dependencies',
   'releases',
+  'fairness',
+  'watermarks',
+  'prompts',
+  'rate-limits',
+  'backups',
+  'unicode',
+  'routes',
 ];
 test('live cards numbered from 1, the roadmap cards in order', async ({ page }) => {
   await page.goto('/');

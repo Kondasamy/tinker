@@ -1,0 +1,18 @@
+{
+  "note": "Larkspur’s planning numbers for a teaching simulator, not measurements of any real shop or release. Every count the Releases module shows comes from these and from the changes in changes.json.",
+  "startsAt": "10:00",
+  "tickMinutes": 1,
+  "ticks": 40,
+  "checkoutsPerMinute": 100,
+  "baseRate": 0.01,
+  "rollbackMinutes": 5,
+  "flagMinutes": 1,
+  "threshold": 0.02,
+  "seed": 68,
+  "words": {
+    "traffic": "100 checkouts a minute, about 1 in 100 failing on any day (a card refused, a timeout)",
+    "rollback": "putting the old version back on every server takes 5 minutes",
+    "flag": "switching a flag off reaches every server within 1 minute",
+    "threshold": "the check rings when the canary’s failures beat everyone else’s by more than 2 in 100"
+  }
+}

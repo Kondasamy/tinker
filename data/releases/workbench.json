@@ -1,0 +1,12 @@
+{
+  "changes": ["button", "new-checkout", "tax", "gift"],
+  "good": "button",
+  "hurtLimit": 45,
+  "rule": "The owner’s rule: the bigger button reaches everyone, at most 45 customers hurt across the four changes, then the soonest to everyone.",
+  "reasons": {
+    "canary": "A bigger canary sees more checkouts, so luck matters less, but more customers meet a bad change.",
+    "bake": "A longer bake waits for more checkouts before each step up.",
+    "flag": "Behind a flag, the way back takes 1 minute instead of 5.",
+    "threshold": "How much worse the canary must fail before the rollout rolls itself back."
+  }
+}

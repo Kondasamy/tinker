@@ -1,0 +1,54 @@
+{
+  "workbench": {
+    "best": 5,
+    "winners": [
+      "caret|lock|weekly|scripts",
+      "caret|lock|weekly|noscripts",
+      "tilde|lock|weekly|scripts",
+      "tilde|lock|weekly|noscripts"
+    ]
+  },
+  "chapters": {
+    "installed": 9,
+    "direct": 5,
+    "nested": [
+      "cartwheel/tidystr@1.0.4"
+    ],
+    "drift": [
+      "cartwheel 2.1.0 > 2.1.1",
+      "geobits 0.4.1 > 0.4.2",
+      "shipcalc 3.2.4 > 3.2.5",
+      "tidystr 2.0.0 > 2.0.1"
+    ],
+    "driftLocked": [],
+    "badPatch": [
+      "pricebook 1.4.2 > 1.4.3"
+    ],
+    "badBroken": [
+      "",
+      "cartwheel",
+      "pricebook"
+    ],
+    "badLocked": [],
+    "hijackPinned": {
+      "breaks": [],
+      "hijacked": [
+        "inkdrop"
+      ],
+      "scriptRan": [],
+      "scriptBlocked": [
+        "inkdrop"
+      ],
+      "payload": [
+        "inkdrop"
+      ]
+    },
+    "hijackLocked": {
+      "breaks": [],
+      "hijacked": [],
+      "scriptRan": [],
+      "scriptBlocked": [],
+      "payload": []
+    }
+  }
+}

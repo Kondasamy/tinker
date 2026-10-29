@@ -1,0 +1,78 @@
+---
+// Dev-only eyeball page: the support desk in several states (static SVG, wide and phone), drawn at build time from the
+// canary model on disk (each canary's reply and its column of 201), the bypass, the workbench's winners, and the
+// stage live. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { RECITAL_BOARD, recitalLabel, recitalScene, type RecitalOpts } from '../components/scenes/recitalScene';
+import { RecitalStage, SAMPLE_PINS, columnLabel, ledgerOf, rankReadout } from '../content/memorisation/kit';
+import { diskCanary } from '../lib/memorisation/diskModel';
+import { drip, extract } from '../lib/memorisation/extract';
+import { filterReply } from '../lib/memorisation/filter';
+import { columnPins, rankAmong } from '../lib/memorisation/rank';
+import { CANARIES, canaryOf } from '../lib/memorisation/story';
+import { WINNERS, scoreOf } from '../lib/memorisation/workbench';
+
+const model = diskCanary();
+const rows = CANARIES.map(c => ({ c, e: extract(model, c), col: rankAmong(model, c, columnPins(c, SAMPLE_PINS)) }));
+const STATES: [string, RecitalOpts][] = [
+  ['Empty desk', { ledger: ledgerOf(null) }],
+  ...rows.map(({ c, e, col }): [string, RecitalOpts] => [
+    `${c.repeats} copies: says “${e.text}”, rank ${col.rank}`,
+    {
+      ledger: ledgerOf(c.repeats),
+      reply: { text: `SAYS${e.text}`, leak: e.extracted },
+      column: { lps: col.lps, label: columnLabel(col.rank) },
+      say: c.repeats === 64 ? { block: 'column', text: 'Rank 1' } : undefined,
+    },
+  ]),
+  [
+    'Filter on, plain ask',
+    { ledger: ledgerOf(64), filter: true, reply: { text: `SAYS${filterReply(rows[0].e.text)}` } },
+  ],
+  [
+    'Filter on, one digit at a time',
+    { ledger: ledgerOf(64), filter: true, reply: { text: drip(model, canaryOf(64)).join(' '), leak: true } },
+  ],
+  ['Scrubbed', { ledger: ledgerOf(64, { scrub: true }), reply: { text: 'SAYS [PIN].' } }],
+];
+const live = rows[2];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>What a model remembers scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Support desk: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...o, scale: 1.2 })} label={recitalLabel(o)} /></div>
+            <div class="phone"><IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...o, scale: 2 })} label={recitalLabel(o)} /></div>
+            <p>{recitalLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>Workbench winners</h1>
+      <ul>{WINNERS.map(w => <li>{JSON.stringify(w)}: {JSON.stringify(scoreOf(w))}</li>)}</ul>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>4 copies, with read-out</h2><div class="stage"><RecitalStage client:load repeats={4} readout={rankReadout(4, live.col.rank)} desk={{ ledger: ledgerOf(4), column: { lps: live.col.lps, label: columnLabel(live.col.rank) } }} caption="<script>alert(1)</script>" /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+
+<style>
+  main { max-width: 1200px; margin: 0 auto; padding: 16px; font: 14px/1.5 system-ui, sans-serif; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { border: 1px solid #ccc; border-radius: 12px; padding: 12px; }
+  .stage { height: 460px; display: flex; flex-direction: column; }
+  .phone { display: none; }
+  @media (max-width: 600px) { .wide { display: none; } .phone { display: block; } }
+</style>

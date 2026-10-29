@@ -1,0 +1,156 @@
+/* Releases stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
+   tool-calling/kit). These are the dial and lever, the clock, the read-out, the Errors chart and the bench.
+   Motion (the lever swinging, a shopper lighting up) plays only when motion is allowed; with reduced motion the same
+   minute shows the end state at once. */
+.rl-dial {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 14px;
+}
+.rl-dial .rl-range {
+  flex: 1 1 200px;
+  margin: 0;
+}
+.rl-lever {
+  min-height: 44px;
+}
+.rl-transport {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rl-transport .chip {
+  min-height: 44px;
+}
+.rl-clock {
+  font:
+    800 15px ui-monospace,
+    Menlo,
+    monospace;
+  margin-left: 4px;
+}
+.rl-readout {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  min-height: 1.5em;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .rl-stage .lever.pulled {
+    animation: rl-pull 0.4s ease-out;
+  }
+  .rl-stage .shopper[data-track="new"] {
+    animation: rl-light 0.5s ease-out;
+  }
+}
+@keyframes rl-pull {
+  from {
+    opacity: 0.3;
+  }
+}
+@keyframes rl-light {
+  from {
+    opacity: 0.6;
+  }
+}
+.rl-chart {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  min-height: 0;
+  max-height: 100%;
+}
+.rl-chart svg {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+.rl-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 12px;
+}
+.rl-key span::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 4px;
+  border: 1px solid var(--ink);
+  vertical-align: -1px;
+}
+.rl-key .new::before {
+  background: var(--tomato-l);
+  border-radius: 50%;
+}
+.rl-key .old::before {
+  background: var(--cobalt-m);
+  height: 3px;
+  vertical-align: 3px;
+}
+.rl-key .share::before {
+  background: var(--mustard-l);
+}
+.rl-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.rl-range {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0;
+}
+.rl-range label {
+  font-weight: 700;
+  font-size: 14px;
+}
+.rl-range input {
+  width: 100%;
+}
+.rl-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+.rl-gates {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.rl-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.rl-headline strong {
+  font:
+    800 30px / 1 ui-monospace,
+    Menlo,
+    monospace;
+}
+.rl-bench {
+  border: 1.5px solid var(--rule);
+  border-radius: 12px;
+  padding: 6px 12px;
+  margin: 8px 0;
+}
+.tc-ledger td.ok {
+  color: var(--ok);
+  font-weight: 800;
+}
+.tc-ledger td.bad {
+  color: var(--bad);
+  font-weight: 800;
+}

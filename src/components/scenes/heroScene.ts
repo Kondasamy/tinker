@@ -60,6 +60,13 @@ import { paintPlot } from './paintScene';
 import { agentDeskPlot } from './deskScene';
 import { copierPlot } from './copierScene';
 import { roomsPlot } from './officeRoomsScene';
+import { cloakPlot } from './cloakScene';
+import { postPlot } from './postScene';
+import { towerPlot } from './towerScene';
+import { signalPlot } from './signalScene';
+import { shelfPlot } from './shelfScene';
+import { recitalPlot } from './recitalScene';
+import { dreamPlot } from './dreamFloorScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
@@ -261,6 +268,13 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   'coding-agents': (x, y, { top }) => agentDeskPlot(x + 14, y - 2, top),
   'synthetic-data': (x, y, { top }) => copierPlot(x + 14, y - 2, top),
   'mixture-of-experts': (x, y, { top }) => roomsPlot(x + 14, y - 4, top),
+  logins: (x, y, { top }) => cloakPlot(x + 14, y - 2, top),
+  email: (x, y, { top }) => postPlot(x + 12, y - 2, top),
+  dependencies: (x, y, { top }) => towerPlot(x + 8, y - 2, top),
+  releases: (x, y, { top }) => signalPlot(x + 14, y - 2, top),
+  recommendations: (x, y, { top }) => shelfPlot(x + 14, y - 2, top),
+  memorisation: (x, y, { top }) => recitalPlot(x + 14, y - 2, top),
+  'video-models': (x, y, { top }) => dreamPlot(x + 8, y - 2, top),
 };
 const LIVE = MODULES.filter(m => m.status === 'live');
 /** the home page's hero and share image, from the registry: the model's call riding to the host */

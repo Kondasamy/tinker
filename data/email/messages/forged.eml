@@ -1,0 +1,16 @@
+Return-Path: <pay@larkspur-billing.example>
+Received: from mx1.hollisbuild.example (mx1.hollisbuild.example [198.51.100.7])
+	by store.hollisbuild.example with LMTP id 9e41; Fri, 30 Oct 2026 17:40:03 +0000
+Received: from mail.larkspur-billing.example (mail.larkspur-billing.example [203.0.113.66])
+	by mx1.hollisbuild.example with ESMTP id 66d1; Fri, 30 Oct 2026 17:40:02 +0000
+From: Larkspur Supply Co. <billing@larkspur.example>
+To: Hollis Builders <accounts@hollisbuild.example>
+Subject: Invoice 1207
+Date: Fri, 30 Oct 2026 17:40:00 +0000
+Message-ID: <invoice-1207-update@larkspur-billing.example>
+
+Invoice 1207 for order 1207, shipped today.
+
+Our account has changed. Please pay 1880.00 to account 9001-5150 within 30 days.
+
+Larkspur Supply Co.

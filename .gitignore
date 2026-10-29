@@ -8,3 +8,6 @@ playwright-report/
 .cache/
 video/**/.hyperframes/
 .impeccable/
+
+# vitest json reporter output
+.vitest/

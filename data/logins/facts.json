@@ -1,0 +1,85 @@
+{
+  "accessed": "2026-10-28",
+  "facts": [
+    {
+      "id": "gpu-sha256",
+      "claim": "One RTX 4090 tried 21,975.5 million SHA-256 guesses a second in Chick3nman’s hashcat 6.2.6 benchmark (October 2022).",
+      "value": "21975500000",
+      "source": "https://gist.github.com/Chick3nman/32e662a5bb63bc4f51b847bb422222fd"
+    },
+    {
+      "id": "gpu-pbkdf2",
+      "claim": "The same RTX 4090 benchmark (October 2022) tried 8,865.7 thousand PBKDF2-HMAC-SHA256 guesses a second at 999 iterations.",
+      "value": "8865700",
+      "source": "https://gist.github.com/Chick3nman/32e662a5bb63bc4f51b847bb422222fd"
+    },
+    {
+      "id": "owasp-pbkdf2",
+      "claim": "OWASP’s Password Storage Cheat Sheet recommends PBKDF2-HMAC-SHA256 at 600,000 iterations, with a unique random salt for every password.",
+      "value": "600000",
+      "source": "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+    },
+    {
+      "id": "owasp-salt",
+      "claim": "OWASP: with salts, nobody can tell whether two users share a password without cracking the hashes, and precomputed tables stop working.",
+      "source": "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+    },
+    {
+      "id": "sp800-132",
+      "claim": "NIST SP 800-132 (December 2010) recommended a PBKDF2 iteration count of at least 1,000.",
+      "value": "1000",
+      "source": "https://csrc.nist.gov/pubs/sp/800/132/final"
+    },
+    {
+      "id": "rfc8018",
+      "claim": "RFC 8018 (2017) specifies PBKDF2: the iteration count makes every password guess cost that many rounds.",
+      "source": "https://www.rfc-editor.org/rfc/rfc8018"
+    },
+    {
+      "id": "nist-blocklist",
+      "claim": "NIST SP 800-63B-4 (August 2025): a site SHALL check a new password against a blocklist of commonly used, expected or compromised passwords.",
+      "source": "https://pages.nist.gov/800-63-4/sp800-63b.html"
+    },
+    {
+      "id": "nist-rate-limit",
+      "claim": "NIST SP 800-63B-4 (August 2025): a site allows no more than 100 failed sign-in attempts in a row on one account.",
+      "value": "100",
+      "source": "https://pages.nist.gov/800-63-4/sp800-63b.html"
+    },
+    {
+      "id": "nist-phishing",
+      "claim": "NIST SP 800-63B-4 (August 2025): one-time codes are not phishing-resistant; WebAuthn keys, as in passkeys, are bound to the real site’s name.",
+      "source": "https://pages.nist.gov/800-63-4/sp800-63b.html"
+    },
+    {
+      "id": "rfc6238",
+      "claim": "RFC 6238 (2011): a time-based one-time password is an HMAC of a shared secret and the current 30-second step.",
+      "source": "https://www.rfc-editor.org/rfc/rfc6238"
+    },
+    {
+      "id": "rfc6265",
+      "claim": "RFC 6265 (2011): an HttpOnly cookie is hidden from page scripts, and a Secure cookie is sent only over encrypted connections.",
+      "source": "https://www.rfc-editor.org/rfc/rfc6265"
+    },
+    {
+      "id": "rfc6749",
+      "claim": "RFC 6749 (2012), OAuth 2.0: the authorization code flow sends the browser away to sign in and back with a short-lived code.",
+      "source": "https://www.rfc-editor.org/rfc/rfc6749"
+    },
+    {
+      "id": "rfc7636",
+      "claim": "RFC 7636 (2015), PKCE: the code challenge is the SHA-256 of a secret verifier, so a stolen code is useless without it.",
+      "source": "https://www.rfc-editor.org/rfc/rfc7636"
+    },
+    {
+      "id": "rfc9700",
+      "claim": "RFC 9700 (January 2025), OAuth security best practice: public clients MUST use PKCE, and every client MUST prevent cross-site request forgery.",
+      "source": "https://www.rfc-editor.org/rfc/rfc9700"
+    },
+    {
+      "id": "oidc-core",
+      "claim": "OpenID Connect Core 1.0: the site must check the ID token’s signature, and that its audience names the site’s own client id.",
+      "source": "https://openid.net/specs/openid-connect-core-1_0.html"
+    }
+  ]
+}

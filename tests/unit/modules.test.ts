@@ -32,6 +32,14 @@ const ROADMAP: [string, string, string?][] = [
   ['email', 'Beginner', 'Classic tech'],
   ['dependencies', 'Intermediate', 'Classic tech'],
   ['releases', 'Intermediate', 'Classic tech'],
+  // docs/plans/2026-10-28-2100-feat-final-seven-roadmap-modules-plan.md takes the seven above live; these follow (KTD14)
+  ['fairness', 'Intermediate'],
+  ['watermarks', 'Intermediate'],
+  ['prompts', 'Beginner'],
+  ['rate-limits', 'Beginner', 'Classic tech'],
+  ['backups', 'Beginner', 'Classic tech'],
+  ['unicode', 'Beginner', 'Classic tech'],
+  ['routes', 'Intermediate', 'Classic tech'],
 ];
 /** true when every id in `ids` is in `list`, in the list's order */
 const inOrder = (ids: string[], list: string[]) => {
@@ -692,6 +700,90 @@ describe('module registry', () => {
     expect(moduleOf('mixture-of-experts').track).toBeUndefined();
     expect(moduleOf('mixture-of-experts').author).toEqual(moduleOf('rag').author);
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'mixture-of-experts')).toBe(38);
+  });
+
+  it('has logins as a live Beginner Classic tech module after Locks and keys, numbered 40', () => {
+    expect(moduleOf('logins')).toMatchObject({
+      title: 'Logins and passwords',
+      level: 'Beginner',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: ['encryption'],
+    });
+    expect(moduleOf('logins').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'logins')).toBe(39);
+  });
+
+  it('has email as a live Beginner Classic tech module after Opening a web page, numbered 41', () => {
+    expect(moduleOf('email')).toMatchObject({
+      title: 'How email arrives',
+      level: 'Beginner',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: ['web-requests'],
+    });
+    expect(moduleOf('email').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'email')).toBe(40);
+  });
+
+  it('has dependencies as a live Intermediate Classic tech module with no prereqs, numbered 42', () => {
+    expect(moduleOf('dependencies')).toMatchObject({
+      title: 'Dependencies',
+      level: 'Intermediate',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('dependencies').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'dependencies')).toBe(41);
+  });
+
+  it('has releases as a live Intermediate Classic tech module with no prereqs, numbered 43', () => {
+    expect(moduleOf('releases')).toMatchObject({
+      title: 'Shipping a release',
+      level: 'Intermediate',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('releases').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'releases')).toBe(42);
+  });
+
+  it('has recommendations as a live Intermediate module with no prereqs, numbered 44', () => {
+    expect(moduleOf('recommendations')).toMatchObject({
+      title: 'Recommendations',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('recommendations').track).toBeUndefined();
+    expect(moduleOf('recommendations').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'recommendations')).toBe(43);
+  });
+
+  it('has memorisation as a live Intermediate module after pre-training, numbered 45', () => {
+    expect(moduleOf('memorisation')).toMatchObject({
+      title: 'What a model remembers',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: ['pre-training'],
+    });
+    expect(moduleOf('memorisation').track).toBeUndefined();
+    expect(moduleOf('memorisation').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'memorisation')).toBe(44);
+  });
+
+  it('has video-models as a live Advanced module after diffusion, numbered 46', () => {
+    expect(moduleOf('video-models')).toMatchObject({
+      title: 'Video and world models',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['diffusion'],
+    });
+    expect(moduleOf('video-models').track).toBeUndefined();
+    expect(moduleOf('video-models').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'video-models')).toBe(45);
   });
 
   it('keeps chapter ids unique within every module', () => {

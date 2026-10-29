@@ -290,6 +290,69 @@ import { promptOf as mePrompt, run as meRun, shownPositions as meShown } from '.
 import { capped as meCapped } from '../lib/mixture-of-experts/capacity';
 import { diskMoe } from '../lib/mixture-of-experts/diskModel';
 import ME_PINNED from '../../data/mixture-of-experts/pinned.json' with { type: 'json' };
+import { CLOAK_BOARD, cloakScene, type CloakOpts } from '../components/scenes/cloakScene';
+import { raceScene as lgRace } from '../content/logins/kit';
+import { sceneOf as lgSticky } from '../content/logins/01-the-sticky-note';
+import { sceneOf as lgHash } from '../content/logins/02-a-one-way-fingerprint';
+import { sceneOf as lgSalt } from '../content/logins/03-a-pinch-of-salt';
+import { sceneOf as lgSlow } from '../content/logins/04-slow-on-purpose';
+import { sceneOf as lgTicket } from '../content/logins/05-the-cloakroom-ticket';
+import { sceneOf as lgGuild } from '../content/logins/06-sign-in-with-another-site';
+import { sceneOf as lgBench } from '../content/logins/07-guard-every-account';
+import { LAST as LG_LAST, WORK as LG_WORK } from '../lib/logins/race';
+import { WINNERS as LG_WINNERS } from '../lib/logins/workbench';
+import { POST_BOARD, postScene, type PostOpts } from '../components/scenes/postScene';
+import { postOf as emPost, type Show as EmShow } from '../content/email/kit';
+import { HOPS as EM_HOPS } from '../content/email/02-who-takes-it-next';
+import { RECORDS as EM_RECORDS, verdictOf as emVerdict, type MessageId as EmId } from '../lib/email/story';
+import { recordsOf as emRecordsOf, WINNERS as EM_WINNERS } from '../lib/email/workbench';
+import type { Records as EmRecords } from '../lib/email/dns';
+import { TOWER_BOARD, towerOf, towerScene, type TowerOpts } from '../components/scenes/towerScene';
+import { diff as dpDiff, install as dpInstall } from '../lib/dependencies/resolve';
+import {
+  BAD_DAY as DP_BAD,
+  FIRST as DP_FIRST,
+  FIRST_LOCK as DP_LOCK,
+  HIJACK_DAY as DP_HIJACK,
+  pinned as dpPinned,
+} from '../lib/dependencies/story';
+import { WINNERS as DP_WINNERS, runPolicy as dpRun } from '../lib/dependencies/workbench';
+import { SIGNAL_BOARD, signalAt, signalScene, type SignalOpts } from '../components/scenes/signalScene';
+import { SCENES as RL_SCENES, runOf as rlRun } from '../lib/releases/sim';
+import { pipelineOf as rlPipeline } from '../lib/releases/pipeline';
+import { WINNERS as RL_WINNERS, benchRun as rlBench } from '../lib/releases/workbench';
+import { SHELF_BOARD, shelfScene, type ShelfOpts } from '../components/scenes/shelfScene';
+import { BASE as RC_BASE, AFTER_FIRST as RC_AFTER } from '../lib/recommendations/factorise';
+import { shelfOf as rcShelfOf, tasteShelf as rcTasteShelf } from '../lib/recommendations/score';
+import { neighbours as rcNeighbours } from '../lib/recommendations/similar';
+import { TRAIN as RC_TRAIN, customerOf as rcCustomer } from '../lib/recommendations/story';
+import { ROUNDS as RC_ROUNDS, itemsOf as rcItemsOf, loopOf as rcLoopOf } from '../lib/recommendations/loop';
+import { WINNERS as RC_WINNERS } from '../lib/recommendations/workbench';
+import { PRINTER as RC_PRINTER, shelfFor as rcTogether } from '../content/recommendations/03-bought-together';
+import { CHOICES as RC_CHOICES, tasteFor as rcNewTaste } from '../content/recommendations/05-new-shopper-new-product';
+import { RECITAL_BOARD, recitalScene, type RecitalOpts } from '../components/scenes/recitalScene';
+import { SAMPLE_PINS as MEM_PINS, columnLabel as memColumn, ledgerOf as memLedger } from '../content/memorisation/kit';
+import { slipOf as memSlip } from '../content/memorisation/07-workbench';
+import { diskCanary } from '../lib/memorisation/diskModel';
+import { extract as memExtract, replyText as memReply } from '../lib/memorisation/extract';
+import { columnPins as memPins, rankAmong as memRank } from '../lib/memorisation/rank';
+import {
+  REPEATS as MEM_REPEATS,
+  RUNS as MEM_RUNS,
+  bits as memBits,
+  canaryOf as memCanary,
+  scoreOf as memScore,
+} from '../lib/memorisation/story';
+import { WINNERS as MEM_WINNERS, scoreOf as memPolicyScore } from '../lib/memorisation/workbench';
+import { RUNS as PT_RUNS } from '../lib/pre-training/engine';
+import MEM_PINNED from '../../data/memorisation/pinned.json' with { type: 'json' };
+import { boardOf as dreamBoard, dreamScene, type DreamOpts } from '../components/scenes/dreamFloorScene';
+import { diskNet } from '../lib/video-models/diskModel';
+import { NO_DRIVE, driven, move as vmMove } from '../lib/video-models/drive';
+import { dream as vmDream, oneStep as vmOneStep } from '../lib/video-models/rollout';
+import { BENCH as VM_BENCH, WINNERS as VM_WINNERS } from '../lib/video-models/workbench';
+import { parseFrame as vmParse, rollout as vmRollout } from '../lib/video-models/world';
+import VM_PINNED from '../../data/video-models/pinned.json' with { type: 'json' };
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -1377,6 +1440,231 @@ const ROOMS_OG: Record<string, () => Omit<RoomsOpts, 'scale'>> = {
   'mixture-of-experts-07-workbench': () => meBusy(2),
 };
 const roomsOg = ROOMS_OG[page.og]?.();
+// module 40: Larkspur's cloakroom. The intro: the race lost at the top work factor, a ticket on the desk; 1: the table
+// copied, every password read; 2: SHA-256 raced to the end; 3: salted, raced to the end; 4: PBKDF2 at the top work
+// factor; 5: the ticket copied; 6: a changed ID token caught; 7: the workbench's first winning plan.
+const LG_TOP = LG_WORK[LG_WORK.length - 1];
+const CLOAK_OG: Record<string, () => Omit<CloakOpts, 'scale'>> = {
+  logins: () => ({ ...lgRace('pbkdf2', LG_TOP, LG_LAST), desk: 'LARKSPUR', ticket: { label: 'TICKET' } }),
+  'logins-01-the-sticky-note': () => lgSticky({ stolen: true }),
+  'logins-02-a-one-way-fingerprint': () => lgHash({ hashed: true, p1: 0, tick: LG_LAST }),
+  'logins-03-a-pinch-of-salt': () => lgSalt({ salted: true, tick: LG_LAST }),
+  'logins-04-slow-on-purpose': () => lgSlow({ form: 'pbkdf2', work: LG_TOP, tick: LG_LAST, p1: 0 }),
+  'logins-05-the-cloakroom-ticket': () => lgTicket({ signedIn: true, stolen: true, signedOut: false }),
+  'logins-06-sign-in-with-another-site': () =>
+    lgGuild({ redirected: true, checked: true, stolen: true, token: 'tampered' }),
+  'logins-07-guard-every-account': () => lgBench(LG_WINNERS[0]),
+};
+const cloakOg = CLOAK_OG[page.og]?.();
+// module 41: the customer's post room. The intro: the forged invoice bounced under reject; 1: the order sorted to junk;
+// 2: the forward with every postmark peeled; 3: the forgery inboxed with no records; 4: SPF failing the spoof; 5: the
+// signed invoice passing DKIM; 6: the forgery bounced; 7: the workbench's first winning records.
+const EM_ALL: EmShow = { spf: true, dkim: true, dmarc: true, spam: true, sorted: true };
+const emAt = (id: EmId, rec: EmRecords, peeled: number, show: EmShow) =>
+  emPost(emVerdict(id, rec), id, rec, peeled, show);
+const POST_OG: Record<string, () => Omit<PostOpts, 'scale'>> = {
+  email: () => emAt('forged', EM_RECORDS.reject, 2, EM_ALL),
+  'email-01-envelope-and-letter': () => emAt('order', EM_RECORDS.nothing, 0, { sorted: true }),
+  'email-02-who-takes-it-next': () => emAt('forwarded', EM_RECORDS.nothing, EM_HOPS.forwarded.length, {}),
+  'email-03-anyone-can-write-from': () => emAt('forged', EM_RECORDS.nothing, 0, { sorted: true }),
+  'email-04-allowed-senders': () => emAt('spoofed', EM_RECORDS.spf, 0, { spf: true, sorted: true }),
+  'email-05-a-seal-on-the-letter': () => emAt('invoice', EM_RECORDS.dkim, 0, { spf: true, dkim: true, sorted: true }),
+  'email-06-what-to-do-with-a-failure': () =>
+    emAt('forged', EM_RECORDS.reject, 0, { spf: true, dkim: true, dmarc: true, sorted: true }),
+  'email-07-mail-records': () => emAt('forged', emRecordsOf(EM_WINNERS[0]), 0, EM_ALL),
+};
+const postOg = POST_OG[page.og]?.();
+// module 42: Larkspur's crate tower. The intro: the install on the bad patch's day; 1: the first install; 2: pricebook
+// forced out of range; 3: the nested copy lit; 4: the bad day held off by the lockfile; 5: the bad day, what moved lit;
+// 6: logline pinned, the hijack in; 7: the workbench's first winning policy on day 18.
+const TOWER_OG: Record<string, () => Omit<TowerOpts, 'scale'>> = {
+  dependencies: () => towerOf(dpInstall({ day: DP_BAD })),
+  'dependencies-01-code-you-did-not-write': () => towerOf(DP_FIRST),
+  'dependencies-02-what-the-numbers-mean': () =>
+    towerOf(dpInstall({ day: 0, overrides: { pricebook: '2.0.0' } }), { lit: ['pricebook'] }),
+  'dependencies-03-packages-need-packages': () => towerOf(DP_FIRST, { lit: ['cartwheel/tidystr'] }),
+  'dependencies-04-the-same-install-every-time': () =>
+    towerOf(dpInstall({ day: DP_BAD, lock: DP_LOCK }), { lock: true }),
+  'dependencies-05-one-bad-patch': () => {
+    const after = dpInstall({ day: DP_BAD });
+    return towerOf(after, { lit: dpDiff(dpInstall({ day: DP_BAD - 1 }), after).map(c => c.path) });
+  },
+  'dependencies-06-who-published-this': () => towerOf(dpInstall({ day: DP_HIJACK, deps: dpPinned('logline') })),
+  'dependencies-07-update-policy': () => towerOf(dpRun(DP_WINNERS[0]).days[17].tree, { lock: true }),
+};
+const towerOg = TOWER_OG[page.og]?.();
+// module 43: Larkspur's signal box. The intro: the staged rollout at its alarm; 1: straight to everyone; 2: the coupon
+// fix stopped by the pipeline; 3: the canary's false alarm; 4: the flag on at 10%; 5: the lever refused after the
+// migration; 6: the staged rollout rolling back; 7: the workbench's first winning plan, everyone at the end.
+const rlStaged = () => rlRun(RL_SCENES.staged);
+const SIGNAL_OG: Record<string, () => Omit<SignalOpts, 'scale'>> = {
+  releases: () => signalAt(rlStaged(), rlStaged().alarmAt!),
+  'releases-01-straight-to-everyone': () => signalAt(rlRun(RL_SCENES.all), 4),
+  'releases-02-tests-on-every-change': () => ({
+    ...signalAt(rlRun(RL_SCENES.calm), 0),
+    pipeline: rlPipeline('coupon'),
+  }),
+  'releases-03-a-few-first': () => {
+    const r = rlRun(RL_SCENES.canary('button', 2));
+    return signalAt(r, r.alarmAt!);
+  },
+  'releases-04-deploy-now-switch-on-later': () =>
+    signalAt(rlRun({ ...RL_SCENES.flag, events: [{ t: 1, kind: 'dial', share: 0.1 }] }), 3),
+  'releases-05-back-it-out': () => signalAt(rlRun({ ...RL_SCENES.migration, events: [{ t: 4, kind: 'back' }] }), 5),
+  'releases-06-step-by-step': () => signalAt(rlStaged(), 7),
+  'releases-07-release-plan': () => signalAt(rlBench(RL_WINNERS[0], 'button'), 30),
+};
+const signalOg = SIGNAL_OG[page.og]?.();
+// module 44: Larkspur's shop aisle. The intro: Ash's hidden-tastes shelf over the map; 1: the bestsellers shelf; 2: people
+// like Hazel beside her; 3: bought together with the label printer; 4: the map under another customer's taste; 5: a new shopper's
+// picks once the K3 has orders; 6: the loop's last round, no exploration; 7: the workbench's first winning setting.
+const rcAsh = rcCustomer('c01'),
+  rcHazel = rcCustomer('c17');
+const rcRound = (blend: number, explore: number) => {
+  const k = rcLoopOf(blend, explore).rounds[RC_ROUNDS];
+  return {
+    view: 'map' as const,
+    shelf: k.shelf,
+    explored: k.shelf.slice(k.shelf.length - explore),
+    shopper: rcCustomer('c02').name,
+    you: k.you,
+    items: rcItemsOf(k),
+  };
+};
+const rcNew = () => {
+  const s = { picks: [RC_CHOICES[2].id, RC_CHOICES[3].id], you: null, after: true };
+  const you = rcNewTaste(s)!;
+  return {
+    view: 'map' as const,
+    shelf: rcTasteShelf(RC_AFTER.items, you, s.picks),
+    shopper: 'New shopper',
+    you,
+    items: RC_AFTER.items,
+  };
+};
+const rcTastes = (c: ReturnType<typeof rcCustomer>) => ({
+  view: 'map' as const,
+  shelf: rcShelfOf('factors', RC_TRAIN, c.id, RC_BASE),
+  shopper: c.name,
+  you: RC_BASE.users[c.id],
+  items: RC_BASE.items,
+});
+const SHELF_OG: Record<string, () => Omit<ShelfOpts, 'scale'>> = {
+  recommendations: () => rcTastes(rcAsh),
+  'recommendations-01-the-bestsellers-shelf': () => ({
+    view: 'aisle',
+    shelf: rcShelfOf('popular', RC_TRAIN, rcAsh.id),
+    shopper: rcAsh.name,
+  }),
+  'recommendations-02-people-like-you': () => ({
+    view: 'aisle',
+    shelf: rcShelfOf('users', RC_TRAIN, rcHazel.id),
+    shopper: rcHazel.name,
+    others: rcNeighbours(RC_TRAIN, rcHazel.id).map(n => rcCustomer(n.id).name),
+  }),
+  'recommendations-03-bought-together': () => ({
+    view: 'aisle',
+    shelf: rcTogether(RC_PRINTER.id),
+    shopper: 'This basket',
+    basket: RC_PRINTER.id,
+  }),
+  'recommendations-04-hidden-tastes': () => rcTastes(rcCustomer('c35')),
+  'recommendations-05-new-shopper-new-product': rcNew,
+  'recommendations-06-the-loop': () => rcRound(1, 0),
+  'recommendations-07-tune-the-shelf': () => rcRound(RC_WINNERS[0].blend, RC_WINNERS[0].explore),
+};
+const shelfOg = SHELF_OG[page.og]?.();
+// module 45: the recital desk. The intro: the most-copied canary recited, its true PIN topping the column; 1: the
+// pre-training run reciting the policy; 2: the planted lines lit; 3: the canary recited; 4: the column alone; 5: the
+// deduplicated model's reply; 6: the scrubbed model; 7: the workbench's first winning policy.
+const memMost = () => memCanary(Math.max(...MEM_REPEATS));
+const memSaid = () => `SAYS ${memExtract(diskCanary(), memMost()).text.trim()}`;
+const memColumnOf = () => {
+  const c = memMost(),
+    r = memRank(diskCanary(), c, memPins(c, MEM_PINS));
+  return { lps: r.lps, label: memColumn(r.rank) };
+};
+const memRunReply = (run: 'dedup' | 'scrubbed', repeats: number) => memReply(memScore(run, repeats).reply).trim();
+const RECITAL_OG: Record<string, () => Omit<RecitalOpts, 'scale'>> = {
+  memorisation: () => ({
+    ledger: memLedger(memMost().repeats),
+    reply: { text: memSaid(), leak: true },
+    column: memColumnOf(),
+  }),
+  'memorisation-01-seen-once-seen-often': () => ({
+    ledger: { label: `POLICY ×${PT_RUNS.duplicated.copies}`, lit: PT_RUNS.duplicated.copies },
+    model: 'PRE-TRAINING RUN',
+    reply: { text: 'RECITES POLICY', leak: true },
+  }),
+  'memorisation-02-a-planted-secret': () => ({ ledger: memLedger(memMost().repeats) }),
+  'memorisation-03-ask-it-to-finish': () => ({
+    ledger: memLedger(memMost().repeats),
+    reply: { text: memSaid(), leak: true },
+  }),
+  'memorisation-04-how-sure-is-it': () => ({ ledger: memLedger(memMost().repeats), column: memColumnOf() }),
+  'memorisation-05-copies-make-it-worse': () => {
+    const m = memMost().repeats,
+      s = memScore('dedup', m);
+    return {
+      ledger: memLedger(m, { dedup: true }),
+      reply: { text: `SAYS ${memRunReply('dedup', m)}`, leak: s.extracted },
+      column: { lps: [], label: `RANK ${s.rank} OF ${MEM_RUNS.candidates.toLocaleString('en')}` },
+    };
+  },
+  'memorisation-06-keep-it-out': () => {
+    const r = MEM_PINNED.bypass.repeats;
+    return {
+      ledger: memLedger(r, { scrub: true }),
+      filter: false,
+      reply: { text: `SAYS ${memRunReply('scrubbed', r)}`, leak: false },
+    };
+  },
+  'memorisation-07-workbench': () => {
+    const p = MEM_WINNERS[0];
+    return {
+      ledger: memLedger(memMost().repeats, { dedup: p.dedup, scrub: p.scrub }),
+      filter: p.filter,
+      reply: memSlip(p),
+      column: { lps: [], label: `EXPOSURE ${memBits(memPolicyScore(p).exposure)}` },
+    };
+  },
+};
+const recitalOg = RECITAL_OG[page.og]?.();
+// module 46: the warehouse floor and its dream. The intro: two steps after the dream lost the crate; 1: the first real
+// frame alone; 2: one guessed frame beside the real one; 3: the one-frame model's bounce guess; 4: a short drive; 5: the
+// dream at its last step; 6: the dream where it lost the crate; 7: the workbench's first winning plan, last step.
+const vmRoute = () => vmRollout(VM_PINNED.seed, VM_PINNED.steps);
+const vmAt = (t: number): Omit<DreamOpts, 'scale'> => ({
+  real: vmRoute().frames[t],
+  dream: vmParse(VM_PINNED.dream[t]),
+  step: t,
+});
+const DREAM_OG: Record<string, () => Omit<DreamOpts, 'scale'>> = {
+  'video-models': () => vmAt(VM_PINNED.kept + 2),
+  'video-models-01-many-pictures': () => ({ real: vmRoute().frames[0], step: 0 }),
+  'video-models-02-guess-the-next-frame': () => {
+    const t = VM_PINNED.oneStep.t + 1;
+    return { real: vmRoute().frames[t], dream: vmOneStep(diskNet('k2'), vmRoute(), t - 1), step: t };
+  },
+  'video-models-03-one-frame-is-not-enough': () => {
+    const t = VM_PINNED.bounce.t;
+    return { real: vmRoute().frames[t + 1], dream: vmOneStep(diskNet('k1'), vmRoute(), t), step: t + 1 };
+  },
+  'video-models-04-press-a-key': () => {
+    const d = driven(diskNet('k2'), VM_PINNED.seed, vmMove(vmMove(vmMove(NO_DRIVE, 4), 4), 2));
+    return { real: d.real.frames[d.at], dream: d.dream.frames[d.at], step: d.at };
+  },
+  'video-models-05-drift': () => vmAt(VM_PINNED.steps - 1),
+  'video-models-06-the-big-ones': () => vmAt(VM_PINNED.kept),
+  'video-models-07-workbench': () => {
+    const w = VM_WINNERS[0],
+      r = vmRollout(VM_BENCH.firstSeed, VM_BENCH.steps),
+      d = vmDream(diskNet(w.model), r, { every: w.every, key: 'bench' }),
+      t = VM_BENCH.steps - 1;
+    return { real: r.frames[t], dream: d.frames[t], step: t, synced: !!d.synced[t] };
+  },
+};
+const dreamOg = DREAM_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1450,6 +1738,13 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : sxOg ? <IsoStage board={CABINET_BOARD} scene={cabinetScene({ ...sxOg, scale: 1.3 })} label="" />
           : townOg ? <IsoStage board={TOWN_BOARD} scene={townScene({ ...townOg, scale: 1.3 })} label="" />
           : webFallOg ? <div class="tf-og ob-og"><WaterfallView run={webFallOg} /></div>
+          : dreamOg ? <IsoStage board={dreamBoard(dreamOg)} scene={dreamScene({ ...dreamOg, scale: 1.3 })} label="" />
+          : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
+          : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />
+          : signalOg ? <IsoStage board={SIGNAL_BOARD} scene={signalScene({ ...signalOg, scale: 1.3 })} label="" />
+          : towerOg ? <IsoStage board={TOWER_BOARD} scene={towerScene({ ...towerOg, scale: 1.3 })} label="" />
+          : postOg ? <IsoStage board={POST_BOARD} scene={postScene({ ...postOg, scale: 1.3 })} label="" />
+          : cloakOg ? <IsoStage board={CLOAK_BOARD} scene={cloakScene({ ...cloakOg, scale: 1.3 })} label="" />
           : roomsOg ? <IsoStage board={ROOMS_BOARD} scene={roomsScene({ ...roomsOg, scale: 1.3 })} label="" />
           : copierOg ? <IsoStage board={COPIER_BOARD} scene={copierScene({ ...copierOg, scale: 1.3 })} label="" />
           : agentDeskOg ? <IsoStage board={DESK_BOARD} scene={deskScene({ ...agentDeskOg, scale: 1.3 })} label="" />

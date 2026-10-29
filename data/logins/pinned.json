@@ -1,0 +1,82 @@
+{
+  "note": "Every value Logins and passwords teaches, rerun by tests/unit/logins-*.test.ts. sha256/salted: each demo account’s fingerprint. pbkdf2: one account at each work factor. race: who has cracked after the last tick. totp: the demo code at the demo time. token/otherToken: ID tokens signed once with Locks and keys’ demo ECDSA key (randomised, so committed and verified live). winners: chapter 7’s pinned WINNERS.",
+  "sha256": {
+    "ada": "7d0c50df99bb292cf41a4ef5a480c943eaa6d369789a043a0cfd78d01d00d9ce",
+    "bram": "7d0c50df99bb292cf41a4ef5a480c943eaa6d369789a043a0cfd78d01d00d9ce",
+    "cora": "1c8bfe8f801d79745c4631d09fff36c82aa37fc4cce4fc946683d7b336b63032",
+    "dev": "8b20c980d3561e791ac24c09c332bee4cec4df8925c65f4cbd9ebf8fbe6973ff",
+    "esme": "d3365367992dbc7e7f5cc252a7a16f2b3234f2d9a64451252011da65e9d44dcb",
+    "finn": "7ca63bda67d5c092336e51166bcf4f643208cd562a3f227cd0abf8b2a391c1d2",
+    "gus": "e2b46da1f1fe90c8280db04a1e2b8dcf6a8727cd84f451066be6960b5cbadee4",
+    "hana": "0b14d501a594442a01c6859541bcb3e8164d183d32937b851835442f69d5c94e",
+    "ivo": "d8466b9302477250d4ba87383db57c07d1a90e38b0d4e109ab12f5a19b9b7bd3",
+    "jo": "fc260ac4d2154b621d6fbc29a630bd193f66a287f282e05998d4c6ec445f6975"
+  },
+  "salted": {
+    "ada": "f5788544315f6f95d7538443dc3c7ebaef1bd3e81d2958df8b38d5f21ee4276f",
+    "bram": "85004b565884adf3f8c3100f7168a44b1bb45503a0da2329c320b0135bcd1b04",
+    "cora": "00fff2b87751a3d81b6a2de6ae33a74b3c6488703fe2ff9cebff3557c8b47560",
+    "dev": "e17d5793d0ae7cd1aabb44656dccabd6497a5bf2cda4e895c5b59e15ecd9a122",
+    "esme": "c1a62791244a0f4905834bd7d11d930825018e4697d0d48ccb6a3128d93cfff9",
+    "finn": "5f75e39c431956aed8ab707383a24cbc91db40009c2462a3b01b7b9e83d0d736",
+    "gus": "e3f9229c1b42be646f8adc9e82d16f8bcae97ac04874564ae8c32943c7756cb7",
+    "hana": "4d15942fcbcf98cd155cf9a03d292823be11e516f247e9d2129678a9df082171",
+    "ivo": "5897ca5649afd93865a282b010eacdf319c5cc3250600a1d68303c4d7392b749",
+    "jo": "0b1453eb78cc2403f992a47a30b6a1d1a531277cc00dd63b9e22c6c383b6d601"
+  },
+  "pbkdf2": {
+    "account": "esme",
+    "hex": {
+      "1000": "b3082b9427dde7b332bd8718317d44b6fc2c003a5193da1aa84532ac7af22e00",
+      "100000": "463f79c19e5b89e52ff4e3fa8af5e7b64e5cab1484cd8d7c63752b399d7b7aed",
+      "600000": "58a8b0f827a1179558e7dc99797481f5c0fefd81c51eab310fcb66d64facfffc"
+    }
+  },
+  "race": {
+    "sha256:1": [
+      "ada",
+      "bram",
+      "cora",
+      "dev",
+      "finn",
+      "hana",
+      "ivo"
+    ],
+    "salted:1": [
+      "ada",
+      "bram",
+      "cora",
+      "dev",
+      "finn",
+      "hana",
+      "ivo"
+    ],
+    "pbkdf2:1000": [
+      "ada",
+      "bram",
+      "cora",
+      "dev",
+      "hana"
+    ],
+    "pbkdf2:100000": [
+      "ada",
+      "bram",
+      "cora",
+      "dev",
+      "hana"
+    ],
+    "pbkdf2:600000": [
+      "ada",
+      "bram",
+      "cora",
+      "hana"
+    ]
+  },
+  "totp": "672339",
+  "token": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRlbW8ifQ.eyJpc3MiOiJodHRwczovL2lkLmJ1aWxkZXJzZ3VpbGQuZXhhbXBsZSIsInN1YiI6ImVzbWUiLCJhdWQiOiJsYXJrc3B1ci10cmFkZSIsImlhdCI6MTc5MzE3ODAwMCwiZXhwIjoxNzkzMTgxNjAwfQ.RUydEIDhg8UcNfHx2x09kypKy3Ju2sWSfKUoXL9p4YTO0dIq8yOyZeLH5SBzPhY4-myM89TSD2k4HSIsPkU0vQ",
+  "otherToken": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRlbW8ifQ.eyJpc3MiOiJodHRwczovL2lkLmJ1aWxkZXJzZ3VpbGQuZXhhbXBsZSIsInN1YiI6ImVzbWUiLCJhdWQiOiJ0b29saGlyZS1hcHAiLCJpYXQiOjE3OTMxNzgwMDAsImV4cCI6MTc5MzE4MTYwMH0.-1TaWMhLW4KI7HFiPA6ipwkGdpbZZn0kgHU1z3SoLc6pZS-ehOPoaC3bsTe7IfzXmCvkhFjso8Ar5ew14eFdOQ",
+  "winners": [
+    "store:pbkdf2-100000,builder2fa:totp,builderSession:month,staff2fa:totp,staffSession:hour",
+    "store:pbkdf2-600000,builder2fa:totp,builderSession:month,staff2fa:totp,staffSession:hour"
+  ]
+}

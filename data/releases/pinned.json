@@ -1,0 +1,107 @@
+{
+  "workbench": {
+    "best": 4,
+    "winners": [
+      {
+        "canary": 0.01,
+        "bake": 2,
+        "flag": true,
+        "threshold": 0.02
+      },
+      {
+        "canary": 0.25,
+        "bake": 2,
+        "flag": true,
+        "threshold": 0.02
+      },
+      {
+        "canary": 0.25,
+        "bake": 2,
+        "flag": true,
+        "threshold": 0.05
+      }
+    ]
+  },
+  "scenes": {
+    "all": {
+      "hurt": 282,
+      "fullAt": 2,
+      "alarmAt": null,
+      "backAt": null,
+      "safeAt": null,
+      "refusedAt": null
+    },
+    "allBack": {
+      "hurt": 45,
+      "fullAt": 2,
+      "alarmAt": null,
+      "backAt": 4,
+      "safeAt": 9,
+      "refusedAt": null
+    },
+    "falseAlarm": {
+      "hurt": 0,
+      "fullAt": null,
+      "alarmAt": 3,
+      "backAt": 3,
+      "safeAt": 8,
+      "refusedAt": null
+    },
+    "longBake": {
+      "hurt": 0,
+      "fullAt": 12,
+      "alarmAt": null,
+      "backAt": null,
+      "safeAt": null,
+      "refusedAt": null
+    },
+    "miss": {
+      "hurt": 24,
+      "fullAt": 12,
+      "alarmAt": null,
+      "backAt": null,
+      "safeAt": null,
+      "refusedAt": null
+    },
+    "caught": {
+      "hurt": 5,
+      "fullAt": null,
+      "alarmAt": 11,
+      "backAt": 11,
+      "safeAt": 16,
+      "refusedAt": null
+    },
+    "flag": {
+      "hurt": 1,
+      "fullAt": null,
+      "alarmAt": null,
+      "backAt": 5,
+      "safeAt": 6,
+      "refusedAt": null
+    },
+    "refused": {
+      "hurt": 55,
+      "fullAt": null,
+      "alarmAt": null,
+      "backAt": null,
+      "safeAt": null,
+      "refusedAt": 4
+    },
+    "expanded": {
+      "hurt": 12,
+      "fullAt": null,
+      "alarmAt": null,
+      "backAt": 4,
+      "safeAt": 9,
+      "refusedAt": null
+    },
+    "staged": {
+      "hurt": 1,
+      "fullAt": null,
+      "alarmAt": 5,
+      "backAt": 5,
+      "safeAt": 10,
+      "refusedAt": null
+    }
+  }
+}

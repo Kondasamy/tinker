@@ -1,0 +1,45 @@
+{
+  "accessed": "2026-10-28",
+  "facts": [
+    {
+      "id": "canary",
+      "claim": "Google’s SRE Workbook defines canarying as a partial and time-limited deployment of a change, and its evaluation: the part that gets the change is the canary, the rest is the control.",
+      "source": "https://sre.google/workbook/canarying-releases/"
+    },
+    {
+      "id": "canary-compare",
+      "claim": "The same chapter calls canarying effectively an A/B test: if the canary’s error ratio is similar to the control’s, the deployment goes on.",
+      "source": "https://sre.google/workbook/canarying-releases/"
+    },
+    {
+      "id": "canary-strict",
+      "claim": "It warns that a check that is overly strict gives lots of false positives, and that a canary should last long enough to be representative.",
+      "source": "https://sre.google/workbook/canarying-releases/"
+    },
+    {
+      "id": "canary-rollback",
+      "claim": "For a bad canary, it says to pause and roll back the deployment, or call a person to help.",
+      "source": "https://sre.google/workbook/canarying-releases/"
+    },
+    {
+      "id": "toggles",
+      "claim": "Pete Hodgson, on martinfowler.com, describes feature toggles as patterns for delivering new functionality rapidly but safely, separating a feature’s release from the code’s deployment.",
+      "source": "https://martinfowler.com/articles/feature-toggles.html"
+    },
+    {
+      "id": "parallel-change",
+      "claim": "Danilo Sato (martinfowler.com, 2014) describes parallel change for backward-incompatible changes: expand to support old and new, migrate every user, then contract to remove the old.",
+      "source": "https://martinfowler.com/bliki/ParallelChange.html"
+    },
+    {
+      "id": "dora",
+      "claim": "DORA measures software delivery with change lead time, deployment frequency, change fail rate, failed deployment recovery time and deployment rework rate.",
+      "source": "https://dora.dev/guides/dora-metrics-four-keys/"
+    },
+    {
+      "id": "dora-recovery",
+      "claim": "DORA defines failed deployment recovery time as the time it takes to recover from a deployment that fails and needs immediate intervention.",
+      "source": "https://dora.dev/guides/dora-metrics-four-keys/"
+    }
+  ]
+}

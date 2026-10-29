@@ -1,0 +1,56 @@
+{
+  "note": "Hand-written changes to Larkspur’s checkout, made up for teaching. Each carries the error rate it truly has, a planning number, never measured.",
+  "gates": [
+    { "id": "build", "name": "Build" },
+    { "id": "unit", "name": "Unit tests" },
+    { "id": "checkout", "name": "Checkout tests" }
+  ],
+  "changes": [
+    {
+      "id": "new-checkout",
+      "name": "New checkout page",
+      "short": "new checkout",
+      "rate": 0.08,
+      "bug": "the Pay button fails for cards saved last year"
+    },
+    {
+      "id": "coupon",
+      "name": "Coupon box fix",
+      "short": "coupon fix",
+      "rate": 0.3,
+      "bug": "a coupon empties the basket",
+      "caughtBy": "checkout"
+    },
+    {
+      "id": "address",
+      "name": "Address form tweak",
+      "short": "address tweak",
+      "rate": 0.05,
+      "bug": "long street names stop the form"
+    },
+    { "id": "button", "name": "Bigger Buy button", "short": "bigger button", "rate": 0.01 },
+    {
+      "id": "tax",
+      "name": "Tax rounding",
+      "short": "tax rounding",
+      "rate": 0.02,
+      "bug": "some totals round a penny wrong and the card is refused"
+    },
+    {
+      "id": "gift",
+      "name": "Gift wrap option",
+      "short": "gift wrap",
+      "rate": 0.12,
+      "bug": "ticking gift wrap loses the delivery address"
+    },
+    {
+      "id": "saved-cards",
+      "name": "Saved cards table",
+      "short": "saved cards",
+      "rate": 0.06,
+      "bug": "some saved cards come back blank",
+      "migration": true
+    },
+    { "id": "wishlist", "name": "Wishlist link", "short": "wishlist", "rate": 0.01 }
+  ]
+}

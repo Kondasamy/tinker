@@ -1,0 +1,156 @@
+---
+// Dev-only eyeball page: the shop aisle in the states the chapters teach (static SVG, wide and phone), then the stage
+// live with its marker, shopper select and read-out, and the ranking table. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { SHELF_BOARD, shelfLabel, shelfScene, type ShelfOpts } from '../components/scenes/shelfScene';
+import { RankingView, RecsStage } from '../content/recommendations/kit';
+import { AFTER_FIRST, BASE, tasteOf } from '../lib/recommendations/factorise';
+import { ROUNDS, itemsOf, loopOf } from '../lib/recommendations/loop';
+import { methodRows, shelfOf, tasteShelf, togetherRows } from '../lib/recommendations/score';
+import { neighbours } from '../lib/recommendations/similar';
+import { NEW_PRODUCT, TRAIN, customerOf } from '../lib/recommendations/story';
+import { WINNERS } from '../lib/recommendations/workbench';
+
+const ash = customerOf('c01'),
+  hazel = customerOf('c17');
+const newTaste = tasteOf(BASE.items, ['label-roll', 'shelving-bay'])!;
+const loopAt = (b: number, e: number, r: number) => loopOf(b, e).rounds[r];
+const narrow = loopAt(1, 0, ROUNDS),
+  held = loopAt(1, 1, ROUNDS),
+  best = loopAt(WINNERS[0].blend, WINNERS[0].explore, ROUNDS);
+const STATES: [string, Omit<ShelfOpts, 'scale'>][] = [
+  [
+    'Bestsellers, Ash Joinery',
+    {
+      view: 'aisle',
+      shelf: shelfOf('popular', TRAIN, ash.id),
+      shopper: ash.name,
+      say: { block: 'shelf', text: 'Top five' },
+    },
+  ],
+  [
+    'People like you, Hazel Carpentry',
+    {
+      view: 'aisle',
+      shelf: shelfOf('users', TRAIN, hazel.id),
+      shopper: hazel.name,
+      others: neighbours(TRAIN, hazel.id).map(n => customerOf(n.id).name),
+      say: { block: 'others', text: 'Most alike' },
+    },
+  ],
+  [
+    'Bought together, label printer',
+    {
+      view: 'aisle',
+      shelf: togetherRows(TRAIN, 'label-printer')
+        .slice(0, 5)
+        .map(r => r.id),
+      shopper: 'This basket',
+      basket: 'label-printer',
+    },
+  ],
+  [
+    'Taste map, Ash Joinery',
+    {
+      view: 'map',
+      shelf: shelfOf('factors', TRAIN, ash.id, BASE),
+      shopper: ash.name,
+      you: BASE.users[ash.id],
+      items: BASE.items,
+      say: { block: 'map', text: 'Taste map' },
+    },
+  ],
+  [
+    'Cold start: new shopper, K3 off the map',
+    {
+      view: 'map',
+      shelf: tasteShelf(BASE.items, newTaste, []),
+      shopper: 'New shopper',
+      you: newTaste,
+      items: BASE.items,
+      ghost: NEW_PRODUCT,
+      say: { block: 'new', text: 'No orders yet' },
+    },
+  ],
+  [
+    'After the K3’s first orders',
+    {
+      view: 'map',
+      shelf: tasteShelf(AFTER_FIRST.items, newTaste, []),
+      shopper: 'New shopper',
+      you: newTaste,
+      items: AFTER_FIRST.items,
+    },
+  ],
+  [
+    `Loop, no exploration, round ${ROUNDS}`,
+    { view: 'map', shelf: narrow.shelf, shopper: 'Bramble Interiors', you: narrow.you, items: itemsOf(narrow) },
+  ],
+  [
+    `Loop, one random slot, round ${ROUNDS}`,
+    {
+      view: 'map',
+      shelf: held.shelf,
+      explored: held.shelf.slice(4),
+      shopper: 'Bramble Interiors',
+      you: held.you,
+      items: itemsOf(held),
+    },
+  ],
+  [
+    'A winning setting',
+    {
+      view: 'map',
+      shelf: best.shelf,
+      explored: best.shelf.slice(5 - WINNERS[0].explore),
+      shopper: 'Bramble Interiors',
+      you: best.you,
+      items: itemsOf(best),
+    },
+  ],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Recommendations scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Shop aisle: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={SHELF_BOARD} scene={shelfScene({ ...o, scale: 1.2 })} label={shelfLabel(o)} /></div>
+            <div class="phone"><IsoStage board={SHELF_BOARD} scene={shelfScene({ ...o, scale: 2 })} label={shelfLabel(o)} /></div>
+            <p>{shelfLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Marker and select (static here)</h2><div class="stage"><RecsStage shelf={STATES[3][1]} rows={methodRows('factors', TRAIN, ash.id, BASE)} scoreName="Taste match" caption="<script>alert(1)</script>" pick={{ value: ash.id, options: [{ id: ash.id, name: ash.name }], onPick: () => {} }} onMove={() => {}} /></div></section>
+        <section><h2>Ranking table</h2><div class="stage"><RankingView rows={methodRows('users', TRAIN, hazel.id)} scoreName="Similarity of its buyers" shelf={shelfOf('users', TRAIN, hazel.id)} /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 560px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

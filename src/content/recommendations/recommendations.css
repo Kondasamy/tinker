@@ -1,0 +1,128 @@
+/* Recommendations stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in
+   through tool-calling/kit). These are the marker over the taste map, the shopper select, the read-out, the round
+   stepper, the ranking table and the bench. Motion (a product sliding onto the shelf, the marker gliding) plays only
+   when motion is allowed; with reduced motion the shelf and the marker update at once. */
+.rc-marker {
+  cursor: grab;
+  outline: none;
+  touch-action: none;
+}
+.rc-marker .rc-hit {
+  fill: transparent;
+}
+.rc-marker .rc-ring {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.4;
+  stroke-dasharray: 3 3;
+}
+.rc-marker:focus-visible .rc-ring {
+  stroke-width: 3;
+  stroke-dasharray: none;
+}
+.rc-marker:focus-visible .rc-hit {
+  fill: rgba(255, 182, 39, 0.35);
+}
+.rc-pick,
+.rc-round {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 14px;
+}
+.rc-pick select {
+  font: inherit;
+  min-height: 36px;
+  max-width: 100%;
+}
+.rc-round .chip {
+  min-height: 44px;
+}
+.rc-readout {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  min-height: 1.5em;
+}
+.rc-rank {
+  overflow: auto;
+  align-self: stretch;
+  max-height: 100%;
+}
+.rc-rank:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.rc-rank tr[data-shelf] {
+  font-weight: 800;
+  box-shadow: inset 4px 0 0 var(--acc);
+}
+.rc-tag {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+}
+.rc-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.rc-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.rc-headline strong {
+  font:
+    800 30px / 1 ui-monospace,
+    Menlo,
+    monospace;
+}
+.rc-bench {
+  border: 1.5px solid var(--rule);
+  border-radius: 12px;
+  padding: 6px 12px;
+  margin: 8px 0;
+}
+.rc-bench fieldset,
+.rc-choose {
+  border: 0;
+  padding: 0;
+  margin: 6px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+.rc-bench legend,
+.rc-choose legend {
+  font-weight: 800;
+  font-size: 14px;
+  padding: 0;
+}
+.rc-bench fieldset label,
+.rc-choose label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .rc-stage .rc-item {
+    animation: rc-slide 0.35s ease-out;
+  }
+  .rc-stage .rc-marker {
+    transition: transform 0.15s ease-out;
+  }
+}
+@keyframes rc-slide {
+  from {
+    opacity: 0.2;
+    transform: translateY(-6px);
+  }
+}

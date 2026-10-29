@@ -1,0 +1,250 @@
+---
+// What a model remembers module intro: sets the scene before chapter 1. Static, except the warm-up and a small script
+// that marks finished chapters. Every example is the module's own data: the canary model's replies and rankings,
+// drawn at build time from the weights on disk (the toy), its offline runs (runs.json), and claims quoted from
+// data/memorisation/facts.json.
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import Meta from '../../components/Meta.astro';
+import IsoStage from '../../lib/iso/IsoStage';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import { RECITAL_BOARD, recitalLabel, recitalScene, type RecitalOpts } from '../../components/scenes/recitalScene';
+import { SAMPLE_PINS, columnLabel, ledgerOf } from '../../content/memorisation/kit';
+import { diskCanary } from '../../lib/memorisation/diskModel';
+import { extract, replyText } from '../../lib/memorisation/extract';
+import { filterReply } from '../../lib/memorisation/filter';
+import { columnPins, rankAmong } from '../../lib/memorisation/rank';
+import { REPEATS, RUNS, bits, canaryOf, firstName, pct, scoreOf } from '../../lib/memorisation/story';
+import { fact } from '../../lib/memorisation/facts';
+import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { introMeta } from '../../lib/pages';
+import { longDate } from '../../lib/format';
+
+const MODULE = moduleOf('memorisation');
+const CHAPTERS = MODULE.chapters;
+const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const model = diskCanary();
+const MOST = canaryOf(Math.max(...REPEATS)),
+  ONCE = canaryOf(Math.min(...REPEATS));
+const said = (c: typeof MOST) => extract(model, c);
+const col = (c: typeof MOST) => rankAmong(model, c, columnPins(c, SAMPLE_PINS));
+const pic = (o: RecitalOpts): RecitalOpts => ({ ...o, scale: 1.4 });
+const top = col(MOST);
+const HERO = pic({
+  ledger: ledgerOf(MOST.repeats),
+  reply: { text: `SAYS ${said(MOST).text.trim()}`, leak: true },
+  column: { lps: top.lps, label: columnLabel(top.rank) },
+});
+const N = RUNS.candidates.toLocaleString('en');
+const IDEAS: [string, string, ReturnType<typeof fact>, RecitalOpts][] = [
+  ['Copies get recited', 'A line seen often comes back word for word', fact('carlini-2021'), HERO],
+  [
+    'Rank every guess',
+    'Exposure: how far above chance the secret ranks',
+    fact('carlini-2019'),
+    pic({ ledger: ledgerOf(ONCE.repeats), column: { lps: col(ONCE).lps, label: columnLabel(col(ONCE).rank) } }),
+  ],
+  [
+    'Remove duplicates',
+    'Fewer copies, less reciting',
+    fact('kandpal-2022'),
+    pic({
+      ledger: ledgerOf(MOST.repeats, { dedup: true }),
+      reply: { text: `SAYS ${replyText(scoreOf('dedup', MOST.repeats).reply).trim()}` },
+    }),
+  ],
+  [
+    'Scrub before training',
+    'Keep secrets out: scrub, or train with privacy built in',
+    fact('abadi-2016'),
+    pic({
+      ledger: ledgerOf(MOST.repeats, { scrub: true }),
+      reply: { text: `SAYS ${replyText(scoreOf('scrubbed', MOST.repeats).reply).trim()}` },
+    }),
+  ],
+];
+const FACTS: [string, string][] = [
+  [String(REPEATS.length), 'fake PINs planted in training, labelled fake'],
+  [String(RUNS.runs.canary.canaries.filter(c => c.extracted).length), 'recited word for word when asked'],
+  [
+    String(scoreOf('canary', ONCE.repeats).rank),
+    `the once-seen PIN’s rank of ${N} (chance: about ${(RUNS.candidates / 2).toLocaleString('en')})`,
+  ],
+  [pct(RUNS.runs.scrubbed.heldout.top5), 'held-out top-5 with the PINs scrubbed out'],
+];
+---
+<html lang="en">
+  <head>
+    <Meta {...introMeta(MODULE.id)} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module {NUMBER} · {MODULE.title}</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span> · after <a href="/pre-training/">{moduleOf('pre-training').title}</a> · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+          <h1>A model can recite what it saw often</h1>
+          <p class="lede">Larkspur wants to train on tickets that hold card numbers. Here you plant fake PINs, pull them back out, and find the one fix that keeps secrets safe.</p>
+          <div class="ctas">
+            <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+          <ReadingMode />
+        </div>
+        <div class="hero-pic">
+          {/* the support desk every chapter plays in: the most-copied PIN recited, and ranked first */}
+          <IsoStage board={RECITAL_BOARD} scene={recitalScene(HERO)} label={recitalLabel(HERO)} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="idea">
+        <p class="kicker">The whole idea in one example</p>
+        <h2 id="idea">Two fake PINs, one prompt each</h2>
+        <div class="versus">
+          <article class="reply">
+            <header><h3>Seen {MOST.repeats} times</h3><span class="stamp">recited</span></header>
+            <p class="said">“{said(MOST).text.trim()}”</p>
+            <p class="cap">“{MOST.prefix.text} …” comes back with {firstName(MOST)}’s own PIN.</p>
+          </article>
+          <article class="reply read">
+            <header><h3>Seen once</h3><span class="stamp">rank {scoreOf('canary', ONCE.repeats).rank}</span></header>
+            <p class="said">“{said(ONCE).text.trim()}”</p>
+            <p class="cap">{firstName(MOST)}’s PIN, not {firstName(ONCE)}’s, yet {firstName(ONCE)}’s still ranks {scoreOf('canary', ONCE.repeats).rank} of {N}: exposure {bits(scoreOf('canary', ONCE.repeats).exposure)} bits.</p>
+          </article>
+        </div>
+        <p class="note more">Larkspur’s toy: a tiny model trained offline with four fake PINs planted in its text; replies run from its weights. After an output filter the first reply reads “{filterReply(said(MOST).text).trim()}”, yet asked one digit at a time it still leaks.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Four ideas carry the module</h2>
+        <ol class="steps">
+          {IDEAS.map(([name, short, f, o], i) => (
+            <li>
+              <div class="pic"><IsoStage board={RECITAL_BOARD} scene={recitalScene(o)} label={recitalLabel(o)} /></div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              <p class="more">{f.claim}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">Larkspur’s old tickets</h2>
+          <p class="more">{MODULE.story} <strong>You’re on the team that decides what goes into training.</strong></p>
+          <p class="prev">Played <a href="/pre-training/">Pre-training</a>? It teaches what a data mix does; here, what leaks back out of one.</p>
+        </div>
+        <dl class="facts">
+          {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}
+        </dl>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due; the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <ul class="who-chips"><li>Engineers</li><li>Product managers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Anyone deciding whether customer data can go into a model’s training text, and what to do to it first. Knowing that a model is trained on text is enough.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com" target="_blank" rel="noopener">Samy (Kondasamy Jayaraman)</a>.</p>
+        <p>The illustrations are drawn with <a href="https://april-zhu.com/colorfigures">Colorfigures</a> by <a href="https://april-zhu.com/">April Zhu</a>, whose hand-inked isometric style and engine this course is built on. Colorfigures grew from April’s <a href="https://isoglow.dev">ISO-GLOW</a>, which builds on <a href="https://github.com/MrBongoC/ai-iso-skill">iso-figure</a> by Tolga Cohce. All MIT licensed. Thank you.</p>
+      </footer>
+    </main>
+
+    <script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      const CHAPTERS = moduleOf('memorisation').chapters;
+      const done = completed('memorisation');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('memorisation', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .module-meta a { color: var(--ink); }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.read { border-left: 6px solid var(--acc); }
+  .said { font-size: 28px; font-weight: 900; }
+
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); white-space: nowrap; }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 240px; display: flex; justify-content: center; margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: auto !important; height: 100% !important; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .prev { font-size: 14px; color: var(--muted); }
+  .prev a { color: var(--ink); }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
+
+  .pair { display: grid; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+    .steps .pic { height: 200px; }
+  }
+</style>

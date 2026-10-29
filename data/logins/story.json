@@ -1,0 +1,19 @@
+{
+  "note": "The people, sites and demo values for Logins and passwords, written for this site. Every domain is reserved for documentation (RFC 2606). The TOTP secret, the session ids, the PKCE verifier and the codes are demo values, public on purpose and used nowhere else.",
+  "company": "Larkspur Supply Co.",
+  "site": "trade.larkspur.example",
+  "guild": { "name": "Builders’ Guild", "short": "Guild", "issuer": "https://id.buildersguild.example" },
+  "client": "larkspur-trade",
+  "otherClient": "toolhire-app",
+  "redirect": "https://trade.larkspur.example/callback",
+  "state": "woP_IVgeK25S0_Gb",
+  "forgedState": "VqPH8IHZR8HZiuyZCEsLaQEA",
+  "verifier": "qdkh3sUbr2O9R0eXLju6Ki0TlAD8HxqaJr3jH_cw-4w",
+  "thiefVerifier": "4Z1bsK1vY39hNnuO2fMdf00T4Z1bsK1vY39hNnuO2fM",
+  "code": "SplxlOBeZQQYbYS6WxSbIA",
+  "signer": "esme",
+  "cookieVictim": "jo",
+  "session": "f3a9c2e1d7b64a08",
+  "totpSecret": "4c61726b7370757220646f20746f74702064656d6f",
+  "now": "2026-10-28T09:00:00Z"
+}

@@ -1,0 +1,14 @@
+Return-Path: <win@prize-draw.example>
+Received: from mx1.hollisbuild.example (mx1.hollisbuild.example [198.51.100.7])
+	by store.hollisbuild.example with LMTP id d811; Wed, 28 Oct 2026 03:12:45 +0000
+Received: from mail.prize-draw.example (mail.prize-draw.example [203.0.113.90])
+	by mx1.hollisbuild.example with ESMTP id 9a0c; Wed, 28 Oct 2026 03:12:44 +0000
+From: Prize Desk <win@prize-draw.example>
+To: Hollis Builders <accounts@hollisbuild.example>
+Subject: You are a winner! Claim your free prize now
+Date: Wed, 28 Oct 2026 03:12:40 +0000
+Message-ID: <claim-55120@prize-draw.example>
+
+Congratulations, you are our lucky winner!
+
+Claim your free cash prize now. Click here, act fast: this offer expires tonight.

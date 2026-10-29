@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import TheStickyNote from '../../content/logins/01-the-sticky-note';
+import AOneWayFingerprint from '../../content/logins/02-a-one-way-fingerprint';
+import APinchOfSalt from '../../content/logins/03-a-pinch-of-salt';
+import SlowOnPurpose from '../../content/logins/04-slow-on-purpose';
+import TheCloakroomTicket from '../../content/logins/05-the-cloakroom-ticket';
+import SignInWithAnotherSite from '../../content/logins/06-sign-in-with-another-site';
+import GuardEveryAccount from '../../content/logins/07-guard-every-account';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('logins').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="logins" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-the-sticky-note' ? <TheStickyNote client:load />
+    : chapter === '02-a-one-way-fingerprint' ? <AOneWayFingerprint client:load />
+    : chapter === '03-a-pinch-of-salt' ? <APinchOfSalt client:load />
+    : chapter === '04-slow-on-purpose' ? <SlowOnPurpose client:load />
+    : chapter === '05-the-cloakroom-ticket' ? <TheCloakroomTicket client:load />
+    : chapter === '06-sign-in-with-another-site' ? <SignInWithAnotherSite client:load />
+    : <GuardEveryAccount client:load />}
+</ChapterLayout>

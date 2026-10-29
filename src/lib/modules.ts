@@ -38,6 +38,13 @@ import { ENCRYPTION_MODULE } from '../content/encryption/module';
 import { CODING_AGENTS_MODULE } from '../content/coding-agents/module';
 import { SYNTHETIC_DATA_MODULE } from '../content/synthetic-data/module';
 import { MIXTURE_OF_EXPERTS_MODULE } from '../content/mixture-of-experts/module';
+import { LOGINS_MODULE } from '../content/logins/module';
+import { EMAIL_MODULE } from '../content/email/module';
+import { DEPENDENCIES_MODULE } from '../content/dependencies/module';
+import { RELEASES_MODULE } from '../content/releases/module';
+import { RECOMMENDATIONS_MODULE } from '../content/recommendations/module';
+import { MEMORISATION_MODULE } from '../content/memorisation/module';
+import { VIDEO_MODELS_MODULE } from '../content/video-models/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -135,50 +142,57 @@ export const MODULES: Module[] = [
   CODING_AGENTS_MODULE,
   SYNTHETIC_DATA_MODULE,
   MIXTURE_OF_EXPERTS_MODULE,
+  LOGINS_MODULE,
+  EMAIL_MODULE,
+  DEPENDENCIES_MODULE,
+  RELEASES_MODULE,
+  RECOMMENDATIONS_MODULE,
+  MEMORISATION_MODULE,
+  VIDEO_MODELS_MODULE,
   planned(
-    'memorisation',
-    'What a model remembers',
+    'fairness',
+    'Bias and fairness',
     'Intermediate',
-    'What a model keeps from its training text: memorised lines, how they leak back out, and keeping private data out.',
+    'Who a model gets wrong: error rates group by group, where the skew comes from, and what a fix costs.',
   ),
   planned(
-    'video-models',
-    'Video and world models',
-    'Advanced',
-    'Models that make moving pictures: frames that agree over time, and models that guess what a world does next.',
-  ),
-  planned(
-    'recommendations',
-    'Recommendations',
+    'watermarks',
+    'Watermarks and made-by-AI',
     'Intermediate',
-    'Why the shop shows you this drill: what you and people like you bought, ranked, and the loop it feeds.',
+    'Marking generated text and pictures so they can be spotted later, and why a detector can only guess.',
   ),
   planned(
-    'logins',
-    'Logins and passwords',
+    'prompts',
+    'Writing a prompt',
     'Beginner',
-    'How a site knows it is you: hashed and salted passwords, a session cookie, and signing in with another site.',
-    'Classic tech',
+    'Telling a model what you want: clear instructions, a few good examples, and testing the prompt like code.',
   ),
   planned(
-    'email',
-    'How email arrives',
+    'rate-limits',
+    'Rate limits',
     'Beginner',
-    'How a message crosses the internet: mail servers that pass it on, SPF and DKIM that vouch for it, and spam.',
+    'Why a busy site says slow down: a bucket of tokens, a 429 reply, and who gets turned away first.',
     'Classic tech',
   ),
   planned(
-    'dependencies',
-    'Dependencies',
-    'Intermediate',
-    'Code you did not write: a package manager, version ranges, the lockfile, and one package that breaks the rest.',
+    'backups',
+    'Backups and recovery',
+    'Beginner',
+    'Copies that save you on a bad day: how often to copy, testing the restore, and how much you can lose.',
     'Classic tech',
   ),
   planned(
-    'releases',
-    'Shipping a release',
+    'unicode',
+    'Text and Unicode',
+    'Beginner',
+    'How letters become bytes: one number for every character, UTF-8, and why an emoji breaks a form.',
+    'Classic tech',
+  ),
+  planned(
+    'routes',
+    'Finding the way',
     'Intermediate',
-    'How new code reaches everyone: tests on every change, a canary first, feature flags, and a rollback.',
+    'How a map app picks your route: roads as a graph, the shortest path, and live traffic that changes it.',
     'Classic tech',
   ),
 ];

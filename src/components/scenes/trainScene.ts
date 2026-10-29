@@ -30,6 +30,9 @@ import type { Weights } from '../../lib/lm/load';
 import type { Version } from '../../lib/fine-tuning/engine';
 import type { Say } from '../story/steps';
 
+/** The weights the fine-tuning chapters train and compare. */
+export type TuneWeights = Exclude<Weights, 'student' | 'mlm' | 'moe' | 'canary'>;
+
 export const TRAIN_BOARD: Board = [0, 0, 160, 124];
 
 /** What a lever changes: the engine's three ways (a prompt, documents, weights). */
@@ -40,7 +43,7 @@ export interface TrainOpts {
   /** the lever pulled and lit (none: the bench at rest) */
   lit?: Approach | null;
   /** the weights the model runs: the base, the full fine-tune, or the base with the LoRA adapter clipped on */
-  weights?: Exclude<Weights, 'student' | 'mlm' | 'moe'>;
+  weights?: TuneWeights;
   /** pill size; phones pass more */
   scale?: number;
   /** the step's callout: a lit pill over one of TRAIN_PARTS */
@@ -50,7 +53,7 @@ export interface TrainOpts {
 /** The parts a step's callout may point at: the ones with a name pill (a lever by its approach). */
 export const TRAIN_PARTS = ['model', 'adapter', ...APPROACHES] as const;
 
-const MODEL_NAME: Record<Exclude<Weights, 'student' | 'mlm' | 'moe'>, string> = {
+const MODEL_NAME: Record<TuneWeights, string> = {
   base: 'BASE MODEL',
   finetuned: 'FINE-TUNED',
   lora: 'BASE + ADAPTER',

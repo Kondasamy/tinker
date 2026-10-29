@@ -1,0 +1,89 @@
+---
+// Dev-only eyeball page: the warehouse dream in the states the chapters teach (static SVG from the pinned route and the
+// committed weights at build time, wide and phone), then chapter 4 live in the browser (it fetches the weights and
+// drives the dream as you press). Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { boardOf, dreamLabel, dreamScene, type DreamOpts } from '../components/scenes/dreamFloorScene';
+import PressAKey from '../content/video-models/04-press-a-key';
+import { diskNet } from '../lib/video-models/diskModel';
+import { dream, oneStep } from '../lib/video-models/rollout';
+import { parseFrame, rollout } from '../lib/video-models/world';
+import PINNED from '../../data/video-models/pinned.json' with { type: 'json' };
+
+const route = rollout(PINNED.seed, PINNED.steps);
+const pin = (t: number): Omit<DreamOpts, 'scale'> => ({
+  real: route.frames[t],
+  dream: parseFrame(PINNED.dream[t]),
+  step: t,
+});
+const synced = dream(diskNet('k2'), route, { every: PINNED.resync.every });
+const T = PINNED.bounce.t;
+const STATES: [string, Omit<DreamOpts, 'scale'>][] = [
+  ['Real floor alone (chapter 1)', { real: route.frames[8], step: 8, say: { block: 'belt', text: 'The belt' } }],
+  ['One step, right (chapter 2)', { ...pin(3), say: { block: 'dream', text: 'The guess' } }],
+  [
+    'One frame: crate goes the wrong way (chapter 3)',
+    {
+      real: route.frames[T + 1],
+      dream: oneStep(diskNet('k1'), route, T),
+      step: T + 1,
+      say: { block: 'crate', text: 'Which way?' },
+    },
+  ],
+  ['Drift: the robot is lost', { ...pin(PINNED.kept + 2), say: { block: 'robot', text: 'Your robot' } }],
+  ['Drift: the crate is gone', { ...pin(PINNED.crateGone), say: { block: 'crate', text: 'Watch it' } }],
+  ['End of the open-loop route', pin(PINNED.steps)],
+  [
+    'Re-synced every 4: same step',
+    {
+      real: route.frames[PINNED.crateGone],
+      dream: synced.frames[PINNED.crateGone],
+      step: PINNED.crateGone,
+      synced: true,
+    },
+  ],
+  ['Floor callout', { ...pin(5), say: { block: 'floor', text: 'One frame' } }],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Video and world models scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Warehouse dream: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={boardOf(o)} scene={dreamScene({ ...o, scale: 1.2 })} label={dreamLabel(o)} /></div>
+            <div class="phone"><IsoStage board={boardOf({ ...o, show: 'dream' })} scene={dreamScene({ ...o, show: 'dream', scale: 2 })} label={dreamLabel({ ...o, show: 'dream' })} /></div>
+            <p>{dreamLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Chapter 4, live: drive the dream</h2><div class="stage"><PressAKey client:load /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>
