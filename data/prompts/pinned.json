@@ -1,0 +1,682 @@
+{
+  "simulated": [
+    "05-order-and-emphasis"
+  ],
+  "simulatedOn": "2026-10-29",
+  "continuations": [
+    {
+      "prompt": "Write a reply to the customer.",
+      "text": "\n\nQ: Can I order? A: Yes. A: Yes.\n\n\n\nQ:"
+    },
+    {
+      "prompt": "You are a helpful support agent. Reply to this ticket:",
+      "text": " the Portal admin and the Portal admin and the Portal admin and the Portal admin and the Portal.\n"
+    }
+  ],
+  "effects": {
+    "02-say-what-you-want": [
+      {
+        "sig": "ex=0|fmt=none|model=main|role=off|rules=none|task=vague|ticket=outage",
+        "source": "recorded",
+        "facts": false,
+        "format": null,
+        "routed": null,
+        "rule": null,
+        "quirk": false,
+        "signed": false,
+        "words": 157
+      },
+      {
+        "sig": "ex=0|fmt=none|model=main|role=off|rules=none|task=clear|ticket=outage",
+        "source": "recorded",
+        "facts": true,
+        "format": null,
+        "routed": null,
+        "rule": null,
+        "quirk": false,
+        "signed": false,
+        "words": 33
+      },
+      {
+        "sig": "ex=0|fmt=none|model=main|role=on|rules=none|task=vague|ticket=outage",
+        "source": "recorded",
+        "facts": false,
+        "format": null,
+        "routed": null,
+        "rule": null,
+        "quirk": false,
+        "signed": false,
+        "words": 82
+      },
+      {
+        "sig": "ex=0|fmt=none|model=main|role=on|rules=none|task=clear|ticket=outage",
+        "source": "recorded",
+        "facts": true,
+        "format": null,
+        "routed": null,
+        "rule": null,
+        "quirk": false,
+        "signed": false,
+        "words": 53
+      }
+    ],
+    "03-show-dont-tell": [
+      {
+        "sig": "ex=0|fmt=none|model=main|role=on|rules=none|task=clear|ticket=outage",
+        "source": "recorded",
+        "facts": true,
+        "format": null,
+        "routed": null,
+        "rule": null,
+        "quirk": false,
+        "signed": false,
+        "words": 53
+      },
+      {
+        "sig": "ex=1|fmt=none|model=main|role=on|rules=none|task=clear|ticket=outage",
+        "source": "recorded",
+        "facts": true,
+        "format": null,
+        "routed": null,
+        "rule": null,
+        "quirk": false,
+        "signed": true,
+        "words": 29
+      },
+      {
+        "sig": "ex=2|fmt=none|model=main|role=on|rules=none|task=clear|ticket=outage",
+        "source": "recorded",
+        "facts": true,
+        "format": null,
+        "routed": null,
+        "rule": null,
+        "quirk": false,
+        "signed": true,
+        "words": 29
+      },
+      {
+        "sig": "ex=2q|fmt=none|model=main|role=on|rules=none|task=clear|ticket=outage",
+        "source": "recorded",
+        "facts": true,
+        "format": null,
+        "routed": null,
+        "rule": null,
+        "quirk": true,
+        "signed": true,
+        "words": 30
+      }
+    ],
+    "04-put-it-in-a-shape": [
+      {
+        "sig": "ex=0|fmt=none|model=main|role=on|rules=none|task=clear|ticket=outage",
+        "source": "recorded",
+        "facts": true,
+        "format": null,
+        "routed": null,
+        "rule": null,
+        "quirk": false,
+        "signed": false,
+        "words": 53
+      },
+      {
+        "sig": "ex=0|fmt=list|model=main|role=on|rules=none|task=clear|ticket=outage",
+        "source": "recorded",
+        "facts": true,
+        "format": true,
+        "routed": null,
+        "rule": null,
+        "quirk": false,
+        "signed": false,
+        "words": 41
+      },
+      {
+        "sig": "ex=0|fmt=json|model=main|role=on|rules=none|task=clear|ticket=outage",
+        "source": "recorded",
+        "facts": true,
+        "format": true,
+        "routed": true,
+        "rule": null,
+        "quirk": false,
+        "signed": false,
+        "words": 34
+      }
+    ],
+    "05-order-and-emphasis": [
+      {
+        "sig": "ex=2|fmt=none|model=main|role=on|rules=none|task=clear|ticket=outage",
+        "source": "simulated",
+        "facts": true,
+        "format": null,
+        "routed": null,
+        "rule": null,
+        "quirk": false,
+        "signed": true,
+        "words": 20
+      },
+      {
+        "sig": "ex=2|fmt=none|model=main|role=on|rules=first|task=clear|ticket=outage",
+        "source": "simulated",
+        "facts": true,
+        "format": null,
+        "routed": null,
+        "rule": false,
+        "quirk": false,
+        "signed": true,
+        "words": 20
+      },
+      {
+        "sig": "ex=2|fmt=none|model=main|role=on|rules=last|task=clear|ticket=outage",
+        "source": "simulated",
+        "facts": true,
+        "format": null,
+        "routed": null,
+        "rule": true,
+        "quirk": false,
+        "signed": true,
+        "words": 21
+      }
+    ],
+    "06-test-it-like-code": [
+      {
+        "sig": "ex=0|fmt=json|model=main|role=on|rules=last|task=vague|ticket=outage",
+        "source": "recorded",
+        "facts": false,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 79
+      },
+      {
+        "sig": "ex=0|fmt=json|model=main|role=on|rules=last|task=clear|ticket=outage",
+        "source": "recorded",
+        "facts": true,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 36
+      },
+      {
+        "sig": "ex=0|fmt=json|model=small|role=on|rules=last|task=vague|ticket=outage",
+        "source": "recorded",
+        "facts": false,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 63
+      },
+      {
+        "sig": "ex=0|fmt=json|model=small|role=on|rules=last|task=clear|ticket=outage",
+        "source": "recorded",
+        "facts": true,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 20
+      },
+      {
+        "sig": "ex=0|fmt=json|model=main|role=on|rules=last|task=vague|ticket=enterprise-refund",
+        "source": "recorded",
+        "facts": false,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 76
+      },
+      {
+        "sig": "ex=0|fmt=json|model=main|role=on|rules=last|task=clear|ticket=enterprise-refund",
+        "source": "recorded",
+        "facts": true,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 29
+      },
+      {
+        "sig": "ex=0|fmt=json|model=small|role=on|rules=last|task=vague|ticket=enterprise-refund",
+        "source": "recorded",
+        "facts": false,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 186
+      },
+      {
+        "sig": "ex=0|fmt=json|model=small|role=on|rules=last|task=clear|ticket=enterprise-refund",
+        "source": "recorded",
+        "facts": true,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 27
+      },
+      {
+        "sig": "ex=0|fmt=json|model=main|role=on|rules=last|task=vague|ticket=cutoff",
+        "source": "recorded",
+        "facts": true,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 44
+      },
+      {
+        "sig": "ex=0|fmt=json|model=main|role=on|rules=last|task=clear|ticket=cutoff",
+        "source": "recorded",
+        "facts": true,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 35
+      },
+      {
+        "sig": "ex=0|fmt=json|model=small|role=on|rules=last|task=vague|ticket=cutoff",
+        "source": "recorded",
+        "facts": true,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 81
+      },
+      {
+        "sig": "ex=0|fmt=json|model=small|role=on|rules=last|task=clear|ticket=cutoff",
+        "source": "recorded",
+        "facts": true,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 19
+      },
+      {
+        "sig": "ex=0|fmt=json|model=main|role=on|rules=last|task=vague|ticket=free-shipping",
+        "source": "recorded",
+        "facts": true,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 48
+      },
+      {
+        "sig": "ex=0|fmt=json|model=main|role=on|rules=last|task=clear|ticket=free-shipping",
+        "source": "recorded",
+        "facts": true,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 18
+      },
+      {
+        "sig": "ex=0|fmt=json|model=small|role=on|rules=last|task=vague|ticket=free-shipping",
+        "source": "recorded",
+        "facts": true,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 29
+      },
+      {
+        "sig": "ex=0|fmt=json|model=small|role=on|rules=last|task=clear|ticket=free-shipping",
+        "source": "recorded",
+        "facts": false,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 19
+      },
+      {
+        "sig": "ex=0|fmt=json|model=main|role=on|rules=last|task=vague|ticket=sensor-warranty",
+        "source": "recorded",
+        "facts": true,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 75
+      },
+      {
+        "sig": "ex=0|fmt=json|model=main|role=on|rules=last|task=clear|ticket=sensor-warranty",
+        "source": "recorded",
+        "facts": true,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 36
+      },
+      {
+        "sig": "ex=0|fmt=json|model=small|role=on|rules=last|task=vague|ticket=sensor-warranty",
+        "source": "recorded",
+        "facts": false,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 126
+      },
+      {
+        "sig": "ex=0|fmt=json|model=small|role=on|rules=last|task=clear|ticket=sensor-warranty",
+        "source": "recorded",
+        "facts": false,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 34
+      },
+      {
+        "sig": "ex=0|fmt=json|model=main|role=on|rules=last|task=vague|ticket=damaged",
+        "source": "recorded",
+        "facts": false,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 90
+      },
+      {
+        "sig": "ex=0|fmt=json|model=main|role=on|rules=last|task=clear|ticket=damaged",
+        "source": "recorded",
+        "facts": true,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 34
+      },
+      {
+        "sig": "ex=0|fmt=json|model=small|role=on|rules=last|task=vague|ticket=damaged",
+        "source": "recorded",
+        "facts": false,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 73
+      },
+      {
+        "sig": "ex=0|fmt=json|model=small|role=on|rules=last|task=clear|ticket=damaged",
+        "source": "recorded",
+        "facts": true,
+        "format": true,
+        "routed": true,
+        "rule": true,
+        "quirk": false,
+        "signed": false,
+        "words": 30
+      }
+    ]
+  },
+  "workbench": {
+    "results": [
+      {
+        "role": true,
+        "task": "vague",
+        "examples": 0,
+        "format": "none",
+        "rules": "first",
+        "passed": 0,
+        "tokens": 1000
+      },
+      {
+        "role": true,
+        "task": "vague",
+        "examples": 0,
+        "format": "none",
+        "rules": "last",
+        "passed": 0,
+        "tokens": 1000
+      },
+      {
+        "role": true,
+        "task": "vague",
+        "examples": 0,
+        "format": "json",
+        "rules": "first",
+        "passed": 3,
+        "tokens": 1480
+      },
+      {
+        "role": true,
+        "task": "vague",
+        "examples": 0,
+        "format": "json",
+        "rules": "last",
+        "passed": 3,
+        "tokens": 1480
+      },
+      {
+        "role": true,
+        "task": "vague",
+        "examples": 1,
+        "format": "none",
+        "rules": "first",
+        "passed": 0,
+        "tokens": 1576
+      },
+      {
+        "role": true,
+        "task": "vague",
+        "examples": 1,
+        "format": "none",
+        "rules": "last",
+        "passed": 0,
+        "tokens": 1576
+      },
+      {
+        "role": true,
+        "task": "vague",
+        "examples": 1,
+        "format": "json",
+        "rules": "first",
+        "passed": 3,
+        "tokens": 2056
+      },
+      {
+        "role": true,
+        "task": "vague",
+        "examples": 1,
+        "format": "json",
+        "rules": "last",
+        "passed": 2,
+        "tokens": 2056
+      },
+      {
+        "role": true,
+        "task": "vague",
+        "examples": 2,
+        "format": "none",
+        "rules": "first",
+        "passed": 0,
+        "tokens": 2068
+      },
+      {
+        "role": true,
+        "task": "vague",
+        "examples": 2,
+        "format": "none",
+        "rules": "last",
+        "passed": 0,
+        "tokens": 2068
+      },
+      {
+        "role": true,
+        "task": "vague",
+        "examples": 2,
+        "format": "json",
+        "rules": "first",
+        "passed": 2,
+        "tokens": 2548
+      },
+      {
+        "role": true,
+        "task": "vague",
+        "examples": 2,
+        "format": "json",
+        "rules": "last",
+        "passed": 3,
+        "tokens": 2548
+      },
+      {
+        "role": true,
+        "task": "clear",
+        "examples": 0,
+        "format": "none",
+        "rules": "first",
+        "passed": 0,
+        "tokens": 1465
+      },
+      {
+        "role": true,
+        "task": "clear",
+        "examples": 0,
+        "format": "none",
+        "rules": "last",
+        "passed": 0,
+        "tokens": 1465
+      },
+      {
+        "role": true,
+        "task": "clear",
+        "examples": 0,
+        "format": "json",
+        "rules": "first",
+        "passed": 6,
+        "tokens": 1945
+      },
+      {
+        "role": true,
+        "task": "clear",
+        "examples": 0,
+        "format": "json",
+        "rules": "last",
+        "passed": 6,
+        "tokens": 1945
+      },
+      {
+        "role": true,
+        "task": "clear",
+        "examples": 1,
+        "format": "none",
+        "rules": "first",
+        "passed": 0,
+        "tokens": 2041
+      },
+      {
+        "role": true,
+        "task": "clear",
+        "examples": 1,
+        "format": "none",
+        "rules": "last",
+        "passed": 0,
+        "tokens": 2041
+      },
+      {
+        "role": true,
+        "task": "clear",
+        "examples": 1,
+        "format": "json",
+        "rules": "first",
+        "passed": 6,
+        "tokens": 2521
+      },
+      {
+        "role": true,
+        "task": "clear",
+        "examples": 1,
+        "format": "json",
+        "rules": "last",
+        "passed": 6,
+        "tokens": 2521
+      },
+      {
+        "role": true,
+        "task": "clear",
+        "examples": 2,
+        "format": "none",
+        "rules": "first",
+        "passed": 0,
+        "tokens": 2533
+      },
+      {
+        "role": true,
+        "task": "clear",
+        "examples": 2,
+        "format": "none",
+        "rules": "last",
+        "passed": 0,
+        "tokens": 2533
+      },
+      {
+        "role": true,
+        "task": "clear",
+        "examples": 2,
+        "format": "json",
+        "rules": "first",
+        "passed": 6,
+        "tokens": 3013
+      },
+      {
+        "role": true,
+        "task": "clear",
+        "examples": 2,
+        "format": "json",
+        "rules": "last",
+        "passed": 6,
+        "tokens": 3013
+      }
+    ],
+    "winners": [
+      {
+        "role": true,
+        "task": "clear",
+        "examples": 0,
+        "format": "json",
+        "rules": "first"
+      },
+      {
+        "role": true,
+        "task": "clear",
+        "examples": 0,
+        "format": "json",
+        "rules": "last"
+      }
+    ]
+  }
+}
