@@ -1,0 +1,25 @@
+{
+  "meta": {
+    "models": {
+      "main": "nvidia/nemotron-3-ultra-550b-a55b",
+      "small": "openai/gpt-oss-20b"
+    },
+    "accessed": "2026-10-29",
+    "settings": {
+      "temperature": 0,
+      "seed": 7,
+      "max_tokens": 8192
+    },
+    "provider": "https://integrate.api.nvidia.com/v1",
+    "redacted": "made-up .com, .net, .org and .io domains rewritten to .example (R13)",
+    "script": "e11992f"
+  },
+  "replies": {
+    "ex=0|fmt=list|model=main|role=on|rules=none|task=clear|ticket=outage": {
+      "text": "- For Portal outages outside business hours, page the on-call engineer through the Duty Desk line at extension 4410 per Larkspur policy.\n- The engineer acknowledges a page within 15 minutes.\n- Call extension 4410 now to reach the on-call engineer."
+    },
+    "ex=0|fmt=json|model=main|role=on|rules=none|task=clear|ticket=outage": {
+      "text": "{\"team\": \"portal\", \"reply\": \"For Portal outages outside business hours, page the on-call engineer through the Duty Desk line at extension 4410 (policy step). The engineer acknowledges within 15 minutes. Your night shift can use this contact immediately.\"}"
+    }
+  }
+}

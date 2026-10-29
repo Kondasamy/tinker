@@ -36,6 +36,10 @@ const ROADMAP: [string, string, string?][] = [
   ['fairness', 'Intermediate'],
   ['watermarks', 'Intermediate'],
   ['prompts', 'Beginner'],
+  // docs/plans/2026-10-29-1438-feat-six-ai-modules-plan.md takes the three above live and adds these (KTD12)
+  ['choosing-models', 'Beginner'],
+  ['on-device', 'Intermediate'],
+  ['robots', 'Advanced'],
   ['rate-limits', 'Beginner', 'Classic tech'],
   ['backups', 'Beginner', 'Classic tech'],
   ['unicode', 'Beginner', 'Classic tech'],
@@ -72,8 +76,8 @@ describe('module registry', () => {
     }
   });
 
-  // the R16 cards stay planned through this plan; the first seven go live in turn, so a card gone from the list is live
-  it('keeps the seven new roadmap cards last and in order, and every roadmap card no longer planned is live', () => {
+  // the last seven cards stay planned through the six-AI-modules plan; the rest go live in turn, so a card gone from the list is live
+  it('keeps the seven cards that stay planned last and in order, and every roadmap card no longer planned is live', () => {
     const planned = MODULES.filter(m => m.status === 'planned').map(m => m.id);
     expect(planned.slice(-7)).toEqual(ROADMAP.slice(-7).map(([id]) => id));
     for (const [id] of ROADMAP) if (!planned.includes(id)) expect(moduleOf(id).status, id).toBe('live');
@@ -784,6 +788,78 @@ describe('module registry', () => {
     expect(moduleOf('video-models').track).toBeUndefined();
     expect(moduleOf('video-models').author).toEqual(moduleOf('rag').author);
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'video-models')).toBe(45);
+  });
+
+  it('has prompts as a live Beginner module after video-models, numbered 47', () => {
+    expect(moduleOf('prompts')).toMatchObject({
+      title: 'Writing a prompt',
+      level: 'Beginner',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('prompts').track).toBeUndefined();
+    expect(moduleOf('prompts').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'prompts')).toBe(46);
+  });
+
+  it('has labelling as a live Intermediate module after prompts, numbered 48', () => {
+    expect(moduleOf('labelling')).toMatchObject({
+      title: 'Who labels the data',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: ['evals'],
+    });
+    expect(moduleOf('labelling').track).toBeUndefined();
+    expect(moduleOf('labelling').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'labelling')).toBe(47);
+  });
+
+  it('has fairness as a live Intermediate module after labelling, numbered 49', () => {
+    expect(moduleOf('fairness')).toMatchObject({
+      title: 'Bias and fairness',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: ['calibration'],
+    });
+    expect(moduleOf('fairness').track).toBeUndefined();
+    expect(moduleOf('fairness').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'fairness')).toBe(48);
+  });
+
+  it('has watermarks as a live Intermediate module after fairness, numbered 50', () => {
+    expect(moduleOf('watermarks')).toMatchObject({
+      title: 'Watermarks and made-by-AI',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: ['transformers'],
+    });
+    expect(moduleOf('watermarks').track).toBeUndefined();
+    expect(moduleOf('watermarks').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'watermarks')).toBe(49);
+  });
+
+  it('has agent-commerce as a live Advanced module after watermarks, numbered 51', () => {
+    expect(moduleOf('agent-commerce')).toMatchObject({
+      title: 'When the buyer is an agent',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['agents', 'payments'],
+    });
+    expect(moduleOf('agent-commerce').track).toBeUndefined();
+    expect(moduleOf('agent-commerce').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'agent-commerce')).toBe(50);
+  });
+
+  it('has parallel-training as a live Advanced module after agent-commerce, numbered 52', () => {
+    expect(moduleOf('parallel-training')).toMatchObject({
+      title: 'Many chips, one model',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['pre-training'],
+    });
+    expect(moduleOf('parallel-training').track).toBeUndefined();
+    expect(moduleOf('parallel-training').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'parallel-training')).toBe(51);
   });
 
   it('keeps chapter ids unique within every module', () => {

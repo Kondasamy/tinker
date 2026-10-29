@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "model": "nvidia/nemotron-3-ultra-550b-a55b",
+    "accessed": "2026-10-29",
+    "settings": {
+      "temperature": 0,
+      "seed": 7,
+      "max_tokens": 8192
+    },
+    "script": "7d6b34c"
+  },
+  "turns": {
+    "item=screws-5x60|view=page": {
+      "text": "40 boxes at $14.20 each (base $9.50 + $4.70 for 5×60 mm size).",
+      "total": 56800
+    },
+    "item=joist-hanger|view=page": {
+      "text": "2 packs at $24.00 each = $48.00",
+      "total": 4800
+    },
+    "item=post-anchor|view=page": {
+      "text": "Offer ended, so 6 anchors at $11.50 each = $69.00.",
+      "total": 6900
+    }
+  }
+}

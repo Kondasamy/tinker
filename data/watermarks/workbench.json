@@ -1,0 +1,10 @@
+{
+  "note": "Larkspur's planning numbers for chapter 7, not measured: the reply set is U2's 20 pinned prompts (data/watermarks/prompts.json, reply i with seed i + 1), the edit is one token in four swapped for the writer's next-best (a light reword), the checker's line stays at 4, and false alarms are counted on the hand-written replies in human.json. The team's rule: of the settings that catch at least minCaught of the 20 replies as written, cost at most maxDrop nats a token and flag no human reply, the one that still catches the most edited replies, then the least quality cost.",
+  "gammas": [0.25, 0.5],
+  "deltas": [1, 2, 4],
+  "editEvery": 4,
+  "maxDrop": 0.4,
+  "minCaught": 18,
+  "maxFalseAlarms": 0,
+  "start": { "gamma": 0.5, "delta": 1 }
+}

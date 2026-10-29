@@ -1,0 +1,145 @@
+/* When the buyer is an agent's stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption). These are
+   the Task tab, the sign-the-slip form and its read-out. */
+.ac-lane {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.tc-frame .ac-lane svg {
+  width: 100%;
+  height: auto;
+  flex: none;
+}
+.ac-lane .ac-phone {
+  display: none;
+}
+.ac-slip {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ac-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  align-items: center;
+}
+.ac-form label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 13px;
+}
+.ac-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.ac-said {
+  margin: 0;
+  min-height: 2.8em;
+  font:
+    700 13px ui-monospace,
+    Menlo,
+    monospace;
+}
+/* the chapters' story-column pieces: the shop page, a recorded reading, data rows */
+.ac-page {
+  margin: 0;
+  padding: 8px 10px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.ac-read {
+  margin: 0;
+  padding: 8px 10px;
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+  background: var(--card);
+}
+.ac-read figcaption {
+  font-size: 12px;
+  color: var(--muted);
+}
+.ac-read blockquote {
+  margin: 4px 0;
+  font-weight: 700;
+}
+.ac-read p {
+  margin: 0;
+  font-size: 13px;
+}
+.ac-reads {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ac-card {
+  margin: 4px 0 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 2px 12px;
+  font-size: 13px;
+}
+.ac-card dt {
+  font-weight: 700;
+}
+.ac-card dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.ac-turns {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+.ac-turns .lbl {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.ac-table td,
+.ac-table th {
+  font-size: 12.5px;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 599px) {
+  .ac-lane .ac-wide {
+    display: none;
+  }
+  .ac-lane .ac-phone {
+    display: block;
+  }
+}
+@media (max-width: 600px) {
+  .ac-buttons .chip,
+  .ac-form label > * {
+    min-height: 44px;
+  }
+  .ac-form label {
+    flex-basis: 100%;
+    justify-content: space-between;
+  }
+  /* the drop-down sits at the row's right edge, so its list opens leftwards and wraps rather than run off screen */
+  .ac-form .sel-list {
+    left: auto;
+    right: 0;
+    max-width: calc(100vw - 48px);
+  }
+  .ac-form .sel-list [role="option"] {
+    white-space: normal;
+  }
+}

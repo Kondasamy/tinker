@@ -136,10 +136,10 @@ const span = (x0: number, y0: number, z0: number, x1: number, y1: number, z1: nu
 ];
 
 /** The employee's counter: a wooden counter with a desk phone on it (base, handset on its cradle, a curly cord) and a
- * note pad; the phone's call light glows while a message is at the counter. The employee stands behind it (person). */
-function desk(lit: boolean): Part {
-  const [x, y] = AT.emp,
-    z1 = BH + 14;
+ * note pad; the phone's call light glows while a message is at the counter. The employee stands behind it (person).
+ * Prompts' docket board stands one at its support desk. */
+export function counterAt([x, y]: number[], lit: boolean): Part {
+  const z1 = BH + 14;
   let s =
     box(x - 18, y - 12, BH, x + 18, y + 12, z1 - 1.5, WOOD, toneI, 1) +
     box(x - 19, y - 13, z1 - 1.5, x + 19, y + 13, z1, WOOD, toneI, 1) +
@@ -583,7 +583,7 @@ export const officeScene =
       ...extras.flatMap(e =>
         e.items.map(i => ({ ...i, at: i.at ?? [0, 1, 2].map(k => (i.box[0][k] + i.box[1][k]) / 2) })),
       ),
-      desk(st.busy === 'emp'),
+      counterAt(AT.emp, st.busy === 'emp'),
       sortingMachine(AT.host[0], AT.host[1], st.busy === 'host', st.calls, cap),
       model(st.screen, tools),
       fileCabinet(AT.orders[0], AT.orders[1], st.open),

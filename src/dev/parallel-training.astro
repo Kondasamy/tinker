@@ -1,0 +1,117 @@
+---
+// Dev-only eyeball page: the round table in the states the chapters teach (static SVG, wide and phone), each Timeline
+// beside it, then pass the buckets live in the browser (ring, then pipeline). Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import {
+  RING_BOARD,
+  ringLabel,
+  ringScene,
+  ringTimeline,
+  type RingOpts,
+  type TimelineOpts,
+} from '../components/scenes/ringScene';
+import { PassTable, sceneOf, timelineOf, type PassState } from '../content/parallel-training/kit';
+import { memoryOf, stateOf } from '../lib/parallel-training/memory';
+import { CHIP } from '../lib/parallel-training/facts';
+
+const at = (s: Partial<PassState>): PassState => ({ mode: 'ring', n: 4, k: 0, m: 4, ...s });
+const shard = (zero: 0 | 1 | 2 | 3) =>
+  Array(8).fill(memoryOf({ tp: 1, pp: 1, dp: 8, zero }).total / CHIP.memory) as number[];
+const STATES: [string, RingOpts, TimelineOpts | null][] = [
+  [
+    'One chip, the whole state (chapter 1)',
+    { n: 1, load: [stateOf() / CHIP.memory], say: { block: 'bucket', text: 'Too much' } },
+    null,
+  ],
+  [
+    'Four workers, start (chapter 2)',
+    { ...sceneOf(at({})), say: { block: 'bucket', text: 'One share' } },
+    timelineOf(at({})),
+  ],
+  ['Hop 1', sceneOf(at({ k: 1 })), timelineOf(at({ k: 1 }))],
+  ['Reduce done (hop 3)', { ...sceneOf(at({ k: 3 })), table: 'REDUCE DONE' }, timelineOf(at({ k: 3 }))],
+  [
+    'All-reduce done (hop 6)',
+    { ...sceneOf(at({ k: 6 })), say: { block: 'table', text: 'The ring' } },
+    timelineOf(at({ k: 6 })),
+  ],
+  ['Two workers, hop 1', sceneOf(at({ n: 2, k: 1 })), timelineOf(at({ n: 2, k: 1 }))],
+  [
+    'Eight workers, hop 9',
+    { ...sceneOf(at({ n: 8, k: 9 })), say: { block: 'worker', text: 'Chip 1' } },
+    timelineOf(at({ n: 8, k: 9 })),
+  ],
+  ['No sharding (chapter 3)', { n: 8, load: shard(0) }, null],
+  ['ZeRO stage 3', { n: 8, load: shard(3), say: { block: 'bucket', text: 'Still over' } }, null],
+  [
+    'Pipeline, slot 2 (chapter 4)',
+    { ...sceneOf(at({ mode: 'pipeline', k: 1 })), say: { block: 'idle', text: 'Waiting' } },
+    timelineOf(at({ mode: 'pipeline', k: 1 })),
+  ],
+  [
+    'Pipeline, slot 5, 4 micro-batches',
+    sceneOf(at({ mode: 'pipeline', k: 4 })),
+    timelineOf(at({ mode: 'pipeline', k: 4 })),
+  ],
+  [
+    'Pipeline, 8 stages, 8 micro-batches',
+    { ...sceneOf(at({ mode: 'pipeline', n: 8, m: 8, k: 9 })), say: { block: 'line', text: 'Stage 1' } },
+    timelineOf(at({ mode: 'pipeline', n: 8, m: 8, k: 9 })),
+  ],
+  [
+    'Inside a layer (chapter 5)',
+    { ...sceneOf(at({ n: 8, k: 2 })), rack: 'ONE BOX · NVLINK', say: { block: 'rack', text: 'One box' } },
+    null,
+  ],
+  ['A chip fails (chapter 6)', { ...sceneOf(at({ n: 8, k: 0 })), down: 3, rack: 'SAVED · STEP 300' }, null],
+];
+const tl = (o: TimelineOpts, phone: boolean) => {
+  const t = ringTimeline(o, { phone });
+  return `<svg viewBox="0 0 ${t.w} ${t.h}" width="100%">${t.svg}</svg>`;
+};
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Many chips, one model scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Round table: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o, t]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={RING_BOARD} scene={ringScene({ ...o, scale: 1.2 })} label={ringLabel(o)} /></div>
+            <div class="phone"><IsoStage board={RING_BOARD} scene={ringScene({ ...o, scale: 2 })} label={ringLabel(o)} /></div>
+            {t && <div class="wide" set:html={tl(t, false)} />}
+            {t && <div class="phone" set:html={tl(t, true)} />}
+            <p>{ringLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>Pass the buckets, live</h1>
+      <div class="grid">
+        <section><h2>Ring</h2><div class="stage"><PassTable client:load caption="Step or Play the ring." /></div></section>
+        <section><h2>Pipeline</h2><div class="stage"><PassTable client:load start={{ mode: 'pipeline', n: 4, k: 0, m: 4 }} caption="Step or Play the pipeline." /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

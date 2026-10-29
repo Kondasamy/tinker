@@ -1,0 +1,318 @@
+{
+  "note": "Every number the chapters quote, rerun by tests/unit/labelling-engine.test.ts and labelling-workbench.test.ts. Labels are stand-ins from seeded profiles; model labels are one recorded run.",
+  "threeWay": "t022",
+  "kappa": {
+    "before": {
+      "rosa-mira": 0.6805555555555556,
+      "rosa-tom": 0.39001848428835484,
+      "mira-tom": 0.27777777777777773
+    },
+    "after": {
+      "rosa-mira": 0.860982391102873,
+      "rosa-tom": 0.39001848428835484,
+      "mira-tom": 0.4026855996295725
+    }
+  },
+  "refundReturn": {
+    "before": 17,
+    "after": 1
+  },
+  "gold": {
+    "bar": 0.8,
+    "scores": {
+      "rosa": 1,
+      "mira": 1,
+      "tom": 0.6
+    }
+  },
+  "accuracy": {
+    "rosa": 0.9444444444444444,
+    "mira": 0.9444444444444444,
+    "tom": 0.5333333333333333,
+    "vote": 0.9555555555555556
+  },
+  "minorityRight": [
+    "t033",
+    "t038",
+    "t047",
+    "t070"
+  ],
+  "minority": "t033",
+  "triage": {
+    "clean": 0.7666666666666667,
+    "noisy": 0.43333333333333335,
+    "vote": 0.7666666666666667,
+    "heldOut": 30
+  },
+  "hard": [
+    "t014",
+    "t018",
+    "t019",
+    "t038",
+    "t039",
+    "t044",
+    "t046",
+    "t049",
+    "t055",
+    "t057",
+    "t059",
+    "t069",
+    "t083",
+    "t085",
+    "t089",
+    "t073",
+    "t030",
+    "t005",
+    "t051",
+    "t027"
+  ],
+  "leastSure": {
+    "bar": 0.7666666666666667,
+    "orders": 20,
+    "active": 48,
+    "random": 59.5
+  },
+  "models": {
+    "main": 1,
+    "check": 1,
+    "agree": 20,
+    "people": {
+      "rosa": 0.9,
+      "mira": 0.95,
+      "tom": 0.6
+    }
+  },
+  "workbench": {
+    "results": [
+      {
+        "votes": 1,
+        "gold": 0,
+        "hard": "people",
+        "right": 67,
+        "tickets": 80,
+        "personLabels": 80,
+        "modelLabels": 0,
+        "cost": 24,
+        "dropped": []
+      },
+      {
+        "votes": 1,
+        "gold": 0,
+        "hard": "model",
+        "right": 68,
+        "tickets": 80,
+        "personLabels": 60,
+        "modelLabels": 20,
+        "cost": 18.06,
+        "dropped": []
+      },
+      {
+        "votes": 1,
+        "gold": 0,
+        "hard": "check",
+        "right": 68,
+        "tickets": 80,
+        "personLabels": 60,
+        "modelLabels": 40,
+        "cost": 18.12,
+        "dropped": []
+      },
+      {
+        "votes": 1,
+        "gold": 5,
+        "hard": "people",
+        "right": 77,
+        "tickets": 80,
+        "personLabels": 95,
+        "modelLabels": 0,
+        "cost": 28.5,
+        "dropped": [
+          "tom"
+        ]
+      },
+      {
+        "votes": 1,
+        "gold": 5,
+        "hard": "model",
+        "right": 77,
+        "tickets": 80,
+        "personLabels": 75,
+        "modelLabels": 20,
+        "cost": 22.56,
+        "dropped": [
+          "tom"
+        ]
+      },
+      {
+        "votes": 1,
+        "gold": 5,
+        "hard": "check",
+        "right": 77,
+        "tickets": 80,
+        "personLabels": 75,
+        "modelLabels": 40,
+        "cost": 22.62,
+        "dropped": [
+          "tom"
+        ]
+      },
+      {
+        "votes": 1,
+        "gold": 10,
+        "hard": "people",
+        "right": 77,
+        "tickets": 80,
+        "personLabels": 110,
+        "modelLabels": 0,
+        "cost": 33,
+        "dropped": [
+          "tom"
+        ]
+      },
+      {
+        "votes": 1,
+        "gold": 10,
+        "hard": "model",
+        "right": 77,
+        "tickets": 80,
+        "personLabels": 90,
+        "modelLabels": 20,
+        "cost": 27.06,
+        "dropped": [
+          "tom"
+        ]
+      },
+      {
+        "votes": 1,
+        "gold": 10,
+        "hard": "check",
+        "right": 77,
+        "tickets": 80,
+        "personLabels": 90,
+        "modelLabels": 40,
+        "cost": 27.12,
+        "dropped": [
+          "tom"
+        ]
+      },
+      {
+        "votes": 3,
+        "gold": 0,
+        "hard": "people",
+        "right": 76,
+        "tickets": 80,
+        "personLabels": 240,
+        "modelLabels": 0,
+        "cost": 72,
+        "dropped": []
+      },
+      {
+        "votes": 3,
+        "gold": 0,
+        "hard": "model",
+        "right": 77,
+        "tickets": 80,
+        "personLabels": 180,
+        "modelLabels": 20,
+        "cost": 54.06,
+        "dropped": []
+      },
+      {
+        "votes": 3,
+        "gold": 0,
+        "hard": "check",
+        "right": 77,
+        "tickets": 80,
+        "personLabels": 180,
+        "modelLabels": 40,
+        "cost": 54.12,
+        "dropped": []
+      },
+      {
+        "votes": 3,
+        "gold": 5,
+        "hard": "people",
+        "right": 75,
+        "tickets": 80,
+        "personLabels": 175,
+        "modelLabels": 0,
+        "cost": 52.5,
+        "dropped": [
+          "tom"
+        ]
+      },
+      {
+        "votes": 3,
+        "gold": 5,
+        "hard": "model",
+        "right": 77,
+        "tickets": 80,
+        "personLabels": 135,
+        "modelLabels": 20,
+        "cost": 40.56,
+        "dropped": [
+          "tom"
+        ]
+      },
+      {
+        "votes": 3,
+        "gold": 5,
+        "hard": "check",
+        "right": 77,
+        "tickets": 80,
+        "personLabels": 135,
+        "modelLabels": 40,
+        "cost": 40.62,
+        "dropped": [
+          "tom"
+        ]
+      },
+      {
+        "votes": 3,
+        "gold": 10,
+        "hard": "people",
+        "right": 75,
+        "tickets": 80,
+        "personLabels": 190,
+        "modelLabels": 0,
+        "cost": 57,
+        "dropped": [
+          "tom"
+        ]
+      },
+      {
+        "votes": 3,
+        "gold": 10,
+        "hard": "model",
+        "right": 77,
+        "tickets": 80,
+        "personLabels": 150,
+        "modelLabels": 20,
+        "cost": 45.06,
+        "dropped": [
+          "tom"
+        ]
+      },
+      {
+        "votes": 3,
+        "gold": 10,
+        "hard": "check",
+        "right": 77,
+        "tickets": 80,
+        "personLabels": 150,
+        "modelLabels": 40,
+        "cost": 45.12,
+        "dropped": [
+          "tom"
+        ]
+      }
+    ],
+    "winners": [
+      {
+        "votes": 1,
+        "gold": 5,
+        "hard": "model"
+      }
+    ]
+  }
+}

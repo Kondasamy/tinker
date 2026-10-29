@@ -1,0 +1,25 @@
+{
+  "note": "Sentence openings from Larkspur mini's held-out documents (ids.json splits.heldout), so no prompt is text it trained on. Reply i is drawn with seed i + 1.",
+  "prompts": [
+    { "doc": "data-retention-faq-2025.md", "text": "Q: How long is order history kept?" },
+    { "doc": "data-retention-faq-2025.md", "text": "Q: Are support calls recorded?" },
+    { "doc": "data-retention-faq-2025.md", "text": "Q: Where is my data stored?" },
+    { "doc": "data-retention-faq-2025.md", "text": "Q: Can I export my data?" },
+    { "doc": "heron-shelving-install-guide-2021.md", "text": "Before installing, check that the floor" },
+    { "doc": "heron-shelving-install-guide-2021.md", "text": "Assemble the uprights first, then" },
+    { "doc": "heron-shelving-install-guide-2021.md", "text": "Load the heaviest items on" },
+    { "doc": "heron-shelving-install-guide-2021.md", "text": "Inspect shelving every six months for" },
+    { "doc": "portal-release-notes-2021.md", "text": "February release: the order API lets customers" },
+    { "doc": "portal-release-notes-2021.md", "text": "June release: budgets per department." },
+    { "doc": "portal-release-notes-2021.md", "text": "September release: the Wren label printer" },
+    { "doc": "portal-release-notes-2021.md", "text": "Known issues: department budgets" },
+    { "doc": "remote-work-policy-2021.md", "text": "Office employees may work from home" },
+    { "doc": "remote-work-policy-2021.md", "text": "Security: work only on company laptops," },
+    { "doc": "remote-work-policy-2021.md", "text": "Availability: remote employees keep" },
+    { "doc": "remote-work-policy-2021.md", "text": "Warehouse roles, receiving roles and" },
+    { "doc": "warehouse-safety-handbook-2023.md", "text": "Protective equipment: safety boots and" },
+    { "doc": "warehouse-safety-handbook-2023.md", "text": "Forklifts: only certified operators may" },
+    { "doc": "warehouse-safety-handbook-2023.md", "text": "Dock doors: dock door sensors show" },
+    { "doc": "warehouse-safety-handbook-2023.md", "text": "Lifting: lift with your legs and" }
+  ]
+}

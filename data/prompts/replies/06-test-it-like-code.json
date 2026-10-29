@@ -1,0 +1,91 @@
+{
+  "meta": {
+    "models": {
+      "main": "nvidia/nemotron-3-ultra-550b-a55b",
+      "small": "openai/gpt-oss-20b"
+    },
+    "accessed": "2026-10-29",
+    "settings": {
+      "temperature": 0,
+      "seed": 7,
+      "max_tokens": 8192
+    },
+    "provider": "https://integrate.api.nvidia.com/v1",
+    "redacted": "made-up .com, .net, .org and .io domains rewritten to .example (R13)",
+    "script": "e11992f"
+  },
+  "replies": {
+    "ex=0|fmt=json|model=main|role=on|rules=last|task=vague|ticket=outage": {
+      "text": "{\"team\": \"portal\", \"reply\": \"I'm sorry to hear the portal is down and impacting your night shift operations. For immediate assistance with portal outages, please contact our 24/7 Portal Support Hotline at 1-800-555-0199 or email portal-emergency@larkspursupply.example. Our on-call engineering team monitors these channels around the clock and can provide real-time status updates and estimated resolution times. In the meantime, if you have urgent pick lists that need processing, you can also reach out to our Shipping Desk at shipping@larkspursupply.example for manual workarounds. [LS-2041]\"}"
+    },
+    "ex=0|fmt=json|model=main|role=on|rules=last|task=clear|ticket=outage": {
+      "text": "{\"team\": \"portal\", \"reply\": \"For Portal outages outside business hours, page the on-call engineer through the Duty Desk line at extension 4410. The engineer acknowledges a page within 15 minutes. Please call extension 4410 now to report the outage. [LS-2041]\"}"
+    },
+    "ex=0|fmt=json|model=small|role=on|rules=last|task=vague|ticket=outage": {
+      "text": "{\"team\":\"portal\",\"reply\":\"Hi Dana,\\n\\nI’m sorry to hear the Portal has been down since 9 p.m. and that your night shift can’t print pick lists. Our technical team is already working on the issue and we expect a resolution shortly.\\n\\nIn the meantime, please contact our Portal Support Team directly at portal-support@larkspur.example or call 1‑800‑LARK‑SUP (1‑800‑546‑7827) for immediate assistance.\\n\\nThank you for your patience.\\n\\n[LS-2041]\"}"
+    },
+    "ex=0|fmt=json|model=small|role=on|rules=last|task=clear|ticket=outage": {
+      "text": "{\"team\":\"portal\",\"reply\":\"Please page the on‑call engineer through the Duty Desk line at extension 4410; they will acknowledge within 15 minutes. [LS-2041]\"}"
+    },
+    "ex=0|fmt=json|model=main|role=on|rules=last|task=vague|ticket=enterprise-refund": {
+      "text": "{\"team\": \"billing\", \"reply\": \"Hi Marcus, thanks for reaching out. For enterprise contract refunds on hardware like scanners, we'll need to review your contract terms and the condition/age of the units. Could you share the original order number(s) and confirm whether the scanners are unopened, unused, or have been deployed? Once we have those details, I can check eligibility and next steps — which may include a return authorization, restocking fees per your agreement, or credit toward future orders. [LS-2042]\"}"
+    },
+    "ex=0|fmt=json|model=main|role=on|rules=last|task=clear|ticket=enterprise-refund": {
+      "text": "{\"team\": \"billing\", \"reply\": \"The standard refund policy does not apply to enterprise contracts. Please raise a billing dispute with your account manager, who will respond in writing within ten business days. [LS-2042]\"}"
+    },
+    "ex=0|fmt=json|model=small|role=on|rules=last|task=vague|ticket=enterprise-refund": {
+      "text": "{\"team\":\"billing\",\"reply\":\"Hello Marcus,\\n\\nThank you for reaching out. Since you’re on an enterprise contract, we can process a refund for the 40 scanners you no longer need. Please follow these steps:\\n\\n1. **Return Authorization** – Log into your Larkspur portal and open a Return Authorization (RA) for the 40 units. If you don’t have portal access, let us know and we’ll create one for you.\\n2. **Packaging & Shipping** – Pack the scanners securely in their original packaging, include the RA number on the outside, and ship them to the address listed on the RA. We’ll provide a prepaid shipping label if you prefer.\\n3. **Inspection** – Once we receive the units, our quality team will inspect them. If everything is in good condition, we’ll issue a credit to your account.\\n4. **Refund Timing** – The credit will appear on your next billing cycle, typically within 5–7 business days after inspection.\\n\\nIf you have any questions or need assistance creating the RA, just reply to this email or call our billing support line at 1‑800‑LARK‑SUP.\\n\\nWe appreciate your business and look forward to resolving this promptly.\\n\\n[LS-2042]\"}"
+    },
+    "ex=0|fmt=json|model=small|role=on|rules=last|task=clear|ticket=enterprise-refund": {
+      "text": "{\"team\":\"billing\",\"reply\":\"Refunds are not covered under the enterprise contract. Please raise a billing dispute with your account manager; they will respond in writing within ten business days. [LS-2042]\"}"
+    },
+    "ex=0|fmt=json|model=main|role=on|rules=last|task=vague|ticket=cutoff": {
+      "text": "{\"team\": \"shipping\", \"reply\": \"Yes, orders for in-stock items placed by 2:00 PM Central Time typically ship the same business day. Since you're ordering at 1:00 PM Central, your three label printers should ship today. You'll receive a shipping confirmation with tracking once the order is processed. [LS-2043]\"}"
+    },
+    "ex=0|fmt=json|model=main|role=on|rules=last|task=clear|ticket=cutoff": {
+      "text": "{\"team\": \"shipping\", \"reply\": \"Yes, orders for in-stock items placed before 2 p.m. Central time on a business day ship the same day. Since 1 p.m. Central is before the cutoff, your three label printers will ship today. [LS-2043]\"}"
+    },
+    "ex=0|fmt=json|model=small|role=on|rules=last|task=vague|ticket=cutoff": {
+      "text": "{\"team\":\"shipping\",\"reply\":\"Hi Priya,\\n\\nThanks for reaching out! Our shipping cutoff for same‑day dispatch is 12:00 p.m. Central Time. Since your order would be placed at 1:00 p.m., it will be processed the next business day and shipped out then. The printers are in stock, so you can expect them to arrive within 2–3 business days after shipping.\\n\\nIf you need them sooner, let us know and we’ll see if we can accommodate an expedited option.\\n\\nBest regards,\\nLarkspur Supply Co. Support\\n\\n[LS-2043]\"}"
+    },
+    "ex=0|fmt=json|model=small|role=on|rules=last|task=clear|ticket=cutoff": {
+      "text": "{\"team\":\"shipping\",\"reply\":\"Yes, orders placed before 2 p.m. Central time ship the same day. Your order will be shipped today. [LS-2043]\"}"
+    },
+    "ex=0|fmt=json|model=main|role=on|rules=last|task=vague|ticket=free-shipping": {
+      "text": "{\"team\": \"shipping\", \"reply\": \"For orders over $500, Larkspur Supply Co. provides complimentary standard parcel shipping within the contiguous US. Your $620 order of label printers qualifies for free standard shipping. If you need expedited shipping, those rates would apply and can be shown at checkout or quoted by our team. [LS-2044]\"}"
+    },
+    "ex=0|fmt=json|model=main|role=on|rules=last|task=clear|ticket=free-shipping": {
+      "text": "{\"team\": \"shipping\", \"reply\": \"Parcel shipping is free on orders over $500, so your $620 order qualifies for free parcel shipping. [LS-2044]\"}"
+    },
+    "ex=0|fmt=json|model=small|role=on|rules=last|task=vague|ticket=free-shipping": {
+      "text": "{\"team\":\"shipping\",\"reply\":\"Your order qualifies for free shipping as it exceeds our $500 threshold. No additional shipping cost will be charged. If you have any further questions, let us know. [LS-2044]\"}"
+    },
+    "ex=0|fmt=json|model=small|role=on|rules=last|task=clear|ticket=free-shipping": {
+      "text": "{\"team\":\"shipping\",\"reply\":\"Your $620 order qualifies for free parcel shipping under our policy, so no shipping fee will be applied. [LS-2044]\"}"
+    },
+    "ex=0|fmt=json|model=main|role=on|rules=last|task=vague|ticket=sensor-warranty": {
+      "text": "{\"team\": \"warranty\", \"reply\": \"Thank you for reaching out, Grace. The DS-100 dock door sensor carries a 3-year limited warranty from the original ship date. At 26 months, your unit should still be within the coverage period. To confirm eligibility and initiate a claim, could you please provide the sensor's serial number and the original order or invoice number? Once we have those details, we can verify the exact warranty status and guide you through the next steps. [LS-2045]\"}"
+    },
+    "ex=0|fmt=json|model=main|role=on|rules=last|task=clear|ticket=sensor-warranty": {
+      "text": "{\"team\": \"warranty\", \"reply\": \"Yes, your DS-100 dock door sensor is still covered under warranty. The DS-100 dock door sensor is warranted against defects for three years from the date of shipment, and 26 months falls within that period. [LS-2045]\"}"
+    },
+    "ex=0|fmt=json|model=small|role=on|rules=last|task=vague|ticket=sensor-warranty": {
+      "text": "{\"team\":\"warranty\",\"reply\":\"Hello Grace,\\n\\nThank you for reaching out. Our standard warranty for dock door sensors is 12 months from the date of shipment. Since the DS‑100 stopped working 26 months after it shipped, it is outside the warranty period and therefore not covered for a free repair or replacement.\\n\\nWe do offer a post‑warranty service plan that can cover future repairs or replacements at a discounted rate. If you would like to explore that option or have the sensor repaired on a paid basis, please let us know and we’ll provide a detailed quote.\\n\\nIf you have any other questions or need assistance with the service process, feel free to reply to this email or call our support line.\\n\\nBest regards,\\nLarkspur Supply Co. Support Team\\n\\n[LS-2045]\"}"
+    },
+    "ex=0|fmt=json|model=small|role=on|rules=last|task=clear|ticket=sensor-warranty": {
+      "text": "{\"team\":\"warranty\",\"reply\":\"Yes, the DS-100 dock door sensor is still covered under the three‑year warranty, as 26 months is within the warranty period. Please let us know if you would like a replacement or repair. [LS-2045]\"}"
+    },
+    "ex=0|fmt=json|model=main|role=on|rules=last|task=vague|ticket=damaged": {
+      "text": "{\"team\": \"shipping\", \"reply\": \"I'm sorry to hear that two printers arrived with cracked cases. We'll absolutely take care of this for you. Please do not discard the damaged units or the original packaging — we may need photos of the damage and the shipping boxes for the carrier claim. Could you reply with a few clear photos of each printer (showing the cracks from multiple angles) and the shipping labels on the boxes? Once we have those, we'll initiate a replacement shipment right away and file the damage claim with the carrier. [LS-2046]\"}"
+    },
+    "ex=0|fmt=json|model=main|role=on|rules=last|task=clear|ticket=damaged": {
+      "text": "{\"team\": \"shipping\", \"reply\": \"Please report the damage within five days of delivery by sending photos of both the carton and the cracked printer cases. Once we receive those, we’ll open a carrier claim and ship replacements. [LS-2046]\"}"
+    },
+    "ex=0|fmt=json|model=small|role=on|rules=last|task=vague|ticket=damaged": {
+      "text": "{\"team\":\"shipping\",\"reply\":\"Hi Luis,\\n\\nI’m sorry to hear that two of the printers arrived with cracked cases. Please send us a few photos of the damage and the serial numbers of the units so we can verify the issue. Once we receive the images, we’ll arrange for a return label and a replacement or refund, depending on your preference.\\n\\nThank you for bringing this to our attention. We’ll resolve it as quickly as possible.\\n\\n[LS-2046]\"}"
+    },
+    "ex=0|fmt=json|model=small|role=on|rules=last|task=clear|ticket=damaged": {
+      "text": "{\"team\":\"shipping\",\"reply\":\"Please report the damage within five days of delivery by sending photos of the carton and the item. Once we open a carrier claim, replacements will ship to you. [LS-2046]\"}"
+    }
+  }
+}

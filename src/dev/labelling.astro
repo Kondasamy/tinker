@@ -1,0 +1,120 @@
+---
+// Dev-only eyeball page: the sorting room in the states the chapters teach (static SVG from the frozen labels at build
+// time, wide and phone), the agreement matrix, then the sort control live in the browser. Below 600px the phone
+// versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { RACK_BOARD, rackLabel, rackScene, type RackOpts } from '../components/scenes/pigeonholeScene';
+import { AgreementMatrix, SortRoom, picksOf, tallyOf } from '../content/labelling/kit';
+import { majority } from '../lib/labelling/vote';
+import { GOLD, HARD, MODELS, POOL, ticketOf } from '../lib/labelling/story';
+import PINNED from '../../data/labelling/pinned.json' with { type: 'json' };
+
+const three = ticketOf(PINNED.threeWay),
+  minority = ticketOf(PINNED.minority),
+  hard = ticketOf(HARD[0]);
+const RR = POOL.filter(t => t.intent === 'refund' || t.intent === 'return').map(t => t.id);
+const STATES: [string, Omit<RackOpts, 'scale'>][] = [
+  ['Ticket on the table (chapter 1)', { ticket: three, say: { block: 'ticket', text: 'One ticket' } }],
+  [
+    'Three picks, three holes (chapter 1)',
+    {
+      ticket: three,
+      mine: picksOf(three.id, false).rosa,
+      picks: picksOf(three.id, false),
+      say: { block: 'mira', text: 'Mira' },
+    },
+  ],
+  [
+    'Tallies building (chapter 2)',
+    {
+      ticket: POOL[8],
+      tally: tallyOf(
+        POOL.slice(0, 8).map(t => t.id),
+        false,
+      ),
+      say: { block: 'return', text: 'Mixed up' },
+    },
+  ],
+  [
+    'Guideline pinned (chapter 3)',
+    { ticket: POOL[1], guide: true, tally: tallyOf(RR.slice(0, 6)), say: { block: 'guide', text: 'The rule' } },
+  ],
+  [
+    'Gold ticket, Tom flagged (chapter 4)',
+    {
+      ticket: GOLD[0],
+      gold: GOLD.length - 1,
+      flag: 'tom',
+      picks: picksOf(GOLD[0].id),
+      say: { block: 'gold', text: 'Gold' },
+    },
+  ],
+  [
+    'The vote, minority right (chapter 5)',
+    {
+      ticket: minority,
+      picks: picksOf(minority.id),
+      vote: majority(Object.values(picksOf(minority.id))),
+      say: { block: 'rosa', text: 'Outvoted' },
+    },
+  ],
+  [
+    'Model at the table (chapter 6)',
+    {
+      ticket: hard,
+      model: true,
+      picks: { ...picksOf(hard.id), model: MODELS.main.labels[hard.id] },
+      say: { block: 'model', text: 'A model' },
+    },
+  ],
+  ['One labeller, model, gold (chapter 7)', { labellers: ['rosa'], model: true, gold: 4, ticket: POOL[20] }],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Labelling scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Sorting room: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={RACK_BOARD} scene={rackScene({ ...o, scale: 1.2 })} label={rackLabel(o)} /></div>
+            <div class="phone"><IsoStage board={RACK_BOARD} scene={rackScene({ ...o, scale: 2 })} label={rackLabel(o)} /></div>
+            <p>{rackLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>Agreement matrix</h1>
+      <div class="grid">
+        <section><h2>Rosa · Mira, before the guideline</h2><AgreementMatrix pair={['rosa', 'mira']} guided={false} /></section>
+        <section><h2>Rosa · Mira, after</h2><AgreementMatrix pair={['rosa', 'mira']} /></section>
+      </div>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Sort the ticket</h2><div class="stage"><SortRoom client:load tickets={[three, ...POOL.slice(0, 5)]} guided={false} caption="Sort each ticket, then see the three labellers' picks." /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .stage { height: 640px; }
+  .phone { display: none; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

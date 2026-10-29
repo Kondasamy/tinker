@@ -1,0 +1,98 @@
+---
+// Dev-only eyeball page: the docket board in the states the chapters teach (static SVG from the recorded replies at
+// build time, wide and phone), then the stages live in the browser. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { DOCKET_BOARD, docketLabel, docketScene, type DocketOpts } from '../components/scenes/docketScene';
+import Live from '../content/prompts/DevLive';
+import { boardOf } from '../content/prompts/kit';
+import { START } from '../lib/prompts/assemble';
+import { EMPTY, TICKETS, type Docket } from '../lib/prompts/cards';
+import PINNED from '../../data/prompts/pinned.json' with { type: 'json' };
+
+type O = Omit<DocketOpts, 'scale'>;
+const ALL = TICKETS.map(t => t.id);
+const at = (chapter: string, d: Partial<Docket>, rest: Partial<O> = {}, set = false): O => ({
+  ...boardOf(chapter, { ...START[chapter], ...d }, set ? { tickets: ALL } : {}).opts,
+  ...rest,
+});
+const STATES: [string, O][] = [
+  [
+    'Ch. 1: one instruction, Larkspur mini continues',
+    {
+      cards: [{ slot: 'task', label: 'INSTRUCTION' }],
+      state: 'warn',
+      slip: { lines: 1, text: 'JUST CONTINUES' },
+      say: { block: 'machine', text: 'It continues' },
+    },
+  ],
+  ['Ch. 2: vague, no role', at('02-say-what-you-want', {}, { say: { block: 'task', text: 'Too vague' } })],
+  [
+    'Ch. 2: clear, with role',
+    at('02-say-what-you-want', { role: true, task: 'clear' }, { say: { block: 'slip', text: 'Key fact in' } }),
+  ],
+  [
+    'Ch. 3: two quirky examples',
+    at('03-show-dont-tell', { examples: '2q' }, { say: { block: 'examples', text: 'Copied' } }),
+  ],
+  ['Ch. 4: JSON', at('04-put-it-in-a-shape', { format: 'json' }, { say: { block: 'format', text: 'Shape' } })],
+  ['Ch. 4: list', at('04-put-it-in-a-shape', { format: 'list' })],
+  ['Ch. 5: rule on top (simulated)', at('05-order-and-emphasis', {}, { say: { block: 'rules', text: 'Buried' } })],
+  ['Ch. 5: rule last (simulated)', at('05-order-and-emphasis', { rules: 'last' })],
+  [
+    'Ch. 6: vague on six tickets',
+    at('06-test-it-like-code', {}, { say: { block: 'machine', text: 'Six tickets' } }, true),
+  ],
+  ['Ch. 6: clear on six tickets', at('06-test-it-like-code', { task: 'clear' }, {}, true)],
+  ['Ch. 7: the bench start', at('07-workbench', {}, { say: { block: 'docket', text: 'Your prompt' } }, true)],
+  [
+    'Ch. 7: a winner',
+    at('07-workbench', PINNED.workbench.winners[0] as Docket, { say: { block: 'rosa', text: 'Ship it' } }, true),
+  ],
+  ['Only the task', at('02-say-what-you-want', { ...EMPTY, task: 'clear' })],
+];
+const LIVE = ['01-it-only-continues', '02-say-what-you-want', '05-order-and-emphasis', '06-test-it-like-code'];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Prompts scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Docket board: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={DOCKET_BOARD} scene={docketScene({ ...o, scale: 1.2 })} label={docketLabel(o)} /></div>
+            <div class="phone"><IsoStage board={DOCKET_BOARD} scene={docketScene({ ...o, scale: 2 })} label={docketLabel(o)} /></div>
+            <p>{docketLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        {LIVE.map(ch => (
+          <section><h2>{ch}</h2><div class="stage"><Live chapter={ch} client:load /></div></section>
+        ))}
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

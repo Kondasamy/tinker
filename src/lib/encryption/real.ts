@@ -9,7 +9,7 @@ export const DEMO = demo;
 /** The ECDSA signature over the supplier's invoice, made once with the demo key (P1363: r then s). */
 export const SIGNATURE = pinned.ecdsa;
 
-const unhex = (h: string) => Uint8Array.from(h.match(/../g) ?? [], b => Number.parseInt(b, 16));
+export const unhex = (h: string) => Uint8Array.from(h.match(/../g) ?? [], b => Number.parseInt(b, 16));
 export const hex = (b: ArrayBuffer | Uint8Array) =>
   [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
 

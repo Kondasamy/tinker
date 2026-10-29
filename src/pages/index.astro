@@ -134,6 +134,27 @@ import { REPEATS as MEM_REPEATS, canaryOf as memCanary } from '../lib/memorisati
 import { boardOf as dreamBoard, dreamLabel, dreamScene } from '../components/scenes/dreamFloorScene';
 import { parseFrame, rollout as vmRollout } from '../lib/video-models/world';
 import VM_PINNED from '../../data/video-models/pinned.json' with { type: 'json' };
+import { DOCKET_BOARD, docketLabel, docketScene } from '../components/scenes/docketScene';
+import { boardOf as promptsBoard } from '../content/prompts/kit';
+import { START as PROMPTS_START } from '../lib/prompts/assemble';
+import { TICKETS as PROMPTS_TICKETS } from '../lib/prompts/cards';
+import { RACK_BOARD, rackLabel, rackScene } from '../components/scenes/pigeonholeScene';
+import { picksOf as labelPicks } from '../content/labelling/kit';
+import { ticketOf as labelTicket } from '../lib/labelling/story';
+import LABEL_PINNED from '../../data/labelling/pinned.json' with { type: 'json' };
+import { GATE_BOARD, gateLabel, gateScene } from '../components/scenes/gateScene';
+import { REGION_NAMES, runOf as fairRun, SHARED as FAIR_SHARED } from '../lib/fairness/story';
+import { UV_BOARD, uvLabel, uvScene, type UvOpts } from '../components/scenes/uvScene';
+import { encode as wmEncode } from '../lib/lm/bpe';
+import { MARK as WM_MARK, REPLY as WM_REPLY } from '../lib/watermarks/story';
+import WM_PINNED from '../../data/watermarks/pinned.json' with { type: 'json' };
+import { HATCH_BOARD, hatchLabel, hatchScene, type HatchOpts } from '../components/scenes/hatchScene';
+import { mandateOf, sign as signMandate } from '../lib/agent-commerce/mandate';
+import { checkOrder, orderOf } from '../lib/agent-commerce/shop';
+import { SLIPS, sellerOf } from '../lib/agent-commerce/story';
+import { RING_BOARD, ringLabel, ringScene } from '../components/scenes/ringScene';
+import { fillsAfter, ringAllReduce } from '../lib/parallel-training/ring';
+import { GRADIENTS } from '../lib/parallel-training/story';
 import { FORM } from '../lib/site';
 
 const one =
@@ -378,6 +399,50 @@ const DREAM = {
   step: VM_LOST,
   scale: 1.7,
 };
+// prompts: the clear docket tested on every ticket, as the intro draws it
+const PR_TEST = '06-test-it-like-code';
+const DOCKET = {
+  ...promptsBoard(
+    PR_TEST,
+    { ...PROMPTS_START[PR_TEST], task: 'clear' },
+    { tickets: PROMPTS_TICKETS.map(t => t.id), model: 'main' },
+  ).opts,
+  scale: 1.7,
+};
+// labelling: three labellers' picks for one ticket, three holes, as the intro draws it
+const LABEL_THREE = labelTicket(LABEL_PINNED.threeWay);
+const RACK = { ticket: LABEL_THREE, picks: labelPicks(LABEL_THREE.id, false), scale: 1.7 };
+// fairness: both lanes at one shared bar, as the intro draws it
+const FAIR_M = fairRun('all', 'none', { A: FAIR_SHARED, B: FAIR_SHARED });
+const GATE = {
+  lanes: { A: { counts: FAIR_M.A, bar: FAIR_SHARED }, B: { counts: FAIR_M.B, bar: FAIR_SHARED } },
+  names: REGION_NAMES,
+  scale: 1.7,
+};
+// watermarks: the pinned marked reply with the whole page under the lamp, as the intro draws it
+const UV: UvOpts = {
+  ids: WM_PINNED.reply.ids,
+  prev: wmEncode(WM_REPLY.prompt).at(-1) ?? 0,
+  gamma: WM_MARK.gamma,
+  lamp: 'all',
+  scale: 1.7,
+};
+// agent commerce: the signed slip refused at the shop's counter after the seller tried to raise the limit, as the intro
+// draws it
+const AC_REFUSED = await checkOrder(
+  await signMandate(mandateOf(SLIPS['shop-around'], 'intro-1')),
+  orderOf(sellerOf('quarrylane')),
+  [],
+);
+const HATCH: HatchOpts = {
+  slip: { at: 'seller', signed: true, checks: AC_REFUSED.checks.map(c => ({ field: c.field, pass: c.pass })) },
+  seller: 'bad',
+  scale: 1.5,
+};
+// parallel training: the ring all-reduce halfway, every worker's bucket filling, as the intro draws it
+const PT_RING = ringAllReduce(GRADIENTS),
+  PT_K = PT_RING.n - 1;
+const RING = { n: PT_RING.n, fills: fillsAfter(PT_RING, PT_K), sends: PT_RING.hops[PT_K - 1].sends, scale: 1.7 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -949,6 +1014,59 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
     name: 'Video and world models',
     iso: { board: dreamBoard(DREAM), scene: dreamScene(DREAM), label: dreamLabel(DREAM) },
     topics: ['Video generation', 'Next-frame prediction', 'Context frames', 'World models', 'Drift', 'Re-sync'],
+  },
+  prompts: {
+    name: 'Writing a prompt',
+    iso: { board: DOCKET_BOARD, scene: docketScene(DOCKET), label: docketLabel(DOCKET) },
+    topics: ['Prompts', 'Instructions', 'Few-shot examples', 'Output format', 'Prompt order', 'Prompt testing'],
+  },
+  labelling: {
+    name: 'Who labels the data',
+    iso: { board: RACK_BOARD, scene: rackScene(RACK), label: rackLabel(RACK) },
+    topics: [
+      'Data labelling',
+      'Agreement',
+      'Cohen’s kappa',
+      'Guidelines',
+      'Gold checks',
+      'Majority vote',
+      'Model labellers',
+    ],
+  },
+  fairness: {
+    name: 'Bias and fairness',
+    iso: { board: GATE_BOARD, scene: gateScene(GATE), label: gateLabel(GATE) },
+    topics: ['Fairness', 'Error rates by group', 'Proxy features', 'Thresholds', 'Equal opportunity', 'Impossibility'],
+  },
+  watermarks: {
+    name: 'Watermarks and made-by-AI',
+    iso: { board: UV_BOARD, scene: uvScene(UV), label: uvLabel(UV) },
+    topics: ['Watermarks', 'Green lists', 'Detection', 'z-score', 'Paraphrasing', 'Pixel marks', 'C2PA'],
+  },
+  'agent-commerce': {
+    name: 'When the buyer is an agent',
+    iso: { board: HATCH_BOARD, scene: hatchScene(HATCH), label: hatchLabel(HATCH) },
+    topics: [
+      'Agent commerce',
+      'Agent cards',
+      'Agent to agent',
+      'Signed mandates',
+      'Prompt injection',
+      'Payment tokens',
+    ],
+  },
+  'parallel-training': {
+    name: 'Many chips, one model',
+    iso: { board: RING_BOARD, scene: ringScene(RING), label: ringLabel(RING) },
+    topics: [
+      'Distributed training',
+      'Data parallel',
+      'All-reduce',
+      'ZeRO sharding',
+      'Pipeline parallel',
+      'Tensor parallel',
+      'Checkpoints',
+    ],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];

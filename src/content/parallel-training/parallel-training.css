@@ -1,0 +1,111 @@
+/* Many chips, one model's stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption). These are the
+   Timeline tab, pass the buckets' controls and the read-out. */
+.pt-timeline {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.tc-frame .pt-timeline svg {
+  width: 100%;
+  height: auto;
+  flex: none;
+}
+.pt-timeline .pt-phone {
+  display: none;
+}
+.pt-pass {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  align-items: center;
+}
+.pt-buttons {
+  display: flex;
+  gap: 6px;
+}
+.pt-maths {
+  margin: 8px 0;
+  font-size: 13.5px;
+}
+.pt-maths summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.pt-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.pt-field {
+  flex-wrap: wrap;
+  border: 1.5px solid var(--rule);
+  border-radius: 12px;
+  padding: 2px 12px 6px;
+  margin: 0;
+  display: flex;
+  gap: 4px 14px;
+}
+.pt-field legend {
+  font-weight: 700;
+  font-size: 13px;
+  padding: 0 4px;
+}
+.pt-field label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  min-height: 32px;
+}
+.pt-range {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  flex: 1;
+  min-width: 220px;
+}
+.pt-range output {
+  font:
+    700 13px ui-monospace,
+    Menlo,
+    monospace;
+}
+.pt-said {
+  margin: 0;
+  flex-basis: 100%;
+  min-height: 2.8em;
+  font:
+    700 13px ui-monospace,
+    Menlo,
+    monospace;
+}
+.pt-note {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+@media (max-width: 599px) {
+  .pt-timeline .pt-wide {
+    display: none;
+  }
+  .pt-timeline .pt-phone {
+    display: block;
+  }
+}
+@media (max-width: 600px) {
+  .pt-buttons .chip,
+  .pt-field label,
+  .pt-range input {
+    min-height: 44px;
+  }
+  .pt-field label {
+    min-width: 44px;
+  }
+  .pt-range {
+    flex-basis: 100%;
+  }
+}

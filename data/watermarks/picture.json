@@ -1,0 +1,14 @@
+{
+  "note": "A toy 64 by 64 grey picture of a brass hinge, drawn from these shapes by src/lib/watermarks/pixels.ts: made for this site to carry the toy pixel mark, not a real product shot. Shades run 0 (black) to 255 (white); the background's two shades run top to bottom, a shape's left to right.",
+  "size": 64,
+  "background": [214, 180],
+  "shapes": [
+    { "kind": "rect", "x": 8, "y": 14, "w": 22, "h": 36, "shade": [150, 120] },
+    { "kind": "rect", "x": 34, "y": 14, "w": 22, "h": 36, "shade": [120, 150] },
+    { "kind": "rect", "x": 29, "y": 12, "w": 6, "h": 40, "shade": [95, 170] },
+    { "kind": "circle", "cx": 19, "cy": 22, "r": 3, "shade": [70, 70] },
+    { "kind": "circle", "cx": 19, "cy": 42, "r": 3, "shade": [70, 70] },
+    { "kind": "circle", "cx": 45, "cy": 22, "r": 3, "shade": [70, 70] },
+    { "kind": "circle", "cx": 45, "cy": 42, "r": 3, "shade": [70, 70] }
+  ]
+}

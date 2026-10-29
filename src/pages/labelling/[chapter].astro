@@ -1,0 +1,31 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import SomeoneHasToDecide from '../../content/labelling/01-someone-has-to-decide';
+import HowOftenDoTheyAgree from '../../content/labelling/02-how-often-do-they-agree';
+import WriteTheRuleDown from '../../content/labelling/03-write-the-rule-down';
+import CheckTheCheckers from '../../content/labelling/04-check-the-checkers';
+import ManyVotes from '../../content/labelling/05-many-votes';
+import LabelTheHardOnesFirst from '../../content/labelling/06-label-the-hard-ones-first';
+import Workbench from '../../content/labelling/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('labelling').chapters.map(({ id, title }) => ({
+    params: { chapter: id },
+    props: { title },
+  }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="labelling" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-someone-has-to-decide' ? <SomeoneHasToDecide client:load />
+    : chapter === '02-how-often-do-they-agree' ? <HowOftenDoTheyAgree client:load />
+    : chapter === '03-write-the-rule-down' ? <WriteTheRuleDown client:load />
+    : chapter === '04-check-the-checkers' ? <CheckTheCheckers client:load />
+    : chapter === '05-many-votes' ? <ManyVotes client:load />
+    : chapter === '06-label-the-hard-ones-first' ? <LabelTheHardOnesFirst client:load />
+    : <Workbench client:load />}
+</ChapterLayout>

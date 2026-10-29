@@ -1,0 +1,32 @@
+{
+  "outage": {
+    "answer": "Page the on-call engineer through the Duty Desk line at extension 4410; they acknowledge within 15 minutes.",
+    "facts": { "duty-desk-4410": ["4410"] },
+    "team": "portal"
+  },
+  "enterprise-refund": {
+    "answer": "The refund policy doesn't cover enterprise contracts. Raise a billing dispute with your account manager, who answers in writing within ten business days.",
+    "facts": { "account-manager": ["account manager"] },
+    "team": "billing"
+  },
+  "cutoff": {
+    "answer": "Yes. In-stock orders placed before 2 p.m. Central on a business day ship the same day.",
+    "facts": { "cutoff-2pm": ["2 p.m.", "2 pm", "2pm", "2:00"] },
+    "team": "shipping"
+  },
+  "free-shipping": {
+    "answer": "No. Parcel shipping is free on orders over $500.",
+    "facts": { "free-over-500": ["$500"] },
+    "team": "shipping"
+  },
+  "sensor-warranty": {
+    "answer": "Yes. The DS-100 is covered for three years from the date of shipment.",
+    "facts": { "three-years": ["three years", "three-year", "3 years", "3-year"] },
+    "team": "warranty"
+  },
+  "damaged": {
+    "answer": "Report it within five days of delivery with photos of the carton and the printers; we ship replacements once the carrier claim is opened.",
+    "facts": { "five-days": ["five days", "5 days", "five business days", "5 business days"] },
+    "team": "shipping"
+  }
+}

@@ -45,6 +45,12 @@ import { RELEASES_MODULE } from '../content/releases/module';
 import { RECOMMENDATIONS_MODULE } from '../content/recommendations/module';
 import { MEMORISATION_MODULE } from '../content/memorisation/module';
 import { VIDEO_MODELS_MODULE } from '../content/video-models/module';
+import { PROMPTS_MODULE } from '../content/prompts/module';
+import { LABELLING_MODULE } from '../content/labelling/module';
+import { FAIRNESS_MODULE } from '../content/fairness/module';
+import { WATERMARKS_MODULE } from '../content/watermarks/module';
+import { AGENT_COMMERCE_MODULE } from '../content/agent-commerce/module';
+import { PARALLEL_TRAINING_MODULE } from '../content/parallel-training/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -149,23 +155,29 @@ export const MODULES: Module[] = [
   RECOMMENDATIONS_MODULE,
   MEMORISATION_MODULE,
   VIDEO_MODELS_MODULE,
+  PROMPTS_MODULE,
+  LABELLING_MODULE,
+  FAIRNESS_MODULE,
+  WATERMARKS_MODULE,
+  AGENT_COMMERCE_MODULE,
+  PARALLEL_TRAINING_MODULE,
   planned(
-    'fairness',
-    'Bias and fairness',
-    'Intermediate',
-    'Who a model gets wrong: error rates group by group, where the skew comes from, and what a fix costs.',
-  ),
-  planned(
-    'watermarks',
-    'Watermarks and made-by-AI',
-    'Intermediate',
-    'Marking generated text and pictures so they can be spotted later, and why a detector can only guess.',
-  ),
-  planned(
-    'prompts',
-    'Writing a prompt',
+    'choosing-models',
+    'Choosing a model',
     'Beginner',
-    'Telling a model what you want: clear instructions, a few good examples, and testing the prompt like code.',
+    'Picking the model for the job: leaderboards, price per answer, speed, and testing on your own questions.',
+  ),
+  planned(
+    'on-device',
+    'Models on your device',
+    'Intermediate',
+    'A model that runs on a phone: what fits in its memory, what it costs the battery, and what never leaves it.',
+  ),
+  planned(
+    'robots',
+    'Robots that act',
+    'Advanced',
+    'From camera frames to motor commands, and why a robot learns by watching people do the task.',
   ),
   planned(
     'rate-limits',

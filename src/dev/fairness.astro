@@ -1,0 +1,82 @@
+---
+// Dev-only eyeball page: the sorting gate in the states the chapters teach (static SVG from the pinned weights at build
+// time, wide and phone), then the stage live in the browser, linked and split. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { GATE_BOARD, gateLabel, gateScene, type GateOpts } from '../components/scenes/gateScene';
+import Live from '../content/fairness/DevLive';
+import type { Features, Fix } from '../lib/fairness/fit';
+import type { Bars } from '../lib/fairness/metrics';
+import { REGION_NAMES, runOf, SHARED } from '../lib/fairness/story';
+import PINNED from '../../data/fairness/pinned.json' with { type: 'json' };
+
+const at = (f: Features, fix: Fix, bars: Bars, rest: Partial<GateOpts> = {}): Omit<GateOpts, 'scale'> => {
+  const m = runOf(f, fix, bars);
+  return {
+    lanes: { A: { counts: m.A, bar: bars.A }, B: { counts: m.B, bar: bars.B } },
+    names: REGION_NAMES,
+    ...rest,
+  };
+};
+const one = { A: SHARED, B: SHARED };
+const STATES: [string, Omit<GateOpts, 'scale'>][] = [
+  ['Ch. 1: one bar, overall', at('all', 'none', one, { say: { block: 'check', text: 'One score' } })],
+  ['Ch. 2: who is wrongly turned down', at('all', 'none', one, { say: { block: 'out-b', text: 'Dropped bags' } })],
+  ['Ch. 3: the thin sample', at('all', 'none', one, { say: { block: 'lane-b', text: '100 people' } })],
+  ['Ch. 4: region dropped', at('no-region', 'none', one, { say: { block: 'check', text: 'No region' } })],
+  ['Ch. 4: region and postcode dropped', at('neither', 'none', one)],
+  [
+    'Ch. 5: two bars, false declines even',
+    at('all', 'none', PINNED.even.bars, { say: { block: 'post-b', text: 'Lower bar' } }),
+  ],
+  ['Ch. 6: a high bar for both', at('all', 'none', { A: 0.8, B: 0.8 }, { say: { block: 'post-a', text: 'Bar 0.80' } })],
+  [
+    'Ch. 7: a winning bench',
+    at('no-region', 'reweight', { A: 0.6, B: 0.35 }, { say: { block: 'counter', text: 'Approved' } }),
+  ],
+  ['Mid-walk (40% through)', at('all', 'none', one, { through: 0.4 })],
+  ['Out-a callout', at('all', 'none', one, { say: { block: 'out-a', text: 'Turned down' } })],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Bias and fairness scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Sorting gate: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={GATE_BOARD} scene={gateScene({ ...o, scale: 1.2 })} label={gateLabel(o)} /></div>
+            <div class="phone"><IsoStage board={GATE_BOARD} scene={gateScene({ ...o, scale: 2 })} label={gateLabel(o)} /></div>
+            <p>{gateLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Linked (ch. 1–4)</h2><div class="stage"><Live linked client:load /></div></section>
+        <section><h2>Split (ch. 5 on)</h2><div class="stage"><Live linked={false} client:load /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

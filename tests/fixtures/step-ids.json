@@ -2128,5 +2128,263 @@
       "bench",
       "ties"
     ]
+  },
+  "prompts": {
+    "01-it-only-continues": [
+      "predict",
+      "send",
+      "second",
+      "quiz"
+    ],
+    "02-say-what-you-want": [
+      "read",
+      "predict",
+      "role",
+      "clear",
+      "quiz"
+    ],
+    "03-show-dont-tell": [
+      "one",
+      "predict",
+      "quirky",
+      "quiz"
+    ],
+    "04-put-it-in-a-shape": [
+      "predict",
+      "list",
+      "json",
+      "quiz"
+    ],
+    "05-order-and-emphasis": [
+      "predict",
+      "move",
+      "quiz"
+    ],
+    "06-test-it-like-code": [
+      "predict",
+      "clear",
+      "predict2",
+      "small",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "quiz"
+    ]
+  },
+  "labelling": {
+    "01-someone-has-to-decide": [
+      "predict",
+      "sort",
+      "quiz"
+    ],
+    "02-how-often-do-they-agree": [
+      "predict",
+      "sort",
+      "matrix",
+      "pair",
+      "quiz"
+    ],
+    "03-write-the-rule-down": [
+      "predict",
+      "guide",
+      "matrix",
+      "quiz"
+    ],
+    "04-check-the-checkers": [
+      "predict",
+      "sort",
+      "score",
+      "quiz"
+    ],
+    "05-many-votes": [
+      "predict",
+      "vote",
+      "quiz"
+    ],
+    "06-label-the-hard-ones-first": [
+      "predict",
+      "order",
+      "model",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "ties"
+    ]
+  },
+  "fairness": {
+    "01-right-on-average": [
+      "slide",
+      "predict",
+      "bars",
+      "quiz"
+    ],
+    "02-errors-by-group": [
+      "predict",
+      "bars",
+      "lower",
+      "quiz"
+    ],
+    "03-where-skew-comes-from": [
+      "predict",
+      "show",
+      "thin",
+      "quiz"
+    ],
+    "04-dropping-the-column": [
+      "predict",
+      "drop",
+      "both",
+      "quiz"
+    ],
+    "05-one-bar-or-two": [
+      "predict",
+      "even",
+      "quiz"
+    ],
+    "06-every-kind": [
+      "tab",
+      "predict",
+      "search",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "ties"
+    ]
+  },
+  "watermarks": {
+    "01-can-you-tell": [
+      "guess",
+      "detectors",
+      "quiz"
+    ],
+    "02-a-hidden-pattern": [
+      "sweep",
+      "predict",
+      "all",
+      "quiz"
+    ],
+    "03-leaning-green": [
+      "predict",
+      "try",
+      "cost"
+    ],
+    "04-counting-green": [
+      "meter",
+      "predict",
+      "short",
+      "grow",
+      "email"
+    ],
+    "05-rewording": [
+      "predict",
+      "wash",
+      "all",
+      "quiz"
+    ],
+    "06-pictures-and-labels": [
+      "predict",
+      "screenshot",
+      "pixel",
+      "crop",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "quiz"
+    ]
+  },
+  "agent-commerce": {
+    "01-a-page-for-people": [
+      "predict",
+      "ask",
+      "more",
+      "quiz"
+    ],
+    "02-a-menu-for-agents": [
+      "card",
+      "menu",
+      "predict",
+      "break",
+      "quiz"
+    ],
+    "03-agent-to-agent": [
+      "predict",
+      "send",
+      "answer",
+      "tab",
+      "clear",
+      "quiz"
+    ],
+    "04-who-said-it-could-buy": [
+      "sign",
+      "send",
+      "predict",
+      "tamper",
+      "quiz"
+    ],
+    "05-a-seller-that-talks-back": [
+      "message",
+      "agent",
+      "send",
+      "lookalike",
+      "quiz"
+    ],
+    "06-paying-without-the-card": [
+      "issue",
+      "predict",
+      "bind",
+      "pay",
+      "replay",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "ties"
+    ]
+  },
+  "parallel-training": {
+    "01-wont-fit": [
+      "predict",
+      "weigh",
+      "quiz"
+    ],
+    "02-copies": [
+      "pass",
+      "predict",
+      "eight",
+      "quiz"
+    ],
+    "03-sharding": [
+      "predict",
+      "stage1",
+      "stage3",
+      "quiz"
+    ],
+    "04-pipeline": [
+      "walk",
+      "predict",
+      "micro",
+      "quiz"
+    ],
+    "05-inside-a-layer": [
+      "predict",
+      "inside",
+      "between",
+      "quiz"
+    ],
+    "06-checkpoints": [
+      "predict",
+      "often",
+      "rarely",
+      "best",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "ties"
+    ]
   }
 }

@@ -1,0 +1,174 @@
+/* Bias and fairness stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption). These are the Bars
+   tab, the bar ranges and the read-out. Northvale is cobalt, Eastmere mustard, each also named and marked (● / ■). */
+.fr-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+.fr-metric {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.fr-metric figcaption {
+  font:
+    800 12px ui-monospace,
+    Menlo,
+    monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.fr-row {
+  display: grid;
+  grid-template-columns: 8.5em 1fr 3.4em;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+}
+.fr-track {
+  height: 14px;
+  border: 1.5px solid var(--ink);
+  border-radius: 7px;
+  background: var(--card);
+  overflow: hidden;
+}
+.fr-fill {
+  display: block;
+  height: 100%;
+  border-right: 1.5px solid var(--ink);
+}
+.fr-a .fr-fill {
+  background: var(--cobalt-l);
+}
+.fr-b .fr-fill {
+  background: var(--mustard-l);
+}
+.fr-val {
+  font:
+    700 13px ui-monospace,
+    Menlo,
+    monospace;
+  text-align: right;
+}
+
+.fr-ranges {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 18px;
+}
+.fr-range {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 8px;
+  align-items: center;
+}
+.fr-range label {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  font-weight: 700;
+}
+.fr-range input {
+  width: 100%;
+  min-height: 32px;
+  margin: 0;
+}
+.fr-a input {
+  accent-color: var(--cobalt-m);
+}
+.fr-b input {
+  accent-color: var(--mustard-m);
+}
+.fr-num {
+  font:
+    700 13px ui-monospace,
+    Menlo,
+    monospace;
+}
+.fr-said {
+  margin: 0;
+  min-height: 2.8em;
+  font:
+    700 13px ui-monospace,
+    Menlo,
+    monospace;
+}
+.fr-counts {
+  font-size: 12.5px;
+}
+.fr-note {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+@media (max-width: 600px) {
+  .fr-ranges {
+    grid-template-columns: 1fr;
+  }
+  .fr-range input {
+    min-height: 44px;
+  }
+  .fr-row {
+    grid-template-columns: 7em 1fr 3em;
+  }
+}
+.fr-pick,
+.fr-bench fieldset {
+  border: 0;
+  padding: 0;
+  margin: 6px 0;
+}
+.fr-pick legend,
+.fr-bench legend {
+  font-weight: 800;
+  font-size: 14px;
+}
+.fr-pick label,
+.fr-bench label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 32px;
+  font-size: 14px;
+}
+.fr-bench {
+  border: 1.5px solid var(--rule);
+  border-radius: 12px;
+  padding: 6px 12px;
+  margin: 8px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 28px;
+}
+.fr-maths {
+  margin: 8px 0;
+  font-size: 13.5px;
+}
+.fr-maths summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.fr-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.fr-table td,
+.fr-table th {
+  text-align: left;
+}
+.fr-table td.ok {
+  font-weight: 800;
+}
+.fr-table td.bad {
+  color: #a5341f;
+}
+@media (max-width: 600px) {
+  .fr-pick label,
+  .fr-bench label {
+    min-height: 44px;
+  }
+}

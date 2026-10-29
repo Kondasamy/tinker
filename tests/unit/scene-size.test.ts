@@ -15,12 +15,19 @@ import { boardOf as crateBoard, crateScene, yardOf, type CrateOpts } from '../..
 import { DARK_BOARD, darkroomScene } from '../../src/components/scenes/darkroomScene';
 import { DEPOT_BOARD, depotAt, depotScene } from '../../src/components/scenes/depotScene';
 import { DESK_BOARD, beatsOf, deskAt, deskScene } from '../../src/components/scenes/deskScene';
+import { DOCKET_BOARD, docketScene } from '../../src/components/scenes/docketScene';
+import { boardOf as docketOf } from '../../src/content/prompts/kit';
 import { boardOf as dreamBoard, dreamScene, type DreamOpts } from '../../src/components/scenes/dreamFloorScene';
+import { RING_BOARD, ringScene } from '../../src/components/scenes/ringScene';
+import { sceneOf as ringSceneOf, START as RING_START } from '../../src/content/parallel-training/kit';
+import { HATCH_BOARD, hatchScene } from '../../src/components/scenes/hatchScene';
+import { FIELDS } from '../../src/lib/agent-commerce/shop';
 import { ENGINE_BOARD, engineScene } from '../../src/components/scenes/engineScene';
 import { EVAL_BOARD, evalScene } from '../../src/components/scenes/evalScene';
 import { EXAM_BOARD, examScene } from '../../src/components/scenes/examScene';
 import { FORGE_BOARD, forgeScene } from '../../src/components/scenes/forgeScene';
 import { FUSE_BOARD, fuseScene } from '../../src/components/scenes/fuseScene';
+import { GATE_BOARD, gateScene } from '../../src/components/scenes/gateScene';
 import { GUARD_BOARD, guardScene } from '../../src/components/scenes/guardScene';
 import { HERO_BOARD, HOME_HERO } from '../../src/components/scenes/heroScene';
 import { JAR_BOARD, jarScene } from '../../src/components/scenes/jarScene';
@@ -29,6 +36,7 @@ import { ROOMS_BOARD, roomsScene, tokensOf } from '../../src/components/scenes/o
 import { OFFICE_BOARD, officeScene } from '../../src/components/scenes/officeScene';
 import { PAINT_BOARD, paintAt, paintScene } from '../../src/components/scenes/paintScene';
 import { PHONE_BOARD, phoneScene } from '../../src/components/scenes/phoneScene';
+import { RACK_BOARD, rackScene } from '../../src/components/scenes/pigeonholeScene';
 import { PILE_BOARD, pileScene } from '../../src/components/scenes/pileScene';
 import { POST_BOARD, postScene } from '../../src/components/scenes/postScene';
 import { PUPPET_BOARD, puppetScene } from '../../src/components/scenes/puppetScene';
@@ -51,6 +59,7 @@ import { TRACE_BOARD, traceScene } from '../../src/components/scenes/traceScene'
 import { TRAIN_BOARD, trainScene } from '../../src/components/scenes/trainScene';
 import { TUBE_BOARD, tubeAt, tubeScene } from '../../src/components/scenes/tubeScene';
 import { FRAME_BOARD, typeFrameScene } from '../../src/components/scenes/typeFrameScene';
+import { UV_BOARD, uvScene } from '../../src/components/scenes/uvScene';
 import { WINDOW_BOARD, windowScene } from '../../src/components/scenes/windowScene';
 import { YARD_BOARD, yardAt, yardScene } from '../../src/components/scenes/yardScene';
 import { play as playCoding } from '../../src/content/coding-agents/kit';
@@ -83,6 +92,7 @@ import { diskMlm } from '../../src/lib/diffusion-llms/diskModel';
 import { PHRASES } from '../../src/lib/diffusion-llms/workbench';
 import { RECORDS, verdictOf } from '../../src/lib/email/story';
 import { QUESTIONS } from '../../src/lib/evals/suite';
+import { REGION_NAMES as FAIRNESS_REGIONS, runOf as fairnessRun } from '../../src/lib/fairness/story';
 import { REPO } from '../../src/lib/git/graph';
 import { CLEAN } from '../../src/lib/git/story';
 import { run as guardRun } from '../../src/lib/guardrails/loop';
@@ -117,8 +127,10 @@ import { SERVERS as MCP_SERVERS } from '../../src/lib/tools/server';
 import { PROMPTS, trace } from '../../src/lib/transformers/trace';
 import { diskModel } from '../../src/lib/transformers/diskModel';
 import { rollout, parseFrame } from '../../src/lib/video-models/world';
+import { MARK as WATERMARK } from '../../src/lib/watermarks/story';
 import { runOf as webRun } from '../../src/lib/web-requests/sim';
 import pinnedDream from '../../data/video-models/pinned.json' with { type: 'json' };
+import pinnedWatermark from '../../data/watermarks/pinned.json' with { type: 'json' };
 import type { Msg } from '../../src/lib/iso/flat';
 
 const stage = (board: Board, scene: ReturnType<typeof officeScene>) =>
@@ -203,6 +215,16 @@ const SCENES: Record<string, () => string> = {
     const r = playCoding({ case: 'bulk', review: 7 });
     return stage(DESK_BOARD, deskScene(deskAt(r, beatsOf(r).length)));
   },
+  // the slip stamped at the seller's counter, one field failed, the token beside it
+  hatch: () =>
+    stage(
+      HATCH_BOARD,
+      hatchScene({
+        slip: { at: 'seller', signed: true, checks: FIELDS.map(field => ({ field, pass: field !== 'cap' })) },
+        seller: 'bad',
+        token: 'live',
+      }),
+    ),
   // the real and dreamed floors side by side at step 3 (the pair board)
   dream: () => {
     const o: DreamOpts = {
@@ -212,6 +234,8 @@ const SCENES: Record<string, () => string> = {
     };
     return stage(dreamBoard(o), dreamScene(o));
   },
+  // eight workers mid-ring: 64 jars, every arrow
+  ring: () => stage(RING_BOARD, ringScene(ringSceneOf({ ...RING_START, n: 8, k: 3 }))),
   // the long prompt: the most tokens and threads
   engine: () => {
     const model = parseModel(META, lm('model.bin'));
@@ -241,6 +265,18 @@ const SCENES: Record<string, () => string> = {
   },
   // checkpoint 1000 of the pre-training run
   forge: () => stage(FORGE_BOARD, forgeScene({ steps: FORGE_STEPS, step: 1000 })),
+  // the shared bar with every applicant drawn and walked through (a new scene: its baseline is its first size)
+  gate: () => {
+    const m = fairnessRun('all', 'none', { A: 0.5, B: 0.5 });
+    return stage(
+      GATE_BOARD,
+      gateScene({
+        lanes: { A: { counts: m.A, bar: 0.5 }, B: { counts: m.B, bar: 0.5 } },
+        names: FAIRNESS_REGIONS,
+        say: { block: 'out-b', text: 'Dropped bags' },
+      }),
+    );
+  },
   // a full sentence with threads on and a head pulled (the callout test's state)
   fuse: () => {
     const out = forward(diskModel(), encode('Candidates receive an answer within ten'));
@@ -307,6 +343,23 @@ const SCENES: Record<string, () => string> = {
   paint: () => stage(PAINT_BOARD, paintScene({ ...paintAt('rose', 'swapped'), eve: 'SEES' })),
   // the reply talking over the caller, with the wait shown
   phone: () => stage(PHONE_BOARD, phoneScene({ stage: 'reply', interrupt: true, wait: 1830 })),
+  // the pigeonhole rack with every prop: model, guideline, gold, flag, a full hole and the three picks dropping
+  pigeonhole: () =>
+    stage(
+      RACK_BOARD,
+      rackScene({
+        ticket: { id: 't016', gold: true },
+        picks: { rosa: 'refund', mira: 'return', tom: 'delivery', model: 'refund' },
+        tally: { refund: 40, return: 3 },
+        mine: 'refund',
+        vote: 'refund',
+        gold: 9,
+        flag: 'tom',
+        model: true,
+        guide: true,
+        drop: true,
+      }),
+    ),
   // the puzzle's finished forest with the parcel: every pile and part
   pile: () =>
     stage(PILE_BOARD, pileScene({ ...forestTable(finish(forestOf(PUZZLE)), true), parcel: { raw: 10, packed: 4 } })),
@@ -459,6 +512,29 @@ const SCENES: Record<string, () => string> = {
       f = mlmDecode(diskMlm(), p.ids, 4, 'confidence', p.seed);
     return stage(FRAME_BOARD, typeFrameScene({ given: p.ids.length, ...frameOf(f, 2), typed: 3, typeOf: 16 }));
   },
+  // the full docket (six strips) with its reply slip, a card sliding in (a new scene: its baseline is its first size)
+  docket: () =>
+    stage(
+      DOCKET_BOARD,
+      docketScene({
+        ...docketOf('07-workbench', { role: true, task: 'clear', examples: 2, format: 'json', rules: 'first' }).opts,
+        fresh: 'rules',
+        say: { block: 'docket', text: 'Your prompt' },
+      }),
+    ),
+  // the pinned watermarked reply, every tile lit, one picked (a new scene: its baseline is its first size)
+  uv: () =>
+    stage(
+      UV_BOARD,
+      uvScene({
+        ids: pinnedWatermark.reply.ids,
+        prev: encode(pinnedWatermark.reply.prompt).at(-1)!,
+        gamma: WATERMARK.gamma,
+        lamp: 'all',
+        picked: 2,
+        say: { block: 'lamp', text: 'UV lamp' },
+      }),
+    ),
   // the memory run with shelf, cabinet and tray on (the callout test's state)
   window: () =>
     stage(
@@ -490,12 +566,18 @@ const BASE: Record<string, number> = {
   darkroom: 43918,
   depot: 48071,
   desk: 28907,
+  // new with the prompts module (no pre-rework size): its first size is 42,491, with a little headroom
+  docket: 15000,
   dream: 37567,
+  ring: 305505,
+  hatch: 66806,
   engine: 41049,
   eval: 39380,
   exam: 33521,
   forge: 34148,
   fuse: 38769,
+  // new with the fairness module (no pre-rework size): its first size is 281,757 (24 people), with a little headroom
+  gate: 100000,
   guard: 96189,
   hero: 507886,
   jar: 108535,
@@ -505,6 +587,7 @@ const BASE: Record<string, number> = {
   office: 66173,
   paint: 42392,
   phone: 45861,
+  pigeonhole: 110562,
   pile: 16097,
   post: 44758,
   puppet: 23908,
@@ -529,6 +612,8 @@ const BASE: Record<string, number> = {
   train: 43227,
   tube: 85271,
   frame: 74221,
+  // new with the watermarks module (no pre-rework size): its first size is 62,335, with a little headroom
+  uv: 25000,
   window: 26749,
   yard: 40499,
 };

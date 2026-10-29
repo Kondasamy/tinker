@@ -1,0 +1,10 @@
+{
+  "note": "Larkspur's planning numbers, not measured: what a person's label and a model's label cost, the gold score below which a labeller's work is dropped, and the accuracy the triage team needs on the 80 unchecked pool tickets. The team's rule: of the setups that reach the bar, the cheapest.",
+  "costs": { "person": 0.3, "model": 0.003 },
+  "goldBar": 0.8,
+  "bar": 0.95,
+  "votes": [1, 3],
+  "gold": [0, 5, 10],
+  "hard": ["people", "model", "check"],
+  "start": { "votes": 1, "gold": 0, "hard": "people" }
+}

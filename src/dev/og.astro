@@ -353,6 +353,49 @@ import { dream as vmDream, oneStep as vmOneStep } from '../lib/video-models/roll
 import { BENCH as VM_BENCH, WINNERS as VM_WINNERS } from '../lib/video-models/workbench';
 import { parseFrame as vmParse, rollout as vmRollout } from '../lib/video-models/world';
 import VM_PINNED from '../../data/video-models/pinned.json' with { type: 'json' };
+import { DOCKET_BOARD, docketScene, type DocketOpts } from '../components/scenes/docketScene';
+import { boardOf as prBoard } from '../content/prompts/kit';
+import { START as PR_START } from '../lib/prompts/assemble';
+import { TICKETS as PR_TICKETS, type Docket } from '../lib/prompts/cards';
+import PR_PINNED from '../../data/prompts/pinned.json' with { type: 'json' };
+import { RACK_BOARD, rackScene, type RackOpts } from '../components/scenes/pigeonholeScene';
+import { picksOf as lbPicks, tallyOf as lbTally } from '../content/labelling/kit';
+import { majority as lbMajority } from '../lib/labelling/vote';
+import {
+  GOLD as LB_GOLD,
+  HARD as LB_HARD,
+  MODELS as LB_MODELS,
+  POOL as LB_POOL,
+  ticketOf as lbTicket,
+} from '../lib/labelling/story';
+import LB_PINNED from '../../data/labelling/pinned.json' with { type: 'json' };
+import { GATE_BOARD, gateScene, type GateOpts } from '../components/scenes/gateScene';
+import type { Features as FrFeatures, Fix as FrFix } from '../lib/fairness/fit';
+import type { Bars as FrBars } from '../lib/fairness/metrics';
+import { REGION_NAMES as FR_NAMES, runOf as frRun, SHARED as FR_SHARED } from '../lib/fairness/story';
+import FR_PINNED from '../../data/fairness/pinned.json' with { type: 'json' };
+import { UV_BOARD, uvScene, type UvOpts } from '../components/scenes/uvScene';
+import { encode as wmEncode } from '../lib/lm/bpe';
+import { detect as wmDetect } from '../lib/watermarks/pixels';
+import { LABEL as WM_LABEL, travel as wmTravel } from '../lib/watermarks/label';
+import {
+  HUMAN as WM_HUMAN,
+  MARK as WM_MARK,
+  MARKED_PICTURE,
+  PICTURE_INFO,
+  REPLY as WM_REPLY,
+} from '../lib/watermarks/story';
+import WM_PINNED from '../../data/watermarks/pinned.json' with { type: 'json' };
+import { HATCH_BOARD, hatchScene, type HatchOpts } from '../components/scenes/hatchScene';
+import { mandateOf as acMandate, sign as acSign } from '../lib/agent-commerce/mandate';
+import { checkOrder as acCheck, orderOf as acOrder } from '../lib/agent-commerce/shop';
+import { SLIPS as AC_SLIPS, sellerOf as acSeller } from '../lib/agent-commerce/story';
+import { RING_BOARD, ringScene, type RingOpts } from '../components/scenes/ringScene';
+import { sceneOf as ptScene, type PassState } from '../content/parallel-training/kit';
+import { fillsAfter as ptFills, ringAllReduce as ptRing } from '../lib/parallel-training/ring';
+import { memoryOf as ptMemory, stateOf as ptState } from '../lib/parallel-training/memory';
+import { CHIP as PT_CHIP } from '../lib/parallel-training/facts';
+import { GRADIENTS as PT_GRADIENTS } from '../lib/parallel-training/story';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -1665,6 +1708,174 @@ const DREAM_OG: Record<string, () => Omit<DreamOpts, 'scale'>> = {
   },
 };
 const dreamOg = DREAM_OG[page.og]?.();
+// module 47: the docket board. The intro: the clear docket on all six tickets; 1: one instruction, Larkspur mini just
+// continues; 2: a clear task with a role; 3: two quirky examples; 4: the JSON shape; 5: the rule moved last; 6: the
+// vague docket on all six tickets; 7: the workbench's first winning docket.
+const prAt = (chapter: string, d: Partial<Docket>, set = false): Omit<DocketOpts, 'scale'> =>
+  prBoard(chapter, { ...PR_START[chapter], ...d }, set ? { tickets: PR_TICKETS.map(t => t.id), model: 'main' } : {})
+    .opts;
+const DOCKET_OG: Record<string, () => Omit<DocketOpts, 'scale'>> = {
+  prompts: () => prAt('06-test-it-like-code', { task: 'clear' }, true),
+  'prompts-01-it-only-continues': () => ({
+    cards: [{ slot: 'task', label: 'INSTRUCTION' }],
+    state: 'warn',
+    slip: { lines: 1, text: 'JUST CONTINUES' },
+  }),
+  'prompts-02-say-what-you-want': () => prAt('02-say-what-you-want', { role: true, task: 'clear' }),
+  'prompts-03-show-dont-tell': () => prAt('03-show-dont-tell', { examples: '2q' }),
+  'prompts-04-put-it-in-a-shape': () => prAt('04-put-it-in-a-shape', { format: 'json' }),
+  'prompts-05-order-and-emphasis': () => prAt('05-order-and-emphasis', { rules: 'last' }),
+  'prompts-06-test-it-like-code': () => prAt('06-test-it-like-code', {}, true),
+  'prompts-07-workbench': () => prAt('07-workbench', PR_PINNED.workbench.winners[0] as Docket, true),
+};
+const docketOg = DOCKET_OG[page.og]?.();
+// module 48: the sorting room. The intro and 1: three labellers, one ticket, three holes; 2: tallies building; 3: the
+// guideline pinned over refund and return slips; 4: a gold ticket with Tom flagged; 5: the vote outvoting the right
+// pick; 6: the model at the table on a hard ticket; 7: one labeller, the model and gold.
+const lbThree = () => lbTicket(LB_PINNED.threeWay);
+const RACK_OG: Record<string, () => Omit<RackOpts, 'scale'>> = {
+  labelling: () => ({ ticket: lbThree(), picks: lbPicks(lbThree().id, false) }),
+  'labelling-01-someone-has-to-decide': () => {
+    const picks = lbPicks(lbThree().id, false);
+    return { ticket: lbThree(), mine: picks.rosa, picks };
+  },
+  'labelling-02-how-often-do-they-agree': () => ({
+    ticket: LB_POOL[8],
+    tally: lbTally(
+      LB_POOL.slice(0, 8).map(t => t.id),
+      false,
+    ),
+  }),
+  'labelling-03-write-the-rule-down': () => ({
+    ticket: LB_POOL[1],
+    guide: true,
+    tally: lbTally(
+      LB_POOL.filter(t => t.intent === 'refund' || t.intent === 'return')
+        .slice(0, 6)
+        .map(t => t.id),
+    ),
+  }),
+  'labelling-04-check-the-checkers': () => ({
+    ticket: LB_GOLD[0],
+    gold: LB_GOLD.length - 1,
+    flag: 'tom',
+    picks: lbPicks(LB_GOLD[0].id),
+  }),
+  'labelling-05-many-votes': () => {
+    const t = lbTicket(LB_PINNED.minority),
+      picks = lbPicks(t.id);
+    return { ticket: t, picks, vote: lbMajority(Object.values(picks)) };
+  },
+  'labelling-06-label-the-hard-ones-first': () => {
+    const t = lbTicket(LB_HARD[0]);
+    return { ticket: t, model: true, picks: { ...lbPicks(t.id), model: LB_MODELS.main.labels[t.id] } };
+  },
+  'labelling-07-workbench': () => ({ labellers: ['rosa'], model: true, gold: 4, ticket: LB_POOL[20] }),
+};
+const rackOg = RACK_OG[page.og]?.();
+// module 49: the sorting gate. The intro and 2: both lanes through at one shared bar; 1: the same lanes mid-walk; 3: the
+// thin sample reweighted; 4: the region column dropped; 5: the two bars that even false declines; 6: a high bar for
+// both; 7: the workbench's first winning setup.
+const frAt = (f: FrFeatures, fix: FrFix, bars: FrBars, through?: number): Omit<GateOpts, 'scale'> => {
+  const m = frRun(f, fix, bars);
+  return { lanes: { A: { counts: m.A, bar: bars.A }, B: { counts: m.B, bar: bars.B } }, names: FR_NAMES, through };
+};
+const frOne = { A: FR_SHARED, B: FR_SHARED };
+const frWin = FR_PINNED.workbench.winners[0];
+const GATE_OG: Record<string, () => Omit<GateOpts, 'scale'>> = {
+  fairness: () => frAt('all', 'none', frOne),
+  'fairness-01-right-on-average': () => frAt('all', 'none', frOne, 0.4),
+  'fairness-02-errors-by-group': () => frAt('all', 'none', frOne),
+  'fairness-03-where-skew-comes-from': () => frAt('all', 'reweight', frOne),
+  'fairness-04-dropping-the-column': () => frAt('no-region', 'none', frOne),
+  'fairness-05-one-bar-or-two': () => frAt('all', 'none', FR_PINNED.even.bars),
+  'fairness-06-every-kind': () => frAt('all', 'none', { A: 0.8, B: 0.8 }),
+  'fairness-07-workbench': () =>
+    frAt(frWin.features as FrFeatures, frWin.fix as FrFix, { A: frWin.barA, B: frWin.barB }),
+};
+const gateOg = GATE_OG[page.og]?.();
+// module 50: the UV print room. The intro: the pinned marked reply, lit all over; 1: a hand-written reply, lamp off; 2:
+// the lamp mid-page; 3: the strongest nudge's reply, lit; 4: the first 16 tokens; 5: the reworded reply; 6: the cropped
+// print, its label dropped; 7: the workbench's winning setting with the lamp near the end.
+const wmPage = (ids: number[], rest: Partial<UvOpts> = {}): Omit<UvOpts, 'scale'> => ({
+  ids,
+  prev: wmEncode(WM_REPLY.prompt).at(-1) ?? 0,
+  gamma: WM_MARK.gamma,
+  lamp: 'all',
+  ...rest,
+});
+const wmLean = (delta: number) => WM_PINNED.leaning.find(l => l.delta === delta)?.ids ?? WM_PINNED.reply.ids;
+const UV_OG: Record<string, () => Omit<UvOpts, 'scale'>> = {
+  watermarks: () => wmPage(WM_PINNED.reply.ids),
+  'watermarks-01-can-you-tell': () =>
+    wmPage(wmEncode(WM_HUMAN[0].reply).slice(0, 64), {
+      lamp: null,
+      prev: wmEncode(WM_HUMAN[0].question).at(-1) ?? 0,
+    }),
+  'watermarks-02-a-hidden-pattern': () => wmPage(WM_PINNED.reply.ids, { lamp: 12 }),
+  'watermarks-03-leaning-green': () => wmPage(wmLean(Math.max(...WM_PINNED.leaning.map(l => l.delta)))),
+  'watermarks-04-counting-green': () => wmPage(WM_PINNED.reply.ids.slice(0, 16)),
+  'watermarks-05-rewording': () => wmPage(WM_PINNED.rewording.all),
+  'watermarks-06-pictures-and-labels': () => {
+    const { pic, label } = wmTravel(MARKED_PICTURE, WM_LABEL, 'crop');
+    return wmPage([], {
+      print: { pic, label: !!label, found: wmDetect(pic, PICTURE_INFO.seed).verdict === 'marked' },
+    });
+  },
+  'watermarks-07-workbench': () => wmPage(wmLean(WM_PINNED.workbench.winners[0].delta), { lamp: 20 }),
+};
+const uvOg = UV_OG[page.og]?.();
+// module 51: the trading hatch. The intro and 5: the seller's raised limit refused at the counter; 1: the buying agent
+// misreading a page for people; 2: reading the agent card; 3: the seller asking back; 4: the signed slip in the hatch;
+// 6: the one-order token on an accepted slip; 7: an honest seller's order accepted.
+const acStamps = async (terms: keyof typeof AC_SLIPS, seller: string) =>
+  (await acCheck(await acSign(acMandate(AC_SLIPS[terms], 'og-1')), acOrder(acSeller(seller)), [])).checks.map(c => ({
+    field: c.field,
+    pass: c.pass,
+  }));
+const acRefused = async (): Promise<HatchOpts> => ({
+  slip: { at: 'seller', signed: true, checks: await acStamps('shop-around', 'quarrylane') },
+  seller: 'bad',
+});
+const HATCH_OG: Record<string, () => HatchOpts | Promise<HatchOpts>> = {
+  'agent-commerce': acRefused,
+  'agent-commerce-01-a-page-for-people': () => ({ buyer: 'warn' }),
+  'agent-commerce-02-a-menu-for-agents': () => ({ buyer: 'ok' }),
+  'agent-commerce-03-agent-to-agent': () => ({ seller: 'warn' }),
+  'agent-commerce-04-who-said-it-could-buy': () => ({ slip: { at: 'hatch', signed: true } }),
+  'agent-commerce-05-a-seller-that-talks-back': acRefused,
+  'agent-commerce-06-paying-without-the-card': async () => ({
+    slip: { at: 'seller', signed: true, checks: await acStamps('larkspur', 'larkspur') },
+    token: 'live',
+  }),
+  'agent-commerce-07-workbench': async () => ({
+    slip: { at: 'seller', signed: true, checks: await acStamps('larkspur', 'larkspur') },
+    seller: 'ok',
+  }),
+};
+const hatchOg = await HATCH_OG[page.og]?.();
+// module 52: the round table. The intro: the ring all-reduce halfway; 1: one chip under the whole state; 2: four
+// workers after the first hop; 3: eight copies with everything sharded; 4: a four-stage pipeline mid-way; 5: eight
+// workers splitting a layer; 6: a chip down; 7: an eight-stage pipeline with eight micro-batches.
+const ptAt = (s: Partial<PassState>) => ptScene({ mode: 'ring', n: 4, k: 0, m: 4, ...s });
+const RING_OG: Record<string, () => Omit<RingOpts, 'scale'>> = {
+  'parallel-training': () => {
+    const r = ptRing(PT_GRADIENTS),
+      k = r.n - 1;
+    return { n: r.n, fills: ptFills(r, k), sends: r.hops[k - 1].sends };
+  },
+  'parallel-training-01-wont-fit': () => ({ n: 1, load: [ptState() / PT_CHIP.memory] }),
+  'parallel-training-02-copies': () => ptAt({ k: 1 }),
+  'parallel-training-03-sharding': () => ({
+    n: 8,
+    load: Array(8).fill(ptMemory({ tp: 1, pp: 1, dp: 8, zero: 3 }).total / PT_CHIP.memory),
+  }),
+  'parallel-training-04-pipeline': () => ptAt({ mode: 'pipeline', k: 4 }),
+  'parallel-training-05-inside-a-layer': () => ptAt({ n: 8, k: 2 }),
+  'parallel-training-06-checkpoints': () => ({ ...ptAt({ n: 8, k: 0 }), down: 3 }),
+  'parallel-training-07-workbench': () => ptAt({ mode: 'pipeline', n: 8, m: 8, k: 9 }),
+};
+const ringOg = RING_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1738,6 +1949,12 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : sxOg ? <IsoStage board={CABINET_BOARD} scene={cabinetScene({ ...sxOg, scale: 1.3 })} label="" />
           : townOg ? <IsoStage board={TOWN_BOARD} scene={townScene({ ...townOg, scale: 1.3 })} label="" />
           : webFallOg ? <div class="tf-og ob-og"><WaterfallView run={webFallOg} /></div>
+          : docketOg ? <IsoStage board={DOCKET_BOARD} scene={docketScene({ ...docketOg, scale: 1.3 })} label="" />
+          : rackOg ? <IsoStage board={RACK_BOARD} scene={rackScene({ ...rackOg, scale: 1.3 })} label="" />
+          : gateOg ? <IsoStage board={GATE_BOARD} scene={gateScene({ ...gateOg, scale: 1.3 })} label="" />
+          : uvOg ? <IsoStage board={UV_BOARD} scene={uvScene({ ...uvOg, scale: 1.3 })} label="" />
+          : hatchOg ? <IsoStage board={HATCH_BOARD} scene={hatchScene({ ...hatchOg, scale: 1.2 })} label="" />
+          : ringOg ? <IsoStage board={RING_BOARD} scene={ringScene({ ...ringOg, scale: 1.3 })} label="" />
           : dreamOg ? <IsoStage board={dreamBoard(dreamOg)} scene={dreamScene({ ...dreamOg, scale: 1.3 })} label="" />
           : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
           : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />
