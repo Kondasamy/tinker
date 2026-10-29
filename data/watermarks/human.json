@@ -1,0 +1,125 @@
+{
+  "note": "Customer questions and support replies hand-written for this site as Larkspur's support team would write them: made up, never a real customer. They stand in for human writing in chapter 1 (beside recorded model replies to the same questions) and in every false-alarm count.",
+  "replies": [
+    {
+      "id": "h01",
+      "by": "Rosa",
+      "question": "How long do you keep my order history?",
+      "reply": "Hi Dana, thanks for asking. We keep order history for seven years, because the tax office can ask for invoices that far back. You can still see every order in the portal. If you want old addresses removed sooner, reply here and I'll pass it to the records team."
+    },
+    {
+      "id": "h02",
+      "by": "Tomas",
+      "question": "My pallet of shelving arrived with a cracked upright. What now?",
+      "reply": "Sorry about that, it shouldn't happen. Please send me a photo of the crack and the label on the pallet. I'll book a replacement upright on tomorrow's van and the driver will take the broken one back, so don't throw it out. No need to fill in a returns form."
+    },
+    {
+      "id": "h03",
+      "by": "Ines",
+      "question": "Can I change the delivery address on an order I placed this morning?",
+      "reply": "Yes, as long as it hasn't left the warehouse, and yours hasn't. I've changed it to the site on Mill Lane. The delivery day stays the same, Thursday before noon. If the gate code has changed too, just reply with it and I'll add it to the driver's note."
+    },
+    {
+      "id": "h04",
+      "by": "Mira",
+      "question": "Why was I charged twice for the same invoice?",
+      "reply": "I can see both payments, and you're right, the second one is a duplicate. It happens when the card page times out and you press pay again. I've refunded the extra charge today. Banks usually take three to five working days to show it, so it may not be there until next week."
+    },
+    {
+      "id": "h05",
+      "by": "Rosa",
+      "question": "Do you sell the Heron shelving in a narrower depth?",
+      "reply": "We do. Heron comes in 30 and 45 centimetre depths, and the 30 one fits most corridors. The uprights are the same, so you can mix depths on one run if you want. I'll send you the spec sheet now. Lead time is about a week for the narrow shelves."
+    },
+    {
+      "id": "h06",
+      "by": "Tomas",
+      "question": "Our trade account was put on hold. Can you tell me why?",
+      "reply": "It went on hold because one invoice from August is still open, and our system pauses accounts past 60 days. I know that's annoying. If you pay that one, or tell me it's in dispute, I can lift the hold today. I've attached the invoice so you don't have to dig for it."
+    },
+    {
+      "id": "h07",
+      "by": "Ines",
+      "question": "Is the Wren label printer compatible with our old labels?",
+      "reply": "Mostly, yes. The Wren takes any roll up to 60 millimetres wide, so your current labels will fit. The one catch is the old glossy rolls, which smudge on it. If you have a lot of those left, use them on the old printer first. Happy to send a sample roll of the matte ones."
+    },
+    {
+      "id": "h08",
+      "by": "Mira",
+      "question": "Can I return a box of hinges I didn't open?",
+      "reply": "Of course. Unopened stock can come back within 30 days for a full refund. I've made you a returns label, it's attached. Tape it over the old one and leave the box with any of our drivers, or drop it at the counter. The refund goes back to the card you paid with."
+    },
+    {
+      "id": "h09",
+      "by": "Rosa",
+      "question": "We need 200 brackets by Friday. Is that possible?",
+      "reply": "Friday is tight but doable. We have 140 in the main warehouse and the rest at the north depot. If you order before three today I can put both on one van. Otherwise it will come in two drops, Friday and Monday. Which would you rather have?"
+    },
+    {
+      "id": "h10",
+      "by": "Tomas",
+      "question": "How do I add a second user to our account?",
+      "reply": "Go to Settings in the portal, then People, then Invite. Put in their email and pick what they can do: order, approve, or just view. They get a link that lasts two days. If it runs out before they click it, send the invite again from the same screen."
+    },
+    {
+      "id": "h11",
+      "by": "Ines",
+      "question": "The driver left our order at the wrong gate. Who do I talk to?",
+      "reply": "Me, for now. I'm sorry, that's on us. I've spoken to the depot and the driver is going back this afternoon to move it to gate B. I've also added a note to your account so it goes to gate B every time from now on. I'll text you once it's moved."
+    },
+    {
+      "id": "h12",
+      "by": "Mira",
+      "question": "Do you price match?",
+      "reply": "We don't price match as a rule, but we do have trade prices that drop at 50 and 200 units. If you send me the quote you've got, I'll look at what we can do on the volume. Sometimes we come out cheaper once delivery is counted, sometimes not, so worth a check."
+    },
+    {
+      "id": "h13",
+      "by": "Rosa",
+      "question": "Can I get a copy of last year's invoices for our accountant?",
+      "reply": "Yes. In the portal go to Orders, set the dates to last year and press Export. You get one file with every invoice in it. If your accountant wants them one by one as PDFs, tell me and I'll zip them up and email them over this afternoon."
+    },
+    {
+      "id": "h14",
+      "by": "Tomas",
+      "question": "Is there a minimum order for free delivery?",
+      "reply": "Delivery is free over $150 before tax, to anywhere on our normal routes. Under that it's a flat $12. Islands and a few remote zip codes have their own rate, and the checkout shows it before you pay. Collecting from the counter is always free."
+    },
+    {
+      "id": "h15",
+      "by": "Ines",
+      "question": "What's the weight limit for one Heron shelf?",
+      "reply": "Each Heron shelf takes 150 kilos spread evenly, and a full bay takes 900. Put the heaviest things on the lowest shelves and keep them off the edges. If you're storing anything like tiles or paint tins in bulk, I'd use the heavy duty shelves instead, which take 250 each."
+    },
+    {
+      "id": "h16",
+      "by": "Mira",
+      "question": "I forgot my portal password and the reset email never came.",
+      "reply": "That email sometimes lands in spam, so it's worth a look there first. If it isn't there, it may have gone to an old address on the account. I've checked and it's still set to your previous work email. I've changed it to this one, so try the reset again now."
+    },
+    {
+      "id": "h17",
+      "by": "Rosa",
+      "question": "Can we pay by bank transfer instead of card?",
+      "reply": "Yes, trade accounts can pay by transfer on 30 day terms. Our bank details are at the bottom of every invoice. Please put the invoice number as the reference, or it can take us a few days to match it up. We never change bank details by email, so call us if anyone says otherwise."
+    },
+    {
+      "id": "h18",
+      "by": "Tomas",
+      "question": "Why does my order say back ordered?",
+      "reply": "One line on it, the galvanised corner plates, is out of stock until the 14th. Everything else is ready. I can send what we have now and the plates later at no extra cost, or hold the whole order until the 14th. Just let me know which works for the job."
+    },
+    {
+      "id": "h19",
+      "by": "Ines",
+      "question": "Do your safety boots come in half sizes?",
+      "reply": "Not the steel toe ones, sadly, only whole sizes from 5 to 13. Most people who are a half size go up and add an insole. The composite toe boots do come in half sizes, and they're lighter too. Both pass the same safety standard, so either is fine on site."
+    },
+    {
+      "id": "h20",
+      "by": "Mira",
+      "question": "Can you hold stock for us until our project starts next month?",
+      "reply": "We can hold stock for up to four weeks once it's paid, at no charge. After that it goes back on the shelf. If your start date might slip, we could also split it, holding half now and ordering the rest nearer the time. Tell me the start date and I'll set it up."
+    }
+  ]
+}
