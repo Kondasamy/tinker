@@ -838,6 +838,18 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'watermarks')).toBe(49);
   });
 
+  it('has agent-commerce as a live Advanced module after watermarks, numbered 51', () => {
+    expect(moduleOf('agent-commerce')).toMatchObject({
+      title: 'When the buyer is an agent',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['agents', 'payments'],
+    });
+    expect(moduleOf('agent-commerce').track).toBeUndefined();
+    expect(moduleOf('agent-commerce').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'agent-commerce')).toBe(50);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

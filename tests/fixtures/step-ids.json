@@ -2295,5 +2295,54 @@
       "bench",
       "quiz"
     ]
+  },
+  "agent-commerce": {
+    "01-a-page-for-people": [
+      "predict",
+      "ask",
+      "more",
+      "quiz"
+    ],
+    "02-a-menu-for-agents": [
+      "card",
+      "menu",
+      "predict",
+      "break",
+      "quiz"
+    ],
+    "03-agent-to-agent": [
+      "predict",
+      "send",
+      "answer",
+      "tab",
+      "clear",
+      "quiz"
+    ],
+    "04-who-said-it-could-buy": [
+      "sign",
+      "send",
+      "predict",
+      "tamper",
+      "quiz"
+    ],
+    "05-a-seller-that-talks-back": [
+      "message",
+      "agent",
+      "send",
+      "lookalike",
+      "quiz"
+    ],
+    "06-paying-without-the-card": [
+      "issue",
+      "predict",
+      "bind",
+      "pay",
+      "replay",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "ties"
+    ]
   }
 }

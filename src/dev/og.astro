@@ -386,6 +386,10 @@ import {
   REPLY as WM_REPLY,
 } from '../lib/watermarks/story';
 import WM_PINNED from '../../data/watermarks/pinned.json' with { type: 'json' };
+import { HATCH_BOARD, hatchScene, type HatchOpts } from '../components/scenes/hatchScene';
+import { mandateOf as acMandate, sign as acSign } from '../lib/agent-commerce/mandate';
+import { checkOrder as acCheck, orderOf as acOrder } from '../lib/agent-commerce/shop';
+import { SLIPS as AC_SLIPS, sellerOf as acSeller } from '../lib/agent-commerce/story';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -1815,6 +1819,35 @@ const UV_OG: Record<string, () => Omit<UvOpts, 'scale'>> = {
   'watermarks-07-workbench': () => wmPage(wmLean(WM_PINNED.workbench.winners[0].delta), { lamp: 20 }),
 };
 const uvOg = UV_OG[page.og]?.();
+// module 51: the trading hatch. The intro and 5: the seller's raised limit refused at the counter; 1: the buying agent
+// misreading a page for people; 2: reading the agent card; 3: the seller asking back; 4: the signed slip in the hatch;
+// 6: the one-order token on an accepted slip; 7: an honest seller's order accepted.
+const acStamps = async (terms: keyof typeof AC_SLIPS, seller: string) =>
+  (await acCheck(await acSign(acMandate(AC_SLIPS[terms], 'og-1')), acOrder(acSeller(seller)), [])).checks.map(c => ({
+    field: c.field,
+    pass: c.pass,
+  }));
+const acRefused = async (): Promise<HatchOpts> => ({
+  slip: { at: 'seller', signed: true, checks: await acStamps('shop-around', 'quarrylane') },
+  seller: 'bad',
+});
+const HATCH_OG: Record<string, () => HatchOpts | Promise<HatchOpts>> = {
+  'agent-commerce': acRefused,
+  'agent-commerce-01-a-page-for-people': () => ({ buyer: 'warn' }),
+  'agent-commerce-02-a-menu-for-agents': () => ({ buyer: 'ok' }),
+  'agent-commerce-03-agent-to-agent': () => ({ seller: 'warn' }),
+  'agent-commerce-04-who-said-it-could-buy': () => ({ slip: { at: 'hatch', signed: true } }),
+  'agent-commerce-05-a-seller-that-talks-back': acRefused,
+  'agent-commerce-06-paying-without-the-card': async () => ({
+    slip: { at: 'seller', signed: true, checks: await acStamps('larkspur', 'larkspur') },
+    token: 'live',
+  }),
+  'agent-commerce-07-workbench': async () => ({
+    slip: { at: 'seller', signed: true, checks: await acStamps('larkspur', 'larkspur') },
+    seller: 'ok',
+  }),
+};
+const hatchOg = await HATCH_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1892,6 +1925,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : rackOg ? <IsoStage board={RACK_BOARD} scene={rackScene({ ...rackOg, scale: 1.3 })} label="" />
           : gateOg ? <IsoStage board={GATE_BOARD} scene={gateScene({ ...gateOg, scale: 1.3 })} label="" />
           : uvOg ? <IsoStage board={UV_BOARD} scene={uvScene({ ...uvOg, scale: 1.3 })} label="" />
+          : hatchOg ? <IsoStage board={HATCH_BOARD} scene={hatchScene({ ...hatchOg, scale: 1.2 })} label="" />
           : dreamOg ? <IsoStage board={dreamBoard(dreamOg)} scene={dreamScene({ ...dreamOg, scale: 1.3 })} label="" />
           : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
           : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />

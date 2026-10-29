@@ -148,6 +148,10 @@ import { UV_BOARD, uvLabel, uvScene, type UvOpts } from '../components/scenes/uv
 import { encode as wmEncode } from '../lib/lm/bpe';
 import { MARK as WM_MARK, REPLY as WM_REPLY } from '../lib/watermarks/story';
 import WM_PINNED from '../../data/watermarks/pinned.json' with { type: 'json' };
+import { HATCH_BOARD, hatchLabel, hatchScene, type HatchOpts } from '../components/scenes/hatchScene';
+import { mandateOf, sign as signMandate } from '../lib/agent-commerce/mandate';
+import { checkOrder, orderOf } from '../lib/agent-commerce/shop';
+import { SLIPS, sellerOf } from '../lib/agent-commerce/story';
 import { FORM } from '../lib/site';
 
 const one =
@@ -419,6 +423,18 @@ const UV: UvOpts = {
   gamma: WM_MARK.gamma,
   lamp: 'all',
   scale: 1.7,
+};
+// agent commerce: the signed slip refused at the shop's counter after the seller tried to raise the limit, as the intro
+// draws it
+const AC_REFUSED = await checkOrder(
+  await signMandate(mandateOf(SLIPS['shop-around'], 'intro-1')),
+  orderOf(sellerOf('quarrylane')),
+  [],
+);
+const HATCH: HatchOpts = {
+  slip: { at: 'seller', signed: true, checks: AC_REFUSED.checks.map(c => ({ field: c.field, pass: c.pass })) },
+  seller: 'bad',
+  scale: 1.5,
 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
@@ -1019,6 +1035,11 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
     name: 'Watermarks and made-by-AI',
     iso: { board: UV_BOARD, scene: uvScene(UV), label: uvLabel(UV) },
     topics: ['Watermarks', 'Green lists', 'Detection', 'z-score', 'Paraphrasing', 'Pixel marks', 'C2PA'],
+  },
+  'agent-commerce': {
+    name: 'When the buyer is an agent',
+    iso: { board: HATCH_BOARD, scene: hatchScene(HATCH), label: hatchLabel(HATCH) },
+    topics: ['Agent commerce', 'Agent cards', 'Agent to agent', 'Signed mandates', 'Prompt injection', 'Payment tokens'],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];
