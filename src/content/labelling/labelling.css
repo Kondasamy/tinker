@@ -1,0 +1,153 @@
+/* Who labels the data's stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption). These are the
+   slips' drop, the Matrix tab, the sort control and its read-out. */
+@keyframes lb-drop {
+  from {
+    transform: translateY(-26px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .lb-rack .slip.drop {
+    animation: lb-drop 0.4s ease-in both;
+  }
+}
+
+.lb-matrix {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: auto;
+}
+.lb-pairs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.lb-matrix table {
+  border-collapse: collapse;
+  font:
+    700 13px ui-monospace,
+    Menlo,
+    monospace;
+}
+.lb-matrix caption {
+  text-align: left;
+  font-size: 12.5px;
+  padding-bottom: 4px;
+}
+.lb-matrix th,
+.lb-matrix td {
+  border: 1px solid var(--rule);
+  padding: 4px 6px;
+  text-align: center;
+}
+.lb-matrix thead th {
+  font-size: 11px;
+  max-width: 7em;
+}
+.lb-matrix tbody th {
+  text-align: left;
+  font-size: 11px;
+}
+.lb-matrix td.agree {
+  outline: 2.5px solid var(--ink);
+  outline-offset: -3px;
+  font-weight: 800;
+  background: #e3f4ea;
+}
+.lb-matrix td.off {
+  background: #fde3dc;
+}
+.lb-matrix td.zero {
+  color: var(--muted);
+}
+.lb-stats {
+  display: flex;
+  gap: 20px;
+  margin: 0;
+}
+.lb-stats dt {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.lb-stats dd {
+  margin: 0;
+  font:
+    800 18px ui-monospace,
+    Menlo,
+    monospace;
+}
+
+.lb-sort {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  outline: none;
+}
+.lb-ticket {
+  margin: 0;
+  padding: 8px 12px;
+  border: 1.5px solid var(--ink);
+  border-radius: 8px;
+  background: var(--card, #fff);
+  font-size: 14px;
+}
+.lb-ticket[data-gold] {
+  border-width: 2.5px;
+  border-style: double;
+}
+.lb-star {
+  display: block;
+  font:
+    800 11px ui-monospace,
+    Menlo,
+    monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.lb-star::before {
+  content: "★ ";
+}
+.lb-holes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.lb-holes .chip:disabled {
+  opacity: 0.4;
+  cursor: default;
+  box-shadow: none;
+}
+.lb-holes kbd {
+  font:
+    800 11px ui-monospace,
+    Menlo,
+    monospace;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  padding: 0 4px;
+}
+.lb-said {
+  margin: 0;
+  min-height: 2.8em;
+  font:
+    700 13px ui-monospace,
+    Menlo,
+    monospace;
+}
+@media (max-width: 600px) {
+  .lb-holes .chip,
+  .lb-pairs .chip,
+  .lb-stage .tc-tabs .chip {
+    min-height: 44px;
+  }
+  .lb-matrix thead th {
+    font-size: 10px;
+    padding: 4px 2px;
+  }
+}
