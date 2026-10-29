@@ -5,6 +5,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 ## Picture
 
 - **The glass room** (`src/components/scenes/sandboxScene.ts`) composes `officeScene` (the front desk renamed OPERATOR, the host SANDBOX) and adds, read off one run up to the current step: a low wall round the yard when the sandbox is on (the operator stays outside), a file door on the belt to the file store (the order system), a network door on an outbound belt to the world with a proxy gate when the proxy holds the secret, and a safe for the secret, inside the yard (in the env) or outside by the proxy. A call a boundary stopped rides to its door with a REFUSED pill. `SandboxStage` (`src/content/sandboxing/kit.tsx`) puts it one tab from the Steps lanes (`sandboxSequence.ts`), where a stopped call is a dashed card stamped REFUSED, Guardrails' stamp. Every chapter keeps the tab in the step state; on phones the pills are left out and the caption carries the readouts.
+- **Hero object: the greenhouse-frame glass room** (brick base, green posts, tinted panes), notched at the front so the operator (CAST `operator`, in the employee's place) stands outside at the counter; the safe has a dial and handle, the proxy is a turnstile with its booth.
 
 ## Engine (`src/lib/sandboxing/`)
 

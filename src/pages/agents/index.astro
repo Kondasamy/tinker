@@ -12,7 +12,7 @@ import {
   agentScene,
   agentLabel,
   clipboard,
-  gaugeProp,
+  dialGauge,
   trayProp,
 } from '../../components/scenes/agentScene';
 import { agentLanes, agentMessages } from '../../components/scenes/agentSequence';
@@ -82,7 +82,7 @@ const STEPS: [string, string, ReturnType<typeof fact>, [number, number, number, 
     'Budgets and stops',
     fact('stopping-conditions'),
     [16, 14, 44, 42],
-    solo(() => gaugeProp(30, 30, 0.6, 0.4, false), [24, 17, 36, 35, 34], STAND),
+    solo(() => dialGauge(30, 30, 0.6, 0.4, false, BH + 16), [24, 17, 36, 35, 34], STAND),
   ],
 ];
 

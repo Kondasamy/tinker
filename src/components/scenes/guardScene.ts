@@ -9,6 +9,7 @@ import {
   PALS,
   CERAMIC,
   DARK,
+  METAL,
   WOOD,
   box,
   cyl,
@@ -18,22 +19,16 @@ import {
   pd,
   on,
   PX,
+  rectUV,
+  vis,
   castShadow,
   toneI,
   tag,
   byDepth,
 } from '../../lib/iso/core.js';
-import {
-  OFFICE_PARTS,
-  archAt,
-  barrierAt,
-  beltAt,
-  envelope,
-  officeScene,
-  splitOffice,
-  type OfficeOpts,
-  type Part,
-} from './officeScene';
+import { person, type Look } from '../../lib/iso/figures';
+import { OFFICE_PARTS, barrierAt, beltAt, envelope, officeScene, type OfficeOpts, type Part } from './officeScene';
+import { EMPLOYEE, officeLayers, withoutPerson } from './officeLayers';
 import { guardMessages } from './guardSequence';
 import type { Leg, Run } from '../../lib/guardrails/loop';
 import type { Board } from '../../lib/iso/IsoStage';
@@ -144,12 +139,18 @@ const LEG: Record<Exclude<Leg, 'none'>, string> = {
   out: 'the way out',
 };
 
-/** A wooden in-tray of letters; with a lid on when untrusted text is removed (nothing is read). */
+/** A wooden in-tray of letters (a base and low walls, the near walls drawn over the letters); with a lid on when
+ * untrusted text is removed (nothing is read). */
 export function trayProp(x: number, y: number, lid: boolean): Part {
-  let s = box(x - 12, y - 9, BH, x + 12, y + 9, BH + 3, WOOD, toneI, 1),
-    z = BH + 3;
+  const nx = vis([1, 0, 0]) ? x + 12 : x - 12,
+    ny = vis([0, 1, 0]) ? y + 9 : y - 9;
+  const wallX = (X: number) => box(X - 0.7, y - 9, BH + 1, X + 0.7, y + 9, BH + 5.5, WOOD, toneI, 0.7),
+    wallY = (Y: number) => box(x - 12, Y - 0.7, BH + 1, x + 12, Y + 0.7, BH + 5.5, WOOD, toneI, 0.7);
+  let s = box(x - 12, y - 9, BH, x + 12, y + 9, BH + 1, WOOD, toneI, 1) + wallX(2 * x - nx) + wallY(2 * y - ny);
+  const z = BH + 1;
   for (let i = 0; i < 3; i++)
     s += box(x - 9 + i, y - 6 - i * 0.6, z + i, x + 9 + i, y + 6 - i * 0.6, z + i + 1, CERAMIC, toneI, 0.5);
+  s += wallX(nx) + wallY(ny);
   if (lid) s += `<g class="lid">${box(x - 12.5, y - 9.5, BH + 6, x + 12.5, y + 9.5, BH + 8, WOOD, toneI, 1)}</g>`;
   return { at: [x, y, 0], svg: `<g data-prop="tray"${lid ? ' data-lid="1"' : ''}>${s}</g>` };
 }
@@ -173,23 +174,60 @@ function recordsProp(x: number, y: number, removed: boolean): Part {
   return { at: [x, y, 0], svg: `<g data-prop="records">${s}</g>` };
 }
 
-/** A red post box at the chute's end: mail that drops in has left Larkspur. */
+/** A red pillar box at the chute's end: mail that drops in has left Larkspur. Real-object notes: a round body on a
+ * wider plinth, a cap with a lip and a domed top with a knob, a dark letter slot under the cap and a door below it, on
+ * the side toward the viewer. */
 export function postBox(x: number, y: number): Part {
+  const face = PX(x + (vis([1, 0, 0]) ? 6.05 : -6.05));
   const s =
-    cyl(x, y, BH, BH + 20, 6, PALS.tomato, toneI, 1, 18) +
-    cyl(x, y, BH + 20, BH + 23, 7, PALS.tomato, toneI, 1, 18) +
-    shape(
-      on(PX(x + 6.1), [
-        [y - 3, BH + 14],
-        [y + 3, BH + 14],
-        [y + 3, BH + 15.6],
-        [y - 3, BH + 15.6],
-      ]),
-      DARK.d,
-      0.6,
-    );
+    cyl(x, y, BH, BH + 2, 7, DARK, toneI, 1, 18) +
+    cyl(x, y, BH + 2, BH + 18, 6, PALS.tomato, toneI, 1, 18) +
+    cyl(x, y, BH + 18, BH + 20, 7, PALS.tomato, toneI, 1, 18) +
+    cyl(x, y, BH + 20, BH + 21.6, 5.4, PALS.tomato, toneI, 0.9, 16) +
+    cyl(x, y, BH + 21.6, BH + 23, 3.4, PALS.tomato, toneI, 0.9, 14) +
+    cyl(x, y, BH + 23, BH + 24, 1, DARK, toneI, 0.7, 8) +
+    shape(on(face, rectUV(y - 3, BH + 14, y + 3, BH + 15.6)), DARK.d, 0.6) +
+    shape(on(face, rectUV(y - 2.6, BH + 5, y + 2.6, BH + 11.5)), PALS.tomato.m, 0.7);
   return { at: [x, y, 0], svg: `<g data-prop="postbox">${s}</g>` };
 }
+
+/** The hero: the screening arch across the inbound belt at p (n: the belt's sideways direction), a walk-through
+ * scanner. Real-object notes: two tall grey panels on dark feet, joined by a cobalt header; a lamp on top (green:
+ * passed, red: held). The far panel goes first, then the header, then the near panel. */
+function screeningArch([px, py]: number[], n: number[], lamp: 'ok' | 'bad' | null): Part {
+  const w = 10.5,
+    d = 5,
+    zt = BH + 27,
+    across = n[0] !== 0; // the panels stand apart along x
+  const slab = (k0: number, k1: number, l0: number, l1: number, z0: number, z1: number, m: typeof METAL) =>
+    across
+      ? box(px + k0, py + l0, z0, px + k1, py + l1, z1, m, toneI, 1)
+      : box(px + l0, py + k0, z0, px + l1, py + k1, z1, m, toneI, 1);
+  const panel = (k: number) =>
+    slab(k - 2.2, k + 2.2, -d - 1, d + 1, BH, BH + 1.6, DARK) + slab(k - 1.6, k + 1.6, -d, d, BH + 1.6, zt, METAL);
+  const near = vis(across ? [1, 0, 0] : [0, 1, 0]) ? w : -w,
+    col = lamp === 'ok' ? PALS.mint : lamp === 'bad' ? PALS.tomato : DARK;
+  return {
+    at: [px, py, 0],
+    svg:
+      panel(-near) +
+      slab(-w - 1.6, w + 1.6, -d, d, zt, zt + 4, PALS.cobalt) +
+      cyl(px, py, zt + 4, zt + 6.5, 2.4, col, toneI, 0.8, 14) +
+      panel(near),
+  };
+}
+
+/** The security guard who minds the arch: a navy uniform and a peaked cap, standing on the host side of it. */
+const GUARD: Look = {
+  skin: '#8d5838',
+  top: '#3b4566',
+  legs: '#272421',
+  hair: '#2b231c',
+  cut: 'short',
+  hat: 'cap',
+  hatCol: '#1c2948',
+};
+const GUARD_AT = { x: 126, y: 166, facing: 45 };
 
 /** The taint tag: a red label tied to an envelope's front corner (it came from outside). */
 function taintTag(x: number, y: number) {
@@ -227,12 +265,18 @@ export const guardScene = (o: GuardOpts) => (ctx: SceneCtx) => {
   const st = guardState(o),
     msgs = guardMessages(run);
   const office = officeScene({ ...o, msgs, upTo, tools: st.tools, emp: 'MAIL ROOM' })(ctx);
-  // the props go over the office's art but under its name pills; the chute is floor, under everything
-  const { art, names, callout } = splitOffice(office);
-  const parts: Part[] = [],
+  // the props' shadows join the office's floor layer, the chute lies on the floor like the office's belts, and the props
+  // go over the office's art but under its name pills. The mail-room clerk (the office's employee) is drawn again among
+  // the props, so an envelope riding up to the counter goes behind them, not over their head.
+  const { floor, art, names, callout } = officeLayers(withoutPerson(office, 'employee'));
+  const guard = person({ ...GUARD_AT, look: GUARD });
+  const parts: { at?: number[]; box?: number[][]; svg: string }[] = [
+      ...guard.items,
+      ...person({ ...EMPLOYEE, look: 'employee' }).items,
+    ],
     pills: string[] = [],
     calls: string[] = [],
-    shadows: string[] = [];
+    shadows: string[] = [guard.shadow];
   const shade = (x0: number, y0: number, x1: number, y1: number, h: number) =>
     shadows.push(castShadow(boxCorners(x0, y0, BH, x1, y1, BH + h), BH, ctx.top));
   const chute = `<g data-prop="chute" data-state="${st.chute}">${beltAt(OUT.a, OUT.b, OUT.n, st.chute !== 'open')}</g>`;
@@ -284,7 +328,7 @@ export const guardScene = (o: GuardOpts) => (ctx: SceneCtx) => {
   if (o.screen) {
     const p = at(IN, ARCH_T),
       lamp = st.where === 'held' ? 'bad' : st.where === 'from-mail' ? 'ok' : null;
-    const a = archAt(p, IN.n, lamp);
+    const a = screeningArch(p, IN.n, lamp);
     parts.push({ at: a.at, svg: `<g data-prop="arch"${lamp ? ` data-lamp="${lamp}"` : ''}>${a.svg}</g>` });
     calls.push(sayAt(o.say, 'screen', [p[0] + 9, p[1], BH + 20], 2, scale));
     if (!narrow)
@@ -331,7 +375,7 @@ export const guardScene = (o: GuardOpts) => (ctx: SceneCtx) => {
     if (st.where === 'blocked' && !narrow)
       pills.push(pill([p[0], p[1], BH + 6], -26, -18, 'REFUSED', true, scale, 'msg-tag'));
   }
-  return chute + art + shadows.join('') + byDepth(parts) + names + pills.join('') + callout + calls.join('');
+  return floor + shadows.join('') + chute + art + byDepth(parts) + names + pills.join('') + callout + calls.join('');
 };
 
 /** The picture in words, for its aria-label: the office and mail room, the current step, then each defence that is on. */

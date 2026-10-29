@@ -5,6 +5,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 ## Picture
 
 - **The agents scene** (`src/components/scenes/agentScene.ts`) composes `officeScene` and adds four props, each turned on by the chapter: a clipboard by the model (the plan, a tick per finished item), a step and context gauge on the host desk, an in-tray of history papers that becomes one binder when the host compacts, and small helper desks for sub-agents. On phones the props' readout pills are left out and the caption carries the readouts; only the helper count pill stays.
+- **Hero object: the case in a manila folder**, held out over the counter by the support lead (CAST `supportLead`, in the employee's place); with helper desks on, the lead has gone and the folder lies on the counter (the lead's look and five desks don't fit the size budget together). A helper clerk sits at the working helper's desk; the gauge is a pair of dials (`dialGauge`), and compaction leaves a ring binder.
 
 ## Engine (`src/lib/agents/`)
 

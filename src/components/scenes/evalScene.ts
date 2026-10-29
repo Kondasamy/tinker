@@ -1,5 +1,7 @@
 // Module 4's picture: a test bench (KTD11). RAG's mini pipeline (composed, not forked) stands at the back; a stack of
-// test cards waits at the front left and the current card rides a belt into the pipeline; the model's answers go down a
+// test cards waits in a card box at the front left and the current card rides a roller belt into the pipeline. The hero
+// is the grader's desk with its big rubber stamp and inked pad; the grader stands behind it and a scoreboard on a stand
+// at its end shows the passed and failed shares as bars. The model's answers go down a
 // wire to a grader's desk at the front right, where graded cards pile up in a PASS pile and a FAIL pile, each stamped.
 // A scoreboard pill reads passed / total. Words only in pills; on phones (scale > 1.5) the caption carries the piles.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
@@ -12,17 +14,24 @@ import {
   WOOD,
   METAL,
   box,
+  cyl,
   rod,
   shape,
-  line,
   pd,
+  on,
+  PX,
+  PZ,
+  rectUV,
+  vis,
   castShadow,
   hullInk,
   toneI,
   tag,
   byDepth,
 } from '../../lib/iso/core.js';
+import { person } from '../../lib/iso/figures';
 import { miniPipelineParts, ROW, Y } from './miniPipeline';
+import { beltAt } from './officeScene';
 import type { Say } from '../story/steps';
 
 export const EVAL_BOARD: Board = [0, 0, 240, 150];
@@ -102,18 +111,102 @@ const pile = (x: number, y: number, z0: number, n: number, mark?: typeof PASS) =
   return s;
 };
 
-/** The grader's desk: a wooden desk with a rubber stamp standing on it, the two piles on top. */
+/** The grader's desk: a wooden desk on legs with a drawer pedestal, the two piles on top, and the hero, a big rubber
+ * stamp beside its inked pad. */
 function desk(passed: number, failed: number): Part {
   const [x, y] = DESK,
-    z1 = DESK_TOP;
-  let s =
-    box(x - 20, y - 20, BH, x + 20, y + 20, z1, WOOD, toneI, 1) +
+    z1 = DESK_TOP,
+    zt = z1 - 2;
+  let s = '';
+  // legs at the far corners first, then the pedestal of drawers on the near right, the near leg, the top
+  for (const [lx, ly] of [
+    [x - 18, y - 18],
+    [x - 18, y + 18],
+    [x + 18, y - 18],
+  ])
+    s += box(lx - 1.3, ly - 1.3, BH, lx + 1.3, ly + 1.3, zt, WOOD, toneI, 0.8);
+  s += box(x + 6, y - 19, BH, x + 19.5, y + 19, zt, WOOD, toneI, 1);
+  if (vis([1, 0, 0]))
+    for (const k of [0, 1])
+      s +=
+        shape(on(PX(x + 19.55), rectUV(y - 16, BH + 1.5 + k * 4.5, y + 16, BH + 5 + k * 4.5)), WOOD.l, 0.6) +
+        rod([x + 19.6, y - 3, BH + 3.3 + k * 4.5], [x + 20.6, y + 3, BH + 3.3 + k * 4.5], 0.5, METAL);
+  s +=
+    box(x - 20, y - 20, zt, x + 20, y + 20, z1, WOOD, toneI, 1) +
     hullInk(boxCorners(x - 20, y - 20, BH, x + 20, y + 20, z1), 2.2);
   s += `<g class="pile" data-pile="pass" data-n="${passed}">${pile(PILE.pass[0], PILE.pass[1], z1, passed, PASS)}</g>`;
   s += `<g class="pile" data-pile="fail" data-n="${failed}">${pile(PILE.fail[0], PILE.fail[1], z1, failed, FAIL)}</g>`;
-  // the rubber stamp at the desk's front corner
-  s += rubberStamp(x + 14, y - 1, z1);
+  s += bigStamp(x + 13, y - 8, z1) + inkPad(x + 13, y + 9, z1);
   return { at: [x, y, 0], svg: s };
+}
+
+/** The grader's big rubber stamp, standing at (x, y) on height z. Real-object notes: a steel mount over a red rubber
+ * die, a turned wooden neck and a large round knob with a red cap. Bigger than any other stamp in Tinker. */
+const bigStamp = (x: number, y: number, z: number) =>
+  `<g data-prop="stamp">${
+    box(x - 5, y - 6, z, x + 5, y + 6, z + 1.4, PALS.tomato, toneI, 0.8) +
+    box(x - 4.5, y - 5.5, z + 1.4, x + 4.5, y + 5.5, z + 4.2, METAL, toneI, 0.9) +
+    rod([x, y, z + 4.2], [x, y, z + 11.5], 1.8, WOOD, toneI, 0.9, 1.3) +
+    cyl(x, y, z + 11, z + 16, 4.4, WOOD, toneI, 1, 16) +
+    cyl(x, y, z + 16, z + 18, 3.2, PALS.tomato, toneI, 0.9, 14)
+  }</g>`;
+/** The inked pad beside it: a shallow tin, its lid open behind, the pad soaked red. */
+const inkPad = (x: number, y: number, z: number) =>
+  `<g data-prop="ink-pad">${
+    box(x - 5, y - 6, z, x + 5, y + 6, z + 1.8, DARK, toneI, 0.8) +
+    shape(on(PZ(z + 1.85), rectUV(x - 4, y - 5, x + 4, y + 5)), PALS.tomato.m, 0.5)
+  }</g>`;
+
+/** The scoreboard on a stand at the desk's left end, facing the viewer's right: a dark board on two posts with a mint
+ * bar for the cases passed and a tomato bar for those failed, each as long as its share of the suite. No numerals. */
+function scoreboard(passed: number, failed: number, total: number): Part {
+  const x = 181,
+    y0 = 98,
+    y1 = 130,
+    z0 = BH + 16,
+    z1 = BH + 34,
+    sx = vis([1, 0, 0]) ? 1 : -1,
+    F = x + sx * 1.05;
+  let s =
+    rod([x, y0 + 2, BH], [x, y0 + 2, z0], 0.9, DARK) +
+    rod([x, y1 - 2, BH], [x, y1 - 2, z0], 0.9, DARK) +
+    box(x - 1, y0, z0, x + 1, y1, z1, WOOD, toneI, 1) +
+    shape(on(PX(F), rectUV(y0 + 1.5, z0 + 1.5, y1 - 1.5, z1 - 1.5)), PALS.mint.d, 0.7);
+  const len = y1 - y0 - 7,
+    bar = (k: number, zz: number, m: string) =>
+      k > 0 ? shape(on(PX(F + sx * 0.05), rectUV(y0 + 3.5, zz, y0 + 3.5 + len * k, zz + 4)), m, 0.6) : '';
+  if (total) s += bar(passed / total, z1 - 8, PASS.l) + bar(failed / total, z1 - 14.5, FAIL.l);
+  return { at: [x, (y0 + y1) / 2, 0], svg: `<g data-prop="scoreboard">${s}</g>` };
+}
+
+/** The grader: behind the desk, facing the viewer across it. */
+const GRADER = { x: 198, y: 80, facing: 90 };
+const GRADER_LOOK = {
+  skin: '#e2ab82',
+  top: '#5a6f93',
+  legs: '#3b4566',
+  hair: '#bdb7ab',
+  cut: 'bun' as const,
+};
+
+/** The card box the tests wait in: a low wooden box with walls round the stack, the near walls over it. */
+function cardBox(n: number): string {
+  const [x, y] = STACK,
+    hx = CARD.dx + 2,
+    hy = CARD.dy + 2,
+    zw = BH + 7;
+  const nx = vis([1, 0, 0]) ? x + hx : x - hx,
+    ny = vis([0, 1, 0]) ? y + hy : y - hy;
+  const wallX = (X: number) => box(X - 0.8, y - hy, BH + 1, X + 0.8, y + hy, zw, WOOD, toneI, 0.7),
+    wallY = (Y: number) => box(x - hx, Y - 0.8, BH + 1, x + hx, Y + 0.8, zw, WOOD, toneI, 0.7);
+  return (
+    box(x - hx, y - hy, BH, x + hx, y + hy, BH + 1, WOOD, toneI, 1) +
+    wallX(2 * x - nx) +
+    wallY(2 * y - ny) +
+    (n ? `<g class="stack" data-n="${n}">${pile(x, y, BH + 1, n)}</g>` : '') +
+    wallX(nx) +
+    wallY(ny)
+  );
 }
 
 /** A rubber stamp on its ink pad, centred at (x, y), standing on height z. */
@@ -140,34 +233,20 @@ export const evalScene = (o: EvalOpts) => (ctx: SceneCtx) => {
     narrow = scale > 1.5;
   const sh = (x0: number, y0: number, x1: number, y1: number, h: number) =>
     castShadow(boxCorners(x0, y0, BH, x1, y1, BH + h), BH, ctx.top);
-  let s = sh(DESK[0] - 20, DESK[1] - 20, DESK[0] + 20, DESK[1] + 20, 12 + Math.max(st.passed, st.failed) * CARD.h);
-  if (st.stack)
-    s += sh(STACK[0] - CARD.dx, STACK[1] - CARD.dy, STACK[0] + CARD.dx, STACK[1] + CARD.dy, st.stack * CARD.h);
+  const grader = person({ ...GRADER, look: GRADER_LOOK, holding: null });
+  // every shadow first (the floor layer), then the pipeline, the belt and the wire, then the bench's parts back to front
+  let s =
+    sh(DESK[0] - 20, DESK[1] - 20, DESK[0] + 20, DESK[1] + 20, 12 + Math.max(st.passed, st.failed) * CARD.h) +
+    sh(STACK[0] - CARD.dx - 2, STACK[1] - CARD.dy - 2, STACK[0] + CARD.dx + 2, STACK[1] + CARD.dy + 2, 7) +
+    sh(180, 98, 182, 130, 34) +
+    grader.shadow;
   // the pipeline's own pills go on last with ours, so no part hides one
   const { art: pipeArt, pills: pipePills } = miniPipelineParts(ctx, scale);
   s += pipeArt;
-  // the belt from the stack into the docs, and the lit wire from the model down to the grader
+  // the roller belt from the card box into the docs, and the lit wire from the model down to the grader
   const z = BH + 0.25,
-    { x, y0, y1 } = BELT,
-    w = 7;
-  s += shape(
-    [
-      [x - w, y0, z],
-      [x + w, y0, z],
-      [x + w, y1, z],
-      [x - w, y1, z],
-    ],
-    DARK.m,
-    1.2,
-  );
-  for (let k = y1 + 5; k < y0 - 2; k += 7)
-    s += line(
-      [
-        [x - w + 1.5, k, z + 0.05],
-        [x + w - 1.5, k, z + 0.05],
-      ],
-      0.6,
-    ).replace(INK, DARK.l);
+    { x, y0, y1 } = BELT;
+  s += beltAt([x, y0], [x, y1], [1, 0], false);
   const wire = pd(
     [
       [210, 51, BH + 0.3],
@@ -176,13 +255,13 @@ export const evalScene = (o: EvalOpts) => (ctx: SceneCtx) => {
     false,
   );
   s += `<path d="${wire}" fill="none" stroke="${INK}" stroke-width="4.2" stroke-linecap="round"/><path d="${wire}" fill="none" stroke="${ACC}" stroke-width="2.2" stroke-linecap="round"/>`;
-  const parts: Part[] = [desk(st.passed, st.failed)];
-  if (st.stack)
-    parts.push({
-      at: [STACK[0], STACK[1], 0],
-      svg: `<g class="stack" data-n="${st.stack}">${pile(STACK[0], STACK[1], BH, st.stack)}</g>`,
-    });
-  if (st.riding) parts.push({ at: [x, 80, 0], svg: `<g class="riding">${card(x, 80, z + 0.1)}</g>` });
+  const parts: { at?: number[]; box?: number[][]; svg: string }[] = [
+    desk(st.passed, st.failed),
+    scoreboard(st.passed, st.failed, st.total),
+    { at: [STACK[0], STACK[1], 0], svg: cardBox(st.stack) },
+    ...grader.items,
+  ];
+  if (st.riding) parts.push({ at: [x, 80, 0], svg: `<g class="riding">${card(x, 80, z + 1)}</g>` });
   s += byDepth(parts);
   // phones: the big pill goes on the empty board in front of the stack, clear of the retriever
   const boardAt = narrow ? [DESK[0] - 20, DESK[1] + 20, BH + 6] : [DESK[0] - 20, DESK[1], BH + 26],
