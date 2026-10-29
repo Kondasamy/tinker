@@ -21,6 +21,7 @@ import { EVAL_BOARD, evalScene } from '../../src/components/scenes/evalScene';
 import { EXAM_BOARD, examScene } from '../../src/components/scenes/examScene';
 import { FORGE_BOARD, forgeScene } from '../../src/components/scenes/forgeScene';
 import { FUSE_BOARD, fuseScene } from '../../src/components/scenes/fuseScene';
+import { GATE_BOARD, gateScene } from '../../src/components/scenes/gateScene';
 import { GUARD_BOARD, guardScene } from '../../src/components/scenes/guardScene';
 import { HERO_BOARD, HOME_HERO } from '../../src/components/scenes/heroScene';
 import { JAR_BOARD, jarScene } from '../../src/components/scenes/jarScene';
@@ -83,6 +84,7 @@ import { diskMlm } from '../../src/lib/diffusion-llms/diskModel';
 import { PHRASES } from '../../src/lib/diffusion-llms/workbench';
 import { RECORDS, verdictOf } from '../../src/lib/email/story';
 import { QUESTIONS } from '../../src/lib/evals/suite';
+import { REGION_NAMES as FAIRNESS_REGIONS, runOf as fairnessRun } from '../../src/lib/fairness/story';
 import { REPO } from '../../src/lib/git/graph';
 import { CLEAN } from '../../src/lib/git/story';
 import { run as guardRun } from '../../src/lib/guardrails/loop';
@@ -241,6 +243,18 @@ const SCENES: Record<string, () => string> = {
   },
   // checkpoint 1000 of the pre-training run
   forge: () => stage(FORGE_BOARD, forgeScene({ steps: FORGE_STEPS, step: 1000 })),
+  // the shared bar with every applicant drawn and walked through (a new scene: its baseline is its first size)
+  gate: () => {
+    const m = fairnessRun('all', 'none', { A: 0.5, B: 0.5 });
+    return stage(
+      GATE_BOARD,
+      gateScene({
+        lanes: { A: { counts: m.A, bar: 0.5 }, B: { counts: m.B, bar: 0.5 } },
+        names: FAIRNESS_REGIONS,
+        say: { block: 'out-b', text: 'Dropped bags' },
+      }),
+    );
+  },
   // a full sentence with threads on and a head pulled (the callout test's state)
   fuse: () => {
     const out = forward(diskModel(), encode('Candidates receive an answer within ten'));
@@ -496,6 +510,8 @@ const BASE: Record<string, number> = {
   exam: 33521,
   forge: 34148,
   fuse: 38769,
+  // new with the fairness module (no pre-rework size): its first size is 281,757 (24 people), with a little headroom
+  gate: 100000,
   guard: 96189,
   hero: 507886,
   jar: 108535,
