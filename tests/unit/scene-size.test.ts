@@ -15,6 +15,8 @@ import { boardOf as crateBoard, crateScene, yardOf, type CrateOpts } from '../..
 import { DARK_BOARD, darkroomScene } from '../../src/components/scenes/darkroomScene';
 import { DEPOT_BOARD, depotAt, depotScene } from '../../src/components/scenes/depotScene';
 import { DESK_BOARD, beatsOf, deskAt, deskScene } from '../../src/components/scenes/deskScene';
+import { DOCKET_BOARD, docketScene } from '../../src/components/scenes/docketScene';
+import { boardOf as docketOf } from '../../src/content/prompts/kit';
 import { boardOf as dreamBoard, dreamScene, type DreamOpts } from '../../src/components/scenes/dreamFloorScene';
 import { RING_BOARD, ringScene } from '../../src/components/scenes/ringScene';
 import { sceneOf as ringSceneOf, START as RING_START } from '../../src/content/parallel-training/kit';
@@ -510,6 +512,16 @@ const SCENES: Record<string, () => string> = {
       f = mlmDecode(diskMlm(), p.ids, 4, 'confidence', p.seed);
     return stage(FRAME_BOARD, typeFrameScene({ given: p.ids.length, ...frameOf(f, 2), typed: 3, typeOf: 16 }));
   },
+  // the full docket (six strips) with its reply slip, a card sliding in (a new scene: its baseline is its first size)
+  docket: () =>
+    stage(
+      DOCKET_BOARD,
+      docketScene({
+        ...docketOf('07-workbench', { role: true, task: 'clear', examples: 2, format: 'json', rules: 'first' }).opts,
+        fresh: 'rules',
+        say: { block: 'docket', text: 'Your prompt' },
+      }),
+    ),
   // the pinned watermarked reply, every tile lit, one picked (a new scene: its baseline is its first size)
   uv: () =>
     stage(
@@ -554,6 +566,8 @@ const BASE: Record<string, number> = {
   darkroom: 43918,
   depot: 48071,
   desk: 28907,
+  // new with the prompts module (no pre-rework size): its first size is 42,491, with a little headroom
+  docket: 15000,
   dream: 37567,
   ring: 305505,
   hatch: 66806,
