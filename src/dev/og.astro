@@ -822,8 +822,7 @@ const sbFetch = (r: SbRun) => r.steps.findIndex(st => st.kind === 'call' && st.c
 const sbBlocked = (r: SbRun) => r.steps.findIndex(st => st.kind === 'blocked') + 1;
 const SB_IN = { sandbox: true, files: 'scoped', egress: 'allowlist' } as const;
 const GLASS_OG: Record<string, () => SandboxOpts> = {
-  sandboxing: () =>
-    sbAt({ case: 'exfil', sandbox: true, files: 'scoped', egress: 'open', secret: 'env' }, sbFetch),
+  sandboxing: () => sbAt({ case: 'exfil', sandbox: true, files: 'scoped', egress: 'open', secret: 'env' }, sbFetch),
   'sandboxing-01-where-it-runs': () => sbAt({ case: 'exfil', ...SB_IN, secret: 'proxy' }, sbBlocked),
   'sandboxing-02-files': () => sbAt({ case: 'peek', ...SB_IN, secret: 'proxy' }, sbBlocked),
   'sandboxing-03-network': () => sbAt({ case: 'exfil', ...SB_IN, secret: 'env' }, sbBlocked),
