@@ -954,9 +954,11 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];
 const LIVE = MODULES.filter(m => m.status === 'live');
 const FIRST = LIVE[0];
-// live modules first within a level
+// live modules first within a level; AI modules lead the catalogue, classic tech follows as compact cards
 const PLANNED = MODULES.filter(m => m.status === 'planned');
-const atLevel = (level: Level) => [...LIVE, ...PLANNED].filter(m => m.level === level);
+const classic = (m: Module) => m.track === 'Classic tech';
+const atLevel = (level: Level, isClassic = false) =>
+  [...LIVE, ...PLANNED].filter(m => m.level === level && classic(m) === isClassic);
 // the catalogue's filters, each a dropdown of radios whose first is no filter; a status no card has is removed by the script
 const FILTERS: [name: string, label: string, options: string[]][] = [
   ['level', 'Level', ['All levels', ...LEVELS]],
@@ -1010,12 +1012,12 @@ const TURN = `@keyframes hero-turn {
         </div>
         <figure class="hero-pic" style={`--n:${HERO_TURNS}`}>
           <IsoStage board={HERO_BOARD} scene={HOME_HERO} label={HOME_HERO_LABEL} />
-          <figcaption>Every module takes a turn on the stand. Click one to step in, or <a href="#request">propose the next</a>.</figcaption>
+          <figcaption>Every AI module takes a turn on the stand. Click one to step in, or <a href="#request">propose the next</a>.</figcaption>
         </figure>
       </header>
 
       <section id="modules" aria-labelledby="modules-h">
-        <p class="kicker">Modules</p>
+        <p class="kicker">AI modules</p>
         <h2 id="modules-h">Pick a concept</h2>
         <form class="finder" role="search" data-finder hidden>
           <input type="search" name="q" aria-label="Search modules" placeholder="Search modules" autocomplete="off" aria-keyshortcuts="/" />
@@ -1068,6 +1070,33 @@ const TURN = `@keyframes hero-turn {
             </div>
           </section>
         ); })}
+        <section class="classic" data-classic aria-labelledby="classic-h">
+          <h3 id="classic-h">Classic tech</h3>
+          {LEVELS.map(level => (
+            <div class="compacts" data-level={level}>
+              {atLevel(level, true).map(m => m.status === 'live' ? (
+                <article class="module compact" data-module={m.id} data-track={m.track} data-status="Not started" data-search={searchOf(m)}>
+                  {CARD[m.id]?.iso && <div class="pic"><IsoStage {...CARD[m.id].iso!} /></div>}
+                  <div class="head">
+                    <p class="kicker">Module {LIVE.indexOf(m) + 1} · {m.chapters.length} {m.chapters.length === 1 ? 'chapter' : 'chapters'}</p>
+                    <p class="tags"><span class="level">{m.level}</span></p>
+                  </div>
+                  <h4 id={`card-${m.id}`}><a href={`/${m.id}/`}>{CARD[m.id]?.name ?? m.title}</a></h4>
+                  <p>{m.description}</p>
+                  <p class="hit" data-hit hidden></p>
+                  <div class="progress" data-progress hidden><span class="bar"><span></span></span><span class="txt"></span></div>
+                  <a class="btn" href={`/${m.id}/`} aria-describedby={`card-${m.id}`} data-cta>Start →</a>
+                </article>
+              ) : (
+                <article class="roadmap" id={`module-${m.id}`} data-module={m.id} data-track={m.track} data-status="Planned" data-search={searchOf(m)}>
+                  <p class="tags"><span class="level">{m.level}</span> <span class="planned">Planned</span></p>
+                  <h4>{m.title}</h4>
+                  <p>{m.description}</p>
+                </article>
+              ))}
+            </div>
+          ))}
+        </section>
         <div class="propose">
           <p>Want a concept explained here?</p>
           <a class="btn primary" href="#request">Propose a module →</a>
@@ -1171,7 +1200,9 @@ const TURN = `@keyframes hero-turn {
       // the last module played, or once it is finished, the next module not yet finished: the hero walks the reader through them all
       const unfinished = (m: typeof live[number]) => m.chapters.some(c => !completed(m.id).includes(c.id));
       const last = live.find(m => m.id === lastModule()) ?? live[0];
-      const pick = unfinished(last) ? last : live.find(unfinished) ?? last;
+      // AI modules are picked first: classic tech comes after every AI module
+      const order = [...live.filter(m => !m.track), ...live.filter(m => m.track)];
+      const pick = unfinished(last) ? last : order.find(unfinished) ?? last;
       const r = resume(pick), go = document.querySelector<HTMLAnchorElement>('[data-continue]')!;
       go.href = r.href;
       if (r.done) go.textContent = r.text;
@@ -1212,6 +1243,8 @@ const TURN = `@keyframes hero-turn {
         }
         for (const g of document.querySelectorAll<HTMLElement>('#modules [data-level]'))
           g.hidden = !g.querySelector('[data-search]:not([hidden])');
+        const classic = document.querySelector<HTMLElement>('[data-classic]')!;
+        classic.hidden = !classic.querySelector('[data-search]:not([hidden])');
         // playable modules, as the hero counts them, then the planned ones apart
         const planned = cards.filter(c => !c.hidden && c.dataset.status === 'Planned').length;
         const live = shown - planned;
@@ -1335,7 +1368,7 @@ const TURN = `@keyframes hero-turn {
   .sent { color: var(--ok); font-weight: 600; }
   /* the finder rides along while the catalogue scrolls: the search, three dropdowns and the count in one row */
   .finder { position: sticky; top: 0; z-index: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 -12px; padding: 12px; background: var(--paper); border-bottom: 1.5px solid var(--rule); }
-  .finder[hidden], .none[hidden], .level-group[hidden], .module[hidden], .roadmap[hidden], .hit[hidden] { display: none; }
+  .finder[hidden], .none[hidden], .level-group[hidden], .classic[hidden], .compacts[hidden], .module[hidden], .roadmap[hidden], .hit[hidden] { display: none; }
   .finder input[type=search] { flex: 1 1 240px; min-width: 0; font: inherit; font-size: 16px; padding: 8px 16px; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--card); color: var(--ink); }
   .pick { position: relative; }
   .pick summary { list-style: none; font-size: 14px; font-weight: 600; padding: 8px 30px 8px 14px; border: 1.5px solid var(--ink); border-radius: 999px; cursor: pointer; white-space: nowrap; user-select: none;
@@ -1368,6 +1401,21 @@ const TURN = `@keyframes hero-turn {
   .module h4 a { text-decoration: none; }
   .module h4 a:hover { text-decoration: underline; }
   .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  /* classic tech: compact cards after the AI ones, no picture and a lighter shadow so the AI cards stay the emphasis */
+  .classic { margin-top: 40px; }
+  .classic > h3 { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .classic > h3::after { content: ''; flex: 1; border-top: 1.5px solid var(--rule); }
+  .compacts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; align-items: stretch; }
+  .compacts + .compacts { margin-top: 14px; }
+  .compacts:empty { display: none; }
+  .compact { padding: 0 14px 14px; border-radius: 16px; box-shadow: 3px 3px 0 var(--ink); }
+  .compact .pic { margin: 0 -14px 10px; padding: 8px 12px; }
+  .compact .pic :global(svg) { height: 90px !important; }
+  .compact .kicker { font-size: 11px; }
+  .compact .level { background: transparent; }
+  .compact h4 { font-size: 16px; margin: 6px 0 4px; }
+  .compact > p:not(.hit):not(.tags) { font-size: 13.5px; margin: 0 0 12px; }
+  .compact .btn { margin-top: auto; text-align: center; font-size: 14px; padding: 8px 14px; }
   .roadmap { border: 1.5px dashed var(--muted); border-radius: 16px; padding: 14px 18px; display: flex; flex-direction: column; gap: 4px; align-self: start; }
   .roadmap .level { background: transparent; border-color: var(--muted); }
   .roadmap h4 { font-size: 16px; margin: 2px 0 0; }
@@ -1389,13 +1437,14 @@ const TURN = `@keyframes hero-turn {
     .home h1 { font-size: 32px; }
     .hero { padding-top: 16px; }
     .modules { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .compacts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .principles { grid-template-columns: 1fr; }
     .loop { grid-template-columns: 1fr 1fr; }
     #request { grid-template-columns: 1fr; padding: 22px 18px; }
     #request h2 { font-size: 26px; }
   }
   @media (max-width: 620px) {
-    .modules { grid-template-columns: 1fr; }
+    .modules, .compacts { grid-template-columns: 1fr; }
     /* on a phone the search takes its own row; the dropdowns share the next and the count closes it */
     .finder { padding: 10px 16px; margin: 0 -16px; gap: 8px 6px; }
     .finder input[type=search] { flex-basis: 100%; }
