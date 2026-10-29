@@ -1,0 +1,238 @@
+---
+// Who labels the data module intro: sets the scene before chapter 1. Static, except the warm-up and a small script
+// that marks finished chapters. Every example is the module's own data: the sorting room drawn from the frozen labels
+// (data/labelling/labels.json, stand-ins from seeded profiles) and the numbers from pinned.json.
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import Meta from '../../components/Meta.astro';
+import IsoStage from '../../lib/iso/IsoStage';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import { RACK_BOARD, rackLabel, rackScene, type RackOpts } from '../../components/scenes/pigeonholeScene';
+import { picksOf, tallyOf } from '../../content/labelling/kit';
+import { GOLD, INTENTS, POOL, labellerOf, ticketOf } from '../../lib/labelling/story';
+import { fact } from '../../lib/labelling/facts';
+import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { introMeta } from '../../lib/pages';
+import { longDate } from '../../lib/format';
+import PINNED from '../../../data/labelling/pinned.json' with { type: 'json' };
+
+const MODULE = moduleOf('labelling');
+const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const CHAPTERS = MODULE.chapters;
+
+const pct = (x: number) => `${Math.round(x * 100)}%`;
+const two = (x: number) => x.toFixed(2);
+const [ROSA, MIRA, TOM] = (['rosa', 'mira', 'tom'] as const).map(id => labellerOf(id).name);
+const three = ticketOf(PINNED.threeWay),
+  refund = ticketOf('t006');
+const RR = POOL.filter(t => t.intent === 'refund' || t.intent === 'return').map(t => t.id);
+const o = (x: Omit<RackOpts, 'scale'>): RackOpts => ({ ...x, scale: 1.4 });
+const HERO = o({ ticket: three, picks: picksOf(three.id, false) });
+const IDEAS: [string, string, ReturnType<typeof fact> | null, RackOpts][] = [
+  ['A judgement', 'Three careful people, one ticket, three holes', null, HERO],
+  [
+    'Agreement above luck',
+    'Kappa counts only the agreement luck can’t explain',
+    fact('kappa'),
+    o({
+      ticket: POOL[8],
+      tally: tallyOf(
+        POOL.slice(0, 8).map(t => t.id),
+        false,
+      ),
+    }),
+  ],
+  [
+    'Write the rule down',
+    'A guideline settles most disagreements',
+    null,
+    o({ ticket: refund, guide: true, picks: picksOf(refund.id), tally: tallyOf(RR.slice(0, 6)) }),
+  ],
+  [
+    'Check the checkers',
+    'Gold tickets catch a careless labeller',
+    fact('test-set-errors'),
+    o({ ticket: GOLD[0], gold: GOLD.length - 1, flag: 'tom', picks: picksOf(GOLD[0].id) }),
+  ],
+];
+const FACTS: [string, string][] = [
+  [String(POOL.length), 'hand-written stand-in tickets in Larkspur’s labelling pool'],
+  [String(INTENTS.length), 'intents, one pigeonhole each'],
+  [pct(PINNED.gold.scores.tom), `${TOM}’s gold score, under the ${pct(PINNED.gold.bar)} bar`],
+  [
+    String(PINNED.leastSure.active),
+    `labels least-sure-first needs, against ${PINNED.leastSure.random} for random orders`,
+  ],
+];
+---
+<html lang="en">
+  <head>
+    <Meta {...introMeta(MODULE.id)} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module {NUMBER} · {MODULE.title}</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span></p>
+          <h1>A label is a judgement</h1>
+          <p class="lede">Every model is trained and graded on labels people made. Here you sort tickets beside three labellers, measure how often they agree, write the rule down and check the checkers.</p>
+          <div class="ctas">
+            <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+          <ReadingMode />
+        </div>
+        <div class="hero-pic">
+          {/* the pinned three-way ticket: three labellers, three holes */}
+          <IsoStage board={RACK_BOARD} scene={rackScene(HERO)} label={rackLabel(HERO)} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="idea">
+        <p class="kicker">The whole idea in one example</p>
+        <h2 id="idea">One written rule, and agreement jumps</h2>
+        <div class="versus">
+          <article class="reply">
+            <header><h3>No rule</h3><span class="stamp">kappa</span></header>
+            <p class="said">{two(PINNED.kappa.before['rosa-mira'])}</p>
+            <p class="cap">{`${ROSA} and ${MIRA}, ${PINNED.refundReturn.before} refund-or-return splits.`}</p>
+          </article>
+          <article class="reply read">
+            <header><h3>Guideline</h3><span class="stamp">kappa</span></header>
+            <p class="said">{two(PINNED.kappa.after['rosa-mira'])}</p>
+            <p class="cap">{`The same two, ${PINNED.refundReturn.after} split left.`}</p>
+          </article>
+        </div>
+        <p class="note more">Hand-written stand-in tickets; the three labellers’ labels come from seeded profiles, not real people. Kappa is agreement above luck: 1 is perfect, 0 no better than luck.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Four ideas carry the module</h2>
+        <ol class="steps">
+          {IDEAS.map(([name, short, f, opts], i) => (
+            <li>
+              <div class="pic"><IsoStage board={RACK_BOARD} scene={rackScene(opts)} label={rackLabel(opts)} /></div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              {f && <p class="more">{f.claim}</p>}
+              {f && <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>}
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">Larkspur labels its tickets</h2>
+          <p class="more">{MODULE.story} <strong>You’re on the team that decides which labels to trust.</strong></p>
+        </div>
+        <dl class="facts">
+          {FACTS.map(([num, what]) => <div><dt>{num}</dt><dd>{what}</dd></div>)}
+        </dl>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due; the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <ul class="who-chips"><li>Engineers</li><li>Product managers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Anyone who buys, makes or trusts labelled data for training or evals. The Evals module first helps, but no maths is needed.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com" target="_blank" rel="noopener">Samy (Kondasamy Jayaraman)</a>.</p>
+      </footer>
+    </main>
+
+    <script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      const CHAPTERS = moduleOf('labelling').chapters;
+      const done = completed('labelling');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('labelling', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .hero-pic :global(svg) { width: 100%; height: auto; display: block; }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.read { border-left: 6px solid var(--acc); }
+  .said { font-size: 28px; font-weight: 900; }
+
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); white-space: nowrap; }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 240px; display: flex; justify-content: center; margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: auto !important; height: 100% !important; max-width: 100%; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
+
+  .pair { display: grid; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+    .steps .pic { height: 200px; }
+  }
+</style>
