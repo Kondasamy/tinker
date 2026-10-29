@@ -225,6 +225,25 @@ describe('sign the slip, live', () => {
     expect(status()[0].textContent).toBe(verdictNote(v));
   });
 
+  it('a double Send records one order: the second click waits for the first, then finds the nonce spent', async () => {
+    reduce(true);
+    const checked: boolean[] = [];
+    const onEvent = (e: { kind: string; verdict?: { ok: boolean } }) => {
+      if (e.kind === 'checked') checked.push(e.verdict!.ok);
+    };
+    act(() => root.render(createElement(SignSlip, { caption: 'x', onEvent })));
+    await press('Sign');
+    await vi.waitFor(() => expect(button('Send')).toBeTruthy());
+    await act(async () => {
+      button('Send')!.click();
+      button('Send')!.click();
+    });
+    await vi.waitFor(() => expect(checked).toEqual([true]));
+    await press('Send again');
+    await vi.waitFor(() => expect(checked).toEqual([true, false]));
+    expect(status()[0].textContent).toContain('nonce fails');
+  });
+
   it('offers the Task tab when given states', async () => {
     reduce(true);
     const states = runTask(TASK_TURNS, 'vague').states;

@@ -209,6 +209,11 @@ export function SignSlip({
   const [said, setSaid] = useState('');
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => () => clearTimeout(timer.current), []);
+  // a Send in flight ignores another until the run re-renders, so the next check sees the nonce it spent
+  const sending = useRef(false);
+  useEffect(() => {
+    sending.current = false;
+  }, [r]);
   const slip = carried(r);
   const busy = r.at === 'hatch';
 
@@ -237,7 +242,8 @@ export function SignSlip({
     onEvent?.({ kind: 'tampered', slip: s });
   };
   const send = async () => {
-    if (!slip) return;
+    if (!slip || sending.current) return;
+    sending.current = true;
     clearTimeout(timer.current);
     const v = await checkOrder(slip, orderOf(sellerOf(seller)), r.spent);
     const land = () => {
