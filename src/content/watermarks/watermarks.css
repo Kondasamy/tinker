@@ -141,3 +141,119 @@ button.wm-chip[aria-pressed="true"] {
     min-height: 44px;
   }
 }
+
+/* Chapters: the reply pair (ch. 1), the forwarded email (ch. 4), radio groups (ch. 3, 6, 7), the print's findings
+   (ch. 6), the bench's table and headline (ch. 7). */
+.wm-pair {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.wm-q {
+  margin: 0;
+  font-weight: 700;
+}
+.wm-reply {
+  border: 1.5px solid var(--ink);
+  border-radius: 12px;
+  padding: 10px 14px;
+  background: var(--paper);
+  font-size: 14px;
+}
+.wm-reply h3 {
+  margin: 0 0 4px;
+  font-size: 14px;
+}
+.wm-reply p {
+  margin: 0 0 6px;
+}
+.wm-reply p:last-child {
+  margin-bottom: 0;
+}
+.wm-radios {
+  border: 1.5px solid var(--rule);
+  border-radius: 12px;
+  padding: 4px 12px 6px;
+  margin: 8px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 18px;
+}
+.wm-radios legend {
+  font-weight: 800;
+  font-size: 14px;
+  padding: 0 4px;
+}
+.wm-radios label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 32px;
+  font-size: 14px;
+}
+.wm-bench {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 12px;
+}
+.wm-bench .wm-radios {
+  flex: 1 1 180px;
+}
+.wm-findings {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.wm-findings div {
+  flex: 1 1 140px;
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+  padding: 6px 10px;
+  background: var(--card);
+}
+.wm-findings dt {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.wm-findings dd {
+  margin: 0;
+  font:
+    700 14px ui-monospace,
+    Menlo,
+    monospace;
+}
+.wm-table caption {
+  text-transform: none;
+}
+.wm-table td,
+.wm-table th {
+  text-align: left;
+}
+.wm-table td.ok {
+  font-weight: 800;
+}
+.wm-table td.bad {
+  color: #a5341f;
+}
+.wm-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.wm-headline strong {
+  font:
+    800 26px / 1 ui-monospace,
+    Menlo,
+    monospace;
+}
+@media (max-width: 600px) {
+  .wm-radios label {
+    min-height: 44px;
+  }
+}

@@ -51,7 +51,7 @@ export const lastOf = (prompt: string) => encode(prompt).at(-1)!;
 
 // ---- the read-out's lines ----
 
-const signed = (z: number) => (z < 0 ? `−${(-z).toFixed(2)}` : z.toFixed(2));
+export const signed = (z: number) => (z < 0 ? `−${(-z).toFixed(2)}` : z.toFixed(2));
 /** The checker's result in words: its green pairs and z-score, or too short to say. */
 export const zText = (c: Check) =>
   c.z === null
@@ -263,7 +263,8 @@ export function UvStage({
   children?: ReactNode;
 }) {
   const [own, setOwn] = useState<View>('scene');
-  const view = print ? 'scene' : (kept ?? own),
+  const strip = !print && lamp !== null, // nothing to show in the Strip while the lamp is parked
+    view = strip ? (kept ?? own) : 'scene',
     setView = onView ?? setOwn;
   const narrow = useNarrow(),
     reduced = useReduced();
@@ -294,7 +295,7 @@ export function UvStage({
   };
   return (
     <div className="tc-stage wm-stage">
-      {!print && (
+      {strip && (
         <div className="tc-tabs" role="group" aria-label="Show in the picture">
           <button type="button" className="chip" aria-pressed={view === 'scene'} onClick={() => setView('scene')}>
             Picture
