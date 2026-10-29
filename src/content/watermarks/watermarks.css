@@ -1,0 +1,143 @@
+/* Watermarks stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption). These are the Strip tab
+   (token chips, green raised with ✓, red notched with ✗, and the z-score meter), the lamp and reword controls and the
+   read-out. */
+.wm-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+.wm-row {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.wm-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 5px;
+  border: 1.5px solid var(--ink);
+  border-radius: 4px;
+  font:
+    700 12px ui-monospace,
+    Menlo,
+    monospace;
+  color: var(--ink);
+  white-space: pre;
+}
+.wm-chip.green {
+  background: var(--mint-l);
+  box-shadow: 0 2px 0 var(--ink);
+}
+/* red: flat, with a notch cut in its bottom edge */
+.wm-chip.red {
+  background: var(--tomato-l);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 58% 100%, 50% 72%, 42% 100%, 0 100%);
+}
+button.wm-chip {
+  cursor: pointer;
+}
+button.wm-chip[aria-pressed="true"] {
+  outline: 3px solid var(--mustard-m);
+  outline-offset: 1px;
+}
+.wm-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.wm-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.wm-track {
+  position: relative;
+  height: 14px;
+  border: 1.5px solid var(--ink);
+  border-radius: 7px;
+  background: var(--card);
+  overflow: hidden;
+}
+.wm-fill {
+  display: block;
+  height: 100%;
+  background: var(--mint-l);
+  border-right: 1.5px solid var(--ink);
+}
+.wm-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: 2px dashed var(--ink);
+}
+.wm-z {
+  margin: 0;
+  font:
+    700 13px ui-monospace,
+    Menlo,
+    monospace;
+}
+
+.wm-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wm-lamp,
+.wm-reword {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 8px 14px;
+}
+.wm-range {
+  display: grid;
+  gap: 2px;
+  flex: 1 1 220px;
+}
+.wm-range label {
+  font-size: 13px;
+  font-weight: 700;
+}
+.wm-range input {
+  width: 100%;
+  min-height: 32px;
+  margin: 0;
+  accent-color: #8a6fd6;
+}
+.wm-range output {
+  font-size: 12.5px;
+}
+.wm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.wm-load {
+  margin: 0;
+  flex-basis: 100%;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.wm-said {
+  margin: 0;
+  min-height: 2.8em;
+  font:
+    700 13px ui-monospace,
+    Menlo,
+    monospace;
+}
+@media (max-width: 600px) {
+  .wm-range input,
+  .wm-controls .chip {
+    min-height: 44px;
+  }
+}
