@@ -2171,5 +2171,46 @@
       "bench",
       "quiz"
     ]
+  },
+  "labelling": {
+    "01-someone-has-to-decide": [
+      "predict",
+      "sort",
+      "quiz"
+    ],
+    "02-how-often-do-they-agree": [
+      "predict",
+      "sort",
+      "matrix",
+      "pair",
+      "quiz"
+    ],
+    "03-write-the-rule-down": [
+      "predict",
+      "guide",
+      "matrix",
+      "quiz"
+    ],
+    "04-check-the-checkers": [
+      "predict",
+      "sort",
+      "score",
+      "quiz"
+    ],
+    "05-many-votes": [
+      "predict",
+      "vote",
+      "quiz"
+    ],
+    "06-label-the-hard-ones-first": [
+      "predict",
+      "order",
+      "model",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "ties"
+    ]
   }
 }

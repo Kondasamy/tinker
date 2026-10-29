@@ -138,6 +138,10 @@ import { DOCKET_BOARD, docketLabel, docketScene } from '../components/scenes/doc
 import { boardOf as promptsBoard } from '../content/prompts/kit';
 import { START as PROMPTS_START } from '../lib/prompts/assemble';
 import { TICKETS as PROMPTS_TICKETS } from '../lib/prompts/cards';
+import { RACK_BOARD, rackLabel, rackScene } from '../components/scenes/pigeonholeScene';
+import { picksOf as labelPicks } from '../content/labelling/kit';
+import { ticketOf as labelTicket } from '../lib/labelling/story';
+import LABEL_PINNED from '../../data/labelling/pinned.json' with { type: 'json' };
 import { FORM } from '../lib/site';
 
 const one =
@@ -392,6 +396,9 @@ const DOCKET = {
   ).opts,
   scale: 1.7,
 };
+// labelling: three labellers' picks for one ticket, three holes, as the intro draws it
+const LABEL_THREE = labelTicket(LABEL_PINNED.threeWay);
+const RACK = { ticket: LABEL_THREE, picks: labelPicks(LABEL_THREE.id, false), scale: 1.7 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -968,6 +975,19 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
     name: 'Writing a prompt',
     iso: { board: DOCKET_BOARD, scene: docketScene(DOCKET), label: docketLabel(DOCKET) },
     topics: ['Prompts', 'Instructions', 'Few-shot examples', 'Output format', 'Prompt order', 'Prompt testing'],
+  },
+  labelling: {
+    name: 'Who labels the data',
+    iso: { board: RACK_BOARD, scene: rackScene(RACK), label: rackLabel(RACK) },
+    topics: [
+      'Data labelling',
+      'Agreement',
+      'Cohen’s kappa',
+      'Guidelines',
+      'Gold checks',
+      'Majority vote',
+      'Model labellers',
+    ],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];

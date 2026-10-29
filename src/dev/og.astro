@@ -358,6 +358,17 @@ import { boardOf as prBoard } from '../content/prompts/kit';
 import { START as PR_START } from '../lib/prompts/assemble';
 import { TICKETS as PR_TICKETS, type Docket } from '../lib/prompts/cards';
 import PR_PINNED from '../../data/prompts/pinned.json' with { type: 'json' };
+import { RACK_BOARD, rackScene, type RackOpts } from '../components/scenes/pigeonholeScene';
+import { picksOf as lbPicks, tallyOf as lbTally } from '../content/labelling/kit';
+import { majority as lbMajority } from '../lib/labelling/vote';
+import {
+  GOLD as LB_GOLD,
+  HARD as LB_HARD,
+  MODELS as LB_MODELS,
+  POOL as LB_POOL,
+  ticketOf as lbTicket,
+} from '../lib/labelling/story';
+import LB_PINNED from '../../data/labelling/pinned.json' with { type: 'json' };
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -1691,6 +1702,50 @@ const DOCKET_OG: Record<string, () => Omit<DocketOpts, 'scale'>> = {
   'prompts-07-workbench': () => prAt('07-workbench', PR_PINNED.workbench.winners[0] as Docket, true),
 };
 const docketOg = DOCKET_OG[page.og]?.();
+// module 48: the sorting room. The intro and 1: three labellers, one ticket, three holes; 2: tallies building; 3: the
+// guideline pinned over refund and return slips; 4: a gold ticket with Tom flagged; 5: the vote outvoting the right
+// pick; 6: the model at the table on a hard ticket; 7: one labeller, the model and gold.
+const lbThree = () => lbTicket(LB_PINNED.threeWay);
+const RACK_OG: Record<string, () => Omit<RackOpts, 'scale'>> = {
+  labelling: () => ({ ticket: lbThree(), picks: lbPicks(lbThree().id, false) }),
+  'labelling-01-someone-has-to-decide': () => {
+    const picks = lbPicks(lbThree().id, false);
+    return { ticket: lbThree(), mine: picks.rosa, picks };
+  },
+  'labelling-02-how-often-do-they-agree': () => ({
+    ticket: LB_POOL[8],
+    tally: lbTally(
+      LB_POOL.slice(0, 8).map(t => t.id),
+      false,
+    ),
+  }),
+  'labelling-03-write-the-rule-down': () => ({
+    ticket: LB_POOL[1],
+    guide: true,
+    tally: lbTally(
+      LB_POOL.filter(t => t.intent === 'refund' || t.intent === 'return')
+        .slice(0, 6)
+        .map(t => t.id),
+    ),
+  }),
+  'labelling-04-check-the-checkers': () => ({
+    ticket: LB_GOLD[0],
+    gold: LB_GOLD.length - 1,
+    flag: 'tom',
+    picks: lbPicks(LB_GOLD[0].id),
+  }),
+  'labelling-05-many-votes': () => {
+    const t = lbTicket(LB_PINNED.minority),
+      picks = lbPicks(t.id);
+    return { ticket: t, picks, vote: lbMajority(Object.values(picks)) };
+  },
+  'labelling-06-label-the-hard-ones-first': () => {
+    const t = lbTicket(LB_HARD[0]);
+    return { ticket: t, model: true, picks: { ...lbPicks(t.id), model: LB_MODELS.main.labels[t.id] } };
+  },
+  'labelling-07-workbench': () => ({ labellers: ['rosa'], model: true, gold: 4, ticket: LB_POOL[20] }),
+};
+const rackOg = RACK_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1765,6 +1820,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : townOg ? <IsoStage board={TOWN_BOARD} scene={townScene({ ...townOg, scale: 1.3 })} label="" />
           : webFallOg ? <div class="tf-og ob-og"><WaterfallView run={webFallOg} /></div>
           : docketOg ? <IsoStage board={DOCKET_BOARD} scene={docketScene({ ...docketOg, scale: 1.3 })} label="" />
+          : rackOg ? <IsoStage board={RACK_BOARD} scene={rackScene({ ...rackOg, scale: 1.3 })} label="" />
           : dreamOg ? <IsoStage board={dreamBoard(dreamOg)} scene={dreamScene({ ...dreamOg, scale: 1.3 })} label="" />
           : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
           : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />

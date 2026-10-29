@@ -54,6 +54,7 @@ const NUMBERED = [
   'memorisation',
   'video-models',
   'prompts',
+  'labelling',
 ];
 
 // AI modules lead the catalogue; classic tech follows in its own section of compact cards
@@ -403,6 +404,10 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
   await expect(page.locator('[data-level="Beginner"] .module[data-module="prompts"] h4 a')).toHaveAttribute(
     'href',
     '/prompts/',
+  );
+  await expect(page.locator('[data-level="Intermediate"] .module[data-module="labelling"] h4 a')).toHaveAttribute(
+    'href',
+    '/labelling/',
   );
 });
 

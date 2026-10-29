@@ -802,6 +802,18 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'prompts')).toBe(46);
   });
 
+  it('has labelling as a live Intermediate module after prompts, numbered 48', () => {
+    expect(moduleOf('labelling')).toMatchObject({
+      title: 'Who labels the data',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: ['evals'],
+    });
+    expect(moduleOf('labelling').track).toBeUndefined();
+    expect(moduleOf('labelling').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'labelling')).toBe(47);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

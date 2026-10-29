@@ -30,7 +30,7 @@ import {
   toneI,
   vis,
 } from '../../lib/iso/core.js';
-import { CAST, drawPieces, type Item, modelMachine, person, tight } from '../../lib/iso/figures';
+import { CAST, drawPieces, type Item, mini, modelMachine, person, tight } from '../../lib/iso/figures';
 import { INTENTS, type Intent, type LabellerId, labellerOf } from '../../lib/labelling/story';
 import type { Say } from '../story/steps';
 
@@ -373,4 +373,23 @@ export function rackLabel(o: RackOpts): string {
   if (o.flag) parts.push(`A flag is up at ${labellerOf(o.flag).name}'s place.`);
   if (o.guide) parts.push('The guideline is pinned on the rack.');
   return parts.join(' ');
+}
+
+/** The home hero's plot (heroScene): the rack alone with a few slips in its holes, set down small. */
+export function rackPlot(x: number, y: number, top: SceneCtx['top']): string {
+  const tally = Object.fromEntries(INTENTS.map((it, i) => [it.id, [2, 0, 1, 3, 1][i] ?? 0])) as Record<Intent, number>,
+    b = [
+      [RX0 - 1, RY0 - 2, BH],
+      [RACK_X1 + 1, RY1 + 1, ZT],
+    ];
+  const p = mini(
+    {
+      shadow: castShadow(boxCorners(RX0 - 1, RY0 - 2, BH, RACK_X1 + 1, RY1 + 1, ZT), BH, top),
+      items: [{ box: b, svg: rack({ tally }, tally) }],
+    },
+    [(RX0 + RACK_X1) / 2, (RY0 + RY1) / 2, BH],
+    [x, y, BH],
+    0.3,
+  );
+  return drawPieces([p]);
 }

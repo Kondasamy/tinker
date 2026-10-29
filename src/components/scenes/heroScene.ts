@@ -54,6 +54,7 @@ import { shelfPlot } from './shelfScene';
 import { recitalPlot } from './recitalScene';
 import { dreamPlot } from './dreamFloorScene';
 import { docketPlot } from './docketScene';
+import { rackPlot } from './pigeonholeScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
@@ -266,6 +267,7 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   memorisation: (x, y, { top }) => recitalPlot(x + 14, y - 2, top),
   'video-models': (x, y, { top }) => dreamPlot(x + 8, y - 2, top),
   prompts: (x, y, { top }) => docketPlot(x + 14, y - 2, top),
+  labelling: (x, y, { top }) => rackPlot(x + 14, y - 2, top),
 };
 // only AI modules take a turn on the stand: classic tech waits in the catalogue
 const LIVE = MODULES.filter(m => m.status === 'live' && !m.track);

@@ -46,6 +46,7 @@ import { RECOMMENDATIONS_MODULE } from '../content/recommendations/module';
 import { MEMORISATION_MODULE } from '../content/memorisation/module';
 import { VIDEO_MODELS_MODULE } from '../content/video-models/module';
 import { PROMPTS_MODULE } from '../content/prompts/module';
+import { LABELLING_MODULE } from '../content/labelling/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -151,6 +152,7 @@ export const MODULES: Module[] = [
   MEMORISATION_MODULE,
   VIDEO_MODELS_MODULE,
   PROMPTS_MODULE,
+  LABELLING_MODULE,
   planned(
     'fairness',
     'Bias and fairness',

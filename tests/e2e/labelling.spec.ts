@@ -43,6 +43,21 @@ test('the recap names the module number', async ({ page }) => {
   await expect(page.locator('.hero .kicker')).toHaveText(`Module ${NUMBER} · Recap`);
 });
 
+test('go-live: own share images and home’s card', async ({ page }) => {
+  await page.goto('/labelling/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/labelling\.jpg$/);
+  await page.goto(`/labelling/${CH1}/`);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    new RegExp(`/og/labelling-${CH1}\\.jpg$`),
+  );
+  await page.goto('/labelling/recap/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/labelling-recap\.jpg$/);
+  expect((await page.request.get('/og/labelling.jpg')).status()).toBe(200);
+  await page.goto('/');
+  await expect(page.locator('.module[data-module="labelling"] h4 a')).toHaveAttribute('href', '/labelling/');
+});
+
 test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({
   page,
 }) => {
