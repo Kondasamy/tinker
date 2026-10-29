@@ -1,5 +1,6 @@
 // Assembling a docket into the prompt the model reads, its signature, and each chapter's finite domain (KTD4).
 // A chapter opens only the slots its lesson needs, so the docket can reach only recorded combinations.
+import bench from '../../../data/prompts/workbench.json' with { type: 'json' };
 import { CARDS, EMPTY, TEXT, ticketOf, TICKETS, type Card, type Docket, type Setup, type Slot } from './cards.ts';
 
 export interface Part {
@@ -103,7 +104,7 @@ export const START: Record<string, Docket> = {
   '04-put-it-in-a-shape': { ...EMPTY, role: true, task: 'clear' },
   '05-order-and-emphasis': { ...EMPTY, role: true, task: 'clear', examples: 2, rules: 'first' },
   '06-test-it-like-code': { ...EMPTY, role: true, task: 'vague', format: 'json', rules: 'last' },
-  '07-workbench': { ...EMPTY, role: true, task: 'vague', rules: 'first' },
+  '07-workbench': bench.start as Docket,
 };
 
 /** Every combination of a domain's values. (Tool calling's combosOf, restated: this file loads in plain Node.) */
