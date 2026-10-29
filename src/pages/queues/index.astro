@@ -56,7 +56,7 @@ const FACTS: [string, string][] = [
       <header class="hero">
         <div class="hero-text">
           <p class="kicker">Module {NUMBER} · {MODULE.title}</p>
-          <p class="module-meta"><span class="level">{MODULE.level}</span> · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>How an order waits its turn</h1>
           <p class="lede">When you press Buy, the page answers at once, but the parcel is packed later, by a worker taking jobs off a queue. Here you run Larkspur’s sale through a ticket rail, knock a worker over mid-job, and set up the sale day.</p>
           <div class="ctas">
@@ -169,7 +169,6 @@ const FACTS: [string, string][] = [
   .lede { font-size: 17px; }
   .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
   .module-meta .level { margin-right: 4px; }
-  .module-meta a { color: var(--ink); }
   .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
   .prev { font-size: 14px; color: var(--muted); margin-top: 12px; }
   .prev a { color: var(--ink); }

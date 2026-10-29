@@ -15,7 +15,7 @@ import DATA from '../../../data/__ID__/facts.json' with { type: 'json' };
 
 const MODULE = moduleOf('__ID__');
 const CHAPTERS = MODULE.chapters;
-const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
+
 const checked = longDate(DATA.accessed);
 ---
 <html lang="en">
@@ -31,7 +31,7 @@ const checked = longDate(DATA.accessed);
       <header class="hero">
         <div class="hero-text">
           <p class="kicker">{MODULE.title}</p>
-          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS.length > 0 && <>{PREREQS.map((m, i) => <>{i > 0 && ', '}<a href={`/${m.id}/`}>{m.title}</a></>)} recommended</>} · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>{MODULE.title}</h1>
           <p class="lede">{MODULE.description}</p>
           <div class="ctas">
@@ -132,7 +132,6 @@ const checked = longDate(DATA.accessed);
   .lede { font-size: 17px; }
   .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
   .module-meta .level { margin-right: 4px; }
-  .module-meta a { color: var(--ink); }
   .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 
   .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }

@@ -22,9 +22,6 @@ import { INK, pd } from '../../lib/iso/core.js';
 import { BH, ACC } from '../../lib/iso/blocks';
 
 const MODULE = moduleOf('rag');
-const PREREQS = MODULE.prereqs.length
-  ? `${MODULE.prereqs.map(id => moduleOf(id).title).join(', ')} recommended`
-  : 'No prerequisites';
 
 const QUESTION = ch3.find(q => q.id === 'refund-enterprise')!.query;
 const WITHOUT = refund.nocontext,
@@ -107,7 +104,7 @@ const FACTS: [string, string][] = [
       <header class="hero">
         <div class="hero-text">
           <p class="kicker">Module 1 · AI</p>
-          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS} · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>How AI assistants answer from your company’s documents</h1>
           <p class="lede">Retrieval-Augmented Generation (RAG) is how most workplace AI assistants find the right policy, contract or price before they answer. You’ll build one block by block, watch it fail, and fix it.</p>
           <div class="ctas">
@@ -237,7 +234,6 @@ const FACTS: [string, string][] = [
   .lede { font-size: 17px; }
   .rag .module-meta { margin: 8px 0 10px;font-size: 13.5px; color: var(--muted); }
   .module-meta .level { margin-right: 4px; }
-  .module-meta a { color: var(--ink); }
   .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 
   .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }

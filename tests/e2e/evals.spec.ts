@@ -28,12 +28,10 @@ test.setTimeout(120_000);
 
 const at = (text: string) => QUESTIONS.findIndex(q => text.includes(q.query));
 
-test('the intro shows the level, the prerequisite, the author and the chapters', async ({ page }) => {
+test('the intro shows the level and the chapters', async ({ page }) => {
   await page.goto('/evals/');
   const meta = page.locator('.hero .module-meta');
   await expect(meta.locator('.level')).toHaveText('Intermediate');
-  await expect(meta.getByRole('link', { name: 'RAG', exact: true })).toHaveAttribute('href', '/rag/');
-  await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
     'content',

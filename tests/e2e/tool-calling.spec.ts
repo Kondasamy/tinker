@@ -15,9 +15,6 @@ test('the intro renders with its level, prerequisite and author from the registr
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   const meta = page.locator('.hero .module-meta');
   await expect(meta.locator('.level')).toHaveText('Intermediate');
-  await expect(meta.getByRole('link', { name: 'RAG', exact: true })).toHaveAttribute('href', '/rag/');
-  await expect(meta).toContainText('RAG recommended');
-  await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('footer.credits').getByRole('link', { name: 'Kondasamy Jayaraman' })).toHaveAttribute(
     'href',
     'https://kondasamy.com',
