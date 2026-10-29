@@ -23,3 +23,10 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 | 5 `one-bar-or-two` | The ranges are split; Eastmere's bar moves down to the pinned even pair (0.28) | Yes, split | Eastmere's range (`bars.B`) | `post-b`, `post-a` |
 | 6 `every-kind` | Split bars; the Bars tab shows that precision and both error rates can't all match | Yes, split (exploration) | the tab (`view`), then a predict quiz | `post-a`, `post-b` |
 | 7 `workbench` | Fields, sample fix and a bar per lane over `BENCH_BARS`; Bars tab for the gap | Yes, split | the bench's controls (fields, fix, both ranges) | `check`, `out-b` |
+
+## Chapters
+
+- **Every number on the page is computed** from `runOf()` or read from `pinned.json`; `tests/unit/fairness-chapters.test.ts` checks each prediction's outcome against the engine.
+- **The range steps name one bar.** Ch. 1 asks for the shared 0.50 (0.51 ties on overall error but shifts the regions' rates, so the reveal would lie). Ch. 5 keeps Northvale's bar where it started and accepts every Eastmere bar that evens false declines (the pinned 0.28 and its neighbours); its cost table is read off the reader's own bars.
+- **The thin sample is noise, not a fix.** Counting Eastmere three times in the fit widens the gap here (one rule made both regions' records), and ch. 3 says so; the lesson is that one Eastmere repayer is about 2 points of its rate.
+- **The protected-class setting is named once**, beside `ecoa`, in ch. 5 (and the workbench repeats only that two bars are a legal question). "Hand-made" is said once in narration (ch. 1); `ApplicantsNote` sits under every stage (R6). The no-held-out-set caveat folds away in ch. 1 and the workbench.

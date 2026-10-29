@@ -112,3 +112,63 @@
     grid-template-columns: 7em 1fr 3em;
   }
 }
+.fr-pick,
+.fr-bench fieldset {
+  border: 0;
+  padding: 0;
+  margin: 6px 0;
+}
+.fr-pick legend,
+.fr-bench legend {
+  font-weight: 800;
+  font-size: 14px;
+}
+.fr-pick label,
+.fr-bench label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 32px;
+  font-size: 14px;
+}
+.fr-bench {
+  border: 1.5px solid var(--rule);
+  border-radius: 12px;
+  padding: 6px 12px;
+  margin: 8px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 28px;
+}
+.fr-maths {
+  margin: 8px 0;
+  font-size: 13.5px;
+}
+.fr-maths summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.fr-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.fr-table td,
+.fr-table th {
+  text-align: left;
+}
+.fr-table td.ok {
+  font-weight: 800;
+}
+.fr-table td.bad {
+  color: #a5341f;
+}
+@media (max-width: 600px) {
+  .fr-pick label,
+  .fr-bench label {
+    min-height: 44px;
+  }
+}
