@@ -29,6 +29,7 @@ import { ROOMS_BOARD, roomsScene, tokensOf } from '../../src/components/scenes/o
 import { OFFICE_BOARD, officeScene } from '../../src/components/scenes/officeScene';
 import { PAINT_BOARD, paintAt, paintScene } from '../../src/components/scenes/paintScene';
 import { PHONE_BOARD, phoneScene } from '../../src/components/scenes/phoneScene';
+import { RACK_BOARD, rackScene } from '../../src/components/scenes/pigeonholeScene';
 import { PILE_BOARD, pileScene } from '../../src/components/scenes/pileScene';
 import { POST_BOARD, postScene } from '../../src/components/scenes/postScene';
 import { PUPPET_BOARD, puppetScene } from '../../src/components/scenes/puppetScene';
@@ -307,6 +308,23 @@ const SCENES: Record<string, () => string> = {
   paint: () => stage(PAINT_BOARD, paintScene({ ...paintAt('rose', 'swapped'), eve: 'SEES' })),
   // the reply talking over the caller, with the wait shown
   phone: () => stage(PHONE_BOARD, phoneScene({ stage: 'reply', interrupt: true, wait: 1830 })),
+  // the pigeonhole rack with every prop: model, guideline, gold, flag, a full hole and the three picks dropping
+  pigeonhole: () =>
+    stage(
+      RACK_BOARD,
+      rackScene({
+        ticket: { id: 't016', gold: true },
+        picks: { rosa: 'refund', mira: 'return', tom: 'delivery', model: 'refund' },
+        tally: { refund: 40, return: 3 },
+        mine: 'refund',
+        vote: 'refund',
+        gold: 9,
+        flag: 'tom',
+        model: true,
+        guide: true,
+        drop: true,
+      }),
+    ),
   // the puzzle's finished forest with the parcel: every pile and part
   pile: () =>
     stage(PILE_BOARD, pileScene({ ...forestTable(finish(forestOf(PUZZLE)), true), parcel: { raw: 10, packed: 4 } })),
@@ -505,6 +523,7 @@ const BASE: Record<string, number> = {
   office: 66173,
   paint: 42392,
   phone: 45861,
+  pigeonhole: 110562,
   pile: 16097,
   post: 44758,
   puppet: 23908,
