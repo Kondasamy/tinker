@@ -1,7 +1,7 @@
 // Video and world models: the intro, every chapter played by mouse and by keyboard only, its own progress key, the drive
 // (arrow keys only while the pad has focus, a visible focus ring, Tab out, one read-out), chapter 5's drift, the
 // workbench's best plan, "I'm not sure", reduced motion, the recap, axe and phone width (buttons ≥ 44 px, one floor at a
-// time). The go-live checks (share images, home card) join at go-live.
+// time). The go-live checks: share images, home’s card.
 import { test, expect, type Page } from '@playwright/test';
 import { MODULES, moduleOf } from '../../src/lib/modules';
 import pinned from '../../data/video-models/pinned.json' with { type: 'json' };

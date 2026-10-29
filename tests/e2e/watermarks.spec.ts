@@ -1,7 +1,6 @@
 // Watermarks and made-by-AI: the intro, every chapter played by mouse and by keyboard only, its own progress key, the
 // lamp (a range and Light all, one read-out), the reword path, the print's findings, the workbench's best setting,
-// "I'm not sure", reduced motion, the recap, axe and phone width. The go-live checks (share images, home card) join at
-// go-live.
+// "I'm not sure", reduced motion, the recap, axe and phone width. The go-live checks: share images, home’s card.
 import { test, expect, type Page } from '@playwright/test';
 import { MODULES, moduleOf } from '../../src/lib/modules';
 import pinned from '../../data/watermarks/pinned.json' with { type: 'json' };

@@ -9,7 +9,6 @@ import { mark, PICTURE } from './pixels';
 import type { Mark } from './sample';
 
 export const COMPANY = story.company;
-export const ASSISTANT = story.assistant;
 export const CUSTOMER = story.customer;
 /** The "Larkspur" email the customer forwards, which the assistant never wrote. */
 export const FORWARDED = story.forwarded;

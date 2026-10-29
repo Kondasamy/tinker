@@ -1,7 +1,7 @@
 // Writing a prompt: the intro, every chapter played by mouse and by keyboard only, its own progress key, the card tray
 // (a closed card says why and does nothing; one polite read-out), the simulated label in chapter 5, the workbench's
-// winning and losing prompts, "I'm not sure", reduced motion, the recap, axe and phone width (cards ≥ 44 px). The
-// go-live checks (share images, home card) join at go-live.
+// winning and losing prompts, "I'm not sure", reduced motion, the recap, axe and phone width (cards ≥ 44 px);
+// the go-live checks: share images, home’s card.
 import { test, expect, type Page } from '@playwright/test';
 import { MODULES, moduleOf } from '../../src/lib/modules';
 import { prWalker } from './prompts-flow';

@@ -1,7 +1,7 @@
 // Bias and fairness: the intro, every chapter played by mouse and by keyboard only, its own progress key, the bar
 // ranges (linked in chapters 1–4, split from 5, one read-out), the workbench's winning and losing settings, "I'm not
-// sure", reduced motion, the recap, axe and phone width (ranges ≥ 44 px). The go-live checks (share images, home
-// card) join at go-live.
+// sure", reduced motion, the recap, axe and phone width (ranges ≥ 44 px);
+// the go-live checks: share images, home’s card.
 import { test, expect, type Page } from '@playwright/test';
 import { MODULES, moduleOf } from '../../src/lib/modules';
 import { REGION_NAMES } from '../../src/lib/fairness/story';

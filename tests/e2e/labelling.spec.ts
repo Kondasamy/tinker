@@ -1,7 +1,7 @@
 // Who labels the data: the intro, every chapter played by mouse and by keyboard only, its own progress key, the sort
 // control (number keys only while it has focus, one read-out, a filed ticket locked), the workbench's cheapest setup,
-// "I'm not sure", reduced motion, the recap, axe and phone width (hole buttons ≥ 44 px). The go-live checks (share
-// images, home card) join at go-live.
+// "I'm not sure", reduced motion, the recap, axe and phone width (hole buttons ≥ 44 px);
+// the go-live checks: share images, home’s card.
 import { test, expect, type Page } from '@playwright/test';
 import { MODULES, moduleOf } from '../../src/lib/modules';
 import { lbWalker } from './labelling-flow';

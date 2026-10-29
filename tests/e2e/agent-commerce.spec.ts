@@ -1,7 +1,7 @@
 // When the buyer is an agent: the intro, every chapter played by mouse and by keyboard only, its own progress key, the
 // slip (signed live with the demo key, a changed cap failing the signature, one read-out), the workbench's losing start
 // and best setup, "I'm not sure", reduced motion (stamps without the hatch hop), the recap, axe and phone width (the
-// slip's buttons ≥ 44 px). The go-live checks (share images, home card) join at go-live.
+// slip's buttons ≥ 44 px); the go-live checks: share images, home’s card.
 import { test, expect, type Page } from '@playwright/test';
 import { MODULES, moduleOf } from '../../src/lib/modules';
 import { acWalker } from './agent-commerce-flow';

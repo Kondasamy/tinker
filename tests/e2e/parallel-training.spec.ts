@@ -1,6 +1,6 @@
 // Many chips, one model: the intro, every chapter played by mouse and by keyboard only, its own progress key, pass the
 // buckets (Step, Play hidden under reduced motion, one read-out), the workbench's winning and losing layouts, "I'm not
-// sure", the recap, axe and phone width (controls ≥ 44 px). The go-live checks (share images, home card) join at go-live.
+// sure", the recap, axe and phone width (controls ≥ 44 px); the go-live checks: share images, home’s card.
 import { test, expect, type Locator, type Page } from '@playwright/test';
 import { MODULES, moduleOf } from '../../src/lib/modules';
 import pinned from '../../data/parallel-training/pinned.json' with { type: 'json' };

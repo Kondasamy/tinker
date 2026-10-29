@@ -3,9 +3,8 @@
 // buying agent carries the signed slip but never the key. The reader's "Sign" signs live in the page, on purpose unlike
 // Locks and keys' sign-in-tests-only rule; ECDSA signatures are randomised, so only verdicts are pinned, never bytes.
 import key from '../../../data/agent-commerce/demo-key.json' with { type: 'json' };
+import { hex, unhex } from '../encryption/real';
 import { BUILDER, TODAY } from './story';
-
-export const DEMO_KEY = key;
 
 /** What the builder allows. Prices in US cents; `*` in `merchants` or `items` allows any; an item is a sku or `category:<name>`. */
 export interface Mandate {
@@ -53,8 +52,6 @@ export const mandateOf = (
   nonce,
 });
 
-const hex = (b: ArrayBuffer) => [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
-const unhex = (h: string) => Uint8Array.from(h.match(/../g) ?? [], b => Number.parseInt(b, 16));
 const bytes = (m: Mandate) => new TextEncoder().encode(canonical(m));
 const ecdsa = { name: 'ECDSA', namedCurve: 'P-256' } as const;
 const signing = { name: 'ECDSA', hash: 'SHA-256' } as const;
