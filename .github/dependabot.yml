@@ -10,8 +10,3 @@ updates:
     ignore:
       - dependency-name: typescript
         update-types: ['version-update:semver-major']
-  - package-ecosystem: github-actions
-    directory: /
-    schedule: { interval: monthly }
-    groups:
-      all: { patterns: ['*'] }
