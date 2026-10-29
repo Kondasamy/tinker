@@ -57,6 +57,7 @@ import { TRACE_BOARD, traceScene } from '../../src/components/scenes/traceScene'
 import { TRAIN_BOARD, trainScene } from '../../src/components/scenes/trainScene';
 import { TUBE_BOARD, tubeAt, tubeScene } from '../../src/components/scenes/tubeScene';
 import { FRAME_BOARD, typeFrameScene } from '../../src/components/scenes/typeFrameScene';
+import { UV_BOARD, uvScene } from '../../src/components/scenes/uvScene';
 import { WINDOW_BOARD, windowScene } from '../../src/components/scenes/windowScene';
 import { YARD_BOARD, yardAt, yardScene } from '../../src/components/scenes/yardScene';
 import { play as playCoding } from '../../src/content/coding-agents/kit';
@@ -124,8 +125,10 @@ import { SERVERS as MCP_SERVERS } from '../../src/lib/tools/server';
 import { PROMPTS, trace } from '../../src/lib/transformers/trace';
 import { diskModel } from '../../src/lib/transformers/diskModel';
 import { rollout, parseFrame } from '../../src/lib/video-models/world';
+import { MARK as WATERMARK } from '../../src/lib/watermarks/story';
 import { runOf as webRun } from '../../src/lib/web-requests/sim';
 import pinnedDream from '../../data/video-models/pinned.json' with { type: 'json' };
+import pinnedWatermark from '../../data/watermarks/pinned.json' with { type: 'json' };
 import type { Msg } from '../../src/lib/iso/flat';
 
 const stage = (board: Board, scene: ReturnType<typeof officeScene>) =>
@@ -507,6 +510,19 @@ const SCENES: Record<string, () => string> = {
       f = mlmDecode(diskMlm(), p.ids, 4, 'confidence', p.seed);
     return stage(FRAME_BOARD, typeFrameScene({ given: p.ids.length, ...frameOf(f, 2), typed: 3, typeOf: 16 }));
   },
+  // the pinned watermarked reply, every tile lit, one picked (a new scene: its baseline is its first size)
+  uv: () =>
+    stage(
+      UV_BOARD,
+      uvScene({
+        ids: pinnedWatermark.reply.ids,
+        prev: encode(pinnedWatermark.reply.prompt).at(-1)!,
+        gamma: WATERMARK.gamma,
+        lamp: 'all',
+        picked: 2,
+        say: { block: 'lamp', text: 'UV lamp' },
+      }),
+    ),
   // the memory run with shelf, cabinet and tray on (the callout test's state)
   window: () =>
     stage(
@@ -582,6 +598,8 @@ const BASE: Record<string, number> = {
   train: 43227,
   tube: 85271,
   frame: 74221,
+  // new with the watermarks module (no pre-rework size): its first size is 62,335, with a little headroom
+  uv: 25000,
   window: 26749,
   yard: 40499,
 };

@@ -1,0 +1,101 @@
+---
+// Dev-only eyeball page: the UV print room in the states the chapters teach (static SVG from the pinned replies at
+// build time, wide and phone), then the stage live in the browser, sweeping and rewording. Below 600px the phone
+// versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { UV_BOARD, uvLabel, uvScene, type UvOpts } from '../components/scenes/uvScene';
+import Live from '../content/watermarks/DevLive';
+import { encode } from '../lib/lm/bpe';
+import { detect } from '../lib/watermarks/pixels';
+import { LABEL, travel } from '../lib/watermarks/label';
+import { HUMAN, MARK, MARKED_PICTURE, PICTURE_INFO, REPLY } from '../lib/watermarks/story';
+import PINNED from '../../data/watermarks/pinned.json' with { type: 'json' };
+
+const prev = encode(REPLY.prompt).at(-1)!;
+const page = (ids: number[], rest: Partial<UvOpts> = {}): Omit<UvOpts, 'scale'> => ({
+  ids,
+  prev,
+  gamma: MARK.gamma,
+  lamp: 'all',
+  ...rest,
+});
+const human = encode(HUMAN[0].reply).slice(0, 64);
+const trip = (t: 'as sent' | 'screenshot' | 'crop' | 'blur', say?: UvOpts['say']) => {
+  const { pic, label } = travel(MARKED_PICTURE, LABEL, t);
+  return page([], {
+    print: { pic, label: !!label, found: detect(pic, PICTURE_INFO.seed).verdict === 'marked' },
+    say,
+  });
+};
+const STATES: [string, Omit<UvOpts, 'scale'>][] = [
+  [
+    'Ch. 1: a hand-written reply, lamp off',
+    {
+      ...page(human, { lamp: null }),
+      prev: encode(HUMAN[0].question).at(-1)!,
+      say: { block: 'page', text: 'Who wrote it?' },
+    },
+  ],
+  ['Ch. 2: the lamp over the start', page(PINNED.reply.ids, { lamp: 0, say: { block: 'lamp', text: 'UV lamp' } })],
+  ['Ch. 2: the lamp mid-page', page(PINNED.reply.ids, { lamp: 12 })],
+  ['Ch. 2: Light all', page(PINNED.reply.ids, { say: { block: 'page', text: 'Mostly green' } })],
+  ...PINNED.leaning.map((l): [string, Omit<UvOpts, 'scale'>] => [
+    `Ch. 3: δ ${l.delta}, z ${l.z}`,
+    page(l.ids, l.delta === 0 ? { say: { block: 'machine', text: 'No nudge' } } : {}),
+  ]),
+  ['Ch. 4: the first 16 tokens', page(PINNED.reply.ids.slice(0, 16))],
+  [
+    'Ch. 5: a tile picked',
+    page(PINNED.reply.ids, { lamp: 0, picked: 2, say: { block: 'machine', text: 'Six options' } }),
+  ],
+  ['Ch. 5: reworded', page(PINNED.rewording.all)],
+  ['Ch. 6: the print as sent', trip('as sent', { block: 'print', text: 'Hidden mark' })],
+  ['Ch. 6: after a screenshot', trip('screenshot', { block: 'print', text: 'No label' })],
+  ['Ch. 6: cropped', trip('crop', { block: 'label', text: 'Hash differs' })],
+  ['Ch. 6: blurred', trip('blur')],
+  ['Clerk callout, lamp parked', page(PINNED.reply.ids, { lamp: null, say: { block: 'clerk', text: 'Larkspur' } })],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Watermarks scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>UV print room: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={UV_BOARD} scene={uvScene({ ...o, scale: 1.2 })} label={uvLabel(o)} /></div>
+            <div class="phone"><IsoStage board={UV_BOARD} scene={uvScene({ ...o, scale: 2 })} label={uvLabel(o)} /></div>
+            <p>{uvLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Sweep the lamp (ch. 2)</h2><div class="stage"><Live reword={false} client:load /></div></section>
+        <section><h2>Reword (ch. 5)</h2><div class="stage"><Live reword client:load /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>
