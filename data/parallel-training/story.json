@@ -1,0 +1,33 @@
+{
+  "note": "The names in Many chips, one model, written for this site. The vendor and its model are fictional; the model is sized like a published open model (fact llama3-70b). The ring's gradients are hand-set stand-ins, small numbers so a reader can check the mean.",
+  "company": "Larkspur Supply Co.",
+  "vendor": "Fernhill Labs",
+  "model": "Fernhill 4",
+  "gradients": [
+    [
+      0.4,
+      -1.2,
+      2.0,
+      0.8
+    ],
+    [
+      1.6,
+      0.4,
+      -0.4,
+      1.2
+    ],
+    [
+      -0.8,
+      2.0,
+      1.2,
+      0.0
+    ],
+    [
+      2.8,
+      -0.4,
+      0.4,
+      2.0
+    ]
+  ],
+  "seed": 20261029
+}
