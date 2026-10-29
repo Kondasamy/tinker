@@ -26,6 +26,10 @@ const SETTINGS = { temperature: 0, seed: 7, maxTokens: 8192 };
 const THROTTLE_MS = 2500;
 const ACCESSED = new Date().toISOString().slice(0, 10);
 
+/** Domains a model makes up are rewritten to .example (R13), so no reply points at a real site. */
+const REDACTED = 'made-up .com, .net, .org and .io domains rewritten to .example (R13)';
+const redact = text => text.replace(/\b([a-z0-9-]+(?:\.[a-z0-9-]+)*)\.(?:com|net|org|io)\b/gi, '$1.example');
+
 const key = apiKey('record/prompts');
 const listed = await listModels(key);
 const models = { main: pickModel(listed, WANTED.main), small: pickModel(listed, WANTED.small) };
@@ -67,7 +71,7 @@ for (const [chapter, list] of Object.entries(files)) {
       fs.writeFileSync(file, JSON.stringify({ text }));
       await new Promise(ok => setTimeout(ok, THROTTLE_MS));
     }
-    replies[sig] = text === null ? { text: simulateReply(s), simulated: true } : { text };
+    replies[sig] = text === null ? { text: simulateReply(s), simulated: true } : { text: redact(text) };
     if (text === null) simulated++;
     console.log(`${++n}/${seen.size} ${chapter} ${sig}${text === null ? ' (norecord: simulated)' : ''}`);
   }
@@ -76,6 +80,7 @@ for (const [chapter, list] of Object.entries(files)) {
     accessed: ACCESSED,
     settings: { temperature: SETTINGS.temperature, seed: SETTINGS.seed, max_tokens: SETTINGS.maxTokens },
     provider: 'https://integrate.api.nvidia.com/v1',
+    redacted: REDACTED,
     script: execFileSync('git', ['rev-parse', '--short', 'HEAD'], { cwd: ROOT }).toString().trim(),
     ...(simulated ? { simulated, simulator: VERSION } : {}),
   };
