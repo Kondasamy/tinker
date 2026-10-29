@@ -348,3 +348,39 @@ export const SimNote = () => (
     of any real run.
   </p>
 );
+
+/** The optional maths, folded away: no formula ever sits in the narration. */
+export const Maths = ({ children }: { children: ReactNode }) => (
+  <details className="pt-maths">
+    <summary>The maths</summary>
+    {children}
+  </details>
+);
+
+/** A chapter's own pick: one radio group over a short list, worded by `words`. */
+export function Radios<T extends string | number>({
+  legend,
+  options,
+  value,
+  words = String,
+  onChange,
+}: {
+  legend: string;
+  options: readonly T[];
+  value: T | null;
+  words?: (o: T) => string;
+  onChange: (o: T) => void;
+}) {
+  const name = `ptr${useId().replace(/[^\w-]/g, '')}`;
+  return (
+    <fieldset className="pt-field">
+      <legend>{legend}</legend>
+      {options.map(o => (
+        <label key={String(o)}>
+          <input type="radio" name={name} checked={value === o} onChange={() => onChange(o)} />
+          {words(o)}
+        </label>
+      ))}
+    </fieldset>
+  );
+}

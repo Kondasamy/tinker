@@ -18,12 +18,17 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 
 | # | Chapter id | Picture | Mechanic live | Step's control | `say` parts |
 |---|---|---|---|---|---|
-| 1 | `wont-fit` | Ring mode, one worker in memory mode: the bin full and sand heaped beside it (`load` = state over one chip's memory) | no | the chapter's own pick (how many chips), not the kit's | `worker`, `bucket`, `rack` |
-| 2 | `copies` | Ring mode, 4 workers with `GRADIENTS`: buckets fill hop by hop to the mean | yes: Step / Play, Workers 2, 4, 8 | Step (the read-out names each hop) | `bucket`, `table`, `worker` |
-| 3 | `sharding` | Ring mode, 8 workers in memory mode, `load` from `memoryOf` per ZeRO stage | no (Workers radio may stay as exploration) | the chapter's ZeRO stage radio | `bucket`, `worker` |
-| 4 | `pipeline` | Pipeline mode, 4 stages: who works and who idles at each slot; Timeline tab shows the bubble | yes: Step / Play over slots, Micro-batches range | Micro-batches range (bubble shrinks), then Step | `idle`, `line`, `bucket` |
-| 5 | `inside-a-layer` | Ring mode, 8 workers, `rack` and `table` pills carrying the link (inside one box, between boxes) | yes: Step / Play (the layer's all-reduce) | the chapter's link pick | `rack`, `table` |
-| 6 | `checkpoints` | Ring mode, 8 workers, one worker `down`; the rack's pill names the last saved step | no | the chapter's interval pick | `worker`, `rack` |
-| 7 | `workbench` | Ring mode for a data-parallel layout, pipeline mode when it has stages; Timeline tab for step time | yes, as exploration | the workbench's layout controls | `worker`, `rack` |
+| 1 | `01-wont-fit` | Ring mode, one worker in memory mode: the bin full and sand heaped beside it (`load` = state over one chip's memory) | no | the chapter's own pick (how many chips), not the kit's | `worker`, `bucket`, `rack` |
+| 2 | `02-copies` | Ring mode, 4 workers with `GRADIENTS`: buckets fill hop by hop to the mean | yes: Step / Play, Workers 2, 4, 8 | Step (the read-out names each hop) | `bucket`, `table`, `worker` |
+| 3 | `03-sharding` | Ring mode, 8 workers in memory mode, `load` from `memoryOf` per ZeRO stage | no (Workers radio may stay as exploration) | the chapter's ZeRO stage radio | `bucket`, `worker` |
+| 4 | `04-pipeline` | Pipeline mode, 4 stages: who works and who idles at each slot; Timeline tab shows the bubble | yes: Step / Play over slots, Micro-batches range | Micro-batches range (bubble shrinks), then Step | `idle`, `line`, `bucket` |
+| 5 | `05-inside-a-layer` | Ring mode, 8 workers, `rack` and `table` pills carrying the link (inside one box, between boxes) | yes: Step / Play (the layer's all-reduce) | the chapter's link pick | `rack`, `table` |
+| 6 | `06-checkpoints` | Ring mode, 8 workers, one worker `down`; the rack's pill names the last saved step | no | the chapter's interval pick | `worker`, `rack` |
+| 7 | `07-workbench` | Ring mode for a data-parallel layout, pipeline mode when it has stages; Timeline tab for step time | yes, as exploration | the workbench's layout controls | `worker`, `rack` |
 
 Chapter units clear the read-out when the step changes by keying `PassControls` on the step id.
+
+## Chapter notes
+
+- **Chapter 3 never fits on its own:** with no split inside layers or by layers, one micro-batch of activations (about 91 GB) already passes a chip, so even ZeRO stage 3 over 8 copies stays over. The chapter says so and hands over to the pipeline; no pinned row was added.
+- **The read-out clears with the step:** chapters key `PassControls` on the step, so the last Step that finishes a step clears its milestone; the next narration carries the result.
