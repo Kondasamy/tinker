@@ -1,0 +1,31 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import CanYouTell from '../../content/watermarks/01-can-you-tell';
+import AHiddenPattern from '../../content/watermarks/02-a-hidden-pattern';
+import LeaningGreen from '../../content/watermarks/03-leaning-green';
+import CountingGreen from '../../content/watermarks/04-counting-green';
+import Rewording from '../../content/watermarks/05-rewording';
+import PicturesAndLabels from '../../content/watermarks/06-pictures-and-labels';
+import Workbench from '../../content/watermarks/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('watermarks').chapters.map(({ id, title }) => ({
+    params: { chapter: id },
+    props: { title },
+  }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="watermarks" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-can-you-tell' ? <CanYouTell client:load />
+    : chapter === '02-a-hidden-pattern' ? <AHiddenPattern client:load />
+    : chapter === '03-leaning-green' ? <LeaningGreen client:load />
+    : chapter === '04-counting-green' ? <CountingGreen client:load />
+    : chapter === '05-rewording' ? <Rewording client:load />
+    : chapter === '06-pictures-and-labels' ? <PicturesAndLabels client:load />
+    : <Workbench client:load />}
+</ChapterLayout>
