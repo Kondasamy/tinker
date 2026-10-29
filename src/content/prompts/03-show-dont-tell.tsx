@@ -103,7 +103,9 @@ export default function ShowDontTell() {
         <DocketStage
           chapter={ID}
           docket={state.d}
-          onDocket={d => (focus === 'docket' ? apply : sync)({ ...state, d })}
+          onDocket={
+            focus === 'p1' && state.p1 === null ? undefined : d => (focus === 'docket' ? apply : sync)({ ...state, d })
+          }
           view={state.view}
           onView={view => sync({ ...state, view })}
           say={say}
