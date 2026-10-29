@@ -1,0 +1,121 @@
+---
+// Dev-only eyeball page: the trading hatch in the states the chapters teach (static SVG, wide and phone), the Task lane
+// beside it, then sign the slip live in the browser. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { HATCH_BOARD, hatchLabel, hatchLane, hatchScene, type HatchOpts } from '../components/scenes/hatchScene';
+import { ALL_SELLERS, SignSlip } from '../content/agent-commerce/kit';
+import { mandateOf, sign } from '../lib/agent-commerce/mandate';
+import { checkOrder, orderOf } from '../lib/agent-commerce/shop';
+import { SLIPS, sellerOf } from '../lib/agent-commerce/story';
+import { runTask, type TaskState } from '../lib/agent-commerce/task';
+import { TASK_TURNS } from '../lib/agent-commerce/turns';
+
+const checked = async (terms: keyof typeof SLIPS, seller: string, tamper = false) => {
+  const s = await sign(mandateOf(SLIPS[terms], 'dev-1'));
+  const slip = tamper ? { ...s, mandate: { ...s.mandate, cap: s.mandate.cap * 2 } } : s;
+  return (await checkOrder(slip, orderOf(sellerOf(seller)), [])).checks;
+};
+const clear = runTask(TASK_TURNS, 'clear').states,
+  vague = runTask(TASK_TURNS, 'vague').states,
+  cancel = runTask(TASK_TURNS, 'vague', true).states;
+const STATES: [string, HatchOpts, readonly TaskState[] | null][] = [
+  ['A page for people (chapter 1)', { buyer: 'warn', say: { block: 'buyer', text: 'Misread' } }, null],
+  ['A menu for agents (chapter 2)', { buyer: 'ok', say: { block: 'seller', text: 'Agent card' } }, null],
+  ['Agent to agent, vague (chapter 3)', { seller: 'warn', say: { block: 'hatch', text: 'Asks back' } }, vague],
+  ['Agent to agent, clear', { seller: 'ok' }, clear],
+  ['Canceled at the question', {}, cancel],
+  [
+    'Unsigned slip (chapter 4)',
+    { slip: { at: 'buyer', signed: false }, say: { block: 'builder', text: 'Signs' } },
+    null,
+  ],
+  [
+    'Signed, at the buyer’s counter',
+    { slip: { at: 'buyer', signed: true }, say: { block: 'seal', text: 'Her seal' } },
+    null,
+  ],
+  ['In the hatch', { slip: { at: 'hatch', signed: true }, say: { block: 'satchel', text: 'Carries it' } }, null],
+  [
+    'Accepted by Larkspur',
+    { slip: { at: 'seller', signed: true, checks: await checked('larkspur', 'larkspur') }, seller: 'ok' },
+    null,
+  ],
+  [
+    'Cap changed after signing',
+    {
+      slip: { at: 'seller', signed: true, checks: await checked('larkspur', 'larkspur', true) },
+      seller: 'bad',
+      say: { block: 'slip', text: 'Seal broken' },
+    },
+    null,
+  ],
+  [
+    'Seller raises the limit (chapter 5)',
+    {
+      slip: { at: 'seller', signed: true, checks: await checked('shop-around', 'quarrylane') },
+      seller: 'bad',
+      say: { block: 'seller', text: 'Raise it!' },
+    },
+    null,
+  ],
+  [
+    'Token, live (chapter 6)',
+    {
+      slip: { at: 'seller', signed: true, checks: await checked('larkspur', 'larkspur') },
+      token: 'live',
+      say: { block: 'token', text: 'One order' },
+    },
+    null,
+  ],
+  ['Token, spent', { token: 'spent' }, null],
+];
+const lane = (s: readonly TaskState[], phone: boolean) => {
+  const t = hatchLane(s, { phone });
+  return `<svg viewBox="0 0 ${t.w} ${t.h}" width="100%">${t.svg}</svg>`;
+};
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>When the buyer is an agent scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Trading hatch: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o, s]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={HATCH_BOARD} scene={hatchScene({ ...o, scale: 1.2 })} label={hatchLabel(o)} /></div>
+            <div class="phone"><IsoStage board={HATCH_BOARD} scene={hatchScene({ ...o, scale: 2 })} label={hatchLabel(o)} /></div>
+            {s && <div class="wide" set:html={lane(s, false)} />}
+            {s && <div class="phone" set:html={lane(s, true)} />}
+            <p>{hatchLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>Sign the slip, live</h1>
+      <div class="grid">
+        <section><h2>Larkspur (chapter 4)</h2><div class="stage"><SignSlip client:load states={clear} caption="Set the terms, Sign, then Send." /></div></section>
+        <section><h2>Any seller</h2><div class="stage"><SignSlip client:load terms={SLIPS['shop-around']} seller="quarrylane" sellers={ALL_SELLERS} caption="Pick a seller and Send." /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>
