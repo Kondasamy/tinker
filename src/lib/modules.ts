@@ -47,6 +47,7 @@ import { MEMORISATION_MODULE } from '../content/memorisation/module';
 import { VIDEO_MODELS_MODULE } from '../content/video-models/module';
 import { PROMPTS_MODULE } from '../content/prompts/module';
 import { LABELLING_MODULE } from '../content/labelling/module';
+import { FAIRNESS_MODULE } from '../content/fairness/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -153,12 +154,7 @@ export const MODULES: Module[] = [
   VIDEO_MODELS_MODULE,
   PROMPTS_MODULE,
   LABELLING_MODULE,
-  planned(
-    'fairness',
-    'Bias and fairness',
-    'Intermediate',
-    'Who a model gets wrong: error rates group by group, where the skew comes from, and what a fix costs.',
-  ),
+  FAIRNESS_MODULE,
   planned(
     'watermarks',
     'Watermarks and made-by-AI',

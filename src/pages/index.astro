@@ -142,6 +142,8 @@ import { RACK_BOARD, rackLabel, rackScene } from '../components/scenes/pigeonhol
 import { picksOf as labelPicks } from '../content/labelling/kit';
 import { ticketOf as labelTicket } from '../lib/labelling/story';
 import LABEL_PINNED from '../../data/labelling/pinned.json' with { type: 'json' };
+import { GATE_BOARD, gateLabel, gateScene } from '../components/scenes/gateScene';
+import { REGION_NAMES, runOf as fairRun, SHARED as FAIR_SHARED } from '../lib/fairness/story';
 import { FORM } from '../lib/site';
 
 const one =
@@ -399,6 +401,13 @@ const DOCKET = {
 // labelling: three labellers' picks for one ticket, three holes, as the intro draws it
 const LABEL_THREE = labelTicket(LABEL_PINNED.threeWay);
 const RACK = { ticket: LABEL_THREE, picks: labelPicks(LABEL_THREE.id, false), scale: 1.7 };
+// fairness: both lanes at one shared bar, as the intro draws it
+const FAIR_M = fairRun('all', 'none', { A: FAIR_SHARED, B: FAIR_SHARED });
+const GATE = {
+  lanes: { A: { counts: FAIR_M.A, bar: FAIR_SHARED }, B: { counts: FAIR_M.B, bar: FAIR_SHARED } },
+  names: REGION_NAMES,
+  scale: 1.7,
+};
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -988,6 +997,11 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Majority vote',
       'Model labellers',
     ],
+  },
+  fairness: {
+    name: 'Bias and fairness',
+    iso: { board: GATE_BOARD, scene: gateScene(GATE), label: gateLabel(GATE) },
+    topics: ['Fairness', 'Error rates by group', 'Proxy features', 'Thresholds', 'Equal opportunity', 'Impossibility'],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];

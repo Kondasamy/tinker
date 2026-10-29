@@ -2212,5 +2212,46 @@
       "bench",
       "ties"
     ]
+  },
+  "fairness": {
+    "01-right-on-average": [
+      "slide",
+      "predict",
+      "bars",
+      "quiz"
+    ],
+    "02-errors-by-group": [
+      "predict",
+      "bars",
+      "lower",
+      "quiz"
+    ],
+    "03-where-skew-comes-from": [
+      "predict",
+      "show",
+      "thin",
+      "quiz"
+    ],
+    "04-dropping-the-column": [
+      "predict",
+      "drop",
+      "both",
+      "quiz"
+    ],
+    "05-one-bar-or-two": [
+      "predict",
+      "even",
+      "quiz"
+    ],
+    "06-every-kind": [
+      "tab",
+      "predict",
+      "search",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "ties"
+    ]
   }
 }

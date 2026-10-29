@@ -814,6 +814,18 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'labelling')).toBe(47);
   });
 
+  it('has fairness as a live Intermediate module after labelling, numbered 49', () => {
+    expect(moduleOf('fairness')).toMatchObject({
+      title: 'Bias and fairness',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: ['calibration'],
+    });
+    expect(moduleOf('fairness').track).toBeUndefined();
+    expect(moduleOf('fairness').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'fairness')).toBe(48);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

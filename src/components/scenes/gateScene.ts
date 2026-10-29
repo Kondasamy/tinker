@@ -9,7 +9,7 @@
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, calloutsLast, esc, sayAt } from '../../lib/iso/blocks';
 import { CERAMIC, DARK, PALS, WOOD, box, castShadow, cyl, rod, shape, tag, toneI } from '../../lib/iso/core.js';
-import { drawPieces, modelMachine, person, SKIN, tight, type Look, type Piece } from '../../lib/iso/figures';
+import { drawPieces, mini, modelMachine, person, SKIN, tight, type Look, type Piece } from '../../lib/iso/figures';
 import { compact } from '../../lib/iso/compact';
 import type { Counts } from '../../lib/fairness/metrics';
 import type { Region } from '../../lib/fairness/population';
@@ -290,4 +290,31 @@ export function gateLabel(o: GateOpts): string {
     );
   };
   return `Two lanes of made-up applicants pass a score post to Larkspur's trade counter. ${lane('A')}. ${lane('B')}.`;
+}
+
+/** The home hero's plot (heroScene): both lanes at the gate, two posts and their arms, the machine between and a few
+ * applicants queueing, set down small. */
+export function gatePlot(x: number, y: number, _top: SceneCtx['top']): string {
+  const c: Counts = { n: 3, tp: 2, fp: 0, fn: 1, tn: 0 },
+    o: GateOpts = {
+      lanes: { A: { counts: c, bar: 0.5 }, B: { counts: c, bar: 0.35 } },
+      names: { A: '', B: '' },
+      through: 0,
+    },
+    st = gateState(o),
+    x0 = GX - 40,
+    x1 = GX + 24;
+  const pieces = [modelMachine(MX, MY, 0.8, 'ok'), ...lane('A', o, st.A), ...lane('B', o, st.B)];
+  let floor = '';
+  for (const r of ['A', 'B'] as Region[]) floor += flat(x0, LANE[r].y - 14, x1, LANE[r].y + 14, LANE[r].pal.l);
+  const p = mini(
+    {
+      shadow: floor + pieces.map(q => q.shadow).join(''),
+      items: pieces.flatMap(q => q.items),
+    },
+    [GX - 8, MY, BH],
+    [x, y, BH],
+    0.4,
+  );
+  return drawPieces([p]);
 }

@@ -369,6 +369,11 @@ import {
   ticketOf as lbTicket,
 } from '../lib/labelling/story';
 import LB_PINNED from '../../data/labelling/pinned.json' with { type: 'json' };
+import { GATE_BOARD, gateScene, type GateOpts } from '../components/scenes/gateScene';
+import type { Features as FrFeatures, Fix as FrFix } from '../lib/fairness/fit';
+import type { Bars as FrBars } from '../lib/fairness/metrics';
+import { REGION_NAMES as FR_NAMES, runOf as frRun, SHARED as FR_SHARED } from '../lib/fairness/story';
+import FR_PINNED from '../../data/fairness/pinned.json' with { type: 'json' };
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -1746,6 +1751,27 @@ const RACK_OG: Record<string, () => Omit<RackOpts, 'scale'>> = {
   'labelling-07-workbench': () => ({ labellers: ['rosa'], model: true, gold: 4, ticket: LB_POOL[20] }),
 };
 const rackOg = RACK_OG[page.og]?.();
+// module 49: the sorting gate. The intro and 2: both lanes through at one shared bar; 1: the same lanes mid-walk; 3: the
+// thin sample reweighted; 4: the region column dropped; 5: the two bars that even false declines; 6: a high bar for
+// both; 7: the workbench's first winning setup.
+const frAt = (f: FrFeatures, fix: FrFix, bars: FrBars, through?: number): Omit<GateOpts, 'scale'> => {
+  const m = frRun(f, fix, bars);
+  return { lanes: { A: { counts: m.A, bar: bars.A }, B: { counts: m.B, bar: bars.B } }, names: FR_NAMES, through };
+};
+const frOne = { A: FR_SHARED, B: FR_SHARED };
+const frWin = FR_PINNED.workbench.winners[0];
+const GATE_OG: Record<string, () => Omit<GateOpts, 'scale'>> = {
+  fairness: () => frAt('all', 'none', frOne),
+  'fairness-01-right-on-average': () => frAt('all', 'none', frOne, 0.4),
+  'fairness-02-errors-by-group': () => frAt('all', 'none', frOne),
+  'fairness-03-where-skew-comes-from': () => frAt('all', 'reweight', frOne),
+  'fairness-04-dropping-the-column': () => frAt('no-region', 'none', frOne),
+  'fairness-05-one-bar-or-two': () => frAt('all', 'none', FR_PINNED.even.bars),
+  'fairness-06-every-kind': () => frAt('all', 'none', { A: 0.8, B: 0.8 }),
+  'fairness-07-workbench': () =>
+    frAt(frWin.features as FrFeatures, frWin.fix as FrFix, { A: frWin.barA, B: frWin.barB }),
+};
+const gateOg = GATE_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1821,6 +1847,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : webFallOg ? <div class="tf-og ob-og"><WaterfallView run={webFallOg} /></div>
           : docketOg ? <IsoStage board={DOCKET_BOARD} scene={docketScene({ ...docketOg, scale: 1.3 })} label="" />
           : rackOg ? <IsoStage board={RACK_BOARD} scene={rackScene({ ...rackOg, scale: 1.3 })} label="" />
+          : gateOg ? <IsoStage board={GATE_BOARD} scene={gateScene({ ...gateOg, scale: 1.3 })} label="" />
           : dreamOg ? <IsoStage board={dreamBoard(dreamOg)} scene={dreamScene({ ...dreamOg, scale: 1.3 })} label="" />
           : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
           : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />
