@@ -106,6 +106,62 @@ describe('the sorting gate', () => {
     expect(st1.A.past).toBe(CAP);
     expect(count(draw(at(START_BARS, { through: 0 })), /data-past="1"/g)).toBe(0);
   });
+
+  // every pill's rect, as [x0, y0, x1, y1], and the picture's width and height
+  const pillBoxes = (svg: string) =>
+    [
+      ...svg.matchAll(/<g class="tag[^"]*">.*?<rect x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)" height="([\d.]+)"/g),
+    ].map(([, x, y, w, h]) => [+x, +y, +x + +w, +y + +h]);
+  const overlaps = (a: number[], b: number[]) => a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3];
+  it('no two pills overlap and none leaves the picture: intro, chapters and share images, linked or split, phone', () => {
+    const { A, B } = REGION_NAMES;
+    // the chapters' callouts (src/content/fairness/0*.tsx)
+    const says: (GateOpts['say'] | undefined)[] = [
+      undefined,
+      ...(
+        [
+          ['check', 'The check'],
+          ['counter', 'Approved'],
+          ['out-b', 'Dropped bags'],
+          ['out-a', 'Fewer bags'],
+          ['lane-b', '100 applicants'],
+          ['post-b', 'Lower scores'],
+          ['post-b', `${B} bar`],
+          ['post-a', `${A} bar`],
+          ['out-b', 'Turned down'],
+        ] as const
+      ).map(([block, text]) => ({ block, text })),
+    ];
+    // linked at each end and the shared bar, split both ways, and the pinned even pair
+    const bars: Bars[] = [
+      ...[BARS[0], START_BARS.A, BARS.at(-1)!].map(b => ({ A: b, B: b })),
+      { A: 0.2, B: 0.8 },
+      { A: 0.8, B: 0.2 },
+      pinned.even.bars,
+    ];
+    let checked = 0;
+    // 1.2 a chapter, 1.3 a share image, 1.4 the intro, 2 a phone
+    for (const scale of [1.2, 1.3, 1.4, 2])
+      for (const b of bars)
+        for (const say of says) {
+          const svg = draw(at(b, { scale, say })),
+            [, , w, h] = svg
+              .match(/viewBox="([-\d. ]+)"/)![1]
+              .split(' ')
+              .map(Number),
+            boxes = pillBoxes(svg),
+            where = `${scale} ${JSON.stringify(b)} ${say?.block ?? ''}`;
+          for (const [i, p] of boxes.entries()) {
+            expect(p[0] >= 0 && p[1] >= 0 && p[2] <= w && p[3] <= h, `${where}: pill ${i} leaves the picture`).toBe(
+              true,
+            );
+            for (let j = i + 1; j < boxes.length; j++)
+              expect(overlaps(p, boxes[j]), `${where}: pills ${i} and ${j}`).toBe(false);
+          }
+          checked++;
+        }
+    expect(checked).toBeGreaterThan(100);
+  }, 90_000);
 });
 
 describe('slide the bar', () => {
