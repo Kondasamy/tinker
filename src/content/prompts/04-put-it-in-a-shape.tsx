@@ -107,7 +107,7 @@ export default function PutItInAShape() {
         <DocketStage
           chapter={ID}
           docket={state.d}
-          onDocket={d => (focus === 'docket' ? apply : sync)({ ...state, d })}
+          onDocket={state.p1 === null ? undefined : d => (focus === 'docket' ? apply : sync)({ ...state, d })}
           view={state.view}
           onView={view => sync({ ...state, view })}
           say={say}

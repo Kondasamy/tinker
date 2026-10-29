@@ -84,6 +84,13 @@ test('a closed card says why and does nothing; one read-out names the grade', as
   const w = prWalker(page, 'mouse');
   await w.open(CH2);
   await expect(page.locator('.pr-stage [role="status"]')).toHaveCount(1);
+  // the tray stays closed until the reader predicts
+  await page.getByRole('button', { name: 'Text', exact: true }).click();
+  await expect(page.locator('.pr-tray')).toHaveCount(0);
+  await card(page)
+    .getByRole('radio', { name: /^Clear task/ })
+    .first()
+    .click();
   const json = page.locator('button[data-card="json"]');
   await expect(json).toHaveAttribute('aria-disabled', 'true');
   await expect(json).toContainText('Opens in chapter 4.');
@@ -143,6 +150,8 @@ test.describe('reduced motion', () => {
     await w.clip('one-example');
     await expect(page.locator('.pr-board [data-slot="examples"]').first()).toBeVisible();
     expect(await page.locator('.pr-board .dk-slide').count()).toBe(0);
+    // walk from a clean slate: the saved run would reopen chapter 3 on its Predict step
+    await page.evaluate(() => localStorage.clear());
     await walkAll(w);
   });
 });

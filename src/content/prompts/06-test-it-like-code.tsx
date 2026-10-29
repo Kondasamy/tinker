@@ -124,7 +124,7 @@ export default function TestItLikeCode() {
         <DocketStage
           chapter={ID}
           docket={state.d}
-          onDocket={d => (focus === 'docket' ? apply : sync)({ ...state, d })}
+          onDocket={state.p1 === null ? undefined : d => (focus === 'docket' ? apply : sync)({ ...state, d })}
           tickets={ALL}
           model={state.model}
           onModel={state.p2 === null ? undefined : model => (focus === 'model' ? apply : sync)({ ...state, model })}

@@ -92,3 +92,19 @@ describe('chapter 7’s workbench', () => {
     expect(bench.predicate({ ...blank, d: longer })).toBe(false);
   });
 });
+
+describe('the reader predicts before the cards can show the answer', () => {
+  type Stage = (p: Record<string, unknown>) => { props: { onDocket?: unknown } };
+  const chapters = { 2: ch2, 3: ch3, 4: ch4, 5: ch5, 6: ch6 };
+  for (const [n, ch] of Object.entries(chapters)) {
+    const { stage, initial } = (ch.default as () => { props: { stage: Stage; initial: object } })().props;
+    const tray = (focus: string, p1: number | null) =>
+      stage({ state: { ...initial, p1 }, apply: () => {}, sync: () => {}, focus }).props.onDocket;
+    it(`chapter ${n}: the card tray is closed on the Predict step and opens once the reader predicts`, () => {
+      expect(tray('p1', null)).toBeUndefined();
+      expect(tray('docket', 0)).toBeTypeOf('function');
+      // chapter 3 clips its first card before the prediction
+      if (ch === ch3) expect(tray('docket', null)).toBeTypeOf('function');
+    });
+  }
+});
