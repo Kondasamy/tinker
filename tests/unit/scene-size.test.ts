@@ -16,6 +16,8 @@ import { DARK_BOARD, darkroomScene } from '../../src/components/scenes/darkroomS
 import { DEPOT_BOARD, depotAt, depotScene } from '../../src/components/scenes/depotScene';
 import { DESK_BOARD, beatsOf, deskAt, deskScene } from '../../src/components/scenes/deskScene';
 import { boardOf as dreamBoard, dreamScene, type DreamOpts } from '../../src/components/scenes/dreamFloorScene';
+import { RING_BOARD, ringScene } from '../../src/components/scenes/ringScene';
+import { sceneOf as ringSceneOf, START as RING_START } from '../../src/content/parallel-training/kit';
 import { ENGINE_BOARD, engineScene } from '../../src/components/scenes/engineScene';
 import { EVAL_BOARD, evalScene } from '../../src/components/scenes/evalScene';
 import { EXAM_BOARD, examScene } from '../../src/components/scenes/examScene';
@@ -212,6 +214,8 @@ const SCENES: Record<string, () => string> = {
     };
     return stage(dreamBoard(o), dreamScene(o));
   },
+  // eight workers mid-ring: 64 jars, every arrow
+  ring: () => stage(RING_BOARD, ringScene(ringSceneOf({ ...RING_START, n: 8, k: 3 }))),
   // the long prompt: the most tokens and threads
   engine: () => {
     const model = parseModel(META, lm('model.bin'));
@@ -491,6 +495,7 @@ const BASE: Record<string, number> = {
   depot: 48071,
   desk: 28907,
   dream: 37567,
+  ring: 305505,
   engine: 41049,
   eval: 39380,
   exam: 33521,
