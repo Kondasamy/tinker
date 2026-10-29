@@ -43,6 +43,7 @@ import {
   castShadow,
   clipTo,
   byDepth,
+  depthOf,
 } from './core.js';
 import { BH, HALF, STATE_COL, STATE_TXT, esc, faceText } from './shared';
 
@@ -65,6 +66,33 @@ const add = (...vs: V[]) => vs.reduce((s, v) => [s[0] + v[0], s[1] + v[1], s[2] 
 const mul = (v: V, k: number) => v.map(x => x * k);
 const bbox = (pts: V[]) => [0, 1].map(e => [0, 1, 2].map(k => (e ? Math.max : Math.min)(...pts.map(p => p[k]))));
 const item = (pts: V[], svg: string): Item => ({ box: bbox(pts), svg });
+/** Runs of flat-shaded faces (loft strips) in one colour joined into one path: the same picture in a third of the SVG
+ * (a lofted head or body is dozens of strips, and neighbours mostly share a tone band). */
+const FACE = /<path d="([^"]+)" fill="(#[0-9a-f]{6})" stroke="\2" stroke-width="\.7" stroke-linejoin="round"\/>/g;
+export const tight = (svg: string) => {
+  let out = '',
+    last = 0,
+    run: { d: string; c: string; end: number } | null = null;
+  const flush = () => {
+    if (run) out += `<path d="${run.d}" fill="${run.c}" stroke="${run.c}" stroke-width=".7" stroke-linejoin="round"/>`;
+    run = null;
+  };
+  for (const m of svg.matchAll(FACE)) {
+    const i = m.index ?? 0;
+    if (run && i === run.end && run.c === m[2]) {
+      run.d += m[1];
+      run.end = i + m[0].length;
+      last = run.end;
+      continue;
+    }
+    flush();
+    out += svg.slice(last, i);
+    run = { d: m[1], c: m[2], end: i + m[0].length };
+    last = run.end;
+  }
+  flush();
+  return out + svg.slice(last);
+};
 /** heavy silhouette at a fixed weight (hullInk thins small parts; a person needs a bold edge at any size) */
 const outline = (pts: V[], w: number) => ink(sp(hull(pts.map(p => P(p[0], p[1], p[2])))), w);
 /** corners of a rod's bounding box: its end discs reach r × sin(angle to each axis) off the axis */
@@ -356,7 +384,7 @@ export function person(o: PersonOpts): Piece {
   const parts: Item[] = [];
   const pt = (v: V) => fr.at(v[0], v[1], v[2]);
   const limb = (a: V, b: V, r: number, m: Mat, r1 = r) =>
-    parts.push(item(rodPts(a, b, r), rod(a, b, r, m, toneI, 1.2, r1, 12)));
+    parts.push(item(rodPts(a, b, r), rod(a, b, r, m, toneI, 1.2, r1, 6)));
 
   // legs and shoes
   for (const leg of rig.legs) {
@@ -367,7 +395,7 @@ export function person(o: PersonOpts): Piece {
     parts.push(item(sh, hexa(sh, DARK, 0.8)));
   }
   // body: hips to rounded shoulders; a coat flares down to the knees
-  const R = (c: number, ra: number, rb: number) => circle(fr.at(0, 0, c - dr), F, S, ra, rb);
+  const R = (c: number, ra: number, rb: number) => circle(fr.at(0, 0, c - dr), F, S, ra, rb, 8);
   const body = [
     // seated, the coat's skirt lies on the lap instead of hanging below the seat
     ...(look.coat && pose !== 'sit' ? [R(5, 3.7, 4.9)] : []),
@@ -412,7 +440,7 @@ export function person(o: PersonOpts): Piece {
         ax = norm(add(mul(U, Math.cos(t)), mul(F, -Math.sin(t))));
       return [ax, norm(cross(S, ax)), S];
     };
-  const head = sphere(hc, U, F, S, 3.45, -78, 80, 7);
+  const head = sphere(hc, U, F, S, 3.45, -78, 80, 4, 10);
   const behind: string[] = [],
     over: string[] = [];
   const back = vis(mul(F, -1)),
@@ -420,7 +448,7 @@ export function person(o: PersonOpts): Piece {
     front = (s: string) => (back ? behind : over).push(s);
   const hairCap = (deg: number, R0: number, l0: number, c = hc) => {
     const [ax, e1, e2] = tilt(deg);
-    return solid(sphere(c, ax, e1, e2, R0, l0, 84, 5), M.hair, 1.1);
+    return solid(sphere(c, ax, e1, e2, R0, l0, 84, 3, 10), M.hair, 1.1);
   };
   const hairPts: V[] = [];
   let hair = '';
@@ -542,7 +570,7 @@ export function person(o: PersonOpts): Piece {
     items: [
       item(
         all,
-        `<g class="person" data-look="${esc(typeof o.look === 'string' ? o.look : 'custom')}" data-pose="${pose}">${byDepth(parts)}</g>`,
+        `<g class="person" data-look="${esc(typeof o.look === 'string' ? o.look : 'custom')}" data-pose="${pose}">${tight(byDepth(parts))}</g>`,
       ),
     ],
     box: [
@@ -586,21 +614,22 @@ export function modelMachine(
     bx1 = x1 - 3 * k,
     zb = z0 + 3 * v,
     zh = zt - 7 * v;
-  const OUT = rrUV(y0 + 1.5 * k, zb, y1 - 1.5 * k, zh + 1.5 * v, 6 * v),
-    HOOD = rrUV(y0, zh, y1, zt, 3.2 * v);
+  const OUT = rrUV(y0 + 1.5 * k, zb, y1 - 1.5 * k, zh + 1.5 * v, 6 * v, 5),
+    HOOD = rrUV(y0, zh, y1, zt, 3.2 * v, 4);
   const m = opts.pal ?? PALS.blush;
   // the x face toward the viewer carries the screen (as the llm block does)
   const sx = vis([1, 0, 0]) ? 1 : -1,
     fx = sx > 0 ? bx1 : bx0,
     nx = [sx, 0, 0];
   let s = '';
-  for (const [fx_, fy] of [
+  // the foot farthest from the viewer stands hidden behind the cabinet: draw the other three, far ones first
+  const feet = [
     [x0 + 5 * k, y0 + 5 * k],
     [x1 - 5 * k, y0 + 5 * k],
     [x0 + 5 * k, y1 - 5 * k],
     [x1 - 5 * k, y1 - 5 * k],
-  ])
-    s += cyl(fx_, fy, z0, zb + 0.5, 2.3 * k, DARK, toneI, 1);
+  ].sort((a, b) => depthOf([a[0], a[1], 0]) - depthOf([b[0], b[1], 0]));
+  for (const [fx_, fy] of feet.slice(1)) s += cyl(fx_, fy, z0, zb + 0.5, 2.3 * k, DARK, toneI, 1, 10);
   // cabinet: the cap toward the viewer, the rounded sides, then what is mounted on the front
   for (const [cx, n] of [
     [bx0, [-1, 0, 0]],
@@ -656,14 +685,14 @@ export function modelMachine(
     if (vis(n)) s += fill(pd(on(PX(cx), HOOD)), tone(n, m)) + ink(pd(on(PX(cx), HOOD)), 1.6);
   s += extrude(HOOD, x0, x1, m) + hullInk([...on(PX(x0), HOOD), ...on(PX(x1), HOOD)], 2.4);
   // the state lamp on top
-  s += cyl(x - 6 * k, y + 6 * k, zt, zt + 2.6 * v, 2.4 * k, state ? matOf(STATE_COL[state]) : CERAMIC, toneI, 1, 14);
+  s += cyl(x - 6 * k, y + 6 * k, zt, zt + 2.6 * v, 2.4 * k, state ? matOf(STATE_COL[state]) : CERAMIC, toneI, 1, 10);
   const pts = [
     [x0, y0, z0],
     [x1, y1, zt + 2.6 * v],
   ];
   return {
     shadow: castShadow(boxPts(pts), z0),
-    items: [{ box: pts, svg: `<g class="model" data-kit="model" data-state="${state ?? 'idle'}">${s}</g>` }],
+    items: [{ box: pts, svg: `<g class="model" data-kit="model" data-state="${state ?? 'idle'}">${tight(s)}</g>` }],
     box: pts,
   };
 }
@@ -967,7 +996,7 @@ export function building(o: BuildingOpts): Piece {
   const fb = bbox(pts);
   return {
     shadow: castShadow(boxPts(fb), z),
-    items: [{ box: fb, svg: `<g class="building" data-roof="${o.roof}">${svg}</g>` }],
+    items: [{ box: fb, svg: `<g class="building" data-roof="${o.roof}">${tight(svg)}</g>` }],
     box: [
       [x0 - e - out, y0 - e - out, z],
       [x1 + e + out, y1 + e + out, roofTop + 1],
@@ -1087,7 +1116,9 @@ function pieceOf(items: Item[], z: number, cls: string, split = false): Piece {
       items.flatMap(i => boxPts(i.box)),
       z,
     ),
-    items: split ? items : [{ box: b, svg: `<g class="${cls}">${byDepth(items)}</g>` }],
+    items: split
+      ? items.map(i => ({ ...i, svg: tight(i.svg) }))
+      : [{ box: b, svg: `<g class="${cls}">${tight(byDepth(items))}</g>` }],
     box: [
       [b[0][0] - 0.01, b[0][1] - 0.01, z],
       [b[1][0] + 0.01, b[1][1] + 0.01, b[1][2] + 0.01],
@@ -1301,7 +1332,7 @@ export function pottedPlant(o: { x: number; y: number; z?: number; size?: number
     k = o.size ?? 1,
     { x, y } = o,
     TC = matOf('#c8714c'),
-    ring = (c: number, r: number, n = 16) => on(PZ(z + c * k), ellUV(x, y, r * k, r * k, n));
+    ring = (c: number, r: number, n = 12) => on(PZ(z + c * k), ellUV(x, y, r * k, r * k, n));
   const A = ring(0, 3.2),
     B = ring(7, 4.3);
   let s = openShell(A, B, (n: V) => toneI(n, TC), fill(pd(ring(6, 4.1)), '#5a3e2a'));
@@ -1317,7 +1348,7 @@ export function pottedPlant(o: { x: number; y: number; z?: number; size?: number
       ax = norm([Math.cos(t) * 0.5, Math.sin(t) * 0.5, 1]),
       e1 = norm(cross([0, 0, 1], ax[0] || ax[1] ? ax : [1, 0, 0])),
       e2 = norm(cross(ax, e1));
-    const rings = sphere(c, ax, e1, e2, 2.3 * k, -70, 70, 4, 10, 1.9);
+    const rings = sphere(c, ax, e1, e2, 2.3 * k, -70, 70, 3, 8, 1.9);
     leaves.push(item(rings.flat(), solid(rings, i % 2 ? PALS.mint : matOf('#5fa77d'), 1)));
   }
   s += byDepth(leaves);

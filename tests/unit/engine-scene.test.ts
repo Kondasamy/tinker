@@ -92,6 +92,12 @@ describe('the threads', () => {
     expect(svg).toContain('data-desk="1-1" data-lit="1"');
     expect(svg).toContain('data-head="1-1"');
   });
+  it('a clerk stands at every desk, the lit one reaching for its monitor; both floors are railed', () => {
+    const svg = draw(optsOf(LONG, 1, 1));
+    expect(svg.split('class="person"').length - 1).toBe(4);
+    expect(svg.split('data-pose="reach"').length - 1).toBe(1);
+    expect(svg.split('class="railing"').length - 1).toBe(4);
+  });
 });
 
 describe('escaping', () => {

@@ -8,7 +8,22 @@
 // only in pills; on phones (scale > 1.5) pills keep only hashes and branch names. Every string is escaped (esc).
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
-import { CERAMIC, PALS, WOOD, box, byDepth, castShadow, cyl, hullInk, line, tag, toneI } from '../../lib/iso/core.js';
+import {
+  CERAMIC,
+  PALS,
+  WOOD,
+  box,
+  byDepth,
+  castShadow,
+  cyl,
+  depthOf,
+  hullInk,
+  line,
+  matOf,
+  tag,
+  toneI,
+  vis,
+} from '../../lib/iso/core.js';
 import { ancestors, type Repo } from '../../lib/git/graph';
 import { short } from '../../lib/git/objects';
 import type { Say } from '../story/steps';
@@ -144,7 +159,9 @@ const pill = (p: number[], dx: number, dy: number, text: string, lit: boolean, s
   `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text), lit, scale, fill)}</g>`;
 
 /** A sealed crate: slats on its two front faces, a lid, a wax seal; pale for a ghost, lid off for a conflict. Exported
- * for Dependencies' crate tower, which may paint it another colour (pal). */
+ * for Dependencies' crate tower, which may paint it another colour (pal). Real-object notes: horizontal planks with
+ * gaps between them on every side; a square post down each corner, standing just proud of the planks and a shade
+ * darker; a lid of the same planks overhanging the posts. Faces and posts draw only where they face the viewer. */
 export function crate(
   x: number,
   y: number,
@@ -159,28 +176,55 @@ export function crate(
     x1 = x + half,
     y0 = y - half,
     y1 = y + half,
-    z1 = z0 + ht;
-  let s = box(x0, y0, z0, x1, y1, z1 - 1.6, m, toneI, 1);
-  for (const k of [0.33, 0.66]) {
-    const z = z0 + (ht - 1.6) * k;
-    s += line(
-      [
-        [x1, y0 + 0.8, z],
-        [x1, y1, z],
-        [x0 + 0.8, y1, z],
-      ],
-      0.6,
-    );
+    z1 = z0 + ht,
+    zt = z1 - 1.6,
+    // posts a shade darker than the planks; on a small crate (a hero plot, a pulled ghost) they thin out
+    pm = matOf(m.m),
+    pw = Math.min(2.2, half * 0.22);
+  let s = box(x0 + 0.3, y0 + 0.3, z0, x1 - 0.3, y1 - 0.3, zt, m, toneI, 1);
+  // the gaps between planks on each side that faces the viewer
+  const sides: [number[], (u: number, z: number) => number[]][] = [
+    [[1, 0, 0], (u, z) => [x1 - 0.25, u, z]],
+    [[-1, 0, 0], (u, z) => [x0 + 0.25, u, z]],
+    [[0, 1, 0], (u, z) => [u, y1 - 0.25, z]],
+    [[0, -1, 0], (u, z) => [u, y0 + 0.25, z]],
+  ];
+  const gaps = half > 6 ? [0.25, 0.5, 0.75] : [0.5];
+  for (const [n, at] of sides) {
+    if (!vis(n)) continue;
+    const [u0, u1] = n[0] ? [y0 + pw, y1 - pw] : [x0 + pw, x1 - pw];
+    for (const k of gaps) s += line([at(u0, z0 + (zt - z0) * k), at(u1, z0 + (zt - z0) * k)], 0.6);
+  }
+  // corner posts: every corner but the one hidden behind the crate, far ones first
+  const corners = [
+    [x0, y0],
+    [x1, y0],
+    [x0, y1],
+    [x1, y1],
+  ].sort((a, b) => depthOf([a[0], a[1], 0]) - depthOf([b[0], b[1], 0]));
+  for (const [cx, cy] of corners.slice(1)) {
+    const px = cx === x0 ? x0 : x1 - pw,
+      py = cy === y0 ? y0 : y1 - pw;
+    s += box(px, py, z0, px + pw, py + pw, zt, pm, toneI, 0.8);
   }
   if (state === 'conflict') {
     // lid off and leaning behind, both sides' papers poking out, a tomato tag on the front
-    s += box(x0 + 1, y0 + 1, z1 - 1.6, x1 - 1, y1 - 1, z1 - 1.4, PALS.tomato, toneI, 0.5);
-    s += box(x0 + 2, y0 + 2, z1 - 1.6, x0 + 3, y1 - 6, z1 + 6, PALS.cobalt, toneI, 0.6);
-    s += box(x0 + 5, y0 + 2, z1 - 1.6, x0 + 6, y1 - 3, z1 + 8, PALS.mint, toneI, 0.6);
-    s += box(x0 - 3, y0, z1 - 1.6, x0 - 2, y1, z1 + 9, m, toneI, 0.8);
+    s += box(x0 + 1, y0 + 1, zt, x1 - 1, y1 - 1, z1 - 1.4, PALS.tomato, toneI, 0.5);
+    s += box(x0 + 2, y0 + 2, zt, x0 + 3, y1 - 6, z1 + 6, PALS.cobalt, toneI, 0.6);
+    s += box(x0 + 5, y0 + 2, zt, x0 + 6, y1 - 3, z1 + 8, PALS.mint, toneI, 0.6);
+    s += box(x0 - 3, y0, zt, x0 - 2, y1, z1 + 9, m, toneI, 0.8);
     s += box(x1, y + 1, z0 + 3, x1 + 0.4, y + 5, z0 + 8, PALS.tomato, toneI, 0.7);
   } else {
-    s += box(x0 - 0.5, y0 - 0.5, z1 - 1.6, x1 + 0.5, y1 + 0.5, z1, m, toneI, 0.9);
+    s += box(x0 - 0.5, y0 - 0.5, zt, x1 + 0.5, y1 + 0.5, z1, m, toneI, 0.9);
+    // the lid's planks run along x
+    if (half > 6)
+      s += line(
+        [
+          [x0 - 0.5, y, z1 + 0.02],
+          [x1 + 0.5, y, z1 + 0.02],
+        ],
+        0.5,
+      );
     // the wax seal on the front face: the stamp its hash pill reads out
     s += box(
       x1,

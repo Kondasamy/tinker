@@ -572,7 +572,7 @@ export const BLOCKS: Record<BlockType, Spec> = {
           box: span(band, 0.9),
           svg: band
             .slice(1)
-            .map((p, i) => rod(band[i], p, 0.9, DARK, toneI, 0.8))
+            .map((p, i) => rod(band[i], p, 0.9, DARK, toneI, 0.8, 0.9, 6))
             .join(''),
         },
         bar([mx, my - hf - 2.6, zc - 1], [x + 7, my - hf - 1.5, z0 + 12], 0.6, DARK, 0.7),
