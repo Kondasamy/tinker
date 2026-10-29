@@ -1,0 +1,142 @@
+/* Prompts stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption). These are the card tray
+   (each card a 44px button with its slot's swatch, a closed card's reason under its name), the Text tab (the prompt
+   part by part, the reply, its checks), the slide a clipped card makes, and the read-out. */
+.pr-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pr-tray {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+}
+.pr-card {
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  padding: 4px 8px;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  color: var(--ink);
+  background: var(--card);
+  border: 1.5px solid var(--ink);
+  border-radius: 8px;
+  box-shadow: 2px 2px 0 var(--ink);
+  cursor: pointer;
+}
+.pr-card[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: none;
+}
+.pr-card[aria-disabled="true"] {
+  cursor: default;
+  box-shadow: none;
+  border-style: dashed;
+}
+.pr-face,
+.pr-slot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+}
+.pr-swatch {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid var(--ink);
+  border-radius: 3px;
+}
+.pr-card[aria-pressed="true"] .pr-swatch {
+  border-color: var(--paper);
+}
+.pr-why {
+  font-size: 11.5px;
+  font-weight: 400;
+}
+.pr-move,
+.pr-models .chip {
+  min-height: 44px;
+}
+.pr-models {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pr-text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  font-size: 13px;
+}
+.pr-parts {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pr-text pre {
+  margin: 2px 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font:
+    12.5px / 1.45 ui-monospace,
+    Menlo,
+    monospace;
+}
+.pr-reply,
+.pr-set {
+  border-top: 1.5px solid var(--ink);
+  padding-top: 8px;
+}
+.pr-by,
+.pr-words {
+  margin: 0;
+  font-weight: 700;
+}
+.pr-checks {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+.pr-checks .miss {
+  text-decoration: underline wavy var(--bad, #cf5038);
+  text-underline-offset: 3px;
+}
+.pr-load {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.pr-said {
+  margin: 0;
+  min-height: 2.8em;
+  font:
+    700 13px ui-monospace,
+    Menlo,
+    monospace;
+}
+/* a card just clipped slides down onto the docket; with reduced motion it is simply there (the kit drops the class) */
+@media (prefers-reduced-motion: no-preference) {
+  .pr-board .dk-slide {
+    animation: dk-slide 0.4s ease-out;
+  }
+}
+@keyframes dk-slide {
+  from {
+    transform: translateY(-24px);
+    opacity: 0;
+  }
+}
