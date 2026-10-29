@@ -24,9 +24,7 @@ const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 const axe = async (page: Page) => expect(await serious(page)).toEqual([]);
 test.setTimeout(120_000);
 
-test('the intro shows the level, the prerequisites, the author, the chapters and the Colorfigures credit', async ({
-  page,
-}) => {
+test('the intro shows the level, the prerequisites, the author and the chapters', async ({ page }) => {
   await page.goto('/context/');
   const meta = page.locator('.hero .module-meta');
   await expect(meta.locator('.level')).toHaveText('Intermediate');
@@ -34,10 +32,6 @@ test('the intro shows the level, the prerequisites, the author, the chapters and
     await expect(meta.getByRole('link', { name: moduleOf(id).title, exact: true })).toHaveAttribute('href', `/${id}/`);
   await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
-  await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toHaveAttribute(
-    'href',
-    'https://april-zhu.com/colorfigures',
-  );
   await axe(page);
 });
 

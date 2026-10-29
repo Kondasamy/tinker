@@ -99,7 +99,7 @@ The template lives in `templates/module/` (outside `src/`, so it is never built 
 - [ ] Every fact, number and model answer comes from `data/` with a source
 - [ ] Text in pictures is in label pills; one figure on the stage at a time
 - [ ] Looked at every page at desktop width and 390px, with and without reduced motion
-- [ ] Credits: Colorfigures on the intro footer (chapter headers come from the layout); the module author in the registry
+- [ ] Credits: the module author in the registry (Colorfigures is credited on the home footer only)
 - [ ] `pnpm check`, `pnpm test`, `pnpm test:e2e` pass; `pnpm og` run and JPEGs committed
 
 ## Notes for maintainers
