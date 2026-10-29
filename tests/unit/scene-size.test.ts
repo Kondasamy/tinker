@@ -18,6 +18,8 @@ import { DESK_BOARD, beatsOf, deskAt, deskScene } from '../../src/components/sce
 import { boardOf as dreamBoard, dreamScene, type DreamOpts } from '../../src/components/scenes/dreamFloorScene';
 import { RING_BOARD, ringScene } from '../../src/components/scenes/ringScene';
 import { sceneOf as ringSceneOf, START as RING_START } from '../../src/content/parallel-training/kit';
+import { HATCH_BOARD, hatchScene } from '../../src/components/scenes/hatchScene';
+import { FIELDS } from '../../src/lib/agent-commerce/shop';
 import { ENGINE_BOARD, engineScene } from '../../src/components/scenes/engineScene';
 import { EVAL_BOARD, evalScene } from '../../src/components/scenes/evalScene';
 import { EXAM_BOARD, examScene } from '../../src/components/scenes/examScene';
@@ -208,6 +210,16 @@ const SCENES: Record<string, () => string> = {
     const r = playCoding({ case: 'bulk', review: 7 });
     return stage(DESK_BOARD, deskScene(deskAt(r, beatsOf(r).length)));
   },
+  // the slip stamped at the seller's counter, one field failed, the token beside it
+  hatch: () =>
+    stage(
+      HATCH_BOARD,
+      hatchScene({
+        slip: { at: 'seller', signed: true, checks: FIELDS.map(field => ({ field, pass: field !== 'cap' })) },
+        seller: 'bad',
+        token: 'live',
+      }),
+    ),
   // the real and dreamed floors side by side at step 3 (the pair board)
   dream: () => {
     const o: DreamOpts = {
@@ -528,6 +540,7 @@ const BASE: Record<string, number> = {
   desk: 28907,
   dream: 37567,
   ring: 305505,
+  hatch: 66806,
   engine: 41049,
   eval: 39380,
   exam: 33521,
