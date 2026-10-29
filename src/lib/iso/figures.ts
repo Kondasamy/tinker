@@ -69,25 +69,43 @@ const item = (pts: V[], svg: string): Item => ({ box: bbox(pts), svg });
 /** Runs of flat-shaded faces (loft strips) in one colour joined into one path: the same picture in a third of the SVG
  * (a lofted head or body is dozens of strips, and neighbours mostly share a tone band). */
 const FACE = /<path d="([^"]+)" fill="(#[0-9a-f]{6})" stroke="\2" stroke-width="\.7" stroke-linejoin="round"\/>/g;
+// which way a face's outline turns on screen: faces that turn opposite ways cancel each other under nonzero fill if joined
+// (an open container's flipped far wall next to its near wall), so a run only takes faces that turn its way
+const winding = (d: string) => {
+  const pts = d
+    .slice(1)
+    .replace('Z', '')
+    .split('L')
+    .map(p => p.split(' ').map(Number));
+  let a = 0;
+  for (let i = 0; i < pts.length; i++) {
+    const [x0, y0] = pts[i];
+    const [x1, y1] = pts[(i + 1) % pts.length];
+    a += x0 * y1 - x1 * y0;
+  }
+  return Math.sign(a);
+};
 export const tight = (svg: string) => {
   let out = '',
     last = 0,
-    run: { d: string; c: string; end: number } | null = null;
+    run: { d: string; c: string; w: number; end: number } | null = null;
   const flush = () => {
     if (run) out += `<path d="${run.d}" fill="${run.c}" stroke="${run.c}" stroke-width=".7" stroke-linejoin="round"/>`;
     run = null;
   };
   for (const m of svg.matchAll(FACE)) {
     const i = m.index ?? 0;
-    if (run && i === run.end && run.c === m[2]) {
+    const w = winding(m[1]);
+    if (run && i === run.end && run.c === m[2] && (run.w === w || !w || !run.w)) {
       run.d += m[1];
+      run.w ||= w;
       run.end = i + m[0].length;
       last = run.end;
       continue;
     }
     flush();
     out += svg.slice(last, i);
-    run = { d: m[1], c: m[2], end: i + m[0].length };
+    run = { d: m[1], c: m[2], w, end: i + m[0].length };
     last = run.end;
   }
   flush();

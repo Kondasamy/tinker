@@ -4,7 +4,7 @@
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import IsoStage, { type Board } from '../../src/lib/iso/IsoStage';
 import { AGENT_BOARD, agentScene } from '../../src/components/scenes/agentScene';
 import { ARCHIVE_BOARD, archiveAt, archiveScene } from '../../src/components/scenes/archiveScene';
@@ -536,6 +536,11 @@ const BASE: Record<string, number> = {
 describe('scene size budget', () => {
   it('every scene has a baseline', () => {
     for (const k of Object.keys(SCENES)) expect(BASE[k], k).toBeTypeOf('number');
+  });
+  it('every *Scene.ts file is measured here', () => {
+    const src = readFileSync('tests/unit/scene-size.test.ts', 'utf8');
+    for (const f of readdirSync('src/components/scenes').filter(n => /Scene\.ts$/.test(n)))
+      expect(src, f).toContain(`/scenes/${f.replace(/\.ts$/, '')}'`);
   });
   it.each(Object.keys(SCENES))('%s stays within 3× its baseline and draws no NaN', k => {
     const svg = SCENES[k]();

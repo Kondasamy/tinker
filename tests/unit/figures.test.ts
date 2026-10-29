@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { SHADOW, matOf, withFrame } from '../../src/lib/iso/core.js';
 import { HALF, STATE_COL } from '../../src/lib/iso/blocks';
 import { frameFor } from '../../src/lib/iso/IsoStage';
-import { CAST, POSES, SAMPLES, markOf, modelMachine, person, type Piece } from '../../src/lib/iso/figures';
+import { CAST, POSES, SAMPLES, cart, markOf, modelMachine, person, type Piece } from '../../src/lib/iso/figures';
 
 const VIEWS = [0, 1, 2, 3];
 const inView = <T>(view: number, fn: () => T) => withFrame({ view, center: [60, 60] }, fn);
@@ -21,6 +21,42 @@ const ALL: [string, () => Piece][] = [
   ),
 ];
 const svgOf = (p: Piece) => p.items.map(i => i.svg).join('');
+
+// signed area of each closed sub-path ("M x yLx y…Z") in a joined face path
+const windings = (d: string) =>
+  d
+    .split('M')
+    .filter(Boolean)
+    .map(sub => {
+      const pts = sub
+        .replace(/Z/g, '')
+        .split('L')
+        .map(p => p.trim().split(/\s+/).map(Number));
+      let a = 0;
+      for (let i = 0; i < pts.length; i++) {
+        const [x0, y0] = pts[i];
+        const [x1, y1] = pts[(i + 1) % pts.length];
+        a += x0 * y1 - x1 * y0;
+      }
+      return Math.sign(a);
+    })
+    .filter(Boolean);
+
+describe('joined face paths', () => {
+  const FACE =
+    /<path d="([^"]+)" fill="#[0-9a-f]{6}" stroke="#[0-9a-f]{6}" stroke-width="\.7" stroke-linejoin="round"\/>/g;
+  const facings = ['+x', '-x', '+y', '-y'] as const;
+  const opens: [string, () => Piece][] = facings.map(f => [`cart ${f}`, () => cart({ x: 60, y: 60, facing: f })]);
+  for (const view of VIEWS)
+    it(`never mix windings in one path (holes under nonzero fill), view ${view}`, () => {
+      for (const [name, make] of [...ALL, ...opens]) {
+        for (const m of svgOf(inView(view, make)).matchAll(FACE)) {
+          const w = windings(m[1]);
+          expect(new Set(w).size, name).toBeLessThanOrEqual(1);
+        }
+      }
+    });
+});
 
 describe('every piece', () => {
   for (const view of VIEWS)
