@@ -1,0 +1,118 @@
+{
+  "note": "Recorded model replies for chapter 1, one run; see meta.",
+  "meta": {
+    "model": "nvidia/nemotron-3-ultra-550b-a55b",
+    "provider": "https://integrate.api.nvidia.com/v1",
+    "accessed": "2026-10-29",
+    "settings": {
+      "temperature": 0,
+      "seed": 7,
+      "max_tokens": 4096
+    },
+    "system": "You answer customer emails for Larkspur Supply Co., a hardware and shelving supplier for builders. Write the reply body only: plain text, 40 to 70 words, friendly and direct, no subject line, no sign-off, no lists or formatting. If you do not know a detail, keep it general rather than inventing numbers.",
+    "script": "scripts/record/watermarks.mjs",
+    "git": "b5e7dd0"
+  },
+  "replies": [
+    {
+      "id": "h01",
+      "question": "How long do you keep my order history?",
+      "reply": "We keep your order history for as long as your account remains active, so you can always reference past purchases, reorder items, or track project materials. If you close your account, we retain records for a standard period to meet legal and warranty requirements. For specific details about your account, just let us know and we’ll check."
+    },
+    {
+      "id": "h02",
+      "question": "My pallet of shelving arrived with a cracked upright. What now?",
+      "reply": "I’m sorry to hear about the cracked upright. Please send a quick photo of the damage and the pallet label so we can verify the issue. We’ll arrange a replacement upright and cover the shipping. If you need anything else while we sort this out, just let me know."
+    },
+    {
+      "id": "h03",
+      "question": "Can I change the delivery address on an order I placed this morning?",
+      "reply": "Yes, we can usually update the delivery address if your order hasn’t shipped yet. Please reach out to our customer service team with your order number as soon as possible, and they’ll check the status and make the change if it’s still in processing. We’ll do our best to accommodate your request."
+    },
+    {
+      "id": "h04",
+      "question": "Why was I charged twice for the same invoice?",
+      "reply": "I understand your concern about a double charge — that’s frustrating. Sometimes a pending authorization and the final charge appear together temporarily, but only one should post. Could you check with your bank to confirm if both are settled? If they are, I’ll open a review with our billing team right away and keep you updated on the resolution."
+    },
+    {
+      "id": "h05",
+      "question": "Do you sell the Heron shelving in a narrower depth?",
+      "reply": "Thanks for asking about the Heron shelving! We do offer it in several depth options to fit different spaces. The exact range varies by configuration, so I’d recommend checking the product page for current specs or letting me know your target depth — I can confirm availability or suggest the closest match. Happy to help narrow it down!"
+    },
+    {
+      "id": "h06",
+      "question": "Our trade account was put on hold. Can you tell me why?",
+      "reply": "I'm sorry to hear your trade account is on hold. This can happen for several reasons — outstanding balances, expired credit applications, or missing verification documents. I'd be happy to check your specific account and let you know exactly what's needed to resolve it. Could you share your account number or the email on file so I can pull up the details?"
+    },
+    {
+      "id": "h07",
+      "question": "Is the Wren label printer compatible with our old labels?",
+      "reply": "The Wren printer works with most standard direct‑thermal labels, but compatibility depends on the label width, core size, and adhesive type you’ve been using. If your old rolls match those specs they should feed fine. For the exact match, check the printer’s spec sheet or send us a photo of the label roll and we’ll confirm."
+    },
+    {
+      "id": "h08",
+      "question": "Can I return a box of hinges I didn't open?",
+      "reply": "Yes, we accept returns on unopened items within 30 days of purchase. Just bring the box to any Larkspur location with your receipt or order confirmation, and we’ll process a full refund to your original payment method. If you ordered online and prefer to ship it back, let me know and I’ll email a prepaid return label."
+    },
+    {
+      "id": "h09",
+      "question": "We need 200 brackets by Friday. Is that possible?",
+      "reply": "Thanks for reaching out. I’ll check our current stock and lead times for the brackets you need and get back to you shortly with a firm answer on Friday delivery. In the meantime, could you confirm the specific bracket model or part number so I can pull the most accurate availability?"
+    },
+    {
+      "id": "h10",
+      "question": "How do I add a second user to our account?",
+      "reply": "You can add a second user by logging into your account dashboard and navigating to the team or user management section. From there, look for an option to invite a new member — usually by entering their email address and assigning a role. They’ll receive an invitation to set up their own login. If you don’t see that option, your plan may need an upgrade or you might need to contact support for assistance."
+    },
+    {
+      "id": "h11",
+      "question": "The driver left our order at the wrong gate. Who do I talk to?",
+      "reply": "I’m sorry the delivery was left at the wrong gate. Please reach out to our customer‑service team at the main phone line or email address on your invoice — they’ll coordinate with the carrier to locate the shipment and arrange a re‑delivery or pickup at the correct location. If you have a reference number handy, that will speed things up."
+    },
+    {
+      "id": "h12",
+      "question": "Do you price match?",
+      "reply": "Yes, we do price match on identical items from authorized competitors. Just share the current quote or link when you place your order and we’ll verify the details. Some exclusions apply — closeouts, clearance, and special promotions aren’t eligible — but for standard stock we’re happy to match."
+    },
+    {
+      "id": "h13",
+      "question": "Can I get a copy of last year's invoices for our accountant?",
+      "reply": "Sure thing — I can help with that. To pull the right records, I’ll need the account name or number and the date range you need covered. Once I have that, I’ll gather the invoices and send them over in a format that works for your accountant. If there’s a preferred file type or any specific details they need included, just let me know."
+    },
+    {
+      "id": "h14",
+      "question": "Is there a minimum order for free delivery?",
+      "reply": "Yes, we offer free delivery on orders that meet a minimum threshold — typically a few hundred dollars depending on your location and the items you’re ordering. The exact amount can vary by region and product type, so I’d be happy to check the specifics for your account or zip code if you’d like."
+    },
+    {
+      "id": "h15",
+      "question": "What's the weight limit for one Heron shelf?",
+      "reply": "The Heron shelf weight limit depends on the specific model, wall type, and installation method — typically ranging from 50 to 150 pounds per shelf when properly mounted to studs. For exact ratings, check the product spec sheet or your order details. If you share the model number or order reference, I can look up the precise capacity for you."
+    },
+    {
+      "id": "h16",
+      "question": "I forgot my portal password and the reset email never came.",
+      "reply": "Sorry to hear the reset email didn't arrive — sometimes they get caught in spam or junk folders. Could you check there first? If it's not there, I can trigger a new one from our side or walk you through a manual reset. Just let me know what works best for you."
+    },
+    {
+      "id": "h17",
+      "question": "Can we pay by bank transfer instead of card?",
+      "reply": "Yes, we accept bank transfers. I can send you our banking details and reference information so you can set up the payment. Once the transfer is initiated, please allow 1–2 business days for it to clear before we process your order. Let me know if you’d like me to email the details or if you have any other questions."
+    },
+    {
+      "id": "h18",
+      "question": "Why does my order say back ordered?",
+      "reply": "A backorder means the item is temporarily out of stock but we have more coming from our supplier. This can happen due to high demand, manufacturing delays, or shipping issues. I'd be happy to check your specific order and give you an estimated restock date — just let me know your order number and I'll look into it right away."
+    },
+    {
+      "id": "h19",
+      "question": "Do your safety boots come in half sizes?",
+      "reply": "Yes, our safety boots are available in half sizes for most styles to help you get a more precise fit. Sizing can vary slightly by brand, so we recommend checking the product page for the specific model you're interested in. If you're between sizes or have wider feet, going up a half size often works well. Let me know if you'd like help comparing a couple of options."
+    },
+    {
+      "id": "h20",
+      "question": "Can you hold stock for us until our project starts next month?",
+      "reply": "Sure, we can reserve the items you need and keep them set aside until your project begins next month. Just let us know the quantities and any specific SKUs, and we’ll confirm the hold period and any applicable terms. Feel free to reach out if anything changes."
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "note": "The people, messages and settings for Watermarks and made-by-AI, written for this site. The customer, her firm, the forwarded email and its domain are made up; the domain is reserved for documentation (RFC 2606).",
+  "company": "Larkspur Supply Co.",
+  "assistant": "Larkspur's assistant",
+  "customer": { "name": "Dana Whitlock", "firm": "Ridgeback Builders" },
+  "forwarded": {
+    "from": "accounts@larkspur-refunds.example",
+    "subject": "Your trade account refund",
+    "body": "Hello from Larkspur Supply Co. Because of a billing error last month, your trade account is owed a refund of $412.80. To receive it today, reply with the card number on the account and the three digit code on the back. This offer ends on Friday, so please act quickly."
+  },
+  "reply": { "prompt": "Q: How long is order history kept?", "seed": 1 },
+  "prefixes": [8, 16, 24, 32, 48, 64],
+  "deltas": [0, 1, 2, 4],
+  "lowerLine": 1,
+  "picture": { "title": "Brass hinge, catalogue shot", "seed": 20261029, "strength": 2 }
+}
