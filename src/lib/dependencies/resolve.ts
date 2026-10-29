@@ -86,12 +86,18 @@ const at = (dir: string, name: string) => (dir ? `${dir}/${name}` : name);
 export function install(o: InstallOpts): Tree {
   const nodes = new Map<string, Node>(),
     unmet: Unmet[] = [],
-    over = o.overrides ?? {};
+    over = o.overrides ?? {},
+    // a place the reader emptied, with the version it would have held
+    pulled = new Map<string, string | null>();
   const pick = (path: string, name: string, range: string): string | null => {
-    if (path in over) return over[path];
     const locked = o.lock?.[path];
-    if (locked && satisfies(locked, range) && releaseOf(name, locked)) return locked;
-    return maxSatisfying(availableOn(name, o.day), range);
+    const natural =
+      locked && satisfies(locked, range) && releaseOf(name, locked)
+        ? locked
+        : maxSatisfying(availableOn(name, o.day), range);
+    if (!(path in over)) return natural;
+    if (over[path] === null) pulled.set(path, natural);
+    return over[path];
   };
   const queue: { from: string; deps: Record<string, string> }[] = [{ from: '', deps: o.deps ?? APP.deps }];
   for (let i = 0; i < queue.length; i++) {
@@ -102,7 +108,7 @@ export function install(o: InstallOpts): Tree {
       let seen: string | undefined;
       for (let d = from; ; d = up(d)) {
         const k = at(d, name);
-        if (nodes.has(k) || over[k] === null) {
+        if (nodes.has(k) || pulled.has(k)) {
           seen = k;
           break;
         }
@@ -111,15 +117,17 @@ export function install(o: InstallOpts): Tree {
       if (seen !== undefined) {
         const n = nodes.get(seen);
         if (!n) {
-          unmet.push({ from, name, range });
-          continue;
-        }
-        if (satisfies(n.version, range)) {
+          // the emptied copy is what this package would have used; one out of its range it never needed
+          const was = pulled.get(seen);
+          if (was == null || satisfies(was, range)) {
+            unmet.push({ from, name, range });
+            continue;
+          }
+        } else if (satisfies(n.version, range)) {
           n.by.push(from);
           continue;
-        }
-        // a copy the reader forced is what everyone gets: out of range is unmet, not quietly nested
-        if (seen in over) {
+        } else if (seen in over) {
+          // a copy the reader forced is what everyone gets: out of range is unmet, not quietly nested
           unmet.push({ from, name, range, got: n.version });
           continue;
         }

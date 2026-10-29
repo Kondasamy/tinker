@@ -90,6 +90,10 @@ describe('the resolver', () => {
     // pulling a leaf many stand on: its dependants and theirs, up to the app
     const roundnum = install({ day: 0, overrides: { roundnum: null } });
     expect([...brokenOf(roundnum)].sort()).toEqual(['', 'cartwheel', 'pricebook']);
+    // pulling the top copy leaves the nested copy of a package it never fitted
+    const tidy = install({ day: 0, overrides: { tidystr: null } });
+    expect(nodeAt(tidy, 'cartwheel/tidystr')?.version).toBe(nodeAt(FIRST, 'cartwheel/tidystr')?.version);
+    expect(brokenOf(tidy).has('cartwheel')).toBe(false);
   });
 
   it('the tree diff names every place that moved between two installs', () => {
