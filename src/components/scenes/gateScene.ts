@@ -247,21 +247,32 @@ export const gateScene = (o: GateOpts) => (ctx: SceneCtx) => {
       c = o.lanes[r].counts,
       back = r === 'A',
       name = o.names[r].toUpperCase();
-    // the lane's count pill by the counter, on the lane's far edge: its true totals (the drawn people stand for them)
+    // the lane's count pill by the counter, on the lane's far edge: its true totals (the drawn people stand for them).
+    // Northvale's long pill floats in the empty paper above the board, clear of its BAR pill and the post's callout
+    // and inside the picture's right edge; its short phone pill stays low, right of the machine's callout.
     pills.push(
       pill(
         [CX - 30, back ? L.y - 14 : L.y + 14, BH],
-        0,
-        back ? -70 : 30,
+        back && !narrow ? -34 : 0,
+        back ? (narrow ? -60 : -140) : 30,
         narrow ? name : `${name} · ${c.n} · ${c.tp + c.fp} IN · ${c.fn + c.tn} OUT`,
         false,
         scale,
       ),
     );
     if (!narrow) {
-      pills.push(pill([GX, L.post, POST_TOP + 1.6], back ? 34 : -34, -16, `BAR ${bar2(o.lanes[r].bar)}`, false, scale));
+      // Eastmere's BAR sits close enough to its post to clear the pen's callout on its left
+      pills.push(pill([GX, L.post, POST_TOP + 1.6], back ? 34 : -28, -16, `BAR ${bar2(o.lanes[r].bar)}`, false, scale));
+      // the pen pills: Northvale's above the pen's callout, Eastmere's nudged right to stay inside the picture
       pills.push(
-        pill([0, back ? L.pen - 13 : L.pen + 13, BH], 0, back ? -44 : 26, `${c.fn} WRONGLY OUT`, c.fn > 0, scale),
+        pill(
+          [0, back ? L.pen - 13 : L.pen + 13, BH],
+          back ? 0 : 12,
+          back ? -60 : 26,
+          `${c.fn} WRONGLY OUT`,
+          c.fn > 0,
+          scale,
+        ),
       );
     }
     const part = r.toLowerCase();
