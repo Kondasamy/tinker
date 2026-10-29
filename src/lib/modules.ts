@@ -168,6 +168,24 @@ export const MODULES: Module[] = [
     'Telling a model what you want: clear instructions, a few good examples, and testing the prompt like code.',
   ),
   planned(
+    'choosing-models',
+    'Choosing a model',
+    'Beginner',
+    'Picking the model for the job: leaderboards, price per answer, speed, and testing on your own questions.',
+  ),
+  planned(
+    'on-device',
+    'Models on your device',
+    'Intermediate',
+    'A model that runs on a phone: what fits in its memory, what it costs the battery, and what never leaves it.',
+  ),
+  planned(
+    'robots',
+    'Robots that act',
+    'Advanced',
+    'From camera frames to motor commands, and why a robot learns by watching people do the task.',
+  ),
+  planned(
     'rate-limits',
     'Rate limits',
     'Beginner',

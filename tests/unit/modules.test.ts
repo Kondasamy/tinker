@@ -36,6 +36,10 @@ const ROADMAP: [string, string, string?][] = [
   ['fairness', 'Intermediate'],
   ['watermarks', 'Intermediate'],
   ['prompts', 'Beginner'],
+  // docs/plans/2026-10-29-1438-feat-six-ai-modules-plan.md takes the three above live and adds these (KTD12)
+  ['choosing-models', 'Beginner'],
+  ['on-device', 'Intermediate'],
+  ['robots', 'Advanced'],
   ['rate-limits', 'Beginner', 'Classic tech'],
   ['backups', 'Beginner', 'Classic tech'],
   ['unicode', 'Beginner', 'Classic tech'],
@@ -72,8 +76,8 @@ describe('module registry', () => {
     }
   });
 
-  // the R16 cards stay planned through this plan; the first seven go live in turn, so a card gone from the list is live
-  it('keeps the seven new roadmap cards last and in order, and every roadmap card no longer planned is live', () => {
+  // the last seven cards stay planned through the six-AI-modules plan; the rest go live in turn, so a card gone from the list is live
+  it('keeps the seven cards that stay planned last and in order, and every roadmap card no longer planned is live', () => {
     const planned = MODULES.filter(m => m.status === 'planned').map(m => m.id);
     expect(planned.slice(-7)).toEqual(ROADMAP.slice(-7).map(([id]) => id));
     for (const [id] of ROADMAP) if (!planned.includes(id)) expect(moduleOf(id).status, id).toBe('live');
