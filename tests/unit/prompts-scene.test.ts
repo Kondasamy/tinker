@@ -162,6 +162,13 @@ describe('the stage, live', () => {
     expect([...host.querySelectorAll('button')].some(b => b.textContent === 'House rule last')).toBe(false);
   });
 
+  it('leaves out a card an earlier chapter used and this one doesn’t', () => {
+    reduce(false);
+    act(() => root.render(createElement(Harness, { chapter: '07-workbench' })));
+    expect(card('list')).toBeNull();
+    expect(card('json')).not.toBeNull();
+  });
+
   it('with reduced motion a clipped card is simply there', () => {
     reduce(true);
     act(() => root.render(createElement(Harness)));
