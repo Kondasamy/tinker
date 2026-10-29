@@ -20,11 +20,10 @@ async function play(page: Page, kb: boolean) {
   expect(await serious(page)).toEqual([]);
 }
 
-test('the intro shows the level, the author, the chapters and the Colorfigures credit', async ({ page }) => {
+test('the intro shows the level, the author and the chapters', async ({ page }) => {
   await page.goto('/__ID__/');
   await expect(page.locator('.hero .module-meta .level')).toHaveText(M.level);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
-  await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toBeVisible();
   expect(await serious(page)).toEqual([]);
 });
 

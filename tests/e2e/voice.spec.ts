@@ -62,7 +62,6 @@ test('the intro shows the level, the prerequisites, the author, the chapters and
   await expect(meta).toContainText(moduleOf('multimodal').title);
   await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
-  await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toBeVisible();
   await expect(page.locator('.versus .reply')).toHaveCount(2);
   await axe(page);
 });

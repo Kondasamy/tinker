@@ -36,11 +36,10 @@ test('every chapter plays by keyboard only', async ({ page }) => {
   await play(page, 'keyboard');
 });
 
-test('the intro shows the level, the author, the chapters and the Colorfigures credit', async ({ page }) => {
+test('the intro shows the level, the author and the chapters', async ({ page }) => {
   await page.goto('/sandboxing/');
   await expect(page.locator('.hero .module-meta .level')).toHaveText(M.level);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
-  await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toBeVisible();
   expect(await serious(page)).toEqual([]);
 });
 

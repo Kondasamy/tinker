@@ -18,7 +18,7 @@ Working on one module? Its picture and engine decisions are in `docs/modules/<id
 
 ## Credit (required)
 
-Pictures use **Colorfigures by April Zhu** (https://april-zhu.com/colorfigures), which grew from her ISO-GLOW, which builds on iso-figure by Tolga Cohce. All MIT. Keep the credit on every chapter page header ("drawn with Colorfigures by April Zhu"), in the footer of home and every module intro, in the README Credits, and `src/lib/iso/LICENSE` with the engine.
+Pictures use **Colorfigures by April Zhu** (https://april-zhu.com/colorfigures), which grew from her ISO-GLOW, which builds on iso-figure by Tolga Cohce. All MIT. Credit it in the home footer only (not on chapter, intro or recap pages), in the README Credits, and `src/lib/iso/LICENSE` with the engine.
 
 Author credit is always **Samy (Kondasamy Jayaraman)**: alias then full name, linked to kondasamy.com, `target="_blank" rel="noopener"`. The registry's `author.name` carries it; `Meta.astro`'s structured data names Kondasamy Jayaraman with `alternateName` Samy.
 
@@ -57,7 +57,7 @@ Marketing pages share `src/styles/page.css`; chapter pages use `src/layouts/Chap
 ## Chapter page layout
 
 - **≥ 861px: an app frame**, picture still on the left, story column scrolling on the right. Phones stack picture above story.
-- **The chapter bar has two fixed rows** (brand and credit; the chapter nav, scrolling sideways), same height everywhere. Moving between chapters cross-fades (`@view-transition`, off with reduced motion).
+- **The chapter bar has two fixed rows** (brand and author; the chapter nav, scrolling sideways), same height everywhere. Moving between chapters cross-fades (`@view-transition`, off with reduced motion).
 - **Every visit opens on the chapter's intro**, which offers "Continue at step N" for a saved run. The story column scrolls only when the step changes.
 - **Opening context is short**: chapter number, title, story so far, the question; "You will learn" and "Words you'll meet" fold under "About this chapter". It lives in the chapter's `intro`. Never drop a reader into a step, never put a wall of text before it.
 - **Terms are defined at first use**: `StepRunner` marks each chapter `term` in the narration (`src/components/story/terms.ts`) as a button opening the definition, outside the live region.
@@ -126,7 +126,7 @@ Look at the pages you changed (desktop and 390px wide). New behaviour gets a tes
 1. Plan it (concept, level, story, chapters, sources; `CONTRIBUTING.md`).
 2. `pnpm new-module <id> "<Title>"` copies `templates/module/` and appends to `MODULES`.
 3. Write it by `docs/writing-a-module.md`, picture-first from the first commit; `pnpm test` lists what's missing. Add `docs/modules/<id>.md` for its picture and engine decisions.
-4. Reuse `src/lib/iso/`, keep the credit, then `pnpm og`.
+4. Reuse `src/lib/iso/`, then `pnpm og`.
 
 ## Commits
 

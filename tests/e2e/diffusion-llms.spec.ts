@@ -30,9 +30,7 @@ const axe = async (page: Page) => {
 };
 test.setTimeout(240_000);
 
-test('the intro shows the level, the prerequisites, the author, the chapters and the Colorfigures credit', async ({
-  page,
-}) => {
+test('the intro shows the level, the prerequisites, the author and the chapters', async ({ page }) => {
   await page.goto('/diffusion-llms/');
   const meta = page.locator('.hero .module-meta');
   await expect(page.locator('.hero .kicker')).toHaveText(`Module ${NUM} · Diffusion LMs`);
@@ -41,7 +39,6 @@ test('the intro shows the level, the prerequisites, the author, the chapters and
     await expect(meta.getByRole('link', { name: moduleOf(id).title, exact: true })).toHaveAttribute('href', `/${id}/`);
   await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
-  await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toBeVisible();
   await expect(page.locator('.versus .reply')).toHaveCount(2);
   await axe(page);
 });

@@ -29,9 +29,7 @@ const axe = async (page: Page) => {
 };
 test.setTimeout(150_000);
 
-test('the intro shows the level, the prerequisite, the author, the chapters and the Colorfigures credit', async ({
-  page,
-}) => {
+test('the intro shows the level, the prerequisite, the author and the chapters', async ({ page }) => {
   await page.goto('/multimodal/');
   const meta = page.locator('.hero .module-meta');
   await expect(page.locator('.hero .kicker')).toHaveText('Module 16 · Multimodal');
@@ -42,7 +40,6 @@ test('the intro shows the level, the prerequisite, the author, the chapters and 
   );
   await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
-  await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toBeVisible();
   await expect(page.locator('.versus .reply')).toHaveCount(2);
   await axe(page);
 });

@@ -48,7 +48,7 @@ pnpm og          # only if you changed a page's text, a chapter list or a share 
 
 The same checks run on every pull request. Also open the pages you changed at desktop width and at 390px wide, and look at them; tests do not catch everything.
 
-**A live module must have:** a level, an author, at least one chapter, an intro page, a recap page, a recall bank covering every chapter with exactly one pinned item, a share image for every page, an e2e spec, and the Colorfigures credit on its intro footer. The registry check (`tests/unit/registry.test.ts`) fails with a message naming anything missing.
+**A live module must have:** a level, an author, at least one chapter, an intro page, a recap page, a recall bank covering every chapter with exactly one pinned item, a share image for every page, and an e2e spec. The registry check (`tests/unit/registry.test.ts`) fails with a message naming anything missing.
 
 ## Pull requests
 
@@ -59,7 +59,7 @@ The same checks run on every pull request. Also open the pages you changed at de
 
 ## Credit
 
-- The pictures use **Colorfigures by April Zhu** (MIT). Keep the credit on chapter headers, module intro footers and the home footer, and keep `src/lib/iso/LICENSE`.
+- The pictures use **Colorfigures by April Zhu** (MIT). The credit lives in the home footer and the README only; keep `src/lib/iso/LICENSE`.
 - Module authors are credited by name on their module card and intro page (the `author` field in the module's registry entry).
 
 ## License

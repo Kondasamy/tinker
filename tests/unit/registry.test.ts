@@ -9,7 +9,6 @@ import { ALL_PAGES, type PageMeta } from '../../src/lib/pages';
 
 interface Probe {
   exists(rel: string): boolean;
-  read(rel: string): string;
   specs: string[];
 }
 
@@ -17,7 +16,6 @@ const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 const E2E = path.join(ROOT, 'tests/e2e');
 const DISK: Probe = {
   exists: rel => existsSync(path.join(ROOT, rel)),
-  read: rel => readFileSync(path.join(ROOT, rel), 'utf8'),
   specs: readdirSync(E2E)
     .filter(f => f.endsWith('.ts'))
     .map(f => readFileSync(path.join(E2E, f), 'utf8')),
@@ -34,8 +32,6 @@ function missing(m: Module, pages: PageMeta[], fs: Probe): string[] {
   const dir = `src/pages/${m.id}`;
   for (const f of ['index.astro', '[chapter].astro', 'recap.astro'])
     if (!fs.exists(`${dir}/${f}`)) no(`page ${dir}/${f}`);
-  if (fs.exists(`${dir}/index.astro`) && !/april-zhu\.com\/colorfigures/.test(fs.read(`${dir}/index.astro`)))
-    no(`the Colorfigures credit (a link to april-zhu.com/colorfigures) in ${dir}/index.astro`);
   const want = [`/${m.id}/`, ...m.chapters.map(c => `/${m.id}/${c.id}/`), `/${m.id}/recap/`];
   for (const p of want) {
     const page = pages.find(x => x.path === p);
@@ -138,10 +134,10 @@ describe('the registry rules themselves', () => {
       'src/pages/fake/recap.astro',
       ...PAGES.map(p => `public/og/${p.og}.jpg`),
     ];
-    return (
-      spec = "page.goto('/fake/01-a/')",
-      intro = '<a href="https://april-zhu.com/colorfigures">Colorfigures</a>',
-    ): Probe => ({ exists: f => all.includes(f) && !without.includes(f), read: () => intro, specs: [spec] });
+    return (spec = "page.goto('/fake/01-a/')"): Probe => ({
+      exists: f => all.includes(f) && !without.includes(f),
+      specs: [spec],
+    });
   };
 
   it('passes a complete fake module', () => {
@@ -203,12 +199,9 @@ describe('the registry rules themselves', () => {
     ]);
   });
 
-  it('fails without an e2e spec or the Colorfigures credit', () => {
+  it('fails without an e2e spec', () => {
     expect(missing(FAKE, PAGES, files()("page.goto('/other/')"))).toEqual([
       'fake: missing an e2e spec in tests/e2e that visits /fake/',
-    ]);
-    expect(missing(FAKE, PAGES, files()(undefined, '<footer>by me</footer>'))).toEqual([
-      'fake: missing the Colorfigures credit (a link to april-zhu.com/colorfigures) in src/pages/fake/index.astro',
     ]);
   });
 
@@ -216,7 +209,6 @@ describe('the registry rules themselves', () => {
     expect(
       missing({ ...FAKE, status: 'planned', chapters: [], recall: undefined }, [], {
         exists: () => false,
-        read: () => '',
         specs: [],
       }),
     ).toEqual([]);

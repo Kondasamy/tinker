@@ -27,16 +27,12 @@ const stage = (page: Page) => page.getByRole('region', { name: 'Scene' });
 const axe = async (page: Page) => expect(await serious(page)).toEqual([]);
 test.setTimeout(240_000);
 
-test('the intro shows the level, the author, the chapters and the Colorfigures credit', async ({ page }) => {
+test('the intro shows the level, the author and the chapters', async ({ page }) => {
   await page.goto('/releases/');
   const meta = page.locator('.hero .module-meta');
   await expect(meta.locator('.level')).toHaveText('Intermediate');
   await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
-  await expect(page.locator('footer.credits').getByRole('link', { name: 'Colorfigures' })).toHaveAttribute(
-    'href',
-    'https://april-zhu.com/colorfigures',
-  );
   await page.getByRole('button', { name: 'Words' }).click();
   await expect(page.locator('.band .note.more')).toBeVisible();
   await axe(page);
