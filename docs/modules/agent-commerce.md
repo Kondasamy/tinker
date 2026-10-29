@@ -23,6 +23,6 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 | 2 | `02-a-menu-for-agents` | The hatch, no slip; the buyer `ok` reading the catalogue | no | the chapter's own view pick (page or menu) | `buyer`, `seller` |
 | 3 | `03-agent-to-agent` | The hatch, no slip; the seller `warn` while the task is input-required; Task tab shows the states | Task tab | the chapter's request pick (clear or vague), then the answer | `buyer`, `seller`, `hatch` |
 | 4 | `04-who-said-it-could-buy` | Sign the slip, Larkspur's terms (`SLIPS.larkspur`), seller `larkspur` | yes: form, Sign, Change the cap, Send | Sign, then Send | `builder`, `slip`, `seal`, `satchel` |
-| 5 | `05-a-seller-that-talks-back` | Sign the slip with `SLIPS['shop-around']`, seller `quarrylane` (its machine `warn`); cap and items stamp fail | yes: Send | Send | `seller`, `slip` |
+| 5 | `05-a-seller-that-talks-back` | Sign the slip with `SLIPS['shop-around']`, seller `quarrylane` (its machine `warn`): the cap stamps fail; then `SLIPS.larkspur` against `lookalike`: the merchant stamps fail (the recorded agent accepted it) | yes: Sign, Send | Sign, then Send (each round) | `seller`, `slip` |
 | 6 | `06-paying-without-the-card` | The slip accepted at the seller's counter, the token `live`, then `spent` on a second order | no (the chapter's own charge control) | the chapter's charge pick | `token`, `slip` |
 | 7 | `07-workbench` | The bench's slip against the picked seller, stamped | as exploration | the workbench's term controls | `slip`, `seller` |
