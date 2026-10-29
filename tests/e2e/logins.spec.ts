@@ -8,7 +8,7 @@ import { LOGINS_MODULE as M } from '../../src/content/logins/module';
 import { MODULES } from '../../src/lib/modules';
 import { START } from '../../src/lib/logins/workbench';
 import { BENCH_LABELS, loginsWalker } from './logins-flow';
-import { serious, layoutHolds, PHONE } from './helpers';
+import { serious, layoutHolds, PHONE, choose } from './helpers';
 
 const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'logins') + 1;
 const IDS = M.chapters.map(c => c.id);
@@ -115,7 +115,7 @@ test('PBKDF2 and TOTP run here and match their pins', async ({ page }) => {
     timeout: 15_000,
   });
   await w.open(CH7);
-  await c.getByRole('combobox', { name: BENCH_LABELS.staff2fa }).selectOption('totp');
+  await choose(c.getByRole('combobox', { name: BENCH_LABELS.staff2fa }), 'totp');
   await expect(c.locator('[data-totp]')).toHaveAttribute('data-totp', pinned.totp);
 });
 
@@ -143,7 +143,7 @@ test('chapter 7: a losing plan stays on the bench; a winning one moves on', asyn
   const score = c.locator('[data-fits]');
   await expect(score).toHaveAttribute('data-fits', '0');
   // a slow hash alone: the guesser and the cookie thief still get in
-  await c.getByRole('combobox', { name: BENCH_LABELS.store }).selectOption('pbkdf2-600000');
+  await choose(c.getByRole('combobox', { name: BENCH_LABELS.store }), 'pbkdf2-600000');
   await expect(score).toHaveAttribute('data-fits', '0');
   await expect(c.locator('tr[data-attacker="guesser"]')).not.toHaveAttribute('data-lost', '0');
   await expect(c).toContainText('Step 1 of');

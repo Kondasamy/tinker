@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 // Recommendations' stage (U21): the aisle's parts and callouts, the caps (5 on the shelf, at most 40 on the map), pills
 // on phones and escaping; the move-a-shopper marker (arrow keys move it a fixed step only while it has focus, and the
-// shelf's five match score.ts for its position), the shopper select, one polite read-out that speaks on actions, the
+// shelf's five match score.ts for its position), the shopper drop-down, one polite read-out that speaks on actions, the
 // Ranking tab, and motion only behind prefers-reduced-motion: no-preference.
 import { readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -203,9 +203,8 @@ describe('move a shopper', () => {
     for (let i = 0; i < 12; i++) key('ArrowRight');
     expect(status().textContent).toMatch(/^Nearest /);
     act(() => {
-      const sel = host.querySelector('select')!;
-      sel.value = 'c07';
-      sel.dispatchEvent(new Event('change', { bubbles: true }));
+      host.querySelector<HTMLElement>('[role="combobox"]')!.click();
+      host.querySelector<HTMLElement>('[role="option"][data-value="c07"]')!.click();
     });
     expect(status().textContent).toMatch(/^c07’s shelf/);
   });

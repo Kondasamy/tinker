@@ -1,7 +1,8 @@
-// Chapter 7: lock, sign or both, the workbench. One native select per supplier message (lock, sign, both or neither)
+// Chapter 7: lock, sign or both, the workbench. One drop-down per supplier message (lock, sign, both or neither)
 // against the attackers on the line; a result table, one row per message, and a live count of what is lost against
 // the best (nothing). The puzzle accepts every plan that loses nothing (WINNERS, pinned and recomputed in a test).
 import StepRunner from '../../components/story/StepRunner';
+import Select from '../../components/story/Select';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import { PAINT_PARTS, type Item, type PaintOpts } from '../../components/scenes/paintScene';
@@ -112,7 +113,7 @@ function Bench({ s, set }: { s: S; set: (s: S) => void }) {
       {MESSAGES.map(m => (
         <div className="ek-field ek-select" key={m.id}>
           <label htmlFor={`ek-${m.id}`}>{m.name}</label>
-          <select
+          <Select
             id={`ek-${m.id}`}
             value={p[m.id as MessageId]}
             onChange={e => set({ ...s, [m.id]: e.target.value as Choice })}
@@ -122,7 +123,7 @@ function Bench({ s, set }: { s: S; set: (s: S) => void }) {
                 {CHOICE_NAME[c]}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
       ))}
       <table className="tc-ledger">

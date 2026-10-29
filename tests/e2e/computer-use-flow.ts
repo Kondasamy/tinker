@@ -1,6 +1,7 @@
 // Computer use, chapter by chapter, by mouse or keyboard only, following each chapter's "Next" link. A prediction is made
 // on the Screen view: by mouse a click on the target, by keyboard arrow keys between targets, then Enter.
 import { expect, type Locator, type Page } from '@playwright/test';
+import { choose } from './helpers';
 // the pinned winners, read as data: the engine's imports don't load under Playwright's runner
 import pinned from '../../data/computer-use/pinned.json' with { type: 'json' };
 
@@ -98,7 +99,7 @@ export function cuWalker(page: Page, mode: Mode, check: (page: Page) => Promise<
     },
     async ch7(next?: RegExp, quiz: string | RegExp = /^Host rules for timing/) {
       const w = WINNERS[0];
-      await card.getByRole('combobox', { name: /Screenshot size/ }).selectOption(String(w.size));
+      await choose(card.getByRole('combobox', { name: /Screenshot size/ }), String(w.size));
       if (w.wait) await tick(/^Wait for the page/);
       if (w.allow) await tick(/^Allow only/);
       if (w.confirm) await tick(/^Ask a person/);

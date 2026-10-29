@@ -1,6 +1,7 @@
 // Module 14, chapter by chapter, by mouse or keyboard only, following each chapter's "Next" link. The mouse walk sorts
 // and triages by hand from the reference data; the keyboard walk uses "Show me" for chapters 4 and 7's puzzles.
 import { expect, type Locator, type Page } from '@playwright/test';
+import { choose } from './helpers';
 import { DAY2, FAILED, modeOf } from '../../src/lib/observability/traces';
 import { REFERENCE_GROUPING, TOP } from '../../src/lib/observability/coding';
 import { WINNERS } from '../../src/lib/observability/workbench';
@@ -123,9 +124,8 @@ export function observabilityWalker(page: Page, mode: Mode, check: (page: Page) 
       await step(3);
       if (kb) await btn('Show me');
       else {
-        for (const [i, t] of DAY2.entries())
-          await card.getByLabel(`Mode for trace ${i + 1}`).selectOption({ label: modeOf(t.mode!).name });
-        await card.getByLabel('Fix to ship').selectOption({ label: modeOf(WINNERS[0]).name });
+        for (const [i, t] of DAY2.entries()) await choose(card.getByLabel(`Mode for trace ${i + 1}`), t.mode!);
+        await choose(card.getByLabel('Fix to ship'), WINNERS[0]);
       }
       await step(4);
       await check(page);

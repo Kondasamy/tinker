@@ -9,7 +9,7 @@ type Change = { target: { value: string }; currentTarget: { value: string } };
 type Props = {
   value: string | number;
   onChange?: (e: Change) => void;
-  children: ReactNode;
+  children?: ReactNode;
   id?: string;
   disabled?: boolean;
   className?: string;
@@ -44,6 +44,8 @@ export default function Select({ value, onChange, children, id, disabled, classN
   );
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(at);
+  // letters typed in quick succession spell a word, as in a native picker
+  const typed = useRef({ text: '', at: 0 });
 
   // a press anywhere else closes the list, as a native picker does
   useEffect(() => {
@@ -54,6 +56,7 @@ export default function Select({ value, onChange, children, id, disabled, classN
   }, [open]);
 
   const show = () => {
+    typed.current.at = 0;
     setActive(at);
     setOpen(true);
   };
@@ -62,6 +65,7 @@ export default function Select({ value, onChange, children, id, disabled, classN
     const v = opts[i]?.value;
     if (v !== undefined && v !== String(value)) onChange?.({ target: { value: v }, currentTarget: { value: v } });
   };
+  const typing = () => Date.now() - typed.current.at < 600;
   const key = (e: React.KeyboardEvent) => {
     const last = opts.length - 1;
     const move = (i: number) => {
@@ -79,7 +83,7 @@ export default function Select({ value, onChange, children, id, disabled, classN
     else if (e.key === 'ArrowUp') move(active - 1);
     else if (e.key === 'Home') move(0);
     else if (e.key === 'End') move(last);
-    else if (e.key === 'Enter' || e.key === ' ') {
+    else if (e.key === 'Enter' || (e.key === ' ' && !typing())) {
       e.preventDefault();
       pick(active);
     } else if (e.key === 'Escape') {
@@ -87,11 +91,12 @@ export default function Select({ value, onChange, children, id, disabled, classN
       setOpen(false);
     } else if (e.key === 'Tab') setOpen(false);
     else if (e.key.length === 1) {
-      // typing a letter jumps to the next option that starts with it
-      const k = e.key.toLowerCase();
-      const next = [...opts.slice(active + 1), ...opts.slice(0, active + 1)].find(o =>
-        o.text.toLowerCase().startsWith(k),
-      );
+      // typing jumps to the option that starts with what was typed; a lone letter steps to the next such option
+      const t = typed.current;
+      t.text = (typing() ? t.text : '') + e.key.toLowerCase();
+      t.at = Date.now();
+      const from = t.text.length > 1 ? active : active + 1;
+      const next = [...opts.slice(from), ...opts.slice(0, from)].find(o => o.text.toLowerCase().startsWith(t.text));
       if (next) move(opts.indexOf(next));
     }
   };

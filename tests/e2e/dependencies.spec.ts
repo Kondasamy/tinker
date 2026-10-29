@@ -1,5 +1,5 @@
 // Dependencies: the intro, every chapter played by mouse and by keyboard only, its own progress key, the pull-a-crate
-// mechanic by keyboard (arrow keys between crates, the version select, Pull) with its one polite read-out, the tree,
+// mechanic by keyboard (arrow keys between crates, the version drop-down, Pull) with its one polite read-out, the tree,
 // "I'm not sure", reduced motion (crates recolour without toppling), the recap, axe and phone width. The go-live adds
 // the module's number, share images and home's card.
 import { test, expect, type Page } from '@playwright/test';

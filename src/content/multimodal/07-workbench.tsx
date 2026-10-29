@@ -1,7 +1,8 @@
-// Chapter 7: the workbench. The reader picks a method and a size for each kind of document (a native select each). Under
+// Chapter 7: the workbench. The reader picks a method and a size for each kind of document (a drop-down each). Under
 // it, a row per document with its fields right, its cost and the reading's note; a live total against the best. The puzzle
 // accepts every plan tied for the best (WINNERS); Show me applies one of them. The plan and the tab are step state.
 import StepRunner from '../../components/story/StepRunner';
+import Select from '../../components/story/Select';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import { METHODS, METHOD_NAME, SIZES, type Method, type Size } from '../../lib/multimodal/readings';
@@ -170,17 +171,17 @@ export default function Workbench() {
                   <legend>{image(k).title}</legend>
                   <label>
                     Method
-                    <select value={p[k].method} onChange={e => change(k, { method: e.currentTarget.value as Method })}>
+                    <Select value={p[k].method} onChange={e => change(k, { method: e.currentTarget.value as Method })}>
                       {METHODS.map(m => (
                         <option key={m} value={m}>
                           {METHOD_NAME[m]}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </label>
                   <label>
                     Size
-                    <select
+                    <Select
                       value={p[k].size}
                       onChange={e => change(k, { size: Number(e.currentTarget.value) as Size })}
                     >
@@ -189,7 +190,7 @@ export default function Workbench() {
                           {px(z)}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </label>
                 </fieldset>
               ))}

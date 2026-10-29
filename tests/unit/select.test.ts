@@ -97,12 +97,16 @@ describe('Select', () => {
     expect(changes).toEqual(['c']);
   });
 
-  it('typing a letter jumps to the option that starts with it', () => {
+  it('typing jumps to the option that starts with what was typed, a word at a time', () => {
     act(() => root.render(h(Harness)));
     press('Enter');
     press('a');
-    press(' ');
+    press('Enter');
     expect(changes).toEqual(['a']);
+    press('Enter');
+    for (const k of 'che') press(k);
+    press('Enter');
+    expect(changes).toEqual(['a', 'c']);
   });
 
   it('a press elsewhere closes the list', () => {

@@ -51,3 +51,19 @@ export async function choose(box: Locator, pick: string | { label: string }) {
     : list.getByRole('option', { name: pick.label, exact: true })
   ).click();
 }
+
+/** the same pick by keyboard alone: focus the drop-down, open it with Enter, Home, arrow down to the option (by value,
+ * or by visible name with `{ label }`), Enter */
+export async function chooseByKeys(box: Locator, pick: string | { label: string }) {
+  await box.focus();
+  await box.press('Enter');
+  const options = box.page().locator(`[id="${await box.getAttribute('aria-controls')}"] [role="option"]`);
+  const i =
+    typeof pick === 'string'
+      ? (await options.evaluateAll(os => os.map(o => o.getAttribute('data-value')))).indexOf(pick)
+      : (await options.allTextContents()).indexOf(pick.label);
+  expect(i, `no option ${JSON.stringify(pick)}`).toBeGreaterThanOrEqual(0);
+  await box.press('Home');
+  for (let n = 0; n < i; n++) await box.press('ArrowDown');
+  await box.press('Enter');
+}

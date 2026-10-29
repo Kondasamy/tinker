@@ -2,6 +2,7 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 import { CHOICE_NAME, MESSAGES, WINNERS, type MessageId } from '../../src/lib/encryption/workbench';
 import { SUPPLIER } from '../../src/lib/encryption/story';
+import { choose, chooseByKeys } from './helpers';
 
 export type Mode = 'mouse' | 'keyboard';
 
@@ -119,7 +120,7 @@ export function encryptionWalker(page: Page, mode: Mode, check: (page: Page) => 
       const win = WINNERS[0];
       for (const m of MESSAGES) {
         const c = win[m.id as MessageId];
-        if (c !== 'none') await card.getByRole('combobox', { name: m.name }).selectOption(c);
+        if (c !== 'none') await (kb ? chooseByKeys : choose)(card.getByRole('combobox', { name: m.name }), c);
       }
       await step(2);
       await expect(card.locator('tr[data-message="bank"] td').first()).toHaveText(CHOICE_NAME[win.bank]);

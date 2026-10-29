@@ -1,7 +1,8 @@
-// Chapter 7: the workbench. A recipe is a temperature, a sieve and a real share (a native select each), each one of the
+// Chapter 7: the workbench. A recipe is a temperature, a sieve and a real share (a drop-down each), each one of the
 // 18 grid runs trained offline. The result table gives the recipe's measures and, when another recipe beats it on
 // both loss and rare words, which one. The puzzle accepts every recipe no other beats (WINNERS); Show me applies one.
 import StepRunner from '../../components/story/StepRunner';
+import Select from '../../components/story/Select';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import { nextOf } from '../../lib/modules';
@@ -178,27 +179,27 @@ export default function Workbench() {
               <legend>Recipe</legend>
               <label>
                 Temperature{' '}
-                <select value={r.temperature} onChange={e => set({ temperature: Number(e.currentTarget.value) })}>
+                <Select value={r.temperature} onChange={e => set({ temperature: Number(e.currentTarget.value) })}>
                   {TEMPERATURES.map(t => (
                     <option key={t} value={t}>
                       {t}
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
               <label>
                 Sieve{' '}
-                <select value={r.sieve} onChange={e => set({ sieve: e.currentTarget.value as SieveKind })}>
+                <Select value={r.sieve} onChange={e => set({ sieve: e.currentTarget.value as SieveKind })}>
                   {SIEVES.map(k => (
                     <option key={k} value={k}>
                       {SIEVE_NAME[k]}
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
               <label>
                 Real share{' '}
-                <select
+                <Select
                   value={r.realShare}
                   onChange={e => set({ realShare: Number(e.currentTarget.value) as Recipe['realShare'] })}
                 >
@@ -207,7 +208,7 @@ export default function Workbench() {
                       {x}% real
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
             </fieldset>
           );

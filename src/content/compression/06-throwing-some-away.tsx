@@ -13,6 +13,7 @@ import { PILE_PARTS, pilesOf } from '../../components/scenes/pileScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { CompressionStage, Fact, FilesNote, PixelView, bytes, type View } from './kit';
+import Select from '../../components/story/Select';
 
 const MODULE = 'compression',
   ID = '06-throwing-some-away';
@@ -109,23 +110,23 @@ function Knobs({ s, set }: { s: S; set: (s: S) => void }) {
     <div className="cz-knobs">
       <div className="cz-field">
         <label htmlFor="cz-levels">Shades per colour</label>
-        <select id="cz-levels" value={s.levels} onChange={e => set({ ...s, levels: Number(e.target.value) })}>
+        <Select id="cz-levels" value={s.levels} onChange={e => set({ ...s, levels: Number(e.target.value) })}>
           {LEVELS.map(l => (
             <option key={l} value={l}>
               {l}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
       <div className="cz-field">
         <label htmlFor="cz-block">Block size (pixels)</label>
-        <select id="cz-block" value={s.block} onChange={e => set({ ...s, block: Number(e.target.value) })}>
+        <Select id="cz-block" value={s.block} onChange={e => set({ ...s, block: Number(e.target.value) })}>
           {BLOCKS.map(b => (
             <option key={b} value={b}>
               {`${b} × ${b}`}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
       <p className="cz-headline" role="status" data-size={x.size} data-diff={x.diff}>
         <strong>{bytes(x.size)}</strong>

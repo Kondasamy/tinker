@@ -1,4 +1,4 @@
-// Chapter 7: guard every account, the workbench. One native select for the store, and a second factor and a session
+// Chapter 7: guard every account, the workbench. One drop-down for the store, and a second factor and a session
 // length for each account type, against four attackers (src/lib/logins/workbench.ts); a table of break-ins per
 // attacker and a live count against the best. The puzzle accepts every best plan (WINNERS, pinned and recomputed in a
 // test). The phishing page relays TOTP codes, so its row names the passkey fact as the fix outside the bench.
@@ -30,6 +30,7 @@ import { UNSURE } from '../../lib/recall';
 import { Fact, LoginsStage, drawersOf } from './kit';
 import { fact } from '../../lib/logins/facts';
 import Cite from '../../components/story/Cite';
+import Select from '../../components/story/Select';
 
 const MODULE = 'logins',
   ID = '07-guard-every-account';
@@ -125,13 +126,13 @@ function Bench({ s, set }: { s: S; set: (s: S) => void }) {
   const pick = (id: string, label: string, value: string, options: [string, string][]) => (
     <div className="ek-field ek-select" key={id}>
       <label htmlFor={`lg-${id}`}>{label}</label>
-      <select id={`lg-${id}`} value={value} onChange={e => set({ ...s, [id]: e.target.value })}>
+      <Select id={`lg-${id}`} value={value} onChange={e => set({ ...s, [id]: e.target.value })}>
         {options.map(([v, n]) => (
           <option key={v} value={v}>
             {n}
           </option>
         ))}
-      </select>
+      </Select>
     </div>
   );
   return (

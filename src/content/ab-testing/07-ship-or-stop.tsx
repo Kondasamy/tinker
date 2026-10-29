@@ -2,6 +2,7 @@
 // reader picks a decision per experiment; the puzzle accepts every plan that follows the module's rule on the data
 // (WINNERS). Afterwards the hidden truth is revealed apart from the rule, including the lucky win the rule ships.
 import StepRunner from '../../components/story/StepRunner';
+import Select from '../../components/story/Select';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import { ASSUMPTIONS, BENCH, runOf, type Experiment } from '../../lib/ab-testing/sim';
@@ -118,7 +119,7 @@ function Card({ e, s, set, show }: { e: Experiment; s: S; set: (s: S) => void; s
         >
           {e.name}
         </button>
-        <select
+        <Select
           aria-label={`Decision for ${e.name}`}
           value={p[e.id]}
           onChange={ev => set({ ...s, plan: { ...p, [e.id]: ev.target.value as Decision } })}
@@ -128,7 +129,7 @@ function Card({ e, s, set, show }: { e: Experiment; s: S; set: (s: S) => void; s
               {DECISION_NAME[d]}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
       <p>
         {`Buying ${pts(r.orders.diff)} (${span(r.orders)}): `}

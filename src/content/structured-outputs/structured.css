@@ -109,15 +109,10 @@
   font-size: 13px;
   font-weight: 700;
 }
-.so-bench select {
+.so-bench .sel,
+.so-bench .sel > button {
   width: 100%;
   min-width: 0;
-  font: inherit;
-  font-weight: 400;
-  padding: 4px 6px;
-  border: 1.5px solid var(--ink);
-  border-radius: 6px;
-  background: var(--card);
 }
 .so-table-wrap {
   overflow-x: auto;

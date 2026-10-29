@@ -1,8 +1,9 @@
-// Chapter 7: the workbench. A step count and a guidance scale for each use (a native select each). Under it, a row per
+// Chapter 7: the workbench. A step count and a guidance scale for each use (a drop-down each). Under it, a row per
 // use with its test pictures passed and its cost; a live total against the best. The puzzle accepts every plan tied for
 // the best (WINNERS); Show me applies one of them. Results come from the precomputed measurements (workbench.ts); the
 // stage draws the shown use's three parts live, one per animation frame.
 import StepRunner from '../../components/story/StepRunner';
+import Select from '../../components/story/Select';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import { nextOf } from '../../lib/modules';
@@ -194,7 +195,7 @@ export default function Workbench() {
                   <legend>{u.label}</legend>
                   <label>
                     Steps{' '}
-                    <select
+                    <Select
                       value={p[u.id].steps}
                       onChange={e => change(u.id, { steps: Number(e.currentTarget.value) as Steps })}
                     >
@@ -203,11 +204,11 @@ export default function Workbench() {
                           {n}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </label>{' '}
                   <label>
                     Guidance{' '}
-                    <select
+                    <Select
                       value={p[u.id].scale}
                       onChange={e => change(u.id, { scale: Number(e.currentTarget.value) as Guidance })}
                     >
@@ -216,7 +217,7 @@ export default function Workbench() {
                           scale {g}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </label>
                 </fieldset>
               ))}

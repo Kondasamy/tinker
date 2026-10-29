@@ -87,8 +87,7 @@
   gap: 4px;
   font-size: 13px;
 }
-.ob-field input,
-.ob-field select {
+.ob-field input {
   font: inherit;
   font-size: 13.5px;
   padding: 5px 7px;
@@ -97,6 +96,9 @@
   background: var(--paper);
   color: var(--ink);
   max-width: 100%;
+}
+.ob-field .sel > button {
+  width: 100%;
 }
 .ob-chips {
   display: flex;

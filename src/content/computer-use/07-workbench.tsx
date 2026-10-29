@@ -1,4 +1,4 @@
-// Chapter 7: the workbench. One native control per host setting (screenshot size, the wait rule, the allow-list,
+// Chapter 7: the workbench. One control per host setting (screenshot size, the wait rule, the allow-list,
 // confirmation); under them a row per case, both re-orders and both attacks, and a live token total against the best.
 // The puzzle accepts every pinned winner (WINNERS); Show me applies one. The stage replays the first case that goes
 // wrong under the policy, or the planted notice once nothing does.
@@ -12,6 +12,7 @@ import { SIZES, type Size } from '../../lib/computer-use/screens';
 import { isWinner, policyOf, WINNERS } from '../../lib/computer-use/workbench';
 import { PUPPET_PARTS } from '../../components/scenes/puppetScene';
 import { beatsOf, CuStage, RecordedNote, thousands, type CuView } from './kit';
+import Select from '../../components/story/Select';
 
 const MODULE = 'computer-use',
   ID = '07-workbench';
@@ -152,15 +153,19 @@ export default function Workbench() {
           );
           return (
             <div className="cu-bench">
-              <label>
+              <label htmlFor="cu-size">
                 Screenshot size{' '}
-                <select value={p.size} onChange={e => change({ size: Number(e.currentTarget.value) as Size })}>
+                <Select
+                  id="cu-size"
+                  value={p.size}
+                  onChange={e => change({ size: Number(e.currentTarget.value) as Size })}
+                >
                   {SIZES.map(z => (
                     <option key={z} value={z}>
                       {z} px wide
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
               {box('wait', 'Wait for the page to settle')}
               {box('allow', 'Allow only Brightwater’s portal')}

@@ -1,6 +1,6 @@
 // Pieces the Dependencies chapters share: the stage (the crate tower, or the same install as a tree, one at a time),
 // the pull-a-crate bar (KTD13: a button per crate in a grid beside the picture, the arrow keys move between them; a
-// native select forces a version on the chosen crate, Pull takes it out, Put back undoes; the resolver reruns and
+// drop-down forces a version on the chosen crate, Pull takes it out, Put back undoes; the resolver reruns and
 // whatever stands on it turns tomato, and topples where motion is allowed), one polite role="status" read-out outside
 // the drawing, the day slider, cited facts and the registry note. Every string is React text here; the tower escapes
 // its pills (esc).
@@ -18,6 +18,7 @@ import {
 } from '../../components/scenes/towerScene';
 import { useNarrow } from '../tool-calling/kit';
 import Cite from '../../components/story/Cite';
+import Select from '../../components/story/Select';
 import type { Say } from '../../components/story/steps';
 import './dependencies.css';
 
@@ -141,7 +142,7 @@ export function PullBar({
       <div className="dp-pick">
         <label>
           {`${placeName(path)} version `}
-          <select
+          <Select
             value={overrides[path] ?? crate?.version ?? ''}
             disabled={overrides[path] === null}
             onChange={e => set(e.target.value)}
@@ -151,7 +152,7 @@ export function PullBar({
                 {v}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
         {overrides[path] === null ? (
           <button type="button" className="chip" onClick={() => set(undefined)}>

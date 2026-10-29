@@ -136,11 +136,16 @@
   gap: 2px;
   margin-top: 6px;
 }
-.ev-ref select {
-  max-width: 100%;
-  font: inherit;
-  font-size: 13px;
-  padding: 4px;
+/* the references are long: the drop-down spans the case and its list wraps inside it, never past a phone's edge */
+.ev-ref .sel,
+.ev-ref .sel > button {
+  width: 100%;
+}
+.ev-ref .sel-list {
+  right: 0;
+}
+.ev-ref .sel-list [role="option"] {
+  white-space: normal;
 }
 .ev-coverage {
   margin-top: 10px;

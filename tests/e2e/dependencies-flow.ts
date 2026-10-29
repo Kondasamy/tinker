@@ -1,11 +1,12 @@
 // Dependencies, chapter by chapter, by mouse or keyboard only, following each chapter's "Next" link. The pull bar
-// (crate buttons, a version select, Pull) and the day slider sit under the picture; everything else is in the card.
+// (crate buttons, a version drop-down, Pull) and the day slider sit under the picture; everything else is in the card.
 import { expect, type Locator, type Page } from '@playwright/test';
 
 import { APP, versionsOf } from '../../src/lib/dependencies/resolve';
 import { BAD, BAD_DAY, HIJACK_DAY, LOGGER, MIRA_DAY, PRICE, SERVER_DAY } from '../../src/lib/dependencies/story';
 import { maxSatisfying, parse } from '../../src/lib/dependencies/semver';
 import { WINNERS } from '../../src/lib/dependencies/workbench';
+import { choose, chooseByKeys } from './helpers';
 
 // the chapters' moments, read off the engine as the chapters read them (chapter files import CSS, so not here)
 const RANGE = APP.deps[PRICE];
@@ -30,13 +31,11 @@ export function dependenciesWalker(page: Page, mode: Mode, check: (page: Page) =
   const opt = (name: string | RegExp) => press(card.getByRole('radio', { name }));
   const box = (name: string | RegExp) => tick(card.getByRole('checkbox', { name }));
   const step = (n: number) => expect(card).toContainText(`Step ${n} of`);
-  /** the pull bar's version select, a native one: by keyboard it is reached with Tab and picked from the browser's
-   * own list (headless Chromium does not change a closed select on arrow keys, so the pick itself is selectOption) */
+  /** the pull bar's version drop-down: by keyboard, open it and arrow to the version; by mouse, click it and the version */
   const version = async (v: string) => {
     const sel = stage.getByRole('combobox');
-    if (kb) await sel.focus();
-    await sel.selectOption(v);
-    await expect(sel).toHaveValue(v);
+    await (kb ? chooseByKeys : choose)(sel, v);
+    await expect(sel).toHaveAttribute('data-value', v);
   };
   const crate = (name: string) => press(stage.getByRole('toolbar', { name: 'Crates' }).getByRole('button', { name }));
   const pull = () => press(stage.getByRole('button', { name: /^Pull / }));

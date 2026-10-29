@@ -22,6 +22,7 @@ import { PILE_PARTS } from '../../components/scenes/pileScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { CompressionStage, Fact, FilesNote, bytes } from './kit';
+import Select from '../../components/story/Select';
 
 const MODULE = 'compression',
   ID = '07-pack-the-send';
@@ -103,9 +104,9 @@ function Bench({ s, set }: { s: S; set: (s: S) => void }) {
       {LOSSLESS.map(id => (
         <div className="cz-field" key={id}>
           <label htmlFor={`cz-${id}`}>{fileOf(id).title}</label>
-          <select
+          <Select
             id={`cz-${id}`}
-            value={p.coders[id]}
+            value={p.coders[id] ?? 'store'}
             onChange={e => set({ ...s, coders: { ...p.coders, [id]: e.target.value as CoderId } })}
           >
             {CODER_IDS.map(c => (
@@ -113,28 +114,28 @@ function Bench({ s, set }: { s: S; set: (s: S) => void }) {
                 {CODERS[c].name}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
       ))}
       <div className="cz-field">
         <label htmlFor="cz-shades">{`${fileOf('picture').title}: shades per colour`}</label>
-        <select id="cz-shades" value={p.levels} onChange={e => set({ ...s, levels: Number(e.target.value) })}>
+        <Select id="cz-shades" value={p.levels} onChange={e => set({ ...s, levels: Number(e.target.value) })}>
           {LEVELS.map(l => (
             <option key={l} value={l}>
               {l}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
       <div className="cz-field">
         <label htmlFor="cz-blocks">{`${fileOf('picture').title}: block size`}</label>
-        <select id="cz-blocks" value={p.block} onChange={e => set({ ...s, block: Number(e.target.value) })}>
+        <Select id="cz-blocks" value={p.block} onChange={e => set({ ...s, block: Number(e.target.value) })}>
           {BLOCKS.map(b => (
             <option key={b} value={b}>
               {`${b} × ${b}`}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
       <table className="tc-ledger">
         <caption>Each file tonight</caption>

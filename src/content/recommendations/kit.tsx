@@ -1,10 +1,11 @@
 // Pieces the Recommendations chapters share: the stage (the shop aisle, or the ranking table, one at a time) with the
 // move-a-shopper mechanic (KTD13: in the map view the shopper is a focusable marker over the taste map, moved by the
-// arrow keys while it has focus, or dragged; the shelf re-ranks at once; a native select beside it picks a shopper by
+// arrow keys while it has focus, or dragged; the shelf re-ranks at once; a drop-down beside it picks a shopper by
 // name instead), one polite role="status" read-out outside the drawing that names the shelf after each action, cited
 // facts and the orders note. Every string is React text here; the aisle escapes its pills (esc).
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
 import IsoStage, { stageFrame } from '../../lib/iso/IsoStage';
+import Select from '../../components/story/Select';
 import { BH } from '../../lib/iso/blocks';
 import { C, P, S, withFrame } from '../../lib/iso/core.js';
 import { BASE, type Vec } from '../../lib/recommendations/factorise';
@@ -248,7 +249,7 @@ export function RecsStage({
       {pick && (
         <label className="rc-pick">
           {pick.label ?? 'Shopper'}{' '}
-          <select
+          <Select
             value={pick.value}
             onChange={e => {
               setMoved(false);
@@ -260,7 +261,7 @@ export function RecsStage({
                 {c.name}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
       )}
       {children}

@@ -30,6 +30,7 @@
   flex-direction: column;
   gap: 6px;
 }
+.tc-bench .tc-pick .sel > button,
 .sm-range input {
   width: 100%;
 }

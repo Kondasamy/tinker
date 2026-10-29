@@ -192,14 +192,11 @@
   font-weight: 700;
   font-size: 14px;
 }
-.rs-bench select {
-  font: inherit;
-  padding: 4px 8px;
-  border: 1.5px solid var(--ink);
-  border-radius: 8px;
-  background: var(--card);
-  color: var(--ink);
+.rs-bench .sel {
   max-width: 14em;
+}
+.rs-bench .sel > button {
+  width: 100%;
 }
 .rs-bench .note {
   font-weight: 400;

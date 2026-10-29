@@ -1,5 +1,6 @@
 // Module 11, chapter by chapter, by mouse or keyboard only, following each chapter's "Next" link.
 import { expect, type Locator, type Page } from '@playwright/test';
+import { choose } from './helpers';
 
 export type Mode = 'mouse' | 'keyboard';
 const EFFORTS = ['none', 'low', 'medium', 'high'];
@@ -101,7 +102,7 @@ export function rsWalker(page: Page, mode: Mode, check: (page: Page) => Promise<
     },
     /** lookups none, multi-step medium, distractions low: the best plan */
     async ch7(next?: RegExp, quiz: string | RegExp = /^Not yet:/) {
-      const pick = (kind: string, e: string) => card.locator(`label[data-kind="${kind}"] select`).selectOption(e);
+      const pick = (kind: string, e: string) => choose(card.locator(`label[data-kind="${kind}"] [role="combobox"]`), e);
       await pick('lookup', 'none');
       await pick('distractor', 'low');
       await pick('multistep', 'medium');

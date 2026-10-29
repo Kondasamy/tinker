@@ -3,6 +3,7 @@
 // headline: the harm the chosen fix removes against the best possible. A policy works when every label is right and the
 // fix is one of the modes tied for the most harm removed (WINNERS); "Show me" gives one, labelled one of N.
 import StepRunner from '../../components/story/StepRunner';
+import Select from '../../components/story/Select';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
@@ -219,7 +220,7 @@ export default function Workbench() {
                     <b>{i + 1}.</b> {t.customer}: “{t.question}” Reply: “{t.spans.find(s => s.kind === 'reply')!.detail}
                     ”
                   </span>
-                  <select
+                  <Select
                     value={state.labels[t.id] ?? ''}
                     aria-label={`Mode for trace ${i + 1}`}
                     onChange={e =>
@@ -232,13 +233,13 @@ export default function Workbench() {
                         {modeName(m)}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </label>
               ))}
             </fieldset>
             <label className="ob-field">
               <span className="lbl">Fix to ship</span>
-              <select
+              <Select
                 value={state.fix}
                 aria-label="Fix to ship"
                 onChange={e => apply({ ...state, fix: e.target.value as ModeId | '' })}
@@ -249,7 +250,7 @@ export default function Workbench() {
                     {modeName(m)}
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
             <Readout s={state} verdict />
           </div>

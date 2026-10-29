@@ -17,7 +17,7 @@ import labels from '../../data/evals/labels.json' with { type: 'json' };
 import samples from '../../data/evals/samples.json' with { type: 'json' };
 import orders from '../../data/tool-calling/orders.json' with { type: 'json' };
 import injection from '../../data/tool-calling/turns/injection.json' with { type: 'json' };
-import { serious, layoutHolds, PHONE } from './helpers';
+import { choose, serious, layoutHolds, PHONE } from './helpers';
 
 const M = moduleOf('evals'),
   [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = M.chapters.map(c => c.id);
@@ -326,9 +326,9 @@ test('chapter 2: dropping every ask the documents can’t answer makes the revea
   await expect(c).toContainText('Step 3 of');
   const gap = c.locator(`.ev-case[data-id="${CANDIDATES.find(x => x.kind === 'not in the documents')!.id}"]`);
   await gap.getByRole('button', { name: 'Keep' }).click();
-  await gap
-    .getByRole('combobox')
-    .selectOption({ label: (await gap.locator('option', { hasText: /^No document answers/ }).textContent())! });
+  await choose(gap.getByRole('combobox'), {
+    label: (await gap.locator('[role="option"]', { hasText: /^No document answers/ }).textContent())!,
+  });
   await expect(c).toContainText('Step 4 of');
   await everyWhy(page);
 });

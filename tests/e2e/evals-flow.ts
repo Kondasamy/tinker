@@ -6,6 +6,7 @@ import ch5 from '../../data/questions/ch5.json' with { type: 'json' };
 import ch6 from '../../data/questions/ch6.json' with { type: 'json' };
 import candidates from '../../data/evals/candidates.json' with { type: 'json' };
 import samples from '../../data/evals/samples.json' with { type: 'json' };
+import { choose, chooseByKeys } from './helpers';
 
 // the test set in suite order (src/lib/evals/suite.ts QUESTIONS; that module needs Vite, so the specs read the files)
 const QUESTIONS = [...ch3, ...ch4, ...ch5, ...ch6];
@@ -180,8 +181,8 @@ export async function sortLog(page: Page, mode: Mode, keep: (c: Candidate) => bo
       continue;
     }
     await press(li.getByRole('button', { name: 'Keep' }));
-    const sel = li.getByRole('combobox');
-    const label = c.reference ?? (await sel.locator('option', { hasText: /^No document answers/ }).textContent())!;
-    await sel.selectOption({ label });
+    const ref =
+      c.reference ?? (await li.locator('[role="option"]', { hasText: /^No document answers/ }).textContent())!;
+    await (mode === 'keyboard' ? chooseByKeys : choose)(li.getByRole('combobox'), ref);
   }
 }

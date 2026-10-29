@@ -1,5 +1,6 @@
 // Compression, chapter by chapter, by mouse or keyboard only, following each chapter's "Next" link.
 import { expect, type Locator, type Page } from '@playwright/test';
+import { choose } from './helpers';
 import { CODERS, type CoderId } from '../../src/lib/compression/coders';
 import { PUZZLE, fileOf } from '../../src/lib/compression/files';
 import { WINNERS, LOSSLESS } from '../../src/lib/compression/workbench';
@@ -36,7 +37,7 @@ export function compressionWalker(page: Page, mode: Mode, check: (page: Page) =>
     await l.focus();
     await page.keyboard.press('Space');
   };
-  const choose = (label: string, value: string) => card.getByRole('combobox', { name: label }).selectOption(value);
+  const pick = (label: string, value: string) => choose(card.getByRole('combobox', { name: label }), value);
 
   /** pick two piles in the listbox and merge them */
   const mergePair = async (i: number, j: number) => {
@@ -138,12 +139,12 @@ export function compressionWalker(page: Page, mode: Mode, check: (page: Page) =>
     async ch6(next?: RegExp) {
       await opt('Much smaller');
       await step(2);
-      await choose('Shades per colour', '32');
+      await pick('Shades per colour', '32');
       await step(3);
       await btn('Open the Pixels tab');
       await step(4);
       await check(page);
-      await choose('Shades per colour', '16');
+      await pick('Shades per colour', '16');
       await step(5);
       await opt(/^The price list/);
       await finish(next);
@@ -153,10 +154,10 @@ export function compressionWalker(page: Page, mode: Mode, check: (page: Page) =>
       const win = WINNERS[0];
       for (const id of LOSSLESS) {
         const c = win.coders[id] ?? 'store';
-        if (c !== 'store') await choose(fileOf(id).title, c);
+        if (c !== 'store') await pick(fileOf(id).title, c);
       }
-      if (win.block !== 1) await choose(`${fileOf('picture').title}: block size`, String(win.block));
-      await choose(`${fileOf('picture').title}: shades per colour`, String(win.levels));
+      if (win.block !== 1) await pick(`${fileOf('picture').title}: block size`, String(win.block));
+      await pick(`${fileOf('picture').title}: shades per colour`, String(win.levels));
       await step(2);
       await check(page);
       await opt(/^Pack the spreadsheet/);

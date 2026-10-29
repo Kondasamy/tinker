@@ -1,5 +1,6 @@
 // Module 16, chapter by chapter, by mouse or keyboard only, following each chapter's "Next" link.
 import { expect, type Locator, type Page } from '@playwright/test';
+import { choose } from './helpers';
 
 export type Mode = 'mouse' | 'keyboard';
 const SIZES = [400, 800, 1200, 1600, 3200];
@@ -108,7 +109,7 @@ export function mmWalker(page: Page, mode: Mode, check: (page: Page) => Promise<
     /** invoice by OCR, slip and note by vision at 1,200 px: a best plan */
     async ch7(next?: RegExp, quiz: string | RegExp = /^Try OCR on the letters/) {
       const pick = (kind: string, i: number, v: string) =>
-        card.locator(`fieldset[data-kind="${kind}"] select`).nth(i).selectOption(v);
+        choose(card.locator(`fieldset[data-kind="${kind}"] [role="combobox"]`).nth(i), v);
       await pick('invoice', 0, 'ocr');
       await pick('slip', 1, '1200');
       await pick('note', 1, '1200');

@@ -1,5 +1,6 @@
 // Logins and passwords, chapter by chapter, by mouse or keyboard only, following each chapter's "Next" link.
 import { expect, type Locator, type Page } from '@playwright/test';
+import { choose } from './helpers';
 import { WINNERS, type Plan } from '../../src/lib/logins/workbench';
 
 export type Mode = 'mouse' | 'keyboard';
@@ -134,7 +135,7 @@ export function loginsWalker(page: Page, mode: Mode, check: (page: Page) => Prom
     async ch7(next?: RegExp) {
       const win = WINNERS[0];
       for (const [k, label] of Object.entries(BENCH_LABELS))
-        await card.getByRole('combobox', { name: label }).selectOption(win[k as keyof Plan]);
+        await choose(card.getByRole('combobox', { name: label }), win[k as keyof Plan]);
       await step(2);
       await check(page);
       await opt(/^Passkeys/);

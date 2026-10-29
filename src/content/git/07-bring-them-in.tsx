@@ -24,6 +24,7 @@ import { YARD_PARTS, yardOf } from '../../components/scenes/crateScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Commands, Fact, GitStage, RepoNote, type View } from './kit';
+import Select from '../../components/story/Select';
 
 const MODULE = 'git',
   ID = '07-bring-them-in';
@@ -109,7 +110,7 @@ function BenchControls({ s, set }: { s: S; set: (s: S) => void }) {
     <div className="tc-bench">
       <div className="gt-order">
         <label htmlFor="gt-order">Order</label>
-        <select
+        <Select
           id="gt-order"
           value={p.order.join()}
           onChange={e => set({ ...s, order: e.target.value.split(',') as BranchId[] })}
@@ -119,7 +120,7 @@ function BenchControls({ s, set }: { s: S; set: (s: S) => void }) {
               {orderName(o)}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
       {BENCH.map(b => (
         <section key={b} className="gt-branch" aria-label={b}>
