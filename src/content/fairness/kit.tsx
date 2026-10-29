@@ -7,10 +7,10 @@ import IsoStage from '../../lib/iso/IsoStage';
 import Cite from '../../components/story/Cite';
 import type { Say } from '../../components/story/steps';
 import { GATE_BOARD, gateLabel, gateScene, type GateOpts } from '../../components/scenes/gateScene';
-import type { Features, Fix } from '../../lib/fairness/fit';
+import { FEATURE_SETS, ITERS, type Features, type Fix } from '../../lib/fairness/fit';
 import type { Bars, Measured, Rates } from '../../lib/fairness/metrics';
 import type { Region } from '../../lib/fairness/population';
-import { APPLICANTS_NOTE, BARS, REGION_NAMES, runOf, SHARED } from '../../lib/fairness/story';
+import { APPLICANTS, APPLICANTS_NOTE, BARS, REGION_NAMES, runOf, SHARED } from '../../lib/fairness/story';
 import { fact } from '../../lib/fairness/facts';
 import { useNarrow } from '../tool-calling/kit';
 import { useReduced } from '../releases/kit';
@@ -47,7 +47,8 @@ const METRICS: { key: 'falseDecline' | 'falseApprove' | 'error' | 'precision'; n
 /** Each measure as a pair of bars, one per region, its marker and name beside it and its value written out. */
 function GroupBars({ m }: { m: Measured }) {
   return (
-    <div className="fr-bars">
+    // it scrolls on short frames, so it takes focus for keyboard scrolling (axe: scrollable-region-focusable)
+    <div className="fr-bars" role="group" aria-label="Error rates by region" tabIndex={0}>
       {METRICS.map(({ key, name }) => (
         <figure key={key} className="fr-metric" data-metric={key}>
           <figcaption>{name}</figcaption>
@@ -240,3 +241,34 @@ export function Fact({ id }: { id: string }) {
 
 /** Said wherever the applicants show (R6, R13). */
 export const ApplicantsNote = () => <p className="note fr-note">{APPLICANTS_NOTE}</p>;
+
+/** The fields the check may read, in words. */
+export const FIELD_NAMES: Record<Features, string> = {
+  all: 'Every field',
+  'no-region': 'No region',
+  neither: 'No region or postcode',
+};
+/** One radio per field set (chapter 4 and the workbench). */
+export function FieldPick({ value, onPick }: { value: Features; onPick: (f: Features) => void }) {
+  return (
+    <fieldset className="fr-pick">
+      <legend>Fields the check reads</legend>
+      {FEATURE_SETS.map(f => (
+        <label key={f}>
+          <input type="radio" name="fr-fields" checked={value === f} onChange={() => onPick(f)} />
+          {FIELD_NAMES[f]}
+        </label>
+      ))}
+    </fieldset>
+  );
+}
+
+/** The fold-away note on how the numbers were made: no held-out set. */
+export const Caveat = () => (
+  <details className="fr-maths">
+    <summary>How these numbers were made</summary>
+    <p>
+      {`The check is a logistic regression, fitted in ${ITERS.toLocaleString('en-US')} rounds, on the ${APPLICANTS.length} hand-made applicants. Every rate here is measured on those same ${APPLICANTS.length}: there is no held-out set, so rates on new applicants could differ.`}
+    </p>
+  </details>
+);

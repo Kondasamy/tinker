@@ -1,0 +1,31 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import RightOnAverage from '../../content/fairness/01-right-on-average';
+import ErrorsByGroup from '../../content/fairness/02-errors-by-group';
+import WhereSkewComesFrom from '../../content/fairness/03-where-skew-comes-from';
+import DroppingTheColumn from '../../content/fairness/04-dropping-the-column';
+import OneBarOrTwo from '../../content/fairness/05-one-bar-or-two';
+import EveryKind from '../../content/fairness/06-every-kind';
+import Workbench from '../../content/fairness/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('fairness').chapters.map(({ id, title }) => ({
+    params: { chapter: id },
+    props: { title },
+  }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="fairness" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-right-on-average' ? <RightOnAverage client:load />
+    : chapter === '02-errors-by-group' ? <ErrorsByGroup client:load />
+    : chapter === '03-where-skew-comes-from' ? <WhereSkewComesFrom client:load />
+    : chapter === '04-dropping-the-column' ? <DroppingTheColumn client:load />
+    : chapter === '05-one-bar-or-two' ? <OneBarOrTwo client:load />
+    : chapter === '06-every-kind' ? <EveryKind client:load />
+    : <Workbench client:load />}
+</ChapterLayout>
