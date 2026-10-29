@@ -11,6 +11,7 @@ import {
   type OfficeOpts,
 } from '../../src/components/scenes/officeScene';
 import type { Msg } from '../../src/lib/iso/flat';
+import { MCP_BOARD, connectScene, countScene } from '../../src/components/scenes/mcpScene';
 
 const ask: Msg = { from: 'emp', to: 'host', kind: 'request', text: 'Where is order 1042?' };
 const send: Msg = { from: 'host', to: 'model', kind: 'request', text: 'question + 1 tool' };
@@ -112,5 +113,38 @@ describe('office callouts', () => {
     const phone = (text: string) => callouts(draw({ ...full('model'), scale: 1.8, say: { block: 'model', text } }));
     expect(phone('A'.repeat(17))).toBe(0);
     expect(phone('A'.repeat(16))).toBe(1);
+  });
+});
+
+describe('the office machines', () => {
+  const draw = (scene: ReturnType<typeof officeScene>, board = OFFICE_BOARD) =>
+    renderToString(createElement(IsoStage, { board, scene, label: '' }));
+  it('draws the employee as a person, the host as a sorting machine and stock beside a potted plant', () => {
+    const svg = draw(officeScene({ msgs: [], tools: 1 }));
+    expect(svg).toContain('data-look="employee"');
+    expect(svg).toContain('class="sorter"');
+    expect(svg).toContain('class="plant"');
+    expect(svg).toContain('data-kit="model"');
+    expect(svg).not.toContain('NaN');
+    // the hero leaves the stock out but keeps the employee
+    const bare = draw(officeScene({ msgs: [], tools: 1, names: false }));
+    expect(bare).toContain('data-look="employee"');
+    expect(bare).not.toContain('class="plant"');
+  });
+  it("MCP's scenes reuse the sorter for apps and the cabinet for servers", () => {
+    const svg = draw(
+      connectScene({
+        servers: [
+          { name: 'A<b>', connected: true },
+          { name: 'B', connected: false },
+        ],
+      }),
+      MCP_BOARD,
+    );
+    expect(svg.split('class="sorter"').length - 1).toBe(1);
+    expect(svg).toContain('A&lt;b&gt;');
+    expect(svg).not.toContain('NaN');
+    const count = draw(countScene({ apps: 3, systems: 2, mcp: true }), MCP_BOARD);
+    expect(count.split('class="sorter"').length - 1).toBe(3);
   });
 });
