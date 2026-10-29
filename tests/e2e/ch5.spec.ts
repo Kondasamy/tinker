@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { choose } from './helpers';
 
 const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 const drawer = (page: Page) => page.getByRole('complementary');
@@ -62,14 +63,14 @@ test('chapter 5: every lever, each puzzle broken then solved, meters moving inde
 
   // 1. stale policy: metadata filter
   await expect(card(page).getByRole('slider')).toHaveCount(0);
-  await card(page).getByLabel('Metadata filter', { exact: true }).selectOption('current');
+  await choose(card(page).getByLabel('Metadata filter', { exact: true }), 'current');
   await solved(page, 5);
 
   // 2. vague question: query rewrite
   await card(page).getByRole('button', { name: 'Add Query rewrite' }).click();
   await broken(page, 7);
   await expect(page.locator('[data-block="rewrite"]')).toHaveCount(1);
-  await card(page).getByLabel('Query sent to the retriever').selectOption('0');
+  await choose(card(page).getByLabel('Query sent to the retriever'), '0');
   await solved(page, 7);
   await nextPuzzle(page);
 
@@ -88,7 +89,7 @@ test('chapter 5: every lever, each puzzle broken then solved, meters moving inde
   await broken(page, 11);
   await expect(recall(page)).toHaveAttribute('data-value', '100');
   await expect(verdict(page)).toHaveAttribute('data-verdict', 'notfound');
-  await card(page).getByLabel('Context order').selectOption('edges');
+  await choose(card(page).getByLabel('Context order'), 'edges');
   await solved(page, 11);
   await expect(recall(page)).toHaveAttribute('data-value', '100');
   await expect(verdict(page)).toHaveAttribute('data-verdict', 'correct');

@@ -61,6 +61,7 @@ import Knobs, { BLOCK_KNOBS } from './Knobs';
 import { LOAD_FAILED, VERDICT_LABEL } from '../panels/logic';
 import type { Say } from '../story/steps';
 import './canvas.css';
+import Select from '../story/Select';
 
 export interface CanvasProps {
   state: CanvasState;
@@ -723,7 +724,7 @@ export function BlockSettings({
             <>
               <div className="knob">
                 <label htmlFor={connectId}>Connect to…</label>
-                <select
+                <Select
                   id={connectId}
                   value=""
                   onChange={e =>
@@ -736,7 +737,7 @@ export function BlockSettings({
                       {name(t)}
                     </option>
                   ))}
-                </select>
+                </Select>
               </div>
               <button
                 type="button"

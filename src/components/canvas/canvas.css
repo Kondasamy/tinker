@@ -232,14 +232,9 @@
   width: 100%;
   accent-color: var(--ink);
 }
-.knob select {
-  font: inherit;
+.knob .sel,
+.knob .sel > button {
   width: 100%;
-  padding: 6px 8px;
-  color: var(--ink);
-  background: var(--paper);
-  border: 1.5px solid var(--ink);
-  border-radius: 8px;
 }
 .knob .row {
   display: flex;

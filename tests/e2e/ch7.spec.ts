@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { choose } from './helpers';
 
 const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 const drawer = (page: Page) => page.getByRole('complementary', { name: 'The assistant’s answer' });
@@ -55,7 +56,7 @@ test('free play: any question, rewire, run, compare', async ({ page }) => {
   await step(page, 2);
 
   // the refund question names nothing the graph knows: made up
-  await card(page).getByLabel('Question').selectOption({ label: 'Can enterprise customers get a refund?' });
+  await choose(card(page).getByLabel('Question'), { label: 'Can enterprise customers get a refund?' });
   await card(page).getByRole('button', { name: 'Run as GraphRAG' }).click();
   await expect(strip(page).locator('tr[data-type="graph"]')).toHaveAttribute('data-verdict', 'madeup');
 

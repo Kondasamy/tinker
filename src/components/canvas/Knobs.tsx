@@ -4,6 +4,7 @@ import { useId } from 'react';
 import type { BlockType } from '../../lib/iso/blocks';
 import { SIZES, OVERLAPS } from '../../lib/rag/lattice';
 import type { CanvasQuestion, CanvasState, KnobName, Knobs as KnobValues } from './state';
+import Select from '../story/Select';
 
 /** Which block owns each knob, in panel order. */
 export const BLOCK_KNOBS: Partial<Record<BlockType, KnobName[]>> = {
@@ -65,13 +66,13 @@ export function Knob({ name, state, onChange, question }: KnobProps) {
   const select = (label: string, value: string, options: [string, string][], to: (v: string) => void) => (
     <div className="knob" data-knob={name}>
       <label htmlFor={id}>{label}</label>
-      <select id={id} value={value} disabled={options.length < 2} onChange={e => to(e.target.value)}>
+      <Select id={id} value={value} disabled={options.length < 2} onChange={e => to(e.target.value)}>
         {options.map(([v, l]) => (
           <option key={v} value={v}>
             {l}
           </option>
         ))}
-      </select>
+      </Select>
     </div>
   );
 

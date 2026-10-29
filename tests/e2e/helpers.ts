@@ -1,5 +1,5 @@
 // Checks the specs share: axe's serious and critical findings, the phone set-up and its layout check, and going offline.
-import { expect, type Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 /** axe's serious and critical violations on the page as it is now (or only inside `include`), one line each ([] when clean). */
@@ -40,3 +40,14 @@ export async function layoutHolds(page: Page) {
 
 /** Cut the network: from here on every request fails, so only what the page already loaded can work. */
 export const offline = (page: Page) => page.context().setOffline(true);
+
+/** pick from the site's drop-down (`Select`, never a native select): open it, then click the option by its value, or
+ * by its visible name with `{ label }` */
+export async function choose(box: Locator, pick: string | { label: string }) {
+  await box.click();
+  const list = box.page().locator(`[id="${await box.getAttribute('aria-controls')}"]`);
+  await (typeof pick === 'string'
+    ? list.locator(`[role="option"][data-value="${pick}"]`)
+    : list.getByRole('option', { name: pick.label, exact: true })
+  ).click();
+}
