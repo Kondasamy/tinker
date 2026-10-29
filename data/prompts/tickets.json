@@ -1,0 +1,75 @@
+{
+  "note": "Hand-written support tickets for Writing a prompt (R6): the customers and businesses are made up, their addresses are .example, and each note is a line of Larkspur policy from data/corpus/.",
+  "agent": "Rosa",
+  "tickets": [
+    {
+      "id": "outage",
+      "ref": "LS-2041",
+      "customer": "Dana Whitfield",
+      "email": "dana@hollowcreek.example",
+      "text": "The Portal has been down since 9 p.m. and our night shift can't print pick lists. Who do we contact right now?",
+      "note": "For Portal outages outside business hours, page the on-call engineer through the Duty Desk line at extension 4410. The engineer acknowledges a page within 15 minutes.",
+      "source": "support-handbook-2025.md"
+    },
+    {
+      "id": "enterprise-refund",
+      "ref": "LS-2042",
+      "customer": "Marcus Oyelaran",
+      "email": "marcus@brightwater-logistics.example",
+      "text": "We're on an enterprise contract and want a refund for 40 scanners we no longer need. How do we get it?",
+      "note": "The refund policy does not apply to enterprise contracts. Enterprise customers raise a billing dispute with their account manager, who answers in writing within ten business days.",
+      "source": "refund-policy-2025.md"
+    },
+    {
+      "id": "cutoff",
+      "ref": "LS-2043",
+      "customer": "Priya Raman",
+      "email": "priya@raman-builders.example",
+      "text": "If I order three in-stock label printers at 1 p.m. Central today, will they ship today?",
+      "note": "Orders for in-stock items placed before 2 p.m. Central time on a business day ship the same day; later orders ship the next business day.",
+      "source": "shipping-policy-2024.md"
+    },
+    {
+      "id": "free-shipping",
+      "ref": "LS-2044",
+      "customer": "Tobias Fenn",
+      "email": "tobias@fenn-and-daughters.example",
+      "text": "Do we pay for parcel shipping on a $620 order of label printers?",
+      "note": "Parcel shipping is free on orders over $500.",
+      "source": "shipping-policy-2024.md"
+    },
+    {
+      "id": "sensor-warranty",
+      "ref": "LS-2045",
+      "customer": "Grace Albright",
+      "email": "grace@albright-cold-storage.example",
+      "text": "One of our DS-100 dock door sensors stopped working 26 months after it shipped. Is it still covered?",
+      "note": "The DS-100 dock door sensor is warranted against defects for three years from the date of shipment.",
+      "source": "dock-sensor-warranty-2022.md"
+    },
+    {
+      "id": "damaged",
+      "ref": "LS-2046",
+      "customer": "Luis Carrasco",
+      "email": "luis@carrasco-supply.example",
+      "text": "Two of the printers we got yesterday have cracked cases. What do we do?",
+      "note": "Report damage within five days of delivery with photos of the carton and the item. Replacements ship once the carrier claim is opened.",
+      "source": "shipping-policy-2024.md"
+    }
+  ],
+  "examples": [
+    {
+      "ticket": "How do I reorder something we bought last month?",
+      "reply": "Open Order history in the Portal and choose Reorder on that order. If anything is out of stock, the Portal shows a new date for that line.",
+      "source": "faq-ordering-portal-2025.md"
+    },
+    {
+      "ticket": "Can we pay this invoice by bank transfer?",
+      "reply": "Yes, bank transfer works for invoices over $2,000. The bank details are printed on the invoice itself.",
+      "source": "faq-ordering-portal-2025.md"
+    }
+  ],
+  "signoff": "— Larkspur Support",
+  "quirk": "Righto!",
+  "generic": "Thanks for getting in touch, and sorry for the trouble. We're looking into it and will get back to you soon."
+}
