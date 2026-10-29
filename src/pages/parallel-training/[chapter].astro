@@ -1,0 +1,31 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import WontFit from '../../content/parallel-training/01-wont-fit';
+import Copies from '../../content/parallel-training/02-copies';
+import Sharding from '../../content/parallel-training/03-sharding';
+import Pipeline from '../../content/parallel-training/04-pipeline';
+import InsideALayer from '../../content/parallel-training/05-inside-a-layer';
+import Checkpoints from '../../content/parallel-training/06-checkpoints';
+import Workbench from '../../content/parallel-training/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('parallel-training').chapters.map(({ id, title }) => ({
+    params: { chapter: id },
+    props: { title },
+  }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="parallel-training" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-wont-fit' ? <WontFit client:load />
+    : chapter === '02-copies' ? <Copies client:load />
+    : chapter === '03-sharding' ? <Sharding client:load />
+    : chapter === '04-pipeline' ? <Pipeline client:load />
+    : chapter === '05-inside-a-layer' ? <InsideALayer client:load />
+    : chapter === '06-checkpoints' ? <Checkpoints client:load />
+    : <Workbench client:load />}
+</ChapterLayout>

@@ -24,7 +24,24 @@
   display: flex;
   gap: 6px;
 }
+.pt-maths {
+  margin: 8px 0;
+  font-size: 13.5px;
+}
+.pt-maths summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.pt-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
 .pt-field {
+  flex-wrap: wrap;
   border: 1.5px solid var(--rule);
   border-radius: 12px;
   padding: 2px 12px 6px;

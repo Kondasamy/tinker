@@ -43,7 +43,7 @@ const STATES: [string, RingOpts, TimelineOpts | null][] = [
     timelineOf(at({ n: 8, k: 9 })),
   ],
   ['No sharding (chapter 3)', { n: 8, load: shard(0) }, null],
-  ['ZeRO stage 3', { n: 8, load: shard(3), say: { block: 'bucket', text: 'Fits now' } }, null],
+  ['ZeRO stage 3', { n: 8, load: shard(3), say: { block: 'bucket', text: 'Still over' } }, null],
   [
     'Pipeline, slot 2 (chapter 4)',
     { ...sceneOf(at({ mode: 'pipeline', k: 1 })), say: { block: 'idle', text: 'Waiting' } },
