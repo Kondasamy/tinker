@@ -21,7 +21,7 @@ import {
   tag,
   byDepth,
 } from '../../lib/iso/core.js';
-import { SKIN, hexa, person, type Item, type Look } from '../../lib/iso/figures';
+import { SKIN, hexa, mini, person, shaded, type Item, type Look, drawPieces } from '../../lib/iso/figures';
 import { image, type ImageId } from '../../lib/multimodal/images';
 import { costOf, sent, METHOD_NAME, type Method } from '../../lib/multimodal/readings';
 import { thousands } from '../../lib/multimodal/patches';
@@ -345,39 +345,24 @@ export function scanLabel(o: ScanOpts): string {
     : `${head} Read by OCR: a strip of text, ${thousands(st.tokens)} text tokens, rides the belt into the model instead of the image.`;
 }
 
-/** The home hero's plot (heroScene): a small scanning table at (x, y): a sheet with a grid, a camera post, three tiles. */
+/** The home hero's plot: the camera on its jointed arm over the sheet, in miniature, the worker holding the broken
+ * part, and three image tokens. */
 export function scanPlot(x: number, y: number, top: SceneCtx['top']): string {
-  const z = BH + 1;
-  let sheetSvg = box(x - 12, y - 14, BH, x + 4, y + 8, z, CERAMIC, toneI, 1);
-  for (let i = 1; i < 3; i++)
-    sheetSvg +=
-      line(
-        [
-          [x - 12 + (i * 16) / 3, y - 14, z + 0.05],
-          [x - 12 + (i * 16) / 3, y + 8, z + 0.05],
-        ],
-        0.5,
-      ) +
-      line(
-        [
-          [x - 12, y - 14 + (i * 22) / 3, z + 0.05],
-          [x + 4, y - 14 + (i * 22) / 3, z + 0.05],
-        ],
-        0.5,
-      );
-  sheetSvg += hullInk(boxCorners(x - 12, y - 14, BH, x + 4, y + 8, z), 1.4);
-  const post =
-    box(x - 18, y - 20, BH, x - 14, y - 16, BH + 26, METAL, toneI, 1) +
-    box(x - 9, y - 8, BH + 20, x + 1, y + 2, BH + 26, DARK, toneI, 1);
-  return (
-    castShadow(boxCorners(x - 18, y - 20, BH, x - 14, y - 16, BH + 26), BH, top) +
-    byDepth([
-      { at: [x - 4, y - 3, 0], svg: sheetSvg },
-      { at: [x - 16, y - 18, 1], svg: post },
-      ...[0, 1, 2].map(i => ({
-        at: [x + 10 + i * 10, y + 14, 1],
-        svg: `<g>${box(x + 6 + i * 10, y + 10, BH + 0.3, x + 14 + i * 10, y + 18, BH + 4, PALS[TILE_COLOURS[i]], toneI, 0.9)}</g>`,
-      })),
-    ])
-  );
+  const from = [CAM[0] + 8, CAM[1] - 10, BH],
+    to = [x - 8, y - 6, BH],
+    k = 0.36,
+    worker = person({ x: W_AT[0], y: W_AT[1], facing: W_FACING, pose: 'carry', look: WORKER, holding: null }),
+    tiles = [0, 1, 2].map(i => ({
+      box: [
+        [x + 6 + i * 10, y + 10, BH + 0.3],
+        [x + 14 + i * 10, y + 18, BH + 4],
+      ],
+      svg: box(x + 6 + i * 10, y + 10, BH + 0.3, x + 14 + i * 10, y + 18, BH + 4, PALS[TILE_COLOURS[i]], toneI, 0.9),
+    })),
+    pieces = [
+      mini(shaded([sheet(false, 3, 4), ...camera(true)]), from, to, k),
+      mini({ shadow: worker.shadow, items: [...worker.items, bracket()] }, [...W_AT, BH], [x - 18, y + 10, BH], 0.5),
+      { shadow: '', items: tiles },
+    ];
+  return drawPieces(pieces, top);
 }

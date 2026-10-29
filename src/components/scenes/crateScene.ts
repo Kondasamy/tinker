@@ -32,7 +32,7 @@ import {
   toneI,
   vis,
 } from '../../lib/iso/core.js';
-import { hexa, person, type Piece } from '../../lib/iso/figures';
+import { hexa, mini, person, type Piece, drawPieces } from '../../lib/iso/figures';
 import { ancestors, type Repo } from '../../lib/git/graph';
 import { short } from '../../lib/git/objects';
 import type { Say } from '../story/steps';
@@ -557,7 +557,8 @@ export function crateReadouts(o: CrateOpts): string[] {
   ];
 }
 
-/** The home hero's plot: three crates on a rail, the newest with a flag and a lit lantern, a branch crate behind. */
+/** The home hero's plot: four crates on their rails, the newest two flying their branch flags (main's with HEAD's
+ * lantern hung on its pole), Mira and Tom beside the yard. */
 export function cratePlot(x: number, y: number, top: SceneCtx['top']): string {
   const at: [number, number][] = [
     [x - 18, y + 4],
@@ -565,10 +566,9 @@ export function cratePlot(x: number, y: number, top: SceneCtx['top']): string {
     [x + 10, y + 4],
     [x + 2, y - 12],
   ];
-  const h = 5,
-    ht = 8;
-  let s = at.map(([cx, cy]) => castShadow(boxCorners(cx - h, cy - h, BH, cx + h, cy + h, BH + ht), BH, top)).join('');
-  s += line(
+  const k = 0.5,
+    flags: (Flag | null)[] = [null, null, { name: 'main', at: '', head: true }, { name: 'sale', at: '' }];
+  let s = line(
     [
       [at[0][0], at[0][1], BH + 0.2],
       [at[2][0], at[2][1], BH + 0.2],
@@ -582,20 +582,25 @@ export function cratePlot(x: number, y: number, top: SceneCtx['top']): string {
     ],
     0.8,
   );
-  const parts = at.map(([cx, cy], i) => {
-    let c = box(cx - h, cy - h, BH, cx + h, cy + h, BH + ht, WOOD, toneI, 0.9);
-    c += box(cx + h, cy - 1.2, BH + 3, cx + h + 0.3, cy + 1.2, BH + 5, PALS.tomato, toneI, 0.4);
-    c += hullInk(boxCorners(cx - h, cy - h, BH, cx + h, cy + h, BH + ht), 1.2);
-    if (i === 2 || i === 3) {
-      const px = cx - h + 1,
-        py = cy - h + 1,
-        z = BH + ht,
-        t = z + 13;
-      c += box(px - 0.4, py - 0.4, z, px + 0.4, py + 0.4, t, WOOD, toneI, 0.5);
-      c += box(px + 0.4, py - 0.2, t - 5, px + 6, py + 0.2, t - 1, i === 2 ? PALS.cobalt : PALS.mint, toneI, 0.6);
-      if (i === 2) c += cyl(px, py, t, t + 2.6, 1.5, PALS.mustard, toneI, 0.7, 12);
-    }
-    return { at: [cx, cy, 0], svg: c };
-  });
-  return s + byDepth(parts);
+  const pieces = [
+    ...at.map(([cx, cy], i) => {
+      const f = flags[i],
+        p = f ? pole(0, 0, 1, f) : null,
+        b = span(-HALF, -HALF, BH, HALF, HALF, BH + HT);
+      return mini(
+        {
+          shadow: castShadow(boxCorners(-HALF, -HALF, BH, HALF, HALF, BH + HT), BH),
+          items: [
+            { box: p ? [b[0], p.box[1].map((v, j) => Math.max(v, b[1][j]))] : b, svg: crate(0, 0) + (p?.svg ?? '') },
+          ],
+        },
+        [0, 0, BH],
+        [cx, cy, BH],
+        k,
+      );
+    }),
+    mini(person({ x: 0, y: 0, facing: -40, look: 'mira' }), [0, 0, BH], [x - 22, y + 16, BH], k),
+    mini(person({ x: 0, y: 0, facing: 160, look: 'tom' }), [0, 0, BH], [x + 20, y - 14, BH], k),
+  ];
+  return s + drawPieces(pieces, top);
 }

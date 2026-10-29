@@ -27,7 +27,7 @@ import {
   shape,
   clipTo,
 } from '../../lib/iso/core.js';
-import { hexa, person, type Piece } from '../../lib/iso/figures';
+import { hexa, mini, person, type Piece, drawPieces } from '../../lib/iso/figures';
 import { ASSUMPTIONS, resultAt, type Plan, type Run } from '../../lib/ab-testing/sim';
 import type { Say } from '../story/steps';
 
@@ -605,33 +605,18 @@ export function splitReadouts(o: SplitOpts): string[] {
   ];
 }
 
-/** The home hero's plot: a small turnstile with two counters behind it, each with a crate tower, B's one taller. */
+/** The home hero's plot: the shop floor in miniature, old till A under its awning and slim kiosk B either side of the
+ * turnstile, each with its mint tower of orders, a shopper coming through. */
 export function splitPlot(x: number, y: number, top: SceneCtx['top']): string {
-  const a = [x - 12, y + 2],
-    b = [x + 2, y - 12],
-    t = [x + 8, y + 8],
-    k = (c: number[], m: { l: string; m: string; d: string }, z1: number) =>
-      box(c[0] - 4, c[1] - 4, BH, c[0] + 4, c[1] + 4, z1, m, toneI, 1) +
-      hullInk(boxCorners(c[0] - 4, c[1] - 4, BH, c[0] + 4, c[1] + 4, z1), 1.4);
-  const crates = (c: number[], n: number) => {
-    let s = '';
-    for (let i = 0; i < n; i++)
-      s += box(c[0] - 2, c[1] - 2, BH + i * 3, c[0] + 2, c[1] + 2, BH + i * 3 + 2.6, PALS.mint, toneI, 0.7);
-    return s;
-  };
-  const stile =
-    cyl(t[0], t[1], BH, BH + 9, 1.4, METAL, toneI, 0.8) +
-    rod([t[0], t[1], BH + 7], [t[0] + 5, t[1], BH + 7], 0.6, METAL) +
-    rod([t[0], t[1], BH + 7], [t[0], t[1] + 5, BH + 7], 0.6, METAL);
-  return (
-    castShadow(boxCorners(a[0] - 4, a[1] - 4, BH, a[0] + 4, a[1] + 4, BH + 8), BH, top) +
-    castShadow(boxCorners(b[0] - 4, b[1] - 4, BH, b[0] + 4, b[1] + 4, BH + 8), BH, top) +
-    byDepth([
-      { at: [a[0], a[1], 0], svg: k(a, CERAMIC, BH + 7) },
-      { at: [b[0], b[1], 0], svg: k(b, CERAMIC, BH + 7) },
-      { at: [a[0] + 1, a[1] - 8, 0], svg: crates([a[0] + 1, a[1] - 8], 2) },
-      { at: [b[0] - 8, b[1] + 1, 0], svg: crates([b[0] - 8, b[1] + 1], 3) },
-      { at: [t[0], t[1], 0], svg: stile },
-    ])
-  );
+  const v = (name: string): ArmView => ({ name, visitors: 10, orders: 2, returns: 0 }),
+    [tx, ty] = TURN;
+  const pieces = [
+    turnstile(),
+    ...tillA(v('A')),
+    ...kioskB(v('B')),
+    tower('a', TOWER.a[0], 2, PALS.mint, 'orders', true),
+    tower('b', TOWER.b[0], 3, PALS.mint, 'orders', true),
+    shopper(tx + 12, ty - 4, 0, 'shopper', 200, 'stand'),
+  ].map(p => mini(p, [76, 76, BH], [x, y, BH], 0.46));
+  return drawPieces(pieces, top);
 }

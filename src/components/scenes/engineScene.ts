@@ -30,7 +30,7 @@ import {
   rod,
 } from '../../lib/iso/core.js';
 import { compact } from '../../lib/iso/compact';
-import { person, tight, type Piece } from '../../lib/iso/figures';
+import { mini, person, tight, type Piece, floor } from '../../lib/iso/figures';
 import { pieceLabel } from './attentionMap';
 import type { Say } from '../story/steps';
 
@@ -367,7 +367,14 @@ export function enginePlot(x: number, y: number, top: SceneCtx['top']): string {
     xs = [x - 12, x, x + 12],
     z = BH + TILE_H,
     room = boxCorners(x - 16, y - 20, BH, x + 16, y, BH + 12);
-  const lit = desk(x, y - 10, BH + 12, 0, 0, true);
+  const lit = desk(x, y - 10, BH + 12, 0, 0, true),
+    // the head's clerk on the floor in front of the room, pointing up at the lit desk
+    man = mini(
+      person({ x: 0, y: 0, facing: 225, pose: 'reach', look: CLERKS[0], holding: null }),
+      [0, 0, BH],
+      [x + 21, y + 9, BH],
+      0.55,
+    );
   const tiles: Part[] = xs.map((tx, i) => ({
     at: [tx, ty, 0],
     svg: box(
@@ -388,12 +395,14 @@ export function enginePlot(x: number, y: number, top: SceneCtx['top']): string {
   });
   return (
     castShadow(room, BH, top) +
+    floor(man.shadow, top) +
     castShadow(boxCorners(x - 15, y - 20, BH + 12, x + 15, y, BH + 22), BH, top) +
     byDepth([
       {
         at: [x, y - 10, 0],
         svg: box(x - 16, y - 20, BH, x + 16, y, BH + 12, PALS.cobalt, toneI, 1) + hullInk(room, 1.8) + lit.svg,
       },
+      ...man.items,
       ...tiles,
     ]) +
     `<path d="M${arch.map(p => `${f(p[0])} ${f(p[1])}`).join('L')}" fill="none" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>`

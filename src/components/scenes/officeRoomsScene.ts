@@ -30,7 +30,7 @@ import {
   toneI,
   vis,
 } from '../../lib/iso/core.js';
-import { conveyor, person, type Look, type Piece } from '../../lib/iso/figures';
+import { conveyor, mini, person, shaded, type Look, type Piece, drawPieces } from '../../lib/iso/figures';
 import pinned from '../../../data/mixture-of-experts/pinned.json' with { type: 'json' };
 import { EXPERTS, LAYERS, ROOMS, SHOWN, quote, roomName, showPiece } from '../../lib/mixture-of-experts/routes';
 import type { Say } from '../story/steps';
@@ -430,27 +430,13 @@ export function roomsLabel(o: RoomsOpts): string {
   );
 }
 
-/** The home hero's plot: a doorman before four small rooms, two of them lit. */
+/** The home hero's plot: three flats of the first floor in miniature, each front door its own colour, the middle one
+ * lit, and the doorman at his lectern. */
 export function roomsPlot(x: number, y: number, top: SceneCtx['top']): string {
-  const r = (rx: number, ry: number, on: boolean) => {
-    let s = box(rx - 5, ry - 5, BH, rx + 5, ry + 5, BH + 9, on ? PALS.mustard : CERAMIC, toneI, 0.9);
-    s += box(rx - 5.4, ry - 5.4, BH + 9, rx + 5.4, ry + 5.4, BH + 10.5, WOOD, toneI, 0.8);
-    if (on) s += cyl(rx, ry, BH + 10.5, BH + 12.5, 1.5, PALS.mint, toneI, 0.7, 10);
-    return s + hullInk(boxCorners(rx - 5.4, ry - 5.4, BH, rx + 5.4, ry + 5.4, BH + 10.5), 1.3);
-  };
-  const man =
-    cyl(x - 16, y + 6, BH, BH + 10, 2.3, PALS.cobalt, toneI, 0.9, 12) +
-    cyl(x - 16, y + 6, BH + 10, BH + 13.5, 1.7, CERAMIC, toneI, 0.8, 10);
-  return (
-    castShadow(boxCorners(x - 8, y - 12, BH, x + 18, y + 10, BH + 10), BH, top) +
-    byDepth([
-      { at: [x - 2, y - 6, 0], svg: r(x - 2, y - 6, false) },
-      { at: [x + 12, y - 6, 0], svg: r(x + 12, y - 6, true) },
-      { at: [x - 2, y + 6, 0], svg: r(x - 2, y + 6, true) },
-      { at: [x + 12, y + 6, 0], svg: r(x + 12, y + 6, false) },
-      { at: [x - 16, y + 6, 0], svg: man },
-    ])
+  const pieces = [shaded([0, 1, 2].flatMap(e => room(0, e, e === 1, false, null, null))), doorman(0, false)].map(p =>
+    mini(p, [48, ROW_Y[0] + DEPTH / 2, BH], [x + 2, y, BH], 0.62),
   );
+  return drawPieces(pieces, top);
 }
 
 /** The home card's picture (and the intro's hero): chapter 2's word, its two rooms lit on each floor. */

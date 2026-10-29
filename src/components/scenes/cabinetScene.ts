@@ -6,7 +6,7 @@
 // (scale > 1.5) pills keep just the names and the caption carries the numbers (cabinetReadouts).
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
-import { person, SKIN, tight, type Item, type Look } from '../../lib/iso/figures';
+import { mini, person, shaded, SKIN, tight, type Item, type Look, drawPieces } from '../../lib/iso/figures';
 import {
   PALS,
   CERAMIC,
@@ -447,48 +447,28 @@ export function drawerCount(s: Settings): number {
 }
 const vocabulary = (s: Settings) => new Set(PAGES.flatMap(p => wordsOf(p.text, s.clean)));
 
-/** The home hero's plot: a small cabinet with one drawer out and lit, and a two-step podium in front. */
+/** The home hero's plot: the card catalogue in miniature, one drawer pulled out and lit, the clerk at it, and the
+ * podium with its three pages. */
 export function cabinetPlot(x: number, y: number, top: SceneCtx['top']): string {
-  const cx0 = x - 16,
-    cx1 = x + 10,
-    cy0 = y - 12,
-    cy1 = y - 7,
-    h = BH + 18;
-  let cab = box(cx0, cy0, BH, cx1, cy1, h, WOOD, toneI, 1);
-  for (let i = 0; i < 4; i++) {
-    const col = i % 2,
-      row = Math.floor(i / 2),
-      dx = cx0 + 1.5 + col * 12,
-      z = h - 2 - (row + 1) * 7;
-    if (i === 1) continue;
-    cab += shape(
-      [
-        [dx, cy1 + 0.05, z],
-        [dx + 10, cy1 + 0.05, z],
-        [dx + 10, cy1 + 0.05, z + 6],
-        [dx, cy1 + 0.05, z + 6],
-      ],
-      CERAMIC.m,
-      0.35,
-    );
-  }
-  cab += hullInk(boxCorners(cx0, cy0, BH, cx1, cy1, h), 1.6);
-  // the lit drawer pulled out, a card standing in it
-  const dz = h - 2 - 7,
-    drawer =
-      box(cx0 + 13.5, cy1, dz, cx0 + 23.5, cy1 + 6, dz + 4, PALS.mustard, toneI, 0.8) +
-      box(cx0 + 15, cy1 + 3, dz + 4, cx0 + 22, cy1 + 3.5, dz + 8, CERAMIC, toneI, 0.4);
-  const px = x + 4,
-    py = y + 6,
-    podium =
-      box(px - 8, py - 3, BH, px - 1, py + 3, BH + 4, PALS.cobalt, toneI, 0.8) +
-      box(px - 1, py - 3, BH, px + 6, py + 3, BH + 8, PALS.mustard, toneI, 0.8);
-  return (
-    castShadow(boxCorners(cx0, cy0, BH, cx1, cy1, h), BH, top) +
-    castShadow(boxCorners(px - 8, py - 3, BH, px + 6, py + 3, BH + 8), BH, top) +
-    byDepth([
-      { at: [x, cy0, 0], svg: cab + drawer },
-      { at: [px, py, 0], svg: podium },
-    ])
-  );
+  const drawers: Drawer[] = Array.from({ length: MAX_DRAWERS }, (_, i) => ({ word: '', cards: 2, lit: i === 1 })),
+    cab = shaded([
+      { box: span(CAB.x0 - 1.2, CAB.y0 - 1.2, BH, CAB.x1 + 1.2, CAB.y1 + 14, CAB.z1), svg: cabinetSvg(drawers) },
+    ]),
+    pod = shaded([
+      {
+        box: span(POD.x0 - 3, POD.y0 - 3, BH, POD.x1 + 1, POD.y1 + 3, POD.base + POD.tall + 9),
+        svg: podiumSvg([{ h: 24 }, { h: 16 }, { h: 10 }]),
+      },
+    ]),
+    pieces = [
+      mini(cab, [(CAB.x0 + CAB.x1) / 2, CAB.y0, BH], [x - 4, y - 14, BH], 0.3),
+      mini(pod, [(POD.x0 + POD.x1) / 2, (POD.y0 + POD.y1) / 2, BH], [x + 6, y + 10, BH], 0.26),
+      mini(
+        person({ x: 0, y: 0, facing: 270, pose: 'reach', look: CLERK, holding: null }),
+        [0, 0, BH],
+        [x - 10, y + 2, BH],
+        0.5,
+      ),
+    ];
+  return drawPieces(pieces, top);
 }

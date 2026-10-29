@@ -5,7 +5,7 @@
 // pills; on phones (scale > 1.5) only the lit checkpoint keeps its pill.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { ACC, BH, HALF, boxCorners, esc, sayAt, calloutsLast } from '../../lib/iso/blocks';
-import { SKIN, hexa, modelMachine, person, tight, type Look } from '../../lib/iso/figures';
+import { SKIN, hexa, mini, modelMachine, person, shaded, tight, type Look, drawPieces } from '../../lib/iso/figures';
 import { crate as slatted } from './crateScene';
 import { beltAt } from './officeScene';
 import {
@@ -335,43 +335,18 @@ export const forgeScene = (o: ForgeOpts) => (ctx: SceneCtx) => {
   return s + calloutsLast(pills);
 };
 
-/** The home hero's plot (heroScene): a small foundry at (x, y). A crate of papers, a squat furnace with its mouth
- * glowing, and a short shelf of three checkpoint blocks in front, the last one lit. Squat, so the pill rows stay clear. */
+/** The home hero's plot: the domed kiln in miniature, burning, a crate of documents feeding it, the stoker with his
+ * shovel, and the model machine trained beside it. */
 export function forgePlot(x: number, y: number, top: SceneCtx['top']): string {
-  const c = [x - 18, y - 14, x - 6, y - 2],
-    f = [x - 2, y - 12, x + 14, y + 4];
-  const cr =
-    box(c[0], c[1], BH, c[2], c[3], BH + 7, WOOD, toneI, 1) +
-    box(c[0] + 3, c[1] + 3, BH + 6, c[0] + 5, c[3] - 3, BH + 10, CERAMIC, toneI, 0.6) +
-    box(c[0] + 7, c[1] + 3, BH + 6, c[0] + 9, c[3] - 3, BH + 9, CERAMIC, toneI, 0.6) +
-    hullInk(boxCorners(c[0], c[1], BH, c[2], c[3], BH + 10), 1.4);
-  const fu =
-    box(f[0], f[1], BH, f[2], f[3], BH + 14, DARK, toneI, 1) +
-    `<path d="${pd(on(PX(f[2] + 0.15), rrUV(f[1] + 4, BH + 3, f[3] - 4, BH + 9, 2)))}" fill="${PALS.mustard.l}" stroke="${INK}" stroke-width="1"/>` +
-    hullInk(boxCorners(f[0], f[1], BH, f[2], f[3], BH + 14), 1.6);
-  let sh = box(x - 10, y + 10, BH, x + 20, y + 16, BH + 2, WOOD, toneI, 0.9);
-  for (let i = 0; i < 3; i++)
-    sh += box(
-      x - 7 + i * 10,
-      y + 11,
-      BH + 2,
-      x - 3 + i * 10,
-      y + 15,
-      BH + 6,
-      i === 2 ? PALS.mustard : PALS.cobalt,
-      toneI,
-      0.8,
-    );
-  sh += hullInk(boxCorners(x - 10, y + 10, BH, x + 20, y + 16, BH + 6), 1.4);
-  return (
-    castShadow(boxCorners(c[0], c[1], BH, c[2], c[3], BH + 10), BH, top) +
-    castShadow(boxCorners(f[0], f[1], BH, f[2], f[3], BH + 14), BH, top) +
-    byDepth([
-      { at: [x - 12, y - 8, 0], svg: cr },
-      { at: [x + 6, y - 4, 0], svg: fu },
-      { at: [x + 5, y + 13, 0], svg: sh },
-    ])
-  );
+  const man = stoker(true),
+    mdl = model(1),
+    pieces = [
+      mini(shaded(furnace(true)), [...FURNACE, BH], [x - 4, y - 8, BH], 0.42),
+      mini(shaded([crate(CRATE_Y[0], null)]), [CRATES_X, CRATE_Y[0], BH], [x - 22, y - 10, BH], 0.5),
+      mini({ shadow: man.shadow, items: [man.item] }, [...STOKER, BH], [x + 4, y + 10, BH], 0.5),
+      mini({ shadow: mdl.shadow, items: [mdl.item] }, [...MODEL, BH], [x + 18, y - 8, BH], 0.42),
+    ];
+  return drawPieces(pieces, top);
 }
 
 /** The picture in words, for its aria-label. */

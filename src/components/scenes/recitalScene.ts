@@ -7,7 +7,7 @@
 // place; without, it is drawn where it ends. Words only in pills; on phones (scale > 1.5) fewer pills.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { ACC, BH, boxCorners, esc, renderers, sayAt, calloutsLast } from '../../lib/iso/blocks';
-import { hexa, modelIn } from '../../lib/iso/figures';
+import { hexa, mini, modelIn, shaded, floor } from '../../lib/iso/figures';
 import {
   INK,
   PALS,
@@ -343,7 +343,8 @@ export function recitalLabel(o: RecitalOpts): string {
   );
 }
 
-/** The home hero's plot: a small ledger, a squat model block and a ranking board with the true ball at the top. */
+/** The home hero's plot: the ledger open on its lectern, a squat model machine and the ranking board with the true
+ * ball at the top. */
 export function recitalPlot(x: number, y: number, top: SceneCtx['top']): string {
   const m = [x - 16, y - 12, BH, x + 2, y + 6, BH + 14];
   const model = modelIn(m).items[0].svg;
@@ -358,12 +359,26 @@ export function recitalPlot(x: number, y: number, top: SceneCtx['top']): string 
   }
   const [tx, ty] = P(bx + 1.5, y, BH + 27);
   balls += `<circle cx="${tx.toFixed(1)}" cy="${ty.toFixed(1)}" r="2.6" fill="${PALS.tomato.m}" stroke="${INK}" stroke-width="1"/>`;
+  // the ledger: the bound book open on its lectern, in front, a few lines lit
+  const [lx, ly] = LEDGER,
+    book = mini(
+      shaded([
+        {
+          box: [
+            [lx - 11, ly - 11, BH],
+            [lx + 11, ly + 11, BH + 16],
+          ],
+          svg: ledger(3, false).svg,
+        },
+      ]),
+      [lx, ly, BH],
+      [x - 2, y + 16, BH],
+      0.5,
+    );
   return (
     castShadow(boxCorners(m[0], m[1], m[2], m[3], m[4], m[5]), BH, top) +
     castShadow(boxCorners(bx - 1, y - 8, BH, bx + 1, y + 8, BH + 30), BH, top) +
-    byDepth([
-      { at: [x - 7, y - 3, 0], svg: model },
-      { at: [bx, y, 0], svg: board + balls },
-    ])
+    floor(book.shadow, top) +
+    byDepth([{ at: [x - 7, y - 3, 0], svg: model }, { at: [bx, y, 0], svg: board + balls }, ...book.items])
   );
 }

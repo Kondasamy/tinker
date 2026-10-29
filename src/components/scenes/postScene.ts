@@ -17,7 +17,6 @@ import {
   PX,
   WOOD,
   box,
-  byDepth,
   castShadow,
   cyl,
   cylX,
@@ -35,7 +34,7 @@ import {
   toneI,
   vis,
 } from '../../lib/iso/core.js';
-import { SKIN, building, drawPieces, person, type Look, type Piece } from '../../lib/iso/figures';
+import { SKIN, building, drawPieces, mini, person, type Look, type Piece } from '../../lib/iso/figures';
 import type { Say } from '../story/steps';
 
 export const POST_BOARD: Board = [0, 0, 190, 100];
@@ -500,26 +499,14 @@ export function postReadouts(o: PostOpts): string[] {
   ];
 }
 
-/** The home hero's plot: a small sorting desk with an envelope and two stamps, and an inbox tray beside it. */
+/** The home hero's plot: Hollis's pigeonhole frame in miniature, the postal worker at it with a letter, and the
+ * pillar box. */
 export function postPlot(x: number, y: number, top: SceneCtx['top']): string {
-  const deskTop = BH + 7;
-  return (
-    castShadow(boxCorners(x - 16, y - 10, BH, x + 4, y + 8, deskTop), BH, top) +
-    byDepth([
-      {
-        at: [x - 6, y + 8, 0],
-        svg:
-          box(x - 16, y - 10, BH, x + 4, y + 8, deskTop, WOOD, toneI, 0.9) +
-          box(x - 13, y - 6, deskTop, x + 1, y + 4, deskTop + 0.8, CERAMIC, toneI, 0.8) +
-          cyl(x - 9, y - 3, deskTop + 0.8, deskTop + 2, 1.8, PALS.cobalt, toneI, 0.7, 12) +
-          cyl(x - 4, y - 3, deskTop + 0.8, deskTop + 2, 1.8, PALS.cobalt, toneI, 0.7, 12),
-      },
-      {
-        at: [x + 14, y, 0],
-        svg:
-          box(x + 8, y - 6, BH, x + 20, y + 6, BH + 2, PALS.mint, toneI, 0.8) +
-          box(x + 10, y - 4, BH + 2, x + 18, y + 4, BH + 3, CERAMIC, toneI, 0.7),
-      },
-    ])
-  );
+  const fc = [(FRAME.x0 + FRAME.x1) / 2, (FRAME.y0 + FRAME.y1) / 2, BH];
+  const pieces = [
+    mini(frame(), fc, [x - 14, y - 4, BH], 0.48),
+    mini(person({ x: 0, y: 0, facing: 200, pose: 'reach', look: POSTIE }), [0, 0, BH], [x - 2, y + 8, BH], 0.6),
+    mini(pillar(), [...PILLAR, BH], [x + 14, y - 6, BH], 0.8),
+  ];
+  return drawPieces(pieces, top);
 }

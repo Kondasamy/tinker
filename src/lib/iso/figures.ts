@@ -177,10 +177,35 @@ const lbox = (fr: Fr, a0: number, a1: number, b0: number, b1: number, c0: number
 ];
 
 /** Paint every piece's shadow (the floor layer, clipped to the board when given), then sort all items together. */
-export const drawPieces = (pieces: Piece[], clip?: number[][]) => {
-  const sh = pieces.map(p => p.shadow).join('');
-  return (clip ? clipTo(clip, sh) : sh) + byDepth(pieces.flatMap(p => p.items));
-};
+export const drawPieces = (pieces: Pick<Piece, 'shadow' | 'items'>[], clip?: number[][] | null) =>
+  floor(pieces.map(p => p.shadow).join(''), clip) + byDepth(pieces.flatMap(p => p.items));
+/** Shadow paint clipped to the board, when there is one. */
+export const floor = (sh: string, clip?: number[][] | null) => (clip ? clipTo(clip, sh) : sh);
+
+/** A piece set down k times its size, its point `from` moved to `to`: the projection is linear, so this is one 2D
+ * matrix; boxes move with it so sorting holds, and ink keeps its weight. The home hero's stand plots use it to show
+ * a scene's own hero object in miniature. */
+export function mini(p: { shadow?: string; items: Item[] }, from: V, to: V, k: number): Piece {
+  const [fx, fy] = P(from[0], from[1], from[2]),
+    [tx, ty] = P(to[0], to[1], to[2]),
+    g = (s: string) =>
+      `<g transform="matrix(${k} 0 0 ${k} ${(tx - k * fx).toFixed(2)} ${(ty - k * fy).toFixed(2)})">${s.replace(/stroke-width="([\d.]+)"/g, (_, w) => `stroke-width="${(+w / k).toFixed(2)}"`)}</g>`,
+    m = (v: V) => v.map((c, i) => to[i] + (c - from[i]) * k),
+    items = p.items.map(i => ({ box: i.box.map(m), svg: g(i.svg) }));
+  return { shadow: p.shadow ? g(p.shadow) : '', items, box: bbox(items.flatMap(i => i.box)) };
+}
+/** Bare items made a piece, each casting its box's shadow (for scene parts drawn as items, to hand to `mini`). */
+export const shaded = (items: Item[]) => ({
+  shadow: items
+    .map(({ box: [a, b] }) =>
+      castShadow(
+        [0, 1, 2, 3, 4, 5, 6, 7].map(i => [i & 1 ? b[0] : a[0], i & 2 ? b[1] : a[1], i & 4 ? b[2] : a[2]]),
+        BH,
+      ),
+    )
+    .join(''),
+  items,
+});
 
 /* ============================================================
    People. A toy peg figure, about 30 units tall on a CELL = 56 board (a person beside a 32-unit model machine).

@@ -29,7 +29,18 @@ import {
   toneI,
   vis,
 } from '../../lib/iso/core.js';
-import { SKIN, bike, building, drawPieces, hexa, person, type Look, type Piece } from '../../lib/iso/figures';
+import {
+  SKIN,
+  bike,
+  building,
+  drawPieces,
+  hexa,
+  mini,
+  person,
+  type Look,
+  type Piece,
+  floor,
+} from '../../lib/iso/figures';
 import {
   CRASH_AT,
   SCENES,
@@ -548,20 +559,19 @@ export function railPlot(x: number, y: number, top: SceneCtx['top']): string {
     if (busy) s += box(bx + 1, by - 2.5, BH + 7, bx + 6, by + 2.5, BH + 11, WOOD, toneI, 0.7);
     return s;
   };
-  const stand =
-    cyl(x - 8, y - 2, BH, BH + 10, 2.4, PALS.cobalt, toneI, 0.9, 12) +
-    cyl(x - 8, y - 2, BH + 10, BH + 13.5, 1.8, CERAMIC, toneI, 0.8, 10);
-  const fall =
-    cylX(x + 6, x + 15, y + 12, BH + 2.2, 2.2, PALS.cobalt, toneI, 0.9, 10) +
-    cylX(x + 15, x + 18, y + 12, BH + 2.2, 1.6, CERAMIC, toneI, 0.8, 8);
+  // Tomás packing at the busy bench, Rosa knocked over in front of the idle one
+  const folk = [
+    mini(person({ x: 0, y: 0, facing: '+y', pose: 'reach', look: 'tomas' }), [0, 0, BH], [x - 8, y - 7, BH], 0.5),
+    mini(person({ x: 0, y: 0, facing: '-x', pose: 'fallen', look: 'rosa' }), [0, 0, BH], [x + 13, y + 13, BH], 0.5),
+  ];
   return (
     castShadow(boxCorners(x - 15, y + 1, BH, x + 19, y + 9, BH + 7), BH, top) +
+    floor(folk.map(p => p.shadow).join(''), top) +
     byDepth([
       { at: [x, ry, 0], svg: r },
-      { at: [x - 8, y - 2, 0], svg: stand },
       { at: [x - 8, y + 5, 0], svg: b(x - 8, y + 5, true) },
       { at: [x + 12, y + 5, 0], svg: b(x + 12, y + 5, false) },
-      { at: [x + 12, y + 12, 0], svg: fall },
+      ...folk.flatMap(p => p.items),
     ])
   );
 }

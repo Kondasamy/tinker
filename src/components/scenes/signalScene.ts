@@ -37,7 +37,7 @@ import {
   toneI,
   vis,
 } from '../../lib/iso/core.js';
-import { CAST, hexa, person, type Item, type Look, type PersonOpts } from '../../lib/iso/figures';
+import { CAST, hexa, mini, person, type Item, type Look, type PersonOpts, floor } from '../../lib/iso/figures';
 import { pct, tickOf, type Run } from '../../lib/releases/sim';
 import type { Pipeline } from '../../lib/releases/pipeline';
 import type { Say } from '../story/steps';
@@ -570,25 +570,29 @@ export function signalReadouts(o: SignalOpts): string[] {
 /** The home card's picture (and the intro's hero): a canary on the new track, the rest on the old. */
 export const signalCard = (r: Run, t: number, scale = 1.7): SignalOpts => ({ ...signalAt(r, t), scale });
 
-/** The home hero's plot: a small signal box behind two short tracks, two lit shoppers on the new one, three on the
- * old. */
+/** The home hero's plot: the signal box in miniature behind two short tracks, two shoppers on each,
+ * and the semaphore raised. */
 export function signalPlot(x: number, y: number, top: SceneCtx['top']): string {
-  const rails = (ty: number) => box(x - 18, ty - 2, BH, x + 18, ty + 2, BH + 0.5, WOOD, toneI, 0.5);
-  const who = (sx: number, sy: number, m: { l: string; m: string; d: string }) =>
-    cyl(sx, sy, BH + 0.5, BH + 6.5, 1.5, m, toneI, 0.8, 10) +
-    cyl(sx, sy, BH + 6.5, BH + 9, 1.1, CERAMIC, toneI, 0.7, 8);
-  const cabin =
-    box(x - 7, y - 16, BH, x + 7, y - 9, BH + 8, WOOD, toneI, 0.9) +
-    box(x - 7, y - 16, BH + 8, x + 7, y - 9, BH + 13, CLEAR, toneI, 0.8) +
-    box(x - 8, y - 17, BH + 13, x + 8, y - 8, BH + 15, PALS.cobalt, toneI, 0.8);
+  const defs = new Map<string, string>(),
+    o = { share: 0, newN: 0, newErr: 0, oldN: 0, oldErr: 0, backing: false, alarm: false, name: '' },
+    rails = (ty: number): Item =>
+      item(
+        bx(x - 18, ty - 2, BH, x + 18, ty + 2, BH + 0.5),
+        box(x - 18, ty - 2, BH, x + 18, ty + 2, BH + 0.5, WOOD, toneI, 0.5),
+      ),
+    // shoppers on the old track and on the new; one look per track, so two figures drawn
+    folk = [
+      ...[-18, -8].map(dx => placed(defs, x + dx, y - 2, BH + 0.5, { facing: '+y', look: LOOKS[0] })),
+      ...[-14, -4].map(dx => placed(defs, x + dx, y + 8, BH + 0.5, { facing: '+y', look: 'shopper1' })),
+    ].map(f => ({ shadow: f.shadow, items: [item(f.box, f.use)] })),
+    pieces = [
+      mini(signalBox(o, defs), [(BOX.x0 + BOX.x1) / 2, (BOX.y0 + BOX.y1) / 2, BH], [x + 10, y - 17, BH], 0.75),
+      mini(semaphore(true), [...FLAG, BH], [x + 18, y + 12, BH], 0.6),
+      ...folk,
+    ];
   return (
-    castShadow(boxCorners(x - 8, y - 17, BH, x + 8, y - 8, BH + 15), BH, top) +
-    byDepth([
-      { at: [x, y - 12, 0], svg: cabin },
-      { at: [x - 18, y - 2, 0], svg: rails(y - 2) },
-      { at: [x - 18, y + 8, 0], svg: rails(y + 8) },
-      ...[-12, -2, 8].map(dx => ({ at: [x + dx, y - 2, 1], svg: who(x + dx, y - 2, PALS.cobalt) })),
-      ...[-12, -2].map(dx => ({ at: [x + dx, y + 8, 1], svg: who(x + dx, y + 8, PALS.mustard) })),
-    ])
+    `<defs>${[...defs.values()].join('')}</defs>` +
+    floor(pieces.map(p => p.shadow).join(''), top) +
+    byDepth([rails(y - 2), rails(y + 8), ...pieces.flatMap(p => p.items)])
   );
 }

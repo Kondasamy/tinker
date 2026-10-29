@@ -5,7 +5,7 @@
 // Words only in pills; the thinking text itself goes in a panel under the stage, never on the picture.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { ACC, BH, boxCorners, esc, renderers, sayAt, calloutsLast } from '../../lib/iso/blocks';
-import { hexa, modelIn } from '../../lib/iso/figures';
+import { hexa, mini, modelIn, shaded, drawPieces } from '../../lib/iso/figures';
 import {
   INK,
   PALS,
@@ -282,25 +282,18 @@ export const thinkScene = (o: ThinkOpts) => (ctx: SceneCtx) => {
   return s + calloutsLast(pills);
 };
 
-/** The home hero's plot (heroScene): a small scratchpad desk at (x, y). A squat model block, a pad of papers beside it, and a
- * small dial in front. Squat, so the pill rows stay clear. */
+/** The home hero's plot: the model machine, the lap desk with its spiral notepad, the stove-knob effort dial and the
+ * twin-bell alarm clock, all in miniature. */
 export function deskPadPlot(x: number, y: number, top: SceneCtx['top']): string {
-  const m = [x - 16, y - 14, BH, x + 2, y + 4, BH + 16];
-  const model = modelIn(m).items[0].svg;
-  let paper = '';
-  for (let i = 0; i < 5; i++)
-    paper += box(x + 6, y - 12, BH + i * SHEET, x + 18, y - 2, BH + (i + 1) * SHEET, CERAMIC, toneI, 0.6);
-  paper += hullInk(boxCorners(x + 6, y - 12, BH, x + 18, y - 2, BH + 5 * SHEET), 1.4);
-  const knob = cyl(x + 12, y + 10, BH, BH + 4, 5, PALS.cobalt, toneI, 1.2);
-  return (
-    castShadow(boxCorners(m[0], m[1], m[2], m[3], m[4], m[5]), BH, top) +
-    castShadow(boxCorners(x + 6, y - 12, BH, x + 18, y - 2, BH + 8), BH, top) +
-    byDepth([
-      { at: [x - 7, y - 5, 0], svg: model },
-      { at: [x + 12, y - 7, 0], svg: paper },
-      { at: [x + 12, y + 10, 0], svg: knob },
-    ])
-  );
+  const m = [x - 16, y - 14, BH, x + 2, y + 4, BH + 16],
+    k = 0.5,
+    pieces = [
+      modelIn(m),
+      mini(shaded([lapPad(5)]), [...PAD, BH], [x + 12, y - 7, BH], k),
+      mini(shaded([dial(2)]), [...DIAL, BH], [x + 12, y + 10, BH], k),
+      mini(shaded([clock(3)]), [...CLOCK, BH], [x - 10, y + 12, BH], k),
+    ];
+  return drawPieces(pieces, top);
 }
 
 /** The picture in words, for its aria-label. */

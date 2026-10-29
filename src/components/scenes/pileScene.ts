@@ -34,7 +34,7 @@ import {
   toneI,
   vis,
 } from '../../lib/iso/core.js';
-import { SKIN, person, type Item, type Look } from '../../lib/iso/figures';
+import { SKIN, mini, person, shaded, type Item, type Look, floor } from '../../lib/iso/figures';
 import { countOf, type Node } from '../../lib/compression/huffman';
 import { byteName } from '../../lib/compression/files';
 import type { Say } from '../story/steps';
@@ -404,7 +404,7 @@ export const pileAt = (bytes: Uint8Array, packed = bytes.length): PileOpts => ({
   parcel: { raw: bytes.length, packed },
 });
 
-/** The home hero's plot: three piles of tiles, tall to short, and a taped parcel beside them. */
+/** The home hero's plot: three piles of tiles, tall to short, the parcel on its weighing scale, and the packer. */
 export function pilePlot(x: number, y: number, top: SceneCtx['top']): string {
   const h = 4.5;
   const stacks: [number, number, number, typeof PALS.mustard][] = [
@@ -415,19 +415,30 @@ export function pilePlot(x: number, y: number, top: SceneCtx['top']): string {
   let s = stacks
     .map(([sx, sy, n]) => castShadow(boxCorners(sx - h, sy - h, BH, sx + h, sy + h, BH + n * 2.2), BH, top))
     .join('');
-  s += castShadow(boxCorners(x + 6, y + 2, BH, x + 18, y + 14, BH + 9), BH, top);
   const parts = stacks.map(([sx, sy, n, m]) => {
     let c = '';
     for (let i = 0; i < n; i++)
       c += box(sx - h, sy - h, BH + i * 2.2, sx + h, sy + h, BH + i * 2.2 + 1.8, m, toneI, 0.5);
     return { at: [sx, sy, 0], svg: c + hullInk(boxCorners(sx - h, sy - h, BH, sx + h, sy + h, BH + n * 2.2), 1.1) };
   });
-  parts.push({
-    at: [x + 12, y + 8, 0],
-    svg:
-      box(x + 6, y + 2, BH, x + 18, y + 14, BH + 9, KRAFT, toneI, 0.8) +
-      box(x + 11, y + 2, BH + 9, x + 13, y + 14, BH + 9.3, CERAMIC, toneI, 0.4) +
-      hullInk(boxCorners(x + 6, y + 2, BH, x + 18, y + 14, BH + 9), 1.1),
-  });
-  return s + byDepth(parts);
+  // the parcel on the weighing scale, in miniature, and the packer beside it
+  const pc = parcel(34, 20),
+    sc = weighScale(34, 20),
+    g = P_HALF + 2,
+    table = shaded([
+      sc.dial,
+      {
+        box: [
+          [PARCEL[0] - g, PARCEL[1] - g, BH],
+          [PARCEL[0] + g, PARCEL[1] + g, pc.top],
+        ],
+        svg: sc.plat + pc.svg,
+      },
+    ]),
+    pieces = [
+      mini(table, [...PARCEL, BH], [x + 10, y + 6, BH], 0.4),
+      mini(packer(), [150, 118, BH], [x - 6, y + 16, BH], 0.5),
+    ];
+  s += floor(pieces.map(p => p.shadow).join(''), top);
+  return s + byDepth([...parts, ...pieces.flatMap(p => p.items)]);
 }

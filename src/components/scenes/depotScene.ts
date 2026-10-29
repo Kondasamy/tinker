@@ -26,7 +26,7 @@ import {
   byDepth,
   vis,
 } from '../../lib/iso/core.js';
-import { building, hexa, type Piece } from '../../lib/iso/figures';
+import { building, hexa, mini, type Piece, floor } from '../../lib/iso/figures';
 import { EDGES, KINDS, type Edge, type Kind, type Result } from '../../lib/caching/sim';
 import type { Say } from '../story/steps';
 
@@ -447,40 +447,26 @@ export function depotReadouts(o: DepotOpts): string[] {
   ];
 }
 
-/** The plot's truck: a small box truck at (x, y). */
-function plotTruck(x: number, y: number) {
-  const z = BH + 0.4;
-  return {
-    at: [x, y, 1],
-    svg: `<g class="truck">${box(x - 4, y - 3, z, x + 4, y + 3, z + 5, PALS.mustard, toneI, 0.9)}${box(x + 4, y - 2.5, z, x + 6.5, y + 2.5, z + 3.5, METAL, toneI, 0.8)}</g>`,
-  };
-}
-
-/** The home hero's plot: a small depot, one road to a small warehouse with its three copies on the shelf, and a truck
- * on the way. */
+/** The home hero's plot: the depot in miniature, its sawtooth roof and bay, one road to a small warehouse with its
+ * three copies on the shelf, and a van on the way. */
 export function depotPlot(x: number, y: number, top: SceneCtx['top']): string {
-  const dx = x - 14,
-    dy = y - 10,
-    h = 8,
+  const k = 0.42,
+    dx = x - 12,
+    dy = y - 12,
     wx = x + 14,
-    wy = y + 6,
-    w = 6;
-  let d = box(dx - h, dy - h, BH, dx + h, dy + h, BH + 14, METAL, toneI, 1);
-  d += box(dx - h + 1, dy - h + 1, BH + 14, dx + h - 1, dy + h - 1, BH + 15.5, PALS.cobalt, toneI, 0.8);
-  d += hullInk(boxCorners(dx - h, dy - h, BH, dx + h, dy + h, BH + 15.5), 1.8);
-  let wh = box(wx - w, wy - w, BH, wx + w, wy + w, BH + 8, CERAMIC, toneI, 1);
-  wh += box(wx - w, wy - w, BH + 8, wx + w, wy + w, BH + 9.5, WOOD, toneI, 0.8);
-  wh += hullInk(boxCorners(wx - w, wy - w, BH, wx + w, wy + w, BH + 9.5), 1.6);
-  KINDS.forEach((k, i) => {
-    const cy = wy - w + 2 + i * 4;
-    wh += box(wx + w + 1.5, cy - 1.4, BH, wx + w + 4.5, cy + 1.4, BH + 3, KIND_PAL[k], toneI, 0.6);
-  });
-  const L = Math.hypot(wx - dx, wy - dy),
+    wy = y + 8,
+    north: EdgeView = { hits: 0, misses: 0, stale: 0, trips: 0, shelf: [...KINDS] },
+    L = Math.hypot(wx - dx, wy - dy),
     u = [(wx - dx) / L, (wy - dy) / L],
     n = [-u[1], u[0]];
+  const pieces = [
+    mini(depot(), [DEPOT.x, DEPOT.y, BH], [dx, dy, BH], k),
+    ...warehouse('north', north, false).map(p => mini(p, [...SITE.north, BH], [wx, wy, BH], k)),
+    mini(truck(0, 0, deg(u)), [0, 0, BH], [(dx + wx) / 2 + 2, (dy + wy) / 2, BH], 0.9),
+  ];
   return (
-    castShadow(boxCorners(dx - h, dy - h, BH, dx + h, dy + h, BH + 15), BH, top) +
-    roadAt([dx + u[0] * (h + 1), dy + u[1] * (h + 1)], [wx - u[0] * (w + 1), wy - u[1] * (w + 1)], n, 3.5) +
-    byDepth([{ at: [dx, dy, 0], svg: d }, { at: [wx, wy, 0], svg: wh }, plotTruck((dx + wx) / 2, (dy + wy) / 2)])
+    floor(pieces.map(p => p.shadow).join(''), top) +
+    roadAt([dx + u[0] * 10, dy + u[1] * 10], [wx - u[0] * 7, wy - u[1] * 7], n, 3.5) +
+    byDepth(pieces.flatMap(p => p.items))
   );
 }

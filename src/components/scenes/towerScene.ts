@@ -30,7 +30,7 @@ import {
   toneI,
   vis,
 } from '../../lib/iso/core.js';
-import { padlock, person } from '../../lib/iso/figures';
+import { mini, padlock, person, floor } from '../../lib/iso/figures';
 import { APP, auditOf, brokenOf, type Tree } from '../../lib/dependencies/resolve';
 import type { Say } from '../story/steps';
 import { count, crate } from './crateScene';
@@ -627,7 +627,8 @@ export function towerReadouts(o: TowerOpts): string[] {
   ];
 }
 
-/** The home hero's plot: a small tower of five crates, the top one tomato and planked, one pulled out beside it. */
+/** The home hero's plot: a small tower of five crates, the top one tomato and planked, one pulled out beside it under
+ * the pillar crane's hook. */
 export function towerPlot(x: number, y: number, top: SceneCtx['top']): string {
   const h = 5,
     ht = 7;
@@ -659,5 +660,7 @@ export function towerPlot(x: number, y: number, top: SceneCtx['top']): string {
         : ''),
   }));
   parts.push({ at: [x + 14, y + 14, BH], svg: crate(x + 14, y + 14, 'ghost', BH, 4, 5) });
-  return s + byDepth(parts);
+  // the pillar crane in the front corner, its hook over the pulled-out spot
+  const cr = mini(crane(false), [PULLED_AT[0], MAST[1], BH], [x + 14, y + 14, BH], 0.32);
+  return s + floor(cr.shadow, top) + byDepth([...parts, ...cr.items]);
 }

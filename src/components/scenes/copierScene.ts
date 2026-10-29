@@ -41,7 +41,7 @@ import {
   matOf,
   clipTo,
 } from '../../lib/iso/core.js';
-import { SKIN, hexa, person, type Look } from '../../lib/iso/figures';
+import { SKIN, hexa, mini, person, shaded, type Look, drawPieces } from '../../lib/iso/figures';
 import { RUNS, genOf, type Arm } from '../../lib/synthetic-data/runs';
 import type { SieveKind } from '../../lib/synthetic-data/sieve';
 import type { Say } from '../story/steps';
@@ -358,22 +358,20 @@ export const copierScene = (o: CopierOpts) => (ctx: SceneCtx) => {
   return s + calloutsLast(pills);
 };
 
-/** The home hero's plot: a small copier and three copy stacks, their rare marks fading left to right. */
+/** The home hero's plot: the photocopier in miniature, its clerk at the panel, and three generations of copies,
+ * their marks fading. */
 export function copierPlot(x: number, y: number, top: SceneCtx['top']): string {
-  const c = [x - 16, y - 14, x + 2, y - 2];
-  const body =
-    box(c[0], c[1], BH, c[2], c[3], BH + 11, DARK, toneI, 1) +
-    box(c[0], c[1], BH + 11, c[2], c[3], BH + 13, METAL, toneI, 0.8) +
-    `<path d="${pd(on(PX(c[2] + 0.15), rrUV(c[1] + 3, BH + 4, c[3] - 3, BH + 8, 1.5)))}" fill="${PALS.mint.l}" stroke="${INK}" stroke-width=".8"/>` +
-    hullInk(boxCorners(c[0], c[1], BH, c[2], c[3], BH + 13), 1.6);
-  const lits = [MAX_MARKS, 8, 4];
-  return (
-    castShadow(boxCorners(c[0], c[1], BH, c[2], c[3], BH + 13), BH, top) +
-    byDepth([
-      { at: [x - 7, y - 8, 0], svg: body },
-      ...lits.map((l, i) => ({ at: [x - 6 + i * 11, y + 10, 0], svg: stack(x - 6 + i * 11, y + 10, 6, l, 0.55) })),
-    ])
-  );
+  const lits = [MAX_MARKS, 8, 4],
+    stacks = lits.map((l, i) => ({
+      box: span(x - 9 + i * 11, y + 7, BH, x - 3 + i * 11, y + 13, BH + 6),
+      svg: stack(x - 6 + i * 11, y + 10, 6, l, 0.55),
+    })),
+    pieces = [
+      mini(shaded(copier(true)), [...COPIER, BH], [x - 6, y - 10, BH], 0.45),
+      mini(person({ x: 0, y: 0, facing: 270, pose: 'reach', look: CLERK }), [0, 0, BH], [x + 4, y - 2, BH], 0.55),
+      shaded(stacks),
+    ];
+  return drawPieces(pieces, top);
 }
 
 /** The home card's picture (and the intro's hero): generation 5 under replace, the full shelf. */

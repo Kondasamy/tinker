@@ -17,7 +17,6 @@ import {
   WOOD,
   box,
   castShadow,
-  hullInk,
   toneI,
   tag,
   byDepth,
@@ -27,7 +26,17 @@ import {
   matOf,
   vis,
 } from '../../lib/iso/core.js';
-import { building, drawPieces, lamp as lamp_, person, pole, type Piece, type Roof } from '../../lib/iso/figures';
+import {
+  building,
+  drawPieces,
+  lamp as lamp_,
+  mini,
+  person,
+  pole,
+  type Piece,
+  type Roof,
+  floor,
+} from '../../lib/iso/figures';
 import {
   PRODUCTS,
   REPS,
@@ -406,31 +415,28 @@ export function stockReadouts(o: StockOpts): string[] {
   ];
 }
 
-/** The home hero's plot: two small warehouses on a phone line cut in the middle, each tray counting the last hinge,
- * and a receipt over each: the hinge sold twice. */
+/** The home hero's plot: two of the warehouses in miniature (North's barn, East's brick store), each with its clerk,
+ * count tray and telegraph pole, the line between them cut in the middle. */
 export function stockPlot(x: number, y: number, top: SceneCtx['top']): string {
-  const site = [
-    [x - 14, y - 8],
-    [x + 12, y + 8],
-  ];
-  const h = 6,
-    zt = BH + 9,
-    pz = zt + 8;
-  const parts = site.map(([sx, sy]) => {
-    let s = box(sx - h, sy - h, BH, sx + h, sy + h, zt, CERAMIC, toneI, 1);
-    s += box(sx - h, sy - h, zt, sx + h, sy + h, zt + 1.5, WOOD, toneI, 0.8);
-    s += hullInk(boxCorners(sx - h, sy - h, BH, sx + h, sy + h, zt + 1.5), 1.6);
-    s += box(sx - 0.6, sy - 0.6, zt + 1.5, sx + 0.6, sy + 0.6, pz, WOOD, toneI, 0.6);
-    s += box(sx + h + 1.5, sy - 2, BH, sx + h + 4.5, sy + 1, BH + 2.4, PALS.mustard, toneI, 0.6);
-    s += box(sx - 2, sy - 0.5, zt + 2.5, sx + 1, sy + 0.4, zt + 7, CERAMIC, toneI, 0.6);
-    return { at: [sx, sy, 0], svg: s };
-  });
-  const A = [...site[0], pz],
-    B = [...site[1], pz],
+  const k = 0.4,
+    sites: [Rep, number, number][] = [
+      ['north', x - 14, y - 10],
+      ['east', x + 10, y + 10],
+    ],
+    view: RepView = { ...empty(), board: { hinge: 4, drill: 1 } },
+    move = (r: Rep, sx: number, sy: number, p: number[]) => [
+      sx + (p[0] - SITE[r][0]) * k,
+      sy + (p[1] - SITE[r][1]) * k,
+      BH + (p[2] - BH) * k,
+    ];
+  const pieces = sites.flatMap(([r, sx, sy]) =>
+      warehouse(r, view, false).map(p => mini(p, [...SITE[r], BH], [sx, sy, BH], k)),
+    ),
+    [A, B] = sites.map(([r, sx, sy]) => move(r, sx, sy, [...poleAt(r), BH + PH - 1.8])),
     m = at(A, B, 0.5);
   return (
-    site.map(([sx, sy]) => castShadow(boxCorners(sx - h, sy - h, BH, sx + h, sy + h, zt + 1), BH, top)).join('') +
-    byDepth(parts) +
+    floor(pieces.map(p => p.shadow).join(''), top) +
+    byDepth(pieces.flatMap(p => p.items)) +
     line([A, at(A, B, 0.42)], 0.9) +
     line([at(A, B, 0.58), B], 0.9) +
     box(m[0] - 1.4, m[1] - 1.4, m[2] - 1.4, m[0] + 1.4, m[1] + 1.4, m[2] + 1.4, PALS.tomato, toneI, 0.7)
