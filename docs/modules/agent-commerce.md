@@ -26,3 +26,8 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 | 5 | `05-a-seller-that-talks-back` | Sign the slip with `SLIPS['shop-around']`, seller `quarrylane` (its machine `warn`): the cap stamps fail; then `SLIPS.larkspur` against `lookalike`: the merchant stamps fail (the recorded agent accepted it) | yes: Sign, Send | Sign, then Send (each round) | `seller`, `slip` |
 | 6 | `06-paying-without-the-card` | The slip accepted at the seller's counter, the token `live`, then `spent` on a second order | no (the chapter's own charge control) | the chapter's charge pick | `token`, `slip` |
 | 7 | `07-workbench` | The bench's slip against the picked seller, stamped | as exploration | the workbench's term controls | `slip`, `seller` |
+
+## Engine
+
+- **Signing happens in the page, on purpose** (KTD7): Sign signs the slip live with Dana's demo ECDSA key (`data/agent-commerce/`, labelled demo), a deliberate departure from Locks and keys' rule that demo keys sign only in tests. ECDSA signatures are randomised, so tests pin verdicts, never signature bytes. The buying agent carries the signed slip, never the key; the shop's checks (signature, merchant, cap, expiry, items, nonce) run live and decide every outcome, never a recorded turn.
+- **Home and share images:** the home card and the intro are the shop-around slip refused at Quarrylane's counter; the hero plot is `hatchPlot`.

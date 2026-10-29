@@ -13,6 +13,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **Read-out**: one polite `role="status"` line under the tray naming the reply's grade after each action (`gradeText`), cleared when `step` changes.
 - **The Text tab** (the second view, also the precise one): the assembled prompt as text, part by part with its slot name, then the reply with who wrote it (the recording model's id and date, or "simulated" with the simulator and date), then each grade that applies as ✓ or ✗ in words. With `tickets` (chapters 6 and 7) it adds each ticket's pass or miss and the count.
 - **Chapter 1** (`MiniStage`): the docket holds one instruction card and Larkspur mini continues it live, loaded once per page through Transformers' model store. The slip holds the continuation; the screen reads `???`, since it answered nothing. The Text tab shows the instruction and Larkspur mini's words.
+- **Home and share images:** the home card and the intro are the clear docket tested on all six tickets; the hero plot is `docketPlot`, the easel set down small.
 
 ## Chapter pictures
 

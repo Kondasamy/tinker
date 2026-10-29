@@ -13,6 +13,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **Reduced motion:** nothing moves between hops anyway (each hop redraws in place); Play is hidden and Step walks every finished stage.
 - **Phones:** worker and stage pills drop to their number (and none at 8 workers); the caption carries the numbers.
 - **Parts for callouts** (`say`): ring mode `RING_PARTS` = `table`, `worker`, `bucket`, `rack`; pipeline mode `LINE_PARTS` = `line`, `worker`, `bucket`, `idle`, `rack`. `worker` and `bucket` point at worker 1 (in pipeline mode, the first working stage's bucket); `idle` at the first idle stage, so it draws only at a slot with one. A chapter's `PARTS` is the list for the mode its picture uses.
+- **Home and share images:** the home card and the intro are the ring all-reduce halfway; the hero plot is `ringPlot`.
 
 ## Chapter pictures
 

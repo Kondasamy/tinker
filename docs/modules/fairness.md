@@ -11,6 +11,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **Read-out**: one polite `role="status"` line under the ranges. It gives each lane's new split after each move and once the walk-through ends, and it clears when `step` changes.
 - **The Bars tab** (the second view): per-group false-decline, false-approve, error and precision bars, Northvale and Eastmere side by side, with each bar's value written beside it. Both views are read off the same `runOf` call.
 - **Parts for callouts** (`GATE_PARTS`): `check` (the model machine), `lane-a`, `lane-b`, `post-a`, `post-b`, `out-a`, `out-b` (the turned-down pens), `counter`.
+- **Home and share images:** the home card and the intro are both lanes through at one shared bar; the hero plot is `gatePlot`, both lanes at the posts with a few applicants queueing.
 
 ## Chapter pictures
 

@@ -11,6 +11,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **The Matrix tab, one tab away** (`RackStage`, `src/content/labelling/kit.tsx`): the 5 × 5 agreement matrix between two labellers (rows one, columns the other, `matrix()`), with agreement, chance agreement and Cohen's kappa under it (`agreement`, `chance`, `kappa`). The diagonal is outlined and bold, so agreement reads without colour. A pair switch (Rosa–Mira, Rosa–Tom, Mira–Tom) picks the two.
 - **The mechanic, sort the ticket** (`SortTicket`): the current ticket's text, then five pigeonhole buttons (`1 Refund` … `5 Account`, ≥ 44 px on phones). A click, or a number key 1–5 while the control has focus, files it; then the three labellers' slips drop into their holes (a CSS drop; with reduced motion the slips and tallies appear in place). One polite `role="status"` read-out outside the drawing says where the reader filed it and each labeller's pick, nothing else; it clears when the ticket changes. `SortRoom` wires the stage and the control over a run of tickets (Next ticket; earlier tickets' slips stay in the holes, plain).
 - Parts for callouts (`LABEL_PARTS`): `rack`, `ticket`, `gold`, `guide`, `rosa`, `mira`, `tom`, `model`, and each hole by intent id (`refund`, `return`, `delivery`, `product`, `account`).
+- **Home and share images:** the home card and the intro are three labellers' picks for one ticket in three holes; the hero plot is `rackPlot`, the rack alone with a few slips.
 
 ## Chapter pictures
 

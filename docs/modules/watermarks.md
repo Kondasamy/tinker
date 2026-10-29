@@ -12,6 +12,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **Sweep the lamp** (`UvStage`, `src/content/watermarks/kit.tsx`): a native range (`ListRange`) moves the lamp along the page, a column at a time, and a "Light all" toggle lights every tile. With reduced motion every tile is lit at once whatever the range says. When a chapter opens rewording, the reader picks a token (a `Select` of the 64, or a chip in the Strip tab) and swaps it for one of Larkspur mini's six next-best there (`choicesAt`, a second `Select`), or presses "Reword all" (the pinned paraphrase, `pinned.rewording.all`). The page re-scores and redraws. Larkspur mini is loaded once per page through Transformers' model store (`MODEL`); only the swap list waits for it, and the page and its score never do.
 - **Read-out**: one polite `role="status"` line under the controls. It gives the new result of each action (the lamp's green and red count, the z-score after Light all, a swap or Reword all) and clears when `step` changes.
 - **The Strip tab** (the second view, also the precise one; hidden while the lamp is parked, as in chapter 1, and on the print): the reply's tokens as text chips in two blocks of 32, green chips raised with a ✓, red chips notched with a ✗, then the checker's green count over the pairs it scored and a z-score meter with the line at 4 marked.
+- **Home and share images:** the home card and the intro are the pinned marked reply lit all over; the hero plot is `uvPlot`, the light table with the lamp over the reply's middle.
 
 ## Chapter pictures
 
