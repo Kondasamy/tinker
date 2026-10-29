@@ -13,14 +13,24 @@ import {
   DARK,
   METAL,
   WOOD,
+  INK,
+  P,
   box,
   byDepth,
   castShadow,
   cyl,
+  f,
   hullInk,
+  matOf,
+  on,
+  PY,
+  rrUV,
+  shape,
   tag,
   toneI,
+  vis,
 } from '../../lib/iso/core.js';
+import { conveyor, person, type Look, type Piece } from '../../lib/iso/figures';
 import pinned from '../../../data/mixture-of-experts/pinned.json' with { type: 'json' };
 import { EXPERTS, LAYERS, ROOMS, SHOWN, quote, roomName, showPiece } from '../../lib/mixture-of-experts/routes';
 import type { Say } from '../story/steps';
@@ -75,27 +85,58 @@ export function roomsState(o: RoomsOpts) {
   return { parcels: Math.min(SHOWN, o.tokens.length), lit, over };
 }
 
-/** A room: a small building, mustard and lamp-lit when it works on the selected token. */
-function room(l: number, e: number, on: boolean, full: boolean, asked: number | null, cap: number | null) {
+/** Each flat's front door, its own colour (never mustard: mustard is a lit flat). */
+const DOORS = ['#e0634f', '#5b7fc4', '#5fa77d', '#e88fa6', '#9c84cf', '#3f9a96', '#b8643c', '#7a4e7e'];
+const BLOCK = matOf('#e6d3b3'),
+  ROOF = matOf('#b9b2a6'),
+  GALLERY = 4.5;
+/** A thin painted bar (an ink stroke under a coloured one): a railing's look at a sliver of a rod's SVG. */
+const bar = (p: number[], q: number[], w: number, col = DARK.l) => {
+  const d = `M${P(p[0], p[1], p[2]).map(f).join(' ')}L${P(q[0], q[1], q[2]).map(f).join(' ')}`;
+  return `<path d="${d}" stroke="${INK}" stroke-width="${w + 1.4}" stroke-linecap="round"/><path d="${d}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`;
+};
+
+/** A room: one flat of the apartment block. Real-object notes: party walls shared with the next flat, so a floor's
+ * eight flats read as one long block; its front door, a colour of its own, and a window set back on an open gallery
+ * under the roof, a railing along the gallery's edge and a post at each end; a flat roof slab. Mustard walls, a lit
+ * window and a lamp on the roof when it works on the selected token. The footprint is the old room's (plus the party
+ * walls that close the gaps between flats). */
+function room(l: number, e: number, lit: boolean, full: boolean, asked: number | null, cap: number | null) {
   const x = roomX(e),
-    y = ROW_Y[l];
-  const m = on ? PALS.mustard : CERAMIC;
-  let s = box(x, y, BH, x + ROOM_W, y + DEPTH, BH + WALL, m, toneI, 1);
-  // the door, on the front face
-  s += box(x + 4, y + DEPTH, BH, x + 10, y + DEPTH + 0.4, BH + 8, on ? PALS.mustard : DARK, toneI, 0.7);
+    y = ROW_Y[l],
+    xa = x - (PITCH - ROOM_W) / 2,
+    xb = x + ROOM_W + (PITCH - ROOM_W) / 2,
+    yf = y + DEPTH - GALLERY,
+    zr = BH + WALL;
+  const m = lit ? PALS.mustard : BLOCK;
+  let s = box(xa, y, BH, xb, yf, zr, m, toneI, 1);
+  // the gallery: its floor slab, then the door and window on the set-back front
+  s += box(xa, yf, BH, xb, y + DEPTH, BH + 1.4, METAL, toneI, 0.8);
+  if (vis([0, 1, 0])) {
+    const F = (uv: number[][]) => on(PY(yf + 0.1), uv);
+    s += shape(F(rrUV(x + 0.6, BH + 1.4, x + 9.4, BH + 12, 1, 2)), CERAMIC.l, 1);
+    s += shape(F(rrUV(x + 1.6, BH + 1.4, x + 8.4, BH + 11, 0.8, 2)), DOORS[e % DOORS.length], 1);
+    s += shape(F(rrUV(x + 6.6, BH + 5.8, x + 7.4, BH + 6.6, 0.4, 2)), METAL.l, 0.5);
+    s += shape(F(rrUV(x + 11, BH + 6, x + 14.6, BH + 11, 0.5, 2)), lit ? '#ffd27a' : '#cfe9f0', 0.9);
+  }
+  // the roof slab, over the flat and its gallery, held at the gallery's corners; mustard when lit, tomato over capacity
+  s += bar([xa + 0.6, y + DEPTH - 0.6, BH + 1.4], [xa + 0.6, y + DEPTH - 0.6, zr], 1.2, BLOCK.m);
   s += box(
-    x - 0.6,
+    xa - 0.4,
     y - 0.6,
-    BH + WALL,
-    x + ROOM_W + 0.6,
+    zr,
+    xb + 0.4,
     y + DEPTH + 0.6,
-    BH + WALL + 2,
-    full ? PALS.tomato : WOOD,
+    zr + 1.6,
+    full ? PALS.tomato : lit ? PALS.mustard : ROOF,
     toneI,
     0.9,
   );
-  if (on) s += cyl(x + ROOM_W / 2, y + DEPTH / 2, BH + WALL + 2, BH + WALL + 5, 2.2, PALS.mint, toneI, 0.8, 12);
-  s += hullInk(boxCorners(x - 0.6, y - 0.6, BH, x + ROOM_W + 0.6, y + DEPTH + 0.6, BH + WALL + 2), 1.6);
+  // the railing along the gallery's edge: balusters and a top rail
+  for (let i = 1; i < 4; i++)
+    s += bar([xa + i * 4.5, y + DEPTH - 0.4, BH + 1.4], [xa + i * 4.5, y + DEPTH - 0.4, BH + 6], 0.5);
+  s += bar([xa, y + DEPTH - 0.4, BH + 6], [xb, y + DEPTH - 0.4, BH + 6], 0.9);
+  if (lit) s += cyl(x + ROOM_W / 2, y + DEPTH / 2, zr + 1.6, zr + 4.6, 2.2, PALS.mint, toneI, 0.8, 12);
   // crates the doorman sent: two columns in front of the door, tomato past the room's seats
   let crates = '';
   if (asked !== null)
@@ -116,42 +157,118 @@ function room(l: number, e: number, on: boolean, full: boolean, asked: number | 
     }
   return [
     {
-      at: [x + ROOM_W / 2, y + DEPTH / 2, 0],
-      svg: `<g class="room${on ? ' lit' : ''}" data-floor="${l + 1}" data-room="${e + 1}" data-lit="${on ? 1 : 0}"${full ? ' data-full="1"' : ''}>${s}</g>`,
+      box: [
+        [xa - 0.4, y - 0.6, BH],
+        [xb + 0.4, y + DEPTH + 0.6, zr + 5],
+      ],
+      svg: `<g class="room${lit ? ' lit' : ''}" data-floor="${l + 1}" data-room="${e + 1}" data-lit="${lit ? 1 : 0}"${full ? ' data-full="1"' : ''}>${s}</g>`,
     },
-    { at: [x + 4, y + DEPTH + 4, 0], svg: crates ? `<g class="crates" data-asked="${asked}">${crates}</g>` : '' },
+    ...(crates
+      ? [
+          {
+            box: [
+              [x + 2, y + DEPTH + 2, BH],
+              [x + 11, y + DEPTH + 6, BH + 14],
+            ],
+            svg: `<g class="crates" data-asked="${asked}">${crates}</g>`,
+          },
+        ]
+      : []),
   ];
 }
 
 /** The lit path on the floor from a floor's doorman to a room's door. */
-const path = (l: number, e: number) =>
-  `<g class="path">${box(DOOR_X, ROW_Y[l] + DEPTH + 7, BH, roomX(e) + ROOM_W / 2 + 1.5, ROW_Y[l] + DEPTH + 9, BH + 0.3, PALS.mustard, toneI, 0.4)}</g>`;
+const path = (l: number, e: number) => ({
+  box: [
+    [DOOR_X, ROW_Y[l] + DEPTH + 7, BH],
+    [roomX(e) + ROOM_W / 2 + 1.5, ROW_Y[l] + DEPTH + 9, BH + 0.3],
+  ],
+  svg: `<g class="path">${box(DOOR_X, ROW_Y[l] + DEPTH + 7, BH, roomX(e) + ROOM_W / 2 + 1.5, ROW_Y[l] + DEPTH + 9, BH + 0.3, PALS.mustard, toneI, 0.4)}</g>`,
+});
 
-/** A doorman at the head of a floor: a figure at a lectern. */
-function doorman(l: number, forced: boolean) {
+/** A kit piece drawn at k of its size about its foot (x, y, z): the projection is linear, so scaling the picture about
+ * the foot's screen point is scaling the figure about its foot. Ink thins less than the figure, to keep it bold. */
+function scaled(p: Piece, k: number, foot: number[]): Piece {
+  const [fx, fy] = P(foot[0], foot[1], foot[2]),
+    t = `matrix(${k} 0 0 ${k} ${f(fx * (1 - k))} ${f(fy * (1 - k))})`,
+    bold = (s: string) =>
+      s.replace(/stroke-width="([\d.]+)"/g, (_, w) => `stroke-width="${+(w / k ** 0.6).toFixed(2)}"`),
+    sc = (b: number[][]) => b.map(v => v.map((c, i) => foot[i] + (c - foot[i]) * k));
+  return {
+    shadow: `<g transform="${t}">${p.shadow}</g>`,
+    items: p.items.map(i => ({ box: sc(i.box), svg: `<g transform="${t}">${bold(i.svg)}</g>` })),
+    box: sc(p.box),
+  };
+}
+const DOORMAN: Look = {
+  skin: '#8d5838',
+  top: PALS.cobalt.l,
+  legs: '#3b4566',
+  hair: '#2b231c',
+  cut: 'short',
+  hat: 'cap',
+  hatCol: '#2f3a5c',
+};
+/** A doorman on each landing, at the head of its floor: a uniformed figure in a peaked cap behind a lectern, in tomato
+ * while the reader overrides him. Drawn at 0.7 of a person, to stand with the flats. */
+function doorman(l: number, forced: boolean): Piece {
   const x = DOOR_X,
     y = ROW_Y[l] + DEPTH / 2 + 2;
-  const s =
-    box(x - 4, y + 3, BH, x + 4, y + 7, BH + 9, WOOD, toneI, 0.9) +
-    cyl(x, y - 2, BH, BH + 15, 3.2, forced ? PALS.tomato : PALS.cobalt, toneI, 1.1, 16) +
-    cyl(x, y - 2, BH + 15, BH + 20, 2.4, CERAMIC, toneI, 1, 14) +
-    cyl(x, y - 2, BH + 20, BH + 22, 2.8, DARK, toneI, 0.9, 14);
-  return { at: [x, y, 0], svg: `<g class="doorman" data-floor="${l + 1}"${forced ? ' data-forced="1"' : ''}>${s}</g>` };
+  const man = scaled(
+    person({ x, y: y - 2, facing: 90, look: forced ? { ...DOORMAN, top: PALS.tomato.l } : DOORMAN }),
+    0.7,
+    [x, y - 2, BH],
+  );
+  const lectern = {
+    box: [
+      [x - 3.5, y + 3, BH],
+      [x + 3.5, y + 6.5, BH + 10],
+    ],
+    svg:
+      box(x - 1.2, y + 4, BH, x + 1.2, y + 5.5, BH + 8, WOOD, toneI, 0.8) +
+      box(x - 3.5, y + 3, BH + 8, x + 3.5, y + 6.5, BH + 10, WOOD, toneI, 0.9),
+  };
+  const items = [...man.items, lectern];
+  return {
+    shadow: man.shadow + castShadow(boxCorners(x - 3.5, y + 3, BH, x + 3.5, y + 6.5, BH + 10), BH),
+    items: [
+      {
+        box: [
+          [x - 4, y - 6, BH],
+          [x + 4, y + 6.5, BH + 24],
+        ],
+        svg: `<g class="doorman" data-floor="${l + 1}"${forced ? ' data-forced="1"' : ''}>${byDepth(items)}</g>`,
+      },
+    ],
+    box: man.box,
+  };
 }
 
-/** The belt and its parcels, one per shown token. */
-function belt(o: RoomsOpts) {
+/** The belt, a roller conveyor, and its parcels, one per shown token: one item, so the parcels ride on its rollers. */
+function belt(o: RoomsOpts): Piece {
   const { x0, x1, y } = BELT,
     n = roomsState(o).parcels,
-    step = (x1 - x0 - 12) / Math.max(1, SHOWN - 1);
-  let s =
-    box(x0, y - 4, BH, x1, y + 4, BH + 4, METAL, toneI, 1) + hullInk(boxCorners(x0, y - 4, BH, x1, y + 4, BH + 4), 1.6);
+    step = (x1 - x0 - 12) / Math.max(1, SHOWN - 1),
+    c = conveyor({ x: (x0 + x1) / 2, y, len: x1 - x0, w: 8, h: 4, facing: '+x' });
+  let s = byDepth(c.items);
   for (let i = 0; i < n; i++) {
     const px = x0 + 6 + i * step,
       m = i === o.sel ? PALS.mustard : o.dropped?.includes(i) ? PALS.tomato : WOOD;
-    s += `<g class="parcel" data-i="${i}"${i === o.sel ? ' data-sel="1"' : ''}${o.dropped?.includes(i) ? ' data-dropped="1"' : ''}>${box(px - 4, y - 3, BH + 4, px + 4, y + 3, BH + 10, m, toneI, 0.8)}</g>`;
+    s += `<g class="parcel" data-i="${i}"${i === o.sel ? ' data-sel="1"' : ''}${o.dropped?.includes(i) ? ' data-dropped="1"' : ''}>${box(px - 4, y - 3, BH + 5.2, px + 4, y + 3, BH + 10, m, toneI, 0.8)}</g>`;
   }
-  return { at: [(x0 + x1) / 2, y, 0], svg: `<g data-prop="belt" data-tokens="${n}">${s}</g>` };
+  return {
+    shadow: c.shadow,
+    items: [
+      {
+        box: [
+          [x0, y - 4, BH],
+          [x1, y + 4, BH + 10],
+        ],
+        svg: `<g data-prop="belt" data-tokens="${n}">${s}</g>`,
+      },
+    ],
+    box: c.box,
+  };
 }
 const parcelAt = (i: number) => [BELT.x0 + 6 + (i * (BELT.x1 - BELT.x0 - 12)) / (SHOWN - 1), BELT.y, BH + 10];
 
@@ -161,7 +278,13 @@ function booth(o: RoomsOpts) {
   s += box(x - 8, y - 8, BH + 16, x + 8, y + 8, BH + 18, WOOD, toneI, 0.9);
   s += box(x - 4, y + 7, BH + 6, x + 4, y + 7.4, BH + 12, o.guess != null ? PALS.mint : DARK, toneI, 0.7);
   s += hullInk(boxCorners(x - 8, y - 8, BH, x + 8, y + 8, BH + 18), 1.8);
-  return { at: [x, y, 0], svg: `<g data-prop="guess"${o.guess != null ? ` data-guess="${o.guess}"` : ''}>${s}</g>` };
+  return {
+    box: [
+      [x - 8, y - 8, BH],
+      [x + 8, y + 8, BH + 18],
+    ],
+    svg: `<g data-prop="guess"${o.guess != null ? ` data-guess="${o.guess}"` : ''}>${s}</g>`,
+  };
 }
 
 /** Where a room's pill hangs: floor 2's above its roof, floor 1's below its door, toward the belt; a second lit room's
@@ -188,15 +311,19 @@ export const roomsScene = (o: RoomsOpts) => (ctx: SceneCtx) => {
   let s = '';
   for (const y of ROW_Y)
     s += castShadow(
-      boxCorners(X0 - 1, y - 1, BH, roomX(EXPERTS - 1) + ROOM_W + 1, y + DEPTH + 1, BH + WALL + 2),
+      boxCorners(X0 - 3, y - 1, BH, roomX(EXPERTS - 1) + ROOM_W + 3, y + DEPTH + 1, BH + WALL + 2),
       BH,
       ctx.top,
     );
   s += castShadow(boxCorners(BOOTH.x - 8, BOOTH.y - 8, BH, BOOTH.x + 8, BOOTH.y + 8, BH + 18), BH, ctx.top);
-  const parts: { at: number[]; svg: string }[] = [];
+  const parts: { box: number[][]; svg: string }[] = [],
+    people = [0, 1].map(l => doorman(l, !!o.forced)),
+    conv = belt(o);
+  // every shadow first (the doormen's and the belt's with the blocks'), then one sort over everything
+  s += [...people, conv].map(p => p.shadow).join('');
+  parts.push(...people.flatMap(p => p.items), ...conv.items);
   for (let l = 0; l < LAYERS; l++) {
-    parts.push(doorman(l, !!o.forced));
-    for (const e of st.lit[l]) if (!o.dense) parts.push({ at: [DOOR_X, ROW_Y[l] + DEPTH + 8, 0], svg: path(l, e) });
+    for (const e of st.lit[l]) if (!o.dense) parts.push(path(l, e));
     for (let e = 0; e < EXPERTS; e++)
       parts.push(
         ...room(
@@ -209,7 +336,7 @@ export const roomsScene = (o: RoomsOpts) => (ctx: SceneCtx) => {
         ),
       );
   }
-  parts.push(belt(o), booth(o));
+  parts.push(booth(o));
   s += byDepth(parts);
 
   // pills: the doormen, the lit rooms (floor 1 below its row, floor 2 above), the token, the guess

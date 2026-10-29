@@ -5,6 +5,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 ## Picture
 
 - **The stencil press** (`src/components/scenes/stencilScene.ts`) is Tokens' press on the workshop board: the prompt's paper strip feeds it (Larkspur mini), and its tiles ride a belt across a stencil plate, the schema. The plate is blue while the model's own first choice is blocked, that tile stopped tomato against it, and mint while tokens pass; its pill counts how many of the 768 tokens pass at this step. No schema, no plate. `StructuredStage` (`src/content/structured-outputs/kit.tsx`) puts it one tab from the Mask view (`maskGrid.ts`: the vocabulary as a grid of tiles, allowed lit, the token written ringed in ink, a blocked first choice in red, beside a focusable list of the likeliest allowed tokens). On phones the pills keep short names and the caption carries the rest.
+- **Hero object: a stencil cut-out sheet in a wooden frame** on two feet across the belt: a thin sheet (blue or mint as above) with shapes cut through it, a wide window, a round hole, a slot and a notch, its bottom rail clear of the passing tiles. The press is Tokens' cast-iron letterpress (`letterpress()`, `feed()` from `tokenScene.ts`).
 
 ## Engine (`src/lib/structured-outputs/`)
 
