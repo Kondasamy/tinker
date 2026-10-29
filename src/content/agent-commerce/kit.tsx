@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import IsoStage from '../../lib/iso/IsoStage';
 import { filterFor } from '../../lib/iso/core.js';
 import Select from '../../components/story/Select';
+import Cite from '../../components/story/Cite';
 import type { Say } from '../../components/story/steps';
 import {
   HATCH_BOARD,
@@ -19,9 +20,13 @@ import {
 } from '../../components/scenes/hatchScene';
 import { type Mandate, mandateOf, sign, type Slip } from '../../lib/agent-commerce/mandate';
 import { checkOrder, orderOf, type Verdict } from '../../lib/agent-commerce/shop';
-import { BUILDER, itemOf, SELLERS, SLIPS, sellerOf, usd } from '../../lib/agent-commerce/story';
+import { ASKS, BUILDER, itemOf, SELLERS, SLIPS, sellerOf, usd } from '../../lib/agent-commerce/story';
+import type { Reading } from '../../lib/agent-commerce/card';
 import type { TaskState } from '../../lib/agent-commerce/task';
 import { CAPS, HOURS, ITEMS } from '../../lib/agent-commerce/workbench';
+import { fact } from '../../lib/agent-commerce/facts';
+import type { Meta } from '../../lib/agent-commerce/turns';
+import { longDate } from '../../lib/format';
 import { useNarrow } from '../tool-calling/kit';
 import { useReduced } from '../recommendations/kit';
 import './agent-commerce.css';
@@ -338,3 +343,48 @@ export function SignSlip({
 
 /** Every seller id, for a pick among them all (the dev page, the workbench). */
 export const ALL_SELLERS = SELLERS.map(s => s.id);
+
+// ---- notes the chapters share (R5, R6) ----
+
+/** A cited fact from data/agent-commerce/facts.json, with its source and the day it was checked. */
+export function Fact({ id }: { id: string }) {
+  const f = fact(id);
+  return (
+    <p className="tc-fact">
+      {f.claim} <Cite title={new URL(f.source).hostname} href={f.source} checked={f.accessed} />
+    </p>
+  );
+}
+
+/** Said wherever a recorded agent turn shows: whose model, and when (KTD4). */
+export const RecordedNote = ({ meta }: { meta: Meta }) => (
+  <p className="note">
+    {`Recorded: one run of ${meta.model} on ${longDate(meta.accessed)}. Another run may answer differently.`}
+  </p>
+);
+
+/** Said wherever the demo key signs (R6, KTD7). */
+export const DemoKeyNote = () => (
+  <p className="note">
+    {`${BUILDER.name}’s demo key: made for this site and public on purpose, so your browser can really sign. A real key never leaves its owner.`}
+  </p>
+);
+
+/** Said wherever the sellers, orders or shop show (R6). */
+export const HandNote = () => (
+  <p className="note">Hand-written for this site: every shop, seller, order and domain here is fictional.</p>
+);
+
+/** One recorded reading of the shop (chapters 1–2): the agent's words, its total, and the catalogue's, checked live. */
+export function ReadingCard({ r }: { r: Reading }) {
+  return (
+    <figure className="ac-read" data-sku={r.sku} data-right={r.right ? '1' : '0'}>
+      <figcaption>{`“${ASKS[r.sku].text}” · read from the ${r.view === 'page' ? 'page' : 'catalogue'}`}</figcaption>
+      <blockquote>{r.turn ? r.turn.text : 'No recorded turn.'}</blockquote>
+      <p>
+        {`Agent’s total ${r.turn ? usd(r.turn.total) : '?'} · catalogue ${usd(r.truth)} `}
+        <span className={`stamp ${r.right ? 'correct' : 'wrong'}`}>{r.right ? 'RIGHT' : 'WRONG'}</span>
+      </p>
+    </figure>
+  );
+}

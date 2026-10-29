@@ -1,0 +1,31 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import APageForPeople from '../../content/agent-commerce/01-a-page-for-people';
+import AMenuForAgents from '../../content/agent-commerce/02-a-menu-for-agents';
+import AgentToAgent from '../../content/agent-commerce/03-agent-to-agent';
+import WhoSaidItCouldBuy from '../../content/agent-commerce/04-who-said-it-could-buy';
+import ASellerThatTalksBack from '../../content/agent-commerce/05-a-seller-that-talks-back';
+import PayingWithoutTheCard from '../../content/agent-commerce/06-paying-without-the-card';
+import Workbench from '../../content/agent-commerce/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('agent-commerce').chapters.map(({ id, title }) => ({
+    params: { chapter: id },
+    props: { title },
+  }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="agent-commerce" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-a-page-for-people' ? <APageForPeople client:load />
+    : chapter === '02-a-menu-for-agents' ? <AMenuForAgents client:load />
+    : chapter === '03-agent-to-agent' ? <AgentToAgent client:load />
+    : chapter === '04-who-said-it-could-buy' ? <WhoSaidItCouldBuy client:load />
+    : chapter === '05-a-seller-that-talks-back' ? <ASellerThatTalksBack client:load />
+    : chapter === '06-paying-without-the-card' ? <PayingWithoutTheCard client:load />
+    : <Workbench client:load />}
+</ChapterLayout>
