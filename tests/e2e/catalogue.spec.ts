@@ -58,6 +58,7 @@ const NUMBERED = [
   'fairness',
   'watermarks',
   'agent-commerce',
+  'parallel-training',
 ];
 
 // AI modules lead the catalogue; classic tech follows in its own section of compact cards
@@ -423,6 +424,10 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
   await expect(page.locator('[data-level="Advanced"] .module[data-module="agent-commerce"] h4 a')).toHaveAttribute(
     'href',
     '/agent-commerce/',
+  );
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="parallel-training"] h4 a')).toHaveAttribute(
+    'href',
+    '/parallel-training/',
   );
 });
 

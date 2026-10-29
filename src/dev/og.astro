@@ -390,6 +390,12 @@ import { HATCH_BOARD, hatchScene, type HatchOpts } from '../components/scenes/ha
 import { mandateOf as acMandate, sign as acSign } from '../lib/agent-commerce/mandate';
 import { checkOrder as acCheck, orderOf as acOrder } from '../lib/agent-commerce/shop';
 import { SLIPS as AC_SLIPS, sellerOf as acSeller } from '../lib/agent-commerce/story';
+import { RING_BOARD, ringScene, type RingOpts } from '../components/scenes/ringScene';
+import { sceneOf as ptScene, type PassState } from '../content/parallel-training/kit';
+import { fillsAfter as ptFills, ringAllReduce as ptRing } from '../lib/parallel-training/ring';
+import { memoryOf as ptMemory, stateOf as ptState } from '../lib/parallel-training/memory';
+import { CHIP as PT_CHIP } from '../lib/parallel-training/facts';
+import { GRADIENTS as PT_GRADIENTS } from '../lib/parallel-training/story';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -1848,6 +1854,28 @@ const HATCH_OG: Record<string, () => HatchOpts | Promise<HatchOpts>> = {
   }),
 };
 const hatchOg = await HATCH_OG[page.og]?.();
+// module 52: the round table. The intro: the ring all-reduce halfway; 1: one chip under the whole state; 2: four
+// workers after the first hop; 3: eight copies with everything sharded; 4: a four-stage pipeline mid-way; 5: eight
+// workers splitting a layer; 6: a chip down; 7: an eight-stage pipeline with eight micro-batches.
+const ptAt = (s: Partial<PassState>) => ptScene({ mode: 'ring', n: 4, k: 0, m: 4, ...s });
+const RING_OG: Record<string, () => Omit<RingOpts, 'scale'>> = {
+  'parallel-training': () => {
+    const r = ptRing(PT_GRADIENTS),
+      k = r.n - 1;
+    return { n: r.n, fills: ptFills(r, k), sends: r.hops[k - 1].sends };
+  },
+  'parallel-training-01-wont-fit': () => ({ n: 1, load: [ptState() / PT_CHIP.memory] }),
+  'parallel-training-02-copies': () => ptAt({ k: 1 }),
+  'parallel-training-03-sharding': () => ({
+    n: 8,
+    load: Array(8).fill(ptMemory({ tp: 1, pp: 1, dp: 8, zero: 3 }).total / PT_CHIP.memory),
+  }),
+  'parallel-training-04-pipeline': () => ptAt({ mode: 'pipeline', k: 4 }),
+  'parallel-training-05-inside-a-layer': () => ptAt({ n: 8, k: 2 }),
+  'parallel-training-06-checkpoints': () => ({ ...ptAt({ n: 8, k: 0 }), down: 3 }),
+  'parallel-training-07-workbench': () => ptAt({ mode: 'pipeline', n: 8, m: 8, k: 9 }),
+};
+const ringOg = RING_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1926,6 +1954,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : gateOg ? <IsoStage board={GATE_BOARD} scene={gateScene({ ...gateOg, scale: 1.3 })} label="" />
           : uvOg ? <IsoStage board={UV_BOARD} scene={uvScene({ ...uvOg, scale: 1.3 })} label="" />
           : hatchOg ? <IsoStage board={HATCH_BOARD} scene={hatchScene({ ...hatchOg, scale: 1.2 })} label="" />
+          : ringOg ? <IsoStage board={RING_BOARD} scene={ringScene({ ...ringOg, scale: 1.3 })} label="" />
           : dreamOg ? <IsoStage board={dreamBoard(dreamOg)} scene={dreamScene({ ...dreamOg, scale: 1.3 })} label="" />
           : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
           : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />

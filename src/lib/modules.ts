@@ -50,6 +50,7 @@ import { LABELLING_MODULE } from '../content/labelling/module';
 import { FAIRNESS_MODULE } from '../content/fairness/module';
 import { WATERMARKS_MODULE } from '../content/watermarks/module';
 import { AGENT_COMMERCE_MODULE } from '../content/agent-commerce/module';
+import { PARALLEL_TRAINING_MODULE } from '../content/parallel-training/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -159,6 +160,7 @@ export const MODULES: Module[] = [
   FAIRNESS_MODULE,
   WATERMARKS_MODULE,
   AGENT_COMMERCE_MODULE,
+  PARALLEL_TRAINING_MODULE,
   planned(
     'choosing-models',
     'Choosing a model',

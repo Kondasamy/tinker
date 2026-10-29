@@ -152,6 +152,9 @@ import { HATCH_BOARD, hatchLabel, hatchScene, type HatchOpts } from '../componen
 import { mandateOf, sign as signMandate } from '../lib/agent-commerce/mandate';
 import { checkOrder, orderOf } from '../lib/agent-commerce/shop';
 import { SLIPS, sellerOf } from '../lib/agent-commerce/story';
+import { RING_BOARD, ringLabel, ringScene } from '../components/scenes/ringScene';
+import { fillsAfter, ringAllReduce } from '../lib/parallel-training/ring';
+import { GRADIENTS } from '../lib/parallel-training/story';
 import { FORM } from '../lib/site';
 
 const one =
@@ -436,6 +439,10 @@ const HATCH: HatchOpts = {
   seller: 'bad',
   scale: 1.5,
 };
+// parallel training: the ring all-reduce halfway, every worker's bucket filling, as the intro draws it
+const PT_RING = ringAllReduce(GRADIENTS),
+  PT_K = PT_RING.n - 1;
+const RING = { n: PT_RING.n, fills: fillsAfter(PT_RING, PT_K), sends: PT_RING.hops[PT_K - 1].sends, scale: 1.7 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -1039,7 +1046,27 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   'agent-commerce': {
     name: 'When the buyer is an agent',
     iso: { board: HATCH_BOARD, scene: hatchScene(HATCH), label: hatchLabel(HATCH) },
-    topics: ['Agent commerce', 'Agent cards', 'Agent to agent', 'Signed mandates', 'Prompt injection', 'Payment tokens'],
+    topics: [
+      'Agent commerce',
+      'Agent cards',
+      'Agent to agent',
+      'Signed mandates',
+      'Prompt injection',
+      'Payment tokens',
+    ],
+  },
+  'parallel-training': {
+    name: 'Many chips, one model',
+    iso: { board: RING_BOARD, scene: ringScene(RING), label: ringLabel(RING) },
+    topics: [
+      'Distributed training',
+      'Data parallel',
+      'All-reduce',
+      'ZeRO sharding',
+      'Pipeline parallel',
+      'Tensor parallel',
+      'Checkpoints',
+    ],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];

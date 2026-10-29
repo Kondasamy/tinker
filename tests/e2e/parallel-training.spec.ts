@@ -172,6 +172,27 @@ test('the recap names the module number', async ({ page }) => {
   await expect(page.locator('.hero .kicker')).toHaveText(`Module ${NUMBER} · Recap`);
 });
 
+test('go-live: own share images and home’s card', async ({ page }) => {
+  await page.goto('/parallel-training/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og\/parallel-training\.jpg$/);
+  await page.goto(`/parallel-training/${CH1}/`);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    new RegExp(`/og/parallel-training-${CH1}\\.jpg$`),
+  );
+  await page.goto('/parallel-training/recap/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    /\/og\/parallel-training-recap\.jpg$/,
+  );
+  expect((await page.request.get('/og/parallel-training.jpg')).status()).toBe(200);
+  await page.goto('/');
+  await expect(page.locator('.module[data-module="parallel-training"] h4 a')).toHaveAttribute(
+    'href',
+    '/parallel-training/',
+  );
+});
+
 test('every chapter plays by mouse, in order through the Next links, with axe clean at each check', async ({
   page,
 }) => {

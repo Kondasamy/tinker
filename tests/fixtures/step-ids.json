@@ -2344,5 +2344,47 @@
       "bench",
       "ties"
     ]
+  },
+  "parallel-training": {
+    "01-wont-fit": [
+      "predict",
+      "weigh",
+      "quiz"
+    ],
+    "02-copies": [
+      "pass",
+      "predict",
+      "eight",
+      "quiz"
+    ],
+    "03-sharding": [
+      "predict",
+      "stage1",
+      "stage3",
+      "quiz"
+    ],
+    "04-pipeline": [
+      "walk",
+      "predict",
+      "micro",
+      "quiz"
+    ],
+    "05-inside-a-layer": [
+      "predict",
+      "inside",
+      "between",
+      "quiz"
+    ],
+    "06-checkpoints": [
+      "predict",
+      "often",
+      "rarely",
+      "best",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "ties"
+    ]
   }
 }

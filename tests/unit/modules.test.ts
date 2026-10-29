@@ -850,6 +850,18 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'agent-commerce')).toBe(50);
   });
 
+  it('has parallel-training as a live Advanced module after agent-commerce, numbered 52', () => {
+    expect(moduleOf('parallel-training')).toMatchObject({
+      title: 'Many chips, one model',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['pre-training'],
+    });
+    expect(moduleOf('parallel-training').track).toBeUndefined();
+    expect(moduleOf('parallel-training').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'parallel-training')).toBe(51);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });
