@@ -20,6 +20,7 @@ import {
 import {
   blocked,
   canMoveRules,
+  NOT_USED,
   CHAPTER_TICKET,
   clip,
   moveRules,
@@ -28,7 +29,7 @@ import {
   unclipBlocked,
 } from '../../lib/prompts/assemble';
 import { CARDS, type Card, type Docket, type ModelId } from '../../lib/prompts/cards';
-import { gradeReply, passes, type Grade } from '../../lib/prompts/grade';
+import { gradeReply, passes, REFERENCES, type Grade } from '../../lib/prompts/grade';
 import { continueText, MINI_PROMPTS, MINI_TOKENS, NORECORD, replyOf, type Reply } from '../../lib/prompts/story';
 import { fact } from '../../lib/prompts/facts';
 import { MODEL, useModel, type ModelStore } from '../transformers/kit';
@@ -82,6 +83,9 @@ const linesOf = (words: number) => Math.ceil(words / 25);
 export const byline = (r: Reply) =>
   r.source === 'recorded' ? `Recorded from ${r.by}, ${r.date}.` : `Simulated (${r.by}, ${r.date}).`;
 
+/** A ticket's key fact as its reference spells it first (the outage's extension, by default). */
+export const keyFact = (ticket = CHAPTER_TICKET) => Object.values(REFERENCES[ticket].facts)[0][0];
+
 // ---- the run: the docket sent to one ticket, or to a question set ----
 
 export interface Run {
@@ -124,6 +128,12 @@ export function boardOf(
   return { run, runs, opts, said };
 }
 
+/** A stage caption: who wrote the reply shown. */
+export function captionOf(chapter: string, d: Docket, at: Parameters<typeof boardOf>[2] = {}) {
+  const { run } = boardOf(chapter, d, at);
+  return run ? byline(run.reply) : 'No reply recorded for this docket.';
+}
+
 // ---- the Text tab ----
 
 const SLOT_NAME: Record<CardSlot, string> = {
@@ -151,7 +161,8 @@ function Checks({ items }: { items: { ok: boolean; text: string }[] }) {
 function TextView({ d, run, runs, missing }: { d: Docket; run: Run | null; runs?: Run[]; missing: boolean }) {
   const ticket = run?.ticket ?? CHAPTER_TICKET;
   return (
-    <div className="pr-text">
+    // it scrolls in the frame, so it takes focus for keyboard scrolling (axe: scrollable-region-focusable)
+    <div className="pr-text" role="group" aria-label="The prompt and its reply" tabIndex={0}>
       <ol className="pr-parts" aria-label="The prompt, in the order the model reads it">
         {partsOf({ ...d, ticket }).map(p => (
           <li key={p.slot} data-slot={p.slot}>
@@ -204,6 +215,8 @@ function Tray({
       {CARDS.map(c => {
         const on = isClipped(d, c),
           why = on ? unclipBlocked(chapter, c.slot) : blocked(chapter, c.id);
+        // a card an earlier chapter used and this one doesn't only adds noise
+        if (why === NOT_USED) return null;
         return (
           <button
             key={c.id}
@@ -386,9 +399,11 @@ export function DocketStage({
 }
 
 /** Chapter 1's stage: one instruction on the docket, and Larkspur mini continuing it live (loaded once per page
- * through Transformers' model store). The Text tab shows the instruction and its continuation. */
+ * through Transformers' model store) once it is sent (`sent`). The Text tab shows the instruction and its
+ * continuation. */
 export function MiniStage({
   prompt,
+  sent = true,
   onPrompt,
   store = MODEL,
   say,
@@ -399,6 +414,8 @@ export function MiniStage({
   children,
 }: {
   prompt: string;
+  /** false: the instruction waits on the docket, unanswered */
+  sent?: boolean;
   /** none: the instruction chips are hidden */
   onPrompt?: (p: string) => void;
   store?: ModelStore;
@@ -414,7 +431,7 @@ export function MiniStage({
     setView = onView ?? setOwn;
   const narrow = useNarrow();
   const { model, failed, retry } = useModel(store);
-  const text = useMemo(() => (model ? continueText(model, prompt) : null), [model, prompt]);
+  const text = useMemo(() => (model && sent ? continueText(model, prompt) : null), [model, prompt, sent]);
   const [said, setSaid] = useState('');
   useEffect(() => setSaid(''), [step]);
   useEffect(() => {
@@ -432,7 +449,7 @@ export function MiniStage({
       <Tabs view={view} setView={setView} />
       <div className="tc-frame">
         {view === 'text' ? (
-          <div className="pr-text">
+          <div className="pr-text" role="group" aria-label="The prompt and its continuation" tabIndex={0}>
             <ol className="pr-parts" aria-label="The prompt">
               <li data-slot="task">
                 <span className="pr-slot">

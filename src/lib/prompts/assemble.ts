@@ -130,9 +130,10 @@ export function blocked(chapter: string, cardId: string): string | null {
   if (c.slot === 'rules') return canHoldRules(chapter) ? null : closed(chapter, c);
   return opens(chapter, c.slot, c.value) ? null : closed(chapter, c);
 }
+export const NOT_USED = 'Not used in this chapter.';
 const closed = (chapter: string, c: Card) => {
   const ch = firstOpen(c);
-  return ch && ch > chapter ? `Opens in chapter ${Number(ch.slice(0, 2))}.` : 'Not used in this chapter.';
+  return ch && ch > chapter ? `Opens in chapter ${Number(ch.slice(0, 2))}.` : NOT_USED;
 };
 /** The docket with a card clipped, or unchanged when the chapter keeps that card closed. */
 export function clip(chapter: string, d: Docket, cardId: string): Docket {

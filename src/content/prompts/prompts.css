@@ -140,3 +140,12 @@
     opacity: 0;
   }
 }
+/* chapter 7's score: tickets passed and prompt length, with a stamp */
+.pr-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}

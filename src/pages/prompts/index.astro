@@ -1,0 +1,248 @@
+---
+// Writing a prompt module intro: sets the scene before chapter 1. Static, except the warm-up and a small script that
+// marks finished chapters. Every example is the module's own data: the docket board drawn from the recorded replies
+// and their live grades (boardOf), the counts from the same.
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import Meta from '../../components/Meta.astro';
+import IsoStage from '../../lib/iso/IsoStage';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import { DOCKET_BOARD, docketLabel, docketScene, type DocketOpts } from '../../components/scenes/docketScene';
+import { START } from '../../lib/prompts/assemble';
+import { TEXT, TICKETS, type Docket, type ModelId } from '../../lib/prompts/cards';
+import { RECORDINGS } from '../../lib/prompts/story';
+import { fact } from '../../lib/prompts/facts';
+import { boardOf } from '../../content/prompts/kit';
+import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { introMeta } from '../../lib/pages';
+import { longDate } from '../../lib/format';
+
+const MODULE = moduleOf('prompts');
+const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+// empty until go-live registers the module (the planned card has no chapters), so the build never breaks before it
+const CHAPTERS = MODULE.chapters;
+const ALL = TICKETS.map(t => t.id);
+const N = ALL.length;
+
+const at = (chapter: string, d: Partial<Docket>, set = false, model: ModelId = 'main', say?: DocketOpts['say']) => ({
+  ...boardOf(chapter, { ...START[chapter], ...d }, set ? { tickets: ALL, model } : {}).opts,
+  scale: 1.4,
+  say,
+});
+const passed = (d: Partial<Docket>, model: ModelId = 'main') =>
+  boardOf('06-test-it-like-code', { ...START['06-test-it-like-code'], ...d }, { tickets: ALL, model }).runs!.filter(
+    r => r.pass,
+  ).length;
+const CH2 = '02-say-what-you-want';
+const vague = boardOf(CH2, START[CH2]).run!,
+  clear = boardOf(CH2, { ...START[CH2], task: 'clear' }).run!;
+const HERO = at('06-test-it-like-code', { task: 'clear' }, true);
+const MINI: DocketOpts = {
+  cards: [{ slot: 'task', label: 'INSTRUCTION' }],
+  state: 'warn',
+  slip: { lines: 1, text: 'JUST CONTINUES' },
+  scale: 1.4,
+};
+const IDEAS: [string, string, ReturnType<typeof fact> | null, DocketOpts][] = [
+  ['It only continues', 'A plain model writes what comes next; it never learned to follow', null, MINI],
+  [
+    'Say what you want',
+    'A clear task, with the facts, gets the key fact in',
+    fact('clear-and-direct'),
+    at(CH2, { task: 'clear' }),
+  ],
+  [
+    'Show, don’t tell',
+    'Examples set the style, quirks and all',
+    fact('example-bias'),
+    at('03-show-dont-tell', { examples: '2q' }),
+  ],
+  [
+    'Test it like code',
+    'Score every change on a set of tickets, on each model you ship',
+    fact('openai-guide'),
+    at('06-test-it-like-code', { task: 'clear' }, true, 'small'),
+  ],
+];
+const REC = RECORDINGS[CH2].meta;
+const RECORDED = Object.values(RECORDINGS).reduce(
+  (n, f) => n + Object.values(f.replies).filter(r => !r.simulated).length,
+  0,
+);
+const FACTS: [string, string][] = [
+  [String(N), 'hand-written tickets, each with a reference answer from Larkspur’s policy'],
+  [`${passed({ task: 'vague' })} → ${passed({ task: 'clear' })}`, `tickets passed of ${N}, vague task then clear`],
+  [`${passed({ task: 'clear' }, 'small')} of ${N}`, 'the same prompt on a smaller model'],
+  [String(RECORDED), `replies recorded from two models, ${longDate(REC.accessed)}`],
+];
+---
+<html lang="en">
+  <head>
+    <Meta {...introMeta(MODULE.id)} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module {NUMBER} · {MODULE.title}</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span></p>
+          <h1>A prompt is a spec</h1>
+          <p class="lede">Say the task, show an example, fix the format, then test it like code. Here you clip cards onto a work docket, watch a real model’s recorded replies change, and score each prompt on real tickets.</p>
+          <div class="ctas">
+            <a class="btn primary" href={CHAPTERS[0] ? chapterHref(MODULE.id, CHAPTERS[0].id) : "#path"} data-cta>Start chapter 1 →</a>
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+          <ReadingMode />
+        </div>
+        <div class="hero-pic">
+          {/* the clear prompt passing every ticket */}
+          <IsoStage board={DOCKET_BOARD} scene={docketScene(HERO)} label={docketLabel(HERO)} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="idea">
+        <p class="kicker">The whole idea in one example</p>
+        <h2 id="idea">One ticket, two asks</h2>
+        <div class="versus">
+          <article class="reply">
+            <header><h3>“{TEXT.vague}”</h3><span class="stamp">vague</span></header>
+            <p class="said">{vague.grade.words} words</p>
+            <p class="cap">and none of them the key fact. It made up a hotline instead.</p>
+          </article>
+          <article class="reply read">
+            <header><h3>The clear task</h3><span class="stamp">key fact in</span></header>
+            <p class="quote">{clear.reply.text}</p>
+          </article>
+        </div>
+        <p class="note more">Replies recorded from {REC.models.main}, {longDate(REC.accessed)}, at temperature 0; chapter 5’s are simulated, and say so. Made-up web addresses in replies are changed to .example.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Four ideas carry the module</h2>
+        <ol class="steps">
+          {IDEAS.map(([name, short, f, o], i) => (
+            <li>
+              <div class="pic"><IsoStage board={DOCKET_BOARD} scene={docketScene(o)} label={docketLabel(o)} /></div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              {f && <p class="more">{f.claim}</p>}
+              {f && <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>}
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">Larkspur writes its reply drafter’s prompt</h2>
+          <p class="more">{MODULE.story} <strong>You’re on the support team, writing it with Rosa.</strong></p>
+        </div>
+        <dl class="facts">
+          {FACTS.map(([num, what]) => <div><dt>{num}</dt><dd>{what}</dd></div>)}
+        </dl>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due; the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <ul class="who-chips"><li>Product managers</li><li>Engineers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Anyone who writes prompts for a product, a team or themselves, and wants to know which words earn their place and how to tell a better prompt from a lucky one.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com" target="_blank" rel="noopener">Samy (Kondasamy Jayaraman)</a>.</p>
+      </footer>
+    </main>
+
+    <script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      const CHAPTERS = moduleOf('prompts').chapters;
+      const done = completed('prompts');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('prompts', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.read { border-left: 6px solid var(--acc); }
+  .said { font-size: 28px; font-weight: 900; }
+  .quote { font-size: 15px; }
+
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); white-space: nowrap; }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 240px; display: flex; justify-content: center; margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: auto !important; height: 100% !important; max-width: 100%; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
+
+  .pair { display: grid; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+    .steps .pic { height: 200px; }
+  }
+</style>
