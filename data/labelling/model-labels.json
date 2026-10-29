@@ -1,0 +1,66 @@
+{
+  "meta": {
+    "note": "Recorded once from the NVIDIA API and frozen; replies varied between runs, so this file is the record. A null label is a norecord.",
+    "date": "2026-10-29",
+    "provider": "https://integrate.api.nvidia.com/v1",
+    "settings": {
+      "temperature": 0,
+      "seed": 1,
+      "max_tokens": 4096
+    },
+    "system": "You label customer support tickets for Larkspur Supply Co., a hardware company, by intent.\nThe labelling guideline:\n- refund: Money back, and nothing has to come back to us.\n- return: The customer still has the item and it comes back to us, for a swap or for their money.\n- delivery: Where an order is, or when and how it arrives.\n- product: What an item does, fits or costs, or when it is in stock.\n- account: Logins, details, invoices and trade account settings.\nAnswer with exactly one word: refund, return, delivery, product, account.",
+    "script": "scripts/record/labelling.mjs at fa71b1c"
+  },
+  "models": {
+    "main": {
+      "id": "nvidia/nemotron-3-ultra-550b-a55b",
+      "labels": {
+        "t014": "product",
+        "t018": "delivery",
+        "t019": "product",
+        "t038": "delivery",
+        "t039": "product",
+        "t044": "product",
+        "t046": "refund",
+        "t049": "product",
+        "t055": "account",
+        "t057": "return",
+        "t059": "product",
+        "t069": "product",
+        "t083": "delivery",
+        "t085": "account",
+        "t089": "product",
+        "t073": "delivery",
+        "t030": "account",
+        "t005": "account",
+        "t051": "refund",
+        "t027": "return"
+      }
+    },
+    "check": {
+      "id": "openai/gpt-oss-20b",
+      "labels": {
+        "t014": "product",
+        "t018": "delivery",
+        "t019": "product",
+        "t038": "delivery",
+        "t039": "product",
+        "t044": "product",
+        "t046": "refund",
+        "t049": "product",
+        "t055": "account",
+        "t057": "return",
+        "t059": "product",
+        "t069": "product",
+        "t083": "delivery",
+        "t085": "account",
+        "t089": "product",
+        "t073": "delivery",
+        "t030": "account",
+        "t005": "account",
+        "t051": "refund",
+        "t027": "return"
+      }
+    }
+  }
+}
