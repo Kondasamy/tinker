@@ -32,10 +32,13 @@
   font-weight: 700;
   font-size: 14px;
 }
-.dp-pick select {
-  font: inherit;
-  min-height: 32px;
+.dp-pick .sel {
   margin-left: 4px;
+}
+/* the pull bar sits at the foot of the stage, which scrolls on wide screens: the versions open upward, never cut */
+.dp-pick .sel-list {
+  top: auto;
+  bottom: calc(100% + 6px);
 }
 .dp-day {
   display: flex;

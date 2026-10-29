@@ -1,5 +1,6 @@
 // Diffusion language models, chapter by chapter, by mouse or keyboard only, following each chapter's "Next" link.
 import { expect, type Locator, type Page } from '@playwright/test';
+import { choose } from './helpers';
 import { KS } from '../../src/lib/diffusion-llms/decode';
 import { WINNERS } from '../../src/lib/diffusion-llms/workbench';
 import { ASKED_K as ASKED4, ASKED_LENGTHS as ASKED5, LENGTHS, NEED } from '../../src/lib/diffusion-llms/chapters';
@@ -114,9 +115,9 @@ export function dlWalker(page: Page, mode: Mode, check: (page: Page) => Promise<
     async ch7(next?: RegExp, quiz: string | RegExp = /^Test each kind/) {
       const w = WINNERS[0];
       for (const [kind, c] of Object.entries(w)) {
-        const sel = card.locator(`fieldset[data-kind="${kind}"] select`);
-        await sel.nth(0).selectOption(String(c.k));
-        await sel.nth(1).selectOption(c.rule);
+        const sel = card.locator(`fieldset[data-kind="${kind}"] [role="combobox"]`);
+        await choose(sel.nth(0), String(c.k));
+        await choose(sel.nth(1), c.rule);
       }
       await step(2);
       await check(page);

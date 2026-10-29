@@ -1,14 +1,42 @@
 // The Consistency module's picture: three warehouses (KTD15). Each of Larkspur's warehouses (North at the back, East and
 // West in front) keeps its own copy of the stock count on a board tray in front of it: a mustard tile per hinge it
-// counts, a cobalt block while it counts the drill press. A phone line on poles joins the three; messages on their way
-// hang on its wires as small envelopes, and a wire to a cut-off warehouse is drawn broken, its messages waiting at the
-// sender's end. This minute's orders stand over the warehouse that took them: a receipt per sale (tomato when the final
+// counts, a cobalt block while it counts the drill press, and a clerk beside it. A phone line on telegraph poles joins
+// the three; messages on their way hang pegged on its wires as envelopes, and a wire to a cut-off warehouse is drawn
+// broken, its messages waiting at the sender's end. This minute's orders show at the warehouse that took them: a
+// receipt per sale pinned up its pole (tomato when the final
 // count lost that sale), a red block per refused order, and a tomato flag when a look read an old count. With
 // reservations, a lamp burns on North's roof, the primary. Words only in pills; on phones (scale > 1.5) pills keep just
 // the names and the caption carries the numbers.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
-import { PALS, CERAMIC, WOOD, box, castShadow, cyl, hullInk, toneI, tag, byDepth, line } from '../../lib/iso/core.js';
+import {
+  PALS,
+  CERAMIC,
+  METAL,
+  DARK,
+  WOOD,
+  box,
+  castShadow,
+  toneI,
+  tag,
+  byDepth,
+  line,
+  rod,
+  shape,
+  matOf,
+  vis,
+} from '../../lib/iso/core.js';
+import {
+  building,
+  drawPieces,
+  lamp as lamp_,
+  mini,
+  person,
+  pole,
+  type Piece,
+  type Roof,
+  floor,
+} from '../../lib/iso/figures';
 import {
   PRODUCTS,
   REPS,
@@ -51,8 +79,9 @@ export interface StockOpts {
 export const STOCK_PARTS = [...REPS, 'line'] as const;
 
 const SITE: Record<Rep, [number, number]> = { north: [70, 48], east: [162, 92], west: [62, 160] };
-const WH = { half: 13, top: BH + 18 };
-const POLE = WH.top + 12;
+const WH = { half: 13, top: BH + 22 };
+// where the pills point: over each warehouse, and the wire's middle (projected; see PD below)
+const POLE = BH + 30;
 export const PRODUCT_PAL: Record<Product, { l: string; m: string; d: string }> = {
   hinge: PALS.mustard,
   drill: PALS.cobalt,
@@ -63,6 +92,7 @@ const WIRES: [Rep, Rep][] = [
   ['east', 'west'],
 ];
 const OVER = '#f6c2b4';
+type Mat = { l: string; m: string; d: string };
 
 const empty = (): RepView => ({ board: { hinge: 0, drill: 0 }, sold: 0, lost: 0, refused: 0, stale: 0 });
 /** This minute's orders and looks, by the warehouse they happened at. */
@@ -114,17 +144,73 @@ const pill = (p: number[], dx: number, dy: number, text: string, lit: boolean, s
 const top = (r: Rep) => [...SITE[r], POLE];
 const at = (a: number[], b: number[], k: number) => a.map((v, i) => v + (b[i] - v) * k);
 
-function warehouse(r: Rep, v: RepView, lamp: boolean) {
+// Each warehouse a different building: North a red barn (gable), East a brick store (parapet), West a round-roofed
+// shed (barrel). Doors on the +y wall, the count tray in front of +x.
+const LOOK: Record<Rep, { roof: Roof; pal: Mat; roofPal: Mat }> = {
+  north: { roof: 'gable', pal: PALS.tomato, roofPal: matOf('#8a7462') },
+  east: { roof: 'parapet', pal: matOf('#c98a5e'), roofPal: PALS.tomato },
+  west: { roof: 'dome', pal: CERAMIC, roofPal: METAL },
+};
+const CLERK: Record<Rep, string> = { north: 'shopper4', east: 'shopper2', west: 'shopper5' };
+// The telegraph pole stands at the warehouse's front corner, its crossarm at the height that puts the wire's ends
+// (and so its middle) on the same screen points the pills have always pointed at: (x + d, y + d, z + d) projects
+// like (x, y, z).
+const PD = 16,
+  PH = POLE + PD - BH + 1.8;
+const poleAt = (r: Rep): [number, number] => [SITE[r][0] + PD, SITE[r][1] + PD];
+/** the insulator tops on r's crossarm (the pole faces +x, so its arm runs along y) */
+const insulators = (r: Rep) => {
+  const [px, py] = poleAt(r);
+  return [-8, -4, 4, 8].map(b => [px, py + b, BH + PH - 1.8]);
+};
+/** each wire's two ends: the insulator on each pole nearest the other pole, none used twice */
+function wireEnds() {
+  const used = new Set<string>(),
+    pick = (r: Rep, to: Rep) => {
+      const [tx, ty] = poleAt(to),
+        best = insulators(r)
+          .filter(p => !used.has(`${r}${p[1]}`))
+          .sort((p, q) => Math.hypot(p[0] - tx, p[1] - ty) - Math.hypot(q[0] - tx, q[1] - ty))[0];
+      used.add(`${r}${best[1]}`);
+      return best;
+    };
+  return Object.fromEntries(WIRES.map(([a, b]) => [`${a}-${b}`, [pick(a, b), pick(b, a)]])) as Record<
+    string,
+    number[][]
+  >;
+}
+const piece = (svg: string, box: number[][], shadow = ''): Piece => ({ shadow, items: [{ box, svg }], box });
+
+function warehouse(r: Rep, v: RepView, lamp: boolean): Piece[] {
   const [x, y] = SITE[r],
-    h = WH.half;
-  let s = box(x - h, y - h, BH, x + h, y + h, WH.top, CERAMIC, toneI, 1);
-  s += box(x - h, y - h, WH.top, x + h, y + h, WH.top + 2.5, WOOD, toneI, 0.9);
-  s += box(x + h, y - 5, BH, x + h + 0.6, y + 5, BH + 11, PALS.cobalt, toneI, 0.8);
-  s += hullInk(boxCorners(x - h, y - h, BH, x + h, y + h, WH.top + 2.5), 2);
-  // the pole the phone line hangs from
-  s += box(x - 0.8, y - 0.8, WH.top + 2.5, x + 0.8, y + 0.8, POLE + 1, WOOD, toneI, 0.8);
-  if (lamp)
-    s += `<g class="lamp">${cyl(x + 5, y - 5, WH.top + 2.5, WH.top + 6.5, 2.4, PALS.mustard, toneI, 0.9, 14)}</g>`;
+    h = WH.half,
+    L = LOOK[r];
+  const shed = building({
+    x,
+    y,
+    d: 2 * h,
+    w: 2 * h,
+    h: WH.top - BH,
+    roof: L.roof,
+    front: '+y',
+    windows: 1,
+    pal: L.pal,
+    roofPal: L.roofPal,
+  });
+  const roofTop = shed.box[1][2];
+  // the tag carries the part's data; the building's own group sits inside it
+  shed.items = [
+    {
+      ...shed.items[0],
+      svg: `<g data-prop="${r}" data-sold="${v.sold}" data-refused="${v.refused}" data-stale="${v.stale ? 1 : 0}">${shed.items[0].svg}</g>`,
+    },
+  ];
+  const out: Piece[] = [
+    shed,
+    pole({ x: poleAt(r)[0], y: poleAt(r)[1], h: PH }),
+    person({ x: x + h + 5, y: y - h - 5, facing: '+y', look: CLERK[r], holding: null }),
+  ];
+  if (lamp) out.push(lamp_({ x, y: y - 6, z: roofTop - 1, h: 3, lit: true }));
   // the board tray in front: a tile per hinge counted (two rows of four), a block while the drill press is counted
   const sx = x + h + 3;
   let tray = box(sx, y - h, BH, sx + 10, y + h, BH + 1.5, WOOD, toneI, 0.8);
@@ -156,71 +242,115 @@ function warehouse(r: Rep, v: RepView, lamp: boolean) {
     toneI,
     0.7,
   );
-  const tiles = `<g data-prop="board" data-rep="${r}" data-hinge="${v.board.hinge}" data-drill="${v.board.drill}">${tray}</g>`;
-  // this minute's orders: receipts over the roof, a red block for each refusal, a flag for a stale look
-  let over = '';
-  for (let i = 0; i < Math.min(3, v.sold); i++) {
-    // a paper card standing beside the pole, its face toward the viewer, a mint paid stripe across it
-    const lost = i < v.lost,
-      oy = y + 2.5 + i * 8.5,
-      z0 = WH.top + 6;
-    over += `<g class="receipt${lost ? ' lost' : ''}">${box(x - 0.6, oy, z0, x + 0.6, oy + 7, z0 + 13, lost ? PALS.tomato : CERAMIC, toneI, 1)}${box(x + 0.6, oy + 1, z0 + 8, x + 0.8, oy + 6, z0 + 10, PALS.mint, toneI, 0.4)}</g>`;
-  }
-  if (v.refused)
-    over += `<g class="refused">${box(x - h - 6, y - 3, BH, x - h - 1, y + 3, BH + 9, PALS.tomato, toneI, 0.9)}</g>`;
-  if (v.stale)
-    over += `<g class="stale-flag">${line(
+  out.push(
+    piece(
+      `<g data-prop="board" data-rep="${r}" data-hinge="${v.board.hinge}" data-drill="${v.board.drill}">${tray}</g>`,
       [
-        [x - h + 2, y + h - 2, WH.top + 2.5],
-        [x - h + 2, y + h - 2, WH.top + 14],
+        [sx, y - h, BH],
+        [sx + 10, y + h, BH + 7.5],
       ],
-      1.1,
-    )}${box(x - h + 2, y + h - 2.3, WH.top + 9, x - h + 9, y + h - 1.7, WH.top + 14, PALS.tomato, toneI, 0.9)}</g>`;
-  return [
-    {
-      at: [x, y, 0],
-      svg: `<g data-prop="${r}" data-sold="${v.sold}" data-refused="${v.refused}" data-stale="${v.stale ? 1 : 0}">${s}${over}</g>`,
-    },
-    { at: [sx + 5, y, 0], svg: tiles },
-  ];
+    ),
+  );
+  // this minute's orders: receipts pinned up the pole, a red block for each refusal, a flag for a stale look
+  const [px, py] = poleAt(r);
+  for (let i = 0; i < Math.min(3, v.sold); i++) {
+    // a paper card on the pole's front, its face toward the viewer, a mint paid stripe across it
+    const lost = i < v.lost,
+      oy = py - 11 + i * 7.5,
+      z0 = WH.top + 2,
+      x0 = px + 1.6;
+    out.push(
+      piece(
+        `<g class="receipt${lost ? ' lost' : ''}">${box(x0, oy, z0, x0 + 1.2, oy + 6.5, z0 + 12, lost ? PALS.tomato : CERAMIC, toneI, 1)}${box(x0 + 1.2, oy + 1, z0 + 7, x0 + 1.4, oy + 5.5, z0 + 9, PALS.mint, toneI, 0.4)}</g>`,
+        [
+          [x0, oy, z0],
+          [x0 + 1.4, oy + 6.5, z0 + 12],
+        ],
+      ),
+    );
+  }
+  if (v.refused) {
+    const b = boxCorners(x - h - 6, y - 3, BH, x - h - 1, y + 3, BH + 9);
+    out.push(
+      piece(
+        `<g class="refused">${box(x - h - 6, y - 3, BH, x - h - 1, y + 3, BH + 9, PALS.tomato, toneI, 0.9)}</g>`,
+        [b[0], b[7]],
+        castShadow(b, BH),
+      ),
+    );
+  }
+  if (v.stale) {
+    // a flagpole planted at the back-left corner, a tomato flag at its head
+    const fx = x - h - 2,
+      fy = y + h + 2,
+      zt = roofTop + 6;
+    out.push(
+      piece(
+        `<g class="stale-flag">${rod([fx, fy, BH], [fx, fy, zt], 0.5, DARK, toneI, 0.8)}${box(fx, fy - 0.3, zt - 5, fx + 7, fy + 0.3, zt, PALS.tomato, toneI, 0.9)}</g>`,
+        [
+          [fx - 0.5, fy - 0.5, BH],
+          [fx + 7, fy + 0.5, zt],
+        ],
+      ),
+    );
+  }
+  return out;
 }
 
-/** The phone line: a wire per pair, broken at its middle when it runs to the cut-off warehouse. */
+/** An envelope pegged under the wire at p: a paper card along the wire (d), a V flap on the side facing the viewer. */
+function envelope(p: number[], d: number[]) {
+  const k = 2.8,
+    q = (a: number, zz: number) => [p[0] + d[0] * a, p[1] + d[1] * a, p[2] + zz];
+  const n = [-d[1], d[0], 0],
+    face = vis(n) ? n : n.map(v => -v);
+  return (
+    line([q(0, 0), q(0, -1.4)], 1) +
+    shape([q(-k, -1.2), q(k, -1.2), q(k, -5.8), q(-k, -5.8)], toneI(face, CERAMIC), 0.7) +
+    line([q(-k, -1.2), q(0, -3.6), q(k, -1.2)], 0.5)
+  );
+}
+
+/** The phone line: a wire per pair between the poles' insulators, broken at its middle when it runs to the
+ * cut-off warehouse, the two ends sagging. */
 function wires(o: StockOpts) {
-  const st = stockState(o);
+  const st = stockState(o),
+    E = wireEnds(),
+    ends = (a: Rep, b: Rep) => (E[`${a}-${b}`] ?? [...E[`${b}-${a}`]].reverse()) as number[][];
   let s = '';
   for (const [a, b] of WIRES) {
-    const A = top(a),
-      B = top(b),
+    const [A, B] = ends(a, b),
       cut = st.cut.includes(`${a}-${b}`);
-    if (!cut) s += line([A, B], 1.1);
+    if (!cut) s += line([A, at(A, B, 0.5).map((v, i) => (i === 2 ? v - 1.2 : v)), B], 1.1);
     else {
-      s += line([A, at(A, B, 0.44)], 1.1) + line([at(A, B, 0.56), B], 1.1);
+      const sag = (k: number) => at(A, B, k).map((v, i) => (i === 2 ? v - 6 : v));
+      s += line([A, sag(0.44)], 1.1) + line([sag(0.56), B], 1.1);
       const m = at(A, B, 0.5);
       s += `<g class="break">${box(m[0] - 2, m[1] - 2, m[2] - 2, m[0] + 2, m[1] + 2, m[2] + 2, PALS.tomato, toneI, 0.9)}</g>`;
     }
   }
   for (const e of st.envelopes) {
-    const [from, to] = e.k.split('>') as Rep[];
+    const [from, to] = e.k.split('>') as Rep[],
+      [A, B] = ends(from, to),
+      len = Math.hypot(B[0] - A[0], B[1] - A[1]),
+      d = [(B[0] - A[0]) / len, (B[1] - A[1]) / len];
     for (let i = 0; i < e.n; i++) {
       // waiting at the sender's end of a cut wire; otherwise on the way, a little past the middle
-      const p = at(top(from), top(to), e.waiting ? 0.18 + i * 0.1 : 0.55 + i * 0.12);
-      s += `<g class="envelope" data-wire="${e.k}"${e.waiting ? ' data-waiting="1"' : ''}>${box(p[0] - 2, p[1] - 1.4, p[2] - 4, p[0] + 2, p[1] + 1.4, p[2] - 0.6, CERAMIC, toneI, 0.7)}</g>`;
+      const p = at(A, B, e.waiting ? 0.18 + i * 0.1 : 0.55 + i * 0.12);
+      s += `<g class="envelope" data-wire="${e.k}"${e.waiting ? ' data-waiting="1"' : ''}>${envelope(p, d)}</g>`;
     }
   }
   return `<g data-prop="line" data-cut="${o.cutOff ?? ''}">${s}</g>`;
 }
 
-/** The scene: shadows, then the warehouses and trays back to front, then the line over them, then the pills. */
+/** The scene: every shadow, then the warehouses, poles, clerks and trays in one sort, the wires over them (strung
+ * between the crossarms, above everything else), then the pills. */
 export const stockScene = (o: StockOpts) => (ctx: SceneCtx) => {
   const scale = o.scale ?? 1,
     narrow = scale > 1.5;
-  let s = '';
-  for (const r of REPS) {
-    const [x, y] = SITE[r];
-    s += castShadow(boxCorners(x - WH.half, y - WH.half, BH, x + WH.half, y + WH.half, WH.top + 2), BH, ctx.top);
-  }
-  s += byDepth(REPS.flatMap(r => warehouse(r, o.reps[r], o.primary && r === 'north')));
+  let s = drawPieces(
+    REPS.flatMap(r => warehouse(r, o.reps[r], o.primary && r === 'north')),
+    ctx.top,
+  );
   s += wires(o);
   let pills = '';
   for (const r of REPS) {
@@ -285,31 +415,28 @@ export function stockReadouts(o: StockOpts): string[] {
   ];
 }
 
-/** The home hero's plot: two small warehouses on a phone line cut in the middle, each tray counting the last hinge,
- * and a receipt over each: the hinge sold twice. */
+/** The home hero's plot: two of the warehouses in miniature (North's barn, East's brick store), each with its clerk,
+ * count tray and telegraph pole, the line between them cut in the middle. */
 export function stockPlot(x: number, y: number, top: SceneCtx['top']): string {
-  const site = [
-    [x - 14, y - 8],
-    [x + 12, y + 8],
-  ];
-  const h = 6,
-    zt = BH + 9,
-    pz = zt + 8;
-  const parts = site.map(([sx, sy]) => {
-    let s = box(sx - h, sy - h, BH, sx + h, sy + h, zt, CERAMIC, toneI, 1);
-    s += box(sx - h, sy - h, zt, sx + h, sy + h, zt + 1.5, WOOD, toneI, 0.8);
-    s += hullInk(boxCorners(sx - h, sy - h, BH, sx + h, sy + h, zt + 1.5), 1.6);
-    s += box(sx - 0.6, sy - 0.6, zt + 1.5, sx + 0.6, sy + 0.6, pz, WOOD, toneI, 0.6);
-    s += box(sx + h + 1.5, sy - 2, BH, sx + h + 4.5, sy + 1, BH + 2.4, PALS.mustard, toneI, 0.6);
-    s += box(sx - 2, sy - 0.5, zt + 2.5, sx + 1, sy + 0.4, zt + 7, CERAMIC, toneI, 0.6);
-    return { at: [sx, sy, 0], svg: s };
-  });
-  const A = [...site[0], pz],
-    B = [...site[1], pz],
+  const k = 0.4,
+    sites: [Rep, number, number][] = [
+      ['north', x - 14, y - 10],
+      ['east', x + 10, y + 10],
+    ],
+    view: RepView = { ...empty(), board: { hinge: 4, drill: 1 } },
+    move = (r: Rep, sx: number, sy: number, p: number[]) => [
+      sx + (p[0] - SITE[r][0]) * k,
+      sy + (p[1] - SITE[r][1]) * k,
+      BH + (p[2] - BH) * k,
+    ];
+  const pieces = sites.flatMap(([r, sx, sy]) =>
+      warehouse(r, view, false).map(p => mini(p, [...SITE[r], BH], [sx, sy, BH], k)),
+    ),
+    [A, B] = sites.map(([r, sx, sy]) => move(r, sx, sy, [...poleAt(r), BH + PH - 1.8])),
     m = at(A, B, 0.5);
   return (
-    site.map(([sx, sy]) => castShadow(boxCorners(sx - h, sy - h, BH, sx + h, sy + h, zt + 1), BH, top)).join('') +
-    byDepth(parts) +
+    floor(pieces.map(p => p.shadow).join(''), top) +
+    byDepth(pieces.flatMap(p => p.items)) +
     line([A, at(A, B, 0.42)], 0.9) +
     line([at(A, B, 0.58), B], 0.9) +
     box(m[0] - 1.4, m[1] - 1.4, m[2] - 1.4, m[0] + 1.4, m[1] + 1.4, m[2] + 1.4, PALS.tomato, toneI, 0.7)

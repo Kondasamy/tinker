@@ -36,7 +36,7 @@ test('every chapter plays by keyboard only', async ({ page }) => {
   await play(page, 'keyboard');
 });
 
-test('the intro shows the level, the author and the chapters', async ({ page }) => {
+test('the intro shows the level and the chapters', async ({ page }) => {
   await page.goto('/sandboxing/');
   await expect(page.locator('.hero .module-meta .level')).toHaveText(M.level);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);

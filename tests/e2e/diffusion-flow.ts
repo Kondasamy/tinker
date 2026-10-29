@@ -1,5 +1,6 @@
 // Diffusion models, chapter by chapter, by mouse or keyboard only, following each chapter's "Next" link.
 import { expect, type Locator, type Page } from '@playwright/test';
+import { choose } from './helpers';
 import { GUIDANCE } from '../../src/lib/diffusion/ideal';
 import { NOISE, STEPS } from '../../src/lib/diffusion/schedule';
 import { WINNERS } from '../../src/lib/diffusion/workbench';
@@ -113,9 +114,9 @@ export function dfWalker(page: Page, mode: Mode, check: (page: Page) => Promise<
     async ch7(next?: RegExp, quiz: string | RegExp = /^Test each use/) {
       const w = WINNERS[0];
       for (const [use, c] of Object.entries(w)) {
-        const sel = card.locator(`fieldset[data-use="${use}"] select`);
-        await sel.nth(0).selectOption(String(c.steps));
-        await sel.nth(1).selectOption(String(c.scale));
+        const sel = card.locator(`fieldset[data-use="${use}"] [role="combobox"]`);
+        await choose(sel.nth(0), String(c.steps));
+        await choose(sel.nth(1), String(c.scale));
       }
       await step(2);
       await check(page);

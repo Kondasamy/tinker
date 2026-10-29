@@ -1,11 +1,13 @@
-// Module 7's picture: the engine room (KTD11). Two floors, one per layer: the first on the ground, the second a storey
-// up behind it. Each floor has a pair of desks, one per head; the desk whose attention is shown has its screen lit.
+// Module 7's picture: the engine room (KTD11). Two open-plan factory floors, one per layer: the first on the ground,
+// the second a railed mezzanine on columns a storey up behind it. Each floor has a pair of desks, one per head, each
+// with a clerk standing at its monitor; the desk whose attention is shown has its screen lit and its clerk pointing.
 // The prompt's pieces stand as tiles in a row along the front, and the lit head's attention is drawn as threads from
 // one token (the query, default the last) back to every token it looks at, the ink heavier and darker as the weight
 // grows. A weight below THREAD_FLOOR draws no thread. Words go only in label pills, every one escaped (esc).
 import type { SceneCtx, Board } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
 import {
+  DARK,
   INK,
   PALS,
   METAL,
@@ -15,14 +17,20 @@ import {
   f,
   box,
   shape,
+  line,
   on,
   PX,
+  PY,
+  vis,
   hullInk,
   castShadow,
   toneI,
   tag,
   byDepth,
+  rod,
 } from '../../lib/iso/core.js';
+import { compact } from '../../lib/iso/compact';
+import { mini, person, tight, type Piece, floor } from '../../lib/iso/figures';
 import { pieceLabel } from './attentionMap';
 import type { Say } from '../story/steps';
 
@@ -89,26 +97,123 @@ export function engineState({ tokens, attention, layer = 0, head = 0, query }: E
   return { n, query: q, threads, strongest: threads[0] };
 }
 
-type Part = { at: number[]; svg: string };
+type Part = { at: number[]; svg: string; box?: number[][] };
 
-/** A head's desk: a wooden desk with a little screen; lit while its attention is the one shown. */
+/** A head's desk: a wooden top at hip height on two steel legs and a pedestal of drawers, with a little monitor on a
+ * stand (a desk screen, not the model); lit while its attention is the one shown. */
 function desk(x: number, y: number, z: number, l: number, h: number, lit: boolean): Part {
-  const z1 = z + 10;
+  const z1 = z + 11,
+    zt = z1 - 1.8;
+  let ped = box(x + 4, y - 9, z, x + 14, y + 9, zt, WOOD, toneI, 1);
+  // the pedestal's drawer fronts, on whichever long side faces the viewer
+  for (const sy of [-1, 1])
+    if (vis([0, sy, 0]))
+      for (const dz of [zt - 3, zt - 6])
+        ped += line(
+          on(PY(y + sy * 9.05), [
+            [x + 5.5, dz],
+            [x + 12.5, dz],
+          ]),
+          0.7,
+        );
   const s =
-    box(x - 15, y - 10, z, x + 15, y + 10, z1, WOOD, toneI, 1) +
-    box(x - 8, y - 6, z1, x + 2, y + 6, z1 + 9, PALS.blush, toneI, 1) +
+    box(x - 14, y - 9, z, x - 12, y - 7, zt, METAL, toneI, 0.8) +
+    box(x - 14, y + 7, z, x - 12, y + 9, zt, METAL, toneI, 0.8) +
+    ped +
+    box(x - 15, y - 10, zt, x + 15, y + 10, z1, WOOD, toneI, 1) +
+    hullInk(boxCorners(x - 15, y - 10, zt, x + 15, y + 10, z1), 1.6) +
+    box(x - 6, y - 3, z1, x - 2, y + 3, z1 + 0.8, DARK, toneI, 0.7) +
+    box(x - 4.6, y - 0.8, z1 + 0.8, x - 3.4, y + 0.8, z1 + 3, DARK, toneI, 0.6) +
+    box(x - 5, y - 6, z1 + 3, x - 3, y + 6, z1 + 10, DARK, toneI, 1) +
     shape(
-      on(PX(x + 2.05), [
-        [y - 4.4, z1 + 2],
-        [y + 4.4, z1 + 2],
-        [y + 4.4, z1 + 7.2],
-        [y - 4.4, z1 + 7.2],
+      on(PX(x - 2.95), [
+        [y - 5, z1 + 3.8],
+        [y + 5, z1 + 3.8],
+        [y + 5, z1 + 9.2],
+        [y - 5, z1 + 9.2],
       ]),
       lit ? LIT : '#1d2a26',
       0.6,
-    ) +
-    hullInk(boxCorners(x - 15, y - 10, z, x + 15, y + 10, z1), 1.8);
-  return { at: [x, y, z], svg: `<g data-desk="${l}-${h}"${lit ? ' data-lit="1"' : ''}>${s}</g>` };
+    );
+  return {
+    at: [x, y, z],
+    box: [
+      [x - 15, y - 10, z],
+      [x + 15, y + 10, z1 + 10],
+    ],
+    svg: `<g data-desk="${l}-${h}"${lit ? ' data-lit="1"' : ''}>${s}</g>`,
+  };
+}
+
+const CLERKS = ['shopper2', 'shopper5', 'shopper4', 'shopper3'];
+/** The desk's clerk: standing at its far end, turned toward the monitor; pointing at it while it is lit. */
+const clerk = (x: number, y: number, z: number, i: number, lit: boolean): Piece =>
+  person({ x: x + 6, y: y - 15, z, facing: 105, pose: lit ? 'reach' : 'stand', look: CLERKS[i], holding: null });
+
+/** A thin painted bar from p to q (an ink stroke under a coloured one): a rod's look at a sliver of its SVG. */
+const paintBar = (p: number[], q: number[], w: number, col: string = PALS.mustard.l) => {
+  const d = `M${P(p[0], p[1], p[2]).map(f).join(' ')}L${P(q[0], q[1], q[2]).map(f).join(' ')}`;
+  return `<path d="${d}" stroke="${INK}" stroke-width="${w + 1.6}" stroke-linecap="round"/><path d="${d}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`;
+};
+/** The stair: beside the mezzanine's left-hand end, x from SX0 to SX1, its head on a landing at y = SY (the
+ * mezzanine's height) and its run of STAIR along +y down to the ground. */
+const SX0 = 16,
+  SX1 = 26,
+  SY = 60,
+  STAIR = 44;
+/** A steel stair up to the mezzanine: a landing off its left-hand edge, open treads between two stringers, a handrail
+ * on the near side. */
+function stair(z1: number, deck: number) {
+  const n = 7,
+    run = STAIR / n,
+    rise = (z1 - BH) / n,
+    near = vis([1, 0, 0]) ? SX1 : SX0,
+    far = near === SX1 ? SX0 : SX1,
+    head = [SY, z1],
+    foot = [SY + STAIR, BH];
+  // the landing: a steel plate from the stair's head across to the mezzanine
+  let s = box(SX0, SY - 10, z1 - deck, X0, SY, z1, METAL, toneI, 1);
+  s += paintBar([far, head[0], head[1]], [far, foot[0], foot[1]], 1.6, DARK.l);
+  // treads from the top down, so each lower (nearer) one goes over the one above
+  for (let i = 0; i < n; i++) {
+    const zt = z1 - (i + 1) * rise;
+    s += box(SX0, SY + i * run, zt - 1.2, SX1, SY + (i + 1) * run + 0.6, zt, METAL, toneI, 0.8);
+  }
+  s += paintBar([near, head[0], head[1]], [near, foot[0], foot[1]], 1.6, DARK.l);
+  s += paintBar([near, head[0] - 10, head[1] + 9], [near, head[0], head[1] + 9], 1.3);
+  s += paintBar([near, head[0], head[1] + 9], [near, foot[0], foot[1] + 9], 1.3);
+  for (const y of [head[0] - 10, foot[0]])
+    s += paintBar([near, y, y === foot[0] ? BH : z1], [near, y, (y === foot[0] ? BH : z1) + 9], 1.1);
+  // the landing's column to the ground
+  s += rod([SX0 + 2, SY - 8, BH], [SX0 + 2, SY - 8, z1 - deck], 1.4, DARK, toneI, 1, 1.4, 6);
+  return `<g class="stair" fill="none">${s}</g>`;
+}
+
+/** A railing along a floor's edge from a to b at height z: posts, a mid rail and a top rail, each a thin painted bar
+ * (an ink stroke under a mustard one: a rod's look at a sliver of its SVG). */
+function railing(a: number[], b: number[], z: number, h = 9): Part {
+  const L = Math.hypot(b[0] - a[0], b[1] - a[1]),
+    n = Math.max(1, Math.round(L / 33)),
+    bar = (p: number[], q: number[], w: number) => {
+      const d = `M${P(p[0], p[1], p[2]).map(f).join(' ')}L${P(q[0], q[1], q[2]).map(f).join(' ')}`;
+      return `<path d="${d}" stroke="${INK}" stroke-width="${w + 1.6}" stroke-linecap="round"/><path d="${d}" stroke="${PALS.mustard.l}" stroke-width="${w}" stroke-linecap="round"/>`;
+    };
+  let s = '';
+  for (let i = 0; i <= n; i++) {
+    const p = [a[0] + ((b[0] - a[0]) * i) / n, a[1] + ((b[1] - a[1]) * i) / n];
+    s += bar([p[0], p[1], z], [p[0], p[1], z + h], 1.3);
+  }
+  // a low rail (the ground floor's) has no mid rail
+  if (h > 7) s += bar([a[0], a[1], z + h * 0.5], [b[0], b[1], z + h * 0.5], 0.8);
+  s += bar([a[0], a[1], z + h], [b[0], b[1], z + h], 1.4);
+  return {
+    at: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, z],
+    box: [
+      [Math.min(a[0], b[0]) - 0.8, Math.min(a[1], b[1]) - 0.8, z],
+      [Math.max(a[0], b[0]) + 0.8, Math.max(a[1], b[1]) + 0.8, z + h + 0.8],
+    ],
+    svg: `<g class="railing" fill="none">${s}</g>`,
+  };
 }
 
 /** A token tile on the board's front row: the query in mustard, the token it looks at most in mint. */
@@ -146,8 +251,10 @@ function thread(t: Thread, xs: number[]): string {
 const pill = (p: number[], dx: number, dy: number, text: string, lit: boolean, scale: number) =>
   `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text), lit, scale)}</g>`;
 
-/** The engine room. On phones (scale > 1) the pills name only: layers and token numbers, never the pieces. */
-export const engineScene = (o: EngineOpts) => (ctx: SceneCtx) => {
+/** The engine room as its drawing and its pills, apart: a scene that composes it (the fuse box) draws its own parts
+ * between the two, so nothing it adds covers the room's pills. On phones (scale > 1) the pills name only: layers and
+ * token numbers, never the pieces. */
+export const engineLayers = (o: EngineOpts) => (ctx: SceneCtx) => {
   const { layer = 0, head = 0, scale = 1 } = o,
     narrow = scale > 1,
     st = engineState(o),
@@ -155,19 +262,55 @@ export const engineScene = (o: EngineOpts) => (ctx: SceneCtx) => {
   const shadows: string[] = [],
     shade = (x0: number, y0: number, z0: number, x1: number, y1: number, z1: number) =>
       shadows.push(castShadow(boxCorners(x0, y0, z0, x1, y1, z1), BH, ctx.top));
-  const [g, u] = FLOOR;
-  // the second floor is a storey block behind the first; its top is the floor its desks stand on
-  shade(X0, u.y0, BH, X1, u.y1, u.z);
+  const [g, u] = FLOOR,
+    DECK = 2.5;
+  // the second floor is an open mezzanine: a deck on columns, railed along its open sides; its top is the floor its
+  // desks stand on. The ground floor is a steel plate with a low rail along its front.
+  shade(X0, u.y0, u.z - DECK, X1, u.y1, u.z);
+  // columns at the deck's corners and under the middle of its open front
+  const cols = [X0 + 5, X1 - 5].flatMap(x => [u.y0 + 5, u.y1 - 5].map(y => [x, y])).concat([[(X0 + X1) / 2, u.y1 - 5]]);
+  for (const [x, y] of cols) shade(x - 1.6, y - 1.6, BH, x + 1.6, y + 1.6, u.z - DECK);
   let s =
-    `<g data-floor="1">${box(X0, u.y0, BH, X1, u.y1, u.z, PALS.cobalt, toneI, 1.1) + hullInk(boxCorners(X0, u.y0, BH, X1, u.y1, u.z), 2.4)}</g>` +
-    `<g data-floor="0">${box(X0, g.y0, BH, X1, g.y1, g.z, METAL, toneI, 1) + hullInk(boxCorners(X0, g.y0, BH, X1, g.y1, g.z), 1.8)}</g>`;
-  const desks: Part[] = [];
-  FLOOR.forEach((fl, l) =>
-    DESK_X.forEach((x, h) => desks.push(desk(x, (fl.y0 + fl.y1) / 2, fl.z, l, h, l === layer && h === head))),
-  );
-  for (const d of desks) shade(d.at[0] - 15, d.at[1] - 10, d.at[2], d.at[0] + 15, d.at[1] + 10, d.at[2] + 10);
-  // floors back to front, each with its desks, so the storey never covers the first floor's desks
-  s += byDepth(desks.filter(d => d.at[2] > g.z)) + byDepth(desks.filter(d => d.at[2] === g.z));
+    `<g data-floor="0">${box(X0, g.y0, BH, X1, g.y1, g.z, METAL, toneI, 1) + hullInk(boxCorners(X0, g.y0, BH, X1, g.y1, g.z), 1.8)}</g>` +
+    byDepth(
+      cols.map(([x, y]) => ({
+        at: [x, y, 0],
+        box: [
+          [x - 1.6, y - 1.6, BH],
+          [x + 1.6, y + 1.6, u.z - DECK],
+        ],
+        svg: rod([x, y, BH], [x, y, u.z - DECK], 1.6, DARK, toneI, 1.1, 1.6, 6),
+      })),
+    ) +
+    `<g data-floor="1">${box(X0, u.y0, u.z - DECK, X1, u.y1, u.z, PALS.cobalt, toneI, 1.1) + hullInk(boxCorners(X0, u.y0, u.z - DECK, X1, u.y1, u.z), 2.4)}</g>`;
+  // each floor's people stand on it: their shadows go down after the floor they fall on
+  const floorOf = (fl: (typeof FLOOR)[number], l: number, rails: Part[]) => {
+    const desks: Part[] = [],
+      clerks: Piece[] = [];
+    DESK_X.forEach((x, h) => {
+      const y = (fl.y0 + fl.y1) / 2,
+        lit = l === layer && h === head;
+      desks.push(desk(x, y, fl.z, l, h, lit));
+      clerks.push(clerk(x, y, fl.z, l * 2 + h, lit));
+    });
+    const sh =
+      desks
+        .map(d => castShadow(boxCorners(d.at[0] - 15, d.at[1] - 10, fl.z, d.at[0] + 15, d.at[1] + 10, fl.z + 11), fl.z))
+        .join('') + clerks.map(c => c.shadow).join('');
+    return sh + byDepth([...desks, ...clerks.flatMap(c => c.items), ...rails]);
+  };
+  const ur = u.z,
+    gr = g.z;
+  // floors back to front, each with its desks, so the mezzanine never covers the ground floor's desks; the stair
+  // comes up to a gap in the mezzanine's left-hand rail
+  s +=
+    stair(u.z, DECK) +
+    floorOf(u, 1, [
+      railing([X0 + 1, u.y1 - 1], [X1 - 1, u.y1 - 1], ur),
+      railing([X1 - 1, u.y0 + 1], [X1 - 1, u.y1 - 1], ur),
+      railing([X0 + 1, u.y0 + 1], [X0 + 1, SY - 11], ur),
+    ]) +
+    floorOf(g, 0, [railing([X0 + 1, g.y1 - 1], [X1 - 1, g.y1 - 1], gr, 6)]);
   const w = xs.length > 1 ? Math.min(18, (xs[1] - xs[0]) * 0.78) : 18;
   const tiles = xs.map((x, i) =>
     tile(
@@ -209,7 +352,12 @@ export const engineScene = (o: EngineOpts) => (ctx: SceneCtx) => {
       callouts.push(sayAt(o.say, 'focus', at(top.to), 22, scale));
     }
   }
-  return shadows.join('') + s + pills.join('') + callouts.join('');
+  return { drawing: compact(tight(shadows.join('') + s)), pills: pills.join('') + callouts.join('') };
+};
+/** The engine room. */
+export const engineScene = (o: EngineOpts) => (ctx: SceneCtx) => {
+  const { drawing, pills } = engineLayers(o)(ctx);
+  return drawing + pills;
 };
 
 /** The home hero's plot (heroScene): a small engine room at (x, y), one storey with a head's desk lit on top, and three
@@ -219,7 +367,14 @@ export function enginePlot(x: number, y: number, top: SceneCtx['top']): string {
     xs = [x - 12, x, x + 12],
     z = BH + TILE_H,
     room = boxCorners(x - 16, y - 20, BH, x + 16, y, BH + 12);
-  const lit = desk(x, y - 10, BH + 12, 0, 0, true);
+  const lit = desk(x, y - 10, BH + 12, 0, 0, true),
+    // the head's clerk on the floor in front of the room, pointing up at the lit desk
+    man = mini(
+      person({ x: 0, y: 0, facing: 225, pose: 'reach', look: CLERKS[0], holding: null }),
+      [0, 0, BH],
+      [x + 21, y + 9, BH],
+      0.55,
+    );
   const tiles: Part[] = xs.map((tx, i) => ({
     at: [tx, ty, 0],
     svg: box(
@@ -240,12 +395,14 @@ export function enginePlot(x: number, y: number, top: SceneCtx['top']): string {
   });
   return (
     castShadow(room, BH, top) +
+    floor(man.shadow, top) +
     castShadow(boxCorners(x - 15, y - 20, BH + 12, x + 15, y, BH + 22), BH, top) +
     byDepth([
       {
         at: [x, y - 10, 0],
         svg: box(x - 16, y - 20, BH, x + 16, y, BH + 12, PALS.cobalt, toneI, 1) + hullInk(room, 1.8) + lit.svg,
       },
+      ...man.items,
       ...tiles,
     ]) +
     `<path d="M${arch.map(p => `${f(p[0])} ${f(p[1])}`).join('L')}" fill="none" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>`
@@ -257,7 +414,7 @@ export function engineLabel(o: EngineOpts): string {
   const { layer = 0, head = 0 } = o,
     st = engineState(o);
   const say = [
-    `The engine room: two floors, one per layer, with two desks on each, one per head. The desk of layer ${layer + 1}, head ${head + 1} is lit.`,
+    `The engine room: two floors, one per layer, with two desks on each, one per head, a clerk at each. The desk of layer ${layer + 1}, head ${head + 1} is lit.`,
   ];
   if (!st.n) say.push('No tokens yet: the row of tiles is empty.');
   else {

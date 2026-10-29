@@ -37,19 +37,10 @@ const bothLoaded = (page: Page) =>
   );
 test.setTimeout(150_000);
 
-test('the intro shows the level, the prerequisites, the author and the chapters', async ({ page }) => {
+test('the intro shows the level and the chapters', async ({ page }) => {
   await page.goto('/small-models/');
   const meta = page.locator('.hero .module-meta');
   await expect(meta.locator('.level')).toHaveText('Advanced');
-  await expect(meta.getByRole('link', { name: moduleOf('fine-tuning').title, exact: true })).toHaveAttribute(
-    'href',
-    '/fine-tuning/',
-  );
-  await expect(meta.getByRole('link', { name: moduleOf('evals').title, exact: true })).toHaveAttribute(
-    'href',
-    '/evals/',
-  );
-  await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
   await expect(page.locator('.hero .kicker')).toHaveText('Module 12 · Small models');
   await axe(page);

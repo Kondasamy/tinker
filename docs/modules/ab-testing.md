@@ -5,6 +5,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 ## Picture
 
 - **The shop floor** (`src/components/scenes/splitScene.ts`): shoppers queue at the front; a turnstile sends each one at random down a belt to checkout A (today's, left) or checkout B (the change, right), shoppers riding the belts while a test runs. Beside each counter a tower of mint crates grows with its buying rate and, when the guardrail is watched, a tower of tomato crates with its share of orders sent back. At the back a scoreboard holds two bars (A cobalt, B mint) as tall as their rates under the verdict pill (B WINS, NO WINNER, or tomato when returns rise). `splitAt` reads the floor off a run at a day. `AbStage` (`src/content/ab-testing/kit.tsx`) puts it one tab from the Result chart (`resultChart.ts`: B − A by day with its interval band round zero, significant days inked, the planned end dashed and where a daily peek stopped; arrow keys read each day). Repeated runs show as a tally grid in the story column. On phones the pills keep just the names and the caption carries the numbers.
+- **Hero object: two different checkouts**: A is an old brass till on a wooden counter under a striped awning, B a slim one-page kiosk on a pedestal beside a steel bagging shelf. Shoppers (CAST shoppers) queue beside the turnstile and walk the belts; the crate towers stand on pallets; the scoreboard is a board on legs with a verdict lamp.
 
 ## Engine (`src/lib/ab-testing/`)
 

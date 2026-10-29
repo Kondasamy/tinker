@@ -1,5 +1,6 @@
 // Module 10, chapter by chapter, by mouse or keyboard only, following each chapter's "Next" link.
 import { expect, type Locator, type Page } from '@playwright/test';
+import { choose } from './helpers';
 
 export type Mode = 'mouse' | 'keyboard';
 
@@ -11,14 +12,20 @@ export function structuredWalker(page: Page, mode: Mode, check: (page: Page) => 
   const opt = (name: string | RegExp) => press(card.getByRole('radio', { name })); // a quiz or prediction option
   const step = (n: number) => expect(card).toContainText(`Step ${n} of`);
   const ready = () => expect(page.locator('.so-stage[data-model="ready"]')).toBeVisible({ timeout: 15_000 });
-  /** a native select: arrow keys from the keyboard, or picked straight by mouse */
-  const choose = async (name: string, label: string) => {
+  /** the site's drop-down: by keyboard, open it, arrow to the option and press Enter; by mouse, click it */
+  const pick = async (name: string, label: string) => {
     const l = card.getByRole('combobox', { name });
-    if (!kb) return l.selectOption({ label });
-    // type-ahead picks the option by its first letters (arrow keys open the popup on macOS instead)
+    if (!kb) return choose(l, { label });
     await l.focus();
-    await page.keyboard.type(label.split(' ')[0]);
-    await expect(l.locator('option:checked')).toHaveText(label);
+    await page.keyboard.press('ArrowDown'); // opens the list on the current choice
+    const opts = page.locator(`[id="${await l.getAttribute('aria-controls')}"] [role="option"]`);
+    const texts = await opts.allTextContents();
+    const from = await opts.evaluateAll(els => els.findIndex(e => e.getAttribute('aria-selected') === 'true'));
+    const to = texts.indexOf(label);
+    for (let i = from; i !== to; i += Math.sign(to - from))
+      await page.keyboard.press(to > from ? 'ArrowDown' : 'ArrowUp');
+    await page.keyboard.press('Enter');
+    await expect(l).toHaveText(label);
   };
 
   async function open(id: string) {
@@ -123,8 +130,8 @@ export function structuredWalker(page: Page, mode: Mode, check: (page: Page) => 
       await opt(/^None$/);
       await step(2);
       await check(page);
-      await choose('Status', 'Leave it out: the order system fills it');
-      await choose('Days to arrive', 'Leave it out: the order system fills it');
+      await pick('Status', 'Leave it out: the order system fills it');
+      await pick('Days to arrive', 'Leave it out: the order system fills it');
       await step(3);
       await expect(card.getByTestId('score')).toContainText('4 of 4 orders valid and right');
       await opt(/^The order system, outside the model’s schema/);

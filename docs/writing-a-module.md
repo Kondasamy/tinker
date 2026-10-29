@@ -64,7 +64,8 @@ Each module has a **recall bank** (`src/content/<module>/recall.ts`): three to f
 - **Style:** Colorfigures: flat three-tone shading, heavy ink silhouettes, flat blue shadows, warm paper. Palette in `src/styles/tokens.css` and `PALS` in the engine.
 - **Kinds:** isometric scenes (`src/lib/iso/`, `IsoStage`) for things with parts; flat sequences (`src/lib/iso/flat.ts`, `FlatStage`) for flows over time. Both use the same ink.
 - **Lead with a scene the reader can picture**, not a flow chart. Tool calling's back office (`src/components/scenes/officeScene.ts`) turns a message sequence into a place: desks, belts, envelopes, a barrier that lifts. Keep the precise view (the sequence) one tab away, and drive both from the same data. A new figure kind goes beside the engine, never inside `core.js` (upstream code; mark local changes with `adapted:`).
-- **Text in pictures goes in label pills**, never as small text painted on faces. Long text (JSON, messages, documents) goes in the story column or the drawer.
+- **Reach for the kit** (`src/lib/iso/figures.ts`): people from `person` (named characters from `CAST`), the model from `modelMachine`, buildings, vehicles and props. Give the module a hero object no other module uses, on its story beat, and the people its story names; a piece used by one scene stays in that scene.
+- **Text in pictures goes in label pills**, never as small text painted on faces; signs, dials, clocks and scoreboards carry no words or numerals. Long text (JSON, messages, documents) goes in the story column or the drawer.
 - **One figure on the stage at a time**, chosen by the step, in a fixed frame so the page never resizes.
 - **Check at 390px wide.** Phones stack the picture above the story; pills are larger there.
 - **Reduced motion:** show final states at once; motion is never the only way to see what happened.
@@ -107,15 +108,13 @@ The template lives in `templates/module/` (outside `src/`, so it is never built 
 - The dev server keeps its own Vite cache (`node_modules/.vite-dev`); keep the `dev-cache` integration in `astro.config.mjs`. Without it, running `astro build` or `astro check` beside a dev server crashes the dev server.
 - Layout-level rules that style elements inside components go in `:where(...)`, so component rules always win whatever order Astro bundles the CSS. Dev-only pages use scoped styles, never `is:global`.
 
-## Trailer (optional, at go-live or any time after)
+## Trailer (paused)
 
-A trailer is a module's one video: under a minute of the live chapters played by hand, narrated, on the intro. `videos/rag-trailer/` is the template; its `BRIEF.md` lists the pipeline.
+Trailers are off the site for now: no intro shows one. When they return, a trailer is a module's one video: under a minute of the live chapters played by hand, narrated, on the intro. `videos/rag-trailer/` is the template; its `BRIEF.md` lists the pipeline.
 
 1. Copy `videos/rag-trailer/` to `videos/<id>-trailer/` (skip `node_modules/`, `capture/`, `renders/`). Output names follow the folder.
 2. Rewrite `BRIEF.md` and `SCRIPT.md`. Every spoken number comes from the module's data.
 3. Point the takes in `record.mjs` at the module's chapters, and the cut ranges in `cut.sh` at the takes.
 4. Retitle the chapter plates and end card in `index.html`, the `name` in `package.json` and `meta.json`, and pick the poster time (`POSTER`) in `deliver.sh`.
 5. Run `voice.mjs` → `music.mjs` → `record.mjs` → `cut.sh` → render → `deliver.sh` (commands in `BRIEF.md`).
-6. Add `<Trailer id="<id>" name="<short name>" length="m:ss" />` to the intro's hero buttons, and a `tests/unit/<id>-trailer.test.ts` modelled on RAG's that finds every captioned number in the module's data.
-
-`tests/unit/trailers.test.ts` and `tests/e2e/trailer.spec.ts` pick the new trailer up on their own.
+6. Bring back an intro trailer component and its tests (removed in the creative-figures rework; see git history) before shipping one.

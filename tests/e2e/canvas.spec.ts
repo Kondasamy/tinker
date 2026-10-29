@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { choose } from './helpers';
 
 const block = (page: Page, id: string) => page.locator(`[data-block="${id}"]`);
 const panel = (page: Page) => page.getByRole('complementary', { name: 'Block settings' });
@@ -59,7 +60,7 @@ test('bench: keyboard moves a block, cuts a wire and reconnects it', async ({ pa
   // Connect to… puts it back
   await block(page, 'retriever').focus();
   await page.keyboard.press('Enter');
-  await panel(page).getByLabel('Connect to…').selectOption({ label: 'Context assembler' });
+  await choose(panel(page).getByLabel('Connect to…'), { label: 'Context assembler' });
   await expect(page.locator('[data-edge="retriever>assembler"]')).toHaveCount(1);
   await expect(answer(page)).toHaveText(/^CORRECT:/);
 });

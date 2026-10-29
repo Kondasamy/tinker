@@ -1,4 +1,5 @@
-// The home hero: a fixed board where every live module after RAG and tool calling takes a turn on the stand.
+// The home hero: a fixed board where every live AI module after RAG and tool calling takes a turn on the stand;
+// classic tech waits in the catalogue.
 import { describe, it, expect } from 'vitest';
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
@@ -13,7 +14,8 @@ import {
 } from '../../src/components/scenes/heroScene';
 import { MODULES } from '../../src/lib/modules';
 
-const LIVE = MODULES.filter(m => m.status === 'live');
+const LIVE = MODULES.filter(m => m.status === 'live' && !m.track);
+const CLASSIC = MODULES.filter(m => m.status === 'live' && m.track === 'Classic tech');
 const draw = (scene = HOME_HERO) => renderToString(createElement(IsoStage, { board: HERO_BOARD, scene, label: '' }));
 const upper = (s: string) => s.toUpperCase().replace(/&/g, '&amp;');
 /** each turn on the stand: its link and whether a still picture hides it */
@@ -65,8 +67,16 @@ describe('home hero', () => {
     expect(undrawn([...live, 'fixture'])).toEqual(['fixture']);
   });
 
-  it('the label names every live module', () => {
+  it('the label names every live AI module and no classic one', () => {
     for (const m of LIVE) expect(HOME_HERO_LABEL).toContain(m.title);
+    for (const m of CLASSIC) expect(HOME_HERO_LABEL, m.id).not.toContain(`, ${m.title}`);
+  });
+
+  it('no classic module takes a turn on the stand', () => {
+    expect(CLASSIC.length).toBeGreaterThan(0);
+    const hrefs = turnsOf(draw()).map(t => t.href);
+    for (const m of CLASSIC) expect(hrefs, m.id).not.toContain(`/${m.id}/`);
+    expect(HERO_TURNS).toBe(LIVE.length - 2);
   });
 });
 

@@ -1,5 +1,6 @@
 // Module 12, chapter by chapter, by mouse or keyboard only, following each chapter's "Next" link.
 import { expect, type Locator, type Page } from '@playwright/test';
+import { choose as pick, chooseByKeys } from './helpers';
 
 export type Mode = 'mouse' | 'keyboard';
 
@@ -21,11 +22,8 @@ export function smWalker(page: Page, mode: Mode, check: (page: Page) => Promise<
       }
     } else await l.fill(String(to === 'end' ? await l.getAttribute('max') : to));
   }
-  /** a native select, by keyboard (focus, then the option by its label) or by mouse */
-  async function choose(l: Locator, label: string) {
-    if (kb) await l.focus();
-    await l.selectOption({ label });
-  }
+  /** a drop-down, by keyboard (focus, open, arrow to the option) or by mouse */
+  const choose = (l: Locator, label: string) => (kb ? chooseByKeys(l, { label }) : pick(l, { label }));
 
   async function open(id: string) {
     await page.goto(`/small-models/${id}/`);

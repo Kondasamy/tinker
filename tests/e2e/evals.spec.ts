@@ -17,7 +17,7 @@ import labels from '../../data/evals/labels.json' with { type: 'json' };
 import samples from '../../data/evals/samples.json' with { type: 'json' };
 import orders from '../../data/tool-calling/orders.json' with { type: 'json' };
 import injection from '../../data/tool-calling/turns/injection.json' with { type: 'json' };
-import { serious, layoutHolds, PHONE } from './helpers';
+import { choose, serious, layoutHolds, PHONE } from './helpers';
 
 const M = moduleOf('evals'),
   [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = M.chapters.map(c => c.id);
@@ -28,12 +28,10 @@ test.setTimeout(120_000);
 
 const at = (text: string) => QUESTIONS.findIndex(q => text.includes(q.query));
 
-test('the intro shows the level, the prerequisite, the author and the chapters', async ({ page }) => {
+test('the intro shows the level and the chapters', async ({ page }) => {
   await page.goto('/evals/');
   const meta = page.locator('.hero .module-meta');
   await expect(meta.locator('.level')).toHaveText('Intermediate');
-  await expect(meta.getByRole('link', { name: 'RAG', exact: true })).toHaveAttribute('href', '/rag/');
-  await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
     'content',
@@ -328,9 +326,9 @@ test('chapter 2: dropping every ask the documents can’t answer makes the revea
   await expect(c).toContainText('Step 3 of');
   const gap = c.locator(`.ev-case[data-id="${CANDIDATES.find(x => x.kind === 'not in the documents')!.id}"]`);
   await gap.getByRole('button', { name: 'Keep' }).click();
-  await gap
-    .getByRole('combobox')
-    .selectOption({ label: (await gap.locator('option', { hasText: /^No document answers/ }).textContent())! });
+  await choose(gap.getByRole('combobox'), {
+    label: (await gap.locator('[role="option"]', { hasText: /^No document answers/ }).textContent())!,
+  });
   await expect(c).toContainText('Step 4 of');
   await everyWhy(page);
 });

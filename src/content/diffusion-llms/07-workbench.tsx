@@ -1,4 +1,4 @@
-// Chapter 7: the workbench. Tokens a pass and a remasking rule for each kind of reply (a native select each). Under it,
+// Chapter 7: the workbench. Tokens a pass and a remasking rule for each kind of reply (a drop-down each). Under it,
 // a row per case (each kind's pinned phrases) with its reply's matches and repeats against the kind's bars, and a live
 // total against the best. The puzzle accepts every plan tied for the fewest passes (WINNERS); Show me applies one.
 // Results read the pinned replies (workbench.ts); the stage fills the shown kind's first phrase live.
@@ -25,6 +25,7 @@ import {
 import { FRAME_PARTS } from '../../components/scenes/typeFrameScene';
 import { FrameStage, RULE_NAME, ToyNote, Waiting, frameOf, given, phrase, replyAt, tokens, useFill } from './kit';
 import { NEED } from './06-reading-a-speed-claim';
+import Select from '../../components/story/Select';
 
 const MODULE = 'diffusion-llms',
   ID = '07-workbench';
@@ -196,9 +197,10 @@ export default function Workbench() {
               {KINDS.map(kind => (
                 <fieldset key={kind.id} data-kind={kind.id}>
                   <legend>{kind.label}</legend>
-                  <label>
+                  <label htmlFor={`dl-${kind.id}-k`}>
                     Tokens a pass{' '}
-                    <select
+                    <Select
+                      id={`dl-${kind.id}-k`}
                       value={p[kind.id].k}
                       onChange={e => change(kind.id, { k: Number(e.currentTarget.value) as K })}
                     >
@@ -207,11 +209,12 @@ export default function Workbench() {
                           {k} ({passesFor(k)} passes)
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </label>{' '}
-                  <label>
+                  <label htmlFor={`dl-${kind.id}-rule`}>
                     Stamp{' '}
-                    <select
+                    <Select
+                      id={`dl-${kind.id}-rule`}
                       value={p[kind.id].rule}
                       onChange={e => change(kind.id, { rule: e.currentTarget.value as Rule })}
                     >
@@ -220,7 +223,7 @@ export default function Workbench() {
                           {RULE_NAME[r].toLowerCase()}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </label>
                 </fieldset>
               ))}

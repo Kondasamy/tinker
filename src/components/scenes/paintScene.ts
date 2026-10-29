@@ -18,15 +18,27 @@ import {
   byDepth,
   castShadow,
   cyl,
+  ellUV,
+  fill,
   hullInk,
+  ink,
   inkK,
+  line,
+  loft,
   matOf,
+  on,
+  openShell,
   P,
+  PY,
+  PZ,
   pd,
   rod,
   tag,
   toneI,
+  vis,
 } from '../../lib/iso/core.js';
+import { compact } from '../../lib/iso/compact';
+import { drawPieces, person, tight, type Item as KitItem, type Look, type Piece } from '../../lib/iso/figures';
 import { TOY, publicOf, sharedOf } from '../../lib/encryption/toy';
 import type { Say } from '../story/steps';
 
@@ -152,15 +164,51 @@ function padlock(x: number, y: number, z: number, m: typeof PALS.cobalt, open: b
   return shackle(x, y, z + h, open) + box(x - w, y - t, z, x + w, y + t, z + h, m, toneI, 0.9);
 }
 
+const ringAt = (x: number, y: number, z: number, r: number, n = 18) => on(PZ(z), ellUV(x, y, r, r, n));
+/** A thin painted bar along a polyline (an ink stroke under a coloured one): a wire handle at a sliver of a rod's SVG. */
+const wire = (pts: number[][], col: string, w = 1.1) => {
+  const d = pd(pts, false);
+  return `<path d="${d}" fill="none" stroke="${INK}" stroke-width="${w + 1.6}" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+};
+/** A paint tin, open. Real-object notes: a steel can, its far inner wall seen over the paint inside; a label band round
+ * it in the paint's own colour; a rolled rim; a wire bail handle from two ears, laid back over the far rim; a mixing
+ * paddle standing in a fresh mix. 13 across and 11 tall, the old pot's footprint. */
+function tin(x: number, y: number, z: number, colour: string, paddle: boolean) {
+  const r = 6.3,
+    h = 10,
+    paint = matOf(colour),
+    A = ringAt(x, y, z, r * 0.94),
+    B = ringAt(x, y, z + h, r);
+  const surface =
+    fill(pd(ringAt(x, y, z + h - 1.6, r - 0.35)), colour) + ink(pd(ringAt(x, y, z + h - 1.6, r - 0.35)), 0.6);
+  let s = openShell(A, B, (n: number[]) => toneI(n, METAL), surface);
+  s += loft(ringAt(x, y, z + 2, r * 0.955 + 0.06), ringAt(x, y, z + 7.6, r * 0.985 + 0.06), (n: number[]) =>
+    toneI(n, paint),
+  );
+  s += loft(ringAt(x, y, z + h - 1, r + 0.4), ringAt(x, y, z + h, r + 0.4), (n: number[]) => toneI(n, METAL));
+  s += ink(pd(ringAt(x, y, z + h, r + 0.4)), 1) + hullInk([...A, ...ringAt(x, y, z + h, r + 0.4)], 1.5);
+  if (paddle)
+    s +=
+      rod([x + 1.2, y - 1.2, z + h - 2], [x + 3.8, y - 3.6, z + h + 9], 0.9, WOOD, toneI, 0.9) +
+      rod([x + 3.8, y - 3.6, z + h + 9], [x + 4.3, y - 4.1, z + h + 11], 1.3, WOOD, toneI, 0.9);
+  // the bail: its ears on either side across x, the wire laid back over the far rim
+  const bail = Array.from({ length: 11 }, (_, i) => {
+    const t = (i / 10) * Math.PI;
+    return [x + (r + 0.5) * Math.cos(t), y - 3.4 * Math.sin(t), z + h - 1.5 + 3.2 * Math.sin(t)];
+  });
+  s += wire(bail, METAL.m, 0.9);
+  for (const k of [-1, 1]) s += fill(pd(on(PY(y), ellUV(x + k * (r + 0.45), z + h - 1.5, 0.9, 0.9, 8))), DARK.m);
+  return s;
+}
+
 /** One item at a point: its drawing, the height of its top, and its fill for the pill. */
 function itemAt(it: Item, x: number, y: number): { svg: string; top: number; fill?: string } {
   const z = TOP;
   switch (it.kind) {
     case 'pot': {
       const colour = mixPaint(it.pigments ?? ['straw']);
-      const body =
-        cyl(x, y, z, z + 10, 6.5, matOf(colour), toneI, 1.2) + cyl(x, y, z + 10, z + 11, 7, METAL, toneI, 0.8);
-      return { svg: body, top: z + 11, fill: colour };
+      // a fresh mix still has the paddle standing in it
+      return { svg: tin(x, y, z, colour, !!it.fresh && (it.pigments?.length ?? 0) > 1), top: z + 11, fill: colour };
     }
     case 'lock':
       return { svg: padlock(x, y, z, OWNER[it.owner ?? 'them'], !!it.open), top: z + 7 + 7.4 + (it.open ? 4 : 0) };
@@ -195,19 +243,84 @@ function itemAt(it: Item, x: number, y: number): { svg: string; top: number; fil
 const pill = (p: number[], dy: number, text: string, lit: boolean, scale: number, fill?: string, dx = 0) =>
   `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text), lit, scale, fill)}</g>`;
 
-/** The eavesdropper: a dark coat and a hat behind the counter's middle. */
-function eavesdropper(top: SceneCtx['top']) {
-  const [x, y] = EVE;
-  return {
-    shadow: castShadow(boxCorners(x - 7, y - 7, BH, x + 7, y + 7, BH + 40), BH, top),
-    svg:
-      cyl(x, y, BH, BH + 28, 8, DARK, toneI, 1.4) +
-      cyl(x, y, BH + 28, BH + 37, 5.5, matOf('#e9c9a8'), toneI, 1.2) +
-      cyl(x, y, BH + 37, BH + 38, 9, DARK, toneI, 1) +
-      cyl(x, y, BH + 38, BH + 43, 5.5, DARK, toneI, 1.1),
-    top: BH + 43,
-  };
+/** A sortable piece of the shop that is one item (the counter, a shelf, the pillar, a thing on the counter). */
+const one = (box: number[][], svg: string, shadow = ''): Piece => ({ shadow, items: [{ box, svg }], box });
+/** Wrap a kit piece's items in a group (a part's data-prop). */
+const wrap = (p: Piece, attrs: string): Piece => ({
+  ...p,
+  items: p.items.map((i: KitItem) => ({ ...i, svg: `<g ${attrs}>${i.svg}</g>` })),
+});
+
+/** The eavesdropper: Eve in her trench coat and hat behind the counter's middle, half behind a pillar. */
+const EVE_TOP = BH + 43;
+const eavesdropper = () => wrap(person({ x: EVE[0], y: EVE[1], facing: 80, look: 'eve' }), 'data-prop="eve"');
+
+/** The shop's stone pillar, a plinth and a capital, that Eve keeps behind. */
+function pillar(x: number, y: number, top: SceneCtx['top']): Piece {
+  const z1 = BH + 50,
+    stone = matOf('#e6dccb');
+  const svg =
+    box(x - 5.5, y - 5.5, BH, x + 5.5, y + 5.5, BH + 3, stone, toneI, 1) +
+    cyl(x, y, BH + 3, z1 - 3, 4.2, stone, toneI, 1.6, 20) +
+    box(x - 5.5, y - 5.5, z1 - 3, x + 5.5, y + 5.5, z1, stone, toneI, 1);
+  const b = [
+    [x - 5.5, y - 5.5, BH],
+    [x + 5.5, y + 5.5, z1],
+  ];
+  return one(
+    b,
+    `<g class="pillar">${svg}</g>`,
+    castShadow(boxCorners(x - 5.5, y - 5.5, BH, x + 5.5, y + 5.5, z1), BH, top),
+  );
 }
+
+/** A wall shelf of closed paint tins, three boards on four posts, the tins' lids in their paint. */
+function shelves(x0: number, x1: number, y0: number, top: SceneCtx['top']): Piece {
+  const y1 = y0 + 9,
+    z1 = BH + 34,
+    tones = Object.values(PIGMENTS).map(p => p.hex);
+  let s = '';
+  for (const [x, y] of [
+    [x0 + 1, y0 + 1],
+    [x1 - 1, y0 + 1],
+  ])
+    s += box(x - 1, y - 1, BH, x + 1, y + 1, z1, WOOD, toneI, 0.8);
+  let n = 0;
+  // the bottom board stands empty (stock on the floor); the two above it carry a row of tins each
+  for (const z of [BH + 1, BH + 12, BH + 23]) {
+    s += box(x0, y0, z, x1, y1, z + 1.6, WOOD, toneI, 0.9);
+    if (z > BH + 1)
+      for (let x = x0 + 5.5; x < x1 - 3; x += 8.2) {
+        const c = tones[n++ % tones.length];
+        s += cyl(x, y0 + 4.5, z + 1.6, z + 7.6, 3, matOf(c), toneI, 0.9, 10);
+      }
+  }
+  for (const [x, y] of [
+    [x0 + 1, y1 - 1],
+    [x1 - 1, y1 - 1],
+  ])
+    s += box(x - 1, y - 1, BH, x + 1, y + 1, z1, WOOD, toneI, 0.8);
+  s += box(x0, y0, z1, x1, y1, z1 + 1.6, WOOD, toneI, 0.9);
+  const b = [
+    [x0, y0, BH],
+    [x1, y1, z1 + 1.6],
+  ];
+  return one(b, `<g class="shelves">${s}</g>`, castShadow(boxCorners(x0, y0, BH, x1, y1, z1 + 1.6), BH, top));
+}
+
+/** The shopkeepers at the counter's ends, in their side's colours (Larkspur cobalt, the supplier mint). */
+const KEEPER: Record<'us' | 'them', Look> = {
+  us: { skin: '#c18456', top: PALS.cobalt.l, legs: '#3b4566', hair: '#2b231c', cut: 'bun' },
+  them: {
+    skin: '#f3cfae',
+    top: PALS.mint.m,
+    legs: '#4a4642',
+    hair: '#bdb7ab',
+    cut: 'short',
+    hat: 'cap',
+    hatCol: PALS.mint.d,
+  },
+};
 
 /** Each item's place and pill row: two items take two rows; three or four in the open middle climb a row each. */
 function layout(o: PaintOpts) {
@@ -222,26 +335,54 @@ function layout(o: PaintOpts) {
 export const paintScene = (o: PaintOpts) => (ctx: SceneCtx) => {
   const scale = o.scale ?? 1,
     narrow = scale > 1.5;
-  let s = castShadow(boxCorners(C0[0], C0[1], BH, C0[2], C0[3], TOP), BH, ctx.top);
-  const parts: { at: number[]; svg: string }[] = [];
-  let eveTop = 0;
-  if (o.eve !== undefined) {
-    const e = eavesdropper(ctx.top);
-    s += e.shadow;
-    eveTop = e.top;
-    parts.push({ at: [EVE[0], EVE[1], 0], svg: `<g data-prop="eve">${e.svg}</g>` });
-  }
-  const counter =
-    box(C0[0], C0[1], BH, C0[2], C0[3], TOP, WOOD, toneI, 1) +
-    // the open middle: a pale mat anyone can see
+  const eveTop = EVE_TOP;
+  // the shop: shelves of tins along the back wall, the pillar, a shopkeeper behind each end of the counter, Eve
+  const pieces: Piece[] = [
+    shelves(8, 60, 10, ctx.top),
+    shelves(120, 172, 10, ctx.top),
+    pillar(EVE[0] + 9, EVE[1] + 2, ctx.top),
+    // each at the far end of its side, clear of its pots and their pills
+    wrap(person({ x: SLOT.us - 19, y: C0[1] - 10, facing: 70, look: KEEPER.us }), 'data-prop="us"'),
+    wrap(person({ x: SLOT.them + 18, y: C0[1] - 10, facing: 110, look: KEEPER.them }), 'data-prop="them"'),
+  ];
+  if (o.eve !== undefined) pieces.push(eavesdropper());
+  // the counter: a body with panelled front and a top slab overhanging it; the open middle a pale mat anyone can see
+  let counter = box(C0[0], C0[1], BH, C0[2], C0[3], TOP - 2, WOOD, toneI, 1);
+  if (vis([0, 1, 0]))
+    for (let x = C0[0] + 14; x < C0[2] - 6; x += 18)
+      counter += line(
+        on(PY(C0[3] + 0.1), [
+          [x, BH + 2],
+          [x, TOP - 4],
+        ]),
+        0.7,
+      );
+  counter +=
+    box(C0[0] - 1, C0[1] - 1, TOP - 2, C0[2] + 1, C0[3] + 1, TOP, WOOD, toneI, 1) +
     box(SLOT.counter - 22, C0[1] + 2, TOP, SLOT.counter + 22, C0[3] - 2, TOP + 0.4, CERAMIC, toneI, 0.6) +
-    hullInk(boxCorners(C0[0], C0[1], BH, C0[2], C0[3], TOP), 1.8);
-  parts.push({ at: [C0[0], C0[1], 0], svg: `<g data-prop="counter">${counter}</g>` });
+    hullInk(boxCorners(C0[0] - 1, C0[1] - 1, BH, C0[2] + 1, C0[3] + 1, TOP), 1.8);
   const placed = layout(o).map(p => ({ ...p, d: itemAt(p.it, p.x, p.y) }));
-  let items = '';
-  for (const p of placed)
-    items += `<g data-item="${p.it.kind}" data-slot="${p.slot}"${p.it.fresh ? ' data-fresh="1"' : ''}${p.it.lit ? ' data-lit="1"' : ''}${p.it.pigments ? ` data-colour="${mixPaint(p.it.pigments)}"` : ''}>${p.d.svg}</g>`;
-  s += byDepth(parts) + items + '<g data-prop="us"></g><g data-prop="them"></g>';
+  // the counter and what stands on it are one item (a flat counter sorts in front of its load otherwise)
+  const onTop = byDepth(
+    placed.map(p => ({
+      box: [
+        [p.x - 9, p.y - 8, TOP + 0.4],
+        [p.x + 9, p.y + 8, p.d.top],
+      ],
+      svg: `<g data-item="${p.it.kind}" data-slot="${p.slot}"${p.it.fresh ? ' data-fresh="1"' : ''}${p.it.lit ? ' data-lit="1"' : ''}${p.it.pigments ? ` data-colour="${mixPaint(p.it.pigments)}"` : ''}>${p.d.svg}</g>`,
+    })),
+  );
+  pieces.push(
+    one(
+      [
+        [C0[0] - 1, C0[1] - 1, BH],
+        [C0[2] + 1, C0[3] + 1, Math.max(TOP + 0.4, ...placed.map(p => p.d.top))],
+      ],
+      `<g data-prop="counter">${counter}</g>${onTop}`,
+      castShadow(boxCorners(C0[0], C0[1], BH, C0[2], C0[3], TOP), BH, ctx.top),
+    ),
+  );
+  const s = drawPieces(pieces);
   let pills = '';
   if (o.names) {
     pills += pill([SLOT.us, C0[3], BH + 4], 18, o.names[0], false, scale, '#ffffff');
@@ -273,7 +414,7 @@ export const paintScene = (o: PaintOpts) => (ctx: SceneCtx) => {
     pills += sayAt(o.say, part, at, rowDy(part, at, Math.max(1, rows(part) - 1)), scale);
   }
   if (o.eve !== undefined) pills += sayAt(o.say, 'eve', [EVE[0], EVE[1], eveTop], o.eve ? -12 : 8, scale);
-  return s + pills;
+  return compact(tight(s)) + pills;
 };
 
 /** The picture in words, for its aria-label. */

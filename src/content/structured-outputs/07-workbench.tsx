@@ -27,6 +27,7 @@ import { UNSURE } from '../../lib/recall';
 import { STENCIL_PARTS } from '../../components/scenes/stencilScene';
 import type { Say } from '../../components/story/steps';
 import { Answer, Fact, StructuredStage, Waiting, decodeWith, CTX, modelNow, useModel, whenLoaded } from './kit';
+import Select from '../../components/story/Select';
 
 const MODULE = 'structured-outputs',
   ID = '07-workbench';
@@ -118,15 +119,15 @@ function Bench({ s, apply }: { s: S; apply: (s: S) => void }) {
   return (
     <div className="so-bench">
       {FIELDS.map(f => (
-        <label key={f.id}>
+        <label key={f.id} htmlFor={`so-${f.id}`}>
           {f.label}
-          <select value={s.policy[f.id]} onChange={e => set(f.id, e.target.value as Choice)}>
+          <Select id={`so-${f.id}`} value={s.policy[f.id]} onChange={e => set(f.id, e.target.value as Choice)}>
             {f.choices.map(c => (
               <option key={c} value={c}>
                 {choiceLabel(f.id, c)}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
       ))}
       <Answer label="The model’s schema" text={schema ? JSON.stringify(schema) : 'None: the model writes nothing'} />

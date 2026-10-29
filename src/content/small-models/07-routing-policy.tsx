@@ -4,6 +4,7 @@
 // pass or fail and why. The puzzle accepts every policy tied for the best score (WINNERS, computed over the whole
 // domain). The policy and the tab are step state, so a reload keeps the bench as it was.
 import StepRunner from '../../components/story/StepRunner';
+import Select from '../../components/story/Select';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import { frontier, questionText, THRESHOLDS, type Tier } from '../../lib/small-models/router';
@@ -204,7 +205,7 @@ export default function RoutingPolicy() {
                     <strong>{k.label}</strong>
                   </label>
                   <p className="note">{k.about}</p>
-                  <select
+                  <Select
                     id={`sm-kind-${k.id}`}
                     value={p[k.id]}
                     onChange={e => set({ ...state, [k.id]: e.target.value as Choice })}
@@ -214,7 +215,7 @@ export default function RoutingPolicy() {
                         {NAME[c]}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </div>
               ))}
               <div className="sm-range">

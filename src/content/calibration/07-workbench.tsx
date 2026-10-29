@@ -1,9 +1,10 @@
 // Chapter 7: the workbench. For each kind of question, a temperature (rescaling the confidence shown to customers) and
-// a hand-over line (on the assistant's stated confidence): one native select each. Under them, a row per kind against
+// a hand-over line (on the assistant's stated confidence): one drop-down each. Under them, a row per kind against
 // the desk's rules, and a live total against the fewest hand-overs that keep every rule. The puzzle accepts every plan
 // tied for the fewest (WINNERS, pinned); Show me applies one of them. The stage shows the chosen kind's jars at its
 // temperature and the help desk's count.
 import StepRunner from '../../components/story/StepRunner';
+import Select from '../../components/story/Select';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import { nextOf } from '../../lib/modules';
@@ -177,7 +178,7 @@ export default function Workbench() {
                   <legend>{k.label}</legend>
                   <label>
                     Temperature{' '}
-                    <select
+                    <Select
                       value={p[k.id].T}
                       onChange={e => change(k.id, { T: Number(e.currentTarget.value) as Temperature })}
                     >
@@ -186,11 +187,11 @@ export default function Workbench() {
                           {T}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </label>{' '}
                   <label>
                     Hand over{' '}
-                    <select
+                    <Select
                       value={p[k.id].threshold}
                       onChange={e => change(k.id, { threshold: Number(e.currentTarget.value) as Threshold })}
                     >
@@ -199,7 +200,7 @@ export default function Workbench() {
                           {t === 0 ? 'none' : `below ${pct(t)}`}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </label>
                 </fieldset>
               ))}

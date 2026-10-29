@@ -5,6 +5,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 ## Picture
 
 - **The window desk** (`src/components/scenes/windowScene.ts`): a glass case of fixed size on a desk is the context window, its height the token budget. The call's parts lie in it as stacked papers, bottom up in window order, coloured by kind and as thick as their tokens; a window over the budget rises past the rim and spills papers onto the desk. Agents' gauge stands on the desk (the cached share, then the fill), and each prop is turned on by the chapter: a cache shelf behind (a copy of the shared prefix, lit on a hit), a filing cabinet for memory (a drawer out when notes were read) and agents' in-tray for cleared results (a binder once summarised). `ContextStage` (`src/content/context/kit.tsx`) puts it one tab from the Window view (`windowBar.ts`: the same call as one stacked bar, the budget line and the reply's room; arrow keys read the parts). Only chapter 7 keeps the tab in the step state; on phones the props' readout pills are left to the caption.
+- **Hero object:** the reading desk with a lit banker's lamp under the glass case, a reader seated at it; the cache shelf is a bookcase, spilled papers curl.
 
 ## Engine (`src/lib/context/`)
 

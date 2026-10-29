@@ -68,7 +68,7 @@ const FACTS: [string, string][] = [
       <header class="hero">
         <div class="hero-text">
           <p class="kicker">Module {NUMBER} · {MODULE.title}</p>
-          <p class="module-meta"><span class="level">{MODULE.level}</span> · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>Every handshake costs a round trip</h1>
           <p class="lede">Between a click and a page, a browser looks up a name, shakes hands twice, seals the line and asks for every file, each a trip across the map. Here you follow Larkspur’s customers, near and far, and make the page fast for all of them.</p>
           <div class="ctas">
@@ -182,7 +182,6 @@ const FACTS: [string, string][] = [
   .lede { font-size: 17px; }
   .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
   .module-meta .level { margin-right: 4px; }
-  .module-meta a { color: var(--ink); }
   .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 
   .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }

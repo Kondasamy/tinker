@@ -70,7 +70,7 @@ const FACTS: [string, string][] = [
       <header class="hero">
         <div class="hero-text">
           <p class="kicker">Module 6 · Tokens</p>
-          <p class="module-meta"><span class="level">{MODULE.level}</span> No other module needed · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>What a model reads when you send it text</h1>
           <p class="lede">A model never sees your words. A tokenizer cuts the text into tokens, each one a number, and those numbers are what you pay for and what fill the model’s window. A second kind of number, the embedding, carries meaning, so texts that mean the same sit close together.</p>
           <div class="ctas">
@@ -187,7 +187,6 @@ const FACTS: [string, string][] = [
   .lede { font-size: 17px; }
   .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
   .module-meta .level { margin-right: 4px; }
-  .module-meta a { color: var(--ink); }
   .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 
   .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }

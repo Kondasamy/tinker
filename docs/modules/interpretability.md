@@ -5,6 +5,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 ## Picture
 
 - **The fuse box** (`src/components/scenes/fuseScene.ts`) composes Transformers' engine room (`engineScene`) and adds a fuse panel beside the second floor: a row per layer (layer 2 on top), a column per part (head 1, head 2, MLP). A fuse that is in is mustard; a pulled one is drawn out and dark, and a pulled head's desk is unlit with no threads (threads only when the chapter asks, chapter 1). `FUSE_PARTS` adds `fuses` and `pulled` to `ENGINE_PARTS`. `InterpStage` (`src/content/interpretability/kit.tsx`) puts it one tab from the Lens (`lensGrid.ts`: a row per stage, output on top, the top 5 guesses at one position, a native range for the position, arrow keys between cells, a watched token in mint). The Lens tab stays off until the model loads and while a prediction is open. On phones the pills shorten to names.
+- **Hero object: cartridge fuses in spring clips** on a pale board in a steel cabinet: ceramic barrels with brass end caps, mustard while in, dark and held out in front once pulled. An electrician in overalls and a white hard hat stands at the panel, reaching for it while a fuse is out. The room's pills draw over the panel (`engineLayers`).
 
 ## Engine (`src/lib/interpretability/`)
 

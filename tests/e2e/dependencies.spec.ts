@@ -1,5 +1,5 @@
 // Dependencies: the intro, every chapter played by mouse and by keyboard only, its own progress key, the pull-a-crate
-// mechanic by keyboard (arrow keys between crates, the version select, Pull) with its one polite read-out, the tree,
+// mechanic by keyboard (arrow keys between crates, the version drop-down, Pull) with its one polite read-out, the tree,
 // "I'm not sure", reduced motion (crates recolour without toppling), the recap, axe and phone width. The go-live adds
 // the module's number, share images and home's card.
 import { test, expect, type Page } from '@playwright/test';
@@ -27,11 +27,10 @@ const stage = (page: Page) => page.getByRole('region', { name: 'Scene' });
 const axe = async (page: Page) => expect(await serious(page)).toEqual([]);
 test.setTimeout(240_000);
 
-test('the intro shows the level, the author and the chapters', async ({ page }) => {
+test('the intro shows the level and the chapters', async ({ page }) => {
   await page.goto('/dependencies/');
   const meta = page.locator('.hero .module-meta');
   await expect(meta.locator('.level')).toHaveText('Intermediate');
-  await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
   await page.getByRole('button', { name: 'Words' }).click();
   await expect(page.locator('.band .note.more')).toBeVisible();

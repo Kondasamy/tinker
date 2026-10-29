@@ -9,10 +9,6 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - Callouts: RAG's canvas, timeline and context-overflow scenes draw them; RAG callouts are not held to the 16-character limit.
 - Share images: chapter 1 the timeline, chapter 2 the overflowing window, chapters 3–7 the track as of that chapter.
 
-## Trailer
-
-- `videos/rag-trailer/` (chapters 1, 3, 7 by scripted hand-play), shown on `/rag/` behind its poster. It quotes 2020, 2023 and the corpus's 47 documents; re-render if those change.
-
 ## Data
 
 History numbers from `data/history/timeline.json`, answers from `data/answers/`, counts from `public/data/index/manifest.json`. An e2e check counts the first screen of every RAG chapter.

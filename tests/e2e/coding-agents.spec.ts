@@ -31,8 +31,6 @@ test('the intro shows the level, the prerequisite and the chapters', async ({ pa
   await page.goto('/coding-agents/');
   const meta = page.locator('.hero .module-meta');
   await expect(meta.locator('.level')).toHaveText('Intermediate');
-  await expect(meta.getByRole('link', { name: 'AI agents' })).toHaveAttribute('href', '/agents/');
-  await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
   await page.getByRole('button', { name: 'Words' }).click();
   await expect(page.locator('.band .note.more')).toBeVisible();

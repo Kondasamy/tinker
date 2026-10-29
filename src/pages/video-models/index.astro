@@ -23,7 +23,7 @@ import META from '../../../public/data/video-models/meta.json' with { type: 'jso
 const MODULE = moduleOf('video-models');
 const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
 const CHAPTERS = MODULE.chapters;
-const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
+
 const ROUTE = rollout(PINNED.seed, PINNED.steps);
 const LOST = PINNED.kept + 2;
 const at = (t: number, d: Uint8Array = parseFrame(PINNED.dream[t]), synced = false): DreamOpts => ({
@@ -72,7 +72,7 @@ const FACTS: [string, string][] = [
       <header class="hero">
         <div class="hero-text">
           <p class="kicker">Module {NUMBER} · {MODULE.title}</p>
-          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS.map((m, i) => <>{i > 0 && ', '}<a href={`/${m.id}/`}>{m.title}</a></>)} recommended · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>A model that dreams the next frame</h1>
           <p class="lede">A world model guesses the next frame from the last ones and an action, and its small errors pile up. Here you drive a robot inside one, watch it drift, and plan when to check it against the real floor.</p>
           <div class="ctas">
@@ -185,7 +185,6 @@ const FACTS: [string, string][] = [
   .lede { font-size: 17px; }
   .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
   .module-meta .level { margin-right: 4px; }
-  .module-meta a { color: var(--ink); }
   .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 
   .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }

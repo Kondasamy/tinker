@@ -5,6 +5,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 ## Picture
 
 - **The scanning table** (`src/components/scenes/scanScene.ts`) stands on the workshop board: a document (or a photo print) lies under a camera on a post, a patch grid drawn over it (at most 12 lines each way; the picture shows the idea). Read by vision, the patches drop onto a belt as token tiles in Tokens' colours (nine at most) and ride into the model, RAG's LLM block; read by OCR, a strip of text rides the belt instead; before a reading the belt is empty. `MultimodalStage` (`src/content/multimodal/kit.tsx`) puts it one tab from the Patches view: the image rasterised at the chosen size, drawn back pixelated, under its exact grid (`patchGrid.ts`), with its size, count and reading in words. Chapters 1, 2 and 7 keep the tab in the step state; on phones the pills keep short names and the caption carries the counts.
+- **Hero object: the camera on a jointed arm** (weighted base, shoulder, elbow and wrist hubs, after the upstream desk lamp), its lens pointing down at the sheet; a warehouse worker in a hi-vis vest stands by it holding the broken bracket.
 
 ## Engine (`src/lib/multimodal/`)
 

@@ -27,6 +27,7 @@ import {
 import { BAR_PAL, boardLabel, latencyBoard, percentilesText } from '../../components/scenes/latencyBoard';
 import { useNarrow } from '../tool-calling/kit';
 import Cite from '../../components/story/Cite';
+import Select from '../../components/story/Select';
 import type { Say } from '../../components/story/steps';
 import './load-balancing.css';
 
@@ -223,7 +224,7 @@ export function ServerStates({
       {SERVERS.filter(s => !only || only.includes(s.id)).map(s => (
         <label key={s.id}>
           <span>{s.name}</span>
-          <select
+          <Select
             value={states[s.id] ?? 'fine'}
             onChange={e => onChange({ ...states, [s.id]: e.target.value as ServerState })}
           >
@@ -232,7 +233,7 @@ export function ServerStates({
                 {STATE_NAME[st]}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
       ))}
     </fieldset>

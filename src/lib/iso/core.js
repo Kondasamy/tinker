@@ -44,8 +44,16 @@ export const P  = (x,y,z) => { const [a,b] = rotXY(x,y); return [(a-b)*C + OX, (
 export const Dv = (x,y,z) => { const [a,b,c] = rotV([x,y,z]); return [(a-b)*C, (a+b)*S - c]; };
 // distance toward the viewer in the current view: draw parts with smaller depth first
 export const depthOf = p => { const [a,b] = rotXY(p[0],p[1]); return a + b + p[2]; };
-// sort [{at:[x,y,z], svg}] back-to-front for the current view and join
-export const byDepth = parts => parts.filter(Boolean).sort((p,q) => depthOf(p.at) - depthOf(q.at)).map(p => p.svg).join('');
+// sort [{at:[x,y,z], svg}] back-to-front for the current camera. A part may also give box:[[x0,y0,z0],[x1,y1,z1]]:
+// when two boxes are separated along x, y or z, the one on the viewer's side goes last (a centre point alone gets long
+// or wrapping parts wrong: a pole beside a row of keys, a spout reaching past a cup).
+export const boxMid = b => [0,1,2].map(k => (b[0][k] + b[1][k]) / 2);
+// adapted: upstream reads the free camera's CAM_V; here the viewer looks along (1,1,1) after the VIEW turn, which is this in model coordinates
+const viewDir = () => [VC - VS, VS + VC, 1];
+export const sepOrder = (p, q) => { if (!p.box || !q.box) return 0; const V = viewDir();
+  for (let k = 0; k < 3; k++){ if (p.box[1][k] <= q.box[0][k] + 1e-6) return V[k] >= 0 ? -1 : 1; if (q.box[1][k] <= p.box[0][k] + 1e-6) return V[k] >= 0 ? 1 : -1; }
+  return 0; };
+export const byDepth = parts => parts.filter(Boolean).sort((p,q) => sepOrder(p,q) || (depthOf(p.at || boxMid(p.box)) - depthOf(q.at || boxMid(q.box)))).map(p => p.svg).join('');
 export const f  = v => v.toFixed(1);
 export const pd = (pts, close=true) => 'M' + pts.map(p => { const q = P(p[0],p[1],p[2]); return f(q[0])+' '+f(q[1]); }).join('L') + (close ? 'Z' : '');
 export const sp = pts => 'M' + pts.map(q => f(q[0])+' '+f(q[1])).join('L') + 'Z';
@@ -99,6 +107,8 @@ export function loft(A, B, colour, flip=false){
   }
   return s;
 }
+// an open container (cup, bin, cone, drum) between two rings: far inner wall, then its contents, then the near outer wall
+export const openShell = (A, B, colour, contents = '') => loft(A, B, colour, true) + contents + loft(A, B, colour);
 export function hull(pts){
   pts = pts.slice().sort((a,b)=>a[0]-b[0]||a[1]-b[1]);
   const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]); const lo=[], up=[];

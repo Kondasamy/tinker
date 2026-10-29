@@ -6,9 +6,28 @@
 // (scale > 1.5) pills keep just the names and the caption carries the numbers.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
-import { PALS, METAL, CERAMIC, WOOD, box, castShadow, hullInk, toneI, tag, byDepth, line } from '../../lib/iso/core.js';
+import {
+  PALS,
+  METAL,
+  CERAMIC,
+  DARK,
+  WOOD,
+  pd,
+  box,
+  castShadow,
+  clipTo,
+  fill,
+  hullInk,
+  line,
+  rod,
+  shape,
+  toneI,
+  tag,
+  byDepth,
+  vis,
+} from '../../lib/iso/core.js';
+import { building, hexa, mini, type Piece, floor } from '../../lib/iso/figures';
 import { EDGES, KINDS, type Edge, type Kind, type Result } from '../../lib/caching/sim';
-import { beltAt } from './officeScene';
 import type { Say } from '../story/steps';
 
 export const DEPOT_BOARD: Board = [30, 4, 196, 198];
@@ -90,84 +109,284 @@ function road(e: Edge) {
   return { a, b, u, n };
 }
 
-/** A small truck at (x, y), facing along u. */
-function truck(x: number, y: number, cls = 'truck') {
-  const z = BH + 0.4;
+const ROAD_W = 6; // half the road's width
+/** A road on the board from a to b (n: its sideways direction). Real-object notes: dark asphalt between pale kerbs;
+ * a dashed white line down the middle. Flat on the board, so it is floor, drawn before the shadows. */
+function roadAt(a: number[], b: number[], n: number[], w = ROAD_W) {
+  const z = BH + 0.15,
+    L = Math.hypot(b[0] - a[0], b[1] - a[1]),
+    at = (t: number, k: number) => [
+      a[0] + ((b[0] - a[0]) * t) / L + n[0] * k,
+      a[1] + ((b[1] - a[1]) * t) / L + n[1] * k,
+      z,
+    ];
+  let s = shape([at(0, w + 1), at(L, w + 1), at(L, -w - 1), at(0, -w - 1)], CERAMIC.m, 0.9);
+  s += shape([at(0, w), at(L, w), at(L, -w), at(0, -w)], '#5d5953', 0);
+  for (let t = 2; t + 3 < L; t += 6)
+    s += fill(pd([at(t, -0.45), at(t + 3, -0.45), at(t + 3, 0.45), at(t, 0.45)]), '#f4f1e8');
+  return s;
+}
+
+/** A small delivery van with its driver in the cab, facing `facing` degrees; `cls` marks it for the tests. The kit's
+ * van is too big and too heavy for nine on a road at once, so this one is lean: a box van with a cab and bonnet,
+ * wheels with a tyre's thickness and a hub, a windscreen, and the driver's head in the side window. Real-object
+ * notes as the kit's van: cargo box behind, cab ahead with a sloped screen, a bonnet with lamps, four wheels. */
+function truck(x: number, y: number, facing: number, cls = 'truck'): Piece {
+  const t = (facing * Math.PI) / 180,
+    F = [Math.cos(t), Math.sin(t), 0],
+    S = [-Math.sin(t), Math.cos(t), 0],
+    z = BH,
+    at = (a: number, b: number, c: number) => [x + F[0] * a + S[0] * b, y + F[1] * a + S[1] * b, z + c],
+    cuboid = (a0: number, a1: number, b0: number, b1: number, c0: number, c1: number, c1f = c1, a1t = a1) => [
+      at(a0, b0, c0),
+      at(a1, b0, c0),
+      at(a1, b1, c0),
+      at(a0, b1, c0),
+      at(a0, b0, c1),
+      at(a1t, b0, c1f),
+      at(a1t, b1, c1f),
+      at(a0, b1, c1),
+    ],
+    W = 3.2,
+    near = vis(S) ? 1 : -1,
+    ahead = vis(F);
+  const wheel = (a: number, k: number) => {
+    const ring = (o: number, r: number) =>
+      Array.from({ length: 8 }, (_, i) => {
+        const q = (i / 8) * 2 * Math.PI;
+        return at(a + r * Math.cos(q), k * (W + o), 1.5 + r * Math.sin(q));
+      });
+    return k === near
+      ? shape(ring(-0.8, 1.5), DARK.d, 0.6) + shape(ring(0.1, 1.5), DARK.m, 0.8) + fill(pd(ring(0.15, 0.6)), METAL.m)
+      : fill(pd(ring(-0.1, 1.5)), DARK.d);
+  };
+  const cargo = cuboid(-7, 2, -W, W, 1.5, 8),
+    cab = cuboid(2, 5.6, -W, W, 1.5, 6.4, 6.4, 4.2),
+    bonnet = cuboid(5.6, 7.2, -W + 0.2, W - 0.2, 1.5, 3.8);
+  let body = '';
+  let front = hexa(cab, PALS.mustard, 0.8) + hexa(bonnet, PALS.mustard, 0.7);
+  // the windscreen on the sloped face, when the van comes toward the viewer
+  if (ahead)
+    front += shape(
+      [at(5.65, -W + 0.6, 3.9), at(5.65, W - 0.6, 3.9), at(4.3, W - 0.6, 6.2), at(4.3, -W + 0.6, 6.2)],
+      '#cfe9f0',
+      0.6,
+    );
+  // the side window and the driver's head in it, on the side toward the viewer
+  const B = near * (W + 0.05);
+  front += shape([at(2.5, B, 3.6), at(4.6, B, 3.6), at(3.8, B, 5.9), at(2.5, B, 5.9)], '#cfe9f0', 0.6);
+  front += fill(pd([at(2.9, B, 3.6), at(3.9, B, 3.6), at(3.9, B, 5.2), at(3.4, B, 5.6), at(2.9, B, 5.2)]), '#6a4a36');
+  let back = hexa(cargo, CERAMIC, 0.8);
+  back += shape([at(-6.5, B, 4), at(1.5, B, 4), at(1.5, B, 5.3), at(-6.5, B, 5.3)], PALS.tomato.l, 0.5);
+  body += ahead ? back + front : front + back;
+  const svg =
+    wheel(-4.5, -near) +
+    wheel(4.5, -near) +
+    body +
+    wheel(-4.5, near) +
+    wheel(4.5, near) +
+    hullInk([...cargo, ...cab, ...bonnet], 1.6);
+  const pts = [...cargo, ...bonnet, at(-7, -W - 1, 0), at(7.2, W + 1, 0)],
+    bx = [0, 1].map(e => [0, 1, 2].map(k => (e ? Math.max : Math.min)(...pts.map(p => p[k]))));
+  return { shadow: castShadow(pts, BH), items: [{ box: bx, svg: `<g class="${cls}">${svg}</g>` }], box: bx };
+}
+const deg = (u: number[]) => (Math.atan2(u[1], u[0]) * 180) / Math.PI;
+
+const BAY = { y0: 12, y1: 26, x1: DEPOT.x + DEPOT.half + 4.5 };
+/** The depot: a sawtooth-roofed shed (north lights along its roof) with a loading bay on its right-hand side: a roller
+ * shutter under a canopy, a dock to back a van up to. */
+function depot(): Piece {
+  const { x, y, half: h, top } = DEPOT,
+    zt = top - 7; // the roof's teeth reach the old roof line, under the pill
+  const b = building({
+    x,
+    y,
+    d: 2 * h,
+    w: 2 * h,
+    h: zt - BH,
+    roof: 'sawtooth',
+    front: '+y',
+    pal: METAL,
+    roofPal: PALS.cobalt,
+  });
+  // the roller shutter, on the bay wall when it faces the viewer: slats across a cobalt door in a frame
+  let sh = '';
+  if (vis([1, 0, 0])) {
+    const X = x + h + 0.15,
+      q = (a: number, c: number, d: number, e: number, o = 0) => [
+        [X + o, a, c],
+        [X + o, d, c],
+        [X + o, d, e],
+        [X + o, a, e],
+      ];
+    sh += shape(q(BAY.y0, BH, BAY.y1, BH + 14), CERAMIC.m, 1);
+    sh += shape(q(BAY.y0 + 1, BH, BAY.y1 - 1, BH + 13, 0.1), PALS.cobalt.m, 0.9);
+    for (let z = BH + 2; z < BH + 13; z += 2)
+      sh += line(
+        [
+          [X + 0.2, BAY.y0 + 1, z],
+          [X + 0.2, BAY.y1 - 1, z],
+        ],
+        0.5,
+      );
+  }
+  const [shell] = b.items;
+  const dock = box(x + h, BAY.y0 - 1, BH, BAY.x1, BAY.y1 + 1, BH + 4, CERAMIC, toneI, 1),
+    canopy = box(x + h, BAY.y0 - 2, BH + 15, BAY.x1 + 1, BAY.y1 + 2, BH + 16.2, PALS.cobalt, toneI, 1);
   return {
-    at: [x, y, 1],
-    svg: `<g class="${cls}">${box(x - 4, y - 3, z, x + 4, y + 3, z + 5, PALS.mustard, toneI, 0.9)}${box(x + 4, y - 2.5, z, x + 6.5, y + 2.5, z + 3.5, METAL, toneI, 0.8)}</g>`,
+    shadow: b.shadow + castShadow(boxCorners(x + h, BAY.y0 - 2, BH, BAY.x1 + 1, BAY.y1 + 2, BH + 16.2), BH),
+    items: [
+      { box: shell.box, svg: `<g data-prop="depot">${shell.svg}${sh}</g>` },
+      {
+        box: [
+          [x + h, BAY.y0 - 2, BH],
+          [BAY.x1 + 1, BAY.y1 + 2, BH + 16.2],
+        ],
+        svg: `<g class="bay">${dock}${canopy}</g>`,
+      },
+    ],
+    box: b.box,
   };
 }
 
-function depot() {
-  const { x, y, half: h, top } = DEPOT;
-  let s = box(x - h, y - h, BH, x + h, y + h, top, METAL, toneI, 1);
-  s += box(x + h, y - 8, BH, x + h + 0.6, y + 8, BH + 16, PALS.cobalt, toneI, 0.9);
-  s += box(x - h + 2, y - h + 2, top, x + h - 2, y + h - 2, top + 3, PALS.cobalt, toneI, 0.9);
-  return {
-    at: [x, y, 0],
-    svg: `<g data-prop="depot">${s}${hullInk(boxCorners(x - h, y - h, BH, x + h, y + h, top + 3), 2.4)}</g>`,
-  };
-}
-
-function warehouse(e: Edge, v: EdgeView, tagged: boolean) {
+/** A regional warehouse: a gable-roofed store with a striped awning over its front windows, and in front the shelf,
+ * an open wooden stand with a cubby per kind (a crate of the kind's colour while a copy is kept). */
+function warehouse(e: Edge, v: EdgeView, tagged: boolean): Piece[] {
   const [x, y] = SITE[e],
     h = WH.half;
-  let s = box(x - h, y - h, BH, x + h, y + h, WH.top, CERAMIC, toneI, 1);
-  s += box(x - h, y - h, WH.top, x + h, y + h, WH.top + 2.5, WOOD, toneI, 0.9);
-  s += hullInk(boxCorners(x - h, y - h, BH, x + h, y + h, WH.top + 2.5), 2);
-  if (tagged)
-    s += `<g class="stale-tag">${line(
-      [
-        [x, y, WH.top + 2.5],
-        [x, y, WH.top + 14],
+  const b = building({
+    x,
+    y,
+    // a hair deeper than wide, so the ridge runs front to back and the awning hangs under a gable end, not an eave
+    d: 2 * h + 0.2,
+    w: 2 * h,
+    h: 12,
+    roof: 'gable',
+    front: '+x',
+    door: false,
+    awning: true,
+    roofPal: WOOD,
+  });
+  const [shell] = b.items,
+    ridge = shell.box[1][2];
+  const flag = tagged
+    ? `<g class="stale-tag">${rod([x, y, ridge - 1], [x, y, ridge + 11], 0.5, DARK, toneI, 0.8)}${box(x, y - 0.3, ridge + 6, x + 7, y + 0.3, ridge + 11, PALS.tomato, toneI, 0.9)}</g>`
+    : '';
+  const wh: Piece = {
+    shadow: b.shadow,
+    items: [
+      {
+        box: tagged ? [shell.box[0], [shell.box[1][0] + 7, shell.box[1][1], ridge + 11]] : shell.box,
+        svg: `<g data-prop="${e}" data-stale="${tagged ? 1 : 0}" data-trips="${v.trips}">${shell.svg}${flag}</g>`,
+      },
+    ],
+    box: b.box,
+  };
+  // the shelf: a low wooden stand, plank dividers between the cubbies on it, a crate in each kept one
+  const sx = x + h + 3,
+    zz = BH + 4.2;
+  const cubs = Array.from({ length: KINDS.length + 1 }, (_, i) => {
+    const dy = y - h + i * 8;
+    return {
+      box: [
+        [sx, dy - 0.4, zz],
+        [sx + 6, dy + 0.4, zz + 6],
       ],
-      1.1,
-    )}${box(x, y - 0.3, WH.top + 9, x + 7, y + 0.3, WH.top + 14, PALS.tomato, toneI, 0.9)}</g>`;
-  // the shelf: a plank along the warehouse's front, a cubby per kind
-  const sx = x + h + 3;
-  let shelf = box(sx, y - h, BH, sx + 6, y + h, BH + 1.5, WOOD, toneI, 0.8);
+      svg: box(sx, dy - 0.4, zz, sx + 6, dy + 0.4, zz + 6, WOOD, toneI, 0.7),
+    };
+  });
   KINDS.forEach((k, i) => {
     const cy = y - h + 4 + i * 8,
       kept = v.shelf.includes(k);
-    shelf += `<g class="copy" data-kind="${k}" data-kept="${kept ? 1 : 0}">${box(sx + 1, cy - 2.6, BH + 1.5, sx + 5, cy + 2.6, BH + 1.5 + (kept ? 5 : 0.4), kept ? KIND_PAL[k] : CERAMIC, toneI, 0.7)}</g>`;
+    cubs.push({
+      box: [
+        [sx + 1, cy - 2.6, zz],
+        [sx + 5, cy + 2.6, zz + 4.5],
+      ],
+      svg: `<g class="copy" data-kind="${k}" data-kept="${kept ? 1 : 0}">${box(sx + 1, cy - 2.6, zz, sx + 5, cy + 2.6, zz + (kept ? 4.5 : 0.3), kept ? KIND_PAL[k] : CERAMIC, toneI, 0.7)}</g>`,
+    });
   });
-  return [
-    {
-      at: [x, y, 0],
-      svg: `<g data-prop="${e}" data-stale="${tagged ? 1 : 0}" data-trips="${v.trips}">${s}</g>`,
-    },
-    { at: [sx + 3, y, 0], svg: `<g data-prop="shelf" data-edge="${e}">${shelf}</g>` },
+  const shelfBox = [
+    [sx, y - h, BH],
+    [sx + 6, y + h, zz + 6],
   ];
+  const shelf: Piece = {
+    shadow: castShadow(boxCorners(sx, y - h, BH, sx + 6, y + h, zz + 6), BH),
+    items: [
+      {
+        box: shelfBox,
+        svg: `<g data-prop="shelf" data-edge="${e}">${box(sx, y - h, BH, sx + 6, y + h, zz, WOOD, toneI, 0.9)}${byDepth(cubs)}</g>`,
+      },
+    ],
+    box: shelfBox,
+  };
+  return [wh, shelf];
 }
 
-/** The map: shadows and roads (floor), then the buildings, shelves and trucks back to front, then the pills. */
+/** A road sign by the junction: a post and a cobalt plate with a white arrow toward the depot (words go in pills). */
+function sign(x: number, y: number): Piece {
+  const zt = BH + 17;
+  let s = rod([x, y, BH], [x, y, zt], 0.6, METAL, toneI, 0.9);
+  s += box(x - 0.4, y - 5, zt - 6, x + 0.4, y + 5, zt + 1, PALS.cobalt, toneI, 1);
+  const zc = zt - 2.5;
+  for (const sx of [-1, 1])
+    if (vis([sx, 0, 0])) {
+      const X = x + sx * 0.45;
+      // the arrow points toward -y (the depot's way) on both faces
+      s += shape(
+        [
+          [X, y + 3.4, zc - 0.9],
+          [X, y - 1, zc - 0.9],
+          [X, y - 1, zc - 2.4],
+          [X, y - 3.8, zc],
+          [X, y - 1, zc + 2.4],
+          [X, y - 1, zc + 0.9],
+          [X, y + 3.4, zc + 0.9],
+        ],
+        '#f4f1e8',
+        0.6,
+      );
+    }
+  const bx = [
+    [x - 1, y - 5, BH],
+    [x + 1, y + 5, zt + 1],
+  ];
+  return {
+    shadow: castShadow(boxCorners(x - 1, y - 5, BH, x + 1, y + 5, zt + 1), BH),
+    items: [{ box: bx, svg: `<g class="sign">${s}</g>` }],
+    box: bx,
+  };
+}
+
+/** The map: roads (floor), every shadow, then the buildings, shelves and vans in one sort, then the pills. */
 export const depotScene = (o: DepotOpts) => (ctx: SceneCtx) => {
   const st = depotState(o),
     scale = o.scale ?? 1,
     narrow = scale > 1.5;
-  let s = castShadow(
-    boxCorners(DEPOT.x - DEPOT.half, DEPOT.y - DEPOT.half, BH, DEPOT.x + DEPOT.half, DEPOT.y + DEPOT.half, DEPOT.top),
-    BH,
-    ctx.top,
-  );
+  let s = '';
   for (const e of EDGES) {
-    const [x, y] = SITE[e];
-    s += castShadow(boxCorners(x - WH.half, y - WH.half, BH, x + WH.half, y + WH.half, WH.top + 2), BH, ctx.top);
     const { a, b, n } = road(e);
-    s += `<g data-prop="road" data-edge="${e}">${beltAt(a, b, n, false)}</g>`;
+    s += `<g data-prop="road" data-edge="${e}">${roadAt(a, b, n)}</g>`;
   }
-  const parts = [depot(), ...EDGES.flatMap(e => warehouse(e, o.edges[e], st.tagged.includes(e)))];
+  const pieces: Piece[] = [
+    depot(),
+    ...EDGES.flatMap(e => warehouse(e, o.edges[e], st.tagged.includes(e))),
+    sign(132, 62),
+  ];
   for (const e of EDGES) {
-    const { a, b } = road(e);
+    const { a, b, u, n } = road(e),
+      L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    // spread along the road (wider apart on the short north road), in the lane on the left on the way to the depot
     for (let i = 0; i < st.trucks[e]; i++) {
-      const t = 0.3 + i * 0.22;
-      parts.push(truck(a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t));
+      const t = L < 70 ? 0.18 + i * 0.32 : 0.13 + i * 0.22;
+      pieces.push(truck(a[0] + (b[0] - a[0]) * t + n[0] * 2.6, a[1] + (b[1] - a[1]) * t + n[1] * 2.6, deg(u)));
     }
   }
+  // the queue waits in the yard by the loading bay, backed up toward the depot
   for (let i = 0; i < st.queued; i++)
-    parts.push(truck(DEPOT.x + DEPOT.half + 6 + (i % 2) * 10, DEPOT.y - 14 + i * 9, 'truck queued'));
-  s += `<g data-prop="trips" data-trips="${o.trips}" data-overloaded="${o.overloaded ? 1 : 0}">${byDepth(parts)}</g>`;
+    pieces.push(truck(BAY.x1 + 9 + (i >> 1) * 16, BAY.y0 + 1 + (i % 2) * 8.5, 0, 'truck queued'));
+  s += clipTo(ctx.top, pieces.map(p => p.shadow).join(''));
+  s += `<g data-prop="trips" data-trips="${o.trips}" data-overloaded="${o.overloaded ? 1 : 0}">${byDepth(pieces.flatMap(p => p.items))}</g>`;
   const OVER = '#f6c2b4';
   let pills = pill(
     [DEPOT.x, DEPOT.y, DEPOT.top + 3],
@@ -228,31 +447,26 @@ export function depotReadouts(o: DepotOpts): string[] {
   ];
 }
 
-/** The home hero's plot: a small depot, one road to a small warehouse with its three copies on the shelf, and a truck
- * on the way. */
+/** The home hero's plot: the depot in miniature, its sawtooth roof and bay, one road to a small warehouse with its
+ * three copies on the shelf, and a van on the way. */
 export function depotPlot(x: number, y: number, top: SceneCtx['top']): string {
-  const dx = x - 14,
-    dy = y - 10,
-    h = 8,
+  const k = 0.42,
+    dx = x - 12,
+    dy = y - 12,
     wx = x + 14,
-    wy = y + 6,
-    w = 6;
-  let d = box(dx - h, dy - h, BH, dx + h, dy + h, BH + 14, METAL, toneI, 1);
-  d += box(dx - h + 1, dy - h + 1, BH + 14, dx + h - 1, dy + h - 1, BH + 15.5, PALS.cobalt, toneI, 0.8);
-  d += hullInk(boxCorners(dx - h, dy - h, BH, dx + h, dy + h, BH + 15.5), 1.8);
-  let wh = box(wx - w, wy - w, BH, wx + w, wy + w, BH + 8, CERAMIC, toneI, 1);
-  wh += box(wx - w, wy - w, BH + 8, wx + w, wy + w, BH + 9.5, WOOD, toneI, 0.8);
-  wh += hullInk(boxCorners(wx - w, wy - w, BH, wx + w, wy + w, BH + 9.5), 1.6);
-  KINDS.forEach((k, i) => {
-    const cy = wy - w + 2 + i * 4;
-    wh += box(wx + w + 1.5, cy - 1.4, BH, wx + w + 4.5, cy + 1.4, BH + 3, KIND_PAL[k], toneI, 0.6);
-  });
-  const L = Math.hypot(wx - dx, wy - dy),
+    wy = y + 8,
+    north: EdgeView = { hits: 0, misses: 0, stale: 0, trips: 0, shelf: [...KINDS] },
+    L = Math.hypot(wx - dx, wy - dy),
     u = [(wx - dx) / L, (wy - dy) / L],
     n = [-u[1], u[0]];
+  const pieces = [
+    mini(depot(), [DEPOT.x, DEPOT.y, BH], [dx, dy, BH], k),
+    ...warehouse('north', north, false).map(p => mini(p, [...SITE.north, BH], [wx, wy, BH], k)),
+    mini(truck(0, 0, deg(u)), [0, 0, BH], [(dx + wx) / 2 + 2, (dy + wy) / 2, BH], 0.9),
+  ];
   return (
-    castShadow(boxCorners(dx - h, dy - h, BH, dx + h, dy + h, BH + 15), BH, top) +
-    beltAt([dx + u[0] * (h + 1), dy + u[1] * (h + 1)], [wx - u[0] * (w + 1), wy - u[1] * (w + 1)], n, false) +
-    byDepth([{ at: [dx, dy, 0], svg: d }, { at: [wx, wy, 0], svg: wh }, truck((dx + wx) / 2, (dy + wy) / 2)])
+    floor(pieces.map(p => p.shadow).join(''), top) +
+    roadAt([dx + u[0] * 10, dy + u[1] * 10], [wx - u[0] * 7, wy - u[1] * 7], n, 3.5) +
+    byDepth(pieces.flatMap(p => p.items))
   );
 }

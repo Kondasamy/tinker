@@ -5,6 +5,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 ## Picture
 
 - **The token press** (`src/components/scenes/tokenScene.ts`) stands on the workshop board: a paper strip (the text) feeds a cutting press (the tokenizer), and one coloured tile per token drops onto a belt (nine at most; the count pill says how many). With no text it stands idle. `TokensStage` (`src/content/tokens/kit.tsx`) puts it one tab from the Tokens row, the same tiles with their piece over their id, in the same colours; arrow keys read the row. Chapters 5 and 6 show RAG's map of meaning (`ProjectionMap`, read-only) instead. On phones the pills keep short names and the caption carries the counts.
+- **Hero object: a cast-iron letterpress** (`letterpress()`): a heavy bed, tapered cheeks, a crown with a red cap, a screw down to the steel platen that cuts, a spoked flywheel with a crank on the near cheek and a lever with a ball grip. The strip runs off a paper spool on brackets (`feed()`); the tiles ride the shared roller belt. Structured outputs reuses the same press.
 
 ## Engine (`src/lib/tokens/`)
 

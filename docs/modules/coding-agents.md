@@ -5,6 +5,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 ## Picture
 
 - **The agent's desk** (`src/components/scenes/deskScene.ts`): the agent at its desk, a filing cabinet with a drawer per repo file (shut, hit by a search, read, open), the patch on the desk with a strip per hunk (kept or dropped, or refused by the host), a lamp board with a lamp per test (green, red, off), and a terminal showing the last command and how the host took it. A padlock on the tests drawer means the host protects test files. `deskAt(run, beat)` reads the desk at any beat of a run, so the picture and the Code tab never disagree. The home card, the intro hero and chapter 4's share image are the first test run (`deskCard`); the hero plot is `agentDeskPlot`.
+- **Hero object: the rounded robot agent at a workbench**, hands on the patch, beside a drawer-pull filing cabinet and a rounded terminal; the test lamps are a traffic light on a pole, a lamp per test.
 - **The Code tab, one tab away** (`CaStage`, `src/content/coding-agents/kit.tsx`, panels in `codePanel.ts`): the file read, the search's hits, or the patch with a checkbox per hunk and "Run tests". All React text.
 - **The mechanic (KTD15)**: chapter 3's hunk checkboxes; the tests then run on the version the reader made.
 

@@ -17,6 +17,7 @@ import ResultStrip, { comparePanel, rowOf, withRow, type ResultRow } from '../..
 import TypeChallenge, { START, complete, type Challenge } from '../../components/quiz/TypeChallenge';
 import { TYPES, rowLabel } from './types-data';
 import { QS_ALL, questionById } from './questions';
+import Select from '../../components/story/Select';
 
 const ID = '07-sandbox';
 /** The question the sandbox opens on: every block is wired, so the graph is live, and two hops answer it. */
@@ -95,7 +96,7 @@ export default function Sandbox() {
         question: ({ state, apply }) => (
           <div className="knob">
             <label htmlFor="sandbox-q">Question</label>
-            <select
+            <Select
               id="sandbox-q"
               value={state.q}
               onChange={e => apply(withCanvas(state, state.canvas, e.target.value))}
@@ -105,7 +106,7 @@ export default function Sandbox() {
                   {q.query}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
         ),
         run: ({ state, apply }) => {

@@ -23,7 +23,7 @@ import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('interpretability');
 const CHAPTERS = MODULE.chapters;
-const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
+
 const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
 const m = diskModel();
 const run = forward(m, encode(BITE.text));
@@ -80,7 +80,7 @@ const FACTS: [string, string][] = [
       <header class="hero">
         <div class="hero-text">
           <p class="kicker">Module {NUMBER} · Interpretability</p>
-          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS.map((p, i) => <>{i > 0 && ', '}<a href={`/${p.id}/`}>{p.title}</a></>)} recommended · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>Why did the model say that?</h1>
           <p class="lede">Looking inside a model isn’t enough to explain it. Here you test its parts: pull a fuse, read its guess as it forms, copy an activation across, and push it off course.</p>
           <div class="ctas">
@@ -201,7 +201,6 @@ const FACTS: [string, string][] = [
   .lede { font-size: 17px; }
   .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
   .module-meta .level { margin-right: 4px; }
-  .module-meta a { color: var(--ink); }
   .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 
   .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }

@@ -1,4 +1,4 @@
-// U2: the home page is a catalogue grouped by level (R5, R6), Continue resumes the last module (R8), intros show level and author (R7).
+// U2: the home page is a catalogue grouped by level (R5, R6), Continue resumes the last module (R8), intros show their level (R7).
 import { test, expect } from '@playwright/test';
 import { serious } from './helpers';
 import { MODULES } from '../../src/lib/modules';
@@ -55,6 +55,10 @@ const NUMBERED = [
   'video-models',
 ];
 
+// AI modules lead the catalogue; classic tech follows in its own section of compact cards
+const AI = NUMBERED.filter(id => !MODULES.find(m => m.id === id)!.track);
+const isClassic = (id: string) => MODULES.find(m => m.id === id)!.track === 'Classic tech';
+
 // every module sits at its level: live cards first, then the roadmap's planned cards in registry (build) order;
 // the hero's caption and the Propose a module link both point at the request form on the home page.
 for (const width of [1280, 390])
@@ -69,14 +73,30 @@ for (const width of [1280, 390])
     expect(live.map(m => m.id)).toEqual(NUMBERED);
     await expect(catalogue(page).locator('.module')).toHaveCount(live.length);
     await expect(catalogue(page).locator('.roadmap')).toHaveCount(planned.length);
-    for (const level of ['Beginner', 'Intermediate', 'Advanced'] as const) {
-      const ids = [...live, ...planned].filter(m => m.level === level).map(m => m.id);
-      expect(
-        await page
-          .locator(`[data-level="${level}"] [data-module]`)
-          .evaluateAll(els => els.map(e => e.getAttribute('data-module'))),
-      ).toEqual(ids);
+    // AI cards level by level, then the classic section level by level, each live then planned in registry order
+    const byLevel = (classic: boolean) =>
+      (['Beginner', 'Intermediate', 'Advanced'] as const).flatMap(level =>
+        [...live, ...planned].filter(m => m.level === level && isClassic(m.id) === classic).map(m => m.id),
+      );
+    expect(
+      await catalogue(page)
+        .locator('[data-module]')
+        .evaluateAll(els => els.map(e => e.getAttribute('data-module'))),
+    ).toEqual([...byLevel(false), ...byLevel(true)]);
+    const classic = catalogue(page).locator('[data-classic]');
+    await expect(classic.locator('h3')).toHaveText('Classic tech');
+    expect(
+      await classic.locator('[data-module]').evaluateAll(els => els.map(e => e.getAttribute('data-module'))),
+    ).toEqual(byLevel(true));
+    // compact classic cards: a thumbnail picture, the module's number, a level tag and a Start link to the intro
+    for (const m of live.filter(m => isClassic(m.id))) {
+      const card = classic.locator(`.module[data-module="${m.id}"]`);
+      await expect(card.locator('.pic svg')).toHaveCount(1);
+      await expect(card.locator('.kicker')).toHaveText(new RegExp(`^Module ${NUMBERED.indexOf(m.id) + 1} · `));
+      await expect(card.locator('.level')).toHaveText(m.level);
+      await expect(card.locator('[data-cta]')).toHaveAttribute('href', `/${m.id}/`);
     }
+    await expect(catalogue(page).locator('.level-group .module .pic')).toHaveCount(AI.length);
     for (const m of planned) {
       const card = page.locator(`[data-level="${m.level}"] .roadmap[data-module="${m.id}"]`);
       await expect(card.locator('h4')).toHaveText(m.title);
@@ -109,6 +129,12 @@ test('the catalogue searches, filters, keeps the view in the URL and turns no ma
   expect(await shown()).toEqual(['fine-tuning']);
   await expect(page.locator('.module[data-module="fine-tuning"] [data-hit]')).toHaveText('Includes: LoRA adapters');
   await expect(page).toHaveURL(/\?q=lora#?$/);
+  // a classic topic finds its compact card and names the hit under it
+  await page.fill('[name="q"]', 'dead-letter');
+  expect(await shown()).toEqual(['queues']);
+  await expect(page.locator('[data-classic] .module[data-module="queues"] [data-hit]')).toHaveText(
+    'Includes: Dead-letter queues',
+  );
   await page.fill('[name="q"]', '');
   // each filter is a dropdown: open it, pick, and it closes naming the pick
   await page.locator('[data-pick="track"] summary').click();
@@ -123,7 +149,9 @@ test('the catalogue searches, filters, keeps the view in the URL and turns no ma
   );
   expect(classic.length).toBeGreaterThan(0);
   expect(await shown()).toEqual(classic);
-  await expect(catalogue(page).locator('[data-level="Advanced"]')).toBeHidden();
+  await expect(catalogue(page).locator('.level-group[data-level="Advanced"]')).toBeHidden();
+  await expect(catalogue(page).locator('.level-group[data-level="Beginner"]')).toBeHidden();
+  await expect(catalogue(page).locator('[data-classic] h3')).toBeVisible();
   await page.reload();
   expect(await shown()).toEqual(classic);
   // a dropdown that filters is lit, one left at its default is not
@@ -131,6 +159,17 @@ test('the catalogue searches, filters, keeps the view in the URL and turns no ma
     page.locator(`[data-pick="${name}"] summary`).evaluate(e => getComputedStyle(e).backgroundColor);
   await expect(page.locator('[data-pick="status"] summary')).toHaveText('Planned');
   expect(await bg('status')).not.toEqual(await bg('level'));
+  // the AI track hides the classic section, heading and all
+  await page.locator('[data-pick="status"] summary').click();
+  await page.getByRole('radio', { name: 'Any status' }).check();
+  await page.locator('[data-pick="track"] summary').click();
+  await page.getByRole('radio', { name: 'AI', exact: true }).check();
+  await expect(catalogue(page).locator('[data-classic]')).toBeHidden();
+  expect(await shown()).toEqual(
+    await catalogue(page)
+      .locator('.level-group [data-search]')
+      .evaluateAll(els => els.map(e => e.getAttribute('data-module'))),
+  );
   await page.fill('[name="q"]', 'quantum knitting');
   await expect(page.locator('[data-count]')).toHaveText('0 live');
   await page.locator('[data-propose]').click();
@@ -195,6 +234,7 @@ for (const [width, height] of [
 test('live modules keep their numbers, each linked under its level', async ({ page }) => {
   await page.goto('/');
   const kicker = (id: string) => page.locator(`.module[data-module="${id}"] .kicker`);
+  // every card keeps its place among all live modules, as its intro page numbers it
   for (const [i, id] of NUMBERED.entries()) await expect(kicker(id)).toHaveText(new RegExp(`^Module ${i + 1} · `));
   await expect(page.locator('[data-level="Beginner"] .module[data-module="tokens"] h4 a')).toHaveAttribute(
     'href',
@@ -417,7 +457,8 @@ test('live cards numbered from 1, the roadmap cards in order', async ({ page }) 
 
 // every module after RAG and tool calling takes a 2.4 s turn on the stand, newest first; sampled mid-turn, only that
 // module is on it, and it links to its intro
-const TURNS = NUMBERED.slice(2).reverse();
+// only AI modules take a turn: classic tech waits in the catalogue
+const TURNS = AI.slice(2).reverse();
 test('the hero stand shows one module at a time, newest first, each opening its module', async ({ page }) => {
   await page.goto('/');
   const turns = page.locator('.hero-pic .hero-turn');
@@ -506,6 +547,52 @@ test('a first visit starts with the basics; a finished module hands Continue to 
   await expect(go).toHaveText(`Start ${next.title} →`);
 });
 
+// AI modules are picked first: once the last one played is finished, Continue looks for an unfinished AI module
+// before any classic one, and a classic module played last still resumes
+const finish = (page: import('@playwright/test').Page, ids: string[], last: string) =>
+  page.evaluate(
+    ([done, last]) => {
+      for (const [id, chapters] of done)
+        localStorage.setItem(`${id}-progress-v1`, JSON.stringify({ done: chapters, saved: {} }));
+      localStorage.setItem('tinker-last-module', last);
+    },
+    [ids.map(id => [id, MODULES.find(m => m.id === id)!.chapters.map(c => c.id)] as const), last] as const,
+  );
+test('Continue picks an unfinished AI module before any classic one', async ({ page }) => {
+  await page.goto('/');
+  const go = page.locator('[data-continue]');
+  // the AI modules up to the first classic one are done; the next unfinished in registry order is classic
+  const firstClassic = NUMBERED.findIndex(isClassic);
+  const done = NUMBERED.slice(0, firstClassic);
+  const nextAi = AI.find(id => !done.includes(id))!;
+  await finish(page, done, done.at(-1)!);
+  await page.reload();
+  await expect(go).toHaveAttribute('href', `/${nextAi}/`);
+  // every AI module done: Continue moves on to the first classic one
+  await finish(page, AI, AI.at(-1)!);
+  await page.reload();
+  await expect(go).toHaveAttribute('href', `/${NUMBERED[firstClassic]}/`);
+});
+
+test('a classic module played last and unfinished still resumes', async ({ page }) => {
+  await page.goto('/');
+  const id = NUMBERED.find(isClassic)!;
+  const m = MODULES.find(x => x.id === id)!;
+  await page.evaluate(
+    ([id, ch]) => {
+      localStorage.setItem(`${id}-progress-v1`, JSON.stringify({ done: [ch], saved: {} }));
+      localStorage.setItem('tinker-last-module', id);
+    },
+    [id, m.chapters[0].id] as const,
+  );
+  await page.reload();
+  await expect(page.locator('[data-continue]')).toHaveAttribute('href', `/${id}/${m.chapters[1].id}/`);
+  // its compact card shows the progress and the Continue link too
+  const card = page.locator(`[data-classic] .module[data-module="${id}"]`);
+  await expect(card.locator('[data-progress]')).toBeVisible();
+  await expect(card.locator('[data-cta]')).toHaveText('Continue: chapter 2 →');
+});
+
 test('with no storage, Continue opens the RAG intro', async ({ page }) => {
   await page.addInitScript(() =>
     Object.defineProperty(window, 'localStorage', {
@@ -539,11 +626,12 @@ for (const path of ['/', '/rag/'])
     expect(await serious(page)).toEqual([]);
   });
 
-test('RAG intro shows its level, prerequisites and author from the registry', async ({ page }) => {
-  const rag = MODULES.find(m => m.id === 'rag')!;
-  await page.goto('/rag/');
-  const meta = page.locator('.hero .module-meta');
-  await expect(meta.locator('.level')).toHaveText(rag.level);
-  await expect(meta).toContainText('No prerequisites');
-  await expect(meta.getByRole('link', { name: rag.author.name })).toHaveAttribute('href', rag.author.url);
+// the intro's meta line is the level alone: no prerequisite list and no byline (the top bar credits the author)
+test('every intro shows its level and nothing else under the title', async ({ page }) => {
+  for (const m of MODULES.filter(x => x.status === 'live')) {
+    await page.goto(`/${m.id}/`);
+    const meta = page.locator('.hero .module-meta');
+    await expect(meta, m.id).toHaveText(m.level);
+    await expect(meta.locator('a'), m.id).toHaveCount(0);
+  }
 });

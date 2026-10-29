@@ -1,12 +1,12 @@
 // Recommendations: the intro, every chapter played by mouse (the marker dragged) and by keyboard only (the marker moved
 // with arrow keys), its own progress key, the marker's focus ring and Tab-out with one polite read-out, the shopper
-// select as the list alternative, the Ranking tab, "I'm not sure", reduced motion, the workbench's winning and losing
+// drop-down as the list alternative, the Ranking tab, "I'm not sure", reduced motion, the workbench's winning and losing
 // settings, the recap, axe and phone width. The go-live adds the module's number, share images and home's card.
 import { test, expect, type Page } from '@playwright/test';
 import { MODULES, moduleOf } from '../../src/lib/modules';
 import { customerOf } from '../../src/lib/recommendations/story';
 import { recommendationsWalker } from './recommendations-flow';
-import { serious, layoutHolds, PHONE } from './helpers';
+import { choose, serious, layoutHolds, PHONE } from './helpers';
 
 const M = moduleOf('recommendations');
 const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'recommendations') + 1;
@@ -28,11 +28,10 @@ const stage = (page: Page) => page.getByRole('region', { name: 'Scene' });
 const axe = async (page: Page) => expect(await serious(page)).toEqual([]);
 test.setTimeout(240_000);
 
-test('the intro shows the level, the author and the chapters', async ({ page }) => {
+test('the intro shows the level and the chapters', async ({ page }) => {
   await page.goto('/recommendations/');
   const meta = page.locator('.hero .module-meta');
   await expect(meta.locator('.level')).toHaveText('Intermediate');
-  await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
   await page.getByRole('button', { name: 'Words' }).click();
   await expect(page.locator('.band .note.more')).toBeVisible();
@@ -112,7 +111,7 @@ test('the marker: a visible focus ring, arrows only while focused, Tab out; the 
   await axe(page);
 });
 
-test('the shopper select is the list alternative: it moves the shopper and re-ranks the shelf', async ({ page }) => {
+test('the shopper drop-down is the list alternative: it moves the shopper and re-ranks the shelf', async ({ page }) => {
   const w = recommendationsWalker(page, 'mouse');
   await w.open(CH4);
   const shelf = () =>
@@ -120,9 +119,7 @@ test('the shopper select is the list alternative: it moves the shopper and re-ra
       .locator('.rc-item')
       .evaluateAll(es => es.map(e => e.getAttribute('data-product')));
   const first = await shelf();
-  await stage(page)
-    .getByRole('combobox', { name: /^Shopper/ })
-    .selectOption({ label: customerOf('c35').name });
+  await choose(stage(page).getByRole('combobox', { name: /^Shopper/ }), { label: customerOf('c35').name });
   await expect.poll(shelf).not.toEqual(first);
   await expect(stage(page).getByRole('status')).toContainText(customerOf('c35').name);
 });

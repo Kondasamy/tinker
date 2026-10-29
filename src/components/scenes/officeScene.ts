@@ -31,7 +31,17 @@ import {
   toneI,
   tag,
   inkK,
+  depthOf,
+  rrUV,
+  rectUV,
+  vis,
+  tone,
+  fill,
+  extrude,
+  openShell,
 } from '../../lib/iso/core.js';
+import { hexa, person, pottedPlant, type Piece } from '../../lib/iso/figures';
+import { crate } from './crateScene';
 
 export const OFFICE_BOARD: Board = [100, 0, 286, 258];
 type Station = 'emp' | 'host' | 'model' | 'orders';
@@ -63,12 +73,14 @@ const along = (st: Station, t: number, off = 0) => {
   return [a[0] + (b[0] - a[0]) * t + n[0] * off, a[1] + (b[1] - a[1]) * t + n[1] * off];
 };
 
-/** A conveyor belt on the board: a dark strip with rollers; `cut`: not built yet, a dashed outline only. */
+/** A conveyor belt on the board: a low roller bed between side rails; `cut`: not built yet, a dashed outline only. */
 const belt = (st: Station, cut: boolean) => {
   const { a, b, n } = ends(st);
   return beltAt(a, b, n, cut);
 };
-/** A belt from board point a to b; n: its sideways direction. */
+/** A belt from board point a to b; n: its sideways direction. Real-object notes: a dark bed on the board; steel
+ * rollers across it every 6 units, half sunk so a parcel rides on their tops; a low mustard rail along each side,
+ * the far one drawn before the rollers and the near one after. */
 export function beltAt(a: number[], b: number[], n: number[], cut: boolean) {
   const w = BW / 2,
     z = BH + 0.25;
@@ -79,91 +91,176 @@ export function beltAt(a: number[], b: number[], n: number[], cut: boolean) {
     [a[0] - n[0] * w, a[1] - n[1] * w, z],
   ];
   if (cut) return ink(pd(q), 1.1).replace('/>', ' stroke-dasharray="4 4"/>');
-  let s = shape(q, DARK.m, 1.2);
-  const L = Math.hypot(b[0] - a[0], b[1] - a[1]);
-  for (let k = 7; k < L - 3; k += 8) {
-    const p = [a[0] + ((b[0] - a[0]) * k) / L, a[1] + ((b[1] - a[1]) * k) / L];
-    s += line(
+  const L = Math.hypot(b[0] - a[0], b[1] - a[1]),
+    at = (t: number, k: number, zz: number) => [
+      a[0] + ((b[0] - a[0]) * t) / L + n[0] * k,
+      a[1] + ((b[1] - a[1]) * t) / L + n[1] * k,
+      zz,
+    ];
+  // a side rail: a thin bar standing on the bed's edge, k = ±1
+  const rail = (k: number) => {
+    const o = k * (w - 0.6),
+      e = 0.6 * k;
+    return hexa(
       [
-        [p[0] + n[0] * (w - 1.5), p[1] + n[1] * (w - 1.5), z + 0.05],
-        [p[0] - n[0] * (w - 1.5), p[1] - n[1] * (w - 1.5), z + 0.05],
+        at(0, o - e, z),
+        at(L, o - e, z),
+        at(L, o + e, z),
+        at(0, o + e, z),
+        at(0, o - e, z + 2.2),
+        at(L, o - e, z + 2.2),
+        at(L, o + e, z + 2.2),
+        at(0, o + e, z + 2.2),
       ],
-      0.6,
-    ).replace(INK, DARK.l);
+      PALS.mustard,
+      0.7,
+    );
+  };
+  // the near rail is the one on the viewer's side in this turn
+  const near = depthOf(at(0, w, z)) > depthOf(at(0, -w, z)) ? 1 : -1;
+  let s = shape(q, DARK.m, 1.2) + rail(-near);
+  // each roller a painted bar (an ink stroke under a steel one): a rod's look at a sliver of its SVG
+  for (let t = 4; t < L - 2; t += 6) {
+    const d = pd([at(t, -(w - 1.2), z + 0.5), at(t, w - 1.2, z + 0.5)], false);
+    s += `<path d="${d}" fill="none" stroke="${INK}" stroke-width="2.3" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${METAL.l}" stroke-width="1.1" stroke-linecap="round"/>`;
   }
-  return s;
+  return s + rail(near);
 }
 
-export type Part = { at: number[]; svg: string };
+export type Part = { at: number[]; svg: string; box?: number[][] };
 const LIT = '#ffb627';
+const LIT_PAL = { l: LIT, m: LIT, d: PALS.mustard.m };
+const span = (x0: number, y0: number, z0: number, x1: number, y1: number, z1: number) => [
+  [x0, y0, z0],
+  [x1, y1, z1],
+];
 
-/** The employee's desk: a wooden counter with a telephone. */
+/** The employee's counter: a wooden counter with a desk phone on it (base, handset on its cradle, a curly cord) and a
+ * note pad; the phone's call light glows while a message is at the counter. The employee stands behind it (person). */
 function desk(lit: boolean): Part {
   const [x, y] = AT.emp,
     z1 = BH + 14;
-  let s = box(x - 18, y - 12, BH, x + 18, y + 12, z1, WOOD, toneI, 1);
+  let s =
+    box(x - 18, y - 12, BH, x + 18, y + 12, z1 - 1.5, WOOD, toneI, 1) +
+    box(x - 19, y - 13, z1 - 1.5, x + 19, y + 13, z1, WOOD, toneI, 1) +
+    // the counter's front panel, seen from the viewer's side
+    shape(
+      on(PX(x + 18.05), [
+        [y - 9, BH + 2.5],
+        [y + 9, BH + 2.5],
+        [y + 9, z1 - 4],
+        [y - 9, z1 - 4],
+      ]),
+      WOOD.m,
+      0.7,
+    );
+  // the phone: a sloped base, the handset lying across its cradle, a coiled cord down the far side
+  const px = x - 6,
+    py = y - 1;
+  s += hexa(
+    [
+      [px - 5, py - 5, z1],
+      [px + 5, py - 5, z1],
+      [px + 5, py + 5, z1],
+      [px - 5, py + 5, z1],
+      [px - 5, py - 5, z1 + 5],
+      [px + 3, py - 5, z1 + 3],
+      [px + 3, py + 5, z1 + 3],
+      [px - 5, py + 5, z1 + 5],
+    ],
+    PALS.tomato,
+    0.9,
+  );
+  s += cyl(px + 3.6, py + 3, z1, z1 + 1.4, 1.2, lit ? LIT_PAL : DARK, toneI, 0.7, 10);
+  const coil: number[][] = [],
+    c0 = [px - 3, py - 6.5, z1 + 6],
+    c1 = [px - 7.5, py - 3, z1 + 2];
+  for (let i = 0; i <= 48; i++) {
+    const t = i / 48,
+      g = t * 7 * 2 * Math.PI,
+      droop = Math.sin(Math.PI * t) * 3;
+    coil.push([
+      c0[0] + (c1[0] - c0[0]) * t + Math.cos(g) * 0.8,
+      c0[1] + (c1[1] - c0[1]) * t,
+      c0[2] + (c1[2] - c0[2]) * t - droop + Math.sin(g) * 0.8,
+    ]);
+  }
+  s += line(coil, 0.6);
   s +=
-    box(x - 8, y - 6, z1, x + 4, y + 6, z1 + 4, PALS.tomato, toneI, 0.9) +
-    rod([x - 2, y - 7, z1 + 6], [x - 2, y + 7, z1 + 6], 2, PALS.tomato);
-  s += box(x + 7, y - 9, z1, x + 15, y - 1, z1 + 1.5, CERAMIC, toneI, 0.7); // a note pad
-  if (lit) s += cyl(x + 11, y + 6, z1, z1 + 2, 2.4, { l: LIT, m: LIT, d: PALS.mustard.m }, toneI, 0.8, 14);
-  return { at: [x, y, 0], svg: s + hullInk(boxCorners(x - 18, y - 12, BH, x + 18, y + 12, z1), 2.2) };
+    rod([px - 2, py - 6.5, z1 + 5.6], [px - 2, py + 6.5, z1 + 5.6], 1.1, PALS.tomato, toneI, 0.9, 1.1, 8) +
+    rod([px - 2, py - 7, z1 + 5.2], [px - 2, py - 4.6, z1 + 6.2], 1.8, PALS.tomato, toneI, 0.9, 1.8, 8) +
+    rod([px - 2, py + 4.6, z1 + 6.2], [px - 2, py + 7, z1 + 5.2], 1.8, PALS.tomato, toneI, 0.9, 1.8, 8);
+  s += box(x + 7, y - 9, z1, x + 15, y - 1, z1 + 1.2, CERAMIC, toneI, 0.7); // a note pad
+  return {
+    at: [x, y, 0],
+    box: span(x - 19, y - 13, BH, x + 19, y + 13, z1 + 8),
+    svg: s + hullInk(boxCorners(x - 19, y - 13, BH, x + 19, y + 13, z1), 2.2),
+  };
 }
 
-/** The host app's sorting desk: a blue desk, a pigeon-hole rack at the back, a lamp that lights while it handles a message. */
-function sorter(lit: boolean, calls?: number, cap?: number): Part {
-  const [x, y] = AT.host,
-    z1 = BH + 16;
-  let s = box(x - 20, y - 20, BH, x + 20, y + 20, z1, PALS.cobalt, toneI, 1);
-  s += box(x - 20, y - 20, z1, x - 9, y + 20, BH + 34, METAL, toneI, 1);
-  for (const v of [z1 + 6, z1 + 12])
-    s += line(
-      on(PX(x - 8.9), [
-        [y - 20, v],
-        [y + 20, v],
-      ]),
-      0.8,
-    );
-  for (const u of [y - 7, y + 7])
-    s += line(
-      on(PX(x - 8.9), [
-        [u, z1],
-        [u, BH + 34],
-      ]),
-      0.8,
-    );
+/** The host app (and MCP's apps): a mail-sorting machine at (x, y). Real-object notes: a rounded steel-blue cabinet on a dark plinth; its front is
+ * a wall of pigeonhole slots, some with a letter in them; an open hopper on top where post goes in; a lamp on a post
+ * that lights while it handles a message; the call counter's studs on its top, lit as calls are made. */
+export function sortingMachine(x: number, y: number, lit: boolean, calls?: number, cap?: number): Part {
+  const x0 = x - 20,
+    x1 = x + 20,
+    y0 = y - 20,
+    y1 = y + 20,
+    zb = BH + 2.5,
+    zt = BH + 26,
+    m = PALS.cobalt;
+  const PROF = rrUV(y0, zb, y1, zt, 7, 5);
+  let s = box(x0 + 1.5, y0 + 1.5, BH, x1 - 1.5, y1 - 1.5, zb, DARK, toneI, 0.9);
+  // the rounded body: the end cap toward the viewer, the rounded sides, one heavy silhouette
+  for (const [cx, n] of [
+    [x0, [-1, 0, 0]],
+    [x1, [1, 0, 0]],
+  ] as [number, number[]][])
+    if (vis(n)) s += fill(pd(on(PX(cx), PROF)), tone(n, m)) + ink(pd(on(PX(cx), PROF)), 1.6);
+  s += extrude(PROF, x0, x1, m) + hullInk([...on(PX(x0), PROF), ...on(PX(x1), PROF)], 2.6);
+  // the pigeonholes on the front: three rows of four, a letter waiting in most
+  const sx = vis([1, 0, 0]) ? 1 : -1,
+    fx = (sx > 0 ? x1 : x0) + sx * 0.1;
+  s += shape(on(PX(fx), rrUV(y0 + 4, zb + 3.5, y1 - 4, zt - 3, 2.5, 3)), m.m, 1);
+  for (let r = 0; r < 3; r++)
+    for (let c = 0; c < 4; c++) {
+      const u0 = y0 + 6 + c * 7.3,
+        v0 = zb + 5 + r * 5.6;
+      s += shape(on(PX(fx + sx * 0.05), rectUV(u0, v0, u0 + 5.8, v0 + 4.2)), DARK.d, 0.7);
+      if ((r * 4 + c) % 3 !== 1)
+        s += shape(on(PX(fx + sx * 0.1), rectUV(u0 + 0.8, v0, u0 + 5, v0 + 2.6 + ((r + c) % 2) * 0.8)), CERAMIC.l, 0.5);
+    }
+  // the hopper: an open tray, wider at the rim, on the back of the top
+  const ring = (z: number, g: number) => [
+    [x - 17 - g, y - 11 - g, z],
+    [x - 5 + g, y - 11 - g, z],
+    [x - 5 + g, y + 11 + g, z],
+    [x - 17 - g, y + 11 + g, z],
+  ];
+  const A = ring(zt - 0.5, 0),
+    B = ring(BH + 34, 2);
+  s +=
+    openShell(A, B, (n: number[]) => toneI(n, METAL), fill(pd(ring(zt + 1, 0.4)), DARK.m)) +
+    ink(pd(B), 1) +
+    hullInk([...A, ...B], 1.8);
   // the call counter: one stud per call the cap allows, lit as calls are made
   if (cap)
     for (let i = 0; i < cap; i++)
       s += cyl(
-        x + 4 + (i % 3) * 6,
-        y - 12 + Math.floor(i / 3) * 6,
-        z1,
-        z1 + 2,
-        2,
-        i < (calls ?? 0) ? { l: LIT, m: LIT, d: PALS.mustard.m } : DARK,
+        x + 4 + (i % 3) * 5,
+        y - 12 + Math.floor(i / 3) * 5,
+        zt,
+        zt + 1.6,
+        1.8,
+        i < (calls ?? 0) ? LIT_PAL : DARK,
         toneI,
         0.7,
-        12,
+        10,
       );
   s +=
-    rod([x + 12, y + 12, z1], [x + 12, y + 12, z1 + 10], 0.9, METAL) +
-    rod(
-      [x + 12, y + 12, z1 + 10],
-      [x + 6, y + 8, z1 + 13],
-      3,
-      lit ? { l: LIT, m: LIT, d: PALS.mustard.m } : PALS.mustard,
-      toneI,
-      0.9,
-      1.5,
-    );
-  return {
-    at: [x, y, 0],
-    svg:
-      s +
-      hullInk(boxCorners(x - 20, y - 20, BH, x + 20, y + 20, z1), 2.4) +
-      hullInk(boxCorners(x - 20, y - 20, z1, x - 9, y + 20, BH + 34), 2),
-  };
+    rod([x + 12, y + 12, zt], [x + 12, y + 12, zt + 9], 0.9, METAL) +
+    rod([x + 12, y + 12, zt + 9], [x + 6, y + 8, zt + 12], 3, lit ? LIT_PAL : PALS.mustard, toneI, 0.9, 1.5);
+  return { at: [x, y, 0], box: span(x0, y0, BH, x1, y1, BH + 34), svg: `<g class="sorter">${s}</g>` };
 }
 
 /** The model: the LLM block, with the tool definitions it was sent fanned out on top like a menu. */
@@ -194,82 +291,86 @@ function model(state: 'ok' | 'warn' | 'bad' | undefined, tools: number): Part {
         [PALS.cobalt, PALS.mint, PALS.tomato][i % 3].l,
         0.6,
       );
-  return { at: [x, y, 0], svg: s };
+  return { at: [x, y, 0], box: span(x - 17, y - 17, BH, x + 17, y + 17, BH + 42), svg: s };
 }
 
-/** The order system: a metal filing cabinet; a drawer slides out while a call reads or changes it. */
-function cabinet(open: boolean): Part {
-  const [x, y] = AT.orders,
-    x1 = x + 16,
+/** The order system (and MCP's servers): a steel filing cabinet on a plinth, under a lipped top. Each drawer has a raised front, a label
+ * holder and a bar handle; the middle drawer slides out while a call reads or changes the orders. */
+export function fileCabinet(x: number, y: number, open: boolean): Part {
+  const x1 = x + 16,
     z1 = BH + 44;
-  let s = box(x - 16, y - 16, BH, x1, y + 16, z1, METAL, toneI, 1);
+  let s =
+    box(x - 15, y - 15, BH, x1 - 1, y + 15, BH + 2, DARK, toneI, 0.9) +
+    box(x - 16, y - 16, BH + 2, x1, y + 16, z1 - 1.5, METAL, toneI, 1) +
+    box(x - 16.6, y - 16.6, z1 - 1.5, x1 + 0.6, y + 16.6, z1, METAL, toneI, 1);
+  const front = vis([1, 0, 0]);
+  const drawer = (X: number, z: number) =>
+    shape(
+      on(PX(X), [
+        [y - 13, z],
+        [y + 13, z],
+        [y + 13, z + 12],
+        [y - 13, z + 12],
+      ]),
+      METAL.l,
+      0.9,
+    ) +
+    shape(on(PX(X + 0.05), rectUV(y - 4, z + 8, y + 4, z + 10.5)), CERAMIC.l, 0.6) +
+    rod([X + 1.4, y - 5, z + 5.5], [X + 1.4, y + 5, z + 5.5], 0.8, DARK, toneI, 0.9, 0.8, 8) +
+    rod([X, y - 5, z + 5.5], [X + 1.4, y - 5, z + 5.5], 0.5, DARK, toneI, 0.6, 0.5, 6) +
+    rod([X, y + 5, z + 5.5], [X + 1.4, y + 5, z + 5.5], 0.5, DARK, toneI, 0.6, 0.5, 6);
   for (let i = 0; i < 3; i++) {
-    const z = BH + 3 + i * 13.5;
+    const z = BH + 3.5 + i * 13;
     if (i === 1 && open) continue;
-    s +=
-      shape(
-        on(PX(x1 + 0.05), [
-          [y - 12, z],
-          [y + 12, z],
-          [y + 12, z + 11],
-          [y - 12, z + 11],
-        ]),
-        METAL.m,
-        0.8,
-      ) + box(x1, y - 4, z + 7, x1 + 2, y + 4, z + 8.5, DARK, toneI, 0.6);
+    if (front) s += drawer(x1 + 0.05, z);
   }
   if (open) {
     const z = BH + 16.5;
     s +=
       shape(
         on(PX(x1 + 0.05), [
-          [y - 12, z],
-          [y + 12, z],
-          [y + 12, z + 11],
-          [y - 12, z + 11],
+          [y - 13, z],
+          [y + 13, z],
+          [y + 13, z + 12],
+          [y - 13, z + 12],
         ]),
         DARK.d,
         0.8,
       ) +
-      box(x1, y - 12, z, x1 + 14, y + 12, z + 10, METAL, toneI, 0.9) +
+      box(x1, y - 12, z + 0.5, x1 + 14, y + 12, z + 10, METAL, toneI, 0.9) +
       box(x1 + 3, y - 9, z + 10, x1 + 4.5, y + 9, z + 15, PALS.mustard, toneI, 0.7) +
       box(x1 + 7, y - 9, z + 10, x1 + 8.5, y + 9, z + 13, CERAMIC, toneI, 0.7) +
-      box(x1 + 14, y - 4, z + 5, x1 + 16, y + 4, z + 6.5, DARK, toneI, 0.6);
+      drawer(x1 + 14.05, z);
   }
-  return { at: [x, y, 0], svg: s + hullInk(boxCorners(x - 16, y - 16, BH, x1 + (open ? 16 : 2), y + 16, z1), 2.4) };
+  return {
+    at: [x, y, 0],
+    box: span(x - 16.6, y - 16.6, BH, x1 + (open ? 16 : 2), y + 16.6, z1),
+    svg: s + hullInk(boxCorners(x - 16, y - 16, BH, x1 + (open ? 16 : 2), y + 16, z1), 2.4),
+  };
 }
 
-/** Larkspur's stock in the empty front corner: two crates of hardware and a potted plant (decoration only). */
-function stock(): Part[] {
-  const crate = (x: number, y: number, z: number) =>
-    box(x - 9, y - 9, z, x + 9, y + 9, z + 14, WOOD, toneI, 1) +
-    line(
-      [
-        [x + 9.05, y - 9, z + 7],
-        [x + 9.05, y + 9, z + 7],
-      ],
-      0.7,
-    ) +
-    line(
-      [
-        [x - 9, y + 9.05, z + 7],
-        [x + 9, y + 9.05, z + 7],
-      ],
-      0.7,
-    );
-  const leaf = (x: number, y: number, z: number, r: number) => cyl(x, y, z, z + r * 1.2, r, PALS.mint, toneI, 0.9, 16);
+/** Larkspur's stock in the empty front corner: slatted crates of hardware and a potted plant (decoration only). */
+function stock(): Piece[] {
+  const crates: Part = {
+    at: [244, 214, 0],
+    box: span(227, 205, BH, 265, 223, BH + 28),
+    svg:
+      crate(236, 214, undefined, BH, 9, 14) +
+      crate(236, 214, undefined, BH + 14, 9, 14) +
+      crate(256, 214, undefined, BH, 9, 14),
+  };
   return [
-    { at: [236, 214, 0], svg: crate(236, 214, BH) + crate(236, 214, BH + 14) + crate(256, 214, BH) },
     {
-      at: [262, 244, 0],
-      svg:
-        cyl(262, 244, BH, BH + 9, 6, PALS.tomato, toneI, 1, 18) +
-        leaf(262, 244, BH + 9, 6) +
-        leaf(260, 242, BH + 15, 4) +
-        leaf(264, 246, BH + 13, 3.5),
+      shadow: castShadow(boxCorners(227, 205, BH, 265, 223, BH + 28), BH),
+      items: [crates as Piece['items'][number]],
+      box: crates.box!,
     },
+    pottedPlant({ x: 262, y: 244 }),
   ];
 }
+
+/** The employee, mug in hand, standing at the counter's open end and turned toward the phone. */
+const employee = () => person({ x: AT.emp[0] + 27, y: AT.emp[1] + 3, facing: 200, look: 'employee' });
 
 /** An arch over a belt: two posts and a bar, a lamp on top (green: passed, red: refused). */
 const arch = (st: Station, t: number, lamp: 'ok' | 'bad' | null) => archAt(along(st, t), ends(st).n, lamp);
@@ -466,6 +567,7 @@ export const officeScene =
     const { tools, host = 'HOST APP', schema, owner, gate, cap, scale = 1, note } = o;
     const st = officeState(o),
       narrow = scale > 1;
+    const extras: Piece[] = [employee(), ...(o.names === false ? [] : stock())];
     let s =
       blockShadow('llm', ...(AT.model as [number, number]), top) +
       castShadow(boxCorners(AT.host[0] - 20, AT.host[1] - 20, BH, AT.host[0] + 20, AT.host[1] + 20, BH + 34), BH, top) +
@@ -475,17 +577,16 @@ export const officeScene =
         top,
       ) +
       castShadow(boxCorners(AT.emp[0] - 18, AT.emp[1] - 12, BH, AT.emp[0] + 18, AT.emp[1] + 12, BH + 20), BH, top) +
-      (o.names === false
-        ? ''
-        : castShadow(boxCorners(227, 205, BH, 265, 223, BH + 28), BH, top) +
-          castShadow(boxCorners(256, 238, BH, 268, 250, BH + 20), BH, top));
+      extras.map(e => e.shadow).join('');
     s += (['model', 'emp', 'orders'] as Station[]).map(k => belt(k, k === 'orders' && !tools)).join('');
     const parts: Part[] = [
-      ...(o.names === false ? [] : stock()),
+      ...extras.flatMap(e =>
+        e.items.map(i => ({ ...i, at: i.at ?? [0, 1, 2].map(k => (i.box[0][k] + i.box[1][k]) / 2) })),
+      ),
       desk(st.busy === 'emp'),
-      sorter(st.busy === 'host', st.calls, cap),
+      sortingMachine(AT.host[0], AT.host[1], st.busy === 'host', st.calls, cap),
       model(st.screen, tools),
-      cabinet(st.open),
+      fileCabinet(AT.orders[0], AT.orders[1], st.open),
     ];
     const lastBad = st.last?.stamp === 'INVALID';
     if (schema)

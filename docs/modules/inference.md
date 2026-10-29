@@ -5,6 +5,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 ## Picture
 
 - **The serving floor** (`src/components/scenes/serveScene.ts`): requests wait as envelopes on a queue belt; the server is a steel rack with one batch seat per request it may run at once, lit for the requests in this pass (mustard reading its prompt, mint writing its reply), and a KV shelf beside it fills with the cache the requests in flight hold, its last cubby tomato. For speculative decoding a small draft runner (the student) stands by the rack with its guessed tokens in a row, kept ones lit. `floorAt` reads the floor off one pass of a server run (default the busiest). `InferenceStage` (`src/content/inference/kit.tsx`) puts it one tab from the Timeline (`serverTimeline.ts`: a lane per request, its wait, prefill and decode, with the first-token target). A stage that needs weights holds its frame with a loading pill, or an error card with Retry, until they are in. On phones only the server's pill shows and the caption carries the counts.
+- **Hero object: a diner counter** whose stools are the batch seats (cushions lit by phase), a round sign under the server's pill, an order-ticket rack as the KV shelf (a ticket per filled cubby), and the customer at the head of the queue beside the belt (one drawn, for the size budget); the draft runner stays the small model machine.
 
 ## Engine (`src/lib/inference/`)
 

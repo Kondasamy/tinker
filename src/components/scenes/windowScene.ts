@@ -4,6 +4,8 @@
 // stands on the desk (the cached share, then the window's fill), and each prop is turned on by the chapter: a cache
 // shelf behind (a copy of the shared prefix, lit on a hit), a filing cabinet for memory (a drawer out when notes were
 // read), and agentScene's in-tray for cleared results (a binder once summarised). Everything is read off one run, up to a call.
+// The hero is the reading desk itself: a wooden desk with a leather inlay and a lit banker's lamp under the glass case,
+// a reader seated at its back edge; the shelf is a bookcase and spilled papers curl.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, glassCase, sayAt, calloutsLast } from '../../lib/iso/blocks';
 import {
@@ -24,10 +26,19 @@ import {
   toneI,
   tag,
   byDepth,
-  INK,
+  PY,
+  PZ,
+  cyl,
+  loft,
+  vis,
+  rrUV,
+  rectUV,
+  ellUV,
+  matOf,
 } from '../../lib/iso/core.js';
 import { num } from '../../lib/format';
 import { gaugeProp, trayProp } from './agentScene';
+import { SKIN, drawPieces, person, type Look } from '../../lib/iso/figures';
 import { KIND_NAME, KIND_PAL } from './windowBar';
 import { DEFAULTS, REPLY_ROOM, type Run } from '../../lib/context/loop';
 import { MEMORY_DIR } from '../../lib/context/memory';
@@ -130,6 +141,24 @@ const GAUGE = [140, 70],
   SHELF_Z = BH + 46,
   CABINET = [160, 10, 186, 40],
   TRAY = [100, 168];
+const INLAY = [123, 96, 150, 130],
+  LAMP = [140, 117],
+  READER = [51, 125];
+const LEATHER = matOf('#4f8a5e'),
+  BRASS = matOf('#d9a93f'),
+  SHADE = matOf('#2f8a5a');
+const READER_LOOK: Look = { skin: SKIN[3], top: PALS.cobalt.m, legs: '#4a4642', hair: '#2b231c', cut: 'long' };
+const BOOKS: [number, number, Mat][] = [
+  [0, 11, PALS.tomato],
+  [6, 9, PALS.mint],
+  [12, 12, PALS.mustard],
+  [18, 10, PALS.cobalt],
+  [24, 8, PALS.blush],
+  [30, 11, PALS.tomato],
+  [36, 9, PALS.mint],
+  [42, 12, PALS.mustard],
+];
+type Mat = typeof WOOD;
 const PAD = 3; // papers sit this far inside the glass
 const SPILL = 0.35; // shortcut: an overflow draws at most this much of the case's height above the rim; the bar is exact
 const THIN = 0.6; // the thinnest paper drawn, so a 20-token part still shows
@@ -180,22 +209,8 @@ function windowCase(parts: Parameters<typeof papers>[0], budget: number, over: b
       [14, -8, -0.35],
       [4, -18, 0.5],
     ]) {
-      // a sheet fallen on the desk in front of the case, turned a little
-      const cx = x1 + dx,
-        cy = (y0 + y1) / 2 + dy,
-        c = Math.cos(t),
-        sn = Math.sin(t),
-        q = [
-          [-5, -7],
-          [5, -7],
-          [5, 7],
-          [-5, 7],
-        ];
-      s += `<g class="spill">${shape(
-        q.map(([u, v]) => [cx + u * c - v * sn, cy + u * sn + v * c, DZ + 0.3]),
-        CERAMIC.l,
-        0.7,
-      )}</g>`;
+      // a sheet fallen on the desk in front of the case, turned a little, its far end curling up
+      s += `<g class="spill">${curled(x1 + dx, (y0 + y1) / 2 + dy, t, DZ + 0.3)}</g>`;
     }
   return {
     at: [(x0 + x1) / 2, (y0 + y1) / 2, 1],
@@ -203,63 +218,162 @@ function windowCase(parts: Parameters<typeof papers>[0], budget: number, over: b
   };
 }
 
-/** The desk the window stands on. */
-function desk(): Part {
-  const [x0, y0, x1, y1] = DESK;
-  return {
-    at: [0, 0, 0],
-    svg: box(x0, y0, BH, x1, y1, DZ, WOOD, toneI, 1) + hullInk(boxCorners(x0, y0, BH, x1, y1, DZ), 2.2),
-  };
+/** A sheet of paper lying at (cx, cy) on z, turned t, its far end curling up off the desk. */
+function curled(cx: number, cy: number, t: number, z: number) {
+  const c = Math.cos(t),
+    sn = Math.sin(t),
+    at = (u: number, v: number, h: number) => [cx + u * c - v * sn, cy + u * sn + v * c, z + h];
+  // cross-sections down the sheet: flat to v = 3, then a curl of radius 2.2
+  const cs: [number, number][] = [[-7, 0]];
+  for (let i = 0; i <= 6; i++) {
+    const a = (i / 6) * Math.PI * 1.1;
+    cs.push([3 + 2.2 * Math.sin(a), 2.2 - 2.2 * Math.cos(a)]);
+  }
+  let s = '';
+  for (let i = 0; i + 1 < cs.length; i++) {
+    const [v0, h0] = cs[i],
+      [v1, h1] = cs[i + 1];
+    s += shape([at(-5, v0, h0), at(5, v0, h0), at(5, v1, h1), at(-5, v1, h1)], v1 >= v0 ? CERAMIC.l : CERAMIC.m, 0.6);
+  }
+  return s;
 }
 
-/** A wall shelf behind the desk: a slab as thick as the cached prefix, lit while this call reads it. */
+/** The reading desk the window stands on. Real-object notes: a thick wooden top on four square legs, an apron under
+ * it with a drawer front and a knob on each side toward the viewer, a green leather inlay on the top. */
+function desk(): string {
+  const [x0, y0, x1, y1] = DESK,
+    zt = DZ - 3,
+    za = zt - 4;
+  let s = '';
+  for (const [lx, ly] of [
+    [x0 + 2, y0 + 2],
+    [x1 - 5, y0 + 2],
+    [x0 + 2, y1 - 5],
+    [x1 - 5, y1 - 5],
+  ].sort((a, b) => a[0] + a[1] - b[0] - b[1]))
+    s += box(lx, ly, BH, lx + 3, ly + 3, za, WOOD, toneI, 1);
+  s += box(x0 + 2, y0 + 2, za, x1 - 2, y1 - 2, zt, WOOD, toneI, 1);
+  // a drawer front and its knob on each apron face toward the viewer
+  for (const [n, plane, u0, u1] of [
+    [[0, 1, 0], PY(y1 - 1.95), x0 + 30, x1 - 30],
+    [[1, 0, 0], PX(x1 - 1.95), y0 + 26, y1 - 26],
+  ] as [number[], (p: number[]) => number[], number, number][])
+    if (vis(n))
+      s +=
+        shape(on(plane, rrUV(u0, za + 0.7, u1, zt - 0.7, 0.6, 2)), WOOD.l, 0.6) +
+        shape(on(plane, ellUV((u0 + u1) / 2, (za + zt) / 2, 0.9, 0.9, 8)), PALS.mustard.l, 0.5);
+  s += box(x0, y0, zt, x1, y1, DZ, WOOD, toneI, 1.2);
+  s += shape(on(PZ(DZ + 0.05), rrUV(INLAY[0], INLAY[1], INLAY[2], INLAY[3], 2, 3)), LEATHER.l, 0.7);
+  // the reader's own sheet, under their hands
+  s += curled(READER[0] + 15, READER[1] + 1, Math.PI / 2, DZ + 0.1);
+  return s + hullInk(boxCorners(x0, y0, BH, x1, y1, DZ), 2.2);
+}
+
+/** The banker's lamp (the hero's light). Real-object notes: a round brass foot, a short brass stem bent forward at
+ * the top, an emerald-green glass shade lying across it like half a barrel, a pull chain with a bead; it is on, so a
+ * warm pool of light lies on the desk under it. */
+function bankersLamp(): Part {
+  const [x, y] = LAMP,
+    z = DZ,
+    zs = z + 16,
+    pool = shape(on(PZ(z + 0.08), ellUV(x + 4, y, 9, 12, 24)), '#ffe9a8', 0).replace('<path', '<path opacity=".75"');
+  let s =
+    cyl(x - 3, y, z, z + 2, 5, BRASS, toneI, 1.1, 20) +
+    rod([x - 3, y, z + 2], [x - 3, y, zs - 1.5], 0.9, BRASS, toneI, 0.9) +
+    rod([x - 3, y, zs - 1.5], [x, y, zs], 0.9, BRASS, toneI, 0.9);
+  // the shade: a half barrel along y (u = x, v = z), open below
+  const prof = Array.from({ length: 9 }, (_, i) => {
+      const a = (i / 8) * Math.PI;
+      return [x + 5.5 * Math.cos(a), zs - 1.5 + 4.5 * Math.sin(a)];
+    }),
+    A = on(PY(y - 8.5), prof),
+    B = on(PY(y + 8.5), prof);
+  s += loft(A, B, (n: number[]) => toneI(n, SHADE));
+  for (const [E, n] of [
+    [A, [0, -1, 0]],
+    [B, [0, 1, 0]],
+  ] as [number[][], number[]][])
+    if (vis(n)) s += shape(E, toneI(n, SHADE), 0.9);
+  s +=
+    hullInk([...A, ...B], 2) +
+    line(
+      [
+        [x + 3, y + 5, zs - 1.5],
+        [x + 3, y + 5, zs - 7],
+      ],
+      0.5,
+    ) +
+    cyl(x + 3, y + 5, zs - 8, zs - 7, 0.7, BRASS, toneI, 0.5, 8);
+  return { at: [x, y, z], svg: `<g data-prop="lamp">${pool}${s}</g>` };
+}
+
+/** The reader: a person sitting on a chair at the desk's back edge, reading, a curled paper in front of them. */
+function reader(): string {
+  const [x, y] = READER,
+    zs = BH + 11;
+  let chair = '';
+  for (const [lx, ly] of [
+    [x - 7, y - 5],
+    [x - 7, y + 4],
+    [x + 1, y - 5],
+    [x + 1, y + 4],
+  ])
+    chair += box(lx, ly, BH, lx + 1.2, ly + 1.2, zs - 1.2, WOOD, toneI, 0.8);
+  chair +=
+    box(x - 7.5, y - 5.5, zs - 1.2, x + 2.5, y + 5.5, zs, WOOD, toneI, 1) +
+    box(x - 7.5, y - 5.5, zs, x - 6, y + 5.5, zs + 13, WOOD, toneI, 1);
+  return chair + drawPieces([person({ x: x - 2, y, z: zs - 7.5, facing: '+x', pose: 'sit', look: READER_LOOK })]);
+}
+
+/** A bookcase shelf behind the desk: two wooden uprights, a plank, and the cached prefix on it as a slab as thick
+ * as the cached tokens, lit while this call reads it; a row of books on a lower shelf. */
 function shelf(cached: number, budget: number, hit: boolean): Part {
   const [x0, y0, x1, y1] = SHELF,
     z = SHELF_Z,
     h = Math.min(14, (cached * CASE_H) / Math.max(budget, 1));
-  let s =
-    rod([x0 + 3, y0 + 4, BH], [x0 + 3, y0 + 4, z], 1.2, METAL) +
-    rod([x0 + 3, y1 - 4, BH], [x0 + 3, y1 - 4, z], 1.2, METAL) +
-    box(x0, y0, z, x1, y1, z + 2, WOOD, toneI, 1);
+  let s = '';
+  for (const yy of [y0 + 2, y1 - 4]) s += box(x0, yy, BH, x0 + 3, yy + 2, z + 2, WOOD, toneI, 0.9);
+  s += box(x0, y0, BH + 18, x1, y1, BH + 20, WOOD, toneI, 1);
+  BOOKS.forEach(([dy, ht, c], i) => {
+    const yy = y0 + 6 + dy;
+    s += box(x0 + 3 + (i % 2), yy, BH + 20, x1 - 4, yy + 4.5, BH + 20 + ht, c, toneI, 0.7);
+  });
+  s += box(x0, y0, z, x1, y1, z + 2, WOOD, toneI, 1);
   if (cached > 0)
     s += `<g class="cached">${box(x0 + 3, y0 + 6, z + 2, x1 - 3, y1 - 6, z + 2 + Math.max(THIN, h), hit ? LIT : PALS.cobalt, toneI, 0.8)}</g>`;
   return { at: [x1, (y0 + y1) / 2, 0], svg: `<g data-prop="shelf" data-hit="${hit ? 1 : 0}">${s}</g>` };
 }
 
-/** A metal filing cabinet: three drawers facing the viewer; the top one out, with a note in it, when memory was read. */
+/** A steel filing cabinet: a plinth, a lipped top, three drawers facing the viewer, each with a card holder and a bar
+ * pull; the top one out, with a note in it, when memory was read. */
 function cabinet(open: boolean): Part {
   const [x0, y0, x1, y1] = CABINET,
     z1 = BH + 40,
-    dz = (z1 - BH) / 3;
-  let s = box(x0, y0, BH, x1, y1, z1, METAL, toneI, 1);
+    dz = (z1 - BH - 2) / 3,
+    my = (y0 + y1) / 2;
+  let s =
+    box(x0 + 1, y0 + 1, BH, x1 - 1, y1 - 1, BH + 2, DARK, toneI, 0.9) +
+    box(x0, y0, BH + 2, x1, y1, z1 - 1.5, METAL, toneI, 1) +
+    box(x0 - 0.6, y0 - 0.6, z1 - 1.5, x1 + 0.6, y1 + 0.6, z1, METAL, toneI, 1);
+  const pull = (x: number, cz: number) =>
+    rod([x + 1.3, my - 4, cz], [x + 1.3, my + 4, cz], 0.6, DARK, toneI, 0.7, 0.6, 8);
   for (let i = 0; i < 3; i++) {
-    const a = BH + i * dz + 2,
-      b = BH + (i + 1) * dz - 2;
+    const a = BH + 2 + i * dz + 1.5,
+      b = BH + 2 + (i + 1) * dz - 1.5;
+    if (open && i === 2) continue;
     s +=
-      shape(
-        on(PX(x1 + 0.05), [
-          [y0 + 3, a],
-          [y1 - 3, a],
-          [y1 - 3, b],
-          [y0 + 3, b],
-        ]),
-        METAL.m,
-        0.6,
-      ) +
-      line(
-        on(PX(x1 + 0.1), [
-          [(y0 + y1) / 2 - 3, b - 3],
-          [(y0 + y1) / 2 + 3, b - 3],
-        ]),
-        1.4,
-      ).replace(INK, DARK.m);
+      shape(on(PX(x1 + 0.05), rectUV(y0 + 3, a, y1 - 3, b)), METAL.m, 0.6) +
+      shape(on(PX(x1 + 0.1), rectUV(my - 3, b - 3.4, my + 3, b - 1.4)), CERAMIC.l, 0.4) +
+      pull(x1, (a + b) / 2);
   }
   if (open) {
-    const a = BH + 2 * dz + 2,
-      b = z1 - 2;
+    const a = BH + 2 + 2 * dz + 1.5,
+      b = z1 - 3;
     s += `<g class="drawer">${
+      shape(on(PX(x1 + 0.05), rectUV(y0 + 3, a, y1 - 3, b)), DARK.d, 0.5) +
       box(x1, y0 + 3, a, x1 + 12, y1 - 3, b, METAL, toneI, 1) +
-      box(x1 + 2, y0 + 6, b, x1 + 10, y1 - 6, b + 4, CERAMIC, toneI, 0.6)
+      box(x1 + 2, y0 + 6, b, x1 + 10, y1 - 6, b + 4, CERAMIC, toneI, 0.6) +
+      pull(x1 + 12, (a + b) / 2)
     }</g>`;
   }
   return { at: [(x0 + x1) / 2, (y0 + y1) / 2, 0], svg: `<g data-prop="cabinet" data-open="${open ? 1 : 0}">${s}</g>` };
@@ -279,6 +393,7 @@ export const windowScene = (o: WindowOpts) => (ctx: SceneCtx) => {
   const shade = (x0: number, y0: number, x1: number, y1: number, h: number) =>
     shadows.push(castShadow(boxCorners(x0, y0, BH, x1, y1, BH + h), BH, ctx.top));
   shade(DESK[0], DESK[1], DESK[2], DESK[3], DZ - BH);
+  shade(READER[0] - 8, READER[1] - 6, READER[0] + 3, READER[1] + 6, 30);
 
   const win = windowCase(st.window?.parts ?? [], budget, st.over),
     caseAt = [CASE[2], (CASE[1] + CASE[3]) / 2, DZ + CASE_H];
@@ -331,7 +446,11 @@ export const windowScene = (o: WindowOpts) => (ctx: SceneCtx) => {
       );
   }
   // the desk is under everything on it, so it is drawn first, not sorted by depth
-  return shadows.join('') + desk().svg + byDepth(parts) + calloutsLast(pills);
+  parts.push(bankersLamp());
+  // the reader and the shelf stand behind the desk; the desk is under everything on it, so it is drawn between them
+  const behind = parts.filter(p => p.svg.startsWith('<g data-prop="shelf"')),
+    onDesk = parts.filter(p => !behind.includes(p));
+  return shadows.join('') + byDepth(behind) + reader() + desk() + byDepth(onDesk) + calloutsLast(pills);
 };
 
 /** The home hero's plot (heroScene): a small desk at (x, y) with the glass window on it, holding four papers (system,

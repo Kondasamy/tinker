@@ -4,6 +4,7 @@ import { expect, type Locator, type Page } from '@playwright/test';
 
 import { GENS, LAST } from '../../src/lib/synthetic-data/runs';
 import { TEMPERATURES as TEMPS, WINNERS } from '../../src/lib/synthetic-data/workbench';
+import { choose, chooseByKeys } from './helpers';
 
 export type Mode = 'mouse' | 'keyboard';
 /** a batch is written after the weights load, a reply per frame; more on a phone or with the CPU shared */
@@ -30,9 +31,9 @@ export function sdWalker(page: Page, mode: Mode, check: (page: Page) => Promise<
     const now = Number(await r.inputValue());
     for (let i = now; i !== to; i += Math.sign(to - now)) await r.press(to > now ? 'ArrowRight' : 'ArrowLeft');
   }
-  /** a native select: by keyboard, focus it and pick the option (Playwright's selectOption fires the same events) */
+  /** a drop-down: by keyboard, open it and arrow to the option; by mouse, click it and the option */
   const select = (name: string, value: string) =>
-    card.getByRole('combobox', { name: new RegExp(`^${name}`) }).selectOption(value);
+    (kb ? chooseByKeys : choose)(card.getByRole('combobox', { name: new RegExp(`^${name}`) }), value);
 
   async function open(id: string) {
     await page.goto(`/synthetic-data/${id}/`);

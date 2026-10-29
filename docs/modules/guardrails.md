@@ -5,6 +5,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 ## Picture
 
 - **The mail room** (`src/components/scenes/guardScene.ts`) composes `officeScene` (the front desk renamed through its `emp` option) and adds a mail room, read off one run up to the current step: email waits in an inbox tray and rides the front-desk belt in to the host; an outbound chute behind the host leads to a post box, the way out. Each defence is a prop turned on by a flag: a screening arch on the inbound belt (the input checks), a barrier on the chute (the allow-list), the chute shut once untrusted text is in (the taint rule), and the lethal trifecta's three legs named, a removed leg drawn shut, dashed or gone. `officeScene` exports `beltAt`, `archAt` and `barrierAt` so the mail room draws its belts and checks the same way. `GuardStage` (`src/content/guardrails/kit.tsx`) puts it one tab from the Steps lanes (`guardSequence.ts`), where a call a check stopped is a dashed card stamped REFUSED (DENIED when a person said no). Chapter 7 keeps its tab in the step state.
+- **Hero object: the screening arch**, a walk-through scanner on the inbound belt, with a security guard standing on the host side of it; the way out is a pillar box.
 
 ## Engine (`src/lib/guardrails/`)
 

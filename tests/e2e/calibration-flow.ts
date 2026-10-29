@@ -2,6 +2,7 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 import pinned from '../../data/calibration/pinned.json' with { type: 'json' };
 import rules from '../../data/calibration/workbench.json' with { type: 'json' };
+import { choose, chooseByKeys } from './helpers';
 
 export type Mode = 'mouse' | 'keyboard';
 /** Larkspur mini reads the held-out text in the browser: a moment, more on a phone or with the CPU shared */
@@ -136,9 +137,9 @@ export function cbWalker(page: Page, mode: Mode, check: (page: Page) => Promise<
     /** set one of the best plans */
     async ch7(next?: RegExp, quiz: string | RegExp = /^A line per kind/) {
       for (const [kind, [T, threshold]] of Object.entries(WINNER)) {
-        const sel = card.locator(`fieldset[data-kind="${kind}"] select`);
-        await sel.nth(0).selectOption(String(T));
-        await sel.nth(1).selectOption(String(threshold));
+        const sel = card.locator(`fieldset[data-kind="${kind}"]`).getByRole('combobox');
+        await (kb ? chooseByKeys : choose)(sel.nth(0), String(T));
+        await (kb ? chooseByKeys : choose)(sel.nth(1), String(threshold));
       }
       await step(2);
       await check(page);

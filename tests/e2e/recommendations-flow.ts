@@ -1,7 +1,8 @@
 // Recommendations, chapter by chapter, by mouse or keyboard only, following each chapter's "Next" link. The stage's
-// Picture/Ranking tabs, the shopper or basket select, the marker over the taste map (arrow keys while focused, or a
+// Picture/Ranking tabs, the shopper or basket drop-down, the marker over the taste map (arrow keys while focused, or a
 // drag) and the round stepper sit with the picture; everything else is in the step card.
 import { expect, type Locator, type Page } from '@playwright/test';
+import { choose as pick, chooseByKeys } from './helpers';
 import { ROUNDS } from '../../src/lib/recommendations/loop';
 import { customerOf, productOf } from '../../src/lib/recommendations/story';
 import { WINNERS } from '../../src/lib/recommendations/workbench';
@@ -27,8 +28,7 @@ export function recommendationsWalker(page: Page, mode: Mode, check: (page: Page
   const at = (n: number) => card.textContent().then(t => t!.includes(`Step ${n} of`));
   const choose = async (label: RegExp, value: string) => {
     const l = stage.getByRole('combobox', { name: label });
-    if (kb) await l.focus();
-    await l.selectOption({ label: value });
+    await (kb ? chooseByKeys(l, { label: value }) : pick(l, { label: value }));
   };
   const tab = (name: string) => press(stage.getByRole('button', { name, exact: true }));
   /** move the shopper until the card reaches step n: arrow keys on the focused marker, or drags to the right */

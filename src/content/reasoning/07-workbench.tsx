@@ -1,7 +1,8 @@
-// Chapter 7: the workbench. The reader sets an effort per kind of request (a native select each). Under it, a row per
+// Chapter 7: the workbench. The reader sets an effort per kind of request (a drop-down each). Under it, a row per
 // question with right or wrong and the answer's note; a live total of right answers, cost and wait against the best. The
 // puzzle accepts every plan tied for the best (WINNERS); Show me applies one of them. The plan and the tab are step state.
 import StepRunner from '../../components/story/StepRunner';
+import Select from '../../components/story/Select';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import { EFFORTS, KINDS, question, type Effort } from '../../lib/reasoning/engine';
@@ -151,7 +152,7 @@ export default function Workbench() {
                 <label key={k.id} data-kind={k.id}>
                   {k.label}
                   <span className="note">{k.about}</span>
-                  <select
+                  <Select
                     value={planOf(state)[k.id]}
                     onChange={e => set({ ...state, [k.id]: e.currentTarget.value as Effort })}
                   >
@@ -160,7 +161,7 @@ export default function Workbench() {
                         {e}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </label>
               ))}
             </div>

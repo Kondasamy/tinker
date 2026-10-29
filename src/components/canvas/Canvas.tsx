@@ -36,6 +36,8 @@ import {
   rrUV,
   ink,
   cyl,
+  rod,
+  METAL,
   toneI,
   ease,
   withFrame,
@@ -59,6 +61,7 @@ import Knobs, { BLOCK_KNOBS } from './Knobs';
 import { LOAD_FAILED, VERDICT_LABEL } from '../panels/logic';
 import type { Say } from '../story/steps';
 import './canvas.css';
+import Select from '../story/Select';
 
 export interface CanvasProps {
   state: CanvasState;
@@ -376,7 +379,8 @@ export default function Canvas({
       nodes.map(n => {
         const ht = BLOCKS[n.id].ht;
         const port = editable
-          ? `<g class="port" data-port="${n.id}">${cyl(n.x + HALF - 5, n.y - HALF + 5, BH + ht, BH + ht + 4, 3.4, PALS.mustard, toneI, 0.9)}</g>`
+          ? // on a post from the board: the blocks' silhouettes leave the top corner open
+            `<g class="port" data-port="${n.id}">${rod([n.x + HALF - 5, n.y - HALF + 5, BH], [n.x + HALF - 5, n.y - HALF + 5, BH + ht], 0.7, METAL, toneI, 0.7)}${cyl(n.x + HALF - 5, n.y - HALF + 5, BH + ht, BH + ht + 4, 3.4, PALS.mustard, toneI, 0.9)}</g>`
           : '';
         return {
           at: [n.x, n.y, 0],
@@ -720,7 +724,7 @@ export function BlockSettings({
             <>
               <div className="knob">
                 <label htmlFor={connectId}>Connect to…</label>
-                <select
+                <Select
                   id={connectId}
                   value=""
                   onChange={e =>
@@ -733,7 +737,7 @@ export function BlockSettings({
                       {name(t)}
                     </option>
                   ))}
-                </select>
+                </Select>
               </div>
               <button
                 type="button"

@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 // Dependencies' stage (U13): the tower's parts and callouts, pulling a crate turns exactly the resolver's dependants
 // tomato (with crossed planks, not colour alone), the 12-crate cap and its count pill, the topple only behind
-// prefers-reduced-motion: no-preference, the keyboard path (arrow keys between crates, a native select, Pull), and the
+// prefers-reduced-motion: no-preference, the keyboard path (arrow keys between crates, a version drop-down, Pull), and the
 // one polite role="status" read-out outside the drawing.
 import { readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -158,7 +158,7 @@ describe('pull a crate, by keyboard', () => {
   const state = () => JSON.parse((host.firstElementChild as HTMLElement).dataset.o!);
   const status = () => host.querySelectorAll('[role="status"]');
 
-  it('arrow keys move between crates; the select forces a version; Pull takes it out; one status says what broke', () => {
+  it('arrow keys move between crates; the drop-down forces a version; Pull takes it out; one status says what broke', () => {
     act(() => root.render(createElement(Harness)));
     expect(status()).toHaveLength(1);
     expect(status()[0].closest('svg')).toBeNull();
@@ -177,21 +177,16 @@ describe('pull a crate, by keyboard', () => {
       });
     expect((document.activeElement as HTMLElement).dataset.crate).toBe('pricebook');
     expect((document.activeElement as HTMLButtonElement).tabIndex).toBe(0);
-    const select = host.querySelector('select')!;
-    act(() => {
-      select.value = '2.0.0';
-      select.dispatchEvent(new Event('change', { bubbles: true }));
-    });
+    const version = (v: string) =>
+      act(() => host.querySelector<HTMLElement>(`[role="option"][data-value="${v}"]`)!.click());
+    version('2.0.0');
     expect(state()).toEqual({ pricebook: '2.0.0' });
     expect(status()[0].textContent).toMatch(/pricebook set to 2\.0\.0\. Broken: .*cartwheel/);
     expect(host.querySelectorAll('[data-broken="1"]').length).toBe(2);
     const back = () => [...host.querySelectorAll('button')].find(b => b.textContent === 'Put back');
     const pull = () => [...host.querySelectorAll('button')].find(b => b.textContent === 'Pull pricebook')!;
     // setting it back to the version it had mends the tower
-    act(() => {
-      select.value = '1.4.2';
-      select.dispatchEvent(new Event('change', { bubbles: true }));
-    });
+    version('1.4.2');
     expect(host.querySelectorAll('[data-broken="1"]')).toHaveLength(0);
     act(() => pull().click());
     expect(state()).toEqual({ pricebook: null });

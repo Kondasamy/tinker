@@ -29,7 +29,7 @@ import { longDate, num } from '../../lib/format';
 
 const MODULE = moduleOf('fine-tuning');
 const CHAPTERS = MODULE.chapters;
-const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
+
 const META = metaJson as unknown as LmMeta;
 const bench = (o: TrainOpts): TrainOpts => ({ scale: 1.3, ...o });
 // the weights lever pulled, the LoRA adapter clipped on
@@ -91,7 +91,7 @@ const FACTS: [string, string][] = [
       <header class="hero">
         <div class="hero-text">
           <p class="kicker">Module 9 · Fine-tuning</p>
-          <p class="module-meta"><span class="level">{MODULE.level}</span> {PREREQS.map((m, i) => <>{i > 0 && ', '}<a href={`/${m.id}/`}>{m.title}</a></>)} recommended · by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>Train the model, prompt it, or give it documents?</h1>
           <p class="lede">There are three ways to change what a model answers: what you tell it, what you hand it, and the weights themselves. Here you fine-tune a tiny model for real, measure what it learns and forgets, and decide which lever fits each job.</p>
           <div class="ctas">
@@ -204,7 +204,6 @@ const FACTS: [string, string][] = [
   .lede { font-size: 17px; }
   .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
   .module-meta .level { margin-right: 4px; }
-  .module-meta a { color: var(--ink); }
   .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 
   .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }

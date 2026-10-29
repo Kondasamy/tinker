@@ -1,5 +1,5 @@
 /* Recommendations stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in
-   through tool-calling/kit). These are the marker over the taste map, the shopper select, the read-out, the round
+   through tool-calling/kit). These are the marker over the taste map, the shopper drop-down, the read-out, the round
    stepper, the ranking table and the bench. Motion (a product sliding onto the shelf, the marker gliding) plays only
    when motion is allowed; with reduced motion the shelf and the marker update at once. */
 .rc-marker {
@@ -31,11 +31,6 @@
   gap: 8px;
   font-weight: 700;
   font-size: 14px;
-}
-.rc-pick select {
-  font: inherit;
-  min-height: 36px;
-  max-width: 100%;
 }
 .rc-round .chip {
   min-height: 44px;

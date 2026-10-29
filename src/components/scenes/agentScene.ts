@@ -1,9 +1,12 @@
 // Module 3's picture: the back office from module 2 (officeScene, composed, not forked) with the agent's four props,
-// each turned on by a chapter flag (KTD8): a clipboard by the model (the plan, one tick per finished item), a step and
-// context gauge on the host's desk, an in-tray of history papers that becomes one binder when the host compacts, and
-// small helper desks for sub-agents. Everything is read off one run, up to the current step, through agentMessages.
+// each turned on by a chapter flag (KTD8): a clipboard on a stand by the model (the plan, one tick per finished item), a
+// pair of dials on the host's machine (steps and context), an in-tray of history papers that becomes one ring binder when
+// the host compacts, and small helper desks for sub-agents, a clerk at the one working. The support lead stands at the
+// counter in the employee's place, handing the case across it in a manila folder (the hero). Everything is read off one
+// run, up to the current step, through agentMessages.
 import type { SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, glassCase, sayAt } from '../../lib/iso/blocks';
+import { SKIN, hexa, modelIn, person, type Look } from '../../lib/iso/figures';
 import {
   INK,
   PALS,
@@ -13,18 +16,25 @@ import {
   DARK,
   WOOD,
   box,
+  cyl,
   rod,
   shape,
   line,
-  castShadow,
-  hullInk,
+  fill as paint,
+  pd,
   on,
   PX,
+  ellUV,
+  vis,
+  castShadow,
+  hullInk,
   toneI,
   tag,
   byDepth,
 } from '../../lib/iso/core.js';
-import { OFFICE_PARTS, officeScene, splitOffice, officeLabel, type OfficeOpts } from './officeScene';
+import { OFFICE_PARTS, officeScene, officeLabel, type OfficeOpts } from './officeScene';
+import { EMPLOYEE, officeLayers, withoutPerson } from './officeLayers';
+import { crate } from './crateScene';
 import { agentMessages } from './agentSequence';
 import { keyOf, tokens, type Run, type Step } from '../../lib/agents/loop';
 
@@ -146,7 +156,6 @@ export function agentState({ run, upTo = run.steps.length, gauge }: Pick<AgentOp
 }
 
 type Part = { at: number[]; svg: string };
-const LIT = '#ffb627'; // the busy helper's screen
 const CLIP = [232, 180],
   GAUGE = [150, 120],
   TRAY = [186, 196];
@@ -159,7 +168,8 @@ const DESKS = [
   [272, 64],
 ];
 
-/** A clipboard standing on a small easel, facing the viewer (+y): a row per plan item, ticked when done, struck when dropped. */
+/** A clipboard on a stand, facing the viewer (+y): a row per plan item, ticked when done, struck when dropped.
+ * Real-object notes: an A-frame easel (two splayed front legs, a back prop) with a ledge the board rests on. */
 export function clipboard(x: number, y: number, rows: { done: boolean; struck: boolean }[]): Part {
   const x0 = x - 13,
     x1 = x + 13,
@@ -169,8 +179,9 @@ export function clipboard(x: number, y: number, rows: { done: boolean; struck: b
     F = Y + 0.1;
   const at = (pts: number[][]) => pts.map(([u, z]) => [u, F, z]); // a point on the paper: (x, z)
   let s =
-    rod([x - 9, y - 5, BH], [x - 9, y, z0 + 12], 0.8, WOOD) +
-    rod([x + 9, y - 5, BH], [x + 9, y, z0 + 12], 0.8, WOOD) +
+    rod([x, y - 9, BH], [x, y - 0.4, z1 - 5], 0.8, WOOD) +
+    rod([x - 12, y - 1, BH], [x - 8, y - 0.4, z1 - 3], 0.9, WOOD) +
+    rod([x + 12, y - 1, BH], [x + 8, y - 0.4, z1 - 3], 0.9, WOOD) +
     box(x0, y, z0, x1, Y, z1, WOOD, toneI, 1) +
     shape(
       at([
@@ -182,7 +193,8 @@ export function clipboard(x: number, y: number, rows: { done: boolean; struck: b
       CERAMIC.l,
       0.7,
     ) +
-    box(x - 5, Y, z1 - 6, x + 5, Y + 1.4, z1 - 2, METAL, toneI, 0.8);
+    box(x - 5, Y, z1 - 6, x + 5, Y + 1.4, z1 - 2, METAL, toneI, 0.8) +
+    box(x0 - 1.5, y - 0.6, z0 - 1.6, x1 + 1.5, Y + 2.4, z0, WOOD, toneI, 0.8);
   const n = Math.max(rows.length, 4),
     gap = Math.min(5, 22 / n);
   rows.forEach((r, i) => {
@@ -254,13 +266,76 @@ export function gaugeProp(x: number, y: number, steps: number, context: number, 
   };
 }
 
+/** The host's budgets as two round dials on a post (the agents scene's gauge): turns used of the step budget (cobalt
+ * needle) and this turn's context of the context budget (mustard, tomato once over). Real-object notes: a steel bezel,
+ * a white face with a red zone at the top of its sweep, a needle from a centre hub, no numerals. z0: what it stands on. */
+export function dialGauge(x: number, y: number, steps: number, context: number, over: boolean, z0 = BH + 26): Part {
+  const zc = z0 + 9,
+    sx = vis([1, 0, 0]) ? 1 : -1,
+    R = 3.9;
+  const dial = (yy: number, k: number, needle: string) => {
+    const F = x + sx * 1.05,
+      at = (a: number, r: number) => [F, yy + Math.cos(a) * r, zc + Math.sin(a) * r];
+    // the sweep runs from lower left (empty) over the top to lower right (full); the needle's angle is the fill
+    const ang = (t: number) => ((225 - 270 * t) * Math.PI) / 180;
+    const zone: number[][] = [];
+    for (let i = 0; i <= 6; i++) zone.push(at(ang(0.8 + (0.2 * i) / 6), R - 0.6));
+    for (let i = 6; i >= 0; i--) zone.push(at(ang(0.8 + (0.2 * i) / 6), R - 1.8));
+    return (
+      rod([x - 1, yy, zc], [x + 1, yy, zc], R + 0.7, METAL, toneI, 0.9, R + 0.7, 18) +
+      paint(pd(on(PX(F), ellUV(yy, zc, R, R, 18))), CERAMIC.l) +
+      paint(pd(zone), PALS.tomato.l) +
+      `<path d="${pd([[F, yy, zc], at(ang(k), R - 0.9)], false)}" fill="none" stroke="${needle}" stroke-width="1.1" stroke-linecap="round"/>` +
+      paint(pd(on(PX(F + sx * 0.05), ellUV(yy, zc, 0.7, 0.7, 8))), INK)
+    );
+  };
+  const s =
+    box(x - 3, y - 11.5, z0, x + 3, y + 5.5, z0 + 1.2, DARK, toneI, 0.8) +
+    rod([x, y - 7, z0 + 1.2], [x, y - 7, zc - 3], 0.6, DARK) +
+    rod([x, y + 1.6, z0 + 1.2], [x, y + 1.6, zc - 3], 0.6, DARK) +
+    dial(y - 7, steps, PALS.cobalt.d) +
+    dial(y + 1.6, context, over ? PALS.tomato.m : PALS.mustard.d);
+  return {
+    at: [x, y, 1],
+    svg: `<g data-prop="gauge" data-steps="${steps.toFixed(3)}" data-context="${context.toFixed(3)}">${s}</g>`,
+  };
+}
+
 const PAPER_MAX = 14; // shortcut: the stack stops growing here; the pill and caption still count every paper
-/** A wooden in-tray: the history as a stack of papers; after compaction, one binder at the bottom. */
+/** A wooden in-tray with low walls: the history as a stack of papers; after compaction, one ring binder at the bottom. */
 export function trayProp(x: number, y: number, papers: number, binder: boolean): Part {
-  let s = box(x - 11, y - 8, BH, x + 11, y + 8, BH + 2, WOOD, toneI, 1),
-    z = BH + 2;
+  const x0 = x - 11,
+    x1 = x + 11,
+    y0 = y - 8,
+    y1 = y + 8,
+    zw = BH + 4.5;
+  // the near walls (toward the viewer in this turn) go on after the papers
+  const nx = vis([1, 0, 0]) ? x1 : x0,
+    ny = vis([0, 1, 0]) ? y1 : y0;
+  const wallX = (X: number) => box(X - 0.6, y0, BH + 1, X + 0.6, y1, zw, WOOD, toneI, 0.7),
+    wallY = (Y: number) => box(x0, Y - 0.6, BH + 1, x1, Y + 0.6, zw, WOOD, toneI, 0.7);
+  let s = box(x0, y0, BH, x1, y1, BH + 1, WOOD, toneI, 1) + wallX(x0 + x1 - nx) + wallY(y0 + y1 - ny),
+    z = BH + 1;
   if (binder) {
-    s += `<g class="binder">${box(x - 9, y - 6.5, z, x + 9, y + 6.5, z + 4, PALS.cobalt, toneI, 1) + box(x + 9, y - 6.5, z, x + 9.8, y + 6.5, z + 4, PALS.cobalt, toneI, 0.7)}</g>`;
+    // a closed ring binder lying flat: card covers, a round spine toward the viewer with a finger hole and a label
+    const sx = nx === x1 ? 1 : -1,
+      sp = x + sx * 8.6,
+      face = sp + sx * 2.15;
+    s += `<g class="binder">${
+      box(x - 9, y - 6.5, z, x + 9, y + 6.5, z + 4, PALS.cobalt, toneI, 1) +
+      rod([sp, y - 6.5, z + 2], [sp, y + 6.5, z + 2], 2.1, PALS.cobalt, toneI, 1, 2.1, 12) +
+      shape(
+        on(PX(face), [
+          [y - 4.5, z + 1.2],
+          [y + 1, z + 1.2],
+          [y + 1, z + 2.8],
+          [y - 4.5, z + 2.8],
+        ]),
+        CERAMIC.l,
+        0.5,
+      ) +
+      paint(pd(on(PX(face), ellUV(y + 3.6, z + 2, 0.9, 0.9, 10))), DARK.d)
+    }</g>`;
     z += 4;
   }
   const drawn = Math.min(papers, PAPER_MAX);
@@ -269,6 +344,7 @@ export function trayProp(x: number, y: number, papers: number, binder: boolean):
     s += `<g class="paper">${box(x - 8 + j, y - 6 - j * 0.6, z, x + 8 + j, y + 6 - j * 0.6, z + 0.9, CERAMIC, toneI, 0.5)}</g>`;
     z += 0.9;
   }
+  s += wallX(nx) + wallY(ny);
   return { at: [x, y, 0], svg: `<g data-prop="tray" data-papers="${papers}" data-binder="${binder ? 1 : 0}">${s}</g>` };
 }
 
@@ -277,19 +353,69 @@ export function helperDesk(x: number, y: number, busy: boolean, done: boolean): 
   const z1 = BH + 9;
   let s =
     box(x - 9, y - 7, BH, x + 9, y + 7, z1, WOOD, toneI, 1) +
-    box(x - 6, y - 4, z1, x + 2, y + 4, z1 + 8, PALS.blush, toneI, 1) +
-    shape(
-      on(PX(x + 2.05), [
-        [y - 2.6, z1 + 2],
-        [y + 2.6, z1 + 2],
-        [y + 2.6, z1 + 6.5],
-        [y - 2.6, z1 + 6.5],
-      ]),
-      busy ? LIT : '#1d2a26',
-      0.6,
-    );
+    modelIn([x - 6, y - 4, z1, x + 2, y + 4, z1 + 8], busy ? 'ok' : undefined).items[0].svg;
   if (done) s += box(x + 3, y - 1, z1, x + 8, y + 5, z1 + 0.6, CERAMIC, toneI, 0.5);
   return { at: [x, y, 0], svg: `<g data-prop="helper"${busy ? ' data-busy="1"' : ''}>${s}</g>` };
+}
+
+type Item = { at?: number[]; box: number[][]; svg: string };
+const corners = (c: number[][]) => [0, 1].map(e => [0, 1, 2].map(k => (e ? Math.max : Math.min)(...c.map(p => p[k]))));
+/** The support lead stands at the counter's far corner, side-on to the viewer, holding the case out over it (the
+ * folder 17 above the floor, in both hands). Once helpers take over, the lead has gone and the case lies on the counter. */
+const LEAD = { x: 167, y: 222, facing: 140 };
+const HELD = { ...LEAD, z: 17 },
+  LEFT = { x: 161, y: 243, facing: 172, z: 14 };
+
+/** The hero: the case in a manila folder. Real-object notes: two card covers with a tab on the back edge, the papers'
+ * edges showing, a red tie round the middle. It runs 3 to 18 along `facing` from (x, y), its underside z above BH. */
+function caseFolder(o: { x: number; y: number; facing: number; z: number }): Item {
+  const t = (o.facing * Math.PI) / 180,
+    F = [Math.cos(t), Math.sin(t)],
+    S = [-F[1], F[0]];
+  const at = (a: number, b: number, c: number) => [
+    o.x + F[0] * a + S[0] * b,
+    o.y + F[1] * a + S[1] * b,
+    BH + o.z - 17 + c,
+  ];
+  const slab = (a0: number, a1: number, b0: number, b1: number, c0: number, c1: number) => [
+    at(a0, b0, c0),
+    at(a1, b0, c0),
+    at(a1, b1, c0),
+    at(a0, b1, c0),
+    at(a0, b0, c1),
+    at(a1, b0, c1),
+    at(a1, b1, c1),
+    at(a0, b1, c1),
+  ];
+  const MANILA = { l: '#f1d89c', m: '#dcbc72', d: '#a8884a' };
+  const body = slab(3, 18, -6, 6, 17, 18.1);
+  const s =
+    hexa(slab(3.5, 17.5, -5.6, 6.4, 17.3, 17.8), CERAMIC, 0.5) +
+    hexa(body, MANILA, 1) +
+    hexa(slab(17, 19.6, -5, -1, 17.1, 18), MANILA, 0.8) +
+    hexa(slab(9.8, 11.4, -6.2, 6.2, 16.9, 18.25), PALS.tomato, 0.8);
+  return { box: corners(body), svg: `<g data-prop="case">${s}</g>` };
+}
+
+/** A helper clerk: seated on a stool on the near side of the working helper's desk, facing it, below the helpers'
+ * pill (which floats over the third desk). */
+const CLERK: Look = { skin: SKIN[3], top: PALS.mustard.l, legs: '#4a4642', hair: '#2b231c', cut: 'ponytail' };
+function clerk(x: number, y: number, top: SceneCtx['top']): { shadow: string; items: Item[] } {
+  const py = y + 13.5,
+    p = person({ x, y: py, facing: '-y', pose: 'sit', look: CLERK, holding: null });
+  return {
+    shadow: castShadow(boxCorners(x - 2.6, py - 2.6, BH, x + 2.6, py + 2.6, BH + 7), BH, top) + p.shadow,
+    items: [
+      {
+        box: [
+          [x - 3, py - 3, BH],
+          [x + 3, py + 3, BH + 7],
+        ],
+        svg: cyl(x, py, BH, BH + 7, 2.6, DARK, toneI, 0.8, 12),
+      },
+      ...p.items,
+    ],
+  };
 }
 
 /** tool definitions on the model: what the run sent it, or for a script (no model) the tools it called */
@@ -310,13 +436,23 @@ export const agentScene = (o: AgentOpts) => (ctx: SceneCtx) => {
   const { run, upTo = run.steps.length, scale = 1 } = o,
     narrow = scale > 1;
   const st = agentState(o);
-  const office = officeScene({ ...o, msgs: agentMessages(run), upTo, tools: toolsOf(o) })(ctx);
-  // draw the props over the office's art but under its name pills, so no prop hides a pill
-  const { art, names, callout } = splitOffice(office);
-  const parts: Part[] = [],
+  // the support lead takes the employee's place: behind the counter, handing the case across it
+  const office = withoutPerson(
+    officeScene({ ...o, msgs: agentMessages(run), upTo, tools: toolsOf(o) })(ctx),
+    'employee',
+  );
+  // the props' shadows join the office's floor layer; their bodies go over its art but under its name pills
+  const layers = officeLayers(office),
+    { art, names, callout } = layers,
+    floor = layers.floor.replace(person(EMPLOYEE).shadow, ''); // the employee's spot stays empty
+  // with helpers on, the lead has handed the case over and gone (the support lead's look is the kit's heaviest
+  // person, and the five helper desks leave no room for it in the scene's size budget)
+  const handing = !(o.helpers && st.helpers.total),
+    lead = handing ? person({ ...LEAD, look: 'supportLead', pose: 'carry', holding: null }) : null;
+  const parts: (Part | Item)[] = [...(lead?.items ?? []), caseFolder(handing ? HELD : LEFT)],
     pills: string[] = [],
     calls: string[] = [],
-    shadows: string[] = [];
+    shadows: string[] = lead ? [lead.shadow] : [];
   const shade = (x0: number, y0: number, x1: number, y1: number, h: number, z = BH) =>
     shadows.push(castShadow(boxCorners(x0, y0, z, x1, y1, z + h), z, ctx.top));
   if (o.clipboard && st.plan) {
@@ -329,7 +465,7 @@ export const agentScene = (o: AgentOpts) => (ctx: SceneCtx) => {
       );
   }
   if (o.gauge && st.gauge) {
-    parts.push(gaugeProp(GAUGE[0], GAUGE[1], st.gauge.steps, st.gauge.context, st.over));
+    parts.push(dialGauge(GAUGE[0], GAUGE[1], st.gauge.steps, st.gauge.context, st.over));
     calls.push(sayAt(o.say, 'gauge', [GAUGE[0] + 3, GAUGE[1] - 3, BH + 30], 14, scale));
     if (!narrow)
       pills.push(
@@ -368,6 +504,12 @@ export const agentScene = (o: AgentOpts) => (ctx: SceneCtx) => {
         done = narrow ? st.helpers.sent > 0 && !busy : i < st.helpers.sent - (st.helpers.busy ? 1 : 0);
       parts.push(helperDesk(x, y, busy, done));
       shade(x - 9, y - 7, x + 9, y + 7, 17);
+      // shortcut: a clerk sits only at the working desk; one at every desk would break the scene's size budget
+      if (busy) {
+        const c = clerk(x, y, ctx.top);
+        parts.push(...c.items);
+        shadows.push(c.shadow);
+      }
     }
     const [x, y] = DESKS[narrow ? 0 : Math.min(desks, 3) - 1];
     pills.push(
@@ -382,7 +524,14 @@ export const agentScene = (o: AgentOpts) => (ctx: SceneCtx) => {
     );
     calls.push(sayAt(o.say, 'helpers', [x, y, BH + 17], -16, scale));
   }
-  return art + shadows.join('') + byDepth(parts) + names + pills.join('') + callout + calls.join('');
+  // the stock's crates stand in front of the clipboard: draw them again over it (the office sorts its own parts alone)
+  const front =
+    o.clipboard && st.plan
+      ? crate(236, 214, undefined, BH, 9, 14) +
+        crate(236, 214, undefined, BH + 14, 9, 14) +
+        crate(256, 214, undefined, BH, 9, 14)
+      : '';
+  return floor + shadows.join('') + art + byDepth(parts) + front + names + pills.join('') + callout + calls.join('');
 };
 
 /** The picture in words, for its aria-label: the office, then each prop that is on. */

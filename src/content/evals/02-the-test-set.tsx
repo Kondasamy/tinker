@@ -3,6 +3,7 @@
 // their set would catch a version that makes things up, and the reveal reads their set: which of the three kinds of case
 // it covers, and the gap it leaves. The step passes once every kind is covered with the right references.
 import StepRunner from '../../components/story/StepRunner';
+import Select from '../../components/story/Select';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
@@ -194,14 +195,14 @@ function Log({ s, sync, kinds }: { s: S; sync: (next: S) => void; kinds: boolean
             {p?.keep && (
               <label className="ev-ref">
                 <span className="lbl">Reference answer</span>
-                <select value={p.ref} onChange={e => set(c.id, { keep: true, ref: e.target.value })}>
+                <Select value={p.ref} onChange={e => set(c.id, { keep: true, ref: e.target.value })}>
                   <option value="">Choose…</option>
                   {REFS.map(r => (
                     <option key={r} value={r}>
                       {r}
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
             )}
           </li>

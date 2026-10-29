@@ -1,7 +1,8 @@
 // A/B testing, chapter by chapter, by mouse or keyboard only, following each chapter's "Next" link.
 import { expect, type Locator, type Page } from '@playwright/test';
 import { ASSUMPTIONS, BENCH, ENOUGH, LENGTHS, SCENARIOS, SEEDS, peekResult, runOf } from '../../src/lib/ab-testing/sim';
-import { decide, DECISION_NAME } from '../../src/lib/ab-testing/workbench';
+import { decide } from '../../src/lib/ab-testing/workbench';
+import { choose, chooseByKeys } from './helpers';
 
 // chapter files import CSS, which Playwright can't load, so the walk reads the simulator directly
 export const END = SCENARIOS.aa.days - 1;
@@ -127,8 +128,7 @@ export function abWalker(page: Page, mode: Mode, check: (page: Page) => Promise<
     async ch7(next?: RegExp) {
       for (const e of BENCH) {
         const l = card.getByRole('combobox', { name: `Decision for ${e.name}` });
-        if (kb) await l.focus();
-        await l.selectOption({ label: DECISION_NAME[decide(e)] });
+        await (kb ? chooseByKeys : choose)(l, decide(e));
       }
       await step(2);
       await check(page);

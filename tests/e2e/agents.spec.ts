@@ -26,15 +26,10 @@ const axe = async (page: Page) => expect(await serious(page)).toEqual([]);
 // the whole-module walks grow with every chapter, like module.spec's
 test.setTimeout(120_000);
 
-test('the intro shows the level, the prerequisite, the author and the chapters', async ({ page }) => {
+test('the intro shows the level and the chapters', async ({ page }) => {
   await page.goto('/agents/');
   const meta = page.locator('.hero .module-meta');
   await expect(meta.locator('.level')).toHaveText('Advanced');
-  await expect(meta.getByRole('link', { name: 'Tool calling & MCP', exact: true })).toHaveAttribute(
-    'href',
-    '/tool-calling/',
-  );
-  await expect(meta.getByRole('link', { name: M.author.name })).toHaveAttribute('href', M.author.url);
   await expect(page.locator('#path .path li')).toHaveCount(M.chapters.length);
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
     'content',

@@ -90,15 +90,7 @@
   font-size: 14px;
   min-height: 32px;
 }
-.lb-states label span {
+.lb-states label > span:first-child {
   min-width: 64px;
   font-weight: 700;
-}
-.lb-states select {
-  font: inherit;
-  padding: 4px 6px;
-  border: 1.5px solid var(--ink);
-  border-radius: 8px;
-  background: var(--card);
-  color: var(--ink);
 }

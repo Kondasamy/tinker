@@ -45,7 +45,8 @@
         "noNoninteractiveTabindex": "off",
         "noInteractiveElementToNoninteractiveRole": "off",
         "useKeyWithClickEvents": "off",
-        "noStaticElementInteractions": "off"
+        "noStaticElementInteractions": "off",
+        "noLabelWithoutControl": { "level": "error", "options": { "inputComponents": ["Select"] } }
       }
     }
   },

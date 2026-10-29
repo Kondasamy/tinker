@@ -5,6 +5,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 ## Picture
 
 - **The evals bench** (`src/components/scenes/evalScene.ts`) composes RAG's `miniPipeline`: a stack of test cards rides a belt into the pipeline, and the answers go to a grader's desk where cards pile up PASS and FAIL, with a scoreboard pill. `EvalStage` (`src/content/evals/kit.tsx`) puts it one tab from the Results grid (`evalGrid.ts`, a column per version, flipped cells marked). Chapter 5 grades a Tool calling run, so its stage is Tool calling's `ToolStage` and ledger. Chapter 7 keeps its tab in the step state.
+- **Hero object: the grader's desk with a big rubber stamp and an inked pad** (evals' own stamp, larger than the `rubberStamp` other scenes share); the grader stands behind it, the tests wait in a card box, and a scoreboard on a stand shows the passed and failed shares as bars.
 
 ## Engine (`src/lib/evals/`)
 
