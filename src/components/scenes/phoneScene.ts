@@ -178,7 +178,7 @@ function mouth(lit: boolean, stopped: boolean): Part {
 
 function model(lit: boolean): Part {
   const [x, y] = AT.model;
-  return { at: [x, y, 0], svg: `<g class="model">${renderers.llm({ x, y, state: lit ? 'ok' : undefined })}</g>` };
+  return { at: [x, y, 0], svg: renderers.llm({ x, y, state: lit ? 'ok' : undefined }) };
 }
 
 /** The stopwatch: a mustard drum with a face, a hand and a button on top; the hand turns with the wait (a turn per 3 s). */

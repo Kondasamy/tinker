@@ -7,6 +7,7 @@
 // the router's and the chute's pills show only while lit.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { ACC, BH, boxCorners, esc, renderers, sayAt, calloutsLast } from '../../lib/iso/blocks';
+import { modelIn } from '../../lib/iso/figures';
 import type { Say } from '../story/steps';
 import {
   INK,
@@ -16,12 +17,9 @@ import {
   box,
   rod,
   cyl,
-  shape,
   on,
   pd,
-  PX,
   PZ,
-  rectUV,
   rrUV,
   castShadow,
   hullInk,
@@ -103,13 +101,10 @@ function path(points: number[][], lit: boolean, attrs: string, dashed = false) {
   );
 }
 
-/** The student: a squat model block a third the teacher's height, with a small screen on its front face. */
+/** The student: a squat model machine a third the teacher's height; its screen reads OK while it answers. */
 function student(on_: boolean): Part {
   const [x, y] = SMALL,
-    z1 = BH + 14;
-  let s = box(x - SH, y - SH, BH, x + SH, y + SH, z1, PALS.blush, toneI, 1);
-  s += shape(on(PX(x + SH + 0.1), rectUV(y - SH + 3, BH + 4, y + SH - 3, z1 - 3)), on_ ? '#8af0ae' : '#1d2a26', 0.9);
-  s += hullInk(boxCorners(x - SH, y - SH, BH, x + SH, y + SH, z1), 2);
+    s = modelIn([x - SH, y - SH, BH, x + SH, y + SH, BH + 14], on_ ? 'ok' : undefined).items[0].svg;
   return { at: [x, y, 0], svg: `<g class="student" data-on="${on_ ? 1 : 0}">${s}</g>` };
 }
 
@@ -228,12 +223,8 @@ export function apprenticePlot(x: number, y: number, top: SceneCtx['top']): stri
   const px = x + 12,
     py = y + 4,
     tip = [px, py + 6, BH + 16];
-  const big =
-    box(m[0], m[1], m[2], m[3], m[4], m[5], PALS.blush, toneI, 1) +
-    hullInk(boxCorners(m[0], m[1], m[2], m[3], m[4], m[5]), 1.8);
-  const small =
-    box(st[0], st[1], st[2], st[3], st[4], st[5], PALS.blush, toneI, 1) +
-    hullInk(boxCorners(st[0], st[1], st[2], st[3], st[4], st[5]), 1.6);
+  const big = modelIn(m).items[0].svg,
+    small = modelIn(st).items[0].svg;
   const plate =
     box(px - 6, py - 6, BH, px + 6, py + 6, BH + 8, DARK, toneI, 1) +
     hullInk(boxCorners(px - 6, py - 6, BH, px + 6, py + 6, BH + 8), 1.6) +

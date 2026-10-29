@@ -4,7 +4,8 @@
 // them, one document copied ten times (a tomato crate), or the test questions mixed in (a blush crate). Words only in
 // pills; on phones (scale > 1.5) only the lit checkpoint keeps its pill.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
-import { ACC, BH, boxCorners, esc, sayAt, calloutsLast } from '../../lib/iso/blocks';
+import { ACC, BH, HALF, boxCorners, esc, sayAt, calloutsLast } from '../../lib/iso/blocks';
+import { modelMachine } from '../../lib/iso/figures';
 import {
   INK,
   PALS,
@@ -114,15 +115,11 @@ function furnace(burning: boolean): Part {
   return { at: [x, y, 0], svg: `<g class="furnace" data-burning="${burning ? 1 : 0}">${s}</g>` };
 }
 
-/** The model: a blush block that grows taller as training goes on. */
+/** The model: the model machine, growing taller as training goes on; its screen reads OK once fully trained. */
 function model(grown: number): Part {
   const [x, y] = MODEL,
-    z1 = BH + MH0 + MH * grown;
-  const s =
-    box(x - M, y - M, BH, x + M, y + M, z1, PALS.blush, toneI, 1) +
-    `<path d="${pd(on(PX(x + M + 0.15), rrUV(y - 10, z1 - 10, y + 10, z1 - 3, 1.5)))}" fill="${grown >= 1 ? PALS.mint.l : CERAMIC.l}" stroke="${INK}" stroke-width=".8"/>` +
-    hullInk(boxCorners(x - M, y - M, BH, x + M, y + M, z1), 1.8);
-  return { at: [x, y, 0], svg: `<g class="model" data-grown="${grown.toFixed(2)}">${s}</g>` };
+    m = modelMachine(x, y, M / HALF, grown >= 1 ? 'ok' : undefined, MH0 + MH * grown);
+  return { at: [x, y, 0], svg: `<g data-grown="${grown.toFixed(2)}">${m.items[0].svg}</g>` };
 }
 
 /** The checkpoint shelf: a long plank with a slot per checkpoint; saved ones hold a small block, the current one lit. */

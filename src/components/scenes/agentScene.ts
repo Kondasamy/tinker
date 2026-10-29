@@ -4,6 +4,7 @@
 // small helper desks for sub-agents. Everything is read off one run, up to the current step, through agentMessages.
 import type { SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, glassCase, sayAt } from '../../lib/iso/blocks';
+import { modelIn } from '../../lib/iso/figures';
 import {
   INK,
   PALS,
@@ -18,8 +19,6 @@ import {
   line,
   castShadow,
   hullInk,
-  on,
-  PX,
   toneI,
   tag,
   byDepth,
@@ -146,7 +145,7 @@ export function agentState({ run, upTo = run.steps.length, gauge }: Pick<AgentOp
 }
 
 type Part = { at: number[]; svg: string };
-const LIT = '#ffb627'; // the busy helper's screen
+const _LIT = '#ffb627'; // the busy helper's screen
 const CLIP = [232, 180],
   GAUGE = [150, 120],
   TRAY = [186, 196];
@@ -277,17 +276,7 @@ export function helperDesk(x: number, y: number, busy: boolean, done: boolean): 
   const z1 = BH + 9;
   let s =
     box(x - 9, y - 7, BH, x + 9, y + 7, z1, WOOD, toneI, 1) +
-    box(x - 6, y - 4, z1, x + 2, y + 4, z1 + 8, PALS.blush, toneI, 1) +
-    shape(
-      on(PX(x + 2.05), [
-        [y - 2.6, z1 + 2],
-        [y + 2.6, z1 + 2],
-        [y + 2.6, z1 + 6.5],
-        [y - 2.6, z1 + 6.5],
-      ]),
-      busy ? LIT : '#1d2a26',
-      0.6,
-    );
+    modelIn([x - 6, y - 4, z1, x + 2, y + 4, z1 + 8], busy ? 'ok' : undefined).items[0].svg;
   if (done) s += box(x + 3, y - 1, z1, x + 8, y + 5, z1 + 0.6, CERAMIC, toneI, 0.5);
   return { at: [x, y, 0], svg: `<g data-prop="helper"${busy ? ' data-busy="1"' : ''}>${s}</g>` };
 }

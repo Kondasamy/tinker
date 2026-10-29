@@ -44,7 +44,7 @@ import {
   clipTo,
   byDepth,
 } from './core.js';
-import { BH, HALF, STATE_COL, STATE_TXT, esc, faceText } from './blocks';
+import { BH, HALF, STATE_COL, STATE_TXT, esc, faceText } from './shared';
 
 type V = number[];
 type Mat = { l: string; m: string; d: string };
@@ -108,7 +108,7 @@ const QUADS = [
   [3, 0, 4, 7],
 ];
 /** A convex six-faced solid from 8 corners (bottom ring then top ring): visible faces only, each shaded and inked. */
-function hexa(c: V[], m: Mat, w = 0.9, shade = toneI) {
+export function hexa(c: V[], m: Mat, w = 0.9, shade = toneI) {
   const ctr = avg(c);
   return QUADS.map(f => {
     const q = f.map(i => c[i]);
@@ -562,11 +562,21 @@ const boxPts = (b: number[][]) =>
    block's (2 × HALF square); height grows the cabinet (pre-training) and keeps the screen under the brow.
    ============================================================ */
 export type ModelState = 'ok' | 'warn' | 'bad';
-export function modelMachine(x: number, y: number, size = 1, state?: ModelState, height?: number): Piece {
+/** opts.z: what it stands on (default the board top); opts.pal: the cabinet's colour (the RAG agent is mustard). */
+export function modelMachine(
+  x: number,
+  y: number,
+  size = 1,
+  state?: ModelState,
+  height?: number,
+  opts: { z?: number; pal?: Mat } = {},
+): Piece {
   const k = size,
     hf = HALF * k,
-    z0 = BH,
+    z0 = opts.z ?? BH,
     ht = height ?? 32 * k,
+    // a squat machine (a short checkpoint, a hero plot) squashes feet, hood and screen so they still fit; taller ones keep them
+    v = Math.min(k, ht / 32),
     zt = z0 + ht;
   const x0 = x - hf,
     x1 = x + hf,
@@ -574,11 +584,11 @@ export function modelMachine(x: number, y: number, size = 1, state?: ModelState,
     y1 = y + hf;
   const bx0 = x0 + 3 * k,
     bx1 = x1 - 3 * k,
-    zb = z0 + 3 * k,
-    zh = zt - 7 * k;
-  const OUT = rrUV(y0 + 1.5 * k, zb, y1 - 1.5 * k, zh + 1.5 * k, 6 * k),
-    HOOD = rrUV(y0, zh, y1, zt, 3.2 * k);
-  const m = PALS.blush;
+    zb = z0 + 3 * v,
+    zh = zt - 7 * v;
+  const OUT = rrUV(y0 + 1.5 * k, zb, y1 - 1.5 * k, zh + 1.5 * v, 6 * v),
+    HOOD = rrUV(y0, zh, y1, zt, 3.2 * v);
+  const m = opts.pal ?? PALS.blush;
   // the x face toward the viewer carries the screen (as the llm block does)
   const sx = vis([1, 0, 0]) ? 1 : -1,
     fx = sx > 0 ? bx1 : bx0,
@@ -603,7 +613,7 @@ export function modelMachine(x: number, y: number, size = 1, state?: ModelState,
     if (!vis([0, sy, 0])) continue;
     const Y = sy > 0 ? y1 - 1.4 * k : y0 + 1.4 * k;
     for (let i = 0; i < 3; i++) {
-      const zz = zh - 6 * k - i * 3 * k;
+      const zz = zh - 6 * v - i * 3 * v;
       s += line(
         on(PY(Y), [
           [x - 7 * k, zz],
@@ -613,27 +623,27 @@ export function modelMachine(x: number, y: number, size = 1, state?: ModelState,
       );
     }
   }
-  const zs1 = zh - 2 * k,
-    zs0 = zs1 - 13 * k,
+  const zs1 = zh - 2 * v,
+    zs0 = zs1 - 13 * v,
     X = fx + sx * 0.1;
-  s += shape(on(PX(X), rrUV(y0 + 5 * k, zs0, y1 - 5 * k, zs1, 3 * k, 4)), CERAMIC.l, 1.4);
-  s += shape(on(PX(X + sx * 0.05), rrUV(y0 + 7 * k, zs0 + 2 * k, y1 - 7 * k, zs1 - 2 * k, 2 * k, 4)), '#1d2a26', 0.9);
+  s += shape(on(PX(X), rrUV(y0 + 5 * k, zs0, y1 - 5 * k, zs1, 3 * v, 4)), CERAMIC.l, 1.4);
+  s += shape(on(PX(X + sx * 0.05), rrUV(y0 + 7 * k, zs0 + 2 * v, y1 - 7 * k, zs1 - 2 * v, 2 * v, 4)), '#1d2a26', 0.9);
   s += faceText(
     nx,
-    [fx + sx * 0.25, y, zs0 + 4.6 * k],
+    [fx + sx * 0.25, y, zs0 + 4.6 * v],
     state ? STATE_TXT[state] : '...',
-    6.5 * k,
+    6.5 * v,
     state ? STATE_COL[state] : '#8a948f',
   );
   // the slot and the slip of paper it feeds out
-  const zl = zs0 - 4 * k;
-  s += shape(on(PX(X), rrUV(y - 6 * k, zl - 1.2 * k, y + 6 * k, zl + 1.2 * k, 1.1 * k, 3)), DARK.d, 0.9);
+  const zl = zs0 - 4 * v;
+  s += shape(on(PX(X), rrUV(y - 6 * k, zl - 1.2 * v, y + 6 * k, zl + 1.2 * v, 1.1 * v, 3)), DARK.d, 0.9);
   s += shape(
     [
       [X, y - 4 * k, zl],
       [X, y + 4 * k, zl],
-      [X + sx * 2.8 * k, y + 4 * k, zl - 4.5 * k],
-      [X + sx * 2.8 * k, y - 4 * k, zl - 4.5 * k],
+      [X + sx * 2.8 * k, y + 4 * k, zl - 4.5 * v],
+      [X + sx * 2.8 * k, y - 4 * k, zl - 4.5 * v],
     ],
     CERAMIC.l,
     0.8,
@@ -646,10 +656,10 @@ export function modelMachine(x: number, y: number, size = 1, state?: ModelState,
     if (vis(n)) s += fill(pd(on(PX(cx), HOOD)), tone(n, m)) + ink(pd(on(PX(cx), HOOD)), 1.6);
   s += extrude(HOOD, x0, x1, m) + hullInk([...on(PX(x0), HOOD), ...on(PX(x1), HOOD)], 2.4);
   // the state lamp on top
-  s += cyl(x - 6 * k, y + 6 * k, zt, zt + 2.6 * k, 2.4 * k, state ? matOf(STATE_COL[state]) : CERAMIC, toneI, 1, 14);
+  s += cyl(x - 6 * k, y + 6 * k, zt, zt + 2.6 * v, 2.4 * k, state ? matOf(STATE_COL[state]) : CERAMIC, toneI, 1, 14);
   const pts = [
     [x0, y0, z0],
-    [x1, y1, zt + 2.6 * k],
+    [x1, y1, zt + 2.6 * v],
   ];
   return {
     shadow: castShadow(boxPts(pts), z0),
@@ -657,6 +667,17 @@ export function modelMachine(x: number, y: number, size = 1, state?: ModelState,
     box: pts,
   };
 }
+/** A model machine filling the box [x0, y0, z0, x1, y1, z1] (a scene's old model block): centred, as wide as its
+ * narrower side, as tall as the box. */
+export const modelIn = (b: number[], state?: ModelState) =>
+  modelMachine(
+    (b[0] + b[3]) / 2,
+    (b[1] + b[4]) / 2,
+    Math.min(b[3] - b[0], b[4] - b[1]) / (2 * HALF),
+    state,
+    b[5] - b[2],
+    { z: b[2] },
+  );
 
 /* ============================================================
    Buildings. Real-object notes: walls on the ground; a roof with eaves that overhang the walls; a door with a frame

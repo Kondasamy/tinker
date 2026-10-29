@@ -6,6 +6,7 @@
 import type { SceneCtx, Board } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
 import {
+  DARK,
   INK,
   PALS,
   METAL,
@@ -91,23 +92,26 @@ export function engineState({ tokens, attention, layer = 0, head = 0, query }: E
 
 type Part = { at: number[]; svg: string };
 
-/** A head's desk: a wooden desk with a little screen; lit while its attention is the one shown. */
+/** A head's desk: a wooden desk with a little monitor on a stand (a desk screen, not the model); lit while its
+ * attention is the one shown. */
 function desk(x: number, y: number, z: number, l: number, h: number, lit: boolean): Part {
   const z1 = z + 10;
   const s =
     box(x - 15, y - 10, z, x + 15, y + 10, z1, WOOD, toneI, 1) +
-    box(x - 8, y - 6, z1, x + 2, y + 6, z1 + 9, PALS.blush, toneI, 1) +
+    hullInk(boxCorners(x - 15, y - 10, z, x + 15, y + 10, z1), 1.8) +
+    box(x - 6, y - 3, z1, x - 2, y + 3, z1 + 0.8, DARK, toneI, 0.7) +
+    box(x - 4.6, y - 0.8, z1 + 0.8, x - 3.4, y + 0.8, z1 + 3, DARK, toneI, 0.6) +
+    box(x - 5, y - 6, z1 + 3, x - 3, y + 6, z1 + 10, DARK, toneI, 1) +
     shape(
-      on(PX(x + 2.05), [
-        [y - 4.4, z1 + 2],
-        [y + 4.4, z1 + 2],
-        [y + 4.4, z1 + 7.2],
-        [y - 4.4, z1 + 7.2],
+      on(PX(x - 2.95), [
+        [y - 5, z1 + 3.8],
+        [y + 5, z1 + 3.8],
+        [y + 5, z1 + 9.2],
+        [y - 5, z1 + 9.2],
       ]),
       lit ? LIT : '#1d2a26',
       0.6,
-    ) +
-    hullInk(boxCorners(x - 15, y - 10, z, x + 15, y + 10, z1), 1.8);
+    );
   return { at: [x, y, z], svg: `<g data-desk="${l}-${h}"${lit ? ' data-lit="1"' : ''}>${s}</g>` };
 }
 

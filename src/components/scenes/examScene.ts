@@ -6,6 +6,7 @@
 // in pills; on phones (scale > 1.5) the cards' pills keep just their letters and the caption carries the numbers.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, renderers, sayAt, calloutsLast } from '../../lib/iso/blocks';
+import { modelIn } from '../../lib/iso/figures';
 import {
   PALS,
   CERAMIC,
@@ -173,7 +174,7 @@ export const examScene = (o: ExamOpts) => (ctx: SceneCtx) => {
   let s = sh(mx - 17, my - 17, mx + 17, my + 17, 32) + sh(DESK[0] - 18, DESK[1] - 18, DESK[0] + 18, DESK[1] + 18, 12);
   for (const k of st.stacks) s += sh(k.at[0] - CARD.dx, k.at[1] - CARD.dy, k.at[0] + CARD.dx, k.at[1] + CARD.dy, k.h);
   const parts: Part[] = [
-    { at: [mx, my, 0], svg: `<g class="model">${renderers.llm({ x: mx, y: my })}</g>` },
+    { at: [mx, my, 0], svg: renderers.llm({ x: mx, y: my }) },
     curveBoard(),
     desk(o.group ?? []),
     ...st.stacks.map((k, i) => stack(k.at[0], k.at[1], k.h, i, k.mark, !!k.gaming)),
@@ -222,9 +223,7 @@ export function examLabel(o: ExamOpts): string {
  * stamped mint) and a rubber stamp beside them. Squat, so the pill rows stay clear. */
 export function examPlot(x: number, y: number, top: SceneCtx['top']): string {
   const m = [x - 18, y - 16, BH, x - 2, y, BH + 14];
-  const model =
-    box(m[0], m[1], m[2], m[3], m[4], m[5], PALS.blush, toneI, 1) +
-    hullInk(boxCorners(m[0], m[1], m[2], m[3], m[4], m[5]), 1.8);
+  const model = modelIn(m).items[0].svg;
   const stacks = [6, 14, 4].map((h, i) => stack(x + 2 + i * 7, y + 8 - i * 7, h, i, i === 1 ? 'pass' : null, false));
   return (
     castShadow(boxCorners(m[0], m[1], m[2], m[3], m[4], m[5]), BH, top) +

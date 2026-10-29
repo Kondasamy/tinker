@@ -6,6 +6,7 @@
 // place; without, it is drawn where it ends. Words only in pills; on phones (scale > 1.5) fewer pills.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { ACC, BH, boxCorners, esc, renderers, sayAt, calloutsLast } from '../../lib/iso/blocks';
+import { modelIn } from '../../lib/iso/figures';
 import {
   INK,
   PALS,
@@ -199,7 +200,7 @@ export const recitalScene = (o: RecitalOpts) => (ctx: SceneCtx) => {
     ledger(st.lit, st.scrub),
     {
       at: [mx, my, 0],
-      svg: `<g class="model">${renderers.llm({ x: mx, y: my, state: o.asking ? 'ok' : st.reply?.leak ? 'bad' : undefined })}</g>`,
+      svg: renderers.llm({ x: mx, y: my, state: o.asking ? 'ok' : st.reply?.leak ? 'bad' : undefined }),
     },
     gate(st.filter),
     slip(!!st.reply?.leak, !!st.reply),
@@ -245,9 +246,7 @@ export function recitalLabel(o: RecitalOpts): string {
 /** The home hero's plot: a small ledger, a squat model block and a ranking board with the true ball at the top. */
 export function recitalPlot(x: number, y: number, top: SceneCtx['top']): string {
   const m = [x - 16, y - 12, BH, x + 2, y + 6, BH + 14];
-  const model =
-    box(m[0], m[1], m[2], m[3], m[4], m[5], PALS.blush, toneI, 1) +
-    hullInk(boxCorners(m[0], m[1], m[2], m[3], m[4], m[5]), 1.8);
+  const model = modelIn(m).items[0].svg;
   const bx = x + 14,
     board =
       box(bx - 1, y - 8, BH, bx + 1, y + 8, BH + 30, WOOD, toneI, 1) +

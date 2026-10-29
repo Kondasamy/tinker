@@ -4,6 +4,7 @@
 // model's side. Words only in pills; on phones (scale > 1.5) only the lit lever keeps its pill.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { ACC, BH, boxCorners, esc, renderers, sayAt, calloutsLast } from '../../lib/iso/blocks';
+import { modelIn } from '../../lib/iso/figures';
 import {
   INK,
   PALS,
@@ -232,9 +233,7 @@ export function benchPlot(x: number, y: number, top: SceneCtx['top']): string {
     lx = px + 4,
     ly = py + 4,
     tip = [lx + 9, ly, Z + 10];
-  const model =
-    box(m[0], m[1], m[2], m[3], m[4], m[5], PALS.blush, toneI, 1) +
-    hullInk(boxCorners(m[0], m[1], m[2], m[3], m[4], m[5]), 1.8);
+  const model = modelIn(m).items[0].svg;
   const clip =
     box(a[0], a[1], a[2], a[3], a[4], a[5], PALS.mint, toneI, 0.9) +
     hullInk(boxCorners(a[0], a[1], a[2], a[3], a[4], a[5]), 1.4);

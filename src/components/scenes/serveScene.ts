@@ -5,6 +5,7 @@
 // on phones (scale > 1.5) only the server's pill shows and the caption carries the counts.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
+import { modelIn } from '../../lib/iso/figures';
 import {
   PALS,
   METAL,
@@ -142,13 +143,11 @@ function shelf(filled: number) {
   return { at: [(x0 + x1) / 2, (y0 + y1) / 2, 0], svg: `<g data-prop="kv" data-filled="${filled}">${s}</g>` };
 }
 
-/** The draft runner: a small blush block (the student) with the tokens it guessed in a row on its desk, kept ones lit. */
+/** The draft runner: a small model machine (the student) with the tokens it guessed in a row on its desk, kept ones lit. */
 function runner(drafted: number, accepted: number) {
   const x = 52,
     y = 116;
-  let s =
-    box(x - 10, y - 10, BH, x + 10, y + 10, BH + 16, PALS.blush, toneI, 1) +
-    hullInk(boxCorners(x - 10, y - 10, BH, x + 10, y + 10, BH + 16), 1.8);
+  let s = modelIn([x - 10, y - 10, BH, x + 10, y + 10, BH + 16]).items[0].svg;
   for (let i = 0; i < drafted; i++)
     s += `<g class="guess" data-kept="${i < accepted ? 1 : 0}">${box(x - 8 + i * 5, y + 13, BH, x - 4.5 + i * 5, y + 16.5, BH + 3, i < accepted ? PALS.mint : CERAMIC, toneI, 0.7)}</g>`;
   return { at: [x, y, 0], svg: `<g data-prop="draft" data-drafted="${drafted}" data-accepted="${accepted}">${s}</g>` };

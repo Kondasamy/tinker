@@ -4,6 +4,7 @@
 // answer-only wait. Words only in pills; the thinking text itself goes in a panel under the stage, never on the picture.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { ACC, BH, boxCorners, esc, renderers, sayAt, calloutsLast } from '../../lib/iso/blocks';
+import { modelIn } from '../../lib/iso/figures';
 import {
   INK,
   PALS,
@@ -153,7 +154,7 @@ export const thinkScene = (o: ThinkOpts) => (ctx: SceneCtx) => {
   if (st.pad) s += sh(PAD[0] - 14, PAD[1] - 11, PAD[0] + 14, PAD[1] + 11, 1.5 + st.sheets * SHEET);
   const state = st.right === undefined ? undefined : st.right ? 'ok' : 'bad';
   const parts: Part[] = [
-    { at: [mx, my, 0], svg: `<g class="model">${renderers.llm({ x: mx, y: my, state })}</g>` },
+    { at: [mx, my, 0], svg: renderers.llm({ x: mx, y: my, state }) },
     dial(st.notch),
     clock(o.wait),
   ];
@@ -184,9 +185,7 @@ export const thinkScene = (o: ThinkOpts) => (ctx: SceneCtx) => {
  * small dial in front. Squat, so the pill rows stay clear. */
 export function deskPadPlot(x: number, y: number, top: SceneCtx['top']): string {
   const m = [x - 16, y - 14, BH, x + 2, y + 4, BH + 16];
-  const model =
-    box(m[0], m[1], m[2], m[3], m[4], m[5], PALS.blush, toneI, 1) +
-    hullInk(boxCorners(m[0], m[1], m[2], m[3], m[4], m[5]), 1.8);
+  const model = modelIn(m).items[0].svg;
   let paper = '';
   for (let i = 0; i < 5; i++)
     paper += box(x + 6, y - 12, BH + i * SHEET, x + 18, y - 2, BH + (i + 1) * SHEET, CERAMIC, toneI, 0.6);

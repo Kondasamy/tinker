@@ -1,5 +1,5 @@
 ---
-// Dev-only eyeball page: every block at rest on one stage (static SVG, no client JS).
+// Dev-only eyeball page: every block at rest, from each of the four turns (static SVG, no client JS).
 import '../styles/tokens.css';
 import IsoStage, { type SceneCtx } from '../lib/iso/IsoStage';
 import { BLOCK_TYPES, renderers, blockShadow } from '../lib/iso/blocks';
@@ -41,7 +41,9 @@ const scene = ({ top }: SceneCtx) =>
   <body style="margin: 0; background: var(--paper);">
     <main style="max-width: 1100px; margin: 0 auto; padding: 24px 16px;">
       <h1 style="font: 800 15px ui-monospace, Menlo, monospace;">Iso blocks at rest</h1>
-      <IsoStage board={[0, 0, 3 * GAP, COLS * GAP]} scene={scene} label="Every RAG block type at rest" />
+      {[0, 1, 2, 3].map(view => (
+        <IsoStage board={[0, 0, 3 * GAP, COLS * GAP]} scene={scene} view={view} label={`Every RAG block type, turn ${view}`} />
+      ))}
     </main>
   </body>
 </html>
