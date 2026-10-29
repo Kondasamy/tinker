@@ -7,6 +7,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
+import { API, apiKey, chat, listModels, wait } from '../lib/nvidia.mjs';
 
 const SCRIPT = 'scripts/record/watermarks.mjs';
 const OUT = 'data/watermarks/machine.json';
@@ -15,62 +16,27 @@ const SETTINGS = { temperature: 0, seed: 7, max_tokens: 4096 };
 const SYSTEM =
   'You answer customer emails for Larkspur Supply Co., a hardware and shelving supplier for builders. Write the reply body only: plain text, 40 to 70 words, friendly and direct, no subject line, no sign-off, no lists or formatting. If you do not know a detail, keep it general rather than inventing numbers.';
 
-// A minimal NVIDIA client with the shared scripts/lib/nvidia.mjs API (apiKey, chat), so it can be swapped for it.
-const API = 'https://integrate.api.nvidia.com/v1';
-function apiKey(script) {
-  const key = process.env.NVIDIA_API_KEY;
-  if (!key) {
-    console.error(`${script}: set NVIDIA_API_KEY in the environment (it is never read from or written to a file).`);
-    process.exit(1);
-  }
-  return key;
-}
-const wait = ms => new Promise(ok => setTimeout(ok, ms));
-async function chat(key, { model, messages, max_tokens, temperature, seed }) {
-  for (let attempt = 0; ; attempt++) {
-    const r = await fetch(`${API}/chat/completions`, {
-      method: 'POST',
-      headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json', accept: 'application/json' },
-      body: JSON.stringify({ model, messages, max_tokens, temperature, seed }),
-    });
-    if ((r.status === 429 || r.status >= 500) && attempt < 3) {
-      console.warn(`NVIDIA ${r.status}, retrying`);
-      await wait(2000 * 2 ** attempt);
-      continue;
-    }
-    if (!r.ok) throw new Error(`NVIDIA ${r.status} for ${model}: ${(await r.text()).slice(0, 200)}`);
-    const c = (await r.json()).choices[0];
-    return { content: (c.message.content ?? '').trim(), finish_reason: c.finish_reason };
-  }
-}
-async function models(key) {
-  const r = await fetch(`${API}/models`, { headers: { authorization: `Bearer ${key}` } });
-  return r.ok ? (await r.json()).data.map(m => m.id) : [];
-}
-
 const key = apiKey(SCRIPT);
 const human = JSON.parse(fs.readFileSync('data/watermarks/human.json', 'utf8'));
-const listed = await models(key);
+const listed = await listModels(key).catch(() => []);
 if (listed.length && !listed.includes(MODEL)) console.warn(`${MODEL} is not listed; the probe call decides.`);
 
 const replies = [];
 for (const h of human.replies) {
-  let rec = { id: h.id, question: h.question, reply: null, norecord: true };
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const { content, finish_reason } = await chat(key, {
-      model: MODEL,
-      messages: [
-        { role: 'system', content: SYSTEM },
-        { role: 'user', content: h.question },
-      ],
-      ...SETTINGS,
-    });
-    if (content && finish_reason !== 'length') {
-      rec = { id: h.id, question: h.question, reply: content };
-      break;
-    }
-    await wait(1000);
-  }
+  // chat asks again on a cut-off or empty reply, 3 times, then gives null: a norecord
+  const reply = await chat(key, {
+    model: MODEL,
+    messages: [
+      { role: 'system', content: SYSTEM },
+      { role: 'user', content: h.question },
+    ],
+    temperature: SETTINGS.temperature,
+    seed: SETTINGS.seed,
+    maxTokens: SETTINGS.max_tokens,
+  });
+  const rec = reply
+    ? { id: h.id, question: h.question, reply }
+    : { id: h.id, question: h.question, reply: null, norecord: true };
   console.log(h.id, rec.reply ? `${rec.reply.split(/\s+/).length} words` : 'norecord');
   replies.push(rec);
   await wait(500);

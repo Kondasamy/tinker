@@ -2,7 +2,7 @@
  * The NVIDIA API client (KTD4): OpenAI-compatible chat completions for the recording scripts, run by hand and never
  * in tests. The key comes only from the command's environment, never from or to a file, a recording or a log.
  */
-const API = 'https://integrate.api.nvidia.com/v1';
+export const API = 'https://integrate.api.nvidia.com/v1';
 
 /** The key from the environment, or exit with a hint naming the script. */
 export function apiKey(script) {
@@ -14,7 +14,7 @@ export function apiKey(script) {
   return key;
 }
 
-const wait = ms => new Promise(ok => setTimeout(ok, ms));
+export const wait = ms => new Promise(ok => setTimeout(ok, ms));
 
 /** GET or POST with up to 3 retries, backing off on 429s, server errors and network failures. */
 async function call(key, path, body) {

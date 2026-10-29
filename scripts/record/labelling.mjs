@@ -8,60 +8,34 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { API, apiKey, chat, listModels, pickModel, wait } from '../lib/nvidia.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const API = 'https://integrate.api.nvidia.com/v1';
 const MODELS = { main: 'nvidia/nemotron-3-ultra-550b-a55b', check: 'openai/gpt-oss-20b' };
 const SETTINGS = { temperature: 0, seed: 1, max_tokens: 4096 };
 
-const key = process.env.NVIDIA_API_KEY;
-if (!key) {
-  console.error(
-    'record/labelling: set NVIDIA_API_KEY in the environment (it is never read from or written to a file).',
-  );
-  process.exit(1);
-}
-const headers = { authorization: `Bearer ${key}`, 'content-type': 'application/json' };
-const wait = ms => new Promise(ok => setTimeout(ok, ms));
+const key = apiKey('record/labelling');
 
-/** One chat completion's text, retrying errors, 429s, cut-off and empty replies 3 times with backoff; null after. */
-async function chat(model, messages) {
-  for (let attempt = 0; attempt <= 3; attempt++) {
-    if (attempt) await wait(2000 * 2 ** attempt);
-    try {
-      const r = await fetch(`${API}/chat/completions`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ model, messages, ...SETTINGS }),
-      });
-      if (!r.ok) {
-        console.warn(`${model}: ${r.status} ${(await r.text()).slice(0, 120)}`);
-        continue;
-      }
-      const c = (await r.json()).choices?.[0];
-      if (c?.finish_reason === 'length' || !c?.message?.content?.trim()) continue;
-      return c.message.content;
-    } catch (e) {
-      console.warn(`${model}: ${e.message}`);
-    }
-  }
-  return null;
-}
+/** One chat completion's text, or null (a norecord) when the API fails or the reply stays cut off or empty. */
+const label = (model, messages) =>
+  chat(key, {
+    model,
+    messages,
+    temperature: SETTINGS.temperature,
+    seed: SETTINGS.seed,
+    maxTokens: SETTINGS.max_tokens,
+  }).catch(e => {
+    console.warn(`${model}: ${e.message}`);
+    return null;
+  });
 
 const tickets = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/labelling/tickets.json'), 'utf8'));
 const { hard } = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/labelling/pinned.json'), 'utf8'));
 const ids = tickets.intents.map(i => i.id);
 
 // the models must still be callable; a gone one is swapped for the nearest of its family, and meta says so
-const listed = new Set(((await (await fetch(`${API}/models`, { headers })).json()).data ?? []).map(m => m.id));
-for (const [k, id] of Object.entries(MODELS))
-  if (!listed.has(id)) {
-    const family = id.split('-').slice(0, 2).join('-'),
-      sub = [...listed].find(m => m.startsWith(family));
-    if (!sub) throw new Error(`${id} is gone and nothing of its family is listed`);
-    console.warn(`${id} is gone; using ${sub}`);
-    MODELS[k] = sub;
-  }
+const listed = await listModels(key);
+for (const [k, id] of Object.entries(MODELS)) MODELS[k] = pickModel(listed, id);
 
 const system = [
   'You label customer support tickets for Larkspur Supply Co., a hardware company, by intent.',
@@ -79,7 +53,7 @@ for (const [k, id] of Object.entries(MODELS)) {
   const labels = {};
   for (const tid of hard) {
     const t = tickets.tickets.find(t => t.id === tid);
-    const reply = await chat(id, [
+    const reply = await label(id, [
       { role: 'system', content: system },
       { role: 'user', content: t.text },
     ]);

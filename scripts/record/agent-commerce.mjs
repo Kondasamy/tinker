@@ -14,53 +14,28 @@ import sellersData from '../../data/agent-commerce/sellers.json' with { type: 'j
 import shop from '../../data/agent-commerce/shop.json' with { type: 'json' };
 import { FILES, offerSig, readSig, taskSig } from '../../src/lib/agent-commerce/seen.ts';
 import { SIMULATOR, simBuyer, simRead, simSeller } from '../../src/lib/agent-commerce/simulate.ts';
+import { apiKey, chat, listModels, wait } from '../lib/nvidia.mjs';
 
 const SCRIPT = 'scripts/record/agent-commerce.mjs';
-const API = 'https://integrate.api.nvidia.com/v1';
 const MODEL = 'nvidia/nemotron-3-ultra-550b-a55b';
 const SETTINGS = { temperature: 0, seed: 7, max_tokens: 8192 };
 const ACCESSED = new Date().toISOString().slice(0, 10);
 const OUT = path.resolve(import.meta.dirname, '../../data/agent-commerce/turns');
 
-// shortcut: a minimal NVIDIA client (apiKey, chat) kept in this script; move it to scripts/lib/nvidia.mjs when shared.
-function apiKey(script) {
-  const key = process.env.NVIDIA_API_KEY;
-  if (!key) {
-    console.error(`${script}: set NVIDIA_API_KEY in the environment (it is never read from or written to a file).`);
-    process.exit(1);
-  }
-  return key;
-}
 const KEY = apiKey(SCRIPT);
-const wait = ms => new Promise(ok => setTimeout(ok, ms));
-
-/** One chat completion: only `message.content` is kept; errors and 429s back off and retry. */
-async function chat({ model, messages, max_tokens, temperature, seed }) {
-  for (let attempt = 0; ; attempt++) {
-    const r = await fetch(`${API}/chat/completions`, {
-      method: 'POST',
-      headers: { authorization: `Bearer ${KEY}`, 'content-type': 'application/json' },
-      body: JSON.stringify({ model, messages, max_tokens, temperature, seed }),
-    });
-    if ((r.status === 429 || r.status >= 500) && attempt < 3) {
-      await wait(2000 * 2 ** attempt);
-      continue;
-    }
-    if (!r.ok) throw new Error(`NVIDIA ${r.status}: ${(await r.text()).slice(0, 200)}`);
-    const j = await r.json();
-    return { content: j.choices?.[0]?.message?.content ?? '', finish_reason: j.choices?.[0]?.finish_reason };
-  }
-}
+const { max_tokens: maxTokens, ...rest } = SETTINGS;
+const CALL = { model: MODEL, ...rest, maxTokens };
 
 /** The model's JSON reply, read and checked by `ok`; up to 3 tries, else null so the simulator fills it. */
 async function ask(messages, ok) {
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
-      const { content, finish_reason } = await chat({ model: MODEL, messages, ...SETTINGS });
-      const json = content.match(/\{[\s\S]*\}/)?.[0];
-      const reply = finish_reason !== 'length' && json ? JSON.parse(json) : null;
+      // one try per chat: this loop retries cut-off and empty replies along with unreadable ones
+      const content = await chat(KEY, { ...CALL, messages, tries: 1 });
+      const json = content?.match(/\{[\s\S]*\}/)?.[0];
+      const reply = json ? JSON.parse(json) : null;
       if (reply && ok(reply)) return { reply, content };
-      console.warn(`unreadable reply (${finish_reason}): ${content.slice(0, 120)}`);
+      console.warn(`unreadable reply: ${content?.slice(0, 120)}`);
     } catch (e) {
       console.warn(String(e));
     }
@@ -73,15 +48,9 @@ const usd = cents => `$${(cents / 100).toFixed(2)}`;
 const short = s => typeof s === 'string' && s.length > 0 && s.length <= 240;
 
 async function check() {
-  const r = await fetch(`${API}/models`, { headers: { authorization: `Bearer ${KEY}` } });
-  const ids = (await r.json()).data?.map(m => m.id) ?? [];
-  if (!ids.includes(MODEL)) console.warn(`${MODEL} is not listed; trying it anyway`);
-  const probe = await chat({
-    model: MODEL,
-    messages: [{ role: 'user', content: 'Reply with {"ok": true}.' }],
-    ...SETTINGS,
-  });
-  if (!probe.content) throw new Error(`${MODEL} gave an empty probe reply`);
+  if (!(await listModels(KEY)).includes(MODEL)) console.warn(`${MODEL} is not listed; trying it anyway`);
+  const probe = await chat(KEY, { ...CALL, messages: [{ role: 'user', content: 'Reply with {"ok": true}.' }] });
+  if (!probe) throw new Error(`${MODEL} gave an empty probe reply`);
 }
 
 const buyerSystem = `You are ${shop.buyerAgent}, an AI agent that buys supplies for ${shop.builder.firm}. Reply with JSON only.`;
