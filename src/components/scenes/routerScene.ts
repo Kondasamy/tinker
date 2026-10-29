@@ -1,19 +1,24 @@
-// Module 12's picture: the apprentice's bench (KTD16). The big model (RAG's LLM block, as the training bench composes
-// it) stands at the back; its student, a squat model a third its size, stands in front of it, joined by a chute. At the
-// front right a router switch sends each question down one of two belts, to the student or to the big model.
+// Module 12's picture: the apprentice's bench (KTD16). The big model machine stands at the back; its student, the same
+// machine squat and a third its size, stands in front of it, joined by a curved slide chute; the apprentice watches the
+// student work. At the right a rail-switch lever, the router, sends each question down one of two belts, to the student
+// or to the big model.
 // Two readings of the same bench: in `distill` mode the models are Larkspur mini and its student and the chute carries
 // lessons (soft targets) from teacher to student; in `route` mode they are the large and small tiers of Larkspur's
 // assistant, and the chute is the fallback that sends an unsure answer up. Words only in pills; on phones (scale > 1.5)
 // the router's and the chute's pills show only while lit.
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { ACC, BH, boxCorners, esc, renderers, sayAt, calloutsLast } from '../../lib/iso/blocks';
-import { modelIn } from '../../lib/iso/figures';
+import { SKIN, modelIn, person, type Look } from '../../lib/iso/figures';
 import type { Say } from '../story/steps';
 import {
   INK,
   PALS,
   DARK,
   METAL,
+  WOOD,
+  norm,
+  shape,
+  vis,
   box,
   rod,
   cyl,
@@ -80,50 +85,143 @@ export function routerState({
   };
 }
 
-type Part = { at: number[]; svg: string };
+type Part = { at?: number[]; box?: number[][]; svg: string };
 const BIG = [44, 40],
   SMALL = [92, 102],
   SW = [124, 48],
   SH = 10,
-  SZ = BH + 12; // small model half-width; switch plate top
-const CHUTE_X = 52; // the chute runs from the big model's side (clear of its screen) to the student's back
+  SZ = BH + 12; // small model half-width; the lever's old plate top (its pill height)
+const CHUTE_X = 52; // the chute leaves the big model's side (clear of its screen) and curves down to the student's back
+// the apprentice stands beside the student, inside the bend of the small belt, watching it work
+const APPRENTICE: Look = {
+  skin: SKIN[0],
+  top: '#7fa7c9',
+  legs: '#5a6f93',
+  hair: '#6a4426',
+  cut: 'curly',
+  prop: 'clipboard',
+};
+const APP_AT = [110, 86];
 
-/** A floor path of ink with a coloured stripe: lit paths glow. */
-function path(points: number[][], lit: boolean, attrs: string, dashed = false) {
+/** A floor path of ink with a coloured stripe (a belt): lit paths glow. */
+function path(points: number[][], lit: boolean, attrs: string) {
   const d = pd(
-      points.map(([x, y]) => [x, y, BH + 0.3]),
-      false,
-    ),
-    dash = dashed && !lit ? ' stroke-dasharray="5 4"' : '';
+    points.map(([x, y]) => [x, y, BH + 0.3]),
+    false,
+  );
   return (
     `<g ${attrs} data-on="${lit ? 1 : 0}"><path d="${d}" fill="none" stroke="${INK}" stroke-width="${lit ? 5.4 : 3.6}" stroke-linecap="round" stroke-linejoin="round"/>` +
-    `<path d="${d}" fill="none" stroke="${lit ? ACC : DARK.l}" stroke-width="${lit ? 3 : 1.8}" stroke-linecap="round" stroke-linejoin="round"${dash}/></g>`
+    `<path d="${d}" fill="none" stroke="${lit ? ACC : DARK.l}" stroke-width="${lit ? 3 : 1.8}" stroke-linecap="round" stroke-linejoin="round"/></g>`
   );
+}
+
+/** The chute (one of the hero pieces): a curved slide. Real-object notes: a steel U-channel (a bed between two low side
+ * walls) leaving the big model's side high up and curving down to the student's back, on two posts; its bed glows
+ * while lessons or a fallback run down it. One item, so it sorts as a whole against both machines. */
+function chute(lit: boolean, by: number, sx: number, sy: number): Part {
+  const N = 5,
+    W = 3,
+    H = 2.4,
+    A = [CHUTE_X, by + 18, BH + 20],
+    C = [CHUTE_X, sy],
+    B = [sx - SH - 1, sy, BH + 8];
+  const at = (t: number) => [
+    (1 - t) ** 2 * A[0] + 2 * t * (1 - t) * C[0] + t * t * B[0],
+    (1 - t) ** 2 * A[1] + 2 * t * (1 - t) * C[1] + t * t * B[1],
+    A[2] + (B[2] - A[2]) * t,
+  ];
+  const c = Array.from({ length: N + 1 }, (_, i) => at(i / N));
+  // a horizontal side vector per point, perpendicular to the run
+  const side = c.map((_, i) => {
+    const q = c[Math.min(N, i + 1)],
+      r = c[Math.max(0, i - 1)],
+      d = norm([q[0] - r[0], q[1] - r[1], 0]);
+    return [-d[1], d[0], 0];
+  });
+  const off = (i: number, k: number, z: number) => [c[i][0] + side[i][0] * k, c[i][1] + side[i][1] * k, c[i][2] + z];
+  let posts = '',
+    far = '',
+    near = '';
+  for (const t of [0.25, 0.75]) {
+    const p = at(t);
+    posts += rod([p[0], p[1], BH], [p[0], p[1], p[2]], 0.9, DARK, toneI, 0.8, 0.9, 8);
+  }
+  // the bed in one piece; each wall segment near or far by whether its outer side faces the viewer (the curve turns, so
+  // a wall can be far at the top and near at the bottom); far ones unlined, to keep the SVG small
+  const bed = shape(
+    [...c.map((_, i) => off(i, -W, 0)), ...c.map((_, i) => off(N - i, W, 0))],
+    lit ? ACC : METAL.l,
+    0.6,
+  );
+  for (let i = 0; i < N; i++)
+    for (const k of [-W, W]) {
+      const q = [off(i, k, -0.8), off(i + 1, k, -0.8), off(i + 1, k, H), off(i, k, H)],
+        n = [side[i][0] * Math.sign(k), side[i][1] * Math.sign(k), 0];
+      if (vis(n)) near += shape(q, toneI(n, METAL), 0.8);
+      else far += shape(q, METAL.d, 0);
+    }
+  const pts = c.flatMap((_, i) => [off(i, -W, -0.8), off(i, W, H)]);
+  return {
+    box: [
+      [Math.min(...pts.map(p => p[0])) - 1, Math.min(...pts.map(p => p[1])) - 1, BH],
+      [Math.max(...pts.map(p => p[0])) + 1, Math.max(...pts.map(p => p[1])) + 1, A[2] + H],
+    ],
+    svg: `<g class="chute" data-on="${lit ? 1 : 0}">${posts}${far}${bed}${near}</g>`,
+  };
 }
 
 /** The student: a squat model machine a third the teacher's height; its screen reads OK while it answers. */
 function student(on_: boolean): Part {
   const [x, y] = SMALL,
     s = modelIn([x - SH, y - SH, BH, x + SH, y + SH, BH + 14], on_ ? 'ok' : undefined).items[0].svg;
-  return { at: [x, y, 0], svg: `<g class="student" data-on="${on_ ? 1 : 0}">${s}</g>` };
+  return {
+    box: [
+      [x - SH, y - SH, BH],
+      [x + SH, y + SH, BH + 15],
+    ],
+    svg: `<g class="student" data-on="${on_ ? 1 : 0}">${s}</g>`,
+  };
 }
 
-/** The router switch: a dark plate with a lever that leans toward the belt it sends to (upright at rest). */
+/** The router: a rail-switch lever frame. Real-object notes: a wooden sleeper frame on the floor, an iron housing on
+ * it with the pivot, a long lever with a sprung catch rod along it and a painted grip, leaning toward the belt it sends
+ * to (upright at rest). */
 function router(lean: number, on_: boolean): Part {
   const [x, y] = SW,
-    B = 9;
+    B = 9,
+    zf = BH + 3,
+    zp = zf + 4,
+    L = 17;
   let s = on_
     ? `<path d="${pd(on(PZ(BH + 0.3), rrUV(x - B - 3, y - B - 3, x + B + 3, y + B + 3, 4)))}" fill="none" stroke="${ACC}" stroke-width="2.4"/>`
     : '';
   s +=
-    box(x - B, y - B, BH, x + B, y + B, SZ, DARK, toneI, 1) +
-    hullInk(boxCorners(x - B, y - B, BH, x + B, y + B, SZ), 1.8);
-  const tip = [x - (lean < 0 ? 9 : 0), y + (lean > 0 ? 9 : 0), SZ + (lean ? 12 : 16)]; // toward the large belt (-x) or the small one (+y)
+    box(x - B, y - 4, BH, x + B, y + 4, zf, WOOD, toneI, 0.9) + box(x - 3, y - 3, zf, x + 3, y + 3, zp, DARK, toneI, 1);
+  // toward the large belt (-x) or the small one (+y)
+  const d = lean < 0 ? [-0.55, 0, 0.83] : lean > 0 ? [0, 0.55, 0.83] : [0, 0, 1],
+    tip = [x + d[0] * L, y + d[1] * L, zp + d[2] * L],
+    mid = [x + d[0] * L * 0.55, y + d[1] * L * 0.55, zp + d[2] * L * 0.55];
   s +=
-    cyl(x, y, SZ, SZ + 1.5, 2.4, METAL, toneI, 0.8) +
-    rod([x, y, SZ + 1], tip, 1.1, METAL) +
-    rod(tip, [tip[0], tip[1], tip[2] + 3.5], 2.4, on_ ? PALS.mustard : PALS.tomato);
-  return { at: [x, y, 0], svg: `<g class="router" data-lean="${lean}">${s}</g>` };
+    cyl(x, y, zp, zp + 1.2, 2, METAL, toneI, 0.8, 8) +
+    rod([x, y, zp + 0.6], tip, 1, METAL, toneI, 1, 1, 8) +
+    rod(
+      [mid[0] + 1.4, mid[1] + 1.4, mid[2]],
+      [tip[0] + 1.2, tip[1] + 1.2, tip[2] - 3],
+      0.45,
+      METAL,
+      toneI,
+      0.6,
+      0.45,
+      6,
+    ) +
+    rod(tip, [tip[0], tip[1], tip[2] + 3.5], 1.8, on_ ? PALS.mustard : PALS.tomato, toneI, 1, 1.8, 10);
+  return {
+    box: [
+      [x - B, y - B, BH],
+      [x + B, y + B, zp + L + 4],
+    ],
+    svg: `<g class="router" data-lean="${lean}">${s}</g>`,
+  };
 }
 
 const pill = (p: number[], dx: number, dy: number, text: string, lit: boolean, scale: number) =>
@@ -137,11 +235,13 @@ export const routerScene = (o: RouterOpts) => (ctx: SceneCtx) => {
     [bx, by] = BIG,
     [sx, sy] = SMALL,
     [wx, wy] = SW;
+  const app = person({ x: APP_AT[0], y: APP_AT[1], facing: 140, look: APPRENTICE });
   let s =
     castShadow(boxCorners(bx - 17, by - 17, BH, bx + 17, by + 17, BH + 32), BH, ctx.top) +
     castShadow(boxCorners(sx - SH, sy - SH, BH, sx + SH, sy + SH, BH + 14), BH, ctx.top) +
-    castShadow(boxCorners(wx - 9, wy - 9, BH, wx + 9, wy + 9, SZ + 8), BH, ctx.top);
-  // the two belts from the switch, and the chute between the models (dashed while idle)
+    castShadow(boxCorners(wx - 9, wy - 9, BH, wx + 9, wy + 9, BH + 7), BH, ctx.top) +
+    app.shadow;
+  // the two belts from the switch (floor paths)
   s += path(
     [
       [wx - 9, wy - 3],
@@ -159,23 +259,18 @@ export const routerScene = (o: RouterOpts) => (ctx: SceneCtx) => {
     st.belts.small,
     'class="belt" data-belt="small"',
   );
-  s += path(
-    [
-      [CHUTE_X, by + 17],
-      [CHUTE_X, sy],
-      [sx - SH, sy],
-    ],
-    st.chute.on,
-    'class="chute"',
-    true,
-  );
   const parts: Part[] = [
     {
-      at: [bx, by, 0],
+      box: [
+        [bx - 17, by - 17, BH],
+        [bx + 17, by + 17, BH + 35],
+      ],
       svg: `<g class="big" data-on="${st.big.on ? 1 : 0}">${renderers.llm({ x: bx, y: by, state: st.big.on ? 'ok' : undefined })}</g>`,
     },
+    chute(st.chute.on, by, sx, sy),
     student(st.small.on),
     router(st.router.lean, st.router.on),
+    ...app.items,
   ];
   s += byDepth(parts);
   const pills = [

@@ -5,6 +5,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 ## Picture
 
 - **The exam hall** (`src/components/scenes/examScene.ts`): the model (RAG's LLM block, composed) at the back, a row of answer-card stacks in front, one per written answer and as tall as the toy policy's probability (`STACK_H` at 1), with a mint or tomato mark on top once graded; the grader's desk at the front right with evalScene's rubber stamp (`rubberStamp`, exported) and the latest group of drafts on it, its pill naming the grader; a curve board at the back reading the round or the strength. `PostStage` (`src/content/post-training/kit.tsx`) puts it one tab from Bars (`policyBars.ts`: before and after per answer, its reward, the gaming answer in tomato; arrow keys read each answer). Chapter 7 keeps its tab in the step state; on phones the cards' pills keep only their letters and the caption carries the numbers.
+- **Hero object:** the curve board is a chalkboard on an A-frame easel with a rising curve chalked on it; each answer's stack stands in a wooden card holder (the gaming answer's cards carry a tomato tab), and a teacher stands behind the grader's desk reaching for the stamp.
 
 ## Engine (`src/lib/post-training/`)
 

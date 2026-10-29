@@ -6,6 +6,8 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 
 - **The scratchpad desk** (`src/components/scenes/thinkScene.ts`): the model (RAG's LLM block, composed) at the back, a pad of thinking papers beside it whose height follows the thinking tokens (a sheet per 20, capped at 16; its pill still gives the count), an effort dial in front with four notches and the pointer on the chosen effort, and a clock whose pill gives the wait. No thinking, no pad. The model's screen goes green or red once the answer is graded. The thinking text itself goes in a panel under the stage, never on the picture. `ReasoningStage` (`src/content/reasoning/kit.tsx`) puts it one tab from Accuracy (`effortChart.ts`: accuracy against effort, flat, a point per level and a line per kind of question, with focusable levels and a read-out line naming accuracy and cost). Chapter 7 keeps its tab in the step state; on phones the pills keep short names.
 
+- **Hero object:** the spiral notepad propped on a lap desk (the pad), with a stove-knob dial and a twin-bell alarm clock.
+
 ## Engine (`src/lib/reasoning/`)
 
 - **Recorded answers, everything else live** (`engine.ts`). Each question × effort has a recorded thinking and answer, each with a one-line note (`data/reasoning/answers.json`); a missing one throws. The token counts (the language-model kit's BPE), the grade, the cost and the wait are computed when the page runs.
