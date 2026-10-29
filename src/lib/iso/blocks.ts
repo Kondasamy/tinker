@@ -92,8 +92,8 @@ interface Spec {
 }
 
 const LILAC = matOf('#b39ddb');
-const STATE_COL = { ok: '#8af0ae', warn: '#ffd27a', bad: '#ff9b8a' };
-const STATE_TXT = { ok: 'OK', warn: '???', bad: '!!' };
+export const STATE_COL = { ok: '#8af0ae', warn: '#ffd27a', bad: '#ff9b8a' };
+export const STATE_TXT = { ok: 'OK', warn: '???', bad: '!!' };
 const body = ({ x0, y0, z0, x1, y1, z1, m }: Ctx) => box(x0, y0, z0, x1, y1, z1, m, tone, 1);
 
 /** Text flat on the vertical face with outward normal n, centred at p; reads left to right from any turn of the view. */

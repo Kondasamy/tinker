@@ -1,0 +1,153 @@
+---
+// Dev-only eyeball page for the figure kit: every person pose across the cast, the model machine at student, draft and
+// full size in all four states, each roof, vehicle and prop, from both offered turns, plus a phone-width row.
+import '../styles/tokens.css';
+import IsoStage, { type Board, type SceneCtx } from '../lib/iso/IsoStage';
+import { TURNS } from '../lib/iso/core.js';
+import {
+  CAST,
+  POSES,
+  ROOFS,
+  SAMPLES,
+  bike,
+  building,
+  cart,
+  drawPieces,
+  modelMachine,
+  person,
+  van,
+  type ModelState,
+  type Piece,
+} from '../lib/iso/figures';
+
+// pieces are drawn inside the stage's frame (its origin and turn), so each row builds them in its scene callback
+const draw =
+  (make: () => Piece[]) =>
+  ({ top }: SceneCtx) =>
+    drawPieces(make(), top);
+const LOOKS = Object.keys(CAST);
+const STATES: (ModelState | undefined)[] = [undefined, 'ok', 'warn', 'bad'];
+const SIZES: [string, number][] = [
+  ['student', 0.45],
+  ['draft', 0.7],
+  ['full', 1],
+];
+const PROPS = Object.keys(SAMPLES).filter(
+  k => k !== 'model' && !k.startsWith('building') && !['van', 'cart', 'bike'].includes(k),
+);
+
+type Row = { title: string; board: Board; pieces: () => Piece[] };
+const rows: Row[] = [
+  ...POSES.map(pose => ({
+    title: `People: ${pose}`,
+    board: [0, 0, pose === 'fallen' ? 130 : 120, 7 * 26] as Board,
+    pieces: () =>
+      LOOKS.map((look, i) =>
+        pose === 'fallen'
+          ? person({ x: 20 + Math.floor(i / 7) * 64, y: 18 + (i % 7) * 26, pose, look, facing: '-x' })
+          : person({ x: 22 + Math.floor(i / 7) * 40, y: 18 + (i % 7) * 26, pose, look, facing: '+x' }),
+      ),
+  })),
+  {
+    title: 'People: facing each way (walk)',
+    board: [0, 0, 70, 130],
+    pieces: () =>
+      (['+x', '+y', '-x', '-y'] as const).map((facing, i) =>
+        person({ x: 35, y: 18 + i * 30, pose: 'walk', look: 'supportLead', facing }),
+      ),
+  },
+  {
+    title: 'Model machine: student, draft, full × idle, OK, ???, !!',
+    board: [0, 0, 150, 190],
+    pieces: () => SIZES.flatMap(([, k], j) => STATES.map((st, i) => modelMachine(25 + j * 50, 25 + i * 46, k, st))),
+  },
+  {
+    title: 'Model machine grown (height 56) beside a person',
+    board: [0, 0, 80, 80],
+    pieces: () => [modelMachine(40, 30, 1, 'ok', 56), person({ x: 40, y: 64, look: 'operator', facing: '+x' })],
+  },
+  {
+    title: 'Buildings: gable (awning), sawtooth, parapet, dome',
+    board: [0, 0, 120, 120],
+    pieces: () =>
+      ROOFS.map((roof, i) =>
+        building({
+          x: 30 + (i % 2) * 60,
+          y: 30 + Math.floor(i / 2) * 60,
+          d: 34,
+          w: 40,
+          h: 20,
+          roof,
+          awning: roof === 'gable',
+          windows: 2,
+        }),
+      ),
+  },
+  {
+    title: 'Vehicles: van (driver), cart, bike',
+    board: [0, 0, 110, 120],
+    pieces: () => [
+      van({ x: 30, y: 30, driver: true }),
+      van({ x: 80, y: 30, facing: '+y' }),
+      cart({ x: 30, y: 90 }),
+      bike({ x: 80, y: 90, facing: '+y' }),
+    ],
+  },
+  {
+    title: 'Props',
+    board: [0, 0, 120, 140],
+    pieces: () => PROPS.map((k, i) => SAMPLES[k](24 + (i % 3) * 38, 24 + Math.floor(i / 3) * 44)),
+  },
+];
+// phone: a big scene board drawn at phone width, so people and the model are seen at their smallest
+const PHONE_BOARD: Board = [0, 0, 260, 210];
+const phone = () => [
+  modelMachine(70, 60, 1, 'ok'),
+  modelMachine(70, 140, 0.45, 'warn'),
+  person({ x: 150, y: 60, look: 'rosa' }),
+  person({ x: 150, y: 90, look: 'eve', pose: 'walk' }),
+  person({ x: 150, y: 120, look: 'supportLead' }),
+  person({ x: 150, y: 150, look: 'operator', pose: 'carry' }),
+  van({ x: 220, y: 100, facing: '+y', driver: true }),
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Figure kit</title>
+  </head>
+  <body>
+    <main>
+      <h1>Figure kit, front and back turns</h1>
+      <div class="grid">
+        {rows.map(r => (
+          <section>
+            <h2>{r.title}</h2>
+            <div class="pair">
+              {TURNS.map(view => <IsoStage board={r.board} scene={draw(r.pieces)} view={view} label={`${r.title}, view ${view}`} />)}
+            </div>
+          </section>
+        ))}
+      </div>
+      <h1>Phone width (358px), 260 × 210 board</h1>
+      <div class="phone">
+        <IsoStage board={PHONE_BOARD} scene={draw(phone)} label="Figures at phone scale" />
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; background: var(--paper); }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(560px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .phone { width: 358px; max-width: 100%; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .pair { grid-template-columns: 1fr; }
+  }
+</style>
