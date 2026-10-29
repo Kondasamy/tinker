@@ -1,0 +1,688 @@
+{
+  "note": "Hand-written stand-in support tickets for Larkspur Supply Co., not real customers. intent is the answer under the guideline; decoy, where set, is the plausible misreading make-labels.mjs gives a labeller who slips; gold tickets were checked by the support lead. The first 90 are the labelling pool; the last 30 are held out to test the triage model.",
+  "intents": [
+    {
+      "id": "refund",
+      "name": "Refund"
+    },
+    {
+      "id": "return",
+      "name": "Return"
+    },
+    {
+      "id": "delivery",
+      "name": "Delivery"
+    },
+    {
+      "id": "product",
+      "name": "Product question"
+    },
+    {
+      "id": "account",
+      "name": "Account"
+    }
+  ],
+  "guideline": {
+    "refund": "Money back, and nothing has to come back to us.",
+    "return": "The customer still has the item and it comes back to us, for a swap or for their money.",
+    "delivery": "Where an order is, or when and how it arrives.",
+    "product": "What an item does, fits or costs, or when it is in stock.",
+    "account": "Logins, details, invoices and trade account settings."
+  },
+  "pool": 90,
+  "tickets": [
+    {
+      "id": "t001",
+      "text": "I was charged twice for order 4471. Please refund the second payment.",
+      "intent": "refund"
+    },
+    {
+      "id": "t002",
+      "text": "The boots are a size too small. How do I send them back for a bigger pair?",
+      "intent": "return"
+    },
+    {
+      "id": "t003",
+      "text": "Where is my order? It was due yesterday.",
+      "intent": "delivery"
+    },
+    {
+      "id": "t004",
+      "text": "Does the K20 drill work with the older battery packs?",
+      "intent": "product"
+    },
+    {
+      "id": "t005",
+      "text": "I cannot log in. The password reset email never arrives.",
+      "intent": "account"
+    },
+    {
+      "id": "t006",
+      "text": "I cancelled my order before it shipped but the money has not come back yet.",
+      "intent": "refund"
+    },
+    {
+      "id": "t007",
+      "text": "The drill arrived with a cracked case. I would like to return it for a new one.",
+      "intent": "return"
+    },
+    {
+      "id": "t008",
+      "text": "Tracking has said out for delivery for three days.",
+      "intent": "delivery"
+    },
+    {
+      "id": "t009",
+      "text": "Which wall plugs fit these shelf brackets?",
+      "intent": "product"
+    },
+    {
+      "id": "t010",
+      "text": "Please change the email on my account to my work address.",
+      "intent": "account"
+    },
+    {
+      "id": "t011",
+      "text": "Your price dropped two days after I bought the shelving. Can I get the difference back?",
+      "intent": "refund"
+    },
+    {
+      "id": "t012",
+      "text": "Can I return an unopened box of tiles after 30 days?",
+      "intent": "return"
+    },
+    {
+      "id": "t013",
+      "text": "Can I change the delivery address for order 6032? I am moving.",
+      "intent": "delivery"
+    },
+    {
+      "id": "t014",
+      "text": "Is the outdoor paint safe on children’s play equipment?",
+      "intent": "product"
+    },
+    {
+      "id": "t015",
+      "text": "How do I add a second user to our trade account?",
+      "intent": "account"
+    },
+    {
+      "id": "t016",
+      "text": "The refund you promised last week still is not on my card.",
+      "intent": "refund",
+      "gold": true
+    },
+    {
+      "id": "t017",
+      "text": "Please send me a returns label for the shelf brackets.",
+      "intent": "return",
+      "gold": true
+    },
+    {
+      "id": "t018",
+      "text": "The driver left my parcel in the rain by the gate.",
+      "intent": "delivery"
+    },
+    {
+      "id": "t019",
+      "text": "When will the brushed steel hinges be back in stock?",
+      "intent": "product"
+    },
+    {
+      "id": "t020",
+      "text": "Can I get an invoice showing the tax for order 3390?",
+      "intent": "account",
+      "decoy": "refund"
+    },
+    {
+      "id": "t021",
+      "text": "You billed me for 12 hinges but only 10 were in the box. Please credit the missing two.",
+      "intent": "refund",
+      "decoy": "delivery"
+    },
+    {
+      "id": "t022",
+      "text": "Wrong colour door handles arrived. I want to swap them for brushed steel.",
+      "intent": "return"
+    },
+    {
+      "id": "t023",
+      "text": "I missed the delivery. How do I rebook it?",
+      "intent": "delivery",
+      "gold": true
+    },
+    {
+      "id": "t024",
+      "text": "Does this ladder meet the trade standard for site work?",
+      "intent": "product"
+    },
+    {
+      "id": "t025",
+      "text": "My account is locked after too many login tries.",
+      "intent": "account",
+      "gold": true
+    },
+    {
+      "id": "t026",
+      "text": "My coupon code did not apply at checkout. Can you refund the 15% I should have saved?",
+      "intent": "refund",
+      "decoy": "account"
+    },
+    {
+      "id": "t027",
+      "text": "The saw blade does not fit my saw. Can I send it back and get my money back?",
+      "intent": "return",
+      "decoy": "refund"
+    },
+    {
+      "id": "t028",
+      "text": "Can you deliver on a Saturday? I am at work all week.",
+      "intent": "delivery"
+    },
+    {
+      "id": "t029",
+      "text": "Does the cordless sander work with other brands of sanding sheets?",
+      "intent": "product"
+    },
+    {
+      "id": "t030",
+      "text": "Please close my account and delete my details.",
+      "intent": "account"
+    },
+    {
+      "id": "t031",
+      "text": "You cancelled order 5120 as out of stock. When will I see my money?",
+      "intent": "refund",
+      "decoy": "delivery"
+    },
+    {
+      "id": "t032",
+      "text": "I ordered two lamps by mistake. How do I return one?",
+      "intent": "return"
+    },
+    {
+      "id": "t033",
+      "text": "My order says delivered but nothing came.",
+      "intent": "delivery",
+      "decoy": "refund"
+    },
+    {
+      "id": "t034",
+      "text": "How much weight does each heavy-duty shelf hold?",
+      "intent": "product",
+      "gold": true
+    },
+    {
+      "id": "t035",
+      "text": "How do I change the billing address on my account?",
+      "intent": "account"
+    },
+    {
+      "id": "t036",
+      "text": "Please refund the delivery charge, the parcel came three days late.",
+      "intent": "refund",
+      "decoy": "delivery"
+    },
+    {
+      "id": "t037",
+      "text": "Where do I drop off a return? There is no store near me.",
+      "intent": "return",
+      "gold": true
+    },
+    {
+      "id": "t038",
+      "text": "The pallet of bricks is too big for my drive. Can it come on a smaller van?",
+      "intent": "delivery",
+      "decoy": "product"
+    },
+    {
+      "id": "t039",
+      "text": "Do you stock replacement blades for the hedge trimmer?",
+      "intent": "product"
+    },
+    {
+      "id": "t040",
+      "text": "Our trade account credit limit is too low. Can it be raised?",
+      "intent": "account"
+    },
+    {
+      "id": "t041",
+      "text": "I paid for next-day delivery and got it in a week. I want the shipping fee back.",
+      "intent": "refund",
+      "decoy": "delivery"
+    },
+    {
+      "id": "t042",
+      "text": "The ladder is damaged, I want to return it and get a refund.",
+      "intent": "return",
+      "decoy": "refund"
+    },
+    {
+      "id": "t043",
+      "text": "Will my order arrive before Christmas if I order today?",
+      "intent": "delivery",
+      "gold": true
+    },
+    {
+      "id": "t044",
+      "text": "Will this lock fit a door that is 44 mm thick?",
+      "intent": "product"
+    },
+    {
+      "id": "t045",
+      "text": "I want to stop the marketing emails.",
+      "intent": "account",
+      "gold": true
+    },
+    {
+      "id": "t046",
+      "text": "The paint was the wrong shade so I threw it out. Can I just have my money back?",
+      "intent": "refund",
+      "decoy": "return"
+    },
+    {
+      "id": "t047",
+      "text": "Can I exchange the cordless drill for the model with two batteries?",
+      "intent": "return",
+      "decoy": "product"
+    },
+    {
+      "id": "t048",
+      "text": "Half the order came today. When does the rest arrive?",
+      "intent": "delivery",
+      "decoy": "refund"
+    },
+    {
+      "id": "t049",
+      "text": "Is there a longer warranty on the pressure washer?",
+      "intent": "product",
+      "decoy": "return"
+    },
+    {
+      "id": "t050",
+      "text": "Two accounts were made with my email by mistake. Can you merge them?",
+      "intent": "account"
+    },
+    {
+      "id": "t051",
+      "text": "Double charge on our trade account card again this month, please reverse it.",
+      "intent": "refund",
+      "decoy": "account"
+    },
+    {
+      "id": "t052",
+      "text": "My return was refused at the depot because the box was taped. What now?",
+      "intent": "return",
+      "decoy": "delivery"
+    },
+    {
+      "id": "t053",
+      "text": "The tracking link in my email does not work.",
+      "intent": "delivery",
+      "decoy": "account"
+    },
+    {
+      "id": "t054",
+      "text": "Which drill bits do I need for porcelain tiles?",
+      "intent": "product",
+      "gold": true
+    },
+    {
+      "id": "t055",
+      "text": "The invoice shows our old company name. Can you update it?",
+      "intent": "account",
+      "decoy": "refund"
+    },
+    {
+      "id": "t056",
+      "text": "I ordered by mistake and cancelled within the hour. Refund please.",
+      "intent": "refund"
+    },
+    {
+      "id": "t057",
+      "text": "The tap leaks straight out of the box. I am sending it back, what is the address?",
+      "intent": "return"
+    },
+    {
+      "id": "t058",
+      "text": "Can the courier call ahead? The site gate is locked.",
+      "intent": "delivery"
+    },
+    {
+      "id": "t059",
+      "text": "The manual for the mitre saw is missing pages. Is there a PDF?",
+      "intent": "product",
+      "decoy": "return"
+    },
+    {
+      "id": "t060",
+      "text": "How do I see my past orders? The history page is blank.",
+      "intent": "account"
+    },
+    {
+      "id": "t061",
+      "text": "The sale price showed in the basket but I was charged full price. Refund the gap please.",
+      "intent": "refund"
+    },
+    {
+      "id": "t062",
+      "text": "I want to return the paint I did not use, three tins still sealed.",
+      "intent": "return",
+      "decoy": "refund"
+    },
+    {
+      "id": "t063",
+      "text": "Do you deliver to Hawaii, and how long does it take?",
+      "intent": "delivery"
+    },
+    {
+      "id": "t064",
+      "text": "Can I paint over the primer the same day?",
+      "intent": "product"
+    },
+    {
+      "id": "t065",
+      "text": "My saved card was removed from my account. Did someone change it?",
+      "intent": "account",
+      "decoy": "refund"
+    },
+    {
+      "id": "t066",
+      "text": "I got store credit instead of money back to my card. I want it on my card.",
+      "intent": "refund"
+    },
+    {
+      "id": "t067",
+      "text": "How long do I have to return a heater bought in the winter sale?",
+      "intent": "return",
+      "decoy": "product"
+    },
+    {
+      "id": "t068",
+      "text": "Order 7781 has been processing for a week. Has it even shipped?",
+      "intent": "delivery"
+    },
+    {
+      "id": "t069",
+      "text": "Do the LED floodlights work with a dimmer switch?",
+      "intent": "product"
+    },
+    {
+      "id": "t070",
+      "text": "Can I switch our trade account to monthly invoicing?",
+      "intent": "account"
+    },
+    {
+      "id": "t071",
+      "text": "My bank says the refund was sent but it has not arrived after ten days.",
+      "intent": "refund",
+      "gold": true
+    },
+    {
+      "id": "t072",
+      "text": "The courier has not collected my return yet, it was booked for Tuesday.",
+      "intent": "return",
+      "decoy": "delivery"
+    },
+    {
+      "id": "t073",
+      "text": "The courier says my address does not exist. It is a new build.",
+      "intent": "delivery"
+    },
+    {
+      "id": "t074",
+      "text": "My new drill will not hold a charge. Is there a reset?",
+      "intent": "product",
+      "decoy": "return"
+    },
+    {
+      "id": "t075",
+      "text": "I did not get the loyalty points for last month’s order.",
+      "intent": "account",
+      "decoy": "refund"
+    },
+    {
+      "id": "t076",
+      "text": "You charged me for a ladder I never ordered. Please give me my money back.",
+      "intent": "refund",
+      "decoy": "account"
+    },
+    {
+      "id": "t077",
+      "text": "The item does not match the photo online. I would like to send it back.",
+      "intent": "return"
+    },
+    {
+      "id": "t078",
+      "text": "Can I collect from your depot instead of waiting for delivery?",
+      "intent": "delivery"
+    },
+    {
+      "id": "t079",
+      "text": "Does the decking oil come in a clear finish?",
+      "intent": "product"
+    },
+    {
+      "id": "t080",
+      "text": "How do I set up two-step login?",
+      "intent": "account"
+    },
+    {
+      "id": "t081",
+      "text": "Half my order was missing and the rest arrived fine. Refund the missing drill bits.",
+      "intent": "refund",
+      "decoy": "delivery"
+    },
+    {
+      "id": "t082",
+      "text": "Can I return a cut length of chain? It is the wrong gauge.",
+      "intent": "return",
+      "decoy": "product"
+    },
+    {
+      "id": "t083",
+      "text": "The parcel went to my neighbour. How do I get the second box?",
+      "intent": "delivery"
+    },
+    {
+      "id": "t084",
+      "text": "How many tiles do I need for a 3 by 2 metre floor?",
+      "intent": "product"
+    },
+    {
+      "id": "t085",
+      "text": "Can I get a statement of all invoices this year for my accountant?",
+      "intent": "account"
+    },
+    {
+      "id": "t086",
+      "text": "The kettle I sent back reached you a month ago. Where is my money?",
+      "intent": "refund",
+      "decoy": "return"
+    },
+    {
+      "id": "t087",
+      "text": "Please arrange collection of the faulty lawnmower for a replacement.",
+      "intent": "return"
+    },
+    {
+      "id": "t088",
+      "text": "Delivery was booked for the morning but nobody came. Will they come later?",
+      "intent": "delivery"
+    },
+    {
+      "id": "t089",
+      "text": "Is the K2 scanner’s charging dock sold separately?",
+      "intent": "product"
+    },
+    {
+      "id": "t090",
+      "text": "Someone ordered on my account without permission.",
+      "intent": "account",
+      "decoy": "refund"
+    },
+    {
+      "id": "t091",
+      "text": "Please cancel and refund the paint sample subscription.",
+      "intent": "refund",
+      "decoy": "account"
+    },
+    {
+      "id": "t092",
+      "text": "Returning the hinges, they are the wrong size. Do I need the original box?",
+      "intent": "return"
+    },
+    {
+      "id": "t093",
+      "text": "Could the driver leave the timber delivery round the back next time?",
+      "intent": "delivery"
+    },
+    {
+      "id": "t094",
+      "text": "Will the bigger tap fit a standard sink? If not I will have to send it back.",
+      "intent": "product",
+      "decoy": "return"
+    },
+    {
+      "id": "t095",
+      "text": "Please update the phone number on my account.",
+      "intent": "account"
+    },
+    {
+      "id": "t096",
+      "text": "I was charged in euros by mistake and lost money on the exchange. Please refund the fee.",
+      "intent": "refund"
+    },
+    {
+      "id": "t097",
+      "text": "The bath panel arrived bent. Swap it please, I will pack the old one.",
+      "intent": "return"
+    },
+    {
+      "id": "t098",
+      "text": "The box arrived crushed but everything inside is fine. Just letting you know.",
+      "intent": "delivery",
+      "decoy": "return"
+    },
+    {
+      "id": "t099",
+      "text": "Which drill should I buy, the 18V or the 20V model?",
+      "intent": "product"
+    },
+    {
+      "id": "t100",
+      "text": "The site keeps logging me out of my account at checkout.",
+      "intent": "account"
+    },
+    {
+      "id": "t101",
+      "text": "I was told I would get a partial refund for the scratched worktop. Still waiting.",
+      "intent": "refund"
+    },
+    {
+      "id": "t102",
+      "text": "Can I return part of a bundle and keep the rest?",
+      "intent": "return",
+      "decoy": "product"
+    },
+    {
+      "id": "t103",
+      "text": "My parcel is stuck at the sorting centre. Can you chase it?",
+      "intent": "delivery"
+    },
+    {
+      "id": "t104",
+      "text": "Can the timber be cut to length before delivery?",
+      "intent": "product",
+      "decoy": "delivery"
+    },
+    {
+      "id": "t105",
+      "text": "My trade discount is not showing on my account prices.",
+      "intent": "account",
+      "decoy": "refund"
+    },
+    {
+      "id": "t106",
+      "text": "Why was I charged a $40 restocking fee? Please refund it.",
+      "intent": "refund",
+      "decoy": "return"
+    },
+    {
+      "id": "t107",
+      "text": "I printed the return label but the barcode will not scan at the post office.",
+      "intent": "return",
+      "decoy": "delivery"
+    },
+    {
+      "id": "t108",
+      "text": "I need this order delivered by Friday for a job. Can you speed up the delivery?",
+      "intent": "delivery"
+    },
+    {
+      "id": "t109",
+      "text": "Does this adhesive work outdoors?",
+      "intent": "product"
+    },
+    {
+      "id": "t110",
+      "text": "How do I download our order history as a spreadsheet?",
+      "intent": "account"
+    },
+    {
+      "id": "t111",
+      "text": "Refund my deposit for the tool hire, I brought the sander back on Monday.",
+      "intent": "refund",
+      "decoy": "return"
+    },
+    {
+      "id": "t112",
+      "text": "The screws are the wrong thread. I want to send them back for the metric ones.",
+      "intent": "return"
+    },
+    {
+      "id": "t113",
+      "text": "Is it normal for a pallet delivery to take ten days?",
+      "intent": "delivery"
+    },
+    {
+      "id": "t114",
+      "text": "Do you offer bulk pricing on drywall for trade customers?",
+      "intent": "product",
+      "decoy": "account"
+    },
+    {
+      "id": "t115",
+      "text": "Can you send a copy of the credit note for my returned drill?",
+      "intent": "account",
+      "decoy": "return"
+    },
+    {
+      "id": "t116",
+      "text": "Your site took payment twice when it froze. Please refund one.",
+      "intent": "refund"
+    },
+    {
+      "id": "t117",
+      "text": "I bought a mitre saw, never used it, changed my mind. Can it go back?",
+      "intent": "return",
+      "decoy": "refund"
+    },
+    {
+      "id": "t118",
+      "text": "The delivery driver wants a signature but I will be out. Can he leave the parcel?",
+      "intent": "delivery"
+    },
+    {
+      "id": "t119",
+      "text": "The heater makes a clicking noise. Is that normal?",
+      "intent": "product",
+      "decoy": "return"
+    },
+    {
+      "id": "t120",
+      "text": "I have forgotten which email I used to sign up.",
+      "intent": "account"
+    }
+  ]
+}
