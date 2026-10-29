@@ -1,0 +1,39 @@
+{
+  "accessed": "2026-10-29",
+  "facts": [
+    {
+      "id": "kappa",
+      "claim": "Cohen (1960) introduced kappa: the share of agreement between two judges after removing the agreement they would reach by chance.",
+      "source": "https://doi.org/10.1177/001316446002000104"
+    },
+    {
+      "id": "four-labels",
+      "claim": "Snow et al. (2008) found that, on an emotion-labelling task, an average of 4 non-expert labels per item matched the quality of one expert’s label.",
+      "value": "4",
+      "source": "https://aclanthology.org/D08-1027/"
+    },
+    {
+      "id": "cheap-labels",
+      "claim": "In Snow et al.’s 2008 study, US$2.00 paid for 7,000 non-expert labels on Mechanical Turk.",
+      "value": "7000",
+      "source": "https://aclanthology.org/D08-1027/"
+    },
+    {
+      "id": "test-set-errors",
+      "claim": "Northcutt et al. (2021) estimated an average of at least 3.3% wrong labels across the test sets of 10 widely used datasets, and at least 6% in ImageNet’s validation set.",
+      "value": "3.3",
+      "source": "https://arxiv.org/abs/2103.14749"
+    },
+    {
+      "id": "uncertainty-sampling",
+      "claim": "In uncertainty sampling, the learner asks for labels on the examples it is least certain how to label (Settles, Active Learning Literature Survey, 2009).",
+      "source": "https://minds.wisconsin.edu/handle/1793/60660"
+    },
+    {
+      "id": "model-labellers",
+      "claim": "Gilardi et al. (2023) found ChatGPT’s zero-shot labels beat crowd workers’ accuracy on 4 of 5 text-labelling tasks, at under US$0.003 a label, about 20 times cheaper than Mechanical Turk.",
+      "value": "0.003",
+      "source": "https://arxiv.org/abs/2303.15056"
+    }
+  ]
+}
