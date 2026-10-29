@@ -1,5 +1,5 @@
 // Module 16's picture: the scanning table (KTD16). On the workshop board a document (or a photo print) lies under a camera
-// on a post, with a patch grid drawn over it. Read by vision, the patches drop onto a belt as token tiles (coloured in turn,
+// on a jointed arm, with a patch grid drawn over it; a warehouse worker stands by it holding the broken bracket. Read by vision, the patches drop onto a belt as token tiles (coloured in turn,
 // as Tokens' press drops them) and ride into the model (RAG's LLM block, composed); read by OCR, a strip of text rides the
 // belt instead. Before a reading the belt is empty. Words only in pills; on phones (scale > 1.5) the pills keep short
 // names and the caption carries the counts.
@@ -21,6 +21,7 @@ import {
   tag,
   byDepth,
 } from '../../lib/iso/core.js';
+import { SKIN, hexa, person, type Item, type Look } from '../../lib/iso/figures';
 import { image, type ImageId } from '../../lib/multimodal/images';
 import { costOf, sent, METHOD_NAME, type Method } from '../../lib/multimodal/readings';
 import { thousands } from '../../lib/multimodal/patches';
@@ -132,20 +133,121 @@ function sheet(photo: boolean, cols: number, rows: number) {
       0.35,
     ).replace('stroke="#231e16"', `stroke="${PALS.tomato.d}"`);
   }
-  return `<g data-prop="sheet" data-cols="${cols}" data-rows="${rows}">${s + hullInk(boxCorners(x0, y0, BH, x1, y1, z), 1.6)}</g>`;
+  return {
+    box: [
+      [x0, y0, BH],
+      [x1, y1, z],
+    ],
+    svg: `<g data-prop="sheet" data-cols="${cols}" data-rows="${rows}">${s + hullInk(boxCorners(x0, y0, BH, x1, y1, z), 1.6)}</g>`,
+  };
 }
 
-/** The camera: a post behind the sheet, an arm over it, and a dark body looking down with its lens. Lit when reading. */
-function camera(on: boolean) {
+// the arm: a weighted base off the sheet's far corner (so the arm reads across the view), shoulder, elbow and wrist
+// joints, the camera head over the sheet's middle
+const BASE = [70, 20],
+  SH = [70, 20, BH + 6],
+  EL = [67, 25, BH + 56],
+  WR = [45, 59, BH + 61],
+  CAM_TOP = BH + 64;
+// joint bolts run across the arm's plane (base to camera), so each hub reads as a drum from the side
+const ACROSS = (() => {
+  const d = [CAM[0] - BASE[0], CAM[1] - BASE[1]],
+    l = Math.hypot(d[0], d[1]);
+  return [-d[1] / l, d[0] / l, 0];
+})();
+const hub = (j: number[], r: number) =>
+  rod(
+    j.map((v, k) => v - ACROSS[k] * 2.4),
+    j.map((v, k) => v + ACROSS[k] * 2.4),
+    r,
+    DARK,
+    toneI,
+    1,
+  );
+const ptsBox = (pts: number[][]): number[][] =>
+  [0, 1].map(e => [0, 1, 2].map(k => (e ? Math.max : Math.min)(...pts.map(p => p[k]))));
+const ARM_PTS = {
+  lower: [
+    [BASE[0] - 6, BASE[1] - 6, BH],
+    [BASE[0] + 6, BASE[1] + 6, BH + 6],
+    [EL[0] - 3, EL[1] - 3, EL[2] - 3],
+    [EL[0] + 3, EL[1] + 3, EL[2] + 3],
+  ],
+  upper: [
+    [EL[0] + 1, EL[1] + 1, EL[2] - 2],
+    [WR[0], WR[1], WR[2] + 2],
+  ],
+  head: [
+    [CAM[0] - 8, CAM[1] - 7, BH + 49],
+    [CAM[0] + 7, CAM[1] + 6, CAM_TOP + 3],
+  ],
+};
+
+/** The camera on a jointed arm (after the upstream desk lamp). Real-object notes: a heavy round base with a swivel
+ * collar; a lower and an upper steel tube jointed at shoulder, elbow and wrist by bolted hubs; a dark camera body
+ * hanging from the wrist, its lens barrel pointing straight down at the sheet; a tally light on top, lit while it
+ * reads. Three items, so the sheet and the belt sort against each stretch of the arm. */
+function camera(on: boolean): Item[] {
   const [cx, cy] = CAM,
-    px = cx - 30,
-    py = cy - 30,
-    top = BH + 64;
-  let s = box(px - 3, py - 3, BH, px + 3, py + 3, top, METAL, toneI, 1);
-  s += rod([px, py, top - 2], [cx, cy, top - 2], 1.4, METAL);
-  s += cyl(cx, cy, top - 14, top - 8, 3.4, on ? PALS.mustard : DARK, toneI, 1);
-  s += box(cx - 7, cy - 6, top - 8, cx + 7, cy + 6, top + 1, DARK, toneI, 1);
-  return `<g data-prop="camera" data-on="${on ? 1 : 0}">${s}</g>`;
+    [bx, by] = BASE;
+  const lower =
+    cyl(bx, by, BH, BH + 3, 6, DARK, toneI, 1.4, 20) +
+    cyl(bx, by, BH + 3, SH[2], 2.6, METAL, toneI, 1, 14) +
+    rod(SH, EL, 1.6, METAL, toneI, 1.1) +
+    hub(SH, 2.6);
+  const upper = rod(EL, WR, 1.5, METAL, toneI, 1.1) + hub(EL, 2.6);
+  const head =
+    hub(WR, 2.2) +
+    cyl(cx, cy, BH + 50, CAM_TOP - 8, 3.4, on ? PALS.mustard : DARK, toneI, 1) +
+    box(cx - 7, cy - 6, CAM_TOP - 8, cx + 7, cy + 6, CAM_TOP + 1, DARK, toneI, 1.2) +
+    box(cx - 3, cy - 6.5, CAM_TOP - 6, cx + 3, cy - 2, CAM_TOP - 1, METAL, toneI, 0.8) +
+    cyl(cx + 3.5, cy + 3, CAM_TOP + 1, CAM_TOP + 2.4, 1.4, on ? PALS.tomato : DARK, toneI, 0.8, 10);
+  const g = (svg: string) => `<g data-prop="camera" data-on="${on ? 1 : 0}">${svg}</g>`;
+  return [
+    { box: ptsBox(ARM_PTS.lower), svg: g(lower) },
+    { box: ptsBox(ARM_PTS.upper), svg: g(upper) },
+    { box: ptsBox(ARM_PTS.head), svg: g(head) },
+  ];
+}
+
+/** The warehouse worker who brought the broken part: hi-vis vest, beanie, the snapped bracket held out in both hands. */
+const WORKER: Look = {
+  skin: SKIN[2],
+  top: '#c6d84e',
+  legs: '#3b4566',
+  hair: '#2b231c',
+  cut: 'short',
+  hat: 'beanie',
+  hatCol: PALS.cobalt.m,
+};
+const W_AT = [12, 102],
+  W_FACING = 20;
+/** The broken bracket: a steel L, its long arm snapped off short with a bright break, held at the worker's hands. */
+function bracket(): Item {
+  const t = (W_FACING * Math.PI) / 180,
+    F = [Math.cos(t), Math.sin(t), 0],
+    S = [-Math.sin(t), Math.cos(t), 0],
+    O = [W_AT[0], W_AT[1], BH],
+    at = (a: number, b: number, c: number) => [0, 1, 2].map(k => O[k] + F[k] * a + S[k] * b + (k === 2 ? c : 0));
+  const slab = (a0: number, a1: number, b0: number, b1: number, c0: number, c1: number) => [
+    at(a0, b0, c0),
+    at(a1, b0, c0),
+    at(a1, b1, c0),
+    at(a0, b1, c0),
+    at(a0, b0, c1),
+    at(a1, b0, c1),
+    at(a1, b1, c1),
+    at(a0, b1, c1),
+  ];
+  const foot = slab(6, 9, -4.5, 3.5, 17.4, 18.4),
+    leg = slab(6, 7, -4.5, -3.5, 18.4, 25),
+    stub = slab(6, 7, 2.5, 3.5, 18.4, 21);
+  const svg =
+    hexa(foot, METAL, 0.9) +
+    hexa(leg, METAL, 0.9) +
+    hexa(stub, METAL, 0.9) +
+    shape([at(6, 2.5, 21), at(7, 2.5, 21), at(7, 3.5, 22.2), at(6, 3.5, 22.2)], PALS.tomato.l, 0.8);
+  return { box: ptsBox([...foot, ...leg, ...stub]), svg: `<g data-prop="part">${svg}</g>` };
 }
 
 /** The text strip OCR hands on: a paper ribbon along the belt with ruled marks for words. */
@@ -180,20 +282,38 @@ export const scanScene = (o: ScanOpts) => (ctx: SceneCtx) => {
     scale = o.scale ?? 1,
     narrow = scale > 1.5,
     [mx, my] = MODEL;
+  const cam = camera(st.method === 'vision'),
+    worker = person({ x: W_AT[0], y: W_AT[1], facing: W_FACING, pose: 'carry', look: WORKER, holding: null }),
+    part = bracket();
+  const shade = (b: number[][]) =>
+    castShadow(boxCorners(b[0][0], b[0][1], b[0][2], b[1][0], b[1][1], b[1][2]), BH, ctx.top);
+  // every shadow first (the floor layer), then one sort over every item
   let s =
-    castShadow(boxCorners(CAM[0] - 33, CAM[1] - 33, BH, CAM[0] - 27, CAM[1] - 27, BH + 64), BH, ctx.top) +
+    [...cam, part].map(i => shade(i.box)).join('') +
+    worker.shadow +
     castShadow(boxCorners(mx - 17, my - 17, BH, mx + 17, my + 17, BH + 32), BH, ctx.top);
   s += `<g data-prop="belt" data-tiles="${st.tiles}">${beltAt(BELT.a, BELT.b, BELT.n, false)}</g>`;
   if (st.strip) s += strip();
   const tiles = Array.from({ length: st.tiles }, (_, i) => ({
-    at: [TILE0 + i * PITCH, Y, 1],
+    box: [
+      [TILE0 + i * PITCH - 4.5, Y - 4.5, BH + 0.3],
+      [TILE0 + i * PITCH + 4.5, Y + 4.5, BH + 4.3],
+    ],
     svg: tile(i, TILE0 + i * PITCH),
   }));
   const state = st.method ? 'ok' : undefined;
   s += byDepth([
-    { at: [CAM[0], CAM[1], 0], svg: sheet(st.photo, st.lines.cols, st.lines.rows) },
-    { at: [CAM[0] - 30, CAM[1] - 30, 2], svg: camera(st.method === 'vision') },
-    { at: [mx, my, 0], svg: `<g class="model">${renderers.llm({ x: mx, y: my, state })}</g>` },
+    sheet(st.photo, st.lines.cols, st.lines.rows),
+    ...cam,
+    ...worker.items,
+    part,
+    {
+      box: [
+        [mx - 17, my - 17, BH],
+        [mx + 17, my + 17, BH + 35],
+      ],
+      svg: `<g class="model">${renderers.llm({ x: mx, y: my, state })}</g>`,
+    },
     ...tiles,
   ]);
   const name = st.title.toUpperCase();

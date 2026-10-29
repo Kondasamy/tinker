@@ -1,12 +1,40 @@
 // The Compression module's picture: the sorting table (KTD15). A file's bytes lie sorted into piles on a workshop table,
 // one pile per byte value, as tall as that byte is common: mustard tiles for one byte, cobalt on a tray for piles merged
 // into the code tree, pale for "others" (the rest of a big file), tomato for pointer tickets. A parcel at the right is
-// the file as sent: a wireframe crate for its raw size and a solid kraft box for its packed size, poking out of the
-// crate when packing made it bigger. Words only in pills; on phones (scale > 1.5) pills keep short names and the
+// the file as sent: a wireframe crate for its raw size and a solid kraft box (taped and tied with string) for its packed
+// size, poking out of the crate when packing made it bigger. It stands on a weighing scale whose needle reads packed
+// over raw; the packer stands at the table's front. Words only in pills; on phones (scale > 1.5) pills keep short names and the
 // caption carries the numbers. Every string is escaped (esc).
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
-import { CERAMIC, PALS, WOOD, box, byDepth, castShadow, hullInk, line, tag, toneI } from '../../lib/iso/core.js';
+import {
+  CERAMIC,
+  DARK,
+  INK,
+  METAL,
+  PALS,
+  WOOD,
+  PY,
+  PZ,
+  box,
+  byDepth,
+  castShadow,
+  cyl,
+  ellUV,
+  fill,
+  hullInk,
+  ink,
+  line,
+  on,
+  openShell,
+  pd,
+  rod,
+  shape,
+  tag,
+  toneI,
+  vis,
+} from '../../lib/iso/core.js';
+import { SKIN, person, type Item, type Look } from '../../lib/iso/figures';
 import { countOf, type Node } from '../../lib/compression/huffman';
 import { byteName } from '../../lib/compression/files';
 import type { Say } from '../story/steps';
@@ -34,6 +62,9 @@ export const PILE_PARTS = ['piles', 'tray', 'parcel'] as const;
 
 const GHOST = { l: '#efe9dd', m: '#ddd5c4', d: '#bdb3a0' };
 const KRAFT = { l: '#e2b77a', m: '#c99a5c', d: '#7a5a32' };
+const TWINE = { l: '#f1e6c8', m: '#d9c69c', d: '#a8946a' };
+/** the scale's platform: the parcel stands this much above the table */
+const PLAT = 2.5;
 const ROWS = [36, 78],
   X0 = 24,
   DX = 40,
@@ -99,14 +130,28 @@ function pile(x: number, y: number, n: number, p: Pile) {
           : PALS.mustard;
   let s = '',
     z = BH;
-  if (p.kind === 'merged' || p.lit) {
-    s += box(x - HALF - 3, y - HALF - 3, z, x + HALF + 3, y + HALF + 3, z + 1.4, WOOD, toneI, 0.8);
-    z += 1.4;
-  }
+  let tiles = '';
+  const tray = p.kind === 'merged' || p.lit;
+  if (tray) z += 1.4;
   for (let i = 0; i < n; i++)
-    s += box(x - HALF, y - HALF, z + i * STEP, x + HALF, y + HALF, z + i * STEP + TILE, m, toneI, 0.7);
+    tiles += box(x - HALF, y - HALF, z + i * STEP, x + HALF, y + HALF, z + i * STEP + TILE, m, toneI, 0.7);
   const top = z + (n - 1) * STEP + TILE;
-  return { svg: s + hullInk(boxCorners(x - HALF, y - HALF, BH, x + HALF, y + HALF, top), 1.4), top };
+  tiles += hullInk(boxCorners(x - HALF, y - HALF, z, x + HALF, y + HALF, top), 1.4);
+  if (tray) {
+    // an open wooden tray: a floor, then walls round it (the far ones behind the tiles, the near ones in front)
+    const g = HALF + 3,
+      ring = (zz: number, k: number) =>
+        on(PZ(zz), [
+          [x - g - k, y - g - k],
+          [x + g + k, y - g - k],
+          [x + g + k, y + g + k],
+          [x - g - k, y + g + k],
+        ]);
+    s += box(x - g, y - g, BH, x + g, y + g, BH + 1.4, WOOD, toneI, 0.8);
+    s += openShell(ring(BH + 1.4, 0), ring(BH + 4.4, 0.4), (nn: number[]) => toneI(nn, WOOD), tiles);
+    s += ink(pd(ring(BH + 4.4, 0.4)), 0.9) + hullInk([...ring(BH, 0), ...ring(BH + 4.4, 0.4)], 1.4);
+  } else s += tiles;
+  return { svg: s, top };
 }
 
 /** The parcel: the raw size as a wireframe crate, the packed size as a solid box that may rise out of it. */
@@ -116,11 +161,46 @@ function parcel(raw: number, packed: number) {
     x0 = x - P_HALF,
     x1 = x + P_HALF,
     y0 = y - P_HALF,
-    y1 = y + P_HALF;
-  let s = box(x0 + 2, y0 + 2, BH, x1 - 2, y1 - 2, BH + Math.max(1, hp), KRAFT, toneI, 1);
+    y1 = y + P_HALF,
+    z0 = BH + PLAT,
+    zb = z0 + Math.max(1, hp);
+  let s = box(x0 + 2, y0 + 2, z0, x1 - 2, y1 - 2, zb, KRAFT, toneI, 1);
   // a strip of tape across the box's lid
-  s += box(x - 1.5, y0 + 2, BH + Math.max(1, hp), x + 1.5, y1 - 2, BH + Math.max(1, hp) + 0.3, CERAMIC, toneI, 0.4);
-  const zt = BH + P_RAW,
+  s += box(x - 1.5, y0 + 2, zb, x + 1.5, y1 - 2, zb + 0.3, CERAMIC, toneI, 0.4);
+  // string tied round it both ways: over the lid, down the sides that face the viewer, a knot where it crosses
+  // a twine stroke over an ink one: a rod's look at a sliver of its SVG
+  const tw = (a: number[], b: number[]) => {
+      const d = pd([a, b], false);
+      return `<path d="${d}" fill="none" stroke="${INK}" stroke-width="1.5" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${TWINE.l}" stroke-width=".7" stroke-linecap="round"/>`;
+    },
+    ty = y + 5,
+    zs = zb + 0.45;
+  s += tw([x0 + 2, ty, zs], [x1 - 2, ty, zs]) + tw([x - 4, y0 + 2, zs], [x - 4, y1 - 2, zs]);
+  for (const [n, a, b] of [
+    [
+      [1, 0, 0],
+      [x1 - 1.6, ty, zs],
+      [x1 - 1.6, ty, z0],
+    ],
+    [
+      [-1, 0, 0],
+      [x0 + 1.6, ty, zs],
+      [x0 + 1.6, ty, z0],
+    ],
+    [
+      [0, 1, 0],
+      [x - 4, y1 - 1.6, zs],
+      [x - 4, y1 - 1.6, z0],
+    ],
+    [
+      [0, -1, 0],
+      [x - 4, y0 + 1.6, zs],
+      [x - 4, y0 + 1.6, z0],
+    ],
+  ])
+    if (vis(n)) s += tw(a, b);
+  s += cyl(x - 4, ty, zs - 0.2, zs + 0.6, 1, TWINE, toneI, 0.5, 8);
+  const zt = z0 + P_RAW,
     corners: [number, number][] = [
       [x0, y0],
       [x1, y0],
@@ -131,24 +211,94 @@ function parcel(raw: number, packed: number) {
   for (const [a, b] of corners)
     s += line(
       [
-        [a, b, BH],
+        [a, b, z0],
         [a, b, zt],
       ],
       0.7,
     );
   s += line(
     [
-      [x0, y1, BH],
-      [x1, y1, BH],
-      [x1, y0, BH],
+      [x0, y1, z0],
+      [x1, y1, z0],
+      [x1, y0, z0],
     ],
     0.7,
   );
   return {
     svg: `<g data-prop="parcel" data-raw="${raw}" data-packed="${packed}">${s}</g>`,
-    top: BH + Math.max(hp, P_RAW),
+    top: z0 + Math.max(hp, P_RAW),
   };
 }
+
+/** The weighing scale under the parcel. Real-object notes: a steel platform on a low dark base; a column at the back
+ * corner carrying a round dial, its face toward the viewer, ticks round the rim and a red needle that swings with the
+ * weight on the platform (here packed over raw, a full turn's three quarters for the raw size). No numerals. */
+function weighScale(raw: number, packed: number): { plat: string; dial: Item } {
+  const [x, y] = PARCEL,
+    g = P_HALF + 2,
+    cx = 232,
+    cy = 74,
+    dz = BH + 26,
+    R = 6.5;
+  const plat =
+    box(x - g + 1, y - g + 1, BH, x + g - 1, y + g - 1, BH + 1, DARK, toneI, 0.9) +
+    box(x - g, y - g, BH + 1, x + g, y + g, BH + PLAT, METAL, toneI, 1);
+  // the dial lies in the plane y = cy + 2.6, facing +y; on a turn where that face looks away only its back shows
+  const Y = cy + 2.6,
+    face = vis([0, 1, 0]),
+    disc = (r: number, out = 0) => on(PY(Y + out), ellUV(cx, dz, r, r, 24));
+  let col =
+    rod([cx, cy, BH], [cx, cy, dz - R], 1.6, METAL, toneI, 1) + cyl(cx, cy, BH, BH + 1.6, 3.4, DARK, toneI, 1, 14);
+  col += rod([cx, cy - 0.4, dz], [cx, Y, dz], R + 1, PALS.tomato, toneI, 1.2, R + 1, 14);
+  if (face) {
+    col += fill(pd(disc(R, 0.05)), CERAMIC.l) + ink(pd(disc(R, 0.05)), 0.8);
+    for (let i = 0; i <= 8; i++) {
+      const a = ((225 - i * 33.75) * Math.PI) / 180;
+      col += line(
+        [
+          [cx + Math.cos(a) * R * 0.78, Y + 0.1, dz + Math.sin(a) * R * 0.78],
+          [cx + Math.cos(a) * R * 0.95, Y + 0.1, dz + Math.sin(a) * R * 0.95],
+        ],
+        0.6,
+      );
+    }
+    const t = Math.min(1.6, packed / Math.max(1, raw)) * 0.75,
+      a = ((225 - t * 270) * Math.PI) / 180;
+    col += shape(
+      [
+        [cx - Math.sin(a) * 0.5, Y + 0.15, dz + Math.cos(a) * 0.5],
+        [cx + Math.cos(a) * R * 0.85, Y + 0.15, dz + Math.sin(a) * R * 0.85],
+        [cx + Math.sin(a) * 0.5, Y + 0.15, dz - Math.cos(a) * 0.5],
+      ],
+      PALS.tomato.d,
+      0.5,
+    );
+    col += fill(pd(on(PY(Y + 0.2), ellUV(cx, dz, 0.9, 0.9, 10))), DARK.d);
+  }
+  // the platform is drawn with the parcel standing on it (one item: nothing can come between them)
+  return {
+    plat: `<g data-prop="scale" data-needle="${packed}/${raw}">${plat}</g>`,
+    dial: {
+      box: [
+        [cx - R - 1, cy - 3.4, BH],
+        [cx + R + 1, Y + 0.3, dz + R + 1],
+      ],
+      svg: `<g data-prop="dial">${col}</g>`,
+    },
+  };
+}
+
+/** The packer at the table's front, apron on, turned toward the scale. */
+const PACKER: Look = {
+  skin: SKIN[4],
+  top: PALS.blush.m,
+  legs: '#4a4642',
+  hair: '#2b231c',
+  cut: 'ponytail',
+  hat: 'cap',
+  hatCol: PALS.mint.m,
+};
+const packer = () => person({ x: 150, y: 118, facing: 330, look: PACKER });
 
 export const bytesWord = (n: number) => `${n} B`;
 
@@ -157,30 +307,44 @@ export const pileScene = (o: PileOpts) => (ctx: SceneCtx) => {
   const st = pileState(o),
     scale = o.scale ?? 1,
     narrow = scale > 1.5;
+  // every shadow first (the floor layer), then one sort over every item
   let s = '';
-  const parts: { at: number[]; svg: string }[] = [];
+  const parts: Item[] = [];
   const tops: number[] = [];
   st.shown.forEach((p, i) => {
     const [x, y] = st.at(i),
-      d = pile(x, y, st.tiles[i], p);
+      d = pile(x, y, st.tiles[i], p),
+      g = p.kind === 'merged' || p.lit ? HALF + 3.4 : HALF;
     tops.push(d.top);
-    s += castShadow(boxCorners(x - HALF, y - HALF, BH, x + HALF, y + HALF, d.top), BH, ctx.top);
+    s += castShadow(boxCorners(x - g, y - g, BH, x + g, y + g, d.top), BH, ctx.top);
     parts.push({
-      at: [x, y, 0],
+      box: [
+        [x - g, y - g, BH],
+        [x + g, y + g, d.top],
+      ],
       svg: `<g data-pile="${i}" data-w="${p.w}"${p.kind ? ` data-kind="${p.kind}"` : ''}${p.lit ? ' data-lit="1"' : ''}>${d.svg}</g>`,
     });
   });
   let ptop = 0;
   if (o.parcel) {
-    const pc = parcel(o.parcel.raw, o.parcel.packed);
+    const pc = parcel(o.parcel.raw, o.parcel.packed),
+      sc = weighScale(o.parcel.raw, o.parcel.packed);
     ptop = pc.top;
-    s += castShadow(
-      boxCorners(PARCEL[0] - P_HALF, PARCEL[1] - P_HALF, BH, PARCEL[0] + P_HALF, PARCEL[1] + P_HALF, ptop),
-      BH,
-      ctx.top,
-    );
-    parts.push({ at: [PARCEL[0], PARCEL[1], 0], svg: pc.svg });
+    const b = sc.dial.box,
+      g = P_HALF + 2;
+    s += castShadow(boxCorners(b[0][0], b[0][1], b[0][2], b[1][0], b[1][1], b[1][2]), BH, ctx.top);
+    s += castShadow(boxCorners(PARCEL[0] - g, PARCEL[1] - g, BH, PARCEL[0] + g, PARCEL[1] + g, ptop), BH, ctx.top);
+    parts.push(sc.dial, {
+      box: [
+        [PARCEL[0] - g, PARCEL[1] - g, BH],
+        [PARCEL[0] + g, PARCEL[1] + g, ptop],
+      ],
+      svg: sc.plat + pc.svg,
+    });
   }
+  const pk = packer();
+  s += pk.shadow;
+  parts.push(...pk.items);
   s += byDepth(parts);
   if (st.shown.length) s += `<g data-prop="piles"></g><g data-prop="tray"></g>`;
   let pills = '';

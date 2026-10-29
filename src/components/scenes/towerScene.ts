@@ -8,7 +8,29 @@
 // carries versions and counts. Every string is escaped (esc).
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
-import { CERAMIC, DARK, PALS, WOOD, box, byDepth, castShadow, cyl, line, tag, toneI } from '../../lib/iso/core.js';
+import {
+  CERAMIC,
+  DARK,
+  INK,
+  METAL,
+  PALS,
+  PX,
+  PY,
+  PZ,
+  WOOD,
+  box,
+  byDepth,
+  castShadow,
+  line,
+  on,
+  pd,
+  rod,
+  shape,
+  tag,
+  toneI,
+  vis,
+} from '../../lib/iso/core.js';
+import { padlock, person } from '../../lib/iso/figures';
 import { APP, auditOf, brokenOf, type Tree } from '../../lib/dependencies/resolve';
 import type { Say } from '../story/steps';
 import { count, crate } from './crateScene';
@@ -177,7 +199,7 @@ function planks(x: number, y: number, z0: number) {
   )}</g>`;
 }
 
-/** The lockfile: a sheet of lines on a post, a padlock hanging from it. */
+/** The lockfile: a sheet of lines on a post, a padlock (round steel shackle) hung through its foot. */
 function lockfile() {
   const [x, y] = LOCK_AT;
   let s = box(x - 1, y - 1, BH, x + 1, y + 1, BH + 22, WOOD, toneI, 0.8);
@@ -190,9 +212,276 @@ function lockfile() {
       ],
       0.5,
     );
-  s += cyl(x + 3, y, BH + 2, BH + 7, 2.6, PALS.mustard, toneI, 0.9, 14);
-  return { at: [x, y, 0], svg: `<g data-prop="lock">${s}</g>` };
+  const lock = padlock({ x: x + 3.2, y, z: BH + 2, size: 0.75, facing: '+x' });
+  s += byDepth(lock.items);
+  const b = [
+    [x - 1, y - 8, BH],
+    [x + 5, y + 8, BH + 24],
+  ];
+  return {
+    shadow: castShadow(boxCorners(x - 1, y - 1, BH, x + 1.6, y + 1, BH + 24), BH) + lock.shadow,
+    part: { box: b, svg: `<g data-prop="lock">${s}</g>` },
+  };
 }
+
+/** Crate variants, picked by the package's name so a crate keeps its look: plain slats, steel bands strapped round
+ * it, or a stencilled "this way up" mark (two arrows, a mark, never words). */
+const variantOf = (name: string) => [...name].reduce((a, c) => a + c.charCodeAt(0), 0) % 3;
+function dress(x: number, y: number, z0: number, v: number) {
+  const x0 = x - HALF,
+    x1 = x + HALF,
+    y0 = y - HALF,
+    y1 = y + HALF,
+    zt = z0 + HT;
+  let s = '';
+  if (v === 1)
+    // two steel straps over the lid and down both x ends
+    for (const by of [y - 5.5, y + 5.5]) {
+      const u0 = by - 0.8,
+        u1 = by + 0.8;
+      s += shape(
+        on(PZ(zt + 0.05), [
+          [x0 - 0.5, u0],
+          [x1 + 0.5, u0],
+          [x1 + 0.5, u1],
+          [x0 - 0.5, u1],
+        ]),
+        METAL.l,
+        0.6,
+      );
+      for (const [X, n] of [
+        [x1 + 0.55, 1],
+        [x0 - 0.55, -1],
+      ])
+        if (vis([n, 0, 0]))
+          s += shape(
+            on(PX(X), [
+              [u0, z0 + 0.4],
+              [u1, z0 + 0.4],
+              [u1, zt],
+              [u0, zt],
+            ]),
+            METAL.m,
+            0.6,
+          );
+    }
+  else if (v === 2) {
+    // the stencil on whichever y side faces the viewer: two up arrows
+    const n = vis([0, 1, 0]) ? 1 : -1,
+      Y = n > 0 ? y1 + 0.3 : y0 - 0.3,
+      zc = z0 + 3.4;
+    for (const ax of [x - 3.6, x + 3.6])
+      s += shape(
+        on(PY(Y), [
+          [ax - 0.9, zc],
+          [ax + 0.9, zc],
+          [ax + 0.9, zc + 5],
+          [ax + 2.8, zc + 5],
+          [ax, zc + 9.4],
+          [ax - 2.8, zc + 5],
+          [ax - 0.9, zc + 5],
+        ]),
+        DARK.d,
+        0,
+      );
+    s += shape(
+      on(PY(Y), [
+        [x - 6.6, zc - 2],
+        [x + 6.6, zc - 2],
+        [x + 6.6, zc - 1],
+        [x - 6.6, zc - 1],
+      ]),
+      DARK.d,
+      0,
+    );
+  }
+  return s;
+}
+
+/** a painted bar along pts: an ink stroke under a coloured one (a rod's look at a sliver of its SVG) */
+const bar = (pts: number[][], w: number, col: string) => {
+  const d = pd(pts, false);
+  return `<path d="${d}" fill="none" stroke="${INK}" stroke-width="${w + 1.3}" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+};
+/** The crane that pulls a crate: a pillar jib crane in the empty front corner, its jib reaching back over the pulled
+ * pile, the hook holding the crate the reader pulled (empty and higher when nothing is pulled). Real-object notes: a
+ * concrete foot; a lattice mast (four mustard corner posts, cross braces on the faces toward the viewer); a control box
+ * on the mast where the operator stands; a jib of three chords with a zigzag web, held by a tie rod from the mast top;
+ * a trolley at the jib's end, a steel cable down to a hook block and a hook, slings from the hook to the crate's lid. */
+const MAST: [number, number] = [158, 172],
+  JIB = BH + 58;
+function crane(load: boolean) {
+  const [mx, my] = MAST,
+    w = 3,
+    top = JIB + 9,
+    hx = PULLED_AT[0],
+    hy = MAST[1],
+    hookZ = load ? BH + 17 : BH + 22;
+  const items: { box: number[][]; svg: string }[] = [];
+  let m = box(mx - 4.5, my - 4.5, BH, mx + 4.5, my + 4.5, BH + 3, CERAMIC, toneI, 1);
+  for (const [cx, cy] of [
+    [-1, -1],
+    [1, -1],
+    [-1, 1],
+    [1, 1],
+  ])
+    m += bar(
+      [
+        [mx + cx * w, my + cy * w, BH + 3],
+        [mx + cx * w, my + cy * w, top],
+      ],
+      1.6,
+      PALS.mustard.m,
+    );
+  // the braces zigzag up the two faces toward the viewer
+  for (const [n, f] of [
+    [[1, 0, 0], (t: number, z: number) => [mx + w, my - w + 2 * w * t, z]],
+    [[0, 1, 0], (t: number, z: number) => [mx - w + 2 * w * t, my + w, z]],
+  ] as [number[], (t: number, z: number) => number[]][])
+    if (vis(n))
+      for (let z = BH + 3, k = 0; z < top - 4; z += 6, k++) m += line([f(k % 2, z), f((k + 1) % 2, z + 6)], 0.7);
+  // the control box at hand height, on the mast's side toward the operator
+  m += box(mx + w, my - 5.5, BH + 14, mx + w + 2, my - 2, BH + 19, PALS.tomato, toneI, 0.8);
+  m += rod([mx, my, top], [mx, my, top + 2], 1.2, DARK, toneI, 0.8, 0.6, 8);
+  // the counter-jib behind the mast, a concrete counterweight hung at its end
+  m += bar(
+    [
+      [mx, my, JIB + 1.5],
+      [mx + 13, my, JIB + 1.5],
+    ],
+    2.2,
+    PALS.mustard.m,
+  );
+  m += line(
+    [
+      [mx, my, top + 2],
+      [mx + 12, my, JIB + 2.5],
+    ],
+    0.9,
+  );
+  m += box(mx + 8, my - 2.6, JIB - 5, mx + 13, my + 2.6, JIB + 0.6, CERAMIC, toneI, 1);
+  items.push({
+    box: [
+      [mx - 4.5, my - 5.6, BH],
+      [mx + 13.2, my + 4.5, top + 2],
+    ],
+    svg: m,
+  });
+  // the jib in two sections back along -x (so the pulled pile beneath sorts against the right stretch)
+  const N = 2,
+    end = hx - 4,
+    L = mx - end,
+    tz = (x: number) => top + 2 - ((top + 2 - JIB - 3) * (mx - x)) / L;
+  for (let i = 0; i < N; i++) {
+    const a = mx - (L * i) / N,
+      b = mx - (L * (i + 1)) / N;
+    let j =
+      bar(
+        [
+          [a, my - 1.6, JIB],
+          [b, my - 1.6, JIB],
+        ],
+        1.5,
+        PALS.mustard.m,
+      ) +
+      bar(
+        [
+          [a, my, JIB + 3],
+          [b, my, JIB + 3],
+        ],
+        1.5,
+        PALS.mustard.l,
+      );
+    j += line(
+      [
+        [a, my + 1.6, JIB],
+        [(a + b) / 2, my, JIB + 3],
+        [b, my + 1.6, JIB],
+      ],
+      0.6,
+    );
+    j += bar(
+      [
+        [a, my + 1.6, JIB],
+        [b, my + 1.6, JIB],
+      ],
+      1.1,
+      PALS.mustard.l,
+    );
+    // the tie rod falls from the mast top to the jib's tip
+    j += line(
+      [
+        [a, my, tz(a)],
+        [b, my, tz(b)],
+      ],
+      0.9,
+    );
+    items.push({
+      box: [
+        [b, my - 2.2, JIB - 0.6],
+        [a, my + 2.2, i === 0 ? top + 2 : JIB + 3.6],
+      ],
+      svg: j,
+    });
+  }
+  // trolley, cable, hook block and hook, slings to the crate's lid
+  let h = box(hx - 2, hy - 2.5, JIB - 2.5, hx + 2, hy + 2.5, JIB - 0.6, DARK, toneI, 0.7);
+  h += line(
+    [
+      [hx, hy, JIB - 2.5],
+      [hx, hy, hookZ + 7],
+    ],
+    0.8,
+  );
+  h += box(hx - 2.2, hy - 2.2, hookZ + 3, hx + 2.2, hy + 2.2, hookZ + 7.5, PALS.mustard, toneI, 0.9);
+  h += bar(
+    [
+      [hx, hy, hookZ + 3],
+      [hx, hy, hookZ + 0.6],
+      [hx + 0.9, hy, hookZ - 0.4],
+      [hx + 2, hy, hookZ + 0.4],
+      [hx + 2.1, hy, hookZ + 1.4],
+    ],
+    0.9,
+    METAL.l,
+  );
+  if (load)
+    for (const [dx, dy] of [
+      [-6, -6],
+      [6, -6],
+      [-6, 6],
+      [6, 6],
+    ])
+      h += line(
+        [
+          [hx + 0.9, hy, hookZ - 0.2],
+          [PULLED_AT[0] + dx, PULLED_AT[1] + dy, BH + 10],
+        ],
+        0.6,
+      );
+  items.push({
+    box: [
+      [hx - 2.1, hy - 2.6, load ? BH + 10.2 : hookZ - 0.5],
+      [hx + 2.2, hy + 2.6, JIB - 0.6],
+    ],
+    svg: `<g class="tw-hook">${h}</g>`,
+  });
+  const operator = person({ x: 170, y: 160, facing: 140, pose: 'reach', look: OPERATOR });
+  return {
+    shadow: castShadow(boxCorners(mx - 4.5, my - 4.5, BH, mx + 4.5, my + 4.5, top), BH) + operator.shadow,
+    items: [...items, ...operator.items],
+  };
+}
+/** The crane operator: a hard hat and a hi-vis vest over a grey shirt (not the sandbox operator's orange). */
+const OPERATOR = {
+  skin: '#c18456',
+  top: '#d8e05a',
+  legs: '#4a4642',
+  hair: '#2b231c',
+  cut: 'short' as const,
+  hat: 'hard' as const,
+  hatCol: '#f4f1e8',
+};
 
 /** The scene: shadows, the crates bottom row first, back to front, then the pills. */
 export const towerScene = (o: TowerOpts) => (ctx: SceneCtx) => {
@@ -201,19 +490,32 @@ export const towerScene = (o: TowerOpts) => (ctx: SceneCtx) => {
     st = towerState(o),
     by = new Map(o.crates.map(c => [c.path, c])),
     fell = new Set(o.fell ?? []);
-  let s = '';
+  const cr = crane(!!o.pulled?.length),
+    lock = o.lock ? lockfile() : undefined;
+  let s = cr.shadow + (lock?.shadow ?? '');
   for (const p of st.shown) {
     const [x, y, z] = st.pos[p];
     if (z === BH) s += castShadow(boxCorners(x - HALF, y - HALF, BH, x + HALF, y + HALF, BH + HT), BH, ctx.top);
   }
-  const parts: { at: number[]; svg: string }[] = [];
+  (o.pulled ?? []).forEach((_, i) => {
+    const x = PULLED_AT[0] - i * 6,
+      y = PULLED_AT[1] + i * 6;
+    s += castShadow(boxCorners(x - 8, y - 8, BH, x + 8, y + 8, BH + 10), BH, ctx.top);
+  });
+  const parts: { at?: number[]; box?: number[][]; svg: string }[] = [...cr.items];
   for (const p of st.shown) {
     const c = by.get(p)!,
       [x, y, z] = st.pos[p];
     const pal = c.hijacked ? DARK : c.broken ? PALS.tomato : p === '' ? PALS.cobalt : undefined;
-    const body = crate(x, y, undefined, z, HALF, HT, pal) + (c.broken ? planks(x, y, z) : '');
+    const body =
+      crate(x, y, undefined, z, HALF, HT, pal) +
+      (p === '' ? '' : dress(x, y, z, variantOf(c.name))) +
+      (c.broken ? planks(x, y, z) : '');
     parts.push({
-      at: [x, y, z],
+      box: [
+        [x - HALF - 0.6, y - HALF - 0.6, z],
+        [x + HALF + 0.6, y + HALF + 0.6, z + HT],
+      ],
       svg: `<g class="tw-crate" data-crate="${esc(p || 'app')}"${c.broken ? ' data-broken="1"' : ''}${c.hijacked ? ' data-hijacked="1"' : ''}${c.lit ? ' data-lit="1"' : ''}${fell.has(p) ? ' data-fell="1"' : ''}>${body}</g>`,
     });
   }
@@ -221,11 +523,14 @@ export const towerScene = (o: TowerOpts) => (ctx: SceneCtx) => {
     const x = PULLED_AT[0] - i * 6,
       y = PULLED_AT[1] + i * 6;
     parts.push({
-      at: [x, y, 0],
-      svg: `<g class="tw-pulled" data-pulled="${esc(c.path)}">${castShadow(boxCorners(x - 8, y - 8, BH, x + 8, y + 8, BH + 10), BH, ctx.top)}${crate(x, y, 'ghost', BH, 8, 10)}</g>`,
+      box: [
+        [x - 8.5, y - 8.5, BH],
+        [x + 8.5, y + 8.5, BH + 10],
+      ],
+      svg: `<g class="tw-pulled" data-pulled="${esc(c.path)}">${crate(x, y, 'ghost', BH, 8, 10)}</g>`,
     });
   });
-  if (o.lock) parts.push(lockfile());
+  if (lock) parts.push(lock.part);
   s += byDepth(parts);
 
   let pills = '';

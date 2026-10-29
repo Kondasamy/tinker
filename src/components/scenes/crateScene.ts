@@ -10,6 +10,9 @@ import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
 import {
   CERAMIC,
+  DARK,
+  INK,
+  METAL,
   PALS,
   WOOD,
   box,
@@ -20,10 +23,16 @@ import {
   hullInk,
   line,
   matOf,
+  norm,
+  pd,
+  rod,
+  shape,
+  ink,
   tag,
   toneI,
   vis,
 } from '../../lib/iso/core.js';
+import { hexa, person, type Piece } from '../../lib/iso/figures';
 import { ancestors, type Repo } from '../../lib/git/graph';
 import { short } from '../../lib/git/objects';
 import type { Say } from '../story/steps';
@@ -85,6 +94,11 @@ const FLAG_PAL: Record<string, { l: string; m: string; d: string }> = {
   hinge: PALS.mustard,
 };
 const flagPal = (name: string) => FLAG_PAL[name] ?? PALS.mint;
+const LANTERN = { l: '#ffe39a', m: '#ffd27a', d: '#e8a93c' };
+const span = (x0: number, y0: number, z0: number, x1: number, y1: number, z1: number) => [
+  [x0, y0, z0],
+  [x1, y1, z1],
+];
 const GHOST = { l: '#efe9dd', m: '#ddd5c4', d: '#bdb3a0' };
 const TOMATO_PILL = '#f6c2b4',
   MINT_PILL = '#cdebd9',
@@ -241,40 +255,74 @@ export function crate(
   return s + hullInk(boxCorners(x0, y0, z0, x1, y1, z1), state === 'ghost' ? 1 : 1.6);
 }
 
-/** A rail from a crate to its parent: two steel lines on sleepers. */
+/** A rail from a crate to its parent. Real-object notes: wooden sleepers laid across the line, two steel rails
+ * running along their tops (a dark edge under a bright head); a ghost's line is pale and thin. */
 function rail(a: [number, number], b: [number, number], ghost: boolean) {
   const dx = b[0] - a[0],
     dy = b[1] - a[1],
     len = Math.hypot(dx, dy) || 1,
-    nx = (-dy / len) * 2.4,
-    ny = (dx / len) * 2.4,
+    ux = dx / len,
+    uy = dy / len,
+    nx = -uy * 2.4,
+    ny = ux * 2.4,
     z = BH + 0.2;
   let s = '';
-  const n = Math.floor(len / 5);
+  const n = Math.floor(len / 5),
+    sl = ghost ? GHOST.m : WOOD.m;
   for (let i = 1; i < n; i++) {
     const t = i / n,
       x = a[0] + dx * t,
-      y = a[1] + dy * t;
-    s += line(
+      y = a[1] + dy * t,
+      w = 0.8;
+    s += shape(
       [
-        [x - nx * 1.4, y - ny * 1.4, z],
-        [x + nx * 1.4, y + ny * 1.4, z],
+        [x - nx * 1.5 - ux * w, y - ny * 1.5 - uy * w, z],
+        [x + nx * 1.5 - ux * w, y + ny * 1.5 - uy * w, z],
+        [x + nx * 1.5 + ux * w, y + ny * 1.5 + uy * w, z],
+        [x - nx * 1.5 + ux * w, y - ny * 1.5 + uy * w, z],
       ],
-      ghost ? 0.5 : 1.1,
+      sl,
+      ghost ? 0.3 : 0.5,
     );
   }
-  for (const k of [-1, 1])
-    s += line(
+  for (const k of [-1, 1]) {
+    const d = pd(
       [
-        [a[0] + nx * k, a[1] + ny * k, z],
-        [b[0] + nx * k, b[1] + ny * k, z],
+        [a[0] + nx * k, a[1] + ny * k, z + 0.4],
+        [b[0] + nx * k, b[1] + ny * k, z + 0.4],
       ],
-      ghost ? 0.5 : 0.9,
+      false,
     );
+    s += ghost
+      ? `<path d="${d}" fill="none" stroke="${GHOST.d}" stroke-width=".7"/>`
+      : `<path d="${d}" fill="none" stroke="${INK}" stroke-width="1.9" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${METAL.l}" stroke-width=".8" stroke-linecap="round"/>`;
+  }
   return s;
 }
 
-/** A flagpole on a crate's back corner, its flag in the branch's colour, a lantern at the top when HEAD is here. */
+/** A cloth flag hung off a pole at p (its top corner), flying along +x: a strip in waves, each panel shaded by which way
+ * it turns, under one silhouette. */
+function cloth(p: number[], len: number, h: number, pal: { l: string; m: string; d: string }) {
+  const N = 4,
+    pts = Array.from({ length: N + 1 }, (_, i) => [
+      p[0] + (len * i) / N,
+      p[1] + Math.sin((i / N) * Math.PI * 1.6) * 1.4 * (i / N + 0.3),
+      p[2] - (i / N) * 0.8,
+    ]);
+  let s = '';
+  for (let i = 0; i < N; i++) {
+    const A = pts[i],
+      B = pts[i + 1];
+    let nrm = norm([-(B[1] - A[1]), B[0] - A[0], 0]);
+    if (!vis(nrm)) nrm = nrm.map((v: number) => -v);
+    s += shape([A, B, [B[0], B[1], B[2] - h], [A[0], A[1], A[2] - h]], toneI(nrm, pal), 0);
+  }
+  return s + ink(pd([...pts, ...[...pts].reverse().map(q => [q[0], q[1], q[2] - h])]), 1);
+}
+
+/** A flagpole on a crate's back corner: a round pole with a ball on top, a cloth flag in the branch's colour; HEAD is a
+ * lit lantern hanging off a hook on the pole. Real-object notes (lantern): a bracket arm out from the pole ending in a
+ * hook; a dark pyramid cap, a lit glass box, a base plate. */
 function pole(x: number, y: number, i: number, f: Flag, z0 = BH + HT) {
   const [px, py] = [
     [x - HALF + 1.5, y - HALF + 1.5],
@@ -282,12 +330,63 @@ function pole(x: number, y: number, i: number, f: Flag, z0 = BH + HT) {
     [x - HALF + 1.5, y + HALF - 1.5],
   ][i % 3];
   const top = z0 + POLE;
-  let s = box(px - 0.6, py - 0.6, z0, px + 0.6, py + 0.6, top, WOOD, toneI, 0.7);
-  s += box(px + 0.6, py - 0.3, top - 8, px + 9, py + 0.3, top - 1, flagPal(f.name), toneI, 0.8);
-  if (f.head)
-    s += `<g class="lantern">${cyl(px, py, top, top + 4, 2.2, PALS.mustard, toneI, 0.9, 14)}${box(px - 0.4, py - 0.4, top + 4, px + 0.4, py + 0.4, top + 5.5, WOOD, toneI, 0.5)}</g>`;
-  return { at: [px, py, top + (f.head ? 5.5 : 0)], svg: s };
+  let s = rod([px, py, z0], [px, py, top], 0.7, CERAMIC, toneI, 0.9, 0.55, 10);
+  s += cyl(px, py, top, top + 1.4, 1, PALS.mustard, toneI, 0.7, 10);
+  s += cloth([px + 0.6, py, top - 1], 9, 7, flagPal(f.name));
+  if (f.head) {
+    // the bracket reaches toward the viewer's left (+y), and the lantern hangs off its hook
+    const hy = py + 6,
+      hz = top - 10;
+    let l = rod([px, py, hz + 1.5], [px, hy, hz + 1.5], 0.4, DARK, toneI, 0.6, 0.4, 8);
+    l += line(
+      [
+        [px, hy, hz + 1.5],
+        [px, hy + 0.6, hz + 0.6],
+        [px, hy, hz - 0.2],
+      ],
+      0.8,
+    );
+    const g0 = hz - 7.2,
+      g1 = hz - 2;
+    l += box(px - 2.2, hy - 2.2, g0 - 0.8, px + 2.2, hy + 2.2, g0, DARK, toneI, 0.7);
+    l += box(px - 1.8, hy - 1.8, g0, px + 1.8, hy + 1.8, g1, LANTERN, toneI, 0.8);
+    l += hexa(
+      [
+        [px - 2.3, hy - 2.3, g1],
+        [px + 2.3, hy - 2.3, g1],
+        [px + 2.3, hy + 2.3, g1],
+        [px - 2.3, hy + 2.3, g1],
+        [px - 0.5, hy - 0.5, hz - 0.2],
+        [px + 0.5, hy - 0.5, hz - 0.2],
+        [px + 0.5, hy + 0.5, hz - 0.2],
+        [px - 0.5, hy + 0.5, hz - 0.2],
+      ],
+      DARK,
+      0.8,
+    );
+    s += `<g class="lantern">${l}</g>`;
+  }
+  return {
+    at: [px, py, top + (f.head ? 5.5 : 0)],
+    svg: s,
+    box: span(px - 1.2, py - 2.4, z0, px + 10, py + (f.head ? 8.5 : 2.4), top + 1.4),
+  };
 }
+
+/** Mira in front of the oldest crate in view, Tom past the newest: off the yard's columns and lanes, so they never
+ * stand on a crate or its rail. */
+const keepers = (pos: [number, number][]): Piece[] => {
+  const xs = pos.map(p => p[0]),
+    ys = pos.map(p => p[1]),
+    x0 = Math.min(...xs, CRATE_BOARD[2] / 2),
+    x1 = Math.max(...xs, CRATE_BOARD[2] / 2),
+    y0 = Math.min(...ys, CRATE_BOARD[3] / 2),
+    y1 = Math.max(...ys, CRATE_BOARD[3] / 2);
+  return [
+    person({ x: Math.max(8, x0), y: Math.min(CRATE_BOARD[3] - 7, y1 + 19), facing: -40, look: 'mira' }),
+    person({ x: Math.min(CRATE_BOARD[2] - 7, x1 + 22), y: Math.max(7, y0 - 4), facing: 160, look: 'tom' }),
+  ];
+};
 
 /** The packing view: the page on a desk, the saved version's crate and yours, each stamped with its blob id. */
 function packing(p: Packing, o: CrateOpts) {
@@ -321,14 +420,18 @@ function packing(p: Packing, o: CrateOpts) {
       ],
       0.5,
     );
-  const parts = [
-    { at: [dx, dy, 0], svg: `<g data-prop="page">${d}</g>` },
+  // Mira writes the page at the desk (one person: a second would break the view's size budget)
+  const folk = [person({ x: 40, y: 95, facing: 90, look: 'mira', holding: null })];
+  ground += folk.map(f => f.shadow).join('');
+  const parts: { at?: number[]; box?: number[][]; svg: string }[] = [
+    ...folk.flatMap(f => f.items),
+    { box: span(dx - 22, dy - 16, BH, dx + 22, dy + 16, dz + 0.5), svg: `<g data-prop="page">${d}</g>` },
     {
-      at: [...saved, 0],
+      box: span(saved[0] - 13, saved[1] - 13, BH, saved[0] + 13, saved[1] + 13, BH + 20),
       svg: `<g data-prop="saved" data-id="${p.saved}">${crate(saved[0], saved[1], undefined, BH, 13, 20)}</g>`,
     },
     {
-      at: [...mine, 0],
+      box: span(mine[0] - 13, mine[1] - 13, BH, mine[0] + 13, mine[1] + 13, BH + 20),
       svg: `<g data-prop="blob" data-id="${p.now}">${crate(mine[0], mine[1], same ? undefined : 'lit', BH, 13, 20)}</g>`,
     },
   ];
@@ -350,7 +453,8 @@ export const crateScene = (o: CrateOpts) => (ctx: SceneCtx) => {
     narrow = scale > 1.5,
     st = crateState(o);
   const ghostOf = new Set(st.shown.filter(c => c.state === 'ghost').map(c => c.id));
-  let s = '';
+  const folk = keepers(Object.values(st.pos));
+  let s = folk.map(f => f.shadow).join('');
   for (const c of st.shown) {
     const [x, y] = st.pos[c.id];
     s += castShadow(boxCorners(x - HALF, y - HALF, BH, x + HALF, y + HALF, BH + HT), BH, ctx.top);
@@ -363,20 +467,20 @@ export const crateScene = (o: CrateOpts) => (ctx: SceneCtx) => {
   }
   const byCrate = new Map<string, Flag[]>();
   for (const f of o.flags) byCrate.set(f.at, [...(byCrate.get(f.at) ?? []), f]);
-  const parts: { at: number[]; svg: string }[] = [];
+  const parts: { at?: number[]; box?: number[][]; svg: string }[] = folk.flatMap(f => f.items);
   const poles: Record<string, number[]> = {};
   for (const c of st.shown) {
     const [x, y] = st.pos[c.id];
     const kind = c.parents.length > 1 ? 'merge' : 'commit';
     parts.push({
-      at: [x, y, 0],
+      box: span(x - HALF - (c.state === 'conflict' ? 3 : 0), y - HALF, BH, x + HALF, y + HALF, BH + HT),
       svg: `<g data-crate="${c.id}" data-kind="${kind}"${c.state ? ` data-state="${c.state}"` : ''}>${crate(x, y, c.state)}</g>`,
     });
     (byCrate.get(c.id) ?? []).forEach((f, i) => {
       const p = pole(x, y, i, f);
       poles[f.name] = p.at;
       parts.push({
-        at: [x - HALF + 1, y - HALF + 1, 1],
+        box: p.box,
         svg: `<g data-flag="${esc(f.name)}"${f.head ? ' data-head="1"' : ''}>${p.svg}</g>`,
       });
     });

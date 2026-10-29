@@ -4,6 +4,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 
 ## Picture
 
+- **Hero object: a domed brick kiln with a chimney** (the furnace), fed by the shared roller belt and tended by a stoker with a coal shovel; checkpoints are cast ingots on a trestle shelf, and the model machine grows through its `height`.
 - **The foundry** (`src/components/scenes/forgeScene.ts`): crates of Larkspur's documents at the back feed a furnace (the training run) along a belt. The furnace mouth glows and the belt and wire light while training runs, and it is cold before step 1. The model, a blush block, stands beside it and grows taller with each checkpoint. Along the front a shelf holds a slot per checkpoint: saved ones are filled, the current one lit. The crates show the data mix: four crates for all the documents, two for half, a tomato crate for one document copied ten times, a blush crate for the test questions mixed in. `PreTrainingStage` (`src/content/pre-training/kit.tsx`) puts it one tab from a chart: Fine-tuning's `LossChart` (the checkpoints' training and held-out loss, or a recorded run's curve), or, for chapter 6, the scaling view. A stage that needs a checkpoint holds its frame with a "Loading step N" pill, or an error card with Retry, until it is in. On phones only the lit checkpoint keeps its pill and the caption carries the rest.
 
 ## Engine (`src/lib/pre-training/`)

@@ -5,6 +5,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 ## Picture
 
 - **The training bench** (`src/components/scenes/trainScene.ts`): the model (RAG's LLM block, composed) at the back, and three lever stations in front, one per way to change an answer: a prompt card, a document binder and a weights wrench, each wired to the model. The chosen lever is pulled and lit with its wire; for LoRA a small mint adapter clips onto the model's side, and the model's pill names the weights it runs (base, fine-tuned, base + adapter). `FineTuneStage` (`src/content/fine-tuning/kit.tsx`) puts it one tab from Results: a loss chart (`lossChart.ts`, flat, with focusable steps and a read-out line) or the Evals module's grid, a column per version. A stage that needs weights holds its frame with a loading pill, or an error card with Retry, until they are in. Chapters 1, 2, 4–7 keep the tab in the step state; on phones only the lit lever keeps its pill.
+- **Hero object: the lever frame.** A cast-iron frame of three levers with rubber grips on notched quadrants; on its bed a recipe-card box (prompt), a ring binder (documents) and a real wrench (weights). The model machine stands at the back with the clip-on adapter; a technician stands beside the frame.
 
 ## Engine (`src/lib/fine-tuning/`)
 
