@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "model": "nvidia/nemotron-3-ultra-550b-a55b",
+    "accessed": "2026-10-29",
+    "settings": {
+      "temperature": 0,
+      "seed": 7,
+      "max_tokens": 8192
+    },
+    "script": "7d6b34c"
+  },
+  "turns": {
+    "hist=|request=clear": {
+      "text": "Order confirmed: 40 boxes of plain steel 5×60 mm deck screws (SKU: screws-5x60).",
+      "state": "completed",
+      "sku": "screws-5x60",
+      "qty": 40
+    },
+    "hist=|request=vague": {
+      "text": "Which deck screws (size/material) and how many boxes do you need for the Alder Street deck?",
+      "state": "input-required",
+      "sku": null,
+      "qty": null
+    },
+    "hist=asked|request=vague": {
+      "text": "Order confirmed: 40 boxes of plain steel 5×60 mm deck screws (SKU: screws-5x60).",
+      "state": "completed",
+      "sku": "screws-5x60",
+      "qty": 40
+    }
+  }
+}

@@ -1,0 +1,179 @@
+{
+  "reads": {
+    "page:screws-5x60": {
+      "total": 56800,
+      "truth": 56800,
+      "right": true
+    },
+    "page:joist-hanger": {
+      "total": 4800,
+      "truth": 4800,
+      "right": true
+    },
+    "page:post-anchor": {
+      "total": 6900,
+      "truth": 6900,
+      "right": true
+    },
+    "menu:screws-5x60": {
+      "total": 56800,
+      "truth": 56800,
+      "right": true
+    },
+    "menu:joist-hanger": {
+      "total": 4800,
+      "truth": 4800,
+      "right": true
+    },
+    "menu:post-anchor": {
+      "total": 6900,
+      "truth": 6900,
+      "right": true
+    }
+  },
+  "task": {
+    "clear": {
+      "states": [
+        "submitted",
+        "working",
+        "completed"
+      ],
+      "status": "completed",
+      "order": {
+        "sku": "screws-5x60",
+        "qty": 40
+      }
+    },
+    "clear:cancel": {
+      "states": [
+        "submitted",
+        "working",
+        "completed"
+      ],
+      "status": "completed",
+      "order": {
+        "sku": "screws-5x60",
+        "qty": 40
+      }
+    },
+    "vague": {
+      "states": [
+        "submitted",
+        "working",
+        "input-required",
+        "working",
+        "completed"
+      ],
+      "status": "completed",
+      "order": {
+        "sku": "screws-5x60",
+        "qty": 40
+      }
+    },
+    "vague:cancel": {
+      "states": [
+        "submitted",
+        "working",
+        "input-required",
+        "canceled"
+      ],
+      "status": "canceled",
+      "order": null
+    }
+  },
+  "verdicts": {
+    "valid": [],
+    "other-key": [
+      "signature"
+    ],
+    "tampered-cap": [
+      "signature"
+    ],
+    "over-cap": [
+      "cap"
+    ],
+    "expired": [
+      "expiry"
+    ],
+    "out-of-scope": [
+      "items"
+    ],
+    "wrong-merchant": [
+      "merchant"
+    ],
+    "reused-nonce": [
+      "nonce"
+    ],
+    "other-currency": [
+      "cap"
+    ],
+    "limit-raised": [
+      "cap"
+    ]
+  },
+  "offers": {
+    "larkspur": true,
+    "fernway": true,
+    "quarrylane": false,
+    "ridgeback": false,
+    "lookalike": true,
+    "backorder": false
+  },
+  "tokens": {
+    "first": true,
+    "replay": "spent",
+    "other-order": "order",
+    "other-shop": "merchant",
+    "other-amount": "amount"
+  },
+  "workbench": {
+    "best": {
+      "right": 12,
+      "asked": 0
+    },
+    "winners": [
+      {
+        "cap": 60000,
+        "items": "exact",
+        "merchants": "usual",
+        "hours": 24,
+        "confirm": "never"
+      },
+      {
+        "cap": 60000,
+        "items": "exact",
+        "merchants": "usual",
+        "hours": 168,
+        "confirm": "never"
+      },
+      {
+        "cap": 60000,
+        "items": "fixings",
+        "merchants": "usual",
+        "hours": 24,
+        "confirm": "never"
+      },
+      {
+        "cap": 60000,
+        "items": "fixings",
+        "merchants": "usual",
+        "hours": 168,
+        "confirm": "never"
+      },
+      {
+        "cap": 150000,
+        "items": "exact",
+        "merchants": "usual",
+        "hours": 24,
+        "confirm": "never"
+      },
+      {
+        "cap": 150000,
+        "items": "exact",
+        "merchants": "usual",
+        "hours": 168,
+        "confirm": "never"
+      }
+    ]
+  }
+}
