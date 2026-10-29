@@ -1,0 +1,45 @@
+{
+  "note": "Larkspur's shop as an agent sees it: the page people read, the agent card and the catalogue, and the builder's orders. All hand-written for this site; Larkspur Supply Co., Reyes Decks and every domain here are fictional. Prices are in US cents.",
+  "company": "Larkspur Supply Co.",
+  "domain": "larkspur.example",
+  "today": "2026-11-03T09:00:00Z",
+  "builder": { "name": "Dana Reyes", "firm": "Reyes Decks", "cast": "operator" },
+  "buyerAgent": "Reyes Decks’ buying agent",
+  "sellerAgent": "Larkspur’s sales agent",
+  "request": "40 boxes of plain steel 5×60 mm deck screws for the Alder Street deck, needed by Friday",
+  "vagueRequest": "Deck screws for the Alder Street deck, needed by Friday",
+  "answer": "Plain steel, 5×60 mm, 40 boxes",
+  "slips": {
+    "larkspur": { "merchants": ["larkspur.example"], "items": ["category:fixings"], "cap": 60000, "hours": 168 },
+    "shop-around": { "merchants": ["*"], "items": ["category:fixings"], "cap": 60000, "hours": 168 }
+  },
+  "asks": {
+    "screws-5x60": { "text": "Buy 40 boxes of 5×60 mm deck screws.", "qty": 40 },
+    "joist-hanger": { "text": "Buy 2 packs of 10 joist hangers.", "qty": 2 },
+    "post-anchor": { "text": "Buy 6 post base anchors.", "qty": 6 }
+  },
+  "page": "LARKSPUR SUPPLY CO. · DECKING WEEK\nDeck screws, box of 100 ........ from $9.50\n  Sizes: 4×40 mm · 5×60 mm (+$4.70) · stainless +$1.80 a box\nJoist hangers ........ WAS $30.00  NOW $24.00 a pack of 10 · $2.40 each\nPost base anchors ........ 3 for $30!*\n  *Offer ended Sunday. Single anchors $11.50.\nPrices exclude sales tax. Free delivery over $150.",
+  "card": {
+    "name": "Larkspur sales agent",
+    "description": "Quotes and takes orders for Larkspur Supply Co.’s fixings, fasteners and tools.",
+    "supportedInterfaces": [
+      { "url": "https://larkspur.example/a2a", "protocolBinding": "JSONRPC", "protocolVersion": "1.0" }
+    ],
+    "version": "1.4.0",
+    "capabilities": { "streaming": false, "pushNotifications": true },
+    "defaultInputModes": ["application/json"],
+    "defaultOutputModes": ["application/json"],
+    "skills": [
+      { "id": "quote", "name": "Quote", "description": "Price a list of catalogue items." },
+      { "id": "order", "name": "Order", "description": "Place an order paid by a signed spending slip and a one-order token." }
+    ]
+  },
+  "catalogue": [
+    { "sku": "screws-4x40", "name": "Deck screws 4×40 mm, box of 100", "category": "fixings", "price": 950, "currency": "USD" },
+    { "sku": "screws-5x60", "name": "Deck screws 5×60 mm, box of 100", "category": "fixings", "price": 1420, "currency": "USD" },
+    { "sku": "screws-5x60-ss", "name": "Stainless deck screws 5×60 mm, box of 100", "category": "fixings", "price": 1600, "currency": "USD" },
+    { "sku": "joist-hanger", "name": "Joist hangers, pack of 10", "category": "fixings", "price": 2400, "currency": "USD" },
+    { "sku": "post-anchor", "name": "Post base anchor, each", "category": "fixings", "price": 1150, "currency": "USD" },
+    { "sku": "nailer", "name": "Framing nailer, each", "category": "tools", "price": 22900, "currency": "USD" }
+  ]
+}

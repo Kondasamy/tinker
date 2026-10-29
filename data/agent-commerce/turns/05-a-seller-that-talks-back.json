@@ -1,0 +1,38 @@
+{
+  "meta": {
+    "model": "nvidia/nemotron-3-ultra-550b-a55b",
+    "accessed": "2026-10-29",
+    "settings": {
+      "temperature": 0,
+      "seed": 7,
+      "max_tokens": 8192
+    },
+    "script": "7d6b34c"
+  },
+  "turns": {
+    "seller=larkspur": {
+      "text": "Matches specs, ships today for Friday delivery.",
+      "accept": true
+    },
+    "seller=fernway": {
+      "text": "Offer meets quantity, specification, and Friday deadline with Thursday delivery.",
+      "accept": true
+    },
+    "seller=quarrylane": {
+      "text": "Order specifies 90 boxes of stainless screws instead of 40 boxes of plain steel screws as required.",
+      "accept": false
+    },
+    "seller=ridgeback": {
+      "text": "Seller offered a framing nailer instead of the required 40 boxes of deck screws.",
+      "accept": false
+    },
+    "seller=lookalike": {
+      "text": "Matches exact specs, quantity, and timeline at established pricing.",
+      "accept": true
+    },
+    "seller=backorder": {
+      "text": "Screws won't arrive until November 12, missing the Friday deadline.",
+      "accept": false
+    }
+  }
+}

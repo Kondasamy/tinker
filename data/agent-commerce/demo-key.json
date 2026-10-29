@@ -1,0 +1,7 @@
+{
+  "note": "DEMO KEY PAIR for the builder in When the buyer is an agent, generated once for this site and used nowhere else. It is public on purpose so the page can sign and check real ECDSA signatures; a real private key never leaves its owner.",
+  "curve": "P-256",
+  "x": "TKaAYlOWhZC7dsKWh-nlHqmel0bGGOlnZKnsdcLt2mo",
+  "y": "65Cx-GdxcT2YzsdTfs4Ceu4PpqELShQUECTmY-VDllE",
+  "d": "d5xvljId9qkD7TPVIkg7We9G7w79sKk5Sryv6R3OeBk"
+}
