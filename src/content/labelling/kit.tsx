@@ -322,6 +322,79 @@ export function SortRoom({
   );
 }
 
+// ---- what the chapters share ----
+
+const NAMES = LABELLERS.map(l => l.name);
+/** Shown wherever the labels show (R6): the tickets and the people's labels are stand-ins. */
+export const StandInNote = () => (
+  <p className="note lb-note">
+    {`Hand-written stand-in tickets, not real customers. ${NAMES.slice(0, -1).join(', ')} and ${NAMES.at(-1)}’s labels come from seeded labeller profiles, not real people.`}
+  </p>
+);
+
+/** The optional maths, folded away: no formula ever sits in the narration. */
+export const Maths = ({ children }: { children: ReactNode }) => (
+  <details className="lb-maths">
+    <summary>The maths</summary>
+    {children}
+  </details>
+);
+
+/** A run of tickets sorted one at a time, kept in a chapter's state: where the reader is, what they filed, how many. */
+export interface Run {
+  at: number;
+  filed: Intent | null;
+  count: number;
+}
+export const RUN0: Run = { at: 0, filed: null, count: 0 };
+
+/** The room for a run: this ticket on the table, its picks once filed, earlier tickets' slips in the tally. */
+export function runRack(tickets: readonly Ticket[], r: Run, guided = true): Parameters<typeof RackStage>[0]['rack'] {
+  const t = tickets[Math.min(r.at, tickets.length - 1)];
+  return {
+    ticket: t,
+    picks: r.filed ? picksOf(t.id, guided) : undefined,
+    mine: r.filed,
+    tally: tallyOf(
+      tickets.slice(0, r.at).map(x => x.id),
+      guided,
+    ),
+    drop: !!r.filed,
+  };
+}
+
+/** The sort control over a run: file this ticket, then Next ticket. Filing counts; moving on doesn't. */
+export function SortRun({
+  tickets,
+  run,
+  guided = true,
+  onFile,
+  onNext,
+}: {
+  tickets: readonly Ticket[];
+  run: Run;
+  guided?: boolean;
+  onFile: (r: Run) => void;
+  onNext: (r: Run) => void;
+}) {
+  const t = tickets[Math.min(run.at, tickets.length - 1)];
+  return (
+    <>
+      <SortTicket
+        ticket={t}
+        filed={run.filed}
+        picks={run.filed ? picksOf(t.id, guided) : undefined}
+        onFile={i => onFile({ ...run, filed: i, count: run.count + 1 })}
+      />
+      {run.filed && run.at < tickets.length - 1 && (
+        <button type="button" className="chip lb-next" onClick={() => onNext({ ...run, at: run.at + 1, filed: null })}>
+          Next ticket
+        </button>
+      )}
+    </>
+  );
+}
+
 /** A cited fact from data/labelling/facts.json, with its source and the day it was checked (R5). */
 export function Fact({ id }: { id: string }) {
   const f = fact(id);

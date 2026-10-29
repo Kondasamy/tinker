@@ -151,3 +151,88 @@
     padding: 4px 2px;
   }
 }
+
+.lb-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.lb-maths {
+  margin: 8px 0;
+  font-size: 13.5px;
+}
+.lb-maths summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.lb-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.lb-scores {
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+.lb-scores th,
+.lb-scores td {
+  border-bottom: 1px solid var(--rule);
+  padding: 3px 12px 3px 0;
+  text-align: left;
+}
+.lb-scores td.bad {
+  font-weight: 800;
+}
+.lb-guide {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13.5px;
+}
+.lb-headline strong {
+  font:
+    800 26px / 1 ui-monospace,
+    Menlo,
+    monospace;
+}
+.lb-bench {
+  border: 1.5px solid var(--rule);
+  border-radius: 12px;
+  padding: 6px 12px;
+  margin: 8px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 28px;
+}
+.lb-bench fieldset {
+  border: 0;
+  padding: 0;
+  margin: 6px 0;
+}
+.lb-bench legend {
+  font-weight: 800;
+  font-size: 14px;
+}
+.lb-bench label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 32px;
+  font-size: 14px;
+}
+.lb-table td,
+.lb-table th {
+  text-align: left;
+}
+.lb-table td.ok {
+  font-weight: 800;
+}
+.lb-table td.bad {
+  color: #a5341f;
+}
+@media (max-width: 600px) {
+  .lb-bench label {
+    min-height: 44px;
+  }
+}
