@@ -826,6 +826,18 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'fairness')).toBe(48);
   });
 
+  it('has watermarks as a live Intermediate module after fairness, numbered 50', () => {
+    expect(moduleOf('watermarks')).toMatchObject({
+      title: 'Watermarks and made-by-AI',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: ['transformers'],
+    });
+    expect(moduleOf('watermarks').track).toBeUndefined();
+    expect(moduleOf('watermarks').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'watermarks')).toBe(49);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

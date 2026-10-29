@@ -27,11 +27,13 @@ import {
   tag,
   toneI,
 } from '../../lib/iso/core.js';
-import { drawPieces, modelMachine, person, tight, type Item, type Piece } from '../../lib/iso/figures';
+import { drawPieces, mini, modelMachine, person, tight, type Item, type Piece } from '../../lib/iso/figures';
 import { compact } from '../../lib/iso/compact';
-import { decode } from '../../lib/lm/bpe';
+import { decode, encode } from '../../lib/lm/bpe';
 import { isGreen, KEY } from '../../lib/watermarks/greenlist';
 import type { Pic } from '../../lib/watermarks/pixels';
+import { MARK } from '../../lib/watermarks/story';
+import PINNED from '../../../data/watermarks/pinned.json' with { type: 'json' };
 import type { Say } from '../story/steps';
 
 /** Tokens a row, rows a page: the reply's 64 tokens (KTD10's cap). */
@@ -395,4 +397,34 @@ export function uvLabel(o: UvOpts): string {
       ? 'The UV lamp lights the whole page'
       : `The UV lamp lights columns ${clampStop(o.lamp) + 1} to ${clampStop(o.lamp) + WINDOW} of both rows`;
   return `${base} ${where}: ${c.green} green (raised), ${c.red} red (notched).`;
+}
+
+/** The home hero's plot (heroScene): the light table with the pinned reply on it and the lamp lit over its middle,
+ * set down small. */
+export function uvPlot(x: number, y: number, top: SceneCtx['top']): string {
+  const o: UvOpts = {
+    ids: PINNED.reply.ids,
+    prev: encode(PINNED.reply.prompt).at(-1) ?? 0,
+    gamma: MARK.gamma,
+    lamp: 12,
+  };
+  const p = mini(
+    {
+      shadow: castShadow(boxCorners(-8, -12, BH, 136, 18, TOP), BH, top),
+      items: [
+        {
+          box: [
+            [-8, -12, BH],
+            [136, 18, RAIL],
+          ],
+          svg: table() + page(o, tilesOf(o)),
+        },
+        lamp(o),
+      ],
+    },
+    [64, 3, BH],
+    [x, y, BH],
+    0.3,
+  );
+  return drawPieces([p]);
 }

@@ -56,6 +56,7 @@ const NUMBERED = [
   'prompts',
   'labelling',
   'fairness',
+  'watermarks',
 ];
 
 // AI modules lead the catalogue; classic tech follows in its own section of compact cards
@@ -413,6 +414,10 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
   await expect(page.locator('[data-level="Intermediate"] .module[data-module="fairness"] h4 a')).toHaveAttribute(
     'href',
     '/fairness/',
+  );
+  await expect(page.locator('[data-level="Intermediate"] .module[data-module="watermarks"] h4 a')).toHaveAttribute(
+    'href',
+    '/watermarks/',
   );
 });
 

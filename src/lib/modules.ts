@@ -48,6 +48,7 @@ import { VIDEO_MODELS_MODULE } from '../content/video-models/module';
 import { PROMPTS_MODULE } from '../content/prompts/module';
 import { LABELLING_MODULE } from '../content/labelling/module';
 import { FAIRNESS_MODULE } from '../content/fairness/module';
+import { WATERMARKS_MODULE } from '../content/watermarks/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -155,12 +156,7 @@ export const MODULES: Module[] = [
   PROMPTS_MODULE,
   LABELLING_MODULE,
   FAIRNESS_MODULE,
-  planned(
-    'watermarks',
-    'Watermarks and made-by-AI',
-    'Intermediate',
-    'Marking generated text and pictures so they can be spotted later, and why a detector can only guess.',
-  ),
+  WATERMARKS_MODULE,
   planned(
     'choosing-models',
     'Choosing a model',

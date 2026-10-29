@@ -2253,5 +2253,47 @@
       "bench",
       "ties"
     ]
+  },
+  "watermarks": {
+    "01-can-you-tell": [
+      "guess",
+      "detectors",
+      "quiz"
+    ],
+    "02-a-hidden-pattern": [
+      "sweep",
+      "predict",
+      "all",
+      "quiz"
+    ],
+    "03-leaning-green": [
+      "predict",
+      "try",
+      "cost"
+    ],
+    "04-counting-green": [
+      "meter",
+      "predict",
+      "short",
+      "grow",
+      "email"
+    ],
+    "05-rewording": [
+      "predict",
+      "wash",
+      "all",
+      "quiz"
+    ],
+    "06-pictures-and-labels": [
+      "predict",
+      "screenshot",
+      "pixel",
+      "crop",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "quiz"
+    ]
   }
 }

@@ -144,6 +144,10 @@ import { ticketOf as labelTicket } from '../lib/labelling/story';
 import LABEL_PINNED from '../../data/labelling/pinned.json' with { type: 'json' };
 import { GATE_BOARD, gateLabel, gateScene } from '../components/scenes/gateScene';
 import { REGION_NAMES, runOf as fairRun, SHARED as FAIR_SHARED } from '../lib/fairness/story';
+import { UV_BOARD, uvLabel, uvScene, type UvOpts } from '../components/scenes/uvScene';
+import { encode as wmEncode } from '../lib/lm/bpe';
+import { MARK as WM_MARK, REPLY as WM_REPLY } from '../lib/watermarks/story';
+import WM_PINNED from '../../data/watermarks/pinned.json' with { type: 'json' };
 import { FORM } from '../lib/site';
 
 const one =
@@ -406,6 +410,14 @@ const FAIR_M = fairRun('all', 'none', { A: FAIR_SHARED, B: FAIR_SHARED });
 const GATE = {
   lanes: { A: { counts: FAIR_M.A, bar: FAIR_SHARED }, B: { counts: FAIR_M.B, bar: FAIR_SHARED } },
   names: REGION_NAMES,
+  scale: 1.7,
+};
+// watermarks: the pinned marked reply with the whole page under the lamp, as the intro draws it
+const UV: UvOpts = {
+  ids: WM_PINNED.reply.ids,
+  prev: wmEncode(WM_REPLY.prompt).at(-1) ?? 0,
+  gamma: WM_MARK.gamma,
+  lamp: 'all',
   scale: 1.7,
 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
@@ -1002,6 +1014,11 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
     name: 'Bias and fairness',
     iso: { board: GATE_BOARD, scene: gateScene(GATE), label: gateLabel(GATE) },
     topics: ['Fairness', 'Error rates by group', 'Proxy features', 'Thresholds', 'Equal opportunity', 'Impossibility'],
+  },
+  watermarks: {
+    name: 'Watermarks and made-by-AI',
+    iso: { board: UV_BOARD, scene: uvScene(UV), label: uvLabel(UV) },
+    topics: ['Watermarks', 'Green lists', 'Detection', 'z-score', 'Paraphrasing', 'Pixel marks', 'C2PA'],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];

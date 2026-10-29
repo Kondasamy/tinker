@@ -374,6 +374,18 @@ import type { Features as FrFeatures, Fix as FrFix } from '../lib/fairness/fit';
 import type { Bars as FrBars } from '../lib/fairness/metrics';
 import { REGION_NAMES as FR_NAMES, runOf as frRun, SHARED as FR_SHARED } from '../lib/fairness/story';
 import FR_PINNED from '../../data/fairness/pinned.json' with { type: 'json' };
+import { UV_BOARD, uvScene, type UvOpts } from '../components/scenes/uvScene';
+import { encode as wmEncode } from '../lib/lm/bpe';
+import { detect as wmDetect } from '../lib/watermarks/pixels';
+import { LABEL as WM_LABEL, travel as wmTravel } from '../lib/watermarks/label';
+import {
+  HUMAN as WM_HUMAN,
+  MARK as WM_MARK,
+  MARKED_PICTURE,
+  PICTURE_INFO,
+  REPLY as WM_REPLY,
+} from '../lib/watermarks/story';
+import WM_PINNED from '../../data/watermarks/pinned.json' with { type: 'json' };
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -1772,6 +1784,37 @@ const GATE_OG: Record<string, () => Omit<GateOpts, 'scale'>> = {
     frAt(frWin.features as FrFeatures, frWin.fix as FrFix, { A: frWin.barA, B: frWin.barB }),
 };
 const gateOg = GATE_OG[page.og]?.();
+// module 50: the UV print room. The intro: the pinned marked reply, lit all over; 1: a hand-written reply, lamp off; 2:
+// the lamp mid-page; 3: the strongest nudge's reply, lit; 4: the first 16 tokens; 5: the reworded reply; 6: the cropped
+// print, its label dropped; 7: the workbench's winning setting with the lamp near the end.
+const wmPage = (ids: number[], rest: Partial<UvOpts> = {}): Omit<UvOpts, 'scale'> => ({
+  ids,
+  prev: wmEncode(WM_REPLY.prompt).at(-1) ?? 0,
+  gamma: WM_MARK.gamma,
+  lamp: 'all',
+  ...rest,
+});
+const wmLean = (delta: number) => WM_PINNED.leaning.find(l => l.delta === delta)?.ids ?? WM_PINNED.reply.ids;
+const UV_OG: Record<string, () => Omit<UvOpts, 'scale'>> = {
+  watermarks: () => wmPage(WM_PINNED.reply.ids),
+  'watermarks-01-can-you-tell': () =>
+    wmPage(wmEncode(WM_HUMAN[0].reply).slice(0, 64), {
+      lamp: null,
+      prev: wmEncode(WM_HUMAN[0].question).at(-1) ?? 0,
+    }),
+  'watermarks-02-a-hidden-pattern': () => wmPage(WM_PINNED.reply.ids, { lamp: 12 }),
+  'watermarks-03-leaning-green': () => wmPage(wmLean(Math.max(...WM_PINNED.leaning.map(l => l.delta)))),
+  'watermarks-04-counting-green': () => wmPage(WM_PINNED.reply.ids.slice(0, 16)),
+  'watermarks-05-rewording': () => wmPage(WM_PINNED.rewording.all),
+  'watermarks-06-pictures-and-labels': () => {
+    const { pic, label } = wmTravel(MARKED_PICTURE, WM_LABEL, 'crop');
+    return wmPage([], {
+      print: { pic, label: !!label, found: wmDetect(pic, PICTURE_INFO.seed).verdict === 'marked' },
+    });
+  },
+  'watermarks-07-workbench': () => wmPage(wmLean(WM_PINNED.workbench.winners[0].delta), { lamp: 20 }),
+};
+const uvOg = UV_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1848,6 +1891,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : docketOg ? <IsoStage board={DOCKET_BOARD} scene={docketScene({ ...docketOg, scale: 1.3 })} label="" />
           : rackOg ? <IsoStage board={RACK_BOARD} scene={rackScene({ ...rackOg, scale: 1.3 })} label="" />
           : gateOg ? <IsoStage board={GATE_BOARD} scene={gateScene({ ...gateOg, scale: 1.3 })} label="" />
+          : uvOg ? <IsoStage board={UV_BOARD} scene={uvScene({ ...uvOg, scale: 1.3 })} label="" />
           : dreamOg ? <IsoStage board={dreamBoard(dreamOg)} scene={dreamScene({ ...dreamOg, scale: 1.3 })} label="" />
           : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
           : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />
