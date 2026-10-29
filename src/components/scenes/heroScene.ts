@@ -43,29 +43,13 @@ import { phonePlot } from './phoneScene';
 import { forgePlot } from './forgeScene';
 import { examPlot } from './examScene';
 import { fusePlot } from './fuseScene';
-import { depotPlot } from './depotScene';
-import { archivePlot } from './archiveScene';
-import { stockPlot } from './stockScene';
-import { splitPlot } from './splitScene';
 import { darkroomPlot } from './darkroomScene';
-import { cabinetPlot } from './cabinetScene';
-import { townPlot } from './townScene';
-import { tubePlot } from './tubeScene';
-import { cratePlot } from './crateScene';
 import { jarPlot } from './jarScene';
 import { puppetPlot } from './puppetScene';
 import { typeFramePlot } from './typeFrameScene';
-import { railPlot } from './railScene';
-import { pilePlot } from './pileScene';
-import { yardPlot } from './yardScene';
-import { paintPlot } from './paintScene';
 import { agentDeskPlot } from './deskScene';
 import { copierPlot } from './copierScene';
 import { roomsPlot } from './officeRoomsScene';
-import { cloakPlot } from './cloakScene';
-import { postPlot } from './postScene';
-import { towerPlot } from './towerScene';
-import { signalPlot } from './signalScene';
 import { shelfPlot } from './shelfScene';
 import { recitalPlot } from './recitalScene';
 import { dreamPlot } from './dreamFloorScene';
@@ -270,34 +254,19 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   'pre-training': (x, y, { top }) => forgePlot(x + 14, y - 2, top),
   'post-training': (x, y, { top }) => examPlot(x + 14, y - 2, top),
   interpretability: (x, y, { top }) => fusePlot(x + 14, y - 2, top),
-  caching: (x, y, { top }) => depotPlot(x + 14, y - 4, top),
-  databases: (x, y, { top }) => archivePlot(x + 14, y - 2, top),
-  consistency: (x, y, { top }) => stockPlot(x + 14, y - 2, top),
-  'ab-testing': (x, y, { top }) => splitPlot(x + 14, y - 2, top),
   diffusion: (x, y, { top }) => darkroomPlot(x + 14, y - 2, top),
-  search: (x, y, { top }) => cabinetPlot(x + 14, y - 2, top),
-  'web-requests': (x, y, { top }) => townPlot(x + 4, y - 2, top),
-  payments: (x, y, { top }) => tubePlot(x + 14, y - 2, top),
-  git: (x, y, { top }) => cratePlot(x + 14, y - 2, top),
   calibration: (x, y, { top }) => jarPlot(x + 12, y - 2, top),
   'computer-use': (x, y, { top }) => puppetPlot(x + 14, y - 2, top),
   'diffusion-llms': (x, y, { top }) => typeFramePlot(x + 12, y - 2, top),
-  queues: (x, y, { top }) => railPlot(x + 14, y - 2, top),
-  compression: (x, y, { top }) => pilePlot(x + 14, y - 2, top),
-  'load-balancing': (x, y, { top }) => yardPlot(x + 14, y - 2, top),
-  encryption: (x, y, { top }) => paintPlot(x + 14, y - 2, top),
   'coding-agents': (x, y, { top }) => agentDeskPlot(x + 14, y - 2, top),
   'synthetic-data': (x, y, { top }) => copierPlot(x + 14, y - 2, top),
   'mixture-of-experts': (x, y, { top }) => roomsPlot(x + 14, y - 4, top),
-  logins: (x, y, { top }) => cloakPlot(x + 14, y - 2, top),
-  email: (x, y, { top }) => postPlot(x + 12, y - 2, top),
-  dependencies: (x, y, { top }) => towerPlot(x + 8, y - 2, top),
-  releases: (x, y, { top }) => signalPlot(x + 14, y - 2, top),
   recommendations: (x, y, { top }) => shelfPlot(x + 14, y - 2, top),
   memorisation: (x, y, { top }) => recitalPlot(x + 14, y - 2, top),
   'video-models': (x, y, { top }) => dreamPlot(x + 8, y - 2, top),
 };
-const LIVE = MODULES.filter(m => m.status === 'live');
+// only AI modules take a turn on the stand: classic tech waits in the catalogue
+const LIVE = MODULES.filter(m => m.status === 'live' && !m.track);
 /** the home page's hero and share image, from the registry: the model's call riding to the host */
 export const HOME_HERO = heroScene({
   live: LIVE.map(m => ({ id: m.id, draw: DRAW[m.id] })),
