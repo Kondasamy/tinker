@@ -2128,5 +2128,48 @@
       "bench",
       "ties"
     ]
+  },
+  "prompts": {
+    "01-it-only-continues": [
+      "predict",
+      "send",
+      "second",
+      "quiz"
+    ],
+    "02-say-what-you-want": [
+      "read",
+      "predict",
+      "role",
+      "clear",
+      "quiz"
+    ],
+    "03-show-dont-tell": [
+      "one",
+      "predict",
+      "quirky",
+      "quiz"
+    ],
+    "04-put-it-in-a-shape": [
+      "predict",
+      "list",
+      "json",
+      "quiz"
+    ],
+    "05-order-and-emphasis": [
+      "predict",
+      "move",
+      "quiz"
+    ],
+    "06-test-it-like-code": [
+      "predict",
+      "clear",
+      "predict2",
+      "small",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "quiz"
+    ]
   }
 }

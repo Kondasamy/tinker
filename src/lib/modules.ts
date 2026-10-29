@@ -45,6 +45,7 @@ import { RELEASES_MODULE } from '../content/releases/module';
 import { RECOMMENDATIONS_MODULE } from '../content/recommendations/module';
 import { MEMORISATION_MODULE } from '../content/memorisation/module';
 import { VIDEO_MODELS_MODULE } from '../content/video-models/module';
+import { PROMPTS_MODULE } from '../content/prompts/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -149,6 +150,7 @@ export const MODULES: Module[] = [
   RECOMMENDATIONS_MODULE,
   MEMORISATION_MODULE,
   VIDEO_MODELS_MODULE,
+  PROMPTS_MODULE,
   planned(
     'fairness',
     'Bias and fairness',
@@ -160,12 +162,6 @@ export const MODULES: Module[] = [
     'Watermarks and made-by-AI',
     'Intermediate',
     'Marking generated text and pictures so they can be spotted later, and why a detector can only guess.',
-  ),
-  planned(
-    'prompts',
-    'Writing a prompt',
-    'Beginner',
-    'Telling a model what you want: clear instructions, a few good examples, and testing the prompt like code.',
   ),
   planned(
     'choosing-models',

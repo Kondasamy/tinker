@@ -301,7 +301,7 @@ export function docketPlot(x: number, y: number, top: SceneCtx['top']): string {
     { shadow: castShadow(boxCorners(-2, -HW, BH, 0, HW, Z1), BH, top), items: [easel(cards)] },
     [0, 0, BH],
     [x, y, BH],
-    0.3,
+    0.45,
   );
   return drawPieces([p]);
 }

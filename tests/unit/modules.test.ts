@@ -790,6 +790,18 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'video-models')).toBe(45);
   });
 
+  it('has prompts as a live Beginner module after video-models, numbered 47', () => {
+    expect(moduleOf('prompts')).toMatchObject({
+      title: 'Writing a prompt',
+      level: 'Beginner',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('prompts').track).toBeUndefined();
+    expect(moduleOf('prompts').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'prompts')).toBe(46);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

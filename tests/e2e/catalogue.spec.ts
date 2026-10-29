@@ -53,6 +53,7 @@ const NUMBERED = [
   'recommendations',
   'memorisation',
   'video-models',
+  'prompts',
 ];
 
 // AI modules lead the catalogue; classic tech follows in its own section of compact cards
@@ -399,6 +400,10 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
     'href',
     '/video-models/',
   );
+  await expect(page.locator('[data-level="Beginner"] .module[data-module="prompts"] h4 a')).toHaveAttribute(
+    'href',
+    '/prompts/',
+  );
 });
 
 // Opening a web page's card (U11): the finder finds it by a topic and names the hit
@@ -431,6 +436,9 @@ const ROADMAP = [
   'fairness',
   'watermarks',
   'prompts',
+  'choosing-models',
+  'on-device',
+  'robots',
   'rate-limits',
   'backups',
   'unicode',

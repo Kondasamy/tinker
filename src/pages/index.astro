@@ -134,6 +134,10 @@ import { REPEATS as MEM_REPEATS, canaryOf as memCanary } from '../lib/memorisati
 import { boardOf as dreamBoard, dreamLabel, dreamScene } from '../components/scenes/dreamFloorScene';
 import { parseFrame, rollout as vmRollout } from '../lib/video-models/world';
 import VM_PINNED from '../../data/video-models/pinned.json' with { type: 'json' };
+import { DOCKET_BOARD, docketLabel, docketScene } from '../components/scenes/docketScene';
+import { boardOf as promptsBoard } from '../content/prompts/kit';
+import { START as PROMPTS_START } from '../lib/prompts/assemble';
+import { TICKETS as PROMPTS_TICKETS } from '../lib/prompts/cards';
 import { FORM } from '../lib/site';
 
 const one =
@@ -376,6 +380,16 @@ const DREAM = {
   real: vmRollout(VM_PINNED.seed, VM_PINNED.steps).frames[VM_LOST],
   dream: parseFrame(VM_PINNED.dream[VM_LOST]),
   step: VM_LOST,
+  scale: 1.7,
+};
+// prompts: the clear docket tested on every ticket, as the intro draws it
+const PR_TEST = '06-test-it-like-code';
+const DOCKET = {
+  ...promptsBoard(
+    PR_TEST,
+    { ...PROMPTS_START[PR_TEST], task: 'clear' },
+    { tickets: PROMPTS_TICKETS.map(t => t.id), model: 'main' },
+  ).opts,
   scale: 1.7,
 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
@@ -949,6 +963,11 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
     name: 'Video and world models',
     iso: { board: dreamBoard(DREAM), scene: dreamScene(DREAM), label: dreamLabel(DREAM) },
     topics: ['Video generation', 'Next-frame prediction', 'Context frames', 'World models', 'Drift', 'Re-sync'],
+  },
+  prompts: {
+    name: 'Writing a prompt',
+    iso: { board: DOCKET_BOARD, scene: docketScene(DOCKET), label: docketLabel(DOCKET) },
+    topics: ['Prompts', 'Instructions', 'Few-shot examples', 'Output format', 'Prompt order', 'Prompt testing'],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];

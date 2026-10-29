@@ -353,6 +353,11 @@ import { dream as vmDream, oneStep as vmOneStep } from '../lib/video-models/roll
 import { BENCH as VM_BENCH, WINNERS as VM_WINNERS } from '../lib/video-models/workbench';
 import { parseFrame as vmParse, rollout as vmRollout } from '../lib/video-models/world';
 import VM_PINNED from '../../data/video-models/pinned.json' with { type: 'json' };
+import { DOCKET_BOARD, docketScene, type DocketOpts } from '../components/scenes/docketScene';
+import { boardOf as prBoard } from '../content/prompts/kit';
+import { START as PR_START } from '../lib/prompts/assemble';
+import { TICKETS as PR_TICKETS, type Docket } from '../lib/prompts/cards';
+import PR_PINNED from '../../data/prompts/pinned.json' with { type: 'json' };
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -1665,6 +1670,27 @@ const DREAM_OG: Record<string, () => Omit<DreamOpts, 'scale'>> = {
   },
 };
 const dreamOg = DREAM_OG[page.og]?.();
+// module 47: the docket board. The intro: the clear docket on all six tickets; 1: one instruction, Larkspur mini just
+// continues; 2: a clear task with a role; 3: two quirky examples; 4: the JSON shape; 5: the rule moved last; 6: the
+// vague docket on all six tickets; 7: the workbench's first winning docket.
+const prAt = (chapter: string, d: Partial<Docket>, set = false): Omit<DocketOpts, 'scale'> =>
+  prBoard(chapter, { ...PR_START[chapter], ...d }, set ? { tickets: PR_TICKETS.map(t => t.id), model: 'main' } : {})
+    .opts;
+const DOCKET_OG: Record<string, () => Omit<DocketOpts, 'scale'>> = {
+  prompts: () => prAt('06-test-it-like-code', { task: 'clear' }, true),
+  'prompts-01-it-only-continues': () => ({
+    cards: [{ slot: 'task', label: 'INSTRUCTION' }],
+    state: 'warn',
+    slip: { lines: 1, text: 'JUST CONTINUES' },
+  }),
+  'prompts-02-say-what-you-want': () => prAt('02-say-what-you-want', { role: true, task: 'clear' }),
+  'prompts-03-show-dont-tell': () => prAt('03-show-dont-tell', { examples: '2q' }),
+  'prompts-04-put-it-in-a-shape': () => prAt('04-put-it-in-a-shape', { format: 'json' }),
+  'prompts-05-order-and-emphasis': () => prAt('05-order-and-emphasis', { rules: 'last' }),
+  'prompts-06-test-it-like-code': () => prAt('06-test-it-like-code', {}, true),
+  'prompts-07-workbench': () => prAt('07-workbench', PR_PINNED.workbench.winners[0] as Docket, true),
+};
+const docketOg = DOCKET_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1738,6 +1764,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : sxOg ? <IsoStage board={CABINET_BOARD} scene={cabinetScene({ ...sxOg, scale: 1.3 })} label="" />
           : townOg ? <IsoStage board={TOWN_BOARD} scene={townScene({ ...townOg, scale: 1.3 })} label="" />
           : webFallOg ? <div class="tf-og ob-og"><WaterfallView run={webFallOg} /></div>
+          : docketOg ? <IsoStage board={DOCKET_BOARD} scene={docketScene({ ...docketOg, scale: 1.3 })} label="" />
           : dreamOg ? <IsoStage board={dreamBoard(dreamOg)} scene={dreamScene({ ...dreamOg, scale: 1.3 })} label="" />
           : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
           : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />
