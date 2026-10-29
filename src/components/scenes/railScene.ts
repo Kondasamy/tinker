@@ -20,11 +20,16 @@ import {
   castShadow,
   cyl,
   cylX,
+  depthOf,
   hullInk,
   line,
+  matOf,
+  rod,
   tag,
   toneI,
+  vis,
 } from '../../lib/iso/core.js';
+import { SKIN, bike, building, drawPieces, hexa, person, type Look, type Piece } from '../../lib/iso/figures';
 import {
   CRASH_AT,
   SCENES,
@@ -129,98 +134,171 @@ const pill = (p: number[], dx: number, dy: number, text: string, lit: boolean, s
   `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text), lit, scale, fill)}</g>`;
 const OVER = '#f6c2b4';
 
-/** A paper ticket hanging from the rail at x: its face toward the viewer. */
+/** The two workers the copy never names get looks of their own; Rosa and Tomás are the cast's. */
+const WORKER_LOOKS: (string | Look)[] = [
+  'rosa',
+  'tomas',
+  { skin: SKIN[0], top: '#b39ddb', legs: '#4a4642', hair: '#2b231c', cut: 'ponytail' },
+  {
+    skin: SKIN[4],
+    top: PALS.mustard.l,
+    legs: '#3b4566',
+    hair: '#2b231c',
+    cut: 'short',
+    hat: 'beanie',
+    hatCol: PALS.cobalt.m,
+  },
+];
+const CUSTOMERS = ['shopper1', 'shopper2', 'shopper3', 'shopper4', 'shopper5'];
+
+/** One sortable piece from a box and its SVG: its shadow cast from the box. */
+const piece = (b: number[][], svg: string, shadow = true): Piece => ({
+  shadow: shadow ? castShadow(boxCorners(b[0][0], b[0][1], b[0][2], b[1][0], b[1][1], b[1][2]), BH) : '',
+  items: [{ box: b, svg }],
+  box: b,
+});
+const bx = (x0: number, y0: number, z0: number, x1: number, y1: number, z1: number) => [
+  [x0, y0, z0],
+  [x1, y1, z1],
+];
+
+/** A paper ticket held in a spring clip on the rail at x: a dark clip over the bar, the slip hanging under it, a few
+ * ink rules for the order lines (no words). */
 function ticket(x: number, m: { l: string; m: string; d: string }, cls: string, id = '') {
-  const z = RAIL.z - 2,
-    y = RAIL.y + 1.2;
-  return `<g class="${cls}"${id ? ` data-ticket="${esc(id)}"` : ''}>${line(
-    [
-      [x, RAIL.y, RAIL.z],
-      [x, y, z],
-    ],
-    0.6,
-  )}${box(x - 3.8, y, z - 16, x + 3.8, y + 0.8, z, m, toneI, 0.9)}${line(
-    [
-      [x - 2, y + 0.75, z - 4],
-      [x + 2, y + 0.75, z - 4],
-    ],
-    0.5,
-  )}</g>`;
+  const z = RAIL.z - 2.2,
+    y = RAIL.y + 1.6;
+  const clip = box(x - 1.6, RAIL.y - 1.2, RAIL.z - 2.6, x + 1.6, RAIL.y + 2.4, RAIL.z + 1.6, DARK, toneI, 0.7);
+  let rules = '';
+  if (vis([0, 1, 0]))
+    for (const k of [4, 7, 10])
+      rules += line(
+        [
+          [x - 2.4, y + 0.85, z - k],
+          [x + (k === 10 ? 0.4 : 2.4), y + 0.85, z - k],
+        ],
+        0.45,
+      );
+  return `<g class="${cls}"${id ? ` data-ticket="${esc(id)}"` : ''}>${box(x - 3.6, y, z - 14, x + 3.6, y + 0.8, z, m, toneI, 0.8)}${rules}${clip}</g>`;
 }
 
-/** The order rail: two posts and a bar, the tickets hanging from it. */
-function rail(o: RailOpts) {
+/** The order rail, the hero: a steel channel bar on two posts with round feet, a spring clip per ticket. */
+function rail(o: RailOpts): Piece {
   const st = railState(o),
     back = new Set(o.returned ?? []);
-  let s =
-    box(RAIL.x0 - 1.5, RAIL.y - 1.5, BH, RAIL.x0 + 1.5, RAIL.y + 1.5, RAIL.z + 1, METAL, toneI, 1) +
-    box(RAIL.x1 - 1.5, RAIL.y - 1.5, BH, RAIL.x1 + 1.5, RAIL.y + 1.5, RAIL.z + 1, METAL, toneI, 1) +
-    cylX(RAIL.x0, RAIL.x1, RAIL.y, RAIL.z, 1.2, METAL, toneI, 1, 10);
-  const step = (RAIL.x1 - RAIL.x0 - 8) / MAX_TICKETS;
+  const post = (x: number) =>
+    cyl(x, RAIL.y, BH, BH + 1.6, 4, DARK, toneI, 1, 16) +
+    rod([x, RAIL.y, BH + 1.6], [x, RAIL.y, RAIL.z + 2], 1.3, METAL, toneI, 1, 1.3, 12) +
+    cyl(x, RAIL.y, RAIL.z + 2, RAIL.z + 3.6, 2, METAL, toneI, 0.9, 12);
+  let s = post(RAIL.x0) + post(RAIL.x1);
+  // the channel: a flat bar with a lip, the clips riding in it
+  s += box(RAIL.x0 - 2, RAIL.y - 2, RAIL.z - 1, RAIL.x1 + 2, RAIL.y + 2, RAIL.z + 2, METAL, toneI, 1);
+  const step = (RAIL.x1 - RAIL.x0 - 8) / MAX_TICKETS,
+    tk: { x: number; svg: string }[] = [];
   o.waiting.slice(0, st.tickets).forEach((w, i) => {
     const x = RAIL.x1 - 6 - i * step;
-    s += ticket(
+    tk.push({
       x,
-      w.tries > 0 ? PALS.mustard : CERAMIC,
-      `ticket${w.tries > 0 ? ' retried' : ''}${back.has(w.id) ? ' returned' : ''}`,
-      w.id,
-    );
+      svg: ticket(
+        x,
+        w.tries > 0 ? PALS.mustard : CERAMIC,
+        `ticket${w.tries > 0 ? ' retried' : ''}${back.has(w.id) ? ' returned' : ''}`,
+        w.id,
+      ),
+    });
   });
   // hidden tickets: still on the rail, but leased to a worker who fell over
-  for (let i = 0; i < st.hidden; i++) s += ticket(RAIL.x0 + 5 + i * step, DARK, 'ticket hidden');
+  for (let i = 0; i < st.hidden; i++) {
+    const x = RAIL.x0 + 5 + i * step;
+    tk.push({ x, svg: ticket(x, METAL, 'ticket hidden') });
+  }
+  // tickets far from the viewer first (in the back view +x is far)
+  tk.sort((a, b) => depthOf([a.x, 0, 0]) - depthOf([b.x, 0, 0]));
+  s += tk.map(t => t.svg).join('');
+  const b = bx(RAIL.x0 - 4, RAIL.y - 4, BH, RAIL.x1 + 4, RAIL.y + 4, RAIL.z + 3.6);
+  // the shadow of two thin posts and a bar in the air, not of a wall
   return {
-    at: [(RAIL.x0 + RAIL.x1) / 2, RAIL.y, 0],
-    svg: `<g data-prop="rail" data-waiting="${o.waiting.length}" data-shown="${st.tickets}" data-hidden="${o.hidden}">${s}</g>`,
+    shadow:
+      castShadow(boxCorners(RAIL.x0 - 1.3, RAIL.y - 1.3, BH, RAIL.x0 + 1.3, RAIL.y + 1.3, RAIL.z), BH) +
+      castShadow(boxCorners(RAIL.x1 - 1.3, RAIL.y - 1.3, BH, RAIL.x1 + 1.3, RAIL.y + 1.3, RAIL.z), BH) +
+      castShadow(boxCorners(RAIL.x0, RAIL.y - 2, RAIL.z - 1, RAIL.x1, RAIL.y + 2, RAIL.z + 2), BH),
+    items: [
+      {
+        box: b,
+        svg: `<g data-prop="rail" data-waiting="${o.waiting.length}" data-shown="${st.tickets}" data-hidden="${o.hidden}">${s}</g>`,
+      },
+    ],
+    box: b,
   };
 }
 
-/** The till, with the retry hook beside it (or, inline, the customers waiting in front of it). */
-function till(o: RailOpts) {
+/** The till: a wooden counter, the register on it (a sloped key deck, a small display on a stalk) and its cash drawer
+ * pulled out toward the customers with coins in the wells; the retry hook beside it. */
+function till(o: RailOpts): Piece {
   const [x, y] = TILL,
     st = railState(o);
-  let s = box(x - 9, y - 9, BH, x + 9, y + 9, BH + 14, WOOD, toneI, 1);
-  s += box(x - 4, y - 3, BH + 14, x + 3, y + 3, BH + 20, PALS.cobalt, toneI, 0.9);
-  s += hullInk(boxCorners(x - 9, y - 9, BH, x + 9, y + 9, BH + 20), 2);
+  let s = box(x - 9, y - 9, BH, x + 9, y + 9, BH + 10, WOOD, toneI, 1);
+  s += box(x - 10, y - 10, BH + 10, x + 10, y + 10, BH + 11.5, WOOD, toneI, 0.9);
+  // the cash drawer, out of the counter's front (+y) under the top
+  const dz = BH + 5.5;
+  s += box(x - 6, y + 9, dz, x + 6, y + 14, dz + 3.4, DARK, toneI, 0.9);
+  s += box(x - 4.5, y + 10.5, dz + 3.4, x + 4.5, y + 12.5, dz + 3.9, PALS.mustard, toneI, 0.5);
+  // the register: a body, a key deck sloping toward the customer, a display on a stalk
+  const zr = BH + 11.5;
+  s += box(x - 6, y - 6, zr, x + 6, y + 2, zr + 4, PALS.cobalt, toneI, 1);
+  s += hexa(
+    [
+      [x - 6, y + 2, zr],
+      [x + 6, y + 2, zr],
+      [x + 6, y + 7, zr],
+      [x - 6, y + 7, zr],
+      [x - 6, y + 2, zr + 4],
+      [x + 6, y + 2, zr + 4],
+      [x + 6, y + 7, zr + 1.4],
+      [x - 6, y + 7, zr + 1.4],
+    ],
+    PALS.cobalt,
+    1,
+  );
+  s += rod([x, y - 2, zr + 4], [x, y - 2, zr + 6], 0.7, DARK, toneI, 0.7);
+  s += box(x - 3.5, y - 3, zr + 6, x + 3.5, y - 1, zr + 8.5, DARK, toneI, 0.9);
+  s += hullInk(boxCorners(x - 10, y - 10, BH, x + 10, y + 10, BH + 11.5), 2);
   if (!o.inline) {
     // the hook: tickets that wait out a retry hang here, off the rail
     s += box(x + 11, y - 1, BH, x + 13, y + 1, BH + 26, METAL, toneI, 0.8);
     for (let i = 0; i < st.hooked; i++)
       s += `<g class="ticket hooked">${box(x + 13.2, y - 6 + i * 3.4, BH + 10 + i * 2.5, x + 13.9, y - 1 + i * 3.4, BH + 22 + i * 2.5, PALS.mustard, toneI, 0.7)}</g>`;
   }
-  return { at: [x, y, 0], svg: `<g data-prop="till" data-delayed="${o.delayed}">${s}</g>` };
+  return piece(
+    bx(x - 10, y - 10, BH, x + 14, y + 14, BH + 26),
+    `<g data-prop="till" data-delayed="${o.delayed}">${s}</g>`,
+  );
 }
 
-/** Customers waiting at the till while it does the work (inline): a figure each, at most 12, in a line. */
-function line_(o: RailOpts) {
+/** Customers waiting at the till while it does the work (inline): a person each, at most 12, two by two. */
+function line_(o: RailOpts): Piece[] {
   const n = Math.min(MAX_TICKETS, o.waiting.length);
   return Array.from({ length: n }, (_, i) => {
-    const x = TILL[0] - 4 + Math.floor(i / 6) * 8,
-      y = TILL[1] + 15 + (i % 6) * 7;
-    return {
-      at: [x, y, 0],
-      svg: `<g class="customer">${cyl(x, y, BH, BH + 9, 2.6, PALS.blush, toneI, 1, 14)}${cyl(x, y, BH + 9, BH + 12.5, 1.9, CERAMIC, toneI, 0.9, 12)}</g>`,
-    };
+    const p = person({
+      x: TILL[0] - 6 + (i % 2) * 14,
+      y: TILL[1] + 18 + Math.floor(i / 2) * 7.6,
+      facing: '-y',
+      look: CUSTOMERS[i % CUSTOMERS.length],
+    });
+    return { ...p, items: p.items.map(it => ({ ...it, svg: `<g class="customer">${it.svg}</g>` })) };
   });
 }
 
-/** A worker at their bench: standing behind it, or knocked over beside it. */
-function bench(w: WorkerView, i: number, fell = false) {
+/** A worker at their packing bench: standing behind it (packing when busy), or knocked over, lying in front. */
+function bench(w: WorkerView, i: number, fell = false): Piece {
   const x = BENCH_X[i],
     y = BENCH_Y;
-  let s = box(x - 11, y - 6, BH, x + 11, y + 6, BH + 10, WOOD, toneI, 1);
-  s += hullInk(boxCorners(x - 11, y - 6, BH, x + 11, y + 6, BH + 10), 1.8);
-  let person = '';
-  if (w.state === 'down') {
-    // lying on the floor in front of the bench
-    person = `<g class="fallen">${cylX(x - 9, x + 4, y + 11, BH + 3, 3, PALS.cobalt, toneI, 1, 14)}${cylX(x + 4, x + 8, y + 11, BH + 3, 2.2, CERAMIC, toneI, 0.9, 12)}</g>`;
-  } else {
-    const py = y - 11;
-    person = `<g class="standing">${cyl(x, py, BH, BH + 15, 3.4, PALS.cobalt, toneI, 1.1, 16)}${cyl(x, py, BH + 15, BH + 20, 2.5, CERAMIC, toneI, 1, 14)}</g>`;
-  }
-  let top = '';
+  // a packing bench: a top on two end panels, a shelf between them
+  let s = box(x - 9, y - 5, BH + 2, x + 9, y + 5, BH + 3, WOOD, toneI, 0.8);
+  for (const lx of [x - 10, x + 10]) s += box(lx - 1, y - 5, BH, lx + 1, y + 5, BH + 8.5, WOOD, toneI, 0.8);
+  s += box(x - 11, y - 6, BH + 8.5, x + 11, y + 6, BH + 10, WOOD, toneI, 1);
   if (w.job) {
     // the ticket on the bench, and the parcel being packed
-    top += box(
+    s += box(
       x - 8,
       y - 3,
       BH + 10,
@@ -231,9 +309,9 @@ function bench(w: WorkerView, i: number, fell = false) {
       toneI,
       0.6,
     );
-    if (w.state === 'busy') top += box(x + 1, y - 4, BH + 10, x + 9, y + 4, BH + 16, WOOD, toneI, 0.9);
+    if (w.state === 'busy') s += box(x + 1, y - 4, BH + 10, x + 9, y + 4, BH + 16, WOOD, toneI, 0.9);
     if (w.failing)
-      top += `<g class="fail-flag">${line(
+      s += `<g class="fail-flag">${line(
         [
           [x + 9, y + 4, BH + 16],
           [x + 9, y + 4, BH + 25],
@@ -241,19 +319,44 @@ function bench(w: WorkerView, i: number, fell = false) {
         0.9,
       )}${box(x + 9, y + 3.6, BH + 20, x + 15, y + 4.2, BH + 25, PALS.tomato, toneI, 0.8)}</g>`;
   }
-  const parts = [
-    { at: [x, y - 11, 0], svg: w.state === 'down' ? '' : person },
-    { at: [x, y, 0], svg: s + top },
-    { at: [x, y + 11, 0], svg: w.state === 'down' ? person : '' },
-  ];
+  const down = w.state === 'down',
+    who = person(
+      down
+        ? { x: x + 2, y: y + 14, facing: '+x', pose: 'fallen', look: WORKER_LOOKS[i] }
+        : {
+            x,
+            y: y - 11,
+            facing: '+y',
+            pose: w.state === 'busy' ? 'carry' : 'stand',
+            look: WORKER_LOOKS[i],
+            holding: null,
+          },
+    );
+  const benchItem = { box: bx(x - 11, y - 6, BH, x + 15, y + 6, BH + 25), svg: s },
+    whoItems = who.items.map(it => (down ? { ...it, svg: `<g class="fallen">${it.svg}</g>` } : it)),
+    all = [benchItem, ...whoItems];
+  const b = bx(
+    Math.min(x - 11, who.box[0][0]),
+    Math.min(y - 6, who.box[0][1]),
+    BH,
+    Math.max(x + 15, who.box[1][0]),
+    Math.max(y + 6, who.box[1][1]),
+    Math.max(BH + 25, who.box[1][2]),
+  );
   return {
-    at: [x, y, 0],
-    svg: `<g class="worker" data-worker="${i}" data-state="${w.state}"${fell ? ' data-fell="1"' : ''}${w.job ? ` data-job="${esc(w.job)}"` : ''}${w.stale ? ' data-stale="1"' : ''}>${byDepth(parts)}</g>`,
+    shadow: castShadow(boxCorners(x - 11, y - 6, BH, x + 11, y + 6, BH + 10), BH) + who.shadow,
+    items: [
+      {
+        box: b,
+        svg: `<g class="worker" data-worker="${i}" data-state="${w.state}"${fell ? ' data-fell="1"' : ''}${w.job ? ` data-job="${esc(w.job)}"` : ''}${w.stale ? ' data-stale="1"' : ''}>${byDepth(all)}</g>`,
+      },
+    ],
+    box: b,
   };
 }
 
 /** The dead-letter shelf: a tomato ticket per job that used up its tries (at most 4 drawn). */
-function shelf(o: RailOpts) {
+function shelf(o: RailOpts): Piece {
   const { x0, x1, y0, y1 } = SHELF,
     n = railState(o).shelf;
   let s = box(x0, y0, BH, x1, y1, BH + 3, WOOD, toneI, 1);
@@ -262,17 +365,26 @@ function shelf(o: RailOpts) {
   for (let i = 0; i < n; i++)
     s += `<g class="dead">${box(x0 + 4, y0 + 3 + i * 6.5, BH + 20, x0 + 12, y0 + 8 + i * 6.5, BH + 20.8, PALS.tomato, toneI, 0.7)}</g>`;
   s += hullInk(boxCorners(x0, y0, BH, x1, y1, BH + 30), 1.8);
-  return { at: [(x0 + x1) / 2, (y0 + y1) / 2, 0], svg: `<g data-prop="shelf" data-dead="${o.dead}">${s}</g>` };
+  return piece(bx(x0, y0, BH, x1, y1, BH + 30), `<g data-prop="shelf" data-dead="${o.dead}">${s}</g>`);
 }
 
-/** The courier's booth and the parcels it took (a tomato one when an order shipped twice). */
-function courier(o: RailOpts) {
+/** The courier's booth: a kiosk with a flat roof, its lamp on top (tomato while the site is down), the courier's bike
+ * parked in front and the parcels it took stacked beside it (a tomato one when an order shipped twice). */
+function courier(o: RailOpts): Piece[] {
   const [x, y] = COURIER,
     st = railState(o);
-  let s = box(x - 9, y - 8, BH, x + 9, y + 8, BH + 18, METAL, toneI, 1);
-  s += box(x - 10, y - 9, BH + 18, x + 10, y + 9, BH + 20, PALS.cobalt, toneI, 0.9);
-  s += hullInk(boxCorners(x - 10, y - 9, BH, x + 10, y + 9, BH + 20), 2);
-  s += `<g class="lamp${o.outage ? ' down' : ''}">${cyl(x, y, BH + 20, BH + 24, 2.4, o.outage ? PALS.tomato : PALS.mint, toneI, 0.9, 14)}</g>`;
+  const kiosk = building({
+    x,
+    y,
+    d: 18,
+    w: 16,
+    h: 15,
+    roof: 'parapet',
+    front: '+y',
+    windows: 1,
+    pal: matOf('#dfe7ea'),
+  });
+  const lamp = `<g class="lamp${o.outage ? ' down' : ''}">${cyl(x + 5, y + 4, BH + 18, BH + 22, 2.2, o.outage ? PALS.tomato : PALS.mint, toneI, 0.9, 14)}</g>`;
   let parcels = '';
   for (let i = 0; i < st.parcels; i++) {
     const px = x - 22 + (i % 3) * 7,
@@ -280,40 +392,35 @@ function courier(o: RailOpts) {
       red = i < Math.min(o.twice, st.parcels);
     parcels += `<g class="parcel${red ? ' twice' : ''}">${box(px - 3, y + 2, pz, px + 3, y + 8, pz + 6, red ? PALS.tomato : WOOD, toneI, 0.8)}</g>`;
   }
-  return {
-    at: [x, y, 0],
-    svg: `<g data-prop="courier" data-outage="${o.outage ? 1 : 0}" data-shipped="${o.shipped}" data-twice="${o.twice}">${parcels}${s}</g>`,
-  };
+  const kb = kiosk.box;
+  return [
+    {
+      shadow: kiosk.shadow + castShadow(boxCorners(x - 25, y + 2, BH, x - 8, y + 8, BH + 12), BH),
+      items: [
+        {
+          box: bx(Math.min(kb[0][0], x - 25), kb[0][1], BH, kb[1][0], kb[1][1], BH + 22),
+          svg: `<g data-prop="courier" data-outage="${o.outage ? 1 : 0}" data-shipped="${o.shipped}" data-twice="${o.twice}">${byDepth([{ box: bx(x - 25, y + 2, BH, x - 8, y + 8, BH + 12), svg: parcels }, ...kiosk.items, { box: bx(x + 3, y + 2, BH + 18, x + 7, y + 6, BH + 22), svg: lamp }])}</g>`,
+        },
+      ],
+      box: kb,
+    },
+    bike({ x: x + 16, y: y - 2, facing: '+y' }),
+  ];
 }
 
-/** The scene: shadows, then the parts back to front, then the pills. */
+/** The scene: every shadow first, then all the parts in one depth sort, then the pills. */
 export const railScene = (o: RailOpts) => (ctx: SceneCtx) => {
   const st = railState(o),
     scale = o.scale ?? 1,
     narrow = scale > 1.5;
-  let s = castShadow(boxCorners(TILL[0] - 9, TILL[1] - 9, BH, TILL[0] + 9, TILL[1] + 9, BH + 20), BH, ctx.top);
-  s += castShadow(boxCorners(SHELF.x0, SHELF.y0, BH, SHELF.x1, SHELF.y1, BH + 30), BH, ctx.top);
-  s += castShadow(
-    boxCorners(COURIER[0] - 10, COURIER[1] - 9, BH, COURIER[0] + 10, COURIER[1] + 9, BH + 20),
-    BH,
-    ctx.top,
-  );
-  o.workers.forEach(
-    (_, i) =>
-      (s += castShadow(
-        boxCorners(BENCH_X[i] - 11, BENCH_Y - 6, BH, BENCH_X[i] + 11, BENCH_Y + 6, BH + 10),
-        BH,
-        ctx.top,
-      )),
-  );
-  const parts = [
+  const parts: Piece[] = [
     till(o),
     ...(o.inline ? line_(o) : [rail(o)]),
     ...o.workers.slice(0, BENCH_X.length).map((w, i) => bench(w, i, !!o.fell?.includes(i))),
     shelf(o),
-    courier(o),
+    ...courier(o),
   ];
-  s += byDepth(parts);
+  const s = drawPieces(parts, ctx.top);
   const railTop = [RAIL.x1, RAIL.y, RAIL.z + 1],
     lastTicket = [RAIL.x0 + 8, RAIL.y, RAIL.z - 2];
   let pills = pill(

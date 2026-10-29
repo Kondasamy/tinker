@@ -14,7 +14,6 @@ import {
   PALS,
   CERAMIC,
   METAL,
-  WOOD,
   box,
   byDepth,
   castShadow,
@@ -25,7 +24,13 @@ import {
   toneI,
   ink,
   pd,
+  clipTo,
+  cyl,
+  matOf,
+  DARK,
+  vis,
 } from '../../lib/iso/core.js';
+import { building, cart as kitCart, lamp, person, type Facing, type Piece } from '../../lib/iso/figures';
 import { num } from '../../lib/format';
 import { ASSUMPTIONS, type Customer, type Http, type Office, type Run } from '../../lib/web-requests/sim';
 import type { Say } from '../story/steps';
@@ -65,6 +70,7 @@ const SPAN = { min: 30, max: 150 }; // road length on the board
 const OFFICE: Record<'root' | 'tld', [number, number]> = { root: [62, 200], tld: [26, 200] };
 const SEAL: [number, number] = [36, 100];
 const SHOP_H = 13;
+const DOOR = [HOUSE.x + HOUSE.h + 3.2, HOUSE.y + 1]; // where the customer stands, at the front door
 
 /** The road's length for a distance: linear up to the planning maximum, then held there (`broken`). */
 export function roadFor(km: number) {
@@ -145,70 +151,154 @@ function roof(x0: number, y0: number, x1: number, y1: number, z: number, h: numb
   );
 }
 
+type Item = Piece['items'][number];
+/** A kit piece drawn at k of its size about the board point (cx, cy): the town is a map, so its people and carts are
+ * a model village's. Boxes scale with it so sorting holds; the shadow scales the same way. */
+function shrink(p: Piece, cx: number, cy: number, k: number): Pick<Piece, 'shadow' | 'items'> {
+  const o = P(cx, cy, BH),
+    t = `transform="translate(${o[0].toFixed(1)} ${o[1].toFixed(1)}) scale(${k}) translate(${(-o[0]).toFixed(1)} ${(-o[1]).toFixed(1)})"`,
+    s = (q: number[]) => [cx + (q[0] - cx) * k, cy + (q[1] - cy) * k, BH + (q[2] - BH) * k];
+  return {
+    shadow: `<g ${t}>${p.shadow}</g>`,
+    items: p.items.map(i => ({ box: i.box.map(s), svg: `<g ${t}>${i.svg}</g>` })),
+  };
+}
+const FOLK = 0.6; // carts at this size beside the buildings
+const SOUL = 0.72; // people a little larger, so a person still reads on a phone
+/** who stands at the door: Ines and Tomas as the cast draws them, the other customers as shoppers */
+const LOOK: Record<string, string> = { ines: 'ines', tomas: 'tomas', dara: 'shopper5', wen: 'shopper2' };
+const one = (b: number[][], svg: string): Item => ({ box: b, svg });
+
+/** The customer's house: a cottage with a pitched roof, a brick chimney astride the ridge and a door toward the road. */
 function house() {
-  const { x, y, h } = HOUSE;
-  let s = box(x - h, y - h, BH, x + h, y + h, BH + 12, CERAMIC, toneI, 1);
-  s += box(x + h, y - 2.5, BH, x + h + 0.4, y + 2.5, BH + 7, PALS.cobalt, toneI, 0.8); // door, toward the road
-  s += roof(x - h, y - h, x + h, y + h, BH + 12, 8);
-  s += hullInk([...boxCorners(x - h - 1, y - h - 1, BH, x + h + 1, y + h + 1, BH + 12), [x, y, BH + 20]], 2.2);
-  return { at: [x, y, 0], svg: `<g data-prop="house">${s}</g>` };
+  const { x, y, h } = HOUSE,
+    b = building({ x, y, d: 2 * h, w: 2 * h, h: 13, roof: 'gable', windows: 1 }),
+    zr = BH + 13 + 0.75 * h; // the ridge: the kit's gable rises 0.75 × half the span
+  const brick = matOf('#b5654a');
+  const ch =
+    box(x - 1.6, y - 6, zr - 4, x + 1.6, y - 2.6, zr + 4.5, brick, toneI, 0.9) +
+    box(x - 2.1, y - 6.5, zr + 4.5, x + 2.1, y - 2.1, zr + 5.6, DARK, toneI, 0.8);
+  const bb = b.items[0].box;
+  return {
+    shadow: b.shadow,
+    items: [one([bb[0], [bb[1][0], bb[1][1], zr + 5.6]], `<g data-prop="house">${b.items[0].svg}${ch}</g>`)],
+  };
 }
 
+/** A directory office: a small hall behind a portico (two columns on a step under a lintel); its roof lit when asked. */
 function office(part: Office, x: number, y: number, lit: boolean) {
   const h = 7,
-    top = BH + 13,
-    cap = lit ? PALS.mustard : METAL;
-  let s = box(x - h, y - h, BH, x + h, y + h, top, CERAMIC, toneI, 1);
-  s += box(x - h - 0.8, y - h - 0.8, top, x + h + 0.8, y + h + 0.8, top + 2.2, cap, toneI, 0.9);
-  // a filing drawer on the front, pulled when asked
-  s += box(x + h, y - 3, BH + 4, x + h + (lit ? 3 : 0.4), y + 3, BH + 8, WOOD, toneI, 0.8);
-  s += hullInk(boxCorners(x - h - 0.8, y - h - 0.8, BH, x + h + 0.8, y + h + 0.8, top + 2.2), 2);
-  return { at: [x, y, 0], svg: `<g data-prop="${part}" data-lit="${lit ? 1 : 0}">${s}</g>` };
+    top = BH + 12,
+    cap = lit ? PALS.mustard : METAL,
+    b = building({ x: x - 2, y, d: 10, w: 2 * h, h: 12, roof: 'gable', windows: 0, pal: CERAMIC, roofPal: cap });
+  let s = box(x + 3, y - h, BH, x + h + 0.6, y + h, BH + 1.2, CERAMIC, toneI, 0.8);
+  for (const c of [-4.4, 4.4]) s += cyl(x + 5.2, y + c, BH + 1.2, top - 1.6, 1.1, CERAMIC, toneI, 0.9, 12);
+  s += box(x + 3, y - h, top - 1.6, x + h + 0.6, y + h, top, cap, toneI, 0.9);
+  return {
+    shadow: b.shadow,
+    items: [
+      one(b.items[0].box, `<g data-prop="${part}" data-lit="${lit ? 1 : 0}">${b.items[0].svg}</g>`),
+      one(
+        [
+          [x + 3, y - h, BH],
+          [x + h + 0.6, y + h, top],
+        ],
+        s,
+      ),
+    ],
+  };
 }
 
+/** Larkspur's shop: a flat-roofed corner shop with a striped awning over its door. */
 function shop(km: number) {
   const [x, y] = shopAt(km),
-    h = SHOP_H,
-    top = BH + 18;
-  let s = box(x - h, y - h, BH, x + h, y + h, top, CERAMIC, toneI, 1);
-  // a striped awning over the door, which faces the road home
-  for (let i = 0; i < 4; i++) {
-    const y0 = y - 8 + i * 4;
-    s += box(x + h, y0, BH + 11, x + h + 4, y0 + 4, BH + 12.5, i % 2 ? CERAMIC : PALS.mint, toneI, 0.7);
-  }
-  s += box(x + h, y - 4, BH, x + h + 0.4, y + 4, BH + 9, PALS.mint, toneI, 0.8);
-  s += box(x - h - 1, y - h - 1, top, x + h + 1, y + h + 1, top + 3, PALS.mint, toneI, 0.9);
-  s += hullInk(boxCorners(x - h - 1, y - h - 1, BH, x + h + 4, y + h + 1, top + 3), 2.4);
-  return { at: [x, y, 0], svg: `<g data-prop="shop">${s}</g>` };
+    b = building({ x, y, d: 2 * SHOP_H, w: 2 * SHOP_H, h: 18, roof: 'parapet', awning: true, pal: matOf('#cfeedd') });
+  return { shadow: b.shadow, items: [one(b.items[0].box, `<g data-prop="shop">${b.items[0].svg}</g>`)] };
 }
 
+/** The seal office: a squat flat-roofed office with a big wax seal (a scalloped red disc) on whichever end faces the
+ * viewer, and a lamp at its door, lit while the certificate is checked. */
 function sealOffice(lit: boolean) {
   const [x, y] = SEAL,
     h = 8,
-    top = BH + 14;
-  let s = box(x - h, y - h, BH, x + h, y + h, top, CERAMIC, toneI, 1);
-  s += box(x - h - 0.8, y - h - 0.8, top, x + h + 0.8, y + h + 0.8, top + 2, lit ? PALS.tomato : METAL, toneI, 0.9);
-  // the big wax seal on the roof
-  s += box(x - 3.5, y - 3.5, top + 2, x + 3.5, y + 3.5, top + 4.5, PALS.tomato, toneI, 0.9);
-  s += hullInk(boxCorners(x - h - 0.8, y - h - 0.8, BH, x + h + 0.8, y + h + 0.8, top + 4.5), 2);
-  return { at: [x, y, 0], svg: `<g data-prop="seal" data-lit="${lit ? 1 : 0}">${s}</g>` };
+    b = building({
+      x,
+      y,
+      d: 2 * h,
+      w: 2 * h,
+      h: 13,
+      roof: 'parapet',
+      front: '+y',
+      windows: 1,
+      pal: lit ? matOf('#f6d2c6') : CERAMIC,
+    });
+  let emb = '';
+  for (const sx of [1, -1]) {
+    if (!vis([sx, 0, 0])) continue;
+    const X = x + sx * (h + 0.3),
+      ring = (r: number, n: number, wob = 0) =>
+        Array.from({ length: n }, (_, i) => {
+          const a = (i / n) * 2 * Math.PI,
+            rr = r + (i % 2 ? wob : 0);
+          return [X, y + rr * Math.cos(a), BH + 10.6 + rr * Math.sin(a)];
+        });
+    emb += shape(ring(2.6, 16, 0.6), PALS.tomato.m, 1) + shape(ring(1.4, 12), PALS.tomato.d, 0.6);
+  }
+  const lp = lamp({ x: x + h - 1.5, y: y + h + 3.5, h: 16, lit });
+  return {
+    shadow: b.shadow + lp.shadow,
+    items: [
+      one(b.items[0].box, `<g data-prop="seal" data-lit="${lit ? 1 : 0}">${b.items[0].svg}${emb}</g>`),
+      ...lp.items,
+    ],
+  };
 }
 
-/** A small cart at (x, y) with an envelope, sealed or not. `from` is where it rode from, for the ride-in. */
-function cart(x: number, y: number, sealed: boolean, from?: number[], cls = 'cart') {
+/** A postal cart at (x, y) heading `facing`, an envelope in its tray, sealed or not. `from` is where it rode from, for
+ * the ride-in (the offset is in the shrunk cart's own units). */
+function cart(x: number, y: number, sealed: boolean, facing: Facing, from?: number[]) {
+  const c = kitCart({ x, y, facing }),
+    z = BH + 12.6;
+  let env = shape(
+    [
+      [x - 4, y - 3, z],
+      [x + 4, y - 3, z],
+      [x + 4, y + 3, z],
+      [x - 4, y + 3, z],
+    ],
+    CERAMIC.l,
+    0.9,
+  );
+  env += line(
+    [
+      [x - 4, y - 3, z + 0.05],
+      [x, y, z + 0.05],
+      [x + 4, y - 3, z + 0.05],
+    ],
+    0.7,
+  );
+  if (sealed) env += cyl(x, y, z, z + 0.8, 1.7, PALS.tomato, toneI, 0.7, 12);
+  let style = '';
+  if (from) {
+    const a = P(from[0], from[1], BH),
+      b = P(x, y, BH);
+    style = ` style="--dx:${((a[0] - b[0]) / FOLK).toFixed(1)}px;--dy:${((a[1] - b[1]) / FOLK).toFixed(1)}px"`;
+  }
+  c.items[0].svg = c.items[0].svg
+    .replace('<g class="cart">', `<g class="cart"${style}>`)
+    .replace(/<\/g>$/, `${env}</g>`);
+  return shrink(c, x, y, FOLK);
+}
+
+/** The hero plot's small cart: a box with an envelope, sealed or not. */
+function plotCart(x: number, y: number, sealed: boolean) {
   const z = BH + 0.4;
   let s = box(x - 3.5, y - 2.5, z + 1, x + 3.5, y + 2.5, z + 4.5, PALS.mustard, toneI, 0.9);
   s += box(x - 2.4, y - 1.8, z + 4.5, x + 2.4, y + 1.8, z + 5.5, CERAMIC, toneI, 0.6);
   if (sealed) s += box(x - 0.9, y - 0.9, z + 5.5, x + 0.9, y + 0.9, z + 6.2, PALS.tomato, toneI, 0.5);
   s += box(x - 3, y - 3.2, z, x - 1.6, y - 2.5, z + 1.6, METAL, toneI, 0.6);
   s += box(x + 1.6, y - 3.2, z, x + 3, y - 2.5, z + 1.6, METAL, toneI, 0.6);
-  let style = '';
-  if (from) {
-    const a = P(from[0], from[1], z),
-      b = P(x, y, z);
-    style = ` style="--dx:${(a[0] - b[0]).toFixed(1)}px;--dy:${(a[1] - b[1]).toFixed(1)}px"`;
-  }
-  return { at: [x, y, 1], svg: `<g class="${cls}"${style}>${s}</g>` };
+  return { at: [x, y, 1], svg: `<g class="cart">${s}</g>` };
 }
 
 /** A ditch beside a road at (x, y), its cart on its side. */
@@ -224,8 +314,10 @@ function ditch(x: number, y: number, where: Ditch) {
     '#41538f',
     1,
   );
-  // the cart, tipped: lying low and wide, its envelope spilled beside it
-  const tip = box(x - 3.5, y - 1.5, z, x + 3.5, y + 3.5, z + 2.5, PALS.mustard, toneI, 0.9);
+  // the cart, tipped: its tray on its side, a wheel come off, its envelope spilled beside it
+  const tip =
+    box(x - 3.5, y - 1.5, z, x + 3.5, y + 3.5, z + 2.5, PALS.cobalt, toneI, 0.9) +
+    cyl(x + 1, y - 2.6, z, z + 0.9, 2.2, DARK, toneI, 0.8, 14);
   s += `<g class="tip">${tip}${box(x - 5, y - 3.5, z, x - 1.5, y - 1, z + 0.6, CERAMIC, toneI, 0.6)}</g>`;
   return { at: [x, y, 0], svg: `<g class="ditch" data-ditch="${where}">${s}</g>` };
 }
@@ -291,36 +383,34 @@ export const townScene = (o: TownOpts) => (ctx: SceneCtx) => {
     km = o.customer.km,
     [sx, sy] = shopAt(km),
     [nx, ny] = nsAt(km);
-  const shadow = (x: number, y: number, h: number, t: number) =>
-    castShadow(boxCorners(x - h, y - h, BH, x + h, y + h, t), BH, ctx.top);
-  let s =
-    shadow(HOUSE.x, HOUSE.y, HOUSE.h, BH + 16) +
-    shadow(sx, sy, SHOP_H, BH + 21) +
-    shadow(nx, ny, 7, BH + 15) +
-    shadow(...SEAL, 8, BH + 16) +
-    shadow(...OFFICE.root, 7, BH + 15) +
-    shadow(...OFFICE.tld, 7, BH + 15);
-  s += roads(km, st.broken);
-  const parts = [
+  const pieces: Pick<Piece, 'shadow' | 'items'>[] = [
     house(),
     office('root', ...OFFICE.root, st.lit.includes('root')),
     office('tld', ...OFFICE.tld, st.lit.includes('tld')),
     office('nameserver', nx, ny, st.lit.includes('nameserver')),
     sealOffice(!!o.seal),
     shop(km),
+    // the customer at the front door, waiting on the page
+    shrink(
+      person({ x: DOOR[0], y: DOOR[1], facing: 45, look: LOOK[o.customer.name.toLowerCase()] }),
+      DOOR[0],
+      DOOR[1],
+      SOUL,
+    ),
   ];
   // carts on the main road, spread along it, riding in from the house
   const home = [ROAD_X, NEAR];
   for (let i = 0; i < st.carts; i++) {
     const f = 0.25 + i * 0.25,
       y = NEAR - (NEAR - sy - SHOP_H) * f;
-    parts.push(cart(ROAD_X, y, o.sealed, home));
+    pieces.push(cart(ROAD_X, y, o.sealed, '-y', home));
   }
-  // a cart outside each office asked
+  // a cart outside each office asked, at the foot of its steps
   for (const a of st.lit) {
-    const [x, y] = a === 'nameserver' ? [nx + 12, ny] : [OFFICE[a][0], HOUSE.y + 6];
-    parts.push(cart(x, y, false, [HOUSE.x - HOUSE.h, HOUSE.y + 6]));
+    const [x, y] = a === 'nameserver' ? [nx + 14, ny] : [OFFICE[a][0] + 14, HOUSE.y + 6];
+    pieces.push(cart(x, y, false, '-x', [HOUSE.x - HOUSE.h, HOUSE.y + 6]));
   }
+  const items: { at?: number[]; box?: number[][]; svg: string }[] = pieces.flatMap(p => p.items);
   for (const d of st.ditches) {
     const at: [number, number] =
       d === 'road'
@@ -328,9 +418,11 @@ export const townScene = (o: TownOpts) => (ctx: SceneCtx) => {
         : d === 'nameserver'
           ? [nx + 12, ny + 9]
           : [OFFICE[d][0] + 10, HOUSE.y + 16];
-    parts.push(ditch(...at, d));
+    items.push(ditch(...at, d));
   }
-  s += `<g data-prop="carts" data-carts="${st.carts}" data-sealed="${o.sealed ? 1 : 0}">${byDepth(parts)}</g>`;
+  // every shadow first (clipped to the board), then the roads, then one sort over everything standing
+  let s = clipTo(ctx.top, pieces.map(p => p.shadow).join('')) + roads(km, st.broken);
+  s += `<g data-prop="carts" data-carts="${st.carts}" data-sealed="${o.sealed ? 1 : 0}">${byDepth(items)}</g>`;
 
   const shopText = narrow ? 'SHOP' : `SHOP · ${num(km)} KM${o.http && o.ms !== null ? ` · HTTP/${o.http}` : ''}`;
   let pills = pill([sx, sy, BH + 21], 0, -20, shopText, o.trips > 0, scale);
@@ -430,6 +522,6 @@ export function townPlot(x: number, y: number, top: SceneCtx['top']): string {
     castShadow(boxCorners(hx - h, hy - h, BH, hx + h, hy + h, BH + 10), BH, top) +
     castShadow(boxCorners(shx - sh, shy - sh, BH, shx + sh, shy + sh, BH + 12), BH, top) +
     road +
-    byDepth([{ at: [hx, hy, 0], svg: hs }, { at: [shx, shy, 0], svg: ss }, cart(hx, (hy + shy) / 2, true)])
+    byDepth([{ at: [hx, hy, 0], svg: hs }, { at: [shx, shy, 0], svg: ss }, plotCart(hx, (hy + shy) / 2, true)])
   );
 }
