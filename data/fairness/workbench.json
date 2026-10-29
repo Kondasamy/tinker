@@ -1,0 +1,9 @@
+{
+  "gapMax": 0.05,
+  "rule": "The credit team’s rule: the two regions’ false-decline rates stay within 5 points of each other. Then make the fewest wrong decisions overall.",
+  "reasons": {
+    "features": "Fields the check may read: every field, all but the region, or neither region nor postcode.",
+    "fix": "Count region B’s applicants three times in the fit, so both regions weigh the same.",
+    "bars": "One bar per region: approve when the chance of repaying is at least this."
+  }
+}

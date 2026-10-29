@@ -1,0 +1,11 @@
+{
+  "accessed": "2026-10-29",
+  "facts": [
+    { "id": "ecoa", "claim": "In the United States, Regulation B under the Equal Credit Opportunity Act bars a lender from discriminating against an applicant, business credit included, on race, color, religion, national origin, sex, marital status or age, among other prohibited bases. The rule as the CFPB publishes it; not legal advice.", "source": "https://www.consumerfinance.gov/rules-policy/regulations/1002/2/" },
+    { "id": "hardt", "claim": "Hardt, Price and Srebro (2016) proposed equal opportunity: among the people who would qualify, each group should be turned down equally often. They show how to adjust any trained model to meet it, with a bar per group.", "source": "https://arxiv.org/abs/1610.02413" },
+    { "id": "kleinberg", "claim": "Kleinberg, Mullainathan and Raghavan (2016) proved that three natural fairness conditions for risk scores cannot all hold at once, except in narrow special cases such as a perfect predictor or equal base rates.", "source": "https://arxiv.org/abs/1609.05807" },
+    { "id": "chouldechova", "claim": "Chouldechova (2017) showed that when two groups’ base rates differ, a score with equal precision in both cannot also have equal false-positive and false-negative rates in both.", "source": "https://arxiv.org/abs/1703.00056" },
+    { "id": "unawareness", "claim": "Barocas, Hardt and Narayanan’s Fairness and Machine Learning (MIT Press, 2023) warns that removing the group field can be ineffective and even harmful: other fields often encode it, and the model finds that encoding instead.", "source": "https://fairmlbook.org/classification.html" },
+    { "id": "counterfactual", "claim": "Kusner, Loftus, Russell and Silva (2017) define counterfactual fairness: a decision is fair to a person if it would stay the same in a world where they belonged to another group, which needs a causal model of how the fields came about.", "source": "https://arxiv.org/abs/1703.06856" }
+  ]
+}

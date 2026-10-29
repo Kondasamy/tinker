@@ -1,0 +1,147 @@
+{
+  "shared": 0.5,
+  "river": {
+    "A": 31,
+    "B": 85
+  },
+  "all": {
+    "A": {
+      "n": 300,
+      "base": 0.6933,
+      "approved": 0.7933,
+      "error": 0.24,
+      "falseDecline": 0.101,
+      "falseApprove": 0.5543,
+      "precision": 0.7857
+    },
+    "B": {
+      "n": 100,
+      "base": 0.47,
+      "approved": 0.45,
+      "error": 0.28,
+      "falseDecline": 0.3191,
+      "falseApprove": 0.2453,
+      "precision": 0.7111
+    },
+    "all": {
+      "n": 400,
+      "base": 0.6375,
+      "approved": 0.7075,
+      "error": 0.25,
+      "falseDecline": 0.1412,
+      "falseApprove": 0.4414,
+      "precision": 0.7739
+    }
+  },
+  "noRegion": {
+    "A": {
+      "n": 300,
+      "base": 0.6933,
+      "approved": 0.78,
+      "error": 0.24,
+      "falseDecline": 0.1106,
+      "falseApprove": 0.5326,
+      "precision": 0.7906
+    },
+    "B": {
+      "n": 100,
+      "base": 0.47,
+      "approved": 0.53,
+      "error": 0.34,
+      "falseDecline": 0.2979,
+      "falseApprove": 0.3774,
+      "precision": 0.6226
+    },
+    "all": {
+      "n": 400,
+      "base": 0.6375,
+      "approved": 0.7175,
+      "error": 0.265,
+      "falseDecline": 0.1451,
+      "falseApprove": 0.4759,
+      "precision": 0.7596
+    }
+  },
+  "neither": {
+    "A": {
+      "n": 300,
+      "base": 0.6933,
+      "approved": 0.75,
+      "error": 0.25,
+      "falseDecline": 0.1394,
+      "falseApprove": 0.5,
+      "precision": 0.7956
+    },
+    "B": {
+      "n": 100,
+      "base": 0.47,
+      "approved": 0.73,
+      "error": 0.38,
+      "falseDecline": 0.1277,
+      "falseApprove": 0.6038,
+      "precision": 0.5616
+    },
+    "all": {
+      "n": 400,
+      "base": 0.6375,
+      "approved": 0.745,
+      "error": 0.2825,
+      "falseDecline": 0.1373,
+      "falseApprove": 0.5379,
+      "precision": 0.7383
+    }
+  },
+  "ratio": 3.1611,
+  "kept": 0.8584,
+  "even": {
+    "bars": {
+      "A": 0.5,
+      "B": 0.28
+    },
+    "m": {
+      "A": {
+        "n": 300,
+        "base": 0.6933,
+        "approved": 0.7933,
+        "error": 0.24,
+        "falseDecline": 0.101,
+        "falseApprove": 0.5543,
+        "precision": 0.7857
+      },
+      "B": {
+        "n": 100,
+        "base": 0.47,
+        "approved": 0.75,
+        "error": 0.38,
+        "falseDecline": 0.1064,
+        "falseApprove": 0.6226,
+        "precision": 0.56
+      },
+      "all": {
+        "n": 400,
+        "base": 0.6375,
+        "approved": 0.7825,
+        "error": 0.275,
+        "falseDecline": 0.102,
+        "falseApprove": 0.5793,
+        "precision": 0.7316
+      }
+    }
+  },
+  "equal": {
+    "pairs": 0,
+    "trivialPairs": 7,
+    "trivialMaxApproved": 0.03
+  },
+  "workbench": {
+    "least": 0.26,
+    "winners": [
+      {
+        "features": "no-region",
+        "fix": "reweight",
+        "barA": 0.6,
+        "barB": 0.35
+      }
+    ]
+  }
+}
