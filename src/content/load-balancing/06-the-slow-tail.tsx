@@ -39,7 +39,7 @@ export const QUIZ = {
   question:
     'A search service answers half its queries within 20 ms and 99 in 100 within 400 ms. When should a hedged copy go out?',
   options: [
-    'Once a query has waited longer than most do, near the 95th percentile',
+    'Once a query has waited longer than 95 in 100 queries do',
     'At once, for every query',
     'Never: copies always add load',
   ],

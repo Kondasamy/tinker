@@ -10,14 +10,15 @@ import { CUSTOMERS, SERVERS, policyOf, runOf } from '../../lib/load-balancing/si
 import { YARD_PARTS, idleYard } from '../../components/scenes/yardScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
+import { fact } from '../../lib/load-balancing/facts';
 import { Fact, LbStage, SimNote, StickySwitch, msOf, type View } from './kit';
 
 const MODULE = 'load-balancing',
   ID = '05-same-customer';
 export const PARTS = YARD_PARTS;
 const CEDAR = SERVERS[2];
-/** health checks stay on, at chapter 4's pull after 2 misses */
-export const CHECKS = 2;
+/** health checks stay on, pulling after AWS's default count of misses (2), as in chapter 4 */
+export const CHECKS = Number(fact('health-checks').value);
 export const runAt = (sticky: boolean, dies: boolean) =>
   runOf(policyOf({ sticky, checks: CHECKS, states: dies ? { [CEDAR.id]: 'dead' } : {} }));
 const OFF = runAt(false, false),

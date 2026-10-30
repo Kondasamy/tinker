@@ -9,7 +9,7 @@ import { ASSUMPTIONS, PHASES, SALE, SERVERS, policyOf, runOf } from '../../lib/l
 import { YARD_PARTS, idleYard } from '../../components/scenes/yardScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { LbStage, SimNote, msOf, type View } from './kit';
+import { Fact, LbStage, SimNote, msOf, type View } from './kit';
 
 const MODULE = 'load-balancing',
   ID = '01-one-servers-ceiling';
@@ -160,6 +160,7 @@ export default function OneServersCeiling() {
             <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />
             <p className="tc-status">{`${ASH.name}: p50 ${msOf(RUNS.sale.p50)}, p99 ${msOf(RUNS.sale.p99)}.`}</p>
             <SimNote />
+            <Fact id="overload-queue" />
             <p className="note lb-note">
               What one server does inside, batch by batch: <a href="/inference/">Inference engineering</a>’s serving
               floor.

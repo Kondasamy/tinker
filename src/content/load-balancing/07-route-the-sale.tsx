@@ -20,14 +20,17 @@ import {
   type Bench,
 } from '../../lib/load-balancing/workbench';
 import { SERVERS } from '../../lib/load-balancing/sim';
+import { fact } from '../../lib/load-balancing/facts';
 import { YARD_PARTS, idleYard } from '../../components/scenes/yardScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { HedgeWait, LbStage, MissCount, RulePick, SimNote, msOf, pct, type View } from './kit';
+import { Fact, HedgeWait, LbStage, MissCount, RulePick, SimNote, msOf, pct, type View } from './kit';
 
 const MODULE = 'load-balancing',
   ID = '07-route-the-sale';
 export const PARTS = YARD_PARTS;
+/** the extra copies Google's hedging test sent, beside the team's looser cap */
+export const REAL_EXTRA = Number(fact('hedge-benchmark').value);
 
 export const QUIZ = {
   question:
@@ -133,6 +136,10 @@ function BenchControls({ s, set }: { s: S; set: (s: S) => void }) {
       </table>
       <p className="note lb-note">Carts live in a shared store now, so sticky sessions stay off.</p>
       <SimNote />
+      <p className="note lb-note">
+        {`The team’s ${pct(LIMITS.extraShare)} cap is loose: Google’s own test needed only ${pct(REAL_EXTRA)} extra.`}
+      </p>
+      <Fact id="hedge-benchmark" />
     </div>
   );
 }

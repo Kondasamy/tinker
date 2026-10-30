@@ -14,7 +14,10 @@ import {
   simulate,
 } from '../../src/lib/load-balancing/sim';
 import { RULES } from '../../src/lib/load-balancing/rules';
-import { BENCHES, BEST, WINNERS, benchPolicy, solve, wins } from '../../src/lib/load-balancing/workbench';
+import { BENCHES, BEST, LIMITS, WINNERS, benchPolicy, solve, wins } from '../../src/lib/load-balancing/workbench';
+import { fact } from '../../src/lib/load-balancing/facts';
+import { CHECKS } from '../../src/content/load-balancing/05-same-customer';
+import { REAL_EXTRA } from '../../src/content/load-balancing/07-route-the-sale';
 
 const r4 = (x: number) => Math.round(x * 10000) / 10000;
 const ms = (x: number) => Math.round(x);
@@ -159,5 +162,16 @@ describe('the workbench', () => {
   it('the start fails, and every winner counts waiting requests', () => {
     expect(wins({ rule: 'round-robin', checks: 0, hedgeMs: 0 })).toBe(false);
     expect(WINNERS.every(w => w.rule === 'least' || w.rule === 'two')).toBe(true);
+  });
+});
+
+describe('toy vs real', () => {
+  it('chapter 5 pulls after AWS’s default miss count, one the slider offers', () => {
+    expect(CHECKS).toBe(Number(fact('health-checks').value));
+    expect(MISSES).toContain(CHECKS);
+  });
+  it('chapter 7’s note holds: the team’s cap on extra copies is looser than Google’s test needed', () => {
+    expect(REAL_EXTRA).toBe(Number(fact('hedge-benchmark').value));
+    expect(LIMITS.extraShare).toBeGreaterThan(REAL_EXTRA);
   });
 });

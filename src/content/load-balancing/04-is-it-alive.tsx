@@ -166,6 +166,9 @@ export default function IsItAlive() {
           <>
             <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />
             <SimNote />
+            <p className="note lb-note">
+              {`The sale lasts seconds, so checks here run every ${ASSUMPTIONS.checkEveryMs} ms; real ones run seconds apart.`}
+            </p>
             <Fact id="health-checks" />
             <Fact id="gray-failure" />
           </>

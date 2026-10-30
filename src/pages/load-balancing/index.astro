@@ -10,7 +10,7 @@ import Recap from '../../components/quiz/Recap';
 import ReadingMode from '../../components/intro/ReadingMode.astro';
 import ChapterCards from '../../components/intro/ChapterCards.astro';
 import { YARD_BOARD, yardAt, yardLabel, yardScene, type YardOpts } from '../../components/scenes/yardScene';
-import { REQUESTS, SERVERS, policyOf, runOf } from '../../lib/load-balancing/sim';
+import { REQUESTS, SERVERS, runOf } from '../../lib/load-balancing/sim';
 import { RULE_NAME } from '../../lib/load-balancing/rules';
 import { BEST, WINNERS, benchPolicy } from '../../lib/load-balancing/workbench';
 import { fact } from '../../lib/load-balancing/facts';
@@ -59,7 +59,7 @@ const ms = (x: number) => `${Math.round(x).toLocaleString('en-US')} ms`;
 const FACTS: [string, string][] = [
   [String(REQUESTS.length), 'requests in Larkspur’s sale, the traffic every chapter runs'],
   [String(SERVERS.length), 'servers behind the balancer, one twice the size of the others'],
-  [ms(RUNS.sale.p99), `p99 with ${SERVERS[0].name} alone in the sale`],
+  [ms(RUNS.sale.p99), `p99 (the wait 99 in 100 requests beat) with ${SERVERS[0].name} alone in the sale`],
   [ms(BEST), 'p99 of the best setup in chapter 7, with one server dead and one slow'],
 ];
 const RR = slowRun('round-robin'),

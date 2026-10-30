@@ -14,3 +14,18 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **The rules** (`rules.ts`): round robin, weighted round robin, least outstanding and power of two choices, each a small stateful picker made per run, so a run is deterministic from its seed.
 - **Chapter 7's workbench** (`workbench.ts`): rule × miss count × hedge wait (4 × 4 × 4) with Cedar dead and Dogwood gray as the sale starts. A policy passes when no customer gives up and the extra copies stay within the budget (`data/load-balancing/workbench.json`); score: p99 in whole ms. `WINNERS` (every passing policy tied for the lowest) is pinned there and recomputed by a test.
 - **Facts** (round robin, least connections, weights, power of two choices and Envoy's use of it, health checks and failing open, gray failure, sticky sessions, the tail at scale and hedged requests) come from `data/load-balancing/facts.json` with source and access date. No vendor is named as the place to balance load.
+
+## Toy vs real
+
+Every wait, count and share comes from the simulated sale (`traffic.json`, `assumptions.json`), labelled by `SimNote` on each reveal. The sale is squeezed into 4 seconds, so its clock (service times, timeout, check interval) can't match real systems' seconds-apart checks; those stay labelled, with the real figure beside them.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+| --- | --- | --- | --- |
+| 1 | Ash's 4 slots, capacity ~100 a second, sale 120 a second, morning/sale/four-server p50 and p99 | queues fill and waits rise past capacity (`overload-queue`) | labelled |
+| 1 | quiz booth: 2 sold, 3 joining a minute | none (a worked example) | labelled (example) |
+| 2 | Ash 4 slots vs 2, weight 2, each server's share, p99 before and after | weights 3:1:1 send 3 of 5 (`weights`) | labelled |
+| 3 | Birch 5× slower, every fourth request, customers who gave up, 1 s timeout, p99 per rule | least-connected, P2C with 2 choices (`least-connected`, `envoy-p2c`, `two-choices`) | labelled; "two" choices real (Envoy's default is 2) |
+| 4 | checks every 200 ms, 1 and 3 misses, failed requests, time to pull, Dogwood's share | ALB: every 30 s, out after 2 misses (`health-checks`), `gray-failure` | labelled (note says real checks run seconds apart) |
+| 5 | pull after 2 misses (not shown in copy), missing carts, failed requests, p99 | ALB's default unhealthy threshold of 2 (`health-checks`) | matched: `CHECKS` reads the fact's value |
+| 6 | hedge after 50 / 100 ms, 5× slower, p50, p99, extra copies; quiz 20 ms / 400 ms / 95 in 100 | hedge past the 95th percentile (`hedged`, `tail-at-scale`) | labelled |
+| 7 | 15% cap on extra copies, 0 failed, best p99 190 ms, 2 winning setups of 64 | 2% extra in Google's hedging test (`hedge-benchmark`) | labelled: the team's cap is a team choice; the note compares it with the real 2%, read from the fact and pinned by a test |
