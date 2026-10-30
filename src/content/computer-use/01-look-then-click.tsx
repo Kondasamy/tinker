@@ -47,7 +47,7 @@ export const QUIZ = {
   explanation: 'The model only sees screenshots, so it learns what a click did from the next one.',
   why: [
     'Right: between screenshots the agent is blind, so every step of the loop starts with a fresh look.',
-    'The model never watches the screen; it gets still pictures, one per turn of the loop.',
+    'The model never watches the screen; it gets still pictures, one after each action.',
     'A portal made for people has no channel to the model: only the host’s screenshots reach it.',
   ],
 };

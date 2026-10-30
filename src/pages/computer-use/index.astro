@@ -12,7 +12,7 @@ import ReadingMode from '../../components/intro/ReadingMode.astro';
 import ChapterCards from '../../components/intro/ChapterCards.astro';
 import { PUPPET_BOARD, puppetLabel, puppetScene, type PuppetOpts } from '../../components/scenes/puppetScene';
 import { lookTokens, metrics } from '../../lib/computer-use/loop';
-import { BANNER, money, screenWords, svgOf } from '../../lib/computer-use/screens';
+import { BANNER, money, SCREEN, screenWords, SIZES, svgOf } from '../../lib/computer-use/screens';
 import { WINNERS } from '../../lib/computer-use/workbench';
 import { beatsOf, clicksOf, frameAt, nthBeat, play } from '../../content/computer-use/kit';
 import { START } from '../../content/computer-use/07-workbench';
@@ -51,7 +51,7 @@ const SIDES = [
     name: 'Allow-list on',
     ok: true,
     pic: atClick(GUARDED, 3),
-    words: 'It still tried. The host refused the page, and the re-order went on.',
+    words: 'It still tried. The list of allowed sites blocked the page, and the re-order went on.',
   },
 ];
 type Idea = [string, string, ReturnType<typeof fact>, PuppetOpts];
@@ -85,11 +85,11 @@ const IDEAS: Idea[] = [
 ];
 const FACTS: [string, string][] = [
   [String(HINGES.looks), 'screenshots for one re-order'],
-  [thousands(lookTokens(1280)), 'tokens a 1280 × 800 screenshot costs'],
+  [thousands(lookTokens(SIZES[SIZES.length - 1])), `tokens a ${SCREEN.w} × ${SCREEN.h} screenshot costs`],
   [`${fact('osworld').value}%`, 'of OSWorld’s computer tasks people completed'],
   [
     `${Math.round(100 * (1 - metrics(WINNERS[0]).tokens / metrics(START).tokens))}%`,
-    'fewer tokens with the workbench’s best policy',
+    'fewer tokens with the workbench’s best settings',
   ],
 ];
 ---
@@ -134,7 +134,7 @@ const FACTS: [string, string][] = [
             </article>
           ))}
         </div>
-        <p class="note more">The agent’s actions were written for this site to show each lesson; they were not recorded from a real model. The screens are drawn, and the host’s rules run live.</p>
+        <p class="note more">The agent’s actions were written for this site to show each lesson; they were not recorded from a real model. The screens are drawn, and the rules of the program doing the clicks run live.</p>
       </section>
 
       <section aria-labelledby="how">
@@ -157,9 +157,9 @@ const FACTS: [string, string][] = [
       <section class="company" aria-labelledby="story">
         <div>
           <p class="kicker">The story</p>
-          <h2 id="story">Larkspur’s re-orders, on a portal with no API</h2>
-          <p class="more">{MODULE.story} <strong>You set the rules the agent’s host follows.</strong></p>
-          <p class="prev"><a href="/agents/">AI agents</a> showed the loop with tools; <a href="/multimodal/">Multimodal models</a> showed how a picture becomes tokens. Here the tool is the screen. The workbench’s best policy is one of {WINNERS.length}.</p>
+          <h2 id="story">Larkspur’s re-orders, on a portal made only for people</h2>
+          <p class="more">{MODULE.story} <strong>You set the rules for the host, the program that takes the screenshots and does the clicks.</strong></p>
+          <p class="prev"><a href="/agents/">AI agents</a> showed the loop with tools; <a href="/multimodal/">Multimodal models</a> showed how a picture becomes tokens. Here the tool is the screen. The workbench’s best settings are one of {WINNERS.length} that work.</p>
         </div>
         <dl class="facts">
           {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}

@@ -11,7 +11,7 @@ import { ATTACKS, isAttack, metrics, TASKS, type Policy } from '../../lib/comput
 import { SIZES, type Size } from '../../lib/computer-use/screens';
 import { isWinner, policyOf, WINNERS } from '../../lib/computer-use/workbench';
 import { PUPPET_PARTS } from '../../components/scenes/puppetScene';
-import { beatsOf, CuStage, RecordedNote, thousands, type CuView } from './kit';
+import { beatsOf, CuStage, Fact, RecordedNote, thousands, type CuView } from './kit';
 import Select from '../../components/story/Select';
 
 const MODULE = 'computer-use',
@@ -61,7 +61,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['score', 'policy', 'quiz'],
+    visibleControls: ['score', 'policy', 'fact', 'quiz'],
     narration: 'Every rule lives in the host, not in the agent. The size trades tokens against aim.',
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -141,6 +141,13 @@ export default function Workbench() {
       stage={({ state, sync, say }) => <Stage state={state} sync={sync} say={say} />}
       controls={{
         score: ({ state }) => <Score policy={policyOf(state.policy)} />,
+        fact: () => (
+          <>
+            <p className="note">{`This workbench scores a policy on ${TASKS.length + ATTACKS.length} written cases. Real agents are scored on hundreds of real tasks:`}</p>
+            <Fact id="osworld" />
+            <Fact id="osworld-now" />
+          </>
+        ),
         // changing the policy is an attempt only while it is the puzzle
         policy: ({ state, apply, sync, focused }) => {
           const set = focused ? apply : sync,
