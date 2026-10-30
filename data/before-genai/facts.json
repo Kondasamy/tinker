@@ -1,6 +1,86 @@
 {
-  "accessed": "2026-10-20",
+  "accessed": "2026-10-30",
   "facts": [
+    {
+      "id": "eliza",
+      "claim": "Weizenbaum’s ELIZA (1966) answered by keywords: each keyword came with rules that took a sentence apart and built the reply, and the keywords with their rules made up the bot’s script.",
+      "value": "1966",
+      "source": "https://doi.org/10.1145/365153.365168",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "eliza-no-keyword",
+      "claim": "When no keyword turned up, Weizenbaum’s ELIZA (1966) fell back on a content-free remark or an earlier transformation, not an answer.",
+      "source": "https://doi.org/10.1145/365153.365168",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "siri",
+      "claim": "Apple introduced Siri with the iPhone 4S on October 4, 2011, as an assistant that helps you get things done just by asking.",
+      "value": "2011",
+      "source": "https://www.apple.com/newsroom/2011/10/04Apple-Launches-iPhone-4S-iOS-5-iCloud/",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "fallback-intent",
+      "claim": "Google’s Dialogflow docs (checked 2026-10-30): the default fallback intent is matched when the bot can’t match a user’s input to any other intent, and it answers with fixed lines such as “I didn't get that. Can you say it again?”",
+      "source": "https://docs.cloud.google.com/dialogflow/es/docs/intents-default",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "spam-filter",
+      "claim": "Sahami and colleagues (1998) trained a junk-mail filter on labelled messages: it sorted each message into junk or legitimate, and called it junk only when at least 99.9% sure, since losing real mail costs more.",
+      "value": "99.9",
+      "source": "https://cdn.aaai.org/Workshops/1998/WS-98-05/WS98-05-009.pdf",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "transformer-paper",
+      "claim": "Vaswani and colleagues introduced the Transformer in 2017, a network built on attention alone, dropping the building blocks earlier language networks relied on (recurrence and convolutions).",
+      "value": "2017",
+      "source": "https://arxiv.org/abs/1706.03762",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "few-shot",
+      "claim": "Brown et al. (2020) showed GPT-3, a model of 175 billion learned numbers, doing new tasks from a few worked examples placed in the prompt, with no further training.",
+      "value": "175",
+      "source": "https://arxiv.org/abs/2005.14165",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "instructgpt",
+      "claim": "InstructGPT (Ouyang and colleagues, 2022) was made in three stages: fine-tuning GPT-3 on answers people wrote, collecting people’s rankings of the model’s outputs, then reinforcement learning from that human feedback.",
+      "source": "https://arxiv.org/abs/2203.02155",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "instructgpt-small",
+      "claim": "In the InstructGPT paper, people preferred the answers of InstructGPT, with 1.3 billion learned numbers, to those of GPT-3, with 175 billion: a model about 100 times bigger.",
+      "value": "100",
+      "source": "https://arxiv.org/abs/2203.02155",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "chatgpt",
+      "claim": "OpenAI introduced ChatGPT on November 30, 2022, as a sibling of InstructGPT trained with the same human-feedback method, free to use during a research preview.",
+      "value": "2022-11-30",
+      "source": "https://openai.com/index/chatgpt/",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "hallucination",
+      "claim": "Ji and colleagues’ survey (ACM Computing Surveys, 2023) finds text-generating models prone to hallucinate: to produce content that is nonsensical or unfaithful to the source they were given.",
+      "source": "https://doi.org/10.1145/3571730",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "air-canada",
+      "claim": "In Moffatt v. Air Canada (2024 BCCRT 149), a British Columbia tribunal held Air Canada responsible for what the chatbot on its website told a customer: the chatbot is still part of the company’s website.",
+      "value": "2024",
+      "source": "https://decisions.civilresolutionbc.ca/crt/crtd/en/item/525448/index.do",
+      "accessed": "2026-10-30"
+    },
     {
       "id": "core-idea",
       "claim": "Replace this with the module’s core idea, in one sentence quoted from a source you can cite.",
