@@ -3,7 +3,7 @@
   "facts": [
     {
       "id": "aes-gcm",
-      "claim": "NIST SP 800-38D: in AES-GCM, an IV must never be used twice with the same key, and a tag check catches any change to the ciphertext.",
+      "claim": "NIST SP 800-38D (2007): AES-GCM must never reuse its one-time starting value (the IV) with the same key, and a check value sent with it catches any change to the ciphertext.",
       "source": "https://csrc.nist.gov/pubs/sp/800/38/d/final"
     },
     {
@@ -24,7 +24,8 @@
     {
       "id": "key-sizes",
       "claim": "NIST SP 800-57 Part 1 Rev. 5 (May 2020): a 2048-bit RSA key gives 112 bits of security; 3072 bits or a 256-bit elliptic curve, 128.",
-      "source": "https://csrc.nist.gov/pubs/sp/800/57/pt1/r5/final"
+      "source": "https://csrc.nist.gov/pubs/sp/800/57/pt1/r5/final",
+      "accessed": "2026-10-30"
     },
     {
       "id": "ecdsa",
@@ -33,7 +34,7 @@
     },
     {
       "id": "sha256",
-      "claim": "FIPS 180-4 specifies SHA-256: any input becomes a 256-bit digest, and its test vector for “abc” begins ba7816bf.",
+      "claim": "FIPS 180-4 (2015) specifies SHA-256: any input becomes a 256-bit fingerprint, and its test value for “abc” begins ba7816bf.",
       "source": "https://csrc.nist.gov/pubs/fips/180-4/upd1/final"
     },
     {
@@ -48,8 +49,9 @@
     },
     {
       "id": "ir8547",
-      "claim": "NIST IR 8547, a draft of November 2024: RSA and elliptic-curve keys at 112-bit security deprecated after 2030, all of them disallowed after 2035.",
-      "source": "https://csrc.nist.gov/pubs/ir/8547/ipd"
+      "claim": "NIST IR 8547 (final, October 2026): because of quantum computers, NIST will phase out RSA and elliptic-curve keys of every size after 2030 and stop allowing them after 2035.",
+      "source": "https://csrc.nist.gov/pubs/ir/8547/final",
+      "accessed": "2026-10-30"
     }
   ]
 }

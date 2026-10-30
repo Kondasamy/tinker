@@ -74,7 +74,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out1', 'hash', 'git', 'fact', 'quiz'],
-    narration: `${FLIPPED} of 256 bits flipped: nothing of the old fingerprint survives. Git names every crate by such a hash.`,
+    narration: `${FLIPPED} of 256 bits flipped: nothing of the old fingerprint survives. Git names every saved version by a hash too.`,
     act: 'One question to finish.',
     say: { block: 'counter', text: `${FLIPPED} bits flipped` },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,

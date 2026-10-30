@@ -41,7 +41,7 @@ const IDEAS: [string, string, ReturnType<typeof fact>, PaintOpts][] = [
   ['A seal', 'A signature runs the other way', fact('ecdsa'), pic(sealScene({ signed: true, tampered: true }))],
 ];
 const FACTS: [string, string][] = [
-  [String(DH.p), `toy-size: the paint’s numbers are taken mod ${DH.p}`],
+  [String(DH.p), `toy size: every paint number is a remainder after dividing by ${DH.p}`],
   [String(SHARED), 'the shared secret both ends reach, never sent'],
   [String(LOCKED), `order ${ORDER_NUMBER} in the toy padlock`],
   [String(WINNERS.length), 'plans keep every message safe in chapter 7'],

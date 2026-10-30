@@ -98,7 +98,7 @@ export function EncryptionStage({ show, say }: { show: Shown; say?: Say }) {
       <p className="tc-caption">
         <span className="txt">
           {show.caption}
-          {show.toy && <span className="ek-toy"> Toy-size numbers.</span>}
+          {show.toy && <span className="ek-toy"> Toy-size numbers; real keys are hundreds or thousands of bits.</span>}
         </span>
         <span className="lbl">{paintReadouts(o).join(' · ')}</span>
       </p>
