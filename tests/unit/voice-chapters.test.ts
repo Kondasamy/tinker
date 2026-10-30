@@ -3,13 +3,13 @@
 import { describe, expect, it } from 'vitest';
 import { moduleOf } from '../../src/lib/modules';
 import { outcome as latencyOutcome } from '../../src/content/voice/02-the-latency-budget';
-import { outcome as turnOutcome } from '../../src/content/voice/03-whose-turn-is-it';
+import { NOISY_SILENCE, outcome as turnOutcome } from '../../src/content/voice/03-whose-turn-is-it';
 import { outcome as bargeOutcome } from '../../src/content/voice/04-being-interrupted';
 import { outcome as mishearOutcome } from '../../src/content/voice/05-mishearing';
 import { START, planOf } from '../../src/content/voice/07-workbench';
 import { FEWEST, PLANS, WINNERS, solved, totals } from '../../src/lib/voice/workbench';
 import { DEFAULT_LINE, POINTS, runCall } from '../../src/lib/voice/engine';
-import { THRESHOLDS } from '../../src/lib/voice/turns';
+import { SILENCES, THRESHOLDS } from '../../src/lib/voice/turns';
 
 describe('voice chapters', () => {
   it('is live, Advanced, after Tool calling and Multimodal, with seven chapters and three recall items each, one pinned', () => {
@@ -27,6 +27,8 @@ describe('voice chapters', () => {
 
   it('chapter 3: the shortest silence cuts Ravi off; on the noisy call each threshold fails or works differently', () => {
     expect(turnOutcome()).toBe(1);
+    // the silence Larkspur picks reads Gemini Live's default, and the recordings exist only for SILENCES
+    expect(SILENCES).toContain(NOISY_SILENCE);
     const noisy = THRESHOLDS.map(threshold =>
       runCall('noisy', { ...DEFAULT_LINE, streaming: true, silence: 800, threshold }),
     );

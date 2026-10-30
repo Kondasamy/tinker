@@ -12,7 +12,7 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { PHONE_PARTS } from '../../components/scenes/phoneScene';
-import { PlanNote, RecordedNote, Toggle, Transcript, VoiceStage, segmentsOf } from './kit';
+import { Fact, PlanNote, RecordedNote, Toggle, Transcript, VoiceStage, segmentsOf } from './kit';
 
 const MODULE = 'voice',
   ID = '05-mishearing';
@@ -154,6 +154,8 @@ export default function Mishearing() {
           <>
             <Outcome {...P1} prediction={state.p1} outcome={outcome()} />
             <Transcript run={CONFIRM} />
+            <Fact id="earnings21-names" />
+            <p className="vo-note">Here the slip is an order number; in that test, people’s names slipped most.</p>
             <PlanNote />
             <RecordedNote />
           </>

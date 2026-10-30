@@ -68,6 +68,8 @@ const CHAPTERS: Chapter[] = [
         ],
         ['Cut-off', 'Answering before the caller has finished: the line took a pause for the end of their turn.'],
         ['Dead air', 'A silence that runs on too long after the caller has finished, before anything is said.'],
+        ['Silence setting', 'How long the line must stay quiet before the caller’s turn ends.'],
+        ['Energy threshold', 'How loud the line must be for a moment to count as speech.'],
       ],
     },
   },
@@ -128,7 +130,10 @@ const CHAPTERS: Chapter[] = [
           'Speech-to-speech model',
           'One model that takes audio in and gives audio out, with no separate transcript step in the middle.',
         ],
-        ['Policy check', 'A rule the host applies to text before acting on it, like the Guardrails module’s checks.'],
+        [
+          'Policy check',
+          'A rule the line’s software applies to text before acting on it, like the Guardrails module’s checks.',
+        ],
       ],
     },
   },
@@ -138,7 +143,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Workbench',
     intro: {
       story:
-        'Everything is on the bench: the calls, the turn detector’s settings and the host rules. The support lead wants no cut-offs, no dead air and no misheard number acted on.',
+        'Everything is on the bench: the calls, the turn detector’s settings and the line’s rules. The support lead wants no cut-offs, no dead air and no misheard number acted on.',
       goal: 'Which settings serve every call?',
       learn: [
         'How to read cut-offs, dead air, wait and errors together',

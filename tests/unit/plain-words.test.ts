@@ -43,7 +43,6 @@ const PENDING = new Set<string>([
   'queues',
   'rag',
   'unicode',
-  'voice',
   'watermarks',
   'web-requests',
 ]);

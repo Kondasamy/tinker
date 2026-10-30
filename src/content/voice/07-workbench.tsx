@@ -11,7 +11,7 @@ import { FEWEST, LEAST_WAIT, WINNERS, solved, totals, type Plan } from '../../li
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { PHONE_PARTS } from '../../components/scenes/phoneScene';
-import { PlanNote, Range, RecordedNote, Toggle, VoiceStage, segmentsOf, type View } from './kit';
+import { Fact, PlanNote, Range, RecordedNote, Toggle, VoiceStage, segmentsOf, type View } from './kit';
 
 const MODULE = 'voice',
   ID = '07-workbench';
@@ -68,7 +68,7 @@ export const STEPS: Step<S>[] = [
     id: 'tune',
     focus: 'tune',
     visibleControls: ['score', 'tune'],
-    narration: 'Your energy threshold, silence setting and host rules run live over every call.',
+    narration: 'Your energy threshold, silence setting and line rules run live over every call.',
     act: `Find the fewest problems (${FEWEST}), then the least wait.`,
     say: { block: 'phone', text: 'Worst call' },
     predicate: s => solved(planOf(s)),
@@ -197,13 +197,20 @@ export default function Workbench() {
           );
         },
         quiz: ({ state, apply, sync }) => (
-          <Quiz
-            {...QUIZ}
-            unsure
-            value={state.quiz}
-            onAnswer={(_, q) => apply({ ...state, quiz: q })}
-            onUnsure={() => sync({ ...state, quiz: UNSURE })}
-          />
+          <>
+            <Fact id="maier-eot" />
+            <p className="vo-note">
+              Larkspur’s five calls can all be served at once; real callers vary more, so a real line trades cut-offs
+              against wait.
+            </p>
+            <Quiz
+              {...QUIZ}
+              unsure
+              value={state.quiz}
+              onAnswer={(_, q) => apply({ ...state, quiz: q })}
+              onUnsure={() => sync({ ...state, quiz: UNSURE })}
+            />
+          </>
         ),
       }}
     />

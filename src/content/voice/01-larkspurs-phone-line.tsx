@@ -11,7 +11,7 @@ import { PHONE_PARTS, type Stage } from '../../components/scenes/phoneScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { RecordedNote, Say, VoiceStage } from './kit';
+import { Fact, RecordedNote, Say, VoiceStage } from './kit';
 
 const MODULE = 'voice',
   ID = '01-larkspurs-phone-line';
@@ -152,6 +152,7 @@ export default function LarkspursPhoneLine() {
         outcome: ({ state }) => (
           <>
             <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />
+            <Fact id="openai-chained" />
             <RecordedNote />
           </>
         ),

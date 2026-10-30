@@ -26,7 +26,7 @@ const P1 = {
   question:
     'A speech-to-speech model hears audio and speaks audio, with no ear or mouth of its own. Compared with Larkspur’s three stages, what does the team give up?',
   options: [
-    'A transcript the host can read and check before the model acts',
+    'A transcript the line can read and check before the model acts',
     'The ability to look orders up',
     'Turn-taking: speech-to-speech models never cut callers off',
   ],
@@ -43,7 +43,7 @@ export const QUIZ = {
     'Either: the rules don’t depend on the build',
   ],
   correct: 0,
-  explanation: 'The text between the stages is where a host can store and check what was said before acting.',
+  explanation: 'The text between the stages is where the line can store and check what was said before acting.',
   why: [
     'Right: a chained line hands over text at each stage, so a rule can read it before the model replies.',
     'Simpler to run, but the request goes straight from audio to the model, with no text step to check in between.',

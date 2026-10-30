@@ -52,7 +52,6 @@ const PENDING = new Set<string>([
   'routes',
   'search',
   'unicode',
-  'voice',
   'watermarks',
   'web-requests',
 ]);

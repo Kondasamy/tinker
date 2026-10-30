@@ -102,7 +102,7 @@ const LANE_WORD: Record<Lane, string> = { caller: 'the caller’s', assistant: '
 export function segmentName(segments: Segment[], i: number) {
   const s = segments[i],
     { start, end } = spanOf(s);
-  let out = `${s.who}${s.lost ? ' (never heard: the host was speaking)' : ''}, ${secs(start)} to ${secs(end)}${s.until !== undefined ? ', cut short' : ''}`;
+  let out = `${s.who}${s.lost ? ' (never heard: the line was speaking)' : ''}, ${secs(start)} to ${secs(end)}${s.until !== undefined ? ', cut short' : ''}`;
   const prev = segments
     .slice(0, i)
     .reverse()

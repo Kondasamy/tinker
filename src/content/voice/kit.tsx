@@ -42,7 +42,7 @@ export function segmentsOf(r: CallRun, picked?: Point): { segments: Segment[]; m
     { lane: 'caller', clip: open.clip, who: speakerOf(open.clip).name, caption: textOf(open.clip), at: 0 },
   ];
   const marks: Mark[] = [
-    { at: r.detected.fire, kind: 'turn-end', label: r.detected.gaveUp ? 'host gave up waiting' : 'end of turn' },
+    { at: r.detected.fire, kind: 'turn-end', label: r.detected.gaveUp ? 'line gave up waiting' : 'end of turn' },
   ];
   const at = r.detected.fire + r.latency.firstSound - clipOf(reply.clip).parts[0].start;
   const cutIn = turns.find((t, i) => i > 1 && lineOf(t.clip).speaker !== 'assistant');
@@ -287,7 +287,7 @@ function TurnRow({ t }: { t: Turn }) {
           )}
         </p>
       )}
-      {t.lost && <p className="vo-heard vo-lost">Never heard: the host was still speaking and not listening.</p>}
+      {t.lost && <p className="vo-heard vo-lost">Never heard: the line was still speaking and not listening.</p>}
       {t.kept !== undefined && t.kept < l.parts.length && (
         <p className="vo-heard">Stopped after: “{textOf(t.clip, t.kept)} —”. Only this goes into the history.</p>
       )}
@@ -376,7 +376,8 @@ export function Fact({ id }: { id: string }) {
 /** Said wherever a wait is shown (R6). */
 export const PlanNote = () => (
   <p className="vo-note">
-    Stage times are {HOST.label}; token counts are this site’s tokenizer’s, and the reply’s length is its clip’s.
+    Stage times are {HOST.label}; word pieces are counted the way this site’s own model splits text, and the reply’s
+    length is its clip’s.
   </p>
 );
 /** Said wherever recorded transcripts appear (R6). */

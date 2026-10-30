@@ -8,6 +8,7 @@ import Predict from '../../components/quiz/Predict';
 import { DEFAULT_LINE, runCall, type CallRun } from '../../lib/voice/engine';
 import { DEFAULT_DETECTOR, FRAME_MS, SILENCES, THRESHOLDS, type Silence, type Threshold } from '../../lib/voice/turns';
 import { HOST, ms } from '../../lib/voice/latency';
+import { fact } from '../../lib/voice/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
@@ -18,7 +19,8 @@ const MODULE = 'voice',
   ID = '03-whose-turn-is-it';
 // Larkspur streams since chapter 2
 const BASE = { ...DEFAULT_LINE, streaming: true };
-const NOISY_SILENCE: Silence = 800;
+// Larkspur picks Gemini Live's default silence (matched; it must stay one of SILENCES, checked in voice-chapters)
+export const NOISY_SILENCE = Number(fact('gemini-silence').value) as Silence;
 const hesitant = (silence: Silence) => runCall('hesitant', { ...BASE, silence });
 const noisy = (threshold: Threshold) => runCall('noisy', { ...BASE, threshold, silence: NOISY_SILENCE });
 const SHORTEST = SILENCES[0];
@@ -67,7 +69,7 @@ const verdict = (r: CallRun) => (r.detected.cut ? 'cut off' : r.deadAir ? 'dead 
 const said = (r: CallRun, what: string) =>
   r.detected.cut
     ? `${what}: the turn ended ${ms(r.detected.lastWord - r.detected.fire)} before Ravi finished. Cut off.`
-    : `${what}: the turn ended ${ms(r.detected.fire - r.detected.lastWord)} after his last word${r.detected.gaveUp ? ' (the host gave up waiting)' : ''}; the first sound came ${ms(r.wait!)} after it${r.deadAir ? `, past Larkspur’s ${ms(HOST.deadAirMs)} limit: dead air` : ''}.`;
+    : `${what}: the turn ended ${ms(r.detected.fire - r.detected.lastWord)} after his last word${r.detected.gaveUp ? ' (the line gave up waiting)' : ''}; the first sound came ${ms(r.wait!)} after it${r.deadAir ? `, past Larkspur’s ${ms(HOST.deadAirMs)} limit: dead air` : ''}.`;
 
 export const STEPS: Step<S>[] = [
   {
@@ -95,7 +97,7 @@ export const STEPS: Step<S>[] = [
     id: 'noisy',
     focus: 'threshold',
     visibleControls: ['threshold'],
-    narration: `Short settings: cut-offs. The longest: dead air. Larkspur picks ${ms(NOISY_SILENCE)}. Ravi now calls quietly from a humming site.`,
+    narration: `Short settings: cut-offs. The longest: dead air. Larkspur picks ${ms(NOISY_SILENCE)}, Google’s default. Ravi now calls quietly from a humming site.`,
     act: 'Try every energy threshold.',
     say: { block: 'phone', text: 'Machine hum' },
     setup: s => ({ ...s, seenT: [...new Set([...s.seenT, s.threshold])] }),
