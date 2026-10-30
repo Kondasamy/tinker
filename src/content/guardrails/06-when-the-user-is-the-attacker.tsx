@@ -13,7 +13,7 @@ import { DOMAINS, metrics, stepsOf, type CaseId, type Run, type Setup } from '..
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
-import { Chips, Fact, GuardStage, email, guardProps, runCached, says, sender } from './kit';
+import { Chips, Fact, GuardStage, ToyNote, email, guardProps, runCached, says, sender } from './kit';
 
 const MODULE = 'guardrails',
   ID = '06-when-the-user-is-the-attacker';
@@ -78,12 +78,12 @@ const QUIZ = {
   ],
   correct: 1,
   explanation:
-    'Over-refusal is a failure too. A setting is judged on attacks stopped and on fair requests refused, both counted over the same suite.',
+    'Over-refusal is a failure too. A setting is judged on attacks stopped and on fair requests refused, both counted over the same test set.',
   why: [
     `Only one side is counted: here the strict setting stopped every push and refused ${sender(REFUND)}’s fair refund, and a customer left without their money is a failure too.`,
-    'Right: count fair requests refused next to attacks stopped, over the same suite, and the cost of being strict shows.',
+    'Right: count fair requests refused next to attacks stopped, over the same test set, and the cost of being strict shows.',
     `The discount push scored ${email(DISCOUNT).score} because it isn’t an injection, so an injection detector has nothing to catch, and a filter doesn’t change what the refund check refuses.`,
-    'The model was helpful and asked for the refund; the host’s check refused it, and a prompt rule can’t override a host setting.',
+    'The model was helpful and asked for the refund; the app’s check refused it, and a prompt rule can’t override a setting in the app.',
   ],
 };
 
@@ -105,7 +105,7 @@ export const STEPS: Step<S>[] = [
     focus: 'output',
     visibleControls: ['out1', 'output', 'status'],
     narration:
-      'A policy check runs in the host, not the model. This output policy check tests each refund before it is paid.',
+      'A policy check runs in Larkspur’s app, not the model. This output policy check tests each refund before it is paid.',
     act: 'Turn it on.',
     predicate: s => s.outputPolicy === 'on',
     hint: 'Press “Output policy check: on”.',
@@ -153,7 +153,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['cost', 'quiz'],
+    visibleControls: ['cost', 'fact', 'quiz'],
     narration: `Strict stopped the discount and refused ${sender(REFUND)}’s fair refund too: over-refusal, a false block that counts like any other.`,
     act: 'One question to finish.',
     say: { block: 'orders', text: 'Fair refund held' },
@@ -275,6 +275,12 @@ export default function UserIsTheAttacker() {
         ),
         status: ({ state }) => <Status r={current(state)} />,
         cost: () => <Cost />,
+        fact: () => (
+          <>
+            <Fact id="xstest" />
+            <ToyNote />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}
@@ -294,7 +300,7 @@ export default function UserIsTheAttacker() {
             return (
               <>
                 <Messages lanes={guardLanes()} msgs={guardMessages(r)} upTo={r.steps.length} />
-                <Fact id="owasp-llm01" />
+                <Fact id="direct-injection" />
               </>
             );
           },

@@ -55,7 +55,7 @@ const IDEAS: [string, string, ReturnType<typeof fact>, GuardOpts][] = [
 const NONE = bench(START),
   CLEAN = bench(SOLUTION);
 const FACTS: [string, string][] = [
-  [String(ATTACKS.length), 'attacks in the suite'],
+  [String(ATTACKS.length), 'attacks in Larkspur’s test set, written for this module'],
   [String(CUSTOMER_CASES.length), 'ordinary customers in it too'],
   [`${NONE.succeeded} of ${NONE.attacks}`, 'attacks that work with no defences'],
   [
@@ -109,7 +109,7 @@ const FACTS: [string, string][] = [
             <p class="mail more">{SENT.body}</p>
           </article>
         </div>
-        <p class="note more">With no defences, the assistant followed the note, then answered the customer’s question as if nothing had happened. The model’s turns are recorded, written to illustrate the sources below; the host, its checks and the outcome run for real in your browser.</p>
+        <p class="note more">With no defences, the assistant followed the note, then answered the customer’s question as if nothing had happened. The model’s turns are recorded, written to illustrate the sources below; Larkspur’s app around the model, its checks and the outcome run for real in your browser.</p>
       </section>
 
       <section aria-labelledby="how">

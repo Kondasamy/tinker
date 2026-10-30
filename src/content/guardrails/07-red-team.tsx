@@ -22,7 +22,19 @@ import { fact } from '../../lib/guardrails/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages } from '../tool-calling/kit';
-import { Chips, Fact, GuardStage, Group, cellWord, guardProps, longName, memo, shortName, type View } from './kit';
+import {
+  Chips,
+  Fact,
+  GuardStage,
+  Group,
+  ToyNote,
+  cellWord,
+  guardProps,
+  longName,
+  memo,
+  shortName,
+  type View,
+} from './kit';
 
 const MODULE = 'guardrails',
   ID = '07-red-team';
@@ -267,6 +279,7 @@ export default function RedTeam() {
               it.
             </p>
             <Fact id="red-team-rate" />
+            <ToyNote />
             <p className="note">
               An agent that works a browser reads the page itself, so a line planted on a screen is an injection too:{' '}
               <a href="/computer-use/04-the-page-gives-orders/">Computer use</a> shows one.

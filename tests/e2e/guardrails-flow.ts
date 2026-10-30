@@ -77,7 +77,7 @@ export function guardWalker(page: Page, mode: Mode, check: (page: Page) => Promi
       await btn('Run the forwarded invoice');
       await step(2);
       await check(page);
-      await opt(/^The host blocks the send/);
+      await opt(/^Larkspur’s app blocks the send/);
       await btn('Allow-list: on');
       await step(4);
       await opt(/^No: the data leaves inside the reply/);

@@ -16,6 +16,7 @@ import {
 import { guardLanes, guardMessages } from '../../components/scenes/guardSequence';
 import {
   ATTACKS,
+  CUSTOMER_CASES,
   CUSTOMER_RECORDS,
   INBOX,
   isAttack,
@@ -129,6 +130,13 @@ export function Fact({ id }: { id: string }) {
     </p>
   );
 }
+
+/** Said beside a real figure wherever the suites' counts and rates show (R6): they are a toy, written for this module. */
+export const ToyNote = () => (
+  <p className="note">
+    {`Larkspur’s test set is a toy: ${ATTACKS.length} attacks and ${CUSTOMER_CASES.length} ordinary customers, written for this module, with recorded model turns and hand-set filter scores. Its counts and rates are its own; AgentDojo, a research test set, holds ${fact('agentdojo').value} attack cases.`}
+  </p>
+);
 
 /** Wraps f so each argument (keyed by its JSON) is computed once and kept. */
 export function memo<A, R>(f: (a: A) => R): (a: A) => R {

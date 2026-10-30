@@ -23,7 +23,7 @@ import { fact } from '../../lib/guardrails/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
-import { Fact, GuardStage, Matrix, guardProps, memo, sender } from './kit';
+import { Fact, GuardStage, Matrix, ToyNote, guardProps, memo, sender } from './kit';
 
 const MODULE = 'guardrails',
   ID = '05-defence-in-depth';
@@ -142,7 +142,7 @@ export const STEPS: Step<S>[] = [
     id: 'eval',
     focus: 'quiz',
     visibleControls: ['winners', 'eval', 'quiz'],
-    narration: `No attack through, ${FEWEST === 0 ? 'no customer blocked' : `${FEWEST} customers blocked`}. Its attack success rate and false-block rate, over a fixed suite, make an eval.`,
+    narration: `No attack through, ${FEWEST === 0 ? 'no customer blocked' : `${FEWEST} customers blocked`}. Its attack success rate and false-block rate, over a fixed test set, make an eval.`,
     act: 'One question to finish.',
     say: { block: 'host', text: 'Layers hold' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -193,7 +193,7 @@ export default function DefenceInDepth() {
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUT1} />,
         matrix: ({ state }) => (
           <Matrix
-            caption="Each defence alone, over the injection suite"
+            caption="Each defence alone, over the injection test set"
             cases={SUITE}
             rows={[
               ...SINGLES.map(x => ({ name: x.name, runs: score(x.d).runs })),
@@ -240,10 +240,11 @@ export default function DefenceInDepth() {
             <p>
               The two counts have names. The <strong>attack success rate</strong> is the share of attacks that got
               through; the <strong>false-block rate</strong> is the share of real customers the defences stopped. Run
-              the same suite under each defence set and compare the two rates: that is an eval.{' '}
-              <a href="/evals/">The Evals module</a> builds and grades suites like this one.
+              the same test set under each defence set and compare the two rates: that is an eval.{' '}
+              <a href="/evals/">The Evals module</a> builds and grades test sets like this one.
             </p>
             <Fact id="agentdojo" />
+            <ToyNote />
           </div>
         ),
         quiz: ({ state, apply, sync }) => (
