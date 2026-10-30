@@ -56,6 +56,7 @@ import { RATE_LIMITS_MODULE } from '../content/rate-limits/module';
 import { UNICODE_MODULE } from '../content/unicode/module';
 import { BACKUPS_MODULE } from '../content/backups/module';
 import { ON_DEVICE_MODULE } from '../content/on-device/module';
+import { ROUTES_MODULE } from '../content/routes/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -171,18 +172,12 @@ export const MODULES: Module[] = [
   UNICODE_MODULE,
   BACKUPS_MODULE,
   ON_DEVICE_MODULE,
+  ROUTES_MODULE,
   planned(
     'robots',
     'Robots that act',
     'Advanced',
     'From camera frames to motor commands, and why a robot learns by watching people do the task.',
-  ),
-  planned(
-    'routes',
-    'Finding the way',
-    'Intermediate',
-    'How a map app picks your route: roads as a graph, the shortest path, and live traffic that changes it.',
-    'Classic tech',
   ),
   planned(
     'translation',

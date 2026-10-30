@@ -2606,5 +2606,49 @@
       "bench",
       "quiz"
     ]
+  },
+  "routes": {
+    "01-roads-as-a-graph": [
+      "graph",
+      "predict",
+      "close",
+      "detour",
+      "cut",
+      "quiz"
+    ],
+    "02-fewest-roads-or-minutes": [
+      "bfs",
+      "predict",
+      "minutes",
+      "quiz"
+    ],
+    "03-dijkstra": [
+      "step",
+      "predict",
+      "play",
+      "quiz"
+    ],
+    "04-a-star": [
+      "guess",
+      "predict",
+      "play",
+      "weight",
+      "quiz"
+    ],
+    "05-live-traffic": [
+      "predict",
+      "raise",
+      "close",
+      "quiz"
+    ],
+    "06-whole-country-maps": [
+      "scale",
+      "show",
+      "quiz"
+    ],
+    "07-delivery-day": [
+      "bench",
+      "quiz"
+    ]
   }
 }

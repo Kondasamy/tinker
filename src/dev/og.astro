@@ -394,6 +394,19 @@ import { mandateOf as acMandate, sign as acSign } from '../lib/agent-commerce/ma
 import { checkOrder as acCheck, orderOf as acOrder } from '../lib/agent-commerce/shop';
 import { SLIPS as AC_SLIPS, sellerOf as acSeller } from '../lib/agent-commerce/story';
 import { RING_BOARD, ringScene, type RingOpts } from '../components/scenes/ringScene';
+import { TABLE_BOARD, tabletopScene, type TableOpts } from '../components/scenes/tabletopScene';
+import { BRIDGES as RT_BRIDGES } from '../lib/routes/graph';
+import { astar as rtAstar } from '../lib/routes/astar';
+import { dijkstra as rtDijkstra } from '../lib/routes/dijkstra';
+import {
+  DETOUR as RT_DETOUR,
+  FASTEST as RT_FASTEST,
+  FEWEST_ROADS as RT_FEWEST,
+  ROUTE_BRIDGE as RT_BRIDGE,
+  SHORTCUTS as RT_SHORTCUTS,
+} from '../lib/routes/story';
+import { JAM_ROAD as RT_JAM, jamOf as rtJam } from '../lib/routes/traffic';
+import { DELIVERIES as RT_DAY, WINNERS as ROUTE_WINNERS, route as rtRoute } from '../lib/routes/workbench';
 import { sceneOf as ptScene, type PassState } from '../content/parallel-training/kit';
 import { fillsAfter as ptFills, ringAllReduce as ptRing } from '../lib/parallel-training/ring';
 import { memoryOf as ptMemory, stateOf as ptState } from '../lib/parallel-training/memory';
@@ -2021,6 +2034,36 @@ const PHONE_CRATE_OG: Record<string, () => Omit<PhoneCrateOpts, 'scale'>> = {
   'on-device-07-workbench': odShift,
 };
 const phoneCrateOg = PHONE_CRATE_OG[page.og]?.();
+// module 58: the tabletop town. The intro: the van over the other bridge, its own barred; 1: both bridges barred, no
+// route; 2: the fewest-roads route through the market; 3: Dijkstra part-way, flags and the frontier; 4: A* finished;
+// 5: the jam on the ring road, the route flipped; 6: the shortcut arcs; 7: the winning search on the day's second drop.
+const rtDone = (r: ReturnType<typeof rtDijkstra>) => ({
+  settled: r.settles.map(x => x.id),
+  route: r.roads,
+  arrived: true,
+});
+const TABLE_OG: Record<string, () => Omit<TableOpts, 'scale'>> = {
+  routes: () => ({ route: RT_DETOUR.roads, arrived: true, closed: [RT_BRIDGE] }),
+  'routes-01-roads-as-a-graph': () => ({ closed: RT_BRIDGES, noRoute: true }),
+  'routes-02-fewest-roads-or-minutes': () => ({ route: RT_FEWEST.roads, arrived: true }),
+  'routes-03-dijkstra': () => ({
+    settled: RT_FASTEST.settles.slice(0, 14).map(x => x.id),
+    frontier: RT_FASTEST.settles[13].frontier.map(o => o.id),
+  }),
+  'routes-04-a-star': () => rtDone(rtAstar(1)),
+  'routes-05-live-traffic': () => ({
+    ...rtJam(8),
+    route: rtDijkstra(rtJam(8)).roads,
+    arrived: true,
+    selected: RT_JAM,
+  }),
+  'routes-06-whole-country-maps': () => ({ route: RT_FASTEST.roads, arrived: true, shortcuts: RT_SHORTCUTS }),
+  'routes-07-delivery-day': () => {
+    const d = RT_DAY[1];
+    return { ...rtDone(rtRoute(ROUTE_WINNERS[0], d, d.to)), goal: d.to, closed: d.closed };
+  },
+};
+const tableOg = TABLE_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -2104,6 +2147,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : rtOg ? <IsoStage board={BARREL_BOARD} scene={barrelScene({ ...rtOg, scale: 1.3 })} label="" />
           : tapeOg ? <IsoStage board={TAPE_BOARD} scene={tapeScene({ ...tapeOg, scale: 1.3 })} label="" />
           : phoneCrateOg ? <IsoStage board={PHONE_CRATE_BOARD} scene={phoneCrateScene({ ...phoneCrateOg, scale: 1.3 })} label="" />
+          : tableOg ? <IsoStage board={TABLE_BOARD} scene={tabletopScene({ ...tableOg, scale: 1.3 })} label="" />
           : dreamOg ? <IsoStage board={dreamBoard(dreamOg)} scene={dreamScene({ ...dreamOg, scale: 1.3 })} label="" />
           : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
           : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />

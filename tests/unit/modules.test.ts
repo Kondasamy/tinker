@@ -928,7 +928,20 @@ describe('module registry', () => {
     });
     expect(moduleOf('on-device').track).toBeUndefined();
     expect(moduleOf('on-device').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'on-device')).toBe(52);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'on-device')).toBe(56);
+  });
+
+  it('has routes as a live Intermediate Classic tech module after parallel-training', () => {
+    expect(moduleOf('routes')).toMatchObject({
+      title: 'Finding the way',
+      level: 'Intermediate',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('routes').author).toEqual(moduleOf('rag').author);
+    const live = MODULES.filter(m => m.status === 'live').map(m => m.id);
+    expect(live.indexOf('routes')).toBeGreaterThan(live.indexOf('parallel-training'));
   });
 
   it('keeps chapter ids unique within every module', () => {

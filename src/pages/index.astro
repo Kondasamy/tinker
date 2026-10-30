@@ -154,6 +154,8 @@ import { mandateOf, sign as signMandate } from '../lib/agent-commerce/mandate';
 import { checkOrder, orderOf } from '../lib/agent-commerce/shop';
 import { SLIPS, sellerOf } from '../lib/agent-commerce/story';
 import { RING_BOARD, ringLabel, ringScene } from '../components/scenes/ringScene';
+import { TABLE_BOARD, tableLabel, tabletopScene } from '../components/scenes/tabletopScene';
+import { DETOUR as RT_DETOUR, ROUTE_BRIDGE as RT_BRIDGE } from '../lib/routes/story';
 import { fillsAfter, ringAllReduce } from '../lib/parallel-training/ring';
 import { GRADIENTS } from '../lib/parallel-training/story';
 import { STEELYARD_BOARD, steelyardLabel, steelyardScene } from '../components/scenes/steelyardScene';
@@ -350,6 +352,8 @@ const TYPE: FrameOpts = {
   ...frameOf(decode(diskMlm(), dlPhrase(6).ids, 4, 'confidence', 6), 2),
   scale: 1.7,
 };
+// finding the way: the bridge on the van's route barred, the van over the other bridge
+const TABLE = { route: RT_DETOUR.roads, arrived: true, closed: [RT_BRIDGE], scale: 1.7 };
 // queues: Rosa knocked over mid-job, her ticket held on the bench until the lease runs out
 const RAIL = railCard(1.7);
 // backups: ransomware padlocks the server room and the warehouse; the courier's lockbox restores
@@ -1154,6 +1158,19 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
     name: 'Models on your device',
     iso: { board: PHONE_CRATE_BOARD, scene: phoneCrateScene(PHONE_CRATE), label: phoneCrateLabel(PHONE_CRATE) },
     topics: ['On-device AI', 'Memory', 'Quantization', 'KV cache', 'Battery', 'Throttling', 'Privacy'],
+  },
+  routes: {
+    name: 'Finding the way',
+    iso: { board: TABLE_BOARD, scene: tabletopScene(TABLE), label: tableLabel(TABLE) },
+    topics: [
+      'Graphs',
+      'Breadth-first search',
+      'Dijkstra',
+      'A* search',
+      'Heuristics',
+      'Live traffic',
+      'Contraction hierarchies',
+    ],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];
