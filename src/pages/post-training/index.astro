@@ -79,7 +79,7 @@ const IDEAS: [string, string, ReturnType<typeof fact>, ExamOpts][] = [
   ],
   [
     'Learn the picks',
-    'DPO leans toward them, held near the reference',
+    'Training leans toward them, held near where it started',
     fact('dpo-beta'),
     {
       cards: cards(
@@ -120,7 +120,7 @@ const FACTS: [string, string][] = [
   ],
   [`${Math.round(WEAK_AFTER * 100)}%`, `the gaming answer’s share after ${ROUNDS} rounds of the weak grader`],
   [`${WINNERS.length} of ${RULE_SETS.length}`, 'rule sets in the workbench that reward only right answers'],
-  [String(ROUNDS), 'rounds of the toy policy’s training per run, computed in your browser'],
+  [String(ROUNDS), 'rounds of the toy model’s training per run, computed in your browser'],
 ];
 ---
 <html lang="en">
@@ -138,7 +138,7 @@ const FACTS: [string, string][] = [
           <p class="kicker">Module 19 · Post-training</p>
           <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>How does a base model become an assistant?</h1>
-          <p class="lede">After pre-training comes post-training. Here you pick the better of two drafts, train a toy policy on your picks, let a grader mark its drafts, and write a grader it can’t game.</p>
+          <p class="lede">After pre-training comes post-training. Here you pick the better of two drafts, train a toy model on your picks, let a grading program mark its drafts, and write a grader it can’t game.</p>
           <div class="ctas">
             <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
             <a class="btn" href="#path">See the chapters</a>
@@ -164,7 +164,7 @@ const FACTS: [string, string][] = [
             </article>
           ))}
         </div>
-        <p class="note more">Both answers were written for this site; the marks come from the Evals module’s key-fact check, run at build time. The module’s toy policy is a choice among written answers, not a language model: its updates run live and teach the mechanism, not any provider’s numbers.</p>
+        <p class="note more">Both answers were written for this site; the marks come from the Evals module’s key-fact check, run at build time. The module’s toy model is a choice among written answers, not a language model: its training runs live and teaches the mechanism, with toy-sized groups and rounds, not any provider’s numbers.</p>
       </section>
 
       <section aria-labelledby="how">
@@ -181,7 +181,7 @@ const FACTS: [string, string][] = [
             </li>
           ))}
         </ol>
-        <p class="note more">Each stack of cards is one written answer, as tall as the toy policy’s odds of giving it. The training runs in your browser with fixed seeds, so every visit shows the same rounds.</p>
+        <p class="note more">Each stack of cards is one written answer, as tall as the toy model’s odds of giving it. The training runs in your browser with fixed seeds, so every visit shows the same rounds.</p>
       </section>
 
       <section class="company" aria-labelledby="story">
@@ -209,7 +209,7 @@ const FACTS: [string, string][] = [
         <article>
           <h2>Who it’s for</h2>
           <ul class="who-chips"><li>Engineers</li><li>Product managers</li><li>Analysts</li><li>No code needed</li></ul>
-          <p class="more">Product managers, engineers and analysts who read “trained with RL” in a launch post and want to know what it means. <a href="/fine-tuning/">Fine-tuning</a> and <a href="/evals/">Evals</a> come first; no code or maths needed.</p>
+          <p class="more">Product managers, engineers and analysts who read “trained with RL” (reinforcement learning) in a launch post and want to know what it means. <a href="/fine-tuning/">Fine-tuning</a> and <a href="/evals/">Evals</a> come first; no code or maths needed.</p>
         </article>
       </section>
 

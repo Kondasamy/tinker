@@ -43,7 +43,6 @@ const PENDING = new Set<string>([
   'on-device',
   'parallel-training',
   'payments',
-  'post-training',
   'prompts',
   'queues',
   'rag',

@@ -12,6 +12,7 @@ import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { EXAM_PARTS } from '../../components/scenes/examScene';
 import { AnswerCard, Asked, Fact, Maths, PostStage, TOY, barsOf, cardsOf, groupOf } from './kit';
+import { fact } from '../../lib/post-training/facts';
 
 const MODULE = 'post-training',
   ID = '04-grade-dont-judge';
@@ -156,29 +157,36 @@ export default function GradeDontJudge() {
         group: () => {
           const mean = FIRST.rewards.reduce((a, b) => a + b, 0) / GROUP;
           return (
-            <table className="tc-ledger" data-group>
-              <caption>
-                The group of {GROUP}, graded live (average reward {mean.toFixed(2)})
-              </caption>
-              <thead>
-                <tr>
-                  <th scope="col">Draft</th>
-                  <th scope="col">Reward</th>
-                  <th scope="col">Advantage</th>
-                </tr>
-              </thead>
-              <tbody>
-                {FIRST.group.map((y, j) => (
-                  <tr key={j}>
-                    <th scope="row">
-                      {C[y].id}: “{C[y].text}”
-                    </th>
-                    <td>{FIRST.rewards[j]}</td>
-                    <td>{sign(FIRST.advantages[j])}</td>
+            <>
+              <table className="tc-ledger" data-group>
+                <caption>
+                  The group of {GROUP}, graded live (average reward {mean.toFixed(2)})
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Draft</th>
+                    <th scope="col">Reward</th>
+                    <th scope="col">Advantage</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {FIRST.group.map((y, j) => (
+                    <tr key={j}>
+                      <th scope="row">
+                        {C[y].id}: “{C[y].text}”
+                      </th>
+                      <td>{FIRST.rewards[j]}</td>
+                      <td>{sign(FIRST.advantages[j])}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="note">
+                The toy draws {GROUP} from {C.length} written drafts; a real run writes {fact('grpo-group').value} fresh
+                answers per question.
+              </p>
+              <Fact id="grpo-group" />
+            </>
           );
         },
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
@@ -212,6 +220,7 @@ export default function GradeDontJudge() {
                 moved more than {Math.round(CLIP * 100)}% from the group’s policy stops pushing (PPO’s clip). The toy
                 leaves out the pull back to the reference that DeepSeekMath adds.
               </p>
+              <Fact id="ppo-clip" />
             </Maths>
           </>
         ),

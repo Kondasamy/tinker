@@ -7,6 +7,7 @@
 //   on the logits (PPO's ratio clip). A group with no reward spread has zero advantage and no update.
 //   shortcut: no KL penalty to the reference inside the GRPO step (DeepSeekMath adds one); the maths fold-away says so.
 import { mulberry32 } from '../transformers/sample';
+import { fact } from './facts';
 
 export type Policy = number[];
 /** A preference: [chosen, rejected], as answer indices. */
@@ -14,10 +15,11 @@ export type Pair = [number, number];
 
 /** The strengths (β) chapter 3's slider steps over: low lets the policy stray far, high keeps it near the reference. */
 export const BETAS = [0.25, 0.5, 1, 2, 4];
-/** Drafts per group, rounds per run, PPO's clip range, inner steps and step size of the GRPO update. */
+/** Drafts per group, rounds per run, PPO's clip range (the PPO paper's best, matched to its fact), inner steps and step
+ * size of the GRPO update. Group, rounds and steps are toy-sized (docs/modules/post-training.md, Toy vs real). */
 export const GROUP = 6,
   ROUNDS = 10,
-  CLIP = 0.2,
+  CLIP = Number(fact('ppo-clip').value),
   INNER = 4,
   LR = 1.5;
 

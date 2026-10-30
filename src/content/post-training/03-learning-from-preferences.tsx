@@ -219,6 +219,10 @@ export default function LearningFromPreferences() {
                 </tbody>
               </table>
               <Fact id="dpo-beta" />
+              <p className="note">
+                The toy’s strengths fit its own scores from three picks, so its β values don’t carry over to a real run:
+              </p>
+              <Fact id="dpo-beta-default" />
               <Maths>
                 <p>
                   The toy fits a Bradley–Terry score r to your pairs, then sets each draft’s share to its reference
@@ -227,7 +231,7 @@ export default function LearningFromPreferences() {
                   loss on your pairs at β {state.beta}:{' '}
                   {dpoLoss(policyOf(picks, state.beta), REF, pairs, state.beta).toFixed(2)}, against{' '}
                   {dpoLoss(REF, REF, pairs, state.beta).toFixed(2)} before training. Distance is the KL divergence from
-                  the reference.
+                  the reference: how far the policy has drifted from where it started.
                 </p>
               </Maths>
             </>
