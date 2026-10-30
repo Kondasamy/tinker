@@ -1,0 +1,149 @@
+/* Finding the way stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in
+   through tool-calling/kit). These are the town, the Frontier view, Step / Play and the road list. A new flag pops in
+   only when motion is allowed; with reduced motion the same step shows it planted. */
+.rt-pickable [data-road] {
+  cursor: pointer;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .rt-stage .rt-fresh {
+    animation: rt-plant 0.35s ease-out;
+    transform-box: fill-box;
+    transform-origin: bottom;
+  }
+}
+@keyframes rt-plant {
+  from {
+    transform: scaleY(0.2);
+    opacity: 0.3;
+  }
+}
+.rt-transport,
+.rt-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.rt-row {
+  margin: 8px 0;
+}
+.rt-count {
+  font:
+    800 14px ui-monospace,
+    Menlo,
+    monospace;
+  margin-left: 4px;
+}
+.rt-frontier {
+  overflow: auto;
+  align-self: stretch;
+  max-height: 100%;
+  font-size: 13px;
+}
+.rt-frontier:focus-visible,
+.rt-list:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.rt-route {
+  margin: 0 0 8px;
+  font-weight: 800;
+}
+.rt-cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+.rt-closed {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+  font-weight: 700;
+}
+.rt-glyph {
+  vertical-align: -1px;
+  margin-right: 4px;
+}
+.rt-list {
+  max-height: 220px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px;
+  border: 1.5px solid var(--rule);
+  border-radius: 10px;
+  background: var(--card);
+}
+.rt-opt {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 4px 10px;
+  border: 1.5px solid var(--ink);
+  border-radius: 8px;
+  background: var(--paper);
+  cursor: pointer;
+  font-size: 13.5px;
+  user-select: none;
+}
+.rt-opt[aria-selected="true"] {
+  background: var(--acc, #f4b829);
+  font-weight: 800;
+}
+.rt-list:focus-visible .rt-opt[aria-selected="true"] {
+  box-shadow: 0 0 0 3px var(--ink);
+}
+.rt-opt.closed {
+  border-style: dashed;
+}
+.rt-tagword {
+  white-space: pre;
+  font-weight: 800;
+}
+.rt-status {
+  margin: 8px 0;
+  font-weight: 700;
+}
+.rt-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.rt-range {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0;
+}
+.rt-range label {
+  font-weight: 700;
+  font-size: 14px;
+}
+.rt-range input {
+  width: 100%;
+}
+.rt-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.rt-headline strong {
+  font:
+    800 30px / 1 ui-monospace,
+    Menlo,
+    monospace;
+}
+.tc-ledger td.ok {
+  color: var(--ok);
+  font-weight: 800;
+}
+.tc-ledger td.bad {
+  color: var(--bad);
+  font-weight: 800;
+}

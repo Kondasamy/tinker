@@ -59,7 +59,11 @@ import { STENCIL_BOARD, stencilScene } from '../../src/components/scenes/stencil
 import { STOCK_BOARD, stockAt, stockScene } from '../../src/components/scenes/stockScene';
 import { THINK_BOARD, thinkScene } from '../../src/components/scenes/thinkScene';
 import { TOKEN_BOARD, tokenScene } from '../../src/components/scenes/tokenScene';
+import { TABLE_BOARD, tabletopScene } from '../../src/components/scenes/tabletopScene';
 import { TOWER_BOARD, towerOf, towerScene } from '../../src/components/scenes/towerScene';
+import { BRIDGES } from '../../src/lib/routes/graph';
+import { dijkstra as routesDijkstra } from '../../src/lib/routes/dijkstra';
+import { SHORTCUT_PAIRS } from '../../src/lib/routes/story';
 import { TOWN_BOARD, townAt, townScene } from '../../src/components/scenes/townScene';
 import { TRACE_BOARD, traceScene } from '../../src/components/scenes/traceScene';
 import { TRAIN_BOARD, trainScene } from '../../src/components/scenes/trainScene';
@@ -576,6 +580,23 @@ const SCENES: Record<string, () => string> = {
         tray: true,
       }),
     ),
+  // the whole town searched, flags everywhere, both bridges barred, a jam, the shortcuts and a picked road
+  tabletop: () => {
+    const r = routesDijkstra({ closed: BRIDGES });
+    return stage(
+      TABLE_BOARD,
+      tabletopScene({
+        closed: BRIDGES,
+        jams: { 'lock-dock': 10 },
+        selected: 'market-square',
+        settled: r.settles.map(s => s.id),
+        frontier: r.settles[5].frontier.map(o => o.id),
+        noRoute: true,
+        shortcuts: SHORTCUT_PAIRS.map(([a, b]) => ({ a, b })),
+        say: { block: 'van', text: 'Held here' },
+      }),
+    );
+  },
   // the end of a least-busy run with a dead and a gray shed: every shed, the barrier
   yard: () => {
     const run = lbSim(lbPolicy({ rule: 'least', states: { cedar: 'dead', dogwood: 'gray' }, checks: 2 }));
@@ -638,6 +659,8 @@ const BASE: Record<string, number> = {
   split: 47144,
   stencil: 20091,
   stock: 41198,
+  // new with the routes module (no pre-rework size): its first size is 90,587, with a little headroom
+  tabletop: 32000,
   think: 32740,
   token: 23206,
   tower: 47246,

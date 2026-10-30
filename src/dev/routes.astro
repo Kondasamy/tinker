@@ -1,0 +1,89 @@
+---
+// Dev-only eyeball page: the tabletop town in the states the chapters teach (static SVG, wide and phone), then the stage
+// live with its road list, Step / Play and the Frontier view. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { TABLE_BOARD, tableLabel, tabletopScene, type TableOpts } from '../components/scenes/tabletopScene';
+import { BRIDGES } from '../lib/routes/graph';
+import { dijkstra } from '../lib/routes/dijkstra';
+import { astar } from '../lib/routes/astar';
+import { CUT, DETOUR, FASTEST, FEWEST_ROADS, ROUTE_BRIDGE, SHORTCUT_PAIRS } from '../lib/routes/story';
+import { JAM_ROAD, jamOf } from '../lib/routes/traffic';
+import { FrontierView, TableStage } from '../content/routes/kit';
+
+const mid = dijkstra().settles[11];
+const lean = astar(1);
+const STATES: [string, TableOpts][] = [
+  [
+    'The van at the customer, fastest route',
+    { route: FASTEST.roads, arrived: true, say: { block: 'van', text: 'Delivered' } },
+  ],
+  ['Bridge closed: the detour', { route: DETOUR.roads, arrived: true, closed: [ROUTE_BRIDGE], selected: ROUTE_BRIDGE }],
+  ['Both bridges closed: no route', { closed: BRIDGES, noRoute: true }],
+  ['Fewest roads', { route: FEWEST_ROADS.roads, arrived: true, say: { block: 'market', text: 'Slow streets' } }],
+  [
+    'Dijkstra mid-search',
+    {
+      settled: dijkstra()
+        .settles.slice(0, 12)
+        .map(s => s.id),
+      frontier: mid.frontier.map(o => o.id),
+      say: { block: 'frontier', text: 'Frontier' },
+    },
+  ],
+  ['A* finished', { settled: lean.settles.map(s => s.id), route: lean.roads, arrived: true }],
+  ['A jam on Lock to Dock', { ...jamOf(9), route: dijkstra(jamOf(9)).roads, arrived: true, selected: JAM_ROAD }],
+  [
+    'Shortcuts',
+    {
+      route: FASTEST.roads,
+      shortcuts: SHORTCUT_PAIRS.map(([a, b]) => ({ a, b })),
+      say: { block: 'shortcuts', text: 'Shortcuts' },
+    },
+  ],
+  ['A delivery to Chapel', { goal: 'chapel', route: dijkstra({}, 'depot', 'chapel').roads, arrived: true }],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Routes scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Tabletop town: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={TABLE_BOARD} scene={tabletopScene({ ...o, scale: 1.2 })} label={tableLabel(o)} /></div>
+            <div class="phone"><IsoStage board={TABLE_BOARD} scene={tabletopScene({ ...o, scale: 2 })} label={tableLabel(o)} /></div>
+            <p>{tableLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>No route, escaped caption</h2><div class="stage"><TableStage client:load show={{ scene: { closed: BRIDGES, noRoute: true }, search: CUT, caption: '<script>alert(1)</script>' }} /></div></section>
+        <section><h2>Frontier view mid-search</h2><div class="stage"><FrontierView client:load search={dijkstra()} upTo={12} closed={[ROUTE_BRIDGE]} /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 520px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>
