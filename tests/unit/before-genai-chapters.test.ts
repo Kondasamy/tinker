@@ -18,7 +18,6 @@ import * as ch5 from '../../src/content/before-genai/05-scale';
 import * as ch6 from '../../src/content/before-genai/06-chat';
 import * as ch7 from '../../src/content/before-genai/07-what-changed';
 import * as ch8 from '../../src/content/before-genai/08-what-stayed';
-import replies from '../../data/before-genai/replies.json' with { type: 'json' };
 
 const M = moduleOf('before-genai');
 const b = readFileSync('public/data/lm/model.bin');
