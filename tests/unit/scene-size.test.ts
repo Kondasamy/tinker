@@ -41,6 +41,8 @@ import { PILE_BOARD, pileScene } from '../../src/components/scenes/pileScene';
 import { POST_BOARD, postScene } from '../../src/components/scenes/postScene';
 import { PUPPET_BOARD, puppetScene } from '../../src/components/scenes/puppetScene';
 import { RAIL_BOARD, railAt, railScene } from '../../src/components/scenes/railScene';
+import { SAFE_BOARD, safeAt, safeScene } from '../../src/components/scenes/safeScene';
+import { SCENES as BACKUPS, STRIKES as BACKUP_STRIKES, weekOf as backupWeek } from '../../src/lib/backups/sim';
 import { RECITAL_BOARD, recitalScene } from '../../src/components/scenes/recitalScene';
 import { ROUTER_BOARD, routerScene } from '../../src/components/scenes/routerScene';
 import { SANDBOX_BOARD, sandboxScene } from '../../src/components/scenes/sandboxScene';
@@ -382,6 +384,8 @@ const SCENES: Record<string, () => string> = {
   puppet: () => stage(PUPPET_BOARD, puppetScene(frameAt(playComputer({ case: 'hinges' }), 99).opts)),
   // the crash run at the crash: a worker down with its dropped ticket, the rail full
   rail: () => stage(RAIL_BOARD, railScene(railAt(queueRun({ ...QUEUES.crash, crashes: [SHOWN_CRASH] }), CRASH_AT))),
+  // the fullest backups week: ransomware padlocks the cabinet and the warehouse, the lockbox restores
+  safe: () => stage(SAFE_BOARD, safeScene(safeAt(backupWeek(BACKUPS.lockbox), 0, BACKUP_STRIKES.ransom))),
   // a canary seen 64 times: the ledger and the ranked column
   recital: () => {
     const c = canaryOf(64),
@@ -592,6 +596,8 @@ const BASE: Record<string, number> = {
   post: 44758,
   puppet: 23908,
   rail: 37355,
+  // new with the backups module (no pre-rework size): its first size is 157,281, with a little headroom
+  safe: 55000,
   recital: 39783,
   'router:distill': 19362,
   'router:route': 19819,
