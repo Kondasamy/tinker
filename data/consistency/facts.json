@@ -19,7 +19,7 @@
     },
     {
       "id": "dynamo-quorum",
-      "claim": "Amazon’s Dynamo paper (2007): a read must reach at least R of the N copies and a write at least W; when R + W is more than N, every read overlaps every write.",
+      "claim": "Amazon’s Dynamo paper (2007): a read must reach at least R of the N copies and a write at least W; setting R + W above N gives a quorum-like system, where reads and writes share copies while the usual copies are up.",
       "source": "https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf",
       "accessed": "2026-10-30"
     },
