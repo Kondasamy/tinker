@@ -100,7 +100,7 @@ describe('memory', () => {
   it('Larkspur mini’s cache per token comes from its config: keys and values, 16 bits, every layer', () => {
     const c = m.config;
     expect(kvPerToken(sizeOf('mini'))).toBe(2 * c.n_layer * c.d_model * 2);
-    expect(sizeOf('mini').params).toBe(c.params ?? 51072);
+    expect(sizeOf('mini').params).toBe(memory(m, 16).params);
   });
   it('params × bits ÷ 8 is Larkspur mini’s real count without the row scales and vectors', () => {
     const s = sizeOf('mini');

@@ -38,6 +38,10 @@ import { ROOMS_BOARD, roomsScene, tokensOf } from '../../src/components/scenes/o
 import { OFFICE_BOARD, officeScene } from '../../src/components/scenes/officeScene';
 import { PAINT_BOARD, paintAt, paintScene } from '../../src/components/scenes/paintScene';
 import { PHONE_BOARD, phoneScene } from '../../src/components/scenes/phoneScene';
+import {
+  CRATE_BOARD as PHONE_CRATE_BOARD,
+  crateScene as phoneCrateScene,
+} from '../../src/components/scenes/phoneCrateScene';
 import { RACK_BOARD, rackScene } from '../../src/components/scenes/pigeonholeScene';
 import { PILE_BOARD, pileScene } from '../../src/components/scenes/pileScene';
 import { POST_BOARD, postScene } from '../../src/components/scenes/postScene';
@@ -569,6 +573,20 @@ const SCENES: Record<string, () => string> = {
         say: { block: 'lamp', text: 'UV lamp' },
       }),
     ),
+  // the 3B at 16 bits with a long context: a full crate, the spill drawn and counted, the tank half full and hot
+  phoneCrate: () =>
+    stage(
+      PHONE_CRATE_BOARD,
+      phoneCrateScene({
+        weights: 52,
+        cache: 8,
+        level: 0.5,
+        hot: true,
+        load: '7.34 GB / 2.00 GB',
+        charge: 'BATTERY 50%',
+        say: { block: 'tank', text: 'Battery' },
+      }),
+    ),
   // the memory run with shelf, cabinet and tray on (the callout test's state)
   window: () =>
     stage(
@@ -640,6 +658,8 @@ const BASE: Record<string, number> = {
   office: 66173,
   paint: 42392,
   phone: 45861,
+  // new with the on-device module (no pre-rework size): its first size is 46,295, with a little headroom
+  phoneCrate: 25000,
   pigeonhole: 110562,
   pile: 16097,
   post: 44758,
