@@ -8,21 +8,23 @@ import { createRoot, type Root } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
 import IsoStage from '../../src/lib/iso/IsoStage';
 import {
-  CRATE_BOARD,
+  PHONE_CRATE_BOARD,
   CRATE_BRICKS,
   CRATE_PARTS,
-  crateLabel,
-  crateScene,
+  phoneCrateLabel,
+  phoneCrateScene,
   packOf,
   SPILL_DRAWN,
-  type CrateOpts,
+  type PhoneCrateOpts,
 } from '../../src/components/scenes/phoneCrateScene';
 import { BITS, CONTEXTS, fits, SIZES } from '../../src/lib/on-device/memory';
 import { bricksFor, CrateStage, packText } from '../../src/content/on-device/kit';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
-const draw = (o: CrateOpts) =>
-  renderToString(createElement(IsoStage, { board: CRATE_BOARD, scene: crateScene(o), label: crateLabel(o) }));
+const draw = (o: PhoneCrateOpts) =>
+  renderToString(
+    createElement(IsoStage, { board: PHONE_CRATE_BOARD, scene: phoneCrateScene(o), label: phoneCrateLabel(o) }),
+  );
 const count = (svg: string, re: RegExp) => [...svg.matchAll(re)].length;
 const chapters = import.meta.glob<{ STEPS: { say?: { block: string } }[] }>('../../src/content/on-device/[0-9]*.tsx', {
   eager: true,
@@ -30,7 +32,7 @@ const chapters = import.meta.glob<{ STEPS: { say?: { block: string } }[] }>('../
 
 describe('the phone-shaped crate', () => {
   it('draws every part a callout may name, and every callout the chapters use is one of them', () => {
-    const full: CrateOpts = { weights: 14, cache: 4, level: 0.5 };
+    const full: PhoneCrateOpts = { weights: 14, cache: 4, level: 0.5 };
     for (const part of CRATE_PARTS) {
       const svg = draw({ ...full, say: { block: part, text: 'Here' } });
       expect(svg, part).toContain('Here');
@@ -69,7 +71,7 @@ describe('the phone-shaped crate', () => {
 
   it('escapes its pills and says the picture in words', () => {
     expect(draw({ weights: 1, level: 1, load: '<b>' })).toContain('&lt;b&gt;');
-    expect(crateLabel({ weights: 18, cache: 0, level: 0.5, hot: true })).toBe(
+    expect(phoneCrateLabel({ weights: 18, cache: 0, level: 0.5, hot: true })).toBe(
       'The handheld drawn as a phone-shaped crate in a warehouse aisle, holding 16 weight bricks of 16; 2 more spill onto the floor; it glows hot. Its battery tank is 50% full.',
     );
   });

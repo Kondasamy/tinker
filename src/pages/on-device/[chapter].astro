@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import WillItFit from '../../content/on-device/01-will-it-fit';
+import SmallerNumbers from '../../content/on-device/02-smaller-numbers';
+import WorkingMemory from '../../content/on-device/03-working-memory';
+import BatteryTank from '../../content/on-device/04-battery-tank';
+import HeatAndSpeed from '../../content/on-device/05-heat-and-speed';
+import WhatNeverLeaves from '../../content/on-device/06-what-never-leaves';
+import Workbench from '../../content/on-device/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('on-device').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="on-device" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-will-it-fit' ? <WillItFit client:load />
+    : chapter === '02-smaller-numbers' ? <SmallerNumbers client:load />
+    : chapter === '03-working-memory' ? <WorkingMemory client:load />
+    : chapter === '04-battery-tank' ? <BatteryTank client:load />
+    : chapter === '05-heat-and-speed' ? <HeatAndSpeed client:load />
+    : chapter === '06-what-never-leaves' ? <WhatNeverLeaves client:load />
+    : <Workbench client:load />}
+</ChapterLayout>

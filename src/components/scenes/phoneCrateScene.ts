@@ -1,6 +1,6 @@
 // Models on your device's picture: Larkspur's warehouse picking aisle (U6). A pallet rack of stock stands behind; in
 // front lies the hero object, the warehouse handheld drawn as a walk-in phone-shaped crate on its back, open on top,
-// with a home bar on its rim. Its floor holds 16 bricks, each a sixteenth of the memory the handheld leaves the app:
+// with a speaker slot and camera on its top end. Its floor holds 16 bricks, each a sixteenth of the memory the handheld leaves the app:
 // weight bricks (cobalt) first, then KV-cache bricks (mint); bricks past 16 spill onto the floor beside it. A battery
 // water tank stands at its back end, a glass drum whose water is the charge left, piped into the crate. A hot handheld
 // glows tomato with heat lines over it. The picker (CAST.tomas) stands by. Words only in pills; esc() on every pill.
@@ -14,11 +14,11 @@ import type { Say } from '../story/steps';
 /** The crate's floor holds this many bricks; spilled ones past it are drawn up to SPILL_DRAWN, then counted. */
 export const CRATE_BRICKS = 16,
   SPILL_DRAWN = 8;
-export const CRATE_BOARD: Board = [-8, -40, 116, 46];
+export const PHONE_CRATE_BOARD: Board = [-8, -40, 116, 46];
 /** The parts a step's callout may name. */
 export const CRATE_PARTS = ['crate', 'bricks', 'cache', 'spill', 'tank', 'picker'] as const;
 
-export interface CrateOpts {
+export interface PhoneCrateOpts {
   /** weight bricks and cache bricks (any count; past CRATE_BRICKS they spill) */
   weights: number;
   cache?: number;
@@ -46,12 +46,12 @@ const X0 = 4,
   CW = (X1 - X0 - 2 * WALL) / 4,
   CD = (Y1 - Y0 - 2 * WALL) / 4,
   BRICK_H = 5;
-const TANK = { x: 84, y: 6, r: 8, z1: BH + 36 },
-  PICKER = [96, 34];
+const TANK = { x: 82, y: -2, r: 7, z1: BH + 30 },
+  PICKER = [100, 26];
 const WATER = matOf('#8fc6e6');
 
 /** How the bricks lie: the first 16 in the crate (weights then cache), the rest spilled. Pure, for tests. */
-export function packOf(o: Pick<CrateOpts, 'weights' | 'cache'>) {
+export function packOf(o: Pick<PhoneCrateOpts, 'weights' | 'cache'>) {
   const kinds = [...Array<'w'>(Math.max(0, o.weights)).fill('w'), ...Array<'c'>(Math.max(0, o.cache ?? 0)).fill('c')];
   return { inside: kinds.slice(0, CRATE_BRICKS), spilled: kinds.slice(CRATE_BRICKS) };
 }
@@ -63,8 +63,8 @@ const brickAt = (i: number, k: 'w' | 'c') => {
   return `<g data-brick="${k}">${box(x + 0.7, y + 0.6, BH + 1, x + CW - 0.7, y + CD - 0.6, BH + 1 + BRICK_H, mat(k), toneI, 0.8)}</g>`;
 };
 
-/** The crate: a floor, four walls (tomato when hot), a home bar on the near rim, and its bricks. */
-function crate(o: CrateOpts, inside: ('w' | 'c')[]): Item {
+/** The crate: a floor, four walls (tomato when hot), a speaker slot and camera on its top end, and its bricks. */
+function crate(o: PhoneCrateOpts, inside: ('w' | 'c')[]): Item {
   const body = o.hot ? PALS.tomato : DARK;
   let s = box(X0, Y0, BH, X1, Y1, BH + 1, body, toneI, 1);
   s += box(X0, Y0, BH + 1, X1, Y0 + WALL, TOP, body, toneI, 1);
@@ -74,7 +74,9 @@ function crate(o: CrateOpts, inside: ('w' | 'c')[]): Item {
   s += `<g data-part="bricks">${w}</g><g data-part="cache">${c}</g>`;
   s += box(X1 - WALL, Y0 + WALL, BH + 1, X1, Y1 - WALL, TOP, body, toneI, 1);
   s += box(X0, Y1 - WALL, BH + 1, X1, Y1, TOP, body, toneI, 1);
-  s += box(X0 + 22, Y1 - WALL * 0.6, TOP, X1 - 22, Y1 - WALL * 0.4, TOP + 0.6, METAL, toneI, 0.6);
+  // the phone's top end: a speaker slot and a camera dot on the rim
+  s += box(X0 + 0.5, Y0 + 12, TOP, X0 + WALL - 0.5, Y1 - 12, TOP + 0.5, METAL, toneI, 0.6);
+  s += cyl(X0 + WALL / 2, Y0 + 7, TOP, TOP + 0.8, 1.1, METAL, toneI, 0.6, 12);
   if (o.hot)
     for (const x of [20, 37, 54]) {
       const [px, py] = P(x, 6, TOP + 6);
@@ -152,7 +154,7 @@ const pill = (p: number[], dx: number, dy: number, text: string, lit: boolean, s
   `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text), lit, scale)}</g>`;
 
 /** The aisle. Every shadow, one depth sort over rack, crate, tank and spill, the picker, then pills. */
-export const crateScene = (o: CrateOpts) => (ctx: SceneCtx) => {
+export const phoneCrateScene = (o: PhoneCrateOpts) => (ctx: SceneCtx) => {
   const scale = o.scale ?? 1,
     narrow = scale > 1.5,
     { inside, spilled } = packOf(o);
@@ -175,7 +177,7 @@ export const crateScene = (o: CrateOpts) => (ctx: SceneCtx) => {
   const picker = person({ x: PICKER[0], y: PICKER[1], facing: '-x', look: 'tomas', holding: null });
   const s = compact(tight(drawPieces([set], ctx.top) + `<g data-part="picker">${drawPieces([picker], ctx.top)}</g>`));
   const pills: string[] = [];
-  if (o.load) pills.push(pill([(X0 + X1) / 2, Y1, TOP], 0, 34, o.load, false, scale));
+  if (o.load) pills.push(pill([(X0 + X1) / 2, Y0, TOP], 0, -16, o.load, false, scale));
   if (o.charge && !narrow) pills.push(pill([TANK.x, TANK.y, TANK.z1 + 2], 0, -14, o.charge, false, scale));
   if (spilled.length > SPILL_DRAWN) pills.push(pill([30, 44, BH], 0, 20, `+${spilled.length} SPILLED`, true, scale));
   pills.push(
@@ -190,7 +192,7 @@ export const crateScene = (o: CrateOpts) => (ctx: SceneCtx) => {
 };
 
 /** The picture in words, for its aria-label. */
-export function crateLabel(o: CrateOpts): string {
+export function phoneCrateLabel(o: PhoneCrateOpts): string {
   const { inside, spilled } = packOf(o),
     w = inside.filter(k => k === 'w').length,
     c = inside.length - w;
@@ -200,7 +202,7 @@ export function crateLabel(o: CrateOpts): string {
 
 /** The home hero's plot (heroScene): the crate packed with twelve bricks and its tank, set down small. */
 export function phoneCratePlot(x: number, y: number, top: SceneCtx['top']): string {
-  const o: CrateOpts = { weights: 10, cache: 2, level: 0.7 };
+  const o: PhoneCrateOpts = { weights: 10, cache: 2, level: 0.7 };
   const p = mini(
     {
       shadow: castShadow(boxCorners(X0, Y0, BH, TANK.x + TANK.r, Y1, TOP), BH, top),

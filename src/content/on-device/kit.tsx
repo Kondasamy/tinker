@@ -8,7 +8,12 @@ import IsoStage from '../../lib/iso/IsoStage';
 import Cite from '../../components/story/Cite';
 import { ListRange } from '../../components/story/ListRange';
 import type { Say } from '../../components/story/steps';
-import { CRATE_BOARD, crateLabel, crateScene, type CrateOpts } from '../../components/scenes/phoneCrateScene';
+import {
+  PHONE_CRATE_BOARD,
+  phoneCrateLabel,
+  phoneCrateScene,
+  type PhoneCrateOpts,
+} from '../../components/scenes/phoneCrateScene';
 import {
   BITS,
   bricksOf,
@@ -129,7 +134,7 @@ export function CrateStage({
   const { weights, cache } = bricksFor(pack);
   const total = useEased(weights + cache, 1, reduced),
     level = useEased(pack.level ?? 1, 0.1, reduced);
-  const o: CrateOpts = {
+  const o: PhoneCrateOpts = {
     weights: Math.min(weights, total),
     cache: Math.max(0, total - weights),
     level,
@@ -153,7 +158,13 @@ export function CrateStage({
         {view === 'bars' ? (
           <Bars p={pack} />
         ) : (
-          <IsoStage className="od-aisle" board={CRATE_BOARD} style={FILL} scene={crateScene(o)} label={crateLabel(o)} />
+          <IsoStage
+            className="od-aisle"
+            board={PHONE_CRATE_BOARD}
+            style={FILL}
+            scene={phoneCrateScene(o)}
+            label={phoneCrateLabel(o)}
+          />
         )}
       </div>
       <p className="od-said" role="status" aria-live="polite">

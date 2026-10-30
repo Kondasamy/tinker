@@ -3,17 +3,27 @@
 // phone), then the stage live in the browser. Below 600px the phone versions show.
 import '../styles/tokens.css';
 import IsoStage from '../lib/iso/IsoStage';
-import { CRATE_BOARD, crateLabel, crateScene, type CrateOpts } from '../components/scenes/phoneCrateScene';
+import {
+  PHONE_CRATE_BOARD,
+  phoneCrateLabel,
+  phoneCrateScene,
+  type PhoneCrateOpts,
+} from '../components/scenes/phoneCrateScene';
 import { CrateStage } from '../content/on-device/kit';
 import { bricksOf, cacheBytes, sizeOf, weightBytes, type SizeId } from '../lib/on-device/memory';
 
-const pack = (size: SizeId, bits: number, tokens = 0, rest: Partial<CrateOpts> = {}): Omit<CrateOpts, 'scale'> => ({
+const pack = (
+  size: SizeId,
+  bits: number,
+  tokens = 0,
+  rest: Partial<PhoneCrateOpts> = {},
+): Omit<PhoneCrateOpts, 'scale'> => ({
   weights: bricksOf(weightBytes(sizeOf(size), bits)),
   cache: bricksOf(cacheBytes(sizeOf(size), tokens)),
   level: 1,
   ...rest,
 });
-const STATES: [string, Omit<CrateOpts, 'scale'>][] = [
+const STATES: [string, Omit<PhoneCrateOpts, 'scale'>][] = [
   ['Ch. 1: Larkspur mini at 16 bits', pack('mini', 16, 0, { say: { block: 'crate', text: 'The handheld' } })],
   ['Ch. 1: the 1B at 16 bits', pack('1b', 16, 0, { say: { block: 'spill', text: 'Spilled' } })],
   ['Ch. 1: the 3B at 16 bits', pack('3b', 16)],
@@ -40,9 +50,9 @@ const STATES: [string, Omit<CrateOpts, 'scale'>][] = [
         {STATES.map(([title, o]) => (
           <section>
             <h2>{title}</h2>
-            <div class="wide"><IsoStage board={CRATE_BOARD} scene={crateScene({ ...o, scale: 1.2 })} label={crateLabel(o)} /></div>
-            <div class="phone"><IsoStage board={CRATE_BOARD} scene={crateScene({ ...o, scale: 2 })} label={crateLabel(o)} /></div>
-            <p>{crateLabel(o)}</p>
+            <div class="wide"><IsoStage board={PHONE_CRATE_BOARD} scene={phoneCrateScene({ ...o, scale: 1.2 })} label={phoneCrateLabel(o)} /></div>
+            <div class="phone"><IsoStage board={PHONE_CRATE_BOARD} scene={phoneCrateScene({ ...o, scale: 2 })} label={phoneCrateLabel(o)} /></div>
+            <p>{phoneCrateLabel(o)}</p>
           </section>
         ))}
       </div>

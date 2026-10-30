@@ -38,10 +38,7 @@ import { ROOMS_BOARD, roomsScene, tokensOf } from '../../src/components/scenes/o
 import { OFFICE_BOARD, officeScene } from '../../src/components/scenes/officeScene';
 import { PAINT_BOARD, paintAt, paintScene } from '../../src/components/scenes/paintScene';
 import { PHONE_BOARD, phoneScene } from '../../src/components/scenes/phoneScene';
-import {
-  CRATE_BOARD as PHONE_CRATE_BOARD,
-  crateScene as phoneCrateScene,
-} from '../../src/components/scenes/phoneCrateScene';
+import { PHONE_CRATE_BOARD, phoneCrateScene } from '../../src/components/scenes/phoneCrateScene';
 import { RACK_BOARD, rackScene } from '../../src/components/scenes/pigeonholeScene';
 import { PILE_BOARD, pileScene } from '../../src/components/scenes/pileScene';
 import { POST_BOARD, postScene } from '../../src/components/scenes/postScene';
