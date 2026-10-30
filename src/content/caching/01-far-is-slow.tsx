@@ -9,7 +9,8 @@ import { ASSUMPTIONS, MOMENTS, OFF, clock, runOf, tripMs, type Edge } from '../.
 import { DEPOT_PARTS, EDGE_NAME, IDLE, depotAt } from '../../components/scenes/depotScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { CachingStage, SimNote, msOf, type View } from './kit';
+import { fact } from '../../lib/caching/facts';
+import { CachingStage, Fact, SimNote, msOf, type View } from './kit';
 
 const MODULE = 'caching',
   ID = '01-far-is-slow';
@@ -18,6 +19,8 @@ export const RUN = runOf(OFF);
 /** One request's wait with no copies anywhere and a calm depot: to the warehouse, the round trip, and back. */
 export const waitOf = (e: Edge) => ASSUMPTIONS.edgeMs + tripMs(e);
 const km = (e: Edge) => `${ASSUMPTIONS.distanceKm[e].toLocaleString('en-US')} km`;
+/** Real fibre's round trip per 100 km in ms, from the ITU's one-way planning value in µs per km. */
+export const FIBRE_MS_PER_100KM = (Number(fact('fiber-delay').value) * 2 * 100) / 1000;
 
 export const P1 = {
   question: `North’s request waited ${msOf(waitOf('north'))}. How will West’s compare?`,
@@ -161,6 +164,10 @@ export default function FarIsSlow() {
             <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />
             <p className="tc-status">{`West waited ${msOf(waitOf('west'))}, North ${msOf(waitOf('north'))}.`}</p>
             <SimNote />
+            <Fact id="fiber-delay" />
+            <p className="note ca-note">
+              {`Real fibre alone costs ${FIBRE_MS_PER_100KM} ms of round trip per 100 km, so West’s ${km('west')} take at least ${Math.round((FIBRE_MS_PER_100KM * ASSUMPTIONS.distanceKm.west) / 100)} ms; the toy plans ${ASSUMPTIONS.msPer100Km} ms per 100 km.`}
+            </p>
             <p className="note ca-note">
               What one round trip holds, from the name to the last file: <a href="/web-requests/">Opening a web page</a>
               .

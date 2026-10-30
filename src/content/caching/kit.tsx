@@ -257,7 +257,8 @@ export function Fact({ id }: { id: string }) {
 /** Shown wherever the simulator's waits or counts appear (R6). */
 export const SimNote = () => (
   <p className="note ca-note">
-    A simulated day: Larkspur’s own traffic and planning numbers, not a measurement of any real network or CDN.
+    A simulated day: Larkspur’s own traffic and planning numbers, not a measurement of any real network or CDN (a
+    network of caches run for many sites).
   </p>
 );
 

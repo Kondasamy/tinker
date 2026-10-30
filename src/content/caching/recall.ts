@@ -65,7 +65,7 @@ export const RECALL: RecallItem[] = [
     correct: 0,
     why: [
       'Right. Latency is the wait one request sees, trip and work together.',
-      'That is throughput, a server’s capacity, not the wait one customer sees.',
+      'That is how much work a server gets through, its capacity, not the wait one customer sees.',
       'A page’s size can add to the wait, but the size itself isn’t the wait.',
     ],
   },

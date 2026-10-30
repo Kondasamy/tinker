@@ -17,3 +17,19 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **Chapter 6 links `/context/04-order-for-the-cache/` and `/inference/02-kv-cache-at-scale/`**, and those chapters link back to `/caching/`; prompt-cache and KV-cache claims come from the module's own facts.
 - **Coverage:** `tests/unit/caching-sim.test.ts` runs every policy and checks the lessons; `caching-workbench.test.ts` checks each chapter's reveal against the runs and that Show me is a winner.
 - **Facts about HTTP caching and CDNs** come from `data/caching/facts.json` with source and access date. Fastly's request-collapsing guide is the one CDN document cited, as a source, not a recommendation.
+
+## Toy vs real
+
+Every wait, trip and count comes from the simulated day (`trace.json`, `assumptions.json`), labelled by `SimNote` on each chapter that shows one; the cited fact sits beside it. Real HTTP behaviour (freshness, max-age, purge, versioned names, collapsing, stale-while-revalidate) is the engine's rule set, not a number.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+| --- | --- | --- | --- |
+| 1 | Distances 300 / 900 / 2,800 km | — (Larkspur's map) | Labelled (planning numbers) |
+| 1 | Waits (12 ms to a warehouse, 60 ms depot work, 2 ms round trip per 100 km) | `fiber-delay`: 5 µs per km each way, so 1 ms of round trip per 100 km | Labelled: the copy shows real fibre's floor (computed from the fact) beside the toy's 2 ms |
+| 1 | Requests in the day, trips in the sale | — (hand-written trace) | Labelled |
+| 2 | Hit rate, trips, mean wait with shelves off and on | `cache-reuse` (what a cache is for; no single real hit rate fits a toy day) | Labelled |
+| 3 | TTL steps (15 min, 1 h, 4 h, a day), stale price reads, trips, hit rate | `fresh`, `max-age` (TTL is the reader's setting; any length is valid HTTP) | Labelled (settings and simulated counts) |
+| 4 | Hit rate, stale prices and photos per way back | `purge`, `cache-busting` | Labelled |
+| 5 | Depot capacity 20 trips a quarter hour, 40 ms per extra trip, trips and waits at the sale, stale stock reads, 30 min of stale-while-revalidate | `collapse-rfc`, `collapse-cdn`, `swr` (RFC 5861 lets the origin set any window) | Labelled |
+| 6 | No numbers of its own besides the caption's clock | `prompt-cache-lifetime` (5 minutes), `prompt-cache-match`, `kv-cache` | Real (quoted from the facts) |
+| 7 | Owner's limits (0, 0, 15%), hit rate per kind, best hit rate, number of winners | `immutable` | Labelled: limits are team choices (`workbench.json`); best and winners computed |
