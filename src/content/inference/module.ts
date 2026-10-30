@@ -10,7 +10,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Prefill and decode',
     intro: {
       story:
-        'Monday mornings, customers wait for the assistant’s first word, then watch the reply trickle out. The team runs its own server. What does one request cost?',
+        'Monday mornings, customers wait for the assistant’s first word, then watch the reply trickle out. The team runs the server. What does one request cost?',
       goal: 'Why does the first token take a different time from every token after it?',
       learn: [
         'Prefill: the model reads the whole prompt in one pass',
@@ -18,6 +18,7 @@ const CHAPTERS: Chapter[] = [
         'Why time to first token grows with the prompt, while time per token barely does',
       ],
       terms: [
+        ['Inference', 'Running a trained model to get its reply: the work a server does for every request.'],
         ['Forward pass', 'One run of the model over its input, ending in a score for every possible next token.'],
         [
           'Prefill',

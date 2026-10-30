@@ -158,7 +158,7 @@ export const RECALL: RecallItem[] = [
   {
     id: 'quant-memory',
     chapter: '04-smaller-numbers',
-    question: 'A 7-billion-parameter model is stored in 16 bits. Roughly how much weight memory does int4 need?',
+    question: 'A model with 7 billion weights is stored in 16 bits. Roughly how much weight memory does int4 need?',
     options: [
       'About a quarter: 4 bits instead of 16 per weight',
       'About half',
@@ -166,7 +166,7 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right. Memory is parameters × bits ÷ 8, plus a little for the scales.',
+      'Right. Memory is weights × bits ÷ 8, plus a little for the scales.',
       'Half is 8 bits.',
       'The count stays, but each weight takes a quarter of the bits.',
     ],
@@ -208,7 +208,7 @@ export const RECALL: RecallItem[] = [
   {
     id: 'spec-same',
     chapter: '05-guess-ahead',
-    question: 'Does speculative decoding with greedy picks change what the big model replies?',
+    question: 'When the big model always takes its top pick, does speculative decoding change its reply?',
     options: [
       'No: every kept token is one the big model checked and would have picked itself',
       'Slightly: the draft model’s style leaks in',

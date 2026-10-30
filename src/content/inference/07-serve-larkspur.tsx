@@ -10,7 +10,7 @@ import { SERVE_PARTS, floorAt } from '../../components/scenes/serveScene';
 import { ms } from '../../components/scenes/serverTimeline';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { CostModelNote, InferenceStage, type View } from './kit';
+import { CostModelNote, Fact, InferenceStage, type View } from './kit';
 
 const MODULE = 'inference',
   ID = '07-serve-larkspur';
@@ -67,7 +67,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'ties',
     focus: 'quiz',
-    visibleControls: ['score', 'bench', 'quiz'],
+    visibleControls: ['score', 'facts', 'bench', 'quiz'],
     narration: `${BEST} of ${runOf(START).served.length} is the best; yours is one of ${WINNERS.length} that work.${BEST < runOf(START).served.length ? ' The rest arrive mid-rush, beyond any setting.' : ''}`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -209,6 +209,13 @@ export default function ServeLarkspur() {
       }}
       controls={{
         score: ({ state }) => <Score s={state} />,
+        facts: () => (
+          <>
+            <Fact id="distserve-goodput" />
+            <Fact id="distserve-chatbot-targets" />
+            <p className="note in-note">{`Larkspur’s targets, ${ms(TARGETS.ttftMs)} and ${ms(TARGETS.tpotMs)}, are the support lead’s choice, not an industry figure: each product sets its own.`}</p>
+          </>
+        ),
         // changing the settings is an attempt only while it is the puzzle
         bench: ({ state, apply, sync, focused }) => <Bench s={state} set={focused ? apply : sync} />,
         quiz: ({ state, apply, sync }) => (

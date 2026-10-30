@@ -376,6 +376,7 @@ export function Fact({ id }: { id: string }) {
 export const CostModelNote = () => (
   <p className="note in-note">
     Times come from a simulated server: counted work at assumed unit costs, not a measurement of any real server or
-    provider.
+    provider. Real times differ; what carries over is the shape: reading the prompt is mostly computing, writing the
+    reply mostly reading weights from memory.
   </p>
 );

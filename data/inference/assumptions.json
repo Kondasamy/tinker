@@ -7,5 +7,5 @@
   "overheadMs": 2,
   "overheadWords": "2 ms of fixed overhead per iteration",
   "bytesPerNumber": 2,
-  "kvRoomGB": [4, 8, 14]
+  "kvRoomGB": [4, 8]
 }

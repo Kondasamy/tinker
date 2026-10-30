@@ -29,7 +29,7 @@ const HERO = pic(floorAt(run('continuous', 8, 14)));
 const IDEAS: [string, string, ReturnType<typeof fact>, ServeOpts][] = [
   [
     'The KV cache',
-    'Every request in flight holds its own cache',
+    'Every request being served keeps its own notes',
     fact('kv-800kb'),
     pic(floorAt(run('continuous', 16, 4))),
   ],
@@ -74,7 +74,7 @@ const FACTS: [string, string][] = [
           <p class="kicker">Module 13 · Inference</p>
           <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>What happens between the prompt and the reply</h1>
-          <p class="lede">A model server reads each prompt in one pass, then writes the reply one token per pass, for many customers at once. Here you run one, from a single request to Monday morning’s rush: batching, the KV cache, smaller numbers and a small model that guesses ahead.</p>
+          <p class="lede">A model server reads each prompt in one pass, then writes the reply one token per pass, for many customers at once. Here you run one, from a single request to Monday morning’s rush: batching, the KV cache (the notes it keeps on every token it has read), smaller numbers and a small model that guesses ahead.</p>
           <div class="ctas">
             <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
             <a class="btn" href="#path">See the chapters</a>
@@ -126,7 +126,7 @@ const FACTS: [string, string][] = [
           <p class="kicker">The story</p>
           <h2 id="story">Larkspur serves its own model</h2>
           <p class="more">{MODULE.story} <strong>You’re on the team that runs the server.</strong></p>
-          <p class="prev">Played <a href="/transformers/">Transformers</a>? Chapter 2 picks up its KV cache from <a href="/transformers/06-why-long-prompts-cost-more/">chapter 6</a> and multiplies it over a real server. OPT-13B’s shape: {OPEN_MODEL.n_layer} layers, d_model {num(OPEN_MODEL.d_model)}.</p>
+          <p class="prev">Played <a href="/transformers/">Transformers</a>? Chapter 2 picks up its KV cache from <a href="/transformers/06-why-long-prompts-cost-more/">chapter 6</a> and multiplies it over a real server. OPT-13B’s shape: {OPEN_MODEL.n_layer} layers, each {num(OPEN_MODEL.d_model)} numbers wide.</p>
         </div>
         <dl class="facts">
           {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}

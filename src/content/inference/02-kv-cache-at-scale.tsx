@@ -147,19 +147,19 @@ export default function KvCacheAtScale() {
           <>
             <table className="tc-ledger">
               <caption>
-                <a href="/caching/">KV cache</a>, counted from each model’s shape: layers × 2 (key and value) × d_model
-                × tokens × 2 bytes
+                <a href="/caching/">KV cache</a>, counted from each model’s shape: layers × 2 (key and value) × width ×
+                tokens × 2 bytes
               </caption>
               <tbody>
                 {state.recap && (
                   <tr>
-                    <th scope="row">{`Larkspur mini (${LM.n_layer} layers, d_model ${LM.d_model}), ${LM.ctx} tokens`}</th>
+                    <th scope="row">{`Larkspur mini (${LM.n_layer} layers, width ${LM.d_model}), ${LM.ctx} tokens`}</th>
                     <td>{kb(MINI_BYTES)}</td>
                   </tr>
                 )}
                 {state.scaled && (
                   <tr>
-                    <th scope="row">{`OPT-13B (${OPEN_MODEL.n_layer} layers, d_model ${num(OPEN_MODEL.d_model)}), 1 token`}</th>
+                    <th scope="row">{`OPT-13B (${OPEN_MODEL.n_layer} layers, width ${num(OPEN_MODEL.d_model)}), 1 token`}</th>
                     <td>{kb(PER_TOKEN)}</td>
                   </tr>
                 )}

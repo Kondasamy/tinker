@@ -80,7 +80,7 @@ export const STEPS: Step<S>[] = [
     id: 'read',
     focus: 'run',
     visibleControls: ['run'],
-    narration: `A request arrives: “${PROMPT}”. One forward pass reads all ${N} tokens at once: the prefill.`,
+    narration: `A request arrives: “${PROMPT}”. Inference starts: one forward pass reads all ${N} tokens together, the prefill.`,
     act: 'Read the prompt.',
     say: { block: 'queue', text: 'Prompt waiting' },
     predicate: s => !!modelNow('base') && s.read,

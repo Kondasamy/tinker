@@ -42,7 +42,7 @@ export function runAt(target: Model, draft: Model, k: number): SpecRun {
 }
 
 export const P1 = {
-  question: `The student, about ${Math.round(SMALL / 1000)}k parameters to Larkspur mini’s ${Math.round(BIG / 1000)}k, will guess ${K} tokens at a time; Larkspur mini checks each guess in one pass and keeps what it agrees with. What happens to the reply?`,
+  question: `The student, about ${Math.round(SMALL / 1000)}k learned numbers to Larkspur mini’s ${Math.round(BIG / 1000)}k, will guess ${K} tokens at a time; Larkspur mini checks each guess in one pass and keeps what it agrees with. What happens to the reply?`,
   options: [
     'The same reply, in fewer passes of Larkspur mini',
     'A slightly different reply: the student’s guesses get in',
@@ -239,7 +239,7 @@ function Ks({ target, draft, s, set }: { target: Model; draft: Model; s: S; set:
           })}
         </tbody>
       </table>
-      <p className="note in-note">{`Same output as plain decoding at every setting. Runs stop at Larkspur mini’s ${META.model.ctx}-token window, so no check ever reads a cut-off prompt. These are Larkspur mini’s numbers (${num(BIG)} parameters), not any provider’s.`}</p>
+      <p className="note in-note">{`Same output as plain decoding at every setting. Runs stop at Larkspur mini’s ${META.model.ctx}-token window, so no check ever reads a cut-off prompt. These are Larkspur mini’s numbers (${num(BIG)} learned numbers), not any provider’s; the papers cited next measured their speed-ups on models far larger.`}</p>
     </>
   );
 }

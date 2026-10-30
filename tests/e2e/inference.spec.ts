@@ -123,7 +123,7 @@ test('chapter 4: a precision changed during the prediction still scores 8 agains
   await expect(c).toContainText(/Step [45] of/, { timeout: 30_000 });
   await c.getByRole('button', { name: '4 bits' }).click();
   await expect(c).toContainText('Step 5 of');
-  await c.getByRole('radio', { name: /^Run its own evals/ }).click();
+  await c.getByRole('radio', { name: /^Test the 4-bit model/ }).click();
   await expect(c).toContainText('Chapter complete');
 });
 
