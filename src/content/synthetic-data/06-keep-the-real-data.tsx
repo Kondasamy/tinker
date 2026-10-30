@@ -61,10 +61,10 @@ export const STEPS: Step<S>[] = [
     focus: 'show',
     visibleControls: ['pick', 'show'],
     narration: 'Accumulate changes the data mix: Larkspur’s real documents stay in every generation’s training.',
-    act: `Show generation ${LAST} under each arm.`,
+    act: `Show generation ${LAST} both ways.`,
     say: { block: 'originals', text: 'Real text stays' },
     predicate: both,
-    hint: `Set the generation to ${LAST}, then switch the arm.`,
+    hint: `Set the generation to ${LAST}, then switch between Replace and Accumulate.`,
     solution: s => ({ ...s, arm: 'accumulate', gen: LAST, seen: [...s.seen, `replace${LAST}`, `accumulate${LAST}`] }),
   },
   {
@@ -74,7 +74,7 @@ export const STEPS: Step<S>[] = [
     narration: `Loss ${loss(R5.heldout)} replace, ${loss(A5.heldout)} accumulate. Rare words guessed ${pct(R5.rareTop5)} versus ${pct(A5.rareTop5)}: slowed, not stopped.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
-    hint: 'Which arm kept the real documents?',
+    hint: 'Which way kept the real documents?',
   },
 ];
 

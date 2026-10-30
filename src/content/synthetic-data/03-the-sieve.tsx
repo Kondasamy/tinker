@@ -13,7 +13,7 @@ import { BATCH, replyText } from '../../lib/synthetic-data/generate';
 import { RUNS } from '../../lib/synthetic-data/runs';
 import { SIEVES, sieve, type SieveKind, type Verdict } from '../../lib/synthetic-data/sieve';
 import { COPIER_PARTS } from '../../components/scenes/copierScene';
-import { CopierStage, LoadLine, ToyNote, Waiting, batchNow, useBatch, useModel } from './kit';
+import { CopierStage, Fact, LoadLine, ToyNote, Waiting, batchNow, useBatch, useModel } from './kit';
 
 const MODULE = 'synthetic-data',
   ID = '03-the-sieve';
@@ -84,7 +84,8 @@ export const STEPS: Step<S>[] = [
     id: 'dedupe',
     focus: 'sieve',
     visibleControls: ['p1', 'sieve', 'list'],
-    narration: 'Dedupe drops a copy, or a reply whose four-piece runs are mostly in replies already kept.',
+    narration:
+      'Dedupe drops copies and near-copies: replies sharing at least half their four-piece phrases with replies kept.',
     act: 'Set the sieve to Dedupe.',
     predicate: s => s.sieve === 'dedupe',
   },
@@ -196,7 +197,12 @@ export default function TheSieve() {
           </fieldset>
         ),
         list: ({ state }) => <List kind={state.sieve} />,
-        out: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />,
+        out: ({ state }) => (
+          <>
+            <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />
+            <Fact id="self-instruct-filter" />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}
