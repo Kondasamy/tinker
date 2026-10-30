@@ -9,6 +9,7 @@ import { AGENT_BOARD, agentLabel, agentScene, agentState, type AgentOpts } from 
 import { agentLanes, agentMessages } from '../../components/scenes/agentSequence';
 import { totalTokens, type Run } from '../../lib/agents/loop';
 import { fact } from '../../lib/agents/facts';
+import { BYTES_PER_TOKEN } from '../../lib/scale';
 import { openMessage, useNarrow } from '../tool-calling/kit';
 import Cite from '../../components/story/Cite';
 import type { Say } from '../../components/story/steps';
@@ -154,3 +155,10 @@ export function Fact({ id }: { id: string }) {
     </p>
   );
 }
+
+/** Said beside a real figure wherever the runs' numbers show (R6): recorded turns and Larkspur's own host settings. */
+export const ToyNote = () => (
+  <p className="note">
+    {`These runs are a toy: model turns written by hand for made-up Larkspur cases, with a token counted as ${BYTES_PER_TOKEN} bytes of text. The step budget, repeat detector and context budget are settings Larkspur chose, not any product’s defaults.`}
+  </p>
+);

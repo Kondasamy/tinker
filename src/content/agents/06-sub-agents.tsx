@@ -24,7 +24,7 @@ import { fact } from '../../lib/agents/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
-import { AgentStage, Chips, Fact } from './kit';
+import { AgentStage, Chips, Fact, ToyNote } from './kit';
 import { AGENT_PARTS } from '../../components/scenes/agentScene';
 
 /** the parts a step's callout may name: the back office with the agent's props */
@@ -232,6 +232,8 @@ export default function SubAgents() {
               </tbody>
             </table>
             <Fact id="multi-agent-tokens" />
+            <p className="note">{`Here helpers cost ${RATIO} times the lead alone, on hand-written turns; Anthropic’s ${fact('multi-agent-tokens').value} times is real runs, measured against chat.`}</p>
+            <ToyNote />
           </>
         ),
         quiz: ({ state, apply, sync }) => (

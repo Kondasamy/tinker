@@ -14,7 +14,7 @@ import { RECORDINGS } from '../../lib/agents/turns';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
-import { AgentStage, Chips, Fact } from './kit';
+import { AgentStage, Chips, Fact, ToyNote } from './kit';
 import { AGENT_PARTS } from '../../components/scenes/agentScene';
 
 /** the parts a step's callout may name: the back office with the agent's props */
@@ -133,7 +133,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'tighter',
     focus: 'budget',
-    visibleControls: ['out2', 'meter', 'budget'],
+    visibleControls: ['out2', 'meter', 'fact', 'budget'],
     narration: `Each turn re-sends the whole case: turn 1 sent ${n(INPUTS[0])} tokens, turn ${INPUTS.length} sent ${n(INPUTS.at(-1)!)}, ${n(totalTokens(OPEN))} in all.`,
     act: `Set the budget to ${TIGHT} steps.`,
     say: { block: 'gauge', text: 'Grows each turn' },
@@ -226,6 +226,16 @@ export default function Budgets() {
           </button>
         ),
         meter: ({ state }) => <Meter r={current(state)} />,
+        fact: () => (
+          <>
+            <Fact id="agent-costs" />
+            <p className="note">
+              The meter counts the toy’s hand-written turns. A real model is sent the whole conversation each turn too,
+              so retries cost more as the history grows.
+            </p>
+            <ToyNote />
+          </>
+        ),
         budget: ({ state, apply }) => (
           <Chips
             label="Step budget"

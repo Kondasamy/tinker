@@ -14,7 +14,7 @@ import { fact } from '../../lib/agents/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
-import { AgentStage, Fact } from './kit';
+import { AgentStage, Fact, ToyNote } from './kit';
 import { AGENT_PARTS } from '../../components/scenes/agentScene';
 
 /** the parts a step's callout may name: the back office with the agent's props */
@@ -147,7 +147,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'refund',
     focus: 'next',
-    visibleControls: ['out1', 'tally', 'next'],
+    visibleControls: ['out1', 'tally', 'fact', 'next'],
     narration: `Same refund and email, but the script asked the model nothing; the agent spent ${n(totalTokens(REFUND.agent))} tokens. A foreseen case suits a script.`,
     act: 'Next case.',
     say: { block: 'model', text: 'Script skips it' },
@@ -293,6 +293,13 @@ export default function WorkflowOrAgent() {
           </>
         ),
         tally: ({ state }) => <Tally s={state} />,
+        fact: () => (
+          <>
+            <Fact id="multi-agent-tokens" />
+            <p className="note">{`Here the agent spent ${n(totalTokens(REFUND.agent))} tokens on one hand-written refund and the script none; Anthropic’s figures come from real runs, measured against chat.`}</p>
+            <ToyNote />
+          </>
+        ),
         next: ({ state, apply }) => (
           <button
             type="button"

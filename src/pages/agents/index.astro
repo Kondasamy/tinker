@@ -78,7 +78,7 @@ const STEPS: [string, string, ReturnType<typeof fact>, [number, number, number, 
     solo(() => trayProp(30, 30, 6, false), [19, 22, 41, 38, 8]),
   ],
   [
-    'The host keeps it in bounds',
+    'The app around it keeps it in bounds',
     'Budgets and stops',
     fact('stopping-conditions'),
     [16, 14, 44, 42],
@@ -108,7 +108,7 @@ const FACTS: [string, string][] = [
   ],
   [String(AGENT_TOOLS.length), 'tools the agent can call'],
   [String(CASE_ORDERS.length), 'orders in the storm case'],
-  [num(totalTokens(AGENT)), 'tokens the agent spends on the cracked printer'],
+  [num(totalTokens(AGENT)), 'tokens (small pieces of text) the agent uses on the cracked printer'],
 ];
 ---
 <html lang="en">
@@ -159,7 +159,7 @@ const FACTS: [string, string][] = [
             <blockquote><span>The agent chose</span><code>{names(AGENT).join(' → ')}</code></blockquote>
           </article>
         </div>
-        <p class="note more">These are the course’s own recorded model turns, and the script runs for real over the same tools. On a routine refund the script does just as well, for fewer tokens: chapter 1 shows both.</p>
+        <p class="note more">The agent’s replies here were written ahead of time for this course, and the script runs for real over the same tools. On a routine refund the script does just as well, for fewer tokens: chapter 1 shows both.</p>
       </section>
 
       <section aria-labelledby="how">

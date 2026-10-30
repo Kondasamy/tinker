@@ -12,7 +12,7 @@ import { RECORDINGS } from '../../lib/agents/turns';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
-import { AgentStage, Fact } from './kit';
+import { AgentStage, Fact, ToyNote } from './kit';
 import { AGENT_PARTS } from '../../components/scenes/agentScene';
 
 /** the parts a step's callout may name: the back office with the agent's props */
@@ -81,10 +81,10 @@ export const QUIZ = {
     'The run ends because the warehouse tool said so',
   ],
   correct: 2,
-  explanation: 'The model decides when the case is done. The host’s budget is only a backstop.',
+  explanation: 'The model decides when the case is done. The host’s budget is only a safety net.',
   why: [
     `The host never waits for tools to run out: in the printer case ${UNUSED.join(' and ')} never ran, and the run still ended.`,
-    `A budget is a backstop for a run that never ends: the printer case ended after ${TURNS} of its ${BUDGET} turns.`,
+    `A budget is a safety net for a run that never ends: the printer case ended after ${TURNS} of its ${BUDGET} turns.`,
     'Right: each turn the model either asks for calls or answers, and an answer with no call is how it says “done”.',
     'A tool result is just more for the model to read; the model decides whether the case is finished.',
   ],
@@ -150,9 +150,9 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['out1', 'out2', 'quiz'],
+    visibleControls: ['out1', 'out2', 'fact', 'quiz'],
     opensDrawer: 'loop',
-    narration: `Turn ${TURNS}. No call this time, so the model is done. The step budget of ${BUDGET} was only a backstop.`,
+    narration: `Turn ${TURNS}. No call this time, so the model is done. The step budget of ${BUDGET} was only a safety net.`,
     act: 'One question to finish.',
     say: { block: 'model', text: 'Answered: done' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -176,6 +176,13 @@ export default function TheLoop() {
         p2: ({ state, apply }) => <Predict {...P2} value={state.p2} onPredict={i => apply({ ...state, p2: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUT1} />,
         out2: ({ state }) => <Outcome {...P2} prediction={state.p2} outcome={OUT2} />,
+        fact: () => (
+          <>
+            <Fact id="stopping-conditions" />
+            <p className="note">{`Larkspur’s step budget of ${BUDGET} turns is its own choice: the guide names the kind of rule, not a number.`}</p>
+            <ToyNote />
+          </>
+        ),
         // the button never says how many turns are left: that is what the reader predicts
         play: ({ state, sync }) => (
           <>

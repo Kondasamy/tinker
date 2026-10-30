@@ -130,7 +130,7 @@ test('chapter 2: the turn counter matches the run, the predictions stay locked b
   await c.getByRole('radio', { name: /until every tool has been used/ }).click();
   await expect(fb).toContainText('never waits for tools to run out');
   await c.getByRole('radio', { name: /step budget is spent/ }).click();
-  await expect(fb).toContainText('backstop');
+  await expect(fb).toContainText('safety net');
 });
 
 // chapter 3's first plan, as recorded: the damaged case with plan mode on

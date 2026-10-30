@@ -21,7 +21,7 @@ import {
 import { RECORDINGS } from '../../lib/agents/turns';
 import { moduleOf, nextOf } from '../../lib/modules';
 import { Messages } from '../tool-calling/kit';
-import { AgentStage, Chips, Fact, Group, type View } from './kit';
+import { AgentStage, Chips, Fact, Group, ToyNote, type View } from './kit';
 import { AGENT_PARTS } from '../../components/scenes/agentScene';
 
 /** the parts a step's callout may name: the back office with the agent's props */
@@ -150,7 +150,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'endings',
     focus: 'endings',
-    visibleControls: ['bench', 'run', 'endings', 'readout'],
+    visibleControls: ['bench', 'run', 'endings', 'readout', 'fact'],
     narration: 'Done, failed, waiting, stuck, out of budget: each ending comes from a different case or host setting.',
     act: `Find all ${ENDINGS.length}.`,
     predicate: complete,
@@ -305,6 +305,12 @@ export default function Workbench() {
             </div>
           );
         },
+        fact: () => (
+          <>
+            <Fact id="agent-costs" />
+            <ToyNote />
+          </>
+        ),
         endings: ({ state }) => (
           <p className="tc-status" data-found={state.seen.length}>
             Endings found: {state.seen.length} of {ENDINGS.length}
