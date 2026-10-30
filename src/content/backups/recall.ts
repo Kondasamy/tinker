@@ -170,14 +170,14 @@ export const RECALL: RecallItem[] = [
     chapter: C4,
     question: 'What does the 3-2-1 rule ask for?',
     options: [
-      'Three copies, on two kinds of media, one off-site',
+      'Three copies, on two kinds of storage, one off-site',
       'Three backups a day, two people, one restore',
       'Three disks mirrored, two servers, one site',
     ],
     correct: 0,
     why: [
-      'Right. Enough copies, different media, and one away from the building.',
-      'The numbers count copies, media and places, not how often.',
+      'Right. Enough copies, different kinds of storage, and one away from the building.',
+      'The numbers count copies, kinds of storage and places, not how often.',
       'Mirrors on one site share one site’s disasters.',
     ],
   },

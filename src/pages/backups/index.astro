@@ -27,7 +27,12 @@ const W = (k: keyof typeof SCENES) => weekOf(SCENES[k]);
 const NIGHTLY = restore(W('nightly'), STRIKES.thu),
   HOURLY = restore(W('hourly'), STRIKES.thu);
 const IDEAS: [string, string, ReturnType<typeof fact> | null, SafeOpts][] = [
-  ['One copy is no copy', 'A dead disk takes every order with it', null, pic(safeAt(W('none'), 0, STRIKES.wed))],
+  [
+    'One copy is no copy',
+    'A dead disk takes every order with it',
+    fact('disk-failures'),
+    pic(safeAt(W('none'), 0, STRIKES.wed)),
+  ],
   [
     'Not in the same building',
     'A fire takes the tapes beside the server',

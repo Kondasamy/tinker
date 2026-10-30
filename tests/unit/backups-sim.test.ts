@@ -125,3 +125,18 @@ describe('the chapters’ effects, pinned', () => {
     else expect(now).toEqual(pinned.scenes);
   });
 });
+
+describe('numbers the copy types', () => {
+  it('hourly copies make 24 tapes a day from 01:00 (chapter 2)', () => {
+    expect(simulate(SCENES.hourly).copies.filter(c => c.place === 'cabinet' && c.t >= 1 && c.t < 25)).toHaveLength(24);
+  });
+  it('the off-site week keeps 3 copies, 1 off-site, as chapter 4 says of 3-2-1', () => {
+    const at = STRIKES.fire.hour,
+      places = new Set(
+        simulate(SCENES.offsite)
+          .copies.filter(c => c.t <= at)
+          .map(c => c.place),
+      );
+    expect([...places].sort()).toEqual(['cabinet', 'warehouse']); // plus the live disk: 3 copies, the warehouse off-site
+  });
+});

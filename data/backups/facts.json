@@ -2,8 +2,15 @@
   "accessed": "2026-10-30",
   "facts": [
     {
+      "id": "disk-failures",
+      "claim": "In Schroeder and Gibson’s 2007 study of disks in large real systems, 2–4% of disks needing replacement each year was common, and some systems reached 13%.",
+      "value": "2-4%",
+      "source": "https://www.usenix.org/legacy/events/fast07/tech/schroeder/schroeder_html/",
+      "accessed": "2026-10-30"
+    },
+    {
       "id": "3-2-1",
-      "claim": "US-CERT’s Data Backup Options (Ruggiero and Heckathorn, 2012) gives the 3-2-1 rule: keep 3 copies of any important file, 1 primary and 2 backups; on 2 different media types; and store 1 copy offsite.",
+      "claim": "US-CERT’s Data Backup Options (Ruggiero and Heckathorn, 2012) gives the 3-2-1 rule: keep 3 copies of any important file, 1 primary and 2 backups; on 2 different kinds of storage; and store 1 copy offsite.",
       "value": "3-2-1",
       "source": "https://www.cisa.gov/sites/default/files/publications/data_backup_options.pdf"
     },
@@ -38,6 +45,12 @@
       "claim": "GitLab’s 2017 outage post-mortem says its nightly database dumps had been failing unnoticed and no one owned testing the restore; it lost about 6 hours of data.",
       "value": "6 hours",
       "source": "https://about.gitlab.com/blog/2017/02/10/postmortem-of-database-outage-of-january-31/"
+    },
+    {
+      "id": "cost-balance",
+      "claim": "NIST SP 800-34 Rev. 1 (2010) says the shorter the recovery time you ask for, the more recovery costs, so the target is set by weighing the cost of being down against the cost of recovering.",
+      "source": "https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-34r1.pdf",
+      "accessed": "2026-10-30"
     }
   ]
 }

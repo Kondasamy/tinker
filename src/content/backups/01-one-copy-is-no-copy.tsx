@@ -10,7 +10,7 @@ import { SCENES, STRIKES, restore, weekOf } from '../../lib/backups/sim';
 import { SAFE_PARTS } from '../../components/scenes/safeScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { BackupsStage, SimNote, StrikeBar, Toggle, type Struck } from './kit';
+import { BackupsStage, Fact, SimNote, StrikeBar, Toggle, type Struck } from './kit';
 
 const MODULE = 'backups',
   ID = '01-one-copy-is-no-copy';
@@ -126,6 +126,10 @@ export default function OneCopy() {
         out1: ({ state }) => (
           <>
             <Outcome {...P1} prediction={state.p1} outcome={outcomeOf(state.hour)} />
+            <Fact id="disk-failures" />
+            <p className="note bk-note">
+              Here the disk dies when you press Strike; the study says how often real ones do.
+            </p>
             <p className="note bk-note">
               How the orders are laid out on that disk: <a href="/databases/">Databases &amp; indexes</a>.
             </p>
