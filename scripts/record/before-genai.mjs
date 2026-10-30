@@ -27,6 +27,15 @@ const THROTTLE_MS = 2500;
 const SYSTEM =
   'You are the customer help assistant on the website of Larkspur Supply Co., a hardware store. Reply to the customer in a few sentences. You cannot look up orders or accounts and cannot take any action.';
 
+// Made-up contacts may belong to someone real, so none is published as written (R13, as scripts/record/prompts.mjs):
+// .com, .net, .org and .io domains become .example, and phone numbers become a 555 number reserved for fiction.
+const REDACTED = 'made-up domains rewritten to .example and phone numbers to 1-800-555-0100 (R13)';
+const redact = text =>
+  text
+    .replace(/\b([a-z0-9-]+(?:\.[a-z0-9-]+)*)\.(?:com|net|org|io)\b/gi, '$1.example')
+    .replace(/\b1[-‑ ]?8\d\d[-‑ ][A-Z0-9][-‑A-Z0-9]{6,}(?: \(1[-‑ ]?8\d\d[-‑ ][\d-‑]{8}\))?/g, '1-800-555-0100')
+    .replace(/\b8\d\d[-‑ ]\d{3}[-‑ ]\d{4}\b/g, '800-555-0100');
+
 const key = apiKey('record/before-genai');
 const listed = await listModels(key);
 const model = WANTED.find(id => listed.includes(id)) ?? pickModel(listed, WANTED[0]);
@@ -56,7 +65,7 @@ for (const m of messages.messages) {
     fs.writeFileSync(file, JSON.stringify({ text }));
     await new Promise(ok => setTimeout(ok, THROTTLE_MS));
   }
-  replies[m.id] = text;
+  replies[m.id] = redact(text);
   console.log(`${m.id}: ${text.slice(0, 80)}`);
 }
 
@@ -66,6 +75,7 @@ const out = {
   settings: { temperature: SETTINGS.temperature, seed: SETTINGS.seed, max_tokens: SETTINGS.maxTokens },
   provider: 'https://integrate.api.nvidia.com/v1',
   system: SYSTEM,
+  redacted: REDACTED,
   replies,
 };
 fs.writeFileSync(OUT, `${JSON.stringify(out, null, 2)}\n`);

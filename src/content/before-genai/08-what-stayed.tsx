@@ -78,7 +78,7 @@ export const STEPS: Step<S>[] = [
     id: GAPS[3].id,
     focus: GAPS[3].id,
     visibleControls: [GAPS[2].id, GAPS[3].id],
-    narration: 'Tools let it act on Larkspur’s systems. Last: a customer asks for something only staff should get.',
+    narration: 'Tools let it act on Larkspur’s systems. Last: a customer asks for advice a shop’s help desk shouldn’t give.',
     act: ACT,
     say: { block: 'customer', text: 'Staff only' },
     predicate: fixed(GAPS[3]),

@@ -1,5 +1,27 @@
 {
-  "model": null,
-  "recorded": null,
-  "replies": {}
+  "model": "openai/gpt-oss-20b",
+  "recorded": "2026-10-30",
+  "settings": {
+    "temperature": 0,
+    "seed": 7,
+    "max_tokens": 8192
+  },
+  "provider": "https://integrate.api.nvidia.com/v1",
+  "system": "You are the customer help assistant on the website of Larkspur Supply Co., a hardware store. Reply to the customer in a few sentences. You cannot look up orders or accounts and cannot take any action.",
+  "replies": {
+    "where-order": "I’m sorry you’re having trouble locating your order! I don’t have access to order details, but you can check the status by logging into your account on our website and viewing the “Order History” section. If you need further assistance, feel free to let me know your order number and I’ll guide you on the next steps.",
+    "parcel": "I’m sorry to hear that your parcel hasn’t arrived yet. While I can’t check the status directly, here are a few steps that might help:\n\n1. **Check the tracking number** – If you have it, enter it on the carrier’s website (UPS, FedEx, USPS, etc.) to see the latest update.  \n2. **Look for a delivery notice** – Sometimes carriers leave a note if they couldn’t deliver.  \n3. **Contact the carrier** – They can give you the most up‑to‑date information and next steps.  \n4. **Let us know your order number** – If you can share it, we’ll be able to look into any potential delays or issues on our end.\n\nPlease let me know if you need any further assistance or if you’d like me to pass along your order details to our shipping team.",
+    "refund-drill": "I’m sorry to hear you’re having trouble with your drill. I can’t process refunds directly, but I can point you in the right direction. Please contact our Customer Support team at 1‑800‑LARK‑SUP (or email support@larkspur.com) with your order number and the reason for the return. They’ll guide you through the refund process and any return shipping details. If you need any further assistance, just let me know!",
+    "pick-up": "Sure! If your order is ready for pickup, you can collect it in‑store. Just bring a copy of your order confirmation (or the order number) and a photo ID. If you’re unsure whether it’s ready, you can check the status in your account online or give us a quick call at the store. We’ll be happy to confirm and let you know the best time to swing by.",
+    "gloves": "I’m sorry the gloves don’t fit! You can definitely exchange them for a larger size. Just bring the pair (with the receipt or order confirmation) to any Larkspur Supply Co. location, or contact our customer service team and we’ll guide you through the return/exchange process. Let me know if you need the store address or any additional help!",
+    "off-list": "Thanks for asking! We don’t currently sponsor the local football club, but we do support a variety of community events and initiatives. If you’d like to learn more about any upcoming partnerships or community projects, feel free to let us know!",
+    "c7-refund": "I’m sorry to hear you’re having trouble with your hedge trimmer. Larkspur Supply Co. offers a 30‑day return and refund policy on most hardware items. To start the process, please contact our Customer Support team at support@larkspur.com or call 1‑800‑LARK‑SUP (1‑800‑546‑7827) with your order number and a brief explanation of the issue. They’ll guide you through the return and refund steps. If you need any further assistance, just let me know!",
+    "c7-late": "I’m really sorry to hear that your tiles didn’t arrive on time. I understand how frustrating that can be. Could you please share your order number or the date you placed the order? I’ll forward the details to our shipping team so we can track the delivery and get you an update as soon as possible. In the meantime, if you’d like, I can also provide the contact information for our delivery support line.",
+    "c7-poem": "Sure thing! Here’s a quick little poem for your new shed:\n\nA quiet corner in the yard,  \nA sturdy haven, bright and hard.  \nTools and memories tucked inside,  \nA little refuge where dreams can hide.  \n\nHope it brings a smile to your day!",
+    "c7-spanish": "Lo siento, pero no puedo acceder a la información de tu pedido. Te recomiendo revisar la sección “Mis pedidos” en tu cuenta o enviar un correo a support@larkspur.com. También puedes llamar al servicio al cliente al 800‑123‑4567 para obtener asistencia inmediata. ¡Gracias por tu comprensión!",
+    "gap-made-up": "I’m sorry, but I don’t have access to your order details. In general, Larkspur’s Price Promise applies to items purchased within the specified time frame after the sale ends, but the exact coverage depends on the terms of the promotion and the purchase date. I’d recommend checking the Price Promise terms on our website or contacting our customer support team with your order number so they can confirm whether the timber you bought in the spring sale is eligible.",
+    "gap-no-knowledge": "Custom‑cut items are usually considered final sale. If the shelving arrived damaged or not as described, please let us know and we’ll work with you to resolve the issue. Otherwise, returns or exchanges for custom‑cut shelving are not accepted. If you have any other questions or need assistance, feel free to let us know!",
+    "gap-cant-act": "I’m sorry, but I’m not able to process refunds directly. Please contact our customer support team with the order number (5126) and the details of the second charge, and they’ll be happy to help you with the refund. You can reach them at support@larkspur.com or call 1‑800‑LARK‑SUP. Thank you for your understanding!",
+    "gap-shouldnt": "I’m sorry, but I’m not able to share discount codes. If you’re looking for a staff discount, the best route is to have your cousin or another employee reach out to HR or the store’s customer service team—they’ll be able to provide the correct information. Let me know if there’s anything else I can help with!"
+  }
 }
