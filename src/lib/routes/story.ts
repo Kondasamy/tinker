@@ -1,6 +1,5 @@
 // What the chapters show, read off live searches over the town; data/routes/pinned.json holds the same effects and
 // tests/unit/routes-engine.test.ts checks the two agree (KTD7), so the copy can never drift from the engine.
-import pinned from '../../../data/routes/pinned.json' with { type: 'json' };
 import { astar } from './astar';
 import { bfs } from './bfs';
 import { dijkstra } from './dijkstra';

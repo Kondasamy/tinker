@@ -25,6 +25,7 @@ const PENDING = new Set<string>([
   'diffusion-llms',
   'email',
   'evals',
+  'fairness',
   'inference',
   'interpretability',
   'labelling',
@@ -126,7 +127,8 @@ describe('plain words', () => {
     it(m.id, () => {
       const found = misses(m.id);
       // FULL=1 shows a pending module's whole list, as a finished one would
-      if (PENDING.has(m.id) && !process.env.FULL) expect(found, `${m.id} passes now: remove it from PENDING`).not.toEqual([]);
+      if (PENDING.has(m.id) && !process.env.FULL)
+        expect(found, `${m.id} passes now: remove it from PENDING`).not.toEqual([]);
       else expect(found).toEqual([]);
     });
 

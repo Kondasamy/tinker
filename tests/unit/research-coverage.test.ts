@@ -53,25 +53,21 @@ const PENDING = new Set<string>([
   'parallel-training',
   'payments',
   'post-training',
-  'pre-training',
   'prompts',
   'queues',
   'rag',
   'rate-limits',
   'reasoning',
-  'recommendations',
   'releases',
   'routes',
   'sandboxing',
   'search',
   'small-models',
   'structured-outputs',
-  'synthetic-data',
   'tokens',
   'tool-calling',
   'transformers',
   'unicode',
-  'video-models',
   'voice',
   'watermarks',
   'web-requests',
@@ -123,7 +119,8 @@ describe('research coverage', () => {
     it(m.id, () => {
       const found = gaps(m.id);
       // FULL=1 shows a pending module's whole list, as a finished one would
-      if (PENDING.has(m.id) && !process.env.FULL) expect(found, `${m.id} passes now: remove it from PENDING`).not.toEqual([]);
+      if (PENDING.has(m.id) && !process.env.FULL)
+        expect(found, `${m.id} passes now: remove it from PENDING`).not.toEqual([]);
       else expect(found).toEqual([]);
     });
 
