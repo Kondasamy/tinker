@@ -1,0 +1,48 @@
+{
+  "accessed": "2026-10-30",
+  "facts": [
+    {
+      "id": "dijkstra",
+      "claim": "Wikipedia says Edsger Dijkstra conceived his shortest-path algorithm in 1956, in about twenty minutes on a café terrace, and published it in 1959.",
+      "value": "1959",
+      "source": "https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm"
+    },
+    {
+      "id": "bfs",
+      "claim": "Wikipedia says breadth-first search can be seen as Dijkstra’s algorithm on a graph whose roads carry no weights.",
+      "source": "https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm"
+    },
+    {
+      "id": "astar",
+      "claim": "Wikipedia says Hart, Nilsson and Raphael published A* in 1968, and that with a guess that never overestimates, it returns a shortest path.",
+      "value": "1968",
+      "source": "https://en.wikipedia.org/wiki/A*_search_algorithm"
+    },
+    {
+      "id": "weighted",
+      "claim": "Wikipedia says weighted A*, which multiplies the guess by a weight ε above 1, finds a path costing at most ε times the cheapest.",
+      "source": "https://en.wikipedia.org/wiki/A*_search_algorithm"
+    },
+    {
+      "id": "traffic",
+      "claim": "Google’s Maps blog (September 2020) says it combines historical traffic patterns with live conditions, and reroutes you around jams and incidents.",
+      "source": "https://blog.google/products/maps/google-maps-101-how-ai-helps-predict-traffic-and-determine-routes/"
+    },
+    {
+      "id": "ch",
+      "claim": "Wikipedia says road networks have tens of millions of junctions, too many for plain Dijkstra; contraction hierarchies add shortcuts ahead of time, and queries take microseconds.",
+      "source": "https://en.wikipedia.org/wiki/Contraction_hierarchies"
+    },
+    {
+      "id": "ch-paper",
+      "claim": "Wikipedia cites Geisberger, Sanders, Schultes and Delling’s 2008 paper for contraction hierarchies.",
+      "value": "2008",
+      "source": "https://en.wikipedia.org/wiki/Contraction_hierarchies"
+    },
+    {
+      "id": "osrm",
+      "claim": "The open-source OSRM route engine, run on OpenStreetMap data, offers two preprocessing pipelines: contraction hierarchies and multi-level Dijkstra.",
+      "source": "https://github.com/Project-OSRM/osrm-backend"
+    }
+  ]
+}
