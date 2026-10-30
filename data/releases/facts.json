@@ -1,45 +1,88 @@
 {
-  "accessed": "2026-10-28",
+  "accessed": "2026-10-30",
   "facts": [
     {
       "id": "canary",
-      "claim": "Google’s SRE Workbook defines canarying as a partial and time-limited deployment of a change, and its evaluation: the part that gets the change is the canary, the rest is the control.",
-      "source": "https://sre.google/workbook/canarying-releases/"
+      "claim": "Google’s SRE Workbook defines canarying as trying a change on part of a service for a limited time and judging it: the part that gets the change is the canary, the rest is the control.",
+      "source": "https://sre.google/workbook/canarying-releases/",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "canary-size",
+      "claim": "The SRE Workbook’s worked example uses a canary of 5% of traffic: a change that fails 20% of its requests there fails only 1% of all requests.",
+      "value": "0.05",
+      "source": "https://sre.google/workbook/canarying-releases/",
+      "accessed": "2026-10-30"
     },
     {
       "id": "canary-compare",
-      "claim": "The same chapter calls canarying effectively an A/B test: if the canary’s error ratio is similar to the control’s, the deployment goes on.",
-      "source": "https://sre.google/workbook/canarying-releases/"
+      "claim": "The same chapter calls canarying effectively an A/B test: if the canary’s share of errors is close to the control’s, the deployment goes on.",
+      "source": "https://sre.google/workbook/canarying-releases/",
+      "accessed": "2026-10-30"
     },
     {
       "id": "canary-strict",
-      "claim": "It warns that a check that is overly strict gives lots of false positives, and that a canary should last long enough to be representative.",
-      "source": "https://sre.google/workbook/canarying-releases/"
+      "claim": "It warns that a check that is overly strict gives lots of false alarms, and that a canary should last long enough to stand for the whole deployment.",
+      "source": "https://sre.google/workbook/canarying-releases/",
+      "accessed": "2026-10-30"
     },
     {
       "id": "canary-rollback",
       "claim": "For a bad canary, it says to pause and roll back the deployment, or call a person to help.",
-      "source": "https://sre.google/workbook/canarying-releases/"
+      "source": "https://sre.google/workbook/canarying-releases/",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "crowdstrike-window",
+      "claim": "CrowdStrike says its 19 July 2024 update went out at 04:09 UTC to Windows machines running its security software (version 7.11 or later) that were online, and was pulled back 78 minutes later, at 05:27 UTC.",
+      "value": "78",
+      "source": "https://www.crowdstrike.com/en-us/blog/falcon-update-for-windows-hosts-technical-details/",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "crowdstrike-tests",
+      "claim": "CrowdStrike’s root cause analysis (August 2024) says all 12 of its automated test cases put a match-anything value in the field that later crashed machines, so the tests never met the bug.",
+      "value": "12",
+      "source": "https://www.crowdstrike.com/wp-content/uploads/2024/08/Channel-File-291-Incident-Root-Cause-Analysis-08.06.2024.pdf",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "crowdstrike-staged",
+      "claim": "The same analysis says each such update should have gone out in a staged rollout: a canary first, then wider and wider groups, or rolled back if problems show.",
+      "source": "https://www.crowdstrike.com/wp-content/uploads/2024/08/Channel-File-291-Incident-Root-Cause-Analysis-08.06.2024.pdf",
+      "accessed": "2026-10-30"
     },
     {
       "id": "toggles",
-      "claim": "Pete Hodgson, on martinfowler.com, describes feature toggles as patterns for delivering new functionality rapidly but safely, separating a feature’s release from the code’s deployment.",
-      "source": "https://martinfowler.com/articles/feature-toggles.html"
+      "claim": "Pete Hodgson (martinfowler.com, 2017) describes feature toggles as patterns for delivering new features rapidly but safely, separating a feature’s release from the code’s deployment.",
+      "source": "https://martinfowler.com/articles/feature-toggles.html",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "flag-speed",
+      "claim": "LaunchDarkly, a feature flag service, says changes made in its dashboard typically reach the apps using it within 200 milliseconds (vendor-reported, checked 2026-10-30).",
+      "value": "200",
+      "source": "https://launchdarkly.com/features/sdk/",
+      "accessed": "2026-10-30"
     },
     {
       "id": "parallel-change",
-      "claim": "Danilo Sato (martinfowler.com, 2014) describes parallel change for backward-incompatible changes: expand to support old and new, migrate every user, then contract to remove the old.",
-      "source": "https://martinfowler.com/bliki/ParallelChange.html"
+      "claim": "Danilo Sato (martinfowler.com, 2014) describes parallel change for changes the old version can’t work with: expand to support old and new, move every user over, then contract to remove the old.",
+      "source": "https://martinfowler.com/bliki/ParallelChange.html",
+      "accessed": "2026-10-30"
     },
     {
       "id": "dora",
-      "claim": "DORA measures software delivery with change lead time, deployment frequency, change fail rate, failed deployment recovery time and deployment rework rate.",
-      "source": "https://dora.dev/guides/dora-metrics-four-keys/"
+      "claim": "DORA (checked 2026-10-30) measures software delivery with five numbers: how long a change takes to ship, how often teams deploy, how often a deploy fails, how long recovery from a failed deploy takes, and how often unplanned deploys follow an incident.",
+      "value": "change lead time, deployment frequency, change fail rate, failed deployment recovery time, deployment rework rate",
+      "source": "https://dora.dev/guides/dora-metrics-four-keys/",
+      "accessed": "2026-10-30"
     },
     {
       "id": "dora-recovery",
-      "claim": "DORA defines failed deployment recovery time as the time it takes to recover from a deployment that fails and needs immediate intervention.",
-      "source": "https://dora.dev/guides/dora-metrics-four-keys/"
+      "claim": "DORA defines failed deployment recovery time as how long it takes to recover from a deploy that fails and needs someone to step in at once.",
+      "source": "https://dora.dev/guides/dora-metrics-four-keys/",
+      "accessed": "2026-10-30"
     }
   ]
 }

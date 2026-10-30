@@ -10,6 +10,7 @@ import { ROLLBACK, SCENES, clock, plural, runOf, tickOf, type Event } from '../.
 import { SIGNAL_PARTS } from '../../components/scenes/signalScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
+import { CROWDSTRIKE_MINUTES } from '../../lib/releases/facts';
 import { Fact, ReleasesStage, SimNote, type View } from './kit';
 
 const MODULE = 'releases',
@@ -102,7 +103,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out1', 'quiz'],
-    narration: 'Everyone got the change, so everyone met the bug, until the old version was back.',
+    narration: `Everyone met the bug until the old version was back. Here that took ${ROLLBACK} minutes; CrowdStrike’s took ${CROWDSTRIKE_MINUTES} minutes.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What stops the harm once a change is out?',
@@ -140,6 +141,7 @@ export default function StraightToEveryone() {
         out1: ({ state }) => (
           <>
             <Outcome {...P1} prediction={state.p1} outcome={outcomeOf(state.events)} />
+            <Fact id="crowdstrike-window" />
             <Fact id="dora-recovery" />
           </>
         ),

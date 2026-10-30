@@ -35,14 +35,14 @@ export const QUIZ = {
   options: [
     'Add the new column beside the old, use both, remove the old one later',
     'Rename it at night, when fewer people use the site',
-    'Skip the rollback plan and fix forward',
+    'Skip the rollback plan and ship a fix instead',
   ],
   correct: 0,
   explanation: 'Expand and contract keeps the old version working until everyone has moved.',
   why: [
     'Right: while both columns exist, the old code still works, so rolling back is safe.',
     'Fewer users at night still meet the broken old code if you roll back.',
-    'Fixing forward means customers wait for a fix to be written; a rollback is faster.',
+    'Shipping a fix means customers wait for it to be written; a rollback is faster.',
   ],
 };
 

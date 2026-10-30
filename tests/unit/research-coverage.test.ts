@@ -21,7 +21,6 @@ const PENDING = new Set<string>([
   'dependencies',
   'rag',
   'rate-limits',
-  'releases',
   'routes',
   'unicode',
 ]);

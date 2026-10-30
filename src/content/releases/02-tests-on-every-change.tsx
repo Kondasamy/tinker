@@ -10,7 +10,7 @@ import { GATES, pipelineOf } from '../../lib/releases/pipeline';
 import { SIGNAL_PARTS } from '../../components/scenes/signalScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { ReleasesStage, type View } from './kit';
+import { Fact, ReleasesStage, type View } from './kit';
 
 const MODULE = 'releases',
   ID = '02-tests-on-every-change';
@@ -139,6 +139,7 @@ export default function TestsOnEveryChange() {
                 </li>
               ))}
             </ul>
+            <Fact id="crowdstrike-tests" />
           </>
         ),
         quiz: ({ state, apply, sync }) => (

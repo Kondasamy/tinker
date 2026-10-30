@@ -106,7 +106,7 @@ export const RECALL: RecallItem[] = [
     why: [
       'Right: once a test checks it, a gate can stop it.',
       'Running the same tests again finds the same nothing.',
-      'A build gate checks the code compiles, not that the form works.',
+      'A build gate checks the code can be built into a working program, not that the form works.',
     ],
   },
   // 3. A few first
@@ -147,7 +147,7 @@ export const RECALL: RecallItem[] = [
     id: 'small-miss',
     chapter: C3,
     question:
-      'A change fails 1.5% of payments against 1% before. The canary check rings at 2 points worse. What happens?',
+      'A change fails 1.5% of payments against 1% before. The canary check rings only at 2 in 100 worse. What happens?',
     options: ['It passes the check: a miss', 'It rings at once', 'It is stopped by the pipeline'],
     correct: 0,
     why: [

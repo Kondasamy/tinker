@@ -402,6 +402,6 @@ export function Fact({ id }: { id: string }) {
 /** Shown wherever the simulator's counts appear (R6). */
 export const SimNote = () => (
   <p className="note rl-note">
-    {`A simulated morning: made-up changes and planning-number failure rates, ${PER_MINUTE} checkouts a minute.`}
+    {`A simulated morning: made-up changes, ${PER_MINUTE} checkouts a minute, and planning numbers for failure rates and how long each way back takes, not measurements.`}
   </p>
 );

@@ -17,6 +17,7 @@
 import data from '../../../data/releases/assumptions.json' with { type: 'json' };
 import changes from '../../../data/releases/changes.json' with { type: 'json' };
 import { mulberry32 } from '../transformers/sample';
+import { fact } from './facts';
 
 export const ASSUMPTIONS = data;
 export const TICKS = data.ticks;
@@ -260,7 +261,8 @@ export const milestoneAt = (r: Run, t: number) => r.milestones.filter(m => m.t <
 export const nextEventAfter = (r: Run, t: number) => r.milestones.find(m => m.t > t)?.t ?? r.ticks.length - 1;
 
 /** The runs the chapters teach from, in one place, so the chapters, the dev page and the pins agree (KTD10). */
-export const CANARY = 0.05;
+/** the canary's share: the SRE Workbook's worked example (matched) */
+export const CANARY = Number(fact('canary-size').value);
 export const SCENES = {
   /** 1: the new checkout, straight to everyone */
   all: policyOf({ change: 'new-checkout', start: 2, stages: [1] }),

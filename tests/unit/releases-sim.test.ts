@@ -6,6 +6,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   BASE,
+  CANARY,
   CHANGES,
   FLAG_OFF,
   PER_MINUTE,
@@ -20,6 +21,7 @@ import {
   type Run,
 } from '../../src/lib/releases/sim';
 import { GATES, pipelineOf } from '../../src/lib/releases/pipeline';
+import { CROWDSTRIKE_MINUTES, fact } from '../../src/lib/releases/facts';
 
 const summary = (r: Run) => ({
   hurt: r.hurt,
@@ -171,6 +173,17 @@ describe('the plan’s scenarios', () => {
   });
 });
 const p0 = (r: Run) => r.milestones[0].t;
+
+describe('toy vs real', () => {
+  it('the canary is the SRE Workbook’s 5%, and the copy’s comparisons with real figures hold', () => {
+    expect(CANARY).toBe(Number(fact('canary-size').value));
+    // chapter 1: "Here that took 5 minutes; CrowdStrike’s took 78 minutes"
+    expect(ROLLBACK).toBeLessThan(CROWDSTRIKE_MINUTES);
+    // chapter 4: "real flag services switch in under a second", faster than the toy's minute
+    expect(Number(fact('flag-speed').value)).toBeLessThan(1000);
+    expect(FLAG_OFF * 60_000).toBeGreaterThan(Number(fact('flag-speed').value));
+  });
+});
 
 describe('pinned scenes', () => {
   it('every chapter’s run matches data/releases/pinned.json', () => {
