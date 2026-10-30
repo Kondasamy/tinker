@@ -12,14 +12,14 @@ export const RECALL: RecallItem[] = [
       'A travel site wants to cut its model bill. Most questions are “what time is check-in?”; a few are tangled refund disputes. What setup fits?',
     options: [
       'Switch everything to the small model: most questions are easy',
-      'Small model first; send unsure answers up to the large one; check the setup against all-large with the eval before switching',
+      'Small model first; send unsure answers up to the large one; check the setup against all-large on a test set before switching',
       'Keep everything on the large model: any small-model mistake is a risk',
       'Ask the small model and the large model every time and show the longer answer',
     ],
     correct: 1,
     why: [
       'The tangled disputes are where a small model fails, and nothing would catch those failures.',
-      'Right. The easy majority goes cheap, the unsure answers fall back, and the eval proves nothing the large model got right is lost.',
+      'Right. The easy majority goes cheap, the unsure answers fall back, and the test set proves nothing the large model got right is lost.',
       'Safe but costly: the large model answers questions the small one gets right at a fraction of the price.',
       'Paying for both models on every question costs more than the large one alone, and a longer answer is not a righter one.',
     ],
@@ -145,14 +145,14 @@ export const RECALL: RecallItem[] = [
     question:
       'A distilled model agrees with its teacher’s top pick 95% of the time on held-out text. Can you ship it in the teacher’s place?',
     options: [
-      'Not yet: agreement says it copies the teacher; whether its answers are right needs the eval',
+      'Not yet: agreement says it copies the teacher; whether its answers are right needs a test of the answers',
       'Yes: 95% agreement means 95% correct answers',
       'No: anything under 100% agreement is useless',
       'Yes, if it agrees on the training text too',
     ],
     correct: 0,
     why: [
-      'Right. Agreement measures closeness to the teacher, token by token; the eval measures answers people care about.',
+      'Right. Agreement measures closeness to the teacher, token by token; a test set measures the answers people care about.',
       'The teacher is not always right, and one changed token can change an answer.',
       'A small model never matches exactly; the question is whether the differences change the answers.',
       'Training text says even less: the student saw it.',
@@ -210,7 +210,7 @@ export const RECALL: RecallItem[] = [
     correct: 1,
     why: [
       'A fact stated in one line is a lookup; small models handle those.',
-      'Right. It needs two hops and a guess at what was meant: where small models stumble.',
+      'Right. It needs two lookups in a row and a guess at what was meant: where small models stumble.',
       'A single stated fact: a lookup.',
       'A single stated fact: a lookup.',
     ],
@@ -232,19 +232,20 @@ export const RECALL: RecallItem[] = [
   {
     id: 'same-docs-differ',
     chapter: '04-send-it-the-easy-ones',
-    question: 'Both tiers read the same retrieved documents, yet the small one picks an out-of-date policy. Why?',
+    question:
+      'Both tiers are handed the same documents by the same search, yet the small one picks an out-of-date policy. Why?',
     options: [
       'Reading well is part of answering: a smaller model is worse at weighing two passages that disagree',
       'The small tier was sent older documents',
       'Small models can only read one document',
-      'It must have been a retrieval bug',
+      'It must have been a bug in the search',
     ],
     correct: 0,
     why: [
-      'Right. Retrieval hands both the same passages; telling the 2025 policy from the 2018 one is the model’s job.',
+      'Right. The search hands both the same passages; telling the 2025 policy from the 2018 one is the model’s job.',
       'They were handed the same passages; the difference is in the reading.',
       'It reads every passage it is sent; it weighs them less well.',
-      'Retrieval was the same for both, so the difference is the model.',
+      'The search was the same for both, so the difference is the model.',
     ],
   },
   // 5. Fall back when unsure
@@ -261,7 +262,7 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right. A confident wrong answer passes any threshold below its score; only the eval would show it.',
+      'Right. A confident wrong answer passes any threshold below its score; only a test set would show it.',
       'The router never knows the right answer; it reads the score.',
       'In a cascade the large model answers only what is sent up.',
       'Answers over the threshold go out as they are.',
@@ -298,7 +299,7 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right. Real cascades and routers learn or compute a score, and its threshold is tuned against an eval.',
+      'Right. Real cascades and routers learn or compute a score, and its threshold is tuned against a test set.',
       'Length says little about whether an answer is right.',
       'There are ways: the model’s odds, a separate scorer, or a trained router.',
       'The customer rates after reading, too late to route.',

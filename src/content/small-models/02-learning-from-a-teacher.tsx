@@ -14,7 +14,7 @@ import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { ModelGate } from '../fine-tuning/kit';
 import { ROUTER_PARTS } from '../../components/scenes/routerScene';
-import { Fact, META, SmallStage, STUDENT_SERIES, modelNow, type View } from './kit';
+import { Fact, META, SmallStage, STUDENT_SERIES, ToyNote, modelNow, type View } from './kit';
 
 export const PARTS = ROUTER_PARTS;
 const MODULE = 'small-models',
@@ -194,6 +194,8 @@ export default function LearningFromATeacher() {
           <>
             <Fact id="distillation" />
             <Fact id="soft-targets" />
+            <p className="note">{`The student’s run follows that recipe at toy size: temperature ${T.temperature}, ${num(T.steps)} steps.`}</p>
+            <ToyNote />
           </>
         ),
         quiz: ({ state, apply, sync }) => (

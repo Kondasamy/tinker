@@ -78,14 +78,17 @@ const IDEAS: [string, string, ReturnType<typeof fact>, RouterOpts][] = [
   [
     'Gate the switch',
     'Ship only what keeps every answer that worked',
-    fact('cascade'),
+    fact('negative-flips'),
     bench({ mode: 'route', route: 'large' }),
   ],
 ];
 const FACTS: [string, string][] = [
   [num(paramCount(layoutOf(META, 'teacher'))), 'weights in Larkspur mini, the teacher'],
   [num(paramCount(layoutOf(META, 'student'))), 'weights in its student'],
-  [`${Math.round(META.student!.agreement * 100)}%`, 'held-out places where the student picks what the teacher picks'],
+  [
+    `${Math.round(META.student!.agreement * 100)}%`,
+    'places in text neither model trained on where the student picks what the teacher picks',
+  ],
   [
     `${units(run({ threshold: T }).cost)} vs ${units(run(ALL_LARGE).cost)}`,
     'cost of the router that ships, against all large (relative units)',

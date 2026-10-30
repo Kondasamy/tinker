@@ -45,7 +45,6 @@ const PENDING = new Set<string>([
   'queues',
   'rag',
   'sandboxing',
-  'small-models',
   'unicode',
   'voice',
   'watermarks',

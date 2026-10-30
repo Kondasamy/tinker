@@ -8,11 +8,13 @@ import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { layoutOf, multsPerToken, paramCount, PROMPTS, top5 } from '../../lib/small-models/compare';
 import { num } from '../../lib/format';
+import type { Model } from '../../lib/lm/model';
+import { fact } from '../../lib/small-models/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { ROUTER_PARTS } from '../../components/scenes/routerScene';
-import { BothGate, META, SmallStage, TopFive, bothNow, loadBoth } from './kit';
+import { BothGate, Fact, META, SmallStage, ToyNote, TopFive, bothNow, loadBoth } from './kit';
 
 export const PARTS = ROUTER_PARTS;
 const MODULE = 'small-models',
@@ -40,7 +42,7 @@ export const P1 = {
   ],
 };
 /** read off every prompt the chapter offers: identical odds, overlapping pieces, or nothing shared */
-export function outcome(t: Parameters<typeof top5>[0], s: Parameters<typeof top5>[0]) {
+export function outcome(t: Model, s: Model) {
   const pairs = PROMPTS.map(p => [top5(t, p.text), top5(s, p.text)]);
   if (pairs.every(([a, b]) => a.every((c, i) => c.id === b[i].id && Math.abs(c.p - b[i].p) < 1e-6))) return 0;
   return pairs.some(([a, b]) => a.some(c => b.some(d => d.id === c.id))) ? 1 : 2;
@@ -98,7 +100,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['answers', 'ask', 'quiz'],
+    visibleControls: ['answers', 'fact', 'ask', 'quiz'],
     narration:
       'Same pieces, mostly the same top picks, but flatter odds: fewer weights hold less, so some first picks slip.',
     act: 'Try other sentences, then one question.',
@@ -213,6 +215,13 @@ export default function BigModelSmallModel() {
         ),
         answers: ({ state }) => (
           <BothGate>{m => <Outcome {...P1} prediction={state.p1} outcome={outcome(m.teacher, m.student)} />}</BothGate>
+        ),
+        fact: () => (
+          <>
+            <Fact id="kaplan-forward" />
+            <p className="note">{`The weighing counted one multiplication per weight; Kaplan et al. count the add beside each, so ${fact('kaplan-forward').value} per weight. Either way, the work grows with the weights at every size.`}</p>
+            <ToyNote />
+          </>
         ),
         quiz: ({ state, apply, sync }) => (
           <Quiz

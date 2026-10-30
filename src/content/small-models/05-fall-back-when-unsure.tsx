@@ -21,7 +21,7 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { ROUTER_PARTS } from '../../components/scenes/routerScene';
-import { Fact, SmallStage, TierAnswer, type View } from './kit';
+import { Fact, SmallStage, TierAnswer, TierNote, type View } from './kit';
 
 export const PARTS = ROUTER_PARTS;
 const MODULE = 'small-models',
@@ -168,10 +168,7 @@ export default function FallBackWhenUnsure() {
           <>
             <Outcome {...P1} prediction={state.p1} outcome={riseOutcome()} />
             <TierAnswer tier="small" question={FEATURED} />
-            <p className="note">
-              The tiers and this frontier were written for this site to illustrate what the cascade and router papers
-              report, not measured.
-            </p>
+            <TierNote />
             <Fact id="routellm" />
           </>
         ),

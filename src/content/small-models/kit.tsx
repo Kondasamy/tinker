@@ -14,6 +14,8 @@ import type { Series } from '../../components/scenes/lossChart';
 import type { Point, Tier } from '../../lib/small-models/router';
 import { answer, passes } from '../../lib/small-models/router';
 import { fact } from '../../lib/small-models/facts';
+import { layoutOf, paramCount } from '../../lib/small-models/compare';
+import { num } from '../../lib/format';
 import { useNarrow } from '../tool-calling/kit';
 import { LossChart, META, ModelGate, loadModel, modelNow, useModel } from '../fine-tuning/kit';
 import './small-models.css';
@@ -209,6 +211,21 @@ export function Fact({ id }: { id: string }) {
     </p>
   );
 }
+
+/** Said beside a real figure wherever the teacher's and student's numbers show (R6, KTD5): both are toys, trained
+ * ahead of time. */
+export const ToyNote = () => (
+  <p className="note">
+    {`Larkspur mini and its student are toys: ${num(paramCount(layoutOf(META, 'teacher')))} and ${num(paramCount(layoutOf(META, 'student')))} weights, trained ahead of time on Larkspur’s documents. Their numbers are their own, not a real model’s.`}
+  </p>
+);
+/** Said beside a real figure wherever the two tiers' results show (R6): written for this site, not measured. */
+export const TierNote = () => (
+  <p className="note">
+    The two tiers, their answers and their confidence scores were written for this site to illustrate what the cascade
+    and router papers report, not measured. Only the price ratio is real.
+  </p>
+);
 
 // ---- the story column ----
 

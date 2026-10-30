@@ -12,7 +12,7 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { ROUTER_PARTS } from '../../components/scenes/routerScene';
-import { BothGate, SmallStage, bothNow, loadBoth } from './kit';
+import { BothGate, Fact, SmallStage, ToyNote, bothNow, loadBoth } from './kit';
 
 export const PARTS = ROUTER_PARTS;
 const MODULE = 'small-models',
@@ -40,14 +40,14 @@ export const QUIZ = {
   question:
     'A distilled legal-search model agrees with its teacher’s top pick 95% of the time on held-out text. Can it replace the teacher?',
   options: [
-    'Not yet: agreement shows it copies the teacher; whether its answers are right needs an eval',
+    'Not yet: agreement shows it copies the teacher; whether its answers are right needs a test of the answers',
     'Yes: 95% agreement means 95% of its answers are right',
     'No: anything short of 100% agreement is unusable',
     'Yes, as long as it agrees on its training text too',
   ],
   correct: 0,
   explanation:
-    'Agreement and KL measure closeness to the teacher. Whether the answers are right is a question for the eval, which the next chapters run.',
+    'Agreement and KL measure closeness to the teacher. Whether the answers are right is a question for a test of the answers, which the next chapters run.',
   why: [
     'Right: closeness to the teacher is a good sign, but the teacher can be wrong, and one changed piece can change an answer.',
     'Agreement is per piece of text and against the teacher, not per answer against the truth.',
@@ -79,7 +79,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['results', 'quiz'],
+    visibleControls: ['results', 'fact', 'quiz'],
     narration:
       'Agreement counts matching top picks; KL divergence, how differently the odds spread. Neither says if an answer is right.',
     act: 'One question to finish.',
@@ -188,6 +188,16 @@ export default function HowCloseIsTheStudent() {
               )}
             </BothGate>
             <Results />
+          </>
+        ),
+        fact: () => (
+          <>
+            <Fact id="student-gap" />
+            <p className="note">
+              Larkspur’s agreement and KL are that closeness, measured on a toy: they say how well the student copies,
+              not whether it is right.
+            </p>
+            <ToyNote />
           </>
         ),
         quiz: ({ state, apply, sync }) => (

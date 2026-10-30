@@ -25,7 +25,7 @@ import { units } from '../../components/scenes/frontierChart';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { ROUTER_PARTS } from '../../components/scenes/routerScene';
-import { SmallStage, type View } from './kit';
+import { Fact, SmallStage, TierNote, type View } from './kit';
 
 export const PARTS = ROUTER_PARTS;
 const MODULE = 'small-models',
@@ -83,7 +83,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'ties',
     focus: 'quiz',
-    visibleControls: ['plan', 'score', 'quiz'],
+    visibleControls: ['plan', 'score', 'fact', 'quiz'],
     narration: `${pts(BEST)} points, the best${WINNERS.length > 1 ? ` (one of ${WINNERS.length} winners)` : ''}. Lookups go small, always-unsure kinds go large, the router takes the rest.`,
     act: 'One question to finish.',
     say: { block: 'small', text: 'Lookups go here' },
@@ -236,6 +236,13 @@ export default function RoutingPolicy() {
             </div>
           );
         },
+        fact: () => (
+          <>
+            <Fact id="hybrid-llm" />
+            <p className="note">{`Your policy sorts by kind of question, set by hand; that router predicts how hard each question is. The ${POINTS} points per right answer are the team’s own choice.`}</p>
+            <TierNote />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

@@ -54,7 +54,6 @@ const PENDING = new Set<string>([
   'routes',
   'sandboxing',
   'search',
-  'small-models',
   'unicode',
   'voice',
   'watermarks',

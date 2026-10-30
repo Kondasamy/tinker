@@ -21,7 +21,7 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { ROUTER_PARTS } from '../../components/scenes/routerScene';
-import { SmallStage, type View } from './kit';
+import { Fact, SmallStage, TierNote, type View } from './kit';
 
 export const PARTS = ROUTER_PARTS;
 const MODULE = 'small-models',
@@ -112,7 +112,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['gate', 'why', 'quiz'],
+    visibleControls: ['gate', 'why', 'fact', 'quiz'],
     narration: `It ships at ${units(run({ threshold: BEST ?? 1 }).cost)} against all-large’s ${units(LARGE.cost)}, every right answer kept. Below it, the sure, wrong answer stays small and regresses.`,
     act: 'One question to finish.',
     say: { block: 'router', text: 'Cheapest ship' },
@@ -205,6 +205,16 @@ export default function GateTheSwitch() {
           );
         },
         why: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={shipOutcome()} />,
+        fact: () => (
+          <>
+            <Fact id="negative-flips" />
+            <p className="note">
+              The regressions here are a toy’s, from recorded answers; that study found the same lost answers in real
+              model updates, which is why the gate checks question by question.
+            </p>
+            <TierNote />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}
