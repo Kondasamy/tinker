@@ -10,7 +10,7 @@ import Predict from '../../components/quiz/Predict';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { EvalStage, Fact, type Shown } from './kit';
+import { EvalStage, Fact, SuiteNote, type Shown } from './kit';
 import { EVAL_PARTS } from '../../components/scenes/evalScene';
 import candidates from '../../../data/evals/candidates.json' with { type: 'json' };
 
@@ -263,6 +263,7 @@ function Team({ s }: { s: S }) {
       ))}
       <Fact id="start-from-failures" />
       <Fact id="reference-solution" />
+      <SuiteNote />
     </div>
   );
 }

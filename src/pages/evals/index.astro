@@ -95,7 +95,7 @@ const FACTS: [string, string][] = [
             {BROKE.map(q => <p class="why more">Q{q + 1}, “{QUESTIONS[q].query}”, passed on {V1.label} and fails on {V2.label}: “{suite.v2[q].answer.text}”</p>)}
           </article>
         </div>
-        <p class="note more">These are the course’s own recorded answers: RAG’s retrieval runs for real on each version, and the answer recorded for what it found is graded against the answer it should get.</p>
+        <p class="note more">These are the course’s own recorded answers: RAG’s document search runs for real on each version, and the answer recorded for what it found is graded against the answer it should get.</p>
       </section>
 
       <section aria-labelledby="how">

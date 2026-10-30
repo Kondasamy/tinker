@@ -13,7 +13,7 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { Chips } from '../agents/kit';
-import { EvalStage, Fact, Mark, WithSuite, resultsOf, type Shown, type Suite } from './kit';
+import { EvalStage, Fact, SuiteNote, Mark, WithSuite, resultsOf, type Shown, type Suite } from './kit';
 import { EVAL_PARTS } from '../../components/scenes/evalScene';
 
 export const PARTS = EVAL_PARTS;
@@ -330,6 +330,7 @@ export default function RunItTwice() {
             <Outcome {...P2} prediction={state.p2} outcome={OUT2} />
             <Fact id="pass-hat-k" />
             <Fact id="pass-hat-k-tau-bench" />
+            <SuiteNote />
           </>
         ),
         flip: ({ state, sync }) => (

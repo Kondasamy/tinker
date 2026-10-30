@@ -12,7 +12,7 @@ import { fact } from '../../lib/evals/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Chips, Group } from '../agents/kit';
-import { EvalStage, Fact, WithSuite, suiteNow, useSuite, type Shown, type Suite, type View } from './kit';
+import { EvalStage, Fact, SuiteNote, WithSuite, suiteNow, useSuite, type Shown, type Suite, type View } from './kit';
 import { EVAL_PARTS } from '../../components/scenes/evalScene';
 
 export const PARTS = EVAL_PARTS;
@@ -238,6 +238,7 @@ export default function ReleaseDay() {
               real gate would grade several trials of each and use pass^k: ship only what passes every time.
             </p>
             <Fact id="pass-hat-k" />
+            <SuiteNote />
           </div>
         ),
         quiz: ({ state, apply, sync }) => (
