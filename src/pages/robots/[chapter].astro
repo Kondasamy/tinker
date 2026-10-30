@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import SeeDecideMove from '../../content/robots/01-see-decide-move';
+import WhatTheCameraGives from '../../content/robots/02-what-the-camera-gives';
+import RulesBreak from '../../content/robots/03-rules-break';
+import ShowIt from '../../content/robots/04-show-it';
+import MistakesSnowball from '../../content/robots/05-mistakes-snowball';
+import PracticeInAGame from '../../content/robots/06-practice-in-a-game';
+import Workbench from '../../content/robots/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('robots').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="robots" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-see-decide-move' ? <SeeDecideMove client:load />
+    : chapter === '02-what-the-camera-gives' ? <WhatTheCameraGives client:load />
+    : chapter === '03-rules-break' ? <RulesBreak client:load />
+    : chapter === '04-show-it' ? <ShowIt client:load />
+    : chapter === '05-mistakes-snowball' ? <MistakesSnowball client:load />
+    : chapter === '06-practice-in-a-game' ? <PracticeInAGame client:load />
+    : <Workbench client:load />}
+</ChapterLayout>

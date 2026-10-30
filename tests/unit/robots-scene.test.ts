@@ -9,7 +9,14 @@ import { act, createElement, useState } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
 import IsoStage from '../../src/lib/iso/IsoStage';
-import { CLAW_BOARD, CLAW_PARTS, clawLabel, clawPlot, clawScene, type ClawOpts } from '../../src/components/scenes/clawScene';
+import {
+  CLAW_BOARD,
+  CLAW_PARTS,
+  clawLabel,
+  clawPlot,
+  clawScene,
+  type ClawOpts,
+} from '../../src/components/scenes/clawScene';
 import { BAY, type Bay, DriveBench, readerPairs } from '../../src/content/robots/kit';
 import { DEMOS } from '../../src/lib/robots/story';
 import { replay } from '../../src/lib/robots/policy';
@@ -119,8 +126,7 @@ describe('drive the claw, live', () => {
     reduce(false);
     vi.useFakeTimers();
     act(() => root.render(createElement(Harness)));
-    for (const a of DEMOS[0])
-      act(() => button(a === 'grip' ? 'Grip' : a === 'drop' ? 'Drop' : `Move ${a}`)!.click());
+    for (const a of DEMOS[0]) act(() => button(a === 'grip' ? 'Grip' : a === 'drop' ? 'Drop' : `Move ${a}`)!.click());
     act(() => button('Hand over')!.click());
     expect(status()[0].textContent).toBe('Hand over: the policy drives a fresh bin.');
     act(() => vi.advanceTimersByTime(180));
