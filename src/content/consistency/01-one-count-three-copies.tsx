@@ -9,7 +9,7 @@ import { LAG, MOMENTS, STOCK, clock, policyOf, runOf } from '../../lib/consisten
 import { STOCK_PARTS, stockAt } from '../../components/scenes/stockScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Clock, ConsistencyStage, SimNote, type View } from './kit';
+import { Clock, ConsistencyStage, Fact, SimNote, type View } from './kit';
 
 const MODULE = 'consistency',
   ID = '01-one-count-three-copies';
@@ -83,8 +83,8 @@ export const STEPS: Step<S>[] = [
   {
     id: 'lag',
     focus: 'tab',
-    visibleControls: ['out1', 'tab'],
-    narration: `News takes ${LAG} minutes to arrive: replication lag. Until then West’s count is stale.`,
+    visibleControls: ['out1', 'fact', 'tab'],
+    narration: `News takes ${LAG} minutes here, slowed to watch; real links take milliseconds. That is replication lag: West’s count is stale.`,
     act: 'Open the Timeline tab.',
     predicate: s => s.view === 'timeline',
   },
@@ -133,6 +133,12 @@ export default function OneCountThreeCopies() {
         ),
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />,
+        fact: () => (
+          <>
+            <Fact id="aurora-lag" />
+            <SimNote />
+          </>
+        ),
         tab: ({ state, apply }) => (
           <button type="button" className="chip" onClick={() => apply({ ...state, view: 'timeline' })}>
             Open the Timeline tab
