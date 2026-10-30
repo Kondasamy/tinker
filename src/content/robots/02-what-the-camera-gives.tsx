@@ -10,7 +10,7 @@ import { UNSURE } from '../../lib/recall';
 import { CLAW_PARTS } from '../../components/scenes/clawScene';
 import { isCrate, play, type Cell } from '../../lib/robots/world';
 import { Outcome } from '../tool-calling/kit';
-import { BAY, type Bay, DriveBench, driveBin, SimNote, type View } from './kit';
+import { BAY, type Bay, DriveBench, driveBin, Fact, SimNote, type View } from './kit';
 
 const MODULE = 'robots',
   ID = '02-what-the-camera-gives';
@@ -59,8 +59,7 @@ export const STEPS: Step<S>[] = [
     id: 'camera',
     focus: 'stage',
     visibleControls: [],
-    narration:
-      'The camera on the trolley takes a frame. Software turns it into a grid: crates, the part, the tray, the claw.',
+    narration: 'The claw’s camera takes a picture, a frame. Software turns it into a grid: crates, part, tray, claw.',
     act: 'Open the Camera tab.',
     say: { block: 'camera', text: 'Camera' },
     predicate: s => s.view === 'camera',
@@ -78,7 +77,7 @@ export const STEPS: Step<S>[] = [
     id: 'crate',
     focus: 'stage',
     visibleControls: ['out1'],
-    narration: 'That is the state: which way the target is, and which of four neighbours are blocked.',
+    narration: 'That is the state: which way the target is, and which cells beside the claw are blocked.',
     act: 'Drive the claw next to a crate.',
     say: { block: 'crate', text: 'A crate' },
     predicate: s => besideCrate(s.bay),
@@ -119,6 +118,7 @@ export default function WhatTheCameraGives() {
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />,
         link: () => (
           <>
+            <Fact id="transparent-depth" />
             <p className="note">
               <a href="/multimodal/01-a-picture-is-tokens/">Multimodal shows how a model reads a picture as tokens.</a>
             </p>

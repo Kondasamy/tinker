@@ -43,7 +43,7 @@ const IDEAS: [string, string, ReturnType<typeof fact> | null, ClawOpts][] = [
   [
     'Rules break',
     'A written list of moves fails on the next layout',
-    null,
+    fact('hand-designed-grasp'),
     {
       layout: NEW_BIN,
       state: rule.states.at(-1)!,
@@ -123,7 +123,7 @@ const FACTS: [string, string][] = [
             <p class="cap">fresh bins cleared by a policy that repeats her move at the most similar frame.</p>
           </article>
         </div>
-        <p class="note more">A simulated bay: a seeded grid world with hand-set crates, slips and light, not a real robot.</p>
+        <p class="note more">A simulated bay: a made-up grid with hand-set crates, slips and light, not a real robot.</p>
       </section>
 
       <section aria-labelledby="how">

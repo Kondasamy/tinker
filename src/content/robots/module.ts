@@ -10,13 +10,10 @@ const CHAPTERS: Chapter[] = [
     title: 'See, decide, move',
     short: 'The loop',
     intro: {
-      story: `Larkspur’s warehouse is trying a picking arm: a claw on a gantry over a parts bin. ${PERSON} runs the trial, and you help.`,
+      story: `Larkspur’s warehouse is trying a picking arm: a claw on overhead rails above a parts bin. ${PERSON} runs the trial, and you help.`,
       goal: 'What does a robot do, over and over, to pick one part?',
       learn: ['The see, decide, move loop', 'How often real robots run it', 'Why each move is small'],
-      terms: [
-        ['Control loop', 'See, decide, move, then again: what every robot runs.'],
-        ['Gantry', 'The frame of rails the claw rides along, over the bin.'],
-      ],
+      terms: [['Control loop', 'See, decide, move, then again: what every robot runs.']],
     },
   },
   {
@@ -75,6 +72,7 @@ const CHAPTERS: Chapter[] = [
         ['Slip', 'A move that carries the claw one cell too far.'],
         ['Off-demo', 'A frame no demo ever showed.'],
         ['Correction', 'A person’s move, recorded at a frame the policy reached.'],
+        ['DAgger', 'Ross et al.’s method: run the policy, have a person label the frames it reached, add them.'],
       ],
     },
   },
@@ -127,7 +125,7 @@ export const ROBOTS_MODULE: Module = {
   author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: ['multimodal'],
   story:
-    'Larkspur Supply Co.’s warehouse trials a claw on a gantry over its parts bins: first a written rule, then demos, corrections and practice in a simulator.',
+    'Larkspur Supply Co.’s warehouse trials a claw on overhead rails above its parts bins: first a written rule, then demos, corrections and practice in a simulator.',
   chapters: CHAPTERS,
   recall: RECALL,
 };

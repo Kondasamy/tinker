@@ -522,7 +522,7 @@ export function Fact({ id }: { id: string }) {
 /** Said wherever the bay shows (R6, KTD9). */
 export const SimNote = () => (
   <p className="note rb-note">
-    {`A simulated bay: a seeded grid world with hand-set crates, slips and light (${Math.round(BINS.real.slip * 100)}% of moves slip in the real bay), not a real robot.`}
+    {`A simulated bay: a made-up grid with hand-set crates, slips and light (${Math.round(BINS.real.slip * 100)}% of moves slip in the real bay), not a real robot.`}
   </p>
 );
 

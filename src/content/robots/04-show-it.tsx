@@ -12,7 +12,7 @@ import pinned from '../../../data/robots/pinned.json' with { type: 'json' };
 import { DEMOS, FRESH_BIN, PERSON } from '../../lib/robots/story';
 import { HELD_OUT } from '../../lib/robots/world';
 import { Outcome } from '../tool-calling/kit';
-import { BAY, type Bay, DriveBench, SimNote, type View } from './kit';
+import { BAY, type Bay, DriveBench, Fact, SimNote, type View } from './kit';
 
 const MODULE = 'robots',
   ID = '04-show-it';
@@ -73,7 +73,8 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: 'No training happened: just lookup. Whatever it did, it only knew the frames you showed it.',
+    narration:
+      'No training happened: it just looks up your frames. Whatever it did, it only knew the frames you showed it.',
     act: 'Predict first.',
     predicate: s => s.p1 !== null,
   },
@@ -112,6 +113,7 @@ export default function ShowIt() {
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />,
         note: () => (
           <>
+            <Fact id="act-demos" />
             <p className="note">{`${PERSON}’s demos on ${N} simulated fresh bins: ${pinned.clean.map(c => `${c.demos} demo${c.demos > 1 ? 's' : ''}, ${c.solved}`).join('; ')}.`}</p>
             <SimNote />
           </>
