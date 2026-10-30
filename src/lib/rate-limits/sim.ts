@@ -5,7 +5,7 @@
 // once every 200 ms, after the reply's Retry-After, or after a backoff (with or without jitter). The scene and the
 // Requests tab both read one run, so they never disagree.
 import data from '../../../data/rate-limits/traces.json' with { type: 'json' };
-import { EMPTY_BUCKET, levelOf, retryAfterS, take, type Bucket } from './bucket';
+import { fullBucket, levelOf, retryAfterS, take, type Bucket } from './bucket';
 import { roomOf, windowTake, type Counter } from './window';
 import { delayOf, type Retry } from './backoff';
 
@@ -106,7 +106,7 @@ export function simulate(scene: Scene): Run {
     (a, b) => Object.keys(PARTNERS).indexOf(a) - Object.keys(PARTNERS).indexOf(b),
   );
   const barrels = l.kind === 'none' ? [] : l.kind === 'bucket' && l.perKey ? keys : ['all'];
-  const buckets = new Map<string, Bucket>(barrels.map(b => [b, EMPTY_BUCKET(sizeOf(l), 0)]));
+  const buckets = new Map<string, Bucket>(barrels.map(b => [b, fullBucket(sizeOf(l), 0)]));
   const counters = new Map<string, Counter>(barrels.map(b => [b, { start: 0, count: 0 }]));
   const pending = [...first],
     hits: Hit[] = [],
@@ -190,7 +190,7 @@ export function levelAt(run: Run, barrel: string, t: number) {
     if (x.at > t) break;
     if (x.barrel === barrel) m = x;
   }
-  if (l.kind === 'bucket') return levelOf(m ? { tokens: m.level, at: m.at } : EMPTY_BUCKET(size, 0), t, size, l.refill);
+  if (l.kind === 'bucket') return levelOf(m ? { tokens: m.level, at: m.at } : fullBucket(size, 0), t, size, l.refill);
   if (l.kind === 'window')
     return m ? roomOf({ start: Math.floor(m.at / l.ms) * l.ms, count: size - m.level }, t, size, l.ms) : size;
   return 0;

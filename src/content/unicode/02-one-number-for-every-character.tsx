@@ -11,13 +11,13 @@ import { SCRIPTS } from '../../lib/unicode/story';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Fact, PARTS as TAPE, Punch, TapeStage } from './kit';
+import { num } from '../../lib/format';
 
 const MODULE = 'unicode',
   ID = '02-one-number-for-every-character';
 export const PARTS = TAPE;
 const [E, , HAN, SMILE] = SCRIPTS;
 const cp = (ch: string) => ch.codePointAt(0)!;
-const n = (x: number) => x.toLocaleString('en');
 
 export const P1 = {
   question: `ASCII stops at 127. What does Unicode give ${E}?`,
@@ -75,7 +75,7 @@ export const STEPS: Step<S>[] = [
     id: 'far',
     focus: 'punch',
     visibleControls: ['out1', 'fact', 'punch'],
-    narration: `${E} is code point ${uplus(cp(E))}, number ${cp(E)}. Unicode ${VERSION} numbers ${n(TOTAL)} characters.`,
+    narration: `${E} is code point ${uplus(cp(E))}, number ${cp(E)}. Unicode ${VERSION} numbers ${num(TOTAL)} characters.`,
     act: `Now punch ${HAN} or ${SMILE}.`,
     say: { block: 'tape', text: 'More rows' },
     predicate: s => [...s.text].some(c => cp(c) > 0xfff),
@@ -85,7 +85,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['punch', 'space', 'quiz'],
-    narration: `${SMILE} is ${uplus(cp(SMILE))}, number ${n(cp(SMILE))}: far past one byte’s 255. Unicode has room for ${n(CODESPACE)}.`,
+    narration: `${SMILE} is ${uplus(cp(SMILE))}, number ${num(cp(SMILE))}: far past one byte’s 255. Unicode has room for ${num(CODESPACE)}.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'How many tables does Unicode keep?',

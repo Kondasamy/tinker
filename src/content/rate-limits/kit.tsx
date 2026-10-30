@@ -160,7 +160,8 @@ export function FloodControls({ live, onLive }: { live: Live; onLive: (l: Live) 
   cur.current = live;
   const hold = useRef<{ id: number; n: number; from: number } | null>(null);
   const [said, setSaid] = useState('');
-  const first429 = useRef(liveCounts(live).limited > 0);
+  const first429 = useRef<boolean | null>(null);
+  if (first429.current === null) first429.current = liveCounts(live).limited > 0;
   const send = (times: number[]) => {
     const l = cur.current,
       t0 = l.t0 || Date.now(),

@@ -38,7 +38,10 @@ export const weekFor = (b: Bench) =>
     }),
   );
 /** The bench's three disasters, each restored from this plan's week. */
-export const resultsOf = (b: Bench) => BENCH_STRIKES.map(s => restore(weekFor(b), s));
+export const resultsOf = (b: Bench) => {
+  const week = weekFor(b);
+  return BENCH_STRIKES.map(s => restore(week, s));
+};
 export const costOf = (b: Bench) => weekFor(b).cost;
 export const meets = (b: Bench) => resultsOf(b).every(r => r.down !== null && r.lost <= MAX_LOST && r.down <= MAX_DOWN);
 

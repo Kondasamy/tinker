@@ -15,6 +15,7 @@ import { qualityText } from '../../lib/choosing-models/story';
 import pinned from '../../../data/choosing-models/pinned.json' with { type: 'json' };
 import { Outcome } from '../tool-calling/kit';
 import { Fact, MachinesNote, SteelyardStage } from './kit';
+import { num } from '../../lib/format';
 
 const MODULE = 'choosing-models',
   ID = '03-price-per-answer';
@@ -25,7 +26,6 @@ const P = { A: per1000(machineOf('A'), REPLY), B: per1000(machineOf('B'), REPLY)
 /** how many times A's price is C's */
 export const TIMES = Math.round(P.A / P.C);
 const MONTH = REPLY.perMonth / 1000;
-const fmt = (n: number) => n.toLocaleString('en-US');
 export const START: Weights = { quality: 2, cost: 0, wait: 0 };
 
 export interface S {
@@ -61,7 +61,7 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `A support answer reads about ${fmt(REPLY.tokensIn)} input tokens and writes ${REPLY.tokensOut} output tokens; each kind has its own price.`,
+    narration: `A support answer reads about ${num(REPLY.tokensIn)} input tokens and writes ${REPLY.tokensOut} output tokens; each kind has its own price.`,
     act: 'Predict first.',
     say: { block: 'pan', text: 'One answer' },
     predicate: s => s.p1 !== null,
@@ -81,7 +81,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['bill', 'fact', 'quiz'],
-    narration: `At ${fmt(REPLY.perMonth)} answers a month: A costs ${money(P.A * MONTH)}, C ${money(P.C * MONTH)}.`,
+    narration: `At ${num(REPLY.perMonth)} answers a month: A costs ${money(P.A * MONTH)}, C ${money(P.C * MONTH)}.`,
     act: 'One question to finish.',
     say: { block: 'machine-c', text: 'Cheapest' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -119,7 +119,7 @@ export default function PricePerAnswer() {
           <details className="cm-maths">
             <summary>The sum</summary>
             <p>
-              {`Price per answer = input tokens × input price + output tokens × output price, prices per million tokens. Machine A: ${fmt(REPLY.tokensIn)} × $${machineOf('A').priceIn} + ${REPLY.tokensOut} × $${machineOf('A').priceOut}, over a million, is $${(P.A / 1000).toFixed(4)} an answer.`}
+              {`Price per answer = input tokens × input price + output tokens × output price, prices per million tokens. Machine A: ${num(REPLY.tokensIn)} × $${machineOf('A').priceIn} + ${REPLY.tokensOut} × $${machineOf('A').priceOut}, over a million, is $${(P.A / 1000).toFixed(4)} an answer.`}
             </p>
           </details>
         ),

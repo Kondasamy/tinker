@@ -12,6 +12,7 @@ import { HANDHELD, sizeOf } from '../../lib/on-device/memory';
 import { levelAfter, repliesPerCharge, SHIFT, type Length } from '../../lib/on-device/battery';
 import { Outcome } from '../tool-calling/kit';
 import { CrateStage, Fact, LengthRadios, PLANNING } from './kit';
+import { num } from '../../lib/format';
 
 const MODULE = 'on-device',
   ID = '04-battery-tank';
@@ -20,7 +21,6 @@ const B3 = sizeOf('3b'),
   BITS = 4,
   HOURS = HANDHELD.shiftHours,
   PER_HOUR = HANDHELD.questionsPerHour;
-const n = (x: number) => x.toLocaleString('en');
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 export const levelOf = (len: Length, hours: number) => levelAfter(B3, BITS, len, hours);
 
@@ -83,7 +83,7 @@ export const STEPS: Step<S>[] = [
     id: 'short',
     focus: 'length',
     visibleControls: ['out1', 'length', 'ask'],
-    narration: `Long replies: ${n(repliesPerCharge(B3, BITS, 'long'))} replies per charge, short of a shift’s ${n(SHIFT)}.`,
+    narration: `Long replies: ${num(repliesPerCharge(B3, BITS, 'long'))} replies per charge, short of a shift’s ${num(SHIFT)}.`,
     act: 'Switch to short replies and ask for an hour.',
     predicate: s => s.length === 'short' && s.hours >= 1,
   },
@@ -91,7 +91,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['length', 'ask', 'more', 'quiz'],
-    narration: `Short replies: ${n(repliesPerCharge(B3, BITS, 'short'))} per charge. Fewer tokens out is the cheapest battery saving.`,
+    narration: `Short replies: ${num(repliesPerCharge(B3, BITS, 'short'))} per charge. Fewer tokens out is the cheapest battery saving.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What does every token written cost?',

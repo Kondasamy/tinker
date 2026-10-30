@@ -11,12 +11,12 @@ import { HANDHELD, QUESTIONS, sizeOf, sizeText, FREE } from '../../lib/on-device
 import { levelAfter, SHIFT } from '../../lib/on-device/battery';
 import { BENCH, passes, resultOf, START, WINNERS, wins, type Plan } from '../../lib/on-device/workbench';
 import { BitsRadios, CrateStage, LengthRadios, PLANNING, SizeRadios } from './kit';
+import { num } from '../../lib/format';
 
 const MODULE = 'on-device',
   ID = '07-workbench';
 export const PARTS = CRATE_PARTS;
 const BEST = WINNERS[0];
-const n = (x: number) => x.toLocaleString('en');
 const B1 = sizeOf('1b');
 
 export const QUIZ = {
@@ -44,7 +44,7 @@ export const STEPS: Step<S>[] = [
     id: 'bench',
     focus: 'bench',
     visibleControls: ['score', 'bench'],
-    narration: `Rule: fit with ${n(BENCH.shiftContext)} tokens of context, answer ${BENCH.bar} of ${QUESTIONS}, keep ${BENCH.minBits}+ bits, last a shift.`,
+    narration: `Rule: fit with ${num(BENCH.shiftContext)} tokens of context, answer ${BENCH.bar} of ${QUESTIONS}, keep ${BENCH.minBits}+ bits, last a shift.`,
     act: 'Find the setup that passes.',
     say: { block: 'crate', text: 'Pack it' },
     predicate: s => wins(s),
@@ -78,14 +78,14 @@ function Score({ s }: { s: S }) {
 function Bench({ s, set }: { s: S; set: (s: S) => void }) {
   const r = resultOf(s);
   const rows: [string, string, boolean][] = [
-    [`Fits with ${n(BENCH.shiftContext)} tokens of context`, `${sizeText(r.used)} of ${sizeText(FREE)}`, r.fit],
+    [`Fits with ${num(BENCH.shiftContext)} tokens of context`, `${sizeText(r.used)} of ${sizeText(FREE)}`, r.fit],
     ['Stays on the handheld', r.private ? 'Yes' : 'No: falls back to the cloud', r.private],
     [
       `Stock answers (at least ${BENCH.bar} of ${QUESTIONS}, ${BENCH.minBits}+ bits)`,
       `${r.right} of ${QUESTIONS} at ${s.bits} bits`,
       r.answers,
     ],
-    [`Replies per charge (a shift is ${n(SHIFT)})`, n(r.replies), r.lasts],
+    [`Replies per charge (a shift is ${num(SHIFT)})`, num(r.replies), r.lasts],
   ];
   return (
     <div className="tc-bench">

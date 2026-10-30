@@ -10,7 +10,7 @@ export interface Bucket {
 }
 
 /** A bucket that starts full at time `at`. */
-export const EMPTY_BUCKET = (size: number, at: number): Bucket => ({ tokens: size, at });
+export const fullBucket = (size: number, at: number): Bucket => ({ tokens: size, at });
 
 /** The bucket's tokens at `now`: what it held plus the drip since, never past its size. */
 export const levelOf = (b: Bucket, now: number, size: number, refill: number) =>

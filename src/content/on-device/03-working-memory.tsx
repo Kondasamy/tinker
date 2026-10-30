@@ -10,13 +10,13 @@ import { CRATE_PARTS } from '../../components/scenes/phoneCrateScene';
 import { cacheBytes, CONTEXTS, fits, kvPerToken, sizeOf, sizeText } from '../../lib/on-device/memory';
 import { Outcome } from '../tool-calling/kit';
 import { ContextRange, CrateStage, Fact, PLANNING } from './kit';
+import { num } from '../../lib/format';
 
 const MODULE = 'on-device',
   ID = '03-working-memory';
 export const PARTS = CRATE_PARTS;
 const B3 = sizeOf('3b'),
   BITS = 4;
-const n = (t: number) => t.toLocaleString('en');
 /** the first context the 3B at 4 bits doesn't fit with */
 export const FIRST_SPILL = CONTEXTS.find(t => !fits(B3, BITS, t))!;
 
@@ -29,9 +29,9 @@ export interface S {
 const NEVER = 'Never: the cache is tiny next to the weights';
 export const P1 = {
   question: `Raise the context. Where does the ${B3.name} at ${BITS} bits first spill?`,
-  options: [...CONTEXTS.slice(3).map(t => `At ${n(t)} tokens`), NEVER],
+  options: [...CONTEXTS.slice(3).map(t => `At ${num(t)} tokens`), NEVER],
 };
-export const OUTCOME = FIRST_SPILL ? P1.options.indexOf(`At ${n(FIRST_SPILL)} tokens`) : P1.options.indexOf(NEVER);
+export const OUTCOME = FIRST_SPILL ? P1.options.indexOf(`At ${num(FIRST_SPILL)} tokens`) : P1.options.indexOf(NEVER);
 
 export const QUIZ = {
   question: 'A picker’s chat has run all morning, and now the handheld app runs out of memory. Why?',
@@ -55,14 +55,14 @@ export const STEPS: Step<S>[] = [
     focus: 'tokens',
     visibleControls: ['tokens'],
     narration: `The KV cache keeps keys and values for every context token: ${sizeText(kvPerToken(B3))} each for the ${B3.name}.`,
-    act: `Set the context to ${n(CONTEXTS[2])} tokens.`,
+    act: `Set the context to ${num(CONTEXTS[2])} tokens.`,
     predicate: s => s.tokens === CONTEXTS[2],
   },
   {
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `${n(CONTEXTS[2])} tokens: ${sizeText(cacheBytes(B3, CONTEXTS[2]))}, one mint brick.`,
+    narration: `${num(CONTEXTS[2])} tokens: ${sizeText(cacheBytes(B3, CONTEXTS[2]))}, one mint brick.`,
     act: 'Predict where it spills.',
     say: { block: 'cache', text: 'Cache bricks' },
     predicate: s => s.p1 !== null,
@@ -79,7 +79,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out1', 'tokens', 'more', 'quiz'],
-    narration: `At ${n(FIRST_SPILL)} tokens the cache needs ${sizeText(cacheBytes(B3, FIRST_SPILL))}. Keep context short, or share the cache between layers.`,
+    narration: `At ${num(FIRST_SPILL)} tokens the cache needs ${sizeText(cacheBytes(B3, FIRST_SPILL))}. Keep context short, or share the cache between layers.`,
     act: 'One question to finish.',
     say: { block: 'spill', text: 'Cache spilled' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -99,7 +99,7 @@ export default function WorkingMemory() {
         <CrateStage
           say={say}
           pack={{ size: '3b', bits: BITS, tokens: state.tokens }}
-          caption={`The ${B3.name} at ${BITS} bits with ${n(state.tokens)} tokens of context: cobalt bricks are weights, mint are cache. ${PLANNING}`}
+          caption={`The ${B3.name} at ${BITS} bits with ${num(state.tokens)} tokens of context: cobalt bricks are weights, mint are cache. ${PLANNING}`}
         />
       )}
       controls={{

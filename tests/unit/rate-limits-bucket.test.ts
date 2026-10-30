@@ -2,7 +2,7 @@
 // the time to the next token; a fixed window lets twice its limit through across a boundary; backoff doubles and jitter
 // stays inside the doubled wait.
 import { describe, expect, it } from 'vitest';
-import { EMPTY_BUCKET, levelOf, retryAfterS, take } from '../../src/lib/rate-limits/bucket';
+import { fullBucket, levelOf, retryAfterS, take } from '../../src/lib/rate-limits/bucket';
 import { windowTake } from '../../src/lib/rate-limits/window';
 import { delayOf } from '../../src/lib/rate-limits/backoff';
 
@@ -10,7 +10,7 @@ describe('the token bucket', () => {
   it('a full bucket of size B serves B at once, then one every 1/r seconds', () => {
     const size = 10,
       refill = 2;
-    let b = EMPTY_BUCKET(size, 0);
+    let b = fullBucket(size, 0);
     let served = 0;
     for (let i = 0; i < 15; i++) {
       const r = take(b, 0, size, refill);

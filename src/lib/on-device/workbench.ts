@@ -19,7 +19,8 @@ export const PLANS: Plan[] = SIZE_IDS.flatMap(size =>
 
 export function resultOf(p: Plan) {
   const s = sizeOf(p.size),
-    fit = fits(s, p.bits, bench.shiftContext);
+    fit = fits(s, p.bits, bench.shiftContext),
+    replies = repliesPerCharge(s, p.bits, p.length);
   return {
     used: usedBytes(s, p.bits, bench.shiftContext),
     fit,
@@ -27,8 +28,8 @@ export function resultOf(p: Plan) {
     private: fit,
     right: s.right,
     answers: s.right >= bench.bar && p.bits >= bench.minBits,
-    replies: repliesPerCharge(s, p.bits, p.length),
-    lasts: repliesPerCharge(s, p.bits, p.length) >= SHIFT,
+    replies,
+    lasts: replies >= SHIFT,
   };
 }
 export type Result = ReturnType<typeof resultOf>;
