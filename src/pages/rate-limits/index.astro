@@ -39,7 +39,7 @@ const lost = (r: typeof FLOOD) => {
 const NO_LIMIT = lost(FLOOD),
   EACH = lost(PER_KEY);
 const IDEAS: [string, string, ReturnType<typeof fact> | null, BarrelOpts][] = [
-  ['Too many at once', 'Past its capacity, the server fails everyone', null, pic(barrelAt(FLOOD, 6000))],
+  ['Too many at once', 'Past its capacity, the server fails everyone', fact('overload'), pic(barrelAt(FLOOD, 6000))],
   ['A barrel of tokens', 'Size sets the burst; the drip sets the pace', fact('token-bucket'), HERO],
   [
     'Wait, then retry',

@@ -76,7 +76,7 @@ const CHAPTERS: Chapter[] = [
         'Retrying sooner only earns more 429s',
       ],
       terms: [
-        ['429', 'The status code for Too Many Requests: the limit said no.'],
+        ['429', 'The number a reply starts with for Too Many Requests: the limit said no.'],
         ['Retry-After', 'A line on the reply saying how many seconds to wait before trying again.'],
       ],
     },

@@ -5,7 +5,7 @@
 // React text here; the barrel escapes its pills (esc), and the chart's words are text nodes.
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import IsoStage from '../../lib/iso/IsoStage';
-import { LIVE, clock, liveOf, runOf, type Run } from '../../lib/rate-limits/sim';
+import { CAPACITY, LIVE, clock, liveOf, runOf, type Run } from '../../lib/rate-limits/sim';
 import { retryAfterS } from '../../lib/rate-limits/bucket';
 import { fact } from '../../lib/rate-limits/facts';
 import {
@@ -407,6 +407,7 @@ export function Fact({ id }: { id: string }) {
 /** Shown wherever the simulator's counts appear (R6). */
 export const SimNote = () => (
   <p className="note rl-note">
-    A simulated stock API over hand-made traffic: Larkspur’s partners and a hand-set server limit, not recorded traffic.
+    A simulated stock API over hand-made traffic: Larkspur’s partners, small barrels and a hand-set server limit of{' '}
+    {CAPACITY} a second, not recorded traffic.
   </p>
 );

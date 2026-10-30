@@ -92,7 +92,7 @@ const ITEMS: RecallItem[] = [
     correct: 0,
     why: [
       'Right: each window counts on its own, so the full limit is back at once.',
-      'Carrying the count over would be a sliding window, which a fixed window is not.',
+      'A fixed window carries nothing over: the new minute starts from zero.',
       'A fixed window doesn’t fade its count; it resets it whole.',
     ],
   },
@@ -151,7 +151,7 @@ const ITEMS: RecallItem[] = [
     why: [
       'Right: 429 is Too Many Requests, the rate limit’s refusal.',
       'Not found is 404; 429 means the request was fine but came too soon.',
-      'A crashed server sends 5xx errors or nothing; 429 is a deliberate refusal.',
+      'A crashed server sends an error in the 500s or nothing; 429 is a deliberate refusal.',
     ],
   },
   {
