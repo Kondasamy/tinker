@@ -1,0 +1,79 @@
+{
+  "scenes": {
+    "flood": {
+      "downs": 2,
+      "firstDown": 5528,
+      "oakmoor": {
+        "sent": 40,
+        "ok": 28,
+        "limited": 0,
+        "down": 12
+      }
+    },
+    "edge": {
+      "aroundEdge": 80,
+      "busiest": 40
+    },
+    "ignore": {
+      "sent": 564,
+      "ok": 19,
+      "limited": 545,
+      "down": 0
+    },
+    "listen": {
+      "sent": 74,
+      "ok": 19,
+      "limited": 55,
+      "down": 0
+    },
+    "crowd": {
+      "fixed": {
+        "peak": 20,
+        "limited": 50,
+        "allServedAt": 4000
+      },
+      "fixedJitter": {
+        "peak": 8,
+        "limited": 98,
+        "allServedAt": 4556
+      },
+      "backoff": {
+        "peak": 20,
+        "limited": 40,
+        "allServedAt": 7000
+      },
+      "backoffJitter": {
+        "peak": 5,
+        "limited": 52,
+        "allServedAt": 9180
+      }
+    },
+    "shared": {
+      "oakmoor": 0.325,
+      "web": 0.325
+    },
+    "perKey": {
+      "oakmoor": 1,
+      "web": 1
+    }
+  },
+  "workbench": {
+    "winners": [
+      {
+        "size": 10,
+        "refill": 20,
+        "perKey": true
+      },
+      {
+        "size": 20,
+        "refill": 10,
+        "perKey": true
+      },
+      {
+        "size": 20,
+        "refill": 20,
+        "perKey": true
+      }
+    ]
+  }
+}
