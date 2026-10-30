@@ -1,6 +1,8 @@
 ---
 import ChapterLayout from '../../layouts/ChapterLayout.astro';
-import FirstStep from '../../content/before-genai/01-first-step';
+import Scripted from '../../content/before-genai/01-scripted';
+import Intents from '../../content/before-genai/02-intents';
+import PredictiveAi from '../../content/before-genai/03-predictive-ai';
 import { moduleOf } from '../../lib/modules';
 
 export function getStaticPaths() {
@@ -11,7 +13,9 @@ const { chapter } = Astro.params;
 const { title } = Astro.props;
 ---
 <ChapterLayout module="before-genai" chapter={chapter} title={title}>
-  {/* One line per chapter, as `chapter === '02-…' ? <Next client:load />`, last one without a test. Not a lookup table:
-      hydration needs each island as a static component in the template, so Astro can bundle it (KTD2). */}
-  <FirstStep client:load />
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-scripted' ? <Scripted client:load />
+    : chapter === '02-intents' ? <Intents client:load />
+    : chapter === '03-predictive-ai' ? <PredictiveAi client:load />
+    : null}
 </ChapterLayout>

@@ -5,9 +5,9 @@
 import '../../styles/tokens.css';
 import '../../styles/page.css';
 import Meta from '../../components/Meta.astro';
-import FlatStage from '../../components/scenes/FlatStage';
 import Recap from '../../components/quiz/Recap';
-import { LANES, MSGS } from '../../content/before-genai/01-first-step';
+import { BeforeGenaiStage } from '../../content/before-genai/kit';
+import { messageOf, run } from '../../lib/before-genai/bots';
 import { moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
@@ -40,7 +40,7 @@ const checked = longDate(DATA.accessed);
           </div>
         </div>
         <div class="hero-pic">
-          <FlatStage client:visible lanes={LANES} msgs={MSGS} />
+          <BeforeGenaiStage client:visible run={run(messageOf('where-order'))} caption="Larkspur’s help counter." />
         </div>
       </header>
 

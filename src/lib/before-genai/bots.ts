@@ -61,9 +61,9 @@ export interface Run {
   genai: GenaiRun;
 }
 
-/** One message through all three bots. */
-export function run(message: Message): Run {
-  const rule = matchRule(message.text),
+/** One message through all three bots; `list` swaps in other keyword rules (chapter 1's fix). */
+export function run(message: Message, list: readonly Rule[] = RULES): Run {
+  const rule = matchRule(message.text, list),
     top = scores(TRIAGE(), message.text)[0][0],
     lead = margin(TRIAGE(), message.text),
     sure = lead >= MARGIN_FLOOR,
@@ -85,14 +85,15 @@ export const MISSED = 'parcel';
 export const MISSED_RULE = 'track';
 /** The words chapter 1's Select offers: the missed message's own, once each, in order. */
 export const CANDIDATES = [...new Set(words(messageOf(MISSED).text))];
-export function wins(word: string) {
-  const added = RULES.map(r => (r.id === MISSED_RULE ? { ...r, keywords: [...r.keywords, word] } : r));
-  return (
-    matchRule(messageOf(MISSED).text, added)?.id === MISSED_RULE &&
-    MESSAGES.every(m => {
-      const was = matchRule(m.text)?.id;
-      return !was || matchRule(m.text, added)?.id === was;
-    })
-  );
-}
+/** The rules with `word` added to the rule the missed message should hit. */
+export const withWord = (word: string) =>
+  RULES.map(r => (r.id === MISSED_RULE ? { ...r, keywords: [...r.keywords, word] } : r));
+/** The first message another rule answered that `word` would take over, if any. */
+export const stolen = (word: string) =>
+  MESSAGES.find(m => {
+    const was = matchRule(m.text)?.id;
+    return was && matchRule(m.text, withWord(word))?.id !== was;
+  });
+export const wins = (word: string) =>
+  matchRule(messageOf(MISSED).text, withWord(word))?.id === MISSED_RULE && !stolen(word);
 export const WINNERS = CANDIDATES.filter(wins);
