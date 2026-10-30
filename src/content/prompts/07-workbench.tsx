@@ -9,7 +9,7 @@ import { UNSURE } from '../../lib/recall';
 import { DOCKET_PARTS } from '../../components/scenes/docketScene';
 import type { Docket } from '../../lib/prompts/cards';
 import { BENCH_TICKETS, CHAPTER, RESULTS, START, WINNERS, resultOf, wins } from '../../lib/prompts/workbench';
-import { DocketStage, captionOf, type View } from './kit';
+import { DocketStage, Fact, ToyNote, captionOf, type View } from './kit';
 
 const MODULE = 'prompts',
   ID = CHAPTER;
@@ -56,7 +56,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['score', 'quiz'],
+    visibleControls: ['score', 'fact', 'toy', 'quiz'],
     narration: `All ${N}, in ${LEAST} tokens. The longest prompt that passes them all takes ${LONGEST}: examples cost tokens and added no passes.`,
     act: 'One question to finish.',
     say: { block: 'slip', text: 'All pass' },
@@ -105,6 +105,8 @@ export default function Workbench() {
       )}
       controls={{
         score: ({ state }) => <Score d={state.d} />,
+        fact: () => <Fact id="token-price" />,
+        toy: () => <ToyNote />,
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

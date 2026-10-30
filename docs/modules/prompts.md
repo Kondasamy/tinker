@@ -26,3 +26,18 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 | 5 `order-and-emphasis` | Two examples, the rules card on top, then moved last; replies simulated (labelled) | Yes: the rules toggle | the rules toggle (`docket`) | `rules`, `examples` |
 | 6 `test-it-like-code` | The JSON docket with the house rule, vague then clear, on six tickets, then the smaller model; the slip's pill counts tickets passed | Yes: the two task cards; the model chips | the tray, then the model chips (`docket`, `model`) | `task`, `machine`, `slip` |
 | 7 `workbench` | The bench's docket on six tickets; passes and prompt length beside it | Yes: every card the bench opens, and the rules toggle | the tray (`docket`) | `docket`, `slip` |
+
+## Toy vs real
+
+The replies of chapters 2–4, 6 and 7 are real: recorded once from two real models (`recording-model`, `small-model`) and graded live, so every word and pass count read off them is real. The tickets and Larkspur's policy are hand-written story data (the intro says so). Larkspur mini (chapter 1) and its tokenizer are the shared toy of `docs/lm-kit.md`: labelled by `ToyNote`, never retrained.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 | Larkspur mini's size (`ToyNote`, from `meta.json`); 24 word pieces per continuation (`MINI_TOKENS`, a hand-set run length) | `instruction-tuning` (137 billion numbers; 20 of 25 tasks) | Labelled: `ToyNote` beside the fact on the quiz step |
+| 2 | Words in the vague and role replies; the key fact's extension | `clear-and-direct` | Real (recorded replies); the extension is story data |
+| 3 | One or two examples | `example-bias` | Real (recorded replies) |
+| 4 | None; the quiz's "one reply in fifty" is a made-up case | `structured-outputs` | Real (recorded reply) |
+| 5 | None; replies simulated by stated rules (`simulate.ts`) | `lost-in-the-middle` | Labelled: the copy and bylines say simulated |
+| 6 | Tickets passed of 6, vague, clear and on the smaller model | `openai-guide` | Real (recorded replies, live graders); the 6 tickets are hand-written |
+| 7 | Tickets passed of 6; the winner's and the longest passing prompt's tokens | `token-price` ($2 per million input tokens) | Passes real; token counts labelled: Larkspur mini's tokenizer, a stand-in (narration and `ToyNote`) |
+| Intro | Tickets, passes, replies recorded | `clear-and-direct`, `example-bias`, `openai-guide` | Real (recordings) |

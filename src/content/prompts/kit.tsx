@@ -32,6 +32,7 @@ import { CARDS, type Card, type Docket, type ModelId } from '../../lib/prompts/c
 import { gradeReply, passes, REFERENCES, type Grade } from '../../lib/prompts/grade';
 import { continueText, MINI_PROMPTS, MINI_TOKENS, NORECORD, replyOf, type Reply } from '../../lib/prompts/story';
 import { fact } from '../../lib/prompts/facts';
+import META from '../../../public/data/lm/meta.json' with { type: 'json' };
 import { MODEL, useModel, type ModelStore } from '../transformers/kit';
 import { useNarrow } from '../tool-calling/kit';
 import { useReduced } from '../releases/kit';
@@ -460,7 +461,7 @@ export function MiniStage({
               </li>
             </ol>
             <section className="pr-reply" aria-label="The reply">
-              <p className="pr-by">{`Larkspur mini, live in your browser: its likeliest next token, ${MINI_TOKENS} times.`}</p>
+              <p className="pr-by">{`Larkspur mini, live in your browser: its likeliest next word piece, ${MINI_TOKENS} times.`}</p>
               <pre>{text ?? ''}</pre>
             </section>
           </div>
@@ -515,3 +516,10 @@ export function Fact({ id }: { id: string }) {
     </p>
   );
 }
+
+/** Said beside a real figure wherever Larkspur mini or its token counts show (R6, KTD5): a toy, trained ahead of time. */
+export const ToyNote = () => (
+  <p className="note">
+    {`Larkspur mini is a toy: ${META.model.params.toLocaleString('en-US')} learned numbers, trained ahead of time on Larkspur’s documents, where real chat models have billions. It splits text into its own word pieces (tokens); a real model splits text its own way, and is billed by its own count.`}
+  </p>
+);
