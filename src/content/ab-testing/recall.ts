@@ -191,13 +191,13 @@ export const RECALL: RecallItem[] = [
     chapter: '04-peeking',
     question: 'A team must be able to watch results every day. What lets them do that and still trust a win?',
     options: [
-      'Methods built for continuous monitoring, such as always-valid p-values',
-      'Lowering the confidence level so wins come sooner',
+      'Methods built for watching, whose results stay valid however often you look',
+      'Lowering the bar so wins come sooner',
       'Checking twice a day instead of once',
     ],
     correct: 0,
     why: [
-      'Right: sequential methods are designed so a result stays valid however often you look.',
+      'Right: these methods are designed so a win still means what it says, however often you look.',
       'A lower bar makes luck win even more often.',
       'More looks add more chances for luck, not fewer.',
     ],

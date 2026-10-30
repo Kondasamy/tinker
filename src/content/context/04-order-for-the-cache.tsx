@@ -141,7 +141,7 @@ export const QUIZ = {
   why: [
     'A short line that changes still breaks the prefix, and here one time stamp cost almost all the hits.',
     'Right: stable parts first and changing ones last, so each call shares the longest prefix with the one before.',
-    'That is the layout that lost the hits here, because a change invalidates its own part and everything after it.',
+    'That is the layout that lost the hits here, because a change voids the cache for its own part and everything after it.',
     'Two calls don’t share a window, so the model would answer without the date; ordering one call fixes it.',
   ],
 };
@@ -181,7 +181,7 @@ export const STEPS: Step<S>[] = [
     id: 'reorder',
     focus: 'order',
     visibleControls: ['out1', 'order', 'verdict'],
-    narration: `Only the tools and instructions before the stamp were hits: ${pct(DATED.rate)}. A change invalidates everything after it.`,
+    narration: `Only the tools and instructions before the stamp were hits: ${pct(DATED.rate)}. A change voids the cache from there on.`,
     act: 'Put the stable blocks first.',
     say: { block: 'shelf', text: 'Stamp breaks it' },
     broken: s => ({ ...s, order: HOUSE }),

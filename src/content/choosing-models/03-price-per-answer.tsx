@@ -1,6 +1,7 @@
 // Chapter 3: price per answer. Tokens in and out times each machine's hand-set price, per 1,000 answers. The reader
 // predicts how many times A's price is C's, then slides the cost poise until the beam tips (any cost weight that tips
-// it passes); the month's bill follows. Cites a real price list for how pricing is shaped (in and out apart).
+// it passes); the month's bill follows. Cites a real price list for how pricing is shaped (in and out apart); output's
+// price is input's times that list's multiple (matched, OUT_TIMES).
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
@@ -81,7 +82,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['bill', 'fact', 'quiz'],
-    narration: `At ${num(REPLY.perMonth)} answers a month: A costs ${money(P.A * MONTH)}, C ${money(P.C * MONTH)}.`,
+    narration: `At ${num(REPLY.perMonth)} answers a month: A costs ${money(P.A * MONTH)}, C ${money(P.C * MONTH)}. Real price lists span even wider gaps.`,
     act: 'One question to finish.',
     say: { block: 'machine-c', text: 'Cheapest' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,

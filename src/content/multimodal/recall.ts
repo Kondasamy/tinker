@@ -126,9 +126,9 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right. Past the limit the host shrinks the image, and the cost stops at the cap.',
+      'Right. Past the limit the provider shrinks the image, and the cost stops at the cap.',
       'The token cost stops at the cap; the model never sees pixels past it.',
-      'Hosts usually downscale instead of refusing (past a hard maximum, they refuse).',
+      'Providers usually downscale instead of refusing (past a hard maximum, they refuse).',
     ],
   },
   {
@@ -180,13 +180,13 @@ export const RECALL: RecallItem[] = [
     options: [
       'Where things sit on the page: rows, columns, boxes',
       'Nothing: text is text',
-      'The file’s hidden metadata',
+      'Hidden details stored in the file, like the camera used',
     ],
     correct: 0,
     why: [
       'Right. The patches keep the layout, so the model can tell which number belongs to which row.',
       'For a plain letter, maybe. For a table or a form, the layout is half the meaning.',
-      'Models don’t read image metadata; they read pixels.',
+      'Models don’t read the details stored in the file; they read pixels.',
     ],
   },
   // 4. Pulling fields out
@@ -229,13 +229,13 @@ export const RECALL: RecallItem[] = [
     options: [
       'A reference: the right value for each field, written by a person',
       'The model’s own confidence',
-      'Whether the output is valid JSON',
+      'Whether the reply is in the right format',
     ],
     correct: 0,
     why: [
       'Right. Without a reference, nothing says whether the total is the real total.',
       'A model can be confident and wrong.',
-      'Valid JSON says the shape is right, not that the values are.',
+      'The right format says the shape is right, not that the values are.',
     ],
   },
   // 5. Photos of parts
@@ -295,7 +295,7 @@ export const RECALL: RecallItem[] = [
     chapter: '06-when-pictures-mislead',
     question: 'A receipt reading says the total is $63.10, but the items add up to $68.10. What catches it?',
     options: [
-      'A host check that the items add up to the total',
+      'A check in Larkspur’s software that the items add up to the total',
       'Asking the model if it is sure',
       'Sending the receipt at a smaller size',
     ],

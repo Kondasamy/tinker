@@ -82,17 +82,17 @@ const FACTS: [string, string][] = [
         <h2 id="idea">One new price, one new name</h2>
         <div class="versus">
           <article class="reply">
-            <header><h3>The saved page</h3><span class="stamp">blob</span></header>
+            <header><h3>The saved page</h3><span class="stamp">saved</span></header>
             <p class="said">{short(blobId(SAVED))}</p>
             <p class="cap">Drill press at {DRILL}.</p>
           </article>
           <article class="reply read">
-            <header><h3>One price changed</h3><span class="stamp">new blob</span></header>
+            <header><h3>One price changed</h3><span class="stamp">new name</span></header>
             <p class="said">{short(blobId(EDITED))}</p>
             <p class="cap">Every character of the name moves.</p>
           </article>
         </div>
-        <p class="note more">Each name is the first seven characters of the SHA-1 hash real Git computes for those exact bytes.</p>
+        <p class="note more">Each name shown is the first seven characters of the {blobId(SAVED).length}-character hash real Git computes for those exact bytes: a fingerprint (SHA-1) that changes completely when any byte does.</p>
       </section>
 
       <section aria-labelledby="how">

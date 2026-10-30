@@ -11,7 +11,7 @@ import { BENCH, WINNERS, outcome, solved } from '../../lib/post-training/workben
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { EXAM_PARTS } from '../../components/scenes/examScene';
-import { PostStage, RulePicker, TOY, barsOf, cardsOf, groupOf, type View } from './kit';
+import { Fact, PostStage, RulePicker, TOY, barsOf, cardsOf, groupOf, type View } from './kit';
 
 const MODULE = 'post-training',
   ID = '07-build-a-grader';
@@ -67,7 +67,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['build', 'score', 'quiz'],
+    visibleControls: ['build', 'score', 'fact', 'quiz'],
     narration: `Every right answer wins: one of ${WINNERS.length} rule sets that work. Test any rule a draft could satisfy cheaply.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -153,6 +153,7 @@ export default function BuildAGrader() {
       }}
       controls={{
         why: () => <p className="note">{TOY}</p>,
+        fact: () => <Fact id="coding-hacks" />,
         score: ({ state }) => <Score rules={rulesOf(state)} />,
         // changing the rules is an attempt only while it is the puzzle
         build: ({ state, apply, sync, focused }) => (

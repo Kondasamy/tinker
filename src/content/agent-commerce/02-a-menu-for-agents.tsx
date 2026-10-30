@@ -37,7 +37,7 @@ export interface S {
 }
 
 export const P1 = {
-  question: `The ${itemOf(FIRST)!.name} row loses its price field. What does the agent’s parser do?`,
+  question: `The ${itemOf(FIRST)!.name} row loses its price field. What does the agent do?`,
   options: ['Names the missing field and stops', 'Takes the price from the page instead', 'Prices the screws at $0'],
 };
 /** a parser that stops on a gap: option 0 */
@@ -90,7 +90,7 @@ export const STEPS: Step<S>[] = [
     id: 'break',
     focus: 'break',
     visibleControls: ['p1', 'break'],
-    narration: 'An agent should parse each row field by field, so nothing it needs is ever filled in by a guess.',
+    narration: 'An agent should read each row field by field, so nothing it needs is ever filled in by a guess.',
     act: 'Drop the screws’ price.',
     predicate: s => s.broken,
   },
@@ -98,7 +98,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out1', 'gap', 'quiz'],
-    narration: `The parser names the gap: “${MISSING.join(', ')}”. A page for people can’t say what it left out.`,
+    narration: `The agent names the gap: “${MISSING.join(', ')}”. A page for people can’t say what it left out.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What would the order rest on if the agent filled the gap itself?',
@@ -108,7 +108,7 @@ export const STEPS: Step<S>[] = [
 function CardView() {
   return (
     <figure className="ac-read">
-      <figcaption>{`${DOMAIN}${CARD_PATH}, parsed`}</figcaption>
+      <figcaption>{`${DOMAIN}${CARD_PATH}, read field by field`}</figcaption>
       <dl className="ac-card">
         <dt>Name</dt>
         <dd>{CARD.name}</dd>
@@ -138,7 +138,7 @@ export default function AMenuForAgents() {
           scene={{ buyer: state.view === 'menu' ? 'ok' : undefined, seller: state.card ? 'ok' : undefined }}
           caption={
             state.broken
-              ? `A row without its price: the parser stops and names it.`
+              ? `A row without its price: the agent stops and names it.`
               : state.view === 'menu'
                 ? `The agent read ${usd(MENU_READ.truth)} straight from the catalogue’s price field.`
                 : `${COMPANY}’s sales agent publishes a card, and a catalogue behind it.`
@@ -191,7 +191,7 @@ export default function AMenuForAgents() {
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />,
         gap: () => (
           <figure className="ac-read" data-missing={MISSING.join(',')}>
-            <figcaption>The catalogue, parsed field by field</figcaption>
+            <figcaption>The catalogue, read field by field</figcaption>
             <blockquote>{`Missing: ${MISSING.join(', ')}`}</blockquote>
             <HandNote />
           </figure>

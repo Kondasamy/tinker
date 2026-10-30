@@ -23,7 +23,7 @@ import {
   type Plan,
 } from '../../lib/video-models/workbench';
 import { multiplies, units } from '../../lib/video-models/compute';
-import { DreamStage, META, ModelStatus, StepRange, ToyNote, n, pct, useNets } from './kit';
+import { DreamStage, Fact, META, ModelStatus, StepRange, ToyNote, n, pct, useNets } from './kit';
 
 const MODULE = 'video-models',
   ID = '07-workbench';
@@ -40,12 +40,16 @@ const timesWords = TIMES === 2 ? 'twice' : `${TIMES} times`;
 
 export const QUIZ = {
   question: `Re-syncing every ${OFTEN.every} steps clears the bar too. Why is it not the best plan here?`,
-  options: [`It needs ${timesWords} the real frames`, 'It runs more model passes', 'It drifts more between re-syncs'],
+  options: [
+    `It needs ${timesWords} the real frames`,
+    'It runs the model more times',
+    'It drifts more between re-syncs',
+  ],
   correct: 0,
-  explanation: 'Real frames are the cost Larkspur set out to save; more model passes are cheap beside them.',
+  explanation: 'Real frames are the cost Larkspur set out to save; more runs of the model are cheap beside them.',
   why: [
     `Right: it takes ${resultOf(OFTEN).real} real frames to the best plan’s ${BEST.real}.`,
-    'It runs fewer passes, since real frames replace guesses; the cost that grows is real frames.',
+    'It runs the model fewer times, since real frames replace guesses; the cost that grows is real frames.',
     'Shorter gaps leave less room for drift, not more.',
   ],
 };
@@ -69,11 +73,11 @@ export const STEPS: Step<S>[] = [
   {
     id: 'ties',
     focus: 'quiz',
-    visibleControls: ['score', 'bench', 'quiz'],
+    visibleControls: ['score', 'bench', 'fact', 'quiz'],
     narration: `${pct(share(BEST))} of frames right with ${BEST.real} real frames: no plan here clears the bar with fewer.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
-    hint: 'Which costs Larkspur more: a model pass or a frame from the real floor?',
+    hint: 'Which costs Larkspur more: one run of the model or a frame from the real floor?',
   },
 ];
 
@@ -99,8 +103,8 @@ function Bench({ s, set }: { s: S; set: (s: S) => void }) {
   const rows: [string, string, boolean | null][] = [
     [`Frames right (bar ${pct(BENCH.bar)})`, `${r.right} of ${r.frames} (${pct(share(r))})`, passes(r)],
     ['Real frames used', n(r.real), null],
-    ['Model passes', n(r.passes), null],
-    ['Compute (million multiplies)', n(compute(s)), null],
+    ['Model guesses', n(r.passes), null],
+    ['Compute (million multiplications)', n(compute(s)), null],
   ];
   return (
     <div className="tc-bench">
@@ -176,6 +180,12 @@ export default function Workbench() {
         score: ({ state }) => <Score s={state} />,
         // changing the plan is an attempt only while it is the puzzle
         bench: ({ state, apply, sync, focused }) => <Bench s={state} set={focused ? apply : sync} />,
+        fact: () => (
+          <>
+            <p className="note">{`A re-sync every ${BEST.every} steps makes each dream a short run started from a real frame.`}</p>
+            <Fact id="short-rollouts" />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

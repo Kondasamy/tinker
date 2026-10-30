@@ -7,10 +7,11 @@ import ProjectionMap from '../../components/panels/ProjectionMap';
 import { useRagIndex } from '../../components/canvas/Canvas';
 import type { Outcome } from '../../components/canvas/state';
 import { TILE_COLOURS, TOKEN_BOARD, tokenLabel, tokenScene, tokensWord } from '../../components/scenes/tokenScene';
-import { encode, pieceBytes, pieceText } from '../../lib/lm/bpe';
-import { countText } from '../../lib/tokens/counts';
+import { VOCAB_SIZE, encode, pieceBytes, pieceText } from '../../lib/lm/bpe';
+import { BYTE_TOKENS } from '../../lib/lm/bpe-train.ts';
+import { CORPUS, countText } from '../../lib/tokens/counts';
 import { MAP_FILE } from '../../lib/tokens/neighbours';
-import type { Encoding, Piece } from '../../lib/tokens/encodings';
+import { TOKENIZERS, type Encoding, type Piece } from '../../lib/tokens/encodings';
 import { run, type Question } from '../../lib/rag/engine';
 import type { Config } from '../../lib/rag/load';
 import { useNarrow } from '../tool-calling/kit';
@@ -232,3 +233,10 @@ export function Fact({ id }: { id: string }) {
     </p>
   );
 }
+
+/** Said beside a real figure wherever the site tokenizer's counts show (R6, KTD5): it is a toy, trained ahead of time. */
+export const ToyNote = () => (
+  <p className="note">
+    {`This site’s tokenizer is a toy: ${VOCAB_SIZE} tokens (${BYTE_TOKENS} bytes plus ${VOCAB_SIZE - BYTE_TOKENS} merges), learned ahead of time from Larkspur’s ${CORPUS.length} documents. The real ones recorded here have ${TOKENIZERS.map(x => `${x.vocabSize.toLocaleString('en-US')} (${x.name.replace(/ \(.*\)$/, '')})`).join(' and ')}.`}
+  </p>
+);

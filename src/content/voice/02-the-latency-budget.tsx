@@ -67,10 +67,10 @@ function Sums({ streaming }: { streaming: boolean }) {
   const rows: [string, number][] = [
     ['Waiting for silence to end her turn', waitSilence],
     ['Speech-to-text’s final transcript', l.stt],
-    ['The model’s first token', l.modelFirst - l.stt],
+    ['The model’s first word piece', l.modelFirst - l.stt],
     streaming
-      ? [`The model writes the first sentence (${l.firstTokens} tokens)`, l.firstTokens * HOST.msPerToken]
-      : [`The model writes the whole reply (${l.tokens} tokens)`, l.modelDone - l.modelFirst],
+      ? [`The model writes the first sentence (${l.firstTokens} word pieces)`, l.firstTokens * HOST.msPerToken]
+      : [`The model writes the whole reply (${l.tokens} word pieces)`, l.modelDone - l.modelFirst],
     streaming
       ? ['Text-to-speech starts on that sentence', HOST.ttsFirstMs]
       : ['Text-to-speech makes the whole reply’s audio', l.firstSound - l.modelDone],
@@ -189,6 +189,11 @@ export default function TheLatencyBudget() {
             <Outcome {...P1} prediction={state.p1} outcome={outcome()} />
             <Sums streaming />
             <Fact id="stivers" />
+            <Fact id="elevenlabs-latency" />
+            <p className="vo-note">
+              Larkspur’s planning numbers are the same size as these vendor figures; a real line also adds network time
+              between stages.
+            </p>
           </>
         ),
         quiz: ({ state, apply, sync }) => (

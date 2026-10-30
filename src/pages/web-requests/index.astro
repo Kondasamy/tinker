@@ -36,7 +36,7 @@ const IDEAS: [string, string, ReturnType<typeof fact>, TownOpts][] = [
   ],
   [
     'Lost in the post',
-    'A lost packet waits out a timeout',
+    'A lost packet can wait out a timeout',
     fact('rto'),
     pic(townAt(runOf('wen', { http: '1.1', loss: true }))),
   ],
@@ -153,7 +153,7 @@ const FACTS: [string, string][] = [
 
     <script>
       // finished chapters get a tick; the button continues from the first unfinished chapter
-      import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+      import { moduleOf, chapterHref } from '../../lib/modules';
       import { completed } from '../../lib/progress';
       const CHAPTERS = moduleOf('web-requests').chapters;
       const done = completed('web-requests');

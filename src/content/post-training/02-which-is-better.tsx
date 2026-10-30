@@ -11,7 +11,7 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { EXAM_PARTS } from '../../components/scenes/examScene';
-import { AnswerCard, Asked, PostStage, TOY, cardsOf } from './kit';
+import { AnswerCard, Asked, Fact, PostStage, TOY, cardsOf } from './kit';
 
 const MODULE = 'post-training',
   ID = '02-which-is-better';
@@ -192,6 +192,11 @@ export default function WhichIsBetter() {
                 </tbody>
               </table>
               <AnswerCard q={TONE} i={r.indexOf(Math.max(...r))} />
+              <p className="note">
+                The toy trusts your three picks fully. A real reward model learns from many people’s picks, and people
+                often disagree:
+              </p>
+              <Fact id="instructgpt-agreement" />
             </>
           );
         },

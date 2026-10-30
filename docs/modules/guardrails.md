@@ -19,3 +19,19 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **Chapter 5's puzzle accepts every minimal winning set**: every defence set the controls can make that stops every attack with the fewest false blocks (`WINNERS`, computed over the chapter's domain), not one hand-picked answer.
 - **Facts about prompt injection** come from `data/guardrails/facts.json` with source and access date.
 - **Agents chapter 3 links straight to `/guardrails/`** for prompt injection; it changed in the PR that took Guardrails live.
+
+## Toy vs real
+
+Larkspur's test set is written for this module (`data/guardrails/suite.json`: 5 attacks, 2 ordinary customers), the model's turns are recorded and the classifier's scores are hand-set (`inbox.json`), so no count or rate it gives is calibrated to a real system: every one is labelled. `ToyNote` (`kit.tsx`) says so beside a cited real figure wherever the counts and rates show (chapters 2, 5, 6, 7), and gives AgentDojo's 629 attack cases (`agentdojo`'s `value`) for scale. Recorded turns are never re-recorded for this (KTD5).
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 | Two emails, the prompt rule stops one (recorded turns) | `agentdojo-delimit` (a prompt-level defence cut GPT-4o's attack success from 57.7% to 41.7%) | Labelled: the narration says the turns are recorded to show it |
+| 2 | Each email's score, 0 to 1; the thresholds; "N of 3 attacks, M of 2 customers quarantined" | `agentdojo-detector` (a detector cut attack success to 8.0% and tasks done from 69.0% to 41.5%), `scan-untrusted`, `ninety-five-fails` | Labelled: the narration says the scores are hand-set; `ToyNote` beside the real detector's trade-off |
+| 3 | None (addresses and card digits are the toy's records) | `owasp-image-exfil`, `link-exfiltration`, `owasp-mitigations` | Real facts only |
+| 4 | None (three legs) | `camel` (77% of AgentDojo's tasks solved with provable security, against 84% undefended), `lethal-trifecta`, `avoid-trifecta` | Real facts only |
+| 5 | 3 attacks, 2 customers, the filter's catch-all threshold, the matrix, the fewest blocked (`WINNERS` computed) | `agentdojo` (97 tasks, 629 attack cases) | Labelled: `ToyNote` |
+| 6 | The discount email's score; the cost table's counts per setting | `xstest` (Llama 2 70B chat fully refused 38% of clearly safe prompts) | Labelled: `ToyNote` beside the real over-refusal rate |
+| 7 | Attacks through and customers blocked, as counts and rates, with no defences, clean and strictest | `red-team-rate` (23.6% to 11.2% over 123 cases), `one-percent`, `ninety-five-fails` | Labelled: `ToyNote` beside Anthropic's measured rates |
+| Intro | 5 attacks, 2 customers, attacks through with no defences and stacked | as chapter 7 | Labelled: "written for this module"; the model's turns are said to be recorded |
+| Recall | Hypothetical counts ("0 of 3 attacks through, 1 of 2 customers blocked") | none | Labelled: hypotheticals in the question |

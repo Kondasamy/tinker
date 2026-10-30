@@ -14,7 +14,7 @@ import { fact } from '../../lib/context/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { ContextStage, Fact, runOf } from './kit';
+import { ContextStage, Fact, runOf, ToyNote } from './kit';
 
 const MODULE = 'context',
   ID = '02-more-isnt-better';
@@ -244,6 +244,10 @@ export default function MoreIsntBetter() {
             <Fact id="lost-in-the-middle" />
             <Fact id="chroma-distractors" />
             <Fact id="chroma-rot" />
+            <ToyNote>
+              Its answers were written to follow these findings, not measured: real models miss more gradually, and not
+              on every try.
+            </ToyNote>
           </>
         ),
         quiz: ({ state, apply, sync }) => (

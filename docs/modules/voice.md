@@ -16,4 +16,25 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **Waits are summed, not measured** (`latency.ts`): speech-to-text, the model's first token, its tokens (the site's BPE, live) and text-to-speech, with or without streaming, from Larkspur's planning numbers in `data/voice/calls.json` `host`. The stage times and the 2 s dead-air limit are Larkspur's illustrative numbers, not any provider's; the copy says so wherever a wait is shown.
 - **One clip player** (`audio.ts`, `src/components/story/ClipPlayer.tsx`): one shared audio element for the page, made on the first press. Nothing ever autoplays; starting a clip stops any other; the stage stops it when the step changes and a button stops its clip when it unmounts. Every clip button shows its words as a caption, always, so the sound is optional; a clip that can't load falls back to its words with "Sound unavailable".
 - **Chapter 7's workbench** (`workbench.ts`): a line setting (threshold, silence, streaming, barge-in, read-back) run over every call. The puzzle accepts every plan with the fewest problems at the least total wait (`WINNERS`), not one hand-picked answer.
-- **Facts about voice agents** come from `data/voice/facts.json` with source and access date; the human turn gap (Stivers et al., 2009) is read from the paper's full text on PMC.
+- **Facts about voice agents** come from `data/voice/facts.json` with source and access date; the human turn gap (Stivers et al., 2009) is read from the paper's full text on PMC. Every chapter shows at least one. Provider settings and ElevenLabs's vendor-reported waits are moving facts: re-check them whenever the module changes.
+
+## Toy vs real
+
+The stage times stay Larkspur's planning numbers (labelled by `PlanNote`): the workbench's `WINNERS` and every recorded wait are summed from them, and no single provider's figures describe all four stages. Chapter 2 sets ElevenLabs's vendor-reported waits and the human gap beside them. Transcripts and replies are recorded and labelled by `RecordedNote`; they are never re-recorded.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+| --- | --- | --- | --- |
+| 1 Phone line | none (recorded transcript and reply only) | `openai-chained` | labelled (`RecordedNote`) |
+| 2 Latency budget | wait for silence (from the live detector) | – | real (detector over the clip) |
+| 2 Latency budget | speech-to-text 200 ms, model's first word piece 350 ms, 15 ms per word piece, text-to-speech start 150 ms, its speed 0.3 × real time; Dana's total wait, streaming's saving, when writing ends | `elevenlabs-latency`, `stivers` | labelled (`PlanNote`, `host` in `calls.json`) |
+| 2 Latency budget | word pieces in the reply and its first sentence | – | real (the site's BPE, live) |
+| 3 Whose turn | silence settings 300/500/800/1200 ms, energy thresholds 10/30/50 (site units, 20 ms frames) | `openai-vad-settings`, `gemini-silence` | labelled (finite toy lists; units named in the copy) |
+| 3 Whose turn | Larkspur's pick, 800 ms | `gemini-silence` (`value`) | matched (`NOISY_SILENCE`) |
+| 3 Whose turn | how far before or after Ravi's last word the turn ended | – | real (detector over the clip) |
+| 3 Whose turn | 2 s dead-air limit, 3 s give-up | `stivers` | labelled (`PlanNote`) |
+| 4 Interrupted | where Dana cuts in (clip times on the Timeline) | `gemini-interrupt` | real (clip envelopes) |
+| 5 Mishearing | the misheard order number | `earnings21-names` | labelled (`RecordedNote`) |
+| 5 Mishearing | read-back's cost | – | labelled (planning numbers plus clip lengths, `PlanNote`) |
+| 6 One or three | none | `openai-chained` / `openai-s2s`, `gemini-transcripts`, `openai-vad-default`, `gemini-audio` | – |
+| 7 Workbench | problems per line, total and per-call wait, the number of best lines | `maier-eot` | labelled (summed from planning numbers; `WINNERS` computed) |
+| Intro | Ravi's wait, 300 ms, five calls, 208 ms | `stivers` (`value`) | labelled, except 208 ms (real) and the call count (data) |

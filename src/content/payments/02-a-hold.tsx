@@ -154,6 +154,7 @@ export default function AHold() {
         fact: () => (
           <>
             <Fact id="hold" />
+            <Fact id="hold-days" />
             <Assumed k="hold" />
             <SimNote />
           </>

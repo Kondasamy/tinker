@@ -52,7 +52,7 @@ export const QUIZ = {
   question:
     'A team pins every package it lists and turns install scripts off. A deep dependency is hijacked. Which step keeps it out?',
   options: [
-    'Installing from a lockfile, and reading the diff before updating it',
+    'Installing from a lockfile, and reading what an update changes before taking it',
     'Their pins already cover it',
     'Scripts off already cover it',
   ],
@@ -111,7 +111,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['audit', 'facts', 'quiz'],
-    narration: `The lockfile keeps ${HIJACKED} at ${OLD} until someone reads an update’s diff and takes it.`,
+    narration: `The lockfile keeps ${HIJACKED} at ${OLD} until someone reads what an update changes and takes it.`,
     act: 'One question to finish.',
     say: { block: 'lock', text: 'Still old' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,

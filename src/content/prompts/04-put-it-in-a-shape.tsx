@@ -1,6 +1,6 @@
 // Chapter 4: put it in a shape. The reader predicts whether the JSON card's reply will parse, clips the three-line
 // list (a shape people read), then JSON for the router: the recorded reply parses and routes to the right team.
-// Links Structured outputs, where the model is made to obey a schema instead of asked.
+// Links Structured outputs, where the model is made to obey an exact shape instead of asked.
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
@@ -11,7 +11,7 @@ import { DOCKET_PARTS } from '../../components/scenes/docketScene';
 import { START } from '../../lib/prompts/assemble';
 import type { Docket } from '../../lib/prompts/cards';
 import { Outcome } from '../tool-calling/kit';
-import { DocketStage, captionOf, type View } from './kit';
+import { DocketStage, Fact, captionOf, type View } from './kit';
 
 const MODULE = 'prompts',
   ID = '04-put-it-in-a-shape';
@@ -39,12 +39,12 @@ export const QUIZ = {
   question:
     'An app reads a model’s JSON. About one reply in fifty starts with “Sure! Here it is:”. What fixes it for good?',
   options: [
-    'Parse strictly, and use structured outputs where the model offers them',
+    'Parse strictly, and use structured outputs (the model held to a shape) where offered',
     'Ask for JSON more firmly in the prompt',
     'Always cut the reply’s first line',
   ],
   correct: 0,
-  explanation: 'A format line asks; only a checked parse, or a model held to a schema, makes it certain.',
+  explanation: 'A format line asks; only a checked parse, or a model held to an exact shape, makes it certain.',
   why: [
     'Right: a strict parse catches the bad reply, and structured outputs stop the model writing one.',
     'Firmer wording makes it rarer, never impossible: the model can still add text.',
@@ -86,7 +86,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['out1', 'schema', 'quiz'],
+    visibleControls: ['out1', 'fact', 'schema', 'quiz'],
     narration: 'The router could parse it, team and all. But a format line only asks; this was one recorded reply.',
     act: 'One question to finish.',
     say: { block: 'format', text: 'JSON' },
@@ -118,10 +118,11 @@ export default function PutItInAShape() {
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />,
+        fact: () => <Fact id="structured-outputs" />,
         schema: () => (
           <p className="note">
             <a href="/structured-outputs/01-asking-nicely/">
-              Structured outputs shows how a model is held to a schema instead of asked.
+              Structured outputs shows how a model is held to an exact shape instead of asked.
             </a>
           </p>
         ),

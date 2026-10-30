@@ -33,7 +33,7 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right: each turn of the loop starts with a fresh look.',
+      'Right: it looks again before every move.',
       'The camera feeds every decision, not just a recording.',
       'A route can’t see a person stepping out; the loop can.',
     ],
@@ -57,7 +57,7 @@ export const RECALL: RecallItem[] = [
   {
     id: 'loop-order',
     chapter: '01-see-decide-move',
-    question: 'What does one turn of a robot’s control loop do, in order?',
+    question: 'What does a robot’s control loop do each time round, in order?',
     options: ['See, decide, move', 'Move, then see if it worked, once', 'Plan the whole task, then move'],
     correct: 0,
     why: [

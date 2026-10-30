@@ -74,3 +74,9 @@ describe('chapter 7’s workbench', () => {
     expect(p.green).toBe(START.green);
   });
 });
+
+describe('the bench against the real hit rate', () => {
+  it('helps more often than the one third Kohavi et al. found, so "Real teams find fewer" stays true', () => {
+    expect(ch7.HELPED / BENCH.length).toBeGreaterThan(1 / 3);
+  });
+});

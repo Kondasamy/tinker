@@ -1,6 +1,5 @@
 {
   "note": "Larkspur's planning numbers for a teaching simulator, not measurements of any real shop. Every rate the A/B testing module shows comes from these, the experiments file and seeded runs.",
-  "level": 0.05,
   "perDay": 400,
   "baseline": 0.1,
   "returns": 0.05,

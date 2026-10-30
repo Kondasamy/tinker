@@ -10,13 +10,15 @@ import { CAPACITY, SCENES, clock, runOf, tally } from '../../lib/rate-limits/sim
 import { BARREL_PARTS } from '../../components/scenes/barrelScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { RateStage, SimNote, type View } from './kit';
+import { Fact, RateStage, SimNote, type View } from './kit';
 
 const MODULE = 'rate-limits',
   ID = '01-too-many-at-once';
 export const PARTS = BARREL_PARTS;
 export const RUN = runOf(SCENES.flood);
-export const START = RUN.hits.find(h => h.key === 'quickfix')!.at;
+const qf = RUN.hits.filter(h => h.key === 'quickfix');
+export const START = qf[0].at,
+  RATE = Math.round(1000 / (qf[1].at - qf[0].at));
 export const FIRST_DOWN = RUN.downs[0][0];
 export const LOOK = Math.ceil((FIRST_DOWN + 1000) / 1000) * 1000;
 export const OAK = tally(RUN, 0, RUN.ms + 1, 'oakmoor');
@@ -64,7 +66,7 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `At ${clock(START)} Quickfix’s script starts sending over 80 a second, and nothing at the door stops it.`,
+    narration: `At ${clock(START)} Quickfix’s script starts sending ${RATE} a second, and nothing at the door stops it.`,
     act: 'Predict Oakmoor’s requests.',
     predicate: s => s.p1 !== null,
   },
@@ -119,6 +121,7 @@ export default function TooManyAtOnce() {
         out1: ({ state }) => (
           <>
             <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />
+            <Fact id="overload" />
             <p className="note rl-note">
               Spreading requests over more servers raises the ceiling: <a href="/load-balancing/">Load balancing</a>.
             </p>

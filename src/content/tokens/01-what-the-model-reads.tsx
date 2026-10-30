@@ -12,7 +12,7 @@ import { TOKEN_PARTS, tokensWord } from '../../components/scenes/tokenScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { Fact, TokensStage } from './kit';
+import { Fact, ToyNote, TokensStage } from './kit';
 
 const MODULE = 'tokens',
   ID = '01-what-the-model-reads';
@@ -167,6 +167,7 @@ export default function WhatTheModelReads() {
             <>
               <Mine text={state.mine} />
               <Fact id="openai-rule" />
+              <ToyNote />
             </>
           ),
         quiz: ({ state, apply, sync }) => (

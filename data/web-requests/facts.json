@@ -18,23 +18,41 @@
     },
     {
       "id": "rto",
-      "claim": "Before it has measured a round trip, a TCP sender waits 1 second for an acknowledgement, and it rounds any shorter computed timeout up to 1 second, then resends (RFC 6298).",
-      "source": "https://www.rfc-editor.org/rfc/rfc6298#section-2"
+      "claim": "Before it has measured a round trip, a TCP sender waits 1 second (1,000 ms) for a reply, and it rounds any shorter computed wait up to 1 second, then resends (RFC 6298).",
+      "source": "https://www.rfc-editor.org/rfc/rfc6298#section-2",
+      "value": "1000",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "fast-retransmit",
+      "claim": "A TCP sender should not always wait for the timer: after 3 duplicate replies (acknowledgements), it resends what looks like the lost packet straight away (RFC 5681).",
+      "source": "https://www.rfc-editor.org/rfc/rfc5681#section-3.2",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "fiber-delay",
+      "claim": "The ITU’s planning value for a signal in optical fibre cable is 5 microseconds per kilometre each way, counting the delay in repeaters (ITU-T G.114, 2003, Table A.1).",
+      "value": "5",
+      "source": "https://www.itu.int/rec/T-REC-G.114-200305-I/en",
+      "accessed": "2026-10-30"
     },
     {
       "id": "tls13-1rtt",
-      "claim": "A full TLS 1.3 handshake lets the client send its request after one round trip (RFC 9001 on TLS 1.3).",
-      "source": "https://www.rfc-editor.org/rfc/rfc9001#section-2.1"
+      "claim": "In a full TLS 1.3 handshake, the client can send its request after one round trip (RFC 9001, describing TLS 1.3).",
+      "source": "https://www.rfc-editor.org/rfc/rfc9001#section-2.1",
+      "accessed": "2026-10-30"
     },
     {
       "id": "zero-rtt",
       "claim": "With a key from an earlier session, a TLS 1.3 client can send early data, 0-RTT, in its very first message (RFC 8446).",
-      "source": "https://www.rfc-editor.org/rfc/rfc8446#section-2.3"
+      "source": "https://www.rfc-editor.org/rfc/rfc8446#section-2.3",
+      "accessed": "2026-10-30"
     },
     {
       "id": "zero-rtt-replay",
-      "claim": "Early data can be replayed by an attacker, so clients must only send early data that is safe to repeat; RFC 8446’s examples of harm are buying an item or moving money.",
-      "source": "https://www.rfc-editor.org/rfc/rfc8446#appendix-E.5"
+      "claim": "An attacker can copy early data and send it again, so clients must only send early data that is safe to repeat; RFC 8446’s examples of harm are buying an item or moving money.",
+      "source": "https://www.rfc-editor.org/rfc/rfc8446#appendix-E.5",
+      "accessed": "2026-10-30"
     },
     {
       "id": "ticket-lifetime",
@@ -53,8 +71,9 @@
     },
     {
       "id": "safe-methods",
-      "claim": "GET is a safe method, essentially read-only; POST is not on HTTP’s lists of safe or idempotent methods (RFC 9110).",
-      "source": "https://www.rfc-editor.org/rfc/rfc9110#section-9.2.1"
+      "claim": "GET is a safe method, essentially read-only; POST is on neither of HTTP’s lists of methods that are safe or safe to repeat (RFC 9110).",
+      "source": "https://www.rfc-editor.org/rfc/rfc9110#section-9.2.1",
+      "accessed": "2026-10-30"
     },
     {
       "id": "h1-connections",

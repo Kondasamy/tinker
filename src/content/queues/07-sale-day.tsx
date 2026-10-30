@@ -26,7 +26,7 @@ import {
 import { RAIL_PARTS, railAt } from '../../components/scenes/railScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Pick, QueuesStage, SimNote, type View } from './kit';
+import { Fact, Pick, QueuesStage, SimNote, type View } from './kit';
 
 const MODULE = 'queues',
   ID = '07-sale-day';
@@ -71,8 +71,8 @@ export const STEPS: Step<S>[] = [
   {
     id: 'ties',
     focus: 'quiz',
-    visibleControls: ['score', 'bench', 'quiz'],
-    narration: `${BEST} workers is the fewest; yours is one of ${WINNERS.length} settings that work.`,
+    visibleControls: ['score', 'bench', 'fact', 'quiz'],
+    narration: `${BEST} workers is the fewest; yours is one of ${WINNERS.length} settings that work. Each winner’s lease outlasts the pallet.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'A lease should outlast the slowest job, and not much more.',
@@ -204,6 +204,7 @@ export default function SaleDay() {
       }}
       controls={{
         score: ({ state }) => <Score s={state} />,
+        fact: () => <Fact id="lease-fit" />,
         // changing the bench is an attempt only while it is the puzzle
         bench: ({ state, apply, sync, focused }) => <BenchControls s={state} set={focused ? apply : sync} />,
         quiz: ({ state, apply, sync }) => (

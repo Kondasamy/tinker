@@ -207,7 +207,7 @@ export default function DeliveryDay() {
         ),
         quiz: ({ state, apply, sync }) => (
           <>
-            <Fact id="astar" />
+            <Fact id="weighted" />
             <Quiz
               {...QUIZ}
               unsure

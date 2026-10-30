@@ -21,7 +21,7 @@ import {
 import { STOCK_PARTS, stockAt } from '../../components/scenes/stockScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { ConsistencyStage, Quorum, RuleSwitch, SimNote, type View } from './kit';
+import { ConsistencyStage, Fact, Quorum, RuleSwitch, SimNote, type View } from './kit';
 
 const MODULE = 'consistency',
   ID = '07-stock-policy';
@@ -70,8 +70,8 @@ export const STEPS: Step<S>[] = [
   {
     id: 'ties',
     focus: 'quiz',
-    visibleControls: ['score', 'bench', 'quiz'],
-    narration: `${BEST} refused order is the fewest possible; yours is one of ${WINNERS.length} policies that work.`,
+    visibleControls: ['score', 'bench', 'fact', 'quiz'],
+    narration: `${BEST} refused order is the fewest; yours is one of ${WINNERS.length} that work. Dynamo lets each service set its own.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which stock is easy to make good if it oversells?',
@@ -183,6 +183,7 @@ export default function StockPolicy() {
         score: ({ state }) => <Score s={state} />,
         // changing the policy is an attempt only while it is the puzzle
         bench: ({ state, apply, sync, focused }) => <BenchControls s={state} set={focused ? apply : sync} />,
+        fact: () => <Fact id="dynamo-tune" />,
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

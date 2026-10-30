@@ -42,7 +42,7 @@ interface S {
 }
 
 const P1 = {
-  question: 'A transformer writes a reply one token at a time. How does a diffusion model make a picture?',
+  question: 'A chat model writes its reply a word or so at a time. How does a diffusion model make a picture?',
   options: [
     'Pixel by pixel, left to right, top to bottom',
     'All at once: start from noise and clean every pixel a little, step after step',
@@ -62,7 +62,7 @@ export const QUIZ = {
   explanation: 'Every step changes every pixel, so halfway the whole picture is there, still noisy.',
   why: [
     'Right: every pixel is cleaned a little each step, so the whole picture sharpens together.',
-    'That is how text is written, a token at a time; a diffusion model works on every pixel at every step.',
+    'That is how text is written, a word or so at a time; a diffusion model works on every pixel at every step.',
     'The picture only settles at the end; halfway it is the chair, still noisy.',
   ],
 };
@@ -73,7 +73,7 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['p1'],
     narration:
-      'The darkroom: a clean hinge drawing lies in the tray. A diffusion model makes pictures, but not the way a transformer writes text.',
+      'The darkroom: a clean hinge drawing lies in the tray. A diffusion model draws, but not the way a chat model writes.',
     act: 'Predict first.',
     say: { block: 'tray', text: 'A clean drawing' },
     predicate: s => s.p1 !== null,
@@ -82,7 +82,7 @@ export const STEPS: Step<S>[] = [
     id: 'noise',
     focus: 'noise',
     visibleControls: ['p1', 'noise'],
-    narration: 'Forward noising mixes the drawing with random noise. Each notch keeps less of the hinge.',
+    narration: 'Adding noise mixes the drawing with random speckle. Each notch keeps less of the hinge.',
     act: 'Drag the noise all the way up.',
     say: { block: 'tray', text: 'Into the noise' },
     predicate: s => s.noise === 1,
@@ -154,9 +154,10 @@ export default function NoiseToPicture() {
           <>
             <Outcome {...P1} prediction={state.p1} outcome={1} />
             <p className="note">
-              Compare <a href="/transformers/">Transformers</a>: a reply is written one token at a time, left to right.
-              Here the whole picture is worked on at once. <a href="/diffusion-llms/">Diffusion language models</a> do
-              the same for text: they start from blanks and fill a whole reply over a few passes.
+              Compare <a href="/transformers/">Transformers</a>: a reply is written a word or so at a time, left to
+              right. Here the whole picture is worked on at once.{' '}
+              <a href="/diffusion-llms/">Diffusion language models</a> do the same for text: they start from blanks and
+              fill a whole reply over a few passes.
             </p>
             <Fact id="score-sde" />
             <ToyNote />

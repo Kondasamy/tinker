@@ -4,7 +4,8 @@
 import { describe, expect, it } from 'vitest';
 import pinned from '../../data/computer-use/pinned.json';
 import { lookTokens, run, toReal, type Setup } from '../../src/lib/computer-use/loop';
-import { centre, hit, SIZES, shotOf, svgOf, viewOf } from '../../src/lib/computer-use/screens';
+import { fact } from '../../src/lib/computer-use/facts';
+import { centre, hit, SCREEN, SIZES, shotOf, svgOf, viewOf } from '../../src/lib/computer-use/screens';
 import { RECORDING } from '../../src/lib/computer-use/turns';
 import { imageTokens } from '../../src/lib/multimodal/patches';
 
@@ -12,6 +13,10 @@ const play = (s: Partial<Setup> & { case: string }) => run(RECORDING, s);
 const clicks = (s: Partial<Setup> & { case: string }) => play(s).steps.flatMap(x => (x.kind === 'click' ? [x] : []));
 
 describe('the screens', () => {
+  it('the real screen is Anthropic’s suggested web size, and the largest screenshot is full size', () => {
+    expect(`${SCREEN.w},${SCREEN.h}`).toBe(fact('resolution').value);
+    expect(SIZES.at(-1)).toBe(SCREEN.w);
+  });
   it('every element is hit at its own centre, and nowhere else is', () => {
     const home = viewOf({ screen: 'home', lines: [], plus: false });
     for (const e of home.els) expect(hit(home, ...centre(e))?.id).toBe(e.id);

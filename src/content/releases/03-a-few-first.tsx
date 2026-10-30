@@ -153,6 +153,7 @@ export default function AFewFirst() {
           <>
             <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />
             <Fact id="canary-strict" />
+            <Fact id="canary-size" />
           </>
         ),
         bake: ({ state, apply }) => (

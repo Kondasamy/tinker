@@ -54,7 +54,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'bench',
     focus: 'bench',
-    visibleControls: ['score', 'bench'],
+    visibleControls: ['score', 'bench', 'fact'],
     narration: `The budget: ${bytes(BUDGET.bytes)} a night, the picture at most ${BUDGET.diff}% different. Texts must come back exact.`,
     act: 'Pick a setting for each file.',
     say: { block: 'parcel', text: 'Tonight’s send' },
@@ -195,6 +195,7 @@ export default function PackTheSend() {
         score: ({ state }) => <Score s={state} />,
         // changing the plan is an attempt only while it is the puzzle
         bench: ({ state, apply, sync, focused }) => <Bench s={state} set={focused ? apply : sync} />,
+        fact: () => <Fact id="zstd" />,
         quiz: ({ state, apply, sync }) => (
           <>
             <Fact id="brotli" />

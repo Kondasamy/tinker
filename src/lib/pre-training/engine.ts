@@ -49,7 +49,7 @@ export interface Run {
   samples: number[][];
 }
 export const RUNS = runs as unknown as {
-  training: { steps: number; every: number; sampleTokens: number };
+  training: { steps: number; batch: number; every: number; sampleTokens: number };
   duplicated: { doc: string; copies: number };
   leaked: string[];
   prompts: { text: string; ids: number[] }[];
@@ -67,6 +67,9 @@ export const SAMPLE_TOKENS = RUNS.training.sampleTokens;
 export const cut = (text: string) => text.split('\n\n')[0];
 /** A recorded run's continuation of a prompt, cut where it ends. */
 export const sampleOf = (run: RunId, prompt: number) => cut(decode(runOf(run).samples[prompt]));
+/** About how many times over a run read its documents: every step guesses batch × context pieces, to two figures. */
+export const passes = (id: RunId) =>
+  Number(((RUNS.training.steps * RUNS.training.batch * CKPT.model.ctx) / runOf(id).tokens).toPrecision(2));
 
 // ---- the checkpoints (live) ----
 

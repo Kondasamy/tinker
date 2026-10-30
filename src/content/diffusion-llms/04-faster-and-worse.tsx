@@ -13,7 +13,7 @@ import { PHRASES } from '../../lib/diffusion-llms/workbench';
 import { ASKED_K } from '../../lib/diffusion-llms/chapters';
 import { FRAME_PARTS } from '../../components/scenes/typeFrameScene';
 import { Outcome } from '../tool-calling/kit';
-import { FrameStage, KRange, ToyNote, Waiting, frameOf, given, phrase, replyAt, tokens, useFill } from './kit';
+import { Fact, FrameStage, KRange, ToyNote, Waiting, frameOf, given, phrase, replyAt, tokens, useFill } from './kit';
 
 const MODULE = 'diffusion-llms',
   ID = '04-faster-and-worse';
@@ -188,7 +188,7 @@ export default function FasterAndWorse() {
             </table>
             {tried(state) && (
               <table className="tc-ledger" style={{ marginTop: 10 }}>
-                <caption>Every pinned phrase ({PHRASES.length}), surest first</caption>
+                <caption>Every test phrase ({PHRASES.length}), surest first</caption>
                 <thead>
                   <tr>
                     <th scope="col">Tokens a pass</th>
@@ -207,6 +207,7 @@ export default function FasterAndWorse() {
                 </tbody>
               </table>
             )}
+            <Fact id="fast-dllm-pairs" />
             <ToyNote />
           </>
         ),

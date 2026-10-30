@@ -55,8 +55,11 @@ const IDEAS: [string, string, ReturnType<typeof fact>, SplitOpts][] = [
 const N = SEEDS.length;
 const FACTS: [string, string][] = [
   [ASSUMPTIONS.perDay.toLocaleString('en-US'), 'shoppers a day reach each checkout in Larkspur’s simulated shop'],
-  [NEEDED.toLocaleString('en-US'), 'shoppers per checkout to find a one-point lift most of the time'],
-  [`${Math.round(falseWinRate(S.aa, 'peek') * N)} of ${N}`, 'A/A tests call a winner when peeked at every day'],
+  [NEEDED.toLocaleString('en-US'), 'shoppers per checkout to find a one-point rise most of the time'],
+  [
+    `${Math.round(falseWinRate(S.aa, 'peek') * N)} of ${N}`,
+    'tests of two identical checkouts call a winner when peeked at every day',
+  ],
   [
     `${Math.round(falseWinRate(S.colours, 'fixed') * N)} of ${N}`,
     `runs of twenty identical colours crown one by luck, like ${NAME}`,
@@ -99,7 +102,7 @@ const pts = (x: number) => `${x >= 0 ? '+' : '−'}${Math.abs(x * 100).toFixed(1
           <article class="reply">
             <header><h3>Peek on day {PEEK.t + 1}</h3><span class="stamp">win?</span></header>
             <p class="said">{pts(PEEK.result.diff)} pts</p>
-            <p class="cap">Significant, and pure luck.</p>
+            <p class="cap">A win on paper, and pure luck.</p>
           </article>
           <article class="reply read">
             <header><h3>Read on day {S.aa.days}</h3><span class="stamp">no winner</span></header>
@@ -107,7 +110,7 @@ const pts = (x: number) => `${x >= 0 ? '+' : '−'}${Math.abs(x * 100).toFixed(1
             <p class="cap">The planned end keeps no win.</p>
           </article>
         </div>
-        <p class="note more">Rates come from simulated shoppers: Larkspur’s own traffic and rates, drawn from fixed seeds, not data from any real shop. The real one-page checkout in chapter 1 ends {pts(FINAL.diff)} points.</p>
+        <p class="note more">Rates come from simulated shoppers: Larkspur’s own traffic and rates, drawn from fixed seeds, not data from any real shop. In chapter 1 the one-page checkout, truly better, ends {pts(FINAL.diff)} points.</p>
       </section>
 
       <section aria-labelledby="how">

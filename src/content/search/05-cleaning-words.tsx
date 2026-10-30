@@ -11,7 +11,7 @@ import { ALL_CLEAN, RAW, type Clean } from '../../lib/search/stem';
 import { CABINET_PARTS, cabinetAt, drawerCount } from '../../components/scenes/cabinetScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { SearchStage, SimNote, type View } from './kit';
+import { Fact, SearchStage, SimNote, type View } from './kit';
 
 const MODULE = 'search',
   ID = '05-cleaning-words';
@@ -107,7 +107,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['quiz'],
+    visibleControls: ['facts', 'quiz'],
     narration: `Cleaning reshaped the cabinet: ${fmt(drawerCount(at(RAW)))} drawers as typed, ${fmt(drawerCount(at(ALL_CLEAN)))} with every cleaning on.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -174,6 +174,7 @@ export default function CleaningWords() {
             <SimNote />
           </>
         ),
+        facts: () => <Fact id="porter-stemmer" />,
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

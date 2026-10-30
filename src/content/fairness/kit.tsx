@@ -263,12 +263,12 @@ export function FieldPick({ value, onPick }: { value: Features; onPick: (f: Feat
   );
 }
 
-/** The fold-away note on how the numbers were made: no held-out set. */
+/** The fold-away note on how the numbers were made: no applicants kept aside for testing. */
 export const Caveat = () => (
   <details className="fr-maths">
     <summary>How these numbers were made</summary>
     <p>
-      {`The check is a logistic regression, fitted in ${ITERS.toLocaleString('en-US')} rounds, on the ${APPLICANTS.length} hand-made applicants. Every rate here is measured on those same ${APPLICANTS.length}: there is no held-out set, so rates on new applicants could differ.`}
+      {`The check is a simple scoring formula (a logistic regression) that learned in ${ITERS.toLocaleString('en-US')} rounds from the ${APPLICANTS.length} hand-made applicants. Every rate here is measured on those same ${APPLICANTS.length}: none were kept aside for testing, so rates on new applicants could differ.`}
     </p>
   </details>
 );

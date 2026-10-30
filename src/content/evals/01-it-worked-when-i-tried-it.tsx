@@ -15,7 +15,9 @@ import { Outcome } from '../tool-calling/kit';
 import { EVAL_PARTS } from '../../components/scenes/evalScene';
 import {
   EvalStage,
+  Fact,
   Mark,
+  SuiteNote,
   WithSuite,
   colsOf,
   resultsOf,
@@ -64,7 +66,7 @@ function outcome(s: Suite) {
 
 const QUIZ = {
   question:
-    'Larkspur’s team turns on a reranker for the parts catalogue. A colleague asks five questions about prices, and all five come back right. What should happen before it ships?',
+    'Larkspur’s team turns on a new search setting for the parts catalogue. A colleague asks five questions about prices, and all five come back right. What should happen before it ships?',
   options: [
     'Ship it: five right answers in a row is strong evidence',
     'Run the whole test set on the old and the new setup, and compare them question by question',
@@ -269,7 +271,15 @@ export default function ItWorkedWhenITriedIt() {
           </WithSuite>
         ),
         out1: ({ state }) => (
-          <WithSuite>{suite => <Outcome {...P1} prediction={state.p1} outcome={outcome(suite)} />}</WithSuite>
+          <WithSuite>
+            {suite => (
+              <>
+                <Outcome {...P1} prediction={state.p1} outcome={outcome(suite)} />
+                <Fact id="version-drift" />
+                <SuiteNote />
+              </>
+            )}
+          </WithSuite>
         ),
         score: () => <WithSuite>{suite => <Score suite={suite} />}</WithSuite>,
         find: ({ state, apply }) => (

@@ -265,14 +265,14 @@ export const RECALL: RecallItem[] = [
     question:
       'A pharmacy needs every request checked against its rules before the assistant acts on it. Which build fits better?',
     options: [
-      'A chained line: the transcript is text the host can check before the model replies',
+      'A chained line: the transcript is text the line can check before the model replies',
       'A speech-to-speech model: it is newer',
       'Either: checks don’t depend on the build',
     ],
     correct: 0,
     why: [
       'Right. The text between stages is a natural place to store, read and check what was said.',
-      'Newer isn’t the question. The question is where the host can see and check the words before acting.',
+      'Newer isn’t the question. The question is where the line can see and check the words before acting.',
       'They do: a check needs the words as text at the moment before the reply.',
     ],
   },

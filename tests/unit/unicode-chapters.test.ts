@@ -2,7 +2,8 @@
 // really do, each step's goal is reachable, and chapter 7's Show me lands in WINNERS.
 import { describe, expect, it } from 'vitest';
 import pinned from '../../data/unicode/pinned.json' with { type: 'json' };
-import { START, WINNERS, keyOf, wins } from '../../src/lib/unicode/workbench';
+import { START, WINNERS, keyOf, wins, worstBytes } from '../../src/lib/unicode/workbench';
+import { lengthsOf } from '../../src/lib/unicode/graphemes';
 import { ACCENT, CUSTOMER, FAMILY, FIRST, LOOKALIKES, MOJI, PLAIN, THUMBS } from '../../src/lib/unicode/story';
 import * as ch1 from '../../src/content/unicode/01-letters-are-numbers';
 import * as ch2 from '../../src/content/unicode/02-one-number-for-every-character';
@@ -76,5 +77,17 @@ describe('chapter 7’s workbench', () => {
   it('the stage shows the first name the form turns away', () => {
     // Siobhán's 18 graphemes are the first over the start's limit of 16
     expect(ch7.shownName(START)).toBe('Siobhán Ní Bhriain');
+  });
+});
+
+describe('numbers the quizzes and recall state in words', () => {
+  it('a flag is 2 code points and 4 code units, so 20 flags count as 80', () => {
+    const flag = lengthsOf('🇬🇧');
+    expect([flag.codePoints, flag.units, flag.graphemes]).toEqual([2, 4, 1]);
+    expect(lengthsOf('🇬🇧'.repeat(20)).units).toBe(80);
+  });
+  it('one 16-bit code unit is at most 3 bytes of UTF-8; 25 code points at most 100', () => {
+    expect(lengthsOf('\uffff').bytes).toBe(3);
+    expect(worstBytes('codePoints', 25)).toBe(100);
   });
 });

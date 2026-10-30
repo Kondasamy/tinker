@@ -306,13 +306,13 @@ export const RECALL: RecallItem[] = [
     question: 'A simulator plan re-syncs every step and is always right. Why is that pointless?',
     options: [
       'Every frame is real, so you ran the real thing anyway',
-      'It runs too many model passes',
+      'It runs the model too many times',
       'It drifts more than other plans',
     ],
     correct: 0,
     why: [
       'Right. A simulator earns its keep by replacing real frames; this one replaces none.',
-      'It runs no passes at all; real frames replace every guess.',
+      'It never runs the model; real frames replace every guess.',
       'With a real frame every step there is nothing to drift.',
     ],
   },
@@ -335,7 +335,7 @@ export const RECALL: RecallItem[] = [
   {
     id: 'context-vs-resync',
     chapter: C.bench,
-    question: 'A one-frame model fails the bar at every re-sync interval. What does that tell you?',
+    question: 'A one-frame model fails the bar however often it re-syncs. What does that tell you?',
     options: [
       'Re-sync can’t fix what one frame can’t see: which way things move',
       'It needs a re-sync every half step',

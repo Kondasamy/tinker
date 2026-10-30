@@ -18,6 +18,7 @@
 //   payment was authenticated with 3-D Secure, when the issuer bears the loss (fact `liability-shift`).
 import day from '../../../data/payments/day.json' with { type: 'json' };
 import data from '../../../data/payments/assumptions.json' with { type: 'json' };
+import { fact } from './facts';
 
 export const ASSUMPTIONS = data;
 export type Kind = 'small' | 'large' | 'split';
@@ -35,7 +36,13 @@ export const DAYS = data.days;
 /** two ticks a day: t = 2 × day (by day) and 2 × day + 1 (the night's settlement) */
 export const TICKS = DAYS * 2;
 export const HOLD_DAYS = data.holdDays;
-export const LOW_VALUE = data.lowValueCents;
+/** the low-value exemption's limit in cents, read off the RTS (fact `low-value`) */
+export const LOW_VALUE = Number(fact('low-value').value);
+/** interchange in basis points at the EU caps (facts `ifr-debit`, `ifr-credit`): 0.2% is 20 */
+const INTERCHANGE_BP: Record<CardType, number> = {
+  debit: Math.round(Number.parseFloat(fact('ifr-debit').value!) * 100),
+  credit: Math.round(Number.parseFloat(fact('ifr-credit').value!) * 100),
+};
 export const CB_FEE = data.chargebackFee;
 
 export interface Order {
@@ -85,7 +92,7 @@ export const eur = (cents: number) =>
 export function feesOn(cents: number, card: CardType): Record<FeeParty, number> {
   const bp = (b: number) => Math.round((cents * b) / 10000);
   return {
-    issuer: Math.floor((cents * data.interchangeBp[card]) / 10000),
+    issuer: Math.floor((cents * INTERCHANGE_BP[card]) / 10000),
     network: bp(data.schemeFee.bp) + data.schemeFee.cents,
     acquirer: bp(data.acquirerFee.bp) + data.acquirerFee.cents,
   };
@@ -348,7 +355,7 @@ export const PARTY_NAME: Record<Party, string> = {
 export const SCA_NAME: Record<Sca, string> = {
   always: 'Always',
   risk: 'When the bank sees risk',
-  never: 'Never (ask for an exemption)',
+  never: 'Never (ask to skip it)',
 };
 export const CAPTURE_NAME: Record<Capture, string> = { order: 'At order', shipment: 'At shipment' };
 export const KIND_NAME: Record<Kind, string> = {

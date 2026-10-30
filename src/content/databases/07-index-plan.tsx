@@ -22,7 +22,7 @@ import {
 import { ARCHIVE_PARTS, archiveAt } from '../../components/scenes/archiveScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { DbStage, SimNote, Sql, type View } from './kit';
+import { DbStage, Fact, SimNote, Sql, type View } from './kit';
 import { SQL } from './requests';
 
 const MODULE = 'databases',
@@ -117,7 +117,7 @@ function Bench({ s, set: put }: { s: S; set: (s: S) => void }) {
         })}
       </div>
       <table className="tc-ledger">
-        <caption>The day’s requests</caption>
+        <caption>The day’s requests (team estimates)</caption>
         <thead>
           <tr>
             <th scope="col">Request</th>
@@ -147,6 +147,7 @@ function Bench({ s, set: put }: { s: S; set: (s: S) => void }) {
         </tbody>
       </table>
       <p className="note db-note">{BUDGET_WHY}</p>
+      <Fact id="index-overhead" />
       <Sql code={set.length ? set.map(i => SQL.index[i]).join('\n') : '-- no indexes'} />
       <SimNote />
     </div>

@@ -216,7 +216,7 @@ export const RECALL: RecallItem[] = [
   {
     id: 'asking-not-enforcing',
     chapter: C.shape,
-    question: 'Your prompt asks for JSON and it worked in testing. Is that enough for a program in production?',
+    question: 'Your prompt asks for JSON and it worked in testing. Is that enough for a program the business runs on?',
     options: [
       'No: parse strictly, and use structured outputs where offered',
       'Yes: it worked, so it always will',
@@ -224,7 +224,7 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right: a format line asks; only a check, or a schema the model must follow, makes it sure.',
+      'Right: a format line asks; only a check, or an exact shape the model must follow, makes it sure.',
       'A model can add text or break the shape on a rare reply.',
       'Emphasis makes slips rarer, not impossible.',
     ],

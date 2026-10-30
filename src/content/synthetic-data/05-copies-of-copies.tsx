@@ -62,7 +62,7 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `A generation is a model trained from scratch on the last one’s writing. Larkspur ran ${LAST}, offline.`,
+    narration: `A generation is a model trained from scratch on the last one’s writing. Larkspur ran ${LAST} ahead of time.`,
     act: 'Predict first.',
     say: { block: 'copies', text: 'Generations' },
     predicate: s => s.p1 !== null,

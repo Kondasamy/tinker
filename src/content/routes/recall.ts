@@ -24,7 +24,7 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right. The map stays a graph; only the weights change, and Dijkstra or A* does the rest.',
+      'Right. The map stays a graph; only the roads’ minutes change, and Dijkstra or A* does the rest.',
       'No special algorithm is needed: a jammed road is just a road with more minutes.',
       'Live apps reroute around jams because the jam changes the road’s cost.',
     ],
@@ -262,7 +262,7 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right: contraction hierarchies pay once overnight, so each question looks at little.',
+      'Right: contraction hierarchies pay once ahead of time, so each question looks at little.',
       'Plain Dijkstra on tens of millions of junctions is too slow per question.',
       'Trips start and end on small streets, so minor roads must be in the graph.',
     ],

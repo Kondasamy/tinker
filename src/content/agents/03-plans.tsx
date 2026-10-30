@@ -14,7 +14,7 @@ import { money } from '../../lib/format';
 import { moduleOf, nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Ledger, Messages, Outcome } from '../tool-calling/kit';
-import { AgentStage, Fact } from './kit';
+import { AgentStage, Fact, ToyNote } from './kit';
 
 /** the parts a step's callout may name: the back office with the agent's props */
 export const PARTS = AGENT_PARTS;
@@ -231,7 +231,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['out3', 'approval', 'ledger', 'other', 'guard', 'quiz'],
+    visibleControls: ['out3', 'approval', 'ledger', 'other', 'guard', 'fact', 'quiz'],
     narration: `Approved, order ${EXTRA} is refunded; rejected, it keeps its money. Approval helped only because a person read the plan.`,
     act: 'Try the other choice, then answer.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -367,6 +367,16 @@ export default function Plans() {
             One planted line is the simplest kind of prompt injection, and a person reading plans is only one defence.
             They get a module of their own: <a href={`/${GUARD.id}/`}>{GUARD.title}</a>.
           </p>
+        ),
+        fact: () => (
+          <>
+            <Fact id="indirect-injection" />
+            <p className="note">
+              Here one planted line in one made-up email; the study planted instructions in web pages and other data
+              that real apps read.
+            </p>
+            <ToyNote />
+          </>
         ),
         quiz: ({ state, apply, sync }) => (
           <Quiz

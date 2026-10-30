@@ -67,9 +67,9 @@ export const STEPS: Step<S>[] = [
     id: 'mlp',
     focus: 'neurons',
     visibleControls: ['neurons'],
-    narration: `Each block ends in an MLP of ${LM.d_mlp} neurons. A neuron fires more on some tokens than others.`,
+    narration: `Each block ends in a thinking part of ${LM.d_mlp} neurons. A neuron fires more on some tokens than others.`,
     act: 'Open a neuron.',
-    say: { block: 'fuses', text: 'MLP fuses' },
+    say: { block: 'fuses', text: 'Thinking parts' },
     predicate: s => s.seen.length >= 1,
   },
   {
@@ -155,8 +155,8 @@ export default function OneNeuronManyMeanings() {
             layer={l}
             caption={
               state.picked
-                ? `${nName({ layer: l, neuron: Number(state.picked.split('-')[1]) })} lives in layer ${l + 1}’s MLP.`
-                : 'Each layer’s MLP has its own fuse.'
+                ? `${nName({ layer: l, neuron: Number(state.picked.split('-')[1]) })} lives in layer ${l + 1}’s thinking part.`
+                : 'Each layer’s thinking part has its own fuse.'
             }
           />
         );

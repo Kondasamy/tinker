@@ -94,15 +94,15 @@ const FACTS: [string, string][] = [
           <article class="reply">
             <header><h3>One step</h3><span class="stamp">from real frames</span></header>
             <p class="said">{pct(META.models.k2.scores.changedAccuracy)}</p>
-            <p class="cap">of the cells that changed, guessed right on held-out runs.</p>
+            <p class="cap">of the cells that changed, guessed right on runs it never saw.</p>
           </article>
           <article class="reply read">
-            <header><h3>Open loop</h3><span class="stamp">from its own guesses</span></header>
+            <header><h3>On its own</h3><span class="stamp">from its own guesses</span></header>
             <p class="said">{PINNED.kept} steps</p>
             <p class="cap">before the pinned route’s dream loses its robot.</p>
           </article>
         </div>
-        <p class="note more">Larkspur’s toy world model: two small conv nets trained once on a simulated warehouse, cut short on purpose so drift shows. Its numbers show the mechanism, not any large model’s.</p>
+        <p class="note more">Larkspur’s toy world model: two small neural networks trained once on a simulated warehouse, cut short on purpose so drift shows. Its numbers show how it works, not any large model’s.</p>
       </section>
 
       <section aria-labelledby="how">

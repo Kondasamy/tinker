@@ -1,6 +1,6 @@
 // Chapter 1: code you did not write. The tower holds only the app's crate; the reader predicts how many packages an
-// install brings, installs, then pulls any crate out and watches everything standing on it break. The left-pad
-// incident is cited as a dated fact, never re-enacted.
+// install brings, installs, then pulls any crate out and watches everything standing on it break. The reveal sets the
+// toy's count beside Zimmermann et al.'s real average; the left-pad incident is cited as a dated fact, never re-enacted.
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
@@ -73,7 +73,7 @@ export const STEPS: Step<S>[] = [
     id: 'pull',
     focus: 'stage',
     visibleControls: ['out1'],
-    narration: `${INSTALLED} packages arrived: the ${DIRECT.length} the app named, and the packages they need in turn.`,
+    narration: `${INSTALLED} arrived: the ${DIRECT.length} named and what they need; real packages often bring far more.`,
     act: 'Pick a crate below the tower and pull it.',
     predicate: pulled,
   },
@@ -126,7 +126,12 @@ export default function CodeYouDidNotWrite() {
             Install
           </button>
         ),
-        out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />,
+        out1: ({ state }) => (
+          <>
+            <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />
+            <Fact id="trusted-packages" />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <>
             <Fact id="left-pad" />

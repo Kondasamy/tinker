@@ -12,6 +12,7 @@ import ChapterCards from '../../components/intro/ChapterCards.astro';
 import { UV_BOARD, uvLabel, uvScene, type UvOpts } from '../../components/scenes/uvScene';
 import { encode } from '../../lib/lm/bpe';
 import { fact } from '../../lib/watermarks/facts';
+import { LINE } from '../../lib/watermarks/detect';
 import { CTX, CUSTOMER, HUMAN, MACHINE_META, MARK, REPLY } from '../../lib/watermarks/story';
 import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
@@ -52,7 +53,10 @@ const IDEAS: [string, string, ReturnType<typeof fact>, UvOpts][] = [
 ];
 const FWD = PINNED.counting.forwarded;
 const FACTS: [string, string][] = [
-  [signed(PINNED.reply.z), 'z-score of Larkspur mini’s marked reply; the line is 4'],
+  [
+    signed(PINNED.reply.z),
+    `how far above chance the marked reply’s green count sits (its z-score); ${LINE} or more means marked`,
+  ],
   [String(CTX), 'tokens Larkspur mini reads before each pick'],
   [`${PINNED.human.atLine} of ${HUMAN.length}`, 'hand-written replies the checker flags'],
   [String(PINNED.rewording.swaps.length), 'token swaps that pull the marked reply under the line'],

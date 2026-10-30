@@ -38,20 +38,20 @@ const IDEAS: Idea[] = [
   ['Size and detail', 'Fewer pixels, fewer tokens, and the small print goes first', fact('text-legible'), 400],
   [
     'Reading a scan',
-    'OCR loses tables and handwriting; vision keeps the layout',
+    'Turning a scan into text first loses tables and handwriting; sending the image keeps the layout',
     fact('ocrbench'),
     scene({ image: 'slip', size: 1600, method: 'ocr' }),
   ],
   [
     'Pulling fields out',
     'Grade every field against a reference, not one overall score',
-    null,
+    fact('field-by-field'),
     scene({ image: 'invoice', size: 800, method: 'ocr' }),
   ],
   [
     'Photos of parts',
     'When one angle can’t settle it, ask for another',
-    fact('small-images'),
+    fact('vizwiz'),
     scene({ image: 'part-front', size: 1600, method: 'vision' }),
   ],
   [
@@ -64,10 +64,10 @@ const IDEAS: Idea[] = [
 const note = (q: 'ocr' | 'vision') => grade('note', 1600, q);
 const FACTS: [string, string][] = [
   [thousands(sent('invoice', 1600).count.tokens), 'image tokens for one invoice at 1,600 px'],
-  [`${thousands(costOf('invoice', 1600, 'ocr'))}`, 'text tokens for the same invoice read by OCR'],
+  [`${thousands(costOf('invoice', 1600, 'ocr'))}`, 'text tokens when only its text is sent (OCR)'],
   [
     `${note('ocr').right} → ${note('vision').right} of ${note('vision').of}`,
-    'handwritten note fields right, OCR then vision',
+    'handwritten note fields right: text first, then the image',
   ],
   [
     `${Math.round(100 * (1 - LEAST_COST / totals(START).cost))}%`,
@@ -116,7 +116,7 @@ const FACTS: [string, string][] = [
             </article>
           ))}
         </div>
-        <p class="note more">Both readings were written for this site to illustrate the cited findings; they were not measured on a real model. The fields are graded live by the Evals module’s key-fact check, and the token counts follow Anthropic’s published patch rule.</p>
+        <p class="note more">Both readings were written for this site to illustrate the cited findings; they were not measured on a real model. The fields are graded live against the right answers, as the Evals module checks facts, and the token counts follow Anthropic’s published patch rule.</p>
       </section>
 
       <section aria-labelledby="how">
@@ -135,7 +135,7 @@ const FACTS: [string, string][] = [
             </li>
           ))}
         </ol>
-        <p class="note more">The documents and photos are drawn in code and rasterised in your browser at the size you pick. The readings were written per image, size and method to illustrate the cited findings; the grading and token counts run live.</p>
+        <p class="note more">The documents and photos are drawn in code and turned into pixels in your browser at the size you pick. The readings were written per image, size and method to illustrate the cited findings; the grading and token counts run live.</p>
       </section>
 
       <section class="company" aria-labelledby="story">

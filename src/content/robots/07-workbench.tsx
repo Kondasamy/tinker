@@ -26,7 +26,7 @@ import {
   WINNERS,
   wins,
 } from '../../lib/robots/workbench';
-import { Radios, ReplayStage, SimNote, type View } from './kit';
+import { Fact, Radios, ReplayStage, SimNote, type View } from './kit';
 
 const MODULE = 'robots',
   ID = '07-workbench';
@@ -79,7 +79,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['score', 'bench', 'quiz'],
+    visibleControls: ['score', 'bench', 'fact', 'quiz'],
     narration: `${WIN.solved} of ${N} with ${WIN.labels} labels. Without practice the best is ${NO_PRACTICE_BEST}: no demo covers dim light.`,
     act: 'One question to finish.',
     say: { block: 'tray', text: 'Cleared' },
@@ -161,6 +161,7 @@ export default function Workbench() {
       stage={({ state, sync, say }) => <Stage s={state} say={say} setView={view => sync({ ...state, view })} />}
       controls={{
         score: ({ state }) => <Score s={state} />,
+        fact: () => <Fact id="rt1-unseen" />,
         // changing the setup is an attempt only while it is the puzzle
         bench: ({ state, apply, sync, focused }) => <Bench s={state} set={focused ? apply : sync} />,
         quiz: ({ state, apply, sync }) => (

@@ -31,7 +31,7 @@ const RR = POOL.filter(t => t.intent === 'refund' || t.intent === 'return').map(
 const o = (x: Omit<RackOpts, 'scale'>): RackOpts => ({ ...x, scale: 1.4 });
 const HERO = o({ ticket: three, picks: picksOf(three.id, false) });
 const IDEAS: [string, string, ReturnType<typeof fact> | null, RackOpts][] = [
-  ['A judgement', 'Three careful people, one ticket, three holes', null, HERO],
+  ['A judgement', 'Three careful people, one ticket, three holes', fact('split-readings'), HERO],
   [
     'Agreement above luck',
     'Kappa counts only the agreement luck can’t explain',
@@ -47,7 +47,7 @@ const IDEAS: [string, string, ReturnType<typeof fact> | null, RackOpts][] = [
   [
     'Write the rule down',
     'A guideline settles most disagreements',
-    null,
+    fact('guideline-rounds'),
     o({ ticket: refund, guide: true, picks: picksOf(refund.id), tally: tallyOf(RR.slice(0, 6)) }),
   ],
   [
@@ -110,7 +110,7 @@ const FACTS: [string, string][] = [
             <p class="cap">{`The same two, ${PINNED.refundReturn.after} split left.`}</p>
           </article>
         </div>
-        <p class="note more">Hand-written stand-in tickets; the three labellers’ labels come from seeded profiles, not real people. Kappa is agreement above luck: 1 is perfect, 0 no better than luck.</p>
+        <p class="note more">Hand-written stand-in tickets; the three labellers’ labels are simulated from each one’s set habits; they are not real people. Kappa is agreement above luck: 1 is perfect, 0 no better than luck.</p>
       </section>
 
       <section aria-labelledby="how">

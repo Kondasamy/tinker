@@ -10,7 +10,7 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { SCAN_PARTS } from '../../components/scenes/scanScene';
-import { MultimodalStage, ReadingCard, RecordedNote } from './kit';
+import { Fact, MultimodalStage, ReadingCard, RecordedNote } from './kit';
 
 const MODULE = 'multimodal',
   ID = '05-photos-of-parts';
@@ -133,6 +133,8 @@ export default function PhotosOfParts() {
           <>
             <Outcome {...P1} prediction={state.p1} outcome={outcome()} />
             <ReadingCard image="part-front" size={SIZE} method="vision" />
+            <RecordedNote />
+            <Fact id="vizwiz" />
           </>
         ),
         side: ({ state, sync }) => (

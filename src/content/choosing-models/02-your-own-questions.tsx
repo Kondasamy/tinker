@@ -57,7 +57,7 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `Larkspur’s question set: ${N} real support questions, each with a reference answer. Same machines, same quality poise.`,
+    narration: `Larkspur’s question set: ${N} real support questions, each with a reference answer. Same machines, same quality weight.`,
     act: 'Predict first.',
     say: { block: `machine-${SECOND.toLowerCase()}`, text: 'Second in public' },
     predicate: s => s.p1 !== null,

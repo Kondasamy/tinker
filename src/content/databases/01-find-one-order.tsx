@@ -10,7 +10,7 @@ import { ASSUMPTIONS, ORDERS, TABLE_PAGES, fmt, scaleTo } from '../../lib/databa
 import { ARCHIVE_PARTS, IDLE, archiveAt } from '../../components/scenes/archiveScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { DbStage, SimNote, Sql } from './kit';
+import { DbStage, Fact, SimNote, Sql } from './kit';
 import { ONE, SQL } from './requests';
 
 const MODULE = 'databases',
@@ -131,7 +131,9 @@ export default function FindOneOrder() {
           <>
             <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />
             <p className="tc-status">{`${fmt(MILLION.scan)} pages for one order: ${K} times the rows, ${K} times the reads.`}</p>
-            <p className="note db-note">The million is computed by formula from the table’s page size, not stored.</p>
+            <p className="note db-note">{`The million is computed by formula, not stored. Here a page holds ${ASSUMPTIONS.rowsPerPage} orders; a real page is a fixed size in bytes, so how many rows fit depends on each row’s size.`}</p>
+            <Fact id="scan-grows" />
+            <Fact id="page-size" />
             <SimNote />
           </>
         ),

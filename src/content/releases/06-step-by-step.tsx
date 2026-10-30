@@ -114,6 +114,7 @@ export default function StepByStep() {
           <>
             <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />
             <Fact id="canary-rollback" />
+            <Fact id="crowdstrike-staged" />
           </>
         ),
         quiz: ({ state, apply, sync }) => (

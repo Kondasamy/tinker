@@ -18,7 +18,7 @@ import { BYTES_PER_TOKEN, TOKENS_SOURCE } from '../../lib/scale';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
-import { AgentStage, Chips, Fact } from './kit';
+import { AgentStage, Chips, Fact, ToyNote } from './kit';
 
 /** the parts a step's callout may name: the back office with the agent's props */
 export const PARTS = AGENT_PARTS;
@@ -162,7 +162,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['email', 'compare', 'quiz'],
+    visibleControls: ['email', 'compare', 'fact', 'quiz'],
     opensDrawer: null,
     narration:
       'Pinning sent the note every turn, outside the summary, so the email kept to email, for about the same tokens.',
@@ -232,6 +232,13 @@ export default function Memory() {
             </p>
           );
         },
+        fact: () => (
+          <>
+            <Fact id="context-finite" />
+            <p className="note">{`The ${n(BUDGET)}-token budget is Larkspur’s stand-in for a model’s context window, a limit each model sets for itself; a real one fills the same way.`}</p>
+            <ToyNote />
+          </>
+        ),
         // three rows, four short columns: readable on a phone
         compare: () => (
           <table className="tc-ledger" style={{ marginTop: 10 }}>

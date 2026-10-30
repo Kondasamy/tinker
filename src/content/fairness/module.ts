@@ -86,7 +86,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Two bars',
     intro: {
       story:
-        'Hiding fields didn’t work. Larkspur tries the other lever: a separate bar for each region, set after the check is fitted.',
+        'Hiding fields didn’t work. Larkspur tries the other lever: a separate bar for each region, set after the check has learned.',
       goal: 'Can a bar per region even out who is wrongly turned down?',
       learn: [
         'How a bar per region evens false declines',
@@ -123,7 +123,7 @@ const CHAPTERS: Chapter[] = [
       goal: 'Which fields, fix and bars keep the rule with the fewest wrong decisions?',
       learn: ['How fields, fix and bars trade', 'Why the best setting uses two bars', 'What to check before shipping'],
       terms: [
-        ['Sample fix', `Counting ${B}’s applicants ${TIMES} in the fit, so both regions weigh the same.`],
+        ['Sample fix', `Counting ${B}’s applicants ${TIMES} while the check learns, so both regions weigh the same.`],
         ['Workbench', 'The chapter’s free-play bench: change the setting and see every result.'],
       ],
     },

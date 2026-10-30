@@ -2,10 +2,11 @@
 // the envelope sender's domain for its list and checks the IP that handed it the message. An include that reaches more
 // than ten lookups is a permerror (RFC 7208 §4.6.4), which also ends a loop.
 import { txt, type Records } from './dns';
+import { fact } from './facts';
 
 export type SpfResult = 'pass' | 'fail' | 'softfail' | 'neutral' | 'none' | 'permerror';
 const QUALIFIER: Record<string, SpfResult> = { '+': 'pass', '-': 'fail', '~': 'softfail', '?': 'neutral' };
-export const LOOKUP_LIMIT = 10;
+export const LOOKUP_LIMIT = Number(fact('spf').value);
 
 const num = (ip: string) => ip.split('.').reduce((a, o) => a * 256 + Number(o), 0);
 /** Whether an IPv4 address falls in `a.b.c.d/n` (or equals `a.b.c.d`). */

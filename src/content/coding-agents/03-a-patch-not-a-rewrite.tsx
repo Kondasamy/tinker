@@ -8,7 +8,7 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { DESK_PARTS } from '../../components/scenes/deskScene';
 import { TEST_NAMES } from '../../lib/coding-agents/tests';
-import { beatsOf, CaStage, nthBeat, passed, play, RecordedNote, TestList, testsAt, type CaView } from './kit';
+import { beatsOf, CaStage, Fact, nthBeat, passed, play, RecordedNote, TestList, testsAt, type CaView } from './kit';
 
 const MODULE = 'coding-agents',
   ID = '03-a-patch-not-a-rewrite';
@@ -136,7 +136,12 @@ export default function APatchNotARewrite() {
               Review again
             </button>
           ),
-        facts: () => <RecordedNote />,
+        facts: () => (
+          <>
+            <Fact id="patch-vs-file" />
+            <RecordedNote />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

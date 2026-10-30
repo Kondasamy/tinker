@@ -1,7 +1,8 @@
 // Dependencies' chapters against the engine (KTD10): every reveal says what the installs show, and chapter 7's Show me
 // is in WINNERS.
 import { describe, expect, it } from 'vitest';
-import { START, WINNERS, benchOf, wins } from '../../src/lib/dependencies/workbench';
+import { START, WINNERS, benchOf, runPolicy, wins } from '../../src/lib/dependencies/workbench';
+import { fact } from '../../src/lib/dependencies/facts';
 import { auditOf, brokenOf, install } from '../../src/lib/dependencies/resolve';
 import { BAD_DAY } from '../../src/lib/dependencies/story';
 import * as ch1 from '../../src/content/dependencies/01-code-you-did-not-write';
@@ -15,6 +16,9 @@ import * as ch7 from '../../src/content/dependencies/07-update-policy';
 describe('the chapters’ reveals match the installs', () => {
   it('chapter 1: the install brings more than the app names', () => {
     expect(ch1.P1.options[ch1.outcomeOf()]).toMatch(/what they need$/);
+  });
+  it('chapter 1: real packages bring far more than the toy install (Zimmermann et al.)', () => {
+    expect(ch1.INSTALLED * 4).toBeLessThan(Number(fact('trusted-packages').value));
   });
   it('chapter 2: the caret takes the new minor, not the major; the major breaks both crates', () => {
     expect(ch2.P1.options[ch2.outcomeOf()]).toMatch(/and any newer/);
@@ -52,6 +56,11 @@ describe('chapter 7’s workbench', () => {
     expect(bench.predicate(shown)).toBe(true);
     expect(WINNERS).toContainEqual(benchOf(shown));
     expect(wins(benchOf(shown))).toBe(true);
+  });
+  it('daily takes the hijacked release while it stays up UP days', () => {
+    expect(ch7.UP).toBeGreaterThan(0);
+    for (const range of ['caret', 'tilde'] as const)
+      expect(runPolicy(benchOf({ ...blank, range, lock: true, cadence: 'daily' })).shipped).toBeGreaterThan(0);
   });
   it('the start is not a winner', () => {
     expect(bench.predicate(blank)).toBe(false);

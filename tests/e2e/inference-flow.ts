@@ -91,7 +91,7 @@ export function inferenceWalker(page: Page, mode: Mode, check: (page: Page) => P
       await btn('4 bits');
       await step(5);
       await expect(card.locator('.tc-ledger')).toContainText('vs 16 bits', { timeout: 30_000 });
-      await opt(/^Run its own evals/);
+      await opt(/^Test the 4-bit model/);
       await finish(next);
     },
     /** plain decoding, predict, draft 2 at a time, the longest guesses */

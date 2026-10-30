@@ -59,7 +59,7 @@ export function cmWalker(page: Page, mode: Mode, check: (page: Page) => Promise<
       await finish(next);
     },
     async ch3(next?: RegExp, quiz: string | RegExp = /^It is paid on every answer/) {
-      await opt(/^About \d+ times/);
+      await opt(/^About \d{2,} times/);
       await poise('cost', 1);
       await step(3);
       await check(page);

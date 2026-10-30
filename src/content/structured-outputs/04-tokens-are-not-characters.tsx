@@ -13,7 +13,7 @@ import { HEAL, SCHEMAS, play, run } from '../../lib/structured-outputs/prompts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { STENCIL_PARTS } from '../../components/scenes/stencilScene';
-import { CTX, Fact, PinnedStage, Waiting, pct, piece, useModel, whenLoaded, type View } from './kit';
+import { CTX, Fact, PinnedStage, ToyNote, Waiting, pct, piece, useModel, whenLoaded, type View } from './kit';
 
 const MODULE = 'structured-outputs',
   ID = '04-tokens-are-not-characters';
@@ -73,7 +73,7 @@ const P1 = {
 
 export const QUIZ = {
   question:
-    'A schema says a field holds digits only. Larkspur’s tokenizer has a token “30” and a token “ 30” (with a space). Which can the mask allow inside the number?',
+    'A schema says a field holds digits only. Larkspur mini’s vocabulary has a token “30” and a token “ 30” (with a space). Which can the mask allow inside the number?',
   options: [
     'Both: each one contains digits',
     '“30”: every byte is a digit; “ 30” starts with a space, which the number doesn’t allow',
@@ -81,12 +81,13 @@ export const QUIZ = {
     '“ 30”, because a space is ignored',
   ],
   correct: 1,
-  explanation: 'The mask runs every byte of a token through the grammar. One bad byte anywhere blocks the whole token.',
+  explanation:
+    'The mask runs every byte of a token through the schema’s rules. One bad byte anywhere blocks the whole token.',
   why: [
     'Containing digits isn’t enough: every byte has to fit, and the space in “ 30” doesn’t.',
-    'Right: a token is allowed only if all of its bytes keep the grammar happy, in order.',
+    'Right: a token is allowed only if all of its bytes fit the schema, in order.',
     'The mask judges whole tokens, of any length, by feeding their bytes through one at a time; that is how it allowed multi-character tokens in the note.',
-    'Nothing is ignored: this grammar allows no whitespace at all, so a token starting with a space is blocked inside a number.',
+    'Nothing is ignored: this schema allows no spaces at all, so a token starting with a space is blocked inside a number.',
   ],
 };
 
@@ -162,7 +163,7 @@ export default function TokensAreNotCharacters() {
           locked={state.p1 === null}
           view={state.view}
           onView={v => sync({ ...state, view: v })}
-          caption={`The schema: one field, note, free text up to ${CAP} characters (maxLength, this site’s addition to the subset).`}
+          caption={`The schema: one field, note, free text up to ${CAP} characters (maxLength: this site adds it; Anthropic’s structured outputs reject it).`}
         />
       )}
       controls={{
@@ -215,6 +216,7 @@ export default function TokensAreNotCharacters() {
             <Fact id="anthropic-limits" />
             <Fact id="token-healing" />
             <Fact id="xgrammar" />
+            <ToyNote />
           </>
         ),
       }}

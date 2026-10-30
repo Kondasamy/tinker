@@ -1,7 +1,7 @@
 // Chapter 7: an update policy, the workbench. The reader sets the range style, the lockfile, how often a tested update
 // refreshes it, and install scripts; a build runs every day of the registry's month and the owner's rule is checked.
 // The day slider shows the tower on any day of the run. The puzzle accepts every policy tied for best (WINNERS, pinned
-// and recomputed in a test).
+// and recomputed in a test). The ties step sets the toy's days-long hijack beside pnpm's real hour and its one-day wait.
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
@@ -24,13 +24,15 @@ import {
 import { TOWER_PARTS, towerOf } from '../../components/scenes/towerScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { DepsStage, RegistryNote, Toggle, type View } from './kit';
+import { DepsStage, Fact, RegistryNote, Toggle, type View } from './kit';
 
 const MODULE = 'dependencies',
   ID = '07-update-policy';
 export const PARTS = TOWER_PARTS;
 const RANGE_NAME: Record<RangeStyle, string> = { caret: 'Caret ^', tilde: 'Tilde ~', exact: 'Exact pins' };
 const CADENCE_NAME: Record<Cadence, string> = { never: 'Never', monthly: 'Monthly', weekly: 'Weekly', daily: 'Daily' };
+/** days the hijacked release stays in the registry; pnpm's docs say real ones mostly go within an hour */
+export const UP = HIJACK.removed! - HIJACK.day;
 
 export const QUIZ = {
   question: 'A team refreshes its lockfile the moment anything new is released, with tests. What risk is left?',
@@ -69,8 +71,8 @@ export const STEPS: Step<S>[] = [
   {
     id: 'ties',
     focus: 'quiz',
-    visibleControls: ['score', 'bench', 'quiz'],
-    narration: `${WINNERS.length} policies tie at ${BEST} days late. Why not daily? It would take the hijacked release.`,
+    visibleControls: ['score', 'bench', 'fact', 'quiz'],
+    narration: `${WINNERS.length} policies tie at ${BEST} days late. Daily takes the hijacked release, which stays up ${UP} days here.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Can a test tell working code from harmful code?',
@@ -198,6 +200,7 @@ export default function UpdatePolicy() {
         score: ({ state }) => <Score s={state} />,
         // changing the bench is an attempt only while it is the puzzle
         bench: ({ state, apply, sync, focused }) => <Bench s={state} set={focused ? apply : sync} />,
+        fact: () => <Fact id="release-age" />,
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

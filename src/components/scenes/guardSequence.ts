@@ -17,7 +17,7 @@ export const laneOf = (tool: string) => (['read_inbox', 'send_email', 'reply'].i
 
 const FORM = { full: 'email', quarantined: 'email (held)', refused: 'email (turned away)' } as const;
 
-/** One card per step. Results come back from the lane that ran them; host-only steps (schema check, approval, output
+/** One card per step. Results come back from the lane that ran them; host-only steps (input check, approval, output
  * filter, a budget stop) stay on the host's lane. A blocked call is drawn toward where it was going, stamped REFUSED.
  * Full text goes to `detail` (the drawer); every string here is escaped by the drawing that shows it. */
 export function guardMessages(r: Run): Shown[] {
@@ -48,15 +48,15 @@ export function guardMessages(r: Run): Shown[] {
               to: 'host',
               kind: 'error',
               stamp: 'INVALID',
-              text: `schema check: ${s.call.name}`,
-              detail: `Schema check failed: ${s.errors.join('. ')}`,
+              text: `input check: ${s.call.name}`,
+              detail: `Input check failed: ${s.errors.join('. ')}`,
             }
           : {
               from: 'host',
               to: 'host',
               kind: 'result',
-              text: `schema check: ${s.call.name} ok`,
-              detail: 'The arguments match the tool’s input schema.',
+              text: `input check: ${s.call.name} ok`,
+              detail: 'The arguments match the shape the tool expects.',
             };
       case 'approval':
         return {

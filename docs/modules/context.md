@@ -19,3 +19,22 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **Memory is files the host keeps** (`memory.ts`): a note the model writes with the memory tool persists across sessions and is read at the next session's start when the tool is on, the only thing that crosses from one conversation to the next.
 - **Chapter 4's and chapter 7's puzzles accept every winning answer**: every block order that reaches the best cache hit rate, and every policy with the most right answers at the lowest cost.
 - **Facts about context windows, caching and memory** come from `data/context/facts.json` with source and access date; caching multipliers, lifetimes and window sizes move the most and are re-checked when the module changes.
+
+## Toy vs real
+
+Larkspur's desk is a toy: an 8,000-token budget (`DEFAULTS.budget`), 150 tokens kept for the reply (`REPLY_ROOM`), 15 short passages (`data/context/docs.json`) and answers recorded to illustrate the findings (KTD8, never measured). Token counts are this site's own BPE, live, never a provider's. The cost multipliers are matched: `cache.ts` reads them from the facts, so copy and costs can't drift. `ToyNote` (`kit.tsx`) names the toy's budget and passages beside the real window size (`window-size`) in chapters 1, 2, 3 and 5; chapters 4, 5 and 7 also carry the relative-units note.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 | Each part's tokens and the window total (live); budget 8,000; reply's room 150 | `window-size` (1M tokens), `window-everything` | Labelled: `ToyNote` beside the real window; counts are this site's |
+| 1 | 20-page guide, 15 tools (quiz) | none | Labelled: hypotheticals in the question |
+| 2 | 15 passages; 4 and 12 distractors; right answers per place (recorded) | `lost-in-the-middle`, `chroma-distractors`, `chroma-rot` (18 models) | Labelled: answers written to follow the findings, `ToyNote` says so |
+| 3 | Tokens per question, stuffed against searched (live); right or wrong (recorded) | `just-in-time`, `smallest-set` | Labelled: `ToyNote` says real documents are far longer |
+| 3 | 200-page manual, 20 pages (quiz) | none | Labelled: hypotheticals |
+| 4 | Cache hit rate, read and write tokens per call (computed); 0.1× read, 1.25× write, 5× output; up to 4 breakpoints; the number of winning orders (`WINNERS`, computed) | `cache-read`, `cache-write-5m`, `output-ratio`, `cache-breakpoints` | Matched: `READ`, `WRITE`, `OUTPUT` and `MAX_MARKS` read the facts |
+| 4 | No minimum cacheable length | `cache-minimum` (512 to 4,096 tokens) | Labelled: the note says windows this small may not be cached at all |
+| 5 | Last window and total tokens per history form (live); cost in relative units (computed); keeps the latest 1 result | `clear-tool-results` (keeps 3, clears past 100,000 tokens), `clear-breaks-cache` | Labelled: `ToyNote` gives the toy's 1 against the default 3 (changing `KEEP` would need new recordings) |
+| 6 | Two conversations a week apart | `memory-tool`, `memory-client-side` | Real behaviour, no toy number |
+| 7 | Right answers, tokens, cost and share of the stuffed cost per policy (recorded answers, computed cost); `WINNERS` computed | `smallest-set`, `context-rot` | Matched multipliers; answers labelled as recorded in the note |
+| 7 | 300-page catalogue (quiz) | none | Labelled: hypothetical |
+| Intro, recall | 8,000 budget, the window's parts (live); 0.1×, 1.25×, 4; 1M real window; recall hypotheticals (40 tools, 90,000 of 100,000 tokens, 300 pages) | as above | Matched multipliers; the intro sets the toy budget beside the real 1M; recall numbers are hypotheticals |

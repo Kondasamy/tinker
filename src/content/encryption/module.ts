@@ -60,6 +60,7 @@ const CHAPTERS: Chapter[] = [
         ['Public key', 'The open padlock: anyone may have it and snap it shut.'],
         ['Private key', 'The one key that opens the padlock; it never leaves its owner.'],
         ['RSA', 'A public-key method where locking and opening are powers of a number, mod n.'],
+        ['Mod n', 'Divide by n and keep only the remainder, so every number stays below n.'],
       ],
     },
   },
@@ -91,7 +92,7 @@ const CHAPTERS: Chapter[] = [
       ],
       terms: [
         ['Hash', 'A fixed-size fingerprint of any message; the same message always gives the same one.'],
-        ['SHA-256', 'A hash whose fingerprint is 256 bits, written as 64 hex characters.'],
+        ['SHA-256', 'A hash whose fingerprint is 256 bits, written as 64 hex characters (0–9 and a–f).'],
       ],
     },
   },

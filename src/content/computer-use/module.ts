@@ -9,7 +9,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Look, then click',
     intro: {
       story:
-        'Brightwater’s trade portal has no API, only web pages. Larkspur gives an agent the job of re-ordering hinges there, the way a person would.',
+        'Brightwater’s trade portal offers no way for software to connect, only web pages. Larkspur gives an agent the job of re-ordering hinges there, the way a person would.',
       goal: 'How does an agent use a website made for people?',
       learn: [
         'Why the agent sees only screenshots',
@@ -153,7 +153,7 @@ export const COMPUTER_USE_MODULE: Module = {
   author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },
   prereqs: ['agents', 'multimodal'],
   story:
-    'Larkspur Supply Co. re-orders stock from Brightwater Fasteners, whose old trade portal has no API, so an agent clicks through it like a person.',
+    'Larkspur Supply Co. re-orders stock from Brightwater Fasteners, whose old trade portal has no way for software to connect, so an agent clicks through it like a person.',
   chapters: CHAPTERS,
   recall: RECALL,
 };

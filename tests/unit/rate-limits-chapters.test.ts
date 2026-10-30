@@ -2,7 +2,10 @@
 // walks to hold, and chapter 7's Show me is in WINNERS.
 import { describe, expect, it } from 'vitest';
 import { START, WINNERS, benchOf, wins } from '../../src/lib/rate-limits/workbench';
-import { isDown, tally } from '../../src/lib/rate-limits/sim';
+import { isDown, tally, traceOf } from '../../src/lib/rate-limits/sim';
+import { delayOf } from '../../src/lib/rate-limits/backoff';
+import { REASONS } from '../../src/lib/rate-limits/workbench';
+import { RATE_LIMITS_MODULE } from '../../src/content/rate-limits/module';
 import * as ch1 from '../../src/content/rate-limits/01-too-many-at-once';
 import * as ch2 from '../../src/content/rate-limits/02-count-per-minute';
 import * as ch3 from '../../src/content/rate-limits/03-the-token-bucket';
@@ -60,5 +63,31 @@ describe('chapter 7’s workbench', () => {
   });
   it('the start is not a winner', () => {
     expect(bench.predicate(blank)).toBe(false);
+  });
+});
+
+// copy that names a hand-set number by hand (intro stories, terms, labels, the bench's reasons) holds only while the
+// hand-made data stays this way
+describe('hand-typed numbers match the hand-set data', () => {
+  const intro = (id: string) => RATE_LIMITS_MODULE.chapters.find(c => c.id === id)!.intro!;
+  it('chapter 2’s story: 40 a minute', () => {
+    expect(ch2.LIMIT).toBe(40);
+    expect(intro('02-count-per-minute').story).toMatch(/40 requests a minute/);
+  });
+  it('chapter 5’s story and labels: 30 tablets, a barrel of 10, waits of 1, 2, 4 seconds', () => {
+    expect([ch5.TABLETS, ch5.SIZE]).toEqual([30, 10]);
+    expect(intro('05-back-off-with-jitter').story).toMatch(/30 shop tablets.*holds 10, so 20/);
+    const r = { backoff: true, jitter: false };
+    expect([1, 2, 3].map(n => delayOf(r, 'x', n))).toEqual([1000, 2000, 4000]);
+    expect(delayOf({ backoff: false, jitter: false }, 'x', 3)).toBe(1000);
+  });
+  it('chapter 7’s reasons: Birchfield’s bursts of 15, the rush doubles the web shop, Quickfix runs 35 s', () => {
+    const sale = traceOf('sale');
+    const birch = sale.filter(r => r.key === 'birch' && r.at < 6000).length;
+    expect(REASONS.size).toMatch(new RegExp(`bursts of ${birch}\\b`));
+    const web = (from: number) => sale.filter(r => r.key === 'web' && r.at >= from && r.at < from + 5000).length;
+    expect(web(21_000)).toBe(2 * web(1000));
+    const qf = sale.filter(r => r.key === 'quickfix');
+    expect(REASONS.perKey).toMatch(new RegExp(`${Math.round((qf.at(-1)!.at - qf[0].at) / 1000)} seconds`));
   });
 });

@@ -31,7 +31,7 @@ import { money } from '../../lib/format';
 import { SAFE_PARTS } from '../../components/scenes/safeScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { BackupsStage, SimNote, StrikeBar, type Struck } from './kit';
+import { BackupsStage, Fact, SimNote, StrikeBar, type Struck } from './kit';
 
 const MODULE = 'backups',
   ID = '07-workbench';
@@ -80,7 +80,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'cheap',
     focus: 'quiz',
-    visibleControls: ['score', 'bench', 'quiz'],
+    visibleControls: ['score', 'bench', 'fact', 'quiz'],
     narration: `${money(BEST)} a week is the least that meets the rule: short incremental chains, three places.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -193,6 +193,14 @@ export default function Workbench() {
       )}
       controls={{
         score: ({ state }) => <Score s={state} />,
+        fact: () => (
+          <>
+            <Fact id="cost-balance" />
+            <p className="note bk-note">
+              Mira’s rule is Larkspur’s own RPO and RTO, chosen by the team; the week’s costs are planning numbers.
+            </p>
+          </>
+        ),
         // changing the bench is an attempt only while it is the puzzle
         bench: ({ state, apply, sync, focused }) => <BenchControls s={state} set={focused ? apply : sync} />,
         quiz: ({ state, apply, sync }) => (

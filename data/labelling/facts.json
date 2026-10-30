@@ -2,9 +2,23 @@
   "accessed": "2026-10-29",
   "facts": [
     {
+      "id": "split-readings",
+      "claim": "Pavlick and Kwiatkowski (2019) gathered about 39 people’s ratings for each of 496 sentence pairs; on 20% of the pairs the ratings split into two clear camps, and the split held as more ratings came in.",
+      "value": "20",
+      "source": "https://doi.org/10.1162/tacl_a_00293",
+      "accessed": "2026-10-30"
+    },
+    {
       "id": "kappa",
       "claim": "Cohen (1960) introduced kappa: the share of agreement between two judges after removing the agreement they would reach by chance.",
       "source": "https://doi.org/10.1177/001316446002000104"
+    },
+    {
+      "id": "guideline-rounds",
+      "claim": "Ferawati et al. (2024) rewrote their labelling guideline between rounds: on whether English tweets were on topic, kappa rose from 0.51 to 0.79, but on their stance on masks it stayed near 0.5.",
+      "value": "0.79",
+      "source": "https://aclanthology.org/2024.c3nlp-1.3/",
+      "accessed": "2026-10-30"
     },
     {
       "id": "four-labels",
@@ -14,13 +28,13 @@
     },
     {
       "id": "cheap-labels",
-      "claim": "In Snow et al.’s 2008 study, US$2.00 paid for 7,000 non-expert labels on Mechanical Turk.",
+      "claim": "In Snow et al.’s 2008 study, US$2.00 paid for 7,000 non-expert labels on Amazon’s Mechanical Turk, a site that pays crowd workers per small task.",
       "value": "7000",
       "source": "https://aclanthology.org/D08-1027/"
     },
     {
       "id": "test-set-errors",
-      "claim": "Northcutt et al. (2021) estimated an average of at least 3.3% wrong labels across the test sets of 10 widely used datasets, and at least 6% in ImageNet’s validation set.",
+      "claim": "Northcutt et al. (2021) estimated an average of at least 3.3% wrong labels across the test sets of 10 widely used datasets, and at least 6% in the images ImageNet sets aside for testing.",
       "value": "3.3",
       "source": "https://arxiv.org/abs/2103.14749"
     },
@@ -31,7 +45,7 @@
     },
     {
       "id": "model-labellers",
-      "claim": "Gilardi et al. (2023) found ChatGPT’s zero-shot labels beat crowd workers’ accuracy on 4 of 5 text-labelling tasks, at under US$0.003 a label, about 20 times cheaper than Mechanical Turk.",
+      "claim": "Gilardi et al. (2023) found ChatGPT’s labels, given instructions but no worked examples, beat crowd workers’ accuracy on 4 of 5 text-labelling tasks, at under US$0.003 a label, about 20 times cheaper than crowd workers on Mechanical Turk.",
       "value": "0.003",
       "source": "https://arxiv.org/abs/2303.15056"
     }

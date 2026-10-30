@@ -82,7 +82,7 @@ export const STEPS: Step<S>[] = [
     id: 'close',
     focus: 'roads',
     visibleControls: ['out1', 'roads', 'status'],
-    narration: `At ${FLIP} minutes the route flips: ${FLIPPED.minutes} minutes another way. Only one road’s weight changed.`,
+    narration: `At ${FLIP} minutes the route flips: ${FLIPPED.minutes} minutes another way. Only one road’s minutes changed.`,
     act: 'Now close a road on the new route.',
     say: { block: 'route', text: 'New route' },
     predicate: s => closedOf(s.closed).some(r => FLIPPED.roads.includes(r)),
@@ -160,6 +160,7 @@ export default function LiveTraffic() {
         quiz: ({ state, apply, sync }) => (
           <>
             <Fact id="traffic" />
+            <Fact id="osrm-traffic" />
             <TownNote />
             <Quiz
               {...QUIZ}

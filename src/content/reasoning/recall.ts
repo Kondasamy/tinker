@@ -12,16 +12,16 @@ export const RECALL: RecallItem[] = [
       'A bank’s assistant answers balance questions and also explains loan repayment schedules. How should the team set its effort?',
     options: [
       'High for everything: more thinking is never wrong',
-      'Run each kind of question through the evals at every effort, and pick the lowest effort that passes for each',
+      'Test each kind of question at every effort, and pick the lowest effort that passes for each',
       'Low for everything: thinking is just cost',
       'Whatever the provider’s default is',
     ],
     correct: 1,
     why: [
-      'High effort costs the most and can make simple answers worse by overthinking. “Never wrong” is exactly what the evals disprove.',
+      'High effort costs the most and can make simple answers worse by overthinking. “Never wrong” is exactly what testing disproves.',
       'Right. Each kind gets its own measured setting: the cheapest one that clears the bar without breaking what already worked.',
       'The repayment schedules need several steps; low effort will get some wrong. Thinking pays for itself where questions have steps.',
-      'A default is a guess about the average workload, not yours. Only your own evals show where it is too much or too little.',
+      'A default is a guess about the average workload, not yours. Only your own tests show where it is too much or too little.',
     ],
   },
   {
@@ -116,7 +116,7 @@ export const RECALL: RecallItem[] = [
   {
     id: 'thinking-billed',
     chapter: '02-thinking-is-tokens',
-    question: 'An API shows you only a short summary of the model’s thinking. What are you billed for?',
+    question: 'A provider shows you only a short summary of the model’s thinking. What are you billed for?',
     options: [
       'Only the summary you see',
       'The full thinking the model wrote, as output tokens',
@@ -239,13 +239,13 @@ export const RECALL: RecallItem[] = [
     question: 'Someone proposes “high effort everywhere, to be safe”. What is the strongest reason against it?',
     options: [
       'It costs more and waits longer, and on simple questions with distractors it can lower accuracy',
-      'High effort is not available in most APIs',
+      'Most providers don’t offer high effort',
       'High effort makes answers too long to read',
     ],
     correct: 0,
     why: [
       'Right. It is not even safe: the questions you thought were easy are where extra thinking can go wrong.',
-      'The current APIs do offer high effort. The problem is what it does, not whether it exists.',
+      'Providers do offer high effort. The problem is what it does, not whether it exists.',
       'The answers stay short; it is the thinking that grows, and with it cost, wait and the chance to wander.',
     ],
   },
@@ -296,7 +296,7 @@ export const RECALL: RecallItem[] = [
     correct: 0,
     why: [
       'Right. Newer models decide how much to think per request, steered by an effort level; the fixed budget is deprecated or rejected.',
-      'A prompt can nudge thinking, but the control the APIs offer is the effort setting.',
+      'A prompt can nudge thinking, but the control providers offer is the effort setting.',
       'The fixed budget is on its way out on newer models; effort takes its place.',
     ],
   },
@@ -323,13 +323,13 @@ export const RECALL: RecallItem[] = [
     question:
       'A travel assistant answers “What time is check-in?” and also works out multi-city fares with layovers. What plan fits?',
     options: [
-      'No thinking for check-in questions, more effort for fare calculations, each checked by the evals',
+      'No thinking for check-in questions, more effort for fare calculations, each checked by tests',
       'High for both, to be safe',
       'Medium for both, as a compromise',
     ],
     correct: 0,
     why: [
-      'Right. Each kind gets the lowest effort that its evals say is enough.',
+      'Right. Each kind gets the lowest effort that its tests say is enough.',
       'Check-in times gain nothing from thinking and wait longer for it. “Safe” costs on every question.',
       'A compromise overpays on lookups and may underpay on fares. Each kind can have its own setting.',
     ],

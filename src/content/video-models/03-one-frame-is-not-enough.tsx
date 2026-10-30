@@ -11,7 +11,7 @@ import { UNSURE } from '../../lib/recall';
 import { DREAM_PARTS } from '../../components/scenes/dreamFloorScene';
 import { crateCells, guessWithConf } from '../../lib/video-models/rollout';
 import { Outcome } from '../tool-calling/kit';
-import { DreamStage, META, ModelStatus, PIN, ROUTE, pct, useNets } from './kit';
+import { DreamStage, Fact, META, ModelStatus, PIN, ROUTE, ToyNote, pct, useNets } from './kit';
 
 const MODULE = 'video-models',
   ID = '03-one-frame-is-not-enough';
@@ -78,8 +78,8 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['scores', 'quiz'],
-    narration: `Two frames put it at ${K2}. On held-out runs: ${pct(META.models.k1.scores.crateNext)} right from one frame, ${pct(META.models.k2.scores.crateNext)} from two.`,
+    visibleControls: ['scores', 'fact', 'quiz'],
+    narration: `Two frames put it at ${K2}. On runs it never saw: ${pct(META.models.k1.scores.crateNext)} right from one frame, ${pct(META.models.k2.scores.crateNext)} from two.`,
     act: 'One question to finish.',
     say: { block: 'dream', text: 'Two frames' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -138,8 +138,14 @@ export default function OneFrameIsNotEnough() {
         ),
         scores: () => (
           <p className="note">
-            {`A pass with two frames costs ${PIN.units.k2} million multiplies; with one, ${PIN.units.k1} million. The second frame is cheap.`}
+            {`One guess from two frames costs ${PIN.units.k2} million multiplications; from one, ${PIN.units.k1} million. The second frame is cheap.`}
           </p>
+        ),
+        fact: () => (
+          <>
+            <Fact id="gamengen-history" />
+            <ToyNote />
+          </>
         ),
         quiz: ({ state, apply, sync }) => (
           <Quiz

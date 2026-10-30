@@ -19,7 +19,7 @@ import type { Say } from '../../components/story/steps';
 
 /** Every chapter says it: the policy is a choice among written answers, not a language model (R6). */
 export const TOY =
-  'The toy policy is a choice among answers written for this site, not a language model. Its updates run live in your browser.';
+  'The toy policy is a choice among answers written for this site, not a language model, and its groups, rounds and strengths are toy-sized. Its updates run live in your browser.';
 
 /** The hall's stacks for one question under a policy, with rewards once graded. */
 export const cardsOf = (q: string, p: Policy, rewards?: number[]): ExamOpts['cards'] =>

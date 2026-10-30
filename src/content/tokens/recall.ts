@@ -100,7 +100,7 @@ export const RECALL: RecallItem[] = [
       'Nothing is dropped: every byte is already in the vocabulary, so every text can be cut.',
       `Right. The first ${BYTE_TOKENS} tokens are single bytes. Text no merge covers stays as bytes: more tokens, but never unreadable.`,
       'A byte-level tokenizer can cut any text, so there is nothing for it to fail on.',
-      'The bytes are kept exactly, so the text decodes back to the same emoji.',
+      'The bytes are kept exactly, so they turn back into the same emoji.',
     ],
   },
   {
@@ -291,7 +291,7 @@ export const RECALL: RecallItem[] = [
       'Search compares the full vectors, not the flat picture.',
       'Right. Flattening keeps the rough shape but bends distances. The true similarity is the one search ranks by.',
       'Both come from the same vectors; the score is exact, the map is an approximation.',
-      'Dot size marks what was retrieved, not how close it is.',
+      'Dot size marks what search found, not how close it is.',
     ],
   },
   // 6. Meaning by neighbours
@@ -337,14 +337,14 @@ export const RECALL: RecallItem[] = [
     chapter: '06-meaning-by-neighbours',
     question: 'A piece scores a cosine similarity of 1 with a question. What does that mean?',
     options: [
-      'It is the first piece in the index',
+      'It is the first piece in the list',
       'Their embeddings point in the same direction: as alike in meaning as the model can say',
       'It shares exactly one word with the question',
       'It is the worst match',
     ],
     correct: 1,
     why: [
-      'The score is about direction, not position in the index.',
+      'The score is about direction, not position in the list.',
       'Right. Cosine runs from -1 to 1, and 1 means the same direction.',
       'Word counts don’t enter the score.',
       'Higher is closer: 1 is the best possible match.',

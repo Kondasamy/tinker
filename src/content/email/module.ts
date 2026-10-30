@@ -79,6 +79,10 @@ const CHAPTERS: Chapter[] = [
       terms: [
         ['SPF', 'A DNS record listing the servers allowed to send mail for a domain.'],
         ['Include', 'Part of an SPF record that adds another domain’s list, such as a mail vendor’s.'],
+        [
+          'Softfail',
+          'SPF’s weak fail, from a record ending ~all: the server isn’t listed, but the owner won’t call it forged.',
+        ],
       ],
     },
   },
@@ -146,7 +150,7 @@ export const EMAIL_MODULE: Module = {
   id: 'email',
   title: 'How email arrives',
   description:
-    'How a message crosses the internet: mail servers that pass it on, SPF and DKIM that vouch for it, and spam.',
+    'How a message crosses the internet: mail servers that pass it on, the checks that prove who sent it, and spam.',
   level: 'Beginner',
   track: 'Classic tech',
   status: 'live',

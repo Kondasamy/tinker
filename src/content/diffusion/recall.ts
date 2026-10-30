@@ -28,7 +28,7 @@ export const RECALL: RecallItem[] = [
     correct: 0,
     why: [
       'Right. Every step, the denoiser guesses the clean picture and moves every pixel a little toward it.',
-      'That is how text models write, a token at a time; a diffusion model works on every pixel at every step.',
+      'That is how text models write, a word or so at a time; a diffusion model works on every pixel at every step.',
       'Nothing is looked up when it draws: each step is one run of the network on the noisy picture.',
       'A text prompt can steer it, but the picture still comes out of noise, all pixels at once.',
     ],
@@ -275,13 +275,13 @@ export const RECALL: RecallItem[] = [
     chapter: C.cost,
     question: 'What does latent diffusion change?',
     options: [
-      'The denoiser works on a small encoded copy, then the result is decoded to full size once',
+      'The denoiser works on a small squeezed copy, then the result is expanded to full size once',
       'It skips the noise and draws directly',
       'It uses fewer, bigger steps on the full picture',
     ],
     correct: 0,
     why: [
-      'Right: fewer positions per step, with one decode at the end.',
+      'Right: fewer positions per step, with one expansion at the end.',
       'It still starts from noise and denoises step by step, just on the small copy.',
       'Cutting steps is what few-step models do; latent diffusion cuts positions.',
     ],
@@ -297,7 +297,7 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right: they cut the number of steps, often by distilling a diffusion model.',
+      'Right: they cut the number of steps, often by learning from a diffusion model.',
       'Shrinking the picture is latent diffusion’s trick, a different lever.',
       'They still turn noise into a new picture; they just need fewer steps.',
     ],

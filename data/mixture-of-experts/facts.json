@@ -1,13 +1,13 @@
 {
   "accessed": "2026-10-25",
   "facts": [
-    { "id": "mixtral-abstract", "claim": "The Mixtral paper (2024) says each token has access to 47B parameters but uses only 13B active parameters during inference.", "value": "47B total, 13B active", "source": "https://arxiv.org/abs/2401.04088" },
+    { "id": "mixtral-abstract", "claim": "The Mixtral paper (2024) says each token has access to 47B parameters but uses only 13B active parameters while the model runs.", "value": "47B total, 13B active", "source": "https://arxiv.org/abs/2401.04088", "accessed": "2026-10-30" },
     { "id": "mixtral-routing", "claim": "Mixtral’s authors found no obvious split of experts by topic (ArXiv papers, biology, philosophy); the router follows syntax more, such as Python’s “self” or English words like “Question”.", "source": "https://arxiv.org/abs/2401.04088" },
     {
       "id": "mixtral-8x7b",
       "claim": "Mistral AI says Mixtral 8x7B has 46.7B total parameters but uses only 12.9B per token: 8 experts per layer, 2 chosen for each token.",
       "value": "46.7",
-      "source": "https://mistral.ai/news/mixtral-of-experts",
+      "source": "https://mistral.ai/news/mixtral-of-experts", "accessed": "2026-10-30",
       "card": {
         "name": "Mixtral 8x7B", "who": "Mistral AI", "total": 46.7e9, "active": 12.9e9,
         "config": "https://huggingface.co/mistralai/Mixtral-8x7B-v0.1/blob/main/config.json",
@@ -20,7 +20,7 @@
       "id": "mixtral-8x22b",
       "claim": "Mistral AI says Mixtral 8x22B uses only 39B active parameters out of 141B: 8 experts per layer, 2 chosen for each token.",
       "value": "141",
-      "source": "https://mistral.ai/news/mixtral-8x22b",
+      "source": "https://mistral.ai/news/mixtral-8x22b", "accessed": "2026-10-30",
       "card": {
         "name": "Mixtral 8x22B", "who": "Mistral AI", "total": 141e9, "active": 39e9,
         "config": "https://huggingface.co/mistralai/Mixtral-8x22B-v0.1/blob/main/config.json",
@@ -33,7 +33,7 @@
       "id": "deepseek-v3",
       "claim": "DeepSeek-V3’s report (2024) describes a mixture of experts with 671B total parameters, 37B activated for each token: 256 routed experts and 1 shared per layer, 8 routed chosen per token.",
       "value": "671",
-      "source": "https://arxiv.org/abs/2412.19437",
+      "source": "https://arxiv.org/abs/2412.19437", "accessed": "2026-10-30",
       "card": {
         "name": "DeepSeek-V3", "who": "DeepSeek", "total": 671e9, "active": 37e9,
         "config": "https://huggingface.co/deepseek-ai/DeepSeek-V3/blob/main/config.json",
@@ -46,7 +46,7 @@
       "id": "llama-3-70b",
       "claim": "The Llama 3 paper (2024) lists its 70B model as dense: 80 layers, model width 8,192, every weight used for every token.",
       "value": "70",
-      "source": "https://arxiv.org/abs/2407.21783",
+      "source": "https://arxiv.org/abs/2407.21783", "accessed": "2026-10-30",
       "card": {
         "name": "Llama 3.1 70B", "who": "Meta", "total": 70e9, "active": 70e9,
         "config": "https://arxiv.org/abs/2407.21783",
@@ -55,6 +55,9 @@
         "experts": 1, "topK": 1, "shared": 0, "expertFf": 28672, "denseLayers": 0, "denseFf": 0
       }
     },
+    { "id": "kaplan-2020", "claim": "Kaplan and colleagues (2020) estimate that running a transformer on one token takes about two operations (a multiply and an add) for each of its weights, so a dense model’s work per token grows with its size.", "value": "2", "source": "https://arxiv.org/abs/2001.08361", "accessed": "2026-10-30" },
+    { "id": "lu-2024-pruning", "claim": "Lu and colleagues (2024) removed 2 of Mixtral 8x7B’s 8 experts in each layer at random, so its router had to pick from the other six: its average score on eight tests fell from 67.58 to 63.04.", "value": "67.58 → 63.04", "source": "https://arxiv.org/abs/2402.14800", "accessed": "2026-10-30" },
+    { "id": "h100-memory", "claim": "NVIDIA’s H100 page (checked 2026-10-30) lists 80 GB of GPU memory on the H100 SXM card.", "value": "80", "source": "https://www.nvidia.com/en-us/data-center/h100/", "accessed": "2026-10-30" },
     { "id": "shazeer-2017", "claim": "Shazeer and colleagues (2017) introduced the sparsely gated mixture-of-experts layer: a gating network picks a few experts per example, so capacity grows without the compute growing with it.", "source": "https://arxiv.org/abs/1701.06538" },
     { "id": "switch-capacity", "claim": "Switch Transformers (2021) give each expert a capacity of tokens per batch, set by a capacity factor; tokens past it are dropped and pass on through the residual connection.", "source": "https://arxiv.org/abs/2101.03961" },
     { "id": "switch-balance", "claim": "Switch Transformers add a load-balancing loss during training that pushes the router to spread tokens evenly across experts.", "source": "https://arxiv.org/abs/2101.03961" }

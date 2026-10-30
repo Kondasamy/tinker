@@ -17,3 +17,30 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **Sign in with another site** (`oidc.ts`): state, PKCE S256 (base64url SHA-256 of the verifier, checked against RFC 7636's own example), and an ES256 ID token signed once with Locks and keys' demo ECDSA key and committed; verified live. A one-letter change fails the signature, a token for another app the audience, a forged state the state, a wrong verifier PKCE, each alone.
 - **Chapter 7's workbench** (`workbench.ts`): a store (6) and, per account type, a second factor (2) and a session length (3): 216 plans against a breach dump (the race's maths for 30 days), a guesser at the form (NIST's 100 failed tries), a staff-cookie thief and a phishing page. TOTP's secret sits in the same database, so it doesn't stop the breach; the phishing page relays codes live, so nothing in the bench stops it, and its row cites NIST's phishing-resistance (passkeys) as the fix. `WINNERS` (fewest break-ins, then least sign-in friction) is pinned in `data/logins/pinned.json` and recomputed by a test. Timings and sign-in counts are planning numbers, labelled.
 - **Facts** come from `data/logins/facts.json` with source and access date; the guess rates name whose figure and when.
+
+## Toy vs real
+
+Ten demo accounts, a 20-password stand-in for a leaked list and the race's tick scale (1 second to 1 year) are hand-set; the kit's race note (`RaceControls`) and chapter 7's bench note say so. Fingerprints, PBKDF2 outputs, the PKCE challenge, the signatures and the TOTP code are computed for real in the browser from demo inputs.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+| --- | --- | --- | --- |
+| 1 | 10 accounts, 10 of 10 read | NIST's storage rule (`nist-storage`) | Labelled (demo accounts) |
+| 2 | Guesses made by each tick | 21,975.5 million SHA-256 a second (`gpu-sha256`) | Matched: `rateOf('sha256')` reads it |
+| 2 | Accounts cracked in a second, in a year | Benchmark rate (`gpu-sha256`); off-list passwords are an every-combination estimate | Labelled (demo accounts, stand-in list) |
+| 2 | SHA-256 fingerprint prefixes | Computed SHA-256 | Real |
+| 3 | "Each 10 times slower" | Cracking time grows in proportion to the number of hashes (`owasp-salt`) | Matched: the race divides the rate by the account count |
+| 3 | Twins' salted fingerprint prefixes | Computed SHA-256 | Real |
+| 4 | 1,000 rounds | NIST SP 800-132's floor (`sp800-132`) | Matched: `WORK[0]` reads it |
+| 4 | 100,000 rounds | None: a middle step for the slider | Labelled (no fact names it; the slider's ends are cited) |
+| 4 | 600,000 rounds | OWASP's PBKDF2-HMAC-SHA256 figure (`owasp-pbkdf2`) | Matched: `WORK[2]` reads it |
+| 4 | Guesses made at each work factor | 8,865.7 thousand a second at 999 iterations (`gpu-pbkdf2`) | Matched, scaled linearly to the work factor (labelled as from one benchmark) |
+| 4 | Leaked-list accounts that still fall | NIST's blocklist rule (`nist-blocklist`) | Labelled (demo accounts) |
+| 4 | PBKDF2 output run here | Web Crypto, pinned against Node | Real |
+| 5 | Session id in the cookie line | HttpOnly and Secure (`rfc6265`) | Labelled ("A demo session id") |
+| 6 | State, challenge and verifier hashes | PKCE S256 (`rfc7636`) | Real (demo values, computed) |
+| 7 | 100 failed tries | NIST's lockout limit (`nist-rate-limit`) | Matched: `LIMIT` reads it |
+| 7 | Sessions of 1 hour, 1 day, 30 days | NIST's sign-in-again limits (`nist-reauth`) | Labelled as matching NIST; pinned by `logins-workbench.test.ts` |
+| 7 | 30-day breach window, 2-hour cookie replay, sign-ins a month | None | Labelled (planning numbers, bench note) |
+| 7 | Break-ins, sign-in steps, best plans | Computed from the bench | Real (of the toy); `WINNERS` pinned and recomputed |
+| 7 | TOTP code | RFC 6238's 30-second step (`rfc6238`) | Real (demo secret and time, computed) |
+| Intro | 22 billion, 600,000, leaked-list accounts of 10, best-plan count | `gpu-sha256`, `owasp-pbkdf2`; the rest computed | Matched or computed, as above |

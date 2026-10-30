@@ -18,7 +18,7 @@ export const RECALL: RecallItem[] = [
     correct: 0,
     why: [
       'Right. A balancer only knows what it measures; only a rule that counts waiting requests would steer around it.',
-      'The check asks whether it answers, and it does, so it stays in rotation.',
+      'The check asks whether it answers, and it does, so it keeps getting requests.',
       'Round robin takes turns without measuring anything, so it never notices.',
     ],
   },
@@ -253,7 +253,7 @@ export const RECALL: RecallItem[] = [
     correct: 0,
     why: [
       'Right: one server in twenty serves about 5% of requests, all slow, so they fill the tail.',
-      'The other nineteen are fine, so the median barely moves.',
+      'The other nineteen are fine, so the middle wait (p50) barely moves.',
       'One percent of requests is all it takes to set p99.',
     ],
   },

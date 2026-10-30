@@ -6,9 +6,17 @@ import { BITS, type Bits } from '../inference/quantize';
 import budget from '../../../data/mixture-of-experts/workbench.json' with { type: 'json' };
 import pinned from '../../../data/mixture-of-experts/pinned.json' with { type: 'json' };
 import { CARDS, bytesAt, cardOf, gb, type CardId } from './cards';
+import { fact } from './facts';
 
 export { BITS, type Bits };
-export const BUDGET = budget;
+/** GB of memory on one card: NVIDIA's H100 figure (matched, so copy and budget can't drift) */
+const CARD_GB = Number(fact('h100-memory').value);
+const memoryGB = budget.gpus * CARD_GB;
+export const BUDGET = {
+  ...budget,
+  memoryGB,
+  memoryWords: `${memoryGB} GB of GPU memory for weights (${budget.gpus} cards of ${CARD_GB} GB)`,
+};
 export interface Plan {
   card: CardId;
   bits: Bits;
@@ -19,7 +27,7 @@ export const PLANS: Plan[] = CARDS.flatMap(c => BITS.map(bits => ({ card: c.id, 
 export function judge(p: Plan) {
   const c = cardOf(p.card),
     memory = bytesAt(c.total, p.bits);
-  const fitsMemory = gb(memory) <= budget.memoryGB,
+  const fitsMemory = gb(memory) <= BUDGET.memoryGB,
     fitsCompute = c.active / 1e9 <= budget.activeB;
   return { card: c, memory, fitsMemory, fitsCompute, ok: fitsMemory && fitsCompute };
 }

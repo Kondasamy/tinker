@@ -50,7 +50,7 @@ export const RECALL: RecallItem[] = [
     why: [
       'Right: picking the best of many tries inflates the one score you see.',
       'Each score was measured, but publishing only the best one biases the board.',
-      'The retracted versions don’t count, so only the best one shows.',
+      'The hidden versions don’t count, so only the best one shows.',
     ],
   },
   // 2. Your own questions

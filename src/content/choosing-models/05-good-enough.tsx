@@ -1,6 +1,7 @@
 // Chapter 5: good enough is enough. Support's bar (questions passed of the 20) ropes off every machine under it; past
 // the bar the steelyard weighs cost alone, and the cheapest machine that clears it wins (pinned, checked by the chapter
-// test). Before the bar, quality alone tips to the top scorer.
+// test). Before the bar, quality alone tips to the top scorer. Cites a study where cheaper models first matched the best
+// one for far less.
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
@@ -14,7 +15,7 @@ import { rowsOf, type Weights } from '../../lib/choosing-models/score';
 import { qualityText } from '../../lib/choosing-models/story';
 import pinned from '../../../data/choosing-models/pinned.json' with { type: 'json' };
 import { Outcome } from '../tool-calling/kit';
-import { MachinesNote, SteelyardStage } from './kit';
+import { Fact, MachinesNote, SteelyardStage } from './kit';
 
 const MODULE = 'choosing-models',
   ID = '05-good-enough';
@@ -84,8 +85,8 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['out1', 'quiz'],
-    narration: `${CHEAPEST} clears it for ${price(CHEAPEST)} per 1,000 answers, against A’s ${price('A')}. ${UNDER.join(', ')}, under the bar, is out.`,
+    visibleControls: ['out1', 'fact', 'quiz'],
+    narration: `${CHEAPEST} clears it for ${price(CHEAPEST)} per 1,000 answers, against A’s ${price('A')}. ${UNDER.join(', ')} is out. Real tests found similar savings.`,
     act: 'One question to finish.',
     say: { block: `machine-${CHEAPEST.toLowerCase()}`, text: 'Good enough' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -127,6 +128,7 @@ export default function GoodEnough() {
           </button>
         ),
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />,
+        fact: () => <Fact id="good-enough" />,
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

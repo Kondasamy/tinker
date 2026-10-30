@@ -81,17 +81,17 @@ export function webWalker(page: Page, mode: Mode, check: (page: Page) => Promise
       await opt(/^A server nearer the players/);
       await finish(next);
     },
-    /** predict, lossy lines, Ines, the waterfall */
+    /** predict, packet loss, Ines, the waterfall */
     async ch4(next?: RegExp) {
       await opt(/^About a second more/);
-      await btn('Lossy lines');
+      await btn('Packet loss');
       await step(3);
       await btn(named(INES));
       await step(4);
       await btn('Open the Waterfall tab');
       await step(5);
       await check(page);
-      await opt(/^Lost packets: each waits out a timeout/);
+      await opt(/^Lost packets: each can wait out a timeout/);
       await finish(next);
     },
     /** the certificate, predict, resumption, an order */

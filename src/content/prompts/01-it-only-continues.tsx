@@ -10,7 +10,7 @@ import { UNSURE } from '../../lib/recall';
 import { DOCKET_PARTS } from '../../components/scenes/docketScene';
 import { Outcome } from '../tool-calling/kit';
 import { useModel } from '../transformers/kit';
-import { MINI_PROMPTS, MiniStage, whenLoaded, type View } from './kit';
+import { Fact, MINI_PROMPTS, MiniStage, ToyNote, whenLoaded, type View } from './kit';
 
 const MODULE = 'prompts',
   ID = '01-it-only-continues';
@@ -68,7 +68,7 @@ export const STEPS: Step<S>[] = [
     id: 'send',
     focus: 'send',
     visibleControls: ['send'],
-    narration: 'Locked in. The model reads the card and writes, one likeliest token at a time.',
+    narration: 'Locked in. The model reads the card and writes, one likeliest word piece at a time.',
     act: 'Send the instruction.',
     say: { block: 'machine', text: 'Larkspur mini' },
     predicate: whenLoaded(s => s.sent),
@@ -88,7 +88,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['tuned', 'quiz'],
+    visibleControls: ['fact', 'toy', 'tuned', 'quiz'],
     narration:
       'Still a continuation. Chat models get instruction tuning: extra training on instructions paired with good replies.',
     act: 'One question to finish.',
@@ -131,6 +131,8 @@ export default function ItOnlyContinues() {
           </button>
         ),
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />,
+        fact: () => <Fact id="instruction-tuning" />,
+        toy: () => <ToyNote />,
         tuned: () => (
           <p className="note">
             <a href="/post-training/01-base-or-assistant/">

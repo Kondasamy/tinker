@@ -11,7 +11,7 @@ import { CRATE_PARTS } from '../../components/scenes/phoneCrateScene';
 import { sizeOf, sizeText, weightBytes } from '../../lib/on-device/memory';
 import { PROMPT, replyAt } from '../../lib/on-device/replies';
 import { Outcome } from '../tool-calling/kit';
-import { AskLive, BitsRadios, CrateStage, Fact, modelNow, PLANNING } from './kit';
+import { AskLive, BitsRadios, CrateStage, Fact, modelNow, PLANNING, TOY } from './kit';
 
 const MODULE = 'on-device',
   ID = '02-smaller-numbers';
@@ -63,7 +63,7 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `The ${B1.name} halves to ${sizeText(weightBytes(B1, 8))} and fits. Larkspur mini will answer live, rounded the same way.`,
+    narration: `The ${B1.name} halves to ${sizeText(weightBytes(B1, 8))} and fits. Larkspur mini’s inference runs live here, rounded the same way.`,
     act: 'Predict its reply at 8 bits.',
     predicate: s => s.p1 !== null,
   },
@@ -79,7 +79,7 @@ export const STEPS: Step<S>[] = [
     id: 'lower',
     focus: 'ask',
     visibleControls: ['out1', 'bits', 'ask'],
-    narration: 'Same words at half the bytes. At 2 bits, plain rounding leaves each row three levels.',
+    narration: 'Same words at half the bytes. At 2 bits, plain rounding leaves each weight just three values.',
     act: 'Ask at 4 bits, then at 2.',
     predicate: s => s.asked.includes(4) && s.asked.includes(2),
   },
@@ -106,7 +106,7 @@ export default function SmallerNumbers() {
         <CrateStage
           say={say}
           pack={{ size: '1b', bits: state.bits }}
-          caption={`The ${B1.name} at ${state.bits} bits; Larkspur mini answers at the same bits, live in your browser. ${PLANNING}`}
+          caption={`The ${B1.name} at ${state.bits} bits; Larkspur mini answers at the same bits, live in your browser. ${TOY} ${PLANNING}`}
         />
       )}
       controls={{
@@ -130,7 +130,7 @@ export default function SmallerNumbers() {
             <Fact id="llama-quantized" />
             <p className="note in-note">
               How the rounding works, and how to measure what it costs:{' '}
-              <a href="/inference/04-smaller-numbers/">Inference, Smaller numbers</a>.
+              <a href="/inference/04-smaller-numbers/">Inference engineering, Smaller numbers</a>.
             </p>
           </>
         ),

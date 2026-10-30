@@ -71,7 +71,7 @@ const FACTS: [string, string][] = [
           <p class="kicker">Module 14 · Observability</p>
           <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>Read what the assistant really did, and fix what matters first</h1>
-          <p class="lede">Offline evals test the questions you thought of. Production shows the ones you didn’t. Here you read a day of Larkspur’s traces, note what went wrong, group the notes into failure modes, and turn the worst into tests.</p>
+          <p class="lede">Tests written before launch check the questions you thought of. Real customers ask the ones you didn’t. Here you read a day of Larkspur’s traces, note what went wrong, group the notes into failure modes, and turn the worst into tests.</p>
           <div class="ctas">
             <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
             <a class="btn" href="#path">See the chapters</a>
@@ -124,7 +124,7 @@ const FACTS: [string, string][] = [
           <p class="kicker">The story</p>
           <h2 id="story">Larkspur’s assistant meets real customers</h2>
           <p class="more">{MODULE.story} <strong>You’re the person on the team who reads the traces: you know what a right answer looks like.</strong></p>
-          <p class="prev">In <a href="/evals/">Evals</a> the team graded a suite written before launch. This module starts from production traffic instead. The most frequent failure here, “{modeOf(FREQ).name.toLowerCase()}”, is not the one to fix first: chapter 5 shows why.</p>
+          <p class="prev">In <a href="/evals/">Evals</a> the team graded a suite written before launch. This module starts from what real customers asked instead. The most frequent failure here, “{modeOf(FREQ).name.toLowerCase()}”, is not the one to fix first: chapter 5 shows why.</p>
         </div>
         <dl class="facts">
           {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}

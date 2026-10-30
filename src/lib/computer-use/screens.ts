@@ -6,8 +6,11 @@ import { money } from '../format';
 import data from '../../../data/computer-use/screens.json' with { type: 'json' };
 import { INK, PALS, f } from '../iso/core.js';
 import { esc } from '../iso/blocks';
+import { fact } from './facts';
 
-export const SCREEN = data.screen;
+/** the real screen: the size Anthropic suggests for web apps (fact `resolution`), so copy and drawing can't drift */
+const [W, H] = fact('resolution').value!.split(',').map(Number);
+export const SCREEN = { w: W, h: H };
 export const PORTAL = data.portal;
 export const BANNER = data.banner;
 export const OFFER = data.offer;

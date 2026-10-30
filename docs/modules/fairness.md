@@ -31,3 +31,20 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **The range steps name one bar.** Ch. 1 asks for the shared 0.50 (0.51 ties on overall error but shifts the regions' rates, so the reveal would lie). Ch. 5 keeps Northvale's bar where it started and accepts every Eastmere bar that evens false declines (the pinned 0.28 and its neighbours); its cost table is read off the reader's own bars.
 - **The thin sample is noise, not a fix.** Counting Eastmere three times in the fit widens the gap here (one rule made both regions' records), and ch. 3 says so; the lesson is that one Eastmere repayer is about 2 points of its rate.
 - **The protected-class setting is named once**, beside `ecoa`, in ch. 5 (and the workbench repeats only that two bars are a legal question). "Hand-made" is said once in narration (ch. 1); `ApplicantsNote` sits under every stage (R6). The no-held-out-set caveat folds away in ch. 1 and the workbench.
+
+## Toy vs real
+
+Every toy number is computed from the 400 hand-made applicants (`population.ts`, seeded) and the check's pinned weights (`fit.ts`, fitted ahead of time), so none is matched to a real figure: moving one would mean regenerating the applicants and refitting, which moves `pinned.json` and `WINNERS`. All are labelled: `ApplicantsNote` sits under every stage, the ch. 1 and workbench `Caveat` says the rates are measured on the same applicants, and each chapter's real fact has a note beside it saying where the toy stops matching.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 | Bars 0.70 and 0.50; overall wrong (and right) %; least wrong %; each region's error %; 400 applicants and the fit's rounds (`Caveat`) | Up to 34.7% wrong for darker-skinned women, at most 0.8% for lighter-skinned men (`gender-shades`); the note says the real totals split, the toy's sit close | Labelled |
+| 2 | Each region's false-decline and false-approval %; bar 0.30; gap in points; wrong % at 0.30; the ~3× false-decline ratio | Wrong matches 10 to over 100× apart across groups, missed matches under 3× (`nist-frvt`) | Labelled |
+| 3 | 300 and 100 applicants; river-postcode and repaid counts; base rates; points per repayer (about 2 and 0.5); the gap before and after counting B three times; 9 in 10 postcode match (`POSTCODE_MATCH`) | The CFPB estimates race from surname and neighbourhood (`cfpb-proxy`); the note names the 9 in 10 as a hand-set rate | Labelled (the 9 in 10 reads `POSTCODE_MATCH`) |
+| 4 | Gap with every field, without region, without region or postcode; share of the gap kept; wrong % before and after | Removing the group field can be ineffective (`unawareness`, no number) | Labelled |
+| 5 | Bars 0.50 and the pinned 0.28; each region's false-decline %; the cost table; hint bar 0.30 | Equal opportunity with a bar per group (`hardt`); Regulation B (`ecoa`) | Labelled |
+| 6 | Precision per region; the grid 0.00 to 1.00; pairs searched; trivial pairs and their approved % | The impossibility proofs (`chouldechova`, `kleinberg`, no number) | Labelled |
+| 7 | The 5-point gap rule; least wrong % with the rule; wrong % with one bar; the bench's gap and wrong % | Regulation B (`ecoa`) | Labelled |
+| Intro | 400 applicants; overall right and wrong %; false-decline % per region; the ratio; 0 bar pairs | `unawareness`, `chouldechova` | Labelled |
+
+The `ecoa` fact is a moving one: Regulation B was amended with effect from 21 July 2026 (91 FR 21620: § 1002.6(a) now says the Act does not use the effects test). Re-check it against the eCFR when the module changes.

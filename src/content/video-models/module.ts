@@ -125,7 +125,7 @@ const CHAPTERS: Chapter[] = [
         'Why the cheapest passing plan wins',
       ],
       terms: [
-        ['Plan', 'A context (one frame or two) and a re-sync interval.'],
+        ['Plan', 'A context (one frame or two) and how often to re-sync.'],
         ['Bar', 'How many dreamed frames must be right, set by the team.'],
         ['Workbench', 'The chapter’s free-play bench: change the plan and see every result.'],
       ],

@@ -4,48 +4,78 @@
     {
       "id": "semver",
       "claim": "Semantic Versioning 2.0.0 says to bump the major version for incompatible changes, the minor for backward-compatible features, and the patch for backward-compatible fixes.",
-      "source": "https://semver.org/spec/v2.0.0.html"
+      "source": "https://semver.org/spec/v2.0.0.html",
+      "accessed": "2026-10-30"
     },
     {
       "id": "semver-zero",
       "claim": "Semantic Versioning 2.0.0 says major version zero (0.y.z) is for initial development: anything may change at any time.",
-      "source": "https://semver.org/spec/v2.0.0.html"
+      "source": "https://semver.org/spec/v2.0.0.html",
+      "accessed": "2026-10-30"
     },
     {
       "id": "immutable",
       "claim": "Semantic Versioning 2.0.0 says a released version’s contents must not be modified; any change is released as a new version.",
-      "source": "https://semver.org/spec/v2.0.0.html"
+      "source": "https://semver.org/spec/v2.0.0.html",
+      "accessed": "2026-10-30"
     },
     {
       "id": "ranges",
-      "claim": "npm’s semver rules expand ^1.2.3 to >=1.2.3 <2.0.0, ^0.2.3 to >=0.2.3 <0.3.0, and ~1.2.3 to >=1.2.3 <1.3.0.",
-      "source": "https://github.com/npm/node-semver#advanced-range-syntax"
+      "claim": "npm’s version-range rules expand ^1.2.3 to >=1.2.3 <2.0.0, ^0.2.3 to >=0.2.3 <0.3.0, and ~1.2.3 to >=1.2.3 <1.3.0.",
+      "source": "https://github.com/npm/node-semver#advanced-range-syntax",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "trusted-packages",
+      "claim": "Zimmermann et al. (2019), studying npm up to April 2018, found that installing an average npm package means trusting 79 other packages and 39 maintainers.",
+      "value": "79",
+      "source": "https://arxiv.org/abs/1902.09217",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "nested",
+      "claim": "npm’s docs say it installs each package as high in the folder tree as it can, and a package that needs a version the higher copy doesn’t meet gets its own copy nested inside it.",
+      "source": "https://docs.npmjs.com/cli/v12/configuring-npm/folders#cycles-conflicts-and-folder-parsimony",
+      "accessed": "2026-10-30"
     },
     {
       "id": "lockfile",
-      "claim": "npm’s docs say package-lock.json describes the exact tree installed, so later installs can produce identical trees regardless of intermediate dependency updates, and it is meant to be committed.",
-      "source": "https://docs.npmjs.com/cli/v10/configuring-npm/package-lock-json"
+      "claim": "npm’s docs say its lockfile describes the exact tree installed, so later installs can build identical trees whatever new releases come out in between, and it is meant to be saved with the code.",
+      "value": "package-lock.json",
+      "source": "https://docs.npmjs.com/cli/v12/configuring-npm/package-lock-json",
+      "accessed": "2026-10-30"
     },
     {
       "id": "ignore-scripts",
-      "claim": "npm’s docs say that with ignore-scripts set, npm does not run scripts specified in package.json files; it is off by default.",
-      "source": "https://docs.npmjs.com/cli/v10/using-npm/config#ignore-scripts"
+      "claim": "npm’s docs say that with ignore-scripts set, npm does not run the scripts packages list for themselves; it is off by default.",
+      "source": "https://docs.npmjs.com/cli/v12/using-npm/config#ignore-scripts",
+      "accessed": "2026-10-30"
     },
     {
       "id": "install-scripts",
       "claim": "npm’s docs list preinstall, install and postinstall among the scripts npm install runs, and say the only valid use of install or preinstall is compiling for the target machine.",
-      "source": "https://docs.npmjs.com/cli/v10/using-npm/scripts"
+      "source": "https://docs.npmjs.com/cli/v12/using-npm/scripts",
+      "accessed": "2026-10-30"
     },
     {
       "id": "allow-builds",
-      "claim": "pnpm’s allowBuilds setting is a map of packages allowed (true) or not (false) to run their build scripts; packages not listed are disallowed by default.",
-      "source": "https://pnpm.io/settings/build"
+      "claim": "pnpm’s docs say allowBuilds lists packages allowed (true) or not (false) to run their build scripts, and by default an install fails when a package with build scripts nobody has ruled on is not listed.",
+      "source": "https://pnpm.io/settings/build",
+      "accessed": "2026-10-30"
     },
     {
       "id": "this-repo",
       "claim": "This site’s own pnpm-workspace.yaml turns install scripts off for two of its dependencies, onnxruntime-node and protobufjs.",
       "value": "onnxruntime-node,protobufjs",
-      "source": "https://pnpm.io/settings/build"
+      "source": "https://pnpm.io/settings/build",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "release-age",
+      "claim": "pnpm’s docs say most malicious releases are found and removed from the registry within an hour, and pnpm 11 by default waits 1,440 minutes (one day) after a version is published before installing it.",
+      "value": "1440",
+      "source": "https://pnpm.io/settings/dependency-resolution#minimumreleaseage",
+      "accessed": "2026-10-30"
     },
     {
       "id": "left-pad",

@@ -10,7 +10,7 @@ import { LEAST_COST, MOST_RIGHT, WINNERS, solved, totals, type Plan } from '../.
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { THINK_PARTS } from '../../components/scenes/thinkScene';
-import { RateNote, ReasoningStage, kindSeries, seconds, type View } from './kit';
+import { Fact, RateNote, ReasoningStage, kindSeries, seconds, type View } from './kit';
 
 const MODULE = 'reasoning',
   ID = '07-workbench';
@@ -58,8 +58,8 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['score', 'plan', 'quiz'],
-    narration: `${MOST_RIGHT} right for ${LEAST_COST}, the best possible. Yours is ${WINNERS.length === 1 ? 'the one plan that reaches' : `one of ${WINNERS.length} plans that reach`} it, and it mixes efforts.`,
+    visibleControls: ['score', 'plan', 'fact', 'quiz'],
+    narration: `${MOST_RIGHT} right for ${LEAST_COST}, the best possible. Yours is ${WINNERS.length === 1 ? 'the one plan that reaches' : `one of ${WINNERS.length} plans that reach`} it, mixing efforts as Anthropic advises.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'With the same answers right, what decides between two plans?',
@@ -167,6 +167,7 @@ export default function Workbench() {
             </div>
           );
         },
+        fact: () => <Fact id="dynamic-effort" />,
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

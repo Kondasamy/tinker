@@ -12,7 +12,7 @@ import { promptOf, quote, roomName, type Override } from '../../lib/mixture-of-e
 import { ROOMS_PARTS } from '../../components/scenes/officeRoomsScene';
 import pinned from '../../../data/mixture-of-experts/pinned.json' with { type: 'json' };
 import { Outcome } from '../tool-calling/kit';
-import { RoomsStage, ToyNote } from './kit';
+import { Fact, RoomsStage, ToyNote } from './kit';
 
 const MODULE = 'mixture-of-experts',
   ID = '04-send-it-elsewhere';
@@ -95,8 +95,8 @@ export const STEPS: Step<S>[] = [
   {
     id: 'reveal',
     focus: 'stage',
-    visibleControls: ['out1'],
-    narration: 'The guess moved: the rooms hold the work; the doorman only picks. Wrong rooms, worse guess.',
+    visibleControls: ['out1', 'fact'],
+    narration: 'The guess moved: the rooms hold the work, the doorman only picks. A large model shows the same, below.',
     act: 'Press Use router.',
     predicate: s => forced(s) === 0,
   },
@@ -140,17 +140,20 @@ export default function SendItElsewhere() {
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={0} />,
-        quiz: ({ state, apply, sync }) => (
+        fact: () => (
           <>
             <ToyNote />
-            <Quiz
-              {...QUIZ}
-              unsure
-              value={state.quiz}
-              onAnswer={(_, q) => apply({ ...state, quiz: q })}
-              onUnsure={() => sync({ ...state, quiz: UNSURE })}
-            />
+            <Fact id="lu-2024-pruning" />
           </>
+        ),
+        quiz: ({ state, apply, sync }) => (
+          <Quiz
+            {...QUIZ}
+            unsure
+            value={state.quiz}
+            onAnswer={(_, q) => apply({ ...state, quiz: q })}
+            onUnsure={() => sync({ ...state, quiz: UNSURE })}
+          />
         ),
       }}
     />

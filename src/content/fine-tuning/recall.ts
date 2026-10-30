@@ -285,7 +285,7 @@ export const RECALL: RecallItem[] = [
     why: [
       'Right. The voice is one thing; the key fact is another, and the gate checks it question by question.',
       'Sounding right is exactly what a fine-tune is good at. The gate looks past it to the facts.',
-      'The gate compares pass rates and regressions. When a version was trained doesn’t count.',
+      'The gate compares pass rates and questions that used to pass and now fail. When a version was trained doesn’t count.',
     ],
   },
   {

@@ -65,15 +65,15 @@ export const RECALL: RecallItem[] = [
     chapter: C1,
     question: 'What does a mixture of experts change about a dense model?',
     options: [
-      'Its big MLP becomes many experts, and each token runs only a few',
+      'Each layer’s one big block of weights becomes many experts, and each token runs only a few',
       'It adds a second model that checks the first',
       'It removes attention to save work',
     ],
     correct: 0,
     why: [
-      'Right: the MLP is split into experts, and a router picks a few per token.',
+      'Right: that block is split into experts, and a router picks a few per token.',
       'That describes a judge or a draft model, not experts.',
-      'Attention stays; only the MLP is split into experts.',
+      'Attention stays; only that block is split into experts.',
     ],
   },
   // 2. Rooms and a doorman
@@ -244,7 +244,7 @@ export const RECALL: RecallItem[] = [
     correct: 0,
     why: [
       'Right: seats scale with the factor, so fewer tokens overflow.',
-      'The number of experts per token stays top-k; only the seats change.',
+      'Each token still goes to its best two experts; only the seats change.',
       'The experts stay; each just has more room.',
     ],
   },

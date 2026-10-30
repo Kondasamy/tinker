@@ -2,6 +2,7 @@
 // model. Every count the chapters show is read off these files here, so copy never types one.
 import data from '../../../data/choosing-models/machines.json' with { type: 'json' };
 import qs from '../../../data/choosing-models/questions.json' with { type: 'json' };
+import { fact } from './facts';
 
 export type MachineId = 'A' | 'B' | 'C';
 export const IDS: MachineId[] = ['A', 'B', 'C'];
@@ -20,7 +21,13 @@ export interface Machine {
   /** words per second once it starts */
   wps: number;
 }
-export const MACHINES = data.machines as Machine[];
+/** output costs the real price list's multiple of input (matched: facts.json `prices`) */
+export const OUT_TIMES = Number(fact('prices').value);
+export const MACHINES: Machine[] = data.machines.map(m => ({
+  ...m,
+  id: m.id as MachineId,
+  priceOut: m.priceIn * OUT_TIMES,
+}));
 export const machineOf = (id: MachineId) => MACHINES.find(m => m.id === id)!;
 /** Said wherever the machines show (R6, R13). */
 export const NOTE = data.note;

@@ -38,7 +38,7 @@ export const QUIZ = {
   question:
     'A bookshop’s assistant saves a memory note: “Customer prefers email, not phone.” Where does that note live, and who decides where it is stored?',
   options: [
-    'Inside the model: it learns the note and keeps it in its weights',
+    'Inside the model: it learns the note and builds it into itself',
     'In the shop’s own storage: the model asks for a file operation, and the shop’s application carries it out, only inside the memory folder',
     'In the context window, which the provider keeps open until the customer writes again',
     'Nowhere: notes vanish when the conversation ends, like the window',
@@ -46,7 +46,7 @@ export const QUIZ = {
   correct: 1,
   explanation: fact('memory-client-side').claim,
   why: [
-    'A model doesn’t change between calls and learns nothing into its weights; the note is a file it can read back.',
+    'A model doesn’t change between calls or learn from them; the note is a file it can read back.',
     `Right: the memory tool runs client side, on storage the shop controls, and here the host writes only under ${MEMORY_DIR}.`,
     'Every window starts empty, and here the second conversation knew nothing until the note was read in.',
     'The window vanishes but the file doesn’t; that is the point of writing it.',

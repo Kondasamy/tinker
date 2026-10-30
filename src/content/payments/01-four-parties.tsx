@@ -9,7 +9,7 @@ import { PARTY_NAME, eur, orderOf, policyOf, runOf } from '../../lib/payments/si
 import { TUBE_PARTS, hopAt, journeyOf } from '../../components/scenes/tubeScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Fact, HopSlider, PaymentsStage } from './kit';
+import { Fact, HopSlider, PaymentsStage, SimNote } from './kit';
 
 const MODULE = 'payments',
   ID = '01-four-parties';
@@ -132,7 +132,12 @@ export default function FourParties() {
         ),
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />,
-        fact: () => <Fact id="four-party" />,
+        fact: () => (
+          <>
+            <Fact id="four-party" />
+            <SimNote />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

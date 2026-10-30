@@ -348,8 +348,9 @@ export function Fact({ id }: { id: string }) {
 /** Said wherever the toy's frames or numbers show (R6). */
 export const ToyNote = () => (
   <p className="note vm-note">
-    Larkspur’s toy world model: two small conv nets trained once, offline, on a simulated warehouse, cut short on
-    purpose so drift shows, and run live in your browser. Its numbers show the mechanism, not any large video model’s.
+    Larkspur’s toy world model: two small neural networks trained once, ahead of time, on a simulated warehouse, cut
+    short on purpose so drift shows, and run live in your browser. Its numbers show how it works, not any large video
+    model’s.
   </p>
 );
 

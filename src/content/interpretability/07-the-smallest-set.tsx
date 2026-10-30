@@ -10,7 +10,8 @@ import { UNSURE } from '../../lib/recall';
 import { FUSES, fuseName, nextTop, type Fuse } from '../../lib/interpretability/probe';
 import { BEHAVIOURS, WINNERS, isWinner, keeps } from '../../lib/interpretability/workbench';
 import { FUSE_PARTS } from '../../components/scenes/fuseScene';
-import { InterpStage, ModelGate, OURS, TopFive, baseNow, said, useBase } from './kit';
+import { fact } from '../../lib/interpretability/facts';
+import { Fact, InterpStage, ModelGate, OURS, TopFive, baseNow, said, useBase } from './kit';
 
 const MODULE = 'interpretability',
   ID = '07-the-smallest-set';
@@ -54,7 +55,7 @@ export const STEPS: Step<S>[] = [
     say: { block: 'fuses', text: 'Fewest in' },
     setup: s => ({ ...s, behaviour: FIRST.id, kept: [...FUSES] }),
     predicate: s => !!baseNow() && solved(s),
-    hint: 'Keep one MLP in, and try pulling the rest one at a time.',
+    hint: 'Keep one thinking part in, and try pulling the rest one at a time.',
     solution: solve(FIRST.id),
   },
   {
@@ -73,8 +74,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['bench', 'quiz'],
-    narration:
-      'Some answers run through two parts, others through nearly all: the work is spread differently each time.',
+    narration: `Some answers run through two parts, others through nearly all. One circuit found in GPT-2 small spans ${fact('ioi-circuit').value} heads.`,
     act: 'One question to finish the module.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'How many fuses did the second answer need?',
@@ -154,13 +154,16 @@ export default function TheSmallestSet() {
       controls={{
         bench: ({ state, apply, sync, focused }) => <Bench s={state} set={focused ? apply : sync} />,
         quiz: ({ state, apply, sync }) => (
-          <Quiz
-            {...QUIZ}
-            unsure
-            value={state.quiz}
-            onAnswer={(_, q) => apply({ ...state, quiz: q })}
-            onUnsure={() => sync({ ...state, quiz: UNSURE })}
-          />
+          <>
+            <Quiz
+              {...QUIZ}
+              unsure
+              value={state.quiz}
+              onAnswer={(_, q) => apply({ ...state, quiz: q })}
+              onUnsure={() => sync({ ...state, quiz: UNSURE })}
+            />
+            <Fact id="ioi-circuit" />
+          </>
         ),
       }}
     />

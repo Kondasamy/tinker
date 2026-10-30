@@ -64,9 +64,12 @@ const IDEAS: [string, string, ReturnType<typeof fact>, StencilOpts][] = [
 ];
 const FACTS: [string, string][] = [
   [String(VOCAB_SIZE), 'tokens the mask judges at every step'],
-  [String(model.config.ctx), 'tokens in Larkspur mini’s window: prompt and answer'],
+  [String(model.config.ctx), 'tokens Larkspur mini can hold at once, prompt and answer together'],
   [String(masked.ids.length), 'tokens in its masked answer to “Where is order 1042?”'],
-  [`${fact('llguidance').value} µs`, 'of CPU per token for a real engine’s mask over 128k tokens (llguidance)'],
+  [
+    `${fact('llguidance').value} µs`,
+    'millionths of a second per token for a real engine’s mask over 128k tokens (llguidance)',
+  ],
 ];
 ---
 <html lang="en">
@@ -84,7 +87,7 @@ const FACTS: [string, string][] = [
           <p class="kicker">Module 10 · Structured outputs</p>
           <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>Make a model answer in valid JSON, every time</h1>
-          <p class="lede">Asking a model for JSON gets you JSON most of the time. A schema mask gets it every time: at each step it blocks the tokens the schema doesn’t allow. Here you watch a tiny model write under one, token by token, and see what it guarantees and what it doesn’t.</p>
+          <p class="lede">Asking a model for JSON gets you JSON most of the time. A schema, the shape the answer must fit, gets it every time when the model writes under a mask: at each step it blocks the tokens the shape doesn’t allow. Here you watch a tiny model write under one, token by token, and see what it guarantees and what it doesn’t.</p>
           <div class="ctas">
             <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
             <a class="btn" href="#path">See the chapters</a>
@@ -114,7 +117,7 @@ const FACTS: [string, string][] = [
             <p class="cap">A mask at every step: only the schema’s tokens get through.</p>
           </article>
         </div>
-        <p class="note more">Larkspur mini is tiny and has never seen JSON, so its prose is odd and its picks are guesses. That is the point: the mask makes even this model’s answers valid. Whether they are right is another question, which chapter 6 asks. Every answer here is computed live in your browser from Larkspur mini; none is any provider’s.</p>
+        <p class="note more">Larkspur mini is tiny and has never seen JSON, so its prose is odd and its picks are guesses. That is the point: the mask makes even this model’s answers valid. Whether they are right is another question, which chapter 6 asks. Every answer and count here is computed live in your browser from Larkspur mini, a toy; none is any provider’s.</p>
       </section>
 
       <section aria-labelledby="how">

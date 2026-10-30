@@ -35,17 +35,17 @@ const HERO = pic({
   you: BASE.users[ASH.id],
   items: BASE.items,
 });
-const IDEAS: [string, string, ReturnType<typeof fact> | null, ShelfOpts][] = [
+const IDEAS: [string, string, ReturnType<typeof fact>, ShelfOpts][] = [
   [
     'Bestsellers',
     'One shelf for everyone: the top sellers, less what you own',
-    null,
+    fact('top-sellers'),
     pic({ view: 'aisle', shelf: shelfOf('popular', TRAIN, ASH.id), shopper: ASH.name }),
   ],
   [
     'People like you',
     'Customers whose baskets overlap fill each other’s shelves',
-    null,
+    fact('grouplens'),
     pic({
       view: 'aisle',
       shelf: shelfOf('users', TRAIN, HAZEL.id),
@@ -129,8 +129,8 @@ const FACTS: [string, string][] = [
               <div class="pic"><IsoStage board={SHELF_BOARD} scene={shelfScene(o)} label={shelfLabel(o)} /></div>
               <h3><span class="n">{i + 1}</span> {name}</h3>
               <p class="cap">{short}</p>
-              {f && <p class="more">{f.claim}</p>}
-              {f && <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>}
+              <p class="more">{f.claim}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
             </li>
           ))}
         </ol>

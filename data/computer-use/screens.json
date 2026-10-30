@@ -1,6 +1,5 @@
 {
   "note": "Brightwater Fasteners' trade portal as Larkspur's agent sees it: a hand-written fixture, drawn by src/lib/computer-use/screens.ts. Hosts use .example names (RFC 2606). Boxes are [x, y, width, height] in the real screen's pixels.",
-  "screen": { "w": 1280, "h": 800 },
   "portal": "trade.brightwater.example",
   "company": "Larkspur Supply Co.",
   "card": "•••• 0417",

@@ -29,4 +29,24 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 
 ## Facts
 
-From `data/video-models/facts.json` (accessed 2026-10-28): Ha and Schmidhuber (2018); GameNGen (20 fps on one TPU, raters near chance; 64 frames of context, degrading after 10 to 20 frames without noise augmentation); Genie (11B parameters, 30,000 hours of platformer video); Movie Gen (30B parameters, 16 s at 16 fps, 1080p, 73K-token context); Sora's report (up to a minute, spacetime patches, no model details); BT.709 for 1080p's 1920 × 1080. Sora's page refused automated fetches on the access date; its claims were checked against search results quoting the page.
+From `data/video-models/facts.json` (re-checked 2026-10-30 against each arXiv page): Ha and Schmidhuber (2018); GameNGen (20 fps on one TPU, raters near chance; one-step guesses as close as a JPEG at quality 20 to 30; 64 frames of context, degrading after 10 to 20 frames without noise augmentation; its context ablation, the biggest gain from 1 frame to 2; a standing-still run falling apart after 20 to 30 steps); Genie (11B parameters, 30,000 hours of platformer video); Movie Gen (30B parameters, 16 s at 16 fps, 1080p, 73K-token context); Janner et al. (2019, short model runs started from real data); Sora's report (up to a minute, spacetime patches, no model details); BT.709 for 1080p's 1920 × 1080. Sora's page still refused automated fetches on 2026-10-30, so `sora` keeps its 2026-10-28 check, made against search results quoting the page.
+
+Each chapter shows one: 1 `movie-gen`, 2 `gamengen-next`, 3 `gamengen-history`, 4 `world-models`, 5 `gamengen-drift`, 6 `gamengen-context`, `gamengen`, `sora`, `genie`, `movie-gen`, 7 `short-rollouts`.
+
+## Toy vs real
+
+The toy is two small trained networks (KTD5: never retrained for this), so its scores, steps and counts are labelled: `ToyNote` sits on the step of each chapter's fact where toy numbers show (2, 3, 5, 7), and the cited fact beside it is the real figure. Only chapter 1's real-video sums are matched.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 | 1080p's 1920 × 1080 pixels | `hd` | Matched: `W, H` read `fact('hd').value` |
+| 1 | 16 frames a second, and the MB a frame and a second (predict options, sum) | `movie-gen` | Matched: `FPS = Number(fact('movie-gen').value)` |
+| 1 | 3 bytes a pixel | Compression's picture (`PICTURE`) | Real (built data) |
+| 1 | 33 frames, 8,448 bytes raw, 284 packed; 256 cells a frame | `movie-gen` | Labelled: the toy's own frames packed by Compression's real coder (pinned) |
+| 2 | At most 4 of 256 cells change a step; 4 of 4 right on the pinned guess; 98% of changed cells right on unseen runs | `gamengen-next` (one-step guesses as close as a JPEG at quality 20 to 30) | Labelled: the toy scores changed cells, GameNGen scores how close the whole picture is |
+| 3 | Crate at cell 2 from one frame, 4 from two (really 4); 25% vs 99% right from one frame and two; 1.5 vs 1.7 million multiplications | `gamengen-history` (biggest gain from 1 frame to 2) | Labelled: same direction as GameNGen's ablation, toy sizes |
+| 4 | Moves and re-syncs counted in the caption | `world-models` (an agent trained in the dream, then checked in the real game) | Labelled |
+| 5 | Robot lost at step 11 (2 robots), 185 by step 32, crate gone at 24; 30 of 31 right with a re-sync every 4 | `gamengen-drift` (fell apart after 20 to 30 steps) | Labelled: the toy is cut short on purpose so drift shows sooner (`ToyNote`) |
+| 6 | 1, 2 or 64 frames (predict); the toy's 6,596 weights, 16 × 16 floor, drift by step 11 | `gamengen-context`, `gamengen`, `genie`, `movie-gen`, `sora` | Real (the big models' figures); labelled (the toy's, set beside them) |
+| 7 | Bar 70%, 8 routes of 32 steps, re-sync never/16/8/4/2, frames right, real frames, guesses, compute (`WINNERS` recomputed by `solve()`) | `short-rollouts` (short model runs started from real data) | Labelled: the bar and routes are Larkspur's planning numbers (`workbench.json`), results pinned |
+| Intro, recall | 256 cells, 6,596 weights, 98%, 9 steps kept | as above | Labelled ("toy" in each caption) |

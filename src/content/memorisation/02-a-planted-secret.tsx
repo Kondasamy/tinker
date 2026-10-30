@@ -8,7 +8,7 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { REPEATS, RUNS, canaryOf, lineOf } from '../../lib/memorisation/story';
 import { RECITAL_PARTS } from '../../components/scenes/recitalScene';
-import { RecitalStage, RepeatsRadio, ToyNote, ledgerOf } from './kit';
+import { Fact, RecitalStage, RepeatsRadio, ToyNote, ledgerOf } from './kit';
 
 const MODULE = 'memorisation',
   ID = '02-a-planted-secret';
@@ -91,7 +91,12 @@ export default function APlantedSecret() {
             }
           />
         ),
-        note: () => <ToyNote />,
+        note: () => (
+          <>
+            <Fact id="carlini-2019" />
+            <ToyNote />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

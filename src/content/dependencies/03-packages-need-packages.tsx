@@ -1,5 +1,6 @@
 // Chapter 3: packages need packages. cartwheel needs tidystr 1 while the app needs tidystr 2; the reader predicts how
-// many copies stand, opens the tree, then pulls the nested copy and sees only cartwheel and the app break.
+// many copies stand, opens the tree, then pulls the nested copy and sees only cartwheel and the app break. The reveal
+// cites npm's own layout rule, which the resolver follows.
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
@@ -10,7 +11,7 @@ import { FIRST, TWICE } from '../../lib/dependencies/story';
 import { TOWER_PARTS, towerOf } from '../../components/scenes/towerScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { DepsStage, RegistryNote, pulledOf, type Overrides, type View } from './kit';
+import { DepsStage, Fact, RegistryNote, pulledOf, type Overrides, type View } from './kit';
 
 const MODULE = 'dependencies',
   ID = '03-packages-need-packages';
@@ -122,7 +123,12 @@ export default function PackagesNeedPackages() {
             Open the Tree tab
           </button>
         ),
-        out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />,
+        out1: ({ state }) => (
+          <>
+            <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />
+            <Fact id="nested" />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <>
             <RegistryNote />

@@ -19,7 +19,7 @@ import {
 import { DEPOT_PARTS, depotAt } from '../../components/scenes/depotScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { CachingStage, SimNote, pct, type View } from './kit';
+import { CachingStage, Fact, SimNote, pct, type View } from './kit';
 
 const MODULE = 'caching',
   ID = '07-cache-policy';
@@ -67,7 +67,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'ties',
     focus: 'quiz',
-    visibleControls: ['score', 'bench', 'quiz'],
+    visibleControls: ['score', 'bench', 'fact', 'quiz'],
     narration: `${pct(BEST)} is the best hit rate; yours is one of ${WINNERS.length} policies that work.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -186,6 +186,7 @@ export default function CachePolicy() {
         score: ({ state }) => <Score s={state} />,
         // changing the policy is an attempt only while it is the puzzle
         bench: ({ state, apply, sync, focused }) => <BenchControls s={state} set={focused ? apply : sync} />,
+        fact: () => <Fact id="immutable" />,
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

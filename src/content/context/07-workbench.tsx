@@ -150,7 +150,7 @@ export const STEPS: Step<S>[] = [
     id: 'tune',
     focus: 'bench',
     visibleControls: ['out1', 'bench'],
-    narration: 'The readout leads with the cost against stuffing everything; the table splits it by question.',
+    narration: 'The top line shows the cost against stuffing everything; the table splits it by question.',
     act: 'Get every answer right at the lowest cost.',
     broken: s => ({ ...s, ...STUFF_ALL }),
     verdict: s => solved(s),
@@ -222,8 +222,8 @@ function Readout({ s, verdict }: { s: S; verdict?: boolean }) {
       </table>
       <p className="cx-note">
         Answers are recorded; tokens and cost are computed. Tokens count each window and its reply with this site’s own
-        tokenizer. Costs are in relative units, not dollars: a fresh input token costs 1, a cache hit {READ}, a cache
-        write {WRITE['5m']}, an output token {OUTPUT}.
+        token counter. Costs are in relative units, not dollars: a fresh input token costs 1, a cache hit {READ}, a
+        cache write {WRITE['5m']}, an output token {OUTPUT}.
       </p>
     </div>
   );

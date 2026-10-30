@@ -1,4 +1,4 @@
-// Chapter 6: a chip fails. A month of Fernhill's training plays against a seeded failure stream at Llama 3's published
+// Chapter 6: a chip fails. A month of Fernhill's training plays against a fixed-random failure stream at Llama 3's published
 // rate (failures.ts, simulated); the reader predicts the best checkpoint interval, then tries saving often, rarely and
 // at the searched best (pinned): saving often spends the time writing, saving rarely loses it to failures.
 import StepRunner from '../../components/story/StepRunner';
@@ -82,7 +82,7 @@ export const STEPS: Step<S>[] = [
     id: 'often',
     focus: 'interval',
     visibleControls: ['interval'],
-    narration: 'Your pick is locked. The month runs against a simulated, seeded stream of failures.',
+    narration: 'Your pick is locked. The month runs against simulated failures, the same ones on every visit.',
     act: `Pick ${every(OFTEN)}.`,
     say: { block: 'rack', text: 'Saved here' },
     predicate: s => s.interval === OFTEN,

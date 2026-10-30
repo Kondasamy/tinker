@@ -10,7 +10,7 @@ import { DOMAINS, answerOf, run, stepsOf, type Run } from '../../lib/tools/host'
 import { RECORDINGS } from '../../lib/tools/turns';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Fact, Messages, Outcome, Play, Stepper, ToolStage } from './kit';
+import { Fact, Messages, Outcome, Play, RecordedNote, Stepper, ToolStage } from './kit';
 import { OFFICE_PARTS } from '../../components/scenes/officeScene';
 
 const MODULE = 'tool-calling',
@@ -136,7 +136,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'cap',
     focus: 'cap',
-    visibleControls: ['out2', 'cap'],
+    visibleControls: ['out2', 'cap', 'fact'],
     narration: `A sequence: ${REFUND.name} waited for ${LOOKUP.name}’s total. A call cap stops runaway loops; this host allows ${calls(FULL)}.`,
     act: 'Lower it until the refund is stopped.',
     say: { block: 'host', text: 'Counts calls' },
@@ -209,6 +209,12 @@ export default function ManySteps() {
             </p>
           </>
         ),
+        fact: () => (
+          <>
+            <p className="note">{`This host counts calls and allows ${calls(FULL)}, a number picked for the story. Real toolkits set their own limit:`}</p>
+            <Fact id="max-turns" />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}
@@ -228,6 +234,7 @@ export default function ManySteps() {
               <Messages lanes={LANES} msgs={msgs(s)} upTo={s.shown} />
               <Fact id="parallel-calls" />
               <Fact id="tool-choice" />
+              <RecordedNote />
             </>
           ),
         },

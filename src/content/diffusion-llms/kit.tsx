@@ -391,8 +391,9 @@ export function Fact({ id }: { id: string }) {
 /** Said wherever the toy's replies or numbers show (R6, the plan's scope boundary). */
 export const ToyNote = () => (
   <p className="dl-note">
-    Larkspur’s toy masked model: Larkspur mini’s size, trained once on Larkspur’s documents and run live in your
-    browser. It shows the mechanism; its replies are not what a production model writes.
+    Larkspur’s toy masked model is a toy: Larkspur mini’s size, trained once on Larkspur’s documents and run live in
+    your browser. It shows how the filling works, not how well a real model fills. Its share “same as careful” stands in
+    for a real model’s score on a test, and its replies are not what a production model writes.
   </p>
 );
 

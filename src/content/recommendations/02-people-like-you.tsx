@@ -12,7 +12,7 @@ import { CUSTOMERS, HELD_OUT, TRAIN, customerOf, productOf } from '../../lib/rec
 import { SHELF_PARTS } from '../../components/scenes/shelfScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { OrdersNote, RecsStage, type View } from './kit';
+import { Fact, OrdersNote, RecsStage, type View } from './kit';
 
 const MODULE = 'recommendations',
   ID = '02-people-like-you';
@@ -127,6 +127,7 @@ export default function PeopleLikeYou() {
         out1: ({ state }) => (
           <>
             <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />
+            <Fact id="grouplens" />
             <OrdersNote />
           </>
         ),

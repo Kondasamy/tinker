@@ -56,7 +56,7 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['p1'],
     narration:
-      'Each pill shows a machine’s score on a public benchmark, out of 100. The beam hangs level: nothing weighed yet.',
+      'Each pill shows a machine’s score on a public benchmark, out of 100. The balance’s beam hangs level: nothing weighed yet.',
     act: 'Predict first.',
     say: { block: 'beam', text: 'Level' },
     predicate: s => s.p1 !== null,
@@ -65,7 +65,8 @@ export const STEPS: Step<S>[] = [
     id: 'slide',
     focus: 'weights',
     visibleControls: [],
-    narration: 'Each poise is a weight: how much one criterion counts. Quality alone means the leaderboard’s order.',
+    narration:
+      'Each slider moves a weight on the beam: how much one criterion counts. Quality alone means the leaderboard’s order.',
     act: 'Slide Quality to the right.',
     say: { block: 'quality', text: 'Quality' },
     predicate: s => weigh(ROWS, s.w).winner === TOP,

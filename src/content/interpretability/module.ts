@@ -51,7 +51,7 @@ const CHAPTERS: Chapter[] = [
         ['Ablation', 'Switching one part of a model off (here, zeroing a head’s output) and watching what changes.'],
         [
           'Fuse',
-          'This module’s switch for one part of Larkspur mini: one per head and one per MLP. Pulled, the part is off.',
+          'This module’s switch for one part of Larkspur mini: one per head and one per thinking part. Pulled, the part is off.',
         ],
         [
           'Held-out text',
@@ -73,7 +73,14 @@ const CHAPTERS: Chapter[] = [
         'Which block makes the guess in Larkspur mini',
       ],
       terms: [
-        ['Block', 'One layer of the model: its attention heads, then its MLP, each adding to the residual stream.'],
+        [
+          'Block',
+          'One layer of the model: its attention heads, then its thinking part (which works on each token alone), each adding to the residual stream: the running total each token carries up.',
+        ],
+        [
+          'Embedding',
+          'The list of meaning numbers the model looks up for each token before any block runs: where the lens takes its first reading.',
+        ],
         ['Logit lens', fact('logit-lens').claim],
       ],
     },
@@ -125,7 +132,7 @@ const CHAPTERS: Chapter[] = [
     title: 'One neuron, many meanings',
     short: 'One neuron, many meanings',
     intro: {
-      story: `Heads and blocks are big parts. The team looks smaller: each MLP has ${LM.d_mlp} neurons. Surely one of them means “shipping”?`,
+      story: `Heads and blocks are big parts. The team looks smaller: each thinking part has ${LM.d_mlp} neurons. Surely one of them means “shipping”?`,
       goal: 'Does one neuron stand for one idea?',
       learn: [
         'What a neuron is, and how its top tokens are found',
@@ -135,7 +142,7 @@ const CHAPTERS: Chapter[] = [
       terms: [
         [
           'Neuron',
-          'One of the numbers in an MLP’s middle layer; it fires (goes high) on some tokens more than others.',
+          'One of the numbers in a thinking part’s middle layer; it fires (goes high) on some tokens more than others.',
         ],
         ['Polysemantic', fact('superposition').claim],
         [

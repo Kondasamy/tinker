@@ -1,7 +1,7 @@
 // Pieces the sandboxing chapters share: the stage (the glass room, or the run as lanes) and its caption. A planted note
 // carries attacker text, so every string from a run is React text here; the drawings escape theirs (esc) before they
 // become SVG.
-import { useMemo, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { STAMP_CLASS } from '../../lib/iso/flat';
 import IsoStage from '../../lib/iso/IsoStage';
 import FlatStage from '../../components/scenes/FlatStage';
@@ -117,6 +117,13 @@ export function Fact({ id }: { id: string }) {
   );
 }
 
+/** The toy note: this sandbox is a model, and what a chapter's own counts stand for in a real one (R6). */
+export const SimNote = ({ children }: { children?: ReactNode }) => (
+  <p className="note">
+    A model sandbox: recorded agent turns, made-up files, a stand-in token, no real code run. {children}
+  </p>
+);
+
 /** Wraps f so each argument (keyed by its JSON) is computed once and kept. */
 export function memo<A, R>(f: (a: A) => R): (a: A) => R {
   const m = new Map<string, R>();
@@ -131,8 +138,9 @@ export const runCached = memo((setup: Partial<Setup> & { case: CaseId }) => run(
 
 /** What an attack does when it works, in words; undefined for an ordinary task. */
 export const says = (id: CaseId) => ATTACKS.find(a => a.case === id)?.says;
-/** A case's name for a column or chip. */
-export const shortName = (id: CaseId) => id[0].toUpperCase() + id.slice(1);
+const SHORT: Partial<Record<CaseId, string>> = { exfil: 'Leak', beacon: 'Smuggle' };
+/** A case's name for a column or chip, in plain words. */
+export const shortName = (id: CaseId) => SHORT[id] ?? id[0].toUpperCase() + id.slice(1);
 
 /** The files the sandbox can hold, for the drawer: each path, its label and (for private ones) a note. */
 export function Files() {

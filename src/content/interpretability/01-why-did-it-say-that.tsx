@@ -179,6 +179,7 @@ export default function WhyDidItSayThat() {
           <>
             <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />
             <Fact id="attention-not-explanation" />
+            <p className="note">{OURS}</p>
           </>
         ),
         quiz: ({ state, apply, sync }) => (

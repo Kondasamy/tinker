@@ -1,30 +1,54 @@
 {
-  "accessed": "2026-10-28",
+  "accessed": "2026-10-30",
   "facts": [
     {
+      "id": "lee-2021-repeats",
+      "claim": "A large-model finding: Lee and colleagues (2021) found one 61-word sentence repeated over 60,000 times in a common web dataset (C4), and that over 1% of what models trained on such data wrote unprompted was copied word for word from their training text.",
+      "value": "60000",
+      "source": "https://arxiv.org/abs/2107.06499",
+      "accessed": "2026-10-30"
+    },
+    {
       "id": "carlini-2019",
-      "claim": "A large-model finding: Carlini and colleagues (The Secret Sharer, 2019) planted random secrets, canaries, in training text and measured their exposure. Models trained without care for memorisation gave back unique secrets such as credit card numbers.",
-      "source": "https://arxiv.org/abs/1802.08232"
+      "claim": "A real-model finding: Carlini and colleagues (The Secret Sharer, 2019) planted made-up secrets, canaries, in training text to measure how easily they could be guessed back. From models trained without care for memorisation, they pulled out unique secrets such as credit card numbers.",
+      "source": "https://arxiv.org/abs/1802.08232",
+      "accessed": "2026-10-30"
     },
     {
       "id": "carlini-2021",
-      "claim": "A large-model finding: Carlini and colleagues (2021) pulled hundreds of verbatim training sequences out of GPT-2, names, phone numbers and email addresses among them, some seen in just one document. Larger models were more vulnerable.",
-      "source": "https://arxiv.org/abs/2012.07805"
+      "claim": "A large-model finding: Carlini and colleagues (2021) pulled hundreds of training sequences, word for word, out of GPT-2 by prompting it, names, phone numbers and email addresses among them, each in just one document of its training text. Larger models were more vulnerable.",
+      "source": "https://arxiv.org/abs/2012.07805",
+      "accessed": "2026-10-30"
     },
     {
       "id": "kandpal-2022",
-      "claim": "A large-model finding: Kandpal, Wallace and Raffel (2022) found a sequence present 10 times in training is generated about 1,000 times more often than one present once, and that deduplicating makes models far more resistant.",
-      "source": "https://arxiv.org/abs/2202.06539"
+      "claim": "A large-model finding: Kandpal, Wallace and Raffel (2022) found a sequence present 10 times in training is generated about 1,000 times more often than one present once, and that removing duplicates makes models far harder to pull training text from.",
+      "source": "https://arxiv.org/abs/2202.06539",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "ippolito-2022",
+      "claim": "A large-model finding: Ippolito and colleagues (2022) built a filter that blocks every reply copying training text word for word, and showed that slightly changed prompts, asking for the text in another style, still got memorised text past it.",
+      "source": "https://arxiv.org/abs/2210.17546",
+      "accessed": "2026-10-30"
     },
     {
       "id": "nasr-2023",
-      "claim": "A large-model finding: Nasr and colleagues (2023) extracted gigabytes of training data from open models, and made the aligned ChatGPT emit training data at a rate 150 times higher than when behaving properly.",
-      "source": "https://arxiv.org/abs/2311.17035"
+      "claim": "A large-model finding: Nasr and colleagues (2023) pulled gigabytes of training text out of open models, and made ChatGPT, tuned to behave as a careful assistant, give out training text 150 times more often than when it behaved normally: the tuning had not removed what it memorised.",
+      "source": "https://arxiv.org/abs/2311.17035",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "scrub-misses",
+      "claim": "A large-model finding: Lukas and colleagues (2023) found that scrubbing personal details out of training text cuts the risk of a model leaking them but doesn’t stop it: real scrubbers miss some, and scrubbing more also strips useful text.",
+      "source": "https://arxiv.org/abs/2302.00539",
+      "accessed": "2026-10-30"
     },
     {
       "id": "abadi-2016",
-      "claim": "Abadi and colleagues (2016) showed deep networks can be trained with differential privacy (DP-SGD), which bounds how much any one example shapes the model, at a modest cost in quality.",
-      "source": "https://arxiv.org/abs/1607.00133"
+      "claim": "Abadi and colleagues (2016) showed deep networks can be trained with differential privacy, a method that caps how much any one training example can change the model, at a manageable cost in quality.",
+      "source": "https://arxiv.org/abs/1607.00133",
+      "accessed": "2026-10-30"
     }
   ]
 }

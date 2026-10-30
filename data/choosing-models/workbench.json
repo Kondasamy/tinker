@@ -1,5 +1,5 @@
 {
-  "note": "Larkspur’s three teams and what each needs, hand-set for the workbench. A team’s quality is its own question set’s pass share (support’s is the 20 questions); price and wait come from its typical request. A team’s machine is the one that meets every need.",
+  "note": "Larkspur’s three teams and what each needs, hand-set for the workbench. A team’s quality is the share of its own questions a machine gets right (support’s is the 20 questions); price and wait come from its typical request. A team’s machine is the one that meets every need.",
   "weights": [0, 1, 2, 3, 4],
   "teams": [
     { "id": "support", "name": "Support", "job": "Drafts replies while a customer waits on chat.", "quality": { "A": 0.9, "B": 0.7, "C": 0.85 }, "tokensIn": 1200, "tokensOut": 250, "words": 180, "needs": { "quality": 0.8, "price": 2, "wait": 3 } },

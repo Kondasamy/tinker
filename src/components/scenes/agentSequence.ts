@@ -14,7 +14,7 @@ export const agentLanes = (r: Run, host = 'Host app'): Lane[] => [
 
 const DECIDED = { approve: 'APPROVED', reject: 'DENIED', pending: 'WAITING' } as const;
 
-/** One card per step. Results come back from the tool (or helper) that ran them; host-only steps (the schema check,
+/** One card per step. Results come back from the tool (or helper) that ran them; host-only steps (the input check,
  * the repeat detector, compaction, a budget stop) stay on the host's lane. Full text goes to `detail` (the drawer). */
 export function agentMessages(r: Run): Shown[] {
   let ran: 'orders' | 'helpers' | null = null;
@@ -61,15 +61,15 @@ export function agentMessages(r: Run): Shown[] {
               to: 'host',
               kind: 'error',
               stamp: 'INVALID',
-              text: `schema check: ${s.call.name}`,
-              detail: `Schema check failed: ${s.errors.join('. ')}`,
+              text: `input check: ${s.call.name}`,
+              detail: `Input check failed: ${s.errors.join('. ')}`,
             }
           : {
               from: 'host',
               to: 'host',
               kind: 'result',
-              text: `schema check: ${s.call.name} ok`,
-              detail: 'The arguments match the tool’s input schema.',
+              text: `input check: ${s.call.name} ok`,
+              detail: 'The arguments match the shape the tool expects.',
             };
       case 'call':
         ran = 'orders';

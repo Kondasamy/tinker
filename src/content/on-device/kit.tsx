@@ -300,4 +300,6 @@ export function Fact({ id }: { id: string }) {
 }
 
 /** The planning-number label every page with the handheld's numbers carries (R6). */
-export const PLANNING = 'The handheld’s memory, battery, speed and energy are Larkspur’s planning numbers.';
+export const PLANNING = 'The handheld’s memory, battery and speed are Larkspur’s planning numbers.';
+/** Said wherever Larkspur mini answers (R6, KTD5): it is a toy, trained ahead of time. */
+export const TOY = `Larkspur mini is a toy of ${sizeOf('mini').params.toLocaleString('en')} weights, so its replies show what rounding does, not a real model’s quality.`;

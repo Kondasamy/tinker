@@ -35,7 +35,7 @@ export const QUIZ = {
   explanation: 'Each flag is one grapheme but two code points and four code units.',
   why: [
     'Right: a flag is two code points, four code units, so twenty flags count as eighty.',
-    'Flags are ordinary Unicode text, made of two regional-indicator code points.',
+    'Flags are ordinary Unicode text: two code points that spell the country’s two-letter code.',
     'Twenty is what the customer sees; the box counted something else.',
   ],
 };

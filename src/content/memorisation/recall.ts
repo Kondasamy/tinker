@@ -6,7 +6,8 @@ import { RUNS, scoreOf } from '../../lib/memorisation/runs';
 
 const DEDUP = scoreOf('dedup', 64).rank,
   N = RUNS.candidates.toLocaleString('en'),
-  LEAKS = RUNS.runs.canary.canaries.filter(c => c.extracted).length;
+  LEAKS = RUNS.runs.canary.canaries.filter(c => c.extracted).length,
+  COPIES = RUNS.runs.canary.canaries.map(c => c.repeats).sort((a, b) => a - b);
 
 export const RECALL: RecallItem[] = [
   // 6. Keep it out: the module's one pinned idea, first in the bank
@@ -22,7 +23,7 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right: a number that never reaches training can’t be memorised or leaked.',
+      'Right: a number scrubbed before training can’t be memorised, though real scrubbers miss some.',
       'A filter only catches the shapes it knows, and a number split up slips past.',
       'Fewer steps may lower memorisation, but a repeated number can still be stored.',
     ],
@@ -57,7 +58,7 @@ export const RECALL: RecallItem[] = [
     why: [
       'Right: memorisation is the exact training text coming back out.',
       'Understanding is about meaning; memorisation is about the exact words.',
-      'There is no database inside; the words are stored in the weights.',
+      'There is no database inside; the words are stored in the model’s learned numbers.',
     ],
   },
   {
@@ -80,11 +81,12 @@ export const RECALL: RecallItem[] = [
   {
     id: 'canary-is-fake',
     chapter: '02-a-planted-secret',
-    question: 'A security team plants made-up API keys in training text before training. What are those keys for?',
+    question:
+      'A security team plants made-up passwords in training text before training. What are those passwords for?',
     options: [
       'To test, safely, whether the model leaks secrets it saw',
-      'To give the model working keys for its tools',
-      'To confuse attackers with fake keys',
+      'To give the model working passwords for its tools',
+      'To confuse attackers with fake passwords',
     ],
     correct: 0,
     why: [
@@ -96,11 +98,11 @@ export const RECALL: RecallItem[] = [
   {
     id: 'canary-copies',
     chapter: '02-a-planted-secret',
-    question: 'Why plant canaries with 1, 4, 16 and 64 copies instead of one copy each?',
+    question: `Why plant canaries with ${COPIES.slice(0, -1).join(', ')} and ${COPIES.at(-1)} copies instead of one copy each?`,
     options: [
       'To see how the leak risk grows with copies',
       'To make sure at least one is memorised',
-      'Because the training text has room for 85 lines',
+      `Because the training text has room for ${RUNS.runs.canary.lines} lines`,
     ],
     correct: 0,
     why: [
@@ -133,13 +135,13 @@ export const RECALL: RecallItem[] = [
     options: [
       'Type the start of the sentence the secret was in, and let the model finish',
       'Ask the model to list every secret it knows',
-      'Read the secret out of the model’s weights file',
+      'Read the secret out of the model’s file of learned numbers',
     ],
     correct: 0,
     why: [
       'Right: a prefix from the training line invites the model to finish it.',
       'A model has no list of secrets; it only finishes text.',
-      'The weights hold no readable text; extraction works through prompts.',
+      'Those numbers hold no readable text; extraction works through prompts.',
     ],
   },
   {
@@ -161,16 +163,16 @@ export const RECALL: RecallItem[] = [
   {
     id: 'greedy-pick',
     chapter: '03-ask-it-to-finish',
-    question: 'What does greedy decoding do at each step?',
+    question: 'What does greedy picking do at each step?',
     options: [
       'Takes the model’s single likeliest next piece',
       'Takes a random piece, weighted by likelihood',
-      'Takes the longest piece in the vocabulary',
+      'Takes the longest piece it knows',
     ],
     correct: 0,
     why: [
       'Right: greedy always takes the top guess, so a memorised line comes straight out.',
-      'That is sampling, not greedy decoding.',
+      'That is random sampling, not greedy picking.',
       'Length doesn’t matter; likelihood does.',
     ],
   },

@@ -85,7 +85,7 @@ const CHAPTERS: Chapter[] = [
       ],
       terms: [
         ['Health check', 'A small request the balancer sends each server on a timer, to see if it answers in time.'],
-        ['Pulled', 'Taken out of rotation: the balancer stops sending it requests.'],
+        ['Pulled', 'Taken out of service: the balancer stops sending it requests.'],
         ['Gray failure', 'A server that is broken for customers but still passes its health check.'],
       ],
     },
@@ -122,7 +122,7 @@ const CHAPTERS: Chapter[] = [
         'Hedge too early and the copies crowd the servers',
       ],
       terms: [
-        ['p50', 'The median wait: half of requests are faster.'],
+        ['p50', 'The middle wait: half of requests are faster.'],
         ['Tail', 'The slowest few requests, the ones p99 measures.'],
         ['Hedged request', 'A second copy of a slow request sent to another server; the first answer wins.'],
       ],

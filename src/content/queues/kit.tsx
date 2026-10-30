@@ -318,6 +318,7 @@ export function Fact({ id }: { id: string }) {
 /** Shown wherever the simulator's counts appear (R6). */
 export const SimNote = () => (
   <p className="note qu-note">
-    A simulated sale: Larkspur’s own orders and planning-number job times, slowed so you can watch.
+    A simulated sale: Larkspur’s own orders and planning-number job times. A minute here stands for a second or less of
+    real work, slowed so you can watch.
   </p>
 );

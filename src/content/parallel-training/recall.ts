@@ -60,7 +60,7 @@ export const RECALL: RecallItem[] = [
   {
     id: 'optimiser-is-the-big-part',
     chapter: C.fit,
-    question: 'Of the training state a mixed-precision Adam run keeps, which part is largest?',
+    question: 'Of the training state an Adam run keeps for each parameter, which part is largest?',
     options: ['The optimiser state', 'The weights', 'The gradients'],
     correct: 0,
     why: [
@@ -151,11 +151,7 @@ export const RECALL: RecallItem[] = [
     id: 'activations-dont-shard',
     chapter: C.shard,
     question: 'A team shards all its training state, yet one chip still overflows. What is likely left?',
-    options: [
-      'Activations kept for the backward pass',
-      'The gradients, which never shard',
-      'A spare copy of the optimiser',
-    ],
+    options: ['Activations kept for the way back', 'The gradients, which never shard', 'A spare copy of the optimiser'],
     correct: 0,
     why: [
       'Right: each chip keeps its layers’ activations, and sharding copies does not divide them.',
@@ -183,13 +179,13 @@ export const RECALL: RecallItem[] = [
     options: [
       'Stages work on different slices of the batch at once',
       'Each stage runs faster on smaller slices',
-      'They remove the backward pass',
+      'They skip the way back through the layers',
     ],
     correct: 0,
     why: [
       'Right: while stage 2 runs slice 1, stage 1 starts slice 2, so the line fills.',
       'The total maths is the same; what changes is how much overlaps.',
-      'Every slice still runs backward; only the waiting shrinks.',
+      'Every slice still goes back through the layers; only the waiting shrinks.',
     ],
   },
   {

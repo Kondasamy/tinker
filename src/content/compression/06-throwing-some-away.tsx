@@ -85,7 +85,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'budget',
     focus: 'knobs',
-    visibleControls: ['knobs', 'goal'],
+    visibleControls: ['knobs', 'goal', 'blocks'],
     narration: 'Larkspur sets a budget for the picture: a size, and how far it may differ.',
     act: 'Find a setting that fits both.',
     say: { block: 'parcel', text: 'Fit this' },
@@ -172,6 +172,14 @@ export default function ThrowingSomeAway() {
         ),
         goal: () => (
           <p className="tc-status">{`Budget: at most ${bytes(BUDGET.picture)}, at most ${BUDGET.diff}% different. A planning number for this site.`}</p>
+        ),
+        blocks: () => (
+          <>
+            <Fact id="jpeg-blocks" />
+            <p className="note">
+              Our blocks are a cruder cut: each takes its average colour. Our fewer shades stand for JPEG’s rounding.
+            </p>
+          </>
         ),
         fact: () => (
           <>

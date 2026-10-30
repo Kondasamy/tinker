@@ -36,7 +36,7 @@ const CHAPTERS: Chapter[] = [
       ],
       terms: [
         ['Unicode', 'One table numbering every character in every script, kept by the Unicode Consortium.'],
-        ['Code point', 'A character’s number in Unicode, written U+ and hex: ë is U+00EB.'],
+        ['Code point', 'A character’s number in Unicode, written U+ and a base-16 number: ë is U+00EB.'],
       ],
     },
   },
@@ -109,9 +109,10 @@ const CHAPTERS: Chapter[] = [
         'Lookalike letters fool people, not computers',
       ],
       terms: [
+        ['Normalisation', 'Rewriting text in one standard form, so the same letters get the same code points.'],
         [
-          'Normalisation',
-          'Rewriting text in one standard form, so the same letters get the same code points. NFC composes.',
+          'NFC',
+          'Unicode’s composed standard form: a letter and its accent become one code point where Unicode has one.',
         ],
         ['Combining mark', 'A code point that puts an accent on the letter before it, such as U+0301.'],
         ['Homograph', 'A web address that looks like another but uses lookalike letters from another script.'],

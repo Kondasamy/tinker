@@ -9,7 +9,7 @@ import { SCENES, clock, runOf, tally } from '../../lib/rate-limits/sim';
 import { BARREL_PARTS } from '../../components/scenes/barrelScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { RateStage, SimNote, type View } from './kit';
+import { Fact, RateStage, SimNote, type View } from './kit';
 
 const MODULE = 'rate-limits',
   ID = '02-count-per-minute';
@@ -117,7 +117,12 @@ export default function CountPerMinute() {
       )}
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
-        out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />,
+        out1: ({ state }) => (
+          <>
+            <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />
+            <Fact id="fixed-window" />
+          </>
+        ),
         tab: ({ state, apply }) => (
           <button type="button" className="chip" onClick={() => apply({ ...state, view: 'requests' })}>
             Open the Requests tab

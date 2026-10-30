@@ -136,12 +136,16 @@ export const RECALL: RecallItem[] = [
     id: 'pairs-for-tone',
     chapter: '02-which-is-better',
     question: 'Which quality is best taught with preference pairs rather than a checking program?',
-    options: ['How polite a reply sounds', 'Whether a sum is right', 'Whether a reply is valid JSON'],
+    options: [
+      'How polite a reply sounds',
+      'Whether a sum is right',
+      'Whether a reply is in the exact format a program expects',
+    ],
     correct: 0,
     why: [
       'Right: politeness has no right answer to check, but people can tell which of two is politer.',
       'A sum can be checked exactly by a program, which is cheaper and fairer than asking people.',
-      'A parser checks JSON exactly, so no people are needed.',
+      'A program checks a format exactly, so no people are needed.',
     ],
   },
   // 3. Learning from preferences

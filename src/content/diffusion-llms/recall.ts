@@ -105,7 +105,7 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right: one pass guesses every blank at once; the decoder then decides which to keep.',
+      'Right: one pass guesses every blank at once; the fill then decides which to keep.',
       'Only a left-to-right model is limited to the next slot.',
       'Guesses made at once are not yet a reply: most are weak.',
     ],
@@ -130,7 +130,7 @@ export const RECALL: RecallItem[] = [
   {
     id: 'keep-the-surest',
     chapter: C.sure,
-    question: 'A decoder keeps 3 guesses a pass. Which three does surest-first keep?',
+    question: 'A fill keeps 3 guesses a pass. Which three does surest first keep?',
     options: ['The three with the highest confidence', 'The three leftmost', 'Three at random'],
     correct: 0,
     why: [
@@ -152,7 +152,7 @@ export const RECALL: RecallItem[] = [
     why: [
       'Right: that is why the choice of what to keep matters.',
       'Later passes only guess the blanks; stamped slots are fixed.',
-      'This decoder never unstamps a slot.',
+      'Here, a stamped slot is never blanked again.',
     ],
   },
   {

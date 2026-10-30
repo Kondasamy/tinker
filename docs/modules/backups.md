@@ -30,4 +30,20 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **The plan's file list** named `copies.ts`, `disasters.ts`, `restore.ts` and `story.ts`; the engine fits in `sim.ts`, so they were folded into it.
 - **The chapters' runs** are `SCENES` and `STRIKES` in `sim.ts`; their results are pinned in `data/backups/pinned.json` and rerun by `backups-sim.test.ts` (`WRITE_PINNED=1` rewrites).
 - **Chapter 7's workbench** (`workbench.ts`): how often × full or incremental × where (32 plans) against the bench's dead disk, fire and ransomware. Mira's rule (`data/backups/workbench.json`): every disaster loses at most 120 orders and is back within 10 hours; then the cheapest week. `WINNERS` is pinned and `backups-workbench.test.ts` solves it again.
-- **Facts** (the 3-2-1 rule from US-CERT's 2012 paper, CISA's offline backups, Sophos's 2024 survey on attacks on backups, NIST's RPO and RTO, PostgreSQL's incremental restore chain, GitLab's 2017 outage) come from `data/backups/facts.json` with source and access date. No vendor is named as the place to keep backups.
+- **Facts** (disk replacement rates from Schroeder and Gibson's 2007 field study, NIST SP 800-34's cost balance between downtime and recovery, the 3-2-1 rule from US-CERT's 2012 paper, CISA's offline backups, Sophos's 2024 survey on attacks on backups, NIST's RPO and RTO, PostgreSQL's incremental restore chain, GitLab's 2017 outage) come from `data/backups/facts.json` with source and access date. No vendor is named as the place to keep backups.
+
+## Toy vs real
+
+Every count is a sum over the hand-made week (`writes.json`) under the planning numbers (`assumptions.json`) and Mira's rule (`workbench.json`): nothing is measured, so the toy numbers are labelled (`SimNote`, the intro's note) and each chapter shows a real finding beside them. Typed counts that follow from the plan's shape are pinned in `backups-sim.test.ts`.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 | The hour on the clock (Wednesday noon or later), orders lost ("every order", then those since 01:00), hours down | Disks needing replacement, 2–4% a year common, up to 13% (`disk-failures`) | Labelled: the disk dies when the reader strikes; a note says the study gives how often real ones do |
+| 1 | The nightly copy at 01:00 | none | Labelled (planning number, `firstCopyHour`) |
+| 2 | Thursday 17:00, nightly / 6-hourly / hourly, orders lost per schedule, 24 tapes a day | RPO definition (`rpo`) | Labelled; 24 a day is the hourly schedule's own count (pinned) |
+| 3 | Full and incremental tape counts, Tuesday 13:00's bad tape, 3 h per full and 1 h per link | Restoring an incremental needs every earlier backup (`incremental`) | Labelled (planning numbers) |
+| 4 | Fire's hour, orders lost, the warehouse's 2 h fetch; three copies, two kinds of storage, one off-site | The 3-2-1 rule (`3-2-1`) | Real: the rule's counts; the off-site week's places are pinned. Times labelled |
+| 5 | The courier's 18:00 pickup, the lockbox's 6 h fetch, orders lost | 94% of hit organisations saw backups targeted (`backups-targeted`); offline backups (`offline`) | Labelled (planning numbers) |
+| 6 | Bad tapes from Monday 07:00, the 09:00 test, caught Monday 09:00, hours down | GitLab lost about 6 hours of data (`gitlab`); RTO definition (`rto`) | Labelled |
+| 7 | Costs ($10 full, $2 incremental, $40 warehouse, $70 courier), the least a week, at most 120 orders and 10 h down, the bench's three disaster hours | Shorter recovery costs more; the target balances downtime against recovery cost (`cost-balance`) | Labelled: a note says Mira's rule is Larkspur's own RPO and RTO and the costs are planning numbers |
+| Intro | Orders in the week, 168 hours, 3 disasters, winning plans, nightly vs hourly orders lost | `disk-failures`, `3-2-1`, `offline`, `gitlab` | Labelled (the intro's note); counts read off the sim |

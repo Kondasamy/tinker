@@ -1,7 +1,7 @@
 {
   "note": "Chapter 7's attackers and planning numbers, written for this site. breachDays: how long the stolen table is cracked before the breach is found and every password reset. cookieHours: how long after stealing a staff cookie the thief uses it. signIns: sign-ins a month per account for each session length. All are planning numbers, not measurements.",
   "attackers": [
-    { "id": "breach", "name": "Breach dump", "does": "cracks the stolen table on one GPU" },
+    { "id": "breach", "name": "Breach", "does": "cracks the stolen table on one graphics card" },
     { "id": "guesser", "name": "Guesser", "does": "tries the leaked list at the sign-in form" },
     { "id": "cookie", "name": "Cookie thief", "does": "replays a stolen staff cookie" },
     { "id": "phish", "name": "Phishing page", "does": "relays a password and code in real time" }

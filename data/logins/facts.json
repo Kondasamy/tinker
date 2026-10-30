@@ -5,24 +5,28 @@
       "id": "gpu-sha256",
       "claim": "One RTX 4090 tried 21,975.5 million SHA-256 guesses a second in Chick3nman’s hashcat 6.2.6 benchmark (October 2022).",
       "value": "21975500000",
-      "source": "https://gist.github.com/Chick3nman/32e662a5bb63bc4f51b847bb422222fd"
+      "source": "https://gist.github.com/Chick3nman/32e662a5bb63bc4f51b847bb422222fd",
+      "accessed": "2026-10-30"
     },
     {
       "id": "gpu-pbkdf2",
       "claim": "The same RTX 4090 benchmark (October 2022) tried 8,865.7 thousand PBKDF2-HMAC-SHA256 guesses a second at 999 iterations.",
       "value": "8865700",
-      "source": "https://gist.github.com/Chick3nman/32e662a5bb63bc4f51b847bb422222fd"
+      "source": "https://gist.github.com/Chick3nman/32e662a5bb63bc4f51b847bb422222fd",
+      "accessed": "2026-10-30"
     },
     {
       "id": "owasp-pbkdf2",
-      "claim": "OWASP’s Password Storage Cheat Sheet recommends PBKDF2-HMAC-SHA256 at 600,000 iterations, with a unique random salt for every password.",
+      "claim": "OWASP’s Password Storage Cheat Sheet puts Argon2id first; where PBKDF2-HMAC-SHA256 is used, it asks for at least 600,000 iterations and a unique salt per password.",
       "value": "600000",
-      "source": "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      "source": "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html",
+      "accessed": "2026-10-30"
     },
     {
       "id": "owasp-salt",
-      "claim": "OWASP: with salts, nobody can tell whether two users share a password without cracking the hashes, and precomputed tables stop working.",
-      "source": "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      "claim": "OWASP: with a salt per password, cracking time grows in direct proportion to the number of hashes, and nobody can tell whether two users share a password without cracking them.",
+      "source": "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html",
+      "accessed": "2026-10-30"
     },
     {
       "id": "sp800-132",
@@ -36,45 +40,65 @@
       "source": "https://www.rfc-editor.org/rfc/rfc8018"
     },
     {
+      "id": "nist-storage",
+      "claim": "NIST SP 800-63B-4 (August 2025): a site SHALL store passwords in a form that resists offline guessing, salted and hashed with a password hashing scheme.",
+      "source": "https://pages.nist.gov/800-63-4/sp800-63b.html",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "nist-reauth",
+      "claim": "NIST SP 800-63B-4 (August 2025): a session should ask you to sign in again within 30 days at its lowest assurance level, and within 24 hours, or after 1 hour idle, at the next.",
+      "source": "https://pages.nist.gov/800-63-4/sp800-63b.html",
+      "accessed": "2026-10-30"
+    },
+    {
       "id": "nist-blocklist",
       "claim": "NIST SP 800-63B-4 (August 2025): a site SHALL check a new password against a blocklist of commonly used, expected or compromised passwords.",
-      "source": "https://pages.nist.gov/800-63-4/sp800-63b.html"
+      "source": "https://pages.nist.gov/800-63-4/sp800-63b.html",
+      "accessed": "2026-10-30"
     },
     {
       "id": "nist-rate-limit",
       "claim": "NIST SP 800-63B-4 (August 2025): a site allows no more than 100 failed sign-in attempts in a row on one account.",
       "value": "100",
-      "source": "https://pages.nist.gov/800-63-4/sp800-63b.html"
+      "source": "https://pages.nist.gov/800-63-4/sp800-63b.html",
+      "accessed": "2026-10-30"
     },
     {
       "id": "nist-phishing",
-      "claim": "NIST SP 800-63B-4 (August 2025): one-time codes are not phishing-resistant; WebAuthn keys, as in passkeys, are bound to the real site’s name.",
-      "source": "https://pages.nist.gov/800-63-4/sp800-63b.html"
+      "claim": "NIST SP 800-63B-4 (August 2025): one-time codes typed by hand are not phishing-resistant; WebAuthn keys, as in passkeys, are bound to the real site’s name.",
+      "source": "https://pages.nist.gov/800-63-4/sp800-63b.html",
+      "accessed": "2026-10-30"
     },
     {
       "id": "rfc6238",
       "claim": "RFC 6238 (2011): a time-based one-time password is an HMAC of a shared secret and the current 30-second step.",
-      "source": "https://www.rfc-editor.org/rfc/rfc6238"
+      "source": "https://www.rfc-editor.org/rfc/rfc6238",
+      "accessed": "2026-10-30"
     },
     {
       "id": "rfc6265",
       "claim": "RFC 6265 (2011): an HttpOnly cookie is hidden from page scripts, and a Secure cookie is sent only over encrypted connections.",
-      "source": "https://www.rfc-editor.org/rfc/rfc6265"
+      "source": "https://www.rfc-editor.org/rfc/rfc6265",
+      "accessed": "2026-10-30"
     },
     {
       "id": "rfc6749",
       "claim": "RFC 6749 (2012), OAuth 2.0: the authorization code flow sends the browser away to sign in and back with a short-lived code.",
-      "source": "https://www.rfc-editor.org/rfc/rfc6749"
+      "source": "https://www.rfc-editor.org/rfc/rfc6749",
+      "accessed": "2026-10-30"
     },
     {
       "id": "rfc7636",
       "claim": "RFC 7636 (2015), PKCE: the code challenge is the SHA-256 of a secret verifier, so a stolen code is useless without it.",
-      "source": "https://www.rfc-editor.org/rfc/rfc7636"
+      "source": "https://www.rfc-editor.org/rfc/rfc7636",
+      "accessed": "2026-10-30"
     },
     {
       "id": "rfc9700",
       "claim": "RFC 9700 (January 2025), OAuth security best practice: public clients MUST use PKCE, and every client MUST prevent cross-site request forgery.",
-      "source": "https://www.rfc-editor.org/rfc/rfc9700"
+      "source": "https://www.rfc-editor.org/rfc/rfc9700",
+      "accessed": "2026-10-30"
     },
     {
       "id": "oidc-core",

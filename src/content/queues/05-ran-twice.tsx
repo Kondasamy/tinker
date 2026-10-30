@@ -163,7 +163,8 @@ export default function RanTwice() {
             </label>
             <Fact id="at-least-once" />
             <p className="note qu-note">
-              Same idea as a payment’s <a href="/payments/04-pressed-pay-twice/">idempotency key in Card payments</a>.
+              Same idea as the key that makes{' '}
+              <a href="/payments/04-pressed-pay-twice/">pressing Pay twice safe, in Card payments</a>.
             </p>
           </>
         ),

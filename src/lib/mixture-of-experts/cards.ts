@@ -3,6 +3,7 @@
 // the experts that run, embeddings); the engine test holds it within 2% of the published figures. Bytes follow
 // Inference's memory maths: a weight at `bits` takes bits ÷ 8 bytes.
 import data from '../../../data/mixture-of-experts/facts.json' with { type: 'json' };
+import { fact } from './facts';
 import { ROOMS } from './routes';
 
 type Attn =
@@ -40,7 +41,7 @@ export interface Card extends Shape {
 }
 
 export const CARDS: Card[] = data.facts.flatMap(f =>
-  'card' in f && f.card ? [{ id: f.id, source: f.source, accessed: data.accessed, ...(f.card as Shape) }] : [],
+  'card' in f && f.card ? [{ id: f.id, source: f.source, accessed: fact(f.id).accessed, ...(f.card as Shape) }] : [],
 );
 export type CardId = string;
 export function cardOf(id: CardId): Card {

@@ -29,7 +29,7 @@ const R = (s: Pick<S, 'kase' | 'files'>) =>
 
 const P1 = {
   question:
-    'The agent can only reach Larkspur’s own API, and the attack smuggles the record there. One fix is to stop mounting the customer data the report task doesn’t even need. Does that stop the leak?',
+    'The agent can only reach Larkspur’s own server, and the attack smuggles the record there. One fix is to stop mounting the customer data the report task doesn’t even need. Does that stop the leak?',
   options: [
     'No: the attack can read the data from somewhere else',
     'Yes: with no customer data mounted, there is nothing to smuggle out',
@@ -40,11 +40,11 @@ const OUT1 = R({ kase: 'beacon', files: 'nodata' }).attackMet ? 0 : 1;
 
 export const QUIZ = {
   question:
-    'An agent may only reach the company’s own API host. A colleague says “so data can’t leak.” What do you tell them?',
+    'An agent may only reach the company’s own server. A colleague says “so data can’t leak.” What do you tell them?',
   options: [
     'Agreed: if the only host is ours, nothing can get out',
     'An attack can hide stolen data inside a request to the allowed host, so the allow-list alone does not stop a leak',
-    'Agreed, as long as the API uses HTTPS',
+    'Agreed, as long as the connection is encrypted',
     'Turn off the agent’s network entirely',
   ],
   correct: 1,
@@ -68,7 +68,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['run'],
     opensDrawer: 'messages',
     narration:
-      'Every defence so far is on. A note tells the agent to slip a customer’s record into a routine ping to Larkspur’s API.',
+      'Every defence so far is on. A note tells the agent to slip a customer’s record into a routine ping to Larkspur’s server.',
     act: 'Run it.',
     say: { block: 'network', text: 'Allow-list on' },
     predicate: s => s.kase === 'beacon' && s.files === 'scoped' && s.ran,

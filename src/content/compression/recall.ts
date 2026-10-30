@@ -54,7 +54,7 @@ export const RECALL: RecallItem[] = [
     correct: 0,
     why: [
       'Right: common bytes and repeats are what codes and pointers exploit, with nothing lost.',
-      'There is no padding to delete; lossless packing keeps every byte.',
+      'There is no padding to delete; packing like this keeps every byte.',
       'Packing knows nothing of meaning; it only counts and matches bytes.',
     ],
   },
@@ -82,7 +82,7 @@ export const RECALL: RecallItem[] = [
     correct: 0,
     why: [
       'Right: a pointer refers back into the text already unpacked, so the copy comes back exactly.',
-      'Nothing is skipped: lossless packing must give back every byte.',
+      'Nothing is skipped: unpacking must give back every byte.',
       'LZ77 needs no shared dictionary; the earlier text itself is the dictionary.',
     ],
   },
@@ -184,7 +184,7 @@ export const RECALL: RecallItem[] = [
     question: 'A teammate asks how gzip differs from DEFLATE.',
     options: [
       'gzip is DEFLATE data with a small header and a check',
-      'gzip is a lossy version of DEFLATE',
+      'gzip is DEFLATE with some detail thrown away',
       'gzip uses a different idea entirely',
     ],
     correct: 0,

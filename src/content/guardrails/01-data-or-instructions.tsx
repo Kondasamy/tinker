@@ -140,7 +140,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['out1', 'tally', 'notes', 'quiz'],
+    visibleControls: ['out1', 'tally', 'notes', 'fact', 'quiz'],
     narration:
       'The rule stopped “ignore your instructions”, not the invoice note posing as Larkspur. These turns are recorded to show it.',
     act: 'One question to finish.',
@@ -230,6 +230,7 @@ export default function DataOrInstructions() {
           );
         },
         tally: ({ state }) => <Tally s={state} />,
+        fact: () => <Fact id="agentdojo-delimit" />,
         next: ({ state, apply }) => (
           <button type="button" className="big" onClick={() => apply({ ...state, kase: 'invoice', ran: false })}>
             Next email: a forwarded invoice →

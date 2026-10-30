@@ -15,14 +15,14 @@ export const RECALL: RecallItem[] = [
     options: [
       'The five better answers: they came from someone who knows the questions',
       'Running the whole test set on the old and the new setup, and finding no question that passed before and fails now',
-      'The newer model’s higher score on a public benchmark',
+      'The newer model’s higher score on a public test set',
       'Asking the new model whether its answers improved',
     ],
     correct: 1,
     why: [
       'Five questions are the ones someone thought to ask. A change can fix those and break one nobody asked, as v2 did.',
       `Right. The same questions, run on both setups, show what got fixed and what broke. ${fact('eval').claim}`,
-      'A public benchmark tests other tasks, not Larkspur’s questions over Larkspur’s documents. It cannot tell you which of your answers broke.',
+      'A public test set covers other tasks, not Larkspur’s questions over Larkspur’s documents. It cannot tell you which of your answers broke.',
       'The model cannot see its old answers or the answers they should be. Grading needs the expected answer, outside the model.',
     ],
   },
@@ -127,14 +127,14 @@ export const RECALL: RecallItem[] = [
     options: [
       'It’s what the assistant is told to say',
       'It’s what the graders compare the assistant’s answer against',
-      'It’s the passage the retriever should find',
+      'It’s the passage the document search should find',
       'It’s the best answer a model has given so far',
     ],
     correct: 1,
     why: [
       'The assistant never sees it. If it did, the test would only check that it can copy.',
       `Right. ${fact('reference-solution').claim}`,
-      'Retrieval is checked by what reaches the model. The reference answer is about the answer at the end.',
+      'The search is checked by what reaches the model. The reference answer is about the answer at the end.',
       'A model’s answer can be wrong. The team writes the reference from the documents.',
     ],
   },

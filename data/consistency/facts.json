@@ -8,8 +8,9 @@
     },
     {
       "id": "cap-available",
-      "claim": "In Gilbert and Lynch’s proof, available means every request received by a node that has not failed must get a response.",
-      "source": "https://www.comp.nus.edu.sg/~gilbert/pubs/BrewersConjecture-SigAct.pdf"
+      "claim": "In Gilbert and Lynch’s proof, available means every request that reaches a working server must get an answer.",
+      "source": "https://www.comp.nus.edu.sg/~gilbert/pubs/BrewersConjecture-SigAct.pdf",
+      "accessed": "2026-10-30"
     },
     {
       "id": "cap-partition",
@@ -18,8 +19,9 @@
     },
     {
       "id": "dynamo-quorum",
-      "claim": "Amazon’s Dynamo paper (2007): R is the fewest replicas a read must reach and W the fewest a write must reach; setting R + W > N gives a quorum-like system.",
-      "source": "https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf"
+      "claim": "Amazon’s Dynamo paper (2007): a read must reach at least R of the N copies and a write at least W; setting R + W above N gives a quorum-like system, where reads and writes share copies while the usual copies are up.",
+      "source": "https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf",
+      "accessed": "2026-10-30"
     },
     {
       "id": "dynamo-322",
@@ -48,18 +50,41 @@
     },
     {
       "id": "linearizable",
-      "claim": "Jepsen: linearizability, one of the strongest consistency models, cannot stay available in a network partition; some or all nodes cannot make progress.",
-      "source": "https://jepsen.io/consistency/models/linearizable"
+      "claim": "Jepsen: linearizability, one of the strongest promises a database can make, cannot stay available through a network break; some or all servers must stop answering.",
+      "source": "https://jepsen.io/consistency/models/linearizable",
+      "accessed": "2026-10-30"
     },
     {
       "id": "ryw",
-      "claim": "Jepsen: read your writes requires that a process’s later read sees its own write; it is sticky available, as long as each client keeps talking to the same server.",
-      "source": "https://jepsen.io/consistency/models/read-your-writes"
+      "claim": "Jepsen: read your writes means a client’s later reads show its own earlier write; that can keep working through a network break only if each client keeps talking to the same server.",
+      "source": "https://jepsen.io/consistency/models/read-your-writes",
+      "accessed": "2026-10-30"
     },
     {
       "id": "raft",
-      "claim": "Raft (Ongaro and Ousterhout) is a consensus algorithm for managing a replicated log; it elects a leader and copies its log to the other servers.",
-      "source": "https://raft.github.io/raft.pdf"
+      "claim": "Raft (Ongaro and Ousterhout, 2014) keeps copies in step by electing one server as leader: every change goes through it, and it copies each change to the others.",
+      "source": "https://raft.github.io/raft.pdf",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "aurora-lag",
+      "claim": "Amazon’s Aurora docs (checked 2026-10-30): a copy in the same cluster usually trails a write by much less than 100 milliseconds, and by more when writes are heavy.",
+      "value": "100",
+      "source": "https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Replication.html",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "dynamo-versions",
+      "claim": "Over 24 hours of Amazon’s shopping cart, the Dynamo paper (2007) found 99.94% of requests saw exactly one version; clashing versions came mostly from many writers at once, not failures.",
+      "value": "99.94",
+      "source": "https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "dynamo-tune",
+      "claim": "The Dynamo paper (2007) calls this its main advantage: each service sets its own N, R and W for the speed, uptime and safety of data it needs.",
+      "source": "https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf",
+      "accessed": "2026-10-30"
     }
   ]
 }

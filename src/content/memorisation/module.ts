@@ -72,7 +72,10 @@ const CHAPTERS: Chapter[] = [
       terms: [
         ['Candidate', 'A possible PIN: any four digits.'],
         ['Rank', 'Where the true PIN falls when candidates are sorted likeliest first.'],
-        ['Exposure', 'How far above chance the true PIN ranks, in bits: more bits, easier to guess.'],
+        [
+          'Exposure',
+          'How far above chance the true PIN ranks, in bits: each bit halves the guesses an attacker needs.',
+        ],
       ],
     },
   },
@@ -103,7 +106,7 @@ const CHAPTERS: Chapter[] = [
       learn: [
         'What an output filter catches and misses',
         'How a secret slips past one digit at a time',
-        'Why scrubbing before training is the fix',
+        'Why scrubbing before training is the first fix',
       ],
       terms: [
         ['Output filter', 'A check that hides anything shaped like a secret in a reply.'],
@@ -118,7 +121,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Workbench',
     intro: {
       story:
-        'The team must pick Larkspur’s data policy before training on the real tickets: deduplicate, scrub, filter, or a mix. Each was trained offline.',
+        'The team must pick Larkspur’s data policy before training on the real tickets: deduplicate, scrub, filter, or a mix. Each was trained ahead of time.',
       goal: 'Which policy leaks no PIN and keeps the model useful?',
       learn: [
         'Why a filter alone still leaks',

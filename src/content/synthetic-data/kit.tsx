@@ -274,8 +274,8 @@ export function Fact({ id }: { id: string }) {
 /** Said wherever the toy's replies or numbers show (R6). */
 export const ToyNote = () => (
   <p className="sd-note">
-    Larkspur’s toy: Larkspur mini and copies of it, trained offline on Larkspur’s documents. It shows the mechanism, not
-    a production model’s numbers.
+    Larkspur’s toy: Larkspur mini and copies of it, trained ahead of time on Larkspur’s documents. It shows the
+    mechanism, not a production model’s numbers.
   </p>
 );
 export { pct, loss };

@@ -253,6 +253,8 @@ export default function TraceToTest() {
               The answers are recorded; the grading runs live, with the same graders as the Evals module.
             </p>
             <Fact id="evals-from-errors" />
+            <p className="tc-fact">A case stays in the suite because a model can change under you:</p>
+            <Fact id="behaviour-drift" />
             <p className="tc-status">The harm this fix removed was rated {modeOf(TOP[0]).harm} of 3 by the team.</p>
           </>
         ),

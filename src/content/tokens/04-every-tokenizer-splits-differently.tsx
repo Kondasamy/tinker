@@ -10,7 +10,7 @@ import { fact } from '../../lib/tokens/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { Fact, TokensStage, siteEncoding } from './kit';
+import { Fact, ToyNote, TokensStage, siteEncoding } from './kit';
 import { TOKEN_PARTS } from '../../components/scenes/tokenScene';
 
 const MODULE = 'tokens',
@@ -249,6 +249,7 @@ export default function EveryTokenizerSplitsDifferently() {
         quiz: ({ state, apply, sync }) => (
           <>
             <Fact id="language-disparity" />
+            <ToyNote />
             <Quiz
               {...QUIZ}
               unsure

@@ -17,3 +17,24 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **Queries are plain requests**; their SQL lives only in fold-aways (`Sql` in the kit, `requests.ts`).
 - **RAG's search index gains no link**: it is a different index.
 - **Facts about B-trees, indexes and planners** come from `data/databases/facts.json` with source and access date (Bayer & McCreight; Use The Index, Luke; PostgreSQL's EXPLAIN docs).
+
+## Toy vs real
+
+Every page count is Larkspur's teaching database (`SimNote` on every chapter says so): a generated table and a real B+tree, counted as they run, with round sizes (50 rows to a page, fan-out 50, every page read costing the same) chosen to show the mechanism. Real databases size pages in bytes and weigh reads differently, so no count is matched to a real system; each is labelled, with the real figure cited on the same step.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 | 10,000 orders on 200 pages, 50 to a page; 20,000 pages at a million (computed by formula), 100 times the rows and reads | `scan-grows` (a scan's time grows with the rows), `page-size` (PostgreSQL pages are 8 kB) | Labelled: the note says a real page is a fixed size in bytes, so rows per page depends on the row |
+| 1 | Book 52,817 (quiz) | none | Labelled: a hypothetical in the question |
+| 2 | 4 pages through the index (3 levels, then the row), 200 leaf pages; 5 pages at a million against the scan's 20,000 | `depth` (millions of rows: four or five levels), `b-tree` | Labelled: the toy's four levels at a million sit inside the real four or five |
+| 2 | Ten thousand to ten million rows (quiz) | none | Labelled: a hypothetical in the question |
+| 3 | 1 page per order with no index; about 14.2 with three; 300 new orders a day, +1,226 / +1,512 / +1,226 pages per index (measured) | `insert` (each index slows inserts) | Labelled |
+| 3 | Eight indexes, two used (quiz) | none | Labelled: a hypothetical in the question |
+| 4 | A regular customer's month: 7 pages for 4 orders; all this month: 200 pages for 808 orders | `leading-column` | Labelled |
+| 5 | Today: about 33 estimated rows, 36 pages; this month: 808 estimated rows; forced through the index, 827 pages against 200; break-even about 2% | `planner-cost`, `fetch-cost`, `random-page` (PostgreSQL counts an out-of-order fetch 4 times a page read in order) | Labelled: the note says the toy counts every read the same, so a real planner's scan wins even sooner |
+| 5 | 97% of the table (quiz) | none | Labelled: a hypothetical in the question |
+| 6 | 33 orders × 20 customer pages = 660 reads; 3 per order, 99 through the index | `nested-loop` | Labelled |
+| 6 | 5,000 invoices (quiz) | none | Labelled: a hypothetical in the question |
+| 7 | Requests a day (2,000 / 400 / 200 / 40 / 4), 300 new orders, 4,300-page write budget, best 21,240 pages a day (`WINNERS` computed over all 32 sets) | `index-overhead` (every index adds work to every write) | Labelled: the table says the day is team estimates |
+| 7 | Ten posts and a million reads (quiz) | none | Labelled: a hypothetical in the question |
+| Intro, recall | The same counts (10,000 orders, 200 pages, 4 pages, the best plan) | as above | Labelled (the intro's note says teaching database) |

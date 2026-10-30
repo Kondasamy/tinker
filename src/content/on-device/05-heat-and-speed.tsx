@@ -140,6 +140,7 @@ export default function HeatAndSpeed() {
           <>
             <Fact id="melt-heat" />
             <Fact id="apple-3b" />
+            <p className="note in-note">{`The handheld’s ${Math.round(speed(B3, BITS))} tokens a second and its ${HANDHELD.burstSeconds}-second cool burst are planning numbers; the phones above were measured.`}</p>
           </>
         ),
         quiz: ({ state, apply, sync }) => (

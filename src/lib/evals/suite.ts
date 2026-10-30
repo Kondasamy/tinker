@@ -41,7 +41,7 @@ export const VERSIONS: Record<VersionId, Version> = {
   v3: {
     id: 'v3',
     label: 'v3',
-    note: '48-word pieces, the reranker on, the best 5 sent',
+    note: '48-word pieces, re-sorted by a second check, the best 5 sent',
     knobs: { strategy: 'fixed', size: 48, overlap: 0, topK: 5, rerank: true },
   },
 };

@@ -17,7 +17,7 @@ export const RECALL: RecallItem[] = [
     chapter: C4,
     pin: true,
     question:
-      'A colleague says: “Our package.json uses carets, so we always run the versions we tested.” What do you tell them?',
+      'A colleague says: “Our package file uses carets, so we always run the versions we tested.” What do you tell them?',
     options: [
       'Carets let newer versions in on any fresh install; only a lockfile fixes what you run, until you update it',
       'Right: a caret pins the version you first installed',
@@ -169,13 +169,13 @@ export const RECALL: RecallItem[] = [
     question: 'A team ignores its lockfile in version control to keep commits small. What do they lose?',
     options: [
       'Every machine resolves the ranges afresh and may get different versions',
-      'Nothing: package.json holds the versions',
+      'Nothing: the package file holds the versions',
       'The ability to install at all',
     ],
     correct: 0,
     why: [
       'Right: the lockfile is what makes installs repeat across machines and days.',
-      'package.json holds ranges; the exact versions live in the lockfile.',
+      'The package file holds ranges; the exact versions live in the lockfile.',
       'Installs still work, just not the same way twice.',
     ],
   },
@@ -291,7 +291,7 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right: reading the lockfile diff is where a reviewed update catches a stranger.',
+      'Right: reading what the update changes in the lockfile is where a stranger gets caught.',
       'A hijacked release is often a small patch; the number tells you nothing.',
       'Deleting the lockfile would take every new release, the hijacked one too.',
     ],

@@ -25,6 +25,7 @@ import {
   wins,
   type Bench,
 } from '../../lib/email/workbench';
+import { fact } from '../../lib/email/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { DemoNote, EmailStage, Fact, type View } from './kit';
@@ -33,6 +34,8 @@ const MODULE = 'email',
   ID = '07-mail-records';
 export const PARTS = POST_PARTS;
 const ALL = { spf: true, dkim: true, dmarc: true, spam: true, sorted: true };
+/** Gmail's bulk-sender line, messages a day: the made-up day sits far under it */
+export const BULK = Number(fact('gmail-2024').value);
 
 export const QUIZ = {
   question: 'Why does reject need DKIM for Larkspur’s forwarded mail?',
@@ -165,7 +168,9 @@ function BenchControls({ s, set, show }: { s: S; set: (s: S) => void; show: (s: 
           })}
         </tbody>
       </table>
-      <p className="note em-note">Hand-written counts. Pick a row to see it in the picture.</p>
+      <p className="note em-note">{`Hand-written counts: ${REAL + FAKES} messages, far under Gmail’s bulk line of ${BULK.toLocaleString('en-US')} a day. Pick a row to see it in the picture.`}</p>
+      <Fact id="gmail-2024" />
+      <Fact id="gmail-2025" />
       <Fact id="softfail" />
       <DemoNote />
     </div>

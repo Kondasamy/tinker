@@ -248,6 +248,10 @@ export default function PayingWithoutTheCard() {
           ),
         link: () => (
           <>
+            <Fact id="acp-allowance" />
+            <p className="note">
+              This token takes only its exact amount; a real allowance takes anything up to its maximum, once.
+            </p>
             <HandNote />
             <p className="note">
               <a href="/payments/01-four-parties/">The card network behind the provider is Card payments’ chapter 1.</a>

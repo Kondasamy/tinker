@@ -113,7 +113,7 @@ function Email() {
         </p>
       </article>
       <p className="note">
-        {`At a lower line of ${LOWER_LINE}, ${PIN.human.atLowerLine} of ${HUMAN.length} hand-written replies would be flagged. ${PIN.machine.atLine === 0 ? 'None' : PIN.machine.atLine} of the large model’s ${MACHINE.length} recorded replies reads marked either: no key, no mark.`}
+        {`At a lower line of ${LOWER_LINE}, ${PIN.human.atLowerLine} of ${HUMAN.length} hand-written replies would be flagged. ${PIN.machine.atLine === 0 ? 'None' : PIN.machine.atLine} of the large model’s ${MACHINE.length} recorded replies reads marked either: no key, no mark. The ${MIN_PAIRS}-pair minimum is this toy checker’s own; real text with few word choices needs far more, as below.`}
       </p>
       <Fact id="z-line" />
       <Fact id="short-text" />

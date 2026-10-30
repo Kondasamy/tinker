@@ -12,7 +12,7 @@ import { INBOX, INJECTION_SUITE, THRESHOLDS, held, isAttack } from '../../lib/gu
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
-import { Fact, GuardStage, guardProps, nameOf, runCached } from './kit';
+import { Fact, GuardStage, ToyNote, guardProps, nameOf, runCached } from './kit';
 import '../../components/scenes/scenes.css';
 
 const MODULE = 'guardrails',
@@ -226,11 +226,15 @@ export default function InputFilters() {
           </button>
         ),
         eval: () => (
-          <p className="tc-status" data-eval>
-            Those two counts are an eval: a fixed set of attacks and ordinary customers, run under one setting, scored
-            on attacks that got through and customers held. <a href="/evals/">The Evals module</a> builds test sets like
-            this one.
-          </p>
+          <>
+            <p className="tc-status" data-eval>
+              Those two counts are an eval: a fixed set of attacks and ordinary customers, run under one setting, scored
+              on attacks that got through and customers held. <a href="/evals/">The Evals module</a> builds test sets
+              like this one.
+            </p>
+            <Fact id="agentdojo-detector" />
+            <ToyNote />
+          </>
         ),
         quiz: ({ state, apply, sync }) => (
           <Quiz

@@ -87,7 +87,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out1', 'maths', 'fact', 'quiz'],
-    narration: `Back to ${OPENED}. Real keys run to thousands of bits. Never build your own: use a vetted library.`,
+    narration: `Back to ${OPENED}. Real keys run to thousands of bits. Never build your own: use well-tested code.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which half of the pair can anyone hold?',

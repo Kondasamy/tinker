@@ -170,7 +170,7 @@ export const RECALL: RecallItem[] = [
     why: [
       'In chapter 3 the reply went to Birch & Co, on file, and still carried their address and card digits out in a link.',
       'Right. The allow-list checks who receives a message, not where its links point. An output filter checks the second.',
-      'The allow-list is a host check, outside the model. However the note is worded, the send to an outside address is blocked.',
+      'The allow-list is a check in Larkspur’s app, outside the model. However the note is worded, the send to an outside address is blocked.',
       'A reply to the sender is the job. It leaks only if something inside it points somewhere else.',
     ],
   },
@@ -238,7 +238,7 @@ export const RECALL: RecallItem[] = [
     question: 'What does a taint rule do?',
     options: [
       'It scores each message and holds the ones that look like attacks',
-      'Once the model has read untrusted text, the host stops offering tools that send data out, for the rest of that task',
+      'Once the model has read untrusted text, Larkspur’s app stops offering tools that send data out, for the rest of that task',
       'It deletes instructions from incoming messages',
       'It asks a person before every tool call',
     ],
@@ -247,7 +247,7 @@ export const RECALL: RecallItem[] = [
       'That is the input classifier from chapter 2. The taint rule never judges the text; it only notes that untrusted text came in.',
       'Right. It removes the way out exactly when the trifecta would be complete, so the tool is still there for tasks with no outside text in them.',
       'Nothing is removed from the message. The model reads it in full; it just can’t send anything out afterwards.',
-      'That is approval. The taint rule needs no person: the host applies it every time.',
+      'That is approval. The taint rule needs no person: Larkspur’s app applies it every time.',
     ],
   },
   // 5. Defence in depth
@@ -274,19 +274,19 @@ export const RECALL: RecallItem[] = [
     id: 'two-rates',
     chapter: '05-defence-in-depth',
     question:
-      'Two defence sets are compared on the same suite. Set A: 0 of 3 attacks through, 1 of 2 customers blocked. Set B: 0 of 3 through, 0 of 2 blocked. Which is better, and how do you know?',
+      'Two defence sets are compared on the same test set. Set A: 0 of 3 attacks through, 1 of 2 customers blocked. Set B: 0 of 3 through, 0 of 2 blocked. Which is better, and how do you know?',
     options: [
       'They are the same: both stop every attack',
-      'Set B: same attack success rate, lower false-block rate, measured on the same suite',
+      'Set B: same attack success rate, lower false-block rate, measured on the same test set',
       'Set A: blocking a customer shows it is being careful',
       'You can’t tell without trying them on real customers first',
     ],
     correct: 1,
     why: [
       'Attacks are only half of it. Set A turns away a real customer that B serves.',
-      'Right. Both rates, over one fixed suite, are an eval: that is what makes the comparison fair.',
+      'Right. Both rates, over one fixed test set, are an eval: that is what makes the comparison fair.',
       'A blocked customer is a failure, not a sign of care. In chapter 2 the strict filter held a fair refund.',
-      'That is what the customer suite is for: ordinary requests run the same way every time, before real customers meet the change.',
+      'That is what the customer emails in the test set are for: ordinary requests run the same way every time, before real customers meet the change.',
     ],
   },
   {
@@ -342,7 +342,7 @@ export const RECALL: RecallItem[] = [
     correct: 1,
     why: [
       'Larkspur’s output check looks at refunds. In chapter 6 it was on and the newsletter still went out.',
-      'Right. The host turns the email away first; the model sees only that it was refused, and says so politely.',
+      'Right. Larkspur’s app turns the email away first; the model sees only that it was refused, and says so politely.',
       'The newsletter went back to the customer in a reply, which the allow-list never checks.',
       'Harmless words, but every reply goes out in Larkspur’s name, doing a job nobody gave it.',
     ],
@@ -361,7 +361,7 @@ export const RECALL: RecallItem[] = [
     correct: 1,
     why: [
       'In chapter 6 the strict setting refused a cracked printer’s fair refund. That customer went without their money.',
-      'Right. Over-refusal is a failure. Count the fair requests refused over the customer suite, and the strict setting’s cost shows.',
+      'Right. Over-refusal is a failure. Count the fair requests refused over the test set’s customers, and the strict setting’s cost shows.',
       'Speed isn’t what was measured. A fair request refused is the cost.',
       'The cost falls on fair customers, not attackers.',
     ],
@@ -393,7 +393,7 @@ export const RECALL: RecallItem[] = [
       'When a few attacks tried by hand are stopped',
       'When both suites run again and neither the attack success rate nor the false-block rate gets worse',
       'When the attack success rate drops, whatever the false-block rate does',
-      'Straight away: a prompt change can’t weaken the host’s defences',
+      'Straight away: a prompt change can’t weaken the defences in Larkspur’s app',
     ],
     correct: 1,
     why: [

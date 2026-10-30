@@ -233,6 +233,13 @@ export function Fact({ id }: { id: string }) {
   );
 }
 
+/** Said beside a real figure wherever the suite's own counts show (R6): Larkspur's sets are small and recorded. */
+export const SuiteNote = () => (
+  <p className="note">
+    {`Larkspur’s test sets are small on purpose, so you can read every case: the main one has ${QUESTIONS.length} questions, with answers, verdicts and labels recorded ahead of time. A real set holds more cases, so one question moves its score less.`}
+  </p>
+);
+
 /** PASS or FAIL as a stamp, in the story column or a table. */
 export const Mark = ({ ok }: { ok: boolean }) => (
   <span className={`stamp ${ok ? 'correct' : 'wrong'}`}>{ok ? 'PASS' : 'FAIL'}</span>

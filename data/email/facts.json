@@ -17,24 +17,35 @@
       "source": "https://www.rfc-editor.org/rfc/rfc5321.html#section-5.1"
     },
     {
+      "id": "spoofing",
+      "claim": "RFC 5321 says SMTP mail is inherently insecure: even fairly casual users can hand servers a message that tricks a reader into believing it came from somewhere else.",
+      "source": "https://www.rfc-editor.org/rfc/rfc5321.html#section-7.1",
+      "accessed": "2026-10-30"
+    },
+    {
       "id": "spf",
-      "claim": "RFC 7208 has SPF check the envelope sender’s domain (MAIL FROM) against the IP address of the server handing the message over, and caps a check at 10 DNS lookups.",
-      "source": "https://www.rfc-editor.org/rfc/rfc7208.html"
+      "claim": "RFC 7208 has SPF check the envelope sender’s domain (the MAIL FROM address) against the IP address of the server handing the message over, and caps one check at 10 DNS lookups.",
+      "source": "https://www.rfc-editor.org/rfc/rfc7208.html",
+      "value": "10",
+      "accessed": "2026-10-30"
     },
     {
       "id": "softfail",
-      "claim": "RFC 7208 says receivers should not reject mail on a softfail alone, and must treat neutral like no record at all.",
-      "source": "https://www.rfc-editor.org/rfc/rfc7208.html#section-8.5"
+      "claim": "RFC 7208 says receivers should not reject mail on a softfail alone, and must treat a neutral answer like no record at all.",
+      "source": "https://www.rfc-editor.org/rfc/rfc7208.html#section-8.5",
+      "accessed": "2026-10-30"
     },
     {
       "id": "dkim",
-      "claim": "RFC 6376 has the signer name its domain (d=) and a selector, and publishes the public key in DNS at <selector>._domainkey.<domain>.",
-      "source": "https://www.rfc-editor.org/rfc/rfc6376.html#section-3.6.2.1"
+      "claim": "RFC 6376 has the signer name its domain (d=) and a selector, a name for the key, and publish the public key in DNS at <selector>._domainkey.<domain>.",
+      "source": "https://www.rfc-editor.org/rfc/rfc6376.html#section-3.6.2.1",
+      "accessed": "2026-10-30"
     },
     {
       "id": "relaxed",
-      "claim": "RFC 6376’s relaxed canonicalisation tolerates common changes such as replaced whitespace and rewrapped header lines.",
-      "source": "https://www.rfc-editor.org/rfc/rfc6376.html#section-3.4"
+      "claim": "RFC 6376’s relaxed rules tidy a message before checking, so the seal survives common changes such as extra spaces and rewrapped header lines.",
+      "source": "https://www.rfc-editor.org/rfc/rfc6376.html#section-3.4",
+      "accessed": "2026-10-30"
     },
     {
       "id": "lists",
@@ -47,14 +58,36 @@
       "source": "https://www.rfc-editor.org/rfc/rfc7489.html#section-6.3"
     },
     {
+      "id": "gmail-all",
+      "claim": "Google’s sender guidelines (checked 2026-10-30) say that since February 1, 2024, everyone sending to Gmail must set up SPF or DKIM, the checks that vouch for a sender.",
+      "source": "https://support.google.com/a/answer/81126",
+      "accessed": "2026-10-30"
+    },
+    {
       "id": "gmail-2024",
-      "claim": "Gmail’s sender guidelines say that from February 1, 2024, anyone sending more than 5,000 messages a day to Gmail must set up SPF, DKIM and DMARC (policy none allowed), with the From domain aligned.",
-      "source": "https://support.google.com/a/answer/81126"
+      "claim": "Google’s sender guidelines (checked 2026-10-30) say that since February 1, 2024, anyone sending more than 5,000 messages a day to Gmail must set up SPF, DKIM and DMARC (policy none allowed), with the From domain aligned.",
+      "source": "https://support.google.com/a/answer/81126",
+      "value": "5000",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "gmail-2025",
+      "claim": "Google says that from November 2025 Gmail is ramping up enforcement: mail that fails its sender requirements can be refused, for a while or for good, not just sent to spam.",
+      "source": "https://support.google.com/mail/answer/14229414",
+      "accessed": "2026-10-30"
     },
     {
       "id": "yahoo-2024",
-      "claim": "Yahoo’s sender best practices required bulk senders, from February 2024, to use both SPF and DKIM and publish a DMARC policy of at least p=none, with the From domain aligned.",
-      "source": "https://senders.yahooinc.com/best-practices/"
+      "claim": "Yahoo’s sender best practices (checked 2026-10-30) have required bulk senders, since February 2024, to use both SPF and DKIM, publish a DMARC policy of at least p=none with the From domain aligned, and keep their spam rate below 0.3%.",
+      "source": "https://senders.yahooinc.com/best-practices/",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "spam-rate",
+      "claim": "Google’s sender guidelines (checked 2026-10-30) ask senders to keep the share of their mail that Gmail users report as spam below 0.3%, and ideally below 0.1%.",
+      "value": "0.3",
+      "source": "https://support.google.com/a/answer/81126",
+      "accessed": "2026-10-30"
     }
   ]
 }

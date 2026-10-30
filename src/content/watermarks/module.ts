@@ -102,13 +102,13 @@ const CHAPTERS: Chapter[] = [
         'Larkspur’s image tool makes catalogue pictures. Each leaves with a hidden mark in its pixels and a signed made-by-AI label.',
       goal: 'What survives a picture’s trip to a reader: the mark, the label, both, or neither?',
       learn: [
-        'A pixel mark is a faint seeded pattern',
+        'A pixel mark is a faint secret pattern',
         'A signed label rides beside the file',
         'Crops, blurs and screenshots each break one',
       ],
       terms: [
-        ['Pixel mark', 'A faint seeded pattern added to a picture’s pixels; a checker with the seed finds it.'],
-        ['Label', 'A signed note that a model made the file, carrying the file’s hash (C2PA).'],
+        ['Pixel mark', 'A faint pattern added to a picture’s pixels from a secret number; a checker with it finds it.'],
+        ['Label', 'A signed note that a model made the file, carrying its hash: a fingerprint of its content (C2PA).'],
       ],
     },
   },

@@ -12,7 +12,7 @@ import { RECORDINGS } from '../../lib/tools/turns';
 import { ORDERS } from '../../lib/tools/server';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Fact, Messages, Outcome, Play, ToolDef, GET_ORDER, ToolStage } from './kit';
+import { Fact, Messages, Outcome, Play, RecordedNote, ToolDef, GET_ORDER, ToolStage } from './kit';
 import { OFFICE_PARTS } from '../../components/scenes/officeScene';
 
 const MODULE = 'tool-calling',
@@ -217,6 +217,8 @@ export default function ValidIsntCorrect() {
             <>
               <Messages lanes={LANES} msgs={MSGS[s.scene]} upTo={s.shown} />
               <Fact id="mcp-tool-errors" />
+              <Fact id="strict-mode" />
+              <RecordedNote />
             </>
           ),
         },

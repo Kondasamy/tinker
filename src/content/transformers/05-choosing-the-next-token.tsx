@@ -17,7 +17,7 @@ import { UNSURE } from '../../lib/recall';
 import META from '../../../public/data/lm/meta.json' with { type: 'json' };
 import '../../components/scenes/scenes.css';
 import { ENGINE_PARTS } from '../../components/scenes/engineScene';
-import { Fact, TransformersStage, Waiting, useModel, whenLoaded, type View } from './kit';
+import { Fact, ToyNote, TransformersStage, Waiting, useModel, whenLoaded, type View } from './kit';
 
 const MODULE = 'transformers',
   ID = '05-choosing-the-next-token';
@@ -129,9 +129,8 @@ export const STEPS: Step<S>[] = [
   {
     id: 'temperature',
     focus: 'temperature',
-    visibleControls: ['out1', 'temperature', 'write'],
-    narration:
-      'The model’s raw scores, logits, are divided by the temperature: below 1 the bar sharpens, above 1 it flattens.',
+    visibleControls: ['out1', 'greedy', 'temperature', 'write'],
+    narration: 'The model’s raw scores are divided by the temperature: below 1 the bar sharpens, above 1 it flattens.',
     act: 'Try other temperatures and seeds.',
     predicate: s => s.temps.length >= TRY_T,
     hint: `Move the temperature slider to ${TRY_T} different settings.`,
@@ -262,6 +261,7 @@ export default function ChoosingTheNextToken() {
         ),
         out1: ({ state }) =>
           model ? <Outcome {...P1} prediction={state.p1} outcome={outcomeOf(model)} /> : <Waiting />,
+        greedy: () => <Fact id="greedy-repeats" />,
         temperature: ({ state, sync }) => {
           const top = model ? Math.max(...distOf(model, tempOf(state.t), topOf(state.p))) : 0;
           const read = `the likeliest token gets ${top.toFixed(2)}`;
@@ -312,6 +312,7 @@ export default function ChoosingTheNextToken() {
             />
             <Fact id="temperature-logits" />
             <Fact id="top-p" />
+            <ToyNote />
           </>
         ),
       }}

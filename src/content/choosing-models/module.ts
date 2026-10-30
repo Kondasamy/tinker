@@ -19,7 +19,7 @@ const CHAPTERS: Chapter[] = [
       terms: [
         ['Benchmark', 'A fixed public test that many models are scored on.'],
         ['Leaderboard', 'A public ranking of models by their benchmark scores or votes.'],
-        ['Weight', 'How much one criterion counts when the steelyard weighs the machines.'],
+        ['Weight', 'How much one criterion counts when the balance weighs the machines.'],
       ],
     },
   },
@@ -63,7 +63,10 @@ const CHAPTERS: Chapter[] = [
       goal: 'What does the customer feel while a model writes?',
       learn: ['Time to first word', 'Words per second and the whole reply', 'What streaming hides'],
       terms: [
-        ['Time to first word', 'The wait from sending a question to the first word of the reply.'],
+        [
+          'Time to first word',
+          'The wait from sending a question to the reply’s first word; providers call it time to first token.',
+        ],
         ['Streaming', 'Showing a reply word by word as the model writes it.'],
         ['Words per second', 'How fast the reply is written once it starts.'],
       ],

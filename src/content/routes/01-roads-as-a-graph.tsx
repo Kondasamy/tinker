@@ -13,7 +13,7 @@ import { CUSTOMER, closedOf, nameOf, road } from '../../lib/routes/graph';
 import { DETOUR, FASTEST, OTHER_BRIDGE, ROUTE_BRIDGE } from '../../lib/routes/story';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { RoadList, Status, TableStage, TownNote, routeText, type View } from './kit';
+import { Fact, RoadList, Status, TableStage, TownNote, routeText, type View } from './kit';
 
 const MODULE = 'routes',
   ID = '01-roads-as-a-graph';
@@ -88,7 +88,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'detour',
     focus: 'roads',
-    visibleControls: ['out1', 'roads', 'status'],
+    visibleControls: ['out1', 'fact', 'roads', 'status'],
     narration: `The search ran again without it: ${DETOUR.minutes} minutes over ${OTHER}, not ${FASTEST.minutes}.`,
     act: `Now close ${OTHER} too.`,
     say: { block: 'route', text: 'Detour' },
@@ -152,6 +152,12 @@ export default function RoadsAsAGraph() {
           />
         ),
         status: ({ state }) => <Status>{routeText(dijkstra({ closed: closedOf(state.closed) }))}</Status>,
+        fact: () => (
+          <>
+            <Fact id="graph" />
+            <TownNote />
+          </>
+        ),
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />,
         quiz: ({ state, apply, sync }) => (

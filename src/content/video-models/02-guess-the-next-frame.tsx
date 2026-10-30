@@ -12,7 +12,7 @@ import { DREAM_PARTS } from '../../components/scenes/dreamFloorScene';
 import { changed, guessWithConf } from '../../lib/video-models/rollout';
 import { SIZE } from '../../lib/video-models/world';
 import { Outcome } from '../tool-calling/kit';
-import { DreamStage, META, ModelStatus, PIN, ROUTE, ToyNote, pct, useNets, type View } from './kit';
+import { DreamStage, Fact, META, ModelStatus, PIN, ROUTE, ToyNote, pct, useNets, type View } from './kit';
 
 const MODULE = 'video-models',
   ID = '02-guess-the-next-frame';
@@ -79,8 +79,8 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['quiz'],
-    narration: `On held-out runs it got ${pct(META.models.k2.scores.changedAccuracy)} of changed cells right. A tomato ring marks a miss.`,
+    visibleControls: ['fact', 'quiz'],
+    narration: `On runs it never saw: ${pct(META.models.k2.scores.changedAccuracy)} of changed cells right, misses ringed in tomato. Big models face a one-step test too.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'How many cells would a plain copy of the last frame get right?',
@@ -143,6 +143,7 @@ export default function GuessTheNextFrame() {
             {`Next frame (${state.t + 1} of ${LAST})`}
           </button>
         ),
+        fact: () => <Fact id="gamengen-next" />,
         quiz: ({ state, apply, sync }) => (
           <>
             <ToyNote />

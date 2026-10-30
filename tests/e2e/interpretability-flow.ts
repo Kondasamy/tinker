@@ -128,7 +128,8 @@ export function interpretabilityWalker(page: Page, mode: Mode, check: (page: Pag
     },
     /** pull fuses down to a smallest set, twice */
     async ch7(next?: RegExp) {
-      for (const name of ['Layer 1, head 2', 'Layer 2, head 1', 'Layer 2, head 2', 'Layer 2 MLP']) await toggle(name);
+      for (const name of ['Layer 1, head 2', 'Layer 2, head 1', 'Layer 2, head 2', 'Layer 2 thinking part'])
+        await toggle(name);
       await step(2);
       await check(page);
       await toggle('Layer 2, head 2');

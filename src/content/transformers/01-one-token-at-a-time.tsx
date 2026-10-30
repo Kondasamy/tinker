@@ -14,7 +14,7 @@ import { UNSURE } from '../../lib/recall';
 import { pieceLabel } from '../../components/scenes/attentionMap';
 import META from '../../../public/data/lm/meta.json' with { type: 'json' };
 import { ENGINE_PARTS } from '../../components/scenes/engineScene';
-import { Fact, TransformersStage, Waiting, useModel, whenLoaded, type View } from './kit';
+import { Fact, ToyNote, TransformersStage, Waiting, useModel, whenLoaded, type View } from './kit';
 
 const MODULE = 'transformers',
   ID = '01-one-token-at-a-time';
@@ -83,7 +83,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'run',
     focus: 'run',
-    visibleControls: ['run'],
+    visibleControls: ['run', 'size'],
     narration: `Meet Larkspur mini, a model of about ${Math.round(LM.params / 1000)} thousand numbers learned only from Larkspur’s documents. Bigger models do the same job.`,
     act: 'Give it a sentence.',
     say: { block: 'layer-1', text: 'Larkspur mini' },
@@ -161,6 +161,12 @@ export default function OneTokenAtATime() {
               Read “{PROMPT.text}”
             </button>
             {!model && <Waiting />}
+          </>
+        ),
+        size: () => (
+          <>
+            <Fact id="llama3-shape" />
+            <ToyNote />
           </>
         ),
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,

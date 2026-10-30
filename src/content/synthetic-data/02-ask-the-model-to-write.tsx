@@ -15,7 +15,7 @@ import { BATCH, TEMPS, copies, onTopic, replyText, type Temp } from '../../lib/s
 import { productIn, sieve } from '../../lib/synthetic-data/sieve';
 import { RUNS } from '../../lib/synthetic-data/runs';
 import { COPIER_PARTS } from '../../components/scenes/copierScene';
-import { CopierStage, LoadLine, ToyNote, Waiting, batchNow, useBatch, useModel } from './kit';
+import { CopierStage, Fact, LoadLine, ToyNote, Waiting, batchNow, useBatch, useModel } from './kit';
 
 const MODULE = 'synthetic-data',
   ID = '02-ask-the-model-to-write';
@@ -212,7 +212,12 @@ export default function AskTheModelToWrite() {
             <ToyNote />
           </>
         ),
-        out: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />,
+        out: ({ state }) => (
+          <>
+            <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />
+            <Fact id="holtzman-2019" />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

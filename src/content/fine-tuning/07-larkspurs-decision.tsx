@@ -10,7 +10,7 @@ import { BEST, KINDS, WINNERS, cell, solved, totals, type Plan } from '../../lib
 import { TRAIN_PARTS } from '../../components/scenes/trainScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Fact, FineTuneStage, versionCols, type View } from './kit';
+import { Fact, FineTuneStage, RecordedNote, versionCols, type View } from './kit';
 
 const MODULE = 'fine-tuning',
   ID = '07-larkspurs-decision';
@@ -199,6 +199,7 @@ export default function LarkspursDecision() {
             </p>
             <Fact id="openai-wind-down" />
             <Fact id="openai-inference-stays" />
+            <RecordedNote />
           </>
         ),
         quiz: ({ state, apply, sync }) => (

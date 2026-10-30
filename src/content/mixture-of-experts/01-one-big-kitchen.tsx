@@ -13,7 +13,7 @@ import { EXPERTS, promptOf, quote } from '../../lib/mixture-of-experts/routes';
 import { ROOMS_PARTS } from '../../components/scenes/officeRoomsScene';
 import pinned from '../../../data/mixture-of-experts/pinned.json' with { type: 'json' };
 import { Outcome } from '../tool-calling/kit';
-import { RoomsStage, ToyNote, posOf } from './kit';
+import { Fact, RoomsStage, ToyNote, posOf } from './kit';
 
 const MODULE = 'mixture-of-experts',
   ID = '01-one-big-kitchen';
@@ -72,7 +72,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'reveal',
     focus: 'split',
-    visibleControls: ['out1', 'split'],
+    visibleControls: ['out1', 'fact', 'split'],
     narration: 'Every room lit for every token. A mixture of experts runs only a few rooms per token instead.',
     act: 'Split the kitchen into rooms.',
     predicate: s => !s.dense,
@@ -122,22 +122,25 @@ export default function OneBigKitchen() {
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={0} />,
+        fact: () => (
+          <>
+            <ToyNote />
+            <Fact id="kaplan-2020" />
+          </>
+        ),
         split: ({ state, apply }) => (
           <button type="button" className="big" onClick={() => apply({ ...state, dense: false })}>
             Split into rooms
           </button>
         ),
         quiz: ({ state, apply, sync }) => (
-          <>
-            <ToyNote />
-            <Quiz
-              {...QUIZ}
-              unsure
-              value={state.quiz}
-              onAnswer={(_, q) => apply({ ...state, quiz: q })}
-              onUnsure={() => sync({ ...state, quiz: UNSURE })}
-            />
-          </>
+          <Quiz
+            {...QUIZ}
+            unsure
+            value={state.quiz}
+            onAnswer={(_, q) => apply({ ...state, quiz: q })}
+            onUnsure={() => sync({ ...state, quiz: UNSURE })}
+          />
         ),
       }}
     />

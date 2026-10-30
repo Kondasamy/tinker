@@ -17,3 +17,21 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **Chapter 7's workbench** (`workbench.ts`): each kind of question goes to the small tier, the large tier or the router, with one threshold, a finite domain of 3^kinds × thresholds plans. A kind scores the team's points per right answer (`data/small-models/workbench.json`, with its reason) minus its cost. Every plan tied for the best score wins (`WINNERS`), not one hand-picked answer.
 - **Coverage:** every chapter control has a finite domain (`DOMAINS`, and `WORKBENCH_DOMAINS` for chapter 7). `tests/unit/small-models-coverage.test.ts` walks every combination and fails on any missing answer, on an answer recorded twice or nothing reaches, on a small answer without a confidence in [0, 1], or past the budget of 30 answers.
 - **Facts about distillation, cascades, routers and prices** come from `data/small-models/facts.json` with source and access date; the price pair moves the most and is re-checked when the module changes.
+
+## Toy vs real
+
+Two kinds of toy. Chapters 1–3 run Larkspur mini and its student, trained ahead of time (`docs/lm-kit.md`), so none of their numbers is recalibrated (KTD5): `ToyNote` (`kit.tsx`) gives both models' weights beside a cited real figure. Chapters 4–7 run the two recorded tiers with hand-set confidences: `TierNote` says they were written for this site, not measured, beside a cited cascade, router or update finding. The only matched number is the small tier's price.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 | Weights of both models (51,072 for Larkspur mini), multiplications per token, the student's share of each (counted from `meta.json`); top 5 odds (live) | `kaplan-forward` (about 2 operations per weight per token) | Labelled: the toy counts the same way, one multiplication per weight; the note says Kaplan et al. count the add too |
+| 1 | 70 billion and 8 billion weights (quiz) | none | Labelled: a hypothetical in the question |
+| 2 | Temperature 2, weight 0.1 on the right piece, 3,000 steps, loss every 100 steps, held-out losses of both, the lesson's odds (live) | `distillation`, `soft-targets` | Labelled: the note says the student's run follows the paper's recipe at toy size |
+| 3 | 5 held-out documents, the places in them, agreement per document and in all, KL per place (live) | `student-gap` (students often stay far from their teacher's odds; closer is not always better) | Labelled: the note says agreement and KL measure copying, not being right |
+| 3 | 95% agreement (quiz) | none | Labelled: a hypothetical in the question |
+| 4 | A small answer costs 0.2 of a large one | `price-pair` (Claude Haiku 4.5 against Claude Opus 4.5) | Matched: `SMALL_COST = Number(fact('price-pair').value)` |
+| 4 | 12 questions, right answers and cost per tier (recorded answers, graded live) | `price-pair` | Labelled (`TierNote`, and "Both tiers are illustrations" in the narration) |
+| 5 | Thresholds 0 to 1, confidences, right answers, cost and questions sent up per threshold; 0.8 and 0.85 (quiz) | `cascade` (FrugalGPT, up to 98% cheaper), `routellm` (more than half cheaper in some cases) | Labelled: confidences are stand-ins set by hand, said in the narration and `TierNote` |
+| 6 | The gate's 90% bar, all-large's cost, the cheapest threshold that ships and its cost; 91% (quiz) | `negative-flips` (real model updates lose answers the old version got right) | Labelled: the note says the regressions are a toy's, the finding is from real updates |
+| 7 | 2 points per right answer, the policy score, the best score and its ties (`WINNERS` computed), right answers and cost | `hybrid-llm` (up to 40% fewer large-model calls, no drop in quality) | Labelled: the note says the points are the team's own choice and the paper's router predicts difficulty where this one sorts by kind |
+| Intro, recall | Both models' weights, the recorded agreement, the router's cost against all-large; 7 and 1 billion, 100 questions, costs 8, 14 and 12 (quiz hypotheticals) | as above | Labelled: the intro says the tiers illustrate the papers and the models are not a provider's; recall numbers are hypotheticals |

@@ -296,7 +296,7 @@ export const RECALL: RecallItem[] = [
     id: 'rebase-shared',
     chapter: C6,
     question:
-      'You pushed a branch yesterday and two colleagues built on it. Today you want a tidy history. What is the safe choice?',
+      'You shared a branch yesterday and two colleagues built on it. Today you want a tidy history. What is the safe choice?',
     options: [
       'Merge it, and leave its commits as they are',
       'Rebase it; they will pick up the new commits automatically',
@@ -330,7 +330,7 @@ export const RECALL: RecallItem[] = [
     id: 'plan-shared-private',
     chapter: C7,
     question:
-      'A team has one branch everyone has pulled and two private ones. Which plan keeps history short without breaking anyone’s work?',
+      'A team has one branch everyone already has and two private ones. Which plan keeps history short without breaking anyone’s work?',
     options: [
       'Merge the shared one; rebase the private ones onto main',
       'Rebase all three into one straight line',

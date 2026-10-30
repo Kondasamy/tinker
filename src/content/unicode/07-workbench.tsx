@@ -22,7 +22,7 @@ import { count } from '../../lib/unicode/story';
 import pinned from '../../../data/unicode/pinned.json' with { type: 'json' };
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { PARTS as TAPE, TapeStage } from './kit';
+import { Fact, PARTS as TAPE, TapeStage } from './kit';
 
 const MODULE = 'unicode',
   ID = '07-workbench';
@@ -60,7 +60,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['score', 'bench', 'quiz'],
+    visibleControls: ['score', 'bench', 'fact', 'quiz'],
     narration: `One of ${WINNERS.length} settings that work. One grapheme can be ${STACK.bytes} bytes, so a grapheme limit can’t guard a column.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -180,6 +180,7 @@ export default function Workbench() {
       }}
       controls={{
         score: ({ state }) => <Score s={state} />,
+        fact: () => <Fact id="grapheme-limit" />,
         // changing the setting is an attempt only while it is the puzzle
         bench: ({ state, apply, sync, focused }) => <Bench s={state} set={focused ? apply : sync} />,
         quiz: ({ state, apply, sync }) => (

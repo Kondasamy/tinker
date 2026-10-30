@@ -37,7 +37,7 @@ const ZOE = [...bytesOf(CUSTOMER)].join(' ');
 const FACTS: [string, string][] = [
   [String(bytesOf(CUSTOMER).length), `bytes for “${CUSTOMER}” in UTF-8, ${[...CUSTOMER].length} characters`],
   [TOTAL.toLocaleString('en'), `characters in Unicode ${VERSION}`],
-  [`${FAM.units} · ${FAM.graphemes}`, 'the family emoji’s .length, and what people see'],
+  [`${FAM.units} · ${FAM.graphemes}`, 'the family emoji’s length in JavaScript, and what people see'],
   [String(NAMES.length), `${COMPANY} customers checked in chapter 7, ${WINNERS.length} settings that work`],
 ];
 ---
@@ -84,7 +84,7 @@ const FACTS: [string, string][] = [
             <p class="cap">{ZOE}</p>
           </article>
         </div>
-        <p class="note more">Both read by the browser’s own TextDecoder from the same bytes, which the punch wrote in UTF-8.</p>
+        <p class="note more">Both read by the browser’s own text reader from the same bytes, which the punch wrote in UTF-8.</p>
       </section>
 
       <section aria-labelledby="how">

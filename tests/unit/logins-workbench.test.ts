@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import pinned from '../../data/logins/pinned.json' with { type: 'json' };
 import {
   PLANS,
+  SESSIONS,
   START,
   STORES,
   WINNERS,
@@ -16,6 +17,7 @@ import {
   type Plan,
 } from '../../src/lib/logins/workbench';
 import { ACCOUNTS, LEAKED } from '../../src/lib/logins/store';
+import { fact } from '../../src/lib/logins/facts';
 
 const best = WINNERS[0];
 const by = (p: Plan, attacker: string) => breakIns(p).filter(b => b.attacker === attacker);
@@ -58,5 +60,9 @@ describe('chapter 7’s workbench', () => {
     expect(planKey(benchPlan({}))).toBe(planKey(START));
     expect(benchPlan({ store: 'rot13' as never }).store).toBe(START.store);
     for (const p of WINNERS) expect(wins(benchPlan(p))).toBe(true);
+  });
+  it('the session lengths match NIST’s limits, as the bench’s note says', () => {
+    expect(SESSIONS.map(x => x.hours)).toEqual([1, 24, 30 * 24]);
+    for (const limit of ['30 days', '24 hours', '1 hour']) expect(fact('nist-reauth').claim).toContain(limit);
   });
 });

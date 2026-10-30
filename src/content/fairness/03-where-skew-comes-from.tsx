@@ -10,10 +10,10 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { GATE_PARTS } from '../../components/scenes/gateScene';
 import { gapOf, type Bars } from '../../lib/fairness/metrics';
-import { RIVER } from '../../lib/fairness/population';
+import { POSTCODE_MATCH, RIVER } from '../../lib/fairness/population';
 import { APPLICANTS, REGION_NAMES, runOf } from '../../lib/fairness/story';
 import { Outcome } from '../tool-calling/kit';
-import { ApplicantsNote, GateStage, MARK, REGIONS, START_BARS, bar2, pct } from './kit';
+import { ApplicantsNote, Fact, GateStage, MARK, REGIONS, START_BARS, bar2, pct } from './kit';
 import { TIMES } from './module';
 
 const MODULE = 'fairness',
@@ -101,7 +101,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'thin',
     focus: 'p2',
-    visibleControls: ['out1', 'table', 'p2'],
+    visibleControls: ['out1', 'table', 'fact', 'p2'],
     narration: `${COUNT.B.river} of ${B}’s ${COUNT.B.n} have a river postcode, ${COUNT.A.river} of ${A}’s ${COUNT.A.n}: the postcode is a proxy for region.`,
     act: 'Predict again.',
     say: { block: 'lane-b', text: `${COUNT.B.n} applicants` },
@@ -175,6 +175,14 @@ export default function WhereSkewComesFrom() {
         ),
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME1} />,
         table: () => <Table />,
+        fact: () => (
+          <>
+            <Fact id="cfpb-proxy" />
+            <p className="note">
+              {`The made-up data gives ${Math.round(POSTCODE_MATCH * 10)} in 10 of each region its own side’s postcode, a hand-set rate. The CFPB finds place alone a weaker guess than place and surname together.`}
+            </p>
+          </>
+        ),
         p2: ({ state, apply }) => <Predict {...P2} value={state.p2} onPredict={i => apply({ ...state, p2: i })} />,
         out2: ({ state }) => <Outcome {...P2} prediction={state.p2} outcome={OUTCOME2} />,
         thin: () => (
@@ -186,7 +194,7 @@ export default function WhereSkewComesFrom() {
               </p>
             </details>
             <p className="note">
-              {`Counting ${B}’s applicants ${TIMES} in the fit doesn’t close the gap here (${pts(REWEIGHT.before)} points before, ${pts(REWEIGHT.after)} after): one rule made both regions’ records. More applicants would steady its rates; they can’t remove a real difference in the record.`}
+              {`Counting ${B}’s applicants ${TIMES} while the check learns doesn’t close the gap here (${pts(REWEIGHT.before)} points before, ${pts(REWEIGHT.after)} after): one rule made both regions’ records. More applicants would steady its rates; they can’t remove a real difference in the record.`}
             </p>
           </>
         ),

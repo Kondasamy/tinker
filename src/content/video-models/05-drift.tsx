@@ -12,7 +12,7 @@ import { DREAM_PARTS } from '../../components/scenes/dreamFloorScene';
 import { crateCells, dream, robotCell } from '../../lib/video-models/rollout';
 import { ROBOT } from '../../lib/video-models/world';
 import { Outcome } from '../tool-calling/kit';
-import { DREAMED, DreamStage, ModelStatus, PIN, ROUTE, StepRange, ToyNote, useNets } from './kit';
+import { DREAMED, DreamStage, Fact, ModelStatus, PIN, ROUTE, StepRange, ToyNote, useNets } from './kit';
 
 const MODULE = 'video-models',
   ID = '05-drift';
@@ -73,7 +73,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'crate',
     focus: 'step',
-    visibleControls: ['out1', 'step'],
+    visibleControls: ['out1', 'fact', 'step'],
     narration: `At step ${LOST} one robot became ${PIN.robotsWhenLost}; by step ${PIN.steps}, ${PIN.robotsAtEnd}. The crate goes next.`,
     act: `Drag on to step ${PIN.crateGone}.`,
     say: { block: 'crate', text: 'Watch it' },
@@ -139,6 +139,12 @@ export default function Drift() {
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />,
+        fact: () => (
+          <>
+            <Fact id="gamengen-drift" />
+            <ToyNote />
+          </>
+        ),
         step: ({ state, apply, sync, focused }) => (
           <StepRange
             value={state.at}

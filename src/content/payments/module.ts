@@ -19,7 +19,7 @@ const CHAPTERS: Chapter[] = [
       ],
       terms: [
         ['Acquirer', 'Larkspur’s bank for cards: it takes card payments for the shop and passes them on.'],
-        ['Card network', 'The scheme whose name is on the card: it routes messages between acquirers and issuers.'],
+        ['Card network', 'The company whose name is on the card: it carries messages between acquirers and issuers.'],
         ['Issuer', 'The customer’s bank, which gave them the card and says yes or no to each payment.'],
       ],
     },
@@ -32,7 +32,7 @@ const CHAPTERS: Chapter[] = [
       story:
         'Ana’s bank said yes in a second. Larkspur’s team assumed the money was theirs. Then Mona’s order arrived, half of it on backorder.',
       goal: 'When the bank says yes, has any money moved?',
-      learn: ['Authorising places a hold', 'Capture charges only what shipped', 'A hold nobody captures lapses'],
+      learn: ['The bank’s yes places a hold', 'Capture charges only what shipped', 'A hold nobody captures lapses'],
       terms: [
         [
           'Hold',
@@ -50,7 +50,7 @@ const CHAPTERS: Chapter[] = [
       story:
         'Captured payments still aren’t money in Larkspur’s account. That happens at night, and the finance team wants to know why Ana’s payment arrives smaller.',
       goal: 'Where does the money go overnight, and who takes a fee?',
-      learn: ['Settlement moves the money at a nightly cut-off', 'Three fees come off', 'The EU caps one of them'],
+      learn: ['Settlement moves the money each night', 'Three fees come off', 'The EU caps one of them'],
       terms: [
         [
           'Settlement',
@@ -137,7 +137,7 @@ export const PAYMENTS_MODULE: Module = {
   id: 'payments',
   title: 'Card payments',
   description:
-    'Where the money goes when a customer pays by card: authorisation, capture, settlement, fees and chargebacks.',
+    'Where the money goes when a customer pays by card: the bank’s yes, the hold, capture, the nightly transfer, fees and chargebacks.',
   level: 'Beginner',
   track: 'Classic tech',
   status: 'live',

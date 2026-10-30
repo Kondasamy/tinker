@@ -14,7 +14,7 @@ import { EMPTY, WINNERS, rowsOf, scoreOf, solution, solved, type Policy } from '
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { Fact, MODE_SHORT, MODULE, ObsStage, binsOf, modeName, wallOf, type View } from './kit';
+import { Fact, MODE_SHORT, MODULE, ObsStage, ToyNote, binsOf, modeName, wallOf, type View } from './kit';
 import { TRACE_PARTS } from '../../components/scenes/traceScene';
 
 export const PARTS = TRACE_PARTS;
@@ -78,7 +78,7 @@ export const STEPS: Step<S>[] = [
     id: 'triage',
     focus: 'bench',
     visibleControls: ['out1', 'bench'],
-    narration: 'Triage: rows check labels, the tally weighs count × harm, the headline shows harm removed.',
+    narration: 'Triage: label each trace. The tables check labels, weigh count × harm and show what your fix removes.',
     act: 'Label every trace, then pick one fix.',
     say: { block: 'wall', text: 'Label, then fix' },
     broken: s => ({ ...s, ...EMPTY }),
@@ -258,11 +258,12 @@ export default function Workbench() {
         readout: ({ state }) => <Readout s={state} />,
         facts: () => (
           <>
-            <p className="tc-fact">
-              The traces are hand-written for this module, so the numbers show the method, not a real day.
-            </p>
+            <ToyNote>
+              Here one day holds {DAY2.length} traces. A real review keeps reading until new traces stop showing new
+              modes:
+            </ToyNote>
             <Fact id="saturation" />
-            <Fact id="error-analysis" />
+            <Fact id="saturation-interviews" />
           </>
         ),
         quiz: ({ state, apply, sync }) => (

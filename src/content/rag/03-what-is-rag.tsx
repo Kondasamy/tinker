@@ -9,6 +9,7 @@ import { initialCanvas, type CanvasQuestion } from '../../components/canvas/stat
 import type { BlockType } from '../../lib/iso/blocks';
 import { RagStage, ragPanels, useRagRun, type RagState } from '../../components/panels/rag';
 import { nextOf } from '../../lib/chapters';
+import { Fact } from './kit';
 import ch3 from '../../../data/questions/ch3.json';
 
 const ID = '03-what-is-rag';
@@ -110,7 +111,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['quiz'],
+    visibleControls: ['fact', 'quiz'],
     narration: 'The retriever compares the meaning of your question with every passage and keeps the closest.',
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -143,6 +144,7 @@ export default function WhatIsRag() {
       next={nextOf(ID)}
       stage={p => <RagStage {...p} run={run} />}
       controls={{
+        fact: () => <Fact id="meaning-beats-keywords" />,
         predict: ({ state, apply }) => (
           <Predict {...PREDICT} value={state.prediction} onPredict={i => apply({ ...state, prediction: i })} />
         ),

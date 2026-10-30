@@ -1,8 +1,8 @@
 // Queues' chapters against the simulator (KTD12): every reveal says what the runs show, the moments the e2e flow
 // walks to hold, Show me lands where it should, and chapter 7's Show me is in WINNERS.
 import { describe, expect, it } from 'vitest';
-import { START, WINNERS, benchOf, wins } from '../../src/lib/queues/workbench';
-import { SHOWN_CRASH } from '../../src/lib/queues/sim';
+import { LEASES, START, WINNERS, benchOf, wins } from '../../src/lib/queues/workbench';
+import { SERVICE, SHOWN_CRASH } from '../../src/lib/queues/sim';
 import * as ch1 from '../../src/content/queues/01-waiting-at-the-till';
 import * as ch2 from '../../src/content/queues/02-a-ticket-and-a-worker';
 import * as ch3 from '../../src/content/queues/03-when-the-line-grows';
@@ -63,6 +63,11 @@ describe('chapter 7’s workbench', () => {
     expect(bench.predicate(shown)).toBe(true);
     expect(WINNERS).toContainEqual(benchOf(shown));
     expect(wins(benchOf(shown))).toBe(true);
+  });
+  it('every winner’s lease outlasts the pallet, and the shortest lease does not (the ties step says so)', () => {
+    const pallet = SERVICE.pallet;
+    for (const w of WINNERS) expect(w.lease).toBeGreaterThan(pallet);
+    expect(Math.min(...LEASES)).toBeLessThan(pallet);
   });
   it('the start is not a winner', () => {
     expect(bench.predicate(blank)).toBe(false);

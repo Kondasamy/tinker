@@ -26,12 +26,13 @@ const CHAPTERS: Chapter[] = [
         ],
         [
           'Token',
-          'The unit a model reads and is billed in: a word, part of a word or a mark. Counts here come from this site’s own tokenizer.',
+          'The unit a model reads and is billed in: a word, part of a word or a mark. Counts here come from this site’s own token counter.',
         ],
+        ['Host', 'Larkspur’s own program around the model: it builds each window, calls the model and runs the tools.'],
         ['System prompt', 'Larkspur’s standing instructions to the model, sent at the top of every turn.'],
         [
           'Tool definition',
-          'A tool’s name, description and input schema, sent with every turn so the model knows it can call it.',
+          'A tool’s name, description and the shape of input it expects, sent with every turn so the model knows it can call it.',
         ],
         [
           'Budget',

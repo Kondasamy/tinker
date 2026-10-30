@@ -12,6 +12,8 @@ import { initialCanvas, unlockedThrough, type CanvasQuestion, type Knobs } from 
 import type { BlockType } from '../../lib/iso/blocks';
 import { RagStage, ragPanels, useRagRun, type RagState } from '../../components/panels/rag';
 import { nextOf } from '../../lib/chapters';
+import manifest from '../../../public/data/index/manifest.json';
+import { Fact } from './kit';
 import ch3 from '../../../data/questions/ch3.json';
 
 const ID = '04-layers';
@@ -98,10 +100,9 @@ export const STEPS: Step<S>[] = [
   {
     id: 'map',
     focus: 'index',
-    visibleControls: [],
+    visibleControls: ['fact'],
     opensDrawer: 'map',
-    narration:
-      'The Embedder turns each chunk into an embedding, 384 numbers for its meaning; the vector index stores them.',
+    narration: `The Embedder turns each chunk into an embedding, ${manifest.models.embedding.dims} numbers for its meaning; the vector index stores them.`,
     act: 'Point at a dot on the map.',
     say: { block: 'embedder', text: 'Text to numbers' },
     predicate: s => s.probed,
@@ -169,6 +170,7 @@ export default function Layers() {
       next={nextOf(ID)}
       stage={p => <RagStage {...p} run={run} />}
       controls={{
+        fact: () => <Fact id="numbers-first" />,
         predict: ({ state, apply }) => (
           <Predict {...PREDICT} value={state.prediction} onPredict={i => apply({ ...state, prediction: i })} />
         ),

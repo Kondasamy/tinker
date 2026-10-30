@@ -35,7 +35,7 @@ export const QUIZ = {
     'A bank deploys a new statement page behind a flag on Monday, and switches the flag on for everyone on Friday. When do customers first see it?',
   options: ['Friday, when the flag goes on', 'Monday, when it is deployed', 'Not until a second deploy'],
   correct: 0,
-  explanation: 'The deploy puts the code out dark; the flag decides when anyone sees it.',
+  explanation: 'The deploy puts the code out switched off; the flag decides when anyone sees it.',
   why: [
     'Right: the code sat on the servers all week, switched off.',
     'Monday’s deploy shipped the code with the flag off, so nobody saw it.',
@@ -107,7 +107,8 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out1', 'quiz'],
-    narration: 'Deploy and release are now two moves: the code goes out dark, and the flag decides who sees it.',
+    narration:
+      'Deploy and release are two moves; the flag decides who sees it, and real flag services switch in under a second.',
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which of the two moves puts the page in front of people?',
@@ -148,6 +149,7 @@ export default function DeployNowSwitchOnLater() {
           <>
             <Outcome {...P1} prediction={state.p1} outcome={outcomeOf(state.events)} />
             <Fact id="toggles" />
+            <Fact id="flag-speed" />
           </>
         ),
         quiz: ({ state, apply, sync }) => (

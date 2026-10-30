@@ -2,14 +2,34 @@
   "accessed": "2026-10-24",
   "facts": [
     {
+      "id": "llama3-vocab",
+      "claim": "Meta’s Llama 3 report (2024) gives its models a vocabulary of 128K pieces; the largest, 405 billion weights, was pre-trained on 15.6 trillion tokens.",
+      "source": "https://arxiv.org/abs/2407.21783",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "pythia-checkpoints",
+      "claim": "Biderman and colleagues (2023) trained 16 Pythia models, 70 million to 12 billion weights, each on about 300 billion tokens over 143,000 steps, and published 154 checkpoints of every one.",
+      "source": "https://arxiv.org/abs/2304.01373",
+      "accessed": "2026-10-30"
+    },
+    {
       "id": "kaplan-power-law",
-      "claim": "Kaplan and colleagues (2020) found that a language model’s loss falls as a power law of its size, its training data and the compute spent on it.",
-      "source": "https://arxiv.org/abs/2001.08361"
+      "claim": "Kaplan and colleagues (2020) found that a language model’s loss falls along a smooth, predictable curve (a power law) as its size, its training data and the compute spent on it grow.",
+      "source": "https://arxiv.org/abs/2001.08361",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "kaplan-overfitting",
+      "claim": "Kaplan and colleagues (2020) found that growing a model without growing its data brings less and less gain on held-out text: each time the model is 8 times bigger, it needs about 5 times the data to avoid that penalty.",
+      "source": "https://arxiv.org/abs/2001.08361",
+      "accessed": "2026-10-30"
     },
     {
       "id": "kaplan-big-models",
-      "claim": "They concluded that the most compute-efficient training uses very large models on a relatively modest amount of data, stopped well before convergence.",
-      "source": "https://arxiv.org/abs/2001.08361"
+      "claim": "They concluded that the most compute-efficient training uses very large models on a relatively modest amount of data, stopped well before the loss stops falling.",
+      "source": "https://arxiv.org/abs/2001.08361",
+      "accessed": "2026-10-30"
     },
     {
       "id": "chinchilla-equal",
@@ -45,6 +65,13 @@
       "id": "dedup-overlap",
       "claim": "They also found train-test overlap in over 4% of the validation sets of standard datasets.",
       "source": "https://arxiv.org/abs/2107.06499"
+    },
+    {
+      "id": "repeat-passes",
+      "claim": "Muennighoff and colleagues (2023) found that, with limited data, up to 4 passes over the same text gave almost the same loss as fresh text; with more repeats, extra compute eventually added nothing.",
+      "value": "4",
+      "source": "https://arxiv.org/abs/2305.16264",
+      "accessed": "2026-10-30"
     },
     {
       "id": "contamination",

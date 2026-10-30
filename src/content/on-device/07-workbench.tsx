@@ -10,7 +10,8 @@ import { CRATE_PARTS } from '../../components/scenes/phoneCrateScene';
 import { HANDHELD, QUESTIONS, sizeOf, sizeText, FREE } from '../../lib/on-device/memory';
 import { levelAfter, SHIFT } from '../../lib/on-device/battery';
 import { BENCH, passes, resultOf, START, WINNERS, wins, type Plan } from '../../lib/on-device/workbench';
-import { BitsRadios, CrateStage, LengthRadios, PLANNING, SizeRadios } from './kit';
+import { fact } from '../../lib/on-device/facts';
+import { BitsRadios, CrateStage, Fact, LengthRadios, PLANNING, SizeRadios } from './kit';
 import { num } from '../../lib/format';
 
 const MODULE = 'on-device',
@@ -54,7 +55,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['score', 'bench', 'quiz'],
+    visibleControls: ['score', 'bench', 'fact', 'quiz'],
     narration: `The ${sizeOf(BEST.size).name} at ${BEST.bits} bits with ${BEST.length} replies passes. Stock scores are hand-set planning numbers.`,
     act: 'One question to finish.',
     say: { block: 'tank', text: 'Lasts a shift' },
@@ -134,6 +135,12 @@ export default function Workbench() {
         score: ({ state }) => <Score s={state} />,
         // changing the setup is an attempt only while it is the puzzle
         bench: ({ state, apply, sync, focused }) => <Bench s={state} set={focused ? apply : sync} />,
+        fact: () => (
+          <>
+            <Fact id="apple-3b" />
+            <p className="note in-note">{`Apple’s phone model is about the ${sizeOf(BEST.size).name}’s size, at ${fact('apple-3b').value} bits per weight on average: close to the setup that passes here.`}</p>
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

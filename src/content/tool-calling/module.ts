@@ -116,7 +116,7 @@ const CHAPTERS: Chapter[] = [
         'Larkspur’s tools now live in two systems: orders and the team calendar. Other teams want AI apps that use them too. Hand-wiring will not last.',
       goal: 'How can any AI app use any system’s tools without a custom integration for each pair?',
       learn: [
-        'Why custom integrations multiply, and how one shared protocol turns the product into a sum',
+        'Why custom integrations multiply, and how one shared protocol turns apps × systems into apps + systems',
         'Who is who in MCP: the host, its clients and the servers',
         'What a server offers besides tools: resources and prompts',
       ],

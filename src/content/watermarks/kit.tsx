@@ -24,7 +24,7 @@ import {
   type UvOpts,
 } from '../../components/scenes/uvScene';
 import { encode } from '../../lib/lm/bpe';
-import { check, type Check } from '../../lib/watermarks/detect';
+import { check, LINE, type Check } from '../../lib/watermarks/detect';
 import { choicesAt, swap } from '../../lib/watermarks/edit';
 import { isGreen } from '../../lib/watermarks/greenlist';
 import { larkspur } from '../../lib/watermarks/sample';
@@ -69,17 +69,16 @@ export function lampText(ids: number[], prev: number, gamma: number, lamp: Lamp)
 
 // ---- the Strip tab ----
 
-/** The z-score meter: −2 to 8, the line at 4 marked. */
+/** The z-score meter: −2 to 8, the checker's line marked. */
 const LO = -2,
-  HI = 8,
-  LINE_AT = 4;
+  HI = 8;
 const atPct = (z: number) => `${(Math.max(0, Math.min(1, (z - LO) / (HI - LO))) * 100).toFixed(1)}%`;
 function Meter({ c }: { c: Check }) {
   return (
     <div className="wm-meter" data-z={c.z === null ? 'none' : c.z.toFixed(4)}>
       <div className="wm-track" aria-hidden="true">
         {c.z !== null && <span className="wm-fill" style={{ width: atPct(c.z) }} />}
-        <span className="wm-line" style={{ left: atPct(LINE_AT) }} />
+        <span className="wm-line" style={{ left: atPct(LINE) }} />
       </div>
       <p className="wm-z">{zText(c)}</p>
     </div>
@@ -364,6 +363,14 @@ export function UvStage({
     </div>
   );
 }
+
+/** The toy note: Larkspur mini's numbers are a toy's; `children` says what they stand for in a real system. */
+export const ToyNote = ({ children }: { children?: ReactNode }) => (
+  <p className="note">
+    {'Larkspur mini is a tiny model trained for this site, so its scores and costs are toy numbers. '}
+    {children}
+  </p>
+);
 
 /** A cited fact from data/watermarks/facts.json, with its source and the day it was checked (R5). */
 export function Fact({ id }: { id: string }) {

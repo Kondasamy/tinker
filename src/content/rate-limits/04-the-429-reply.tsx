@@ -147,7 +147,7 @@ export default function The429Reply() {
             </label>
             <Fact id="listen" />
             <p className="note rl-note">
-              Every reply carries a status code like 429: <a href="/web-requests/">Web requests</a>.
+              Every reply starts with a number like 429: <a href="/web-requests/">Web requests</a>.
             </p>
           </>
         ),

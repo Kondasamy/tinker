@@ -38,14 +38,14 @@ const BEFORE = runOf().all.error;
 export const QUIZ = {
   question: 'The winning setting uses a bar per region. What should the team do before shipping it?',
   options: [
-    'Test it on applicants the fit never saw, and check the law for the groups involved',
+    'Test it on applicants the check never learned from, and check the law for the groups involved',
     'Nothing: the bench proved it fair',
     'Drop the gap rule to cut wrong decisions',
   ],
   correct: 0,
   explanation: 'The bench scored the same applicants the check learned from, and two bars treat groups differently.',
   why: [
-    'Right: these rates come from the fit’s own applicants, and a bar per group can be a legal question.',
+    'Right: these rates come from the applicants it learned from, and a bar per group can be a legal question.',
     'It met one rule on the applicants it learned from, which is not proof on new ones.',
     'Dropping the rule brings the gap back; the rule was the point.',
   ],
@@ -74,7 +74,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['score', 'bench', 'quiz'],
     narration: `${pct(LEAST)} wrong with the gap kept: none here does better. With one bar and no rule it was ${pct(BEFORE)}.`,
     act: 'One question to finish.',
-    say: { block: 'check', text: 'Refitted' },
+    say: { block: 'check', text: 'Learned again' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Whose applicants were these rates measured on?',
   },

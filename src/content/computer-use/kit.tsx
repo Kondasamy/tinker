@@ -189,6 +189,7 @@ export function Fact({ id }: { id: string }) {
 export const RecordedNote = () => (
   <p className="cu-note">
     The agent’s actions were written for this site to show each lesson; they were not recorded from a real model. The
-    screens are drawn, and the host’s steps and token counts run live in your browser.
+    screens and prices are made up. The host’s steps run live in your browser, and token counts use Claude’s real image
+    rule.
   </p>
 );

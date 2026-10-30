@@ -11,11 +11,11 @@ const CHAPTERS: Chapter[] = [
     short: 'What it did',
     intro: {
       story:
-        'Larkspur’s assistant is live and passed Evals’ offline suite. Customers ask it about orders and policies all day. What does it do with real traffic?',
+        'Larkspur’s assistant is live and passed the tests from Evals, written before launch. Customers ask it about orders and policies all day. What does it really do?',
       goal: 'What happened, step by step, when a customer asked the assistant a question?',
       learn: [
         'A trace: one request’s record, from the question to the reply',
-        'Spans: the steps inside it (retrieval, model calls, tool calls, the reply)',
+        'Spans: the steps inside it (searches, model calls, tool calls, the reply)',
         'Reading a trace as a waterfall: what ran, in what order, for how long',
       ],
       terms: [
@@ -28,6 +28,7 @@ const CHAPTERS: Chapter[] = [
           'Waterfall',
           'A trace drawn as one row per span, each bar placed where the step started and as long as it took.',
         ],
+        ['OpenTelemetry', 'An open standard for recording traces, with shared names for spans and what they did.'],
       ],
     },
   },
@@ -153,7 +154,7 @@ export const OBSERVABILITY_MODULE: Module = {
   id: 'observability',
   title: 'Observability & error analysis',
   description:
-    'Reading what the assistant really did in production: traces, labelling failures by hand, and finding the ones that matter.',
+    'Reading what the assistant really did with real customers: traces, labelling failures by hand, and finding the ones that matter.',
   level: 'Intermediate',
   status: 'live',
   author: { name: 'Samy (Kondasamy Jayaraman)', url: 'https://kondasamy.com' },

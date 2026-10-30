@@ -160,7 +160,7 @@ export const STEPS: Step<S>[] = [
     opensDrawer: null,
     setup: s => ({ ...s, view: 'seq' }),
     narration:
-      'Its MCP client sent server/discover, then tools/list: JSON-RPC requests, each with its own version, no handshake.',
+      'Its MCP client sent server/discover, then tools/list: JSON-RPC requests, each naming its version: no setup exchange first.',
     act: 'Open a message, then connect the calendar server.',
     predicate: s => has(s, CAL_ID),
   },

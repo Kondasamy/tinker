@@ -51,7 +51,7 @@ export const QUIZ = {
   question: 'A news desk wants to know which photos a model made. Why check for both a mark and a label?',
   options: [
     'Each survives trips the other doesn’t',
-    'The label holds the seed the mark needs',
+    'The label holds the secret number the mark needs',
     'A mark alone proves who made the photo',
   ],
   correct: 0,
@@ -59,7 +59,7 @@ export const QUIZ = {
     'A screenshot drops the label but keeps the mark; a crop or blur fades the mark while the signed label still travels with the file.',
   why: [
     'Right: screenshots strip labels, crops and blurs fade marks, so two checks catch more.',
-    'The seed lives with the checker; the label carries a signed claim and the file’s hash.',
+    'That number stays with the checker; the label carries a signed claim and the file’s hash.',
     'A mark says only that one maker’s pattern is there; the signed label names the maker and the file.',
   ],
 };

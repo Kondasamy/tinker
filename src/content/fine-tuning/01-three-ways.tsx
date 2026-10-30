@@ -10,7 +10,7 @@ import { APPROACHES, TRAIN_PARTS, type Approach } from '../../components/scenes/
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { Answer, FineTuneStage, questionText, versionCols, type View } from './kit';
+import { Answer, Fact, FineTuneStage, RecordedNote, questionText, versionCols, type View } from './kit';
 
 const MODULE = 'fine-tuning',
   ID = '01-three-ways';
@@ -108,7 +108,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['answers', 'quiz'],
+    visibleControls: ['answers', 'fact', 'quiz'],
     narration: `All three sign off: style rides any lever. The fact: ${PROMPTED} guessed, ${RAG} read it, ${TUNED} learnt it in training.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -197,6 +197,12 @@ export default function ThreeWays() {
             {VERSION_IDS.map(v => (
               <Answer key={v} version={v} question={QUESTION} />
             ))}
+          </>
+        ),
+        fact: () => (
+          <>
+            <Fact id="rag-beats-tuning" />
+            <RecordedNote />
           </>
         ),
         quiz: ({ state, apply, sync }) => (

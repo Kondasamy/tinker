@@ -9,7 +9,7 @@ import { modelLoader } from '../../lib/lm/load';
 import type { Model } from '../../lib/lm/model';
 import type { Candidate } from '../../lib/transformers/trace';
 import { pieceBytes, pieceText } from '../../lib/lm/bpe';
-import { CKPT, PROMPTS, runOf, weightsAt, type CkptWeights, type RunId } from '../../lib/pre-training/engine';
+import { CKPT, LAST, PROMPTS, runOf, weightsAt, type CkptWeights, type RunId } from '../../lib/pre-training/engine';
 import { FIT_IDS, FITS, grow } from '../../lib/pre-training/scaling';
 import { fact } from '../../lib/pre-training/facts';
 import { FORGE_BOARD, forgeLabel, forgeScene, type ForgeOpts } from '../../components/scenes/forgeScene';
@@ -266,6 +266,13 @@ export function Fact({ id }: { id: string }) {
     </p>
   );
 }
+
+/** Said beside a real figure wherever Larkspur mini's numbers show (R6, KTD5): it is a toy, trained ahead of time. */
+export const ToyNote = () => (
+  <p className="note">
+    {`Larkspur mini is a toy: ${CKPT.model.params.toLocaleString('en-US')} weights, ${CKPT.model.vocab} pieces to choose from, ${LAST.toLocaleString('en-US')} training steps on ${runOf('clean').docs} documents, trained ahead of time. Its numbers are its own, not a real model’s.`}
+  </p>
+);
 
 /** What a model wrote after a prompt: the prompt, then the continuation, labelled live or recorded. */
 export const Says = ({ who, prompt, text, live }: { who: string; prompt: number; text: string; live: boolean }) => (

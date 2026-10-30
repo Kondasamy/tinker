@@ -174,6 +174,7 @@ export default function LongPagesAndRepeats() {
         facts: () => (
           <>
             <Fact id="bm25" />
+            <Fact id="bm25-defaults" />
             <Maths>
               {`BM25 adds, for each search word: rarity × tf × (k1 + 1) ÷ (tf + k1 × (1 − b + b × length ÷ average length)). tf is how often the page says the word; k1 (here ${DEFAULT.k1}) sets how fast repeats saturate; b is how much length counts.`}
             </Maths>

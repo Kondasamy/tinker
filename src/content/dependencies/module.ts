@@ -38,6 +38,7 @@ const CHAPTERS: Chapter[] = [
         'A tilde takes patches only',
       ],
       terms: [
+        ['Semver', 'Semantic Versioning: the rules for what a new major, minor or patch promises.'],
         ['Version', 'A release’s number, major.minor.patch, like 1.4.2.'],
         ['Range', 'The versions a package will accept, like ^1.4.2.'],
         ['Caret', 'The ^ range: any newer minor or patch, never a new major (below 1.0.0, never a new minor).'],

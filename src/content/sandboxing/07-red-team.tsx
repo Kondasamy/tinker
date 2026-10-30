@@ -13,7 +13,7 @@ import { fact } from '../../lib/sandboxing/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages } from '../tool-calling/kit';
-import { Chips, Fact, Group, SandboxStage, cellWord, memo, sandboxProps, shortName, type View } from './kit';
+import { Chips, Fact, Group, SandboxStage, SimNote, cellWord, memo, sandboxProps, shortName, type View } from './kit';
 
 const MODULE = 'sandboxing',
   ID = '07-red-team';
@@ -87,7 +87,7 @@ export const QUIZ = {
   explanation: `A suite measures the attacks it holds. ${fact('not-complete').claim}`,
   why: [
     `The rate covers only the ${NONE.attacks} attacks someone thought of, and a sandbox is not a complete boundary.`,
-    'Right: the suites are an eval that grows with new attacks, and a gate on both rates stops a change that makes either worse.',
+    'Right: the suites are a test that grows with new attacks, and a gate on both rates stops a change that makes either worse.',
     'Approvals add prompt fatigue without proving safety against new attacks, and not every action is a crossing.',
     `At its strictest the bench blocks ${STRICT.blocked} of ${STRICT.tasks} tasks, moving cost onto real work without proving safety against new attacks.`,
   ],
@@ -182,6 +182,10 @@ function Readout({ s }: { s: S }) {
           ))}
         </tbody>
       </table>
+      <SimNote>
+        Its suite is {m.attacks} attacks and {m.tasks} tasks written for this module; a real red team keeps adding
+        attacks, and a clean score still misses ones nobody wrote.
+      </SimNote>
     </div>
   );
 }
@@ -244,7 +248,7 @@ export default function RedTeam() {
         gate: () => (
           <div className="tc-def" data-gate>
             <p>
-              The two rates over a fixed suite are an eval, and they gate a release the way{' '}
+              The two rates over a fixed suite are a test, and they gate a release the way{' '}
               <a href="/evals/07-release-day/">Evals’ release gate</a> does: a change ships only when neither rate gets
               worse. Every new attack the red team finds joins the suite, so the bar rises with it.
             </p>

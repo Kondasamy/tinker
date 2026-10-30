@@ -39,7 +39,7 @@ const OUT1 = R({ kase: 'peek', files: 'scoped' }).attackMet ? 0 : 1;
 
 export const QUIZ = {
   question:
-    'An agent’s task reads a template and writes a report, but a secrets file sits in the same folder. What is the right filesystem policy?',
+    'An agent’s task reads a template and writes a report, but a secrets file sits in the same folder. Which files get what access?',
   options: [
     'Mount the whole folder writable so nothing breaks',
     'Expose the template read-only, the output writable, and hide the secrets file',
@@ -148,7 +148,7 @@ export default function FilesChapter() {
               <p className="tc-status" role="status">
                 {R(state).attackMet
                   ? `The attack worked. ${says(state.kase)}.`
-                  : 'The attack was stopped by the filesystem.'}
+                  : 'The attack was stopped at the file wall.'}
               </p>
             )}
           </>

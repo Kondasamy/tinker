@@ -18,7 +18,8 @@ import {
   treeOf,
 } from '../../src/lib/compression/huffman';
 import { lossOf, NO_LOSS } from '../../src/lib/compression/lossy';
-import { tokensOf, untokens } from '../../src/lib/compression/lz77';
+import { MAX_MATCH, MIN_MATCH, tokensOf, untokens } from '../../src/lib/compression/lz77';
+import { fact } from '../../src/lib/compression/facts';
 
 const enc = (s: string) => new TextEncoder().encode(s);
 const same = (a: Uint8Array, b: Uint8Array) => a.length === b.length && a.every((x, i) => x === b[i]);
@@ -113,5 +114,17 @@ describe('the lossy step', () => {
     expect(lossOf(PICTURE, { levels: 4, block: 4 }).diff).toBeGreaterThan(
       lossOf(PICTURE, { levels: 32, block: 1 }).diff,
     );
+  });
+});
+
+describe('the toys against the facts', () => {
+  it('our pointers cover the repeat lengths DEFLATE allows', () => {
+    expect(fact('deflate').claim).toContain(`${MIN_MATCH} to ${MAX_MATCH} bytes`);
+  });
+  it('the short price list shrinks less than RFC 1951’s English text, even under real gzip (chapter 4)', () => {
+    expect(pinned.sizes.price.raw / pinned.gzip.price).toBeLessThan(2.5);
+  });
+  it('our pair grows the random file by more than DEFLATE’s worst case (chapter 5)', () => {
+    expect(pinned.sizes.random.pair - pinned.sizes.random.raw).toBeGreaterThan(Number(fact('deflate-worst').value));
   });
 });

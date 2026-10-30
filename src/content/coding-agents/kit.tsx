@@ -8,7 +8,7 @@ import { STAMP_CLASS, type Stamp } from '../../lib/iso/flat';
 import { DESK_BOARD, beatsOf, deskAt, deskLabel, deskScene, type Beat } from '../../components/scenes/deskScene';
 import { fileRows, fileText, patchPanel, searchRows, type Row } from '../../components/scenes/codePanel';
 import { HOST, run as runLoop, ticketOf, type Run, type Setup } from '../../lib/coding-agents/loop';
-import { fullOf as fullOfPatch, hunkCount, patchOf, version } from '../../lib/coding-agents/repo';
+import { FILES, fullOf as fullOfPatch, hunkCount, patchOf, version } from '../../lib/coding-agents/repo';
 import type { TestResult } from '../../lib/coding-agents/tests';
 import { RECORDING } from '../../lib/coding-agents/turns';
 import { fact } from '../../lib/coding-agents/facts';
@@ -261,11 +261,12 @@ export function Fact({ id }: { id: string }) {
   );
 }
 
-/** Said wherever the agent's turns show (R6). */
+/** Said wherever the agent's turns show (R6): the turns are written, the repository is a toy. */
 export const RecordedNote = () => (
   <p className="ca-note">
     The agent’s turns were written for this site to show each lesson; they were not recorded from a real model. The
-    code, the patches and the tests are real, and run live in your browser.
+    code, the patches and the tests are real, and run live in your browser, on a toy repository of {FILES.length} small
+    files; real ones are far larger, so every count here is far smaller.
   </p>
 );
 

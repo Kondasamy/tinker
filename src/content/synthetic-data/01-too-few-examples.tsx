@@ -9,7 +9,7 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import PINNED from '../../../data/synthetic-data/pinned.json' with { type: 'json' };
 import { COPIER_PARTS } from '../../components/scenes/copierScene';
-import { CopierStage } from './kit';
+import { CopierStage, Fact } from './kit';
 
 const MODULE = 'synthetic-data',
   ID = '01-too-few-examples';
@@ -140,6 +140,7 @@ export default function TooFewExamples() {
           <>
             <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />
             <Counts rows={RARE} caption="Training documents that answer each rare request" />
+            <Fact id="kandpal-2023" />
           </>
         ),
         quiz: ({ state, apply, sync }) => (

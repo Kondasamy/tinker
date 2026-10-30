@@ -35,13 +35,13 @@ const ITEMS: RecallItem[] = [
     options: [
       'It is refusing on purpose',
       'It writes what its training made likely, and it has never seen YAML',
-      'YAML is blocked by its tokenizer',
+      'YAML is blocked by how it splits text into tokens',
     ],
     correct: 1,
     why: [
       'Nothing refuses: the model scores next tokens, and email text scores high.',
       'Right. As Larkspur mini wrote prose when asked for JSON: a model can only lean on the patterns it learned.',
-      'A byte-level tokenizer can spell any text; YAML just isn’t likely to this model.',
+      'Its tokens can spell any text, byte by byte; YAML just isn’t likely to this model.',
     ],
   },
   {
@@ -50,14 +50,14 @@ const ITEMS: RecallItem[] = [
     question: 'Why does a broken format matter more when a program, not a person, reads the answer?',
     options: [
       'Programs read faster',
-      'A person can make sense of a near miss; a parser fails on one wrong character',
+      'A person can make sense of a near miss; a program reading it fails on one wrong character',
       'Programs ignore formatting',
     ],
     correct: 1,
     why: [
       'Speed isn’t the issue; tolerance is.',
-      'Right. A person reads around a stray word; JSON.parse throws.',
-      'It is the opposite: a parser depends entirely on the format.',
+      'Right. A person reads around a stray word; a program reading JSON stops with an error.',
+      'It is the opposite: a program depends entirely on the format.',
     ],
   },
   // 2. A schema is a contract
@@ -107,7 +107,7 @@ const ITEMS: RecallItem[] = [
     why: [
       'Larkspur mini failed every try; nothing caps how many a draw can fail.',
       'Right. Retries lower the odds of failure without ever reaching zero, and they add cost and delay.',
-      'Nothing is learned between tries; the weights don’t change.',
+      'Nothing is learned between tries; the model itself doesn’t change.',
     ],
   },
   // 3. The mask
@@ -141,7 +141,7 @@ const ITEMS: RecallItem[] = [
     why: [
       'A blocked token has zero probability; it can’t be written.',
       'Right. The mask removes blocked tokens and rescales the rest, keeping their order.',
-      'Every step writes a token; a schema compiler makes sure one is always allowed.',
+      'Every step writes a token; the schema’s rules always leave one allowed.',
     ],
   },
   {
@@ -156,7 +156,7 @@ const ITEMS: RecallItem[] = [
     correct: 1,
     why: [
       'The schema is fixed, but where the answer stands in it moves every step.',
-      'Right. The mask is worked out fresh from the grammar’s state at each step.',
+      'Right. The mask is worked out fresh at each step, from where the answer stands in the schema.',
       'Field names are only part of it; values, quotes and braces each have their turn.',
     ],
   },
@@ -173,7 +173,7 @@ const ITEMS: RecallItem[] = [
     correct: 1,
     why: [
       'Mostly isn’t enough; one bad byte blocks the whole token.',
-      'Right. A token passes only if all of its bytes keep the grammar valid.',
+      'Right. A token passes only if all of its bytes keep the answer valid under the schema.',
       'Checking only the first character would let a token smuggle a forbidden one in behind it.',
     ],
   },
@@ -255,7 +255,7 @@ const ITEMS: RecallItem[] = [
     correct: 1,
     why: [
       'Nothing changed in the schema; the draw did.',
-      'Right. With sampling, a less likely value still comes up in proportion to its share.',
+      'Right. With a random draw, a less likely value still comes up in proportion to its share.',
       'Both answers fit the schema; the mask worked both times.',
     ],
   },

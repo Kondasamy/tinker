@@ -1,5 +1,5 @@
 // Chapter 3: network. The exfiltration attack's last move is a request to an outside host. Egress off blocks it (and
-// the real task too); an allow-list blocks the attacker's host while letting the company API through. Read off the runs.
+// the real task too); an allow-list blocks the attacker's host while letting the company’s server through. Read off the runs.
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
@@ -28,23 +28,23 @@ const R = (s: Pick<S, 'kase' | 'egress'>) =>
 
 const P1 = {
   question:
-    'Now the egress is an allow-list: the only host the proxy lets out is Larkspur’s own API. The attack still tries to reach attacker.example. Does the request leave?',
+    'Now the egress is an allow-list: the only host the proxy lets out is Larkspur’s own server. The attack still tries to reach attacker.example. Does the request leave?',
   options: [
     'Yes: once egress is on, any host is reachable',
     'No: the attacker’s host is not on the allow-list, so the proxy blocks it',
-    'Only if attacker.example pretends to be Larkspur’s API',
+    'Only if attacker.example pretends to be Larkspur’s server',
   ],
 };
 const OUT1 = R({ kase: 'exfil', egress: 'allowlist' }).attackMet ? 0 : 1;
 
 export const QUIZ = {
   question:
-    'A team sets the agent’s egress to “off” so nothing can leak. The agent’s task needs to call the company API. What happens?',
+    'A team sets the agent’s egress to “off” so nothing can leak. The agent’s task needs to call the company’s server. What happens?',
   options: [
-    'The task runs fine: internal APIs are always allowed',
-    'The task is blocked too: egress off stops the real API call as well as any leak, so it’s a false block',
-    'Only the leak is stopped; the API call still goes through',
-    'The agent finds another route to the API',
+    'The task runs fine: the company’s own server is always allowed',
+    'The task is blocked too: egress off stops the real request as well as any leak, so it’s a false block',
+    'Only the leak is stopped; the server request still goes through',
+    'The agent finds another route to the server',
   ],
   correct: 1,
   explanation:
@@ -85,7 +85,7 @@ export const STEPS: Step<S>[] = [
     id: 'allowlist',
     focus: 'egress',
     visibleControls: ['p1', 'out1', 'egress', 'run'],
-    narration: 'The allow-list holds one host: Larkspur’s API.',
+    narration: 'The allow-list holds one host: Larkspur’s server.',
     act: 'Set the egress to the allow-list and run the attack again.',
     predicate: s => s.kase === 'exfil' && s.egress === 'allowlist' && s.ran && !R(s).attackMet,
     hint: 'Set egress to “allow-list” and press Run.',
@@ -105,7 +105,7 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['quiz'],
     narration:
-      'Egress off blocked the report’s own API call: a false block. The allow-list stops the attacker and lets the task work.',
+      'Egress off blocked the report’s own request: a false block. The allow-list stops the attacker and lets the task work.',
     act: 'One question to finish.',
     say: { block: 'network', text: 'Task blocked' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -120,7 +120,7 @@ const status = (r: ReturnType<typeof R>, kase: Case) =>
       : 'The attack was stopped by the network boundary.'
     : r.caseDone
       ? 'The report task finished.'
-      : 'The task was blocked: it could not reach the API (a false block).';
+      : 'The task was blocked: it could not reach the server (a false block).';
 
 export default function NetworkChapter() {
   return (
@@ -171,7 +171,7 @@ export default function NetworkChapter() {
             label="Task"
             values={['exfil', 'report']}
             value={state.kase}
-            name={v => (v === 'exfil' ? 'The exfil attack' : 'The report task')}
+            name={v => (v === 'exfil' ? 'The leak attack' : 'The report task')}
             pick={v => apply({ ...state, kase: v, ran: false })}
           />
         ),

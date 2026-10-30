@@ -2,6 +2,31 @@
   "accessed": "2026-10-25",
   "facts": [
     {
+      "id": "kandpal-2023",
+      "claim": "Kandpal and colleagues (2023) found a model’s chance of answering a fact question rises with how many of its training documents relate to it, and estimated today’s models would need to grow by many powers of ten to answer rarely covered questions well.",
+      "source": "https://arxiv.org/abs/2211.08411",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "holtzman-2019",
+      "claim": "Holtzman and colleagues (2019) showed that always picking a model’s likeliest words makes text bland and repetitive, while random picks tend to wander into nonsense; a lower temperature buys sense at the cost of variety.",
+      "source": "https://arxiv.org/abs/1904.09751",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "self-instruct-filter",
+      "claim": "Self-Instruct (Wang and colleagues, 2022) kept a model-written instruction only when its word overlap with every instruction already kept was under 0.7.",
+      "value": "0.7",
+      "source": "https://arxiv.org/abs/2212.10560",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "gudibande-2023",
+      "claim": "Gudibande and colleagues (2023) tuned open models on ChatGPT’s answers: they copied its style but not its facts, closing little to none of the gap on tasks the copied answers covered thinly.",
+      "source": "https://arxiv.org/abs/2305.15717",
+      "accessed": "2026-10-30"
+    },
+    {
       "id": "shumailov-2024",
       "claim": "A large-model finding: Shumailov and colleagues (Nature, 2024) trained models on recursively generated data and found the tails of the original distribution disappear. They call it model collapse.",
       "source": "https://www.nature.com/articles/s41586-024-07566-y"
@@ -19,7 +44,7 @@
     },
     {
       "id": "textbooks",
-      "claim": "phi-1 (Gunasekar and colleagues, 2023), 1.3B parameters, trained on 6B tokens of filtered web text and 1B tokens of GPT-3.5-written textbooks, scored 50.6% on HumanEval.",
+      "claim": "phi-1 (Gunasekar and colleagues, 2023), 1.3 billion learned numbers, trained on 6B tokens of filtered web text and 1B tokens of GPT-3.5-written textbooks, scored 50.6% on HumanEval.",
       "source": "https://arxiv.org/abs/2306.11644"
     }
   ]

@@ -44,7 +44,7 @@ export const QUIZ = {
   correct: 0,
   explanation: 'A secret that never reaches training can’t be memorised, so nothing is left to leak.',
   why: [
-    'Right: scrubbed text holds no code, so no prompt can pull one out.',
+    'Right: a code scrubbed out can’t be pulled back out, though real scrubbers miss some.',
     'A filter only spots the shapes it knows; split or spaced out, a code slips past.',
     'Instructions change what the model tends to say, not what it has stored.',
   ],
@@ -80,7 +80,7 @@ export const STEPS: Step<S>[] = [
     id: 'drip',
     focus: 'drip',
     visibleControls: ['drip'],
-    narration: 'Redacted. Now the attacker asks for one more piece each time, adding the last reply to the prompt.',
+    narration: 'Hidden. Now the attacker asks for one more digit each time, adding the last reply to the prompt.',
     act: 'Ask one digit at a time.',
     say: { block: 'reply', text: 'One digit each' },
     predicate: s => s.drip !== null,
@@ -189,7 +189,14 @@ export default function KeepItOut() {
             </label>
           </fieldset>
         ),
-        facts: () => <Fact id="nasr-2023" />,
+        facts: () => (
+          <>
+            <Fact id="ippolito-2022" />
+            <Fact id="nasr-2023" />
+            <Fact id="scrub-misses" />
+            <p className="mem-note">Here the PINs are known, so the scrub is perfect; real scrubbers miss some.</p>
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

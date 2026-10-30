@@ -115,7 +115,7 @@ const CHAPTERS: Chapter[] = [
         ],
         [
           'Taint rule',
-          'A host rule: once the model has read untrusted text, stop offering tools that send data out, for the rest of the case.',
+          'A rule in Larkspur’s app: once the model has read untrusted text, stop offering tools that send data out, for the rest of the case.',
         ],
       ],
     },
@@ -126,22 +126,22 @@ const CHAPTERS: Chapter[] = [
     short: 'Defence in depth',
     intro: {
       story:
-        'Each chapter added one defence, and each stopped the attack it was tried on. Now Larkspur runs every defence against the whole injection suite.',
+        'Each chapter added one defence, and each stopped the attack it was tried on. Now Larkspur runs every defence against every test email, attacks and customers alike.',
       goal: 'No single defence stops every attack without blocking a customer. Can a stack of them?',
       learn: [
         'What each defence stops, and misses, across every attack',
         'How layers that miss different attacks cover each other’s gaps',
-        'Why attack success rate and false-block rate, over a fixed suite, are an eval',
+        'Why attack success rate and false-block rate, over a fixed test set, are an eval',
       ],
       terms: [
         ['Defence in depth', 'Several defences stacked, so an attack that gets past one is stopped by another.'],
         [
           'Attack success rate',
-          'The share of attacks in a suite whose goal was met: money refunded, data sent out, a link planted.',
+          'The share of attacks in a test set whose goal was met: money refunded, data sent out, a link planted.',
         ],
         [
           'False-block rate',
-          'The share of ordinary customers in a suite that the defences stopped: held, refused, or left without what they asked for.',
+          'The share of ordinary customers in a test set that the defences stopped: held, refused, or left without what they asked for.',
         ],
       ],
     },
@@ -162,7 +162,7 @@ const CHAPTERS: Chapter[] = [
       terms: [
         [
           'Policy check',
-          'A check of a request or an action against what Larkspur allows, run by the host, not the model.',
+          'A check of a request or an action against what Larkspur allows, run by Larkspur’s app, not the model.',
         ],
         [
           'Input policy check',

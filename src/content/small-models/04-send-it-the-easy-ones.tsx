@@ -20,7 +20,7 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { ROUTER_PARTS } from '../../components/scenes/routerScene';
-import { Fact, SmallStage, TierAnswer, type View } from './kit';
+import { Fact, SmallStage, TierAnswer, TierNote, type View } from './kit';
 
 export const PARTS = ROUTER_PARTS;
 const MODULE = 'small-models',
@@ -96,7 +96,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['rows', 'quiz'],
-    narration: `Small: ${SMALL.right} of ${N} right for ${units(SMALL.cost)}. Large: ${LARGE.right} for ${units(LARGE.cost)}. Lookups pass; vague, two-hop or conflicting questions trip it.`,
+    narration: `Small: ${SMALL.right} of ${N} right for ${units(SMALL.cost)}. Large: ${LARGE.right} for ${units(LARGE.cost)}. Lookups pass; vague, two-step or conflicting questions trip it.`,
     act: 'One question to finish.',
     say: { block: 'small', text: 'Slips on tricky' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -168,6 +168,7 @@ export default function SendItTheEasyOnes() {
             <p className="tc-status">One the small tier gets wrong: “{questionText(FEATURED)}”</p>
             <TierAnswer tier="small" question={FEATURED} />
             <TierAnswer tier="large" question={FEATURED} />
+            <TierNote />
           </>
         ),
         quiz: ({ state, apply, sync }) => (

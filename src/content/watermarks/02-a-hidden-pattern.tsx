@@ -43,7 +43,7 @@ export const QUIZ = {
   explanation: 'Green depends on the token before and a secret key; without the key every token looks the same.',
   why: [
     'Right: the green list after each token is picked by the key, so without it nothing marks green from red.',
-    'Common and rare words land green or red alike; the split is random, seeded by the key.',
+    'Common and rare words land green or red alike; the split is random, set by the key.',
     'Length plays no part; the key picks a random half of all tokens after each one.',
   ],
 };

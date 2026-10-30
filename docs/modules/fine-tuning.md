@@ -16,3 +16,18 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **The changed-price case keeps its own fixture** (`data/fine-tuning/price-change.json`): a price-update passage the RAG version's recorded answer cites, and a reference with the new price as its key fact. It is graded by the same rule as Evals' key-fact grader through `keyFactOf` in `src/lib/evals/graders.ts`, which takes a reference; `keyFact` calls it, so Evals' grading is unchanged. `data/corpus/`, the RAG index and `data/evals/` stay as they were.
 - **Chapter 7's workbench** (`workbench.ts`): each kind of request goes to one version, a finite domain of 3^kinds plans. Quality is read off the recorded answers (the key fact, or the sign-off for replies with no facts); cost and upkeep are the team's scoring notes in `data/fine-tuning/workbench.json`, each with its reason. The puzzle accepts every plan tied for the best score (`WINNERS`), not one hand-picked answer.
 - **Facts about fine-tuning** come from `data/fine-tuning/facts.json` with source and access date. No fact names a platform as the place to fine-tune; availability facts (OpenAI's self-serve wind-down) carry their dates and are re-checked when the module changes.
+
+## Toy vs real
+
+Nothing here is matched (KTD5): Larkspur mini's fine-tunes were trained ahead of time and the three versions' answers are recorded, so every toy number is labelled. Chapters 2, 3 and 5 show `ToyNote` (a toy, its weight count and style-set size, "the numbers are not" a real model's) beside a cited fact; chapters 1, 4, 6 and 7 show `RecordedNote` (answers recorded, grading live; chapter 6 adds that the 75% bar is hand-set). Numbers in quiz scenarios (500 or 2,000 replies, 30 or 45 days, 9:01) are made-up cases, not measurements.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+| --- | --- | --- | --- |
+| 1 Three ways | Key-fact and sign-off marks per version | `rag-beats-tuning` | Labelled (recorded answers, graded live) |
+| 2 What training does | Larkspur mini's weight count (51,072), 32 style examples, 300 training steps, training loss start and end | `lima` (1,000 examples on a 65B model) | Labelled (trained toy) |
+| 3 Small adapters | Full count (51,072), LoRA count (1,536), rank 4, 8 matrices and their shapes, share trained (3.0%) | `lora-savings` (10,000× fewer on GPT-3 175B), `lora` | Labelled (counts computed from the toy's real shapes) |
+| 4 Facts move | Key-fact and sign-off tallies over 13 questions | `new-facts-slow` | Labelled (recorded answers, graded live) |
+| 5 What training costs | 5 held-out documents and their piece count, three held-out losses and each rise, 32 replies | `lora-learns-less`, `catastrophic-forgetting` | Labelled (computed live on the toy) |
+| 6 Measure first | 12 test questions, 75% gate bar, pass counts, questions broken | `evals-first`, `prompt-first`, `fine-tune-for` | Labelled (recorded answers; bar hand-set, Evals' own) |
+| 7 The decision | Plan points (quality 6 per kind, cost and upkeep notes), best score, number of tied plans, pass counts | `fine-tune-for`, `openai-wind-down`, `openai-inference-stays` | Labelled (team's hand-set notes; recorded answers) |
+| Intro | 51,072 and 1,536 weights, 32 replies, 10,000× | `lora-savings` | Toy counts labelled ("not any provider's"); 10,000× real |

@@ -16,3 +16,21 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **Pinned outputs** (KTD12, `data/diffusion/pinned.json`): what each pinned seed draws, and chapter 7's measurements per choice. `tests/unit/diffusion-engine.test.ts` reruns them and fails on drift.
 - **Chapter 7's workbench** (`workbench.ts`): steps × guidance per use (thumbnail, catalogue image), each use's roughness bar in `data/diffusion/workbench.json` (the team's choices); a use passes when every test picture (3 parts × 8 seeds) is the right part within its bar; cost is predictions per picture. The puzzle accepts every plan tied for the lowest cost (`WINNERS`, two today).
 - **Facts about diffusion** come from `data/diffusion/facts.json` with source and access date.
+
+## Toy vs real
+
+Every count below comes from the toy denoisers (`ToyNote` on every chapter says so): twelve 32 × 32 drawings and a 25,250-weight network on 2-D dots, trained once (KTD5: labelled, never retrained). Step counts, noise levels and guidance scales are finite lists the pinned outputs and `WINNERS` rest on, so only latent diffusion's shrink factor is matched.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 | 50 steps to develop; noise levels 0–100%; roughness in the read-out | `score-sde` (the idea), `ddpm` (1,000 steps) | Labelled |
+| 2 | 300 dots; 50, 5 and 1 steps; denoiser runs and roughness per run (pinned `ROUGH`) | `ddpm` | Labelled: 1,000 steps a picture in DDPM, shown on the quiz step |
+| 2 | DDPM's 1,000 steps (quiz narration) | `ddpm` | Real: `Number(fact('ddpm').value)` |
+| 3 | 300 dots, 50 steps, 20,000 training rounds, 25,250 weights (from `meta.json`) | `ddpm-noise` (trained to guess the noise; 35.7 million weights for 32 × 32 photos) | Labelled; the reveal reads the real count from the fact's `value` |
+| 4 | 24 training points, 300 dots, dots on a ring and on the outline | `memorise` (over a thousand training images extracted) | Labelled |
+| 5 | 8 pictures, 20 steps, scales 0/1/2/4, the label's weight 3 (`LABEL_PRIOR`), predictions a picture | `cfg` (scale = 1 + w; two predictions mixed) | Labelled: the soft label is this site's choice |
+| 6 | Sizes 256/512/1024, 50 steps, positions and units of work | `pixel-cost`, `latent`, `consistency`, `flow-matching` | Labelled: work is counted, not timed |
+| 6 | Latent shrink factor 8 each way | `latent` | Matched: `F = Number(fact('latent').value)` |
+| 7 | Steps × scale per use, bars 0.25 and 0.02, 3 parts × 8 starting noises, predictions per use and in all, `BEST_COST`, the 50-step scale-4 start | `ddim` (same model, fewer steps, 10× to 50× faster) | Labelled: a prediction is one run of the toy denoiser; `WINNERS` recomputed by `diffusion-workbench.test.ts` |
+| Intro | Twelve drawings, roughness at 50 steps, % saved on the workbench | `ddpm` (1,000 steps, shown real) | Labelled ("a toy" in the note) |
+| Recall | 30 → 3 steps, 512 → 1024, 60 vs 120 predictions | none | Labelled: hypotheticals in the questions |

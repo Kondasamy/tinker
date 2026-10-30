@@ -6,6 +6,7 @@
 import pinned from '../../../data/labelling/pinned.json' with { type: 'json' };
 import bench from '../../../data/labelling/workbench.json' with { type: 'json' };
 import { accuracy } from './agree';
+import { fact } from './facts';
 import { simulateLabels } from './simulate';
 import {
   GOLD,
@@ -25,7 +26,8 @@ import {
 import { majority } from './vote';
 
 export const BENCH = bench;
-export const COSTS = bench.costs;
+/** A model's label costs what Gilardi et al. measured (matched); a person's is a planning number. */
+export const COSTS = { ...bench.costs, model: Number(fact('model-labellers').value) };
 /** A labeller whose gold score falls below this is dropped (chapter 4). */
 export const GOLD_BAR = bench.goldBar;
 export type Hard = 'people' | 'model' | 'check';

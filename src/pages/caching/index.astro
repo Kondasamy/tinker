@@ -102,7 +102,7 @@ const FACTS: [string, string][] = [
             <p class="cap">A copy in the West warehouse, no trip.</p>
           </article>
         </div>
-        <p class="note more">Waits come from a simulated day: Larkspur’s own traffic and planning numbers, not a measurement of any real network or CDN.</p>
+        <p class="note more">Waits come from a simulated day: Larkspur’s own traffic and planning numbers, not a measurement of any real network or CDN (a network of caches run for many sites).</p>
       </section>
 
       <section aria-labelledby="how">
@@ -157,7 +157,7 @@ const FACTS: [string, string][] = [
 
     <script>
       // finished chapters get a tick; the button continues from the first unfinished chapter
-      import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+      import { moduleOf, chapterHref } from '../../lib/modules';
       import { completed } from '../../lib/progress';
       const CHAPTERS = moduleOf('caching').chapters;
       const done = completed('caching');

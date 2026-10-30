@@ -1,12 +1,13 @@
 // The checker (KTD3): counts green tokens using only the key, no model. It always re-reads the text
 // (encode(decode(ids))), the tokens a reader's copy gives, and counts each distinct (previous, token) pair once.
 import { decode, encode } from '../lm/bpe';
+import { fact } from './facts';
 import { isGreen, KEY } from './greenlist';
 
 /** Below this many scored pairs the checker won't say. */
 export const MIN_PAIRS = 16;
-/** At or above this z the text is called marked. */
-export const LINE = 4;
+/** At or above this z the text is called marked: Kirchenbauer et al.'s line (facts.json, z-line). */
+export const LINE = Number(fact('z-line').value);
 
 export interface Check {
   /** Distinct (previous, token) pairs scored. */

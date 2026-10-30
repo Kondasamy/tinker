@@ -23,7 +23,7 @@ import { TEMPERATURES, type Temperature } from '../../lib/calibration/measure';
 import { bins } from '../../lib/calibration/score';
 import { LEAST, RULES, WINNERS, solved, totals, type Choice, type Plan } from '../../lib/calibration/workbench';
 import { JAR_PARTS } from '../../components/scenes/jarScene';
-import { CalibrationStage, StandIn, pct, thresholdWords } from './kit';
+import { CalibrationStage, Fact, StandIn, pct, thresholdWords } from './kit';
 
 const MODULE = 'calibration',
   ID = '07-workbench';
@@ -130,6 +130,8 @@ function Score({ s }: { s: S }) {
         {RULES.wrongWhy} {RULES.honestWhy} {RULES.capacityWhy}
       </p>
       <StandIn />
+      <p className="cb-note">Why a dial per kind, from a study of image models:</p>
+      <Fact id="per-domain" />
     </div>
   );
 }

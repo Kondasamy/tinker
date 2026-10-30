@@ -16,3 +16,20 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **The release gate is a host rule** (`decide`): a pass-rate bar, and optionally no question that passed on the baseline (v1) may fail.
 - **Coverage:** every chapter control has a finite domain (`DOMAINS`, and `WORKBENCH_DOMAINS` for chapter 7). `tests/unit/evals-coverage.test.ts` and `evals-workbench.test.ts` walk every combination and fail on any missing answer, reference or judge verdict.
 - **Facts about evals** come from `data/evals/facts.json` with source and access date.
+
+## Toy vs real
+
+Evals has no trained toy: its counts come from RAG's real search over the committed index and the answers recorded for what it found, graded live by code or by recorded judge verdicts and people's labels. What is small on purpose is the sets (12 questions, 9 support messages, 3 cases tried 5 times), so nothing is matched; `SuiteNote` (`kit.tsx`) says the sets are small and recorded and sits beside a cited real figure wherever their counts show.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 | 12 questions; v1 and v2 passed counts, fixed and broken counts; 2 tried | `version-drift` (GPT-4's March vs June 2023 versions: 84% then 51% on primes, better on several-fact questions) | Real (computed from the suite); the set's size labelled by `SuiteNote` |
+| 1 | Five questions asked by hand (quiz) | none | Labelled: a hypothetical in the question |
+| 2 | Kept, dropped and unsorted counts out of 9 support messages | `start-from-failures` (20 to 50 cases to start) | Labelled: `SuiteNote` beside it |
+| 3 | Each grader's verdict on three answers | `code-graders`, `model-graders`, `human-graders` | Real (code graders live; judge and person recorded) |
+| 4 | Judge vs people agreement under r1 and r2; pairs that change winner | `judge-agreement` (GPT-4 agreed with people over 80% of the time), `agreement-imbalance`, `position-bias` | Labelled: recorded verdicts and labels, `SuiteNote` beside `judge-agreement` |
+| 5 | The $5,000 refund; verdicts per grader | `outcome-is-state`, `grade-output-not-steps` | Real (Tool calling's recorded run, graded live) |
+| 6 | 3 cases × 5 tries; pass@k and pass^k for k = 1, 3, 5; one question is 8.3 points of 12 | `pass-hat-k-tau-bench` (pass^8 under 25% on its retail tasks), `trial` | Labelled: recorded tries stand in for sampling, `SuiteNote` beside the τ-bench figure |
+| 7 | Bars 50, 60, 75, 90%; each candidate's pass rate | `pass-hat-k` | Real pass rates; bars are hand-set choices, `SuiteNote` beside the fact |
+| 7 | A 90% gate (quiz) | none | Labelled: a hypothetical in the question |
+| Intro, recall | 12 questions, v1 → v2 passed, fixed and broken counts; quiz hypotheticals | as above | Real (computed from the suite); hypotheticals in questions |

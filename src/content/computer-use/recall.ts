@@ -29,13 +29,13 @@ export const RECALL: RecallItem[] = [
     options: [
       'The host program, carrying out the point the model asked for',
       'The model, which is connected to the computer',
-      'The app, which reads the model’s mind through an API',
+      'The app, which takes orders from the model directly',
     ],
     correct: 0,
     why: [
       'Right. The model only answers with an action; the host does it and sends back a new screenshot.',
       'The model never touches the computer; it gets pictures and returns requests.',
-      'A computer-use agent needs no API: that is why it uses the screen.',
+      'The app has no way to hear from the model: that is why the agent uses the screen.',
     ],
   },
   {
@@ -49,7 +49,7 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right. Between pictures the agent is blind, so each turn of the loop starts with a fresh look.',
+      'Right. Between pictures the agent is blind, so each round of look, act starts with a fresh look.',
       'Nothing expires; the old picture is simply out of date once the page changes.',
       'The screenshot is for the model to see the result, not for the host.',
     ],

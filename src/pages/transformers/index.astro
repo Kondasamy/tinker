@@ -55,7 +55,7 @@ const IDEAS: [string, string, ReturnType<typeof fact>, EngineOpts][] = [
   ],
 ];
 const FACTS: [string, string][] = [
-  [num(LM.params), 'numbers in Larkspur mini’s weights'],
+  [num(LM.params), 'learned numbers in Larkspur mini'],
   [`${LM.n_layer} × ${LM.n_head}`, 'layers × heads'],
   [String(LM.ctx), 'tokens in its window'],
   [`${Math.round(META.heldout.top5 * 100)}%`, 'of unseen Larkspur text: the real next token is in its top 5'],
@@ -76,7 +76,7 @@ const FACTS: [string, string][] = [
           <p class="kicker">Module 7 · Transformers</p>
           <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>What happens inside the model before its next word</h1>
-          <p class="lede">A language model writes one token at a time. Each time, every token of the prompt becomes a vector, attention lets each one weigh the tokens before it, and the last one ends up as a score for every token the model knows. Here you open a tiny one up and watch.</p>
+          <p class="lede">A language model writes one token at a time. Each time, every token of the prompt becomes a list of numbers (a vector), attention lets each one weigh the tokens before it, and the last one ends up as a score for every token the model knows. Here you open a tiny one up and watch.</p>
           <div class="ctas">
             <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
             <a class="btn" href="#path">See the chapters</a>
@@ -112,7 +112,7 @@ const FACTS: [string, string][] = [
             <p class="cap">Larkspur mini’s five likeliest, of all {LM.vocab}.</p>
           </article>
         </div>
-        <p class="note more">Pick one, add it to the prompt, run again, and a reply grows one token at a time. Larkspur mini is tiny: {num(LM.params)} numbers, trained only on Larkspur’s own documents. It runs for real in your browser. It shows how the machinery works; it is no provider’s model.</p>
+        <p class="note more">Pick one, add it to the prompt, run again, and a reply grows one token at a time. Larkspur mini is tiny: {num(LM.params)} numbers, trained only on Larkspur’s own documents. It runs for real in your browser. It shows how the machinery works; it is no provider’s model. For scale: {fact('llama3-shape').claim}</p>
       </section>
 
       <section aria-labelledby="how">

@@ -13,7 +13,7 @@ import { FIRST_BUYERS, NEW_PRODUCT, TRAIN, customerOf, productOf } from '../../l
 import { SHELF_PARTS } from '../../components/scenes/shelfScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { OrdersNote, RecsStage, type View } from './kit';
+import { Fact, OrdersNote, RecsStage, type View } from './kit';
 
 const MODULE = 'recommendations',
   ID = '05-new-shopper-new-product';
@@ -170,7 +170,12 @@ export default function NewShopperNewProduct() {
           </fieldset>
         ),
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
-        out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />,
+        out1: ({ state }) => (
+          <>
+            <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />
+            <Fact id="cold-start" />
+          </>
+        ),
         after: ({ state, apply }) => (
           <>
             <label className="rc-choose">

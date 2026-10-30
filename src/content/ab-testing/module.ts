@@ -56,7 +56,7 @@ const CHAPTERS: Chapter[] = [
     short: 'How many shoppers',
     intro: {
       story:
-        'Next idea: a bigger Buy button. The team expects a small lift, about one point, and wants an answer within a week.',
+        'Next idea: a bigger Buy button. The team expects a small rise, about one point, and wants an answer within a week.',
       goal: 'How many shoppers does a test need to find a small change?',
       learn: [
         'Power: the chance a test finds a real change',

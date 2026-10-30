@@ -101,9 +101,9 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right: with dozens or hundreds of children per page, a few levels reach millions of keys.',
-      'There is no cap; the depth stays small because it grows with the logarithm of the rows.',
-      'The table stays one table; the tree’s fan-out keeps it shallow.',
+      'Right: with dozens or hundreds of pages under each page, a few levels reach millions of keys.',
+      'There is no cap; the tree gains a level only each time the rows multiply many times over.',
+      'The table stays one table; each page pointing to many below keeps the tree shallow.',
     ],
   },
   {
@@ -275,9 +275,9 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right: the inner lookup runs 500 times, so making it a short tree walk saves the most.',
+      'Right: the carrier lookup runs 500 times, so making it a short tree walk saves the most.',
       'Weight plays no part in matching shipments to carriers.',
-      'Each inner lookup in a nested loop can go through an index like any other request.',
+      'Each carrier lookup in a nested loop can go through an index like any other request.',
     ],
   },
   {
@@ -285,15 +285,15 @@ export const RECALL: RecallItem[] = [
     chapter: '06-joining-tables',
     question: 'Why can a nested loop with no index be so slow?',
     options: [
-      'It scans the inner table once for every outer row',
+      'It scans the second table once for every row of the first',
       'It reads both tables once each',
       'It sorts both tables first',
     ],
     correct: 0,
     why: [
-      'Right: the inner scan’s cost is multiplied by the number of outer rows.',
-      'Reading each table once would be cheap; the loop repeats the inner read per row.',
-      'A nested loop doesn’t sort; it repeats the inner lookup for each outer row.',
+      'Right: the scan of the second table is repeated once per row of the first.',
+      'Reading each table once would be cheap; the loop repeats the second table’s read per row.',
+      'A nested loop doesn’t sort; it repeats the lookup for each row of the first table.',
     ],
   },
   {

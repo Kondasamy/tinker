@@ -1,4 +1,4 @@
-// Chapter 1: see, decide, move. The reader drives the claw a press at a time (each press one turn of the loop),
+// Chapter 1: see, decide, move. The reader drives the claw a press at a time (each press one see, decide, move),
 // predicts how often a real robot runs it (RT-1, cited), then lands the part in the tray. Links Computer use, which
 // runs the same loop on a screen.
 import StepRunner from '../../components/story/StepRunner';
@@ -28,7 +28,7 @@ export interface S {
 }
 
 export const P1 = {
-  question: 'How often does Google’s RT-1 robot run its loop on its own?',
+  question: 'How often does Google’s RT-1 robot look and pick its next move on its own?',
   options: [`About ${RT1} times a second`, 'Once a minute', 'Once per task'],
 };
 export const OUTCOME = 0;
@@ -36,12 +36,12 @@ export const OUTCOME = 0;
 export const QUIZ = {
   question: 'A box shifts while a warehouse arm reaches for it. When does the arm react?',
   options: [
-    'On its next turn of the loop, a split second later',
+    'On its next look, a split second later',
     'Only after the whole pick is done',
     'Never: its plan was fixed at the start',
   ],
   correct: 0,
-  explanation: 'A robot looks again on every turn of its loop, so a change shows up in its next decision.',
+  explanation: 'A robot looks again before every move, so a change shows up in its next decision.',
   why: [
     'Right: each turn starts with a fresh look, so the next move already reacts.',
     'The loop doesn’t wait for the task to end; it looks again before every move.',
@@ -57,7 +57,7 @@ export const STEPS: Step<S>[] = [
     focus: 'stage',
     visibleControls: [],
     narration:
-      'The claw rides a gantry over a simulated bin. Each press is one turn of the control loop: see, decide, move.',
+      'The claw hangs from rails over a simulated bin. Each press is one round of see, decide, move: the control loop.',
     act: 'Press → twice.',
     say: { block: 'claw', text: 'The claw' },
     predicate: s => moved(s.bay) >= 2 || s.bay.demos.length > 0,
@@ -110,7 +110,7 @@ export default function SeeDecideMove() {
           say={say}
           view={state.view}
           onView={view => sync({ ...state, view })}
-          caption="Simulated bay: a grid world, not a real robot. Arrow keys work while the pad has focus."
+          caption="Simulated bay: a made-up grid, not a real robot. Arrow keys work while the pad has focus."
         />
       )}
       controls={{

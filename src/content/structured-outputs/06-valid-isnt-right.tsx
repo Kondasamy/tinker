@@ -12,7 +12,7 @@ import { play, run, schemaOf } from '../../lib/structured-outputs/prompts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { STENCIL_PARTS } from '../../components/scenes/stencilScene';
-import { Answer, CTX, Fact, PinnedStage, Waiting, useModel, whenLoaded } from './kit';
+import { Answer, CTX, Fact, PinnedStage, ToyNote, Waiting, useModel, whenLoaded } from './kit';
 
 const MODULE = 'structured-outputs',
   ID = '06-valid-isnt-right';
@@ -100,7 +100,7 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['cut', 'quiz'],
     narration:
-      'Two fields didn’t fit the window: a cut-off answer, not valid JSON. A refusal can break the schema too.',
+      'Two fields overflowed Larkspur mini’s tiny window: a cut-off, not JSON. Real windows are far bigger; refusals can break schemas.',
     act: 'One question to finish.',
     say: { block: 'belt', text: 'Cut off' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -185,6 +185,8 @@ export default function ValidIsntRight() {
         quiz: ({ state, apply, sync }) => (
           <>
             <Fact id="anthropic-max-tokens" />
+            <Fact id="anthropic-context" />
+            <ToyNote />
             <Fact id="anthropic-refusal" />
             <Fact id="openai-refusal" />
             <Quiz

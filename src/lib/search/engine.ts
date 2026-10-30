@@ -7,6 +7,7 @@ import corpus from '../../../public/data/index/corpus.json' with { type: 'json' 
 import queries from '../../../data/search/queries.json' with { type: 'json' };
 import { buildBm25, type Bm25 } from '../rag/bm25';
 import { cleanKey, wordsOf, type Clean } from './stem';
+import { LUCENE_B, LUCENE_K1 } from './facts';
 
 export const PAGE_WORDS = 32;
 export interface Page {
@@ -57,12 +58,12 @@ export interface Settings {
   k1: K1;
   b: B;
 }
-/** RAG's BM25 settings, every cleaning on. */
+/** Lucene's BM25 defaults (RAG's too), every cleaning on; a test checks they are on the bench's choices. */
 export const DEFAULT: Settings = {
   clean: { lower: true, stop: true, stem: true },
   weighting: 'bm25',
-  k1: 1.2,
-  b: 0.75,
+  k1: LUCENE_K1 as K1,
+  b: LUCENE_B as B,
 };
 
 const built = new Map<string, Bm25>();

@@ -10,7 +10,7 @@ import { DOCS, N, PAGE_WORDS, fmt, scan } from '../../lib/search/engine';
 import { CABINET_PARTS, IDLE } from '../../components/scenes/cabinetScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { SearchStage, SimNote } from './kit';
+import { Fact, SearchStage, SimNote } from './kit';
 
 const MODULE = 'search',
   ID = '01-reading-every-page';
@@ -128,6 +128,7 @@ export default function ReadingEveryPage() {
           <>
             <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />
             <p className="tc-status">{`“${FIRST}”: ${fmt(N)} pages read. “${SECOND}”: ${fmt(N)} pages read.`}</p>
+            <Fact id="scan-vs-index" />
             <SimNote />
           </>
         ),

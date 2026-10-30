@@ -75,7 +75,7 @@ const CHAPTERS: Chapter[] = [
       goal: 'What does one lost packet cost?',
       learn: [
         'A lost packet is noticed only by a missing reply',
-        'It waits a timeout, then goes again',
+        'At worst it waits a timeout, then goes again',
         'Why one loss can cost more than every round trip',
       ],
       terms: [

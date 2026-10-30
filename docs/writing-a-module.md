@@ -58,6 +58,12 @@ Each module has a **recall bank** (`src/content/<module>/recall.ts`): three to f
 - Numbers, dates, recorded answers and claims about real systems live in `data/<module>/` with their sources, and the copy imports them. Never type a number or an answer into page copy.
 - There is no backend. Whatever the browser can't run for real (a large model's reply, a live network) is **pre-recorded** or simulated for every situation the reader's controls can reach, and a coverage test proves it. Keep each control to a small set of prepared choices so the recordings stay finite.
 - Everything else (validation, scoring, maths, a cache, an index, the protocol messages) runs for real in the browser.
+- **One real finding per chapter.** Each chapter shows at least one fact from `data/<module>/facts.json` through the kit's `<Fact id=…>` (which opens its `Cite` mark), best on the reveal after a prediction, so the reader checks the toy against the real system. Put it on an existing step's controls; a new step changes the step ids and restarts saved runs.
+- **Find with search, prove with the source.** A search tool (the `perplexity` skill, one query at a time; parallel calls hit its rate limit) proposes candidate findings for each chapter's idea. Open the primary source (paper, spec or RFC, official doc, official postmortem) and confirm the exact claim and number there before writing the fact; a vendor's own benchmark is labelled vendor-reported. Never cite the search tool or paraphrase its answer.
+- **Toy vs real.** List every number the reader sees. Where a real figure fits the toy without breaking its engine decision, the toy reads it from the fact's `value` (matched). Otherwise the kit's toy note says it is a toy and a real fact sits beside it (labelled), and the copy says what the toy number stands for in the real system, or where the toy stops matching. Toys trained ahead of time are labelled, never retrained for this. Record the table under `## Toy vs real` in `docs/modules/<id>.md`.
+- **Fact file rules.** Every `source` is `https:` (prefer the DOI or arXiv URL); a fact re-checked on its own gets its own `accessed` date, and the file-level date only moves when every fact was re-checked. A number in copy that holds only while hand-set data stays a certain way ("real teams find fewer") gets a unit test that pins it. No unsourced asides: if a toy-vs-real line can't cite a fact or the module's data, leave it out.
+- **Reworded text and e2e.** e2e walkers match on option and button text in `tests/e2e/<id>.spec.ts` and `tests/e2e/<id>-flow.ts`; grep both for every string you reword.
+- **Plain words.** A word in `src/components/story/plain-words.ts` is swapped for its plain word, or declared as a chapter term (it must then appear in that chapter's narration or `act`, and it counts for later chapters). Keep units, conditions and the source's scope ("in their test"); plain never means vaguer.
 
 ## 6. Draw the pictures
 
@@ -79,6 +85,9 @@ Each module has a **recall bank** (`src/content/<module>/recall.ts`): three to f
 | `src/content/<id>/module.ts` | Registry entry: title, description, level, status, author, prerequisites, story, chapters with their `intro` |
 | `src/content/<id>/NN-<slug>.tsx` | One chapter: its steps, controls, stage and drawer panels. The template's is `01-first-step.tsx` |
 | `src/content/<id>/recall.ts` | The recall bank |
+| `src/content/<id>/kit.tsx` | Pieces chapters share: the cited `Fact`, the `ToyNote` |
+| `src/lib/<id>/facts.ts` | The module's fact lookup (`factsOf`); an unknown id throws |
+| `docs/modules/<id>.md` | Picture and engine decisions, and the Toy vs real table |
 | `src/pages/<id>/index.astro` | Module intro: the idea in one example, how it works, the story's company, the chapter path, credits. Lead each section with a picture and a one-line caption; mark longer text `.more` so the Pictures reading mode folds it away. Use `ReadingMode` and `ChapterCards` from `src/components/intro/` |
 | `src/pages/<id>/[chapter].astro` | Chapter route. It picks the chapter's island with a chain of `chapter === ... ?` checks, not a lookup table, because hydration needs a static import per island. |
 | `src/pages/<id>/recap.astro` | The recap page |
@@ -98,6 +107,8 @@ The template lives in `templates/module/` (outside `src/`, so it is never built 
 - [ ] Every quiz option has a `why` line naming a real misconception; "I'm not sure" is offered
 - [ ] The recall bank covers every chapter, items ask in a new context, one item is pinned
 - [ ] Every fact, number and model answer comes from `data/` with a source
+- [ ] Every chapter shows a cited primary-source fact; the Toy vs real table lists every number shown (`tests/unit/research-coverage.test.ts`)
+- [ ] No flagged word outside a declared term (`tests/unit/plain-words.test.ts`)
 - [ ] Text in pictures is in label pills; one figure on the stage at a time
 - [ ] Looked at every page at desktop width and 390px, with and without reduced motion
 - [ ] Credits: the module author in the registry (Colorfigures is credited on the home footer only)

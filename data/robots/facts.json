@@ -9,10 +9,28 @@
       "accessed": "2026-10-30"
     },
     {
+      "id": "transparent-depth",
+      "claim": "Sajjan et al. (2020) found that standard 3D cameras can’t measure clear objects well: in many cases they show up as noisy or distorted copies of whatever lies behind them.",
+      "source": "https://arxiv.org/abs/1910.02550",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "hand-designed-grasp",
+      "claim": "In Levine et al.’s test (2016) of grasping objects the robot had not seen, a hand-designed grasping method failed 35% of tries; a method learned from over 800,000 grasp attempts failed 20%.",
+      "source": "https://arxiv.org/abs/1603.02199",
+      "accessed": "2026-10-30"
+    },
+    {
       "id": "aloha-loop",
       "claim": "Zhao et al.’s ALOHA arms (2023) learned each fine task, such as slotting a battery, from 50 human demonstrations, and set their joints 50 times a second.",
       "value": "50",
       "source": "https://tonyzhaozh.github.io/aloha/",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "act-demos",
+      "claim": "Zhao et al. (2023) taught low-cost robot arms 6 fine tasks, such as slotting a battery, at 80–90% success from only 10 minutes’ worth of demonstrations.",
+      "source": "https://arxiv.org/abs/2304.13705",
       "accessed": "2026-10-30"
     },
     {
@@ -26,6 +44,12 @@
       "claim": "Tobin et al. (2017) trained an object finder only on simulated images with random, unrealistic textures and lighting; on real camera images it found objects to within 1.5 cm.",
       "value": "1.5",
       "source": "https://arxiv.org/abs/1703.06907",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "rt1-unseen",
+      "claim": "In Brohan et al.’s tests (2022), Google’s RT-1 succeeded at 97% of the tasks it was trained on, but 76% of new tasks and 59% in new backgrounds.",
+      "source": "https://arxiv.org/abs/2212.06817",
       "accessed": "2026-10-30"
     }
   ]

@@ -52,10 +52,10 @@ const current = (s: S) => R(s);
 const P1 = {
   question: `Larkspur turns on an allow-list: send_email may only go to customer addresses on file. The model asks to send the record to ${OUTSIDE} again. What happens?`,
   options: [
-    'The host blocks the send and tells the model, and the customer still gets their answer',
+    'Larkspur’s app blocks the send and tells the model, and the customer still gets their answer',
     'The model sends the record to a different outside address instead',
     'The whole case stops, and the customer gets no answer',
-    'The send goes through: the model asked for it, and the host does what the model asks',
+    'The send goes through: the model asked for it, and the app does what the model asks',
   ],
 };
 const OUT1 = ALLOWED.attackMet ? 3 : ALLOWED.caseDone && BLOCKED ? 0 : !ALLOWED.caseDone ? 2 : 1;
@@ -75,7 +75,7 @@ const QUIZ = {
     'Larkspur’s assistant will soon draft quotes as web pages that load product images. A colleague says: “Pages only go to the customer who asked, so nothing can leak.” What do you tell them?',
   options: [
     'Agreed: if the recipient is the right customer, the data stays where it should',
-    'An image or a link to someone else’s site can carry data out as it loads or when it is clicked, so the host must check where every address in the page points, not only who receives it',
+    'An image or a link to someone else’s site can carry data out as it loads or when it is clicked, so Larkspur’s app must check where every address in the page points, not only who receives it',
     'Turn off the assistant’s ability to send anything at all',
     'Agreed, as long as a person approves each page before it goes out',
   ],
@@ -117,7 +117,7 @@ export const STEPS: Step<S>[] = [
     id: 'allow',
     focus: 'allow',
     visibleControls: ['p1', 'allow', 'log'],
-    narration: 'The stage draws the allow-list as a barrier on the outbound chute.',
+    narration: 'In the picture, the allow-list is a barrier on the chute out to the post box.',
     act: 'Turn on the allow-list.',
     predicate: s => s.allow,
     hint: 'Press “Allow-list: on”.',
@@ -144,7 +144,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'filter',
     focus: 'filter',
-    visibleControls: ['out2', 'log', 'filter'],
+    visibleControls: ['out2', 'fact', 'log', 'filter'],
     opensDrawer: null,
     narration: `${says('link')}, in a reply the allow-list passed.`,
     act: 'Turn on the output filter.',
@@ -271,6 +271,7 @@ export default function TheWayOut() {
           <Predict {...P2} value={state.p2} onPredict={i => apply({ ...state, p2: i, ran: false })} />
         ),
         out2: ({ state }) => <Outcome {...P2} prediction={state.p2} outcome={OUT2} />,
+        fact: () => <Fact id="owasp-image-exfil" />,
         allow: ({ state, apply }) => (
           <Chips
             label="Allow-list"

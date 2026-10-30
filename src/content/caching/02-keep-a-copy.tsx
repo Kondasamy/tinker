@@ -9,7 +9,7 @@ import { EDGES, MOMENTS, OFF, TTLS, clock, policyOf, runOf } from '../../lib/cac
 import { DEPOT_PARTS, depotAt } from '../../components/scenes/depotScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { CachingStage, Clock, SimNote, msOf, pct, type View } from './kit';
+import { CachingStage, Clock, Fact, SimNote, msOf, pct, type View } from './kit';
 
 const MODULE = 'caching',
   ID = '02-keep-a-copy';
@@ -137,7 +137,12 @@ export default function KeepACopy() {
             Open the Timeline tab
           </button>
         ),
-        out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />,
+        out1: ({ state }) => (
+          <>
+            <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />
+            <Fact id="cache-reuse" />
+          </>
+        ),
         clock: ({ state, sync }) => (
           <Clock id="ca-clock2" t={state.t} onTick={t => sync({ ...state, t, view: 'scene' })} />
         ),

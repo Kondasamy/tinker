@@ -10,7 +10,14 @@ import { fetchLoader, type Loader } from '../../lib/rag/load';
 import { modelLoader, type Meta, type Weights } from '../../lib/lm/load';
 import type { Model } from '../../lib/lm/model';
 import { QUESTIONS } from '../../lib/evals/suite';
-import { gradeVersion, PRICE_CHANGE, QUESTION_IDS, VERSIONS, type VersionId } from '../../lib/fine-tuning/engine';
+import {
+  fullCount,
+  gradeVersion,
+  PRICE_CHANGE,
+  QUESTION_IDS,
+  VERSIONS,
+  type VersionId,
+} from '../../lib/fine-tuning/engine';
 import { fact } from '../../lib/fine-tuning/facts';
 import { TRAIN_BOARD, trainLabel, trainScene, type TrainOpts } from '../../components/scenes/trainScene';
 import { chartLabel, lossChart, runSeries, stepWords, type Series } from '../../components/scenes/lossChart';
@@ -281,6 +288,20 @@ export function Fact({ id }: { id: string }) {
     </p>
   );
 }
+
+const STYLE_EXAMPLES = (META.finetune!.training as { styleExamples: number }).styleExamples;
+/** Said beside a cited fact wherever Larkspur mini's own numbers show (R6, KTD5): a trained toy, labelled. */
+export const ToyNote = () => (
+  <p className="note">
+    {`Larkspur mini is a toy: ${fullCount(META).toLocaleString('en-US')} weights, fine-tuned ahead of time on ${STYLE_EXAMPLES} replies. Real models are far larger: the steps are the same, the numbers are not.`}
+  </p>
+);
+/** Said beside a cited fact wherever the three versions' answers are graded (R6): recorded, and any bar hand-set. */
+export const RecordedNote = ({ bar }: { bar?: number }) => (
+  <p className="note">
+    {`The three versions’ answers were written and recorded for this site; only the grading runs live.${bar ? ` The ${bar}% bar is a hand-set planning number.` : ''}`}
+  </p>
+);
 
 // ---- the story column's answers ----
 

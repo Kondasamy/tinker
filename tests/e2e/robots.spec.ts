@@ -99,7 +99,7 @@ function walker(page: Page, mode: Mode, check: (page: Page) => Promise<void> = a
       await drive(DEMOS[0].slice(2));
       await stepN(4);
       await check(page);
-      await opt(/^On its next turn/);
+      await opt(/^On its next look/);
       await finish(next);
     },
     async ch2(next?: RegExp, quiz: string | RegExp = /^Drives as if/) {

@@ -69,7 +69,7 @@ export const STEPS: Step<S>[] = [
     id: 'dedup',
     focus: 'dedup',
     visibleControls: ['p1', 'dedup'],
-    narration: 'The team trained a second model on the same text, duplicates removed. Both runs are recorded offline.',
+    narration: 'The team trained a second model on the same text, duplicates removed. Both were trained ahead of time.',
     act: 'Remove duplicates.',
     predicate: s => s.dedup,
   },

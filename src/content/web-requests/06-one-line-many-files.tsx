@@ -1,4 +1,4 @@
-// Chapter 6: one line, many files. Wen's lossy line again. The reader reads HTTP/1.1's queued connections off the
+// Chapter 6: one line, many files. Wen's line that loses packets, again. The reader reads HTTP/1.1's queued connections off the
 // waterfall, predicts what one lost photo does under HTTP/2, switches to it and sees every stream held back, then
 // switches to HTTP/3, where QUIC holds back only the lost one.
 import StepRunner from '../../components/story/StepRunner';
@@ -43,7 +43,7 @@ export const QUIZ = {
   why: [
     'Right: every stream behind the lost packet waits for it, which is head-of-line blocking.',
     'That is what HTTP/3 over QUIC does; over TCP the text waits behind the photo’s packet.',
-    'A loss is still only noticed after a timeout, whatever runs on top of the connection.',
+    'Resending still waits for TCP to notice the loss, whatever runs on top of the connection.',
   ],
 };
 

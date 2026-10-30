@@ -170,7 +170,7 @@ export default function TheSameTrick() {
             <Table />
             <p className="note ca-note">
               <a href={LINKS.context}>Context engineering, chapter 4</a> orders a prompt for the cache;{' '}
-              <a href={LINKS.inference}>Inference engineering, chapter 2</a> sizes the KV cache on a real server.
+              <a href={LINKS.inference}>The KV cache at scale</a> sizes it on a real server.
             </p>
           </>
         ),

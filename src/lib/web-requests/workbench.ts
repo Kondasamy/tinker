@@ -1,5 +1,5 @@
 // Opening a web page chapter 7's workbench: a DNS TTL, an HTTP version and TLS resumption (4 × 3 × 2 policies), run
-// for every customer with lossy lines on. A policy meets the owner's rules (data/web-requests/workbench.json) when every
+// for every customer with packet loss on. A policy meets the owner's rules (data/web-requests/workbench.json) when every
 // customer's page is in within the budget and the TTL lets a moved shop be found within the limit. The puzzle accepts
 // every policy that meets them (WINNERS, pinned in the same file and recomputed by the unit test).
 import data from '../../../data/web-requests/workbench.json' with { type: 'json' };

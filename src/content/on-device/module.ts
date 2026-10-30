@@ -29,7 +29,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Smaller numbers',
     intro: {
       story:
-        'Fewer bytes per weight would shrink the 1B. Inference rounded Larkspur mini to 8 and 4 bits; for a handheld the team wants to try 2.',
+        'Fewer bytes per weight would shrink the 1B. Larkspur’s server team rounded Larkspur mini to 8 and 4 bits; for a handheld the team wants to try 2.',
       goal: 'How few bits can a weight keep before the reply breaks?',
       learn: [
         'Quantization: rounding each weight to a few levels',
@@ -39,6 +39,7 @@ const CHAPTERS: Chapter[] = [
       terms: [
         ['Quantization', 'Storing each weight with fewer bits by rounding it to the nearest of a few levels.'],
         ['Bits per weight', 'How many bits store each weight: 16, 8, 4 or 2 here.'],
+        ['Inference', 'Running a trained model to get its reply, as the handheld does for every question.'],
       ],
     },
   },

@@ -12,7 +12,7 @@ import { DAY1_COUNTS, TOP, mostFrequent, ranked } from '../../lib/observability/
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { Chips, Fact, MODE_SHORT, MODULE, ObsStage, binsOf, modeName, wallOf, type View } from './kit';
+import { Chips, Fact, MODE_SHORT, MODULE, ObsStage, ToyNote, binsOf, modeName, wallOf, type View } from './kit';
 import { TRACE_PARTS } from '../../components/scenes/traceScene';
 
 export const PARTS = TRACE_PARTS;
@@ -164,12 +164,11 @@ export default function WhatMatters() {
         ),
         facts: () => (
           <>
-            <p className="tc-fact">
-              The counts come from this module’s hand-written traces and the ratings are the team’s judgement, so this
-              shows the method, not a benchmark.
-            </p>
+            <ToyNote>
+              The harm ratings are the team’s judgement. Count × harm is a simple version of how risk is weighed:
+            </ToyNote>
+            <Fact id="nist-risk" />
             <Fact id="error-analysis" />
-            <Fact id="saturation" />
           </>
         ),
         quiz: ({ state, apply, sync }) => (

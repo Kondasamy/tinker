@@ -13,7 +13,7 @@ import { num } from '../../lib/format';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { ContextStage, Fact, PartsTable, runOf } from './kit';
+import { ContextStage, Fact, PartsTable, runOf, ToyNote } from './kit';
 
 const MODULE = 'context',
   ID = '01-whats-in-the-window';
@@ -97,7 +97,7 @@ export const STEPS: Step<S>[] = [
     focus: 'docs',
     visibleControls: ['parts', 'docs'],
     narration:
-      'No answer: the shipping policy isn’t in its window. The table sizes each part in tokens, counted by this site’s tokenizer.',
+      'No answer: the shipping policy isn’t in its window. The table sizes each part in tokens, by this site’s token counter.',
     act: 'Add the shipping document.',
     say: { block: 'window', text: 'Policy missing' },
     predicate: s => s.docs,
@@ -180,7 +180,13 @@ export default function WhatsInTheWindow() {
         ),
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUT1} />,
-        fact: () => <Fact id="window-everything" />,
+        fact: () => (
+          <>
+            <Fact id="window-everything" />
+            <Fact id="window-size" />
+            <ToyNote>The toy’s budget stands for that real window, scaled down so every part shows.</ToyNote>
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

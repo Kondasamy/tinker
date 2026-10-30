@@ -11,7 +11,7 @@ import { loss } from '../../components/scenes/lossChart';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { Fact, PreTrainingStage } from './kit';
+import { Fact, PreTrainingStage, ToyNote } from './kit';
 
 const MODULE = 'pre-training',
   ID = '05-a-leaked-test';
@@ -138,6 +138,7 @@ export default function ALeakedTest() {
             </table>
             <Fact id="contamination" />
             <Fact id="dedup-overlap" />
+            <ToyNote />
           </>
         ),
         quiz: ({ state, apply, sync }) => (

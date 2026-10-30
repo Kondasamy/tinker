@@ -115,7 +115,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['compare', 'quiz'],
+    visibleControls: ['compare', 'fact', 'quiz'],
     narration: `Once the email was read, send_email was gone; ${SENDER} still got an answer. The rule never judges the note.`,
     act: 'One question to finish.',
     say: { block: 'post', text: 'Chute shut' },
@@ -222,6 +222,7 @@ export default function TheTrifecta() {
           </>
         ),
         compare: () => <Compare />,
+        fact: () => <Fact id="camel" />,
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

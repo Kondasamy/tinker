@@ -17,7 +17,7 @@ import {
   resultAt,
   runOf,
 } from '../../lib/ab-testing/sim';
-import { sampleSize } from '../../lib/ab-testing/stats';
+import { RULE, sampleSize } from '../../lib/ab-testing/stats';
 import { SPLIT_PARTS, splitAt } from '../../components/scenes/splitScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
@@ -39,7 +39,7 @@ const N = SEEDS.length,
 
 export const P1 = {
   question: `Run this one-week test ${N} times. In how many will B win?`,
-  options: ['Most: the lift is real', 'Under half: a week is too few shoppers', 'None at all'],
+  options: ['Most: the rise is real', 'Under half: a week is too few shoppers', 'None at all'],
 };
 export const outcomeOf = () => {
   const p = powerOf(planOf(DAYS[0]));
@@ -88,7 +88,7 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: 'No winner after a week. Power is the share of runs that find a real lift.',
+    narration: 'No winner after a week. Power is the share of runs that find a real rise.',
     act: 'Predict the power.',
     predicate: s => s.p1 !== null,
   },
@@ -139,11 +139,11 @@ function Size({ s, set }: { s: S; set: (s: S) => void }) {
           onChange={e => set({ ...s, days: DAYS[Number(e.target.value)] })}
         />
       </div>
-      <Tally verdicts={findings(p)} label={`runs found the lift: power ${pct(powerOf(p))}`} />
+      <Tally verdicts={findings(p)} label={`runs found the rise: power ${pct(powerOf(p))}`} />
       <Maths>
         <p>
-          The rule: shoppers per checkout = 16 × p × (1 − p) ÷ Δ², where p is today’s rate and Δ the change to find.
-          {` Here 16 × ${A.rate} × ${(1 - A.rate).toFixed(1)} ÷ ${LIFT.toFixed(2)}² = ${count(NEEDED)}.`}
+          {`The rule: shoppers per checkout = ${RULE} × p × (1 − p) ÷ Δ², where p is today’s rate and Δ the change to find.`}
+          {` Here ${RULE} × ${A.rate} × ${(1 - A.rate).toFixed(1)} ÷ ${LIFT.toFixed(2)}² = ${count(NEEDED)}.`}
         </p>
         <Fact id="sample-size" />
       </Maths>

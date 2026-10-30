@@ -13,7 +13,7 @@ import PINNED from '../../../data/synthetic-data/pinned.json' with { type: 'json
 import { RARE, factOf, gradeIds, teacher } from '../../lib/synthetic-data/generate';
 import { genOf, sampleText } from '../../lib/synthetic-data/runs';
 import { COPIER_PARTS, copierAt } from '../../components/scenes/copierScene';
-import { CopierStage, LoadLine, ToyNote, Waiting, useModel } from './kit';
+import { CopierStage, Fact, LoadLine, ToyNote, Waiting, useModel } from './kit';
 
 const MODULE = 'synthetic-data',
   ID = '04-the-teachers-mistakes';
@@ -208,7 +208,12 @@ export default function TheTeachersMistakes() {
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         ask: ({ state, sync }) => <Ask state={state} sync={sync} />,
         answers: ({ state }) => <Answers student={state.student} />,
-        out: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />,
+        out: ({ state }) => (
+          <>
+            <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />
+            <Fact id="gudibande-2023" />
+          </>
+        ),
         student: ({ state, apply }) => (
           <button type="button" className="big" onClick={() => apply({ ...state, student: true })}>
             See the student’s answers

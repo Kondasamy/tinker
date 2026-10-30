@@ -12,7 +12,7 @@ import { extract } from '../../lib/memorisation/extract';
 import { CANARIES, REPEATS, canaryOf, firstName } from '../../lib/memorisation/story';
 import PINNED from '../../../data/memorisation/pinned.json' with { type: 'json' };
 import { RECITAL_PARTS } from '../../components/scenes/recitalScene';
-import { LoadLine, PrefixPicker, RecitalStage, ToyNote, Waiting, ledgerOf, useModel } from './kit';
+import { Fact, LoadLine, PrefixPicker, RecitalStage, ToyNote, Waiting, ledgerOf, useModel } from './kit';
 
 const MODULE = 'memorisation',
   ID = '03-ask-it-to-finish';
@@ -68,7 +68,7 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['p1'],
     narration:
-      'An attacker types a prefix, the start of a line, and the model finishes it, always taking its greedy pick.',
+      'An attacker types a prefix, the start of a line; the model finishes it the greedy way, taking its likeliest next piece.',
     act: 'Predict first.',
     say: { block: 'model', text: 'Finishes lines' },
     predicate: s => s.p1 !== null,
@@ -135,6 +135,8 @@ function Replies({ s }: { s: S }) {
           </li>
         ))}
       </ul>
+      <Fact id="carlini-2021" />
+      <p className="mem-note">{`Where the toy stops matching: this tiny model needed ${Math.min(...RECITED)} copies to recite a PIN, while GPT-2, far larger, gave back text from a single document.`}</p>
       <ToyNote />
     </>
   );

@@ -18,3 +18,22 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **Chapter 7's workbench** (`workbench.ts`): a recipe is a grid run; it wins when no other recipe is at least as good on both held-out loss (2 decimals) and rare words guessed (tenths of a percent) and better on one. `WINNERS` (three, all 50% real) is pinned and recomputed in `tests/unit/synthetic-data-engine.test.ts`. At the document level dedupe drops nothing (whole documents never overlap by half), so dedupe and off tie; the table says what each recipe kept.
 - **Pinned** (`data/synthetic-data/pinned.json`): chapter 1's mention counts (recounted from the corpus), chapter 2's and 3's batch counts, the teacher's and student's key facts (none of nine). A retrain means new pins, never hand-typed copy.
 - **Facts** (`data/synthetic-data/facts.json`): Shumailov et al. (Nature 2024) and Gerstgrasser et al. (2024) are cited as labelled large-model findings, apart from Larkspur's toy; Self-Instruct (2022) and phi-1's "Textbooks Are All You Need" (2023) on the intro.
+
+## Toy vs real
+
+Every loss, rare-word share and kept count below comes from Larkspur mini and its copies, trained ahead of time or pinned (`ToyNote` says so wherever they show). They can only be labelled (KTD5): a different threshold or temperature means new runs and new pins. The cited fact on the same step is the large-model finding the toy stands beside. Nothing is matched.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 | 42 training documents; topic mentions (Kestrel in 11…); 1 document per rare request; rare words appear 12 times or fewer | `kandpal-2023` (answers track how many training documents relate to a question) | Real: counted from Larkspur's corpus (`pinned.json`, recounted by a test) |
+| 1 | Thousands of PIN chats, a few inheritance ones (quiz) | none | Labelled: a hypothetical in the question |
+| 2 | Temperatures 0.7, 1, 1.3; 20 replies a batch; copies and replies naming a product per batch (pinned) | `holtzman-2019` (likeliest words repeat, random picks wander) | Labelled: Larkspur mini's live, seeded batches |
+| 2 | 1,000 reviews (quiz) | none | Labelled: a hypothetical in the question |
+| 3 | 20 replies at 0.7; kept 20 / 19 / 3 per sieve (pinned); near-copy at half its four-piece phrases | `self-instruct-filter` (ROUGE-L under 0.7) | Labelled: the toy's overlap rule is `train_synth.py`'s, and moving it would change every grid run |
+| 3 | Nine in ten dropped (quiz) | none | Labelled: a hypothetical in the question |
+| 4 | 9 rare requests; teacher 0 of 9, student 0 of 9 key facts (pinned) | `gudibande-2023` (students copy style, not facts) | Labelled: the toy teacher knows none, a real one some |
+| 4 | 5,000 answers (quiz) | none | Labelled: a hypothetical in the question |
+| 5 | 5 generations; loss 4.04 → 5.88; rare words guessed 27% → 5%, all words 44% → 24%; repeats in the read-out | `shumailov-2024` (the tails of the real data disappear) | Labelled: toy loss is per piece of Larkspur's text, not comparable to a large model's |
+| 6 | Generation 5 loss 5.88 replace, 4.33 accumulate; rare words 5% vs 14% | `gerstgrasser-2024` (accumulating avoids collapse) | Labelled |
+| 7 | 18 recipes; loss, rare words guessed, training documents and real share of the text per recipe; 3 winners (`WINNERS` recomputed) | `textbooks` (phi-1: 6B tokens of filtered web text, 1B model-written) | Labelled: the toy's 50% real share stands for phi-1's mostly real mix |
+| Intro, recall | The same recorded losses and rare-word shares; 42 documents, 9 rare requests | `self-instruct`, `textbooks`, `shumailov-2024`, `gerstgrasser-2024` | Labelled ("Larkspur's toy" note on the intro) |

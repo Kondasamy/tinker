@@ -65,7 +65,7 @@ export const STEPS: Step<S>[] = [
     id: 'rounds',
     focus: 'stage',
     visibleControls: [],
-    narration: `Each round, every customer buys from their shelf with a ${pct(BUY)} chance. The shop retrains on the last ${WINDOW} rounds.`,
+    narration: `Every round, customers buy from their shelf with a ${pct(BUY)} chance. The shop relearns from the last ${WINDOW} rounds’ orders.`,
     act: 'Press Next round three times.',
     say: { block: 'map', text: 'On the map' },
     predicate: s => s.round >= 3,

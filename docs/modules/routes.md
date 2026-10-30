@@ -28,5 +28,20 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **Pinned effects** (`data/routes/pinned.json`): breadth-first's 7-road route takes more minutes than Dijkstra's 9-road one; A* at weight 1 matches Dijkstra's minutes and settles fewer junctions; closing the bridge on the route detours over the other; closing both is no route; a jam on Lock to Dock flips the route. `routes-engine.test.ts` re-derives each.
 - **Chapter 7's workbench** (`workbench.ts`): six settings (fewest roads, Dijkstra, A* at 1, 1.5, 2, 3) over the day in `data/routes/deliveries.json`. The rule: the day's minutes within the slack of the fastest; then the fewest junctions looked at. `WINNERS` is pinned and `routes-workbench.test.ts` solves it again.
 - **Contraction hierarchies are cited, not run** (chapter 6): the shortcuts in the picture store the minutes Dijkstra finds between their ends, drawn for illustration only.
-- **Facts** (Dijkstra 1959, A* 1968, weighted A*'s bound, Google Maps' live traffic, contraction hierarchies, OSRM's pipelines) come from `data/routes/facts.json` with source and access date.
+- **Facts** come from primary sources only, in `data/routes/facts.json` with source and access date: Dijkstra 1959, Hart, Nilsson and Raphael 1968 (A*), Likhachev, Gordon and Thrun 2003 (weighted A*'s bound), Geisberger et al. 2008 (contraction hierarchies), and the official OSRM and Google Maps route docs. Every chapter shows at least one.
 - **Where it meets Search**: chapter 6 links to Search's index: both work hard ahead of time so a question looks at little.
+
+## Toy vs real
+
+The town, its roads and their minutes are hand-made (`data/routes/town.json`); `TownNote` says so on every step that shows them beside a cited fact. The searches are real, so where a real finding is about the method (settle order, A*'s exactness, weighted A*'s bound) the toy agrees with it and a test pins that.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 | the route's minutes and roads (19 min, 9 roads); the detour (22 min) | links of known length (`graph`) | labelled (hand-made town; `TownNote` on the detour step) |
+| 2 | fewest roads 7 roads, 22 min; fewest minutes 9 roads, 19 min | shortest and fastest differ (`osrm-cost`) | labelled; the effect itself is real, pinned in `routes-engine.test.ts` |
+| 3 | junctions settled, the minutes each settled at, rising | settles in rising distance (`dijkstra`) | labelled minutes; the rising order is real, pinned ("Dijkstra settles junctions in non-decreasing minutes") |
+| 4 | junctions looked at (Dijkstra 28, A* 21), the same 19 min; weights 1, 1.5, 2, 3; weight 2's minutes "within the 2× limit" | a guess that never overestimates finds a cheapest path (`astar`); a weighted path costs at most weight × the cheapest (`weighted`) | labelled counts; exactness and the 2× limit are real, pinned ("A* at weight 1 matches…", "a heavier weight never costs more than weight × the fastest") |
+| 5 | Lock to Dock's free minutes (`FREE`), the range up to `FREE` + 8, the flip point and the new route's minutes | traffic arrives as new road speeds (`osrm-traffic`); live traffic is optional (`traffic`) | labelled (hand-set jam) |
+| 6 | 28 of 30 junctions looked at; 18 million junctions; the three shortcuts' minutes | Western Europe's 18,029,721 junctions (`ch`), shortcuts on only-quickest paths (`ch-paper`), OSRM's two ways (`osrm`) | 18 million matched (`EUROPE` reads `fact('ch').value`); shortcut minutes labelled (drawn for illustration, `TownNote`) |
+| 7 | 6 drops, their times, closures and jams; 2 min slack; the day's minutes; junctions looked at; best 100 | weighted A*'s bound (`weighted`) | labelled (hand-made day, `TownNote`); `WINNERS` recomputed by `routes-workbench.test.ts` |
+| intro | 30 junctions, road count, 6 drops, winners count; the two routes' minutes | `dijkstra`, `astar`, `traffic` beside the ideas | labelled ("A hand-made town…") |

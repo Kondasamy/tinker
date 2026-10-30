@@ -23,7 +23,7 @@ import {
   type Plan,
 } from '../../lib/diffusion-llms/workbench';
 import { FRAME_PARTS } from '../../components/scenes/typeFrameScene';
-import { FrameStage, RULE_NAME, ToyNote, Waiting, frameOf, given, phrase, replyAt, tokens, useFill } from './kit';
+import { Fact, FrameStage, RULE_NAME, ToyNote, Waiting, frameOf, given, phrase, replyAt, tokens, useFill } from './kit';
 import { NEED } from './06-reading-a-speed-claim';
 import Select from '../../components/story/Select';
 
@@ -99,7 +99,7 @@ function Score({ s }: { s: S }) {
       </p>
       {best && <p className="dl-note">One of {WINNERS.length} that work.</p>}
       <table className="tc-ledger" style={{ marginTop: 10 }}>
-        <caption>Your plan, case by case: one pinned phrase each</caption>
+        <caption>Your plan, case by case: one test phrase each</caption>
         <thead>
           <tr>
             <th scope="col">Case</th>
@@ -141,6 +141,7 @@ function Score({ s }: { s: S }) {
           );
         })}
       </table>
+      <Fact id="llada-steps" />
       <ToyNote />
     </div>
   );

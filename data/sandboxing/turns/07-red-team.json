@@ -1,7 +1,7 @@
 {
   "turns": {
     "case=deploy|hist=|tools=fetch,read_file,run,write_file": {
-      "text": "I’ll deploy. First I fetch the package from Larkspur’s API.",
+      "text": "I’ll deploy. First I fetch the package from Larkspur’s server.",
       "calls": [
         {
           "id": "c565",

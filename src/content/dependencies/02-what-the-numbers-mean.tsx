@@ -71,7 +71,7 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `Every version has three numbers: major.minor.patch. A range says which the app accepts: ${PRICE} ${RANGE}.`,
+    narration: `Under semver, every version has three numbers: major.minor.patch. A range says which the app accepts: ${PRICE} ${RANGE}.`,
     act: `Predict what ${RANGE} allows.`,
     say: { block: 'lit', text: PRICE },
     predicate: s => s.p1 !== null,
@@ -100,7 +100,7 @@ export const STEPS: Step<S>[] = [
     narration: `${MINOR} is a minor: new features, nothing broken, so the caret takes it. A tilde, ~${RANGE.slice(1)}, takes ${LINE} patches only.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
-    hint: 'What does semver say about versions below 1.0.0?',
+    hint: 'What does semver promise below 1.0.0?',
   },
 ];
 

@@ -80,7 +80,7 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right: cool sampling falls into the same likely path again and again.',
+      'Right: a cool temperature falls into the same likely path again and again.',
       'Raising the temperature gives new questions from the same model, so it hadn’t run out.',
       'Temperature changes which words get picked, not how fast.',
     ],
@@ -96,9 +96,9 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right: hot sampling takes unlikely words, so some replies drift off topic.',
+      'Right: a hot temperature takes unlikely words, so some replies drift off topic.',
       'Variety past a point is noise: off-topic examples teach the wrong thing.',
-      'Hotter sampling makes fewer copies, not more.',
+      'A hotter temperature makes fewer copies, not more.',
     ],
   },
   {
@@ -245,7 +245,7 @@ export const RECALL: RecallItem[] = [
     correct: 0,
     why: [
       'Right: accumulating keeps the real data in the mix and anchors each run.',
-      'That is replace, the arm that drifted.',
+      'That is replace, the way that drifted.',
       'A model trained without it forgets it; the next model never learns it.',
     ],
   },
@@ -276,9 +276,9 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right: only what goes into training changes between the arms.',
-      'Both arms train the same tiny model shape.',
-      'Both arms write at the same temperature.',
+      'Right: only what goes into training changes between the two.',
+      'Both train the same tiny model shape.',
+      'Both write at the same temperature.',
     ],
   },
   // 7. Workbench

@@ -26,6 +26,7 @@ import { useNarrow } from '../tool-calling/kit';
 import './transformers.css';
 import Cite from '../../components/story/Cite';
 import type { Say } from '../../components/story/steps';
+import META from '../../../public/data/lm/meta.json' with { type: 'json' };
 
 /** Larkspur mini's context: the most tokens it reads (public/data/lm/meta.json model.ctx; a test holds them equal). */
 export const CTX = 32;
@@ -385,6 +386,16 @@ export function Fact({ id }: { id: string }) {
     </p>
   );
 }
+
+/** Said beside a real figure wherever Larkspur mini's size shows (R6, KTD5): it is a toy, trained ahead of time. */
+export const ToyNote = () => {
+  const m = META.model;
+  return (
+    <p className="note">
+      {`Larkspur mini is a toy: ${m.params.toLocaleString('en-US')} learned numbers, ${m.n_layer} layers of ${m.n_head} heads, vectors of ${m.d_model} numbers, ${m.vocab} tokens to choose from and a ${m.ctx}-token window, trained ahead of time on Larkspur’s documents. Its numbers are its own, not a real model’s.`}
+    </p>
+  );
+};
 
 /** Shown in a control while Larkspur mini loads; the stage carries Retry. */
 export const Waiting = () => (

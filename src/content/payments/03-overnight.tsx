@@ -69,7 +69,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['clock'],
     narration: 'By day Larkspur collects holds and captures, but no money. Money moves at night.',
     act: `Move the clock to ${clock(NIGHT1)}.`,
-    say: { block: 'network', text: 'Cut-off' },
+    say: { block: 'network', text: 'Day closes' },
     predicate: s => s.t >= NIGHT1,
   },
   {
@@ -85,7 +85,7 @@ export const STEPS: Step<S>[] = [
     id: 'ledger',
     focus: 'tab',
     visibleControls: ['out1', 'tab'],
-    narration: 'Interchange goes to Ana’s bank, a scheme fee to the network and a fee to the acquirer.',
+    narration: 'Interchange goes to Ana’s bank, a fee to the card network and a fee to the acquirer.',
     act: 'Open the Ledger tab.',
     predicate: s => s.view === 'ledger',
   },

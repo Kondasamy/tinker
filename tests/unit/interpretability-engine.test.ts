@@ -35,7 +35,7 @@ describe('fuses', () => {
   it('names six fuses: one per head and one per MLP', () => {
     expect(FUSES).toEqual(['h0-0', 'h0-1', 'h1-0', 'h1-1', 'mlp0', 'mlp1']);
     expect(fuseName('h0-0')).toBe('Layer 1, head 1');
-    expect(fuseName('mlp1')).toBe('Layer 2 MLP');
+    expect(fuseName('mlp1')).toBe('Layer 2 thinking part');
   });
 
   it('with no fuse pulled the run is the plain forward pass', () => {

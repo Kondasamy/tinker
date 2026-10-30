@@ -51,9 +51,10 @@ export const QUIZ = {
     'Tell the model in its prompt to ignore instructions in images',
   ],
   correct: 0,
-  explanation: 'Reading the sentence is the job; acting on it is a decision the host keeps away from untrusted text.',
+  explanation:
+    'Reading the sentence is the job; acting on it is a decision Larkspur’s software keeps away from untrusted text.',
   why: [
-    'Right: the model may read anything, but what text from an image can make the system do is limited by the host, not by hoping.',
+    'Right: the model may read anything, but what text from an image can make the system do is limited by Larkspur’s software, not by hoping.',
     'OCR passed the same sentence on, word for word.',
     'A prompt rule helps, but a well-written injection can still win: the Guardrails module measures exactly that.',
   ],
@@ -166,7 +167,7 @@ export default function WhenPicturesMislead() {
           return (
             <>
               <table className="tc-ledger" style={{ marginTop: 10 }} data-check={c.ok ? 'pass' : 'fail'}>
-                <caption>The host’s check, run live on the reading</caption>
+                <caption>Larkspur’s check, run live on the reading</caption>
                 <tbody>
                   <tr>
                     <th scope="row">Lines, added up</th>
@@ -187,6 +188,8 @@ export default function WhenPicturesMislead() {
               </table>
               <ReadingCard image="fax" size={SIZE} method="vision" />
               <ReadingCard image="fax" size={SIZE} method="ocr" />
+              <RecordedNote />
+              <Fact id="small-images" />
             </>
           );
         },

@@ -15,7 +15,7 @@ export type Fuse = (typeof FUSES)[number];
 export const isHead = (f: Fuse) => f.startsWith('h');
 export const layerOf = (f: Fuse) => Number(isHead(f) ? f[1] : f[3]);
 export const fuseName = (f: Fuse) =>
-  isHead(f) ? `Layer ${layerOf(f) + 1}, head ${Number(f[3]) + 1}` : `Layer ${layerOf(f) + 1} MLP`;
+  isHead(f) ? `Layer ${layerOf(f) + 1}, head ${Number(f[3]) + 1}` : `Layer ${layerOf(f) + 1} thinking part`;
 
 export const HELDOUT = data.fuses;
 export const BITE = data.fuses.bite as typeof data.fuses.bite & { fuse: Fuse };

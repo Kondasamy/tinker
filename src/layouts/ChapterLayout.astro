@@ -113,6 +113,8 @@ const m = moduleOf(module);
     .side { height: 100%; overflow-y: auto; scrollbar-gutter: stable; padding: 2px 10px 24px 2px; }
   }
 
+  /* a cited fact's paragraph; tools.css sets the same, but a kit that never loads it (RAG's) still gets it */
+  :where(.tc-fact) { margin: 10px 0 0; font-size: 13px; }
   .intro { display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 1.55; }
   .intro h1 { margin: 0; font-size: 22px; font-weight: 800; line-height: 1.25; }
   .intro p { margin: 0; }

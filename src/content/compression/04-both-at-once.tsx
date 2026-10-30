@@ -75,7 +75,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'gzip',
     focus: 'measure',
-    visibleControls: ['out1', 'coder', 'measure'],
+    visibleControls: ['out1', 'coder', 'measure', 'gzfact'],
     narration: 'Both together win. Real gzip is DEFLATE inside a small header, and your browser can run it.',
     act: 'Measure real gzip on the same file.',
     predicate: s => s.gz !== null,
@@ -84,7 +84,8 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['measure', 'fact', 'quiz'],
-    narration: 'Close to ours: the same idea, with a smarter search for repeats and tighter tables.',
+    narration:
+      'Close to ours, and just as lossless. Long English texts shrink more than this short list: more repeats to find.',
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Does gzip lose anything, or just pack better?',
@@ -135,11 +136,17 @@ export default function BothAtOnce() {
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />,
         measure: ({ state, sync }) =>
           state.gz === null ? <MeasureGzip onSize={gz => sync({ ...state, gz })} /> : <MeasureGzip />,
+        gzfact: () => (
+          <>
+            <Fact id="gzip" />
+            <Fact id="streams" />
+          </>
+        ),
         fact: () => (
           <>
             <Fact id="deflate" />
-            <Fact id="gzip" />
-            <Fact id="streams" />
+            <Fact id="english-ratio" />
+            <p className="note">{`Our ${bytes(PRICE.bytes.length)} price list is short, so even real gzip shrinks it less.`}</p>
           </>
         ),
         quiz: ({ state, apply, sync }) => (

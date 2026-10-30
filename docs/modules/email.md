@@ -20,3 +20,18 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **The story's arc** is pinned (`verdicts` in `pinned.json`): with no records Larkspur's mail is junk and the forger (own envelope domain, SPF pass for itself) gets in; SPF fails the spoof that uses Larkspur's envelope; forwarding breaks SPF and keeps DKIM, so DMARC passes; reject bounces both fakes.
 - **Chapter 7's workbench** (`workbench.ts`): SPF record (5) × DKIM × policy (3), 30 settings over a hand-written day. The rule: every real message in an inbox and no fake in front of a customer (junk counts). `WINNERS` (include of Sendwell with `~all` or `-all`, DKIM on, reject) is pinned and `email-workbench.test.ts` solves it again.
 - **Facts** (RFC 5321/5322, 7208, 6376, 7489, 7960 on mailing lists, and the 2024 Gmail and Yahoo bulk-sender rules as dated facts) come from `data/email/facts.json`. Chapter 2 links to Opening a web page's DNS chapter, chapter 5 to Locks and keys' signature chapter (R17).
+
+## Toy vs real
+
+The mail, domains, IPs and DNS are made up (`.example`, documentation ranges) and labelled by `DemoNote`; the checks that judge them are the real algorithms. Hop counts, IPs, times and every pass/fail are read off the fixture messages by the engine, so they are real results over made-up mail.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+| --- | --- | --- | --- |
+| 1 | Junk for mail nothing vouches for (the receiver's rule, `story.json`) | Gmail requires SPF or DKIM of every sender (`gmail-all`) | Labelled: "a stand-in rule, modelled on Gmail's", fact beside it |
+| 2 | 3 postmarks on the confirmation, 5 on the forward; hop IPs and times | Every server adds a Received line (`received`); MX picks the next server (`mx`) | Real over the fixture mail |
+| 3 | 2 postmarks on the fake; its first IP | SMTP can't authenticate a sender (`spoofing`) | Real over the fixture mail |
+| 4 | IPs SPF checked; pass/fail/softfail per record | RFC 7208's 10-lookup cap (`spf`, value 10) | Matched: `LOOKUP_LIMIT` reads `fact('spf').value` |
+| 5 | 1880.00 changed to 1980.00; the extra spaces | Key at `<selector>._domainkey.<domain>` (`dkim`), relaxed rules (`relaxed`) | Real: DKIM verified live with a labelled demo key |
+| 6 | Spam score "over 99%" for the prize draw; threshold 0.5 (`story.json`) | Gmail's 0.3% reported-spam line (`spam-rate`); Yahoo's bulk rules and 0.3% (`yahoo-2024`) | Labelled: "a toy spam filter … 24 hand-written messages"; copy says real filters also watch reports |
+| 7 | Counts 40, 12, 4, 30, 6, 6 (98 a day); real in inboxes, fakes seen; 2 winning settings | Gmail's bulk line of 5,000 a day (`gmail-2024`, value 5000); enforcement from November 2025 (`gmail-2025`) | Labelled: "Hand-written counts … far under Gmail's bulk line", the line read from the fact (a test pins the day under a tenth of it); WINNERS solved by the test |
+| Intro | 7 messages, 5 postmarks, 98 messages, 2 settings | — | Read from the fixture and the solved workbench |

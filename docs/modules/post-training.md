@@ -17,3 +17,19 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **Chapter 3 reads chapter 2's saved picks** (`loadChapter`), and uses the team's picks (`TEAM_PICKS`), saying so, when there are none.
 - **Chapter 7's workbench** (`workbench.ts`): every subset of `RULES` (2^5) run with GRPO on each checkable question; `WINNERS` is every rule set where each question's best answer ends most likely, so no gaming answer wins (20 of 32 today). Tests: `post-training-policy`, `post-training-coverage` (budget 30 answers), `post-training-workbench`, `exam-scene`.
 - **Facts about post-training** come from `data/post-training/facts.json` with source and access date: InstructGPT, DPO, DeepSeekMath (GRPO), Tülu 3 (RLVR), DeepSeek-R1, reward-model overoptimisation and DeepMind's specification gaming.
+
+## Toy vs real
+
+The toy policy is hand-set odds over written answers, trained live; its sizes are toy-sized and the kit's `TOY` note says so on every chapter. Chapter 1's Larkspur minis are Fine-tuning's trained toy, labelled and never retrained. Larkspur's prices, windows and warranties are the story's own data.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+| --- | --- | --- | --- |
+| 1 | None from the toy; Larkspur mini's live replies (Fine-tuning's toy model) | `instructgpt` (three stages) | Labelled |
+| 2 | Three pairs; the reward model's score per draft (fitted live to the reader's picks) | `instructgpt-agreement` (labellers agreed 72.6%) | Labelled: the toy trusts three picks fully, the note says real picks disagree |
+| 3 | Strengths β 0.25–4 (`BETAS`); each draft's share; distance (KL) and DPO loss, computed live | `dpo-beta-default` (β 0.1), `dpo-beta`, `dpo` | Labelled: the toy's β fits its own scores, the note says it doesn't carry over |
+| 4 | Group of 6 (`GROUP`); rewards 0/1, average, advantages; 10 rounds (`ROUNDS`); shares | `grpo-group` (64 per question), `grpo`, `rlvr` | Labelled: the note sets 6 written drafts against 64 fresh answers |
+| 4 | Clip 20% (`CLIP`) | `ppo-clip` (0.2) | Matched: `CLIP` reads the fact |
+| 5 | 10 rounds; each group's rewards; shares, unchanged | `r1-zero` | Labelled (`TOY`) |
+| 6 | One point against two; 10 rounds; shares | `spec-gaming`, `overoptimisation` | Labelled (`TOY`) |
+| 7 | 4 questions, 5 rules, the winner's share, "one of 20 that work" (`WINNERS`, computed) | `coding-hacks` | Labelled (`TOY`); `WINNERS` computed by the workbench test |
+| Intro | Answers written, the gaming answer's share, 20 of 32 rule sets, 10 rounds | `instructgpt-small` (100× smaller) and the chapters' facts | Labelled in the intro note; the facts are real |

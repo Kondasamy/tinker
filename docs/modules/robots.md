@@ -35,3 +35,22 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **Corrections** (`dagger.ts`, DAgger, Ross et al. 2011, cited): run the policy, label every distinct frame it reached with the expert's move, add them. **Practice** (Tobin et al. 2017, cited): the expert on twelve crate-free simulated bins, slips at 25% and the light spread over 0.4–1.2 when varied; the camera's detector widens to every light practised under.
 - **The real bay** (chapters 6–7): the 20 held-out bins, each with its own seeded light in 0.5–1.1 and 15% slips. Every effect is counted over all 20 (bins cleared, and the median steps with a miss counted at the cap), never one bin.
 - **Pins** (`data/robots/pinned.json`, `WRITE_PINNED=1` rewrites it and the demos): the rule on bins A and B, the clean held-out score for 1/2/4/8 demos, the forced slip (clean, slipped, corrected, corrections), practice per kind, and the workbench's results and `WINNERS` (most bins cleared, then fewest labels).
+
+## Toy vs real
+
+Every count below is the simulated bay's (`SimNote` on every chapter says so, with the real bay's slip rate); the cited fact on the same step is the real figure it stands beside. The bay is a grid world on purpose (KTD5): cells, steps and bins have no real unit, so only the loop rate is matched.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 | RT-1 looks and acts 3 times a second (predict, reveal, intro) | `rt1-loop` | Matched: `RT1 = Number(fact('rt1-loop').value)` |
+| 1 | ALOHA sets its joints 50 times a second (quiz step, intro) | `aloha-loop` | Matched: `ALOHA = Number(fact('aloha-loop').value)` |
+| 1 | One press is one see, decide, move; a demo's steps in the read-out | `rt1-loop` (a real loop runs on its own, 3 a second) | Labelled |
+| 2 | The 8 × 6 camera grid; the action count in the log | `transparent-depth` (where a real camera's picture fails) | Labelled |
+| 3 | The rule's move count (bin A) | `hand-designed-grasp` (hand-designed grasping failed 35% on new objects, learned 20%) | Labelled: the toy rule is blind, a real hand-written method reads the camera and still loses to learning |
+| 3 | 500 bin layouts (quiz) | none | Labelled: a hypothetical in the question |
+| 4 | Fresh bins cleared from 1, 2, 4 and 8 demos, of 20 (pinned) | `act-demos` (6 fine tasks at 80–90% from 10 minutes of demos) | Labelled: toy demos are a few presses each, real ones minutes of a person's time |
+| 5 | The slip's step, steps until stuck, corrections so far (pinned) | `dagger` | Labelled |
+| 6 | Bins cleared of 20 per practice kind, median steps; the bin's light (0.5–1.1 of the demos' 1); 15% slips (SimNote) | `domain-randomisation` (an object finder trained only on random simulated images found real objects to within 1.5 cm) | Labelled |
+| 6 | Five finishes (quiz) | none | Labelled: a hypothetical in the question |
+| 7 | Bins cleared of 20, labels, median steps, best without practice; real bin 1's light (pinned, `WINNERS` recomputed) | `rt1-unseen` (97% on trained tasks, 76% new tasks, 59% new backgrounds) | Labelled: a simulated score drops on what it wasn't tested on, as RT-1's did |
+| Intro, recall | The same pinned counts (4 demos, plain → both varied, 19 of 20) | as above | Labelled ("simulated" in each caption) |

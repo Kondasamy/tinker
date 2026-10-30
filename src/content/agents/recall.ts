@@ -90,7 +90,7 @@ export const RECALL: RecallItem[] = [
     why: [
       'The host only runs calls the model asks for. Tools nobody asked for are never run, and that is fine.',
       'Right. Each turn the model asks for calls or answers. An answer with no call is how it says the case is done.',
-      `The budget is a backstop for a run that never ends. ${fact('stopping-conditions').claim}`,
+      `The budget is a safety net for a run that never ends. ${fact('stopping-conditions').claim}`,
     ],
   },
   {
@@ -209,7 +209,7 @@ export const RECALL: RecallItem[] = [
     correct: 1,
     why: [
       'The agent only writes a note if it gets a turn to write it. A step budget ends the run at once, so the model never gets one.',
-      `Right. A budget is a backstop: it stops the run, and it never says why. ${fact('stopping-conditions').claim}`,
+      `Right. A budget is a safety net: it stops the run, and it never says why. ${fact('stopping-conditions').claim}`,
       'Retrying the same failing query does not make it succeed. Without a working tool there is no report to send.',
     ],
   },

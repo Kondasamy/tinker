@@ -13,7 +13,7 @@ const CHAPTERS: Chapter[] = [
         'Larkspur wants a picture of every part for its catalogue, drawn by a model instead of a photo shoot for each.',
       goal: 'How does a picture come out of pure noise?',
       learn: [
-        'How forward noising buries a drawing in noise',
+        'How adding noise buries a drawing',
         'How a denoiser runs it backwards, every pixel at once',
         'How that differs from writing text a token at a time',
       ],
@@ -140,11 +140,11 @@ const CHAPTERS: Chapter[] = [
         ['Position', 'One place in the picture the denoiser reads each step: a pixel, or a cell of the latent.'],
         [
           'Latent diffusion',
-          'Running the denoiser on a small encoded copy of the picture, then decoding the result to full size once.',
+          'Running the denoiser on a small squeezed copy of the picture, then expanding the result to full size once.',
         ],
         [
           'Few-step model',
-          'A model trained to make a good picture in one or a few steps, often distilled from a diffusion model.',
+          'A model trained to make a good picture in one or a few steps, often by learning from a diffusion model.',
         ],
       ],
     },

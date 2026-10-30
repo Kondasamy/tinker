@@ -13,7 +13,7 @@ import { PARAGRAPH } from '../../lib/tokens/merges';
 import { chapterHref, moduleOf, nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { Fact, TokensStage } from './kit';
+import { Fact, ToyNote, TokensStage } from './kit';
 import { TOKEN_PARTS } from '../../components/scenes/tokenScene';
 
 const MODULE = 'tokens',
@@ -173,6 +173,7 @@ export default function TokensAreTheMeter() {
           <div className="tc-def">
             <Fact id="input-price" />
             <Fact id="claude-tokenizer-30" />
+            <ToyNote />
             <p className="tc-fact">
               Why the window matters too: <a href={chapterHref('rag', RAG2.id)}>RAG chapter 2, {RAG2.title}</a>
             </p>

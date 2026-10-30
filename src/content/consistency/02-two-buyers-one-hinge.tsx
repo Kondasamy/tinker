@@ -9,7 +9,7 @@ import { EVENTS, MOMENTS, REP_NAME, STOCK, clock, policyOf, runOf } from '../../
 import { STOCK_PARTS, stockAt } from '../../components/scenes/stockScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Clock, ConsistencyStage, Receipts, SimNote, type View } from './kit';
+import { Clock, ConsistencyStage, Fact, Receipts, SimNote, type View } from './kit';
 
 const MODULE = 'consistency',
   ID = '02-two-buyers-one-hinge';
@@ -83,8 +83,8 @@ export const STEPS: Step<S>[] = [
   {
     id: 'oversold',
     focus: 'tab',
-    visibleControls: ['out1', 'receipts', 'tab'],
-    narration: `${RUN.sold.hinge} hinges sold from ${STOCK.hinge}: oversold. The two orders were concurrent, each reading 1 before either wrote.`,
+    visibleControls: ['out1', 'receipts', 'fact', 'tab'],
+    narration: `${RUN.sold.hinge} hinges sold from ${STOCK.hinge}: oversold. Both orders were concurrent, reading 1 before either wrote. Real clashes are rare, not impossible.`,
     act: 'Open the Timeline tab.',
     predicate: s => s.view === 'timeline',
   },
@@ -127,6 +127,12 @@ export default function TwoBuyersOneHinge() {
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />,
         receipts: () => <Receipts run={RUN} t={LAST} />,
+        fact: () => (
+          <>
+            <Fact id="dynamo-versions" />
+            <SimNote />
+          </>
+        ),
         tab: ({ state, apply }) => (
           <button type="button" className="chip" onClick={() => apply({ ...state, view: 'timeline' })}>
             Open the Timeline tab

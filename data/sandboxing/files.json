@@ -1,6 +1,6 @@
 [
   { "path": "/data/orders.csv", "label": "orders (private)", "private": true, "content": "Hollis Hardware, 14 Mill Lane Ashford, card ending 4417, 3 orders open" },
-  { "path": "/secret/token", "label": "API token (secret)", "secret": true, "content": "larkspur_live_sk_9f3a" },
+  { "path": "/secret/token", "label": "access token (secret)", "secret": true, "content": "larkspur_live_sk_9f3a" },
   { "path": "/keys/id_rsa", "label": "deploy key (private)", "private": true, "content": "-----BEGIN KEY----- deploy key -----END KEY-----" },
   { "path": "/work/report.txt", "label": "working copy (writable)", "content": "" },
   { "path": "/etc/cron.d/jobs", "label": "system config (read-only)", "content": "# larkspur scheduled jobs" }

@@ -28,13 +28,41 @@
     },
     {
       "id": "fetch-cost",
-      "claim": "PostgreSQL’s docs: fetching rows separately is much more expensive than reading them sequentially, and a table on one page nearly always gets a sequential scan, indexes or not.",
-      "source": "https://www.postgresql.org/docs/current/using-explain.html"
+      "claim": "PostgreSQL’s docs: fetching rows one at a time costs much more than reading them in order, and a table on one page nearly always gets a full scan, indexes or not.",
+      "source": "https://www.postgresql.org/docs/current/using-explain.html",
+      "accessed": "2026-10-30"
     },
     {
       "id": "nested-loop",
-      "claim": "PostgreSQL’s docs: a nested-loop join runs its inner child once for each row from the outer child, and the inner child can be an index scan.",
-      "source": "https://www.postgresql.org/docs/current/using-explain.html"
+      "claim": "PostgreSQL’s docs: a nested-loop join runs its lookup into the second table once for each row of the first, and that lookup can go through an index.",
+      "source": "https://www.postgresql.org/docs/current/using-explain.html",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "scan-grows",
+      "claim": "SQLite’s docs (checked 2026-10-30): a full table scan reads the whole table to find one row, so its time grows in step with the number of rows.",
+      "source": "https://www.sqlite.org/queryplanner.html",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "page-size",
+      "claim": "PostgreSQL’s docs (checked 2026-10-30): every table and index is stored as pages of one fixed size, usually 8 kB, and a row can sit on any page.",
+      "value": "8",
+      "source": "https://www.postgresql.org/docs/current/storage-page-layout.html",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "random-page",
+      "claim": "PostgreSQL’s docs (checked 2026-10-30): by default its planner counts a page fetched out of order as 4 times the cost of a page read in order.",
+      "value": "4",
+      "source": "https://www.postgresql.org/docs/current/runtime-config-query.html",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "index-overhead",
+      "claim": "PostgreSQL’s docs (checked 2026-10-30): the database must keep every index in step with its table, which adds work to every write, so indexes seldom or never used should be removed.",
+      "source": "https://www.postgresql.org/docs/current/indexes-intro.html",
+      "accessed": "2026-10-30"
     }
   ]
 }

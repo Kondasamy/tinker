@@ -13,7 +13,7 @@ import { num } from '../../lib/format';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { ContextStage, Fact, runOf } from './kit';
+import { ContextStage, Fact, runOf, ToyNote } from './kit';
 
 const MODULE = 'context',
   ID = '03-fetch-when-needed';
@@ -224,6 +224,10 @@ export default function FetchWhenNeeded() {
           <>
             <Fact id="just-in-time" />
             <Fact id="smallest-set" />
+            <ToyNote>
+              Its passages are a few sentences each; real documents run far longer, so stuffing them costs more than
+              here.
+            </ToyNote>
           </>
         ),
         quiz: ({ state, apply, sync }) => (

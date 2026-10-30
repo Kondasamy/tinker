@@ -1,5 +1,5 @@
 // Chapter 5: who wins. Quorums are on (R = W = 2), and the two buyers of the last hinge still both get receipts:
-// last writer wins keeps one write and loses the other's decrement. Switching to reservations at North, the primary,
+// last writer wins keeps one write and loses the other's sale from the count. Switching to reservations at North, the primary,
 // sells one at a time, and the second buyer finds it sold out.
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
@@ -81,7 +81,7 @@ export const STEPS: Step<S>[] = [
     id: 'lww',
     focus: 'rule',
     visibleControls: ['out1', 'rule'],
-    narration: `Last writer wins kept ${REP_NAME[LOST.at === 'north' ? 'west' : 'north']}’s write and dropped ${REP_NAME[LOST.at]}’s: a lost update. Two receipts, one decrement.`,
+    narration: `Last writer wins kept ${REP_NAME[LOST.at === 'north' ? 'west' : 'north']}’s write and dropped ${REP_NAME[LOST.at]}’s: a lost update. Two receipts, but the count fell by one.`,
     act: 'Switch to reservations at North.',
     predicate: s => s.rule === 'primary',
   },

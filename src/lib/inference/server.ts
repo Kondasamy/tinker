@@ -5,7 +5,7 @@ import data from '../../../data/inference/assumptions.json' with { type: 'json' 
 import trace from '../../../data/inference/requests.json' with { type: 'json' };
 import { costs } from '../transformers/costs';
 import type { ModelConfig } from '../lm/model';
-import { OPEN_MODEL } from './facts';
+import { OPEN_MODEL, fact } from './facts';
 
 export const ASSUMPTIONS = data;
 /** A request: when it arrives (ms from the start), its prompt and its reply, in tokens. */
@@ -30,8 +30,12 @@ export type Mode = 'static' | 'continuous';
 /** The settings' finite lists (KTD7). */
 export const MODES: Mode[] = ['static', 'continuous'];
 export const CAPS = [1, 2, 4, 8, 16] as const;
-/** GB of accelerator memory left for the KV cache once the weights are in */
-export const MEMORY = data.kvRoomGB as readonly number[];
+/** GB of accelerator memory left for the KV cache once the weights are in: two smaller cards (assumed), and what the
+ * cited 40 GB card (fact `a100-split`) leaves beside OPT-13B's 16-bit weights */
+export const MEMORY: readonly number[] = [
+  ...data.kvRoomGB,
+  Number(fact('a100-split').value) - (OPEN_MODEL.params * data.bytesPerNumber) / 1e9,
+];
 export interface Settings {
   mode: Mode;
   cap: number;

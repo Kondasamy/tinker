@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNod
 import IsoStage from '../../lib/iso/IsoStage';
 import { VOCAB_SIZE, decode as text } from '../../lib/lm/bpe';
 import type { Model } from '../../lib/lm/model';
+import META from '../../../public/data/lm/meta.json' with { type: 'json' };
 import { decode, type Decoded } from '../../lib/structured-outputs/decode';
 import { compile, type Grammar, type ObjectSchema } from '../../lib/structured-outputs/grammar';
 import { play, run as pinned } from '../../lib/structured-outputs/prompts';
@@ -17,7 +18,7 @@ import {
   type StencilOpts,
 } from '../../components/scenes/stencilScene';
 import { gridLabel, maskGrid } from '../../components/scenes/maskGrid';
-import { Flat, MODEL, useModel, type ModelStore } from '../transformers/kit';
+import { CTX, Flat, MODEL, useModel, type ModelStore } from '../transformers/kit';
 import { useNarrow } from '../tool-calling/kit';
 import './structured.css';
 import Cite from '../../components/story/Cite';
@@ -265,3 +266,10 @@ export function Fact({ id }: { id: string }) {
     </p>
   );
 }
+
+/** Said beside a real figure wherever Larkspur mini's numbers show (R6, KTD5): it is a toy, trained ahead of time. */
+export const ToyNote = () => (
+  <p className="note">
+    {`Larkspur mini is a toy: about ${Math.round(META.model.params / 1000)} thousand learned numbers, ${VOCAB_SIZE} tokens to choose from and room for ${CTX} tokens, prompt and answer together, trained ahead of time on Larkspur’s documents and never on JSON. Its numbers are its own, not a real model’s.`}
+  </p>
+);

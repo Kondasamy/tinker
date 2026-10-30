@@ -125,7 +125,7 @@ function Numbers({ secret }: { secret: Pigment }) {
     s = sharedOf(B, a);
   return (
     <ul className="ek-checks">
-      <li>{`Toy size: base ${DH.g}, every power taken mod ${DH.p}.`}</li>
+      <li>{`Toy size: base ${DH.g}; after each power, keep the remainder after dividing by ${DH.p}.`}</li>
       <li>{`Your public number: ${DH.g} to the power ${a} → ${A}.`}</li>
       <li>{`Theirs to your power: ${B}^${a} → ${s}. Yours to theirs: ${A}^${TOY.dh.supplier.secret} → ${sharedOf(A, TOY.dh.supplier.secret)}.`}</li>
     </ul>

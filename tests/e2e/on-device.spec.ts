@@ -4,6 +4,8 @@
 import { test, expect, type Page } from '@playwright/test';
 import { MODULES, moduleOf } from '../../src/lib/modules';
 import pinned from '../../data/on-device/pinned.json' with { type: 'json' };
+import { levelAfter } from '../../src/lib/on-device/battery';
+import { sizeOf } from '../../src/lib/on-device/memory';
 import { odWalker } from './on-device-flow';
 import { serious, layoutHolds, PHONE } from './helpers';
 
@@ -111,7 +113,9 @@ test('chapter 4: an hour of long replies drains the tank', async ({ page }) => {
   await w.open(CH4);
   await expect(page.locator('[data-part="tank"]')).toHaveAttribute('data-level', '1.000');
   await card(page).getByRole('button', { name: 'Ask: one hour of long replies' }).click();
-  await expect(page.locator('.od-said')).toContainText('Battery 86%.');
+  await expect(page.locator('.od-said')).toContainText(
+    `Battery ${Math.round(levelAfter(sizeOf('3b'), 4, 'long', 1) * 100)}%.`,
+  );
 });
 
 test('chapter 7: the start is not accepted; Show me applies the passing setup', async ({ page }) => {

@@ -56,7 +56,7 @@ export const QUIZ = {
     'A team wants to run its assistant on a smaller, cheaper card by storing the weights in 4 bits. What should it do before switching?',
   options: [
     'Nothing: 4 bits is a quarter of the memory, so it is four times better',
-    'Run its own evals on the 4-bit model: the saving is certain, the cost in quality has to be measured on its own tasks',
+    'Test the 4-bit model on its own tasks: the saving is certain, the cost in quality has to be measured',
     'Retrain the model from scratch in 4 bits',
     'Switch only the KV cache to 4 bits; the weights can’t be rounded',
   ],

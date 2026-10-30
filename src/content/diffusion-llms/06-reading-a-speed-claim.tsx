@@ -126,7 +126,7 @@ export default function ReadingASpeedClaim() {
           <>
             <Outcome {...P1} prediction={state.p1} outcome={0} />
             <table className="tc-ledger" style={{ marginTop: 10 }}>
-              <caption>The toy at each setting, every pinned phrase, surest first</caption>
+              <caption>The toy at each setting, every test phrase, surest first</caption>
               <thead>
                 <tr>
                   <th scope="col">Tokens a pass</th>

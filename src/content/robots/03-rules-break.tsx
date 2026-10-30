@@ -11,7 +11,7 @@ import { CLAW_PARTS } from '../../components/scenes/clawScene';
 import { NEW_BIN, RULE, RULE_BIN, runRule } from '../../lib/robots/rules';
 import { PERSON } from '../../lib/robots/story';
 import { Outcome } from '../tool-calling/kit';
-import { ReplayStage, SimNote, type View } from './kit';
+import { Fact, ReplayStage, SimNote, type View } from './kit';
 
 const MODULE = 'robots',
   ID = '03-rules-break';
@@ -159,7 +159,12 @@ export default function RulesBreak() {
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />,
-        note: () => <SimNote />,
+        note: () => (
+          <>
+            <Fact id="hand-designed-grasp" />
+            <SimNote />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

@@ -57,7 +57,7 @@
         { "clip": "slots-interrupt", "text": "Sorry, we’re closed on Tuesdays." },
         { "clip": "slots-kept-2" }
       ],
-      "verdict": "ok", "note": "The host stopped at “Tuesday morning”; the history says so, and the model offers the two slots Dana never heard."
+      "verdict": "ok", "note": "The line stopped at “Tuesday morning”; the history says so, and the model offers the two slots Dana never heard."
     },
     "slots|1|stop-3": {
       "turns": [
@@ -66,7 +66,7 @@
         { "clip": "slots-interrupt", "text": "Sorry, we’re closed on Tuesdays." },
         { "clip": "slots-kept-3" }
       ],
-      "verdict": "ok", "note": "The host stopped at “Wednesday afternoon”; the model repeats Wednesday and adds Friday, the slot it never got to."
+      "verdict": "ok", "note": "The line stopped at “Wednesday afternoon”; the model repeats Wednesday and adds Friday, the slot it never got to."
     },
     "slots|1|talked-over": {
       "turns": [

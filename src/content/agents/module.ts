@@ -45,7 +45,7 @@ const CHAPTERS: Chapter[] = [
       learn: [
         'The loop every agent runs: think, act, observe, decide',
         'Why each next step depends on what the last result said',
-        'Why the model ends the run, by answering without a call, and the host’s budget is only a backstop',
+        'Why the model ends the run, by answering without a call, and the host’s budget is only a safety net',
       ],
       terms: [
         ['Turn', 'One pass of the model: it reads everything so far, then asks for tool calls or gives its answer.'],

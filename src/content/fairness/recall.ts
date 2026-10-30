@@ -88,7 +88,7 @@ export const RECALL: RecallItem[] = [
     correct: 0,
     why: [
       'Right. A field that goes with the group lets the model find the group anyway.',
-      'A fitted model is not random; it follows whatever fields go with the outcome.',
+      'A trained model is not random; it follows whatever fields go with the outcome.',
       'Data carries groups in many fields at once, which is how proxies work.',
     ],
   },
@@ -213,7 +213,7 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right. Rates measured on the fit’s own data can flatter it.',
+      'Right. Rates measured on the data it learned from can flatter it.',
       'A rule met on training data may not hold on new applicants.',
       'Raising every bar changes the trade-off; it doesn’t test the setting.',
     ],

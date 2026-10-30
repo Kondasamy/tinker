@@ -17,4 +17,22 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **The pipeline** (`pipeline.ts`) stops a change only at the gate whose test covers its bug (`caughtBy`).
 - **Pins:** every chapter's run is pinned in `data/releases/pinned.json` and rerun by `releases-sim.test.ts` (`WRITE_PINNED=1` rewrites).
 - **Chapter 7's workbench** (`workbench.ts`): canary (1, 5, 25%) × bake (2, 5, 10 min) × flag × check (none, 2, 5 points), 54 plans, each run over four changes (one good, three bad), stepping canary, half, everyone. The rule (`workbench.json`): the good change reaches everyone and at most 45 are hurt in all; then the soonest to everyone. `WINNERS` is pinned and `releases-workbench.test.ts` solves it again.
-- **Facts** (Google SRE Workbook on canarying, Hodgson on feature toggles, Sato on parallel change, DORA's metrics) come from `data/releases/facts.json` with source and access date. Chapter 3 links to A/B testing's luck chapter (R17).
+- **Facts** (Google SRE Workbook on canarying, CrowdStrike's July 2024 technical note and root cause analysis, Hodgson on feature toggles, LaunchDarkly's flag speed (vendor-reported), Sato on parallel change, DORA's metrics) come from `data/releases/facts.json` with source and access date. Chapter 3 links to A/B testing's luck chapter (R17).
+
+## Toy vs real
+
+Every count is the simulated morning's (`SimNote` beside each chapter's quiz or bench says so); the cited fact on the same step is the real figure it stands beside. Rates, minutes and the 100 checkouts a minute are Larkspur's planning numbers (`assumptions.json`), kept because the seed and the pins (chapter 3's false alarm and miss, chapter 6's halt, chapter 7's `WINNERS`) are built on them. Only the canary's share is matched. `releases-sim.test.ts` (`toy vs real`) pins the match and each comparison the copy makes with a real figure.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 | Rollback takes 5 minutes (predict, watch, hint, quiz step) | `crowdstrike-window` (pulled back 78 minutes after release) | Labelled: the quiz narration sets 5 against CrowdStrike's 78, read from the fact |
+| 1 | Clock times, customers hurt so far (caption) | `dora-recovery` | Labelled |
+| 2 | Three gates | `crowdstrike-tests` (12 automated test cases, none met the bug) | Labelled: toy gates; the real tests passed a crashing update |
+| 3 | Canary of 5% of checkouts | `canary-size` | Matched: `CANARY = Number(fact('canary-size').value)` |
+| 3 | 2- and 10-minute bakes; the alarm's counts (failures of canary and rest); tax rounding 2% against 1% | `canary-strict` (long enough to stand for the whole deployment; the Workbook's example canary runs 30 minutes) | Labelled: toy bakes are short so a reader can step them |
+| 3 | 10 shoppers, 1 in 100 (quiz) | none | Labelled: a hypothetical in the question |
+| 4 | Flag off within 1 minute; dial at 10%; watch 3 minutes; hurt so far | `flag-speed` (typically within 200 ms, vendor-reported) | Labelled: the quiz narration says real flag services switch in under a second |
+| 5 | A quarter of checkouts on the change; hurt so far | `parallel-change` | Labelled |
+| 6 | Stages 5%, 25%, 50%, everyone; 4-minute bake; hurt against chapter 1's | `canary-rollback`, `crowdstrike-staged` | Labelled |
+| 7 | Canary 1/5/25%, bake 2/5/10, check at 2 or 5 in 100 worse, 45 hurt at most, minutes to everyone, winners (`WINNERS` recomputed) | `dora` | Labelled |
+| Intro, recall | Straight to everyone against staged hurt; 100 checkouts a minute, 40 minutes, 4 changes, winning plans; recall's hypotheticals | as above | Labelled ("simulated morning" in each caption) |

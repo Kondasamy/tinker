@@ -2,6 +2,19 @@
   "accessed": "2026-10-24",
   "facts": [
     {
+      "id": "fiber-delay",
+      "claim": "The ITU’s planning value for a signal in optical fibre cable is 5 microseconds per kilometre each way, counting the delay in repeaters (ITU-T G.114, 2003, Table A.1).",
+      "value": "5",
+      "source": "https://www.itu.int/rec/T-REC-G.114-200305-I/en",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "cache-reuse",
+      "claim": "HTTP caching (RFC 9111): a cache stores responses to cut the wait and network use of later matching requests, and a shared cache reuses them for more than one user.",
+      "source": "https://www.rfc-editor.org/rfc/rfc9111#section-1",
+      "accessed": "2026-10-30"
+    },
+    {
       "id": "fresh",
       "claim": "HTTP caching (RFC 9111) calls a stored response fresh while its age has not yet passed its freshness lifetime, the time from when the origin made it to when it expires.",
       "source": "https://www.rfc-editor.org/rfc/rfc9111#section-4.2"
@@ -44,17 +57,25 @@
     {
       "id": "prompt-cache-lifetime",
       "claim": "Anthropic: a prompt cache entry lives 5 minutes by default, and each use refreshes it at no extra cost.",
-      "source": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+      "source": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching",
+      "accessed": "2026-10-30"
     },
     {
       "id": "prompt-cache-match",
       "claim": "Anthropic: a prompt cache hit needs the prompt to be 100% identical up to and including the block marked for caching.",
-      "source": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+      "source": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching",
+      "accessed": "2026-10-30"
     },
     {
       "id": "kv-cache",
       "claim": "Serving a language model keeps a key-value (KV) cache for each request, which grows and shrinks as the request runs (Kwon et al., 2023, the vLLM paper).",
       "source": "https://arxiv.org/abs/2309.06180"
+    },
+    {
+      "id": "immutable",
+      "claim": "RFC 8246 (2017) adds an immutable directive for content published under versioned names: the origin promises it won’t change while fresh, so caches needn’t check it again.",
+      "source": "https://www.rfc-editor.org/rfc/rfc8246#section-2",
+      "accessed": "2026-10-30"
     }
   ]
 }

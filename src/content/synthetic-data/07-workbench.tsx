@@ -23,7 +23,7 @@ import {
 } from '../../lib/synthetic-data/workbench';
 import type { SieveKind } from '../../lib/synthetic-data/sieve';
 import { COPIER_PARTS } from '../../components/scenes/copierScene';
-import { CopierStage, ToyNote } from './kit';
+import { CopierStage, Fact, ToyNote } from './kit';
 
 const MODULE = 'synthetic-data',
   ID = '07-workbench';
@@ -78,7 +78,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['score', 'recipe', 'quiz'],
+    visibleControls: ['score', 'recipe', 'fact', 'quiz'],
     narration:
       'Every winner keeps half real data. Temperature and the sieve move results far less than the real share.',
     act: 'One question to finish.',
@@ -101,7 +101,7 @@ function Score({ s }: { s: S }) {
       </p>
       {best && <p className="sd-note">One of {WINNERS.length} that work.</p>}
       <table className="tc-ledger" style={{ marginTop: 10 }}>
-        <caption>Your recipe, as trained offline</caption>
+        <caption>Your recipe, as trained ahead of time</caption>
         <tbody>
           <tr>
             <th scope="row">Recipe</th>
@@ -111,7 +111,7 @@ function Score({ s }: { s: S }) {
             <th scope="row">Training documents</th>
             <td>
               {g.docs}: {g.docs - realDocs(r)} model-written, {realDocs(r)} real
-              {r.realShare ? ` (${Math.round(g.realTokens * 100)}% of tokens)` : ''}
+              {r.realShare ? ` (${Math.round(g.realTokens * 100)}% of the text)` : ''}
             </td>
           </tr>
           <tr>
@@ -213,6 +213,7 @@ export default function Workbench() {
             </fieldset>
           );
         },
+        fact: () => <Fact id="textbooks" />,
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

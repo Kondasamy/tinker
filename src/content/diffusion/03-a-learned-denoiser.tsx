@@ -7,10 +7,11 @@ import Quiz from '../../components/quiz/Quiz';
 import Predict from '../../components/quiz/Predict';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
+import { fact } from '../../lib/diffusion/facts';
 import { pointsOf, startPoints } from '../../lib/diffusion/points';
 import { DARKROOM_PARTS } from '../../components/scenes/darkroomScene';
 import { Outcome } from '../tool-calling/kit';
-import { DiffusionStage, META, ToyNote, Waiting, dotFrames, dotWords, useLearnedPoints } from './kit';
+import { DiffusionStage, Fact, META, ToyNote, Waiting, dotFrames, dotWords, useLearnedPoints } from './kit';
 
 const MODULE = 'diffusion',
   ID = '03-a-learned-denoiser';
@@ -21,6 +22,8 @@ export const DOTS = 300,
 const NOISE = pointsOf(startPoints(DOTS, 1, SEED));
 const TRAINING = META as unknown as { training: { steps: number }; model: { params: number } };
 const thousands = (n: number) => n.toLocaleString('en-US');
+/** DDPM's CIFAR-10 network, in millions of weights (fact `ddpm-noise`). */
+const REAL_M = Number(fact('ddpm-noise').value) / 1e6;
 
 interface S {
   p1: number | null;
@@ -140,8 +143,10 @@ export default function ALearnedDenoiser() {
             <Outcome {...P1} prediction={state.p1} outcome={0} />
             <p className="note">
               The network has {thousands(TRAINING.model.params)} weights and was trained once, ahead of time, on points
-              from the outline; your browser only runs it.
+              from the outline; your browser only runs it. A real picture model learns the same job with far more:
+              DDPM’s model for 32 × 32 photos had {REAL_M} million.
             </p>
+            <Fact id="ddpm-noise" />
             <ToyNote />
           </>
         ),

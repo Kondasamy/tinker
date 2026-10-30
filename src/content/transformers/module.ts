@@ -118,7 +118,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Choosing the next token',
     intro: {
       story:
-        'Picking the likeliest token every time makes the same reply every time. The team wants to know how a model picks, and what its API settings change.',
+        'Picking the likeliest token every time makes the same reply every time. The team wants to know how a model picks, and what a provider’s settings change.',
       goal: 'How do temperature and top-p change which token gets picked?',
       learn: [
         'What sampling is, and why the same prompt can give different replies',

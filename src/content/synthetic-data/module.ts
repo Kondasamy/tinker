@@ -39,7 +39,7 @@ const CHAPTERS: Chapter[] = [
       ],
       terms: [
         ['Synthetic data', 'Training examples a model writes, instead of people.'],
-        ['Temperature', 'How adventurous sampling is: low picks likely words, high takes more chances.'],
+        ['Temperature', 'How adventurous the model’s word picks are: low picks likely words, high takes more chances.'],
         ['Copy', 'A reply that repeats, word for word or mostly, one already written.'],
       ],
     },
@@ -106,7 +106,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Keep real data',
     intro: {
       story:
-        'Replacing real text with copies drifted. The team ran a second arm that keeps the real documents in every generation.',
+        'Replacing real text with copies drifted. The team ran a second test that keeps the real documents in every generation.',
       goal: 'Does keeping the real data in stop the drift?',
       learn: [
         'Replace versus accumulate',
@@ -126,7 +126,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Workbench',
     intro: {
       story:
-        'The team must pick one recipe for the next model: a temperature, a sieve and a share of real data. Each was trained offline.',
+        'The team must pick one recipe for the next model: a temperature, a sieve and a real share. Each was trained ahead of time.',
       goal: 'Which recipe stays closest to real text and still guesses rare words?',
       learn: [
         'How each choice moves loss and rare words',

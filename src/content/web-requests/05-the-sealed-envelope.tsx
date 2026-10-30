@@ -22,7 +22,7 @@ export const runWith = (resume: boolean, method: Method = 'GET') =>
 export const SAVED = runWith(false).total - runWith(true).total;
 
 export const P1 = {
-  question: `${TOMAS.name} came ${TOMAS.lastVisitMin} minutes ago and kept a session ticket. What can resuming save him?`,
+  question: `${TOMAS.name} came ${TOMAS.lastVisitMin} minutes ago and kept the keys from that visit. What can resuming save him?`,
   options: [
     'Nothing: every visit needs the full handshake again',
     'One round trip: his request rides along with his first message',
@@ -86,7 +86,7 @@ export const STEPS: Step<S>[] = [
     id: 'post',
     focus: 'method',
     visibleControls: ['out1', 'resume', 'method'],
-    narration: '0-RTT data can be replayed by an attacker. So the shop takes it for a GET, never for an order.',
+    narration: 'An attacker can resend 0-RTT data. So the shop accepts it to open a page, never for an order.',
     act: 'Switch to Place an order.',
     say: { block: 'shop', text: 'Not for orders' },
     predicate: s => s.method === 'POST',

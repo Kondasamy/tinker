@@ -1,5 +1,6 @@
 // A/B testing's statistics (KTD11): the two-proportion test, the interval for the difference, the sample-size rule and a
 // Bonferroni correction. The chapters never show these formulas in the narration; they live in "the maths" fold-aways.
+import { fact } from './facts';
 
 /** The standard normal curve's share below z (Abramowitz & Stegun 7.1.26, error under 1.5e-7). */
 export function normalCdf(z: number): number {
@@ -49,9 +50,12 @@ export function compare(nA: number, xA: number, nB: number, xB: number, level: n
   return { diff, lo: diff - k * seInt, hi: diff + k * seInt, z, p, significant: p < level };
 }
 
+/** The 16 in Kohavi et al.'s rule of thumb (fact `sample-size`). */
+export const RULE = Number(fact('sample-size').value);
+
 /** Visitors needed per variant to find a change of `delta` from a rate `p` 80% of the time at the 95% level: Kohavi et
  * al.'s rule of thumb, 16σ²/Δ², with σ² = p(1 − p) for a conversion (fact `sample-size`). */
-export const sampleSize = (p: number, delta: number) => Math.round((16 * p * (1 - p)) / (delta * delta));
+export const sampleSize = (p: number, delta: number) => Math.round((RULE * p * (1 - p)) / (delta * delta));
 
 /** Bonferroni: with k comparisons, each is held to the level divided by k. */
 export const bonferroni = (level: number, k: number) => level / k;

@@ -39,7 +39,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Files',
     intro: {
       story:
-        'Chapter 1’s sandbox stopped the attack. Now one wall: the filesystem. What the agent can read and write depends on what the sandbox mounts.',
+        'Chapter 1’s sandbox stopped the attack. Now one wall: the files. What the agent can read and write depends on what the sandbox mounts.',
       goal: 'What does the sandbox mount, read-only or writable, and what does it hide?',
       learn: [
         'Mounts: the paths the sandbox exposes, each read-only or writable',
@@ -81,7 +81,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Secrets',
     intro: {
       story:
-        'The task needs Larkspur’s API token. Wherever the agent can read it, a compromised agent can read it too, and send it out.',
+        'The task needs Larkspur’s server token. Wherever the agent can read it, a compromised agent can read it too, and send it out.',
       goal: 'With the egress open, does moving the secret out of the sandbox stop it being stolen?',
       learn: [
         'Why a secret in the sandbox’s environment can be read by a compromised agent',
@@ -89,7 +89,7 @@ const CHAPTERS: Chapter[] = [
         'That keeping secrets out of the agent is a defence the network layer cannot give',
       ],
       terms: [
-        ['Secret', 'A credential such as an API token, which authenticates Larkspur’s requests.'],
+        ['Secret', 'A credential such as an access token, which authenticates Larkspur’s requests.'],
         ['Environment', 'The variables and files a program can read while it runs, inside the sandbox.'],
         ['Proxy-injected secret', fact('credentials-outside').claim],
       ],
@@ -101,7 +101,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Allowed door',
     intro: {
       story:
-        'Chapter 3’s allow-list lets the agent reach Larkspur’s own API, on purpose. An attack can use that open door too.',
+        'Chapter 3’s allow-list lets the agent reach Larkspur’s own server, on purpose. An attack can use that open door too.',
       goal: 'If the agent can reach only Larkspur’s own host, can an attack still get data out?',
       learn: [
         'How an allow-listed host becomes a channel for exfiltration',

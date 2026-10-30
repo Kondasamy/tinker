@@ -1,4 +1,4 @@
-// Chapter 6: whole-country maps. Dijkstra looked at most of the town; a country has tens of millions of junctions
+// Chapter 6: whole-country maps. Dijkstra looked at most of the town; Western Europe has about 18 million junctions
 // (cited). Contraction hierarchies are a cited fact with a picture only (Scope Boundaries): shortcut arcs over the
 // town, each storing the minutes Dijkstra finds between its ends, worked out ahead of time. Search's index is the same
 // idea, and the chapter links to it.
@@ -12,12 +12,15 @@ import { nameOf } from '../../lib/routes/graph';
 import { COUNTS, FASTEST, SHORTCUTS } from '../../lib/routes/story';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Fact, Status, TableStage, type View } from './kit';
+import { fact } from '../../lib/routes/facts';
+import { Fact, Status, TableStage, TownNote, type View } from './kit';
 
 const MODULE = 'routes',
   ID = '06-whole-country-maps';
 export const PARTS = TABLE_PARTS;
-const SC = SHORTCUTS[0];
+const SC = SHORTCUTS[0],
+  /** Western Europe's junctions in Geisberger et al.'s test, in millions (matched to the fact) */
+  EUROPE = Math.round(Number(fact('ch').value) / 1e6);
 
 export const P1 = {
   question: 'How do map apps answer that fast on a whole country?',
@@ -39,7 +42,7 @@ export const QUIZ = {
   correct: 0,
   explanation: 'Work done once ahead of time is shared by every question that follows.',
   why: [
-    'Right: the overnight work is paid once and every question after is quick.',
+    'Right: the work ahead of time is paid once and every question after is quick.',
     'Searching the whole map per question repeats the same work millions of times.',
     'The best route can leave any box, so cutting the map can miss it or find none.',
   ],
@@ -57,7 +60,7 @@ export const STEPS: Step<S>[] = [
     id: 'scale',
     focus: 'p1',
     visibleControls: ['fact', 'p1'],
-    narration: `Dijkstra looked at ${FASTEST.looked} of our ${COUNTS.junctions} junctions. A country has millions, and drivers want an answer at once.`,
+    narration: `Dijkstra looked at ${FASTEST.looked} of our ${COUNTS.junctions} junctions. Western Europe’s map has ${EUROPE} million, and drivers want answers now.`,
     act: 'Predict how map apps manage it.',
     predicate: s => s.p1 !== null,
   },
@@ -73,7 +76,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out1', 'shortcuts', 'ch', 'quiz'],
-    narration: `Each shortcut stores the quickest minutes between busy junctions: ${nameOf(SC.a)} to ${nameOf(SC.b)}, ${SC.minutes}. Contraction hierarchies build them overnight.`,
+    narration: `Each shortcut stores the quickest minutes between busy junctions: ${nameOf(SC.a)} to ${nameOf(SC.b)}, ${SC.minutes}. Contraction hierarchies build them ahead of time.`,
     act: 'One question to finish.',
     say: { block: 'shortcuts', text: 'Shortcuts' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -126,6 +129,7 @@ export default function WholeCountryMaps() {
           <>
             <Fact id="ch-paper" />
             <Fact id="osrm" />
+            <TownNote />
             <p className="note rt-note">
               Search does the same: it builds its index ahead of time, so a question reads little. See{' '}
               <a href="/search/02-the-index/">Search’s index</a>.

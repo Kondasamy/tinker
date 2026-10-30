@@ -14,7 +14,7 @@ import {
   type Drawer,
   type DrawerState,
 } from '../../components/scenes/cloakScene';
-import { ACCOUNTS, accountOf, fingerprint, type Account } from '../../lib/logins/store';
+import { ACCOUNTS, LEAKED, accountOf, fingerprint, type Account } from '../../lib/logins/store';
 import { FORM_NAME, LAST, TICKS, WORK, boardAt, type Form } from '../../lib/logins/race';
 import { fact } from '../../lib/logins/facts';
 import { useNarrow } from '../tool-calling/kit';
@@ -276,7 +276,7 @@ export function RaceControls({
         {said}
       </p>
       <p className="note ek-note">
-        Demo accounts. Guess rates from one dated GPU benchmark; passwords off the list are a brute-force estimate.
+        {`Demo accounts and a ${LEAKED.length}-password stand-in for a leaked list. Guess rates from one dated graphics-card benchmark; a password off the list is an estimate of trying every combination.`}
       </p>
     </div>
   );

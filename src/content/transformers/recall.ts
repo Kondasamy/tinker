@@ -136,7 +136,7 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right. The scores go through a softmax, so a row is a split of one whole. More on one token means less on the rest.',
+      'Right. The scores are turned into weights that add up to 1, so a row is a split of one whole. More on one token means less on the rest.',
       'The scores are turned into a split that adds up to 1, so they aren’t independent.',
       'A token mixes many tokens. Most weight can sit on one, but the rest is spread over the others.',
     ],

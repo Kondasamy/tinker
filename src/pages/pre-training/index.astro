@@ -34,8 +34,13 @@ const SIDES = [0, LAST].map(step => ({ step, text: says(disk(step), PROMPT).trim
 type F = ReturnType<typeof fact> | null;
 const IDEAS: [string, string, F, ForgeOpts][] = [
   ['From nothing', 'Random weights, then thousands of small nudges', fact('kaplan-power-law'), forge({ step: 0 })],
-  ['Checkpoints', 'Saved copies let you look back at any moment of a run', null, forge({ step: 1000 })],
-  ['Held out', 'Score the model on text it never trained on', null, forge({})],
+  [
+    'Checkpoints',
+    'Saved copies let you look back at any moment of a run',
+    fact('pythia-checkpoints'),
+    forge({ step: 1000 }),
+  ],
+  ['Held out', 'Score the model on text it never trained on', fact('kaplan-overfitting'), forge({})],
   [
     'Repeats get memorised',
     'Copied text comes back word for word',
@@ -98,7 +103,7 @@ const FACTS: [string, string][] = [
             </article>
           ))}
         </div>
-        <p class="note more">Both replies come from Larkspur mini’s real checkpoints, greedy, the same way the chapters run them in your browser. Nothing changed between them but the weights.</p>
+        <p class="note more">Both replies come from Larkspur mini’s real checkpoints, each taking its likeliest next piece, the same way the chapters run them in your browser. Nothing changed between them but the weights.</p>
       </section>
 
       <section aria-labelledby="how">

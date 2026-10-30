@@ -28,7 +28,7 @@ export const renamed = () => REBASED.rewritten.filter(([a, b]) => a !== b).lengt
 export const outcomeOf = () => (renamed() === N ? 0 : renamed() === 0 ? 1 : 2);
 
 export const QUIZ = {
-  question: 'You pushed a branch yesterday and two colleagues built on it. Should you rebase it today?',
+  question: 'You shared a branch yesterday and two colleagues built on it. Should you rebase it today?',
   options: [
     'No: their work builds on commits the rebase would replace',
     'Yes: a rebase keeps the same commits',

@@ -13,7 +13,7 @@ import { UNSURE } from '../../lib/recall';
 import type { Model } from '../../lib/lm/model';
 import { BITE, FUSES, fuseName, headLoss, nextTop, type Fuse } from '../../lib/interpretability/probe';
 import { FUSE_PARTS } from '../../components/scenes/fuseScene';
-import { InterpStage, ModelGate, OURS, TopFive, said, useBase, whenLoaded } from './kit';
+import { Fact, InterpStage, ModelGate, OURS, TopFive, said, useBase, whenLoaded } from './kit';
 
 const MODULE = 'interpretability',
   ID = '02-pull-a-fuse';
@@ -91,7 +91,7 @@ export const STEPS: Step<S>[] = [
     id: 'heads',
     focus: 'heads',
     visibleControls: ['out1', 'heads'],
-    narration: 'Now every head, one at a time, over the same text.',
+    narration: 'Now every head, one at a time, over the same text. Big models lose many heads with little harm too.',
     act: 'Pull each head’s fuse once.',
     say: { block: 'fuses', text: 'One at a time' },
     predicate: s => HEAD_FUSES.every(f => s.tried.includes(f)),
@@ -212,6 +212,7 @@ export default function PullAFuse() {
                   <p className="tc-status" role="status">
                     {`${fuseName(WORD_START)} pulled: ${r.lost} of ${r.right} right top-5 guesses lost (${share(r)}).`}
                   </p>
+                  <Fact id="heads-removable" />
                 </>
               );
             }}

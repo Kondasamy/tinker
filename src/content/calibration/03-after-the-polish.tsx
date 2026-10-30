@@ -75,7 +75,7 @@ export const STEPS: Step<S>[] = [
     id: 'compare',
     focus: 'weights',
     visibleControls: ['p1', 'weights'],
-    narration: 'Same held-out text, same jars. Only the weights differ.',
+    narration: 'Same held-out text, same jars. Only the extra training differs.',
     act: 'Measure both: Larkspur mini, then the fine-tune.',
     say: { block: 'top', text: 'Rings above mint' },
     predicate: s => !!s.seen.base && !!s.seen.finetuned,
@@ -131,7 +131,7 @@ export default function AfterThePolish() {
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         weights: ({ state, sync }) => (
-          <div className="cb-picks" role="group" aria-label="Weights">
+          <div className="cb-picks" role="group" aria-label="Model">
             {WEIGHTS.map(w => (
               <button
                 key={w}
@@ -157,7 +157,7 @@ export default function AfterThePolish() {
                 <caption>Held-out text, measured in your browser</caption>
                 <thead>
                   <tr>
-                    <th scope="col">Weights</th>
+                    <th scope="col">Model</th>
                     <th scope="col">Sure, on average</th>
                     <th scope="col">Right</th>
                   </tr>

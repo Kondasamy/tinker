@@ -107,7 +107,7 @@ const CHAPTERS: Chapter[] = [
       goal: 'How does the database pair each order with its customer?',
       learn: [
         'A join pairs rows from two tables',
-        'A nested loop looks up once per outer row',
+        'A nested loop does one lookup per row',
         'Why that lookup is the one to index',
       ],
       terms: [

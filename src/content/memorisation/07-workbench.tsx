@@ -37,7 +37,7 @@ export interface S {
 const policyOf = (s: S) => (isPolicy(s.policy) ? s.policy : START);
 
 export const QUIZ = {
-  question: 'A team will fine-tune on chat logs holding customers’ phone numbers. What does Larkspur’s bench say?',
+  question: 'A team will train a model on chat logs holding customers’ phone numbers. What does Larkspur’s bench say?',
   options: [
     'Scrub the numbers first; a filter and deduplication only help on top',
     'An output filter is enough: it hides every number',
@@ -47,7 +47,7 @@ export const QUIZ = {
   explanation:
     'Every winning policy scrubbed; a filter alone still leaked, and deduplication still left PINs guessable.',
   why: [
-    'Right: only scrubbing left nothing to leak and nothing to guess.',
+    'Right: on the bench, only scrubbing left nothing to leak and nothing to guess.',
     'The filter missed PINs asked for one digit at a time, so a filter-only policy leaked.',
     'Deduplication stopped the recital but left the most-copied PIN ranked far above chance.',
   ],
@@ -58,7 +58,7 @@ export const STEPS: Step<S>[] = [
     id: 'policy',
     focus: 'policy',
     visibleControls: ['score', 'policy'],
-    narration: 'First data policy: train on tickets as they are. A winner leaks nothing, and nothing beats it on both.',
+    narration: 'First data policy: tickets as they are. A winner leaks nothing; none beats it on exposure and top-5.',
     act: 'Change the policy on the workbench.',
     say: { block: 'ledger', text: 'The policy' },
     predicate: s => solved(policyOf(s)),
@@ -92,7 +92,7 @@ function Score({ s }: { s: S }) {
       </p>
       {best && <p className="mem-note">One of {WINNERS.length} that work.</p>}
       <table className="tc-ledger" style={{ marginTop: 10 }}>
-        <caption>Your policy, as trained offline</caption>
+        <caption>Your policy, as trained ahead of time</caption>
         <tbody>
           <tr>
             <th scope="row">Policy</th>
@@ -192,7 +192,14 @@ export default function Workbench() {
             </fieldset>
           );
         },
-        facts: () => <Fact id="abadi-2016" />,
+        facts: () => (
+          <>
+            <Fact id="abadi-2016" />
+            <p className="mem-note">
+              The bench has no switch for this: none of Larkspur’s toy runs was trained that way.
+            </p>
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

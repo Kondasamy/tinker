@@ -61,11 +61,7 @@ export const RECALL: RecallItem[] = [
     id: 'unvouched-junk',
     chapter: C1,
     question: 'A company’s real receipts keep landing in customers’ junk. What is a likely first cause?',
-    options: [
-      'Nothing vouches for its mail: no SPF or DKIM',
-      'The receipts are too short',
-      'Customers’ mail apps are broken',
-    ],
+    options: ['Nothing vouches for its mail yet', 'The receipts are too short', 'Customers’ mail apps are broken'],
     correct: 0,
     why: [
       'Right: big mail providers distrust mail nothing vouches for.',
@@ -202,7 +198,7 @@ export const RECALL: RecallItem[] = [
     options: ['It fails', 'It passes: addresses aren’t checked', 'It passes, since the sender is real'],
     correct: 0,
     why: [
-      'Right: the body is hashed into the seal, so any real change breaks it.',
+      'Right: the body’s fingerprint is in the seal, so any real change breaks it.',
       'The whole body is covered, address included.',
       'DKIM checks the message, not just who sent it.',
     ],
@@ -230,7 +226,7 @@ export const RECALL: RecallItem[] = [
     options: ['It breaks', 'It still passes: footers don’t count', 'The list re-signs as the original sender'],
     correct: 0,
     why: [
-      'Right: the body changed, so the hash no longer matches.',
+      'Right: the body changed, so its fingerprint no longer matches.',
       'The footer is part of the body, which the seal covers.',
       'The list doesn’t hold the sender’s private key.',
     ],

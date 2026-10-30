@@ -15,3 +15,20 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **Pinned runs teach one thing each**: chapter 2's A/A run has a visible gap and no winner, chapter 3's misses at one week and finds the lift at the planned size, chapter 4's peek declares a win the full run does not keep, chapter 5's crowns one colour by luck. `tests/unit/ab-testing-sim.test.ts` and `ab-testing-workbench.test.ts` fail if a seed or rate change breaks one.
 - **Chapter 7's workbench** (`workbench.ts`): a decision (ship, keep testing, stop) per experiment, 3^experiments plans, each read once at its planned end. The rule: ship when significant, better and the returns guardrail holds; keep testing when not significant and underpowered (fewer shoppers than `NEEDED`); stop otherwise. `WINNERS` is every plan that follows it (one today). The true effects are revealed after the bench, apart from the rule, including the lucky win the rule ships.
 - **Facts about controlled experiments** come from `data/ab-testing/facts.json` with source and access date.
+
+## Toy vs real
+
+The shop is simulated (`SimNote` on every chapter): traffic, true rates and seeds are Larkspur's hand-set numbers (`assumptions.json`, `experiments.json`), so every rate a run shows is labelled. Two rule constants are matched: the significance level reads fact `confidence-level` (`ASSUMPTIONS.level`) and the sample-size rule's 16 reads fact `sample-size` (`RULE` in `stats.ts`).
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| All | 400 shoppers a day per checkout, 1 in 10 buy, 1 in 20 orders returned | none: Larkspur's planning numbers | Labelled (`SimNote`) |
+| All | 5% significance level, 95% interval | `confidence-level` (5% of the time) | Matched (`ASSUMPTIONS.level`) |
+| 1 Did it work | Day-1 and day-14 rates, B − A in points, its interval, 14 days | `random` | Labelled (true rates 10% and 12% set by hand) |
+| 2 Luck | A/A gap, "19 times in 20", 100 A/A tests, false wins counted | `aa-test` (about 5% of the time) | Gap and count labelled (seeded runs); "19 in 20" matched (from the level) |
+| 3 How many shoppers | 1-point true rise, power at 1–8 weeks, 14,400 shoppers needed, the 16 in the maths | `power`, `sample-size` | 16 matched (`RULE`); shoppers needed derives from it and the labelled 10% rate; power counted over seeds, labelled |
+| 4 Peeking | Day a peek stops, its lead, false wins with daily peeks vs one look | `peeking`, `always-valid` | Labelled (seeded A/A runs; the papers show the same inflation, not these counts) |
+| 5 Twenty colours | 20 colours, 100 runs, runs that crown a colour with and without the correction, 0.05 ÷ 20 | `multiple`, `fdr` | Counts labelled (colours share one control, so below 1 − 0.95²⁰); 0.05 matched |
+| 6 Guardrails | Buying and returns B − A, share sent back, orders kept per shopper | `short-term`, `guardrails` | Labelled (true rates set by hand) |
+| 7 Ship or stop | Shoppers needed, each experiment's result, interval and shoppers, true rises, 2 of 5 ideas truly help | `one-third`, `replicate` | Results labelled; shoppers needed matched via `RULE`; the 2 of 5 is a hand-set mix, shown beside Microsoft's one in three |
+| Intro | 400 a day, shoppers needed, peek and colour counts | as above | As above |

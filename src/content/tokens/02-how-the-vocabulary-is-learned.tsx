@@ -12,7 +12,7 @@ import { fact } from '../../lib/tokens/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { Fact, TokensStage } from './kit';
+import { Fact, ToyNote, TokensStage } from './kit';
 import { TOKEN_PARTS } from '../../components/scenes/tokenScene';
 
 const MODULE = 'tokens',
@@ -166,6 +166,7 @@ export default function HowTheVocabularyIsLearned() {
           <>
             <Fact id="bpe-origin" />
             <Fact id="gpt2-vocab" />
+            <ToyNote />
             <p className="note">
               Short codes for common bytes, to shrink a file instead: <a href="/compression/">Compression</a>.
             </p>

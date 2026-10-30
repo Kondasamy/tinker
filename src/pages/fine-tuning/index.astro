@@ -73,7 +73,7 @@ const IDEAS: [string, string, ReturnType<typeof fact>, TrainOpts][] = [
 ];
 const FACTS: [string, string][] = [
   [num(fullCount(META)), 'weights a full fine-tune of Larkspur mini trains'],
-  [num(loraCount(META)), `weights its rank-${META.lora!.rank} LoRA adapter trains`],
+  [num(loraCount(META)), 'weights its small LoRA adapter trains'],
   [num(Number(META.finetune!.training.styleExamples)), 'replies in Larkspur’s style set'],
   [`${num(Number(fact('lora-savings').value))}×`, 'fewer trainable weights LoRA’s authors report for GPT-3'],
 ];
@@ -93,7 +93,7 @@ const FACTS: [string, string][] = [
           <p class="kicker">Module 9 · Fine-tuning</p>
           <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>Train the model, prompt it, or give it documents?</h1>
-          <p class="lede">There are three ways to change what a model answers: what you tell it, what you hand it, and the weights themselves. Here you fine-tune a tiny model for real, measure what it learns and forgets, and decide which lever fits each job.</p>
+          <p class="lede">There are three ways to change what a model answers: what you tell it, what you hand it, and its weights, the numbers inside it. Here you fine-tune a tiny model for real, measure what it learns and forgets, and decide which lever fits each job.</p>
           <div class="ctas">
             <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
             <a class="btn" href="#path">See the chapters</a>

@@ -28,7 +28,7 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
     unlocks: [],
     intro: {
       story:
-        'Larkspur Supply Co. sells hardware to about 4,000 businesses. Its staff lose hours hunting through documents. You join the team building an AI assistant that answers from them.',
+        'Larkspur Supply Co. (made up) sells hardware to about 4,000 businesses. Staff lose hours searching documents. You join the team building an AI assistant that answers from them.',
       goal: 'Why can’t an AI model answer questions about your company, and how did the industry arrive at RAG?',
       learn: [
         'Why a language model invents confident answers about things it never read',
@@ -116,8 +116,9 @@ const CHAPTERS: Omit<RagChapter, 'og' | 'legacySteps'>[] = [
         ],
         [
           'Embedding',
-          'A list of numbers (here 384) that captures what a piece of text means. Similar meanings get similar numbers.',
+          'A list of numbers that captures what a piece of text means. Similar meanings get similar numbers.',
         ],
+        ['Embedder', 'The block that turns each chunk, and the question, into an embedding.'],
         [
           'Vector index',
           'Storage for every chunk’s embedding, built so all of them can be compared with the question at once.',

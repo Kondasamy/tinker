@@ -22,7 +22,7 @@ import {
 import { BARREL_PARTS } from '../../components/scenes/barrelScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Pick, RateStage, SimNote, type View } from './kit';
+import { Fact, Pick, RateStage, SimNote, type View } from './kit';
 
 const MODULE = 'rate-limits',
   ID = '07-set-the-limits';
@@ -67,8 +67,8 @@ export const STEPS: Step<S>[] = [
   {
     id: 'ties',
     focus: 'quiz',
-    visibleControls: ['score', 'bench', 'quiz'],
-    narration: `Yours is one of ${WINNERS.length} settings that work: each keeps the API up and the quiet partners whole.`,
+    visibleControls: ['score', 'bench', 'fact', 'quiz'],
+    narration: `Yours is one of ${WINNERS.length} settings that work. Real APIs set the same two: a steady rate and a burst size.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'How many does a full barrel let through at once?',
@@ -179,6 +179,7 @@ export default function SetTheLimits() {
       )}
       controls={{
         score: ({ state }) => <Score s={state} />,
+        fact: () => <Fact id="aws-quota" />,
         // changing the bench is an attempt only while it is the puzzle
         bench: ({ state, apply, sync, focused }) => <BenchControls s={state} set={focused ? apply : sync} />,
         quiz: ({ state, apply, sync }) => (

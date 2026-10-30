@@ -3,9 +3,9 @@
   "facts": [
     {
       "id": "react-loop",
-      "claim": "ReAct has a language model write its reasoning steps and its actions interleaved, and the actions let it pull in information from outside sources, such as a Wikipedia API.",
+      "claim": "ReAct (Yao et al., 2022) has a language model write its reasoning steps and its actions in turn, and the actions let it pull in information from outside sources, such as Wikipedia.",
       "source": "https://arxiv.org/abs/2210.03629",
-      "accessed": "2026-10-24"
+      "accessed": "2026-10-30"
     },
     {
       "id": "workflow-vs-agent",
@@ -15,9 +15,9 @@
     },
     {
       "id": "simplest-first",
-      "claim": "Anthropic advises finding the simplest solution possible and adding complexity only when needed: agentic systems often trade latency and cost for better task performance.",
+      "claim": "Anthropic advises finding the simplest solution possible and adding complexity only when needed: agentic systems often trade slower, costlier runs for better task performance.",
       "source": "https://www.anthropic.com/engineering/building-effective-agents",
-      "accessed": "2026-10-24"
+      "accessed": "2026-10-30"
     },
     {
       "id": "when-agent",
@@ -35,13 +35,19 @@
       "id": "stopping-conditions",
       "claim": "Agent runs commonly include stopping conditions, such as a maximum number of iterations, to keep control.",
       "source": "https://www.anthropic.com/engineering/building-effective-agents",
-      "accessed": "2026-10-24"
+      "accessed": "2026-10-30"
     },
     {
       "id": "human-checkpoints",
       "claim": "Agents can pause for human feedback at checkpoints or when they hit a blocker.",
       "source": "https://www.anthropic.com/engineering/building-effective-agents",
       "accessed": "2026-10-24"
+    },
+    {
+      "id": "indirect-injection",
+      "claim": "Greshake et al. (2023) showed that instructions planted in data an AI app later reads can take over what it does, against real systems such as Bing's GPT-4 chat, and found no effective defence yet.",
+      "source": "https://arxiv.org/abs/2302.12173",
+      "accessed": "2026-10-30"
     },
     {
       "id": "agent-costs",
@@ -53,7 +59,8 @@
       "id": "multi-agent-tokens",
       "claim": "In Anthropic’s research system, as reported in June 2025, agents typically used about 4 times as many tokens as chat, and multi-agent systems about 15 times as many.",
       "source": "https://www.anthropic.com/engineering/multi-agent-research-system",
-      "accessed": "2026-10-24"
+      "accessed": "2026-10-30",
+      "value": "15"
     },
     {
       "id": "subagent-parallel",
@@ -65,13 +72,13 @@
       "id": "multi-agent-performance",
       "claim": "In June 2025 Anthropic reported that, on its own internal research eval, a lead Claude Opus 4 with Claude Sonnet 4 sub-agents outperformed a single Claude Opus 4 agent by 90.2%.",
       "source": "https://www.anthropic.com/engineering/multi-agent-research-system",
-      "accessed": "2026-10-24"
+      "accessed": "2026-10-30"
     },
     {
       "id": "token-usage-explains",
       "claim": "In Anthropic’s BrowseComp analysis, reported in June 2025, token usage by itself explained 80% of the variance in performance.",
       "source": "https://www.anthropic.com/engineering/multi-agent-research-system",
-      "accessed": "2026-10-24"
+      "accessed": "2026-10-30"
     },
     {
       "id": "context-finite",

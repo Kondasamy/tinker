@@ -11,7 +11,7 @@ import { MAX_NOTE, NEEDED_NOTES, clampNote, notedIds, suggestionsFor } from '../
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { Fact, MODULE, ObsStage, TraceCard, wallOf, type View } from './kit';
+import { Fact, MODULE, ObsStage, ToyNote, TraceCard, wallOf, type View } from './kit';
 import { TRACE_PARTS } from '../../components/scenes/traceScene';
 
 export const PARTS = TRACE_PARTS;
@@ -188,6 +188,10 @@ export default function OpenCoding() {
               groups.
             </p>
             <Fact id="open-coding" />
+            <Fact id="criteria-drift" />
+            <ToyNote>
+              Here {NEEDED_NOTES} notes are enough to go on; a real review notes far more before trusting any help.
+            </ToyNote>
             <Fact id="annotate-yourself" />
             <Fact id="domain-expert" />
           </>

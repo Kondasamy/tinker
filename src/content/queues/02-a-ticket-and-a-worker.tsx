@@ -10,7 +10,7 @@ import { JOBS, SCENES, WORKER_NAMES, clock, resultOf, runOf } from '../../lib/qu
 import { RAIL_PARTS, railAt } from '../../components/scenes/railScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { QueuesStage, SimNote, type View } from './kit';
+import { Fact, QueuesStage, SimNote, type View } from './kit';
 
 const MODULE = 'queues',
   ID = '02-a-ticket-and-a-worker';
@@ -124,7 +124,12 @@ export default function ATicketAndAWorker() {
       )}
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
-        out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />,
+        out1: ({ state }) => (
+          <>
+            <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />
+            <Fact id="work-queue" />
+          </>
+        ),
         tab: ({ state, apply }) => (
           <button type="button" className="chip" onClick={() => apply({ ...state, view: 'jobs' })}>
             Open the Jobs tab
