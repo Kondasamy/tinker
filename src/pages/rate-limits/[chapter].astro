@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import TooManyAtOnce from '../../content/rate-limits/01-too-many-at-once';
+import CountPerMinute from '../../content/rate-limits/02-count-per-minute';
+import TheTokenBucket from '../../content/rate-limits/03-the-token-bucket';
+import The429Reply from '../../content/rate-limits/04-the-429-reply';
+import BackOffWithJitter from '../../content/rate-limits/05-back-off-with-jitter';
+import WhoGetsTurnedAway from '../../content/rate-limits/06-who-gets-turned-away';
+import SetTheLimits from '../../content/rate-limits/07-set-the-limits';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('rate-limits').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="rate-limits" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-too-many-at-once' ? <TooManyAtOnce client:load />
+    : chapter === '02-count-per-minute' ? <CountPerMinute client:load />
+    : chapter === '03-the-token-bucket' ? <TheTokenBucket client:load />
+    : chapter === '04-the-429-reply' ? <The429Reply client:load />
+    : chapter === '05-back-off-with-jitter' ? <BackOffWithJitter client:load />
+    : chapter === '06-who-gets-turned-away' ? <WhoGetsTurnedAway client:load />
+    : <SetTheLimits client:load />}
+</ChapterLayout>
