@@ -1,7 +1,7 @@
 // Pieces the context chapters share: the stage (the window desk, or the same call as one stacked bar) and its caption.
 // Customers' words and recorded answers reach here, so every string is React text; the desk escapes its pills (esc)
 // before they become SVG, and the bar is drawn as React SVG, so it has no markup to escape.
-import { useRef, useState, type KeyboardEvent } from 'react';
+import { useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { num } from '../../lib/format';
 import IsoStage from '../../lib/iso/IsoStage';
 import { INK } from '../../lib/iso/core.js';
@@ -16,7 +16,7 @@ import {
 import { KIND_NAME, KIND_PAL, barLabel, segName, windowBar } from '../../components/scenes/windowBar';
 import { DEFAULTS, REPLY_ROOM, run, type Run, type Setup } from '../../lib/context/loop';
 import { RECORDING } from '../../lib/context/turns';
-import { caseOf, type PartKind } from '../../lib/context/window';
+import { caseOf, DOCS, type PartKind } from '../../lib/context/window';
 import { fact } from '../../lib/context/facts';
 import { useNarrow } from '../tool-calling/kit';
 import './context.css';
@@ -258,6 +258,14 @@ export function Fact({ id }: { id: string }) {
     </p>
   );
 }
+
+/** The toy note (R6): what Larkspur's desk is and how far its sizes are from a real window; a chapter may add a line. */
+export const ToyNote = ({ children }: { children?: ReactNode }) => (
+  <p className="cx-note">
+    {`A toy desk: a budget of ${num(DEFAULTS.budget)} tokens, counted by this site’s own token counter, ${DOCS.length} short passages and recorded answers. A real Claude window holds up to ${num(Number(fact('window-size').value))} tokens.`}
+    {children && <> {children}</>}
+  </p>
+);
 
 const runs = new Map<string, Run>();
 /** A host run over the merged recording, computed once per setup (the tokenizer is the slow part). */

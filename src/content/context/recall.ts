@@ -37,7 +37,7 @@ export const RECALL: RecallItem[] = [
     correct: 1,
     why: [
       'The definitions are text the model reads so it knows the tools exist. They are sent whether or not a tool is called.',
-      'Right. The host sends every offered tool’s name, description and schema each turn. Offer the tools a task needs.',
+      'Right. The host sends every offered tool’s name, description and expected input each turn. Offer the tools a task needs.',
       'The model cannot skip what is in its window: everything sent is read and counted.',
     ],
   },
@@ -204,7 +204,7 @@ export const RECALL: RecallItem[] = [
     correct: 1,
     why: [
       'A hit stops at the first difference; everything after it misses too.',
-      'Right. A change invalidates its own part and every part after it. Keep stable parts stable.',
+      'Right. A change voids the cache for its own part and every part after it. Keep stable parts stable.',
       'Tool definitions are sent as text at the very start, so they are the front of the prefix.',
     ],
   },

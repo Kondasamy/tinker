@@ -50,7 +50,7 @@ const IDEAS: [string, string, ReturnType<typeof fact>, WindowOpts][] = [
   ],
   [
     'More isn’t better',
-    'Distractors around the fact make answers worse',
+    'Look-alike passages around the fact make answers worse',
     fact('context-rot'),
     desk({ sessions: [['free-shipping']], distractors: 12, place: 'middle' }),
   ],
@@ -60,10 +60,10 @@ const IDEAS: [string, string, ReturnType<typeof fact>, WindowOpts][] = [
     fact('just-in-time'),
     desk({ sessions: [['free-shipping']], retrieval: 'fetch' }),
   ],
-  ['Stable first', 'A prefix that repeats is read from the cache', fact('openai-static-first'), HERO],
+  ['Stable first', 'A start that repeats is read back cheaply from the cache', fact('openai-static-first'), HERO],
   [
     'Clear the desk',
-    'Old tool results go; the decisions stay',
+    'Old search results go; the decisions stay',
     fact('clear-tool-results'),
     desk({ sessions: [SESSION], retrieval: 'fetch', history: 'cleared' }, { tray: true }),
   ],
@@ -75,13 +75,14 @@ const IDEAS: [string, string, ReturnType<typeof fact>, WindowOpts][] = [
   ],
 ];
 const FACTS: [string, string][] = [
-  [num(DEFAULTS.budget), 'tokens in Larkspur’s window budget, the reply’s room included'],
+  [num(DEFAULTS.budget), 'tokens in Larkspur’s toy window budget, the reply’s room included'],
+  [num(Number(fact('window-size').value)), 'tokens in a current Claude model’s real window'],
   [
     `${fact('cache-read').value}×`,
     'the input price for tokens read from the cache (Anthropic’s standard rate; some newer models pay less)',
   ],
   [`${fact('cache-write-5m').value}×`, 'the input price to write them to the 5-minute cache'],
-  [fact('cache-breakpoints').value!, 'cache breakpoints a request can set'],
+  [fact('cache-breakpoints').value!, '“cache up to here” marks a request can set'],
 ];
 ---
 <html lang="en">
@@ -99,7 +100,7 @@ const FACTS: [string, string][] = [
           <p class="kicker">Module 8 · Context</p>
           <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>What the model reads each turn, and what it remembers</h1>
-          <p class="lede">Every turn, the host builds the model a window: the system prompt, the tools, the conversation so far, the documents and the question. It has one budget. Here you choose what goes in, in what order, and what is kept outside for later.</p>
+          <p class="lede">Every turn, Larkspur’s app builds the model a window: the system prompt, the tools, the conversation so far, the documents and the question. It has one budget. Here you choose what goes in, in what order, and what is kept outside for later.</p>
           <div class="ctas">
             <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
             <a class="btn" href="#path">See the chapters</a>
@@ -127,7 +128,7 @@ const FACTS: [string, string][] = [
                 </li>
               ))}
             </ol>
-            <p class="cap">Chapter 1’s turn, counted by this site’s tokenizer.</p>
+            <p class="cap">Chapter 1’s turn, counted by this site’s own token counter.</p>
           </article>
           <article class="reply read">
             <header><h3>The answer</h3><span class="stamp">{ANSWER.right ? 'right' : 'wrong'}</span></header>
@@ -136,7 +137,7 @@ const FACTS: [string, string][] = [
             <p class="cap">The recorded answer to that window.</p>
           </article>
         </div>
-        <p class="note more">{fact('window-everything').claim} The counts here come from this site’s own tokenizer, so they show the mechanism, not any provider’s numbers. <a href={fact('window-everything').source}>Source</a>, checked {longDate(fact('window-everything').accessed)}.</p>
+        <p class="note more">{fact('window-everything').claim} The counts here come from this site’s own token counter, so they show the mechanism, not any provider’s numbers. <a href={fact('window-everything').source}>Source</a>, checked {longDate(fact('window-everything').accessed)}.</p>
       </section>
 
       <section aria-labelledby="how">

@@ -15,7 +15,7 @@ import { num } from '../../lib/format';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { ContextStage, Fact, runOf } from './kit';
+import { ContextStage, Fact, runOf, ToyNote } from './kit';
 
 const MODULE = 'context',
   ID = '05-clearing-the-desk';
@@ -221,7 +221,7 @@ export default function ClearingTheDesk() {
         recap: () => (
           <p className="tc-fact">
             Recap from <a href="/agents/05-memory/">AI agents, chapter 5</a>: when a history grows past a set size, the
-            host can compact it into one summary. The summary keeps the decisions and drops the detail, and the model
+            host can shrink it into one summary. The summary keeps the decisions and drops the detail, and the model
             works on from it.
           </p>
         ),
@@ -259,6 +259,10 @@ export default function ClearingTheDesk() {
           <>
             <Fact id="clear-tool-results" />
             <Fact id="clear-breaks-cache" />
+            <ToyNote>
+              Larkspur’s host keeps the latest {KEEP === 1 ? 'one' : KEEP} search result; Anthropic’s default keeps{' '}
+              {fact('clear-tool-results').value}, and starts clearing far past this toy’s whole budget.
+            </ToyNote>
           </>
         ),
         quiz: ({ state, apply, sync }) => (

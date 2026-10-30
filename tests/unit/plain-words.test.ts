@@ -19,7 +19,6 @@ const PENDING = new Set<string>([
   'choosing-models',
   'compression',
   'computer-use',
-  'context',
   'dependencies',
   'diffusion-llms',
   'email',
