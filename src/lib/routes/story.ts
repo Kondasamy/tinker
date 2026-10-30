@@ -6,8 +6,6 @@ import { bfs } from './bfs';
 import { dijkstra } from './dijkstra';
 import { BRIDGES, DEPOT, JUNCTIONS, ROADS } from './graph';
 
-export const EFFECTS = pinned.effects;
-
 /** chapter 1: the van's fastest route, the bridge on it, the detour once it closes, and the cut when both close */
 export const FASTEST = dijkstra();
 export const ROUTE_BRIDGE = BRIDGES.find(b => FASTEST.roads.includes(b))!;

@@ -25,7 +25,6 @@ export interface Delivery extends Edits {
 export const DELIVERIES = day.deliveries as Delivery[];
 export const SLACK = day.slack;
 export const RULE = day.rule;
-export const DAY_NOTE = day.note;
 
 /** One search under a setting. */
 export function route(b: Bench, e: Edits = {}, to?: string): Search {

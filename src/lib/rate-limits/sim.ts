@@ -11,7 +11,6 @@ import { delayOf, type Retry } from './backoff';
 
 export const CAPACITY = data.server.capacity;
 export const DOWN_MS = data.server.downMs;
-export const TRACE_NOTE = data.note;
 export type TraceId = keyof typeof data.traces;
 export type Key = keyof typeof data.partners;
 export const PARTNERS = data.partners;
