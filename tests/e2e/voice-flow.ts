@@ -102,7 +102,7 @@ export function voWalker(page: Page, mode: Mode, check: (page: Page) => Promise<
     },
     /** predict, switch builds */
     async ch6(next?: RegExp, quiz: string | RegExp = /^Chained:/) {
-      await opt(/^A transcript the host/);
+      await opt(/^A transcript the line/);
       await btn('One speech-to-speech model');
       await step(3);
       await check(page);
