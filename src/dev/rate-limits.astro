@@ -1,0 +1,78 @@
+---
+// Dev-only eyeball page: the rain barrel in the states the chapters teach (static SVG, wide and phone), then the
+// stage live with the flood button, and the Requests chart. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { BARREL_BOARD, barrelAt, barrelLabel, barrelScene, type BarrelOpts } from '../components/scenes/barrelScene';
+import { RateStage, RequestsView } from '../content/rate-limits/kit';
+import { SCENES, crowdOf, liveOf, runOf } from '../lib/rate-limits/sim';
+import { WINNERS, benchRun } from '../lib/rate-limits/workbench';
+
+const flood = runOf(SCENES.flood);
+const live = runOf(
+  liveOf(
+    Array.from({ length: 14 }, (_, i) => i * 20),
+    2,
+    400,
+  ),
+);
+const STATES: [string, Omit<BarrelOpts, 'scale'>][] = [
+  ['No limit, 0:04: steady', barrelAt(flood, 4000)],
+  ['No limit, 0:06: the flood, server down', { ...barrelAt(flood, 6000), say: { block: 'door', text: 'Server down' } }],
+  ['Window, 0:59.9: empty', barrelAt(runOf(SCENES.edge), 59_900)],
+  [
+    'Window, 1:00.5: topped up',
+    { ...barrelAt(runOf(SCENES.edge), 60_500), say: { block: 'barrel', text: 'Full again' } },
+  ],
+  ['Live: 14 sent, barrel empty', { ...barrelAt(live, 400), say: { block: 'tap', text: 'Tap shut' } }],
+  ['429 with Retry-After', { ...barrelAt(runOf(SCENES.ignore), 1100), say: { block: 'away', text: 'Wait 2 s' } }],
+  ['Crowd, no jitter, 0:01', barrelAt(runOf(crowdOf({ backoff: true, jitter: false })), 1000)],
+  ['Per key, 0:05', { ...barrelAt(runOf(SCENES.perKey), 5000), say: { block: 'drip', text: 'One per key' } }],
+  ['Shared, 0:05', barrelAt(runOf(SCENES.shared), 5000)],
+  ['A winning bench at 0:25', barrelAt(benchRun(WINNERS[0]), 25_000)],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Rate limits scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Rain barrel: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={BARREL_BOARD} scene={barrelScene({ ...o, scale: 1.2 })} label={barrelLabel(o)} /></div>
+            <div class="phone"><IsoStage board={BARREL_BOARD} scene={barrelScene({ ...o, scale: 2 })} label={barrelLabel(o)} /></div>
+            <p>{barrelLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>Flood button</h2><div class="stage"><RateStage client:load live={{ drip: 2 }} show={{ caption: 'The live barrel.' }} /></div></section>
+        <section><h2>Escaped caption</h2><div class="stage"><RateStage show={{ run: flood, t: 6000, caption: '<script>alert(1)</script>' }} /></div></section>
+        <section><h2>Requests chart</h2><div class="stage"><RequestsView run={flood} t={12_000} /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  .stage { display: flex; height: 520px; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

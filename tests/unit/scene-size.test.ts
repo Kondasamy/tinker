@@ -43,6 +43,8 @@ import { PUPPET_BOARD, puppetScene } from '../../src/components/scenes/puppetSce
 import { RAIL_BOARD, railAt, railScene } from '../../src/components/scenes/railScene';
 import { SAFE_BOARD, safeAt, safeScene } from '../../src/components/scenes/safeScene';
 import { SCENES as BACKUPS, STRIKES as BACKUP_STRIKES, weekOf as backupWeek } from '../../src/lib/backups/sim';
+import { BARREL_BOARD, barrelAt, barrelScene } from '../../src/components/scenes/barrelScene';
+import { benchRun as rateBench } from '../../src/lib/rate-limits/workbench';
 import { RECITAL_BOARD, recitalScene } from '../../src/components/scenes/recitalScene';
 import { ROUTER_BOARD, routerScene } from '../../src/components/scenes/routerScene';
 import { SANDBOX_BOARD, sandboxScene } from '../../src/components/scenes/sandboxScene';
@@ -388,6 +390,8 @@ const SCENES: Record<string, () => string> = {
   rail: () => stage(RAIL_BOARD, railScene(railAt(queueRun({ ...QUEUES.crash, crashes: [SHOWN_CRASH] }), CRASH_AT))),
   // the fullest backups week: ransomware padlocks the cabinet and the warehouse, the lockbox restores
   safe: () => stage(SAFE_BOARD, safeScene(safeAt(backupWeek(BACKUPS.lockbox), 0, BACKUP_STRIKES.ransom))),
+  // sale day with four barrels, a full queue and couriers turned away: the most the rain barrel draws
+  barrel: () => stage(BARREL_BOARD, barrelScene(barrelAt(rateBench({ size: 10, refill: 5, perKey: true }), 25_000))),
   // a canary seen 64 times: the ledger and the ranked column
   recital: () => {
     const c = canaryOf(64),
@@ -574,6 +578,8 @@ const BASE: Record<string, number> = {
   agent: 89875,
   'agent:helpers': 61489,
   archive: 91791,
+  // new with the rate-limits module (no pre-rework size): its first size is 348,099 (16 people), with a little headroom
+  barrel: 120000,
   cabinet: 36056,
   cloak: 57039,
   copier: 42034,
