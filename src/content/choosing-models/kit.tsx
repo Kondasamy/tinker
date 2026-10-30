@@ -15,11 +15,13 @@ import {
   steelyardScene,
   type SteelyardOpts,
 } from '../../components/scenes/steelyardScene';
-import { IDS, NOTE, type MachineId } from '../../lib/choosing-models/machines';
+import { IDS, NOTE, type MachineId, type Source } from '../../lib/choosing-models/machines';
+import { qualityText } from '../../lib/choosing-models/story';
 import { money, secs } from '../../lib/choosing-models/price';
 import {
   CRITERIA,
   MAX_WEIGHT,
+  rowsOf,
   tiltOf,
   weigh,
   type Criterion,
@@ -33,6 +35,20 @@ import './choosing-models.css';
 
 export const NAMES: Record<Criterion, string> = { quality: 'Quality', cost: 'Cost', wait: 'Wait' };
 export const NONE: Weights = { quality: 0, cost: 0, wait: 0 };
+
+/** A still of the hall: `source`'s machines weighed at `w` with those under the bar left out (home, share images). */
+export function hallOf(source: Source, w: Weights, rest: Partial<SteelyardOpts> = {}): Omit<SteelyardOpts, 'scale'> {
+  const { winner, lead } = weigh(inPlay(rowsOf(source), rest.out), w);
+  return {
+    aim: aimOf(winner),
+    tilt: tiltOf(lead, winner),
+    winner,
+    weights: w,
+    pills: qualityText(source).pills,
+    states: winner ? { [winner]: 'ok' } : {},
+    ...rest,
+  };
+}
 
 /** The rows the steelyard weighs: every machine not under the bar. */
 export const inPlay = (rows: Row[], out?: MachineId[]) => rows.filter(r => !out?.includes(r.id));

@@ -26,10 +26,19 @@ import { qualityText } from '../../src/lib/choosing-models/story';
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const at = (source: Source, w: Weights, rest: Partial<SteelyardOpts> = {}): SteelyardOpts => {
   const { winner, lead } = weigh(rowsOf(source), w);
-  return { aim: aimOf(winner), tilt: tiltOf(lead, winner), winner, weights: w, pills: qualityText(source).pills, ...rest };
+  return {
+    aim: aimOf(winner),
+    tilt: tiltOf(lead, winner),
+    winner,
+    weights: w,
+    pills: qualityText(source).pills,
+    ...rest,
+  };
 };
 const draw = (o: SteelyardOpts) =>
-  renderToString(createElement(IsoStage, { board: STEELYARD_BOARD, scene: steelyardScene(o), label: steelyardLabel(o) }));
+  renderToString(
+    createElement(IsoStage, { board: STEELYARD_BOARD, scene: steelyardScene(o), label: steelyardLabel(o) }),
+  );
 
 describe('the market hall', () => {
   it('draws every part a callout may name, and escapes pill text', () => {
@@ -42,17 +51,28 @@ describe('the market hall', () => {
   });
 
   it('hangs each poise at its weight’s notch, and tips the beam as score.ts says', () => {
-    for (const w of [NONE, { quality: 4, cost: 0, wait: 0 }, { quality: 2, cost: 1, wait: 0 }, { quality: 1, cost: 3, wait: 4 }]) {
+    for (const w of [
+      NONE,
+      { quality: 4, cost: 0, wait: 0 },
+      { quality: 2, cost: 1, wait: 0 },
+      { quality: 1, cost: 3, wait: 4 },
+    ]) {
       const o = at('larkspur', w),
         svg = draw(o),
         { winner, lead } = weigh(rowsOf('larkspur'), w);
-      expect(svg).toContain(`data-part="beam" data-winner="${winner ?? 'none'}" data-tilt="${tiltOf(lead, winner).toFixed(1)}"`);
+      expect(svg).toContain(
+        `data-part="beam" data-winner="${winner ?? 'none'}" data-tilt="${tiltOf(lead, winner).toFixed(1)}"`,
+      );
       expect(svg).toContain(`data-part="pan" data-slips="${winner ? 3 : 0}"`);
       for (const k of CRITERIA) {
         expect(svg).toContain(`data-poise="${k}" data-weight="${w[k]}"`);
         // the poise's hook sits notch(w) out along the long arm
         const g = beamOf(o.aim, o.tilt, w),
-          d = Math.hypot(g.poise[k].hook[0] - g.pivot[0], g.poise[k].hook[1] - g.pivot[1], g.poise[k].hook[2] - g.pivot[2]);
+          d = Math.hypot(
+            g.poise[k].hook[0] - g.pivot[0],
+            g.poise[k].hook[1] - g.pivot[1],
+            g.poise[k].hook[2] - g.pivot[2],
+          );
         expect(d).toBeCloseTo(notch(w[k]), 6);
       }
     }
@@ -70,9 +90,9 @@ describe('the market hall', () => {
 
   // every pill's rect, as [x0, y0, x1, y1]
   const pillBoxes = (svg: string) =>
-    [...svg.matchAll(/<g class="tag[^"]*">.*?<rect x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)" height="([\d.]+)"/g)].map(
-      ([, x, y, w, h]) => [+x, +y, +x + +w, +y + +h],
-    );
+    [
+      ...svg.matchAll(/<g class="tag[^"]*">.*?<rect x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)" height="([\d.]+)"/g),
+    ].map(([, x, y, w, h]) => [+x, +y, +x + +w, +y + +h]);
   const overlaps = (a: number[], b: number[]) => a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3];
   it('no two pills overlap and none leaves the picture, wide and phone, with every chapter callout', () => {
     const says = [
@@ -93,16 +113,25 @@ describe('the market hall', () => {
     let checked = 0;
     for (const scale of [1.2, 1.3, 1.4, 2])
       for (const source of ['public', 'larkspur', 'next'] as Source[])
-        for (const w of [NONE, { quality: 4, cost: 0, wait: 0 }, { quality: 2, cost: 1, wait: 0 }, { quality: 0, cost: 0, wait: 4 }])
+        for (const w of [
+          NONE,
+          { quality: 4, cost: 0, wait: 0 },
+          { quality: 2, cost: 1, wait: 0 },
+          { quality: 0, cost: 0, wait: 4 },
+        ])
           for (const say of says) {
             const o = at(source, w, { scale, say, ...(scale > 1.5 ? { pills: { A: 'A', B: 'B', C: 'C' } } : {}) });
             const svg = draw(o),
-              [, , vw, vh] = svg.match(/viewBox="([-\d. ]+)"/)![1].split(' ').map(Number),
+              [, , vw, vh] = svg
+                .match(/viewBox="([-\d. ]+)"/)![1]
+                .split(' ')
+                .map(Number),
               boxes = pillBoxes(svg),
               where = `${scale} ${source} ${JSON.stringify(w)} ${say?.block ?? ''}`;
             for (const [i, p] of boxes.entries()) {
               expect(p[0] >= 0 && p[1] >= 0 && p[2] <= vw && p[3] <= vh, `${where}: pill ${i} leaves`).toBe(true);
-              for (let j = i + 1; j < boxes.length; j++) expect(overlaps(p, boxes[j]), `${where}: ${i}/${j}`).toBe(false);
+              for (let j = i + 1; j < boxes.length; j++)
+                expect(overlaps(p, boxes[j]), `${where}: ${i}/${j}`).toBe(false);
             }
             checked++;
           }

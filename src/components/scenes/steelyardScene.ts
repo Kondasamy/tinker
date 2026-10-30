@@ -208,7 +208,7 @@ export const steelyardScene = (o: SteelyardOpts) => (ctx: SceneCtx) => {
   const pieces: Piece[] = [
     ...IDS.flatMap(id => stand(id, o.states?.[id], !!o.out?.includes(id))),
     ...steelyard(o),
-    person({ x: 156, y: 140, facing: '-x', look: 'rosa', holding: 'clipboard' }),
+    person({ x: 144, y: 126, facing: '-x', look: 'rosa', holding: 'clipboard' }),
   ];
   let s = drawPieces(pieces, ctx.top);
   const pills: string[] = [];
@@ -216,7 +216,8 @@ export const steelyardScene = (o: SteelyardOpts) => (ctx: SceneCtx) => {
     const [x, y] = PLINTH[id];
     pills.push(pill([x, y, MTOP], -14, o.pills[id], scale));
     // a machine's callout hangs below its plinth, clear of the next machine's name pill above it
-    if (sayFits(o.say, `machine-${id.toLowerCase()}`, narrow)) pills.push(sayTag([x + PW, y, BH], o.say!.text, scale, 22));
+    if (sayFits(o.say, `machine-${id.toLowerCase()}`, narrow))
+      pills.push(sayTag([x + PW, y, BH], o.say!.text, scale, 22));
   }
   const g = beamOf(o.aim, o.tilt, o.weights);
   pills.push(
