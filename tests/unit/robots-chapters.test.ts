@@ -5,7 +5,7 @@ import pinned from '../../data/robots/pinned.json' with { type: 'json' };
 import { NEW_BIN, RULE } from '../../src/lib/robots/rules';
 import { play, W } from '../../src/lib/robots/world';
 import { START, WINNERS, wins } from '../../src/lib/robots/workbench';
-import { BAY } from '../../src/content/robots/kit';
+import { BAY, driveBin } from '../../src/content/robots/kit';
 import * as ch1 from '../../src/content/robots/01-see-decide-move';
 import * as ch2 from '../../src/content/robots/02-what-the-camera-gives';
 import * as ch3 from '../../src/content/robots/03-rules-break';
@@ -29,6 +29,14 @@ describe('the chapters’ reveals match the pins', () => {
     expect(fin.predicate(s)).toBe(false);
     expect(fin.predicate(fin.solution!(s))).toBe(true);
   });
+  // chapters 1–2 keep the finished demo on show: it stays on its own bin, part in the tray
+  it('chapter 1: after Show me the drive still shows the demo’s own bin, done', () => {
+    const fin = stepOf<ch1.S>(ch1.STEPS, 'finish');
+    const { bay } = fin.solution!({ bay: BAY, view: 'scene' as const, p1: 0, quiz: null });
+    expect(driveBin(bay)).toBe(driveBin(BAY));
+    expect(play(driveBin(bay), bay.drive).at(-1)!.end).toBe('done');
+  });
+
   it('chapter 2: one press right puts the claw beside a crate', () => {
     expect(ch2.besideCrate(BAY)).toBe(false);
     expect(ch2.besideCrate({ ...BAY, drive: ['right'] })).toBe(true);

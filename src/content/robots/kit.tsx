@@ -206,7 +206,7 @@ export function usePlayback(n: number, key: unknown, onEnd: () => void) {
 
 /** What a drive chapter keeps: the run being driven, the finished demos, the corrections, and the last hand-over. */
 export interface Bay {
-  /** actions of the demo being driven, on demoBin(demos.length) */
+  /** actions of the demo being driven, on driveBin(bay) */
   drive: Action[];
   /** finished demos, the n-th driven on demoBin(n) */
   demos: Action[][];
@@ -219,6 +219,11 @@ export interface Bay {
 export const BAY: Bay = { drive: [], demos: [], fixes: [], runs: 0, last: null };
 /** The bin the n-th demo is driven on: the training bins in turn. */
 export const demoBin = (n: number) => TRAIN[n % TRAIN.length];
+/** The bin the drive is on: the next demo's, or the last demo's while a finished demo stays on show (chapters 1–2). */
+export const driveBin = (b: Bay) => {
+  const last = b.demos.at(-1);
+  return demoBin(last && b.drive.join() === last.join() ? b.demos.length - 1 : b.demos.length);
+};
 /** The reader's demos as the policy's pairs. */
 export const readerPairs = (b: Bay): Pair[] => b.demos.flatMap((d, i) => pairsOf(demoBin(i), d));
 const KEYS: Record<string, Move> = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right' };
@@ -300,7 +305,7 @@ export function DriveBench({
     setSaid(endText(run.end, run.steps));
     onBay({ ...bay, runs: bay.runs + 1, last: { end: run.end, steps: run.steps } });
   });
-  const bin = demoBin(bay.demos.length);
+  const bin = driveBin(bay);
   const driven = useMemo(() => play(bin, bay.drive), [bin, bay.drive]);
   const cur = driven.at(-1)!;
   // the wheel starts where the replay stopped (before it left the grid)

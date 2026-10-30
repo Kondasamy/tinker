@@ -10,7 +10,7 @@ import { UNSURE } from '../../lib/recall';
 import { CLAW_PARTS } from '../../components/scenes/clawScene';
 import { isCrate, play, type Cell } from '../../lib/robots/world';
 import { Outcome } from '../tool-calling/kit';
-import { BAY, type Bay, DriveBench, demoBin, SimNote, type View } from './kit';
+import { BAY, type Bay, DriveBench, driveBin, SimNote, type View } from './kit';
 
 const MODULE = 'robots',
   ID = '02-what-the-camera-gives';
@@ -43,7 +43,7 @@ export const QUIZ = {
 
 /** Whether the claw now stands beside a crate (not just a wall). */
 export function besideCrate(b: Bay) {
-  const bin = demoBin(b.demos.length),
+  const bin = driveBin(b),
     [x, y] = play(bin, b.drive).at(-1)!.claw;
   const near: Cell[] = [
     [x, y - 1],

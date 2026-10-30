@@ -919,7 +919,7 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'backups')).toBe(55);
   });
 
-  it('has on-device as a live Intermediate module after parallel-training, numbered 53', () => {
+  it('has on-device as a live Intermediate module after backups, numbered 57', () => {
     expect(moduleOf('on-device')).toMatchObject({
       title: 'Models on your device',
       level: 'Intermediate',

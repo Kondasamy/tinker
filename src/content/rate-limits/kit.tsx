@@ -158,7 +158,7 @@ export function FloodControls({ live, onLive }: { live: Live; onLive: (l: Live) 
   const reduced = useReduced();
   const cur = useRef(live);
   cur.current = live;
-  const hold = useRef<{ id: number; n: number; from: number } | null>(null);
+  const hold = useRef<{ id: number; n: number } | null>(null);
   const [said, setSaid] = useState('');
   const first429 = useRef<boolean | null>(null);
   if (first429.current === null) first429.current = liveCounts(live).limited > 0;
@@ -170,9 +170,10 @@ export function FloodControls({ live, onLive }: { live: Live; onLive: (l: Live) 
     onLive(next);
     return next;
   };
-  const report = (before: number, after: Live) => {
+  // the burst is the last n requests: counting by index from before it breaks once KEEP trims the oldest
+  const report = (n: number, after: Live) => {
     const r = liveRun(after, Date.now()),
-      mine = r.hits.slice(before);
+      mine = r.hits.slice(-n);
     const ok = mine.filter(h => h.verdict === 'ok').length,
       no = mine.length - ok;
     let msg = `Sent ${mine.length}: ${ok} served, ${no} turned away.`;
@@ -188,12 +189,11 @@ export function FloodControls({ live, onLive }: { live: Live; onLive: (l: Live) 
     if (!h) return;
     clearInterval(h.id);
     hold.current = null;
-    report(h.from, cur.current);
+    if (h.n) report(h.n, cur.current);
   };
   const start = () => {
     if (hold.current) return;
-    const from = liveRun(cur.current, Date.now()).hits.length;
-    const h = { id: 0, n: 0, from };
+    const h = { id: 0, n: 0 };
     hold.current = h;
     const tick = () => {
       if (h.n >= HOLD_MAX) return stop();
@@ -235,9 +235,8 @@ export function FloodControls({ live, onLive }: { live: Live; onLive: (l: Live) 
           type="button"
           className="chip"
           onClick={() => {
-            const before = liveRun(cur.current, Date.now()).hits.length,
-              now = Date.now();
-            report(before, send(Array.from({ length: 10 }, () => now)));
+            const now = Date.now();
+            report(10, send(Array.from({ length: 10 }, () => now)));
           }}
         >
           Send 10
