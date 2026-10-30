@@ -7,10 +7,10 @@ import Meta from '../../components/Meta.astro';
 import Recap from '../../components/quiz/Recap';
 import RecallCards from '../../components/scenes/RecallCards';
 import { recapMeta } from '../../lib/pages';
-import { MODULES, moduleOf } from '../../lib/modules';
+import { moduleOf, moduleNumber } from '../../lib/modules';
 
 const MODULE = moduleOf('diffusion-llms');
-const N = MODULES.filter(m => m.status === 'live').indexOf(MODULE) + 1;
+const N = moduleNumber(MODULE);
 ---
 <html lang="en">
   <head>

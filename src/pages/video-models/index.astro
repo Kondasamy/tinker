@@ -14,14 +14,14 @@ import { diskNet } from '../../lib/video-models/diskModel';
 import { dream } from '../../lib/video-models/rollout';
 import { parseFrame, rollout, SIZE } from '../../lib/video-models/world';
 import { fact } from '../../lib/video-models/facts';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 import PINNED from '../../../data/video-models/pinned.json' with { type: 'json' };
 import META from '../../../public/data/video-models/meta.json' with { type: 'json' };
 
 const MODULE = moduleOf('video-models');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 
 const ROUTE = rollout(PINNED.seed, PINNED.steps);

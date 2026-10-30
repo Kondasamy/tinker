@@ -24,13 +24,13 @@ import { CARDS, billions, cardOf } from '../../lib/mixture-of-experts/cards';
 import { diskMoe } from '../../lib/mixture-of-experts/diskModel';
 import { encode } from '../../lib/lm/bpe';
 import { fact } from '../../lib/mixture-of-experts/facts';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 import PINNED from '../../../data/mixture-of-experts/pinned.json' with { type: 'json' };
 
 const MODULE = moduleOf('mixture-of-experts');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 
 const pic = (o: RoomsOpts): RoomsOpts => ({ ...o, scale: 1.4 });

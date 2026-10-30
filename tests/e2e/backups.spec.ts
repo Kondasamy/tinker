@@ -2,12 +2,12 @@
 // strike bar (Select, hour range, Strike) and its one read-out, the Week tab, "I'm not sure", reduced motion, the
 // recap, axe and phone width. The go-live adds the module's number, share images and home's card.
 import { test, expect, type Locator, type Page } from '@playwright/test';
-import { MODULES, moduleOf } from '../../src/lib/modules';
+import { moduleOf, moduleNumber } from '../../src/lib/modules';
 import { WINNERS } from '../../src/lib/backups/workbench';
 import { serious, layoutHolds, PHONE, choose, chooseByKeys } from './helpers';
 
 const M = moduleOf('backups');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'backups') + 1;
+const NUMBER = moduleNumber(moduleOf('backups'));
 const IDS = M.chapters.map(c => c.id);
 const at = (id: string) => new RegExp(`/backups/${id}/$`);
 const axe = async (page: Page) => expect(await serious(page)).toEqual([]);

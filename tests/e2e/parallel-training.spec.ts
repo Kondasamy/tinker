@@ -2,13 +2,13 @@
 // buckets (Step, Play hidden under reduced motion, one read-out), the workbench's winning and losing layouts, "I'm not
 // sure", the recap, axe and phone width (controls ≥ 44 px); the go-live checks: share images, home’s card.
 import { test, expect, type Locator, type Page } from '@playwright/test';
-import { MODULES, moduleOf } from '../../src/lib/modules';
+import { moduleOf, moduleNumber } from '../../src/lib/modules';
 import pinned from '../../data/parallel-training/pinned.json' with { type: 'json' };
 import { WINNERS } from '../../src/lib/parallel-training/workbench';
 import { serious, layoutHolds, PHONE } from './helpers';
 
 const M = moduleOf('parallel-training');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === M.id) + 1;
+const NUMBER = moduleNumber(M);
 const CHS = M.chapters.map(c => c.id),
   [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = CHS;
 const at = (id: string) => new RegExp(`/parallel-training/${id}/$`);

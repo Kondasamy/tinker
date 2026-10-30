@@ -8,7 +8,7 @@ Each module is a short story you play through: the picture on the left is live, 
 
 ## Modules
 
-Every module has an intro at `/<module>/`, its chapters, and a recap at `/<module>/recap/`. They run from beginner to advanced, across AI (RAG, agents, transformers, evals…) and classic tech (caching, Git, payments, queues…).
+Every module has an intro at `/<module>/`, its chapters, and a recap at `/<module>/recap/`. They run from beginner to advanced, across AI (RAG, agents, transformers, evals…) and classic tech (caching, Git, payments, queues…). Module 0, Before GenAI, comes first: the bots that came before GenAI, what changed, and what didn't.
 
 The catalogue lives on the [home page](https://tinker.kondasamy.com/#modules); its source of truth is the registry, `src/lib/modules.ts`. Planned modules show there as roadmap cards, and readers propose new ones through the form at the bottom of the home page.
 

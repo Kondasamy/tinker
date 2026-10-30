@@ -24,12 +24,12 @@ import {
 } from '../../lib/dependencies/story';
 import { WINNERS } from '../../lib/dependencies/workbench';
 import { fact } from '../../lib/dependencies/facts';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('dependencies');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 const pic = (o: Omit<TowerOpts, 'scale'>): TowerOpts => ({ ...o, scale: 1.4 });
 const BEFORE = install({ day: BAD_DAY - 1 }),

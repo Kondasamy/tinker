@@ -36,6 +36,8 @@ import { hallOf } from '../../src/content/choosing-models/kit';
 import { GUARD_BOARD, guardScene } from '../../src/components/scenes/guardScene';
 import { HERO_BOARD, HOME_HERO } from '../../src/components/scenes/heroScene';
 import { JAR_BOARD, jarScene } from '../../src/components/scenes/jarScene';
+import { KIOSK_BOARD, kioskScene } from '../../src/components/scenes/kioskScene';
+import { messageOf as bgMessage, run as bgRun } from '../../src/lib/before-genai/bots';
 import { MCP_BOARD, connectScene, countScene } from '../../src/components/scenes/mcpScene';
 import { ROOMS_BOARD, roomsScene, tokensOf } from '../../src/components/scenes/officeRoomsScene';
 import { OFFICE_BOARD, officeScene } from '../../src/components/scenes/officeScene';
@@ -493,6 +495,12 @@ const SCENES: Record<string, () => string> = {
         basket: 'hinge-pack',
       }),
     ),
+  // the scripted kiosk answering, the sorter's card in a bin, a callout on (a new scene: its baseline is its first size)
+  kiosk: () =>
+    stage(
+      KIOSK_BOARD,
+      kioskScene({ run: bgRun(bgMessage('where-order')), say: { block: 'cards', text: 'Fixed replies' } }),
+    ),
   // a flag dialled to 10% with the coupon pipeline: every part drawn
   signal: () =>
     stage(
@@ -669,6 +677,8 @@ const BASE: Record<string, number> = {
   guard: 96189,
   hero: 507886,
   jar: 108535,
+  // new with the Before GenAI module (no pre-rework size): its first size is 72,296, with a little headroom
+  kiosk: 26000,
   'mcp:count': 71749,
   'mcp:connect': 37391,
   rooms: 87283,

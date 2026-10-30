@@ -20,12 +20,12 @@ import {
 import { CAPACITY, PARTNERS, SCENES, crowdOf, runOf, tally } from '../../lib/rate-limits/sim';
 import { WINNERS } from '../../lib/rate-limits/workbench';
 import { fact } from '../../lib/rate-limits/facts';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('rate-limits');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 const pic = (o: Omit<BarrelOpts, 'scale'>): BarrelOpts => ({ ...o, scale: 1.4 });
 const HERO = barrelCard(1.4);

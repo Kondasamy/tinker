@@ -14,13 +14,13 @@ import type { Features } from '../../lib/fairness/fit';
 import type { Bars } from '../../lib/fairness/metrics';
 import { APPLICANTS, APPLICANTS_NOTE, REGION_NAMES, runOf, SHARED } from '../../lib/fairness/story';
 import { fact } from '../../lib/fairness/facts';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 import PINNED from '../../../data/fairness/pinned.json' with { type: 'json' };
 
 const MODULE = moduleOf('fairness');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 // empty until go-live registers the module (the planned card has no chapters), so the build never breaks before it
 const CHAPTERS = MODULE.chapters;
 const { A, B } = REGION_NAMES;

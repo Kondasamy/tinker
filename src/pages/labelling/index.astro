@@ -13,13 +13,13 @@ import { RACK_BOARD, rackLabel, rackScene, type RackOpts } from '../../component
 import { picksOf, tallyOf } from '../../content/labelling/kit';
 import { GOLD, INTENTS, POOL, labellerOf, ticketOf } from '../../lib/labelling/story';
 import { fact } from '../../lib/labelling/facts';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 import PINNED from '../../../data/labelling/pinned.json' with { type: 'json' };
 
 const MODULE = moduleOf('labelling');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;

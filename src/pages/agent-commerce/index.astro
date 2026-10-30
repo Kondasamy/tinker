@@ -14,12 +14,12 @@ import { mandateOf, sign } from '../../lib/agent-commerce/mandate';
 import { checkOrder, FIELDS, orderOf } from '../../lib/agent-commerce/shop';
 import { BUILDER, CATALOGUE, COMPANY, SELLERS, SLIPS, sellerOf, totalOf, usd } from '../../lib/agent-commerce/story';
 import { fact } from '../../lib/agent-commerce/facts';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('agent-commerce');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 const QUARRY = sellerOf('quarrylane');
 const SLIP = SLIPS['shop-around'];

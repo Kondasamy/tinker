@@ -2,14 +2,14 @@
 // only, 24 rows and a count pill, one polite read-out), the wrong table, the workbench's Show me, "I'm not sure",
 // reduced motion, the recap, axe and phone width (targets ≥ 44 px); the go-live checks: share images, home's card.
 import { test, expect, type Page } from '@playwright/test';
-import { MODULES, moduleOf } from '../../src/lib/modules';
+import { moduleOf, moduleNumber } from '../../src/lib/modules';
 import pinned from '../../data/unicode/pinned.json' with { type: 'json' };
 import names from '../../data/unicode/names.json' with { type: 'json' };
 import { ucWalker } from './unicode-flow';
 import { serious, layoutHolds, PHONE } from './helpers';
 
 const M = moduleOf('unicode');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === M.id) + 1;
+const NUMBER = moduleNumber(M);
 const CHS = M.chapters.map(c => c.id),
   [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = CHS;
 const at = (id: string) => new RegExp(`/unicode/${id}/$`);

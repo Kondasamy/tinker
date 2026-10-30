@@ -16,12 +16,12 @@ import { NEEDED } from '../../lib/ab-testing/workbench';
 import { FINAL } from '../../content/ab-testing/01-did-it-work';
 import { PEEK } from '../../content/ab-testing/04-peeking';
 import { NAME } from '../../content/ab-testing/05-twenty-colours';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('ab-testing');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 const pic = (o: Omit<SplitOpts, 'scale'>): SplitOpts => ({ ...o, scale: 1.4 });
 const S = SCENARIOS;

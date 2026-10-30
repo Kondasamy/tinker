@@ -1,6 +1,6 @@
 // Title, description and share-image text for every public page, in one place: the page <head> (Meta.astro) and the
 // share-image template (src/dev/og.astro) both read from here, so a page and its image never disagree.
-import { MODULES, moduleOf, chapterHref } from './modules';
+import { MODULES, moduleOf, chapterHref, moduleNumber } from './modules';
 
 export interface PageMeta {
   /** where the page is served */
@@ -98,15 +98,14 @@ export const recapMeta = (module: string): PageMeta => {
 
 /** A module's intro page (`/<module>/`): its own card where one is written above, else one from the registry entry. */
 export const introMeta = (module: string): PageMeta => {
-  const m = moduleOf(module),
-    i = MODULES.filter(x => x.status === 'live').indexOf(m);
+  const m = moduleOf(module);
   return (
     ({ rag: RAG, 'tool-calling': TOOL_CALLING, agents: AGENTS } as Record<string, PageMeta>)[m.id] ?? {
       path: `/${m.id}/`,
       og: m.id,
       title: `${m.title} · Tinker`,
       description: m.description,
-      kicker: `Tinker · Module ${i + 1}`,
+      kicker: `Tinker · Module ${moduleNumber(m)}`,
       headline: m.title,
       sub: m.description,
     }

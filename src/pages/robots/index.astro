@@ -16,12 +16,12 @@ import { replay } from '../../lib/robots/policy';
 import { NEW_BIN, runRule } from '../../lib/robots/rules';
 import { DEMOS, demoPairs, PERSON, SNOWBALL } from '../../lib/robots/story';
 import { HELD_OUT, play, REAL, startOf, TRAIN } from '../../lib/robots/world';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('robots');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 const N = HELD_OUT.length;
 

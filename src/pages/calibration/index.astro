@@ -19,12 +19,12 @@ import { bins, coverage } from '../../lib/calibration/score';
 import { LEAST, RULES, WINNERS } from '../../lib/calibration/workbench';
 import { LOWEST } from '../../content/calibration/06-when-to-hand-over';
 import { fact } from '../../lib/calibration/facts';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('calibration');
-const N = MODULES.filter(m => m.status === 'live').indexOf(MODULE) + 1;
+const N = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 
 const disk = (f: string) => {

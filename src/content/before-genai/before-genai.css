@@ -1,0 +1,53 @@
+/* Before GenAI: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption) and FlatStage's wide/phone
+   switch (.flat-wide, .flat-phone at 600px). These are the flat view's fit and the story column's transcript. */
+.bg-flat {
+  justify-content: center;
+}
+.bg-flat svg {
+  max-height: 100%;
+}
+
+.bg-transcript {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.bg-line {
+  display: grid;
+  grid-template-columns: 9em 1fr;
+  gap: 8px;
+  padding: 6px 8px;
+  border-left: 3px solid var(--rule);
+}
+.bg-line dt {
+  font-weight: 700;
+}
+.bg-line dd {
+  margin: 0;
+}
+.bg-line[data-outcome="fell back"] {
+  border-left-color: var(--bad);
+}
+.bg-line[data-outcome="answered"] {
+  border-left-color: var(--ok);
+}
+.bg-model {
+  font-size: 0.85em;
+}
+@media (max-width: 600px) {
+  .bg-line {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+  /* chapters 7–8's drop-down ends its row: the list opens leftwards and wraps rather than run off screen */
+  .bg-pick .sel-list {
+    left: auto;
+    right: 0;
+    min-width: min(15em, calc(100vw - 48px));
+    max-width: calc(100vw - 48px);
+  }
+  .bg-pick .sel-list [role="option"] {
+    white-space: normal;
+  }
+}

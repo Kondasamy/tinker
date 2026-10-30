@@ -82,7 +82,8 @@ const DESK = { x0: 14, x1: 86, y0: 40, y1: 72 },
 const CHECK_Y = 38,
   CHECK_X = { spf: 100, dkim: 128, dmarc: 156 },
   GAUGE = [182, 38];
-const TRAY_Y = 86,
+export { GAUGE };
+export const TRAY_Y = 86,
   TRAY_X: Record<Tray, number> = { inbox: 108, junk: 136, bounced: 164 };
 const TRAY_PAL: Record<Tray, typeof METAL> = {
   inbox: PALS.mint,
@@ -278,7 +279,7 @@ function check(name: 'spf' | 'dkim' | 'dmarc', lamp: Lamp | undefined): Piece {
 }
 
 /** The spam filter: a needle dial on a post, mint half then tomato half; the needle points at the score (no numerals). */
-function gauge(score: number | undefined): Piece {
+export function gauge(score: number | undefined): Piece {
   const [x, y] = GAUGE,
     zc = BH + 16,
     R = 5.5,
@@ -305,7 +306,7 @@ function gauge(score: number | undefined): Piece {
 }
 
 /** A wire tray: a coloured floor in a cage of thin rails; the far rails behind the letter, the near ones in front. */
-function tray(t: Tray, holds: boolean): Piece {
+export function tray(t: Tray, holds: boolean): Piece {
   const x = TRAY_X[t],
     y = TRAY_Y,
     part = t === 'bounced' ? 'bounce' : t,

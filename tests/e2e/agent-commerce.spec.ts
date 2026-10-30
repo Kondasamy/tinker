@@ -3,12 +3,12 @@
 // and best setup, "I'm not sure", reduced motion (stamps without the hatch hop), the recap, axe and phone width (the
 // slip's buttons ≥ 44 px); the go-live checks: share images, home’s card.
 import { test, expect, type Page } from '@playwright/test';
-import { MODULES, moduleOf } from '../../src/lib/modules';
+import { moduleOf, moduleNumber } from '../../src/lib/modules';
 import { acWalker } from './agent-commerce-flow';
 import { serious, layoutHolds, PHONE } from './helpers';
 
 const M = moduleOf('agent-commerce');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === M.id) + 1;
+const NUMBER = moduleNumber(M);
 const CHS = M.chapters.map(c => c.id),
   [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = CHS;
 const at = (id: string) => new RegExp(`/agent-commerce/${id}/$`);

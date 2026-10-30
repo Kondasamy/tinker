@@ -1,0 +1,253 @@
+---
+// Before GenAI module intro: sets the scene before chapter 1. Static, except the warm-up and a small script that marks
+// finished chapters. Every example is the module's own data: the help counter and the one-message example run live
+// through bots.ts (the script's rules and the sorter's word counts); the GenAI bot's reply is never quoted here, so the
+// page holds before and after the recording lands.
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import Meta from '../../components/Meta.astro';
+import IsoStage from '../../lib/iso/IsoStage';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import {
+  KIOSK_BOARD,
+  type KioskOpts,
+  kioskLabel,
+  kioskScene,
+  PREDICT_BOARD,
+  type PredictOpts,
+  predictLabel,
+  predictScene,
+} from '../../components/scenes/kioskScene';
+import { MESSAGES, RULES, messageOf, run } from '../../lib/before-genai/bots';
+import { fact } from '../../lib/before-genai/facts';
+import { INTENTS, nameOf } from '../../lib/labelling/story';
+import { parse } from '../../lib/email/parse';
+import { spamScore } from '../../lib/email/spam';
+import { MESSAGES as MAIL } from '../../lib/email/story';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
+import { introMeta } from '../../lib/pages';
+import { longDate } from '../../lib/format';
+
+const MODULE = moduleOf('before-genai');
+const NUMBER = moduleNumber(MODULE);
+const CHAPTERS = MODULE.chapters;
+const RAG = moduleOf('rag');
+
+// the example: the message the script misses and the sorter catches (chapters 1 and 2)
+const EX = run(messageOf('parcel'));
+const HERO: KioskOpts = { run: EX, scale: 1.4 };
+const k = (id: string, say?: KioskOpts['say']): KioskOpts => ({ run: run(messageOf(id)), say, scale: 1.4 });
+const IDEAS: [string, string, ReturnType<typeof fact>, { kiosk: KioskOpts } | { predict: PredictOpts }][] = [
+  [
+    'A script',
+    'Keyword rules, each with a fixed reply card',
+    fact('eliza'),
+    { kiosk: k('where-order', { block: 'cards', text: 'Reply cards' }) },
+  ],
+  [
+    'A sorter',
+    'Trained on labelled tickets, it picks an intent from a fixed list',
+    fact('fallback-intent'),
+    { kiosk: k('gloves', { block: 'sorter', text: 'Intent bins' }) },
+  ],
+  [
+    'AI that picks',
+    'Spam filters and shop shelves choose; they never write',
+    fact('spam-filter'),
+    { predict: { spam: spamScore(parse(MAIL.prize)), scale: 1.4 } },
+  ],
+  [
+    'AI that writes',
+    'A language model, scaled up and taught to follow instructions',
+    fact('chatgpt'),
+    { kiosk: k('c7-poem', { block: 'model', text: 'Writes a reply' }) },
+  ],
+];
+const FACTS: [string, string][] = [
+  [String(MESSAGES.length), 'hand-written stand-in customer messages'],
+  [String(RULES.length), 'keyword rules in the kiosk’s script'],
+  [String(INTENTS.length), 'intents the sorter can pick'],
+  [`${fact('eliza').value} → ${fact('chatgpt').value!.slice(0, 4)}`, 'from ELIZA’s script to ChatGPT'],
+];
+---
+<html lang="en">
+  <head>
+    <Meta {...introMeta(MODULE.id)} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module {NUMBER} · {MODULE.title}</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span></p>
+          <h1>Chatbots are older than ChatGPT</h1>
+          <p class="lede">Before generative AI (GenAI), help bots followed scripts or sorted messages into a fixed list. Play them on Larkspur’s help desk, then see what GenAI changed, and what it didn’t.</p>
+          <div class="ctas">
+            <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+          <ReadingMode />
+        </div>
+        <div class="hero-pic">
+          {/* the example message at the help counter: the script falls back, the sorter sorts it */}
+          <IsoStage board={KIOSK_BOARD} scene={kioskScene(HERO)} label={kioskLabel(HERO)} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="idea">
+        <p class="kicker">The whole idea in one example</p>
+        <h2 id="idea">One message, three bots</h2>
+        <p class="ask"><q>{EX.message.text}</q></p>
+        <div class="versus">
+          <article class="reply">
+            <header><h3>Script</h3><span class="stamp">{EX.scripted.answered ? 'answered' : 'fell back'}</span></header>
+            <p class="quote"><q>{EX.scripted.reply}</q></p>
+            <p class="cap">{EX.scripted.answered ? 'A keyword matched, so it showed that rule’s card.' : 'No keyword matched, so it showed its sorry card.'}</p>
+          </article>
+          <article class="reply">
+            <header><h3>Sorter</h3><span class="stamp">{EX.intent.answered ? nameOf(EX.intent.intent) : 'fell back'}</span></header>
+            <p class="quote"><q>{EX.intent.reply}</q></p>
+            <p class="cap">{EX.intent.answered ? 'New words, yet it picked the right intent’s card.' : 'Not sure of any intent, so it showed its sorry card.'}</p>
+          </article>
+          <article class="reply read">
+            <header><h3>GenAI</h3><span class="stamp">writes</span></header>
+            <p class="cap">No card to pick from: it writes a new reply for this message. Chapter 7 puts it beside the other two.</p>
+          </article>
+        </div>
+        <p class="note more">A hand-written stand-in message. The script and the sorter run in your browser on Larkspur’s own rules and labelled tickets.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Four ideas carry the module</h2>
+        <ol class="steps">
+          {IDEAS.map(([name, short, f, pic], i) => (
+            <li>
+              <div class="pic">
+                {'kiosk' in pic
+                  ? <IsoStage board={KIOSK_BOARD} scene={kioskScene(pic.kiosk)} label={kioskLabel(pic.kiosk)} />
+                  : <IsoStage board={PREDICT_BOARD} scene={predictScene(pic.predict)} label={predictLabel(pic.predict)} />}
+              </div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              <p class="more">{f.claim}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">Larkspur’s help desk, before the assistant</h2>
+          <p class="more">{MODULE.story} <strong>Then you join that team in <a href={`/${RAG.id}/`}>{RAG.title}</a>.</strong></p>
+        </div>
+        <dl class="facts">
+          {FACTS.map(([num, what]) => <div><dt>{num}</dt><dd>{what}</dd></div>)}
+        </dl>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due; the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <ul class="who-chips"><li>Engineers</li><li>Product managers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Anyone new to AI. No background needed: start here, before any other module.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com" target="_blank" rel="noopener">Samy (Kondasamy Jayaraman)</a>.</p>
+      </footer>
+    </main>
+
+    <script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      const CHAPTERS = moduleOf('before-genai').chapters;
+      const done = completed('before-genai');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('before-genai', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .hero-pic :global(svg) { width: 100%; height: auto; display: block; }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .ask { font-size: 20px; font-weight: 800; }
+  .versus { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.read { border-left: 6px solid var(--acc); }
+  .quote { font-size: 15px; }
+
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); white-space: nowrap; }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  /* the counter is wide and low: fill the card's width rather than a fixed height */
+  .steps .pic { margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: 100%; height: auto; display: block; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
+
+  .pair { display: grid; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+  }
+</style>

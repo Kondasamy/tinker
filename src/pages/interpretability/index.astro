@@ -17,14 +17,14 @@ import { diskModel } from '../../lib/transformers/diskModel';
 import { decode, encode } from '../../lib/lm/bpe';
 import { forward } from '../../lib/lm/model';
 import { fact } from '../../lib/interpretability/facts';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('interpretability');
 const CHAPTERS = MODULE.chapters;
 
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const m = diskModel();
 const run = forward(m, encode(BITE.text));
 const room = (o: Partial<FuseOpts> = {}): FuseOpts => ({

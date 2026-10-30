@@ -21,12 +21,12 @@ import {
 import { DAYS, ORDERS, PARTIES, eur, orderOf, policyOf, runOf } from '../../lib/payments/sim';
 import { WINNERS } from '../../lib/payments/workbench';
 import { fact } from '../../lib/payments/facts';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('payments');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 const pic = (o: Omit<TubeOpts, 'scale'>): TubeOpts => ({ ...o, scale: 1.4 });
 const REF = runOf(policyOf({ sca: 'risk', capture: 'shipment', key: true }));

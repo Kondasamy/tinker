@@ -3,14 +3,14 @@
 // animation), real DKIM in the browser, the links to Opening a web page and Locks and keys, the recap, axe and phone
 // width. The go-live adds the module's number, share images and home's card.
 import { test, expect, type Page } from '@playwright/test';
-import { MODULES, moduleOf } from '../../src/lib/modules';
+import { moduleOf, moduleNumber } from '../../src/lib/modules';
 import { hops, parse } from '../../src/lib/email/parse';
 import { readFileSync } from 'node:fs';
 import { emailWalker } from './email-flow';
 import { serious, layoutHolds, PHONE } from './helpers';
 
 const M = moduleOf('email');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'email') + 1;
+const NUMBER = moduleNumber(moduleOf('email'));
 const mail = (id: string) => parse(readFileSync(`data/email/messages/${id}.eml`, 'utf8'));
 const IDS = M.chapters.map(c => c.id);
 const [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = IDS;

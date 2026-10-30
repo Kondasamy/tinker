@@ -3,7 +3,7 @@
 // demos kept, the reader's demos used by Hand over, off the grid), the workbench's winning and losing setups, "I'm not
 // sure", the recap, axe, reduced motion and phone width (controls ≥ 44 px); the go-live checks: share images, home's card.
 import { test, expect, type Locator, type Page } from '@playwright/test';
-import { MODULES, moduleOf } from '../../src/lib/modules';
+import { moduleOf, moduleNumber } from '../../src/lib/modules';
 import pinned from '../../data/robots/pinned.json' with { type: 'json' };
 import { DEMOS, demoPairs, SNOWBALL } from '../../src/lib/robots/story';
 import { type Action, expert, type State, step } from '../../src/lib/robots/world';
@@ -12,7 +12,7 @@ import { WINNERS } from '../../src/lib/robots/workbench';
 import { serious, layoutHolds, PHONE } from './helpers';
 
 const M = moduleOf('robots');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === M.id) + 1;
+const NUMBER = moduleNumber(M);
 const CHS = M.chapters.map(c => c.id),
   [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = CHS;
 const at = (id: string) => new RegExp(`/robots/${id}/$`);

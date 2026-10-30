@@ -1,0 +1,54 @@
+{
+  "note": "The scripted bot's keyword rules, in order: the first rule with a keyword in the message wins, else the fallback card. The intent bot's cards are one fixed reply per Labelling intent. Hand-written for the site.",
+  "rules": [
+    {
+      "id": "track",
+      "keywords": [
+        "where is my order",
+        "tracking"
+      ],
+      "reply": "You can track your order from the link in your confirmation email."
+    },
+    {
+      "id": "refund",
+      "keywords": [
+        "refund"
+      ],
+      "reply": "Refunds go back to the card you paid with once we receive the item."
+    },
+    {
+      "id": "return",
+      "keywords": [
+        "return",
+        "send back"
+      ],
+      "reply": "You can return unused items. Print a returns label from your account."
+    },
+    {
+      "id": "collect",
+      "keywords": [
+        "pick up",
+        "collect"
+      ],
+      "reply": "Choose Click and Collect at checkout and we will email you when it is ready."
+    },
+    {
+      "id": "password",
+      "keywords": [
+        "password",
+        "log in",
+        "login"
+      ],
+      "reply": "Use Forgot password on the sign-in page to reset it."
+    }
+  ],
+  "fallback": "Sorry, I didn't understand. Please choose an option from the menu or call us.",
+  "intentReplies": {
+    "refund": "We have sent your message to our refunds team. They will reply by email.",
+    "return": "Our returns team will email you a returns label.",
+    "delivery": "Our delivery team will check on your order and email you an update.",
+    "product": "Our product experts will answer your question by email.",
+    "account": "Our accounts team will help you get back into your account."
+  },
+  "intentFallback": "Sorry, I'm not sure what you need. A member of staff will reply when the desk opens."
+}

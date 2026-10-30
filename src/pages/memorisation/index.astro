@@ -18,13 +18,13 @@ import { filterReply } from '../../lib/memorisation/filter';
 import { columnPins, rankAmong } from '../../lib/memorisation/rank';
 import { REPEATS, RUNS, canaryOf, firstName, pct, scoreOf } from '../../lib/memorisation/story';
 import { fact } from '../../lib/memorisation/facts';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('memorisation');
 const CHAPTERS = MODULE.chapters;
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const model = diskCanary();
 const MOST = canaryOf(Math.max(...REPEATS)),
   ONCE = canaryOf(Math.min(...REPEATS));

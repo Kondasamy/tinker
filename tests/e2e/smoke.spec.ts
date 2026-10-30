@@ -76,7 +76,7 @@ test('AE1: a returning reader keeps RAG progress, and a saved run resumes only o
   );
   await page.reload();
   await expect(page.locator('[data-module="rag"] [data-progress] .txt')).toHaveText('2 of 7 chapters done');
-  await page.locator('[data-cta]').first().click();
+  await page.locator('[data-module="rag"] [data-cta]').click();
   await expect(page).toHaveURL(new RegExp(`/rag/${CH3}/$`));
 
   // reach step 5 (chapter 3 gained a prediction in U5, so it no longer has its legacy steps)

@@ -24,12 +24,12 @@ import { runTests } from '../../lib/coding-agents/tests';
 import { WINNERS } from '../../lib/coding-agents/workbench';
 import { nthBeat, play } from '../../content/coding-agents/kit';
 import { fact } from '../../lib/coding-agents/facts';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('coding-agents');
-const N = MODULES.filter(m => m.status === 'live').indexOf(MODULE) + 1;
+const N = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 
 type Run = ReturnType<typeof play>;

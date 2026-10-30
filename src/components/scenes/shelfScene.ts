@@ -229,15 +229,32 @@ export function shelfReadouts(o: ShelfOpts): string[] {
   ];
 }
 
+/** The small cabinet with five product boxes, as a piece: the hero's plot, and Before GenAI's predictive-AI chapter. */
+export function shelfPiece(x: number, y: number) {
+  const tones = [PALS.mustard, PALS.blush, PALS.cobalt, PALS.mint, PALS.mustard];
+  const goods = tones.map((m, i) => box(x - 14 + i * 6, y - 11, BH + 8, x - 10 + i * 6, y - 7, BH + 14, m, toneI, 0.8));
+  return {
+    shadow: castShadow(boxCorners(x - 16, y - 12, BH, x + 16, y - 6, BH + 8), BH),
+    items: [
+      {
+        at: [x, y - 12, 0],
+        box: [
+          [x - 16, y - 12, BH],
+          [x + 16, y - 6, BH + 14],
+        ],
+        svg: box(x - 16, y - 12, BH, x + 16, y - 6, BH + 8, WOOD, toneI, 0.9) + goods.join(''),
+      },
+    ],
+  };
+}
+
 /** The home hero's plot: a small cabinet with five product boxes and a shopper in front. */
 export function shelfPlot(x: number, y: number, top: SceneCtx['top']): string {
   const cab = boxCorners(x - 16, y - 12, BH, x + 16, y - 6, BH + 8);
-  const tones = [PALS.mustard, PALS.blush, PALS.cobalt, PALS.mint, PALS.mustard];
-  const goods = tones.map((m, i) => box(x - 14 + i * 6, y - 11, BH + 8, x - 10 + i * 6, y - 7, BH + 14, m, toneI, 0.8));
   return (
     castShadow(cab, BH, top) +
     byDepth([
-      { at: [x, y - 12, 0], svg: box(x - 16, y - 12, BH, x + 16, y - 6, BH + 8, WOOD, toneI, 0.9) + goods.join('') },
+      { at: [x, y - 12, 0], svg: shelfPiece(x, y).items[0].svg },
       { at: [x + 2, y + 6, 1], svg: person(x + 2, y + 6, PALS.mustard, 'rc-you') },
     ])
   );

@@ -21,11 +21,11 @@ import { COMPANY } from '../../lib/logins/story';
 import { LAST, WORK, boardAt, rateOf } from '../../lib/logins/race';
 import { WINNERS } from '../../lib/logins/workbench';
 import { fact } from '../../lib/logins/facts';
-import { MODULES, chapterHref } from '../../lib/modules';
+import { chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 const N = ACCOUNTS.length,
   TOP = WORK[WORK.length - 1];

@@ -22,12 +22,12 @@ import { BEST_COST, costOf, WINNERS } from '../../lib/diffusion/workbench';
 import { START } from '../../content/diffusion/07-workbench';
 import { F } from '../../content/diffusion/06-why-it-costs';
 import { fact } from '../../lib/diffusion/facts';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('diffusion');
-const N = MODULES.filter(m => m.status === 'live').indexOf(MODULE) + 1;
+const N = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 
 const meta = JSON.parse(readFileSync('public/data/diffusion/meta.json', 'utf8')) as PointsMeta;

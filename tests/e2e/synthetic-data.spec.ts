@@ -4,12 +4,12 @@
 // winners, "I'm not sure", reduced motion (no flip), the recap, axe and phone width. The go-live adds the module's number,
 // share images and home's card.
 import { test, expect, type Page } from '@playwright/test';
-import { MODULES, moduleOf } from '../../src/lib/modules';
+import { moduleOf, moduleNumber } from '../../src/lib/modules';
 import { sdWalker } from './synthetic-data-flow';
 import { serious, layoutHolds, offline, PHONE } from './helpers';
 
 const M = moduleOf('synthetic-data');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'synthetic-data') + 1;
+const NUMBER = moduleNumber(moduleOf('synthetic-data'));
 const CHS = M.chapters.map(c => c.id),
   [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = CHS;
 const at = (id: string) => new RegExp(`/synthetic-data/${id}/$`);

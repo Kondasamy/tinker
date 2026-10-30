@@ -17,12 +17,12 @@ import { stateOf } from '../../lib/parallel-training/memory';
 import { mtbfOf } from '../../lib/parallel-training/failures';
 import { BEST, CHIPS, layoutOf, memoryOfBench, WINNERS } from '../../lib/parallel-training/workbench';
 import { bytesText, GRADIENTS, MODEL_NAME, secondsText, VENDOR } from '../../lib/parallel-training/story';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('parallel-training');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 
 const RING = ringAllReduce(GRADIENTS);

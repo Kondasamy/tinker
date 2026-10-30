@@ -1,0 +1,31 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import Scripted from '../../content/before-genai/01-scripted';
+import Intents from '../../content/before-genai/02-intents';
+import PredictiveAi from '../../content/before-genai/03-predictive-ai';
+import NextWord from '../../content/before-genai/04-next-word';
+import Scale from '../../content/before-genai/05-scale';
+import Chat from '../../content/before-genai/06-chat';
+import WhatChanged from '../../content/before-genai/07-what-changed';
+import WhatStayed from '../../content/before-genai/08-what-stayed';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('before-genai').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="before-genai" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-scripted' ? <Scripted client:load />
+    : chapter === '02-intents' ? <Intents client:load />
+    : chapter === '03-predictive-ai' ? <PredictiveAi client:load />
+    : chapter === '04-next-word' ? <NextWord client:load />
+    : chapter === '05-scale' ? <Scale client:load />
+    : chapter === '06-chat' ? <Chat client:load />
+    : chapter === '07-what-changed' ? <WhatChanged client:load />
+    : chapter === '08-what-stayed' ? <WhatStayed client:load />
+    : null}
+</ChapterLayout>

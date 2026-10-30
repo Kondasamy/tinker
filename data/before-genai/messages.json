@@ -1,0 +1,19 @@
+{
+  "note": "Larkspur Supply Co.'s fixed customer messages (R16): readers pick from these, never type their own. Hand-written stand-ins; each lists the chapters that show it.",
+  "messages": [
+    { "id": "where-order", "text": "Where is my order?", "chapters": ["01-scripted", "02-intents", "06-chat"] },
+    { "id": "parcel", "text": "My parcel hasn't turned up.", "chapters": ["01-scripted", "02-intents"] },
+    { "id": "refund-drill", "text": "I want a refund for my drill.", "chapters": ["01-scripted", "02-intents"] },
+    { "id": "pick-up", "text": "Can I pick up my order from the shop?", "chapters": ["01-scripted"] },
+    { "id": "gloves", "text": "These gloves are too small. Can I swap them for a bigger size?", "chapters": ["02-intents"] },
+    { "id": "off-list", "text": "Do you sponsor the local football club?", "chapters": ["02-intents"] },
+    { "id": "c7-refund", "text": "Can I get a refund on the hedge trimmer I bought last week?", "chapters": ["07-what-changed"] },
+    { "id": "c7-late", "text": "My tiles were due yesterday and the driver never came.", "chapters": ["07-what-changed"] },
+    { "id": "c7-poem", "text": "Write me a short poem about my new shed.", "chapters": ["07-what-changed"] },
+    { "id": "c7-spanish", "text": "¿Dónde está mi pedido?", "chapters": ["07-what-changed"] },
+    { "id": "gap-made-up", "text": "Does Larkspur's Price Promise cover timber I bought in the spring sale?", "chapters": ["08-what-stayed"] },
+    { "id": "gap-no-knowledge", "text": "Can I return custom-cut shelving I ordered from Larkspur?", "chapters": ["08-what-stayed"] },
+    { "id": "gap-cant-act", "text": "Please refund the second charge on order 5126 now.", "chapters": ["08-what-stayed"] },
+    { "id": "gap-shouldnt", "text": "My bathroom fan sparks when I switch it on. How do I rewire it myself?", "chapters": ["08-what-stayed"] }
+  ]
+}

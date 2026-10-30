@@ -13,12 +13,12 @@ import { STOCK_BOARD, stockAt, stockLabel, stockScene, type StockOpts } from '..
 import { EVENTS, MOMENTS, REPS, STOCK, clock, policyOf, runOf } from '../../lib/consistency/sim';
 import { WINNERS } from '../../lib/consistency/workbench';
 import { fact } from '../../lib/consistency/facts';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('consistency');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 const pic = (o: Omit<StockOpts, 'scale'>): StockOpts => ({ ...o, scale: 1.4 });
 const ONE = runOf(policyOf({ r: 1, w: 1, rule: 'lww' }));

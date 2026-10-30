@@ -14,12 +14,12 @@ import { RAIL_BOARD, railAt, railCard, railLabel, railScene, type RailOpts } fro
 import { JOBS, SCENES, TICKS, WORKER_NAMES, runOf } from '../../lib/queues/sim';
 import { WINNERS } from '../../lib/queues/workbench';
 import { fact } from '../../lib/queues/facts';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('queues');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 const pic = (o: Omit<RailOpts, 'scale'>): RailOpts => ({ ...o, scale: 1.4 });
 const HERO = railCard(1.4);

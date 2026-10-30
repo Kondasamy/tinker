@@ -15,12 +15,12 @@ import { BRIDGES, CUSTOMER, JUNCTIONS, ROADS, nameOf } from '../../lib/routes/gr
 import { DETOUR, FASTEST, FEWEST_ROADS, LEANING, ROUTE_BRIDGE } from '../../lib/routes/story';
 import { DELIVERIES, WINNERS } from '../../lib/routes/workbench';
 import { fact } from '../../lib/routes/facts';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('routes');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 const pic = (o: Omit<TableOpts, 'scale'>): TableOpts => ({ ...o, scale: 1.4 });
 const HERO = pic({ route: DETOUR.roads, arrived: true, closed: [ROUTE_BRIDGE] });

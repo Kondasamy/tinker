@@ -15,13 +15,13 @@ import { ATTACKS, TASKS, metrics, run } from '../../lib/sandboxing/loop';
 import { RECORDING } from '../../lib/sandboxing/turns';
 import { fact } from '../../lib/sandboxing/facts';
 import { SOLUTION, bench } from '../../content/sandboxing/07-red-team';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('sandboxing');
 const CHAPTERS = MODULE.chapters;
-const NUM = MODULES.findIndex(m => m.id === MODULE.id) + 1;
+const NUM = moduleNumber(MODULE);
 const PREREQS = MODULE.prereqs.map(id => moduleOf(id));
 
 // the exfiltration attack on the host, at the moment the token leaves

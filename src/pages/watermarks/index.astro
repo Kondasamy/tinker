@@ -14,13 +14,13 @@ import { encode } from '../../lib/lm/bpe';
 import { fact } from '../../lib/watermarks/facts';
 import { LINE } from '../../lib/watermarks/detect';
 import { CTX, CUSTOMER, HUMAN, MACHINE_META, MARK, REPLY } from '../../lib/watermarks/story';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 import PINNED from '../../../data/watermarks/pinned.json' with { type: 'json' };
 
 const MODULE = moduleOf('watermarks');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 
 const signed = (z: number) => (z < 0 ? `−${(-z).toFixed(2)}` : z.toFixed(2));
