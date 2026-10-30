@@ -11,7 +11,7 @@ import { CUSTOMERS, SHELF, TRAIN, namesOf, productOf } from '../../lib/recommend
 import { SHELF_PARTS } from '../../components/scenes/shelfScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { OrdersNote, RecsStage, type View } from './kit';
+import { Fact, OrdersNote, RecsStage, type View } from './kit';
 
 const MODULE = 'recommendations',
   ID = '03-bought-together';
@@ -125,6 +125,7 @@ export default function BoughtTogether() {
         out1: ({ state }) => (
           <>
             <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />
+            <Fact id="item-to-item" />
             <OrdersNote />
           </>
         ),

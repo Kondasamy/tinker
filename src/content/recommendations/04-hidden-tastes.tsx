@@ -139,6 +139,8 @@ export default function HiddenTastes() {
             <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />
             <Fact id="mf" />
             <Fact id="implicit" />
+            <Fact id="mf-size" />
+            <p className="note rc-note">Two numbers here, so the map fits on the floor; real shops use many more.</p>
             <OrdersNote />
           </>
         ),

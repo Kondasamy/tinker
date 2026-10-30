@@ -11,7 +11,7 @@ import { CUSTOMERS, PRODUCTS, TRAIN, customerOf } from '../../lib/recommendation
 import { SHELF_PARTS } from '../../components/scenes/shelfScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { OrdersNote, RecsStage, type View } from './kit';
+import { Fact, OrdersNote, RecsStage, type View } from './kit';
 
 const MODULE = 'recommendations',
   ID = '01-the-bestsellers-shelf';
@@ -124,6 +124,7 @@ export default function TheBestsellersShelf() {
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />,
         link: () => (
           <>
+            <Fact id="top-sellers" />
             <p className="note rc-note">
               {`Only ${SCORES.popular.coverage} of ${PRODUCTS.length} products ever reach a bestsellers shelf.`}
             </p>

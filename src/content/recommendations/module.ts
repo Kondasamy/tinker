@@ -15,7 +15,7 @@ const CHAPTERS: Chapter[] = [
       learn: [
         'A shelf ranks products and shows the top five',
         'Bestsellers are the same for everyone',
-        'Each customer’s held-out next order scores the shelf',
+        'Each customer’s hidden next order scores the shelf',
       ],
       terms: [
         ['Bestsellers', 'Products ranked by how many customers bought them; the same list for everyone.'],
@@ -99,7 +99,7 @@ const CHAPTERS: Chapter[] = [
     short: 'The loop',
     intro: {
       story:
-        'The shelf goes live. Customers buy from it, and the shop retrains on recent orders every round. The shelf now learns from its own sales.',
+        'The shelf goes live. Customers buy from it, and the shop relearns tastes from recent orders every round. The shelf now learns from its own sales.',
       goal: 'What happens to products the shelf never shows?',
       learn: [
         'Shelf sales train the next shelf',

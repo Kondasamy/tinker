@@ -3,6 +3,6 @@
   "rule": "The owner’s rule: after the loop, at least 30 of the 40 products still have a place on the map. Then find the most next orders.",
   "reasons": {
     "blend": "Bestsellers are the same for everyone; hidden tastes differ per shopper.",
-    "explore": "Each explore slot shows a random product, so it can still sell."
+    "explore": "Each random slot shows a random product, so it can still sell."
   }
 }

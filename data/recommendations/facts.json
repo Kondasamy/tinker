@@ -2,6 +2,24 @@
   "accessed": "2026-10-28",
   "facts": [
     {
+      "id": "top-sellers",
+      "claim": "Amazon’s Linden, Smith and York (2003) report that clicks and sales from their personal recommendations vastly beat those from content shown to everyone, such as top-seller lists.",
+      "source": "https://doi.org/10.1109/MIC.2003.1167344",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "grouplens",
+      "claim": "Resnick et al.’s GroupLens (1994) guessed which news articles a reader would like from other readers’ ratings, on the rule that people who agreed in the past will probably agree again.",
+      "source": "https://doi.org/10.1145/192844.192905",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "item-to-item",
+      "claim": "Linden, Smith and York (2003) describe Amazon matching each product a customer bought to products customers tend to buy together, worked out ahead of time, so building a customer’s suggestions depends only on how many items they bought or rated, not on Amazon’s 29 million-plus customers.",
+      "source": "https://doi.org/10.1109/MIC.2003.1167344",
+      "accessed": "2026-10-30"
+    },
+    {
       "id": "mf",
       "claim": "Koren, Bell and Volinsky (IEEE Computer, 2009) write that, as the Netflix Prize showed, matrix factorization models beat classic nearest-neighbour methods at product recommendations.",
       "source": "https://doi.org/10.1109/MC.2009.263"
@@ -12,9 +30,21 @@
       "source": "https://doi.org/10.1109/MC.2009.263"
     },
     {
+      "id": "mf-size",
+      "claim": "Koren, Bell and Volinsky (2009) place users and products on, say, 20 to 100 factors found from rating patterns; in their Netflix tests, more factors predicted ratings more accurately.",
+      "source": "https://doi.org/10.1109/MC.2009.263",
+      "accessed": "2026-10-30"
+    },
+    {
       "id": "implicit",
       "claim": "Hu, Koren and Volinsky (ICDM 2008) treat implicit data, such as what people bought or watched, as signs of liking or not liking held with very different confidence.",
       "source": "https://doi.org/10.1109/ICDM.2008.22"
+    },
+    {
+      "id": "cold-start",
+      "claim": "Schein et al. (SIGIR 2002) call it the cold-start problem: a recommender that learns only from people’s ratings cannot suggest an item no one has rated yet, as it has no preference data to go on.",
+      "source": "https://repository.upenn.edu/server/api/core/bitstreams/ac3a57bf-b455-4a21-b2d0-d11321093ea5/content",
+      "accessed": "2026-10-30"
     },
     {
       "id": "loop",

@@ -187,7 +187,7 @@ export const RECALL: RecallItem[] = [
     correct: 0,
     why: [
       'Right: the score multiplies your numbers by the product’s, so a shared direction wins.',
-      'The middle is not special; direction from the origin is what scores.',
+      'The middle is not special; only the direction a product points from it scores.',
       'Order counts are bestsellers; the map ranks by taste.',
     ],
   },
@@ -196,15 +196,15 @@ export const RECALL: RecallItem[] = [
     chapter: C4,
     question: 'Where do a customer’s two numbers come from?',
     options: [
-      'From their orders, fitted alongside every product’s two numbers',
+      'From their orders, worked out alongside every product’s two numbers',
       'From a survey of what they like',
       'From the aisle they shop in most, set by hand',
     ],
     correct: 0,
     why: [
-      'Right: the numbers are fitted so customer times product matches who bought what.',
+      'Right: the numbers are chosen so customer times product matches who bought what.',
       'Nobody is asked; the numbers come only from orders.',
-      'Nothing is set by hand; aisles are not in the data the fit uses.',
+      'Nothing is set by hand; aisles are not in the data the numbers come from.',
     ],
   },
   {
@@ -266,7 +266,7 @@ export const RECALL: RecallItem[] = [
   {
     id: 'loop-fade',
     chapter: C6,
-    question: 'The shop retrains on recent orders. What happens to a product no shelf shows?',
+    question: 'The shop relearns tastes from recent orders. What happens to a product no shelf shows?',
     options: [
       'It gets no orders, loses its place, and is never shown',
       'It rises, as a rare product',
@@ -276,7 +276,7 @@ export const RECALL: RecallItem[] = [
     why: [
       'Right: with no recent orders it has no numbers, so no taste can point at it.',
       'Rarity earns nothing here; only orders do.',
-      'Once old orders age out of the window, nothing is left to keep it.',
+      'Once its old orders are too old to count, nothing is left to keep it.',
     ],
   },
   {
@@ -290,7 +290,7 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right: some shoppers buy a random product they like, which keeps it learnable.',
+      'Right: some shoppers buy a random product they like, which keeps its orders coming.',
       'A random product fits less often than a ranked one; the slot costs hits.',
       'Shoppers buy random products they like, which is the point.',
     ],
@@ -302,13 +302,13 @@ export const RECALL: RecallItem[] = [
     options: [
       'No: people buy what they are shown, so sales partly reflect the shelf',
       'Yes: sales are taste',
-      'Yes, if the shop retrains often',
+      'Yes, if the shop relearns often',
     ],
     correct: 0,
     why: [
       'Right: the shelf picked what they saw, so their buys are not a clean measure.',
       'Sales measure what was shown as much as what was wanted.',
-      'Retraining on shelf sales feeds the loop; it doesn’t remove it.',
+      'Relearning from shelf sales feeds the loop; it doesn’t remove it.',
     ],
   },
   {
