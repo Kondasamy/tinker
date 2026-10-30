@@ -58,6 +58,7 @@ import { BACKUPS_MODULE } from '../content/backups/module';
 import { ON_DEVICE_MODULE } from '../content/on-device/module';
 import { ROUTES_MODULE } from '../content/routes/module';
 import { ROBOTS_MODULE } from '../content/robots/module';
+import { BEFORE_GENAI_MODULE } from '../content/before-genai/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -116,6 +117,8 @@ export const planned = (id: string, title: string, level: Level, description: st
 });
 
 export const MODULES: Module[] = [
+  // the prequel, Module 0: fixed first, the one exception to go-live order (AGENTS.md)
+  BEFORE_GENAI_MODULE,
   RAG_MODULE,
   TOOL_CALLING_MODULE,
   AGENTS_MODULE,
@@ -214,6 +217,10 @@ export function moduleOf(id: string): Module {
   if (!m) throw new Error(`unknown module: ${id}`);
   return m;
 }
+
+const LIVE = MODULES.filter(m => m.status === 'live');
+/** the number a module shows: the prequel is Module 0, so every other live module counts from 1 after it */
+export const moduleNumber = (m: Module) => LIVE.indexOf(m);
 
 export const chapterHref = (module: string, chapter: string) => `/${module}/${chapter}/`;
 

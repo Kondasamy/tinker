@@ -18,12 +18,12 @@ import { beatsOf, clicksOf, frameAt, nthBeat, play } from '../../content/compute
 import { START } from '../../content/computer-use/07-workbench';
 import { fact } from '../../lib/computer-use/facts';
 import { thousands } from '../../lib/multimodal/patches';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('computer-use');
-const N = MODULES.filter(m => m.status === 'live').indexOf(MODULE) + 1;
+const N = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 
 type Run = ReturnType<typeof play>;

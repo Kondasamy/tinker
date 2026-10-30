@@ -283,18 +283,21 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   'on-device': (x, y, { top }) => phoneCratePlot(x + 14, y - 2, top),
   robots: (x, y, { top }) => clawPlot(x + 14, y - 2, top),
 };
-// only AI modules take a turn on the stand: classic tech waits in the catalogue
-const LIVE = MODULES.filter(m => m.status === 'live' && !m.track);
+// only AI modules take a turn on the stand: classic tech waits in the catalogue. The prequel (registry first) goes last, so
+// the stand, newest first, opens on it and the share image shows it; RAG and tool calling keep their own plots
+const AI = MODULES.filter(m => m.status === 'live' && !m.track);
+/** the AI modules in the hero's order: RAG, tool calling, the later modules, the prequel */
+export const HERO_LIVE = [...AI.slice(1), AI[0]];
 /** the home page's hero and share image, from the registry: the model's call riding to the host */
 export const HOME_HERO = heroScene({
-  live: LIVE.map(m => ({ id: m.id, draw: DRAW[m.id] })),
+  live: HERO_LIVE.map(m => ({ id: m.id, draw: DRAW[m.id] })),
   ride: SEQ_MSGS.slice(0, 3),
 });
 /** how many modules take a turn on the stand */
-export const HERO_TURNS = LIVE.length - 2;
+export const HERO_TURNS = HERO_LIVE.length - 2;
 /** the hero's accessible label */
 export const heroLabel = (live: string[]) =>
   `Tinker's workshop: ${live[0]} and ${live[1]} at work, and a stand where each later module takes a turn: ${live.slice(2).join(', ')}.`;
-/** the live modules (in registry order) whose plot has no drawing: RAG's and tool calling's are drawn by heroScene itself */
+/** the live modules (in the hero's order) whose plot has no drawing: RAG's and tool calling's are drawn by heroScene itself */
 export const undrawn = (live: string[]) => live.slice(2).filter(id => !DRAW[id]);
-export const HOME_HERO_LABEL = heroLabel(LIVE.map(m => m.title));
+export const HOME_HERO_LABEL = heroLabel(HERO_LIVE.map(m => m.title));

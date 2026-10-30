@@ -5,8 +5,9 @@ import { MODULES } from '../../src/lib/modules';
 
 const REQUEST = '#request';
 const catalogue = (page: import('@playwright/test').Page) => page.locator('#modules');
-// live modules in their numbered order: each go-live appends its id (KTD17)
+// live modules in their numbered order, from Module 0 (the prequel, fixed first): each go-live appends its id (KTD17)
 const NUMBERED = [
+  'before-genai',
   'rag',
   'tool-calling',
   'agents',
@@ -105,7 +106,7 @@ for (const width of [1280, 390])
     for (const m of live.filter(m => isClassic(m.id))) {
       const card = classic.locator(`.module[data-module="${m.id}"]`);
       await expect(card.locator('.pic svg')).toHaveCount(1);
-      await expect(card.locator('.kicker')).toHaveText(new RegExp(`^Module ${NUMBERED.indexOf(m.id) + 1} · `));
+      await expect(card.locator('.kicker')).toHaveText(new RegExp(`^Module ${NUMBERED.indexOf(m.id)} · `));
       await expect(card.locator('.level')).toHaveText(m.level);
       await expect(card.locator('[data-cta]')).toHaveAttribute('href', `/${m.id}/`);
     }
@@ -248,7 +249,7 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
   await page.goto('/');
   const kicker = (id: string) => page.locator(`.module[data-module="${id}"] .kicker`);
   // every card keeps its place among all live modules, as its intro page numbers it
-  for (const [i, id] of NUMBERED.entries()) await expect(kicker(id)).toHaveText(new RegExp(`^Module ${i + 1} · `));
+  for (const [i, id] of NUMBERED.entries()) await expect(kicker(id)).toHaveText(new RegExp(`^Module ${i} · `));
   await expect(page.locator('[data-level="Beginner"] .module[data-module="tokens"] h4 a')).toHaveAttribute(
     'href',
     '/tokens/',
@@ -501,7 +502,7 @@ const ROADMAP = [
   'clocks',
   'gps',
 ];
-test('live cards numbered from 1, the roadmap cards in order', async ({ page }) => {
+test('live cards numbered from 0, the roadmap cards in order', async ({ page }) => {
   await page.goto('/');
   const live = MODULES.filter(m => m.status === 'live').map(m => m.id),
     planned = MODULES.filter(m => m.status === 'planned').map(m => m.id);
@@ -512,7 +513,7 @@ test('live cards numbered from 1, the roadmap cards in order', async ({ page }) 
   const nums = await catalogue(page)
     .locator('.module .kicker')
     .evaluateAll(els => els.map(e => Number(/^Module (\d+) · /.exec(e.textContent ?? '')?.[1])));
-  expect(nums.sort((a, b) => a - b)).toEqual(Array.from({ length: live.length }, (_, i) => i + 1));
+  expect(nums.sort((a, b) => a - b)).toEqual(Array.from({ length: live.length }, (_, i) => i));
   expect(
     await catalogue(page)
       .locator('.roadmap')
@@ -523,7 +524,8 @@ test('live cards numbered from 1, the roadmap cards in order', async ({ page }) 
 // every module after RAG and tool calling takes a 2.4 s turn on the stand, newest first; sampled mid-turn, only that
 // module is on it, and it links to its intro
 // only AI modules take a turn: classic tech waits in the catalogue
-const TURNS = AI.slice(2).reverse();
+// the hero draws RAG and tool calling itself; the stand opens on the prequel, then the rest newest first
+const TURNS = [AI[0], ...AI.slice(3).reverse()];
 test('the hero stand shows one module at a time, newest first, each opening its module', async ({ page }) => {
   await page.goto('/');
   const turns = page.locator('.hero-pic .hero-turn');
@@ -598,8 +600,24 @@ test('a first visit starts with the basics; a finished module hands Continue to 
   await page.goto('/');
   const go = page.locator('[data-continue]');
   await expect(go).toHaveText('Start with the basics →');
-  await expect(go).toHaveAttribute('href', '/rag/');
-  const [rag, next] = MODULES.filter(m => m.status === 'live');
+  await expect(go).toHaveAttribute('href', '/before-genai/');
+  const [prequel, next] = MODULES.filter(m => m.status === 'live');
+  await page.evaluate(
+    ids => {
+      localStorage.setItem('before-genai-progress-v1', JSON.stringify({ done: ids, saved: {} }));
+      localStorage.setItem('tinker-last-module', 'before-genai');
+    },
+    prequel.chapters.map(c => c.id),
+  );
+  await page.reload();
+  await expect(go).toHaveAttribute('href', `/${next.id}/`);
+  await expect(go).toHaveText(`Start ${next.title} →`);
+});
+
+test('a reader already playing elsewhere is never sent back to the prequel', async ({ page }) => {
+  await page.goto('/');
+  const go = page.locator('[data-continue]');
+  const rag = MODULES.find(m => m.id === 'rag')!;
   await page.evaluate(
     ids => {
       localStorage.setItem('rag-progress-v1', JSON.stringify({ done: ids, saved: {} }));
@@ -608,8 +626,7 @@ test('a first visit starts with the basics; a finished module hands Continue to 
     rag.chapters.map(c => c.id),
   );
   await page.reload();
-  await expect(go).toHaveAttribute('href', `/${next.id}/`);
-  await expect(go).toHaveText(`Start ${next.title} →`);
+  await expect(go).toHaveAttribute('href', '/tool-calling/');
 });
 
 // AI modules are picked first: once the last one played is finished, Continue looks for an unfinished AI module
@@ -658,7 +675,7 @@ test('a classic module played last and unfinished still resumes', async ({ page 
   await expect(card.locator('[data-cta]')).toHaveText('Continue: chapter 2 →');
 });
 
-test('with no storage, Continue opens the RAG intro', async ({ page }) => {
+test('with no storage, Continue opens the prequel intro', async ({ page }) => {
   await page.addInitScript(() =>
     Object.defineProperty(window, 'localStorage', {
       get() {
@@ -668,14 +685,14 @@ test('with no storage, Continue opens the RAG intro', async ({ page }) => {
   );
   await page.goto('/');
   await page.locator('[data-continue]').click();
-  await expect(page).toHaveURL(/\/rag\/$/);
+  await expect(page).toHaveURL(/\/before-genai\/$/);
 });
 
 test('an unknown last module falls back to the first live one', async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => localStorage.setItem('tinker-last-module', 'nope'));
   await page.reload();
-  await expect(page.locator('[data-continue]')).toHaveAttribute('href', '/rag/');
+  await expect(page.locator('[data-continue]')).toHaveAttribute('href', '/before-genai/');
 });
 
 test('the catalogue fits a 390px phone without sideways scroll', async ({ page }) => {

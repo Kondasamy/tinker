@@ -17,13 +17,13 @@ import { waitOf } from '../../content/caching/01-far-is-slow';
 import { KEEP, MORNING } from '../../content/caching/02-keep-a-copy';
 import { runOfWay } from '../../content/caching/04-take-it-back';
 import { runWith } from '../../content/caching/05-everyone-at-once';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('caching');
 const CHAPTERS = MODULE.chapters;
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const pic = (o: Omit<DepotOpts, 'scale'>): DepotOpts => ({ ...o, scale: 1.4 });
 const BEST_RUN = runOf(WINNERS[0]);
 const HERO = pic(depotAt(BEST_RUN, MOMENTS.sale + 2));

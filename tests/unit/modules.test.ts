@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { MODULES, moduleOf, chapterHref, nextOf } from '../../src/lib/modules';
+import { MODULES, moduleOf, moduleNumber, chapterHref, nextOf } from '../../src/lib/modules';
 import { ALL_PAGES, HOME, RAG, TOOL_CALLING, chapterMeta } from '../../src/lib/pages';
 import { FACTS, ACCESSED, fact } from '../../src/lib/tools/facts';
 import { PROTOCOL_VERSION } from '../../src/lib/tools/server';
@@ -162,7 +162,7 @@ describe('module registry', () => {
     expect(
       MODULES.filter(m => m.status === 'live')
         .map(m => m.id)
-        .slice(0, 6),
+        .slice(1, 7),
     ).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens']);
   });
 
@@ -177,7 +177,7 @@ describe('module registry', () => {
     expect(
       MODULES.filter(m => m.status === 'live')
         .map(m => m.id)
-        .slice(0, 7),
+        .slice(1, 8),
     ).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers']);
   });
 
@@ -192,7 +192,7 @@ describe('module registry', () => {
     expect(
       MODULES.filter(m => m.status === 'live')
         .map(m => m.id)
-        .slice(0, 8),
+        .slice(1, 9),
     ).toEqual(['rag', 'tool-calling', 'agents', 'evals', 'guardrails', 'tokens', 'transformers', 'context']);
   });
 
@@ -207,7 +207,7 @@ describe('module registry', () => {
     expect(
       MODULES.filter(m => m.status === 'live')
         .map(m => m.id)
-        .slice(0, 9),
+        .slice(1, 10),
     ).toEqual([
       'rag',
       'tool-calling',
@@ -232,7 +232,7 @@ describe('module registry', () => {
     expect(
       MODULES.filter(m => m.status === 'live')
         .map(m => m.id)
-        .slice(0, 10),
+        .slice(1, 11),
     ).toEqual([
       'rag',
       'tool-calling',
@@ -258,7 +258,7 @@ describe('module registry', () => {
     expect(
       MODULES.filter(m => m.status === 'live')
         .map(m => m.id)
-        .slice(0, 11),
+        .slice(1, 12),
     ).toEqual([
       'rag',
       'tool-calling',
@@ -285,7 +285,7 @@ describe('module registry', () => {
     expect(
       MODULES.filter(m => m.status === 'live')
         .map(m => m.id)
-        .slice(0, 12),
+        .slice(1, 13),
     ).toEqual([
       'rag',
       'tool-calling',
@@ -313,7 +313,7 @@ describe('module registry', () => {
     expect(
       MODULES.filter(m => m.status === 'live')
         .map(m => m.id)
-        .slice(0, 13),
+        .slice(1, 14),
     ).toEqual([
       'rag',
       'tool-calling',
@@ -342,7 +342,7 @@ describe('module registry', () => {
     expect(
       MODULES.filter(m => m.status === 'live')
         .map(m => m.id)
-        .slice(0, 14),
+        .slice(1, 15),
     ).toEqual([
       'rag',
       'tool-calling',
@@ -372,7 +372,7 @@ describe('module registry', () => {
     expect(
       MODULES.filter(m => m.status === 'live')
         .map(m => m.id)
-        .slice(0, 15),
+        .slice(1, 16),
     ).toEqual([
       'rag',
       'tool-calling',
@@ -403,7 +403,7 @@ describe('module registry', () => {
     expect(
       MODULES.filter(m => m.status === 'live')
         .map(m => m.id)
-        .slice(0, 16),
+        .slice(1, 17),
     ).toEqual([
       'rag',
       'tool-calling',
@@ -435,7 +435,7 @@ describe('module registry', () => {
     expect(
       MODULES.filter(m => m.status === 'live')
         .map(m => m.id)
-        .slice(0, 17),
+        .slice(1, 18),
     ).toEqual([
       'rag',
       'tool-calling',
@@ -465,7 +465,7 @@ describe('module registry', () => {
       prereqs: ['tokens'],
     });
     expect(moduleOf('pre-training').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'pre-training')).toBe(17);
+    expect(moduleNumber(moduleOf('pre-training'))).toBe(18);
   });
 
   it('has post-training as a live Advanced module that recommends Fine-tuning and Evals first, numbered 19', () => {
@@ -476,7 +476,7 @@ describe('module registry', () => {
       prereqs: ['fine-tuning', 'evals'],
     });
     expect(moduleOf('post-training').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'post-training')).toBe(18);
+    expect(moduleNumber(moduleOf('post-training'))).toBe(19);
   });
 
   it('has interpretability as a live Advanced module that recommends Transformers first, numbered 20', () => {
@@ -487,7 +487,7 @@ describe('module registry', () => {
       prereqs: ['transformers'],
     });
     expect(moduleOf('interpretability').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'interpretability')).toBe(19);
+    expect(moduleNumber(moduleOf('interpretability'))).toBe(20);
   });
 
   it('has caching as a live Beginner module with no prerequisites, numbered 21', () => {
@@ -498,7 +498,7 @@ describe('module registry', () => {
       prereqs: [],
     });
     expect(moduleOf('caching').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'caching')).toBe(20);
+    expect(moduleNumber(moduleOf('caching'))).toBe(21);
   });
 
   it('has databases as a live Beginner module with no prerequisites, numbered 22', () => {
@@ -509,7 +509,7 @@ describe('module registry', () => {
       prereqs: [],
     });
     expect(moduleOf('databases').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'databases')).toBe(21);
+    expect(moduleNumber(moduleOf('databases'))).toBe(22);
   });
 
   it('has consistency as a live Advanced module after databases, numbered 23', () => {
@@ -520,7 +520,7 @@ describe('module registry', () => {
       prereqs: ['databases'],
     });
     expect(moduleOf('consistency').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'consistency')).toBe(22);
+    expect(moduleNumber(moduleOf('consistency'))).toBe(23);
   });
 
   it('has ab-testing as a live Beginner module after consistency, numbered 24', () => {
@@ -531,7 +531,7 @@ describe('module registry', () => {
       prereqs: [],
     });
     expect(moduleOf('ab-testing').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'ab-testing')).toBe(23);
+    expect(moduleNumber(moduleOf('ab-testing'))).toBe(24);
   });
 
   it('has diffusion as a live Intermediate module after ab-testing, numbered 25', () => {
@@ -542,7 +542,7 @@ describe('module registry', () => {
       prereqs: ['multimodal'],
     });
     expect(moduleOf('diffusion').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'diffusion')).toBe(24);
+    expect(moduleNumber(moduleOf('diffusion'))).toBe(25);
   });
 
   it('has search as a live Beginner Classic tech module, numbered 26', () => {
@@ -554,7 +554,7 @@ describe('module registry', () => {
       prereqs: [],
     });
     expect(moduleOf('search').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'search')).toBe(25);
+    expect(moduleNumber(moduleOf('search'))).toBe(26);
   });
 
   it('has web-requests as a live Beginner Classic-tech module with no prerequisites, numbered 27', () => {
@@ -566,7 +566,7 @@ describe('module registry', () => {
       prereqs: [],
     });
     expect(moduleOf('web-requests').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'web-requests')).toBe(26);
+    expect(moduleNumber(moduleOf('web-requests'))).toBe(27);
   });
 
   it('has payments as a live Beginner Classic-tech module, numbered 28', () => {
@@ -578,7 +578,7 @@ describe('module registry', () => {
       prereqs: [],
     });
     expect(moduleOf('payments').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'payments')).toBe(27);
+    expect(moduleNumber(moduleOf('payments'))).toBe(28);
   });
 
   it('has git as a live Beginner Classic-tech module, numbered 29', () => {
@@ -590,7 +590,7 @@ describe('module registry', () => {
       prereqs: [],
     });
     expect(moduleOf('git').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'git')).toBe(28);
+    expect(moduleNumber(moduleOf('git'))).toBe(29);
   });
 
   it('has calibration as a live Intermediate module that recommends Evals first, numbered 30', () => {
@@ -603,7 +603,7 @@ describe('module registry', () => {
     expect(moduleOf('calibration').track).toBeUndefined();
     expect(moduleOf('calibration').author).toEqual(moduleOf('rag').author);
     const live = MODULES.filter(m => m.status === 'live').map(m => m.id);
-    expect(live.indexOf('calibration')).toBe(29);
+    expect(live.indexOf('calibration')).toBe(30);
   });
 
   it('has computer-use as a live Advanced module, numbered 31', () => {
@@ -614,7 +614,7 @@ describe('module registry', () => {
       prereqs: ['agents', 'multimodal'],
     });
     expect(moduleOf('computer-use').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'computer-use')).toBe(30);
+    expect(moduleNumber(moduleOf('computer-use'))).toBe(31);
   });
 
   it('has diffusion-llms as a live Advanced module, numbered 32', () => {
@@ -625,7 +625,7 @@ describe('module registry', () => {
       prereqs: ['diffusion', 'transformers'],
     });
     expect(moduleOf('diffusion-llms').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'diffusion-llms')).toBe(31);
+    expect(moduleNumber(moduleOf('diffusion-llms'))).toBe(32);
   });
 
   it('has queues as a live Beginner Classic tech module, numbered 33', () => {
@@ -637,7 +637,7 @@ describe('module registry', () => {
       prereqs: [],
     });
     expect(moduleOf('queues').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'queues')).toBe(32);
+    expect(moduleNumber(moduleOf('queues'))).toBe(33);
   });
 
   it('has compression as a live Beginner Classic tech module, numbered 34', () => {
@@ -649,7 +649,7 @@ describe('module registry', () => {
       prereqs: [],
     });
     expect(moduleOf('compression').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'compression')).toBe(33);
+    expect(moduleNumber(moduleOf('compression'))).toBe(34);
   });
 
   it('has load-balancing as a live Intermediate Classic tech module, numbered 35', () => {
@@ -661,7 +661,7 @@ describe('module registry', () => {
       prereqs: [],
     });
     expect(moduleOf('load-balancing').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'load-balancing')).toBe(34);
+    expect(moduleNumber(moduleOf('load-balancing'))).toBe(35);
   });
 
   it('has encryption as a live Beginner Classic tech module, numbered 36', () => {
@@ -673,7 +673,7 @@ describe('module registry', () => {
       prereqs: [],
     });
     expect(moduleOf('encryption').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'encryption')).toBe(35);
+    expect(moduleNumber(moduleOf('encryption'))).toBe(36);
   });
 
   it('has coding-agents as a live Intermediate AI module after AI agents, numbered 37', () => {
@@ -685,7 +685,7 @@ describe('module registry', () => {
     });
     expect(moduleOf('coding-agents').track).toBeUndefined();
     expect(moduleOf('coding-agents').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'coding-agents')).toBe(36);
+    expect(moduleNumber(moduleOf('coding-agents'))).toBe(37);
   });
 
   it('has synthetic-data as a live Intermediate AI module after Fine-tuning, numbered 38', () => {
@@ -697,7 +697,7 @@ describe('module registry', () => {
     });
     expect(moduleOf('synthetic-data').track).toBeUndefined();
     expect(moduleOf('synthetic-data').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'synthetic-data')).toBe(37);
+    expect(moduleNumber(moduleOf('synthetic-data'))).toBe(38);
   });
 
   it('has mixture-of-experts as a live Advanced AI module after Transformers, numbered 39', () => {
@@ -709,7 +709,7 @@ describe('module registry', () => {
     });
     expect(moduleOf('mixture-of-experts').track).toBeUndefined();
     expect(moduleOf('mixture-of-experts').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'mixture-of-experts')).toBe(38);
+    expect(moduleNumber(moduleOf('mixture-of-experts'))).toBe(39);
   });
 
   it('has logins as a live Beginner Classic tech module after Locks and keys, numbered 40', () => {
@@ -721,7 +721,7 @@ describe('module registry', () => {
       prereqs: ['encryption'],
     });
     expect(moduleOf('logins').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'logins')).toBe(39);
+    expect(moduleNumber(moduleOf('logins'))).toBe(40);
   });
 
   it('has email as a live Beginner Classic tech module after Opening a web page, numbered 41', () => {
@@ -733,7 +733,7 @@ describe('module registry', () => {
       prereqs: ['web-requests'],
     });
     expect(moduleOf('email').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'email')).toBe(40);
+    expect(moduleNumber(moduleOf('email'))).toBe(41);
   });
 
   it('has dependencies as a live Intermediate Classic tech module with no prereqs, numbered 42', () => {
@@ -745,7 +745,7 @@ describe('module registry', () => {
       prereqs: [],
     });
     expect(moduleOf('dependencies').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'dependencies')).toBe(41);
+    expect(moduleNumber(moduleOf('dependencies'))).toBe(42);
   });
 
   it('has releases as a live Intermediate Classic tech module with no prereqs, numbered 43', () => {
@@ -757,7 +757,7 @@ describe('module registry', () => {
       prereqs: [],
     });
     expect(moduleOf('releases').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'releases')).toBe(42);
+    expect(moduleNumber(moduleOf('releases'))).toBe(43);
   });
 
   it('has recommendations as a live Intermediate module with no prereqs, numbered 44', () => {
@@ -769,7 +769,7 @@ describe('module registry', () => {
     });
     expect(moduleOf('recommendations').track).toBeUndefined();
     expect(moduleOf('recommendations').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'recommendations')).toBe(43);
+    expect(moduleNumber(moduleOf('recommendations'))).toBe(44);
   });
 
   it('has memorisation as a live Intermediate module after pre-training, numbered 45', () => {
@@ -781,7 +781,7 @@ describe('module registry', () => {
     });
     expect(moduleOf('memorisation').track).toBeUndefined();
     expect(moduleOf('memorisation').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'memorisation')).toBe(44);
+    expect(moduleNumber(moduleOf('memorisation'))).toBe(45);
   });
 
   it('has video-models as a live Advanced module after diffusion, numbered 46', () => {
@@ -793,7 +793,7 @@ describe('module registry', () => {
     });
     expect(moduleOf('video-models').track).toBeUndefined();
     expect(moduleOf('video-models').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'video-models')).toBe(45);
+    expect(moduleNumber(moduleOf('video-models'))).toBe(46);
   });
 
   it('has prompts as a live Beginner module after video-models, numbered 47', () => {
@@ -805,7 +805,7 @@ describe('module registry', () => {
     });
     expect(moduleOf('prompts').track).toBeUndefined();
     expect(moduleOf('prompts').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'prompts')).toBe(46);
+    expect(moduleNumber(moduleOf('prompts'))).toBe(47);
   });
 
   it('has labelling as a live Intermediate module after prompts, numbered 48', () => {
@@ -817,7 +817,7 @@ describe('module registry', () => {
     });
     expect(moduleOf('labelling').track).toBeUndefined();
     expect(moduleOf('labelling').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'labelling')).toBe(47);
+    expect(moduleNumber(moduleOf('labelling'))).toBe(48);
   });
 
   it('has fairness as a live Intermediate module after labelling, numbered 49', () => {
@@ -829,7 +829,7 @@ describe('module registry', () => {
     });
     expect(moduleOf('fairness').track).toBeUndefined();
     expect(moduleOf('fairness').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'fairness')).toBe(48);
+    expect(moduleNumber(moduleOf('fairness'))).toBe(49);
   });
 
   it('has watermarks as a live Intermediate module after fairness, numbered 50', () => {
@@ -841,7 +841,7 @@ describe('module registry', () => {
     });
     expect(moduleOf('watermarks').track).toBeUndefined();
     expect(moduleOf('watermarks').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'watermarks')).toBe(49);
+    expect(moduleNumber(moduleOf('watermarks'))).toBe(50);
   });
 
   it('has agent-commerce as a live Advanced module after watermarks, numbered 51', () => {
@@ -853,7 +853,7 @@ describe('module registry', () => {
     });
     expect(moduleOf('agent-commerce').track).toBeUndefined();
     expect(moduleOf('agent-commerce').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'agent-commerce')).toBe(50);
+    expect(moduleNumber(moduleOf('agent-commerce'))).toBe(51);
   });
 
   it('has parallel-training as a live Advanced module after agent-commerce, numbered 52', () => {
@@ -865,7 +865,7 @@ describe('module registry', () => {
     });
     expect(moduleOf('parallel-training').track).toBeUndefined();
     expect(moduleOf('parallel-training').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'parallel-training')).toBe(51);
+    expect(moduleNumber(moduleOf('parallel-training'))).toBe(52);
   });
 
   it('has choosing-models as a live Beginner module after parallel-training, numbered 53', () => {
@@ -877,7 +877,7 @@ describe('module registry', () => {
     });
     expect(moduleOf('choosing-models').track).toBeUndefined();
     expect(moduleOf('choosing-models').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'choosing-models')).toBe(52);
+    expect(moduleNumber(moduleOf('choosing-models'))).toBe(53);
   });
 
   it('has rate-limits as a live Beginner Classic tech module after choosing-models, recommending Web requests first', () => {
@@ -916,7 +916,7 @@ describe('module registry', () => {
       prereqs: ['databases'],
     });
     expect(moduleOf('backups').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'backups')).toBe(55);
+    expect(moduleNumber(moduleOf('backups'))).toBe(56);
   });
 
   it('has on-device as a live Intermediate module after backups, numbered 57', () => {
@@ -928,7 +928,7 @@ describe('module registry', () => {
     });
     expect(moduleOf('on-device').track).toBeUndefined();
     expect(moduleOf('on-device').author).toEqual(moduleOf('rag').author);
-    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'on-device')).toBe(56);
+    expect(moduleNumber(moduleOf('on-device'))).toBe(57);
   });
 
   it('has routes as a live Intermediate Classic tech module after parallel-training', () => {
@@ -972,9 +972,22 @@ describe('module registry', () => {
   });
 });
 
+// the prequel's pages come first after home; RAG's follow, as they did before it
+const AFTER_PREQUEL = ALL_PAGES.filter(p => !p.path.startsWith('/before-genai/'));
+
+describe('module numbers', () => {
+  it('numbers the prequel 0 and keeps every other module where it was', () => {
+    expect(MODULES[0].id).toBe('before-genai');
+    expect(moduleNumber(moduleOf('before-genai'))).toBe(0);
+    expect(moduleNumber(moduleOf('rag'))).toBe(1);
+    expect(moduleNumber(moduleOf('tool-calling'))).toBe(2);
+    expect(moduleNumber(moduleOf('robots'))).toBe(59);
+  });
+});
+
 describe('page meta', () => {
   it('keeps every RAG share image name', () => {
-    expect(ALL_PAGES.map(p => p.og).slice(0, 10)).toEqual([
+    expect(AFTER_PREQUEL.map(p => p.og).slice(0, 10)).toEqual([
       'home',
       'rag',
       ...RAG_CHAPTERS.map(([id]) => id),
@@ -985,7 +998,7 @@ describe('page meta', () => {
   });
 
   it('gives every page a path and its own share image', () => {
-    expect(ALL_PAGES.map(p => p.path).slice(0, 10)).toEqual([
+    expect(AFTER_PREQUEL.map(p => p.path).slice(0, 10)).toEqual([
       '/',
       '/rag/',
       ...RAG_CHAPTERS.map(([id]) => `/rag/${id}/`),

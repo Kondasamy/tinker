@@ -9,7 +9,7 @@ import IsoStage, { type SceneCtx, type Zoom } from '../lib/iso/IsoStage';
 import { miniPipeline, MINI_BOARD, MINI_LABEL } from '../components/scenes/miniPipeline';
 import { HERO_BOARD, HERO_TURNS, HOME_HERO, HOME_HERO_LABEL } from '../components/scenes/heroScene';
 import { renderers, blockShadow, type BlockType } from '../lib/iso/blocks';
-import { MODULES, type Level, type Module } from '../lib/modules';
+import { MODULES, moduleNumber, type Level, type Module } from '../lib/modules';
 import { HOME } from '../lib/pages';
 import { SEQ_MSGS } from '../components/scenes/toolSequence';
 import { OFFICE_BOARD, officeScene, officeLabel } from '../components/scenes/officeScene';
@@ -1290,7 +1290,7 @@ const TURN = `@keyframes hero-turn {
                   {CARD[m.id]?.iso && <div class="pic"><IsoStage {...CARD[m.id].iso!} /></div>}
                   <div class="info">
                     <div class="head">
-                      <p class="kicker">Module {LIVE.indexOf(m) + 1} · {m.chapters.length ? `${m.chapters.length} ${m.chapters.length === 1 ? 'chapter' : 'chapters'}` : 'Chapters arrive soon'}</p>
+                      <p class="kicker">Module {moduleNumber(m)} · {m.chapters.length ? `${m.chapters.length} ${m.chapters.length === 1 ? 'chapter' : 'chapters'}` : 'Chapters arrive soon'}</p>
                       <p class="tags"><span class="level">{m.level}</span></p>
                     </div>
                     <h4 id={`card-${m.id}`}><a href={`/${m.id}/`}>{CARD[m.id]?.name ?? m.title}</a></h4>
@@ -1319,7 +1319,7 @@ const TURN = `@keyframes hero-turn {
                 <article class="module compact" data-module={m.id} data-track={m.track} data-status="Not started" data-search={searchOf(m)}>
                   {CARD[m.id]?.iso && <div class="pic"><IsoStage {...CARD[m.id].iso!} /></div>}
                   <div class="head">
-                    <p class="kicker">Module {LIVE.indexOf(m) + 1} · {m.chapters.length} {m.chapters.length === 1 ? 'chapter' : 'chapters'}</p>
+                    <p class="kicker">Module {moduleNumber(m)} · {m.chapters.length} {m.chapters.length === 1 ? 'chapter' : 'chapters'}</p>
                     <p class="tags"><span class="level">{m.level}</span></p>
                   </div>
                   <h4 id={`card-${m.id}`}><a href={`/${m.id}/`}>{CARD[m.id]?.name ?? m.title}</a></h4>
@@ -1440,10 +1440,12 @@ const TURN = `@keyframes hero-turn {
       }
       // the last module played, or once it is finished, the next module not yet finished: the hero walks the reader through them all
       const unfinished = (m: typeof live[number]) => m.chapters.some(c => !completed(m.id).includes(c.id));
-      const last = live.find(m => m.id === lastModule()) ?? live[0];
       // AI modules are picked first: classic tech comes after every AI module
       const order = [...live.filter(m => !m.track), ...live.filter(m => m.track)];
-      const pick = unfinished(last) ? last : order.find(unfinished) ?? last;
+      // the prequel (live[0]) is a first visit's start: a reader already playing elsewhere is never sent back to it
+      const path = live.slice(1).some(m => completed(m.id).length) ? order.filter(m => m !== live[0]) : order;
+      const last = live.find(m => m.id === lastModule()) ?? path[0];
+      const pick = unfinished(last) ? last : path.find(unfinished) ?? last;
       const r = resume(pick), go = document.querySelector<HTMLAnchorElement>('[data-continue]')!;
       go.href = r.href;
       if (r.done) go.textContent = r.text;

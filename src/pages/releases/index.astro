@@ -22,12 +22,12 @@ import { PER_MINUTE, SCENES, TICKS, runOf } from '../../lib/releases/sim';
 import { pipelineOf } from '../../lib/releases/pipeline';
 import { BENCH_CHANGES, WINNERS } from '../../lib/releases/workbench';
 import { fact } from '../../lib/releases/facts';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('releases');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 const pic = (o: Omit<SignalOpts, 'scale'>): SignalOpts => ({ ...o, scale: 1.4 });
 const ALL = runOf(SCENES.all);

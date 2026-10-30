@@ -14,12 +14,12 @@ import { SAFE_BOARD, safeAt, safeCard, safeLabel, safeScene, type SafeOpts } fro
 import { ALL_ORDERS, KINDS, SCENES, STRIKES, TICKS, clock, restore, weekOf } from '../../lib/backups/sim';
 import { WINNERS } from '../../lib/backups/workbench';
 import { fact } from '../../lib/backups/facts';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('backups');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 const pic = (o: Omit<SafeOpts, 'scale'>): SafeOpts => ({ ...o, scale: 1.4 });
 const HERO = safeCard(1.4);

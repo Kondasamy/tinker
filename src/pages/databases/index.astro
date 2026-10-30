@@ -23,12 +23,12 @@ import { ORDERS, TABLE_PAGES, fmt } from '../../lib/databases/table';
 import { BEST, WINNERS } from '../../lib/databases/workbench';
 import { fact } from '../../lib/databases/facts';
 import { MONTHS, ONE } from '../../content/databases/requests';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('databases');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 const pic = (o: Omit<ArchiveOpts, 'scale'>): ArchiveOpts => ({ ...o, scale: 1.4 });
 const SCAN = execute(ONE, 'scan'),

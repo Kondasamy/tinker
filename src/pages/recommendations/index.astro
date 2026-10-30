@@ -17,12 +17,12 @@ import { neighbours } from '../../lib/recommendations/similar';
 import { CUSTOMERS, PRODUCTS, TRAIN, customerOf } from '../../lib/recommendations/story';
 import { WINNERS } from '../../lib/recommendations/workbench';
 import { fact } from '../../lib/recommendations/facts';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('recommendations');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 const pic = (o: Omit<ShelfOpts, 'scale'>): ShelfOpts => ({ ...o, scale: 1.4 });
 const ASH = customerOf('c01'),

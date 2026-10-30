@@ -17,12 +17,12 @@ import { BEST, PHRASES, passesOf, phrase } from '../../lib/diffusion-llms/workbe
 import { START } from '../../content/diffusion-llms/07-workbench';
 import { frameOf } from '../../content/diffusion-llms/kit';
 import { fact } from '../../lib/diffusion-llms/facts';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('diffusion-llms');
-const N = MODULES.filter(m => m.status === 'live').indexOf(MODULE) + 1;
+const N = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 
 const mlm = diskMlm();

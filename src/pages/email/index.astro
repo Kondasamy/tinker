@@ -15,12 +15,12 @@ import { MESSAGES, NAMES, RECORDS, verdictOf, type MessageId } from '../../lib/e
 import { hops, parse } from '../../lib/email/parse';
 import { DAY, WINNERS } from '../../lib/email/workbench';
 import { fact } from '../../lib/email/facts';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('email');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 const ALL: Show = { spf: true, dkim: true, dmarc: true, spam: true, sorted: true };
 const pic = (id: MessageId, rec: string, peeled: number, show: Show): PostOpts => ({

@@ -15,12 +15,12 @@ import { TEXT, TICKETS, type Docket, type ModelId } from '../../lib/prompts/card
 import { RECORDINGS } from '../../lib/prompts/story';
 import { fact } from '../../lib/prompts/facts';
 import { boardOf } from '../../content/prompts/kit';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('prompts');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 // empty until go-live registers the module (the planned card has no chapters), so the build never breaks before it
 const CHAPTERS = MODULE.chapters;
 const ALL = TICKETS.map(t => t.id);

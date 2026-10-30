@@ -31,13 +31,13 @@ import { money, per1000 } from '../../lib/choosing-models/price';
 import { rowsOf, tiltOf, weigh, type Weights } from '../../lib/choosing-models/score';
 import { passedIn, qualityText } from '../../lib/choosing-models/story';
 import { fact } from '../../lib/choosing-models/facts';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 import PINNED from '../../../data/choosing-models/pinned.json' with { type: 'json' };
 
 const MODULE = moduleOf('choosing-models');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 const CHAPTERS = MODULE.chapters;
 const N = QUESTIONS.length;
 

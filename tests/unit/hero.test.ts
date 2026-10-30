@@ -9,12 +9,13 @@ import {
   HERO_TURNS,
   HOME_HERO,
   HOME_HERO_LABEL,
+  HERO_LIVE,
   heroScene,
   undrawn,
 } from '../../src/components/scenes/heroScene';
 import { MODULES } from '../../src/lib/modules';
 
-const LIVE = MODULES.filter(m => m.status === 'live' && !m.track);
+const LIVE = HERO_LIVE;
 const CLASSIC = MODULES.filter(m => m.status === 'live' && m.track === 'Classic tech');
 const draw = (scene = HOME_HERO) => renderToString(createElement(IsoStage, { board: HERO_BOARD, scene, label: '' }));
 const upper = (s: string) => s.toUpperCase().replace(/&/g, '&amp;');
@@ -47,6 +48,14 @@ describe('home hero', () => {
   });
 
   // the point of the stand: adding modules never grows the board, only the queue for the stand
+  // the prequel is registry first but takes the stand's first turn: the still picture and share image show it
+  it('orders RAG and tool calling first, then the later modules, then the prequel', () => {
+    const ids = MODULES.filter(m => m.status === 'live' && !m.track).map(m => m.id);
+    expect(LIVE.map(m => m.id)).toEqual([...ids.slice(1), ids[0]]);
+    expect(LIVE.slice(0, 2).map(m => m.id)).toEqual(['rag', 'tool-calling']);
+    expect(turnsOf(draw())[0].href).toBe('/before-genai/');
+  });
+
   it('stands any number of modules in turn on the same board', () => {
     const live = Array.from({ length: 60 }, (_, i) => ({ id: `module-${i}` }));
     const turns = turnsOf(draw(heroScene({ live, ride: [] })));

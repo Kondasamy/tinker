@@ -18,13 +18,13 @@ import { RUNS } from '../../content/load-balancing/01-one-servers-ceiling';
 import { runAt as slowRun } from '../../content/load-balancing/03-the-least-busy';
 import { runAt as aliveRun } from '../../content/load-balancing/04-is-it-alive';
 import { HEDGE, runAt as hedgeRun } from '../../content/load-balancing/06-the-slow-tail';
-import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
 import { longDate } from '../../lib/format';
 
 const MODULE = moduleOf('load-balancing');
 const CHAPTERS = MODULE.chapters;
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const NUMBER = moduleNumber(MODULE);
 /** mid-sale, when the yard has the most to do */
 const AT = 2500;
 const pic = (o: Omit<YardOpts, 'scale'>): YardOpts => ({ ...o, scale: 1.4 });
