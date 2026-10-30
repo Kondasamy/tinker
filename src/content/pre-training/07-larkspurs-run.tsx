@@ -5,13 +5,14 @@
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
-import { RUN_IDS, runOf, type RunId } from '../../lib/pre-training/engine';
+import { LAST, RUN_IDS, passes, runOf, type RunId } from '../../lib/pre-training/engine';
 import { BEST, MIX_LABEL, STOPS, WINNERS, rows, scoreOf, solved, type Plan } from '../../lib/pre-training/workbench';
+import { fact } from '../../lib/pre-training/facts';
 import { FORGE_PARTS } from '../../components/scenes/forgeScene';
 import { loss } from '../../components/scenes/lossChart';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { PreTrainingStage, StepRange, runSeries, type View } from './kit';
+import { Fact, PreTrainingStage, StepRange, ToyNote, runSeries, type View } from './kit';
 
 const MODULE = 'pre-training',
   ID = '07-larkspurs-run';
@@ -67,7 +68,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'ties',
     focus: 'quiz',
-    visibleControls: ['score', 'plan', 'quiz'],
+    visibleControls: ['score', 'plan', 'fact', 'quiz'],
     narration: `${loss(BEST)} wins, one of ${WINNERS.length} that work. Half the data peaks at step ${HALF_MIN}. Early stopping helps; more data helps more.`,
     act: 'One question to finish.',
     say: { block: 'shelf', text: 'Keep this one' },
@@ -169,6 +170,13 @@ export default function LarkspursRun() {
             </div>
           );
         },
+        fact: () => (
+          <>
+            <Fact id="repeat-passes" />
+            <p className="note">{`In ${LAST.toLocaleString('en-US')} steps Larkspur mini read all its documents about ${passes('clean')} times over, and half of them about ${passes('half')} times: far beyond the ${fact('repeat-passes').value} that study found almost as good as fresh text.`}</p>
+            <ToyNote />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

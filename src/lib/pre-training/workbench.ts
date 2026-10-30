@@ -43,7 +43,7 @@ export function why(mix: RunId, stop: number): string {
     return `Half the documents: held-out loss was lowest at step ${min}; after it, the model memorised.`;
   if (later) return 'Stopped while held-out loss was still falling.';
   if (mix === 'half') return `Its best step, ${min}, but half the documents teach less than all of them.`;
-  return 'Every document once, stopped where held-out loss had stopped falling.';
+  return 'Every document, none copied, stopped where held-out loss had stopped falling.';
 }
 
 /** The result table: one row per mix at the plan's step, the plan's own row marked. */

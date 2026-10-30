@@ -11,7 +11,7 @@ import { loss } from '../../components/scenes/lossChart';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { Fact, PreTrainingStage, Says, runSeries, type View } from './kit';
+import { Fact, PreTrainingStage, Says, ToyNote, runSeries, type View } from './kit';
 
 const MODULE = 'pre-training',
   ID = '04-data-is-the-curriculum';
@@ -147,6 +147,7 @@ export default function DataIsTheCurriculum() {
           <>
             <Fact id="dedup-copying" />
             <Fact id="dedup-less-memorised" />
+            <ToyNote />
             <p className="note in-note">
               When a model writes its own training data:{' '}
               <a href="/synthetic-data/06-keep-the-real-data/">Synthetic data</a>.

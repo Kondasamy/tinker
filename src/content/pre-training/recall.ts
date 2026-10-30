@@ -172,7 +172,7 @@ export const RECALL: RecallItem[] = [
     options: ['Remove duplicate documents before training', 'Train for more steps', 'Use a longer prompt'],
     correct: 0,
     why: [
-      'Right. Deduplicated data gets memorised far less, and the same steps go to more varied text.',
+      'Right. Data with its duplicates removed gets memorised far less, and the same steps go to more varied text.',
       'More steps on the same repeats deepens the memorising.',
       'The prompt can’t undo what training put in the weights.',
     ],
@@ -186,7 +186,7 @@ export const RECALL: RecallItem[] = [
     correct: 0,
     why: [
       'Right. With everything else the same, what the model reads is what it learns.',
-      'Runs with the same seed and settings repeat exactly; the difference came from the data.',
+      'Runs with the same random start and settings repeat exactly; the difference came from the data.',
       'The size was the same in both runs.',
     ],
   },
@@ -260,7 +260,7 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right. It is an empirical fit, and two fits on different runs gave different advice.',
+      'Right. It is a curve fitted to measured runs, and two fits on different runs gave different advice.',
       'The fits say how much better, and for how much compute, which is how they caught oversized models.',
       'It is a pattern in measurements, not a regulation.',
     ],

@@ -13,7 +13,7 @@ import { loss } from '../../components/scenes/lossChart';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { Fact, PreTrainingStage, type View } from './kit';
+import { Fact, PreTrainingStage, ToyNote, type View } from './kit';
 
 const MODULE = 'pre-training',
   ID = '06-bigger-or-longer';
@@ -155,6 +155,7 @@ export default function BiggerOrLonger() {
             <Fact id="chinchilla-gopher" />
             <Fact id="chinchilla-undertrained" />
             <Fact id="kaplan-big-models" />
+            <ToyNote />
           </>
         ),
         quiz: ({ state, apply, sync }) => (

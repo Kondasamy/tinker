@@ -144,3 +144,16 @@ describe('the checkpoint loader', () => {
     expect(m.status()).toBe('ready');
   });
 });
+
+describe('passes over the data', () => {
+  it('counts every step’s batch × context guesses against the run’s tokens, far past the passes the cited study found safe', async () => {
+    const { passes } = await import('../../src/lib/pre-training/engine');
+    const { fact } = await import('../../src/lib/pre-training/facts');
+    const t = RUNS.training;
+    expect(passes('clean')).toBe(
+      Number(((t.steps * t.batch * meta.model.ctx) / RUNS.runs.clean.tokens).toPrecision(2)),
+    );
+    expect(passes('half')).toBeGreaterThan(passes('clean'));
+    expect(passes('clean')).toBeGreaterThan(Number(fact('repeat-passes').value));
+  });
+});

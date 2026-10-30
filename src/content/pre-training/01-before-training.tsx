@@ -10,7 +10,7 @@ import { FORGE_PARTS } from '../../components/scenes/forgeScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { CkptGate, PreTrainingStage, Says, Top5 } from './kit';
+import { CkptGate, Fact, PreTrainingStage, Says, ToyNote, Top5 } from './kit';
 
 const MODULE = 'pre-training',
   ID = '01-before-training';
@@ -154,6 +154,8 @@ export default function BeforeTraining() {
               <>
                 <Outcome {...P1} prediction={state.p1} outcome={1} />
                 <Says who="Step 0" prompt={PROMPT} text={says(m, PROMPT)} live />
+                <Fact id="llama3-vocab" />
+                <ToyNote />
               </>
             )}
           </CkptGate>

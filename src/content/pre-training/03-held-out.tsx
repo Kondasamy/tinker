@@ -10,7 +10,7 @@ import { loss } from '../../components/scenes/lossChart';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { CKPT_SERIES, CkptGate, PreTrainingStage, ckptNow, type View } from './kit';
+import { CKPT_SERIES, CkptGate, Fact, PreTrainingStage, ToyNote, ckptNow, type View } from './kit';
 
 const MODULE = 'pre-training',
   ID = '03-held-out';
@@ -150,7 +150,13 @@ export default function HeldOut() {
             )}
           </CkptGate>
         ),
-        outcome: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />,
+        outcome: ({ state }) => (
+          <>
+            <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />
+            <Fact id="kaplan-overfitting" />
+            <ToyNote />
+          </>
+        ),
         curve: ({ state, sync }) => (
           <button
             type="button"

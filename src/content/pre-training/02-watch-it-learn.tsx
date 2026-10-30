@@ -10,7 +10,7 @@ import { loss } from '../../components/scenes/lossChart';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { CKPT_SERIES, CkptGate, PreTrainingStage, Says, StepRange, type View } from './kit';
+import { CKPT_SERIES, CkptGate, Fact, PreTrainingStage, Says, StepRange, ToyNote, type View } from './kit';
 import { PROMPT } from './01-before-training';
 
 const MODULE = 'pre-training',
@@ -139,7 +139,13 @@ export default function WatchItLearn() {
             {m => <Says who={`Step ${stepOf(state)}`} prompt={PROMPT} text={says(m, PROMPT)} live />}
           </CkptGate>
         ),
-        outcome: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={1} />,
+        outcome: ({ state }) => (
+          <>
+            <Outcome {...P1} prediction={state.p1} outcome={1} />
+            <Fact id="pythia-checkpoints" />
+            <ToyNote />
+          </>
+        ),
         curve: ({ state, sync }) => (
           <button
             type="button"
