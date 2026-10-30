@@ -3,8 +3,9 @@
   "facts": [
     {
       "id": "utf8",
-      "claim": "RFC 3629: in UTF-8, the US-ASCII characters (plain English letters, digits and punctuation) take one byte each.",
-      "source": "https://www.rfc-editor.org/rfc/rfc3629"
+      "claim": "RFC 3629 (2003): in UTF-8, the US-ASCII characters (plain English letters, digits and punctuation) take one byte each.",
+      "source": "https://www.rfc-editor.org/rfc/rfc3629",
+      "accessed": "2026-10-30"
     },
     {
       "id": "lz77",
@@ -23,28 +24,33 @@
     },
     {
       "id": "deflate",
-      "claim": "RFC 1951: DEFLATE compresses data using a combination of the LZ77 algorithm and Huffman coding, with lengths of 3 to 258 bytes and distances up to 32K bytes.",
-      "source": "https://www.rfc-editor.org/rfc/rfc1951"
+      "claim": "RFC 1951 (1996): DEFLATE packs data with the LZ77 pointers and Huffman codes together, with repeats of 3 to 258 bytes reaching back up to 32K bytes.",
+      "source": "https://www.rfc-editor.org/rfc/rfc1951",
+      "accessed": "2026-10-30"
     },
     {
       "id": "gzip",
-      "claim": "RFC 1952: a gzip file is DEFLATE data with a 10-byte header and an 8-byte trailer (a CRC-32 check and the original size).",
-      "source": "https://www.rfc-editor.org/rfc/rfc1952"
+      "claim": "RFC 1952 (1996): a gzip file is DEFLATE data with a 10-byte header and an 8-byte trailer (a check number and the original size).",
+      "source": "https://www.rfc-editor.org/rfc/rfc1952",
+      "accessed": "2026-10-30"
     },
     {
       "id": "brotli",
-      "claim": "RFC 7932: Brotli also compresses data using a combination of the LZ77 algorithm and Huffman coding.",
-      "source": "https://www.rfc-editor.org/rfc/rfc7932"
+      "claim": "RFC 7932 (2016): Brotli also packs data with LZ77 pointers and Huffman codes together.",
+      "source": "https://www.rfc-editor.org/rfc/rfc7932",
+      "accessed": "2026-10-30"
     },
     {
       "id": "streams",
       "claim": "The Compression Streams standard (updated 19 October 2026) lets a web page compress with brotli, deflate, deflate-raw and gzip.",
-      "source": "https://compression.spec.whatwg.org/"
+      "source": "https://compression.spec.whatwg.org/",
+      "accessed": "2026-10-30"
     },
     {
       "id": "no-universal",
-      "claim": "RFC 1951: no lossless compression algorithm can compress every possible input data set.",
-      "source": "https://www.rfc-editor.org/rfc/rfc1951"
+      "claim": "RFC 1951 (1996): a simple counting argument shows no lossless method can shrink every possible file.",
+      "source": "https://www.rfc-editor.org/rfc/rfc1951",
+      "accessed": "2026-10-30"
     },
     {
       "id": "shannon",
@@ -54,7 +60,34 @@
     {
       "id": "jpeg",
       "claim": "The JPEG committee describes JPEG as a Huffman-coded, DCT-based lossy image format.",
-      "source": "https://jpeg.org/jpeg/"
+      "source": "https://jpeg.org/jpeg/",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "deflate-worst",
+      "claim": "RFC 1951 (1996): at worst, DEFLATE grows a file by 5 bytes per 32K-byte block, about 0.015% on large files.",
+      "value": "5",
+      "source": "https://www.rfc-editor.org/rfc/rfc1951",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "english-ratio",
+      "claim": "RFC 1951 (1996): DEFLATE usually shrinks English text 2.5 to 3 times, to between two fifths and a third of its size.",
+      "source": "https://www.rfc-editor.org/rfc/rfc1951",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "jpeg-blocks",
+      "claim": "The JPEG standard, CCITT T.81 (1992), cuts a picture into 8 × 8 blocks, turns each into 64 numbers and rounds each by its own step from a table.",
+      "value": "8",
+      "source": "https://www.w3.org/Graphics/JPEG/itu-t81.pdf",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "zstd",
+      "claim": "RFC 8878 (2021) defines Zstandard, another lossless method, and registers “zstd” as a coding web servers may send files in.",
+      "source": "https://www.rfc-editor.org/rfc/rfc8878",
+      "accessed": "2026-10-30"
     }
   ]
 }

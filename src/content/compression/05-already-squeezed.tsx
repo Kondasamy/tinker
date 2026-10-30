@@ -75,7 +75,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'twice',
     focus: 'twice',
-    visibleControls: ['out1', 'twice'],
+    visibleControls: ['out1', 'twice', 'worst'],
     narration: `${bytes(RANDOM_PACKED)}: no repeats to point at, no common bytes, and the code tables cost extra.`,
     act: 'Now pack the already packed price list again.',
     say: { block: 'parcel', text: 'Grew' },
@@ -132,6 +132,14 @@ export default function AlreadySqueezed() {
             <button type="button" className="big" onClick={() => apply({ ...state, packed: 'twice' })}>
               Pack the packed price list
             </button>
+          </>
+        ),
+        worst: () => (
+          <>
+            <Fact id="deflate-worst" />
+            <p className="note">
+              Real DEFLATE can send a block as it is; our pair can’t, so the random file grew more.
+            </p>
           </>
         ),
         fact: () => (

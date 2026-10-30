@@ -428,6 +428,7 @@ export function Fact({ id }: { id: string }) {
 /** Shown wherever the picture or the random file appear (R6). */
 export const FilesNote = () => (
   <p className="note cz-note">
-    The texts are Larkspur’s own pages; the random file is seeded noise and the picture is drawn for this site.
+    The texts are Larkspur’s own pages. The random file (the same noise on every visit) and the picture were made for
+    this site.
   </p>
 );

@@ -17,3 +17,23 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **Lossy** (`lossy.ts`): blocks and colour levels on the picture, then the pair; scored by the mean pixel difference. JPEG does the same idea more cleverly, and the copy says so.
 - **Chapter 7's workbench** (`workbench.ts`): a setting per file against the nightly size budget and the picture's difference limit (`data/compression/workbench.json`, planning numbers). `WINNERS` (every plan that fits) is pinned and `compression-workbench.test.ts` solves it again.
 - **Facts** (UTF-8, LZ77, Huffman, DEFLATE, gzip, Brotli, Shannon, JPEG, why no coder shrinks every file, and Tokens' BPE) come from `data/compression/facts.json` with source and access date. No vendor is named as the place to compress.
+
+## Toy vs real
+
+The coders are real and byte-exact; only their file format is ours, so their sizes are measured, not made up. The site files are small (hundreds of bytes), which is where the toy stops matching real text.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+| --- | --- | --- | --- |
+| 1 | A byte is 8 bits, 0 to 255; one byte per English letter | `utf8` | Real (definition) |
+| 1 | File sizes, the commonest byte and its count | Counted on the site files | Real (built data) |
+| 2 | Pointers, copied bytes, literals, price list 691 → 560 bytes | `lz77` | Real (our coder on the site file, pinned) |
+| 2 | Repeats of 3 bytes or more (quiz) | `deflate` (3 to 258 bytes) | Matched: `MIN_MATCH`/`MAX_MATCH` equal DEFLATE's, pinned against the claim by a test; our 4096-byte window is smaller than DEFLATE's 32K (not shown) |
+| 3 | Pile weights, bits with codes against 8 bits a letter | `huffman` | Real (our coder) |
+| 4 | Four ways' sizes (691, 560, 509, 485 bytes) | `deflate`, `english-ratio` | Labelled: our own file format; the note says a short list shrinks less than RFC 1951's 2.5 to 3 times for English text (test pins the gap) |
+| 4 | Real gzip, measured in the browser | `gzip`, `streams` | Real (measured live) |
+| 5 | Random file 512 → 864 bytes; packed price list packed again | `deflate-worst`, `no-universal` | Labelled: real DEFLATE grows at most 5 bytes per 32K block because it can store a block as it is; ours can't, and the note says so (test pins it) |
+| 5 | Entropy per file, bits per byte | `shannon` | Real (computed) |
+| 5 | A tool that shrinks any file by 10% (quiz) | `no-universal` | Hypothetical claim the quiz refutes |
+| 6 | Shades 256 to 4, blocks 1 to 4 pixels, size and % difference | `jpeg-blocks`, `jpeg` | Labelled: JPEG cuts 8 × 8 blocks and rounds 64 numbers per block; ours averages smaller blocks and rounds shades, and the note says so |
+| 6 | Picture budget 700 bytes, 2% difference | `jpeg-blocks` beside it | Labelled: planning number written for this site |
+| 7 | Nightly budget 2,200 bytes, 2% difference; plans that fit (4); best plan | `zstd`, `brotli` | Labelled: planning numbers; plan sizes are our coders' real output, `WINNERS` recomputed by `compression-workbench.test.ts` |

@@ -8,6 +8,7 @@ import Predict from '../../components/quiz/Predict';
 import { Outcome } from '../tool-calling/kit';
 import { fileOf } from '../../lib/compression/files';
 import { sizeOf } from '../../lib/compression/coders';
+import { MIN_MATCH } from '../../lib/compression/lz77';
 import { SCANNERS } from '../../lib/compression/story';
 import { pointerStrip } from '../../components/scenes/pointerStrip';
 import { PILE_PARTS } from '../../components/scenes/pileScene';
@@ -40,7 +41,7 @@ export const QUIZ = {
   explanation: 'A pointer only helps where an earlier copy exists, and long repeats save the most.',
   why: [
     'Right: every repeat of the line becomes one short pointer back to the first.',
-    'Random serial numbers rarely repeat for three bytes or more, so nearly every byte stays a literal.',
+    `Random serial numbers rarely repeat for ${MIN_MATCH} bytes or more, so nearly every byte stays a literal.`,
     'With nothing repeated there is nothing to point back to, and literals cost a little extra.',
   ],
 };

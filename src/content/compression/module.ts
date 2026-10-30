@@ -86,7 +86,8 @@ const CHAPTERS: Chapter[] = [
       ],
       terms: [
         ['DEFLATE', 'The format inside zip and gzip: LZ77 pointers first, then Huffman codes for what is left.'],
-        ['gzip', 'A file format that wraps DEFLATE data with a small header and a check.'],
+        ['gzip', 'A file format that wraps DEFLATE data with a few label bytes in front and a check at the end.'],
+        ['Lossless', 'Packing that brings every byte back exactly.'],
       ],
     },
   },
@@ -120,10 +121,7 @@ const CHAPTERS: Chapter[] = [
         'Fewer shades and blocks make repeats',
         'Smaller files, bigger difference',
       ],
-      terms: [
-        ['Lossy', 'Packing that throws some detail away for good: the file comes back close, not exact.'],
-        ['Lossless', 'Packing that brings every byte back exactly.'],
-      ],
+      terms: [['Lossy', 'Packing that throws some detail away for good: the file comes back close, not exact.']],
     },
   },
   {
