@@ -14,7 +14,18 @@ import { UNSURE } from '../../lib/recall';
 import { pieceLabel } from '../../components/scenes/attentionMap';
 import META from '../../../public/data/lm/meta.json' with { type: 'json' };
 import { ENGINE_PARTS } from '../../components/scenes/engineScene';
-import { CTX, Fact, PromptInput, TransformersStage, Waiting, piecesOf, useModel, whenLoaded, type View } from './kit';
+import {
+  CTX,
+  Fact,
+  PromptInput,
+  ToyNote,
+  TransformersStage,
+  Waiting,
+  piecesOf,
+  useModel,
+  whenLoaded,
+  type View,
+} from './kit';
 
 const MODULE = 'transformers',
   ID = '07-trace-a-prompt';
@@ -98,7 +109,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'follow',
     focus: 'follow',
-    visibleControls: ['prompt', 'follow'],
+    visibleControls: ['prompt', 'follow', 'size'],
     narration: 'Follow it through: tokens, vectors, attention in every head, then the next token.',
     act: 'Light a head in each layer, then open the Attention tab.',
     say: { block: 'head', text: 'Lit head' },
@@ -213,6 +224,12 @@ export default function TraceAPrompt() {
             </>
           );
         },
+        size: () => (
+          <>
+            <Fact id="llama3-shape" />
+            <ToyNote />
+          </>
+        ),
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         reveal: ({ state, apply }) => (
           <button
@@ -234,6 +251,7 @@ export default function TraceAPrompt() {
               onAnswer={(_, q) => apply({ ...state, quiz: q })}
               onUnsure={() => sync({ ...state, quiz: UNSURE })}
             />
+            <Fact id="lost-in-the-middle" />
             <Fact id="transformer-explainer" />
           </>
         ),

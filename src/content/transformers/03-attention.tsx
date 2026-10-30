@@ -12,7 +12,7 @@ import { fact } from '../../lib/transformers/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { ENGINE_PARTS } from '../../components/scenes/engineScene';
-import { Fact, TransformersStage, Waiting, useModel, whenLoaded, type View } from './kit';
+import { Fact, ToyNote, TransformersStage, Waiting, useModel, whenLoaded, type View } from './kit';
 
 const MODULE = 'transformers',
   ID = '03-attention';
@@ -102,7 +102,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'prompts',
     focus: 'prompts',
-    visibleControls: ['out1', 'prompts'],
+    visibleControls: ['out1', 'mask', 'prompts'],
     narration: 'Every one is 0: the causal mask. A token only sees what came before, in training too.',
     act: 'Try other prompts.',
     predicate: s => s.seen.length >= TRY,
@@ -148,6 +148,12 @@ export default function Attention() {
         ),
         out1: ({ state }) =>
           model ? <Outcome {...P1} prediction={state.p1} outcome={outcomeOf(model)} /> : <Waiting />,
+        mask: () => (
+          <>
+            <Fact id="causal-mask" />
+            <ToyNote />
+          </>
+        ),
         prompts: ({ state, apply }) => (
           <>
             <div role="group" aria-label="Pick a prompt" style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>

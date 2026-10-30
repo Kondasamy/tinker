@@ -15,7 +15,7 @@ import { UNSURE } from '../../lib/recall';
 import { pieceLabel } from '../../components/scenes/attentionMap';
 import META from '../../../public/data/lm/meta.json' with { type: 'json' };
 import { ENGINE_PARTS } from '../../components/scenes/engineScene';
-import { Fact, TransformersStage, Waiting, useModel, whenLoaded, type View } from './kit';
+import { Fact, ToyNote, TransformersStage, Waiting, useModel, whenLoaded, type View } from './kit';
 
 const MODULE = 'transformers',
   ID = '04-heads-and-layers';
@@ -132,7 +132,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'prompts',
     focus: 'prompts',
-    visibleControls: ['out1', 'prompts'],
+    visibleControls: ['out1', 'roles', 'prompts'],
     narration: `This head finds where the word began; training shaped it. Over Larkspur’s documents: ${HEAD.score.toFixed(2)} of the weight, versus ${HEAD.uniform.toFixed(2)} spread evenly.`,
     act: 'Check other prompts.',
     predicate: s => s.seen.length >= TRY,
@@ -247,6 +247,7 @@ export default function HeadsAndLayers() {
         ),
         out1: ({ state }) =>
           model ? <Outcome {...P1} prediction={state.p1} outcome={outcomeOf(model)} /> : <Waiting />,
+        roles: () => <Fact id="voita-heads" />,
         prompts: ({ state, apply }) => {
           if (!model) return <Waiting />;
           const w = scoreOf(model, textOf(state.prompt));
@@ -310,6 +311,8 @@ export default function HeadsAndLayers() {
               onUnsure={() => sync({ ...state, quiz: UNSURE })}
             />
             <Fact id="base-size" />
+            <Fact id="llama3-shape" />
+            <ToyNote />
           </>
         ),
       }}

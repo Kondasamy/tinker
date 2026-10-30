@@ -15,7 +15,7 @@ import { UNSURE } from '../../lib/recall';
 import { pieceLabel } from '../../components/scenes/attentionMap';
 import META from '../../../public/data/lm/meta.json' with { type: 'json' };
 import { ENGINE_PARTS } from '../../components/scenes/engineScene';
-import { CTX, Fact, TransformersStage, Waiting, useModel, whenLoaded, type View } from './kit';
+import { CTX, Fact, ToyNote, TransformersStage, Waiting, useModel, whenLoaded, type View } from './kit';
 
 const MODULE = 'transformers',
   ID = '06-why-long-prompts-cost-more';
@@ -113,7 +113,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'cache',
     focus: 'grow',
-    visibleControls: ['out1', 'grow'],
+    visibleControls: ['out1', 'kv', 'grow'],
     narration:
       'Twice the tokens, about four times the pairs. The KV cache keeps tokens’ keys and values, so new tokens compute only theirs.',
     act: 'Fill the window.',
@@ -187,12 +187,13 @@ export default function WhyLongPromptsCostMore() {
               </table>
               <p className="note">
                 What the KV cache costs a server with many requests in flight:{' '}
-                <a href="/inference/02-kv-cache-at-scale/">the Inference engineering module</a>.
+                <a href="/inference/02-kv-cache-at-scale/">the module on running models for many users</a>.
               </p>
               <p className="tc-status" role="status">{`${state.n} tokens: “${textAt(state.n)}”`}</p>
             </>
           );
         },
+        kv: () => <Fact id="kv-cache-size" />,
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         reveal: ({ state, apply }) => (
           <button
@@ -207,6 +208,8 @@ export default function WhyLongPromptsCostMore() {
         window: () => (
           <>
             <Fact id="attention-budget" />
+            <Fact id="llama3-shape" />
+            <ToyNote />
             <details className="tc-def">
               <summary>The maths (optional)</summary>
               <p>{`A prompt of n tokens has n × (n + 1) ÷ 2 attention pairs per head: the first token scores 1, the second 2, and so on up to n. That is about n² ÷ 2, so the pairs grow with n².`}</p>

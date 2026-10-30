@@ -14,7 +14,7 @@ import { UNSURE } from '../../lib/recall';
 import { pieceLabel } from '../../components/scenes/attentionMap';
 import META from '../../../public/data/lm/meta.json' with { type: 'json' };
 import { ENGINE_PARTS } from '../../components/scenes/engineScene';
-import { Fact, TransformersStage, Waiting, useModel, whenLoaded } from './kit';
+import { Fact, ToyNote, TransformersStage, Waiting, useModel, whenLoaded } from './kit';
 
 const MODULE = 'transformers',
   ID = '02-tokens-become-vectors';
@@ -118,7 +118,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'look',
     focus: 'look',
-    visibleControls: ['look'],
+    visibleControls: ['look', 'size'],
     narration: `Larkspur mini swaps each id for a vector of ${LM.d_model} numbers: a row of its table, the token’s embedding.`,
     act: 'Look one up.',
     say: { block: 'query', text: 'This token' },
@@ -182,6 +182,12 @@ export default function TokensBecomeVectors() {
             {!model && <Waiting />}
           </>
         ),
+        size: () => (
+          <>
+            <Fact id="llama3-shape" />
+            <ToyNote />
+          </>
+        ),
         row: () => (model ? <Vec v={inputOf(model, COPIES[0]).token} label={`${W}’s embedding`} /> : <Waiting />),
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         reveal: ({ state, apply }) => (
@@ -220,6 +226,9 @@ export default function TokensBecomeVectors() {
               onUnsure={() => sync({ ...state, quiz: UNSURE })}
             />
             <Fact id="rope" />
+            <p className="note">
+              Larkspur mini learns one row per position. Llama 3 uses rotations instead, so the toy stops matching here.
+            </p>
           </>
         ),
       }}
