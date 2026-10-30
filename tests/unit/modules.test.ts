@@ -868,6 +868,18 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'parallel-training')).toBe(51);
   });
 
+  it('has choosing-models as a live Beginner module after parallel-training, numbered 53', () => {
+    expect(moduleOf('choosing-models')).toMatchObject({
+      title: 'Choosing a model',
+      level: 'Beginner',
+      status: 'live',
+      prereqs: ['evals'],
+    });
+    expect(moduleOf('choosing-models').track).toBeUndefined();
+    expect(moduleOf('choosing-models').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'choosing-models')).toBe(52);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

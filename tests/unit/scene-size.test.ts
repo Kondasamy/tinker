@@ -28,6 +28,8 @@ import { EXAM_BOARD, examScene } from '../../src/components/scenes/examScene';
 import { FORGE_BOARD, forgeScene } from '../../src/components/scenes/forgeScene';
 import { FUSE_BOARD, fuseScene } from '../../src/components/scenes/fuseScene';
 import { GATE_BOARD, gateScene } from '../../src/components/scenes/gateScene';
+import { STEELYARD_BOARD, steelyardScene } from '../../src/components/scenes/steelyardScene';
+import { hallOf } from '../../src/content/choosing-models/kit';
 import { GUARD_BOARD, guardScene } from '../../src/components/scenes/guardScene';
 import { HERO_BOARD, HOME_HERO } from '../../src/components/scenes/heroScene';
 import { JAR_BOARD, jarScene } from '../../src/components/scenes/jarScene';
@@ -283,6 +285,14 @@ const SCENES: Record<string, () => string> = {
       }),
     );
   },
+  // the market hall with every poise on, B under the bar and a callout (a new scene: its baseline is its first size)
+  steelyard: () =>
+    stage(
+      STEELYARD_BOARD,
+      steelyardScene({
+        ...hallOf('larkspur', { quality: 2, cost: 1, wait: 1 }, { out: ['B'], say: { block: 'pan', text: 'Slips' } }),
+      }),
+    ),
   // a full sentence with threads on and a head pulled (the callout test's state)
   fuse: () => {
     const out = forward(diskModel(), encode('Candidates receive an answer within ten'));
@@ -636,6 +646,8 @@ const BASE: Record<string, number> = {
   train: 43227,
   tube: 85271,
   frame: 74221,
+  // new with the choosing-models module (no pre-rework size): its first size is 86,192, with a little headroom
+  steelyard: 30000,
   // new with the watermarks module (no pre-rework size): its first size is 62,335, with a little headroom
   // new with the unicode module (no pre-rework size): its first size is 74,785, with a little headroom
   tape: 26000,

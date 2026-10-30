@@ -51,6 +51,7 @@ import { FAIRNESS_MODULE } from '../content/fairness/module';
 import { WATERMARKS_MODULE } from '../content/watermarks/module';
 import { AGENT_COMMERCE_MODULE } from '../content/agent-commerce/module';
 import { PARALLEL_TRAINING_MODULE } from '../content/parallel-training/module';
+import { CHOOSING_MODELS_MODULE } from '../content/choosing-models/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -161,12 +162,7 @@ export const MODULES: Module[] = [
   WATERMARKS_MODULE,
   AGENT_COMMERCE_MODULE,
   PARALLEL_TRAINING_MODULE,
-  planned(
-    'choosing-models',
-    'Choosing a model',
-    'Beginner',
-    'Picking the model for the job: leaderboards, price per answer, speed, and testing on your own questions.',
-  ),
+  CHOOSING_MODELS_MODULE,
   planned(
     'on-device',
     'Models on your device',

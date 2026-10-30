@@ -2386,5 +2386,41 @@
       "bench",
       "ties"
     ]
+  },
+  "choosing-models": {
+    "01-the-leaderboard": [
+      "predict",
+      "slide",
+      "quiz"
+    ],
+    "02-your-own-questions": [
+      "predict",
+      "run",
+      "quiz"
+    ],
+    "03-price-per-answer": [
+      "predict",
+      "slide",
+      "quiz"
+    ],
+    "04-the-wait": [
+      "predict",
+      "slide",
+      "quiz"
+    ],
+    "05-good-enough": [
+      "predict",
+      "bar",
+      "quiz"
+    ],
+    "06-models-change": [
+      "predict",
+      "run",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "quiz"
+    ]
   }
 }

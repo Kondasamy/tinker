@@ -155,6 +155,8 @@ import { SLIPS, sellerOf } from '../lib/agent-commerce/story';
 import { RING_BOARD, ringLabel, ringScene } from '../components/scenes/ringScene';
 import { fillsAfter, ringAllReduce } from '../lib/parallel-training/ring';
 import { GRADIENTS } from '../lib/parallel-training/story';
+import { STEELYARD_BOARD, steelyardLabel, steelyardScene } from '../components/scenes/steelyardScene';
+import { hallOf as cmHall } from '../content/choosing-models/kit';
 import { FORM } from '../lib/site';
 
 const one =
@@ -443,6 +445,8 @@ const HATCH: HatchOpts = {
 const PT_RING = ringAllReduce(GRADIENTS),
   PT_K = PT_RING.n - 1;
 const RING = { n: PT_RING.n, fills: fillsAfter(PT_RING, PT_K), sends: PT_RING.hops[PT_K - 1].sends, scale: 1.7 };
+// choosing-models: Larkspur's 20 with B under the bar, weighed on all three, as the intro draws it
+const HALL = { ...cmHall('larkspur', { quality: 2, cost: 1, wait: 1 }, { out: ['B'] }), scale: 1.7 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -1066,6 +1070,18 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Pipeline parallel',
       'Tensor parallel',
       'Checkpoints',
+    ],
+  },
+  'choosing-models': {
+    name: 'Choosing a model',
+    iso: { board: STEELYARD_BOARD, scene: steelyardScene(HALL), label: steelyardLabel(HALL) },
+    topics: [
+      'Leaderboards',
+      'Your own questions',
+      'Price per answer',
+      'Time to first word',
+      'Quality bar',
+      'Pinned versions',
     ],
   },
 };
