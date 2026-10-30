@@ -1,0 +1,7 @@
+{
+  "note": "Chapter 7's rule, the team's planning numbers: the model and a shift's context must fit the handheld's free memory, or the question falls back to the cloud; it must answer at least `bar` of the stock questions (hand-set scores in phones.json) at `minBits` or more (plain rounding below 4 bits garbled Larkspur mini in chapter 2); and one charge must last a shift's questions.",
+  "start": { "size": "1b", "bits": 16, "length": "long" },
+  "shiftContext": 2000,
+  "bar": 16,
+  "minBits": 4
+}
