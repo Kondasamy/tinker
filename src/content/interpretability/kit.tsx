@@ -16,6 +16,7 @@ import { useNarrow } from '../tool-calling/kit';
 import { ModelGate, loadModel, modelNow, useModel } from '../fine-tuning/kit';
 import Cite from '../../components/story/Cite';
 import type { Say } from '../../components/story/steps';
+import META from '../../../public/data/lm/meta.json' with { type: 'json' };
 import './interpretability.css';
 
 export { ModelGate, loadModel };
@@ -270,4 +271,4 @@ export function Fact({ id }: { id: string }) {
 }
 
 /** The line every chapter keeps under its numbers (R6). */
-export const OURS = 'Larkspur mini’s numbers, computed live in your browser: a tiny model, not any provider’s.';
+export const OURS = `Larkspur mini’s numbers, computed live in your browser: a toy of ${META.model.params.toLocaleString('en')} weights, ${META.model.n_layer} layers of ${META.model.n_head} heads, not any provider’s.`;

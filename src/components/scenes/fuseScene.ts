@@ -171,7 +171,7 @@ export function fuseLabel(o: FuseOpts): string {
   const base = engineLabel({ ...o, attention: o.threads && !st.shownPulled ? o.attention : undefined });
   const panel = st.pulled.length
     ? `A fuse panel stands at the end: ${st.pulled.map(fuseName).join(', ')} ${st.pulled.length === 1 ? 'is' : 'are'} pulled out and dark; the other ${FUSES.length - st.pulled.length} are in.`
-    : `A fuse panel stands at the end, one fuse per head and per MLP, all ${FUSES.length} in.`;
+    : `A fuse panel stands at the end, one fuse per head and per thinking part, all ${FUSES.length} in.`;
   return `${st.shownPulled ? base.replace(/ The desk of layer \d+, head \d+ is lit\./, ' Its head is silenced, so no desk is lit.') : base} ${panel}`;
 }
 

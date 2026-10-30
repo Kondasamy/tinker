@@ -44,24 +44,24 @@ const IDEAS: [string, string, ReturnType<typeof fact>, FuseOpts][] = [
     room({ threads: true }),
   ],
   [
-    'Copy an activation across',
+    'Copy numbers across',
     'Find where a word’s effect travels inside the run',
     fact('rome'),
     room({ pulled: [BITE.fuse] }),
   ],
+  ['Read the guess forming', 'Read the guess at each layer, before the output', fact('logit-lens'), room({ layer: 1 })],
   [
-    'Read the guess forming',
-    'Read each block’s guess through the model’s last step',
-    fact('logit-lens'),
-    room({ layer: 1 }),
+    'Push it',
+    'Add a nudge toward a topic and the model drifts',
+    fact('actadd'),
+    room({ pulled: ['mlp1'], layer: 1, head: 1 }),
   ],
-  ['Push it', 'Add a direction and the model drifts', fact('actadd'), room({ pulled: ['mlp1'], layer: 1, head: 1 })],
 ];
 const WORD = headLoss(m, BITE.fuse);
 const ALL = NEURONS.layers.flat();
 const MIXED = ALL.filter(f => new Set(f.map(x => kindOf(x.piece))).size >= 2).length;
 const FACTS: [string, string][] = [
-  [String(FUSES.length), 'fuses: one per head, one per MLP'],
+  [String(FUSES.length), 'fuses: one per head, one per thinking part'],
   [`${Math.round((WORD.lost / WORD.right) * 100)}%`, `of right top-5 guesses lost with ${fuseName(BITE.fuse)} pulled`],
   [`${MIXED} of ${ALL.length}`, 'neurons fire on unrelated kinds of token'],
   ['0', 'weights changed by anything you do here'],
@@ -82,7 +82,7 @@ const FACTS: [string, string][] = [
           <p class="kicker">Module {NUMBER} · Interpretability</p>
           <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>Why did the model say that?</h1>
-          <p class="lede">Looking inside a model isn’t enough to explain it. Here you test its parts: pull a fuse, read its guess as it forms, copy an activation across, and push it off course.</p>
+          <p class="lede">Looking inside a model isn’t enough to explain it. Here you test its parts: pull a fuse, read its guess as it forms, copy numbers in from another run, and push it off course.</p>
           <div class="ctas">
             <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
             <a class="btn" href="#path">See the chapters</a>
@@ -116,7 +116,7 @@ const FACTS: [string, string][] = [
           ))}
         </div>
         <p class="cap">“{BITE.expected.trim()}” drops out of the top 5. Larkspur mini’s numbers, computed from its real weights.</p>
-        <p class="note more">This prompt is one of the few where one head matters that much. Over all of Larkspur’s held-out text, the same fuse costs {WORD.lost} of {WORD.right} right top-5 guesses: each head does a little, and the work is spread out. Finding that out, by experiment rather than by looking, is the module.</p>
+        <p class="note more">This prompt is one of the few where one head matters that much. Over all the Larkspur text it never trained on, the same fuse costs {WORD.lost} of {WORD.right} right top-5 guesses: each head does a little, and the work is spread out. Finding that out, by experiment rather than by looking, is the module.</p>
       </section>
 
       <section aria-labelledby="how">
