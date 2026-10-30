@@ -9,7 +9,10 @@ import IsoStage, { type Board } from '../../src/lib/iso/IsoStage';
 import { AGENT_BOARD, agentScene } from '../../src/components/scenes/agentScene';
 import { ARCHIVE_BOARD, archiveAt, archiveScene } from '../../src/components/scenes/archiveScene';
 import { CABINET_BOARD, cabinetAt, cabinetScene } from '../../src/components/scenes/cabinetScene';
+import { CLAW_BOARD, clawScene } from '../../src/components/scenes/clawScene';
 import { CLOAK_BOARD, cloakScene } from '../../src/components/scenes/cloakScene';
+import { DEMOS as ROBOT_DEMOS } from '../../src/lib/robots/story';
+import { play as robotPlay, TRAIN as ROBOT_BINS } from '../../src/lib/robots/world';
 import { COPIER_BOARD, copierAt, copierScene } from '../../src/components/scenes/copierScene';
 import { boardOf as crateBoard, crateScene, yardOf, type CrateOpts } from '../../src/components/scenes/crateScene';
 import { DARK_BOARD, darkroomScene } from '../../src/components/scenes/darkroomScene';
@@ -273,6 +276,21 @@ const SCENES: Record<string, () => string> = {
         grader: 'NUMBER + SIGN-OFF',
         group: [true, false],
         board: 'ROUND 1',
+      }),
+    );
+  },
+  // Mira's first demo done: the whole path, the part in the tray, the machine's screen and a callout
+  claw: () => {
+    const run = robotPlay(ROBOT_BINS[0], ROBOT_DEMOS[0]);
+    return stage(
+      CLAW_BOARD,
+      clawScene({
+        layout: ROBOT_BINS[0],
+        state: run.at(-1)!,
+        trail: run.map(s => s.claw),
+        machine: 'ok',
+        pill: 'DONE',
+        say: { block: 'tray', text: 'In the tray' },
       }),
     );
   },
@@ -627,6 +645,8 @@ const BASE: Record<string, number> = {
   // new with the rate-limits module (no pre-rework size): its first size is 348,099 (16 people), with a little headroom
   barrel: 120000,
   cabinet: 36056,
+  // new with the robots module (no pre-rework size): its first size is 44,523, with a little headroom
+  claw: 16000,
   cloak: 57039,
   copier: 42034,
   'crate:yard': 41476,
