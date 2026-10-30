@@ -15,7 +15,7 @@
     },
     {
       "id": "attention-formula",
-      "claim": "Vaswani and colleagues (2017) compute attention as softmax(QKᵀ / √d_k) V: each token’s query is scored against every key, the scores become weights that add up to 1, and the weights mix the values.",
+      "claim": "Vaswani and colleagues (2017) compute attention in three moves: each token’s query is scored against every key, the scores become weights that add up to 1, and the weights mix the values.",
       "value": "softmax(QKᵀ / √d_k) V",
       "source": "https://arxiv.org/abs/1706.03762",
       "accessed": "2026-10-30"
@@ -115,7 +115,7 @@
     },
     {
       "id": "transformer-explainer",
-      "claim": "Transformer Explainer, from Georgia Tech's Polo Club, runs GPT-2 small (124M parameters) live in the browser.",
+      "claim": "Transformer Explainer, from Georgia Tech's Polo Club, runs GPT-2 small (124 million learned numbers) live in the browser.",
       "source": "https://poloclub.github.io/transformer-explainer/",
       "accessed": "2026-10-30"
     }

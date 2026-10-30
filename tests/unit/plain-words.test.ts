@@ -1,5 +1,6 @@
 // Plain words (R8–R10): a flagged word stays in reader copy only where its module defines it as a chapter term first;
-// everywhere else it is swapped. Structured copy is checked exactly, kits and intro pages by a scan of their prose.
+// everywhere else it is swapped. Structured copy and fact claims are checked exactly, kits and intro pages by a scan of
+// their prose.
 import { describe, expect, it } from 'vitest';
 import { MODULES } from '../../src/lib/modules';
 import { FLAGGED, flaggedIn, wordRe } from '../../src/components/story/plain-words';
@@ -10,10 +11,16 @@ const sources = import.meta.glob<string>(
   ['../../src/content/*/[0-9]*.tsx', '../../src/content/*/kit.tsx', '../../src/pages/*/index.astro'],
   { eager: true, query: '?raw', import: 'default' },
 );
+const facts = import.meta.glob<{ facts: { id: string; claim: string }[] }>('../../data/*/facts.json', {
+  eager: true,
+  import: 'default',
+});
 const live = MODULES.filter(m => m.chapters.length > 0);
 
 /** modules still being rewritten (KTD8): each must fail until its wave lands, then leave this list */
 const PENDING = new Set<string>([
+  'ab-testing',
+  'agent-commerce',
   'caching',
   'calibration',
   'choosing-models',
@@ -23,9 +30,11 @@ const PENDING = new Set<string>([
   'diffusion-llms',
   'email',
   'fairness',
+  'git',
   'inference',
   'interpretability',
   'labelling',
+  'load-balancing',
   'logins',
   'memorisation',
   'mixture-of-experts',
@@ -41,6 +50,7 @@ const PENDING = new Set<string>([
   'sandboxing',
   'small-models',
   'unicode',
+  'voice',
   'watermarks',
   'web-requests',
 ]);
@@ -106,6 +116,8 @@ function misses(moduleId: string) {
     for (const w of flaggedIn(quizText(r).join('\n'))) if (!ok.has(w)) report(`${m.id} recall ${r.id}`, w, false);
   }
   for (const w of flaggedIn(`${m.description}\n${m.story}`)) if (!anyChapter.has(w)) report(`${m.id} module`, w, false);
+  for (const f of facts[`../../data/${m.id}/facts.json`]?.facts ?? [])
+    for (const w of flaggedIn(f.claim)) if (!anyChapter.has(w)) report(`${m.id} fact ${f.id}`, w, false);
   for (const [path, src] of Object.entries(sources)) {
     const file = path.replace('../../src/', '');
     if (!file.startsWith(`content/${m.id}/`) && !file.startsWith(`pages/${m.id}/`)) continue;
