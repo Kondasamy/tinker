@@ -73,7 +73,7 @@ export const STEPS: Step<S>[] = [
     focus: 'p1',
     visibleControls: ['p1'],
     narration:
-      'Each candidate, any four digits, gets a likelihood. Sort them likeliest first: the true PIN’s rank shows how close it is.',
+      'Each candidate, any four digits, gets the model’s odds. Sort them likeliest first: the true PIN’s rank shows how close it is.',
     act: 'Predict first.',
     say: { block: 'column', text: 'Likeliest on top' },
     predicate: s => s.p1 !== null,

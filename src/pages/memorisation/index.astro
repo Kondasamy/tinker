@@ -16,7 +16,7 @@ import { diskCanary } from '../../lib/memorisation/diskModel';
 import { extract, replyText } from '../../lib/memorisation/extract';
 import { filterReply } from '../../lib/memorisation/filter';
 import { columnPins, rankAmong } from '../../lib/memorisation/rank';
-import { REPEATS, RUNS, bits, canaryOf, firstName, pct, scoreOf } from '../../lib/memorisation/story';
+import { REPEATS, RUNS, canaryOf, firstName, pct, scoreOf } from '../../lib/memorisation/story';
 import { fact } from '../../lib/memorisation/facts';
 import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
 import { introMeta } from '../../lib/pages';
@@ -72,7 +72,10 @@ const FACTS: [string, string][] = [
     String(scoreOf('canary', ONCE.repeats).rank),
     `the once-seen PIN’s rank of ${N} (chance: about ${(RUNS.candidates / 2).toLocaleString('en')})`,
   ],
-  [pct(RUNS.runs.scrubbed.heldout.top5), 'held-out top-5 with the PINs scrubbed out'],
+  [
+    pct(RUNS.runs.scrubbed.heldout.top5),
+    'of guesses on unseen text with the right next piece in its top 5, PINs scrubbed out',
+  ],
 ];
 ---
 <html lang="en">
@@ -90,7 +93,7 @@ const FACTS: [string, string][] = [
           <p class="kicker">Module {NUMBER} · {MODULE.title}</p>
           <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>A model can recite what it saw often</h1>
-          <p class="lede">Larkspur wants to train on tickets that hold card numbers. Here you plant fake PINs, pull them back out, and find the one fix that keeps secrets safe.</p>
+          <p class="lede">Larkspur wants to train on tickets that hold card numbers. Here you plant fake PINs, pull them back out, and find the fix that works best.</p>
           <div class="ctas">
             <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
             <a class="btn" href="#path">See the chapters</a>
@@ -115,10 +118,10 @@ const FACTS: [string, string][] = [
           <article class="reply read">
             <header><h3>Seen once</h3><span class="stamp">rank {scoreOf('canary', ONCE.repeats).rank}</span></header>
             <p class="said">“{said(ONCE).text.trim()}”</p>
-            <p class="cap">{firstName(MOST)}’s PIN, not {firstName(ONCE)}’s, yet {firstName(ONCE)}’s still ranks {scoreOf('canary', ONCE.repeats).rank} of {N}: exposure {bits(scoreOf('canary', ONCE.repeats).exposure)} bits.</p>
+            <p class="cap">{firstName(MOST)}’s PIN, not {firstName(ONCE)}’s, yet {firstName(ONCE)}’s still ranks {scoreOf('canary', ONCE.repeats).rank} of {N}, where a random PIN would sit near {(RUNS.candidates / 2).toLocaleString('en')}.</p>
           </article>
         </div>
-        <p class="note more">Larkspur’s toy: a tiny model trained offline with four fake PINs planted in its text; replies run from its weights. After an output filter the first reply reads “{filterReply(said(MOST).text).trim()}”, yet asked one digit at a time it still leaks.</p>
+        <p class="note more">Larkspur’s toy: a tiny model trained ahead of time with {REPEATS.length} fake PINs planted in its text; the replies here are its own. After an output filter the first reply reads “{filterReply(said(MOST).text).trim()}”, yet asked one digit at a time it still leaks.</p>
       </section>
 
       <section aria-labelledby="how">

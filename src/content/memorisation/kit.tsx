@@ -139,12 +139,12 @@ export const columnLabel = (rank: number) => `RANK ${rank} OF ${COLUMN_SIZE}`;
 const reduced = () => typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 export type View = 'desk' | 'ledger';
 
-/** The Ledger tab: the planted lines, their copies, and their offline rank over all 10,000 PINs in a run. */
+/** The Ledger tab: the planted lines, their copies, and their rank (computed ahead of time) over all 10,000 PINs in a run. */
 export function LedgerTable({ run, scrub, repeats }: { run: RunId; scrub?: boolean; repeats?: number | null }) {
   return (
     <div className="mem-scroll" role="region" aria-label="The planted lines" tabIndex={0}>
       <table className="tc-ledger">
-        <caption>Fake PINs planted in training, ranked offline</caption>
+        <caption>Fake PINs planted in training, ranked ahead of time</caption>
         <thead>
           <tr>
             <th scope="col">Line in training</th>
@@ -304,10 +304,9 @@ export function Fact({ id }: { id: string }) {
   );
 }
 
-/** Said wherever the toy's PINs or numbers show (R6). */
+/** Said wherever the toy's PINs or numbers show (R6, KTD5): it is a toy, trained ahead of time, never retrained here. */
 export const ToyNote = () => (
   <p className="mem-note">
-    Larkspur’s toy: a tiny model trained offline with four fake PINs planted in its text. It shows the mechanism, not a
-    production model’s numbers.
+    {`Larkspur’s toy: a tiny model trained ahead of time on ${RUNS.runs.canary.tokens.toLocaleString('en')} pieces of text, with ${REPEATS.length} fake PINs planted in it. Its ranks and leaks show how memorisation works; the numbers are its own, not a real model’s.`}
   </p>
 );

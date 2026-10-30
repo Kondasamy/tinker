@@ -22,4 +22,20 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 
 ## Facts
 
-From `data/memorisation/facts.json` (accessed 2026-10-28), each checked against its arXiv abstract and labelled a large-model finding where it is one: Carlini et al. 2019 (The Secret Sharer), Carlini et al. 2021 (GPT-2 extraction), Kandpal, Wallace and Raffel 2022 (deduplication; 10 copies ≈ 1,000× more often generated), Nasr et al. 2023 (gigabytes from open models; ChatGPT 150× higher rate), Abadi et al. 2016 (DP-SGD).
+From `data/memorisation/facts.json` (every fact re-checked 2026-10-30 against its arXiv abstract), labelled a large- or real-model finding where it is one: Lee et al. 2021 (one sentence repeated 60,000+ times in C4; over 1% of unprompted output copied), Carlini et al. 2019 (The Secret Sharer), Carlini et al. 2021 (GPT-2 extraction, sequences from one document), Kandpal, Wallace and Raffel 2022 (deduplication; 10 copies ≈ 1,000× more often generated), Ippolito et al. 2022 (a perfect word-for-word filter, bypassed by restyled prompts), Nasr et al. 2023 (gigabytes from open models; ChatGPT 150× higher rate), Lukas et al. 2023 (scrubbing cuts but doesn't stop leaks of personal data), Abadi et al. 2016 (differential privacy). Each chapter shows one on its reveal: 1 `lee-2021-repeats`, 2 `carlini-2019`, 3 `carlini-2021`, 4 `carlini-2019`, 5 `kandpal-2022`, 6 `ippolito-2022`, `nasr-2023` and `scrub-misses`, 7 `abadi-2016`.
+
+## Toy vs real
+
+The canary model (and Pre-training's recorded runs in chapter 1) is trained ahead of time (`docs/lm-kit.md`), so none of its numbers is recalibrated (KTD5): every one is labelled. `ToyNote` (`kit.tsx`) gives the toy's size from runs.json beside a cited real figure; chapters 1 and 3 say in a note where the toy stops matching (copies needed to recite), chapter 7 that the bench has no differential-privacy switch. Nothing is matched: copies (1, 4, 16, 64), the 10,000 candidates and the 200-PIN sample are design choices of the test, not measurements to fit.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 | 10 copies of one policy (Pre-training's recorded run) | `lee-2021-repeats` (one sentence 60,000+ times, over 1% of output copied) | Labelled: the note sets the toy's 10 copies beside the real 60,000 (read from the fact's `value`) |
+| 2 | 1 to 64 copies, 85 planted lines | `carlini-2019` | Labelled (`ToyNote`) |
+| 3 | 4 prefixes; 2 recited (64 and 16 copies); replies (live, pinned) | `carlini-2021` (GPT-2 recited text from one document) | Labelled: the note says the toy needed 16 copies where GPT-2 needed one document |
+| 4 | 200 sample + true PIN; sample ranks; ranks 1, 1, 17, 81 of 10,000; exposure up to 13.3 bits | `carlini-2019` | Labelled (`ToyNote`); the column is said to be a sample |
+| 4 | Rank 3 of a million, 18 bits (quiz) | none | Labelled: a hypothetical in the question |
+| 5 | Rank 161 of 10,000 after dedup; held-out top-5 per run | `kandpal-2022` (10 copies ≈ 1,000× more often) | Labelled (`ToyNote`) |
+| 6 | Four digits in a row; one digit per reply; scrubbed top-5 | `ippolito-2022`, `nasr-2023` (150×), `scrub-misses` | Labelled: the note says the toy's scrub is perfect because its PINs are known; real scrubbers miss some |
+| 7 | PINs leaked, worst exposure, top-5 per policy, base top-5, 4 winners (`WINNERS` computed) | `abadi-2016` | Labelled: the note says the bench has no such switch |
+| Intro, recall | 4 PINs, 2 recited, rank 81 (chance near 5,000), scrubbed top-5; quiz hypotheticals (5,000 pages, 2nd of 100,000, 16-digit cards) | as above | Labelled: the intro note calls it Larkspur's toy; recall numbers are hypotheticals or read from runs.json |

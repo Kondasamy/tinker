@@ -31,7 +31,6 @@ const PENDING = new Set<string>([
   'git',
   'load-balancing',
   'logins',
-  'memorisation',
   'mixture-of-experts',
   'on-device',
   'parallel-training',

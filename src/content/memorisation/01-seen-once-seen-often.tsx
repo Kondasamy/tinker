@@ -10,7 +10,8 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { PROMPTS, RUNS as PT, sampleOf } from '../../lib/pre-training/engine';
 import { RECITAL_PARTS } from '../../components/scenes/recitalScene';
-import { RecitalStage } from './kit';
+import { fact } from '../../lib/memorisation/facts';
+import { Fact, RecitalStage } from './kit';
 
 const MODULE = 'memorisation',
   ID = '01-seen-once-seen-often';
@@ -57,7 +58,7 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `Pre-training ran two models: one clean, one with a policy duplicate in its data ${COPIES} times.`,
+    narration: `Pre-training’s chapter trained two toy models, one clean and one with a duplicate: a company policy copied ${COPIES} times into its text.`,
     act: 'Predict first.',
     say: { block: 'ledger', text: `Policy ×${COPIES}` },
     predicate: s => s.p1 !== null,
@@ -98,6 +99,8 @@ function Endings() {
         Recorded runs of Larkspur mini, from{' '}
         <a href="/pre-training/04-data-is-the-curriculum/">Pre-training’s data chapter</a>.
       </p>
+      <Fact id="lee-2021-repeats" />
+      <p className="mem-note">{`The toy recited after ${COPIES} copies; real web text repeats one sentence over ${Number(fact('lee-2021-repeats').value).toLocaleString('en')} times.`}</p>
     </>
   );
 }
