@@ -9,7 +9,7 @@ import { CLOAK_PARTS, type CloakOpts } from '../../components/scenes/cloakScene'
 import { ACCOUNTS } from '../../lib/logins/store';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { LoginsStage, drawersOf } from './kit';
+import { Fact, LoginsStage, drawersOf } from './kit';
 
 const MODULE = 'logins',
   ID = '01-the-sticky-note';
@@ -73,7 +73,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['out1', 'quiz'],
+    visibleControls: ['out1', 'fact', 'quiz'],
     narration: `All ${N} passwords, readable at once. Builders reuse passwords, so each one may open other sites too.`,
     act: 'One question to finish.',
     say: { block: 'thief', text: `Has all ${N}` },
@@ -119,6 +119,7 @@ export default function TheStickyNote() {
           </button>
         ),
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />,
+        fact: () => <Fact id="nist-storage" />,
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

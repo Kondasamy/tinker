@@ -190,7 +190,7 @@ function Bench({ s, set }: { s: S; set: (s: S) => void }) {
         </tbody>
       </table>
       <p className="note ek-note">
-        {`${ACCOUNTS.length} demo accounts. The attackers, their timings and the sign-in counts are planning numbers written for this site.`}
+        {`${ACCOUNTS.length} demo accounts. The session lengths match NIST’s limits; the attackers, their timings and the sign-in counts are planning numbers written for this site.`}
       </p>
     </div>
   );
@@ -225,6 +225,7 @@ export default function GuardEveryAccount() {
             <Fact id="nist-phishing" />
             <Fact id="rfc6238" />
             <Fact id="nist-rate-limit" />
+            <Fact id="nist-reauth" />
           </>
         ),
         quiz: ({ state, apply, sync }) => (

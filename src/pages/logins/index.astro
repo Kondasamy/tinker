@@ -50,7 +50,7 @@ const IDEAS: [string, string, ReturnType<typeof fact>, CloakOpts][] = [
 ];
 const FACTS: [string, string][] = [
   [bigNumber(rateOf('sha256', 1)), 'SHA-256 guesses a second on one graphics card (benchmark, October 2022)'],
-  [TOP.toLocaleString('en-GB'), 'PBKDF2 rounds OWASP recommends'],
+  [TOP.toLocaleString('en-GB'), 'rounds OWASP asks for when a site uses the slow hash PBKDF2'],
   [`${SLOW} of ${N}`, 'demo accounts still crack at that work factor: the ones on the leaked list'],
   [String(WINNERS.length), 'best plans in chapter 7’s workbench'],
 ];
@@ -100,7 +100,7 @@ const GUILD = pic(guildScene({ redirected: true, checked: true, stolen: false, t
             <p class="cap">Only the passwords on a leaked list fall within a year.</p>
           </article>
         </div>
-        <p class="note more">Demo accounts written for this site. Guess rates come from one dated GPU benchmark; passwords off the list use a brute-force estimate.</p>
+        <p class="note more">Demo accounts written for this site. Guess rates come from one dated graphics-card benchmark; a password off the list is an estimate of trying every combination.</p>
       </section>
 
       <section aria-labelledby="how">
