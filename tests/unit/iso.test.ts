@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createElement, Fragment } from 'react';
 import { renderToString } from 'react-dom/server';
-import { P, P0, withFrame, ink, inkScale, clipTo, unrotXY } from '../../src/lib/iso/core.js';
+import { P, P0, withFrame, ink, inkScale, clipTo, unrotXY, hullInk } from '../../src/lib/iso/core.js';
 import { BLOCKS, BLOCK_TYPES, renderers, blockShadow, blockTag, type BlockType } from '../../src/lib/iso/blocks';
 import IsoStage, { frameFor, stageFrame, type Board, type SceneCtx } from '../../src/lib/iso/IsoStage';
 
@@ -165,5 +165,23 @@ describe('turning and zoom', () => {
     expect(y).toBeCloseTo(f.h / 2, 1);
     expect(h).toBeCloseTo(f.h / 2, 1);
     expect(html).toContain('overflow:hidden');
+  });
+});
+
+// the server renders and the browser hydrates the same outline even when their floats differ in the last bits
+describe('silhouette ink', () => {
+  it('draws the same outline when points carry float noise', () => {
+    const pts: [number, number, number][] = [
+      [0, 0, 0],
+      [10, 0, 0],
+      [20, 0, 0],
+      [20, 10, 0],
+      [10, 10, 0],
+      [0, 10, 0],
+      [0, 0, 3],
+      [20, 10, 3],
+    ];
+    const noisy = pts.map(([x, y, z], i) => [x + (i % 2 ? 1e-12 : -1e-12), y, z] as [number, number, number]);
+    expect(hullInk(noisy, 1.8)).toBe(hullInk(pts, 1.8));
   });
 });
