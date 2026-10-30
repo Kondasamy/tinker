@@ -12,7 +12,7 @@ import { SCHEMAS, play, run } from '../../lib/structured-outputs/prompts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { STENCIL_PARTS } from '../../components/scenes/stencilScene';
-import { Answer, Fact, PinnedStage, Waiting, useModel, whenLoaded } from './kit';
+import { Answer, Fact, PinnedStage, ToyNote, Waiting, useModel, whenLoaded } from './kit';
 
 const MODULE = 'structured-outputs',
   ID = '02-a-schema-is-a-contract';
@@ -87,8 +87,7 @@ export const STEPS: Step<S>[] = [
     id: 'retry',
     focus: 'retry',
     visibleControls: ['p1', 'retry'],
-    narration:
-      'Each retry is a fresh random draw with its own seed, so each answer differs. Watch the check and the tokens.',
+    narration: 'Each retry is a fresh random draw, so each answer differs. Watch the check and the tokens.',
     act: 'Run the tries.',
     say: { block: 'belt', text: 'Every token paid' },
     predicate: s => s.tries >= TRIES.length,
@@ -181,6 +180,7 @@ export default function ASchemaIsAContract() {
               onUnsure={() => sync({ ...state, quiz: UNSURE })}
             />
             <Fact id="openai-vs-json-mode" />
+            <ToyNote />
           </>
         ),
       }}

@@ -12,7 +12,7 @@ import { RUNS, SCHEMAS, play, run } from '../../lib/structured-outputs/prompts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { STENCIL_PARTS } from '../../components/scenes/stencilScene';
-import { Answer, Fact, PinnedStage, Waiting, pct, useModel, whenLoaded } from './kit';
+import { Answer, Fact, PinnedStage, ToyNote, Waiting, pct, useModel, whenLoaded } from './kit';
 
 const MODULE = 'structured-outputs',
   ID = '05-choices-from-a-list';
@@ -100,7 +100,7 @@ export const STEPS: Step<S>[] = [
     focus: 'draw',
     visibleControls: ['out1', 'shares', 'draw'],
     narration:
-      'The pick follows the model’s preference: greedy decoding takes the likeliest value; a draw picks at random by the shares.',
+      'The pick follows the model’s preference: by default it takes the likeliest value; a draw picks at random by the shares.',
     act: 'Draw three times.',
     say: { block: 'belt', text: 'Picked by shares' },
     predicate: s => s.draws >= 3,
@@ -123,7 +123,7 @@ function Draws({ n }: { n: number }) {
   return (
     <ol className="so-checks" data-testid="draws">
       {DRAWS.slice(0, n).map((r, i) => (
-        <li key={r.id}>{`Draw ${i + 1} (seed ${r.seed}): ${statusOf(model, r.id)}`}</li>
+        <li key={r.id}>{`Draw ${i + 1}: ${statusOf(model, r.id)}`}</li>
       ))}
     </ol>
   );
@@ -148,7 +148,7 @@ export default function ChoicesFromAList() {
             !state.listed
               ? `Status as free text, up to ${FREE_CAP} characters.`
               : state.draws
-                ? `Draw ${state.draws}: a random pick by the shares (seed ${DRAWS[state.draws - 1].seed}).`
+                ? `Draw ${state.draws}: a random pick by the shares.`
                 : `Status as a list: ${VALUES.join(' or ')}.`
           }
         />
@@ -167,7 +167,7 @@ export default function ChoicesFromAList() {
           model ? (
             <>
               <Outcome {...P1} prediction={state.p1} outcome={answerOf(model)} />
-              <Answer label="Greedy: the likeliest value" text={play(model, LIST).decoded.text} />
+              <Answer label="By default: the likeliest value" text={play(model, LIST).decoded.text} />
             </>
           ) : (
             <Waiting />
@@ -206,6 +206,7 @@ export default function ChoicesFromAList() {
               onUnsure={() => sync({ ...state, quiz: UNSURE })}
             />
             <Fact id="openai-limits" />
+            <ToyNote />
           </>
         ),
       }}

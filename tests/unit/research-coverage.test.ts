@@ -58,7 +58,6 @@ const PENDING = new Set<string>([
   'sandboxing',
   'search',
   'small-models',
-  'structured-outputs',
   'transformers',
   'unicode',
   'voice',

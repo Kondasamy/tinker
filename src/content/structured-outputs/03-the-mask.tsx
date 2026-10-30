@@ -11,7 +11,19 @@ import { play, run } from '../../lib/structured-outputs/prompts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { STENCIL_PARTS } from '../../components/scenes/stencilScene';
-import { Answer, Fact, PinnedStage, Waiting, modelNow, pct, piece, useModel, whenLoaded, type View } from './kit';
+import {
+  Answer,
+  Fact,
+  PinnedStage,
+  ToyNote,
+  Waiting,
+  modelNow,
+  pct,
+  piece,
+  useModel,
+  whenLoaded,
+  type View,
+} from './kit';
 
 const MODULE = 'structured-outputs',
   ID = '03-the-mask';
@@ -52,8 +64,8 @@ export const QUIZ = {
   why: [
     'A blocked token can’t be written at all, because its probability is set to zero before the pick, which is the whole difference from checking afterwards.',
     'Right: the mask removes the blocked tokens and rescales the allowed ones to add up to 100%, so the model’s preferences among them still decide.',
-    'Every step writes a token, and a schema compiler makes sure some token is always allowed, so the run is never stuck.',
-    'Nothing is trained: the weights stay as they are, and only the choice at each step is limited.',
+    'Every step writes a token, and the schema’s rules always leave some token allowed, so the run is never stuck.',
+    'Nothing is trained: the model stays as it is, and only the choice at each step is limited.',
   ],
 };
 
@@ -181,6 +193,7 @@ export default function TheMask() {
             />
             <Fact id="anthropic-guarantee" />
             <Fact id="llguidance" />
+            <ToyNote />
           </>
         ),
       }}

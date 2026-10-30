@@ -40,7 +40,6 @@ const PENDING = new Set<string>([
   'reasoning',
   'sandboxing',
   'small-models',
-  'structured-outputs',
   'transformers',
   'unicode',
   'watermarks',

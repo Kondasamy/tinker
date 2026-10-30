@@ -10,7 +10,7 @@ import { play, run } from '../../lib/structured-outputs/prompts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { STENCIL_PARTS } from '../../components/scenes/stencilScene';
-import { Answer, CTX, Fact, PinnedStage, Waiting, useModel, whenLoaded } from './kit';
+import { Answer, CTX, Fact, PinnedStage, ToyNote, Waiting, useModel, whenLoaded } from './kit';
 
 const MODULE = 'structured-outputs',
   ID = '01-asking-nicely';
@@ -145,6 +145,8 @@ export default function AskingNicely() {
             <>
               <Outcome {...P1} prediction={state.p1} outcome={answerOf(model)} />
               <Answer label="Larkspur mini wrote" text={play(model, RUN).decoded.text} />
+              <Fact id="openai-eval" />
+              <ToyNote />
             </>
           ) : (
             <Waiting />
@@ -158,7 +160,6 @@ export default function AskingNicely() {
               onAnswer={(_, q) => apply({ ...state, quiz: q })}
               onUnsure={() => sync({ ...state, quiz: UNSURE })}
             />
-            <Fact id="openai-vs-json-mode" />
           </>
         ),
       }}

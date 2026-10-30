@@ -24,6 +24,14 @@ const CHAPTERS: Chapter[] = [
           'A plain text format for data: curly braces around fields, each a quoted name, a colon and a value, like {"status":"delayed"}. Programs read it without guessing.',
         ],
         ['Structured output', 'An answer in a fixed, machine-readable shape (usually JSON) instead of free prose.'],
+        [
+          'Schema',
+          'A written description of the shape an answer must have: its fields, each one’s type, and the values allowed. Larkspur uses the same rules for it (part of JSON Schema) as Tool calling.',
+        ],
+        [
+          'Window',
+          'The most tokens a model can hold at once, prompt and answer together. Larkspur mini’s is tiny; big provider models hold far more.',
+        ],
       ],
     },
   },
@@ -41,10 +49,6 @@ const CHAPTERS: Chapter[] = [
         'Why retries cost tokens and still guarantee nothing',
       ],
       terms: [
-        [
-          'Schema',
-          'A written description of the shape an answer must have: its fields, each one’s type, and the values allowed. Larkspur uses the same subset of JSON Schema as Tool calling.',
-        ],
         [
           'Validation',
           'Checking a finished answer against the schema. It can only say pass or fail, after the tokens are spent.',
@@ -178,7 +182,8 @@ const CHAPTERS: Chapter[] = [
 export const STRUCTURED_OUTPUTS_MODULE: Module = {
   id: 'structured-outputs',
   title: 'Structured outputs',
-  description: 'How a model is made to answer in valid JSON, every time: a schema masks the tokens it may pick.',
+  description:
+    'How a model is made to answer in valid JSON, every time: at each step a schema blocks the tokens that don’t fit.',
   level: 'Intermediate',
   status: 'live',
   author: RAG_MODULE.author,

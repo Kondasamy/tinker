@@ -26,7 +26,18 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { STENCIL_PARTS } from '../../components/scenes/stencilScene';
 import type { Say } from '../../components/story/steps';
-import { Answer, Fact, StructuredStage, Waiting, decodeWith, CTX, modelNow, useModel, whenLoaded } from './kit';
+import {
+  Answer,
+  Fact,
+  StructuredStage,
+  ToyNote,
+  Waiting,
+  decodeWith,
+  CTX,
+  modelNow,
+  useModel,
+  whenLoaded,
+} from './kit';
 import Select from '../../components/story/Select';
 
 const MODULE = 'structured-outputs',
@@ -216,6 +227,8 @@ export default function Workbench() {
               onUnsure={() => sync({ ...state, quiz: UNSURE })}
             />
             <Fact id="anthropic-limits" />
+            <Fact id="openai-limits" />
+            <ToyNote />
           </>
         ),
       }}
