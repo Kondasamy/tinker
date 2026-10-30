@@ -18,7 +18,7 @@ import { TRAIN_PARTS } from '../../components/scenes/trainScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { Fact, FineTuneStage, versionCols, type View } from './kit';
+import { Fact, FineTuneStage, RecordedNote, versionCols, type View } from './kit';
 
 const MODULE = 'fine-tuning',
   ID = '06-measure-before-you-train';
@@ -207,6 +207,7 @@ export default function MeasureBeforeYouTrain() {
           <>
             <Fact id="prompt-first" />
             <Fact id="fine-tune-for" />
+            <RecordedNote bar={GATE.threshold} />
             <p className="note">
               Teaching a smaller, cheaper model from a big one, and routing to it:{' '}
               <a href="/small-models/">the Small models module</a>.

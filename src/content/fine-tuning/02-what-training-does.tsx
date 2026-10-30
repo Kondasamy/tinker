@@ -11,7 +11,7 @@ import { TRAIN_PARTS } from '../../components/scenes/trainScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { FineTuneStage, FINETUNE_SERIES, META, ModelGate, Reply, modelNow, type View } from './kit';
+import { Fact, FineTuneStage, FINETUNE_SERIES, META, ModelGate, Reply, ToyNote, modelNow, type View } from './kit';
 
 const MODULE = 'fine-tuning',
   ID = '02-what-training-does';
@@ -107,7 +107,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['curve', 'quiz'],
+    visibleControls: ['curve', 'fact', 'quiz'],
     narration: `The recorded run: training loss fell from ${loss(CURVE[0].train)} to ${loss(CURVE.at(-1)!.train)}. The second line, unseen text, returns in chapter 5.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -210,6 +210,12 @@ export default function WhatTrainingDoes() {
           >
             Show the training run
           </button>
+        ),
+        fact: () => (
+          <>
+            <Fact id="lima" />
+            <ToyNote />
+          </>
         ),
         quiz: ({ state, apply, sync }) => (
           <Quiz

@@ -10,7 +10,7 @@ import { TRAIN_PARTS } from '../../components/scenes/trainScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { Answer, FineTuneStage, versionCols, type View } from './kit';
+import { Answer, Fact, FineTuneStage, RecordedNote, versionCols, type View } from './kit';
 
 const MODULE = 'fine-tuning',
   ID = '04-facts-move-style-stays';
@@ -111,7 +111,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['summary', 'quiz'],
+    visibleControls: ['summary', 'fact', 'quiz'],
     narration:
       'Weights suit a style, which rarely changes, and not facts, which do. Documents move the moment they are updated.',
     act: 'One question to finish.',
@@ -211,6 +211,12 @@ export default function FactsMoveStyleStays() {
               })}
             </tbody>
           </table>
+        ),
+        fact: () => (
+          <>
+            <Fact id="new-facts-slow" />
+            <RecordedNote />
+          </>
         ),
         quiz: ({ state, apply, sync }) => (
           <Quiz

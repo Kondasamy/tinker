@@ -14,7 +14,7 @@ import { TRAIN_PARTS, type TuneWeights } from '../../components/scenes/trainScen
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { Fact, FineTuneStage, META, ModelGate, loadModel, modelNow, type View } from './kit';
+import { Fact, FineTuneStage, META, ModelGate, ToyNote, loadModel, modelNow, type View } from './kit';
 
 const MODULE = 'fine-tuning',
   ID = '05-what-training-costs';
@@ -267,6 +267,7 @@ export default function WhatTrainingCosts() {
           <>
             <Fact id="lora-learns-less" />
             <Fact id="catastrophic-forgetting" />
+            <ToyNote />
           </>
         ),
         quiz: ({ state, apply, sync }) => (

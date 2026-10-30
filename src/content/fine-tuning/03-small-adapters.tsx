@@ -10,7 +10,7 @@ import { TRAIN_PARTS } from '../../components/scenes/trainScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { Fact, FineTuneStage, META, ModelGate, Reply, modelNow, type View } from './kit';
+import { Fact, FineTuneStage, META, ModelGate, Reply, ToyNote, modelNow, type View } from './kit';
 
 const MODULE = 'fine-tuning',
   ID = '03-small-adapters';
@@ -33,7 +33,7 @@ interface S {
 }
 
 export const P1 = {
-  question: `LoRA leaves those ${n(FULL)} weights as they are. Beside each of the ${MATRICES.length} attention matrices it adds two thin matrices, rank ${RANK}, and trains only those. What share of the model’s size will it train?`,
+  question: `LoRA leaves those ${n(FULL)} weights as they are. Beside each of its ${MATRICES.length} attention matrices (grids of weights) it adds two thin matrices, rank ${RANK}, and trains only those. What share of the model’s size will it train?`,
   options: ['More than a quarter', 'Between 10% and 25%', 'Between 1% and 10%', 'Under 1%'],
 };
 /** the option the computed share falls in */
@@ -219,7 +219,12 @@ export default function SmallAdapters() {
             )}
           </ModelGate>
         ),
-        scale: () => <Fact id="lora-savings" />,
+        scale: () => (
+          <>
+            <Fact id="lora-savings" />
+            <ToyNote />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}
