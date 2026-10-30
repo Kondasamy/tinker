@@ -894,6 +894,19 @@ describe('module registry', () => {
     );
   });
 
+  it('has unicode as a live Beginner Classic tech module after parallel-training, with no prerequisites', () => {
+    expect(moduleOf('unicode')).toMatchObject({
+      title: 'Text and Unicode',
+      level: 'Beginner',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('unicode').author).toEqual(moduleOf('rag').author);
+    const live = MODULES.filter(m => m.status === 'live').map(m => m.id);
+    expect(live.indexOf('unicode')).toBeGreaterThan(live.indexOf('parallel-training'));
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

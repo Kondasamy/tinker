@@ -53,6 +53,7 @@ import { AGENT_COMMERCE_MODULE } from '../content/agent-commerce/module';
 import { PARALLEL_TRAINING_MODULE } from '../content/parallel-training/module';
 import { CHOOSING_MODELS_MODULE } from '../content/choosing-models/module';
 import { RATE_LIMITS_MODULE } from '../content/rate-limits/module';
+import { UNICODE_MODULE } from '../content/unicode/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -165,6 +166,7 @@ export const MODULES: Module[] = [
   PARALLEL_TRAINING_MODULE,
   CHOOSING_MODELS_MODULE,
   RATE_LIMITS_MODULE,
+  UNICODE_MODULE,
   planned(
     'on-device',
     'Models on your device',
@@ -182,13 +184,6 @@ export const MODULES: Module[] = [
     'Backups and recovery',
     'Beginner',
     'Copies that save you on a bad day: how often to copy, testing the restore, and how much you can lose.',
-    'Classic tech',
-  ),
-  planned(
-    'unicode',
-    'Text and Unicode',
-    'Beginner',
-    'How letters become bytes: one number for every character, UTF-8, and why an emoji breaks a form.',
     'Classic tech',
   ),
   planned(

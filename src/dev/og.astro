@@ -408,6 +408,17 @@ import { GRADIENTS as PT_GRADIENTS } from '../lib/parallel-training/story';
 import { BARREL_BOARD, barrelAt, barrelCard, barrelScene, type BarrelOpts } from '../components/scenes/barrelScene';
 import { SCENES as RT_SCENES, crowdOf as rtCrowd, liveOf as rtLive, runOf as rtRun } from '../lib/rate-limits/sim';
 import { WINNERS as RT_WINNERS, benchRun as rtBench } from '../lib/rate-limits/workbench';
+import { TAPE_BOARD, tapeScene, type TapeOpts } from '../components/scenes/tapeScene';
+import { tapeOf as ucTape } from '../content/unicode/kit';
+import {
+  CUSTOMER as UC_CUSTOMER,
+  FAMILY as UC_FAMILY,
+  FIRST as UC_FIRST,
+  LOOKALIKES as UC_LOOK,
+  SCRIPTS as UC_SCRIPTS,
+} from '../lib/unicode/story';
+import { WINNERS as UC_WINNERS } from '../lib/unicode/workbench';
+import { shownName as ucShown } from '../content/unicode/07-workbench';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -1943,6 +1954,20 @@ const RT_OG: Record<string, () => Omit<BarrelOpts, 'scale'>> = {
   'rate-limits-07-set-the-limits': () => barrelAt(rtBench(RT_WINNERS[0]), 25_000),
 };
 const rtOg = RT_OG[page.og]?.();
+// module 55: the telegraph office. The intro and chapter 4: the customer's name read with Latin-1; 1: the first word;
+// 2: one character from each script; 3: the name in UTF-8; 5: the family emoji; 6: the lookalike address; 7: the
+// longest name under the first winning setting.
+const TAPE_OG: Record<string, () => Omit<TapeOpts, 'scale'>> = {
+  unicode: () => ucTape(UC_CUSTOMER, 'windows-1252'),
+  'unicode-01-letters-are-numbers': () => ucTape(UC_FIRST, 'utf-8'),
+  'unicode-02-one-number-for-every-character': () => ucTape(UC_SCRIPTS.join(''), 'utf-8'),
+  'unicode-03-utf-8': () => ucTape(UC_CUSTOMER, 'utf-8'),
+  'unicode-04-the-wrong-table': () => ucTape(UC_CUSTOMER, 'windows-1252'),
+  'unicode-05-one-emoji-many-numbers': () => ucTape(UC_FAMILY, 'utf-8'),
+  'unicode-06-same-look-different-bytes': () => ucTape(UC_LOOK[0].fake, 'utf-8'),
+  'unicode-07-workbench': () => ucTape(ucShown(UC_WINNERS[0]), 'utf-8'),
+};
+const tapeOg = TAPE_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -2024,6 +2049,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : ringOg ? <IsoStage board={RING_BOARD} scene={ringScene({ ...ringOg, scale: 1.3 })} label="" />
           : steelyardOg ? <IsoStage board={STEELYARD_BOARD} scene={steelyardScene({ ...steelyardOg, scale: 1.3 })} label="" />
           : rtOg ? <IsoStage board={BARREL_BOARD} scene={barrelScene({ ...rtOg, scale: 1.3 })} label="" />
+          : tapeOg ? <IsoStage board={TAPE_BOARD} scene={tapeScene({ ...tapeOg, scale: 1.3 })} label="" />
           : dreamOg ? <IsoStage board={dreamBoard(dreamOg)} scene={dreamScene({ ...dreamOg, scale: 1.3 })} label="" />
           : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
           : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />

@@ -158,6 +158,9 @@ import { GRADIENTS } from '../lib/parallel-training/story';
 import { STEELYARD_BOARD, steelyardLabel, steelyardScene } from '../components/scenes/steelyardScene';
 import { hallOf as cmHall } from '../content/choosing-models/kit';
 import { BARREL_BOARD, barrelCard, barrelLabel, barrelScene } from '../components/scenes/barrelScene';
+import { TAPE_BOARD, tapeLabel, tapeScene } from '../components/scenes/tapeScene';
+import { tapeOf as ucTape } from '../content/unicode/kit';
+import { CUSTOMER as UC_CUSTOMER } from '../lib/unicode/story';
 import { FORM } from '../lib/site';
 
 const one =
@@ -450,6 +453,8 @@ const RING = { n: PT_RING.n, fills: fillsAfter(PT_RING, PT_K), sends: PT_RING.ho
 const HALL = { ...cmHall('larkspur', { quality: 2, cost: 1, wait: 1 }, { out: ['B'] }), scale: 1.7 };
 // rate limits: the barrel empty after Quickfix's burst, couriers turned away with 429
 const BARREL = barrelCard(1.7);
+// unicode: the customer's name punched in UTF-8 and read with Latin-1, as the intro draws it
+const TAPE = { ...ucTape(UC_CUSTOMER, 'windows-1252'), scale: 1.7 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -1100,6 +1105,11 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'API keys',
       'Per-key limits',
     ],
+  },
+  unicode: {
+    name: 'Text and Unicode',
+    iso: { board: TAPE_BOARD, scene: tapeScene(TAPE), label: tapeLabel(TAPE) },
+    topics: ['ASCII', 'Code points', 'UTF-8', 'Mojibake', 'Emoji & graphemes', 'Normalisation', 'Lookalike letters'],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];

@@ -2471,5 +2471,49 @@
       "bench",
       "ties"
     ]
+  },
+  "unicode": {
+    "01-letters-are-numbers": [
+      "predict",
+      "type",
+      "plain",
+      "quiz"
+    ],
+    "02-one-number-for-every-character": [
+      "predict",
+      "punch",
+      "far",
+      "quiz"
+    ],
+    "03-utf-8": [
+      "predict",
+      "type",
+      "wide",
+      "quiz"
+    ],
+    "04-the-wrong-table": [
+      "predict",
+      "switch",
+      "own",
+      "fix",
+      "quiz"
+    ],
+    "05-one-emoji-many-numbers": [
+      "predict",
+      "punch",
+      "thumbs",
+      "quiz"
+    ],
+    "06-same-look-different-bytes": [
+      "predict",
+      "punch",
+      "nfc",
+      "lookalike",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "quiz"
+    ]
   }
 }

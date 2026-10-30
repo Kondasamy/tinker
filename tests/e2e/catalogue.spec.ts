@@ -61,6 +61,7 @@ const NUMBERED = [
   'parallel-training',
   'choosing-models',
   'rate-limits',
+  'unicode',
 ];
 
 // AI modules lead the catalogue; classic tech follows in its own section of compact cards
