@@ -17,3 +17,19 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **One suite, two counts** (`data/sandboxing/suite.json`): four attacks (exfiltration, a hidden key read, a system file written, a record smuggled through the allowed host), each with a goal checked against the run's ledger, and two ordinary tasks, each with the tools it needs. `metrics()` gives attack success rate (`asr`) and false-block rate (`fbr`).
 - **Chapter 7's puzzle accepts every minimal winning policy** (`workbench.ts` `WINNERS`): every policy the controls can make that stops every attack with the fewest blocked tasks, not one hand-picked answer.
 - **Facts about sandboxing** come from `data/sandboxing/facts.json` with source and access date.
+
+## Toy vs real
+
+The sandbox is a model (KTD9): recorded turns, fixture files, a stand-in token, so its counts are the module's own and can only be labelled. The Files drawer and `SimNote` (kit) say so; chapters 1–5 show outcomes (worked, stopped, blocked), not toy rates, and each sits beside a cited fact about the real sandbox.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 | Run steps ("Step n of m"); the fixture order (card ending 4417, 3 orders open) in a read | `two-layers`, `filesystem-isolation` | Labelled: made-up fixture (Files note) |
+| 2 | Run steps only | `default-read`, `default-write` | Labelled (Files note) |
+| 3 | Run steps only | `proxy` | Labelled (Files note) |
+| 4 | Run steps; the stand-in token | `credentials-outside` | Labelled: never a real key |
+| 5 | Run steps only | `allowed-domain-leak` | Labelled |
+| 6 | Approval prompts in one run (none for the report task, one for the attack) | `prompt-reduction` (84% fewer prompts in Anthropic's internal use, October 2025) | Labelled: `SimNote` says the count is one recorded run's and the 84% is real use; the 84% itself is real (read from the fact's `value`) |
+| 7 | Suite of 4 attacks and 2 tasks; attack success and false-block counts and rates; how many policies win (`WINNERS`, computed); the strictest settings' blocked tasks | `cve-2025-66479` (a real policy with no allowed domains left the network unenforced), `not-complete` | Labelled: `SimNote` under the readout says the suite was written for the module and a clean score still misses unwritten attacks |
+| Intro | 4 attacks, 2 tasks; attacks that work with no sandbox, and attacks and blocked tasks once set up (computed from the suite) | `filesystem-isolation`, `network-isolation`, `allowed-domain-leak` | Labelled ("made-up attacks", "the sandbox is a model") |
+| Any | The step budget in "out of steps" (`MAX_TURNS`) | none | Labelled: an engine limit, reached only past the recording |

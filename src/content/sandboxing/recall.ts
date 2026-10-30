@@ -48,7 +48,7 @@ export const RECALL: RecallItem[] = [
     id: 'hidden-vs-readonly',
     chapter: '02-files',
     question:
-      'An agent builds a report. It must read a template and write the result, but a secrets file sits in the same tree. What is the right filesystem policy?',
+      'An agent builds a report. It must read a template and write the result, but a secrets file sits in the same folder. Which files get what access?',
     options: [
       'Mount everything writable so nothing breaks',
       'Expose the template read-only, the output directory writable, and hide the secrets file',
@@ -87,18 +87,18 @@ export const RECALL: RecallItem[] = [
     id: 'egress-tradeoff',
     chapter: '03-network',
     question:
-      'A team sets the agent’s egress to “off” so nothing can leak. The agent’s task needs to call the company API. What happens?',
+      'A team sets the agent’s egress to “off” so nothing can leak. The agent’s task needs to call the company’s server. What happens?',
     options: [
-      'The task runs fine: internal APIs are always allowed',
-      'The task is blocked too: egress off stops the real API call as well as any leak, so it’s a false block',
-      'Only the leak is stopped; the API call still goes through',
-      'The agent finds another way to the API on its own',
+      'The task runs fine: the company’s own server is always allowed',
+      'The task is blocked too: egress off stops the real request as well as any leak, so it’s a false block',
+      'Only the leak is stopped; the server request still goes through',
+      'The agent finds another way to the server on its own',
     ],
     correct: 1,
     why: [
       'Egress off means no outbound network at all; it does not know which host is friendly.',
       'Right. Off is the bluntest setting: it stops leaks and the task’s own requests alike. An allow-list keeps the friendly host open.',
-      'There is no exception for the API; off blocks every outbound request.',
+      'There is no exception for the server; off blocks every outbound request.',
       'The agent cannot route around the sandbox’s network boundary.',
     ],
   },
@@ -125,7 +125,7 @@ export const RECALL: RecallItem[] = [
     id: 'secret-location',
     chapter: '04-secrets',
     question:
-      'The agent needs an API token. A colleague puts it in an environment variable inside the sandbox “so the agent can use it.” What is the risk?',
+      'The agent needs an access token. A colleague puts it in an environment variable inside the sandbox “so the agent can use it.” What is the risk?',
     options: [
       'None: the sandbox protects the environment',
       'A compromised agent can read the variable and send the token out; better to let a proxy hold it and add it only on allowed requests',
@@ -144,18 +144,18 @@ export const RECALL: RecallItem[] = [
     id: 'proxy-injects',
     chapter: '04-secrets',
     question:
-      'With the secret held by the proxy, the agent still manages to call the company API successfully. How, if it never sees the token?',
+      'With the secret held by the proxy, the agent still manages to call the company’s server successfully. How, if it never sees the token?',
     options: [
       'It guessed the token',
       'The proxy adds the real token to the agent’s request on the way out, only for allowed hosts',
-      'The API stopped requiring a token',
+      'The server stopped requiring a token',
       'The sandbox copied the token into the agent’s memory',
     ],
     correct: 1,
     why: [
       'Nothing is guessed; the agent’s request simply has no token in it.',
       'Right. The proxy injects the credential on allowed outbound requests, so the call authenticates without the agent ever holding the secret.',
-      'The API still needs the token; the proxy supplies it.',
+      'The server still needs the token; the proxy supplies it.',
       'The sandbox does not reveal the secret to the agent; that would defeat the point.',
     ],
   },
@@ -164,11 +164,11 @@ export const RECALL: RecallItem[] = [
     id: 'allowed-door-leak',
     chapter: '05-allowed-door',
     question:
-      'An agent may only reach the company’s own API host. A colleague says “so data can’t leak.” What do you tell them?',
+      'An agent may only reach the company’s own server. A colleague says “so data can’t leak.” What do you tell them?',
     options: [
       'Agreed: if the only host is ours, nothing can get out',
       'An attack can hide stolen data inside a request to the allowed host, so the allow-list alone does not stop a leak',
-      'Agreed, as long as the API uses HTTPS',
+      'Agreed, as long as the connection is encrypted',
       'Turn off the agent’s network entirely',
     ],
     correct: 1,
@@ -252,7 +252,7 @@ export const RECALL: RecallItem[] = [
     correct: 1,
     why: [
       'The rate is over the attacks someone thought of; a new one may still get through. A sandbox reduces risk but is not a complete boundary.',
-      'Right. The suites are an eval: they measure known attacks and real tasks, and they grow as new attacks are found. A gate on both rates stops a change that makes either worse.',
+      'Right. The suites are a test: they measure known attacks and real tasks, and they grow as new attacks are found. A gate on both rates stops a change that makes either worse.',
       'Approvals add prompt fatigue without proving safety against new attacks, and not every action is a boundary crossing.',
       'Strictest settings block real tasks (false blocks) without proving safety against attacks nobody has written.',
     ],

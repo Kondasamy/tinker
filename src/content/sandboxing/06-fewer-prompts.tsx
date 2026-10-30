@@ -11,7 +11,8 @@ import { SANDBOX_PARTS } from '../../components/scenes/sandboxScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Messages, Outcome } from '../tool-calling/kit';
-import { Chips, Fact, runCached, SandboxStage, sandboxProps, says, type View } from './kit';
+import { fact } from '../../lib/sandboxing/facts';
+import { Chips, Fact, runCached, SandboxStage, SimNote, sandboxProps, says, type View } from './kit';
 
 const MODULE = 'sandboxing',
   ID = '06-fewer-prompts';
@@ -31,7 +32,7 @@ const asked = (r: ReturnType<typeof R>) => r.steps.some(s => s.kind === 'approva
 
 const P1 = {
   question:
-    'The exfil attack tries to fetch attacker.example, which the allow-list would block. That crossing is shown to a person to approve. A busy operator clicks yes. Does the token leave?',
+    'The leak attack tries to fetch attacker.example, which the allow-list would block. That crossing is shown to a person to approve. A busy operator clicks yes. Does the token leave?',
   options: [
     'Yes: approving the crossing lets the request out past the boundary',
     'No: the sandbox still blocks it even after a person approves',
@@ -80,7 +81,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['p1'],
     opensDrawer: null,
     narration:
-      'No prompts: every action stayed inside, so none was a boundary crossing. Next, the exfil attack, with a person checking crossings.',
+      'No prompts: every action stayed inside, so none was a boundary crossing. Next, the leak attack, with a person checking crossings.',
     act: 'Predict first.',
     setup: s => ({ ...s, kase: 'exfil', approval: 'approve', ran: false }),
     predicate: s => s.p1 !== null,
@@ -201,6 +202,10 @@ export default function FewerPromptsChapter() {
               <>
                 <Messages lanes={sandboxLanes()} msgs={sandboxMessages(r)} upTo={s.ran ? r.steps.length : 0} />
                 <Fact id="prompt-reduction" />
+                <SimNote>
+                  Its prompt count is one recorded run’s; the {fact('prompt-reduction').value} is across Anthropic’s own
+                  real use.
+                </SimNote>
               </>
             );
           },

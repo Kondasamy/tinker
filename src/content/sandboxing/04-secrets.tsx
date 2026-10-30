@@ -1,4 +1,4 @@
-// Chapter 4: secrets. The task needs an API token. With the token in the sandbox's env a compromised agent reads it and
+// Chapter 4: secrets. The task needs an access token. With the token in the sandbox's env a compromised agent reads it and
 // sends it out; held by the proxy, the agent never sees it and the theft fails. Egress is open throughout, to isolate
 // the secret's location as the thing that changes. Outcomes read off the recorded runs.
 import StepRunner from '../../components/story/StepRunner';
@@ -38,11 +38,11 @@ const OUT1 = R({ secret: 'proxy' }).attackMet ? 0 : 1;
 
 export const QUIZ = {
   question:
-    'With the secret held by the proxy, the agent still calls the company API successfully. How, if it never sees the token?',
+    'With the secret held by the proxy, the agent still calls the company’s server successfully. How, if it never sees the token?',
   options: [
     'It guessed the token',
     'The proxy adds the real token to the request on the way out, only for allowed hosts',
-    'The API stopped requiring a token',
+    'The server stopped requiring a token',
     'The sandbox copied the token into the agent’s memory',
   ],
   correct: 1,
@@ -51,7 +51,7 @@ export const QUIZ = {
   why: [
     'Nothing is guessed; the agent’s request simply carries no token.',
     'Right: the secret lives with the proxy, which attaches it on the way out to allowed hosts only.',
-    'The API still needs the token; the proxy supplies it.',
+    'The server still needs the token; the proxy supplies it.',
     'Revealing the token to the agent would defeat the point.',
   ],
 };
@@ -68,7 +68,7 @@ export const STEPS: Step<S>[] = [
     narration:
       'A colleague puts the token in the sandbox’s environment. A planted note says send it out, and egress is open.',
     act: 'Run it.',
-    say: { block: 'secret', text: 'In the env' },
+    say: { block: 'secret', text: 'In the sandbox' },
     predicate: s => s.secret === 'env' && s.ran,
     hint: 'With the secret “in the sandbox”, press Run.',
   },
@@ -96,7 +96,7 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['quiz'],
     narration:
-      'The token read was refused, yet the task still calls the API: a proxy-injected secret, which no network rule alone gives.',
+      'The token read was refused, yet the task still calls the server: a proxy-injected secret, which no network rule alone gives.',
     act: 'One question to finish.',
     say: { block: 'files', text: 'Read refused' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,

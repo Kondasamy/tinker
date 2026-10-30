@@ -38,7 +38,7 @@ const blockedAt = (r: typeof SAFE) => r.steps.findIndex(s => s.kind === 'blocked
 const IDEAS: [string, string, ReturnType<typeof fact>, SandboxOpts][] = [
   [
     'Where the code runs',
-    'The same task, held inside a box the OS enforces',
+    'The same task, held inside a box the operating system enforces',
     fact('filesystem-isolation'),
     { run: SAFE, upTo: SAFE.steps.length, wall: true, files: 'scoped', egress: 'allowlist', proxy: true, scale: 1.7 },
   ],
@@ -58,7 +58,7 @@ const IDEAS: [string, string, ReturnType<typeof fact>, SandboxOpts][] = [
   ],
   [
     'An allowed door still leaks',
-    'A request to an allowed host can carry data out',
+    'A request to an allowed server can carry data out',
     fact('allowed-domain-leak'),
     { run: BEACON, upTo: fetchAt(BEACON), wall: true, files: 'scoped', egress: 'allowlist', proxy: true, scale: 1.7 },
   ],
@@ -68,12 +68,12 @@ const IDEAS: [string, string, ReturnType<typeof fact>, SandboxOpts][] = [
 const NONE = metrics({ sandbox: false }),
   CLEAN = bench(SOLUTION);
 const FACTS: [string, string][] = [
-  [String(ATTACKS.length), 'attacks in the suite'],
+  [String(ATTACKS.length), 'made-up attacks in the module’s test set'],
   [String(TASKS.length), 'ordinary tasks in it too'],
   [`${NONE.succeeded} of ${NONE.attacks}`, 'attacks that work with no sandbox'],
   [
     `${CLEAN.succeeded} of ${CLEAN.attacks}`,
-    `once the policy is set, with ${CLEAN.blocked} of ${CLEAN.tasks} tasks blocked`,
+    `with the sandbox set up well, and ${CLEAN.blocked} of ${CLEAN.tasks} tasks blocked`,
   ],
 ];
 ---
@@ -92,7 +92,7 @@ const FACTS: [string, string][] = [
           <p class="kicker">Module {NUM} · Agent sandboxing</p>
           <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>Where an agent’s code runs, and what it can reach</h1>
-          <p class="lede">When an agent runs code to do its work, a planted instruction can make that code read your files or send your data away. A sandbox is a box the operating system holds the code inside: it decides which files the agent sees and which hosts it can reach, from outside the model, so it holds even when the agent is taken over.</p>
+          <p class="lede">When an agent runs code to do its work, a planted instruction can make that code read your files or send your data away. A sandbox is a box the operating system holds the code inside: it decides which files the agent sees and which servers it can reach, from outside the model, so it holds even when the agent is taken over.</p>
           <div class="ctas">
             <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
             <a class="btn" href="#path">See the chapters</a>
@@ -110,7 +110,7 @@ const FACTS: [string, string][] = [
         <div class="versus">
           <article class="reply">
             <header><h3>On the host</h3><span class="stamp warn">Full access</span></header>
-            <p class="cap">The agent runs with the developer’s own access. A note in its task tells it to read the API token and send it to an outside address.</p>
+            <p class="cap">The agent runs with the developer’s own access. A note in its task tells it to read the access token and send it to an outside address.</p>
             <p class="mail more">{SAYS}.</p>
           </article>
           <article class="reply bad">
@@ -119,7 +119,7 @@ const FACTS: [string, string][] = [
             <p class="cap">The token went out. On the host there was nothing to stop it.</p>
           </article>
         </div>
-        <p class="note more">In a sandbox the same note changes nothing: the token is kept with the proxy, the outside host is not on the allow-list, and the moves are refused. The agent’s turns are recorded, written to illustrate the sources below; the sandbox is a model (no real code runs), and its checks and the outcome are computed in your browser.</p>
+        <p class="note more">In a sandbox the same note changes nothing: the token is kept by a gatekeeper (a proxy) outside the box, the outside address is not on the list of allowed servers, and the moves are refused. The agent’s turns are recorded, written to illustrate the sources below; the sandbox is a model (no real code runs), and its checks and the outcome are computed in your browser.</p>
       </section>
 
       <section aria-labelledby="how">
@@ -142,8 +142,8 @@ const FACTS: [string, string][] = [
         <div>
           <p class="kicker">The story</p>
           <h2 id="story">Larkspur’s agent runs code now</h2>
-          <p class="more">{MODULE.story} <strong>You’re on the team that decides which sandbox policy it runs with.</strong></p>
-          {PREREQS.map(m => <p class="prev">New to Larkspur’s agent, or to prompt injection? The <a href={`/${m.id}/`}>{m.title} module</a> builds what this one defends.</p>)}
+          <p class="more">{MODULE.story} <strong>You’re on the team that decides which sandbox settings it runs with.</strong></p>
+          {PREREQS.map(m => <p class="prev">New to Larkspur’s agent, or to planted instructions (prompt injection)? The <a href={`/${m.id}/`}>{m.title} module</a> builds what this one defends.</p>)}
         </div>
         <dl class="facts">
           {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}
@@ -162,7 +162,7 @@ const FACTS: [string, string][] = [
         <article>
           <h2>Who it’s for</h2>
           <ul class="who-chips"><li>Product managers</li><li>Engineers</li><li>Analysts</li><li>No code needed</li></ul>
-          <p class="more">Product managers, engineers and analysts whose AI agent runs code or tools that can touch files and the network. No code needed. Play AI agents and Guardrails first if agents and prompt injection are new to you.</p>
+          <p class="more">Product managers, engineers and analysts whose AI agent runs code or tools that can touch files and the network. No code needed. Play AI agents and Guardrails first if agents and planted instructions (prompt injection) are new to you.</p>
         </article>
       </section>
 

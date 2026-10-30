@@ -52,7 +52,6 @@ const PENDING = new Set<string>([
   'rate-limits',
   'releases',
   'routes',
-  'sandboxing',
   'search',
   'unicode',
   'voice',

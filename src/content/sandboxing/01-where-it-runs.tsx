@@ -28,7 +28,7 @@ const current = (s: S) => (s.where === 'host' ? HOST : SAFE);
 
 const P1 = {
   question:
-    'The same task, with the same planted note, now runs inside a sandbox: a box the operating system holds the code in, with the files scoped, the network on an allow-list and the secret held by a proxy. Does the attack still get the token out?',
+    'The same task, with the same planted note, now runs inside a sandbox: a box the operating system holds the code in, with the files scoped, the network open only to approved hosts and the secret held by a proxy outside it. Does the attack still get the token out?',
   options: [
     'Yes: the attacker’s note is the same, so the agent does the same thing',
     'No: the sandbox refuses the moves from outside the model, however the note is worded',
@@ -67,7 +67,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['runHost'],
     opensDrawer: 'files',
     narration:
-      'A planted note tells Larkspur’s agent to send its API token outside. Here it runs on the host, with full access.',
+      'A planted note tells Larkspur’s agent to send its access token outside. Here it runs on the host, with full access.',
     act: 'Run it.',
     say: { block: 'host', text: 'Full access' },
     predicate: s => s.ranHost,
@@ -88,7 +88,8 @@ export const STEPS: Step<S>[] = [
     id: 'run-box',
     focus: 'runBox',
     visibleControls: ['p1', 'out1', 'runBox'],
-    narration: 'Now the same task runs in a sandbox: scoped files, an allow-listed network, the token held by a proxy.',
+    narration:
+      'Now the same task runs in a sandbox: scoped files, only approved hosts, the token kept outside by a proxy.',
     act: 'Run it in the sandbox.',
     say: { block: 'host', text: 'Walled in' },
     setup: s => ({ ...s, where: 'sandbox' }),

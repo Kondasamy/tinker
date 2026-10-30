@@ -47,15 +47,15 @@ export function sandboxMessages(r: Run): Shown[] {
               to: 'host',
               kind: 'error',
               stamp: 'INVALID',
-              text: `schema check: ${s.call.name}`,
-              detail: `Schema check failed: ${s.errors.join('. ')}`,
+              text: `input check: ${s.call.name}`,
+              detail: `Input check failed: ${s.errors.join('. ')}`,
             }
           : {
               from: 'host',
               to: 'host',
               kind: 'result',
-              text: `schema check: ${s.call.name} ok`,
-              detail: 'The arguments match the tool’s input schema.',
+              text: `input check: ${s.call.name} ok`,
+              detail: 'The arguments match the shape the tool expects.',
             };
       case 'approval':
         return {
@@ -72,7 +72,7 @@ export function sandboxMessages(r: Run): Shown[] {
           to: laneOf(s.call.name),
           kind: 'blocked',
           stamp: 'REFUSED',
-          text: `${s.by}: ${s.call.name} stopped`,
+          text: `${s.by === 'filesystem' ? 'files' : s.by}: ${s.call.name} stopped`,
           detail: s.text,
         };
       case 'call':
