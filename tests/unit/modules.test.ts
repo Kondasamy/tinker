@@ -44,6 +44,12 @@ const ROADMAP: [string, string, string?][] = [
   ['backups', 'Beginner', 'Classic tech'],
   ['unicode', 'Beginner', 'Classic tech'],
   ['routes', 'Intermediate', 'Classic tech'],
+  // docs/plans/2026-10-30-0831-feat-last-roadmap-seven-modules-plan.md takes the seven above live and adds these (KTD11)
+  ['translation', 'Beginner'],
+  ['open-weights', 'Intermediate'],
+  ['ai-energy', 'Advanced'],
+  ['clocks', 'Beginner', 'Classic tech'],
+  ['gps', 'Intermediate', 'Classic tech'],
 ];
 /** true when every id in `ids` is in `list`, in the list's order */
 const inOrder = (ids: string[], list: string[]) => {
@@ -76,10 +82,10 @@ describe('module registry', () => {
     }
   });
 
-  // the last seven cards stay planned through the six-AI-modules plan; the rest go live in turn, so a card gone from the list is live
-  it('keeps the seven cards that stay planned last and in order, and every roadmap card no longer planned is live', () => {
+  // the last five cards stay planned through the seven-roadmap-modules plan; the rest go live in turn, so a card gone from the list is live
+  it('keeps the five cards that stay planned last and in order, and every roadmap card no longer planned is live', () => {
     const planned = MODULES.filter(m => m.status === 'planned').map(m => m.id);
-    expect(planned.slice(-7)).toEqual(ROADMAP.slice(-7).map(([id]) => id));
+    expect(planned.slice(-5)).toEqual(ROADMAP.slice(-5).map(([id]) => id));
     for (const [id] of ROADMAP) if (!planned.includes(id)) expect(moduleOf(id).status, id).toBe('live');
   });
 

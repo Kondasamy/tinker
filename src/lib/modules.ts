@@ -207,6 +207,38 @@ export const MODULES: Module[] = [
     'How a map app picks your route: roads as a graph, the shortest path, and live traffic that changes it.',
     'Classic tech',
   ),
+  planned(
+    'translation',
+    'Machine translation',
+    'Beginner',
+    'How a model turns one language into another, and why names, idioms and tone slip through.',
+  ),
+  planned(
+    'open-weights',
+    'Open-weight models',
+    'Intermediate',
+    'A model you can download: what the weights are, what the licence lets you do, and running it yourself.',
+  ),
+  planned(
+    'ai-energy',
+    'The power behind AI',
+    'Advanced',
+    'Chips, data centres and the electricity behind each answer, and where the cost of a query goes.',
+  ),
+  planned(
+    'clocks',
+    'Time and clocks',
+    'Beginner',
+    'Why computers disagree on the time: time zones, clocks that drift, and the leap second.',
+    'Classic tech',
+  ),
+  planned(
+    'gps',
+    'How GPS finds you',
+    'Intermediate',
+    'Satellites that broadcast the time, and how a phone turns four of them into a dot on a map.',
+    'Classic tech',
+  ),
 ];
 
 export function moduleOf(id: string): Module {

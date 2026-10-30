@@ -468,6 +468,11 @@ const ROADMAP = [
   'backups',
   'unicode',
   'routes',
+  'translation',
+  'open-weights',
+  'ai-energy',
+  'clocks',
+  'gps',
 ];
 test('live cards numbered from 1, the roadmap cards in order', async ({ page }) => {
   await page.goto('/');
