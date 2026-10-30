@@ -17,10 +17,6 @@ const facts = import.meta.glob<{ facts: { id: string; claim: string }[] }>('../.
 });
 const live = MODULES.filter(m => m.chapters.length > 0);
 
-/** modules still being rewritten (KTD8): each must fail until its wave lands, then leave this list */
-const PENDING = new Set<string>([
-]);
-
 /** prose-scan hits that are not reader copy: file (from src/), word, reason */
 const ALLOW: [string, string, string][] = [];
 
@@ -94,14 +90,7 @@ function misses(moduleId: string) {
 }
 
 describe('plain words', () => {
-  for (const m of live)
-    it(m.id, () => {
-      const found = misses(m.id);
-      // FULL=1 shows a pending module's whole list, as a finished one would
-      if (PENDING.has(m.id) && !process.env.FULL)
-        expect(found, `${m.id} passes now: remove it from PENDING`).not.toEqual([]);
-      else expect(found).toEqual([]);
-    });
+  for (const m of live) it(m.id, () => expect(misses(m.id)).toEqual([]));
 
   it('matches whole words, plurals and possessives, never inside another word', () => {
     expect(wordRe('gantry').test('two gantries')).toBe(true);

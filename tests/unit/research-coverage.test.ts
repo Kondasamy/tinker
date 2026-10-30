@@ -15,10 +15,6 @@ const facts = import.meta.glob<{ facts: { id: string }[] }>('../../data/*/facts.
 });
 const live = MODULES.filter(m => m.chapters.length > 0);
 
-/** modules still being researched (KTD8): each must fail until its wave lands, then leave this list */
-const PENDING = new Set<string>([
-]);
-
 /** chapters whose `<Fact id={…}>` is fully dynamic: file (from src/content/), and where its ids come from */
 const DYNAMIC: Record<string, string> = {};
 
@@ -59,14 +55,7 @@ function gaps(moduleId: string) {
 }
 
 describe('research coverage', () => {
-  for (const m of live)
-    it(m.id, () => {
-      const found = gaps(m.id);
-      // FULL=1 shows a pending module's whole list, as a finished one would
-      if (PENDING.has(m.id) && !process.env.FULL)
-        expect(found, `${m.id} passes now: remove it from PENDING`).not.toEqual([]);
-      else expect(found).toEqual([]);
-    });
+  for (const m of live) it(m.id, () => expect(gaps(m.id)).toEqual([]));
 
   it('reads literal, ternary and dynamic fact ids', () => {
     expect(shownIds(`<Fact id="rt1-loop" />`)).toEqual({ ids: ['rt1-loop'], dynamic: false });
