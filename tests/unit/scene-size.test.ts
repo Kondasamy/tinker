@@ -59,6 +59,7 @@ import { TOWER_BOARD, towerOf, towerScene } from '../../src/components/scenes/to
 import { TOWN_BOARD, townAt, townScene } from '../../src/components/scenes/townScene';
 import { TRACE_BOARD, traceScene } from '../../src/components/scenes/traceScene';
 import { TRAIN_BOARD, trainScene } from '../../src/components/scenes/trainScene';
+import { TAPE_BOARD, tapeScene } from '../../src/components/scenes/tapeScene';
 import { TUBE_BOARD, tubeAt, tubeScene } from '../../src/components/scenes/tubeScene';
 import { FRAME_BOARD, typeFrameScene } from '../../src/components/scenes/typeFrameScene';
 import { UV_BOARD, uvScene } from '../../src/components/scenes/uvScene';
@@ -67,6 +68,7 @@ import { YARD_BOARD, yardAt, yardScene } from '../../src/components/scenes/yardS
 import { play as playCoding } from '../../src/content/coding-agents/kit';
 import { frameAt, play as playComputer } from '../../src/content/computer-use/kit';
 import { finish, forestOf, forestTable } from '../../src/content/compression/kit';
+import { tapeOf } from '../../src/content/unicode/kit';
 import { frameOf } from '../../src/content/diffusion-llms/kit';
 import { postOf } from '../../src/content/email/kit';
 import { packingOf } from '../../src/content/git/kit';
@@ -526,6 +528,16 @@ const SCENES: Record<string, () => string> = {
         say: { block: 'docket', text: 'Your prompt' },
       }),
     ),
+  // a full tape over the cap, read with the wrong table, a callout on (a new scene: its baseline is its first size)
+  tape: () =>
+    stage(
+      TAPE_BOARD,
+      tapeScene({
+        ...tapeOf('Ελένη Παπαδοπούλου', 'windows-1252'),
+        fresh: 0,
+        say: { block: 'reader', text: 'Its table' },
+      }),
+    ),
   // the pinned watermarked reply, every tile lit, one picked (a new scene: its baseline is its first size)
   uv: () =>
     stage(
@@ -619,6 +631,8 @@ const BASE: Record<string, number> = {
   tube: 85271,
   frame: 74221,
   // new with the watermarks module (no pre-rework size): its first size is 62,335, with a little headroom
+  // new with the unicode module (no pre-rework size): its first size is 74,785, with a little headroom
+  tape: 26000,
   uv: 25000,
   window: 26749,
   yard: 40499,
