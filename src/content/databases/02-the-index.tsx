@@ -41,7 +41,8 @@ export const QUIZ = {
     'It reads the same pages: an index never slows down',
   ],
   correct: 0,
-  explanation: 'Each extra level multiplies the keys reached by the fan-out, so depth grows very slowly.',
+  explanation:
+    'Each page points to many pages below, so each extra level multiplies the keys reached and depth grows slowly.',
   why: [
     'Right: each level fans out to many pages, so a thousand times the rows adds only a level or two.',
     'That is the full scan’s growth; the tree walks one page per level, and levels grow slowly.',

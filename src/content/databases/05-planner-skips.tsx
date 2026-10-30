@@ -214,6 +214,11 @@ export default function PlannerSkips() {
         out2: () => (
           <>
             <Fact id="fetch-cost" />
+            <Fact id="random-page" />
+            <p className="note db-note">
+              This toy counts every page read the same. A real planner charges fetches out of order more, so a scan wins
+              even sooner.
+            </p>
             <SimNote />
           </>
         ),

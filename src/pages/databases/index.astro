@@ -44,7 +44,7 @@ const WRITE = pic({
   others: 2,
 });
 const IDEAS: [string, string, ReturnType<typeof fact>, ArchiveOpts][] = [
-  ['Find one order', 'With no index, every drawer opens', fact('fetch-cost'), pic(archiveAt(SCAN, ONE))],
+  ['Find one order', 'With no index, every drawer opens', fact('scan-grows'), pic(archiveAt(SCAN, ONE))],
   ['The index', 'A B-tree walks one page per level', fact('depth'), pic(LOOK_AT)],
   ['Every write pays', 'Each new order is filed in every index', fact('insert'), WRITE],
   [

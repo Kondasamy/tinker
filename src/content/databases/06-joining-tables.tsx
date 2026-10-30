@@ -41,7 +41,8 @@ export const QUIZ = {
     'More invoices per run, so the join runs less often',
   ],
   correct: 0,
-  explanation: 'In a nested loop the inner lookup runs once per outer row, so that lookup is the one to index.',
+  explanation:
+    'In a nested loop the lookup into the second table runs once per row of the first, so that lookup is the one to index.',
   why: [
     'Right: each of the 5,000 invoices looks up its product, and an index turns each scan into a short walk.',
     'The date picks which invoices run, but each one still scans the whole products table for its product.',
