@@ -1,6 +1,6 @@
 // Plain words (R8): jargon and toy shorthand a reader with no background trips on, each with a plain swap. A flagged
 // word may stay only where the module defines it as a chapter term first (tests/unit/plain-words.test.ts). Words with
-// an everyday meaning the copy uses (policy, cache, index, batch, trace) stay off the list.
+// an everyday meaning the copy uses (policy, cache, index, batch, trace, checkpoint, benchmark) stay off the list.
 
 /** flagged word (lower case; plurals match too) → plain swap */
 export const FLAGGED: Record<string, string> = {
@@ -10,9 +10,7 @@ export const FLAGGED: Record<string, string> = {
   api: 'the way programs ask a service for something',
   attn: 'attention',
   backoff: 'waiting longer between tries',
-  benchmark: 'standard test',
   'breadth-first': 'nearest stops first',
-  checkpoint: 'saved copy of the model',
   ciphertext: 'scrambled text',
   'classifier-free': 'guided',
   dagger: 'learning from corrections',

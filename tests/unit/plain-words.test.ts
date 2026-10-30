@@ -14,7 +14,6 @@ const live = MODULES.filter(m => m.chapters.length > 0);
 
 /** modules still being rewritten (KTD8): each must fail until its wave lands, then leave this list */
 const PENDING = new Set<string>([
-  'agent-commerce',
   'agents',
   'caching',
   'calibration',
@@ -36,7 +35,6 @@ const PENDING = new Set<string>([
   'on-device',
   'parallel-training',
   'post-training',
-  'pre-training',
   'prompts',
   'queues',
   'rag',

@@ -33,9 +33,12 @@ describe('pnpm new-module', () => {
     const paths = files.map(([p]: [string]) => p).sort();
     expect(paths).toEqual([
       'data/zz-scaffold-check/facts.json',
+      'docs/modules/zz-scaffold-check.md',
       'src/content/zz-scaffold-check/01-first-step.tsx',
+      'src/content/zz-scaffold-check/kit.tsx',
       'src/content/zz-scaffold-check/module.ts',
       'src/content/zz-scaffold-check/recall.ts',
+      'src/lib/zz-scaffold-check/facts.ts',
       'src/pages/zz-scaffold-check/[chapter].astro',
       'src/pages/zz-scaffold-check/index.astro',
       'src/pages/zz-scaffold-check/recap.astro',

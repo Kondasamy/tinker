@@ -5,6 +5,8 @@
 // Copy budgets (tests/unit/copy-budget.test.ts): a step's narration and act together are at most 25 words, each quiz `why` one sentence,
 // and every chapter term appears in the narration so it is defined where it is used. Let the picture show what happened;
 // a step's `say` pins a short callout (at most 5 words) on the stage when the stage draws one.
+// Every chapter shows a cited fact (`<Fact id=…>`), best on the reveal after a prediction; jargon from
+// src/components/story/plain-words.ts is swapped, or defined as a chapter term first.
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
@@ -13,11 +15,11 @@ import FlatStage from '../../components/scenes/FlatStage';
 import type { Lane, Msg } from '../../lib/iso/flat';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import DATA from '../../../data/__ID__/facts.json' with { type: 'json' };
+import { fact } from '../../lib/__ID__/facts';
+import { Fact } from './kit';
 
 const MODULE = '__ID__',
   ID = '01-first-step';
-const fact = (id: string) => DATA.facts.find(f => f.id === id)!;
 
 export const LANES: Lane[] = [
   { id: 'you', name: 'You' },
@@ -77,7 +79,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'reveal',
     focus: 'reveal',
-    visibleControls: ['predict', 'reveal'],
+    visibleControls: ['predict', 'reveal', 'fact'],
     narration: 'Locked in.',
     act: 'See what comes back.',
     predicate: s => s.revealed,
@@ -86,7 +88,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['quiz'],
-    narration: fact('reply').claim,
+    narration: 'Say what the reply means, in plain words.',
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'A hint that points at the idea, not the answer.',
@@ -120,6 +122,7 @@ export default function FirstStep() {
             label="Show the reply"
           />
         ),
+        fact: ({ state }) => (state.revealed ? <Fact id="reply" /> : null),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}
