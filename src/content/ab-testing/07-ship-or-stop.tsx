@@ -24,13 +24,15 @@ import {
 import { SPLIT_PARTS, splitAt } from '../../components/scenes/splitScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { AbStage, SimNote, count, pts, span, type View } from './kit';
+import { AbStage, Fact, SimNote, count, pts, span, type View } from './kit';
 
 const MODULE = 'ab-testing',
   ID = '07-ship-or-stop';
 export const PARTS = SPLIT_PARTS;
 /** The experiment the rule ships though it truly changed nothing, if any. */
 export const LUCKY = BENCH.find(e => decide(e) === 'ship' && truthOf(e).lift === 0);
+/** The experiments that truly raise buying without raising returns: a mix set by hand, kinder than real teams find. */
+export const HELPED = BENCH.filter(e => truthOf(e).lift > 0 && truthOf(e).returns <= 0).length;
 
 export const QUIZ = {
   question:
@@ -72,7 +74,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'truth',
     focus: 'quiz',
-    visibleControls: ['score', 'truth', 'quiz'],
+    visibleControls: ['score', 'truth', 'fact', 'quiz'],
     narration: `${WINNERS.length === 1 ? 'Yours follows the rule.' : `Yours is one of ${WINNERS.length} that work.`} ${
       LUCKY
         ? `Now the hidden truth: ${LUCKY.name} truly changed nothing, yet the rule ships it.`
@@ -164,7 +166,7 @@ function Truth() {
       <thead>
         <tr>
           <th scope="col">Experiment</th>
-          <th scope="col">True lift</th>
+          <th scope="col">True rise in buying</th>
           <th scope="col">True returns change</th>
           <th scope="col">The rule</th>
         </tr>
@@ -218,6 +220,13 @@ export default function ShipOrStop() {
         // changing a decision is an attempt only while it is the puzzle
         bench: ({ state, apply, sync, focused }) => <Bench s={state} set={focused ? apply : sync} show={sync} />,
         truth: () => <Truth />,
+        fact: () => (
+          <>
+            <p className="tc-status">{`Here ${HELPED} of ${BENCH.length} ideas truly help, a mix set by hand. Real teams find fewer:`}</p>
+            <Fact id="one-third" />
+            <Fact id="replicate" />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

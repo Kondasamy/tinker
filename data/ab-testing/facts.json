@@ -14,6 +14,7 @@
     {
       "id": "confidence-level",
       "claim": "Kohavi et al. (2009): a confidence level, commonly 95%, means that 5% of the time a test concludes there is a difference when there is none.",
+      "value": "0.05",
       "source": "https://exp-platform.com/Documents/controlledExperimentDMKD.pdf"
     },
     {
@@ -24,17 +25,20 @@
     {
       "id": "sample-size",
       "claim": "Kohavi et al. (2009) give a rule of thumb, 16σ²/Δ² users per variant for 95% confidence and 80% power: for 5% conversion and a 5% change in it, under 122,000 users.",
+      "value": "16",
       "source": "https://exp-platform.com/Documents/controlledExperimentDMKD.pdf"
     },
     {
       "id": "peeking",
-      "claim": "Johari et al. (KDD 2017): users of A/B testing software watch results continuously while a test runs, and then the usual p-values and confidence intervals give unreliable inference.",
-      "source": "https://www.kdd.org/kdd2017/papers/view/peeking-at-ab-tests-why-it-matters-and-what-to-do-about-it"
+      "claim": "Johari et al. (KDD 2017): users of A/B testing software watch results continuously while a test runs, and then the usual significance checks and intervals can no longer be trusted.",
+      "source": "https://www.kdd.org/kdd2017/papers/view/peeking-at-ab-tests-why-it-matters-and-what-to-do-about-it",
+      "accessed": "2026-10-30"
     },
     {
       "id": "always-valid",
-      "claim": "Johari, Pekelis and Walsh’s “Always Valid Inference” brings sequential analysis to A/B testing, so a test can be monitored continuously and still be read correctly.",
-      "source": "https://arxiv.org/abs/1512.04922"
+      "claim": "Johari, Pekelis and Walsh (arXiv, 2015) give significance checks and intervals that stay valid whenever a test is read, so it can be watched continuously and still be trusted.",
+      "source": "https://arxiv.org/abs/1512.04922",
+      "accessed": "2026-10-30"
     },
     {
       "id": "multiple",
@@ -55,6 +59,18 @@
       "id": "guardrails",
       "claim": "Kohavi and Longbotham’s checklist for reading an experiment asks whether guardrail metrics warn about unusual differences between the variants.",
       "source": "https://exp-platform.com/Documents/2023-03-11EncyclopeiaMLDSABTestingFinal.pdf"
+    },
+    {
+      "id": "one-third",
+      "claim": "Kohavi et al. (KDD 2013): only one third of the ideas tested at Microsoft improved the measure they were designed to improve, and success was even harder to find on Bing.",
+      "source": "https://exp-platform.com/Documents/2013%20controlledExperimentsAtScale.pdf",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "replicate",
+      "claim": "Kohavi et al. (KDD 2013): most amazing results from tiny changes turn out to be false when reviewed carefully, so they need to be run again with high power before anyone believes them.",
+      "source": "https://exp-platform.com/Documents/2013%20controlledExperimentsAtScale.pdf",
+      "accessed": "2026-10-30"
     }
   ]
 }

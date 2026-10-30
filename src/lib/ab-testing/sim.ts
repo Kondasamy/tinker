@@ -6,9 +6,12 @@
 import data from '../../../data/ab-testing/assumptions.json' with { type: 'json' };
 import experiments from '../../../data/ab-testing/experiments.json' with { type: 'json' };
 import { mulberry32 } from '../transformers/sample';
+import { fact } from './facts';
 import { bonferroni, compare, sampleSize, type Comparison } from './stats';
 
-export const ASSUMPTIONS = data;
+/** Larkspur's planning numbers, with the significance level read from Kohavi et al.'s common 95% (fact
+ * `confidence-level`), so the copy and the tests can't drift from it. */
+export const ASSUMPTIONS = { ...data, level: Number(fact('confidence-level').value) };
 
 export interface Arm {
   name: string;
@@ -127,7 +130,7 @@ export function peekResult(r: Run, level: number): { t: number; result: Comparis
  * end, each comparison held to the level divided by their number (Bonferroni). */
 export type Mode = 'fixed' | 'peek' | 'corrected';
 /** Whether a run declares any winner (in either direction) under the mode. */
-export function declares(r: Run, arms: number, mode: Mode, level = data.level): boolean {
+export function declares(r: Run, arms: number, mode: Mode, level = ASSUMPTIONS.level): boolean {
   if (mode === 'peek') return peekResult(r, level) !== null;
   const each = mode === 'corrected' ? bonferroni(level, arms - 1) : level;
   for (let a = 1; a < arms; a++) if (resultAt(r, r.length - 1, each, a).significant) return true;
@@ -144,7 +147,7 @@ export const falseWinRate = (p: Plan, mode: Mode) =>
   over(`f|${mode}|${JSON.stringify({ ...p, seed: 0 })}`, seed => declares(runOf({ ...p, seed }), p.arms.length, mode));
 /** The share of runs over the seed list whose planned end finds B significantly better: the test's power. */
 const finds = (p: Plan, seed: number) => {
-  const res = resultAt(runOf({ ...p, seed }), p.days - 1, data.level);
+  const res = resultAt(runOf({ ...p, seed }), p.days - 1, ASSUMPTIONS.level);
   return res.significant && res.diff > 0;
 };
 export const powerOf = (p: Plan) => over(`p|${JSON.stringify({ ...p, seed: 0 })}`, seed => finds(p, seed));
