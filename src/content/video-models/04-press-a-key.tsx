@@ -12,7 +12,7 @@ import { DREAM_PARTS } from '../../components/scenes/dreamFloorScene';
 import { type Drive, driven, NO_DRIVE } from '../../lib/video-models/drive';
 import { confidence } from '../../lib/video-models/rollout';
 import { Outcome } from '../tool-calling/kit';
-import { DreamStage, DrivePad, ModelStatus, PIN, ROUTE, useNets } from './kit';
+import { DreamStage, DrivePad, Fact, ModelStatus, PIN, ROUTE, useNets } from './kit';
 
 const MODULE = 'video-models',
   ID = '04-press-a-key';
@@ -81,7 +81,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['quiz'],
+    visibleControls: ['fact', 'quiz'],
     narration: 'The real floor stays the referee: only it knows what really happened.',
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -134,6 +134,7 @@ export default function PressAKey() {
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={0} />,
+        fact: () => <Fact id="world-models" />,
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}
