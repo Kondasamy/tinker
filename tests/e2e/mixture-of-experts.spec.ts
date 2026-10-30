@@ -3,13 +3,13 @@
 // playing offline once loaded, the workbench's Show me, "I'm not sure", reduced motion, the recap, axe and phone width
 // (targets of 44 px). The go-live adds the module's number, share images and home's card.
 import { test, expect, type Page } from '@playwright/test';
-import { MODULES, moduleOf } from '../../src/lib/modules';
+import { moduleOf, moduleNumber } from '../../src/lib/modules';
 import PINNED from '../../data/mixture-of-experts/pinned.json' with { type: 'json' };
 import { moeWalker } from './mixture-of-experts-flow';
 import { serious, layoutHolds, offline, PHONE } from './helpers';
 
 const M = moduleOf('mixture-of-experts');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'mixture-of-experts') + 1;
+const NUMBER = moduleNumber(moduleOf('mixture-of-experts'));
 const CHS = M.chapters.map(c => c.id),
   [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = CHS;
 const at = (id: string) => new RegExp(`/mixture-of-experts/${id}/$`);

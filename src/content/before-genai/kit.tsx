@@ -90,7 +90,7 @@ export function GoDeeper({ to }: { to: readonly Deeper[] }) {
 }
 
 /** The flat view: the three bots' lanes side by side (stacked under 600px), pills only. */
-function BotsFlat({ run }: { run: Run }) {
+export function BotsFlat({ run }: { run: Run }) {
   const prefix = `bg${useId().replace(/[^\w-]/g, '')}-`,
     label = kioskFlatLabel(run);
   const svg = (s: { svg: string; w: number; h: number }, cls: string, id: string) => (

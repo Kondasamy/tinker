@@ -4,12 +4,12 @@
 // checks: the module's number on its intro and recap, its share images and home's card.
 import { test, expect, type Page } from '@playwright/test';
 import pinned from '../../data/compression/pinned.json' with { type: 'json' };
-import { MODULES } from '../../src/lib/modules';
+import { moduleNumber, moduleOf } from '../../src/lib/modules';
 import { COMPRESSION_MODULE as M } from '../../src/content/compression/module';
 import { compressionWalker } from './compression-flow';
 import { serious, layoutHolds, PHONE } from './helpers';
 
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'compression') + 1;
+const NUMBER = moduleNumber(moduleOf('compression'));
 const IDS = M.chapters.map(c => c.id);
 const [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = IDS;
 const at = (id: string) => new RegExp(`/compression/${id}/$`);

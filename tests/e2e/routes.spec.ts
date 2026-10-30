@@ -2,7 +2,7 @@
 // and the map sharing one selection, a closed road's barrier in both views, no route with Reopen all, Step / Play with
 // reduced motion, the recap, axe and phone width. The go-live adds the module's number, share images and home's card.
 import { test, expect, type Locator, type Page } from '@playwright/test';
-import { MODULES, moduleOf } from '../../src/lib/modules';
+import { moduleOf, moduleNumber } from '../../src/lib/modules';
 import { BRIDGES, ROADS, roadName } from '../../src/lib/routes/graph';
 import { FASTEST, ROUTE_BRIDGE, OTHER_BRIDGE } from '../../src/lib/routes/story';
 import { JAM_MINUTES, flipAt, jamOf } from '../../src/lib/routes/traffic';
@@ -11,7 +11,7 @@ import { WEIGHTS, WINNERS } from '../../src/lib/routes/workbench';
 import { choose, chooseByKeys, serious, layoutHolds, PHONE } from './helpers';
 
 const M = moduleOf('routes');
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'routes') + 1;
+const NUMBER = moduleNumber(moduleOf('routes'));
 const IDS = M.chapters.map(c => c.id);
 const [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = IDS;
 const at = (id: string) => new RegExp(`/routes/${id}/$`);

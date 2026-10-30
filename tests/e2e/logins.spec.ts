@@ -5,12 +5,12 @@
 import { test, expect, type Page } from '@playwright/test';
 import pinned from '../../data/logins/pinned.json' with { type: 'json' };
 import { LOGINS_MODULE as M } from '../../src/content/logins/module';
-import { MODULES } from '../../src/lib/modules';
+import { moduleNumber, moduleOf } from '../../src/lib/modules';
 import { START } from '../../src/lib/logins/workbench';
 import { BENCH_LABELS, loginsWalker } from './logins-flow';
 import { serious, layoutHolds, PHONE, choose } from './helpers';
 
-const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'logins') + 1;
+const NUMBER = moduleNumber(moduleOf('logins'));
 const IDS = M.chapters.map(c => c.id);
 const [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = IDS;
 const at = (id: string) => new RegExp(`/logins/${id}/$`);

@@ -3,13 +3,13 @@
 // sure", reduced motion, the recap, axe and phone width; the go-live checks: module kickers and share images, home's
 // card.
 import { test, expect, type Page } from '@playwright/test';
-import { MODULES, moduleOf } from '../../src/lib/modules';
+import { moduleOf, moduleNumber } from '../../src/lib/modules';
 import { customerOf } from '../../src/lib/web-requests/sim';
 import { webWalker } from './web-requests-flow';
 import { serious, layoutHolds, PHONE } from './helpers';
 
 const M = moduleOf('web-requests');
-const N = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === M.id) + 1;
+const N = moduleNumber(M);
 const IDS = M.chapters.map(c => c.id);
 const [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = IDS;
 const at = (id: string) => new RegExp(`/web-requests/${id}/$`);

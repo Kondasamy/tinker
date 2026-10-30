@@ -8,7 +8,7 @@ import { dlWalker } from './diffusion-llms-flow';
 import { serious, layoutHolds, offline, PHONE } from './helpers';
 
 const M = moduleOf('diffusion-llms');
-const NUM = MODULES.filter(m => m.status === 'live').indexOf(M) + 1;
+const NUM = MODULES.filter(m => m.status === 'live').indexOf(M);
 const CHS = M.chapters.map(c => c.id),
   [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = CHS;
 const at = (id: string) => new RegExp(`/diffusion-llms/${id}/$`);

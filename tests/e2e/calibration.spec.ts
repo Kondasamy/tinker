@@ -8,7 +8,7 @@ import { cbWalker } from './calibration-flow';
 import { serious, layoutHolds, offline, PHONE } from './helpers';
 
 const M = moduleOf('calibration');
-const N = MODULES.filter(m => m.status === 'live').indexOf(M) + 1;
+const N = MODULES.filter(m => m.status === 'live').indexOf(M);
 const CHS = M.chapters.map(c => c.id),
   [CH1, CH2, CH3, CH4, CH5, CH6, CH7] = CHS;
 const at = (id: string) => new RegExp(`/calibration/${id}/$`);

@@ -178,6 +178,8 @@ import {
 } from '../lib/on-device/memory';
 import { levelAfter as odLevel } from '../lib/on-device/battery';
 import { CLAW_BOARD, clawLabel, clawScene } from '../components/scenes/clawScene';
+import { KIOSK_BOARD, kioskLabel, kioskScene } from '../components/scenes/kioskScene';
+import { messageOf as kioskMessage, run as kioskRun } from '../lib/before-genai/bots';
 import { DEMOS as RB_DEMOS } from '../lib/robots/story';
 import { play as rbPlay, TRAIN as RB_BINS } from '../lib/robots/world';
 import { FORM } from '../lib/site';
@@ -438,6 +440,8 @@ const DOCKET = {
   ).opts,
   scale: 1.7,
 };
+// before-genai: the help counter on the message the script misses and the sorter catches, as the intro draws it
+const KIOSK = { run: kioskRun(kioskMessage('parcel')), scale: 1.7 };
 // labelling: three labellers' picks for one ticket, three holes, as the intro draws it
 const LABEL_THREE = labelTicket(LABEL_PINNED.threeWay);
 const RACK = { ticket: LABEL_THREE, picks: labelPicks(LABEL_THREE.id, false), scale: 1.7 };
@@ -490,6 +494,11 @@ const PHONE_CRATE: PhoneCrateOpts = {
 const RB_RUN = rbPlay(RB_BINS[0], RB_DEMOS[0]);
 const CLAW = { layout: RB_BINS[0], state: RB_RUN.at(-1)!, trail: RB_RUN.map(s => s.claw), scale: 1.7 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
+  'before-genai': {
+    name: 'Before GenAI',
+    iso: { board: KIOSK_BOARD, scene: kioskScene(KIOSK), label: kioskLabel(KIOSK) },
+    topics: ['Chatbots', 'Keyword rules', 'Intents', 'Spam filters', 'Language models', 'ChatGPT', 'Generative AI'],
+  },
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
     iso: { board: MINI_BOARD, scene: miniPipeline, label: MINI_LABEL },

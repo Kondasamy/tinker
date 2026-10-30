@@ -18,15 +18,18 @@ import { apiKey, chat, listModels, pickModel } from '../lib/nvidia.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const OUT = path.join(ROOT, 'data/before-genai/replies.json');
 const CACHE = path.join(ROOT, '.cache/before-genai-record');
-const WANTED = 'meta/llama-3.3-70b-instruct';
-const SETTINGS = { temperature: 0, seed: 7, maxTokens: 1024 };
+// the first one this key lists, in order: the chat models the repo already records with (scripts/record/prompts.mjs)
+const WANTED = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b', 'nvidia/nemotron-3-ultra-550b-a55b'];
+// reasoning models think before they answer, so the limit leaves room for that
+const SETTINGS = { temperature: 0, seed: 7, maxTokens: 8192 };
 const THROTTLE_MS = 2500;
 // No orders, no tools, no policies: whatever the model gets wrong, it gets wrong on its own (chapter 8's gaps).
 const SYSTEM =
   'You are the customer help assistant on the website of Larkspur Supply Co., a hardware store. Reply to the customer in a few sentences. You cannot look up orders or accounts and cannot take any action.';
 
 const key = apiKey('record/before-genai');
-const model = pickModel(await listModels(key), WANTED);
+const listed = await listModels(key);
+const model = WANTED.find(id => listed.includes(id)) ?? pickModel(listed, WANTED[0]);
 // one probe call: listed is not always callable
 if (!(await chat(key, { model, messages: [{ role: 'user', content: 'Reply with the word ready.' }] })))
   throw new Error(`probe failed for ${model}`);
