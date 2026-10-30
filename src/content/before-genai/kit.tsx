@@ -23,6 +23,10 @@ import {
 import type { Say } from '../../components/story/steps';
 import type { Run } from '../../lib/before-genai/bots';
 import { fact } from '../../lib/before-genai/facts';
+import { chapterHref, moduleOf } from '../../lib/modules';
+import { useModel } from '../transformers/kit';
+import type { Model } from '../../lib/lm/model';
+import META from '../../../public/data/lm/meta.json' with { type: 'json' };
 import { useNarrow } from '../tool-calling/kit';
 import '../tool-calling/tools.css';
 import '../../components/scenes/flat.css';
@@ -40,6 +44,50 @@ export function Fact({ id }: { id: string }) {
 
 /** Said beside any toy or hand-set number, so the reader can tell it from the real figure next to it. */
 export const ToyNote = () => <p className="note">A toy system with hand-set numbers, not a real one.</p>;
+
+/** Said wherever Larkspur mini's size shows: its own count, labelled a toy, beside GPT-3's real one (KTD5). */
+export const MINI_NOTE = `Larkspur mini is a toy: ${META.model.params.toLocaleString('en-US')} learned numbers, trained ahead of time on Larkspur’s documents. GPT-3 has ${fact('few-shot').value} billion.`;
+export const MiniNote = () => <p className="note">{MINI_NOTE}</p>;
+
+/** `children(model)` once Larkspur mini has loaded (a function, so nothing reads the model before then); while it
+ * loads, a status; if the load failed, Retry. */
+export function MiniGate({ children }: { children: (model: Model) => ReactNode }) {
+  const { model, failed, retry } = useModel();
+  if (model) return children(model);
+  return failed ? (
+    <div className="tc-status" role="alert">
+      <p>Couldn’t load Larkspur mini.</p>
+      <button type="button" className="chip" onClick={retry}>
+        Retry
+      </button>
+    </div>
+  ) : (
+    <p className="tc-status" role="status">
+      Loading Larkspur mini…
+    </p>
+  );
+}
+
+/** A chapter that goes deeper, as [module id, chapter index]: read from the registry, so a test can hold it live. */
+export type Deeper = readonly [string, number];
+/** The last reveal's hand-off to the chapter that explains how (R15). */
+export function GoDeeper({ to }: { to: readonly Deeper[] }) {
+  return (
+    <p className="note">
+      {'Go deeper: '}
+      {to.map(([m, i], k) => {
+        const mod = moduleOf(m),
+          ch = mod.chapters[i];
+        return (
+          <span key={m}>
+            {k > 0 && ' · '}
+            <a href={chapterHref(m, ch.id)}>{`${mod.title}, chapter ${i + 1}: ${ch.title}`}</a>
+          </span>
+        );
+      })}
+    </p>
+  );
+}
 
 /** The flat view: the three bots' lanes side by side (stacked under 600px), pills only. */
 function BotsFlat({ run }: { run: Run }) {

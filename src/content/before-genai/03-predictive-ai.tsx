@@ -122,7 +122,7 @@ export default function PredictiveAi() {
       stage={({ state, say }) => (
         <BeforeGenaiStage
           run={IDLE}
-          predict={{ spam: state.spam ? SPAM : 0 }}
+          predict={{ spam: state.spam ? SPAM : undefined }}
           say={say}
           caption={
             state.shelf

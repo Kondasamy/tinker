@@ -1,7 +1,7 @@
 {
   "note": "Larkspur Supply Co.'s fixed customer messages (R16): readers pick from these, never type their own. Hand-written stand-ins; each lists the chapters that show it.",
   "messages": [
-    { "id": "where-order", "text": "Where is my order?", "chapters": ["scripted", "intents"] },
+    { "id": "where-order", "text": "Where is my order?", "chapters": ["scripted", "intents", "chat"] },
     { "id": "parcel", "text": "My parcel hasn't turned up.", "chapters": ["scripted", "intents"] },
     { "id": "refund-drill", "text": "I want a refund for my drill.", "chapters": ["scripted", "intents"] },
     { "id": "pick-up", "text": "Can I pick up my order from the shop?", "chapters": ["scripted"] },

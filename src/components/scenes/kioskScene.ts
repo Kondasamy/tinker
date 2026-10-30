@@ -285,8 +285,9 @@ export function kioskFlatLabel(r: Run): string {
 export const PREDICT_BOARD: Board = [0, 0, 150, 80];
 export const PREDICT_PARTS = ['spam', 'junk', 'shelf'] as const;
 export interface PredictOpts {
-  /** the spam filter's score, 0 to 1; the letter lands in junk at 0.5 or more */
-  spam: number;
+  /** the spam filter's score, 0 to 1; the letter lands in junk at 0.5 or more. Undefined: not filtered yet, the dial
+   * blank and both trays empty, so the picture never hints the answer before the reveal. */
+  spam?: number;
   say?: Say;
   scale?: number;
 }
@@ -296,14 +297,16 @@ const DIAL = [182, 38, BH],
   JUNK = [136, 86, BH];
 export const predictScene = (o: PredictOpts) => (ctx: SceneCtx) => {
   const scale = o.scale ?? 1,
-    junk = o.spam >= 0.5,
+    sorted = o.spam !== undefined,
+    junk = sorted && o.spam! >= 0.5,
     dialAt = [24, 22, BH],
     inboxAt = [18, 50, BH],
     junkAt = [44, 50, BH],
     shelfAt = [112, 40, BH];
   const pieces = [
-    mini(gauge(o.spam), DIAL, dialAt, 1.4),
-    mini(tray('inbox', !junk), INBOX, inboxAt, 1),
+    // unsorted: the needle upright, leaning to neither side
+    mini(gauge(o.spam ?? 0.5), DIAL, dialAt, 1.4),
+    mini(tray('inbox', sorted && !junk), INBOX, inboxAt, 1),
     mini(tray('junk', junk), JUNK, junkAt, 1),
     mini(shelfPiece(0, 0), [0, -9, BH], shelfAt, 1.3),
   ];
@@ -313,19 +316,19 @@ export const predictScene = (o: PredictOpts) => (ctx: SceneCtx) => {
     junkTop = [junkAt[0], junkAt[1], BH + 6];
   const pills = [
     pill(dialTop, 0, -14, 'SPAM FILTER', false, scale, junk ? OVER : undefined),
-    pill([inboxAt[0], inboxAt[1], BH + 6], 0, 16, 'INBOX', !junk, scale),
+    pill([inboxAt[0], inboxAt[1], BH + 6], 0, 16, 'INBOX', sorted && !junk, scale),
     pill(junkTop, 0, 16, 'JUNK', junk, scale),
     pill(shelfTop, 0, -16, 'SHELF', false, scale),
     sayAt(o.say, 'spam', dialTop, -14, scale),
     sayAt(o.say, 'junk', junkTop, -6, scale),
     sayAt(o.say, 'shelf', shelfTop, -16, scale),
   ];
-  return `<g class="bg-predict" data-junk="${junk ? 1 : 0}">${s}</g>${calloutsLast(pills)}`;
+  return `<g class="bg-predict" data-junk="${sorted ? (junk ? 1 : 0) : ''}">${s}</g>${calloutsLast(pills)}`;
 };
 
 /** The predictive picture in words. */
 export const predictLabel = (o: PredictOpts) =>
-  `A spam filter’s dial ${o.spam >= 0.5 ? 'past halfway: the letter lies in the junk tray' : 'under halfway: the letter lies in the inbox'}; beside it a shop shelf of recommended products.`;
+  `A spam filter’s dial ${o.spam === undefined ? 'still blank: the letter is not sorted yet' : o.spam >= 0.5 ? 'past halfway: the letter lies in the junk tray' : 'under halfway: the letter lies in the inbox'}; beside it a shop shelf of recommended products.`;
 
 /** The home hero's plot: the kiosk, set down small. */
 export function kioskPlot(x: number, y: number, top: SceneCtx['top']): string {

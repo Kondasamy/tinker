@@ -49,6 +49,13 @@
       "accessed": "2026-10-30"
     },
     {
+      "id": "gpt3-date",
+      "claim": "Brown and colleagues posted the GPT-3 paper, “Language Models are Few-Shot Learners”, on May 28, 2020.",
+      "value": "2020",
+      "source": "https://arxiv.org/abs/2005.14165",
+      "accessed": "2026-10-30"
+    },
+    {
       "id": "instructgpt",
       "claim": "InstructGPT (Ouyang and colleagues, 2022) was made in three stages: fine-tuning GPT-3 on answers people wrote, collecting people’s rankings of the model’s outputs, then reinforcement learning from that human feedback.",
       "source": "https://arxiv.org/abs/2203.02155",

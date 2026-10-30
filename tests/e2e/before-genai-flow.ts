@@ -5,6 +5,7 @@ import { expect, type Locator, type Page } from '@playwright/test';
 import { CANDIDATES, messageOf, run, WINNERS } from '../../src/lib/before-genai/bots';
 import { shelfOf } from '../../src/lib/recommendations/score';
 import { productOf, TRAIN } from '../../src/lib/recommendations/story';
+import { chapterHref, moduleOf } from '../../src/lib/modules';
 import { choose, chooseByKeys } from './helpers';
 
 export type Mode = 'mouse' | 'keyboard';
@@ -30,6 +31,11 @@ export function bgWalker(page: Page, mode: Mode, check: (page: Page) => Promise<
     await page.locator('astro-island:not([ssr])').first().waitFor();
     await expect(card).toContainText('Step 1 of');
     await check(page);
+  }
+  /** the last reveal's go-deeper link, read from the registry */
+  async function deeper(mod: string, i: number) {
+    const ch = moduleOf(mod).chapters[i];
+    await expect(card.getByRole('link', { name: ch.title })).toHaveAttribute('href', chapterHref(mod, ch.id));
   }
   async function finish(next?: RegExp) {
     await expect(card).toContainText('Chapter complete');
@@ -78,6 +84,42 @@ export function bgWalker(page: Page, mode: Mode, check: (page: Page) => Promise<
       await opt(TOP);
       await btn('Show the shelf');
       await step(5);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
+    /** predict Larkspur mini's next word, run it live (it waits for the model), see the top 5 */
+    async ch4(next?: RegExp, quiz: string | RegExp = /^It adds its guess/) {
+      await opt('“days”');
+      await btn('Run Larkspur mini');
+      await step(3);
+      await expect(card.getByRole('definition').first()).toBeVisible();
+      await deeper('transformers', 0);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
+    /** predict GPT-3's size against Larkspur mini's, then the years from the transformer to GPT-3 */
+    async ch5(next?: RegExp, quiz: string | RegExp = /^They could do tasks nobody trained/) {
+      await opt('Over a million times');
+      await btn('Show both sizes');
+      await step(3);
+      await check(page);
+      await opt('A few years');
+      await btn('Show the dates');
+      await step(5);
+      await deeper('pre-training', 5);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
+    /** predict which reply the base model wrote */
+    async ch6(next?: RegExp, quiz: string | RegExp = /^More training on requests/) {
+      await opt('Reply B');
+      await btn('Show who wrote which');
+      await step(3);
+      await deeper('post-training', 0);
+      await deeper('prompts', 0);
       await check(page);
       await opt(quiz);
       await finish(next);

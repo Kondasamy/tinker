@@ -91,4 +91,16 @@ describe('the help counter', () => {
       expect(svg).not.toContain('NaN');
     }
   });
+
+  it('before the reveal, the predictive picture lights neither tray, so it never hints the folder', () => {
+    const svg = renderToString(createElement(IsoStage, { board: PREDICT_BOARD, scene: predictScene({}), label: '' }));
+    expect(svg).toContain('data-junk=""');
+    expect(svg).not.toContain('data-holds="1"');
+    for (const spam of [0.1, 0.9]) {
+      const lit = renderToString(
+        createElement(IsoStage, { board: PREDICT_BOARD, scene: predictScene({ spam }), label: '' }),
+      );
+      expect(lit).toContain(`data-junk="${spam >= 0.5 ? 1 : 0}"`);
+    }
+  });
 });
