@@ -1,0 +1,561 @@
+{
+  "rule": {
+    "bin": "done",
+    "newBin": "off-grid"
+  },
+  "clean": [
+    {
+      "demos": 1,
+      "solved": 8,
+      "median": 40
+    },
+    {
+      "demos": 2,
+      "solved": 13,
+      "median": 15
+    },
+    {
+      "demos": 4,
+      "solved": 19,
+      "median": 15
+    },
+    {
+      "demos": 8,
+      "solved": 19,
+      "median": 15
+    }
+  ],
+  "snowball": {
+    "clean": {
+      "end": "done",
+      "steps": 10
+    },
+    "slipped": {
+      "end": "stuck",
+      "steps": 40
+    },
+    "corrected": {
+      "end": "done",
+      "steps": 11
+    },
+    "corrections": 4
+  },
+  "practice": [
+    {
+      "practice": "none",
+      "solved": 5,
+      "median": 40
+    },
+    {
+      "practice": "plain",
+      "solved": 5,
+      "median": 40
+    },
+    {
+      "practice": "light",
+      "solved": 18,
+      "median": 14
+    },
+    {
+      "practice": "slip",
+      "solved": 5,
+      "median": 40
+    },
+    {
+      "practice": "both",
+      "solved": 19,
+      "median": 14
+    }
+  ],
+  "workbench": {
+    "results": [
+      {
+        "demos": 1,
+        "rounds": 0,
+        "practice": "none",
+        "solved": 2,
+        "median": 40,
+        "labels": 14
+      },
+      {
+        "demos": 1,
+        "rounds": 0,
+        "practice": "plain",
+        "solved": 3,
+        "median": 40,
+        "labels": 14
+      },
+      {
+        "demos": 1,
+        "rounds": 0,
+        "practice": "light",
+        "solved": 11,
+        "median": 16.5,
+        "labels": 14
+      },
+      {
+        "demos": 1,
+        "rounds": 0,
+        "practice": "slip",
+        "solved": 3,
+        "median": 40,
+        "labels": 14
+      },
+      {
+        "demos": 1,
+        "rounds": 0,
+        "practice": "both",
+        "solved": 12,
+        "median": 14,
+        "labels": 14
+      },
+      {
+        "demos": 1,
+        "rounds": 1,
+        "practice": "none",
+        "solved": 5,
+        "median": 40,
+        "labels": 39
+      },
+      {
+        "demos": 1,
+        "rounds": 1,
+        "practice": "plain",
+        "solved": 5,
+        "median": 40,
+        "labels": 39
+      },
+      {
+        "demos": 1,
+        "rounds": 1,
+        "practice": "light",
+        "solved": 19,
+        "median": 14,
+        "labels": 39
+      },
+      {
+        "demos": 1,
+        "rounds": 1,
+        "practice": "slip",
+        "solved": 5,
+        "median": 40,
+        "labels": 39
+      },
+      {
+        "demos": 1,
+        "rounds": 1,
+        "practice": "both",
+        "solved": 19,
+        "median": 14,
+        "labels": 39
+      },
+      {
+        "demos": 1,
+        "rounds": 2,
+        "practice": "none",
+        "solved": 5,
+        "median": 40,
+        "labels": 73
+      },
+      {
+        "demos": 1,
+        "rounds": 2,
+        "practice": "plain",
+        "solved": 5,
+        "median": 40,
+        "labels": 73
+      },
+      {
+        "demos": 1,
+        "rounds": 2,
+        "practice": "light",
+        "solved": 19,
+        "median": 14,
+        "labels": 73
+      },
+      {
+        "demos": 1,
+        "rounds": 2,
+        "practice": "slip",
+        "solved": 5,
+        "median": 40,
+        "labels": 73
+      },
+      {
+        "demos": 1,
+        "rounds": 2,
+        "practice": "both",
+        "solved": 19,
+        "median": 14,
+        "labels": 73
+      },
+      {
+        "demos": 2,
+        "rounds": 0,
+        "practice": "none",
+        "solved": 4,
+        "median": 40,
+        "labels": 28
+      },
+      {
+        "demos": 2,
+        "rounds": 0,
+        "practice": "plain",
+        "solved": 5,
+        "median": 40,
+        "labels": 28
+      },
+      {
+        "demos": 2,
+        "rounds": 0,
+        "practice": "light",
+        "solved": 18,
+        "median": 14,
+        "labels": 28
+      },
+      {
+        "demos": 2,
+        "rounds": 0,
+        "practice": "slip",
+        "solved": 5,
+        "median": 40,
+        "labels": 28
+      },
+      {
+        "demos": 2,
+        "rounds": 0,
+        "practice": "both",
+        "solved": 19,
+        "median": 14,
+        "labels": 28
+      },
+      {
+        "demos": 2,
+        "rounds": 1,
+        "practice": "none",
+        "solved": 5,
+        "median": 40,
+        "labels": 59
+      },
+      {
+        "demos": 2,
+        "rounds": 1,
+        "practice": "plain",
+        "solved": 5,
+        "median": 40,
+        "labels": 59
+      },
+      {
+        "demos": 2,
+        "rounds": 1,
+        "practice": "light",
+        "solved": 18,
+        "median": 14,
+        "labels": 59
+      },
+      {
+        "demos": 2,
+        "rounds": 1,
+        "practice": "slip",
+        "solved": 5,
+        "median": 40,
+        "labels": 59
+      },
+      {
+        "demos": 2,
+        "rounds": 1,
+        "practice": "both",
+        "solved": 19,
+        "median": 14,
+        "labels": 59
+      },
+      {
+        "demos": 2,
+        "rounds": 2,
+        "practice": "none",
+        "solved": 5,
+        "median": 40,
+        "labels": 95
+      },
+      {
+        "demos": 2,
+        "rounds": 2,
+        "practice": "plain",
+        "solved": 5,
+        "median": 40,
+        "labels": 95
+      },
+      {
+        "demos": 2,
+        "rounds": 2,
+        "practice": "light",
+        "solved": 18,
+        "median": 14,
+        "labels": 95
+      },
+      {
+        "demos": 2,
+        "rounds": 2,
+        "practice": "slip",
+        "solved": 5,
+        "median": 40,
+        "labels": 95
+      },
+      {
+        "demos": 2,
+        "rounds": 2,
+        "practice": "both",
+        "solved": 19,
+        "median": 14,
+        "labels": 95
+      },
+      {
+        "demos": 4,
+        "rounds": 0,
+        "practice": "none",
+        "solved": 5,
+        "median": 40,
+        "labels": 53
+      },
+      {
+        "demos": 4,
+        "rounds": 0,
+        "practice": "plain",
+        "solved": 5,
+        "median": 40,
+        "labels": 53
+      },
+      {
+        "demos": 4,
+        "rounds": 0,
+        "practice": "light",
+        "solved": 18,
+        "median": 14,
+        "labels": 53
+      },
+      {
+        "demos": 4,
+        "rounds": 0,
+        "practice": "slip",
+        "solved": 5,
+        "median": 40,
+        "labels": 53
+      },
+      {
+        "demos": 4,
+        "rounds": 0,
+        "practice": "both",
+        "solved": 19,
+        "median": 14,
+        "labels": 53
+      },
+      {
+        "demos": 4,
+        "rounds": 1,
+        "practice": "none",
+        "solved": 5,
+        "median": 40,
+        "labels": 84
+      },
+      {
+        "demos": 4,
+        "rounds": 1,
+        "practice": "plain",
+        "solved": 5,
+        "median": 40,
+        "labels": 84
+      },
+      {
+        "demos": 4,
+        "rounds": 1,
+        "practice": "light",
+        "solved": 18,
+        "median": 14,
+        "labels": 84
+      },
+      {
+        "demos": 4,
+        "rounds": 1,
+        "practice": "slip",
+        "solved": 5,
+        "median": 40,
+        "labels": 84
+      },
+      {
+        "demos": 4,
+        "rounds": 1,
+        "practice": "both",
+        "solved": 19,
+        "median": 14,
+        "labels": 84
+      },
+      {
+        "demos": 4,
+        "rounds": 2,
+        "practice": "none",
+        "solved": 5,
+        "median": 40,
+        "labels": 120
+      },
+      {
+        "demos": 4,
+        "rounds": 2,
+        "practice": "plain",
+        "solved": 5,
+        "median": 40,
+        "labels": 120
+      },
+      {
+        "demos": 4,
+        "rounds": 2,
+        "practice": "light",
+        "solved": 18,
+        "median": 14,
+        "labels": 120
+      },
+      {
+        "demos": 4,
+        "rounds": 2,
+        "practice": "slip",
+        "solved": 5,
+        "median": 40,
+        "labels": 120
+      },
+      {
+        "demos": 4,
+        "rounds": 2,
+        "practice": "both",
+        "solved": 19,
+        "median": 14,
+        "labels": 120
+      },
+      {
+        "demos": 8,
+        "rounds": 0,
+        "practice": "none",
+        "solved": 5,
+        "median": 40,
+        "labels": 113
+      },
+      {
+        "demos": 8,
+        "rounds": 0,
+        "practice": "plain",
+        "solved": 5,
+        "median": 40,
+        "labels": 113
+      },
+      {
+        "demos": 8,
+        "rounds": 0,
+        "practice": "light",
+        "solved": 18,
+        "median": 14,
+        "labels": 113
+      },
+      {
+        "demos": 8,
+        "rounds": 0,
+        "practice": "slip",
+        "solved": 5,
+        "median": 40,
+        "labels": 113
+      },
+      {
+        "demos": 8,
+        "rounds": 0,
+        "practice": "both",
+        "solved": 19,
+        "median": 14,
+        "labels": 113
+      },
+      {
+        "demos": 8,
+        "rounds": 1,
+        "practice": "none",
+        "solved": 5,
+        "median": 40,
+        "labels": 150
+      },
+      {
+        "demos": 8,
+        "rounds": 1,
+        "practice": "plain",
+        "solved": 5,
+        "median": 40,
+        "labels": 150
+      },
+      {
+        "demos": 8,
+        "rounds": 1,
+        "practice": "light",
+        "solved": 18,
+        "median": 14,
+        "labels": 150
+      },
+      {
+        "demos": 8,
+        "rounds": 1,
+        "practice": "slip",
+        "solved": 5,
+        "median": 40,
+        "labels": 150
+      },
+      {
+        "demos": 8,
+        "rounds": 1,
+        "practice": "both",
+        "solved": 19,
+        "median": 14,
+        "labels": 150
+      },
+      {
+        "demos": 8,
+        "rounds": 2,
+        "practice": "none",
+        "solved": 5,
+        "median": 40,
+        "labels": 187
+      },
+      {
+        "demos": 8,
+        "rounds": 2,
+        "practice": "plain",
+        "solved": 5,
+        "median": 40,
+        "labels": 187
+      },
+      {
+        "demos": 8,
+        "rounds": 2,
+        "practice": "light",
+        "solved": 18,
+        "median": 14,
+        "labels": 187
+      },
+      {
+        "demos": 8,
+        "rounds": 2,
+        "practice": "slip",
+        "solved": 5,
+        "median": 40,
+        "labels": 187
+      },
+      {
+        "demos": 8,
+        "rounds": 2,
+        "practice": "both",
+        "solved": 19,
+        "median": 14,
+        "labels": 187
+      }
+    ],
+    "winners": [
+      {
+        "demos": 2,
+        "rounds": 0,
+        "practice": "both"
+      }
+    ]
+  }
+}

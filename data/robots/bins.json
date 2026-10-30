@@ -1,0 +1,20 @@
+{
+  "note": "The simulated parts bay (KTD5, KTD9), hand-set for this site, not measured: an 8 by 6 bin, the claw parked at the back corner, crates as obstacles, one part and the tray beside the bin. Layouts are drawn from seeds; the noise rates, light levels and step cap are planning numbers.",
+  "size": [8, 6],
+  "start": [0, 0],
+  "crates": 4,
+  "cap": 40,
+  "train": [3, 5, 8, 13, 21, 34, 55, 89],
+  "heldOut": [101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120],
+  "fresh": 101,
+  "rule": { "bin": 3, "newBin": 102 },
+  "snowball": { "bin": 118, "slipAt": 4, "demos": 4 },
+  "practiceDemos": 4,
+  "real": { "slip": 0.15, "light": [0.5, 1.1] },
+  "detector": [0.85, 1.15],
+  "practice": {
+    "seeds": [201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212],
+    "slip": 0.25,
+    "light": [0.4, 1.2]
+  }
+}
