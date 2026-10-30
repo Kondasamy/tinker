@@ -320,8 +320,8 @@ export const barrelScene = (o: BarrelOpts) => (ctx: SceneCtx) => {
   if (o.barrels.length && !narrow)
     pills += pill(
       [DOOR.x - DOOR.d / 2 - 4, STAND_Y, GUTTER_Z],
-      34,
-      -8,
+      40,
+      8,
       o.window ? (o.gush ? 'TOPPED UP' : 'TOPS UP EACH MINUTE') : `DRIP · ${o.drip}/S`,
       !!o.gush,
       scale,
