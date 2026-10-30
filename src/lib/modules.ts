@@ -52,6 +52,7 @@ import { WATERMARKS_MODULE } from '../content/watermarks/module';
 import { AGENT_COMMERCE_MODULE } from '../content/agent-commerce/module';
 import { PARALLEL_TRAINING_MODULE } from '../content/parallel-training/module';
 import { CHOOSING_MODELS_MODULE } from '../content/choosing-models/module';
+import { RATE_LIMITS_MODULE } from '../content/rate-limits/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -163,6 +164,7 @@ export const MODULES: Module[] = [
   AGENT_COMMERCE_MODULE,
   PARALLEL_TRAINING_MODULE,
   CHOOSING_MODELS_MODULE,
+  RATE_LIMITS_MODULE,
   planned(
     'on-device',
     'Models on your device',
@@ -174,13 +176,6 @@ export const MODULES: Module[] = [
     'Robots that act',
     'Advanced',
     'From camera frames to motor commands, and why a robot learns by watching people do the task.',
-  ),
-  planned(
-    'rate-limits',
-    'Rate limits',
-    'Beginner',
-    'Why a busy site says slow down: a bucket of tokens, a 429 reply, and who gets turned away first.',
-    'Classic tech',
   ),
   planned(
     'backups',

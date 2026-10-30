@@ -880,6 +880,20 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'choosing-models')).toBe(52);
   });
 
+  it('has rate-limits as a live Beginner Classic tech module after choosing-models, recommending Web requests first', () => {
+    expect(moduleOf('rate-limits')).toMatchObject({
+      title: 'Rate limits',
+      level: 'Beginner',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: ['web-requests'],
+    });
+    expect(moduleOf('rate-limits').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'rate-limits')).toBe(
+      MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'choosing-models') + 1,
+    );
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

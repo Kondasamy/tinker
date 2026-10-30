@@ -2422,5 +2422,54 @@
       "bench",
       "quiz"
     ]
+  },
+  "rate-limits": {
+    "01-too-many-at-once": [
+      "steady",
+      "predict",
+      "watch",
+      "reveal",
+      "quiz"
+    ],
+    "02-count-per-minute": [
+      "window",
+      "predict",
+      "watch",
+      "reveal",
+      "quiz"
+    ],
+    "03-the-token-bucket": [
+      "fill",
+      "predict",
+      "flood",
+      "pace",
+      "quiz"
+    ],
+    "04-the-429-reply": [
+      "burst",
+      "reply",
+      "watch",
+      "listen",
+      "quiz"
+    ],
+    "05-back-off-with-jitter": [
+      "crowd",
+      "predict",
+      "requests",
+      "backoff",
+      "jitter",
+      "quiz"
+    ],
+    "06-who-gets-turned-away": [
+      "shared",
+      "predict",
+      "reveal",
+      "perkey",
+      "quiz"
+    ],
+    "07-set-the-limits": [
+      "bench",
+      "ties"
+    ]
   }
 }

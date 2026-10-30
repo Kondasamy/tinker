@@ -405,6 +405,9 @@ import { hallOf as cmHall } from '../content/choosing-models/kit';
 import { SOLVED as CM_SOLVED, teamOf as cmTeam, teamRows as cmTeamRows } from '../lib/choosing-models/workbench';
 import { tiltOf as cmTilt, weigh as cmWeigh } from '../lib/choosing-models/score';
 import { GRADIENTS as PT_GRADIENTS } from '../lib/parallel-training/story';
+import { BARREL_BOARD, barrelAt, barrelCard, barrelScene, type BarrelOpts } from '../components/scenes/barrelScene';
+import { SCENES as RT_SCENES, crowdOf as rtCrowd, liveOf as rtLive, runOf as rtRun } from '../lib/rate-limits/sim';
+import { WINNERS as RT_WINNERS, benchRun as rtBench } from '../lib/rate-limits/workbench';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -1915,6 +1918,31 @@ const STEELYARD_OG: Record<string, () => Omit<SteelyardOpts, 'scale'>> = {
   'choosing-models-07-workbench': cmWarehouse,
 };
 const steelyardOg = STEELYARD_OG[page.og]?.();
+// module 54: Larkspur's rain barrel at the stock API door. The intro: the empty barrel after Quickfix's burst; 1: the
+// flood with the server down; 2: the window topped up at the minute; 3: the live barrel flooded empty; 4: the
+// turned-away couriers under 429 and Retry-After; 5: the tablets' stampede; 6: a barrel per key; 7: the first winning
+// bench at the busiest moment.
+const RT_OG: Record<string, () => Omit<BarrelOpts, 'scale'>> = {
+  'rate-limits': () => barrelCard(),
+  'rate-limits-01-too-many-at-once': () => barrelAt(rtRun(RT_SCENES.flood), 6000),
+  'rate-limits-02-count-per-minute': () => barrelAt(rtRun(RT_SCENES.edge), 60_500),
+  'rate-limits-03-the-token-bucket': () =>
+    barrelAt(
+      rtRun(
+        rtLive(
+          Array.from({ length: 14 }, (_, i) => i * 20),
+          2,
+          400,
+        ),
+      ),
+      400,
+    ),
+  'rate-limits-04-the-429-reply': () => barrelAt(rtRun(RT_SCENES.ignore), 1200),
+  'rate-limits-05-back-off-with-jitter': () => barrelAt(rtRun(rtCrowd({ backoff: false, jitter: false })), 1000),
+  'rate-limits-06-who-gets-turned-away': () => barrelAt(rtRun(RT_SCENES.perKey), 5000),
+  'rate-limits-07-set-the-limits': () => barrelAt(rtBench(RT_WINNERS[0]), 25_000),
+};
+const rtOg = RT_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1995,6 +2023,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : hatchOg ? <IsoStage board={HATCH_BOARD} scene={hatchScene({ ...hatchOg, scale: 1.2 })} label="" />
           : ringOg ? <IsoStage board={RING_BOARD} scene={ringScene({ ...ringOg, scale: 1.3 })} label="" />
           : steelyardOg ? <IsoStage board={STEELYARD_BOARD} scene={steelyardScene({ ...steelyardOg, scale: 1.3 })} label="" />
+          : rtOg ? <IsoStage board={BARREL_BOARD} scene={barrelScene({ ...rtOg, scale: 1.3 })} label="" />
           : dreamOg ? <IsoStage board={dreamBoard(dreamOg)} scene={dreamScene({ ...dreamOg, scale: 1.3 })} label="" />
           : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
           : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />

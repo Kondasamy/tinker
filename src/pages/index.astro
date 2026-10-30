@@ -157,6 +157,7 @@ import { fillsAfter, ringAllReduce } from '../lib/parallel-training/ring';
 import { GRADIENTS } from '../lib/parallel-training/story';
 import { STEELYARD_BOARD, steelyardLabel, steelyardScene } from '../components/scenes/steelyardScene';
 import { hallOf as cmHall } from '../content/choosing-models/kit';
+import { BARREL_BOARD, barrelCard, barrelLabel, barrelScene } from '../components/scenes/barrelScene';
 import { FORM } from '../lib/site';
 
 const one =
@@ -447,6 +448,8 @@ const PT_RING = ringAllReduce(GRADIENTS),
 const RING = { n: PT_RING.n, fills: fillsAfter(PT_RING, PT_K), sends: PT_RING.hops[PT_K - 1].sends, scale: 1.7 };
 // choosing-models: Larkspur's 20 with B under the bar, weighed on all three, as the intro draws it
 const HALL = { ...cmHall('larkspur', { quality: 2, cost: 1, wait: 1 }, { out: ['B'] }), scale: 1.7 };
+// rate limits: the barrel empty after Quickfix's burst, couriers turned away with 429
+const BARREL = barrelCard(1.7);
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -1082,6 +1085,20 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Time to first word',
       'Quality bar',
       'Pinned versions',
+    ],
+  },
+  'rate-limits': {
+    name: 'Rate limits',
+    iso: { board: BARREL_BOARD, scene: barrelScene(BARREL), label: barrelLabel(BARREL) },
+    topics: [
+      'Rate limiting',
+      'Fixed window',
+      'Token bucket',
+      '429 Too Many Requests',
+      'Retry-After',
+      'Backoff & jitter',
+      'API keys',
+      'Per-key limits',
     ],
   },
 };
