@@ -18,6 +18,7 @@ import TypeChallenge, { START, complete, type Challenge } from '../../components
 import { TYPES, rowLabel } from './types-data';
 import { QS_ALL, questionById } from './questions';
 import Select from '../../components/story/Select';
+import { Fact } from './kit';
 
 const ID = '07-sandbox';
 /** The question the sandbox opens on: every block is wired, so the graph is live, and two hops answer it. */
@@ -55,7 +56,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'challenge',
     focus: 'challenge',
-    visibleControls: ['challenge'],
+    visibleControls: ['fact', 'challenge'],
     opensDrawer: null,
     narration: 'Last stop. Five teams at Larkspur each describe a problem.',
     act: 'Pick the RAG type that fits each one best.',
@@ -93,6 +94,7 @@ export default function Sandbox() {
         </div>
       )}
       controls={{
+        fact: () => <Fact id="adaptive-rag" />,
         question: ({ state, apply }) => (
           <div className="knob">
             <label htmlFor="sandbox-q">Question</label>

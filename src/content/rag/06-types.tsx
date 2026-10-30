@@ -18,6 +18,7 @@ import IsoStage from '../../lib/iso/IsoStage';
 import { graphLayout, graphScene, graphSummary, pathOf, HOP_COLOURS } from '../../components/canvas/graphView';
 import type { Traversal } from '../../lib/rag/graph';
 import { nextOf } from '../../lib/chapters';
+import { Fact } from './kit';
 import orgChart from '../../../data/corpus/assets/org-chart-2025.svg?url';
 import { GRADE_BAR } from '../../lib/rag/selfcheck';
 import { TYPES, CARDS, KNOBS, rowLabel } from './types-data';
@@ -132,7 +133,8 @@ export const STEPS: Step<S>[] = [
     focus: 'run',
     visibleControls: ['maxCalls', 'run'],
     opensDrawer: 'answer',
-    narration: 'The agent sits in the side bay, wired to the retriever both ways. Max calls caps its retrievals.',
+    narration:
+      'The agent sits beside the track, wired to the retriever both ways. Max calls caps how often it searches.',
     act: 'Keep it at 2 and run.',
     say: { block: 'agent', text: 'Can search again' },
     predicate: s => row(s, 'refund-enterprise', 'agentic')?.verdict === 'correct',
@@ -151,7 +153,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['quiz'],
+    visibleControls: ['fact', 'quiz'],
     narration:
       'Both wrong, and the agent paid for a second search. Searching more never removes the retired 2018 policy: a metadata filter does.',
     act: 'One question.',
@@ -239,7 +241,7 @@ export const STEPS: Step<S>[] = [
     focus: 'run',
     visibleControls: ['run'],
     opensDrawer: 'answer',
-    narration: `The Evaluator scores each search with a cross-encoder, which reads question and chunk together. A best chunk of ${GRADE_BAR} or more passes.`,
+    narration: `The Evaluator scores each search with a cross-encoder, which reads question and chunk together. Our pass mark for the best chunk: ${GRADE_BAR}.`,
     act: 'Run again.',
     predicate: s => {
       const r = row(s, SC, 'selfcheck');
@@ -263,9 +265,9 @@ export const STEPS: Step<S>[] = [
     focus: 'run',
     visibleControls: ['run'],
     opensDrawer: 'answer',
-    narration: 'A plain-text reader skips tables and images, so the Docs block’s three parsers start off.',
+    narration: 'Plain text skips tables, PDFs and images, so the Docs block’s three readers start off.',
     act: 'Run the price question: a Kestrel K2 at 50+ units?',
-    say: { block: 'docs', text: 'Parsers off' },
+    say: { block: 'docs', text: 'Readers off' },
     predicate: s => !!row(s, PRICE, 'multimodal'),
   },
   {
@@ -273,7 +275,7 @@ export const STEPS: Step<S>[] = [
     focus: 'parse',
     visibleControls: ['parse', 'run'],
     opensDrawer: 'answer',
-    narration: 'Not found: the price list is a table, and with table parsing off retrieval never sees it.',
+    narration: 'Not found: the price list is a table, and with table reading off, search never sees it.',
     act: 'Turn on “Parse tables to text” and rerun.',
     predicate: s => row(s, PRICE, 'multimodal')?.verdict === 'correct',
     hint: 'Tick “Parse tables to text”, then run.',
@@ -288,7 +290,7 @@ export const STEPS: Step<S>[] = [
     act: 'Turn on both.',
     predicate: s =>
       row(s, PDF, 'multimodal')?.verdict === 'correct' && row(s, IMG, 'multimodal')?.verdict === 'correct',
-    hint: 'PDF parsing for the warranty card, image captions for the Customer Success card.',
+    hint: '“Parse PDFs to text” for the warranty card, “Caption images” for the Customer Success card.',
   },
 ];
 
@@ -382,6 +384,7 @@ export default function Types() {
         </div>
       )}
       controls={{
+        fact: () => <Fact id="search-again" />,
         next: ({ state, apply }) => (
           <button type="button" className="big" onClick={() => apply({ ...state, acks: state.acks + 1 })}>
             Compare types →

@@ -8,6 +8,7 @@ import { Source, Answer } from '../../components/scenes/Source';
 import { nextOf } from '../../lib/chapters';
 import { TIMELINE, formatTokens } from '../../lib/scale';
 import { UNSURE } from '../../lib/recall';
+import { Fact } from './kit';
 
 const ID = '01-history';
 interface S {
@@ -57,7 +58,8 @@ const AFTER: string[] = [
 const eraStep = (i: number): Step<S> => ({
   id: `era-${ERAS[i].id}`,
   focus: 'timeline',
-  visibleControls: [],
+  // the 2020 reveal: how much looking things up helped in the paper that named RAG
+  visibleControls: i === 1 ? ['fact'] : [],
   opensDrawer: i === 0 ? 'answer' : 'era',
   narration:
     i === 0
@@ -111,6 +113,7 @@ export default function History() {
         />
       )}
       controls={{
+        fact: () => <Fact id="rag-vs-memory" />,
         ask: ({ state, apply }) => (
           <button type="button" className="big" onClick={() => apply({ ...state, asked: true })}>
             Ask: “Do enterprise contracts get refunds after 30 days?”

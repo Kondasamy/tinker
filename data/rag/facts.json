@@ -1,0 +1,50 @@
+{
+  "accessed": "2026-10-30",
+  "facts": [
+    {
+      "id": "rag-vs-memory",
+      "claim": "In Lewis et al.’s test (2020) on real search questions, a large model answering from memory alone got 34.5% exactly right; RAG, which looks up Wikipedia passages first, got 44.5%.",
+      "value": "44.5",
+      "source": "https://arxiv.org/abs/2005.11401",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "ruler-32k",
+      "claim": "Hsieh et al. (2024) tested 17 long-prompt models: all claimed windows of 32,000 tokens or more, yet only half still did well at 32,000 tokens.",
+      "value": "32000",
+      "source": "https://arxiv.org/abs/2404.06654",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "meaning-beats-keywords",
+      "claim": "Karpukhin et al. (2020) found that a retriever matching questions to passages by meaning beat a strong keyword search by 9 to 19 points at putting a passage with the answer in its top 20.",
+      "source": "https://arxiv.org/abs/2004.04906",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "numbers-first",
+      "claim": "Reimers and Gurevych (2019): finding the closest pair among 10,000 sentences took about 65 hours when a model read every pair together, and about 5 seconds once each sentence was turned into numbers first.",
+      "source": "https://arxiv.org/abs/1908.10084",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "seven-failures",
+      "claim": "From three RAG systems they built, Barnett et al. (2024) list seven places they fail, among them: the right passage ranked too low, fetched but left out of the prompt, or in the prompt but not used.",
+      "value": "7",
+      "source": "https://arxiv.org/abs/2401.05856",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "search-again",
+      "claim": "Trivedi et al. (2023) found that searching again after each step of reasoning, not once up front, found the right passages up to 21 points more often and answered up to 15 points better on questions that need several documents.",
+      "source": "https://arxiv.org/abs/2212.10509",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "adaptive-rag",
+      "claim": "Jeong et al.’s Adaptive-RAG (2024) has a small model judge how hard each question is, then picks no search, one search or several searches in a row to match.",
+      "source": "https://arxiv.org/abs/2403.14403",
+      "accessed": "2026-10-30"
+    }
+  ]
+}

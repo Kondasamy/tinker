@@ -8,6 +8,7 @@ import ContextOverflow from '../../components/scenes/ContextOverflow';
 import { Source, Answer } from '../../components/scenes/Source';
 import Cite from '../../components/story/Cite';
 import { nextOf } from '../../lib/chapters';
+import { Fact } from './kit';
 import {
   BYTES_PER_TOKEN,
   STOPS,
@@ -68,7 +69,8 @@ const OUTCOME = 1;
 const reasonStep = (id: Reason, opens: string, narration: string, act: string): Step<S> => ({
   id: `reason-${id}`,
   focus: 'reason',
-  visibleControls: ['reason'],
+  // the step about text that fits but is missed carries the long-prompt finding
+  visibleControls: id === 'fresh' ? ['reason', 'fact'] : ['reason'],
   opensDrawer: opens,
   narration,
   act,
@@ -155,6 +157,7 @@ export default function WhyNotStuffIt() {
       next={nextOf(ID)}
       stage={({ state, say }) => <ContextOverflow stop={state.stop} say={say} />}
       controls={{
+        fact: () => <Fact id="ruler-32k" />,
         predict: ({ state, apply }) => (
           <Predict {...PREDICT} value={state.prediction} onPredict={i => apply({ ...state, prediction: i })} />
         ),
@@ -266,7 +269,7 @@ export default function WhyNotStuffIt() {
                 <dd>
                   {UNSTRUCTURED_SOURCE.claim} <Source e={UNSTRUCTURED_SOURCE} />
                 </dd>
-                <dt>Latency</dt>
+                <dt>Time to answer</dt>
                 <dd>
                   Not shown: we found no official reading-speed figure to cite. Longer prompts take longer to read.
                 </dd>

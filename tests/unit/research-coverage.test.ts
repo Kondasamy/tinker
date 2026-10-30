@@ -17,7 +17,6 @@ const live = MODULES.filter(m => m.chapters.length > 0);
 
 /** modules still being researched (KTD8): each must fail until its wave lands, then leave this list */
 const PENDING = new Set<string>([
-  'rag',
 ]);
 
 /** chapters whose `<Fact id={…}>` is fully dynamic: file (from src/content/), and where its ids come from */

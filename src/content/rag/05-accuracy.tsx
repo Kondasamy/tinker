@@ -21,6 +21,7 @@ import type { BlockType } from '../../lib/iso/blocks';
 import { RagStage, useQuestionRuns, type RagState } from '../../components/panels/rag';
 import QualityMeters from '../../components/panels/QualityMeters';
 import { nextOf } from '../../lib/chapters';
+import { Fact } from './kit';
 import ch4 from '../../../data/questions/ch4.json';
 import ch5 from '../../../data/questions/ch5.json';
 
@@ -289,7 +290,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['quiz'],
+    visibleControls: ['fact', 'quiz'],
     opensDrawer: 'answer',
     narration: 'Correct. Seven levers, and the two meters told you which side to fix.',
     act: 'One question to finish.',
@@ -331,6 +332,7 @@ export default function Accuracy() {
         </div>
       )}
       controls={{
+        fact: () => <Fact id="seven-failures" />,
         predict: ({ state, apply }) => (
           <Predict {...PREDICT} value={state.prediction} onPredict={i => apply({ ...state, prediction: i })} />
         ),
