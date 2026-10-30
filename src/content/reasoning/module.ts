@@ -104,10 +104,10 @@ const CHAPTERS: Chapter[] = [
     intro: {
       story:
         'The team sets effort to high and expects every answer to think the same amount. The token counts say otherwise.',
-      goal: 'What does an effort setting actually control, in today’s APIs?',
+      goal: 'What does an effort setting actually control, with today’s providers?',
       learn: [
         'Why the same effort gives a short think on an easy question and a long one on a hard question',
-        'What the current APIs take: effort levels and adaptive thinking, not a fixed token budget',
+        'What providers take today: effort levels and adaptive thinking, not a fixed token budget',
         'Why a hard cap on output still matters',
       ],
       terms: [

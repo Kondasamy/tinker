@@ -9,7 +9,7 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { THINK_PARTS } from '../../components/scenes/thinkScene';
-import { Answer, Asked, ReasoningStage, deskOf } from './kit';
+import { Answer, Asked, Fact, ReasoningStage, deskOf } from './kit';
 
 const MODULE = 'reasoning',
   ID = '01-answer-now-or-think-first';
@@ -84,9 +84,9 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['compare', 'quiz'],
+    visibleControls: ['compare', 'fact', 'quiz'],
     narration:
-      'Same model, same documents, a different answer: writing out the steps caught the skipped rule. It pays on a multi-step question.',
+      'Same model, same documents: writing out the steps caught the skipped rule. Research finds it pays on a multi-step question.',
     act: 'One question to finish.',
     say: { block: 'pad', text: 'Its working' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -149,6 +149,7 @@ export default function AnswerNowOrThinkFirst() {
             <Answer q={SPLIT} effort="medium" />
           </>
         ),
+        fact: () => <Fact id="wei-cot" />,
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

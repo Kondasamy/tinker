@@ -51,7 +51,6 @@ const PENDING = new Set<string>([
   'queues',
   'rag',
   'rate-limits',
-  'reasoning',
   'releases',
   'routes',
   'sandboxing',
