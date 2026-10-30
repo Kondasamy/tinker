@@ -113,6 +113,14 @@ export function Fact({ id }: { id: string }) {
   );
 }
 
+/** Said beside every recorded model reply (R6): the model is the one part that doesn't run live. */
+export const RecordedNote = () => (
+  <p className="note">
+    The model’s replies were recorded ahead of time, not live. The host, its checks and the order system run for real in
+    your browser.
+  </p>
+);
+
 /** A setting with a few fixed values (a finite domain, KTD10), stepped down and up. `values` run from first to last. */
 export function Stepper<T>({
   label,

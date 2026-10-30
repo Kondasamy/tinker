@@ -248,7 +248,7 @@ export const RECALL: RecallItem[] = [
     correct: 1,
     why: [
       `${N.without} is the count without a shared protocol, when every pair needs its own integration.`,
-      'Right. A shared protocol turns a product into a sum.',
+      'Right. A shared protocol turns apps × systems into apps + systems.',
       'MCP is a protocol, not a central hub. Each app and each system still does its own side once.',
     ],
   },
@@ -284,7 +284,7 @@ export const RECALL: RecallItem[] = [
     options: [
       'It asks with tools/list',
       'Someone types the list into the host by hand',
-      'It must open a handshake session first',
+      'It must first open a session with the server',
     ],
     correct: 0,
     why: [

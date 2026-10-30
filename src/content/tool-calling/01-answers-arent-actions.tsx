@@ -12,7 +12,7 @@ import { fact } from '../../lib/tools/facts';
 import { longDate } from '../../lib/format';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Fact, Messages, ToolStage } from './kit';
+import { Fact, Messages, RecordedNote, ToolStage } from './kit';
 import { OFFICE_PARTS } from '../../components/scenes/officeScene';
 
 const MODULE = 'tool-calling',
@@ -177,6 +177,7 @@ export default function AnswersArentActions() {
               <p className="lbl">What the assistant said</p>
               <p>“{GUESS}”</p>
               <Fact id="app-executes" />
+              <RecordedNote />
             </div>
           ),
         },

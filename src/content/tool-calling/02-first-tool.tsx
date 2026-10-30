@@ -11,7 +11,7 @@ import { DOMAINS, run } from '../../lib/tools/host';
 import { RECORDINGS, type Desc } from '../../lib/tools/turns';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Fact, Messages, Play, ToolDef, getOrder, GET_ORDER, ToolStage } from './kit';
+import { Fact, Messages, Play, RecordedNote, ToolDef, getOrder, GET_ORDER, ToolStage } from './kit';
 import { OFFICE_PARTS } from '../../components/scenes/officeScene';
 
 const MODULE = 'tool-calling',
@@ -202,6 +202,7 @@ export default function FirstTool() {
             <>
               <ToolDef tool={getOrder(s.desc)} />
               <Fact id="tool-definition" />
+              <Fact id="descriptions-matter" />
             </>
           ),
         },
@@ -211,6 +212,7 @@ export default function FirstTool() {
             <>
               <Messages lanes={LANES} msgs={RUNS[s.desc]} upTo={s.shown} />
               <Fact id="app-executes" />
+              <RecordedNote />
             </>
           ),
         },

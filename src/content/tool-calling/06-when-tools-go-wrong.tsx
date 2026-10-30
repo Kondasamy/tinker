@@ -170,7 +170,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'gate-back',
     focus: 'gate',
-    visibleControls: ['out1', 'gate', 'play'],
+    visibleControls: ['out1', 'fact', 'gate', 'play'],
     opensDrawer: 'messages',
     narration: `The model obeyed the note and proposed a ${money(PLANTED.arguments.amount as number)} refund: prompt injection. The ledger shows the damage.`,
     act: 'Turn the gate on and run it again.',
@@ -183,7 +183,7 @@ export const STEPS: Step<S>[] = [
     focus: 'decide',
     visibleControls: ['decide', 'play', 'approved'],
     narration:
-      'Same proposal, now held at the gate. Read-only marks come from the server, so trust them only from trusted servers.',
+      'Same proposal, now held at the gate. A tool’s “read-only” label comes from its server: trust it only from trusted servers.',
     act: 'Decide, then step through.',
     say: { block: 'gate', text: 'Held' },
     predicate: s => s.scene === 'inject-on' && s.decide === 'deny' && done(s),
@@ -229,6 +229,14 @@ export default function WhenToolsGoWrong() {
         </div>
       )}
       controls={{
+        fact: () => (
+          <>
+            <p className="note">
+              This model’s replies were recorded, so it obeys the note on every run. Real models obey some of the time:
+            </p>
+            <Fact id="injection-rate" />
+          </>
+        ),
         next: ({ state, apply }) => (
           <button
             type="button"

@@ -16,3 +16,21 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 ## Tabs
 
 Picture / Messages tabs: chapters 1–4 and 6 keep the tab as view state, outside saved progress; chapters 5 and 7 keep it in the step state. Agents' Picture / Steps tabs work the same way (chapter 7 passes `view` and `onView` to `AgentStage`).
+
+## Toy vs real
+
+Two kinds of number appear. Larkspur's orders, amounts, schema range, servers and calendar are the course's own story data (`data/tool-calling/`), and the host, its checks, the order system and the MCP servers run on them for real in the browser: nothing there stands in for a real-world rate, so they are real already. The model's replies are recorded (`turns/*.json`, never re-recorded for this, KTD5): `RecordedNote` in the kit says so beside them, and a cited fact on the same step gives the real figure.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 | Order 1042, its delivery date and items; the model's guess | `app-executes` | Real (story data, looked up for real); the guess is a recorded reply, labelled by `RecordedNote` |
+| 2 | Message n of N in the player | `tool-definition`, `descriptions-matter` (detailed descriptions are by far the biggest factor, Anthropic's docs) | Real (counted off the run); vague → no call is a recorded reply, labelled |
+| 3 | order_id from 1000 to 9999; the asked and wrong order numbers | `mcp-tool-errors`, `strict-mode` (a real strict mode stops the wrong-type call before it is sent) | Real (the schema the host checks); the retry is recorded, labelled |
+| 4 | The call cap: 6 (default), 2, 1 calls | `max-turns` (OpenAI's Agents SDK stops after 10 turns by default) | Labelled: a note says the 6 is picked for the story, and this host counts calls where the SDK counts turns, so it is not matched |
+| 4 | Two orders looked up in one turn | `parallel-calls`, `tool-choice` | Recorded reply, labelled |
+| 5 | 1–4 apps and systems; integrations apps × systems against apps + systems | `mcp-roles`, `mcp-features` | Real (worked out by `integrations()`) |
+| 5 | MCP version 2026-07-28 | `mcp-version` | Real (the fact) |
+| 6 | Refund limits: none, $500, $100; the refund asked for; the planted $5,000 refund; the ledger | `mcp-human`, `mcp-untrusted-annotations` | Real (story data, run by the host) |
+| 6 | The model obeys the planted note every run | `injection-rate` (GPT-4 followed planted instructions 24% of the time in Zhan et al.'s test) | Labelled: the note on the step says the replies are recorded, so it obeys every time, while real models obey some of the time |
+| 7 | 4 requests; the refund and its limit; the delivery window | `mcp-human` | Real (judged by `verdict()`, no recorded reply) |
+| Intro | Orders, tools and servers counted; the MCP version | `mcp-version` | Real (counted off the data; the fact) |
