@@ -1,0 +1,24 @@
+{
+  "note": "Fictional Larkspur customers written for this site, in real-world spellings. `record` is the name as the customer file stores it (NFC); `typed` is what arrives from the form, some typed decomposed (an accent as its own combining mark), as some keyboards and systems send it.",
+  "company": "Larkspur Supply Co.",
+  "customer": "Zoë",
+  "first": "Larkspur",
+  "plain": "Zoe",
+  "scripts": ["ë", "Ж", "中", "🙂"],
+  "widths": ["A", "ë", "中", "🙂"],
+  "family": "👨‍👩‍👧",
+  "thumbs": "👍🏽",
+  "accent": { "composed": "é", "decomposed": "é" },
+  "searched": { "record": "José Núñez", "typed": "José Núñez" },
+  "names": [
+    { "record": "Zoë Okafor", "typed": "Zoë Okafor" },
+    { "record": "José Núñez", "typed": "José Núñez" },
+    { "record": "Siobhán Ní Bhriain", "typed": "Siobhán Ní Bhriain" },
+    { "record": "Nguyễn Thị Minh Khai", "typed": "Nguyễn Thị Minh Khai" },
+    { "record": "Ελένη Παπαδοπούλου", "typed": "Ελένη Παπαδοπούλου" },
+    { "record": "Олександра Шевченко", "typed": "Олександра Шевченко" },
+    { "record": "王秀英", "typed": "王秀英" },
+    { "record": "Björn Guðmundsson", "typed": "Björn Guðmundsson" },
+    { "record": "Ana Lúcia Gonçalves", "typed": "Ana Lúcia Gonçalves" }
+  ]
+}

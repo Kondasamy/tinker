@@ -1,0 +1,7 @@
+{
+  "note": "Web addresses on the .example domain, written for this site. The second of each pair swaps one Latin letter for its Cyrillic lookalike (UTS #39 lists both as confusable).",
+  "pairs": [
+    { "real": "larkspur.example", "fake": "lаrkspur.example" },
+    { "real": "shop.example", "fake": "shоp.example" }
+  ]
+}
