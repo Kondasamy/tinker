@@ -29,7 +29,7 @@ Server times everywhere come from the cost model (`CostModelNote`: assumed unit 
 | 1 | Time to first token, time per token, 100–1,000-token prompts | `prefill-parallel`, `decode-memory-bound` | Labelled (cost model; prompt lengths are chosen settings) |
 | 2 | Larkspur mini's KV cache (KB) | Counted from `meta.json` | Real (for the toy) |
 | 2 | 800 KB a token, 1.6 GB a 2,048-token request, 40 layers, width 5,120 | `opt-13b`, `kv-800kb` | Matched (`OPEN_MODEL`) |
-| 2 | 14 GB KV room, requests that fit, slider 1–16 | `a100-split` | Matched (`MEMORY.at(-1)` = 40 GB − 26 GB of weights) |
+| 2 | 14 GB KV room, requests that fit, slider 1–16 | `a100-split` | Derived from facts (`MEMORY.at(-1)` = the 40 GB card − 26 GB of 16-bit weights; more than the paper’s ~30%, since it ignores working space) |
 | 3 | 24 requests, batch cap 8 | Hand-written trace | Labelled (`requests.json` note) |
 | 3 | Last reply done, longest first-token wait, tokens/s | `batching-amortizes`, `orca` | Labelled (cost model) |
 | 4 | 40 GB card, weights 26 / 13 / 6.5 GB, KV room, requests that fit | `a100-split`, `opt-13b` | Matched (`GPU_GB`, `OPEN_MODEL.params`) |
@@ -40,5 +40,5 @@ Server times everywhere come from the cost model (`CostModelNote`: assumed unit 
 | 6 | Batch caps 1–16, tokens/s, longest first-token wait, average time per token | `batching-amortizes` | Labelled (cost model) |
 | 7 | Targets 1 s and 25 ms | `distserve-chatbot-targets` | Labelled (team choice, said beside the facts) |
 | 7 | Requests on target, best score, settings that tie | `distserve-goodput` | Labelled (cost model; `WINNERS` computed) |
-| 7 | KV room 4 / 8 / 14 GB | `a100-split` | 4 and 8 assumed; 14 matched |
+| 7 | KV room 4 / 8 / 14 GB | `a100-split` | 4 and 8 assumed; 14 derived from facts |
 | Intro | 800 KB a token, 24 requests, the models' sizes, one request's times | `kv-800kb`; trace; `meta.json`; cost model | Matched / labelled / real / labelled |
