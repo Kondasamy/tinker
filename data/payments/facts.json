@@ -3,7 +3,7 @@
   "facts": [
     {
       "id": "four-party",
-      "claim": "In a four-party card scheme, a card payment moves from the payer’s account to the payee’s through the scheme, an issuer on the payer’s side and an acquirer on the payee’s side (EU Regulation 2015/751, Article 2).",
+      "claim": "EU Regulation 2015/751 (Article 2) describes a card payment moving from the payer’s account to the payee’s through the card network, an issuer bank on the payer’s side and an acquirer bank on the payee’s side: four parties and the network.",
       "source": "https://eur-lex.europa.eu/eli/reg/2015/751/oj"
     },
     {
@@ -31,12 +31,21 @@
     {
       "id": "hold",
       "claim": "Visa’s guide for US merchants says each approved authorisation reduces the cardholder’s available funds, a hold, and that authorisations a merchant won’t complete must be reversed.",
-      "source": "https://usa.visa.com/dam/VCOM/regional/na/us/support-legal/documents/authorization-and-reversal-processing-best-practices-for-merchants.pdf"
+      "source": "https://usa.visa.com/dam/VCOM/regional/na/us/support-legal/documents/authorization-and-reversal-processing-best-practices-for-merchants.pdf",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "hold-days",
+      "claim": "Visa’s rules (24 October 2026 edition, Table 5-11) give a payment the shopper starts online 10 calendar days from its authorisation to be completed, and most in-store payments 5.",
+      "value": "10",
+      "source": "https://usa.visa.com/dam/VCOM/download/about-visa/visa-rules-public.pdf",
+      "accessed": "2026-10-30"
     },
     {
       "id": "idempotency",
-      "claim": "An IETF Internet-Draft (draft-ietf-httpapi-idempotency-key-header, not yet an RFC) has the client send a unique Idempotency-Key so the server can recognise a retry and not repeat the operation.",
-      "source": "https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/"
+      "claim": "An IETF Internet-Draft (draft-ietf-httpapi-idempotency-key-header, revision 08 in October 2026, not yet an RFC) has the client send a unique Idempotency-Key so the server can recognise a retry and not repeat the operation.",
+      "source": "https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/",
+      "accessed": "2026-10-30"
     },
     {
       "id": "sca",
@@ -62,22 +71,33 @@
     {
       "id": "3ds",
       "claim": "EMV 3-D Secure shares payment and device data between merchant and issuer so the issuer can authenticate the shopper: many just click Buy, higher-risk ones face a challenge such as a one-time passcode.",
-      "source": "https://www.emvco.com/emv-technologies/3-d-secure/"
+      "source": "https://www.emvco.com/emv-technologies/3-d-secure/",
+      "accessed": "2026-10-30"
     },
     {
       "id": "liability-shift",
       "claim": "Visa’s dispute guide for merchants (October 2026) says a fully authenticated 3-D Secure payment is protected from fraud disputes; a payment without 3-D Secure is not.",
-      "source": "https://usa.visa.com/dam/VCOM/global/support-legal/documents/merchants-dispute-management-guidelines.pdf"
+      "source": "https://usa.visa.com/dam/VCOM/global/support-legal/documents/merchants-dispute-management-guidelines.pdf",
+      "accessed": "2026-10-30"
     },
     {
       "id": "dispute-groups",
       "claim": "Visa groups dispute reasons into four categories: Fraud, Authorization, Processing Errors and Consumer Disputes.",
-      "source": "https://usa.visa.com/dam/VCOM/global/support-legal/documents/merchants-dispute-management-guidelines.pdf"
+      "source": "https://usa.visa.com/dam/VCOM/global/support-legal/documents/merchants-dispute-management-guidelines.pdf",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "dispute-window",
+      "claim": "Visa’s rules (24 October 2026 edition, Table 11-30) let the card’s bank open a fraud dispute on an online payment up to 120 calendar days after the payment was processed.",
+      "value": "120",
+      "source": "https://usa.visa.com/dam/VCOM/download/about-visa/visa-rules-public.pdf",
+      "accessed": "2026-10-30"
     },
     {
       "id": "pan-masking",
       "claim": "Under the PCI card security standard (requirement 3.4.1), screens and reports show at most the first digits and last four of a card number, unless a documented business need justifies more.",
-      "source": "https://pcisecuritystandards.org/faq/articles/Frequently_Asked_Question/how-can-an-entity-meet-pci-dss-requirements-for-pan-masking-and-truncation-if-it-has-migrated-to-8-digit-bins"
+      "source": "https://pcisecuritystandards.org/faq/articles/Frequently_Asked_Question/how-can-an-entity-meet-pci-dss-requirements-for-pan-masking-and-truncation-if-it-has-migrated-to-8-digit-bins",
+      "accessed": "2026-10-30"
     }
   ]
 }

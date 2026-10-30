@@ -21,7 +21,7 @@ import {
 import { TUBE_PARTS, tubeAt } from '../../components/scenes/tubeScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Assumed, CaptureSwitch, KeySwitch, PaymentsStage, ScaSwitch, SimNote, type View } from './kit';
+import { Assumed, CaptureSwitch, Fact, KeySwitch, PaymentsStage, ScaSwitch, SimNote, type View } from './kit';
 
 const MODULE = 'payments',
   ID = '07-checkout-policy';
@@ -67,7 +67,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'ties',
     focus: 'quiz',
-    visibleControls: ['score', 'bench', 'quiz'],
+    visibleControls: ['score', 'bench', 'fact', 'quiz'],
     narration: `${eur(BEST)} is the most Larkspur can keep; yours is one of ${WINNERS.length} that work.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -205,6 +205,8 @@ export default function CheckoutPolicy() {
         score: ({ state }) => <Score s={state} />,
         // changing the policy is an attempt only while it is the puzzle
         bench: ({ state, apply, sync, focused }) => <BenchControls s={state} set={focused ? apply : sync} />,
+        // the real rule behind "ask only on risk": EU law lets a low-risk payment skip the check
+        fact: () => <Fact id="tra" />,
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

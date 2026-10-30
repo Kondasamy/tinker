@@ -272,6 +272,6 @@ export const Assumed = ({ k }: { k: keyof typeof ASSUMPTIONS.words }) => (
 /** Shown wherever the simulator's money appears (R6). */
 export const SimNote = () => (
   <p className="note pm-note">
-    A simulated day: Larkspur’s own orders, masked made-up cards and planning-number fees, not anyone’s real prices.
+    A simulated day: Larkspur’s own orders, masked made-up cards and made-up fees, not anyone’s real prices.
   </p>
 );

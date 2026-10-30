@@ -143,6 +143,8 @@ export default function TheMoneyComesBack() {
           <>
             <Fact id="liability-shift" />
             <Fact id="dispute-groups" />
+            <Fact id="dispute-window" />
+            <Assumed k="dispute" />
             <Assumed k="chargeback" />
             <Assumed k="fees-kept" />
             <SimNote />

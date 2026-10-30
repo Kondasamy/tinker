@@ -41,7 +41,7 @@ const IDEAS: [string, string, ReturnType<typeof fact>, TubeOpts][] = [
   ['Retries', 'A lost answer can mean two charges', fact('idempotency'), pic(tubeAt(LOOSE, 0, ['B2']))],
   [
     'Prove it’s you',
-    'A challenge stops thieves, and a few buyers',
+    'Asking for proof stops thieves, and a few buyers',
     fact('liability-shift'),
     pic(tubeAt(CHECK, 0, ['E5', 'C3', 'G7'])),
   ],
@@ -52,7 +52,10 @@ const FACTS: [string, string][] = [
   [String(ORDERS.length), 'card orders in Larkspur’s day, the one every chapter runs'],
   [String(PARTIES.length), 'parties every payment touches, counting the customer and Larkspur'],
   [String(DAYS), 'days and nights the clock runs, from the orders to the last dispute'],
-  [String(WINNERS.length), `checkout ${WINNERS.length === 1 ? 'policy keeps' : 'policies keep'} the most in chapter 7`],
+  [
+    String(WINNERS.length),
+    `${WINNERS.length === 1 ? 'set of checkout settings keeps' : 'sets of checkout settings keep'} the most in chapter 7`,
+  ],
 ];
 ---
 <html lang="en">
@@ -70,7 +73,7 @@ const FACTS: [string, string][] = [
           <p class="kicker">Module {NUMBER} · {MODULE.title}</p>
           <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>Where the money goes when you pay by card</h1>
-          <p class="lede">A card payment looks instant. It is really a hold, a promise and a transfer that night, and every party along the way takes a fee. Here you follow Larkspur’s customers’ money through the tubes, then set a checkout policy for each kind of order.</p>
+          <p class="lede">A card payment looks instant. It is really a hold, a promise and a transfer that night, and every party along the way takes a fee. Here you follow Larkspur’s customers’ money through the tubes, then choose the checkout settings for each kind of order.</p>
           <div class="ctas">
             <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
             <a class="btn" href="#path">See the chapters</a>
@@ -98,7 +101,7 @@ const FACTS: [string, string][] = [
             <p class="cap">Reaches Larkspur. The rest went in fees to three other parties.</p>
           </article>
         </div>
-        <p class="note more">Money comes from a simulated day: Larkspur’s own orders, masked made-up cards and planning-number fees, not anyone’s real prices.</p>
+        <p class="note more">Money comes from a simulated day: Larkspur’s own orders, masked made-up cards and made-up fees, not anyone’s real prices.</p>
       </section>
 
       <section aria-labelledby="how">

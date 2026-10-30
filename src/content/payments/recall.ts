@@ -73,7 +73,7 @@ export const RECALL: RecallItem[] = [
     why: [
       'Right: without it, every acquirer would need a link to every issuer.',
       'The money stays at the issuer until settlement; the network routes messages and settles between banks.',
-      'Cards come from the issuer; the network is the scheme that routes the payments.',
+      'Cards come from the issuer; the network routes the payment messages between the banks.',
     ],
   },
   // 2. A hold, not a payment
@@ -135,7 +135,7 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right: the day’s captures settle in a batch after the cut-off, with fees taken off.',
+      'Right: the day’s captures settle together each night, with fees taken off.',
       'The tap gets a yes, a hold; money moves later.',
       'Settlement runs on its own schedule; the café doesn’t have to ask.',
     ],
@@ -149,7 +149,7 @@ export const RECALL: RecallItem[] = [
     why: [
       'Right: interchange flows to the issuer, out of what the shop is paid.',
       'The shop pays fees; it doesn’t receive interchange.',
-      'The network takes its own scheme fee; interchange goes to the issuer.',
+      'The network takes its own fee; interchange goes to the issuer.',
     ],
   },
   {
@@ -164,8 +164,8 @@ export const RECALL: RecallItem[] = [
     correct: 0,
     why: [
       'Right: Regulation 2015/751 caps interchange on consumer debit and credit cards.',
-      'There are fees, just capped ones, plus the scheme’s and the acquirer’s.',
-      'The shop can choose its acquirer, but interchange is set by the schemes within the EU cap.',
+      'There are fees, just capped ones, plus the card network’s and the acquirer’s.',
+      'The shop can choose its acquirer, but interchange is set by the card networks within the EU cap.',
     ],
   },
   // 4. Pressed Pay twice
@@ -253,9 +253,9 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right: the low-value exemption allows it, within a running total or count since the last check.',
-      'The EU rules include exemptions, such as low value and low risk.',
-      'Exemptions have conditions, and the issuer can still ask for the check.',
+      'Right: the EU’s small-payment rule allows it, within a running total or count since the last check.',
+      'The EU rules let some payments skip the check, such as small or low-risk ones.',
+      'Skipping has conditions, and the issuer can still ask for the check.',
     ],
   },
   // 6. The money comes back
@@ -317,7 +317,7 @@ export const RECALL: RecallItem[] = [
     why: [
       'Right: each kind of order gets the check it can afford.',
       'Thieves buy cheap things too; the fraud is just cheaper to absorb.',
-      'The law allows a check at any amount; the exemption is a choice.',
+      'The law allows a check at any amount; skipping it is a choice.',
     ],
   },
   {
@@ -325,7 +325,7 @@ export const RECALL: RecallItem[] = [
     chapter: C7,
     question: 'A product ships two weeks after the order, after a hold would lapse. What helps?',
     options: [
-      'Capture at order, or get a new authorisation at shipment',
+      'Capture at order, or ask the bank for a new yes at shipment',
       'Wait: the hold lasts as long as needed',
       'Capture twice',
     ],

@@ -9,6 +9,7 @@ import {
   FEE_PARTIES,
   HOLD_DAYS,
   KINDS,
+  LOW_VALUE,
   ORDERS,
   PARTIES,
   SCAS,
@@ -134,7 +135,7 @@ describe('what the chapters teach', () => {
 
   it('under “never” the fraud loss falls on Larkspur; after a passed challenge, on the issuer', () => {
     const noor = orderOf('E5');
-    expect(noor.cents).toBeLessThanOrEqual(ASSUMPTIONS.lowValueCents);
+    expect(noor.cents).toBeLessThanOrEqual(LOW_VALUE);
     const never = runOrder(noor, { ...REF, sca: 'never' });
     expect(never.sca).toBe('exempt');
     expect(never.final).toBe('charged-back');
@@ -150,9 +151,7 @@ describe('what the chapters teach', () => {
 
   it('“never” only skips the challenge at or under the low-value limit', () => {
     for (const o of ORDERS)
-      expect(runOrder(o, { ...REF, sca: 'never' }).sca).toBe(
-        o.cents <= ASSUMPTIONS.lowValueCents ? 'exempt' : 'challenge',
-      );
+      expect(runOrder(o, { ...REF, sca: 'never' }).sca).toBe(o.cents <= LOW_VALUE ? 'exempt' : 'challenge');
   });
 
   it('an honest customer who would give up does so only when challenged', () => {
