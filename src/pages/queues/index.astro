@@ -29,10 +29,15 @@ const IDEAS: [string, string, ReturnType<typeof fact> | null, RailOpts][] = [
   [
     'A ticket, not a wait',
     'The till answers; a worker does the slow part',
-    fact('lease'),
+    fact('work-queue'),
     pic(railAt(runOf(SCENES.one), 3)),
   ],
-  ['The line grows', 'More orders arrive than one worker finishes', null, pic(railAt(runOf(SCENES.one), 18))],
+  [
+    'The line grows',
+    'More orders arrive than one worker finishes',
+    fact('littles-law'),
+    pic(railAt(runOf(SCENES.one), 18)),
+  ],
   ['Try again later', 'Backoff and jitter ride out an outage', fact('jitter'), pic(railAt(runOf(SCENES.jitter), 12))],
   ['Ran twice', 'A crash brings a job back, so jobs must be safe to repeat', fact('at-least-once'), HERO],
 ];

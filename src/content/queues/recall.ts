@@ -156,7 +156,7 @@ export const RECALL: RecallItem[] = [
   {
     id: 'backoff-why',
     chapter: C4,
-    question: 'A payment API is down for ten minutes. Your jobs retry every second, five tries each. What happens?',
+    question: 'A payment service is down for ten minutes. Your jobs retry every second, five tries each. What happens?',
     options: [
       'Every job uses up its tries in five seconds and is given up on',
       'They all succeed when it comes back',
@@ -165,7 +165,7 @@ export const RECALL: RecallItem[] = [
     correct: 0,
     why: [
       'Right: retries at once burn through the tries long before a ten-minute outage ends.',
-      'They gave up within seconds, long before the API returned.',
+      'They gave up within seconds, long before the service returned.',
       'Retrying at once isn’t waiting; each try is spent against a service that is still down.',
     ],
   },
@@ -188,8 +188,7 @@ export const RECALL: RecallItem[] = [
   {
     id: 'jitter-why',
     chapter: C4,
-    question:
-      'A thousand clients fail at the same second and all back off by exactly 2, 4, 8 seconds. What goes wrong?',
+    question: 'A thousand apps fail at the same second and all back off by exactly 2, 4, 8 seconds. What goes wrong?',
     options: [
       'They all retry at the same moments, in bursts',
       'Nothing: backoff alone is enough',

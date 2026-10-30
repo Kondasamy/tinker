@@ -24,7 +24,6 @@ const PENDING = new Set<string>([
   'email',
   'load-balancing',
   'logins',
-  'queues',
   'rag',
   'unicode',
 ]);

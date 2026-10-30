@@ -1,6 +1,6 @@
 // Chapter 3: when the line grows. The sale opens and orders arrive faster than one worker finishes them: the backlog
 // grows every minute. The reader predicts it, watches it, then adds workers until it drains (any count that drains it
-// in time passes). Inference's serving floor, where a GPU batches requests, gets one line.
+// in time passes). Inference engineering's batching chapter, where a GPU serves requests together, gets one line.
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
@@ -11,7 +11,7 @@ import { WORKERS } from '../../lib/queues/workbench';
 import { RAIL_PARTS, railAt } from '../../components/scenes/railScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Pick, QueuesStage, SimNote, type View } from './kit';
+import { Fact, Pick, QueuesStage, SimNote, type View } from './kit';
 
 const MODULE = 'queues',
   ID = '03-when-the-line-grows';
@@ -146,9 +146,10 @@ export default function WhenTheLineGrows() {
               onChange={workers => apply({ ...state, workers, t: DRAIN })}
             />
             <p className="note qu-note">
-              {`Rail at ${clock(DRAIN)}: ${backlogAt(state.workers, DRAIN)} waiting. `}A GPU serves many requests in one
-              batch instead: see <a href="/inference/03-batching/">Inference’s serving floor</a>.
+              {`Rail at ${clock(DRAIN)}: ${backlogAt(state.workers, DRAIN)} waiting. `}An AI chip serves many requests
+              in one go instead: see <a href="/inference/03-batching/">Batching</a>.
             </p>
+            <Fact id="littles-law" />
           </>
         ),
         quiz: ({ state, apply, sync }) => (

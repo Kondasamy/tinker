@@ -2,35 +2,68 @@
   "accessed": "2026-10-25",
   "facts": [
     {
+      "id": "request-timeout",
+      "claim": "Heroku’s docs (checked 2026-10-30) say its router cuts off any web request that takes longer than 30 seconds, a limit you can’t change, and advise moving that work to a background job.",
+      "value": "30",
+      "source": "https://devcenter.heroku.com/articles/request-timeout",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "work-queue",
+      "claim": "RabbitMQ’s tutorial (checked 2026-10-30) says a work queue lets an app skip doing slow work right away and do it later instead, which helps most on websites, where a page can’t wait for a long task.",
+      "source": "https://www.rabbitmq.com/tutorials/tutorial-two-python",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "littles-law",
+      "claim": "John Little (1961) proved that in a queue that stays steady over time, the average number of jobs inside equals how many arrive per unit of time times the average time each one spends there.",
+      "value": "L = λW",
+      "source": "https://doi.org/10.1287/opre.9.3.383",
+      "accessed": "2026-10-30"
+    },
+    {
       "id": "lease",
-      "claim": "Amazon SQS’s guide says a received message stays in the queue, hidden from other consumers for a visibility timeout (30 seconds by default); if it is not deleted in time, it becomes visible again.",
+      "claim": "Amazon SQS’s guide (checked 2026-10-30) says a message a worker takes stays in the queue but hidden from other workers for a set time, 30 seconds by default; if it isn’t deleted by then, it shows up again.",
       "value": "30 seconds",
-      "source": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html"
+      "source": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html",
+      "accessed": "2026-10-30"
     },
     {
       "id": "lease-crash",
-      "claim": "The same guide says a message not deleted before the timeout, after a crash or an error, comes back for another try, and that a timeout set too high slows those retries.",
-      "source": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html"
+      "claim": "The same guide says a message not deleted in time, after a crash or an error, comes back for another try, and that a hidden time set too long slows those retries.",
+      "source": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "lease-fit",
+      "claim": "The same guide (checked 2026-10-30) advises setting the hidden time to match the longest a job usually takes to finish, and caps it at 12 hours.",
+      "value": "12 hours",
+      "source": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html",
+      "accessed": "2026-10-30"
     },
     {
       "id": "at-least-once",
-      "claim": "Amazon SQS’s guide says a standard queue may deliver a message copy again, and asks for idempotent apps: ones not harmed by processing the same message more than once.",
-      "source": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/standard-queues-at-least-once-delivery.html"
+      "claim": "Amazon SQS’s guide (checked 2026-10-30) says a standard queue may deliver a copy of a message again, and asks for idempotent apps: ones not harmed by handling the same message more than once.",
+      "source": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/standard-queues-at-least-once-delivery.html",
+      "accessed": "2026-10-30"
     },
     {
       "id": "requeue",
-      "claim": "RabbitMQ’s guide says a delivery not yet acknowledged is put back on the queue when its consumer’s connection closes, and asks consumers to be written with idempotence in mind.",
-      "source": "https://www.rabbitmq.com/docs/confirms"
+      "claim": "RabbitMQ’s guide (checked 2026-10-30) says a message not yet marked done is put back on the queue when its worker’s connection closes, and asks for workers that are safe to repeat a job.",
+      "source": "https://www.rabbitmq.com/docs/confirms",
+      "accessed": "2026-10-30"
     },
     {
       "id": "dead-letter",
-      "claim": "Amazon SQS’s guide says a message received more times than the queue’s maxReceiveCount is moved to a dead-letter queue, where it can be examined and later sent back.",
-      "source": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html"
+      "claim": "Amazon SQS’s guide (checked 2026-10-30) says a message taken more times than the limit the queue sets is moved to a dead-letter queue, where it can be looked at and later sent back.",
+      "source": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html",
+      "accessed": "2026-10-30"
     },
     {
       "id": "jitter",
-      "claim": "Marc Brooker (AWS Architecture Blog, 2015) found that backoff alone still leaves retries in clusters, and that adding jitter spreads them out and more than halves the calls in his simulation.",
-      "source": "https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/"
+      "claim": "Marc Brooker (AWS Architecture Blog, 2015) found that backoff alone still leaves retries in clusters, and that adding jitter spreads them out and more than halves the calls in his simulation of 100 callers.",
+      "source": "https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/",
+      "accessed": "2026-10-30"
     }
   ]
 }
