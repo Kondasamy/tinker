@@ -13,7 +13,7 @@ import { fact } from '../../lib/tokens/facts';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { Fact, TokensStage } from './kit';
+import { Fact, ToyNote, TokensStage } from './kit';
 
 const MODULE = 'tokens',
   ID = '07-workbench';
@@ -164,6 +164,7 @@ export default function Workbench() {
           <>
             <Fact id="billed-in-tokens" />
             <Fact id="count-estimate" />
+            <ToyNote />
             <Quiz
               {...QUIZ}
               unsure
