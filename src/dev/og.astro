@@ -397,6 +397,15 @@ import { RING_BOARD, ringScene, type RingOpts } from '../components/scenes/ringS
 import { sceneOf as ptScene, type PassState } from '../content/parallel-training/kit';
 import { fillsAfter as ptFills, ringAllReduce as ptRing } from '../lib/parallel-training/ring';
 import { memoryOf as ptMemory, stateOf as ptState } from '../lib/parallel-training/memory';
+import { PHONE_CRATE_BOARD, phoneCrateScene, type PhoneCrateOpts } from '../components/scenes/phoneCrateScene';
+import {
+  bricksOf as odBricks,
+  cacheBytes as odCache,
+  sizeOf as odSize,
+  weightBytes as odWeights,
+  type SizeId as OdSize,
+} from '../lib/on-device/memory';
+import { levelAfter as odLevel } from '../lib/on-device/battery';
 import { CHIP as PT_CHIP } from '../lib/parallel-training/facts';
 import {
   STEELYARD_BOARD,
@@ -1986,6 +1995,32 @@ const TAPE_OG: Record<string, () => Omit<TapeOpts, 'scale'>> = {
   'unicode-07-workbench': () => ucTape(ucShown(UC_WINNERS[0]), 'utf-8'),
 };
 const tapeOg = TAPE_OG[page.og]?.();
+// module 57: the warehouse aisle. The intro and 7: the 3B at 4 bits with a shift's context, its tank after a shift of
+// short replies; 1: the 3B at 16 bits spilling; 2: the 1B at 8 bits; 3: the cache spilling at 4,000 tokens; 4: the
+// tank half gone; 5: hot; 6: the longest context, too big for the handheld.
+const odPack = (
+  size: OdSize,
+  bits: number,
+  tokens = 0,
+  rest: Partial<PhoneCrateOpts> = {},
+): Omit<PhoneCrateOpts, 'scale'> => ({
+  weights: odBricks(odWeights(odSize(size), bits)),
+  cache: odBricks(odCache(odSize(size), tokens)),
+  level: 1,
+  ...rest,
+});
+const odShift = () => odPack('3b', 4, 2000, { level: odLevel(odSize('3b'), 4, 'short', 8) });
+const PHONE_CRATE_OG: Record<string, () => Omit<PhoneCrateOpts, 'scale'>> = {
+  'on-device': odShift,
+  'on-device-01-will-it-fit': () => odPack('3b', 16),
+  'on-device-02-smaller-numbers': () => odPack('1b', 8),
+  'on-device-03-working-memory': () => odPack('3b', 4, 4000),
+  'on-device-04-battery-tank': () => odPack('3b', 4, 0, { level: odLevel(odSize('3b'), 4, 'long', 4) }),
+  'on-device-05-heat-and-speed': () => odPack('3b', 4, 0, { hot: true }),
+  'on-device-06-what-never-leaves': () => odPack('3b', 4, 8000),
+  'on-device-07-workbench': odShift,
+};
+const phoneCrateOg = PHONE_CRATE_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -2068,6 +2103,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : steelyardOg ? <IsoStage board={STEELYARD_BOARD} scene={steelyardScene({ ...steelyardOg, scale: 1.3 })} label="" />
           : rtOg ? <IsoStage board={BARREL_BOARD} scene={barrelScene({ ...rtOg, scale: 1.3 })} label="" />
           : tapeOg ? <IsoStage board={TAPE_BOARD} scene={tapeScene({ ...tapeOg, scale: 1.3 })} label="" />
+          : phoneCrateOg ? <IsoStage board={PHONE_CRATE_BOARD} scene={phoneCrateScene({ ...phoneCrateOg, scale: 1.3 })} label="" />
           : dreamOg ? <IsoStage board={dreamBoard(dreamOg)} scene={dreamScene({ ...dreamOg, scale: 1.3 })} label="" />
           : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
           : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />

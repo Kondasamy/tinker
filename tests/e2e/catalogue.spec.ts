@@ -63,6 +63,7 @@ const NUMBERED = [
   'rate-limits',
   'unicode',
   'backups',
+  'on-device',
 ];
 
 // AI modules lead the catalogue; classic tech follows in its own section of compact cards
@@ -440,6 +441,10 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
   await expect(page.locator('[data-level="Beginner"] .module[data-module="rate-limits"] h4 a')).toHaveAttribute(
     'href',
     '/rate-limits/',
+  );
+  await expect(page.locator('[data-level="Intermediate"] .module[data-module="on-device"] h4 a')).toHaveAttribute(
+    'href',
+    '/on-device/',
   );
 });
 

@@ -55,6 +55,7 @@ import { CHOOSING_MODELS_MODULE } from '../content/choosing-models/module';
 import { RATE_LIMITS_MODULE } from '../content/rate-limits/module';
 import { UNICODE_MODULE } from '../content/unicode/module';
 import { BACKUPS_MODULE } from '../content/backups/module';
+import { ON_DEVICE_MODULE } from '../content/on-device/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -169,12 +170,7 @@ export const MODULES: Module[] = [
   RATE_LIMITS_MODULE,
   UNICODE_MODULE,
   BACKUPS_MODULE,
-  planned(
-    'on-device',
-    'Models on your device',
-    'Intermediate',
-    'A model that runs on a phone: what fits in its memory, what it costs the battery, and what never leaves it.',
-  ),
+  ON_DEVICE_MODULE,
   planned(
     'robots',
     'Robots that act',

@@ -2561,5 +2561,50 @@
       "bench",
       "cheap"
     ]
+  },
+  "on-device": {
+    "01-will-it-fit": [
+      "one-b",
+      "predict",
+      "three-b",
+      "quiz"
+    ],
+    "02-smaller-numbers": [
+      "eight",
+      "predict",
+      "ask",
+      "lower",
+      "quiz"
+    ],
+    "03-working-memory": [
+      "thousand",
+      "predict",
+      "raise",
+      "quiz"
+    ],
+    "04-battery-tank": [
+      "hour",
+      "predict",
+      "shift",
+      "short",
+      "quiz"
+    ],
+    "05-heat-and-speed": [
+      "rush-long",
+      "predict",
+      "rush-short",
+      "quiz"
+    ],
+    "06-what-never-leaves": [
+      "device",
+      "predict",
+      "cloud",
+      "fallback",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "quiz"
+    ]
   }
 }

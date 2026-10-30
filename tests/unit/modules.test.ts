@@ -919,6 +919,18 @@ describe('module registry', () => {
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'backups')).toBe(55);
   });
 
+  it('has on-device as a live Intermediate module after parallel-training, numbered 53', () => {
+    expect(moduleOf('on-device')).toMatchObject({
+      title: 'Models on your device',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: ['inference'],
+    });
+    expect(moduleOf('on-device').track).toBeUndefined();
+    expect(moduleOf('on-device').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'on-device')).toBe(52);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

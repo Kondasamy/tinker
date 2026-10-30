@@ -162,6 +162,19 @@ import { BARREL_BOARD, barrelCard, barrelLabel, barrelScene } from '../component
 import { TAPE_BOARD, tapeLabel, tapeScene } from '../components/scenes/tapeScene';
 import { tapeOf as ucTape } from '../content/unicode/kit';
 import { CUSTOMER as UC_CUSTOMER } from '../lib/unicode/story';
+import {
+  PHONE_CRATE_BOARD,
+  phoneCrateLabel,
+  phoneCrateScene,
+  type PhoneCrateOpts,
+} from '../components/scenes/phoneCrateScene';
+import {
+  bricksOf as odBricks,
+  cacheBytes as odCache,
+  sizeOf as odSize,
+  weightBytes as odWeights,
+} from '../lib/on-device/memory';
+import { levelAfter as odLevel } from '../lib/on-device/battery';
 import { FORM } from '../lib/site';
 
 const one =
@@ -458,6 +471,14 @@ const HALL = { ...cmHall('larkspur', { quality: 2, cost: 1, wait: 1 }, { out: ['
 const BARREL = barrelCard(1.7);
 // unicode: the customer's name punched in UTF-8 and read with Latin-1, as the intro draws it
 const TAPE = { ...ucTape(UC_CUSTOMER, 'windows-1252'), scale: 1.7 };
+// on-device: the 3B at 4 bits with a shift's context, its tank after a shift of short replies, as the intro draws it
+const OD_3B = odSize('3b');
+const PHONE_CRATE: PhoneCrateOpts = {
+  weights: odBricks(odWeights(OD_3B, 4)),
+  cache: odBricks(odCache(OD_3B, 2000)),
+  level: odLevel(OD_3B, 4, 'short', 8),
+  scale: 1.7,
+};
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -1128,6 +1149,11 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Ransomware',
       'Test restores',
     ],
+  },
+  'on-device': {
+    name: 'Models on your device',
+    iso: { board: PHONE_CRATE_BOARD, scene: phoneCrateScene(PHONE_CRATE), label: phoneCrateLabel(PHONE_CRATE) },
+    topics: ['On-device AI', 'Memory', 'Quantization', 'KV cache', 'Battery', 'Throttling', 'Privacy'],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];
