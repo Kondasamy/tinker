@@ -48,7 +48,7 @@ export const QUIZ = {
   why: [
     'Right: his domain lists his server, so SPF passes for it; the shop’s record never comes up.',
     'SPF never reads the From line, only the envelope sender’s domain.',
-    'Softfail is what a record says about an unlisted server; his server is listed by his own record.',
+    'Softfail is what a record ending ~all says about an unlisted server; his own record lists his.',
   ],
 };
 
@@ -110,7 +110,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out1', 'quiz'],
-    narration: `Pass, for ${FORGER}. SPF checks the envelope’s domain, never the From line Hollis reads.`,
+    narration: `Pass, for ${FORGER}: SPF checks the envelope’s domain, not From. Unlisted servers get fail, or softfail under ~all.`,
     act: 'One question to finish.',
     say: { block: 'spf', text: 'Wrong domain' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,

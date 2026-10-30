@@ -12,6 +12,8 @@ const counts = (spam: boolean) => {
   for (const d of docs) for (const w of new Set(tokens(d.text))) df.set(w, (df.get(w) ?? 0) + 1);
   return { n: docs.length, df };
 };
+/** how many hand-written messages the filter counts over */
+export const SPAM_SET = set.messages.length;
 const SPAM = counts(true),
   HAM = counts(false);
 const p = (c: typeof SPAM, w: string) => ((c.df.get(w) ?? 0) + 1) / (c.n + 2);

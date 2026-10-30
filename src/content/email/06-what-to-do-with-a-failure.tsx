@@ -10,7 +10,7 @@ import { Outcome } from '../tool-calling/kit';
 import { POST_PARTS } from '../../components/scenes/postScene';
 import type { Policy, Records } from '../../lib/email/dns';
 import { domainOf, fromOf, parse } from '../../lib/email/parse';
-import { scoreText, spamWords } from '../../lib/email/spam';
+import { SPAM_SET, scoreText, spamWords } from '../../lib/email/spam';
 import { DOMAIN, FORGER, FORWARDER, MESSAGES, RECORDS, verdictOf, type MessageId } from '../../lib/email/story';
 import { POLICIES } from '../../lib/email/workbench';
 import { nextOf } from '../../lib/modules';
@@ -175,9 +175,9 @@ export default function WhatToDoWithAFailure() {
         ),
         bulk: () => (
           <>
-            <Fact id="gmail-2024" />
+            <p className="note em-note">{`A toy spam filter: it counts words over ${SPAM_SET} hand-written messages. Real filters learn from far more, and watch how often people report a sender:`}</p>
+            <Fact id="spam-rate" />
             <Fact id="yahoo-2024" />
-            <p className="note em-note">The spam filter counts words over a small hand-written set.</p>
             <DemoNote />
           </>
         ),

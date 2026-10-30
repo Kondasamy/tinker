@@ -24,6 +24,6 @@
     "spaces": ["within 30 days.", "within  30  days.   "]
   },
   "selector": "demo2026",
-  "receiverRule": "Hollis’s mail provider puts mail that passes neither SPF nor DKIM in junk.",
+  "receiverRule": "Hollis’s mail provider puts mail that passes neither of the two checks that vouch for a sender, SPF and DKIM, in junk.",
   "spamThreshold": 0.5
 }

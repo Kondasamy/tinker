@@ -123,7 +123,8 @@ export default function EnvelopeAndLetter() {
         ),
         rule: () => (
           <>
-            <p className="note em-note">{`${RECEIVER_RULE} A stand-in rule for this module.`}</p>
+            <p className="note em-note">{`${RECEIVER_RULE} A stand-in rule for this module, modelled on Gmail’s:`}</p>
+            <Fact id="gmail-all" />
             <DemoNote />
           </>
         ),

@@ -53,11 +53,11 @@ export const QUIZ = {
   question: 'A supplier’s signed price list arrives with one price changed by someone on the way. What does DKIM show?',
   options: ['The signature fails', 'It passes: prices aren’t headers', 'It passes if the change is small'],
   correct: 0,
-  explanation: 'The signature covers a hash of the whole body; any real change breaks it.',
+  explanation: 'The signature covers a fingerprint of the whole body; any real change breaks it.',
   why: [
-    'Right: the body hash no longer matches, so the seal fails.',
-    'The body is signed too, through its hash, not only the headers.',
-    'Size doesn’t matter: one changed character changes the hash completely.',
+    'Right: the body’s fingerprint no longer matches, so the seal fails.',
+    'The body is signed too, through its fingerprint, not only the headers.',
+    'Size doesn’t matter: one changed character changes the fingerprint completely.',
   ],
 };
 
@@ -74,7 +74,7 @@ export const STEPS: Step<S>[] = [
     id: 'seal',
     focus: 'seal',
     visibleControls: ['seal'],
-    narration: 'DKIM seals the letter: a hash of its headers and body, signed with Larkspur’s private key.',
+    narration: 'DKIM seals the letter: a fingerprint of its headers and body, signed with Larkspur’s private key.',
     act: 'Turn DKIM signing on.',
     say: { block: 'dkim', text: 'The seal' },
     predicate: s => s.signed,

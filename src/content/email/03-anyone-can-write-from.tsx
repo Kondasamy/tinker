@@ -135,6 +135,7 @@ export default function AnyoneCanWriteFrom() {
         out1: ({ state }) => (
           <>
             <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />
+            <Fact id="spoofing" />
             <DemoNote />
           </>
         ),

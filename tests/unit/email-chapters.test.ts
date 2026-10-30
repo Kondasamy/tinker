@@ -1,7 +1,9 @@
 // How email arrives' chapters against the engine (KTD10): every reveal says what the checks give, chapter 4's puzzle
 // accepts every record that works, and chapter 7's Show me is in WINNERS.
 import { describe, expect, it } from 'vitest';
-import { START, WINNERS, benchOf, wins } from '../../src/lib/email/workbench';
+import { FAKES, REAL, START, WINNERS, benchOf, wins } from '../../src/lib/email/workbench';
+import { LOOKUP_LIMIT } from '../../src/lib/email/spf';
+import { fact } from '../../src/lib/email/facts';
 import { verdictOf } from '../../src/lib/email/story';
 import * as ch1 from '../../src/content/email/01-envelope-and-letter';
 import * as ch2 from '../../src/content/email/02-who-takes-it-next';
@@ -61,5 +63,16 @@ describe('chapter 7’s workbench', () => {
   });
   it('the start is not a winner', () => {
     expect(bench.predicate(blank)).toBe(false);
+  });
+});
+
+describe('toy numbers against the facts', () => {
+  it('SPF’s lookup cap is RFC 7208’s, read from the fact', () => {
+    expect(LOOKUP_LIMIT).toBe(10);
+    expect(LOOKUP_LIMIT).toBe(Number(fact('spf').value));
+  });
+  it('chapter 7’s made-up day stays “far under” Gmail’s bulk line', () => {
+    expect(ch7.BULK).toBe(5000);
+    expect((REAL + FAKES) * 10).toBeLessThan(ch7.BULK);
   });
 });
