@@ -37,7 +37,6 @@ const PENDING = new Set<string>([
   'logins',
   'memorisation',
   'mixture-of-experts',
-  'multimodal',
   'on-device',
   'parallel-training',
   'post-training',

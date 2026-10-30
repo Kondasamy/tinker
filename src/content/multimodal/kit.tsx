@@ -309,6 +309,7 @@ export function Fact({ id }: { id: string }) {
 export const RecordedNote = () => (
   <p className="mm-note">
     The readings were written for this site to illustrate the cited findings; they were not measured on a real model.
-    Image token counts follow Anthropic’s published rule, computed live; OCR text is counted with this site’s tokenizer.
+    Image token counts follow Anthropic’s published rule, computed live; OCR text is counted with this site’s own small
+    tokenizer, so a real model’s count of the same text will differ a little.
   </p>
 );

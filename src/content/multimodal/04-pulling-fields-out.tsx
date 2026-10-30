@@ -11,7 +11,7 @@ import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
 import { SCAN_PARTS } from '../../components/scenes/scanScene';
-import { MultimodalStage, ReadingCard, RecordedNote, px } from './kit';
+import { Fact, MultimodalStage, ReadingCard, RecordedNote, px } from './kit';
 
 const MODULE = 'multimodal',
   ID = '04-pulling-fields-out';
@@ -144,10 +144,17 @@ export default function PullingFieldsOut() {
             <RecordedNote />
           </>
         ),
-        same: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={outcome()} />,
+        same: ({ state }) => (
+          <>
+            <Outcome {...P1} prediction={state.p1} outcome={outcome()} />
+            <Fact id="text-first-gap" />
+            <p className="mm-note">A real test may not tie as cleanly as this toy: test on a sample first.</p>
+            <Fact id="field-by-field" />
+          </>
+        ),
         links: () => (
           <p className="tc-fact">
-            To get the fields back in the same form every time, ask for them as JSON that must match a schema. The{' '}
+            To get the fields back in the same form every time, ask for them in a fixed format the reply must match. The{' '}
             <a href="/structured-outputs/">Structured outputs</a> module shows how.
           </p>
         ),

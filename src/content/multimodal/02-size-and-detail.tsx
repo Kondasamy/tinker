@@ -81,7 +81,7 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['found', 'quiz'],
     narration:
-      'Small print goes first, then the number’s last digit. Over the limit, the host will downscale: extra pixels buy nothing.',
+      'Small print goes first, then the number’s last digit. Over the limit, the provider will downscale it: extra pixels buy nothing.',
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'What happened to the payment terms as the invoice shrank?',
@@ -125,12 +125,12 @@ export default function SizeAndDetail() {
             />
             <ReadingCard image="invoice" size={state.size} method="vision" />
             <RecordedNote />
+            <Fact id="text-legible" />
           </>
         ),
         found: ({ state }) => (
           <>
             <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />
-            <Fact id="text-legible" />
             <Fact id="high-res-tier" />
             <Fact id="resize-rule" />
             <Fact id="small-images" />

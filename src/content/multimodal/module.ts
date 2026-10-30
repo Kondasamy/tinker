@@ -42,7 +42,7 @@ const CHAPTERS: Chapter[] = [
       ],
       terms: [
         ['Resolution', 'How many pixels an image has across and down. Here the size is the long edge in pixels.'],
-        ['Downscale', 'Shrinking an image to fewer pixels. The model’s host does it to any image over its limits.'],
+        ['Downscale', 'Shrinking an image to fewer pixels. The model’s provider does it to any image over its limits.'],
         ['Small print', 'The smallest text on a page: terms, footnotes, fine detail. It blurs away first.'],
       ],
     },
@@ -125,7 +125,10 @@ const CHAPTERS: Chapter[] = [
       ],
       terms: [
         ['Misread', 'A reading that comes back confident and wrong, like a smudged 8 read as a 3.'],
-        ['Cross-check', 'A rule the host runs on the reading, such as “the lines must add up to the total”.'],
+        [
+          'Cross-check',
+          'A rule Larkspur’s own software runs on the reading, such as “the lines must add up to the total”.',
+        ],
         [
           'Prompt injection',
           'Text written to steer a model, hidden in something it reads: an email, a web page, or an image.',

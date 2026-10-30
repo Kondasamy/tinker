@@ -21,7 +21,7 @@ import {
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { SCAN_PARTS } from '../../components/scenes/scanScene';
-import { MultimodalStage, RecordedNote, px, type View } from './kit';
+import { Fact, MultimodalStage, RecordedNote, px, type View } from './kit';
 
 const MODULE = 'multimodal',
   ID = '07-workbench';
@@ -124,6 +124,7 @@ function Score({ s }: { s: S }) {
         </tbody>
       </table>
       <RecordedNote />
+      <Fact id="image-price" />
     </div>
   );
 }
