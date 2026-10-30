@@ -41,8 +41,10 @@ export function matchRule(text: string, list: readonly Rule[] = RULES) {
   return list.find(r => r.keywords.some(k => said.includes(` ${words(k).join(' ')} `)));
 }
 
-/** The intent bot: Labelling's triage model, counted from Larkspur's labelled tickets with Labelling's intents. */
-export const TRIAGE = train(TICKETS, INTENT_IDS);
+/** The intent bot: Labelling's triage model, counted from Larkspur's labelled tickets with Labelling's intents. Counted
+ * on first use, so a page that only draws the kiosk (the home hero) never trains it. */
+let triage: ReturnType<typeof train> | undefined;
+const TRIAGE = () => (triage ??= train(TICKETS, INTENT_IDS));
 /**
  * Below this lead of its top intent over the next, the intent bot falls back. A message with no word the tickets use
  * scores 0 (every intent has the same share of tickets) and off-list ones stay near it; "Where is my order?" leads
@@ -62,8 +64,8 @@ export interface Run {
 /** One message through all three bots. */
 export function run(message: Message): Run {
   const rule = matchRule(message.text),
-    top = scores(TRIAGE, message.text)[0][0],
-    lead = margin(TRIAGE, message.text),
+    top = scores(TRIAGE(), message.text)[0][0],
+    lead = margin(TRIAGE(), message.text),
     sure = lead >= MARGIN_FLOOR,
     reply = (replies.replies as Record<string, string>)[message.id];
   return {

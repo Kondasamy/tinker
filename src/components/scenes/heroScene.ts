@@ -62,6 +62,7 @@ import { hatchPlot } from './hatchScene';
 import { ringPlot } from './ringScene';
 import { steelyardPlot } from './steelyardScene';
 import { clawPlot } from './clawScene';
+import { kioskPlot } from './kioskScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
@@ -226,7 +227,7 @@ export const heroScene =
  * short queue belt with two envelopes waiting; observability a short wall of three trace cards, one failed, over a sorting bin;
  * sandboxing a small walled yard, the agent's desk inside and a gated door in its front wall; multimodal a small scanning
  * table, a sheet with its patch grid under a camera post and three token tiles; voice a small phone desk, a squat telephone
- * and a mint ear drum on a short belt */
+ * and a mint ear drum on a short belt; before GenAI the scripted help kiosk, its button panel and a raised reply card */
 const DRAW: Record<string, HeroPlot['draw']> = {
   // at the plot's right-hand corner, clear of the pill row
   agents: (x, y, { top }) =>
@@ -282,6 +283,7 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   'choosing-models': (x, y, { top }) => steelyardPlot(x + 14, y - 2, top),
   'on-device': (x, y, { top }) => phoneCratePlot(x + 14, y - 2, top),
   robots: (x, y, { top }) => clawPlot(x + 14, y - 2, top),
+  'before-genai': (x, y, { top }) => kioskPlot(x + 14, y - 2, top),
 };
 // only AI modules take a turn on the stand: classic tech waits in the catalogue. The prequel (registry first) goes last, so
 // the stand, newest first, opens on it and the share image shows it; RAG and tool calling keep their own plots
