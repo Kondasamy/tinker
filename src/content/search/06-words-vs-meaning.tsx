@@ -66,7 +66,7 @@ export const QUIZ = {
   explanation: 'Keywords and meaning fail in opposite places, so a blend covers both.',
   why: [
     'Right: an exact code is a word match, and a description in other words is a meaning match.',
-    'Meaning blurs exact strings, as the part number ranked far down showed.',
+    'Meaning blurs exact codes, as the part number ranked far down showed.',
     'Keywords miss every search worded differently from its answer, like the sign-on page.',
   ],
 };
@@ -126,7 +126,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['facts', 'quiz'],
-    narration: `With meaning at ${Math.round(BLEND * 100)}%, both answers land in the top ${TOP}. RAG retrieves by meaning the same way.`,
+    narration: `With meaning at ${Math.round(BLEND * 100)}%, both answers land in the top ${TOP}. RAG finds pages by meaning the same way.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which half catches “E-4471”, and which catches “goes black”?',
@@ -175,7 +175,7 @@ export default function WordsVsMeaning() {
               postings: words ? { query: q.text, settings: DEFAULT } : undefined,
               caption:
                 !words && !meanings
-                  ? 'Loading the meaning vectors…'
+                  ? 'Loading the embeddings…'
                   : `“${q.text}”: the answer, ${pageName(q.right[0])}, ${at ? `ranks ${ordinal(at)}` : 'never matches'}.`,
             }}
           />

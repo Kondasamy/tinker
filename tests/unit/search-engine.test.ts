@@ -10,7 +10,9 @@ import { diskLoader } from '../../src/lib/rag/diskLoader';
 import { openIndex } from '../../src/lib/rag/load';
 import { MAP_FILE } from '../../src/lib/tokens/neighbours';
 import {
+  BS,
   DEFAULT,
+  K1S,
   N,
   PAGES,
   QUERIES,
@@ -42,6 +44,11 @@ describe('the pages', () => {
 });
 
 describe('the index', () => {
+  it("starts from Lucene's BM25 defaults (the fact's value), which are on the bench's choices", () => {
+    expect([DEFAULT.k1, DEFAULT.b]).toEqual([1.2, 0.75]);
+    expect(K1S).toContain(DEFAULT.k1);
+    expect(BS).toContain(DEFAULT.b);
+  });
   it('a drawer lists exactly the pages that hold its word, and the scan finds the same pages', () => {
     for (const w of ['forklift', 'refund', 'price', 'larkspur']) {
       const has = PAGES.filter(p => wordsOf(p.text, ALL_CLEAN).includes(w)).map(p => p.id);

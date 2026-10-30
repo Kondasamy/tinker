@@ -90,7 +90,7 @@ function Score({ s, meanings }: { s: S; meanings: Meanings | null }) {
   const p = benchPlan(s.plan),
     rows = rowsOf(p, meanings),
     best = wins(p);
-  if (!rows) return <p className="note">Scoring waits for the meaning vectors.</p>;
+  if (!rows) return <p className="note">Scoring waits for the embeddings.</p>;
   const n = rows.reduce((a, x) => a + x.r.hits, 0);
   return (
     <div role="status" data-right={n} data-best={best ? '1' : '0'}>
@@ -255,7 +255,7 @@ export default function TuneTheSearchBox() {
               postings: { query: q.text, settings: s },
               caption: worst
                 ? `Worst search: “${q.text}”, ${worst.r.hits} of ${q.right.length} right pages in the top ${TOP}.`
-                : 'Loading the meaning vectors…',
+                : 'Loading the embeddings…',
             }}
           />
         );

@@ -51,7 +51,7 @@ export const RECALL: RecallItem[] = [
     correct: 0,
     why: [
       'Right: the scan stores nothing, so each search starts from the first page again.',
-      'Keeping answers between searches is a cache or an index, which a plain scan doesn’t have.',
+      'Keeping answers between searches needs a saved copy or an index, which a plain scan doesn’t have.',
       'Remembering which pages matched would be the start of an index.',
     ],
   },
@@ -160,7 +160,7 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right: that is tf-idf, the sum the podium ranks by.',
+      'Right: that is the rarity score the podium ranks by.',
       'Links are another signal some web search uses, not part of this score.',
       'Age isn’t in the score; only the words are.',
     ],
@@ -209,7 +209,7 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right: k1 sets the saturation and b sets the length penalty, the two dials on the bench.',
+      'Right: one sets how fast repeats saturate, the other how much length counts, the two dials on the bench.',
       'Those are what any ranking returns; BM25’s settings shape the scores themselves.',
       'Cleaning happens before scoring, when the pages are filed.',
     ],
@@ -281,7 +281,7 @@ export const RECALL: RecallItem[] = [
     chapter: '06-words-vs-meaning',
     question: 'A search for the order code “KX-209” by meaning returns pages about other codes. Why?',
     options: [
-      'An embedding blurs exact strings: codes that look alike seem to mean alike',
+      'An embedding blurs exact spellings: codes that look alike seem to mean alike',
       'The code isn’t in any page',
       'Meaning search ignores numbers on purpose',
     ],

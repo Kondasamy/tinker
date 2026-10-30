@@ -11,7 +11,7 @@ import { DEFAULT, N, idf, pageName, pageOf, postings, termsOf, type Settings } f
 import { CABINET_PARTS, cabinetAt } from '../../components/scenes/cabinetScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
-import { Maths, SearchStage, SimNote, type View } from './kit';
+import { Fact, Maths, SearchStage, SimNote, type View } from './kit';
 
 const MODULE = 'search',
   ID = '03-rare-words-count-more';
@@ -155,6 +155,7 @@ export default function RareWordsCountMore() {
         out1: ({ state }) => (
           <>
             <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />
+            <Fact id="idf" />
             <Maths>
               {`Rarity = log(${N} pages ÷ pages with the word). A page’s score adds, for each search word, the times it says the word × the word’s rarity. This is tf-idf: term frequency × inverse document frequency.`}
             </Maths>

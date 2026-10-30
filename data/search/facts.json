@@ -2,18 +2,43 @@
   "accessed": "2026-10-25",
   "facts": [
     {
+      "id": "scan-vs-index",
+      "claim": "SQLite’s documentation: on one desktop PC, finding “linux” in 517,430 Enron emails took about 22.5 seconds by reading every email, and about 0.03 seconds through its full-text index.",
+      "source": "https://www.sqlite.org/fts3.html",
+      "accessed": "2026-10-30"
+    },
+    {
       "id": "inverted-index",
-      "claim": "Apache Lucene’s documentation: its terms index is an inverted index, because it can list, for a term, the documents that contain it.",
+      "claim": "Apache Lucene’s documentation: its index of words is an inverted index, because for each word it can list the documents that contain it.",
       "source": "https://lucene.apache.org/core/9_12_0/core/org/apache/lucene/codecs/lucene912/package-summary.html"
     },
     {
+      "id": "idf",
+      "claim": "Spärck Jones (1972), testing three collections of documents, argued that a match on a rarer word should count for more than a match on a common one, and found this very simple weighting gave considerable gains.",
+      "source": "https://doi.org/10.1108/eb026526",
+      "accessed": "2026-10-30"
+    },
+    {
       "id": "bm25",
-      "claim": "Robertson and Zaragoza (2009) call BM25 one of the most successful text-retrieval algorithms to come out of the probabilistic relevance framework.",
+      "claim": "Robertson and Zaragoza (2009) call BM25 one of the most successful text-search methods to come out of their probability-based theory of ranking.",
       "source": "https://doi.org/10.1561/1500000019"
     },
     {
+      "id": "bm25-defaults",
+      "claim": "Apache Lucene’s documentation (version 10.5.2): its BM25 scoring sets how fast repeats stop helping (k1) to 1.2 and how much a long page counts against it (b) to 0.75 unless told otherwise, as this search box does.",
+      "value": "1.2 0.75",
+      "source": "https://lucene.apache.org/core/10_5_2/core/org/apache/lucene/search/similarities/BM25Similarity.html",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "porter-stemmer",
+      "claim": "Porter (1980): his stemmer, cutting word endings by rule, turned a list of 10,000 different words into 6,370 stems, about a third fewer.",
+      "source": "https://doi.org/10.1108/eb046814",
+      "accessed": "2026-10-30"
+    },
+    {
       "id": "beir",
-      "claim": "BEIR (Thakur et al., 2021) tested ten retrieval systems on 18 public datasets and found BM25 a robust baseline on data the systems were not trained for.",
+      "claim": "BEIR (Thakur et al., 2021) tested ten search systems on 18 public datasets and found BM25 a reliable yardstick on data the systems were not trained for.",
       "source": "https://arxiv.org/abs/2104.08663"
     },
     {

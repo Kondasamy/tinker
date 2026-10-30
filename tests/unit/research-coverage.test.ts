@@ -31,7 +31,6 @@ const PENDING = new Set<string>([
   'rate-limits',
   'releases',
   'routes',
-  'search',
   'unicode',
   'web-requests',
 ]);

@@ -386,14 +386,14 @@ export function useMeanings() {
 export function MeaningGate({ failed, retry }: { failed: boolean; retry: () => void }) {
   return failed ? (
     <p className="note" role="alert">
-      The meaning vectors could not load.{' '}
+      The embeddings could not load.{' '}
       <button type="button" className="chip" onClick={retry}>
         Retry
       </button>
     </p>
   ) : (
     <p className="note" role="status">
-      Loading the meaning vectors…
+      Loading the embeddings…
     </p>
   );
 }
@@ -413,8 +413,8 @@ export function Fact({ id }: { id: string }) {
 /** Shown wherever results and counts appear (R6). */
 export const SimNote = () => (
   <p className="note sx-note">
-    A teaching search box: Larkspur’s documents cut into RAG’s {PAGE_WORDS}-word pages, searched as you watch. The right
-    pages for each test search are this site’s labels.
+    A teaching search box: Larkspur’s documents cut into the RAG module’s {PAGE_WORDS}-word pages, searched as you
+    watch. The right pages for each test search are this site’s labels.
   </p>
 );
 
