@@ -297,6 +297,14 @@ export function Fact({ id }: { id: string }) {
   );
 }
 
+/** Said beside a real figure wherever the day's traces show numbers (R6): the traffic is hand-written, not measured. */
+export const ToyNote = ({ children }: { children?: ReactNode }) => (
+  <p className="tc-fact">
+    These traces, timings and counts were written by hand for this module, shaped like real ones: they show the method,
+    not any real assistant’s speed or failure rates.{children && <> {children}</>}
+  </p>
+);
+
 /** PASS or FAIL as a stamp, in the story column or a table. */
 export const Mark = ({ ok }: { ok: boolean }) => (
   <span className={`stamp ${ok ? 'correct' : 'wrong'}`}>{ok ? 'PASS' : 'FAIL'}</span>

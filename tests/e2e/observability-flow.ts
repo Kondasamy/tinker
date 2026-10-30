@@ -52,7 +52,7 @@ export function observabilityWalker(page: Page, mode: Mode, check: (page: Page) 
       await step(2);
       await opt(/^In the search/);
       await step(3);
-      await btn('2. retrieval policies (retrieval)');
+      await btn('2. retrieval policies (search)');
       await step(4);
       await check(page);
       await btn('3. execute_tool get_order (tool call)'); // the tempting wrong guess: its result looks wrong

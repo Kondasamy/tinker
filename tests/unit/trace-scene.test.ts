@@ -59,7 +59,7 @@ describe('the waterfall', () => {
       expect(r.x + r.w).toBeLessThanOrEqual(w.w - w.pad + 2);
     }
     expect(w.rows[0].w).toBeCloseTo(w.total * w.k, 6);
-    expect(rowName(w.rows[1], w.rows.length)).toMatch(/^Span 2 of 6: retrieval policies \(retrieval\), 180 ms/);
+    expect(rowName(w.rows[1], w.rows.length)).toMatch(/^Span 2 of 6: retrieval policies \(search\), 180 ms/);
   });
   it('one row in the tab order; the first failure is stamped, the pick marked', () => {
     const f = FAILED[0],

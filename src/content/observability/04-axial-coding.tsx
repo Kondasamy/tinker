@@ -23,7 +23,7 @@ import {
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { Fact, MODULE, ObsStage, modeName, savedNotes, wallOf, type View } from './kit';
+import { Fact, MODULE, ObsStage, ToyNote, modeName, savedNotes, wallOf, type View } from './kit';
 import { TRACE_PARTS } from '../../components/scenes/traceScene';
 
 export const PARTS = TRACE_PARTS;
@@ -236,10 +236,10 @@ export default function AxialCoding() {
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUT1} />,
         facts: () => (
           <>
-            <p className="tc-fact">
-              These traces were written by hand for this module, so the counts show the method, not any real assistant’s
-              failure rates.
-            </p>
+            <ToyNote>
+              Here {FAILED.length} traces fall into {GROUPS} modes. A real study sorted far more traces the same way:
+            </ToyNote>
+            <Fact id="mast-taxonomy" />
             <Fact id="axial-coding" />
           </>
         ),

@@ -11,7 +11,7 @@ import { num } from '../../lib/format';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { Fact, MODULE, ObsStage, TraceCard, wallOf, type View } from './kit';
+import { Fact, MODULE, ObsStage, ToyNote, TraceCard, wallOf, type View } from './kit';
 import { TRACE_PARTS } from '../../components/scenes/traceScene';
 
 export const PARTS = TRACE_PARTS;
@@ -78,7 +78,7 @@ export const STEPS: Step<S>[] = [
     focus: 'read',
     visibleControls: ['p1', 'read'],
     narration:
-      'The Waterfall draws a row per span, as long as its step took. Spans are shaped like OpenTelemetry’s conventions.',
+      'The Waterfall draws a row per span, as long as its step took. Spans use OpenTelemetry’s names, an open standard for traces.',
     act: 'Read every span.',
     predicate: readAll,
     hint: 'Tab into the waterfall and use the arrow keys, or press the button: it reads the next span.',
@@ -175,10 +175,7 @@ export default function WhatItDid() {
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUT1} />,
         facts: () => (
           <>
-            <p className="tc-fact">
-              These traces and timings were written by hand for this module, shaped like real ones: they show how to
-              read a trace, not any system’s speed.
-            </p>
+            <ToyNote>A real tracer records each span’s start and end as the assistant runs.</ToyNote>
             <Fact id="otel-genai" />
             <Fact id="otel-operations" />
           </>

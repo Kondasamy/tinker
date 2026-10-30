@@ -12,7 +12,7 @@ import { KIND_NAME } from '../../components/scenes/traceWaterfall';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';
-import { Fact, MODULE, ObsStage, TraceCard, wallOf, type View } from './kit';
+import { Fact, MODULE, ObsStage, ToyNote, TraceCard, wallOf, type View } from './kit';
 import { TRACE_PARTS } from '../../components/scenes/traceScene';
 
 export const PARTS = TRACE_PARTS;
@@ -189,7 +189,16 @@ export default function FirstFailure() {
           );
         },
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUT1} />,
-        facts: () => <Fact id="first-failure" />,
+        facts: () => (
+          <>
+            <Fact id="first-failure" />
+            <ToyNote>
+              Here each bad trace has its first failure marked by hand. Real traces come unmarked, and machines still
+              struggle to find it:
+            </ToyNote>
+            <Fact id="failure-attribution" />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

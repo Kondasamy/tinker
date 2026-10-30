@@ -6,7 +6,7 @@ import { durationOf, ordered, rootOf, type SpanKind, type Trace } from '../../li
 
 export const KIND_NAME: Record<SpanKind, string> = {
   agent: 'whole run',
-  retrieval: 'retrieval',
+  retrieval: 'search',
   chat: 'model call',
   tool: 'tool call',
   reply: 'reply',
