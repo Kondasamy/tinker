@@ -80,7 +80,7 @@
         "length": "short",
         "weights": 102144,
         "fits": true,
-        "replies": 58740601
+        "replies": 58924165
       },
       {
         "size": "mini",
@@ -88,7 +88,7 @@
         "length": "long",
         "weights": 102144,
         "fits": true,
-        "replies": 8702311
+        "replies": 8729506
       },
       {
         "size": "mini",
@@ -96,7 +96,7 @@
         "length": "short",
         "weights": 51072,
         "fits": true,
-        "replies": 117481203
+        "replies": 117848331
       },
       {
         "size": "mini",
@@ -104,7 +104,7 @@
         "length": "long",
         "weights": 51072,
         "fits": true,
-        "replies": 17404622
+        "replies": 17459012
       },
       {
         "size": "mini",
@@ -112,7 +112,7 @@
         "length": "short",
         "weights": 25536,
         "fits": true,
-        "replies": 234962406
+        "replies": 235696663
       },
       {
         "size": "mini",
@@ -120,7 +120,7 @@
         "length": "long",
         "weights": 25536,
         "fits": true,
-        "replies": 34809245
+        "replies": 34918024
       },
       {
         "size": "mini",
@@ -128,7 +128,7 @@
         "length": "short",
         "weights": 12768,
         "fits": true,
-        "replies": 469924812
+        "replies": 471393327
       },
       {
         "size": "mini",
@@ -136,7 +136,7 @@
         "length": "long",
         "weights": 12768,
         "fits": true,
-        "replies": 69618490
+        "replies": 69836048
       },
       {
         "size": "1b",
@@ -144,7 +144,7 @@
         "length": "short",
         "weights": 2460000000,
         "fits": false,
-        "replies": 2439
+        "replies": 2446
       },
       {
         "size": "1b",
@@ -152,7 +152,7 @@
         "length": "long",
         "weights": 2460000000,
         "fits": false,
-        "replies": 361
+        "replies": 362
       },
       {
         "size": "1b",
@@ -160,7 +160,7 @@
         "length": "short",
         "weights": 1230000000,
         "fits": true,
-        "replies": 4878
+        "replies": 4893
       },
       {
         "size": "1b",
@@ -168,7 +168,7 @@
         "length": "long",
         "weights": 1230000000,
         "fits": true,
-        "replies": 722
+        "replies": 724
       },
       {
         "size": "1b",
@@ -176,7 +176,7 @@
         "length": "short",
         "weights": 615000000,
         "fits": true,
-        "replies": 9756
+        "replies": 9786
       },
       {
         "size": "1b",
@@ -184,7 +184,7 @@
         "length": "long",
         "weights": 615000000,
         "fits": true,
-        "replies": 1445
+        "replies": 1449
       },
       {
         "size": "1b",
@@ -192,7 +192,7 @@
         "length": "short",
         "weights": 307500000,
         "fits": true,
-        "replies": 19512
+        "replies": 19573
       },
       {
         "size": "1b",
@@ -200,7 +200,7 @@
         "length": "long",
         "weights": 307500000,
         "fits": true,
-        "replies": 2890
+        "replies": 2899
       },
       {
         "size": "3b",
@@ -208,7 +208,7 @@
         "length": "short",
         "weights": 6420000000,
         "fits": false,
-        "replies": 934
+        "replies": 937
       },
       {
         "size": "3b",
@@ -224,7 +224,7 @@
         "length": "short",
         "weights": 3210000000,
         "fits": false,
-        "replies": 1869
+        "replies": 1875
       },
       {
         "size": "3b",
@@ -232,7 +232,7 @@
         "length": "long",
         "weights": 3210000000,
         "fits": false,
-        "replies": 276
+        "replies": 277
       },
       {
         "size": "3b",
@@ -240,7 +240,7 @@
         "length": "short",
         "weights": 1605000000,
         "fits": true,
-        "replies": 3738
+        "replies": 3750
       },
       {
         "size": "3b",
@@ -248,7 +248,7 @@
         "length": "long",
         "weights": 1605000000,
         "fits": true,
-        "replies": 553
+        "replies": 555
       },
       {
         "size": "3b",
@@ -256,7 +256,7 @@
         "length": "short",
         "weights": 802500000,
         "fits": true,
-        "replies": 7476
+        "replies": 7500
       },
       {
         "size": "3b",
@@ -264,7 +264,7 @@
         "length": "long",
         "weights": 802500000,
         "fits": true,
-        "replies": 1107
+        "replies": 1111
       }
     ],
     "rush": [

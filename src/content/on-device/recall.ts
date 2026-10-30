@@ -77,7 +77,7 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right: plain rounding to 2 bits leaves each row three levels, and the model’s choices fall apart.',
+      'Right: plain rounding to 2 bits leaves each weight just three values, and the model’s choices fall apart.',
       'At 2 bits it takes less memory than ever, so memory isn’t the problem.',
       'Bits store numbers for the weights, not letters; the levels are what got too coarse.',
     ],

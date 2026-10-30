@@ -1,10 +1,11 @@
 // The battery tank and the heat (planning numbers, data/on-device/phones.json). Writing a token reads every weight
 // once (Inference ch. 1), so energy per token and time per token both grow with the weights' bytes: energy is
-// MELTing point's 0.2 mWh a token for a 3B model at 4 bits, scaled per GB of weights; speed is the handheld's bandwidth
+// MELTing point's mWh a token for a 3B model at 4 bits (the fact's value), scaled by weight bytes; speed is the handheld's bandwidth
 // over those bytes. A rush of replies back to back runs at full speed for the burst the handheld can cool, then at
 // its throttled speed (MELTing point saw a phone slow down over prompts in a row; the numbers here are planning ones).
 import P from '../../../data/on-device/phones.json' with { type: 'json' };
-import { GB, HANDHELD, weightBytes, type Size } from './memory';
+import { fact } from './facts';
+import { GB, HANDHELD, sizeOf, weightBytes, type Size } from './memory';
 
 export type Length = keyof typeof P.replies;
 export const LENGTHS = Object.keys(P.replies) as Length[];
@@ -15,7 +16,10 @@ export const BATTERY_MWH = HANDHELD.batteryWh * 1000;
 export const SHIFT = HANDHELD.questionsPerHour * HANDHELD.shiftHours;
 export const RUSH = P.rush;
 
-export const energyPerToken = (s: Size, bits: number) => (P.mWhPerTokenPerGB * weightBytes(s, bits)) / GB;
+/** MELTing point's measured energy a token for a 3B model at 4 bits (matched, KTD4). */
+export const MELT_MWH = Number(fact('melt-energy').value);
+export const energyPerToken = (s: Size, bits: number) =>
+  (MELT_MWH * weightBytes(s, bits)) / weightBytes(sizeOf('3b'), 4);
 export const energyPerReply = (s: Size, bits: number, len: Length) => energyPerToken(s, bits) * TOKENS[len];
 export const repliesPerCharge = (s: Size, bits: number, len: Length) =>
   Math.floor(BATTERY_MWH / energyPerReply(s, bits, len));

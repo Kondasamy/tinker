@@ -136,7 +136,12 @@ export default function BatteryTank() {
         ),
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />,
-        more: () => <Fact id="melt-energy" />,
+        more: () => (
+          <>
+            <Fact id="melt-energy" />
+            <p className="note in-note">{`The handheld’s ${num(repliesPerCharge(B3, BITS, 'long'))} long replies a charge use the study’s energy a token on a planning battery, inside the range it measured on real phones.`}</p>
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

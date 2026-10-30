@@ -114,7 +114,7 @@ export default function WorkingMemory() {
             <Fact id="apple-2bit" />
             <p className="note in-note">
               What to keep in the context, and what to leave out: <a href="/context/">Context</a>. The cache on a
-              server: <a href="/inference/02-kv-cache-at-scale/">Inference, The KV cache at scale</a>.
+              server: <a href="/inference/02-kv-cache-at-scale/">Inference engineering, The KV cache at scale</a>.
             </p>
           </>
         ),

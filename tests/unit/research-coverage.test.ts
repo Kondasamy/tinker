@@ -31,7 +31,6 @@ const PENDING = new Set<string>([
   'load-balancing',
   'logins',
   'mixture-of-experts',
-  'on-device',
   'payments',
   'queues',
   'rag',
