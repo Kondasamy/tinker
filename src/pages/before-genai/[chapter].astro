@@ -6,6 +6,8 @@ import PredictiveAi from '../../content/before-genai/03-predictive-ai';
 import NextWord from '../../content/before-genai/04-next-word';
 import Scale from '../../content/before-genai/05-scale';
 import Chat from '../../content/before-genai/06-chat';
+import WhatChanged from '../../content/before-genai/07-what-changed';
+import WhatStayed from '../../content/before-genai/08-what-stayed';
 import { moduleOf } from '../../lib/modules';
 
 export function getStaticPaths() {
@@ -23,5 +25,7 @@ const { title } = Astro.props;
     : chapter === '04-next-word' ? <NextWord client:load />
     : chapter === '05-scale' ? <Scale client:load />
     : chapter === '06-chat' ? <Chat client:load />
+    : chapter === '07-what-changed' ? <WhatChanged client:load />
+    : chapter === '08-what-stayed' ? <WhatStayed client:load />
     : null}
 </ChapterLayout>

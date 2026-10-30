@@ -6,6 +6,7 @@ import { CANDIDATES, messageOf, run, WINNERS } from '../../src/lib/before-genai/
 import { shelfOf } from '../../src/lib/recommendations/score';
 import { productOf, TRAIN } from '../../src/lib/recommendations/story';
 import { chapterHref, moduleOf } from '../../src/lib/modules';
+import { answerOf, GAPS, HANDOFF, OPTIONS, SHOWN } from '../../src/lib/before-genai/lessons';
 import { choose, chooseByKeys } from './helpers';
 
 export type Mode = 'mouse' | 'keyboard';
@@ -22,7 +23,7 @@ export function bgWalker(page: Page, mode: Mode, check: (page: Page) => Promise<
   const opt = (name: string | RegExp) => press(card.getByRole('radio', { name }).first()); // a quiz or prediction option
   const step = (n: number) => expect(card).toContainText(`Step ${n} of`);
   const pick = (value: string) => {
-    const box = card.getByRole('combobox');
+    const box = card.locator('[data-focus]').getByRole('combobox'); // the step's own drop-down: earlier ones stay, locked
     return kb ? chooseByKeys(box, value) : choose(box, value);
   };
 
@@ -120,6 +121,36 @@ export function bgWalker(page: Page, mode: Mode, check: (page: Page) => Promise<
       await step(3);
       await deeper('post-training', 0);
       await deeper('prompts', 0);
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
+    /** predict each message's bots (the answer read off run()), see each reveal: compared when GenAI's reply is
+     * recorded, else marked not recorded yet */
+    async ch7(next?: RegExp, quiz: string | RegExp = /^It writes a new reply/) {
+      for (const [k, id] of SHOWN.entries()) {
+        const r = run(messageOf(id));
+        await pick(String(answerOf(r)));
+        await step(k + 2);
+        const said = card.locator(`[data-control="${id}"]`).getByRole('status');
+        await expect(said).toContainText(`You predicted: ${OPTIONS[answerOf(r)]}`);
+        if (!r.genai.recorded) await expect(said).toContainText('isn’t recorded yet');
+      }
+      await check(page);
+      await opt(quiz);
+      await finish(next);
+    },
+    /** a wrong module first (the note names what it does instead), then each gap's module; the RAG hand-off */
+    async ch8(next?: RegExp, quiz: string | RegExp = /^Larkspur, which runs the bot/) {
+      const wrong = GAPS[1].fix;
+      await pick(wrong);
+      await expect(card.getByRole('status').filter({ hasText: `Not ${moduleOf(wrong).title}` })).toBeVisible();
+      await step(1);
+      for (const [k, g] of GAPS.entries()) {
+        await pick(g.fix);
+        await step(k + 2);
+      }
+      await expect(card.getByRole('link', { name: moduleOf(HANDOFF).title })).toHaveAttribute('href', `/${HANDOFF}/`);
       await check(page);
       await opt(quiz);
       await finish(next);

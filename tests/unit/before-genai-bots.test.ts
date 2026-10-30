@@ -16,6 +16,7 @@ import {
   wins,
 } from '../../src/lib/before-genai/bots';
 import { FACTS, fact } from '../../src/lib/before-genai/facts';
+import { moduleOf } from '../../src/lib/modules';
 
 const answered = (id: string) => run(messageOf(id));
 
@@ -94,9 +95,14 @@ describe('messages', () => {
     for (const m of MESSAGES) expect(m.chapters.length, m.id).toBeGreaterThan(0);
   });
 
+  it('tags each message with real chapter ids', () => {
+    const ids = moduleOf('before-genai').chapters.map(c => c.id);
+    for (const m of MESSAGES) for (const c of m.chapters) expect(ids, m.id).toContain(c);
+  });
+
   it('chapters 7 and 8 have four messages each', () => {
-    expect(MESSAGES.filter(m => m.chapters.includes('what-changed'))).toHaveLength(4);
-    expect(MESSAGES.filter(m => m.chapters.includes('what-stayed'))).toHaveLength(4);
+    expect(MESSAGES.filter(m => m.chapters.includes('07-what-changed'))).toHaveLength(4);
+    expect(MESSAGES.filter(m => m.chapters.includes('08-what-stayed'))).toHaveLength(4);
   });
 
   it('an unrecorded reply carries no text', () => {

@@ -8,6 +8,7 @@ import { parseModel, type Meta } from '../../src/lib/lm/load';
 import { fact } from '../../src/lib/before-genai/facts';
 import { MINI_NOTE } from '../../src/content/before-genai/kit';
 import { CANDIDATES, MISSED, matchRule, messageOf, run, stolen, WINNERS } from '../../src/lib/before-genai/bots';
+import { outcomes } from '../../src/components/scenes/kioskScene';
 import { moduleOf } from '../../src/lib/modules';
 import * as ch1 from '../../src/content/before-genai/01-scripted';
 import * as ch2 from '../../src/content/before-genai/02-intents';
@@ -15,6 +16,9 @@ import * as ch3 from '../../src/content/before-genai/03-predictive-ai';
 import * as ch4 from '../../src/content/before-genai/04-next-word';
 import * as ch5 from '../../src/content/before-genai/05-scale';
 import * as ch6 from '../../src/content/before-genai/06-chat';
+import * as ch7 from '../../src/content/before-genai/07-what-changed';
+import * as ch8 from '../../src/content/before-genai/08-what-stayed';
+import replies from '../../data/before-genai/replies.json' with { type: 'json' };
 
 const M = moduleOf('before-genai');
 const b = readFileSync('public/data/lm/model.bin');
@@ -119,6 +123,71 @@ describe('chapter 6: chat', () => {
   });
 });
 
+describe('chapter 7: which bots answer', () => {
+  it('shows the four chapter-7 messages, one predict step each, and accepts any locked pick', () => {
+    expect(ch7.SHOWN).toEqual(['c7-refund', 'c7-late', 'c7-poem', 'c7-spanish']);
+    ch7.SHOWN.forEach((id, k) => {
+      const step = ch7.STEPS[k];
+      expect(step.focus).toBe(id);
+      expect(step.predicate(ch7.INITIAL)).toBe(false);
+      for (const i of ch7.OPTIONS.keys()) expect(step.predicate({ ...ch7.INITIAL, picks: { [id]: i } })).toBe(true);
+    });
+  });
+  it('the options are distinct and the answer is read off run(): live for the old bots, the recording for GenAI', () => {
+    expect(new Set(ch7.OPTIONS).size).toBe(ch7.OPTIONS.length);
+    for (const id of ch7.SHOWN) {
+      const r = run(messageOf(id)),
+        a = ch7.OPTIONS[ch7.answerOf(r)],
+        out = outcomes(r);
+      expect(ch7.answerOf(r), id).toBeGreaterThanOrEqual(0);
+      expect(/script|all three/i.test(a), id).toBe(out.script === 'answered');
+      expect(/sorter|all three/i.test(a), id).toBe(out.sorter === 'answered');
+      expect(/genai|all three/i.test(a), id).toBe(r.genai.recorded);
+    }
+  });
+  // Turns on once scripts/record/before-genai.mjs has run: then every chapter-7 answer names GenAI.
+  it.skipIf(!replies.model)('with the recording in, GenAI answers every chapter-7 message', () => {
+    for (const id of ch7.SHOWN) expect(ch7.OPTIONS[ch7.answerOf(run(messageOf(id)))]).toMatch(/GenAI|All three/);
+  });
+});
+
+describe('chapter 8: what stayed', () => {
+  it('maps each gap to its module, as R7 says, and each is a live module in the registry', () => {
+    expect(ch8.GAPS.map(g => [g.id, g.fix])).toEqual([
+      ['made-up', 'evals'],
+      ['no-knowledge', 'rag'],
+      ['cant-act', 'tool-calling'],
+      ['shouldnt', 'guardrails'],
+    ]);
+    for (const id of Object.keys(ch8.FIXERS)) {
+      expect(moduleOf(id).status, id).toBe('live');
+      expect(moduleOf(id).chapters.length, id).toBeGreaterThan(0);
+    }
+    expect(moduleOf(ch8.HANDOFF).id).toBe('rag');
+  });
+  it('each gap step takes its module and nothing else', () => {
+    ch8.GAPS.forEach((g, k) => {
+      const step = ch8.STEPS[k];
+      expect(step.id).toBe(g.id);
+      for (const f of Object.keys(ch8.FIXERS) as ch8.Fixer[])
+        expect(step.predicate({ ...ch8.INITIAL, picks: { [g.id]: f } }), `${g.id} ${f}`).toBe(f === g.fix);
+    });
+  });
+  it('each gap shows a chapter-8 message', () => {
+    for (const g of ch8.GAPS) expect(messageOf(g.message).chapters).toContain('08-what-stayed');
+  });
+  it('the made-up step cites Ji et al.; Air Canada is worded as company liability only', () => {
+    expect(ch8.GAPS.find(g => g.id === 'made-up')).toMatchObject({ cite: 'hallucination' });
+    expect(fact('hallucination').source).toBe('https://doi.org/10.1145/3571730');
+    expect(fact('air-canada').claim).toMatch(/responsible for what the chatbot/);
+    expect(fact('air-canada').claim).not.toMatch(/lawsuit|AI law|regulat/i);
+  });
+  // Turns on once the recording lands: each gap's message has a recorded reply to show.
+  it.skipIf(!replies.model)('every gap shows a recorded reply', () => {
+    for (const g of ch8.GAPS) expect(run(messageOf(g.message)).genai.recorded, g.id).toBe(true);
+  });
+});
+
 describe('numbers shown', () => {
   it('Larkspur mini’s count is labelled a toy, beside GPT-3’s real one from the facts', () => {
     expect(MINI_NOTE).toMatch(/toy/);
@@ -161,7 +230,7 @@ describe('go deeper', () => {
 
 describe('callouts', () => {
   it('every say names a part its chapter draws', () => {
-    for (const ch of [ch1, ch2, ch3, ch4, ch5, ch6])
+    for (const ch of [ch1, ch2, ch3, ch4, ch5, ch6, ch7, ch8])
       for (const s of ch.STEPS) if (s.say) expect(ch.PARTS, s.id).toContain(s.say.block);
   });
 });

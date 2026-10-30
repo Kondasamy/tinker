@@ -1,6 +1,7 @@
-// Before GenAI: the intro, chapters 1–6 played by mouse and by keyboard only (the keyword puzzle refuses a losing word
+// Before GenAI: the intro, chapters 1–8 played by mouse and by keyboard only (the keyword puzzle refuses a losing word
 // first), its own progress key, "I'm not sure", Larkspur mini failing to load once and Retry, each go-deeper link,
-// reduced motion, the recap, axe and phone width. Chapters 7–8 join `walkAll` as they are written.
+// chapters 7–8 in the unrecorded state too, the RAG hand-off and home's Continue after it, reduced motion, the recap, axe
+// and phone width.
 import { test, expect, type Page } from '@playwright/test';
 import { moduleOf } from '../../src/lib/modules';
 import { bgWalker } from './before-genai-flow';
@@ -8,8 +9,8 @@ import { serious, layoutHolds, PHONE } from './helpers';
 
 const M = moduleOf('before-genai');
 const CHS = M.chapters.map(c => c.id),
-  [CH1, CH2, CH3, CH4, CH5, CH6] = CHS;
-const PLAYED = [CH1, CH2, CH3, CH4, CH5, CH6];
+  [CH1, CH2, CH3, CH4, CH5, CH6, CH7, CH8] = CHS;
+const PLAYED = CHS;
 const at = (id: string) => new RegExp(`/before-genai/${id}/$`);
 async function walkAll(w: ReturnType<typeof bgWalker>) {
   await w.open(CH1);
@@ -18,7 +19,9 @@ async function walkAll(w: ReturnType<typeof bgWalker>) {
   await w.ch3(at(CH4));
   await w.ch4(at(CH5));
   await w.ch5(at(CH6));
-  await w.ch6(); // chapter 7's page comes with U6
+  await w.ch6(at(CH7));
+  await w.ch7(at(CH8));
+  await w.ch8(/\/before-genai\/recap\/$/);
 }
 const card = (page: Page) => page.getByRole('region', { name: 'Next step' });
 // let the stage's fade finish first: axe can catch a figure mid-fade and report false contrast failures
@@ -35,11 +38,11 @@ test('the intro shows the level and the chapters', async ({ page }) => {
   await axe(page);
 });
 
-test('chapters 1–6 play by mouse, in order through the Next links, with axe clean at each check', async ({ page }) => {
+test('chapters 1–8 play by mouse, in order through the Next links, with axe clean at each check', async ({ page }) => {
   await walkAll(bgWalker(page, 'mouse', axe));
 });
 
-test('chapters 1–6 play by keyboard only; progress lands in before-genai-progress-v1', async ({ page }) => {
+test('chapters 1–8 play by keyboard only; progress lands in before-genai-progress-v1', async ({ page }) => {
   await walkAll(bgWalker(page, 'keyboard'));
   const store = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
   expect(JSON.parse(store['before-genai-progress-v1']).done).toEqual(PLAYED);
@@ -80,9 +83,20 @@ test('chapter 4’s go-deeper link opens Transformers chapter 1', async ({ page 
   await expect(page).toHaveURL(new RegExp(`/transformers/${ch.id}/$`));
 });
 
+test('chapter 8 hands the reader to RAG’s intro, and home’s Continue points there', async ({ page }) => {
+  await walkAll(bgWalker(page, 'mouse'));
+  await page.goto(`/before-genai/${CH8}/`);
+  await card(page)
+    .getByRole('link', { name: moduleOf('rag').title })
+    .click();
+  await expect(page).toHaveURL(/\/rag\/$/);
+  await page.goto('/');
+  await expect(page.locator('[data-continue]')).toHaveAttribute('href', '/rag/');
+});
+
 test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
-  test('chapters 1–6 play through', async ({ page }) => {
+  test('chapters 1–8 play through', async ({ page }) => {
     await walkAll(bgWalker(page, 'mouse'));
   });
 });
@@ -96,7 +110,7 @@ test('the recap asks from finished chapters', async ({ page }) => {
 
 test.describe('phone', () => {
   test.use(PHONE);
-  test('pages fit 390px wide, and chapters 1–6 play through there with axe clean', async ({ page }) => {
+  test('pages fit 390px wide, and chapters 1–8 play through there with axe clean', async ({ page }) => {
     for (const p of ['/before-genai/', ...PLAYED.map(id => `/before-genai/${id}/`), '/before-genai/recap/']) {
       await page.goto(p);
       await layoutHolds(page);

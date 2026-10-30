@@ -1,4 +1,57 @@
 {
+  "before-genai": {
+    "01-scripted": [
+      "predict",
+      "reveal",
+      "fix",
+      "quiz"
+    ],
+    "02-intents": [
+      "sort-parcel",
+      "sort-gloves",
+      "predict",
+      "reveal",
+      "quiz"
+    ],
+    "03-predictive-ai": [
+      "spam",
+      "spam-reveal",
+      "shelf",
+      "shelf-reveal",
+      "quiz"
+    ],
+    "04-next-word": [
+      "predict",
+      "reveal",
+      "quiz"
+    ],
+    "05-scale": [
+      "size",
+      "size-reveal",
+      "date",
+      "date-reveal",
+      "quiz"
+    ],
+    "06-chat": [
+      "predict",
+      "reveal",
+      "quiz"
+    ],
+    "07-what-changed": [
+      "refund",
+      "late",
+      "poem",
+      "spanish",
+      "quiz"
+    ],
+    "08-what-stayed": [
+      "made-up",
+      "no-knowledge",
+      "cant-act",
+      "shouldnt",
+      "quiz"
+    ]
+  },
   "rag": {
     "01-history": [
       "ask",

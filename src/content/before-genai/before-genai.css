@@ -40,4 +40,14 @@
     grid-template-columns: 1fr;
     gap: 2px;
   }
+  /* chapters 7–8's drop-down ends its row: the list opens leftwards and wraps rather than run off screen */
+  .bg-pick .sel-list {
+    left: auto;
+    right: 0;
+    min-width: min(15em, calc(100vw - 48px));
+    max-width: calc(100vw - 48px);
+  }
+  .bg-pick .sel-list [role="option"] {
+    white-space: normal;
+  }
 }
