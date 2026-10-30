@@ -14,7 +14,7 @@ import { larkspur, write } from '../../lib/watermarks/sample';
 import { HUMAN, MARK, REPLY } from '../../lib/watermarks/story';
 import { BENCH, START, WINNERS, passes, resultOf, wins, type Plan } from '../../lib/watermarks/workbench';
 import { useModel } from '../transformers/kit';
-import { PROMPT, UvStage, zText, type Lamp } from './kit';
+import { Fact, PROMPT, ToyNote, UvStage, zText, type Lamp } from './kit';
 
 const MODULE = 'watermarks',
   ID = '07-workbench';
@@ -59,7 +59,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['score', 'bench', 'quiz'],
+    visibleControls: ['score', 'bench', 'facts', 'quiz'],
     narration: `γ ${BEST.gamma}, δ ${BEST.delta}: ${BEST.caughtEdited} of ${BEST.replies} still caught after rewording. The chapters’ γ ${OURS.gamma} catches ${OURS.caughtEdited}.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -179,6 +179,16 @@ export default function Workbench() {
         score: ({ state }) => <Score s={state} />,
         // changing the setting is an attempt only while it is the puzzle
         bench: ({ state, apply, sync, focused }) => <Bench s={state} set={focused ? apply : sync} />,
+        facts: () => (
+          <>
+            <ToyNote>
+              Its two green shares are the toy’s; with real models the smaller list also did best, and the law now asks
+              for a mark.
+            </ToyNote>
+            <Fact id="small-green-list" />
+            <Fact id="eu-ai-act" />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

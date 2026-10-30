@@ -36,7 +36,6 @@ const PENDING = new Set<string>([
   'routes',
   'search',
   'unicode',
-  'watermarks',
   'web-requests',
 ]);
 

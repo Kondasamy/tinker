@@ -8,10 +8,10 @@ import Predict from '../../components/quiz/Predict';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { UV_PARTS } from '../../components/scenes/uvScene';
-import { CTX, DELTAS, MARK } from '../../lib/watermarks/story';
+import { DELTAS, MARK } from '../../lib/watermarks/story';
 import { resultOf } from '../../lib/watermarks/workbench';
 import { Outcome } from '../tool-calling/kit';
-import { PIN, signed, UvStage } from './kit';
+import { Fact, PIN, signed, ToyNote, UvStage } from './kit';
 
 const MODULE = 'watermarks',
   ID = '03-leaning-green';
@@ -66,7 +66,7 @@ export const STEPS: Step<S>[] = [
     id: 'try',
     focus: 'delta',
     visibleControls: ['delta'],
-    narration: `Your pick is locked. Each nudge rewrites the reply from one seed, reading only the last ${CTX} tokens.`,
+    narration: 'Your pick is locked. Each nudge rewrites the reply with the same dice rolls.',
     act: `Try every nudge: ${DELTAS.join(', ')}.`,
     say: { block: 'page', text: 'Watch the green' },
     predicate: s => DELTAS.every(d => s.tried.includes(d)),
@@ -74,7 +74,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'cost',
     focus: 'quiz',
-    visibleControls: ['delta', 'out1', 'cost', 'quiz'],
+    visibleControls: ['delta', 'out1', 'cost', 'facts', 'quiz'],
     narration: `Bigger nudges mark harder but pick less likely tokens. Larkspur chose ${MARK.delta}: it costs ${nats(dropAt(MARK.delta))} nats a token.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -109,7 +109,7 @@ function Cost() {
         <tr>
           <th scope="col">Nudge</th>
           <th scope="col">Green pairs</th>
-          <th scope="col">z</th>
+          <th scope="col">Score (z)</th>
           <th scope="col">Nats lost a token</th>
         </tr>
       </thead>
@@ -154,6 +154,16 @@ export default function LeaningGreen() {
         delta: ({ state, apply, sync, focused }) => <Deltas s={state} set={focused ? apply : sync} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />,
         cost: () => <Cost />,
+        facts: () => (
+          <>
+            <ToyNote>
+              Real marks show the same trade-off, and a tuned one can cost so little that readers rate marked and
+              unmarked replies the same.
+            </ToyNote>
+            <Fact id="nudge-cost" />
+            <Fact id="synthid-text" />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

@@ -29,7 +29,6 @@ const PENDING = new Set<string>([
   'queues',
   'rag',
   'unicode',
-  'watermarks',
   'web-requests',
 ]);
 

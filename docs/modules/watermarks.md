@@ -25,3 +25,19 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 | 5 `rewording` | The reply as the reader rewords it; the Strip tab's meter drops under the line | Yes, reword | the token and swap `Select`s (`ids`); Show me plays `pinned.rewording.swaps`; Reword all | `page`, `machine` |
 | 6 `pictures-and-labels` | The print with its label card on the table, after each trip in `TRIPS` | Lamp lit; the trip picker is the chapter's | the trip radio (chapter's own) | `print`, `label` |
 | 7 `workbench` | The reply at the bench's δ where one is pinned (`pinned.leaning`), all lit; the bench's results beside it | Yes, sweep and reword (exploration) | the bench's γ and δ controls | `page`, `lamp` |
+
+## Toy vs real
+
+Larkspur mini (the shared tiny model, `docs/lm-kit.md`) writes every marked reply, so its scores, green counts and nats are labelled, never recalibrated: the kit's `ToyNote` (and chapter 2's own note) says so, and a cited finding sits beside it. The checker's line is the one real number the toy can take as is.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 `can-you-tell` | the 64 tokens on the page; the recorded model's name and date | `detector-bias` (no number) | real (recorded reply, dated) |
+| 2 `a-hidden-pattern` | green share by chance (γ 0.5), green pairs of the reply and their share, the lamp's 16-token window, the model's 32-token context | `green-list` | labelled (chapter 2's note: tiny model, unsure at almost every token) |
+| 3 `leaning-green` | nudges 0, 1, 2, 4; green pairs and z per nudge; nats lost a token; Larkspur's chosen δ | `nudge-cost`, `synthid-text` (20 million replies) | labelled (`ToyNote`: real marks show the same trade-off, tuned to cost nothing readers notice) |
+| 4 `counting-green` | the line at 4 | `z-line` (4) | matched: `LINE` reads `fact('z-line').value` |
+| 4 `counting-green` | the 16-pair minimum; prefixes 8–64 tokens; z per prefix; the email's z; hand-written max z; the lower line 1 and its false alarms | `short-text` (25 tokens, about 128 on average) | labelled (the email note: the minimum is the toy checker's, real text needs far more) |
+| 5 `rewording` | the fewest swaps, z before and after, reworded green pairs and z, tokens changed | `paraphrase-weakens`, `paraphrase-attack` | labelled (the toy's six next-best swaps stand in for a paraphrasing model) |
+| 6 `pictures-and-labels` | the 64 × 64 grey picture, z per trip, one grey level on one pixel | `c2pa` (version 2.5), `c2pa-stripped` | labelled (the pixel mark reads "(toy)"; the label is C2PA-shaped, signed with a demo key) |
+| 7 `workbench` | green shares 0.25 and 0.5, nudges 1, 2, 4; the rule (18 of 20 caught, 0.4 nats, no false alarm, one token in 4 swapped); every result | `small-green-list` (0.1), `eu-ai-act` (2026-12-02) | labelled (the rule is a planning number; `ToyNote`: real models also favour the smaller list) |
+| intro | the marked reply's z, the 32-token context, hand-written replies flagged, swaps to wash out | `detector-bias`, `green-list`, `z-line`, `paraphrase-attack` | labelled (the band's note: Larkspur mini is tiny) |
