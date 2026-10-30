@@ -71,7 +71,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['reveal', 'quiz'],
-    narration: `${L} tokens took ${L} passes. A left-to-right model’s speed is its passes a second: one token each.`,
+    narration: `${L} tokens took ${L} passes. A left-to-right model’s speed is how many passes it runs each second: one token each.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'How many tokens does one pass add?',

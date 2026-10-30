@@ -53,7 +53,7 @@ const P1 = {
 };
 
 export const QUIZ = {
-  question: 'A decoder may keep 2 of 10 guesses this pass. Which two should it keep?',
+  question: 'A fill may keep 2 of 10 guesses this pass. Which two should it keep?',
   options: ['The two it is most confident about', 'The first two, left to right', 'Any two: later passes fix mistakes'],
   correct: 0,
   explanation: 'A kept guess is never undone, so keep the surest ones and let the next pass see them.',
@@ -69,7 +69,7 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `Each pass stamps ${K} of the ${L} blanks, so the reply takes ${passWords(L / K)}. Remasking decides which ${K} to keep.`,
+    narration: `Each pass stamps ${K} of the ${L} blanks for good, so the reply takes ${passWords(L / K)}. Remasking decides which ${K} to keep.`,
     act: 'Predict first.',
     say: { block: 'press', text: `Stamps ${K} a pass` },
     predicate: s => s.p1 !== null,
@@ -192,7 +192,7 @@ export default function SureWordsFirst() {
               </tbody>
             </table>
             <table className="tc-ledger" style={{ marginTop: 10 }}>
-              <caption>Every pinned phrase ({PHRASES.length}): tokens the same as the careful fill</caption>
+              <caption>Every test phrase ({PHRASES.length}): tokens the same as the careful fill</caption>
               <thead>
                 <tr>
                   <th scope="col">Tokens a pass</th>

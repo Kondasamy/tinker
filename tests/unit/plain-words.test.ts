@@ -25,7 +25,6 @@ const PENDING = new Set<string>([
   'choosing-models',
   'compression',
   'dependencies',
-  'diffusion-llms',
   'email',
   'fairness',
   'git',

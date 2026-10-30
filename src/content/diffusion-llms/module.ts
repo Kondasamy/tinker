@@ -41,7 +41,7 @@ const CHAPTERS: Chapter[] = [
       terms: [
         ['Masked model', 'A model trained to guess hidden tokens, reading the words on both sides of each one.'],
         ['Blank', 'A slot whose token is hidden. The model sees [MASK] there and guesses what belongs.'],
-        ['Confidence', 'The probability the model gives its best guess for a slot. Here, the glow on the slug.'],
+        ['Confidence', 'The probability the model gives its best guess for a slot. Here, the glow on the slot.'],
       ],
     },
   },
@@ -51,7 +51,7 @@ const CHAPTERS: Chapter[] = [
     short: 'Sure words first',
     intro: {
       story:
-        'One pass guesses every blank. The decoder must choose which guesses to keep; the rest wait for the next pass.',
+        'One pass guesses every blank. The fill must choose which guesses to keep; the rest wait for the next pass.',
       goal: 'Which blanks should a pass stamp first?',
       learn: [
         'What remasking chooses on each pass',
@@ -61,7 +61,7 @@ const CHAPTERS: Chapter[] = [
       terms: [
         ['Remasking', 'Choosing which guesses a pass keeps; the rest go back to blanks for the next pass.'],
         ['Surest first', 'Keep the guesses with the highest confidence. Papers call it low-confidence remasking.'],
-        ['Careful fill', 'One slot a pass, surest first: the slowest way the toy writes, used here as the yardstick.'],
+        ['Careful fill', 'One slot a pass, surest first: the slowest way the toy writes, used here as the reply to measure against.'],
       ],
     },
   },

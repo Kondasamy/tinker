@@ -11,7 +11,7 @@ import { forward, softmax, type Model } from '../../lib/lm/model';
 import { L, MASK, passOnce, pct, show, startFill, text, type Guess } from '../../lib/diffusion-llms/decode';
 import { FRAME_PARTS } from '../../components/scenes/typeFrameScene';
 import { Outcome } from '../tool-calling/kit';
-import { FrameStage, ToyNote, Waiting, phrase, useModel } from './kit';
+import { Fact, FrameStage, ToyNote, Waiting, phrase, useModel } from './kit';
 
 const MODULE = 'diffusion-llms',
   ID = '02-fill-the-blanks';
@@ -81,7 +81,7 @@ export const STEPS: Step<S>[] = [
     id: 'guess',
     focus: 'guess',
     visibleControls: ['guess'],
-    narration: 'It guesses the blank from both sides. Each guess has a confidence; the glow on the slug grows with it.',
+    narration: 'It guesses the blank from both sides. Each guess has a confidence; the glow on the slot grows with it.',
     act: 'Guess the blank.',
     say: { block: 'frame', text: 'Both sides' },
     predicate: s => s.top !== null,
@@ -180,6 +180,7 @@ export default function FillTheBlanks() {
           <>
             <Outcome {...P1} prediction={state.p1} outcome={1} />
             {state.top && <Guesses top={state.top} />}
+            <Fact id="llada-predictor" />
           </>
         ),
         look: ({ state, sync }) => (
