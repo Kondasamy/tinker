@@ -8,7 +8,7 @@ import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import { KIOSK_PARTS, outcomes } from '../../components/scenes/kioskScene';
 import { messageOf, type Run, run } from '../../lib/before-genai/bots';
-import { FIXERS, type Fixer, GAPS, HANDOFF } from '../../lib/before-genai/lessons';
+import { FIXERS, type Fixer, GAPS, HANDOFF } from './lessons';
 import { moduleOf, nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { BeforeGenaiStage, Fact, Transcript } from './kit';

@@ -2,7 +2,7 @@
 // which bots answer each message, read off the same outcomes the picture shows (a recorded GenAI reply counts as
 // answered). Chapter 8: the four gaps GenAI left and the later module that fixes each (R7).
 import { outcomes, STATIONS, type Station } from '../../components/scenes/kioskScene';
-import { MESSAGES, type Run } from './bots';
+import { MESSAGES, type Run } from '../../lib/before-genai/bots';
 
 /** chapter 7's four messages, in the order its steps show them */
 export const SHOWN = MESSAGES.filter(m => m.chapters.includes('07-what-changed')).map(m => m.id);

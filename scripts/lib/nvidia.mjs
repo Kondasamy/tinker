@@ -45,6 +45,10 @@ async function call(key, path, body) {
   }
 }
 
+/** Made-up .com, .net, .org and .io domains rewritten to .example, so no recorded reply points at a real site (R13). */
+export const redactDomains = text =>
+  text.replace(/\b([a-z0-9-]+(?:\.[a-z0-9-]+)*)\.(?:com|net|org|io)\b/gi, '$1.example');
+
 /** The model ids this key can list (listed is not always callable: probe before recording). */
 export const listModels = async key => (await call(key, '/models')).data.map(m => m.id);
 

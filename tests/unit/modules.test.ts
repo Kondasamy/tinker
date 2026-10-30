@@ -1,3 +1,4 @@
+import { readFileSync, readdirSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
 import { MODULES, moduleOf, moduleNumber, chapterHref, nextOf } from '../../src/lib/modules';
 import { ALL_PAGES, HOME, RAG, TOOL_CALLING, chapterMeta } from '../../src/lib/pages';
@@ -982,6 +983,13 @@ describe('module numbers', () => {
     expect(moduleNumber(moduleOf('rag'))).toBe(1);
     expect(moduleNumber(moduleOf('tool-calling'))).toBe(2);
     expect(moduleNumber(moduleOf('robots'))).toBe(59);
+  });
+
+  // a page that counts its own position drifts when the prequel shifts the list: every number goes through moduleNumber
+  it('no page works out a module number from a list position', () => {
+    const own = /MODULES(?:\.filter\([^)]*\))?\.(?:findIndex|indexOf)\(/;
+    const pages = readdirSync('src/pages', { recursive: true, encoding: 'utf8' }).filter(f => f.endsWith('.astro'));
+    expect(pages.filter(f => own.test(readFileSync(`src/pages/${f}`, 'utf8')))).toEqual([]);
   });
 });
 

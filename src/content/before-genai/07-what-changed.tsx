@@ -9,7 +9,7 @@ import type { Say, Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
 import { KIOSK_PARTS, outcomes } from '../../components/scenes/kioskScene';
 import { messageOf, type Run, run } from '../../lib/before-genai/bots';
-import { answerOf, OPTIONS, SHOWN } from '../../lib/before-genai/lessons';
+import { answerOf, OPTIONS, SHOWN } from './lessons';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { Outcome } from '../tool-calling/kit';

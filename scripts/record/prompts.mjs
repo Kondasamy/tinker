@@ -14,7 +14,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { apiKey, chat, listModels, pickModel } from '../lib/nvidia.mjs';
+import { apiKey, chat, listModels, pickModel, redactDomains } from '../lib/nvidia.mjs';
 import { DOMAINS, assemble, combos, signature } from '../../src/lib/prompts/assemble.ts';
 import { simulateReply, VERSION } from '../../src/lib/prompts/simulate.ts';
 
@@ -28,7 +28,7 @@ const ACCESSED = new Date().toISOString().slice(0, 10);
 
 /** Domains a model makes up are rewritten to .example (R13), so no reply points at a real site. */
 const REDACTED = 'made-up .com, .net, .org and .io domains rewritten to .example (R13)';
-const redact = text => text.replace(/\b([a-z0-9-]+(?:\.[a-z0-9-]+)*)\.(?:com|net|org|io)\b/gi, '$1.example');
+const redact = redactDomains;
 
 const key = apiKey('record/prompts');
 const listed = await listModels(key);

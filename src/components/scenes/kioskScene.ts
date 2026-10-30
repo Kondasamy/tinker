@@ -13,7 +13,7 @@ import { bin, drawPieces, type Item, mini, modelMachine, type Piece, person, tig
 import { card, flatPill, lane, type Msg } from '../../lib/iso/flat';
 import { RULES, type Run } from '../../lib/before-genai/bots';
 import { INTENTS } from '../../lib/labelling/story';
-import { gauge, tray } from './postScene';
+import { gauge, tray, GAUGE, TRAY_X, TRAY_Y } from './postScene';
 import { shelfPiece } from './shelfScene';
 import type { Say } from '../story/steps';
 
@@ -292,9 +292,9 @@ export interface PredictOpts {
   scale?: number;
 }
 // postScene's own spots for the dial and the trays, and where they stand here
-const DIAL = [182, 38, BH],
-  INBOX = [108, 86, BH],
-  JUNK = [136, 86, BH];
+const DIAL = [...GAUGE, BH],
+  INBOX = [TRAY_X.inbox, TRAY_Y, BH],
+  JUNK = [TRAY_X.junk, TRAY_Y, BH];
 export const predictScene = (o: PredictOpts) => (ctx: SceneCtx) => {
   const scale = o.scale ?? 1,
     sorted = o.spam !== undefined,

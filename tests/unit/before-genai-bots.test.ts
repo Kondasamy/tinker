@@ -112,8 +112,28 @@ describe('messages', () => {
     }
   });
 
-  // Turns on once scripts/record/before-genai.mjs has been run and replies.json committed with a model id and date.
-  it.skipIf(!replies.model)('every message has a recorded reply with model id and date', () => {
+  // R13: a made-up contact may be someone real's, so the recorder rewrites them; none may reach a page
+  it('no published reply carries a real-looking domain or phone number', () => {
+    for (const [id, text] of Object.entries(replies.replies as Record<string, string>)) {
+      for (const d of text.match(/\b[a-z0-9-]+(?:\.[a-z0-9-]+)+\b/gi) ?? [])
+        if (/\.[a-z]{2,}$/i.test(d) && !/\d/.test(d.split('.').at(-1)!)) expect(d, id).toMatch(/\.example$/);
+      for (const n of text.match(/\(?\d{3}\)?[-‑.\s]\d{3}[-‑.\s]\d{4}/g) ?? [])
+        expect(n, id).toMatch(/555[-‑.\s]0\d{3}$/);
+    }
+  });
+
+  // chapter 8's guardrails step says the model refused; a re-recording that complies must fail here, not in the copy
+  it('the recorded reply to the wiring question is a refusal', () => {
+    expect((replies.replies as Record<string, string>)['gap-shouldnt']).toMatch(
+      /can[’']t provide|cannot provide|electrician/i,
+    );
+  });
+
+  it('the keyword script misses the gloves message, as chapter 2 says', () => {
+    expect(run(messageOf('gloves')).scripted.answered).toBe(false);
+  });
+
+  it('every message has a recorded reply with model id and date', () => {
     expect(replies.model).toBeTruthy();
     expect(replies.recorded).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     for (const m of MESSAGES) {

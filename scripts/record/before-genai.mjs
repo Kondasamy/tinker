@@ -13,7 +13,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import messages from '../../data/before-genai/messages.json' with { type: 'json' };
-import { apiKey, chat, listModels, pickModel } from '../lib/nvidia.mjs';
+import { apiKey, chat, listModels, pickModel, redactDomains } from '../lib/nvidia.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const OUT = path.join(ROOT, 'data/before-genai/replies.json');
@@ -28,13 +28,21 @@ const SYSTEM =
   'You are the customer help assistant on the website of Larkspur Supply Co., a hardware store. Reply to the customer in a few sentences. You cannot look up orders or accounts and cannot take any action.';
 
 // Made-up contacts may belong to someone real, so none is published as written (R13, as scripts/record/prompts.mjs):
-// .com, .net, .org and .io domains become .example, and phone numbers become a 555 number reserved for fiction.
+// any other domain becomes .example, and any phone number (digits or a vanity word) a 555 number reserved for fiction.
+// tests/unit/before-genai-bots.test.ts fails a published reply that still carries one.
 const REDACTED = 'made-up domains rewritten to .example and phone numbers to 1-800-555-0100 (R13)';
+const SEP = '[-‑.\\s]';
+const PHONE = new RegExp(
+  `(?:\\+?1${SEP}?)?(?:\\(\\d{3}\\)|\\b\\d{3})${SEP}?(?:\\d{3}${SEP}\\d{4}\\b|[A-Z]{3,4}${SEP}?[A-Z]{3,4}\\b)(?:\\s*\\([^)]*\\d{4}\\))?`,
+  'g',
+);
 const redact = text =>
-  text
-    .replace(/\b([a-z0-9-]+(?:\.[a-z0-9-]+)*)\.(?:com|net|org|io)\b/gi, '$1.example')
-    .replace(/\b1[-‑ ]?8\d\d[-‑ ][A-Z0-9][-‑A-Z0-9]{6,}(?: \(1[-‑ ]?8\d\d[-‑ ][\d-‑]{8}\))?/g, '1-800-555-0100')
-    .replace(/\b8\d\d[-‑ ]\d{3}[-‑ ]\d{4}\b/g, '800-555-0100');
+  redactDomains(text)
+    .replace(
+      /\b([a-z0-9-]+(?:\.[a-z0-9-]+)*)\.(?:co|uk|ca|us|au|shop|store|biz|info|net)\b(?!\.example)/gi,
+      '$1.example',
+    )
+    .replace(PHONE, '1-800-555-0100');
 
 const key = apiKey('record/before-genai');
 const listed = await listModels(key);

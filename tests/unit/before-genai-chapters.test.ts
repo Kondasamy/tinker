@@ -145,8 +145,7 @@ describe('chapter 7: which bots answer', () => {
       expect(/genai|all three/i.test(a), id).toBe(r.genai.recorded);
     }
   });
-  // Turns on once scripts/record/before-genai.mjs has run: then every chapter-7 answer names GenAI.
-  it.skipIf(!replies.model)('with the recording in, GenAI answers every chapter-7 message', () => {
+  it('with the recording in, GenAI answers every chapter-7 message', () => {
     for (const id of ch7.SHOWN) expect(ch7.OPTIONS[ch7.answerOf(run(messageOf(id)))]).toMatch(/GenAI|All three/);
   });
 });
@@ -183,7 +182,7 @@ describe('chapter 8: what stayed', () => {
     expect(fact('air-canada').claim).not.toMatch(/lawsuit|AI law|regulat/i);
   });
   // Turns on once the recording lands: each gap's message has a recorded reply to show.
-  it.skipIf(!replies.model)('every gap shows a recorded reply', () => {
+  it('every gap shows a recorded reply', () => {
     for (const g of ch8.GAPS) expect(run(messageOf(g.message)).genai.recorded, g.id).toBe(true);
   });
 });

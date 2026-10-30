@@ -6,7 +6,7 @@ import { CANDIDATES, messageOf, run, WINNERS } from '../../src/lib/before-genai/
 import { shelfOf } from '../../src/lib/recommendations/score';
 import { productOf, TRAIN } from '../../src/lib/recommendations/story';
 import { chapterHref, moduleOf } from '../../src/lib/modules';
-import { answerOf, GAPS, HANDOFF, OPTIONS, SHOWN } from '../../src/lib/before-genai/lessons';
+import { answerOf, GAPS, HANDOFF, OPTIONS, SHOWN } from '../../src/content/before-genai/lessons';
 import { choose, chooseByKeys } from './helpers';
 
 export type Mode = 'mouse' | 'keyboard';
