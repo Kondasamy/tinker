@@ -1,0 +1,13 @@
+{
+  "note": "Disasters for a teaching simulator, hand-made for this site, not incident records. Each wipes the places it names: the server is the live database's disk; the cabinet holds the tapes in the same server room; the warehouse across town takes copies over the network; the courier's lockbox is offline.",
+  "kinds": {
+    "disk": { "name": "Disk dies", "hits": ["server"], "how": "dead" },
+    "fire": { "name": "Fire", "hits": ["server", "cabinet"], "how": "burnt" },
+    "ransomware": { "name": "Ransomware", "hits": ["server", "cabinet", "warehouse"], "how": "locked" }
+  },
+  "bench": [
+    { "kind": "disk", "hour": 64 },
+    { "kind": "fire", "hour": 83 },
+    { "kind": "ransomware", "hour": 141 }
+  ]
+}

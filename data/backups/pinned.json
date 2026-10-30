@@ -1,0 +1,105 @@
+{
+  "workbench": {
+    "best": 222,
+    "winners": [
+      {
+        "every": 6,
+        "incremental": true,
+        "places": "both"
+      }
+    ]
+  },
+  "scenes": {
+    "none-wed": {
+      "from": null,
+      "point": null,
+      "links": 0,
+      "lost": 1062,
+      "down": null
+    },
+    "nightly-wed": {
+      "from": "cabinet",
+      "point": 49,
+      "links": 1,
+      "lost": 229,
+      "down": 3
+    },
+    "nightly-thu": {
+      "from": "cabinet",
+      "point": 73,
+      "links": 1,
+      "lost": 305,
+      "down": 3
+    },
+    "six-thu": {
+      "from": "cabinet",
+      "point": 85,
+      "links": 1,
+      "lost": 147,
+      "down": 3
+    },
+    "hourly-thu": {
+      "from": "cabinet",
+      "point": 89,
+      "links": 1,
+      "lost": 31,
+      "down": 3
+    },
+    "chain-tue": {
+      "from": "cabinet",
+      "point": 43,
+      "links": 4,
+      "lost": 102,
+      "down": 6
+    },
+    "broken-tue": {
+      "from": "cabinet",
+      "point": 31,
+      "links": 2,
+      "lost": 399,
+      "down": 4
+    },
+    "six-fire": {
+      "from": null,
+      "point": null,
+      "links": 0,
+      "lost": 1394,
+      "down": null
+    },
+    "offsite-fire": {
+      "from": "warehouse",
+      "point": 79,
+      "links": 1,
+      "lost": 107,
+      "down": 5
+    },
+    "offsite-ransom": {
+      "from": null,
+      "point": null,
+      "links": 0,
+      "lost": 2632,
+      "down": null
+    },
+    "lockbox-ransom": {
+      "from": "lockbox",
+      "point": 138,
+      "links": 1,
+      "lost": 111,
+      "down": 9
+    },
+    "silent-fri": {
+      "from": "cabinet",
+      "point": 1,
+      "links": 1,
+      "lost": 1991,
+      "down": 3
+    },
+    "tested-fri": {
+      "from": "cabinet",
+      "point": 109,
+      "links": 1,
+      "lost": 90,
+      "down": 3
+    }
+  }
+}
