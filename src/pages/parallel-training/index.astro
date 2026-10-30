@@ -80,7 +80,7 @@ const FACTS: [string, string][] = [
           <p class="kicker">Module {NUMBER} · {MODULE.title}</p>
           <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>One model, too big for any chip</h1>
-          <p class="lede">A model too big for one chip is split by data, by layers or within a layer, and every split trades memory for waiting. Here you pass gradients round a ring, watch a pipeline wait and lay out a training run.</p>
+          <p class="lede">A model too big for one chip is split by data, by layers or within a layer, and every split trades memory for waiting. Here you pass gradients (each chip’s nudges to the model) round a ring, watch a pipeline wait and lay out a training run.</p>
           <div class="ctas">
             <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
             <a class="btn" href="#path">See the chapters</a>

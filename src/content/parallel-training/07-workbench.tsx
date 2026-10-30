@@ -9,7 +9,7 @@ import Quiz from '../../components/quiz/Quiz';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { RING_PARTS } from '../../components/scenes/ringScene';
-import { CHIP } from '../../lib/parallel-training/facts';
+import { CHIP, PER_BOX } from '../../lib/parallel-training/facts';
 import {
   BEST,
   type Bench,
@@ -31,7 +31,17 @@ import {
 } from '../../lib/parallel-training/workbench';
 import type { Zero } from '../../lib/parallel-training/memory';
 import { bytesText, pct, secondsText } from '../../lib/parallel-training/story';
-import { PassControls, type PassState, Radios, RingStage, SimNote, sceneOf, timelineOf, type Workers } from './kit';
+import {
+  Fact,
+  PassControls,
+  type PassState,
+  Radios,
+  RingStage,
+  SimNote,
+  sceneOf,
+  timelineOf,
+  type Workers,
+} from './kit';
 
 const MODULE = 'parallel-training',
   ID = '07-workbench';
@@ -74,7 +84,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'ties',
     focus: 'quiz',
-    visibleControls: ['score', 'bench', 'quiz'],
+    visibleControls: ['score', 'bench', 'fact', 'quiz'],
     narration: `${secondsText(BEST)} a step, lost work counted. ${WINNERS.length} layouts tie: their ZeRO stages change memory, not time.`,
     act: 'One question to finish.',
     say: { block: 'worker', text: 'Fits' },
@@ -179,6 +189,14 @@ export default function Workbench() {
       stage={({ state, say }) => <Stage s={state} say={say} />}
       controls={{
         score: ({ state }) => <Score s={state} />,
+        fact: () => (
+          <>
+            <Fact id="llama3-layout" />
+            <p className="note">
+              {`Here too the winners split each layer ${WINNERS[0].tp} ways, the ${PER_BOX} chips of one box. The ${CHIPS.toLocaleString('en-US')} rented chips are a planning number.`}
+            </p>
+          </>
+        ),
         // changing the layout is an attempt only while it is the puzzle
         bench: ({ state, apply, sync, focused }) => <BenchControls s={state} set={focused ? apply : sync} />,
         quiz: ({ state, apply, sync }) => (

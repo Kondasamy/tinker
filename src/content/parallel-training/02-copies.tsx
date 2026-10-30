@@ -8,8 +8,11 @@ import Predict from '../../components/quiz/Predict';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { RING_PARTS } from '../../components/scenes/ringScene';
+import { BYTES, MODEL } from '../../lib/parallel-training/facts';
+import { bytesText } from '../../lib/parallel-training/story';
 import { Outcome } from '../tool-calling/kit';
 import {
+  Fact,
   lastOf,
   Maths,
   PassControls,
@@ -32,6 +35,8 @@ const FOUR = ringFor(START.n),
 const vector = (n: number) => ringFor(n).bounds[n] * 8;
 export const MEAN = [...FOUR.result[0]].map(num).join(', ');
 export const RATIO = EIGHT.sent[0] / vector(8);
+/** Fernhill's real gradient: one 16-bit number per parameter */
+const REAL = MODEL.params * BYTES.grads;
 
 export interface S {
   pass: PassState;
@@ -94,7 +99,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out1', 'sum', 'quiz'],
-    narration: `${EIGHT.sent[0]} bytes of a ${vector(8)}-byte gradient: under twice, however many chips. Only the hops grow.`,
+    narration: `${EIGHT.sent[0]} bytes of a ${vector(8)}-byte gradient: under twice, however many chips. A real ${bytesText(REAL)} gradient sends the same share.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Each chip passes only to its neighbour. How many times does each chunk leave it?',
@@ -129,6 +134,7 @@ export default function Copies() {
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />,
         sum: () => (
           <>
+            <Fact id="ring-optimal" />
             <Maths>
               <p>
                 {`Each chip sends 2(N − 1)/N of its gradient: N − 1 hops to add, N − 1 to share. For N = 8, ${EIGHT.sent[0]} ÷ ${vector(8)} = ${RATIO}.`}

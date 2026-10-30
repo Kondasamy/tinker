@@ -33,3 +33,26 @@ Chapter units clear the read-out when the step changes by keying `PassControls` 
 
 - **Chapter 3 never fits on its own:** with no split inside layers or by layers, one micro-batch of activations (about 91 GB) already passes a chip, so even ZeRO stage 3 over 8 copies stays over. The chapter says so and hands over to the pipeline; no pinned row was added.
 - **The read-out clears with the step:** chapters key `PassControls` on the step, so the last Step that finishes a step clears its milestone; the next narration carries the result.
+
+## Toy vs real
+
+Most of this module's numbers are already matched: `src/lib/parallel-training/facts.ts` reads the model's size, the bytes per parameter, the chip's memory and speed, both link speeds, the share of peak, the all-reduces per layer and the failure rate from `facts.json`, and every chapter number is arithmetic over those. What stays a toy is labelled by `SimNote` (the stand-in gradients and the simulated cluster's planning numbers in `workbench.json`), with a real fact on the same step.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 | 70 billion parameters, 80 layers | `llama3-70b` | matched (`MODEL`) |
+| 1 | 2 + 2 + 12 = 16 bytes a parameter; 140 GB of weights, 1.12 TB of state, 14 chips, 75% optimiser | `zero-16-bytes` | matched (`BYTES`), derived |
+| 1 | 80 GB a chip | `h100-memory` (re-checked) | matched (`CHIP.memory`) |
+| 1 | Quiz: a 7-billion-parameter model, 14 GB, 112 GB | `zero-16-bytes` | hand-set example size, bytes derived |
+| 2 | Stand-in gradients, their mean, 32-byte gradient, 48 and 56 bytes sent | `ring-optimal` (2(N − 1)/N) | labelled (`SimNote`, hand-set in `story.json`); the ratio is the real one and the narration names the real 140 GB gradient |
+| 2 | 2, 4 or 8 workers; quiz 64 and 512 chips | `ring-optimal` | toy (the picture draws at most 8), the rule holds at any count |
+| 3 | 8 copies; 1.21 TB, 476 GB, 354 GB, 231 GB a chip; 91 GB of activations; 15× over; stage 1 saves 61% | `zero-16-bytes`, `zero-stages`, `activations`, `llama3-batch` | matched, derived; micro-batch of 1 sequence is a planning number (`workbench.json`) |
+| 3 | 1.5× the sending at stage 3 | `zero-stages` | matched (`ZERO3_TRAFFIC`) |
+| 4 | 80 layers in 4 stages of 20; 1 to 8 micro-batches; 75% and 27% bubble; slots idle | `gpipe-bubble`, `llama3-70b` | real formula on toy stage and micro-batch counts (Llama 3 used 16 stages, `llama3-layout`) |
+| 5 | 900 GB/s inside a box, 50 GB/s between, 18× slower; 8 or 16 ways | `nvlink`, `between-boxes` (re-checked) | matched (`LINK`, `PER_BOX`) |
+| 5 | 4 all-reduces a layer | `megatron-allreduce` | matched (`TP_ALLREDUCES`) |
+| 5 | One all-reduce and step times (5.29 s vs 17.9 s) | `tp-in-box`, `llama3-mfu`, `h100-bf16` | labelled (`SimNote`, "Simulated, on planning numbers"): arithmetic over real chip figures and planning chips |
+| 6 | 1,024 chips; one failure every 49 hours | `llama3-interruptions` | chips labelled (planning); the rate matched (`FAILS_PER_CHIP_DAY`) |
+| 6 | 5-minute save, 10-minute restart; 30, 170 and 480 minutes; saves, hits, hours lost, days of wall clock | `llama3-interruptions`, `young` | labelled (`SimNote`, planning numbers, simulated stream); Young's interval is the real rule |
+| 7 | Layout controls, memory a chip, step parts, share lost, 5.64 s best, 3 tying layouts | `llama3-layout` | labelled (`SimNote`); beside it Meta's real layout, the same 8-way split inside a box |
+| Intro | 70 billion, 1.12 TB, 1,024 chips, 49 hours, best step | as above | matched or labelled as above ("a planning number", "simulated") |

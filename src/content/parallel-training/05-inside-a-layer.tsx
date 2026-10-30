@@ -79,7 +79,7 @@ export const STEPS: Step<S>[] = [
     id: 'inside',
     focus: 'link',
     visibleControls: ['link'],
-    narration: `Your pick is locked. Inside one box, chips talk over NVLink at ${GBS(LINK.inside)} each.`,
+    narration: `Your pick is locked. Inside one box, chips talk over a fast link at ${GBS(LINK.inside)} each.`,
     act: `Pick ${words('inside')}.`,
     say: { block: 'table', text: 'Fast link' },
     predicate: s => s.link === 'inside',
@@ -179,7 +179,7 @@ export default function InsideALayer() {
             </Maths>
             <SimNote />
             <p className="note">
-              <a href="/inference/">Serving a big model splits it the same way: see Inference engineering.</a>
+              <a href="/inference/">Serving a big model splits it the same way: see the module on serving models.</a>
             </p>
           </>
         ),
