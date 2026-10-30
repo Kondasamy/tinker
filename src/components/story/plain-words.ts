@@ -74,6 +74,7 @@ export const FLAGGED: Record<string, string> = {
   rto: 'how long you can be down',
   rtt: 'round trip',
   schema: 'expected shape',
+  seeded: 'fixed-random',
   semver: 'version numbering',
   'sim-to-real': 'from simulator to the real thing',
   softfail: 'weak fail',
@@ -85,6 +86,7 @@ export const FLAGGED: Record<string, string> = {
   'top-k': 'the best few',
   'top-p': 'the likeliest share',
   totp: 'six-digit login code',
+  trolley: 'carriage',
   ttl: 'how long a copy stays fresh',
   'z-score': 'distance from average',
 };

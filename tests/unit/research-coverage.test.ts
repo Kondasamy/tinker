@@ -61,7 +61,6 @@ const PENDING = new Set<string>([
   'reasoning',
   'recommendations',
   'releases',
-  'robots',
   'routes',
   'sandboxing',
   'search',
@@ -123,7 +122,8 @@ describe('research coverage', () => {
   for (const m of live)
     it(m.id, () => {
       const found = gaps(m.id);
-      if (PENDING.has(m.id)) expect(found, `${m.id} passes now: remove it from PENDING`).not.toEqual([]);
+      // FULL=1 shows a pending module's whole list, as a finished one would
+      if (PENDING.has(m.id) && !process.env.FULL) expect(found, `${m.id} passes now: remove it from PENDING`).not.toEqual([]);
       else expect(found).toEqual([]);
     });
 
