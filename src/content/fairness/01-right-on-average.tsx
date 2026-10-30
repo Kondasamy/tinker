@@ -11,7 +11,7 @@ import { GATE_PARTS } from '../../components/scenes/gateScene';
 import type { Bars } from '../../lib/fairness/metrics';
 import { BARS, REGION_NAMES, runOf, SHARED } from '../../lib/fairness/story';
 import { Outcome } from '../tool-calling/kit';
-import { ApplicantsNote, Caveat, GateStage, bar2, pct, type View } from './kit';
+import { ApplicantsNote, Caveat, Fact, GateStage, bar2, pct, type View } from './kit';
 
 const MODULE = 'fairness',
   ID = '01-right-on-average';
@@ -80,7 +80,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'bars',
     focus: 'view',
-    visibleControls: ['out1'],
+    visibleControls: ['out1', 'fact'],
     narration: `${A} ${pct(M.A.error)}, ${B} ${pct(M.B.error)}: close. The Bars tab splits each region’s mistakes by kind.`,
     act: 'Open Bars.',
     predicate: s => s.view === 'bars',
@@ -121,6 +121,14 @@ export default function RightOnAverage() {
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />,
+        fact: () => (
+          <>
+            <Fact id="gender-shades" />
+            <p className="note">
+              {`In that real test the totals split by group; here the made-up regions’ totals sit close, and the split hides inside them.`}
+            </p>
+          </>
+        ),
         link: () => (
           <>
             <p className="note">

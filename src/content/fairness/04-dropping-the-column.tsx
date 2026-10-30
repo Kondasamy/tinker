@@ -34,7 +34,7 @@ export interface S {
 }
 
 export const P1 = {
-  question: 'The check is refitted without the region field. What happens to the gap?',
+  question: 'The check learns again without the region field. What happens to the gap?',
   options: ['Most of it stays', 'It closes', 'It grows'],
 };
 /** most of it stays (the chapter test checks the kept share) */
@@ -52,7 +52,7 @@ export const QUIZ = {
   why: [
     'Right: a field that goes with the store, like its town, lets the model find the store anyway.',
     'Dropping a field does change the model; here it changed it only a little, because a proxy stayed.',
-    'A refitted model learns only from the fields it is given; the store comes back through a proxy.',
+    'A model learns only from the fields it is given; the store comes back through a proxy.',
   ],
 };
 
@@ -69,7 +69,7 @@ export const STEPS: Step<S>[] = [
     id: 'drop',
     focus: 'fields',
     visibleControls: ['fields'],
-    narration: 'Each choice refits the check on the field set it may read.',
+    narration: 'Each choice makes the check learn again from only the fields it may read.',
     act: `Choose ${FIELD_NAMES['no-region']}.`,
     say: { block: 'check', text: 'No region' },
     predicate: s => s.features === 'no-region',

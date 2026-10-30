@@ -26,7 +26,6 @@ const PENDING = new Set<string>([
   'compression',
   'dependencies',
   'email',
-  'fairness',
   'git',
   'load-balancing',
   'logins',

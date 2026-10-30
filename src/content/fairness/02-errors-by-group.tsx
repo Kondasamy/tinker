@@ -11,7 +11,7 @@ import { GATE_PARTS } from '../../components/scenes/gateScene';
 import { gapOf, type Bars } from '../../lib/fairness/metrics';
 import { REGION_NAMES, runOf, SHARED } from '../../lib/fairness/story';
 import { Outcome } from '../tool-calling/kit';
-import { ApplicantsNote, GateStage, START_BARS, bar2, pct, type View } from './kit';
+import { ApplicantsNote, Fact, GateStage, START_BARS, bar2, pct, type View } from './kit';
 
 const MODULE = 'fairness',
   ID = '02-errors-by-group';
@@ -66,7 +66,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'bars',
     focus: 'view',
-    visibleControls: ['out1'],
+    visibleControls: ['out1', 'fact'],
     narration: `${B}’s repayers are turned down ${pct(M.B.falseDecline)} of the time, ${A}’s ${pct(M.A.falseDecline)}.`,
     act: 'Open Bars to see every kind.',
     say: { block: 'out-a', text: 'Fewer bags' },
@@ -121,6 +121,14 @@ export default function ErrorsByGroup() {
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />,
+        fact: () => (
+          <>
+            <Fact id="nist-frvt" />
+            <p className="note">
+              {`In these made-up regions, false declines sit about ${Math.round(M.B.falseDecline / M.A.falseDecline)} times apart at one bar while false approvals run the other way: one kind can hide another, so measure both.`}
+            </p>
+          </>
+        ),
         luck: () => (
           <p className="note">
             {`${B} is the smaller region, and a small group’s rates swing with luck. `}
