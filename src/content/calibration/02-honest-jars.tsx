@@ -14,7 +14,7 @@ import { report } from '../../lib/calibration/measure';
 import { accuracyOf } from '../../lib/calibration/score';
 import { JAR_PARTS } from '../../components/scenes/jarScene';
 import { Outcome } from '../tool-calling/kit';
-import { CalibrationStage, MiniNote, Waiting, guessesNow, loadAll, pct, useGuesses, type View } from './kit';
+import { CalibrationStage, Fact, MiniNote, Waiting, guessesNow, loadAll, pct, useGuesses, type View } from './kit';
 
 const MODULE = 'calibration',
   ID = '02-honest-jars';
@@ -167,6 +167,8 @@ export default function HonestJars() {
                 Stated {pct(top.conf)} or so: {top.right} of {top.n} right.
               </p>
               <MiniNote />
+              <p className="cb-note">A separate finding, about far larger models:</p>
+              <Fact id="kadavath" />
             </>
           );
         },

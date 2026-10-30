@@ -15,3 +15,21 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **The assistant's answers are a stand-in** (`data/calibration/answers.json`): sixty answers in three kinds, each with a hand-set confidence written to show the overconfidence Guo et al. report, graded live by Evals' `keyFact` (where an answer names an Evals question) or `keyFactOf` against `data/calibration/references.json`. Every chapter that shows them says so (`StandIn`). A yes-or-no confidence is softened at T by dividing its log-odds (`soften`).
 - **Chapter 7's workbench** (`workbench.ts`): per kind, a temperature (what customers are shown) and a hand-over line on the stated confidence (which the dial never reorders), 45 choices a kind. The desk's rules (`data/calibration/workbench.json`, the team's choices): wrong answers sent at most 10% a kind, the shown confidence's average within 5 points of how often it is right, and all hand-overs within the desk's capacity. `WINNERS` (every plan keeping the rules with the fewest hand-overs, 18 today) is pinned and recomputed by `calibration-workbench.test.ts`; one line for every kind overflows the desk.
 - **Facts about calibration** come from `data/calibration/facts.json` with source and access date (Guo et al., Kadavath et al., the GPT-4 report's Figure 8 read from the paper, Brier 1950 by its DOI, Geifman and El-Yaniv).
+
+## Toy vs real
+
+Two kinds of number show, and neither is matched: Larkspur mini's are measured live on this site's tiny model (trained ahead of time, so labelled and never retrained; `MiniNote`), and the assistant's are the hand-set stand-in answer set (`StandIn`). Each chapter puts a cited finding beside them, introduced as a separate finding about other models. The desk's rules are the team's choices (`workbench.json`), not measurements.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 | 60 answers, each jar's stated level and right count, overall right share | `forecasters` (weather forecasters' stated chances come true about that often) | Labelled: stand-in, written to be overconfident |
+| 1 | 30% rain on 100 days, 31 wet (quiz) | none | Labelled: a hypothetical in the question |
+| 2 | Held-out guesses, right share, top jar's stated level and count | `kadavath` (larger models well calibrated on multiple-choice questions) | Labelled: the tiny model's own measurement |
+| 2 | 90% (prediction); 60%, 95%, 94% (quiz) | none | Labelled: hypotheticals in the questions |
+| 3 | Sure on average and right share, base and fine-tune | `gpt4` (0.007 before further training, 0.074 after) | Labelled: the tiny model's measurement; GPT-4's figures cited apart |
+| 4 | Temperatures 0.5–3, fitted T, log loss, fit and test half sizes, sure and right share | `guo` (temperature scaling works on modern networks) | Labelled: the tiny model's measurement |
+| 5 | Always-the-hit-rate forecaster, calibration error and Brier score per forecaster | `brier` | Labelled: the tiny model's measurement |
+| 6 | Hand-over lines 70–95%, coverage, accuracy, wrong sent; the 10% limit | `selective` (set the error rate you accept, decline to keep it) | Labelled: stand-in answers; the limit is the team's choice |
+| 6 | 95% answered by a bank's chatbot (quiz) | none | Labelled: a hypothetical in the question |
+| 7 | Per-kind wrong sent, shown vs right, hand-overs; 10%, 5 points, 25 a day; best 18, ties | `per-domain` (one temperature over pooled kinds: 1.1% pooled, 5.8% within a kind) | Labelled: stand-in answers and the team's rules; `WINNERS` recomputed by its test |
+| Intro, recall | The same measured calibration errors (0.032, 0.270, after fitting), 18 of 25, GPT-4's 0.007 and 0.074 | as above | Labelled (MiniNote / stand-in note on the page); GPT-4's read from `gpt4.value` |

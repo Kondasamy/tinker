@@ -11,7 +11,7 @@ import { ANSWERS, MIN_ANSWERS, itemsOf } from '../../lib/calibration/answers';
 import { accuracy, accuracyOf, bins } from '../../lib/calibration/score';
 import { JAR_PARTS } from '../../components/scenes/jarScene';
 import { Outcome } from '../tool-calling/kit';
-import { CalibrationStage, StandIn, pct } from './kit';
+import { CalibrationStage, Fact, StandIn, pct } from './kit';
 
 const MODULE = 'calibration',
   ID = '01-what-70-should-mean';
@@ -125,6 +125,8 @@ export default function What70ShouldMean() {
           <>
             <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />
             <StandIn />
+            <p className="cb-note">A real record that keeps its promise:</p>
+            <Fact id="forecasters" />
           </>
         ),
         worst: ({ state, apply }) => (

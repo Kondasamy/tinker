@@ -121,7 +121,7 @@ export const RECALL: RecallItem[] = [
     correct: 0,
     why: [
       'Right: Larkspur mini’s style fine-tune became overconfident on text that had nothing to do with style.',
-      'Tuning changes all the weights a little, and confidence comes from the same weights.',
+      'Tuning nudges every number inside the model, and its confidence comes from those same numbers.',
       'Confidence can drift even when accuracy holds; check both.',
     ],
   },
@@ -140,17 +140,17 @@ export const RECALL: RecallItem[] = [
   {
     id: 'post-training',
     chapter: C.polish,
-    question: 'What did OpenAI’s GPT-4 report show about calibration after post-training?',
+    question: 'What did OpenAI’s GPT-4 report show about calibration after further training?',
     options: [
-      'The pre-trained model was well calibrated; after post-training it was less so',
-      'Post-training made it perfectly calibrated',
+      'Well calibrated before further training; less so after it',
+      'Further training made it perfectly calibrated',
       'Calibration was not measured',
     ],
     correct: 0,
     why: [
-      `Right: OpenAI reports an ECE of ${GPT4_PRE} before and ${GPT4_POST} after, on part of MMLU.`,
-      'It went the other way: the post-trained model was worse calibrated.',
-      'It was measured, on a subset of the MMLU test.',
+      `Right: OpenAI reports a calibration error of ${GPT4_PRE} before and ${GPT4_POST} after, on part of MMLU.`,
+      'It went the other way: after further training it was worse calibrated.',
+      'It was measured, on part of the MMLU knowledge test.',
     ],
   },
   // 4. One dial

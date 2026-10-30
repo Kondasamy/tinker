@@ -63,7 +63,7 @@ const CHAPTERS: Chapter[] = [
       learn: [
         'What the style fine-tune did to its confidence',
         'Why it is scored on text it was not tuned for',
-        'What larger models showed after post-training',
+        'What larger models showed after further training',
       ],
       terms: [
         ['Fine-tune', 'Larkspur mini trained a little more on a small set of styled replies.'],

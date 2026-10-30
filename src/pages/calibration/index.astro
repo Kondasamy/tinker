@@ -46,12 +46,12 @@ const SIDES = [
   ['After a style fine-tune', rt, 'Rings above the mint in every jar: overconfident.'],
 ] as const;
 const answers = bins(itemsOf(), MIN_ANSWERS);
-type Idea = [string, string, ReturnType<typeof fact> | null, JarOpts];
+type Idea = [string, string, ReturnType<typeof fact>, JarOpts];
 const IDEAS: Idea[] = [
   [
     'What 70% should mean',
     'Of the answers stated 70%, about seven in ten should be right',
-    null,
+    fact('forecasters'),
     scene({ jars: answers }),
   ],
   ['Honest jars', 'A tiny model, measured on text it never saw', fact('kadavath'), scene({ jars: rb.jars })],
@@ -64,7 +64,7 @@ const IDEAS: Idea[] = [
   ],
   [
     'Keeping score',
-    'ECE for honesty; the Brier score for honest and useful',
+    'Calibration error for honesty; the Brier score for honest and useful',
     fact('brier'),
     scene({ jars: rb.jars, slate: `ECE ${three(rb.ece)} · BRIER ${three(rb.brier)}` }),
   ],
@@ -76,9 +76,12 @@ const IDEAS: Idea[] = [
   ],
 ];
 const FACTS: [string, string][] = [
-  [three(rb.ece), 'Larkspur mini’s ECE on held-out text'],
-  [three(rt.ece), 'the style fine-tune’s ECE on the same text'],
-  [three(report(test, T).ece), `the fine-tune’s ECE on the test half at temperature ${T}`],
+  [three(rb.ece), 'Larkspur mini’s calibration error on text it never trained on'],
+  [three(rt.ece), 'the style fine-tune’s calibration error on the same text'],
+  [
+    three(report(test, T).ece),
+    `the fine-tune’s calibration error on the half kept back for checking, at temperature ${T}`,
+  ],
   [String(LEAST), `hand-overs a day in the workbench’s best plan, of ${RULES.capacity} the desk can take`],
 ];
 ---
@@ -112,11 +115,11 @@ const FACTS: [string, string][] = [
 
       <section class="band" aria-labelledby="idea">
         <p class="kicker">The whole idea in one example</p>
-        <h2 id="idea">The same held-out text, before and after a style fine-tune</h2>
+        <h2 id="idea">The same unseen text, before and after a style fine-tune</h2>
         <div class="versus">
           {SIDES.map(([name, r, cap], i) => (
             <article class:list={['reply', { read: i === 0 }]}>
-              <header><h3>{name}</h3><span class="stamp">ECE {three(r.ece)}</span></header>
+              <header><h3>{name}</h3><span class="stamp">Error {three(r.ece)}</span></header>
               <IsoStage board={JAR_BOARD} scene={jarScene(scene({ jars: r.jars }))} label={jarLabel({ jars: r.jars })} />
               <p class="cap">{cap}</p>
             </article>

@@ -49,7 +49,7 @@ export const QUIZ = {
   question: 'Two models have the same ECE. One is far more often sure and right. Which score tells them apart?',
   options: ['The Brier score: it rewards confident right answers', 'ECE again, with more jars', 'Accuracy alone'],
   correct: 0,
-  explanation: 'ECE checks honesty; the Brier score checks honesty and sharpness together.',
+  explanation: 'ECE checks honesty; the Brier score checks honesty and also rewards being sure and right.',
   why: [
     'Right: being sure and right shrinks each squared gap, so the sharper model scores lower.',
     'ECE only asks whether each jar keeps its promise, and both models’ jars do.',
