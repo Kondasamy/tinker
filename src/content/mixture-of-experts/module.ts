@@ -38,7 +38,7 @@ const CHAPTERS: Chapter[] = [
       goal: 'Who picks the rooms for a token, and how many?',
       learn: ['What an expert is', 'How the router scores every expert', 'Why only the top two run'],
       terms: [
-        ['Expert', 'One of the rooms: a small MLP of its own. Each layer here has eight.'],
+        ['Expert', 'One of the rooms: a small block of weights of its own. Each layer here has eight.'],
         ['Router', 'The doorman: a small layer that scores every expert for each token.'],
         ['Top-2', 'Only the two best-scored experts run; their outputs mix by the router’s scores.'],
       ],
@@ -131,10 +131,7 @@ const CHAPTERS: Chapter[] = [
       ],
       terms: [
         ['Budget', 'A limit Larkspur sets: memory for weights, and weights at work per token. Planning numbers.'],
-        [
-          'Precision',
-          'Bits per weight. Fewer bits shrink memory (Inference’s quantization); the work per token stays.',
-        ],
+        ['Precision', 'Bits per weight. Fewer bits shrink the memory each weight takes; the work per token stays.'],
         ['Workbench', 'The chapter’s free-play bench: change the plan and see every result.'],
       ],
     },

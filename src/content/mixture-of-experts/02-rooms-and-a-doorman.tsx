@@ -11,7 +11,7 @@ import { EXPERTS, promptOf, quote, roomName } from '../../lib/mixture-of-experts
 import { ROOMS_PARTS } from '../../components/scenes/officeRoomsScene';
 import pinned from '../../../data/mixture-of-experts/pinned.json' with { type: 'json' };
 import { Outcome } from '../tool-calling/kit';
-import { RoomsStage, ToyNote, type View } from './kit';
+import { Fact, RoomsStage, ToyNote, type View } from './kit';
 
 const MODULE = 'mixture-of-experts',
   ID = '02-rooms-and-a-doorman';
@@ -65,7 +65,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'scores',
     focus: 'tab',
-    visibleControls: ['out1', 'tab'],
+    visibleControls: ['out1', 'fact', 'tab'],
     narration: 'Top-2: only the two best-scored rooms run, and their answers mix by the doorman’s scores.',
     act: 'Open the Router tab.',
     say: { block: 'rooms', text: 'Two rooms lit' },
@@ -119,22 +119,25 @@ export default function RoomsAndADoorman() {
       controls={{
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={0} />,
+        fact: () => (
+          <>
+            <ToyNote />
+            <Fact id="shazeer-2017" />
+          </>
+        ),
         tab: ({ state, apply }) => (
           <button type="button" className="chip" onClick={() => apply({ ...state, view: 'router' })}>
             Open the Router tab
           </button>
         ),
         quiz: ({ state, apply, sync }) => (
-          <>
-            <ToyNote />
-            <Quiz
-              {...QUIZ}
-              unsure
-              value={state.quiz}
-              onAnswer={(_, q) => apply({ ...state, quiz: q })}
-              onUnsure={() => sync({ ...state, quiz: UNSURE })}
-            />
-          </>
+          <Quiz
+            {...QUIZ}
+            unsure
+            value={state.quiz}
+            onAnswer={(_, q) => apply({ ...state, quiz: q })}
+            onUnsure={() => sync({ ...state, quiz: UNSURE })}
+          />
         ),
       }}
     />

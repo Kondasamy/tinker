@@ -50,7 +50,7 @@ const VENDOR = cardOf('mixtral-8x7b');
 const IDEAS: [string, string, ReturnType<typeof fact> | null, RoomsOpts][] = [
   [
     'One big kitchen',
-    'A dense model runs every weight on every token',
+    'A plain (dense) model runs every weight on every token',
     null,
     pic({ ...CARD, lit: undefined, dense: true, guess: null }),
   ],
@@ -90,7 +90,7 @@ const FACTS: [string, string][] = [
           <p class="kicker">Module {NUMBER} · {MODULE.title}</p>
           <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>Many experts, a few at a time</h1>
-          <p class="lede">A mixture of experts holds many small networks but runs only a few for each token, picked by a router. Here you walk tokens through a sorting office, override its doormen, and size a model for Larkspur’s server.</p>
+          <p class="lede">A mixture of experts holds many small blocks of weights, its experts, but runs only a few for each token (a word or a piece of one), picked by a small scorer called the router. Here you walk tokens through a sorting office, override its doormen, and size a model for Larkspur’s server.</p>
           <div class="ctas">
             <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
             <a class="btn" href="#path">See the chapters</a>

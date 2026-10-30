@@ -162,8 +162,8 @@ function Bytes() {
         </tbody>
       </table>
       <p className="note me-note">
-        Bytes per weight come from <a href={chapterHref('inference', '04-smaller-numbers')}>Inference’s memory maths</a>
-        .
+        Bytes per weight come from the memory maths in{' '}
+        <a href={chapterHref('inference', '04-smaller-numbers')}>Smaller numbers</a>.
       </p>
       <Fact id="mixtral-8x7b" />
     </>

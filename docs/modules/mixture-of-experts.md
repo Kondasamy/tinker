@@ -21,8 +21,32 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 
 ## Facts
 
-From `data/mixture-of-experts/facts.json` (accessed 2026-10-25), each with its source:
+From `data/mixture-of-experts/facts.json` (file accessed 2026-10-25; the cards and the facts added on 2026-10-30 carry their own date), each with its source:
 
 - **Mixtral's routing analysis** (Jiang et al., 2024) was checked against the paper: no obvious split by topic across The Pile's subsets (ArXiv, biology, philosophy; only DM Mathematics differs a little), the router following syntax (“self” in Python, “Question” in English, indentation). The claim's topic examples were changed from “biology, philosophy, maths” to “ArXiv papers, biology, philosophy”, since maths is the one subset that differs.
 - **Shazeer et al. (2017)** (a trainable gating network picks a sparse combination of experts per example; capacity grows without a proportional rise in compute) and **Switch Transformers** (2021: expert capacity set by a capacity factor, overflowing tokens skip the layer through the residual connection; an auxiliary load-balancing loss minimised by uniform routing) were checked against the papers.
-- The model cards (Mixtral 8x7B and 8x22B, DeepSeek-V3, Llama 3 70B) cite their makers' pages and configs.
+- The model cards (Mixtral 8x7B and 8x22B, DeepSeek-V3, Llama 3 70B) cite their makers' pages and configs; re-checked 2026-10-30 (totals, active counts and every shape field against each `config.json`).
+- **One finding per chapter** (2026-10-30): chapter 1 shows Kaplan et al. (2020: about two operations per weight per token, so a dense model's work grows with its size); chapter 2 Shazeer et al.; chapter 4 Lu et al. (2024: removing 2 of Mixtral 8x7B's 8 experts per layer at random cut its average over eight tests from 67.58 to 63.04); chapter 7 NVIDIA's H100 page (80 GB a card), which sets the memory budget.
+
+## Toy vs real
+
+The toy is trained ahead of time (`moe.bin`), so its counts, routes and guesses are labelled, never recalibrated: `ToyNote` sits beside the chapter's cited fact.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+| --- | --- | --- | --- |
+| 1 | 46.7B weights in the vendor's model | `mixtral-8x7b` | Real |
+| 1 | 8 rooms a floor, 2 lit per token | Mixtral's 8 and 2 (`mixtral-8x7b`) | Labelled (the toy's own shape; it happens to equal Mixtral's) |
+| 1 | “twice the size, about twice the work” (quiz) | about 2 operations per weight per token (`kaplan-2020`) | Real (the fact backs the ratio) |
+| 2 | 8 rooms, 2 floors, each room's router share (%) | Shazeer's sparse gate (`shazeer-2017`) | Labelled |
+| 2 | 64 experts, top-2 (quiz) | none | Hypothetical in the question |
+| 3 | each room's most-sent training tokens | Mixtral's split by syntax (`mixtral-routing`) | Labelled (measured on the toy) |
+| 4 | the guess before and after the override (pinned) | 67.58 → 63.04 with 2 of 8 experts removed (`lu-2024-pruning`) | Labelled (pinned toy output) |
+| 5 | factors 2, 1.5, 1; seats ⌈factor × tokens × 2 ÷ 8⌉; tokens turned away; the new guess | capacity factor and dropped tokens (`switch-capacity`, `switch-balance`) | Labelled (a batch is one prompt here) |
+| 6 | 68,672 total, 43,328 active, the dense toy's count, the ratio, top-5 scores | none | Labelled (measured on the toy) |
+| 6 | 46.7B total, 12.9B active, 93.4 GB at 16 bits | `mixtral-8x7b` | Real (bytes derived) |
+| 6 | 100B / 10B / 30B (quiz) | none | Hypothetical in the question |
+| 7 | each card's total and active count, memory per plan | `mixtral-8x7b`, `mixtral-8x22b`, `deepseek-v3`, `llama-3-70b` | Real (memory derived) |
+| 7 | 160 GB memory budget | 2 cards × 80 GB (`h100-memory`) | Matched (`workbench.ts` reads the fact) |
+| 7 | 40B active budget | none | Labelled (Larkspur's planning number) |
+| 7 | 16, 8, 4 bits | Inference's precision set | Real (shared engine) |
+| 7 | the toy's counts and bytes | none | Labelled |

@@ -143,6 +143,7 @@ function Bench({ s, set }: { s: S; set: (s: S) => void }) {
         </tbody>
       </table>
       <p className="note me-note">{`Budgets are Larkspur’s planning numbers: ${BUDGET.memoryWords}; ${BUDGET.activeWords}.`}</p>
+      <Fact id="h100-memory" />
       <Fact id={s.card} />
     </div>
   );

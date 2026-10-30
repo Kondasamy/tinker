@@ -30,7 +30,6 @@ const PENDING = new Set<string>([
   'git',
   'load-balancing',
   'logins',
-  'mixture-of-experts',
   'payments',
   'queues',
   'rag',
@@ -44,9 +43,7 @@ const PENDING = new Set<string>([
 ]);
 
 /** chapters whose `<Fact id={…}>` is fully dynamic: file (from src/content/), and where its ids come from */
-const DYNAMIC: Record<string, string> = {
-  'mixture-of-experts/07-workbench.tsx': 'the card the reader picks; every card names a fact in its facts file',
-};
+const DYNAMIC: Record<string, string> = {};
 
 /** The fact ids a chapter renders with `<Fact id=…>`: literals, and every quoted literal inside an `id={…}`. */
 function shownIds(src: string): { ids: string[]; dynamic: boolean } {
