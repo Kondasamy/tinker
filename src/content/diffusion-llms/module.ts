@@ -61,7 +61,10 @@ const CHAPTERS: Chapter[] = [
       terms: [
         ['Remasking', 'Choosing which guesses a pass keeps; the rest go back to blanks for the next pass.'],
         ['Surest first', 'Keep the guesses with the highest confidence. Papers call it low-confidence remasking.'],
-        ['Careful fill', 'One slot a pass, surest first: the slowest way the toy writes, used here as the reply to measure against.'],
+        [
+          'Careful fill',
+          'One slot a pass, surest first: the slowest way the toy writes, used here as the reply to measure against.',
+        ],
       ],
     },
   },
