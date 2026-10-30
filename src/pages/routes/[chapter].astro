@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import RoadsAsAGraph from '../../content/routes/01-roads-as-a-graph';
+import FewestRoadsOrMinutes from '../../content/routes/02-fewest-roads-or-minutes';
+import Dijkstra from '../../content/routes/03-dijkstra';
+import AStar from '../../content/routes/04-a-star';
+import LiveTraffic from '../../content/routes/05-live-traffic';
+import WholeCountryMaps from '../../content/routes/06-whole-country-maps';
+import DeliveryDay from '../../content/routes/07-delivery-day';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('routes').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="routes" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-roads-as-a-graph' ? <RoadsAsAGraph client:load />
+    : chapter === '02-fewest-roads-or-minutes' ? <FewestRoadsOrMinutes client:load />
+    : chapter === '03-dijkstra' ? <Dijkstra client:load />
+    : chapter === '04-a-star' ? <AStar client:load />
+    : chapter === '05-live-traffic' ? <LiveTraffic client:load />
+    : chapter === '06-whole-country-maps' ? <WholeCountryMaps client:load />
+    : <DeliveryDay client:load />}
+</ChapterLayout>

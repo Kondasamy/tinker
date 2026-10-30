@@ -106,6 +106,7 @@ import { runOf as lbRun } from '../lib/load-balancing/sim';
 import { RULE_NAME as LB_RULE_NAME } from '../lib/load-balancing/rules';
 import { WINNERS as LB_WINNERS, benchPolicy as lbBench } from '../lib/load-balancing/workbench';
 import { PAINT_BOARD, PAINT_CARD, paintLabel, paintScene } from '../components/scenes/paintScene';
+import { SAFE_BOARD, safeCard, safeLabel, safeScene } from '../components/scenes/safeScene';
 import { NAMES as PAINT_NAMES } from '../content/encryption/kit';
 import { DESK_BOARD, deskCard, deskLabel, deskScene } from '../components/scenes/deskScene';
 import { COPIER_BOARD, copierCard, copierLabel, copierScene } from '../components/scenes/copierScene';
@@ -153,8 +154,32 @@ import { mandateOf, sign as signMandate } from '../lib/agent-commerce/mandate';
 import { checkOrder, orderOf } from '../lib/agent-commerce/shop';
 import { SLIPS, sellerOf } from '../lib/agent-commerce/story';
 import { RING_BOARD, ringLabel, ringScene } from '../components/scenes/ringScene';
+import { TABLE_BOARD, tableLabel, tabletopScene } from '../components/scenes/tabletopScene';
+import { DETOUR as RT_DETOUR, ROUTE_BRIDGE as RT_BRIDGE } from '../lib/routes/story';
 import { fillsAfter, ringAllReduce } from '../lib/parallel-training/ring';
 import { GRADIENTS } from '../lib/parallel-training/story';
+import { STEELYARD_BOARD, steelyardLabel, steelyardScene } from '../components/scenes/steelyardScene';
+import { hallOf as cmHall } from '../content/choosing-models/kit';
+import { BARREL_BOARD, barrelCard, barrelLabel, barrelScene } from '../components/scenes/barrelScene';
+import { TAPE_BOARD, tapeLabel, tapeScene } from '../components/scenes/tapeScene';
+import { tapeOf as ucTape } from '../content/unicode/kit';
+import { CUSTOMER as UC_CUSTOMER } from '../lib/unicode/story';
+import {
+  PHONE_CRATE_BOARD,
+  phoneCrateLabel,
+  phoneCrateScene,
+  type PhoneCrateOpts,
+} from '../components/scenes/phoneCrateScene';
+import {
+  bricksOf as odBricks,
+  cacheBytes as odCache,
+  sizeOf as odSize,
+  weightBytes as odWeights,
+} from '../lib/on-device/memory';
+import { levelAfter as odLevel } from '../lib/on-device/battery';
+import { CLAW_BOARD, clawLabel, clawScene } from '../components/scenes/clawScene';
+import { DEMOS as RB_DEMOS } from '../lib/robots/story';
+import { play as rbPlay, TRAIN as RB_BINS } from '../lib/robots/world';
 import { FORM } from '../lib/site';
 
 const one =
@@ -330,8 +355,12 @@ const TYPE: FrameOpts = {
   ...frameOf(decode(diskMlm(), dlPhrase(6).ids, 4, 'confidence', 6), 2),
   scale: 1.7,
 };
+// finding the way: the bridge on the van's route barred, the van over the other bridge
+const TABLE = { route: RT_DETOUR.roads, arrived: true, closed: [RT_BRIDGE], scale: 1.7 };
 // queues: Rosa knocked over mid-job, her ticket held on the bench until the lease runs out
 const RAIL = railCard(1.7);
+// backups: ransomware padlocks the server room and the warehouse; the courier's lockbox restores
+const SAFE = safeCard(1.7);
 // compression: the price list's byte piles, its parcel packed by pointers and short codes
 const czPrice = czFile('price').bytes;
 const PILES = { ...pileAt(czPrice, czSize('pair', czPrice, 'price')), scale: 1.7 };
@@ -443,6 +472,23 @@ const HATCH: HatchOpts = {
 const PT_RING = ringAllReduce(GRADIENTS),
   PT_K = PT_RING.n - 1;
 const RING = { n: PT_RING.n, fills: fillsAfter(PT_RING, PT_K), sends: PT_RING.hops[PT_K - 1].sends, scale: 1.7 };
+// choosing-models: Larkspur's 20 with B under the bar, weighed on all three, as the intro draws it
+const HALL = { ...cmHall('larkspur', { quality: 2, cost: 1, wait: 1 }, { out: ['B'] }), scale: 1.7 };
+// rate limits: the barrel empty after Quickfix's burst, couriers turned away with 429
+const BARREL = barrelCard(1.7);
+// unicode: the customer's name punched in UTF-8 and read with Latin-1, as the intro draws it
+const TAPE = { ...ucTape(UC_CUSTOMER, 'windows-1252'), scale: 1.7 };
+// on-device: the 3B at 4 bits with a shift's context, its tank after a shift of short replies, as the intro draws it
+const OD_3B = odSize('3b');
+const PHONE_CRATE: PhoneCrateOpts = {
+  weights: odBricks(odWeights(OD_3B, 4)),
+  cache: odBricks(odCache(OD_3B, 2000)),
+  level: odLevel(OD_3B, 4, 'short', 8),
+  scale: 1.7,
+};
+// robots: Mira's first demo, the part in the tray, as the intro draws it
+const RB_RUN = rbPlay(RB_BINS[0], RB_DEMOS[0]);
+const CLAW = { layout: RB_BINS[0], state: RB_RUN.at(-1)!, trail: RB_RUN.map(s => s.claw), scale: 1.7 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -1066,6 +1112,83 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Pipeline parallel',
       'Tensor parallel',
       'Checkpoints',
+    ],
+  },
+  'choosing-models': {
+    name: 'Choosing a model',
+    iso: { board: STEELYARD_BOARD, scene: steelyardScene(HALL), label: steelyardLabel(HALL) },
+    topics: [
+      'Leaderboards',
+      'Your own questions',
+      'Price per answer',
+      'Time to first word',
+      'Quality bar',
+      'Pinned versions',
+    ],
+  },
+  'rate-limits': {
+    name: 'Rate limits',
+    iso: { board: BARREL_BOARD, scene: barrelScene(BARREL), label: barrelLabel(BARREL) },
+    topics: [
+      'Rate limiting',
+      'Fixed window',
+      'Token bucket',
+      '429 Too Many Requests',
+      'Retry-After',
+      'Backoff & jitter',
+      'API keys',
+      'Per-key limits',
+    ],
+  },
+  unicode: {
+    name: 'Text and Unicode',
+    iso: { board: TAPE_BOARD, scene: tapeScene(TAPE), label: tapeLabel(TAPE) },
+    topics: ['ASCII', 'Code points', 'UTF-8', 'Mojibake', 'Emoji & graphemes', 'Normalisation', 'Lookalike letters'],
+  },
+  backups: {
+    name: 'Backups and recovery',
+    iso: { board: SAFE_BOARD, scene: safeScene(SAFE), label: safeLabel(SAFE) },
+    topics: [
+      'Backups',
+      'Restore',
+      'RPO',
+      'RTO',
+      'Incremental copies',
+      '3-2-1 rule',
+      'Off-site copies',
+      'Ransomware',
+      'Test restores',
+    ],
+  },
+  'on-device': {
+    name: 'Models on your device',
+    iso: { board: PHONE_CRATE_BOARD, scene: phoneCrateScene(PHONE_CRATE), label: phoneCrateLabel(PHONE_CRATE) },
+    topics: ['On-device AI', 'Memory', 'Quantization', 'KV cache', 'Battery', 'Throttling', 'Privacy'],
+  },
+  routes: {
+    name: 'Finding the way',
+    iso: { board: TABLE_BOARD, scene: tabletopScene(TABLE), label: tableLabel(TABLE) },
+    topics: [
+      'Graphs',
+      'Breadth-first search',
+      'Dijkstra',
+      'A* search',
+      'Heuristics',
+      'Live traffic',
+      'Contraction hierarchies',
+    ],
+  },
+  robots: {
+    name: 'Robots that act',
+    iso: { board: CLAW_BOARD, scene: clawScene(CLAW), label: clawLabel(CLAW) },
+    topics: [
+      'Robotics',
+      'Control loop',
+      'Imitation learning',
+      'Nearest neighbour',
+      'DAgger',
+      'Domain randomisation',
+      'Sim-to-real',
     ],
   },
 };

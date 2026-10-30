@@ -1,0 +1,11 @@
+{
+  "note": "Every effect the Text and Unicode chapters teach, rerun by tests/unit/unicode-engine.test.ts and unicode-workbench.test.ts with the browser's own TextEncoder, TextDecoder, Intl.Segmenter and normalize().",
+  "zoe": { "bytes": [90, 111, 195, 171], "latin1": "ZoÃ«" },
+  "cafe": "cafÃ©",
+  "widths": { "A": 1, "ë": 2, "中": 3, "🙂": 4 },
+  "family": { "units": 8, "codePoints": 5, "graphemes": 1, "bytes": 18 },
+  "thumbs": { "units": 4, "codePoints": 2, "graphemes": 1, "bytes": 8 },
+  "accent": { "composed": [195, 169], "decomposed": [101, 204, 129] },
+  "stack": { "marks": 20, "graphemes": 1, "bytes": 41 },
+  "winners": ["bytes|40|nfc", "bytes|48|nfc"]
+}

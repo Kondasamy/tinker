@@ -2386,5 +2386,312 @@
       "bench",
       "ties"
     ]
+  },
+  "choosing-models": {
+    "01-the-leaderboard": [
+      "predict",
+      "slide",
+      "quiz"
+    ],
+    "02-your-own-questions": [
+      "predict",
+      "run",
+      "quiz"
+    ],
+    "03-price-per-answer": [
+      "predict",
+      "slide",
+      "quiz"
+    ],
+    "04-the-wait": [
+      "predict",
+      "slide",
+      "quiz"
+    ],
+    "05-good-enough": [
+      "predict",
+      "bar",
+      "quiz"
+    ],
+    "06-models-change": [
+      "predict",
+      "run",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "quiz"
+    ]
+  },
+  "rate-limits": {
+    "01-too-many-at-once": [
+      "steady",
+      "predict",
+      "watch",
+      "reveal",
+      "quiz"
+    ],
+    "02-count-per-minute": [
+      "window",
+      "predict",
+      "watch",
+      "reveal",
+      "quiz"
+    ],
+    "03-the-token-bucket": [
+      "fill",
+      "predict",
+      "flood",
+      "pace",
+      "quiz"
+    ],
+    "04-the-429-reply": [
+      "burst",
+      "reply",
+      "watch",
+      "listen",
+      "quiz"
+    ],
+    "05-back-off-with-jitter": [
+      "crowd",
+      "predict",
+      "requests",
+      "backoff",
+      "jitter",
+      "quiz"
+    ],
+    "06-who-gets-turned-away": [
+      "shared",
+      "predict",
+      "reveal",
+      "perkey",
+      "quiz"
+    ],
+    "07-set-the-limits": [
+      "bench",
+      "ties"
+    ]
+  },
+  "unicode": {
+    "01-letters-are-numbers": [
+      "predict",
+      "type",
+      "plain",
+      "quiz"
+    ],
+    "02-one-number-for-every-character": [
+      "predict",
+      "punch",
+      "far",
+      "quiz"
+    ],
+    "03-utf-8": [
+      "predict",
+      "type",
+      "wide",
+      "quiz"
+    ],
+    "04-the-wrong-table": [
+      "predict",
+      "switch",
+      "own",
+      "fix",
+      "quiz"
+    ],
+    "05-one-emoji-many-numbers": [
+      "predict",
+      "punch",
+      "thumbs",
+      "quiz"
+    ],
+    "06-same-look-different-bytes": [
+      "predict",
+      "punch",
+      "nfc",
+      "lookalike",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "quiz"
+    ]
+  },
+  "backups": {
+    "01-one-copy-is-no-copy": [
+      "week",
+      "predict",
+      "strike",
+      "nightly",
+      "quiz"
+    ],
+    "02-how-often": [
+      "strike",
+      "predict",
+      "six",
+      "rpo",
+      "quiz"
+    ],
+    "03-full-and-since-last": [
+      "smaller",
+      "predict",
+      "break",
+      "chain",
+      "quiz"
+    ],
+    "04-not-in-the-same-building": [
+      "predict",
+      "fire",
+      "offsite",
+      "quiz"
+    ],
+    "05-ransomware": [
+      "predict",
+      "strike",
+      "lockbox",
+      "quiz"
+    ],
+    "06-test-the-restore": [
+      "predict",
+      "strike",
+      "test",
+      "rto",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "cheap"
+    ]
+  },
+  "on-device": {
+    "01-will-it-fit": [
+      "one-b",
+      "predict",
+      "three-b",
+      "quiz"
+    ],
+    "02-smaller-numbers": [
+      "eight",
+      "predict",
+      "ask",
+      "lower",
+      "quiz"
+    ],
+    "03-working-memory": [
+      "thousand",
+      "predict",
+      "raise",
+      "quiz"
+    ],
+    "04-battery-tank": [
+      "hour",
+      "predict",
+      "shift",
+      "short",
+      "quiz"
+    ],
+    "05-heat-and-speed": [
+      "rush-long",
+      "predict",
+      "rush-short",
+      "quiz"
+    ],
+    "06-what-never-leaves": [
+      "device",
+      "predict",
+      "cloud",
+      "fallback",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "quiz"
+    ]
+  },
+  "routes": {
+    "01-roads-as-a-graph": [
+      "graph",
+      "predict",
+      "close",
+      "detour",
+      "cut",
+      "quiz"
+    ],
+    "02-fewest-roads-or-minutes": [
+      "bfs",
+      "predict",
+      "minutes",
+      "quiz"
+    ],
+    "03-dijkstra": [
+      "step",
+      "predict",
+      "play",
+      "quiz"
+    ],
+    "04-a-star": [
+      "guess",
+      "predict",
+      "play",
+      "weight",
+      "quiz"
+    ],
+    "05-live-traffic": [
+      "predict",
+      "raise",
+      "close",
+      "quiz"
+    ],
+    "06-whole-country-maps": [
+      "scale",
+      "show",
+      "quiz"
+    ],
+    "07-delivery-day": [
+      "bench",
+      "quiz"
+    ]
+  },
+  "robots": {
+    "01-see-decide-move": [
+      "drive",
+      "predict",
+      "finish",
+      "quiz"
+    ],
+    "02-what-the-camera-gives": [
+      "camera",
+      "predict",
+      "crate",
+      "quiz"
+    ],
+    "03-rules-break": [
+      "run",
+      "predict",
+      "run-b",
+      "quiz"
+    ],
+    "04-show-it": [
+      "demo",
+      "hand",
+      "predict",
+      "quiz"
+    ],
+    "05-mistakes-snowball": [
+      "slip",
+      "predict",
+      "wheel",
+      "again",
+      "quiz"
+    ],
+    "06-practice-in-a-game": [
+      "plain",
+      "predict",
+      "vary",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "quiz"
+    ]
   }
 }

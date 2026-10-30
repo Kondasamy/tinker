@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import TheLeaderboard from '../../content/choosing-models/01-the-leaderboard';
+import YourOwnQuestions from '../../content/choosing-models/02-your-own-questions';
+import PricePerAnswer from '../../content/choosing-models/03-price-per-answer';
+import TheWait from '../../content/choosing-models/04-the-wait';
+import GoodEnough from '../../content/choosing-models/05-good-enough';
+import ModelsChange from '../../content/choosing-models/06-models-change';
+import Workbench from '../../content/choosing-models/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('choosing-models').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="choosing-models" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-the-leaderboard' ? <TheLeaderboard client:load />
+    : chapter === '02-your-own-questions' ? <YourOwnQuestions client:load />
+    : chapter === '03-price-per-answer' ? <PricePerAnswer client:load />
+    : chapter === '04-the-wait' ? <TheWait client:load />
+    : chapter === '05-good-enough' ? <GoodEnough client:load />
+    : chapter === '06-models-change' ? <ModelsChange client:load />
+    : <Workbench client:load />}
+</ChapterLayout>

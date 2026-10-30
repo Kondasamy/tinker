@@ -1,0 +1,109 @@
+/* Choosing a model stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption). These are the poise
+   ranges (each with its poise's swatch: quality cobalt, cost mint, wait tomato), the read-out and the Scores tab. */
+.cm-ranges {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px 18px;
+}
+.cm-range {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 8px;
+  align-items: center;
+}
+.cm-range label {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.cm-swatch {
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+}
+.cm-range input {
+  width: 100%;
+  min-height: 32px;
+  margin: 0;
+}
+.cm-quality input {
+  accent-color: var(--cobalt-m);
+}
+.cm-cost input {
+  accent-color: var(--mint-m);
+}
+.cm-wait input {
+  accent-color: var(--tomato-m);
+}
+.cm-num,
+.cm-said {
+  font:
+    700 13px ui-monospace,
+    Menlo,
+    monospace;
+}
+.cm-said {
+  margin: 0;
+  min-height: 1.6em;
+}
+.cm-scores {
+  overflow: auto;
+  align-self: stretch;
+}
+.cm-scores .stamp {
+  margin-left: 6px;
+  font-size: 10px;
+}
+.cm-scores tr[data-win="1"] {
+  background: var(--card);
+}
+.cm-counts,
+.cm-note {
+  font-size: 12.5px;
+}
+.cm-note {
+  color: var(--muted);
+}
+.cm-bench {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cm-teams {
+  border-collapse: collapse;
+  width: 100%;
+}
+.cm-teams td.ok {
+  font-weight: 800;
+}
+.cm-teams td.bad {
+  color: #a5341f;
+}
+.cm-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+@media (max-width: 600px) {
+  .cm-ranges {
+    grid-template-columns: 1fr;
+  }
+  .cm-range input {
+    min-height: 44px;
+  }
+}
+.cm-maths {
+  margin: 8px 0;
+  font-size: 13.5px;
+}
+.cm-maths summary {
+  cursor: pointer;
+  font-weight: 700;
+}

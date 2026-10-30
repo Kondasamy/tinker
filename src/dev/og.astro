@@ -250,6 +250,9 @@ import {
   runOf as quRun,
 } from '../lib/queues/sim';
 import { WINNERS as QU_WINNERS, benchRun as quBench } from '../lib/queues/workbench';
+import { SAFE_BOARD, safeAt, safeCard, safeScene, type SafeOpts } from '../components/scenes/safeScene';
+import { SCENES as BK_SCENES, STRIKES as BK_STRIKES, weekOf as bkWeek } from '../lib/backups/sim';
+import { WINNERS as BK_WINNERS, weekFor as bkBench } from '../lib/backups/workbench';
 import { PILE_BOARD, pileAt, pileScene, pilesOf, type PileOpts } from '../components/scenes/pileScene';
 import { forestOf as czForestOf, forestTable as czForestTable } from '../content/compression/kit';
 import { FITS as CZ_FITS } from '../content/compression/06-throwing-some-away';
@@ -391,11 +394,73 @@ import { mandateOf as acMandate, sign as acSign } from '../lib/agent-commerce/ma
 import { checkOrder as acCheck, orderOf as acOrder } from '../lib/agent-commerce/shop';
 import { SLIPS as AC_SLIPS, sellerOf as acSeller } from '../lib/agent-commerce/story';
 import { RING_BOARD, ringScene, type RingOpts } from '../components/scenes/ringScene';
+import { TABLE_BOARD, tabletopScene, type TableOpts } from '../components/scenes/tabletopScene';
+import { BRIDGES as RT_BRIDGES } from '../lib/routes/graph';
+import { astar as rtAstar } from '../lib/routes/astar';
+import { dijkstra as rtDijkstra } from '../lib/routes/dijkstra';
+import {
+  DETOUR as RT_DETOUR,
+  FASTEST as RT_FASTEST,
+  FEWEST_ROADS as RT_FEWEST,
+  ROUTE_BRIDGE as RT_BRIDGE,
+  SHORTCUTS as RT_SHORTCUTS,
+} from '../lib/routes/story';
+import { JAM_ROAD as RT_JAM, jamOf as rtJam } from '../lib/routes/traffic';
+import { DELIVERIES as RT_DAY, WINNERS as ROUTE_WINNERS, route as rtRoute } from '../lib/routes/workbench';
 import { sceneOf as ptScene, type PassState } from '../content/parallel-training/kit';
 import { fillsAfter as ptFills, ringAllReduce as ptRing } from '../lib/parallel-training/ring';
 import { memoryOf as ptMemory, stateOf as ptState } from '../lib/parallel-training/memory';
+import { PHONE_CRATE_BOARD, phoneCrateScene, type PhoneCrateOpts } from '../components/scenes/phoneCrateScene';
+import {
+  bricksOf as odBricks,
+  cacheBytes as odCache,
+  sizeOf as odSize,
+  weightBytes as odWeights,
+  type SizeId as OdSize,
+} from '../lib/on-device/memory';
+import { levelAfter as odLevel } from '../lib/on-device/battery';
 import { CHIP as PT_CHIP } from '../lib/parallel-training/facts';
+import {
+  STEELYARD_BOARD,
+  aimOf as cmAim,
+  steelyardScene,
+  type SteelyardOpts,
+} from '../components/scenes/steelyardScene';
+import { hallOf as cmHall } from '../content/choosing-models/kit';
+import { SOLVED as CM_SOLVED, teamOf as cmTeam, teamRows as cmTeamRows } from '../lib/choosing-models/workbench';
+import { tiltOf as cmTilt, weigh as cmWeigh } from '../lib/choosing-models/score';
 import { GRADIENTS as PT_GRADIENTS } from '../lib/parallel-training/story';
+import { BARREL_BOARD, barrelAt, barrelCard, barrelScene, type BarrelOpts } from '../components/scenes/barrelScene';
+import { SCENES as RT_SCENES, crowdOf as rtCrowd, liveOf as rtLive, runOf as rtRun } from '../lib/rate-limits/sim';
+import { WINNERS as RT_WINNERS, benchRun as rtBench } from '../lib/rate-limits/workbench';
+import { TAPE_BOARD, tapeScene, type TapeOpts } from '../components/scenes/tapeScene';
+import { tapeOf as ucTape } from '../content/unicode/kit';
+import {
+  CUSTOMER as UC_CUSTOMER,
+  FAMILY as UC_FAMILY,
+  FIRST as UC_FIRST,
+  LOOKALIKES as UC_LOOK,
+  SCRIPTS as UC_SCRIPTS,
+} from '../lib/unicode/story';
+import { WINNERS as UC_WINNERS } from '../lib/unicode/workbench';
+import { shownName as ucShown } from '../content/unicode/07-workbench';
+import { CLAW_BOARD, clawScene, type ClawOpts } from '../components/scenes/clawScene';
+import {
+  DEMOS as RB_DEMOS,
+  demoPairs as rbPairs,
+  FRESH_BIN as RB_FRESH,
+  SNOWBALL as RB_SNOW,
+} from '../lib/robots/story';
+import {
+  BINS as RB_BINS,
+  play as rbPlay,
+  REAL as RB_REAL,
+  startOf as rbStart,
+  TRAIN as RB_TRAIN,
+} from '../lib/robots/world';
+import { replay as rbReplay } from '../lib/robots/policy';
+import { NEW_BIN as RB_NEW, runRule as rbRule } from '../lib/robots/rules';
+import { policyOf as rbPolicy, WINNERS as RB_WINNERS } from '../lib/robots/workbench';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -1336,6 +1401,21 @@ const RAIL_OG: Record<string, () => Omit<RailOpts, 'scale'>> = {
   'queues-07-sale-day': () => railAt(quBench(QU_WINNERS[0]), 30),
 };
 const railOg = RAIL_OG[page.og]?.();
+// backups: the server room. The intro and 5: ransomware padlocks the room and the warehouse, the lockbox restores;
+// 1: no copy, the dead disk; 2: Thursday's dead disk under six-hourly tapes; 3: the broken chain; 4: fire, restored from
+// the warehouse; 6: the tested week's Friday restore; 7: the winning plan's fire.
+const bkW = (k: keyof typeof BK_SCENES) => bkWeek(BK_SCENES[k]);
+const SAFE_OG: Record<string, () => Omit<SafeOpts, 'scale'>> = {
+  backups: () => safeCard(),
+  'backups-01-one-copy-is-no-copy': () => safeAt(bkW('none'), 0, BK_STRIKES.wed),
+  'backups-02-how-often': () => safeAt(bkW('six'), 0, BK_STRIKES.thu),
+  'backups-03-full-and-since-last': () => safeAt(bkW('broken'), 0, BK_STRIKES.tue),
+  'backups-04-not-in-the-same-building': () => safeAt(bkW('offsite'), 0, BK_STRIKES.fire),
+  'backups-05-ransomware': () => safeCard(),
+  'backups-06-test-the-restore': () => safeAt(bkW('tested'), 0, BK_STRIKES.fri),
+  'backups-07-workbench': () => safeAt(bkBench(BK_WINNERS[0]), 0, BK_STRIKES.fire),
+};
+const safeOg = SAFE_OG[page.og]?.();
 // module 34: the sorting table. The intro and 4: the price list's piles, packed by pointers and short codes; 1: its
 // piles raw; 2: its parcel packed by pointers; 3: the merge puzzle's letter piles; 5: the random file packed, grown; 6: the
 // picture at the first setting that fits; 7: tonight's send on the first winning plan.
@@ -1876,6 +1956,159 @@ const RING_OG: Record<string, () => Omit<RingOpts, 'scale'>> = {
   'parallel-training-07-workbench': () => ptAt({ mode: 'pipeline', n: 8, m: 8, k: 9 }),
 };
 const ringOg = RING_OG[page.og]?.();
+// module 53: the market hall. The intro: Larkspur's 20 with B under the bar, weighed on all three (C); 1: the public test
+// on quality alone (A); 2: Larkspur's 20 on quality, B last; 3: the cost poise tips it to C; 4: the wait poise tips it to
+// C; 5: B under the bar, weighed on cost (C); 6: C's new version under the bar too, the pick moved to A; 7: the warehouse
+// team's winning weights (B).
+const cmWarehouse = (): Omit<SteelyardOpts, 'scale'> => {
+  const t = cmTeam('warehouse'),
+    w = CM_SOLVED.warehouse,
+    { winner, lead } = cmWeigh(cmTeamRows(t), w),
+    pct = (x: number) => `${Math.round(x * 100)}%`;
+  return {
+    aim: cmAim(winner),
+    tilt: cmTilt(lead, winner),
+    winner,
+    weights: w,
+    pills: { A: `A · ${pct(t.quality.A)}`, B: `B · ${pct(t.quality.B)}`, C: `C · ${pct(t.quality.C)}` },
+    states: winner ? { [winner]: 'ok' } : {},
+  };
+};
+const STEELYARD_OG: Record<string, () => Omit<SteelyardOpts, 'scale'>> = {
+  'choosing-models': () => cmHall('larkspur', { quality: 2, cost: 1, wait: 1 }, { out: ['B'] }),
+  'choosing-models-01-the-leaderboard': () => cmHall('public', { quality: 2, cost: 0, wait: 0 }),
+  'choosing-models-02-your-own-questions': () => cmHall('larkspur', { quality: 2, cost: 0, wait: 0 }),
+  'choosing-models-03-price-per-answer': () => cmHall('larkspur', { quality: 2, cost: 1, wait: 0 }),
+  'choosing-models-04-the-wait': () => cmHall('larkspur', { quality: 2, cost: 0, wait: 1 }),
+  'choosing-models-05-good-enough': () => cmHall('larkspur', { quality: 0, cost: 2, wait: 0 }, { out: ['B'] }),
+  'choosing-models-06-models-change': () =>
+    cmHall('next', { quality: 0, cost: 2, wait: 0 }, { out: ['B', 'C'], states: { A: 'ok', C: 'warn' } }),
+  'choosing-models-07-workbench': cmWarehouse,
+};
+const steelyardOg = STEELYARD_OG[page.og]?.();
+// module 54: Larkspur's rain barrel at the stock API door. The intro: the empty barrel after Quickfix's burst; 1: the
+// flood with the server down; 2: the window topped up at the minute; 3: the live barrel flooded empty; 4: the
+// turned-away couriers under 429 and Retry-After; 5: the tablets' stampede; 6: a barrel per key; 7: the first winning
+// bench at the busiest moment.
+const RT_OG: Record<string, () => Omit<BarrelOpts, 'scale'>> = {
+  'rate-limits': () => barrelCard(),
+  'rate-limits-01-too-many-at-once': () => barrelAt(rtRun(RT_SCENES.flood), 6000),
+  'rate-limits-02-count-per-minute': () => barrelAt(rtRun(RT_SCENES.edge), 60_500),
+  'rate-limits-03-the-token-bucket': () =>
+    barrelAt(
+      rtRun(
+        rtLive(
+          Array.from({ length: 14 }, (_, i) => i * 20),
+          2,
+          400,
+        ),
+      ),
+      400,
+    ),
+  'rate-limits-04-the-429-reply': () => barrelAt(rtRun(RT_SCENES.ignore), 1200),
+  'rate-limits-05-back-off-with-jitter': () => barrelAt(rtRun(rtCrowd({ backoff: false, jitter: false })), 1000),
+  'rate-limits-06-who-gets-turned-away': () => barrelAt(rtRun(RT_SCENES.perKey), 5000),
+  'rate-limits-07-set-the-limits': () => barrelAt(rtBench(RT_WINNERS[0]), 25_000),
+};
+const rtOg = RT_OG[page.og]?.();
+// module 55: the telegraph office. The intro and chapter 4: the customer's name read with Latin-1; 1: the first word;
+// 2: one character from each script; 3: the name in UTF-8; 5: the family emoji; 6: the lookalike address; 7: the
+// longest name under the first winning setting.
+const TAPE_OG: Record<string, () => Omit<TapeOpts, 'scale'>> = {
+  unicode: () => ucTape(UC_CUSTOMER, 'windows-1252'),
+  'unicode-01-letters-are-numbers': () => ucTape(UC_FIRST, 'utf-8'),
+  'unicode-02-one-number-for-every-character': () => ucTape(UC_SCRIPTS.join(''), 'utf-8'),
+  'unicode-03-utf-8': () => ucTape(UC_CUSTOMER, 'utf-8'),
+  'unicode-04-the-wrong-table': () => ucTape(UC_CUSTOMER, 'windows-1252'),
+  'unicode-05-one-emoji-many-numbers': () => ucTape(UC_FAMILY, 'utf-8'),
+  'unicode-06-same-look-different-bytes': () => ucTape(UC_LOOK[0].fake, 'utf-8'),
+  'unicode-07-workbench': () => ucTape(ucShown(UC_WINNERS[0]), 'utf-8'),
+};
+const tapeOg = TAPE_OG[page.og]?.();
+// module 57: the warehouse aisle. The intro and 7: the 3B at 4 bits with a shift's context, its tank after a shift of
+// short replies; 1: the 3B at 16 bits spilling; 2: the 1B at 8 bits; 3: the cache spilling at 4,000 tokens; 4: the
+// tank half gone; 5: hot; 6: the longest context, too big for the handheld.
+const odPack = (
+  size: OdSize,
+  bits: number,
+  tokens = 0,
+  rest: Partial<PhoneCrateOpts> = {},
+): Omit<PhoneCrateOpts, 'scale'> => ({
+  weights: odBricks(odWeights(odSize(size), bits)),
+  cache: odBricks(odCache(odSize(size), tokens)),
+  level: 1,
+  ...rest,
+});
+const odShift = () => odPack('3b', 4, 2000, { level: odLevel(odSize('3b'), 4, 'short', 8) });
+const PHONE_CRATE_OG: Record<string, () => Omit<PhoneCrateOpts, 'scale'>> = {
+  'on-device': odShift,
+  'on-device-01-will-it-fit': () => odPack('3b', 16),
+  'on-device-02-smaller-numbers': () => odPack('1b', 8),
+  'on-device-03-working-memory': () => odPack('3b', 4, 4000),
+  'on-device-04-battery-tank': () => odPack('3b', 4, 0, { level: odLevel(odSize('3b'), 4, 'long', 4) }),
+  'on-device-05-heat-and-speed': () => odPack('3b', 4, 0, { hot: true }),
+  'on-device-06-what-never-leaves': () => odPack('3b', 4, 8000),
+  'on-device-07-workbench': odShift,
+};
+const phoneCrateOg = PHONE_CRATE_OG[page.og]?.();
+// module 58: the tabletop town. The intro: the van over the other bridge, its own barred; 1: both bridges barred, no
+// route; 2: the fewest-roads route through the market; 3: Dijkstra part-way, flags and the frontier; 4: A* finished;
+// 5: the jam on the ring road, the route flipped; 6: the shortcut arcs; 7: the winning search on the day's second drop.
+const rtDone = (r: ReturnType<typeof rtDijkstra>) => ({
+  settled: r.settles.map(x => x.id),
+  route: r.roads,
+  arrived: true,
+});
+const TABLE_OG: Record<string, () => Omit<TableOpts, 'scale'>> = {
+  routes: () => ({ route: RT_DETOUR.roads, arrived: true, closed: [RT_BRIDGE] }),
+  'routes-01-roads-as-a-graph': () => ({ closed: RT_BRIDGES, noRoute: true }),
+  'routes-02-fewest-roads-or-minutes': () => ({ route: RT_FEWEST.roads, arrived: true }),
+  'routes-03-dijkstra': () => ({
+    settled: RT_FASTEST.settles.slice(0, 14).map(x => x.id),
+    frontier: RT_FASTEST.settles[13].frontier.map(o => o.id),
+  }),
+  'routes-04-a-star': () => rtDone(rtAstar(1)),
+  'routes-05-live-traffic': () => ({
+    ...rtJam(8),
+    route: rtDijkstra(rtJam(8)).roads,
+    arrived: true,
+    selected: RT_JAM,
+  }),
+  'routes-06-whole-country-maps': () => ({ route: RT_FASTEST.roads, arrived: true, shortcuts: RT_SHORTCUTS }),
+  'routes-07-delivery-day': () => {
+    const d = RT_DAY[1];
+    return { ...rtDone(rtRoute(ROUTE_WINNERS[0], d, d.to)), goal: d.to, closed: d.closed };
+  },
+};
+const tableOg = TABLE_OG[page.og]?.();
+// module 59: the parts bay. The intro: Mira's first demo, the part in the tray; 1: mid demo, holding the part; 2: the
+// claw beside a crate; 3: the rule off the grid on bin B; 4: four demos clearing the fresh bin; 5: stuck after the
+// slip; 6: a dim real bin; 7: the winning setup on real bin 1.
+const rbRun = (l: ClawOpts['layout'], states: ClawOpts['state'][], extra: Partial<ClawOpts> = {}): ClawOpts => ({
+  layout: l,
+  state: states.at(-1)!,
+  trail: states.map(st => st.claw),
+  ...extra,
+});
+const CLAW_OG: Record<string, () => ClawOpts> = {
+  robots: () => rbRun(RB_TRAIN[0], rbPlay(RB_TRAIN[0], RB_DEMOS[0]), { machine: 'ok' }),
+  'robots-01-see-decide-move': () => rbRun(RB_TRAIN[0], rbPlay(RB_TRAIN[0], RB_DEMOS[0]).slice(0, 9)),
+  'robots-02-what-the-camera-gives': () => rbRun(RB_TRAIN[0], rbPlay(RB_TRAIN[0], ['right'])),
+  'robots-03-rules-break': () => rbRun(RB_NEW, rbRule(RB_NEW).states, { machine: 'bad', pill: 'OFF GRID' }),
+  'robots-04-show-it': () => rbRun(RB_FRESH, rbReplay(rbPairs(4), RB_FRESH).states, { machine: 'ok', pill: 'POLICY' }),
+  'robots-05-mistakes-snowball': () =>
+    rbRun(RB_SNOW.layout, rbReplay(rbPairs(RB_SNOW.demos), RB_SNOW.layout, { forced: [RB_SNOW.slipAt] }).states, {
+      machine: 'warn',
+      pill: 'STUCK',
+    }),
+  'robots-06-practice-in-a-game': () => ({ layout: RB_REAL[0], state: rbStart(RB_REAL[0]) }),
+  'robots-07-workbench': () => {
+    const p = rbPolicy(RB_WINNERS[0]);
+    const r = rbReplay(p.pairs, RB_REAL[0], { slip: RB_BINS.real.slip, seed: 0, detector: p.detector });
+    return rbRun(RB_REAL[0], r.states, { machine: r.end === 'done' ? 'ok' : 'warn' });
+  },
+};
+const clawOg = CLAW_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -1955,6 +2188,12 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : uvOg ? <IsoStage board={UV_BOARD} scene={uvScene({ ...uvOg, scale: 1.3 })} label="" />
           : hatchOg ? <IsoStage board={HATCH_BOARD} scene={hatchScene({ ...hatchOg, scale: 1.2 })} label="" />
           : ringOg ? <IsoStage board={RING_BOARD} scene={ringScene({ ...ringOg, scale: 1.3 })} label="" />
+          : steelyardOg ? <IsoStage board={STEELYARD_BOARD} scene={steelyardScene({ ...steelyardOg, scale: 1.3 })} label="" />
+          : rtOg ? <IsoStage board={BARREL_BOARD} scene={barrelScene({ ...rtOg, scale: 1.3 })} label="" />
+          : tapeOg ? <IsoStage board={TAPE_BOARD} scene={tapeScene({ ...tapeOg, scale: 1.3 })} label="" />
+          : phoneCrateOg ? <IsoStage board={PHONE_CRATE_BOARD} scene={phoneCrateScene({ ...phoneCrateOg, scale: 1.3 })} label="" />
+          : tableOg ? <IsoStage board={TABLE_BOARD} scene={tabletopScene({ ...tableOg, scale: 1.3 })} label="" />
+          : clawOg ? <IsoStage board={CLAW_BOARD} scene={clawScene({ ...clawOg, scale: 1.3 })} label="" />
           : dreamOg ? <IsoStage board={dreamBoard(dreamOg)} scene={dreamScene({ ...dreamOg, scale: 1.3 })} label="" />
           : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
           : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />
@@ -1969,6 +2208,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : yardOg ? <IsoStage board={YARD_BOARD} scene={yardScene({ ...yardOg, scale: 1.3 })} label="" />
           : pileOg ? <IsoStage board={PILE_BOARD} scene={pileScene({ ...pileOg, scale: 1.4 })} label="" />
           : railOg ? <IsoStage board={RAIL_BOARD} scene={railScene({ ...railOg, scale: 1.4 })} label="" />
+          : safeOg ? <IsoStage board={SAFE_BOARD} scene={safeScene({ ...safeOg, scale: 1.4 })} label="" />
           : frameOg ? <IsoStage board={FRAME_BOARD} scene={typeFrameScene({ ...frameOg, scale: 1.3 })} label="" />
           : darkOg ? <IsoStage board={DARK_BOARD} scene={darkroomScene({ ...darkOg, scale: 1.3 })} label="" />
           : crateOg ? <IsoStage board={gtBoardOf(crateOg)} scene={crateScene({ ...crateOg, scale: 1.4 })} label="" />

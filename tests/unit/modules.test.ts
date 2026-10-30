@@ -44,6 +44,12 @@ const ROADMAP: [string, string, string?][] = [
   ['backups', 'Beginner', 'Classic tech'],
   ['unicode', 'Beginner', 'Classic tech'],
   ['routes', 'Intermediate', 'Classic tech'],
+  // docs/plans/2026-10-30-0831-feat-last-roadmap-seven-modules-plan.md takes the seven above live and adds these (KTD11)
+  ['translation', 'Beginner'],
+  ['open-weights', 'Intermediate'],
+  ['ai-energy', 'Advanced'],
+  ['clocks', 'Beginner', 'Classic tech'],
+  ['gps', 'Intermediate', 'Classic tech'],
 ];
 /** true when every id in `ids` is in `list`, in the list's order */
 const inOrder = (ids: string[], list: string[]) => {
@@ -76,10 +82,10 @@ describe('module registry', () => {
     }
   });
 
-  // the last seven cards stay planned through the six-AI-modules plan; the rest go live in turn, so a card gone from the list is live
-  it('keeps the seven cards that stay planned last and in order, and every roadmap card no longer planned is live', () => {
+  // the last five cards stay planned through the seven-roadmap-modules plan; the rest go live in turn, so a card gone from the list is live
+  it('keeps the five cards that stay planned last and in order, and every roadmap card no longer planned is live', () => {
     const planned = MODULES.filter(m => m.status === 'planned').map(m => m.id);
-    expect(planned.slice(-7)).toEqual(ROADMAP.slice(-7).map(([id]) => id));
+    expect(planned.slice(-5)).toEqual(ROADMAP.slice(-5).map(([id]) => id));
     for (const [id] of ROADMAP) if (!planned.includes(id)) expect(moduleOf(id).status, id).toBe('live');
   });
 
@@ -860,6 +866,95 @@ describe('module registry', () => {
     expect(moduleOf('parallel-training').track).toBeUndefined();
     expect(moduleOf('parallel-training').author).toEqual(moduleOf('rag').author);
     expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'parallel-training')).toBe(51);
+  });
+
+  it('has choosing-models as a live Beginner module after parallel-training, numbered 53', () => {
+    expect(moduleOf('choosing-models')).toMatchObject({
+      title: 'Choosing a model',
+      level: 'Beginner',
+      status: 'live',
+      prereqs: ['evals'],
+    });
+    expect(moduleOf('choosing-models').track).toBeUndefined();
+    expect(moduleOf('choosing-models').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'choosing-models')).toBe(52);
+  });
+
+  it('has rate-limits as a live Beginner Classic tech module after choosing-models, recommending Web requests first', () => {
+    expect(moduleOf('rate-limits')).toMatchObject({
+      title: 'Rate limits',
+      level: 'Beginner',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: ['web-requests'],
+    });
+    expect(moduleOf('rate-limits').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'rate-limits')).toBe(
+      MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'choosing-models') + 1,
+    );
+  });
+
+  it('has unicode as a live Beginner Classic tech module after parallel-training, with no prerequisites', () => {
+    expect(moduleOf('unicode')).toMatchObject({
+      title: 'Text and Unicode',
+      level: 'Beginner',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('unicode').author).toEqual(moduleOf('rag').author);
+    const live = MODULES.filter(m => m.status === 'live').map(m => m.id);
+    expect(live.indexOf('unicode')).toBeGreaterThan(live.indexOf('parallel-training'));
+  });
+
+  it('has backups as a live Beginner Classic tech module that recommends Databases, after parallel-training', () => {
+    expect(moduleOf('backups')).toMatchObject({
+      title: 'Backups and recovery',
+      level: 'Beginner',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: ['databases'],
+    });
+    expect(moduleOf('backups').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'backups')).toBe(55);
+  });
+
+  it('has on-device as a live Intermediate module after backups, numbered 57', () => {
+    expect(moduleOf('on-device')).toMatchObject({
+      title: 'Models on your device',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: ['inference'],
+    });
+    expect(moduleOf('on-device').track).toBeUndefined();
+    expect(moduleOf('on-device').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'on-device')).toBe(56);
+  });
+
+  it('has routes as a live Intermediate Classic tech module after parallel-training', () => {
+    expect(moduleOf('routes')).toMatchObject({
+      title: 'Finding the way',
+      level: 'Intermediate',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: [],
+    });
+    expect(moduleOf('routes').author).toEqual(moduleOf('rag').author);
+    const live = MODULES.filter(m => m.status === 'live').map(m => m.id);
+    expect(live.indexOf('routes')).toBeGreaterThan(live.indexOf('parallel-training'));
+  });
+
+  it('has robots as a live Advanced module after parallel-training', () => {
+    expect(moduleOf('robots')).toMatchObject({
+      title: 'Robots that act',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['multimodal'],
+    });
+    expect(moduleOf('robots').track).toBeUndefined();
+    expect(moduleOf('robots').author).toEqual(moduleOf('rag').author);
+    const live = MODULES.filter(m => m.status === 'live').map(m => m.id);
+    expect(live.indexOf('robots')).toBeGreaterThan(live.indexOf('parallel-training'));
   });
 
   it('keeps chapter ids unique within every module', () => {

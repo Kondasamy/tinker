@@ -33,9 +33,10 @@ function shapeOf(m: Model, name: string): [number, number] | null {
   return null; // biases and LayerNorm weights are vectors
 }
 
-const quantized = new WeakMap<Model, Map<Bits, Model>>();
-/** The model at `bits`: 16 is the shipped weights as they are. Each model's copies are made once per precision. */
-export function quantize(m: Model, bits: Bits): Model {
+const quantized = new WeakMap<Model, Map<number, Model>>();
+/** The model at `bits` (any width; On-device goes down to 2): 16 is the shipped weights as they are. Each model's
+ * copies are made once per precision. */
+export function quantize(m: Model, bits: number): Model {
   if (bits === 16) return m;
   if (!quantized.has(m)) quantized.set(m, new Map());
   const done = quantized.get(m)!;
@@ -43,7 +44,7 @@ export function quantize(m: Model, bits: Bits): Model {
   return done.get(bits)!;
 }
 
-function quantizeOnce(m: Model, bits: Bits): Model {
+function quantizeOnce(m: Model, bits: number): Model {
   const tensors: Record<string, Float32Array> = {};
   for (const [name, t] of Object.entries(m.tensors)) {
     const s = shapeOf(m, name);
@@ -53,7 +54,7 @@ function quantizeOnce(m: Model, bits: Bits): Model {
 }
 
 /** Weight memory at `bits`: every matrix number at `bits`, one 16-bit scale per row, every vector number at 16 bits. */
-export function memory(m: Model, bits: Bits): { bytes: number; params: number; matrix: number; rows: number } {
+export function memory(m: Model, bits: number): { bytes: number; params: number; matrix: number; rows: number } {
   let matrix = 0,
     rows = 0,
     params = 0;

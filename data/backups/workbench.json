@@ -1,0 +1,11 @@
+{
+  "note": "Larkspur's rule for chapter 7, set by Mira and the shop's owner: team choices, not industry figures.",
+  "maxLost": 120,
+  "maxDown": 10,
+  "rule": "In every disaster, lose at most 120 orders and be back within 10 hours; then spend as little a week as you can.",
+  "reasons": {
+    "every": "More copies lose less work, and cost more tape.",
+    "kind": "Incremental tapes are cheap, but a restore reads every link.",
+    "places": "The week brings a dead disk, a fire and ransomware."
+  }
+}

@@ -1,0 +1,159 @@
+/* Backups stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
+   tool-calling/kit). These are the strike bar, the read-out, the week's timeline and the bench. Motion (flames rising,
+   a padlock dropping on) plays only when motion is allowed; with reduced motion the struck picture shows at once. */
+.bk-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+}
+.bk-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-weight: 700;
+  font-size: 13.5px;
+}
+.bk-hour {
+  flex: 1;
+  min-width: 160px;
+}
+.bk-hour input {
+  width: 100%;
+  min-height: 44px;
+}
+.bk-clock {
+  font:
+    800 15px ui-monospace,
+    Menlo,
+    monospace;
+  align-self: center;
+}
+.bk-bar .chip {
+  min-height: 44px;
+}
+.bk-strike-btn {
+  background: var(--card);
+  font-weight: 800;
+}
+.bk-status {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.bk-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.bk-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  min-height: 44px;
+}
+.bk-week {
+  margin: 0;
+  align-self: center;
+  width: 100%;
+}
+.bk-week svg {
+  width: 100%;
+  height: auto;
+  font:
+    700 11px ui-monospace,
+    Menlo,
+    monospace;
+}
+.bk-week text {
+  fill: var(--ink);
+}
+.bk-day {
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+.bk-orders {
+  fill: var(--muted);
+}
+.bk-lost {
+  fill: #f6c2b4;
+}
+.bk-copy {
+  fill: #6f8fd6;
+  stroke: var(--ink);
+  stroke-width: 0.6;
+}
+.bk-copy.full {
+  fill: #3f5fb5;
+}
+.bk-copy.bad,
+.bk-copy.lost {
+  fill: #e0613f;
+}
+.bk-copy.used {
+  fill: #5fb08c;
+}
+.bk-strike {
+  stroke: #e0613f;
+  stroke-width: 2.5;
+}
+.bk-point {
+  stroke: #5fb08c;
+  stroke-width: 2.5;
+  stroke-dasharray: 4 3;
+}
+.bk-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.bk-headline strong {
+  font:
+    800 30px / 1 ui-monospace,
+    Menlo,
+    monospace;
+}
+.bk-bench {
+  border: 1.5px solid var(--rule);
+  border-radius: 12px;
+  padding: 6px 12px;
+  margin: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tc-ledger td.ok {
+  color: var(--ok);
+  font-weight: 800;
+}
+.tc-ledger td.bad {
+  color: var(--bad);
+  font-weight: 800;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .bk-stage .struck .fire {
+    animation: bk-rise 0.6s ease-out;
+    transform-box: fill-box;
+    transform-origin: bottom;
+  }
+  .bk-stage .struck .ransom {
+    animation: bk-drop 0.45s ease-in;
+  }
+}
+@keyframes bk-rise {
+  from {
+    transform: scaleY(0.2);
+    opacity: 0.3;
+  }
+}
+@keyframes bk-drop {
+  from {
+    transform: translateY(-14px);
+    opacity: 0.2;
+  }
+}

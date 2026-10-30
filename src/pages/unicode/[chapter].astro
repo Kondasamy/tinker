@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import LettersAreNumbers from '../../content/unicode/01-letters-are-numbers';
+import OneNumberForEveryCharacter from '../../content/unicode/02-one-number-for-every-character';
+import Utf8 from '../../content/unicode/03-utf-8';
+import TheWrongTable from '../../content/unicode/04-the-wrong-table';
+import OneEmojiManyNumbers from '../../content/unicode/05-one-emoji-many-numbers';
+import SameLookDifferentBytes from '../../content/unicode/06-same-look-different-bytes';
+import Workbench from '../../content/unicode/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('unicode').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="unicode" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-letters-are-numbers' ? <LettersAreNumbers client:load />
+    : chapter === '02-one-number-for-every-character' ? <OneNumberForEveryCharacter client:load />
+    : chapter === '03-utf-8' ? <Utf8 client:load />
+    : chapter === '04-the-wrong-table' ? <TheWrongTable client:load />
+    : chapter === '05-one-emoji-many-numbers' ? <OneEmojiManyNumbers client:load />
+    : chapter === '06-same-look-different-bytes' ? <SameLookDifferentBytes client:load />
+    : <Workbench client:load />}
+</ChapterLayout>

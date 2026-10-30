@@ -1,0 +1,60 @@
+{
+  "note": "Hand-made traffic traces in the shape of a sale day at Larkspur’s stock API. Every time is in milliseconds; nothing here was recorded from a real API.",
+  "server": {
+    "capacity": 50,
+    "downMs": 3000,
+    "note": "Hand-set: the stock API answers at most 50 requests in any one second; past that it falls over for 3 seconds and answers no one."
+  },
+  "partners": {
+    "oakmoor": { "name": "Oakmoor Builders", "quiet": true },
+    "web": { "name": "Larkspur’s web shop", "quiet": true },
+    "birch": { "name": "Birchfield Hardware", "quiet": true },
+    "quickfix": { "name": "Quickfix Depot", "quiet": false },
+    "tablets": { "name": "Shop tablets", "quiet": true }
+  },
+  "traces": {
+    "flood": {
+      "ms": 20000,
+      "segments": [
+        { "key": "oakmoor", "from": 0, "to": 20000, "every": 500 },
+        { "key": "web", "from": 120, "to": 20000, "every": 250 },
+        { "key": "quickfix", "from": 5000, "to": 12000, "every": 12 }
+      ]
+    },
+    "edge": {
+      "ms": 120000,
+      "segments": [
+        { "key": "quickfix", "at": 59000, "count": 40, "spread": 25 },
+        { "key": "quickfix", "at": 60000, "count": 40, "spread": 25 }
+      ]
+    },
+    "burst": {
+      "ms": 20000,
+      "segments": [{ "key": "quickfix", "at": 1000, "count": 20, "spread": 10 }]
+    },
+    "crowd": {
+      "ms": 20000,
+      "segments": [{ "key": "tablets", "at": 0, "count": 30, "spread": 0 }]
+    },
+    "share": {
+      "ms": 20000,
+      "segments": [
+        { "key": "oakmoor", "from": 40, "to": 20000, "every": 500 },
+        { "key": "web", "from": 120, "to": 20000, "every": 250 },
+        { "key": "quickfix", "from": 2000, "to": 16000, "every": 25 }
+      ]
+    },
+    "sale": {
+      "ms": 60000,
+      "segments": [
+        { "key": "oakmoor", "from": 40, "to": 60000, "every": 500 },
+        { "key": "web", "from": 60, "to": 60000, "every": 200 },
+        { "key": "web", "from": 20130, "to": 30000, "every": 200 },
+        { "key": "birch", "at": 5000, "count": 15, "spread": 20 },
+        { "key": "birch", "at": 25000, "count": 15, "spread": 20 },
+        { "key": "birch", "at": 45000, "count": 15, "spread": 20 },
+        { "key": "quickfix", "from": 10000, "to": 45000, "every": 20 }
+      ]
+    }
+  }
+}

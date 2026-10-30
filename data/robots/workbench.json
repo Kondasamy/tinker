@@ -1,0 +1,7 @@
+{
+  "note": "Larkspur's rule for chapter 7, not a measurement: the policy is tried on the 20 held-out bins under the real bay's simulated slips and light. The most bins solved wins; among those, the fewest frames a person labelled (each demo's frames plus each correction), since people's time is what costs. Practice in the simulator costs no one's time.",
+  "demos": [1, 2, 4, 8],
+  "rounds": [0, 1, 2],
+  "practice": ["none", "plain", "light", "slip", "both"],
+  "start": { "demos": 1, "rounds": 0, "practice": "none" }
+}

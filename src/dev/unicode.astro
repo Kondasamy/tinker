@@ -1,0 +1,61 @@
+---
+// Dev-only eyeball page: the telegraph office in the states the chapters teach, wide and phone (below 600px the phone
+// versions show).
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { TAPE_BOARD, tapeLabel, tapeScene, type TapeOpts } from '../components/scenes/tapeScene';
+import { tapeOf } from '../content/unicode/kit';
+import { ACCENT, CUSTOMER, FAMILY, FIRST, LOOKALIKES, NAMES } from '../lib/unicode/story';
+import type { Table } from '../lib/unicode/mojibake';
+
+type O = Omit<TapeOpts, 'scale'>;
+const at = (text: string, table: Table = 'utf-8', say?: O['say']): O => ({ ...tapeOf(text, table), say });
+const STATES: [string, O][] = [
+  ['Blank tape', at('')],
+  ['Ch. 1: Larkspur', at(FIRST, 'utf-8', { block: 'tape', text: 'One row a byte' })],
+  ['Ch. 3: Zoë', at(CUSTOMER, 'utf-8', { block: 'punch', text: 'Type here' })],
+  ['Ch. 3: A ë 中 🙂', at('Aë中🙂')],
+  ['Ch. 4: Zoë read as Latin-1', at(CUSTOMER, 'windows-1252', { block: 'reader', text: 'Its table' })],
+  ['Ch. 5: the family', at(FAMILY, 'utf-8', { block: 'label', text: 'One picture' })],
+  ['Ch. 6: é decomposed', at(ACCENT.decomposed)],
+  ['Ch. 6: lookalike', at(LOOKALIKES[0].fake)],
+  ['Over the cap', at(NAMES[5].record)],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Unicode scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Telegraph office: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={TAPE_BOARD} scene={tapeScene({ ...o, scale: 1.2 })} label={tapeLabel(o)} /></div>
+            <div class="phone"><IsoStage board={TAPE_BOARD} scene={tapeScene({ ...o, scale: 2 })} label={tapeLabel(o)} /></div>
+            <p>{tapeLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

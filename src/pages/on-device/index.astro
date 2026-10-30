@@ -1,0 +1,223 @@
+---
+// Models on your device module intro: sets the scene before chapter 1. Static, except the warm-up and a small script
+// that marks finished chapters. Every example is the module's own data: the phone-shaped crate packed from
+// memory.ts, the replies from pinned.json, the facts from facts.json.
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import Meta from '../../components/Meta.astro';
+import IsoStage from '../../lib/iso/IsoStage';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import {
+  PHONE_CRATE_BOARD,
+  phoneCrateLabel,
+  phoneCrateScene,
+  type PhoneCrateOpts,
+} from '../../components/scenes/phoneCrateScene';
+import { fact } from '../../lib/on-device/facts';
+import { bricksOf, cacheBytes, FREE, sizeOf, sizeText, weightBytes } from '../../lib/on-device/memory';
+import { levelAfter, repliesPerCharge, SHIFT } from '../../lib/on-device/battery';
+import { PROMPT, replyAt } from '../../lib/on-device/replies';
+import { MODULES, moduleOf, chapterHref } from '../../lib/modules';
+import { introMeta } from '../../lib/pages';
+import { longDate } from '../../lib/format';
+
+const MODULE = moduleOf('on-device');
+const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const CHAPTERS = MODULE.chapters;
+
+const B3 = sizeOf('3b');
+const pack = (bits: number, tokens = 0, level = 1): PhoneCrateOpts => ({
+  weights: bricksOf(weightBytes(B3, bits)),
+  cache: bricksOf(cacheBytes(B3, tokens)),
+  level,
+  scale: 1.4,
+});
+const HERO = pack(4, 2000, levelAfter(B3, 4, 'short', 8));
+const IDEAS: [string, string, ReturnType<typeof fact>, PhoneCrateOpts][] = [
+  ['Will it fit?', 'Parameters times bytes, against the free memory', fact('llama-sizes'), pack(16)],
+  ['Smaller numbers', 'Fewer bits per weight, fewer bricks', fact('apple-3b'), pack(4)],
+  ['The working memory', 'Every token of context adds to the cache', fact('llama-shape'), pack(4, 4000)],
+  [
+    'The battery tank',
+    'Every token written costs energy',
+    fact('melt-energy'),
+    pack(4, 0, levelAfter(B3, 4, 'long', 4)),
+  ],
+];
+const FACTS: [string, string][] = [
+  [sizeText(FREE), 'free memory on Larkspur’s handheld (planning number)'],
+  [sizeText(weightBytes(B3, 16)), `the ${B3.name}’s weights at 16 bits`],
+  [sizeText(weightBytes(B3, 4)), 'the same weights at 4 bits'],
+  [repliesPerCharge(B3, 4, 'short').toLocaleString('en'), `short replies per charge; a shift asks ${SHIFT}`],
+];
+---
+<html lang="en">
+  <head>
+    <Meta {...introMeta(MODULE.id)} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module {NUMBER} · {MODULE.title}</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span></p>
+          <h1>Pack the model into the phone</h1>
+          <p class="lede">A model on a phone must fit its memory and spare its battery; in return, nothing leaves the device. Here you pack the crate, drain the tank, and see what stays.</p>
+          <div class="ctas">
+            <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+          <ReadingMode />
+        </div>
+        <div class="hero-pic">
+          {/* the 3B at 4 bits with a shift's context, its tank after a shift of short replies */}
+          <IsoStage board={PHONE_CRATE_BOARD} scene={phoneCrateScene(HERO)} label={phoneCrateLabel(HERO)} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="idea">
+        <p class="kicker">The whole idea in one example</p>
+        <h2 id="idea">One reply, rounded</h2>
+        <div class="versus">
+          <article class="reply">
+            <header><h3>16 bits</h3><span class="stamp">full size</span></header>
+            <p class="said">{PROMPT}<strong>{replyAt(16).text}</strong></p>
+            <p class="cap">Larkspur mini at full precision, as chapter 2 runs it live in your browser.</p>
+          </article>
+          <article class="reply read">
+            <header><h3>8 bits</h3><span class="stamp">half the bytes</span></header>
+            <p class="said">{PROMPT}<strong>{replyAt(8).text}</strong></p>
+            <p class="cap">The same words. At 2 bits: “{replyAt(2).text.trim()}”.</p>
+          </article>
+        </div>
+        <p class="note more">Larkspur mini is tiny, so its replies show the mechanism, not a real product’s quality. The handheld’s memory, battery and speed are Larkspur’s planning numbers; the 1B and 3B take Llama 3.2’s published sizes.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Four ideas carry the module</h2>
+        <ol class="steps">
+          {IDEAS.map(([name, short, f, o], i) => (
+            <li>
+              <div class="pic"><IsoStage board={PHONE_CRATE_BOARD} scene={phoneCrateScene(o)} label={phoneCrateLabel(o)} /></div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              <p class="more">{f.claim}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">Larkspur’s back aisles</h2>
+          <p class="more">{MODULE.story} <strong>You’re on the team that packs the handheld.</strong></p>
+        </div>
+        <dl class="facts">
+          {FACTS.map(([num, what]) => <div><dt>{num}</dt><dd>{what}</dd></div>)}
+        </dl>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due; the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <ul class="who-chips"><li>Engineers</li><li>Product managers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Anyone asked whether a model can run on a phone, a laptop or a handheld. The Inference module first helps, but no maths is needed.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com" target="_blank" rel="noopener">Samy (Kondasamy Jayaraman)</a>.</p>
+      </footer>
+    </main>
+
+    <script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      const CHAPTERS = moduleOf('on-device').chapters;
+      const done = completed('on-device');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('on-device', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.read { border-left: 6px solid var(--acc); }
+  .said { font-size: 17px; font-family: ui-monospace, Menlo, monospace; }
+
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); white-space: nowrap; }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 240px; display: flex; justify-content: center; margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: auto !important; height: 100% !important; max-width: 100%; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
+
+  .pair { display: grid; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+    .steps .pic { height: 200px; }
+  }
+</style>

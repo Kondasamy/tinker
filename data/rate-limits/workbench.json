@@ -1,0 +1,9 @@
+{
+  "note": "Larkspur’s rule for chapter 7, set by the team that runs the stock API: team choices, not industry figures.",
+  "rule": "The stock API never falls over, and no quiet partner loses a single request on sale day.",
+  "reasons": {
+    "size": "Birchfield sends its orders in bursts of 15.",
+    "refill": "The web shop’s lunchtime rush doubles its pace.",
+    "perKey": "Quickfix’s script runs away for 35 seconds."
+  }
+}

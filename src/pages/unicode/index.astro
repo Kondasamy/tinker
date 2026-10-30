@@ -1,0 +1,213 @@
+---
+// Text and Unicode module intro: sets the scene before chapter 1. Static, except the warm-up and a small script that
+// marks finished chapters. Every example is the module's own data, run through TextEncoder and TextDecoder at build
+// time, and claims quoted from data/unicode/facts.json.
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import Meta from '../../components/Meta.astro';
+import IsoStage from '../../lib/iso/IsoStage';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import { TAPE_BOARD, tapeLabel, tapeScene, type TapeOpts } from '../../components/scenes/tapeScene';
+import { tapeOf } from '../../content/unicode/kit';
+import { UNICODE_MODULE as MODULE } from '../../content/unicode/module';
+import { bytesOf } from '../../lib/unicode/bytes';
+import { lengthsOf } from '../../lib/unicode/graphemes';
+import type { Table } from '../../lib/unicode/mojibake';
+import { ACCENT, COMPANY, CUSTOMER, FAMILY, FIRST, MOJI, NAMES } from '../../lib/unicode/story';
+import { TOTAL, VERSION, fact } from '../../lib/unicode/facts';
+import { WINNERS } from '../../lib/unicode/workbench';
+import { MODULES, chapterHref } from '../../lib/modules';
+import { introMeta } from '../../lib/pages';
+import { longDate } from '../../lib/format';
+
+const NUMBER = MODULES.filter(m => m.status === 'live').findIndex(m => m.id === MODULE.id) + 1;
+const CHAPTERS = MODULE.chapters;
+const pic = (text: string, table: Table = 'utf-8'): TapeOpts => ({ ...tapeOf(text, table), scale: 1.4 });
+const HERO = pic(CUSTOMER, 'windows-1252');
+const IDEAS: [string, string, ReturnType<typeof fact>, TapeOpts][] = [
+  ['Letters are numbers', 'One row of holes per byte', fact('ascii'), pic(FIRST)],
+  ['UTF-8', 'One to four bytes a character', fact('utf8'), pic(CUSTOMER)],
+  ['The wrong table', 'Same bytes, garbled name', fact('latin1'), pic(CUSTOMER, 'windows-1252')],
+  ['Same look, different bytes', 'Normalise before you compare', fact('nfc'), pic(ACCENT.decomposed)],
+];
+const FAM = lengthsOf(FAMILY);
+const ZOE = [...bytesOf(CUSTOMER)].join(' ');
+const FACTS: [string, string][] = [
+  [String(bytesOf(CUSTOMER).length), `bytes for “${CUSTOMER}” in UTF-8, ${[...CUSTOMER].length} characters`],
+  [TOTAL.toLocaleString('en'), `characters in Unicode ${VERSION}`],
+  [`${FAM.units} · ${FAM.graphemes}`, 'the family emoji’s .length, and what people see'],
+  [String(NAMES.length), `${COMPANY} customers checked in chapter 7, ${WINNERS.length} settings that work`],
+];
+---
+<html lang="en">
+  <head>
+    <Meta {...introMeta(MODULE.id)} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module {NUMBER} · {MODULE.title}</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span></p>
+          <h1>Every letter is a number</h1>
+          <p class="lede">Text is stored as numbers, and a table turns them back into letters. Here you punch Larkspur’s customer names onto paper tape and read them back, once with the wrong table.</p>
+          <div class="ctas">
+            <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+          <ReadingMode />
+        </div>
+        <div class="hero-pic">
+          {/* the customer's name punched in UTF-8 and read with Latin-1 */}
+          <IsoStage board={TAPE_BOARD} scene={tapeScene(HERO)} label={tapeLabel(HERO)} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="idea">
+        <p class="kicker">The whole idea in one example</p>
+        <h2 id="idea">Same bytes, two tables</h2>
+        <div class="versus">
+          <article class="reply">
+            <header><h3>Read as UTF-8</h3><span class="stamp">right</span></header>
+            <p class="said">{CUSTOMER}</p>
+            <p class="cap">{ZOE}</p>
+          </article>
+          <article class="reply read">
+            <header><h3>Read as Latin-1</h3><span class="stamp">garbled</span></header>
+            <p class="said">{MOJI}</p>
+            <p class="cap">{ZOE}</p>
+          </article>
+        </div>
+        <p class="note more">Both read by the browser’s own TextDecoder from the same bytes, which the punch wrote in UTF-8.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Four ideas carry the module</h2>
+        <ol class="steps">
+          {IDEAS.map(([name, short, f, o], i) => (
+            <li>
+              <div class="pic"><IsoStage board={TAPE_BOARD} scene={tapeScene(o)} label={tapeLabel(o)} /></div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              <p class="more">{f.claim}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">Larkspur’s telegraph office</h2>
+          <p class="more">{MODULE.story} <strong>You’re at the punch.</strong></p>
+        </div>
+        <dl class="facts">
+          {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}
+        </dl>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due; the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <ul class="who-chips"><li>Engineers</li><li>Product managers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Anyone who has seen a name turn into odd symbols, or a form refuse an emoji, and wants to know why. No other module is needed first; <a href="/tokens/">Tokens</a> builds on these bytes.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com" target="_blank" rel="noopener">Samy (Kondasamy Jayaraman)</a>.</p>
+      </footer>
+    </main>
+
+<script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      import { UNICODE_MODULE } from '../../content/unicode/module';
+      const CHAPTERS = UNICODE_MODULE.chapters;
+      const done = completed('unicode');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('unicode', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.read { border-left: 6px solid var(--acc); }
+  .said { font: 900 28px ui-monospace, Menlo, monospace; overflow-wrap: anywhere; }
+  .reply .cap { font-family: ui-monospace, Menlo, monospace; font-size: 13px; }
+
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); white-space: nowrap; }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 240px; display: flex; justify-content: center; margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: auto !important; height: 100% !important; max-width: 100%; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
+
+  .pair { display: grid; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+    .steps .pic { height: 200px; }
+  }
+</style>

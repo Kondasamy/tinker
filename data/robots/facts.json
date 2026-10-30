@@ -1,0 +1,32 @@
+{
+  "accessed": "2026-10-30",
+  "facts": [
+    {
+      "id": "rt1-loop",
+      "claim": "Google’s RT-1 robot model, trained on over 130,000 demonstrations collected with 13 robots over 17 months, looks and picks its next action 3 times a second.",
+      "value": "3",
+      "source": "https://robotics-transformer1.github.io/",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "aloha-loop",
+      "claim": "Zhao et al.’s ALOHA arms (2023) learned each fine task, such as slotting a battery, from 50 human demonstrations, and set their joints 50 times a second.",
+      "value": "50",
+      "source": "https://tonyzhaozh.github.io/aloha/",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "dagger",
+      "claim": "Ross, Gordon and Bagnell (2011) showed that copying an expert breaks a basic assumption of learning, because what a robot sees next depends on what it just did; their DAgger runs the policy, has the expert label the states it reaches, and adds them.",
+      "source": "https://arxiv.org/abs/1011.0686",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "domain-randomisation",
+      "claim": "Tobin et al. (2017) trained an object finder only on simulated images with random, unrealistic textures and lighting; on real camera images it found objects to within 1.5 cm.",
+      "value": "1.5",
+      "source": "https://arxiv.org/abs/1703.06907",
+      "accessed": "2026-10-30"
+    }
+  ]
+}

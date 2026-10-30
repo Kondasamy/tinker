@@ -1,0 +1,135 @@
+/* Text and Unicode: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in through
+   tool-calling/kit). These are the byte table, the punch and the story column's bits. */
+.uc-table-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.uc-table .uc-ch {
+  font:
+    800 18px ui-monospace,
+    Menlo,
+    monospace;
+}
+.uc-table .uc-bytes,
+.uc-table td {
+  font-family: ui-monospace, Menlo, monospace;
+}
+.uc-empty {
+  margin: auto;
+  font-weight: 700;
+}
+.uc-punch,
+.uc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0;
+}
+.uc-punch > label,
+.uc-field > label {
+  font-weight: 800;
+  font-size: 14px;
+}
+.uc-input {
+  min-height: 44px;
+  padding: 6px 10px;
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+  background: var(--card);
+  font:
+    700 18px ui-monospace,
+    Menlo,
+    monospace;
+}
+.uc-input:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+.uc-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.uc-chips .chip {
+  min-height: 44px;
+  min-width: 44px;
+  font-size: 16px;
+}
+.uc-said {
+  margin: 0;
+  font-weight: 700;
+  font-size: 13.5px;
+  min-height: 1.4em;
+  overflow-wrap: anywhere;
+}
+.uc-lengths {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 6px;
+  margin: 8px 0;
+}
+.uc-lengths div {
+  border: 1.5px solid var(--rule);
+  border-radius: 10px;
+  padding: 6px 8px;
+}
+.uc-lengths dt {
+  font-size: 12px;
+}
+.uc-lengths dd {
+  margin: 0;
+  font:
+    800 22px ui-monospace,
+    Menlo,
+    monospace;
+}
+.uc-more {
+  margin: 8px 0;
+  font-size: 13.5px;
+}
+.uc-more summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.uc-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.tc-ledger td.ok {
+  color: var(--ok);
+  font-weight: 800;
+}
+.tc-ledger td.bad {
+  color: var(--bad);
+  font-weight: 800;
+}
+
+/* freshly punched rows drop onto the tape; never with reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  .uc-stage .tp-new {
+    animation: uc-punch 0.3s ease-out both;
+  }
+}
+@keyframes uc-punch {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+.uc-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-weight: 700;
+  font-size: 14px;
+}
+.uc-check input {
+  width: 22px;
+  height: 22px;
+}

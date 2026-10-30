@@ -59,6 +59,13 @@ const NUMBERED = [
   'watermarks',
   'agent-commerce',
   'parallel-training',
+  'choosing-models',
+  'rate-limits',
+  'unicode',
+  'backups',
+  'on-device',
+  'routes',
+  'robots',
 ];
 
 // AI modules lead the catalogue; classic tech follows in its own section of compact cards
@@ -353,6 +360,10 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
     'href',
     '/queues/',
   );
+  await expect(page.locator('[data-level="Intermediate"] .module[data-module="routes"] h4 a')).toHaveAttribute(
+    'href',
+    '/routes/',
+  );
   await expect(page.locator('[data-level="Beginner"] .module[data-module="compression"] h4 a')).toHaveAttribute(
     'href',
     '/compression/',
@@ -429,6 +440,22 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
     'href',
     '/parallel-training/',
   );
+  await expect(page.locator('[data-level="Beginner"] .module[data-module="choosing-models"] h4 a')).toHaveAttribute(
+    'href',
+    '/choosing-models/',
+  );
+  await expect(page.locator('[data-level="Beginner"] .module[data-module="rate-limits"] h4 a')).toHaveAttribute(
+    'href',
+    '/rate-limits/',
+  );
+  await expect(page.locator('[data-level="Intermediate"] .module[data-module="on-device"] h4 a')).toHaveAttribute(
+    'href',
+    '/on-device/',
+  );
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="robots"] h4 a')).toHaveAttribute(
+    'href',
+    '/robots/',
+  );
 });
 
 // Opening a web page's card (U11): the finder finds it by a topic and names the hit
@@ -468,6 +495,11 @@ const ROADMAP = [
   'backups',
   'unicode',
   'routes',
+  'translation',
+  'open-weights',
+  'ai-energy',
+  'clocks',
+  'gps',
 ];
 test('live cards numbered from 1, the roadmap cards in order', async ({ page }) => {
   await page.goto('/');

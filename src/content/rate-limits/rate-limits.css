@@ -1,0 +1,148 @@
+/* Rate limits stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption; tools.css comes in
+   through tool-calling/kit). These are the time slider, the flood controls, the Requests chart and the bench. The live
+   barrel changes level, never moves; nothing here animates, so reduced motion needs no override. */
+.rl-time,
+.rl-range {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rl-time label,
+.rl-range label {
+  font-weight: 700;
+  font-size: 14px;
+}
+.rl-time input,
+.rl-range input {
+  width: 100%;
+}
+.rl-flood {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rl-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.rl-hold {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.rl-said {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: 13px;
+  font-weight: 700;
+}
+.rl-chart {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.rl-chart svg {
+  font:
+    700 9px ui-monospace,
+    Menlo,
+    monospace;
+  fill: var(--ink);
+}
+.rl-chart rect.rl-ok {
+  fill: var(--mint-m);
+}
+.rl-chart rect.rl-limited {
+  fill: var(--tomato-l);
+}
+.rl-chart rect.rl-down {
+  fill: var(--ink);
+}
+.rl-chart .rl-now {
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+}
+.rl-chart .rl-axis {
+  stroke: var(--ink);
+}
+.rl-chart figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.rl-key::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 5px;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  vertical-align: -1px;
+}
+.rl-key.rl-ok::before {
+  background: var(--mint-m);
+}
+.rl-key.rl-limited::before {
+  background: var(--tomato-l);
+}
+.rl-key.rl-down::before {
+  background: var(--ink);
+}
+.rl-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.rl-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+.rl-reply {
+  margin: 8px 0;
+  padding: 8px 12px;
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+  background: var(--card);
+  font:
+    700 13px ui-monospace,
+    Menlo,
+    monospace;
+  white-space: pre-wrap;
+}
+.rl-headline {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 700;
+}
+.rl-bench {
+  border: 1.5px solid var(--rule);
+  border-radius: 12px;
+  padding: 6px 12px;
+  margin: 8px 0;
+}
+.tc-ledger td.ok {
+  color: var(--ok);
+  font-weight: 800;
+}
+.tc-ledger td.bad {
+  color: var(--bad);
+  font-weight: 800;
+}
+@media (max-width: 600px) {
+  .rl-buttons .chip,
+  .rl-row,
+  .rl-time input,
+  .rl-range input {
+    min-height: 44px;
+  }
+}

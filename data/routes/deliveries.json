@@ -1,0 +1,13 @@
+{
+  "note": "Larkspur's hand-made delivery day for chapter 7: each run leaves the depot for one customer, under that hour's closures and jams. Not recorded traffic.",
+  "slack": 2,
+  "rule": "Every customer by the fastest route, give or take 2 minutes over the whole day; then look at as few junctions as you can.",
+  "deliveries": [
+    { "to": "orchard", "at": "08:00" },
+    { "to": "pier", "at": "09:30", "closed": ["kiln-chapel"] },
+    { "to": "ridge", "at": "10:30", "jams": { "lock-dock": 6 } },
+    { "to": "chapel", "at": "12:00" },
+    { "to": "meadow", "at": "14:00", "closed": ["lock-weir"] },
+    { "to": "glen", "at": "16:00", "jams": { "weir-glen": 7 } }
+  ]
+}

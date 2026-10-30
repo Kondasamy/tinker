@@ -51,6 +51,13 @@ import { FAIRNESS_MODULE } from '../content/fairness/module';
 import { WATERMARKS_MODULE } from '../content/watermarks/module';
 import { AGENT_COMMERCE_MODULE } from '../content/agent-commerce/module';
 import { PARALLEL_TRAINING_MODULE } from '../content/parallel-training/module';
+import { CHOOSING_MODELS_MODULE } from '../content/choosing-models/module';
+import { RATE_LIMITS_MODULE } from '../content/rate-limits/module';
+import { UNICODE_MODULE } from '../content/unicode/module';
+import { BACKUPS_MODULE } from '../content/backups/module';
+import { ON_DEVICE_MODULE } from '../content/on-device/module';
+import { ROUTES_MODULE } from '../content/routes/module';
+import { ROBOTS_MODULE } from '../content/robots/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -161,50 +168,43 @@ export const MODULES: Module[] = [
   WATERMARKS_MODULE,
   AGENT_COMMERCE_MODULE,
   PARALLEL_TRAINING_MODULE,
+  CHOOSING_MODELS_MODULE,
+  RATE_LIMITS_MODULE,
+  UNICODE_MODULE,
+  BACKUPS_MODULE,
+  ON_DEVICE_MODULE,
+  ROUTES_MODULE,
+  ROBOTS_MODULE,
   planned(
-    'choosing-models',
-    'Choosing a model',
+    'translation',
+    'Machine translation',
     'Beginner',
-    'Picking the model for the job: leaderboards, price per answer, speed, and testing on your own questions.',
+    'How a model turns one language into another, and why names, idioms and tone slip through.',
   ),
   planned(
-    'on-device',
-    'Models on your device',
+    'open-weights',
+    'Open-weight models',
     'Intermediate',
-    'A model that runs on a phone: what fits in its memory, what it costs the battery, and what never leaves it.',
+    'A model you can download: what the weights are, what the licence lets you do, and running it yourself.',
   ),
   planned(
-    'robots',
-    'Robots that act',
+    'ai-energy',
+    'The power behind AI',
     'Advanced',
-    'From camera frames to motor commands, and why a robot learns by watching people do the task.',
+    'Chips, data centres and the electricity behind each answer, and where the cost of a query goes.',
   ),
   planned(
-    'rate-limits',
-    'Rate limits',
+    'clocks',
+    'Time and clocks',
     'Beginner',
-    'Why a busy site says slow down: a bucket of tokens, a 429 reply, and who gets turned away first.',
+    'Why computers disagree on the time: time zones, clocks that drift, and the leap second.',
     'Classic tech',
   ),
   planned(
-    'backups',
-    'Backups and recovery',
-    'Beginner',
-    'Copies that save you on a bad day: how often to copy, testing the restore, and how much you can lose.',
-    'Classic tech',
-  ),
-  planned(
-    'unicode',
-    'Text and Unicode',
-    'Beginner',
-    'How letters become bytes: one number for every character, UTF-8, and why an emoji breaks a form.',
-    'Classic tech',
-  ),
-  planned(
-    'routes',
-    'Finding the way',
+    'gps',
+    'How GPS finds you',
     'Intermediate',
-    'How a map app picks your route: roads as a graph, the shortest path, and live traffic that changes it.',
+    'Satellites that broadcast the time, and how a phone turns four of them into a dot on a map.',
     'Classic tech',
   ),
 ];

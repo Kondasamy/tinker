@@ -1,0 +1,99 @@
+---
+// Dev-only eyeball page: the market hall's steelyard in the states the chapters teach (static SVG at build time, wide and
+// phone), then the stage live in the browser. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import {
+  STEELYARD_BOARD,
+  aimOf,
+  steelyardLabel,
+  steelyardScene,
+  type SteelyardOpts,
+} from '../components/scenes/steelyardScene';
+import Live from '../content/choosing-models/DevLive';
+import type { Source } from '../lib/choosing-models/machines';
+import { rowsOf, tiltOf, weigh, type Weights } from '../lib/choosing-models/score';
+import { qualityText } from '../lib/choosing-models/story';
+
+const at = (source: Source, w: Weights, rest: Partial<SteelyardOpts> = {}): Omit<SteelyardOpts, 'scale'> => {
+  const { winner, lead } = weigh(rowsOf(source), w);
+  return {
+    aim: aimOf(winner),
+    tilt: tiltOf(lead, winner),
+    winner,
+    weights: w,
+    pills: qualityText(source).pills,
+    states: winner ? { [winner]: 'ok' } : {},
+    ...rest,
+  };
+};
+const STATES: [string, Omit<SteelyardOpts, 'scale'>][] = [
+  ['Level: no weight', at('public', { quality: 0, cost: 0, wait: 0 }, { say: { block: 'beam', text: 'Level' } })],
+  [
+    'Ch. 1: quality only, public test',
+    at('public', { quality: 4, cost: 0, wait: 0 }, { say: { block: 'quality', text: 'Quality' } }),
+  ],
+  [
+    'Ch. 2: Larkspur’s 20',
+    at('larkspur', { quality: 2, cost: 0, wait: 0 }, { say: { block: 'machine-b', text: 'Last now' } }),
+  ],
+  ['Ch. 3: cost 1', at('larkspur', { quality: 2, cost: 1, wait: 0 }, { say: { block: 'cost', text: 'Price' } })],
+  ['Ch. 4: wait 1', at('larkspur', { quality: 2, cost: 0, wait: 1 }, { say: { block: 'pan', text: 'C’s slips' } })],
+  [
+    'Ch. 5: under the bar',
+    at('larkspur', { quality: 2, cost: 1, wait: 0 }, { out: ['B'], say: { block: 'machine-b', text: 'Under bar' } }),
+  ],
+  [
+    'Ch. 6: C new',
+    at(
+      'next',
+      { quality: 2, cost: 1, wait: 0 },
+      { out: ['B', 'C'], states: { C: 'warn' }, say: { block: 'machine-c', text: 'New version' } },
+    ),
+  ],
+  ['All weights equal', at('larkspur', { quality: 4, cost: 4, wait: 4 })],
+  ['Wait poise callout', at('larkspur', { quality: 1, cost: 1, wait: 4 }, { say: { block: 'wait', text: 'Wait' } })],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Choosing a model scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Market hall steelyard: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={STEELYARD_BOARD} scene={steelyardScene({ ...o, scale: 1.2 })} label={steelyardLabel(o)} /></div>
+            <div class="phone"><IsoStage board={STEELYARD_BOARD} scene={steelyardScene({ ...o, scale: 2, pills: { A: 'A', B: 'B', C: 'C' } })} label={steelyardLabel(o)} /></div>
+            <p>{steelyardLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><div class="stage"><Live client:load /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .stage { height: 520px; }
+  .phone { display: none; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

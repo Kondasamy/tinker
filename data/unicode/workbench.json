@@ -1,0 +1,6 @@
+{
+  "note": "Planning numbers written for this site, not a real database's. Chapter 7: the customer file's name column holds at most `column` bytes of UTF-8. The form's limit counts bytes, code points or graphemes, up to one of `limits`, and may normalise to NFC first. A setting works when every name is accepted, every typed name matches its record, and nothing the form accepts can overflow the column.",
+  "column": 48,
+  "limits": [12, 16, 24, 32, 40, 48, 64],
+  "start": { "count": "graphemes", "limit": 16, "nfc": false }
+}

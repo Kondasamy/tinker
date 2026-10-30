@@ -1,0 +1,15 @@
+{
+  "note": "Effects the chapters teach, re-derived by tests/unit/routes-engine.test.ts and routes-workbench.test.ts (WRITE_PINNED=1 rewrites the workbench).",
+  "effects": {
+    "bfs": { "roads": 7, "minutes": 22, "looked": 29 },
+    "dijkstra": { "roads": 9, "minutes": 19, "looked": 28 },
+    "astar": { "minutes": 19, "looked": 21 },
+    "bridge": "lock-weir",
+    "detour": 22,
+    "flipAt": 4
+  },
+  "workbench": {
+    "best": 100,
+    "winners": [{ "algo": "astar", "weight": 1.5 }]
+  }
+}

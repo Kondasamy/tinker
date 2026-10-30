@@ -1,0 +1,18 @@
+{
+  "note": "Larkspur's planning numbers for a teaching simulator, not measurements of any real database, tape or courier. Every restore time and cost the Backups module shows comes from these.",
+  "firstCopyHour": 1,
+  "courierHour": 18,
+  "testHour": 9,
+  "restoreHours": { "full": 3, "incremental": 1 },
+  "fetchHours": { "cabinet": 0, "warehouse": 2, "lockbox": 6 },
+  "costs": { "full": 10, "incremental": 2, "warehouse": 40, "lockbox": 70 },
+  "words": {
+    "schedule": "copies start at 01:00 and repeat every 24, 12, 6 or 1 hours",
+    "incremental": "with incremental copies, each day's first copy is full and the rest keep only what changed",
+    "restore": "a full copy takes 3 hours to read back, and each incremental link 1 more",
+    "fetch": "a warehouse copy takes 2 hours to pull back over the network; the lockbox 6, for the courier to bring it",
+    "courier": "the courier collects a full tape at 18:00 every day",
+    "test": "a test restore reads the newest copy back at 09:00 every day",
+    "costs": "a full copy costs $10 in tape and time, an incremental $2; the warehouse link $40 a week, the courier $70"
+  }
+}

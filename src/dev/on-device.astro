@@ -1,0 +1,80 @@
+---
+// Dev-only eyeball page: the warehouse aisle in the states the chapters teach (static SVG at build time, wide and
+// phone), then the stage live in the browser. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import {
+  PHONE_CRATE_BOARD,
+  phoneCrateLabel,
+  phoneCrateScene,
+  type PhoneCrateOpts,
+} from '../components/scenes/phoneCrateScene';
+import { CrateStage } from '../content/on-device/kit';
+import { bricksOf, cacheBytes, sizeOf, weightBytes, type SizeId } from '../lib/on-device/memory';
+
+const pack = (
+  size: SizeId,
+  bits: number,
+  tokens = 0,
+  rest: Partial<PhoneCrateOpts> = {},
+): Omit<PhoneCrateOpts, 'scale'> => ({
+  weights: bricksOf(weightBytes(sizeOf(size), bits)),
+  cache: bricksOf(cacheBytes(sizeOf(size), tokens)),
+  level: 1,
+  ...rest,
+});
+const STATES: [string, Omit<PhoneCrateOpts, 'scale'>][] = [
+  ['Ch. 1: Larkspur mini at 16 bits', pack('mini', 16, 0, { say: { block: 'crate', text: 'The handheld' } })],
+  ['Ch. 1: the 1B at 16 bits', pack('1b', 16, 0, { say: { block: 'spill', text: 'Spilled' } })],
+  ['Ch. 1: the 3B at 16 bits', pack('3b', 16)],
+  ['Ch. 2: the 1B at 8 bits', pack('1b', 8, 0, { say: { block: 'bricks', text: 'Weight bricks' } })],
+  ['Ch. 2: the 1B at 2 bits', pack('1b', 2)],
+  ['Ch. 3: the 3B at 4 bits, 1,000 tokens', pack('3b', 4, 1000, { say: { block: 'cache', text: 'Cache bricks' } })],
+  ['Ch. 3: 8,000 tokens', pack('3b', 4, 8000, { say: { block: 'spill', text: 'Cache spilled' } })],
+  ['Ch. 4: the tank after an hour', pack('3b', 4, 0, { level: 0.86, say: { block: 'tank', text: 'Battery' } })],
+  ['Ch. 4: the tank empty', pack('3b', 4, 0, { level: 0 })],
+  ['Ch. 5: hot', pack('3b', 4, 0, { hot: true, say: { block: 'picker', text: 'Rush hour' } })],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>On-device scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Warehouse aisle: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={PHONE_CRATE_BOARD} scene={phoneCrateScene({ ...o, scale: 1.2 })} label={phoneCrateLabel(o)} /></div>
+            <div class="phone"><IsoStage board={PHONE_CRATE_BOARD} scene={phoneCrateScene({ ...o, scale: 2 })} label={phoneCrateLabel(o)} /></div>
+            <p>{phoneCrateLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>The stage, live</h1>
+      <div class="grid">
+        <section><h2>The 3B at 4 bits, 2,000 tokens</h2><div class="stage"><CrateStage pack={{ size: '3b', bits: 4, tokens: 2000, level: 0.5 }} caption="Live." client:load /></div></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .stage { height: 420px; }
+  .phone { display: none; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

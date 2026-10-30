@@ -1,0 +1,84 @@
+---
+// Dev-only eyeball page: the server room in the states the chapters teach (static SVG, wide and phone), then the week's
+// timeline. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { SAFE_BOARD, safeAt, safeLabel, safeScene, type SafeOpts } from '../components/scenes/safeScene';
+import { WeekView } from '../content/backups/kit';
+import { SCENES, STRIKES, clock, weekOf } from '../lib/backups/sim';
+import { WINNERS, weekFor } from '../lib/backups/workbench';
+
+const W = (k: keyof typeof SCENES) => weekOf(SCENES[k]);
+const STATES: [string, Omit<SafeOpts, 'scale'>][] = [
+  ['No copies, Monday 06:00', safeAt(W('none'), 6)],
+  [
+    `No copies: the disk dies, ${clock(STRIKES.wed.hour)}`,
+    { ...safeAt(W('none'), 0, STRIKES.wed), say: { block: 'server', text: 'Disk dead' } },
+  ],
+  ['Nightly copies, the disk dies', safeAt(W('nightly'), 0, STRIKES.wed)],
+  ['Every 6 h, Thursday', safeAt(W('six'), 89)],
+  [
+    'Incremental chain, broken link',
+    { ...safeAt(W('broken'), 0, STRIKES.tue), say: { block: 'cabinet', text: 'Broken chain' } },
+  ],
+  ['Fire, server room only', safeAt(W('six'), 0, STRIKES.fire)],
+  [
+    'Fire, with the warehouse',
+    { ...safeAt(W('offsite'), 0, STRIKES.fire), say: { block: 'warehouse', text: 'Off-site' } },
+  ],
+  ['Ransomware, warehouse only', safeAt(W('offsite'), 0, STRIKES.ransom)],
+  [
+    'Ransomware, with the lockbox',
+    { ...safeAt(W('lockbox'), 0, STRIKES.ransom), say: { block: 'lockbox', text: 'Offline' } },
+  ],
+  ['Silent bad copies, the disk dies Friday', safeAt(W('silent'), 0, STRIKES.fri)],
+  ['Tested daily, the disk dies Friday', safeAt(W('tested'), 0, STRIKES.fri)],
+  [
+    'A winning plan, Saturday night',
+    safeAt(weekFor(WINNERS[0] ?? { every: 6, incremental: true, places: 'both' }), 141),
+  ],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Backups scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Server room: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={SAFE_BOARD} scene={safeScene({ ...o, scale: 1.2 })} label={safeLabel(o)} /></div>
+            <div class="phone"><IsoStage board={SAFE_BOARD} scene={safeScene({ ...o, scale: 2 })} label={safeLabel(o)} /></div>
+            <p>{safeLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>The week</h1>
+      <div class="grid">
+        <section><h2>Broken chain</h2><WeekView week={W('broken')} hour={46} strike={STRIKES.tue} /></section>
+        <section><h2>Ransomware with the lockbox</h2><WeekView week={W('lockbox')} hour={141} strike={STRIKES.ransom} /></section>
+        <section><h2>Silent bad copies</h2><WeekView week={W('silent')} hour={111} strike={STRIKES.fri} /></section>
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .phone { display: none; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

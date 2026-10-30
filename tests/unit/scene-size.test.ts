@@ -9,7 +9,10 @@ import IsoStage, { type Board } from '../../src/lib/iso/IsoStage';
 import { AGENT_BOARD, agentScene } from '../../src/components/scenes/agentScene';
 import { ARCHIVE_BOARD, archiveAt, archiveScene } from '../../src/components/scenes/archiveScene';
 import { CABINET_BOARD, cabinetAt, cabinetScene } from '../../src/components/scenes/cabinetScene';
+import { CLAW_BOARD, clawScene } from '../../src/components/scenes/clawScene';
 import { CLOAK_BOARD, cloakScene } from '../../src/components/scenes/cloakScene';
+import { DEMOS as ROBOT_DEMOS } from '../../src/lib/robots/story';
+import { play as robotPlay, TRAIN as ROBOT_BINS } from '../../src/lib/robots/world';
 import { COPIER_BOARD, copierAt, copierScene } from '../../src/components/scenes/copierScene';
 import { boardOf as crateBoard, crateScene, yardOf, type CrateOpts } from '../../src/components/scenes/crateScene';
 import { DARK_BOARD, darkroomScene } from '../../src/components/scenes/darkroomScene';
@@ -28,6 +31,8 @@ import { EXAM_BOARD, examScene } from '../../src/components/scenes/examScene';
 import { FORGE_BOARD, forgeScene } from '../../src/components/scenes/forgeScene';
 import { FUSE_BOARD, fuseScene } from '../../src/components/scenes/fuseScene';
 import { GATE_BOARD, gateScene } from '../../src/components/scenes/gateScene';
+import { STEELYARD_BOARD, steelyardScene } from '../../src/components/scenes/steelyardScene';
+import { hallOf } from '../../src/content/choosing-models/kit';
 import { GUARD_BOARD, guardScene } from '../../src/components/scenes/guardScene';
 import { HERO_BOARD, HOME_HERO } from '../../src/components/scenes/heroScene';
 import { JAR_BOARD, jarScene } from '../../src/components/scenes/jarScene';
@@ -36,11 +41,16 @@ import { ROOMS_BOARD, roomsScene, tokensOf } from '../../src/components/scenes/o
 import { OFFICE_BOARD, officeScene } from '../../src/components/scenes/officeScene';
 import { PAINT_BOARD, paintAt, paintScene } from '../../src/components/scenes/paintScene';
 import { PHONE_BOARD, phoneScene } from '../../src/components/scenes/phoneScene';
+import { PHONE_CRATE_BOARD, phoneCrateScene } from '../../src/components/scenes/phoneCrateScene';
 import { RACK_BOARD, rackScene } from '../../src/components/scenes/pigeonholeScene';
 import { PILE_BOARD, pileScene } from '../../src/components/scenes/pileScene';
 import { POST_BOARD, postScene } from '../../src/components/scenes/postScene';
 import { PUPPET_BOARD, puppetScene } from '../../src/components/scenes/puppetScene';
 import { RAIL_BOARD, railAt, railScene } from '../../src/components/scenes/railScene';
+import { SAFE_BOARD, safeAt, safeScene } from '../../src/components/scenes/safeScene';
+import { SCENES as BACKUPS, STRIKES as BACKUP_STRIKES, weekOf as backupWeek } from '../../src/lib/backups/sim';
+import { BARREL_BOARD, barrelAt, barrelScene } from '../../src/components/scenes/barrelScene';
+import { benchRun as rateBench } from '../../src/lib/rate-limits/workbench';
 import { RECITAL_BOARD, recitalScene } from '../../src/components/scenes/recitalScene';
 import { ROUTER_BOARD, routerScene } from '../../src/components/scenes/routerScene';
 import { SANDBOX_BOARD, sandboxScene } from '../../src/components/scenes/sandboxScene';
@@ -53,10 +63,15 @@ import { STENCIL_BOARD, stencilScene } from '../../src/components/scenes/stencil
 import { STOCK_BOARD, stockAt, stockScene } from '../../src/components/scenes/stockScene';
 import { THINK_BOARD, thinkScene } from '../../src/components/scenes/thinkScene';
 import { TOKEN_BOARD, tokenScene } from '../../src/components/scenes/tokenScene';
+import { TABLE_BOARD, tabletopScene } from '../../src/components/scenes/tabletopScene';
 import { TOWER_BOARD, towerOf, towerScene } from '../../src/components/scenes/towerScene';
+import { BRIDGES } from '../../src/lib/routes/graph';
+import { dijkstra as routesDijkstra } from '../../src/lib/routes/dijkstra';
+import { SHORTCUT_PAIRS } from '../../src/lib/routes/story';
 import { TOWN_BOARD, townAt, townScene } from '../../src/components/scenes/townScene';
 import { TRACE_BOARD, traceScene } from '../../src/components/scenes/traceScene';
 import { TRAIN_BOARD, trainScene } from '../../src/components/scenes/trainScene';
+import { TAPE_BOARD, tapeScene } from '../../src/components/scenes/tapeScene';
 import { TUBE_BOARD, tubeAt, tubeScene } from '../../src/components/scenes/tubeScene';
 import { FRAME_BOARD, typeFrameScene } from '../../src/components/scenes/typeFrameScene';
 import { UV_BOARD, uvScene } from '../../src/components/scenes/uvScene';
@@ -65,6 +80,7 @@ import { YARD_BOARD, yardAt, yardScene } from '../../src/components/scenes/yardS
 import { play as playCoding } from '../../src/content/coding-agents/kit';
 import { frameAt, play as playComputer } from '../../src/content/computer-use/kit';
 import { finish, forestOf, forestTable } from '../../src/content/compression/kit';
+import { tapeOf } from '../../src/content/unicode/kit';
 import { frameOf } from '../../src/content/diffusion-llms/kit';
 import { postOf } from '../../src/content/email/kit';
 import { packingOf } from '../../src/content/git/kit';
@@ -263,6 +279,21 @@ const SCENES: Record<string, () => string> = {
       }),
     );
   },
+  // Mira's first demo done: the whole path, the part in the tray, the machine's screen and a callout
+  claw: () => {
+    const run = robotPlay(ROBOT_BINS[0], ROBOT_DEMOS[0]);
+    return stage(
+      CLAW_BOARD,
+      clawScene({
+        layout: ROBOT_BINS[0],
+        state: run.at(-1)!,
+        trail: run.map(s => s.claw),
+        machine: 'ok',
+        pill: 'DONE',
+        say: { block: 'tray', text: 'In the tray' },
+      }),
+    );
+  },
   // checkpoint 1000 of the pre-training run
   forge: () => stage(FORGE_BOARD, forgeScene({ steps: FORGE_STEPS, step: 1000 })),
   // the shared bar with every applicant drawn and walked through (a new scene: its baseline is its first size)
@@ -277,6 +308,14 @@ const SCENES: Record<string, () => string> = {
       }),
     );
   },
+  // the market hall with every poise on, B under the bar and a callout (a new scene: its baseline is its first size)
+  steelyard: () =>
+    stage(
+      STEELYARD_BOARD,
+      steelyardScene({
+        ...hallOf('larkspur', { quality: 2, cost: 1, wait: 1 }, { out: ['B'], say: { block: 'pan', text: 'Slips' } }),
+      }),
+    ),
   // a full sentence with threads on and a head pulled (the callout test's state)
   fuse: () => {
     const out = forward(diskModel(), encode('Candidates receive an answer within ten'));
@@ -382,6 +421,10 @@ const SCENES: Record<string, () => string> = {
   puppet: () => stage(PUPPET_BOARD, puppetScene(frameAt(playComputer({ case: 'hinges' }), 99).opts)),
   // the crash run at the crash: a worker down with its dropped ticket, the rail full
   rail: () => stage(RAIL_BOARD, railScene(railAt(queueRun({ ...QUEUES.crash, crashes: [SHOWN_CRASH] }), CRASH_AT))),
+  // the fullest backups week: ransomware padlocks the cabinet and the warehouse, the lockbox restores
+  safe: () => stage(SAFE_BOARD, safeScene(safeAt(backupWeek(BACKUPS.lockbox), 0, BACKUP_STRIKES.ransom))),
+  // sale day with four barrels, a full queue and couriers turned away: the most the rain barrel draws
+  barrel: () => stage(BARREL_BOARD, barrelScene(barrelAt(rateBench({ size: 10, refill: 5, perKey: true }), 25_000))),
   // a canary seen 64 times: the ledger and the ranked column
   recital: () => {
     const c = canaryOf(64),
@@ -522,6 +565,16 @@ const SCENES: Record<string, () => string> = {
         say: { block: 'docket', text: 'Your prompt' },
       }),
     ),
+  // a full tape over the cap, read with the wrong table, a callout on (a new scene: its baseline is its first size)
+  tape: () =>
+    stage(
+      TAPE_BOARD,
+      tapeScene({
+        ...tapeOf('Ελένη Παπαδοπούλου', 'windows-1252'),
+        fresh: 0,
+        say: { block: 'reader', text: 'Its table' },
+      }),
+    ),
   // the pinned watermarked reply, every tile lit, one picked (a new scene: its baseline is its first size)
   uv: () =>
     stage(
@@ -535,6 +588,20 @@ const SCENES: Record<string, () => string> = {
         say: { block: 'lamp', text: 'UV lamp' },
       }),
     ),
+  // the 3B at 16 bits with a long context: a full crate, the spill drawn and counted, the tank half full and hot
+  phoneCrate: () =>
+    stage(
+      PHONE_CRATE_BOARD,
+      phoneCrateScene({
+        weights: 52,
+        cache: 8,
+        level: 0.5,
+        hot: true,
+        load: '7.34 GB / 2.00 GB',
+        charge: 'BATTERY 50%',
+        say: { block: 'tank', text: 'Battery' },
+      }),
+    ),
   // the memory run with shelf, cabinet and tray on (the callout test's state)
   window: () =>
     stage(
@@ -546,6 +613,23 @@ const SCENES: Record<string, () => string> = {
         tray: true,
       }),
     ),
+  // the whole town searched, flags everywhere, both bridges barred, a jam, the shortcuts and a picked road
+  tabletop: () => {
+    const r = routesDijkstra({ closed: BRIDGES });
+    return stage(
+      TABLE_BOARD,
+      tabletopScene({
+        closed: BRIDGES,
+        jams: { 'lock-dock': 10 },
+        selected: 'market-square',
+        settled: r.settles.map(s => s.id),
+        frontier: r.settles[5].frontier.map(o => o.id),
+        noRoute: true,
+        shortcuts: SHORTCUT_PAIRS.map(([a, b]) => ({ a, b })),
+        say: { block: 'van', text: 'Held here' },
+      }),
+    );
+  },
   // the end of a least-busy run with a dead and a gray shed: every shed, the barrier
   yard: () => {
     const run = lbSim(lbPolicy({ rule: 'least', states: { cedar: 'dead', dogwood: 'gray' }, checks: 2 }));
@@ -558,7 +642,11 @@ const BASE: Record<string, number> = {
   agent: 89875,
   'agent:helpers': 61489,
   archive: 91791,
+  // new with the rate-limits module (no pre-rework size): its first size is 348,099 (16 people), with a little headroom
+  barrel: 120000,
   cabinet: 36056,
+  // new with the robots module (no pre-rework size): its first size is 44,523, with a little headroom
+  claw: 16000,
   cloak: 57039,
   copier: 42034,
   'crate:yard': 41476,
@@ -587,11 +675,15 @@ const BASE: Record<string, number> = {
   office: 66173,
   paint: 42392,
   phone: 45861,
+  // new with the on-device module (no pre-rework size): its first size is 46,295, with a little headroom
+  phoneCrate: 25000,
   pigeonhole: 110562,
   pile: 16097,
   post: 44758,
   puppet: 23908,
   rail: 37355,
+  // new with the backups module (no pre-rework size): its first size is 157,281, with a little headroom
+  safe: 55000,
   recital: 39783,
   'router:distill': 19362,
   'router:route': 19819,
@@ -604,6 +696,8 @@ const BASE: Record<string, number> = {
   split: 47144,
   stencil: 20091,
   stock: 41198,
+  // new with the routes module (no pre-rework size): its first size is 90,587, with a little headroom
+  tabletop: 32000,
   think: 32740,
   token: 23206,
   tower: 47246,
@@ -612,7 +706,11 @@ const BASE: Record<string, number> = {
   train: 43227,
   tube: 85271,
   frame: 74221,
+  // new with the choosing-models module (no pre-rework size): its first size is 86,192, with a little headroom
+  steelyard: 30000,
   // new with the watermarks module (no pre-rework size): its first size is 62,335, with a little headroom
+  // new with the unicode module (no pre-rework size): its first size is 74,785, with a little headroom
+  tape: 26000,
   uv: 25000,
   window: 26749,
   yard: 40499,

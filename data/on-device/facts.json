@@ -1,0 +1,55 @@
+{
+  "accessed": "2026-10-30",
+  "facts": [
+    {
+      "id": "apple-3b",
+      "claim": "Apple said in June 2024 that its on-device model has about 3 billion parameters, stored at an average of 3.7 bits per weight, and writes about 30 tokens a second on an iPhone 15 Pro.",
+      "value": "3.7",
+      "source": "https://machinelearning.apple.com/research/introducing-apple-foundation-models"
+    },
+    {
+      "id": "apple-2bit",
+      "claim": "Apple’s July 2025 report says its roughly 3-billion-parameter on-device model was trained to run at 2 bits (quantization-aware training), and shares its KV cache between layers to save memory.",
+      "source": "https://machinelearning.apple.com/research/apple-foundation-models-tech-report-2025"
+    },
+    {
+      "id": "gemma-3n",
+      "claim": "Google said in June 2025 that Gemma 3n’s two phone models, with 5 and 8 billion raw parameters, run in as little as 2 GB and 3 GB of memory.",
+      "value": "2",
+      "source": "https://developers.googleblog.com/en/introducing-gemma-3n-developer-guide/"
+    },
+    {
+      "id": "llama-sizes",
+      "claim": "Meta’s Llama 3.2 model card lists its small models at 1.23 and 3.21 billion parameters, made for constrained places such as mobile devices.",
+      "source": "https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/MODEL_CARD.md"
+    },
+    {
+      "id": "llama-shape",
+      "claim": "Llama 3.2 1B keeps 16 layers of 8 key-value heads of 64 numbers each; the 3B keeps 28 layers of 8 heads of 128, as their published configs give.",
+      "source": "https://huggingface.co/unsloth/Llama-3.2-3B-Instruct/blob/main/config.json"
+    },
+    {
+      "id": "llama-quantized",
+      "claim": "Meta said in October 2024 that its quantized Llama 3.2 1B and 3B were 56% smaller and used 41% less memory on a OnePlus 12 phone, and that interactions stay entirely on the device.",
+      "value": "41",
+      "source": "https://ai.meta.com/blog/meta-llama-quantized-lightweight-models/"
+    },
+    {
+      "id": "melt-energy",
+      "claim": "Laskaridis et al. (MELTing point, 2024) measured 0.16 to 0.21 mWh per token for 3-billion-parameter models on phones: about 490 to 590 replies of 135 tokens on one full battery.",
+      "value": "0.2",
+      "source": "https://arxiv.org/abs/2403.12844"
+    },
+    {
+      "id": "melt-heat",
+      "claim": "In the same study, an iPhone 14 Pro running a 4-bit 3B model reached 47.9 °C, and over 50 prompts in a row its speed kept dropping as the phone changed power modes.",
+      "value": "47.9",
+      "source": "https://arxiv.org/html/2403.12844v4"
+    },
+    {
+      "id": "pcc",
+      "claim": "Apple calls on-device processing the cornerstone of its users’ privacy; requests that need a larger model go to its Private Cloud Compute, which keeps no user data after replying (June 2024).",
+      "source": "https://security.apple.com/blog/private-cloud-compute/"
+    }
+  ]
+}

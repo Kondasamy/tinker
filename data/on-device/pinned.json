@@ -1,0 +1,296 @@
+{
+  "replies": {
+    "prompt": "Returns are accepted within",
+    "at": [
+      {
+        "bits": 16,
+        "ids": [
+          669,
+          455,
+          422,
+          46
+        ],
+        "text": " five business days."
+      },
+      {
+        "bits": 8,
+        "ids": [
+          669,
+          455,
+          422,
+          46
+        ],
+        "text": " five business days."
+      },
+      {
+        "bits": 4,
+        "ids": [
+          265,
+          371,
+          46
+        ],
+        "text": " the Portal."
+      },
+      {
+        "bits": 2,
+        "ids": [
+          422,
+          422,
+          422,
+          422,
+          422,
+          422,
+          422,
+          422
+        ],
+        "text": " days days days days days days days days"
+      }
+    ]
+  },
+  "memory": {
+    "mini": [
+      {
+        "bits": 16,
+        "bytes": 102144
+      },
+      {
+        "bits": 8,
+        "bytes": 54720
+      },
+      {
+        "bits": 4,
+        "bytes": 29632
+      },
+      {
+        "bits": 2,
+        "bytes": 17088
+      }
+    ],
+    "kvPerToken": {
+      "mini": 256,
+      "1b": 32768,
+      "3b": 114688
+    }
+  },
+  "battery": {
+    "grid": [
+      {
+        "size": "mini",
+        "bits": 16,
+        "length": "short",
+        "weights": 102144,
+        "fits": true,
+        "replies": 58740601
+      },
+      {
+        "size": "mini",
+        "bits": 16,
+        "length": "long",
+        "weights": 102144,
+        "fits": true,
+        "replies": 8702311
+      },
+      {
+        "size": "mini",
+        "bits": 8,
+        "length": "short",
+        "weights": 51072,
+        "fits": true,
+        "replies": 117481203
+      },
+      {
+        "size": "mini",
+        "bits": 8,
+        "length": "long",
+        "weights": 51072,
+        "fits": true,
+        "replies": 17404622
+      },
+      {
+        "size": "mini",
+        "bits": 4,
+        "length": "short",
+        "weights": 25536,
+        "fits": true,
+        "replies": 234962406
+      },
+      {
+        "size": "mini",
+        "bits": 4,
+        "length": "long",
+        "weights": 25536,
+        "fits": true,
+        "replies": 34809245
+      },
+      {
+        "size": "mini",
+        "bits": 2,
+        "length": "short",
+        "weights": 12768,
+        "fits": true,
+        "replies": 469924812
+      },
+      {
+        "size": "mini",
+        "bits": 2,
+        "length": "long",
+        "weights": 12768,
+        "fits": true,
+        "replies": 69618490
+      },
+      {
+        "size": "1b",
+        "bits": 16,
+        "length": "short",
+        "weights": 2460000000,
+        "fits": false,
+        "replies": 2439
+      },
+      {
+        "size": "1b",
+        "bits": 16,
+        "length": "long",
+        "weights": 2460000000,
+        "fits": false,
+        "replies": 361
+      },
+      {
+        "size": "1b",
+        "bits": 8,
+        "length": "short",
+        "weights": 1230000000,
+        "fits": true,
+        "replies": 4878
+      },
+      {
+        "size": "1b",
+        "bits": 8,
+        "length": "long",
+        "weights": 1230000000,
+        "fits": true,
+        "replies": 722
+      },
+      {
+        "size": "1b",
+        "bits": 4,
+        "length": "short",
+        "weights": 615000000,
+        "fits": true,
+        "replies": 9756
+      },
+      {
+        "size": "1b",
+        "bits": 4,
+        "length": "long",
+        "weights": 615000000,
+        "fits": true,
+        "replies": 1445
+      },
+      {
+        "size": "1b",
+        "bits": 2,
+        "length": "short",
+        "weights": 307500000,
+        "fits": true,
+        "replies": 19512
+      },
+      {
+        "size": "1b",
+        "bits": 2,
+        "length": "long",
+        "weights": 307500000,
+        "fits": true,
+        "replies": 2890
+      },
+      {
+        "size": "3b",
+        "bits": 16,
+        "length": "short",
+        "weights": 6420000000,
+        "fits": false,
+        "replies": 934
+      },
+      {
+        "size": "3b",
+        "bits": 16,
+        "length": "long",
+        "weights": 6420000000,
+        "fits": false,
+        "replies": 138
+      },
+      {
+        "size": "3b",
+        "bits": 8,
+        "length": "short",
+        "weights": 3210000000,
+        "fits": false,
+        "replies": 1869
+      },
+      {
+        "size": "3b",
+        "bits": 8,
+        "length": "long",
+        "weights": 3210000000,
+        "fits": false,
+        "replies": 276
+      },
+      {
+        "size": "3b",
+        "bits": 4,
+        "length": "short",
+        "weights": 1605000000,
+        "fits": true,
+        "replies": 3738
+      },
+      {
+        "size": "3b",
+        "bits": 4,
+        "length": "long",
+        "weights": 1605000000,
+        "fits": true,
+        "replies": 553
+      },
+      {
+        "size": "3b",
+        "bits": 2,
+        "length": "short",
+        "weights": 802500000,
+        "fits": true,
+        "replies": 7476
+      },
+      {
+        "size": "3b",
+        "bits": 2,
+        "length": "long",
+        "weights": 802500000,
+        "fits": true,
+        "replies": 1107
+      }
+    ],
+    "rush": [
+      {
+        "length": "short",
+        "tokens": 200,
+        "seconds": 10.7,
+        "hot": false,
+        "coolSeconds": 10.7
+      },
+      {
+        "length": "long",
+        "tokens": 1350,
+        "seconds": 114.45,
+        "hot": true,
+        "coolSeconds": 72.225
+      }
+    ]
+  },
+  "workbench": {
+    "winners": [
+      {
+        "size": "3b",
+        "bits": 4,
+        "length": "short"
+      }
+    ]
+  }
+}

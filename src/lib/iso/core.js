@@ -120,7 +120,10 @@ export function hull(pts){
 // Thickness = 2 × area / perimeter of the outline (a rod's diameter, about half a box's width), as a share of the
 // frame width. A long thin rod, a handle or a knob stays light (~1–1.5); a grinder, kettle or machine body gets the
 // heavy ~2.4–2.8. Thin parts stay thin and parts keep air between them.
-export const hullInk = (pts3, w=1.4) => { const h = hull(pts3.map(p=>P(...p))); let a = 0, per = 0;
+// adapted: points snap to 1/1000 before the hull, so float noise between engines (Node renders, the browser hydrates)
+// can't flip which near-collinear points survive and start the outline elsewhere
+const snap = v => Math.round(v * 1000) / 1000;
+export const hullInk = (pts3, w=1.4) => { const h = hull(pts3.map(p=>P(...p).map(snap))); let a = 0, per = 0;
   for (let i = 0; i < h.length; i++){ const p = h[i], q = h[(i+1) % h.length]; a += p[0]*q[1] - q[0]*p[1]; per += Math.hypot(q[0]-p[0], q[1]-p[1]); }
   const thick = per ? Math.abs(a) / per / (INK_K * INK_REF_VB) : 0;
   return ink(sp(h), Math.min(w, .9 + 20*thick)); };

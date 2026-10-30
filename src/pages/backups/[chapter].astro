@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import OneCopy from '../../content/backups/01-one-copy-is-no-copy';
+import HowOften from '../../content/backups/02-how-often';
+import FullAndSinceLast from '../../content/backups/03-full-and-since-last';
+import NotInTheSameBuilding from '../../content/backups/04-not-in-the-same-building';
+import Ransomware from '../../content/backups/05-ransomware';
+import TestTheRestore from '../../content/backups/06-test-the-restore';
+import Workbench from '../../content/backups/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('backups').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="backups" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-one-copy-is-no-copy' ? <OneCopy client:load />
+    : chapter === '02-how-often' ? <HowOften client:load />
+    : chapter === '03-full-and-since-last' ? <FullAndSinceLast client:load />
+    : chapter === '04-not-in-the-same-building' ? <NotInTheSameBuilding client:load />
+    : chapter === '05-ransomware' ? <Ransomware client:load />
+    : chapter === '06-test-the-restore' ? <TestTheRestore client:load />
+    : <Workbench client:load />}
+</ChapterLayout>

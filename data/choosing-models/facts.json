@@ -1,0 +1,12 @@
+{
+  "accessed": "2026-10-30",
+  "facts": [
+    { "id": "arena", "claim": "Chiang et al. (2024) describe Chatbot Arena, now LMArena: people put one question to two anonymous models and vote for the better reply, and the votes become a ranking. It had over 240,000 votes when the paper came out.", "value": "240,000", "source": "https://arxiv.org/abs/2403.04132" },
+    { "id": "leaderboard-illusion", "claim": "Singh et al. (2025) found some providers test many private versions on Chatbot Arena and publish only the best; Meta tested 27 before Llama 4’s release.", "value": "27", "source": "https://arxiv.org/abs/2504.20879" },
+    { "id": "contamination", "claim": "Zhang et al. (2024) wrote GSM1k, fresh maths questions like a popular public test, and some models scored up to 8 points lower on it: they had partly learned the public test itself.", "value": "8", "source": "https://arxiv.org/abs/2405.00332" },
+    { "id": "prices", "claim": "Anthropic’s price list (checked October 2026) charges per million tokens, input and output priced apart; output costs five times input, e.g. $2 in and $10 out for Claude Sonnet 5.5.", "value": "5", "source": "https://platform.claude.com/docs/en/about-claude/pricing" },
+    { "id": "ttft", "claim": "NVIDIA’s benchmarking guide (checked October 2026) defines time to first token as the wait from sending a request to the first token back, and end-to-end latency as the wait for the whole reply.", "source": "https://docs.nvidia.com/nim/benchmarking/llm/latest/metrics.html" },
+    { "id": "retirement", "claim": "Anthropic’s deprecations page (checked October 2026) promises at least 60 days’ notice before retiring a public model, and advises testing the replacement well before that date.", "value": "60", "source": "https://platform.claude.com/docs/en/about-claude/model-deprecations" },
+    { "id": "snapshot", "claim": "OpenAI’s prompt engineering guide (checked October 2026) advises pinning production apps to a model snapshot and building evals that measure behaviour across versions.", "source": "https://developers.openai.com/api/docs/guides/prompt-engineering" }
+  ]
+}

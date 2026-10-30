@@ -1,0 +1,43 @@
+{
+  "accessed": "2026-10-30",
+  "facts": [
+    {
+      "id": "3-2-1",
+      "claim": "US-CERT’s Data Backup Options (Ruggiero and Heckathorn, 2012) gives the 3-2-1 rule: keep 3 copies of any important file, 1 primary and 2 backups; on 2 different media types; and store 1 copy offsite.",
+      "value": "3-2-1",
+      "source": "https://www.cisa.gov/sites/default/files/publications/data_backup_options.pdf"
+    },
+    {
+      "id": "offline",
+      "claim": "CISA’s #StopRansomware Guide (2023) says many ransomware variants try to find and delete or encrypt accessible backups, and asks for offline, encrypted backups of critical data.",
+      "source": "https://www.cisa.gov/stopransomware/ransomware-guide"
+    },
+    {
+      "id": "backups-targeted",
+      "claim": "In Sophos’s State of Ransomware 2024 survey of organisations hit in the year before, 94% said attackers tried to compromise their backups, and 57% of those attempts succeeded.",
+      "value": "94%",
+      "source": "https://www.sophos.com/en-us/blog/the-impact-of-compromised-backups-on-ransomware-outcomes"
+    },
+    {
+      "id": "rpo",
+      "claim": "NIST SP 800-34 defines the recovery point objective as the point in time to which data must be recovered after an outage.",
+      "source": "https://csrc.nist.gov/glossary/term/recovery_point_objective"
+    },
+    {
+      "id": "rto",
+      "claim": "NIST SP 800-34 defines the recovery time objective as how long a system can be in recovery before it harms the organisation’s mission.",
+      "source": "https://csrc.nist.gov/glossary/term/recovery_time_objective"
+    },
+    {
+      "id": "incremental",
+      "claim": "PostgreSQL 17’s manual says restoring an incremental backup needs the incremental itself and every earlier backup it depends on.",
+      "source": "https://www.postgresql.org/docs/17/continuous-archiving.html"
+    },
+    {
+      "id": "gitlab",
+      "claim": "GitLab’s 2017 outage post-mortem says its nightly database dumps had been failing unnoticed and no one owned testing the restore; it lost about 6 hours of data.",
+      "value": "6 hours",
+      "source": "https://about.gitlab.com/blog/2017/02/10/postmortem-of-database-outage-of-january-31/"
+    }
+  ]
+}

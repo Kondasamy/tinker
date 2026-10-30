@@ -57,8 +57,11 @@ import { docketPlot } from './docketScene';
 import { rackPlot } from './pigeonholeScene';
 import { gatePlot } from './gateScene';
 import { uvPlot } from './uvScene';
+import { phoneCratePlot } from './phoneCrateScene';
 import { hatchPlot } from './hatchScene';
 import { ringPlot } from './ringScene';
+import { steelyardPlot } from './steelyardScene';
+import { clawPlot } from './clawScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
 import type { Msg } from '../../lib/iso/flat';
@@ -276,6 +279,9 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   watermarks: (x, y, { top }) => uvPlot(x + 14, y - 2, top),
   'agent-commerce': (x, y, { top }) => hatchPlot(x + 14, y - 2, top),
   'parallel-training': (x, y, { top }) => ringPlot(x + 14, y - 2, top),
+  'choosing-models': (x, y, { top }) => steelyardPlot(x + 14, y - 2, top),
+  'on-device': (x, y, { top }) => phoneCratePlot(x + 14, y - 2, top),
+  robots: (x, y, { top }) => clawPlot(x + 14, y - 2, top),
 };
 // only AI modules take a turn on the stand: classic tech waits in the catalogue
 const LIVE = MODULES.filter(m => m.status === 'live' && !m.track);

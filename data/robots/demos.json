@@ -1,0 +1,14 @@
+{
+  "note": "Stand-in demos, hand-set for this site: Mira drives the claw once on each training bin (bins.json train, in order). They are the moves of a careful driver who reads only the camera (expert in world.ts), pinned here and re-derived by a test.",
+  "by": "Mira",
+  "demos": [
+    "right right down down grip down right right right right right down right drop",
+    "right right right down right right right grip right down down down right drop",
+    "right right right right right down grip right right up right drop",
+    "right right right right grip right right right down down down right drop",
+    "right right right right down grip right down right right right drop",
+    "right down right right right right up right grip right down down down right drop",
+    "right right right right down right right right down down down grip up up right drop",
+    "right right right down down down down down grip right right up right right down right drop"
+  ]
+}

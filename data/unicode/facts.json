@@ -1,0 +1,75 @@
+{
+  "accessed": "2026-10-30",
+  "facts": [
+    {
+      "id": "ascii",
+      "claim": "RFC 20 (1969) set out ASCII for network interchange: a 7-bit code, so 128 characters, numbered 0 to 127.",
+      "value": "128",
+      "source": "https://www.rfc-editor.org/rfc/rfc20"
+    },
+    {
+      "id": "version",
+      "claim": "The Unicode Consortium’s page for Unicode 18.0, dated 16 September 2026: it adds 13,007 characters, for a total of 172,808.",
+      "value": "18.0",
+      "source": "https://www.unicode.org/versions/Unicode18.0.0/"
+    },
+    {
+      "id": "total",
+      "claim": "The same page for Unicode 18.0: 172,808 characters in total.",
+      "value": "172808",
+      "source": "https://www.unicode.org/versions/Unicode18.0.0/"
+    },
+    {
+      "id": "codespace",
+      "claim": "Unicode’s glossary: the codespace is the range of integers from 0 to 10FFFF in hex, which is 1,114,112 code points.",
+      "value": "1114112",
+      "source": "https://www.unicode.org/glossary/#codespace"
+    },
+    {
+      "id": "utf8",
+      "claim": "RFC 3629: UTF-8 writes each character in 1 to 4 octets (bytes), and US-ASCII characters as one byte each, unchanged.",
+      "source": "https://www.rfc-editor.org/rfc/rfc3629"
+    },
+    {
+      "id": "web",
+      "claim": "W3Techs, 30 October 2026: UTF-8 is used by 99.1% of all the websites whose character encoding they know.",
+      "value": "99.1%",
+      "source": "https://w3techs.com/technologies/overview/character_encoding"
+    },
+    {
+      "id": "latin1",
+      "claim": "The WHATWG Encoding Standard maps the labels “latin1” and “iso-8859-1” to windows-1252, so browsers read Latin-1 as Windows-1252.",
+      "source": "https://encoding.spec.whatwg.org/"
+    },
+    {
+      "id": "utf16",
+      "claim": "ECMAScript: a string is a sequence of 16-bit code units, so a character past U+FFFF counts as two in its length.",
+      "source": "https://tc39.es/ecma262/#sec-ecmascript-language-types-string-type"
+    },
+    {
+      "id": "graphemes",
+      "claim": "Unicode’s UAX #29 defines grapheme clusters: what a reader takes as one character, such as emoji joined by zero-width joiners.",
+      "source": "https://www.unicode.org/reports/tr29/"
+    },
+    {
+      "id": "segmenter",
+      "claim": "ECMA-402’s Intl.Segmenter splits a string into graphemes, words or sentences in the browser.",
+      "source": "https://tc39.es/ecma402/#segmenter-objects"
+    },
+    {
+      "id": "nfc",
+      "claim": "Unicode’s UAX #15: NFC composes, so e followed by a combining acute becomes the single code point é, and equivalent strings come out the same.",
+      "source": "https://www.unicode.org/reports/tr15/"
+    },
+    {
+      "id": "confusables",
+      "claim": "Unicode’s UTS #39 lists confusables: characters from different scripts that look alike, such as Latin a and Cyrillic а.",
+      "source": "https://www.unicode.org/reports/tr39/"
+    },
+    {
+      "id": "bytes-to-tokens",
+      "claim": "Radford et al. (2019) built GPT-2’s vocabulary over UTF-8 bytes, so any text can be turned into tokens.",
+      "source": "https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf"
+    }
+  ]
+}

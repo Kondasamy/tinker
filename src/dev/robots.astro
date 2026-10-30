@@ -1,0 +1,94 @@
+---
+// Dev-only eyeball page: the parts bay in the states the chapters teach (static SVG, wide and phone), then drive the
+// claw live in the browser. Below 600px the phone versions show.
+import '../styles/tokens.css';
+import IsoStage from '../lib/iso/IsoStage';
+import { CLAW_BOARD, clawLabel, clawScene, type ClawOpts } from '../components/scenes/clawScene';
+import { FRESH, REAL, TRAIN, play, startOf } from '../lib/robots/world';
+import { DEMOS, SNOWBALL, demoPairs } from '../lib/robots/story';
+import { replay } from '../lib/robots/policy';
+import { DevDrive } from '../content/robots/kit';
+
+const demo = play(TRAIN[0], DEMOS[0]);
+const stall = replay(demoPairs(SNOWBALL.demos), SNOWBALL.layout, { forced: [SNOWBALL.slipAt] });
+const STATES: [string, ClawOpts][] = [
+  ['Start (chapter 1)', { layout: TRAIN[0], state: startOf(TRAIN[0]), say: { block: 'claw', text: 'The claw' } }],
+  [
+    'Holding, mid demo',
+    {
+      layout: TRAIN[0],
+      state: demo[8],
+      trail: demo.slice(0, 9).map(s => s.claw),
+      say: { block: 'camera', text: 'Camera' },
+    },
+  ],
+  [
+    'Done',
+    {
+      layout: TRAIN[0],
+      state: demo.at(-1)!,
+      trail: demo.map(s => s.claw),
+      machine: 'ok',
+      pill: 'DONE',
+      say: { block: 'tray', text: 'In the tray' },
+    },
+  ],
+  [
+    'Stuck after a slip (chapter 5)',
+    {
+      layout: SNOWBALL.layout,
+      state: stall.states.at(-1)!,
+      trail: stall.states.map(s => s.claw),
+      machine: 'bad',
+      pill: 'STUCK',
+      say: { block: 'part', text: 'Overshot' },
+    },
+  ],
+  ['Fresh bin', { layout: FRESH, state: startOf(FRESH), say: { block: 'crate', text: 'A crate' } }],
+  [
+    'Dim real bin (chapter 6)',
+    { layout: REAL[0], state: startOf(REAL[0]), machine: 'warn', say: { block: 'machine', text: 'Policy' } },
+  ],
+  ['Mira', { layout: TRAIN[1], state: startOf(TRAIN[1]), say: { block: 'mira', text: 'Mira' } }],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Robots that act scene</title>
+  </head>
+  <body>
+    <main>
+      <h1>Parts bay: states</h1>
+      <div class="grid">
+        {STATES.map(([title, o]) => (
+          <section>
+            <h2>{title}</h2>
+            <div class="wide"><IsoStage board={CLAW_BOARD} scene={clawScene({ ...o, scale: 1.2 })} label={clawLabel(o)} /></div>
+            <div class="phone"><IsoStage board={CLAW_BOARD} scene={clawScene({ ...o, scale: 2 })} label={clawLabel(o)} /></div>
+            <p>{clawLabel(o)}</p>
+          </section>
+        ))}
+      </div>
+      <h1>Drive the claw, live</h1>
+      <div class="stage"><DevDrive client:load /></div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; margin: 16px 0 0; }
+  h2 { font: 800 13px ui-monospace, Menlo, monospace; margin: 0; }
+  p { font-size: 12px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
+  section { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px; background: var(--paper); }
+  .stage { max-width: 720px; }
+  .phone { display: none; }
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr; }
+    .wide { display: none; }
+    .phone { display: block; }
+  }
+</style>

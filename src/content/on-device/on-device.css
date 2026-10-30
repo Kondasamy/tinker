@@ -1,0 +1,107 @@
+/* On-device stage: shares the tool-calling stage frame (.tc-stage, .tc-frame, .tc-caption). These are the Bars tab,
+   the read-out, the story column's radio groups and range, and the reply panel. */
+.od-bars {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  height: 100%;
+  padding: 8px 4px;
+}
+.od-bar p {
+  margin: 0 0 4px;
+  font-weight: 800;
+  font-size: 14px;
+}
+.od-track {
+  position: relative;
+  height: 22px;
+  border: 1.5px solid var(--ink);
+  border-radius: 8px;
+  background: var(--card);
+  overflow: hidden;
+}
+.od-fill {
+  display: block;
+  height: 100%;
+  border-right: 1.5px solid var(--ink);
+  background: var(--cobalt-l);
+}
+.od-fill.over {
+  background: var(--tomato-l);
+}
+.od-fill.water {
+  background: #8fc6e6;
+}
+.od-said {
+  margin: 0;
+  min-height: 2.8em;
+  font:
+    700 13px ui-monospace,
+    Menlo,
+    monospace;
+}
+.od-radios {
+  border: 1.5px solid var(--rule);
+  border-radius: 12px;
+  padding: 4px 12px 6px;
+  margin: 8px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+.od-radios legend {
+  font-weight: 800;
+  font-size: 14px;
+  padding: 0 4px;
+}
+.od-radios label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 32px;
+  font-size: 14px;
+}
+.od-range {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  margin: 8px 0;
+  font-weight: 800;
+  font-size: 14px;
+}
+.od-range input {
+  flex: 1 1 160px;
+}
+.od-range output {
+  font-weight: 600;
+}
+.od-reply {
+  margin: 8px 0;
+  padding: 10px 12px;
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+  background: var(--card);
+  font:
+    700 14px ui-monospace,
+    Menlo,
+    monospace;
+  white-space: pre-wrap;
+}
+.od-bench {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 12px;
+}
+.od-bench .od-radios {
+  flex: 1 1 180px;
+}
+@media (max-width: 600px) {
+  .od-radios label,
+  .od-range input,
+  .od-actions .chip,
+  .od-actions .big {
+    min-height: 44px;
+  }
+}
