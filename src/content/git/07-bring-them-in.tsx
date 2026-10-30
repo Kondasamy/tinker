@@ -35,7 +35,7 @@ const KIND: Record<Row['kind'], string> = { ff: 'label moved up', merge: 'merge 
 const orderName = (o: BranchId[]) => o.join(', then ');
 
 export const QUIZ = {
-  question: 'Another team has one branch everyone has pulled and two private ones. Which plan fits what you found?',
+  question: 'Another team has one branch everyone already has and two private ones. Which plan fits what you found?',
   options: [
     'Merge the shared one; rebase the private ones onto main',
     'Rebase all three into one straight line',
@@ -203,6 +203,7 @@ export default function BringThemIn() {
         quiz: ({ state, apply, sync }) => (
           <>
             <Fact id="rebase-rule" />
+            <Fact id="replay-vs-merge" />
             <Commands
               lines={['git merge sale', 'git switch hinge && git rebase main', 'git switch main && git merge hinge']}
             />

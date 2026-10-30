@@ -1,80 +1,108 @@
 {
-  "accessed": "2026-10-25",
+  "accessed": "2026-10-30",
   "facts": [
     {
       "id": "content-addressable",
-      "claim": "Pro Git: Git is a content-addressable filesystem; at its core is a simple key-value data store.",
-      "source": "https://git-scm.com/book/en/v2/Git-Internals-Git-Objects"
+      "claim": "Pro Git: at its core Git is a simple store of content by key: put in any content and Git hands back a unique key to get it out again later.",
+      "source": "https://git-scm.com/book/en/v2/Git-Internals-Git-Objects",
+      "accessed": "2026-10-30"
     },
     {
       "id": "header",
       "claim": "Pro Git: Git names an object by the SHA-1 checksum of a header (its type, a space, its size in bytes and a null byte) followed by its content.",
-      "source": "https://git-scm.com/book/en/v2/Git-Internals-Git-Objects"
+      "source": "https://git-scm.com/book/en/v2/Git-Internals-Git-Objects",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "abbrev",
+      "claim": "Git’s config docs: by default Git shortens a name to a length it picks from the repository’s size, long enough to stay unique for some time; the shortest is 4 characters.",
+      "value": "4",
+      "source": "https://git-scm.com/docs/git-config",
+      "accessed": "2026-10-30"
     },
     {
       "id": "tree",
       "claim": "Pro Git: a tree stores file names and groups files together; each entry is the hash of a blob or subtree with its mode, type and file name.",
-      "source": "https://git-scm.com/book/en/v2/Git-Internals-Git-Objects"
+      "source": "https://git-scm.com/book/en/v2/Git-Internals-Git-Objects",
+      "accessed": "2026-10-30"
     },
     {
       "id": "commit",
       "claim": "Pro Git: a commit names the top-level tree of its snapshot, its parent commits if any, the author and committer with a timestamp, then a blank line and the message.",
-      "source": "https://git-scm.com/book/en/v2/Git-Internals-Git-Objects"
+      "source": "https://git-scm.com/book/en/v2/Git-Internals-Git-Objects",
+      "accessed": "2026-10-30"
     },
     {
       "id": "branch",
       "claim": "Pro Git: a branch in Git is simply a lightweight movable pointer to one of the commits.",
-      "source": "https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell"
+      "source": "https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell",
+      "accessed": "2026-10-30"
     },
     {
       "id": "branch-41",
       "claim": "Pro Git: creating a new branch is as quick as writing 41 bytes to a file (40 characters and a newline).",
-      "source": "https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell"
+      "source": "https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell",
+      "accessed": "2026-10-30"
     },
     {
       "id": "head",
       "claim": "Pro Git: HEAD is a pointer to the local branch you are currently on.",
-      "source": "https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell"
+      "source": "https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell",
+      "accessed": "2026-10-30"
     },
     {
       "id": "three-way",
       "claim": "Pro Git: Git does a simple three-way merge, using the two snapshots at the branch tips and their common ancestor.",
-      "source": "https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging"
+      "source": "https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging",
+      "accessed": "2026-10-30"
     },
     {
       "id": "merge-commit",
       "claim": "Pro Git: the result is a merge commit, special in that it has more than one parent.",
-      "source": "https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging"
+      "source": "https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging",
+      "accessed": "2026-10-30"
     },
     {
       "id": "conflict",
       "claim": "Pro Git: if you changed the same part of the same file differently in the two branches, Git can’t merge them cleanly.",
-      "source": "https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging"
+      "source": "https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging",
+      "accessed": "2026-10-30"
     },
     {
       "id": "rebase",
       "claim": "Pro Git: a rebase takes the changes committed on one branch and replays them on another, abandoning the old commits for new ones that are similar but different.",
-      "source": "https://git-scm.com/book/en/v2/Git-Branching-Rebasing"
+      "source": "https://git-scm.com/book/en/v2/Git-Branching-Rebasing",
+      "accessed": "2026-10-30"
     },
     {
       "id": "rebase-rule",
       "claim": "Pro Git’s rule: do not rebase commits that exist outside your repository and that people may have based work on.",
-      "source": "https://git-scm.com/book/en/v2/Git-Branching-Rebasing"
+      "source": "https://git-scm.com/book/en/v2/Git-Branching-Rebasing",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "replay-vs-merge",
+      "claim": "Pro Git: a rebase replays the changes of one line of work in the order they were made, whereas a merge takes the two ends and merges them together.",
+      "source": "https://git-scm.com/book/en/v2/Git-Branching-Rebasing",
+      "accessed": "2026-10-30"
     },
     {
       "id": "shattered",
-      "claim": "On 23 February 2017, researchers at CWI Amsterdam and Google showed the first real collision for SHA-1: two different files with the same hash.",
-      "source": "https://shattered.io"
+      "claim": "Stevens, Bursztein, Karpman, Albertini and Markov (2017) made the first known SHA-1 collision: two different PDF files with the same hash.",
+      "source": "https://eprint.iacr.org/2017/190",
+      "accessed": "2026-10-30"
     },
     {
       "id": "sha256",
-      "claim": "Git’s hash-function transition plan: after SHAttered, Git moved to a hardened SHA-1 by default (v2.13.0), and in late 2018 picked SHA-256 as its successor.",
-      "source": "https://git-scm.com/docs/hash-function-transition"
+      "claim": "Git’s hash-function transition plan: after the 23 February 2017 SHA-1 collision, Git moved to a hardened SHA-1 by default (v2.13.0), and in late 2018 picked SHA-256 as its successor.",
+      "source": "https://git-scm.com/docs/hash-function-transition",
+      "accessed": "2026-10-30"
     },
     {
       "id": "sha1-default",
       "claim": "Git’s init docs, as checked in October 2026: a new repository can use sha1 or sha256, and sha1 is still the default.",
-      "source": "https://git-scm.com/docs/git-init"
+      "source": "https://git-scm.com/docs/git-init",
+      "accessed": "2026-10-30"
     }
   ]
 }
