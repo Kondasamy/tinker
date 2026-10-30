@@ -32,7 +32,8 @@ describe('the chapters’ reveals match the engine and the pins', () => {
     expect(ch2.P1.options[ch2.OUTCOME]).toBe('Last');
   });
   it('chapter 3: A costs about the stated times C; one cost notch tips the beam away from A', () => {
-    expect(ch3.TIMES).toBe(Math.round(pinned.per1000.A / pinned.per1000.C));
+    // from the unrounded prices: the pins round to the cent
+    expect(ch3.TIMES).toBe(Math.round(per1000(machineOf('A'), REPLY) / per1000(machineOf('C'), REPLY)));
     expect(ch3.P1.options[ch3.OUTCOME]).toBe(`About ${ch3.TIMES} times`);
     expect(ch4.P1.options[ch4.OUTCOME]).toBe(`After about ${ch4.WHOLE_A} s`);
     const slide = step(ch3.STEPS, 'slide'),

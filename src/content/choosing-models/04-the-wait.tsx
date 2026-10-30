@@ -118,7 +118,7 @@ export default function TheWait() {
         inference: () => (
           <p className="note">
             <a href="/inference/01-prefill-and-decode/">
-              Inference’s Prefill and decode shows where both waits come from.
+              Where both waits come from: chapter 1 of the module on serving models.
             </a>
           </p>
         ),

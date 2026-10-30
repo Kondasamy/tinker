@@ -20,7 +20,6 @@ const PENDING = new Set<string>([
   'ab-testing',
   'backups',
   'caching',
-  'choosing-models',
   'compression',
   'consistency',
   'databases',

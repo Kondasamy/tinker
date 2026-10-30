@@ -1,6 +1,7 @@
 // Chapter 7: the workbench (KTD8). A Select picks the team; the three poises set that team's weights. A team's machine
 // is the one that meets every need in workbench.json; the bench is solved when every team's beam tips to its machine.
-// The puzzle accepts every setting in WINNERS (pinned, recomputed in a test); Show me applies each team's first.
+// The puzzle accepts every setting in WINNERS (pinned, recomputed in a test); Show me applies each team's first. Cites
+// HELM's many measures, the real case for weighing more than one.
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
@@ -25,7 +26,7 @@ import {
   type Bench,
   type TeamId,
 } from '../../lib/choosing-models/workbench';
-import { MachinesNote, SteelyardStage, type View } from './kit';
+import { Fact, MachinesNote, SteelyardStage, type View } from './kit';
 
 const MODULE = 'choosing-models',
   ID = '07-workbench';
@@ -37,7 +38,7 @@ export const QUIZ = {
   options: [
     'What it needs: its quality bar on its own questions, its budget and its longest wait',
     'Which leaderboard it trusts most',
-    'How many parameters it wants',
+    'How big a model it wants',
   ],
   correct: 0,
   explanation: 'There is no best model, only the one that meets a team’s needs on its own questions.',
@@ -70,8 +71,9 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['bench', 'quiz'],
-    narration: 'Three teams, three different machines. The weights are each team’s needs, written down.',
+    visibleControls: ['bench', 'fact', 'quiz'],
+    narration:
+      'Three teams, three different machines. The weights are each team’s needs, written down. Real tests weigh many measures too.',
     act: 'One question to finish.',
     say: { block: 'pan', text: 'Its machine' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -164,6 +166,7 @@ export default function Workbench() {
         bench: ({ state, sync }) => (
           <Teams bench={benchOf(state.bench)} team={state.team} onTeam={team => sync({ ...state, team })} />
         ),
+        fact: () => <Fact id="many-measures" />,
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

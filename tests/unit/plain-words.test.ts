@@ -21,7 +21,6 @@ const live = MODULES.filter(m => m.chapters.length > 0);
 const PENDING = new Set<string>([
   'ab-testing',
   'caching',
-  'choosing-models',
   'compression',
   'dependencies',
   'email',

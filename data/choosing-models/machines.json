@@ -1,10 +1,10 @@
 {
-  "note": "Hand-set by Tinker, not measured: three made-up machines, A, B and C, with scores, prices and speeds chosen to show the lesson. No real model is ranked here.",
+  "note": "Hand-set by Tinker, not measured: three made-up machines, A, B and C, with scores, prices and speeds chosen to show the lesson; only output’s price over input’s follows a real price list. No real model is ranked here.",
   "machines": [
-    { "id": "A", "name": "Machine A", "version": "a-2026-05", "public": 88, "priceIn": 3, "priceOut": 15, "ttft": 0.9, "wps": 60 },
-    { "id": "B", "name": "Machine B", "version": "b-2026-04", "public": 84, "priceIn": 0.5, "priceOut": 2, "ttft": 0.4, "wps": 90 },
-    { "id": "C", "name": "Machine C", "version": "c-2026-06", "public": 76, "priceIn": 0.1, "priceOut": 0.4, "ttft": 0.2, "wps": 150 }
+    { "id": "A", "name": "Machine A", "version": "a-2026-05", "public": 88, "priceIn": 3, "ttft": 0.9, "wps": 60 },
+    { "id": "B", "name": "Machine B", "version": "b-2026-04", "public": 84, "priceIn": 0.5, "ttft": 0.4, "wps": 90 },
+    { "id": "C", "name": "Machine C", "version": "c-2026-06", "public": 76, "priceIn": 0.1, "ttft": 0.2, "wps": 150 }
   ],
   "next": { "of": "C", "version": "c-2026-11", "public": 79 },
-  "units": { "price": "US dollars per million tokens", "ttft": "seconds to the first word", "wps": "words per second once it starts" }
+  "units": { "price": "US dollars per million input tokens; output costs the real price list’s multiple of it (facts.json prices)", "ttft": "seconds to the first word", "wps": "words per second once it starts" }
 }
