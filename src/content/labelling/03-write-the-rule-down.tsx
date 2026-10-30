@@ -11,7 +11,7 @@ import { LABEL_PARTS } from '../../components/scenes/pigeonholeScene';
 import { GUIDELINE, INTENTS, POOL, labellerOf, ticketOf } from '../../lib/labelling/story';
 import pinned from '../../../data/labelling/pinned.json' with { type: 'json' };
 import { Outcome } from '../tool-calling/kit';
-import { PAIRS, RackStage, StandInNote, type View, picksOf, tallyOf } from './kit';
+import { Fact, PAIRS, RackStage, StandInNote, type View, picksOf, tallyOf } from './kit';
 
 const MODULE = 'labelling',
   ID = '03-write-the-rule-down';
@@ -85,7 +85,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['guide', 'quiz'],
-    narration: `Kappa for ${ROSA} and ${MIRA}: ${two(K.before)} before the rule, ${two(K.after)} after it.`,
+    narration: `${ROSA} and ${MIRA}’s kappa: ${two(K.before)} before the rule, ${two(K.after)} after. A real team’s rewrites helped, but not on every label.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Was the labeller careless, or was the case never written down?',
@@ -147,6 +147,7 @@ export default function WriteTheRuleDown() {
         ),
         quiz: ({ state, apply, sync }) => (
           <>
+            <Fact id="guideline-rounds" />
             <StandInNote />
             <Quiz
               {...QUIZ}

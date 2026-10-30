@@ -328,7 +328,7 @@ const NAMES = LABELLERS.map(l => l.name);
 /** Shown wherever the labels show (R6): the tickets and the people's labels are stand-ins. */
 export const StandInNote = () => (
   <p className="note lb-note">
-    {`Hand-written stand-in tickets, not real customers. ${NAMES.slice(0, -1).join(', ')} and ${NAMES.at(-1)}’s labels come from seeded labeller profiles, not real people.`}
+    {`Hand-written stand-in tickets, not real customers. ${NAMES.slice(0, -1).join(', ')} and ${NAMES.at(-1)}’s labels are simulated from each one’s set habits; they are not real people.`}
   </p>
 );
 

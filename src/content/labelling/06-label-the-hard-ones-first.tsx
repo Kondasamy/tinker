@@ -39,7 +39,7 @@ interface S {
 }
 
 export const P1 = {
-  question: `Labelling one ticket at a time, which order reaches ${pct(LS.bar)} on held-out tickets with fewer labels?`,
+  question: `Labelling one ticket at a time, which order needs fewer labels to score ${pct(LS.bar)} on test tickets?`,
   options: ['Least sure first', 'A random order', 'They need about the same'],
 };
 export const OUTCOME = LS.active < LS.random ? 0 : LS.active > LS.random ? 1 : 2;
@@ -157,8 +157,8 @@ export default function LabelTheHardOnesFirst() {
             {state.order && (
               <p className="lb-headline" role="status">
                 {state.order === 'least'
-                  ? `${LS.active} labels to reach ${pct(LS.bar)} on held-out tickets.`
-                  : `${LS.random} labels to reach ${pct(LS.bar)}: the median of ${LS.orders} seeded random orders.`}
+                  ? `${LS.active} labels to reach ${pct(LS.bar)} on tickets kept aside for testing.`
+                  : `${LS.random} labels to reach ${pct(LS.bar)}: the median of ${LS.orders} random orders.`}
               </p>
             )}
           </>
@@ -192,7 +192,7 @@ export default function LabelTheHardOnesFirst() {
         quiz: ({ state, apply, sync }) => (
           <>
             <p className="note lb-note">
-              {`Model labels recorded once on ${DATE}, at temperature 0, with the written guideline. Replies vary between runs, so the file is the record. The ${UNCHECKED.length}-ticket orders are Larkspur’s toy triage model, tested on ${pinned.triage.heldOut} held-out tickets.`}
+              {`Model labels recorded once on ${DATE}, at the model’s least random setting, with the written guideline. Replies vary between runs, so the file is the record. The ${UNCHECKED.length}-ticket orders are Larkspur’s toy triage model, tested on ${pinned.triage.heldOut} tickets kept aside for testing.`}
             </p>
             <p className="note lb-note">
               A model also grades answers in <a href="/evals/03-graders/">Evals</a>, and writes examples in{' '}

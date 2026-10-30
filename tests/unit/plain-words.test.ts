@@ -28,7 +28,6 @@ const PENDING = new Set<string>([
   'email',
   'fairness',
   'git',
-  'labelling',
   'load-balancing',
   'logins',
   'memorisation',

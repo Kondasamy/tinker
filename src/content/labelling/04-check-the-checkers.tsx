@@ -152,7 +152,7 @@ export default function CheckTheCheckers() {
         quiz: ({ state, apply, sync }) => (
           <>
             <p className="note lb-note">
-              {`Larkspur’s toy triage model counts words per intent, as a spam filter does, and is tested on ${heldOut} held-out tickets.`}
+              {`Larkspur’s toy triage model counts words per intent, as a spam filter does, and is tested on ${heldOut} tickets kept aside for testing.`}
             </p>
             <Fact id="test-set-errors" />
             <StandInNote />

@@ -22,7 +22,7 @@ import {
   share,
   wins,
 } from '../../lib/labelling/workbench';
-import { RackStage, StandInNote, pct } from './kit';
+import { Fact, RackStage, StandInNote, pct } from './kit';
 
 const MODULE = 'labelling',
   ID = '07-workbench';
@@ -60,7 +60,7 @@ export const STEPS: Step<S>[] = [
     id: 'bench',
     focus: 'bench',
     visibleControls: ['score', 'bench'],
-    narration: `Workbench bar: ${pct(BENCH.bar)} of the ${BEST.tickets} tickets right. Prices and bar are Larkspur’s planning numbers.`,
+    narration: `Workbench bar: ${pct(BENCH.bar)} of the ${BEST.tickets} tickets right. The bar and a person’s price are planning numbers.`,
     act: 'Find the cheapest setup that clears the bar.',
     say: { block: 'gold', text: 'Check first' },
     predicate: s => wins(s),
@@ -173,8 +173,9 @@ function Bench({ s, set }: { s: S; set: (s: S) => void }) {
         </tbody>
       </table>
       <p className="note lb-note">
-        {`Planning numbers, not measured: ${money(COSTS.person)} a person’s label, ${money(COSTS.model)} a model’s, and the ${pct(BENCH.bar)} bar. Model labels are the recorded run; where it has none, a simulated labeller stands in.`}
+        {`Planning numbers, not measured: ${money(COSTS.person)} a person’s label and the ${pct(BENCH.bar)} bar. A model’s label costs $${COSTS.model}, the price in the study below. Model labels are the recorded run; where it has none, a simulated labeller stands in.`}
       </p>
+      <Fact id="model-labellers" />
       <StandInNote />
     </div>
   );

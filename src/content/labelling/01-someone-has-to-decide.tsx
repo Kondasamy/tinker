@@ -11,7 +11,7 @@ import { LABEL_PARTS } from '../../components/scenes/pigeonholeScene';
 import { type Intent, labellerOf, nameOf, ticketOf } from '../../lib/labelling/story';
 import pinned from '../../../data/labelling/pinned.json' with { type: 'json' };
 import { Outcome } from '../tool-calling/kit';
-import { RackStage, SortTicket, StandInNote, picksOf } from './kit';
+import { Fact, RackStage, SortTicket, StandInNote, picksOf } from './kit';
 
 const MODULE = 'labelling',
   ID = '01-someone-has-to-decide';
@@ -73,7 +73,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['out1', 'sort', 'quiz'],
-    narration: `Three people, ${HOLES} holes. A label is a judgement, and these labels become the answer key Larkspur grades against.`,
+    narration: `Three people, ${HOLES} holes. A label is a judgement; real labellers split too. Labels become Larkspur’s answer key.`,
     act: 'One question to finish.',
     say: { block: 'mira', text: 'Another reading' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -119,6 +119,7 @@ export default function SomeoneHasToDecide() {
         ),
         quiz: ({ state, apply, sync }) => (
           <>
+            <Fact id="split-readings" />
             <StandInNote />
             <p className="note lb-note">
               In <a href="/evals/04-judge-the-judge/">Evals</a>, people’s labels are the answer key a grader is checked

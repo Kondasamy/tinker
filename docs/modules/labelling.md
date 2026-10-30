@@ -24,3 +24,20 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 | 5 Many votes | each ticket's three slips and the vote's lit hole; the minority-right ticket `t033` | yes: predict the vote, then file | `SortTicket` (the predicted vote) | `rack`, the hole of the pick |
 | 6 Label the hard ones first | the model machine joins the table; a least-sure ticket from `HARD`; its slip lands with the people's | no: the order chooser drives it | the order choice (least-sure or random) | `model`, `ticket` |
 | 7 Workbench | the setup drawn: who sits at the table, the model machine when a model labels, the gold tray's share | no: the workbench form | the workbench's controls | `gold`, `model` |
+
+## Toy vs real
+
+The tickets are hand-written stand-ins and the people's labels are simulated from set labeller habits (`StandInNote` on every chapter says so); model labels are one recorded run, never re-recorded for this. Every count below comes from those frozen labels (`pinned.json`), so each is labelled, with the cited fact on the same step as the real figure beside it. Only the model's price per label is matched.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 | Five holes (keys 1–5); three people pick 3 different holes for `t022` | `split-readings` (ratings split into two camps on 20% of 496 sentence pairs) | Labelled: the narration says real labellers split too |
+| 2 | Rosa–Mira agreement, luck share and kappa 0.68; Rosa–Tom kappa 0.39; the matrix counts | `kappa` (Cohen 1960, what kappa is) | Labelled |
+| 2 | 9 emails in 10, 90% agreement, 82% by luck (quiz) | none | Labelled: a hypothetical in the question |
+| 3 | 17 refund/return splits fall to 1; Rosa–Mira kappa 0.68 → 0.86 | `guideline-rounds` (kappa 0.51 → 0.79 on one label, flat on another) | Labelled: the narration says a real rewrite helped, but not on every label |
+| 4 | Gold tickets in the tray, the 80% gold bar, Tom's 60%; triage model 77% clean against 43% on Tom's labels, tested on 30 tickets | `test-set-errors` (at least 3.3% wrong labels across 10 test sets) | Labelled (the bar is a planning number) |
+| 5 | Rosa right on 94%, the vote on 96%; the outvoted ticket `t033` | `four-labels` (4 non-expert labels matched one expert's) | Labelled |
+| 6 | 80 unchecked tickets; least sure first 48 labels against 59.5, the median of 20 random orders, to reach 77%; the 20 hardest, all right for both models | `uncertainty-sampling`, `model-labellers` | Labelled: the word-counting triage model and the recorded model run are toys |
+| 7 | The 95% bar, $0.30 a person's label, setups' labels right, label counts and cost (`WINNERS` pinned, recomputed in a test) | `model-labellers` | Labelled: planning numbers in the copy and the note |
+| 7 | $0.003 a model's label | `model-labellers` (under US$0.003 a label, Gilardi et al. 2023) | Matched: `COSTS.model = Number(fact('model-labellers').value)` |
+| Intro, recall | The same pinned counts (pool size, five intents, Tom's 60%, 48 against 59.5) | as above | Labelled ("stand-in" and "simulated" in the note) |
