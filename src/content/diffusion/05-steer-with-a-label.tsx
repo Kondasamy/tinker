@@ -59,7 +59,7 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `${SEEDS.length} pictures from ${SEEDS.length} seeds. The label card asks for a drill; the guidance scale says how hard to push.`,
+    narration: `${SEEDS.length} pictures, each from different noise. The label card asks for a drill; the guidance scale says how hard to push.`,
     act: 'Predict first.',
     say: { block: 'label', text: 'Asks for a drill' },
     predicate: s => s.p1 !== null,
@@ -107,7 +107,7 @@ function Stage({ state, say }: { state: S; say?: Step<S>['say'] }) {
         return {
           print: { kind: 'pixels', px: x!, name: '' },
           pill: n.toUpperCase(),
-          words: `Seed ${SEEDS[i]}: ${printWords(x!)}${n === state.label ? '' : `, not a ${NAME[state.label]}`}`,
+          words: `Picture ${i + 1}: ${printWords(x!)}${n === state.label ? '' : `, not a ${NAME[state.label]}`}`,
         };
       })
     : undefined;

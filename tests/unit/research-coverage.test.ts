@@ -29,7 +29,6 @@ const PENDING = new Set<string>([
   'consistency',
   'databases',
   'dependencies',
-  'diffusion',
   'diffusion-llms',
   'email',
   'encryption',

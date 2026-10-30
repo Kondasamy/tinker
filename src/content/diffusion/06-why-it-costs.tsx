@@ -81,7 +81,7 @@ export const STEPS: Step<S>[] = [
     id: 'latent',
     focus: 'latent',
     visibleControls: ['size', 'latent', 'work'],
-    narration: `Latent diffusion shrinks the picture ${F} times each way, denoises that small copy, then decodes it once.`,
+    narration: `Latent diffusion shrinks the picture ${F} times each way, cleans that small copy, then turns it back to full size once.`,
     act: 'Switch latent on.',
     say: { block: 'tray', text: 'A small copy' },
     predicate: s => s.latent,

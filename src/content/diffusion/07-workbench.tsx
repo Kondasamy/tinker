@@ -26,7 +26,7 @@ import {
   type UseId,
 } from '../../lib/diffusion/workbench';
 import { DARKROOM_PARTS } from '../../components/scenes/darkroomScene';
-import { DiffusionStage, ToyNote, printWords, two, useJobs } from './kit';
+import { DiffusionStage, Fact, ToyNote, printWords, two, useJobs } from './kit';
 
 const MODULE = 'diffusion',
   ID = '07-workbench';
@@ -102,7 +102,7 @@ function Score({ s }: { s: S }) {
       {best && <p className="df-note">One of {WINNERS.length} that work.</p>}
       <table className="tc-ledger" style={{ marginTop: 10 }}>
         <caption>
-          Your plan, use by use ({LABELS.length} parts × {SEEDS.length} seeds each)
+          Your plan, use by use ({LABELS.length} parts × {SEEDS.length} starting noises each)
         </caption>
         <thead>
           <tr>
@@ -133,6 +133,11 @@ function Score({ s }: { s: S }) {
           })}
         </tbody>
       </table>
+      <p className="df-note">
+        Here a prediction is one run of a toy denoiser. Real tools make the same trade from one trained model: fewer
+        steps for a cheaper, rougher picture.
+      </p>
+      <Fact id="ddim" />
       <ToyNote />
     </div>
   );
@@ -163,7 +168,7 @@ function Stage({ state, say }: { state: S; say?: Step<S>['say'] }) {
               words: `Asked for a ${LABELS[i]}: ${printWords(x!)}`,
             }))
           : undefined,
-        stripLabel: `${use.label}: one seed, each part asked for`,
+        stripLabel: `${use.label}: one starting noise, each part asked for`,
         caption: `${use.label}: ${c.steps} steps at scale ${c.scale}, ${perPicture(c)} predictions a picture. Plan total: ${costOf(p)}.`,
         stamp: solved(p) ? 'APPROVED' : undefined,
       }}
