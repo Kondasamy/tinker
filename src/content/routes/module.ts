@@ -113,11 +113,14 @@ const CHAPTERS: Chapter[] = [
       learn: [
         'Plain Dijkstra looks at too much',
         'Shortcuts are worked out ahead of time',
-        'A query then climbs the shortcuts',
+        'A route question then uses the shortcuts',
       ],
       terms: [
         ['Shortcut', 'A made-up road between two junctions that stores the quickest minutes between them.'],
-        ['Contraction hierarchies', 'A method that adds shortcuts overnight, so a query skips minor junctions.'],
+        [
+          'Contraction hierarchies',
+          'A method that adds shortcuts ahead of time, so a route question skips minor junctions.',
+        ],
       ],
     },
   },

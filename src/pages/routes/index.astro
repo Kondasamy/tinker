@@ -45,7 +45,7 @@ const IDEAS: [string, string, ReturnType<typeof fact> | null, TableOpts][] = [
     pic({ settled: LEANING.settles.map(s => s.id), route: LEANING.roads, arrived: true }),
   ],
   [
-    'Traffic changes weights',
+    'Traffic changes the minutes',
     'A jam or a closure changes the roads; the search stays the same',
     fact('traffic'),
     pic({ closed: BRIDGES, noRoute: true }),
@@ -73,7 +73,7 @@ const FACTS: [string, string][] = [
           <p class="kicker">Module {NUMBER} · {MODULE.title}</p>
           <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>How a map app picks your route</h1>
-          <p class="lede">To the app, a town is junctions joined by roads, each with its minutes. Here you close roads in Larkspur’s toy town, step Dijkstra and A* across it, and jam the ring road to watch the van reroute.</p>
+          <p class="lede">To the app, a town is junctions joined by roads, each with its minutes. Here you close roads in Larkspur’s toy town, run Dijkstra and A* across it a step at a time, and jam the ring road to watch the van reroute.</p>
           <div class="ctas">
             <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
             <a class="btn" href="#path">See the chapters</a>

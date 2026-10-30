@@ -2,47 +2,69 @@
   "accessed": "2026-10-30",
   "facts": [
     {
-      "id": "dijkstra",
-      "claim": "Wikipedia says Edsger Dijkstra conceived his shortest-path algorithm in 1956, in about twenty minutes on a café terrace, and published it in 1959.",
+      "id": "graph",
+      "claim": "Dijkstra (1959) sets the problem as points, some pairs joined by a link of known length, and asks for the shortest path between two of them.",
       "value": "1959",
-      "source": "https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm"
+      "source": "https://doi.org/10.1007/BF01386390",
+      "accessed": "2026-10-30"
     },
     {
-      "id": "bfs",
-      "claim": "Wikipedia says breadth-first search can be seen as Dijkstra’s algorithm on a graph whose roads carry no weights.",
-      "source": "https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm"
+      "id": "dijkstra",
+      "claim": "Dijkstra (1959) adds points one at a time to the set whose shortest path from the start is known, in order of rising distance, until the goal joins it.",
+      "value": "1959",
+      "source": "https://doi.org/10.1007/BF01386390",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "osrm-cost",
+      "claim": "OSRM’s profile docs (checked 2026-10-30) say the shortest and the fastest route are usually different, because speeds differ by type of road, and the route engine prefers the roads that cost least.",
+      "source": "https://github.com/Project-OSRM/osrm-backend/blob/master/docs/profiles.md",
+      "accessed": "2026-10-30"
     },
     {
       "id": "astar",
-      "claim": "Wikipedia says Hart, Nilsson and Raphael published A* in 1968, and that with a guess that never overestimates, it returns a shortest path.",
+      "claim": "Hart, Nilsson and Raphael (1968) prove that A* finds a cheapest path whenever its guess never exceeds the true cost left, and suggest the straight-line distance for cities joined by roads.",
       "value": "1968",
-      "source": "https://en.wikipedia.org/wiki/A*_search_algorithm"
+      "source": "https://doi.org/10.1109/TSSC.1968.300136",
+      "accessed": "2026-10-30"
     },
     {
       "id": "weighted",
-      "claim": "Wikipedia says weighted A*, which multiplies the guess by a weight ε above 1, finds a path costing at most ε times the cheapest.",
-      "source": "https://en.wikipedia.org/wiki/A*_search_algorithm"
+      "claim": "Likhachev, Gordon and Thrun (2003) note that multiplying A*’s guess by a factor above 1 often looks at far fewer points, and the path found then costs at most that factor times the cheapest.",
+      "source": "https://papers.nips.cc/paper_files/paper/2003/hash/ee8fe9093fbbb687bef15a38facc44d2-Abstract.html",
+      "accessed": "2026-10-30"
     },
     {
       "id": "traffic",
-      "claim": "Google’s Maps blog (September 2020) says it combines historical traffic patterns with live conditions, and reroutes you around jams and incidents.",
-      "source": "https://blog.google/products/maps/google-maps-101-how-ai-helps-predict-traffic-and-determine-routes/"
+      "claim": "Google Maps’ route-planning docs (checked 2026-10-30) ignore current traffic by default, which replies fastest; asked to, the service takes current traffic into account.",
+      "source": "https://developers.google.com/maps/documentation/routes/config_trade_offs",
+      "accessed": "2026-10-30"
+    },
+    {
+      "id": "osrm-traffic",
+      "claim": "OSRM’s traffic docs (checked 2026-10-30) take traffic in as a file of new speeds for stretches of road, which updates those roads’ travel times.",
+      "source": "https://github.com/Project-OSRM/osrm-backend/wiki/Traffic",
+      "accessed": "2026-10-30"
     },
     {
       "id": "ch",
-      "claim": "Wikipedia says road networks have tens of millions of junctions, too many for plain Dijkstra; contraction hierarchies add shortcuts ahead of time, and queries take microseconds.",
-      "source": "https://en.wikipedia.org/wiki/Contraction_hierarchies"
+      "claim": "Geisberger and colleagues (2008) tested on a Western Europe road map of about 18 million junctions: about 10 minutes of work ahead of time, then each route question in about 0.2 milliseconds.",
+      "value": "18029721",
+      "source": "https://doi.org/10.1007/978-3-540-68552-4_24",
+      "accessed": "2026-10-30"
     },
     {
       "id": "ch-paper",
-      "claim": "Wikipedia cites Geisberger, Sanders, Schultes and Delling’s 2008 paper for contraction hierarchies.",
+      "claim": "Geisberger and colleagues (2008) remove junctions one at a time, least important first, adding a shortcut wherever a removed junction sat on the only quickest path between two others.",
       "value": "2008",
-      "source": "https://en.wikipedia.org/wiki/Contraction_hierarchies"
+      "source": "https://doi.org/10.1007/978-3-540-68552-4_24",
+      "accessed": "2026-10-30"
     },
     {
       "id": "osrm",
-      "claim": "The open-source OSRM route engine, run on OpenStreetMap data, offers two preprocessing pipelines: contraction hierarchies and multi-level Dijkstra.",
-      "source": "https://github.com/Project-OSRM/osrm-backend"
+      "claim": "OSRM, a route engine built to run on OpenStreetMap maps, offers two ways to prepare a map ahead of time in its README (checked 2026-10-30): contraction hierarchies and Multi-Level Dijkstra, which it recommends by default.",
+      "source": "https://github.com/Project-OSRM/osrm-backend",
+      "accessed": "2026-10-30"
     }
   ]
 }

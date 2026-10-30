@@ -132,7 +132,7 @@ export default function FewestRoadsOrMinutes() {
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />,
         quiz: ({ state, apply, sync }) => (
           <>
-            <Fact id="bfs" />
+            <Fact id="osrm-cost" />
             <TownNote />
             <Quiz
               {...QUIZ}

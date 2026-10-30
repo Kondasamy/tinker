@@ -92,7 +92,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'weight',
     focus: 'weight',
-    visibleControls: ['out1', 'weight', 'status'],
+    visibleControls: ['out1', 'fact', 'weight', 'status'],
     narration: `A* looked at ${A.looked}, for the same minutes: its guess never overestimates. A weight above 1 leans harder.`,
     act: `Raise the weight to ${HEAVY}.`,
     predicate: s => s.algo === 'astar' && weightOf(s.weight) >= HEAVY,
@@ -101,7 +101,7 @@ export const STEPS: Step<S>[] = [
     id: 'quiz',
     focus: 'quiz',
     visibleControls: ['weight', 'status', 'quiz'],
-    narration: `At ${HEAVY}: ${W2.looked} junctions, but ${W2.minutes} minutes, not ${D.minutes}. Leaning harder trades minutes for speed.`,
+    narration: `At ${HEAVY}: ${W2.looked} junctions, but ${W2.minutes} minutes, not ${D.minutes}, within the ${HEAVY}× limit. Leaning harder trades minutes for speed.`,
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which setting looks at less, and accepts a slightly longer path?',
@@ -163,6 +163,12 @@ export default function AStar() {
             </Status>
           );
         },
+        fact: () => (
+          <>
+            <Fact id="astar" />
+            <TownNote />
+          </>
+        ),
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />,
         quiz: ({ state, apply, sync }) => (
