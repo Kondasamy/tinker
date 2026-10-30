@@ -55,7 +55,7 @@ export const QUIZ = {
     'A person at the supplier to approve the sale',
   ],
   correct: 0,
-  explanation: 'Input-required pauses the task until the client agent answers the question it asked.',
+  explanation: 'Input-required pauses the task until the agent that sent it answers the question it asked.',
   why: [
     'Right: the task asked something back, and it moves again only when the sender answers.',
     'Stock is the supplier’s own business; the paused state is about a question to the sender.',

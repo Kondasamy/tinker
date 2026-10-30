@@ -39,7 +39,7 @@ const CHAPTERS: Chapter[] = [
           'Agent card',
           'A small public file at a fixed address on a domain: the agent’s name, address, version and skills (A2A).',
         ],
-        ['Catalogue', 'The shop’s items as data: one row each, with a sku, name, category, price and currency.'],
+        ['Catalogue', 'The shop’s items as data: one row each, with an item code, name, category, price and currency.'],
       ],
     },
   },

@@ -31,3 +31,21 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 
 - **Signing happens in the page, on purpose** (KTD7): Sign signs the slip live with Dana's demo ECDSA key (`data/agent-commerce/`, labelled demo), a deliberate departure from Locks and keys' rule that demo keys sign only in tests. ECDSA signatures are randomised, so tests pin verdicts, never signature bytes. The buying agent carries the signed slip, never the key; the shop's checks (signature, merchant, cap, expiry, items, nonce) run live and decide every outcome, never a recorded turn.
 - **Home and share images:** the home card and the intro are the shop-around slip refused at Quarrylane's counter; the hero plot is `hatchPlot`.
+
+## Toy vs real
+
+The shop, its sellers, prices, caps and orders are hand-written (`HandNote`); the agent's turns are one recorded run (`RecordedNote`) or the simulated fooled agent; the checks, signatures and token rules run live. The protocols set shapes, not amounts, so only the card's address and the task's states are matched; every price and cap stays hand-set and labelled, with a real fact on the same step.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 | The page's prices; the three totals in the prediction (catalogue, first price on the line, stainless) | none | Labelled: hand-written shop |
+| 1 | "3 of 3 right" (recorded turns) | `webarena` (best GPT-4 agent 14.41% of real web tasks, people 78.24%) | Labelled: one recorded run on one hand-written page; the narration says agents mostly fail on real sites |
+| 2 | The card's address `/.well-known/agent-card.json` | `a2a-card` | Matched: `CARD_PATH = fact('a2a-card').value` |
+| 2 | The card's version; the catalogue's prices | `a2a-card` | Labelled: hand-written card and catalogue |
+| 3 | The task's states and their counts (vague 5, clear 3) | `a2a-states` | Matched: `STATES = JSON.parse(fact('a2a-states').value)`; counts come from the recorded seller turns |
+| 4 | The $600 cap, its doubled $1,200, six checks, the signature's first 32 characters | `ap2-mandates`, `ap2-v02` (AP2 signs a checkout mandate and a payment mandate) | Labelled: hand-set terms; the note says the slip folds AP2's two mandates into one |
+| 5 | The shop-around slip's $600 cap, Quarry Lane's offer and its claimed limit | `indirect-injection`, `ap2-injection` (simple prompts reliably subverted a real AP2 agent) | Labelled: hand-written sellers; the fooled agent is simulated |
+| 6 | The token's amount, one box's price, the $600 cap | `acp-spt`, `acp-allowance` (one use, up to a maximum amount, one checkout, one merchant) | Labelled: the note says the toy takes only its exact amount, a real allowance anything up to its maximum, once |
+| 7 | Caps ($500, $600, $1,500), 1/7/30 days, the $600 confirm threshold, 12 of 12 right, 0 asks (pinned, `WINNERS` recomputed) | `ap2-modes` (person present approves each checkout; person away signs limits that should expire as soon as the task allows) | Labelled: hand-set bench; the note maps "ask every order" and "never ask" to AP2's two modes |
+| Intro | 6 checks, 6 sellers, 6 catalogue items; the A2A version | `a2a-version` | Real (version, from the fact); the counts are the module's own hand-written data |
+| Recall | "about one task in seven" | `webarena` | Real, rounded from 14.41% |

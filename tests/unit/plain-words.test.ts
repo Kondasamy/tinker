@@ -20,7 +20,6 @@ const live = MODULES.filter(m => m.chapters.length > 0);
 /** modules still being rewritten (KTD8): each must fail until its wave lands, then leave this list */
 const PENDING = new Set<string>([
   'ab-testing',
-  'agent-commerce',
   'caching',
   'choosing-models',
   'compression',

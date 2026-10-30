@@ -150,7 +150,14 @@ export default function WhoSaidItCouldBuy() {
           ),
         p1: ({ state, apply }) => <Predict {...P1} value={state.p1} onPredict={i => apply({ ...state, p1: i })} />,
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={OUTCOME} />,
-        fact: () => <Fact id="ap2-v02" />,
+        fact: () => (
+          <>
+            <Fact id="ap2-v02" />
+            <p className="note">
+              This slip folds both into one: the limits {DANA} signs up front, checked by the shop.
+            </p>
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

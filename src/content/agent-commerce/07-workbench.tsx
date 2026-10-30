@@ -30,7 +30,7 @@ import {
   wins,
 } from '../../lib/agent-commerce/workbench';
 import { OFFER_TURNS } from '../../lib/agent-commerce/turns';
-import { HandNote, HatchStage, hoursWords, itemsWords, RecordedNote } from './kit';
+import { Fact, HandNote, HatchStage, hoursWords, itemsWords, RecordedNote } from './kit';
 
 const MODULE = 'agent-commerce',
   ID = '07-workbench';
@@ -89,7 +89,7 @@ export const STEPS: Step<S>[] = [
   {
     id: 'ties',
     focus: 'quiz',
-    visibleControls: ['score', 'bench', 'table', 'quiz'],
+    visibleControls: ['score', 'bench', 'table', 'fact', 'quiz'],
     narration: `${BEST.right} of ${ALL} right, ${BEST.asked} asks: the slip stops every bad order whichever agent carries it.`,
     act: 'One question to finish.',
     say: { block: 'seller', text: 'Checked' },
@@ -264,6 +264,12 @@ export default function Workbench() {
         // changing the setup is an attempt only while it is the puzzle
         bench: ({ state, apply, sync, focused }) => <BenchForm s={state} set={focused ? apply : sync} />,
         table: ({ state }) => <Table s={state} />,
+        fact: () => (
+          <>
+            <Fact id="ap2-modes" />
+            <p className="note">{`Asking ${FIRST} before every order is AP2’s person-present mode; a slip with no asks is its person-away mode.`}</p>
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}
