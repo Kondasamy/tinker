@@ -102,7 +102,7 @@ export const STEPS: Step<S>[] = [
     focus: 'quiz',
     visibleControls: ['facts', 'quiz'],
     narration:
-      'It read the failing name, dropped its own drive-by, and ran again: green. The tests were its only judge.',
+      'It read the failing test, dropped its drive-by, ran again: green. Tests were its only judge, and tests can be wrong.',
     act: 'One question to finish.',
     say: { block: 'lamps', text: 'Green' },
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
@@ -163,6 +163,7 @@ export default function RedToGreen() {
         facts: () => (
           <>
             <Fact id="verified" />
+            <Fact id="verified-flaws" />
             <RecordedNote />
           </>
         ),

@@ -9,7 +9,7 @@ import { Outcome } from '../tool-calling/kit';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { DESK_PARTS } from '../../components/scenes/deskScene';
-import { beatsOf, CaStage, nthBeat, play, RecordedNote, RunAll, StepThrough, type CaView } from './kit';
+import { beatsOf, CaStage, Fact, nthBeat, play, RecordedNote, RunAll, StepThrough, type CaView } from './kit';
 
 const MODULE = 'coding-agents',
   ID = '02-finding-the-file';
@@ -135,7 +135,12 @@ export default function FindingTheFile() {
           </>
         ),
         out1: ({ state }) => <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />,
-        facts: () => <RecordedNote />,
+        facts: () => (
+          <>
+            <Fact id="search-tool" />
+            <RecordedNote />
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

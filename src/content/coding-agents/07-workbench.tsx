@@ -10,7 +10,7 @@ import { UNSURE } from '../../lib/recall';
 import { metrics, ticketOf, type Policy } from '../../lib/coding-agents/loop';
 import { isWinner, policyOf, WINNERS } from '../../lib/coding-agents/workbench';
 import { DESK_PARTS } from '../../components/scenes/deskScene';
-import { beatsOf, CaStage, RecordedNote, type CaView } from './kit';
+import { beatsOf, CaStage, Fact, RecordedNote, type CaView } from './kit';
 
 const MODULE = 'coding-agents',
   ID = '07-workbench';
@@ -62,8 +62,9 @@ export const STEPS: Step<S>[] = [
   {
     id: 'quiz',
     focus: 'quiz',
-    visibleControls: ['score', 'policy', 'quiz'],
-    narration: 'Every rule lives in the host, not in the agent. A person is asked only when it counts.',
+    visibleControls: ['score', 'policy', 'facts', 'quiz'],
+    narration:
+      'Every rule lives in the host, not the agent. Ask rarely: real people stop reading prompts they see often.',
     act: 'One question to finish.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which fixes held whatever the agent decided?',
@@ -159,6 +160,7 @@ export default function Workbench() {
             </div>
           );
         },
+        facts: () => <Fact id="approvals" />,
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

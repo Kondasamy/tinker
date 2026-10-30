@@ -41,27 +41,33 @@ const HERO = deskCard(1.2);
 const CHEAT = ticketOf('cheat');
 const OPEN = play({ case: 'cheat' }),
   GUARDED = play({ case: 'cheat', protect: true });
-const own = (r: Run) => runTests(r.code).filter(t => t.pass).length;
+const own = (r: Run) => runTests(r.code).filter(t => t.pass).length,
+  ALL = runTests('000').length;
 const SIDES = [
   {
     name: 'Tests open to edits',
     ok: false,
     pic: end(OPEN),
-    words: `All lamps green, on a loosened test. Larkspur’s own checks: ${own(OPEN)} of 4 pass.`,
+    words: `All lamps green, on a loosened test. Larkspur’s own checks: ${own(OPEN)} of ${ALL} pass.`,
   },
   {
     name: 'Test files protected',
     ok: true,
     pic: end(GUARDED),
-    words: `The edit to the test was refused, so it fixed the code. Larkspur’s own checks: ${own(GUARDED)} of 4 pass.`,
+    words: `The edit to the test was refused, so it fixed the code. Larkspur’s own checks: ${own(GUARDED)} of ${ALL} pass.`,
   },
 ];
 const BULK = play({ case: 'bulk' });
 type Idea = [string, string, ReturnType<typeof fact> | null, DeskOpts];
 const IDEAS: Idea[] = [
   ['Read, edit, run', 'An action, its result, the next action', fact('swe-bench'), scene(deskAt(BULK, 2))],
-  ['Finding the file', 'Search first; every read costs tokens', null, scene(deskAt(BULK, 1))],
-  ['A patch, in hunks', 'Keep the fix, drop the drive-by', null, scene(deskAt(play({ case: 'bulk', review: 3 }), 3))],
+  ['Finding the file', 'Search first: every file opened must be read', fact('search-tool'), scene(deskAt(BULK, 1))],
+  [
+    'A patch, in pieces',
+    'Keep the fix, drop the extra change',
+    fact('patch-vs-file'),
+    scene(deskAt(play({ case: 'bulk', review: 3 }), 3)),
+  ],
   ['Red to green', 'A failing test names what broke', fact('verified'), scene(deskAt(BULK, nthBeat(BULK, 'run')))],
   ['Green by cheating', 'Done means what the tests check', fact('reward-hacking'), end(OPEN)],
   [
@@ -75,9 +81,9 @@ const best = metrics(WINNERS[0]);
 const FACTS: [string, string][] = [
   [
     `${play({ case: 'bulk', search: false }).tokens} → ${BULK.tokens}`,
-    'tokens read for the same fix, without and with search',
+    'tokens (about four bytes of code each) read for the same fix, without and with search',
   ],
-  [String(runTests('000').length), 'real tests, run live on every version'],
+  [String(ALL), 'real tests, run live on every version'],
   [`${fact('swe-bench').value}%`, 'of SWE-bench issues the best model solved in 2023'],
   [String(best.prompts), 'question to a person under the workbench’s best rules'],
 ];
@@ -97,7 +103,7 @@ const FACTS: [string, string][] = [
           <p class="kicker">Module {N} · Coding agents</p>
           <p class="module-meta"><span class="level">{MODULE.level}</span></p>
           <h1>How does an AI agent fix a bug in your code?</h1>
-          <p class="lede">It searches, reads, edits and runs the tests, one turn at a time. Here you review its patch hunk by hunk, watch the tests judge it, and catch it cheating.</p>
+          <p class="lede">It searches, reads, edits and runs the tests, one turn at a time. Here you review its change piece by piece, watch the tests judge it, and catch it cheating.</p>
           <div class="ctas">
             <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
             <a class="btn" href="#path">See the chapters</a>
@@ -123,7 +129,7 @@ const FACTS: [string, string][] = [
             </article>
           ))}
         </div>
-        <p class="note more">The agent’s turns were written for this site to show each lesson; they were not recorded from a real model. The code, every version of it and the tests are real, and run live.</p>
+        <p class="note more">The agent’s turns were written for this site to show each lesson; they were not recorded from a real model. The code, every version of it and the tests are real, and run live, on a toy repository far smaller than a real one.</p>
       </section>
 
       <section aria-labelledby="how">
@@ -147,8 +153,8 @@ const FACTS: [string, string][] = [
         <div>
           <p class="kicker">The story</p>
           <h2 id="story">Larkspur’s pricing code, and three tickets</h2>
-          <p class="more">{MODULE.story} <strong>You review its patches and set the rules its host follows.</strong></p>
-          <p class="prev"><a href="/agents/">AI agents</a> showed the loop with tools; <a href="/post-training/">Post-training</a> showed a model learning to game its grader. Here the grader is the test suite. The workbench’s best rules are one of {WINNERS.length}.</p>
+          <p class="more">{MODULE.story} <strong>You review its changes and set the rules for the program that carries out its actions.</strong></p>
+          <p class="prev"><a href="/agents/">AI agents</a> showed the loop with tools; <a href="/post-training/">Post-training</a> showed a model learning to game its grader. Here the tests do the grading. The workbench’s best rules are one of {WINNERS.length}.</p>
         </div>
         <dl class="facts">
           {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}

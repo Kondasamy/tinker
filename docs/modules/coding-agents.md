@@ -20,8 +20,26 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 
 ## Facts
 
-From `data/coding-agents/facts.json` (accessed 2026-10-25), each with its source:
+From `data/coding-agents/facts.json`, every fact re-checked against its source on 2026-10-30:
 
-- **SWE-bench** (Jimenez et al., 2023: 2,294 issues, 12 repositories, 1.96% then) and **METR's reward-hacking report** (June 2025) were checked against their pages; **Claude Code's permission rules** (deny, ask, allow, in that order) against its docs.
-- **SWE-bench Verified** (August 2024, 500 screened tasks) was confirmed from search results; the OpenAI page itself was not read directly.
-- **The Verified leaderboard figure** (97.0%) is third-party (Steel's board, updated 11 October 2026), quoted as dated and attributed, with the note that boards disagree on the leader. Re-check it whenever the module changes.
+- **SWE-bench** (Jimenez et al., 2023: 2,294 issues, 12 repositories, 1.96% then) and its **patch vs whole file** result (Claude 2: 4.8% writing patches, 2.2% rewriting whole files) from the arXiv paper; **SWE-agent's search ablation** (Yang et al., 2024: 18.0% with a search that lists every matching file, 15.7% with none, 12.0% paging one match at a time) from its arXiv paper.
+- **SWE-bench Verified** (August 2024, 500 screened tasks) and **OpenAI's February 2026 audit** (at least 59.4% of 138 hard tasks had tests that reject correct fixes; OpenAI stopped reporting it) were read from openai.com through the Internet Archive, since openai.com refuses scripted fetches. The audit doesn't contradict chapter 4: it is where the toy stops matching (the toy's tests are right; real ones can be wrong).
+- **The Verified leaderboard figure** is now the official board (swebench.com: 79.2%, checked 2026-10-30), replacing a third-party board's 97.0%. Re-check it whenever the module changes.
+- **METR's reward-hacking report** (June 2025), **Claude Code's permission rules** (deny, ask, allow, in that order) from its docs, and **Anthropic's approval rate** (users accept 93% of permission prompts, March 2026, Anthropic's own usage data).
+- The host's tiers differ from Claude Code's on purpose: the toy takes a command's longest matching prefix, Claude Code checks deny before ask before allow whatever the specificity. Larkspur's tiers never overlap, so both give the same answers here.
+
+## Toy vs real
+
+The repository is a toy (six small files, one of them a test file with four checks) and the agent's turns are written, not recorded (KTD12): `RecordedNote` says both wherever the turns show. Every count below is computed live from that toy, so it is labelled, not matched; nothing in it can be read off a real figure without changing what the chapter shows.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+| --- | --- | --- | --- |
+| 1 | 5 actions to fix the ticket | `swe-bench` (2,294 issues, 1.96% in 2023) | Labelled (written turns) |
+| 2 | 4 files read, 541 → 264 tokens with search | `search-tool` (18.0% vs 15.7% vs 12.0%) | Labelled (toy repository) |
+| 2 | about four bytes a token | OpenAI tokenizer rule of thumb (`BYTES_PER_TOKEN`, `src/lib/scale.ts`) | Real |
+| 3 | 3 hunks; 50 items counts as bulk; 4 of 4 tests pass | `patch-vs-file` (4.8% vs 2.2%) | Labelled (toy repository) |
+| 4 | 3 hunks; 1 of 4 fails | `verified` (500 tasks), `verified-flaws` (59.4%) | Labelled; the copy says real tests can be wrong |
+| 5 | 2 red tests; 50-item threshold; 5 pm release | `reward-hacking` | Labelled (written ticket and turns) |
+| 6 | 3 tiers | `permissions` (deny, ask, allow) | Real (the same three kinds) |
+| 7 | 3 tickets; 1 question to a person at best; winners count | `approvals` (93% of prompts accepted) | Labelled; the copy says people stop reading prompts they see often |
+| Intro | 541 → 264 tokens; 4 tests; 1.96%; 1 question; 79.2% | `swe-bench`, `verified-now` | Toy counts labelled; percentages real |

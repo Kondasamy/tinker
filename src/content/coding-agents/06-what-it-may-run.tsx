@@ -26,7 +26,11 @@ export const endOf = (allow: boolean, ask: boolean) => beatsOf(runOf(allow, ask)
 
 export const P1 = {
   question: 'With no rules, what happens to the force push?',
-  options: ['The host runs it, and main is overwritten', 'The host asks someone first', 'Git refuses it by itself'],
+  options: [
+    'The host runs it, and the shared branch is overwritten',
+    'The host asks someone first',
+    'Git refuses it by itself',
+  ],
 };
 export const outcomeOf = () => (push.outcome === 'ok' ? 0 : 1);
 
@@ -61,7 +65,7 @@ export const STEPS: Step<S>[] = [
     id: 'predict',
     focus: 'p1',
     visibleControls: ['p1'],
-    narration: `Green. Now the agent asks the host to run a force push to main: ${FORCE}.`,
+    narration: `Green. The agent asks the host to force push over main, the shared branch: ${FORCE}.`,
     act: 'Predict what happens with no rules.',
     say: { block: 'terminal', text: 'Force push' },
     predicate: s => s.p1 !== null,
@@ -79,7 +83,8 @@ export const STEPS: Step<S>[] = [
     id: 'allow',
     focus: 'rules',
     visibleControls: ['out1', 'rules'],
-    narration: 'Main was overwritten. An allow-list runs safe commands alone, and the host refuses its never list.',
+    narration:
+      'The shared branch was overwritten. An allow-list runs safe commands alone, and the host refuses its never list.',
     act: 'Turn on the allow-list, then run it.',
     say: { block: 'terminal', text: 'Refused' },
     predicate: s => s.allow && !s.ask && s.at >= endOf(true, false),

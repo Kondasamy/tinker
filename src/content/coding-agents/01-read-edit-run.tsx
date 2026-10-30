@@ -71,7 +71,7 @@ export const STEPS: Step<S>[] = [
     id: 'loop',
     focus: 'step',
     visibleControls: ['out1', 'step'],
-    narration: 'It searched the repository and read the top hit. Next it edits the code and runs the tests.',
+    narration: 'It searched the repository and read the best match. Next it edits the code and runs the tests.',
     act: 'Step to the end of the run.',
     say: { block: 'lamps', text: 'Red, then green' },
     predicate: s => s.at >= TOTAL,
