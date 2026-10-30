@@ -907,6 +907,18 @@ describe('module registry', () => {
     expect(live.indexOf('unicode')).toBeGreaterThan(live.indexOf('parallel-training'));
   });
 
+  it('has backups as a live Beginner Classic tech module that recommends Databases, after parallel-training', () => {
+    expect(moduleOf('backups')).toMatchObject({
+      title: 'Backups and recovery',
+      level: 'Beginner',
+      track: 'Classic tech',
+      status: 'live',
+      prereqs: ['databases'],
+    });
+    expect(moduleOf('backups').author).toEqual(moduleOf('rag').author);
+    expect(MODULES.filter(m => m.status === 'live').findIndex(m => m.id === 'backups')).toBe(55);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

@@ -62,6 +62,7 @@ const NUMBERED = [
   'choosing-models',
   'rate-limits',
   'unicode',
+  'backups',
 ];
 
 // AI modules lead the catalogue; classic tech follows in its own section of compact cards

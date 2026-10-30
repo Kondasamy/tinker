@@ -54,6 +54,7 @@ import { PARALLEL_TRAINING_MODULE } from '../content/parallel-training/module';
 import { CHOOSING_MODELS_MODULE } from '../content/choosing-models/module';
 import { RATE_LIMITS_MODULE } from '../content/rate-limits/module';
 import { UNICODE_MODULE } from '../content/unicode/module';
+import { BACKUPS_MODULE } from '../content/backups/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -167,6 +168,7 @@ export const MODULES: Module[] = [
   CHOOSING_MODELS_MODULE,
   RATE_LIMITS_MODULE,
   UNICODE_MODULE,
+  BACKUPS_MODULE,
   planned(
     'on-device',
     'Models on your device',
@@ -178,13 +180,6 @@ export const MODULES: Module[] = [
     'Robots that act',
     'Advanced',
     'From camera frames to motor commands, and why a robot learns by watching people do the task.',
-  ),
-  planned(
-    'backups',
-    'Backups and recovery',
-    'Beginner',
-    'Copies that save you on a bad day: how often to copy, testing the restore, and how much you can lose.',
-    'Classic tech',
   ),
   planned(
     'routes',

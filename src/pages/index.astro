@@ -106,6 +106,7 @@ import { runOf as lbRun } from '../lib/load-balancing/sim';
 import { RULE_NAME as LB_RULE_NAME } from '../lib/load-balancing/rules';
 import { WINNERS as LB_WINNERS, benchPolicy as lbBench } from '../lib/load-balancing/workbench';
 import { PAINT_BOARD, PAINT_CARD, paintLabel, paintScene } from '../components/scenes/paintScene';
+import { SAFE_BOARD, safeCard, safeLabel, safeScene } from '../components/scenes/safeScene';
 import { NAMES as PAINT_NAMES } from '../content/encryption/kit';
 import { DESK_BOARD, deskCard, deskLabel, deskScene } from '../components/scenes/deskScene';
 import { COPIER_BOARD, copierCard, copierLabel, copierScene } from '../components/scenes/copierScene';
@@ -338,6 +339,8 @@ const TYPE: FrameOpts = {
 };
 // queues: Rosa knocked over mid-job, her ticket held on the bench until the lease runs out
 const RAIL = railCard(1.7);
+// backups: ransomware padlocks the server room and the warehouse; the courier's lockbox restores
+const SAFE = safeCard(1.7);
 // compression: the price list's byte piles, its parcel packed by pointers and short codes
 const czPrice = czFile('price').bytes;
 const PILES = { ...pileAt(czPrice, czSize('pair', czPrice, 'price')), scale: 1.7 };
@@ -1110,6 +1113,21 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
     name: 'Text and Unicode',
     iso: { board: TAPE_BOARD, scene: tapeScene(TAPE), label: tapeLabel(TAPE) },
     topics: ['ASCII', 'Code points', 'UTF-8', 'Mojibake', 'Emoji & graphemes', 'Normalisation', 'Lookalike letters'],
+  },
+  backups: {
+    name: 'Backups and recovery',
+    iso: { board: SAFE_BOARD, scene: safeScene(SAFE), label: safeLabel(SAFE) },
+    topics: [
+      'Backups',
+      'Restore',
+      'RPO',
+      'RTO',
+      'Incremental copies',
+      '3-2-1 rule',
+      'Off-site copies',
+      'Ransomware',
+      'Test restores',
+    ],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];

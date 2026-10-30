@@ -250,6 +250,9 @@ import {
   runOf as quRun,
 } from '../lib/queues/sim';
 import { WINNERS as QU_WINNERS, benchRun as quBench } from '../lib/queues/workbench';
+import { SAFE_BOARD, safeAt, safeCard, safeScene, type SafeOpts } from '../components/scenes/safeScene';
+import { SCENES as BK_SCENES, STRIKES as BK_STRIKES, weekOf as bkWeek } from '../lib/backups/sim';
+import { WINNERS as BK_WINNERS, weekFor as bkBench } from '../lib/backups/workbench';
 import { PILE_BOARD, pileAt, pileScene, pilesOf, type PileOpts } from '../components/scenes/pileScene';
 import { forestOf as czForestOf, forestTable as czForestTable } from '../content/compression/kit';
 import { FITS as CZ_FITS } from '../content/compression/06-throwing-some-away';
@@ -1359,6 +1362,21 @@ const RAIL_OG: Record<string, () => Omit<RailOpts, 'scale'>> = {
   'queues-07-sale-day': () => railAt(quBench(QU_WINNERS[0]), 30),
 };
 const railOg = RAIL_OG[page.og]?.();
+// backups: the server room. The intro and 5: ransomware padlocks the room and the warehouse, the lockbox restores;
+// 1: no copy, the dead disk; 2: Thursday's dead disk under six-hourly tapes; 3: the broken chain; 4: fire, restored from
+// the warehouse; 6: the tested week's Friday restore; 7: the winning plan's fire.
+const bkW = (k: keyof typeof BK_SCENES) => bkWeek(BK_SCENES[k]);
+const SAFE_OG: Record<string, () => Omit<SafeOpts, 'scale'>> = {
+  backups: () => safeCard(),
+  'backups-01-one-copy-is-no-copy': () => safeAt(bkW('none'), 0, BK_STRIKES.wed),
+  'backups-02-how-often': () => safeAt(bkW('six'), 0, BK_STRIKES.thu),
+  'backups-03-full-and-since-last': () => safeAt(bkW('broken'), 0, BK_STRIKES.tue),
+  'backups-04-not-in-the-same-building': () => safeAt(bkW('offsite'), 0, BK_STRIKES.fire),
+  'backups-05-ransomware': () => safeCard(),
+  'backups-06-test-the-restore': () => safeAt(bkW('tested'), 0, BK_STRIKES.fri),
+  'backups-07-workbench': () => safeAt(bkBench(BK_WINNERS[0]), 0, BK_STRIKES.fire),
+};
+const safeOg = SAFE_OG[page.og]?.();
 // module 34: the sorting table. The intro and 4: the price list's piles, packed by pointers and short codes; 1: its
 // piles raw; 2: its parcel packed by pointers; 3: the merge puzzle's letter piles; 5: the random file packed, grown; 6: the
 // picture at the first setting that fits; 7: tonight's send on the first winning plan.
@@ -2064,6 +2082,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : yardOg ? <IsoStage board={YARD_BOARD} scene={yardScene({ ...yardOg, scale: 1.3 })} label="" />
           : pileOg ? <IsoStage board={PILE_BOARD} scene={pileScene({ ...pileOg, scale: 1.4 })} label="" />
           : railOg ? <IsoStage board={RAIL_BOARD} scene={railScene({ ...railOg, scale: 1.4 })} label="" />
+          : safeOg ? <IsoStage board={SAFE_BOARD} scene={safeScene({ ...safeOg, scale: 1.4 })} label="" />
           : frameOg ? <IsoStage board={FRAME_BOARD} scene={typeFrameScene({ ...frameOg, scale: 1.3 })} label="" />
           : darkOg ? <IsoStage board={DARK_BOARD} scene={darkroomScene({ ...darkOg, scale: 1.3 })} label="" />
           : crateOg ? <IsoStage board={gtBoardOf(crateOg)} scene={crateScene({ ...crateOg, scale: 1.4 })} label="" />

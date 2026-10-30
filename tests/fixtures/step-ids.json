@@ -2515,5 +2515,51 @@
       "bench",
       "quiz"
     ]
+  },
+  "backups": {
+    "01-one-copy-is-no-copy": [
+      "week",
+      "predict",
+      "strike",
+      "nightly",
+      "quiz"
+    ],
+    "02-how-often": [
+      "strike",
+      "predict",
+      "six",
+      "rpo",
+      "quiz"
+    ],
+    "03-full-and-since-last": [
+      "smaller",
+      "predict",
+      "break",
+      "chain",
+      "quiz"
+    ],
+    "04-not-in-the-same-building": [
+      "predict",
+      "fire",
+      "offsite",
+      "quiz"
+    ],
+    "05-ransomware": [
+      "predict",
+      "strike",
+      "lockbox",
+      "quiz"
+    ],
+    "06-test-the-restore": [
+      "predict",
+      "strike",
+      "test",
+      "rto",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "cheap"
+    ]
   }
 }
