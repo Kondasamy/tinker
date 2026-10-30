@@ -57,6 +57,7 @@ import { UNICODE_MODULE } from '../content/unicode/module';
 import { BACKUPS_MODULE } from '../content/backups/module';
 import { ON_DEVICE_MODULE } from '../content/on-device/module';
 import { ROUTES_MODULE } from '../content/routes/module';
+import { ROBOTS_MODULE } from '../content/robots/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -173,12 +174,7 @@ export const MODULES: Module[] = [
   BACKUPS_MODULE,
   ON_DEVICE_MODULE,
   ROUTES_MODULE,
-  planned(
-    'robots',
-    'Robots that act',
-    'Advanced',
-    'From camera frames to motor commands, and why a robot learns by watching people do the task.',
-  ),
+  ROBOTS_MODULE,
   planned(
     'translation',
     'Machine translation',

@@ -944,6 +944,19 @@ describe('module registry', () => {
     expect(live.indexOf('routes')).toBeGreaterThan(live.indexOf('parallel-training'));
   });
 
+  it('has robots as a live Advanced module after parallel-training', () => {
+    expect(moduleOf('robots')).toMatchObject({
+      title: 'Robots that act',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['multimodal'],
+    });
+    expect(moduleOf('robots').track).toBeUndefined();
+    expect(moduleOf('robots').author).toEqual(moduleOf('rag').author);
+    const live = MODULES.filter(m => m.status === 'live').map(m => m.id);
+    expect(live.indexOf('robots')).toBeGreaterThan(live.indexOf('parallel-training'));
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

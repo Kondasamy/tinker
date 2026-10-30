@@ -177,6 +177,9 @@ import {
   weightBytes as odWeights,
 } from '../lib/on-device/memory';
 import { levelAfter as odLevel } from '../lib/on-device/battery';
+import { CLAW_BOARD, clawLabel, clawScene } from '../components/scenes/clawScene';
+import { DEMOS as RB_DEMOS } from '../lib/robots/story';
+import { play as rbPlay, TRAIN as RB_BINS } from '../lib/robots/world';
 import { FORM } from '../lib/site';
 
 const one =
@@ -483,6 +486,9 @@ const PHONE_CRATE: PhoneCrateOpts = {
   level: odLevel(OD_3B, 4, 'short', 8),
   scale: 1.7,
 };
+// robots: Mira's first demo, the part in the tray, as the intro draws it
+const RB_RUN = rbPlay(RB_BINS[0], RB_DEMOS[0]);
+const CLAW = { layout: RB_BINS[0], state: RB_RUN.at(-1)!, trail: RB_RUN.map(s => s.claw), scale: 1.7 };
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   rag: {
     name: 'Retrieval-Augmented Generation (RAG)',
@@ -1170,6 +1176,19 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Heuristics',
       'Live traffic',
       'Contraction hierarchies',
+    ],
+  },
+  robots: {
+    name: 'Robots that act',
+    iso: { board: CLAW_BOARD, scene: clawScene(CLAW), label: clawLabel(CLAW) },
+    topics: [
+      'Robotics',
+      'Control loop',
+      'Imitation learning',
+      'Nearest neighbour',
+      'DAgger',
+      'Domain randomisation',
+      'Sim-to-real',
     ],
   },
 };

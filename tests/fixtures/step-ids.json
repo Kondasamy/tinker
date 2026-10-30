@@ -2650,5 +2650,48 @@
       "bench",
       "quiz"
     ]
+  },
+  "robots": {
+    "01-see-decide-move": [
+      "drive",
+      "predict",
+      "finish",
+      "quiz"
+    ],
+    "02-what-the-camera-gives": [
+      "camera",
+      "predict",
+      "crate",
+      "quiz"
+    ],
+    "03-rules-break": [
+      "run",
+      "predict",
+      "run-b",
+      "quiz"
+    ],
+    "04-show-it": [
+      "demo",
+      "hand",
+      "predict",
+      "quiz"
+    ],
+    "05-mistakes-snowball": [
+      "slip",
+      "predict",
+      "wheel",
+      "again",
+      "quiz"
+    ],
+    "06-practice-in-a-game": [
+      "plain",
+      "predict",
+      "vary",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "quiz"
+    ]
   }
 }

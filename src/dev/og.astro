@@ -444,6 +444,23 @@ import {
 } from '../lib/unicode/story';
 import { WINNERS as UC_WINNERS } from '../lib/unicode/workbench';
 import { shownName as ucShown } from '../content/unicode/07-workbench';
+import { CLAW_BOARD, clawScene, type ClawOpts } from '../components/scenes/clawScene';
+import {
+  DEMOS as RB_DEMOS,
+  demoPairs as rbPairs,
+  FRESH_BIN as RB_FRESH,
+  SNOWBALL as RB_SNOW,
+} from '../lib/robots/story';
+import {
+  BINS as RB_BINS,
+  play as rbPlay,
+  REAL as RB_REAL,
+  startOf as rbStart,
+  TRAIN as RB_TRAIN,
+} from '../lib/robots/world';
+import { replay as rbReplay } from '../lib/robots/policy';
+import { NEW_BIN as RB_NEW, runRule as rbRule } from '../lib/robots/rules';
+import { policyOf as rbPolicy, WINNERS as RB_WINNERS } from '../lib/robots/workbench';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -2064,6 +2081,34 @@ const TABLE_OG: Record<string, () => Omit<TableOpts, 'scale'>> = {
   },
 };
 const tableOg = TABLE_OG[page.og]?.();
+// module 59: the parts bay. The intro: Mira's first demo, the part in the tray; 1: mid demo, holding the part; 2: the
+// claw beside a crate; 3: the rule off the grid on bin B; 4: four demos clearing the fresh bin; 5: stuck after the
+// slip; 6: a dim real bin; 7: the winning setup on real bin 1.
+const rbRun = (l: ClawOpts['layout'], states: ClawOpts['state'][], extra: Partial<ClawOpts> = {}): ClawOpts => ({
+  layout: l,
+  state: states.at(-1)!,
+  trail: states.map(st => st.claw),
+  ...extra,
+});
+const CLAW_OG: Record<string, () => ClawOpts> = {
+  robots: () => rbRun(RB_TRAIN[0], rbPlay(RB_TRAIN[0], RB_DEMOS[0]), { machine: 'ok' }),
+  'robots-01-see-decide-move': () => rbRun(RB_TRAIN[0], rbPlay(RB_TRAIN[0], RB_DEMOS[0]).slice(0, 9)),
+  'robots-02-what-the-camera-gives': () => rbRun(RB_TRAIN[0], rbPlay(RB_TRAIN[0], ['right'])),
+  'robots-03-rules-break': () => rbRun(RB_NEW, rbRule(RB_NEW).states, { machine: 'bad', pill: 'OFF GRID' }),
+  'robots-04-show-it': () => rbRun(RB_FRESH, rbReplay(rbPairs(4), RB_FRESH).states, { machine: 'ok', pill: 'POLICY' }),
+  'robots-05-mistakes-snowball': () =>
+    rbRun(RB_SNOW.layout, rbReplay(rbPairs(RB_SNOW.demos), RB_SNOW.layout, { forced: [RB_SNOW.slipAt] }).states, {
+      machine: 'warn',
+      pill: 'STUCK',
+    }),
+  'robots-06-practice-in-a-game': () => ({ layout: RB_REAL[0], state: rbStart(RB_REAL[0]) }),
+  'robots-07-workbench': () => {
+    const p = rbPolicy(RB_WINNERS[0]);
+    const r = rbReplay(p.pairs, RB_REAL[0], { slip: RB_BINS.real.slip, seed: 0, detector: p.detector });
+    return rbRun(RB_REAL[0], r.states, { machine: r.end === 'done' ? 'ok' : 'warn' });
+  },
+};
+const clawOg = CLAW_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -2148,6 +2193,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : tapeOg ? <IsoStage board={TAPE_BOARD} scene={tapeScene({ ...tapeOg, scale: 1.3 })} label="" />
           : phoneCrateOg ? <IsoStage board={PHONE_CRATE_BOARD} scene={phoneCrateScene({ ...phoneCrateOg, scale: 1.3 })} label="" />
           : tableOg ? <IsoStage board={TABLE_BOARD} scene={tabletopScene({ ...tableOg, scale: 1.3 })} label="" />
+          : clawOg ? <IsoStage board={CLAW_BOARD} scene={clawScene({ ...clawOg, scale: 1.3 })} label="" />
           : dreamOg ? <IsoStage board={dreamBoard(dreamOg)} scene={dreamScene({ ...dreamOg, scale: 1.3 })} label="" />
           : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
           : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />
