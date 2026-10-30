@@ -34,14 +34,14 @@ export const QUIZ = {
   question:
     'On a hotel’s weak Wi-Fi, a video call freezes for about a second now and then, though a speed test looks fine. What fits best?',
   options: [
-    'Lost packets: each waits out a timeout before it is sent again',
+    'Lost packets: each can wait out a timeout before it is sent again',
     'The other caller’s camera is slow',
     'The speed test was measuring the wrong server',
   ],
   correct: 0,
-  explanation: 'A loss is noticed only when no reply comes, so each one costs a whole timeout, whatever the speed.',
+  explanation: 'At worst, a lost packet waits a whole timeout before it is sent again, whatever the speed.',
   why: [
-    'Right: speed tests measure how much flows, but a lost packet stalls until the timeout says to send it again.',
+    'Right: speed tests measure how much flows, but a lost packet can stall until the timeout says to send it again.',
     'A slow camera would make the picture poor all the time, not freeze it in short bursts.',
     'Short freezes now and then point at losses on the line, not at which server was tested.',
   ],
@@ -69,7 +69,7 @@ export const STEPS: Step<S>[] = [
     focus: 'loss',
     visibleControls: ['p1', 'loss'],
     narration: 'Your pick is locked.',
-    act: 'Turn on lossy lines.',
+    act: 'Turn on packet loss.',
     say: { block: 'road', text: 'Lost, resent' },
     predicate: s => s.loss && s.p1 !== null,
   },
@@ -135,13 +135,18 @@ export default function LostInThePost() {
             aria-pressed={state.loss}
             onClick={() => apply({ ...state, loss: !state.loss })}
           >
-            Lossy lines
+            Packet loss
           </button>
         ),
         out1: ({ state }) => (
           <>
             <Outcome {...P1} prediction={state.p1} outcome={outcomeOf()} />
             <Fact id="rto" />
+            <Fact id="fast-retransmit" />
+            <p className="note wr-note">
+              Here every loss waits the full timer; real TCP often resends sooner, after three repeated replies, so the
+              timer is the worst case.
+            </p>
             <SimNote />
           </>
         ),

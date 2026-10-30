@@ -155,11 +155,15 @@ export const RECALL: RecallItem[] = [
     id: 'loss-timeout',
     chapter: '04-lost-in-the-post',
     question: 'How does a TCP sender find out a packet was lost?',
-    options: ['No reply comes before the timeout', 'The receiver sends an error at once', 'The network tells it'],
+    options: [
+      'Its reply doesn’t come, or later replies keep repeating',
+      'The receiver sends an error at once',
+      'The network tells it',
+    ],
     correct: 0,
     why: [
-      'Right. Silence is the only sign, so the sender waits out the timeout, then sends again.',
-      'The receiver can’t complain about a packet it never saw.',
+      'Right. The timer runs out, or three repeated replies show a gap, and the sender sends it again.',
+      'The receiver sends no error; it only repeats its last reply.',
       'The network drops packets silently.',
     ],
   },
@@ -182,7 +186,7 @@ export const RECALL: RecallItem[] = [
   {
     id: 'far-and-lossy',
     chapter: '04-lost-in-the-post',
-    question: 'Two customers on lossy lines: one near the server, one far. Who suffers more from loss?',
+    question: 'Two customers whose lines lose packets: one near the server, one far. Who suffers more from loss?',
     options: [
       'The far one: longer trips, and more packets in flight to lose',
       'The near one: their packets travel faster and drop more',
@@ -190,7 +194,7 @@ export const RECALL: RecallItem[] = [
     ],
     correct: 0,
     why: [
-      'Right. Far lines pay twice: each round trip is longer, and losses add a timeout on top.',
+      'Right. Far lines pay twice: each round trip is longer, and losses can add a timeout on top.',
       'Speed on the wire doesn’t make packets drop more.',
       'The timeout is the same, but the far customer’s other waits are longer too.',
     ],
@@ -217,14 +221,14 @@ export const RECALL: RecallItem[] = [
     chapter: '05-the-sealed-envelope',
     question: 'Why does a shop accept 0-RTT for viewing a page but not for paying?',
     options: [
-      'Early data can be replayed, and a replayed payment would charge twice',
+      'Early data can be copied and sent again, and a repeated payment would charge twice',
       'Payments are too large to fit in the first message',
       'Viewing pages needs no encryption',
     ],
     correct: 0,
     why: [
       'Right. Repeating a page view is harmless; repeating a payment is not.',
-      'Size isn’t the issue; replay is.',
+      'Size isn’t the issue; a copy sent again is.',
       '0-RTT data is encrypted too; the risk is it being sent again by someone else.',
     ],
   },

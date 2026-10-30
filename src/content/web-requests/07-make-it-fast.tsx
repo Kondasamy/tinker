@@ -1,10 +1,11 @@
 // Chapter 7: make the page fast for everyone, the workbench. The reader sets Larkspur's DNS TTL, the HTTP version and
-// session resumption; every customer's page loads with lossy lines on, and each is checked against the owner's budget,
+// session resumption; every customer's page loads with packet loss on, and each is checked against the owner's budget,
 // with the TTL checked against the move rule. The puzzle accepts every policy that meets both (WINNERS, pinned).
 import StepRunner from '../../components/story/StepRunner';
 import type { Step } from '../../components/story/steps';
 import Quiz from '../../components/quiz/Quiz';
-import { CUSTOMERS, HTTPS, TTLS, ttlName } from '../../lib/web-requests/sim';
+import { ASSUMPTIONS, CUSTOMERS, HTTPS, TTLS, ttlName } from '../../lib/web-requests/sim';
+import { fact } from '../../lib/web-requests/facts';
 import {
   BUDGET,
   MOVE,
@@ -23,11 +24,13 @@ import { TOWN_PARTS, townAt } from '../../components/scenes/townScene';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { num } from '../../lib/format';
-import { SimNote, WebStage, msOf, type View } from './kit';
+import { Fact, SimNote, WebStage, msOf, type View } from './kit';
 
 const MODULE = 'web-requests',
   ID = '07-make-it-fast';
 export const PARTS = TOWN_PARTS;
+/** the floor no setting beats: ITU-T G.114's fibre delay, both ways, per 100 km */
+export const FIBRE_MS_PER_100KM = (Number(fact('fiber-delay').value) * 2 * 100) / 1000;
 
 export const QUIZ = {
   question:
@@ -56,7 +59,7 @@ export const STEPS: Step<S>[] = [
     id: 'bench',
     focus: 'bench',
     visibleControls: ['score', 'bench'],
-    narration: `The owner’s budget: every page within ${msOf(BUDGET)} on lossy lines, and a moved shop found within ${MOVE} minutes.`,
+    narration: `The owner’s budget: every page within ${msOf(BUDGET)} despite lost packets, and a moved shop found within ${MOVE} minutes.`,
     act: 'Find settings that meet both.',
     say: { block: 'road', text: 'Fewer trips' },
     predicate: s => wins(benchOf(s)),
@@ -126,7 +129,7 @@ function BenchControls({ s, set }: { s: S; set: (s: S) => void }) {
         </button>
       </div>
       <table className="tc-ledger">
-        <caption>Every customer’s page, lossy lines on</caption>
+        <caption>Every customer’s page, packet loss on</caption>
         <thead>
           <tr>
             <th scope="col">Customer</th>
@@ -150,6 +153,10 @@ function BenchControls({ s, set }: { s: S; set: (s: S) => void }) {
         </tbody>
       </table>
       <p className="note wr-note">{`${REASONS.budget} ${REASONS.move}`}</p>
+      <Fact id="fiber-delay" />
+      <p className="note wr-note">
+        {`So light in fibre alone needs ${FIBRE_MS_PER_100KM} ms of round trip per 100 km. The simulator plans ${ASSUMPTIONS.msPer100Km} ms, plus ${ASSUMPTIONS.hopMs} ms per trip, for the road’s bends and stops.`}
+      </p>
       <p className="note wr-note">
         A copy near each customer shortens the road itself: see <a href="/caching/">Caching &amp; CDNs</a>.
       </p>

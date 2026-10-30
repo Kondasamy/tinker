@@ -32,7 +32,6 @@ const PENDING = new Set<string>([
   'releases',
   'routes',
   'unicode',
-  'web-requests',
 ]);
 
 /** chapters whose `<Fact id={…}>` is fully dynamic: file (from src/content/), and where its ids come from */

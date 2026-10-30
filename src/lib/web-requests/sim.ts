@@ -8,8 +8,10 @@ import data from '../../../data/web-requests/assumptions.json' with { type: 'jso
 import town from '../../../data/web-requests/customers.json' with { type: 'json' };
 import page from '../../../data/web-requests/page.json' with { type: 'json' };
 import { mulberry32 } from '../transformers/sample';
+import { fact } from './facts';
 
-export const ASSUMPTIONS = data;
+/** Larkspur's planning numbers, with the lost packet's wait read from RFC 6298's 1-second floor (matched) */
+export const ASSUMPTIONS = { ...data, rtoMs: Number(fact('rto').value) };
 export const SITE = town.site;
 export const ADDRESS = town.address;
 export const NEW_ADDRESS = town.newAddress;
@@ -115,7 +117,7 @@ export function simulate(c: Customer, s: Setting): Run {
     lose = (id: string) => s.loss && lostOn(c, id);
   const add = (p: Omit<Phase, 'end' | 'lost' | 'stalled'>, ms: number) => {
     const lost = lose(p.id),
-      ph: Phase = { ...p, end: p.start + ms + (lost ? data.rtoMs : 0), lost, stalled: 0 };
+      ph: Phase = { ...p, end: p.start + ms + (lost ? ASSUMPTIONS.rtoMs : 0), lost, stalled: 0 };
     phases.push(ph);
     return ph;
   };

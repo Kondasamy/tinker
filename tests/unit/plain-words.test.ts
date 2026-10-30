@@ -28,7 +28,6 @@ const PENDING = new Set<string>([
   'queues',
   'rag',
   'unicode',
-  'web-requests',
 ]);
 
 /** prose-scan hits that are not reader copy: file (from src/), word, reason */

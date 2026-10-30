@@ -3,7 +3,6 @@
   "hopMs": 10,
   "msPer100Km": 2,
   "serverMs": 20,
-  "rtoMs": 1000,
   "h1Connections": 6,
   "ticketMinutes": 1440,
   "directoryKm": { "root": 150, "tld": 500 },

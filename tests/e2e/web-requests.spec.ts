@@ -88,7 +88,7 @@ test('chapter 4: the far customer with loss takes longer than the near one, read
   await w.open(CH4);
   const c = card(page);
   await c.getByRole('radio').first().click();
-  await c.getByRole('button', { name: 'Lossy lines' }).click();
+  await c.getByRole('button', { name: 'Packet loss' }).click();
   await expect(page.locator('.ditch')).toHaveCount(1);
   await page.getByRole('button', { name: 'Waterfall', exact: true }).click();
   const total = async () => {
@@ -154,7 +154,7 @@ test.describe('reduced motion', () => {
     await w.open(CH4);
     const c = card(page);
     await c.getByRole('radio').first().click();
-    await c.getByRole('button', { name: 'Lossy lines' }).click();
+    await c.getByRole('button', { name: 'Packet loss' }).click();
     await expect(page.locator('.ditch')).toHaveCount(1);
     await expect(page.locator('.stage')).toContainText('RESENT');
     await still(page);
