@@ -27,7 +27,7 @@ export const RECALL: RecallItem[] = [
     why: [
       'Right: ü’s two UTF-8 bytes were read as two Latin-1 characters; the bytes themselves are fine.',
       'Nothing was lost: Ã and ¼ are ü’s two bytes, read with the wrong table.',
-      'A missing glyph shows as a box or a blank, never as a regular pair like Ã¼.',
+      'A letter missing from the font shows as a box or a blank, never as a regular pair like Ã¼.',
     ],
   },
   {
@@ -109,8 +109,8 @@ export const RECALL: RecallItem[] = [
     options: ['A character’s code point, here ë', 'A byte in a file', 'A font'],
     correct: 0,
     why: [
-      'Right: U+ then hex is how Unicode writes a code point; 00EB is ë.',
-      'Bytes are how an encoding writes the code point, which can take several.',
+      'Right: U+ then a base-16 number is how Unicode writes a code point; 00EB is ë.',
+      'Bytes are how UTF-8 writes the code point, which can take several.',
       'Fonts draw characters; code points name them.',
     ],
   },
@@ -126,7 +126,7 @@ export const RECALL: RecallItem[] = [
     correct: 0,
     why: [
       'Right: plain English in UTF-8 is byte for byte the same as ASCII.',
-      'UTF-8 keeps ASCII at one byte; doubling is UTF-16’s habit.',
+      'UTF-8 keeps ASCII at one byte; two bytes each is UTF-16, a different scheme.',
       'There is nothing to convert: the bytes are already identical.',
     ],
   },
@@ -249,7 +249,7 @@ export const RECALL: RecallItem[] = [
     options: [
       'A lookalike letter from another script: a homograph',
       'Nothing: if it looks the same, it is the same',
-      'The font is rendering it differently',
+      'The font is drawing it differently',
     ],
     correct: 0,
     why: [
@@ -270,7 +270,7 @@ export const RECALL: RecallItem[] = [
     correct: 0,
     why: [
       'Right: NFC joins forms of the same letter; lookalikes are different letters.',
-      'Spotting lookalikes takes a confusables check, a separate step.',
+      'Spotting lookalikes takes a separate check against Unicode’s list of lookalike letters.',
       'NFC works the same on any text.',
     ],
   },

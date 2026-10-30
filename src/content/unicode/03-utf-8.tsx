@@ -35,7 +35,7 @@ export const QUIZ = {
   explanation: 'UTF-8 writes every ASCII character as the same single byte.',
   why: [
     'Right: UTF-8 keeps ASCII’s bytes as they are, one per letter.',
-    'Two bytes each is UTF-16’s habit, not UTF-8’s.',
+    'Two bytes each is UTF-16, a different way to write code points, not UTF-8.',
     'Four bytes is the most UTF-8 ever uses, and only past U+FFFF.',
   ],
 };

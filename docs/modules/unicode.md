@@ -29,5 +29,19 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **Everything is real in the browser**: `TextEncoder` for UTF-8 bytes (`bytes.ts`), `TextDecoder('windows-1252')` for the Latin-1 misread (`mojibake.ts`; WHATWG maps the `latin1` label to it), `codePointAt` and `for…of` for code points, `Intl.Segmenter` for graphemes (`graphemes.ts`), `normalize('NFC')` (`normalise.ts`).
 - **Pins** (`data/unicode/pinned.json`): Zoë's bytes and its mojibake, the 1–4 byte widths, the family and thumbs-up lengths, the two é's bytes, a stacked-accent grapheme's bytes, and the workbench's `WINNERS`; `tests/unit/unicode-engine.test.ts` and `unicode-workbench.test.ts` rerun every one.
 - **Chapter 7's workbench** (`workbench.ts`): the form counts bytes, code points or graphemes up to a limit, optionally after NFC, against nine fictional customers in real-world spellings (`data/unicode/names.json`, some typed decomposed) and a 48-byte name column (`workbench.json`, a planning number). A setting works when every name is accepted, every typed name matches its record, and the worst case the form accepts fits the column (bytes: the limit; code points: 4 × the limit; graphemes: unbounded, since one grapheme can carry any number of marks).
-- **Facts** (`data/unicode/facts.json`, checked 2026-10-30): ASCII (RFC 20), Unicode 18.0's character count (Unicode Consortium, dated 16 September 2026), the codespace, UTF-8 (RFC 3629), UTF-8's share of websites (W3Techs, 30 October 2026), WHATWG's Latin-1 mapping, ECMAScript strings, UAX #29, `Intl.Segmenter`, UAX #15, UTS #39 and GPT-2's byte-level vocabulary (where bytes meet Tokens; chapter 3 links Tokens' chapter 2).
+- **Facts** (`data/unicode/facts.json`, checked 2026-10-30): ASCII (RFC 20), Unicode 18.0's character count (Unicode Consortium, dated 16 September 2026), the codespace, UTF-8 (RFC 3629), UTF-8's share of websites (W3Techs, 30 October 2026), WHATWG's Latin-1 mapping, ECMAScript strings, UAX #29, `Intl.Segmenter`, UAX #15, UTS #39, UAX #29's note that a grapheme limit is no data size limit (chapter 7) and GPT-2's byte-level vocabulary (where bytes meet Tokens; chapter 3 links Tokens' chapter 2).
 - **Lookalike addresses** are on `.example` (`data/unicode/lookalikes.json`).
+
+## Toy vs real
+
+Every count on the tape, the Bytes tab and the lengths is the browser's own (`TextEncoder`, `TextDecoder`, `Intl.Segmenter`, `normalize()`) over the module's strings, pinned in `data/unicode/pinned.json`. Only chapter 7's column and limits are hand-set.
+
+| Chapter | Number shown | Real figure (fact id) | Matched, labelled or real |
+|---|---|---|---|
+| 1 | “Larkspur” 8 rows, Zoe's bytes 90 111 101, Z = 90, z = 122 | ASCII's 128 characters (`ascii`) | Real: computed by `TextEncoder`; 128 reads the fact |
+| 2 | ë U+00EB (235), 🙂 U+1F642 (128,578), 255 | Unicode 18.0's 172,808 characters (`version`, `total`), 1,114,112 code points (`codespace`) | Real: `codePointAt`; counts read the facts |
+| 3 | Zoë 4 bytes; widths 1, 2, 3, 4; the bit layout | 1 to 4 bytes (`utf8`), 99.1% of websites (`web`) | Real: `TextEncoder`, pinned |
+| 4 | ë's bytes 195 171 read as Ã and « | Latin-1 read as windows-1252 (`latin1`) | Real: `TextDecoder('windows-1252')`, pinned |
+| 5 | family 18 bytes, 5 code points, 8 code units, 1 grapheme; thumbs-up 2 code points; quiz: 20 flags as 80 code units | 16-bit code units (`utf16`), UAX #29 graphemes (`graphemes`, `segmenter`) | Real: pinned; the flag count is pinned in `unicode-chapters.test.ts` |
+| 6 | é as 2 bytes, e + accent as 3 bytes and 2 code points; Cyrillic а's 2 bytes | NFC (`nfc`), confusables (`confusables`) | Real: `normalize('NFC')`, pinned |
+| 7 | 48-byte column, limits 12–64, 9 names, 2 settings that work, worst case 4 × limit, a 20-mark grapheme's 41 bytes | UAX #29: a grapheme limit is no data size limit; its example form caps 300 graphemes and 3,000 bytes (`grapheme-limit`) | Labelled: the column and limits are planning numbers (the bench's note); WINNERS and the 41 bytes are recomputed by tests |

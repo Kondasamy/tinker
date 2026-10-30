@@ -16,7 +16,7 @@ export const FLAGGED: Record<string, string> = {
   convergence: 'the point where it stops improving',
   dagger: 'learning from corrections',
   'dead-letter': 'set-aside',
-  decoder: 'the part that writes',
+  decoder: 'the part that turns codes back into text',
   denoiser: 'the cleaner',
   denoising: 'cleaning',
   deterministic: 'always the same',

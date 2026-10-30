@@ -21,7 +21,6 @@ const live = MODULES.filter(m => m.chapters.length > 0);
 const PENDING = new Set<string>([
   'dependencies',
   'rag',
-  'unicode',
 ]);
 
 /** prose-scan hits that are not reader copy: file (from src/), word, reason */
