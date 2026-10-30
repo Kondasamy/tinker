@@ -100,8 +100,14 @@ export const FLAGGED: Record<string, string> = {
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const plural = (w: string) => (w.endsWith('y') ? `(?:${esc(w)}|${esc(w.slice(0, -1))}ies)` : `${esc(w)}(?:e?s)?`);
 
-/** a matcher for one flagged word: whole word, any case, with plural -s, -es and y → ies */
-export const wordRe = (w: string) => new RegExp(`(?<![\\w-])${plural(w)}(?![\\w-])`, 'i');
+/** a matcher for one flagged word: whole word, any case, with plural -s, -es and y → ies; a hyphen is a word edge,
+ * so "13-billion-parameter" still counts */
+export const wordRe = (w: string) => new RegExp(`(?<!\\w)${plural(w)}(?!\\w)`, 'i');
 
-/** the flagged words a text uses */
-export const flaggedIn = (text: string) => Object.keys(FLAGGED).filter(w => wordRe(w).test(text));
+/** the flagged words a text uses; a word inside a longer flagged one ("json" in "json-rpc") counts only for the longer */
+export const flaggedIn = (text: string) =>
+  Object.keys(FLAGGED).filter(w => {
+    const longer = Object.keys(FLAGGED).filter(o => o !== w && o.includes(w));
+    const rest = longer.reduce((t, o) => t.replace(new RegExp(wordRe(o).source, 'gi'), ' '), text);
+    return wordRe(w).test(rest);
+  });

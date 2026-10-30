@@ -230,8 +230,8 @@ export default function LearningFromPreferences() {
                   step on a four-draft table with firm picks would ignore β, so the toy shows the target directly. DPO’s
                   loss on your pairs at β {state.beta}:{' '}
                   {dpoLoss(policyOf(picks, state.beta), REF, pairs, state.beta).toFixed(2)}, against{' '}
-                  {dpoLoss(REF, REF, pairs, state.beta).toFixed(2)} before training. Distance is the KL divergence from
-                  the reference: how far the policy has drifted from where it started.
+                  {dpoLoss(REF, REF, pairs, state.beta).toFixed(2)} before training. Distance measures how far the
+                  policy has drifted from where it started.
                 </p>
               </Maths>
             </>

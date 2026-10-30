@@ -31,7 +31,9 @@ function prose(src: string): string[] {
   const out: string[] = [];
   for (const m of code.matchAll(/'((?:\\.|[^'\\\n])*)'|"((?:\\.|[^"\\\n])*)"|`((?:\\.|[^`\\])*)`|>([^<>{}=;]+)</g))
     out.push((m[1] ?? m[2] ?? m[3] ?? m[4]).replace(/\$\{[^}]*\}/g, ' '));
-  return out.filter(s => s.trim().split(/\s+/).length >= 3);
+  // JSX text that runs into an {expression}: plain prose only (no quotes, brackets or =), so code never counts
+  for (const m of code.matchAll(/[>}]([^<>{}=;'"`()[\]]+)[<{]/g)) out.push(m[1]);
+  return [...new Set(out)].filter(s => s.trim().split(/\s+/).length >= 3);
 }
 
 const quizText = (v: unknown): string[] => {
@@ -97,7 +99,15 @@ describe('plain words', () => {
     expect(wordRe('schema').test('the schemas')).toBe(true);
     expect(wordRe('latency').test("the latency's cost")).toBe(true);
     expect(wordRe('kv').test('a kvetch')).toBe(false);
-    expect(wordRe('json').test('json-rpc')).toBe(false);
+    expect(flaggedIn('json-rpc')).toEqual(['json-rpc']);
+    expect(flaggedIn('a 13-billion-parameter model')).toEqual(['parameter']);
+  });
+
+  it('reads JSX text on both sides of an {expression}, never the code after a closing brace', () => {
+    expect(
+      prose('<p>{n.toFixed(2)} before training. Distance is the KL divergence from {x}: the drift.</p>'),
+    ).toContain(' before training. Distance is the KL divergence from ');
+    expect(prose('if (a) { b(); } const set = (s: S) => s;')).toEqual([]);
   });
 
   it('scans prose, not comments, imports or short identifiers', () => {

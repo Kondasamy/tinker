@@ -15,7 +15,7 @@
     },
     {
       "id": "self-instruct-filter",
-      "claim": "Self-Instruct (Wang and colleagues, 2022) kept a model-written instruction only when its word overlap (ROUGE-L) with every instruction already kept was under 0.7.",
+      "claim": "Self-Instruct (Wang and colleagues, 2022) kept a model-written instruction only when its word overlap with every instruction already kept was under 0.7.",
       "value": "0.7",
       "source": "https://arxiv.org/abs/2212.10560",
       "accessed": "2026-10-30"
