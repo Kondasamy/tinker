@@ -45,7 +45,19 @@ const ROADMAP: [string, string, string?][] = [
   ['backups', 'Beginner', 'Classic tech'],
   ['unicode', 'Beginner', 'Classic tech'],
   ['routes', 'Intermediate', 'Classic tech'],
-  // docs/plans/2026-10-30-0831-feat-last-roadmap-seven-modules-plan.md takes the seven above live and adds these (KTD11)
+  // docs/plans/2026-10-31-1949-feat-agent-engineering-roadmap-plan.md adds these, ahead of the five below (KTD2)
+  ['skills', 'Intermediate'],
+  ['action-approvals', 'Intermediate'],
+  ['multi-agent', 'Advanced'],
+  ['agent-memory', 'Advanced'],
+  ['tools-in-production', 'Advanced'],
+  ['agent-undo', 'Advanced'],
+  ['causal-evals', 'Advanced'],
+  ['adaptive-compute', 'Advanced'],
+  ['agent-incidents', 'Advanced'],
+  ['agent-scheduling', 'Advanced'],
+  ['cache-reuse', 'Advanced'],
+  // docs/plans/2026-10-30-0831-feat-last-roadmap-seven-modules-plan.md takes choosing-models to routes live, adds these (KTD11)
   ['translation', 'Beginner'],
   ['open-weights', 'Intermediate'],
   ['ai-energy', 'Advanced'],
