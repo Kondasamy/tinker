@@ -94,6 +94,12 @@ function misses(moduleId: string) {
 describe('plain words', () => {
   for (const m of live) it(m.id, () => expect(misses(m.id)).toEqual([]));
 
+  // a roadmap card has no chapters to define a term in, so its description on home takes no flagged word at all
+  it('keeps every planned card’s description in plain words', () => {
+    const planned = MODULES.filter(m => m.status === 'planned');
+    expect(planned.flatMap(m => flaggedIn(m.description).map(w => `${m.id}: ${w}`))).toEqual([]);
+  });
+
   it('matches whole words, plurals and possessives, never inside another word', () => {
     expect(wordRe('gantry').test('two gantries')).toBe(true);
     expect(wordRe('schema').test('the schemas')).toBe(true);
