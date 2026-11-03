@@ -24,8 +24,11 @@ import {
 } from '../../components/scenes/carouselScene';
 import { fact } from '../../lib/skills/facts';
 import {
+  benchLabels,
+  benchScore,
   LABELS,
   type Labels,
+  type ScriptUse,
   PAGES,
   pick,
   PROMPT_WORDS,
@@ -50,11 +53,23 @@ export const TICKETS = REQUESTS.map(r => r.id);
 
 /** The end state in one sentence: the visible status line, unless the last action was refused. */
 export function statusOf(s: Carousel): string {
+  if (s.tally)
+    return `${s.tally.right} of ${s.tally.of} tickets picked the right binder, loading ${num(s.tally.words)} words in all.`;
+  if (s.outsider === 'open')
+    return 'The downloaded binder lies open: one page orders the assistant to copy customers’ details out.';
+  if (s.outsider === 'binned') return 'The downloaded binder went in the bin, never installed.';
+  if (s.outsider === 'boxed' && !s.ticket) return 'A downloaded binder lies shut at the end of the desk, not yet read.';
   if (!s.ticket) return `${SKILLS.length} binders wait on the carousel; no ticket asked yet.`;
   if (s.mode === 'prompt')
     return `All ${SKILLS.length} binders lie open on the desk, burying the ticket: ${num(PROMPT_WORDS)} words loaded.`;
   if (!s.open) return 'No binder opened: no label matched the ticket.';
-  return `The carousel turned to ${skillOf(s.open).name}; only that binder lies open, ${num(s.words ?? 0)} words loaded.`;
+  const script =
+    s.script === 'read'
+      ? ' with its script’s code read in'
+      : s.script === 'run'
+        ? ' and its script ran, sending a slip'
+        : '';
+  return `The carousel turned to ${skillOf(s.open).name}; only that binder lies open${script}, ${num(s.words ?? 0)} words loaded.`;
 }
 
 const HITS: Hit[] = [
@@ -226,6 +241,8 @@ export const ToyNote = ({ children }: { children?: ReactNode }) => (
 export interface Asked {
   ticket: string;
   swap?: Record<string, string>;
+  /** what the picked binder's script did on this ask */
+  script?: ScriptUse;
 }
 const labelsAt = (a: Asked): Labels => ({ ...LABELS, ...a.swap });
 /** The picture for a chapter's asks: the last ticket on the desk, its binder (or the whole pile) out. */
@@ -248,9 +265,34 @@ export function carouselOf(mode: Carousel['mode'], asked: Asked[], lit?: string 
     ticket: last?.ticket ?? null,
     open,
     facing: picks.filter(Boolean).at(-1) ?? SKILLS[0].id,
-    words: last ? wordsLoaded('skills', open, labelsAt(last)) : undefined,
+    tickets: asked.length,
+    ...(open && last?.script ? { script: last.script } : {}),
+    words: last ? wordsLoaded('skills', open, labelsAt(last), last.script) : undefined,
   };
 }
 /** The Words tab's bars for a chapter's asks. */
 export const barsOf = (mode: Carousel['mode'], asked: Asked[]): Bar[] =>
-  asked.map(a => ({ ticket: a.ticket, words: wordsLoaded(mode, pick(a.ticket, labelsAt(a)), labelsAt(a)) }));
+  asked.map(a => ({
+    ticket: a.ticket,
+    words: wordsLoaded(mode, pick(a.ticket, labelsAt(a)), labelsAt(a), a.script),
+  }));
+
+/** The workbench's picture after `runs` runs of the twelve tickets with the label set `choice` (none: not run yet). */
+export function benchCarousel(choice: number[] | null, runs: number): Carousel {
+  if (!choice) return { mode: 'skills', ticket: null, open: null, facing: SKILLS[0].id };
+  const labels = benchLabels(choice),
+    score = benchScore(choice);
+  const marks = Object.fromEntries(
+    SKILLS.map(k => [k.id, REQUESTS.filter(r => r.skill === k.id).every(r => pick(r.id, labels) === k.id)]),
+  );
+  return {
+    mode: 'skills',
+    ticket: REQUESTS[REQUESTS.length - 1].id,
+    tickets: REQUESTS.length,
+    open: null,
+    facing: SKILLS[0].id,
+    marks,
+    spin: runs,
+    tally: { right: score.right, of: REQUESTS.length, words: score.words },
+  };
+}

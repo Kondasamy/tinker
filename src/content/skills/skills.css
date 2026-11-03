@@ -58,3 +58,41 @@
   margin: 10px 0 0;
   color: var(--muted);
 }
+.sk-label {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.sk-bench {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+.sk-quote {
+  margin: 8px 0;
+  padding: 8px 10px;
+  border-left: 4px solid var(--rule);
+  font-size: 14px;
+}
+.sk-hidden {
+  border-left-color: var(--bad, #b5361f);
+}
+.sk-score {
+  margin: 8px 0 0;
+  font-weight: 800;
+}
+/* a long label must shrink to the card, not push the page sideways */
+.sk-label > .sel,
+.sk-twin > .sel {
+  min-width: 0;
+  width: 100%;
+}
+.sk-label .sel > button {
+  width: 100%;
+}
+.sk-label .sel-list [role="option"] {
+  white-space: normal;
+}

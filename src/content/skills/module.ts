@@ -1,6 +1,6 @@
 // Skills: the module's registry entry (KTD1). Chapter ids are a contract with readers' saved progress: never rename one.
 import type { Chapter, Module } from '../../lib/modules';
-import { PAGES } from '../../lib/skills/skills';
+import { OUTSIDER, PAGES, REQUESTS, SKILLS } from '../../lib/skills/skills';
 import { RECALL } from './recall';
 
 const CHAPTERS: Chapter[] = [
@@ -48,6 +48,55 @@ const CHAPTERS: Chapter[] = [
         'What a sharp label says',
       ],
       terms: [['Description', 'The line in a skill’s label that says what it does and when to use it.']],
+    },
+  },
+  {
+    id: '04-steps-not-facts',
+    title: 'Steps, not facts',
+    short: 'Steps',
+    intro: {
+      story:
+        'Refund tickets need sums: days since delivery, the item’s state, the price. The refund binder now holds a calculator script beside its rules.',
+      goal: 'Should the assistant read a skill’s script, or run it?',
+      learn: ['A skill can hold steps and a script, not just facts', 'A script that runs costs only its output'],
+      terms: [['Script', 'A small program kept in a skill, which the assistant can run.']],
+    },
+  },
+  {
+    id: '05-two-skills-fight',
+    title: 'Two skills fight',
+    short: 'Overlap',
+    intro: {
+      story:
+        'A teammate widened the Damaged label to cover anything faulty. Now a kettle under warranty opens the wrong binder.',
+      goal: 'What happens when two labels claim the same tickets?',
+      learn: ['Overlapping labels open the wrong skill', 'Sharpen each label to its own tickets'],
+      terms: [['Overlap', 'Two labels sharing words, so both seem to fit one ticket.']],
+    },
+  },
+  {
+    id: '06-a-skill-from-outside',
+    title: 'A skill from outside',
+    short: 'From outside',
+    intro: {
+      story: `A vendor offers a free skill, ${OUTSIDER.name}, from ${OUTSIDER.from}. It arrives as a binder on the desk, ready to install.`,
+      goal: 'What can a downloaded skill carry besides help?',
+      learn: [
+        'A skill’s instructions run with the assistant’s access',
+        'Read a downloaded skill before you install it',
+      ],
+      terms: [['Install', 'Put a skill on the carousel, so its label rides in every prompt.']],
+    },
+  },
+  {
+    id: '07-workbench',
+    title: 'Workbench',
+    short: 'Workbench',
+    intro: {
+      story: `Larkspur’s ${SKILLS.length} binders need labels that send all ${REQUESTS.length} tickets to the right one, without padding every prompt.`,
+      goal: 'Which labels get every ticket to the right binder for the fewest words?',
+      learn: ['Write labels that say what and when', 'Long catch-all labels steal tickets; vague ones miss'],
+      terms: [],
     },
   },
 ];

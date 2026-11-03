@@ -155,4 +155,196 @@ export const RECALL: RecallItem[] = [
       'Length inside the folder has no effect on the choice.',
     ],
   },
+  // 4. Steps, not facts
+  {
+    id: 'script-runs',
+    chapter: '04-steps-not-facts',
+    question: 'A spreadsheet skill has a script that sums a column. The assistant runs it. What reaches the prompt?',
+    options: ['The sum it prints', 'The script’s whole code', 'Nothing, since scripts never cost words'],
+    correct: 0,
+    why: [
+      'Right: a run happens outside the prompt, and only its output is read in.',
+      'The code stays in the skill’s folder when the script runs.',
+      'The output is read in, so it does cost a few words.',
+    ],
+  },
+  {
+    id: 'script-steps',
+    chapter: '04-steps-not-facts',
+    question: 'Besides facts, what can a skill hold?',
+    options: [
+      'Steps to follow, and scripts the assistant can run',
+      'Only a list of facts the model doesn’t know',
+      'Only its one-line label',
+    ],
+    correct: 0,
+    why: [
+      'Right: a skill is a folder of instructions, procedures and files, scripts included.',
+      'Facts are one thing a skill holds; procedures and scripts are others.',
+      'The label is only what rides in every prompt; the folder holds the rest.',
+    ],
+  },
+  {
+    id: 'script-read',
+    chapter: '04-steps-not-facts',
+    question: 'Why is running a calculator script better than reading its code into the prompt?',
+    options: [
+      'The answer costs a few words instead of the whole program, and it is worked out exactly',
+      'Reading code is not allowed in a prompt',
+      'Running it makes the model remember the code',
+    ],
+    correct: 0,
+    why: [
+      'Right: only the output is read, and the sum comes from code, not from the model’s guess.',
+      'Code can be read into a prompt; it is just costly and the model still has to work it out.',
+      'The model keeps nothing between requests, run or read.',
+    ],
+  },
+  // 5. Two skills fight
+  {
+    id: 'overlap-wrong',
+    chapter: '05-two-skills-fight',
+    question: 'Billing questions keep opening a Payments skill. Both labels mention “card”. Why?',
+    options: [
+      'The labels overlap, so both fit and the wrong one wins',
+      'The Billing skill’s instructions are too short',
+      'The model opens skills at random',
+    ],
+    correct: 0,
+    why: [
+      'Right: shared words make two labels fit one question, and the one sharing more wins.',
+      'Instructions are read only after a skill opens; they don’t decide which opens.',
+      'The choice follows the labels, not chance.',
+    ],
+  },
+  {
+    id: 'overlap-fix',
+    chapter: '05-two-skills-fight',
+    question: 'Two skills fight over the same tickets. What is the fix?',
+    options: [
+      'Sharpen each label to name only its own tasks',
+      'Add the other skill’s words to both labels',
+      'Install a third skill to settle it',
+    ],
+    correct: 0,
+    why: [
+      'Right: labels that don’t share words send each ticket one way.',
+      'More shared words make the overlap worse.',
+      'A third label adds another rival, not a referee.',
+    ],
+  },
+  {
+    id: 'overlap-check',
+    chapter: '05-two-skills-fight',
+    question: 'After sharpening a label so it stops stealing tickets, what should you check?',
+    options: [
+      'That the skill still catches its own tickets',
+      'Nothing: a shorter label always works',
+      'That the label is as long as the others',
+    ],
+    correct: 0,
+    why: [
+      'Right: a label cut too far can miss the tickets it was meant for.',
+      'Too short a label can lose its own tickets, as a vague one does.',
+      'Length doesn’t matter; naming its own tasks does.',
+    ],
+  },
+  // 6. A skill from outside
+  {
+    id: 'outside-read',
+    chapter: '06-a-skill-from-outside',
+    question: 'A free “Slide maker” skill is shared in a forum. Before installing it, you should…',
+    options: [
+      'Read every file in it, scripts too',
+      'Check that its label sounds helpful',
+      'Install it and watch what it does',
+    ],
+    correct: 0,
+    why: [
+      'Right: its instructions and scripts would run with the assistant’s access, so read them first.',
+      'A helpful label can sit on top of harmful instructions.',
+      'Watching after installing means any harm has already happened.',
+    ],
+  },
+  {
+    id: 'outside-access',
+    chapter: '06-a-skill-from-outside',
+    question: 'Why can a downloaded skill do harm, when it is only text and scripts?',
+    options: [
+      'The assistant follows its instructions with all the access it has',
+      'Skills run on the vendor’s servers',
+      'It can’t: skills only change how answers sound',
+    ],
+    correct: 0,
+    why: [
+      'Right: the assistant obeys the skill with its own tools and data, so text becomes action.',
+      'An installed skill runs where the assistant runs, with its access.',
+      'Skills give instructions and run code, which can do much more than change wording.',
+    ],
+  },
+  {
+    id: 'outside-label',
+    chapter: '06-a-skill-from-outside',
+    question: 'A downloaded skill’s label looks fine. Is that enough to trust it?',
+    options: [
+      'No: the label is one line; the harm can sit in its other files',
+      'Yes: the label is what the assistant follows',
+      'Yes: harmful skills are blocked automatically',
+    ],
+    correct: 0,
+    why: [
+      'Right: only the label is short and visible; the body and scripts hold what gets done.',
+      'The label only decides when it opens; the body says what to do.',
+      'Nothing guarantees a downloaded skill is checked for you.',
+    ],
+  },
+  // 7. Workbench
+  {
+    id: 'bench-long',
+    chapter: '07-workbench',
+    question: 'A team makes every skill’s label a long list of every word customers might use. What happens?',
+    options: [
+      'Labels overlap and steal tickets, and every prompt grows',
+      'Every question finds its skill',
+      'Nothing changes, since labels are free',
+    ],
+    correct: 0,
+    why: [
+      'Right: shared words make labels fight, and every label is paid for on every request.',
+      'Catch-all labels fit questions meant for other skills.',
+      'Every label rides in every prompt, so its length costs on every request.',
+    ],
+  },
+  {
+    id: 'bench-sharp',
+    chapter: '07-workbench',
+    question: 'What makes a skill label good?',
+    options: [
+      'It says what the skill does and when to use it, in the words requests use',
+      'It is as short as possible, one word if it can be',
+      'It is friendly and enthusiastic',
+    ],
+    correct: 0,
+    why: [
+      'Right: that is what the model matches a request against.',
+      'One word is too vague to match, so the skill gets missed.',
+      'Tone doesn’t help matching; named tasks do.',
+    ],
+  },
+  {
+    id: 'bench-score',
+    chapter: '07-workbench',
+    question: 'Two label sets both send every request to the right skill. Which is better?',
+    options: [
+      'The one with fewer words, since labels ride in every prompt',
+      'The longer one, since it covers more',
+      'Either: once every pick is right, length doesn’t matter',
+    ],
+    correct: 0,
+    why: [
+      'Right: with picks equal, fewer label words is less paid on every request.',
+      'Extra coverage buys nothing once every pick is right, and costs words.',
+      'Length is paid on every request, so it still matters.',
+    ],
+  },
 ];

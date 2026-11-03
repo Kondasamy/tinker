@@ -15,10 +15,16 @@ import {
   type Carousel,
 } from '../../src/components/scenes/carouselScene';
 import { closeUpZoom } from '../../src/lib/iso/motion';
-import { barsOf, carouselOf } from '../../src/content/skills/kit';
+import { barsOf, benchCarousel, carouselOf } from '../../src/content/skills/kit';
+import { WINNERS as FIGHT_WINNERS, OPTIONS as FIGHT_OPTIONS } from '../../src/content/skills/05-two-skills-fight';
 import { WINNERS, OPTIONS } from '../../src/content/skills/03-picking-the-binder';
 import PINNED from '../../data/skills/pinned.json' with { type: 'json' };
 import {
+  BENCH_START,
+  benchOptions,
+  benchScore,
+  WINNERS as BENCH_WINNERS,
+  winnersOf,
   LABELS,
   PAGES,
   PROMPT_WORDS,
@@ -86,7 +92,21 @@ describe('the carousel scene', () => {
     label = carouselOf('skills', [{ ticket: 'refund-saw' }, { ticket: 'print-label' }]),
     pile = carouselOf('prompt', [{ ticket: 'refund-saw' }]),
     none = carouselOf('skills', [{ ticket: 'drill', swap: { warranty: 'Helps with tools.' } }]);
+  const script = (use: 'read' | 'run') => carouselOf('skills', [{ ticket: 'refund-days', script: use }]);
+  const out = (o: Carousel['outsider']) => ({ ...carouselOf('skills', []), outsider: o });
   const moves: [string, Carousel, Carousel][] = [
+    ['the script read in', empty, script('read')],
+    [
+      'the script run',
+      script('read'),
+      carouselOf('skills', [
+        { ticket: 'refund-days', script: 'read' },
+        { ticket: 'refund-days', script: 'run' },
+      ]),
+    ],
+    ['the downloaded binder opened', out('boxed'), out('open')],
+    ['the downloaded binder binned', out('open'), out('binned')],
+    ['a workbench run', benchCarousel(BENCH_START, 1), benchCarousel(BENCH_WINNERS[0], 2)],
     ['a binder out', empty, refund],
     ['one binder home, another out', refund, label],
     ['every binder onto the desk', carouselOf('prompt', []), pile],
@@ -150,6 +170,43 @@ describe('the carousel scene', () => {
     expect(pills({ moving: true })).not.toContain('>REFUNDS<');
   });
 
+  it('draws the script as code pages when read, as a stamp and a slip when run', () => {
+    expect(draw(carouselStill(script('read')))).toContain('data-use="read"');
+    expect(draw(carouselStill(script('read')))).not.toContain('data-slip');
+    const ran = draw(carouselStill(carouselOf('skills', [{ ticket: 'refund-days', script: 'run' }])));
+    expect(ran).toContain('data-use="run"');
+    expect(ran).toContain('data-slip="1"');
+  });
+
+  it('shows the downloaded binder shut, open with its hidden page, then in the bin', () => {
+    expect(draw(carouselStill(out('boxed')))).toContain('data-part="outsider" data-open="0"');
+    expect(draw(carouselStill(out('open')))).toContain('data-part="outsider" data-open="1"');
+    const binned = draw(carouselStill(out('binned')));
+    expect(binned).not.toContain('data-part="outsider"');
+    expect(binned).toContain('>REFUSED<');
+  });
+
+  it('marks each spine after a workbench run: all green for a winner, some red for the drafts', () => {
+    const win = draw(carouselStill(benchCarousel(BENCH_WINNERS[0], 1)));
+    expect(win.match(/data-mark="ok"/g)).toHaveLength(SKILLS.length);
+    expect(draw(carouselStill(benchCarousel(BENCH_START, 1)))).toContain('data-mark="bad"');
+    expect(win).toContain(`>${REQUESTS.length} OF ${REQUESTS.length} RIGHT<`);
+  });
+
+  it('fans the tickets asked beside the open binder (three at most), the newest outlined', () => {
+    const three = draw(
+      carouselStill(
+        carouselOf(
+          'skills',
+          ['refund-saw', 'swap-boots', 'tiles'].map(t => ({ ticket: t })),
+        ),
+      ),
+    );
+    expect(three.match(/data-ticket/g)).toHaveLength(4); // three fanned, one on the tray
+    expect(three.match(/data-fresh/g)).toHaveLength(1);
+    expect(draw(carouselStill(refund))).not.toContain('data-fresh');
+  });
+
   it('closes in on every part within the 2.2× cap', () => {
     for (const p of CAROUSEL_PARTS) {
       const z = closeUpZoom(CAROUSEL_BOARD, partBox(p, pile));
@@ -170,4 +227,40 @@ describe('chapter 3', () => {
   });
 });
 
-// Chapter 7's workbench WINNERS recompute here once chapter 7 exists.
+describe('chapter 4: a script runs, it is not read', () => {
+  it('reading the refund script loads its code; running it loads only its output (pinned)', () => {
+    expect(wordsLoaded('skills', 'refunds', LABELS, 'read')).toBe(PINNED.script.read);
+    expect(wordsLoaded('skills', 'refunds', LABELS, 'run')).toBe(PINNED.script.run);
+    expect(PINNED.script.run - wordsLoaded('skills', 'refunds')).toBeLessThan(50);
+  });
+});
+
+describe('chapter 5: two labels fight', () => {
+  it('a blurry Damaged label steals the warranty ticket and loses its own; sharpened, both go right (pinned)', () => {
+    const blurry = { ...LABELS, damaged: SKILLS.find(s => s.id === 'damaged')!.blurry! };
+    expect(pick(PINNED.fight.request, blurry)).toBe(PINNED.fight.blurryPick);
+    expect(pick(PINNED.fight.own, blurry)).toBe(PINNED.fight.ownBlurryPick);
+    expect(pick(PINNED.fight.request)).toBe(PINNED.fight.sharpPick);
+    expect(pick(PINNED.fight.own)).toBe('damaged');
+    expect(PINNED.fight.blurryPick).not.toBe(PINNED.fight.sharpPick);
+  });
+});
+
+describe('chapter 5’s puzzle', () => {
+  it('accepts only the sharp Damaged label', () => {
+    expect(FIGHT_WINNERS).toEqual([FIGHT_OPTIONS.length - 1]);
+  });
+});
+
+describe('chapter 7: the workbench', () => {
+  it('scores every label set on right picks and words loaded; the start is pinned', () => {
+    expect(benchScore(BENCH_START)).toEqual(PINNED.bench.start);
+    expect(benchScore(SKILLS.map(s => benchOptions(s.id).length - 1))).toEqual(PINNED.bench.sharp);
+  });
+
+  it('recomputes WINNERS over all label sets: the most right picks, then the fewest words', () => {
+    expect(winnersOf()).toEqual(BENCH_WINNERS);
+    expect(BENCH_WINNERS.map(w => w.join(''))).toEqual(PINNED.bench.winners);
+    expect(BENCH_WINNERS.some(w => w.join() === BENCH_START.join())).toBe(false);
+  });
+});

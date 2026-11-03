@@ -10,7 +10,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **Hands in the picture (KTD4):** drag the ticket from the tray onto the carousel (`HitLayer`: `ticket` drag, `carousel` drop; a press without a drag asks too). Dropped anywhere else, it snaps back and the status line says to drop it on the carousel. **Twin:** a `Select` of tickets and an Ask button beside the stage, both through the kit's one `ask` handler, which writes the visible status line.
 - **Close-up (KTD6):** on each reveal step, on the part that answers the prediction (the buried desk, the one open binder, the newly picked warranty binder).
 - **Second view:** the Words tab, a bar per ticket asked in the chapter: words loaded against the 20,000-word prompt.
-- **Neighbour links for U11 (KTD8):** chapter 6 links to Dependencies ("read it before installing"); the intro names Context and Tool calling as prerequisites. Plain words: none needed (the copy says "label", never "metadata" or "frontmatter").
+- **Neighbour links for U11 (KTD8):** chapter 6 links to Dependencies ("read it before installing"), already in its fact note; Dependencies could link back; the intro names Context and Tool calling as prerequisites. Plain words: none needed (the copy says "label", never "metadata" or "frontmatter").
 
 ## Chapter pictures
 
@@ -33,16 +33,35 @@ Each step's start frame is the previous step's end state; the status line is the
 | 3 | rewrite | carousel turned to Warranty; its binder open, its slot lit | carousel turns, warranty binder swings out | label `Select`, then Ask | — | — | The sharp label turned the carousel to Warranty, and it opened. |
 | 3 | reveal | close-up on the open warranty binder | zooms in | Reveal | binder | — | The warranty binder lies open beside the drill ticket. |
 | 3 | quiz | as above | none | Quiz | — | — | The warranty binder stays open on the desk. |
-| 4 | (planned) | a binder open with a stamping machine clipped inside: its script | the stamp presses a slip; only the slip slides to the model | Select + Run script | the slip | binder | — |
-| 5 | (planned) | Damaged and Warranty labels overlap; the wrong one swings out | wrong binder out, then back, then the right one | label `Select` + Ask | both spines | carousel | — |
-| 6 | (planned) | a seventh binder arrives by van; one page carries orders | the binder opens on the desk; a hidden page lights | Read + Install / Refuse | the hidden page | binder | — |
-| 7 | (planned) | the carousel with six labels, twelve tickets in turn | each ticket turns the carousel | a label `Select` per skill, Run all | — | carousel | — |
+| 4 | ask | refund binder open; the calculator script's code spread beside it as pages | carousel turns, binder out, code pages land | drag or Select + Ask | — | carousel | The refund binder lies open, its script's code spread beside it as pages read into the prompt. |
+| 4 | predict | the same | none | Predict | — | script | The script's code pages still lie beside the open refund binder. |
+| 4 | run | the pages gone; a stamp on its pad, a slip by the assistant | a second ticket slides in, the stamp presses, the slip flies to the assistant's end of the desk | Run the script (button) | — | — | The stamp pressed, and one small slip slid over to the assistant. |
+| 4 | reveal | close-up on the stamp and slip | zooms in | Reveal | script | — | The close-up shows the stamp and its slip: only the slip's words reached the assistant. |
+| 4 | quiz | as above | none | Quiz | — | — | The stamp and its slip stay beside the open refund binder. |
+| 5 | ask | Damaged (pink) binder open for the kettle ticket | carousel turns to Damaged, it swings out | drag or Select + Ask | — | carousel | The carousel turned to Damaged, and its binder opened for a kettle under warranty. |
+| 5 | predict | the same | none | Predict | — | binder | The Damaged binder still lies open for the kettle ticket. |
+| 5 | sharpen | Warranty (yellow) binder open, Damaged home | Damaged goes home, carousel turns, Warranty out | label `Select`, then Ask | — | — | The carousel turned to Warranty, and its binder opened for the kettle. |
+| 5 | reveal | close-up on the warranty binder | zooms in | Reveal | binder | — | The close-up shows the warranty binder open beside the kettle ticket. |
+| 5 | own | Damaged open again for the tiles ticket | turn back to Damaged | Select + Ask | — | carousel | The carousel turned back to Damaged for the tiles that arrived cracked. |
+| 5 | quiz | as above | none | Quiz | — | — | The Damaged binder lies open for the tiles; Warranty is back on the carousel. |
+| 6 | predict | a grey downloaded binder lies shut at the desk's near end, a bin beside the desk | none | Predict | — | outsider | The downloaded binder lies shut at the end of the desk. |
+| 6 | read | the grey binder open, one page lit red, pill HIDDEN ORDER | its cover opens | Read it first (button) | — | — | The downloaded binder lies open, and one page, lit red, holds a hidden order. |
+| 6 | reveal | close-up on the open binder and its red page | zooms in | Reveal | outsider | — | The close-up shows the hidden page: an order to copy customers' details out. |
+| 6 | refuse | the binder across the bin's mouth, pill REFUSED | it flies from the desk into the bin | Refuse it (button) | — | outsider | The downloaded binder went in the bin; the carousel keeps its six. |
+| 6 | quiz | as above | none | Quiz | — | — | The refused binder lies in the bin by the desk. |
+| 7 | run | each binder topped by a red or green tab (its tickets found it or not); carousel pill 7 OF 12 RIGHT; three tickets fanned | the carousel turns a whole way round | six label `Select`s, Run all tickets | — | carousel | The carousel turned through 12 tickets; red spines mark binders their tickets missed. |
+| 7 | predict | the same | none | Predict | — | carousel | Red spines still mark the binders their tickets missed. |
+| 7 | bench | every tab green, 12 OF 12 RIGHT, the assistant OK | another whole turn per run | the six `Select`s, Run (puzzle, `WINNERS`, Show me) | — | — | Every spine is green: all 12 tickets found their binder. |
+| 7 | reveal | close-up on the carousel's green tabs | zooms in | Reveal | carousel | — | The close-up shows 6 green spines on the carousel. |
+| 7 | quiz | as above | none | Quiz | — | — | 6 green spines; the tally reads 12 of 12. |
 
 ## Engine (`src/lib/skills/`)
 
 - **A word-overlap scorer stands in for the model's pick** (`skills.ts`): a label's score is how many of the ticket's word stems it shares (filler dropped, a crude suffix strip); the top score wins, the first binder on the carousel on a tie, none on zero. The copy says it is a stand-in: a real model reads the label, it doesn't count words.
 - **Words loaded**: the long prompt is the base instructions plus every binder's body (20,000 words, 40 pages at 500 words a page); with skills it is the base plus every label plus the one binder picked.
-- **Pins** (`data/skills/pinned.json`): each ticket's pick, each total, the vague-label case. `tests/unit/skills.test.ts` re-derives them. Chapter 7's `WINNERS` will join it.
+- **Pins** (`data/skills/pinned.json`): each ticket's pick, each total, the vague-label case, the script's read and run totals, chapter 5's fight, and the workbench's start, sharp set and `WINNERS` (every label set with the most right picks, then the fewest words: only the sharp set). `tests/unit/skills.test.ts` re-derives them all.
+- **The workbench** (`benchOptions`, `benchScore`, `winnersOf`): each skill offers a vague label, a long catch-all and its sharp one (`bench` in `requests.json`); a set is scored over all twelve tickets.
+- **Chapter 6's downloaded skill** (`OUTSIDER`): hand-written, from a `.example` domain, with its hidden order in the data.
 
 ## Toy vs real
 
@@ -54,3 +73,7 @@ Every number a chapter shows, and whether it is the real figure (matched: the co
 | 1, 2 | Words loaded per ticket (computed) | `label-cost` (about 100 tokens a label, under 5,000 for instructions) | Labelled: words, not tokens; `ToyNote` |
 | 2 | Labels' words (counted from the label text) | `label-cost`, `label-always` | Labelled |
 | 3 | Which binder opens (stand-in scorer) | `label-decides`, `poor-label` | Labelled: the scorer is a stand-in |
+| 4 | Script code 1,500 words, output 14 words; 5,978 and 4,492 words loaded | `scripts-output`, `run-not-read` | Labelled: hand-set sizes, `ToyNote` |
+| 5 | Which binder opens with the blurry and sharp Damaged labels | `pick-from-many` | Labelled: stand-in scorer, `ToyNote` |
+| 6 | None (the downloaded skill is a hand-written example) | `trusted-only` | Labelled: the note says it is an example |
+| 7 | Right picks of 12 and words in all per label set (7 of 12, 34,252; 12 of 12, 48,936) | `avoid-vague`, `pick-from-many` | Labelled: stand-in scorer and hand-set sizes, `ToyNote` |

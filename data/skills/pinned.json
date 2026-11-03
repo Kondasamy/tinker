@@ -36,5 +36,29 @@
     "request": "drill",
     "vaguePick": null,
     "sharpPick": "warranty"
+  },
+  "bench": {
+    "start": {
+      "right": 7,
+      "words": 34252
+    },
+    "sharp": {
+      "right": 12,
+      "words": 48936
+    },
+    "winners": [
+      "222222"
+    ]
+  },
+  "script": {
+    "read": 5978,
+    "run": 4492
+  },
+  "fight": {
+    "request": "kettle",
+    "blurryPick": "damaged",
+    "sharpPick": "warranty",
+    "own": "tiles",
+    "ownBlurryPick": null
   }
 }
