@@ -9,7 +9,7 @@
 // Words only in pills; every string reaching SVG goes through esc().
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
-import { modelMachine, person, type Item, type ModelState } from '../../lib/iso/figures';
+import { hexa, modelMachine, person, type Item, type ModelState } from '../../lib/iso/figures';
 import {
   CERAMIC,
   DARK,
@@ -226,11 +226,33 @@ function spill(x: number, y: number, n: number) {
   return `<g data-spilled="${n}">${s}</g>`;
 }
 
+/** The square plug that won't seat: a red cube tipped toward the viewer, its square end (a dark square socket mark)
+ * facing out, so its shape reads against the round ports. */
+function squarePlug(p: V, k = 1) {
+  const h = 2.8 * k,
+    tip = 1.8 * k;
+  const c = [
+    [p[0] - h, p[1] - h, p[2]],
+    [p[0] + h, p[1] - h, p[2]],
+    [p[0] + h, p[1] + h, p[2]],
+    [p[0] - h, p[1] + h, p[2]],
+    [p[0] - h, p[1] - h + tip, p[2] + 2 * h],
+    [p[0] + h, p[1] - h + tip, p[2] + 2 * h],
+    [p[0] + h, p[1] + h + tip, p[2] + 2 * h],
+    [p[0] - h, p[1] + h + tip, p[2] + 2 * h],
+  ];
+  // the end facing the viewer (+y): an inset dark square
+  const f = (u: number, w: number) =>
+    lerpPt(lerpPt(c[3], c[2], u), lerpPt(c[7], c[6], u), w).map((v, i) => (i === 1 ? v + 0.05 : v));
+  return hexa(c, PALS.tomato, 1.3) + shape([f(0.25, 0.25), f(0.75, 0.25), f(0.75, 0.75), f(0.25, 0.75)], DARK.d, 0.7);
+}
 /** A reply capsule: round (the agreed shape) or square (won't seat). */
 const capsule = (p: V, kind: PlugKind, square = false) =>
   square
-    ? box(p[0] - 2, p[1] - 2, p[2], p[0] + 2, p[1] + 2, p[2] + 2.6, PALS.tomato, toneI, 1.1)
+    ? squarePlug(p)
     : cyl(p[0], p[1], p[2], p[2] + 2.6, 2, kind === 'wrong' ? PALS.tomato : PALS.mint, toneI, 1.1, 12);
+/** Where a bounced plug comes to rest: on the board's base, just under its port. */
+const restAt = (d: number): V => [colX(d), 21.5, B.zb];
 
 /** The board's live face for one state: lamps, seated replies, jacks with cords plugged, the hold cord, dials. */
 interface Face {
@@ -300,6 +322,7 @@ function faceSvg(F: Face) {
       lamp = F.lamps[d] ?? 'off';
     const col = lamp === 'ok' ? PALS.mint.l : lamp === 'hold' ? PALS.mustard.l : CERAMIC.m;
     s += `<g data-lamp="${lamp}"${lamp === 'hold' ? ` class="ma-blink${d === F.hold[1] ? ' ma-late' : ''}"` : ''}>${disc(x, Z.lamp, 2.8, col, lamp === 'off' ? 0.8 : 1.6)}</g>`;
+    if (F.bounced.includes(d)) s += disc(x, Z.port, 4.2, PALS.tomato.l, 1.4);
     s += disc(x, Z.port, 2.9, DARK.d, 1);
     const k = F.knobs[d];
     if (k && k !== 'held') {
@@ -322,7 +345,7 @@ function baseSvg(F: Face) {
       0.8,
     );
   s += `<g data-coil="1">${box(COIL[0] - 1, COIL[1] - 4.4, B.zb, COIL[0] + 1.4, COIL[1] - 2.6, B.zb + 2, METAL, toneI, 0.7)}</g>`;
-  for (const d of F.bounced) s += `<g data-plug="bounced">${capsule([colX(d) + 3, 20, B.zb], 'bounced', true)}</g>`;
+  for (const d of F.bounced) s += `<g data-plug="bounced">${squarePlug(restAt(d))}</g>`;
   // a check's catch: a dish at the base's far end, the red capsule in it and a red price tag beside it
   for (const _ of F.caught.slice(0, 1))
     s += `<g data-plug="caught">${cyl(DISH[0], DISH[1], B.zb, B.zb + 0.9, 4.2, METAL, toneI, 1, 16)}${capsule([DISH[0] - 0.6, DISH[1], B.zb + 0.9], 'wrong')}${shape(
@@ -458,13 +481,22 @@ export function switchPills(s: Switch, v: SceneView, moving = false) {
     if (callout) out.push(sayAt(calloutOf(s.say, v), p, at3, dy > 0 ? dy + 50 : dy - 10, k || 1, phone));
   };
   put('lead', [LEAD[0], LEAD[1], BH + 33], -12, 'LEAD', false, 8);
+  const full = s.ran && !moving && !s.cart.length && !s.spilled && s.report !== 'waiting';
   put(
     'cart',
-    [CART_AT[0], CART_AT[1], CART.z + 10],
-    -14,
-    s.cart.length ? (phone ? 'CART' : `${s.cart.length} CATALOGUES`) : null,
-    false,
-    6,
+    [CART.x1, CART.y0 + 4, CART.z + 6],
+    -8,
+    s.cart.length
+      ? phone
+        ? 'CART'
+        : `${s.cart.length} CATALOGUES`
+      : full
+        ? phone
+          ? 'ALL READ'
+          : `ALL ${allOnCart(s).length} READ`
+        : null,
+    full,
+    34,
   );
   put('board', [colX(3), B.y0, B.zt], -12, null);
   put('coil', [COIL[0], COIL[1], B.zb + 3], -16, null);
@@ -482,10 +514,10 @@ export function switchPills(s: Switch, v: SceneView, moving = false) {
   put(
     'timer',
     [DIAL.x - DIAL.r, FACE, DIAL.timer],
-    14,
+    4,
     s.timer === 'off' ? null : s.timer === 'rang' ? (phone ? 'RANG' : 'TIMER RANG') : 'TIMER',
     s.timer === 'rang',
-    -22,
+    -40,
   );
   const holdX = s.hold.length ? (colX(s.hold[0]) + colX(s.hold.at(-1)!)) / 2 : colX(1);
   put('lamps', [holdX, FACE, Z.lamp + 3], -26, ran && s.hold.length && s.timer !== 'rang' ? 'ON HOLD' : null, true, 16);
@@ -503,11 +535,11 @@ export function switchPills(s: Switch, v: SceneView, moving = false) {
   const caught = odd !== undefined && s.plugs[odd] === 'caught';
   put(
     'port',
-    caught ? [DISH[0], DISH[1], B.zb + 3] : [odd ? colX(odd) : colX(3), FACE, Z.port + 3],
-    caught ? -30 : -22,
+    caught ? [DISH[0], DISH[1] + 3, B.zb] : [odd ? colX(odd) : colX(3), FACE, Z.lamp + 3],
+    caught ? 22 : -18,
     portText,
     s.plugs[odd ?? 0] !== 'bounced' && !!odd,
-    0,
+    caught ? -26 : 22,
   );
   if (ran) {
     const dupD = DESKS.find(d => s.dup[d]);
@@ -524,7 +556,7 @@ export function switchPills(s: Switch, v: SceneView, moving = false) {
     if (s.spilled) {
       const p = spillAt(s.spillDesk);
       const k = pillScale(s.spillDesk ? `desk${s.spillDesk}` : 'desk', v);
-      if (k) out.push(pill([p[0], p[1], BH + 1], -20, phone ? 'UNREAD' : `${s.spilled} UNREAD`, true, k, -22));
+      if (k) out.push(pill([p[0], p[1], BH + 1], -30, phone ? 'UNREAD' : `${s.spilled} UNREAD`, true, k, 10));
     }
   }
   const rep =
@@ -745,10 +777,10 @@ function sheet(p: V, report: Switch['report']) {
   const [x, y, z] = p;
   let s = shape(
     [
-      [x - 5, y - 4, z + 0.2],
-      [x + 5, y - 4, z + 0.2],
-      [x + 5, y + 4, z + 0.2],
-      [x - 5, y + 4, z + 0.2],
+      [x - 7, y - 5, z + 0.2],
+      [x + 7, y - 5, z + 0.2],
+      [x + 7, y + 5, z + 0.2],
+      [x - 7, y + 5, z + 0.2],
     ],
     CERAMIC.l,
     0.8,
@@ -756,16 +788,16 @@ function sheet(p: V, report: Switch['report']) {
   for (let i = 0; i < 4; i++)
     s += shape(
       [
-        [x - 3.6, y - 3 + i * 1.6, z + 0.25],
-        [x + 1.5, y - 3 + i * 1.6, z + 0.25],
-        [x + 1.5, y - 2.4 + i * 1.6, z + 0.25],
-        [x - 3.6, y - 2.4 + i * 1.6, z + 0.25],
+        [x - 6, y - 3.8 + i * 2, z + 0.25],
+        [x - 1, y - 3.8 + i * 2, z + 0.25],
+        [x - 1, y - 3 + i * 2, z + 0.25],
+        [x - 6, y - 3 + i * 2, z + 0.25],
       ],
       report === 'gap' && i === 2 ? CERAMIC.l : DARK.l,
       0,
     );
   if (report !== 'none')
-    s += cyl(x + 3, y + 2, z + 0.25, z + 0.7, 1.6, report === 'done' ? PALS.mint : PALS.tomato, toneI, 0.8, 12);
+    s += cyl(x + 3.4, y + 1, z + 0.25, z + 1, 3.4, report === 'done' ? PALS.mint : PALS.tomato, toneI, 1.2, 16);
   return `<g data-report="${report}">${s}</g>`;
 }
 
@@ -847,8 +879,7 @@ export const switchScene: Scene<Switch> = (prev, s, t, v) => {
     if (k === 'bounced') {
       // the square plug reaches the port by 60% of the leg, springs back onto the base; the round resend follows
       if (u < 0.55) flying.push({ at: at(path, u / 0.55), kind: k, square: true });
-      else if (u < 0.7)
-        flying.push({ at: lerpPt(at(path, 1), [colX(dk) + 3, 20, B.zb], (u - 0.55) / 0.15), kind: k, square: true });
+      else if (u < 0.7) flying.push({ at: lerpPt(at(path, 1), restAt(dk), (u - 0.55) / 0.15), kind: k, square: true });
       else {
         face.bounced.push(dk);
         if (u < 1) flying.push({ at: at(path, (u - 0.7) / 0.3), kind: 'ok', square: false });

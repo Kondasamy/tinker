@@ -211,7 +211,7 @@ export function SwitchStage({
     closeUp: view === 'scene' ? closeUp : undefined,
     partBox: p => partBox(p as SwitchPart),
     phone,
-    lift: (s, v) => ({ still: switchStill(s, v), piece: coilPlug() }),
+    lift: (s, v) => ({ still: switchStill(s, v), piece: coilPlug }),
   });
   const s = stage.state;
   const max = helpers ? Math.max(...helpers) : 0;
