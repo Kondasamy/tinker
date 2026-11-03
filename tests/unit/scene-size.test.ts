@@ -19,6 +19,8 @@ import { DARK_BOARD, darkroomScene } from '../../src/components/scenes/darkroomS
 import { DEPOT_BOARD, depotAt, depotScene } from '../../src/components/scenes/depotScene';
 import { DESK_BOARD, beatsOf, deskAt, deskScene } from '../../src/components/scenes/deskScene';
 import { CAROUSEL_BOARD, carouselStill } from '../../src/components/scenes/carouselScene';
+import { SHADOW_BOARD, shadowStill } from '../../src/components/scenes/shadowScene';
+import { sceneOf as shadowWeek } from '../../src/content/tools-in-production/07-workbench';
 import { DOCKET_BOARD, docketScene } from '../../src/components/scenes/docketScene';
 import { boardOf as docketOf } from '../../src/content/prompts/kit';
 import { boardOf as dreamBoard, dreamScene, type DreamOpts } from '../../src/components/scenes/dreamFloorScene';
@@ -653,6 +655,11 @@ const SCENES: Record<string, () => string> = {
         say: { block: 'desk', text: 'Buried desk' },
       }),
     ),
+  // the opening workbench week: every van docked, every outline filled (two askew), the bench piled, a file sent
+  shadow: () => {
+    const all = 0b001_001_001_001;
+    return stage(SHADOW_BOARD, shadowStill({ ...shadowWeek(all, all), say: { block: 'board', text: 'Monday' } }));
+  },
   // the end of a least-busy run with a dead and a gray shed: every shed, the barrier
   yard: () => {
     const run = lbSim(lbPolicy({ rule: 'least', states: { cedar: 'dead', dogwood: 'gray' }, checks: 2 }));
@@ -737,6 +744,8 @@ const BASE: Record<string, number> = {
   steelyard: 30000,
   // new with the watermarks module (no pre-rework size): its first size is 62,335, with a little headroom
   // new with the unicode module (no pre-rework size): its first size is 74,785, with a little headroom
+  // new with the tools-in-production module (no pre-rework size): its first size is 143,937 (four vans), with a little headroom
+  shadow: 50000,
   tape: 26000,
   uv: 25000,
   window: 26749,

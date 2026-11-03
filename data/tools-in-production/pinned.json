@@ -1,0 +1,76 @@
+{
+  "eagerTokens": 51220,
+  "found": {
+    "courier": [
+      "quickpost.book_courier",
+      "orderdesk.find_order",
+      "orderdesk.refund_order"
+    ],
+    "stock": [
+      "stockroom.check_stock",
+      "stockroom.move_stock",
+      "stockroom.list_warehouses"
+    ],
+    "refund": [
+      "orderdesk.refund_order",
+      "orderdesk.find_order",
+      "orderdesk.cancel_order"
+    ],
+    "manual": [
+      "docshelf.find_manual",
+      "stockroom.find_bin",
+      "orderdesk.find_order"
+    ],
+    "track": [
+      "quickpost.track_parcel",
+      "orderdesk.find_order",
+      "orderdesk.refund_order"
+    ],
+    "page": [
+      "docshelf.read_page",
+      "docshelf.find_manual",
+      "docshelf.list_parts"
+    ],
+    "order": [
+      "orderdesk.find_order",
+      "stockroom.reserve_item",
+      "stockroom.write_off_item"
+    ]
+  },
+  "lazyTokens": {
+    "courier": 3040,
+    "stock": 2740,
+    "refund": 2840,
+    "manual": 2840,
+    "track": 2800,
+    "page": 2980,
+    "order": 2760
+  },
+  "savedPct": 94,
+  "prints": {
+    "before": "37e1d849",
+    "after": "4e300a0b"
+  },
+  "week": {
+    "opening": {
+      "done": 15,
+      "incidents": 15,
+      "tokens": 768300
+    },
+    "best": {
+      "done": 11,
+      "incidents": 0,
+      "tokens": 39180
+    },
+    "winners": [
+      493,
+      509,
+      1517,
+      1533,
+      2541,
+      2557,
+      3565,
+      3581
+    ]
+  }
+}
