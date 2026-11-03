@@ -26,7 +26,7 @@ import {
   vis,
 } from '../../lib/iso/core.js';
 import { calloutOf, lerp, lerpPt, pillScale, type Scene, type SceneView } from '../../lib/iso/motion';
-import { OUTSIDER, SKILLS } from '../../lib/skills/skills';
+import { OUTSIDER, requestOf, SKILLS } from '../../lib/skills/skills';
 import type { Say } from '../story/steps';
 
 export const CAROUSEL_BOARD: Board = [12, 16, 176, 94];
@@ -97,12 +97,12 @@ const PILE_TICKETS = [
 ];
 // skills mode: the tickets asked, fanned beside the open binder, oldest at the back
 const FAN = [
-  [150, 60],
-  [153, 66],
-  [156, 72],
+  [148, 60],
+  [156, 66.5],
+  [164, 73],
 ];
 const SCRIPT_AT = [154, 82]; // the script's pages, or its stamp, beside the open binder
-const SLIP_AT = [166, 62]; // the slip a run script sends to the assistant
+const SLIP_AT = [164, 59.5]; // the slip a run script sends to the assistant
 const OUT_AT = [110, 83]; // a downloaded binder, at the near end of the desk
 const BIN_AT = [80, 88];
 // prompt mode: where each binder lands in the pile, [x, y, yaw]; the first (refunds) lands first, at the bottom
@@ -161,22 +161,19 @@ function upright(x: number, y: number, z: number, a: number, id: string, mark?: 
     );
     s += shape([at(f, -0.8, 3), at(f, 0.8, 3), at(f, 0.8, 4.6), at(f, -0.8, 4.6)], DARK.d, 0.4);
   }
-  // and a coloured tab on its top edge, seen from any side
+  // and a flat label tab standing up from the spine's top edge, seen from any side: a paper backing under a coloured
+  // card with a heavy outline, so a red tab still reads on a red binder
   if (mark !== undefined) {
-    const m = mark ? PALS.mint : PALS.tomato;
-    s += hexa(
-      [
-        at(-3, -BW / 2 - 0.3, BHT),
-        at(3, -BW / 2 - 0.3, BHT),
-        at(3, BW / 2 + 0.3, BHT),
-        at(-3, BW / 2 + 0.3, BHT),
-        at(-3, -BW / 2 - 0.3, BHT + 4),
-        at(3, -BW / 2 - 0.3, BHT + 4),
-        at(3, BW / 2 + 0.3, BHT + 4),
-        at(-3, BW / 2 + 0.3, BHT + 4),
-      ],
-      m,
-      1.1,
+    const f = BD / 2 - 0.4;
+    s += shape(
+      [at(f, -2.6, BHT - 1), at(f, 2.6, BHT - 1), at(f, 2.6, BHT + 6.4), at(f, -2.6, BHT + 6.4)],
+      CERAMIC.l,
+      1.6,
+    );
+    s += shape(
+      [at(f + 0.05, -1.8, BHT), at(f + 0.05, 1.8, BHT), at(f + 0.05, 1.8, BHT + 5.4), at(f + 0.05, -1.8, BHT + 5.4)],
+      mark ? PALS.mint.l : PALS.tomato.l,
+      1.2,
     );
   }
   return `<g data-binder="${esc(id)}" data-at="slot"${mark === undefined ? '' : ` data-mark="${mark ? 'ok' : 'bad'}"`}>${s}</g>`;
@@ -192,7 +189,8 @@ function flat(
   yaw: number,
   o: number,
   id: string,
-  lit = false,
+  /** true: ringed in light (the answer); 'wrong': ringed in red (opened for a ticket it doesn't answer) */
+  lit: boolean | 'wrong' = false,
   pal?: typeof PALS.mint,
 ) {
   const a = rad(yaw),
@@ -225,17 +223,19 @@ function flat(
     at(ef, -L / 2, o > 0.98 ? 0.3 : eh),
   ];
   if (lit) {
-    // a ring of light round the whole open binder, under its covers' ink: nothing else in the picture has one
+    // a ring round the whole open binder, under its covers' ink: light for the answer, red for a wrong pick
     const ring = [
       at(-W - 1.6, -L / 2 - 1.6, 0.1),
       at(W + 1.6, -L / 2 - 1.6, 0.1),
       at(W + 1.6, L / 2 + 1.6, 0.1),
       at(-W - 1.6, L / 2 + 1.6, 0.1),
     ];
-    s = `<path data-glow="1" d="${pd(ring)}" fill="#fff1b8" stroke="#f4b829" stroke-width="3.4" stroke-linejoin="round"/>${s}`;
+    const [fillC, ink] = lit === 'wrong' ? ['#fbd9cf', '#c2412b'] : ['#fff1b8', '#f4b829'];
+    s = `<path data-glow="1" d="${pd(ring)}" fill="${fillC}" stroke="${ink}" stroke-width="3.4" stroke-linejoin="round"/>${s}`;
   }
   s += shape(cover, m.l, lit ? 2.4 : 1.1);
-  return `<g data-binder="${esc(id)}" data-at="desk" data-open="${o >= 1 ? 1 : 0}"${lit ? ' data-lit="1"' : ''}>${s}</g>`;
+  const tag = lit === 'wrong' ? ' data-wrong="1"' : lit ? ' data-lit="1"' : '';
+  return `<g data-binder="${esc(id)}" data-at="desk" data-open="${o >= 1 ? 1 : 0}"${tag}>${s}</g>`;
 }
 type Six = [number, number, number, number, number, number];
 /** An axis-aligned box in a binder's local frame, given as world corners (yaw is small, so the box is near enough). */
@@ -344,19 +344,19 @@ function scriptArt(use: 'read' | 'run', press = 0) {
 const slipArt = (x: number, y: number, z: number) =>
   `<g data-slip="1">${shape(
     [
-      [x - 3, y - 2, z],
-      [x + 3, y - 2, z],
-      [x + 3, y + 2, z],
-      [x - 3, y + 2, z],
+      [x - 5, y - 3.2, z],
+      [x + 5, y - 3.2, z],
+      [x + 5, y + 3.2, z],
+      [x - 5, y + 3.2, z],
     ],
     PALS.mint.l,
-    1.1,
+    1.4,
   )}${shape(
     [
-      [x - 2, y - 0.4, z + 0.05],
-      [x + 1.5, y - 0.4, z + 0.05],
-      [x + 1.5, y + 0.4, z + 0.05],
-      [x - 2, y + 0.4, z + 0.05],
+      [x - 3.4, y - 0.6, z + 0.05],
+      [x + 2.4, y - 0.6, z + 0.05],
+      [x + 2.4, y + 0.6, z + 0.05],
+      [x - 3.4, y + 0.6, z + 0.05],
     ],
     DARK.m,
     0,
@@ -519,7 +519,7 @@ function setting(s: Carousel, top: SceneCtx['top']) {
       : 'warn'
     : !s.ticket
       ? undefined
-      : s.mode === 'prompt' || !s.open
+      : s.mode === 'prompt' || !s.open || misfit(s)
         ? 'warn'
         : 'ok';
   const m = modelMachine(MODEL[0], MODEL[1], 1, state),
@@ -549,7 +549,7 @@ function pillPlace(
 ): { at: number[]; dx: number; dy: number; cdx?: number; cdy?: number } {
   switch (part) {
     case 'carousel':
-      return { at: [CX, CY, POST + 2], dx: -10, dy: -16 };
+      return { at: [CX, CY, POST + 2], dx: -10, dy: -16, cdx: 72, cdy: -40 };
     case 'model':
       return { at: [MODEL[0], MODEL[1], BH + 36], dx: 6, dy: -14 };
     case 'ticket':
@@ -563,15 +563,15 @@ function pillPlace(
       const a = rad(b.yaw);
       const at = [b.x + (Math.cos(a) * W) / 2, b.y + (Math.sin(a) * W) / 2, b.z + 0.4];
       // the lit binder (zoomed) names itself to the right; the open one below-left, on the floor in front of the desk,
-      // its callout further left on the same row, its leader passing over the name pill
-      return i >= 0 ? { at, dx: 30, dy: -18 } : { at, dx: -40, dy: 26, cdx: -116, cdy: 26 };
+      // its callout below-right, a row lower, so neither its leader nor its pill meets the name pill
+      return i >= 0 ? { at, dx: 30, dy: -18 } : { at, dx: -60, dy: 20, cdx: -40, cdy: 62 };
     }
     case 'script':
-      return { at: [SCRIPT_AT[0], SCRIPT_AT[1], TOP + 4], dx: 26, dy: -26 };
+      return { at: [SCRIPT_AT[0], SCRIPT_AT[1], TOP + 4], dx: 54, dy: 8, cdx: 54, cdy: -24 };
     case 'outsider':
-      return { at: [OUT_AT[0], OUT_AT[1], TOP + 1], dx: -30, dy: 26 };
+      return { at: [OUT_AT[0], OUT_AT[1], TOP + 1], dx: 22, dy: 36, cdx: 22, cdy: 64 };
     case 'bin':
-      return { at: [BIN_AT[0], BIN_AT[1], BH + 12], dx: -14, dy: -18 };
+      return { at: [BIN_AT[0], BIN_AT[1], BH + 12], dx: -20, dy: 26 };
   }
 }
 
@@ -584,14 +584,17 @@ export function carouselPills(s: Carousel, v: SceneView, opts: { moving?: boolea
   const phone = !!v.phone,
     say = calloutOf(s.say, v),
     out: string[] = [];
-  const on = (part: CarouselPart, text: string, lit: boolean, grow = 1) => {
+  const on = (part: CarouselPart, text: string, lit: boolean, grow = 1, shift = 0) => {
     const k = pillScale(part, v),
       { at, dx, dy, cdx, cdy } = pillPlace(part, s, v);
-    if (k) out.push(pill(at, dx, dy, text, lit, k * grow));
+    if (k) out.push(pill(at, dx + shift, dy, text, lit, k * grow));
     // the callout a full row beyond the name pill: above a pill that sits above its part, below one that sits below
     if (say && sayFits(say, part, phone))
-      out.push(callout(at, cdx ?? dx, cdy ?? dy + (dy > 0 ? 38 : -38), say.text, k || 1));
+      out.push(callout(at, (cdx ?? dx) + shift, cdy ?? dy + (dy > 0 ? 38 : -38), say.text, k || 1));
   };
+  // a long desk pill slides right, clear of the desk's legs
+  const onDesk = (text: string, lit: boolean, grow: number) =>
+    on('desk', text, lit, grow, Math.max(0, text.length - 12) * 2.8);
   const tl = s.tally;
   on(
     'carousel',
@@ -610,8 +613,7 @@ export function carouselPills(s: Carousel, v: SceneView, opts: { moving?: boolea
   if (s.outsider === 'binned' && !opts.moving) on('bin', 'REFUSED', true);
   const again = s.mode === 'prompt' && (s.tickets ?? 1) > 1;
   if (s.ticket && s.words !== undefined && (!opts.moving || opts.pulse !== undefined))
-    on(
-      'desk',
+    onDesk(
       phone
         ? 'DESK'
         : tl
@@ -629,7 +631,7 @@ export function carouselPills(s: Carousel, v: SceneView, opts: { moving?: boolea
 
 interface Drawn {
   rot: number;
-  poses: (Pose & { lit?: boolean })[];
+  poses: (Pose & { lit?: boolean; wrong?: boolean })[];
   tickets: number[][];
   /** the slot facing the desk is empty because its binder was picked */
   picked: boolean;
@@ -662,9 +664,14 @@ function loadOf(d: Drawn, withTray: boolean) {
   });
   d.poses
     .map((p, i) => ({ p, i }))
-    .filter((e): e is { p: Exclude<Pose, { slot: true }> & { lit?: boolean }; i: number } => !('slot' in e.p))
+    .filter(
+      (e): e is { p: Exclude<Pose, { slot: true }> & { lit?: boolean; wrong?: boolean }; i: number } =>
+        !('slot' in e.p),
+    )
     .sort((a, b) => a.p.z - b.p.z)
-    .forEach(({ p, i }) => (load += flat(p.x, p.y, p.z, p.yaw, p.o, SKILLS[i].id, !!p.lit)));
+    .forEach(
+      ({ p, i }) => (load += flat(p.x, p.y, p.z, p.yaw, p.o, SKILLS[i].id, p.lit ? true : p.wrong ? 'wrong' : false)),
+    );
   if (d.script) load += scriptArt(d.script.use, d.script.press);
   if (d.slip) load += slipArt(d.slip[0], d.slip[1], d.slip[2] ?? TOP + 0.3);
   if (d.out && d.out.z < TOP + 20) load += outsiderArt(d.out.x, d.out.y, d.out.z, d.out.o);
@@ -694,11 +701,19 @@ const outAt = (s: Carousel) =>
     ? { x: OUT_AT[0], y: OUT_AT[1], z: TOP + 0.4, o: s.outsider === 'open' ? 1 : 0 }
     : null;
 
+/** The open binder isn't the one the ticket on the desk needs (a wrong pick). */
+const misfit = (s: Carousel) => s.mode === 'skills' && !!s.open && !!s.ticket && requestOf(s.ticket).skill !== s.open;
 const rest = (s: Carousel, v: SceneView): Drawn => ({
   rot: rotFor(s.facing) + 360 * (s.spin ?? 0),
   // the answer's binder lifts from the pile and rings only while the stage is closed in on it
   poses: posesOf(s).map((p, i) =>
-    'slot' in p ? p : s.lit === SKILLS[i].id && v.zoomT > 0 ? { ...pileAt(i, true), lit: true } : p,
+    'slot' in p
+      ? p
+      : s.lit === SKILLS[i].id && v.zoomT > 0
+        ? { ...pileAt(i, true), lit: true }
+        : misfit(s) && s.open === SKILLS[i].id
+          ? { ...p, wrong: true }
+          : p,
   ),
   tickets: ticketsOf(s),
   picked: s.mode === 'skills' && !!s.open,

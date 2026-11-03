@@ -207,6 +207,19 @@ describe('the carousel scene', () => {
     expect(draw(carouselStill(refund))).not.toContain('data-fresh');
   });
 
+  it('rings a wrong pick in red and the assistant shows ???, a right pick neither', () => {
+    const wrong = draw(
+      carouselStill(
+        carouselOf('skills', [{ ticket: 'kettle', swap: { damaged: SKILLS.find(k => k.id === 'damaged')!.blurry! } }]),
+      ),
+    );
+    expect(wrong).toContain('data-wrong="1"');
+    expect(wrong).toContain('data-state="warn"');
+    const right = draw(carouselStill(refund));
+    expect(right).not.toContain('data-wrong');
+    expect(right).toContain('data-state="ok"');
+  });
+
   it('closes in on every part within the 2.2× cap', () => {
     for (const p of CAROUSEL_PARTS) {
       const z = closeUpZoom(CAROUSEL_BOARD, partBox(p, pile));
