@@ -64,7 +64,6 @@ export const STEPS: Step<S>[] = [
     narration:
       'Day 18: answering Ben, the assistant reads a deals page. Someone planted rules there: memory poisoning.',
     act: 'Press Read the page.',
-    say: { block: 'bin', text: 'Lost to handbook' },
     status: 'The page’s refund card fell, but its ID-check card stayed on the board.',
     predicate: s => s.read,
     hint: 'Press Read the page, under the picture.',

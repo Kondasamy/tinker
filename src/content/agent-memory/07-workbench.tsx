@@ -165,7 +165,7 @@ export default function Workbench() {
         const set = focus === 'bench' ? apply : sync;
         return (
           <MemoryStage
-            cork={corkOf(remember(state, { undone: state.undone }))}
+            cork={corkOf(remember(state, { undone: state.undone }), { noise: true })}
             pull={id => {
               if (state.undone.includes(id)) return `${sourceOf(id).name} is already pulled.`;
               set({ ...state, undone: SOURCES.map(x => x.id).filter(x => x === id || state.undone.includes(x)) });

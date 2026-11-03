@@ -37,7 +37,11 @@ type Pic = Pick<S, 'added' | 'web'> & { settled: boolean };
 
 function picture({ added, web, settled }: Pic): Cork {
   if (!added) return corkOf(RUN, { upTo: DAY });
-  let c = corkOf(RUN, { upTo: DAY, lit: settled ? [NEW] : [OLD, NEW], extra: [{ id: NEW, slot: FREE[0] }] });
+  let c = corkOf(RUN, {
+    upTo: DAY,
+    lit: settled ? [NEW] : [OLD, NEW, cardOf(OLD).from, cardOf(NEW).from],
+    extra: [{ id: NEW, slot: FREE[0] }],
+  });
   if (settled) c = fall(c, [LOSER]);
   if (web) {
     const page = sourceOf('web-deals');
@@ -121,7 +125,6 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['fact'],
     narration: 'A web page, newer still, says refunds can go to any account. The handbook says otherwise.',
     act: 'Press Read the web page.',
-    say: { block: 'bin', text: 'Newer, weaker' },
     status: 'The web page’s refund card fell straight into the bin: the handbook outranks it.',
     predicate: s => s.web,
     hint: 'Press Read the web page, under the picture.',

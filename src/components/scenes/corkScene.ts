@@ -38,7 +38,7 @@ export const CORK_PARTS = ['board', 'source', 'card', 'bin', 'tray', 'model'] as
 export type CorkPart = (typeof CORK_PARTS)[number];
 
 /** Whose card it is, by colour: a customer, the store, or the attacker. */
-export type Tone = 'ada' | 'ben' | 'cara' | 'dan' | 'store';
+export type Tone = 'ada' | 'ben' | 'cara' | 'dan' | 'store' | 'web';
 /** What a source paper looks like: a staff printout, a customer's chat, a web page. */
 export type Paper = 'staff' | 'customer' | 'web';
 export interface CorkSource {
@@ -76,6 +76,8 @@ const TONES: Record<Tone, { l: string; m: string; d: string }> = {
   cara: PALS.mint,
   dan: PALS.blush,
   store: { l: '#e9e4f5', m: '#b39ddb', d: '#3a2f52' },
+  // whatever a web page taught, whoever it is about
+  web: { l: '#f7a35c', m: '#d9853f', d: '#4d2a12' },
 };
 const CORK = { l: '#d9a86c', m: '#c48f52', d: '#7a5530' };
 const RED = '#c62f2a',
@@ -85,19 +87,24 @@ const RED = '#c62f2a',
 const BX = 48,
   Y0 = 26,
   Y1 = 122,
-  Z0 = BH + 16,
-  Z1 = BH + 74;
+  Z0 = BH + 12,
+  Z1 = BH + 64;
 const FACE_X = BX + 0.25;
-// papers along the top, cards in a 4 × 4 grid below
+// papers along the top, one per column; each card hangs in its own paper's column (spilling to the nearest column
+// with room), NC columns of NR rows
+const NC = 7,
+  NR = 4,
+  PITCH = (Y1 - Y0 - 6) / NC;
 const PW = 5.6,
-  PH = 6.5,
-  PZ0 = Z1 - 9; // a paper's half-width, half-height, centre height
-const COLS = 4,
-  CW = 9.2,
-  CH = 4.2, // a card's half-width (along y) and half-height
-  GY = 23.4,
-  GZ = 10.6,
-  GZ0 = Z0 + 8;
+  PH = 6,
+  PZ0 = Z1 - 8; // a paper's half-width, half-height, centre height
+const CW = PITCH / 2 - 0.9,
+  CH = 3.2, // a card's half-width (along y) and half-height
+  ZTOP = PZ0 - PH - 3 - CH,
+  GZ = (ZTOP - (Z0 + 3 + CH)) / (NR - 1);
+// a card lying on the table or in the bin
+const LW = 7.4,
+  LH = 4;
 const BIN = { x: 70, y: 88, r: 11, h: 15 };
 const TABLE = { x0: 84, x1: 104, y0: 44, y1: 76, z: BH + 18 };
 const MODEL = [80, 22],
@@ -117,32 +124,57 @@ const corners = (p: Pose) => [
   add(add(p.c, p.u, -1), p.v),
 ];
 
-/** A paper's centre on the board, by its place along the top. */
-function paperAt(i: number, n: number): V {
-  const span = Y1 - Y0 - 8,
-    step = Math.min(14, span / Math.max(1, n));
-  const y = (Y0 + Y1) / 2 - (i - (n - 1) / 2) * step;
-  return [FACE_X + 0.3, y, PZ0 + (i % 2 ? -1.5 : 1.5)];
+/** A column's centre along the board (column 0 on the viewer's left). */
+const colY = (col: number) => Y1 - 3 - PITCH * (col + 0.5);
+/** The column of the i-th of n papers: centred along the top. */
+const paperCol = (i: number, n: number) => i + Math.floor((NC - n) / 2);
+const paperAt = (i: number, n: number): V => [FACE_X + 0.3, colY(paperCol(i, n)), PZ0 + (i % 2 ? -1 : 1)];
+const cellAt = (col: number, row: number): V => [FACE_X + 0.2, colY(col), ZTOP - row * GZ];
+
+const LAYOUT = new WeakMap<Cork, Map<string, V>>();
+/** Where each card on the board hangs: under its own paper (its thread's root), top down, in arrival (slot) order; a
+ * full column spills to the nearest column with room. Worked out from the whole board, once per state. */
+function cellsOf(s: Cork): Map<string, V> {
+  const hit = LAYOUT.get(s);
+  if (hit) return hit;
+  const n = s.sources.length,
+    used = Array.from({ length: NC }, () => 0),
+    out = new Map<string, V>();
+  const rootOf = (c: CorkCard) => {
+    let from = c.from;
+    for (let i = 0; i <= s.cards.length; i++) {
+      const parent = s.cards.find(x => x.id === from);
+      if (!parent) return from;
+      from = parent.from;
+    }
+    return from;
+  };
+  const up = s.cards.filter(c => c.at === 'board');
+  s.sources.forEach((src, i) => {
+    const home = paperCol(i, n);
+    for (const c of up.filter(x => rootOf(x) === src.id).sort((a, b) => a.slot - b.slot)) {
+      const cols = [...Array(NC).keys()].sort((a, b) => Math.abs(a - home) - Math.abs(b - home) || a - b);
+      const col = cols.find(k => used[k] < NR) ?? home;
+      out.set(c.id, cellAt(col, used[col]++));
+    }
+  });
+  LAYOUT.set(s, out);
+  return out;
 }
-const slotAt = (slot: number): V => {
-  const col = slot % COLS,
-    row = Math.floor(slot / COLS);
-  return [FACE_X + 0.2, Y1 - 13 - col * GY, GZ0 + (3 - row) * GZ];
-};
 const upright = (c: V, hw: number, hh: number): Pose => ({ c, u: [0, hw, 0], v: [0, 0, hh] });
 const lying = (c: V, hw: number, hh: number, turn = 0): Pose => {
   const a = (turn * Math.PI) / 180;
   return { c, u: [hw * Math.sin(a), hw * Math.cos(a), 0], v: [hh * Math.cos(a), -hh * Math.sin(a), 0] };
 };
 /** A card's pose where it rests: on the board, on the side table, or in the bin's pile. */
-function cardPose(c: CorkCard): Pose {
-  if (c.at === 'board') return upright(slotAt(c.slot), CW, CH);
+function cardPose(c: CorkCard, s: Cork): Pose {
+  if (c.at === 'board') return upright(cellsOf(s).get(c.id) ?? cellAt(0, 0), CW, CH);
   if (c.at === 'tray') {
     const col = c.slot % 2,
       row = Math.floor(c.slot / 2);
-    return lying([TABLE.x0 + 4.5 + row * 2.3, TABLE.y0 + 9 + col * 16, TABLE.z + 0.3 + row * 0.15], CW * 0.8, CH, 0);
+    return lying([TABLE.x0 + 4.5 + row * 2.3, TABLE.y0 + 9 + col * 16, TABLE.z + 0.3 + row * 0.15], LW, LH, 0);
   }
-  return binPose(c.slot, CW * 0.55, CH * 0.9);
+  return binPose(c.slot, LW * 0.7, LH * 0.9);
 }
 const JIT = [
   [0, 0, 8],
@@ -322,8 +354,8 @@ export function partBox(part: CorkPart | string, s?: Cork): number[][] {
         ? // with room on the viewer's right (toward -y) for the cards' pill column
           box3(
             [
-              ...lit.flatMap(c => corners(cardPose(c))),
-              add(cardPose(lit[0]).c, [0, -Math.max(...lit.map(c => c.label.length)) * 3.2 - 14, 0]),
+              ...lit.flatMap(c => corners(cardPose(c, s!))),
+              add(cardPose(lit[0], s!).c, [0, -Math.max(...lit.map(c => c.label.length)) * 3.2 - 14, 0]),
             ],
             2,
           )
@@ -370,8 +402,8 @@ export function corkPills(s: Cork, v: SceneView, moving = false) {
       fs = 8.6 * K;
     const at = litCards.map(c => ({
       c,
-      a: add(cardPose(c).c, cardPose(c).u, -1),
-      q: P(...(add(cardPose(c).c, cardPose(c).u, -1) as [number, number, number])),
+      a: add(cardPose(c, s).c, cardPose(c, s).u, -1),
+      q: P(...(add(cardPose(c, s).c, cardPose(c, s).u, -1) as [number, number, number])),
     }));
     const w = Math.max(...litCards.map(c => c.label.length * fs * 0.62 + fs * 1.5));
     const col = Math.max(...at.map(x => x.q[0])) + 10 * K + w / 2;
@@ -386,8 +418,9 @@ export function corkPills(s: Cork, v: SceneView, moving = false) {
       sayAt(
         calloutOf(s.say, v),
         'card',
-        add(cardPose(litCards[0]).c, cardPose(litCards[0]).v),
-        -12,
+        add(cardPose(litCards[0], s).c, cardPose(litCards[0], s).v, -1),
+        // below the card, clear of the papers and their pills above
+        44,
         k('card') || 1,
         phone,
       ),
@@ -415,7 +448,7 @@ export function corkPills(s: Cork, v: SceneView, moving = false) {
 function rest(s: Cork) {
   const poses = new Map<string, Pose>();
   for (const p of papersOf(s)) poses.set(p.src.id, p.pose);
-  for (const c of s.cards) poses.set(c.id, cardPose(c));
+  for (const c of s.cards) poses.set(c.id, cardPose(c, s!));
   return poses;
 }
 
@@ -540,7 +573,9 @@ export const corkScene: Scene<Cork> = (prev, s, t, v) => {
         return 'label' in x ? cardArt({ ...x, lit: false }, p, false) : paperArt(x as CorkSource, p, false);
       })
       .join('');
-  return { still: art(s, v, skip, false), moving };
+  // lit cards glow once the motion lands, not while pieces are in flight
+  const calm = { ...s, cards: s.cards.map(c => (c.lit ? { ...c, lit: false } : c)) };
+  return { still: art(calm, v, skip, false), moving };
 };
 
 /** The picture in words, for its aria-label. */

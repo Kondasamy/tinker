@@ -66,7 +66,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: [],
     narration: `Some memories matter only for a while. A hold note has an expiry: ${HOLD} days.`,
     act: 'Press Jump to day 30.',
-    say: { block: 'board', text: 'Hold note' },
+    say: { block: 'card', text: `${HOLD} days` },
     status: `Cara’s hold note passed its ${HOLD} days and fell into the bin.`,
     predicate: s => s.jumped,
     hint: 'Press Jump to day 30, under the picture.',
@@ -86,7 +86,6 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['predict'],
     narration: 'Pulling her chats’ thread alone would leave her address from the order system.',
     act: 'Press Forget Cara.',
-    say: { block: 'source', text: 'Not enough' },
     status: 'Every card about Cara fell, her address from the order system too.',
     predicate: s => s.forgot,
     hint: 'Press Forget Cara, under the picture.',
@@ -124,7 +123,7 @@ export default function Forgetting() {
       next={nextOf(MODULE, ID)}
       stage={({ state, apply, say, closeUp }) => (
         <MemoryStage
-          cork={corkOf(cara(state), { upTo: DAY })}
+          cork={corkOf(cara(state), { upTo: DAY, lit: state.jumped ? [] : ['cara-away'] })}
           pull={id =>
             id === 'chat-cara'
               ? 'That pulls only her chats; her address from the order system would stay. Press Forget Cara.'

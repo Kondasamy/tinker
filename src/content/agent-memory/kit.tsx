@@ -57,6 +57,8 @@ export interface Look {
   gone?: string[];
   /** extra cards pinned beside the run's (a newcomer before its conflict is settled) */
   extra?: { id: string; slot: number }[];
+  /** show the small talk the keep rule swept into the bin too (the workbench, where the keep rule changes) */
+  noise?: boolean;
 }
 /** The board for a run of the month (engine → picture). */
 export function corkOf(m: Memory, look: Look = {}): Cork {
@@ -75,9 +77,10 @@ export function corkOf(m: Memory, look: Look = {}): Cork {
   });
   const card = (id: string, at: CorkCard['at'], slot: number): CorkCard => {
     const c = cardOf(id);
-    return { id, label: c.label, tone: TONE[c.about] ?? 'store', from: c.from, at, slot, lit: lit.has(id) };
+    const tone = rootOf(c).trust === 'web' ? 'web' : (TONE[c.about] ?? 'store');
+    return { id, label: c.label, tone, from: c.from, at, slot, lit: lit.has(id) };
   };
-  const shown = m.bin.filter(b => SHOWN.includes(b.why));
+  const shown = m.bin.filter(b => SHOWN.includes(b.why) || (look.noise && b.why === 'noise'));
   return {
     sources,
     cards: [
