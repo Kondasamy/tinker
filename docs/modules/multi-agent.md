@@ -12,6 +12,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **Hands in the picture (KTD4):** drag a cord from the board's coil onto a helper desk to hire that helper (`HitLayer`: `cord` drag, `desk1`–`desk5` drops; a press without a drag hires the next free desk). Dropped off every desk, it snaps back and the status line says to drop it on a desk; a desk already wired, or past the step's cap, is refused the same way. Tapping the board's panel runs the job. **Twins:** a Helpers radio group (0–5), Brief (One line / Detailed), Check replies and Timeout radio groups, and a Run button, all through the kit's one `act` handler, which writes the visible status line.
 - **Pills** are drawn outside the hand-drawn filter (`switchPills` through `PillLayer`); the share image keeps them inline.
 - **Close-up (KTD6):** each reveal closes in on the part that answers it: the lead's desk and its spill, the token meter, desk 2, the ports (the square plug, the set-aside capsule), the timer with the lamps.
+- **Frame:** the twin row under the picture is always drawn (Run disabled when the step has nothing to run) and holds a fixed minimum height, so the picture never resizes between steps.
 - **Second view:** Messages, the run's timeline as lanes (`FlatStage`): briefs, replies, a bounce (`INVALID`), waits (`WAITING`), the timeout (`STOPPED`), checks (`PASS`/`FAIL`).
 
 ## Chapter pictures
@@ -21,8 +22,8 @@ Each step's start frame is the previous step's end state; the status line is the
 | Ch | Step | Picture (end state) | Motion | Hands / control | Close-up | `say` part | Status line |
 |---|---|---|---|---|---|---|---|
 | 1 | predict | 30 catalogues on the cart, the lead's desk empty, no cords | none | Predict | — | desk | 30 catalogues wait on the cart beside the lead's empty desk. |
-| 1 | run | 24 on the lead's desk, 6 splayed on the floor (`6 UNREAD`), report `6 MISSING` | the pile flies to the desk, six fall, the sheet slides to the tray | tap the board, or Run | — | board | The lead read 24 catalogues; 6 fell off its full desk unread. |
-| 1 | reveal | the same | none (zooms in) | Reveal | desk | — | 6 unread catalogues lie on the floor by the lead's desk. |
+| 1 | run | 24 on the lead's desk, 6 splayed on the floor between the lead and Ines (`6 UNREAD`), report `6 MISSING` | the pile flies to the desk, six fall, the sheet slides to the tray | tap the board, or Run | — | board | The lead read 24 catalogues; 6 fell off its full desk unread. |
+| 1 | reveal | the same | none (zooms in) | Reveal | desk, report | — | 6 unread catalogues lie on the floor by the lead's desk. |
 | 1 | quiz | the same | none | Quiz | — | — | The report on Ines's tray is missing 6 suppliers. |
 | 2 | hire | three cords from the board to desks 1–3, helpers turn blush | cords snake out | drag cords, or Helpers radio | — | coil | 3 cords run from the board to 3 helper desks. |
 | 2 | predict | the same | none | Predict | — | meter | 3 cords wait; the catalogues are still on the cart. |
@@ -44,9 +45,9 @@ Each step's start frame is the previous step's end state; the status line is the
 | 5 | reveal | the same | none (zooms in) | Reveal | timer, lamps | — | The timer's face is full, and lamps 1 and 2 are steady again. |
 | 5 | quiz | the same | none | Quiz | — | — | The euro price list lies on Ines's tray. |
 | 6 | run | a red knob in port 2 (`42.00`), report `WRONG PRICE` | piles fly, capsules travel (desk 2's red) | tap the board, or Run | — | report | Desk 2's reply seated with 42.00, and the report printed it. |
-| 6 | predict | the same | none | Predict | — | report | The red capsule sits in port 2, and the report shows 42.00. |
-| 6 | check | the red capsule set aside on the base (`CAUGHT 42.00`), port 2 mint, report done | as a run; the caught capsule lands on the base | Check replies radio, then Run | — | — | The check set desk 2's 42.00 aside; the report has the catalogue's 4.20. |
-| 6 | reveal | the same | none (zooms in) | Reveal | port | — | The red capsule lies set aside on the board's base, under port 2. |
+| 6 | predict | the same | none | Predict | — | — | The red capsule sits in port 2, and the report shows 42.00. |
+| 6 | check | the red capsule set aside in a dish at the base's far end, a red price tag beside it (`CAUGHT 42.00`), port 2 mint, report done | as a run; the caught capsule lands on the base | Check replies radio, then Run | — | — | The check set desk 2's 42.00 aside; the report has the catalogue's 4.20. |
+| 6 | reveal | the same | none (zooms in) | Reveal | port | — | The red capsule lies set aside in the dish on the board's base. |
 | 6 | quiz | the same | none | Quiz | — | — | The right report lies on Ines's tray. |
 | 7 | bench | the job picked in the Job `Select`, run live with its setup | each setting change reruns that job | Job `Select`, Helpers, Brief, Check replies (drag cords too) | — | coil | Each job's report is right, within its budget and on time. |
 | 7 | quiz | the same | none | Quiz | — | — | All three reports lie right on Ines's tray. |

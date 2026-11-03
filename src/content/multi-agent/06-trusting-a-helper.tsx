@@ -75,7 +75,6 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['predict'],
     narration: `Catalogue ${JOB.slip} says ${REAL}; desk 2 read ${READ}, sure of itself. The lead merged it.`,
     act: 'Predict: what would have caught it?',
-    say: { block: 'report', text: 'Printed' },
     status: `The red capsule sits in port 2, and the report shows ${READ}.`,
     predicate: s => s.prediction !== null,
   },
@@ -97,7 +96,7 @@ export const STEPS: Step<S>[] = [
     narration: `Caught, for ${(ON.minutes ?? 0) - (OFF.minutes ?? 0)} more minutes and ${num(ON.tokens - OFF.tokens)} more tokens: the price of a right report.`,
     act: 'Check your prediction.',
     closeUp: ['port'],
-    status: 'The red capsule lies set aside on the board’s base, under port 2.',
+    status: 'The red capsule lies set aside in the dish on the board’s base, a red price tag beside it.',
     predicate: s => s.revealed,
   },
   {

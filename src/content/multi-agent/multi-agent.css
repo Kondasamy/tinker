@@ -1,6 +1,7 @@
 /* Multi-agent stage: shares the tool-calling frame (.tc-stage, .tc-frame, .tc-caption); the twin controls sit under
    the picture. Lamps on hold blink at each other, one half a beat behind; with reduced motion they hold steady. */
 .ma-twin {
+  min-height: 72px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;

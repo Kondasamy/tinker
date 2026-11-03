@@ -125,6 +125,7 @@ export default function Workbench() {
             briefs
             checks
             canRun={false}
+            runButton={false}
             say={say}
             extra={
               <label className="ma-job">

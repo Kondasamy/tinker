@@ -177,6 +177,7 @@ export function SwitchStage({
   checks,
   timeouts,
   extra,
+  runButton = true,
   say,
   closeUp,
 }: {
@@ -193,6 +194,8 @@ export function SwitchStage({
   checks?: boolean;
   timeouts?: boolean;
   extra?: ReactNode;
+  /** false: no Run button (the workbench reruns on every change) */
+  runButton?: boolean;
   say?: Say;
   closeUp?: string[];
 }) {
@@ -280,7 +283,8 @@ export function SwitchStage({
           <p className="ma-none">Run the job to see its messages.</p>
         )}
       </div>
-      {(helpers || briefs || checks || timeouts || onRun || extra) && (
+      {/* always drawn, Run included (disabled when the step has nothing to run), so the picture's frame never resizes */}
+      {
         <div className="ma-twin">
           {extra}
           {helpers && setWired && (
@@ -321,13 +325,13 @@ export function SwitchStage({
               onChange={timeout => setSetup({ ...setup, timeout })}
             />
           )}
-          {onRun && (
-            <button type="button" className="big" onClick={() => act('board')}>
+          {runButton && (
+            <button type="button" className="big" disabled={!onRun} onClick={() => act('board')}>
               Run
             </button>
           )}
         </div>
-      )}
+      }
       <p className="tc-caption ma-status" role="status">
         {status}
       </p>
@@ -390,6 +394,7 @@ export function RunStage<S extends Run>({
   timeouts,
   extra,
   canRun = true,
+  runButton,
   say,
   closeUp,
 }: {
@@ -405,6 +410,7 @@ export function RunStage<S extends Run>({
   extra?: ReactNode;
   /** whether this step lets the reader run the job (not before a prediction is locked) */
   canRun?: boolean;
+  runButton?: boolean;
   say?: Say;
   closeUp?: string[];
 }) {
@@ -430,6 +436,7 @@ export function RunStage<S extends Run>({
       checks={checks}
       timeouts={timeouts}
       extra={extra}
+      runButton={runButton}
       say={say}
       closeUp={closeUp}
     />

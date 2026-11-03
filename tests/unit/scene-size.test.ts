@@ -717,8 +717,8 @@ const BASE: Record<string, number> = {
   carousel: 26000,
   // new with the agent-memory module (no pre-rework size): its first size is about 77,600 (16 cards and their threads), with a little headroom
   cork: 30000,
-  // new with the multi-agent module (no pre-rework size): its first size is 182,375, with a little headroom
-  switchboard: 62000,
+  // new with the multi-agent module (no pre-rework size): its first size is 186,308, with a little headroom
+  switchboard: 64000,
   // new with the robots module (no pre-rework size): its first size is 44,523, with a little headroom
   claw: 16000,
   cloak: 57039,

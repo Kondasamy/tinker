@@ -80,7 +80,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['predict', 'reveal', 'fact'],
     narration: `${LEFT} catalogues fell to the floor unread, so ${LEFT} suppliers are missing from Ines’s report.`,
     act: 'Check your prediction.',
-    closeUp: ['desk'],
+    closeUp: ['desk', 'report'],
     status: `${LEFT} unread catalogues lie on the floor by the lead’s desk.`,
     predicate: s => s.revealed,
   },

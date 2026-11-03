@@ -110,7 +110,11 @@ const B = { x0: 14, x1: 90, y0: 10, y1: 16, zb: BH + 16, zt: BH + 48, yb: 27 };
 const FACE = B.y1 + 0.06;
 const colX = (d: number) => 34 + (d - 1) * 12;
 const Z = { lamp: BH + 42, port: BH + 33, jack: BH + 24 };
-const DIAL = { x: 22, meter: BH + 38, timer: BH + 25, r: 5 };
+const DIAL = { x: 22, meter: BH + 40, timer: BH + 25, r: 5, rm: 6.5 };
+/** the token meter's full sweep: its needle reads tokens against this */
+const METER_MAX = 50000;
+/** the dish on the board's base where a check sets a misread reply aside */
+const DISH = [22, 22];
 const COIL = [86, 21.5];
 const LEAD = [128, 18],
   LEAD_K = 0.9,
@@ -173,10 +177,10 @@ function cut(pts: V[], u: number): V[] {
 }
 const at = (pts: V[], u: number) => cut(pts, u).at(-1)!;
 /** A cord drawn along points: an ink sleeve and its colour. */
-function cordSvg(pts: V[], col: string, data = '') {
+function cordSvg(pts: V[], col: string, data = '', w = 1) {
   if (pts.length < 2) return '';
   const d = 'M' + pts.map(p => P(p[0], p[1], p[2]).map(f).join(' ')).join('L');
-  return `<g${data}><path d="${d}" fill="none" stroke="${INK}" stroke-width="3.6" stroke-linejoin="round" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${col}" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"/></g>`;
+  return `<g${data}><path d="${d}" fill="none" stroke="${INK}" stroke-width="${(3.6 * w).toFixed(1)}" stroke-linejoin="round" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${col}" stroke-width="${(1.9 * w).toFixed(1)}" stroke-linejoin="round" stroke-linecap="round"/></g>`;
 }
 
 /** A pile of catalogues lying flat, one colour per catalogue, bottom first. */
@@ -246,17 +250,38 @@ interface Face {
 function faceSvg(F: Face) {
   let s = '';
   // dials: the token meter (a needle) and the timer (a sweep)
-  s += disc(DIAL.x, DIAL.meter, DIAL.r + 1, DARK.m, 1) + disc(DIAL.x, DIAL.meter, DIAL.r, CERAMIC.l, 0.6);
-  const a = Math.PI * (1.25 - 1.5 * F.needle);
+  s += disc(DIAL.x, DIAL.meter, DIAL.rm + 1, DARK.m, 1) + disc(DIAL.x, DIAL.meter, DIAL.rm, CERAMIC.l, 0.6);
+  // the meter's scale: a mustard arc from empty (lower left) round to full (lower right), the needle over it
+  const arc = (u: number) => Math.PI * (1.25 - 1.5 * u);
+  const ring = (u0: number, u1: number, r0: number, r1: number) => {
+    const n = 12,
+      pts: number[][] = [];
+    for (let i = 0; i <= n; i++)
+      pts.push([
+        DIAL.x + Math.cos(arc(u0 + ((u1 - u0) * i) / n)) * r1,
+        DIAL.meter + Math.sin(arc(u0 + ((u1 - u0) * i) / n)) * r1,
+      ]);
+    for (let i = n; i >= 0; i--)
+      pts.push([
+        DIAL.x + Math.cos(arc(u0 + ((u1 - u0) * i) / n)) * r0,
+        DIAL.meter + Math.sin(arc(u0 + ((u1 - u0) * i) / n)) * r0,
+      ]);
+    return on(PY(FACE + 0.04), pts);
+  };
+  s += shape(ring(0, 1, DIAL.rm - 1.8, DIAL.rm - 0.4), CERAMIC.m, 0.4);
+  if (F.needle > 0) s += shape(ring(0, F.needle, DIAL.rm - 1.8, DIAL.rm - 0.4), PALS.tomato.l, 0.5);
+  const a = arc(F.needle),
+    nx = -Math.sin(a) * 0.9,
+    nz = Math.cos(a) * 0.9;
   s += `<g data-meter="${F.needle.toFixed(2)}">${shape(
     [
-      [DIAL.x - 0.5, FACE + 0.05, DIAL.meter],
-      [DIAL.x + 0.5, FACE + 0.05, DIAL.meter],
-      [DIAL.x + Math.cos(a) * (DIAL.r - 1), FACE + 0.05, DIAL.meter + Math.sin(a) * (DIAL.r - 1)],
+      [DIAL.x + nx, FACE + 0.06, DIAL.meter + nz],
+      [DIAL.x - nx, FACE + 0.06, DIAL.meter - nz],
+      [DIAL.x + Math.cos(a) * (DIAL.rm - 0.8), FACE + 0.06, DIAL.meter + Math.sin(a) * (DIAL.rm - 0.8)],
     ],
-    PALS.tomato.m,
+    DARK.d,
     0.7,
-  )}</g>`;
+  )}${disc(DIAL.x, DIAL.meter, 1, DARK.d, 0.5)}</g>`;
   s +=
     disc(DIAL.x, DIAL.timer, DIAL.r + 1, F.timerSet ? PALS.mustard.m : DARK.m, 1) +
     disc(DIAL.x, DIAL.timer, DIAL.r, CERAMIC.l, 0.6);
@@ -274,7 +299,7 @@ function faceSvg(F: Face) {
     const x = colX(d),
       lamp = F.lamps[d] ?? 'off';
     const col = lamp === 'ok' ? PALS.mint.l : lamp === 'hold' ? PALS.mustard.l : CERAMIC.m;
-    s += `<g data-lamp="${lamp}"${lamp === 'hold' ? ` class="ma-blink${d === F.hold[1] ? ' ma-late' : ''}"` : ''}>${disc(x, Z.lamp, 2.1, col, lamp === 'hold' ? 1.6 : 0.8)}</g>`;
+    s += `<g data-lamp="${lamp}"${lamp === 'hold' ? ` class="ma-blink${d === F.hold[1] ? ' ma-late' : ''}"` : ''}>${disc(x, Z.lamp, 2.8, col, lamp === 'off' ? 0.8 : 1.6)}</g>`;
     s += disc(x, Z.port, 2.9, DARK.d, 1);
     const k = F.knobs[d];
     if (k && k !== 'held') {
@@ -298,30 +323,56 @@ function baseSvg(F: Face) {
     );
   s += `<g data-coil="1">${box(COIL[0] - 1, COIL[1] - 4.4, B.zb, COIL[0] + 1.4, COIL[1] - 2.6, B.zb + 2, METAL, toneI, 0.7)}</g>`;
   for (const d of F.bounced) s += `<g data-plug="bounced">${capsule([colX(d) + 3, 20, B.zb], 'bounced', true)}</g>`;
-  for (const d of F.caught) s += `<g data-plug="caught">${capsule([colX(d) + 3, 22.5, B.zb], 'wrong')}</g>`;
+  // a check's catch: a dish at the base's far end, the red capsule in it and a red price tag beside it
+  for (const _ of F.caught.slice(0, 1))
+    s += `<g data-plug="caught">${cyl(DISH[0], DISH[1], B.zb, B.zb + 0.9, 4.2, METAL, toneI, 1, 16)}${capsule([DISH[0] - 0.6, DISH[1], B.zb + 0.9], 'wrong')}${shape(
+      [
+        [DISH[0] + 4.6, DISH[1] - 2.6, B.zb + 0.1],
+        [DISH[0] + 8.4, DISH[1] - 2.6, B.zb + 0.1],
+        [DISH[0] + 8.4, DISH[1] + 1.4, B.zb + 0.1],
+        [DISH[0] + 4.6, DISH[1] + 1.4, B.zb + 0.1],
+      ],
+      PALS.tomato.l,
+      0.8,
+    )}${shape(
+      [
+        [DISH[0] + 5.4, DISH[1] - 1.6, B.zb + 0.15],
+        [DISH[0] + 7.6, DISH[1] - 1.6, B.zb + 0.15],
+        [DISH[0] + 7.6, DISH[1] + 0.4, B.zb + 0.15],
+        [DISH[0] + 5.4, DISH[1] + 0.4, B.zb + 0.15],
+      ],
+      CERAMIC.l,
+      0.4,
+    )}</g>`;
   if (F.holdCord === 'in' && F.hold.length === 2) {
     const [a, b] = F.hold.map(colX);
     s += cordSvg(
       [
         [a, FACE, Z.jack],
-        [a + 1, FACE + 2, Z.jack - 6],
-        [(a + b) / 2, FACE + 3, Z.jack - 8],
-        [b - 1, FACE + 2, Z.jack - 6],
+        [a - 1, FACE + 2.5, Z.jack - 3],
+        [a + 1, FACE + 5, B.zb + 0.8],
+        [(a + b) / 2, FACE + 6.5, B.zb + 0.6],
+        [b - 1, FACE + 5, B.zb + 0.8],
+        [b + 1, FACE + 2.5, Z.jack - 3],
         [b, FACE, Z.jack],
       ],
       PALS.mustard.l,
       ' data-hold="1"',
+      1.5,
     );
   } else if (F.holdCord === 'dropped' && F.hold.length === 2) {
     const a = colX(F.hold[0]);
     s += cordSvg(
       [
         [a, FACE, Z.jack],
-        [a + 1, FACE + 2, B.zb + 0.6],
-        [a + 6, 22, B.zb + 0.6],
+        [a - 1, FACE + 3, B.zb + 0.6],
+        [a + 4, B.yb - 1.5, B.zb + 0.6],
+        [a + 5, B.yb + 0.6, B.zb - 2],
+        [a + 5.5, B.yb + 0.8, B.zb - 9],
       ],
       PALS.mustard.l,
       ' data-hold="dropped"',
+      1.5,
     );
   }
   return s;
@@ -364,17 +415,17 @@ export function partBox(part: SwitchPart | 'panel'): number[][] {
     case 'lead':
       return boxCorners(LEAD[0] - 16, LEAD[1] - 16, BH, LEAD[0] + 16, LEAD[1] + 16, BH + 31);
     case 'desk':
-      return boxCorners(LDESK.x0, LDESK.y0, BH, LDESK.x1, LDESK.y1 + 10, LDESK.z + 10);
+      return boxCorners(LDESK.x0, LDESK.y0, BH, SPILL0[0] + 10, SPILL0[1] + 10, LDESK.z + 10);
     case 'cart':
       return boxCorners(CART.x0, CART.y0, BH, CART.x1, CART.y1, CART.z + 18);
     case 'meter':
-      return boxCorners(DIAL.x - 8, B.y0, DIAL.meter - 8, DIAL.x + 8, B.yb, DIAL.meter + 8);
+      return boxCorners(DIAL.x - 9, B.y0, DIAL.meter - 9, DIAL.x + 9, B.yb, DIAL.meter + 9);
     case 'timer':
       return boxCorners(DIAL.x - 8, B.y0, DIAL.timer - 8, DIAL.x + 8, B.yb, DIAL.timer + 8);
     case 'lamps':
       return boxCorners(colX(1) - 6, B.y0, Z.jack - 4, colX(2) + 6, B.y1 + 4, Z.lamp + 4);
     case 'port':
-      return boxCorners(colX(1) - 5, B.y0, B.zb, colX(5) + 5, B.yb, Z.lamp);
+      return boxCorners(DISH[0] - 5, B.y0, B.zb, colX(5) + 5, B.yb, Z.lamp);
     default:
       return boxCorners(TRAY.x0, TRAY.y0, BH, TRAY.x1, TRAY.y1, TRAY.z + 8);
   }
@@ -387,7 +438,9 @@ export const coilPlug = () =>
 /** Where a desk's catalogue pile sits (0 = the lead's desk). */
 const pileAt = (d: number): V => (d ? [deskX(d) + 6, 79, DESK.z] : [(LDESK.x0 + LDESK.x1) / 2 + 4, 48, LDESK.z]);
 const CART_AT: V = [(CART.x0 + CART.x1) / 2, (CART.y0 + CART.y1) / 2, CART.z];
-const spillAt = (d: number): V => (d ? [deskX(d), 89] : [126, 56]);
+/** the lead's spill: on the floor between its desk and Ines, clear of every desk */
+const SPILL0 = [146, 59];
+const spillAt = (d: number): V => (d ? [deskX(d), 89] : SPILL0);
 
 const pill = (p: V, dy: number, text: string, lit: boolean, k: number, dx = 0) =>
   `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text), lit, k)}</g>`;
@@ -401,7 +454,8 @@ export function switchPills(s: Switch, v: SceneView, moving = false) {
   const put = (p: string, at3: V, dy: number, text: string | null, lit = false, dx = 0, callout = true) => {
     const k = pillScale(p, v);
     if (text && k) out.push(pill(at3, dy, text, lit, k, dx));
-    if (callout) out.push(sayAt(calloutOf(s.say, v), p, at3, dy - 10, k || 1, phone));
+    // the callout a row beyond the name pill: above a pill above its part, below a pill below it
+    if (callout) out.push(sayAt(calloutOf(s.say, v), p, at3, dy > 0 ? dy + 50 : dy - 10, k || 1, phone));
   };
   put('lead', [LEAD[0], LEAD[1], BH + 33], -12, 'LEAD', false, 8);
   put(
@@ -419,7 +473,7 @@ export function switchPills(s: Switch, v: SceneView, moving = false) {
   const ran = s.ran && !moving;
   put(
     'meter',
-    [DIAL.x, B.y0, DIAL.meter + DIAL.r],
+    [DIAL.x, B.y0, DIAL.meter + DIAL.rm],
     -14,
     ran && s.tokens !== undefined ? (phone ? 'TOKENS' : `${num(s.tokens)} TOKENS`) : null,
     false,
@@ -434,7 +488,7 @@ export function switchPills(s: Switch, v: SceneView, moving = false) {
     -22,
   );
   const holdX = s.hold.length ? (colX(s.hold[0]) + colX(s.hold.at(-1)!)) / 2 : colX(1);
-  put('lamps', [holdX, FACE, Z.lamp + 2], -12, ran && s.hold.length && s.timer !== 'rang' ? 'ON HOLD' : null, true);
+  put('lamps', [holdX, FACE, Z.lamp + 3], -26, ran && s.hold.length && s.timer !== 'rang' ? 'ON HOLD' : null, true, 16);
   const odd = DESKS.find(d => ['bounced', 'wrong', 'caught'].includes(s.plugs[d] ?? ''));
   const portText =
     !ran || !odd
@@ -446,14 +500,22 @@ export function switchPills(s: Switch, v: SceneView, moving = false) {
             ? 'CAUGHT'
             : `CAUGHT ${s.slipped ?? ''}`
           : (s.slipped ?? 'WRONG');
-  put('port', [odd ? colX(odd) : colX(3), FACE, Z.port + 3], -22, portText, s.plugs[odd ?? 0] === 'wrong', 0);
+  const caught = odd !== undefined && s.plugs[odd] === 'caught';
+  put(
+    'port',
+    caught ? [DISH[0], DISH[1], B.zb + 3] : [odd ? colX(odd) : colX(3), FACE, Z.port + 3],
+    caught ? -30 : -22,
+    portText,
+    s.plugs[odd ?? 0] !== 'bounced' && !!odd,
+    0,
+  );
   if (ran) {
     const dupD = DESKS.find(d => s.dup[d]);
     if (dupD)
       put(
         `desk${dupD}`,
         [deskX(dupD) + 6, 79, DESK.z + 4],
-        -18,
+        -36,
         phone ? 'SAME' : `SAME AS ${s.dup[dupD]}`,
         true,
         0,
@@ -462,7 +524,7 @@ export function switchPills(s: Switch, v: SceneView, moving = false) {
     if (s.spilled) {
       const p = spillAt(s.spillDesk);
       const k = pillScale(s.spillDesk ? `desk${s.spillDesk}` : 'desk', v);
-      if (k) out.push(pill([p[0], p[1], BH], 14, phone ? 'UNREAD' : `${s.spilled} UNREAD`, true, k));
+      if (k) out.push(pill([p[0], p[1], BH + 1], -20, phone ? 'UNREAD' : `${s.spilled} UNREAD`, true, k, -22));
     }
   }
   const rep =
@@ -515,7 +577,7 @@ function faceOf(s: Switch, done: boolean): Face {
     holdCord: done && s.hold.length ? (s.timer === 'rang' ? 'dropped' : 'in') : 'none',
     bounced: done ? s.wired.filter(d => s.plugs[d] === 'bounced') : [],
     caught: done ? s.wired.filter(d => s.plugs[d] === 'caught') : [],
-    needle: done && s.tokens ? Math.min(1, s.tokens / 60000) : 0,
+    needle: done && s.tokens ? Math.min(1, s.tokens / METER_MAX) : 0,
     timer: s.timer === 'rang' && done ? 1 : 0,
     timerSet: s.timer !== 'off',
   };
@@ -798,7 +860,7 @@ export const switchScene: Scene<Switch> = (prev, s, t, v) => {
       if (k === 'caught') face.caught.push(dk);
     }
   }
-  if (t > r1) face.needle = s.tokens ? Math.min(1, s.tokens / 60000) * ph(t, r1, 1) : 0;
+  if (t > r1) face.needle = s.tokens ? Math.min(1, s.tokens / METER_MAX) * ph(t, r1, 1) : 0;
   d.face = face;
   d.flying = flying;
   d.sheet = s.report !== 'waiting' && t > 0.82 ? ph(t, 0.82, 1) : null;
