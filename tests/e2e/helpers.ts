@@ -67,3 +67,71 @@ export async function chooseByKeys(box: Locator, pick: string | { label: string 
   for (let n = 0; n < i; n++) await box.press('ArrowDown');
   await box.press('Enter');
 }
+
+export type Mode = 'mouse' | 'keyboard';
+
+/** Playing a chapter through StepRunner by its twin controls (living scenes: the controls beside the picture and in
+ * the step card, never the SVG), by mouse or by keyboard alone. `check` runs on each chapter's first and last screen. */
+export function chapterPlayer(page: Page, mode: Mode = 'mouse', check: (page: Page) => Promise<void> = async () => {}) {
+  const press = (l: Locator) => (mode === 'keyboard' ? l.press('Enter') : l.click());
+  const card = page.getByRole('region', { name: 'Next step' });
+  const stage = page.getByRole('region', { name: 'Scene' });
+  const step = (n: number) => expect(card).toContainText(`Step ${n} of`);
+  async function open(path: string) {
+    await page.goto(path);
+    await page.locator('astro-island:not([ssr])').waitFor();
+    await step(1);
+    await check(page);
+  }
+  /** chapter complete; then follow its Next (or Recap) link when `next` is given */
+  async function finish(next?: RegExp) {
+    await expect(card).toContainText('Chapter complete');
+    await check(page);
+    if (!next) return;
+    await press(card.getByRole('link', { name: /^(Next:|Recap)/ }));
+    await expect(page).toHaveURL(next);
+    // a key pressed before the next island hydrates is lost
+    if (!/recap/.test(String(next))) await page.locator('astro-island:not([ssr])').waitFor();
+  }
+  return {
+    card,
+    stage,
+    press,
+    step,
+    open,
+    finish,
+    /** a button in the step card, or (with `inStage`) beside the picture */
+    btn: (name: string | RegExp, inStage = false) => press((inStage ? stage : card).getByRole('button', { name })),
+    /** a quiz or prediction option */
+    opt: (name: string | RegExp) => press(card.getByRole('radio', { name })),
+    /** open `path`, run each move (one per step, in order), finish */
+    async play(path: string, moves: (() => Promise<unknown>)[], next?: RegExp) {
+      await open(path);
+      for (const m of moves) await m();
+      await finish(next);
+    },
+  };
+}
+
+/** axe's serious and critical findings on the stage before and after a close-up (`zoomIn` gets it there), and the
+ * picture's size unchanged by the zoom (R11: no resize, no reflow). */
+export async function axeAcrossZoom(page: Page, zoomIn: () => Promise<void>, include = '.stage') {
+  const svg = page.locator(`${include} svg`).first();
+  const before = await svg.boundingBox();
+  const unzoomed = await serious(page, include);
+  await zoomIn();
+  const zoomed = await serious(page, include);
+  const after = await svg.boundingBox();
+  expect({ unzoomed, zoomed }).toEqual({ unzoomed: [], zoomed: [] });
+  expect(after?.width).toBeCloseTo(before?.width ?? 0, 0);
+  expect(after?.height).toBeCloseTo(before?.height ?? 0, 0);
+}
+
+/** No sideways page scroll (use at 390 px: test.use(PHONE)). */
+export async function noSideScroll(page: Page) {
+  const r = await page.evaluate(() => ({
+    scrollW: document.documentElement.scrollWidth,
+    w: document.documentElement.clientWidth,
+  }));
+  expect(r.scrollW, 'no horizontal page scroll').toBeLessThanOrEqual(r.w);
+}

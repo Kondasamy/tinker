@@ -1,4 +1,4 @@
-import { useId, type ReactNode, type Ref, type SVGProps } from 'react';
+import { useId, useMemo, type ReactNode, type Ref, type SVGProps } from 'react';
 import { P, INK_REF_VB, withFrame, board, boardTop, filterFor, inkScale } from './core.js';
 import { BH } from './blocks';
 
@@ -47,6 +47,9 @@ export function frameFor([x0, y0, x1, y1]: Board, view = 0): Frame {
 interface Props extends Omit<SVGProps<SVGSVGElement>, 'role' | 'ref' | 'children'> {
   board: Board;
   scene: string | ((ctx: SceneCtx) => string);
+  /** a living scene's pieces in flight (motion.ts), drawn above the art without the wobble filter so only they
+   * change per frame; pass `scene` as a stable value (memoised on the target state) so the filtered art is built once */
+  moving?: string | ((ctx: SceneCtx) => string);
   label: string;
   light?: number;
   /** quarter turns about the board's centre (any real number) */
@@ -62,6 +65,7 @@ interface Props extends Omit<SVGProps<SVGSVGElement>, 'role' | 'ref' | 'children
 export default function IsoStage({
   board: b,
   scene,
+  moving,
   label,
   light = 105,
   view = 0,
@@ -85,10 +89,22 @@ export default function IsoStage({
     vh = base.h / k;
   const vx = (zoom?.u ?? 0.5) * (base.w - vw),
     vy = (zoom?.v ?? 0.5) * (base.h - vh);
-  const art = withFrame({ ...fr, light, prefix }, () => {
-    const top = boardTop(...b, BH, 8);
-    return inkScale(board(...b, BH, 8) + (typeof scene === 'function' ? scene({ top }) : scene));
-  });
+  const [x0, y0, x1, y1] = b;
+  const art = useMemo(
+    () =>
+      withFrame({ ...fr, light, prefix }, () => {
+        const top = boardTop(...b, BH, 8);
+        return inkScale(board(...b, BH, 8) + (typeof scene === 'function' ? scene({ top }) : scene));
+      }),
+    // only living scenes (they pass `moving`) keep the art between renders; live stages rebuild it every render as before
+    [x0, y0, x1, y1, view, light, prefix, scene, moving === undefined ? {} : 0],
+  );
+  // its own clip-id prefix: withFrame restarts clip numbering, so the two layers' ids would collide
+  const flying =
+    moving &&
+    withFrame({ ...fr, light, prefix: prefix + 'm-' }, () =>
+      inkScale(typeof moving === 'function' ? moving({ top: boardTop(...b, BH, 8) }) : moving),
+    );
   return (
     <svg
       {...rest}
@@ -110,6 +126,13 @@ export default function IsoStage({
             __html: role === 'img' ? art.replace(/ role="button" tabindex="0" aria-label="[^"]*"/g, '') : art,
           }}
         />
+        {flying && (
+          <g
+            className="iso-moving"
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: SVG markup the kit built, every string escaped (esc)
+            dangerouslySetInnerHTML={{ __html: flying }}
+          />
+        )}
         {children}
       </g>
     </svg>

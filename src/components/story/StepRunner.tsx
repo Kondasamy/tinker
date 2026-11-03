@@ -22,6 +22,8 @@ export interface StageProps<S> {
   focus?: string;
   /** the step's callout for the picture (KTD7) */
   say?: Say;
+  /** the step's close-up parts, for living scenes (KTD6) */
+  closeUp?: string[];
   /** 1-based chapter number within the module */
   chapter?: number;
   inspect: (panel: string, sheet?: boolean) => void;
@@ -169,7 +171,16 @@ export default function StepRunner<S>({
   return (
     <div className="chapter">
       <section className="stage" aria-label="Scene">
-        {stage({ state: run.state, apply, sync, focus: step.focus, say: step.say, chapter: n + 1, inspect })}
+        {stage({
+          state: run.state,
+          apply,
+          sync,
+          focus: step.focus,
+          say: step.say,
+          closeUp: step.closeUp,
+          chapter: n + 1,
+          inspect,
+        })}
       </section>
       <div className="side">
         {ch && (
@@ -237,6 +248,7 @@ export default function StepRunner<S>({
                 <span>{withTerms(marked[2 * run.index + 1] ?? [step.act])}</span>
               </p>
             )}
+            {step.status && <p className="sr">{step.status}</p>}
           </div>
           {/* outside the atomic live region, so opening a word never re-reads the whole step */}
           <div id="term-def" className="term-def" aria-live="polite">
