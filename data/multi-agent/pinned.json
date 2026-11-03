@@ -1,0 +1,23 @@
+{
+  "alone": { "read": 24, "spilled": 6, "tokens": 26000, "minutes": 48, "correct": false },
+  "three": { "loads": [10, 10, 10], "tokens": 41000, "minutes": 24, "correct": true },
+  "tokensByHelpers": [26000, 29000, 38000, 41000, 44000, 47000],
+  "vague": { "dup": [2], "left": 10, "tokens": 41000, "correct": false },
+  "malformed": { "helper": 2, "problems": ["price is not a number"], "minutes": 28, "correct": true },
+  "deadlock": { "hold": [1, 2], "finished": false, "timeout": { "minutes": 27, "tokens": 16000, "correct": true } },
+  "slip": { "helper": 2, "unchecked": "wrong", "checked": "caught", "minutes": 26, "tokens": 42500 },
+  "winners": {
+    "report": [
+      { "helpers": 3, "brief": "detailed", "check": true },
+      { "helpers": 4, "brief": "detailed", "check": true }
+    ],
+    "rates": [
+      { "helpers": 0, "brief": "vague", "check": true },
+      { "helpers": 0, "brief": "detailed", "check": true }
+    ],
+    "quote": [
+      { "helpers": 0, "brief": "vague", "check": true },
+      { "helpers": 0, "brief": "detailed", "check": true }
+    ]
+  }
+}

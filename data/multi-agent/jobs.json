@@ -1,0 +1,49 @@
+{
+  "note": "Hand-set toy numbers for a hand-written example: Larkspur's supplier report from 30 catalogues, the price of a box of 100 deck screws in each. Tokens and minutes are toy units, not measured.",
+  "room": 24,
+  "tokens": { "lead": 2000, "helper": 3000, "read": 1000, "check": 500 },
+  "minutes": { "brief": 2, "read": 2, "merge": 2, "check": 2, "resend": 4, "timeout": 15 },
+  "catalogues": [
+    { "supplier": "Alder Fasteners", "price": 4.85 },
+    { "supplier": "Brook & Pike", "price": 5.1 },
+    { "supplier": "Cobble Hardware", "price": 4.6 },
+    { "supplier": "Dunmore Supply", "price": 5.35 },
+    { "supplier": "Elm Street Tools", "price": 4.95 },
+    { "supplier": "Fenwick Fixings", "price": 4.4 },
+    { "supplier": "Granger & Hale", "price": 5.2 },
+    { "supplier": "Hollis Bolt Co.", "price": 4.75 },
+    { "supplier": "Ironside Trade", "price": 5.05 },
+    { "supplier": "Juniper Works", "price": 4.9 },
+    { "supplier": "Kestrel Screws", "price": 4.55 },
+    { "supplier": "Lowfield Depot", "price": 5.25 },
+    { "supplier": "Marsh Lane Supply", "price": 4.7 },
+    { "supplier": "Northgate Metal", "price": 3.95 },
+    { "supplier": "Oakridge Parts", "price": 5.15 },
+    { "supplier": "Pell & Sons", "price": 4.8 },
+    { "supplier": "Birchwood Fixings", "price": 4.2 },
+    { "supplier": "Quarry Road Tools", "price": 5.0 },
+    { "supplier": "Redfern Fasteners", "price": 4.65 },
+    { "supplier": "Stonebridge Co.", "price": 5.3 },
+    { "supplier": "Tamworth Trade", "price": 4.45 },
+    { "supplier": "Upton Hardware", "price": 4.9 },
+    { "supplier": "Vale Fixings", "price": 5.1 },
+    { "supplier": "Wexley Supply", "price": 4.35 },
+    { "supplier": "Yarrow & Finch", "price": 4.75 },
+    { "supplier": "Zenith Bolt", "price": 5.4 },
+    { "supplier": "Ashby Works", "price": 3.85 },
+    { "supplier": "Bramble Tools", "price": 4.95 },
+    { "supplier": "Copperfield Trade", "price": 4.5 },
+    { "supplier": "Dovecote Supply", "price": 5.2 }
+  ],
+  "slip": { "factor": 10 },
+  "malformed": { "helper": 2, "price": "about four dollars" },
+  "waits": [
+    { "helper": 1, "on": 2, "for": "the euro rate sheet" },
+    { "helper": 2, "on": 1, "for": "the supplier list" }
+  ],
+  "jobs": [
+    { "id": "report", "name": "Supplier report", "catalogues": 30, "talk": false, "slip": 17, "budget": 47000, "deadline": 30 },
+    { "id": "rates", "name": "Euro price list", "catalogues": 8, "talk": true, "slip": 3, "budget": 20000, "deadline": 20 },
+    { "id": "quote", "name": "Four-supplier quote", "catalogues": 4, "talk": false, "slip": 2, "budget": 8000, "deadline": 20 }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "accessed": "2026-11-03",
+  "facts": [
+    {
+      "id": "own-room",
+      "claim": "Anthropic's multi-agent research post (June 13, 2025): its helpers work in parallel, each with its own context window, and hand the lead a condensed summary.",
+      "source": "https://www.anthropic.com/engineering/multi-agent-research-system"
+    },
+    {
+      "id": "truncated",
+      "claim": "Anthropic (June 13, 2025): past 200,000 tokens its lead agent's context window is cut off, so the lead saves its plan to memory first.",
+      "value": "200000",
+      "source": "https://www.anthropic.com/engineering/multi-agent-research-system"
+    },
+    {
+      "id": "tokens-15x",
+      "claim": "Vendor-reported by Anthropic (June 13, 2025): agents use about 4× the tokens of a chat, and multi-agent systems about 15×.",
+      "value": "15",
+      "source": "https://www.anthropic.com/engineering/multi-agent-research-system"
+    },
+    {
+      "id": "better-90",
+      "claim": "Vendor-reported by Anthropic (June 13, 2025): a lead with helpers beat a single agent by 90.2% on its own internal research test.",
+      "value": "90.2",
+      "source": "https://www.anthropic.com/engineering/multi-agent-research-system"
+    },
+    {
+      "id": "worth-it",
+      "claim": "Anthropic (June 13, 2025): to pay their way, multi-agent systems need tasks valuable enough to cover the extra cost.",
+      "source": "https://www.anthropic.com/engineering/multi-agent-research-system"
+    },
+    {
+      "id": "vague-brief",
+      "claim": "Anthropic (June 13, 2025): without detailed task descriptions, its helpers duplicated work, left gaps, or failed to find what they needed.",
+      "source": "https://www.anthropic.com/engineering/multi-agent-research-system"
+    },
+    {
+      "id": "poor-fit",
+      "claim": "Anthropic (June 13, 2025): tasks where every agent needs the same context, or with many dependencies between agents, are not a good fit for multi-agent systems today.",
+      "source": "https://www.anthropic.com/engineering/multi-agent-research-system"
+    },
+    {
+      "id": "blocked-wait",
+      "claim": "Anthropic (June 13, 2025): its lead waits for each set of helpers to finish, so the whole system can be blocked waiting on a single helper.",
+      "source": "https://www.anthropic.com/engineering/multi-agent-research-system"
+    },
+    {
+      "id": "a2a-parts",
+      "claim": "The A2A protocol (v1.0.0), for messages between agents: a message's parts are text, a file, or a block of structured data.",
+      "value": "1.0.0",
+      "source": "https://a2a-protocol.org/latest/specification/"
+    },
+    {
+      "id": "a2a-reject",
+      "claim": "The A2A protocol (v1.0.0) names an error, ContentTypeNotSupportedError, for a message whose parts come in a type the receiving agent does not support.",
+      "source": "https://a2a-protocol.org/latest/specification/"
+    },
+    {
+      "id": "circular-wait",
+      "claim": "Coffman, Elphick and Shoshani (1971): a deadlock needs a circular chain, each process waiting for something the next one holds.",
+      "source": "https://doi.org/10.1145/356586.356588"
+    },
+    {
+      "id": "mast-stop",
+      "claim": "Cemri et al. (2025): agents unaware of when to stop caused 12.4% of the multi-agent failures they studied.",
+      "value": "12.4",
+      "source": "https://arxiv.org/abs/2503.13657"
+    },
+    {
+      "id": "mast-modes",
+      "claim": "Cemri et al. (2025) sorted the failures in over 1,600 runs of 7 multi-agent frameworks into 14 kinds, in 3 groups.",
+      "value": "14",
+      "source": "https://arxiv.org/abs/2503.13657"
+    },
+    {
+      "id": "mast-verify",
+      "claim": "Cemri et al. (2025): missing or incomplete checks caused 8.2% of the failures they studied, and wrong checks 9.1%.",
+      "value": "8.2",
+      "source": "https://arxiv.org/abs/2503.13657"
+    }
+  ]
+}
