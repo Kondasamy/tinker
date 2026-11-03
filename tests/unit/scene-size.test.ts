@@ -21,6 +21,9 @@ import { DESK_BOARD, beatsOf, deskAt, deskScene } from '../../src/components/sce
 import { CAROUSEL_BOARD, carouselStill } from '../../src/components/scenes/carouselScene';
 import { SHADOW_BOARD, shadowStill } from '../../src/components/scenes/shadowScene';
 import { sceneOf as shadowWeek } from '../../src/content/tools-in-production/07-workbench';
+import { TOLL_BOARD, tollStill } from '../../src/components/scenes/tollScene';
+import { simulate as approvalsWeek } from '../../src/lib/action-approvals/gate';
+import { tollOf } from '../../src/content/action-approvals/kit';
 import { DOCKET_BOARD, docketScene } from '../../src/components/scenes/docketScene';
 import { boardOf as docketOf } from '../../src/content/prompts/kit';
 import { boardOf as dreamBoard, dreamScene, type DreamOpts } from '../../src/components/scenes/dreamFloorScene';
@@ -660,6 +663,11 @@ const SCENES: Record<string, () => string> = {
     const all = 0b001_001_001_001;
     return stage(SHADOW_BOARD, shadowStill({ ...shadowWeek(all, all), say: { block: 'board', text: 'Monday' } }));
   },
+  // the approvals week under the strictest rules: every slip paid or stopped, passes on the counter, the dye on
+  toll: () => {
+    const p = { ask: 'all', budget: 150, expiry: 'hour' } as const;
+    return stage(TOLL_BOARD, tollStill(tollOf(approvalsWeek(p).desk, { p, dye: true, mail: 3, bad: ['fake-88'] })));
+  },
   // the end of a least-busy run with a dead and a gray shed: every shed, the barrier
   yard: () => {
     const run = lbSim(lbPolicy({ rule: 'least', states: { cedar: 'dead', dogwood: 'gray' }, checks: 2 }));
@@ -747,6 +755,8 @@ const BASE: Record<string, number> = {
   // new with the tools-in-production module (no pre-rework size): its first size is 143,937 (four vans), with a little headroom
   shadow: 50000,
   tape: 26000,
+  // new with the approvals module (no pre-rework size): its first size is 156,240, with a little headroom
+  toll: 54000,
   uv: 25000,
   window: 26749,
   yard: 40499,

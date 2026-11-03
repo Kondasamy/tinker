@@ -1,0 +1,164 @@
+{
+  "dye": {
+    "note": [],
+    "refund": [
+      "fake-88"
+    ],
+    "log": [
+      "fake-88"
+    ],
+    "reply": [
+      "fake-88"
+    ]
+  },
+  "budget": {
+    "limit": 150,
+    "slips": [
+      [
+        "split-a",
+        "paid",
+        null
+      ],
+      [
+        "split-b",
+        "paid",
+        null
+      ],
+      [
+        "split-c",
+        "stopped",
+        "budget"
+      ]
+    ],
+    "spent": 120
+  },
+  "week": {
+    "none/none/forever": [
+      0,
+      5,
+      0
+    ],
+    "none/none/hour": [
+      0,
+      5,
+      0
+    ],
+    "none/100/forever": [
+      2,
+      4,
+      0
+    ],
+    "none/100/hour": [
+      2,
+      4,
+      0
+    ],
+    "none/150/forever": [
+      2,
+      5,
+      0
+    ],
+    "none/150/hour": [
+      2,
+      5,
+      0
+    ],
+    "none/300/forever": [
+      0,
+      5,
+      0
+    ],
+    "none/300/hour": [
+      0,
+      5,
+      0
+    ],
+    "dyed/none/forever": [
+      1,
+      5,
+      4
+    ],
+    "dyed/none/hour": [
+      2,
+      5,
+      7
+    ],
+    "dyed/100/forever": [
+      2,
+      4,
+      3
+    ],
+    "dyed/100/hour": [
+      3,
+      4,
+      4
+    ],
+    "dyed/150/forever": [
+      2,
+      5,
+      3
+    ],
+    "dyed/150/hour": [
+      3,
+      5,
+      5
+    ],
+    "dyed/300/forever": [
+      1,
+      5,
+      4
+    ],
+    "dyed/300/hour": [
+      2,
+      5,
+      7
+    ],
+    "all/none/forever": [
+      0,
+      5,
+      5
+    ],
+    "all/none/hour": [
+      1,
+      5,
+      8
+    ],
+    "all/100/forever": [
+      2,
+      4,
+      4
+    ],
+    "all/100/hour": [
+      3,
+      4,
+      5
+    ],
+    "all/150/forever": [
+      2,
+      5,
+      4
+    ],
+    "all/150/hour": [
+      3,
+      5,
+      6
+    ],
+    "all/300/forever": [
+      0,
+      5,
+      5
+    ],
+    "all/300/hour": [
+      1,
+      5,
+      8
+    ]
+  },
+  "winners": [
+    {
+      "ask": "dyed",
+      "budget": 150,
+      "expiry": "hour"
+    }
+  ]
+}

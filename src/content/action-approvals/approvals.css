@@ -1,0 +1,50 @@
+/* Approvals stage: shares the tool-calling frame (.tc-stage, .tc-frame, .tc-caption); the twin controls sit under the
+   picture, and the Table tab lists each action, what it read, its dye and its outcome. */
+.ap-twin {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ap-twin button {
+  min-height: 44px;
+}
+.ap-status {
+  margin: 0;
+  min-height: 2.8em;
+}
+.ap-table {
+  font-size: 13px;
+}
+.ap-table tr[data-dyed="1"] td:nth-child(3) {
+  color: #6d45a8;
+  font-weight: 800;
+}
+.ap-none {
+  margin: 10px 0 0;
+  color: var(--muted);
+}
+.ap-bench {
+  display: grid;
+  gap: 10px;
+}
+.ap-bench label {
+  display: grid;
+  gap: 4px;
+  font-weight: 700;
+}
+.ap-pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.ap-pick legend {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.ap-pick button {
+  min-height: 44px;
+  text-align: left;
+}
