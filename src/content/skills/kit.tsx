@@ -6,8 +6,7 @@ import { useState, type ReactNode } from 'react';
 import Cite from '../../components/story/Cite';
 import Select from '../../components/story/Select';
 import type { Say } from '../../components/story/steps';
-import IsoStage, { stageFrame, type Board } from '../../lib/iso/IsoStage';
-import { inkScale, withFrame } from '../../lib/iso/core.js';
+import IsoStage, { PillLayer } from '../../lib/iso/IsoStage';
 import HitLayer, { type Hit } from '../../lib/iso/hits';
 import { useLivingStage, type SceneView } from '../../lib/iso/motion';
 import {
@@ -68,13 +67,6 @@ export interface Bar {
   words: number;
 }
 type View = 'scene' | 'words';
-
-/** Pills drawn over the picture, outside the hand-drawn filter, which smears their small text (same frame and camera). */
-function PillLayer({ board, art }: { board: Board; art: () => string }) {
-  const html = withFrame({ ...stageFrame(board), prefix: 'sk-pill-' }, () => inkScale(art()));
-  // biome-ignore lint/security/noDangerouslySetInnerHtml: SVG markup the scene built, every string escaped (esc)
-  return <g className="sk-pills" dangerouslySetInnerHTML={{ __html: html }} />;
-}
 
 /** Words loaded per ticket asked, against the long prompt. */
 function WordsView({ bars }: { bars: Bar[] }) {
@@ -174,7 +166,7 @@ export function SkillsStage({
             label={carouselLabel(s)}
             style={{ height: '100%' }}
           >
-            <PillLayer board={CAROUSEL_BOARD} art={pills} />
+            <PillLayer board={CAROUSEL_BOARD} art={pills} prefix="sk-pill-" />
             {ask && (
               <HitLayer
                 board={CAROUSEL_BOARD}

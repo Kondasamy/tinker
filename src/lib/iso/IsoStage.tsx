@@ -138,3 +138,11 @@ export default function IsoStage({
     </svg>
   );
 }
+
+/** A living scene's label pills, drawn as an IsoStage child outside the hand-drawn filter, which smears small text.
+ * Same frame and camera as the stage (front view); `art` returns the scene's pill SVG, every string escaped (esc). */
+export function PillLayer({ board: b, art, prefix = 'pill-' }: { board: Board; art: () => string; prefix?: string }) {
+  const html = withFrame({ ...stageFrame(b), prefix }, () => inkScale(art()));
+  // biome-ignore lint/security/noDangerouslySetInnerHtml: SVG markup the scene built, every string escaped (esc)
+  return <g className="iso-pills" dangerouslySetInnerHTML={{ __html: html }} />;
+}
