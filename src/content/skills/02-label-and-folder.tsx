@@ -88,7 +88,6 @@ export const STEPS: Step<S>[] = [
     narration: 'Your pick is locked. The stage closes in on the open binder.',
     act: 'Count the words.',
     closeUp: ['binder'],
-    say: { block: 'binder', text: `${num(BODY)} words` },
     status: 'The open refund binder holds most of the words loaded.',
     predicate: s => s.revealed,
   },

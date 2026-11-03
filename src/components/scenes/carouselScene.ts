@@ -5,7 +5,7 @@
 // A living scene (KTD2): scene(prev, state, t, view) → { still, moving }; at t = 1 everything is in the still.
 // Words only in pills; every string reaching SVG goes through esc().
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
-import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
+import { BH, boxCorners, esc, sayFits } from '../../lib/iso/blocks';
 import { hexa, modelMachine, person, type ModelState } from '../../lib/iso/figures';
 import {
   CERAMIC,
@@ -18,6 +18,7 @@ import {
   castShadow,
   cyl,
   depthOf,
+  pd,
   rod,
   shape,
   tag,
@@ -43,8 +44,12 @@ export interface Carousel {
   open: string | null;
   /** the skill whose spine faces the desk (the last one opened) */
   facing: string;
-  /** prompt: the binder lit inside the pile */
+  /** prompt: the binder that answers the ticket, lifted and ringed in the pile while the stage is closed in on it */
   lit?: string | null;
+  /** prompt: how many tickets lie under the pile */
+  tickets?: number;
+  /** pills are drawn apart, outside the hand-drawn filter (the stage's overlay: carouselPills); the share image keeps them in */
+  bare?: boolean;
   /** words loaded for the ticket on the desk, for the desk's pill */
   words?: number;
   say?: Say;
@@ -76,7 +81,12 @@ const TOP = DESK.z1;
 const TRAY = { x0: 96, x1: 108, y0: 62, y1: 76 };
 const SPOT = [131, 72]; // the open binder
 const TICKET_AT = [156, 70]; // the asked ticket, beside the open binder
-const PILE_TICKET = [136, 72];
+// prompt mode: each ticket asked lies under the pile, a later one further toward the front so its edge shows
+const PILE_TICKETS = [
+  [136, 72],
+  [121, 86],
+  [150, 87],
+];
 // prompt mode: where each binder lands in the pile, [x, y, yaw]; the first (refunds) lands first, at the bottom
 const PILE = [
   [134, 71, 6],
@@ -140,7 +150,7 @@ function flat(x: number, y: number, z: number, yaw: number, o: number, id: strin
   const m = palOf(id),
     th = Math.PI * o,
     hz = 2.6;
-  let s = shape([at(-W, -L / 2, 0.2), at(0, -L / 2, 0.2), at(0, L / 2, 0.2), at(-W, L / 2, 0.2)], m.m, lit ? 2.2 : 1);
+  let s = shape([at(-W, -L / 2, 0.2), at(0, -L / 2, 0.2), at(0, L / 2, 0.2), at(-W, L / 2, 0.2)], m.m, lit ? 2.4 : 1);
   s += box(...(boxCorners2(at, -W + 0.8, -L / 2 + 0.8, 0.3, -0.6, L / 2 - 0.8, hz - 0.2) as Six), CERAMIC, toneI, 0.6);
   if (o > 0.85)
     s += shape(
@@ -162,7 +172,17 @@ function flat(x: number, y: number, z: number, yaw: number, o: number, id: strin
     at(ef, L / 2, o > 0.98 ? 0.3 : eh),
     at(ef, -L / 2, o > 0.98 ? 0.3 : eh),
   ];
-  s += shape(cover, lit ? PALS.mustard.l : m.l, lit ? 2.2 : 1.1);
+  if (lit) {
+    // a ring of light round the whole open binder, under its covers' ink: nothing else in the picture has one
+    const ring = [
+      at(-W - 1.6, -L / 2 - 1.6, 0.1),
+      at(W + 1.6, -L / 2 - 1.6, 0.1),
+      at(W + 1.6, L / 2 + 1.6, 0.1),
+      at(-W - 1.6, L / 2 + 1.6, 0.1),
+    ];
+    s = `<path data-glow="1" d="${pd(ring)}" fill="#fff1b8" stroke="#f4b829" stroke-width="3.4" stroke-linejoin="round"/>${s}`;
+  }
+  s += shape(cover, m.l, lit ? 2.4 : 1.1);
   return `<g data-binder="${esc(id)}" data-at="desk" data-open="${o >= 1 ? 1 : 0}"${lit ? ' data-lit="1"' : ''}>${s}</g>`;
 }
 type Six = [number, number, number, number, number, number];
@@ -233,18 +253,64 @@ function deskArt(load: string) {
 type Pose = { slot: true } | { x: number; y: number; z: number; yaw: number; o: number };
 function posesOf(s: Carousel): Pose[] {
   return SKILLS.map((k, i) => {
-    if (s.mode === 'prompt' && s.ticket)
-      return { x: PILE[i][0], y: PILE[i][1], z: TOP + 0.4 + i * 1.6, yaw: PILE[i][2], o: 1 };
+    if (s.mode === 'prompt' && s.ticket) return pileAt(i, false);
     if (s.mode === 'skills' && s.open === k.id) return { x: SPOT[0], y: SPOT[1], z: TOP + 0.4, yaw: 0, o: 1 };
     return { slot: true };
   });
 }
-const ticketPos = (s: Carousel) => (s.mode === 'prompt' ? PILE_TICKET : TICKET_AT);
+/** Where the tickets on the desk lie: under the pile, one per ask (prompt), or the last one beside the open binder. */
+const ticketsOf = (s: Carousel): number[][] =>
+  !s.ticket
+    ? []
+    : s.mode === 'prompt'
+      ? PILE_TICKETS.slice(0, Math.max(1, Math.min(PILE_TICKETS.length, s.tickets ?? 1)))
+      : [TICKET_AT];
+const TRAY_AT = [(TRAY.x0 + TRAY.x1) / 2, (TRAY.y0 + TRAY.y1) / 2];
+/** The lit binder's place while the stage is closed in on it: lifted clear of the pile. */
+const LIFT = TOP + 0.4 + SKILLS.length * 1.6 + 2;
+const pileAt = (i: number, lifted: boolean) => ({
+  x: PILE[i][0],
+  y: PILE[i][1],
+  z: lifted ? LIFT : TOP + 0.4 + i * 1.6,
+  yaw: PILE[i][2],
+  o: 1,
+});
 
 /** The carousel as one item: base, shelf, then the post and the binders in its slots, far ones first. */
-function carouselArt(rot: number, inSlot: boolean[]) {
+function carouselArt(rot: number, inSlot: boolean[], picked = false) {
   let s = cyl(CX, CY, BH, BH + 2, R + 6, DARK, toneI, 1.2, 28) + rod([CX, CY, BH + 2], [CX, CY, SHELF - 2], 2, METAL);
   s += cyl(CX, CY, SHELF - 2, SHELF, R + 9, WOOD, toneI, 1.4, 32);
+  // the fixed brass pointer on the base, at the slot that faces the desk; the slot it points at lights when a binder
+  // has been taken from it
+  const f = rad(FRONT),
+    ux = Math.cos(f),
+    uy = Math.sin(f),
+    px = -uy,
+    py = ux;
+  const P3 = (r: number, w: number, z: number) => [CX + ux * r + px * w, CY + uy * r + py * w, z];
+  s += shape([P3(R + 7, -2.6, BH + 2.05), P3(R + 13, 0, BH + 2.05), P3(R + 7, 2.6, BH + 2.05)], PALS.mustard.l, 1);
+  s += box(
+    CX + ux * (R + 4) - 1,
+    CY + uy * (R + 4) - 1,
+    BH,
+    CX + ux * (R + 4) + 1,
+    CY + uy * (R + 4) + 1,
+    BH + 2.1,
+    PALS.mustard,
+    toneI,
+    0.6,
+  );
+  if (picked)
+    s += `<g data-slot="lit">${shape(
+      [
+        P3(R - BD / 2, -BW, SHELF + 0.05),
+        P3(R + BD / 2 + 1, -BW, SHELF + 0.05),
+        P3(R + BD / 2 + 1, BW, SHELF + 0.05),
+        P3(R - BD / 2, BW, SHELF + 0.05),
+      ],
+      PALS.mustard.l,
+      1.4,
+    )}</g>`;
   const parts = SKILLS.map((k, i) => {
     if (!inSlot[i]) return null;
     const [x, y, z, a] = slotAt(i, rot);
@@ -275,13 +341,16 @@ export function partBox(part: CarouselPart, s?: Carousel): number[][] {
     case 'binder': {
       const i = s?.lit ? idx(s.lit) : -1;
       const [x, y] = s?.mode === 'prompt' && i >= 0 ? PILE[i] : SPOT;
-      return boxCorners(x - W - 2, y - L / 2 - 2, TOP, x + W + 2, y + L / 2 + 2, TOP + 8);
+      return boxCorners(x - W - 2, y - L / 2 - 2, TOP, x + W + 2, y + L / 2 + 2, TOP + 14);
     }
   }
 }
 
-const pill = (p: number[], dy: number, text: string, on: boolean, k: number, dx = 0) =>
+const pill = (p: number[], dx: number, dy: number, text: string, on: boolean, k: number) =>
   `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text), on, k)}</g>`;
+/** A step's callout: a lit pill a row above its part's name pill, offset the same way. */
+const callout = (p: number[], dx: number, dy: number, text: string, k: number) =>
+  `<g class="callout" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text), true, k)}</g>`;
 
 /** Shadows and the pieces that never move in a motion: the people, the machine and the desk's frame. */
 function setting(s: Carousel, top: SceneCtx['top']) {
@@ -298,86 +367,128 @@ function setting(s: Carousel, top: SceneCtx['top']) {
   };
 }
 
-/** The pills; mid-motion (moving) the binder's and the desk's wait for the end, where their numbers belong. */
-function pills(s: Carousel, v: SceneView, moving = false) {
-  const k = (p: string) => pillScale(p, v),
-    phone = !!v.phone,
-    out: string[] = [];
-  const on = (p: string, at: number[], dy: number, text: string, lit: boolean, dx = 0) => {
-    const sc = k(p);
-    if (sc) out.push(pill(at, dy, text, lit, sc, dx));
-    out.push(sayAt(calloutOf(s.say, v), p, at, dy - 10, sc || 1, phone));
-  };
-  on('carousel', [CX, CY, POST + 2], -16, phone ? 'SKILLS' : `${SKILLS.length} SKILLS`, false);
-  on('model', [MODEL[0], MODEL[1], BH + 36], -14, phone ? 'BOT' : 'ASSISTANT', !!s.ticket, 6);
-  on('ticket', [(TRAY.x0 + TRAY.x1) / 2, TRAY.y1, TOP + 3], 22, 'TICKETS', false, -10);
-  const named = s.mode === 'skills' ? s.open : s.lit;
-  if (named && !moving) {
-    const [x0, , , x1, y1] = [...partBox('binder', s)[0], ...partBox('binder', s)[7]];
-    on('binder', [(x0 + x1) / 2, y1 - 2, TOP + 6], -26, SKILLS[idx(named)].name.toUpperCase(), true);
+/** Where a part's name pill sits: its anchor and offset, clear of Rosa and of each other. */
+function pillPlace(part: CarouselPart, s: Carousel, v: SceneView): { at: number[]; dx: number; dy: number } {
+  switch (part) {
+    case 'carousel':
+      return { at: [CX, CY, POST + 2], dx: -10, dy: -16 };
+    case 'model':
+      return { at: [MODEL[0], MODEL[1], BH + 36], dx: 6, dy: -14 };
+    case 'ticket':
+      return { at: [TRAY.x0 + 2, TRAY.y1, TOP + 3], dx: -24, dy: 22 };
+    case 'desk':
+      return { at: [DESK.x1 - 6, DESK.y1, TOP], dx: 24, dy: 18 };
+    case 'binder': {
+      // on the cover of the open binder: the one on the desk, or the lit one lifted from the pile
+      const i = s.mode === 'prompt' && s.lit ? idx(s.lit) : -1;
+      const b = i >= 0 ? pileAt(i, v.zoomT > 0) : { x: SPOT[0], y: SPOT[1], z: TOP + 0.4, yaw: 0 };
+      const a = rad(b.yaw);
+      const at = [b.x + (Math.cos(a) * W) / 2, b.y + (Math.sin(a) * W) / 2, b.z + 0.4];
+      // the lit binder (zoomed) names itself to the right; the open one below, on the floor in front of the desk
+      return i >= 0 ? { at, dx: 30, dy: -18 } : { at, dx: -24, dy: 30 };
+    }
   }
-  if (s.ticket && s.words !== undefined && !moving)
+}
+
+/**
+ * The pills and the step's callout, for state s. Mid-motion (moving) the binder's and the desk's wait for the end,
+ * where their numbers belong; `pulse` (0..1) swells the desk's pill, when a ticket loads the same words again.
+ * Drawn by the stage outside the hand-drawn filter, which smears small text; inside it only for the share image.
+ */
+export function carouselPills(s: Carousel, v: SceneView, opts: { moving?: boolean; pulse?: number } = {}) {
+  const phone = !!v.phone,
+    say = calloutOf(s.say, v),
+    out: string[] = [];
+  const on = (part: CarouselPart, text: string, lit: boolean, grow = 1) => {
+    const k = pillScale(part, v),
+      { at, dx, dy } = pillPlace(part, s, v);
+    if (k) out.push(pill(at, dx, dy, text, lit, k * grow));
+    // the callout a row beyond the name pill: above a pill that sits above its part, below one that sits below
+    if (say && sayFits(say, part, phone)) out.push(callout(at, dx, dy + (dy > 0 ? 26 : -30), say.text, k || 1));
+  };
+  on('carousel', phone ? 'SKILLS' : `${SKILLS.length} SKILLS`, false);
+  on('model', phone ? 'BOT' : 'ASSISTANT', !!s.ticket);
+  on('ticket', 'TICKETS', false);
+  // the lit binder is named only while the stage is closed in on it (the reveal), never before
+  const named = s.mode === 'skills' ? s.open : v.zoomT > 0 ? s.lit : null;
+  if (named && !opts.moving) on('binder', SKILLS[idx(named)].name.toUpperCase(), true);
+  const again = s.mode === 'prompt' && (s.tickets ?? 1) > 1;
+  if (s.ticket && s.words !== undefined && (!opts.moving || opts.pulse !== undefined))
     on(
       'desk',
-      [DESK.x1 - 6, DESK.y1, TOP],
-      20,
-      phone ? 'DESK' : `${s.words.toLocaleString('en-US')} WORDS`,
+      phone
+        ? 'DESK'
+        : `${again ? `${s.tickets} TICKETS · ` : ''}${s.words.toLocaleString('en-US')} WORDS${again ? ' EACH' : ''}`,
       s.mode === 'prompt',
-      12,
+      1 + 0.35 * Math.sin(Math.PI * (opts.pulse ?? 0)),
     );
-  return out.filter(Boolean).join('');
+  // callouts last, so no name pill covers one
+  return [
+    ...out.filter(x => !x.startsWith('<g class="callout"')),
+    ...out.filter(x => x.startsWith('<g class="callout"')),
+  ].join('');
 }
 
 interface Drawn {
   rot: number;
   poses: (Pose & { lit?: boolean })[];
-  ticket: number[] | null;
+  tickets: number[][];
+  /** the slot facing the desk is empty because its binder was picked */
+  picked: boolean;
+}
+const deskItem = (load: string) => ({
+  box: [
+    [DESK.x0 - 1, DESK.y0 - 1, BH],
+    [DESK.x1 + 1, DESK.y1 + 1, TOP + 2],
+  ],
+  svg: deskArt(load),
+});
+const carouselItem = (d: Drawn, free: boolean[]) => ({
+  box: [
+    [CX - R - 9, CY - R - 9, BH],
+    [CX + R + 9, CY + R + 9, POST + 2],
+  ],
+  svg: carouselArt(d.rot, free, d.picked),
+});
+/** The desk's load, in order: the tray, the tickets, then the binders bottom to top. */
+function loadOf(d: Drawn, withTray: boolean) {
+  let load = tray(withTray);
+  for (const [x, y] of d.tickets) load += ticketArt(x, y, TOP + 0.3);
+  d.poses
+    .map((p, i) => ({ p, i }))
+    .filter((e): e is { p: Exclude<Pose, { slot: true }> & { lit?: boolean }; i: number } => !('slot' in e.p))
+    .sort((a, b) => a.p.z - b.p.z)
+    .forEach(({ p, i }) => (load += flat(p.x, p.y, p.z, p.yaw, p.o, SKILLS[i].id, !!p.lit)));
+  return load;
 }
 /** The whole picture for these moving parts' places. tray: whether the top ticket sits on the tray. */
-function art(s: Carousel, v: SceneView, d: Drawn, opts: { tray: boolean; moving: boolean }) {
+function art(s: Carousel, v: SceneView, d: Drawn, opts: { tray: boolean }) {
   return (ctx: SceneCtx) => {
     const set = setting(s, ctx.top);
-    // desk load, in order: the ticket, then binders bottom to top
-    let load = tray(opts.tray);
-    if (d.ticket) load += ticketArt(d.ticket[0], d.ticket[1], TOP + 0.3);
-    d.poses
-      .map((p, i) => ({ p, i }))
-      .filter((e): e is { p: Exclude<Pose, { slot: true }> & { lit?: boolean }; i: number } => !('slot' in e.p))
-      .sort((a, b) => a.p.z - b.p.z)
-      .forEach(({ p, i }) => (load += flat(p.x, p.y, p.z, p.yaw, p.o, SKILLS[i].id, !!p.lit)));
     const items = [
       ...set.items,
-      {
-        box: [
-          [DESK.x0 - 1, DESK.y0 - 1, BH],
-          [DESK.x1 + 1, DESK.y1 + 1, TOP + 2],
-        ],
-        svg: deskArt(load),
-      },
-      {
-        box: [
-          [CX - R - 9, CY - R - 9, BH],
-          [CX + R + 9, CY + R + 9, POST + 2],
-        ],
-        svg: carouselArt(
-          d.rot,
-          d.poses.map(p => 'slot' in p),
-        ),
-      },
+      deskItem(loadOf(d, opts.tray)),
+      carouselItem(
+        d,
+        d.poses.map(p => 'slot' in p),
+      ),
     ];
-    return set.shadow + byDepth(items) + (opts.moving ? '' : pills(s, v));
+    return set.shadow + byDepth(items) + (s.bare ? '' : carouselPills(s, v));
   };
 }
 
-const rest = (s: Carousel): Drawn => ({
+const rest = (s: Carousel, v: SceneView): Drawn => ({
   rot: rotFor(s.facing),
-  poses: posesOf(s).map((p, i) => ('slot' in p ? p : { ...p, lit: s.lit === SKILLS[i].id })),
-  ticket: s.ticket ? ticketPos(s) : null,
+  // the answer's binder lifts from the pile and rings only while the stage is closed in on it
+  poses: posesOf(s).map((p, i) =>
+    'slot' in p ? p : s.lit === SKILLS[i].id && v.zoomT > 0 ? { ...pileAt(i, true), lit: true } : p,
+  ),
+  tickets: ticketsOf(s),
+  picked: s.mode === 'skills' && !!s.open,
 });
 
 /** The picture at rest: what the stage shows for state s with no motion (the share image too). */
-export const carouselStill = (s: Carousel, v: SceneView = { zoomT: 0 }, tray = true) =>
-  art(s, v, rest(s), { tray, moving: false });
+export const carouselStill = (s: Carousel, v: SceneView = { zoomT: 0 }, tray = true) => art(s, v, rest(s, v), { tray });
 
 /** Where a binder in flight is: from its slot (at turn rot) to the desk (or back), lying shut, then opening. */
 function flight(i: number, from: Pose, to: Pose, rotFrom: number, rotTo: number, u: number, o: number) {
@@ -396,7 +507,15 @@ function flight(i: number, from: Pose, to: Pose, rotFrom: number, rotTo: number,
 
 /** Whether going from prev to s moves anything (a change to pills or the lit binder alone doesn't). */
 export const carouselMoves = (prev: Carousel, s: Carousel) =>
-  prev.mode !== s.mode || prev.ticket !== s.ticket || prev.open !== s.open || prev.facing !== s.facing;
+  prev.mode !== s.mode ||
+  prev.ticket !== s.ticket ||
+  prev.open !== s.open ||
+  prev.facing !== s.facing ||
+  (prev.tickets ?? 1) !== (s.tickets ?? 1);
+
+/** The same words loaded again: a second ticket under the long prompt's pile. */
+export const sameWordsAgain = (prev: Carousel, s: Carousel) =>
+  s.mode === 'prompt' && !!prev.ticket && (s.tickets ?? 1) > (prev.tickets ?? 1);
 
 /** Skills' living scene: the ticket slides in, the carousel turns, a binder swings out and opens (or every binder flies
  * out in turn, in the long prompt). Mid-motion the carousel, the desk's load and the binders in flight are the moving
@@ -408,7 +527,6 @@ export const carouselScene: Scene<Carousel> = (prev, s, t, v) => {
     B = posesOf(s);
   const r0 = rotFor(prev.facing),
     r1 = rotFor(s.facing);
-  const newTicket = s.ticket !== prev.ticket && s.ticket;
   const ph = (a: number, b: number) => clamp01((t - a) / (b - a));
   let rot = r0;
   const flying: { i: number; p: ReturnType<typeof flight> }[] = [];
@@ -445,47 +563,34 @@ export const carouselScene: Scene<Carousel> = (prev, s, t, v) => {
       } else if (is) poses[i] = B[i];
     });
   }
-  const ticket = newTicket
-    ? lerpPt([(TRAY.x0 + TRAY.x1) / 2, (TRAY.y0 + TRAY.y1) / 2], ticketPos(s), ph(0, 0.25))
-    : s.ticket
-      ? ticketPos(s)
-      : null;
+  // the new ticket slides from the tray to its place, under any binders already on the desk
+  const to = ticketsOf(s),
+    had = ticketsOf(prev).length,
+    fresh = s.ticket !== prev.ticket || to.length > had;
+  const tickets = fresh && to.length ? [...to.slice(0, -1), lerpPt(TRAY_AT, to[to.length - 1], ph(0, 0.25))] : to;
   const d: Drawn = {
     rot,
     poses: poses.map((p, i) => (slotFree[i] || !('slot' in p) ? p : { x: -999, y: -999, z: 0, yaw: 0, o: 0 })),
-    ticket,
+    tickets,
+    picked: false,
   };
   // binders in flight are drawn over everything, in the moving layer, with the carousel and the desk's load
   const fixed = (ctx: SceneCtx) => {
     const set = setting(s, ctx.top);
-    return set.shadow + byDepth(set.items) + pills(s, v, true);
+    return set.shadow + byDepth(set.items) + (s.bare ? '' : carouselPills(s, v, { moving: true }));
   };
   const moving = () => {
-    let load = tray(true);
-    if (d.ticket) load += ticketArt(d.ticket[0], d.ticket[1], TOP + 0.3);
-    d.poses.forEach((p, i) => {
-      if (!('slot' in p) && p.x > -999) load += flat(p.x, p.y, p.z, p.yaw, p.o, SKILLS[i].id);
-    });
-    const carousel = carouselArt(
-      d.rot,
-      d.poses.map((p, i) => 'slot' in p && slotFree[i]),
+    const load = loadOf(
+      { ...d, poses: d.poses.map(p => ('slot' in p || p.x > -999 ? p : { slot: true as const })) },
+      true,
     );
     return (
       byDepth([
-        {
-          box: [
-            [DESK.x0 - 1, DESK.y0 - 1, BH],
-            [DESK.x1 + 1, DESK.y1 + 1, TOP + 2],
-          ],
-          svg: deskArt(load),
-        },
-        {
-          box: [
-            [CX - R - 9, CY - R - 9, BH],
-            [CX + R + 9, CY + R + 9, POST + 2],
-          ],
-          svg: carousel,
-        },
+        deskItem(load),
+        carouselItem(
+          d,
+          d.poses.map((p, i) => 'slot' in p && slotFree[i]),
+        ),
       ]) + flying.map(f => flat(f.p.x, f.p.y, f.p.z, f.p.yaw, f.p.o, SKILLS[f.i].id)).join('')
     );
   };

@@ -6,16 +6,19 @@ import { useState, type ReactNode } from 'react';
 import Cite from '../../components/story/Cite';
 import Select from '../../components/story/Select';
 import type { Say } from '../../components/story/steps';
-import IsoStage from '../../lib/iso/IsoStage';
+import IsoStage, { stageFrame, type Board } from '../../lib/iso/IsoStage';
+import { inkScale, withFrame } from '../../lib/iso/core.js';
 import HitLayer, { type Hit } from '../../lib/iso/hits';
-import { useLivingStage } from '../../lib/iso/motion';
+import { useLivingStage, type SceneView } from '../../lib/iso/motion';
 import {
   CAROUSEL_BOARD,
   carouselLabel,
   carouselMoves,
+  carouselPills,
   carouselScene,
   carouselStill,
   partBox,
+  sameWordsAgain,
   trayTicket,
   type Carousel,
   type CarouselPart,
@@ -66,6 +69,13 @@ export interface Bar {
 }
 type View = 'scene' | 'words';
 
+/** Pills drawn over the picture, outside the hand-drawn filter, which smears their small text (same frame and camera). */
+function PillLayer({ board, art }: { board: Board; art: () => string }) {
+  const html = withFrame({ ...stageFrame(board), prefix: 'sk-pill-' }, () => inkScale(art()));
+  // biome-ignore lint/security/noDangerouslySetInnerHtml: SVG markup the scene built, every string escaped (esc)
+  return <g className="sk-pills" dangerouslySetInnerHTML={{ __html: html }} />;
+}
+
 /** Words loaded per ticket asked, against the long prompt. */
 function WordsView({ bars }: { bars: Bar[] }) {
   return (
@@ -114,7 +124,7 @@ export function SkillsStage({
   const [refused, setRefused] = useState<{ why: string; on: Carousel } | null>(null);
   const stage = useLivingStage({
     scene: carouselScene,
-    state: { ...scene, say },
+    state: { ...scene, say, bare: true },
     moves: carouselMoves,
     ms: MOTION_MS,
     board: CAROUSEL_BOARD,
@@ -124,6 +134,12 @@ export function SkillsStage({
     lift: (s, v) => ({ still: carouselStill(s, v, false), piece: trayTicket() }),
   });
   const s = stage.state;
+  const moving = stage.t < 1 && carouselMoves(stage.prev, s);
+  const pills = () =>
+    carouselPills(s, stage.view as SceneView, {
+      moving,
+      pulse: moving && sameWordsAgain(stage.prev, s) ? stage.t : undefined,
+    });
 
   const act = (part: string, to?: string | null) => {
     if (part !== 'ticket') return;
@@ -158,6 +174,7 @@ export function SkillsStage({
             label={carouselLabel(s)}
             style={{ height: '100%' }}
           >
+            <PillLayer board={CAROUSEL_BOARD} art={pills} />
             {ask && (
               <HitLayer
                 board={CAROUSEL_BOARD}
@@ -229,6 +246,7 @@ export function carouselOf(mode: Carousel['mode'], asked: Asked[], lit?: string 
       open: null,
       facing: SKILLS[0].id,
       lit: lit ?? null,
+      tickets: asked.length,
       words: last ? PROMPT_WORDS : undefined,
     };
   const picks = asked.map(a => pick(a.ticket, labelsAt(a)));

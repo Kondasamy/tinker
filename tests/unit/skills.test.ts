@@ -8,6 +8,7 @@ import type { Art } from '../../src/lib/iso/motion';
 import {
   CAROUSEL_BOARD,
   CAROUSEL_PARTS,
+  carouselPills,
   carouselScene,
   carouselStill,
   partBox,
@@ -115,6 +116,38 @@ describe('the carousel scene', () => {
     expect(draw(carouselStill(refund))).toContain('data-binder="refunds" data-at="desk"');
     expect(draw(carouselStill(pile)).match(/data-at="desk"/g)).toHaveLength(SKILLS.length);
     expect(draw(carouselStill(none))).not.toContain('data-at="desk"');
+  });
+
+  it('names and rings the answer’s binder only while closed in on it, so the prediction step never gives it away', () => {
+    const lit = carouselOf('prompt', [{ ticket: 'refund-saw' }], 'refunds');
+    expect(draw(carouselStill(lit))).not.toContain('data-lit');
+    expect(draw(carouselStill(lit))).not.toContain('>REFUNDS<');
+    const zoomed = draw(carouselStill(lit, { zoomT: 1, closeUp: ['binder', 'desk'] }));
+    expect(zoomed).toContain('data-binder="refunds" data-at="desk" data-open="1" data-lit="1"');
+    expect(zoomed).toContain('data-glow="1"');
+    expect(zoomed).toContain('>REFUNDS<');
+  });
+
+  it('leaves every ticket of the long prompt under the pile, and lights the slot a picked binder left', () => {
+    const two = carouselOf('prompt', [{ ticket: 'refund-saw' }, { ticket: 'print-label' }]);
+    expect(draw(carouselStill(two)).match(/data-ticket/g)).toHaveLength(3); // two on the desk, one on the tray
+    expect(draw(carouselStill(two))).toContain('2 TICKETS · 20,000 WORDS EACH');
+    expect(draw(carouselStill(refund))).toContain('data-slot="lit"');
+    expect(draw(carouselStill(none))).not.toContain('data-slot="lit"');
+  });
+
+  it('draws its pills apart when the stage asks (bare), and waits mid-motion to name the binder', () => {
+    expect(draw(carouselStill({ ...refund, bare: true }))).not.toContain('block-tag');
+    const pills = (o: { moving?: boolean }) =>
+      renderToString(
+        createElement(IsoStage, {
+          board: CAROUSEL_BOARD,
+          scene: () => carouselPills(refund, { zoomT: 0 }, o),
+          label: '',
+        }),
+      );
+    expect(pills({})).toContain('>REFUNDS<');
+    expect(pills({ moving: true })).not.toContain('>REFUNDS<');
   });
 
   it('closes in on every part within the 2.2× cap', () => {

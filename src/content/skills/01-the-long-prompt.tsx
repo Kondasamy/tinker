@@ -20,8 +20,6 @@ const TICKETS = ['refund-saw', 'print-label'];
 
 interface S {
   asked: Asked[];
-  /** the refund binder is lit in the pile (set on entering the reveal) */
-  found: boolean;
   prediction: number | null;
   revealed: boolean;
   quiz: number | null;
@@ -87,9 +85,7 @@ export const STEPS: Step<S>[] = [
     narration: 'Your pick is locked. The refund binder is lit.',
     act: 'Check your prediction.',
     closeUp: ['binder', 'desk'],
-    say: { block: 'binder', text: `Under ${SKILLS.length - 1} more` },
-    status: 'The refund binder is lit, at the bottom of the pile on the ticket.',
-    setup: s => ({ ...s, found: true }),
+    status: 'The stage closes in: the refund binder, lifted from the bottom of the pile, is ringed in light.',
     predicate: s => s.revealed,
   },
   {
@@ -98,8 +94,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['fact', 'words'],
     narration: 'Now a ticket about return labels. Watch the words the assistant loads.',
     act: 'Ask the label ticket, then open the Words tab.',
-    say: { block: 'desk', text: `${num(PROMPT_WORDS)} words` },
-    status: `A label question loads the same ${SKILLS.length} binders and the same words.`,
+    say: { block: 'desk', text: 'Same words' },
+    status: "A second ticket slides under the same pile, and the desk's count shows the same words again.",
     predicate: s => has(s, 'print-label'),
     hint: 'Pick the label ticket under the picture, then press Ask.',
   },
@@ -121,13 +117,13 @@ export default function TheLongPrompt() {
       module={MODULE}
       chapter={ID}
       steps={STEPS}
-      initial={{ asked: [], found: false, prediction: null, revealed: false, quiz: null }}
+      initial={{ asked: [], prediction: null, revealed: false, quiz: null }}
       next={nextOf(MODULE, ID)}
       stage={({ state, apply, say, closeUp }) => {
         const last = state.asked.at(-1)?.ticket;
         return (
           <SkillsStage
-            scene={carouselOf('prompt', state.asked, state.found && last === 'refund-saw' ? 'refunds' : null)}
+            scene={carouselOf('prompt', state.asked, last === 'refund-saw' ? 'refunds' : null)}
             tickets={TICKETS}
             ask={t => {
               apply({ ...state, asked: [...state.asked, { ticket: t }] });
