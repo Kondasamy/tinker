@@ -71,6 +71,7 @@ function sceneOf(s: S): Toll {
   return {
     dye: true,
     mail: READS.filter(i => i >= s.n).length,
+    mailDyed: READS.filter(i => i >= s.n).map(i => !('read' in TURNS[i] && TURNS[i].read.startsWith('rosa'))),
     tray: r.map(id => !id.startsWith('rosa')),
     slips: written(s.n).map(t => ({
       id: t.write,
@@ -82,7 +83,7 @@ function sceneOf(s: S): Toll {
     passes: [],
     spent: 0,
     budget: null,
-    lit: s.leaves,
+    lit: s.leaves === 'reply' ? 'reply' : null,
   };
 }
 const rowsOf = (s: S): Row[] =>
@@ -119,12 +120,11 @@ export const STEPS: Step<S>[] = [
     id: 'reveal',
     focus: 'reveal',
     visibleControls: ['predict', 'reveal', 'fact'],
-    narration: 'Your pick is locked. The assistant read the email and wrote on.',
-    act: 'Check your prediction.',
+    narration: 'Your pick is locked. The email waits in the crate.',
+    act: 'Deliver the letter, then check your prediction.',
     closeUp: ['desk'],
     status: 'The refund, the log line and the reply are violet; only the first note is cream.',
-    setup: s => ({ ...s, n: ALL }),
-    predicate: s => s.revealed,
+    predicate: s => s.revealed && s.n >= ALL,
   },
   {
     id: 'trifecta',
@@ -177,15 +177,16 @@ export default function FollowingTheDye() {
         predict: ({ state, apply }) => (
           <Predict {...PREDICT} value={state.prediction} onPredict={i => apply({ ...state, prediction: i })} />
         ),
-        reveal: ({ state, apply }) => (
-          <Reveal
-            prediction={state.prediction === null ? null : PREDICT.options[state.prediction]}
-            outcome={PREDICT.options[OUTCOME]}
-            revealed={state.revealed}
-            onReveal={() => apply({ ...state, revealed: true })}
-            label="Look at the desk"
-          />
-        ),
+        reveal: ({ state, apply }) =>
+          state.n < ALL ? null : (
+            <Reveal
+              prediction={state.prediction === null ? null : PREDICT.options[state.prediction]}
+              outcome={PREDICT.options[OUTCOME]}
+              revealed={state.revealed}
+              onReveal={() => apply({ ...state, revealed: true })}
+              label="Look at the desk"
+            />
+          ),
         fact: ({ state }) =>
           state.revealed ? (
             <>

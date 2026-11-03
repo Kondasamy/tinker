@@ -141,9 +141,10 @@ export default function TheApproveButton() {
             scene={tollOf(d, {
               p: POLICY,
               dye: false,
-              mail: rest.length,
+              next: rest,
               bad: found ? ['fake-88'] : [],
               lit: found ? 'fake-88' : null,
+              litZoom: !state.revealed,
             })}
             rows={rowsOf(d, false)}
             deliver={() => {

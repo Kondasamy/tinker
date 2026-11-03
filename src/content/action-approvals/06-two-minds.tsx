@@ -97,24 +97,22 @@ export const STEPS: Step<S>[] = [
   {
     id: 'predict',
     focus: 'predict',
-    visibleControls: ['predict'],
-    narration: 'Split it: a planner that never reads mail, and a reader with no tools, behind glass.',
-    act: 'Predict: can the email still add a refund?',
+    visibleControls: ['split', 'predict'],
+    narration: 'Split it: a planner that never reads mail, and a reader with no tools.',
+    act: 'Press Split, then predict: can the email still add a refund?',
     say: { block: 'reader', text: 'No tools' },
     status: 'A grey reader sits behind glass by the in-tray; the planner sits at the desk.',
-    setup: s => ({ ...s, two: true, read: false }),
-    predicate: s => s.prediction !== null,
+    predicate: s => s.two && s.prediction !== null,
   },
   {
     id: 'reveal',
     focus: 'reveal',
     visibleControls: ['predict', 'reveal', 'fact'],
-    narration: 'Your pick is locked. The reader read the same email.',
-    act: 'Check your prediction.',
+    narration: 'Your pick is locked. The same email waits in the crate.',
+    act: 'Deliver the letter, then check your prediction.',
     closeUp: ['reader', 'desk'],
     status: 'Only a violet summary lies on the desk for Rosa; no refund reached the barrier.',
-    setup: s => ({ ...s, read: true }),
-    predicate: s => s.revealed,
+    predicate: s => s.revealed && s.two && s.read,
   },
   {
     id: 'quiz',
@@ -142,6 +140,7 @@ export default function TwoMinds() {
           scene={sceneOf(state)}
           rows={rowsOf(state)}
           deliver={() => {
+            if (state.read && !state.two) return 'Press Split to give the mail to a reader instead.';
             if (state.read) return 'The email is delivered.';
             if (state.two && state.prediction === null) return 'Predict first: can the email still add a refund?';
             apply({ ...state, read: true });
@@ -152,18 +151,30 @@ export default function TwoMinds() {
         />
       )}
       controls={{
+        split: ({ state, sync }) => (
+          <button
+            type="button"
+            className="big"
+            aria-pressed={state.two}
+            disabled={state.two}
+            onClick={() => sync({ ...state, two: true, read: false })}
+          >
+            {state.two ? 'Split: two minds' : 'Split'}
+          </button>
+        ),
         predict: ({ state, apply }) => (
           <Predict {...PREDICT} value={state.prediction} onPredict={i => apply({ ...state, prediction: i })} />
         ),
-        reveal: ({ state, apply }) => (
-          <Reveal
-            prediction={state.prediction === null ? null : PREDICT.options[state.prediction]}
-            outcome={PREDICT.options[OUTCOME]}
-            revealed={state.revealed}
-            onReveal={() => apply({ ...state, revealed: true })}
-            label="Look at the barrier"
-          />
-        ),
+        reveal: ({ state, apply }) =>
+          !(state.two && state.read) ? null : (
+            <Reveal
+              prediction={state.prediction === null ? null : PREDICT.options[state.prediction]}
+              outcome={PREDICT.options[OUTCOME]}
+              revealed={state.revealed}
+              onReveal={() => apply({ ...state, revealed: true })}
+              label="Look at the barrier"
+            />
+          ),
         fact: ({ state }) =>
           state.revealed ? (
             <>

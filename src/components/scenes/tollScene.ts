@@ -9,7 +9,7 @@
 // A living scene (KTD2): scene(prev, state, t, view) → { still, moving }; at t = 1 everything is in the still.
 // Words only in pills; every string reaching SVG goes through esc().
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
-import { BH, boxCorners, calloutsLast, esc, sayAt } from '../../lib/iso/blocks';
+import { BH, boxCorners, calloutsLast, esc, sayFits } from '../../lib/iso/blocks';
 import { modelMachine, person, type Item, type ModelState } from '../../lib/iso/figures';
 import {
   CERAMIC,
@@ -83,6 +83,12 @@ export interface Toll {
   two?: boolean;
   /** a slip id, or 'pass' (the newest hourglass), ringed in the accent colour */
   lit?: string | null;
+  /** the lit slip (ring and red band) shows only while the stage is closed in on it: the reveal's answer */
+  litZoom?: boolean;
+  /** the crate's letters, the next one first: violet or not (default: all as `dye`) */
+  mailDyed?: boolean[];
+  /** the barrier is up: the last slip just passed it */
+  up?: boolean;
   say?: Say;
 }
 
@@ -140,12 +146,13 @@ function letterArt(x: number, y: number, z: number, dyed: boolean) {
 
 /** A slip the assistant wrote. */
 function slipArt(sl: TollSlip, x: number, y: number, z0: number, lit: boolean) {
-  const z = lit ? z0 + 3 : z0; // a lit slip sits on top of its pile
+  const z = lit ? z0 + 6 : z0, // a lit slip sits raised on top of its pile, larger
+    g = lit ? 1.7 : 1;
   const m = sl.dyed ? DYE : CERAMIC,
     k = sl.kind ?? 'refund';
-  let s = lit ? glow(x, y, z, 7) : '';
-  const h = k === 'refund' ? 3.5 : 1;
-  s += box(x - 4, y - 3, z, x + 4, y + 3, z + h, m, toneI, lit ? 1.6 : 0.8);
+  let s = lit ? glow(x, y, z0, 8) : '';
+  const h = k === 'refund' ? 3.5 : 1.4;
+  s += box(x - 4 * g, y - 3 * g, z, x + 4 * g, y + 3 * g, z + h, m, toneI, lit ? 1.6 : 0.8);
   if (k === 'refund') s += cyl(x, y, z + h, z + h + 0.8, 1.8, COIN, toneI, 0.6, 12);
   if (k === 'email')
     s += `<path d="${pd(
@@ -165,16 +172,17 @@ function slipArt(sl: TollSlip, x: number, y: number, z0: number, lit: boolean) {
         ],
         false,
       )}" fill="none" stroke="${INK}" stroke-width=".5"/>`;
+  // harm: a thick tomato band right across the top, beside the coin
   if (sl.bad)
     s += shape(
       [
-        [x - 4.05, y - 0.9, z + h + 0.1],
-        [x + 4.05, y - 0.9, z + h + 0.1],
-        [x + 4.05, y + 0.9, z + h + 0.1],
-        [x - 4.05, y + 0.9, z + h + 0.1],
+        [x - 4.05 * g, y + 0.6 * g, z + h + 0.1],
+        [x + 4.05 * g, y + 0.6 * g, z + h + 0.1],
+        [x + 4.05 * g, y + 2.9 * g, z + h + 0.1],
+        [x - 4.05 * g, y + 2.9 * g, z + h + 0.1],
       ],
       BAD.l,
-      0.5,
+      0.7,
     );
   return `<g data-slip="${esc(sl.id)}" data-at="${sl.at}" data-dyed="${sl.dyed ? 1 : 0}"${sl.bad ? ' data-bad="1"' : ''}${lit ? ' data-lit="1"' : ''}>${s}</g>`;
 }
@@ -275,7 +283,7 @@ const rest = (s: Toll): Drawn => {
     slips: s.slips.map((sl, i) => ({ sl, p: at[i] })),
     passes: s.passes.map((p, i) => ({ p: passAt(i), sand: p.sand, squash: 1, order: p.order })),
     waiting: s.slips.some(x => x.at === 'gate') ? 1 : null,
-    up: 0,
+    up: s.up ? 1 : 0,
     ...pipesOf(s),
     coins: s.spent,
   };
@@ -461,33 +469,36 @@ const pill = (p: number[], dx: number, dy: number, text: string, on: boolean, k:
   `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text), on, k)}</g>`;
 const money = (n: number) => `£${Math.round(n)}`;
 
-/** The label pills, drawn outside the ink filter (PillLayer). Mid-motion only the setting's names show; counts wait
- * for the end, where their numbers belong. */
-export function tollPills(s: Toll, v: SceneView, moving = false) {
-  const phone = !!v.phone,
+/** The label pills, drawn outside the ink filter (PillLayer). The living stage passes the state it is moving from
+ * until the motion lands, so counts change in one frame and no pill vanishes mid-motion. */
+export function tollPills(s0: Toll, v: SceneView) {
+  const s = shown(s0, v),
+    phone = !!v.phone,
+    say = calloutOf(s.say, v),
     out: string[] = [];
   const on = (p: TollPart, at: number[], dx: number, dy: number, text: string, lit = false) => {
     const sc = pillScale(p, v);
     if (sc) out.push(pill(at, dx, dy, text, lit, sc));
-    out.push(sayAt(calloutOf(s.say, v), p, at, dy - 10, sc || 1, phone));
+    // the callout a row beyond its name pill: above a pill above its part, below one below it
+    if (say && sayFits(say, p, phone))
+      out.push(
+        `<g class="callout" aria-hidden="true" pointer-events="none">${tag(at, dx, dy + (dy > 0 ? 26 : -28), esc(say.text), true, sc || 1)}</g>`,
+      );
   };
   on('mail', [17, 55, CRATE.z1 + 4], -8, -18, phone ? 'MAIL' : `MAIL ${s.mail}`);
-  on('tray', [36, 80, TABLE.z1 + 2], -6, 26, 'IN-TRAY');
+  on('tray', [36, 80, TABLE.z1 + 2], -10, 22, 'IN-TRAY');
   on('model', [MODEL[0], MODEL[1], BH + 30], 0, -14, s.two ? 'PLANNER' : phone ? 'BOT' : 'ASSISTANT');
   if (s.two) on('reader', [READER[0], READER[1], BH + 22], -6, -14, 'READER');
   on('rosa', [ROSA[0], ROSA[1], BH + 30], -4, -14, 'ROSA');
-  if (moving) return calloutsLast(out.filter(Boolean));
   const waits = s.slips.some(x => x.at === 'gate');
   on('gate', [PIVOT[0], LANE.y1, BH + 10], 6, 22, waits ? 'WAITING' : 'BARRIER', waits);
   const last = s.passes.at(-1);
   if (last || waits)
     on(
       'hourglass',
-      waits
-        ? [WAIT_GLASS[0], WAIT_GLASS[1], COUNTER.z1 + 12]
-        : [passAt(s.passes.length - 1)[0], COUNTER.y0 + 5, COUNTER.z1 + 12],
-      -22,
-      -8,
+      waits ? [WAIT_GLASS[0], WAIT_GLASS[1], COUNTER.z1] : [passAt(s.passes.length - 1)[0], COUNTER.y0 + 5, COUNTER.z1],
+      -16,
+      20,
       waits
         ? phone
           ? 'FLIP'
@@ -501,15 +512,25 @@ export function tollPills(s: Toll, v: SceneView, moving = false) {
     );
   on(
     'coins',
-    [TUBE[0], TUBE[1], BH + TUBE_H + 2],
-    18,
-    -12,
+    [TUBE[0], TUBE[1] + TUBE_R, BH + 2],
+    14,
+    20,
     s.budget !== null && !phone ? `${money(s.spent)} OF ${money(s.budget)}` : money(s.spent),
   );
   const count = (z: Zone) => s.slips.filter(x => x.at === z && (x.kind ?? 'refund') === 'refund').length;
   on('paid', [BIN.x1 - 4, BIN.y1, BIN.z1], 6, 18, `PAID ${count('paid')}`);
   if (count('stopped')) on('stopped', [STOP.x0 + 4, STOP.y1, STOP.z1], -8, 18, `STOPPED ${count('stopped')}`);
-  if (s.slips.some(x => x.at === 'desk') && !phone) on('desk', [DESK.x0 + 6, DESK.y1, ON], -14, 18, 'WRITTEN');
+  const onDesk = s.slips.filter(x => x.at === 'desk'),
+    litAt = onDesk.findIndex(x => x.id === s.lit);
+  if (onDesk.length && (!phone || litAt >= 0))
+    on(
+      'desk',
+      litAt >= 0 ? slipAt('desk', litAt) : [DESK.x1 - 8, DESK.y1, ON],
+      14,
+      20,
+      litAt >= 0 ? 'GOES OUT' : 'WRITTEN',
+      litAt >= 0,
+    );
   return calloutsLast(out.filter(Boolean));
 }
 
@@ -522,7 +543,9 @@ function dynamic(s: Toll, d: Drawn): Item[] {
   ];
   // the crate and its waiting letters
   let crate = box(CRATE.x0, CRATE.y0, BH, CRATE.x1, CRATE.y1, CRATE.z1, WOOD, toneI, 1.2);
-  for (let i = 0; i < Math.min(d.mail, 8); i++) crate += letterArt(mailP(i)[0], mailP(i)[1], mailP(i)[2], s.dye);
+  const n = Math.min(d.mail, 8);
+  // drawn bottom up: the next letter (mailDyed[0]) is on top
+  for (let i = 0; i < n; i++) crate += letterArt(mailP(i)[0], mailP(i)[1], mailP(i)[2], dyedAt(s, n - 1 - i));
   items.push({
     box: [
       [CRATE.x0, CRATE.y0, BH],
@@ -660,16 +683,24 @@ function art(s: Toll, d: Drawn) {
   };
 }
 
+/** As the picture shows it: a reveal's ring and red band only while closed in (litZoom). */
+function shown(s: Toll, v?: SceneView): Toll {
+  if (!s.litZoom || (v?.zoomT ?? 0) > 0) return s;
+  return { ...s, lit: null, slips: s.slips.map(x => (x.id === s.lit ? { ...x, bad: false } : x)) };
+}
+
 /** The picture at rest: what the stage shows for state s with no motion (the share image too). */
-export const tollStill = (s: Toll) => art(s, rest(s));
+export const tollStill = (s: Toll, v?: SceneView) => art(shown(s, v), rest(s));
 
 /** The picture with the top letter lifted off the crate (the hit layer draws it under the pointer). */
 export const tollLifted = (s: Toll) => art(s, { ...rest(s), mail: Math.max(0, s.mail - 1) });
 /** The letter being dragged, as drawn on top of the crate. */
 export const topLetter = (s: Toll) => {
   const p = mailP(Math.max(0, Math.min(s.mail, 8) - 1));
-  return letterArt(p[0], p[1], p[2], s.dye);
+  return letterArt(p[0], p[1], p[2], dyedAt(s, 0));
 };
+/** whether the crate's k-th letter from the top is violet */
+const dyedAt = (s: Toll, k: number) => s.dye && (s.mailDyed?.[k] ?? true);
 
 /** Whether going from prev to s moves anything (a change of callout or lit piece alone doesn't). */
 export const tollMoves = (prev: Toll, s: Toll) =>
@@ -681,14 +712,16 @@ export const tollMoves = (prev: Toll, s: Toll) =>
     prev.spent,
     prev.dye,
     prev.two,
-  ]) !== JSON.stringify([s.mail, s.tray, s.slips.map(x => [x.id, x.at]), s.passes, s.spent, s.dye, s.two]);
+    !!prev.up,
+  ]) !== JSON.stringify([s.mail, s.tray, s.slips.map(x => [x.id, x.at]), s.passes, s.spent, s.dye, s.two, !!s.up]);
 
 /** Approvals' living scene. In order: a letter flies from the crate to the in-tray (0–0.3); the dye runs down the pipe
  * to the assistant (0.2–0.45); a flipped hourglass turns over (0–0.35); slips roll from the assistant, or from where
  * they were, to their place, the barrier rising while any slip passes it (0.35–0.85); the dye runs on to the lane
  * (0.4–0.65); the coins rise (0.6–1); an hourglass's sand runs down across the whole change. */
-export const tollScene: Scene<Toll> = (prev, s, t) => {
-  if (t >= 1 || !tollMoves(prev, s)) return { still: tollStill(s), moving: '' };
+export const tollScene: Scene<Toll> = (prev, s0, t, v) => {
+  const s = shown(s0, v);
+  if (t >= 1 || !tollMoves(prev, s0)) return { still: tollStill(s0, v), moving: '' };
   const A = rest(prev),
     B = rest(s);
   const ph = (a: number, b: number) => clamp01((t - a) / (b - a));
@@ -733,7 +766,8 @@ export const tollScene: Scene<Toll> = (prev, s, t) => {
             ? Math.abs(Math.cos(Math.PI * flip))
             : null
           : B.waiting,
-    up: passing ? Math.sin(Math.PI * ph(0.4, 0.9)) : 0,
+    // the arm rises while a slip passes, and ends up only if the last slip went through
+    up: passing && !B.up ? Math.sin(Math.PI * ph(0.4, 0.9)) : lerp(A.up, B.up, ph(0.35, 0.55)),
     pipe1: lerp(A.pipe1, B.pipe1, ph(0.2, 0.45)),
     pipe2: lerp(A.pipe2, B.pipe2, ph(0.4, 0.65)),
     coins: lerp(A.coins, B.coins, ph(0.6, 1)),

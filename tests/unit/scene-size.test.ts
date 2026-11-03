@@ -672,7 +672,12 @@ const SCENES: Record<string, () => string> = {
   // the approvals week under the strictest rules: every slip paid or stopped, passes on the counter, the dye on
   toll: () => {
     const p = { ask: 'all', budget: 150, expiry: 'hour' } as const;
-    return stage(TOLL_BOARD, tollStill(tollOf(approvalsWeek(p).desk, { p, dye: true, mail: 3, bad: ['fake-88'] })));
+    return stage(
+      TOLL_BOARD,
+      tollStill(
+        tollOf(approvalsWeek(p).desk, { p, dye: true, next: ['saw-41', 'rosa-12', 'fake-88'], bad: ['fake-88'] }),
+      ),
+    );
   },
   // the densest cork board: a full month kept whole, 16 cards and their threads, the bin, a callout on
   cork: () =>

@@ -29,6 +29,7 @@ import {
   PASS_HOURS,
   arrive,
   decide,
+  dyedLetter,
   letterOf,
   wait,
   type Desk,
@@ -63,24 +64,39 @@ export const delivered = (log: Ev[]) => log.flatMap(e => ('l' in e ? [e.l] : [])
 export const decided = (log: Ev[]) => log.filter(e => 'yes' in e).length;
 
 const zoneOf = (s: Slip): TollSlip['at'] => (s.fate === 'gate' ? 'gate' : s.fate);
-/** The picture of an office: the dye on or off, the letters still in the crate, any slips revealed as harm. */
+/** The picture of an office: the dye on or off, the letters still in the crate (next first), any slips revealed as
+ * harm, and whether the hourglass passes show. The coins show the busiest day's total. */
 export function tollOf(
   d: Desk,
-  o: { p: Policy; dye: boolean; mail: number; bad?: string[]; lit?: string | null },
+  o: {
+    p: Policy;
+    dye: boolean;
+    next: string[];
+    bad?: string[];
+    lit?: string | null;
+    litZoom?: boolean;
+    passes?: boolean;
+  },
 ): Toll {
-  const day = d.slips.at(-1)?.day;
+  const last = d.slips.at(-1);
   return {
     dye: o.dye,
-    mail: o.mail,
+    mail: o.next.length,
+    mailDyed: o.next.map(id => dyedLetter(letterOf(id))),
     tray: d.slips.map(s => o.dye && s.dyed),
     slips: d.slips.map(s => ({ id: s.id, dyed: o.dye && s.dyed, at: zoneOf(s), bad: o.bad?.includes(s.id) })),
-    passes: d.passes.map(p => ({
-      order: p.order,
-      sand: o.p.expiry === 'forever' ? 1 : Math.max(0, 1 - (d.now - p.at) / PASS_HOURS),
-    })),
-    spent: day === undefined ? 0 : (d.spent[day] ?? 0),
+    passes:
+      o.passes === false
+        ? []
+        : d.passes.map(p => ({
+            order: p.order,
+            sand: o.p.expiry === 'forever' ? 1 : Math.max(0, 1 - (d.now - p.at) / PASS_HOURS),
+          })),
+    spent: Math.max(0, ...Object.values(d.spent)),
     budget: o.p.budget,
     lit: o.lit,
+    litZoom: o.litZoom,
+    up: last?.fate === 'paid',
   };
 }
 
@@ -208,7 +224,9 @@ export function ApprovalsStage({
     lift: s => ({ still: tollLifted(s), piece: topLetter(s) }),
   });
   const s = stage.state;
-  const pills = () => tollPills(s, stage.view as SceneView, stage.t < 1 && tollMoves(stage.prev, s));
+  // until the motion lands the pills read the state it is moving from (with this step's callout)
+  const pills = () =>
+    tollPills(stage.t < 1 && tollMoves(stage.prev, s) ? { ...stage.prev, say: s.say } : s, stage.view as SceneView);
 
   const act = (part: string, to?: string | null) => {
     let why: string | undefined;

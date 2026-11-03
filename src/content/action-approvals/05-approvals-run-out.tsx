@@ -104,12 +104,11 @@ export const STEPS: Step<S>[] = [
     id: 'reveal',
     focus: 'reveal',
     visibleControls: ['predict', 'reveal', 'fact'],
-    narration: 'Your pick is locked. The letter arrived.',
-    act: 'Check your prediction.',
+    narration: 'Your pick is locked. The new letter is in the crate.',
+    act: 'Deliver the letter, then check your prediction.',
     closeUp: ['gate', 'hourglass'],
     status: 'The second order-41 refund waits at the barrier; the run-out pass let nothing through.',
-    setup: s => (deliveredAll(s, 'reuse-41') ? s : { ...s, log: [...s.log, { l: 'reuse-41' }] }),
-    predicate: s => s.revealed,
+    predicate: s => s.revealed && deliveredAll(s, 'reuse-41'),
   },
   {
     id: 'quiz',
@@ -136,7 +135,7 @@ export default function ApprovalsRunOut() {
           rest = left(QUEUE, state.log);
         return (
           <ApprovalsStage
-            scene={tollOf(d, { p: POLICY, dye: true, mail: rest.length })}
+            scene={tollOf(d, { p: POLICY, dye: true, next: rest })}
             rows={rowsOf(d, true)}
             deliver={() => {
               if (waiting(d)) return 'A refund already waits at the barrier: answer it first.';
@@ -178,15 +177,16 @@ export default function ApprovalsRunOut() {
         predict: ({ state, apply }) => (
           <Predict {...PREDICT} value={state.prediction} onPredict={i => apply({ ...state, prediction: i })} />
         ),
-        reveal: ({ state, apply }) => (
-          <Reveal
-            prediction={state.prediction === null ? null : PREDICT.options[state.prediction]}
-            outcome={PREDICT.options[OUTCOME]}
-            revealed={state.revealed}
-            onReveal={() => apply({ ...state, revealed: true })}
-            label="Watch the barrier"
-          />
-        ),
+        reveal: ({ state, apply }) =>
+          !deliveredAll(state, 'reuse-41') ? null : (
+            <Reveal
+              prediction={state.prediction === null ? null : PREDICT.options[state.prediction]}
+              outcome={PREDICT.options[OUTCOME]}
+              revealed={state.revealed}
+              onReveal={() => apply({ ...state, revealed: true })}
+              label="Watch the barrier"
+            />
+          ),
         fact: ({ state }) =>
           state.revealed ? (
             <>

@@ -58,13 +58,6 @@ export const QUIZ = {
 export const PARTS = TOLL_PARTS;
 /** an hour between letters, so each refund needs its own yes */
 const desk = (s: S) => replay(POLICY, s.log, 1);
-/** deliver the next letter and, if it waits, approve it (Rosa sees nothing odd in a small refund) */
-const step = (log: Ev[]) => {
-  const rest = left(QUEUE, log),
-    next: Ev[] = [...log, { l: rest[0] }];
-  return waiting(replay(POLICY, next, 1)) ? [...next, { yes: true }] : next;
-};
-
 export const STEPS: Step<S>[] = [
   {
     id: 'first',
@@ -101,12 +94,11 @@ export const STEPS: Step<S>[] = [
     id: 'reveal',
     focus: 'reveal',
     visibleControls: ['predict', 'reveal', 'fact'],
-    narration: 'Your pick is locked. The third letter arrived.',
-    act: 'Check your prediction.',
+    narration: 'Your pick is locked. The third letter is in the crate.',
+    act: 'Deliver the letter, then check your prediction.',
     closeUp: ['coins', 'stopped'],
     status: `The third £${EACH} refund lies in the stopped tray; the coins stay at £${2 * EACH}, under the ring.`,
-    setup: s => (left(QUEUE, s.log).length ? { ...s, log: step(s.log) } : s),
-    predicate: s => s.revealed,
+    predicate: s => s.revealed && !left(QUEUE, s.log).length,
   },
   {
     id: 'quiz',
@@ -133,7 +125,7 @@ export default function SmallSteps() {
           rest = left(QUEUE, state.log);
         return (
           <ApprovalsStage
-            scene={tollOf(d, { p: POLICY, dye: true, mail: rest.length })}
+            scene={tollOf(d, { p: POLICY, dye: true, next: rest, passes: false })}
             rows={rowsOf(d, true)}
             deliver={() => {
               if (waiting(d)) return 'A refund already waits at the barrier: approve it first.';
@@ -156,15 +148,16 @@ export default function SmallSteps() {
         predict: ({ state, apply }) => (
           <Predict {...PREDICT} value={state.prediction} onPredict={i => apply({ ...state, prediction: i })} />
         ),
-        reveal: ({ state, apply }) => (
-          <Reveal
-            prediction={state.prediction === null ? null : PREDICT.options[state.prediction]}
-            outcome={PREDICT.options[OUTCOME]}
-            revealed={state.revealed}
-            onReveal={() => apply({ ...state, revealed: true })}
-            label="Watch the coins"
-          />
-        ),
+        reveal: ({ state, apply }) =>
+          left(QUEUE, state.log).length ? null : (
+            <Reveal
+              prediction={state.prediction === null ? null : PREDICT.options[state.prediction]}
+              outcome={PREDICT.options[OUTCOME]}
+              revealed={state.revealed}
+              onReveal={() => apply({ ...state, revealed: true })}
+              label="Watch the coins"
+            />
+          ),
         fact: ({ state }) =>
           state.revealed ? (
             <>

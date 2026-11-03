@@ -137,16 +137,16 @@ describe('the toll scene', () => {
   const draw = (scene: Art, moving?: Art) =>
     renderToString(createElement(IsoStage, { board: TOLL_BOARD, scene, moving, label: '' }));
   const P: Policy = { ask: 'dyed', budget: 150, expiry: 'hour' };
-  const at = (log: Parameters<typeof replay>[1], dye = true, mail = 2): Toll =>
-    tollOf(replay(P, log, 1), { p: P, dye, mail });
-  const empty = at([], true, 3),
+  const at = (log: Parameters<typeof replay>[1], dye = true, next = ['split-c']): Toll =>
+    tollOf(replay(P, log, 1), { p: P, dye, next });
+  const empty = at([], true, ['split-a', 'split-b', 'split-c']),
     waits = at([{ l: 'split-a' }]),
     paid = at([{ l: 'split-a' }, { yes: true }]),
     stopped = at([{ l: 'split-a' }, { yes: true }, { l: 'split-b' }, { yes: true }, { l: 'split-c' }]),
     expired = tollOf(replay(ASK_DYED, [{ l: 'saw-41' }, { yes: true }, { wait: 1 }]), {
       p: ASK_DYED,
       dye: true,
-      mail: 1,
+      next: ['reuse-41'],
     }),
     two: Toll = { ...empty, two: true, tray: [true], slips: [{ id: 's', dyed: true, at: 'desk', kind: 'summary' }] };
   const moves: [string, Toll, Toll][] = [
@@ -155,7 +155,7 @@ describe('the toll scene', () => {
     ['a refund stopped by the budget', at([{ l: 'split-a' }, { yes: true }, { l: 'split-b' }, { yes: true }]), stopped],
     [
       'the sand runs out',
-      tollOf(replay(ASK_DYED, [{ l: 'saw-41' }, { yes: true }]), { p: ASK_DYED, dye: true, mail: 1 }),
+      tollOf(replay(ASK_DYED, [{ l: 'saw-41' }, { yes: true }]), { p: ASK_DYED, dye: true, next: ['reuse-41'] }),
       expired,
     ],
     ['the reader reads', { ...empty, two: true }, two],

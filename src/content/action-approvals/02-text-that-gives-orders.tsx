@@ -18,6 +18,8 @@ const MODULE = 'action-approvals',
 const OPEN: Policy = { ask: 'none', budget: null, expiry: 'hour' },
   RULE: Policy = { ask: 'dyed', budget: null, expiry: 'hour' };
 export const QUEUE = ['rosa-12', 'fake-88'];
+/** with the rule on the morning replays: Rosa's note goes through again, and the email waits in the crate */
+const AGAIN: Ev[] = [{ l: 'rosa-12' }];
 
 interface S {
   log: Ev[];
@@ -110,13 +112,14 @@ export const STEPS: Step<S>[] = [
     id: 'rule',
     focus: 'rule',
     visibleControls: ['fact', 'rule'],
-    narration: 'A rule for the booth: any refund carrying dye waits for a person.',
-    act: 'Turn on the dye rule, deliver the email again, then refuse it.',
+    narration: 'Replay the morning with a rule: a refund carrying dye waits for a person.',
+    act: 'Turn on the rule, deliver the email, then refuse it.',
     say: { block: 'gate', text: 'Dyed waits' },
-    status: 'The violet order-88 refund lies in the stopped tray, refused at the barrier.',
+    status:
+      'Replayed with the rule: Rosa’s cream refund is paid, and the violet order-88 refund lies in the stopped tray.',
     predicate: stoppedFake,
     hint: 'Press Turn on the dye rule, then Deliver, then Refuse.',
-    solution: s => ({ ...s, rule: true, after: [{ l: 'fake-88' }, { yes: false }] }),
+    solution: s => ({ ...s, rule: true, after: [...AGAIN, { l: 'fake-88' }, { yes: false }] }),
   },
   {
     id: 'quiz',
@@ -124,7 +127,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['quiz'],
     narration: 'Text the assistant reads can give it orders. The dye shows which actions came after it.',
     act: 'One question to finish.',
-    status: 'The violet refund stays in the stopped tray.',
+    status: 'Rosa’s cream refund stays paid; the violet one stays in the stopped tray.',
     predicate: s => s.quiz === QUIZ.correct || s.quiz === UNSURE,
     hint: 'Which words reached the model before it wrote the booking?',
   },
@@ -140,7 +143,7 @@ export default function TextThatGivesOrders() {
       next={nextOf(MODULE, ID)}
       stage={({ state, apply, say, closeUp }) => {
         const d = desk(state),
-          queue = state.rule ? ['fake-88'] : QUEUE,
+          queue = QUEUE,
           events = state.rule ? state.after : state.log,
           rest = left(queue, events),
           put = (e: Ev[]) => apply(state.rule ? { ...state, after: e } : { ...state, log: e });
@@ -149,8 +152,9 @@ export default function TextThatGivesOrders() {
             scene={tollOf(d, {
               p: policyOf(state),
               dye: true,
-              mail: rest.length,
+              next: rest,
               lit: state.found && !state.rule ? 'fake-88' : null,
+              litZoom: !state.revealed,
             })}
             rows={rowsOf(d, true)}
             deliver={() => {
@@ -203,7 +207,7 @@ export default function TextThatGivesOrders() {
             className="big"
             aria-pressed={state.rule}
             disabled={state.rule}
-            onClick={() => sync({ ...state, rule: true, after: [] })}
+            onClick={() => sync({ ...state, rule: true, after: AGAIN })}
           >
             {state.rule ? 'Dye rule: on' : 'Turn on the dye rule'}
           </button>
