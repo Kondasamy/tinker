@@ -68,7 +68,7 @@ export const sceneOf = (s: S): Shadow => {
     : s.shared
       ? { from: FROM, to: TO, ok: accepts(TO, { for: 'shared' }) }
       : null;
-  return { ...EMPTY, vans: [FROM, TO], key: s.own ? 'own' : 'shared', pass };
+  return { ...EMPTY, vans: [FROM, TO], key: s.own ? 'own' : s.shared ? 'shared' : null, pass };
 };
 
 export const STEPS: Step<S>[] = [
@@ -79,7 +79,7 @@ export const STEPS: Step<S>[] = [
     narration:
       'The assistant signs in to every server with one Larkspur key. QuickPost, a courier firm, now holds a copy.',
     act: 'Press Replay at the Order desk.',
-    say: { block: 'key', text: 'One key' },
+    say: { block: 'quickpost', text: 'Has a copy' },
     status: 'The Order desk let in the key QuickPost carried over.',
     predicate: s => s.shared,
     hint: 'Press Replay at the Order desk in the step card.',
@@ -90,8 +90,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['predict'],
     narration: 'One key opened a door it was never meant for.',
     act: 'Predict what each server’s own sign-in changes.',
-    say: { block: 'orderdesk', text: 'Let in' },
-    status: 'The Order desk’s crate carries a tick: the shared key worked there.',
+    status: 'The Order desk’s crate carries a big check and QuickPost’s gold pass.',
     predicate: s => s.prediction !== null,
   },
   {
@@ -100,7 +99,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['predict', 'own'],
     narration: 'Pick locked. With OAuth, each server’s own sign-in issues a pass that names that server.',
     act: 'Press Sign in per server, then Replay.',
-    say: { block: 'key', text: 'Own passes' },
+    say: { block: 'key', text: 'One per server' },
     status: 'The Order desk refused the pass: it was issued for QuickPost.',
     predicate: s => s.own && s.ownReplay,
     hint: 'Press Sign in per server, then Replay at the Order desk.',
@@ -112,7 +111,6 @@ export const STEPS: Step<S>[] = [
     narration: 'The Order desk checks whom the pass was issued for, and it wasn’t issued for the Order desk.',
     act: 'Check your prediction.',
     closeUp: ['orderdesk'],
-    say: { block: 'orderdesk', text: 'Checked' },
     status: 'A cross on the Order desk’s crate; the pass went back to QuickPost.',
     predicate: s => s.revealed,
   },

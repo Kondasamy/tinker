@@ -86,7 +86,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['predict'],
     narration: `That’s drift: QuickPost renamed one field overnight, ${RENAME.from} to ${RENAME.to}.`,
     act: 'Predict what happens when you hang it.',
-    say: { block: 'crate', text: 'Seal broken' },
+    say: { block: 'crate', text: 'Renamed field' },
     status: 'QuickPost’s crate waits at the dock, its wax seal split.',
     predicate: s => s.prediction !== null,
   },
