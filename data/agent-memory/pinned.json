@@ -1,0 +1,58 @@
+{
+  "undo": {
+    "web-deals": ["web-id", "web-skip"],
+    "chat-dan": ["dan-gate", "dan-left"],
+    "orders": ["ben-quay", "cara-oak", "ada-mill"]
+  },
+  "conflict": {
+    "address": ["ada-elm", "ada-mill"],
+    "refunds": ["rule-refund", "web-refund"]
+  },
+  "forget": { "day": 30, "fell": ["cara-ladder", "cara-oak"] },
+  "expired": ["cara-away"],
+  "full": ["ada-cordless", "ada-rain", "ben-quay", "ben-thanks", "rule-refund"],
+  "kept": ["c-address", "c-cordless", "c-trade"],
+  "scores": {
+    "good rules, nothing pulled": {
+      "rules": { "keep": "lasting", "expiry": "by-kind", "trust": "ranked" },
+      "undone": [],
+      "right": 6,
+      "poison": 4
+    },
+    "good rules, both planted sources pulled": {
+      "rules": { "keep": "lasting", "expiry": "by-kind", "trust": "ranked" },
+      "undone": ["web-deals", "chat-dan"],
+      "right": 8,
+      "poison": 0
+    },
+    "newest wins": {
+      "rules": { "keep": "lasting", "expiry": "by-kind", "trust": "newest" },
+      "undone": [],
+      "right": 5,
+      "poison": 5
+    },
+    "keep everything": {
+      "rules": { "keep": "all", "expiry": "by-kind", "trust": "checked" },
+      "undone": ["chat-dan"],
+      "right": 6,
+      "poison": 0
+    },
+    "no expiry": {
+      "rules": { "keep": "lasting", "expiry": "none", "trust": "checked" },
+      "undone": ["chat-dan"],
+      "right": 7,
+      "poison": 0
+    },
+    "pulling a good source": {
+      "rules": { "keep": "lasting", "expiry": "by-kind", "trust": "checked" },
+      "undone": ["orders", "chat-dan"],
+      "right": 7,
+      "poison": 0
+    }
+  },
+  "winners": [
+    { "keep": "lasting", "expiry": "by-kind", "trust": "ranked", "undone": ["web-deals", "chat-dan"] },
+    { "keep": "lasting", "expiry": "by-kind", "trust": "checked", "undone": ["chat-dan"] },
+    { "keep": "lasting", "expiry": "by-kind", "trust": "checked", "undone": ["web-deals", "chat-dan"] }
+  ]
+}

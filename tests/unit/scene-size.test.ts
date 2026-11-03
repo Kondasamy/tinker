@@ -24,6 +24,9 @@ import { sceneOf as shadowWeek } from '../../src/content/tools-in-production/07-
 import { TOLL_BOARD, tollStill } from '../../src/components/scenes/tollScene';
 import { simulate as approvalsWeek } from '../../src/lib/action-approvals/gate';
 import { tollOf } from '../../src/content/action-approvals/kit';
+import { CORK_BOARD, corkStill } from '../../src/components/scenes/corkScene';
+import { corkOf } from '../../src/content/agent-memory/kit';
+import { GOOD, remember } from '../../src/lib/agent-memory/memory';
 import { DOCKET_BOARD, docketScene } from '../../src/components/scenes/docketScene';
 import { boardOf as docketOf } from '../../src/content/prompts/kit';
 import { boardOf as dreamBoard, dreamScene, type DreamOpts } from '../../src/components/scenes/dreamFloorScene';
@@ -668,6 +671,15 @@ const SCENES: Record<string, () => string> = {
     const p = { ask: 'all', budget: 150, expiry: 'hour' } as const;
     return stage(TOLL_BOARD, tollStill(tollOf(approvalsWeek(p).desk, { p, dye: true, mail: 3, bad: ['fake-88'] })));
   },
+  // the densest cork board: a full month kept whole, 16 cards and their threads, the bin, a callout on
+  cork: () =>
+    stage(
+      CORK_BOARD,
+      corkStill({
+        ...corkOf(remember({ ...GOOD, keep: 'all' }), { lit: ['orders'] }),
+        say: { block: 'bin', text: 'Fell' },
+      }),
+    ),
   // the end of a least-busy run with a dead and a gray shed: every shed, the barrier
   yard: () => {
     const run = lbSim(lbPolicy({ rule: 'least', states: { cedar: 'dead', dogwood: 'gray' }, checks: 2 }));
@@ -685,6 +697,8 @@ const BASE: Record<string, number> = {
   cabinet: 36056,
   // new with the skills module (no pre-rework size): its first size is 76,033, with a little headroom
   carousel: 26000,
+  // new with the agent-memory module (no pre-rework size): its first size is about 77,600 (16 cards and their threads), with a little headroom
+  cork: 30000,
   // new with the robots module (no pre-rework size): its first size is 44,523, with a little headroom
   claw: 16000,
   cloak: 57039,
