@@ -140,10 +140,12 @@ describe('interpolation helpers', () => {
     expect(openness(true, true, 0.3)).toBe(1);
   });
 
-  it('pills: all shown at rest (scale 2 on phones); while zoomed only the close-up part, at scale 2', () => {
+  it('pills: all shown at rest (scale 2 on phones); while zoomed only the close-up part, growing to 2 with the zoom', () => {
     expect(pillScale('pad-a', { zoomT: 0 })).toBe(1);
     expect(pillScale('pad-a', { zoomT: 0, phone: true })).toBe(2);
-    expect(pillScale('pad-a', { zoomT: 0.4, closeUp: ['pad-a'] })).toBe(2);
+    expect(pillScale('pad-a', { zoomT: 0.4, closeUp: ['pad-a'] })).toBeCloseTo(1.4);
+    expect(pillScale('pad-a', { zoomT: 1, closeUp: ['pad-a'] })).toBe(2);
+    expect(pillScale('pad-a', { zoomT: 0.4, closeUp: ['pad-a'], phone: true })).toBe(2);
     expect(pillScale('pad-b', { zoomT: 0.4, closeUp: ['pad-a'] })).toBe(0);
   });
 

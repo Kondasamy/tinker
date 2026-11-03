@@ -92,8 +92,11 @@ export const openness = (was: boolean, is: boolean, t: number) => lerp(+was, +is
 
 /** A pill's scale in this view: 0 hides it. At rest every pill shows (2 on phones); zoomed, only the close-up
  * parts' pills, at the phone scale (R11). */
-export const pillScale = (part: string, v: SceneView) =>
-  v.zoomT > 0 ? (v.closeUp?.includes(part) ? 2 : 0) : v.phone ? 2 : 1;
+export const pillScale = (part: string, v: SceneView) => {
+  const rest = v.phone ? 2 : 1;
+  // the close-up's pill grows with the zoom rather than jumping to the phone scale while the stage is still wide
+  return v.zoomT > 0 ? (v.closeUp?.includes(part) ? rest + (2 - rest) * v.zoomT : 0) : rest;
+};
 
 /** A step's callout as the scene should draw it: none while zoomed (the close-up's pills say it). */
 export const calloutOf = <T>(say: T | undefined, v: SceneView) => (v.zoomT > 0 ? undefined : say);
@@ -161,7 +164,8 @@ export interface LivingOpts<S> {
   partBox?: (part: string, s: S) => number[][];
   phone?: boolean;
   /** while a piece is dragged: the still without it, and the piece as drawn at rest (the hook moves it) */
-  lift?: (s: S, view: SceneView) => { still: Art; piece: string };
+  /** the dragged piece; pass a function so it is drawn inside the stage's frame (projected points need its offset) */
+  lift?: (s: S, view: SceneView) => { still: Art; piece: string | (() => string) };
 }
 
 /**
@@ -195,7 +199,10 @@ export function useLivingStage<S>(o: LivingOpts<S>) {
   const still = useMemo(() => lifted?.still ?? sc.still, [s, t >= 1, zoomT > 0, !!lifted, o.phone, o.closeUp?.join()]);
   const moving: Art =
     drag && lifted
-      ? `<g transform="translate(${drag.dx.toFixed(1)} ${drag.dy.toFixed(1)})">${lifted.piece}</g>`
+      ? () => {
+          const piece = typeof lifted.piece === 'function' ? lifted.piece() : lifted.piece;
+          return `<g transform="translate(${drag.dx.toFixed(1)} ${drag.dy.toFixed(1)})">${piece}</g>`;
+        }
       : sc.moving;
   return { state: s, prev, t, still, moving, zoom, zoomT, view, busy: t < 1 || !!zoom, onDrag: setDrag };
 }
