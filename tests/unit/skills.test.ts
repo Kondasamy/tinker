@@ -193,6 +193,14 @@ describe('the carousel scene', () => {
     expect(win).toContain(`>${REQUESTS.length} OF ${REQUESTS.length} RIGHT<`);
   });
 
+  it('rings the spine tabs a workbench run changed, and only those', () => {
+    const after = draw(carouselStill(benchCarousel(BENCH_WINNERS[0], 2, BENCH_START)));
+    const flipped = benchCarousel(BENCH_START, 1).marks!;
+    const n = SKILLS.filter(k => !flipped[k.id]).length;
+    expect(after.match(/data-changed="1"/g)).toHaveLength(n);
+    expect(draw(carouselStill(benchCarousel(BENCH_START, 1)))).not.toContain('data-changed');
+  });
+
   it('fans the tickets asked beside the open binder (three at most), the newest outlined', () => {
     const three = draw(
       carouselStill(

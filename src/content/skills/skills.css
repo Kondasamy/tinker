@@ -1,6 +1,7 @@
 /* Skills stage: shares the tool-calling frame (.tc-stage, .tc-frame, .tc-caption); the twin controls sit under the
    picture, and the Words tab is a bar per ticket against the long prompt. */
 .sk-twin {
+  min-height: 48px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;

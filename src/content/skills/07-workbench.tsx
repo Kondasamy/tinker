@@ -25,6 +25,8 @@ const isWinner = (c: number[] | null) => !!c && WINNERS.some(w => w.join() === c
 interface S {
   choice: number[];
   ran: number[] | null;
+  /** the set run before `ran`, to ring the tabs that changed */
+  before?: number[] | null;
   runs: number;
   prediction: number | null;
   revealed: boolean;
@@ -59,7 +61,7 @@ export const QUIZ = {
 };
 
 export const PARTS = CAROUSEL_PARTS;
-const run = (s: S): S => ({ ...s, ran: [...s.choice], runs: s.runs + 1 });
+const run = (s: S): S => ({ ...s, before: s.ran, ran: [...s.choice], runs: s.runs + 1 });
 
 export const STEPS: Step<S>[] = [
   {
@@ -125,7 +127,12 @@ export default function Workbench() {
       initial={{ choice: [...BENCH_START], ran: null, runs: 0, prediction: null, revealed: false, quiz: null }}
       next={nextOf(MODULE, ID)}
       stage={({ state, say, closeUp }) => (
-        <SkillsStage scene={benchCarousel(state.ran, state.runs)} tickets={[]} say={say} closeUp={closeUp} />
+        <SkillsStage
+          scene={benchCarousel(state.ran, state.runs, state.before)}
+          tickets={[]}
+          say={say}
+          closeUp={closeUp}
+        />
       )}
       controls={{
         labels: ({ state, sync }) => (

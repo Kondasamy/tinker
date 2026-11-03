@@ -54,6 +54,8 @@ export interface Carousel {
   outsider?: 'boxed' | 'open' | 'binned';
   /** the workbench: each binder's mark after a run (true: all its tickets picked it), and the run's tally */
   marks?: Record<string, boolean>;
+  /** the workbench: binders whose mark the last run changed, their tabs ringed */
+  changed?: string[];
   tally?: { right: number; of: number; words: number };
   /** the workbench: whole turns the carousel has made (one per run) */
   spin?: number;
@@ -92,7 +94,7 @@ const SPOT = [131, 72]; // the open binder
 // prompt mode: each ticket asked lies under the pile, a later one further toward the front so its edge shows
 const PILE_TICKETS = [
   [136, 72],
-  [110, 84],
+  [105, 84],
   [150, 87],
 ];
 // skills mode: the tickets asked, fanned beside the open binder, oldest at the back
@@ -134,7 +136,7 @@ const slotAt = (i: number, rot: number) => {
 };
 
 /** A binder standing in its slot, spine out: a coloured box with a blank label plate on the spine. */
-function upright(x: number, y: number, z: number, a: number, id: string, mark?: boolean) {
+function upright(x: number, y: number, z: number, a: number, id: string, mark?: boolean, changed = false) {
   const F = [Math.cos(a), Math.sin(a), 0],
     S = [-Math.sin(a), Math.cos(a), 0];
   const at = (f: number, s: number, h: number) => [x + F[0] * f + S[0] * s, y + F[1] * f + S[1] * s, z + h];
@@ -165,15 +167,18 @@ function upright(x: number, y: number, z: number, a: number, id: string, mark?: 
   // card with a heavy outline, so a red tab still reads on a red binder
   if (mark !== undefined) {
     const f = BD / 2 - 0.4;
+    // a tab the last run changed wears a ring of light
+    if (changed)
+      s += `<path data-changed="1" d="${pd([at(f, -6, BHT - 2.2), at(f, 6, BHT - 2.2), at(f, 6, BHT + 13.4), at(f, -6, BHT + 13.4)])}" fill="#fff1b8" stroke="#f4b829" stroke-width="2.6" stroke-linejoin="round"/>`;
     s += shape(
-      [at(f, -2.6, BHT - 1), at(f, 2.6, BHT - 1), at(f, 2.6, BHT + 6.4), at(f, -2.6, BHT + 6.4)],
+      [at(f, -4.6, BHT - 1), at(f, 4.6, BHT - 1), at(f, 4.6, BHT + 12.2), at(f, -4.6, BHT + 12.2)],
       CERAMIC.l,
-      1.6,
+      1.8,
     );
     s += shape(
-      [at(f + 0.05, -1.8, BHT), at(f + 0.05, 1.8, BHT), at(f + 0.05, 1.8, BHT + 5.4), at(f + 0.05, -1.8, BHT + 5.4)],
+      [at(f + 0.05, -3.5, BHT), at(f + 0.05, 3.5, BHT), at(f + 0.05, 3.5, BHT + 11), at(f + 0.05, -3.5, BHT + 11)],
       mark ? PALS.mint.l : PALS.tomato.l,
-      1.2,
+      1.4,
     );
   }
   return `<g data-binder="${esc(id)}" data-at="slot"${mark === undefined ? '' : ` data-mark="${mark ? 'ok' : 'bad'}"`}>${s}</g>`;
@@ -300,9 +305,9 @@ function scriptArt(use: 'read' | 'run', press = 0) {
   if (use === 'read') {
     let s = '';
     for (const [k, [dx, dy]] of [
-      [0, [-2, 1]],
-      [1, [0, -1]],
-      [2, [2, 0.5]],
+      [0, [-6, 1.5]],
+      [1, [0, -1.5]],
+      [2, [6, 1]],
     ] as [number, number[]][]) {
       const z = TOP + 0.3 + k * 0.5,
         cx = x + dx,
@@ -424,7 +429,13 @@ const pileAt = (i: number, lifted: boolean) => ({
 });
 
 /** The carousel as one item: base, shelf, then the post and the binders in its slots, far ones first. */
-function carouselArt(rot: number, inSlot: boolean[], picked = false, marks?: Carousel['marks']) {
+function carouselArt(
+  rot: number,
+  inSlot: boolean[],
+  picked = false,
+  marks?: Carousel['marks'],
+  changed: string[] = [],
+) {
   let s = cyl(CX, CY, BH, BH + 2, R + 6, DARK, toneI, 1.2, 28) + rod([CX, CY, BH + 2], [CX, CY, SHELF - 2], 2, METAL);
   s += cyl(CX, CY, SHELF - 2, SHELF, R + 9, WOOD, toneI, 1.4, 32);
   // the fixed brass pointer on the base, at the slot that faces the desk; the slot it points at lights when a binder
@@ -460,7 +471,7 @@ function carouselArt(rot: number, inSlot: boolean[], picked = false, marks?: Car
   const parts = SKILLS.map((k, i) => {
     if (!inSlot[i]) return null;
     const [x, y, z, a] = slotAt(i, rot);
-    return { d: depthOf([x, y, z]), svg: upright(x, y, z, a, k.id, marks?.[k.id]) };
+    return { d: depthOf([x, y, z]), svg: upright(x, y, z, a, k.id, marks?.[k.id], changed.includes(k.id)) };
   }).filter(Boolean) as { d: number; svg: string }[];
   parts.push({
     d: depthOf([CX, CY, SHELF]),
@@ -549,13 +560,17 @@ function pillPlace(
 ): { at: number[]; dx: number; dy: number; cdx?: number; cdy?: number } {
   switch (part) {
     case 'carousel':
-      return { at: [CX, CY, POST + 2], dx: -10, dy: -16, cdx: 72, cdy: -40 };
+      // with a tally the spine tabs stand above the post: the pill and its callout rise clear of them
+      return s.tally
+        ? { at: [CX, CY, POST + 2], dx: -10, dy: -46, cdx: 72, cdy: -72 }
+        : { at: [CX, CY, POST + 2], dx: -10, dy: -16, cdx: 72, cdy: -40 };
     case 'model':
       return { at: [MODEL[0], MODEL[1], BH + 36], dx: 6, dy: -14 };
     case 'ticket':
-      return { at: [TRAY.x0 + 2, TRAY.y1, TOP + 3], dx: -24, dy: 22 };
+      return { at: [TRAY.x0 + 2, TRAY.y0 + 4, TOP + 3], dx: -34, dy: -18 };
     case 'desk':
-      return { at: [DESK.x1 - 6, DESK.y1, TOP], dx: 24, dy: 18 };
+      // below and right of the desk's near corner, clear of its leg; further right when the script's pill is below
+      return { at: [DESK.x1 - 6, DESK.y1, TOP], dx: s.script && s.open ? 70 : 32, dy: 34 };
     case 'binder': {
       // on the cover of the open binder: the one on the desk, or the lit one lifted from the pile
       const i = s.mode === 'prompt' && s.lit ? idx(s.lit) : -1;
@@ -567,11 +582,12 @@ function pillPlace(
       return i >= 0 ? { at, dx: 30, dy: -18 } : { at, dx: -60, dy: 20, cdx: -40, cdy: 62 };
     }
     case 'script':
-      return { at: [SCRIPT_AT[0], SCRIPT_AT[1], TOP + 4], dx: 54, dy: 8, cdx: 54, cdy: -24 };
+      // below-left, on the floor in front of the desk: off the pages, the slip and the assistant's front
+      return { at: [SCRIPT_AT[0], SCRIPT_AT[1], TOP + 4], dx: -24, dy: 36, cdx: -124, cdy: 36 };
     case 'outsider':
-      return { at: [OUT_AT[0], OUT_AT[1], TOP + 1], dx: 22, dy: 36, cdx: 22, cdy: 64 };
+      return { at: [OUT_AT[0], OUT_AT[1], TOP + 1], dx: 22, dy: 36, cdx: -52, cdy: 40 };
     case 'bin':
-      return { at: [BIN_AT[0], BIN_AT[1], BH + 12], dx: -20, dy: 26 };
+      return { at: [BIN_AT[0], BIN_AT[1], BH + 12], dx: -42, dy: 8 };
   }
 }
 
@@ -641,6 +657,7 @@ interface Drawn {
   /** the downloaded binder's place and openness, on the desk or on its way to the bin */
   out?: { x: number; y: number; z: number; o: number } | null;
   marks?: Carousel['marks'];
+  changed?: string[];
 }
 const deskItem = (load: string) => ({
   box: [
@@ -654,7 +671,7 @@ const carouselItem = (d: Drawn, free: boolean[]) => ({
     [CX - R - 9, CY - R - 9, BH],
     [CX + R + 9, CY + R + 9, POST + 2],
   ],
-  svg: carouselArt(d.rot, free, d.picked, d.marks),
+  svg: carouselArt(d.rot, free, d.picked, d.marks, d.changed),
 });
 /** The desk's load, in order: the tray, the tickets, then the binders bottom to top. */
 function loadOf(d: Drawn, withTray: boolean) {
@@ -721,6 +738,7 @@ const rest = (s: Carousel, v: SceneView): Drawn => ({
   slip: s.open && s.script === 'run' ? [...SLIP_AT, TOP + 0.3] : null,
   out: outAt(s),
   marks: s.marks,
+  changed: s.changed,
 });
 
 /** The picture at rest: what the stage shows for state s with no motion (the share image too). */

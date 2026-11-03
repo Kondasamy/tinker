@@ -138,7 +138,7 @@ export function SkillsStage({
     closeUp: view === 'scene' ? closeUp : undefined,
     partBox: (p, s) => partBox(p as CarouselPart, s),
     phone,
-    lift: (s, v) => ({ still: carouselStill(s, v, false), piece: trayTicket() }),
+    lift: (s, v) => ({ still: carouselStill(s, v, false), piece: trayTicket }),
   });
   const s = stage.state;
   const moving = stage.t < 1 && carouselMoves(stage.prev, s);
@@ -198,7 +198,8 @@ export function SkillsStage({
           <WordsView bars={bars} />
         )}
       </div>
-      {ask && (
+      {/* the twin row keeps its height when a chapter has nothing to ask, so the picture is the same size everywhere */}
+      {ask ? (
         <div className="sk-twin">
           <Select value={pickd} onChange={e => setPick(e.target.value)} aria-label="Ticket">
             {tickets.map(id => (
@@ -211,6 +212,8 @@ export function SkillsStage({
             Ask
           </button>
         </div>
+      ) : (
+        <div className="sk-twin" aria-hidden="true" />
       )}
       <p className="tc-caption sk-status" role="status">
         {status}
@@ -277,16 +280,20 @@ export const barsOf = (mode: Carousel['mode'], asked: Asked[]): Bar[] =>
     words: wordsLoaded(mode, pick(a.ticket, labelsAt(a)), labelsAt(a), a.script),
   }));
 
-/** The workbench's picture after `runs` runs of the twelve tickets with the label set `choice` (none: not run yet). */
-export function benchCarousel(choice: number[] | null, runs: number): Carousel {
+/** The workbench's picture after `runs` runs of the twelve tickets with the label set `choice` (none: not run yet);
+ * `before`, the set of the run before it, rings the tabs whose mark changed. */
+export function benchCarousel(choice: number[] | null, runs: number, before?: number[] | null): Carousel {
   if (!choice) return { mode: 'skills', ticket: null, open: null, facing: SKILLS[0].id };
   const labels = benchLabels(choice),
     score = benchScore(choice);
   const marks = Object.fromEntries(
     SKILLS.map(k => [k.id, REQUESTS.filter(r => r.skill === k.id).every(r => pick(r.id, labels) === k.id)]),
   );
+  const was = before ? benchCarousel(before, runs - 1).marks : undefined;
+  const changed = was ? SKILLS.filter(k => was[k.id] !== marks[k.id]).map(k => k.id) : [];
   return {
     mode: 'skills',
+    ...(changed.length ? { changed } : {}),
     ticket: REQUESTS[REQUESTS.length - 1].id,
     tickets: REQUESTS.length,
     open: null,
