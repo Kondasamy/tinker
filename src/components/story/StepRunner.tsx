@@ -113,10 +113,11 @@ export default function StepRunner<S>({
   }, [step, run, idleMs]);
 
   // the story column scrolls on its own: bring the step being worked on into view whenever it changes
-  const cardRef = useRef<HTMLElement>(null);
+  const cardRef = useRef<HTMLElement>(null),
+    stageRef = useRef<HTMLElement>(null);
   const firstScroll = useRef(true);
-  const toCard = () =>
-    cardRef.current?.scrollIntoView({
+  const toCard = (el = cardRef.current) =>
+    el?.scrollIntoView({
       block: 'nearest',
       behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
     });
@@ -130,7 +131,8 @@ export default function StepRunner<S>({
       restoring.current = false;
       return;
     }
-    toCard();
+    // a close-up plays in the picture: on phones, where the stage sits above the card, bring the stage into view
+    toCard(step.closeUp && !run.done && matchMedia('(max-width: 860px)').matches ? stageRef.current : undefined);
   }, [run.index, run.done]);
 
   // each chapter word is marked once, at its first use in the narration (KTD3); one definition open at a time
@@ -170,7 +172,7 @@ export default function StepRunner<S>({
 
   return (
     <div className="chapter">
-      <section className="stage" aria-label="Scene">
+      <section className="stage" aria-label="Scene" ref={stageRef}>
         {stage({
           state: run.state,
           apply,
@@ -216,7 +218,7 @@ export default function StepRunner<S>({
               )}
             </details>
             {(run.index > 0 || run.done) && (
-              <button type="button" className="chip resume" onClick={toCard}>
+              <button type="button" className="chip resume" onClick={() => toCard()}>
                 {run.done ? 'You finished this chapter: see the end ↓' : `Continue at step ${run.index + 1} ↓`}
               </button>
             )}

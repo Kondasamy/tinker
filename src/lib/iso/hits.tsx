@@ -28,9 +28,9 @@ interface Props {
   hits: Hit[];
   /** moving or zoomed: every target is inert (R11) */
   busy?: boolean;
-  /** the shared handler the twin calls too: a tap is act(part), a drop act(part, target). It owns the status line,
-   * refusals included (say why there); the layer snaps the piece back either way */
-  act: (part: string, to?: string) => unknown;
+  /** the shared handler the twin calls too: a tap is act(part), a drop act(part, target), a drop on no target
+   * act(part, null). It owns the status line, refusals included (say why there); the layer snaps the piece back */
+  act: (part: string, to?: string | null) => unknown;
   /** whether `to` would take `part`, to light it while hovered (default: every drop target) */
   legal?: (part: string, to: string) => boolean;
   onDrag?: (d: Drag | null) => void;
@@ -118,7 +118,8 @@ export default function HitLayer({ board, view = 0, hits, busy, act, legal = () 
       over = overAt(p);
     end();
     if (!moved) act(drag.part);
-    else if (over) act(drag.part, over); // a refusal needs nothing here: the piece is already back, act said why
+    // a refusal needs nothing here: the piece is already back, act said why
+    else if (hits.find(h => h.part === drag.part)?.kind === 'drag') act(drag.part, over ?? null);
   };
 
   const stateOf = (h: Hit) =>

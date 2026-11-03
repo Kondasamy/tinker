@@ -1,21 +1,12 @@
 // The living-scene sample (dev page /dev/motion and tests/unit/motion.test.ts): a crate that slides between two pads and
 // opens its lid, one draggable hit target with its twin buttons, and a close-up on the crate's pad. The pattern a
-// module's stage follows: scene(prev, state, t, view) → { still, moving }, the still memoised per target state.
-import { useMemo, useState } from 'react';
+// module's stage follows: scene(prev, state, t, view) → { still, moving }, run by useLivingStage.
+import { useState } from 'react';
 import IsoStage, { type SceneCtx } from '../lib/iso/IsoStage';
-import HitLayer, { type Drag, type Hit } from '../lib/iso/hits';
+import HitLayer, { type Hit } from '../lib/iso/hits';
 import { box, on, PALS, PZ, rectUV, shape, tag } from '../lib/iso/core.js';
 import { BH } from '../lib/iso/shared';
-import {
-  closeUpZoom,
-  lerpPt,
-  openness,
-  pillScale,
-  useCloseUp,
-  useSceneMotion,
-  type Scene,
-  type SceneView,
-} from '../lib/iso/motion';
+import { lerpPt, openness, pillScale, useLivingStage, type Scene, type SceneView } from '../lib/iso/motion';
 
 export const SAMPLE_BOARD: [number, number, number, number] = [0, 0, 120, 60];
 type Pad = 'pad-a' | 'pad-b';
@@ -73,23 +64,18 @@ export default function MotionFixture() {
   const [s, setS] = useState<Sample>({ spot: 'pad-a', open: false });
   const [closeUp, setCloseUp] = useState(false);
   const [status, setStatus] = useState('The crate sits on pad A, lid shut.');
-  const [drag, setDrag] = useState<Drag | null>(null);
-  const { prev, t } = useSceneMotion(s, 700);
-  const target = useMemo(
-    () => (closeUp ? closeUpZoom(SAMPLE_BOARD, footprint(...(PAD[s.spot] as [number, number]), 12)) : undefined),
-    [closeUp, s.spot],
-  );
-  const { zoom, zoomT } = useCloseUp(target, s);
-  const view: SceneView = { closeUp: closeUp ? [s.spot] : undefined, zoomT };
-  const sc = sampleScene(prev, s, t, view);
-  // the filtered still changes only with the target state, the end of the motion and zoom in or out
-  const still = useMemo(() => (drag ? art(s, view, false) : sc.still), [s, t >= 1, zoomT > 0, !!drag]);
-  const moving = drag
-    ? () => `<g transform="translate(${drag.dx.toFixed(1)} ${drag.dy.toFixed(1)})">${crate(PAD[s.spot], +s.open)}</g>`
-    : sc.moving;
+  const stage = useLivingStage({
+    scene: sampleScene,
+    state: s,
+    ms: 700,
+    board: SAMPLE_BOARD,
+    closeUp: closeUp ? [s.spot] : undefined,
+    partBox: p => footprint(...(PAD[p as Pad] as [number, number]), 12),
+    lift: (x, v) => ({ still: art(x, v, false), piece: crate(PAD[x.spot], +x.open) }),
+  });
 
-  /** the one handler: the twin buttons and the drag both come here */
-  const act = (part: string, to?: string) => {
+  /** the one handler: the twin buttons and the drag both come here (a drop on no pad: to = null) */
+  const act = (part: string, to?: string | null) => {
     setCloseUp(false);
     if (part !== 'crate' || !to || to === s.spot) return;
     if (s.open) {
@@ -106,14 +92,20 @@ export default function MotionFixture() {
 
   return (
     <div className="motion-fixture">
-      <IsoStage board={SAMPLE_BOARD} scene={still} moving={moving} zoom={zoom} label="A crate on two pads">
+      <IsoStage
+        board={SAMPLE_BOARD}
+        scene={stage.still}
+        moving={stage.moving}
+        zoom={stage.zoom}
+        label="A crate on two pads"
+      >
         <HitLayer
           board={SAMPLE_BOARD}
           hits={hits}
-          busy={t < 1 || !!zoom}
+          busy={stage.busy}
           act={act}
           legal={() => !s.open}
-          onDrag={setDrag}
+          onDrag={stage.onDrag}
           pulse={s}
         />
       </IsoStage>

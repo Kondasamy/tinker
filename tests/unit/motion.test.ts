@@ -9,6 +9,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
 import IsoStage from '../../src/lib/iso/IsoStage';
 import {
+  calloutOf,
   closeUpZoom,
   lerp,
   lerpPt,
@@ -16,6 +17,7 @@ import {
   openness,
   pillScale,
   useCloseUp,
+  useLivingStage,
   useSceneMotion,
 } from '../../src/lib/iso/motion';
 import HitLayer, { type Drag } from '../../src/lib/iso/hits';
@@ -203,6 +205,70 @@ describe('useCloseUp', () => {
   });
 });
 
+describe('useLivingStage', () => {
+  type In = { s: Sample; closeUp?: string[] };
+  function harness(moves?: (a: Sample, b: Sample) => boolean) {
+    const seen: { t: number; k: number; busy: boolean }[] = [];
+    let set: (p: In) => void = () => {};
+    function Probe() {
+      const [p, setP] = useState<In>({ s: { spot: 'pad-a', open: false } });
+      set = setP;
+      const st = useLivingStage({
+        scene: sampleScene,
+        state: { ...p.s }, // a new object every render, as StepRunner's stages build them
+        moves,
+        ms: 400,
+        board: SAMPLE_BOARD,
+        closeUp: p.closeUp,
+        partBox: () => [
+          [26, 26, 0],
+          [34, 34, 10],
+        ],
+      });
+      seen.push({ t: st.t, k: st.zoom?.k ?? 1, busy: st.busy });
+      return null;
+    }
+    act(() => root.render(h(Probe)));
+    return { seen, last: () => seen[seen.length - 1], go: (p: In) => act(() => set(p)) };
+  }
+  const A: Sample = { spot: 'pad-a', open: false },
+    B: Sample = { spot: 'pad-b', open: false };
+
+  it('a new object with the same key neither restarts the motion nor pulls back the close-up', () => {
+    const m = harness();
+    m.go({ s: A, closeUp: ['crate'] });
+    tick(500);
+    expect(m.last()).toMatchObject({ t: 1, k: 2.2 });
+    m.go({ s: { ...A }, closeUp: ['crate'] }); // e.g. a quiz pick: the picture's state is unchanged
+    expect(m.last()).toMatchObject({ t: 1, k: 2.2 });
+    expect(frames).toEqual([]);
+  });
+
+  it('a change moves() says moves nothing lands at once, targets live', () => {
+    const m = harness(() => false);
+    m.go({ s: { ...A, open: true } });
+    expect(m.last()).toEqual({ t: 1, k: 1, busy: false });
+  });
+
+  it('the close-up waits for the motion to land, then zooms', () => {
+    const m = harness();
+    m.go({ s: B, closeUp: ['crate'] });
+    expect(m.last()).toMatchObject({ t: 0, k: 1, busy: true });
+    tick(200);
+    expect(m.last().k).toBe(1);
+    tick(200);
+    expect(m.last()).toMatchObject({ t: 1, k: 1 });
+    tick(500);
+    expect(m.last()).toMatchObject({ t: 1, k: 2.2, busy: true });
+  });
+
+  it('callouts hide while zoomed', () => {
+    const say = { block: 'pad-a', text: 'Here' };
+    expect(calloutOf(say, { zoomT: 0 })).toBe(say);
+    expect(calloutOf(say, { zoomT: 0.1 })).toBeUndefined();
+  });
+});
+
 describe('scenes', () => {
   const draw = (still: unknown, moving?: unknown) =>
     renderToString(h(IsoStage, { board: SAMPLE_BOARD, scene: still, moving, label: 'Sample' } as never));
@@ -237,7 +303,7 @@ describe('hit targets', () => {
       drags: (Drag | null)[] = [];
     let status = '';
     // the one handler: the twin button and the in-picture drag both call it
-    const handle = (part: string, to?: string) => {
+    const handle = (part: string, to?: string | null) => {
       calls.push(`${part}→${to}`);
       if (o.refuse) return (status = o.refuse);
       status = `${part} on ${to}`;
@@ -318,6 +384,18 @@ describe('hit targets', () => {
     expect(s.status()).toBe('Pad B is full.');
     expect(s.drags.at(-1)).toBeNull();
     expect(s.hit('crate').getAttribute('data-state')).toBe('idle');
+  });
+
+  it('a drop on no target calls the handler with null, so it can say why', () => {
+    const s = stage({ refuse: 'Drop it on a pad.' });
+    const crate = s.hit('crate').querySelector('rect')!;
+    const off = { x: s.centre('crate').x, y: s.centre('crate').y + 400 };
+    s.fire(crate, 'pointerdown', s.centre('crate'));
+    s.fire(crate, 'pointermove', off);
+    s.fire(crate, 'pointerup', off);
+    expect(s.calls).toEqual(['crate→null']);
+    expect(s.status()).toBe('Drop it on a pad.');
+    expect(s.drags.at(-1)).toBeNull();
   });
 
   it('Escape cancels a drag: it snaps back and nothing is called', () => {

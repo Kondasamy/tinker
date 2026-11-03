@@ -2,9 +2,10 @@
 // useSceneMotion supplies prev and t. `still` goes in IsoStage's filtered layer (memoise it on the target state, so the
 // hand-drawn filter rasterises once per state); `moving` holds only the pieces in flight, unfiltered, and is empty at
 // t = 1, when every piece has joined the still. Self-contained on purpose: live kits keep their own tween/useReduced.
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { P, ease, withFrame } from './core.js';
 import { frameFor, stageFrame, type Board, type SceneCtx, type Zoom } from './IsoStage';
+import type { Drag } from './hits';
 
 type Pt = number[];
 /** What IsoStage draws: SVG markup, or a function of the board context built inside the stage's frame. */
@@ -56,14 +57,14 @@ export function tween(from: number, to: number, ms: number, set: (v: number) => 
 
 /**
  * The motion from the last state to `state` (compared by identity): `t` runs 0 → 1, eased, over `ms`, then holds at 1.
- * A change mid-motion makes the state being moved to `prev` and restarts t at 0. Reduced motion or a hidden tab: t is
- * 1 on the very render the state changes (prev = state), so no start frame ever shows.
+ * A change mid-motion makes the state being moved to `prev` and restarts t at 0. Reduced motion, a hidden tab or a
+ * change `moves` says moves nothing: t is 1 on the very render the state changes (prev = state), so no start frame shows.
  */
-export function useSceneMotion<S>(state: S, ms: number): { prev: S; t: number } {
+export function useSceneMotion<S>(state: S, ms: number, moves?: (prev: S, next: S) => boolean): { prev: S; t: number } {
   const [m, setM] = useState({ prev: state, to: state, t: 1 });
   let cur = m;
   if (state !== m.to) {
-    const jump = instant();
+    const jump = instant() || (moves ? !moves(m.to, state) : false);
     cur = { prev: jump ? state : m.to, to: state, t: jump ? 1 : 0 };
     setM(cur); // derived during render: React re-renders before committing, so the old t never paints
   }
@@ -93,6 +94,9 @@ export const openness = (was: boolean, is: boolean, t: number) => lerp(+was, +is
  * parts' pills, at the phone scale (R11). */
 export const pillScale = (part: string, v: SceneView) =>
   v.zoomT > 0 ? (v.closeUp?.includes(part) ? 2 : 0) : v.phone ? 2 : 1;
+
+/** A step's callout as the scene should draw it: none while zoomed (the close-up's pills say it). */
+export const calloutOf = <T>(say: T | undefined, v: SceneView) => (v.zoomT > 0 ? undefined : say);
 
 const K_MAX = 2.2,
   FILL = 0.7;
@@ -139,4 +143,59 @@ export function useCloseUp(target: Zoom | undefined, state: unknown, ms = 500) {
   const zoom = lerpZoom(zoomOf(prev), zoomOf(key), t);
   const zoomT = key ? (prev ? 1 : t) : prev ? 1 - t : 0;
   return { zoom: zoom.k > 1 ? zoom : undefined, zoomT };
+}
+
+export interface LivingOpts<S> {
+  scene: Scene<S>;
+  /** the picture's state: only what changes what it draws */
+  state: S;
+  /** states with the same key are the same state: no motion, no pull-back (default JSON.stringify(state)) */
+  key?: string;
+  /** whether prev → next moves anything; false lands at once (default: every change moves) */
+  moves?: (prev: S, next: S) => boolean;
+  ms: number;
+  board: Board;
+  /** the close-up parts (the step's; none off the picture tab), zoomed once the motion has landed */
+  closeUp?: string[];
+  /** a part's 3-D footprint in state s, framed by the close-up */
+  partBox?: (part: string, s: S) => number[][];
+  phone?: boolean;
+  /** while a piece is dragged: the still without it, and the piece as drawn at rest (the hook moves it) */
+  lift?: (s: S, view: SceneView) => { still: Art; piece: string };
+}
+
+/**
+ * A living stage in one call: the motion between states, the close-up (after the motion lands; any change of state
+ * pulls back) and the drag's lifted piece. Pass `still`, `moving` and `zoom` to IsoStage, `busy` and `onDrag` to
+ * HitLayer; `state` is the held state (same object for the same key).
+ */
+export function useLivingStage<S>(o: LivingOpts<S>) {
+  const key = o.key ?? JSON.stringify(o.state);
+  const held = useRef({ key, state: o.state });
+  if (held.current.key !== key) held.current = { key, state: o.state };
+  const s = held.current.state;
+  const { prev, t } = useSceneMotion(s, o.ms, o.moves);
+  const parts = t >= 1 && o.partBox ? o.closeUp?.join() : '';
+  const target = useMemo(
+    () =>
+      parts
+        ? closeUpZoom(
+            o.board,
+            parts.split(',').flatMap(p => o.partBox!(p, s)),
+          )
+        : undefined,
+    [parts, s],
+  );
+  const { zoom, zoomT } = useCloseUp(target, s);
+  const [drag, setDrag] = useState<Drag | null>(null);
+  const view: SceneView = { closeUp: o.closeUp, zoomT, phone: o.phone };
+  const sc = o.scene(prev, s, t, view);
+  const lifted = drag && o.lift ? o.lift(s, view) : null;
+  // the filtered still changes only with the state, the end of the motion, zoom in or out, and a lift
+  const still = useMemo(() => lifted?.still ?? sc.still, [s, t >= 1, zoomT > 0, !!lifted, o.phone, o.closeUp?.join()]);
+  const moving: Art =
+    drag && lifted
+      ? `<g transform="translate(${drag.dx.toFixed(1)} ${drag.dy.toFixed(1)})">${lifted.piece}</g>`
+      : sc.moving;
+  return { state: s, prev, t, still, moving, zoom, zoomT, view, busy: t < 1 || !!zoom, onDrag: setDrag };
 }
