@@ -18,6 +18,7 @@ import { boardOf as crateBoard, crateScene, yardOf, type CrateOpts } from '../..
 import { DARK_BOARD, darkroomScene } from '../../src/components/scenes/darkroomScene';
 import { DEPOT_BOARD, depotAt, depotScene } from '../../src/components/scenes/depotScene';
 import { DESK_BOARD, beatsOf, deskAt, deskScene } from '../../src/components/scenes/deskScene';
+import { CAROUSEL_BOARD, carouselStill } from '../../src/components/scenes/carouselScene';
 import { DOCKET_BOARD, docketScene } from '../../src/components/scenes/docketScene';
 import { boardOf as docketOf } from '../../src/content/prompts/kit';
 import { boardOf as dreamBoard, dreamScene, type DreamOpts } from '../../src/components/scenes/dreamFloorScene';
@@ -638,6 +639,20 @@ const SCENES: Record<string, () => string> = {
       }),
     );
   },
+  // the long prompt's buried desk: every binder open on the desk, the refund one lit, a callout on
+  carousel: () =>
+    stage(
+      CAROUSEL_BOARD,
+      carouselStill({
+        mode: 'prompt',
+        ticket: 'refund-saw',
+        open: null,
+        facing: 'refunds',
+        lit: 'refunds',
+        words: 20000,
+        say: { block: 'desk', text: 'Buried desk' },
+      }),
+    ),
   // the end of a least-busy run with a dead and a gray shed: every shed, the barrier
   yard: () => {
     const run = lbSim(lbPolicy({ rule: 'least', states: { cedar: 'dead', dogwood: 'gray' }, checks: 2 }));
@@ -653,6 +668,8 @@ const BASE: Record<string, number> = {
   // new with the rate-limits module (no pre-rework size): its first size is 348,099 (16 people), with a little headroom
   barrel: 120000,
   cabinet: 36056,
+  // new with the skills module (no pre-rework size): its first size is 76,033, with a little headroom
+  carousel: 26000,
   // new with the robots module (no pre-rework size): its first size is 44,523, with a little headroom
   claw: 16000,
   cloak: 57039,

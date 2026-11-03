@@ -1,0 +1,40 @@
+{
+  "picks": {
+    "refund-saw": "refunds",
+    "refund-days": "refunds",
+    "swap-boots": "exchanges",
+    "swap-paint": "exchanges",
+    "drill": "warranty",
+    "kettle": "warranty",
+    "print-label": "labels",
+    "lost-label": "labels",
+    "tiles": "damaged",
+    "toolbox": "damaged",
+    "cement": "trade",
+    "builder": "trade"
+  },
+  "words": {
+    "prompt": 20000,
+    "labelsOnly": 878,
+    "skills": {
+      "refund-saw": 4478,
+      "refund-days": 4478,
+      "swap-boots": 3978,
+      "swap-paint": 3978,
+      "drill": 4378,
+      "kettle": 4378,
+      "print-label": 3278,
+      "lost-label": 3278,
+      "tiles": 4078,
+      "toolbox": 4078,
+      "cement": 4278,
+      "builder": 4278
+    }
+  },
+  "pages": 40,
+  "vague": {
+    "request": "drill",
+    "vaguePick": null,
+    "sharpPick": "warranty"
+  }
+}

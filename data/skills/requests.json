@@ -1,0 +1,59 @@
+{
+  "note": "Hand-written for this module: Larkspur's six skills, their labels and twelve customer tickets. Body sizes are hand-set word counts (a toy), not measured from real skills.",
+  "baseWords": 800,
+  "pageWords": 500,
+  "skills": [
+    {
+      "id": "refunds",
+      "name": "Refunds",
+      "label": "Refunds: how much money to give back for a returned order, by days since delivery.",
+      "bodyWords": 3600
+    },
+    {
+      "id": "exchanges",
+      "name": "Exchanges",
+      "label": "Exchanges: swap a returned item for a different size, colour or model.",
+      "bodyWords": 3100
+    },
+    {
+      "id": "warranty",
+      "name": "Warranty",
+      "label": "Warranty claims: check whether a faulty tool that stopped working is still covered.",
+      "vague": "Helps with tools.",
+      "drafts": ["Helps with tools.", "Tools and guarantees."],
+      "bodyWords": 3500
+    },
+    {
+      "id": "labels",
+      "name": "Return labels",
+      "label": "Return labels: print a prepaid shipping label so the customer can post a parcel back.",
+      "bodyWords": 2400
+    },
+    {
+      "id": "damaged",
+      "name": "Damaged",
+      "label": "Damaged deliveries: claims for items that arrived broken or dented in the box.",
+      "bodyWords": 3200
+    },
+    {
+      "id": "trade",
+      "name": "Trade orders",
+      "label": "Trade orders: quotes and discounts for builders buying in bulk.",
+      "bodyWords": 3400
+    }
+  ],
+  "requests": [
+    { "id": "refund-saw", "text": "I sent the saw back last week. How much money do I get back?", "skill": "refunds" },
+    { "id": "refund-days", "text": "Can I still get a refund 40 days after delivery?", "skill": "refunds" },
+    { "id": "swap-boots", "text": "These boots are the wrong size. Can I swap them for a bigger size?", "skill": "exchanges" },
+    { "id": "swap-paint", "text": "Can I exchange the blue paint for a different colour?", "skill": "exchanges" },
+    { "id": "drill", "text": "My drill stopped working after eight months. Is it still covered?", "skill": "warranty" },
+    { "id": "kettle", "text": "The kettle is faulty after a year. Will you repair it under warranty?", "skill": "warranty" },
+    { "id": "print-label", "text": "Can you print me a label to post the parcel back?", "skill": "labels" },
+    { "id": "lost-label", "text": "I lost my return label. How do I send the box back?", "skill": "labels" },
+    { "id": "tiles", "text": "The tiles arrived cracked in the box.", "skill": "damaged" },
+    { "id": "toolbox", "text": "My toolbox came dented. What now?", "skill": "damaged" },
+    { "id": "cement", "text": "Can I get a quote for 200 bags of cement?", "skill": "trade" },
+    { "id": "builder", "text": "I am a builder. Do you give discounts on bulk orders?", "skill": "trade" }
+  ]
+}
