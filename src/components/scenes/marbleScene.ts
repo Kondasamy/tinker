@@ -175,21 +175,21 @@ function chute(
     pal.l,
     mode === 'swap' ? 1.6 : 1,
   );
-  // the end the marble leaves by: a timed-out piece's red gate, and a retry's mint wheel beside it
+  // the end the marble leaves by: a timed-out piece's red gate, or (retried) the gate gone and a mint circular arrow
   if (mode === 'fault' || mode === 'retry') {
     const open = mode === 'retry';
-    s += box(x1 - 1, Y0, z(x1), x1, Y1 + 0.4, z(x1) + (open ? 1.4 : 6), PALS.tomato, toneI, 1.1);
+    if (!open) s += box(x1 - 1, Y0, z(x1), x1, Y1 + 0.4, z(x1) + 6, PALS.tomato, toneI, 1.1);
     if (open) {
       // a circular arrow: go round and ask again
-      const c = P(x1 - 3, Y1 + 0.8, z(x1) + 8),
-        r = 4.2,
+      const c = P(x1 - 3, Y1 + 0.8, z(x1) + 10),
+        r = 6,
         pt = (deg: number) => [c[0] + r * Math.cos((deg * Math.PI) / 180), c[1] + r * Math.sin((deg * Math.PI) / 180)];
       const [a0, a1] = [pt(-60), pt(210)];
       const arc = `M${f(a0[0])} ${f(a0[1])}A${r} ${r} 0 1 1 ${f(a1[0])} ${f(a1[1])}`;
-      s += `<path d="${arc}" fill="none" stroke="${INK}" stroke-width="3.6" stroke-linecap="round"/>`;
-      s += `<path d="${arc}" fill="none" stroke="${PALS.mint.l}" stroke-width="2" stroke-linecap="round"/>`;
-      const h = [a0[0] + 3.2, a0[1] - 0.6];
-      s += `<path d="M${f(a0[0] - 1.6)} ${f(a0[1] - 2.6)}L${f(h[0])} ${f(h[1])}L${f(a0[0] - 0.6)} ${f(a0[1] + 2.6)}Z" fill="${PALS.mint.l}" stroke="${INK}" stroke-width="1" stroke-linejoin="round"/>`;
+      s += `<path d="${arc}" fill="none" stroke="${INK}" stroke-width="4.6" stroke-linecap="round"/>`;
+      s += `<path d="${arc}" fill="none" stroke="${PALS.mint.l}" stroke-width="2.8" stroke-linecap="round"/>`;
+      const h = [a0[0] + 4.4, a0[1] - 0.8];
+      s += `<path d="M${f(a0[0] - 2.2)} ${f(a0[1] - 3.4)}L${f(h[0])} ${f(h[1])}L${f(a0[0] - 0.8)} ${f(a0[1] + 3.4)}Z" fill="${PALS.mint.l}" stroke="${INK}" stroke-width="1" stroke-linejoin="round"/>`;
     }
   }
   return `<g data-piece="${i}" data-mode="${mode}"${opts.touched ? ' data-touched="1"' : ''}${opts.dim ? ' data-dim="1" opacity=".5"' : ''}>${s}</g>`;
@@ -228,6 +228,8 @@ function inTray(tr: Tray, n: number) {
   return [TRAY_X - 3.5 + col * 3.5 + layer * 1.2, TRAY_Y[tr] - 3 + row * 3, BH + 1 + layer * 2];
 }
 
+/** a marble's size in a tray: one or a few read large, a heap smaller */
+const trayR = (n: number) => (n <= 3 ? 2.2 : 1.5);
 /** a tray: an open box in its outcome's colour, the marbles resting in it */
 function trayArt(tr: 'right' | 'wrong', n: number): Item {
   const pal = tr === 'right' ? PALS.mint : PALS.tomato;
@@ -238,7 +240,7 @@ function trayArt(tr: 'right' | 'wrong', n: number): Item {
   let s = box(x0, y0, BH, x1, y1, BH + 0.8, pal, toneI, 1);
   s += box(x0, y0, BH, x1, y0 + 0.8, BH + TRAY_H, pal, toneI, 0.9);
   s += box(x0, y0, BH, x0 + 0.8, y1, BH + TRAY_H, pal, toneI, 0.9);
-  for (let k = 0; k < Math.min(n, 27); k++) s += marbleAt(inTray(tr, k), 1.5);
+  for (let k = 0; k < Math.min(n, 27); k++) s += marbleAt(inTray(tr, k), trayR(n));
   s += box(x1 - 0.8, y0, BH, x1, y1, BH + TRAY_H, pal, toneI, 0.9);
   s += box(x0, y1 - 0.8, BH, x1, y1, BH + TRAY_H, pal, toneI, 1.1);
   return { box: boxCorners(x0, y0, BH, x1, y1, BH + TRAY_H), svg: `<g data-tray="${tr}" data-n="${n}">${s}</g>` };
@@ -405,10 +407,11 @@ function art(
   skip: number | null,
   marble: number[] | null,
   moving = false,
+  hush = moving,
 ) {
   return (ctx: SceneCtx) => {
-    // mid-motion the assistant's light waits for the marble to land
-    const set = setting(moving ? { ...s, rolled: [] } : s, ctx.top);
+    // while marbles roll, the assistant's light waits for them to land
+    const set = setting(hush ? { ...s, rolled: [] } : s, ctx.top);
     const gone = s.modes.filter(m => m === 'gone').length - (skip !== null && s.modes[skip] === 'gone' ? 1 : 0);
     const items: Item[] = [
       ...set.items,
@@ -429,8 +432,10 @@ function art(
 /** The picture at rest: what the stage shows for state s with no motion (the share image too). */
 export const marbleStill = (s: Marble, v: SceneView = { zoomT: 0 }) => art(s, v, s.trays, null, restingMarble(s));
 
-/** Whether going from prev to s moves anything (a new roll or a piece changing; a lit ring or a callout alone doesn't). */
-export const marbleMoves = (a: Marble, b: Marble) => a.roll !== b.roll || a.modes.join() !== b.modes.join();
+/** Whether going from prev to s moves anything: a new roll, a piece changing, or a ring lighting (nothing flies, but a
+ * close-up waits for it like a motion, so the newly lit piece shows in the whole picture first). A callout alone doesn't. */
+export const marbleMoves = (a: Marble, b: Marble) =>
+  a.roll !== b.roll || a.modes.join() !== b.modes.join() || a.lit !== b.lit || a.named !== b.named;
 
 /** Why did it fail?'s living scene: a changed piece lifts out (or drops in), then the marbles roll the run one after
  * another into their trays, into the gutter, or up to a red gate. */
@@ -443,7 +448,7 @@ export const marbleScene: Scene<Marble> = (prev, s, t, v) => {
   const t0 = changed >= 0 && rolls ? 0.3 : 0;
   const trays = rolls ? settled(s) : s.trays;
   return {
-    still: art(s, v, trays, changed >= 0 ? changed : null, rolls ? null : restingMarble(s), true),
+    still: art(s, v, trays, changed >= 0 ? changed : null, rolls ? null : restingMarble(s), true, rolls),
     moving: () => {
       let mv = '';
       if (changed >= 0) {
@@ -467,7 +472,7 @@ export const marbleScene: Scene<Marble> = (prev, s, t, v) => {
         const count = settled(s);
         s.rolled.forEach((o, i) => {
           const u = ph(t, t0 + i * gap, t0 + i * gap + span);
-          if (u >= 1 && o !== 'stuck') mv += marbleAt(inTray(o, count[o]++), 1.5);
+          if (u >= 1 && o !== 'stuck') mv += marbleAt(inTray(o, count[o]++), trayR(s.trays[o]));
           else if (u > 0 || i === 0) mv += marbleAt(along(path(s, o), u));
         });
       } else if (changed >= 0) {
@@ -534,25 +539,30 @@ export function marblePills(s: Marble, v: SceneView, moving = false) {
   const last = moving || s.counts ? null : s.rolled.at(-1);
   on(
     'right',
-    [TRAY_X + TRAY_W, TRAY_Y.right - TRAY_D, BH + TRAY_H],
-    30,
-    -6,
+    [TRAY_X + TRAY_W, TRAY_Y.right + TRAY_D, BH],
+    18,
+    16,
     `RIGHT${n('right')}`,
     last === 'right',
     false,
-    [30, -28],
+    [26, 38],
   );
   on(
     'wrong',
-    [TRAY_X + TRAY_W, TRAY_Y.wrong + TRAY_D, BH],
-    26,
-    12,
+    [TRAY_X - TRAY_W, TRAY_Y.wrong + TRAY_D, BH],
+    -16,
+    22,
     `WRONG${n('wrong')}`,
     last === 'wrong',
     false,
-    [26, 34],
+    [-54, 2],
   );
-  if (s.title && k('frame')) out.push(pill(START, -10, -16, s.title.toUpperCase(), true, k('frame')));
+  if (s.title && k('frame')) out.push(pill(START, -34, -30, s.title.toUpperCase(), true, k('frame')));
+  // the start cup has no name pill, only a step's callout
+  if (say && sayFits(say, 'start', phone) && k('start'))
+    out.push(
+      `<g class="callout" aria-hidden="true" pointer-events="none">${tag(START, -30, -22, esc(say.text), true, k('start'))}</g>`,
+    );
   on(
     'none',
     [GUT.x0 + 30, GUT.y1, BH + GUT.h],
