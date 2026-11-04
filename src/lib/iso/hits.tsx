@@ -92,16 +92,28 @@ export default function HitLayer({ board, view = 0, hits, busy, act, legal = () 
     const m = g.current?.getScreenCTM?.();
     return m ? new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()) : { x: e.clientX, y: e.clientY };
   };
-  const overAt = (p: { x: number; y: number }) => hits.find((h, i) => h.kind === 'drop' && inside(boxes[i], p))?.part;
+  // padded targets can overlap (44 px minimum): the one whose centre is nearest wins, not whichever is drawn last
+  const nearest = (p: { x: number; y: number }, ok: (h: Hit) => boolean) => {
+    let best: Hit | undefined,
+      d = Infinity;
+    hits.forEach((h, i) => {
+      const b = boxes[i];
+      if (!ok(h) || !inside(b, p)) return;
+      const e = Math.hypot(b.x + b.w / 2 - p.x, b.y + b.h / 2 - p.y);
+      if (e < d) [best, d] = [h, e];
+    });
+    return best;
+  };
+  const overAt = (p: { x: number; y: number }) => nearest(p, h => h.kind === 'drop')?.part;
 
   const down = (e: PointerEvent) => {
-    const part = (e.target as Element).closest('[data-hit]')?.getAttribute('data-hit');
-    const hit = hits.find(h => h.part === part);
+    const p = at(e),
+      part = (e.target as Element).closest('[data-hit]')?.getAttribute('data-hit');
+    const hit = nearest(p, h => h.kind !== 'drop') ?? hits.find(h => h.part === part);
     if (busy || !hit || hit.kind === 'drop') return;
     try {
       (e.target as Element).setPointerCapture(e.pointerId);
     } catch {}
-    const p = at(e);
     setDrag({ part: hit.part, x0: p.x, y0: p.y, dx: 0, dy: 0 });
   };
   const move = (e: PointerEvent) => {
