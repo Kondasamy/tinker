@@ -74,6 +74,7 @@ const NUMBERED = [
   'tools-in-production',
   'agent-undo',
   'causal-evals',
+  'adaptive-compute',
 ];
 
 // AI modules lead the catalogue; classic tech follows in its own section of compact cards
@@ -490,6 +491,10 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
   await expect(page.locator('[data-level="Advanced"] .module[data-module="causal-evals"] h4 a')).toHaveAttribute(
     'href',
     '/causal-evals/',
+  );
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="adaptive-compute"] h4 a')).toHaveAttribute(
+    'href',
+    '/adaptive-compute/',
   );
 });
 

@@ -202,6 +202,9 @@ import { ALL_UNDO, COURIER_FAILS, policy as undoPolicy, run as undoRun } from '.
 import { MARBLE_BOARD, marbleLabel, marbleStill } from '../components/scenes/marbleScene';
 import { marbleOf as causalAt } from '../content/causal-evals/kit';
 import { BLADE as CE_BLADE } from '../lib/causal-evals/runs';
+import { MILL_BOARD, millLabel, millStill } from '../components/scenes/millScene';
+import { yardOf as effortAt } from '../content/adaptive-compute/kit';
+import { ROUTED as AC_ROUTED } from '../lib/adaptive-compute/effort';
 import { KIOSK_BOARD, kioskLabel, kioskScene } from '../components/scenes/kioskScene';
 import { messageOf as kioskMessage, run as kioskRun } from '../lib/before-genai/bots';
 import { DEMOS as RB_DEMOS } from '../lib/robots/story';
@@ -540,6 +543,8 @@ const AU_POLICY = undoPolicy({ undo: ALL_UNDO });
 const AU_HERO = undoAt(undoRun(AU_POLICY, COURIER_FAILS), AU_POLICY, { route: undefined });
 // causal-evals: the failed run, its last piece lit, as the intro draws it
 const CE_HERO = causalAt(CE_BLADE, null, 1, { lit: CE_BLADE.steps.length - 1 });
+// adaptive-compute: the routed day, the bigger model lit, as the intro draws it
+const AC_HERO = effortAt(AC_ROUTED, { lit: { mill: 'big', valve: 'warranty' } });
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   'before-genai': {
     name: 'Before GenAI',
@@ -1307,6 +1312,11 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
     name: 'Why did it fail?',
     iso: { board: MARBLE_BOARD, scene: marbleStill(CE_HERO, { zoomT: 0, phone: true }), label: marbleLabel(CE_HERO) },
     topics: ['Failure analysis', 'Replay', 'Counterfactuals', 'Ablation', 'Fault injection', 'Flaky runs'],
+  },
+  'adaptive-compute': {
+    name: 'Where the effort goes',
+    iso: { board: MILL_BOARD, scene: millStill(AC_HERO, { zoomT: 0, phone: true }), label: millLabel(AC_HERO) },
+    topics: ['Test-time compute', 'Thinking longer', 'Look-ups', 'Checking answers', 'Bigger models', 'Routing'],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];

@@ -66,6 +66,7 @@ import { AGENT_MEMORY_MODULE } from '../content/agent-memory/module';
 import { TOOLS_IN_PRODUCTION_MODULE } from '../content/tools-in-production/module';
 import { AGENT_UNDO_MODULE } from '../content/agent-undo/module';
 import { CAUSAL_EVALS_MODULE } from '../content/causal-evals/module';
+import { ADAPTIVE_COMPUTE_MODULE } from '../content/adaptive-compute/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -192,12 +193,7 @@ export const MODULES: Module[] = [
   TOOLS_IN_PRODUCTION_MODULE,
   AGENT_UNDO_MODULE,
   CAUSAL_EVALS_MODULE,
-  planned(
-    'adaptive-compute',
-    'Where the effort goes',
-    'Advanced',
-    'Deciding per request whether the next effort goes to thinking longer, looking something up, checking, or a bigger model.',
-  ),
+  ADAPTIVE_COMPUTE_MODULE,
   planned(
     'agent-incidents',
     'When agents fail',

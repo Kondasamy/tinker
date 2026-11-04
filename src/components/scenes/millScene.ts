@@ -8,7 +8,7 @@
 // only in pills; every string reaching SVG goes through esc().
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, sayFits } from '../../lib/iso/blocks';
-import { modelMachine, person } from '../../lib/iso/figures';
+import { drawPieces, mini, modelMachine, person } from '../../lib/iso/figures';
 import {
   CERAMIC,
   CLEAR,
@@ -650,4 +650,32 @@ export function millLabel(s: MillYard): string {
     `Larkspur's mill yard: a water tower ${s.dry ? 'run dry' : `${Math.round(levelOf(s) * 100)}% full`} after spending ${s.spent} of ${s.budget}; ` +
     `valves send ${route}; ${working.length ? `turning: ${working.join(', ')}` : 'no mill turning'}; ${s.right} of ${s.total} answers right.`
   );
+}
+
+/** The home hero's stand plot: the water tower piping into one mill, its wheel turning, set down small. */
+export function millPlot(x: number, y: number, top: SceneCtx['top']): string {
+  const s: MillYard = {
+    valves: [{ id: 'think', short: '', count: '', to: 'think', mark: 'right' }],
+    spent: 1,
+    budget: 3,
+    dry: false,
+    right: 1,
+    total: 1,
+  };
+  const items = [
+    {
+      box: [
+        [T.x - T.r, T.y - T.r, BH],
+        [T.x + T.r, T.y + T.r, T.z1 + 7],
+      ],
+      svg: towerArt(levelOf(s), false, false),
+    },
+    { box: millBox('think'), svg: millArt('think', s, 30) },
+  ];
+  const pipe = rod([T.x, T.y, PIPE_Z], [MILL_X0 - 1, MY.think, PIPE_Z], 1.6, METAL, toneI, 1);
+  const shadow =
+    castShadow(boxCorners(T.x - T.r, T.y - T.r, T.z0, T.x + T.r, T.y + T.r, T.z1), BH, top) +
+    castShadow(boxCorners(MILL_X0, MY.think - HALF_Y, BH, MILL_X1, MY.think + HALF_Y, BH + 22), BH, top) +
+    pipe;
+  return drawPieces([mini({ shadow, items }, [56, 28, BH], [x, y, BH], 0.3)]);
 }

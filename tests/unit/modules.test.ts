@@ -1069,6 +1069,21 @@ describe('module registry', () => {
     expect(live.indexOf('causal-evals')).toBe(live.indexOf('agent-undo') + 1);
   });
 
+  it('has adaptive-compute as a live Advanced module 67, after causal-evals', () => {
+    const m = moduleOf('adaptive-compute');
+    expect(m).toMatchObject({
+      title: 'Where the effort goes',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['reasoning', 'choosing-models'],
+    });
+    expect(m.track).toBeUndefined();
+    expect(m.author).toEqual(moduleOf('rag').author);
+    expect(moduleNumber(m)).toBe(67);
+    const live = MODULES.filter(x => x.status === 'live').map(x => x.id);
+    expect(live.indexOf('adaptive-compute')).toBe(live.indexOf('causal-evals') + 1);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

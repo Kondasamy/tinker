@@ -124,7 +124,16 @@ export default function PricePerAnswer() {
             </p>
           </details>
         ),
-        fact: () => <Fact id="prices" />,
+        fact: () => (
+          <>
+            <Fact id="prices" />
+            <p className="note">
+              Pay for the bigger model only where it helps:{' '}
+              <a href="/adaptive-compute/05-bigger-model/">a bigger model</a> and{' '}
+              <a href="/adaptive-compute/06-per-request/">deciding per request</a>, in Where the effort goes.
+            </p>
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

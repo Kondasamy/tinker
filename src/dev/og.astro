@@ -525,6 +525,16 @@ import { sceneOf as ceCh4 } from '../content/causal-evals/04-take-a-piece-out';
 import { sceneOf as ceCh5 } from '../content/causal-evals/05-break-it-on-purpose';
 import { sceneOf as ceCh6 } from '../content/causal-evals/06-many-runs';
 import { BLADE as CE_BLADE, causeOf as ceCause, RUNS as CE_RUNS } from '../lib/causal-evals/runs';
+import { MILL_BOARD, type MillYard, millStill } from '../components/scenes/millScene';
+import { yardOf as acAt } from '../content/adaptive-compute/kit';
+import {
+  allRules as acAll,
+  isWin as acWin,
+  MAX as AC_MAX,
+  PLAIN as AC_PLAIN,
+  ROUTED as AC_ROUTED,
+  runDay as acRun,
+} from '../lib/adaptive-compute/effort';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -2393,6 +2403,27 @@ const MARBLE_OG: Record<string, () => Marble> = {
   },
 };
 const marbleOg = MARBLE_OG[page.og]?.();
+// module 67: the mill yard, each chapter at its reveal, unzoomed. The intro: the routed day, the bigger model lit;
+// 1: every question at maximum effort, the tower drained; 2: stock sent to thinking; 3: stock looked up; 4: everyday
+// checked; 5: warranty to the bigger model; 6: the routed day in a tower just big enough for maximum effort; 7: a
+// winning setup; the recap: the routed day.
+const AC_TANK = acRun(AC_MAX, Infinity).spent;
+const MILL_OG: Record<string, () => MillYard> = {
+  'adaptive-compute': () => acAt(AC_ROUTED, { lit: { mill: 'big', valve: 'warranty' } }),
+  'adaptive-compute-recap': () => acAt(AC_ROUTED),
+  'adaptive-compute-01-one-setting': () => acAt(AC_MAX, { lit: { tower: true } }),
+  'adaptive-compute-02-think-longer': () =>
+    acAt({ ...AC_PLAIN, stock: 'think' }, { lit: { valve: 'stock', mill: 'think' } }),
+  'adaptive-compute-03-look-it-up': () =>
+    acAt({ ...AC_PLAIN, stock: 'lookup' }, { lit: { valve: 'stock', mill: 'lookup' } }),
+  'adaptive-compute-04-check-the-work': () =>
+    acAt({ ...AC_PLAIN, everyday: 'check' }, { lit: { valve: 'everyday', mill: 'check' } }),
+  'adaptive-compute-05-bigger-model': () =>
+    acAt({ ...AC_PLAIN, warranty: 'big' }, { lit: { valve: 'warranty', mill: 'big' } }),
+  'adaptive-compute-06-per-request': () => acAt(AC_ROUTED, { budget: AC_TANK, lit: { sorter: true, tower: true } }),
+  'adaptive-compute-07-workbench': () => acAt(acAll().find(acWin)!, { lit: { tower: true } }),
+};
+const millOg = MILL_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -2488,6 +2519,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : shadowOg ? <IsoStage board={SHADOW_BOARD} scene={shadowStill(shadowOg)} label="" />
           : funiOg ? <IsoStage board={FUNI_BOARD} scene={funiStill(funiOg)} label="" />
           : marbleOg ? <IsoStage board={MARBLE_BOARD} scene={marbleStill(marbleOg)} label="" />
+          : millOg ? <IsoStage board={MILL_BOARD} scene={millStill(millOg)} label="" />
           : dreamOg ? <IsoStage board={dreamBoard(dreamOg)} scene={dreamScene({ ...dreamOg, scale: 1.3 })} label="" />
           : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
           : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />

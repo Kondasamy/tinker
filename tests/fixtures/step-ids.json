@@ -3100,5 +3100,53 @@
       "solve",
       "reveal"
     ]
+  },
+  "adaptive-compute": {
+    "01-one-setting": [
+      "predict",
+      "run",
+      "reveal",
+      "shut",
+      "quiz"
+    ],
+    "02-think-longer": [
+      "predict",
+      "stock",
+      "reveal",
+      "puzzle",
+      "quiz"
+    ],
+    "03-look-it-up": [
+      "predict",
+      "turn",
+      "reveal",
+      "puzzles",
+      "quiz"
+    ],
+    "04-check-the-work": [
+      "predict",
+      "turn",
+      "reveal",
+      "everyday",
+      "quiz"
+    ],
+    "05-bigger-model": [
+      "predict",
+      "think",
+      "big",
+      "reveal",
+      "quiz"
+    ],
+    "06-per-request": [
+      "max",
+      "predict",
+      "route",
+      "reveal",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "quiz"
+    ]
   }
 }

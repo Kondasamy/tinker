@@ -144,7 +144,15 @@ export default function WhatIsRag() {
       next={nextOf(ID)}
       stage={p => <RagStage {...p} run={run} />}
       controls={{
-        fact: () => <Fact id="meaning-beats-keywords" />,
+        fact: () => (
+          <>
+            <Fact id="meaning-beats-keywords" />
+            <p className="note">
+              A look-up is one way to spend effort on a question:{' '}
+              <a href="/adaptive-compute/03-look-it-up/">Where the effort goes</a>.
+            </p>
+          </>
+        ),
         predict: ({ state, apply }) => (
           <Predict {...PREDICT} value={state.prediction} onPredict={i => apply({ ...state, prediction: i })} />
         ),
