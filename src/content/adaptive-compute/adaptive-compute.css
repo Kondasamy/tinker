@@ -1,0 +1,78 @@
+/* Effort stage: shares the tool-calling frame (.tc-stage, .tc-frame, .tc-caption); one range per valve sits under the
+   picture (the twin of turning a valve wheel in it), and the Table tab lists each kind's valve, answers and spend. */
+.ac-twin {
+  /* a fixed row (one valve, or buttons, or nothing), so the picture keeps its size from step to step; the workbench's
+     five valves (data-many) take what they need, the same on every step of that chapter */
+  height: 92px;
+  align-content: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: center;
+}
+.ac-twin button {
+  min-height: 44px;
+}
+.ac-valve {
+  flex: 1 1 220px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 10px;
+  align-items: center;
+  font-weight: 700;
+  font-size: 13.5px;
+}
+.ac-valve input[type="range"] {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  accent-color: var(--acc, #f4b829);
+}
+.ac-valve output {
+  justify-self: end;
+  font-weight: 600;
+  color: var(--muted);
+}
+.ac-twin[data-many] {
+  height: auto;
+}
+.ac-status {
+  margin: 0;
+  height: 4.2em;
+  overflow: hidden;
+}
+.ac-table {
+  margin: 0;
+  overflow: auto;
+}
+.ac-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.ac-table caption {
+  text-align: left;
+  font-weight: 800;
+  padding-bottom: 6px;
+}
+.ac-table th,
+.ac-table td {
+  text-align: left;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--rule);
+}
+.ac-table tr[data-lit] > * {
+  background: color-mix(in srgb, var(--acc, #f4b829) 35%, transparent);
+}
+.ac-table tfoot th,
+.ac-table tfoot td {
+  font-weight: 800;
+}
+.ac-bench {
+  display: grid;
+  gap: 8px;
+}
+.ac-score {
+  margin: 0;
+}

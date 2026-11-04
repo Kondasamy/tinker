@@ -31,6 +31,9 @@ import { TOLL_BOARD, tollStill } from '../../src/components/scenes/tollScene';
 import { simulate as approvalsWeek } from '../../src/lib/action-approvals/gate';
 import { tollOf } from '../../src/content/action-approvals/kit';
 import { CORK_BOARD, corkStill } from '../../src/components/scenes/corkScene';
+import { MILL_BOARD, millStill } from '../../src/components/scenes/millScene';
+import { yardOf as millYard } from '../../src/content/adaptive-compute/kit';
+import { MAX as MAX_EFFORT } from '../../src/lib/adaptive-compute/effort';
 import { corkOf } from '../../src/content/agent-memory/kit';
 import { GOOD, remember } from '../../src/lib/agent-memory/memory';
 import { SWITCH_BOARD, switchStill } from '../../src/components/scenes/switchboardScene';
@@ -724,6 +727,12 @@ const SCENES: Record<string, () => string> = {
         say: { block: 'right', text: 'Luck?' },
       }),
     ),
+  // the busiest mill yard: every valve feeding every mill (20 hoses), the tower lit, a callout on
+  mill: () =>
+    stage(
+      MILL_BOARD,
+      millStill({ ...millYard(MAX_EFFORT, { lit: { tower: true } }), say: { block: 'tower', text: 'Draining fast' } }),
+    ),
   // the end of a least-busy run with a dead and a gray shed: every shed, the barrier
   yard: () => {
     const run = lbSim(lbPolicy({ rule: 'least', states: { cedar: 'dead', dogwood: 'gray' }, checks: 2 }));
@@ -745,6 +754,8 @@ const BASE: Record<string, number> = {
   cork: 30000,
   // new with the multi-agent module (no pre-rework size): its first size is 186,308, with a little headroom
   switchboard: 64000,
+  // new with the adaptive-compute module (no pre-rework size): its first size is 148,252 (every valve to every mill), with a little headroom
+  mill: 52000,
   // new with the robots module (no pre-rework size): its first size is 44,523, with a little headroom
   claw: 16000,
   cloak: 57039,
