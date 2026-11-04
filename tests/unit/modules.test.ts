@@ -1039,6 +1039,21 @@ describe('module registry', () => {
     expect(live.indexOf('tools-in-production')).toBe(live.indexOf('agent-memory') + 1);
   });
 
+  it('has agent-undo as a live Advanced module 65, after tools-in-production', () => {
+    const m = moduleOf('agent-undo');
+    expect(m).toMatchObject({
+      title: 'Undo for agents',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['agents', 'queues'],
+    });
+    expect(m.track).toBeUndefined();
+    expect(m.author).toEqual(moduleOf('rag').author);
+    expect(moduleNumber(m)).toBe(65);
+    const live = MODULES.filter(x => x.status === 'live').map(x => x.id);
+    expect(live.indexOf('agent-undo')).toBe(live.indexOf('tools-in-production') + 1);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

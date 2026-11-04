@@ -2996,5 +2996,57 @@
       "fix",
       "reveal"
     ]
+  },
+  "agent-undo": {
+    "01-halfway-done": [
+      "predict",
+      "run",
+      "reveal",
+      "quiz"
+    ],
+    "02-save-points": [
+      "run",
+      "predict",
+      "restart",
+      "reveal",
+      "saves",
+      "quiz"
+    ],
+    "03-the-opposite-step": [
+      "pick",
+      "predict",
+      "run",
+      "reveal",
+      "quiz"
+    ],
+    "04-cant-undo": [
+      "run",
+      "unsend",
+      "predict",
+      "letter",
+      "reveal",
+      "quiz"
+    ],
+    "05-risky-step-last": [
+      "predict",
+      "order",
+      "run",
+      "reveal",
+      "quiz"
+    ],
+    "06-only-once": [
+      "run",
+      "predict",
+      "retry",
+      "reveal",
+      "key",
+      "quiz"
+    ],
+    "07-workbench": [
+      "run",
+      "predict",
+      "fix",
+      "reveal"
+    ]
   }
 }

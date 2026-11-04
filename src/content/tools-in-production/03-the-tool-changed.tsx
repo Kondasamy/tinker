@@ -173,6 +173,10 @@ export default function TheToolChanged() {
             <>
               <Fact id="list-changed" />
               <Fact id="rug-pull" />
+              <p className="note">
+                What a refusing tool does to a run already halfway:{' '}
+                <a href="/agent-undo/01-halfway-done/">Undo for agents</a>.
+              </p>
             </>
           ) : null,
         quiz: ({ state, apply, sync }) => (

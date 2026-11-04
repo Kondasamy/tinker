@@ -64,6 +64,7 @@ import { ACTION_APPROVALS_MODULE } from '../content/action-approvals/module';
 import { MULTI_AGENT_MODULE } from '../content/multi-agent/module';
 import { AGENT_MEMORY_MODULE } from '../content/agent-memory/module';
 import { TOOLS_IN_PRODUCTION_MODULE } from '../content/tools-in-production/module';
+import { AGENT_UNDO_MODULE } from '../content/agent-undo/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -188,12 +189,7 @@ export const MODULES: Module[] = [
   MULTI_AGENT_MODULE,
   AGENT_MEMORY_MODULE,
   TOOLS_IN_PRODUCTION_MODULE,
-  planned(
-    'agent-undo',
-    'Undo for agents',
-    'Advanced',
-    'When step four fails after three went through: save points, undoing the earlier steps, and side effects that happen once.',
-  ),
+  AGENT_UNDO_MODULE,
   planned(
     'causal-evals',
     'Why did it fail?',

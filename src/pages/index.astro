@@ -196,6 +196,9 @@ import {
 } from '../lib/agent-memory/memory';
 import { SHADOW_BOARD, shadowLabel, shadowStill } from '../components/scenes/shadowScene';
 import { sceneOf as toolsAt } from '../content/tools-in-production/03-the-tool-changed';
+import { FUNI_BOARD, funiLabel, funiStill } from '../components/scenes/funicularScene';
+import { funiOf as undoAt } from '../content/agent-undo/kit';
+import { ALL_UNDO, COURIER_FAILS, policy as undoPolicy, run as undoRun } from '../lib/agent-undo/sim';
 import { KIOSK_BOARD, kioskLabel, kioskScene } from '../components/scenes/kioskScene';
 import { messageOf as kioskMessage, run as kioskRun } from '../lib/before-genai/bots';
 import { DEMOS as RB_DEMOS } from '../lib/robots/story';
@@ -529,6 +532,9 @@ const MEM_HERO = memoryAt(MEM_MONTH, {
 });
 // tools-in-production: the changed tool hung askew overnight, as the intro draws it
 const TP_HERO = toolsAt({ night: true, hung: true, prediction: null, revealed: false, quiz: null });
+// agent-undo: the run with every step undoable, the car back in the valley, as the intro draws it
+const AU_POLICY = undoPolicy({ undo: ALL_UNDO });
+const AU_HERO = undoAt(undoRun(AU_POLICY, COURIER_FAILS), AU_POLICY, { route: undefined });
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   'before-genai': {
     name: 'Before GenAI',
@@ -1279,6 +1285,18 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
     name: 'Tools and MCP in production',
     iso: { board: SHADOW_BOARD, scene: shadowStill(TP_HERO, { zoomT: 0, phone: true }), label: shadowLabel(TP_HERO) },
     topics: ['MCP servers', 'Tool search', 'Changed tools', 'Pinning', 'Tool poisoning', 'Per-server sign-in'],
+  },
+  'agent-undo': {
+    name: 'Undo for agents',
+    iso: { board: FUNI_BOARD, scene: funiStill(AU_HERO, { zoomT: 0, phone: true }), label: funiLabel(AU_HERO) },
+    topics: [
+      'Partial failure',
+      'Save points',
+      'Compensating steps',
+      'Sagas',
+      'Irreversible actions',
+      'Idempotency keys',
+    ],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];

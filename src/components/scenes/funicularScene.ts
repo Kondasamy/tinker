@@ -7,7 +7,7 @@
 // Words only in pills; every string reaching SVG goes through esc().
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, sayFits } from '../../lib/iso/blocks';
-import { modelMachine, person, type Item } from '../../lib/iso/figures';
+import { drawPieces, mini, modelMachine, person, type Item } from '../../lib/iso/figures';
 type Mat = { l: string; m: string; d: string };
 import {
   CERAMIC,
@@ -606,7 +606,8 @@ export function funiPills(s: Funi, v: SceneView, moving = false) {
     on(
       id,
       zoomed ? [PX0 + 6, y, zp(y) + 12] : [PX0, y + PH, zp(y)],
-      zoomed ? -10 : -14,
+      // a phone's wide close-up doubles the pill: it hangs nearer its station so it stays in the frame
+      zoomed ? -10 : wide && phone ? -2 : -14,
       zoomed ? -10 : -6,
       text,
       s.lit === id || m === 'failed',
@@ -689,4 +690,26 @@ export function funiLabel(s: Funi): string {
   ]
     .filter(Boolean)
     .join(' ');
+}
+
+/** The home hero's stand plot: the hill's track with the car halfway up and two stations beside it, one done and one
+ * waiting, set down small. */
+export function funiPlot(x: number, y: number, top: SceneCtx['top']): string {
+  const s: Funi = {
+    order: ['stock', 'refund', 'email', 'courier'],
+    car: 'refund',
+    marks: { stock: 'done' },
+    letters: 0,
+  };
+  const [hill, ...fixed] = terrain();
+  const items = [
+    ...fixed,
+    terrace(0, false),
+    terrace(1, false),
+    station(s, 'stock', SLOT_Y[0], 'done', 0),
+    station(s, 'refund', SLOT_Y[1], undefined, 0),
+    car(SLOT_Y[1], s, 'refund'),
+  ];
+  const shadow = castShadow(boxCorners(HX0, HY0, BH, HX1, FOOT, BH + 2), BH, top) + hill.svg;
+  return drawPieces([mini({ shadow, items }, [(HX0 + HX1) / 2, (HY0 + FOOT) / 2, BH], [x, y, BH], 0.22)]);
 }

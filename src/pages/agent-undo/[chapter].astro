@@ -1,0 +1,22 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import HalfwayDone from '../../content/agent-undo/01-halfway-done';
+import SavePoints from '../../content/agent-undo/02-save-points';
+import TheOppositeStep from '../../content/agent-undo/03-the-opposite-step';
+import CantUndo from '../../content/agent-undo/04-cant-undo';
+import RiskyStepLast from '../../content/agent-undo/05-risky-step-last';
+import OnlyOnce from '../../content/agent-undo/06-only-once';
+import Workbench from '../../content/agent-undo/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('agent-undo').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="agent-undo" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-halfway-done' ? <HalfwayDone client:load /> : chapter === '02-save-points' ? <SavePoints client:load /> : chapter === '03-the-opposite-step' ? <TheOppositeStep client:load /> : chapter === '04-cant-undo' ? <CantUndo client:load /> : chapter === '05-risky-step-last' ? <RiskyStepLast client:load /> : chapter === '06-only-once' ? <OnlyOnce client:load /> : <Workbench client:load />}
+</ChapterLayout>

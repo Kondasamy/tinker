@@ -501,6 +501,22 @@ import { sceneOf as tpCh5 } from '../content/tools-in-production/05-hidden-instr
 import { sceneOf as tpCh6 } from '../content/tools-in-production/06-who-is-calling';
 import { sceneOf as tpCh7 } from '../content/tools-in-production/07-workbench';
 import { solve as tpSolve } from '../lib/tools-in-production/week';
+import { FUNI_BOARD, type Funi, funiStill } from '../components/scenes/funicularScene';
+import { funiOf as auFuni } from '../content/agent-undo/kit';
+import { sceneOf as auCh1 } from '../content/agent-undo/01-halfway-done';
+import { sceneOf as auCh2 } from '../content/agent-undo/02-save-points';
+import { sceneOf as auCh3 } from '../content/agent-undo/03-the-opposite-step';
+import { sceneOf as auCh4 } from '../content/agent-undo/04-cant-undo';
+import { sceneOf as auCh5 } from '../content/agent-undo/05-risky-step-last';
+import { sceneOf as auCh6 } from '../content/agent-undo/06-only-once';
+import { sceneOf as auCh7 } from '../content/agent-undo/07-workbench';
+import {
+  ALL_UNDO as AU_ALL_UNDO,
+  COURIER_FAILS as AU_FAILS,
+  policy as auPolicy,
+  run as auRun,
+  solve as auSolve,
+} from '../lib/agent-undo/sim';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -2323,6 +2339,28 @@ const SHADOW_OG: Record<string, () => Shadow> = {
   },
 };
 const shadowOg = SHADOW_OG[page.og]?.();
+// module 65: the funicular, each chapter at its reveal, unzoomed, the car at rest (no route). The intro and recap: the
+// run with every step undoable, back in the valley; 1: halfway done; 2: resumed from the save point; 3: undone with
+// the right opposite; 4: the letter sent for the email; 5: the email moved last; 6: once, with a key; 7: a winning setup.
+const auQ = { prediction: null, revealed: true, quiz: null };
+const auRest = (f: Funi): Funi => ({ ...f, route: undefined });
+const AU_UNDO = auPolicy({ undo: AU_ALL_UNDO });
+const FUNI_OG: Record<string, () => Funi> = {
+  'agent-undo': () => auFuni(auRun(AU_UNDO, AU_FAILS), AU_UNDO, { route: undefined }),
+  'agent-undo-recap': () => auFuni(auRun(AU_UNDO, AU_FAILS), AU_UNDO, { route: undefined }),
+  'agent-undo-01-halfway-done': () => auRest(auCh1({ ran: true, ...auQ })),
+  'agent-undo-02-save-points': () => auRest(auCh2({ ran: true, restarted: true, saves: true, saved: true, ...auQ })),
+  'agent-undo-03-the-opposite-step': () => auRest(auCh3({ opp: 'right', ran: true, ...auQ })),
+  'agent-undo-04-cant-undo': () => auRest(auCh4({ ran: true, tried: true, letter: true, ...auQ })),
+  'agent-undo-05-risky-step-last': () =>
+    auRest(auCh5({ order: ['stock', 'refund', 'courier', 'email'], ran: true, ...auQ })),
+  'agent-undo-06-only-once': () => auRest(auCh6({ ran: true, retried: true, key: true, keyed: true, ...auQ })),
+  'agent-undo-07-workbench': () => {
+    const c = auSolve().winners[0];
+    return auRest(auCh7({ code: c, ran: c, prediction: null, revealed: true }));
+  },
+};
+const funiOg = FUNI_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -2416,6 +2454,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : switchOg ? <IsoStage board={SWITCH_BOARD} scene={switchStill(switchOg)} label="" />
           : corkOg ? <IsoStage board={CORK_BOARD} scene={corkStill(corkOg)} label="" />
           : shadowOg ? <IsoStage board={SHADOW_BOARD} scene={shadowStill(shadowOg)} label="" />
+          : funiOg ? <IsoStage board={FUNI_BOARD} scene={funiStill(funiOg)} label="" />
           : dreamOg ? <IsoStage board={dreamBoard(dreamOg)} scene={dreamScene({ ...dreamOg, scale: 1.3 })} label="" />
           : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
           : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />
