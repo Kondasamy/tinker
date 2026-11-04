@@ -1,6 +1,7 @@
 /* Tools in production stage: shares the tool-calling frame (.tc-stage, .tc-frame, .tc-caption); the twin control sits
    under the picture, and the Prints tab is a table of each board tool's fingerprint, approved and as each day has it. */
 .tip-twin {
+  min-height: 48px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;

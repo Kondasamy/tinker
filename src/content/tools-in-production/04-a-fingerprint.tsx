@@ -87,7 +87,6 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['night'],
     narration: `Overnight the same rename arrives. ${TOOL.name}’s print was ${fingerprint(TOOL)}; it is now ${fingerprint(NEW)}.`,
     act: 'Press Next morning.',
-    say: { block: 'quickpost', text: 'Same rename' },
     status: `QuickPost’s seal broke overnight; ${TOOL.name}’s fingerprint no longer matches.`,
     predicate: s => s.night,
   },

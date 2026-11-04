@@ -67,6 +67,7 @@ export const sceneOf = (s: S): Shadow => ({
   crate: s.read && !s.barred ? TOOL.server : null,
   hung: s.hung && !s.barred ? [{ id: TOOL.id, fit: true }] : [],
   sent: s.hung && !s.barred ? TOOL.server : null,
+  lit: s.hung && !s.barred ? TOOL.id : null,
 });
 
 export const STEPS: Step<S>[] = [
@@ -105,7 +106,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['predict', 'reveal', 'fact'],
     narration: 'That’s tool poisoning: orders hidden in a description, obeyed as if Larkspur wrote them.',
     act: 'Check your prediction.',
-    closeUp: ['docshelf'],
+    closeUp: ['docshelf', 'lit'],
     status: 'The key file lies on DocShelf’s crate; the assistant’s light is red.',
     predicate: s => s.revealed,
   },

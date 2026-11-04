@@ -79,7 +79,6 @@ export const STEPS: Step<S>[] = [
     narration:
       'The assistant signs in to every server with one Larkspur key. QuickPost, a courier firm, now holds a copy.',
     act: 'Press Replay at the Order desk.',
-    say: { block: 'quickpost', text: 'Has a copy' },
     status: 'The Order desk let in the key QuickPost carried over.',
     predicate: s => s.shared,
     hint: 'Press Replay at the Order desk in the step card.',
@@ -94,15 +93,25 @@ export const STEPS: Step<S>[] = [
     predicate: s => s.prediction !== null,
   },
   {
+    id: 'signin',
+    focus: 'signin',
+    visibleControls: ['predict', 'signin'],
+    narration: 'Pick locked. With OAuth, each server’s own sign-in issues a pass that names that server.',
+    act: 'Press Sign in per server.',
+    say: { block: 'key', text: 'One per server' },
+    status: 'Four passes, one per server, replace the shared key on the strip.',
+    predicate: s => s.own,
+    hint: 'Press Sign in per server in the step card.',
+  },
+  {
     id: 'own',
     focus: 'own',
     visibleControls: ['predict', 'own'],
-    narration: 'Pick locked. With OAuth, each server’s own sign-in issues a pass that names that server.',
-    act: 'Press Sign in per server, then Replay.',
-    say: { block: 'key', text: 'One per server' },
+    narration: 'QuickPost tries the same trick with the pass it was given.',
+    act: 'Press Replay at the Order desk.',
     status: 'The Order desk refused the pass: it was issued for QuickPost.',
     predicate: s => s.own && s.ownReplay,
-    hint: 'Press Sign in per server, then Replay at the Order desk.',
+    hint: 'Press Replay at the Order desk in the step card.',
   },
   {
     id: 'reveal',
@@ -141,25 +150,15 @@ export default function WhoIsCalling() {
             Replay at the Order desk
           </button>
         ),
-        own: ({ state, apply, sync }) => (
-          <div className="tip-twin">
-            <button
-              type="button"
-              className="big"
-              aria-pressed={state.own}
-              onClick={() => sync({ ...state, own: true, ownReplay: false })}
-            >
-              Sign in per server
-            </button>
-            <button
-              type="button"
-              className="big"
-              disabled={!state.own}
-              onClick={() => apply({ ...state, ownReplay: true })}
-            >
-              Replay
-            </button>
-          </div>
+        signin: ({ state, apply }) => (
+          <button type="button" className="big" onClick={() => apply({ ...state, own: true })}>
+            Sign in per server
+          </button>
+        ),
+        own: ({ state, apply }) => (
+          <button type="button" className="big" onClick={() => apply({ ...state, ownReplay: true })}>
+            Replay at the Order desk
+          </button>
         ),
         predict: ({ state, apply }) => (
           <Predict {...PREDICT} value={state.prediction} onPredict={i => apply({ ...state, prediction: i })} />

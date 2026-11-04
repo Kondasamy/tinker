@@ -156,7 +156,7 @@ export function ShadowStage({
     phone,
     lift: (s, v) => ({
       still: shadowStill(s, v),
-      piece: dragged ? toolPiece(dragged.tool, dragged.server) : '',
+      piece: () => (dragged ? toolPiece(dragged.tool, dragged.server) : ''),
     }),
   });
   const s = stage.state;
@@ -227,6 +227,8 @@ export function ShadowStage({
           <PrintsView cols={prints} />
         )}
       </div>
+      {/* the twin row keeps its height when a chapter has none, so the picture is the same size in every chapter */}
+      {!twin && <div className="tip-twin" aria-hidden="true" />}
       {twin && (
         <div className="tip-twin">
           <Select value={chosen?.value ?? ''} onChange={e => setPick(e.target.value)} aria-label={twin.label}>

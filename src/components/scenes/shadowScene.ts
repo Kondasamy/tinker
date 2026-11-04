@@ -13,6 +13,7 @@ import {
   DARK,
   METAL,
   PALS,
+  P,
   WOOD,
   box,
   byDepth,
@@ -317,15 +318,25 @@ function boardArt(s: Shadow, hung: { id: string; fit: boolean; at?: number[] }[]
     const c = cell(t.id),
       lit = s.lit === t.id || s.pick === t.id;
     if (lit)
-      b += shape(
-        R(c[0] - COL / 2 + 1.2, c[2] - ROW / 2 + 1, c[0] + COL / 2 - 1.2, c[2] + ROW / 2 - 1).map(([u, v]) => [
-          u,
-          PY + 0.06,
-          v,
-        ]),
-        '#fffaf0',
-        2.8,
-      );
+      b +=
+        shape(
+          R(c[0] - COL / 2 + 0.4, c[2] - ROW / 2 + 0.2, c[0] + COL / 2 - 0.4, c[2] + ROW / 2 - 0.2).map(([u, v]) => [
+            u,
+            PY + 0.05,
+            v,
+          ]),
+          '#fffaf0',
+          4,
+        ) +
+        shape(
+          R(c[0] - COL / 2 + 2.2, c[2] - ROW / 2 + 1.8, c[0] + COL / 2 - 2.2, c[2] + ROW / 2 - 1.8).map(([u, v]) => [
+            u,
+            PY + 0.06,
+            v,
+          ]),
+          '#fffaf0',
+          1.6,
+        );
     const bad = hung.some(h => h.id === t.id && !h.fit);
     for (const poly of shapeOf(t.id))
       b += shape(
@@ -439,19 +450,28 @@ const envelopeArt = (p: number[]) =>
     ],
     1.2,
   )}</g>`;
-/** a dotted trail along the envelope's arc, from the bench to where it is now (u of the way) */
-const trailArt = (to: number[], u = 1) => {
-  const pts = Array.from({ length: 13 }, (_, i) => arc(BENCH_ENV, to, (i / 12) * u, 22));
-  return `<path d="${pd(pts, false)}" fill="none" stroke="${INK}" stroke-width="1.3" stroke-dasharray="1.5 3" stroke-linecap="round"/>`;
+/** a dotted trail along an arc from `from` toward `to`, u of the way, with an arrowhead where it has got to */
+const trailArt = (from: number[], to: number[], u = 1, h = 22) => {
+  if (u <= 0.02) return '';
+  const pts = Array.from({ length: 13 }, (_, i) => arc(from, to, (i / 12) * u, h));
+  const [a, b] = [P(...(pts[11] as [number, number, number])), P(...(pts[12] as [number, number, number]))];
+  const ang = Math.atan2(b[1] - a[1], b[0] - a[0]),
+    L = 5,
+    W = 0.5;
+  const head = [ang + Math.PI - W, ang + Math.PI + W].map(t => [b[0] + L * Math.cos(t), b[1] + L * Math.sin(t)]);
+  return (
+    `<path d="${pd(pts, false)}" fill="none" stroke="${INK}" stroke-width="1.4" stroke-dasharray="1.5 3" stroke-linecap="round"/>` +
+    `<path d="M${b[0].toFixed(1)} ${b[1].toFixed(1)}L${head[0][0].toFixed(1)} ${head[0][1].toFixed(1)}L${head[1][0].toFixed(1)} ${head[1][1].toFixed(1)}Z" fill="${INK}"/>`
+  );
 };
 /** a sign-in pass: a small card, the shared key's gold or its server's colour */
 const passArt = (p: number[], col: string) =>
   `<g data-pass="1">${shape(
-    R(p[0] - 6, p[1] - 4, p[0] + 6, p[1] + 4).map(([u, v]) => [u, v, p[2]]),
+    R(p[0] - 5.5, p[1] - 3.5, p[0] + 5.5, p[1] + 3.5).map(([u, v]) => [u, v, p[2]]),
     col,
-    1.3,
+    1.6,
   )}${shape(
-    R(p[0] - 4, p[1] - 2, p[0] + 1, p[1] + 2).map(([u, v]) => [u, v, p[2] + 0.05]),
+    R(p[0] - 3.5, p[1] - 1.8, p[0] + 0.5, p[1] + 1.8).map(([u, v]) => [u, v, p[2] + 0.05]),
     DARK.l,
     0,
   )}</g>`;
@@ -498,6 +518,38 @@ function crateArt(
       );
     s += shape(half(-1), PALS.tomato.m, 1) + shape(half(1), PALS.tomato.m, 1);
   }
+  // the hidden slip: a tall sheet of paper standing up out of the lid, with ruled lines and a red corner
+  if (opts.note) {
+    const sy = c.y0 + 4,
+      sl = (pts: UV[]) => pts.map(([u, v]) => [u, sy, v]);
+    s += shape(
+      sl([
+        [sx - 5, z1],
+        [sx + 5, z1],
+        [sx + 5, z1 + 17],
+        [sx - 5, z1 + 15],
+      ]),
+      CERAMIC.l,
+      1.5,
+    );
+    for (const h of [5, 8, 11])
+      s += line(
+        sl([
+          [sx - 3.4, z1 + h],
+          [sx + 3.4, z1 + h + 0.4],
+        ]),
+        0.8,
+      );
+    s += shape(
+      sl([
+        [sx + 1.5, z1 + 16.6],
+        [sx + 5, z1 + 17],
+        [sx + 5, z1 + 13.5],
+      ]),
+      PALS.tomato.m,
+      0.8,
+    );
+  }
   // a placard standing on the lid, facing the viewer, with a big mark: a cross (held, or a pass refused) or a check
   // (a pass let in)
   if (seal === 'held' || opts.cross || opts.tick) {
@@ -543,7 +595,7 @@ function crateArt(
   return {
     box: [
       [c.x0, c.y0, BH],
-      [c.x1, c.y1, z1 + 11],
+      [c.x1, c.y1, z1 + (opts.note ? 17 : 11)],
     ],
     svg: `<g data-seal="${esc(srv)}" data-state="${seal}">${s}</g>`,
   } as Item;
@@ -630,10 +682,7 @@ const NAME: Record<string, [string, string]> = {
 /** The pills; mid-motion (moving) only the fixed names, so a number never shows before its motion lands. */
 export function shadowPills(s: Shadow, v: SceneView, moving = false) {
   // the close-up's pill grows with the zoom instead of jumping to the phone scale
-  const k = (p: string) => {
-      const b = pillScale(p, v);
-      return v.zoomT > 0 && b ? lerp(v.phone ? 2 : 1, 2, Math.min(1, v.zoomT)) : b;
-    },
+  const k = (p: string) => pillScale(p, v),
     phone = !!v.phone,
     out: string[] = [],
     said = new Set<string>();
@@ -651,7 +700,8 @@ export function shadowPills(s: Shadow, v: SceneView, moving = false) {
       lit = s.sent === id || s.pass?.to === id;
     on(id, [x + 14, BAY_Y(sIdx(id)), BH + 17], 18, NAME[id][phone ? 1 : 0], lit, 18, phone && !lit && s.crate !== id);
   }
-  on('board', [PX1 - 6, PY, PZ1 + 2], -12, phone ? 'BOARD' : `${TOOLS_ON_BOARD.length} OUTLINES`, false, 10);
+  // the board's name stands off its right end, clear of every outline
+  on('board', [PX1, PY, PZ1 - 4], 2, phone ? 'BOARD' : `${TOOLS_ON_BOARD.length} OUTLINES`, false, 26);
   if (moving) return out.filter(Boolean).join('');
   const lit = s.lit ?? s.pick;
   if (lit) {
@@ -688,15 +738,15 @@ export function shadowPills(s: Shadow, v: SceneView, moving = false) {
       s.heap > 0,
       -8,
     );
-  if (s.heap > HEAP.length && !phone) on('bench', [BENCH.x0 + 6, BENCH.y0, TOP], -16, `+${s.heap} TOOLS`, true, -12);
+  // the heap's count is in the status line: the pile itself shows it
   // every tool hanging askew, and every barred bay, says so (a lit outline already has its pill)
   for (const h of s.hung)
     if (!h.fit && h.id !== lit && k('board')) {
       const c = cell(h.id);
-      out.push(pill([c[0], PY + 2, c[2] - ROW / 2], 14, 'NO FIT', true, k('board'), 6));
+      out.push(pill([c[0] + COL / 2 - 2, PY + 2, c[2]], 6, 'NO FIT', true, k('board'), 16));
     }
   for (const id of s.blocked ?? [])
-    if (k('board')) out.push(pill([113, BAY_Y(sIdx(id)) - 10, BH + 13], -14, 'BARRED', true, k('board'), -14));
+    if (k(id)) out.push(pill([113, BAY_Y(sIdx(id)) - 10, BH + 13], -14, 'BARRED', true, k(id), -14));
   return out.filter(Boolean).join('');
 }
 
@@ -715,16 +765,19 @@ interface Drawn {
   pass: { at: number[]; col: string } | null;
   /** how much of the envelope's dotted trail is drawn, 0 to 1 */
   trail?: number;
+  /** how much of the pass's trail is drawn: out, and (refused) back */
+  legs?: [number, number];
 }
 
-const passCol = (s: Shadow) => (s.key === 'shared' ? PALS.mustard.l : s.pass ? PAL[s.pass.from].l : PALS.mustard.l);
+const GOLD = '#ffcf2e';
+const passCol = (s: Shadow) => (s.key === 'shared' || !s.pass ? GOLD : PAL[s.pass.from].l);
 /** the file lands on the van's roof: off the board, away with the server */
 const envelopeEnd = (srv: string) => [DOCK - 6, BAY_Y(sIdx(srv)), BH + 21];
 const BENCH_ENV = [58, 31, TOP + 0.3];
 /** a pass let in lies on the floor in front of that server's crate, clear of its placard */
 const passIn = (srv: string) => {
   const c = crateAt(srv);
-  return [(c.x0 + c.x1) / 2, c.y1 + 5, BH + 0.3];
+  return [(c.x0 + c.x1) / 2 + 3, c.y1 + 4.5, BH + 0.3];
 };
 
 const rest = (s: Shadow): Drawn => ({
@@ -804,8 +857,15 @@ function art(s: Shadow, v: SceneView, d: Drawn, layer: 'all' | 'still' | 'moving
         })
         .join('');
       if (d.envelope && s.sent)
-        over += `<g data-sent="${esc(s.sent)}">${trailArt(envelopeEnd(s.sent), d.trail ?? 1)}${envelopeArt(d.envelope)}</g>`;
-      if (d.pass) over += passArt(d.pass.at, d.pass.col);
+        over += `<g data-sent="${esc(s.sent)}">${trailArt(BENCH_ENV, envelopeEnd(s.sent), d.trail ?? 1)}${envelopeArt(d.envelope)}</g>`;
+      if (d.pass && s.pass) {
+        const [out, back] = d.legs ?? [1, 1],
+          a = crateTop(s.pass.from);
+        over += s.pass.ok
+          ? trailArt(a, passIn(s.pass.to), out, 14)
+          : trailArt(a, crateTop(s.pass.to), out, 14) + trailArt(crateTop(s.pass.to), a, back, 8);
+        over += passArt(d.pass.at, d.pass.col);
+      }
     }
     return shadow + byDepth(items) + over + (layer === 'moving' || s.bare ? '' : shadowPills(s, v, layer === 'still'));
   };
@@ -916,6 +976,7 @@ export const shadowScene: Scene<Shadow> = (prev, s, t, v) => {
     const a = crateTop(s.pass.from),
       b = s.pass.ok ? passIn(s.pass.to) : crateTop(s.pass.to);
     const u = ph(t, 0, s.pass.ok ? 0.8 : 0.55);
+    d.legs = [u, s.pass.ok ? 1 : ph(t, 0.55, 1)];
     d.pass = {
       col: passCol(s),
       at: s.pass.ok || u < 1 ? arc(a, b, u, 14) : arc(b, a, ph(t, 0.55, 1), 8),

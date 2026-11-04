@@ -119,7 +119,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['predict', 'reveal', 'fact'],
     narration: `Each request loads its own few tools: ${num(lazyTokens(found(SECOND)))} tokens against ${num(EAGER_TOKENS)}.`,
     act: 'Check your prediction.',
-    closeUp: ['bench'],
+    closeUp: ['bench', 'stockroom'],
     status: `The bench reads ${num(lazyTokens(found(SECOND)))} tokens for the stock request.`,
     predicate: s => s.revealed,
   },

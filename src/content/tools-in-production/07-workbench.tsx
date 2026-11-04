@@ -107,7 +107,6 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['score', 'predict'],
     narration: 'Two servers leaked: DocShelf and QuickPost. Hidden orders sat in the prompt on every request.',
     act: 'Predict which server to stop trusting.',
-    say: { block: 'bench', text: 'Leaks' },
     status: 'Every van docked, the board askew in two places, a file sent off.',
     predicate: s => s.prediction !== null,
   },
