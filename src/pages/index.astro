@@ -194,6 +194,8 @@ import {
   hangsFrom as memHangs,
   remember as memRemember,
 } from '../lib/agent-memory/memory';
+import { SHADOW_BOARD, shadowLabel, shadowStill } from '../components/scenes/shadowScene';
+import { sceneOf as toolsAt } from '../content/tools-in-production/03-the-tool-changed';
 import { KIOSK_BOARD, kioskLabel, kioskScene } from '../components/scenes/kioskScene';
 import { messageOf as kioskMessage, run as kioskRun } from '../lib/before-genai/bots';
 import { DEMOS as RB_DEMOS } from '../lib/robots/story';
@@ -525,6 +527,8 @@ const MEM_MONTH = memRemember(MEM_GOOD);
 const MEM_HERO = memoryAt(MEM_MONTH, {
   lit: ['web-deals', ...MEM_MONTH.board.filter(b => memHangs(memCard(b.id), 'web-deals')).map(b => b.id)],
 });
+// tools-in-production: the changed tool hung askew overnight, as the intro draws it
+const TP_HERO = toolsAt({ night: true, hung: true, prediction: null, revealed: false, quiz: null });
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   'before-genai': {
     name: 'Before GenAI',
@@ -1270,6 +1274,11 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
     name: 'Memory you can trust',
     iso: { board: CORK_BOARD, scene: corkStill(MEM_HERO, { zoomT: 0, phone: true }), label: corkLabel(MEM_HERO) },
     topics: ['Agent memory', 'What to keep', 'Sources', 'Conflicting memories', 'Forgetting', 'Memory poisoning'],
+  },
+  'tools-in-production': {
+    name: 'Tools and MCP in production',
+    iso: { board: SHADOW_BOARD, scene: shadowStill(TP_HERO, { zoomT: 0, phone: true }), label: shadowLabel(TP_HERO) },
+    topics: ['MCP servers', 'Tool search', 'Changed tools', 'Pinning', 'Tool poisoning', 'Per-server sign-in'],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];

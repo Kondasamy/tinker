@@ -63,6 +63,7 @@ import { SKILLS_MODULE } from '../content/skills/module';
 import { ACTION_APPROVALS_MODULE } from '../content/action-approvals/module';
 import { MULTI_AGENT_MODULE } from '../content/multi-agent/module';
 import { AGENT_MEMORY_MODULE } from '../content/agent-memory/module';
+import { TOOLS_IN_PRODUCTION_MODULE } from '../content/tools-in-production/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -186,12 +187,7 @@ export const MODULES: Module[] = [
   ACTION_APPROVALS_MODULE,
   MULTI_AGENT_MODULE,
   AGENT_MEMORY_MODULE,
-  planned(
-    'tools-in-production',
-    'Tools and MCP in production',
-    'Advanced',
-    'Loading tools only when needed, tools that change under you, signed tool lists, logins and risky third-party servers.',
-  ),
+  TOOLS_IN_PRODUCTION_MODULE,
   planned(
     'agent-undo',
     'Undo for agents',

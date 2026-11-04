@@ -1024,6 +1024,21 @@ describe('module registry', () => {
     expect(live.indexOf('agent-memory')).toBe(live.indexOf('multi-agent') + 1);
   });
 
+  it('has tools-in-production as a live Advanced module 64, after agent-memory', () => {
+    const m = moduleOf('tools-in-production');
+    expect(m).toMatchObject({
+      title: 'Tools and MCP in production',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['tool-calling', 'dependencies'],
+    });
+    expect(m.track).toBeUndefined();
+    expect(m.author).toEqual(moduleOf('rag').author);
+    expect(moduleNumber(m)).toBe(64);
+    const live = MODULES.filter(x => x.status === 'live').map(x => x.id);
+    expect(live.indexOf('tools-in-production')).toBe(live.indexOf('agent-memory') + 1);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

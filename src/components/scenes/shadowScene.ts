@@ -7,7 +7,16 @@
 // Words only in pills; every string reaching SVG goes through esc().
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
-import { modelMachine, padlock, person, van, type Item, type ModelState } from '../../lib/iso/figures';
+import {
+  drawPieces,
+  mini,
+  modelMachine,
+  padlock,
+  person,
+  van,
+  type Item,
+  type ModelState,
+} from '../../lib/iso/figures';
 import {
   CERAMIC,
   DARK,
@@ -698,7 +707,9 @@ export function shadowPills(s: Shadow, v: SceneView, moving = false) {
   for (const id of IDS) {
     const x = s.vans.includes(id) ? DOCK : YARD,
       lit = s.sent === id || s.pass?.to === id;
-    on(id, [x + 14, BAY_Y(sIdx(id)), BH + 17], 18, NAME[id][phone ? 1 : 0], lit, 18, phone && !lit && s.crate !== id);
+    // two vans side by side at the dock: the even bay's pill drops a row, so the long names never touch
+    const dy = s.vans.includes(id) && sIdx(id) % 2 === 0 ? 30 : 18;
+    on(id, [x + 14, BAY_Y(sIdx(id)), BH + 17], dy, NAME[id][phone ? 1 : 0], lit, 18, phone && !lit && s.crate !== id);
   }
   // the board's name stands off its right end, clear of every outline
   on('board', [PX1, PY, PZ1 - 4], 2, phone ? 'BOARD' : `${TOOLS_ON_BOARD.length} OUTLINES`, false, 26);
@@ -1018,3 +1029,13 @@ export function shadowLabel(s: Shadow): string {
 
 /** the slot index of a board tool (for the twin's order) */
 export const boardSlot = slot;
+
+/** The home hero's stand plot: the shadow board with a few tools hung in their outlines, and one van at the dock, set
+ * down small. */
+export function shadowPlot(x: number, y: number, top: SceneCtx['top']): string {
+  const hung = TOOLS_ON_BOARD.filter((_, i) => i % 3 === 0).map(t => ({ id: t.id, fit: true }));
+  const b = boardArt({ vans: [], hung, heap: 0, pinned: [], held: [], changed: [] }, hung);
+  const va = vanArt(IDS[0], DOCK, 'dock');
+  const shadow = castShadow(boxCorners(PX0, PY - 2, BH, PX1, PY, PZ1), BH, top) + va.shadow;
+  return drawPieces([mini({ shadow, items: [b.item, ...va.items] }, [100, 38, BH], [x, y, BH], 0.25)]);
+}

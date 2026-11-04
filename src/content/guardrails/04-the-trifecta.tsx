@@ -233,6 +233,10 @@ export default function TheTrifecta() {
               Injected text can also hide in memory and outlive its page:{' '}
               <a href="/agent-memory/05-poisoned-note/">Memory you can trust</a>.
             </p>
+            <p className="note">
+              Or in a tool’s own description:{' '}
+              <a href="/tools-in-production/05-hidden-instructions/">Tools and MCP in production</a>.
+            </p>
           </>
         ),
         quiz: ({ state, apply, sync }) => (

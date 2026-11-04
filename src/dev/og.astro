@@ -492,6 +492,15 @@ import {
   kept as amKept,
   remember as amRemember,
 } from '../lib/agent-memory/memory';
+import { SHADOW_BOARD, type Shadow, shadowStill } from '../components/scenes/shadowScene';
+import { sceneOf as tpCh1 } from '../content/tools-in-production/01-sixty-tools';
+import { sceneOf as tpCh2 } from '../content/tools-in-production/02-fetch-when-needed';
+import { sceneOf as tpCh3 } from '../content/tools-in-production/03-the-tool-changed';
+import { sceneOf as tpCh4 } from '../content/tools-in-production/04-a-fingerprint';
+import { sceneOf as tpCh5 } from '../content/tools-in-production/05-hidden-instructions';
+import { sceneOf as tpCh6 } from '../content/tools-in-production/06-who-is-calling';
+import { sceneOf as tpCh7 } from '../content/tools-in-production/07-workbench';
+import { solve as tpSolve } from '../lib/tools-in-production/week';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -2294,6 +2303,26 @@ const CORK_OG: Record<string, () => Cork> = {
     amCork(amRemember(AM_GOOD, { undone: ['web-deals', 'chat-dan'] }), { noise: true }),
 };
 const corkOg = CORK_OG[page.og]?.();
+// module 64: the shadow board and its dock, each chapter at its reveal, unzoomed. The intro and 3: the changed tool
+// hung askew overnight; 1: every tool loaded, the wrong pick ringed; 2: a search loads three; 4: the pin holds the
+// changed tool in its crate; 5: the hidden orders obeyed, a file sent; 6: a shared key's pass let in; 7: a winning
+// policy's week; the recap: the hidden-orders crate read.
+const tpQ = { prediction: null, revealed: true, quiz: null };
+const SHADOW_OG: Record<string, () => Shadow> = {
+  'tools-in-production': () => tpCh3({ night: true, hung: true, ...tpQ }),
+  'tools-in-production-recap': () => tpCh5({ read: true, hung: false, barred: false, ...tpQ }),
+  'tools-in-production-01-sixty-tools': () => tpCh1({ loaded: true, asked: true, ...tpQ }),
+  'tools-in-production-02-fetch-when-needed': () => tpCh2({ asked: ['courier'], ...tpQ }),
+  'tools-in-production-03-the-tool-changed': () => tpCh3({ night: true, hung: true, ...tpQ }),
+  'tools-in-production-04-a-fingerprint': () => tpCh4({ pinned: true, night: true, hung: true, ...tpQ }),
+  'tools-in-production-05-hidden-instructions': () => tpCh5({ read: true, hung: true, barred: false, ...tpQ }),
+  'tools-in-production-06-who-is-calling': () => tpCh6({ shared: true, own: false, ownReplay: false, ...tpQ }),
+  'tools-in-production-07-workbench': () => {
+    const b = tpSolve().winners[0];
+    return tpCh7(b, b);
+  },
+};
+const shadowOg = SHADOW_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -2386,6 +2415,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : tollOg ? <IsoStage board={TOLL_BOARD} scene={ctx => tollStill(tollOg, { zoomT: 0 })(ctx) + tollPills(tollOg, { zoomT: 0 })} label="" />
           : switchOg ? <IsoStage board={SWITCH_BOARD} scene={switchStill(switchOg)} label="" />
           : corkOg ? <IsoStage board={CORK_BOARD} scene={corkStill(corkOg)} label="" />
+          : shadowOg ? <IsoStage board={SHADOW_BOARD} scene={shadowStill(shadowOg)} label="" />
           : dreamOg ? <IsoStage board={dreamBoard(dreamOg)} scene={dreamScene({ ...dreamOg, scale: 1.3 })} label="" />
           : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
           : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />

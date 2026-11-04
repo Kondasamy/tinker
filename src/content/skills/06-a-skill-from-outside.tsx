@@ -157,6 +157,10 @@ export default function SkillFromOutside() {
                 A hand-written example skill from {OUTSIDER.from}, not a real one. Vetting what you install is the same
                 lesson as in <a href="/dependencies/">Dependencies</a>.
               </p>
+              <p className="note">
+                A tool’s description can hide orders the same way:{' '}
+                <a href="/tools-in-production/05-hidden-instructions/">Tools and MCP in production</a>.
+              </p>
             </>
           ) : null,
         refuse: ({ state, apply }) => (

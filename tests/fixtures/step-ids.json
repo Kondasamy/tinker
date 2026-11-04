@@ -2943,5 +2943,58 @@
       "bench",
       "quiz"
     ]
+  },
+  "tools-in-production": {
+    "01-sixty-tools": [
+      "load",
+      "predict",
+      "ask",
+      "reveal",
+      "quiz"
+    ],
+    "02-fetch-when-needed": [
+      "ask",
+      "predict",
+      "again",
+      "reveal",
+      "quiz"
+    ],
+    "03-the-tool-changed": [
+      "night",
+      "predict",
+      "hang",
+      "reveal",
+      "quiz"
+    ],
+    "04-a-fingerprint": [
+      "pin",
+      "night",
+      "predict",
+      "hang",
+      "reveal",
+      "quiz"
+    ],
+    "05-hidden-instructions": [
+      "read",
+      "predict",
+      "hang",
+      "reveal",
+      "bar",
+      "quiz"
+    ],
+    "06-who-is-calling": [
+      "replay",
+      "predict",
+      "signin",
+      "own",
+      "reveal",
+      "quiz"
+    ],
+    "07-workbench": [
+      "run",
+      "predict",
+      "fix",
+      "reveal"
+    ]
   }
 }
