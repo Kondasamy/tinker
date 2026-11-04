@@ -178,6 +178,8 @@ import {
 } from '../lib/on-device/memory';
 import { levelAfter as odLevel } from '../lib/on-device/battery';
 import { CLAW_BOARD, clawLabel, clawScene } from '../components/scenes/clawScene';
+import { CAROUSEL_BOARD, carouselLabel, carouselStill } from '../components/scenes/carouselScene';
+import { carouselOf as skillsAt } from '../content/skills/kit';
 import { KIOSK_BOARD, kioskLabel, kioskScene } from '../components/scenes/kioskScene';
 import { messageOf as kioskMessage, run as kioskRun } from '../lib/before-genai/bots';
 import { DEMOS as RB_DEMOS } from '../lib/robots/story';
@@ -493,6 +495,8 @@ const PHONE_CRATE: PhoneCrateOpts = {
 // robots: Mira's first demo, the part in the tray, as the intro draws it
 const RB_RUN = rbPlay(RB_BINS[0], RB_DEMOS[0]);
 const CLAW = { layout: RB_BINS[0], state: RB_RUN.at(-1)!, trail: RB_RUN.map(s => s.claw), scale: 1.7 };
+// skills: the refund binder open on the desk, as the intro draws it
+const SK_HERO = skillsAt('skills', [{ ticket: 'refund-saw' }]);
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   'before-genai': {
     name: 'Before GenAI',
@@ -1199,6 +1203,15 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Domain randomisation',
       'Sim-to-real',
     ],
+  },
+  skills: {
+    name: 'Skills',
+    iso: {
+      board: CAROUSEL_BOARD,
+      scene: carouselStill(SK_HERO, { zoomT: 0, phone: true }),
+      label: carouselLabel(SK_HERO),
+    },
+    topics: ['Agent skills', 'Long prompts', 'Skill labels', 'Picking a skill', 'Scripts', 'Downloaded skills'],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];

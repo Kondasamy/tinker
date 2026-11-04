@@ -6,7 +6,7 @@
 // Words only in pills; every string reaching SVG goes through esc().
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, sayFits } from '../../lib/iso/blocks';
-import { bin, hexa, modelMachine, person, type ModelState } from '../../lib/iso/figures';
+import { bin, drawPieces, hexa, mini, modelMachine, person, type ModelState } from '../../lib/iso/figures';
 import {
   CERAMIC,
   DARK,
@@ -743,6 +743,24 @@ const rest = (s: Carousel, v: SceneView): Drawn => ({
 
 /** The picture at rest: what the stage shows for state s with no motion (the share image too). */
 export const carouselStill = (s: Carousel, v: SceneView = { zoomT: 0 }, tray = true) => art(s, v, rest(s, v), { tray });
+
+/** The home hero's stand plot: the binder carousel, every binder in its slot, set down small. */
+export function carouselPlot(x: number, y: number, top: SceneCtx['top']): string {
+  const [a, b] = [
+    [CX - R - 9, CY - R - 9, BH],
+    [CX + R + 9, CY + R + 9, POST + 2],
+  ];
+  const item = {
+    box: [a, b],
+    svg: carouselArt(
+      rotFor(SKILLS[0].id),
+      SKILLS.map(() => true),
+    ),
+  };
+  const shadow = castShadow(boxCorners(a[0], a[1], BH, b[0], b[1], b[2]), BH, top);
+  const p = mini({ shadow, items: [item] }, [CX, CY, BH], [x, y, BH], 0.5);
+  return drawPieces([p]);
+}
 
 /** Where a binder in flight is: from its slot (at turn rot) to the desk (or back), lying shut, then opening. */
 function flight(i: number, from: Pose, to: Pose, rotFrom: number, rotTo: number, u: number, o: number) {

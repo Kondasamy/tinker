@@ -2746,5 +2746,57 @@
       "bench",
       "quiz"
     ]
+  },
+  "skills": {
+    "01-the-long-prompt": [
+      "ask",
+      "predict",
+      "reveal",
+      "again",
+      "quiz"
+    ],
+    "02-label-and-folder": [
+      "ask",
+      "predict",
+      "reveal",
+      "more",
+      "quiz"
+    ],
+    "03-picking-the-binder": [
+      "ask",
+      "predict",
+      "rewrite",
+      "reveal",
+      "quiz"
+    ],
+    "04-steps-not-facts": [
+      "ask",
+      "predict",
+      "run",
+      "reveal",
+      "quiz"
+    ],
+    "05-two-skills-fight": [
+      "ask",
+      "predict",
+      "sharpen",
+      "reveal",
+      "own",
+      "quiz"
+    ],
+    "06-a-skill-from-outside": [
+      "predict",
+      "read",
+      "reveal",
+      "refuse",
+      "quiz"
+    ],
+    "07-workbench": [
+      "run",
+      "predict",
+      "bench",
+      "reveal",
+      "quiz"
+    ]
   }
 }

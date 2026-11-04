@@ -59,6 +59,7 @@ import { ON_DEVICE_MODULE } from '../content/on-device/module';
 import { ROUTES_MODULE } from '../content/routes/module';
 import { ROBOTS_MODULE } from '../content/robots/module';
 import { BEFORE_GENAI_MODULE } from '../content/before-genai/module';
+import { SKILLS_MODULE } from '../content/skills/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -178,12 +179,7 @@ export const MODULES: Module[] = [
   ON_DEVICE_MODULE,
   ROUTES_MODULE,
   ROBOTS_MODULE,
-  planned(
-    'skills',
-    'Skills',
-    'Intermediate',
-    'Know-how packed as files the assistant opens only when a task needs it, instead of one long prompt.',
-  ),
+  SKILLS_MODULE,
   planned(
     'action-approvals',
     'Approvals and permissions',

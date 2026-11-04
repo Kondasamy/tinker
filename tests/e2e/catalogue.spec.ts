@@ -67,6 +67,7 @@ const NUMBERED = [
   'on-device',
   'routes',
   'robots',
+  'skills',
 ];
 
 // AI modules lead the catalogue; classic tech follows in its own section of compact cards
@@ -456,6 +457,10 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
   await expect(page.locator('[data-level="Advanced"] .module[data-module="robots"] h4 a')).toHaveAttribute(
     'href',
     '/robots/',
+  );
+  await expect(page.locator('[data-level="Intermediate"] .module[data-module="skills"] h4 a')).toHaveAttribute(
+    'href',
+    '/skills/',
   );
 });
 

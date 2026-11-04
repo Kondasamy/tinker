@@ -209,6 +209,9 @@ export default function WhoPublishedThis() {
             <Fact id="allow-builds" />
             <Fact id="event-stream" />
             <Fact id="xz" />
+            <p className="note dp-note">
+              A skill an assistant downloads runs with its access too: <a href="/skills/">Skills</a>.
+            </p>
           </>
         ),
         quiz: ({ state, apply, sync }) => (

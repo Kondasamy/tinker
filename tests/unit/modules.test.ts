@@ -970,6 +970,20 @@ describe('module registry', () => {
     expect(live.indexOf('robots')).toBeGreaterThan(live.indexOf('parallel-training'));
   });
 
+  it('has skills as a live Intermediate module 60, after robots', () => {
+    expect(moduleOf('skills')).toMatchObject({
+      title: 'Skills',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: ['context', 'tool-calling'],
+    });
+    expect(moduleOf('skills').track).toBeUndefined();
+    expect(moduleOf('skills').author).toEqual(moduleOf('rag').author);
+    expect(moduleNumber(moduleOf('skills'))).toBe(60);
+    const live = MODULES.filter(m => m.status === 'live').map(m => m.id);
+    expect(live.indexOf('skills')).toBe(live.indexOf('robots') + 1);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

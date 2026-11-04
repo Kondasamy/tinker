@@ -1,0 +1,215 @@
+---
+// Skills module intro: sets the scene before chapter 1. Static, except the warm-up and a small script that marks
+// finished chapters. Every example is the module's own data: the carousel drawn from the request set (requests.json),
+// the numbers from the engine and facts.json.
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import Meta from '../../components/Meta.astro';
+import IsoStage from '../../lib/iso/IsoStage';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import { CAROUSEL_BOARD, carouselLabel, carouselStill } from '../../components/scenes/carouselScene';
+import { carouselOf } from '../../content/skills/kit';
+import { fact } from '../../lib/skills/facts';
+import { LABELS, PAGES, pick, PROMPT_WORDS, SKILLS, skillOf, wordsLoaded } from '../../lib/skills/skills';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
+import { introMeta } from '../../lib/pages';
+import { longDate, num } from '../../lib/format';
+
+const MODULE = moduleOf('skills');
+const NUMBER = moduleNumber(MODULE);
+const CHAPTERS = MODULE.chapters;
+const TICKET = 'refund-saw',
+  BINDER = skillOf(pick(TICKET)!);
+const HERO = carouselOf('skills', [{ ticket: TICKET }]);
+const WARRANTY = skillOf('warranty');
+const IDEAS = [
+  [
+    'The long prompt',
+    'Every rule for every task, in every request',
+    fact('on-demand'),
+    carouselOf('prompt', [{ ticket: TICKET }], 'refunds'),
+  ],
+  ['A label and a folder', 'The label is always there; the folder opens on need', fact('label-cost'), HERO],
+  [
+    'Picking the binder',
+    'The label alone decides which binder opens',
+    fact('label-decides'),
+    carouselOf('skills', [{ ticket: 'drill' }]),
+  ],
+] as const;
+const FACTS: [string, string][] = [
+  [num(PROMPT_WORDS), `words in the ${PAGES}-page prompt, sent with every ticket (a toy)`],
+  [num(wordsLoaded('skills', BINDER.id)), `words for the same refund ticket with skills (a toy)`],
+  [`~${fact('label-cost').value}`, 'tokens a skill’s label costs in every prompt, per Anthropic'],
+  [String(SKILLS.length), 'skill binders on Larkspur’s carousel'],
+];
+---
+<html lang="en">
+  <head>
+    <Meta {...introMeta(MODULE.id)} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module {NUMBER} · {MODULE.title}</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span></p>
+          <h1>A binder for every task, opened only when needed</h1>
+          <p class="lede">A skill is a folder the assistant opens only when a task needs it; only its label sits in every prompt. Here you turn Larkspur’s carousel of skill binders and watch which one opens.</p>
+          <div class="ctas">
+            <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+          <ReadingMode />
+        </div>
+        <div class="hero-pic">
+          <IsoStage board={CAROUSEL_BOARD} scene={carouselStill(HERO)} label={carouselLabel(HERO)} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="idea">
+        <p class="kicker">The whole idea in one example</p>
+        <h2 id="idea">One refund ticket, two ways</h2>
+        <div class="versus">
+          <article class="reply">
+            <header><h3>The long prompt</h3><span class="stamp">everything</span></header>
+            <p class="said">{num(PROMPT_WORDS)} words</p>
+            <p class="cap">every binder sent with the ticket, the refund rule buried among them.</p>
+          </article>
+          <article class="reply read">
+            <header><h3>Skills</h3><span class="stamp">on need</span></header>
+            <p class="said">{num(wordsLoaded('skills', BINDER.id))} words</p>
+            <p class="cap">{SKILLS.length} labels, and the {BINDER.name} binder the ticket picked.</p>
+          </article>
+        </div>
+        <p class="note more">A toy shelf: binder sizes are hand-set word counts, and a word-matching rule stands in for the model’s pick.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Three ideas carry the first chapters</h2>
+        <ol class="steps">
+          {IDEAS.map(([name, short, f, s], i) => (
+            <li>
+              <div class="pic"><IsoStage board={CAROUSEL_BOARD} scene={carouselStill(s)} label={carouselLabel(s)} /></div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              <p class="more">{f.claim}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">Larkspur’s returns desk</h2>
+          <p class="more">{MODULE.story} <strong>You decide what goes on each binder’s label.</strong> The warranty binder starts out labelled “{WARRANTY.vague}”; its sharp label reads “{LABELS.warranty}”</p>
+        </div>
+        <dl class="facts">
+          {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}
+        </dl>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due; the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <ul class="who-chips"><li>Engineers</li><li>Product managers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Anyone whose assistant’s prompt keeps growing. The Context and Tool calling modules first help; no maths is needed.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com" target="_blank" rel="noopener">Samy (Kondasamy Jayaraman)</a>.</p>
+      </footer>
+    </main>
+
+    <script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      const CHAPTERS = moduleOf('skills').chapters;
+      const done = completed('skills');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('skills', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.read { border-left: 6px solid var(--acc); }
+  .said { font-size: 28px; font-weight: 900; }
+
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); white-space: nowrap; }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 220px; display: flex; justify-content: center; margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: auto !important; height: 100% !important; max-width: 100%; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
+
+  .pair { display: grid; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+    .steps .pic { height: 200px; }
+  }
+</style>
