@@ -186,6 +186,14 @@ import { simulate as approvalsRun, WEEK as AA_WEEK, WINNERS as AA_WINNERS } from
 import { SWITCH_BOARD, switchLabel, switchStill } from '../components/scenes/switchboardScene';
 import { switchOf as multiAt } from '../content/multi-agent/kit';
 import { jobOf as multiJob } from '../lib/multi-agent/sim';
+import { CORK_BOARD, corkLabel, corkStill } from '../components/scenes/corkScene';
+import { corkOf as memoryAt } from '../content/agent-memory/kit';
+import {
+  cardOf as memCard,
+  GOOD as MEM_GOOD,
+  hangsFrom as memHangs,
+  remember as memRemember,
+} from '../lib/agent-memory/memory';
 import { KIOSK_BOARD, kioskLabel, kioskScene } from '../components/scenes/kioskScene';
 import { messageOf as kioskMessage, run as kioskRun } from '../lib/before-genai/bots';
 import { DEMOS as RB_DEMOS } from '../lib/robots/story';
@@ -512,6 +520,11 @@ const AA_HERO = approvalsAt(approvalsRun(AA_WINNERS[0]).desk, {
 });
 // multi-agent: three helpers on the supplier report, as the intro draws it
 const MA_HERO = multiAt(multiJob('report'), { helpers: 3, brief: 'detailed', check: false }, true);
+// agent-memory: the month on the board, the deals page's cards lit, as the intro draws it
+const MEM_MONTH = memRemember(MEM_GOOD);
+const MEM_HERO = memoryAt(MEM_MONTH, {
+  lit: ['web-deals', ...MEM_MONTH.board.filter(b => memHangs(memCard(b.id), 'web-deals')).map(b => b.id)],
+});
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   'before-genai': {
     name: 'Before GenAI',
@@ -1252,6 +1265,11 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       label: switchLabel(MA_HERO),
     },
     topics: ['Multi-agent', 'Lead and helpers', 'Hand-offs', 'Agreed message shapes', 'Deadlock', 'Checking a helper'],
+  },
+  'agent-memory': {
+    name: 'Memory you can trust',
+    iso: { board: CORK_BOARD, scene: corkStill(MEM_HERO, { zoomT: 0, phone: true }), label: corkLabel(MEM_HERO) },
+    topics: ['Agent memory', 'What to keep', 'Sources', 'Conflicting memories', 'Forgetting', 'Memory poisoning'],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];

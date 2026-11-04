@@ -237,6 +237,10 @@ export default function Memory() {
             <Fact id="context-finite" />
             <p className="note">{`The ${n(BUDGET)}-token budget is Larkspur’s stand-in for a model’s context window, a limit each model sets for itself; a real one fills the same way.`}</p>
             <ToyNote />
+            <p className="note">
+              What an agent keeps from one run to the next, and how to trust it:{' '}
+              <a href="/agent-memory/">Memory you can trust</a>.
+            </p>
           </>
         ),
         // three rows, four short columns: readable on a phone

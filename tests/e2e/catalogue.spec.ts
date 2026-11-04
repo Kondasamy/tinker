@@ -70,6 +70,7 @@ const NUMBERED = [
   'skills',
   'action-approvals',
   'multi-agent',
+  'agent-memory',
 ];
 
 // AI modules lead the catalogue; classic tech follows in its own section of compact cards
@@ -470,6 +471,10 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
   await expect(page.locator('[data-level="Advanced"] .module[data-module="multi-agent"] h4 a')).toHaveAttribute(
     'href',
     '/multi-agent/',
+  );
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="agent-memory"] h4 a')).toHaveAttribute(
+    'href',
+    '/agent-memory/',
   );
 });
 

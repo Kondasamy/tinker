@@ -35,7 +35,7 @@ interface S {
 /** settled: the conflict rule has dropped the loser */
 type Pic = Pick<S, 'added' | 'web'> & { settled: boolean };
 
-function picture({ added, web, settled }: Pic): Cork {
+export function picture({ added, web, settled }: Pic): Cork {
   if (!added) return corkOf(RUN, { upTo: DAY });
   let c = corkOf(RUN, {
     upTo: DAY,

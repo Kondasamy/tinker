@@ -1009,6 +1009,21 @@ describe('module registry', () => {
     expect(live.indexOf('multi-agent')).toBe(live.indexOf('action-approvals') + 1);
   });
 
+  it('has agent-memory as a live Advanced module 63, after multi-agent', () => {
+    const m = moduleOf('agent-memory');
+    expect(m).toMatchObject({
+      title: 'Memory you can trust',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['agents', 'context'],
+    });
+    expect(m.track).toBeUndefined();
+    expect(m.author).toEqual(moduleOf('rag').author);
+    expect(moduleNumber(m)).toBe(63);
+    const live = MODULES.filter(x => x.status === 'live').map(x => x.id);
+    expect(live.indexOf('agent-memory')).toBe(live.indexOf('multi-agent') + 1);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

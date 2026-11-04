@@ -2895,5 +2895,53 @@
       "bench",
       "quiz"
     ]
+  },
+  "agent-memory": {
+    "01-what-to-keep": [
+      "keep-all",
+      "predict",
+      "sort",
+      "reveal",
+      "quiz"
+    ],
+    "02-where-it-came-from": [
+      "trace",
+      "predict",
+      "trace-orders",
+      "reveal",
+      "quiz"
+    ],
+    "03-old-and-new": [
+      "new",
+      "predict",
+      "reveal",
+      "web",
+      "quiz"
+    ],
+    "04-forgetting": [
+      "jump",
+      "predict",
+      "forget",
+      "reveal",
+      "quiz"
+    ],
+    "05-poisoned-note": [
+      "read",
+      "chats",
+      "predict",
+      "reveal",
+      "quiz"
+    ],
+    "06-undo-the-source": [
+      "predict",
+      "pull",
+      "reveal",
+      "pull-dan",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "quiz"
+    ]
   }
 }

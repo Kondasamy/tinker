@@ -197,6 +197,10 @@ export default function MemoryOutsideTheWindow() {
           <>
             <Fact id="memory-tool" />
             <Fact id="memory-client-side" />
+            <p className="note">
+              What to keep across chats, and where each note came from:{' '}
+              <a href="/agent-memory/">Memory you can trust</a>.
+            </p>
           </>
         ),
         quiz: ({ state, apply, sync }) => (

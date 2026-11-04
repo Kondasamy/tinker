@@ -229,6 +229,10 @@ export default function TheTrifecta() {
               Which of an assistant’s actions outside text can reach:{' '}
               <a href="/action-approvals/03-following-the-dye/">Approvals and permissions</a>.
             </p>
+            <p className="note">
+              Injected text can also hide in memory and outlive its page:{' '}
+              <a href="/agent-memory/05-poisoned-note/">Memory you can trust</a>.
+            </p>
           </>
         ),
         quiz: ({ state, apply, sync }) => (

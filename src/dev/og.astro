@@ -481,6 +481,17 @@ import {
 import { SWITCH_BOARD, type Switch, switchStill } from '../components/scenes/switchboardScene';
 import { switchOf as maAt } from '../content/multi-agent/kit';
 import { jobOf as maJob, type Setup as MaSetup } from '../lib/multi-agent/sim';
+import { CORK_BOARD, type Cork, corkStill } from '../components/scenes/corkScene';
+import { chatCork as amChat, corkOf as amCork } from '../content/agent-memory/kit';
+import { picture as amConflict } from '../content/agent-memory/03-old-and-new';
+import {
+  cardOf as amCard,
+  END as AM_END,
+  GOOD as AM_GOOD,
+  hangsFrom as amHangs,
+  kept as amKept,
+  remember as amRemember,
+} from '../lib/agent-memory/memory';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -2254,6 +2265,35 @@ const SWITCH_OG: Record<string, () => Switch> = {
   'multi-agent-07-workbench': () => maAt(MA_REPORT, maSet(3, { check: true, timeout: true }), true, { slip: true }),
 };
 const switchOg = SWITCH_OG[page.og]?.();
+// module 63: the cork board, each chapter at its reveal, unzoomed. The intro: the month with the deals page's cards lit;
+// 1: Ada's chat sorted; 2: day 10, three sources traced; 3: the newer card won and the web card rejected; 4: Cara
+// forgotten at month end; 5: day 19, the page gone and its cards still up; 6: day 26 with the page pulled; 7: the good
+// rules with both planted sources undone; the recap: the month with the page pulled.
+const amTaught = (day: number) =>
+  amRemember(AM_GOOD, { upTo: day })
+    .board.filter(b => amHangs(amCard(b.id), 'web-deals'))
+    .map(b => b.id);
+const CORK_OG: Record<string, () => Cork> = {
+  'agent-memory': () => amCork(amRemember(AM_GOOD), { lit: ['web-deals', ...amTaught(AM_END)] }),
+  'agent-memory-recap': () => amCork(amRemember(AM_GOOD, { undone: ['web-deals'] })),
+  'agent-memory-01-what-to-keep': () => amChat('sorted', amKept('lasting')),
+  'agent-memory-02-where-it-came-from': () =>
+    amCork(amRemember(AM_GOOD, { upTo: 10 }), { upTo: 10, lit: ['orders', 'ben-quay', 'cara-oak'] }),
+  'agent-memory-03-old-and-new': () => amConflict({ added: true, web: true, settled: true }),
+  'agent-memory-04-forgetting': () =>
+    amCork(amRemember(AM_GOOD, { upTo: 17, today: AM_END, forgot: ['cara'] }), {
+      upTo: 17,
+      hold: amRemember(AM_GOOD, { upTo: 17 }).board.map(b => b.id),
+      notes: { 'cara-away': amCard('cara-away').label },
+    }),
+  'agent-memory-05-poisoned-note': () =>
+    amCork(amRemember(AM_GOOD, { upTo: 19 }), { upTo: 19, lit: ['web-deals', ...amTaught(19)], gone: ['web-deals'] }),
+  'agent-memory-06-undo-the-source': () =>
+    amCork(amRemember(AM_GOOD, { upTo: 26, undone: ['web-deals'] }), { upTo: 26 }),
+  'agent-memory-07-workbench': () =>
+    amCork(amRemember(AM_GOOD, { undone: ['web-deals', 'chat-dan'] }), { noise: true }),
+};
+const corkOg = CORK_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -2345,6 +2385,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : carouselOg ? <IsoStage board={CAROUSEL_BOARD} scene={carouselScene(carouselOg, carouselOg, 1, { zoomT: 0 }).still} label="" />
           : tollOg ? <IsoStage board={TOLL_BOARD} scene={ctx => tollStill(tollOg, { zoomT: 0 })(ctx) + tollPills(tollOg, { zoomT: 0 })} label="" />
           : switchOg ? <IsoStage board={SWITCH_BOARD} scene={switchStill(switchOg)} label="" />
+          : corkOg ? <IsoStage board={CORK_BOARD} scene={corkStill(corkOg)} label="" />
           : dreamOg ? <IsoStage board={dreamBoard(dreamOg)} scene={dreamScene({ ...dreamOg, scale: 1.3 })} label="" />
           : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
           : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />

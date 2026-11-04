@@ -62,6 +62,7 @@ import { BEFORE_GENAI_MODULE } from '../content/before-genai/module';
 import { SKILLS_MODULE } from '../content/skills/module';
 import { ACTION_APPROVALS_MODULE } from '../content/action-approvals/module';
 import { MULTI_AGENT_MODULE } from '../content/multi-agent/module';
+import { AGENT_MEMORY_MODULE } from '../content/agent-memory/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -184,12 +185,7 @@ export const MODULES: Module[] = [
   SKILLS_MODULE,
   ACTION_APPROVALS_MODULE,
   MULTI_AGENT_MODULE,
-  planned(
-    'agent-memory',
-    'Memory you can trust',
-    'Advanced',
-    'What an assistant should keep and forget, where each memory came from, and undoing a poisoned one.',
-  ),
+  AGENT_MEMORY_MODULE,
   planned(
     'tools-in-production',
     'Tools and MCP in production',

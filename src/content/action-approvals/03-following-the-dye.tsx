@@ -194,6 +194,10 @@ export default function FollowingTheDye() {
                 <a href="/guardrails/04-the-trifecta/">Guardrails’ “The lethal trifecta”</a> shows the three legs
                 together; the dye shows which actions stand on them.
               </p>
+              <p className="note">
+                Memory can be traced by source too, and undone by it:{' '}
+                <a href="/agent-memory/06-undo-the-source/">Memory you can trust</a>.
+              </p>
               <ToyNote>This task is a hand-written example run.</ToyNote>
             </>
           ) : null,

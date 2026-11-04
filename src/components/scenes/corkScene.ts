@@ -7,7 +7,7 @@
 // only in pills; every string reaching SVG goes through esc().
 import { type Board, type SceneCtx, stageFrame } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, sayAt, sayFits } from '../../lib/iso/blocks';
-import { modelMachine, person } from '../../lib/iso/figures';
+import { drawPieces, mini, modelMachine, person } from '../../lib/iso/figures';
 import {
   CERAMIC,
   DARK,
@@ -451,7 +451,9 @@ export function corkPills(s: Cork, v: SceneView, moving = false) {
   }
   // a fallen card that keeps its name in the bin (what fell, or why), to the bin's left
   const noted = s.cards.filter(c => c.at === 'bin' && c.note).at(-1);
-  if (noted && k('bin')) out.push(pill(add(cardPose(noted, s).c, [0, 0, 1]), -26, noted.note!, true, k('bin'), -30));
+  // on phones the larger pill sits right of the bin's centre, clear of a lit card's pill to the left
+  if (noted && k('bin'))
+    out.push(pill(add(cardPose(noted, s).c, [0, 0, 1]), -26, noted.note!, true, k('bin'), phone ? 14 : -30));
   const inBin = s.cards.filter(c => c.at === 'bin').length;
   on2(
     'bin',
@@ -618,4 +620,30 @@ export function corkLabel(s: Cork): string {
     (lit.length ? ` Lit: ${lit.join(', ')}.` : '') +
     (s.tray ? ` ${s.cards.filter(c => c.at === 'tray').length} candidate cards wait on the side table.` : '')
   );
+}
+
+/** The home hero's stand plot: the cork board on its easel, two papers and a few cards threaded to them, set down small. */
+const PLOT: Cork = {
+  sources: [
+    { id: 'a', short: '', paper: 'staff', at: 'board', col: 1 },
+    { id: 'b', short: '', paper: 'customer', at: 'board', col: 3, tone: 'cara' },
+    { id: 'c', short: '', paper: 'web', at: 'board', col: 5 },
+  ],
+  cards: [
+    { id: 'a1', label: '', tone: 'store', from: 'a', at: 'board', slot: 0 },
+    { id: 'a2', label: '', tone: 'store', from: 'a1', at: 'board', slot: 1 },
+    { id: 'b1', label: '', tone: 'cara', from: 'b', at: 'board', slot: 2 },
+    { id: 'c1', label: '', tone: 'web', from: 'c', at: 'board', slot: 3 },
+  ],
+};
+export function corkPlot(x: number, y: number, top: SceneCtx['top']): string {
+  const item = {
+    box: [
+      [BX - 14, Y0 - 3, BH],
+      [BX + 18, Y1 + 3, Z1 + 3],
+    ],
+    svg: easelArt(pinned(PLOT, rest(PLOT), new Set())),
+  };
+  const shadow = castShadow(boxCorners(BX - 14, Y0 + 8, BH, BX + 18, Y1 - 8, BH + 4), BH, top);
+  return drawPieces([mini({ shadow, items: [item] }, [BX, (Y0 + Y1) / 2, BH], [x, y, BH], 0.24)]);
 }
