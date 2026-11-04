@@ -1,0 +1,67 @@
+{
+  "accessed": "2026-11-03",
+  "facts": [
+    {
+      "id": "approval-fatigue",
+      "claim": "Anthropic (October 20, 2025): constantly clicking “approve” can lead to approval fatigue, where people stop paying close attention to what they approve.",
+      "source": "https://www.anthropic.com/engineering/claude-code-sandboxing"
+    },
+    {
+      "id": "prompt-cut",
+      "claim": "Anthropic reported in October 2025 that, in its own internal use, sandboxing Claude Code safely cut permission prompts by 84% (vendor-reported).",
+      "value": "84",
+      "source": "https://www.anthropic.com/engineering/claude-code-sandboxing"
+    },
+    {
+      "id": "click-ok",
+      "claim": "Simon Willison (April 2023): gating an assistant’s actions on human approval won’t work well, because people learn to click OK to everything as fast as possible.",
+      "source": "https://simonwillison.net/2023/Apr/25/dual-llm-pattern/"
+    },
+    {
+      "id": "indirect",
+      "claim": "OWASP’s Top 10 for LLM Applications 2025: an indirect prompt injection reaches the model through input from outside sources, such as websites or files.",
+      "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/"
+    },
+    {
+      "id": "any-instructions",
+      "claim": "Simon Willison (June 2025): language models happily follow any instructions that reach them, whether or not they came from their operator.",
+      "source": "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+    },
+    {
+      "id": "trifecta",
+      "claim": "Willison’s lethal trifecta (June 2025): private data, exposure to untrusted content, and a way to communicate outside. The only safe course is never to combine all three.",
+      "source": "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+    },
+    {
+      "id": "spend-total",
+      "claim": "Stripe’s card spending controls limit the total spent over an interval of time, such as a day or a month, not only each payment on its own.",
+      "source": "https://docs.stripe.com/issuing/controls/spending-controls"
+    },
+    {
+      "id": "approval-lasts",
+      "claim": "Claude Code’s permissions docs: a “don’t ask again” yes for editing files lasts until the session ends; one for a shell command lasts permanently, per repository and command.",
+      "source": "https://code.claude.com/docs/en/permissions"
+    },
+    {
+      "id": "human-loop",
+      "claim": "OWASP’s mitigations for prompt injection include human-in-the-loop controls for privileged operations, and clearly marking untrusted outside content.",
+      "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/"
+    },
+    {
+      "id": "dual-llm",
+      "claim": "Willison’s dual-model pattern (April 2023): a privileged model takes input only from trusted sources and acts; a quarantined model reads untrusted content and has no tools.",
+      "source": "https://simonwillison.net/2023/Apr/25/dual-llm-pattern/"
+    },
+    {
+      "id": "camel",
+      "claim": "Debenedetti et al. (CaMeL, 2025) take the steps of a task from the trusted request alone, so untrusted data the model reads can never change what the program does.",
+      "source": "https://arxiv.org/abs/2503.18813"
+    },
+    {
+      "id": "camel-cost",
+      "claim": "In the CaMeL paper (2025), the design solved 77% of AgentDojo’s tasks with provable security, against 84% for the same system with no defence.",
+      "value": "77",
+      "source": "https://arxiv.org/abs/2503.18813"
+    }
+  ]
+}

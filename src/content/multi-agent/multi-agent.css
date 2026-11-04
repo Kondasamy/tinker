@@ -1,0 +1,70 @@
+/* Multi-agent stage: shares the tool-calling frame (.tc-stage, .tc-frame, .tc-caption); the twin controls sit under
+   the picture. Lamps on hold blink at each other, one half a beat behind; with reduced motion they hold steady. */
+.ma-twin {
+  min-height: 72px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: stretch;
+}
+.ma-twin button {
+  min-height: 44px;
+}
+.ma-twin [role="combobox"] {
+  min-height: 44px;
+}
+.ma-field {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 12px;
+  border: 1.5px solid var(--rule);
+  border-radius: 12px;
+  padding: 2px 12px 4px;
+  margin: 0;
+}
+.ma-field legend {
+  font-weight: 700;
+  font-size: 13px;
+  padding: 0 4px;
+}
+.ma-field label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  min-height: 44px;
+}
+.ma-status {
+  margin: 0;
+  min-height: 2.8em;
+}
+.ma-none {
+  margin: 0;
+  padding: 16px;
+  color: var(--muted);
+}
+.ma-score {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+.ma-blink {
+  animation: ma-blink 0.9s steps(1, end) infinite;
+}
+.ma-late {
+  animation-delay: 0.45s;
+}
+@keyframes ma-blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ma-blink {
+    animation: none;
+  }
+}

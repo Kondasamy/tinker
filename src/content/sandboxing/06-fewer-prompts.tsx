@@ -180,6 +180,10 @@ export default function FewerPromptsChapter() {
               The same allow-list and ask-first rules for a coding agent:{' '}
               <a href="/coding-agents/06-what-it-may-run/">Coding agents</a>.
             </p>
+            <p className="note in-note">
+              Why a person who approves everything stops reading:{' '}
+              <a href="/action-approvals/01-the-approve-button/">Approvals and permissions</a>.
+            </p>
           </>
         ),
         quiz: ({ state, apply, sync }) => (

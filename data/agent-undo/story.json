@@ -1,0 +1,44 @@
+{
+  "label": "hand-written example run",
+  "return": {
+    "order": "LS-4471",
+    "customer": "Ana Ruiz",
+    "item": "cordless drill",
+    "amount": 89,
+    "courier": "QuickPost"
+  },
+  "steps": [
+    { "id": "stock", "name": "Stock", "short": "STOCK", "does": "Put the drill back on the shelf", "opposite": "Take the drill off the shelf again" },
+    { "id": "refund", "name": "Refund", "short": "REFUND", "does": "Refund $89 to Ana’s card", "opposite": "Charge the $89 back" },
+    { "id": "email", "name": "Post box", "short": "POST", "does": "Email Ana: refund sent, pickup booked", "opposite": null, "followUp": "Send Ana a second letter: the return is on hold" },
+    { "id": "courier", "name": "Courier", "short": "COURIER", "does": "Book QuickPost to collect the drill", "opposite": "Cancel the pickup" }
+  ],
+  "refundOpposites": [
+    { "id": "charge-back", "label": "Charge the $89 back", "ok": true, "why": "Right: it cancels what the refund meant, money back where it was." },
+    { "id": "refund-again", "label": "Refund $89 again", "ok": false, "why": "That repeats the step: Ana would be paid twice." },
+    { "id": "delete-row", "label": "Delete the refund from the log", "ok": false, "why": "The money has left: wiping the record hides it, it doesn’t bring it back." }
+  ],
+  "failure": "QuickPost answered: no pickup slots this week.",
+  "injections": [
+    { "id": "f1", "at": "courier", "kind": "fail", "note": "QuickPost has no pickup slots this week." },
+    { "id": "f2", "at": "courier", "kind": "fail", "note": "QuickPost rejects the address: no house number." },
+    { "id": "f3", "at": "courier", "kind": "fail", "note": "QuickPost is down for upkeep." },
+    { "id": "f4", "at": "courier", "kind": "fail", "note": "The drill is too long for a QuickPost parcel." },
+    { "id": "f5", "at": "courier", "kind": "fail", "note": "QuickPost won’t collect from that island." },
+    { "id": "f6", "at": "refund", "kind": "fail", "note": "The bank declines: the card has expired." },
+    { "id": "f7", "at": "stock", "kind": "fail", "note": "The stock system is locked for the monthly count." },
+    { "id": "f8", "at": "email", "kind": "fail", "note": "The mail server refuses Ana’s address." },
+    { "id": "t1", "at": "refund", "kind": "timeout", "note": "The bank took the refund; its answer never arrived." },
+    { "id": "t2", "at": "refund", "kind": "timeout", "note": "The refund call ran past its time limit after the bank paid." },
+    { "id": "t3", "at": "courier", "kind": "timeout", "note": "QuickPost booked the pickup; the reply was lost." },
+    { "id": "t4", "at": "courier", "kind": "timeout", "note": "QuickPost was slow to answer a booking it had made." },
+    { "id": "t5", "at": "email", "kind": "timeout", "note": "The mail server sent the email, then timed out." },
+    { "id": "t6", "at": "stock", "kind": "timeout", "note": "The stock count went up; the answer came too late." },
+    { "id": "c1", "at": "stock", "kind": "crash", "note": "The assistant restarts after restocking." },
+    { "id": "c2", "at": "refund", "kind": "crash", "note": "The assistant restarts after the refund." },
+    { "id": "c3", "at": "refund", "kind": "crash", "note": "A deploy restarts the assistant after the refund." },
+    { "id": "c4", "at": "email", "kind": "crash", "note": "The assistant restarts after the email." },
+    { "id": "c5", "at": "email", "kind": "crash", "note": "The machine reboots after the email." },
+    { "id": "c6", "at": "courier", "kind": "crash", "note": "The assistant restarts after the booking, before it could say done." }
+  ]
+}

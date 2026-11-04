@@ -371,6 +371,9 @@ export default function Mcp() {
               <Fact id="mcp-jsonrpc" />
               <Fact id="mcp-auth" />
               <Fact id="mcp-version" />
+              <p className="note">
+                When you run many servers: <a href="/tools-in-production/">Tools and MCP in production</a>.
+              </p>
             </>
           ),
         },

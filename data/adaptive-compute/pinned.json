@@ -1,0 +1,64 @@
+{
+  "note": "Every effect the chapters teach, re-derived from the engine in tests/unit/adaptive-compute.test.ts.",
+  "helps": {
+    "straight": [],
+    "think": ["puzzle"],
+    "lookup": ["stock"],
+    "check": ["total"],
+    "big": ["warranty"],
+    "all": ["puzzle", "stock", "total", "warranty"]
+  },
+  "days": {
+    "max": { "rules": "all", "answered": 8, "right": 8, "spent": 104, "dry": true },
+    "plain": { "rules": "straight", "answered": 40, "right": 14, "spent": 40, "dry": false }
+  },
+  "steps": [
+    {
+      "what": "ch2: stock to Think longer",
+      "rules": { "everyday": "straight", "puzzle": "straight", "stock": "think", "total": "straight", "warranty": "straight" },
+      "right": 14,
+      "spent": 64
+    },
+    {
+      "what": "ch2: puzzles to Think longer",
+      "rules": { "everyday": "straight", "puzzle": "think", "stock": "think", "total": "straight", "warranty": "straight" },
+      "right": 22,
+      "spent": 88
+    },
+    {
+      "what": "ch3: stock to Look it up",
+      "rules": { "everyday": "straight", "puzzle": "think", "stock": "lookup", "total": "straight", "warranty": "straight" },
+      "right": 30,
+      "spent": 72
+    },
+    {
+      "what": "ch4: totals to Check the work",
+      "rules": { "everyday": "straight", "puzzle": "think", "stock": "lookup", "total": "check", "warranty": "straight" },
+      "right": 36,
+      "spent": 78
+    },
+    {
+      "what": "ch4: everyday to Check the work too",
+      "rules": { "everyday": "check", "puzzle": "think", "stock": "lookup", "total": "check", "warranty": "straight" },
+      "right": 36,
+      "spent": 92
+    },
+    {
+      "what": "ch5: warranty to Think longer",
+      "rules": { "everyday": "straight", "puzzle": "think", "stock": "lookup", "total": "check", "warranty": "think" },
+      "right": 36,
+      "spent": 90
+    },
+    {
+      "what": "ch5: warranty to Bigger model",
+      "rules": { "everyday": "straight", "puzzle": "think", "stock": "lookup", "total": "check", "warranty": "big" },
+      "right": 40,
+      "spent": 106
+    }
+  ],
+  "unlimited": {
+    "max": { "right": 40, "spent": 520 },
+    "routed": { "right": 40, "spent": 106 }
+  },
+  "winners": [{ "everyday": "straight", "puzzle": "think", "stock": "lookup", "total": "check", "warranty": "big" }]
+}

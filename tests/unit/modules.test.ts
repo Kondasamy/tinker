@@ -970,6 +970,120 @@ describe('module registry', () => {
     expect(live.indexOf('robots')).toBeGreaterThan(live.indexOf('parallel-training'));
   });
 
+  it('has skills as a live Intermediate module 60, after robots', () => {
+    expect(moduleOf('skills')).toMatchObject({
+      title: 'Skills',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: ['context', 'tool-calling'],
+    });
+    expect(moduleOf('skills').track).toBeUndefined();
+    expect(moduleOf('skills').author).toEqual(moduleOf('rag').author);
+    expect(moduleNumber(moduleOf('skills'))).toBe(60);
+    const live = MODULES.filter(m => m.status === 'live').map(m => m.id);
+    expect(live.indexOf('skills')).toBe(live.indexOf('robots') + 1);
+  });
+
+  it('has action-approvals as a live Intermediate module 61, after skills', () => {
+    const m = moduleOf('action-approvals');
+    expect(m).toMatchObject({
+      title: 'Approvals and permissions',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: ['guardrails', 'sandboxing'],
+    });
+    expect(m.track).toBeUndefined();
+    expect(m.author).toEqual(moduleOf('rag').author);
+    expect(moduleNumber(m)).toBe(61);
+    const live = MODULES.filter(x => x.status === 'live').map(x => x.id);
+    expect(live.indexOf('action-approvals')).toBe(live.indexOf('skills') + 1);
+  });
+
+  it('has multi-agent as a live Advanced module 62, after action-approvals', () => {
+    const m = moduleOf('multi-agent');
+    expect(m).toMatchObject({ title: 'Multi-agent systems', level: 'Advanced', status: 'live', prereqs: ['agents'] });
+    expect(m.track).toBeUndefined();
+    expect(m.author).toEqual(moduleOf('rag').author);
+    expect(moduleNumber(m)).toBe(62);
+    const live = MODULES.filter(x => x.status === 'live').map(x => x.id);
+    expect(live.indexOf('multi-agent')).toBe(live.indexOf('action-approvals') + 1);
+  });
+
+  it('has agent-memory as a live Advanced module 63, after multi-agent', () => {
+    const m = moduleOf('agent-memory');
+    expect(m).toMatchObject({
+      title: 'Memory you can trust',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['agents', 'context'],
+    });
+    expect(m.track).toBeUndefined();
+    expect(m.author).toEqual(moduleOf('rag').author);
+    expect(moduleNumber(m)).toBe(63);
+    const live = MODULES.filter(x => x.status === 'live').map(x => x.id);
+    expect(live.indexOf('agent-memory')).toBe(live.indexOf('multi-agent') + 1);
+  });
+
+  it('has tools-in-production as a live Advanced module 64, after agent-memory', () => {
+    const m = moduleOf('tools-in-production');
+    expect(m).toMatchObject({
+      title: 'Tools and MCP in production',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['tool-calling', 'dependencies'],
+    });
+    expect(m.track).toBeUndefined();
+    expect(m.author).toEqual(moduleOf('rag').author);
+    expect(moduleNumber(m)).toBe(64);
+    const live = MODULES.filter(x => x.status === 'live').map(x => x.id);
+    expect(live.indexOf('tools-in-production')).toBe(live.indexOf('agent-memory') + 1);
+  });
+
+  it('has agent-undo as a live Advanced module 65, after tools-in-production', () => {
+    const m = moduleOf('agent-undo');
+    expect(m).toMatchObject({
+      title: 'Undo for agents',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['agents', 'queues'],
+    });
+    expect(m.track).toBeUndefined();
+    expect(m.author).toEqual(moduleOf('rag').author);
+    expect(moduleNumber(m)).toBe(65);
+    const live = MODULES.filter(x => x.status === 'live').map(x => x.id);
+    expect(live.indexOf('agent-undo')).toBe(live.indexOf('tools-in-production') + 1);
+  });
+
+  it('has causal-evals as a live Advanced module 66, after agent-undo', () => {
+    const m = moduleOf('causal-evals');
+    expect(m).toMatchObject({
+      title: 'Why did it fail?',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['evals', 'observability'],
+    });
+    expect(m.track).toBeUndefined();
+    expect(m.author).toEqual(moduleOf('rag').author);
+    expect(moduleNumber(m)).toBe(66);
+    const live = MODULES.filter(x => x.status === 'live').map(x => x.id);
+    expect(live.indexOf('causal-evals')).toBe(live.indexOf('agent-undo') + 1);
+  });
+
+  it('has adaptive-compute as a live Advanced module 67, after causal-evals', () => {
+    const m = moduleOf('adaptive-compute');
+    expect(m).toMatchObject({
+      title: 'Where the effort goes',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['reasoning', 'choosing-models'],
+    });
+    expect(m.track).toBeUndefined();
+    expect(m.author).toEqual(moduleOf('rag').author);
+    expect(moduleNumber(m)).toBe(67);
+    const live = MODULES.filter(x => x.status === 'live').map(x => x.id);
+    expect(live.indexOf('adaptive-compute')).toBe(live.indexOf('causal-evals') + 1);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

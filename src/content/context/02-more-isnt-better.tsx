@@ -244,6 +244,10 @@ export default function MoreIsntBetter() {
             <Fact id="lost-in-the-middle" />
             <Fact id="chroma-distractors" />
             <Fact id="chroma-rot" />
+            <p className="note">
+              When one agent’s window can’t hold the whole job:{' '}
+              <a href="/multi-agent/01-one-desk/">Multi-agent systems</a>.
+            </p>
             <ToyNote>
               Its answers were written to follow these findings, not measured: real models miss more gradually, and not
               on every try.

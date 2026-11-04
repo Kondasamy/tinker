@@ -1,0 +1,22 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import OneSetting from '../../content/adaptive-compute/01-one-setting';
+import ThinkLonger from '../../content/adaptive-compute/02-think-longer';
+import LookItUp from '../../content/adaptive-compute/03-look-it-up';
+import CheckTheWork from '../../content/adaptive-compute/04-check-the-work';
+import BiggerModel from '../../content/adaptive-compute/05-bigger-model';
+import PerRequest from '../../content/adaptive-compute/06-per-request';
+import Workbench from '../../content/adaptive-compute/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('adaptive-compute').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="adaptive-compute" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-one-setting' ? <OneSetting client:load /> : chapter === '02-think-longer' ? <ThinkLonger client:load /> : chapter === '03-look-it-up' ? <LookItUp client:load /> : chapter === '04-check-the-work' ? <CheckTheWork client:load /> : chapter === '05-bigger-model' ? <BiggerModel client:load /> : chapter === '06-per-request' ? <PerRequest client:load /> : <Workbench client:load />}
+</ChapterLayout>

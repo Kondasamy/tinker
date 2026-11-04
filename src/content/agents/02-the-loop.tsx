@@ -181,6 +181,9 @@ export default function TheLoop() {
             <Fact id="stopping-conditions" />
             <p className="note">{`Larkspur’s step budget of ${BUDGET} turns is its own choice: the guide names the kind of rule, not a number.`}</p>
             <ToyNote />
+            <p className="note">
+              When a step fails halfway: <a href="/agent-undo/">Undo for agents</a>.
+            </p>
           </>
         ),
         // the button never says how many turns are left: that is what the reader predicts

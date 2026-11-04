@@ -59,6 +59,14 @@ import { ON_DEVICE_MODULE } from '../content/on-device/module';
 import { ROUTES_MODULE } from '../content/routes/module';
 import { ROBOTS_MODULE } from '../content/robots/module';
 import { BEFORE_GENAI_MODULE } from '../content/before-genai/module';
+import { SKILLS_MODULE } from '../content/skills/module';
+import { ACTION_APPROVALS_MODULE } from '../content/action-approvals/module';
+import { MULTI_AGENT_MODULE } from '../content/multi-agent/module';
+import { AGENT_MEMORY_MODULE } from '../content/agent-memory/module';
+import { TOOLS_IN_PRODUCTION_MODULE } from '../content/tools-in-production/module';
+import { AGENT_UNDO_MODULE } from '../content/agent-undo/module';
+import { CAUSAL_EVALS_MODULE } from '../content/causal-evals/module';
+import { ADAPTIVE_COMPUTE_MODULE } from '../content/adaptive-compute/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -178,54 +186,14 @@ export const MODULES: Module[] = [
   ON_DEVICE_MODULE,
   ROUTES_MODULE,
   ROBOTS_MODULE,
-  planned(
-    'skills',
-    'Skills',
-    'Intermediate',
-    'Know-how packed as files the assistant opens only when a task needs it, instead of one long prompt.',
-  ),
-  planned(
-    'action-approvals',
-    'Approvals and permissions',
-    'Intermediate',
-    'Harmless steps that add up to harm, approvals that expire, and keeping text the agent read from approving what it does.',
-  ),
-  planned(
-    'multi-agent',
-    'Multi-agent systems',
-    'Advanced',
-    'When one agent beats five: handing work between agents, agreed message shapes, deadlocks and how far to trust a helper.',
-  ),
-  planned(
-    'agent-memory',
-    'Memory you can trust',
-    'Advanced',
-    'What an assistant should keep and forget, where each memory came from, and undoing a poisoned one.',
-  ),
-  planned(
-    'tools-in-production',
-    'Tools and MCP in production',
-    'Advanced',
-    'Loading tools only when needed, tools that change under you, signed tool lists, logins and risky third-party servers.',
-  ),
-  planned(
-    'agent-undo',
-    'Undo for agents',
-    'Advanced',
-    'When step four fails after three went through: save points, undoing the earlier steps, and side effects that happen once.',
-  ),
-  planned(
-    'causal-evals',
-    'Why did it fail?',
-    'Advanced',
-    'Replay a run with one thing changed, break parts on purpose, and find the step that really caused a failure.',
-  ),
-  planned(
-    'adaptive-compute',
-    'Where the effort goes',
-    'Advanced',
-    'Deciding per request whether the next effort goes to thinking longer, looking something up, checking, or a bigger model.',
-  ),
+  SKILLS_MODULE,
+  ACTION_APPROVALS_MODULE,
+  MULTI_AGENT_MODULE,
+  AGENT_MEMORY_MODULE,
+  TOOLS_IN_PRODUCTION_MODULE,
+  AGENT_UNDO_MODULE,
+  CAUSAL_EVALS_MODULE,
+  ADAPTIVE_COMPUTE_MODULE,
   planned(
     'agent-incidents',
     'When agents fail',

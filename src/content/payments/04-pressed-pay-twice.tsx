@@ -163,7 +163,8 @@ export default function PressedPayTwice() {
             <p className="note pm-note">
               Doing a change exactly once across copies comes back in{' '}
               <a href="/consistency/">Replication &amp; consistency</a>, and a background job that runs twice in{' '}
-              <a href="/queues/05-ran-twice/">Queues</a>.
+              <a href="/queues/05-ran-twice/">Queues</a>. An agent retrying a step uses the same key in{' '}
+              <a href="/agent-undo/06-only-once/">Undo for agents</a>.
             </p>
           </>
         ),

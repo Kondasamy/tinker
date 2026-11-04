@@ -1,0 +1,84 @@
+{
+  "label": "A hand-written example day: 40 questions to Larkspur’s assistant, with hand-set outcomes and toy costs, not a real run.",
+  "costs": { "straight": 1, "think": 4, "lookup": 2, "check": 2, "big": 8, "all": 13 },
+  "budget": 110,
+  "kinds": [
+    {
+      "id": "everyday",
+      "name": "Everyday",
+      "short": "EVERYDAY",
+      "about": "Questions the handbook in the assistant’s prompt already answers.",
+      "right": ["straight", "think", "lookup", "check", "big", "all"]
+    },
+    {
+      "id": "puzzle",
+      "name": "Puzzles",
+      "short": "PUZZLES",
+      "about": "Several steps of working out, like how many boards fill three walls.",
+      "right": ["think", "all"]
+    },
+    {
+      "id": "stock",
+      "name": "Stock",
+      "short": "STOCK",
+      "about": "Today’s stock and prices, which the model can’t know without looking.",
+      "right": ["lookup", "all"]
+    },
+    {
+      "id": "total",
+      "name": "Totals",
+      "short": "TOTALS",
+      "about": "Order totals, where one slip in the sums gives a wrong bill.",
+      "right": ["check", "all"]
+    },
+    {
+      "id": "warranty",
+      "name": "Warranty",
+      "short": "WARRANTY",
+      "about": "Hard reading: long warranty terms with exceptions inside exceptions.",
+      "right": ["big", "all"]
+    }
+  ],
+  "requests": [
+    { "id": "r01", "kind": "everyday", "text": "What time does the Quay Street shop open on Sunday?" },
+    { "id": "r02", "kind": "puzzle", "text": "Shelf boards are 90 cm. How many fill three walls of 2.4 m, two shelves high?" },
+    { "id": "r03", "kind": "stock", "text": "Is the 18 V drill in stock at Quay Street today?" },
+    { "id": "r04", "kind": "everyday", "text": "Do you deliver on Saturdays?" },
+    { "id": "r05", "kind": "total", "text": "What do 12 hinges at £3.40 and 3 handles at £7.15 come to?" },
+    { "id": "r06", "kind": "everyday", "text": "Can I return paint once the tin is open?" },
+    { "id": "r07", "kind": "stock", "text": "What does the oak decking cost per metre this week?" },
+    { "id": "r08", "kind": "puzzle", "text": "A 5 litre tin covers 60 m². How many tins for a 4 × 5 m room, walls only, 2.5 m high, two coats?" },
+    { "id": "r09", "kind": "everyday", "text": "Do you cut keys while I wait?" },
+    { "id": "r10", "kind": "warranty", "text": "My mower’s motor burnt out after a power cut. Does the warranty cover it?" },
+    { "id": "r11", "kind": "stock", "text": "When will the cordless sanders be back in stock?" },
+    { "id": "r12", "kind": "everyday", "text": "Is there parking at the Mill Lane shop?" },
+    { "id": "r13", "kind": "total", "text": "I bought 40 screws at 9p, a saw at £14.99 and two clamps at £6.50. What’s my total?" },
+    { "id": "r14", "kind": "puzzle", "text": "Which is cheaper per tile: a box of 12 at £18 or a box of 20 at £28?" },
+    { "id": "r15", "kind": "everyday", "text": "Do you sell gift cards?" },
+    { "id": "r16", "kind": "stock", "text": "How many 2.4 m pine battens does the Quay Street shop have?" },
+    { "id": "r17", "kind": "everyday", "text": "How long do refunds take to reach my card?" },
+    { "id": "r18", "kind": "warranty", "text": "The drill’s battery swelled after I left it charging. Am I covered?" },
+    { "id": "r19", "kind": "puzzle", "text": "I need fence posts every 1.8 m along a 16 m fence. How many posts?" },
+    { "id": "r20", "kind": "total", "text": "With 15% off, what do four tins of paint at £22 come to?" },
+    { "id": "r21", "kind": "everyday", "text": "Can I order online and collect in store?" },
+    { "id": "r22", "kind": "stock", "text": "Is the red garden hose on offer right now?" },
+    { "id": "r23", "kind": "puzzle", "text": "How many 25 kg bags of concrete for 3 post holes, each 30 × 30 × 60 cm?" },
+    { "id": "r24", "kind": "everyday", "text": "Do you have a trade discount?" },
+    { "id": "r25", "kind": "total", "text": "Delivery is £6 under £50. What do I pay for a £44 ladder and £5 of bolts?" },
+    { "id": "r26", "kind": "stock", "text": "Which shop has the most wall tiles in white right now?" },
+    { "id": "r27", "kind": "everyday", "text": "What’s your phone number for complaints?" },
+    { "id": "r28", "kind": "warranty", "text": "I bought the saw for my business. Does the home warranty still apply?" },
+    { "id": "r29", "kind": "puzzle", "text": "Two 1.2 m shelves hold 30 kg each; brackets take 20 kg. How many brackets per shelf?" },
+    { "id": "r30", "kind": "everyday", "text": "Can I hire a carpet cleaner?" },
+    { "id": "r31", "kind": "stock", "text": "Has my special-order sink arrived at Mill Lane?" },
+    { "id": "r32", "kind": "total", "text": "Split my £86.40 order across three equal payments: how much each?" },
+    { "id": "r33", "kind": "everyday", "text": "Do you recycle old batteries?" },
+    { "id": "r34", "kind": "puzzle", "text": "My door is 76 cm wide; the frame gap is 78.5 cm. Which standard door fits?" },
+    { "id": "r35", "kind": "stock", "text": "What’s today’s price on 10 litres of white emulsion?" },
+    { "id": "r36", "kind": "everyday", "text": "Is the café at Quay Street open late on Thursdays?" },
+    { "id": "r37", "kind": "warranty", "text": "The heater was fitted by a friend, not an electrician. Is it still under warranty?" },
+    { "id": "r38", "kind": "puzzle", "text": "A roll of wallpaper is 10 m by 53 cm. How many rolls for a 3 m wall, 2.4 m high?" },
+    { "id": "r39", "kind": "total", "text": "Price-match £19.99 against a rival’s £17.50 on five lamps: how much do I save?" },
+    { "id": "r40", "kind": "everyday", "text": "Do you sell spare keys for the garden padlock?" }
+  ]
+}

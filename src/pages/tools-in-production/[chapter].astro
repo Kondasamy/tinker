@@ -1,0 +1,31 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import SixtyTools from '../../content/tools-in-production/01-sixty-tools';
+import FetchWhenNeeded from '../../content/tools-in-production/02-fetch-when-needed';
+import TheToolChanged from '../../content/tools-in-production/03-the-tool-changed';
+import AFingerprint from '../../content/tools-in-production/04-a-fingerprint';
+import HiddenInstructions from '../../content/tools-in-production/05-hidden-instructions';
+import WhoIsCalling from '../../content/tools-in-production/06-who-is-calling';
+import Workbench from '../../content/tools-in-production/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('tools-in-production').chapters.map(({ id, title }) => ({
+    params: { chapter: id },
+    props: { title },
+  }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="tools-in-production" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-sixty-tools' ? <SixtyTools client:load />
+    : chapter === '02-fetch-when-needed' ? <FetchWhenNeeded client:load />
+    : chapter === '03-the-tool-changed' ? <TheToolChanged client:load />
+    : chapter === '04-a-fingerprint' ? <AFingerprint client:load />
+    : chapter === '05-hidden-instructions' ? <HiddenInstructions client:load />
+    : chapter === '06-who-is-calling' ? <WhoIsCalling client:load />
+    : <Workbench client:load />}
+</ChapterLayout>

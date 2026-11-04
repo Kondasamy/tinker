@@ -1,0 +1,28 @@
+---
+// Dev-only: the living-scene layer on a sample (motion.ts, hits.tsx): the crate slides and its lid opens through
+// useSceneMotion, Close up eases the zoom, and the crate drags onto a pad with twin buttons beside it.
+import '../styles/tokens.css';
+import MotionFixture from './motion-fixture';
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Living scene (dev)</title>
+  </head>
+  <body>
+    <main>
+      <h1>Living scene sample</h1>
+      <MotionFixture client:load />
+    </main>
+  </body>
+</html>
+
+<style>
+  body { margin: 0; background: var(--paper); }
+  main { max-width: 720px; margin: 0 auto; padding: 24px 16px; }
+  h1 { font: 800 15px ui-monospace, Menlo, monospace; }
+  main :global(.twins) { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  main :global(.twins button) { min-height: 44px; padding: 0 14px; font: 700 15px system-ui; }
+</style>

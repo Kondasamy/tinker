@@ -238,6 +238,10 @@ export default function ReleaseDay() {
               real gate would grade several trials of each and use pass^k: ship only what passes every time.
             </p>
             <Fact id="pass-hat-k" />
+            <p className="note">
+              When one case fails, find the step that caused it:{' '}
+              <a href="/causal-evals/03-replay-one-change/">Why did it fail?</a>
+            </p>
             <SuiteNote />
           </div>
         ),

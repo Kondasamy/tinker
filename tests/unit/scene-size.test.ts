@@ -18,6 +18,27 @@ import { boardOf as crateBoard, crateScene, yardOf, type CrateOpts } from '../..
 import { DARK_BOARD, darkroomScene } from '../../src/components/scenes/darkroomScene';
 import { DEPOT_BOARD, depotAt, depotScene } from '../../src/components/scenes/depotScene';
 import { DESK_BOARD, beatsOf, deskAt, deskScene } from '../../src/components/scenes/deskScene';
+import { CAROUSEL_BOARD, carouselStill } from '../../src/components/scenes/carouselScene';
+import { SHADOW_BOARD, shadowStill } from '../../src/components/scenes/shadowScene';
+import { FUNI_BOARD, funiStill } from '../../src/components/scenes/funicularScene';
+import { ALL_UNDO, policy as undoPolicy, run as undoRun } from '../../src/lib/agent-undo/sim';
+import { funiOf } from '../../src/content/agent-undo/kit';
+import { MARBLE_BOARD, marbleStill } from '../../src/components/scenes/marbleScene';
+import { marbleOf } from '../../src/content/causal-evals/kit';
+import { BLADE, SEEDS } from '../../src/lib/causal-evals/runs';
+import { sceneOf as shadowWeek } from '../../src/content/tools-in-production/07-workbench';
+import { TOLL_BOARD, tollStill } from '../../src/components/scenes/tollScene';
+import { simulate as approvalsWeek } from '../../src/lib/action-approvals/gate';
+import { tollOf } from '../../src/content/action-approvals/kit';
+import { CORK_BOARD, corkStill } from '../../src/components/scenes/corkScene';
+import { MILL_BOARD, millStill } from '../../src/components/scenes/millScene';
+import { yardOf as millYard } from '../../src/content/adaptive-compute/kit';
+import { MAX as MAX_EFFORT } from '../../src/lib/adaptive-compute/effort';
+import { corkOf } from '../../src/content/agent-memory/kit';
+import { GOOD, remember } from '../../src/lib/agent-memory/memory';
+import { SWITCH_BOARD, switchStill } from '../../src/components/scenes/switchboardScene';
+import { switchOf } from '../../src/content/multi-agent/kit';
+import { jobOf as maJob } from '../../src/lib/multi-agent/sim';
 import { DOCKET_BOARD, docketScene } from '../../src/components/scenes/docketScene';
 import { boardOf as docketOf } from '../../src/content/prompts/kit';
 import { boardOf as dreamBoard, dreamScene, type DreamOpts } from '../../src/components/scenes/dreamFloorScene';
@@ -638,6 +659,80 @@ const SCENES: Record<string, () => string> = {
       }),
     );
   },
+  // the long prompt's buried desk: every binder open on the desk, the refund one lit, a callout on
+  carousel: () =>
+    stage(
+      CAROUSEL_BOARD,
+      carouselStill({
+        mode: 'prompt',
+        ticket: 'refund-saw',
+        open: null,
+        facing: 'refunds',
+        lit: 'refunds',
+        words: 20000,
+        say: { block: 'desk', text: 'Buried desk' },
+      }),
+    ),
+  // the opening workbench week: every van docked, every outline filled (two askew), the bench piled, a file sent
+  // the funicular after a doubled run: every flag twice-flown, two coins, two letters, signs, pegs and the key
+  funicular: () => {
+    const p = undoPolicy({ undo: ALL_UNDO, saves: true, keys: true });
+    const o = undoRun(undoPolicy({ undo: ALL_UNDO }), { at: 'email', kind: 'crash' });
+    return stage(FUNI_BOARD, funiStill({ ...funiOf(o, p), lit: 'email', say: { block: 'email', text: 'Twice' } }));
+  },
+  shadow: () => {
+    const all = 0b001_001_001_001;
+    return stage(SHADOW_BOARD, shadowStill({ ...shadowWeek(all, all), say: { block: 'board', text: 'Monday' } }));
+  },
+  // the approvals week under the strictest rules: every slip paid or stopped, passes on the counter, the dye on
+  toll: () => {
+    const p = { ask: 'all', budget: 150, expiry: 'hour' } as const;
+    return stage(
+      TOLL_BOARD,
+      tollStill(
+        tollOf(approvalsWeek(p).desk, { p, dye: true, next: ['saw-41', 'rosa-12', 'fake-88'], bad: ['fake-88'] }),
+      ),
+    );
+  },
+  // the densest cork board: a full month kept whole, 16 cards and their threads, the bin, a callout on
+  cork: () =>
+    stage(
+      CORK_BOARD,
+      corkStill({
+        ...corkOf(remember({ ...GOOD, keep: 'all' }), { lit: ['orders'] }),
+        say: { block: 'bin', text: 'Fell' },
+      }),
+    ),
+  // five helpers wired and run, a bounced plug and a caught misread on the base, every pill and a callout
+  switchboard: () =>
+    stage(
+      SWITCH_BOARD,
+      switchStill(
+        switchOf(
+          maJob('report'),
+          { helpers: 5, brief: 'detailed', check: true },
+          true,
+          { slip: true, malformed: true },
+          [1, 2, 3, 4, 5],
+          { block: 'port', text: 'Bounced' },
+        ),
+      ),
+    ),
+  // the many-runs chapter: piece 7 swapped, twenty marbles in the trays, a callout on
+  marble: () =>
+    stage(
+      MARBLE_BOARD,
+      marbleStill({
+        ...marbleOf(BLADE, { kind: 'swap', step: 6 }, 1, { seeds: SEEDS }),
+        say: { block: 'right', text: 'Luck?' },
+      }),
+    ),
+  // the busiest mill yard: every valve feeding every mill (20 hoses), the tower lit, a callout on
+  mill: () =>
+    stage(
+      MILL_BOARD,
+      millStill({ ...millYard(MAX_EFFORT, { lit: { tower: true } }), say: { block: 'tower', text: 'Draining fast' } }),
+    ),
   // the end of a least-busy run with a dead and a gray shed: every shed, the barrier
   yard: () => {
     const run = lbSim(lbPolicy({ rule: 'least', states: { cedar: 'dead', dogwood: 'gray' }, checks: 2 }));
@@ -653,6 +748,14 @@ const BASE: Record<string, number> = {
   // new with the rate-limits module (no pre-rework size): its first size is 348,099 (16 people), with a little headroom
   barrel: 120000,
   cabinet: 36056,
+  // new with the skills module (no pre-rework size): its first size is 76,033, with a little headroom
+  carousel: 26000,
+  // new with the agent-memory module (no pre-rework size): its first size is about 77,600 (16 cards and their threads), with a little headroom
+  cork: 30000,
+  // new with the multi-agent module (no pre-rework size): its first size is 186,308, with a little headroom
+  switchboard: 64000,
+  // new with the adaptive-compute module (no pre-rework size): its first size is 148,252 (every valve to every mill), with a little headroom
+  mill: 52000,
   // new with the robots module (no pre-rework size): its first size is 44,523, with a little headroom
   claw: 16000,
   cloak: 57039,
@@ -720,7 +823,15 @@ const BASE: Record<string, number> = {
   steelyard: 30000,
   // new with the watermarks module (no pre-rework size): its first size is 62,335, with a little headroom
   // new with the unicode module (no pre-rework size): its first size is 74,785, with a little headroom
+  // new with the causal-evals module (no pre-rework size): its first size is 67,217 (twenty marbles), with a little headroom
+  marble: 23000,
+  // new with the tools-in-production module (no pre-rework size): its first size is 143,937 (four vans), with a little headroom
+  // new with the agent-undo module (no pre-rework size): its first size is 72,092, with a little headroom
+  funicular: 26000,
+  shadow: 50000,
   tape: 26000,
+  // new with the approvals module (no pre-rework size): its first size is 156,240, with a little headroom
+  toll: 54000,
   uv: 25000,
   window: 26749,
   yard: 40499,

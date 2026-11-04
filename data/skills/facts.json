@@ -1,0 +1,19 @@
+{
+  "accessed": "2026-11-03",
+  "facts": [
+    { "id": "on-demand", "claim": "Anthropic's Agent Skills docs: unlike a prompt, a skill loads on demand, so you don't repeat the same guidance in every conversation.", "source": "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview" },
+    { "id": "only-relevant", "claim": "Anthropic's Agent Skills docs: loading in stages means only the content a task needs takes up the model's working memory at any given time.", "source": "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview" },
+    { "id": "label-always", "claim": "Anthropic's engineering post (October 16, 2025): at startup the agent loads only the name and description of every installed skill into its system prompt.", "source": "https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills" },
+    { "id": "label-cost", "claim": "Anthropic's Agent Skills docs: a skill's name and description are always loaded, about 100 tokens per skill; its instructions load only when it is used, under 5,000 tokens.", "value": "100", "source": "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview" },
+    { "id": "body-cost", "claim": "The Agent Skills specification recommends keeping a skill's instructions under 5,000 tokens, and its main file under 500 lines.", "value": "5000", "source": "https://agentskills.io/specification" },
+    { "id": "label-decides", "claim": "Anthropic's Agent Skills docs: the description is what Claude matches a request against when deciding whether to use a skill, so it must say what the skill does and when to use it.", "source": "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview" },
+    { "id": "poor-label", "claim": "The Agent Skills specification gives “Helps with PDFs.” as a poor description; a good one says what the skill does, when to use it, and the words a request would use.", "source": "https://agentskills.io/specification" },
+    { "id": "label-limits", "claim": "The Agent Skills specification caps a skill's name at 64 characters and its description at 1,024.", "value": "1024", "source": "https://agentskills.io/specification" },
+    { "id": "scripts-output", "claim": "Anthropic's Agent Skills docs: a skill's scripts run through bash and only their output enters the context; the script's code never does.", "source": "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview" },
+    { "id": "trusted-only", "claim": "Anthropic's Agent Skills docs: use skills only from trusted sources, because a malicious skill can direct Claude to call tools or run code in ways that don't match its stated purpose.", "source": "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview" },
+    { "id": "audit-first", "claim": "Anthropic's engineering post (October 16, 2025): when installing a skill from a less-trusted source, thoroughly audit it before use.", "source": "https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills" },
+    { "id": "pick-from-many", "claim": "Anthropic's skill-authoring guide: Claude uses the description to choose the right skill from potentially 100+ available skills, so it must be specific and include key terms.", "source": "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices" },
+    { "id": "run-not-read", "claim": "Anthropic's skill-authoring guide: for most utility scripts, running them is preferred over reading them; only the script's output uses tokens.", "source": "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices" },
+    { "id": "avoid-vague", "claim": "Anthropic's skill-authoring guide lists “Helps with documents”, “Processes data” and “Does stuff with files” as descriptions to avoid.", "source": "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices" }
+  ]
+}

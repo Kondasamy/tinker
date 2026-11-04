@@ -157,6 +157,10 @@ export default function OneBadPatch() {
         quiz: ({ state, apply, sync }) => (
           <>
             <Fact id="immutable" />
+            <p className="note dp-note">
+              Pinning works for an assistant’s tools too:{' '}
+              <a href="/tools-in-production/04-a-fingerprint/">Tools and MCP in production</a>.
+            </p>
             <RegistryNote />
             <Quiz
               {...QUIZ}

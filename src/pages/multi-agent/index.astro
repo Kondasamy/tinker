@@ -1,0 +1,217 @@
+---
+// Multi-agent systems module intro: sets the scene before chapter 1. Static, except the warm-up and a small script that
+// marks finished chapters. Every example is the module's own data: the switchboard drawn from the engine's runs
+// (sim.ts over data/multi-agent/jobs.json), the numbers from the engine and facts.json.
+import '../../styles/tokens.css';
+import '../../styles/page.css';
+import Meta from '../../components/Meta.astro';
+import IsoStage from '../../lib/iso/IsoStage';
+import Recap from '../../components/quiz/Recap';
+import ReadingMode from '../../components/intro/ReadingMode.astro';
+import ChapterCards from '../../components/intro/ChapterCards.astro';
+import { SWITCH_BOARD, switchLabel, switchStill } from '../../components/scenes/switchboardScene';
+import { switchOf } from '../../content/multi-agent/kit';
+import { fact } from '../../lib/multi-agent/facts';
+import { CATALOGUES, jobOf, ROOM, run } from '../../lib/multi-agent/sim';
+import { moduleOf, chapterHref, moduleNumber } from '../../lib/modules';
+import { introMeta } from '../../lib/pages';
+import { longDate, num } from '../../lib/format';
+
+const MODULE = moduleOf('multi-agent');
+const NUMBER = moduleNumber(MODULE);
+const CHAPTERS = MODULE.chapters;
+const REPORT = jobOf('report'),
+  RATES = jobOf('rates');
+const d = (helpers: number, more = {}) => ({ helpers, brief: 'detailed' as const, check: false, ...more });
+const ALONE = run(REPORT, d(0)),
+  THREE = run(REPORT, d(3));
+const HERO = switchOf(REPORT, d(3), true);
+const IDEAS = [
+  ['A lead and helpers', 'Each helper reads its share at its own desk', fact('own-room'), HERO],
+  [
+    'Waiting on each other',
+    'Two helpers each wait for the other, forever',
+    fact('circular-wait'),
+    switchOf(RATES, d(2), true),
+  ],
+  [
+    'Trusting a helper',
+    'A check catches the sure but wrong number',
+    fact('mast-verify'),
+    switchOf(REPORT, d(3, { check: true }), true, { slip: true }),
+  ],
+] as const;
+const FACTS: [string, string][] = [
+  [String(CATALOGUES.length), 'catalogues behind Ines’s supplier report'],
+  [String(ROOM), 'catalogues one desk holds (a toy)'],
+  [`${ALONE.minutes} → ${THREE.minutes}`, 'minutes, alone (with gaps) and with three helpers (a toy)'],
+  [`~${fact('tokens-15x').value}×`, 'tokens of a chat a multi-agent system uses, per Anthropic (vendor-reported)'],
+];
+---
+<html lang="en">
+  <head>
+    <Meta {...introMeta(MODULE.id)} />
+  </head>
+  <body>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/"><img src="/favicon.svg" alt="" width="20" height="20" /> Tinker</a> <span aria-hidden="true">/</span> <span aria-current="page">{MODULE.title}</span></nav>
+      <p class="by">by <a href={MODULE.author.url} target="_blank" rel="noopener">{MODULE.author.name}</a></p>
+    </div>
+    <main class="intro">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="kicker">Module {NUMBER} · {MODULE.title}</p>
+          <p class="module-meta"><span class="level">{MODULE.level}</span></p>
+          <h1>A lead, its helpers, and the cords between them</h1>
+          <p class="lede">Split work only where the parts don’t need to talk, and check every helper’s answer. Here you wire helper agents to Larkspur’s switchboard and watch what comes back.</p>
+          <div class="ctas">
+            <a class="btn primary" href={chapterHref(MODULE.id, CHAPTERS[0].id)} data-cta>Start chapter 1 →</a>
+            <a class="btn" href="#path">See the chapters</a>
+          </div>
+          <ReadingMode />
+        </div>
+        <div class="hero-pic">
+          <IsoStage board={SWITCH_BOARD} scene={switchStill(HERO)} label={switchLabel(HERO)} />
+        </div>
+      </header>
+
+      <section class="band" aria-labelledby="idea">
+        <p class="kicker">The whole idea in one example</p>
+        <h2 id="idea">One report, two ways</h2>
+        <div class="versus">
+          <article class="reply">
+            <header><h3>One agent</h3><span class="stamp">gaps</span></header>
+            <p class="said">{ALONE.minutes} min</p>
+            <p class="cap">{ALONE.spilled} catalogues never read; {num(ALONE.tokens)} tokens.</p>
+          </article>
+          <article class="reply read">
+            <header><h3>A lead and three helpers</h3><span class="stamp">complete</span></header>
+            <p class="said">{THREE.minutes} min</p>
+            <p class="cap">every catalogue read; {num(THREE.tokens)} tokens.</p>
+          </article>
+        </div>
+        <p class="note more">A toy office: a hand-written example run with hand-set tokens, minutes and desk room.</p>
+      </section>
+
+      <section aria-labelledby="how">
+        <p class="kicker">How it works</p>
+        <h2 id="how">Three ideas carry the module</h2>
+        <ol class="steps">
+          {IDEAS.map(([name, short, f, s], i) => (
+            <li>
+              <div class="pic"><IsoStage board={SWITCH_BOARD} scene={switchStill(s)} label={switchLabel(s)} /></div>
+              <h3><span class="n">{i + 1}</span> {name}</h3>
+              <p class="cap">{short}</p>
+              <p class="more">{f.claim}</p>
+              <p class="src more"><a href={f.source}>Source</a>, checked {longDate(f.accessed)}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="company" aria-labelledby="story">
+        <div>
+          <p class="kicker">The story</p>
+          <h2 id="story">Larkspur’s back office</h2>
+          <p class="more">{MODULE.story} <strong>You decide how many helpers to hire, what each is told, and whether the lead checks their replies.</strong></p>
+        </div>
+        <dl class="facts">
+          {FACTS.map(([n, what]) => <div><dt>{n}</dt><dd>{what}</dd></div>)}
+        </dl>
+      </section>
+
+      <section id="path" aria-labelledby="path-h">
+        <p class="kicker">Your path</p>
+        <h2 id="path-h">The chapters</h2>
+        {/* a warm-up shows here only when one is due; the home page's Continue links to #warmup */}
+        <div id="warmup"><Recap module={MODULE.id} bank={MODULE.recall ?? []} warmup client:load /></div>
+        <ChapterCards module={MODULE.id} chapters={CHAPTERS} />
+        <p class="recap-link"><a href={`/${MODULE.id}/recap/`}>Recap: questions from the chapters you’ve finished →</a></p>
+      </section>
+
+      <section class="pair">
+        <article>
+          <h2>Who it’s for</h2>
+          <ul class="who-chips"><li>Engineers</li><li>Product managers</li><li>Analysts</li><li>No code needed</li></ul>
+          <p class="more">Anyone deciding whether one agent or a team of them should do a job. The AI agents module first helps; no maths is needed.</p>
+        </article>
+      </section>
+
+      <footer class="credits">
+        <p>Part of <a href="/">Tinker</a>, visual explanations of tech concepts by <a href="https://kondasamy.com" target="_blank" rel="noopener">Samy (Kondasamy Jayaraman)</a>.</p>
+      </footer>
+    </main>
+
+    <script>
+      // finished chapters get a tick; the button continues from the first unfinished chapter
+      import { moduleOf, chapterHref } from '../../lib/modules';
+      import { completed } from '../../lib/progress';
+      const CHAPTERS = moduleOf('multi-agent').chapters;
+      const done = completed('multi-agent');
+      for (const li of document.querySelectorAll<HTMLElement>('.path [data-chapter]')) {
+        if (!done.includes(li.dataset.chapter!)) continue;
+        li.classList.add('done');
+        li.querySelector<HTMLElement>('.done-mark')!.hidden = false;
+      }
+      const next = CHAPTERS.findIndex(c => !done.includes(c.id));
+      if (done.length && next > 0) for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-cta]')) {
+        a.href = chapterHref('multi-agent', CHAPTERS[next].id);
+        a.textContent = `Continue: chapter ${next + 1} →`;
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .intro { max-width: 1100px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-direction: column; gap: 72px; font-size: 15px; line-height: 1.6; }
+  .intro h1 { margin: 6px 0 14px; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+  .intro h2 { margin: 4px 0 18px; font-size: 24px; line-height: 1.25; }
+  .intro h3 { margin: 0; font-size: 16px; }
+  .intro p { margin: 0 0 10px; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px; align-items: center; }
+  .lede { font-size: 17px; }
+  .intro .module-meta { margin: 8px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .module-meta .level { margin-right: 4px; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .band { background: var(--card); border: 1.5px solid var(--ink); border-radius: 20px; padding: 28px 32px; box-shadow: 5px 5px 0 var(--ink); }
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .reply { min-width: 0; border-radius: 14px; padding: 16px 18px; border: 1.5px solid var(--ink); background: var(--paper); }
+  .reply header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .reply.read { border-left: 6px solid var(--acc); }
+  .said { font-size: 28px; font-weight: 900; }
+
+  .stamp { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 6px; padding: 1px 8px; transform: rotate(-3deg); white-space: nowrap; }
+  .note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .steps li { padding: 18px; border: 1.5px solid var(--rule); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .steps h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .steps p { font-size: 14px; margin: 0; }
+  .steps .pic { height: 220px; display: flex; justify-content: center; margin-bottom: 4px; }
+  .steps .pic :global(svg) { width: auto !important; height: 100% !important; max-width: 100%; }
+  .steps .src { margin-top: auto; font-size: 12.5px; color: var(--muted); }
+
+  .company { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+  .facts div { border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; background: var(--card); }
+  .facts dt { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .facts dd { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .recap-link { margin: 16px 0 0; font-weight: 800; }
+  #warmup { scroll-margin-top: 16px; }
+
+  .pair { display: grid; gap: 24px; }
+  .pair article { border: 1.5px solid var(--rule); border-radius: 16px; padding: 20px 22px; }
+  .pair h2 { font-size: 18px; margin-bottom: 10px; }
+
+  @media (max-width: 860px) {
+    .intro { padding: 16px 16px 48px; gap: 48px; }
+    .intro h1 { font-size: 27px; }
+    .hero, .versus, .company, .pair { grid-template-columns: 1fr; }
+    .band { padding: 20px 18px; }
+    .steps { grid-template-columns: 1fr; }
+    .steps .pic { height: 200px; }
+  }
+</style>

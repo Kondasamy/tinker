@@ -1,0 +1,36 @@
+{
+  "halfway": {
+    "harm": 2
+  },
+  "letter": {
+    "harm": 1
+  },
+  "workbench": {
+    "opening": {
+      "clean": 1,
+      "harm": 17
+    },
+    "best": {
+      "clean": 20,
+      "harm": 0
+    },
+    "winners": [
+      123,
+      127,
+      315,
+      319,
+      507,
+      511,
+      699,
+      703,
+      1211,
+      1215,
+      1339,
+      1343
+    ],
+    "storyAllOn": {
+      "clean": 20,
+      "harm": 5
+    }
+  }
+}

@@ -76,6 +76,36 @@ Each module has a **recall bank** (`src/content/<module>/recall.ts`): three to f
 - **Check at 390px wide.** Phones stack the picture above the story; pills are larger there.
 - **Reduced motion:** show final states at once; motion is never the only way to see what happened.
 
+### Living scenes
+
+A living scene moves between states, takes drags in the picture and closes in at a reveal. The shared layer is `src/lib/iso/motion.ts` and `src/lib/iso/hits.tsx`; Skills' `SkillsStage` (`src/content/skills/kit.tsx`) and `src/dev/motion-fixture.tsx` are the references.
+
+- **The scene** is pure: `scene(prev, state, t, view) → { still, moving }`. `still` is the filtered, hand-drawn layer; `moving` holds only the pieces in flight and is empty at `t = 1`, where the scene must equal its still. Draw pills with `pillScale(part, view)` and callouts through `calloutOf(say, view)`: both hide what a close-up shouldn't show.
+- **One hook per stage**, `useLivingStage`:
+
+  ```tsx
+  const stage = useLivingStage({
+    scene: carouselScene,           // the Scene above
+    state: { ...scene, say },       // only what changes the picture; compared by JSON key, not identity
+    moves: carouselMoves,           // (prev, next) => boolean; false lands at once (a pill-only change)
+    ms: MOTION_MS,
+    board: BOARD,
+    closeUp: view === 'scene' ? closeUp : undefined, // the step's parts, picture tab only
+    partBox: (part, s) => footprint(part, s),        // 3-D points the close-up frames
+    phone,
+    lift: (s, v) => ({ still: stillWithout(s, v), piece: pieceSvg() }), // the dragged piece, at rest
+  });
+  <IsoStage board={BOARD} scene={stage.still} moving={stage.moving} zoom={stage.zoom} label={labelOf(stage.state)}>
+    <HitLayer board={BOARD} hits={HITS} busy={stage.busy} act={act} onDrag={stage.onDrag} />
+  </IsoStage>
+  ```
+
+  It also returns `prev`, `t`, `zoomT` and `view`. A new state object with the same key (a quiz pick, a prediction) neither restarts the motion nor pulls back the close-up; a real change does both.
+- **`act(part, to)` is the one way in**, called by the twin control and the picture alike: a tap is `act(part)`, a drop `act(part, target)`, a drop on no target `act(part, null)`. It writes the status line, refusals included; the piece always snaps back.
+- **Close-ups** zoom only once the motion has landed, and every target is inert (`busy`) while moving or zoomed. On phones the step runner scrolls the stage into view on a step with `closeUp`, since the stage sits above the card.
+- **Reveal pulls back.** Pressing Reveal advances the step, so a close-up on the reveal step ends at once. Whatever the reveal shows (the `Fact`, the toy note) must also be in the next step's `visibleControls`, or it vanishes the moment it appears.
+- **Depth:** the moving layer draws over the still, ignoring depth. Keep moving pieces in front of the setting (move the carousel and the desk's load together, as Skills does), or accept a piece in flight passing over something behind it.
+
 ## 7. Files a module needs
 
 `pnpm new-module <id> "<Title>"` creates them. Why each one exists:

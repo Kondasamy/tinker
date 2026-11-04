@@ -1,0 +1,14 @@
+{
+  "accessed": "2026-11-03",
+  "facts": [
+    { "id": "who-when-size", "claim": "Zhang et al. (ICML 2025) gathered 184 failed tasks from 127 multi-agent systems, each labelled with the agent and the step that caused the failure.", "value": "184", "source": "https://arxiv.org/abs/2505.00212", "accessed": "2026-11-03" },
+    { "id": "step-accuracy", "claim": "Zhang et al. (ICML 2025): the best automatic method named the agent at fault 53.5% of the time, but the step that caused the failure only 14.2%.", "value": "14.2", "source": "https://proceedings.mlr.press/v267/zhang25cq.html", "accessed": "2026-11-03" },
+    { "id": "decisive-error", "claim": "Zhang et al. (ICML 2025) call a mistake decisive if fixing it turns the failed run into a success; when several are, the earliest is the cause.", "source": "https://arxiv.org/abs/2505.00212", "accessed": "2026-11-03" },
+    { "id": "label-hours", "claim": "Labelling those failures by hand took the paper’s three people about 84 hours between them, and each was unsure on 15–30% of cases (Zhang et al., ICML 2025).", "value": "84", "source": "https://arxiv.org/abs/2505.00212", "accessed": "2026-11-03" },
+    { "id": "reasoning-models", "claim": "Zhang et al. (ICML 2025): even strong reasoning models, OpenAI o1 and DeepSeek R1 among them, were not yet good enough at finding the failing step to use in practice.", "source": "https://proceedings.mlr.press/v267/zhang25cq.html", "accessed": "2026-11-03" },
+    { "id": "chaos-definition", "claim": "Principles of Chaos Engineering (last updated March 2019): experiment on a system to build confidence it can withstand rough conditions in production.", "source": "https://principlesofchaos.org/", "accessed": "2026-11-03" },
+    { "id": "chaos-events", "claim": "Principles of Chaos Engineering: bring in real-world events, such as servers that crash, then look for a difference from the system’s normal behaviour.", "source": "https://principlesofchaos.org/", "accessed": "2026-11-03" },
+    { "id": "chaos-monkey", "claim": "Netflix’s Chaos Monkey switches off machines in production at random, so engineers meet failures often and build services that survive them.", "source": "https://github.com/Netflix/chaosmonkey", "accessed": "2026-11-03" },
+    { "id": "pass-k", "claim": "Yao et al. (τ-bench, 2024): gpt-4o succeeded on under half the tasks, and on retail tasks got all 8 tries of the same task right under 25% of the time.", "value": "25", "source": "https://arxiv.org/abs/2406.12045", "accessed": "2026-11-03" }
+  ]
+}

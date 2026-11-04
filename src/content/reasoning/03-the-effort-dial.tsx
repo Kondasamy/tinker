@@ -170,6 +170,9 @@ export default function TheEffortDial() {
               These answers were written for this site to illustrate the finding below; they were not measured.
             </p>
             <Fact id="snell" />
+            <p className="rs-note">
+              Thinking is one of four kinds of effort: <a href="/adaptive-compute/">Where the effort goes</a>.
+            </p>
           </>
         ),
         quiz: ({ state, apply, sync }) => (

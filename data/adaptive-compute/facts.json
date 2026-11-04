@@ -1,0 +1,43 @@
+{
+  "accessed": "2026-11-03",
+  "facts": [
+    {
+      "id": "effort-billed",
+      "claim": "OpenAI’s reasoning guide (vendor documentation, checked November 2026): lower effort favours speed and fewer tokens, and the hidden reasoning tokens are billed as output tokens.",
+      "source": "https://developers.openai.com/api/docs/guides/reasoning"
+    },
+    {
+      "id": "think-14x",
+      "claim": "Snell et al. (2024): on questions a smaller model can already sometimes solve, extra thinking at answer time beat a model 14 times larger, for the same compute.",
+      "value": "14",
+      "source": "https://arxiv.org/abs/2408.03314"
+    },
+    {
+      "id": "lookup-facts",
+      "claim": "Lewis et al. (2020): a model’s own store of facts is hard to reach and update, and looking passages up let it answer fact questions better and more accurately.",
+      "source": "https://arxiv.org/abs/2005.11401"
+    },
+    {
+      "id": "verifiers",
+      "claim": "Cobbe et al. (2021, OpenAI): a checker trained to judge worked maths answers, picking the best of many tries, clearly lifted scores on grade-school word problems.",
+      "source": "https://arxiv.org/abs/2110.14168"
+    },
+    {
+      "id": "hard-bigger",
+      "claim": "Snell et al. (2024): on the hardest questions, extra thinking helped very little, and a bigger, longer-trained model was the better spend.",
+      "source": "https://arxiv.org/abs/2408.03314"
+    },
+    {
+      "id": "per-prompt-4x",
+      "claim": "Snell et al. (2024): choosing the thinking strategy per question by its difficulty used about 4 times less compute than a fixed best-of-many for the same score.",
+      "value": "4",
+      "source": "https://arxiv.org/abs/2408.03314"
+    },
+    {
+      "id": "routellm-2x",
+      "claim": "Ong et al. (RouteLLM, 2024): a cheap sorter choosing a strong or a weak model per question cut costs by over 2 times in some tests, with no loss in answer quality.",
+      "value": "2",
+      "source": "https://arxiv.org/abs/2406.18665"
+    }
+  ]
+}

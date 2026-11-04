@@ -167,7 +167,15 @@ export default function Workbench() {
             </div>
           );
         },
-        fact: () => <Fact id="dynamic-effort" />,
+        fact: () => (
+          <>
+            <Fact id="dynamic-effort" />
+            <p className="note">
+              Looking up, checking or a bigger model can carry the effort too:{' '}
+              <a href="/adaptive-compute/06-per-request/">Where the effort goes</a>.
+            </p>
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

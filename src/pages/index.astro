@@ -178,6 +178,33 @@ import {
 } from '../lib/on-device/memory';
 import { levelAfter as odLevel } from '../lib/on-device/battery';
 import { CLAW_BOARD, clawLabel, clawScene } from '../components/scenes/clawScene';
+import { CAROUSEL_BOARD, carouselLabel, carouselStill } from '../components/scenes/carouselScene';
+import { carouselOf as skillsAt } from '../content/skills/kit';
+import { TOLL_BOARD, tollLabel, tollPills, tollStill } from '../components/scenes/tollScene';
+import { tollOf as approvalsAt } from '../content/action-approvals/kit';
+import { simulate as approvalsRun, WEEK as AA_WEEK, WINNERS as AA_WINNERS } from '../lib/action-approvals/gate';
+import { SWITCH_BOARD, switchLabel, switchStill } from '../components/scenes/switchboardScene';
+import { switchOf as multiAt } from '../content/multi-agent/kit';
+import { jobOf as multiJob } from '../lib/multi-agent/sim';
+import { CORK_BOARD, corkLabel, corkStill } from '../components/scenes/corkScene';
+import { corkOf as memoryAt } from '../content/agent-memory/kit';
+import {
+  cardOf as memCard,
+  GOOD as MEM_GOOD,
+  hangsFrom as memHangs,
+  remember as memRemember,
+} from '../lib/agent-memory/memory';
+import { SHADOW_BOARD, shadowLabel, shadowStill } from '../components/scenes/shadowScene';
+import { sceneOf as toolsAt } from '../content/tools-in-production/03-the-tool-changed';
+import { FUNI_BOARD, funiLabel, funiStill } from '../components/scenes/funicularScene';
+import { funiOf as undoAt } from '../content/agent-undo/kit';
+import { ALL_UNDO, COURIER_FAILS, policy as undoPolicy, run as undoRun } from '../lib/agent-undo/sim';
+import { MARBLE_BOARD, marbleLabel, marbleStill } from '../components/scenes/marbleScene';
+import { marbleOf as causalAt } from '../content/causal-evals/kit';
+import { BLADE as CE_BLADE } from '../lib/causal-evals/runs';
+import { MILL_BOARD, millLabel, millStill } from '../components/scenes/millScene';
+import { yardOf as effortAt } from '../content/adaptive-compute/kit';
+import { ROUTED as AC_ROUTED } from '../lib/adaptive-compute/effort';
 import { KIOSK_BOARD, kioskLabel, kioskScene } from '../components/scenes/kioskScene';
 import { messageOf as kioskMessage, run as kioskRun } from '../lib/before-genai/bots';
 import { DEMOS as RB_DEMOS } from '../lib/robots/story';
@@ -493,6 +520,31 @@ const PHONE_CRATE: PhoneCrateOpts = {
 // robots: Mira's first demo, the part in the tray, as the intro draws it
 const RB_RUN = rbPlay(RB_BINS[0], RB_DEMOS[0]);
 const CLAW = { layout: RB_BINS[0], state: RB_RUN.at(-1)!, trail: RB_RUN.map(s => s.claw), scale: 1.7 };
+// skills: the refund binder open on the desk, as the intro draws it
+const SK_HERO = skillsAt('skills', [{ ticket: 'refund-saw' }]);
+// action-approvals: the winning policy's week at the booth, as the intro draws it
+const AA_HERO = approvalsAt(approvalsRun(AA_WINNERS[0]).desk, {
+  p: AA_WINNERS[0],
+  dye: true,
+  next: [],
+  bad: AA_WEEK.filter(l => l.harm).map(l => l.id),
+});
+// multi-agent: three helpers on the supplier report, as the intro draws it
+const MA_HERO = multiAt(multiJob('report'), { helpers: 3, brief: 'detailed', check: false }, true);
+// agent-memory: the month on the board, the deals page's cards lit, as the intro draws it
+const MEM_MONTH = memRemember(MEM_GOOD);
+const MEM_HERO = memoryAt(MEM_MONTH, {
+  lit: ['web-deals', ...MEM_MONTH.board.filter(b => memHangs(memCard(b.id), 'web-deals')).map(b => b.id)],
+});
+// tools-in-production: the changed tool hung askew overnight, as the intro draws it
+const TP_HERO = toolsAt({ night: true, hung: true, prediction: null, revealed: false, quiz: null });
+// agent-undo: the run with every step undoable, the car back in the valley, as the intro draws it
+const AU_POLICY = undoPolicy({ undo: ALL_UNDO });
+const AU_HERO = undoAt(undoRun(AU_POLICY, COURIER_FAILS), AU_POLICY, { route: undefined });
+// causal-evals: the failed run, its last piece lit, as the intro draws it
+const CE_HERO = causalAt(CE_BLADE, null, 1, { lit: CE_BLADE.steps.length - 1 });
+// adaptive-compute: the routed day, the bigger model lit, as the intro draws it
+const AC_HERO = effortAt(AC_ROUTED, { lit: { mill: 'big', valve: 'warranty' } });
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   'before-genai': {
     name: 'Before GenAI',
@@ -1199,6 +1251,72 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Domain randomisation',
       'Sim-to-real',
     ],
+  },
+  skills: {
+    name: 'Skills',
+    iso: {
+      board: CAROUSEL_BOARD,
+      scene: carouselStill(SK_HERO, { zoomT: 0, phone: true }),
+      label: carouselLabel(SK_HERO),
+    },
+    topics: ['Agent skills', 'Long prompts', 'Skill labels', 'Picking a skill', 'Scripts', 'Downloaded skills'],
+  },
+  'action-approvals': {
+    name: 'Approvals and permissions',
+    iso: {
+      board: TOLL_BOARD,
+      scene: ctx => tollStill(AA_HERO)(ctx) + tollPills(AA_HERO, { zoomT: 0, phone: true }),
+      label: tollLabel(AA_HERO),
+    },
+    topics: [
+      'Human approval',
+      'Approval fatigue',
+      'Prompt injection',
+      'Spending limits',
+      'Expiring approvals',
+      'Planner and reader',
+    ],
+  },
+  'multi-agent': {
+    name: 'Multi-agent systems',
+    iso: {
+      board: SWITCH_BOARD,
+      scene: switchStill(MA_HERO, { zoomT: 0, phone: true }),
+      label: switchLabel(MA_HERO),
+    },
+    topics: ['Multi-agent', 'Lead and helpers', 'Hand-offs', 'Agreed message shapes', 'Deadlock', 'Checking a helper'],
+  },
+  'agent-memory': {
+    name: 'Memory you can trust',
+    iso: { board: CORK_BOARD, scene: corkStill(MEM_HERO, { zoomT: 0, phone: true }), label: corkLabel(MEM_HERO) },
+    topics: ['Agent memory', 'What to keep', 'Sources', 'Conflicting memories', 'Forgetting', 'Memory poisoning'],
+  },
+  'tools-in-production': {
+    name: 'Tools and MCP in production',
+    iso: { board: SHADOW_BOARD, scene: shadowStill(TP_HERO, { zoomT: 0, phone: true }), label: shadowLabel(TP_HERO) },
+    topics: ['MCP servers', 'Tool search', 'Changed tools', 'Pinning', 'Tool poisoning', 'Per-server sign-in'],
+  },
+  'agent-undo': {
+    name: 'Undo for agents',
+    iso: { board: FUNI_BOARD, scene: funiStill(AU_HERO, { zoomT: 0, phone: true }), label: funiLabel(AU_HERO) },
+    topics: [
+      'Partial failure',
+      'Save points',
+      'Compensating steps',
+      'Sagas',
+      'Irreversible actions',
+      'Idempotency keys',
+    ],
+  },
+  'causal-evals': {
+    name: 'Why did it fail?',
+    iso: { board: MARBLE_BOARD, scene: marbleStill(CE_HERO, { zoomT: 0, phone: true }), label: marbleLabel(CE_HERO) },
+    topics: ['Failure analysis', 'Replay', 'Counterfactuals', 'Ablation', 'Fault injection', 'Flaky runs'],
+  },
+  'adaptive-compute': {
+    name: 'Where the effort goes',
+    iso: { board: MILL_BOARD, scene: millStill(AC_HERO, { zoomT: 0, phone: true }), label: millLabel(AC_HERO) },
+    topics: ['Test-time compute', 'Thinking longer', 'Look-ups', 'Checking answers', 'Bigger models', 'Routing'],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];

@@ -2746,5 +2746,407 @@
       "bench",
       "quiz"
     ]
+  },
+  "skills": {
+    "01-the-long-prompt": [
+      "ask",
+      "predict",
+      "reveal",
+      "again",
+      "quiz"
+    ],
+    "02-label-and-folder": [
+      "ask",
+      "predict",
+      "reveal",
+      "more",
+      "quiz"
+    ],
+    "03-picking-the-binder": [
+      "ask",
+      "predict",
+      "rewrite",
+      "reveal",
+      "quiz"
+    ],
+    "04-steps-not-facts": [
+      "ask",
+      "predict",
+      "run",
+      "reveal",
+      "quiz"
+    ],
+    "05-two-skills-fight": [
+      "ask",
+      "predict",
+      "sharpen",
+      "reveal",
+      "own",
+      "quiz"
+    ],
+    "06-a-skill-from-outside": [
+      "predict",
+      "read",
+      "reveal",
+      "refuse",
+      "quiz"
+    ],
+    "07-workbench": [
+      "run",
+      "predict",
+      "bench",
+      "reveal",
+      "quiz"
+    ]
+  },
+  "action-approvals": {
+    "01-the-approve-button": [
+      "deliver",
+      "approve",
+      "rush",
+      "predict",
+      "reveal",
+      "quiz"
+    ],
+    "02-text-that-gives-orders": [
+      "note",
+      "email",
+      "predict",
+      "reveal",
+      "rule",
+      "quiz"
+    ],
+    "03-following-the-dye": [
+      "request",
+      "predict",
+      "reveal",
+      "trifecta",
+      "quiz"
+    ],
+    "04-small-steps": [
+      "first",
+      "second",
+      "predict",
+      "reveal",
+      "quiz"
+    ],
+    "05-approvals-run-out": [
+      "approve",
+      "other",
+      "wait",
+      "predict",
+      "reveal",
+      "quiz"
+    ],
+    "06-two-minds": [
+      "one",
+      "predict",
+      "reveal",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "tune",
+      "quiz"
+    ]
+  },
+  "multi-agent": {
+    "01-one-desk": [
+      "predict",
+      "run",
+      "reveal",
+      "quiz"
+    ],
+    "02-lead-and-helpers": [
+      "hire",
+      "predict",
+      "run",
+      "reveal",
+      "quiz"
+    ],
+    "03-the-hand-off": [
+      "run",
+      "predict",
+      "brief",
+      "reveal",
+      "quiz"
+    ],
+    "04-agreed-shapes": [
+      "predict",
+      "run",
+      "reveal",
+      "quiz"
+    ],
+    "05-waiting": [
+      "run",
+      "predict",
+      "timeout",
+      "reveal",
+      "quiz"
+    ],
+    "06-trusting-a-helper": [
+      "run",
+      "predict",
+      "check",
+      "reveal",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "quiz"
+    ]
+  },
+  "agent-memory": {
+    "01-what-to-keep": [
+      "keep-all",
+      "predict",
+      "sort",
+      "reveal",
+      "quiz"
+    ],
+    "02-where-it-came-from": [
+      "trace",
+      "predict",
+      "trace-orders",
+      "reveal",
+      "quiz"
+    ],
+    "03-old-and-new": [
+      "new",
+      "predict",
+      "reveal",
+      "web",
+      "quiz"
+    ],
+    "04-forgetting": [
+      "jump",
+      "predict",
+      "forget",
+      "reveal",
+      "quiz"
+    ],
+    "05-poisoned-note": [
+      "read",
+      "chats",
+      "predict",
+      "reveal",
+      "quiz"
+    ],
+    "06-undo-the-source": [
+      "predict",
+      "pull",
+      "reveal",
+      "pull-dan",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "quiz"
+    ]
+  },
+  "tools-in-production": {
+    "01-sixty-tools": [
+      "load",
+      "predict",
+      "ask",
+      "reveal",
+      "quiz"
+    ],
+    "02-fetch-when-needed": [
+      "ask",
+      "predict",
+      "again",
+      "reveal",
+      "quiz"
+    ],
+    "03-the-tool-changed": [
+      "night",
+      "predict",
+      "hang",
+      "reveal",
+      "quiz"
+    ],
+    "04-a-fingerprint": [
+      "pin",
+      "night",
+      "predict",
+      "hang",
+      "reveal",
+      "quiz"
+    ],
+    "05-hidden-instructions": [
+      "read",
+      "predict",
+      "hang",
+      "reveal",
+      "bar",
+      "quiz"
+    ],
+    "06-who-is-calling": [
+      "replay",
+      "predict",
+      "signin",
+      "own",
+      "reveal",
+      "quiz"
+    ],
+    "07-workbench": [
+      "run",
+      "predict",
+      "fix",
+      "reveal"
+    ]
+  },
+  "agent-undo": {
+    "01-halfway-done": [
+      "predict",
+      "run",
+      "reveal",
+      "quiz"
+    ],
+    "02-save-points": [
+      "run",
+      "predict",
+      "restart",
+      "reveal",
+      "saves",
+      "quiz"
+    ],
+    "03-the-opposite-step": [
+      "pick",
+      "predict",
+      "run",
+      "reveal",
+      "quiz"
+    ],
+    "04-cant-undo": [
+      "run",
+      "unsend",
+      "predict",
+      "letter",
+      "reveal",
+      "quiz"
+    ],
+    "05-risky-step-last": [
+      "predict",
+      "order",
+      "run",
+      "reveal",
+      "quiz"
+    ],
+    "06-only-once": [
+      "run",
+      "predict",
+      "retry",
+      "reveal",
+      "key",
+      "quiz"
+    ],
+    "07-workbench": [
+      "run",
+      "predict",
+      "fix",
+      "reveal"
+    ]
+  },
+  "causal-evals": {
+    "01-the-failed-run": [
+      "roll",
+      "pick",
+      "predict",
+      "send",
+      "reveal",
+      "quiz"
+    ],
+    "02-blame-the-last-step": [
+      "predict",
+      "swap",
+      "reveal",
+      "quiz"
+    ],
+    "03-replay-one-change": [
+      "note",
+      "predict",
+      "search",
+      "reveal",
+      "quiz"
+    ],
+    "04-take-a-piece-out": [
+      "predict",
+      "order",
+      "reveal",
+      "search",
+      "quiz"
+    ],
+    "05-break-it-on-purpose": [
+      "roll",
+      "predict",
+      "fault",
+      "reveal",
+      "retry",
+      "quiz"
+    ],
+    "06-many-runs": [
+      "once",
+      "predict",
+      "twenty",
+      "reveal",
+      "search",
+      "quiz"
+    ],
+    "07-workbench": [
+      "replay",
+      "predict",
+      "solve",
+      "reveal"
+    ]
+  },
+  "adaptive-compute": {
+    "01-one-setting": [
+      "predict",
+      "run",
+      "reveal",
+      "shut",
+      "quiz"
+    ],
+    "02-think-longer": [
+      "predict",
+      "stock",
+      "reveal",
+      "puzzle",
+      "quiz"
+    ],
+    "03-look-it-up": [
+      "predict",
+      "turn",
+      "reveal",
+      "puzzles",
+      "quiz"
+    ],
+    "04-check-the-work": [
+      "predict",
+      "turn",
+      "reveal",
+      "everyday",
+      "quiz"
+    ],
+    "05-bigger-model": [
+      "predict",
+      "think",
+      "big",
+      "reveal",
+      "quiz"
+    ],
+    "06-per-request": [
+      "max",
+      "predict",
+      "route",
+      "reveal",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "quiz"
+    ]
   }
 }

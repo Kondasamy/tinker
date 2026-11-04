@@ -1,0 +1,9 @@
+{
+  "causes": [2, 1, 5, 0],
+  "lastSwap": "wrong",
+  "without": { "order": "wrong", "search": "none" },
+  "copes": { "fixed": "right", "timeout": "stuck", "retry": "right" },
+  "right": { "none": 4, "note": 4, "search": 20 },
+  "lucky": 2,
+  "budget": 12
+}

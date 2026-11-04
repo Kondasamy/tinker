@@ -1,0 +1,60 @@
+/* Memory stage: shares the tool-calling frame (.tc-stage, .tc-frame, .tc-caption); the twin controls sit under the
+   picture, and the Table tab lists every card on the board with its source, day and trust. */
+.am-twin {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: stretch;
+}
+.am-twin > :first-child {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+.am-twin button,
+.am-twin [role="combobox"] {
+  min-height: 44px;
+}
+.am-status {
+  margin: 0;
+  min-height: 2.8em;
+}
+.am-table {
+  margin: 0;
+  overflow: auto;
+}
+.am-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.am-table caption {
+  text-align: left;
+  font-weight: 800;
+  padding-bottom: 6px;
+}
+.am-table th,
+.am-table td {
+  text-align: left;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+.am-table tr[data-lit] td {
+  background: color-mix(in srgb, var(--acc, #f4b829) 35%, transparent);
+}
+.am-none {
+  margin: 10px 0 0;
+  color: var(--muted);
+}
+.am-bench {
+  display: grid;
+  gap: 10px;
+}
+.am-bench label {
+  display: grid;
+  gap: 4px;
+  font-weight: 700;
+}
+.am-score {
+  margin: 0;
+}

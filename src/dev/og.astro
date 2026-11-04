@@ -465,6 +465,76 @@ import {
 import { replay as rbReplay } from '../lib/robots/policy';
 import { NEW_BIN as RB_NEW, runRule as rbRule } from '../lib/robots/rules';
 import { policyOf as rbPolicy, WINNERS as RB_WINNERS } from '../lib/robots/workbench';
+import { CAROUSEL_BOARD, type Carousel, carouselScene } from '../components/scenes/carouselScene';
+import { benchCarousel as skBench, carouselOf as skAt } from '../content/skills/kit';
+import { skillOf as skSkill, WINNERS as SK_WINNERS } from '../lib/skills/skills';
+import { TOLL_BOARD, type Toll, tollPills, tollStill } from '../components/scenes/tollScene';
+import { replay as aaReplay, tollOf as aaToll } from '../content/action-approvals/kit';
+import { sceneOf as aaDye, TURNS as AA_TURNS } from '../content/action-approvals/03-following-the-dye';
+import { sceneOf as aaMinds } from '../content/action-approvals/06-two-minds';
+import {
+  type Policy as AaPolicy,
+  simulate as aaSim,
+  WEEK as AA_WEEK,
+  WINNERS as AA_WINNERS,
+} from '../lib/action-approvals/gate';
+import { SWITCH_BOARD, type Switch, switchStill } from '../components/scenes/switchboardScene';
+import { switchOf as maAt } from '../content/multi-agent/kit';
+import { jobOf as maJob, type Setup as MaSetup } from '../lib/multi-agent/sim';
+import { CORK_BOARD, type Cork, corkStill } from '../components/scenes/corkScene';
+import { chatCork as amChat, corkOf as amCork } from '../content/agent-memory/kit';
+import { picture as amConflict } from '../content/agent-memory/03-old-and-new';
+import {
+  cardOf as amCard,
+  END as AM_END,
+  GOOD as AM_GOOD,
+  hangsFrom as amHangs,
+  kept as amKept,
+  remember as amRemember,
+} from '../lib/agent-memory/memory';
+import { SHADOW_BOARD, type Shadow, shadowStill } from '../components/scenes/shadowScene';
+import { sceneOf as tpCh1 } from '../content/tools-in-production/01-sixty-tools';
+import { sceneOf as tpCh2 } from '../content/tools-in-production/02-fetch-when-needed';
+import { sceneOf as tpCh3 } from '../content/tools-in-production/03-the-tool-changed';
+import { sceneOf as tpCh4 } from '../content/tools-in-production/04-a-fingerprint';
+import { sceneOf as tpCh5 } from '../content/tools-in-production/05-hidden-instructions';
+import { sceneOf as tpCh6 } from '../content/tools-in-production/06-who-is-calling';
+import { sceneOf as tpCh7 } from '../content/tools-in-production/07-workbench';
+import { solve as tpSolve } from '../lib/tools-in-production/week';
+import { FUNI_BOARD, type Funi, funiStill } from '../components/scenes/funicularScene';
+import { funiOf as auFuni } from '../content/agent-undo/kit';
+import { sceneOf as auCh1 } from '../content/agent-undo/01-halfway-done';
+import { sceneOf as auCh2 } from '../content/agent-undo/02-save-points';
+import { sceneOf as auCh3 } from '../content/agent-undo/03-the-opposite-step';
+import { sceneOf as auCh4 } from '../content/agent-undo/04-cant-undo';
+import { sceneOf as auCh5 } from '../content/agent-undo/05-risky-step-last';
+import { sceneOf as auCh6 } from '../content/agent-undo/06-only-once';
+import { sceneOf as auCh7 } from '../content/agent-undo/07-workbench';
+import {
+  ALL_UNDO as AU_ALL_UNDO,
+  COURIER_FAILS as AU_FAILS,
+  policy as auPolicy,
+  run as auRun,
+  solve as auSolve,
+} from '../lib/agent-undo/sim';
+import { MARBLE_BOARD, type Marble, marbleStill } from '../components/scenes/marbleScene';
+import { marbleOf as ceAt } from '../content/causal-evals/kit';
+import { sceneOf as ceCh1 } from '../content/causal-evals/01-the-failed-run';
+import { sceneOf as ceCh2 } from '../content/causal-evals/02-blame-the-last-step';
+import { sceneOf as ceCh4 } from '../content/causal-evals/04-take-a-piece-out';
+import { sceneOf as ceCh5 } from '../content/causal-evals/05-break-it-on-purpose';
+import { sceneOf as ceCh6 } from '../content/causal-evals/06-many-runs';
+import { BLADE as CE_BLADE, causeOf as ceCause, RUNS as CE_RUNS } from '../lib/causal-evals/runs';
+import { MILL_BOARD, type MillYard, millStill } from '../components/scenes/millScene';
+import { yardOf as acAt } from '../content/adaptive-compute/kit';
+import {
+  allRules as acAll,
+  isWin as acWin,
+  MAX as AC_MAX,
+  PLAIN as AC_PLAIN,
+  ROUTED as AC_ROUTED,
+  runDay as acRun,
+} from '../lib/adaptive-compute/effort';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -2130,6 +2200,230 @@ const CLAW_OG: Record<string, () => ClawOpts> = {
   },
 };
 const clawOg = CLAW_OG[page.og]?.();
+// module 60: the returns desk and its binder carousel, each chapter at its reveal, unzoomed. The intro and 2: the refund
+// binder open; 1: the desk buried under every binder; 3: the sharp label opens Warranty for the drill; 4: the refund
+// script run; 5: the blurry Damaged label opens the wrong binder for the kettle; 6: the downloaded binder opened; 7: a
+// winning label set's run; the recap: three tickets asked.
+const CAROUSEL_OG: Record<string, () => Carousel> = {
+  skills: () => skAt('skills', [{ ticket: 'refund-saw' }]),
+  'skills-recap': () =>
+    skAt('skills', [{ ticket: 'refund-saw' }, { ticket: 'drill' }, { ticket: 'refund-days', script: 'run' }]),
+  'skills-01-the-long-prompt': () => skAt('prompt', [{ ticket: 'refund-saw' }]),
+  'skills-02-label-and-folder': () => skAt('skills', [{ ticket: 'refund-saw' }]),
+  'skills-03-picking-the-binder': () => skAt('skills', [{ ticket: 'drill' }]),
+  'skills-04-steps-not-facts': () => skAt('skills', [{ ticket: 'refund-days', script: 'run' }]),
+  'skills-05-two-skills-fight': () =>
+    skAt('skills', [{ ticket: 'kettle', swap: { damaged: skSkill('damaged').blurry! } }]),
+  'skills-06-a-skill-from-outside': () => ({ ...skAt('skills', []), outsider: 'open' }),
+  'skills-07-workbench': () => skBench(SK_WINNERS[0], 1),
+};
+const carouselOg = CAROUSEL_OG[page.og]?.();
+// module 61: the refund office and its toll booth, each chapter at its reveal, unzoomed. The intro: the winning policy's
+// week; 1: every refund approved, the forged one paid too; 2: the forged email's refund, no rule; 3: the reply leaving,
+// dyed; 4: the third split refund stopped by the budget; 5: the old yes refused for a new order; 6: two minds, the
+// planner's refund clean; 7: the winning policy's week, harm marked; the recap: approve everything, forever.
+const AA_HARM = AA_WEEK.filter(l => l.harm).map(l => l.id);
+const aaPol = (ask: AaPolicy['ask'], budget: number | null, expiry: AaPolicy['expiry']): AaPolicy => ({
+  ask,
+  budget,
+  expiry,
+});
+const AA_ALL = aaPol('all', null, 'forever'),
+  AA_OPEN = aaPol('none', null, 'hour'),
+  AA_SPLIT = aaPol('dyed', 150, 'hour'),
+  AA_PASS = aaPol('dyed', null, 'hour');
+const TOLL_OG: Record<string, () => Toll> = {
+  'action-approvals': () => aaToll(aaSim(AA_WINNERS[0]).desk, { p: AA_WINNERS[0], dye: true, next: [], bad: AA_HARM }),
+  'action-approvals-recap': () => aaToll(aaSim(AA_ALL).desk, { p: AA_ALL, dye: true, next: [], bad: AA_HARM }),
+  'action-approvals-01-the-approve-button': () =>
+    aaToll(
+      aaReplay(AA_ALL, [
+        { l: 'saw-41' },
+        { yes: true },
+        { l: 'kettle-52' },
+        { yes: true },
+        { l: 'fake-88' },
+        { yes: true },
+      ]),
+      { p: AA_ALL, dye: false, next: [], bad: ['fake-88'], lit: 'fake-88' },
+    ),
+  'action-approvals-02-text-that-gives-orders': () =>
+    aaToll(aaReplay(AA_OPEN, [{ l: 'rosa-12' }, { l: 'fake-88' }]), {
+      p: AA_OPEN,
+      dye: true,
+      next: [],
+      lit: 'fake-88',
+    }),
+  'action-approvals-03-following-the-dye': () =>
+    aaDye({ n: AA_TURNS.length, leaves: 'reply', prediction: null, revealed: true, quiz: null }),
+  'action-approvals-04-small-steps': () =>
+    aaToll(
+      aaReplay(AA_SPLIT, [{ l: 'split-a' }, { yes: true }, { l: 'split-b' }, { yes: true }, { l: 'split-c' }], 1),
+      {
+        p: { ...AA_SPLIT, expiry: 'forever' },
+        dye: false,
+        next: [],
+      },
+    ),
+  'action-approvals-05-approvals-run-out': () =>
+    aaToll(aaReplay(AA_PASS, [{ l: 'saw-41' }, { yes: true }, { wait: 1 }, { l: 'reuse-41' }]), {
+      p: AA_PASS,
+      dye: false,
+      next: [],
+      tags: true,
+    }),
+  'action-approvals-06-two-minds': () =>
+    aaMinds({ two: true, read: true, prediction: null, revealed: true, quiz: null }),
+  'action-approvals-07-workbench': () =>
+    aaToll(aaSim(AA_WINNERS[0]).desk, {
+      p: AA_WINNERS[0],
+      dye: true,
+      next: [],
+      bad: AA_HARM,
+      marked: AA_HARM,
+      up: false,
+    }),
+};
+const tollOg = TOLL_OG[page.og]?.();
+// module 62: the switchboard, each chapter at its reveal, unzoomed. The intro and 2: three helpers on the report; 1: the
+// lead alone; 3: a vague brief; 4: a reply in the wrong shape bounced; 5: two helpers holding each other on the rates;
+// 6: the check catches a misread price; 7: three helpers, checked, with a timeout; the recap: the hold freed by a timeout.
+const maSet = (helpers: number, more: Partial<MaSetup> = {}): MaSetup => ({
+  helpers,
+  brief: 'detailed',
+  check: false,
+  ...more,
+});
+const MA_REPORT = maJob('report'),
+  MA_RATES = maJob('rates');
+const SWITCH_OG: Record<string, () => Switch> = {
+  'multi-agent': () => maAt(MA_REPORT, maSet(3), true),
+  'multi-agent-recap': () => maAt(MA_RATES, maSet(2, { timeout: true }), true),
+  'multi-agent-01-one-desk': () => maAt(MA_REPORT, maSet(0), true),
+  'multi-agent-02-lead-and-helpers': () => maAt(MA_REPORT, maSet(3), true),
+  'multi-agent-03-the-hand-off': () => maAt(MA_REPORT, maSet(3, { brief: 'vague' }), true),
+  'multi-agent-04-agreed-shapes': () => maAt(MA_REPORT, maSet(3), true, { malformed: true }),
+  'multi-agent-05-waiting': () => maAt(MA_RATES, maSet(2), true),
+  'multi-agent-06-trusting-a-helper': () => maAt(MA_REPORT, maSet(3, { check: true }), true, { slip: true }),
+  'multi-agent-07-workbench': () => maAt(MA_REPORT, maSet(3, { check: true, timeout: true }), true, { slip: true }),
+};
+const switchOg = SWITCH_OG[page.og]?.();
+// module 63: the cork board, each chapter at its reveal, unzoomed. The intro: the month with the deals page's cards lit;
+// 1: Ada's chat sorted; 2: day 10, three sources traced; 3: the newer card won and the web card rejected; 4: Cara
+// forgotten at month end; 5: day 19, the page gone and its cards still up; 6: day 26 with the page pulled; 7: the good
+// rules with both planted sources undone; the recap: the month with the page pulled.
+const amTaught = (day: number) =>
+  amRemember(AM_GOOD, { upTo: day })
+    .board.filter(b => amHangs(amCard(b.id), 'web-deals'))
+    .map(b => b.id);
+const CORK_OG: Record<string, () => Cork> = {
+  'agent-memory': () => amCork(amRemember(AM_GOOD), { lit: ['web-deals', ...amTaught(AM_END)] }),
+  'agent-memory-recap': () => amCork(amRemember(AM_GOOD, { undone: ['web-deals'] })),
+  'agent-memory-01-what-to-keep': () => amChat('sorted', amKept('lasting')),
+  'agent-memory-02-where-it-came-from': () =>
+    amCork(amRemember(AM_GOOD, { upTo: 10 }), { upTo: 10, lit: ['orders', 'ben-quay', 'cara-oak'] }),
+  'agent-memory-03-old-and-new': () => amConflict({ added: true, web: true, settled: true }),
+  'agent-memory-04-forgetting': () =>
+    amCork(amRemember(AM_GOOD, { upTo: 17, today: AM_END, forgot: ['cara'] }), {
+      upTo: 17,
+      hold: amRemember(AM_GOOD, { upTo: 17 }).board.map(b => b.id),
+      notes: { 'cara-away': amCard('cara-away').label },
+    }),
+  'agent-memory-05-poisoned-note': () =>
+    amCork(amRemember(AM_GOOD, { upTo: 19 }), { upTo: 19, lit: ['web-deals', ...amTaught(19)], gone: ['web-deals'] }),
+  'agent-memory-06-undo-the-source': () =>
+    amCork(amRemember(AM_GOOD, { upTo: 26, undone: ['web-deals'] }), { upTo: 26 }),
+  'agent-memory-07-workbench': () =>
+    amCork(amRemember(AM_GOOD, { undone: ['web-deals', 'chat-dan'] }), { noise: true }),
+};
+const corkOg = CORK_OG[page.og]?.();
+// module 64: the shadow board and its dock, each chapter at its reveal, unzoomed. The intro and 3: the changed tool
+// hung askew overnight; 1: every tool loaded, the wrong pick ringed; 2: a search loads three; 4: the pin holds the
+// changed tool in its crate; 5: the hidden orders obeyed, a file sent; 6: a shared key's pass let in; 7: a winning
+// policy's week; the recap: the hidden-orders crate read.
+const tpQ = { prediction: null, revealed: true, quiz: null };
+const SHADOW_OG: Record<string, () => Shadow> = {
+  'tools-in-production': () => tpCh3({ night: true, hung: true, ...tpQ }),
+  'tools-in-production-recap': () => tpCh5({ read: true, hung: false, barred: false, ...tpQ }),
+  'tools-in-production-01-sixty-tools': () => tpCh1({ loaded: true, asked: true, ...tpQ }),
+  'tools-in-production-02-fetch-when-needed': () => tpCh2({ asked: ['courier'], ...tpQ }),
+  'tools-in-production-03-the-tool-changed': () => tpCh3({ night: true, hung: true, ...tpQ }),
+  'tools-in-production-04-a-fingerprint': () => tpCh4({ pinned: true, night: true, hung: true, ...tpQ }),
+  'tools-in-production-05-hidden-instructions': () => tpCh5({ read: true, hung: true, barred: false, ...tpQ }),
+  'tools-in-production-06-who-is-calling': () => tpCh6({ shared: true, own: false, ownReplay: false, ...tpQ }),
+  'tools-in-production-07-workbench': () => {
+    const b = tpSolve().winners[0];
+    return tpCh7(b, b);
+  },
+};
+const shadowOg = SHADOW_OG[page.og]?.();
+// module 65: the funicular, each chapter at its reveal, unzoomed, the car at rest (no route). The intro and recap: the
+// run with every step undoable, back in the valley; 1: halfway done; 2: resumed from the save point; 3: undone with
+// the right opposite; 4: the letter sent for the email; 5: the email moved last; 6: once, with a key; 7: a winning setup.
+const auQ = { prediction: null, revealed: true, quiz: null };
+const auRest = (f: Funi): Funi => ({ ...f, route: undefined });
+const AU_UNDO = auPolicy({ undo: AU_ALL_UNDO });
+const FUNI_OG: Record<string, () => Funi> = {
+  'agent-undo': () => auFuni(auRun(AU_UNDO, AU_FAILS), AU_UNDO, { route: undefined }),
+  'agent-undo-recap': () => auFuni(auRun(AU_UNDO, AU_FAILS), AU_UNDO, { route: undefined }),
+  'agent-undo-01-halfway-done': () => auRest(auCh1({ ran: true, ...auQ })),
+  'agent-undo-02-save-points': () => auRest(auCh2({ ran: true, restarted: true, saves: true, saved: true, ...auQ })),
+  'agent-undo-03-the-opposite-step': () => auRest(auCh3({ opp: 'right', ran: true, ...auQ })),
+  'agent-undo-04-cant-undo': () => auRest(auCh4({ ran: true, tried: true, letter: true, ...auQ })),
+  'agent-undo-05-risky-step-last': () =>
+    auRest(auCh5({ order: ['stock', 'refund', 'courier', 'email'], ran: true, ...auQ })),
+  'agent-undo-06-only-once': () => auRest(auCh6({ ran: true, retried: true, key: true, keyed: true, ...auQ })),
+  'agent-undo-07-workbench': () => {
+    const c = auSolve().winners[0];
+    return auRest(auCh7({ code: c, ran: c, prediction: null, revealed: true }));
+  },
+};
+const funiOg = FUNI_OG[page.og]?.();
+// module 66: the marble run, each chapter at its reveal, unzoomed. The intro: the failed run, the last piece lit; 1: the
+// failed run; 2: the last piece swapped, still wrong; 3 and the recap: the cause swapped, the marble right; 4: the order
+// piece out; 5: a fault with a retry; 6: twenty runs with the search swapped; 7: the kettle run's cause named.
+const ceQ = { prediction: null, revealed: true, quiz: null };
+const ceSwap = (i: number) => ({ kind: 'swap' as const, step: i });
+const CE_CAUSE = ceCause(CE_BLADE),
+  CE_KETTLE = CE_RUNS.findIndex(r => r.id === 'refund');
+const MARBLE_OG: Record<string, () => Marble> = {
+  'causal-evals': () => ceAt(CE_BLADE, null, 1, { lit: CE_BLADE.steps.length - 1 }),
+  'causal-evals-recap': () => ceAt(CE_BLADE, ceSwap(CE_CAUSE), 1, { lit: CE_CAUSE }),
+  'causal-evals-01-the-failed-run': () => ceCh1({ roll: 1, lit: null, ...ceQ }),
+  'causal-evals-02-blame-the-last-step': () => ceCh2({ swapped: true, roll: 2, ...ceQ }),
+  'causal-evals-03-replay-one-change': () => ceAt(CE_BLADE, ceSwap(CE_CAUSE), 1, { lit: CE_CAUSE }),
+  'causal-evals-04-take-a-piece-out': () =>
+    ceCh4({ out: CE_BLADE.steps.findIndex(x => x.id === 'order'), tried: [], roll: 1, ...ceQ }),
+  'causal-evals-05-break-it-on-purpose': () => ceCh5({ roll: 2, fault: true, retry: true, ...ceQ }),
+  'causal-evals-06-many-runs': () => ceCh6({ phase: 3, ...ceQ }),
+  'causal-evals-07-workbench': () => {
+    const r = CE_RUNS[CE_KETTLE],
+      c = ceCause(r);
+    return ceAt(r, ceSwap(c), 1, { named: c, title: r.name });
+  },
+};
+const marbleOg = MARBLE_OG[page.og]?.();
+// module 67: the mill yard, each chapter at its reveal, unzoomed. The intro: the routed day, the bigger model lit;
+// 1: every question at maximum effort, the tower drained; 2: stock sent to thinking; 3: stock looked up; 4: everyday
+// checked; 5: warranty to the bigger model; 6: the routed day in a tower just big enough for maximum effort; 7: a
+// winning setup; the recap: the routed day.
+const AC_TANK = acRun(AC_MAX, Infinity).spent;
+const MILL_OG: Record<string, () => MillYard> = {
+  'adaptive-compute': () => acAt(AC_ROUTED, { lit: { mill: 'big', valve: 'warranty' } }),
+  'adaptive-compute-recap': () => acAt(AC_ROUTED),
+  'adaptive-compute-01-one-setting': () => acAt(AC_MAX, { lit: { tower: true } }),
+  'adaptive-compute-02-think-longer': () =>
+    acAt({ ...AC_PLAIN, stock: 'think' }, { lit: { valve: 'stock', mill: 'think' } }),
+  'adaptive-compute-03-look-it-up': () =>
+    acAt({ ...AC_PLAIN, stock: 'lookup' }, { lit: { valve: 'stock', mill: 'lookup' } }),
+  'adaptive-compute-04-check-the-work': () =>
+    acAt({ ...AC_PLAIN, everyday: 'check' }, { lit: { valve: 'everyday', mill: 'check' } }),
+  'adaptive-compute-05-bigger-model': () =>
+    acAt({ ...AC_PLAIN, warranty: 'big' }, { lit: { valve: 'warranty', mill: 'big' } }),
+  'adaptive-compute-06-per-request': () => acAt(AC_ROUTED, { budget: AC_TANK, lit: { sorter: true, tower: true } }),
+  'adaptive-compute-07-workbench': () => acAt(acAll().find(acWin)!, { lit: { tower: true } }),
+};
+const millOg = MILL_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -2218,6 +2512,14 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : phoneCrateOg ? <IsoStage board={PHONE_CRATE_BOARD} scene={phoneCrateScene({ ...phoneCrateOg, scale: 1.3 })} label="" />
           : tableOg ? <IsoStage board={TABLE_BOARD} scene={tabletopScene({ ...tableOg, scale: 1.3 })} label="" />
           : clawOg ? <IsoStage board={CLAW_BOARD} scene={clawScene({ ...clawOg, scale: 1.3 })} label="" />
+          : carouselOg ? <IsoStage board={CAROUSEL_BOARD} scene={carouselScene(carouselOg, carouselOg, 1, { zoomT: 0 }).still} label="" />
+          : tollOg ? <IsoStage board={TOLL_BOARD} scene={ctx => tollStill(tollOg, { zoomT: 0 })(ctx) + tollPills(tollOg, { zoomT: 0 })} label="" />
+          : switchOg ? <IsoStage board={SWITCH_BOARD} scene={switchStill(switchOg)} label="" />
+          : corkOg ? <IsoStage board={CORK_BOARD} scene={corkStill(corkOg)} label="" />
+          : shadowOg ? <IsoStage board={SHADOW_BOARD} scene={shadowStill(shadowOg)} label="" />
+          : funiOg ? <IsoStage board={FUNI_BOARD} scene={funiStill(funiOg)} label="" />
+          : marbleOg ? <IsoStage board={MARBLE_BOARD} scene={marbleStill(marbleOg)} label="" />
+          : millOg ? <IsoStage board={MILL_BOARD} scene={millStill(millOg)} label="" />
           : dreamOg ? <IsoStage board={dreamBoard(dreamOg)} scene={dreamScene({ ...dreamOg, scale: 1.3 })} label="" />
           : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
           : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />

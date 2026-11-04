@@ -67,6 +67,14 @@ const NUMBERED = [
   'on-device',
   'routes',
   'robots',
+  'skills',
+  'action-approvals',
+  'multi-agent',
+  'agent-memory',
+  'tools-in-production',
+  'agent-undo',
+  'causal-evals',
+  'adaptive-compute',
 ];
 
 // AI modules lead the catalogue; classic tech follows in its own section of compact cards
@@ -456,6 +464,37 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
   await expect(page.locator('[data-level="Advanced"] .module[data-module="robots"] h4 a')).toHaveAttribute(
     'href',
     '/robots/',
+  );
+  await expect(page.locator('[data-level="Intermediate"] .module[data-module="skills"] h4 a')).toHaveAttribute(
+    'href',
+    '/skills/',
+  );
+  await expect(
+    page.locator('[data-level="Intermediate"] .module[data-module="action-approvals"] h4 a'),
+  ).toHaveAttribute('href', '/action-approvals/');
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="multi-agent"] h4 a')).toHaveAttribute(
+    'href',
+    '/multi-agent/',
+  );
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="agent-memory"] h4 a')).toHaveAttribute(
+    'href',
+    '/agent-memory/',
+  );
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="tools-in-production"] h4 a')).toHaveAttribute(
+    'href',
+    '/tools-in-production/',
+  );
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="agent-undo"] h4 a')).toHaveAttribute(
+    'href',
+    '/agent-undo/',
+  );
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="causal-evals"] h4 a')).toHaveAttribute(
+    'href',
+    '/causal-evals/',
+  );
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="adaptive-compute"] h4 a')).toHaveAttribute(
+    'href',
+    '/adaptive-compute/',
   );
 });
 

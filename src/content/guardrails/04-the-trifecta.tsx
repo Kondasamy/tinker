@@ -222,7 +222,23 @@ export default function TheTrifecta() {
           </>
         ),
         compare: () => <Compare />,
-        fact: () => <Fact id="camel" />,
+        fact: () => (
+          <>
+            <Fact id="camel" />
+            <p className="note">
+              Which of an assistant’s actions outside text can reach:{' '}
+              <a href="/action-approvals/03-following-the-dye/">Approvals and permissions</a>.
+            </p>
+            <p className="note">
+              Injected text can also hide in memory and outlive its page:{' '}
+              <a href="/agent-memory/05-poisoned-note/">Memory you can trust</a>.
+            </p>
+            <p className="note">
+              Or in a tool’s own description:{' '}
+              <a href="/tools-in-production/05-hidden-instructions/">Tools and MCP in production</a>.
+            </p>
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

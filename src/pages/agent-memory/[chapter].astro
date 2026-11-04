@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import WhatToKeep from '../../content/agent-memory/01-what-to-keep';
+import WhereItCameFrom from '../../content/agent-memory/02-where-it-came-from';
+import OldAndNew from '../../content/agent-memory/03-old-and-new';
+import Forgetting from '../../content/agent-memory/04-forgetting';
+import PoisonedNote from '../../content/agent-memory/05-poisoned-note';
+import UndoTheSource from '../../content/agent-memory/06-undo-the-source';
+import Workbench from '../../content/agent-memory/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('agent-memory').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="agent-memory" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-what-to-keep' ? <WhatToKeep client:load />
+    : chapter === '02-where-it-came-from' ? <WhereItCameFrom client:load />
+    : chapter === '03-old-and-new' ? <OldAndNew client:load />
+    : chapter === '04-forgetting' ? <Forgetting client:load />
+    : chapter === '05-poisoned-note' ? <PoisonedNote client:load />
+    : chapter === '06-undo-the-source' ? <UndoTheSource client:load />
+    : <Workbench client:load />}
+</ChapterLayout>

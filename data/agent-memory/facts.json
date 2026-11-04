@@ -1,0 +1,53 @@
+{
+  "accessed": "2026-11-03",
+  "facts": [
+    {
+      "id": "importance",
+      "claim": "Park et al.’s Generative Agents paper (2023): each memory is scored on how recent, important and relevant it is, and the model rates importance from 1 (everyday) to 10.",
+      "value": "10",
+      "source": "https://arxiv.org/abs/2304.03442"
+    },
+    {
+      "id": "source-attribution",
+      "claim": "OWASP’s agentic threats guide (February 2025): require source attribution for memory updates, tracking where the assistant’s knowledge came from.",
+      "source": "https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/"
+    },
+    {
+      "id": "update-ops",
+      "claim": "Chhikara et al.’s Mem0 paper (2025): for each new fact the model adds it, updates a memory, deletes one the fact contradicts, or changes nothing.",
+      "source": "https://arxiv.org/abs/2504.19413"
+    },
+    {
+      "id": "retention",
+      "claim": "OWASP’s agentic threats guide (February 2025): limit how long an assistant keeps memories, based on how sensitive they are.",
+      "source": "https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/"
+    },
+    {
+      "id": "delete-controls",
+      "claim": "Anthropic’s help centre (checked November 2026): Claude users can see what it remembers about them, and edit or delete any of it.",
+      "source": "https://support.claude.com/en/articles/11817273-using-claude-s-chat-search-and-memory-to-build-on-previous-context"
+    },
+    {
+      "id": "minja",
+      "claim": "Dong et al.’s MINJA paper (2025): an attacker who only chatted with an agent planted bad memories 98.2% of the time on average, in their tests.",
+      "value": "98.2",
+      "source": "https://arxiv.org/abs/2503.03704"
+    },
+    {
+      "id": "agentpoison",
+      "claim": "Chen et al.’s AgentPoison (NeurIPS 2024): poisoning under 0.1% of an agent’s memory steered it over 80% of the time, while normal answers barely changed.",
+      "value": "0.1",
+      "source": "https://arxiv.org/abs/2407.12784"
+    },
+    {
+      "id": "rollback",
+      "claim": "OWASP’s agentic threats guide (February 2025): keep memory snapshots so memory can be rolled back when something bad gets in.",
+      "source": "https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/"
+    },
+    {
+      "id": "check-first",
+      "claim": "OWASP’s agentic threats guide (February 2025): check new knowledge against trusted sources before it goes into long-term memory.",
+      "source": "https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/"
+    }
+  ]
+}

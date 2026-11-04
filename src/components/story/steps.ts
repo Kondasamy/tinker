@@ -16,6 +16,10 @@ export interface Step<S> {
   focus?: string;
   /** stages that don't read it ignore it */
   say?: Say;
+  /** Living scenes (KTD6): the one or two PARTS the stage closes in on at a reveal; any reader action pulls back. */
+  closeUp?: string[];
+  /** Living scenes (R10a): one sentence naming what the step's end state shows, read out once with the step. */
+  status?: string;
   /** Controls the runner renders for this step; everything else stays hidden. */
   visibleControls: string[];
   predicate: (state: S) => boolean;

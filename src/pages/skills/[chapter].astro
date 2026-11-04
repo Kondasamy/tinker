@@ -1,0 +1,22 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import TheLongPrompt from '../../content/skills/01-the-long-prompt';
+import LabelAndFolder from '../../content/skills/02-label-and-folder';
+import PickingTheBinder from '../../content/skills/03-picking-the-binder';
+import StepsNotFacts from '../../content/skills/04-steps-not-facts';
+import TwoSkillsFight from '../../content/skills/05-two-skills-fight';
+import SkillFromOutside from '../../content/skills/06-a-skill-from-outside';
+import Workbench from '../../content/skills/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('skills').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="skills" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-the-long-prompt' ? <TheLongPrompt client:load /> : chapter === '02-label-and-folder' ? <LabelAndFolder client:load /> : chapter === '03-picking-the-binder' ? <PickingTheBinder client:load /> : chapter === '04-steps-not-facts' ? <StepsNotFacts client:load /> : chapter === '05-two-skills-fight' ? <TwoSkillsFight client:load /> : chapter === '06-a-skill-from-outside' ? <SkillFromOutside client:load /> : <Workbench client:load />}
+</ChapterLayout>

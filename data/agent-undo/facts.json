@@ -1,0 +1,17 @@
+{
+  "accessed": "2026-11-03",
+  "facts": [
+    { "id": "saga", "claim": "Garcia-Molina and Salem (Princeton, 1987) named it a saga: a long job split into steps, where either every step finishes or compensating steps run to amend the part that did.", "source": "https://www.cs.princeton.edu/research/techreps/598" },
+    { "id": "partial-undesirable", "claim": "Garcia-Molina and Salem (1987): the steps of a saga belong together, so any half-finished run is undesirable and must be compensated for.", "source": "https://www.cs.princeton.edu/research/techreps/598" },
+    { "id": "save-points", "claim": "Garcia-Molina and Salem (1987): with save points, a crashed saga need not undo everything; the system undoes only the steps since the last save point, then restarts from there.", "source": "https://www.cs.princeton.edu/research/techreps/598" },
+    { "id": "reverse-order", "claim": "Garcia-Molina and Salem (1987): a saga ends either with every step done, or with the steps done so far and then their compensating steps, newest first.", "source": "https://www.cs.princeton.edu/research/techreps/598" },
+    { "id": "semantic-undo", "claim": "Garcia-Molina and Salem (1987): a compensating step undoes a step’s meaning, not its exact state: cancel the seat booking, don’t restore yesterday’s seat count.", "source": "https://www.cs.princeton.edu/research/techreps/598" },
+    { "id": "second-letter", "claim": "Garcia-Molina and Salem (1987): a sent letter can’t be taken back, so to compensate, send a second letter explaining the problem; better still, not to need it.", "source": "https://www.cs.princeton.edu/research/techreps/598" },
+    { "id": "missile", "claim": "Garcia-Molina and Salem (1987) warn that some steps may have no compensation at all: if a step fires a missile, it may not be possible to undo it.", "source": "https://www.cs.princeton.edu/research/techreps/598" },
+    { "id": "last-step", "claim": "Garcia-Molina and Salem (1987): when a saga’s last step also ends the saga, that last step needs no compensating step at all.", "source": "https://www.cs.princeton.edu/research/techreps/598" },
+    { "id": "retry-safe", "claim": "Stripe’s developer docs (checked November 2026): with an idempotency key, a request that hit a connection error can be repeated without creating a second object or doing the update twice.", "source": "https://docs.stripe.com/api/idempotent_requests" },
+    { "id": "saved-response", "claim": "Stripe’s developer docs, for its original v1 requests: Stripe saves the result of the first request with a given idempotency key, and every retry with that key gets the saved result back, errors included.", "source": "https://docs.stripe.com/api/idempotent_requests" },
+    { "id": "key-age", "claim": "Stripe’s developer docs: a key may be removed once it is at least 24 hours old, and a request reusing it after that runs again as new.", "value": "24", "source": "https://docs.stripe.com/api/idempotent_requests" },
+    { "id": "key-random", "claim": "Stripe’s developer docs suggest random keys such as V4 UUIDs, up to 255 characters, and warn against using email addresses or other personal details as keys.", "value": "255", "source": "https://docs.stripe.com/api/idempotent_requests" }
+  ]
+}

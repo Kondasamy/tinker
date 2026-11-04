@@ -1,0 +1,88 @@
+/* Tools in production stage: shares the tool-calling frame (.tc-stage, .tc-frame, .tc-caption); the twin control sits
+   under the picture, and the Prints tab is a table of each board tool's fingerprint, approved and as each day has it. */
+.tip-twin {
+  min-height: 48px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: stretch;
+}
+.tip-twin > :first-child {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+.tip-twin button,
+.tip-twin [role="combobox"],
+.tip-switches button {
+  min-height: 44px;
+}
+.tip-status {
+  margin: 0;
+  min-height: 2.8em;
+}
+.tip-prints {
+  margin: 0;
+  overflow: auto;
+}
+.tip-prints table {
+  border-collapse: collapse;
+  font-size: 12.5px;
+  width: 100%;
+}
+.tip-prints caption {
+  text-align: left;
+  font-weight: 800;
+  padding-bottom: 6px;
+}
+.tip-prints th,
+.tip-prints td {
+  border-bottom: 1px solid var(--rule);
+  padding: 4px 6px;
+  text-align: left;
+  white-space: nowrap;
+}
+.tip-prints td {
+  font-family: ui-monospace, Menlo, monospace;
+}
+.tip-prints td.changed {
+  background: var(--bad-bg, #f8d9cf);
+  font-weight: 800;
+}
+.tip-prints td.changed span {
+  font-family: inherit;
+}
+.tip-desc {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+  background: var(--card);
+  font-size: 13.5px;
+}
+.tip-desc code {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.tip-switches {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0 0;
+}
+.tip-switches fieldset {
+  border: 1.5px solid var(--rule);
+  border-radius: 10px;
+  margin: 0;
+  padding: 6px 10px 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tip-switches legend {
+  font-weight: 800;
+  font-size: 13.5px;
+}
+.tip-score {
+  margin: 8px 0 0;
+  font-size: 14px;
+}
