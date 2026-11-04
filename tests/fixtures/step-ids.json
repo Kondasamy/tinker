@@ -3048,5 +3048,57 @@
       "fix",
       "reveal"
     ]
+  },
+  "causal-evals": {
+    "01-the-failed-run": [
+      "roll",
+      "pick",
+      "predict",
+      "send",
+      "reveal",
+      "quiz"
+    ],
+    "02-blame-the-last-step": [
+      "predict",
+      "swap",
+      "reveal",
+      "quiz"
+    ],
+    "03-replay-one-change": [
+      "note",
+      "predict",
+      "search",
+      "reveal",
+      "quiz"
+    ],
+    "04-take-a-piece-out": [
+      "predict",
+      "order",
+      "reveal",
+      "search",
+      "quiz"
+    ],
+    "05-break-it-on-purpose": [
+      "roll",
+      "predict",
+      "fault",
+      "reveal",
+      "retry",
+      "quiz"
+    ],
+    "06-many-runs": [
+      "once",
+      "predict",
+      "twenty",
+      "reveal",
+      "search",
+      "quiz"
+    ],
+    "07-workbench": [
+      "replay",
+      "predict",
+      "solve",
+      "reveal"
+    ]
   }
 }

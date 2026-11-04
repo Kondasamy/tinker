@@ -68,6 +68,7 @@ import { switchPlot } from './switchboardScene';
 import { corkPlot } from './corkScene';
 import { shadowPlot } from './shadowScene';
 import { funiPlot } from './funicularScene';
+import { marblePlot } from './marbleScene';
 import { kioskPlot } from './kioskScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
@@ -295,6 +296,7 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   'agent-memory': (x, y, { top }) => corkPlot(x + 14, y - 2, top),
   'tools-in-production': (x, y, { top }) => shadowPlot(x + 14, y - 2, top),
   'agent-undo': (x, y, { top }) => funiPlot(x + 14, y - 2, top),
+  'causal-evals': (x, y, { top }) => marblePlot(x + 14, y - 2, top),
   'before-genai': (x, y, { top }) => kioskPlot(x + 14, y - 2, top),
 };
 // only AI modules take a turn on the stand: classic tech waits in the catalogue. The prequel (registry first) goes last, so

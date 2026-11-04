@@ -151,6 +151,10 @@ export default function TrustingAHelper() {
               <Fact id="mast-verify" />
               <Fact id="mast-modes" />
               <ToyNote />
+              <p className="note">
+                Finding which agent and which step caused a failure:{' '}
+                <a href="/causal-evals/06-many-runs/">Why did it fail?</a>
+              </p>
             </>
           ) : null,
         quiz: ({ state, apply, sync }) => (

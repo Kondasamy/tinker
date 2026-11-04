@@ -1,0 +1,28 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import TheFailedRun from '../../content/causal-evals/01-the-failed-run';
+import BlameTheLastStep from '../../content/causal-evals/02-blame-the-last-step';
+import ReplayOneChange from '../../content/causal-evals/03-replay-one-change';
+import TakeAPieceOut from '../../content/causal-evals/04-take-a-piece-out';
+import BreakItOnPurpose from '../../content/causal-evals/05-break-it-on-purpose';
+import ManyRuns from '../../content/causal-evals/06-many-runs';
+import Workbench from '../../content/causal-evals/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('causal-evals').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="causal-evals" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-the-failed-run' ? <TheFailedRun client:load />
+    : chapter === '02-blame-the-last-step' ? <BlameTheLastStep client:load />
+    : chapter === '03-replay-one-change' ? <ReplayOneChange client:load />
+    : chapter === '04-take-a-piece-out' ? <TakeAPieceOut client:load />
+    : chapter === '05-break-it-on-purpose' ? <BreakItOnPurpose client:load />
+    : chapter === '06-many-runs' ? <ManyRuns client:load />
+    : <Workbench client:load />}
+</ChapterLayout>

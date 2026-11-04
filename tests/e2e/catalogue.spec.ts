@@ -73,6 +73,7 @@ const NUMBERED = [
   'agent-memory',
   'tools-in-production',
   'agent-undo',
+  'causal-evals',
 ];
 
 // AI modules lead the catalogue; classic tech follows in its own section of compact cards
@@ -485,6 +486,10 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
   await expect(page.locator('[data-level="Advanced"] .module[data-module="agent-undo"] h4 a')).toHaveAttribute(
     'href',
     '/agent-undo/',
+  );
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="causal-evals"] h4 a')).toHaveAttribute(
+    'href',
+    '/causal-evals/',
   );
 });
 

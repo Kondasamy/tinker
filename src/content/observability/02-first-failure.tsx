@@ -197,6 +197,10 @@ export default function FirstFailure() {
               struggle to find it:
             </ToyNote>
             <Fact id="failure-attribution" />
+            <p className="note">
+              Replay a failed trace to test which step caused it:{' '}
+              <a href="/causal-evals/01-the-failed-run/">Why did it fail?</a>
+            </p>
           </>
         ),
         quiz: ({ state, apply, sync }) => (

@@ -517,6 +517,14 @@ import {
   run as auRun,
   solve as auSolve,
 } from '../lib/agent-undo/sim';
+import { MARBLE_BOARD, type Marble, marbleStill } from '../components/scenes/marbleScene';
+import { marbleOf as ceAt } from '../content/causal-evals/kit';
+import { sceneOf as ceCh1 } from '../content/causal-evals/01-the-failed-run';
+import { sceneOf as ceCh2 } from '../content/causal-evals/02-blame-the-last-step';
+import { sceneOf as ceCh4 } from '../content/causal-evals/04-take-a-piece-out';
+import { sceneOf as ceCh5 } from '../content/causal-evals/05-break-it-on-purpose';
+import { sceneOf as ceCh6 } from '../content/causal-evals/06-many-runs';
+import { BLADE as CE_BLADE, causeOf as ceCause, RUNS as CE_RUNS } from '../lib/causal-evals/runs';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -2361,6 +2369,30 @@ const FUNI_OG: Record<string, () => Funi> = {
   },
 };
 const funiOg = FUNI_OG[page.og]?.();
+// module 66: the marble run, each chapter at its reveal, unzoomed. The intro: the failed run, the last piece lit; 1: the
+// failed run; 2: the last piece swapped, still wrong; 3 and the recap: the cause swapped, the marble right; 4: the order
+// piece out; 5: a fault with a retry; 6: twenty runs with the search swapped; 7: the kettle run's cause named.
+const ceQ = { prediction: null, revealed: true, quiz: null };
+const ceSwap = (i: number) => ({ kind: 'swap' as const, step: i });
+const CE_CAUSE = ceCause(CE_BLADE),
+  CE_KETTLE = CE_RUNS.findIndex(r => r.id === 'refund');
+const MARBLE_OG: Record<string, () => Marble> = {
+  'causal-evals': () => ceAt(CE_BLADE, null, 1, { lit: CE_BLADE.steps.length - 1 }),
+  'causal-evals-recap': () => ceAt(CE_BLADE, ceSwap(CE_CAUSE), 1, { lit: CE_CAUSE }),
+  'causal-evals-01-the-failed-run': () => ceCh1({ roll: 1, lit: null, ...ceQ }),
+  'causal-evals-02-blame-the-last-step': () => ceCh2({ swapped: true, roll: 2, ...ceQ }),
+  'causal-evals-03-replay-one-change': () => ceAt(CE_BLADE, ceSwap(CE_CAUSE), 1, { lit: CE_CAUSE }),
+  'causal-evals-04-take-a-piece-out': () =>
+    ceCh4({ out: CE_BLADE.steps.findIndex(x => x.id === 'order'), tried: [], roll: 1, ...ceQ }),
+  'causal-evals-05-break-it-on-purpose': () => ceCh5({ roll: 2, fault: true, retry: true, ...ceQ }),
+  'causal-evals-06-many-runs': () => ceCh6({ phase: 3, ...ceQ }),
+  'causal-evals-07-workbench': () => {
+    const r = CE_RUNS[CE_KETTLE],
+      c = ceCause(r);
+    return ceAt(r, ceSwap(c), 1, { named: c, title: r.name });
+  },
+};
+const marbleOg = MARBLE_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -2455,6 +2487,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : corkOg ? <IsoStage board={CORK_BOARD} scene={corkStill(corkOg)} label="" />
           : shadowOg ? <IsoStage board={SHADOW_BOARD} scene={shadowStill(shadowOg)} label="" />
           : funiOg ? <IsoStage board={FUNI_BOARD} scene={funiStill(funiOg)} label="" />
+          : marbleOg ? <IsoStage board={MARBLE_BOARD} scene={marbleStill(marbleOg)} label="" />
           : dreamOg ? <IsoStage board={dreamBoard(dreamOg)} scene={dreamScene({ ...dreamOg, scale: 1.3 })} label="" />
           : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
           : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />

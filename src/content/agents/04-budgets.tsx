@@ -234,6 +234,10 @@ export default function Budgets() {
               so retries cost more as the history grows.
             </p>
             <ToyNote />
+            <p className="note">
+              Why the step blamed last is often not the one that broke the run:{' '}
+              <a href="/causal-evals/02-blame-the-last-step/">Why did it fail?</a>
+            </p>
           </>
         ),
         budget: ({ state, apply }) => (

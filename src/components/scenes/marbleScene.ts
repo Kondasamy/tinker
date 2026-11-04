@@ -10,7 +10,7 @@
 // Words only in pills; every string reaching SVG goes through esc().
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, sayFits } from '../../lib/iso/blocks';
-import { modelMachine, person, type Item, type ModelState } from '../../lib/iso/figures';
+import { drawPieces, mini, modelMachine, person, type Item, type ModelState } from '../../lib/iso/figures';
 import { INK, METAL, PALS, WOOD, P, box, byDepth, castShadow, f, pd, shape, tag, toneI } from '../../lib/iso/core.js';
 import { calloutOf, lerp, lerpPt, pillScale, type Scene, type SceneView } from '../../lib/iso/motion';
 import type { Outcome } from '../../lib/causal-evals/runs';
@@ -623,4 +623,32 @@ export function marbleLabel(s: Marble): string {
       : 'The marble waits in the start cup.',
   ];
   return parts.filter(Boolean).join(' ');
+}
+
+/** The home hero's stand plot: the run's last four chutes stepping down past the flap into its two trays, a marble
+ * rolling down them and one in the right tray, set down small. */
+export function marblePlot(x: number, y: number, top: SceneCtx['top']): string {
+  const first = PIECES - 4,
+    e = ends(PIECES - 1).b,
+    x0 = ends(first).a[0];
+  let b = '';
+  for (let i = first; i < PIECES; i++) b += trestle(i) + chute(i, 'as');
+  // the flap, turned toward the right tray
+  b += box(e[0] + 1, YM - 1, BH, e[0] + 3, YM + 1, e[2] - 2.5, WOOD, toneI, 0.9);
+  b += shape(
+    [
+      [e[0], Y0, e[2] - 1.5],
+      [e[0], Y1, e[2] - 1.5],
+      [e[0] + 6, lerp(YM, TRAY_Y.right, 0.35) + 3, e[2] - 3],
+      [e[0] + 6, lerp(YM, TRAY_Y.right, 0.35) - 3, e[2] - 3],
+    ],
+    PALS.mustard.l,
+    1.1,
+  );
+  const { a: ma, b: mb } = ends(first + 1);
+  b += marbleAt(lerpPt(ma, mb, 0.5));
+  const run: Item = { box: boxCorners(x0, Y0, BH, e[0] + 6, Y1, zAt(x0) + 4), svg: `<g data-part="frame">${b}</g>` };
+  const items = [run, trayArt('right', 1), trayArt('wrong', 0)];
+  const shadow = castShadow(boxCorners(x0, Y0, BH, e[0], Y1, BH + 12), BH, top);
+  return drawPieces([mini({ shadow, items }, [(x0 + TRAY_X) / 2 + 22, 44, BH], [x, y, BH], 0.5)]);
 }

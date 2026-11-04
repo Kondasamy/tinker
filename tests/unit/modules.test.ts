@@ -1054,6 +1054,21 @@ describe('module registry', () => {
     expect(live.indexOf('agent-undo')).toBe(live.indexOf('tools-in-production') + 1);
   });
 
+  it('has causal-evals as a live Advanced module 66, after agent-undo', () => {
+    const m = moduleOf('causal-evals');
+    expect(m).toMatchObject({
+      title: 'Why did it fail?',
+      level: 'Advanced',
+      status: 'live',
+      prereqs: ['evals', 'observability'],
+    });
+    expect(m.track).toBeUndefined();
+    expect(m.author).toEqual(moduleOf('rag').author);
+    expect(moduleNumber(m)).toBe(66);
+    const live = MODULES.filter(x => x.status === 'live').map(x => x.id);
+    expect(live.indexOf('causal-evals')).toBe(live.indexOf('agent-undo') + 1);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

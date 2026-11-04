@@ -199,6 +199,9 @@ import { sceneOf as toolsAt } from '../content/tools-in-production/03-the-tool-c
 import { FUNI_BOARD, funiLabel, funiStill } from '../components/scenes/funicularScene';
 import { funiOf as undoAt } from '../content/agent-undo/kit';
 import { ALL_UNDO, COURIER_FAILS, policy as undoPolicy, run as undoRun } from '../lib/agent-undo/sim';
+import { MARBLE_BOARD, marbleLabel, marbleStill } from '../components/scenes/marbleScene';
+import { marbleOf as causalAt } from '../content/causal-evals/kit';
+import { BLADE as CE_BLADE } from '../lib/causal-evals/runs';
 import { KIOSK_BOARD, kioskLabel, kioskScene } from '../components/scenes/kioskScene';
 import { messageOf as kioskMessage, run as kioskRun } from '../lib/before-genai/bots';
 import { DEMOS as RB_DEMOS } from '../lib/robots/story';
@@ -535,6 +538,8 @@ const TP_HERO = toolsAt({ night: true, hung: true, prediction: null, revealed: f
 // agent-undo: the run with every step undoable, the car back in the valley, as the intro draws it
 const AU_POLICY = undoPolicy({ undo: ALL_UNDO });
 const AU_HERO = undoAt(undoRun(AU_POLICY, COURIER_FAILS), AU_POLICY, { route: undefined });
+// causal-evals: the failed run, its last piece lit, as the intro draws it
+const CE_HERO = causalAt(CE_BLADE, null, 1, { lit: CE_BLADE.steps.length - 1 });
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   'before-genai': {
     name: 'Before GenAI',
@@ -1297,6 +1302,11 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Irreversible actions',
       'Idempotency keys',
     ],
+  },
+  'causal-evals': {
+    name: 'Why did it fail?',
+    iso: { board: MARBLE_BOARD, scene: marbleStill(CE_HERO, { zoomT: 0, phone: true }), label: marbleLabel(CE_HERO) },
+    topics: ['Failure analysis', 'Replay', 'Counterfactuals', 'Ablation', 'Fault injection', 'Flaky runs'],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];
