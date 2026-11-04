@@ -20,6 +20,9 @@ import { DEPOT_BOARD, depotAt, depotScene } from '../../src/components/scenes/de
 import { DESK_BOARD, beatsOf, deskAt, deskScene } from '../../src/components/scenes/deskScene';
 import { CAROUSEL_BOARD, carouselStill } from '../../src/components/scenes/carouselScene';
 import { SHADOW_BOARD, shadowStill } from '../../src/components/scenes/shadowScene';
+import { FUNI_BOARD, funiStill } from '../../src/components/scenes/funicularScene';
+import { ALL_UNDO, policy as undoPolicy, run as undoRun } from '../../src/lib/agent-undo/sim';
+import { funiOf } from '../../src/content/agent-undo/kit';
 import { sceneOf as shadowWeek } from '../../src/content/tools-in-production/07-workbench';
 import { TOLL_BOARD, tollStill } from '../../src/components/scenes/tollScene';
 import { simulate as approvalsWeek } from '../../src/lib/action-approvals/gate';
@@ -665,6 +668,12 @@ const SCENES: Record<string, () => string> = {
       }),
     ),
   // the opening workbench week: every van docked, every outline filled (two askew), the bench piled, a file sent
+  // the funicular after a doubled run: every flag twice-flown, two coins, two letters, signs, pegs and the key
+  funicular: () => {
+    const p = undoPolicy({ undo: ALL_UNDO, saves: true, keys: true });
+    const o = undoRun(undoPolicy({ undo: ALL_UNDO }), { at: 'email', kind: 'crash' });
+    return stage(FUNI_BOARD, funiStill({ ...funiOf(o, p), lit: 'email', say: { block: 'email', text: 'Twice' } }));
+  },
   shadow: () => {
     const all = 0b001_001_001_001;
     return stage(SHADOW_BOARD, shadowStill({ ...shadowWeek(all, all), say: { block: 'board', text: 'Monday' } }));
@@ -792,6 +801,8 @@ const BASE: Record<string, number> = {
   // new with the watermarks module (no pre-rework size): its first size is 62,335, with a little headroom
   // new with the unicode module (no pre-rework size): its first size is 74,785, with a little headroom
   // new with the tools-in-production module (no pre-rework size): its first size is 143,937 (four vans), with a little headroom
+  // new with the agent-undo module (no pre-rework size): its first size is 72,092, with a little headroom
+  funicular: 26000,
   shadow: 50000,
   tape: 26000,
   // new with the approvals module (no pre-rework size): its first size is 156,240, with a little headroom

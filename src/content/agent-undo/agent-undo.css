@@ -1,0 +1,92 @@
+/* Undo for agents stage: shares the tool-calling frame (.tc-stage, .tc-frame, .tc-caption); the twin controls sit under
+   the picture (the stations' order with Move up and Move down, and the run buttons), and the Log tab is the saga log. */
+.au-twin {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: stretch;
+}
+.au-twin > button,
+.au-order button,
+.au-switch {
+  min-height: 44px;
+}
+.au-order button {
+  min-width: 44px;
+}
+.au-order {
+  flex: 1 1 100%;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 4px;
+}
+.au-order li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 800;
+  font-size: 14px;
+}
+.au-order li span {
+  flex: 1;
+}
+.au-status {
+  margin: 0;
+  min-height: 2.8em;
+}
+.au-log {
+  margin: 0;
+  overflow: auto;
+}
+.au-log table {
+  border-collapse: collapse;
+  font-size: 12.5px;
+  width: 100%;
+}
+.au-log caption {
+  text-align: left;
+  font-weight: 800;
+  padding-bottom: 6px;
+}
+.au-log th,
+.au-log td {
+  border-bottom: 1px solid var(--rule);
+  padding: 4px 6px;
+  text-align: left;
+  vertical-align: top;
+}
+.au-log td.bad {
+  background: var(--bad-bg, #f8d9cf);
+  font-weight: 800;
+}
+.au-switches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 0;
+}
+.au-score {
+  margin: 8px 0 0;
+  font-size: 14px;
+}
+.au-pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 0;
+}
+.au-pick > :first-child {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+.au-pick button,
+.au-pick [role="combobox"] {
+  min-height: 44px;
+}
+.au-why {
+  margin: 6px 0 0;
+  font-size: 13.5px;
+}
