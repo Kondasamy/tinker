@@ -76,6 +76,10 @@ export function tollOf(
     lit?: string | null;
     litZoom?: boolean;
     passes?: boolean;
+    /** slips ringed a little (the workbench's harm) */
+    marked?: string[];
+    /** order stickers and hourglass bands */
+    tags?: boolean;
   },
 ): Toll {
   const last = d.slips.at(-1);
@@ -84,11 +88,17 @@ export function tollOf(
     mail: o.next.length,
     mailDyed: o.next.map(id => dyedLetter(letterOf(id))),
     tray: d.slips.map(s => o.dye && s.dyed),
-    slips: d.slips.map(s => ({ id: s.id, dyed: o.dye && s.dyed, at: zoneOf(s), bad: o.bad?.includes(s.id) })),
+    slips: d.slips.map(s => ({
+      id: s.id,
+      dyed: o.dye && s.dyed,
+      at: zoneOf(s),
+      bad: o.bad?.includes(s.id),
+      order: s.order,
+    })),
     passes:
       o.passes === false
         ? []
-        : d.passes.map(p => ({
+        : d.passes.slice(-3).map(p => ({
             order: p.order,
             sand: o.p.expiry === 'forever' ? 1 : Math.max(0, 1 - (d.now - p.at) / PASS_HOURS),
           })),
@@ -96,6 +106,8 @@ export function tollOf(
     budget: o.p.budget,
     lit: o.lit,
     litZoom: o.litZoom,
+    marked: o.marked,
+    tags: o.tags,
     up: last?.fate === 'paid',
   };
 }

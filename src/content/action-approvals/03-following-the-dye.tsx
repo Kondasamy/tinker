@@ -76,7 +76,7 @@ function sceneOf(s: S): Toll {
     slips: written(s.n).map(t => ({
       id: t.write,
       dyed: DYE[t.write].length > 0,
-      at: 'desk',
+      at: s.leaves === 'reply' && t.write === 'reply' ? 'out' : 'desk',
       kind: KIND[t.kind],
       bad: s.leaves === t.write && t.outside,
     })),
@@ -133,7 +133,6 @@ export const STEPS: Step<S>[] = [
     narration:
       'Private data, a stranger’s text and a way out in one assistant: the trifecta. One violet thing here leaves Larkspur.',
     act: 'Pick the one that leaves.',
-    say: { block: 'desk', text: 'One goes out' },
     status: 'The violet reply to billing is ringed and marked red: it carries order 88’s card details out.',
     predicate: s => s.leaves === 'reply',
     hint: 'Which of them is sent to someone outside Larkspur?',

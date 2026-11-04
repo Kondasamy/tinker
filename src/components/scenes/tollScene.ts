@@ -11,6 +11,8 @@
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, calloutsLast, esc, sayFits } from '../../lib/iso/blocks';
 import { modelMachine, person, type Item, type ModelState } from '../../lib/iso/figures';
+
+type Mat = { l: string; m: string; d: string };
 import {
   CERAMIC,
   CLEAR,
@@ -50,7 +52,8 @@ export const TOLL_PARTS = [
 ] as const;
 export type TollPart = (typeof TOLL_PARTS)[number];
 
-export type Zone = 'desk' | 'gate' | 'paid' | 'stopped';
+/** out: a written message lifted off the desk on its way out of Larkspur */
+export type Zone = 'desk' | 'gate' | 'paid' | 'stopped' | 'out';
 export interface TollSlip {
   id: string;
   dyed: boolean;
@@ -59,6 +62,8 @@ export interface TollSlip {
   kind?: 'refund' | 'note' | 'email' | 'summary';
   /** revealed as harm: a tomato band */
   bad?: boolean;
+  /** the order it refunds, for its order sticker (with `tags`) */
+  order?: number;
 }
 export interface TollPass {
   /** the order it covers, for its pill */
@@ -89,6 +94,10 @@ export interface Toll {
   mailDyed?: boolean[];
   /** the barrier is up: the last slip just passed it */
   up?: boolean;
+  /** slips ringed and raised a little (harm in the workbench), less than the lit one */
+  marked?: string[];
+  /** order stickers on slips and order bands on hourglasses, so a pass and its refund match by colour */
+  tags?: boolean;
   say?: Say;
 }
 
@@ -118,6 +127,16 @@ const STOP = { x0: 98, x1: 120, y0: 88, y1: 102, z1: BH + 3 };
 const WAIT_GLASS = [COUNTER.x0 + 5, COUNTER.y1 - 4]; // the hourglass waiting to be flipped, front left
 const ON = DESK.z1;
 
+/** the colours that tell orders apart on stickers and hourglass bands */
+const ORDER_COL: Record<number, Mat> = {
+  41: PALS.cobalt,
+  88: PALS.blush,
+  77: PALS.mint,
+  12: PALS.mustard,
+  52: PALS.tomato,
+};
+const tagOf = (s: Toll, order?: number) => (s.tags && order !== undefined ? ORDER_COL[order] : undefined);
+const markOf = (s: Toll, id: string) => (s.lit === id ? 2 : s.marked?.includes(id) ? 1 : 0);
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 const ring = (x: number, y: number, z: number, r: number, n = 20) =>
   Array.from({ length: n }, (_, i) => [
@@ -145,12 +164,14 @@ function letterArt(x: number, y: number, z: number, dyed: boolean) {
 }
 
 /** A slip the assistant wrote. */
-function slipArt(sl: TollSlip, x: number, y: number, z0: number, lit: boolean) {
-  const z = lit ? z0 + 6 : z0, // a lit slip sits raised on top of its pile, larger
-    g = lit ? 1.7 : 1;
+/** mark: 0 plain, 1 marked (ringed, a little larger), 2 lit (ringed, raised and larger still) */
+function slipArt(sl: TollSlip, x: number, y: number, z0: number, mark: number, tag?: Mat) {
+  const lit = mark > 0,
+    z = z0 + [0, 3, 6][mark], // a lit slip sits raised on top of its pile, larger
+    g = [1, 1.35, 1.7][mark];
   const m = sl.dyed ? DYE : CERAMIC,
     k = sl.kind ?? 'refund';
-  let s = lit ? glow(x, y, z0, 8) : '';
+  let s = lit ? glow(x, y, z0, 6 * g) : '';
   const h = k === 'refund' ? 3.5 : 1.4;
   s += box(x - 4 * g, y - 3 * g, z, x + 4 * g, y + 3 * g, z + h, m, toneI, lit ? 1.6 : 0.8);
   if (k === 'refund') s += cyl(x, y, z + h, z + h + 0.8, 1.8, COIN, toneI, 0.6, 12);
@@ -172,6 +193,18 @@ function slipArt(sl: TollSlip, x: number, y: number, z0: number, lit: boolean) {
         ],
         false,
       )}" fill="none" stroke="${INK}" stroke-width=".5"/>`;
+  // the order sticker: a square in the order's colour on the back corner
+  if (tag)
+    s += shape(
+      [
+        [x - 3.8 * g, y - 2.8 * g, z + h + 0.12],
+        [x - 0.6 * g, y - 2.8 * g, z + h + 0.12],
+        [x - 0.6 * g, y + 0.2 * g, z + h + 0.12],
+        [x - 3.8 * g, y + 0.2 * g, z + h + 0.12],
+      ],
+      tag.l,
+      0.6,
+    );
   // harm: a thick tomato band right across the top, beside the coin
   if (sl.bad)
     s += shape(
@@ -189,7 +222,7 @@ function slipArt(sl: TollSlip, x: number, y: number, z0: number, lit: boolean) {
 
 /** An hourglass: wooden ends, two glass bulbs, sand in the top (`sand`) and the rest in the bottom. squash: 1 standing,
  * towards 0 mid-flip (its height shrinks as it turns over). */
-function hourglass(x: number, y: number, z: number, sand: number, lit: boolean, squash = 1) {
+function hourglass(x: number, y: number, z: number, sand: number, lit: boolean, squash = 1, tag?: Mat) {
   const H = 16 * Math.max(0.15, squash),
     half = H / 2,
     r = 3.4;
@@ -208,6 +241,8 @@ function hourglass(x: number, y: number, z: number, sand: number, lit: boolean, 
   s += cyl(x, y, mid + 1.2, hi, r, CLEAR, toneI, 0.7, 14);
   if (top > 0.2) s += cyl(x, y, hi - top, hi, r - 0.5, COIN, toneI, 0.4, 12);
   s += cyl(x, y, hi, hi + 1.2, 3.4, end, toneI, 0.8, 14);
+  // the order band round its waist, matching the refund's sticker
+  if (tag) s += cyl(x, y, mid - 0.4, mid + 1.6, 1.6, tag, toneI, 0.6, 12);
   return `<g data-glass="${sand <= 0.01 ? 'out' : 'live'}">${s}</g>`;
 }
 
@@ -238,6 +273,8 @@ function slipAt(zone: Zone, i: number): number[] {
       return [155 + (i % 3) * 8, 71 + (Math.floor(i / 3) % 2) * 8, BH + 1 + Math.floor(i / 6) * 4];
     case 'stopped':
       return [103 + (i % 3) * 8, 92 + (Math.floor(i / 3) % 2) * 7, BH + 3.2 + Math.floor(i / 6) * 4];
+    case 'out':
+      return [98, 94, ON + 6 + i * 4];
   }
 }
 const SPAWN = [MODEL[0] + 14, MODEL[1] + 14, BH + 18];
@@ -271,7 +308,7 @@ const pipesOf = (s: Toll) => ({
 });
 
 function zoneIndex(s: Toll) {
-  const n: Record<Zone, number> = { desk: 0, gate: 0, paid: 0, stopped: 0 };
+  const n: Record<Zone, number> = { desk: 0, gate: 0, paid: 0, stopped: 0, out: 0 };
   return s.slips.map(sl => slipAt(sl.at, n[sl.at]++));
 }
 
@@ -489,25 +526,21 @@ export function tollPills(s0: Toll, v: SceneView) {
   on('tray', [36, 80, TABLE.z1 + 2], -10, 22, 'IN-TRAY');
   on('model', [MODEL[0], MODEL[1], BH + 30], 0, -14, s.two ? 'PLANNER' : phone ? 'BOT' : 'ASSISTANT');
   if (s.two) on('reader', [READER[0], READER[1], BH + 22], -6, -14, 'READER');
-  on('rosa', [ROSA[0], ROSA[1], BH + 30], -4, -14, 'ROSA');
+  on('rosa', [ROSA[0], ROSA[1], BH + 30], 16, -10, 'ROSA');
   const waits = s.slips.some(x => x.at === 'gate');
-  on('gate', [PIVOT[0], LANE.y1, BH + 10], 6, 22, waits ? 'WAITING' : 'BARRIER', waits);
+  // right of the arm's end, clear of a slip waiting left of it
+  on('gate', [PIVOT[0] + 6, LANE.y1, BH], 4, 18, waits ? 'WAITING' : 'BARRIER', waits);
   const last = s.passes.at(-1);
+  // above the hourglasses, up and left over the booth's roof: clear of the lane, the coins and Rosa
   if (last || waits)
     on(
       'hourglass',
-      waits ? [WAIT_GLASS[0], WAIT_GLASS[1], COUNTER.z1] : [passAt(s.passes.length - 1)[0], COUNTER.y0 + 5, COUNTER.z1],
-      -16,
-      20,
       waits
-        ? phone
-          ? 'FLIP'
-          : 'FLIP TO APPROVE'
-        : last!.sand <= 0.01
-          ? 'EXPIRED'
-          : phone
-            ? `#${last!.order}`
-            : `ORDER ${last!.order}`,
+        ? [WAIT_GLASS[0], WAIT_GLASS[1], COUNTER.z1 + 16]
+        : [passAt(s.passes.length - 1)[0], COUNTER.y0 + 5, COUNTER.z1 + 16],
+      -14,
+      -16,
+      waits ? 'FLIP' : last!.sand <= 0.01 ? 'EXPIRED' : phone ? `#${last!.order}` : `ORDER ${last!.order}`,
       waits,
     );
   on(
@@ -519,18 +552,11 @@ export function tollPills(s0: Toll, v: SceneView) {
   );
   const count = (z: Zone) => s.slips.filter(x => x.at === z && (x.kind ?? 'refund') === 'refund').length;
   on('paid', [BIN.x1 - 4, BIN.y1, BIN.z1], 6, 18, `PAID ${count('paid')}`);
-  if (count('stopped')) on('stopped', [STOP.x0 + 4, STOP.y1, STOP.z1], -8, 18, `STOPPED ${count('stopped')}`);
-  const onDesk = s.slips.filter(x => x.at === 'desk'),
-    litAt = onDesk.findIndex(x => x.id === s.lit);
-  if (onDesk.length && (!phone || litAt >= 0))
-    on(
-      'desk',
-      litAt >= 0 ? slipAt('desk', litAt) : [DESK.x1 - 8, DESK.y1, ON],
-      14,
-      20,
-      litAt >= 0 ? 'GOES OUT' : 'WRITTEN',
-      litAt >= 0,
-    );
+  if (count('stopped')) on('stopped', [STOP.x0 + 4, STOP.y1, STOP.z1], -12, 18, `STOPPED ${count('stopped')}`);
+  if (s.slips.some(x => x.at === 'desk') && !phone) on('desk', [DESK.x0 + 8, DESK.y1, ON], -10, 22, 'WRITTEN');
+  // a message on its way out: its own lit pill, up and right of it (part 'desk' for close-ups)
+  const outAt = s.slips.findIndex(x => x.at === 'out');
+  if (outAt >= 0) on('desk', slipAt('out', 0), 22, 14, 'GOES OUT', true);
   return calloutsLast(out.filter(Boolean));
 }
 
@@ -580,7 +606,7 @@ function dynamic(s: Toll, d: Drawn): Item[] {
       e.p[1] >= DESK.y0 &&
       e.p[1] <= DESK.y1 &&
       Math.abs(e.p[2] - ON - 0.2) < 0.01;
-    if (onDesk) desk += slipArt(e.sl, e.p[0], e.p[1], e.p[2], s.lit === e.sl.id);
+    if (onDesk) desk += slipArt(e.sl, e.p[0], e.p[1], e.p[2], markOf(s, e.sl.id), tagOf(s, e.sl.order));
     else loose.push(e);
   }
   items.push({
@@ -601,10 +627,11 @@ function dynamic(s: Toll, d: Drawn): Item[] {
         p.sand,
         s.lit === 'pass' && i === d.passes.length - 1,
         p.squash,
+        tagOf(s, p.order),
       )),
   );
   if (d.waiting !== null)
-    counter += `<g data-waiting="1">${hourglass(WAIT_GLASS[0], WAIT_GLASS[1], COUNTER.z1, 0, true, d.waiting)}</g>`;
+    counter += `<g data-waiting="1">${hourglass(WAIT_GLASS[0], WAIT_GLASS[1], COUNTER.z1, 0, true, d.waiting, tagOf(s, s.slips.find(x => x.at === 'gate')?.order))}</g>`;
   items.push({
     box: [
       [COUNTER.x0, COUNTER.y0, BH],
@@ -620,8 +647,10 @@ function dynamic(s: Toll, d: Drawn): Item[] {
   const inBin = (p: number[], b: typeof BIN) => p[0] >= b.x0 && p[0] <= b.x1 && p[1] >= b.y0 && p[1] <= b.y1;
   const rest2: typeof loose = [];
   for (const e of loose) {
-    if (inBin(e.p, BIN) && e.p[2] < BH + 12) bin += slipArt(e.sl, e.p[0], e.p[1], e.p[2], s.lit === e.sl.id);
-    else if (inBin(e.p, STOP) && e.p[2] < BH + 12) stop += slipArt(e.sl, e.p[0], e.p[1], e.p[2], s.lit === e.sl.id);
+    const mk = markOf(s, e.sl.id),
+      tg = tagOf(s, e.sl.order);
+    if (inBin(e.p, BIN) && e.p[2] < BH + 12) bin += slipArt(e.sl, e.p[0], e.p[1], e.p[2], mk, tg);
+    else if (inBin(e.p, STOP) && e.p[2] < BH + 12) stop += slipArt(e.sl, e.p[0], e.p[1], e.p[2], mk, tg);
     else rest2.push(e);
   }
   bin += box(BIN.x0, BIN.y1 - 1.2, BH + 1, BIN.x1, BIN.y1, BIN.z1, PALS.mint, toneI, 0.9);
@@ -643,7 +672,7 @@ function dynamic(s: Toll, d: Drawn): Item[] {
   for (const e of rest2)
     items.push({
       box: at(e.p[0], e.p[1], e.p[2], 4, 4),
-      svg: slipArt(e.sl, e.p[0], e.p[1], e.p[2], s.lit === e.sl.id),
+      svg: slipArt(e.sl, e.p[0], e.p[1], e.p[2], markOf(s, e.sl.id), tagOf(s, e.sl.order)),
     });
   // the barrier and the coin tube
   items.push({

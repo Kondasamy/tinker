@@ -66,7 +66,7 @@ export const STEPS: Step<S>[] = [
     narration: `Kim writes about order 77: a box of tiles arrived cracked. A £${EACH} refund. The coins count the day’s budget.`,
     act: 'Deliver it, then approve it.',
     say: { block: 'coins', text: 'Today’s total' },
-    status: `£${EACH} of the £${BUDGET} budget is spent: the coins rose under the tomato ring.`,
+    status: `Rosa approved it, leaving her hourglass: £${EACH} of the £${BUDGET} budget is spent, under the tomato ring.`,
     predicate: s => decided(s.log) >= 1,
     hint: 'Press Deliver the next letter, then Approve.',
   },
@@ -125,8 +125,8 @@ export default function SmallSteps() {
           rest = left(QUEUE, state.log);
         return (
           <ApprovalsStage
-            scene={tollOf(d, { p: POLICY, dye: true, next: rest, passes: false })}
-            rows={rowsOf(d, true)}
+            scene={tollOf(d, { p: POLICY, dye: false, next: rest })}
+            rows={rowsOf(d, false)}
             deliver={() => {
               if (waiting(d)) return 'A refund already waits at the barrier: approve it first.';
               if (rest.length <= 1 && state.prediction === null) return 'Predict first: what will the booth do?';

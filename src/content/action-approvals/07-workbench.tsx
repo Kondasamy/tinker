@@ -151,7 +151,7 @@ export default function Workbench() {
         const r = simulate(policy(state));
         return (
           <ApprovalsStage
-            scene={tollOf(r.desk, { p: policy(state), dye: true, next: [], bad: HARM })}
+            scene={tollOf(r.desk, { p: policy(state), dye: true, next: [], bad: HARM, marked: HARM })}
             rows={rowsOf(r.desk, true)}
             say={say}
             closeUp={closeUp}

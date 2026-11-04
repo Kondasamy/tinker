@@ -65,7 +65,7 @@ export const STEPS: Step<S>[] = [
     narration: `Ada’s saw arrived cracked. Rosa’s yes leaves a pass on the counter: order 41, for ${PASS_HOURS} hour.`,
     act: 'Deliver Ada’s letter, then flip the hourglass.',
     say: { block: 'hourglass', text: 'Order 41 only' },
-    status: 'A full hourglass for order 41 stands on the counter; the saw refund is paid.',
+    status: 'A full hourglass with order 41’s blue band stands on the counter; the blue-stickered saw refund is paid.',
     predicate: s => desk(s).passes.length > 0,
     hint: 'Press Deliver the next letter, then Approve.',
   },
@@ -75,8 +75,8 @@ export const STEPS: Step<S>[] = [
     visibleControls: [],
     narration: 'The fake billing letter asks for order 88 within the hour. The pass names order 41 only.',
     act: 'Deliver it, then refuse it.',
-    say: { block: 'gate', text: 'Not order 41' },
-    status: 'The order-88 refund waited despite the pass, and now lies in the stopped tray.',
+    status:
+      'The pink-stickered order-88 refund didn’t match the blue pass: it waited, and now lies in the stopped tray.',
     predicate: s => desk(s).slips.some(x => x.id === 'fake-88' && x.fate === 'stopped'),
     hint: 'Press Deliver the next letter, then Refuse.',
   },
@@ -86,7 +86,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['wait'],
     narration: 'Rosa takes her lunch. An hour passes.',
     act: 'Press Wait an hour.',
-    say: { block: 'hourglass', text: 'Sand runs' },
+    say: { block: 'stopped', text: 'Not order 41' },
     status: 'The sand ran down: order 41’s hourglass is empty, with tomato ends.',
     predicate: waited,
     hint: 'Press Wait an hour under the step.',
@@ -97,6 +97,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['predict'],
     narration: 'A letter from a new address asks to refund order 41 again.',
     act: 'Predict: what happens at the barrier?',
+    say: { block: 'hourglass', text: 'Run out' },
     status: 'The empty hourglass stands on the counter; nothing waits at the barrier.',
     predicate: s => s.prediction !== null,
   },
@@ -107,7 +108,7 @@ export const STEPS: Step<S>[] = [
     narration: 'Your pick is locked. The new letter is in the crate.',
     act: 'Deliver the letter, then check your prediction.',
     closeUp: ['gate', 'hourglass'],
-    status: 'The second order-41 refund waits at the barrier; the run-out pass let nothing through.',
+    status: 'A blue-stickered order-41 refund waits at the barrier: its blue hourglass had run out.',
     predicate: s => s.revealed && deliveredAll(s, 'reuse-41'),
   },
   {
@@ -135,8 +136,8 @@ export default function ApprovalsRunOut() {
           rest = left(QUEUE, state.log);
         return (
           <ApprovalsStage
-            scene={tollOf(d, { p: POLICY, dye: true, next: rest })}
-            rows={rowsOf(d, true)}
+            scene={tollOf(d, { p: POLICY, dye: false, next: rest, tags: true })}
+            rows={rowsOf(d, false)}
             deliver={() => {
               if (waiting(d)) return 'A refund already waits at the barrier: answer it first.';
               if (rest.length <= 1 && !waited(state)) return 'Wait an hour first.';
