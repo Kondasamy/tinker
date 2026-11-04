@@ -26,9 +26,11 @@ import { fact } from '../../lib/agent-memory/facts';
 import {
   CANDIDATES,
   CAPACITY,
+  CARDS,
   END,
   type Memory,
   RUN_LABEL,
+  SOURCES,
   type Why,
   cardOf,
   rootOf,
@@ -59,6 +61,10 @@ export interface Look {
   extra?: { id: string; slot: number }[];
   /** show the small talk the keep rule swept into the bin too (the workbench, where the keep rule changes) */
   noise?: boolean;
+  /** cards whose board place stays empty when they fall (the chapter's opening board), so nothing slides up */
+  hold?: string[];
+  /** pills kept on fallen cards in the bin (card id → text) */
+  notes?: Record<string, string>;
 }
 /** The board for a run of the month (engine → picture). */
 export function corkOf(m: Memory, look: Look = {}): Cork {
@@ -70,6 +76,8 @@ export function corkOf(m: Memory, look: Look = {}): Cork {
       id,
       short: s.short,
       paper: s.trust,
+      col: SOURCES.indexOf(s),
+      tone: s.customer ? TONE[s.customer] : undefined,
       at: m.pulled.includes(id) ? 'bin' : 'board',
       lit: lit.has(id),
       gone: gone.has(id),
@@ -78,11 +86,13 @@ export function corkOf(m: Memory, look: Look = {}): Cork {
   const card = (id: string, at: CorkCard['at'], slot: number): CorkCard => {
     const c = cardOf(id);
     const tone = rootOf(c).trust === 'web' ? 'web' : (TONE[c.about] ?? 'store');
-    return { id, label: c.label, tone, from: c.from, at, slot, lit: lit.has(id) };
+    const note = at === 'bin' ? look.notes?.[id] : undefined;
+    return { id, label: c.label, tone, from: c.from, at, slot, rank: CARDS.indexOf(c), note, lit: lit.has(id) };
   };
   const shown = m.bin.filter(b => SHOWN.includes(b.why) || (look.noise && b.why === 'noise'));
   return {
     sources,
+    hold: look.hold,
     cards: [
       ...m.board.map(b => card(b.id, 'board', b.slot)),
       ...(look.extra ?? []).map(b => card(b.id, 'board', b.slot)),
@@ -109,6 +119,8 @@ export function chatCork(stage: 'table' | 'all' | 'sorted', keep: string[] = [],
     tray: true,
     sources: [
       {
+        col: 3,
+        tone: 'ada',
         id: 'chat-ada',
         short: sourceOf('chat-ada').short,
         paper: 'customer',

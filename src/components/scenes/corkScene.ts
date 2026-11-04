@@ -6,7 +6,7 @@
 // A living scene (KTD2): scene(prev, state, t, view) → { still, moving }; at t = 1 everything is in the still. Words
 // only in pills; every string reaching SVG goes through esc().
 import { type Board, type SceneCtx, stageFrame } from '../../lib/iso/IsoStage';
-import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
+import { BH, boxCorners, esc, sayAt, sayFits } from '../../lib/iso/blocks';
 import { modelMachine, person } from '../../lib/iso/figures';
 import {
   CERAMIC,
@@ -25,7 +25,6 @@ import {
   shape,
   tag,
   toneI,
-  withFrame,
   P,
   loft,
 } from '../../lib/iso/core.js';
@@ -50,6 +49,10 @@ export interface CorkSource {
   lit?: boolean;
   /** the page was taken down: the paper turns grey, its threads stay */
   gone?: boolean;
+  /** its fixed column along the top, so a paper pinned later shifts nothing (default: centred by its place) */
+  col?: number;
+  /** a customer's chats: the colour of that customer's cards, on its second bubble */
+  tone?: Tone;
 }
 export interface CorkCard {
   id: string;
@@ -60,6 +63,10 @@ export interface CorkCard {
   at: 'tray' | 'board' | 'bin';
   /** board slot (0–15) or tray place (0–11); in the bin, its place in the pile */
   slot: number;
+  /** its order in the month (default: slot): the order cards hang in under their paper */
+  rank?: number;
+  /** a pill kept on it in the bin (what fell, or why) */
+  note?: string;
   lit?: boolean;
 }
 export interface Cork {
@@ -67,6 +74,8 @@ export interface Cork {
   cards: CorkCard[];
   /** the side table with chapter 1's candidates */
   tray?: boolean;
+  /** cards whose place on the board stays empty after they fall, so nothing below them slides up */
+  hold?: string[];
   say?: Say;
 }
 
@@ -128,7 +137,8 @@ const corners = (p: Pose) => [
 const colY = (col: number) => Y1 - 3 - PITCH * (col + 0.5);
 /** The column of the i-th of n papers: centred along the top. */
 const paperCol = (i: number, n: number) => i + Math.floor((NC - n) / 2);
-const paperAt = (i: number, n: number): V => [FACE_X + 0.3, colY(paperCol(i, n)), PZ0 + (i % 2 ? -1 : 1)];
+const colOf = (src: CorkSource, i: number, n: number) => src.col ?? paperCol(i, n);
+const paperAt = (col: number): V => [FACE_X + 0.3, colY(col), PZ0 + (col % 2 ? -1 : 1)];
 const cellAt = (col: number, row: number): V => [FACE_X + 0.2, colY(col), ZTOP - row * GZ];
 
 const LAYOUT = new WeakMap<Cork, Map<string, V>>();
@@ -149,10 +159,10 @@ function cellsOf(s: Cork): Map<string, V> {
     }
     return from;
   };
-  const up = s.cards.filter(c => c.at === 'board');
+  const up = s.cards.filter(c => c.at === 'board' || s.hold?.includes(c.id));
   s.sources.forEach((src, i) => {
-    const home = paperCol(i, n);
-    for (const c of up.filter(x => rootOf(x) === src.id).sort((a, b) => a.slot - b.slot)) {
+    const home = colOf(src, i, n);
+    for (const c of up.filter(x => rootOf(x) === src.id).sort((a, b) => (a.rank ?? a.slot) - (b.rank ?? b.slot))) {
       const cols = [...Array(NC).keys()].sort((a, b) => Math.abs(a - home) - Math.abs(b - home) || a - b);
       const col = cols.find(k => used[k] < NR) ?? home;
       out.set(c.id, cellAt(col, used[col]++));
@@ -188,8 +198,8 @@ const binPose = (k: number, hw: number, hh: number) => {
   const [dx, dy, a] = JIT[k % JIT.length];
   return lying([BIN.x + dx, BIN.y + dy, BH + BIN.h - 5 + Math.min(k, 24) * 0.3], hw, hh, a);
 };
-const paperPose = (s: CorkSource, i: number, n: number, binAt: number): Pose =>
-  s.at === 'board' ? upright(paperAt(i, n), PW, PH) : binPose(binAt, PW * 0.8, PH * 0.8);
+const paperPose = (s: CorkSource, col: number, binAt: number): Pose =>
+  s.at === 'board' ? upright(paperAt(col), PW, PH) : binPose(binAt, PW * 0.8, PH * 0.8);
 
 /** A pin at the top middle of an upright piece (where its thread ties). */
 const pinOf = (p: Pose, top: boolean): V => add(add(p.c, p.v, top ? 0.72 : -0.72), [0.4, 0, 0]);
@@ -228,7 +238,11 @@ function paperArt(s: CorkSource, p: Pose, pin: boolean) {
   } else if (s.paper === 'customer') {
     // a chat: two speech bubbles
     out += shape([at(-0.75, 0.75), at(0.35, 0.75), at(0.35, 0.3), at(-0.75, 0.3)], CERAMIC.m, 0.4);
-    out += shape([at(-0.3, 0.05), at(0.78, 0.05), at(0.78, -0.4), at(-0.3, -0.4)], PALS.mint.l, 0.4);
+    out += shape(
+      [at(-0.3, 0.05), at(0.78, 0.05), at(0.78, -0.4), at(-0.3, -0.4)],
+      s.tone ? TONES[s.tone].l : PALS.mint.l,
+      0.4,
+    );
   } else {
     // a staff printout: ruled bands
     for (const b of [0.6, 0.15, -0.3])
@@ -259,7 +273,11 @@ function papersOf(s: Cork) {
   const n = s.sources.length;
   let binK = 0;
   const cardsIn = s.cards.filter(c => c.at === 'bin').length;
-  return s.sources.map((src, i) => ({ src, pose: paperPose(src, i, n, src.at === 'bin' ? cardsIn + binK++ : 0) }));
+  return s.sources.map((src, i) => ({
+    src,
+    col: colOf(src, i, n),
+    pose: paperPose(src, colOf(src, i, n), src.at === 'bin' ? cardsIn + binK++ : 0),
+  }));
 }
 /** The thread end a card ties to: its parent card's pin, or its paper's pin. */
 function anchorOf(s: Cork, c: CorkCard, poses: Map<string, Pose>): { at: V; lit: boolean } | null {
@@ -351,11 +369,11 @@ export function partBox(part: CorkPart | string, s?: Cork): number[][] {
     case 'card': {
       const lit = (s?.cards ?? []).filter(c => c.lit);
       return lit.length
-        ? // with room on the viewer's right (toward -y) for the cards' pill column
+        ? // with room below for the cards' pill stack (at the close-up's pill scale)
           box3(
             [
               ...lit.flatMap(c => corners(cardPose(c, s!))),
-              add(cardPose(lit[0], s!).c, [0, -Math.max(...lit.map(c => c.label.length)) * 3.2 - 14, 0]),
+              add(cardPose(lit[0], s!).c, [0, 0, -(stackDrop(lit.length + 1, 2) + CH)]),
             ],
             2,
           )
@@ -365,6 +383,11 @@ export function partBox(part: CorkPart | string, s?: Cork): number[][] {
   return partBox('board');
 }
 
+/** How far below the lowest lit card (in screen units) a stack of n pills reaches, at pill scale sc. */
+const stackDrop = (n: number, sc: number) => {
+  const K = stageFrame(CORK_BOARD).inkK * sc;
+  return 9 * K + n * 8.6 * K * 2.1;
+};
 const pill = (p: V, dy: number, text: string, lit: boolean, k: number, dx = 0) =>
   `<g class="block-tag" aria-hidden="true" pointer-events="none">${tag(p, dx, dy, esc(text), lit, k)}</g>`;
 
@@ -382,49 +405,53 @@ export function corkPills(s: Cork, v: SceneView, moving = false) {
   const papers = papersOf(s).filter(p => p.src.at === 'board');
   const lit = papers.filter(p => p.src.lit);
   // every paper's name on desktop (staggered); on phones, and while zoomed, only the lit ones
-  papers.forEach((p, i) => {
+  // staggered by column, high and low in turn, so neighbours' pills never touch
+  const stagger = (col: number) => -10 - (col % 2) * 13;
+  for (const p of papers) {
     const show = p.src.lit || (!phone && v.zoomT === 0);
-    if (!show) return;
-    const top = add(p.pose.c, p.pose.v);
-    const part = p.src.lit ? 'source' : 'board';
-    const sc = k(part);
-    if (sc) out.push(pill(top, -10 - (i % 2) * 11 - (p.src.lit && !phone ? 0 : 0), p.src.short, !!p.src.lit, sc));
-  });
-  // the source callout sits over the first lit paper (or the first paper)
+    if (!show) continue;
+    const sc = k(p.src.lit ? 'source' : 'board');
+    if (sc) out.push(pill(add(p.pose.c, p.pose.v), stagger(p.col), p.src.short, !!p.src.lit, sc));
+  }
+  // the source callout stands above the first lit paper's own pill (or the first paper's), its leader starting at
+  // that pill's top so it never runs through the name
   const head = lit[0] ?? papers[0];
-  if (head) out.push(sayAt(calloutOf(s.say, v), 'source', add(head.pose.c, head.pose.v), -32, k('source') || 1, phone));
+  if (head) {
+    const sc = k('source') || 1,
+      K = stageFrame(CORK_BOARD).inkK * sc;
+    const top = add(add(head.pose.c, head.pose.v), [0, 0, (-stagger(head.col) + 8) * K]);
+    out.push(sayAt(calloutOf(s.say, v), 'source', top, 0, sc, phone));
+  }
   // lit cards name themselves, to the viewer's right of the board
   const litCards = moving ? [] : s.cards.filter(c => c.lit && c.at === 'board');
-  // in one column just right of the rightmost lit card, top to bottom, a pill's height apart, so none covers another
-  const sc = k('card');
-  if (sc && litCards.length) {
+  // stacked under the lowest lit card, in the board's empty lower rows, a pill's height apart (none covers another
+  // or a card), each with a leader from its card's foot; the step's card callout takes the next row
+  const sc = k('card') || 1;
+  if (litCards.length) {
     const K = stageFrame(CORK_BOARD).inkK * sc,
       fs = 8.6 * K;
-    const at = litCards.map(c => ({
-      c,
-      a: add(cardPose(c, s).c, cardPose(c, s).u, -1),
-      q: P(...(add(cardPose(c, s).c, cardPose(c, s).u, -1) as [number, number, number])),
-    }));
-    const w = Math.max(...litCards.map(c => c.label.length * fs * 0.62 + fs * 1.5));
-    const col = Math.max(...at.map(x => x.q[0])) + 10 * K + w / 2;
-    let y = -Infinity;
-    for (const x of [...at].sort((m, n) => m.q[1] - n.q[1])) {
-      y = Math.max(x.q[1] + 6 * K, y + fs * 2.1);
-      out.push(pill(x.a, (y - x.q[1]) / K, x.c.label, true, sc, (col - x.q[0]) / K));
+    const at = litCards.map(c => {
+      const a = add(cardPose(c, s).c, cardPose(c, s).v, -1);
+      return { c, a, q: P(...(a as [number, number, number])) };
+    });
+    const x = at.reduce((t, e) => t + e.q[0], 0) / at.length;
+    let y = Math.max(...at.map(e => e.q[1])) + 9 * K + fs;
+    if (k('card'))
+      for (const e of [...at].sort((m, n) => m.q[0] - n.q[0])) {
+        out.push(pill(e.a, (y - e.q[1]) / K, e.c.label, true, sc, (x - e.q[0]) / K));
+        y += fs * 2.1;
+      }
+    const say = calloutOf(s.say, v);
+    if (say && sayFits(say, 'card', phone)) {
+      const e = at[at.length - 1];
+      out.push(
+        `<g class="callout" aria-hidden="true" pointer-events="none">${tag(e.a, (x - e.q[0]) / K, (y - e.q[1]) / K, esc(say.text), true, sc)}</g>`,
+      );
     }
   }
-  if (litCards[0])
-    out.push(
-      sayAt(
-        calloutOf(s.say, v),
-        'card',
-        add(cardPose(litCards[0], s).c, cardPose(litCards[0], s).v, -1),
-        // below the card, clear of the papers and their pills above
-        44,
-        k('card') || 1,
-        phone,
-      ),
-    );
+  // a fallen card that keeps its name in the bin (what fell, or why), to the bin's left
+  const noted = s.cards.filter(c => c.at === 'bin' && c.note).at(-1);
+  if (noted && k('bin')) out.push(pill(add(cardPose(noted, s).c, [0, 0, 1]), -26, noted.note!, true, k('bin'), -30));
   const inBin = s.cards.filter(c => c.at === 'bin').length;
   on2(
     'bin',
@@ -534,8 +561,9 @@ export const corkStill = (s: Cork, v: SceneView = { zoomT: 0 }, withPills = true
 export function corkLift(s: Cork, v: SceneView, id: string) {
   const p = papersOf(s).find(x => x.src.id === id);
   return {
-    still: art(s, v, new Set([id]), false), // drawn in the stage's frame here: the hook passes the piece on as a finished string
-    piece: p ? withFrame(stageFrame(CORK_BOARD), () => paperArt(p.src, p.pose, true)) : '',
+    still: art(s, v, new Set([id]), false),
+    // a function: the hook draws it inside the stage's frame, where projected points get the frame's offset
+    piece: () => (p ? paperArt(p.src, p.pose, true) : ''),
   };
 }
 

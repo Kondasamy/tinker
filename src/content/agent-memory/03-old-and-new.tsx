@@ -8,7 +8,7 @@ import Quiz from '../../components/quiz/Quiz';
 import Predict, { Reveal } from '../../components/quiz/Predict';
 import { CORK_PARTS, type Cork } from '../../components/scenes/corkScene';
 import { fact } from '../../lib/agent-memory/facts';
-import { CAPACITY, GOOD, cardOf, remember, sourceOf, wins } from '../../lib/agent-memory/memory';
+import { CAPACITY, GOOD, SOURCES, cardOf, remember, sourceOf, wins } from '../../lib/agent-memory/memory';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { corkOf, fall, Fact, MemoryStage, ToyNote } from './kit';
@@ -47,10 +47,13 @@ function picture({ added, web, settled }: Pic): Cork {
     const page = sourceOf('web-deals');
     c = {
       ...c,
-      sources: [...c.sources, { id: page.id, short: page.short, paper: page.trust, at: 'board' }],
+      sources: [
+        ...c.sources,
+        { id: page.id, short: page.short, paper: page.trust, at: 'board', col: SOURCES.indexOf(page) },
+      ],
       cards: [
         ...c.cards.map(x => ({ ...x, lit: x.id === RULE })),
-        { id: WEB, label: cardOf(WEB).label, tone: 'store', from: page.id, at: 'board', slot: FREE[1] },
+        { id: WEB, label: cardOf(WEB).label, tone: 'web', from: page.id, at: 'board', slot: FREE[1], note: 'REJECTED' },
       ],
     };
     if (WEB_LOSES) c = fall(c, [WEB]);
@@ -114,7 +117,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['predict', 'reveal', 'fact'],
     narration: 'Your pick is locked. The rule: the better source wins, then the newer card.',
     act: 'Check your prediction.',
-    closeUp: ['card'],
+    closeUp: ['card', 'bin'],
     say: { block: 'card', text: 'Kept' },
     status: 'The old address fell into the bin; 14 Mill Lane stays lit.',
     predicate: s => s.revealed,

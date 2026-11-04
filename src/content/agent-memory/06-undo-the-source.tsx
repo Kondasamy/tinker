@@ -88,7 +88,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['predict', 'reveal', 'fact'],
     narration: 'Your pick is locked. The stage closes in on the bin.',
     act: 'Check your prediction.',
-    closeUp: ['bin', 'source'],
+    closeUp: ['bin'],
     status: `The bin holds the deals page and its ${PAGE_CARDS.length} cards.`,
     predicate: s => s.revealed,
   },
@@ -124,12 +124,13 @@ export default function UndoTheSource() {
       initial={{ pulled: [], prediction: null, revealed: false, quiz: null }}
       next={nextOf(MODULE, ID)}
       stage={({ state, apply, say, closeUp }) => {
-        const next = state.pulled.includes(PAGE) ? DAN : PAGE;
+        // Dan's chats light only once the page's reveal is done, so the close-up stays on the bin
+        const next = !state.pulled.includes(PAGE) ? PAGE : state.revealed && !state.pulled.includes(DAN) ? DAN : null;
         return (
           <MemoryStage
             cork={corkOf(remember(GOOD, { upTo: DAY, undone: state.pulled }), {
               upTo: DAY,
-              lit: state.pulled.length < 2 ? [next] : [],
+              lit: next ? [next] : [],
             })}
             pull={id => {
               if (state.prediction === null) return 'Make your prediction first.';

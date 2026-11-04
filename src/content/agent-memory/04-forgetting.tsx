@@ -8,7 +8,7 @@ import Quiz from '../../components/quiz/Quiz';
 import Predict, { Reveal } from '../../components/quiz/Predict';
 import { CORK_PARTS } from '../../components/scenes/corkScene';
 import { fact } from '../../lib/agent-memory/facts';
-import { GOOD, END, expiryOf, remember } from '../../lib/agent-memory/memory';
+import { GOOD, END, cardOf, expiryOf, remember } from '../../lib/agent-memory/memory';
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { corkOf, Fact, MemoryStage, ToyNote } from './kit';
@@ -19,6 +19,9 @@ const DAY = 17,
   HOLD = expiryOf('hold')!;
 const cara = (when: { jumped: boolean; forgot: boolean }) =>
   remember(GOOD, { upTo: DAY, today: when.jumped ? END : DAY, forgot: when.forgot ? ['cara'] : [] });
+/** the opening board: places stay empty as cards fall; the hold note keeps its name in the bin */
+const OPENING = remember(GOOD, { upTo: DAY }).board.map(b => b.id),
+  NOTES = { 'cara-away': cardOf('cara-away').label };
 const GONE = remember(GOOD, { upTo: DAY, today: END }).board.filter(
   b => !remember(GOOD, { upTo: DAY, today: END, forgot: ['cara'] }).board.some(x => x.id === b.id),
 ).length;
@@ -123,7 +126,7 @@ export default function Forgetting() {
       next={nextOf(MODULE, ID)}
       stage={({ state, apply, say, closeUp }) => (
         <MemoryStage
-          cork={corkOf(cara(state), { upTo: DAY, lit: state.jumped ? [] : ['cara-away'] })}
+          cork={corkOf(cara(state), { upTo: DAY, lit: state.jumped ? [] : ['cara-away'], hold: OPENING, notes: NOTES })}
           pull={id =>
             id === 'chat-cara'
               ? 'That pulls only her chats; her address from the order system would stay. Press Forget Cara.'
