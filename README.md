@@ -18,7 +18,7 @@ The catalogue lives on the [home page](https://tinker.kondasamy.com/#modules); i
 
 - **Static site:** Astro with React islands. No backend, no API key, no live model; it runs on any static host, and a chapter keeps working offline once its data has loaded.
 - **Real maths, recorded models:** whatever can run in the browser does (retrieval, validators, simulators, graders, a tiny trained model); whatever needs a real model is recorded ahead of time and labelled as such. Each module's engine and data are described in `docs/modules/<module>.md`.
-- **Pictures:** hand-inked isometric scenes drawn with the Colorfigures engine (see Credits), one per module in `src/components/scenes/`, with flat figures (`src/lib/iso/flat.ts`) a tab away. Names sit in label pills.
+- **Pictures:** hand-inked isometric scenes drawn with the Colorfigures engine (see Credits), one per module in `src/components/scenes/`, with flat figures (`src/lib/iso/flat.ts`) a tab away. Names sit in label pills. Newer modules use living scenes: the picture moves between steps, you act on it directly, and reveals close in (`src/lib/iso/motion.ts`).
 - **Story:** every chapter is a list of steps run by one step runner (`src/components/story/`): narration, the one control it needs, a check that advances it, hints, and “Show me” for puzzles. Progress is saved in the browser, per module.
 - **Making it stick:** predict before a reveal, quizzes that explain every option, a recap of recall questions, and a short warm-up when you come back. Nothing leaves the browser.
 - **Search and sharing:** every page has its own title, description, canonical URL, structured data and 1200×630 share image.
