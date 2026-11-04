@@ -117,9 +117,24 @@ export function chapterPlayer(page: Page, mode: Mode = 'mouse', check: (page: Pa
  * picture's size unchanged by the zoom (R11: no resize, no reflow). */
 export async function axeAcrossZoom(page: Page, zoomIn: () => Promise<void>, include = '.stage') {
   const svg = page.locator(`${include} svg`).first();
-  const before = await svg.boundingBox();
+  const width = async () => Number((await svg.getAttribute('viewBox'))?.split(' ')[2]);
+  const before = await svg.boundingBox(),
+    whole = await width();
   const unzoomed = await serious(page, include);
   await zoomIn();
+  // the close-up engaged (the camera narrowed) and has finished easing (two reads in a row agree)
+  let last = Number.NaN;
+  await expect
+    .poll(
+      async () => {
+        const w = await width(),
+          settled = w === last;
+        last = w;
+        return settled && w < whole;
+      },
+      { message: 'the stage zooms in and settles', intervals: [150], timeout: 8000 },
+    )
+    .toBe(true);
   const zoomed = await serious(page, include);
   const after = await svg.boundingBox();
   expect({ unzoomed, zoomed }).toEqual({ unzoomed: [], zoomed: [] });

@@ -13,10 +13,10 @@ import {
   PLAIN,
   REQUESTS,
   type Rules,
-  allRules,
   isWin,
   runDay,
 } from '../../lib/adaptive-compute/effort';
+import PINNED from '../../../data/adaptive-compute/pinned.json' with { type: 'json' };
 import { nextOf } from '../../lib/modules';
 import { UNSURE } from '../../lib/recall';
 import { EffortStage, Fact, ToyNote, yardOf } from './kit';
@@ -24,8 +24,8 @@ import { EffortStage, Fact, ToyNote, yardOf } from './kit';
 const MODULE = 'adaptive-compute',
   ID = '07-workbench';
 export const PARTS = MILL_PARTS;
-/** Every winning setting, recomputed from the engine (pinned in data/adaptive-compute/pinned.json). */
-export const WINNERS: Rules[] = allRules().filter(isWin);
+/** Every winning setting, pinned in data/adaptive-compute/pinned.json (recomputed from the engine in a test). */
+export const WINNERS = PINNED.winners as Rules[];
 const N = REQUESTS.length;
 
 export const QUIZ = {

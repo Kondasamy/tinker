@@ -197,7 +197,6 @@ test('axe passes on the stage before and after the close-up', async ({ page }) =
   await axeAcrossZoom(page, async () => {
     await p.btn('Swap and replay', true);
     await p.step(3);
-    await page.waitForTimeout(2200); // the motion lands, then the close-up eases in
   });
 });
 

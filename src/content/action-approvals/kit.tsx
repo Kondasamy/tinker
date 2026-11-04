@@ -232,7 +232,8 @@ export function ApprovalsStage({
     moves: tollMoves,
     ms: MOTION_MS,
     board: TOLL_BOARD,
-    closeUp: view === 'scene' ? closeUp : undefined,
+    // a zoomed stage is inert: hold the close-up until the crate is empty, so the reader can still deliver in-picture
+    closeUp: view === 'scene' && !scene.mail ? closeUp : undefined,
     partBox: (p, s) => partBox(p as TollPart, s),
     phone,
     lift: s => ({ still: tollLifted(s), piece: topLetter(s) }),

@@ -189,7 +189,6 @@ test('axe passes with the stage zoomed and not, and the close-up never resizes i
   await axeAcrossZoom(page, async () => {
     await p.opt(/^Every label, plus/);
     await p.step(3);
-    await page.waitForTimeout(800);
   });
   // zoomed, only the close-up part's pill shows
   await expect(stageSvg(page).locator('.block-tag')).toHaveCount(1);

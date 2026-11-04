@@ -1,7 +1,7 @@
 // Living scenes (KTD2, KTD6): a scene is a pure function scene(prev, state, t, view) → { still, moving }, and
 // useSceneMotion supplies prev and t. `still` goes in IsoStage's filtered layer (memoise it on the target state, so the
 // hand-drawn filter rasterises once per state); `moving` holds only the pieces in flight, unfiltered, and is empty at
-// t = 1, when every piece has joined the still. Self-contained on purpose: live kits keep their own tween/useReduced.
+// t = 1, when every piece has joined the still.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { P, ease, withFrame } from './core.js';
 import { frameFor, stageFrame, type Board, type SceneCtx, type Zoom } from './IsoStage';
@@ -24,36 +24,6 @@ const REDUCE = '(prefers-reduced-motion: reduce)';
 const instant = () =>
   (typeof matchMedia === 'function' && matchMedia(REDUCE).matches) ||
   (typeof document !== 'undefined' && document.visibilityState === 'hidden');
-
-/** Whether the reader asked for less motion, read on first render (no flash of motion) and kept live. */
-export function useReduced() {
-  const [reduced, setReduced] = useState(() => typeof matchMedia === 'function' && matchMedia(REDUCE).matches);
-  useEffect(() => {
-    const m = matchMedia(REDUCE),
-      f = () => setReduced(m.matches);
-    f();
-    m.addEventListener('change', f);
-    return () => m.removeEventListener('change', f);
-  }, []);
-  return reduced;
-}
-
-/** Animate a number from `from` to `to` in ms with the engine's ease; reduced motion jumps. Returns a cancel. */
-export function tween(from: number, to: number, ms: number, set: (v: number) => void) {
-  if (instant()) {
-    set(to);
-    return () => {};
-  }
-  let raf = 0;
-  const t0 = performance.now();
-  const step = (now: number) => {
-    const t = Math.min(1, (now - t0) / ms);
-    set(from + (to - from) * ease(t));
-    if (t < 1) raf = requestAnimationFrame(step);
-  };
-  raf = requestAnimationFrame(step);
-  return () => cancelAnimationFrame(raf);
-}
 
 /**
  * The motion from the last state to `state` (compared by identity): `t` runs 0 → 1, eased, over `ms`, then holds at 1.
@@ -143,9 +113,14 @@ export function useCloseUp(target: Zoom | undefined, state: unknown, ms = 500) {
   if (key !== entry.current.key) entry.current = { key, state };
   else if (entry.current.state !== state) key = '';
   const { prev, t } = useSceneMotion(key, ms);
-  const zoom = lerpZoom(zoomOf(prev), zoomOf(key), t);
-  const zoomT = key ? (prev ? 1 : t) : prev ? 1 - t : 0;
-  return { zoom: zoom.k > 1 ? zoom : undefined, zoomT };
+  // each motion starts from the zoom on screen, so a target changed mid-ease never jumps to the old target first
+  const shown = useRef<{ zoom?: Zoom; zoomT: number }>({ zoomT: 0 });
+  const from = useRef<{ prev: string; zoom?: Zoom; zoomT: number }>({ prev, zoom: zoomOf(prev), zoomT: prev ? 1 : 0 });
+  if (from.current.prev !== prev) from.current = { prev, ...shown.current };
+  const zoom = lerpZoom(from.current.zoom, zoomOf(key), t),
+    zoomT = lerp(from.current.zoomT, key ? 1 : 0, t);
+  shown.current = { zoom: zoom.k > 1 ? zoom : undefined, zoomT };
+  return shown.current;
 }
 
 export interface LivingOpts<S> {
@@ -163,8 +138,8 @@ export interface LivingOpts<S> {
   /** a part's 3-D footprint in state s, framed by the close-up */
   partBox?: (part: string, s: S) => number[][];
   phone?: boolean;
-  /** while a piece is dragged: the still without it, and the piece as drawn at rest (the hook moves it) */
-  /** the dragged piece; pass a function so it is drawn inside the stage's frame (projected points need its offset) */
+  /** while a piece is dragged: the still without it, and the piece as drawn at rest (the hook moves it); pass the
+   * piece as a function so it is drawn inside the stage's frame (projected points need its offset) */
   lift?: (s: S, view: SceneView) => { still: Art; piece: string | (() => string) };
 }
 

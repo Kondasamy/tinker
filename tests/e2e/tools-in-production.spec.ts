@@ -179,7 +179,6 @@ test('axe passes on the stage, unzoomed and closed in', async ({ page }) => {
   await page.waitForTimeout(1200);
   await axeAcrossZoom(page, async () => {
     await c.btn('Ask');
-    await page.waitForTimeout(1500);
   });
 });
 

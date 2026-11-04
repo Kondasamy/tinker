@@ -28,7 +28,8 @@ import { SAMPLE_BOARD, SAMPLE_HITS, sampleScene, sampleStill, type Sample } from
 // a hand-driven clock: frames run only when the test says so
 let now = 0,
   frames: FrameRequestCallback[] = [],
-  reduced = false;
+  reduced = false,
+  coarse = false;
 const tick = (ms: number) =>
   act(() => {
     now += ms;
@@ -42,13 +43,14 @@ beforeEach(() => {
   now = 1000;
   frames = [];
   reduced = false;
+  coarse = false;
   vi.spyOn(performance, 'now').mockImplementation(() => now);
   vi.stubGlobal('requestAnimationFrame', (f: FrameRequestCallback) => frames.push(f));
   vi.stubGlobal('cancelAnimationFrame', (id: number) => {
     frames[id - 1] = () => {};
   });
   vi.stubGlobal('matchMedia', (q: string) => ({
-    matches: q.includes('reduce') && reduced,
+    matches: (q.includes('reduce') && reduced) || (q.includes('coarse') && coarse),
     media: q,
     addEventListener() {},
     removeEventListener() {},
@@ -199,6 +201,21 @@ describe('useCloseUp', () => {
     expect(m.last()).toEqual({ k: 1, zoomT: 0 });
   });
 
+  it('a target dropped mid-zoom eases out from the zoom shown, never jumping to full zoom first', () => {
+    const m = harness();
+    m.go({ z: Z, s: 'reveal' });
+    tick(200);
+    const half = m.last().k;
+    expect(half).toBeGreaterThan(1);
+    expect(half).toBeLessThan(2);
+    const from = m.seen.length;
+    m.go({ s: 'reveal' });
+    tick(200);
+    tick(200);
+    expect(Math.max(...m.seen.slice(from).map(x => x.k))).toBeLessThanOrEqual(half);
+    expect(m.last()).toEqual({ k: 1, zoomT: 0 });
+  });
+
   it('with reduced motion, cuts', () => {
     reduced = true;
     const m = harness();
@@ -300,7 +317,7 @@ describe('scenes', () => {
 });
 
 describe('hit targets', () => {
-  function stage(o: { busy?: boolean; refuse?: string } = {}) {
+  function stage(o: { busy?: boolean; refuse?: string; show?: () => boolean } = {}) {
     const calls: string[] = [],
       drags: (Drag | null)[] = [];
     let status = '';
@@ -311,6 +328,7 @@ describe('hit targets', () => {
       status = `${part} on ${to}`;
     };
     function Stage() {
+      if (o.show && !o.show()) return null;
       return h(
         'div',
         null,
@@ -337,9 +355,9 @@ describe('hit targets', () => {
         y: +r.getAttribute('y')! + +r.getAttribute('height')! / 2,
       };
     };
-    const fire = (el: Element, type: string, at: { x: number; y: number }) =>
+    const fire = (el: Element, type: string, at: { x: number; y: number }, pointerId = 1) =>
       act(() => {
-        el.dispatchEvent(new PointerEvent(type, { bubbles: true, clientX: at.x, clientY: at.y, pointerId: 1 }));
+        el.dispatchEvent(new PointerEvent(type, { bubbles: true, clientX: at.x, clientY: at.y, pointerId }));
       });
     const dragTo = (to: string, finish = true) => {
       const crate = hit('crate').querySelector('rect')!;
@@ -347,8 +365,59 @@ describe('hit targets', () => {
       fire(crate, 'pointermove', centre(to));
       if (finish) fire(crate, 'pointerup', centre(to));
     };
-    return { calls, drags, status: () => status, hit, dragTo, fire, centre };
+    return {
+      calls,
+      drags,
+      status: () => status,
+      hit,
+      dragTo,
+      fire,
+      centre,
+      rerender: () => act(() => root.render(h(Stage))),
+    };
   }
+
+  it('a press that wanders 6 CSS px is still a tap', () => {
+    const s = stage();
+    const crate = s.hit('crate').querySelector('rect')!,
+      c = s.centre('crate'),
+      off = { x: c.x + 6, y: c.y };
+    s.fire(crate, 'pointerdown', c);
+    s.fire(crate, 'pointermove', off);
+    s.fire(crate, 'pointerup', off);
+    expect(s.calls).toEqual(['crate→undefined']);
+  });
+
+  it('a second pointer during a drag is ignored', () => {
+    const s = stage();
+    s.dragTo('pad-b', false);
+    const crate = s.hit('crate').querySelector('rect')!,
+      far = { x: s.centre('pad-a').x, y: s.centre('pad-a').y + 400 };
+    s.fire(crate, 'pointerdown', s.centre('crate'), 2);
+    s.fire(crate, 'pointermove', far, 2);
+    s.fire(crate, 'pointerup', far, 2);
+    s.fire(crate, 'pointercancel', far, 2);
+    expect(s.calls).toEqual([]);
+    expect(s.drags.at(-1)?.over).toBe('pad-b');
+    s.fire(crate, 'pointerup', s.centre('pad-b'));
+    expect(s.calls).toEqual(['crate→pad-b']);
+  });
+
+  it('unmounting mid-drag clears the stage’s drag', () => {
+    let shown = true;
+    const s = stage({ show: () => shown });
+    s.dragTo('pad-b', false);
+    expect(s.drags.at(-1)).not.toBeNull();
+    shown = false;
+    s.rerender();
+    expect(s.drags.at(-1)).toBeNull();
+  });
+
+  it('targets never pulse while busy', () => {
+    coarse = true;
+    stage({ busy: true });
+    expect(host.querySelector('.iso-hits animate')).toBeNull();
+  });
 
   it('are hidden from assistive tech, one transparent group per part, at least 44 px at 390', () => {
     const s = stage();

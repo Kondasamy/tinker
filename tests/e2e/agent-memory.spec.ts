@@ -178,7 +178,6 @@ test('axe passes unzoomed and on a close-up, and the picture never resizes', asy
   await axeAcrossZoom(page, async () => {
     await g.btn('Keep lasting facts', true);
     await g.step(4);
-    await page.waitForTimeout(1800);
   });
 });
 

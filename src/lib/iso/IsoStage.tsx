@@ -94,10 +94,12 @@ export default function IsoStage({
     () =>
       withFrame({ ...fr, light, prefix }, () => {
         const top = boardTop(...b, BH, 8);
-        return inkScale(board(...b, BH, 8) + (typeof scene === 'function' ? scene({ top }) : scene));
+        const html = inkScale(board(...b, BH, 8) + (typeof scene === 'function' ? scene({ top }) : scene));
+        // a picture (role img) has no controls inside: drawn blocks lose their button role, tab stop and name
+        return role === 'img' ? html.replace(/ role="button" tabindex="0" aria-label="[^"]*"/g, '') : html;
       }),
     // only living scenes (they pass `moving`) keep the art between renders; live stages rebuild it every render as before
-    [x0, y0, x1, y1, view, light, prefix, scene, moving === undefined ? {} : 0],
+    [x0, y0, x1, y1, view, light, prefix, scene, role, moving === undefined ? {} : 0],
   );
   // its own clip-id prefix: withFrame restarts clip numbering, so the two layers' ids would collide
   const flying =
@@ -118,13 +120,10 @@ export default function IsoStage({
       <defs dangerouslySetInnerHTML={{ __html: filterFor(fr.inkK, prefix + 'hand') }} />
       {/* children share the camera, so they use the same coordinates as the art (pointer maths: this group's CTM) */}
       <g className="iso-cam" transform={cam}>
-        {/* a picture (role img) has no controls inside: drawn blocks lose their button role, tab stop and name */}
         <g
           filter={`url(#${prefix}hand)`}
           // biome-ignore lint/security/noDangerouslySetInnerHtml: SVG markup the kit built, every string escaped (esc)
-          dangerouslySetInnerHTML={{
-            __html: role === 'img' ? art.replace(/ role="button" tabindex="0" aria-label="[^"]*"/g, '') : art,
-          }}
+          dangerouslySetInnerHTML={{ __html: art }}
         />
         {flying && (
           <g

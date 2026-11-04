@@ -220,10 +220,26 @@ test('axe passes with the stage zoomed and not, and the close-up never resizes i
     await p.opt(/^Stops it/);
     await p.step(4);
     await p.btn('Deliver the next letter', true);
-    await page.waitForTimeout(1800);
   });
   // zoomed, only the close-up parts' pills show
   await expect(stageSvg(page).locator('.block-tag')).toHaveCount(2);
+});
+
+test('a reveal step that asks for a letter stays unzoomed until it is in, so the letter drags in the picture', async ({
+  page,
+}) => {
+  const p = chapterPlayer(page);
+  await p.open(at(3));
+  for (let i = 0; i < 2; i++) {
+    await p.btn('Deliver the next letter', true);
+    await p.btn('Approve', true);
+  }
+  await p.step(3);
+  await p.opt(/^Stops it/);
+  await p.step(4);
+  await expect(stageSvg(page).locator('.iso-moving > *')).toHaveCount(0);
+  await drag(page, await centre(page, 'tray'));
+  await expect(stageSvg(page).locator('[data-slip][data-at="stopped"]')).toHaveCount(1);
 });
 
 test('the recap asks from finished chapters', async ({ page }) => {

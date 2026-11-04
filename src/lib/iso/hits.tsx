@@ -42,7 +42,7 @@ interface Props {
 // stage would need a measured CTM
 const PHONE_STAGE = 356,
   MIN_PX = 44,
-  SLOP = 2; // art units a press may wander and still be a tap
+  SLOP = 10; // CSS px a press may wander and still be a tap
 
 type Box = { x: number; y: number; w: number; h: number };
 const inside = (b: Box, p: { x: number; y: number }) =>
@@ -51,7 +51,10 @@ const inside = (b: Box, p: { x: number; y: number }) =>
 export default function HitLayer({ board, view = 0, hits, busy, act, legal = () => true, onDrag, pulse }: Props) {
   const g = useRef<SVGGElement>(null);
   const [hover, setHover] = useState<string | null>(null);
-  const [drag, setDrag] = useState<(Drag & { x0: number; y0: number }) | null>(null);
+  // x0, y0 in the art's units (for dx, dy); cx, cy in CSS px (for the tap slop); id: the one pointer that owns it
+  const [drag, setDrag] = useState<(Drag & { x0: number; y0: number; cx: number; cy: number; id: number }) | null>(
+    null,
+  );
   const [pulsing, setPulsing] = useState(false);
   const fr = stageFrame(board, view),
     min = (MIN_PX * frameFor(board).w) / PHONE_STAGE;
@@ -70,22 +73,35 @@ export default function HitLayer({ board, view = 0, hits, busy, act, legal = () 
     }),
   );
 
+  const live = useRef({ drag, onDrag });
+  live.current = { drag, onDrag };
   const end = () => {
     setDrag(null);
-    onDrag?.(null);
+    live.current.onDrag?.(null);
   };
+  const dragging = !!drag;
   useEffect(() => {
-    if (!drag) return;
+    if (!dragging) return;
     const k = (e: KeyboardEvent) => e.key === 'Escape' && end();
     window.addEventListener('keydown', k);
     return () => window.removeEventListener('keydown', k);
-  }, [!drag]);
+  }, [dragging]);
+  // unmounted mid-drag: the stage must not keep drawing the lifted piece
+  useEffect(() => () => void (live.current.drag && live.current.onDrag?.(null)), []);
+  // pulse once per step, once the stage is idle (a busy stage is inert, so a pulse would invite a dead tap)
+  const pulsed = useRef<unknown>(Symbol());
+  const idle = !busy;
   useEffect(() => {
+    if (!idle || pulsed.current === pulse) return;
+    pulsed.current = pulse;
     if (!matchMedia('(pointer: coarse)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     setPulsing(true);
     const t = setTimeout(() => setPulsing(false), 900);
-    return () => clearTimeout(t);
-  }, [pulse]);
+    return () => {
+      clearTimeout(t);
+      setPulsing(false);
+    };
+  }, [pulse, idle]);
 
   // pointer → the art's coordinates (this group shares IsoStage's camera)
   const at = (e: PointerEvent) => {
@@ -107,27 +123,27 @@ export default function HitLayer({ board, view = 0, hits, busy, act, legal = () 
   const overAt = (p: { x: number; y: number }) => nearest(p, h => h.kind === 'drop')?.part;
 
   const down = (e: PointerEvent) => {
+    if (busy || drag) return;
     const p = at(e),
-      part = (e.target as Element).closest('[data-hit]')?.getAttribute('data-hit');
-    const hit = nearest(p, h => h.kind !== 'drop') ?? hits.find(h => h.part === part);
-    if (busy || !hit || hit.kind === 'drop') return;
+      hit = nearest(p, h => h.kind !== 'drop');
+    if (!hit) return;
     try {
       (e.target as Element).setPointerCapture(e.pointerId);
     } catch {}
-    setDrag({ part: hit.part, x0: p.x, y0: p.y, dx: 0, dy: 0 });
+    setDrag({ part: hit.part, x0: p.x, y0: p.y, cx: e.clientX, cy: e.clientY, id: e.pointerId, dx: 0, dy: 0 });
   };
+  const mine = (e: PointerEvent) => drag?.id === e.pointerId;
   const move = (e: PointerEvent) => {
-    if (!drag || hits.find(h => h.part === drag.part)?.kind !== 'drag') return;
+    if (!drag || !mine(e) || hits.find(h => h.part === drag.part)?.kind !== 'drag') return;
     const p = at(e),
       d = { ...drag, dx: p.x - drag.x0, dy: p.y - drag.y0, over: overAt(p) };
     setDrag(d);
     onDrag?.({ part: d.part, dx: d.dx, dy: d.dy, over: d.over });
   };
   const up = (e: PointerEvent) => {
-    if (!drag) return;
-    const p = at(e),
-      moved = Math.hypot(p.x - drag.x0, p.y - drag.y0) > SLOP,
-      over = overAt(p);
+    if (!drag || !mine(e)) return;
+    const moved = Math.hypot(e.clientX - drag.cx, e.clientY - drag.cy) > SLOP,
+      over = overAt(at(e));
     end();
     if (!moved) act(drag.part);
     // a refusal needs nothing here: the piece is already back, act said why
@@ -152,7 +168,8 @@ export default function HitLayer({ board, view = 0, hits, busy, act, legal = () 
       onPointerDown={down}
       onPointerMove={move}
       onPointerUp={up}
-      onPointerCancel={end}
+      onPointerCancel={e => mine(e) && end()}
+      onLostPointerCapture={e => mine(e) && end()}
     >
       {hits.map((h, i) => {
         const b = boxes[i],

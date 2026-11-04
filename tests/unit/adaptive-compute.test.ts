@@ -86,6 +86,14 @@ describe('deciding per request', () => {
     expect(allRules().filter(isWin)).toEqual(PINNED.winners);
     expect(WINNERS).toEqual(PINNED.winners);
   });
+
+  it('the win is every question right on 106 of the 110 budget; one valve off, or a budget under 106, loses', () => {
+    expect(runDay(ROUTED)).toMatchObject({ right: 40, spent: 106, dry: false });
+    expect(isWin(ROUTED)).toBe(true);
+    expect(runDay(ROUTED, 105).dry).toBe(true);
+    expect(runDay({ ...ROUTED, warranty: 'straight' })).toMatchObject({ right: 36, dry: false });
+    expect(isWin({ ...ROUTED, warranty: 'straight' })).toBe(false);
+  });
 });
 
 describe('the mill-yard scene', () => {

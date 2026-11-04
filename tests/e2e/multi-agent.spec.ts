@@ -166,10 +166,9 @@ test('axe passes with the stage zoomed and not, and the close-up never resizes i
   const p = chapterPlayer(page);
   await p.open(at(0));
   await p.opt(/^They are never read/);
-  await p.btn('Run', true);
-  await p.step(3);
   await axeAcrossZoom(page, async () => {
-    await page.waitForTimeout(1800);
+    await p.btn('Run', true);
+    await p.step(3);
   });
   // zoomed on the lead's desk and the report, only their pills show (the unread spill, the missing count)
   await expect(page.locator('.stage .iso-pills .block-tag')).toHaveCount(2);
@@ -191,13 +190,16 @@ test.describe('phone', () => {
       await noSideScroll(page);
     }
     const p = chapterPlayer(page);
+    const big = async (c: Locator) => {
+      await expect(c).toBeVisible();
+      expect((await c.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    };
+    // the workbench has no Run button (it scores as you set), so Run is checked on chapter 1
     await p.open(at(6));
-    for (const c of [
-      p.stage.getByRole('button', { name: 'Run' }),
-      p.stage.getByRole('combobox', { name: 'Job' }),
-      p.stage.getByRole('group', { name: 'Helpers' }).locator('label').first(),
-    ].filter(Boolean))
-      if (await c.count()) expect((await c.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await big(p.stage.getByRole('combobox', { name: 'Job' }));
+    await big(p.stage.getByRole('group', { name: 'Helpers' }).locator('label').first());
+    await p.open(at(0));
+    await big(p.stage.getByRole('button', { name: 'Run' }));
   });
   test('a close-up step brings the stage, above the card, into view', async ({ page }) => {
     const p = chapterPlayer(page);
