@@ -118,7 +118,6 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['fact'],
     narration: `Now swap piece ${CAUSE + 1} instead, and roll ${REPEATS} seeded replays again.`,
     act: `Press Swap ${CAUSE + 1}, roll ${REPEATS}.`,
-    say: { block: 'right', text: `${TALLY.search.right} of ${REPEATS}` },
     status: `Piece ${CAUSE + 1} is blush and all ${TALLY.search.right} marbles landed in the right tray.`,
     predicate: s => s.phase >= 3,
     hint: 'Press the button under the picture.',

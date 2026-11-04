@@ -77,7 +77,6 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['steps'],
     narration: 'The marble is the task, handed down the run. Each piece reads what earlier pieces wrote.',
     act: `Tap piece ${PICK + 1}, or pick it and press Read.`,
-    say: { block: 'wrong', text: 'Wrong blade' },
     status: `Piece ${PICK + 1} is ringed: it picked ${AS.slots[PICK]}, the top result.`,
     predicate: s => s.lit === PICK,
     hint: `Choose piece ${PICK + 1} in the box under the picture, then press Read.`,

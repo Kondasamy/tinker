@@ -114,7 +114,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['predict', 'reveal', 'fact'],
     narration: 'The run had no plan for a timeout: it stopped, sent nothing, and told Dana nothing.',
     act: 'Check your prediction.',
-    closeUp: [`p${STOCK + 1}`],
+    closeUp: [`p${STOCK + 1}`, 'model'],
     status: `Close in on piece ${STOCK + 1}: the marble waits at the red gate.`,
     predicate: s => s.revealed,
   },

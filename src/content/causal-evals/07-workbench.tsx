@@ -52,7 +52,10 @@ const done = (s: S) => s.named.every(n => n !== null);
 export function sceneOf(s: S) {
   const r = done(s) ? KETTLE : s.run,
     t = done(s) ? [WINNERS[KETTLE]] : s.tried[r];
-  return marbleOf(RUNS[r], swap(t.at(-1)), t.length ? r * 100 + t.length : 0, { lit: s.named[r] });
+  return marbleOf(RUNS[r], swap(t.at(-1)), t.length ? r * 100 + t.length : 0, {
+    named: s.named[r],
+    title: RUNS[r].name,
+  });
 }
 const scoreLine = (s: S) =>
   `Found ${s.named.filter(n => n !== null).length} of ${RUNS.length} causes · ${s.used} of ${BUDGET} replays used.`;
@@ -120,7 +123,6 @@ export default function Workbench() {
           run = RUNS[r];
         return (
           <MarbleStage
-            key={r}
             run={run}
             scene={sceneOf(state)}
             log={state.tried[r].map(i => logOf(run, swap(i)))}

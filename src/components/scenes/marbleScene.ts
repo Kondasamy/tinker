@@ -64,6 +64,10 @@ export interface Marble {
   lit?: number | null;
   /** show the trays' counts (the many-runs chapter) */
   counts?: boolean;
+  /** the piece named as the run's cause (the workbench): its pill reads CAUSE */
+  named?: number | null;
+  /** the run's name, on a pill by the start cup (the workbench, where runs switch) */
+  title?: string;
   say?: Say;
   /** pills are drawn apart, outside the hand-drawn filter (the live stage's PillLayer: marblePills); the share image
    * keeps them in */
@@ -114,7 +118,11 @@ const hullOf = (i: number, dz = 0) => {
 };
 
 /** A chute piece at its slot (dz lifts it, for a swap dropping in), in its colours; ring: the lit mustard ring. */
-function chute(i: number, mode: PieceMode, opts: { dz?: number; touched?: boolean; ring?: boolean } = {}) {
+function chute(
+  i: number,
+  mode: PieceMode,
+  opts: { dz?: number; touched?: boolean; ring?: boolean; dim?: boolean } = {},
+) {
   const dz = opts.dz ?? 0,
     { a, b } = ends(i),
     x0 = a[0],
@@ -149,13 +157,13 @@ function chute(i: number, mode: PieceMode, opts: { dz?: number; touched?: boolea
   if (opts.touched)
     s += shape(
       [
-        [x0 + 1.5, YM - 1, z(x0 + 1.5) + 0.05],
-        [x1 - 1.5, YM - 1, z(x1 - 1.5) + 0.05],
-        [x1 - 1.5, YM + 1, z(x1 - 1.5) + 0.05],
-        [x0 + 1.5, YM + 1, z(x0 + 1.5) + 0.05],
+        [x0 + 1, YM - 2.2, z(x0 + 1) + 0.05],
+        [x1 - 1, YM - 2.2, z(x1 - 1) + 0.05],
+        [x1 - 1, YM + 2.2, z(x1 - 1) + 0.05],
+        [x0 + 1, YM + 2.2, z(x0 + 1) + 0.05],
       ],
-      PALS.cobalt.l,
-      0.6,
+      PALS.cobalt.m,
+      1,
     );
   s += shape(
     [
@@ -172,12 +180,19 @@ function chute(i: number, mode: PieceMode, opts: { dz?: number; touched?: boolea
     const open = mode === 'retry';
     s += box(x1 - 1, Y0, z(x1), x1, Y1 + 0.4, z(x1) + (open ? 1.4 : 6), PALS.tomato, toneI, 1.1);
     if (open) {
-      const c = P(x1 - 3, Y1 + 0.8, z(x1) + 7);
-      s += `<circle cx="${f(c[0])}" cy="${f(c[1])}" r="3.6" fill="${PALS.mint.l}" stroke="${INK}" stroke-width="1.1"/>`;
-      s += `<path d="M${f(c[0] - 2)} ${f(c[1])}A2 2 0 1 1 ${f(c[0])} ${f(c[1] + 2)}" fill="none" stroke="${INK}" stroke-width="0.9"/>`;
+      // a circular arrow: go round and ask again
+      const c = P(x1 - 3, Y1 + 0.8, z(x1) + 8),
+        r = 4.2,
+        pt = (deg: number) => [c[0] + r * Math.cos((deg * Math.PI) / 180), c[1] + r * Math.sin((deg * Math.PI) / 180)];
+      const [a0, a1] = [pt(-60), pt(210)];
+      const arc = `M${f(a0[0])} ${f(a0[1])}A${r} ${r} 0 1 1 ${f(a1[0])} ${f(a1[1])}`;
+      s += `<path d="${arc}" fill="none" stroke="${INK}" stroke-width="3.6" stroke-linecap="round"/>`;
+      s += `<path d="${arc}" fill="none" stroke="${PALS.mint.l}" stroke-width="2" stroke-linecap="round"/>`;
+      const h = [a0[0] + 3.2, a0[1] - 0.6];
+      s += `<path d="M${f(a0[0] - 1.6)} ${f(a0[1] - 2.6)}L${f(h[0])} ${f(h[1])}L${f(a0[0] - 0.6)} ${f(a0[1] + 2.6)}Z" fill="${PALS.mint.l}" stroke="${INK}" stroke-width="1" stroke-linejoin="round"/>`;
     }
   }
-  return `<g data-piece="${i}" data-mode="${mode}"${opts.touched ? ' data-touched="1"' : ''}>${s}</g>`;
+  return `<g data-piece="${i}" data-mode="${mode}"${opts.touched ? ' data-touched="1"' : ''}${opts.dim ? ' data-dim="1" opacity=".5"' : ''}>${s}</g>`;
 }
 
 /** a trestle under piece i: a post from the floor to the trough */
@@ -206,7 +221,7 @@ function marbleAt(p: number[], r = R) {
 }
 /** where the n-th marble rests: a little heap in a tray, or along the gutter */
 function inTray(tr: Tray, n: number) {
-  if (tr === 'none') return [GUT.x0 + 4 + (n % 24) * 4.4, (GUT.y0 + GUT.y1) / 2, BH + 0.8];
+  if (tr === 'none') return [(GUT.x0 + GUT.x1) / 2 - 24 + (n % 12) * 4.4, (GUT.y0 + GUT.y1) / 2, BH + 0.8];
   const col = n % 3,
     row = Math.floor(n / 3) % 3,
     layer = Math.floor(n / 9);
@@ -233,7 +248,7 @@ function gutterArt(n: number): Item {
   const g = GUT;
   let s = box(g.x0, g.y0, BH, g.x1, g.y1, BH + 0.6, METAL, toneI, 1);
   s += box(g.x0, g.y0, BH, g.x1, g.y0 + 0.6, BH + g.h, METAL, toneI, 0.8);
-  for (let k = 0; k < Math.min(n, 24); k++) s += marbleAt(inTray('none', k), 1.5);
+  for (let k = 0; k < Math.min(n, 12); k++) s += marbleAt(inTray('none', k), 2);
   s += box(g.x0, g.y0, BH, g.x0 + 0.6, g.y1, BH + g.h, METAL, toneI, 0.8);
   s += box(g.x1 - 0.6, g.y0, BH, g.x1, g.y1, BH + g.h, METAL, toneI, 0.8);
   s += box(g.x0, g.y1 - 0.6, BH, g.x1, g.y1, BH + g.h, METAL, toneI, 1.1);
@@ -259,7 +274,7 @@ export function path(s: Pick<Marble, 'modes' | 'halt' | 'drop'>, out: Outcome): 
     if (i === fallAt) {
       // out of the run here: through the gap, down into the gutter
       const x = a[0] + 2;
-      // the gutter tilts back to its left end, where the marble comes to rest
+      // the gutter dips in the middle, where the marble comes to rest
       pts.push({ p: [x, YM, a[2] + 1] }, { p: [x + 2, (GUT.y0 + GUT.y1) / 2, BH + 0.8] }, { p: inTray('none', 0) });
       return pts;
     }
@@ -296,10 +311,16 @@ function runArt(s: Marble, skip: number | null, marble: number[] | null): Item {
   // the start cup on its post, top left
   b += box(START[0] - 1, YM - 1, BH, START[0] + 1, YM + 1, START[2] - 3, WOOD, toneI, 0.9);
   b += box(START[0] - 3.5, Y0, START[2] - 3, START[0] + 3.5, Y1, START[2] - 1, PALS.mustard, toneI, 1.1);
+  // a swap's ripple: past the first changed piece, the pieces whose output stayed the same fade back
+  const first = s.touched?.length ? Math.min(...s.touched) : PIECES;
   for (let i = 0; i < PIECES; i++) {
     b += trestle(i);
     if (i !== skip)
-      b += chute(i, s.modes[i], { touched: s.touched?.includes(i), ring: s.lit === i && s.modes[i] !== 'gone' });
+      b += chute(i, s.modes[i], {
+        touched: s.touched?.includes(i),
+        ring: (s.lit === i || s.named === i) && s.modes[i] !== 'gone',
+        dim: i > first && s.modes[i] === 'as' && !s.touched?.includes(i),
+      });
   }
   // the sorting flap past the last piece, turned toward the tray the last marble went to
   const e = ends(PIECES - 1).b,
@@ -324,13 +345,20 @@ function runArt(s: Marble, skip: number | null, marble: number[] | null): Item {
 /** The setting: the people, the assistant, shadows. */
 function setting(s: Marble, top: SceneCtx['top']) {
   const last = s.rolled.at(-1);
+  const right = s.rolled.filter(o => o === 'right').length;
   const st: ModelState | undefined = !s.rolled.length
     ? undefined
-    : last === 'right'
-      ? 'ok'
-      : last === 'wrong'
-        ? 'bad'
-        : 'warn';
+    : s.rolled.length > 1
+      ? right === s.rolled.length
+        ? 'ok'
+        : right
+          ? 'warn'
+          : 'bad'
+      : last === 'right'
+        ? 'ok'
+        : last === 'wrong'
+          ? 'bad'
+          : 'warn';
   const m = modelMachine(MODEL[0], MODEL[1], 0.8, st),
     ines = person({ x: INES[0], y: INES[1], facing: '-y', look: 'ines', holding: 'clipboard' });
   const e = ends(PIECES - 1).b;
@@ -461,7 +489,7 @@ export function marblePills(s: Marble, v: SceneView, moving = false) {
     out: string[] = [],
     said = new Set<string>();
   const say = calloutOf(s.say, v);
-  // a callout sits clear of its part's name pill: left of a piece, above a tray
+  // a callout sits clear of its part's name pill: below and left of a piece, beyond a tray's pill
   const on = (
     p: string,
     at: number[],
@@ -470,13 +498,14 @@ export function marblePills(s: Marble, v: SceneView, moving = false) {
     text: string,
     lit: boolean,
     quiet = false,
-    c = [0, dy - 24],
+    c = [dx, dy * 2.6],
+    cAt = at,
   ) => {
     const sc = k(p);
     if (sc && !quiet) out.push(pill(at, dx, dy, text, lit, sc));
     if (!said.has(p) && say && sayFits(say, p, phone))
       out.push(
-        `<g class="callout" aria-hidden="true" pointer-events="none">${tag(at, c[0], c[1], esc(say.text), true, sc || 1)}</g>`,
+        `<g class="callout" aria-hidden="true" pointer-events="none">${tag(cAt, c[0], c[1], esc(say.text), true, sc || 1)}</g>`,
       );
     said.add(p);
   };
@@ -485,22 +514,45 @@ export function marblePills(s: Marble, v: SceneView, moving = false) {
     const { a, b } = ends(i),
       lit = s.lit === i,
       odd = s.modes[i] !== 'as',
-      mid = [(a[0] + b[0]) / 2, Y0, (a[2] + b[2]) / 2 + 2.4];
+      mid = [(a[0] + b[0]) / 2, Y0, (a[2] + b[2]) / 2 + 2.4],
+      front = [(a[0] + b[0]) / 2, Y1, (a[2] + b[2]) / 2 - 2.6];
+    const tag2 =
+      s.named === i ? 'CAUSE' : s.modes[i] === 'retry' ? 'RETRY' : s.modes[i] === 'fault' ? 'TIMED OUT' : null;
     on(
       `p${i + 1}`,
       mid,
       16,
       -18,
-      phone ? `${i + 1}` : `${i + 1} ${s.names[i].toUpperCase()}`,
-      lit,
-      phone && !lit && !odd && s.say?.block !== `p${i + 1}`,
-      [-48, 4],
+      phone ? `${i + 1}${tag2 ? ` ${tag2}` : ''}` : `${i + 1} ${tag2 ?? s.names[i].toUpperCase()}`,
+      lit || !!tag2,
+      phone && !lit && !odd && !tag2 && s.say?.block !== `p${i + 1}`,
+      [-34, 26],
+      front,
     );
   }
   const n = (tr: Tray) => (s.counts && !moving ? ` ${s.trays[tr]}` : '');
   const last = moving || s.counts ? null : s.rolled.at(-1);
-  on('right', [TRAY_X + TRAY_W, TRAY_Y.right - TRAY_D, BH + TRAY_H], 30, -6, `RIGHT${n('right')}`, last === 'right');
-  on('wrong', [TRAY_X + TRAY_W, TRAY_Y.wrong + TRAY_D, BH], 26, 12, `WRONG${n('wrong')}`, last === 'wrong');
+  on(
+    'right',
+    [TRAY_X + TRAY_W, TRAY_Y.right - TRAY_D, BH + TRAY_H],
+    30,
+    -6,
+    `RIGHT${n('right')}`,
+    last === 'right',
+    false,
+    [30, -28],
+  );
+  on(
+    'wrong',
+    [TRAY_X + TRAY_W, TRAY_Y.wrong + TRAY_D, BH],
+    26,
+    12,
+    `WRONG${n('wrong')}`,
+    last === 'wrong',
+    false,
+    [26, 34],
+  );
+  if (s.title && k('frame')) out.push(pill(START, -10, -16, s.title.toUpperCase(), true, k('frame')));
   on(
     'none',
     [GUT.x0 + 30, GUT.y1, BH + GUT.h],

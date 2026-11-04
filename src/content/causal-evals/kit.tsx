@@ -54,7 +54,7 @@ export function marbleOf(
   run: Run,
   change: Change | Change[],
   roll: number,
-  o: { lit?: number | null; seeds?: number[]; seed?: number } = {},
+  o: { lit?: number | null; seeds?: number[]; seed?: number; named?: number | null; title?: string } = {},
 ): Marble {
   const base: Marble = {
     modes: modesOf(change),
@@ -63,6 +63,8 @@ export function marbleOf(
     rolled: [],
     trays: { right: 0, wrong: 0, none: 0 },
     lit: o.lit ?? null,
+    named: o.named ?? null,
+    title: o.title,
   };
   if (!roll) return base;
   if (o.seeds) {
