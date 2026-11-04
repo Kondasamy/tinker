@@ -10,7 +10,7 @@ Decisions for this module only; the shared rules are in `AGENTS.md`.
 - **Living scene (KTD2, `Scene<Funi>`, 1200 ms):** the car travels its route (the run's events, `routeOf`) stop by stop, pausing at each, and each stop's flag, coins and letters change as the car arrives; in chapter 5 the stations slide along the hill into their new slots. A route already travelled is never travelled again (a later change, like turning the key on, moves the car straight). Reduced motion jumps to the end; every end state shows the change without motion (the flags, the coins, the letters, the car's station and lamp).
 - **Hands in the picture (KTD4):** tap the car to run (every chapter); tap the post box to try to take the email back (chapter 4, refused on the status line); drag a station to another stop along the track (chapters 5 and 7; `station:<id>` drags, `slot:<i>` drops). Dropped off a stop, it snaps back and the status line says to drop it on a stop. **Twin:** the buttons beside the stage (Run, Restart, Retry, Take it back, Send a second letter, Run all failures), and an ordered list of stations with Move up and Move down buttons (chapters 5 and 7), all through the kit's one handler, which writes the visible status line.
 - **Pills outside the filter:** the live stage draws pills through `PillLayer` (`funiPills`, `bare: true` on the state); the share image keeps them inline. On phones the station names shorten (`POST`) and states become marks (✓ ↺ ✗ ×2 ✉). Mid-motion only the names show, so no state appears before its car arrives. A step's callout sits over the station's prop, clear of the name pills to its left.
-- **Close-up (KTD6):** on each reveal: refund and post box still done (1), refund and post box doubled (2), refund and stock undone (3), the post box with two letters (4), the post box at the top, untouched (5), the till with two coins (6), the post box after the best setup (7).
+- **Close-up (KTD6):** each reveal frames every part its step changed, so nothing it describes is cropped: refund to courier with the car (1), refund and post box doubled (2), the valley to the courier: undone flags, the failed courier and the car (3), the valley to the post box: two letters and the car (4), the valley to the post box on top, untouched (5), refund to courier with the car (6), the valley to the post box after the best setup, the car's KEY pill (7). A close-up spanning three stations or more is a gentle push-in: every part inside keeps its pill as at rest; a two-station one (chapter 2) shows their states alone, larger, above-left of each prop. Callouts point at their part from the right, over the open hill, never over the station above.
 - **Second view:** the Log tab, the saga log: each station's step, its opposite (or the email's follow-up), whether it carries a key and a save point, and what happened.
 
 ## Chapter pictures
@@ -21,7 +21,7 @@ Each step's start frame is the previous step's end state; the status line is the
 |---|---|---|---|---|---|---|---|
 | 1 | predict | car in the valley, bare poles | none | Predict | — | courier | The car waits in the valley below four stations, no flag flying yet. |
 | 1 | run | stock, refund, post box green; courier red pennant, crossed hut; one letter; car at the courier | car climbs, flags rise one by one | tap the car, or Run | — | car | The car climbed three stations and stopped at the courier: QuickPost refused. |
-| 1 | reveal | the same | zooms in | Reveal | refund, email | — | The refund and the post box still fly green: done, and nothing undoes them. |
+| 1 | reveal | the same | zooms in | Reveal | refund, courier | — | The refund and the post box still fly green: done, and nothing undoes them. |
 | 1 | quiz | the same | none | Quiz | — | — | Three steps stand below the courier’s red flag. |
 | 2 | run | car at the post box, red lamp, STOPPED; three green flags | car climbs three stations and stops | tap the car, or Run | — | car | The car stopped at the post box, lamp red: stock, refund and email done. |
 | 2 | predict | the same | none | Predict | — | email | The car waits at the post box with its red lamp on. |
@@ -32,29 +32,29 @@ Each step's start frame is the previous step's end state; the status line is the
 | 3 | pick | refund ringed; return signs at stock and courier, then at the refund | none (sign appears) | `Select` + Set | — | refund | The refund now carries a blue return sign: charge the $89 back. |
 | 3 | predict | three return signs | none | Predict | — | — | Three stations carry blue return signs; the post box has none. |
 | 3 | run | courier red; refund and stock blue, lowered; post box green; car in the valley | car climbs, fails, runs down lowering refund then stock | tap the car, or Run | — | — | Courier failed; the car ran down lowering refund, then stock; the post box flag stays up. |
-| 3 | reveal | the same | zooms in | Reveal | refund, stock | — | Blue flags, lowered, at the refund and the stock. |
+| 3 | reveal | the same | zooms in | Reveal | car, courier | — | Blue flags, lowered, at the refund and the stock. |
 | 3 | quiz | the same | none | Quiz | — | — | Refund and stock undone; the email still stands. |
 | 4 | run | car stopped at the ringed post box; courier red; three green flags | car climbs, fails, runs down to the post box | tap the car, or Run | — | email | Courier failed; the car ran back down to the post box and stopped. |
 | 4 | unsend | the same (refused) | none | tap the post box, or Take it back | — | — | The post box won’t open: a sent email can’t be taken back. |
 | 4 | predict | the same | none | Predict | — | — | The car waits at the post box, one letter inside. |
 | 4 | letter | two letters, post box blue lowered; refund, stock blue lowered; car in the valley | the letter goes in; car runs on down | Send a second letter | — | — | A second letter went in; the car ran on down undoing refund, then stock. |
-| 4 | reveal | the same | zooms in | Reveal | email | — | Two letters by the post box, its flag lowered. |
+| 4 | reveal | the same | zooms in | Reveal | car, email | — | Two letters by the post box, its flag lowered. |
 | 4 | quiz | the same | none | Quiz | — | — | Every flag lowered but the courier’s; two letters sent. |
 | 5 | predict | R6f's order, return signs | none | Predict | — | email | Stations bottom to top: stock, refund, post box, courier. |
 | 5 | order | post box at the top, ringed | the stations slide into their new slots | drag the post box, or Move up / Move down | — | — | The post box now stands at the top, above the courier. |
 | 5 | run | courier (third) red; refund, stock blue lowered; post box bare pole, no letter | car climbs three, fails, runs down | tap the car, or Run | — | — | Courier failed; the car undid refund and stock and never reached the post box. |
-| 5 | reveal | the same | zooms in | Reveal | email | email | The post box at the top holds no letter; its flag never flew. |
+| 5 | reveal | the same | zooms in | Reveal | car, email | email | The post box at the top holds no letter; its flag never flew. |
 | 5 | quiz | the same | none | Quiz | — | — | Refund and stock undone; the post box untouched at the top. |
 | 6 | run | car at the refund; stock green; refund yellow pennant, one coin | car climbs two stations | tap the car, or Run | — | refund | The car waits at the refund under a yellow pennant: paid, but no answer came back. |
 | 6 | predict | the same | none | Predict | — | — | The car waits at the refund: one coin on the till, no answer back. |
 | 6 | retry | refund two yellow flags, two coins; post box and courier green | car climbs on | tap the car, or Retry | — | — | Ana was refunded twice: two coins on the till, two yellow flags. |
-| 6 | reveal | the same | zooms in | Reveal | refund | — | Two coins on the till: $178 paid for an $89 drill. |
+| 6 | reveal | the same | zooms in | Reveal | refund, courier | — | Two coins on the till: $178 paid for an $89 drill. |
 | 6 | key | a fresh run with a key tag on the car: all green, one coin | car climbs all four | Key switch, then Run | — | car | With a key the retry got the saved answer: one coin, one refund. |
 | 6 | quiz | the same | none | Quiz | — | — | Every flag green, one coin on the till, a key on the car. |
 | 7 | run | the opening setup's courier failure: three green, courier red | car climbs, fails | tap the car, or Run all failures | — | car | 1 of 20 ended clean; harm to the customer: 17. |
 | 7 | predict | the same | none | Predict | — | email | The courier failed and nothing came undone: every flag below it still green. |
 | 7 | fix | the reader's setup: order, signs, pegs, key; its courier failure | as the setup changes | switches, drag or Move up / down, Run all failures | — | — | Best: 20 of 20 clean, harm 0: post box last, every switch on. |
-| 7 | reveal | the best setup: post box at the top untouched | zooms in | Reveal | email | — | The courier failed; refund and stock undone; the post box at the top untouched. |
+| 7 | reveal | the best setup: post box at the top untouched | zooms in | Reveal | car, email | — | The courier failed; refund and stock undone; the post box at the top untouched. |
 
 Every chapter has an in-picture action (tap the car); chapter 4 adds a tap on the post box, chapters 5 and 7 a drag of the stations.
 

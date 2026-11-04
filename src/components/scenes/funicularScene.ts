@@ -6,7 +6,7 @@
 // A living scene (KTD2): scene(prev, state, t, view) → { still, moving }; at t = 1 everything is in the still.
 // Words only in pills; every string reaching SVG goes through esc().
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
-import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
+import { BH, boxCorners, esc, sayFits } from '../../lib/iso/blocks';
 import { modelMachine, person, type Item } from '../../lib/iso/figures';
 type Mat = { l: string; m: string; d: string };
 import {
@@ -211,17 +211,18 @@ function prop(id: StepId, y: number, mark: Mark | undefined, letters: number): s
     );
   switch (id) {
     case 'stock': {
-      // crates on the shelf: 2 to start, 3 with the drill back, 4 restocked twice, 2 again once taken off
-      const n = mark === 'done' ? 3 : mark === 'twice' ? 4 : 2;
+      // crates on the shelf: 2 to start, a third with the drill back, two more on top restocked twice, 2 once taken off
+      const n = mark === 'done' ? 3 : mark === 'twice' ? 5 : 2;
       const spots = [
-        [-9, -6, 0],
-        [1, -6, 0],
-        [-4, -6, 6],
-        [-9, 1, 0],
+        [-11, -6, 0],
+        [-2, -6, 0],
+        [7, -6, 0],
+        [-7, -6, 7],
+        [2, -6, 7],
       ];
       return spots
         .slice(0, n)
-        .map(([a, b, c]) => bx(a, b, c, a + 8, b + 6, c + 6, WOOD))
+        .map(([a, b, c]) => bx(a, b, c, a + 8.5, b + 7, c + 7, WOOD, 1.3))
         .join('');
     }
     case 'refund': {
@@ -333,17 +334,17 @@ const peg = (y: number) => {
   return `<g data-save="1">${line(
     [
       [x, yy, z],
-      [x, yy, z + 8],
+      [x, yy, z + 15],
     ],
-    1.2,
+    1.6,
   )}${shape(
     [
-      [x, yy, z + 8],
-      [x + 5, yy, z + 6.5],
-      [x, yy, z + 5],
+      [x, yy, z + 15],
+      [x + 10, yy, z + 12],
+      [x, yy, z + 9],
     ],
     PALS.mustard.l,
-    0.9,
+    1.2,
   )}</g>`;
 };
 /** an opposite's round return sign at the terrace's back-right corner */
@@ -406,22 +407,26 @@ function car(y: number, s: Funi, at: string): Item {
       0.8,
     );
   c += shape(
-    ellUV(TX, lo + 4, 1.8, 1.8, 10).map(([u, v]) => [u, y + 8.05, v]),
+    ellUV(TX, lo + 5, s.stopped ? 3.4 : 2.2, s.stopped ? 3.4 : 2.2, 12).map(([u, v]) => [u, y + 8.05, v]),
     s.stopped ? PALS.tomato.l : CERAMIC.l,
-    1,
+    s.stopped ? 1.5 : 1,
   );
   if (s.key)
     c += `<g data-key="1">${shape(
-      ellUV(y - 3, hi + 3, 1.8, 1.8, 10).map(([u, v]) => [TX + 8.3, u, v]),
+      ellUV(y - 4, hi + 4, 3.2, 3.2, 12).map(([u, v]) => [TX + 8.3, u, v]),
       PALS.mustard.l,
-      1,
-    )}${line(
+      1.3,
+    )}${shape(
       [
-        [TX + 8.3, y - 1.2, hi + 3],
-        [TX + 8.3, y + 3, hi + 3],
-        [TX + 8.3, y + 3, hi + 1.6],
+        [TX + 8.3, y - 1, hi + 3.2],
+        [TX + 8.3, y + 6, hi + 3.2],
+        [TX + 8.3, y + 6, hi + 0.8],
+        [TX + 8.3, y + 4.6, hi + 0.8],
+        [TX + 8.3, y + 4.6, hi + 2],
+        [TX + 8.3, y - 1, hi + 2],
       ],
-      1,
+      PALS.mustard.l,
+      1.1,
     )}</g>`;
   // the cable, up the track to the engine house
   const cable = line(
@@ -550,20 +555,39 @@ export function funiPills(s: Funi, v: SceneView, moving = false) {
   const phone = !!v.phone,
     out: string[] = [],
     said = new Set<string>();
-  // a callout sits over the part itself (cue), clear of the name pills to its left
-  const on = (part: string, at: number[], dx: number, dy: number, text: string, lit: boolean, cue = at) => {
-    const k = pillScale(part, v);
-    if (k) out.push(pill(at, dx, dy, text, lit, k));
-    if (!said.has(part)) out.push(sayAt(calloutOf(s.say, v), part, cue, 4, k || 1, phone));
+  const say = calloutOf(s.say, v);
+  // a callout points at its part from the right (cue), over the open hill past the track: clear of the name pills on
+  // the left, the station above, and the car
+  const callout = (part: string, cue: number[]) => {
+    if (said.has(part) || !say || !sayFits(say, part, phone)) return;
     said.add(part);
+    out.push(
+      `<g class="callout" aria-hidden="true" pointer-events="none">${tag(cue, phone ? 44 : 92, 6, esc(say.text), true, phone ? 2 : 1)}</g>`,
+    );
+  };
+  // a wide close-up (three stations or more, the car among them) is a gentle push-in: every part in it keeps its
+  // pill as at rest, and parts outside it hide; a tight one (two stations) shows their states alone, larger
+  const slotOf_ = (p: string) =>
+    p === 'car' || p === 'valley' ? (s.car === 'valley' ? -1 : s.order.indexOf(s.car)) : s.order.indexOf(p as StepId);
+  const span = (v.closeUp ?? []).map(slotOf_);
+  const lo = Math.min(...span),
+    hi = Math.max(...span);
+  const wide = v.zoomT > 0 && hi - lo >= 2;
+  const inside = (p: string) =>
+    p === 'car' ? lo <= slotOf_('car') && slotOf_('car') <= hi : lo <= slotOf_(p) && slotOf_(p) <= hi;
+  const scaleOf = (p: string) => (wide ? (inside(p) ? (phone ? 2 : 1) : 0) : pillScale(p, v));
+  const on = (part: string, at: number[], dx: number, dy: number, text: string, lit: boolean, cue?: number[]) => {
+    const k = scaleOf(part);
+    if (k) out.push(pill(at, dx, dy, text, lit, k));
+    if (cue) callout(part, cue);
   };
   s.order.forEach((id, i) => {
     const y = SLOT_Y[i],
       m = moving ? undefined : s.marks[id],
       name = NAME[id][phone ? 1 : 0];
-    // zoomed, the close-up's pill says the station's state alone (the close-up shows which station), floated just
-    // right of its prop: beside it, not over it, and short enough to stay in the frame
-    const zoomed = v.zoomT > 0;
+    // zoomed, the close-up's pill says the station's state alone (the close-up shows which station), floated above-left
+    // of its prop: beside it, clear of its letters and flag on the right, and short enough to stay in the frame
+    const zoomed = v.zoomT > 0 && !wide;
     const state =
       id === 'email' && !moving && s.letters > 1
         ? [`${s.letters} LETTERS`, `✉${s.letters}`]
@@ -581,18 +605,19 @@ export function funiPills(s: Funi, v: SceneView, moving = false) {
         : name;
     on(
       id,
-      zoomed ? [PX1 - 4, y, zp(y) + 12] : [PX0, y + PH, zp(y)],
-      zoomed ? 12 : -14,
-      zoomed ? -8 : -6,
+      zoomed ? [PX0 + 6, y, zp(y) + 12] : [PX0, y + PH, zp(y)],
+      zoomed ? -10 : -14,
+      zoomed ? -10 : -6,
       text,
       s.lit === id || m === 'failed',
-      [CX + 12, y, zp(y) + 18],
+      [PX1, y + PH, zp(y) + 4],
     );
   });
-  if (!moving && (s.stopped || s.key)) {
-    const y = yAt(s.car, s.order);
-    on('car', [TX + 8, y, zt(y) + 12], 16, -10, s.stopped ? 'STOPPED' : 'KEY', !!s.stopped);
-  }
+  const cy = yAt(s.car, s.order),
+    cueCar = [TX + 8, cy + 8, zt(cy + 8) + 6];
+  // the car's pill hangs below-right of it, clear of the cabins and the engine house
+  if (!moving && (s.stopped || s.key)) on('car', cueCar, 18, 14, s.stopped ? 'STOPPED' : 'KEY', !!s.stopped);
+  callout('car', cueCar);
   return [
     ...out.filter(p => p && !p.startsWith('<g class="callout"')),
     ...out.filter(p => p.startsWith('<g class="callout"')),

@@ -82,7 +82,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['predict', 'reveal', 'fact'],
     narration: `${FAILURE} Ana has her $${RETURN.amount} and an email promising a pickup that never comes.`,
     act: 'Check your prediction.',
-    closeUp: ['refund', 'email'],
+    closeUp: ['refund', 'courier'],
     status: 'The refund and the post box still fly green: done, and nothing undoes them.',
     predicate: s => s.revealed,
   },

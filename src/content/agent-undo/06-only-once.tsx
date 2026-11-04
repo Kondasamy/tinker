@@ -109,7 +109,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['predict', 'reveal', 'fact'],
     narration: 'The bank saw two requests and paid twice: it can’t tell a retry from a new refund.',
     act: 'Check your prediction.',
-    closeUp: ['refund'],
+    closeUp: ['refund', 'courier'],
     status: `Two coins on the till: $${RETURN.amount * 2} paid for an $${RETURN.amount} drill.`,
     predicate: s => s.revealed,
   },

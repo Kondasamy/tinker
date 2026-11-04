@@ -105,7 +105,7 @@ export const STEPS: Step<S>[] = [
     visibleControls: ['predict', 'reveal', 'fact', 'score'],
     narration: 'Every step its opposite, save points, a key, and the post box last: no failure reaches Ana.',
     act: 'Check your prediction.',
-    closeUp: ['email'],
+    closeUp: ['car', 'email'],
     status: 'The courier failed; refund and stock undone; the post box at the top untouched.',
     predicate: s => s.revealed,
   },

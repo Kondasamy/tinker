@@ -123,7 +123,7 @@ export const STEPS: Step<S>[] = [
     narration:
       'The first email still stands; the second explains. Ana got two letters: better than one, still a muddle.',
     act: 'Check your prediction.',
-    closeUp: ['email'],
+    closeUp: ['car', 'email'],
     status: 'Two letters by the post box, its flag lowered.',
     predicate: s => s.revealed,
   },
