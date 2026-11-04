@@ -61,6 +61,7 @@ import { ROBOTS_MODULE } from '../content/robots/module';
 import { BEFORE_GENAI_MODULE } from '../content/before-genai/module';
 import { SKILLS_MODULE } from '../content/skills/module';
 import { ACTION_APPROVALS_MODULE } from '../content/action-approvals/module';
+import { MULTI_AGENT_MODULE } from '../content/multi-agent/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -182,12 +183,7 @@ export const MODULES: Module[] = [
   ROBOTS_MODULE,
   SKILLS_MODULE,
   ACTION_APPROVALS_MODULE,
-  planned(
-    'multi-agent',
-    'Multi-agent systems',
-    'Advanced',
-    'When one agent beats five: handing work between agents, agreed message shapes, deadlocks and how far to trust a helper.',
-  ),
+  MULTI_AGENT_MODULE,
   planned(
     'agent-memory',
     'Memory you can trust',

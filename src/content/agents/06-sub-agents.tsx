@@ -234,6 +234,10 @@ export default function SubAgents() {
             <Fact id="multi-agent-tokens" />
             <p className="note">{`Here helpers cost ${RATIO} times the lead alone, on hand-written turns; Anthropic’s ${fact('multi-agent-tokens').value} times is real runs, measured against chat.`}</p>
             <ToyNote />
+            <p className="note">
+              Hand-offs, agreed shapes and helpers waiting on each other:{' '}
+              <a href="/multi-agent/">Multi-agent systems</a>.
+            </p>
           </>
         ),
         quiz: ({ state, apply, sync }) => (

@@ -2849,5 +2849,51 @@
       "tune",
       "quiz"
     ]
+  },
+  "multi-agent": {
+    "01-one-desk": [
+      "predict",
+      "run",
+      "reveal",
+      "quiz"
+    ],
+    "02-lead-and-helpers": [
+      "hire",
+      "predict",
+      "run",
+      "reveal",
+      "quiz"
+    ],
+    "03-the-hand-off": [
+      "run",
+      "predict",
+      "brief",
+      "reveal",
+      "quiz"
+    ],
+    "04-agreed-shapes": [
+      "predict",
+      "run",
+      "reveal",
+      "quiz"
+    ],
+    "05-waiting": [
+      "run",
+      "predict",
+      "timeout",
+      "reveal",
+      "quiz"
+    ],
+    "06-trusting-a-helper": [
+      "run",
+      "predict",
+      "check",
+      "reveal",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "quiz"
+    ]
   }
 }

@@ -64,6 +64,7 @@ import { steelyardPlot } from './steelyardScene';
 import { clawPlot } from './clawScene';
 import { carouselPlot } from './carouselScene';
 import { tollPlot } from './tollScene';
+import { switchPlot } from './switchboardScene';
 import { kioskPlot } from './kioskScene';
 import { SEQ_MSGS } from './toolSequence';
 import { MODULES } from '../../lib/modules';
@@ -287,6 +288,7 @@ const DRAW: Record<string, HeroPlot['draw']> = {
   robots: (x, y, { top }) => clawPlot(x + 14, y - 2, top),
   skills: (x, y, { top }) => carouselPlot(x + 14, y - 2, top),
   'action-approvals': (x, y, { top }) => tollPlot(x + 14, y - 2, top),
+  'multi-agent': (x, y, { top }) => switchPlot(x + 14, y - 2, top),
   'before-genai': (x, y, { top }) => kioskPlot(x + 14, y - 2, top),
 };
 // only AI modules take a turn on the stand: classic tech waits in the catalogue. The prequel (registry first) goes last, so

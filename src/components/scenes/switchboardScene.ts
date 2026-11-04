@@ -9,7 +9,7 @@
 // Words only in pills; every string reaching SVG goes through esc().
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, esc, sayAt } from '../../lib/iso/blocks';
-import { hexa, modelMachine, person, type Item, type ModelState } from '../../lib/iso/figures';
+import { drawPieces, hexa, mini, modelMachine, person, type Item, type ModelState } from '../../lib/iso/figures';
 import {
   CERAMIC,
   DARK,
@@ -520,7 +520,7 @@ export function switchPills(s: Switch, v: SceneView, moving = false) {
     -40,
   );
   const holdX = s.hold.length ? (colX(s.hold[0]) + colX(s.hold.at(-1)!)) / 2 : colX(1);
-  put('lamps', [holdX, FACE, Z.lamp + 3], -26, ran && s.hold.length && s.timer !== 'rang' ? 'ON HOLD' : null, true, 16);
+  put('lamps', [holdX, FACE, Z.lamp + 3], -26, ran && s.hold.length && s.timer !== 'rang' ? 'ON HOLD' : null, true, 36);
   const odd = DESKS.find(d => ['bounced', 'wrong', 'caught'].includes(s.plugs[d] ?? ''));
   const portText =
     !ran || !odd
@@ -539,7 +539,7 @@ export function switchPills(s: Switch, v: SceneView, moving = false) {
     caught ? 22 : -18,
     portText,
     s.plugs[odd ?? 0] !== 'bounced' && !!odd,
-    caught ? -26 : 22,
+    caught ? 8 : 22,
   );
   if (ran) {
     const dupD = DESKS.find(d => s.dup[d]);
@@ -913,4 +913,49 @@ export function switchLabel(s: Switch): string {
           ? `The report on Ines's tray is missing ${s.missing} catalogues.`
           : `The report on Ines's tray carries a wrong price, ${s.slipped}.`;
   return `Larkspur's back office: the lead agent at a cord switchboard, ${who}. ${what}`;
+}
+
+/** The home hero's stand plot: the switchboard with two lit lamps and two cords to two small desks, set down small. */
+export function switchPlot(x: number, y: number, top: SceneCtx['top']): string {
+  const wired = [1, 2];
+  const face: Face = {
+    lamps: { 1: 'ok', 2: 'ok' },
+    knobs: { 1: 'ok', 2: 'ok' },
+    plugged: wired,
+    hold: [],
+    holdCord: 'none',
+    bounced: [],
+    caught: [],
+    needle: 0,
+    timer: 0,
+    timerSet: false,
+  };
+  let floor = '',
+    tops = '';
+  for (const d of wired) {
+    const { top: t, floor: f } = cordPts(d),
+      col = palOf(d - 1).l;
+    floor += cordSvg(f, col);
+    tops += cordSvg(t, col);
+  }
+  const jack = (d: number) =>
+    box(deskX(d) + 7.5, DESK.y0 + 0.8, DESK.z, deskX(d) + 10.5, DESK.y0 + 3, DESK.z + 2.2, DARK, toneI, 0.7);
+  const items: Item[] = [
+    {
+      box: [
+        [B.x0, B.y0, BH],
+        [B.x1, B.yb, B.zt],
+      ],
+      svg: boardArt(face, tops),
+    },
+    ...wired.map(d => ({
+      box: [
+        [deskX(d) - DESK.hw, DESK.y0, BH],
+        [deskX(d) + DESK.hw, DESK.y1, DESK.z],
+      ],
+      svg: deskArt(deskX(d) - DESK.hw, deskX(d) + DESK.hw, DESK.y0, DESK.y1, DESK.z, jack(d), `desk${d}`),
+    })),
+  ];
+  const shadow = castShadow(boxCorners(B.x0, B.y0, BH, B.x1, B.yb, B.zt), BH, top) + floor;
+  return drawPieces([mini({ shadow, items }, [38, 48, BH], [x, y, BH], 0.32)]);
 }

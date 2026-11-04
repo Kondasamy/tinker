@@ -1,0 +1,22 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import OneDesk from '../../content/multi-agent/01-one-desk';
+import LeadAndHelpers from '../../content/multi-agent/02-lead-and-helpers';
+import TheHandOff from '../../content/multi-agent/03-the-hand-off';
+import AgreedShapes from '../../content/multi-agent/04-agreed-shapes';
+import Waiting from '../../content/multi-agent/05-waiting';
+import TrustingAHelper from '../../content/multi-agent/06-trusting-a-helper';
+import Workbench from '../../content/multi-agent/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('multi-agent').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="multi-agent" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {chapter === '01-one-desk' ? <OneDesk client:load /> : chapter === '02-lead-and-helpers' ? <LeadAndHelpers client:load /> : chapter === '03-the-hand-off' ? <TheHandOff client:load /> : chapter === '04-agreed-shapes' ? <AgreedShapes client:load /> : chapter === '05-waiting' ? <Waiting client:load /> : chapter === '06-trusting-a-helper' ? <TrustingAHelper client:load /> : <Workbench client:load />}
+</ChapterLayout>

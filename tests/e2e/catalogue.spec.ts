@@ -69,6 +69,7 @@ const NUMBERED = [
   'robots',
   'skills',
   'action-approvals',
+  'multi-agent',
 ];
 
 // AI modules lead the catalogue; classic tech follows in its own section of compact cards
@@ -466,6 +467,10 @@ test('live modules keep their numbers, each linked under its level', async ({ pa
   await expect(
     page.locator('[data-level="Intermediate"] .module[data-module="action-approvals"] h4 a'),
   ).toHaveAttribute('href', '/action-approvals/');
+  await expect(page.locator('[data-level="Advanced"] .module[data-module="multi-agent"] h4 a')).toHaveAttribute(
+    'href',
+    '/multi-agent/',
+  );
 });
 
 // Opening a web page's card (U11): the finder finds it by a topic and names the hit

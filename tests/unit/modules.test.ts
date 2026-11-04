@@ -999,6 +999,16 @@ describe('module registry', () => {
     expect(live.indexOf('action-approvals')).toBe(live.indexOf('skills') + 1);
   });
 
+  it('has multi-agent as a live Advanced module 62, after action-approvals', () => {
+    const m = moduleOf('multi-agent');
+    expect(m).toMatchObject({ title: 'Multi-agent systems', level: 'Advanced', status: 'live', prereqs: ['agents'] });
+    expect(m.track).toBeUndefined();
+    expect(m.author).toEqual(moduleOf('rag').author);
+    expect(moduleNumber(m)).toBe(62);
+    const live = MODULES.filter(x => x.status === 'live').map(x => x.id);
+    expect(live.indexOf('multi-agent')).toBe(live.indexOf('action-approvals') + 1);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });

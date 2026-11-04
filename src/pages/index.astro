@@ -183,6 +183,9 @@ import { carouselOf as skillsAt } from '../content/skills/kit';
 import { TOLL_BOARD, tollLabel, tollPills, tollStill } from '../components/scenes/tollScene';
 import { tollOf as approvalsAt } from '../content/action-approvals/kit';
 import { simulate as approvalsRun, WEEK as AA_WEEK, WINNERS as AA_WINNERS } from '../lib/action-approvals/gate';
+import { SWITCH_BOARD, switchLabel, switchStill } from '../components/scenes/switchboardScene';
+import { switchOf as multiAt } from '../content/multi-agent/kit';
+import { jobOf as multiJob } from '../lib/multi-agent/sim';
 import { KIOSK_BOARD, kioskLabel, kioskScene } from '../components/scenes/kioskScene';
 import { messageOf as kioskMessage, run as kioskRun } from '../lib/before-genai/bots';
 import { DEMOS as RB_DEMOS } from '../lib/robots/story';
@@ -507,6 +510,8 @@ const AA_HERO = approvalsAt(approvalsRun(AA_WINNERS[0]).desk, {
   next: [],
   bad: AA_WEEK.filter(l => l.harm).map(l => l.id),
 });
+// multi-agent: three helpers on the supplier report, as the intro draws it
+const MA_HERO = multiAt(multiJob('report'), { helpers: 3, brief: 'detailed', check: false }, true);
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   'before-genai': {
     name: 'Before GenAI',
@@ -1238,6 +1243,15 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       'Expiring approvals',
       'Planner and reader',
     ],
+  },
+  'multi-agent': {
+    name: 'Multi-agent systems',
+    iso: {
+      board: SWITCH_BOARD,
+      scene: switchStill(MA_HERO, { zoomT: 0, phone: true }),
+      label: switchLabel(MA_HERO),
+    },
+    topics: ['Multi-agent', 'Lead and helpers', 'Hand-offs', 'Agreed message shapes', 'Deadlock', 'Checking a helper'],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];
