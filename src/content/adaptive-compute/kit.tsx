@@ -60,7 +60,7 @@ export function yardOf(rules: Rules, o: { lit?: Lit; budget?: number; idle?: boo
         short: k.short,
         count: `${b.right}/${b.asked}`,
         to: rules[k.id],
-        mark: o.idle || b.answered < b.asked ? 'none' : b.right === b.asked ? 'right' : 'wrong',
+        mark: o.idle ? 'none' : b.answered < b.asked ? 'dry' : b.right === b.asked ? 'right' : 'wrong',
       };
     }),
     spent: d.spent,
@@ -231,7 +231,7 @@ export function EffortStage({
                 id = `ac-valve-${k}`;
               return (
                 <div className="ac-valve" key={k}>
-                  <label htmlFor={id}>{`${kindOf(k).name} valve`}</label>
+                  <label htmlFor={id}>{kinds.length > 1 ? kindOf(k).name : `${kindOf(k).name} valve`}</label>
                   <input
                     id={id}
                     type="range"
@@ -239,6 +239,7 @@ export function EffortStage({
                     max={OPTS.length - 1}
                     step={1}
                     value={OPTS.indexOf(now)}
+                    aria-label={`${kindOf(k).name} valve`}
                     aria-valuetext={OPT_NAME[now]}
                     onChange={e => act(`valve:${k}`, `mill:${OPTS[+e.target.value]}`)}
                   />

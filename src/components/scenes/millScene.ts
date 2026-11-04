@@ -39,7 +39,8 @@ export const MILL_BOARD: Board = [0, -8, 162, 142];
 export const MILL_PARTS = ['tower', 'manifold', 'valve', 'sorter', 'model', 'think', 'lookup', 'check', 'big'] as const;
 export type MillPart = (typeof MILL_PARTS)[number];
 
-export type Mark = 'right' | 'wrong' | 'none';
+/** right or wrong; dry: the water ran out before this kind's questions; none: the day hasn't run */
+export type Mark = 'right' | 'wrong' | 'dry' | 'none';
 export interface Valve {
   id: string;
   /** its pill: the kind's short name and score */
@@ -64,25 +65,26 @@ const MILL_IDS: MillId[] = ['think', 'lookup', 'check', 'big'];
 const feeds = (o: Opt): MillId[] => (o === 'all' ? MILL_IDS : o === 'straight' ? [] : [o]);
 const GLOW = 'var(--accent,#f4b829)';
 const WATER = { l: '#8fc1f0', m: '#5f97d6', d: '#24467a' };
-const MARK: Record<Mark, string> = { right: PALS.mint.l, wrong: PALS.tomato.l, none: CERAMIC.d };
+const MARK: Record<Mark, string> = { right: PALS.mint.l, wrong: PALS.tomato.l, dry: DARK.l, none: CERAMIC.d };
 
 // the tower: a tank on four legs at the back corner
-const T = { x: 24, y: 24, r: 12, z0: BH + 30, z1: BH + 58 };
-// the sorter where the tower's pipe enters the manifold
-const SO = { x0: 45, x1: 59, y0: 12, y1: 27, z: BH + 12 };
-// the manifold: a pipe along y with a valve wheel per kind
-const MX = 52,
+const T = { x: 24, y: 22, r: 12, z0: BH + 26, z1: BH + 52 };
+// the sorter where the tower's pipe enters the manifold, at the back right
+const SO = { x0: 121, x1: 135, y0: -3, y1: 11, z: BH + 12 };
+const PIPE_Y = 4; // the pipe from the tower runs along the back
+// the manifold: a pipe along y at the front right, a valve wheel per kind facing the viewer
+const MX = 128,
   PIPE_Z = BH + 5,
-  VY = [40, 64, 88, 112, 136],
+  VY = [34, 58, 82, 106, 130],
   WR = 5.6, // a valve wheel's radius
   WZ = BH + 15; // its centre's height
-const WX = MX + 4.5; // the wheel's plane, facing the mills
-// the mills, in a row along y on the far side of the hoses
-const MILL_X0 = 106,
-  MILL_X1 = 128,
-  MY: Record<MillId, number> = { think: 28, lookup: 60, check: 92, big: 124 },
+const WX = MX + 4.5; // the wheel's plane
+// the mills, in a row along y behind the hoses: their troughs and wheels face the manifold, so every hose end shows
+const MILL_X0 = 64,
+  MILL_X1 = 88,
+  MY: Record<MillId, number> = { think: 30, lookup: 62, check: 94, big: 126 },
   HALF_Y = 11;
-const TROUGH_X = 96; // where hoses end, at each mill's trough
+const TROUGH_END = 100; // where hoses end, at the front of each mill's trough
 const PAL: Record<MillId, { l: string; m: string; d: string }> = {
   think: PALS.mustard,
   lookup: PALS.cobalt,
@@ -90,13 +92,13 @@ const PAL: Record<MillId, { l: string; m: string; d: string }> = {
   big: PALS.blush,
 };
 const WHEEL: Record<MillId, { x: number; z: number; r: number; dy: number }> = {
-  think: { x: MILL_X1 + 1.5, z: BH + 12, r: 10.5, dy: 0 },
-  lookup: { x: MILL_X1 + 1.5, z: BH + 8.5, r: 7, dy: -4 },
-  check: { x: MILL_X1 + 1.5, z: BH + 7.5, r: 6.5, dy: 4 },
+  think: { x: MILL_X1 + 2.5, z: BH + 12, r: 10.5, dy: 0 },
+  lookup: { x: MILL_X1 + 2.5, z: BH + 8.5, r: 7, dy: -4 },
+  check: { x: MILL_X1 + 2.5, z: BH + 7.5, r: 6.5, dy: 4 },
   big: { x: MILL_X1 + 3, z: BH + 9, r: 8, dy: 0 },
 };
-const MODEL = [148, 14],
-  OPERATOR = [40, 0];
+const MODEL = [22, 120],
+  OPERATOR = [150, 2];
 /** each mill's roof height, where its name pill hangs */
 const TOP: Record<MillId, number> = { think: BH + 28, lookup: BH + 26, check: BH + 19, big: BH + 34 };
 
@@ -139,10 +141,13 @@ function valveArt(v: Valve, y: number, turn: number, lit: boolean) {
   let s = box(MX - 3, y - 3, PIPE_Z - 3, MX + 3, y + 3, PIPE_Z + 3, METAL, toneI, 1);
   s += rod([MX, y, PIPE_Z + 3], [WX - 1, y, WZ], 0.8, METAL, toneI, 0.8);
   // the spout toward the hoses
-  s += rod([MX + 3, y, PIPE_Z], [MX + 7, y, BH + 1.5], 1.3, METAL, toneI, 0.9);
+  s += rod([MX - 3, y, PIPE_Z], [MX - 7, y, BH + 1.5], 1.3, METAL, toneI, 0.9);
   if (lit)
     s += `<path d="${pd(rim(WR + 1.2, WX))}" fill="none" stroke="${GLOW}" stroke-width="5" stroke-linejoin="round"/>`;
   s += shape(rim(WR, WX), MARK[v.mark], lit ? 2 : 1.2) + shape(rim(WR * 0.62, WX + 0.05), CERAMIC.l, 0.6);
+  // ran dry: a dashed ring round the dark rim, unlike a valve whose day hasn't run
+  if (v.mark === 'dry')
+    s += `<path d="${pd(rim(WR + 1.2, WX + 0.1))}" fill="none" stroke="${DARK.d}" stroke-width="1.1" stroke-dasharray="2 1.6"/>`;
   for (let i = 0; i < 3; i++) {
     const a = ((turn + i * 120) * Math.PI) / 180;
     s += `<path d="${pd(
@@ -161,7 +166,7 @@ function valveArt(v: Valve, y: number, turn: number, lit: boolean) {
 const turnOf = (o: Opt) => 90 - ORDER.indexOf(o) * 60;
 
 function manifoldArt(s: MillYard, turns: Map<string, number>) {
-  let out = rod([MX, VY[0] - 14, PIPE_Z], [MX, VY[VY.length - 1] + 4, PIPE_Z], 2.2, METAL, toneI, 1.2);
+  let out = rod([MX, SO.y1, PIPE_Z], [MX, VY[VY.length - 1] + 4, PIPE_Z], 2.2, METAL, toneI, 1.2);
   s.valves.forEach((v, i) => {
     out += valveArt(v, VY[i], turns.get(v.id) ?? turnOf(v.to), s.lit?.valve === v.id);
   });
@@ -169,8 +174,8 @@ function manifoldArt(s: MillYard, turns: Map<string, number>) {
 }
 
 /** One hose on the ground from a valve's spout to a mill's trough; `k` of its length drawn (it grows when turned). */
-function hoseArt(i: number, m: MillId, j: number, k = 1, end = TROUGH_X + 6, flow?: number) {
-  const a = [MX + 7, VY[i] + (j - 1.5) * 1.4, BH + 0.5],
+function hoseArt(i: number, m: MillId, j: number, k = 1, end = TROUGH_END, flow?: number, fade = 1) {
+  const a = [MX - 7, VY[i] + (j - 1.5) * 1.4, BH + 0.5],
     b0 = [end, MY[m] + (i - 2) * 1.6, BH + 0.5];
   const b = a.map((x, n) => lerp(x, b0[n], k));
   const d = [b[0] - a[0], b[1] - a[1]],
@@ -184,6 +189,7 @@ function hoseArt(i: number, m: MillId, j: number, k = 1, end = TROUGH_X + 6, flo
     [a[0] - nx, a[1] - ny, a[2]],
   ];
   let s = shape(q, WATER.l, 0.7);
+  if (fade < 1) s = `<g opacity="${fade.toFixed(2)}">${s}</g>`;
   if (flow !== undefined)
     s += `<path d="${pd([a, b], false)}" stroke="#fff" stroke-width="1.1" stroke-dasharray="3 6" stroke-dashoffset="${(-flow * 36).toFixed(1)}" fill="none" stroke-linecap="round"/>`;
   return s;
@@ -265,25 +271,12 @@ function millBody(m: MillId, isWet: boolean, lit: boolean) {
   if (lit)
     s += `<path d="${pd(
       on(PZ(BH + 0.3), [
-        [TROUGH_X - 2, y0 - 3],
-        [MILL_X1 + 6, y0 - 3],
-        [MILL_X1 + 6, y1 + 3],
-        [TROUGH_X - 2, y1 + 3],
+        [MILL_X0 - 3, y0 - 3],
+        [TROUGH_END + 2, y0 - 3],
+        [TROUGH_END + 2, y1 + 3],
+        [MILL_X0 - 3, y1 + 3],
       ]),
     )}" fill="none" stroke="${GLOW}" stroke-width="5.5" stroke-linejoin="round"/>`;
-  // the trough the hoses run into
-  s += box(TROUGH_X, y - 5, BH, MILL_X0 + 1, y + 5, BH + 3, WOOD, toneI, 0.9);
-  if (isWet)
-    s += shape(
-      on(PZ(BH + 3.05), [
-        [TROUGH_X + 1, y - 4],
-        [MILL_X0, y - 4],
-        [MILL_X0, y + 4],
-        [TROUGH_X + 1, y + 4],
-      ]),
-      WATER.l,
-      0.5,
-    );
   if (m === 'think') {
     s += box(MILL_X0, y0, BH, MILL_X1, y1, BH + 20, p, toneI, lit ? 2.2 : 1.4);
     // a pitched roof
@@ -359,31 +352,40 @@ function millBody(m: MillId, isWet: boolean, lit: boolean) {
     const mm = modelMachine((MILL_X0 + MILL_X1) / 2, y, 0.8, isWet ? 'ok' : undefined, 30, { pal: PALS.tomato });
     s += mm.items.map(i => i.svg).join('');
   }
+  // the trough in front of the building, under the wheel, where the hoses run in: full when the mill is fed
+  s += box(MILL_X1 - 1, y - 7, BH, TROUGH_END, y + 7, BH + 3, WOOD, toneI, 0.9);
+  if (isWet)
+    s += shape(
+      on(PZ(BH + 3.05), [
+        [MILL_X1 + 0.5, y - 6],
+        [TROUGH_END - 1, y - 6],
+        [TROUGH_END - 1, y + 6],
+        [MILL_X1 + 0.5, y + 6],
+      ]),
+      WATER.l,
+      0.6,
+    );
   return s;
 }
 function millWheel(m: MillId, turn: number) {
   const w = WHEEL[m];
   return wheel(w.x, MY[m] + w.dy, w.z, w.r, turn, m === 'think' ? WOOD : PAL[m]);
 }
-function poolArt(m: MillId) {
-  const w = WHEEL[m];
-  return shape(on(PZ(BH + 0.4), ellUV(w.x + 2, MY[m] + w.dy, 4.5, w.r * 0.8, 16)), WATER.l, 0.7);
-}
 function millArt(m: MillId, s: MillYard, turn: number | null) {
   const isWet = wet(s).has(m),
     lit = s.lit?.mill === m;
-  return `<g data-mill="${m}" data-wet="${isWet ? 1 : 0}"${lit ? ' data-lit="1"' : ''}>${millBody(m, isWet, lit)}${isWet ? poolArt(m) : ''}${turn === null ? '' : millWheel(m, turn)}</g>`;
+  return `<g data-mill="${m}" data-wet="${isWet ? 1 : 0}"${lit ? ' data-lit="1"' : ''}>${millBody(m, isWet, lit)}${turn === null ? '' : millWheel(m, turn)}</g>`;
 }
 
 /* ---------------- boxes, parts, pills ---------------- */
 
 const millBox = (m: MillId) => [
-  [TROUGH_X, MY[m] - HALF_Y - 2, BH],
-  [MILL_X1 + 6, MY[m] + HALF_Y + 2, BH + 30],
+  [MILL_X0 - 1, MY[m] - HALF_Y - 2, BH],
+  [TROUGH_END + 1, MY[m] + HALF_Y + 2, BH + 30],
 ];
 const valveBox = (i: number) => boxCorners(MX - 3, VY[i] - WR - 1, BH, WX + 1, VY[i] + WR + 1, WZ + WR + 1);
-/** a valve with room on its left for its pill (close-ups frame both) */
-const valveFrame = (i: number) => boxCorners(MX - 3, VY[i] - WR - 1, BH, WX + 1, VY[i] + WR + 30, WZ + WR + 4);
+/** a valve with room on its right for its pill (close-ups frame both) */
+const valveFrame = (i: number) => boxCorners(MX - 7, VY[i] - WR - 30, BH, WX + 1, VY[i] + WR + 1, WZ + WR + 4);
 
 /** Points of a part's footprint, for close-ups and in-picture targets. */
 export function partBox(part: MillPart | string, s?: MillYard): number[][] {
@@ -438,34 +440,38 @@ const MILL_NAME: Record<MillId, string> = { think: 'THINK', lookup: 'LOOK UP', c
 /** The pills alone (valve scores, mill names, the tower's bill, the assistant's score, the callout), drawn outside the
  * ink filter as a PillLayer on the live stage; mid-motion the numbers that are changing wait. */
 export function millPills(s: MillYard, v: SceneView, moving = false) {
-  const k = (p: string) => pillScale(p, v),
-    phone = !!v.phone,
+  const phone = !!v.phone,
     out: string[] = [];
+  // the pills that carry the step's change (the score, the bill, the lit valve and mill) stay until the close-up is
+  // under way, so the change still reads as the stage starts to close in; every other pill goes at once
+  const held = (p: string) => ['model', 'tower', 'valve'].includes(p) || p === s.lit?.mill;
+  const k = (p: string) =>
+    v.zoomT > 0 && v.zoomT < 0.6 && !v.closeUp?.includes(p) && held(p) ? (phone ? 2 : 1) : pillScale(p, v);
   const put = (part: string, at: V, dx: number, dy: number, text: string, lit: boolean, show = true) => {
     const sc = k(part);
     if (sc && show) out.push(pill(at, dx, dy, text, lit, sc));
     out.push(sayAt(calloutOf(s.say, v), part, at, dy - 10, sc || 1, phone));
   };
-  // valves: each pill to the wheel's left (neighbours sit a pill's height apart); on phones only the lit one
+  // valves: each pill to the wheel's right (neighbours sit a pill's height apart); on phones only the lit one
   s.valves.forEach((val, i) => {
     const lit = s.lit?.valve === val.id,
       part = lit ? 'valve' : 'manifold';
     if (phone && !lit) return;
     if (v.zoomT > 0 && !lit && !v.closeUp?.includes('manifold')) return;
     const sc = k(part);
-    if (sc && !moving) out.push(pill([WX, VY[i] - WR, WZ], -38, -2, `${val.short} ${val.count}`, lit, sc));
+    if (sc && !moving) out.push(pill([WX, VY[i] - WR, WZ], 34, -2, `${val.short} ${val.count}`, lit, sc));
   });
   const litI = s.valves.findIndex(x => x.id === s.lit?.valve);
-  // the valve and manifold callouts sit out over the hoses, clear of the valves' own pills
-  out.push(sideCallout(s.say, v, 'valve', [WX, VY[Math.max(0, litI)], WZ], k('valve') || 1, phone));
-  out.push(sideCallout(s.say, v, 'manifold', [MX, VY[4] + 2, PIPE_Z], k('manifold') || 1, phone, -6, 36));
+  // the valve callout sits out over the hoses (left), the manifold's off its front end, clear of the valves' pills
+  out.push(sideCallout(s.say, v, 'valve', [MX - 6, VY[Math.max(0, litI)], BH + 2], k('valve') || 1, phone, -72, -10));
+  out.push(sideCallout(s.say, v, 'manifold', [MX, VY[4] + 4, PIPE_Z], k('manifold') || 1, phone, 16, 34));
   for (const m of MILL_IDS) {
     const lit = s.lit?.mill === m,
       sc = k(m),
       at = [(MILL_X0 + MILL_X1) / 2, MY[m], TOP[m]];
     if (sc && (!phone || lit)) out.push(pill(at, 0, -16, MILL_NAME[m], lit, sc));
-    // the mill's callout hangs off its front, over the open ground, clear of the next mill's name
-    out.push(sideCallout(s.say, v, m, [MILL_X1, MY[m], BH + 12], sc || 1, phone, 40, 30));
+    // the mill's callout hangs off its wheel, over the hoses' lane, clear of the next mill's name
+    out.push(sideCallout(s.say, v, m, [WHEEL[m].x, MY[m] + WHEEL[m].dy, BH + 10], sc || 1, phone, 18, 32));
   }
   const bill = `${s.spent}/${s.budget}`;
   put(
@@ -486,10 +492,10 @@ export function millPills(s: MillYard, v: SceneView, moving = false) {
     !!s.lit?.model,
     !moving,
   );
-  // the sorter's callout goes left, above its name, clear of the operator behind it
+  // the sorter's callout goes up-left, a pill's height above its name, clear of the operator beside it
   const soAt = [SO.x0, (SO.y0 + SO.y1) / 2, SO.z + 6];
   if (k('sorter') && (!phone || s.lit?.sorter)) out.push(pill(soAt, -30, -8, 'SORTER', !!s.lit?.sorter, k('sorter')));
-  out.push(sideCallout(s.say, v, 'sorter', soAt, k('sorter') || 1, phone, -40, -26));
+  out.push(sideCallout(s.say, v, 'sorter', soAt, k('sorter') || 1, phone, -40, -36));
   return [
     ...out.filter(p => p && !p.startsWith('<g class="callout"')),
     ...out.filter(p => p.startsWith('<g class="callout"')),
@@ -549,7 +555,9 @@ function art(s: MillYard, skip: Skip, withPills: boolean, v: SceneView) {
       ...MILL_IDS.map(m => ({ box: millBox(m), svg: millArt(m, s, skip.wheels?.has(m) ? null : 0) })),
     ];
     // the pipe from the tower to the sorter lies under everything
-    const pipe = rod([T.x, T.y, PIPE_Z], [SO.x0, T.y, PIPE_Z], 1.6, METAL, toneI, 1);
+    const pipe =
+      rod([T.x, T.y, PIPE_Z], [T.x, PIPE_Y, PIPE_Z], 1.6, METAL, toneI, 1) +
+      rod([T.x, PIPE_Y, PIPE_Z], [SO.x0, PIPE_Y, PIPE_Z], 1.6, METAL, toneI, 1);
     return set.shadow + (skip.hoses ? '' : hosesArt(s)) + pipe + byDepth(items) + (withPills ? millPills(s, v) : '');
   };
 }
@@ -590,10 +598,10 @@ export const millScene: Scene<MillYard> = (prev, s, t, v) => {
     // hoses: kept ones pulse; new ones grow out of their spout; gone ones shrink back into it
     s.valves.forEach((val, i) => {
       const was = prev.valves[i] ? feeds(prev.valves[i].to) : [];
-      for (const m of feeds(val.to))
-        out += hoseArt(i, m, MILL_IDS.indexOf(m), was.includes(m) ? 1 : t, TROUGH_X + 6, t);
+      for (const m of feeds(val.to)) out += hoseArt(i, m, MILL_IDS.indexOf(m), was.includes(m) ? 1 : t, TROUGH_END, t);
+      // a hose swung away fades out where it lay, so the change reads as a swing
       for (const m of was)
-        if (!feeds(val.to).includes(m)) out += hoseArt(i, m, MILL_IDS.indexOf(m), 1 - t, TROUGH_X + 6);
+        if (!feeds(val.to).includes(m)) out += hoseArt(i, m, MILL_IDS.indexOf(m), 1, TROUGH_END, undefined, 1 - t);
     });
     if (valvesMove) {
       const turns = new Map(

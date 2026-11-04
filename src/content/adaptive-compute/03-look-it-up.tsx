@@ -119,7 +119,10 @@ export default function LookItUp() {
         const kind = state.revealed ? 'puzzle' : 'stock';
         return (
           <EffortStage
-            yard={yardOf(state.rules, { lit: { valve: kind, mill: 'lookup' } })}
+            yard={yardOf(state.rules, {
+              // the tower rings while the bill drops, until the reveal
+              lit: { valve: kind, mill: 'lookup', tower: state.rules.stock === 'lookup' && !state.revealed },
+            })}
             turn={
               focus === 'turn'
                 ? turnOnly(kind, (k, o) => apply({ ...state, rules: { ...state.rules, [k]: o } }))

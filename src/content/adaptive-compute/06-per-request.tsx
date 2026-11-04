@@ -30,7 +30,11 @@ interface S {
 
 export const PREDICT = {
   question: 'Each question now goes only where it needs. Same answers: what bill?',
-  options: ['About a fifth of it', 'About the same', 'More: the sorter adds its own cost'],
+  options: [
+    `About ${Math.round((100 * SORTED.spent) / TANK)}% of it`,
+    'About the same',
+    'More: the sorter adds its own cost',
+  ],
 };
 const OUTCOME = 0;
 

@@ -125,6 +125,9 @@ describe('the mill-yard scene', () => {
     for (const m of ['lookup', 'check', 'big']) expect(svg).toContain(`data-mill="${m}" data-wet="0"`);
     expect(svg).toContain('data-valve="puzzle" data-to="think"');
     expect(draw(millStill(max))).toContain('data-dry="1"');
+    // a valve whose questions the water never reached reads apart from one whose day hasn't run
+    expect(draw(millStill(max))).toContain('data-mark="dry"');
+    expect(draw(millStill(yardOf(MAX, { idle: true })))).not.toContain('data-mark="dry"');
     expect(draw(millStill(plain))).toContain('data-dry="0"');
   });
 

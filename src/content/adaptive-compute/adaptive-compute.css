@@ -34,8 +34,29 @@
   font-weight: 600;
   color: var(--muted);
 }
+/* the workbench's five valves: one row on wide screens, the same height as one valve, so the stage keeps its size */
 .ac-twin[data-many] {
-  height: auto;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0 8px;
+}
+.ac-twin[data-many] .ac-valve {
+  grid-template-columns: 1fr;
+  font-size: 12px;
+}
+.ac-twin[data-many] .ac-valve input[type="range"] {
+  grid-column: auto;
+}
+.ac-twin[data-many] .ac-valve output {
+  justify-self: start;
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+@media (max-width: 860px) {
+  .ac-twin[data-many] {
+    height: auto;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
 }
 .ac-status {
   margin: 0;
