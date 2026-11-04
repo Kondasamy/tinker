@@ -1,0 +1,38 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import TheApproveButton from '../../content/action-approvals/01-the-approve-button';
+import TextThatGivesOrders from '../../content/action-approvals/02-text-that-gives-orders';
+import FollowingTheDye from '../../content/action-approvals/03-following-the-dye';
+import SmallSteps from '../../content/action-approvals/04-small-steps';
+import ApprovalsRunOut from '../../content/action-approvals/05-approvals-run-out';
+import TwoMinds from '../../content/action-approvals/06-two-minds';
+import Workbench from '../../content/action-approvals/07-workbench';
+import { moduleOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  return moduleOf('action-approvals').chapters.map(({ id, title }) => ({ params: { chapter: id }, props: { title } }));
+}
+
+const { chapter } = Astro.params;
+const { title } = Astro.props;
+---
+<ChapterLayout module="action-approvals" chapter={chapter} title={title}>
+  {/* One line per chapter: hydration needs each island as a static component in the template (KTD2). */}
+  {
+    chapter === '01-the-approve-button' ? (
+      <TheApproveButton client:load />
+    ) : chapter === '02-text-that-gives-orders' ? (
+      <TextThatGivesOrders client:load />
+    ) : chapter === '03-following-the-dye' ? (
+      <FollowingTheDye client:load />
+    ) : chapter === '04-small-steps' ? (
+      <SmallSteps client:load />
+    ) : chapter === '05-approvals-run-out' ? (
+      <ApprovalsRunOut client:load />
+    ) : chapter === '06-two-minds' ? (
+      <TwoMinds client:load />
+    ) : (
+      <Workbench client:load />
+    )
+  }
+</ChapterLayout>

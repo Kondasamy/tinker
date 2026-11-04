@@ -60,6 +60,7 @@ import { ROUTES_MODULE } from '../content/routes/module';
 import { ROBOTS_MODULE } from '../content/robots/module';
 import { BEFORE_GENAI_MODULE } from '../content/before-genai/module';
 import { SKILLS_MODULE } from '../content/skills/module';
+import { ACTION_APPROVALS_MODULE } from '../content/action-approvals/module';
 import type { RecallItem } from './recall';
 
 export type Level = 'Beginner' | 'Intermediate' | 'Advanced';
@@ -180,12 +181,7 @@ export const MODULES: Module[] = [
   ROUTES_MODULE,
   ROBOTS_MODULE,
   SKILLS_MODULE,
-  planned(
-    'action-approvals',
-    'Approvals and permissions',
-    'Intermediate',
-    'Harmless steps that add up to harm, approvals that expire, and keeping text the agent read from approving what it does.',
-  ),
+  ACTION_APPROVALS_MODULE,
   planned(
     'multi-agent',
     'Multi-agent systems',

@@ -222,7 +222,15 @@ export default function TheTrifecta() {
           </>
         ),
         compare: () => <Compare />,
-        fact: () => <Fact id="camel" />,
+        fact: () => (
+          <>
+            <Fact id="camel" />
+            <p className="note">
+              Which of an assistant’s actions outside text can reach:{' '}
+              <a href="/action-approvals/03-following-the-dye/">Approvals and permissions</a>.
+            </p>
+          </>
+        ),
         quiz: ({ state, apply, sync }) => (
           <Quiz
             {...QUIZ}

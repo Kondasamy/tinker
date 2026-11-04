@@ -2798,5 +2798,56 @@
       "reveal",
       "quiz"
     ]
+  },
+  "action-approvals": {
+    "01-the-approve-button": [
+      "deliver",
+      "approve",
+      "rush",
+      "predict",
+      "reveal",
+      "quiz"
+    ],
+    "02-text-that-gives-orders": [
+      "note",
+      "email",
+      "predict",
+      "reveal",
+      "rule",
+      "quiz"
+    ],
+    "03-following-the-dye": [
+      "request",
+      "predict",
+      "reveal",
+      "trifecta",
+      "quiz"
+    ],
+    "04-small-steps": [
+      "first",
+      "second",
+      "predict",
+      "reveal",
+      "quiz"
+    ],
+    "05-approvals-run-out": [
+      "approve",
+      "other",
+      "wait",
+      "predict",
+      "reveal",
+      "quiz"
+    ],
+    "06-two-minds": [
+      "one",
+      "predict",
+      "reveal",
+      "quiz"
+    ],
+    "07-workbench": [
+      "bench",
+      "tune",
+      "quiz"
+    ]
   }
 }

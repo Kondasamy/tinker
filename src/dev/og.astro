@@ -468,6 +468,16 @@ import { policyOf as rbPolicy, WINNERS as RB_WINNERS } from '../lib/robots/workb
 import { CAROUSEL_BOARD, type Carousel, carouselScene } from '../components/scenes/carouselScene';
 import { benchCarousel as skBench, carouselOf as skAt } from '../content/skills/kit';
 import { skillOf as skSkill, WINNERS as SK_WINNERS } from '../lib/skills/skills';
+import { TOLL_BOARD, type Toll, tollPills, tollStill } from '../components/scenes/tollScene';
+import { replay as aaReplay, tollOf as aaToll } from '../content/action-approvals/kit';
+import { sceneOf as aaDye, TURNS as AA_TURNS } from '../content/action-approvals/03-following-the-dye';
+import { sceneOf as aaMinds } from '../content/action-approvals/06-two-minds';
+import {
+  type Policy as AaPolicy,
+  simulate as aaSim,
+  WEEK as AA_WEEK,
+  WINNERS as AA_WINNERS,
+} from '../lib/action-approvals/gate';
 
 export function getStaticPaths() {
   return ALL_PAGES.map(page => ({ params: { slug: page.og }, props: { page } }));
@@ -2151,6 +2161,73 @@ const CAROUSEL_OG: Record<string, () => Carousel> = {
   'skills-07-workbench': () => skBench(SK_WINNERS[0], 1),
 };
 const carouselOg = CAROUSEL_OG[page.og]?.();
+// module 61: the refund office and its toll booth, each chapter at its reveal, unzoomed. The intro: the winning policy's
+// week; 1: every refund approved, the forged one paid too; 2: the forged email's refund, no rule; 3: the reply leaving,
+// dyed; 4: the third split refund stopped by the budget; 5: the old yes refused for a new order; 6: two minds, the
+// planner's refund clean; 7: the winning policy's week, harm marked; the recap: approve everything, forever.
+const AA_HARM = AA_WEEK.filter(l => l.harm).map(l => l.id);
+const aaPol = (ask: AaPolicy['ask'], budget: number | null, expiry: AaPolicy['expiry']): AaPolicy => ({
+  ask,
+  budget,
+  expiry,
+});
+const AA_ALL = aaPol('all', null, 'forever'),
+  AA_OPEN = aaPol('none', null, 'hour'),
+  AA_SPLIT = aaPol('dyed', 150, 'hour'),
+  AA_PASS = aaPol('dyed', null, 'hour');
+const TOLL_OG: Record<string, () => Toll> = {
+  'action-approvals': () => aaToll(aaSim(AA_WINNERS[0]).desk, { p: AA_WINNERS[0], dye: true, next: [], bad: AA_HARM }),
+  'action-approvals-recap': () => aaToll(aaSim(AA_ALL).desk, { p: AA_ALL, dye: true, next: [], bad: AA_HARM }),
+  'action-approvals-01-the-approve-button': () =>
+    aaToll(
+      aaReplay(AA_ALL, [
+        { l: 'saw-41' },
+        { yes: true },
+        { l: 'kettle-52' },
+        { yes: true },
+        { l: 'fake-88' },
+        { yes: true },
+      ]),
+      { p: AA_ALL, dye: false, next: [], bad: ['fake-88'], lit: 'fake-88' },
+    ),
+  'action-approvals-02-text-that-gives-orders': () =>
+    aaToll(aaReplay(AA_OPEN, [{ l: 'rosa-12' }, { l: 'fake-88' }]), {
+      p: AA_OPEN,
+      dye: true,
+      next: [],
+      lit: 'fake-88',
+    }),
+  'action-approvals-03-following-the-dye': () =>
+    aaDye({ n: AA_TURNS.length, leaves: 'reply', prediction: null, revealed: true, quiz: null }),
+  'action-approvals-04-small-steps': () =>
+    aaToll(
+      aaReplay(AA_SPLIT, [{ l: 'split-a' }, { yes: true }, { l: 'split-b' }, { yes: true }, { l: 'split-c' }], 1),
+      {
+        p: { ...AA_SPLIT, expiry: 'forever' },
+        dye: false,
+        next: [],
+      },
+    ),
+  'action-approvals-05-approvals-run-out': () =>
+    aaToll(aaReplay(AA_PASS, [{ l: 'saw-41' }, { yes: true }, { wait: 1 }, { l: 'reuse-41' }]), {
+      p: AA_PASS,
+      dye: false,
+      next: [],
+      tags: true,
+    }),
+  'action-approvals-06-two-minds': () =>
+    aaMinds({ two: true, read: true, prediction: null, revealed: true, quiz: null }),
+  'action-approvals-07-workbench': () =>
+    aaToll(aaSim(AA_WINNERS[0]).desk, {
+      p: AA_WINNERS[0],
+      dye: true,
+      next: [],
+      bad: AA_HARM,
+      marked: AA_HARM,
+      up: false,
+    }),
+};
+const tollOg = TOLL_OG[page.og]?.();
 const dfStripSrc = (() => {
   if (page.og !== 'diffusion-01-noise-to-picture') return undefined;
   const s = denoiseStrip(pictureFrames(trajectory(DF_STEPS_1, DF_SEED_1)));
@@ -2240,6 +2317,7 @@ const cut = page.kicker.lastIndexOf(' · ') + 1,
           : tableOg ? <IsoStage board={TABLE_BOARD} scene={tabletopScene({ ...tableOg, scale: 1.3 })} label="" />
           : clawOg ? <IsoStage board={CLAW_BOARD} scene={clawScene({ ...clawOg, scale: 1.3 })} label="" />
           : carouselOg ? <IsoStage board={CAROUSEL_BOARD} scene={carouselScene(carouselOg, carouselOg, 1, { zoomT: 0 }).still} label="" />
+          : tollOg ? <IsoStage board={TOLL_BOARD} scene={ctx => tollStill(tollOg, { zoomT: 0 })(ctx) + tollPills(tollOg, { zoomT: 0 })} label="" />
           : dreamOg ? <IsoStage board={dreamBoard(dreamOg)} scene={dreamScene({ ...dreamOg, scale: 1.3 })} label="" />
           : recitalOg ? <IsoStage board={RECITAL_BOARD} scene={recitalScene({ ...recitalOg, scale: 1.3 })} label="" />
           : shelfOg ? <IsoStage board={SHELF_BOARD} scene={shelfScene({ ...shelfOg, scale: 1.3 })} label="" />

@@ -180,6 +180,9 @@ import { levelAfter as odLevel } from '../lib/on-device/battery';
 import { CLAW_BOARD, clawLabel, clawScene } from '../components/scenes/clawScene';
 import { CAROUSEL_BOARD, carouselLabel, carouselStill } from '../components/scenes/carouselScene';
 import { carouselOf as skillsAt } from '../content/skills/kit';
+import { TOLL_BOARD, tollLabel, tollPills, tollStill } from '../components/scenes/tollScene';
+import { tollOf as approvalsAt } from '../content/action-approvals/kit';
+import { simulate as approvalsRun, WEEK as AA_WEEK, WINNERS as AA_WINNERS } from '../lib/action-approvals/gate';
 import { KIOSK_BOARD, kioskLabel, kioskScene } from '../components/scenes/kioskScene';
 import { messageOf as kioskMessage, run as kioskRun } from '../lib/before-genai/bots';
 import { DEMOS as RB_DEMOS } from '../lib/robots/story';
@@ -497,6 +500,13 @@ const RB_RUN = rbPlay(RB_BINS[0], RB_DEMOS[0]);
 const CLAW = { layout: RB_BINS[0], state: RB_RUN.at(-1)!, trail: RB_RUN.map(s => s.claw), scale: 1.7 };
 // skills: the refund binder open on the desk, as the intro draws it
 const SK_HERO = skillsAt('skills', [{ ticket: 'refund-saw' }]);
+// action-approvals: the winning policy's week at the booth, as the intro draws it
+const AA_HERO = approvalsAt(approvalsRun(AA_WINNERS[0]).desk, {
+  p: AA_WINNERS[0],
+  dye: true,
+  next: [],
+  bad: AA_WEEK.filter(l => l.harm).map(l => l.id),
+});
 const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
   'before-genai': {
     name: 'Before GenAI',
@@ -1212,6 +1222,22 @@ const CARD: Record<string, { name: string; iso?: Iso; topics: string[] }> = {
       label: carouselLabel(SK_HERO),
     },
     topics: ['Agent skills', 'Long prompts', 'Skill labels', 'Picking a skill', 'Scripts', 'Downloaded skills'],
+  },
+  'action-approvals': {
+    name: 'Approvals and permissions',
+    iso: {
+      board: TOLL_BOARD,
+      scene: ctx => tollStill(AA_HERO)(ctx) + tollPills(AA_HERO, { zoomT: 0, phone: true }),
+      label: tollLabel(AA_HERO),
+    },
+    topics: [
+      'Human approval',
+      'Approval fatigue',
+      'Prompt injection',
+      'Spending limits',
+      'Expiring approvals',
+      'Planner and reader',
+    ],
   },
 };
 const LEVELS: Level[] = ['Beginner', 'Intermediate', 'Advanced'];

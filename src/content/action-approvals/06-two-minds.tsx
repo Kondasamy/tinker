@@ -55,7 +55,7 @@ export const QUIZ = {
 
 export const PARTS = TOLL_PARTS;
 
-function sceneOf(s: S): Toll {
+export function sceneOf(s: S): Toll {
   const plan = s.read ? minds(s.two ? 'two' : 'one', MAIL) : [];
   return {
     dye: true,

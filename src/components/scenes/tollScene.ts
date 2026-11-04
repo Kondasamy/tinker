@@ -10,7 +10,7 @@
 // Words only in pills; every string reaching SVG goes through esc().
 import type { Board, SceneCtx } from '../../lib/iso/IsoStage';
 import { BH, boxCorners, calloutsLast, esc, sayFits } from '../../lib/iso/blocks';
-import { modelMachine, person, type Item, type ModelState } from '../../lib/iso/figures';
+import { drawPieces, mini, modelMachine, person, type Item, type ModelState } from '../../lib/iso/figures';
 
 type Mat = { l: string; m: string; d: string };
 import {
@@ -402,6 +402,30 @@ function tube(coins: number, budget: number | null) {
   return `<g data-part="coins" data-spent="${Math.round(coins)}">${s}</g>`;
 }
 
+/** The booth: a hut with a window and a flat roof. */
+function boothItem(): Item {
+  const { x0, x1, y0, y1, z1 } = BOOTH;
+  let booth = box(x0, y0, BH, x1, y1, z1, PALS.cobalt, toneI, 1.3);
+  booth += shape(
+    [
+      [x0 + 3, y1 + 0.05, BH + 12],
+      [x1 - 3, y1 + 0.05, BH + 12],
+      [x1 - 3, y1 + 0.05, z1 - 4],
+      [x0 + 3, y1 + 0.05, z1 - 4],
+    ],
+    CLEAR.l,
+    0.8,
+  );
+  booth += box(x0 - 2, y0 - 2, z1, x1 + 2, y1 + 2, z1 + 2.5, CERAMIC, toneI, 1.2);
+  return {
+    box: [
+      [x0 - 2, y0 - 2, BH],
+      [x1 + 2, y1 + 2, z1 + 3],
+    ],
+    svg: `<g data-booth="1">${booth}</g>`,
+  };
+}
+
 /** The setting: the furniture, the booth, the people and the machines (never moves). */
 function setting(s: Toll, top: SceneCtx['top']) {
   const waits = s.slips.some(x => x.at === 'gate');
@@ -437,27 +461,7 @@ function setting(s: Toll, top: SceneCtx['top']) {
       ).replace('<path d', '<path fill-opacity=".55" d')}</g>`,
     });
   }
-  // booth: a hut with a window and a flat roof
-  const { x0, x1, y0, y1, z1 } = BOOTH;
-  let booth = box(x0, y0, BH, x1, y1, z1, PALS.cobalt, toneI, 1.3);
-  booth += shape(
-    [
-      [x0 + 3, y1 + 0.05, BH + 12],
-      [x1 - 3, y1 + 0.05, BH + 12],
-      [x1 - 3, y1 + 0.05, z1 - 4],
-      [x0 + 3, y1 + 0.05, z1 - 4],
-    ],
-    CLEAR.l,
-    0.8,
-  );
-  booth += box(x0 - 2, y0 - 2, z1, x1 + 2, y1 + 2, z1 + 2.5, CERAMIC, toneI, 1.2);
-  items.push({
-    box: [
-      [x0 - 2, y0 - 2, BH],
-      [x1 + 2, y1 + 2, z1 + 3],
-    ],
-    svg: `<g data-booth="1">${booth}</g>`,
-  });
+  items.push(boothItem());
   shadow +=
     castShadow(boxCorners(BOOTH.x0, BOOTH.y0, BH, BOOTH.x1, BOOTH.y1, BOOTH.z1), BH, top) +
     castShadow(boxCorners(DESK.x0, DESK.y0, BH, DESK.x1, DESK.y1, DESK.z1), BH, top) +
@@ -856,4 +860,28 @@ export function tollLabel(s: Toll): string {
     `${money(s.spent)} paid today${s.budget !== null ? ` of a ${money(s.budget)} budget` : ''}`,
   ];
   return `${parts.filter(Boolean).join('; ')}.`;
+}
+
+/** The home hero's stand plot: the booth, its barrier down across the lane and a live pass's hourglass, set down small. */
+export function tollPlot(x: number, y: number, top: SceneCtx['top']): string {
+  const [gx, gy] = [BOOTH.x1 + 4, BOOTH.y0 + 6];
+  const items: Item[] = [
+    boothItem(),
+    {
+      box: [
+        [PIVOT[0] - 2, PIVOT[1] - 2, BH],
+        [PIVOT[0] + 2, PIVOT[1] + ARM, BH + 12],
+      ],
+      svg: barrier(0),
+    },
+    {
+      box: [
+        [gx - 4, gy - 4, BH],
+        [gx + 4, gy + 4, BH + 16],
+      ],
+      svg: hourglass(gx, gy, BH, 0.6, false),
+    },
+  ];
+  const shadow = castShadow(boxCorners(BOOTH.x0, BOOTH.y0, BH, BOOTH.x1, BOOTH.y1, BOOTH.z1), BH, top);
+  return drawPieces([mini({ shadow, items }, [BOOTH.x1, BOOTH.y1, BH], [x, y, BH], 0.5)]);
 }

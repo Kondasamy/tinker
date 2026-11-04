@@ -66,7 +66,7 @@ const after = (n: number) => READS.find(i => i > n) ?? TURNS.length;
 const ALL = TURNS.length;
 
 /** The picture: what has been read sits in the in-tray, what was written lies on the desk. */
-function sceneOf(s: S): Toll {
+export function sceneOf(s: S): Toll {
   const r = reads(s.n);
   return {
     dye: true,

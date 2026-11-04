@@ -170,6 +170,10 @@ export default function AskBeforeYouPay() {
               <a href="/sandboxing/">Agent sandboxing</a> shows how to keep what an agent can reach small, so a mistake
               stays small too.
             </p>
+            <p className="note">
+              Why a yes should cover one order, for a short time:{' '}
+              <a href="/action-approvals/05-approvals-run-out/">Approvals and permissions</a>.
+            </p>
             <RecordedNote />
           </>
         ),

@@ -984,6 +984,21 @@ describe('module registry', () => {
     expect(live.indexOf('skills')).toBe(live.indexOf('robots') + 1);
   });
 
+  it('has action-approvals as a live Intermediate module 61, after skills', () => {
+    const m = moduleOf('action-approvals');
+    expect(m).toMatchObject({
+      title: 'Approvals and permissions',
+      level: 'Intermediate',
+      status: 'live',
+      prereqs: ['guardrails', 'sandboxing'],
+    });
+    expect(m.track).toBeUndefined();
+    expect(m.author).toEqual(moduleOf('rag').author);
+    expect(moduleNumber(m)).toBe(61);
+    const live = MODULES.filter(x => x.status === 'live').map(x => x.id);
+    expect(live.indexOf('action-approvals')).toBe(live.indexOf('skills') + 1);
+  });
+
   it('keeps chapter ids unique within every module', () => {
     for (const m of MODULES) expect(new Set(m.chapters.map(c => c.id)).size, m.id).toBe(m.chapters.length);
   });
