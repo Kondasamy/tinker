@@ -16,6 +16,8 @@ import { ApprovalsStage, decided, Fact, left, replay, rowsOf, tollOf, ToyNote, t
 const MODULE = 'action-approvals',
   ID = '04-small-steps';
 export const POLICY: Policy = { ask: 'dyed', budget: 150, expiry: 'hour' };
+/** drawn with passes that never run out, so the £150 ring is the only cause of the stop in the picture */
+const SHOWN: Policy = { ...POLICY, expiry: 'forever' };
 export const QUEUE = ['split-a', 'split-b', 'split-c'];
 const EACH = letterOf('split-a').amount,
   PRICE = PRICES['77'],
@@ -125,7 +127,7 @@ export default function SmallSteps() {
           rest = left(QUEUE, state.log);
         return (
           <ApprovalsStage
-            scene={tollOf(d, { p: POLICY, dye: false, next: rest })}
+            scene={tollOf(d, { p: SHOWN, dye: false, next: rest })}
             rows={rowsOf(d, false)}
             deliver={() => {
               if (waiting(d)) return 'A refund already waits at the barrier: approve it first.';

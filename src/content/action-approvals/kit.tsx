@@ -80,6 +80,8 @@ export function tollOf(
     marked?: string[];
     /** order stickers and hourglass bands */
     tags?: boolean;
+    /** the barrier's arm, when the picture isn't one slip's passage (the workbench's whole week: down) */
+    up?: boolean;
   },
 ): Toll {
   const last = d.slips.at(-1);
@@ -108,7 +110,7 @@ export function tollOf(
     litZoom: o.litZoom,
     marked: o.marked,
     tags: o.tags,
-    up: last?.fate === 'paid',
+    up: o.up ?? last?.fate === 'paid',
   };
 }
 

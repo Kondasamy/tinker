@@ -104,13 +104,15 @@ export interface Toll {
 const DYE = matOf('#a77ae0');
 const COIN = PALS.mustard;
 const BAD = PALS.tomato;
+/** harm: a deep red, unlike the violet dye and the tomato furniture */
+const HARM = matOf('#d0201a');
 // the furniture
 const CRATE = { x0: 10, x1: 24, y0: 48, y1: 62, z1: BH + 8 };
 const TABLE = { x0: 28, x1: 44, y0: 64, y1: 82, z1: BH + 14 };
 const TRAY = { x0: 30, x1: 42, y0: 66, y1: 80 };
 const DESK = { x0: 52, x1: 84, y0: 64, y1: 86, z1: BH + 14 };
 const MODEL = [68, 46],
-  READER = [26, 32];
+  READER = [22, 30];
 const LANE = { x0: 92, x1: 178, y0: 64, y1: 86 };
 const GATE = [110, 75];
 const BOOTH = { x0: 118, x1: 134, y0: 42, y1: 58, z1: BH + 26 };
@@ -145,8 +147,8 @@ const ring = (x: number, y: number, z: number, r: number, n = 20) =>
     z,
   ]);
 /** an accent ring on the floor round a lit piece: a mark no other piece has */
-const glow = (x: number, y: number, z: number, r: number) =>
-  `<path d="${pd(ring(x, y, z, r))}" fill="none" stroke="var(--accent,#f4b829)" stroke-width="3.2"/><path d="${pd(ring(x, y, z, r))}" fill="none" stroke="${INK}" stroke-width=".7"/>`;
+const glow = (x: number, y: number, z: number, r: number, col = 'var(--accent,#f4b829)') =>
+  `<path d="${pd(ring(x, y, z, r))}" fill="none" stroke="${col}" stroke-width="3.2"/><path d="${pd(ring(x, y, z, r))}" fill="none" stroke="${INK}" stroke-width=".7"/>`;
 
 /** A letter lying flat: cream, or violet with outside text; a stamp in its corner. */
 function letterArt(x: number, y: number, z: number, dyed: boolean) {
@@ -171,7 +173,8 @@ function slipArt(sl: TollSlip, x: number, y: number, z0: number, mark: number, t
     g = [1, 1.35, 1.7][mark];
   const m = sl.dyed ? DYE : CERAMIC,
     k = sl.kind ?? 'refund';
-  let s = lit ? glow(x, y, z0, 6 * g) : '';
+  // a harm slip's ring is red; any other lit slip's is the accent
+  let s = lit ? glow(x, y, z0, 6 * g, sl.bad ? HARM.m : undefined) : '';
   const h = k === 'refund' ? 3.5 : 1.4;
   s += box(x - 4 * g, y - 3 * g, z, x + 4 * g, y + 3 * g, z + h, m, toneI, lit ? 1.6 : 0.8);
   if (k === 'refund') s += cyl(x, y, z + h, z + h + 0.8, 1.8, COIN, toneI, 0.6, 12);
@@ -194,28 +197,40 @@ function slipArt(sl: TollSlip, x: number, y: number, z0: number, mark: number, t
         false,
       )}" fill="none" stroke="${INK}" stroke-width=".5"/>`;
   // the order sticker: a square in the order's colour on the back corner
+  // the order band: a stripe in the order's colour over the top and down the front, like the hourglass's band
   if (tag)
-    s += shape(
-      [
-        [x - 3.8 * g, y - 2.8 * g, z + h + 0.12],
-        [x - 0.6 * g, y - 2.8 * g, z + h + 0.12],
-        [x - 0.6 * g, y + 0.2 * g, z + h + 0.12],
-        [x - 3.8 * g, y + 0.2 * g, z + h + 0.12],
-      ],
-      tag.l,
-      0.6,
-    );
+    s +=
+      shape(
+        [
+          [x - 4.05 * g, y - 3.05 * g, z + h + 0.12],
+          [x - 1 * g, y - 3.05 * g, z + h + 0.12],
+          [x - 1 * g, y + 3.05 * g, z + h + 0.12],
+          [x - 4.05 * g, y + 3.05 * g, z + h + 0.12],
+        ],
+        tag.l,
+        0.6,
+      ) +
+      shape(
+        [
+          [x - 4.05 * g, y + 3.05 * g, z],
+          [x - 1 * g, y + 3.05 * g, z],
+          [x - 1 * g, y + 3.05 * g, z + h],
+          [x - 4.05 * g, y + 3.05 * g, z + h],
+        ],
+        tag.m,
+        0.6,
+      );
   // harm: a thick tomato band right across the top, beside the coin
   if (sl.bad)
     s += shape(
       [
-        [x - 4.05 * g, y + 0.6 * g, z + h + 0.1],
-        [x + 4.05 * g, y + 0.6 * g, z + h + 0.1],
-        [x + 4.05 * g, y + 2.9 * g, z + h + 0.1],
-        [x - 4.05 * g, y + 2.9 * g, z + h + 0.1],
+        [x - 4.05 * g, y - 0.4 * g, z + h + 0.1],
+        [x + 4.05 * g, y - 0.4 * g, z + h + 0.1],
+        [x + 4.05 * g, y + 3.05 * g, z + h + 0.1],
+        [x - 4.05 * g, y + 3.05 * g, z + h + 0.1],
       ],
-      BAD.l,
-      0.7,
+      HARM.l,
+      0.9,
     );
   return `<g data-slip="${esc(sl.id)}" data-at="${sl.at}" data-dyed="${sl.dyed ? 1 : 0}"${sl.bad ? ' data-bad="1"' : ''}${lit ? ' data-lit="1"' : ''}>${s}</g>`;
 }
@@ -304,7 +319,8 @@ const mailP = (i: number) => [(CRATE.x0 + CRATE.x1) / 2, (CRATE.y0 + CRATE.y1) /
 /** the dye reaches the assistant once a dyed letter was read, and the lane once a dyed slip left the desk */
 const pipesOf = (s: Toll) => ({
   pipe1: s.dye && s.tray.some(Boolean) ? 1 : 0,
-  pipe2: s.dye && !s.two && s.slips.some(x => x.dyed && x.at !== 'desk') ? 1 : 0,
+  // a message going out (chapter 3) leaves by the desk, not through the barrier
+  pipe2: s.dye && !s.two && s.slips.some(x => x.dyed && x.at !== 'desk' && x.at !== 'out') ? 1 : 0,
 });
 
 function zoneIndex(s: Toll) {
@@ -522,24 +538,25 @@ export function tollPills(s0: Toll, v: SceneView) {
         `<g class="callout" aria-hidden="true" pointer-events="none">${tag(at, dx, dy + (dy > 0 ? 26 : -28), esc(say.text), true, sc || 1)}</g>`,
       );
   };
-  on('mail', [17, 55, CRATE.z1 + 4], -8, -18, phone ? 'MAIL' : `MAIL ${s.mail}`);
+  // in chapter 6 the reader stands behind the crate: its pill goes up, the crate's left
+  on('mail', [17, 55, CRATE.z1 + 4], s.two ? -24 : -8, s.two ? -2 : -18, phone ? 'MAIL' : `MAIL ${s.mail}`);
   on('tray', [36, 80, TABLE.z1 + 2], -10, 22, 'IN-TRAY');
-  on('model', [MODEL[0], MODEL[1], BH + 30], 0, -14, s.two ? 'PLANNER' : phone ? 'BOT' : 'ASSISTANT');
-  if (s.two) on('reader', [READER[0], READER[1], BH + 22], -6, -14, 'READER');
-  on('rosa', [ROSA[0], ROSA[1], BH + 30], 16, -10, 'ROSA');
+  on('model', [MODEL[0], MODEL[1], BH + 30], s.two ? 14 : 0, -14, s.two ? 'PLANNER' : phone ? 'BOT' : 'ASSISTANT');
+  if (s.two) on('reader', [READER[0], READER[1], BH + 22], -10, -16, 'READER');
+  on('rosa', [ROSA[0], ROSA[1], BH + 30], 26, -2, 'ROSA');
   const waits = s.slips.some(x => x.at === 'gate');
   // right of the arm's end, clear of a slip waiting left of it
   on('gate', [PIVOT[0] + 6, LANE.y1, BH], 4, 18, waits ? 'WAITING' : 'BARRIER', waits);
   const last = s.passes.at(-1);
-  // above the hourglasses, up and left over the booth's roof: clear of the lane, the coins and Rosa
+  // high above the glass it names: over the counter, clear of the booth's roof, the bins and Rosa's pill
   if (last || waits)
     on(
       'hourglass',
       waits
         ? [WAIT_GLASS[0], WAIT_GLASS[1], COUNTER.z1 + 16]
-        : [passAt(s.passes.length - 1)[0], COUNTER.y0 + 5, COUNTER.z1 + 16],
-      -14,
-      -16,
+        : [passAt(Math.min(s.passes.length, 3) - 1)[0], COUNTER.y0 + 4.5, COUNTER.z1 + 16],
+      waits ? 0 : -26,
+      -34,
       waits ? 'FLIP' : last!.sand <= 0.01 ? 'EXPIRED' : phone ? `#${last!.order}` : `ORDER ${last!.order}`,
       waits,
     );
@@ -551,7 +568,15 @@ export function tollPills(s0: Toll, v: SceneView) {
     s.budget !== null && !phone ? `${money(s.spent)} OF ${money(s.budget)}` : money(s.spent),
   );
   const count = (z: Zone) => s.slips.filter(x => x.at === z && (x.kind ?? 'refund') === 'refund').length;
-  on('paid', [BIN.x1 - 4, BIN.y1, BIN.z1], 6, 18, `PAID ${count('paid')}`);
+  const harmPaid = s.slips.filter(x => x.at === 'paid' && x.bad).length;
+  on(
+    'paid',
+    [BIN.x1 - 4, BIN.y1, BIN.z1],
+    6,
+    18,
+    `PAID ${count('paid')}${harmPaid ? ` · HARM ${harmPaid}` : ''}`,
+    harmPaid > 0,
+  );
   if (count('stopped')) on('stopped', [STOP.x0 + 4, STOP.y1, STOP.z1], -12, 18, `STOPPED ${count('stopped')}`);
   if (s.slips.some(x => x.at === 'desk') && !phone) on('desk', [DESK.x0 + 8, DESK.y1, ON], -10, 22, 'WRITTEN');
   // a message on its way out: its own lit pill, up and right of it (part 'desk' for close-ups)
