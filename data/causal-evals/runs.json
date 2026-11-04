@@ -1,0 +1,78 @@
+{
+  "label": "hand-written example run",
+  "note": "Four failed runs of Larkspur's assistant, written by hand from the failure patterns in Zhang et al. (Who&When, ICML 2025). Each step writes one slot: `as` is what the run wrote, `alt` what a swap writes instead ('=' copies the slot it reads). A step that reads a slot recomputes from it: `map` (value read → value written, '=' copies), else `odds` (value read → weighted choices, rolled with the run's dice), else `as`. `needs` lists slots that must be there or the step writes nothing.",
+  "runs": [
+    {
+      "id": "blade",
+      "name": "The mower blade",
+      "ask": "The blade on my L40 mower snapped. Please send a new one.",
+      "right": "B-40",
+      "outcomes": { "right": "Sent B-40, the L40 blade", "wrong": "Sent B-50, a blade for another mower", "none": "Sent nothing" },
+      "seed": 0,
+      "steps": [
+        { "id": "read", "name": "Read", "did": "Noted: a blade for an L40 mower.", "swap": "Noted: a blade, model left out.", "out": "ask", "as": "L40 blade", "alt": "blade" },
+        { "id": "order", "name": "Order", "did": "Found Dana’s order: an L40 mower, bought in 2024.", "swap": "Found an older order: an L50 mower.", "out": "mower", "as": "L40", "alt": "L50" },
+        { "id": "search", "name": "Search", "did": "Searched “mower blade”: B-50 first, then B-40.", "swap": "Searched “L40 mower blade”: only B-40.", "out": "results", "from": "ask", "map": { "L40 blade": "B-50 B-40", "blade": "B-50 B-40" }, "as": "B-50 B-40", "alt": "B-40" },
+        { "id": "pick", "name": "Pick", "did": "Picked B-50, the top result.", "swap": "Picked the cheaper blade: B-50.", "out": "part", "from": "results", "odds": { "B-50 B-40": { "B-50": 0.7, "B-40": 0.3 }, "B-40": { "B-40": 1 } }, "as": "B-50", "alt": "B-50" },
+        { "id": "stock", "name": "Stock", "did": "Checked stock: B-50 is on the shelf.", "swap": "Checked the second warehouse instead.", "out": "stock", "from": "part", "map": "=", "as": "B-50", "alt": "=" },
+        { "id": "address", "name": "Address", "did": "Confirmed the address: 14 Elm Road.", "swap": "Used the billing address instead.", "out": "address", "as": "home", "alt": "billing" },
+        { "id": "note", "name": "Note", "did": "Wrote a note: sorry about the blade!", "swap": "Wrote a longer apology.", "out": "note", "as": "short", "alt": "long" },
+        { "id": "send", "name": "Send", "did": "Sent B-50 to 14 Elm Road.", "swap": "Sent it by express post.", "out": "sent", "from": "stock", "map": "=", "needs": ["address"], "as": "B-50", "alt": "=" }
+      ]
+    },
+    {
+      "id": "refund",
+      "name": "The cracked kettle",
+      "ask": "Refund order 5512, please: the kettle arrived cracked.",
+      "right": "5512",
+      "outcomes": { "right": "Refunded order 5512", "wrong": "Refunded someone else’s order", "none": "Refunded nothing" },
+      "seed": 0,
+      "steps": [
+        { "id": "read", "name": "Read", "did": "Noted: refund order 5512.", "swap": "Noted: refund the kettle order.", "out": "ask", "as": "5512", "alt": "5512" },
+        { "id": "lookup", "name": "Look up", "did": "Looked up order 5521: a toaster.", "swap": "Looked up order 5512: a kettle.", "out": "order", "from": "ask", "map": { "5512": "5521" }, "as": "5521", "alt": "5512" },
+        { "id": "policy", "name": "Policy", "did": "Checked the policy: cracked on arrival means a full refund.", "swap": "Checked the policy for used items.", "out": "policy", "as": "full", "alt": "used" },
+        { "id": "photo", "name": "Photo", "did": "Asked for a photo; one came back.", "swap": "Skipped the photo.", "out": "photo", "as": "yes", "alt": "skipped" },
+        { "id": "amount", "name": "Amount", "did": "Worked out the amount: £24.", "swap": "Rounded the amount up to £25.", "out": "amount", "from": "order", "map": { "5521": "24", "5512": "31" }, "as": "24", "alt": "25" },
+        { "id": "approve", "name": "Approve", "did": "Under £50: no person needed to approve.", "swap": "Sent it to a person to approve.", "out": "approved", "from": "amount", "map": "=", "as": "24", "alt": "=" },
+        { "id": "pay", "name": "Pay", "did": "Refunded £24 on order 5521.", "swap": "Refunded by bank transfer instead.", "out": "paid", "from": "order", "map": "=", "needs": ["approved"], "as": "5521", "alt": "=" },
+        { "id": "email", "name": "Email", "did": "Emailed the customer: your refund is on its way.", "swap": "Texted the customer instead.", "out": "sent", "from": "paid", "map": "=", "as": "5521", "alt": "=" }
+      ]
+    },
+    {
+      "id": "hours",
+      "name": "The Sunday hours",
+      "ask": "Is your Leeds shop open this Sunday?",
+      "right": "open",
+      "outcomes": { "right": "Replied: open 10 to 4", "wrong": "Replied: closed on Sunday", "none": "Replied nothing" },
+      "seed": 0,
+      "steps": [
+        { "id": "read", "name": "Read", "did": "Noted: the Leeds shop, this Sunday.", "swap": "Noted: the Leeds shop, this weekend.", "out": "ask", "as": "leeds", "alt": "leeds" },
+        { "id": "find", "name": "Find", "did": "Found the Leeds shop’s page.", "swap": "Found the shops list instead.", "out": "page", "from": "ask", "map": "=", "as": "leeds", "alt": "=" },
+        { "id": "fetch", "name": "Fetch", "did": "Fetched its opening-hours table.", "swap": "Fetched last year’s table.", "out": "table", "from": "page", "map": { "leeds": "table" }, "as": "table", "alt": "table" },
+        { "id": "date", "name": "Date", "did": "Worked out the date: Sunday the 9th.", "swap": "Took Sunday the 16th by mistake.", "out": "date", "as": "9th", "alt": "16th" },
+        { "id": "holiday", "name": "Holiday", "did": "Checked the holiday list: no closures.", "swap": "Skipped the holiday list.", "out": "holiday", "as": "none", "alt": "skipped" },
+        { "id": "row", "name": "Row", "did": "Read the table’s first row, Monday: closed.", "swap": "Read the Sunday row: 10 to 4.", "out": "hours", "from": "table", "map": { "table": "closed" }, "as": "closed", "alt": "open" },
+        { "id": "check", "name": "Check", "did": "Checked the reply reads well.", "swap": "Checked the spelling only.", "out": "checked", "from": "hours", "map": "=", "as": "closed", "alt": "=" },
+        { "id": "reply", "name": "Reply", "did": "Replied: sorry, closed on Sunday.", "swap": "Replied with a shorter message.", "out": "sent", "from": "checked", "map": "=", "as": "closed", "alt": "=" }
+      ]
+    },
+    {
+      "id": "paint",
+      "name": "The paint order",
+      "ask": "Cancel the paint on my order, but keep the brushes.",
+      "right": "paint",
+      "outcomes": { "right": "Cancelled the paint only", "wrong": "Cancelled the whole order", "none": "Cancelled nothing" },
+      "seed": 0,
+      "steps": [
+        { "id": "read", "name": "Read", "did": "Noted: cancel the order.", "swap": "Noted: cancel the paint, keep the brushes.", "out": "ask", "as": "order", "alt": "paint" },
+        { "id": "order", "name": "Order", "did": "Found order 7730: paint and brushes.", "swap": "Found the order by email address.", "out": "order", "as": "7730", "alt": "7730" },
+        { "id": "status", "name": "Status", "did": "Checked: not shipped yet.", "swap": "Checked with the warehouse by phone.", "out": "status", "as": "waiting", "alt": "waiting" },
+        { "id": "lines", "name": "Lines", "did": "Listed the lines to cancel: every line.", "swap": "Listed every line by its item code.", "out": "lines", "from": "ask", "map": { "order": "all", "paint": "paint" }, "as": "all", "alt": "all" },
+        { "id": "log", "name": "Log", "did": "Logged the change on the order.", "swap": "Logged it in the daily report.", "out": "log", "as": "logged", "alt": "report" },
+        { "id": "cancel", "name": "Cancel", "did": "Cancelled every line on order 7730.", "swap": "Cancelled through the warehouse screen.", "out": "cancelled", "from": "lines", "map": "=", "needs": ["order", "status"], "as": "all", "alt": "=" },
+        { "id": "refund", "name": "Refund", "did": "Refunded the whole order.", "swap": "Refunded to store credit.", "out": "refunded", "from": "cancelled", "map": "=", "as": "all", "alt": "=" },
+        { "id": "reply", "name": "Reply", "did": "Replied: your order is cancelled.", "swap": "Replied with the refund date.", "out": "sent", "from": "refunded", "map": "=", "as": "all", "alt": "=" }
+      ]
+    }
+  ]
+}

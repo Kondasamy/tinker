@@ -1,0 +1,88 @@
+/* Why did it fail? stage: shares the tool-calling frame (.tc-stage, .tc-frame, .tc-caption); the twin control sits
+   under the picture, the lit piece's step reads beneath it, and the Replays tab is a table of every replay. */
+.ce-twin {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: stretch;
+}
+.ce-twin > :first-child {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+.ce-twin button,
+.ce-twin [role="combobox"],
+.ce-bench button {
+  min-height: 44px;
+}
+.ce-status {
+  margin: 0;
+  min-height: 2.8em;
+}
+.ce-did {
+  margin: 0;
+  font-size: 14px;
+}
+.ce-log {
+  margin: 0;
+  overflow: auto;
+}
+.ce-log table {
+  border-collapse: collapse;
+  font-size: 13px;
+  width: 100%;
+}
+.ce-log caption {
+  text-align: left;
+  font-weight: 800;
+  padding-bottom: 6px;
+}
+.ce-log th,
+.ce-log td {
+  border-bottom: 1px solid var(--rule);
+  padding: 4px 6px;
+  text-align: left;
+}
+.ce-log td.ok {
+  background: var(--ok-bg, #d6efe2);
+  font-weight: 800;
+}
+.ce-log td.bad {
+  background: var(--bad-bg, #f8d9cf);
+  font-weight: 800;
+}
+.ce-steps {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+  background: var(--card);
+  font-size: 13.5px;
+}
+.ce-ask {
+  margin: 0 0 6px;
+  font-style: italic;
+}
+.ce-steps ol {
+  margin: 0;
+  padding-left: 22px;
+}
+.ce-steps li.lit {
+  background: var(--accent-bg, #fbe7b0);
+}
+.ce-steps li.swap {
+  background: #fadbe3;
+}
+.ce-steps li.gone {
+  text-decoration: line-through;
+}
+.ce-bench {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0 0;
+}
+.ce-score {
+  margin: 8px 0 0;
+  font-size: 14px;
+}

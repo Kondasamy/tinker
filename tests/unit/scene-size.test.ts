@@ -23,6 +23,9 @@ import { SHADOW_BOARD, shadowStill } from '../../src/components/scenes/shadowSce
 import { FUNI_BOARD, funiStill } from '../../src/components/scenes/funicularScene';
 import { ALL_UNDO, policy as undoPolicy, run as undoRun } from '../../src/lib/agent-undo/sim';
 import { funiOf } from '../../src/content/agent-undo/kit';
+import { MARBLE_BOARD, marbleStill } from '../../src/components/scenes/marbleScene';
+import { marbleOf } from '../../src/content/causal-evals/kit';
+import { BLADE, SEEDS } from '../../src/lib/causal-evals/runs';
 import { sceneOf as shadowWeek } from '../../src/content/tools-in-production/07-workbench';
 import { TOLL_BOARD, tollStill } from '../../src/components/scenes/tollScene';
 import { simulate as approvalsWeek } from '../../src/lib/action-approvals/gate';
@@ -712,6 +715,15 @@ const SCENES: Record<string, () => string> = {
         ),
       ),
     ),
+  // the many-runs chapter: piece 7 swapped, twenty marbles in the trays, a callout on
+  marble: () =>
+    stage(
+      MARBLE_BOARD,
+      marbleStill({
+        ...marbleOf(BLADE, { kind: 'swap', step: 6 }, 1, { seeds: SEEDS }),
+        say: { block: 'right', text: 'Luck?' },
+      }),
+    ),
   // the end of a least-busy run with a dead and a gray shed: every shed, the barrier
   yard: () => {
     const run = lbSim(lbPolicy({ rule: 'least', states: { cedar: 'dead', dogwood: 'gray' }, checks: 2 }));
@@ -800,6 +812,8 @@ const BASE: Record<string, number> = {
   steelyard: 30000,
   // new with the watermarks module (no pre-rework size): its first size is 62,335, with a little headroom
   // new with the unicode module (no pre-rework size): its first size is 74,785, with a little headroom
+  // new with the causal-evals module (no pre-rework size): its first size is 67,217 (twenty marbles), with a little headroom
+  marble: 23000,
   // new with the tools-in-production module (no pre-rework size): its first size is 143,937 (four vans), with a little headroom
   // new with the agent-undo module (no pre-rework size): its first size is 72,092, with a little headroom
   funicular: 26000,
