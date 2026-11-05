@@ -1,6 +1,6 @@
 # Working on Tinker
 
-Tinker is a set of hand-drawn, playable explanations of tech concepts. Each **module** is one concept told as a short story the reader plays through. This repository is private; readers send module requests and feedback through the form on the home page (`#request`), not through issues.
+Tinker is a set of hand-drawn, playable explanations of tech concepts. Each **module** is one concept told as a short story the reader plays through. Module requests and bugs go in [issues](https://github.com/Kondasamy/tinker/issues/new/choose) (each has a template), or through the form on the home page (`#request`). Security reports go privately, per [SECURITY.md](SECURITY.md). Everyone here follows the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 Before you change anything, read [AGENTS.md](AGENTS.md). It records the decisions behind the site (layout, story rules, pictures, share images, tooling). Each decision was made on purpose; change one only on purpose, and say so in your PR.
 

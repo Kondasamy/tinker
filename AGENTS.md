@@ -11,8 +11,8 @@ Working on one module? Its picture and engine decisions are in `docs/modules/<id
 
 ## What this is
 
-- **Tinker**: hand-drawn, interactive explanations of how tech works, AI and classic tech alike, by **Kondasamy Jayaraman** (https://kondasamy.com). Served at **https://tinker.kondasamy.com** (`site` in `astro.config.mjs`). GitHub: `Kondasamy/tinker` (private).
-- A platform of **modules**, each one concept told as a playable story at `/<module>/`. The list, levels, tracks, prereqs and planned roadmap cards live in the registry (`src/lib/modules.ts`), not here. New modules start as reader requests through the home page form (`#request`).
+- **Tinker**: hand-drawn, interactive explanations of how tech works, AI and classic tech alike, by **Kondasamy Jayaraman** (https://kondasamy.com). Served at **https://tinker.kondasamy.com** (`site` in `astro.config.mjs`). GitHub: `Kondasamy/tinker` (public; code Apache-2.0, content CC BY 4.0, third parties in `NOTICE`).
+- A platform of **modules**, each one concept told as a playable story at `/<module>/`. The list, levels, tracks, prereqs and planned roadmap cards live in the registry (`src/lib/modules.ts`), not here. New modules start as reader requests: an issue (the module-request template) or the home page form (`#request`).
 - Audience: product managers, engineers and analysts at companies adopting the technology. Assume no background; keep any maths optional.
 - Static Astro + React islands site: no backend, no API key, no live model. Anything "live" runs in the browser over data built ahead of time.
 
