@@ -11,8 +11,8 @@ Working on one module? Its picture and engine decisions are in `docs/modules/<id
 
 ## What this is
 
-- **Tinker**: hand-drawn, interactive explanations of how tech works, AI and classic tech alike, by **Kondasamy Jayaraman** (https://kondasamy.com). Served at **https://tinker.kondasamy.com** (`site` in `astro.config.mjs`). GitHub: `Kondasamy/tinker` (private).
-- A platform of **modules**, each one concept told as a playable story at `/<module>/`. The list, levels, tracks, prereqs and planned roadmap cards live in the registry (`src/lib/modules.ts`), not here. New modules start as reader requests through the home page form (`#request`).
+- **Tinker**: hand-drawn, interactive explanations of how tech works, AI and classic tech alike, by **Kondasamy Jayaraman** (https://kondasamy.com). Served at **https://tinker.kondasamy.com** (`site` in `astro.config.mjs`). GitHub: `Kondasamy/tinker` (public; code Apache-2.0, content CC BY 4.0, third parties in `NOTICE`).
+- A platform of **modules**, each one concept told as a playable story at `/<module>/`. The list, levels, tracks, prereqs and planned roadmap cards live in the registry (`src/lib/modules.ts`), not here. New modules start as reader requests: an issue (the module-request template) or the home page form (`#request`).
 - Audience: product managers, engineers and analysts at companies adopting the technology. Assume no background; keep any maths optional.
 - Static Astro + React islands site: no backend, no API key, no live model. Anything "live" runs in the browser over data built ahead of time.
 
@@ -92,7 +92,7 @@ Marketing pages share `src/styles/page.css`; chapter pages use `src/layouts/Chap
 - **Callouts**: a step may carry `say: { block, text }` (≤ 5 words; outside RAG ≤ 16 characters), pinned as a lit pill over the named part. Each scene exports its parts (`OFFICE_PARTS`…) and each chapter its `PARTS`; `tests/unit/say-targets.test.ts` fails a callout naming a part its picture doesn't draw. Prefer large, separated parts.
 - **One figure on a stage at a time**, in a fixed frame. Picture / second-view tabs are view state unless a chapter keeps the tab in step state. On phones, pills keep short names and the caption carries the numbers.
 - **Living scenes are the default for new modules** (`export const LIVING = true` in the kit; modules 60–67 use them, earlier modules stay still until a retrofit plan). The scene is `scene(prev, state, t, view)` driven by `useLivingStage` (`src/lib/iso/motion.ts`): it moves between states (300–1200 ms; reduced motion jumps to the end), the reader acts on the hero object in the picture through `HitLayer` with a keyboard-reachable twin control beside the stage, and a reveal step's `closeUp` zooms in on its part. Every step carries a one-sentence `status` naming its end state. Pills go through `PillLayer`, outside the ink filter. Details in `docs/writing-a-module.md`.
-- **Trailers are paused**: none ships on the site. The recipe stays in `docs/writing-a-module.md` and RAG's sources in `videos/rag-trailer/`, for when they return.
+- **Trailers are paused**: none ships on the site. Their sources are kept outside the repo (`videos/` is ignored); `docs/writing-a-module.md` says where to look when they return.
 - **Untrusted strings render as text only**: React text nodes, or `esc()` in SVG strings. No `set:html` or `dangerouslySetInnerHTML` for content.
 
 ## Search (SEO)
@@ -126,7 +126,7 @@ pnpm test        # unit (Vitest)
 pnpm test:e2e    # every chapter played, axe, keyboard, reduced motion, phone, offline, share images
 ```
 
-Look at the pages you changed (desktop and 390px wide). New behaviour gets a test. `tests/unit/registry.test.ts` names what a live module is missing. There is no CI: run all four locally before you push. `E2E_PORT` moves the preview server off 4399.
+Look at the pages you changed (desktop and 390px wide). New behaviour gets a test. `tests/unit/registry.test.ts` names what a live module is missing. CI (`.github/workflows/ci.yml`) runs all four on every PR and push to `main`, e2e in 16 shards; still run them locally before you push. `pnpm og` never runs in CI. `E2E_PORT` moves the preview server off 4399.
 
 ## Adding a module
 

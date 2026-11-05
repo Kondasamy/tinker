@@ -1,0 +1,31 @@
+name: Module request
+description: Propose a concept for a new module.
+labels: [module request]
+body:
+  - type: input
+    id: concept
+    attributes:
+      label: Concept
+      placeholder: How vector databases index
+    validations:
+      required: true
+  - type: input
+    id: audience
+    attributes:
+      label: Who it's for
+      placeholder: Product managers choosing a vendor
+  - type: dropdown
+    id: level
+    attributes:
+      label: Level
+      options: [Beginner, Intermediate, Advanced, Not sure]
+  - type: textarea
+    id: story
+    attributes:
+      label: Story idea
+      description: One company or situation, start to finish, and what the reader does.
+  - type: textarea
+    id: sources
+    attributes:
+      label: Sources
+      description: Papers, specs or official docs the facts would come from.

@@ -10,7 +10,7 @@ Each module is a short story you play through: the picture on the left is live, 
 
 Every module has an intro at `/<module>/`, its chapters, and a recap at `/<module>/recap/`. They run from beginner to advanced, across AI (RAG, agents, transformers, evals…) and classic tech (caching, Git, payments, queues…). Module 0, Before GenAI, comes first: the bots that came before GenAI, what changed, and what didn't.
 
-The catalogue lives on the [home page](https://tinker.kondasamy.com/#modules); its source of truth is the registry, `src/lib/modules.ts`. Planned modules show there as roadmap cards, and readers propose new ones through the form at the bottom of the home page.
+The catalogue lives on the [home page](https://tinker.kondasamy.com/#modules); its source of truth is the registry, `src/lib/modules.ts`. Planned modules show there as roadmap cards, and readers propose new ones through an issue or the form at the bottom of the home page.
 
 ![A RAG chapter: the live pipeline on the left, the story on the right](docs/images/chapter.png)
 
@@ -164,9 +164,21 @@ No monitoring is needed, because there is no backend.
 
 ## Requests and feedback
 
-This repository is private. Readers ask for new modules or send feedback through the form at the bottom of the home page ([tinker.kondasamy.com/#request](https://tinker.kondasamy.com/#request)); it is mailed to the author through FormSubmit.
+Request a module or report a bug as a [GitHub issue](https://github.com/Kondasamy/tinker/issues/new/choose), or, without a GitHub account, through the form at the bottom of the home page ([tinker.kondasamy.com/#request](https://tinker.kondasamy.com/#request)), which is mailed to the author through FormSubmit. Report security issues privately; see [SECURITY.md](SECURITY.md).
 
 To build a module, see [CONTRIBUTING.md](CONTRIBUTING.md) (setup, checks, the PR flow, credit) and [docs/writing-a-module.md](docs/writing-a-module.md) (the house style). `pnpm new-module <id> "<Title>"` scaffolds a module, and `pnpm test` lists what it still needs.
+
+---
+
+## License
+
+| What | License |
+|---|---|
+| Code: everything not listed below, including the scene code in `src/components/scenes/` and the drawing engine | [Apache-2.0](LICENSE) |
+| Content: the prose in `src/content/`, `data/`, `public/data/` (except `public/data/voice/`), `public/og/`, `docs/images/`, and the pictures the scenes draw | [CC BY 4.0](LICENSE-CONTENT) |
+| Voice clips in `public/data/voice/` | Generated with ElevenLabs; see [NOTICE](NOTICE) |
+
+Third-party code, models and recorded outputs are listed in [NOTICE](NOTICE). To reuse content, credit "Tinker by Samy (Kondasamy Jayaraman), tinker.kondasamy.com".
 
 ---
 
@@ -175,4 +187,6 @@ To build a module, see [CONTRIBUTING.md](CONTRIBUTING.md) (setup, checks, the PR
 The illustrations are drawn with [Colorfigures](https://april-zhu.com/colorfigures) by [April Zhu](https://april-zhu.com/): the hand-inked isometric style and the drawing engine in `src/lib/iso/core.js` come from it, adapted for Tinker. Colorfigures builds on April's [ISO-GLOW](https://isoglow.dev), which builds on [iso-figure](https://github.com/MrBongoC/ai-iso-skill) by Tolga Cohce. All MIT licensed (see `src/lib/iso/LICENSE`).
 
 The tokenizer in `src/lib/lm/` follows the byte-level BPE algorithm of Andrej Karpathy's [minbpe](https://github.com/karpathy/minbpe) (MIT). Larkspur mini, the tiny model in `scripts/train/` and `src/lib/lm/model.ts`, is shaped after his [nanoGPT](https://github.com/karpathy/nanoGPT) (MIT).
+
+The retrieval index was computed with [all-MiniLM-L6-v2](https://huggingface.co/Xenova/all-MiniLM-L6-v2) and [ms-marco-MiniLM-L-6-v2](https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2) (Apache-2.0).
 

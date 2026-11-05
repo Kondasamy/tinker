@@ -1,8 +1,10 @@
 # Working on Tinker
 
-Tinker is a set of hand-drawn, playable explanations of tech concepts. Each **module** is one concept told as a short story the reader plays through. This repository is private; readers send module requests and feedback through the form on the home page (`#request`), not through issues.
+Tinker is a set of hand-drawn, playable explanations of tech concepts. Each **module** is one concept told as a short story the reader plays through. Module requests and bugs go in [issues](https://github.com/Kondasamy/tinker/issues/new/choose) (each has a template), or through the form on the home page (`#request`). Security reports go privately, per [SECURITY.md](SECURITY.md). Everyone here follows the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 Before you change anything, read [AGENTS.md](AGENTS.md). It records the decisions behind the site (layout, story rules, pictures, share images, tooling). Each decision was made on purpose; change one only on purpose, and say so in your PR.
+
+Comments and `docs/modules/` sometimes cite a decision as `KTD3` of a named plan. Those plans are in git history, not the tree: `git log --all -- docs/plans/` finds them.
 
 ---
 
@@ -46,7 +48,7 @@ pnpm test:e2e    # every chapter played through, axe, keyboard only, reduced mot
 pnpm og          # only if you changed a page's text, a chapter list or a share picture; commit the JPEGs
 ```
 
-The same checks run on every pull request. Also open the pages you changed at desktop width and at 390px wide, and look at them; tests do not catch everything.
+CI runs the same checks on every pull request (`pnpm og` excepted; commit its JPEGs yourself). A first-time contributor's run may wait for a maintainer's approval. Also open the pages you changed at desktop width and at 390px wide, and look at them; tests do not catch everything.
 
 **A live module must have:** a level, an author, at least one chapter, an intro page, a recap page, a recall bank covering every chapter with exactly one pinned item, a share image for every page, and an e2e spec. The registry check (`tests/unit/registry.test.ts`) fails with a message naming anything missing.
 

@@ -151,11 +151,4 @@ The template lives in `templates/module/` (outside `src/`, so it is never built 
 
 ## Trailer (paused)
 
-Trailers are off the site for now: no intro shows one. When they return, a trailer is a module's one video: under a minute of the live chapters played by hand, narrated, on the intro. `videos/rag-trailer/` is the template; its `BRIEF.md` lists the pipeline.
-
-1. Copy `videos/rag-trailer/` to `videos/<id>-trailer/` (skip `node_modules/`, `capture/`, `renders/`). Output names follow the folder.
-2. Rewrite `BRIEF.md` and `SCRIPT.md`. Every spoken number comes from the module's data.
-3. Point the takes in `record.mjs` at the module's chapters, and the cut ranges in `cut.sh` at the takes.
-4. Retitle the chapter plates and end card in `index.html`, the `name` in `package.json` and `meta.json`, and pick the poster time (`POSTER`) in `deliver.sh`.
-5. Run `voice.mjs` → `music.mjs` → `record.mjs` → `cut.sh` → render → `deliver.sh` (commands in `BRIEF.md`).
-6. Bring back an intro trailer component and its tests (removed in the creative-figures rework; see git history) before shipping one.
+Trailers are off the site for now: no intro shows one. When they return, a trailer is a module's one video: under a minute of the live chapters played by hand, narrated, on the intro. Their sources are kept outside the repo; the last in-repo pipeline (`videos/rag-trailer/`) is in git history before the open-source release.
