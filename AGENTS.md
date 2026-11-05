@@ -110,7 +110,7 @@ Marketing pages share `src/styles/page.css`; chapter pages use `src/layouts/Chap
 
 ## Tooling
 
-- **pnpm 11**, **Node 22.23.1** (`.node-version`). `onnxruntime-node` and `protobufjs` install scripts are off.
+- **pnpm 11**, **Node 22.23.4** (`.node-version`). `onnxruntime-node` and `protobufjs` install scripts are off.
 - **The dev server has its own Vite cache** (`node_modules/.vite-dev`, the `dev-cache` integration): a shared cache crashed dev with `_jsxDEV is not a function`.
 - **Imports from `public/` go through the `public-json` plugin in dev.**
 - Dev-only pages (`/dev/*`) exist in `astro dev` or with `DEV_PAGES=1`.
