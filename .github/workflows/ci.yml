@@ -54,3 +54,11 @@ jobs:
           name: playwright-results-${{ matrix.shard }}
           path: test-results/
           retention-days: 7
+
+  # the one check branch protection requires, so the shard count can change without touching the rules
+  ci:
+    if: always()
+    needs: [check-lint-unit, e2e]
+    runs-on: ubuntu-latest
+    steps:
+      - run: test "${{ needs.check-lint-unit.result }}" = success && test "${{ needs.e2e.result }}" = success

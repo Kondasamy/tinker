@@ -5,6 +5,10 @@ const port = process.env.E2E_PORT ?? '4399';
 
 export default defineConfig({
   testDir: 'tests/e2e',
+  // hosted runners have 2 slow cores: axe over the full home catalogue alone passed 30 s there
+  timeout: process.env.CI ? 90_000 : 30_000,
+  // the same slowness let a keyboard-only step take over 5 s to advance there
+  expect: { timeout: process.env.CI ? 15_000 : 5_000 },
   use: { baseURL: `http://localhost:${port}` },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
