@@ -12,6 +12,7 @@ export default defineConfig({
     command: `DEV_PAGES=1 pnpm build && pnpm preview --port ${port} --ignore-lock`,
     url: `http://localhost:${port}`,
     reuseExistingServer: false,
-    timeout: 120_000,
+    // the build is inside this budget; hosted CI runners build ~1,300 pages much slower than a laptop
+    timeout: process.env.CI ? 600_000 : 120_000,
   },
 });

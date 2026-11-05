@@ -10,3 +10,9 @@ updates:
     ignore:
       - dependency-name: typescript
         update-types: ['version-update:semver-major']
+  # keeps the SHA-pinned actions in .github/workflows/ci.yml current
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: monthly }
+    groups:
+      actions: { patterns: ['*'] }

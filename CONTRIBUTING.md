@@ -48,7 +48,7 @@ pnpm test:e2e    # every chapter played through, axe, keyboard only, reduced mot
 pnpm og          # only if you changed a page's text, a chapter list or a share picture; commit the JPEGs
 ```
 
-The same checks run on every pull request. Also open the pages you changed at desktop width and at 390px wide, and look at them; tests do not catch everything.
+CI runs the same checks on every pull request (`pnpm og` excepted; commit its JPEGs yourself). A first-time contributor's run may wait for a maintainer's approval. Also open the pages you changed at desktop width and at 390px wide, and look at them; tests do not catch everything.
 
 **A live module must have:** a level, an author, at least one chapter, an intro page, a recap page, a recall bank covering every chapter with exactly one pinned item, a share image for every page, and an e2e spec. The registry check (`tests/unit/registry.test.ts`) fails with a message naming anything missing.
 
