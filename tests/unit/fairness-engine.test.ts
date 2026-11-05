@@ -44,12 +44,18 @@ describe('the applicants', () => {
 });
 
 describe('fit()', () => {
-  it('reproduces weights.json exactly, for every field set and sample fix', () => {
+  // to 1e-9, not bit for bit: Linux's libm rounds exp/log differently from macOS in the last place
+  it('reproduces weights.json, for every field set and sample fix', () => {
     const w = Object.fromEntries(
       FEATURE_SETS.map(f => [f, Object.fromEntries(FIXES.map(x => [x, fit(APPLICANTS, f, x)]))]),
     );
     if (WRITE) write('data/fairness/weights.json', w);
-    else expect(WEIGHTS).toEqual(w);
+    else
+      for (const f of FEATURE_SETS)
+        for (const x of FIXES) {
+          expect(w[f][x]).toHaveLength(WEIGHTS[f][x].length);
+          w[f][x].forEach((v: number, i: number) => expect(v, `${f}/${x}/${i}`).toBeCloseTo(WEIGHTS[f][x][i], 9));
+        }
   });
 
   it('a field left out keeps a zero weight', () => {

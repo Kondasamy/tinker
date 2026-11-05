@@ -126,7 +126,7 @@ pnpm test        # unit (Vitest)
 pnpm test:e2e    # every chapter played, axe, keyboard, reduced motion, phone, offline, share images
 ```
 
-Look at the pages you changed (desktop and 390px wide). New behaviour gets a test. `tests/unit/registry.test.ts` names what a live module is missing. CI (`.github/workflows/ci.yml`) runs all four on every PR and push to `main`, e2e in 16 shards; still run them locally before you push. `pnpm og` never runs in CI. `E2E_PORT` moves the preview server off 4399.
+Look at the pages you changed (desktop and 390px wide). New behaviour gets a test. `tests/unit/registry.test.ts` names what a live module is missing. CI (`.github/workflows/ci.yml`) runs all four on every PR and push to `main`, e2e in 16 shards; its `ci` job is the one check `main`'s branch protection requires, so shards can change freely. Still run them locally before you push. `pnpm og` never runs in CI. `E2E_PORT` moves the preview server off 4399.
 
 ## Adding a module
 
