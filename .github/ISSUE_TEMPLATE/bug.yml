@@ -1,0 +1,39 @@
+name: Bug
+description: Something on a page is broken or wrong.
+labels: [bug]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      placeholder: https://tinker.kondasamy.com/rag/
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Browser and device
+      placeholder: Safari 19, iPhone 16
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps
+      placeholder: |
+        1. Open the chapter
+        2. Pick …
+    validations:
+      required: true
+  - type: textarea
+    id: seen
+    attributes:
+      label: Expected vs seen
+    validations:
+      required: true
+  - type: checkboxes
+    id: motion
+    attributes:
+      label: Settings
+      options:
+        - label: Reduced motion is on
