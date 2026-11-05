@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- RAG Playground mark: one isometric block (the retriever) with its lens lit, in the colorfigures style -->
-  <path d="M32 7 56 20 32 33 8 20Z" fill="#93d3b0"/>
-  <path d="M8 20 32 33V58L8 45Z" fill="#1f4034"/>
-  <path d="M32 33 56 20V45L32 58Z" fill="#71b693"/>
-  <ellipse cx="32" cy="20" rx="11" ry="6" fill="#ffb627" stroke="#231e16" stroke-width="2.4"/>
-  <path d="M32 7 56 20V45L32 58 8 45V20Z M8 20 32 33 56 20 M32 33V58" fill="none" stroke="#231e16" stroke-width="3" stroke-linejoin="round"/>
-</svg>

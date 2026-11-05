@@ -16,7 +16,7 @@ const RAG_CHAPTERS = [
   ['07-sandbox', 'Sandbox'],
 ];
 
-// the roadmap (docs/plans/2026-10-25-1824-feat-last-seven-roadmap-modules-plan.md), in registry order: the seven cards
+// the roadmap (the plan in #31), in registry order: the seven cards
 // that plan takes live, then the seven new cards that follow them (R16); each with its level and track (absent is AI)
 const ROADMAP: [string, string, string?][] = [
   ['mixture-of-experts', 'Advanced'],
@@ -33,11 +33,11 @@ const ROADMAP: [string, string, string?][] = [
   ['email', 'Beginner', 'Classic tech'],
   ['dependencies', 'Intermediate', 'Classic tech'],
   ['releases', 'Intermediate', 'Classic tech'],
-  // docs/plans/2026-10-28-2100-feat-final-seven-roadmap-modules-plan.md takes the seven above live; these follow (KTD14)
+  // the plan in #36 takes the seven above live; these follow
   ['fairness', 'Intermediate'],
   ['watermarks', 'Intermediate'],
   ['prompts', 'Beginner'],
-  // docs/plans/2026-10-29-1438-feat-six-ai-modules-plan.md takes the three above live and adds these (KTD12)
+  // the plan in #41 takes the three above live and adds these
   ['choosing-models', 'Beginner'],
   ['on-device', 'Intermediate'],
   ['robots', 'Advanced'],
@@ -45,7 +45,7 @@ const ROADMAP: [string, string, string?][] = [
   ['backups', 'Beginner', 'Classic tech'],
   ['unicode', 'Beginner', 'Classic tech'],
   ['routes', 'Intermediate', 'Classic tech'],
-  // docs/plans/2026-10-31-1949-feat-agent-engineering-roadmap-plan.md adds these, ahead of the five below (KTD2)
+  // the plan in #45 adds these, ahead of the five below
   ['skills', 'Intermediate'],
   ['action-approvals', 'Intermediate'],
   ['multi-agent', 'Advanced'],
@@ -57,7 +57,7 @@ const ROADMAP: [string, string, string?][] = [
   ['agent-incidents', 'Advanced'],
   ['agent-scheduling', 'Advanced'],
   ['cache-reuse', 'Advanced'],
-  // docs/plans/2026-10-30-0831-feat-last-roadmap-seven-modules-plan.md takes choosing-models to routes live, adds these (KTD11)
+  // the plan in #42 takes choosing-models to routes live, adds these
   ['translation', 'Beginner'],
   ['open-weights', 'Intermediate'],
   ['ai-energy', 'Advanced'],

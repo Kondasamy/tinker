@@ -4,6 +4,8 @@ Tinker is a set of hand-drawn, playable explanations of tech concepts. Each **mo
 
 Before you change anything, read [AGENTS.md](AGENTS.md). It records the decisions behind the site (layout, story rules, pictures, share images, tooling). Each decision was made on purpose; change one only on purpose, and say so in your PR.
 
+Comments and `docs/modules/` sometimes cite a decision as `KTD3` of a named plan. Those plans are in git history, not the tree: `git log --all -- docs/plans/` finds them.
+
 ---
 
 ## Planning a module

@@ -5,9 +5,16 @@ test-results/
 playwright-report/
 .astro/
 .claude/worktrees/
+.claude/settings.local.json
+.compound-engineering/config.local.yaml
 .cache/
-video/**/.hyperframes/
 .impeccable/
 
 # vitest json reporter output
 .vitest/
+
+# working notes and video projects stay local
+docs/plans/
+docs/ideation/
+docs/residual-review-findings/
+videos/
