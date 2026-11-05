@@ -170,9 +170,23 @@ To build a module, see [CONTRIBUTING.md](CONTRIBUTING.md) (setup, checks, the PR
 
 ---
 
+## License
+
+| What | License |
+|---|---|
+| Code: everything not listed below, including the scene code in `src/components/scenes/` and the drawing engine | [Apache-2.0](LICENSE) |
+| Content: the prose in `src/content/`, `data/`, `public/data/` (except `public/data/voice/`), `public/og/`, `docs/images/`, and the pictures the scenes draw | [CC BY 4.0](LICENSE-CONTENT) |
+| Voice clips in `public/data/voice/` | Generated with ElevenLabs; see [NOTICE](NOTICE) |
+
+Third-party code, models and recorded outputs are listed in [NOTICE](NOTICE). To reuse content, credit "Tinker by Samy (Kondasamy Jayaraman), tinker.kondasamy.com".
+
+---
+
 ## Credits
 
 The illustrations are drawn with [Colorfigures](https://april-zhu.com/colorfigures) by [April Zhu](https://april-zhu.com/): the hand-inked isometric style and the drawing engine in `src/lib/iso/core.js` come from it, adapted for Tinker. Colorfigures builds on April's [ISO-GLOW](https://isoglow.dev), which builds on [iso-figure](https://github.com/MrBongoC/ai-iso-skill) by Tolga Cohce. All MIT licensed (see `src/lib/iso/LICENSE`).
 
 The tokenizer in `src/lib/lm/` follows the byte-level BPE algorithm of Andrej Karpathy's [minbpe](https://github.com/karpathy/minbpe) (MIT). Larkspur mini, the tiny model in `scripts/train/` and `src/lib/lm/model.ts`, is shaped after his [nanoGPT](https://github.com/karpathy/nanoGPT) (MIT).
+
+The retrieval index was computed with [all-MiniLM-L6-v2](https://huggingface.co/Xenova/all-MiniLM-L6-v2) and [ms-marco-MiniLM-L-6-v2](https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2) (Apache-2.0).
 

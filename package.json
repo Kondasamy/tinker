@@ -1,6 +1,14 @@
 {
   "name": "tinker",
   "private": true,
+  "description": "Hand-drawn, interactive explanations of how tech works, AI and classic tech alike.",
+  "license": "Apache-2.0",
+  "homepage": "https://tinker.kondasamy.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kondasamy/tinker.git"
+  },
+  "author": "Samy (Kondasamy Jayaraman) (https://kondasamy.com)",
   "type": "module",
   "packageManager": "pnpm@11.22.0",
   "engines": {

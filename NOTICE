@@ -1,0 +1,56 @@
+Tinker
+Copyright 2026 Kondasamy Jayaraman (https://kondasamy.com)
+
+Code is licensed under the Apache License 2.0 (LICENSE). Content is licensed
+under Creative Commons Attribution 4.0 International (LICENSE-CONTENT). The
+paths covered by each are listed in README.md, under License.
+
+This product includes or derives from the third-party work below.
+
+-------------------------------------------------------------------------------
+Drawing engine
+-------------------------------------------------------------------------------
+
+src/lib/iso/core.js is adapted from Colorfigures by April Zhu
+(https://april-zhu.com/colorfigures). Colorfigures grew from her ISO-GLOW
+(https://isoglow.dev), which builds on iso-figure by Tolga Cohce
+(https://github.com/MrBongoC/ai-iso-skill). All are MIT licensed. The full
+license text is in src/lib/iso/LICENSE.
+
+-------------------------------------------------------------------------------
+Algorithms followed (no source copied)
+-------------------------------------------------------------------------------
+
+- The byte-level BPE tokenizer in src/lib/lm/ follows the algorithm of minbpe
+  by Andrej Karpathy (https://github.com/karpathy/minbpe), MIT.
+- Larkspur mini, the tiny model in scripts/train/ and src/lib/lm/model.ts, is
+  shaped after nanoGPT by Andrej Karpathy (https://github.com/karpathy/nanoGPT),
+  MIT.
+
+-------------------------------------------------------------------------------
+Models used to compute committed data
+-------------------------------------------------------------------------------
+
+- Xenova/all-MiniLM-L6-v2 and Xenova/ms-marco-MiniLM-L-6-v2 (Apache-2.0)
+  computed the retrieval embeddings and scores in public/data/index/.
+- The GPT-2 tokenizer (Xenova/gpt2, MIT) and the o200k_base tokenizer
+  (Xenova/gpt-4o, from OpenAI's tiktoken, MIT) produced the recorded tokens in
+  data/tokens/.
+
+-------------------------------------------------------------------------------
+Recorded model outputs
+-------------------------------------------------------------------------------
+
+Some chapters show model replies recorded ahead of time through NVIDIA's API
+and labelled as recorded on the page. The recordings came from:
+
+- openai/gpt-oss-20b and openai/gpt-oss-120b (Apache-2.0)
+- nvidia/nemotron-3-ultra-550b-a55b (NVIDIA Open Model License)
+
+-------------------------------------------------------------------------------
+Generated audio
+-------------------------------------------------------------------------------
+
+The voice clips in public/data/voice/ were generated with ElevenLabs
+(https://elevenlabs.io) on a paid plan that permits redistribution. They are
+not covered by LICENSE-CONTENT; reuse is subject to ElevenLabs' terms.
